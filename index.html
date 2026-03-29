@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nick's Apps</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+    }
+    header {
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 28px 20px 16px;
+      text-align: center;
+    }
+    header h1 { font-size: 22px; }
+    header p { color: #888; font-size: 13px; margin-top: 4px; }
+    #status {
+      text-align: center;
+      padding: 40px 20px;
+      color: #888;
+      font-size: 14px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+      padding: 20px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 18px;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.15s, box-shadow 0.15s;
+      display: block;
+    }
+    .card:active, .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+    .card .name { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+    .card .desc { font-size: 13px; color: #666; line-height: 1.5; }
+    .card .url { font-size: 11px; color: #2563eb; margin-top: 8px; word-break: break-all; }
+    .error { color: #dc2626; }
+    .tip {
+      text-align: center;
+      padding: 12px 20px 24px;
+      font-size: 12px;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Nick's Apps</h1>
+    <p>GitHub Pages 배포 앱 모음</p>
+  </header>
+  <div id="status">Loading...</div>
+  <div class="grid" id="grid"></div>
+  <div class="tip" id="tip"></div>
+
+  <script>
+    const USERNAME = 'jwj-nick';
+    const PAGES_BASE = `https://${USERNAME}.github.io`;
+
+    // App metadata overrides (optional descriptions for known repos)
+    const META = {
+      'study-quiz': { desc: '퀴즈 앱 (90문항, SR, Daily Quiz, Code Sandbox)' },
+      'uvm-drill': { desc: 'UVM 전용 드릴 앱 (29문항, hint, streak, SR)' },
+      'anthropic_skilljar_study': { desc: 'Anthropic Skilljar 13개 코스 학습 가이드' },
+      'Cert-CompSys': { desc: '정보처리기사 컴퓨터시스템 학습 앱 (8개)' },
+    };
+
+    async function fetchPagesRepos() {
+      // Fetch all public repos
+      const repos = [];
+      let page = 1;
+      while (true) {
+        const res = await fetch(
+          `https://api.github.com/users/${USERNAME}/repos?per_page=100&page=${page}`
+        );
+        if (!res.ok) throw new Error(`GitHub API error: ${res.status}`);
+        const data = await res.json();
+        if (data.length === 0) break;
+        repos.push(...data);
+        page++;
+      }
+
+      // Check which repos have GitHub Pages enabled
+      const pagesRepos = [];
+      for (const repo of repos) {
+        if (repo.name === `${USERNAME}.github.io`) continue; // skip this portal itself
+        const pagesUrl = repo.has_pages
+          ? `${PAGES_BASE}/${repo.name}/`
+          : null;
+        if (pagesUrl) {
+          pagesRepos.push({
+            name: repo.name,
+            description: (META[repo.name]?.desc) || repo.description || '',
+            url: pagesUrl,
+            repoUrl: repo.html_url,
+            updated: repo.pushed_at,
+          });
+        }
+      }
+
+      // Sort by most recently updated
+      pagesRepos.sort((a, b) => new Date(b.updated) - new Date(a.updated));
+      return pagesRepos;
+    }
+
+    async function render() {
+      const status = document.getElementById('status');
+      const grid = document.getElementById('grid');
+      const tip = document.getElementById('tip');
+
+      try {
+        const apps = await fetchPagesRepos();
+        status.style.display = 'none';
+
+        if (apps.length === 0) {
+          status.style.display = '';
+          status.textContent = 'No deployed apps found.';
+          return;
+        }
+
+        grid.innerHTML = apps.map(app => `
+          <a class="card" href="${app.url}" target="_blank" rel="noopener">
+            <div class="name">${app.name}</div>
+            ${app.description ? `<div class="desc">${app.description}</div>` : ''}
+            <div class="url">${app.url}</div>
+          </a>
+        `).join('');
+
+        tip.textContent = `${apps.length}개 앱 · 새 repo에 Pages 활성화하면 자동 표시`;
+      } catch (e) {
+        status.innerHTML = `<span class="error">Failed to load: ${e.message}</span>`;
+      }
+    }
+
+    render();
+  </script>
+</body>
+</html>
