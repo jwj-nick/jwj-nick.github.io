@@ -77,8 +77,19 @@
       'study-quiz': { desc: '퀴즈 앱 (90문항, SR, Daily Quiz, Code Sandbox)' },
       'uvm-drill': { desc: 'UVM 전용 드릴 앱 (29문항, hint, streak, SR)' },
       'anthropic_skilljar_study': { desc: 'Anthropic Skilljar 13개 코스 학습 가이드' },
-      'Cert-CompSys': { desc: '정보처리기사 컴퓨터시스템 학습 앱 (8개)' },
+      'Cert-CompSys': { desc: '컴퓨터시스템기사 기출 학습 앱 (Phase 1~4)' },
     };
+
+    // Sub-path apps not discoverable via GitHub API — listed manually
+    const EXTRA_APPS = [
+      {
+        name: '2026_after_exam_app',
+        description: '컴퓨터시스템기사 실기 시험 후 보강 — 15개 인터랙티브 앱 (정렬/그래프/OS/네트워크/구조/포인터)',
+        url: 'https://jwj-nick.github.io/Cert-CompSys/2026_after_exam_app/',
+        repoUrl: 'https://github.com/jwj-nick/Cert-CompSys',
+        updated: '2026-04-20T00:00:00Z',
+      },
+    ];
 
     async function fetchPagesRepos() {
       // Fetch all public repos
@@ -113,9 +124,10 @@
         }
       }
 
-      // Sort by most recently updated
-      pagesRepos.sort((a, b) => new Date(b.updated) - new Date(a.updated));
-      return pagesRepos;
+      // Merge extra apps and sort by most recently updated
+      const all = [...EXTRA_APPS, ...pagesRepos];
+      all.sort((a, b) => new Date(b.updated) - new Date(a.updated));
+      return all;
     }
 
     async function render() {
