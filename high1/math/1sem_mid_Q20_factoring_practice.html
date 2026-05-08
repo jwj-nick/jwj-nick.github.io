@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Q20 연습문제</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; padding: 20px 16px 60px; }
+    #app { max-width: 740px; margin: 0 auto; }
+    .app-header { text-align: center; margin-bottom: 28px; }
+    .app-header h1 { font-size: 22px; color: #1e1b4b; margin-bottom: 6px; }
+    .app-header p  { font-size: 14px; color: #6b7280; }
+    .cat-filter { display: flex; gap: 8px; justify-content: center; margin-bottom: 22px; flex-wrap: wrap; }
+    .cat-btn { padding: 7px 18px; border-radius: 20px; border: 2px solid transparent; font-size: 14px; font-weight: 700; cursor: pointer; transition: all .2s; font-family: inherit; }
+    .cat-btn.all   { background: #4361EE; color: #fff; }
+    .cat-btn.easy  { background: #dcfce7; color: #16a34a; border-color: #86efac; }
+    .cat-btn.mid   { background: #fef9c3; color: #854d0e; border-color: #fde047; }
+    .cat-btn.hard  { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
+    .cat-btn:not(.all):hover, .cat-btn.active { filter: brightness(.93); transform: scale(1.04); }
+    .cat-btn.all:hover { opacity: .88; }
+    .prob-grid { display: flex; flex-direction: column; gap: 10px; }
+    .prob-card { background: #fff; border-radius: 16px; padding: 16px 20px; box-shadow: 0 2px 12px rgba(67,97,238,.08); display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all .18s; border-left: 5px solid transparent; }
+    .prob-card:hover { transform: translateX(4px); box-shadow: 0 4px 20px rgba(67,97,238,.14); }
+    .prob-card.easy { border-color: #4ade80; }
+    .prob-card.mid  { border-color: #facc15; }
+    .prob-card.hard { border-color: #f87171; }
+    .prob-card.hidden { display: none; }
+    .card-num { min-width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; flex-shrink: 0; }
+    .easy .card-num { background: #dcfce7; color: #16a34a; }
+    .mid  .card-num { background: #fef9c3; color: #854d0e; }
+    .hard .card-num { background: #fee2e2; color: #b91c1c; }
+    .card-info { flex: 1; }
+    .card-title { font-size: 15px; font-weight: 700; color: #1e1b4b; margin-bottom: 3px; }
+    .card-sub   { font-size: 13px; color: #6b7280; }
+    .card-arrow { font-size: 18px; color: #c7d2fe; }
+    #detail-view { display: none; }
+    .detail-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .back-btn { background: #fff; border: none; border-radius: 12px; padding: 8px 16px; font-size: 14px; font-weight: 700; color: #4361EE; cursor: pointer; font-family: inherit; box-shadow: 0 2px 8px rgba(67,97,238,.1); transition: all .15s; }
+    .back-btn:hover { background: #eef2ff; }
+    .detail-title { font-size: 18px; font-weight: 800; color: #1e1b4b; }
+    .tab-wrap { display: flex; background: #fff; border-radius: 16px 16px 0 0; overflow: hidden; box-shadow: 0 2px 12px rgba(67,97,238,.08); }
+    .tab-btn { flex: 1; padding: 14px 8px; border: none; background: #fff; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; transition: all .18s; color: #94a3b8; border-bottom: 3px solid transparent; }
+    .tab-btn.active { color: #4361EE; border-bottom-color: #4361EE; background: #f8faff; }
+    .tab-btn:hover:not(.active) { background: #f8faff; color: #6366f1; }
+    .content-card { background: #fff; border-radius: 0 0 20px 20px; padding: 28px 32px; box-shadow: 0 4px 20px rgba(67,97,238,.08); animation: fadeIn .22s ease; min-height: 260px; }
+    @keyframes fadeIn { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: translateY(0); } }
+    .prob-badge { display: inline-block; font-size: 12px; font-weight: 800; padding: 3px 12px; border-radius: 20px; margin-bottom: 14px; }
+    .badge-easy { background: #dcfce7; color: #16a34a; }
+    .badge-mid  { background: #fef9c3; color: #854d0e; }
+    .badge-hard { background: #fee2e2; color: #b91c1c; }
+    .why-box { background: #f8faff; border-left: 4px solid #a5b4fc; border-radius: 0 12px 12px 0; padding: 12px 16px; font-size: 14px; color: #4338ca; line-height: 1.7; margin-bottom: 18px; }
+    .prob-body { font-size: 15px; line-height: 1.9; color: #1e1b4b; margin-bottom: 10px; }
+    .prob-cond { background: #fffbf0; border: 1.5px solid #fbbf24; border-radius: 12px; padding: 12px 18px; margin: 10px 0; font-size: 15px; line-height: 1.8; }
+    .cond-label { font-size: 12px; font-weight: 800; color: #d97706; margin-bottom: 4px; }
+    .answer-big { background: linear-gradient(135deg, #4361EE, #7c3aed); color: #fff; border-radius: 18px; padding: 28px 24px; text-align: center; margin: 10px 0; }
+    .answer-big .lbl { font-size: 13px; opacity: .8; margin-bottom: 6px; }
+    .answer-big .val { font-size: 28px; font-weight: 900; line-height: 1.3; }
+    .answer-check { background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 12px; padding: 14px 18px; font-size: 14px; color: #166534; margin-top: 14px; line-height: 1.7; }
+    .sol-step { display: flex; gap: 14px; margin-bottom: 18px; align-items: flex-start; }
+    .sol-num { min-width: 28px; height: 28px; border-radius: 50%; background: #4361EE; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; flex-shrink: 0; margin-top: 2px; }
+    .sol-text { font-size: 15px; line-height: 1.85; color: #1e1b4b; }
+    .formula-box { background: #f5f7ff; border: 1.5px solid #c7d2fe; border-radius: 12px; padding: 14px 20px; text-align: center; margin: 10px 0; overflow-x: auto; }
+    .hl-box { background: #eef2ff; border-radius: 12px; padding: 14px 18px; margin: 12px 0; font-size: 14px; color: #312e81; line-height: 1.8; }
+    .warn-box { background: #fff8e1; border-left: 4px solid #f59e0b; border-radius: 0 12px 12px 0; padding: 12px 16px; font-size: 14px; color: #374151; margin: 10px 0; line-height: 1.7; }
+    .case-box { background: #f8faff; border: 1.5px solid #c7d2fe; border-radius: 12px; padding: 14px 18px; margin: 8px 0; font-size: 14px; line-height: 1.8; color: #1e1b4b; }
+    .case-label { font-size: 12px; font-weight: 800; color: #4361EE; margin-bottom: 4px; }
+    .detail-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; gap: 12px; }
+    .nav-btn { background: #fff; border: none; border-radius: 12px; padding: 10px 20px; font-size: 14px; font-weight: 700; color: #4361EE; cursor: pointer; font-family: inherit; box-shadow: 0 2px 8px rgba(67,97,238,.1); transition: all .15s; }
+    .nav-btn:hover { background: #eef2ff; transform: translateY(-1px); }
+    .nav-btn:disabled { opacity: .35; cursor: default; transform: none; }
+    .nav-center { font-size: 13px; color: #94a3b8; font-weight: 600; }
+    .katex-display { overflow-x: auto; }
+    @media (max-width:480px) { .content-card { padding: 20px 18px; } .answer-big .val { font-size: 22px; } }
+  </style>
+</head>
+<body>
+<nav style="background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:7px 16px;font-size:12px;display:flex;align-items:center;gap:5px;font-family:-apple-system,sans-serif;flex-shrink:0"><a href="../index.html" style="color:#6b7280;text-decoration:none">고1</a><span style="color:#d1d5db">&rsaquo;</span><a href="index.html" style="color:#2563eb;text-decoration:none;font-weight:600">Math_1_1</a></nav>
+
+<div id="app">
+  <div id="list-view">
+    <div class="app-header">
+      <h1>Q20 연습 문제</h1>
+      <p>인수분해 · 계수비교 · 최댓값최솟값 · 9문제</p>
+    </div>
+    <div class="cat-filter">
+      <button class="cat-btn all active" onclick="filterCat('all')">전체</button>
+      <button class="cat-btn easy" onclick="filterCat('easy')">🟢 쉬운 (L)</button>
+      <button class="cat-btn mid"  onclick="filterCat('mid')">🟡 중간 (M)</button>
+      <button class="cat-btn hard" onclick="filterCat('hard')">🔴 어려운 (H)</button>
+    </div>
+    <div class="prob-grid" id="prob-grid"></div>
+  </div>
+  <div id="detail-view">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showList()">← 목록</button>
+      <div class="detail-title" id="detail-title"></div>
+    </div>
+    <div class="tab-wrap">
+      <button class="tab-btn active" id="tab-prob" onclick="switchTab('prob')">📄 문제판</button>
+      <button class="tab-btn" id="tab-ans"  onclick="switchTab('ans')">✅ 정답판</button>
+      <button class="tab-btn" id="tab-sol"  onclick="switchTab('sol')">📖 풀이판</button>
+    </div>
+    <div class="content-card" id="content-area"></div>
+    <div class="detail-nav">
+      <button class="nav-btn" id="btn-prev" onclick="moveProblem(-1)">← 이전</button>
+      <span class="nav-center" id="nav-label"></span>
+      <button class="nav-btn" id="btn-next" onclick="moveProblem(1)">다음 →</button>
+    </div>
+  </div>
+</div>
+<script>
+const P = [
+  {
+    id:'L1-1', cat:'easy', catLabel:'🟢 쉬운',
+    title:'$(x+b)(x+c)^2$ 전개',
+    sub:'전개 후 각 차수 계수 확인',
+    why:'Q20 첫 단계 — 전개 공식을 정확히 적용합니다. 계수비교의 전제.',
+    prob:`<p class="prob-body">$(x+3)(x+2)^2$을 전개하여라.</p>`,
+    ansVal:'x^3+7x^2+16x+12',
+    ansDetail:'$(x+2)^2=x^2+4x+4$. $(x+3)(x^2+4x+4)=x^3+7x^2+16x+12$',
+    ansCheck:'$x^2$ 계수: $4+3=7$ ✓. $x$ 계수: $4+12=16$ ✓. 상수: $12$ ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">먼저 $(x+2)^2$을 전개합니다:</div>
+      </div>
+      <div class="formula-box">$$(x+2)^2 = x^2+4x+4$$</div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">$(x+3)$과 곱합니다:</div>
+      </div>
+      <div class="formula-box">$$(x+3)(x^2+4x+4) = x^3+4x^2+4x+3x^2+12x+12$$</div>
+      <div class="sol-step"><div class="sol-num">3</div>
+        <div class="sol-text">동류항 정리:</div>
+      </div>
+      <div class="formula-box">$$= x^3+7x^2+16x+12$$</div>
+      <div class="hl-box">📌 일반 공식: $(x+b)(x+c)^2$의 $x^2$ 계수 $= 2c+b$, $x$ 계수 $= c^2+2bc$, 상수 $= bc^2$</div>
+    `
+  },
+  {
+    id:'L1-2', cat:'easy', catLabel:'🟢 쉬운',
+    title:'계수비교로 미지수 결정',
+    sub:'$x^3+ax^2+bx+c=(x-1)(x+2)^2$ → $a,b,c$',
+    why:'항등식 계수비교의 핵심 연습. Q20에서 3개 방정식을 세우는 바로 이 단계.',
+    prob:`<p class="prob-body">$x^3+ax^2+bx+c = (x-1)(x+2)^2$일 때 $a, b, c$를 구하여라.</p>`,
+    ansVal:'a=3,\\ b=0,\\ c=-4',
+    ansDetail:'$(x-1)(x^2+4x+4)=x^3+3x^2+0\\cdot x-4$. $a=3, b=0, c=-4$',
+    ansCheck:'$b=0$: $x$항 없음 ✓. $c=-4$: 상수항 ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">$(x+2)^2=x^2+4x+4$.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">전개:</div>
+      </div>
+      <div class="formula-box">$$(x-1)(x^2+4x+4) = x^3+4x^2+4x-x^2-4x-4 = x^3+3x^2-4$$</div>
+      <div class="sol-step"><div class="sol-num">3</div>
+        <div class="sol-text">계수비교: $a=3$, $b=0$ ($x$항 없음), $c=-4$.</div>
+      </div>
+      <div class="formula-box">$$a=3, \\ b=0, \\ c=-4$$</div>
+    `
+  },
+  {
+    id:'L1-3', cat:'easy', catLabel:'🟢 쉬운',
+    title:'$c=4$일 때 $a, b$ 계산',
+    sub:'Q20에서 $c=4$를 대입하여 $a, b$ 결정',
+    why:'Q20에서 $c$가 결정된 후 $a, b$를 구하는 단계 연습. $a=\\frac{c^3+6}{c^2-2}$ 공식 적용.',
+    prob:`<p class="prob-body">$x^3+2ax^2+(6a+2)x+4a+12=(x+b)(x+c)^2$에서 $c=4$일 때 $a$와 $b$를 구하여라.</p>`,
+    ansVal:'a=5,\\ b=2',
+    ansDetail:'$a=\\dfrac{c^3+6}{c^2-2}=\\dfrac{64+6}{16-2}=5$. $b=2a-2c=10-8=2$',
+    ansCheck:'$(x+2)(x+4)^2=x^3+10x^2+32x+32$. $a=5$: 원다항식 $x^3+10x^2+32x+32$ ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">Q20 풀이에서 도출된 공식: $a=\\dfrac{c^3+6}{c^2-2}$.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">$c=4$ 대입:</div>
+      </div>
+      <div class="formula-box">$$a = \\frac{4^3+6}{4^2-2} = \\frac{64+6}{16-2} = \\frac{70}{14} = 5$$</div>
+      <div class="sol-step"><div class="sol-num">3</div>
+        <div class="sol-text">$b=2a-2c=10-8=2$.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">4</div>
+        <div class="sol-text">검산: $(x+2)(x+4)^2=x^3+10x^2+32x+32$. $a=5$: $x^3+10x^2+32x+32$ ✓</div>
+      </div>
+    `
+  },
+  {
+    id:'M1', cat:'mid', catLabel:'🟡 중간',
+    title:'이중근 위치 바꾸기',
+    sub:'$p=5, q=8, r=4$ → $(x+b)^2(x+c)$ 구하기',
+    why:'이중근의 위치가 바뀐 경우. Q20은 $(x+b)(x+c)^2$이었지만 이번엔 $(x+b)^2(x+c)$.',
+    prob:`<p class="prob-body">$x^3+px^2+qx+r = (x+b)^2(x+c)$가 되도록 하는 정수 $b, c$를 구하여라. 단, $p=5, q=8, r=4$.</p>`,
+    ansVal:'(b,c)=(2,1)',
+    ansDetail:'$2b+c=5$, $b^2+2bc=8$, $b^2c=4$. $c=5-2b$ 대입: $b=2$→$c=1$',
+    ansCheck:'$(x+2)^2(x+1)=x^3+5x^2+8x+4$ ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">전개: $(x+b)^2(x+c) = x^3+(2b+c)x^2+(b^2+2bc)x+b^2c$.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">계수비교: $2b+c=5$, $b^2+2bc=8$, $b^2c=4$.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">3</div>
+        <div class="sol-text">$c=5-2b$ 대입: $b^2(5-2b)=5b^2-2b^3=4$.</div>
+      </div>
+      <div class="case-box">
+        <div class="case-label">$b=1$</div>
+        $5-2=3 \\ne 4$ ✗
+      </div>
+      <div class="case-box">
+        <div class="case-label">$b=2$</div>
+        $20-16=4$ ✓. $c=5-4=1$.
+      </div>
+      <div class="formula-box">$$(b,c) = (2,1)$$</div>
+    `
+  },
+  {
+    id:'M2', cat:'mid', catLabel:'🟡 중간',
+    title:'계수에 매개변수 포함',
+    sub:'$x^3+ax^2+(2a+1)x+2a=(x+1)(x+c)^2$ → $c$',
+    why:'Q20처럼 계수에 $a$가 섞인 경우. 계수비교 후 연립방정식 처리 연습.',
+    prob:`<p class="prob-body">$x^3+ax^2+(2a+1)x+2a = (x+1)(x+c)^2$을 만족하는 실수 $a, c$를 구하여라.</p>`,
+    ansVal:'c=2\\pm\\sqrt{6}',
+    ansDetail:'계수비교 후 $c^2-4c-2=0$ → $c=2\\pm\\sqrt{6}$. $a=2c+1$',
+    ansCheck:'$2a=c^2$: $a=2c+1$이면 $c^2=2(2c+1)=4c+2$ ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">전개: $(x+1)(x+c)^2=x^3+(2c+1)x^2+(c^2+2c)x+c^2$.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">계수비교: $a=2c+1$, $2a+1=c^2+2c$, $2a=c^2$.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">3</div>
+        <div class="sol-text">$2a=c^2$과 $a=2c+1$ 연립: $c^2=2(2c+1)=4c+2$.</div>
+      </div>
+      <div class="formula-box">$$c^2-4c-2=0 \\implies c = \\frac{4 \\pm \\sqrt{24}}{2} = 2\\pm\\sqrt{6}$$</div>
+      <div class="sol-step"><div class="sol-num">4</div>
+        <div class="sol-text">$a = 2c+1$로 결정됨.</div>
+      </div>
+    `
+  },
+  {
+    id:'M3', cat:'mid', catLabel:'🟡 중간',
+    title:'$c=4$ 경우 — 인수분해 완성 + 영점',
+    sub:'$(x+2)(x+4)^2$ 완성 → 근 구하기',
+    why:'Q20에서 세 $c$값 중 $c=4$ 경우를 완전히 분석합니다.',
+    prob:`<p class="prob-body">Q20에서 $c=4$일 때의 인수분해식 $(x+b)(x+c)^2$를 완성하고, 이 다항식의 근을 모두 구하여라.</p>`,
+    ansVal:'x=-2\\ (\\text{단순근}),\\ x=-4\\ (\\text{이중근})',
+    ansDetail:'$c=4, a=5, b=2$. 인수분해: $(x+2)(x+4)^2$. 근: $x=-2$ (단순), $x=-4$ (이중근)',
+    ansCheck:'$(x+2)(x+4)^2=x^3+10x^2+32x+32$. $a=5$: 원다항식 ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">L1-3에서: $c=4, a=5, b=2$.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">인수분해: $(x+2)(x+4)^2$.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">3</div>
+        <div class="sol-text">근 계산:</div>
+      </div>
+      <div class="case-box">
+        <div class="case-label">$x+2=0$</div>
+        $x=-2$ (단순근)
+      </div>
+      <div class="case-box">
+        <div class="case-label">$(x+4)^2=0$</div>
+        $x=-4$ (이중근 — 그래프가 $x$축에 접함)
+      </div>
+      <div class="hl-box">📌 이중근: 그래프가 $x$축에 접하며 꺾이지 않고 지나감. 단순근: 그래프가 $x$축을 통과.</div>
+    `
+  },
+  {
+    id:'H1', cat:'hard', catLabel:'🔴 어려운',
+    title:'$M-m$ 구하기',
+    sub:'세 값 19, 11, -1에서 $M-m$',
+    why:'Q20에서 $M+m$ 대신 $M-m$을 구합니다. 세 값을 모두 구한 후 최대-최소.',
+    prob:`<p class="prob-body">Q20의 설정에서 $a+b+c$의 최댓값을 $M$, 최솟값을 $m$이라 할 때, $M-m$의 값을 구하여라.</p>`,
+    ansVal:'20',
+    ansDetail:'세 값: $c=2$→19, $c=4$→11, $c=-2$→-1. $M=19$, $m=-1$. $M-m=20$',
+    ansCheck:'$M=19$, $m=-1$, $M-m=19-(-1)=20$ ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">Q20에서 $c \\in \\{2, -2, 4\\}$의 세 $a+b+c$ 값:</div>
+      </div>
+      <div class="case-box">
+        <div class="case-label">$c=2$</div>
+        $a=7, b=10$. $a+b+c = 19$
+      </div>
+      <div class="case-box">
+        <div class="case-label">$c=-2$</div>
+        $a=-1, b=2$. $a+b+c = -1$
+      </div>
+      <div class="case-box">
+        <div class="case-label">$c=4$</div>
+        $a=5, b=2$. $a+b+c = 11$
+      </div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">$M=19$, $m=-1$.</div>
+      </div>
+      <div class="formula-box">$$M-m = 19-(-1) = \\mathbf{20}$$</div>
+    `
+  },
+  {
+    id:'H2', cat:'hard', catLabel:'🔴 어려운',
+    title:'4차 방정식 인수분해',
+    sub:'$c^4-6c^3+4c^2+24c-32=0$ 인수분해',
+    why:'Q20 풀이의 핵심 — 이 4차 방정식을 스스로 인수분해할 수 있어야 합니다.',
+    prob:`<p class="prob-body">$c^4-6c^3+4c^2+24c-32=0$을 인수분해하여라.</p>`,
+    ansVal:'(c-2)^2(c+2)(c-4)=0',
+    ansDetail:'$c=2$ 이중근. 조립제법 두 번. 나머지 $c^2-2c-8=(c-4)(c+2)$. 근: $c=2, -2, 4$',
+    ansCheck:'근: $c=2$ (이중), $c=4$, $c=-2$ ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">유리근 정리: 상수항 32의 약수 $\\pm1,\\pm2,\\pm4,\\pm8,\\pm16,\\pm32$ 시도.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">$c=2$: $16-48+16+48-32=0$ ✓.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">3</div>
+        <div class="sol-text">조립제법으로 $(c-2)$ 추출 → $c^3-4c^2-4c+16$. 다시 $c=2$: $8-16-8+16=0$ ✓.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">4</div>
+        <div class="sol-text">두 번째 조립제법 → $c^2-2c-8 = (c-4)(c+2)$.</div>
+      </div>
+      <div class="formula-box">$$(c-2)^2(c-4)(c+2) = 0$$</div>
+      <div class="formula-box">$$c = 2 \\ (\\text{이중근}), \\quad c = 4, \\quad c = -2$$</div>
+    `
+  },
+  {
+    id:'H3', cat:'hard', catLabel:'🔴 어려운',
+    title:'$a+b+c=11$ 경우 상세 분석',
+    sub:'$c=4$ → 원다항식 + $x=1$ 대입',
+    why:'Q20에서 $a+b+c=11$인 경우($c=4$)를 완전히 분석합니다. 역방향 탐구.',
+    prob:`<p class="prob-body">Q20에서 $a+b+c=11$인 경우의 인수분해식 $(x+b)(x+c)^2$과 원다항식을 구하여라. 또한 이 다항식의 $x=1$에서의 값을 계산하여라.</p>`,
+    ansVal:'75',
+    ansDetail:'$c=4, a=5, b=2$. 인수분해: $(x+2)(x+4)^2$. $x=1$: $3 \\times 25 = 75$',
+    ansCheck:'$(1+2)(1+4)^2=3\\times25=75$ ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">$a+b+c=11$은 $c=4$ 경우 ($7+10+2=19$ ✗, $-1+2+(-2)=-1$ ✗, $5+2+4=11$ ✓).</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">$c=4, a=5, b=2$: 인수분해 $(x+2)(x+4)^2$.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">3</div>
+        <div class="sol-text">원다항식 ($a=5$ 대입): $x^3+10x^2+32x+32$.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">4</div>
+        <div class="sol-text">$x=1$ 대입:</div>
+      </div>
+      <div class="formula-box">$$(1+2)(1+4)^2 = 3 \\times 25 = \\mathbf{75}$$</div>
+      <div class="hl-box">📌 인수분해된 형태로 직접 대입하는 것이 전개 후 대입보다 빠릅니다.</div>
+    `
+  }
+];
+
+let curIdx = 0, curTab = 'prob', curCat = 'all';
+
+function buildList() {
+  document.getElementById('prob-grid').innerHTML = P.map((p,i) =>
+    `<div class="prob-card ${p.cat}" id="card-${i}" onclick="openDetail(${i})">
+      <div class="card-num">${p.id}</div>
+      <div class="card-info"><div class="card-title">${p.title}</div><div class="card-sub">${p.sub}</div></div>
+      <div class="card-arrow">›</div>
+    </div>`).join('');
+}
+
+function filterCat(cat) {
+  curCat = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  P.forEach((p,i) => document.getElementById('card-'+i).classList.toggle('hidden', cat!=='all' && p.cat!==cat));
+}
+
+function openDetail(idx) {
+  curIdx = idx; curTab = 'prob';
+  document.getElementById('list-view').style.display = 'none';
+  document.getElementById('detail-view').style.display = 'block';
+  renderDetail();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function showList() {
+  document.getElementById('list-view').style.display = 'block';
+  document.getElementById('detail-view').style.display = 'none';
+}
+
+function switchTab(tab) {
+  curTab = tab;
+  ['prob','ans','sol'].forEach(t => document.getElementById('tab-'+t).classList.toggle('active', t===tab));
+  renderContent();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function moveProblem(dir) {
+  curIdx = Math.max(0, Math.min(P.length-1, curIdx+dir));
+  curTab = 'prob'; renderDetail();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function renderDetail() {
+  const p = P[curIdx];
+  ['prob','ans','sol'].forEach(t => document.getElementById('tab-'+t).classList.toggle('active', t===curTab));
+  document.getElementById('detail-title').textContent = `${p.id} — ${p.title}`;
+  document.getElementById('btn-prev').disabled = curIdx === 0;
+  document.getElementById('btn-next').disabled = curIdx === P.length-1;
+  document.getElementById('nav-label').textContent = `${curIdx+1} / ${P.length}`;
+  renderContent();
+}
+
+function renderContent() {
+  const p = P[curIdx];
+  const area = document.getElementById('content-area');
+  const bc = p.cat==='easy' ? 'badge-easy' : p.cat==='mid' ? 'badge-mid' : 'badge-hard';
+  if (curTab==='prob') {
+    area.innerHTML = `<span class="prob-badge ${bc}">${p.catLabel}</span>${p.prob}`;
+  } else if (curTab==='ans') {
+    area.innerHTML = `<span class="prob-badge ${bc}">${p.catLabel} — 정답</span>
+      <div class="why-box">💡 <strong>왜 이 문제인가?</strong><br>${p.why}</div>
+      <div class="answer-big"><div class="lbl">정답</div><div class="val">$${p.ansVal}$</div></div>
+      <div class="answer-check">✅ ${p.ansDetail}<br><br>🔍 <strong>검산</strong><br>${p.ansCheck}</div>`;
+  } else {
+    area.innerHTML = `<span class="prob-badge ${bc}">${p.catLabel} — 풀이</span><div style="margin-top:16px;">${p.sol}</div>`;
+  }
+  if (window.renderMathInElement) {
+    renderMathInElement(area, {
+      delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],
+      throwOnError: false
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => { buildList(); });
+</script>
+</body>
+</html>

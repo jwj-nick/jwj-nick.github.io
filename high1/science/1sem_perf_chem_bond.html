@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>화학결합 학습앱 — 통합과학1 (시험 5/7)</title>
+<style>
+:root{--ionic:#2563eb;--cov:#16a34a;--mix:#d97706;--bg:#f1f5f9;--card:#fff;--text:#1e293b;--muted:#64748b;--border:#e2e8f0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Apple SD Gothic Neo',sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+header{background:#1e293b;color:#fff;padding:10px 18px;display:flex;justify-content:space-between;align-items:center}
+header h1{font-size:14px;font-weight:700}
+.mbtn{background:transparent;border:1px solid rgba(255,255,255,.4);color:#fff;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:13px;margin-left:6px}
+.mbtn.active{background:#fff;color:#1e293b}
+.layout{display:flex;height:calc(100vh - 44px)}
+#sidebar{width:190px;background:var(--card);border-right:1px solid var(--border);overflow-y:auto;flex-shrink:0}
+.gh{padding:7px 10px 3px;font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;border-top:1px solid var(--border);margin-top:4px}
+.sitem{padding:5px 10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-left:3px solid transparent;font-size:12px;gap:4px}
+.sitem:hover{background:var(--bg)}
+.sitem.active{background:var(--bg);font-weight:700}
+.sitem.active.ionic{border-left-color:var(--ionic)}
+.sitem.active.covalent{border-left-color:var(--cov)}
+.sitem.active.mixed{border-left-color:var(--mix)}
+.fbadge{font-size:10px;color:var(--muted);font-family:monospace;white-space:nowrap}
+#content{flex:1;overflow-y:auto;padding:16px}
+.card{background:var(--card);border-radius:8px;padding:16px;margin-bottom:12px;border:1px solid var(--border)}
+.card-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.fml{font-size:26px;font-weight:700;font-family:monospace}
+.bbadge{padding:3px 9px;border-radius:4px;font-size:11px;font-weight:700;color:#fff}
+.bbadge.ionic{background:var(--ionic)}.bbadge.covalent{background:var(--cov)}.bbadge.mixed{background:var(--mix)}
+.cname{font-size:12px;color:var(--muted)}
+.stitle{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.svgbox{display:flex;justify-content:center;align-items:center;padding:8px 0;min-height:120px}
+.steps{list-style:none}
+.steps li{padding:4px 0 4px 22px;position:relative;line-height:1.5;font-size:13px}
+.steps li::before{content:attr(data-n);position:absolute;left:0;font-weight:700}
+.steps.ionic li::before{color:var(--ionic)}.steps.covalent li::before{color:var(--cov)}.steps.mixed li::before{color:var(--mix)}
+table{width:100%;border-collapse:collapse}
+td,th{padding:5px 8px;border:1px solid var(--border);font-size:12px}
+th{background:var(--bg);font-weight:600;text-align:left;width:90px}
+.chk{list-style:none}
+.chk li{padding:2px 0 2px 18px;position:relative;font-size:12px}
+.chk li::before{content:'✎';position:absolute;left:0;color:#f59e0b}
+.hook{background:#fef3c7;border-left:3px solid #f59e0b;padding:10px 14px;border-radius:0 6px 6px 0;font-weight:700;font-size:13px}
+/* quiz */
+#qview{max-width:560px;margin:0 auto}
+.qprog{text-align:right;color:var(--muted);font-size:11px;margin-bottom:8px}
+.qcard{background:var(--card);border-radius:8px;padding:32px 20px;text-align:center;border:1px solid var(--border);min-height:260px}
+.qname{font-size:22px;font-weight:700;margin-bottom:6px}
+.qsub{color:var(--muted);font-size:13px;margin-bottom:20px}
+.qchoices{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+.qc{padding:8px 18px;border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:13px;background:var(--bg)}
+.qc:hover{border-color:#94a3b8}
+.qc.correct{background:#dcfce7;border-color:var(--cov);color:#15803d;font-weight:700}
+.qc.wrong{background:#fee2e2;border-color:#dc2626;color:#b91c1c}
+.qrev{background:var(--bg);border-radius:6px;padding:12px;text-align:left;margin-top:12px;display:none;font-size:13px;line-height:1.8}
+.qrev.show{display:block}
+.qctrl{display:flex;gap:10px;justify-content:center;margin-top:16px}
+.qbtn{padding:7px 18px;border-radius:6px;border:none;cursor:pointer;font-size:13px}
+.qbtn.pri{background:#1e293b;color:#fff}.qbtn.sec{background:var(--bg);color:var(--text);border:1px solid var(--border)}
+/* ── mobile ─────────────────────────────── */
+@media(max-width:640px){
+  header h1{font-size:12px}
+  .layout{flex-direction:column;height:auto;min-height:calc(100vh - 44px)}
+  #sidebar{width:100%;height:auto;border-right:none;border-bottom:1px solid var(--border);
+           display:flex;flex-direction:row;overflow-x:auto;overflow-y:hidden;flex-shrink:0}
+  .gh{display:none}
+  .sitem{flex-shrink:0;white-space:nowrap;border-left:none;border-bottom:3px solid transparent;
+         padding:10px 14px;font-size:13px}
+  .sitem.active{border-left:none;background:transparent;font-weight:700}
+  .sitem.active.ionic{border-bottom-color:var(--ionic)}
+  .sitem.active.covalent{border-bottom-color:var(--cov)}
+  .sitem.active.mixed{border-bottom-color:var(--mix)}
+  .fbadge{display:none}
+  #content{padding:12px;overflow-y:visible}
+  .two{grid-template-columns:1fr}
+  .fml{font-size:20px}
+  .qcard{padding:20px 14px;min-height:200px}
+  .qname{font-size:18px}
+}
+</style>
+</head>
+<body>
+<nav style="background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:7px 16px;font-size:12px;display:flex;align-items:center;gap:5px;font-family:-apple-system,sans-serif;flex-shrink:0"><a href="../index.html" style="color:#6b7280;text-decoration:none">고1</a><span style="color:#d1d5db">&rsaquo;</span><a href="index.html" style="color:#2563eb;text-decoration:none;font-weight:600">Science_1_1</a></nav>
+
+<header>
+  <h1>⚗ 화학결합 학습앱 — 통합과학1 | 시험 5/7(목)</h1>
+  <div>
+    <button class="mbtn active" id="bs" onclick="setMode('study')">📚 학습</button>
+    <button class="mbtn" id="bq" onclick="setMode('quiz')">🎯 퀴즈</button>
+  </div>
+</header>
+<div class="layout">
+  <aside id="sidebar"></aside>
+  <main id="content"></main>
+</div>
+<script>
+// ══════════════════════════════════════════
+// 22종 데이터
+// ══════════════════════════════════════════
+const S=[
+// ── 이온결합 ──────────────────────────────
+{id:'nacl',name:'염화나트륨',cn:'소금',f:'NaCl',bt:'ionic',bn:'이온결합',
+ ir:'Na⁺ : Cl⁻ = 1 : 1',
+ fm:['Na (원자가전자 1개) → 전자 1개 잃음 → Na⁺(+1)',
+     'Cl (원자가전자 7개) → 전자 1개 얻음 → Cl⁻(−1)',
+     'Na⁺ + Cl⁻ → 정전기적 인력 → NaCl 이온결합'],
+ sv:'ionic',sp:{d:{s:'Na',ve:1,ion:'Na⁺',ch:'+1'},a:{s:'Cl',ve:7,ion:'Cl⁻',ch:'−1'},n:1},
+ pr:{st:'고체 (백색 결정)',mp:'801°C',sol:'물에 잘 녹음',cd:'고체 ✗ / 용액·용융 ✓'},
+ dp:['Na 원자 (K2·L8·M1) → 전자 1개 내보내기','Cl 원자 (K2·L8·M7) → 전자 1개 받기','Na⁺(K2·L8) + Cl⁻(K2·L8·M8) 그리기','정전기 인력으로 결합 완성'],
+ ek:'금속(Na)+비금속(Cl) → 이온결합 | Na⁺+Cl⁻ | 녹는점 801°C'},
+{id:'mgo',name:'산화마그네슘',cn:null,f:'MgO',bt:'ionic',bn:'이온결합',
+ ir:'Mg²⁺ : O²⁻ = 1 : 1',
+ fm:['Mg (원자가전자 2개) → 전자 2개 잃음 → Mg²⁺(+2)',
+     'O (원자가전자 6개) → 전자 2개 얻음 → O²⁻(−2)',
+     'Mg²⁺ + O²⁻ → 이온결합 | 전하 합 = 0'],
+ sv:'ionic',sp:{d:{s:'Mg',ve:2,ion:'Mg²⁺',ch:'+2'},a:{s:'O',ve:6,ion:'O²⁻',ch:'−2'},n:2},
+ pr:{st:'고체 (백색 분말)',mp:'2852°C ★최고',sol:'물에 약간 녹음',cd:'용융 ✓'},
+ dp:['Mg (K2·L8·M2) → 전자 2개 내보내기','O (K2·L6) → 전자 2개 받기','Mg²⁺(K2·L8) + O²⁻(K2·L8)'],
+ ek:'Mg²⁺+O²⁻ | 전하 ±2 | 녹는점 2852°C (22종 중 최고)'},
+{id:'fe2o3',name:'산화철(Ⅲ)',cn:'녹·부식',f:'Fe₂O₃',bt:'ionic',bn:'이온결합',
+ ir:'Fe³⁺ : O²⁻ = 2 : 3',
+ fm:['Fe → 전자 3개 잃음 → Fe³⁺(+3)',
+     'O → 전자 2개 얻음 → O²⁻(−2)',
+     '전하 균형: 2×(+3)+3×(−2)=0 → Fe₂O₃'],
+ sv:'ionic',sp:{d:{s:'Fe',ve:'가변',ion:'Fe³⁺',ch:'+3'},a:{s:'O',ve:6,ion:'O²⁻',ch:'−2'},n:3,ratio:'2:3'},
+ pr:{st:'고체 (붉은색 분말)',mp:'1565°C',sol:'물에 안 녹음',cd:'✗'},
+ dp:['Fe → Fe³⁺ (전자 3개 잃음)','O → O²⁻ (전자 2개 얻음)','Fe:O = 2:3 비율 (전하 합 0)'],
+ ek:'Fe³⁺+O²⁻ | 비율 2:3 필수 | 녹슨 철 성분'},
+{id:'kcl',name:'염화칼륨',cn:null,f:'KCl',bt:'ionic',bn:'이온결합',
+ ir:'K⁺ : Cl⁻ = 1 : 1',
+ fm:['K (원자가전자 1개) → 전자 1개 잃음 → K⁺(+1)',
+     'Cl → 전자 1개 얻음 → Cl⁻(−1)',
+     'K⁺ + Cl⁻ → 이온결합 (NaCl과 동일 구조)'],
+ sv:'ionic',sp:{d:{s:'K',ve:1,ion:'K⁺',ch:'+1'},a:{s:'Cl',ve:7,ion:'Cl⁻',ch:'−1'},n:1},
+ pr:{st:'고체 (백색 결정)',mp:'770°C',sol:'물에 잘 녹음',cd:'용액 ✓'},
+ dp:['K → K⁺ (전자 1개 잃음)','NaCl과 동일 패턴'],
+ ek:'K⁺+Cl⁻ | NaCl과 같은 구조 | 770°C'},
+{id:'cacl2',name:'염화칼슘',cn:'제설제',f:'CaCl₂',bt:'ionic',bn:'이온결합',
+ ir:'Ca²⁺ : Cl⁻ = 1 : 2',
+ fm:['Ca (원자가전자 2개) → 전자 2개 잃음 → Ca²⁺(+2)',
+     'Cl 2개 → 각 전자 1개 얻음 → 2×Cl⁻(−1)',
+     '전하 균형: (+2)+2×(−1)=0 → CaCl₂'],
+ sv:'ionic',sp:{d:{s:'Ca',ve:2,ion:'Ca²⁺',ch:'+2'},a:{s:'Cl',ve:7,ion:'Cl⁻',ch:'−1'},n:2,ratio:'1:2'},
+ pr:{st:'고체, 흡습성 강함',mp:'772°C',sol:'물에 매우 잘 녹음 (발열)',cd:'용액 ✓'},
+ dp:['Ca → Ca²⁺ (전자 2개 잃음)','Cl 2개에 전자 1개씩 나눔','Ca²⁺+2Cl⁻ (1:2 비율)'],
+ ek:'Ca²⁺+2Cl⁻ | 1:2 비율 | 제설제·흡습제'},
+// ── 공유결합 ──────────────────────────────
+{id:'h2',name:'수소 기체',cn:null,f:'H₂',bt:'covalent',bn:'공유결합 (단일)',
+ fm:['H 원자(원자가전자 1개) 2개 접근',
+     '각 H의 전자 1개씩 공유 → 공유 전자쌍 1개',
+     'H─H 완성 | 비공유 전자쌍 없음'],
+ sv:'dia',sp:{a1:'H',a2:'H',b:1,l1:0,l2:0},
+ pr:{st:'기체',mp:'−259°C',sol:'물에 거의 안 녹음',cd:'✗'},
+ dp:['H 원자 2개 (껍질 1개, 전자 1개씩)','전자 1개씩 공유 → 단일결합 ─','비공유 전자쌍 없음'],
+ ek:'H─H 단일 | 비공유쌍 없음 | 가장 가벼운 기체'},
+{id:'o2',name:'산소 기체',cn:null,f:'O₂',bt:'covalent',bn:'공유결합 (이중)',
+ fm:['O 원자(원자가전자 6개) 2개 접근',
+     '각 O의 전자 2개씩 공유 → 공유 전자쌍 2개',
+     'O═O 완성 | 각 O에 비공유 전자쌍 2쌍'],
+ sv:'dia',sp:{a1:'O',a2:'O',b:2,l1:2,l2:2},
+ pr:{st:'기체',mp:'−219°C',sol:'물에 조금 녹음',cd:'✗'},
+ dp:['O 원자 2개 (껍질 2개, 전자 6개씩)','전자 2개씩 공유 → 이중결합 ═','각 O에 비공유쌍 2쌍 (점 4개)'],
+ ek:'O═O 이중결합 | 각 O 비공유쌍 2쌍'},
+{id:'n2',name:'질소 기체',cn:'대기의 78%',f:'N₂',bt:'covalent',bn:'공유결합 (삼중)',
+ fm:['N 원자(원자가전자 5개) 2개 접근',
+     '각 N의 전자 3개씩 공유 → 공유 전자쌍 3개',
+     'N≡N 완성 | 각 N에 비공유 전자쌍 1쌍'],
+ sv:'dia',sp:{a1:'N',a2:'N',b:3,l1:1,l2:1},
+ pr:{st:'기체',mp:'−210°C',sol:'물에 거의 안 녹음',cd:'✗'},
+ dp:['N 원자 2개 (껍질 2개, 전자 5개씩)','전자 3개씩 공유 → 삼중결합 ≡','각 N에 비공유쌍 1쌍 (점 2개)'],
+ ek:'N≡N 삼중결합 (가장 강함) | 각 N 비공유쌍 1쌍'},
+{id:'hcl',name:'염화 수소',cn:'수용액=염산',f:'HCl',bt:'covalent',bn:'공유결합 (단일)',
+ fm:['H(원자가전자 1개)와 Cl(원자가전자 7개) 접근',
+     '각 1개씩 공유 → 공유 전자쌍 1개',
+     'H─Cl 완성 | Cl에 비공유 전자쌍 3쌍'],
+ sv:'dia',sp:{a1:'H',a2:'Cl',b:1,l1:0,l2:3},
+ pr:{st:'기체 (수용액=염산)',mp:'−114°C',sol:'물에 매우 잘 녹음 (강산)',cd:'수용액 ✓'},
+ dp:['H(전자 1개) + Cl(전자 7개)','단일결합 ─','Cl에 비공유쌍 3쌍 (점 6개)'],
+ ek:'H─Cl 단일 | Cl 비공유쌍 3쌍 | 물에 녹으면 강산'},
+{id:'nh3',name:'암모니아',cn:'비료·세정제',f:'NH₃',bt:'covalent',bn:'공유결합 (단일×3)',
+ fm:['N(원자가전자 5개)와 H 3개 접근',
+     'N-H 단일결합 3개 형성',
+     'N에 비공유 전자쌍 1쌍 → 삼각뿔 구조'],
+ sv:'cen',sp:{c:{s:'N',lp:1},lg:[{s:'H',a:120,b:1},{s:'H',a:180,b:1},{s:'H',a:240,b:1}]},
+ pr:{st:'기체 (자극적 냄새)',mp:'−78°C',sol:'물에 잘 녹음 (약염기)',cd:'수용액 약 ✓'},
+ dp:['N 중심, H 3개 배치','N-H 단일결합 3개','N 위에 비공유쌍 1쌍 (점 2개)','삼각뿔 구조'],
+ ek:'N 중심+H×3 | N 비공유쌍 1쌍 | 삼각뿔'},
+{id:'ch4',name:'메테인',cn:'천연가스',f:'CH₄',bt:'covalent',bn:'공유결합 (단일×4)',
+ fm:['C(원자가전자 4개)와 H 4개 접근',
+     'C-H 단일결합 4개 형성',
+     'C에 비공유 전자쌍 없음 → 정사면체 구조'],
+ sv:'cen',sp:{c:{s:'C',lp:0},lg:[{s:'H',a:90,b:1},{s:'H',a:180,b:1},{s:'H',a:270,b:1},{s:'H',a:0,b:1}]},
+ pr:{st:'기체 (천연가스)',mp:'−182°C',sol:'물에 거의 안 녹음',cd:'✗'},
+ dp:['C 중심, H 4개 (상·하·좌·우)','C-H 단일결합 4개','C에 비공유쌍 없음','정사면체 구조'],
+ ek:'C 중심+H×4 | 비공유쌍 없음 | 정사면체'},
+{id:'co2',name:'이산화 탄소',cn:'온실기체',f:'CO₂',bt:'covalent',bn:'공유결합 (이중×2)',
+ fm:['C(원자가전자 4개)와 O 2개 접근',
+     'C-O 이중결합 2개 형성 (각 O와 전자쌍 2개씩 공유)',
+     '각 O에 비공유쌍 2쌍 → 직선형'],
+ sv:'cen',sp:{c:{s:'C',lp:0},lg:[{s:'O',a:180,b:2,lp:2},{s:'O',a:0,b:2,lp:2}],lin:true},
+ pr:{st:'기체 (온실기체)',mp:'−57°C (승화)',sol:'물에 녹아 탄산 형성',cd:'✗'},
+ dp:['C 중심, 좌우 O','C-O 이중결합×2 (이중선)','각 O 비공유쌍 2쌍 (점 4개)','직선형'],
+ ek:'O═C═O 직선형 | 이중결합×2 | 각 O 비공유쌍 2쌍'},
+{id:'h2o2',name:'과산화 수소',cn:'소독약',f:'H₂O₂',bt:'covalent',bn:'공유결합 (단일)',
+ fm:['O 원자 2개 먼저 O-O 단일결합',
+     '각 O에 H 1개씩 단일결합',
+     'H─O─O─H | 각 O에 비공유쌍 2쌍'],
+ sv:'chain',sp:{at:['H','O','O','H'],b:[1,1,1],lp:[0,2,2,0]},
+ pr:{st:'액체 (소독약)',mp:'−0.4°C',sol:'물에 잘 녹음',cd:'✗'},
+ dp:['H─O─O─H 순서로 그리기','단일결합 3개','각 O 비공유쌍 2쌍'],
+ ek:'H─O─O─H | O-O 결합 | 각 O 비공유쌍 2쌍'},
+{id:'c2h5oh',name:'에탄올',cn:'술 (에틸알코올)',f:'C₂H₅OH',bt:'covalent',bn:'공유결합 (단일)',
+ fm:['C, H, O 모두 비금속 원소','C-C, C-H, C-O, O-H 모두 단일 공유결합','CH₃─CH₂─O─H 구조'],
+ sv:'txt',sp:{t:'CH₃─CH₂─O─H',s:'C, H, O 모두 비금속 → 공유결합'},
+ pr:{st:'액체 (술의 성분)',mp:'−114°C',sol:'물에 잘 녹음',cd:'✗'},
+ dp:['C, H, O 비금속 → 공유결합','O─H 결합(수산기) 포함'],
+ ek:'C, H, O 비금속 → 공유결합 | 술 성분'},
+{id:'ch3cooh',name:'아세트산',cn:'식초',f:'CH₃COOH',bt:'covalent',bn:'공유결합 (단일+이중)',
+ fm:['C, H, O 모두 비금속 원소','C═O 이중결합 포함 (카복실기)','CH₃─C(═O)─O─H 구조'],
+ sv:'txt',sp:{t:'CH₃─C(═O)─O─H',s:'C═O 이중결합 포함 | 약산'},
+ pr:{st:'액체 (식초)',mp:'17°C',sol:'물에 잘 녹음 (약산)',cd:'수용액 약 ✓'},
+ dp:['C, H, O 비금속 → 공유결합','C═O 이중결합 주의','카복실기 ─COOH 포함'],
+ ek:'C═O 이중결합 포함 | 식초 | 약산'},
+{id:'sugar',name:'설탕',cn:'자당(수크로스)',f:'C₁₂H₂₂O₁₁',bt:'covalent',bn:'공유결합',
+ fm:['C, H, O 모두 비금속','모든 결합이 공유결합','복잡한 탄소화합물 (분자량 342)'],
+ sv:'txt',sp:{t:'C₁₂H₂₂O₁₁',s:'복잡한 탄소화합물 | C, H, O → 공유결합'},
+ pr:{st:'고체 (백색 결정)',mp:'185°C',sol:'물에 잘 녹음',cd:'✗ (이온 ✗)'},
+ dp:['C, H, O 비금속 → 공유결합','물에 녹아도 이온 아님 → 전도 ✗'],
+ ek:'C, H, O → 공유결합 | 물에 녹아도 전도 안 함'},
+{id:'glu',name:'포도당',cn:'에너지원',f:'C₆H₁₂O₆',bt:'covalent',bn:'공유결합',
+ fm:['C, H, O 모두 비금속','육탄당 고리 구조','모든 결합이 공유결합'],
+ sv:'txt',sp:{t:'C₆H₁₂O₆',s:'육탄당 | C, H, O → 공유결합'},
+ pr:{st:'고체',mp:'146°C',sol:'물에 잘 녹음',cd:'✗'},
+ dp:['C, H, O 비금속 → 공유결합','광합성 산물, 생체 에너지원'],
+ ek:'C, H, O → 공유결합 | 광합성 산물'},
+{id:'asp',name:'아스피린',cn:'해열·진통제',f:'C₉H₈O₄',bt:'covalent',bn:'공유결합',
+ fm:['C, H, O 모두 비금속','벤젠 고리 포함 유기화합물','모든 결합이 공유결합'],
+ sv:'txt',sp:{t:'C₉H₈O₄',s:'벤젠 고리 포함 | C, H, O → 공유결합'},
+ pr:{st:'고체 (백색 분말)',mp:'136°C',sol:'물에 약간 녹음',cd:'✗'},
+ dp:['C, H, O 비금속 → 공유결합'],
+ ek:'C, H, O → 공유결합 | 해열진통제'},
+// ── 혼합형 ──────────────────────────────
+{id:'naoh',name:'수산화나트륨',cn:'강염기·양잿물',f:'NaOH',bt:'mixed',bn:'이온결합+공유결합',
+ fm:['【공유】 O─H (비금속+비금속) → OH⁻ 형성',
+     '【이온】 Na → Na⁺ (전자 1개 잃음)',
+     'Na⁺ + OH⁻ → 이온결합 → NaOH'],
+ sv:'mix',sp:{ion:{s:'Na',ion:'Na⁺',ch:'+1'},poly:{f:'OH⁻',in:'O─H 공유결합',ch:'−1'}},
+ pr:{st:'고체 (강한 염기)',mp:'318°C',sol:'물에 잘 녹음 (발열, 강염기)',cd:'용액 ✓'},
+ dp:['OH⁻ 내부: O─H 공유결합','Na⁺ ↔ OH⁻: 이온결합','이중 구조 설명'],
+ ek:'이온(Na⁺+OH⁻) + 공유(O─H) | 강염기'},
+{id:'mgoh2',name:'수산화마그네슘',cn:'제산제',f:'Mg(OH)₂',bt:'mixed',bn:'이온결합+공유결합',
+ fm:['【공유】 O─H → 2개의 OH⁻ 형성',
+     '【이온】 Mg → Mg²⁺ (전자 2개 잃음)',
+     'Mg²⁺ + 2OH⁻ → 이온결합 → Mg(OH)₂'],
+ sv:'mix',sp:{ion:{s:'Mg',ion:'Mg²⁺',ch:'+2'},poly:{f:'2OH⁻',in:'O─H 공유결합 ×2',ch:'−1 ×2'}},
+ pr:{st:'고체 (백색 분말)',mp:'350°C',sol:'물에 거의 안 녹음',cd:'✗'},
+ dp:['OH⁻ 2개 각각: O─H 공유결합','Mg²⁺ ↔ 2OH⁻: 이온결합'],
+ ek:'이온(Mg²⁺+2OH⁻) + 공유(O─H) | 제산제'},
+{id:'caco3',name:'탄산칼슘',cn:'석회석·대리석·조개',f:'CaCO₃',bt:'mixed',bn:'이온결합+공유결합',
+ fm:['【공유】 C─O (비금속+비금속) → CO₃²⁻ 형성',
+     '【이온】 Ca → Ca²⁺ (전자 2개 잃음)',
+     'Ca²⁺ + CO₃²⁻ → 이온결합 → CaCO₃'],
+ sv:'mix',sp:{ion:{s:'Ca',ion:'Ca²⁺',ch:'+2'},poly:{f:'CO₃²⁻',in:'C─O 공유결합',ch:'−2'}},
+ pr:{st:'고체 (석회석·대리석)',mp:'1339°C',sol:'물에 거의 안 녹음',cd:'✗'},
+ dp:['CO₃²⁻ 내부: C─O 공유결합','Ca²⁺ ↔ CO₃²⁻: 이온결합'],
+ ek:'이온(Ca²⁺+CO₃²⁻) + 공유(C─O) | 석회석'},
+{id:'nahco3',name:'탄산수소나트륨',cn:'베이킹파우더',f:'NaHCO₃',bt:'mixed',bn:'이온결합+공유결합',
+ fm:['【공유】 H─O, C─O (비금속끼리) → HCO₃⁻ 형성',
+     '【이온】 Na → Na⁺ (전자 1개 잃음)',
+     'Na⁺ + HCO₃⁻ → 이온결합 → NaHCO₃'],
+ sv:'mix',sp:{ion:{s:'Na',ion:'Na⁺',ch:'+1'},poly:{f:'HCO₃⁻',in:'H─O, C─O 공유결합',ch:'−1'}},
+ pr:{st:'고체 (백색 분말)',mp:'50°C (분해)',sol:'물에 잘 녹음',cd:'용액 ✓'},
+ dp:['HCO₃⁻ 내부: H─O, C─O 공유결합','Na⁺ ↔ HCO₃⁻: 이온결합','가열 → CO₂ 발생'],
+ ek:'이온(Na⁺+HCO₃⁻) + 공유(H─O, C─O) | 베이킹파우더'}
+];
+
+// ══════════════════════════════════════════
+// SVG 렌더러
+// ══════════════════════════════════════════
+const AC={H:'#e5e7eb',C:'#374151',N:'#3b82f6',O:'#ef4444',Na:'#f59e0b',Mg:'#8b5cf6',Ca:'#06b6d4',K:'#10b981',Cl:'#84cc16',Fe:'#6b7280',default:'#94a3b8'};
+const TC={H:'#374151',C:'#fff',N:'#fff',O:'#fff',Na:'#fff',Mg:'#fff',Ca:'#fff',K:'#fff',Cl:'#fff',Fe:'#fff',default:'#fff'};
+function ac(s){return AC[s]||AC.default}function tc(s){return TC[s]||TC.default}
+function atom(x,y,s,r=22){return`<circle cx="${x}" cy="${y}" r="${r}" fill="${ac(s)}" stroke="#94a3b8" stroke-width="1.5"/><text x="${x}" y="${y+1}" text-anchor="middle" dominant-baseline="middle" font-size="13" font-weight="700" fill="${tc(s)}" font-family="monospace">${s}</text>`}
+function lpDots(x,y,n,side='both'){
+  const pos=[[0,-32],[0,32],[-32,0],[32,0]];
+  const map={left:[0,1,2],right:[0,1,3],top:[2,3,0],bottom:[2,3,1],both:[0,1,2,3]};
+  let o='';(map[side]||[0]).slice(0,n).forEach(i=>{const[dx,dy]=pos[i];o+=`<circle cx="${x+dx-4}" cy="${y+dy}" r="3" fill="#1e293b"/><circle cx="${x+dx+4}" cy="${y+dy}" r="3" fill="#1e293b"/>`});return o;
+}
+function svgDia(p){
+  const W=300,H=130,cy=65,x1=80,x2=220,g=p.b===1?0:p.b===2?5:8;
+  let bl='';
+  if(p.b===1)bl=`<line x1="${x1+24}" y1="${cy}" x2="${x2-24}" y2="${cy}" stroke="#374151" stroke-width="2.5"/>`;
+  else if(p.b===2)bl=`<line x1="${x1+24}" y1="${cy-g}" x2="${x2-24}" y2="${cy-g}" stroke="#374151" stroke-width="2.5"/><line x1="${x1+24}" y1="${cy+g}" x2="${x2-24}" y2="${cy+g}" stroke="#374151" stroke-width="2.5"/>`;
+  else bl=`<line x1="${x1+24}" y1="${cy-g}" x2="${x2-24}" y2="${cy-g}" stroke="#374151" stroke-width="2.5"/><line x1="${x1+24}" y1="${cy}" x2="${x2-24}" y2="${cy}" stroke="#374151" stroke-width="2.5"/><line x1="${x1+24}" y1="${cy+g}" x2="${x2-24}" y2="${cy+g}" stroke="#374151" stroke-width="2.5"/>`;
+  return`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${bl}${p.l1>0?lpDots(x1,cy,p.l1,'left'):''}${p.l2>0?lpDots(x2,cy,p.l2,'right'):''}${atom(x1,cy,p.a1)}${atom(x2,cy,p.a2)}</svg>`;
+}
+function svgCen(p){
+  const W=270,H=270,cx=135,cy=135,R=82;let o='';
+  p.lg.forEach(lg=>{
+    const rad=(lg.a-90)*Math.PI/180,lx=cx+R*Math.cos(rad),ly=cy+R*Math.sin(rad);
+    const dx=lx-cx,dy=ly-cy,len=Math.sqrt(dx*dx+dy*dy),ux=dx/len,uy=dy/len;
+    const x1s=cx+24*ux,y1s=cy+24*uy,x2e=lx-22*ux,y2e=ly-22*uy;
+    if(lg.b===1)o+=`<line x1="${x1s}" y1="${y1s}" x2="${x2e}" y2="${y2e}" stroke="#374151" stroke-width="2.5"/>`;
+    else if(lg.b===2){const px=-uy*5,py=ux*5;o+=`<line x1="${x1s+px}" y1="${y1s+py}" x2="${x2e+px}" y2="${y2e+py}" stroke="#374151" stroke-width="2.5"/><line x1="${x1s-px}" y1="${y1s-py}" x2="${x2e-px}" y2="${y2e-py}" stroke="#374151" stroke-width="2.5"/>`;}
+    if(lg.lp>0){const d=lg.a>45&&lg.a<135?'right':lg.a>225&&lg.a<315?'left':lg.a<=45||lg.a>=315?'top':'bottom';o+=lpDots(lx,ly,lg.lp,d);}
+    o+=atom(lx,ly,lg.s,20);
+  });
+  if(p.c.lp>0)o+=lpDots(cx,cy,p.c.lp,'top');
+  o+=atom(cx,cy,p.c.s,23);
+  return`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${o}</svg>`;
+}
+function svgIon(p){
+  const W=380,H=160;let o='';
+  o+=atom(55,70,p.d.s,26);
+  o+=`<text x="152" y="72" text-anchor="middle" dominant-baseline="middle" font-size="22" fill="#374151">→</text>`;
+  o+=atom(225,50,p.d.s,22);
+  o+=`<rect x="198" y="26" width="54" height="22" rx="3" fill="none" stroke="#2563eb" stroke-width="1.5"/>`;
+  o+=`<text x="225" y="23" text-anchor="middle" font-size="11" fill="#2563eb" font-weight="700">${p.d.ion} ${p.d.ch}</text>`;
+  o+=atom(320,50,p.a.s,22);
+  o+=`<rect x="293" y="26" width="54" height="22" rx="3" fill="none" stroke="#dc2626" stroke-width="1.5"/>`;
+  o+=`<text x="320" y="23" text-anchor="middle" font-size="11" fill="#dc2626" font-weight="700">${p.a.ion} ${p.a.ch}</text>`;
+  o+=`<text x="272" y="55" text-anchor="middle" font-size="18" fill="#374151">+</text>`;
+  o+=`<text x="152" y="105" text-anchor="middle" font-size="11" fill="#64748b">e⁻ ${p.n}개 이동 →</text>`;
+  if(p.ratio)o+=`<text x="272" y="95" text-anchor="middle" font-size="11" fill="#374151">비율 ${p.ratio}</text>`;
+  o+=`<text x="272" y="135" text-anchor="middle" font-size="11" fill="#2563eb" font-weight="700">← 정전기 인력 (이온결합) →</text>`;
+  return`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${o}</svg>`;
+}
+function svgMix(p){
+  const W=380,H=130;let o='';
+  o+=atom(60,65,p.ion.s,26);
+  o+=`<text x="60" y="100" text-anchor="middle" font-size="11" fill="#2563eb" font-weight="700">${p.ion.ion}</text>`;
+  o+=`<text x="155" y="55" text-anchor="middle" font-size="10" fill="#2563eb">이온결합</text>`;
+  o+=`<line x1="90" y1="65" x2="215" y2="65" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="5,3"/>`;
+  o+=`<text x="155" y="78" text-anchor="middle" font-size="13" fill="#2563eb">⟵——⟶</text>`;
+  o+=`<rect x="220" y="40" width="148" height="60" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>`;
+  o+=`<text x="294" y="62" text-anchor="middle" font-size="13" font-weight="700" fill="#92400e">${p.poly.f}</text>`;
+  o+=`<text x="294" y="78" text-anchor="middle" font-size="10" fill="#92400e">${p.poly.in}</text>`;
+  o+=`<text x="294" y="115" text-anchor="middle" font-size="10" fill="#d97706" font-weight="700">▲ 내부: 공유결합</text>`;
+  return`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${o}</svg>`;
+}
+function svgChain(p){
+  const W=p.at.length*70+40,H=130,cy=65;let o='';
+  const xs=p.at.map((_,i)=>35+i*70);
+  for(let i=0;i<p.b.length;i++){const x1=xs[i]+23,x2=xs[i+1]-23;
+    if(p.b[i]===1)o+=`<line x1="${x1}" y1="${cy}" x2="${x2}" y2="${cy}" stroke="#374151" stroke-width="2.5"/>`;
+    else if(p.b[i]===2)o+=`<line x1="${x1}" y1="${cy-5}" x2="${x2}" y2="${cy-5}" stroke="#374151" stroke-width="2.5"/><line x1="${x1}" y1="${cy+5}" x2="${x2}" y2="${cy+5}" stroke="#374151" stroke-width="2.5"/>`;
+  }
+  p.at.forEach((s,i)=>{if(p.lp[i]>0){const d=i===0?'left':i===p.at.length-1?'right':'top';o+=lpDots(xs[i],cy,p.lp[i],d);}o+=atom(xs[i],cy,s,21);});
+  return`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${o}</svg>`;
+}
+function svgTxt(p){return`<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:18px;text-align:center"><div style="font-size:20px;font-family:monospace;font-weight:700;color:#1e293b;margin-bottom:6px">${p.t}</div><div style="font-size:11px;color:#64748b">${p.s}</div></div>`;}
+function renderSVG(s){
+  const p=s.sp;
+  switch(s.sv){
+    case'dia':return svgDia(p);case'cen':return svgCen(p);
+    case'ionic':return svgIon(p);case'mix':return svgMix(p);
+    case'chain':return svgChain(p);case'txt':return svgTxt(p);
+    default:return`<div style="text-align:center;font-size:18px;font-family:monospace">${s.f}</div>`;
+  }
+}
+
+// ══════════════════════════════════════════
+// 앱 상태
+// ══════════════════════════════════════════
+let mode='study',curId='nacl';
+let qOrder=[],qIdx=0,qAnswered=false;
+
+function setMode(m){
+  mode=m;
+  document.getElementById('bs').classList.toggle('active',m==='study');
+  document.getElementById('bq').classList.toggle('active',m==='quiz');
+  if(m==='quiz'){qOrder=[...S].sort(()=>Math.random()-.5);qIdx=0;qAnswered=false;renderQuiz();}
+  else renderStudy();
+}
+
+// ══════════════════════════════════════════
+// 사이드바
+// ══════════════════════════════════════════
+function buildSidebar(){
+  const groups=[{t:'ionic',l:'🔵 이온결합'},{t:'covalent',l:'🟢 공유결합'},{t:'mixed',l:'🟡 혼합형'}];
+  let h='';
+  groups.forEach(g=>{
+    const items=S.filter(s=>s.bt===g.t);
+    h+=`<div class="gh">${g.l} (${items.length})</div>`;
+    items.forEach(s=>{
+      const ac=s.id===curId&&mode==='study'?'active':'';
+      h+=`<div class="sitem ${ac} ${s.bt}" onclick="sel('${s.id}')"><span>${s.cn||s.name}</span><span class="fbadge">${s.f}</span></div>`;
+    });
+  });
+  document.getElementById('sidebar').innerHTML=h;
+}
+
+// ══════════════════════════════════════════
+// 학습 모드
+// ══════════════════════════════════════════
+function sel(id){curId=id;mode='study';document.getElementById('bs').classList.add('active');document.getElementById('bq').classList.remove('active');renderStudy();}
+function renderStudy(){
+  const s=S.find(x=>x.id===curId)||S[0];
+  buildSidebar();
+  const fmHTML=s.fm.map((f,i)=>`<li data-n="${i+1}">${f}</li>`).join('');
+  const prHTML=[['상태',s.pr.st],['녹는점',s.pr.mp],['용해도',s.pr.sol],['전기전도',s.pr.cd]].map(([k,v])=>`<tr><th>${k}</th><td>${v}</td></tr>`).join('');
+  const dpHTML=s.dp.map(p=>`<li>${p}</li>`).join('');
+  document.getElementById('content').innerHTML=`
+    <div class="card">
+      <div class="card-head">
+        <span class="fml">${s.f}</span>
+        <span class="bbadge ${s.bt}">${s.bn}</span>
+        ${s.cn?`<span class="cname">【${s.cn}】</span>`:''}
+      </div>
+      <div style="font-size:17px;font-weight:700;margin-bottom:${s.ir?'6px':'0'}">${s.name}</div>
+      ${s.ir?`<div style="font-size:12px;color:var(--muted)">이온 비율: <strong>${s.ir}</strong></div>`:''}
+    </div>
+    <div class="two">
+      <div class="card">
+        <div class="stitle">Lewis 구조 / 전자 다이어그램</div>
+        <div class="svgbox">${renderSVG(s)}</div>
+      </div>
+      <div class="card">
+        <div class="stitle">결합 형성 과정</div>
+        <ol class="steps ${s.bt}">${fmHTML}</ol>
+      </div>
+    </div>
+    <div class="two">
+      <div class="card">
+        <div class="stitle">물질 성질</div>
+        <table>${prHTML}</table>
+      </div>
+      <div class="card">
+        <div class="stitle">✎ 시험 그림 체크리스트</div>
+        <ul class="chk">${dpHTML}</ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="stitle">⭐ 암기 포인트</div>
+      <div class="hook">${s.ek}</div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════
+// 퀴즈 모드
+// ══════════════════════════════════════════
+function renderQuiz(){
+  const s=qOrder[qIdx];
+  const choices=['이온결합','공유결합','혼합형 (이온+공유)'];
+  const correct=s.bt==='ionic'?'이온결합':s.bt==='covalent'?'공유결합':'혼합형 (이온+공유)';
+  const cHTML=choices.map(c=>`<button class="qc" onclick="ansQ('${c}','${correct}')">${c}</button>`).join('');
+  document.getElementById('content').innerHTML=`
+    <div id="qview">
+      <div class="qprog">${qIdx+1} / ${qOrder.length}</div>
+      <div class="qcard">
+        <div class="qname">${s.name}</div>
+        <div class="qsub" id="qsub">화학식: ?</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:18px">이 물질의 결합 유형은?</div>
+        <div class="qchoices" id="qch">${cHTML}</div>
+        <div class="qrev" id="qrev">
+          <strong>화학식:</strong> ${s.f}<br>
+          <strong>결합:</strong> ${s.bn}<br>
+          ${s.ir?`<strong>비율:</strong> ${s.ir}<br>`:''}
+          <strong>암기:</strong> ${s.ek}
+        </div>
+      </div>
+      <div class="qctrl">
+        <button class="qbtn sec" onclick="hint()">💡 화학식 힌트</button>
+        <button class="qbtn pri" onclick="nextQ()">다음 ▶</button>
+      </div>
+    </div>`;
+}
+function ansQ(c,correct){
+  if(qAnswered)return;qAnswered=true;
+  document.querySelectorAll('.qc').forEach(b=>{b.disabled=true;if(b.textContent===correct)b.classList.add('correct');else if(b.textContent===c&&c!==correct)b.classList.add('wrong');});
+  document.getElementById('qrev').classList.add('show');
+}
+function hint(){document.getElementById('qsub').textContent='화학식: '+qOrder[qIdx].f;}
+function nextQ(){qIdx=(qIdx+1)%qOrder.length;qAnswered=false;renderQuiz();}
+
+// ══════════════════════════════════════════
+// 초기화
+// ══════════════════════════════════════════
+buildSidebar();renderStudy();
+</script>
+</body>
+</html>

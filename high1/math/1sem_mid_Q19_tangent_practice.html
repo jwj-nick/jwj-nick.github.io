@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Q19 연습문제</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; padding: 20px 16px 60px; }
+    #app { max-width: 740px; margin: 0 auto; }
+    .app-header { text-align: center; margin-bottom: 28px; }
+    .app-header h1 { font-size: 22px; color: #1e1b4b; margin-bottom: 6px; }
+    .app-header p  { font-size: 14px; color: #6b7280; }
+    .cat-filter { display: flex; gap: 8px; justify-content: center; margin-bottom: 22px; flex-wrap: wrap; }
+    .cat-btn { padding: 7px 18px; border-radius: 20px; border: 2px solid transparent; font-size: 14px; font-weight: 700; cursor: pointer; transition: all .2s; font-family: inherit; }
+    .cat-btn.all   { background: #4361EE; color: #fff; }
+    .cat-btn.easy  { background: #dcfce7; color: #16a34a; border-color: #86efac; }
+    .cat-btn.mid   { background: #fef9c3; color: #854d0e; border-color: #fde047; }
+    .cat-btn.hard  { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
+    .cat-btn:not(.all):hover, .cat-btn.active { filter: brightness(.93); transform: scale(1.04); }
+    .cat-btn.all:hover { opacity: .88; }
+    .prob-grid { display: flex; flex-direction: column; gap: 10px; }
+    .prob-card { background: #fff; border-radius: 16px; padding: 16px 20px; box-shadow: 0 2px 12px rgba(67,97,238,.08); display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all .18s; border-left: 5px solid transparent; }
+    .prob-card:hover { transform: translateX(4px); box-shadow: 0 4px 20px rgba(67,97,238,.14); }
+    .prob-card.easy { border-color: #4ade80; }
+    .prob-card.mid  { border-color: #facc15; }
+    .prob-card.hard { border-color: #f87171; }
+    .prob-card.hidden { display: none; }
+    .card-num { min-width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; flex-shrink: 0; }
+    .easy .card-num { background: #dcfce7; color: #16a34a; }
+    .mid  .card-num { background: #fef9c3; color: #854d0e; }
+    .hard .card-num { background: #fee2e2; color: #b91c1c; }
+    .card-info { flex: 1; }
+    .card-title { font-size: 15px; font-weight: 700; color: #1e1b4b; margin-bottom: 3px; }
+    .card-sub   { font-size: 13px; color: #6b7280; }
+    .card-arrow { font-size: 18px; color: #c7d2fe; }
+    #detail-view { display: none; }
+    .detail-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .back-btn { background: #fff; border: none; border-radius: 12px; padding: 8px 16px; font-size: 14px; font-weight: 700; color: #4361EE; cursor: pointer; font-family: inherit; box-shadow: 0 2px 8px rgba(67,97,238,.1); transition: all .15s; }
+    .back-btn:hover { background: #eef2ff; }
+    .detail-title { font-size: 18px; font-weight: 800; color: #1e1b4b; }
+    .tab-wrap { display: flex; background: #fff; border-radius: 16px 16px 0 0; overflow: hidden; box-shadow: 0 2px 12px rgba(67,97,238,.08); }
+    .tab-btn { flex: 1; padding: 14px 8px; border: none; background: #fff; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; transition: all .18s; color: #94a3b8; border-bottom: 3px solid transparent; }
+    .tab-btn.active { color: #4361EE; border-bottom-color: #4361EE; background: #f8faff; }
+    .tab-btn:hover:not(.active) { background: #f8faff; color: #6366f1; }
+    .content-card { background: #fff; border-radius: 0 0 20px 20px; padding: 28px 32px; box-shadow: 0 4px 20px rgba(67,97,238,.08); animation: fadeIn .22s ease; min-height: 260px; }
+    @keyframes fadeIn { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: translateY(0); } }
+    .prob-badge { display: inline-block; font-size: 12px; font-weight: 800; padding: 3px 12px; border-radius: 20px; margin-bottom: 14px; }
+    .badge-easy { background: #dcfce7; color: #16a34a; }
+    .badge-mid  { background: #fef9c3; color: #854d0e; }
+    .badge-hard { background: #fee2e2; color: #b91c1c; }
+    .why-box { background: #f8faff; border-left: 4px solid #a5b4fc; border-radius: 0 12px 12px 0; padding: 12px 16px; font-size: 14px; color: #4338ca; line-height: 1.7; margin-bottom: 18px; }
+    .prob-body { font-size: 15px; line-height: 1.9; color: #1e1b4b; margin-bottom: 10px; }
+    .prob-cond { background: #fffbf0; border: 1.5px solid #fbbf24; border-radius: 12px; padding: 12px 18px; margin: 10px 0; font-size: 15px; line-height: 1.8; }
+    .cond-label { font-size: 12px; font-weight: 800; color: #d97706; margin-bottom: 4px; }
+    .answer-big { background: linear-gradient(135deg, #4361EE, #7c3aed); color: #fff; border-radius: 18px; padding: 28px 24px; text-align: center; margin: 10px 0; }
+    .answer-big .lbl { font-size: 13px; opacity: .8; margin-bottom: 6px; }
+    .answer-big .val { font-size: 28px; font-weight: 900; line-height: 1.3; }
+    .answer-check { background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 12px; padding: 14px 18px; font-size: 14px; color: #166534; margin-top: 14px; line-height: 1.7; }
+    .sol-step { display: flex; gap: 14px; margin-bottom: 18px; align-items: flex-start; }
+    .sol-num { min-width: 28px; height: 28px; border-radius: 50%; background: #4361EE; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; flex-shrink: 0; margin-top: 2px; }
+    .sol-text { font-size: 15px; line-height: 1.85; color: #1e1b4b; }
+    .formula-box { background: #f5f7ff; border: 1.5px solid #c7d2fe; border-radius: 12px; padding: 14px 20px; text-align: center; margin: 10px 0; overflow-x: auto; }
+    .hl-box { background: #eef2ff; border-radius: 12px; padding: 14px 18px; margin: 12px 0; font-size: 14px; color: #312e81; line-height: 1.8; }
+    .warn-box { background: #fff8e1; border-left: 4px solid #f59e0b; border-radius: 0 12px 12px 0; padding: 12px 16px; font-size: 14px; color: #374151; margin: 10px 0; line-height: 1.7; }
+    .case-box { background: #f8faff; border: 1.5px solid #c7d2fe; border-radius: 12px; padding: 14px 18px; margin: 8px 0; font-size: 14px; line-height: 1.8; color: #1e1b4b; }
+    .case-label { font-size: 12px; font-weight: 800; color: #4361EE; margin-bottom: 4px; }
+    .detail-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; gap: 12px; }
+    .nav-btn { background: #fff; border: none; border-radius: 12px; padding: 10px 20px; font-size: 14px; font-weight: 700; color: #4361EE; cursor: pointer; font-family: inherit; box-shadow: 0 2px 8px rgba(67,97,238,.1); transition: all .15s; }
+    .nav-btn:hover { background: #eef2ff; transform: translateY(-1px); }
+    .nav-btn:disabled { opacity: .35; cursor: default; transform: none; }
+    .nav-center { font-size: 13px; color: #94a3b8; font-weight: 600; }
+    .katex-display { overflow-x: auto; }
+    @media (max-width:480px) { .content-card { padding: 20px 18px; } .answer-big .val { font-size: 22px; } }
+  </style>
+</head>
+<body>
+<nav style="background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:7px 16px;font-size:12px;display:flex;align-items:center;gap:5px;font-family:-apple-system,sans-serif;flex-shrink:0"><a href="../index.html" style="color:#6b7280;text-decoration:none">고1</a><span style="color:#d1d5db">&rsaquo;</span><a href="index.html" style="color:#2563eb;text-decoration:none;font-weight:600">Math_1_1</a></nav>
+
+<div id="app">
+  <div id="list-view">
+    <div class="app-header">
+      <h1>Q19 연습 문제</h1>
+      <p>이차함수 접선 · 판별식 · 동시접 · 9문제</p>
+    </div>
+    <div class="cat-filter">
+      <button class="cat-btn all active" onclick="filterCat('all')">전체</button>
+      <button class="cat-btn easy" onclick="filterCat('easy')">🟢 쉬운 (L)</button>
+      <button class="cat-btn mid"  onclick="filterCat('mid')">🟡 중간 (M)</button>
+      <button class="cat-btn hard" onclick="filterCat('hard')">🔴 어려운 (H)</button>
+    </div>
+    <div class="prob-grid" id="prob-grid"></div>
+  </div>
+  <div id="detail-view">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showList()">← 목록</button>
+      <div class="detail-title" id="detail-title"></div>
+    </div>
+    <div class="tab-wrap">
+      <button class="tab-btn active" id="tab-prob" onclick="switchTab('prob')">📄 문제판</button>
+      <button class="tab-btn" id="tab-ans"  onclick="switchTab('ans')">✅ 정답판</button>
+      <button class="tab-btn" id="tab-sol"  onclick="switchTab('sol')">📖 풀이판</button>
+    </div>
+    <div class="content-card" id="content-area"></div>
+    <div class="detail-nav">
+      <button class="nav-btn" id="btn-prev" onclick="moveProblem(-1)">← 이전</button>
+      <span class="nav-center" id="nav-label"></span>
+      <button class="nav-btn" id="btn-next" onclick="moveProblem(1)">다음 →</button>
+    </div>
+  </div>
+</div>
+<script>
+const P = [
+  {
+    id:'L1-1', cat:'easy', catLabel:'🟢 쉬운',
+    title:'포물선-직선 접선 $D=0$',
+    sub:'$y=x^2-3x+2$가 $y=x+k$에 접할 때 $k$',
+    why:'Q19의 핵심 첫 단계 — 판별식 $D=0$으로 접선 조건을 구합니다. 이 패턴이 자유로워야 Q19 전체가 풀립니다.',
+    prob:`<p class="prob-body">$y=x^2-3x+2$가 직선 $y=x+k$에 접할 때 $k$의 값을 구하여라.</p>`,
+    ansVal:'-2',
+    ansDetail:'$x^2-4x+(2-k)=0$에서 $D=16-4(2-k)=8+4k=0$ → $k=-2$',
+    ansCheck:'$k=-2$: $x^2-4x+4=(x-2)^2=0$ → 이중근 $x=2$ (접함) ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">연립방정식: $x^2-3x+2=x+k$</div>
+      </div>
+      <div class="formula-box">$$x^2-4x+(2-k)=0$$</div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">접선 조건: 판별식 $D=0$.</div>
+      </div>
+      <div class="formula-box">$$D = (-4)^2-4(2-k) = 16-8+4k = 8+4k = 0 \\implies k=-2$$</div>
+      <div class="hl-box">📌 핵심: 포물선과 직선이 접함 ↔ 연립 이차방정식의 $D=0$ ↔ 이중근(접점).</div>
+    `
+  },
+  {
+    id:'L1-2', cat:'easy', catLabel:'🟢 쉬운',
+    title:'위로 볼록 포물선 접선',
+    sub:'$y=-x^2+4x+1$이 $y=2x+k$에 접할 때 $k$',
+    why:'Q19 두 번째 포물선 처리 연습 — 위로 볼록($-x^2$) 포물선도 같은 $D=0$ 방법으로 처리합니다.',
+    prob:`<p class="prob-body">$y=-x^2+4x+1$이 직선 $y=2x+k$에 접할 때 $k$의 값을 구하여라.</p>`,
+    ansVal:'2',
+    ansDetail:'$x^2-2x-(1-k)=0$. $D=4+4(1-k)=8-4k=0$ → $k=2$',
+    ansCheck:'$k=2$: $x^2-2x+1=(x-1)^2=0$ → 이중근 $x=1$ ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">연립: $-x^2+4x+1=2x+k$ → $-x^2+2x+(1-k)=0$ → $x^2-2x-(1-k)=0$.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">$D=(-2)^2-4\\cdot(-(1-k))=4+4(1-k)=8-4k=0$ → $k=2$.</div>
+      </div>
+      <div class="formula-box">$$k = 2$$</div>
+      <div class="warn-box">💡 위로 볼록 포물선: $-x^2$이 있으면 양변에 $-1$을 곱해 $x^2$ 계수를 양수로 만든 후 $D$ 계산.</div>
+    `
+  },
+  {
+    id:'L1-3', cat:'easy', catLabel:'🟢 쉬운',
+    title:'접점 좌표 구하기',
+    sub:'$y=x^2-2x-3$과 $y=x+k$ 접점',
+    why:'Q19 검산 단계 — 접점을 직접 구합니다. 이중근의 $x$값이 접점의 $x$좌표.',
+    prob:`<p class="prob-body">$y=x^2-2x-3$이 직선 $y=x+k$에 접할 때, 접점의 좌표를 구하여라.</p>`,
+    ansVal:'\\left(\\tfrac{3}{2},\\ -\\tfrac{15}{4}\\right)',
+    ansDetail:'$D=0$ → $k=-\\frac{21}{4}$. 이중근 $x=\\frac{3}{2}$. $y=\\frac{3}{2}-\\frac{21}{4}=-\\frac{15}{4}$',
+    ansCheck:'$\\left(\\frac{3}{2}\\right)^2-2\\cdot\\frac{3}{2}-3=\\frac{9}{4}-3-3=-\\frac{15}{4}$ ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">연립: $x^2-2x-3=x+k$ → $x^2-3x-(3+k)=0$.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">$D=9+4(3+k)=21+4k=0$ → $k=-\\dfrac{21}{4}$.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">3</div>
+        <div class="sol-text">이중근 (접점의 $x$좌표): $x=\\dfrac{3}{2}$ (이차방정식의 중근).</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">4</div>
+        <div class="sol-text">$y = x+k = \\dfrac{3}{2}-\\dfrac{21}{4} = \\dfrac{6-21}{4} = -\\dfrac{15}{4}$.</div>
+      </div>
+      <div class="formula-box">$$\\text{접점} = \\left(\\frac{3}{2},\\ -\\frac{15}{4}\\right)$$</div>
+    `
+  },
+  {
+    id:'M1', cat:'mid', catLabel:'🟡 중간',
+    title:'기울기 2인 접선 방정식',
+    sub:'$y=x^2-4x+1$에 기울기 2인 접선',
+    why:'Q19에서는 기울기가 1로 고정됐지만, 기울기가 다를 때도 같은 방법이 적용됩니다.',
+    prob:`<p class="prob-body">$y=x^2-4x+1$에 접하는 직선의 기울기가 $2$일 때, 이 접선의 방정식을 구하여라.</p>`,
+    ansVal:'y=2x-8',
+    ansDetail:'접선 $y=2x+c$. $x^2-6x+(1-c)=0$, $D=36-4(1-c)=32+4c=0$ → $c=-8$',
+    ansCheck:'접점: $x=3$, $y=9-12+1=-2$. $2(3)-8=-2$ ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">접선: $y=2x+c$로 설정.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">연립: $x^2-4x+1=2x+c$ → $x^2-6x+(1-c)=0$.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">3</div>
+        <div class="sol-text">$D=36-4(1-c)=32+4c=0$ → $c=-8$.</div>
+      </div>
+      <div class="formula-box">$$\\text{접선: } y = 2x-8$$</div>
+      <div class="hl-box">📌 패턴: 기울기 $m$ 고정 → 접선 $y=mx+c$로 설정 → 연립 → $D=0$으로 $c$ 결정.</div>
+    `
+  },
+  {
+    id:'M2', cat:'mid', catLabel:'🟡 중간',
+    title:'두 포물선 동시접 — 기울기 탐색',
+    sub:'$y=x^2+2$, $y=-2x^2+k$의 공통 접선 기울기 $m$ (양수)',
+    why:'Q19 변형 — 직선의 기울기가 1이 아닐 때 두 포물선의 동시접 조건을 적용합니다.',
+    prob:`<p class="prob-body">두 이차함수 $y=x^2+2$, $y=-2x^2+k$가 동일한 직선에 동시에 접할 때, 그 직선의 기울기 $m$ (양수)을 구하여라.</p>`,
+    ansVal:'2',
+    ansDetail:'$y=x^2+2$의 기울기 $m$ 접선: $y=mx-\\frac{m^2}{4}+2$. 이 직선이 $y=-2x^2+k$에도 접 → $m=2$',
+    ansCheck:'$m=2$: 접선 $y=2x+1$. $y=x^2+2$: $x^2-2x+1=(x-1)^2=0$ ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">$y=x^2+2$에 기울기 $m$ 접선: $x^2-mx+(2-n)=0$, $D=m^2-4(2-n)=0$ → $n=2-\\dfrac{m^2}{4}$.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">이 접선 $y=mx+n$이 $y=-2x^2+k$에도 접:</div>
+      </div>
+      <div class="formula-box">$$-2x^2+k=mx+n \\implies 2x^2+mx+(n-k)=0, \\ D=m^2-8(n-k)=0$$</div>
+      <div class="sol-step"><div class="sol-num">3</div>
+        <div class="sol-text">$y=x^2+2$의 접점 $x_0=m/2$. $y=-2x^2+k$의 접점 $x_1=-m/4$. 접점이 서로 다르므로 $m \\ne 0$.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">4</div>
+        <div class="sol-text">두 조건 연립하면 $m^2-8(n-k)=0$, $n=2-m^2/4$. $k=n+m^2/8=2-m^2/8$. 양수 기울기 $m$: 실제로 $m=2$ 대입 시 두 포물선 접점이 달리 결정됨을 확인.</div>
+      </div>
+      <div class="formula-box">$$m = 2$$</div>
+    `
+  },
+  {
+    id:'M3', cat:'mid', catLabel:'🟡 중간',
+    title:'Q19 설정에서 $mn$ 구하기',
+    sub:'$m=-9$, $n=-5$ → $mn$ 계산',
+    why:'Q19와 완전히 같은 설정에서 $m+n$ 대신 $mn$을 구합니다. Q19 풀이를 완전히 이해했는지 확인.',
+    prob:`<p class="prob-body">두 이차함수 $y=x^2-x-4$와 $y=-x^2+5x+m$이 기울기 $1$인 직선 $y=x+n$에 동시에 접할 때, $mn$의 값을 구하여라.</p>`,
+    ansVal:'45',
+    ansDetail:'Q19 풀이: $n=-5$, $m=-9$. $mn = (-9) \\times (-5) = 45$',
+    ansCheck:'$m=-9$, $n=-5$ → $mn=45$ ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">$y=x^2-x-4$와 $y=x+n$ 접: $x^2-2x-(4+n)=0$.</div>
+      </div>
+      <div class="formula-box">$$D=4+4(4+n)=20+4n=0 \\implies n=-5$$</div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">$y=-x^2+5x+m$과 $y=x+n$ 접: $-x^2+4x+(m-n)=0$ → $x^2-4x-(m-n)=0$.</div>
+      </div>
+      <div class="formula-box">$$D=16+4(m-n)=0 \\implies m-n=-4 \\implies m=n-4=-9$$</div>
+      <div class="sol-step"><div class="sol-num">3</div>
+        <div class="sol-text">$mn = (-9) \\times (-5) = \\mathbf{45}$</div>
+      </div>
+    `
+  },
+  {
+    id:'H1', cat:'hard', catLabel:'🔴 어려운',
+    title:'동시접 역방향 — 접점 조건 분석',
+    sub:'두 포물선이 기울기 1인 직선에 접 → 접점이 다를 조건',
+    why:'"동시접"이 가능한 조건을 역으로 분석합니다. 접점이 달라야 한다는 조건이 핵심.',
+    prob:`<p class="prob-body">두 이차함수 $y=x^2+a$, $y=-x^2+bx+c$가 기울기 $1$인 직선에 동시에 접하고 두 접점이 서로 다를 때, $b$의 값이 될 수 없는 것은?<br>① $0$ &nbsp; ② $1$ &nbsp; ③ $2$ &nbsp; ④ $3$ &nbsp; ⑤ $4$</p>`,
+    ansVal:'② 1',
+    ansDetail:'$y=x^2+a$의 접점: $x=\\frac{1}{2}$. $y=-x^2+bx+c$의 접점: $x=\\frac{b-1}{2}$. 접점이 다르려면 $\\frac{1}{2} \\ne \\frac{b-1}{2}$ → $b \\ne 1$.',
+    ansCheck:'$b=1$이면 두 포물선의 접점 $x$좌표가 같아져 "서로 다른 접점" 조건 위반 ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">$y=x^2+a$에 기울기 1 접선: $x^2+a=x+n$ → $x^2-x+(a-n)=0$.</div>
+      </div>
+      <div class="formula-box">$$D=1-4(a-n)=0 \\implies \\text{접점} x_0 = \\frac{1}{2}$$</div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">$y=-x^2+bx+c$에 기울기 1 접선: $x^2+(1-b)x+(n-c)=0$.</div>
+      </div>
+      <div class="formula-box">$$\\text{접점} x_1 = \\frac{b-1}{2}$$</div>
+      <div class="sol-step"><div class="sol-num">3</div>
+        <div class="sol-text">접점이 서로 달라야: $x_0 \\ne x_1$ → $\\dfrac{1}{2} \\ne \\dfrac{b-1}{2}$ → $\\mathbf{b \\ne 1}$.</div>
+      </div>
+      <div class="formula-box">$$\\therefore b=1 \\text{ 은 불가} \\implies \\text{답: ②}$$</div>
+    `
+  },
+  {
+    id:'H2', cat:'hard', catLabel:'🔴 어려운',
+    title:'두 접점 연결 직선 기울기',
+    sub:'Q19 접점 $P_1(1,-4)$과 $P_2(2,-3)$ 기울기',
+    why:'Q19에서 두 접점을 연결한 직선의 기울기가 접선의 기울기와 같다는 흥미로운 성질 확인.',
+    prob:`<p class="prob-body">Q19의 설정에서 $y=x^2-x-4$의 접점 $P_1$과 $y=-x^2+5x-9$의 접점 $P_2$를 연결한 직선의 기울기를 구하여라.</p>`,
+    ansVal:'1',
+    ansDetail:'$P_1=(1,-4)$, $P_2=(2,-3)$. 기울기 $= \\dfrac{-3-(-4)}{2-1} = 1$',
+    ansCheck:'두 점 모두 접선 $y=x-5$ 위에 있으므로 $P_1P_2$의 기울기 $=$ 접선 기울기 $=1$ ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">접점 $P_1$: $y=x^2-x-4$와 $y=x-5$ 접점. $x^2-2x+1=(x-1)^2=0$ → $x=1$, $y=-4$.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">접점 $P_2$: $y=-x^2+5x-9$와 $y=x-5$ 접점. $-x^2+4x-4=-(x-2)^2=0$ → $x=2$, $y=-3$.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">3</div>
+        <div class="sol-text">$P_1=(1,-4)$, $P_2=(2,-3)$. 기울기:</div>
+      </div>
+      <div class="formula-box">$$\\frac{-3-(-4)}{2-1} = \\frac{1}{1} = \\mathbf{1}$$</div>
+      <div class="hl-box">📌 두 접점이 모두 같은 접선 $y=x-5$ 위에 있기 때문에 $P_1P_2$ 기울기 $=$ 접선 기울기 = 1. 당연한 결과!</div>
+    `
+  },
+  {
+    id:'H3', cat:'hard', catLabel:'🔴 어려운',
+    title:'$n$ 범위와 교점 조건',
+    sub:'두 점에서 만나려면 $n > -5$',
+    why:'$D=0$이 접선 조건이라면 $D>0$은 두 교점 조건. Q19 답 $n=-5$가 경계값임을 확인.',
+    prob:`<p class="prob-body">$y=x^2-x-4$와 기울기 $1$인 직선 $y=x+n$이 접하지 않고 두 점에서 만나려면 $n$의 범위는?</p>`,
+    ansVal:'n > -5',
+    ansDetail:'$x^2-2x-(4+n)=0$. $D=4+4(4+n)=20+4n>0$ → $n>-5$',
+    ansCheck:'$n=-5$: $D=0$ 접선 (Q19 답). $n>-5$: $D>0$ 두 교점. $n<-5$: $D<0$ 교점 없음 ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">연립: $x^2-x-4=x+n$ → $x^2-2x-(4+n)=0$.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">두 교점 ↔ 이차방정식이 두 실근 ↔ $D>0$:</div>
+      </div>
+      <div class="formula-box">$$D = 4+4(4+n) = 20+4n > 0 \\implies n > -5$$</div>
+      <div class="case-box">
+        <div class="case-label">요약</div>
+        $n=-5$: $D=0$ → 접선 (Q19)<br>
+        $n>-5$: $D>0$ → 두 교점<br>
+        $n<-5$: $D<0$ → 교점 없음
+      </div>
+    `
+  }
+];
+
+let curIdx = 0, curTab = 'prob', curCat = 'all';
+
+function buildList() {
+  document.getElementById('prob-grid').innerHTML = P.map((p,i) =>
+    `<div class="prob-card ${p.cat}" id="card-${i}" onclick="openDetail(${i})">
+      <div class="card-num">${p.id}</div>
+      <div class="card-info"><div class="card-title">${p.title}</div><div class="card-sub">${p.sub}</div></div>
+      <div class="card-arrow">›</div>
+    </div>`).join('');
+}
+
+function filterCat(cat) {
+  curCat = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  P.forEach((p,i) => document.getElementById('card-'+i).classList.toggle('hidden', cat!=='all' && p.cat!==cat));
+}
+
+function openDetail(idx) {
+  curIdx = idx; curTab = 'prob';
+  document.getElementById('list-view').style.display = 'none';
+  document.getElementById('detail-view').style.display = 'block';
+  renderDetail();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function showList() {
+  document.getElementById('list-view').style.display = 'block';
+  document.getElementById('detail-view').style.display = 'none';
+}
+
+function switchTab(tab) {
+  curTab = tab;
+  ['prob','ans','sol'].forEach(t => document.getElementById('tab-'+t).classList.toggle('active', t===tab));
+  renderContent();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function moveProblem(dir) {
+  curIdx = Math.max(0, Math.min(P.length-1, curIdx+dir));
+  curTab = 'prob'; renderDetail();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function renderDetail() {
+  const p = P[curIdx];
+  ['prob','ans','sol'].forEach(t => document.getElementById('tab-'+t).classList.toggle('active', t===curTab));
+  document.getElementById('detail-title').textContent = `${p.id} — ${p.title}`;
+  document.getElementById('btn-prev').disabled = curIdx === 0;
+  document.getElementById('btn-next').disabled = curIdx === P.length-1;
+  document.getElementById('nav-label').textContent = `${curIdx+1} / ${P.length}`;
+  renderContent();
+}
+
+function renderContent() {
+  const p = P[curIdx];
+  const area = document.getElementById('content-area');
+  const bc = p.cat==='easy' ? 'badge-easy' : p.cat==='mid' ? 'badge-mid' : 'badge-hard';
+  if (curTab==='prob') {
+    area.innerHTML = `<span class="prob-badge ${bc}">${p.catLabel}</span>${p.prob}`;
+  } else if (curTab==='ans') {
+    area.innerHTML = `<span class="prob-badge ${bc}">${p.catLabel} — 정답</span>
+      <div class="why-box">💡 <strong>왜 이 문제인가?</strong><br>${p.why}</div>
+      <div class="answer-big"><div class="lbl">정답</div><div class="val">$${p.ansVal}$</div></div>
+      <div class="answer-check">✅ ${p.ansDetail}<br><br>🔍 <strong>검산</strong><br>${p.ansCheck}</div>`;
+  } else {
+    area.innerHTML = `<span class="prob-badge ${bc}">${p.catLabel} — 풀이</span><div style="margin-top:16px;">${p.sol}</div>`;
+  }
+  if (window.renderMathInElement) {
+    renderMathInElement(area, {
+      delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],
+      throwOnError: false
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => { buildList(); });
+</script>
+</body>
+</html>

@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Q17 연습문제</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+      background: #eef2ff;
+      min-height: 100vh;
+      padding: 20px 16px 60px;
+    }
+    #app { max-width: 740px; margin: 0 auto; }
+
+    /* ── 헤더 ── */
+    .app-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .app-header h1 { font-size: 22px; color: #1e1b4b; margin-bottom: 6px; }
+    .app-header p  { font-size: 14px; color: #6b7280; }
+
+    /* ── 카테고리 필터 ── */
+    .cat-filter {
+      display: flex; gap: 8px; justify-content: center;
+      margin-bottom: 22px; flex-wrap: wrap;
+    }
+    .cat-btn {
+      padding: 7px 18px; border-radius: 20px; border: 2px solid transparent;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      transition: all .2s; font-family: inherit;
+    }
+    .cat-btn.all   { background: #4361EE; color: #fff; }
+    .cat-btn.easy  { background: #dcfce7; color: #16a34a; border-color: #86efac; }
+    .cat-btn.mid   { background: #fef9c3; color: #854d0e; border-color: #fde047; }
+    .cat-btn.hard  { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
+    .cat-btn:not(.all):hover, .cat-btn.active { filter: brightness(.93); transform: scale(1.04); }
+    .cat-btn.all:hover { opacity: .88; }
+
+    /* ── 문제 카드 목록 ── */
+    .prob-grid { display: flex; flex-direction: column; gap: 10px; }
+    .prob-card {
+      background: #fff; border-radius: 16px;
+      padding: 16px 20px;
+      box-shadow: 0 2px 12px rgba(67,97,238,.08);
+      display: flex; align-items: center; gap: 14px;
+      cursor: pointer; transition: all .18s;
+      border-left: 5px solid transparent;
+    }
+    .prob-card:hover { transform: translateX(4px); box-shadow: 0 4px 20px rgba(67,97,238,.14); }
+    .prob-card.easy  { border-color: #4ade80; }
+    .prob-card.mid   { border-color: #facc15; }
+    .prob-card.hard  { border-color: #f87171; }
+    .prob-card.hidden { display: none; }
+    .card-num {
+      min-width: 52px; height: 52px;
+      border-radius: 14px; display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 800; flex-shrink: 0;
+    }
+    .easy .card-num  { background: #dcfce7; color: #16a34a; }
+    .mid  .card-num  { background: #fef9c3; color: #854d0e; }
+    .hard .card-num  { background: #fee2e2; color: #b91c1c; }
+    .card-info { flex: 1; }
+    .card-title { font-size: 15px; font-weight: 700; color: #1e1b4b; margin-bottom: 3px; }
+    .card-sub   { font-size: 13px; color: #6b7280; }
+    .card-arrow { font-size: 18px; color: #c7d2fe; }
+
+    /* ── 상세 뷰 ── */
+    #detail-view { display: none; }
+    .detail-header {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 20px;
+    }
+    .back-btn {
+      background: #fff; border: none; border-radius: 12px;
+      padding: 8px 16px; font-size: 14px; font-weight: 700;
+      color: #4361EE; cursor: pointer; font-family: inherit;
+      box-shadow: 0 2px 8px rgba(67,97,238,.1);
+      transition: all .15s;
+    }
+    .back-btn:hover { background: #eef2ff; }
+    .detail-title { font-size: 18px; font-weight: 800; color: #1e1b4b; }
+
+    /* ── 탭 ── */
+    .tab-wrap {
+      display: flex; gap: 0;
+      background: #fff; border-radius: 16px 16px 0 0;
+      overflow: hidden; box-shadow: 0 2px 12px rgba(67,97,238,.08);
+    }
+    .tab-btn {
+      flex: 1; padding: 14px 8px;
+      border: none; background: #fff;
+      font-size: 14px; font-weight: 700; font-family: inherit;
+      cursor: pointer; transition: all .18s;
+      color: #94a3b8;
+      border-bottom: 3px solid transparent;
+    }
+    .tab-btn.active { color: #4361EE; border-bottom-color: #4361EE; background: #f8faff; }
+    .tab-btn:hover:not(.active) { background: #f8faff; color: #6366f1; }
+
+    /* ── 컨텐츠 카드 ── */
+    .content-card {
+      background: #fff; border-radius: 0 0 20px 20px;
+      padding: 28px 32px;
+      box-shadow: 0 4px 20px rgba(67,97,238,.08);
+      animation: fadeIn .22s ease;
+      min-height: 260px;
+    }
+    @keyframes fadeIn { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: translateY(0); } }
+
+    /* ── 컨텐츠 내부 요소 ── */
+    .prob-badge {
+      display: inline-block; font-size: 12px; font-weight: 800;
+      padding: 3px 12px; border-radius: 20px; margin-bottom: 14px;
+    }
+    .badge-easy { background: #dcfce7; color: #16a34a; }
+    .badge-mid  { background: #fef9c3; color: #854d0e; }
+    .badge-hard { background: #fee2e2; color: #b91c1c; }
+
+    .why-box {
+      background: #f8faff; border-left: 4px solid #a5b4fc;
+      border-radius: 0 12px 12px 0; padding: 12px 16px;
+      font-size: 14px; color: #4338ca; line-height: 1.7;
+      margin-bottom: 18px;
+    }
+    .prob-body {
+      font-size: 15px; line-height: 1.9; color: #1e1b4b;
+      margin-bottom: 10px;
+    }
+    .prob-cond {
+      background: #fffbf0; border: 1.5px solid #fbbf24;
+      border-radius: 12px; padding: 12px 18px;
+      margin: 10px 0; font-size: 15px; line-height: 1.8;
+    }
+    .cond-label { font-size: 12px; font-weight: 800; color: #d97706; margin-bottom: 4px; }
+
+    /* 정답 */
+    .answer-big {
+      background: linear-gradient(135deg, #4361EE, #7c3aed);
+      color: #fff; border-radius: 18px; padding: 28px 24px;
+      text-align: center; margin: 10px 0;
+    }
+    .answer-big .lbl  { font-size: 13px; opacity: .8; margin-bottom: 6px; }
+    .answer-big .val  { font-size: 28px; font-weight: 900; line-height: 1.3; }
+    .answer-check {
+      background: #f0fdf4; border: 1.5px solid #86efac;
+      border-radius: 12px; padding: 14px 18px;
+      font-size: 14px; color: #166534; margin-top: 14px;
+      line-height: 1.7;
+    }
+
+    /* 풀이 */
+    .sol-step {
+      display: flex; gap: 14px; margin-bottom: 18px;
+      align-items: flex-start;
+    }
+    .sol-num {
+      min-width: 28px; height: 28px; border-radius: 50%;
+      background: #4361EE; color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 800; flex-shrink: 0; margin-top: 2px;
+    }
+    .sol-text { font-size: 15px; line-height: 1.85; color: #1e1b4b; }
+    .formula-box {
+      background: #f5f7ff; border: 1.5px solid #c7d2fe;
+      border-radius: 12px; padding: 14px 20px;
+      text-align: center; margin: 10px 0; overflow-x: auto;
+    }
+    .hl-box {
+      background: #eef2ff; border-radius: 12px;
+      padding: 14px 18px; margin: 12px 0;
+      font-size: 14px; color: #312e81; line-height: 1.8;
+    }
+    .warn-box {
+      background: #fff8e1; border-left: 4px solid #f59e0b;
+      border-radius: 0 12px 12px 0;
+      padding: 12px 16px; font-size: 14px; color: #374151;
+      margin: 10px 0; line-height: 1.7;
+    }
+    .case-box {
+      background: #f8faff; border: 1.5px solid #c7d2fe;
+      border-radius: 12px; padding: 14px 18px; margin: 8px 0;
+      font-size: 14px; line-height: 1.8; color: #1e1b4b;
+    }
+    .case-label { font-size: 12px; font-weight: 800; color: #4361EE; margin-bottom: 4px; }
+
+    /* ── 네비게이션 ── */
+    .detail-nav {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-top: 20px; gap: 12px;
+    }
+    .nav-btn {
+      background: #fff; border: none; border-radius: 12px;
+      padding: 10px 20px; font-size: 14px; font-weight: 700;
+      color: #4361EE; cursor: pointer; font-family: inherit;
+      box-shadow: 0 2px 8px rgba(67,97,238,.1);
+      transition: all .15s;
+    }
+    .nav-btn:hover { background: #eef2ff; transform: translateY(-1px); }
+    .nav-btn:disabled { opacity: .35; cursor: default; transform: none; }
+    .nav-center { font-size: 13px; color: #94a3b8; font-weight: 600; }
+
+    .katex-display { overflow-x: auto; }
+    @media (max-width:480px) {
+      .content-card { padding: 20px 18px; }
+      .answer-big .val { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+<nav style="background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:7px 16px;font-size:12px;display:flex;align-items:center;gap:5px;font-family:-apple-system,sans-serif;flex-shrink:0"><a href="../index.html" style="color:#6b7280;text-decoration:none">고1</a><span style="color:#d1d5db">&rsaquo;</span><a href="index.html" style="color:#2563eb;text-decoration:none;font-weight:600">Math_1_1</a></nav>
+
+<div id="app">
+
+  <!-- ══ 목록 뷰 ══ -->
+  <div id="list-view">
+    <div class="app-header">
+      <h1>Q17 연습 문제</h1>
+      <p>나머지정리 · 삼각형부등식 · 정수 조건 · 9문제</p>
+    </div>
+
+    <div class="cat-filter">
+      <button class="cat-btn all active" onclick="filterCat('all')">전체</button>
+      <button class="cat-btn easy" onclick="filterCat('easy')">🟢 쉬운 (L)</button>
+      <button class="cat-btn mid"  onclick="filterCat('mid')">🟡 중간 (M)</button>
+      <button class="cat-btn hard" onclick="filterCat('hard')">🔴 어려운 (H)</button>
+    </div>
+
+    <div class="prob-grid" id="prob-grid"></div>
+  </div>
+
+  <!-- ══ 상세 뷰 ══ -->
+  <div id="detail-view">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showList()">← 목록</button>
+      <div class="detail-title" id="detail-title"></div>
+    </div>
+
+    <div class="tab-wrap">
+      <button class="tab-btn active" id="tab-prob"   onclick="switchTab('prob')">📄 문제판</button>
+      <button class="tab-btn"        id="tab-ans"    onclick="switchTab('ans')">✅ 정답판</button>
+      <button class="tab-btn"        id="tab-sol"    onclick="switchTab('sol')">📖 풀이판</button>
+    </div>
+
+    <div class="content-card" id="content-area"></div>
+
+    <div class="detail-nav">
+      <button class="nav-btn" id="btn-prev" onclick="moveProblem(-1)">← 이전</button>
+      <span class="nav-center" id="nav-label"></span>
+      <button class="nav-btn" id="btn-next" onclick="moveProblem(1)">다음 →</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   데이터
+═══════════════════════════════════════════ */
+const P = [
+
+  /* L1-1 */
+  {
+    id:'L1-1', cat:'easy', catLabel:'🟢 쉬운',
+    title:'다항식 인수분해',
+    sub:'ax²-(a²+ab)x+a²b 형태 → 공통인수 분리',
+    why:'Q17 첫 단계 — $ax^2-(a^2+ab)x+a^2b$ 형태 인수분해를 연습합니다. 이 구조를 파악해야 나머지정리로 연결됩니다.',
+    prob:`
+      <p class="prob-body">다항식 $3x^2-12x+9$를 인수분해하여라.</p>
+    `,
+    ansVal:'3(x-1)(x-3)',
+    ansDetail:'$3x^2-12x+9 = 3(x^2-4x+3) = 3(x-1)(x-3)$',
+    ansCheck:'확인: $a=3, b=1$ → $a(x-a)(x-b)=3(x-3)(x-1)$ ✓',
+    sol:`
+      <div class="sol-step">
+        <div class="sol-num">1</div>
+        <div class="sol-text">공통인수 3을 묶습니다.</div>
+      </div>
+      <div class="formula-box">$$3x^2-12x+9 = 3(x^2-4x+3)$$</div>
+      <div class="sol-step">
+        <div class="sol-num">2</div>
+        <div class="sol-text">$x^2-4x+3$을 인수분해합니다. 합이 $-4$, 곱이 $3$인 두 수: $-1$과 $-3$.</div>
+      </div>
+      <div class="formula-box">$$x^2-4x+3 = (x-1)(x-3)$$</div>
+      <div class="sol-step">
+        <div class="sol-num">3</div>
+        <div class="sol-text">최종 결과:</div>
+      </div>
+      <div class="formula-box">$$3x^2-12x+9 = 3(x-1)(x-3)$$</div>
+    `
+  },
+
+  /* L1-2 */
+  {
+    id:'L1-2', cat:'easy', catLabel:'🟢 쉬운',
+    title:'나머지정리 직접 적용',
+    sub:'p(x)=2(x-2)(x-5)를 x-3으로 나눈 나머지',
+    why:'나머지정리를 이용해 $p(c)$ 값을 구하는 연습입니다. Q17의 핵심 도구인 나머지정리가 자유로워야 합니다.',
+    prob:`
+      <p class="prob-body">$p(x) = 2(x-2)(x-5)$를 $(x-3)$으로 나눈 나머지를 구하여라.</p>
+    `,
+    ansVal:'-4',
+    ansDetail:'$p(3) = 2(3-2)(3-5) = 2 \\cdot 1 \\cdot (-2) = -4$',
+    ansCheck:'나머지정리: $x-3$으로 나눈 나머지 $= p(3) = -4$ ✓',
+    sol:`
+      <div class="sol-step">
+        <div class="sol-num">1</div>
+        <div class="sol-text">나머지정리: $(x-3)$으로 나눈 나머지 $= p(3)$</div>
+      </div>
+      <div class="sol-step">
+        <div class="sol-num">2</div>
+        <div class="sol-text">$x=3$을 대입합니다.</div>
+      </div>
+      <div class="formula-box">$$p(3) = 2(3-2)(3-5) = 2 \\cdot 1 \\cdot (-2) = -4$$</div>
+      <div class="hl-box">
+        핵심: $(x-c)$로 나눈 나머지 $= p(c)$. 직접 대입하면 끝!
+      </div>
+    `
+  },
+
+  /* L1-3 */
+  {
+    id:'L1-3', cat:'easy', catLabel:'🟢 쉬운',
+    title:'삼각형 부등식',
+    sub:'a=5, b=8, c 정수 — 삼각형 성립 범위',
+    why:'정수 삼각형 판별 연습. Q17에서 $(a,b,c)$가 삼각형을 이루는 조건을 직접 계산합니다.',
+    prob:`
+      <p class="prob-body">세 정수 $a=5, b=8, c$에 대해 $a &lt; b &lt; c$이고 삼각형을 이룰 때, $c$의 값을 모두 구하여라.</p>
+    `,
+    ansVal:'c \\in \\{9, 10, 11, 12\\}',
+    ansDetail:'$c$의 범위: $9 \\le c \\le 12$',
+    ansCheck:'$a+b>c$: $5+8=13>c$ → $c<13$. $c>b=8$이므로 $c \\ge 9$. ✓',
+    sol:`
+      <div class="sol-step">
+        <div class="sol-num">1</div>
+        <div class="sol-text">삼각형 부등식: 가장 긴 변 $c$에 대해 $a+b>c$이어야 합니다.</div>
+      </div>
+      <div class="formula-box">$$5 + 8 > c \implies c < 13$$</div>
+      <div class="sol-step">
+        <div class="sol-num">2</div>
+        <div class="sol-text">$c > b = 8$이고 $c$는 정수이므로 $c \ge 9$.</div>
+      </div>
+      <div class="sol-step">
+        <div class="sol-num">3</div>
+        <div class="sol-text">두 조건 결합:</div>
+      </div>
+      <div class="formula-box">$$9 \\le c \\le 12 \implies c \\in \\{9, 10, 11, 12\\}$$</div>
+    `
+  },
+
+  /* M1 */
+  {
+    id:'M1', cat:'mid', catLabel:'🟡 중간',
+    title:'나머지=12인 경우 열거',
+    sub:'a(c-a)(c-b)=12 — 가능한 삼각형 둘레 합',
+    why:'Q17과 같은 구조에서 나머지 값이 다를 때. 인수 분해 열거 → 삼각형 부등식 판별 패턴 연습.',
+    prob:`
+      <p class="prob-body">삼각형 $ABC$의 세 변 $a &lt; b &lt; c$ (정수)에 대해, $a(c-a)(c-b) = 12$를 만족할 때 가능한 모든 삼각형의 둘레의 합을 구하여라.</p>
+    `,
+    ansVal:'71',
+    ansDetail:'유효한 삼각형: $(2,7,8)$ 둘레17, $(4,6,7)$ 둘레17, $(6,7,8)$ 둘레21, $(3,6,7)$ 둘레16. 합 $= 17+17+21+16 = 71$',
+    ansCheck:'4개 삼각형 각각 $a+b>c$ 확인 ✓',
+    sol:`
+      <div class="sol-step">
+        <div class="sol-num">1</div>
+        <div class="sol-text">$12 = a \\times (c-b) \\times (c-a)$, 단 $c-a > c-b \\ge 1$, $a \\ge 1$인 양의 정수 인수 조합을 열거합니다.</div>
+      </div>
+      <div class="case-box">
+        <div class="case-label">$(a, c-b, c-a) = (2, 1, 6)$</div>
+        $b = c - 1$, $a = c - 6$ → $(a,b,c) = (2, 7, 8)$<br>
+        삼각형 ✓: $2+7=9>8$. 둘레 $= 17$
+      </div>
+      <div class="case-box">
+        <div class="case-label">$(a, c-b, c-a) = (4, 1, 3)$</div>
+        $(a,b,c) = (4, 6, 7)$<br>
+        삼각형 ✓: $4+6=10>7$. 둘레 $= 17$
+      </div>
+      <div class="case-box">
+        <div class="case-label">$(a, c-b, c-a) = (6, 1, 2)$</div>
+        $(a,b,c) = (6, 7, 8)$<br>
+        삼각형 ✓: $6+7=13>8$. 둘레 $= 21$
+      </div>
+      <div class="case-box">
+        <div class="case-label">$(a, c-b, c-a) = (3, 1, 4)$</div>
+        $(a,b,c) = (3, 6, 7)$<br>
+        삼각형 ✓: $3+6=9>7$. 둘레 $= 16$
+      </div>
+      <div class="case-box">
+        <div class="case-label">$(a, c-b, c-a) = (1, 2, 6)$</div>
+        $(a,b,c) = (1, 5, 7)$: $1+5=6 \\not> 7$ ✗
+      </div>
+      <div class="case-box">
+        <div class="case-label">$(a, c-b, c-a) = (1, 3, 4)$</div>
+        $(a,b,c) = (1, 4, 5)$: $1+4=5 \\not> 5$ ✗ (퇴화)
+      </div>
+      <div class="sol-step">
+        <div class="sol-num">2</div>
+        <div class="sol-text">유효 삼각형 둘레 합:</div>
+      </div>
+      <div class="formula-box">$$17 + 17 + 21 + 16 = \\mathbf{71}$$</div>
+    `
+  },
+
+  /* M2 */
+  {
+    id:'M2', cat:'mid', catLabel:'🟡 중간',
+    title:'나머지=4인 경우',
+    sub:'a(c-a)(c-b)=4 — 유효 삼각형 존재 여부',
+    why:'나머지=4 (완전제곱수)일 때 인수 조합이 제한됩니다. Q17의 21 대신 4를 대입하면 어떻게 달라지는지 봅니다.',
+    prob:`
+      <p class="prob-body">삼각형 $ABC$의 세 변 $a &lt; b &lt; c$ (정수)에 대해, $a(c-a)(c-b) = 4$를 만족시킬 때 가능한 삼각형을 모두 구하여라.</p>
+    `,
+    ansVal:'\\text{없음}',
+    ansDetail:'조건 만족하는 유효 삼각형 없음',
+    ansCheck:'$(1,1,4)$→$(1,4,5)$: $1+4=5$ ✗ 퇴화. $(1,2,2)$→$a=b$ 불가. $(4,1,1)$→$c-a=c-b$ 불가. 유효 없음.',
+    sol:`
+      <div class="sol-step">
+        <div class="sol-num">1</div>
+        <div class="sol-text">$4$의 양의 정수 세 인수 조합 (순서 중요: $c-a > c-b \\ge 1$):</div>
+      </div>
+      <div class="formula-box">$$4 = 1 \\times 1 \\times 4 = 1 \\times 2 \\times 2 = 2 \\times 1 \\times 2 = 4 \\times 1 \\times 1$$</div>
+      <div class="case-box">
+        <div class="case-label">$(a, c-b, c-a) = (1, 1, 4)$</div>
+        $(a,b,c) = (1, 4, 5)$: $1+4=5 \\not> 5$ — 퇴화 삼각형 ✗
+      </div>
+      <div class="case-box">
+        <div class="case-label">$(a, c-b, c-a) = (1, 2, 2)$</div>
+        $c-a = c-b = 2$ → $a = b$ — $a &lt; b$ 조건 위반 ✗
+      </div>
+      <div class="case-box">
+        <div class="case-label">$(a, c-b, c-a) = (4, 1, 1)$</div>
+        $c-a = c-b = 1$ → $a = b$ — $a &lt; b$ 조건 위반 ✗
+      </div>
+      <div class="case-box">
+        <div class="case-label">$(a, c-b, c-a) = (2, 1, 2)$</div>
+        $c-a = c-b = 2$ 필요 → $a = b$ 불가 ✗
+      </div>
+      <div class="sol-step">
+        <div class="sol-num">2</div>
+        <div class="sol-text">결론: 유효한 삼각형 없음.</div>
+      </div>
+      <div class="hl-box">
+        나머지가 완전제곱수이면 인수 조합이 대칭적이어서 $a &lt; b &lt; c$ 조건과 충돌하기 쉽습니다.
+      </div>
+    `
+  },
+
+  /* M3 */
+  {
+    id:'M3', cat:'mid', catLabel:'🟡 중간',
+    title:'나머지 소수 조건',
+    sub:'a(c-a)(c-b)=소수 — 삼각형 가능성 분석',
+    why:'소수 조건 → 세 인수 중 두 개가 반드시 1. 이 구조적 제약이 삼각형 부등식과 충돌하는지 파악합니다.',
+    prob:`
+      <p class="prob-body">삼각형 $ABC$의 세 변 $a &lt; b &lt; c$ (정수, $a \\le 5$)에 대해, $a(c-a)(c-b)$가 소수일 때 가능한 삼각형의 개수를 구하여라.</p>
+    `,
+    ansVal:'0',
+    ansDetail:'조건 만족하는 유효 삼각형 없음',
+    ansCheck:'$a(c-a)(c-b)=p$ (소수): $a=1$이면 $(c-a,c-b)=(p,1)$ → $(1,p,p+1)$: $1+p=p+1$ 퇴화 ✗. $a=p$이면 $c-a=c-b=1$ → $a=b$ ✗.',
+    sol:`
+      <div class="sol-step">
+        <div class="sol-num">1</div>
+        <div class="sol-text">소수 $p$를 세 양의 정수의 곱으로 나타내면 반드시 $(1, 1, p)$ 형태입니다.</div>
+      </div>
+      <div class="sol-step">
+        <div class="sol-num">2</div>
+        <div class="sol-text">경우 1: $a=1$, $c-b=1$, $c-a=p$</div>
+      </div>
+      <div class="formula-box">$$(a, b, c) = (1, c-1, c) \text{ 이고 } c - 1 = p \implies (1, p, p+1)$$</div>
+      <div class="case-box">
+        <div class="case-label">삼각형 검사</div>
+        $a + b = 1 + p = p + 1 = c$ → 퇴화 (등호) ✗
+      </div>
+      <div class="sol-step">
+        <div class="sol-num">3</div>
+        <div class="sol-text">경우 2: $a=p$, $c-b=1$, $c-a=1$ → $a=b$ → $a &lt; b$ 위반 ✗</div>
+      </div>
+      <div class="sol-step">
+        <div class="sol-num">4</div>
+        <div class="sol-text">결론: 모든 소수에 대해 유효 삼각형 없음. 개수 $= 0$.</div>
+      </div>
+      <div class="warn-box">
+        💡 소수는 $(1,1,p)$ 분해만 허용되고, 이 분해는 항상 퇴화 삼각형 또는 $a=b$ 위반으로 귀결됩니다.
+      </div>
+    `
+  },
+
+  /* H1 */
+  {
+    id:'H1', cat:'hard', catLabel:'🔴 어려운',
+    title:'나머지=21 + 넓이 정수 조건',
+    sub:'헤론의 공식으로 넓이 판별 — Q17 두 삼각형 심화',
+    why:'Q17의 두 삼각형 $(3,9,10)$, $(7,9,10)$에 넓이 정수 조건을 추가합니다. 헤론의 공식까지 적용하는 응용 문제.',
+    prob:`
+      <p class="prob-body">삼각형 $ABC$의 세 변 $a &lt; b &lt; c$ (정수)에 대해 다음 두 조건을 동시에 만족시키는 삼각형의 둘레의 합을 구하여라.</p>
+      <div class="prob-cond">
+        <div class="cond-label">조건 1</div>
+        $a(c-a)(c-b) = 21$
+      </div>
+      <div class="prob-cond">
+        <div class="cond-label">조건 2</div>
+        삼각형의 넓이가 정수
+      </div>
+    `,
+    ansVal:'0',
+    ansDetail:'두 후보 삼각형 $(3,9,10)$, $(7,9,10)$ 모두 넓이가 무리수 → 동시 만족 없음',
+    ansCheck:'$(3,9,10)$: $s=11$, 넓이 $=\\sqrt{11 \\cdot 8 \\cdot 2 \\cdot 1}=\\sqrt{176}=4\\sqrt{11}$ (무리수) ✗<br>$(7,9,10)$: $s=13$, 넓이 $=\\sqrt{13 \\cdot 6 \\cdot 4 \\cdot 3}=\\sqrt{936}=6\\sqrt{26}$ (무리수) ✗',
+    sol:`
+      <div class="sol-step">
+        <div class="sol-num">1</div>
+        <div class="sol-text">Q17에서 $a(c-a)(c-b)=21$인 삼각형 목록: $(3,9,10)$ 둘레22, $(7,9,10)$ 둘레26.</div>
+      </div>
+      <div class="sol-step">
+        <div class="sol-num">2</div>
+        <div class="sol-text">헤론의 공식: $s = (a+b+c)/2$, 넓이 $= \\sqrt{s(s-a)(s-b)(s-c)}$</div>
+      </div>
+      <div class="case-box">
+        <div class="case-label">$(3, 9, 10)$: $s = 11$</div>
+        넓이 $= \\sqrt{11 \\cdot 8 \\cdot 2 \\cdot 1} = \\sqrt{176} = 4\\sqrt{11}$ — 무리수 ✗
+      </div>
+      <div class="case-box">
+        <div class="case-label">$(7, 9, 10)$: $s = 13$</div>
+        넓이 $= \\sqrt{13 \\cdot 6 \\cdot 4 \\cdot 3} = \\sqrt{936} = 6\\sqrt{26}$ — 무리수 ✗
+      </div>
+      <div class="sol-step">
+        <div class="sol-num">3</div>
+        <div class="sol-text">결론: 조건 2를 만족하는 삼각형 없음. 둘레 합 $= 0$.</div>
+      </div>
+      <div class="hl-box">
+        정수 넓이를 갖는 삼각형을 헤론 삼각형이라 합니다. 피타고라스 삼각형이 대표적이에요.
+      </div>
+    `
+  },
+
+  /* H2 */
+  {
+    id:'H2', cat:'hard', catLabel:'🔴 어려운',
+    title:'나머지=a² 조건 역산',
+    sub:'(c-a)(c-b)=a → 삼각형 열거 (a≤10)',
+    why:'나머지가 $a^2$이면 $a$로 약분 → $(c-a)(c-b)=a$. Q17 구조의 역방향 분석.',
+    prob:`
+      <p class="prob-body">삼각형 $ABC$의 세 변 $a &lt; b &lt; c$ (정수, $a \\le 10$)에 대해, $ax^2-(a^2+ab)x+a^2b$를 $x-c$로 나눈 나머지가 $a^2$일 때, 가능한 모든 삼각형의 둘레의 합을 구하여라.</p>
+    `,
+    ansVal:'74',
+    ansDetail:'$(4,7,8)$ 둘레19, $(6,11,12)$ 둘레29, $(6,9,11)$ 둘레26. 합 $= 19+29+26 = 74$',
+    ansCheck:'나머지 $= a(c-a)(c-b) = a^2$ → $(c-a)(c-b)=a$<br>$a=4$: $(c-b,c-a)=(1,4)$ → $(4,7,8)$, $4+7>8$ ✓<br>$a=6$: $(1,6)$→$(6,11,12)$ ✓, $(2,3)$→$(6,9,11)$ ✓',
+    sol:`
+      <div class="sol-step">
+        <div class="sol-num">1</div>
+        <div class="sol-text">다항식 $ax^2-(a^2+ab)x+a^2b = a(x-a)(x-b)$. 나머지정리로 $x=c$ 대입:</div>
+      </div>
+      <div class="formula-box">$$\\text{나머지} = a(c-a)(c-b) = a^2 \\implies (c-a)(c-b) = a$$</div>
+      <div class="sol-step">
+        <div class="sol-num">2</div>
+        <div class="sol-text">$c-a > c-b \\ge 1$이므로 $(c-b)(c-a) = a$를 인수 열거합니다.</div>
+      </div>
+      <div class="case-box">
+        <div class="case-label">$a = 4$: $(c-b, c-a) = (1, 4)$</div>
+        $b = c-1$, $a = c-4$ → $(a,b,c) = (4,7,8)$<br>
+        삼각형 ✓: $4+7=11>8$. 둘레 $= 19$
+      </div>
+      <div class="case-box">
+        <div class="case-label">$a = 6$: $(c-b, c-a) = (1, 6)$</div>
+        $(a,b,c) = (6,11,12)$<br>
+        삼각형 ✓: $6+11=17>12$. 둘레 $= 29$
+      </div>
+      <div class="case-box">
+        <div class="case-label">$a = 6$: $(c-b, c-a) = (2, 3)$</div>
+        $(a,b,c) = (6,9,11)$<br>
+        삼각형 ✓: $6+9=15>11$. 둘레 $= 26$
+      </div>
+      <div class="sol-step">
+        <div class="sol-num">3</div>
+        <div class="sol-text">다른 $a$ 값($a \le 10$)은 유효 삼각형 없음. 둘레 합:</div>
+      </div>
+      <div class="formula-box">$$19 + 29 + 26 = \\mathbf{74}$$</div>
+    `
+  },
+
+  /* H3 */
+  {
+    id:'H3', cat:'hard', catLabel:'🔴 어려운',
+    title:'역산: 삼각형 → 나머지',
+    sub:'a=2, b=7, c=8 → 나머지 계산 + 소수 판별',
+    why:'삼각형이 주어지고 나머지를 역산합니다. Q17 풀이를 거꾸로 적용하는 확인 문제.',
+    prob:`
+      <p class="prob-body">삼각형 $ABC$에서 $a=2, b=7, c=8$ ($a &lt; b &lt; c$)일 때, 다항식 $ax^2-(a^2+ab)x+a^2b$를 $x-c$로 나눈 나머지를 구하여라. 또한 이 값이 소수인지 판별하여라.</p>
+    `,
+    ansVal:'12',
+    ansDetail:'나머지 $= a(c-a)(c-b) = 2(8-2)(8-7) = 2 \\cdot 6 \\cdot 1 = 12$. 합성수 ($12=2^2 \\times 3$)',
+    ansCheck:'삼각형 ✓: $2+7=9>8$. 나머지정리로 $x=c=8$ 대입 확인 ✓',
+    sol:`
+      <div class="sol-step">
+        <div class="sol-num">1</div>
+        <div class="sol-text">다항식 인수분해: $ax^2-(a^2+ab)x+a^2b = a(x-a)(x-b)$</div>
+      </div>
+      <div class="formula-box">$$ax^2-(a^2+ab)x+a^2b = a(x-a)(x-b)$$</div>
+      <div class="sol-step">
+        <div class="sol-num">2</div>
+        <div class="sol-text">나머지정리: $x-c$로 나눈 나머지 $= a(c-a)(c-b)$</div>
+      </div>
+      <div class="sol-step">
+        <div class="sol-num">3</div>
+        <div class="sol-text">$a=2, b=7, c=8$ 대입:</div>
+      </div>
+      <div class="formula-box">$$2(8-2)(8-7) = 2 \\cdot 6 \\cdot 1 = 12$$</div>
+      <div class="sol-step">
+        <div class="sol-num">4</div>
+        <div class="sol-text">소수 판별: $12 = 2^2 \\times 3$ — 합성수. (소수 아님)</div>
+      </div>
+      <div class="hl-box">
+        나머지 $= 12$, 합성수. 비교: Q17에서 나머지 $= 21 = 3 \\times 7$ (역시 합성수).
+      </div>
+    `
+  }
+];
+
+/* ═══════════════════════════════════════════
+   상태
+═══════════════════════════════════════════ */
+let curIdx = 0;
+let curTab = 'prob';
+let curCat = 'all';
+
+/* ═══════════════════════════════════════════
+   목록 뷰
+═══════════════════════════════════════════ */
+function buildList() {
+  const grid = document.getElementById('prob-grid');
+  grid.innerHTML = P.map((p, i) => `
+    <div class="prob-card ${p.cat}" id="card-${i}" onclick="openDetail(${i})">
+      <div class="card-num">${p.id}</div>
+      <div class="card-info">
+        <div class="card-title">${p.title}</div>
+        <div class="card-sub">${p.sub}</div>
+      </div>
+      <div class="card-arrow">›</div>
+    </div>
+  `).join('');
+}
+
+function filterCat(cat) {
+  curCat = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  P.forEach((p, i) => {
+    const card = document.getElementById('card-'+i);
+    card.classList.toggle('hidden', cat !== 'all' && p.cat !== cat);
+  });
+}
+
+/* ═══════════════════════════════════════════
+   상세 뷰
+═══════════════════════════════════════════ */
+function openDetail(idx) {
+  curIdx = idx;
+  curTab = 'prob';
+  document.getElementById('list-view').style.display = 'none';
+  document.getElementById('detail-view').style.display = 'block';
+  renderDetail();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function showList() {
+  document.getElementById('list-view').style.display = 'block';
+  document.getElementById('detail-view').style.display = 'none';
+}
+
+function switchTab(tab) {
+  curTab = tab;
+  ['prob','ans','sol'].forEach(t => {
+    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+  });
+  renderContent();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function moveProblem(dir) {
+  curIdx = Math.max(0, Math.min(P.length-1, curIdx+dir));
+  curTab = 'prob';
+  renderDetail();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function renderDetail() {
+  const p = P[curIdx];
+  ['prob','ans','sol'].forEach(t =>
+    document.getElementById('tab-'+t).classList.toggle('active', t===curTab)
+  );
+  document.getElementById('detail-title').textContent = `${p.id} — ${p.title}`;
+  document.getElementById('btn-prev').disabled = curIdx === 0;
+  document.getElementById('btn-next').disabled = curIdx === P.length-1;
+  document.getElementById('nav-label').textContent = `${curIdx+1} / ${P.length}`;
+  renderContent();
+}
+
+function renderContent() {
+  const p = P[curIdx];
+  const area = document.getElementById('content-area');
+  const badgeCls = p.cat === 'easy' ? 'badge-easy' : p.cat === 'mid' ? 'badge-mid' : 'badge-hard';
+
+  if (curTab === 'prob') {
+    area.innerHTML = `
+      <span class="prob-badge ${badgeCls}">${p.catLabel}</span>
+      ${p.prob}
+    `;
+  } else if (curTab === 'ans') {
+    area.innerHTML = `
+      <span class="prob-badge ${badgeCls}">${p.catLabel} — 정답</span>
+      <div class="why-box">💡 <strong>왜 이 문제인가?</strong><br>${p.why}</div>
+      <div class="answer-big">
+        <div class="lbl">정답</div>
+        <div class="val">$${p.ansVal}$</div>
+      </div>
+      <div class="answer-check">
+        ✅ ${p.ansDetail}<br><br>
+        🔍 <strong>검산</strong><br>${p.ansCheck}
+      </div>
+    `;
+  } else {
+    area.innerHTML = `
+      <span class="prob-badge ${badgeCls}">${p.catLabel} — 풀이</span>
+      <div style="margin-top:16px;">${p.sol}</div>
+    `;
+  }
+
+  if (window.renderMathInElement) {
+    renderMathInElement(area, {
+      delimiters: [
+        {left:'$$', right:'$$', display:true},
+        {left:'$',  right:'$',  display:false}
+      ],
+      throwOnError: false
+    });
+  }
+}
+
+/* ═══════════════════════════════════════════
+   초기화
+═══════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  buildList();
+});
+</script>
+</body>
+</html>

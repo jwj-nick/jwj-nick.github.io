@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Q14 — 나머지정리 조건 풀이</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;
+      background:#eef2ff; min-height:100vh; padding:20px 16px 60px; }
+    #app { max-width:700px; margin:0 auto; }
+    .page { display:none; }
+    .page.active { display:block; }
+    .page-header { text-align:center; margin-bottom:24px; }
+    .page-header h1 { font-size:20px; color:#1e1b4b; }
+    .page-header p { font-size:13px; color:#6b7280; margin-top:4px; }
+    .dots { display:flex; justify-content:center; gap:8px; margin-bottom:24px; flex-wrap:wrap; }
+    .dot { width:12px; height:12px; border-radius:50%; background:#c7d2fe; cursor:pointer; transition:background .2s; }
+    .dot.active { background:#4361EE; }
+    .dot.visited { background:#818cf8; }
+    .card { background:#fff; border-radius:20px; padding:28px 24px;
+      box-shadow:0 4px 20px rgba(67,97,238,.1); margin-bottom:20px; }
+    .step-badge { display:inline-block; background:#4361EE; color:#fff;
+      font-size:12px; font-weight:700; padding:3px 12px; border-radius:20px; margin-bottom:14px; }
+    .step-title { font-size:18px; font-weight:700; color:#1e1b4b; margin-bottom:12px; }
+    .step-why { background:#f0fdf4; border-left:4px solid #22c55e;
+      padding:10px 14px; border-radius:8px; font-size:13px; color:#166534; margin-bottom:16px; }
+    .formula-box { background:#f8f9ff; border:1px solid #e0e7ff;
+      border-radius:12px; padding:16px; text-align:center; margin:14px 0; overflow-x:auto; }
+    .hl-box { background:#fffbeb; border:1px solid #fde68a;
+      border-radius:10px; padding:12px 16px; font-size:14px; color:#92400e; margin:12px 0; }
+    .warn-box { background:#fff1f2; border:1px solid #fecdd3;
+      border-radius:10px; padding:12px 16px; font-size:13px; color:#9f1239; margin:12px 0; }
+    .case-box { background:#f5f3ff; border:2px solid #e0e7ff;
+      border-radius:12px; padding:16px; margin:12px 0; }
+    .case-box strong { color:#4361EE; }
+    p.body-text { font-size:15px; line-height:1.8; color:#374151; margin:8px 0; }
+    table { width:100%; border-collapse:collapse; font-size:13px; margin:12px 0; }
+    th { background:#e0e7ff; color:#1e1b4b; padding:8px; text-align:center; }
+    td { border:1px solid #e5e7eb; padding:8px; text-align:center; }
+    td.bad { color:#b91c1c; background:#fff1f2; }
+    td.ok { color:#166534; background:#f0fdf4; }
+    .prob-card { background:#fff; border-radius:20px; padding:28px 24px;
+      box-shadow:0 4px 20px rgba(67,97,238,.1); margin-bottom:20px; }
+    .prob-choice { display:inline-block; background:#f5f3ff; border:2px solid #e0e7ff;
+      border-radius:10px; padding:8px 16px; font-size:14px; margin:4px; }
+    .prob-cond { background:#f0f9ff; border-left:4px solid #7dd3fc;
+      padding:12px 16px; border-radius:8px; margin:10px 0; font-size:14px; }
+    .think-box { background:#f0f9ff; border:2px dashed #7dd3fc;
+      border-radius:14px; padding:16px 20px; margin-top:20px; font-size:14px; color:#0369a1; }
+    .answer-box { background:linear-gradient(135deg,#4361EE,#7c3aed); color:#fff;
+      border-radius:16px; padding:20px; text-align:center; margin-bottom:20px; }
+    .answer-box .lbl { font-size:13px; opacity:.8; }
+    .answer-box .val { font-size:36px; font-weight:900; margin:6px 0; }
+    .summary-block { background:#fff; border-radius:16px; padding:20px;
+      margin-bottom:16px; box-shadow:0 2px 12px rgba(67,97,238,.08); }
+    .summary-block h3 { font-size:15px; color:#4361EE; margin-bottom:10px; }
+    .tag { display:inline-block; background:#ede9fe; color:#7c3aed;
+      border-radius:6px; padding:3px 10px; font-size:12px; margin:3px; }
+    .btn-row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:20px; }
+    .btn { padding:12px 28px; border-radius:12px; border:none;
+      font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; transition:opacity .2s; }
+    .btn:hover { opacity:.85; }
+    .btn-primary { background:#4361EE; color:#fff; }
+    .btn-secondary { background:#e0e7ff; color:#4361EE; }
+    .btn-ghost { background:#f3f4f6; color:#374151; }
+  </style>
+</head>
+<body>
+<nav style="background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:7px 16px;font-size:12px;display:flex;align-items:center;gap:5px;font-family:-apple-system,sans-serif;flex-shrink:0"><a href="../index.html" style="color:#6b7280;text-decoration:none">고1</a><span style="color:#d1d5db">&rsaquo;</span><a href="index.html" style="color:#2563eb;text-decoration:none;font-weight:600">Math_1_1</a></nav>
+
+<div id="app">
+
+  <!-- PAGE 0: 문제 -->
+  <div class="page active" id="page-0">
+    <div class="page-header"><h1>Q14 — 나머지정리 조건</h1><p>공통수학1 · 5.3점</p></div>
+    <div class="dots" id="dots-0"></div>
+    <div class="prob-card">
+      <div style="font-size:13px;color:#6b7280;margin-bottom:10px;">이 문제의 핵심은 조건 (가)에서 $P$의 정보를 뽑아내는 것이에요. 어떻게 하면 좋을까요?</div>
+      <p style="font-size:15px;line-height:1.9;color:#1f2937;">최고차항의 계수가 1인 이차다항식 $P(x)$가 다음 조건을 만족시킨다.</p>
+      <div class="prob-cond"><strong>(가)</strong> $\{P(x)\}^2$을 $x^2-6x+5$로 나눈 몫은 $Q(x)$이고 나머지는 $64$이다.</div>
+      <div class="prob-cond"><strong>(나)</strong> $P(0) \neq P(6)$</div>
+      <p style="font-size:15px;font-weight:700;margin-top:14px;">모든 $Q(4)$의 값의 합은?</p>
+      <div style="margin-top:12px;">
+        <span class="prob-choice">① $8$</span>
+        <span class="prob-choice">② $13$</span>
+        <span class="prob-choice">③ $17$</span>
+        <span class="prob-choice">④ $22$</span>
+        <span class="prob-choice">⑤ $26$</span>
+      </div>
+      <div class="think-box">🤔 $x^2-6x+5$의 두 근은 무엇인가요? 그 근을 $\{P(x)\}^2=\ldots+64$에 대입하면 무엇을 알 수 있을까요?</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="goTo(1)">단계별 풀이 시작 →</button>
+      <button class="btn btn-secondary" onclick="goTo(5)">한페이지 요약 바로보기</button>
+    </div>
+  </div>
+
+  <!-- PAGE 1: 나머지정리 -->
+  <div class="page" id="page-1">
+    <div class="page-header"><h1>Q14 풀이</h1><p>1단계 / 4단계</p></div>
+    <div class="dots" id="dots-1"></div>
+    <div class="card">
+      <div class="step-badge">1단계</div>
+      <div class="step-title">제수 인수분해 + 나머지정리</div>
+      <div class="step-why">💡 "$f(x)$를 $h(x)$로 나눈 나머지"가 나오면, $h(\alpha)=0$인 $\alpha$를 대입하면 나머지만 남아요.</div>
+      <p class="body-text">제수를 인수분해합니다:</p>
+      <div class="formula-box">$$x^2-6x+5 = (x-1)(x-5)$$</div>
+      <p class="body-text">$\{P(x)\}^2 = (x^2-6x+5)Q(x)+64$에 $x=1$, $x=5$ 대입:</p>
+      <div class="formula-box">
+        $$\{P(1)\}^2 = 64 \implies P(1) = \pm 8$$
+        $$\{P(5)\}^2 = 64 \implies P(5) = \pm 8$$
+      </div>
+      <div class="hl-box">✅ $P(1)$과 $P(5)$ 각각 $\pm8$이므로 부호 조합 4가지가 생겨요.</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goTo(0)">← 문제로</button>
+      <button class="btn btn-primary" onclick="goTo(2)">다음 단계 →</button>
+    </div>
+  </div>
+
+  <!-- PAGE 2: 경우 탐색 -->
+  <div class="page" id="page-2">
+    <div class="page-header"><h1>Q14 풀이</h1><p>2단계 / 4단계</p></div>
+    <div class="dots" id="dots-2"></div>
+    <div class="card">
+      <div class="step-badge">2단계</div>
+      <div class="step-title">부호 조합 4가지 탐색</div>
+      <div class="step-why">💡 $P(x)=x^2+bx+c$로 놓고 연립방정식을 풀어 4가지 경우를 모두 구한 뒤, 조건 (나)로 거른다.</div>
+      <p class="body-text">$P(1)=1+b+c$, $P(5)=25+5b+c$. 각 조합으로 $b, c$ 결정:</p>
+      <table>
+        <tr><th>경우</th><th>P(1)</th><th>P(5)</th><th>b</th><th>c</th><th>P(0)</th><th>P(6)</th><th>조건(나)</th></tr>
+        <tr><td>①</td><td>+8</td><td>+8</td><td>-6</td><td>13</td><td class="bad">13</td><td class="bad">13</td><td class="bad">✗ 같음</td></tr>
+        <tr><td>②</td><td>+8</td><td>-8</td><td>-10</td><td>17</td><td class="ok">17</td><td class="ok">-7</td><td class="ok">✓</td></tr>
+        <tr><td>③</td><td>-8</td><td>+8</td><td>-2</td><td>-7</td><td class="ok">-7</td><td class="ok">17</td><td class="ok">✓</td></tr>
+        <tr><td>④</td><td>-8</td><td>-8</td><td>-6</td><td>3</td><td class="bad">3</td><td class="bad">3</td><td class="bad">✗ 같음</td></tr>
+      </table>
+      <div class="warn-box">⚠️ 경우 ①④가 탈락하는 이유: $b=-6$이면 $P(x)=x^2-6x+k$의 대칭축이 $x=3$이므로 $P(0)=P(6)$이 항상 성립.</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goTo(1)">← 이전</button>
+      <button class="btn btn-primary" onclick="goTo(3)">다음 단계 →</button>
+    </div>
+  </div>
+
+  <!-- PAGE 3: Q(4) 계산 -->
+  <div class="page" id="page-3">
+    <div class="page-header"><h1>Q14 풀이</h1><p>3단계 / 4단계</p></div>
+    <div class="dots" id="dots-3"></div>
+    <div class="card">
+      <div class="step-badge">3단계</div>
+      <div class="step-title">$Q(x)$ 구하기 — 다항식 나눗셈</div>
+      <div class="step-why">💡 $Q(x) = \dfrac{\{P(x)\}^2-64}{x^2-6x+5}$를 직접 나눗셈으로 구해요.</div>
+      <div class="case-box">
+        <strong>경우 ②</strong> $P(x)=x^2-10x+17$<br>
+        $\{P(x)\}^2-64$를 $x^2-6x+5$로 나누면:<br>
+        $$Q(x)=x^2-14x+45$$
+        $$Q(4)=16-56+45=\mathbf{5}$$
+      </div>
+      <div class="case-box">
+        <strong>경우 ③</strong> $P(x)=x^2-2x-7$<br>
+        $\{P(x)\}^2-64$를 $x^2-6x+5$로 나누면:<br>
+        $$Q(x)=x^2+2x-3$$
+        $$Q(4)=16+8-3=\mathbf{21}$$
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goTo(2)">← 이전</button>
+      <button class="btn btn-primary" onclick="goTo(4)">4단계 →</button>
+    </div>
+  </div>
+
+  <!-- PAGE 4: 정답 및 정리 -->
+  <div class="page" id="page-4">
+    <div class="page-header"><h1>Q14 풀이</h1><p>4단계 / 4단계</p></div>
+    <div class="dots" id="dots-4"></div>
+    <div class="card">
+      <div class="step-badge">4단계</div>
+      <div class="step-title">최종 합산</div>
+      <div class="formula-box">$$Q(4)\text{의 합} = 5 + 21 = \mathbf{26}$$</div>
+      <div class="hl-box">
+        💡 핵심 체크리스트<br>
+        ✅ 부호 조합 4가지 모두 검토했나?<br>
+        ✅ 조건 (나)로 걸러냈나?<br>
+        ✅ $Q(x)$ 다항식 나눗셈으로 구했나?
+      </div>
+      <div class="warn-box">흔한 실수: "$Q(4)$의 합"을 하나의 경우만 계산. "모든 $Q(4)$의 값의 합"이므로 유효한 경우 전부 더해야 해요.</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goTo(3)">← 이전</button>
+      <button class="btn btn-primary" onclick="goTo(5)">한페이지 요약 →</button>
+    </div>
+  </div>
+
+  <!-- PAGE 5: 요약 -->
+  <div class="page" id="page-5">
+    <div class="page-header"><h1>Q14 — 한페이지 요약</h1><p>공통수학1 · 5.3점</p></div>
+    <div class="dots" id="dots-5"></div>
+    <div class="answer-box">
+      <div class="lbl">정답</div>
+      <div class="val">⑤ 26</div>
+    </div>
+    <div class="summary-block">
+      <h3>핵심 풀이 흐름</h3>
+      <p style="font-size:14px;line-height:1.9;">
+        ① $x^2-6x+5=(x-1)(x-5)$ → 나머지정리: $P(1)=\pm8,\; P(5)=\pm8$<br>
+        ② $P(x)=x^2+bx+c$로 연립 → 4가지 경우<br>
+        ③ 조건 (나) $P(0)\neq P(6)$ → 대칭축=$3$ 경우(①④) 제거<br>
+        ④ 남은 ②③에서 $Q(x)$ 나눗셈: $Q(4)=5+21=26$
+      </p>
+    </div>
+    <div class="summary-block">
+      <h3>왜 틀리나</h3>
+      <p style="font-size:14px;line-height:1.8;">
+        • 부호 조합 일부만 탐색<br>
+        • 조건 (나)의 역할($b=-6$ 제거) 파악 못함<br>
+        • $Q(x)$ 대신 $P(x)$ 값을 계산
+      </p>
+    </div>
+    <div class="summary-block">
+      <h3>약점 태그</h3>
+      <span class="tag">수학:나머지정리</span>
+      <span class="tag">수학:경우탐색</span>
+      <span class="tag">수학:다항식나눗셈</span>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goTo(0)">← 문제로 돌아가기</button>
+    </div>
+  </div>
+
+</div>
+<script>
+const TOTAL=6; let visited=new Set([0]);
+function goTo(n){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+n).classList.add('active');
+  visited.add(n); renderDots(n); renderMath(); window.scrollTo({top:0,behavior:'smooth'});
+}
+function renderDots(cur){
+  for(let i=0;i<TOTAL;i++){
+    const el=document.getElementById('dots-'+i); if(!el)continue;
+    el.innerHTML=Array.from({length:TOTAL},(_,j)=>{
+      let c='dot'; if(j===cur)c+=' active'; else if(visited.has(j))c+=' visited';
+      return `<div class="${c}" onclick="goTo(${j})"></div>`;
+    }).join('');
+  }
+}
+function renderMath(){
+  if(window.renderMathInElement) renderMathInElement(document.getElementById('app'),{
+    delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],
+    throwOnError:false
+  });
+}
+document.addEventListener('DOMContentLoaded',()=>{renderDots(0);renderMath();});
+</script>
+</body>
+</html>

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Q13 연습 문제</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; padding: 20px 16px 60px; }
+    #app { max-width: 740px; margin: 0 auto; }
+    .app-header { text-align: center; margin-bottom: 28px; }
+    .app-header h1 { font-size: 22px; color: #1e1b4b; margin-bottom: 6px; }
+    .app-header p { font-size: 14px; color: #6b7280; }
+    .cat-filter { display: flex; gap: 8px; justify-content: center; margin-bottom: 22px; flex-wrap: wrap; }
+    .cat-btn { padding: 7px 18px; border-radius: 20px; border: 2px solid transparent; font-size: 14px; font-weight: 700; cursor: pointer; transition: all .2s; font-family: inherit; }
+    .cat-btn.all { background: #4361EE; color: #fff; }
+    .cat-btn.easy { background: #dcfce7; color: #16a34a; border-color: #86efac; }
+    .cat-btn.mid { background: #fef9c3; color: #854d0e; border-color: #fde047; }
+    .cat-btn.hard { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
+    .cat-btn:not(.all):hover, .cat-btn.active { filter: brightness(.93); transform: scale(1.04); }
+    .cat-btn.all:hover { opacity: .88; }
+    .prob-grid { display: flex; flex-direction: column; gap: 10px; }
+    .prob-card { background: #fff; border-radius: 16px; padding: 16px 20px; box-shadow: 0 2px 12px rgba(67,97,238,.08); display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all .18s; border-left: 5px solid transparent; }
+    .prob-card:hover { transform: translateX(4px); box-shadow: 0 4px 20px rgba(67,97,238,.14); }
+    .prob-card.easy { border-color: #4ade80; }
+    .prob-card.mid { border-color: #facc15; }
+    .prob-card.hard { border-color: #f87171; }
+    .prob-card.hidden { display: none; }
+    .card-num { min-width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; flex-shrink: 0; }
+    .easy .card-num { background: #dcfce7; color: #16a34a; }
+    .mid .card-num { background: #fef9c3; color: #854d0e; }
+    .hard .card-num { background: #fee2e2; color: #b91c1c; }
+    .card-info { flex: 1; }
+    .card-title { font-size: 15px; font-weight: 700; color: #1e1b4b; margin-bottom: 3px; }
+    .card-sub { font-size: 13px; color: #6b7280; }
+    .card-arrow { font-size: 18px; color: #c7d2fe; }
+    #detail-view { display: none; }
+    .detail-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .back-btn { background: #fff; border: none; border-radius: 12px; padding: 8px 16px; font-size: 14px; font-weight: 700; color: #4361EE; cursor: pointer; font-family: inherit; box-shadow: 0 2px 8px rgba(67,97,238,.1); transition: all .15s; }
+    .back-btn:hover { background: #eef2ff; }
+    .detail-title { font-size: 18px; font-weight: 800; color: #1e1b4b; }
+    .tab-wrap { display: flex; gap: 0; background: #fff; border-radius: 16px 16px 0 0; overflow: hidden; box-shadow: 0 2px 12px rgba(67,97,238,.08); }
+    .tab-btn { flex: 1; padding: 14px 8px; border: none; background: #fff; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; transition: all .18s; color: #94a3b8; border-bottom: 3px solid transparent; }
+    .tab-btn.active { color: #4361EE; border-bottom-color: #4361EE; background: #f8faff; }
+    .tab-btn:hover:not(.active) { background: #f8faff; color: #6366f1; }
+    .content-card { background: #fff; border-radius: 0 0 20px 20px; padding: 28px 32px; box-shadow: 0 4px 20px rgba(67,97,238,.08); animation: fadeIn .22s ease; min-height: 260px; }
+    @keyframes fadeIn { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: translateY(0); } }
+    .prob-badge { display: inline-block; font-size: 12px; font-weight: 800; padding: 3px 12px; border-radius: 20px; margin-bottom: 14px; }
+    .badge-easy { background: #dcfce7; color: #16a34a; }
+    .badge-mid { background: #fef9c3; color: #854d0e; }
+    .badge-hard { background: #fee2e2; color: #b91c1c; }
+    .why-box { background: #f8faff; border-left: 4px solid #a5b4fc; border-radius: 0 12px 12px 0; padding: 12px 16px; font-size: 14px; color: #4338ca; line-height: 1.7; margin-bottom: 18px; }
+    .prob-body { font-size: 15px; line-height: 1.9; color: #1e1b4b; margin-bottom: 10px; }
+    .answer-big { background: linear-gradient(135deg, #4361EE, #7c3aed); color: #fff; border-radius: 18px; padding: 28px 24px; text-align: center; margin: 10px 0; }
+    .answer-big .lbl { font-size: 13px; opacity: .8; margin-bottom: 6px; }
+    .answer-big .val { font-size: 28px; font-weight: 900; line-height: 1.3; }
+    .answer-check { background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 12px; padding: 14px 18px; font-size: 14px; color: #166534; margin-top: 14px; line-height: 1.7; }
+    .sol-step { display: flex; gap: 14px; margin-bottom: 18px; align-items: flex-start; }
+    .sol-num { min-width: 28px; height: 28px; border-radius: 50%; background: #4361EE; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; flex-shrink: 0; margin-top: 2px; }
+    .sol-text { font-size: 15px; line-height: 1.85; color: #1e1b4b; }
+    .formula-box { background: #f5f7ff; border: 1.5px solid #c7d2fe; border-radius: 12px; padding: 14px 20px; text-align: center; margin: 10px 0; overflow-x: auto; }
+    .hl-box { background: #eef2ff; border-radius: 12px; padding: 14px 18px; margin: 12px 0; font-size: 14px; color: #312e81; line-height: 1.8; }
+    .warn-box { background: #fff8e1; border-left: 4px solid #f59e0b; border-radius: 0 12px 12px 0; padding: 12px 16px; font-size: 14px; color: #374151; margin: 10px 0; line-height: 1.7; }
+    .detail-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; gap: 12px; }
+    .nav-btn { background: #fff; border: none; border-radius: 12px; padding: 10px 20px; font-size: 14px; font-weight: 700; color: #4361EE; cursor: pointer; font-family: inherit; box-shadow: 0 2px 8px rgba(67,97,238,.1); transition: all .15s; }
+    .nav-btn:hover { background: #eef2ff; transform: translateY(-1px); }
+    .nav-btn:disabled { opacity: .35; cursor: default; transform: none; }
+    .nav-center { font-size: 13px; color: #94a3b8; font-weight: 600; }
+    .katex-display { overflow-x: auto; }
+    @media (max-width:480px) { .content-card { padding: 20px 18px; } .answer-big .val { font-size: 22px; } }
+  </style>
+</head>
+<body>
+<nav style="background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:7px 16px;font-size:12px;display:flex;align-items:center;gap:5px;font-family:-apple-system,sans-serif;flex-shrink:0"><a href="../index.html" style="color:#6b7280;text-decoration:none">고1</a><span style="color:#d1d5db">&rsaquo;</span><a href="index.html" style="color:#2563eb;text-decoration:none;font-weight:600">Math_1_1</a></nav>
+
+<div id="app">
+  <div id="list-view">
+    <div class="app-header"><h1>Q13 연습 문제</h1><p>대수 치환 · 대칭 항등식 · 9문제</p></div>
+    <div class="cat-filter">
+      <button class="cat-btn all active" onclick="filterCat('all')">전체</button>
+      <button class="cat-btn easy" onclick="filterCat('easy')">🟢 쉬운 (L)</button>
+      <button class="cat-btn mid" onclick="filterCat('mid')">🟡 중간 (M)</button>
+      <button class="cat-btn hard" onclick="filterCat('hard')">🔴 어려운 (H)</button>
+    </div>
+    <div class="prob-grid" id="prob-grid"></div>
+  </div>
+  <div id="detail-view">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showList()">← 목록</button>
+      <div class="detail-title" id="detail-title"></div>
+    </div>
+    <div class="tab-wrap">
+      <button class="tab-btn active" id="tab-prob" onclick="switchTab('prob')">📄 문제판</button>
+      <button class="tab-btn" id="tab-ans" onclick="switchTab('ans')">✅ 정답판</button>
+      <button class="tab-btn" id="tab-sol" onclick="switchTab('sol')">📖 풀이판</button>
+    </div>
+    <div class="content-card" id="content-area"></div>
+    <div class="detail-nav">
+      <button class="nav-btn" id="btn-prev" onclick="moveProblem(-1)">← 이전</button>
+      <span class="nav-center" id="nav-label"></span>
+      <button class="nav-btn" id="btn-next" onclick="moveProblem(1)">다음 →</button>
+    </div>
+  </div>
+</div>
+<script>
+const P = [
+  {
+    id: 'L1-1', cat: 'easy', catLabel: '🟢 쉬운',
+    title: '합=0 치환',
+    sub: '$(a+b+c)^2$ 전개로 $ab+bc+ca$ 구하기',
+    why: 'Q13에서 $x+y+z=9\\to a+b+c=0$ 치환이 핵심이었습니다. 치환 후 $(a+b+c)^2=0$을 이용해 $ab+bc+ca$를 구하는 기본기를 연습합니다.',
+    prob: '<p class="prob-body">$a+b+c=0$이고 $a^2+b^2+c^2=10$일 때, $ab+bc+ca$의 값을 구하여라.</p>',
+    ansVal: '$-5$',
+    ansDetail: '$(a+b+c)^2=0 \\Rightarrow 10+2(ab+bc+ca)=0 \\Rightarrow ab+bc+ca=\\mathbf{-5}$',
+    ansCheck: '$(0)^2=0=10+2(-5)=0$ ✓',
+    sol: `<div class="sol-step"><div class="sol-num">1</div><div class="sol-text">항등식 전개: $(a+b+c)^2 = a^2+b^2+c^2+2(ab+bc+ca)$</div></div>
+<div class="sol-step"><div class="sol-num">2</div><div class="sol-text">대입: $0 = 10 + 2(ab+bc+ca)$</div></div>
+<div class="sol-step"><div class="sol-num">3</div><div class="sol-text">결론: $ab+bc+ca = -5$</div></div>`
+  },
+  {
+    id: 'L1-2', cat: 'easy', catLabel: '🟢 쉬운',
+    title: '분수비 계산',
+    sub: '$a+b+c=0$이면 $\\frac{ab+bc+ca}{a^2+b^2+c^2}=-\\frac{1}{2}$',
+    why: 'Q13의 최종 계산 단계입니다. $a+b+c=0$에서 분모를 분자로 표현해 약분하는 핵심 기술을 연습합니다.',
+    prob: '<p class="prob-body">$a+b+c=0$일 때, $\\dfrac{ab+bc+ca}{a^2+b^2+c^2}$의 값을 구하여라. (단, $a,b,c$는 모두 다른 실수)</p>',
+    ansVal: '$-\\dfrac{1}{2}$',
+    ansDetail: '$a^2+b^2+c^2=-2(ab+bc+ca)$이므로 $\\dfrac{ab+bc+ca}{-2(ab+bc+ca)}=-\\dfrac{1}{2}$',
+    ansCheck: '$ab+bc+ca \\ne 0$임은 $a,b,c$가 모두 다른 실수 조건에서 확인 ✓',
+    sol: `<div class="sol-step"><div class="sol-num">1</div><div class="sol-text">$(a+b+c)^2=0$ 전개 → $a^2+b^2+c^2 = -2(ab+bc+ca)$</div></div>
+<div class="sol-step"><div class="sol-num">2</div><div class="sol-text">분모를 분자로 교체: $\\dfrac{ab+bc+ca}{-2(ab+bc+ca)}$</div></div>
+<div class="sol-step"><div class="sol-num">3</div><div class="sol-text">약분하면 $-\\dfrac{1}{2}$</div></div>`
+  },
+  {
+    id: 'L1-3', cat: 'easy', catLabel: '🟢 쉬운',
+    title: '합이 다른 치환',
+    sub: '$x+y+z=12$, 치환 $a=x-4$ 적용',
+    why: 'Q13은 합이 9였습니다. 합이 달라져도 같은 방법이 통하는지 확인합니다. 치환의 범용성!',
+    prob: '<p class="prob-body">$x+y+z=12$일 때, $\\dfrac{(x-4)(y-4)+(y-4)(z-4)+(z-4)(x-4)}{(x-4)^2+(y-4)^2+(z-4)^2}$의 값은?</p>',
+    ansVal: '$-\\dfrac{1}{2}$',
+    ansDetail: '$a=x-4,b=y-4,c=z-4$로 치환하면 $a+b+c=0$이므로 $-\\dfrac{1}{2}$',
+    ansCheck: '분수식 구조가 L1-2와 동일 — 치환 후 항등식 ✓',
+    sol: `<div class="sol-step"><div class="sol-num">1</div><div class="sol-text">$a=x-4,\\ b=y-4,\\ c=z-4$로 치환하면 $a+b+c=(x+y+z)-12=0$</div></div>
+<div class="sol-step"><div class="sol-num">2</div><div class="sol-text">분수식 = $\\dfrac{ab+bc+ca}{a^2+b^2+c^2}$ — L1-2와 동일 구조</div></div>
+<div class="sol-step"><div class="sol-num">3</div><div class="sol-text">$a+b+c=0$이므로 결론: $-\\dfrac{1}{2}$</div></div>`
+  },
+  {
+    id: 'M1', cat: 'mid', catLabel: '🟡 중간',
+    title: '치환 + 다른 분수',
+    sub: '$x+y+z=6$, $x^2+y^2+z^2=18$ → 분수 계산',
+    why: '치환 후 분자와 분모 모두 $a,b,c$로 변환합니다. 분모가 $xy+yz+zx$여서 변환 과정이 Q13보다 한 단계 더 필요합니다.',
+    prob: '<p class="prob-body">$x+y+z=6$이고 $x^2+y^2+z^2=18$일 때, $\\dfrac{(x-2)^2+(y-2)^2+(z-2)^2}{xy+yz+zx}$의 값을 구하여라.</p>',
+    ansVal: '$\\dfrac{2}{3}$',
+    ansDetail: '분자 $=a^2+b^2+c^2=6$, 분모 $xy+yz+zx=9$ → $6/9=\\dfrac{2}{3}$',
+    ansCheck: '$(x+y+z)^2=36=18+2\\cdot9 \\Rightarrow xy+yz+zx=9$ ✓',
+    sol: `<div class="sol-step"><div class="sol-num">1</div><div class="sol-text">$a=x-2$ 치환, $a+b+c=0$. 분자 $=a^2+b^2+c^2=x^2+y^2+z^2-4(x+y+z)+12=18-24+12=6$</div></div>
+<div class="sol-step"><div class="sol-num">2</div><div class="sol-text">$(x+y+z)^2=36=18+2(xy+yz+zx)$ → $xy+yz+zx=9$</div></div>
+<div class="sol-step"><div class="sol-num">3</div><div class="sol-text">$6 \div 9 = \\dfrac{2}{3}$</div></div>`
+  },
+  {
+    id: 'M2', cat: 'mid', catLabel: '🟡 중간',
+    title: '네 변수 치환',
+    sub: '$a+b+c+d=8$, 4변수 확장',
+    why: '3변수에서 4변수로 확장해도 같은 원리가 성립합니다. 변수 개수에 무관한 항등식의 힘을 체험합니다.',
+    prob: '<p class="prob-body">$a+b+c+d=8$일 때, $\\dfrac{(a-2)(b-2)+(a-2)(c-2)+\\cdots+(c-2)(d-2)}{(a-2)^2+(b-2)^2+(c-2)^2+(d-2)^2}$의 값을 구하여라. (단, $a,b,c,d$는 모두 다른 실수)</p>',
+    ansVal: '$-\\dfrac{1}{2}$',
+    ansDetail: '$p=a-2,\\ldots,s=d-2$로 치환하면 $p+q+r+s=0$. $(p+q+r+s)^2=0$이면 분모$=-2\\times$분자 → $-1/2$',
+    ansCheck: '변수 개수에 무관하게 항상 $-1/2$ ✓',
+    sol: `<div class="sol-step"><div class="sol-num">1</div><div class="sol-text">$p=a-2,\\ q=b-2,\\ r=c-2,\\ s=d-2$로 치환하면 $p+q+r+s=8-8=0$</div></div>
+<div class="sol-step"><div class="sol-num">2</div><div class="sol-text">$(p+q+r+s)^2=\\sum p^2+2\\sum_{i&lt;j}p_ip_j=0$ → $\\sum p^2=-2\\sum_{i&lt;j}p_ip_j$</div></div>
+<div class="sol-step"><div class="sol-num">3</div><div class="sol-text">분수 $=\\dfrac{\\sum_{i&lt;j}p_ip_j}{\\sum p^2}=-\\dfrac{1}{2}$</div></div>`
+  },
+  {
+    id: 'M3', cat: 'mid', catLabel: '🟡 중간',
+    title: '치환 + 정수 조건',
+    sub: '$a^2+b^2+c^2=6$, $abc=?$ (정수)',
+    why: '치환에 정수 조건이 더해져 경우의 수 탐색이 필요합니다. 항등식과 이산 탐색의 결합입니다.',
+    prob: '<p class="prob-body">$x+y+z=9$이고 $(x-3)^2+(y-3)^2+(z-3)^2=6$일 때, $(x-3)(y-3)(z-3)$의 값을 구하여라. (단, $x,y,z$는 정수)</p>',
+    ansVal: '$\\pm 2$',
+    ansDetail: '$a=x-3$으로 치환하면 $a+b+c=0$, $a^2+b^2+c^2=6$. 정수 해: $(\\pm1,\\pm1,\\mp2)$ 순열 → $abc=\\pm2$',
+    ansCheck: '$1^2+1^2+(-2)^2=6$ ✓, $1+1+(-2)=0$ ✓',
+    sol: `<div class="sol-step"><div class="sol-num">1</div><div class="sol-text">치환: $a=x-3,\\ b=y-3,\\ c=z-3$ → $a+b+c=0$, $a^2+b^2+c^2=6$</div></div>
+<div class="sol-step"><div class="sol-num">2</div><div class="sol-text">$ab+bc+ca=\\dfrac{0-6}{2}=-3$</div></div>
+<div class="sol-step"><div class="sol-num">3</div><div class="sol-text">정수 탐색: $(a,b,c)=(1,1,-2)$ 또는 $(-1,-1,2)$ 등 → $abc=\\pm2$</div></div>`
+  },
+  {
+    id: 'H1', cat: 'hard', catLabel: '🔴 어려운',
+    title: '분자에 이차식',
+    sub: '분자가 $(a+b+c)$ 인수인 경우',
+    why: '분자를 인수분해하면 $a+b+c=0$ 조건으로 바로 0이 됩니다. 고차 분수식에서 치환 활용의 극단적 예.',
+    prob: '<p class="prob-body">$x+y+z=6$일 때, $\\dfrac{(x-2)^2(y-2)+(y-2)^2(z-2)+(z-2)^2(x-2)+\\text{(대칭 나머지)}}{(a+b+c)^2+(a^2+b^2+c^2)}$의 값을 구하여라. (단, $a=x-2,b=y-2,c=z-2$, $x,y,z$ 모두 다름)</p>',
+    ansVal: '$0$',
+    ansDetail: '분자 $= (a+b+c)(ab+bc+ca)$이므로 $a+b+c=0$에서 분자 $=0$',
+    ansCheck: '분모 $=0^2+(a^2+b^2+c^2) \\ne 0$이면 분수 $=0$ ✓',
+    sol: `<div class="sol-step"><div class="sol-num">1</div><div class="sol-text">$a=x-2$로 치환하면 $a+b+c=(x+y+z)-6=0$</div></div>
+<div class="sol-step"><div class="sol-num">2</div><div class="sol-text">분모 $=(a+b+c)^2+(a^2+b^2+c^2)=0+(a^2+b^2+c^2)=a^2+b^2+c^2 \\ne 0$</div></div>
+<div class="sol-step"><div class="sol-num">3</div><div class="sol-text">분자 $=a^2b+ab^2+b^2c+bc^2+c^2a+ca^2=(a+b+c)(ab+bc+ca)=0\\cdot(ab+bc+ca)=0$</div></div>`
+  },
+  {
+    id: 'H2', cat: 'hard', catLabel: '🔴 어려운',
+    title: '역방향 — 비율로 합 구하기',
+    sub: '$\\frac{ab+bc+ca}{a^2+b^2+c^2}=-\\frac{1}{3}$일 때 $a+b+c$',
+    why: 'Q13에서 합이 0일 때 비율이 $-1/2$임을 구했습니다. 반대로 비율이 주어질 때 합을 역산합니다.',
+    prob: '<p class="prob-body">$\\dfrac{ab+bc+ca}{a^2+b^2+c^2}=-\\dfrac{1}{3}$이고 $a^2+b^2+c^2=18$일 때, $a+b+c>0$이면 $a+b+c$의 값은?</p>',
+    ansVal: '$\\sqrt{6}$',
+    ansDetail: '$ab+bc+ca=-6$, $(a+b+c)^2=18+2(-6)=6$, $a+b+c=\\sqrt{6}$',
+    ansCheck: '$(\\sqrt{6})^2=6=18-12$ ✓',
+    sol: `<div class="sol-step"><div class="sol-num">1</div><div class="sol-text">$ab+bc+ca = 18 \\times \\left(-\\dfrac{1}{3}\\right) = -6$</div></div>
+<div class="sol-step"><div class="sol-num">2</div><div class="sol-text">$(a+b+c)^2 = a^2+b^2+c^2+2(ab+bc+ca)=18+2(-6)=6$</div></div>
+<div class="sol-step"><div class="sol-num">3</div><div class="sol-text">$a+b+c > 0$이므로 $a+b+c=\\sqrt{6}$</div></div>`
+  },
+  {
+    id: 'H3', cat: 'hard', catLabel: '🔴 어려운',
+    title: '삼각함수 + 치환 구조',
+    sub: '$\\sin, \\cos$ 합 조건 → $p+q$ 계산',
+    why: '대수 치환 구조를 삼각함수에 적용합니다. 영역이 달라도 같은 항등식이 작동합니다.',
+    prob: '<p class="prob-body">$\\sin\\alpha+\\sin\\beta+\\sin\\gamma=\\dfrac{3}{2}$, $\\cos\\alpha+\\cos\\beta+\\cos\\gamma=\\dfrac{3}{2}$일 때,<br>$p=(\\sin\\alpha-\\sin\\beta)^2+(\\sin\\beta-\\sin\\gamma)^2+(\\sin\\gamma-\\sin\\alpha)^2$, $q$ (cos 버전)라 하면 $p+q$는?</p>',
+    ansVal: '$\\dfrac{15}{2}$',
+    ansDetail: '$p+q=2(\\sum\\sin^2+\\sum\\cos^2)-2(\\sum\\sin\\sin+\\sum\\cos\\cos)=2\\cdot3-2\\cdot(-3/4)=6+3/2=15/2$',
+    ansCheck: '$\\sum\\sin\\sin+\\sum\\cos\\cos=-3/4$: $(\\sin\\alpha+\\cdots)^2+(\\cos\\alpha+\\cdots)^2=9/4+9/4=9/2=3+2\\sum(\\sin\\sin+\\cos\\cos)$ ✓',
+    sol: `<div class="sol-step"><div class="sol-num">1</div><div class="sol-text">전개 공식: $p=2\\sum\\sin^2-2\\sum_{i&lt;j}\\sin_i\\sin_j$, 마찬가지로 $q=2\\sum\\cos^2-2\\sum_{i&lt;j}\\cos_i\\cos_j$</div></div>
+<div class="sol-step"><div class="sol-num">2</div><div class="sol-text">$(\\sum\\sin)^2+(\\sum\\cos)^2=\\frac{9}{4}+\\frac{9}{4}=\\frac{9}{2}=3+2(\\sum\\sin_i\\sin_j+\\sum\\cos_i\\cos_j)$ → $\\sum\\sin_i\\sin_j+\\sum\\cos_i\\cos_j=-\\frac{3}{4}$</div></div>
+<div class="sol-step"><div class="sol-num">3</div><div class="sol-text">$p+q=2\\cdot3-2\\cdot\\left(-\\dfrac{3}{4}\\right)=6+\\dfrac{3}{2}=\\dfrac{15}{2}$</div></div>`
+  }
+];
+
+let curIdx=0, curTab='prob', curCat='all';
+function buildList(){const grid=document.getElementById('prob-grid');grid.innerHTML=P.map((p,i)=>`<div class="prob-card ${p.cat}" id="card-${i}" onclick="openDetail(${i})"><div class="card-num">${p.id}</div><div class="card-info"><div class="card-title">${p.title}</div><div class="card-sub">${p.sub}</div></div><div class="card-arrow">›</div></div>`).join('');}
+function filterCat(cat){curCat=cat;document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));event.target.classList.add('active');P.forEach((p,i)=>{document.getElementById('card-'+i).classList.toggle('hidden',cat!=='all'&&p.cat!==cat);});}
+function openDetail(idx){curIdx=idx;curTab='prob';document.getElementById('list-view').style.display='none';document.getElementById('detail-view').style.display='block';renderDetail();window.scrollTo({top:0,behavior:'smooth'});}
+function showList(){document.getElementById('list-view').style.display='block';document.getElementById('detail-view').style.display='none';}
+function switchTab(tab){curTab=tab;['prob','ans','sol'].forEach(t=>{document.getElementById('tab-'+t).classList.toggle('active',t===tab);});renderContent();window.scrollTo({top:0,behavior:'smooth'});}
+function moveProblem(dir){curIdx=Math.max(0,Math.min(P.length-1,curIdx+dir));curTab='prob';renderDetail();window.scrollTo({top:0,behavior:'smooth'});}
+function renderDetail(){const p=P[curIdx];['prob','ans','sol'].forEach(t=>document.getElementById('tab-'+t).classList.toggle('active',t===curTab));document.getElementById('detail-title').textContent=`${p.id} — ${p.title}`;document.getElementById('btn-prev').disabled=curIdx===0;document.getElementById('btn-next').disabled=curIdx===P.length-1;document.getElementById('nav-label').textContent=`${curIdx+1} / ${P.length}`;renderContent();}
+function renderContent(){const p=P[curIdx];const area=document.getElementById('content-area');const badgeCls=p.cat==='easy'?'badge-easy':p.cat==='mid'?'badge-mid':'badge-hard';if(curTab==='prob'){area.innerHTML=`<span class="prob-badge ${badgeCls}">${p.catLabel}</span>${p.prob}`;}else if(curTab==='ans'){area.innerHTML=`<span class="prob-badge ${badgeCls}">${p.catLabel} — 정답</span><div class="why-box">💡 <strong>왜 이 문제인가?</strong><br>${p.why}</div><div class="answer-big"><div class="lbl">정답</div><div class="val">${p.ansVal}</div></div><div class="answer-check">✅ ${p.ansDetail}<br><br>🔍 <strong>검산</strong><br>${p.ansCheck}</div>`;}else{area.innerHTML=`<span class="prob-badge ${badgeCls}">${p.catLabel} — 풀이</span><div style="margin-top:16px;">${p.sol}</div>`;}if(window.renderMathInElement){renderMathInElement(area,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});}}
+document.addEventListener('DOMContentLoaded',()=>{buildList();});
+</script>
+</body>
+</html>

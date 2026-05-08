@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Q12 — 다항식 나눗셈 풀이</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+      background: #eef2ff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 24px 16px 48px;
+    }
+
+    #app {
+      width: 100%;
+      max-width: 700px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 24px;
+      padding: 36px 40px;
+      box-shadow: 0 8px 32px rgba(67, 97, 238, 0.10);
+      animation: slideUp 0.28s ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── 진행 표시 ── */
+    .progress-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .dot {
+      width: 11px; height: 11px;
+      border-radius: 50%;
+      background: #dde4ff;
+      transition: all 0.25s;
+      cursor: pointer;
+    }
+    .dot.done   { background: #a5b4fc; }
+    .dot.active { background: #4361EE; transform: scale(1.35); }
+    .progress-label {
+      margin-left: 6px;
+      font-size: 13px;
+      color: #94a3b8;
+      font-weight: 600;
+    }
+
+    /* ── 배지 ── */
+    .badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 14px;
+      border-radius: 20px;
+      margin-bottom: 14px;
+      letter-spacing: 0.02em;
+    }
+    .badge-q   { background: #fff3e0; color: #e65100; }
+    .badge-s   { background: #e8eeff; color: #4361EE; }
+    .badge-sum { background: #e8f5e9; color: #2e7d32; }
+
+    /* ── 제목 ── */
+    h1 { font-size: 22px; color: #1e1b4b; margin-bottom: 18px; line-height: 1.4; }
+    h2 { font-size: 17px; color: #312e81; margin-bottom: 10px; }
+
+    /* ── 본문 텍스트 ── */
+    .body-text {
+      font-size: 15px;
+      line-height: 1.9;
+      color: #374151;
+      margin-bottom: 14px;
+    }
+
+    /* ── 박스들 ── */
+    .prob-box {
+      background: #f8faff;
+      border-left: 4px solid #4361EE;
+      border-radius: 0 14px 14px 0;
+      padding: 18px 22px;
+      font-size: 15px;
+      line-height: 1.9;
+      margin-bottom: 14px;
+    }
+    .cond-box {
+      background: #fffbf0;
+      border: 1.5px solid #fbbf24;
+      border-radius: 14px;
+      padding: 14px 20px;
+      margin-bottom: 10px;
+      font-size: 15px;
+      line-height: 1.8;
+    }
+    .cond-label {
+      font-size: 12px;
+      font-weight: 800;
+      color: #d97706;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+    .formula-box {
+      background: #f5f7ff;
+      border: 1.5px solid #c7d2fe;
+      border-radius: 14px;
+      padding: 18px 22px;
+      text-align: center;
+      margin: 12px 0;
+      overflow-x: auto;
+    }
+    .formula-box .sub {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-top: 6px;
+    }
+    .hl-box {
+      background: #eef2ff;
+      border-radius: 14px;
+      padding: 16px 20px;
+      margin: 14px 0;
+      font-size: 15px;
+      line-height: 1.8;
+      color: #312e81;
+    }
+    .warn-box {
+      background: #fff8e1;
+      border-left: 4px solid #f59e0b;
+      border-radius: 0 14px 14px 0;
+      padding: 14px 18px;
+      font-size: 14px;
+      line-height: 1.7;
+      margin: 12px 0;
+      color: #374151;
+    }
+    .ok-box {
+      background: #f0fdf4;
+      border: 1.5px solid #86efac;
+      border-radius: 14px;
+      padding: 14px 20px;
+      margin: 12px 0;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #166534;
+    }
+    .err-box {
+      background: #fff1f2;
+      border-left: 4px solid #f87171;
+      border-radius: 0 14px 14px 0;
+      padding: 14px 18px;
+      font-size: 14px;
+      line-height: 1.7;
+      margin: 10px 0;
+      color: #374151;
+    }
+    .deg-info {
+      background: #f0fdf4;
+      border: 1.5px solid #86efac;
+      border-radius: 14px;
+      padding: 14px 20px;
+      font-size: 14px;
+      line-height: 1.8;
+      margin: 14px 0;
+      color: #166534;
+    }
+    .plain-math {
+      font-size: 14px;
+      color: #6366f1;
+      margin-bottom: 2px;
+      font-style: italic;
+    }
+
+    /* ── 선택지 ── */
+    .choices {
+      display: flex;
+      gap: 8px;
+      margin: 18px 0;
+      flex-wrap: wrap;
+    }
+    .choice {
+      flex: 1;
+      min-width: 70px;
+      text-align: center;
+      padding: 10px 6px;
+      border-radius: 12px;
+      border: 1.5px solid #e0e7ff;
+      font-size: 14px;
+      color: #64748b;
+    }
+    .choice.ans {
+      background: #4361EE;
+      color: #fff;
+      border-color: #4361EE;
+      font-weight: 800;
+    }
+
+    /* ── 생각 박스 ── */
+    .think-box {
+      background: linear-gradient(135deg, #eef2ff, #f5f3ff);
+      border-radius: 20px;
+      padding: 28px 24px;
+      text-align: center;
+      margin: 22px 0;
+    }
+    .think-emoji { font-size: 44px; margin-bottom: 10px; }
+    .think-box p { font-size: 15px; color: #4338ca; line-height: 1.7; }
+
+    /* ── 정답 박스 ── */
+    .answer-box {
+      background: linear-gradient(135deg, #4361EE, #7c3aed);
+      color: #fff;
+      border-radius: 20px;
+      padding: 28px 24px;
+      text-align: center;
+      margin: 22px 0;
+    }
+    .answer-box .ans-label { font-size: 14px; opacity: 0.8; margin-bottom: 6px; }
+    .answer-box .ans-value { font-size: 36px; font-weight: 900; letter-spacing: -1px; }
+
+    /* ── 요약 단계 리스트 ── */
+    .step-list { counter-reset: stc; }
+    .step-row {
+      counter-increment: stc;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+    .step-row::before {
+      content: counter(stc);
+      min-width: 30px;
+      height: 30px;
+      background: #4361EE;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .step-row-text { font-size: 14px; line-height: 1.8; color: #374151; padding-top: 4px; }
+    .step-row-text strong { color: #1e1b4b; }
+
+    /* ── 약점 태그 ── */
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .tag {
+      background: #eef2ff;
+      color: #4361EE;
+      border-radius: 20px;
+      padding: 5px 15px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    /* ── 버튼 ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 13px 26px;
+      border-radius: 14px;
+      border: none;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: inherit;
+      transition: all 0.18s;
+      text-decoration: none;
+    }
+    .btn:hover  { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.13); }
+    .btn:active { transform: translateY(0); }
+    .btn-blue  { background: #4361EE; color: #fff; }
+    .btn-gray  { background: #f1f5f9; color: #4361EE; }
+    .btn-green { background: #16a34a; color: #fff; }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 32px;
+      gap: 12px;
+    }
+
+    hr.divider {
+      border: none;
+      border-top: 1.5px solid #f1f5f9;
+      margin: 20px 0;
+    }
+
+    .katex-display { overflow-x: auto; }
+
+    @media (max-width: 480px) {
+      .card { padding: 28px 22px; }
+      h1 { font-size: 19px; }
+      .answer-box .ans-value { font-size: 28px; }
+      .choices { gap: 6px; }
+    }
+  </style>
+</head>
+<body>
+<nav style="background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:7px 16px;font-size:12px;display:flex;align-items:center;gap:5px;font-family:-apple-system,sans-serif;flex-shrink:0"><a href="../index.html" style="color:#6b7280;text-decoration:none">고1</a><span style="color:#d1d5db">&rsaquo;</span><a href="index.html" style="color:#2563eb;text-decoration:none;font-weight:600">Math_1_1</a></nav>
+
+<div id="app"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   페이지 데이터
+═══════════════════════════════════════════════════════ */
+const STEPS = 5;
+
+const pages = [
+
+  /* ─── 0. 문제 ─── */
+  {
+    render() {
+      return `
+        <div class="badge badge-q">📘 고1 공통수학1 · Q12 · 5.2점</div>
+        <h1>다항식 나눗셈과 나머지 조건</h1>
+
+        <div class="prob-box">
+          최고차항의 계수가 1인 삼차다항식 $f(x)$와 모든 항의 계수가 실수인 두 다항식 $P(x), Q(x)$가 다음 조건을 만족시킨다.
+        </div>
+
+        <div class="cond-box">
+          <div class="cond-label">조건 (가)</div>
+          $f(x)$를 $P(x)$로 나누었을 때의 몫은 $Q(x)$이고,<br>
+          나머지는 $\\{Q(x)\\}^2 - P(x)$이다.
+        </div>
+
+        <div class="cond-box">
+          <div class="cond-label">조건 (나)</div>
+          $f(x)$를 $Q(x)$로 나누었을 때의 몫은 $P(x)$이고,<br>
+          나머지는 $\\{Q(x)\\}^2 - P(x)$이다.
+        </div>
+
+        <div class="prob-box">
+          $P(0) = 4$, $Q(0) = 3$일 때, $f(2)$의 값은?
+        </div>
+
+        <div class="choices">
+          <div class="choice">① 25</div>
+          <div class="choice">② 45</div>
+          <div class="choice">③ 65</div>
+          <div class="choice">④ 85</div>
+          <div class="choice">⑤ 105</div>
+        </div>
+
+        <div class="think-box">
+          <div class="think-emoji">🤔</div>
+          <p><strong>잠깐, 먼저 생각해 보세요!</strong><br><br>
+          조건 (가)와 (나)를 자세히 보면<br>
+          어딘가 이상한 점이 있어요.<br>
+          뭔지 눈치챘나요?</p>
+        </div>
+
+        <div class="nav">
+          <button class="btn btn-gray" onclick="goTo(6)">📋 한페이지 요약 바로 보기</button>
+          <button class="btn btn-blue" onclick="goTo(1)">단계별 풀이 시작 →</button>
+        </div>
+      `;
+    }
+  },
+
+  /* ─── 1단계: 조건을 식으로 ─── */
+  {
+    render() {
+      return `
+        <div class="badge badge-s">1단계 / ${STEPS}</div>
+        <h1>🔍 조건을 식으로 바꿔봐요</h1>
+
+        <p class="body-text">
+          문제를 풀 때 가장 먼저 할 일은 <strong>조건을 수식으로 변환</strong>하는 거예요.<br>
+          다항식 나눗셈의 기본 형태를 기억해볼게요:
+        </p>
+
+        <div class="formula-box">
+          $$\\text{피제수} = \\text{제수} \\times \\text{몫} + \\text{나머지}$$
+        </div>
+
+        <p class="body-text">이걸 조건 (가)에 적용하면:</p>
+
+        <div class="formula-box">
+          $$f(x) = P(x) \\cdot Q(x) + \\bigl[Q(x)^2 - P(x)\\bigr] \\quad \\cdots (\\text{가})$$
+        </div>
+
+        <p class="body-text">그리고 조건 (나)에 적용하면:</p>
+
+        <div class="formula-box">
+          $$f(x) = Q(x) \\cdot P(x) + \\bigl[Q(x)^2 - P(x)\\bigr] \\quad \\cdots (\\text{나})$$
+        </div>
+
+        <div class="warn-box">
+          💡 <strong>잠깐! 뭔가 이상하지 않나요?</strong><br>
+          곱셈 교환법칙으로 $P \\cdot Q = Q \\cdot P$이니까,<br>
+          두 식이 <strong>완전히 똑같아요.</strong>
+        </div>
+
+        <div class="hl-box">
+          <strong>그렇다면 조건 (나)는 왜 있을까요?</strong><br><br>
+          단순한 반복이 아니에요! 다음 단계에서 밝혀질<br>
+          <strong>"나머지의 숨겨진 규칙"</strong>을 담고 있어요. 🗝️
+        </div>
+      `;
+    }
+  },
+
+  /* ─── 2단계: 나머지 차수 규칙 ─── */
+  {
+    render() {
+      return `
+        <div class="badge badge-s">2단계 / ${STEPS}</div>
+        <h1>📏 나머지에는 반드시 지켜야 할 규칙이 있어요</h1>
+
+        <p class="body-text">
+          다항식 나눗셈에서 <strong>절대 잊으면 안 되는 규칙</strong>이 있어요:
+        </p>
+
+        <div class="formula-box">
+          $$f = A \\cdot B + R \\quad \\Longrightarrow \\quad \\deg R \\;\\lt\\; \\deg A$$
+          <p class="sub">나머지의 차수 &lt; 제수의 차수</p>
+        </div>
+
+        <p class="body-text">
+          왜냐하면, 나머지가 제수보다 차수가 크거나 같으면<br>
+          <em>"한 번 더 나눌 수 있잖아요?"</em> — 아직 나눗셈이 끝난 게 아닌 거예요!
+        </p>
+
+        <p class="body-text">이 규칙을 (가)와 (나)에 각각 적용하면:</p>
+
+        <div class="deg-info">
+          📖 <strong>deg = degree = 차수</strong> &nbsp;—&nbsp; 수학에서 널리 쓰는 표준 기호예요.<br>
+          다항식에서 <strong>가장 높은 항의 지수</strong>를 말해요.<br>
+          예시: &nbsp;$x^2+6x+4$의 deg = <strong>2</strong> &nbsp;/&nbsp; $x+3$의 deg = <strong>1</strong> &nbsp;/&nbsp; 상수 $5$의 deg = <strong>0</strong>
+        </div>
+
+        <div class="cond-box">
+          <div class="cond-label">조건 (가)에서</div>
+          나머지 $Q^2-P$를 $P$로 나누므로:<br>
+          <p class="plain-math" style="margin-top:8px;">→ ($Q^2-P$의 차수) &lt; ($P$의 차수)</p>
+          $$\\deg(Q^2 - P) \\;\\lt\\; \\deg P$$
+        </div>
+
+        <div class="cond-box">
+          <div class="cond-label">조건 (나)에서</div>
+          나머지 $Q^2-P$를 $Q$로 나누므로:<br>
+          <p class="plain-math" style="margin-top:8px;">→ ($Q^2-P$의 차수) &lt; ($Q$의 차수)</p>
+          $$\\deg(Q^2 - P) \\;\\lt\\; \\deg Q$$
+        </div>
+
+        <div class="hl-box">
+          🎯 <strong>이게 (나)가 있는 진짜 이유예요!</strong><br><br>
+          (가)와 (나)는 같은 식이지만,<br>
+          <strong>서로 다른 두 방향의 차수 제약</strong>을 동시에 걸어줘요.<br><br>
+          이 두 조건이 $P(x)$와 $Q(x)$의 형태를 결정해줄 거예요.
+        </div>
+      `;
+    }
+  },
+
+  /* ─── 3단계: 차수 결정 ─── */
+  {
+    render() {
+      return `
+        <div class="badge badge-s">3단계 / ${STEPS}</div>
+        <h1>🔢 P와 Q의 차수를 결정해요</h1>
+
+        <p class="body-text">
+          $f(x)$는 삼차식이에요. $f = PQ + (Q^2-P)$에서<br>
+          가장 높은 차수의 항은 $PQ$에서 나오므로:
+        </p>
+
+        <div class="formula-box">
+          <p class="plain-math">($P$의 차수) + ($Q$의 차수) = 3</p>
+          $$\\deg P + \\deg Q = 3$$
+        </div>
+
+        <p class="body-text">
+          $Q$의 차수를 $n$으로 놓으면 $Q^2$의 차수는 $2n$이에요.<br>
+          앞에서 구한 차수 조건을 만족하려면:
+        </p>
+
+        <div class="formula-box">
+          <p class="plain-math">($Q^2-P$의 차수) &lt; ($Q$의 차수) = $n$</p>
+          $$\\deg(Q^2 - P) \\;\\lt\\; \\deg Q = n$$
+          <p class="sub">즉, $Q^2$에서 최고차항이 $P$에 의해 상쇄되어야 해요</p>
+        </div>
+
+        <p class="body-text">경우를 따져볼게요:</p>
+
+        <div class="ok-box">
+          ✅ <strong>$P$는 2차, $Q$는 1차</strong> &nbsp;<span style="opacity:0.7;font-size:13px;">( $\\deg P = 2$, $\\deg Q = 1$ )</span><br>
+          $Q^2$은 2차, $P$도 2차 → 최고차항 상쇄 가능!<br>
+          $Q^2-P$를 상수 (차수 0)으로 만들 수 있어요.
+        </div>
+
+        <div class="err-box">
+          ❌ <strong>$P$는 1차, $Q$는 2차</strong> &nbsp;<span style="opacity:0.7;font-size:13px;">( $\\deg P = 1$, $\\deg Q = 2$ )</span><br>
+          $Q^2$은 4차인데 $P$는 1차 → 4차 항을 없앨 수 없어요.
+        </div>
+
+        <div class="err-box">
+          ❌ <strong>$P$는 3차, $Q$는 상수</strong> &nbsp;<span style="opacity:0.7;font-size:13px;">( $\\deg P = 3$, $\\deg Q = 0$ )</span><br>
+          나머지 $Q^2-P$의 차수 = 3, 제수 $P$의 차수 = 3 → 조건 위반!
+        </div>
+
+        <div class="hl-box">
+          <strong>결론: $P$는 2차, $Q$는 1차 만 가능해요!</strong><br>
+          <span style="font-size:13px;opacity:0.8;">( $\\deg P = 2$, $\\deg Q = 1$ )</span><br><br>
+          그리고 $Q^2 - P$는 <strong>상수 (차수 0)</strong>이어야 해요.
+        </div>
+      `;
+    }
+  },
+
+  /* ─── 4단계: 계수 결정 ─── */
+  {
+    render() {
+      return `
+        <div class="badge badge-s">4단계 / ${STEPS}</div>
+        <h1>✏️ P와 Q의 구체적인 형태를 찾아요</h1>
+
+        <p class="body-text">
+          $P(0)=4$, $Q(0)=3$이고 차수도 알았으니, 일반형으로 써볼게요:
+        </p>
+
+        <div class="formula-box">
+          $$P(x) = ax^2 + bx + 4, \\quad Q(x) = cx + 3$$
+        </div>
+
+        <p class="body-text">
+          핵심 조건: $Q(x)^2 - P(x)$가 <strong>상수</strong>여야 해요.<br>
+          전개해볼까요?
+        </p>
+
+        <div class="formula-box">
+          $$Q(x)^2 - P(x)$$
+          $$= (cx+3)^2 - (ax^2+bx+4)$$
+          $$= (c^2-a)x^2 + (6c-b)x + 5$$
+        </div>
+
+        <p class="body-text">
+          이것이 상수가 되려면 $x^2$과 $x$의 계수가 모두 0이어야 해요:
+        </p>
+
+        <div class="cond-box">
+          <div class="cond-label">$x^2$ 계수 = 0</div>
+          $$c^2 - a = 0 \\ \\Rightarrow \\ a = c^2$$
+        </div>
+
+        <div class="cond-box">
+          <div class="cond-label">$x^1$ 계수 = 0</div>
+          $$6c - b = 0 \\ \\Rightarrow \\ b = 6c$$
+        </div>
+
+        <div class="formula-box">
+          $$\\therefore \\ P(x) = c^2x^2 + 6cx + 4, \\quad Q(x) = cx + 3$$
+          <p class="sub">상수 나머지 = 5</p>
+        </div>
+
+        <div class="hl-box">
+          🎉 미지수가 <strong>$c$ 하나</strong>로 줄었어요!<br>
+          마지막 단계에서 $c$를 결정하고 답을 구해요.
+        </div>
+      `;
+    }
+  },
+
+  /* ─── 5단계: c 결정 + 답 ─── */
+  {
+    render() {
+      return `
+        <div class="badge badge-s">5단계 / ${STEPS}</div>
+        <h1>🎯 c를 구하고 $f(2)$를 계산해요</h1>
+
+        <p class="body-text">
+          $f(x) = P(x) \\cdot Q(x) + 5$에서 최고차항은 $PQ$의 최고차항이에요:
+        </p>
+
+        <div class="formula-box">
+          $$(c^2x^2) \\cdot (cx) = c^3 x^3$$
+        </div>
+
+        <p class="body-text">
+          $f(x)$의 최고차 계수가 1이라고 했으니:
+        </p>
+
+        <div class="formula-box">
+          $$c^3 = 1 \\ \\Rightarrow \\ c = 1$$
+        </div>
+
+        <div class="cond-box">
+          <div class="cond-label">P(x)와 Q(x) 확정!</div>
+          $$P(x) = x^2 + 6x + 4, \\quad Q(x) = x + 3$$
+        </div>
+
+        <p class="body-text">이제 $f(x)$를 계산해요:</p>
+
+        <div class="formula-box">
+          $$f(x) = (x^2+6x+4)(x+3) + 5$$
+          $$= x^3 + 3x^2 + 6x^2 + 18x + 4x + 12 + 5$$
+          $$= x^3 + 9x^2 + 22x + 17$$
+        </div>
+
+        <p class="body-text">$x = 2$를 대입하면:</p>
+
+        <div class="formula-box">
+          $$f(2) = 2^3 + 9 \\times 4 + 22 \\times 2 + 17$$
+          $$= 8 + 36 + 44 + 17$$
+        </div>
+
+        <div class="answer-box">
+          <div class="ans-label">정답</div>
+          <div class="ans-value">f(2) = 105 &nbsp; ⑤</div>
+        </div>
+
+        <div class="ok-box">
+          🔍 <strong>검산 — 합성제법으로 조건 (나) 확인</strong><br><br>
+          $f(x) \\div (x+3)$을 계산하면:<br>
+          몫 $= x^2+6x+4 = P(x)$ ✓<br>
+          나머지 $= 5 = Q(0+3)^2 - P(0+3)$... 더 간단히: $3^2 - 4 = 5$ ✓
+        </div>
+
+        <div class="nav" style="margin-top:28px;">
+          <button class="btn btn-gray" onclick="goTo(4)">← 이전 단계</button>
+          <button class="btn btn-green" onclick="goTo(6)">📋 한페이지 요약 →</button>
+        </div>
+      `;
+    }
+  },
+
+  /* ─── 6. 한페이지 요약 ─── */
+  {
+    render() {
+      return `
+        <div class="badge badge-sum">📋 한페이지 요약</div>
+        <h1>Q12 — 핵심 정리</h1>
+
+        <div class="hl-box" style="margin-bottom:20px;">
+          <strong>🗝️ 이 문제의 핵심 아이디어</strong><br><br>
+          조건 (가)와 (나)는 <strong>같은 식</strong>이지만,<br>
+          <strong>두 방향의 나머지 차수 제약</strong>을 걸어서<br>
+          $P(x)$와 $Q(x)$의 형태를 완전히 결정한다.
+        </div>
+
+        <h2>🪜 풀이 흐름</h2>
+        <div class="step-list" style="margin-bottom:20px;">
+          <div class="step-row">
+            <div class="step-row-text">
+              <strong>조건을 식으로</strong><br>
+              $f = PQ + (Q^2-P)$ — (가)(나) 모두 같은 식
+            </div>
+          </div>
+          <div class="step-row">
+            <div class="step-row-text">
+              <strong>나머지 차수 제약</strong><br>
+              <span style="font-size:13px;color:#6366f1;">($Q^2-P$의 차수) &lt; ($P$의 차수) 이고 &lt; ($Q$의 차수)</span><br>
+              <span style="font-size:13px;color:#94a3b8;">$\\deg(Q^2-P) < \\deg P$ &nbsp;이고&nbsp; $\\deg(Q^2-P) < \\deg Q$</span>
+            </div>
+          </div>
+          <div class="step-row">
+            <div class="step-row-text">
+              <strong>P, Q 차수 결정</strong><br>
+              <span style="font-size:13px;color:#6366f1;">$P$는 2차식, $Q$는 1차식 (다른 경우 모두 모순)</span><br>
+              <span style="font-size:13px;color:#94a3b8;">$\\deg P = 2$, $\\deg Q = 1$</span>
+            </div>
+          </div>
+          <div class="step-row">
+            <div class="step-row-text">
+              <strong>계수 비교</strong><br>
+              $Q^2-P = $ 상수 → $a=c^2$, $b=6c$ → $P = c^2x^2+6cx+4$
+            </div>
+          </div>
+          <div class="step-row">
+            <div class="step-row-text">
+              <strong>최고차 계수로 c 결정</strong><br>
+              $c^3=1$ → $c=1$ → $f(x)=x^3+9x^2+22x+17$
+            </div>
+          </div>
+        </div>
+
+        <div class="answer-box">
+          <div class="ans-label">최종 답</div>
+          <div class="ans-value">f(2) = 105 &nbsp; ⑤</div>
+        </div>
+
+        <hr class="divider">
+
+        <h2 style="margin-bottom:12px;">⚠️ 많이 틀리는 이유 3가지</h2>
+
+        <div class="err-box">
+          <strong>① 나머지 차수 조건 무시</strong><br>
+          "나머지가 $Q^2-P$라고 했으니 그냥 그것" → 차수 검증 없이 진행 → 틀림
+        </div>
+        <div class="err-box">
+          <strong>② (가)(나)가 다른 정보라고 착각</strong><br>
+          두 조건을 독립 방정식 2개로 취급 → 헛돌기
+        </div>
+        <div class="err-box">
+          <strong>③ $c$ 결정을 안 함</strong><br>
+          일반형 $P = c^2x^2 + 6cx + 4$까지 쓰고 $c^3=1$ 마무리 안 함
+        </div>
+
+        <hr class="divider">
+
+        <h2 style="margin-bottom:10px;">🏷️ 약점 태그</h2>
+        <div class="tags">
+          <span class="tag">수학:다항식나눗셈</span>
+          <span class="tag">수학:조건해석</span>
+          <span class="tag">수학:차수분석</span>
+          <span class="tag">수학:계수비교</span>
+        </div>
+
+        <div class="nav" style="margin-top:32px;">
+          <button class="btn btn-gray" onclick="goTo(0)">🔄 문제로 돌아가기</button>
+          <button class="btn btn-blue" onclick="goTo(1)">📖 단계별로 다시 보기</button>
+        </div>
+      `;
+    }
+  }
+];
+
+/* ═══════════════════════════════════════════════════════
+   렌더 & 내비게이션
+═══════════════════════════════════════════════════════ */
+let current = 0;
+
+function goTo(n) {
+  current = n;
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function render() {
+  const app = document.getElementById('app');
+
+  /* 진행 도트 (1~5단계에서만 표시) */
+  let progressHtml = '';
+  if (current >= 1 && current <= STEPS) {
+    progressHtml = '<div class="progress-wrap">';
+    for (let i = 1; i <= STEPS; i++) {
+      const cls = i < current ? 'dot done' : i === current ? 'dot active' : 'dot';
+      progressHtml += `<div class="${cls}" onclick="goTo(${i})" title="${i}단계"></div>`;
+    }
+    progressHtml += `<span class="progress-label">${current} / ${STEPS}단계</span></div>`;
+  }
+
+  /* 일반 nav (1~4단계 — 5단계는 자체 nav 포함) */
+  let navHtml = '';
+  if (current >= 1 && current <= STEPS - 1) {
+    const prevLabel = current === 1 ? '← 문제로' : '← 이전 단계';
+    navHtml = `
+      <div class="nav">
+        <button class="btn btn-gray" onclick="goTo(${current - 1})">${prevLabel}</button>
+        <button class="btn btn-blue" onclick="goTo(${current + 1})">다음 단계 →</button>
+      </div>`;
+  }
+
+  app.innerHTML = `
+    <div class="card">
+      ${progressHtml}
+      ${pages[current].render()}
+      ${navHtml}
+    </div>`;
+
+  /* KaTeX 렌더 */
+  if (window.renderMathInElement) {
+    renderMathInElement(app, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$',  right: '$',  display: false }
+      ],
+      throwOnError: false
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', render);
+</script>
+</body>
+</html>

@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Q12 연습문제</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+      background: #eef2ff;
+      min-height: 100vh;
+      padding: 20px 16px 60px;
+    }
+    #app { max-width: 740px; margin: 0 auto; }
+
+    /* ── 헤더 ── */
+    .app-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .app-header h1 { font-size: 22px; color: #1e1b4b; margin-bottom: 6px; }
+    .app-header p  { font-size: 14px; color: #6b7280; }
+
+    /* ── 카테고리 필터 ── */
+    .cat-filter {
+      display: flex; gap: 8px; justify-content: center;
+      margin-bottom: 22px; flex-wrap: wrap;
+    }
+    .cat-btn {
+      padding: 7px 18px; border-radius: 20px; border: 2px solid transparent;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      transition: all .2s; font-family: inherit;
+    }
+    .cat-btn.all   { background: #4361EE; color: #fff; }
+    .cat-btn.easy  { background: #dcfce7; color: #16a34a; border-color: #86efac; }
+    .cat-btn.mid   { background: #fef9c3; color: #854d0e; border-color: #fde047; }
+    .cat-btn.hard  { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
+    .cat-btn:not(.all):hover, .cat-btn.active { filter: brightness(.93); transform: scale(1.04); }
+    .cat-btn.all:hover { opacity: .88; }
+
+    /* ── 문제 카드 목록 ── */
+    .prob-grid { display: flex; flex-direction: column; gap: 10px; }
+    .prob-card {
+      background: #fff; border-radius: 16px;
+      padding: 16px 20px;
+      box-shadow: 0 2px 12px rgba(67,97,238,.08);
+      display: flex; align-items: center; gap: 14px;
+      cursor: pointer; transition: all .18s;
+      border-left: 5px solid transparent;
+    }
+    .prob-card:hover { transform: translateX(4px); box-shadow: 0 4px 20px rgba(67,97,238,.14); }
+    .prob-card.easy  { border-color: #4ade80; }
+    .prob-card.mid   { border-color: #facc15; }
+    .prob-card.hard  { border-color: #f87171; }
+    .prob-card.hidden { display: none; }
+    .card-num {
+      min-width: 52px; height: 52px;
+      border-radius: 14px; display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 800; flex-shrink: 0;
+    }
+    .easy .card-num  { background: #dcfce7; color: #16a34a; }
+    .mid  .card-num  { background: #fef9c3; color: #854d0e; }
+    .hard .card-num  { background: #fee2e2; color: #b91c1c; }
+    .card-info { flex: 1; }
+    .card-title { font-size: 15px; font-weight: 700; color: #1e1b4b; margin-bottom: 3px; }
+    .card-sub   { font-size: 13px; color: #6b7280; }
+    .card-arrow { font-size: 18px; color: #c7d2fe; }
+
+    /* ── 상세 뷰 ── */
+    #detail-view { display: none; }
+    .detail-header {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 20px;
+    }
+    .back-btn {
+      background: #fff; border: none; border-radius: 12px;
+      padding: 8px 16px; font-size: 14px; font-weight: 700;
+      color: #4361EE; cursor: pointer; font-family: inherit;
+      box-shadow: 0 2px 8px rgba(67,97,238,.1);
+      transition: all .15s;
+    }
+    .back-btn:hover { background: #eef2ff; }
+    .detail-title { font-size: 18px; font-weight: 800; color: #1e1b4b; }
+
+    /* ── 탭 ── */
+    .tab-wrap {
+      display: flex; gap: 0;
+      background: #fff; border-radius: 16px 16px 0 0;
+      overflow: hidden; box-shadow: 0 2px 12px rgba(67,97,238,.08);
+    }
+    .tab-btn {
+      flex: 1; padding: 14px 8px;
+      border: none; background: #fff;
+      font-size: 14px; font-weight: 700; font-family: inherit;
+      cursor: pointer; transition: all .18s;
+      color: #94a3b8;
+      border-bottom: 3px solid transparent;
+    }
+    .tab-btn.active { color: #4361EE; border-bottom-color: #4361EE; background: #f8faff; }
+    .tab-btn:hover:not(.active) { background: #f8faff; color: #6366f1; }
+
+    /* ── 컨텐츠 카드 ── */
+    .content-card {
+      background: #fff; border-radius: 0 0 20px 20px;
+      padding: 28px 32px;
+      box-shadow: 0 4px 20px rgba(67,97,238,.08);
+      animation: fadeIn .22s ease;
+      min-height: 260px;
+    }
+    @keyframes fadeIn { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: translateY(0); } }
+
+    /* ── 컨텐츠 내부 요소 ── */
+    .prob-badge {
+      display: inline-block; font-size: 12px; font-weight: 800;
+      padding: 3px 12px; border-radius: 20px; margin-bottom: 14px;
+    }
+    .badge-easy { background: #dcfce7; color: #16a34a; }
+    .badge-mid  { background: #fef9c3; color: #854d0e; }
+    .badge-hard { background: #fee2e2; color: #b91c1c; }
+
+    .why-box {
+      background: #f8faff; border-left: 4px solid #a5b4fc;
+      border-radius: 0 12px 12px 0; padding: 12px 16px;
+      font-size: 14px; color: #4338ca; line-height: 1.7;
+      margin-bottom: 18px;
+    }
+    .prob-body {
+      font-size: 15px; line-height: 1.9; color: #1e1b4b;
+      margin-bottom: 10px;
+    }
+    .prob-cond {
+      background: #fffbf0; border: 1.5px solid #fbbf24;
+      border-radius: 12px; padding: 12px 18px;
+      margin: 10px 0; font-size: 15px; line-height: 1.8;
+    }
+    .cond-label { font-size: 12px; font-weight: 800; color: #d97706; margin-bottom: 4px; }
+
+    /* 정답 */
+    .answer-big {
+      background: linear-gradient(135deg, #4361EE, #7c3aed);
+      color: #fff; border-radius: 18px; padding: 28px 24px;
+      text-align: center; margin: 10px 0;
+    }
+    .answer-big .lbl  { font-size: 13px; opacity: .8; margin-bottom: 6px; }
+    .answer-big .val  { font-size: 28px; font-weight: 900; line-height: 1.3; }
+    .answer-check {
+      background: #f0fdf4; border: 1.5px solid #86efac;
+      border-radius: 12px; padding: 14px 18px;
+      font-size: 14px; color: #166534; margin-top: 14px;
+      line-height: 1.7;
+    }
+
+    /* 풀이 */
+    .sol-step {
+      display: flex; gap: 14px; margin-bottom: 18px;
+      align-items: flex-start;
+    }
+    .sol-num {
+      min-width: 28px; height: 28px; border-radius: 50%;
+      background: #4361EE; color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 800; flex-shrink: 0; margin-top: 2px;
+    }
+    .sol-text { font-size: 15px; line-height: 1.85; color: #1e1b4b; }
+    .formula-box {
+      background: #f5f7ff; border: 1.5px solid #c7d2fe;
+      border-radius: 12px; padding: 14px 20px;
+      text-align: center; margin: 10px 0; overflow-x: auto;
+    }
+    .hl-box {
+      background: #eef2ff; border-radius: 12px;
+      padding: 14px 18px; margin: 12px 0;
+      font-size: 14px; color: #312e81; line-height: 1.8;
+    }
+    .warn-box {
+      background: #fff8e1; border-left: 4px solid #f59e0b;
+      border-radius: 0 12px 12px 0;
+      padding: 12px 16px; font-size: 14px; color: #374151;
+      margin: 10px 0; line-height: 1.7;
+    }
+    .case-box {
+      background: #f8faff; border: 1.5px solid #c7d2fe;
+      border-radius: 12px; padding: 14px 18px; margin: 8px 0;
+      font-size: 14px; line-height: 1.8; color: #1e1b4b;
+    }
+    .case-label { font-size: 12px; font-weight: 800; color: #4361EE; margin-bottom: 4px; }
+
+    /* ── 네비게이션 ── */
+    .detail-nav {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-top: 20px; gap: 12px;
+    }
+    .nav-btn {
+      background: #fff; border: none; border-radius: 12px;
+      padding: 10px 20px; font-size: 14px; font-weight: 700;
+      color: #4361EE; cursor: pointer; font-family: inherit;
+      box-shadow: 0 2px 8px rgba(67,97,238,.1);
+      transition: all .15s;
+    }
+    .nav-btn:hover { background: #eef2ff; transform: translateY(-1px); }
+    .nav-btn:disabled { opacity: .35; cursor: default; transform: none; }
+    .nav-center { font-size: 13px; color: #94a3b8; font-weight: 600; }
+
+    .katex-display { overflow-x: auto; }
+    @media (max-width:480px) {
+      .content-card { padding: 20px 18px; }
+      .answer-big .val { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+<nav style="background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:7px 16px;font-size:12px;display:flex;align-items:center;gap:5px;font-family:-apple-system,sans-serif;flex-shrink:0"><a href="../index.html" style="color:#6b7280;text-decoration:none">고1</a><span style="color:#d1d5db">&rsaquo;</span><a href="index.html" style="color:#2563eb;text-decoration:none;font-weight:600">Math_1_1</a></nav>
+
+<div id="app">
+
+  <!-- ══ 목록 뷰 ══ -->
+  <div id="list-view">
+    <div class="app-header">
+      <h1>Q12 연습 문제</h1>
+      <p>다항식 나눗셈 · 나머지 차수 분석 · 9문제</p>
+    </div>
+
+    <div class="cat-filter">
+      <button class="cat-btn all active" onclick="filterCat('all')">전체</button>
+      <button class="cat-btn easy" onclick="filterCat('easy')">🟢 쉬운 (L)</button>
+      <button class="cat-btn mid"  onclick="filterCat('mid')">🟡 중간 (M)</button>
+      <button class="cat-btn hard" onclick="filterCat('hard')">🔴 어려운 (H)</button>
+    </div>
+
+    <div class="prob-grid" id="prob-grid"></div>
+  </div>
+
+  <!-- ══ 상세 뷰 ══ -->
+  <div id="detail-view">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showList()">← 목록</button>
+      <div class="detail-title" id="detail-title"></div>
+    </div>
+
+    <div class="tab-wrap">
+      <button class="tab-btn active" id="tab-prob"   onclick="switchTab('prob')">📄 문제판</button>
+      <button class="tab-btn"        id="tab-ans"    onclick="switchTab('ans')">✅ 정답판</button>
+      <button class="tab-btn"        id="tab-sol"    onclick="switchTab('sol')">📖 풀이판</button>
+    </div>
+
+    <div class="content-card" id="content-area"></div>
+
+    <div class="detail-nav">
+      <button class="nav-btn" id="btn-prev" onclick="moveProblem(-1)">← 이전</button>
+      <span class="nav-center" id="nav-label"></span>
+      <button class="nav-btn" id="btn-next" onclick="moveProblem(1)">다음 →</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   데이터
+═══════════════════════════════════════════ */
+const P = [
+
+  /* L1-1 */
+  {
+    id:'L1-1', cat:'easy', catLabel:'🟢 쉬운',
+    title:'나머지 정리 기초',
+    sub:'(x-2)(x+1)로 나눈 나머지 ax+b 구하기',
+    why:'Q12 풀이의 뼈대가 되는 나머지 정리를 직접 연습합니다. 나머지 정리가 자유로우면 Q12의 절반은 이미 아는 것입니다.',
+    prob:`
+      <p class="prob-body">다항식 $f(x)$를 $(x-2)$로 나누면 나머지가 $7$이고, $(x+1)$로 나누면 나머지가 $1$이다.</p>
+      <p class="prob-body">$f(x)$를 $(x-2)(x+1)$로 나누었을 때의 나머지를 $ax+b$라 할 때,</p>
+      <div class="formula-box">$$a+b \text{의 값을 구하여라.}$$</div>
+    `,
+    ansVal:'5',
+    ansDetail:'$a=2,\\; b=3 \\;\\Rightarrow\\; a+b = \\mathbf{5}$',
+    ansCheck:'검산: $f(2)=2(2)+3=7$ ✓ &nbsp; $f(-1)=2(-1)+3=1$ ✓',
+    sol:`
+      <div class="sol-step">
+        <div class="sol-num">1</div>
+        <div class="sol-text">
+          나머지를 $ax+b$로 놓으면, $x=2$를 대입할 때 $f(2)$와 일치해야 해요.<br>
+          (피제수에 제수의 근을 대입하면 나머지가 나오는 성질 — 나머지 정리!)
+        </div>
+      </div>
+      <div class="formula-box">$$f(2) = 2a+b = 7 \\quad \\cdots (1)$$</div>
+      <div class="sol-step">
+        <div class="sol-num">2</div>
+        <div class="sol-text">같은 방법으로 $x=-1$ 대입:</div>
+      </div>
+      <div class="formula-box">$$f(-1) = -a+b = 1 \\quad \\cdots (2)$$</div>
+      <div class="sol-step">
+        <div class="sol-num">3</div>
+        <div class="sol-text">$(1)-(2)$: &nbsp; $3a=6 \\Rightarrow a=2,\\; b=3$</div>
+      </div>
+      <div class="answer-big" style="margin-top:16px;">
+        <div class="lbl">정답</div>
+        <div class="val">a+b = 5</div>
+      </div>
+    `
+  },
+
+  /* L1-2 */
+  {
+    id:'L1-2', cat:'easy', catLabel:'🟢 쉬운',
+    title:'나머지 차수 조건 이해',
+    sub:'Q²-P가 왜 상수인지 설명 + 값 계산',
+    why:'Q12에서 "Q²-P가 상수"임이 핵심 돌파구였습니다. 그 이유를 직접 말할 수 있어야 진짜 이해한 것입니다.',
+    prob:`
+      <p class="prob-body">다항식 $f(x)$를 $P(x)$로 나눈 몫이 $Q(x)$, 나머지가 $Q(x)^2-P(x)$이고,<br>
+      $f(x)$를 $Q(x)$로 나눈 몫이 $P(x)$, 나머지가 $Q(x)^2-P(x)$이다.<br>
+      $P(x)$가 이차식, $Q(x)$가 일차식일 때:</p>
+      <div class="prob-cond">
+        <div class="cond-label">(1)</div>
+        $Q(x)^2-P(x)$가 반드시 상수임을 설명하여라.
+      </div>
+      <div class="prob-cond">
+        <div class="cond-label">(2)</div>
+        $P(0)=5$, $Q(0)=3$이면 그 상수값은?
+      </div>
+    `,
+    ansVal:'4',
+    ansDetail:'(1) 나머지 차수 $< \\deg Q = 1$ 이므로 차수 0, 즉 상수<br>(2) $Q(0)^2-P(0) = 9-5 = \\mathbf{4}$',
+    ansCheck:'공식: 상수 $= Q(0)^2-P(0)$ — 항상 성립!',
+    sol:`
+      <div class="sol-step">
+        <div class="sol-num">1</div>
+        <div class="sol-text">
+          다항식 나눗셈의 핵심 규칙: <strong>나머지의 차수 &lt; 제수의 차수</strong>
+        </div>
+      </div>
+      <div class="formula-box">$$f = A \\cdot B + R \\implies \\deg R < \\deg A$$</div>
+      <div class="sol-step">
+        <div class="sol-num">2</div>
+        <div class="sol-text">
+          조건 (나)에서 제수는 $Q(x)$ — 일차식 ($\\deg Q=1$).<br>
+          따라서 나머지 $Q^2-P$의 차수 $< 1$, 즉 <strong>차수 0 (상수)</strong>.
+        </div>
+      </div>
+      <div class="hl-box">
+        📌 <strong>조건 (나)가 있는 이유</strong>: Q로 나누므로 나머지 차수 &lt; 1 조건이 추가됩니다.<br>
+        두 조건이 함께 $Q^2-P$가 상수임을 강제해요.
+      </div>
+      <div class="sol-step">
+        <div class="sol-num">3</div>
+        <div class="sol-text">
+          $Q(x)=cx+q$, $P(x)=c^2x^2+2qcx+p$로 놓으면:<br>
+          $Q^2-P = (cx+q)^2-(c^2x^2+2qcx+p) = q^2-p$
+        </div>
+      </div>
+      <div class="formula-box">$$Q(x)^2-P(x) = Q(0)^2-P(0) = 3^2-5 = \\mathbf{4}$$</div>
+    `
+  },
+
+  /* L1-3 */
+  {
+    id:'L1-3', cat:'easy', catLabel:'🟢 쉬운',
+    title:'Q12 구조 간소화',
+    sub:'P(0)=2, Q(0)=1로 바꾼 Q12 → f(1)=?',
+    why:'Q12와 완전히 같은 구조, 숫자만 바꿨습니다. 풀이 5단계가 머릿속에 들어왔는지 확인하는 가장 직접적인 방법이에요.',
+    prob:`
+      <p class="prob-body">최고차항의 계수가 1인 삼차다항식 $f(x)$와 모든 항의 계수가 실수인 두 다항식 $P(x), Q(x)$가 다음 조건을 만족시킨다.</p>
+      <div class="prob-cond">
+        <div class="cond-label">조건 (가)</div>
+        $f(x)$를 $P(x)$로 나누었을 때의 몫은 $Q(x)$이고, 나머지는 $\\{Q(x)\\}^2-P(x)$이다.
+      </div>
+      <div class="prob-cond">
+        <div class="cond-label">조건 (나)</div>
+        $f(x)$를 $Q(x)$로 나누었을 때의 몫은 $P(x)$이고, 나머지는 $\\{Q(x)\\}^2-P(x)$이다.
+      </div>
+      <p class="prob-body" style="margin-top:14px;">$P(0)=2$, $Q(0)=1$일 때, $f(1)$의 값을 구하여라.</p>
+    `,
+    ansVal:'9',
+    ansDetail:'$f(1) = \\mathbf{9}$',
+    ansCheck:'$P(x)=x^2+2x+2,\\; Q(x)=x+1,\\; Q^2-P=-1$<br>$f(x)=x^3+3x^2+4x+1,\\; f(1)=1+3+4+1=9$ ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">$Q^2-P = Q(0)^2-P(0) = 1-2 = -1$ (상수)</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">$Q(x)=cx+1$, $P(x)=c^2x^2+2cx+2$ (Q12와 동일한 분석)</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">3</div>
+        <div class="sol-text">$f$의 최고차 계수 $= c^3 = 1 \\Rightarrow c=1$</div>
+      </div>
+      <div class="formula-box">$$P(x)=x^2+2x+2, \\quad Q(x)=x+1$$</div>
+      <div class="sol-step"><div class="sol-num">4</div>
+        <div class="sol-text">$f(x) = (x^2+2x+2)(x+1)+(-1) = x^3+3x^2+4x+1$</div>
+      </div>
+      <div class="formula-box">$$f(1) = 1+3+4+1 = \\mathbf{9}$$</div>
+    `
+  },
+
+  /* M2-1 */
+  {
+    id:'M2-1', cat:'mid', catLabel:'🟡 중간',
+    title:'나머지 부호 변환',
+    sub:'나머지가 P(x)-{Q(x)}² → f(2)=?',
+    why:'Q12는 나머지가 $Q^2-P$였지만 이번엔 $P-Q^2$입니다. 같은 분석 흐름이 적용되는지 확인하고, 부호 차이가 결과에 어떤 영향을 주는지 봅니다.',
+    prob:`
+      <p class="prob-body">최고차항의 계수가 1인 삼차다항식 $f(x)$와 실수 계수 다항식 $P(x), Q(x)$가 다음 조건을 만족시킨다.</p>
+      <div class="prob-cond">
+        <div class="cond-label">조건 (가)</div>
+        $f(x)$를 $P(x)$로 나누었을 때의 몫은 $Q(x)$이고, 나머지는 $P(x)-\\{Q(x)\\}^2$이다.
+      </div>
+      <div class="prob-cond">
+        <div class="cond-label">조건 (나)</div>
+        $f(x)$를 $Q(x)$로 나누었을 때의 몫은 $P(x)$이고, 나머지는 $P(x)-\\{Q(x)\\}^2$이다.
+      </div>
+      <p class="prob-body" style="margin-top:14px;">$P(0)=4$, $Q(0)=3$일 때, $f(2)$의 값을 구하여라.</p>
+    `,
+    ansVal:'95',
+    ansDetail:'$f(2) = \\mathbf{95}$',
+    ansCheck:'$f(x)=x^3+9x^2+22x+7$<br>$f(2)=8+36+44+7=95$ ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">
+          $P-Q^2$도 상수여야 함 (나머지 차수 조건 — Q12와 같은 이유).
+        </div>
+      </div>
+      <div class="formula-box">$$P(0)-Q(0)^2 = 4-9 = -5 \\ (\\text{상수})$$</div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">
+          $P$와 $Q$의 형태 결정 과정은 Q12와 완전히 동일.<br>
+          결과: $P(x)=x^2+6x+4$, $Q(x)=x+3$ ($c=1$)
+        </div>
+      </div>
+      <div class="sol-step"><div class="sol-num">3</div>
+        <div class="sol-text">$f(x) = P(x)\\cdot Q(x) + (P-Q^2) = PQ + (-5)$</div>
+      </div>
+      <div class="formula-box">
+        $$f(x) = (x^2+6x+4)(x+3) - 5$$
+        $$= x^3+9x^2+22x+12-5 = x^3+9x^2+22x+7$$
+      </div>
+      <div class="formula-box">$$f(2)=8+36+44+7=\\mathbf{95}$$</div>
+      <div class="warn-box">💡 Q12(나머지 $Q^2-P=5$)의 $f(2)=105$와 비교: 상수가 5→-5로 바뀌어 $f(2)=105-10=95$. (계수 10의 차이)</div>
+    `
+  },
+
+  /* M2-2 */
+  {
+    id:'M2-2', cat:'mid', catLabel:'🟡 중간',
+    title:'이차식 인수분해 + 나머지 정리',
+    sub:'x²-4x+3=(x-1)(x-3)으로 분해 후 나머지 정리 2회',
+    why:'제수가 인수분해되면 나머지 정리를 여러 번 쓸 수 있습니다. Q12의 "조건에서 특수값 대입" 패턴의 핵심 기술이에요.',
+    prob:`
+      <p class="prob-body">$f(x)$를 $x^2-4x+3$으로 나누었을 때의 나머지가 $5x-2$이다.</p>
+      <p class="prob-body">$f(x)$를 $(x-1)$로 나누었을 때의 나머지와 $(x-3)$으로 나누었을 때의 나머지를 각각 구하여라.</p>
+    `,
+    ansVal:'3 과 13',
+    ansDetail:'$(x-1)$로 나눈 나머지 $= \\mathbf{3}$<br>$(x-3)$으로 나눈 나머지 $= \\mathbf{13}$',
+    ansCheck:'$f(1) = 5(1)-2=3$ ✓ &nbsp; $f(3)=5(3)-2=13$ ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">제수를 인수분해합니다.</div>
+      </div>
+      <div class="formula-box">$$x^2-4x+3 = (x-1)(x-3)$$</div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">
+          $f(x) = (x-1)(x-3)Q(x) + (5x-2)$<br>
+          여기에 $x=1$ 대입 → 앞 항이 0이 됩니다.
+        </div>
+      </div>
+      <div class="formula-box">$$f(1) = 0 + (5\\cdot1-2) = \\mathbf{3}$$</div>
+      <div class="sol-step"><div class="sol-num">3</div>
+        <div class="sol-text">같은 방법으로 $x=3$ 대입:</div>
+      </div>
+      <div class="formula-box">$$f(3) = 0 + (5\\cdot3-2) = \\mathbf{13}$$</div>
+      <div class="hl-box">
+        핵심 패턴: 제수가 $(x-a)(x-b)$이면 $x=a$, $x=b$ 대입으로 나머지의 두 점 값을 바로 얻습니다.
+      </div>
+    `
+  },
+
+  /* M2-3 */
+  {
+    id:'M2-3', cat:'mid', catLabel:'🟡 중간',
+    title:'{P(x)}² 조건 + 경우의 수',
+    sub:'P(1)²=25 → P(1)=±5 두 경우 분리',
+    why:'Q12는 $c^3=1$이라 해가 하나였지만, 이 문제는 두 경우가 나옵니다. 조건이 조금 다르면 해의 개수가 달라진다는 감각을 키웁니다.',
+    prob:`
+      <p class="prob-body">최고차항의 계수가 1인 이차다항식 $P(x)$에 대해:</p>
+      <div class="prob-cond">
+        <div class="cond-label">조건 1</div>
+        $\\{P(x)\\}^2$을 $(x-1)$로 나누면 나머지가 $25$이다.
+      </div>
+      <div class="prob-cond">
+        <div class="cond-label">조건 2</div>
+        $P(x)$를 $(x-2)$로 나누면 나머지가 $3$이다.
+      </div>
+      <p class="prob-body" style="margin-top:14px;">모든 $P(x)$의 상수항의 합을 구하여라.</p>
+    `,
+    ansVal:'-2',
+    ansDetail:'두 경우: 상수항 $9$와 $-11$ → 합 $= \\mathbf{-2}$',
+    ansCheck:'Case1: $P(x)=x^2-5x+9$, $P(1)=5$ ✓, $P(2)=3$ ✓<br>Case2: $P(x)=x^2+5x-11$, $P(1)=-5$ ✓, $P(2)=3$ ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">
+          나머지 정리: $[P(1)]^2 = 25 \\Rightarrow P(1) = \\pm5$<br>
+          그리고 $P(2)=3$.
+        </div>
+      </div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">$P(x)=x^2+bx+c$로 놓고 경우를 나눕니다.</div>
+      </div>
+      <div class="case-box">
+        <div class="case-label">경우 1: P(1) = 5</div>
+        $1+b+c=5 \\Rightarrow b+c=4$<br>
+        $4+2b+c=3 \\Rightarrow 2b+c=-1$<br>
+        두 식 빼면: $b=-5,\\; c=9$<br>
+        $\\Rightarrow P(x)=x^2-5x+9$, 상수항 $=9$
+      </div>
+      <div class="case-box">
+        <div class="case-label">경우 2: P(1) = -5</div>
+        $1+b+c=-5 \\Rightarrow b+c=-6$<br>
+        $4+2b+c=3 \\Rightarrow 2b+c=-1$<br>
+        두 식 빼면: $b=5,\\; c=-11$<br>
+        $\\Rightarrow P(x)=x^2+5x-11$, 상수항 $=-11$
+      </div>
+      <div class="formula-box">$$\\text{상수항의 합} = 9 + (-11) = \\mathbf{-2}$$</div>
+    `
+  },
+
+  /* H3-1 */
+  {
+    id:'H3-1', cat:'hard', catLabel:'🔴 어려운',
+    title:'이중 나머지 조건 + 인수분해',
+    sub:'x²+x-2=(x-1)(x+2) 분해 → a와 f(-2) 구하기',
+    why:'Q12에서 "두 조건이 모두 필요한 이유"와 같은 논리: 하나의 조건으로 두 정보를 끌어내는 패턴입니다.',
+    prob:`
+      <p class="prob-body">$f(x)$를 $x^2+x-2$로 나누었을 때의 나머지가 $3x+a$이다.</p>
+      <p class="prob-body">$f(x)$를 $(x-1)$로 나누었을 때의 나머지가 $5$이다.</p>
+      <p class="prob-body" style="margin-top:8px;"><strong>$a$의 값과 $f(-2)$를 구하여라.</strong></p>
+    `,
+    ansVal:'a=2, f(-2)=-4',
+    ansDetail:'$a = \\mathbf{2}$, &nbsp; $f(-2) = \\mathbf{-4}$',
+    ansCheck:'$f(x)=(x-1)(x+2)Q(x)+(3x+2)$<br>$f(1)=5$ ✓, $f(-2)=-6+2=-4$ ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">제수를 인수분해합니다.</div>
+      </div>
+      <div class="formula-box">$$x^2+x-2 = (x-1)(x+2)$$</div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">
+          $f(x) = (x-1)(x+2)Q(x) + (3x+a)$<br>
+          여기에 $x=1$ 대입:
+        </div>
+      </div>
+      <div class="formula-box">$$f(1) = 0 + (3+a) = 3+a$$</div>
+      <div class="sol-step"><div class="sol-num">3</div>
+        <div class="sol-text">
+          조건에서 $f(1)=5$ ($(x-1)$로 나눈 나머지).<br>
+          $3+a=5 \\Rightarrow \\mathbf{a=2}$
+        </div>
+      </div>
+      <div class="sol-step"><div class="sol-num">4</div>
+        <div class="sol-text">$f(-2)$: 같은 식에 $x=-2$ 대입.</div>
+      </div>
+      <div class="formula-box">$$f(-2) = (−2−1)(−2+2)Q(-2)+(3\\cdot(-2)+2) = 0+(-4) = \\mathbf{-4}$$</div>
+      <div class="hl-box">
+        핵심: $x=1$과 $x=-2$는 인수 $(x-1)(x+2)$의 두 근 → 대입하면 앞 항이 0이 되어 나머지만 남아요.
+      </div>
+    `
+  },
+
+  /* H3-2 */
+  {
+    id:'H3-2', cat:'hard', catLabel:'🔴 어려운',
+    title:'두 나눗셈 조건 + 초기값으로 결정',
+    sub:'나머지 5x+3 + f(0)=12 → f(-1)=?',
+    why:'Q12에서 "P(0), Q(0)으로 계수를 결정"했듯이, 나머지 정리로 두 점을 알고 f(0)으로 다항식을 완전히 확정하는 패턴입니다.',
+    prob:`
+      <p class="prob-body">최고차항의 계수가 1인 삼차다항식 $f(x)$에 대해:</p>
+      <div class="prob-cond">
+        <div class="cond-label">조건 1</div>
+        $f(x)$를 $(x-1)(x-3)$으로 나누었을 때의 나머지가 $5x+3$이다.
+      </div>
+      <div class="prob-cond">
+        <div class="cond-label">조건 2</div>
+        $f(0) = 12$
+      </div>
+      <p class="prob-body" style="margin-top:14px;"><strong>$f(-1)$의 값을 구하여라.</strong></p>
+    `,
+    ansVal:'14',
+    ansDetail:'$f(-1) = \\mathbf{14}$',
+    ansCheck:'$f(x)=x^3-x^2-4x+12$<br>$f(0)=12$ ✓, $f(1)=1-1-4+12=8=5+3$ ✓, $f(3)=27-9-12+12=18=15+3$ ✓<br>$f(-1)=-1-1+4+12=14$ ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">
+          $f(x)=(x-1)(x-3)Q(x)+(5x+3)$<br>
+          $f(1)=5+3=8$, $f(3)=15+3=18$
+        </div>
+      </div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">
+          $f$는 최고차 계수 1인 삼차식, $(x-1)(x-3)$은 이차식 → 몫 $Q(x)$는 일차식.<br>
+          $Q(x)=x+d$로 놓으면:
+        </div>
+      </div>
+      <div class="formula-box">
+        $$f(x)=(x-1)(x-3)(x+d)+(5x+3)$$
+        $$= x^3+(d-4)x^2+(7-4d)x+(3d+3)$$
+      </div>
+      <div class="sol-step"><div class="sol-num">3</div>
+        <div class="sol-text">조건 2: $f(0)=3d+3=12 \\Rightarrow d=3$</div>
+      </div>
+      <div class="formula-box">
+        $$f(x) = (x-1)(x-3)(x+3)+5x+3$$
+        $$= (x-1)(x^2-9)+5x+3$$
+        $$= x^3-x^2-9x+9+5x+3 = x^3-x^2-4x+12$$
+      </div>
+      <div class="sol-step"><div class="sol-num">4</div>
+        <div class="sol-text">$f(-1)=(-1)-(-1)-4(-1)+12 = -1-1+4+12$</div>
+      </div>
+      <div class="formula-box">$$f(-1) = \\mathbf{14}$$</div>
+    `
+  },
+
+  /* H3-3 */
+  {
+    id:'H3-3', cat:'hard', catLabel:'🔴 어려운',
+    title:'Q12 구조 + 변형 조건',
+    sub:'P(0)=Q(0)²-3 → Q12 완전 응용',
+    why:'Q12와 완전히 같은 구조이지만 $P(0)$이 $Q(0)$의 함수로 주어집니다. Q12 풀이를 공식처럼 외운 것인지, 진짜 이해한 것인지 구분해주는 문제입니다.',
+    prob:`
+      <p class="prob-body">최고차항의 계수가 1인 삼차다항식 $f(x)$와 모든 항의 계수가 실수인 두 다항식 $P(x), Q(x)$가 다음 조건을 만족시킨다.</p>
+      <div class="prob-cond">
+        <div class="cond-label">조건 (가)</div>
+        $f(x)$를 $P(x)$로 나누었을 때의 몫은 $Q(x)$이고, 나머지는 $\\{Q(x)\\}^2-P(x)$이다.
+      </div>
+      <div class="prob-cond">
+        <div class="cond-label">조건 (나)</div>
+        $f(x)$를 $Q(x)$로 나누었을 때의 몫은 $P(x)$이고, 나머지는 $\\{Q(x)\\}^2-P(x)$이다.
+      </div>
+      <p class="prob-body" style="margin-top:14px;">$Q(0)=3$이고, $P(0)=\\{Q(0)\\}^2-3$일 때, $f(2)$의 값을 구하여라.</p>
+    `,
+    ansVal:'113',
+    ansDetail:'$f(2) = \\mathbf{113}$',
+    ansCheck:'$P(0)=6$, $P(x)=x^2+6x+6$, $Q(x)=x+3$<br>$Q^2-P=9-6=3$ ✓<br>$f(x)=x^3+9x^2+24x+21$<br>$f(2)=8+36+48+21=113$ ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">
+          $P(0) = Q(0)^2-3 = 3^2-3 = 6$, $Q(0)=3$.
+        </div>
+      </div>
+      <div class="hl-box">이후는 Q12와 완전히 동일한 5단계. 숫자만 다릅니다.</div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">$Q^2-P = Q(0)^2-P(0) = 9-6 = 3$ (상수)</div>
+      </div>
+      <div class="formula-box">$$Q(x)=cx+3, \\quad P(x)=c^2x^2+6cx+6$$</div>
+      <div class="sol-step"><div class="sol-num">3</div>
+        <div class="sol-text">$f$의 최고차 계수 $c^3=1 \\Rightarrow c=1$</div>
+      </div>
+      <div class="formula-box">$$P(x)=x^2+6x+6, \\quad Q(x)=x+3$$</div>
+      <div class="sol-step"><div class="sol-num">4</div>
+        <div class="sol-text">$f(x) = P(x)\\cdot Q(x) + 3$</div>
+      </div>
+      <div class="formula-box">
+        $$f(x) = (x^2+6x+6)(x+3)+3$$
+        $$= x^3+9x^2+24x+18+3 = x^3+9x^2+24x+21$$
+      </div>
+      <div class="formula-box">$$f(2)=8+36+48+21=\\mathbf{113}$$</div>
+      <div class="warn-box">
+        💡 Q12($P(0)=4$, 상수=5, $f(2)=105$)와 비교:<br>
+        $P(0)$이 6으로 커져서 상수 $= 9-6=3$, 이 차이가 $f$의 계수를 바꿨어요.
+      </div>
+    `
+  }
+];
+
+/* ═══════════════════════════════════════════
+   상태
+═══════════════════════════════════════════ */
+let curIdx = 0;
+let curTab = 'prob';
+let curCat = 'all';
+
+/* ═══════════════════════════════════════════
+   목록 뷰
+═══════════════════════════════════════════ */
+function buildList() {
+  const grid = document.getElementById('prob-grid');
+  grid.innerHTML = P.map((p, i) => `
+    <div class="prob-card ${p.cat}" id="card-${i}" onclick="openDetail(${i})">
+      <div class="card-num">${p.id}</div>
+      <div class="card-info">
+        <div class="card-title">${p.title}</div>
+        <div class="card-sub">${p.sub}</div>
+      </div>
+      <div class="card-arrow">›</div>
+    </div>
+  `).join('');
+}
+
+function filterCat(cat) {
+  curCat = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  P.forEach((p, i) => {
+    const card = document.getElementById('card-'+i);
+    card.classList.toggle('hidden', cat !== 'all' && p.cat !== cat);
+  });
+}
+
+/* ═══════════════════════════════════════════
+   상세 뷰
+═══════════════════════════════════════════ */
+function openDetail(idx) {
+  curIdx = idx;
+  curTab = 'prob';
+  document.getElementById('list-view').style.display = 'none';
+  document.getElementById('detail-view').style.display = 'block';
+  renderDetail();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function showList() {
+  document.getElementById('list-view').style.display = 'block';
+  document.getElementById('detail-view').style.display = 'none';
+}
+
+function switchTab(tab) {
+  curTab = tab;
+  ['prob','ans','sol'].forEach(t => {
+    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+  });
+  renderContent();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function moveProblem(dir) {
+  curIdx = Math.max(0, Math.min(P.length-1, curIdx+dir));
+  curTab = 'prob';
+  renderDetail();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function renderDetail() {
+  const p = P[curIdx];
+  // 탭 초기화
+  ['prob','ans','sol'].forEach(t =>
+    document.getElementById('tab-'+t).classList.toggle('active', t===curTab)
+  );
+  // 헤더
+  document.getElementById('detail-title').textContent = `${p.id} — ${p.title}`;
+  // 네비
+  document.getElementById('btn-prev').disabled = curIdx === 0;
+  document.getElementById('btn-next').disabled = curIdx === P.length-1;
+  document.getElementById('nav-label').textContent = `${curIdx+1} / ${P.length}`;
+  renderContent();
+}
+
+function renderContent() {
+  const p = P[curIdx];
+  const area = document.getElementById('content-area');
+  const badgeCls = p.cat === 'easy' ? 'badge-easy' : p.cat === 'mid' ? 'badge-mid' : 'badge-hard';
+
+  if (curTab === 'prob') {
+    area.innerHTML = `
+      <span class="prob-badge ${badgeCls}">${p.catLabel}</span>
+      ${p.prob}
+    `;
+  } else if (curTab === 'ans') {
+    area.innerHTML = `
+      <span class="prob-badge ${badgeCls}">${p.catLabel} — 정답</span>
+      <div class="why-box">💡 <strong>왜 이 문제인가?</strong><br>${p.why}</div>
+      <div class="answer-big">
+        <div class="lbl">정답</div>
+        <div class="val">$${p.ansVal}$</div>
+      </div>
+      <div class="answer-check">
+        ✅ ${p.ansDetail}<br><br>
+        🔍 <strong>검산</strong><br>${p.ansCheck}
+      </div>
+    `;
+  } else {
+    area.innerHTML = `
+      <span class="prob-badge ${badgeCls}">${p.catLabel} — 풀이</span>
+      <div style="margin-top:16px;">${p.sol}</div>
+    `;
+  }
+
+  if (window.renderMathInElement) {
+    renderMathInElement(area, {
+      delimiters: [
+        {left:'$$', right:'$$', display:true},
+        {left:'$',  right:'$',  display:false}
+      ],
+      throwOnError: false
+    });
+  }
+}
+
+/* ═══════════════════════════════════════════
+   초기화
+═══════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  buildList();
+});
+</script>
+</body>
+</html>

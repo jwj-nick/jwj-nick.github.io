@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Q14 연습 문제</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; padding: 20px 16px 60px; }
+    #app { max-width: 740px; margin: 0 auto; }
+    .app-header { text-align: center; margin-bottom: 28px; }
+    .app-header h1 { font-size: 22px; color: #1e1b4b; margin-bottom: 6px; }
+    .app-header p { font-size: 14px; color: #6b7280; }
+    .cat-filter { display: flex; gap: 8px; justify-content: center; margin-bottom: 22px; flex-wrap: wrap; }
+    .cat-btn { padding: 7px 18px; border-radius: 20px; border: 2px solid transparent; font-size: 14px; font-weight: 700; cursor: pointer; transition: all .2s; font-family: inherit; }
+    .cat-btn.all { background: #4361EE; color: #fff; }
+    .cat-btn.easy { background: #dcfce7; color: #16a34a; border-color: #86efac; }
+    .cat-btn.mid { background: #fef9c3; color: #854d0e; border-color: #fde047; }
+    .cat-btn.hard { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
+    .cat-btn:not(.all):hover, .cat-btn.active { filter: brightness(.93); transform: scale(1.04); }
+    .cat-btn.all:hover { opacity: .88; }
+    .prob-grid { display: flex; flex-direction: column; gap: 10px; }
+    .prob-card { background: #fff; border-radius: 16px; padding: 16px 20px; box-shadow: 0 2px 12px rgba(67,97,238,.08); display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all .18s; border-left: 5px solid transparent; }
+    .prob-card:hover { transform: translateX(4px); box-shadow: 0 4px 20px rgba(67,97,238,.14); }
+    .prob-card.easy { border-color: #4ade80; }
+    .prob-card.mid { border-color: #facc15; }
+    .prob-card.hard { border-color: #f87171; }
+    .prob-card.hidden { display: none; }
+    .card-num { min-width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; flex-shrink: 0; }
+    .easy .card-num { background: #dcfce7; color: #16a34a; }
+    .mid .card-num { background: #fef9c3; color: #854d0e; }
+    .hard .card-num { background: #fee2e2; color: #b91c1c; }
+    .card-info { flex: 1; }
+    .card-title { font-size: 15px; font-weight: 700; color: #1e1b4b; margin-bottom: 3px; }
+    .card-sub { font-size: 13px; color: #6b7280; }
+    .card-arrow { font-size: 18px; color: #c7d2fe; }
+    #detail-view { display: none; }
+    .detail-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .back-btn { background: #fff; border: none; border-radius: 12px; padding: 8px 16px; font-size: 14px; font-weight: 700; color: #4361EE; cursor: pointer; font-family: inherit; box-shadow: 0 2px 8px rgba(67,97,238,.1); transition: all .15s; }
+    .back-btn:hover { background: #eef2ff; }
+    .detail-title { font-size: 18px; font-weight: 800; color: #1e1b4b; }
+    .tab-wrap { display: flex; gap: 0; background: #fff; border-radius: 16px 16px 0 0; overflow: hidden; box-shadow: 0 2px 12px rgba(67,97,238,.08); }
+    .tab-btn { flex: 1; padding: 14px 8px; border: none; background: #fff; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; transition: all .18s; color: #94a3b8; border-bottom: 3px solid transparent; }
+    .tab-btn.active { color: #4361EE; border-bottom-color: #4361EE; background: #f8faff; }
+    .tab-btn:hover:not(.active) { background: #f8faff; color: #6366f1; }
+    .content-card { background: #fff; border-radius: 0 0 20px 20px; padding: 28px 32px; box-shadow: 0 4px 20px rgba(67,97,238,.08); animation: fadeIn .22s ease; min-height: 260px; }
+    @keyframes fadeIn { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: translateY(0); } }
+    .prob-badge { display: inline-block; font-size: 12px; font-weight: 800; padding: 3px 12px; border-radius: 20px; margin-bottom: 14px; }
+    .badge-easy { background: #dcfce7; color: #16a34a; }
+    .badge-mid { background: #fef9c3; color: #854d0e; }
+    .badge-hard { background: #fee2e2; color: #b91c1c; }
+    .why-box { background: #f8faff; border-left: 4px solid #a5b4fc; border-radius: 0 12px 12px 0; padding: 12px 16px; font-size: 14px; color: #4338ca; line-height: 1.7; margin-bottom: 18px; }
+    .prob-body { font-size: 15px; line-height: 1.9; color: #1e1b4b; margin-bottom: 10px; }
+    .answer-big { background: linear-gradient(135deg, #4361EE, #7c3aed); color: #fff; border-radius: 18px; padding: 28px 24px; text-align: center; margin: 10px 0; }
+    .answer-big .lbl { font-size: 13px; opacity: .8; margin-bottom: 6px; }
+    .answer-big .val { font-size: 28px; font-weight: 900; line-height: 1.3; }
+    .answer-check { background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 12px; padding: 14px 18px; font-size: 14px; color: #166534; margin-top: 14px; line-height: 1.7; }
+    .sol-step { display: flex; gap: 14px; margin-bottom: 18px; align-items: flex-start; }
+    .sol-num { min-width: 28px; height: 28px; border-radius: 50%; background: #4361EE; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; flex-shrink: 0; margin-top: 2px; }
+    .sol-text { font-size: 15px; line-height: 1.85; color: #1e1b4b; }
+    .formula-box { background: #f5f7ff; border: 1.5px solid #c7d2fe; border-radius: 12px; padding: 14px 20px; text-align: center; margin: 10px 0; overflow-x: auto; }
+    .hl-box { background: #eef2ff; border-radius: 12px; padding: 14px 18px; margin: 12px 0; font-size: 14px; color: #312e81; line-height: 1.8; }
+    .warn-box { background: #fff8e1; border-left: 4px solid #f59e0b; border-radius: 0 12px 12px 0; padding: 12px 16px; font-size: 14px; color: #374151; margin: 10px 0; line-height: 1.7; }
+    .detail-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; gap: 12px; }
+    .nav-btn { background: #fff; border: none; border-radius: 12px; padding: 10px 20px; font-size: 14px; font-weight: 700; color: #4361EE; cursor: pointer; font-family: inherit; box-shadow: 0 2px 8px rgba(67,97,238,.1); transition: all .15s; }
+    .nav-btn:hover { background: #eef2ff; transform: translateY(-1px); }
+    .nav-btn:disabled { opacity: .35; cursor: default; transform: none; }
+    .nav-center { font-size: 13px; color: #94a3b8; font-weight: 600; }
+    .katex-display { overflow-x: auto; }
+    @media (max-width:480px) { .content-card { padding: 20px 18px; } .answer-big .val { font-size: 22px; } }
+  </style>
+</head>
+<body>
+<nav style="background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:7px 16px;font-size:12px;display:flex;align-items:center;gap:5px;font-family:-apple-system,sans-serif;flex-shrink:0"><a href="../index.html" style="color:#6b7280;text-decoration:none">고1</a><span style="color:#d1d5db">&rsaquo;</span><a href="index.html" style="color:#2563eb;text-decoration:none;font-weight:600">Math_1_1</a></nav>
+
+<div id="app">
+  <div id="list-view">
+    <div class="app-header"><h1>Q14 연습 문제</h1><p>나머지정리 · 경우 탐색 · 다항식 나눗셈 · 9문제</p></div>
+    <div class="cat-filter">
+      <button class="cat-btn all active" onclick="filterCat('all')">전체</button>
+      <button class="cat-btn easy" onclick="filterCat('easy')">🟢 쉬운 (L)</button>
+      <button class="cat-btn mid" onclick="filterCat('mid')">🟡 중간 (M)</button>
+      <button class="cat-btn hard" onclick="filterCat('hard')">🔴 어려운 (H)</button>
+    </div>
+    <div class="prob-grid" id="prob-grid"></div>
+  </div>
+  <div id="detail-view">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showList()">← 목록</button>
+      <div class="detail-title" id="detail-title"></div>
+    </div>
+    <div class="tab-wrap">
+      <button class="tab-btn active" id="tab-prob" onclick="switchTab('prob')">📄 문제판</button>
+      <button class="tab-btn" id="tab-ans" onclick="switchTab('ans')">✅ 정답판</button>
+      <button class="tab-btn" id="tab-sol" onclick="switchTab('sol')">📖 풀이판</button>
+    </div>
+    <div class="content-card" id="content-area"></div>
+    <div class="detail-nav">
+      <button class="nav-btn" id="btn-prev" onclick="moveProblem(-1)">← 이전</button>
+      <span class="nav-center" id="nav-label"></span>
+      <button class="nav-btn" id="btn-next" onclick="moveProblem(1)">다음 →</button>
+    </div>
+  </div>
+</div>
+<script>
+const P = [
+  {
+    id: 'L1-1', cat: 'easy', catLabel: '🟢 쉬운',
+    title: '{P(x)}² 나머지 → P(3) 합',
+    sub: '$\\{P(x)\\}^2$ 을 $x-3$으로 나눈 나머지 25 → $P(3)=\\pm5$',
+    why: 'Q14에서 $\\{P(x)\\}^2$을 제수 근에 대입하면 $P$ 값의 제곱이 나옵니다. 이 패턴 자체를 연습합니다.',
+    prob: '<p class="prob-body">최고차항의 계수가 1인 이차다항식 $P(x)$에 대해 $\\{P(x)\\}^2$을 $x-3$으로 나눈 나머지가 $25$이다. $P(3)$의 가능한 값의 합을 구하여라.</p>',
+    ansVal: '$0$',
+    ansDetail: '$\\{P(3)\\}^2=25 \\Rightarrow P(3)=5$ 또는 $-5$. 합 $= 5+(-5)=0$',
+    ansCheck: '두 값의 합이 0인 것은 양수+음수 대칭 ✓',
+    sol: `<div class="sol-step"><div class="sol-num">1</div><div class="sol-text">나머지정리: $x=3$ 대입 → $\\{P(3)\\}^2=25$</div></div>
+<div class="sol-step"><div class="sol-num">2</div><div class="sol-text">$P(3)=5$ 또는 $P(3)=-5$</div></div>
+<div class="sol-step"><div class="sol-num">3</div><div class="sol-text">가능한 값의 합 $=5+(-5)=0$</div></div>`
+  },
+  {
+    id: 'L1-2', cat: 'easy', catLabel: '🟢 쉬운',
+    title: '두 조건으로 P(x) 결정',
+    sub: '$P(1)=3$, $P(-1)=1$ → $P(0)$ 계산',
+    why: 'Q14에서 나머지정리로 얻은 두 방정식으로 계수를 결정하는 과정을 집중 연습합니다.',
+    prob: '<p class="prob-body">최고차항의 계수가 1인 이차다항식 $P(x)$에 대해 $P(1)=3$, $P(-1)=1$이다. $P(0)$의 값을 구하여라.</p>',
+    ansVal: '$1$',
+    ansDetail: '$P(x)=x^2+bx+c$: $1+b+c=3$, $1-b+c=1$ → $b=1, c=1$. $P(0)=1$',
+    ansCheck: '$P(1)=1+1+1=3$ ✓, $P(-1)=1-1+1=1$ ✓',
+    sol: `<div class="sol-step"><div class="sol-num">1</div><div class="sol-text">$P(x)=x^2+bx+c$로 설정 (최고차항 계수 1)</div></div>
+<div class="sol-step"><div class="sol-num">2</div><div class="sol-text">연립방정식: $b+c=2$, $-b+c=0$ → $b=1,\\ c=1$</div></div>
+<div class="sol-step"><div class="sol-num">3</div><div class="sol-text">$P(0)=c=1$</div></div>`
+  },
+  {
+    id: 'L1-3', cat: 'easy', catLabel: '🟢 쉬운',
+    title: '$P(0)=P(4)$ → 대칭축',
+    sub: '두 점에서 같은 값 → 대칭축 위치',
+    why: 'Q14의 조건 (나) "$P(0)\\ne P(6)$"은 대칭축이 $x=3$이 아님을 의미합니다. 이 역방향 문제로 이해를 확인합니다.',
+    prob: '<p class="prob-body">최고차항의 계수가 1인 이차다항식 $P(x)$에 대해 $P(0)=P(4)$이다. $P(x)$의 대칭축의 $x$좌표를 구하여라.</p>',
+    ansVal: '$2$',
+    ansDetail: '$P(x)=x^2+bx+c$: $16+4b=0$ → $b=-4$. 대칭축 $x=-b/2=2$',
+    ansCheck: '$P(0)=c$, $P(4)=16-16+c=c$. $P(0)=P(4)$ ✓',
+    sol: `<div class="sol-step"><div class="sol-num">1</div><div class="sol-text">$P(0)=P(4)$ → $c = 16+4b+c$ → $16+4b=0$ → $b=-4$</div></div>
+<div class="sol-step"><div class="sol-num">2</div><div class="sol-text">대칭축: $x = -\\dfrac{b}{2} = -\\dfrac{-4}{2} = 2$</div></div>
+<div class="sol-step"><div class="sol-num">3</div><div class="sol-text">대칭축 $x=2$ 확인: $P(0)=c,\\ P(4)=c$ 동일 ✓</div></div>`
+  },
+  {
+    id: 'M1', cat: 'mid', catLabel: '🟡 중간',
+    title: '인수 분해된 P(x)로 Q 나머지 계산',
+    sub: '$P(x)=(x-2)(x+1)$ → $\\{P\\}^2$ 을 $(x-3)(x+2)$로 나눈 나머지',
+    why: 'P(x)가 이미 인수분해되어 있으면 특정 점 값을 바로 계산할 수 있습니다. Q14의 역방향 연습.',
+    prob: '<p class="prob-body">최고차항의 계수가 1이고 $(x-2)(x+1)$로 나누어 떨어지는 이차다항식 $P(x)$가 있다. $\\{P(x)\\}^2$을 $(x-3)(x+2)$로 나눈 나머지를 구하여라.</p>',
+    ansVal: '$16$',
+    ansDetail: '$P(x)=(x-2)(x+1)$. $P(3)=(1)(4)=4$, $P(-2)=(-4)(-1)=4$. 두 근 모두 나머지 $16$이므로 나머지 $=16$',
+    ansCheck: '$4^2=16$ ✓',
+    sol: `<div class="sol-step"><div class="sol-num">1</div><div class="sol-text">$P(x)=(x-2)(x+1)$ (최고차항 계수 1이고 두 근이 $x=2,\\ x=-1$이므로 유일)</div></div>
+<div class="sol-step"><div class="sol-num">2</div><div class="sol-text">$P(3)=(3-2)(3+1)=1\\cdot4=4$, $P(-2)=(-2-2)(-2+1)=(-4)(-1)=4$</div></div>
+<div class="sol-step"><div class="sol-num">3</div><div class="sol-text">두 근에서 $\\{P\\}^2$ 값이 모두 $16$ → 나머지는 상수 $16$</div></div>`
+  },
+  {
+    id: 'M2', cat: 'mid', catLabel: '🟡 중간',
+    title: 'Q14 구조 변형 — 제수와 나머지 다름',
+    sub: '나머지 4, 조건 $P(0)\\ne P(6)$ → 모든 $Q(4)$ 합',
+    why: 'Q14와 완전히 같은 사고 흐름, 숫자만 다릅니다. 방법을 공식처럼 외운 것인지 진짜 이해한 것인지 구분합니다.',
+    prob: '<p class="prob-body">최고차항의 계수가 1인 이차다항식 $P(x)$가 다음 조건을 만족시킨다.<br>(가) $\\{P(x)\\}^2$을 $(x-2)(x-4)$로 나눈 나머지가 $4$이다.<br>(나) $P(0) \\ne P(6)$<br>모든 $Q(4)$의 값의 합을 구하여라. (단 $Q$는 조건 (가)의 몫)</p>',
+    ansVal: '$8$',
+    ansDetail: '유효 경우 $Q(4)$: $0$과 $8$. 합 $=8$',
+    ansCheck: '대칭 경우($b=-6$) 탈락 후 남은 두 경우 확인 ✓',
+    sol: `<div class="sol-step"><div class="sol-num">1</div><div class="sol-text">$P(2)=\\pm2,\\ P(4)=\\pm2$ → 4가지 조합. $P(x)=x^2+bx+c$ 연립으로 각 경우의 $b,c$ 결정</div></div>
+<div class="sol-step"><div class="sol-num">2</div><div class="sol-text">대칭 경우 ($P(0)=P(6)$ → 대칭축이 $x=3$인 경우, 즉 $b=-6$) 탈락</div></div>
+<div class="sol-step"><div class="sol-num">3</div><div class="sol-text">남은 두 경우의 $Q(4)$ 합산: $0+8=8$</div></div>`
+  },
+  {
+    id: 'M3', cat: 'mid', catLabel: '🟡 중간',
+    title: '불변량 — P(3)은 c에 무관',
+    sub: '$P(1)=c$, $P(5)=-c$ → $P(3)$ 결정',
+    why: 'Q14와 같은 구조에서 특정 중간값이 파라미터에 무관한 상수임을 보입니다. 불변량 개념의 핵심.',
+    prob: '<p class="prob-body">최고차항의 계수가 1인 이차다항식 $P(x)$에 대해 $P(1)=c$, $P(5)=-c$ ($c>0$)이다. $P(3)$의 값을 구하여라.</p>',
+    ansVal: '$-4$',
+    ansDetail: '$P(x)=x^2+bx+k$: $b=(-c-12)/2$, $k=(3c+10)/2$. $P(3)=9+3b+k=9-13=-4$',
+    ansCheck: '$c$가 사라짐! $P(3)=-4$ ($c$ 무관) ✓',
+    sol: `<div class="sol-step"><div class="sol-num">1</div><div class="sol-text">$P(1)=1+b+k=c$, $P(5)=25+5b+k=-c$ 연립</div></div>
+<div class="sol-step"><div class="sol-num">2</div><div class="sol-text">빼면: $4b+24=-2c$ → $b=\\dfrac{-c-12}{2}$, 더하면: $2k=-26+2c+4b$ → $k=\\dfrac{3c+10}{2}$</div></div>
+<div class="sol-step"><div class="sol-num">3</div><div class="sol-text">$P(3)=9+3b+k=9+\\dfrac{-3c-36}{2}+\\dfrac{3c+10}{2}=9+\\dfrac{-26}{2}=9-13=-4$</div></div>`
+  },
+  {
+    id: 'H1', cat: 'hard', catLabel: '🔴 어려운',
+    title: '나머지 100 → Q(4) 합',
+    sub: '$\\{P\\}^2$ 나머지 100, $P(0)\\ne P(6)$',
+    why: 'Q14에서 나머지를 64→100으로 바꾼 버전. 숫자가 커져 계산 정밀도가 더 요구됩니다.',
+    prob: '<p class="prob-body">최고차항의 계수가 1인 이차다항식 $P(x)$에 대해:<br>(가) $\\{P(x)\\}^2$을 $(x-1)(x-5)$로 나눈 나머지가 $100$이다.<br>(나) $P(0) \\ne P(6)$<br>모든 $Q(4)$의 합을 구하여라.</p>',
+    ansVal: '$44$',
+    ansDetail: '두 유효 경우의 $Q(4)$: $12$와 $32$. 합 $=44$',
+    ansCheck: '검산: $P(x)=x^2-11x+20$과 $x^2-x-10$ ✓',
+    sol: `<div class="sol-step"><div class="sol-num">1</div><div class="sol-text">$P(1)=\\pm10,\\ P(5)=\\pm10$ → 4가지 조합으로 $P(x)$ 결정</div></div>
+<div class="sol-step"><div class="sol-num">2</div><div class="sol-text">대칭 경우: $P(1)=P(5)$ → 대칭축 $x=3$, 즉 $P(0)=P(6)$ → 탈락</div></div>
+<div class="sol-step"><div class="sol-num">3</div><div class="sol-text">남은 두 경우에서 $Q(4)=12$와 $Q(4)=32$ 계산. 합 $=44$</div></div>`
+  },
+  {
+    id: 'H2', cat: 'hard', catLabel: '🔴 어려운',
+    title: 'Q(4) 대신 Q(0) 합',
+    sub: '$x=0$ 대입으로 $Q(0)$ 계산 — 제수 근 아닌 점',
+    why: '제수의 근이 아닌 점에서는 $\\{P(a)\\}^2=(a-1)(a-5)Q(a)+64$를 직접 써서 $Q(a)$를 한 번에 구할 수 있습니다.',
+    prob: '<p class="prob-body">Q14 원문 그대로. 모든 $Q(0)$의 값의 합을 구하여라.</p>',
+    ansVal: '$42$',
+    ansDetail: 'Q14 두 유효 $P(x)$에서 $Q(0)=45$와 $Q(0)=-3$. 합 $=42$',
+    ansCheck: '$Q(0)=(P(0)^2-64)/((0-1)(0-5))=(P(0)^2-64)/5$ ✓',
+    sol: `<div class="sol-step"><div class="sol-num">1</div><div class="sol-text">$x=0$ 대입: $\\{P(0)\\}^2 = (0-1)(0-5)Q(0)+64 = 5Q(0)+64$</div></div>
+<div class="sol-step"><div class="sol-num">2</div><div class="sol-text">$P(0)=17$ 경우: $5Q(0)=289-64=225$ → $Q(0)=45$</div></div>
+<div class="sol-step"><div class="sol-num">3</div><div class="sol-text">$P(0)=-7$ 경우: $5Q(0)=49-64=-15$ → $Q(0)=-3$. 합 $=45+(-3)=42$</div></div>`
+  },
+  {
+    id: 'H3', cat: 'hard', catLabel: '🔴 어려운',
+    title: 'Q(4) 소수 → 꼭짓점',
+    sub: '소수 조건으로 경우 하나 선택 → 꼭짓점 좌표',
+    why: 'Q14의 두 경우 중 소수 조건으로 하나를 선택하고 이차함수 분석으로 연결합니다.',
+    prob: '<p class="prob-body">Q14 원문 그대로. $Q(4)$가 소수일 때, $P(x)$의 꼭짓점의 좌표를 구하여라.</p>',
+    ansVal: '$(5,\\ -8)$',
+    ansDetail: '$Q(4)=5$ (소수) vs $Q(4)=21=3\\times7$ (비소수). $Q(4)=5$인 경우: $P(x)=x^2-10x+17=(x-5)^2-8$',
+    ansCheck: '$P(5)=25-50+17=-8$ ✓',
+    sol: `<div class="sol-step"><div class="sol-num">1</div><div class="sol-text">Q14 두 유효 경우의 $Q(4)$ 값: $5$와 $21$</div></div>
+<div class="sol-step"><div class="sol-num">2</div><div class="sol-text">소수 판별: $5$ (소수 ✓), $21=3\\times7$ (합성수 ✗) → $Q(4)=5$인 경우 선택</div></div>
+<div class="sol-step"><div class="sol-num">3</div><div class="sol-text">해당 $P(x)=x^2-10x+17=(x-5)^2-8$ → 꼭짓점 $(5,-8)$</div></div>`
+  }
+];
+
+let curIdx=0, curTab='prob', curCat='all';
+function buildList(){const grid=document.getElementById('prob-grid');grid.innerHTML=P.map((p,i)=>`<div class="prob-card ${p.cat}" id="card-${i}" onclick="openDetail(${i})"><div class="card-num">${p.id}</div><div class="card-info"><div class="card-title">${p.title}</div><div class="card-sub">${p.sub}</div></div><div class="card-arrow">›</div></div>`).join('');}
+function filterCat(cat){curCat=cat;document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));event.target.classList.add('active');P.forEach((p,i)=>{document.getElementById('card-'+i).classList.toggle('hidden',cat!=='all'&&p.cat!==cat);});}
+function openDetail(idx){curIdx=idx;curTab='prob';document.getElementById('list-view').style.display='none';document.getElementById('detail-view').style.display='block';renderDetail();window.scrollTo({top:0,behavior:'smooth'});}
+function showList(){document.getElementById('list-view').style.display='block';document.getElementById('detail-view').style.display='none';}
+function switchTab(tab){curTab=tab;['prob','ans','sol'].forEach(t=>{document.getElementById('tab-'+t).classList.toggle('active',t===tab);});renderContent();window.scrollTo({top:0,behavior:'smooth'});}
+function moveProblem(dir){curIdx=Math.max(0,Math.min(P.length-1,curIdx+dir));curTab='prob';renderDetail();window.scrollTo({top:0,behavior:'smooth'});}
+function renderDetail(){const p=P[curIdx];['prob','ans','sol'].forEach(t=>document.getElementById('tab-'+t).classList.toggle('active',t===curTab));document.getElementById('detail-title').textContent=`${p.id} — ${p.title}`;document.getElementById('btn-prev').disabled=curIdx===0;document.getElementById('btn-next').disabled=curIdx===P.length-1;document.getElementById('nav-label').textContent=`${curIdx+1} / ${P.length}`;renderContent();}
+function renderContent(){const p=P[curIdx];const area=document.getElementById('content-area');const badgeCls=p.cat==='easy'?'badge-easy':p.cat==='mid'?'badge-mid':'badge-hard';if(curTab==='prob'){area.innerHTML=`<span class="prob-badge ${badgeCls}">${p.catLabel}</span>${p.prob}`;}else if(curTab==='ans'){area.innerHTML=`<span class="prob-badge ${badgeCls}">${p.catLabel} — 정답</span><div class="why-box">💡 <strong>왜 이 문제인가?</strong><br>${p.why}</div><div class="answer-big"><div class="lbl">정답</div><div class="val">${p.ansVal}</div></div><div class="answer-check">✅ ${p.ansDetail}<br><br>🔍 <strong>검산</strong><br>${p.ansCheck}</div>`;}else{area.innerHTML=`<span class="prob-badge ${badgeCls}">${p.catLabel} — 풀이</span><div style="margin-top:16px;">${p.sol}</div>`;}if(window.renderMathInElement){renderMathInElement(area,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});}}
+document.addEventListener('DOMContentLoaded',()=>{buildList();});
+</script>
+</body>
+</html>

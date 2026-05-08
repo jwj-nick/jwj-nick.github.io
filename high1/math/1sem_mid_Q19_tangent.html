@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Q19 — 이차함수 동시접선</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsxgraph/1.11.1/jsxgraph.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsxgraph/1.11.1/jsxgraphcore.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;
+      background:#eef2ff; min-height:100vh; padding:20px 16px 60px; }
+    #app { max-width:700px; margin:0 auto; }
+    .page { display:none; } .page.active { display:block; }
+    .page-header { text-align:center; margin-bottom:24px; }
+    .page-header h1 { font-size:20px; color:#1e1b4b; }
+    .page-header p { font-size:13px; color:#6b7280; margin-top:4px; }
+    .dots { display:flex; justify-content:center; gap:8px; margin-bottom:24px; flex-wrap:wrap; }
+    .dot { width:12px; height:12px; border-radius:50%; background:#c7d2fe; cursor:pointer; }
+    .dot.active { background:#4361EE; } .dot.visited { background:#818cf8; }
+    .card { background:#fff; border-radius:20px; padding:28px 24px;
+      box-shadow:0 4px 20px rgba(67,97,238,.1); margin-bottom:20px; }
+    .step-badge { display:inline-block; background:#4361EE; color:#fff;
+      font-size:12px; font-weight:700; padding:3px 12px; border-radius:20px; margin-bottom:14px; }
+    .step-title { font-size:18px; font-weight:700; color:#1e1b4b; margin-bottom:12px; }
+    .step-why { background:#f0fdf4; border-left:4px solid #22c55e;
+      padding:10px 14px; border-radius:8px; font-size:13px; color:#166534; margin-bottom:16px; }
+    .formula-box { background:#f8f9ff; border:1px solid #e0e7ff;
+      border-radius:12px; padding:16px; text-align:center; margin:14px 0; overflow-x:auto; }
+    .hl-box { background:#fffbeb; border:1px solid #fde68a;
+      border-radius:10px; padding:12px 16px; font-size:14px; color:#92400e; margin:12px 0; }
+    .warn-box { background:#fff1f2; border:1px solid #fecdd3;
+      border-radius:10px; padding:12px 16px; font-size:13px; color:#9f1239; margin:12px 0; }
+    p.body-text { font-size:15px; line-height:1.8; color:#374151; margin:8px 0; }
+    .prob-card { background:#fff; border-radius:20px; padding:28px 24px;
+      box-shadow:0 4px 20px rgba(67,97,238,.1); margin-bottom:20px; }
+    .think-box { background:#f0f9ff; border:2px dashed #7dd3fc;
+      border-radius:14px; padding:16px 20px; margin-top:16px; font-size:14px; color:#0369a1; }
+    .answer-box { background:linear-gradient(135deg,#4361EE,#7c3aed); color:#fff;
+      border-radius:16px; padding:20px; text-align:center; margin-bottom:20px; }
+    .answer-box .lbl { font-size:13px; opacity:.8; }
+    .answer-box .val { font-size:36px; font-weight:900; margin:6px 0; }
+    .summary-block { background:#fff; border-radius:16px; padding:20px;
+      margin-bottom:16px; box-shadow:0 2px 12px rgba(67,97,238,.08); }
+    .summary-block h3 { font-size:15px; color:#4361EE; margin-bottom:10px; }
+    .tag { display:inline-block; background:#ede9fe; color:#7c3aed;
+      border-radius:6px; padding:3px 10px; font-size:12px; margin:3px; }
+    .btn-row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:20px; }
+    .btn { padding:12px 28px; border-radius:12px; border:none;
+      font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; transition:opacity .2s; }
+    .btn:hover { opacity:.85; }
+    .btn-primary { background:#4361EE; color:#fff; }
+    .btn-secondary { background:#e0e7ff; color:#4361EE; }
+    .btn-ghost { background:#f3f4f6; color:#374151; }
+    .jxg-board { width:100%; max-width:480px; height:300px; margin:0 auto 12px;
+      border-radius:12px; overflow:hidden; border:1px solid #e0e7ff; }
+    .jxg-status { background:#f8f9ff; border:1px solid #e0e7ff; border-radius:10px;
+      padding:10px 14px; font-size:13px; text-align:center; margin-bottom:14px; color:#374151;
+      transition:background .3s, color .3s; }
+  </style>
+</head>
+<body>
+<nav style="background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:7px 16px;font-size:12px;display:flex;align-items:center;gap:5px;font-family:-apple-system,sans-serif;flex-shrink:0"><a href="../index.html" style="color:#6b7280;text-decoration:none">고1</a><span style="color:#d1d5db">&rsaquo;</span><a href="index.html" style="color:#2563eb;text-decoration:none;font-weight:600">Math_1_1</a></nav>
+
+<div id="app">
+
+  <!-- PAGE 0: 문제 -->
+  <div class="page active" id="page-0">
+    <div class="page-header"><h1>Q19 — 이차함수 동시접선</h1><p>공통수학1 · 논술형1 · 6.0점</p></div>
+    <div class="dots" id="dots-0"></div>
+    <div class="prob-card">
+      <p class="body-text">두 이차함수:</p>
+      <div style="margin:10px 0; padding:12px; background:#f8f9ff; border-radius:10px;">
+        $$y = x^2-x-4, \quad y = -x^2+5x+m$$
+      </div>
+      <p class="body-text">이 직선 $y=x+n$에 <strong>동시에 접할</strong> 때, $m+n$의 값은?</p>
+      <!-- Static SVG: qualitative picture of two parabolas + common tangent -->
+      <p style="font-size:12px;color:#6b7280;text-align:center;margin:14px 0 6px;">두 포물선과 공통접선 (정성적 그림)</p>
+      <svg viewBox="0 0 300 200" width="280" height="190"
+           style="display:block;margin:0 auto;overflow:visible;">
+        <defs>
+          <marker id="arr19" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+            <path d="M0,0 L7,3.5 L0,7 z" fill="#9ca3af"/>
+          </marker>
+        </defs>
+        <!-- axes -->
+        <line x1="15" y1="96" x2="282" y2="96" stroke="#9ca3af" stroke-width="1.5"
+              marker-end="url(#arr19)"/>
+        <line x1="30" y1="192" x2="30" y2="8" stroke="#9ca3af" stroke-width="1.5"
+              marker-end="url(#arr19)"/>
+        <text x="34" y="106" font-size="10" fill="#6b7280">O</text>
+        <!-- y₁ = x²-x-4 (blue, opens upward) -->
+        <!-- polyline: x[0..4], y_s=190-(y+10)*9.44, x_s=30+x*60 -->
+        <polyline points="30,133 60,136 90,133 120,126 150,115 180,98 210,77 240,51 270,20"
+          fill="none" stroke="#4361EE" stroke-width="2.5"
+          stroke-linejoin="round" stroke-linecap="round"/>
+        <text x="258" y="16" text-anchor="start" font-size="12" font-weight="700"
+              fill="#4361EE">f(x)</text>
+        <!-- y₂ = -x²+5x-9 (orange, opens downward) -->
+        <!-- polyline: x[0..4], y_s computed for actual values -->
+        <polyline points="30,181 60,159 90,143 120,131 150,124 180,122 210,124 240,131 270,143"
+          fill="none" stroke="#f97316" stroke-width="2.5"
+          stroke-linejoin="round" stroke-linecap="round"/>
+        <text x="188" y="118" text-anchor="start" font-size="12" font-weight="700"
+              fill="#f97316">g(x)</text>
+        <!-- tangent line y=x+n (dashed green), from (30,143) to (270,105) -->
+        <line x1="30" y1="143" x2="270" y2="105"
+              stroke="#22c55e" stroke-width="2" stroke-dasharray="6,3"/>
+        <text x="272" y="104" text-anchor="start" font-size="11"
+              fill="#22c55e">y=x+n</text>
+        <!-- tangent points (red dots): (1,-4)→(90,133) and (2,-3)→(150,124) -->
+        <circle cx="90"  cy="133" r="5" fill="#ef4444" stroke="white" stroke-width="1.5"/>
+        <circle cx="150" cy="124" r="5" fill="#ef4444" stroke="white" stroke-width="1.5"/>
+      </svg>
+      <div class="think-box">🤔 "접한다"는 것은 교점이 딱 1개. 이차방정식으로 만들면 중근 조건 = 판별식 $D=0$!</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="goTo(1)">단계별 풀이 시작 →</button>
+      <button class="btn btn-secondary" onclick="goTo(4)">한페이지 요약 바로보기</button>
+    </div>
+  </div>
+
+  <!-- PAGE 1: 첫 번째 포물선 접선 조건 + JSXGraph -->
+  <div class="page" id="page-1">
+    <div class="page-header"><h1>Q19 풀이</h1><p>1단계 / 3단계</p></div>
+    <div class="dots" id="dots-1"></div>
+    <div class="card">
+      <div class="step-badge">1단계</div>
+      <div class="step-title">$y=x^2-x-4$와 $y=x+n$의 접선 조건</div>
+      <div class="step-why">💡 두 그래프를 연립 → 이차방정식 → 중근 조건 $D=0$으로 $n$ 결정. 슬라이더로 직선을 움직여 접하는 순간을 확인해 보세요!</div>
+      <div id="q19-board-1" class="jxg-board"></div>
+      <div id="q19-status-1" class="jxg-status">슬라이더를 움직여 n을 조정해 보세요</div>
+      <div class="formula-box">
+        $$x^2-x-4 = x+n$$
+        $$x^2-2x-(4+n) = 0$$
+      </div>
+      <p class="body-text">판별식 $D = (-2)^2 - 4\cdot(-(4+n)) = 4(5+n) = 0$:</p>
+      <div class="formula-box">
+        $$\boxed{n = -5}$$
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goTo(0)">← 문제로</button>
+      <button class="btn btn-primary" onclick="goTo(2)">다음 단계 →</button>
+    </div>
+  </div>
+
+  <!-- PAGE 2: 두 번째 포물선 접선 조건 + JSXGraph -->
+  <div class="page" id="page-2">
+    <div class="page-header"><h1>Q19 풀이</h1><p>2단계 / 3단계</p></div>
+    <div class="dots" id="dots-2"></div>
+    <div class="card">
+      <div class="step-badge">2단계</div>
+      <div class="step-title">$y=-x^2+5x+m$과 $y=x-5$의 접선 조건</div>
+      <div class="step-why">💡 $n=-5$가 확정됐어요. 이제 $m$을 움직여 두 번째 포물선이 직선 $y=x-5$에 접하는 순간을 찾아봐요!</div>
+      <div id="q19-board-2" class="jxg-board"></div>
+      <div id="q19-status-2" class="jxg-status">슬라이더를 움직여 m을 조정해 보세요</div>
+      <div class="formula-box">
+        $$-x^2+5x+m = x+n$$
+        $$x^2-4x+(n-m) = 0$$
+      </div>
+      <p class="body-text">판별식 $D = 16 - 4(n-m) = 36+4m = 0$ (단, $n=-5$ 대입):</p>
+      <div class="formula-box">
+        $$m = n-4 = -5-4 = \boxed{-9}$$
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goTo(1)">← 이전</button>
+      <button class="btn btn-primary" onclick="goTo(3)">3단계 →</button>
+    </div>
+  </div>
+
+  <!-- PAGE 3: 결론 + 검산 -->
+  <div class="page" id="page-3">
+    <div class="page-header"><h1>Q19 풀이</h1><p>3단계 / 3단계</p></div>
+    <div class="dots" id="dots-3"></div>
+    <div class="card">
+      <div class="step-badge">3단계</div>
+      <div class="step-title">정답 + 검산</div>
+      <div class="formula-box">
+        $$m+n = -9+(-5) = \mathbf{-14}$$
+      </div>
+      <div class="hl-box">
+        검산: 직선 $y=x-5$.<br>
+        $y=x^2-x-4$: $x^2-2x+1=0$ → $(x-1)^2=0$ → $x=1$, 접점 $(1,-4)$ ✓<br>
+        $y=-x^2+5x-9$: $x^2-4x+4=0$ → $(x-2)^2=0$ → $x=2$, 접점 $(2,-3)$ ✓
+      </div>
+      <div class="warn-box">
+        실수 ①: 두 포물선 중 하나에만 $D=0$ 적용 → "동시에" 강조<br>
+        실수 ②: $x^2-2x-(4+n)=0$에서 상수항 부호 오류
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goTo(2)">← 이전</button>
+      <button class="btn btn-primary" onclick="goTo(4)">한페이지 요약 →</button>
+    </div>
+  </div>
+
+  <!-- PAGE 4: 요약 -->
+  <div class="page" id="page-4">
+    <div class="page-header"><h1>Q19 — 한페이지 요약</h1><p>공통수학1 · 논술형1 · 6.0점</p></div>
+    <div class="dots" id="dots-4"></div>
+    <div class="answer-box">
+      <div class="lbl">정답</div>
+      <div class="val">m+n = −14</div>
+    </div>
+    <div class="summary-block">
+      <h3>핵심 풀이 흐름</h3>
+      <p style="font-size:14px;line-height:1.9;">
+        ① 접한다 ↔ 이차방정식 중근 ↔ $D=0$<br>
+        ② $y=x^2-x-4$와 $y=x+n$ 연립: $x^2-2x-(4+n)=0$, $D=0$ → $n=-5$<br>
+        ③ $y=-x^2+5x+m$과 $y=x+n$ 연립: $x^2-4x+(n-m)=0$, $D=0$ → $m=n-4=-9$<br>
+        ④ $m+n = -9+(-5) = -14$
+      </p>
+    </div>
+    <div class="summary-block">
+      <h3>약점 태그</h3>
+      <span class="tag">수학:이차함수접선</span>
+      <span class="tag">수학:판별식</span>
+      <span class="tag">수학:연립방정식활용</span>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goTo(0)">← 문제로 돌아가기</button>
+    </div>
+  </div>
+
+</div>
+<script>
+const TOTAL=5; let visited=new Set([0]);
+let _boardInit1=false, _boardInit2=false;
+
+function goTo(n){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+n).classList.add('active');
+  visited.add(n); renderDots(n); renderMath();
+  if(n===1 && !_boardInit1){ initQ19Board1(); _boardInit1=true; }
+  if(n===2 && !_boardInit2){ initQ19Board2(); _boardInit2=true; }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderDots(cur){
+  for(let i=0;i<TOTAL;i++){
+    const el=document.getElementById('dots-'+i); if(!el) continue;
+    el.innerHTML=Array.from({length:TOTAL},(_,j)=>{
+      let c='dot'; if(j===cur) c+=' active'; else if(visited.has(j)) c+=' visited';
+      return `<div class="${c}" onclick="goTo(${j})"></div>`;
+    }).join('');
+  }
+}
+
+function renderMath(){
+  if(window.renderMathInElement) renderMathInElement(document.getElementById('app'),{
+    delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],
+    throwOnError:false
+  });
+}
+
+/* Board 1: y₁=x²-x-4 + sliding tangent y=x+n */
+function initQ19Board1(){
+  var brd = JXG.JSXGraph.initBoard('q19-board-1',{
+    boundingbox:[-1,12,4.5,-9], axis:true, grid:false,
+    showNavigation:false, showCopyright:false, keepaspectratio:false
+  });
+
+  // y₁ = x²-x-4 (blue)
+  brd.create('functiongraph',[function(x){ return x*x-x-4; }],
+    {strokeColor:'#4361EE',strokeWidth:2.5});
+  brd.create('text',[3.6,10,'y₁=x²−x−4'],
+    {fontSize:11,color:'#4361EE',fixed:true,anchorX:'left'});
+
+  // Slider n: [-8, -2], initial -3
+  var sl_n = brd.create('slider',[[-0.5,-7],[4,-7],[-8,-3,-2]],{
+    name:'n', snapWidth:0.25,
+    baseline:{strokeColor:'#fecdd3',strokeWidth:4},
+    highline:{strokeColor:'#ef4444',strokeWidth:4},
+    label:{fontSize:12,color:'#1e1b4b',offset:[0,6]}
+  });
+
+  // Tangent line y=x+n (red dashed)
+  brd.create('functiongraph',[function(x){ return x+sl_n.Value(); }],
+    {strokeColor:'#ef4444',strokeWidth:2,dash:2});
+
+  // Intersection points: x = 1 ± √(5+n) when 5+n ≥ 0
+  var ptA = brd.create('point',[
+    function(){ var n=sl_n.Value(); return 1-Math.sqrt(Math.max(0,5+n)); },
+    function(){ var n=sl_n.Value(); var x=1-Math.sqrt(Math.max(0,5+n)); return x+n; }
+  ],{size:5,color:'#ef4444',name:'',label:{visible:false},fixed:true,
+     strokeColor:'white',strokeWidth:2});
+  var ptB = brd.create('point',[
+    function(){ var n=sl_n.Value(); return 1+Math.sqrt(Math.max(0,5+n)); },
+    function(){ var n=sl_n.Value(); var x=1+Math.sqrt(Math.max(0,5+n)); return x+n; }
+  ],{size:5,color:'#ef4444',name:'',label:{visible:false},fixed:true,
+     strokeColor:'white',strokeWidth:2});
+
+  function updateStatus1(){
+    var n=sl_n.Value(), D=4*(5+n);
+    var el=document.getElementById('q19-status-1');
+    var ok=Math.abs(D)<0.8;
+    el.style.background = ok?'#f0fdf4':(D>0?'#fffbeb':'#f8f9ff');
+    el.style.color      = ok?'#166534':(D>0?'#92400e':'#374151');
+    el.style.borderColor= ok?'#86efac':(D>0?'#fde68a':'#e0e7ff');
+    el.innerHTML='n = '+n.toFixed(2)
+      +'&nbsp;&nbsp;|&nbsp;&nbsp;D = 4(5+n) = '+D.toFixed(1)
+      +(ok ? '&nbsp;&nbsp;<strong>✅ 접선! n = −5</strong>'
+       : D>0 ? '&nbsp; → 두 교점 존재' : '&nbsp; → 교점 없음');
+  }
+  sl_n.on('drag', updateStatus1);
+  sl_n.on('up',   updateStatus1);
+  updateStatus1();
+}
+
+/* Board 2: fixed y=x-5 + sliding y₂=-x²+5x+m */
+function initQ19Board2(){
+  var brd = JXG.JSXGraph.initBoard('q19-board-2',{
+    boundingbox:[-1,10,4.5,-13], axis:true, grid:false,
+    showNavigation:false, showCopyright:false, keepaspectratio:false
+  });
+
+  // y₁ = x²-x-4 (light, reference)
+  brd.create('functiongraph',[function(x){ return x*x-x-4; }],
+    {strokeColor:'#c7d2fe',strokeWidth:1.5,dash:1});
+  brd.create('text',[3.6,8,'y₁ (참고)'],
+    {fontSize:10,color:'#c7d2fe',fixed:true,anchorX:'left'});
+
+  // Fixed tangent line y=x-5 (green)
+  brd.create('functiongraph',[function(x){ return x-5; }],
+    {strokeColor:'#22c55e',strokeWidth:2});
+  brd.create('text',[3.6,-0.4,'y=x−5 (n=−5)'],
+    {fontSize:10,color:'#22c55e',fixed:true,anchorX:'left'});
+
+  // Slider m: [-12, -6], initial -12
+  var sl_m = brd.create('slider',[[-0.5,-11],[4,-11],[-12,-12,-6]],{
+    name:'m', snapWidth:0.25,
+    baseline:{strokeColor:'#fde68a',strokeWidth:4},
+    highline:{strokeColor:'#f97316',strokeWidth:4},
+    label:{fontSize:12,color:'#1e1b4b',offset:[0,6]}
+  });
+
+  // y₂ = -x²+5x+m (orange, dynamic)
+  brd.create('functiongraph',[function(x){ return -x*x+5*x+sl_m.Value(); }],
+    {strokeColor:'#f97316',strokeWidth:2.5});
+
+  // Intersection of y₂ and y=x-5: x = 2 ± √(m+9)
+  var ptC = brd.create('point',[
+    function(){ var m=sl_m.Value(); return 2-Math.sqrt(Math.max(0,m+9)); },
+    function(){ var m=sl_m.Value(); var x=2-Math.sqrt(Math.max(0,m+9)); return x-5; }
+  ],{size:5,color:'#22c55e',name:'',label:{visible:false},fixed:true,
+     strokeColor:'white',strokeWidth:2});
+  var ptD = brd.create('point',[
+    function(){ var m=sl_m.Value(); return 2+Math.sqrt(Math.max(0,m+9)); },
+    function(){ var m=sl_m.Value(); var x=2+Math.sqrt(Math.max(0,m+9)); return x-5; }
+  ],{size:5,color:'#22c55e',name:'',label:{visible:false},fixed:true,
+     strokeColor:'white',strokeWidth:2});
+
+  function updateStatus2(){
+    var m=sl_m.Value(), D=36+4*m;
+    var el=document.getElementById('q19-status-2');
+    var ok=Math.abs(D)<0.8;
+    el.style.background = ok?'#f0fdf4':(D>0?'#fffbeb':'#f8f9ff');
+    el.style.color      = ok?'#166534':(D>0?'#92400e':'#374151');
+    el.style.borderColor= ok?'#86efac':(D>0?'#fde68a':'#e0e7ff');
+    el.innerHTML='m = '+m.toFixed(2)
+      +'&nbsp;&nbsp;|&nbsp;&nbsp;D = 36+4m = '+D.toFixed(1)
+      +(ok ? '&nbsp;&nbsp;<strong>✅ 접선! m = −9 &nbsp;→&nbsp; m+n = −14</strong>'
+       : D>0 ? '&nbsp; → g(x)가 직선과 교점 있음' : '&nbsp; → g(x)가 직선 아래');
+  }
+  sl_m.on('drag', updateStatus2);
+  sl_m.on('up',   updateStatus2);
+  updateStatus2();
+}
+
+document.addEventListener('DOMContentLoaded',()=>{ renderDots(0); renderMath(); });
+</script>
+</body>
+</html>

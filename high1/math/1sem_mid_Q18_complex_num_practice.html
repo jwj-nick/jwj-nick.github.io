@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Q18 연습문제</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; padding: 20px 16px 60px; }
+    #app { max-width: 740px; margin: 0 auto; }
+    .app-header { text-align: center; margin-bottom: 28px; }
+    .app-header h1 { font-size: 22px; color: #1e1b4b; margin-bottom: 6px; }
+    .app-header p  { font-size: 14px; color: #6b7280; }
+    .cat-filter { display: flex; gap: 8px; justify-content: center; margin-bottom: 22px; flex-wrap: wrap; }
+    .cat-btn { padding: 7px 18px; border-radius: 20px; border: 2px solid transparent; font-size: 14px; font-weight: 700; cursor: pointer; transition: all .2s; font-family: inherit; }
+    .cat-btn.all   { background: #4361EE; color: #fff; }
+    .cat-btn.easy  { background: #dcfce7; color: #16a34a; border-color: #86efac; }
+    .cat-btn.mid   { background: #fef9c3; color: #854d0e; border-color: #fde047; }
+    .cat-btn.hard  { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
+    .cat-btn:not(.all):hover, .cat-btn.active { filter: brightness(.93); transform: scale(1.04); }
+    .cat-btn.all:hover { opacity: .88; }
+    .prob-grid { display: flex; flex-direction: column; gap: 10px; }
+    .prob-card { background: #fff; border-radius: 16px; padding: 16px 20px; box-shadow: 0 2px 12px rgba(67,97,238,.08); display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all .18s; border-left: 5px solid transparent; }
+    .prob-card:hover { transform: translateX(4px); box-shadow: 0 4px 20px rgba(67,97,238,.14); }
+    .prob-card.easy { border-color: #4ade80; }
+    .prob-card.mid  { border-color: #facc15; }
+    .prob-card.hard { border-color: #f87171; }
+    .prob-card.hidden { display: none; }
+    .card-num { min-width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; flex-shrink: 0; }
+    .easy .card-num { background: #dcfce7; color: #16a34a; }
+    .mid  .card-num { background: #fef9c3; color: #854d0e; }
+    .hard .card-num { background: #fee2e2; color: #b91c1c; }
+    .card-info { flex: 1; }
+    .card-title { font-size: 15px; font-weight: 700; color: #1e1b4b; margin-bottom: 3px; }
+    .card-sub   { font-size: 13px; color: #6b7280; }
+    .card-arrow { font-size: 18px; color: #c7d2fe; }
+    #detail-view { display: none; }
+    .detail-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .back-btn { background: #fff; border: none; border-radius: 12px; padding: 8px 16px; font-size: 14px; font-weight: 700; color: #4361EE; cursor: pointer; font-family: inherit; box-shadow: 0 2px 8px rgba(67,97,238,.1); transition: all .15s; }
+    .back-btn:hover { background: #eef2ff; }
+    .detail-title { font-size: 18px; font-weight: 800; color: #1e1b4b; }
+    .tab-wrap { display: flex; background: #fff; border-radius: 16px 16px 0 0; overflow: hidden; box-shadow: 0 2px 12px rgba(67,97,238,.08); }
+    .tab-btn { flex: 1; padding: 14px 8px; border: none; background: #fff; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; transition: all .18s; color: #94a3b8; border-bottom: 3px solid transparent; }
+    .tab-btn.active { color: #4361EE; border-bottom-color: #4361EE; background: #f8faff; }
+    .tab-btn:hover:not(.active) { background: #f8faff; color: #6366f1; }
+    .content-card { background: #fff; border-radius: 0 0 20px 20px; padding: 28px 32px; box-shadow: 0 4px 20px rgba(67,97,238,.08); animation: fadeIn .22s ease; min-height: 260px; }
+    @keyframes fadeIn { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: translateY(0); } }
+    .prob-badge { display: inline-block; font-size: 12px; font-weight: 800; padding: 3px 12px; border-radius: 20px; margin-bottom: 14px; }
+    .badge-easy { background: #dcfce7; color: #16a34a; }
+    .badge-mid  { background: #fef9c3; color: #854d0e; }
+    .badge-hard { background: #fee2e2; color: #b91c1c; }
+    .why-box { background: #f8faff; border-left: 4px solid #a5b4fc; border-radius: 0 12px 12px 0; padding: 12px 16px; font-size: 14px; color: #4338ca; line-height: 1.7; margin-bottom: 18px; }
+    .prob-body { font-size: 15px; line-height: 1.9; color: #1e1b4b; margin-bottom: 10px; }
+    .prob-cond { background: #fffbf0; border: 1.5px solid #fbbf24; border-radius: 12px; padding: 12px 18px; margin: 10px 0; font-size: 15px; line-height: 1.8; }
+    .cond-label { font-size: 12px; font-weight: 800; color: #d97706; margin-bottom: 4px; }
+    .answer-big { background: linear-gradient(135deg, #4361EE, #7c3aed); color: #fff; border-radius: 18px; padding: 28px 24px; text-align: center; margin: 10px 0; }
+    .answer-big .lbl { font-size: 13px; opacity: .8; margin-bottom: 6px; }
+    .answer-big .val { font-size: 28px; font-weight: 900; line-height: 1.3; }
+    .answer-check { background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 12px; padding: 14px 18px; font-size: 14px; color: #166534; margin-top: 14px; line-height: 1.7; }
+    .sol-step { display: flex; gap: 14px; margin-bottom: 18px; align-items: flex-start; }
+    .sol-num { min-width: 28px; height: 28px; border-radius: 50%; background: #4361EE; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; flex-shrink: 0; margin-top: 2px; }
+    .sol-text { font-size: 15px; line-height: 1.85; color: #1e1b4b; }
+    .formula-box { background: #f5f7ff; border: 1.5px solid #c7d2fe; border-radius: 12px; padding: 14px 20px; text-align: center; margin: 10px 0; overflow-x: auto; }
+    .hl-box { background: #eef2ff; border-radius: 12px; padding: 14px 18px; margin: 12px 0; font-size: 14px; color: #312e81; line-height: 1.8; }
+    .warn-box { background: #fff8e1; border-left: 4px solid #f59e0b; border-radius: 0 12px 12px 0; padding: 12px 16px; font-size: 14px; color: #374151; margin: 10px 0; line-height: 1.7; }
+    .case-box { background: #f8faff; border: 1.5px solid #c7d2fe; border-radius: 12px; padding: 14px 18px; margin: 8px 0; font-size: 14px; line-height: 1.8; color: #1e1b4b; }
+    .case-label { font-size: 12px; font-weight: 800; color: #4361EE; margin-bottom: 4px; }
+    .detail-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; gap: 12px; }
+    .nav-btn { background: #fff; border: none; border-radius: 12px; padding: 10px 20px; font-size: 14px; font-weight: 700; color: #4361EE; cursor: pointer; font-family: inherit; box-shadow: 0 2px 8px rgba(67,97,238,.1); transition: all .15s; }
+    .nav-btn:hover { background: #eef2ff; transform: translateY(-1px); }
+    .nav-btn:disabled { opacity: .35; cursor: default; transform: none; }
+    .nav-center { font-size: 13px; color: #94a3b8; font-weight: 600; }
+    .katex-display { overflow-x: auto; }
+    @media (max-width:480px) { .content-card { padding: 20px 18px; } .answer-big .val { font-size: 22px; } }
+  </style>
+</head>
+<body>
+<nav style="background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:7px 16px;font-size:12px;display:flex;align-items:center;gap:5px;font-family:-apple-system,sans-serif;flex-shrink:0"><a href="../index.html" style="color:#6b7280;text-decoration:none">고1</a><span style="color:#d1d5db">&rsaquo;</span><a href="index.html" style="color:#2563eb;text-decoration:none;font-weight:600">Math_1_1</a></nav>
+
+<div id="app">
+  <div id="list-view">
+    <div class="app-header">
+      <h1>Q18 연습 문제</h1>
+      <p>복소수 · 켤레복소수 · 자연수 조건 · 9문제</p>
+    </div>
+    <div class="cat-filter">
+      <button class="cat-btn all active" onclick="filterCat('all')">전체</button>
+      <button class="cat-btn easy" onclick="filterCat('easy')">🟢 쉬운 (L)</button>
+      <button class="cat-btn mid"  onclick="filterCat('mid')">🟡 중간 (M)</button>
+      <button class="cat-btn hard" onclick="filterCat('hard')">🔴 어려운 (H)</button>
+    </div>
+    <div class="prob-grid" id="prob-grid"></div>
+  </div>
+  <div id="detail-view">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showList()">← 목록</button>
+      <div class="detail-title" id="detail-title"></div>
+    </div>
+    <div class="tab-wrap">
+      <button class="tab-btn active" id="tab-prob" onclick="switchTab('prob')">📄 문제판</button>
+      <button class="tab-btn" id="tab-ans"  onclick="switchTab('ans')">✅ 정답판</button>
+      <button class="tab-btn" id="tab-sol"  onclick="switchTab('sol')">📖 풀이판</button>
+    </div>
+    <div class="content-card" id="content-area"></div>
+    <div class="detail-nav">
+      <button class="nav-btn" id="btn-prev" onclick="moveProblem(-1)">← 이전</button>
+      <span class="nav-center" id="nav-label"></span>
+      <button class="nav-btn" id="btn-next" onclick="moveProblem(1)">다음 →</button>
+    </div>
+  </div>
+</div>
+<script>
+const P = [
+  {
+    id:'L1-1', cat:'easy', catLabel:'🟢 쉬운',
+    title:'켤레복소수 곱 계산',
+    sub:'$z\\bar{z} = |z|^2$ 계산',
+    why:'Q18 첫 단계 — $z\\bar{z}$가 무엇인지 정확히 계산합니다. 켤레복소수 곱이 항상 실수가 되는 이유도 확인해요.',
+    prob:`<p class="prob-body">$z = 3 - 4i$일 때 $z\\bar{z}$의 값을 구하여라.</p>`,
+    ansVal:'25',
+    ansDetail:'$z\\bar{z} = (3-4i)(3+4i) = 9+16 = 25$',
+    ansCheck:'$z\\bar{z} = |z|^2 = 3^2+4^2 = 25$ ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">$\\bar{z} = 3+4i$ (부호만 바뀜).</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">$z\\bar{z}$를 계산합니다:</div>
+      </div>
+      <div class="formula-box">$$z\\bar{z} = (3-4i)(3+4i) = 3^2+(4)^2 = 9+16 = 25$$</div>
+      <div class="hl-box">📌 공식: $(a+bi)(a-bi)=a^2+b^2$. 켤레 곱은 항상 실수!</div>
+    `
+  },
+  {
+    id:'L1-2', cat:'easy', catLabel:'🟢 쉬운',
+    title:'자연수 쌍 $a^2+b^2=10$',
+    sub:'$a,b$ 자연수이고 $a^2+b^2=10$인 쌍 구하기',
+    why:'Q18에서 $(a,b)$ 쌍을 구하는 핵심 단계입니다. $z_1\\bar{z_1}=5$이면 $a^2+b^2=5$를 풀어야 하는 구조.',
+    prob:`<p class="prob-body">$a^2+b^2=10$을 만족하는 자연수 쌍 $(a,b)$를 모두 구하여라.</p>`,
+    ansVal:'(1,3),\\ (3,1)',
+    ansDetail:'$(a,b) = (1,3)$ 또는 $(3,1)$',
+    ansCheck:'$1^2+3^2=10$ ✓, $3^2+1^2=10$ ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">$a=1$: $b^2=9$ → $b=3$ ✓</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">$a=2$: $b^2=6$ → 정수 해 없음.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">3</div>
+        <div class="sol-text">$a=3$: $b^2=1$ → $b=1$ ✓</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">4</div>
+        <div class="sol-text">$a \\ge 4$: $a^2 \\ge 16 > 10$ → 불가.</div>
+      </div>
+      <div class="formula-box">$$\\therefore (a,b) = (1,3) \\text{ 또는 } (3,1)$$</div>
+    `
+  },
+  {
+    id:'L1-3', cat:'easy', catLabel:'🟢 쉬운',
+    title:'복소수 등호 조건',
+    sub:'$z_1-z_2=3-2i$ → 실수부·허수부 각각',
+    why:'Q18 ㄴ 판별의 핵심 — 복소수 등호는 실수부와 허수부 각각 같아야 합니다.',
+    prob:`<p class="prob-body">$z_1=a+bi$, $z_2=c+di$ ($a,b,c,d$는 실수)에 대해 $z_1-z_2=3-2i$이면 $a-c$와 $b-d$의 값을 각각 구하여라.</p>`,
+    ansVal:'a-c=3,\\ b-d=-2',
+    ansDetail:'$a-c=3$, $b-d=-2$',
+    ansCheck:'$(a-c)+(b-d)i = 3+(-2)i$ → 실수부·허수부 각각 일치 ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">$z_1-z_2 = (a-c)+(b-d)i = 3-2i$.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">복소수 등호: 실수부끼리, 허수부끼리 같음.</div>
+      </div>
+      <div class="formula-box">$$a-c = 3, \\ b-d = -2$$</div>
+      <div class="hl-box">📌 복소수 $p+qi = r+si$ ↔ $p=r$ 이고 $q=s$. 두 조건을 항상 분리해서 사용!</div>
+    `
+  },
+  {
+    id:'M1', cat:'mid', catLabel:'🟡 중간',
+    title:'$a^2+b^2=13$ + 차 조건',
+    sub:'$z_1\\bar{z_1}=13$, $z_1-z_2=-6i$ → 실수+허수부 합',
+    why:'Q18과 같은 구조에서 모듈러스가 다를 때. $a^2+b^2=5$→$13$으로 숫자만 바꾼 변형.',
+    prob:`<p class="prob-body">$z_1=a+bi$ ($a,b$는 자연수), $z_1\\overline{z_1}=13$이고 $z_1-z_2=-6i$일 때, $z_2$의 실수부와 허수부의 합을 구하여라.</p>`,
+    ansVal:'11',
+    ansDetail:'$(a,b)=(2,3)$ 또는 $(3,2)$이면 $a+b=5$. $z_1-z_2=-6i$→$c=a$, $d=b+6$. $c+d=11$',
+    ansCheck:'$2^2+3^2=13$ ✓. $c+d=a+b+6=5+6=11$ ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">$a^2+b^2=13$, 자연수: $(a,b)=(2,3)$ 또는 $(3,2)$. $a+b=5$.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">$z_1-z_2=-6i$ → $(a-c)+(b-d)i=-6i$:</div>
+      </div>
+      <div class="formula-box">$$a-c=0 \\ (\\Rightarrow c=a), \\quad b-d=-6 \\ (\\Rightarrow d=b+6)$$</div>
+      <div class="sol-step"><div class="sol-num">3</div>
+        <div class="sol-text">$c+d = a+(b+6) = a+b+6 = 5+6 = \\mathbf{11}$</div>
+      </div>
+    `
+  },
+  {
+    id:'M2', cat:'mid', catLabel:'🟡 중간',
+    title:'$|z_1+z_2|^2=40$ → $c^2+d^2$ 최솟값',
+    sub:'$(c+1)^2+(d+2)^2=40$에서 자연수 해 탐색',
+    why:'Q18 ㄷ에서 사용한 $(z_1+z_2)(\\overline{z_1+z_2})$ 전개를 단독으로 연습합니다.',
+    prob:`<p class="prob-body">$z_1=1+2i$, $z_2=c+di$ ($c,d$는 자연수), $(z_1+z_2)(\\overline{z_1}+\\overline{z_2})=40$일 때 $c^2+d^2$의 최솟값을 구하여라.</p>`,
+    ansVal:'17',
+    ansDetail:'$(c+1)^2+(d+2)^2=40$. 자연수 해: $(c,d)=(1,4)$ → $c^2+d^2=17$',
+    ansCheck:'$(1+1)^2+(4+2)^2=4+36=40$ ✓. $c^2+d^2=1+16=17$ ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">$(z_1+z_2)(\\overline{z_1+z_2}) = |z_1+z_2|^2$를 전개합니다:</div>
+      </div>
+      <div class="formula-box">$$|z_1|^2+|z_2|^2+2\\text{Re}(z_1\\bar{z_2}) = 5+(c^2+d^2)+2(c+2d)=40$$</div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">완전제곱식으로 변환:</div>
+      </div>
+      <div class="formula-box">$$(c+1)^2+(d+2)^2 = 40$$</div>
+      <div class="sol-step"><div class="sol-num">3</div>
+        <div class="sol-text">$40 = 4+36$: $(c+1,d+2)=(2,6)$ → $(c,d)=(1,4)$. $c^2+d^2=17$.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">4</div>
+        <div class="sol-text">$40=36+4$: $(c+1,d+2)=(6,2)$ → $d+2=2$ → $d=0$: 자연수 아님 ✗.</div>
+      </div>
+      <div class="formula-box">$$\\text{최솟값} = \\mathbf{17}$$</div>
+    `
+  },
+  {
+    id:'M3', cat:'mid', catLabel:'🟡 중간',
+    title:'켤레복소수 성질 응용',
+    sub:'$z\\bar{z}+(\\bar{z})^2$ 계산',
+    why:'$\\overline{z_1+z_2}=\\bar{z_1}+\\bar{z_2}$ 성질과 켤레복소수 거듭제곱 계산을 연습합니다.',
+    prob:`<p class="prob-body">$z=2+3i$일 때 $z\\bar{z}+(\\bar{z})^2$의 값을 구하여라.</p>`,
+    ansVal:'8-12i',
+    ansDetail:'$z\\bar{z}=13$, $(\\bar{z})^2=(2-3i)^2=-5-12i$. 합 $= 8-12i$',
+    ansCheck:'$\\bar{z}=2-3i$. $z\\bar{z}=4+9=13$ ✓. $(2-3i)^2=4-12i-9=-5-12i$ ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">$\\bar{z} = 2-3i$.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">$z\\bar{z} = (2+3i)(2-3i) = 4+9 = 13$.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">3</div>
+        <div class="sol-text">$(\\bar{z})^2 = (2-3i)^2 = 4-12i+9i^2 = 4-12i-9 = -5-12i$.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">4</div>
+        <div class="sol-text">합산:</div>
+      </div>
+      <div class="formula-box">$$z\\bar{z}+(\\bar{z})^2 = 13+(-5-12i) = \\mathbf{8-12i}$$</div>
+    `
+  },
+  {
+    id:'H1', cat:'hard', catLabel:'🔴 어려운',
+    title:'$z_1\\bar{z_1}=2$ 세 보기 판별',
+    sub:'$a^2+b^2=2$ → $(a,b)=(1,1)$ 유일 → ㄱ,ㄴ,ㄷ 판별',
+    why:'Q18과 같은 구조로 세 보기를 모두 판별합니다. $(a,b)$가 유일하게 결정되는 경우의 분석.',
+    prob:`
+      <p class="prob-body">$z_1=a+bi$ ($a,b$는 자연수), $z_1\\overline{z_1}=2$일 때 〈보기〉에서 옳은 것을 모두 고르시오.</p>
+      <div class="prob-cond"><div class="cond-label">ㄱ</div>$a=b$</div>
+      <div class="prob-cond"><div class="cond-label">ㄴ</div>$z_1+\\overline{z_1}$은 항상 짝수이다.</div>
+      <div class="prob-cond"><div class="cond-label">ㄷ</div>$z_1^2$의 실수부는 0이다.</div>
+    `,
+    ansVal:'\\text{ㄱ, ㄴ, ㄷ 모두 참}',
+    ansDetail:'$a^2+b^2=2$, 자연수 → $(a,b)=(1,1)$ 유일. ㄱ: $a=b$ ✓. ㄴ: $2a=2$ (짝수) ✓. ㄷ: $(1+i)^2=2i$, 실수부 $=0$ ✓',
+    ansCheck:'$(1+i)^2=1+2i-1=2i$. 실수부 $=0$ ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">$a^2+b^2=2$, $a,b$ 자연수: $a=b=1$이 유일.</div>
+      </div>
+      <div class="case-box">
+        <div class="case-label">ㄱ 판별</div>
+        $a=b=1$ → $a=b$ 참 ✓
+      </div>
+      <div class="case-box">
+        <div class="case-label">ㄴ 판별</div>
+        $z_1+\\bar{z_1} = (a+bi)+(a-bi) = 2a = 2$. 짝수 ✓
+      </div>
+      <div class="case-box">
+        <div class="case-label">ㄷ 판별</div>
+        $z_1^2 = (1+i)^2 = 1+2i+i^2 = 1+2i-1 = 2i$. 실수부 $=0$ ✓
+      </div>
+      <div class="formula-box">$$\\therefore \\text{ㄱ, ㄴ, ㄷ 모두 참}$$</div>
+    `
+  },
+  {
+    id:'H2', cat:'hard', catLabel:'🔴 어려운',
+    title:'$z_2\\bar{z_2}$ 최댓값',
+    sub:'$(z_1+z_2)(\\overline{z_1+z_2})=52$ → $c^2+d^2$ 최댓값',
+    why:'Q18 ㄷ의 핵심 계산 — 정수 쌍을 전수 탐색하여 $c^2+d^2$의 최댓값을 구합니다.',
+    prob:`<p class="prob-body">$z_1=a+bi$ ($a,b$는 자연수, $a^2+b^2=5$), $z_2=c+di$ ($c,d$는 자연수)이고 $(z_1+z_2)(\\overline{z_1}+\\overline{z_2})=52$일 때, $z_2\\overline{z_2}$의 최댓값을 구하여라.</p>`,
+    ansVal:'29',
+    ansDetail:'$(a,b)=(1,2)$: $(c+1)^2+(d+2)^2=52$ → $(c,d)=(5,2)$: $c^2+d^2=29$. 최댓값 $=29$',
+    ansCheck:'$(5+1)^2+(2+2)^2=36+16=52$ ✓. $5^2+2^2=29$ ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">$a^2+b^2=5$: $(a,b)=(1,2)$ 또는 $(2,1)$.</div>
+      </div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">$(a,b)=(1,2)$: $(z_1+z_2)(\\overline{z_1+z_2})=|z_1+z_2|^2=52$.</div>
+      </div>
+      <div class="formula-box">$$(c+1)^2+(d+2)^2 = 52$$</div>
+      <div class="case-box">
+        <div class="case-label">$52=36+16$</div>
+        $(c+1,d+2)=(6,4)$ → $(c,d)=(5,2)$. $c^2+d^2=29$ ✓
+      </div>
+      <div class="case-box">
+        <div class="case-label">$52=16+36$</div>
+        $(c+1,d+2)=(4,6)$ → $(c,d)=(3,4)$. $c^2+d^2=25$ ✓
+      </div>
+      <div class="sol-step"><div class="sol-num">3</div>
+        <div class="sol-text">$(a,b)=(2,1)$: $(c+2)^2+(d+1)^2=52$.</div>
+      </div>
+      <div class="case-box">
+        <div class="case-label">결과 동일</div>
+        $(c,d)=(4,3)$: $c^2+d^2=25$. $(c,d)=(2,5)$: $c^2+d^2=29$.
+      </div>
+      <div class="formula-box">$$\\text{최댓값} = \\mathbf{29}$$</div>
+    `
+  },
+  {
+    id:'H3', cat:'hard', catLabel:'🔴 어려운',
+    title:'$z_2\\bar{z_2}$ 최솟값',
+    sub:'같은 설정 → $c^2+d^2$ 최솟값',
+    why:'H2에서 최댓값을 구했으니 이번엔 최솟값. 가능한 $c^2+d^2$ 후보 중 최솟값을 고릅니다.',
+    prob:`<p class="prob-body">H2와 같은 설정 ($a^2+b^2=5$, $c,d$는 자연수, $(z_1+z_2)(\\overline{z_1}+\\overline{z_2})=52$)에서 $z_2\\overline{z_2}$의 최솟값을 구하여라.</p>`,
+    ansVal:'25',
+    ansDetail:'가능한 $c^2+d^2$: $25$ 또는 $29$. 최솟값 $= 25$',
+    ansCheck:'$(c,d)=(3,4)$ 또는 $(4,3)$일 때 $c^2+d^2=25$ ✓',
+    sol:`
+      <div class="sol-step"><div class="sol-num">1</div>
+        <div class="sol-text">H2에서 구한 가능한 $(c,d)$:</div>
+      </div>
+      <div class="case-box">
+        <div class="case-label">$(a,b)=(1,2)$인 경우</div>
+        $(c,d)=(5,2)$: $c^2+d^2=29$<br>
+        $(c,d)=(3,4)$: $c^2+d^2=25$
+      </div>
+      <div class="case-box">
+        <div class="case-label">$(a,b)=(2,1)$인 경우</div>
+        $(c,d)=(2,5)$: $c^2+d^2=29$<br>
+        $(c,d)=(4,3)$: $c^2+d^2=25$
+      </div>
+      <div class="sol-step"><div class="sol-num">2</div>
+        <div class="sol-text">$c^2+d^2$ 후보: $\\{25, 29\\}$. 최솟값 $= \\mathbf{25}$.</div>
+      </div>
+    `
+  }
+];
+
+let curIdx = 0, curTab = 'prob', curCat = 'all';
+
+function buildList() {
+  document.getElementById('prob-grid').innerHTML = P.map((p,i) =>
+    `<div class="prob-card ${p.cat}" id="card-${i}" onclick="openDetail(${i})">
+      <div class="card-num">${p.id}</div>
+      <div class="card-info"><div class="card-title">${p.title}</div><div class="card-sub">${p.sub}</div></div>
+      <div class="card-arrow">›</div>
+    </div>`).join('');
+}
+
+function filterCat(cat) {
+  curCat = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  P.forEach((p,i) => document.getElementById('card-'+i).classList.toggle('hidden', cat!=='all' && p.cat!==cat));
+}
+
+function openDetail(idx) {
+  curIdx = idx; curTab = 'prob';
+  document.getElementById('list-view').style.display = 'none';
+  document.getElementById('detail-view').style.display = 'block';
+  renderDetail();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function showList() {
+  document.getElementById('list-view').style.display = 'block';
+  document.getElementById('detail-view').style.display = 'none';
+}
+
+function switchTab(tab) {
+  curTab = tab;
+  ['prob','ans','sol'].forEach(t => document.getElementById('tab-'+t).classList.toggle('active', t===tab));
+  renderContent();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function moveProblem(dir) {
+  curIdx = Math.max(0, Math.min(P.length-1, curIdx+dir));
+  curTab = 'prob'; renderDetail();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function renderDetail() {
+  const p = P[curIdx];
+  ['prob','ans','sol'].forEach(t => document.getElementById('tab-'+t).classList.toggle('active', t===curTab));
+  document.getElementById('detail-title').textContent = `${p.id} — ${p.title}`;
+  document.getElementById('btn-prev').disabled = curIdx === 0;
+  document.getElementById('btn-next').disabled = curIdx === P.length-1;
+  document.getElementById('nav-label').textContent = `${curIdx+1} / ${P.length}`;
+  renderContent();
+}
+
+function renderContent() {
+  const p = P[curIdx];
+  const area = document.getElementById('content-area');
+  const bc = p.cat==='easy' ? 'badge-easy' : p.cat==='mid' ? 'badge-mid' : 'badge-hard';
+  if (curTab==='prob') {
+    area.innerHTML = `<span class="prob-badge ${bc}">${p.catLabel}</span>${p.prob}`;
+  } else if (curTab==='ans') {
+    area.innerHTML = `<span class="prob-badge ${bc}">${p.catLabel} — 정답</span>
+      <div class="why-box">💡 <strong>왜 이 문제인가?</strong><br>${p.why}</div>
+      <div class="answer-big"><div class="lbl">정답</div><div class="val">$${p.ansVal}$</div></div>
+      <div class="answer-check">✅ ${p.ansDetail}<br><br>🔍 <strong>검산</strong><br>${p.ansCheck}</div>`;
+  } else {
+    area.innerHTML = `<span class="prob-badge ${bc}">${p.catLabel} — 풀이</span><div style="margin-top:16px;">${p.sol}</div>`;
+  }
+  if (window.renderMathInElement) {
+    renderMathInElement(area, {
+      delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],
+      throwOnError: false
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => { buildList(); });
+</script>
+</body>
+</html>
