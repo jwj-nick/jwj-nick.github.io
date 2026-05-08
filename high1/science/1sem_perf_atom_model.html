@@ -67,21 +67,16 @@ th{background:var(--bg);font-weight:600;width:60px}
 .qbtn{padding:7px 18px;border-radius:6px;border:none;cursor:pointer;font-size:13px}
 .qbtn.pri{background:#1e293b;color:#fff}.qbtn.sec{background:var(--bg);color:var(--text);border:1px solid var(--border)}
 .qsvgbox{display:flex;justify-content:center;margin-bottom:12px}
+#mob-sel{display:none}
 /* ── mobile ─────────────────────────────── */
 @media screen and (max-width:640px){
   header h1{font-size:12px}
   .layout{flex-direction:column !important;height:auto !important;min-height:0}
-  #sidebar{width:100% !important;max-height:48px;height:48px !important;
-           flex-direction:row !important;overflow-x:auto !important;overflow-y:hidden !important;
-           border-right:none !important;border-bottom:1px solid var(--border);flex-shrink:0}
-  .gh{display:none !important}
-  .sitem{flex-shrink:0;white-space:nowrap;border-left:none !important;
-         border-bottom:3px solid transparent;padding:10px 14px;font-size:13px}
-  .sitem.active{border-left:none !important;background:transparent;font-weight:700}
-  .sitem.active.metal{border-bottom-color:var(--metal)}
-  .sitem.active.nonmetal{border-bottom-color:var(--nonmetal)}
-  .zbadge{display:none}
-  #content{flex:1 !important;padding:12px;overflow-y:auto !important;height:0;min-height:200px}
+  #sidebar{display:none !important}
+  #mob-sel{display:block !important;width:100%;padding:10px 14px;font-size:15px;
+           border:none;border-bottom:2px solid var(--border);background:#fff;
+           color:var(--text);outline:none;cursor:pointer}
+  #content{padding:12px;overflow-y:auto}
   .two{grid-template-columns:1fr}
   .qcard{padding:20px 14px;min-height:200px}
   .qname{font-size:18px}
@@ -98,6 +93,7 @@ th{background:var(--bg);font-weight:600;width:60px}
     <button class="mbtn" id="bq" onclick="setMode('quiz')">🎯 퀴즈</button>
   </div>
 </header>
+<select id="mob-sel" onchange="sel(this.value)"></select>
 <div class="layout">
   <aside id="sidebar"></aside>
   <main id="content"></main>
@@ -260,6 +256,14 @@ function setMode(m){
 // ══════════════════════════════════════════
 // 사이드바
 // ══════════════════════════════════════════
+function buildMobSel(){
+  const el=document.getElementById('mob-sel');if(!el)return;
+  const groups=[{t:'nonmetal',l:'비금속'},{t:'metal',l:'금속'}];
+  el.innerHTML=groups.map(g=>{
+    const items=E.filter(e=>e.type===g.t);
+    return`<optgroup label="${g.l}">${items.map(e=>`<option value="${e.id}"${e.id===curId?' selected':''}>${e.symbol} ${e.name} (Z=${e.Z})</option>`).join('')}</optgroup>`;
+  }).join('');
+}
 function buildSidebar(){
   const metals=E.filter(e=>e.type==='metal');
   const nonmetals=E.filter(e=>e.type==='nonmetal');
@@ -285,7 +289,7 @@ function toggleIon(){showIon=!showIon;renderStudy();}
 
 function renderStudy(){
   const e=E.find(x=>x.id===curId)||E[0];
-  buildSidebar();
+  buildSidebar();buildMobSel();
   const hasIon=e.ionSymbol!==null;
   const curShells=showIon&&hasIon?e.ionShells:e.shells;
   const isIon=showIon&&hasIon;

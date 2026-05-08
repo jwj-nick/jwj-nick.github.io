@@ -59,22 +59,16 @@ th{background:var(--bg);font-weight:600;text-align:left;width:90px}
 .qctrl{display:flex;gap:10px;justify-content:center;margin-top:16px}
 .qbtn{padding:7px 18px;border-radius:6px;border:none;cursor:pointer;font-size:13px}
 .qbtn.pri{background:#1e293b;color:#fff}.qbtn.sec{background:var(--bg);color:var(--text);border:1px solid var(--border)}
+#mob-sel{display:none}
 /* ── mobile ─────────────────────────────── */
 @media screen and (max-width:640px){
   header h1{font-size:12px}
   .layout{flex-direction:column !important;height:auto !important;min-height:0}
-  #sidebar{width:100% !important;max-height:48px;height:48px !important;
-           flex-direction:row !important;overflow-x:auto !important;overflow-y:hidden !important;
-           border-right:none !important;border-bottom:1px solid var(--border);flex-shrink:0}
-  .gh{display:none !important}
-  .sitem{flex-shrink:0;white-space:nowrap;border-left:none !important;
-         border-bottom:3px solid transparent;padding:10px 14px;font-size:13px}
-  .sitem.active{border-left:none !important;background:transparent;font-weight:700}
-  .sitem.active.ionic{border-bottom-color:var(--ionic)}
-  .sitem.active.covalent{border-bottom-color:var(--cov)}
-  .sitem.active.mixed{border-bottom-color:var(--mix)}
-  .fbadge{display:none}
-  #content{flex:1 !important;padding:12px;overflow-y:auto !important;height:0;min-height:200px}
+  #sidebar{display:none !important}
+  #mob-sel{display:block !important;width:100%;padding:10px 14px;font-size:15px;
+           border:none;border-bottom:2px solid var(--border);background:#fff;
+           color:var(--text);outline:none;cursor:pointer}
+  #content{padding:12px;overflow-y:auto}
   .two{grid-template-columns:1fr}
   .fml{font-size:20px}
   .qcard{padding:20px 14px;min-height:200px}
@@ -92,6 +86,7 @@ th{background:var(--bg);font-weight:600;text-align:left;width:90px}
     <button class="mbtn" id="bq" onclick="setMode('quiz')">🎯 퀴즈</button>
   </div>
 </header>
+<select id="mob-sel" onchange="sel(this.value)"></select>
 <div class="layout">
   <aside id="sidebar"></aside>
   <main id="content"></main>
@@ -397,9 +392,17 @@ function buildSidebar(){
 // 학습 모드
 // ══════════════════════════════════════════
 function sel(id){curId=id;mode='study';document.getElementById('bs').classList.add('active');document.getElementById('bq').classList.remove('active');renderStudy();}
+function buildMobSel(){
+  const el=document.getElementById('mob-sel');if(!el)return;
+  const groups=[{t:'ionic',l:'이온결합'},{t:'covalent',l:'공유결합'},{t:'mixed',l:'혼합형'}];
+  el.innerHTML=groups.map(g=>{
+    const items=S.filter(s=>s.bt===g.t);
+    return`<optgroup label="${g.l}">${items.map(s=>`<option value="${s.id}"${s.id===curId?' selected':''}>${s.cn||s.name} (${s.f})</option>`).join('')}</optgroup>`;
+  }).join('');
+}
 function renderStudy(){
   const s=S.find(x=>x.id===curId)||S[0];
-  buildSidebar();
+  buildSidebar();buildMobSel();
   const fmHTML=s.fm.map((f,i)=>`<li data-n="${i+1}">${f}</li>`).join('');
   const prHTML=[['상태',s.pr.st],['녹는점',s.pr.mp],['용해도',s.pr.sol],['전기전도',s.pr.cd]].map(([k,v])=>`<tr><th>${k}</th><td>${v}</td></tr>`).join('');
   const dpHTML=s.dp.map(p=>`<li>${p}</li>`).join('');
