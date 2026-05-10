@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>정도전 심화 — 사람과 시대의 이야기</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; background: #f4f1ec; color: #222; font-size: 15px; line-height: 1.75; }
+
+  header { background: linear-gradient(135deg, #4a235a 0%, #2c3e50 100%); color: #fff; padding: 22px 24px; }
+  header h1 { font-size: 19px; font-weight: 700; letter-spacing: -0.3px; }
+  header p { font-size: 13px; opacity: 0.8; margin-top: 4px; }
+  header .subtitle { color: #f1c40f; font-weight: 600; }
+
+  .tab-bar { display: flex; background: #2c3e50; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .tab-btn { flex: 1; min-width: 70px; padding: 12px 6px; font-size: 12px; color: #b8c5d0; background: none; border: none; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; font-weight: 600; }
+  .tab-btn.active { color: #f1c40f; border-bottom-color: #f1c40f; }
+
+  .page { display: none; padding: 22px 16px; max-width: 720px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  .card { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 18px; box-shadow: 0 1px 6px rgba(0,0,0,.06); }
+  .card h2 { font-size: 16px; font-weight: 700; color: #2c3e50; margin-bottom: 12px; }
+  .card h3 { font-size: 14px; font-weight: 700; color: #4a235a; margin: 14px 0 8px; }
+  .card p { font-size: 14px; color: #333; margin-bottom: 8px; }
+
+  .quote { background: #fff8e1; border-left: 4px solid #f1c40f; padding: 12px 16px; margin: 12px 0; font-style: italic; color: #444; border-radius: 0 8px 8px 0; }
+  .insight { background: linear-gradient(135deg, #f5e6ff 0%, #fff 100%); border: 2px solid #8e44ad; border-radius: 10px; padding: 14px 16px; margin: 14px 0; font-size: 14px; }
+  .insight-label { font-size: 11px; color: #8e44ad; font-weight: 700; letter-spacing: 1px; margin-bottom: 6px; }
+  .warn-box { background: #fdecea; border-left: 4px solid #e74c3c; border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 12px 0; font-size: 13px; }
+  .info-box { background: #e8f4ff; border-left: 4px solid #3498db; border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 12px 0; font-size: 13px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { background: #ecf0f1; padding: 8px 10px; text-align: left; font-weight: 700; color: #555; }
+  td { padding: 8px 10px; border-bottom: 1px solid #eee; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  /* Storybook (Part 1) */
+  .story-stage { background: #fff; border-radius: 14px; padding: 22px 20px; margin-bottom: 14px; box-shadow: 0 2px 10px rgba(0,0,0,.08); min-height: 280px; position: relative; }
+  .story-step-num { position: absolute; top: 16px; right: 18px; background: #4a235a; color: #f1c40f; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 12px; }
+  .story-year { color: #d4ac0d; font-weight: 700; font-size: 13px; letter-spacing: 1px; margin-bottom: 4px; }
+  .story-title { font-size: 19px; font-weight: 800; color: #2c3e50; margin-bottom: 14px; }
+  .story-body { font-size: 14.5px; line-height: 1.85; color: #333; }
+  .story-body ul { margin: 10px 0 10px 20px; }
+  .story-body li { margin-bottom: 6px; }
+  .story-nav { display: flex; gap: 8px; margin-top: 14px; }
+  .nav-btn { flex: 1; padding: 10px; font-size: 13px; font-weight: 700; background: #4a235a; color: #fff; border: none; border-radius: 8px; cursor: pointer; }
+  .nav-btn:disabled { background: #ccc; cursor: not-allowed; }
+  .progress-dots { display: flex; gap: 6px; justify-content: center; margin: 14px 0; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #ddd; }
+  .dot.active { background: #f1c40f; }
+  .dot.done { background: #4a235a; }
+
+  /* Scenery cards (Part 2) */
+  .scenery { border-radius: 12px; padding: 16px 18px; margin-bottom: 12px; cursor: pointer; transition: .2s; border: 2px solid transparent; background: #fff; }
+  .scenery:hover { transform: translateY(-2px); }
+  .scenery.open { border-color: #d35400; background: #fff5ec; }
+  .scenery-head { display: flex; gap: 12px; align-items: center; }
+  .scenery-icon { font-size: 32px; }
+  .scenery-title { font-size: 15px; font-weight: 700; color: #d35400; }
+  .scenery-body { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e0a070; font-size: 14px; color: #444; line-height: 1.8; }
+  .scenery.open .scenery-body { display: block; }
+  .scenery-conclusion { font-weight: 700; color: #c0392b; margin-top: 10px; padding: 8px 12px; background: #fdecea; border-radius: 6px; font-size: 13px; }
+
+  /* Compare table (Part 3) */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 2px solid #4a235a; border-radius: 10px; overflow: hidden; }
+  .compare-head { background: #4a235a; color: #fff; padding: 10px; text-align: center; font-weight: 700; font-size: 13px; }
+  .compare-head:nth-child(2) { background: #16a085; }
+  .compare-row { padding: 12px 14px; font-size: 13px; border-top: 1px solid #eee; background: #fff; }
+  .compare-row.left { background: #faf3f9; color: #6c3483; }
+  .compare-row.right { background: #e8f8f5; color: #117a65; font-weight: 600; }
+
+  /* Q2 Story toggle (Part 4) */
+  .ba-toggle { display: flex; gap: 8px; margin-bottom: 14px; }
+  .ba-btn { flex: 1; padding: 12px; font-size: 13px; font-weight: 700; background: #ecf0f1; color: #555; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; }
+  .ba-btn.active { background: #4a235a; color: #fff; border-color: #4a235a; }
+  .ba-btn.before.active { background: #c0392b; border-color: #c0392b; }
+  .ba-btn.after.active  { background: #16a085; border-color: #16a085; }
+  .ba-content { display: none; }
+  .ba-content.active { display: block; }
+  .farmer-scene { background: #fff8e1; border-left: 4px solid #d4ac0d; padding: 14px; border-radius: 0 8px 8px 0; font-size: 14px; line-height: 1.85; }
+  .farmer-scene.after { background: #e8f8f5; border-left-color: #16a085; }
+
+  /* Reform matching (Part 5) */
+  .match-board { display: flex; flex-direction: column; gap: 10px; }
+  .match-row { display: flex; gap: 10px; align-items: center; }
+  .match-disease { flex: 1; background: #fdecea; border: 2px solid #e74c3c; border-radius: 8px; padding: 12px; font-size: 13px; color: #c0392b; cursor: pointer; transition: .2s; }
+  .match-disease:hover { background: #fadbd8; }
+  .match-disease.matched { background: #fff; border-color: #ccc; color: #888; }
+  .match-arrow { font-size: 22px; color: #888; }
+  .match-cure { flex: 1; background: #e8f8f5; border: 2px solid #16a085; border-radius: 8px; padding: 12px; font-size: 13px; color: #117a65; cursor: pointer; transition: .2s; }
+  .match-cure:hover { background: #d1f2eb; }
+  .match-cure.matched { background: #fff; border-color: #ccc; color: #888; }
+  .match-cure.selected, .match-disease.selected { box-shadow: 0 0 0 3px rgba(241,196,15,.5); transform: scale(1.02); }
+  .match-result { background: #fff; border: 2px dashed #16a085; border-radius: 8px; padding: 12px; margin-top: 8px; font-size: 13px; color: #16a085; display: none; }
+  .match-result.shown { display: block; }
+  .match-status { text-align: center; padding: 10px; margin: 12px 0; background: #f0f4ff; border-radius: 8px; font-size: 13px; font-weight: 700; color: #2980b9; }
+
+  /* Q4 Simulator (Part 6) */
+  .sim-step { background: #fff; border-left: 5px solid #2980b9; border-radius: 0 10px 10px 0; padding: 16px 18px; margin-bottom: 14px; }
+  .sim-step-num { display: inline-block; background: #2980b9; color: #fff; width: 26px; height: 26px; border-radius: 50%; text-align: center; line-height: 26px; font-weight: 700; margin-right: 8px; font-size: 13px; }
+  .sim-step-title { display: inline-block; font-weight: 700; font-size: 15px; color: #2c3e50; }
+  .sim-hint { font-size: 12px; color: #777; margin: 6px 0 8px; padding-left: 34px; }
+  .sim-textarea { width: 100%; min-height: 70px; border: 2px solid #ddd; border-radius: 8px; padding: 10px 12px; font-size: 14px; font-family: inherit; resize: vertical; line-height: 1.7; color: #222; }
+  .sim-textarea:focus { outline: none; border-color: #2980b9; }
+
+  .sim-output { background: linear-gradient(135deg, #2c3e50 0%, #4a235a 100%); color: #fff; border-radius: 12px; padding: 22px; margin-top: 16px; }
+  .sim-output h3 { color: #f1c40f; font-size: 16px; margin-bottom: 12px; }
+  .sim-output .so-row { margin-bottom: 12px; padding: 10px 12px; background: rgba(255,255,255,.08); border-radius: 8px; }
+  .sim-output .so-label { font-size: 11px; color: #f1c40f; font-weight: 700; letter-spacing: 1px; margin-bottom: 4px; }
+  .sim-output .so-text { font-size: 14px; color: #fff; }
+  .sim-output .so-text.empty { color: #888; font-style: italic; }
+  .sim-buttons { display: flex; gap: 8px; margin-top: 14px; }
+  .sim-btn { flex: 1; padding: 10px; font-size: 13px; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; }
+  .sim-btn.primary { background: #f1c40f; color: #2c3e50; }
+  .sim-btn.secondary { background: #34495e; color: #fff; }
+
+  /* Questions (Part 7) */
+  .qbox { background: #fff; border-radius: 10px; padding: 18px; margin-bottom: 14px; border-left: 5px solid #d4ac0d; }
+  .qbox h3 { color: #4a235a; font-size: 15px; margin-bottom: 8px; }
+  .qbox p { font-size: 13.5px; color: #555; line-height: 1.7; }
+  .qbox-input { width: 100%; min-height: 60px; border: 1px solid #e8e8e8; border-radius: 8px; padding: 10px 12px; font-size: 13px; font-family: inherit; margin-top: 10px; resize: vertical; }
+  .qbox-input:focus { outline: none; border-color: #d4ac0d; }
+
+  /* Final summary */
+  .final-summary { background: linear-gradient(135deg, #2c3e50 0%, #4a235a 100%); color: #fff; border-radius: 14px; padding: 26px 22px; }
+  .final-summary h2 { color: #f1c40f; font-size: 17px; margin-bottom: 14px; }
+  .final-summary p { font-size: 14.5px; line-height: 2; color: #ecf0f1; margin-bottom: 6px; }
+  .final-summary strong { color: #f1c40f; }
+
+  .save-note { font-size: 11px; color: #999; margin-top: 8px; font-style: italic; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📜 정도전 심화 — 사람과 시대의 이야기</h1>
+  <p><span class="subtitle">"점수가 아닌 의미"</span> · 풍경을 본 사람만이 풍경을 바꿀 수 있다</p>
+</header>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="goTo(0)">🔥 시작</button>
+  <button class="tab-btn" onclick="goTo(1)">👤 인생</button>
+  <button class="tab-btn" onclick="goTo(2)">🏞️ 시대</button>
+  <button class="tab-btn" onclick="goTo(3)">📿 사상</button>
+  <button class="tab-btn" onclick="goTo(4)">🌾 토지</button>
+  <button class="tab-btn" onclick="goTo(5)">⚖️ 개혁</button>
+  <button class="tab-btn" onclick="goTo(6)">💡 사고법</button>
+  <button class="tab-btn" onclick="goTo(7)">❓ 질문</button>
+</div>
+
+<!-- ============ PAGE 0 : 시작 ============ -->
+<div id="page-0" class="page active">
+  <div class="card">
+    <h2>🔥 시작하기 전에</h2>
+    <p>수행평가는 끝나면 사라진다. 점수도 곧 잊힌다.<br>
+    그런데 정도전이라는 사람의 삶을 한 번 제대로 따라가 보면, 600년이 지난 지금까지도 머릿속에 남는 질문 몇 개가 생긴다.</p>
+
+    <div class="quote">
+      "나는 누구를 위해 살아가는가?"<br>
+      "내가 당연하다고 여기는 것 중에, 누군가에게는 폭력인 것이 있는가?"<br>
+      "옳다고 믿는 것을, 자리를 걸고 끝까지 밀어붙일 수 있는가?"
+    </div>
+
+    <p>이 앱은 그 질문을 만들어주기 위해 있다. 답은 너 스스로 찾아야 한다.</p>
+  </div>
+
+  <div class="card">
+    <h2>🗺️ 8개 탭의 길</h2>
+    <table>
+      <tr><th>탭</th><th>무엇을 얻나</th></tr>
+      <tr><td>👤 인생</td><td>천민의 손자가 어떻게 조선의 설계자가 되었나 (스토리)</td></tr>
+      <tr><td>🏞️ 시대</td><td>Q2의 진짜 풍경 — 키워드 뒤의 사람들</td></tr>
+      <tr><td>📿 사상</td><td>Q1 답: 불교가 죄가 없다. 성리학이 영원한 정답도 아니다.</td></tr>
+      <tr><td>🌾 토지</td><td>Q2 답: "수조권" 6글자에 들어 있는 김 농부의 하루</td></tr>
+      <tr><td>⚖️ 개혁</td><td>Q3 답: 5개의 풍경에 대한 5개의 처방 (매칭 게임)</td></tr>
+      <tr><td>💡 사고법</td><td><strong>Q4 답: 너만의 개혁안을 5단계로 만들어보기</strong></td></tr>
+      <tr><td>❓ 질문</td><td>평생 가져갈 4개 질문</td></tr>
+    </table>
+    <div class="info-box" style="margin-top:14px;">
+      💡 시간이 없으면 <strong>👤인생 + 💡사고법</strong> 두 탭만 봐도 핵심은 잡힌다.
+    </div>
+  </div>
+</div>
+
+<!-- ============ PAGE 1 : 인생 (스토리북) ============ -->
+<div id="page-1" class="page">
+  <div class="progress-dots" id="story-dots"></div>
+  <div class="story-stage" id="story-stage">
+    <!-- filled by JS -->
+  </div>
+  <div class="story-nav">
+    <button class="nav-btn" id="story-prev" onclick="storyNav(-1)">◀ 이전</button>
+    <button class="nav-btn" id="story-next" onclick="storyNav(1)">다음 ▶</button>
+  </div>
+</div>
+
+<!-- ============ PAGE 2 : 시대 (4풍경) ============ -->
+<div id="page-2" class="page">
+  <div class="card">
+    <h2>🏞️ 고려 말의 4가지 풍경</h2>
+    <p>교과서는 "고려 말 위기"를 키워드 4개로 끝낸다. 하지만 실제 풍경은 이런 것이었다. <strong>각 카드를 눌러 펼쳐보자.</strong></p>
+  </div>
+
+  <div class="scenery" onclick="this.classList.toggle('open')">
+    <div class="scenery-head">
+      <div class="scenery-icon">🌾</div>
+      <div class="scenery-title">풍경 1 — 농촌</div>
+    </div>
+    <div class="scenery-body">
+      한 권문세족 대감이 100개 마을의 땅을 가진다.<br>
+      원래 그 땅 주인이었던 농민들은 항의도 못 하고 소작농으로 떨어진다.<br>
+      수확량의 70%를 대감에게 바친다. 그래도 대감은 "이 땅은 면세지"라며 국가에 세금도 안 낸다.
+      <div class="scenery-conclusion">→ 국가는 가난해지고, 농민은 죽고, 귀족만 살찐다.</div>
+    </div>
+  </div>
+
+  <div class="scenery" onclick="this.classList.toggle('open')">
+    <div class="scenery-head">
+      <div class="scenery-icon">🛕</div>
+      <div class="scenery-title">풍경 2 — 사원</div>
+    </div>
+    <div class="scenery-body">
+      거대한 사찰이 토지를 수십만 평 가진다.<br>
+      "부처님께 바친 땅"이라며 세금 면제.<br>
+      사원에는 노비가 수백 명. 농민들은 사원에 빚을 지고 노비로 팔려간다.
+      <div class="scenery-conclusion">→ 종교가 가난한 백성을 구제하는 게 아니라, 가난을 만들어내고 있었다.</div>
+    </div>
+  </div>
+
+  <div class="scenery" onclick="this.classList.toggle('open')">
+    <div class="scenery-head">
+      <div class="scenery-icon">👑</div>
+      <div class="scenery-title">풍경 3 — 궁궐</div>
+    </div>
+    <div class="scenery-body">
+      원나라가 고려 왕을 사위로 삼는다. 왕은 원의 눈치를 보느라 신하를 통제하지 못한다.<br>
+      왕이 약하니 권문세족이 나라를 좌우한다. 왕은 허수아비, 신하는 도둑.
+      <div class="scenery-conclusion">→ "민(民)을 위한 정치"는커녕, 정치 자체가 사라졌다.</div>
+    </div>
+  </div>
+
+  <div class="scenery" onclick="this.classList.toggle('open')">
+    <div class="scenery-head">
+      <div class="scenery-icon">🌊</div>
+      <div class="scenery-title">풍경 4 — 해안</div>
+    </div>
+    <div class="scenery-body">
+      왜구가 배를 타고 해안 마을을 통째로 약탈한다.<br>
+      홍건적이 북쪽에서 내려와 도시를 불태운다.<br>
+      국가의 군대는 무능하고, 귀족들은 자기 사병만 챙긴다.
+      <div class="scenery-conclusion">→ 국가가 백성을 지킬 수 없으면, 그 국가는 이미 끝난 것이다.</div>
+    </div>
+  </div>
+
+  <div class="insight">
+    <div class="insight-label">⚡ 4개 풍경의 공통점</div>
+    <strong>백성은 보이지 않았다.</strong><br>
+    귀족도, 사원도, 왕도, 군대도 — 누구도 농민의 얼굴을 보지 않았다.<br>
+    정도전이 유배지에서 본 게 바로 이 풍경이다. 이걸 본 사람만이 새 나라를 꿈꿀 수 있다.
+  </div>
+</div>
+
+<!-- ============ PAGE 3 : 사상 (Q1) ============ -->
+<div id="page-3" class="page">
+  <div class="card">
+    <h2>📿 불교는 죄가 없다</h2>
+    <p>고려 500년 동안 불교는 사람들의 마음을 지탱했다. 몽골 침략 때 팔만대장경. 승려는 학문의 중심. 사찰은 가난한 사람의 쉼터.</p>
+    <h3>문제는 "제도화된 불교"였다</h3>
+    <ul style="padding-left:20px; font-size:13.5px; line-height:1.9; color:#444;">
+      <li>면세 토지 → 세금 회피 도구로 변질</li>
+      <li>거대 사원 → 부동산 투기처</li>
+      <li>왕사·국사 제도 → 정치 개입</li>
+      <li>노비 소유 → 사람을 부리는 종교</li>
+    </ul>
+    <div class="quote">
+      어떤 좋은 것도 절대화·독점화되면 폐단이 된다.<br>
+      불교가 나빠진 게 아니라, <strong>권력과 결탁한 불교</strong>가 나빠진 것이다.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📚 성리학이란 무엇인가</h2>
+    <p>12세기 송나라 학자 주희가 정리한 새로운 유교. 한 줄로:</p>
+    <div class="quote" style="font-size:15px; font-weight:600;">
+      "모든 사람의 마음에 우주의 이치(理)가 있다. 그 이치를 따라 살아야 한다."
+    </div>
+
+    <h3>왜 혁명적인가? — 옛 사상 vs 성리학</h3>
+    <div class="compare">
+      <div class="compare-head">옛 사상</div>
+      <div class="compare-head">성리학</div>
+      <div class="compare-row left">왕은 하늘이 보낸 특별한 사람</div>
+      <div class="compare-row right">왕도 사람, 같은 이치 아래 있다</div>
+      <div class="compare-row left">귀족은 태어날 때부터 다르다</div>
+      <div class="compare-row right">모든 사람의 본성은 같다 (성즉리性卽理)</div>
+      <div class="compare-row left">종교(불교)가 진리를 말한다</div>
+      <div class="compare-row right">학문(공부)으로 진리에 도달할 수 있다</div>
+      <div class="compare-row left">신하는 왕에게 복종</div>
+      <div class="compare-row right">잘못된 왕은 비판해야 한다</div>
+    </div>
+    <p style="margin-top:14px;">성리학은 <strong>"이성과 학문으로 다스리는 나라"</strong>의 사상적 기초가 된다.</p>
+  </div>
+
+  <div class="card">
+    <h2>🤔 그러면 성리학 도입 자체는 좋은 것인가?</h2>
+    <p style="font-weight:700; color:#c0392b; font-size:15px;">짧은 답: 그 시대엔 명백한 진보. 하지만 영원한 정답은 아니다.</p>
+
+    <h3 style="color:#16a085;">좋은 점</h3>
+    <ul style="padding-left:20px; font-size:13.5px; line-height:1.9; color:#444;">
+      <li>종교가 정치를 휘두르던 시대 → 학문과 이성이 정치 기준</li>
+      <li>신분 절대주의 → "본성은 같다"는 평등 관념의 씨앗</li>
+      <li>왕의 자의적 통치 → 도리(道)와 의(義)에 따른 통치</li>
+    </ul>
+
+    <h3 style="color:#c0392b;">한계</h3>
+    <ul style="padding-left:20px; font-size:13.5px; line-height:1.9; color:#444;">
+      <li>200년 후 조선 중기, 성리학 자체가 또 다른 권위주의로 굳어진다 (사림 당쟁)</li>
+      <li>양반·상민 신분 차별을 새 방식으로 정당화하기도</li>
+      <li>18세기 "실학" 운동이 성리학의 폐단을 비판하며 등장</li>
+    </ul>
+
+    <div class="insight">
+      <div class="insight-label">⚡ 핵심 통찰</div>
+      <strong>어떤 이념이든 절대화되면 다음 시대의 적폐가 된다.</strong><br>
+      정도전 시대의 성리학은 진보였다. 200년 뒤엔 개혁 대상이 됐다.<br>
+      <strong>이건 너에게도 똑같이 적용된다.</strong> 지금 네가 옳다고 믿는 것도, 시간이 지나면 비판받을 수 있다. 끊임없이 의심하라.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🛠️ 폐단을 어떻게 없앨 수 있는가</h2>
+    <p>정도전의 답은 <strong>3중 처방</strong>. 마음만 바꾸려 하지 않았다.</p>
+    <table>
+      <tr><th>차원</th><th>처방</th></tr>
+      <tr><td><strong>이념</strong></td><td>성리학으로 사고방식을 바꾼다 (불씨잡변, 성균관)</td></tr>
+      <tr><td><strong>제도</strong></td><td>법전·과전법·관료제로 시스템 자체를 바꾼다</td></tr>
+      <tr><td><strong>사람</strong></td><td>과거제로 능력 있는 사람이 정치를 하게 한다</td></tr>
+    </table>
+    <div class="warn-box">
+      ⚠️ <strong>"착하게 살자"는 도덕 호소만으로는 폐단이 안 사라진다.</strong><br>
+      시스템(제도) + 사상(교육) + 사람(인사)을 동시에 바꿔야 한다.<br>
+      어떤 사회 문제든 — 학원비, 환경, 차별 — 마음만 호소하지 말고 셋을 함께 봐라.
+    </div>
+  </div>
+</div>
+
+<!-- ============ PAGE 4 : 토지 (Q2) ============ -->
+<div id="page-4" class="page">
+  <div class="card">
+    <h2>🌾 김 농부의 하루 — 과전법 풀어보기</h2>
+    <p>"경기 토지를 관리에게 수조권으로 지급" — 이 6글자 뒤에는 한 농부의 하루가 있다.</p>
+
+    <div class="ba-toggle">
+      <button class="ba-btn before active" onclick="setBA('before')">개혁 전 (고려 말)</button>
+      <button class="ba-btn after" onclick="setBA('after')">개혁 후 (과전법)</button>
+    </div>
+
+    <div id="ba-before" class="ba-content active">
+      <div class="farmer-scene">
+        <strong>고려 말, 경기도 어느 마을.</strong> 김 농부의 할아버지가 손수 일군 5천 평 땅이 있었다.<br><br>
+        어느 날 한양의 박 대감이 종이 하나를 들고 와서 말한다.<br>
+        <em>"이 땅은 원래 우리 집안 거다. 너희가 백 년 빌려 농사지은 거지."</em><br><br>
+        말도 안 되는 거짓말이지만, 박 대감 뒤에는 권문세족 친척과 사병이 있다.<br>
+        김 농부는 항의 못 한다. 그날부터 자기 땅에서 소작농이 된다.<br>
+        수확하면 <strong style="color:#c0392b;">70%를 박 대감에게</strong> 바친다.<br><br>
+        세금? 박 대감은 안 낸다. "권문세족 면세지." 국가 곳간은 비어간다.<br><br>
+        이런 김 농부가 수십만 명. 이런 박 대감이 수백 명.
+      </div>
+    </div>
+
+    <div id="ba-after" class="ba-content">
+      <div class="farmer-scene after">
+        <strong>1391년, 과전법 시행 후.</strong><br><br>
+        위화도 회군 직후, 정도전은 권문세족이 빼앗은 모든 농장의 토지 문서를 모아 <strong>불태웠다.</strong><br>
+        "법적 근거가 사라졌으니 이제 다 국가 땅이다."<br><br>
+        새 분배 시스템:<br>
+        ① 땅은 <strong>농민이 다시 갖는다</strong> (자영농)<br>
+        ② 농민은 국가에 정해진 세금(보통 10%)만 낸다<br>
+        ③ 그 세금 일부를 <strong>관리에게 월급 대신</strong> 가져가게 한다 (= 수조권)<br>
+        ④ 단, <strong>경기도 땅만</strong> (감시 쉽게)<br>
+        ⑤ <strong>관리가 죽으면 국가가 회수</strong> (자식한테 세습 X)<br><br>
+        김 농부의 결과:<br>
+        옛날 <strong style="color:#c0392b;">70% 빼앗김</strong> → 이제 <strong style="color:#16a085;">10%만 세금. 90%는 내 것.</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📊 무엇이 바뀌었나</h2>
+    <table>
+      <tr><th></th><th>옛 시스템</th><th>과전법</th></tr>
+      <tr><td>땅의 주인</td><td>귀족</td><td><strong>농민</strong></td></tr>
+      <tr><td>농민 신분</td><td>소작농 (농장 노예)</td><td><strong>자영농 (국민)</strong></td></tr>
+      <tr><td>세금</td><td>귀족이 면제</td><td><strong>농민이 10% 납부</strong></td></tr>
+      <tr><td>세금 받는 자</td><td>귀족이 다 가져감</td><td>국가 → 일부는 관리(수조권자)에게</td></tr>
+      <tr><td>관리 사망 시</td><td>자식이 세습</td><td><strong>국가가 회수, 재분배</strong></td></tr>
+      <tr><td>적용 지역</td><td>전국 (귀족 마음대로)</td><td><strong>경기도만</strong> (감시 쉽게)</td></tr>
+    </table>
+  </div>
+
+  <div class="insight">
+    <div class="insight-label">⚡ 학생이 가져갈 통찰</div>
+    <strong>"수조권으로 지급"</strong> 6글자에는 김 농부의 하루가 들어 있다.<br>
+    누가 무엇을 잃었고 누가 무엇을 얻었는지 — 그걸 보면 모든 제도가 살아 움직이기 시작한다.<br><br>
+    정도전은 <strong>"어려운 한자말로 사람을 속이는 정치"</strong>가 아니라 <strong>"구체적 풍경을 바꾸는 정치"</strong>를 했다.<br>
+    너도 정책을 평가할 때 이렇게 봐라: <em>"이 정책으로 누가 어떤 풍경에서 살게 되는가?"</em>
+  </div>
+</div>
+
+<!-- ============ PAGE 5 : 개혁 매칭 (Q3) ============ -->
+<div id="page-5" class="page">
+  <div class="card">
+    <h2>⚖️ 5개 개혁 매칭 게임</h2>
+    <p>각 개혁은 <strong>구체적 풍경의 문제</strong>에 대한 처방이다.<br>
+    왼쪽 "병든 풍경"을 누른 다음, 오른쪽 "처방"을 눌러 짝을 맞춰보자.</p>
+    <div class="match-status" id="match-status">📌 왼쪽 풍경을 먼저 누르세요 (0/5)</div>
+  </div>
+
+  <div class="match-board" id="match-board">
+    <!-- filled by JS -->
+  </div>
+
+  <div class="card" id="match-done" style="display:none; margin-top:16px;">
+    <h2>🎉 다 맞췄다!</h2>
+    <div class="insight">
+      <div class="insight-label">⚡ 핵심 깨달음</div>
+      <strong>개혁가는 "문제의 풍경"을 본 사람만 될 수 있다.</strong><br>
+      정도전은 책상에서 만든 사람이 아니다. 유배지에서 농민의 얼굴을, 사찰의 노비를, 사병의 군대를 직접 보았다.<br><br>
+      <strong>Q4(나만의 개혁안) 비결:</strong> 한자 용어로 시작하지 마라. 내 주변에서 "이상한 풍경"을 먼저 떠올려라.
+    </div>
+    <button class="nav-btn" onclick="goTo(6)" style="margin-top:10px;">💡 사고법 탭으로 가기</button>
+  </div>
+</div>
+
+<!-- ============ PAGE 6 : Q4 사고법 시뮬레이터 ============ -->
+<div id="page-6" class="page">
+  <div class="card">
+    <h2>💡 Q4 — 정도전식 사고법 5단계</h2>
+    <p>아래 5단계에 너의 답을 직접 입력하라. 마지막 단계에서 종합본이 자동 정리된다.<br>
+    <strong>입력 내용은 자동 저장</strong>되어 다음에 다시 와도 남아 있다.</p>
+  </div>
+
+  <div class="sim-step">
+    <span class="sim-step-num">1</span>
+    <span class="sim-step-title">풍경 보기</span>
+    <div class="sim-hint">내 주변·뉴스·역사에서 "왜 이게 이런가?" 싶은 장면. 구체적인 사람, 구체적인 하루, 구체적인 손해.</div>
+    <textarea class="sim-textarea" id="sim1" placeholder="예) 학원 다닐 돈이 있는 학생만 좋은 대학에 가는 풍경..."></textarea>
+  </div>
+
+  <div class="sim-step">
+    <span class="sim-step-num">2</span>
+    <span class="sim-step-title">누가 잃고 누가 얻나</span>
+    <div class="sim-hint">그 풍경에서 누가 손해 보고, 누가 이득 보는가? 이득 보는 쪽이 강하기 때문에 풍경이 유지된다.</div>
+    <textarea class="sim-textarea" id="sim2" placeholder="잃는 자: ___ / 얻는 자: ___"></textarea>
+  </div>
+
+  <div class="sim-step">
+    <span class="sim-step-num">3</span>
+    <span class="sim-step-title">원인 캐기</span>
+    <div class="sim-hint">왜 이 시스템이 생겼나? "문화가 그래서"는 답이 아니다. 시스템과 권력으로 답하라.</div>
+    <textarea class="sim-textarea" id="sim3" placeholder="이 시스템이 유지되는 진짜 구조적 이유..."></textarea>
+  </div>
+
+  <div class="sim-step">
+    <span class="sim-step-num">4</span>
+    <span class="sim-step-title">처방 그리기</span>
+    <div class="sim-hint">도덕 호소가 아니라, 누가 무엇을 못 하게 되는 처방. 정도전의 과전법 = "귀족이 땅을 못 빼앗게 한다."</div>
+    <textarea class="sim-textarea" id="sim4" placeholder="구체적인 정책·제도·법..."></textarea>
+  </div>
+
+  <div class="sim-step">
+    <span class="sim-step-num">5</span>
+    <span class="sim-step-title">부작용 예상</span>
+    <div class="sim-hint">내 처방의 새 문제는? 정도전은 사병 혁파로 왕자들의 분노를 샀고, 그 분노가 그를 죽였다. 모든 개혁에는 적이 생긴다.</div>
+    <textarea class="sim-textarea" id="sim5" placeholder="예상되는 반발·새 문제·보완책..."></textarea>
+  </div>
+
+  <div class="sim-output">
+    <h3>📋 너의 개혁안 종합본</h3>
+    <div class="so-row">
+      <div class="so-label">① 내가 본 풍경</div>
+      <div class="so-text empty" id="so1">(1단계를 채우면 여기에)</div>
+    </div>
+    <div class="so-row">
+      <div class="so-label">② 잃는 자와 얻는 자</div>
+      <div class="so-text empty" id="so2">(2단계를 채우면 여기에)</div>
+    </div>
+    <div class="so-row">
+      <div class="so-label">③ 시스템의 원인</div>
+      <div class="so-text empty" id="so3">(3단계를 채우면 여기에)</div>
+    </div>
+    <div class="so-row">
+      <div class="so-label">④ 나의 처방</div>
+      <div class="so-text empty" id="so4">(4단계를 채우면 여기에)</div>
+    </div>
+    <div class="so-row">
+      <div class="so-label">⑤ 예상 부작용</div>
+      <div class="so-text empty" id="so5">(5단계를 채우면 여기에)</div>
+    </div>
+    <div class="sim-buttons">
+      <button class="sim-btn primary" onclick="copySim()">📋 종합본 복사</button>
+      <button class="sim-btn secondary" onclick="resetSim()">🔄 초기화</button>
+    </div>
+  </div>
+
+  <div class="info-box" style="margin-top:14px;">
+    💡 <strong>두 번째 개혁안</strong>도 만들고 싶으면, 첫 번째 종합본을 복사해 둔 뒤 초기화하고 다시 5단계 진행.
+  </div>
+</div>
+
+<!-- ============ PAGE 7 : 4가지 질문 ============ -->
+<div id="page-7" class="page">
+  <div class="card">
+    <h2>❓ 정도전이 우리에게 남긴 4가지 질문</h2>
+    <p>수행평가가 끝나도 이 4개 질문은 너와 함께 살았으면 좋겠다.<br>
+    <strong>각 질문에 너의 답을 적어보자.</strong> (자동 저장)</p>
+  </div>
+
+  <div class="qbox">
+    <h3>① 나는 누구의 얼굴을 보고 살아가는가?</h3>
+    <p>정도전은 유배지에서 농민의 얼굴을 봤기 때문에 새 나라를 만들 수 있었다.<br>
+    너는 누구의 얼굴을 보고 사는가? 너의 친구만? 너와 비슷한 사람만?<br>
+    <em>보지 않은 사람의 삶은, 너에게는 존재하지 않는 것이 된다.</em></p>
+    <textarea class="qbox-input" id="q1" placeholder="너의 답..."></textarea>
+  </div>
+
+  <div class="qbox">
+    <h3>② 나는 시스템을 의심해본 적이 있는가?</h3>
+    <p>대부분의 사람은 "원래 그런 거야"라고 말하며 산다.<br>
+    정도전은 "왜 원래 그래야 하지?"라고 물었다.<br>
+    당연하다고 여기는 것 중에 누군가에게는 폭력인 것이 있다. 그걸 발견하는 것이 공부의 시작이다.</p>
+    <textarea class="qbox-input" id="q2" placeholder="너의 답..."></textarea>
+  </div>
+
+  <div class="qbox">
+    <h3>③ 나는 비판받을 각오가 되어 있는가?</h3>
+    <p>정도전은 살아서는 죽음으로, 죽어서는 467년간 "역적"으로 불렸다.<br>
+    진짜 개혁은 박수받기 위해 하는 게 아니다. 자기 자리를 거는 일이다.<br>
+    <em>SNS 좋아요만 추구하면 진짜 변화는 만들 수 없다.</em></p>
+    <textarea class="qbox-input" id="q3" placeholder="너의 답..."></textarea>
+  </div>
+
+  <div class="qbox">
+    <h3>④ 어떤 정답도 영원하지 않다는 것을 받아들이는가?</h3>
+    <p>정도전이 도입한 성리학도, 200년 후엔 또 다른 개혁 대상이 됐다.<br>
+    지금 네가 옳다고 믿는 것도, 언젠가 비판받을 수 있다.<br>
+    <strong>"나는 늘 더 배울 수 있다"</strong>는 자세 — 이게 정도전이 남긴 가장 큰 유산이다.</p>
+    <textarea class="qbox-input" id="q4" placeholder="너의 답..."></textarea>
+  </div>
+
+  <div class="final-summary">
+    <h2>📜 시험장에서 — 한 줄 요약</h2>
+    <p>정도전은 <strong>천민의 손자</strong>였다.</p>
+    <p><strong>유배지에서 백성의 얼굴</strong>을 보았다.</p>
+    <p>그래서 <strong>풍경을 바꾸는 정치</strong>를 했다.</p>
+    <p>5개 개혁은 <strong>5개 풍경에 대한 5개 처방</strong>이었다.</p>
+    <p>그는 자기 신념 때문에 <strong>죽었고, 467년간 욕먹었고, 1865년에야 명예 회복</strong>했다.</p>
+    <p>그가 우리에게 남긴 것은 정책이 아니라 <strong>질문</strong>이다.</p>
+    <p style="font-size:17px; margin-top:16px; color:#f1c40f;">"나는 누구를 위해 사는가."</p>
+  </div>
+
+  <div class="save-note">📝 입력한 내용은 이 브라우저에 자동 저장됩니다. (localStorage)</div>
+</div>
+
+<script>
+// ===== Tab navigation =====
+const pages = document.querySelectorAll('.page');
+const tabs  = document.querySelectorAll('.tab-btn');
+function goTo(n) {
+  pages.forEach((p,i) => p.classList.toggle('active', i === n));
+  tabs.forEach((b,i)  => b.classList.toggle('active', i === n));
+  window.scrollTo(0, 0);
+}
+
+// ===== Storybook (Part 1) =====
+const stories = [
+  {
+    year: '1342 ~ 1370년대',
+    num: '①  시작',
+    title: '시작은 부끄러움이었다',
+    body: `정도전의 외조모는 종(노비)의 자식이었다. 즉 그의 어머니도 천민 핏줄이다.<br><br>
+    고려는 서얼 차별이 약해서 과거에 응시할 수는 있었지만, "천한 곳에서 몸을 일으켜 높은 벼슬에 올랐다"는 비웃음이 평생 그를 따라다녔다.<br><br>
+    <em>권문세족이 보기에 정도전은 "촌놈". 정도전이 보기에 권문세족은 "백성을 짓밟는 도둑떼".</em><br><br>
+    <strong>이 신분의 한계가 그를 만들었다.</strong>`
+  },
+  {
+    year: '1375년',
+    num: '②  유배',
+    title: '유배지에서 본 풍경',
+    body: `33세의 정도전은 친원파 권력자 이인임에 맞서다 전남 나주로 유배됐다.<br>
+    거기서 그는 책상 위 한자만 보던 양반들이 절대 보지 못한 풍경을 봤다.<br>
+    <ul>
+      <li>자기 땅이었던 곳에서 소작농으로 떨어진 농부</li>
+      <li>흉년에도 면세인 귀족, 더 가혹해진 농민의 세금</li>
+      <li>노비로 팔려가는 자식을 막지 못하는 부모</li>
+    </ul>
+    이때 그는 책에서만 보던 공자·맹자의 "민(民)이 나라의 근본"이라는 말을 <strong>머리가 아니라 가슴으로</strong> 깨달았다.<br><br>
+    <em>이 깨달음 없이는 조선이라는 나라도 없다.</em>`
+  },
+  {
+    year: '1377년',
+    num: '③  운명의 만남',
+    title: '함주, 이성계와 만나다',
+    body: `유배에서 풀려난 정도전은 동북면(함경도)에 주둔하던 군벌 이성계를 찾아갔다.<br>
+    당시 이성계는 무인. 정치 이념 따위 별로 없는 사람이었다.<br><br>
+    정도전이 본 것: <strong>"이 사람의 군대 + 내 머릿속의 설계도 = 새 나라"</strong><br><br>
+    나중에 정도전은 공공연하게 이렇게 말하고 다녔다:<br>
+    <em>"한 고조(유방)가 장자방(장량)을 쓴 게 아니다. 장자방이 한 고조를 쓴 것이다."</em><br><br>
+    이성계는 도구고, 자기가 진짜 설계자라는 선언이다.<br>
+    이게 결국 그를 죽인다. 왕의 자식인 이방원이 듣기에 이건 반역의 언어였다.`
+  },
+  {
+    year: '1392 ~ 1398년',
+    num: '④  6년의 폭풍',
+    title: '한 사람이 한 일이라고 믿기 어렵다',
+    body: `조선 건국 후 죽기까지 6년. 정도전이 한 일은 미친 분량이다.<br>
+    <ul>
+      <li>헌법 격: 『조선경국전』</li>
+      <li>정치 구조: 『경제문감』</li>
+      <li>종교 비판: 『불씨잡변』</li>
+      <li>역사 정리: 『고려사』 편찬</li>
+      <li>한양 천도: 궁궐·종묘 위치, 전각 이름, 5부 52방 (오늘날 서울의 뼈대)</li>
+      <li>군사: 사병 혁파, 병법서 다수</li>
+      <li>경제: 과전법</li>
+      <li>외교·국방: 요동 수복 계획</li>
+    </ul>
+    <strong>그는 단순히 똑똑한 사람이 아니라, 절박한 사람이었다.</strong>`
+  },
+  {
+    year: '1398년 가을',
+    num: '⑤  끝',
+    title: '송현의 밤',
+    body: `정도전은 어린 세자 방석을 직접 교육해서 "재상이 실권을 가진 나라"의 다음 왕으로 키우려 했다.<br>
+    이게 이방원에게는 사형 선고였다. 자기 동생을 왕위에 앉히고, 자기 같은 왕자들의 사병을 빼앗는 사람.<br><br>
+    1398년 어느 밤, 정도전이 송현(현 종로구 수송동, 옛 한국일보 자리)의 친구 집에서 술을 마시고 있을 때 이방원의 군사가 들이닥쳤다.<br><br>
+    <em>향년 56세. 둘째·셋째 아들도 함께 죽고, 넷째 아들은 스스로 목숨을 끊었다.</em><br><br>
+    그리고 467년 동안 그는 "역적", "간신"으로 불렸다. 1865년 흥선대원군 시대에야 명예가 회복된다.<br><br>
+    <strong>정도전은 평생 자기가 옳다고 믿은 것을 위해 살았고, 그것 때문에 죽었고, 그것 때문에 467년간 욕을 먹었다.</strong><br>
+    진짜 개혁은 이런 것이다. 박수받기 위해 하는 게 아니다.`
+  }
+];
+
+let storyIdx = 0;
+function renderStory() {
+  const s = stories[storyIdx];
+  document.getElementById('story-stage').innerHTML = `
+    <div class="story-step-num">${s.num}</div>
+    <div class="story-year">${s.year}</div>
+    <div class="story-title">${s.title}</div>
+    <div class="story-body">${s.body}</div>
+  `;
+  // dots
+  const dotsHtml = stories.map((_, i) => {
+    const cls = i === storyIdx ? 'dot active' : (i < storyIdx ? 'dot done' : 'dot');
+    return `<div class="${cls}"></div>`;
+  }).join('');
+  document.getElementById('story-dots').innerHTML = dotsHtml;
+  // buttons
+  document.getElementById('story-prev').disabled = storyIdx === 0;
+  document.getElementById('story-next').disabled = storyIdx === stories.length - 1;
+  document.getElementById('story-next').textContent = storyIdx === stories.length - 1 ? '완료 ✓' : '다음 ▶';
+}
+function storyNav(d) {
+  storyIdx = Math.max(0, Math.min(stories.length - 1, storyIdx + d));
+  renderStory();
+}
+renderStory();
+
+// ===== Q2 Before/After (Part 4) =====
+function setBA(which) {
+  document.querySelectorAll('.ba-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.ba-btn.${which}`).classList.add('active');
+  document.querySelectorAll('.ba-content').forEach(c => c.classList.remove('active'));
+  document.getElementById(`ba-${which}`).classList.add('active');
+}
+
+// ===== Reform matching (Part 5) =====
+const diseases = [
+  { id: 'd1', text: '김 농부가 자기 땅에서도 70%를 빼앗기는 풍경' },
+  { id: 'd2', text: '사원이 노비 수백 명 거느리고 면세 받는 풍경' },
+  { id: 'd3', text: '왕이 권문세족 손에 흔들리고 무능한 자가 자리만 차지하는 풍경' },
+  { id: 'd4', text: '귀족마다 사병을 가져 국가 군대가 무력한 풍경' },
+  { id: 'd5', text: '무능한 자식이 아버지 자리 물려받는 풍경' }
+];
+const cures = [
+  { id: 'd1', text: '과전법', after: '자기 땅 갖고 10% 세금만 내는 풍경' },
+  { id: 'd2', text: '불씨잡변·성리학 장려', after: '종교가 정치·경제에서 분리되는 풍경' },
+  { id: 'd3', text: '재상 중심 정치 + 조선경국전', after: '능력 있는 재상이 법에 따라 정치하는 풍경' },
+  { id: 'd4', text: '사병 혁파', after: '군사력이 국가에 모이는 풍경' },
+  { id: 'd5', text: '과거제 강화 + 성균관 교육', after: '시험으로 능력을 검증해 등용하는 풍경' }
+];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+let shuffledCures = shuffle(cures);
+let selectedDisease = null;
+let matched = {};
+
+function renderMatch() {
+  const board = document.getElementById('match-board');
+  let html = '';
+  diseases.forEach((d, i) => {
+    const c = shuffledCures[i];
+    const dMatched = matched[d.id] ? 'matched' : '';
+    const cMatched = Object.values(matched).includes(c.id) ? 'matched' : '';
+    const dSelected = selectedDisease === d.id ? 'selected' : '';
+    html += `
+      <div class="match-row">
+        <div class="match-disease ${dMatched} ${dSelected}" onclick="selectDisease('${d.id}')">${d.text}</div>
+        <div class="match-arrow">→</div>
+        <div class="match-cure ${cMatched}" onclick="selectCure('${c.id}')">${c.text}</div>
+      </div>
+    `;
+  });
+  // Result reveals
+  Object.entries(matched).forEach(([dId, cId]) => {
+    const cure = cures.find(c => c.id === cId);
+    const disease = diseases.find(d => d.id === dId);
+    if (dId === cId) {
+      html += `<div class="match-result shown">✅ <strong>${disease.text.substring(0,15)}…</strong> → <strong>${cure.text}</strong> → 바뀐 풍경: ${cure.after}</div>`;
+    }
+  });
+  board.innerHTML = html;
+  const matchedCount = Object.keys(matched).length;
+  const correctCount = Object.entries(matched).filter(([d,c]) => d === c).length;
+  document.getElementById('match-status').textContent = matchedCount === 0
+    ? '📌 왼쪽 풍경을 먼저 누르세요 (0/5)'
+    : `진행: ${matchedCount}/5  ·  정답: ${correctCount}/5`;
+  if (matchedCount === 5 && correctCount === 5) {
+    document.getElementById('match-done').style.display = 'block';
+  }
+}
+
+function selectDisease(id) {
+  if (matched[id]) return;
+  selectedDisease = id;
+  renderMatch();
+}
+function selectCure(id) {
+  if (Object.values(matched).includes(id)) return;
+  if (!selectedDisease) {
+    alert('먼저 왼쪽 풍경을 선택하세요.');
+    return;
+  }
+  matched[selectedDisease] = id;
+  if (selectedDisease !== id) {
+    setTimeout(() => {
+      alert('❌ 다시 생각해보세요. 풍경과 처방이 안 맞아요.');
+      delete matched[selectedDisease];
+      selectedDisease = null;
+      renderMatch();
+    }, 100);
+  } else {
+    selectedDisease = null;
+    renderMatch();
+  }
+}
+renderMatch();
+
+// ===== Q4 Simulator =====
+const SIM_KEY = 'jeongdojeon_sim_v1';
+function loadSim() {
+  const saved = localStorage.getItem(SIM_KEY);
+  if (!saved) return;
+  try {
+    const data = JSON.parse(saved);
+    [1,2,3,4,5].forEach(i => {
+      if (data['s'+i]) document.getElementById('sim'+i).value = data['s'+i];
+    });
+    updateSimOutput();
+  } catch(e) {}
+}
+function saveSim() {
+  const data = {};
+  [1,2,3,4,5].forEach(i => data['s'+i] = document.getElementById('sim'+i).value);
+  localStorage.setItem(SIM_KEY, JSON.stringify(data));
+}
+function updateSimOutput() {
+  [1,2,3,4,5].forEach(i => {
+    const v = document.getElementById('sim'+i).value.trim();
+    const out = document.getElementById('so'+i);
+    if (v) {
+      out.textContent = v;
+      out.classList.remove('empty');
+    } else {
+      out.textContent = `(${i}단계를 채우면 여기에)`;
+      out.classList.add('empty');
+    }
+  });
+}
+[1,2,3,4,5].forEach(i => {
+  document.getElementById('sim'+i).addEventListener('input', () => {
+    saveSim();
+    updateSimOutput();
+  });
+});
+function copySim() {
+  const data = [1,2,3,4,5].map(i => {
+    const labels = ['내가 본 풍경', '잃는 자와 얻는 자', '시스템의 원인', '나의 처방', '예상 부작용'];
+    const v = document.getElementById('sim'+i).value.trim();
+    return `${i}. ${labels[i-1]}\n${v || '(미작성)'}`;
+  }).join('\n\n');
+  const text = `[나만의 개혁안 — 정도전식 5단계]\n\n${data}`;
+  navigator.clipboard.writeText(text).then(() => {
+    alert('✅ 종합본이 클립보드에 복사되었습니다.');
+  });
+}
+function resetSim() {
+  if (!confirm('정말 모두 지울까요?')) return;
+  [1,2,3,4,5].forEach(i => document.getElementById('sim'+i).value = '');
+  saveSim();
+  updateSimOutput();
+}
+loadSim();
+
+// ===== 4 Questions persistence =====
+const Q_KEY = 'jeongdojeon_q_v1';
+function loadQ() {
+  const saved = localStorage.getItem(Q_KEY);
+  if (!saved) return;
+  try {
+    const data = JSON.parse(saved);
+    [1,2,3,4].forEach(i => {
+      if (data['q'+i]) document.getElementById('q'+i).value = data['q'+i];
+    });
+  } catch(e) {}
+}
+function saveQ() {
+  const data = {};
+  [1,2,3,4].forEach(i => data['q'+i] = document.getElementById('q'+i).value);
+  localStorage.setItem(Q_KEY, JSON.stringify(data));
+}
+[1,2,3,4].forEach(i => {
+  document.getElementById('q'+i).addEventListener('input', saveQ);
+});
+loadQ();
+</script>
+</body>
+</html>

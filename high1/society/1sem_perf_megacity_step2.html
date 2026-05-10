@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>사회 수행평가 — STEP 2 가이드</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; background: #f5f7fa; color: #222; font-size: 15px; line-height: 1.7; }
+
+  header { background: #1a3a4a; color: #fff; padding: 20px 24px; }
+  header h1 { font-size: 18px; font-weight: 700; }
+  header p { font-size: 13px; opacity: 0.75; margin-top: 4px; }
+
+  .tab-bar { display: flex; background: #243b4e; overflow-x: auto; }
+  .tab-btn { flex: 1; min-width: 80px; padding: 12px 6px; font-size: 12px; color: #aaa; background: none; border: none; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; text-align: center; }
+  .tab-btn.active { color: #fff; border-bottom-color: #e67e22; font-weight: 700; }
+
+  .page { display: none; padding: 20px 16px; max-width: 680px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  .card { background: #fff; border-radius: 10px; padding: 18px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+  .card h2 { font-size: 15px; font-weight: 700; color: #1a3a4a; margin-bottom: 10px; }
+  .card h3 { font-size: 13px; font-weight: 700; color: #34495e; margin: 14px 0 6px; }
+
+  /* 실제 양식 항목 스타일 */
+  .form-item { border: 2px solid #e67e22; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+  .form-item .form-label { font-size: 13px; font-weight: 700; color: #e67e22; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .form-item .form-question { font-size: 14px; font-weight: 700; color: #1a3a4a; margin-bottom: 10px; line-height: 1.5; }
+  .form-item .form-lines { background: #fffdf8; border-radius: 6px; padding: 10px 12px; }
+  .form-line { border-bottom: 1px solid #ddd; height: 32px; margin-bottom: 4px; }
+  .form-line:last-child { border-bottom: none; margin-bottom: 0; }
+
+  /* 파일 안내 박스 */
+  .file-guide { background: #e8f4fd; border-left: 4px solid #2980b9; border-radius: 0 8px 8px 0; padding: 12px 14px; margin: 10px 0; }
+  .file-guide .file-title { font-size: 12px; font-weight: 700; color: #2980b9; margin-bottom: 6px; }
+  .file-guide .file-name { font-size: 13px; font-weight: 700; color: #1a3a4a; font-family: monospace; background: #d6eaf8; padding: 2px 6px; border-radius: 4px; }
+  .file-guide .file-section { font-size: 12px; color: #555; margin-top: 4px; }
+
+  /* 힌트 토글 */
+  .hint-toggle { width: 100%; background: #f8f9fa; border: 1px solid #ddd; border-radius: 6px; padding: 9px 12px; font-size: 13px; color: #555; cursor: pointer; text-align: left; margin-top: 8px; display: flex; justify-content: space-between; align-items: center; }
+  .hint-toggle:hover { background: #ecf0f1; }
+  .hint-toggle .arrow { transition: transform 0.2s; }
+  .hint-toggle.open .arrow { transform: rotate(180deg); }
+  .hint-body { display: none; background: #fffde7; border: 1px solid #f9a825; border-top: none; border-radius: 0 0 6px 6px; padding: 12px; font-size: 13px; }
+  .hint-body.open { display: block; }
+
+  /* 생각 질문 */
+  .think-list { list-style: none; }
+  .think-list li { padding: 7px 0; font-size: 13px; border-bottom: 1px solid #f0f0f0; display: flex; gap: 8px; }
+  .think-list li:last-child { border-bottom: none; }
+  .think-q { color: #e67e22; font-weight: 700; flex-shrink: 0; }
+
+  /* 개념어 카드 */
+  .concept-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .ccard { border: 2px solid #eee; border-radius: 8px; padding: 10px; cursor: pointer; transition: all .15s; }
+  .ccard:hover { border-color: #e67e22; background: #fff9f0; }
+  .ccard.selected { border-color: #e67e22; background: #fff3e0; }
+  .ccard .term { font-weight: 700; font-size: 13px; color: #1a3a4a; }
+  .ccard .def { font-size: 11px; color: #777; margin-top: 3px; }
+  .ccard .link { font-size: 11px; color: #2980b9; margin-top: 4px; }
+  #selected-count { font-size: 13px; color: #e67e22; font-weight: 700; margin-top: 8px; }
+
+  /* 예시 박스 */
+  .ex-bad  { background: #fdecea; border-left: 3px solid #e74c3c; border-radius: 0 6px 6px 0; padding: 10px 12px; font-size: 13px; margin: 6px 0; }
+  .ex-good { background: #eafaf1; border-left: 3px solid #27ae60; border-radius: 0 6px 6px 0; padding: 10px 12px; font-size: 13px; margin: 6px 0; }
+  .ex-label { font-size: 11px; font-weight: 700; margin-bottom: 4px; }
+  .ex-bad  .ex-label { color: #c0392b; }
+  .ex-good .ex-label { color: #1e8449; }
+
+  /* 체크박스 그룹 */
+  .check-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .check-item { border: 2px solid #ddd; border-radius: 8px; padding: 10px 12px; cursor: pointer; transition: all .15s; }
+  .check-item:hover { border-color: #e67e22; }
+  .check-item.checked { border-color: #e67e22; background: #fff3e0; }
+  .check-item .ci-name { font-size: 13px; font-weight: 700; color: #1a3a4a; }
+  .check-item .ci-desc { font-size: 11px; color: #888; margin-top: 2px; }
+  .check-item .ci-doku { font-size: 11px; color: #27ae60; margin-top: 3px; font-weight: 600; }
+
+  .note { background: #fffde7; border-left: 3px solid #f9a825; padding: 10px 12px; border-radius: 0 6px 6px 0; font-size: 13px; margin: 8px 0; }
+  .tag { display: inline-block; background: #eee; border-radius: 10px; font-size: 11px; padding: 1px 7px; color: #555; margin: 2px; }
+  .tag.orange { background: #fff3e0; color: #e67e22; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { background: #ecf0f1; padding: 7px 10px; text-align: left; font-weight: 600; color: #555; }
+  td { padding: 7px 10px; border-bottom: 1px solid #eee; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  @media (max-width: 400px) {
+    .concept-grid, .check-group { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>사회 수행평가 — STEP 2 가이드</h1>
+  <p>미디어와 성취기준의 연결 | KBS 메가시티 다큐</p>
+</header>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab(0)">Step2 개요</button>
+  <button class="tab-btn" onclick="showTab(1)">① 변화유형</button>
+  <button class="tab-btn" onclick="showTab(2)">② 생활공간</button>
+  <button class="tab-btn" onclick="showTab(3)">③ 생활양식</button>
+  <button class="tab-btn" onclick="showTab(4)">④ 개념어</button>
+  <button class="tab-btn" onclick="showTab(5)">양식 전체</button>
+</div>
+
+<!-- PAGE 0: 개요 -->
+<div class="page active" id="page-0">
+
+  <div class="card">
+    <h2>📌 STEP 2에서 뭘 써야 하나?</h2>
+    <p style="font-size:13px;color:#555;margin-bottom:12px;">Step 2는 선택한 미디어(다큐)가 <strong>교과서 성취기준</strong>과 어떻게 연결되는지 정리하는 단계야. 4가지 항목을 채운다.</p>
+    <table>
+      <tr><th>#</th><th>항목</th><th>핵심</th></tr>
+      <tr><td>①</td><td>사회변화 유형</td><td>4가지 중 다큐에 해당하는 것 체크</td></tr>
+      <tr><td>②</td><td>생활공간의 변화</td><td>다큐에서 공간(집·도시·지역)이 어떻게 변했는지 서술</td></tr>
+      <tr><td>③</td><td>생활양식의 변화</td><td>다큐에서 사람들의 일상·행동이 어떻게 변했는지 서술</td></tr>
+      <tr><td>④</td><td>교과 핵심 개념어</td><td>V단원 개념어 2개 이상 + 설명</td></tr>
+    </table>
+    <div class="note" style="margin-top:12px;">
+      Step 2를 잘 정리해 두면 → Step 3(긍정), Step 4(문제점) 쓸 때 그대로 활용할 수 있어.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📂 이 단계에서 읽어봐야 할 파일</h2>
+    <div class="file-guide">
+      <div class="file-title">① 다큐 내용 상세 정리</div>
+      <div class="file-name">media_megacity_정리.md</div>
+      <div class="file-section">→ 주제 1~5 전체. 공간 변화는 §주제1·2, 생활양식은 §주제2·4, 개념어는 §매핑표</div>
+    </div>
+    <div class="file-guide">
+      <div class="file-title">② Step 2 연습 워크시트</div>
+      <div class="file-name">연습_Step2.md</div>
+      <div class="file-section">→ 각 항목별 유도 질문 + 직접 써보는 칸</div>
+    </div>
+    <div class="file-guide">
+      <div class="file-title">③ 실제 Step 2 양식</div>
+      <div class="file-name">Step2_연결.md</div>
+      <div class="file-section">→ 수업 시간에 채울 실제 양식. 미리 보고 구조 파악</div>
+    </div>
+    <p style="font-size:12px;color:#aaa;margin-top:10px;">순서 추천: media_megacity 읽기 → 연습_Step2 질문에 답하기 → 이 페이지 각 탭 확인</p>
+  </div>
+
+</div>
+
+<!-- PAGE 1: 사회변화 유형 -->
+<div class="page" id="page-1">
+
+  <div class="form-item">
+    <div class="form-label">① 실제 양식 항목</div>
+    <div class="form-question">사회변화 유형 — 해당하는 것을 모두 체크하시오.</div>
+    <div style="font-size:12px;color:#888;">☐ 산업화 (10통사1-05-01) 　 ☐ 도시화 (10통사1-05-01) 　 ☐ 교통·통신 발달 (10통사1-05-02) 　 ☐ 과학기술 발달 (10통사1-05-02)</div>
+  </div>
+
+  <div class="card">
+    <h2>💭 생각해보기 — 4가지 유형이 뭔가?</h2>
+    <div class="check-group">
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="ci-name">산업화</div>
+        <div class="ci-desc">농업 → 공업·서비스 경제로 바뀌는 과정</div>
+        <div class="ci-doku">이 다큐에서: △ 간접적 (60년대 배경)</div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="ci-name">도시화</div>
+        <div class="ci-desc">인구·기능이 도시로 집중되는 과정</div>
+        <div class="ci-doku">이 다큐에서: ✅ 핵심 — 서울 아파트화</div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="ci-name">교통·통신 발달</div>
+        <div class="ci-desc">KTX·GTX 등으로 이동 시간 단축, 연결 확대</div>
+        <div class="ci-doku">이 다큐에서: ✅ 핵심 — 생활권 확장</div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="ci-name">과학기술 발달</div>
+        <div class="ci-desc">디지털·AI 등 기술로 생활 방식 변화</div>
+        <div class="ci-doku">이 다큐에서: △ 약함</div>
+      </div>
+    </div>
+    <p style="font-size:12px;color:#888;margin-top:8px;">위 항목을 눌러보면서 어떤 유형이 이 다큐의 핵심인지 생각해봐.</p>
+  </div>
+
+  <div class="card">
+    <h2>📂 어디서 확인하나?</h2>
+    <div class="file-guide">
+      <div class="file-title">읽어볼 파일</div>
+      <div class="file-name">media_megacity_정리.md</div>
+      <div class="file-section">→ 맨 위 "다큐 전체 구조 한눈에 보기" + "주제 1 도시화" + "주제 2 교통 발달"</div>
+    </div>
+    <div class="file-guide">
+      <div class="file-title">연습 파일</div>
+      <div class="file-name">연습_Step2.md</div>
+      <div class="file-section">→ §1 사회변화 유형 표 — 다큐와 연결 여부 직접 확인</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>💡 힌트</h2>
+    <button class="hint-toggle" onclick="toggleHint(this)">
+      <span>정답 확인 (먼저 스스로 골라본 뒤에 열기)</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="hint-body">
+      이 다큐에서 가장 강하게 나타나는 유형은 <strong>도시화</strong>와 <strong>교통·통신 발달</strong> 2가지야.<br><br>
+      - 도시화: 판자촌→아파트, 강남 개발, 수도권 집중<br>
+      - 교통·통신 발달: KTX로 천안이 서울 생활권, GTX로 수도권 확장<br><br>
+      산업화는 배경으로는 있지만 다큐의 주제는 아니야.
+    </div>
+  </div>
+
+</div>
+
+<!-- PAGE 2: 생활공간 변화 -->
+<div class="page" id="page-2">
+
+  <div class="form-item">
+    <div class="form-label">② 실제 양식 항목</div>
+    <div class="form-question">미디어 속 생활공간이 어떻게 변화했는지 구체적으로 서술하시오.</div>
+    <div class="form-lines">
+      <div class="form-line"></div>
+      <div class="form-line"></div>
+      <div class="form-line"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>💭 생각해봐야 할 질문들</h2>
+    <ul class="think-list">
+      <li><span class="think-q">Q1</span> 60년대 서울 사람들은 어디에 어떻게 살았나? 지금과 어떻게 달랐나?</li>
+      <li><span class="think-q">Q2</span> 판자촌이 아파트로 바뀌면서 생활공간이 어떻게 변했나?</li>
+      <li><span class="think-q">Q3</span> KTX가 생기고 나서 천안·아산 사람들의 "삶의 공간 범위"가 어떻게 달라졌나?</li>
+      <li><span class="think-q">Q4</span> "생활권"이 넓어진다는 게 구체적으로 뭘 의미하나?</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>📂 어디서 확인하나?</h2>
+    <div class="file-guide">
+      <div class="file-title">다큐 핵심 내용 — 공간 변화 파트</div>
+      <div class="file-name">media_megacity_정리.md</div>
+      <div class="file-section">→ §주제 1 "도시화 — 서울은 어떻게 지금의 모습이 됐나"<br>→ §주제 2 "교통 발달 — 생활권이 어떻게 넓어졌나"<br>→ §V단원 개념어 매핑표 — "도시화", "생활권 확장" 행</div>
+    </div>
+    <div class="file-guide">
+      <div class="file-title">생각 정리 연습</div>
+      <div class="file-name">연습_Step2.md</div>
+      <div class="file-section">→ §2 생활공간의 변화 — Q1·Q2·Q3 유도 질문</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>✏️ 나쁜 예 vs 좋은 예</h2>
+    <div class="ex-bad">
+      <div class="ex-label">❌ 나쁜 예 (막연함)</div>
+      서울이 많이 발전했다. 교통도 좋아지고 집도 많이 생겼다.
+    </div>
+    <div class="ex-good">
+      <div class="ex-label">✅ 좋은 예 (구체적 변화 + 인과)</div>
+      1960년대 판자촌 중심이던 서울 주거 공간이 아파트 대단지로 전환되며 주거 형태가 고밀도·고층 구조로 바뀌었다. KTX 개통 이후 천안·아산이 서울 생활권으로 편입되는 등 교통 발달로 생활공간의 경계가 행정 구역을 넘어 확장됐다.
+    </div>
+    <button class="hint-toggle" style="margin-top:10px;" onclick="toggleHint(this)">
+      <span>좋은 예 구조 분석 보기</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="hint-body">
+      좋은 예의 구조: <strong>[변화 전 상태] + [변화 후 상태] + [원인·수단]</strong><br><br>
+      ① 판자촌(변화 전) → 아파트(변화 후): 도시화<br>
+      ② 천안·아산(지방) → 서울 생활권(확장 후): 교통 발달<br><br>
+      두 가지 변화 사례를 넣으면 개념어 2개 자연스럽게 커버됨.
+    </div>
+  </div>
+
+</div>
+
+<!-- PAGE 3: 생활양식 변화 -->
+<div class="page" id="page-3">
+
+  <div class="form-item">
+    <div class="form-label">③ 실제 양식 항목</div>
+    <div class="form-question">미디어 속 사람들의 생활양식이 어떻게 변화했는지 구체적으로 서술하시오.</div>
+    <div class="form-lines">
+      <div class="form-line"></div>
+      <div class="form-line"></div>
+      <div class="form-line"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>💭 생각해봐야 할 질문들</h2>
+    <p style="font-size:12px;color:#888;margin-bottom:8px;">"생활양식"은 사람들이 <strong>어떻게 먹고·자고·일하고·이동하는지</strong>의 방식이야. 공간이 아니라 행동·일상에 집중.</p>
+    <ul class="think-list">
+      <li><span class="think-q">Q1</span> 도시화 이후 출퇴근 패턴이 어떻게 바뀌었나? (거리, 시간, 방법)</li>
+      <li><span class="think-q">Q2</span> 아파트 생활이 일상화되면서 이웃과의 관계는 어떻게 바뀌었나?</li>
+      <li><span class="think-q">Q3</span> 수도권 집중이 심해지면서 사람들의 경쟁 방식·삶의 태도가 어떻게 변했나?</li>
+      <li><span class="think-q">Q4</span> 다큐에서 "저출산"과 도시 생활방식을 어떻게 연결하나?</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>📂 어디서 확인하나?</h2>
+    <div class="file-guide">
+      <div class="file-title">다큐 핵심 내용 — 생활양식 파트</div>
+      <div class="file-name">media_megacity_정리.md</div>
+      <div class="file-section">→ §주제 2 "핵심 장면 3·4" — KTX와 통근 생활<br>→ §주제 4 "수도권 집중의 부작용" — 저출산, 공동체 해체<br>→ §V단원 매핑표 — "직주 분리", "공동체 해체" 행</div>
+    </div>
+    <div class="file-guide">
+      <div class="file-title">생각 정리 연습</div>
+      <div class="file-name">연습_Step2.md</div>
+      <div class="file-section">→ §3 생활양식의 변화 — Q4·Q5·Q6 유도 질문</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>✏️ 나쁜 예 vs 좋은 예</h2>
+    <div class="ex-bad">
+      <div class="ex-label">❌ 나쁜 예 (단순 나열)</div>
+      사람들이 아파트에 살게 됐다. 교통이 발달했다. 생활이 편해졌다.
+    </div>
+    <div class="ex-good">
+      <div class="ex-label">✅ 좋은 예 (변화 + 결과 연결)</div>
+      수도권 집중으로 경기도 거주 후 서울 장거리 통근이 일상화되는 직주 분리가 심화됐다. 또한 고층 아파트 위주의 도시 생활이 확산되면서 이웃 간 교류가 줄고 공동체가 해체되는 경향이 나타났다.
+    </div>
+    <button class="hint-toggle" style="margin-top:10px;" onclick="toggleHint(this)">
+      <span>생활공간 vs 생활양식 — 헷갈릴 때 구분법</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="hint-body">
+      <strong>생활공간</strong> = 어디에 사나 (집의 형태, 도시 구조, 지역)<br>
+      <strong>생활양식</strong> = 어떻게 사나 (통근 방법, 이웃 관계, 소비 방식, 일상 루틴)<br><br>
+      예시:<br>
+      "아파트 단지가 생겼다" → <strong>생활공간</strong><br>
+      "아파트 이웃을 모르게 됐다" → <strong>생활양식</strong><br>
+      "KTX 노선이 생겼다" → <strong>생활공간</strong><br>
+      "천안에서 서울로 매일 출퇴근하게 됐다" → <strong>생활양식</strong>
+    </div>
+  </div>
+
+</div>
+
+<!-- PAGE 4: 개념어 -->
+<div class="page" id="page-4">
+
+  <div class="form-item">
+    <div class="form-label">④ 실제 양식 항목</div>
+    <div class="form-question">관련 교과 핵심 개념어를 2개 이상 쓰고 설명하시오.</div>
+    <div class="form-lines">
+      <div class="form-line"></div>
+      <div class="form-line"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📚 개념어 고르기 — 클릭해서 골라봐</h2>
+    <p style="font-size:12px;color:#888;margin-bottom:10px;">이 다큐와 연결되는 개념어를 클릭해서 골라봐. 2개 이상 선택해야 해.</p>
+    <div class="concept-grid">
+      <div class="ccard" onclick="selectConcept(this)" data-file="§주제1 도시화">
+        <div class="term">도시화</div>
+        <div class="def">인구·기능이 도시로 집중되는 과정</div>
+        <div class="link">📄 media_megacity §주제1</div>
+      </div>
+      <div class="ccard" onclick="selectConcept(this)" data-file="§주제2 교통발달">
+        <div class="term">교통·통신 발달</div>
+        <div class="def">이동 수단 발전으로 시간·거리 장벽 감소</div>
+        <div class="link">📄 media_megacity §주제2</div>
+      </div>
+      <div class="ccard" onclick="selectConcept(this)" data-file="§매핑표 수도권집중">
+        <div class="term">수도권 집중</div>
+        <div class="def">인구·기업·자원이 수도권에 쏠리는 현상</div>
+        <div class="link">📄 media_megacity §주제4</div>
+      </div>
+      <div class="ccard" onclick="selectConcept(this)" data-file="§매핑표 직주분리">
+        <div class="term">직주 분리</div>
+        <div class="def">직장과 주거지가 멀리 떨어지는 현상</div>
+        <div class="link">📄 media_megacity §주제2 장면3</div>
+      </div>
+      <div class="ccard" onclick="selectConcept(this)" data-file="§매핑표 생활권확장">
+        <div class="term">생활권 확장</div>
+        <div class="def">교통 발달로 일상 이동 범위가 넓어짐</div>
+        <div class="link">📄 media_megacity §주제2 장면3·4</div>
+      </div>
+      <div class="ccard" onclick="selectConcept(this)" data-file="§주제4 지역불균형">
+        <div class="term">지역 불균형</div>
+        <div class="def">수도권과 지방 간 발전 격차 심화</div>
+        <div class="link">📄 media_megacity §주제4</div>
+      </div>
+      <div class="ccard" onclick="selectConcept(this)" data-file="§주제4 공동체해체">
+        <div class="term">공동체 해체</div>
+        <div class="def">이웃 관계·지역 유대감이 약해지는 현상</div>
+        <div class="link">📄 media_megacity §주제4</div>
+      </div>
+      <div class="ccard" onclick="selectConcept(this)" data-file="§주제3 집적경제">
+        <div class="term">집적의 경제</div>
+        <div class="def">도시 집중이 효율·혁신을 높이는 효과</div>
+        <div class="link">📄 media_megacity §주제3</div>
+      </div>
+    </div>
+    <div id="selected-count">선택됨: 0개</div>
+  </div>
+
+  <div class="card">
+    <h2>📂 어디서 확인하나?</h2>
+    <div class="file-guide">
+      <div class="file-title">개념어별 다큐 연결 정리표</div>
+      <div class="file-name">media_megacity_정리.md</div>
+      <div class="file-section">→ 맨 아래 "V단원 개념어 ↔ 다큐 장면 매핑" 표<br>→ 개념어·의미·다큐 연결 장면·글쓰기 예시 한 번에 확인 가능</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>✏️ 개념어 설명 잘 쓰는 법</h2>
+    <div class="ex-bad">
+      <div class="ex-label">❌ 나쁜 예 (단어 반복)</div>
+      도시화: 도시가 화하는 것
+    </div>
+    <div class="ex-good">
+      <div class="ex-label">✅ 좋은 예 (의미 + 다큐 연결)</div>
+      도시화: 농촌 인구가 도시로 이동하고 도시 면적·기능이 확대되는 현상. 다큐에서는 서울 판자촌이 아파트 단지로 전환된 과정이 해당된다.
+    </div>
+  </div>
+
+</div>
+
+<!-- PAGE 5: 양식 전체 미리보기 -->
+<div class="page" id="page-5">
+
+  <div class="card">
+    <h2>📄 Step 2 완성 예시 답안</h2>
+    <p style="font-size:12px;color:#888;margin-bottom:14px;">참고용. 수업에서는 <strong>자신의 말로 바꿔서</strong> 써야 해.</p>
+
+    <h3>① 사회변화 유형</h3>
+    <div style="background:#fff3e0;border-radius:6px;padding:10px;font-size:13px;margin-bottom:12px;">
+      <strong>✅ 도시화</strong> (10통사1-05-01) 　 <strong>✅ 교통·통신 발달</strong> (10통사1-05-02)
+    </div>
+
+    <h3>② 생활공간의 변화</h3>
+    <div style="background:#f9f9f9;border-radius:6px;padding:10px;font-size:13px;margin-bottom:12px;line-height:1.8;">
+      1960년대 판자촌 위주의 서울 주거 공간이 아파트 대단지로 전환되며 도시 공간이 고밀도·고층 구조로 재편됐다. KTX 개통 이후 천안·아산이 서울 생활권에 편입되고 GTX 계획으로 수도권이 강원·충청권까지 확장되는 등, 교통 발달로 생활공간의 경계가 행정 구역을 넘어 광역화됐다.
+    </div>
+
+    <h3>③ 생활양식의 변화</h3>
+    <div style="background:#f9f9f9;border-radius:6px;padding:10px;font-size:13px;margin-bottom:12px;line-height:1.8;">
+      수도권 집중으로 경기도에 살면서 서울로 장거리 통근하는 직주 분리가 일상화됐다. 고층 아파트 중심의 도시 생활이 확산되면서 이웃 간 교류가 줄어드는 공동체 해체 현상이 나타났고, 수도권의 높은 경쟁 강도가 저출산의 원인 중 하나로 분석되기도 한다.
+    </div>
+
+    <h3>④ 교과 핵심 개념어</h3>
+    <div style="background:#f9f9f9;border-radius:6px;padding:10px;font-size:13px;line-height:1.8;">
+      <strong>1. 도시화</strong> — 농촌 인구가 도시로 집중되고 도시 면적·기능이 확대되는 현상. 서울 판자촌이 아파트 단지로 전환된 과정이 대표적 사례다.<br><br>
+      <strong>2. 생활권 확장</strong> — 교통 발달로 일상적 이동 범위가 행정 구역을 넘어 넓어지는 현상. KTX·GTX로 지방 도시가 수도권 통근 범위에 포함된 것이 해당된다.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🧠 수업 전 암기 체크</h2>
+    <ul style="list-style:none;">
+      <li style="padding:7px 0;font-size:13px;border-bottom:1px solid #eee;">☐ 사회변화 유형 2개 (도시화 + 교통·통신 발달)</li>
+      <li style="padding:7px 0;font-size:13px;border-bottom:1px solid #eee;">☐ 생활공간 변화 — 2가지 사례 (판자촌→아파트, KTX→생활권 확장)</li>
+      <li style="padding:7px 0;font-size:13px;border-bottom:1px solid #eee;">☐ 생활양식 변화 — 2가지 사례 (직주 분리, 공동체 해체)</li>
+      <li style="padding:7px 0;font-size:13px;">☐ 개념어 2개 + 내 말로 쓴 설명 (도시화, 생활권 확장 또는 직주 분리)</li>
+    </ul>
+    <div class="note" style="margin-top:10px;">
+      Step 2가 탄탄하면 → Step 3(긍정 측면)·Step 4(문제점)·Step 5(해결책) 쓸 때 이 내용을 그대로 근거로 활용할 수 있어.
+    </div>
+  </div>
+
+</div>
+
+<script>
+function showTab(idx) {
+  document.querySelectorAll('.page').forEach((p, i) => p.classList.toggle('active', i === idx));
+  document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+}
+
+function toggleHint(btn) {
+  btn.classList.toggle('open');
+  const body = btn.nextElementSibling;
+  body.classList.toggle('open');
+}
+
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+}
+
+let selectedConcepts = 0;
+function selectConcept(el) {
+  el.classList.toggle('selected');
+  selectedConcepts = document.querySelectorAll('.ccard.selected').length;
+  const counter = document.getElementById('selected-count');
+  counter.textContent = '선택됨: ' + selectedConcepts + '개' + (selectedConcepts >= 2 ? ' ✅' : ' (2개 이상 필요)');
+  counter.style.color = selectedConcepts >= 2 ? '#27ae60' : '#e67e22';
+}
+</script>
+</body>
+</html>

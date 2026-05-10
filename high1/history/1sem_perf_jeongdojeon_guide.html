@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>정도전 수행평가 — 학습 가이드</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; background: #f5f7fa; color: #222; font-size: 15px; line-height: 1.7; }
+
+  header { background: #2c3e50; color: #fff; padding: 20px 24px; }
+  header h1 { font-size: 18px; font-weight: 700; }
+  header p { font-size: 13px; opacity: 0.75; margin-top: 4px; }
+
+  .tab-bar { display: flex; background: #34495e; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .tab-btn { flex: 1; min-width: 80px; padding: 12px 6px; font-size: 12px; color: #ccc; background: none; border: none; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
+  .tab-btn.active { color: #fff; border-bottom-color: #e67e22; font-weight: 700; }
+
+  .page { display: none; padding: 20px 16px; max-width: 680px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  .card { background: #fff; border-radius: 10px; padding: 18px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+  .card h2 { font-size: 15px; font-weight: 700; color: #2c3e50; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .card h3 { font-size: 14px; font-weight: 700; color: #34495e; margin: 14px 0 8px; }
+  .card p { font-size: 13px; color: #444; margin-bottom: 8px; }
+
+  .score-badge { background: #e74c3c; color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 700; flex-shrink: 0; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { background: #ecf0f1; padding: 8px 10px; text-align: left; font-weight: 600; color: #555; }
+  td { padding: 8px 10px; border-bottom: 1px solid #eee; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .keyword-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .keyword-card { background: #f0f4ff; border-radius: 8px; padding: 10px 12px; font-size: 13px; }
+  .keyword-card .term { font-weight: 700; color: #2980b9; font-size: 14px; margin-bottom: 3px; }
+  .keyword-card .def { color: #555; line-height: 1.5; }
+
+  .timeline { list-style: none; }
+  .timeline li { display: flex; gap: 12px; padding: 9px 0; border-bottom: 1px dashed #e8e8e8; font-size: 13px; }
+  .timeline li:last-child { border-bottom: none; }
+  .tl-year { font-weight: 700; color: #e67e22; min-width: 40px; flex-shrink: 0; margin-top: 1px; }
+  .tl-event { color: #444; }
+
+  .tip-box  { background: #fff9e6; border-left: 4px solid #f39c12; border-radius: 0 8px 8px 0; padding: 10px 14px; margin: 10px 0; font-size: 13px; }
+  .warn-box { background: #fdecea; border-left: 4px solid #e74c3c; border-radius: 0 8px 8px 0; padding: 10px 14px; margin: 10px 0; font-size: 13px; }
+  .info-box  { background: #e8f4ff; border-left: 4px solid #3498db; border-radius: 0 8px 8px 0; padding: 10px 14px; margin: 10px 0; font-size: 13px; }
+
+  .counter-area { width: 100%; min-height: 110px; border: 2px solid #ddd; border-radius: 8px; padding: 12px; font-size: 14px; font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; resize: vertical; line-height: 1.7; color: #222; }
+  .counter-area:focus { outline: none; border-color: #3498db; }
+  .cnt-display { display: inline-block; margin-top: 6px; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; background: #f0f0f0; color: #888; transition: .2s; }
+
+  .step { display: flex; gap: 10px; align-items: flex-start; padding: 9px 0; border-bottom: 1px solid #f0f0f0; }
+  .step:last-child { border-bottom: none; }
+  .step-num { background: #e67e22; color: #fff; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+  .step-title { font-weight: 700; font-size: 14px; margin-bottom: 2px; }
+  .step-desc  { font-size: 13px; color: #555; }
+
+  .overview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .ov-card { background: #f8f9fa; border-radius: 8px; padding: 12px; text-align: center; border: 2px solid #ecf0f1; }
+  .ov-card .qt { font-size: 12px; color: #777; margin-bottom: 3px; }
+  .ov-card .qs { font-size: 24px; font-weight: 700; color: #e67e22; }
+  .ov-card .qd { font-size: 11px; color: #999; margin-top: 2px; }
+  .ov-card.key { grid-column: span 2; background: #fff3e0; border-color: #e67e22; }
+  .ov-card.key .qs { color: #d35400; font-size: 30px; }
+
+  .checklist { list-style: none; }
+  .checklist li { display: flex; gap: 10px; padding: 8px 0; font-size: 13px; border-bottom: 1px solid #f0f0f0; align-items: flex-start; }
+  .checklist li:last-child { border-bottom: none; }
+  .chk { width: 20px; height: 20px; border: 2px solid #bbb; border-radius: 4px; cursor: pointer; flex-shrink: 0; margin-top: 2px; transition: .15s; }
+  .chk.done { background: #27ae60; border-color: #27ae60; }
+
+  .poster-preview { border: 2px dashed #e67e22; border-radius: 12px; padding: 20px; background: #fffef5; text-align: center; }
+  .poster-preview .pp-num { font-size: 11px; color: #999; }
+  .poster-preview .pp-name { font-size: 28px; font-weight: 900; color: #c0392b; margin: 4px 0; }
+  .poster-preview .pp-party { font-size: 13px; color: #e67e22; font-weight: 700; margin-bottom: 10px; }
+  .policy-row { display: flex; align-items: flex-start; gap: 8px; margin: 6px 0; text-align: left; font-size: 13px; }
+  .policy-badge { background: #e67e22; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 11px; white-space: nowrap; flex-shrink: 0; }
+  .policy-badge.b2 { background: #2c3e50; }
+
+  .idea-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+  .idea-card { background: #f8f8f8; border-radius: 8px; padding: 10px 14px; font-size: 13px; display: flex; gap: 12px; align-items: flex-start; }
+  .idea-icon { font-size: 20px; flex-shrink: 0; }
+  .idea-title { font-weight: 700; margin-bottom: 3px; }
+  .idea-desc { color: #555; }
+
+  .area-header { background: #4a235a; color: #f1c40f; padding: 9px 14px; border-radius: 8px; margin: 16px 0 10px; font-weight: 700; font-size: 13px; letter-spacing: 0.3px; }
+  .area-header:first-child { margin-top: 0; }
+  .reform-idea { background: #fafafa; border-left: 4px solid #d4ac0d; border-radius: 0 8px 8px 0; padding: 12px 14px; margin-bottom: 10px; }
+  .ri-title { font-weight: 700; font-size: 14px; color: #2c3e50; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .ri-icon { font-size: 18px; }
+  .ri-row { font-size: 13px; line-height: 1.7; margin: 5px 0; padding-left: 2px; }
+  .ri-row .label { display: inline-block; min-width: 38px; font-weight: 700; font-size: 10px; text-align: center; padding: 2px 8px; border-radius: 10px; margin-right: 6px; vertical-align: middle; letter-spacing: 0.5px; }
+  .ri-row .label.scene { background: #fadbd8; color: #c0392b; }
+  .ri-row .label.cure  { background: #d5f5e3; color: #1e8449; }
+  .ri-row .label.hope  { background: #fdebd0; color: #b9770e; }
+  .ri-memo { font-size: 12px; color: #555; padding: 6px 10px; background: #fff8e1; border-radius: 6px; margin-top: 8px; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>정도전 수행평가 — 학습 가이드</h1>
+  <p>평가일: 5월 11(월)~15(금) | 총 20점 | 가이드 앱</p>
+</header>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="goTo(0)">📋 개요</button>
+  <button class="tab-btn" onclick="goTo(1)">Q1 인적사항</button>
+  <button class="tab-btn" onclick="goTo(2)">Q2 시대배경</button>
+  <button class="tab-btn" onclick="goTo(3)">Q3 개혁안</button>
+  <button class="tab-btn" onclick="goTo(4)">Q4 나만의 개혁안</button>
+  <button class="tab-btn" onclick="goTo(5)">Q5 포스터</button>
+</div>
+
+<!-- ======= PAGE 0 : 개요 ======= -->
+<div id="page-0" class="page active">
+  <div class="card">
+    <h2>평가 구조 — 총 20점</h2>
+    <div class="overview-grid">
+      <div class="ov-card">
+        <div class="qt">Q1 인적사항</div>
+        <div class="qs">2점</div>
+        <div class="qd">이름 + 생몰연대</div>
+      </div>
+      <div class="ov-card">
+        <div class="qt">Q2 시대 문제</div>
+        <div class="qs">3점</div>
+        <div class="qd">120~160자 논술</div>
+      </div>
+      <div class="ov-card">
+        <div class="qt">Q3 개혁안 설명</div>
+        <div class="qs">3점</div>
+        <div class="qd">120~160자 논술</div>
+      </div>
+      <div class="ov-card">
+        <div class="qt">Q5 선거 포스터</div>
+        <div class="qs">5점</div>
+        <div class="qd">디지털 제작 허용</div>
+      </div>
+      <div class="ov-card key">
+        <div class="qt">⭐ Q4 나만의 개혁안 — 가장 배점 높음!</div>
+        <div class="qs">7점</div>
+        <div class="qd">당대 문제 해결 개혁안 2가지 서술</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>정도전 생애 타임라인</h2>
+    <ul class="timeline">
+      <li><span class="tl-year">1342</span><span class="tl-event">경상북도 봉화 출생. 아버지는 하급 관리 출신.</span></li>
+      <li><span class="tl-year">1362</span><span class="tl-event">과거 급제 (20세). 본격 관직 생활 시작.</span></li>
+      <li><span class="tl-year">1375</span><span class="tl-event">권문세족 이인임 일파에 맞서다 유배 → 전남 나주</span></li>
+      <li><span class="tl-year">1377</span><span class="tl-event">유배 중 이성계와 첫 만남. "이 사람이 새 나라를 열 수 있다"고 확신.</span></li>
+      <li><span class="tl-year">1383</span><span class="tl-event">이성계 진영 합류. 본격 개혁 계획 수립 시작.</span></li>
+      <li><span class="tl-year">1388</span><span class="tl-event"><strong>위화도 회군</strong> — 이성계가 군권 장악. 정도전도 핵심 역할.</span></li>
+      <li><span class="tl-year">1390</span><span class="tl-event"><strong>과전법 제정</strong> 주도 — 권문세족 토지 환수, 농민 보호.</span></li>
+      <li><span class="tl-year">1392</span><span class="tl-event"><strong>조선 건국</strong> — 이성계가 왕(태조), 정도전이 국가 전체를 설계.</span></li>
+      <li><span class="tl-year">1394</span><span class="tl-event">한양 천도 설계. 경복궁·도성·거리 이름 작명. "조선의 설계자"</span></li>
+      <li><span class="tl-year">1398</span><span class="tl-event"><strong>1차 왕자의 난</strong> — 이방원(훗날 태종)의 정변으로 피살. 향년 56세.</span></li>
+    </ul>
+    <div class="info-box">
+      💡 정도전이 죽은 이유: 왕보다 재상의 권한을 중시했기 때문. 이방원은 강한 왕권을 원했고, 둘의 정치 노선은 완전히 달랐다.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>핵심 한 줄 정리</h2>
+    <p style="font-size:15px; font-weight:600; color:#c0392b; line-height:2.2;">
+      정도전 = 고려의 구조적 모순을 새로운 나라(조선)로 해결한 "조선의 설계자"<br>
+      비극적 최후 = 왕보다 재상·법 중심을 주장했기 때문에 이방원에게 제거됨
+    </p>
+  </div>
+</div>
+
+<!-- ======= PAGE 1 : Q1 인적사항 ======= -->
+<div id="page-1" class="page">
+  <div class="card">
+    <h2>Q1 인적사항 <span class="score-badge">2점</span></h2>
+    <p>이름과 생몰연대만 맞히면 2점 만점. 단순하지만 숫자를 틀리면 아깝다!</p>
+    <table>
+      <tr><th>항목</th><th style="color:#c0392b; font-size:15px;">정답</th><th>주의</th></tr>
+      <tr><td><strong>이름</strong></td><td><strong>정도전 (鄭道傳)</strong></td><td>한자 몰라도 됨</td></tr>
+      <tr><td><strong>생몰연대</strong></td><td><strong>1342년 ~ 1398년</strong></td><td>출생·사망 둘 다 쓰기</td></tr>
+    </table>
+    <div class="warn-box">
+      ⚠️ "고려 말에 태어나 조선 초에 사망" 같은 모호한 서술 금지. <strong>1342 ~ 1398</strong> 숫자로 명확하게!
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>정도전 기본 정보</h2>
+    <table>
+      <tr><th>호(號)</th><td>삼봉 (三峰)</td></tr>
+      <tr><th>시대</th><td>고려 말 → 조선 건국기 (여말선초)</td></tr>
+      <tr><th>별명</th><td>"조선의 설계자"</td></tr>
+      <tr><th>주요 저서</th><td>『조선경국전』 『경제문감』 『불씨잡변』 『삼봉집』</td></tr>
+      <tr><th>사망 원인</th><td>1398년 이방원(태종)의 1차 왕자의 난으로 피살</td></tr>
+    </table>
+    <div class="tip-box">
+      💡 "왜 이방원에게 죽었나?" → 정도전은 재상 중심 정치를 주장했고, 이방원은 왕권 강화를 원했기 때문. 정치 노선이 근본적으로 달랐다.
+    </div>
+  </div>
+</div>
+
+<!-- ======= PAGE 2 : Q2 시대배경 ======= -->
+<div id="page-2" class="page">
+  <div class="card">
+    <h2>Q2 시대 문제 <span class="score-badge">3점</span></h2>
+    <p>120자 이상 160자 이내 논술. <strong>3번 문항과 연계할 수 있는</strong> 당시 상황을 적어야 한다.</p>
+    <div class="tip-box">
+      💡 전략: "문제 A와 B가 있었다. 그래서 정도전은 개혁(Q3)이 필요했다" — 자연스럽게 Q3과 이어지도록 마무리하면 좋다.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>고려 말 4대 위기 (이걸 다 알면 Q2 완성)</h2>
+    <div class="keyword-grid">
+      <div class="keyword-card">
+        <div class="term">① 토지 겸병</div>
+        <div class="def">권문세족이 대규모 농장 소유 → 농민 몰락, 세금 불평등</div>
+      </div>
+      <div class="keyword-card">
+        <div class="term">② 불교 폐단</div>
+        <div class="def">사원이 토지·노비 독점 → 국가 재정 파탄</div>
+      </div>
+      <div class="keyword-card">
+        <div class="term">③ 왕권 약화</div>
+        <div class="def">원나라 간섭기 이후 왕권 흔들림 → 귀족이 나라를 좌우</div>
+      </div>
+      <div class="keyword-card">
+        <div class="term">④ 왜구·홍건적</div>
+        <div class="def">잦은 외침 → 민생 피폐, 경제 붕괴</div>
+      </div>
+    </div>
+    <div class="info-box">
+      🔑 한 줄 요약: 고려 말은 귀족의 탐욕 + 불교의 독점 + 왕권 약화 + 외침이 겹친 총체적 위기였다.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>논술 쓰는 순서</h2>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div>
+        <div class="step-title">첫 문장 — 토지·재정 문제</div>
+        <div class="step-desc">"고려 말 권문세족은 대농장을 점유하여 토지를 겸병하였고, 불교 사원도 토지와 노비를 독점하여 국가 재정이 파탄에 이르렀다."</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div>
+        <div class="step-title">두 번째 문장 — 정치·안보 문제</div>
+        <div class="step-desc">"원의 간섭으로 왕권은 약화되었고, 왜구와 홍건적의 침입으로 민생은 피폐해졌다."</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div>
+        <div class="step-title">마지막 문장 — Q3과 연결</div>
+        <div class="step-desc">"정도전은 이러한 고려의 위기는 새 나라 건국 없이는 해결할 수 없다고 판단하였다."</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>✏️ 직접 써보기 (글자 수 카운터)</h2>
+    <p style="font-size:12px; color:#888; margin-bottom:8px;">아래에 써보세요. 120~160자 범위에 들어오면 초록색으로 변합니다.</p>
+    <textarea id="ta2" class="counter-area" placeholder="Q2 답변을 여기에 써보세요..." oninput="countChars('ta2','cnt2')"></textarea>
+    <div><span id="cnt2" class="cnt-display">0자</span><span style="font-size:12px; color:#aaa; margin-left:8px;">목표: 두 수치 모두 120~160자 (초록 = 안전)</span></div>
+    <div class="warn-box" style="margin-top:10px;">
+      ⚠️ 글자수는 공백·구두점 포함 기준입니다. 학교 기준이 다를 경우 모범답안 앱의 수치를 참고하세요.
+    </div>
+  </div>
+</div>
+
+<!-- ======= PAGE 3 : Q3 개혁안 ======= -->
+<div id="page-3" class="page">
+  <div class="card">
+    <h2>Q3 개혁안 설명 <span class="score-badge">3점</span></h2>
+    <p>120자 이상 160자 이내. <strong>단답형 금지</strong> — "과전법을 실시하였다"만 쓰면 감점!</p>
+    <div class="warn-box">
+      ⚠️ "과전법을 실시하였다" → ❌ 감점<br>
+      "경기 지역 토지를 수조권으로 지급하고 사망 시 반납하게 하여 토지 겸병을 억제했다" → ✅ 점수
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>정도전의 주요 개혁 5가지</h2>
+    <table>
+      <tr><th>개혁</th><th>핵심 내용</th><th>출제 키워드</th></tr>
+      <tr>
+        <td><strong>⭐ 과전법</strong></td>
+        <td>경기 지역 토지를 관리에게 수조권으로 지급. 사망 시 국가 반납.</td>
+        <td>토지 겸병 억제, 수조권</td>
+      </tr>
+      <tr>
+        <td>재상 중심 정치</td>
+        <td>왕보다 능력 있는 재상이 실질 통치. 왕의 독단 견제.</td>
+        <td>『경제문감』, 민본·법치</td>
+      </tr>
+      <tr>
+        <td>성리학 장려</td>
+        <td>불교 대신 성리학을 국가 이념으로 확립.</td>
+        <td>『불씨잡변』(불교 비판)</td>
+      </tr>
+      <tr>
+        <td>사병 혁파</td>
+        <td>귀족 개인 군대(사병) 폐지 → 국가 공군(公軍) 일원화</td>
+        <td>왕권 강화, 국방 정비</td>
+      </tr>
+      <tr>
+        <td>법전 편찬</td>
+        <td>『조선경국전』 — 법으로 통치하는 나라의 기반 마련</td>
+        <td>법치주의, 제도 정비</td>
+      </tr>
+    </table>
+    <div class="tip-box">
+      💡 추천 조합: <strong>과전법(토지 개혁) + 재상 중심 정치 + 성리학 장려</strong> 이 3가지를 묶어 쓰면 120~160자 딱 맞음!
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>논술 쓰는 순서</h2>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div>
+        <div class="step-title">첫 문장 — 과전법 (가장 중요)</div>
+        <div class="step-desc">"정도전은 과전법을 실시하여 경기 토지를 관리에게 수조권으로 지급하고 사망 시 반납하게 해 토지 겸병을 억제하였다."</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div>
+        <div class="step-title">두 번째 문장 — 군사·정치 개혁</div>
+        <div class="step-desc">"또한 사병을 혁파해 군사권을 일원화하고, 재상 중심 정치를 주장하여 왕의 독단을 견제하였다."</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div>
+        <div class="step-title">세 번째 문장 — 이념 개혁</div>
+        <div class="step-desc">"『불씨잡변』으로 불교 폐단을 비판하고 성리학을 통치 이념으로 확립하였다."</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>✏️ 직접 써보기 (글자 수 카운터)</h2>
+    <textarea id="ta3" class="counter-area" placeholder="Q3 답변을 여기에 써보세요..." oninput="countChars('ta3','cnt3')"></textarea>
+    <div><span id="cnt3" class="cnt-display">0자</span><span style="font-size:12px; color:#aaa; margin-left:8px;">목표: 두 수치 모두 120~160자 (초록 = 안전)</span></div>
+  </div>
+</div>
+
+<!-- ======= PAGE 4 : Q4 나만의 개혁안 ======= -->
+<div id="page-4" class="page">
+  <div class="card">
+    <h2>Q4 나만의 개혁안 <span class="score-badge">7점</span></h2>
+    <p>당대 문제를 해결하기 위한 <strong>자신만의</strong> 개혁안 2가지. 각각 내용 설명 포함.</p>
+    <div class="warn-box">
+      ⚠️ 이 문항이 20점 중 7점! 논리적으로 구체적으로 써야 고득점. 막연한 슬로건 금지.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>개혁안 하나당 3단 구조</h2>
+    <p style="font-size:13px; color:#555; margin-bottom:10px;">각 개혁안을 이 구조로 쓰면 자동으로 논리적인 답변이 된다.</p>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div>
+        <div class="step-title">문제 인식</div>
+        <div class="step-desc">고려 말 어떤 문제가 있었나? (Q2에서 언급한 내용 활용)</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div>
+        <div class="step-title">나의 해결책</div>
+        <div class="step-desc">"나라면 ○○을 하겠다" — 구체적인 제도·정책 설명</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div>
+        <div class="step-title">기대 효과</div>
+        <div class="step-desc">이 개혁으로 무엇이 좋아지는가</div>
+      </div>
+    </div>
+    <div class="tip-box">
+      💡 각 개혁안을 3~5문장 분량으로 써도 충분. 너무 짧으면 감점.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>브레인스토밍 — 5개 후보 (3개 영역)</h2>
+    <p style="font-size:13px; color:#666; margin-bottom:12px;">아래 5개 중 <strong>2개를 골라</strong> Q4 답안에 활용. <strong>같은 영역에서 두 개를 고르지 말고, 다른 영역에서 하나씩</strong> 고르면 시야가 넓어 보인다.</p>
+
+    <div class="area-header">📚 영역 1 — 교육·지식</div>
+
+    <div class="reform-idea">
+      <div class="ri-title"><span class="ri-icon">📜</span> 백성 문자 도입 (한글 격)</div>
+      <div class="ri-row"><span class="label scene">풍경</span>한자만 있어 양반만 글을 읽는다. 농민은 자기 토지 문서도 못 읽어 속는다.</div>
+      <div class="ri-row"><span class="label cure">처방</span>며칠이면 배울 수 있는 새 문자 창제 + 전국 보급 + 기초 교육.</div>
+      <div class="ri-row"><span class="label hope">희망</span>글이 권력의 도구에서 모두의 도구가 되는 사회.</div>
+      <div class="ri-memo">⭐ 50년 뒤 세종이 한 한글 창제를 미리 제안 — "세종보다 앞선 발상" 강력 카드</div>
+    </div>
+
+    <div class="reform-idea">
+      <div class="ri-title"><span class="ri-icon">🏫</span> 향교(지방 공립학교) 전국 의무화</div>
+      <div class="ri-row"><span class="label scene">풍경</span>가난한 평민의 자식은 공부할 곳이 없다. 능력 있어도 세상에 나가지 못한다.</div>
+      <div class="ri-row"><span class="label cure">처방</span>모든 군현에 향교 설치 의무화. 신분 무관 입학. 가난한 학생은 학비·식비 국가 지원.</div>
+      <div class="ri-row"><span class="label hope">희망</span>"타고난 신분"이 아닌 "노력한 결과"가 인생을 결정하는 사회.</div>
+      <div class="ri-memo">정도전은 성균관(서울 1개)만 했음. "전국화"가 차별화 포인트.</div>
+    </div>
+
+    <div class="area-header">🍚 영역 2 — 복지·안전</div>
+
+    <div class="reform-idea">
+      <div class="ri-title"><span class="ri-icon">🏥</span> 의창(흉년 식량) 의무화 + 혜민서(무료 의료)</div>
+      <div class="ri-row"><span class="label scene">풍경</span>흉년 한 번에 마을 절반이 굶어 죽는다. 병들면 약값이 없어 죽는다.</div>
+      <div class="ri-row"><span class="label cure">처방</span>모든 군현 의창에 평년 곡식 비축 의무화 → 흉년 무료 배급. 혜민서 설치 → 가난한 백성 무료 진료.</div>
+      <div class="ri-row"><span class="label hope">희망</span>"재해가 곧 죽음"이 아닌 사회. 국가가 살리는 그물망.</div>
+      <div class="ri-memo">"복지는 사치가 아니라 국가의 본질"이라는 주장의 토대.</div>
+    </div>
+
+    <div class="reform-idea">
+      <div class="ri-title"><span class="ri-icon">🛡️</span> 해안·국경 마을 자위대</div>
+      <div class="ri-row"><span class="label scene">풍경</span>왜구가 들이닥치면 마을 전체가 약탈된다. 국가군은 너무 멀고, 귀족 사병은 자기 가문만 지킨다.</div>
+      <div class="ri-row"><span class="label cure">처방</span>해안·국경 마을마다 청년 의무 자위대 조직. 국가가 무기·훈련 지원. 사병이 아닌 마을 공동체 소속.</div>
+      <div class="ri-row"><span class="label hope">희망</span>백성이 자기 마을을 지키는 자존감 있는 사회.</div>
+      <div class="ri-memo">정도전의 사병 혁파를 백성 차원에서 보완하는 발상.</div>
+    </div>
+
+    <div class="area-header">💰 영역 3 — 경제</div>
+
+    <div class="reform-idea">
+      <div class="ri-title"><span class="ri-icon">⚖️</span> 농민 부채 탕감 + 고리대 상한제</div>
+      <div class="ri-row"><span class="label scene">풍경</span>한 번 빚을 지면 이자가 이자를 낳아, 자식 대까지 노비로 팔려 간다.</div>
+      <div class="ri-row"><span class="label cure">처방</span>일정 기간 이상 갚지 못한 부채 무효화. 고리대 이자율 연 30% 이하 법제화. 위반 시 채권 자동 무효.</div>
+      <div class="ri-row"><span class="label hope">희망</span>한 번 실패해도 다시 일어설 수 있는 사회.</div>
+      <div class="ri-memo">"한 번의 가난이 영원이 되어선 안 된다."</div>
+    </div>
+
+    <div class="info-box" style="margin-top:14px;">
+      💡 추천 조합: <strong>📜 백성 문자 + ⚖️ 부채 탕감</strong> (지식·경제) 또는 <strong>🏥 의창·혜민서 + 📜 백성 문자</strong> (복지·교육) — 영역 다른 2개 선택이 핵심.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>✏️ 개혁안 1 — 초안 작성</h2>
+    <textarea class="counter-area" style="min-height:90px;" placeholder="개혁안 1: 문제인식 → 내 해결책 → 기대효과 순으로 써보세요"></textarea>
+  </div>
+
+  <div class="card">
+    <h2>✏️ 개혁안 2 — 초안 작성</h2>
+    <textarea class="counter-area" style="min-height:90px;" placeholder="개혁안 2: 문제인식 → 내 해결책 → 기대효과 순으로 써보세요"></textarea>
+  </div>
+</div>
+
+<!-- ======= PAGE 5 : Q5 포스터 ======= -->
+<div id="page-5" class="page">
+  <div class="card">
+    <h2>Q5 선거 포스터 <span class="score-badge">5점</span></h2>
+    <p>디지털 제작 허용. 아래 3가지 요소 반드시 포함!</p>
+    <ul class="checklist">
+      <li><div class="chk" onclick="this.classList.toggle('done')"></div><span><strong>사진·인적사항</strong> — 기호 번호(예: 기호 1번) + 이름(정도전)</span></li>
+      <li><div class="chk" onclick="this.classList.toggle('done')"></div><span><strong>정당 명칭</strong> — 개혁안·인물 특징을 반영한 이름</span></li>
+      <li><div class="chk" onclick="this.classList.toggle('done')"></div><span><strong>공약 2가지</strong> — 구체적인 개혁 내용을 슬로건 형태로</span></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>정당명 아이디어</h2>
+    <div class="keyword-grid">
+      <div class="keyword-card"><div class="term">삼봉개혁당</div><div class="def">호 '삼봉'에서 → 개혁가 이미지 강조</div></div>
+      <div class="keyword-card"><div class="term">민본건국당</div><div class="def">민본주의 + 건국 이념 강조</div></div>
+      <div class="keyword-card"><div class="term">과전법개혁당</div><div class="def">가장 중요한 개혁안을 당명으로</div></div>
+      <div class="keyword-card"><div class="term">성리학입국당</div><div class="def">유교 국가 건설 전면에</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>공약 슬로건 예시</h2>
+    <table>
+      <tr><th>번호</th><th>슬로건</th><th>근거</th></tr>
+      <tr><td>공약 1</td><td><strong>"토지를 일하는 농민에게!"</strong></td><td>과전법 확대 — 불법 농장 환수</td></tr>
+      <tr><td>공약 2</td><td><strong>"법 앞에 모두가 평등!"</strong></td><td>재상 책임제 — 왕도 법 위에 없다</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>포스터 레이아웃 미리보기</h2>
+    <div class="poster-preview">
+      <div class="pp-num">기호 1번</div>
+      <div class="pp-name">정도전</div>
+      <div class="pp-party">삼봉개혁당</div>
+      <hr style="border:none; border-top:1px solid #ddd; margin:10px 0;">
+      <div class="policy-row"><span class="policy-badge">공약 1</span><span>토지를 일하는 농민에게! 과전법 전국 확대</span></div>
+      <div class="policy-row"><span class="policy-badge b2">공약 2</span><span>법 앞에 평등! 재상 책임제로 왕도 정치 실현</span></div>
+    </div>
+    <div class="tip-box" style="margin-top:10px;">
+      💡 PPT·Canva에서 이 구조를 따라 만들면 됨. 배경은 조선 느낌의 빨강·금색 계열 추천.
+    </div>
+  </div>
+</div>
+
+<script>
+const pages = document.querySelectorAll('.page');
+const tabs  = document.querySelectorAll('.tab-btn');
+
+function goTo(n) {
+  pages.forEach((p,i) => p.classList.toggle('active', i === n));
+  tabs.forEach((b,i)  => b.classList.toggle('active', i === n));
+  window.scrollTo(0, 0);
+}
+
+function countChars(taId, cntId) {
+  const val = document.getElementById(taId).value;
+  const total = val.length;
+  const noSpace = val.replace(/\s/g, '').length;
+  const el  = document.getElementById(cntId);
+  el.textContent = total + '자 (공백제외 ' + noSpace + '자)';
+  // 둘 중 하나라도 120-160 안에 있으면 초록
+  const okTotal = total >= 120 && total <= 160;
+  const okNoSpace = noSpace >= 120 && noSpace <= 160;
+  if (okTotal && okNoSpace) {
+    el.style.background = '#eafaf1'; el.style.color = '#27ae60';
+  } else if (okTotal || okNoSpace) {
+    el.style.background = '#fff9e6'; el.style.color = '#f39c12';
+  } else if (total > 0) {
+    el.style.background = '#fdecea'; el.style.color = '#e74c3c';
+  } else {
+    el.style.background = '#f0f0f0'; el.style.color = '#888';
+  }
+}
+</script>
+</body>
+</html>
