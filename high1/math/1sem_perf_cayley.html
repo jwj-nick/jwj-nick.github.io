@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>케일리 수행평가 — 행렬 이론의 탄생</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+:root {
+  --paper: #fdfbf5;
+  --ink: #1a1a2e;
+  --blue: #1a3a5c;
+  --navy: #1a2a4c;
+  --gold: #b8860b;
+  --red: #c0392b;
+  --green: #27ae60;
+  --slate: #2c3e6c;
+  --warn-bg: #fff3cd;
+  --warn-border: #ffc107;
+  --radius: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; background: #ccd4e4; color: var(--ink); min-height: 100vh; }
+
+.tab-bar { position: sticky; top: 0; z-index: 100; display: flex; background: var(--navy); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+.tab-btn { flex: 1; padding: 14px 8px; border: none; background: transparent; color: rgba(255,255,255,0.65); font-size: 15px; font-weight: 600; cursor: pointer; transition: all .2s; border-bottom: 3px solid transparent; }
+.tab-btn:hover { color: #fff; background: rgba(255,255,255,0.08); }
+.tab-btn.active { color: #fff; border-bottom-color: var(--gold); background: rgba(255,255,255,0.1); }
+
+.page { display: none; }
+.page.active { display: block; }
+
+#p-exam { background: var(--paper); max-width: 780px; margin: 32px auto; border-radius: var(--radius); box-shadow: 0 4px 24px rgba(0,0,0,0.15); padding: 40px 36px 56px; }
+
+.warning-box { background: var(--warn-bg); border: 2px solid var(--warn-border); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 32px; }
+.warning-box .w-title { font-size: 16px; font-weight: 700; color: #856404; margin-bottom: 6px; }
+.warning-box p { font-size: 14px; color: #533f03; line-height: 1.6; }
+
+.exam-header { text-align: center; border-bottom: 3px double var(--blue); padding-bottom: 20px; margin-bottom: 28px; }
+.exam-header .subject { font-size: 13px; color: #666; letter-spacing: 1px; margin-bottom: 6px; }
+.exam-header h1 { font-size: 22px; font-weight: 700; color: var(--blue); }
+.exam-header .subtitle { font-size: 14px; color: #555; margin-top: 6px; }
+
+.q-block { margin-bottom: 36px; }
+.q-label { font-size: 15px; font-weight: 700; color: var(--blue); border-left: 4px solid var(--blue); padding-left: 12px; margin-bottom: 14px; }
+.q-prompt { font-size: 14px; line-height: 1.8; color: #333; background: #f5f3ee; border-radius: 6px; padding: 14px 18px; margin-bottom: 14px; border: 1px solid #e0dcd0; }
+.q-prompt .limit { font-size: 12px; color: var(--gold); font-weight: 600; margin-top: 6px; }
+.answer-box { border: 1px solid #ccc; border-radius: 6px; padding: 18px 20px; background: #fff; }
+.answer-box .a-label { font-size: 12px; font-weight: 700; color: var(--navy); letter-spacing: 0.5px; margin-bottom: 10px; text-transform: uppercase; }
+.answer-box p, .answer-box li { font-size: 14.5px; line-height: 1.85; color: #222; }
+.answer-box ul { padding-left: 20px; }
+.answer-box li { margin-bottom: 4px; }
+.math-line { margin: 8px 0; }
+.char-note { font-size: 12px; color: #888; text-align: right; margin-top: 8px; }
+.formula-center { text-align: center; margin: 10px 0; }
+
+#p-story { max-width: 900px; margin: 0 auto; padding: 0 16px 64px; }
+
+.hero-banner { background: linear-gradient(135deg, var(--navy) 0%, #0d1a3d 100%); color: #fff; padding: 48px 36px; text-align: center; }
+.hero-banner .era { font-size: 13px; letter-spacing: 2px; opacity: 0.75; margin-bottom: 10px; }
+.hero-banner h2 { font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+.hero-banner .tagline { font-size: 16px; opacity: 0.85; font-style: italic; }
+
+.profile-bar { background: rgba(26,42,76,0.08); border: 1px solid rgba(26,42,76,0.2); border-radius: 0 0 var(--radius) var(--radius); display: flex; flex-wrap: wrap; margin-bottom: 32px; }
+.profile-item { flex: 1 1 150px; padding: 14px 20px; border-right: 1px solid rgba(26,42,76,0.12); }
+.profile-item:last-child { border-right: none; }
+.profile-item .pi-label { font-size: 11px; color: var(--navy); font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+.profile-item .pi-val { font-size: 14px; color: var(--ink); margin-top: 3px; font-weight: 600; }
+
+.section { background: #fff; border-radius: var(--radius); box-shadow: 0 2px 12px rgba(0,0,0,0.07); padding: 28px 32px; margin-bottom: 24px; }
+.section h3 { font-size: 18px; font-weight: 700; color: var(--navy); margin-bottom: 18px; padding-bottom: 10px; border-bottom: 2px solid rgba(26,42,76,0.15); }
+.section p { font-size: 14.5px; line-height: 1.85; color: #333; margin-bottom: 12px; }
+
+.episode-grid { display: grid; gap: 18px; }
+.ep-card { border-left: 4px solid var(--navy); background: #f5f7fc; border-radius: 0 var(--radius) var(--radius) 0; padding: 18px 20px; }
+.ep-card .ep-title { font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 10px; }
+.ep-card p { font-size: 14px; line-height: 1.8; color: #333; margin-bottom: 8px; }
+.ep-card blockquote { border-left: 3px solid var(--gold); padding: 8px 14px; margin: 12px 0; font-style: italic; color: #555; background: #fffbf0; border-radius: 0 4px 4px 0; font-size: 13.5px; }
+
+.matrix-demo { display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap; margin: 16px 0; }
+.matrix-box { background: #f0f4ff; border: 2px solid rgba(26,42,76,0.2); border-radius: var(--radius); padding: 16px 20px; text-align: center; }
+.matrix-box .m-label { font-size: 12px; color: var(--navy); font-weight: 700; margin-bottom: 8px; }
+.matrix-op { font-size: 24px; color: var(--navy); font-weight: 700; }
+
+.formula-box { background: linear-gradient(135deg, #f0f4ff, #e8eeff); border: 2px solid rgba(26,42,76,0.25); border-radius: var(--radius); padding: 24px 28px; margin-bottom: 16px; }
+.formula-box .f-title { font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 12px; }
+.f-note { font-size: 13px; color: #555; margin-top: 8px; }
+
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+.compare-col { background: #f8f8f8; border-radius: var(--radius); padding: 16px 18px; }
+.compare-col.before { border-top: 3px solid var(--red); }
+.compare-col.after { border-top: 3px solid var(--green); }
+.compare-col .c-label { font-size: 12px; font-weight: 700; letter-spacing: 1px; margin-bottom: 10px; }
+.compare-col.before .c-label { color: var(--red); }
+.compare-col.after .c-label { color: var(--green); }
+.compare-col p { font-size: 13.5px; line-height: 1.75; color: #444; }
+
+.modern-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; margin-top: 12px; }
+.modern-card { background: linear-gradient(135deg, #f0f4ff, #f5f8ff); border: 1px solid rgba(26,42,76,0.18); border-radius: var(--radius); padding: 16px; }
+.modern-card .mc-icon { font-size: 24px; margin-bottom: 8px; }
+.modern-card .mc-title { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
+.modern-card .mc-desc { font-size: 12.5px; color: #555; line-height: 1.6; }
+
+.memory-box { background: linear-gradient(135deg, var(--navy), #0d1a3d); color: #fff; border-radius: var(--radius); padding: 28px 32px; text-align: center; }
+.memory-box .mb-title { font-size: 13px; letter-spacing: 1.5px; opacity: 0.75; margin-bottom: 14px; }
+.memory-box blockquote { font-size: 16px; line-height: 1.8; font-style: italic; }
+
+.noncomm-demo { background: #fff8e8; border: 2px solid var(--gold); border-radius: var(--radius); padding: 20px 24px; margin: 16px 0; }
+.noncomm-demo .nd-title { font-size: 14px; font-weight: 700; color: var(--gold); margin-bottom: 12px; }
+
+@media (max-width: 600px) {
+  #p-exam { padding: 24px 18px 40px; margin: 16px 12px; }
+  .compare { grid-template-columns: 1fr; }
+  .section { padding: 20px 18px; }
+  .hero-banner { padding: 32px 20px; }
+  .hero-banner h2 { font-size: 24px; }
+}
+</style>
+</head>
+<body>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showPage('p-exam',this)">📝 시험지 · 모범답안</button>
+  <button class="tab-btn" onclick="showPage('p-story',this)">📖 케일리 이야기</button>
+</div>
+
+<!-- PAGE 1: EXAM -->
+<div id="p-exam" class="page active">
+
+  <div class="warning-box">
+    <div class="w-title">⚠️ 이 자료를 보는 너에게</div>
+    <p>이 모범답안을 <strong>그대로 외우지 마세요.</strong> 시험장에서 남의 문장을 기억해서 쓰는 것과, 본인이 이해하고 자신의 언어로 쓰는 것은 완전히 다릅니다. 케일리의 이야기를 충분히 이해하고, 핵심 키워드와 논리 흐름만 기억한 뒤, <strong>시험 당일 자기 문장으로 써야 진짜 실력</strong>입니다. 탭 2의 이야기를 먼저 읽으세요.</p>
+  </div>
+
+  <div class="exam-header">
+    <div class="subject">공통수학1 · 수행평가</div>
+    <h1>수학자 탐구 보고서</h1>
+    <div class="subtitle">수학자: 아서 케일리 (Arthur Cayley, 1821–1895)</div>
+  </div>
+
+  <!-- Q1 -->
+  <div class="q-block">
+    <div class="q-label">문항 1. 케일리의 발견과 이론</div>
+    <div class="q-prompt">케일리가 수학에서 발견하거나 주장한 이론을 서술하시오.</div>
+    <div class="answer-box">
+      <div class="a-label">▶ 모범답안</div>
+      <p>아서 케일리(1821–1895)는 영국의 수학자로, <strong>행렬(matrix) 이론을 최초로 수학의 독립적인 대상으로 확립</strong>한 인물이다. 낮에는 변호사, 밤에는 수학자로 14년을 보낸 독특한 이력을 가지고 있다.</p>
+      <br>
+      <p>케일리의 핵심 업적은 1858년 논문 <em>A Memoir on the Theory of Matrices</em>에 담겨 있다. 이 논문에서 그가 확립한 것들:</p>
+      <ul>
+        <li class="math-line"><strong>행렬의 덧셈:</strong> $\begin{pmatrix}a&b\\c&d\end{pmatrix} + \begin{pmatrix}e&f\\g&h\end{pmatrix} = \begin{pmatrix}a+e&b+f\\c+g&d+h\end{pmatrix}$</li>
+        <li class="math-line"><strong>행렬의 곱셈과 비교환성:</strong> $AB \neq BA$ (일반적으로) — 수학에서 교환법칙에 대한 최초의 심각한 도전</li>
+        <li class="math-line"><strong>역행렬 $A^{-1}$</strong>의 존재 조건과 계산법</li>
+        <li class="math-line"><strong>단위행렬:</strong> $I = \begin{pmatrix}1&0\\0&1\end{pmatrix}$, $AI = IA = A$</li>
+      </ul>
+      <br>
+      <p>또한 케일리는 <strong>케일리-해밀턴 정리</strong>를 제시했다: 모든 정방행렬 $A$는 자신의 특성다항식 $p(\lambda) = \det(\lambda I - A)$의 근이다. 즉 $p(A) = 0$.</p>
+      <br>
+      <p>케일리는 1854년 추상군(Abstract Group)의 정의를 최초로 공리화하기도 했다. 그는 약 997편의 수학 논문을 남겼으며 50개 이상의 수학 개념에 그의 이름이 붙어 있다.</p>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="q-block">
+    <div class="q-label">문항 2. 공통수학1과의 연결 <span style="font-weight:400;font-size:13px;color:#888">(300자 내외)</span></div>
+    <div class="q-prompt">케일리의 발견이 공통수학1 교과 내용과 어떻게 연결되는지 설명하시오.
+      <div class="limit">※ 300자 내외로 서술하시오.</div>
+    </div>
+    <div class="answer-box">
+      <div class="a-label">▶ 모범답안 (약 285자)</div>
+      <p>공통수학1 Ⅳ단원 '행렬'에서 배우는 행렬의 뜻과 성분, 덧셈·뺄셈·실수배·곱셈의 연산 규칙이 케일리의 1858년 논문에서 최초로 확립된 바로 그 규칙이다. 특히 교과서에서 강조하는 <strong>"행렬 곱셈에서는 교환법칙 $AB \neq BA$가 성립하지 않는다"</strong>는 성질이 케일리가 처음 명확히 정리한 발견이다. 숫자 세계에서 $3 \times 4 = 4 \times 3$이 당연한 것과 달리, 행렬 세계에서는 순서가 바뀌면 결과가 달라진다는 것이 케일리가 밝힌 핵심이다. 또한 연립방정식을 행렬 $Ax = b$ 형태로 표현하고 역행렬 $A^{-1}$을 이용해 푸는 방법도 케일리 이론에서 비롯됐다. 지금 교과서에서 배우는 행렬 단원 전체가 케일리의 논문 한 편에서 출발한다.</p>
+      <div class="char-note">※ 약 285자</div>
+    </div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="q-block">
+    <div class="q-label">문항 3. 수학적 사고방식의 변화와 활용 <span style="font-weight:400;font-size:13px;color:#888">(600자 내외)</span></div>
+    <div class="q-prompt">케일리의 발견이 수학적 사고방식에 어떤 변화를 가져왔는지 설명하고, 이 사고방식이 자신의 관심 분야에서 어떻게 활용될 수 있는지 구체적으로 서술하시오.
+      <div class="limit">※ 600자 내외로 서술하시오.</div>
+    </div>
+    <div class="answer-box">
+      <div class="a-label">▶ 모범답안 (약 600자)</div>
+      <p>케일리가 행렬 이론을 만든 1858년, 아무도 이것이 쓸모 있을 것이라 생각하지 않았다. 수학은 물리적 세계를 설명하는 도구여야 한다는 인식이 지배적이던 시대였다. 행렬 — 숫자를 직사각형으로 배열한 것, 곱셈이 교환법칙도 안 성립하는 이상한 수 — 은 "추상적인 장난"처럼 보였다.</p>
+      <br>
+      <p>케일리가 가져온 사고방식의 전환은 <strong>"지금 당장 쓸모가 없어도, 내적 일관성이 있는 수학 구조를 탐구할 가치가 있다"</strong>는 것이다. 수학을 실용성의 종속에서 해방시켜 독립적인 지적 탐구 대상으로 만든 것이다. 이것이 순수수학(Pure Mathematics)이라는 개념의 확립으로 이어진다.</p>
+      <br>
+      <p>이 "쓸모없는 추상수학"이 70년 뒤 폭발했다. 1925년 하이젠베르크는 행렬로 원자 세계를 기술하는 행렬 역학을 만들었다. 그는 케일리의 이론을 재발견하다가 이미 이론이 완성되어 있다는 것을 알고 놀랐다. 나는 컴퓨터 그래픽과 AI에 관심이 있는데, 두 분야 모두 행렬 없이는 존재하지 않는다. 3D 게임에서 캐릭터를 회전하고 움직이는 것이 전부 행렬 곱셈이다. 카메라 시점 변환, 조명 계산도 마찬가지다. AI 신경망은 본질적으로 거대한 행렬 곱셈의 연속이다. 입력 데이터를 행렬 $X$로, 가중치를 행렬 $W$로 표현하고 $WX$를 계산하는 것이 딥러닝의 핵심 연산이다. 케일리가 1858년 변호사 사무실 밤에 혼자 쓴 추상 이론이, 오늘날 모든 AI와 게임의 언어가 됐다.</p>
+      <div class="char-note">※ 약 600자</div>
+    </div>
+  </div>
+
+</div><!-- /p-exam -->
+
+<!-- PAGE 2: STORY -->
+<div id="p-story" class="page">
+
+  <div class="hero-banner">
+    <div class="era">영국 · 1821 – 1895</div>
+    <h2>아서 케일리</h2>
+    <div class="tagline">낮에는 변호사, 밤에는 수학자 — 14년 이중생활이 만든 행렬 이론</div>
+  </div>
+
+  <div class="profile-bar">
+    <div class="profile-item"><div class="pi-label">생몰년</div><div class="pi-val">1821–1895 (73세)</div></div>
+    <div class="profile-item"><div class="pi-label">본업</div><div class="pi-val">변호사 14년 → 교수 35년</div></div>
+    <div class="profile-item"><div class="pi-label">명저</div><div class="pi-val">A Memoir on Matrices (1858)</div></div>
+    <div class="profile-item"><div class="pi-label">논문 수</div><div class="pi-val">약 997편</div></div>
+    <div class="profile-item"><div class="pi-label">수상</div><div class="pi-val">코플리 메달 (1882)</div></div>
+  </div>
+
+  <div class="section">
+    <h3>🏛️ 시대 배경 — 빅토리아 시대, 추상수학의 탄생</h3>
+    <p>19세기 영국. 산업혁명이 정점에 달하고 영국 제국주의가 전 세계로 팽창하던 시기. 1859년 다윈이 <em>종의 기원</em>을 출판했다. 과학이 경험과 관찰 위주이던 시대에, 수학은 완전히 다른 방향으로 갔다: <strong>추상화.</strong></p>
+    <p>케일리의 시대는 "쓸모없어 보이는 순수수학"이 독립적인 가치를 인정받기 시작한 시기다. 케일리의 행렬 이론은 당시에는 추상적인 장난처럼 보였다. <strong>70년 뒤 하이젠베르크가 행렬로 양자역학을 쓸 줄 아무도 몰랐다.</strong></p>
+  </div>
+
+  <div class="section">
+    <h3>📖 에피소드 — 변호사 수학자의 삶</h3>
+    <div class="episode-grid">
+      <div class="ep-card">
+        <div class="ep-title">🌍 러시아에서 보낸 어린 시절</div>
+        <p>케일리의 부모는 러시아 상트페테르부르크에서 교역 사업을 했다. 케일리는 8살까지 러시아에서 자랐다. 영어·러시아어·프랑스어를 자연스럽게 익혔다.</p>
+        <p>영국으로 돌아온 뒤 케임브리지 트리니티 칼리지에 입학해 수학·그리스어·독일어·이탈리아어까지 모두 최우등 성적을 받았다.</p>
+      </div>
+      <div class="ep-card">
+        <div class="ep-title">⚖️ 14년간의 이중생활: 낮에는 변호사, 밤에는 수학자</div>
+        <p>케임브리지 최우등 졸업 후 교수 자리를 기다렸지만 자리가 없었다. 생계를 위해 <strong>링컨스 인(Lincoln's Inn)</strong>에서 변호사 자격을 취득했다. 부동산·신탁 계약 전문 변호사로 14년 일했다.</p>
+        <p>그러면서 수학을 포기하지 않았다. 이 14년 동안 <strong>수학 논문 200편 이상</strong>을 혼자 작성했다. 변호사로서도 탁월했다. 그러나 수학이 진짜 자신이라는 것을 알고 있었다.</p>
+      </div>
+      <div class="ep-card">
+        <div class="ep-title">🚶 회랑을 걷는 두 수학자: 케일리와 실베스터</div>
+        <p>케일리의 가장 친한 친구는 수학자 J.J. 실베스터였다. 실베스터도 변호사 일을 하면서 수학을 했다. 두 사람은 <strong>링컨스 인의 긴 회랑</strong>을 점심마다 걸으며 수학 토론을 했다.</p>
+        <p>수학사학자 E.T. 벨은 이 두 사람을 <strong>"불변식 쌍둥이(The Invariant Twins)"</strong>라고 불렀다. "matrix(행렬)"라는 단어를 처음 만든 것은 실베스터(1850). 하지만 <strong>행렬을 이론화한 것은 케일리(1858)</strong>였다.</p>
+      </div>
+      <div class="ep-card">
+        <div class="ep-title">📚 41세에 교수, 997편의 논문</div>
+        <p>1863년. 41세에 케임브리지 새들리언 수학 교수 자리를 얻어 변호사를 그만뒀다. 이후 35년 재직.</p>
+        <p>평생 총 약 <strong>997편의 수학 논문</strong>을 발표했다. 50개 이상의 수학 개념·정리에 케일리의 이름이 붙어 있다: 케일리-해밀턴 정리, 케일리 그래프, 케일리 테이블, 케일리 공식.</p>
+        <p>1882년 왕립학회 <strong>코플리 메달</strong> 수상 — 뉴턴, 패러데이, 다윈과 같은 수상자 명단.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>🔢 행렬 이론 — 케일리가 1858년에 정리한 것들</h3>
+    <div class="formula-box">
+      <div class="f-title">① 행렬의 덧셈</div>
+      <div class="formula-center">
+        $$\begin{pmatrix} a & b \\ c & d \end{pmatrix} + \begin{pmatrix} e & f \\ g & h \end{pmatrix} = \begin{pmatrix} a+e & b+f \\ c+g & d+h \end{pmatrix}$$
+      </div>
+    </div>
+    <div class="formula-box">
+      <div class="f-title">② 행렬의 곱셈 — 그리고 교환법칙의 붕괴</div>
+      <div class="formula-center">
+        $$AB = \begin{pmatrix} a & b \\ c & d \end{pmatrix}\begin{pmatrix} e & f \\ g & h \end{pmatrix} = \begin{pmatrix} ae+bg & af+bh \\ ce+dg & cf+dh \end{pmatrix}$$
+      </div>
+      <div class="noncomm-demo">
+        <div class="nd-title">⚠️ 교환법칙 불성립 — 핵심 포인트</div>
+        <div class="formula-center">
+          $$A = \begin{pmatrix}1&2\\0&1\end{pmatrix}, \quad B = \begin{pmatrix}1&0\\3&1\end{pmatrix}$$
+        </div>
+        <div class="formula-center">
+          $$AB = \begin{pmatrix}7&2\\3&1\end{pmatrix}, \quad BA = \begin{pmatrix}1&2\\3&7\end{pmatrix}$$
+        </div>
+        <div class="formula-center" style="margin-top:8px;font-size:15px;color:#8b6000;font-weight:700">
+          $AB \neq BA$
+        </div>
+      </div>
+    </div>
+    <div class="formula-box">
+      <div class="f-title">③ 케일리-해밀턴 정리</div>
+      <div class="formula-center">
+        $$A = \begin{pmatrix}1&2\\3&4\end{pmatrix} \Rightarrow p(\lambda) = \lambda^2 - 5\lambda - 2 = 0$$
+      </div>
+      <div class="formula-center">
+        $$\Rightarrow A^2 - 5A - 2I = \mathbf{0} \quad \text{(영행렬)}$$
+      </div>
+      <div class="f-note">모든 정방행렬은 자신의 특성다항식의 근이다.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>📊 Before &amp; After — 케일리가 바꾼 사고방식</h3>
+    <div class="compare">
+      <div class="compare-col before">
+        <div class="c-label">⛔ Before (케일리 이전)</div>
+        <p><strong>"수학은 실용적이어야 한다."</strong> 물리적 세계를 설명하는 도구.</p>
+        <p>$a \times b = b \times a$ — 교환법칙은 수 연산의 당연한 진리.</p>
+        <p>"쓸모없어 보이는 추상 구조는 장난."</p>
+      </div>
+      <div class="compare-col after">
+        <div class="c-label">✅ After (케일리 이후)</div>
+        <p><strong>"내적 일관성이 있다면 탐구 가치가 있다."</strong> 순수수학의 탄생.</p>
+        <p>$AB \neq BA$ — 교환법칙이 안 성립하는 세계도 수학이다.</p>
+        <p>70년 뒤 양자역학, AI, 그래픽 → 가장 실용적인 수학이 됨.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>🌐 "쓸모없던" 행렬이 세상을 바꾼 방법</h3>
+    <div class="modern-grid">
+      <div class="modern-card">
+        <div class="mc-icon">⚛️</div>
+        <div class="mc-title">양자역학</div>
+        <div class="mc-desc">하이젠베르크(1925) 행렬 역학 — 원자 세계를 기술. 케일리 이론 70년 뒤 폭발.</div>
+      </div>
+      <div class="modern-card">
+        <div class="mc-icon">🎮</div>
+        <div class="mc-title">컴퓨터 그래픽</div>
+        <div class="mc-desc">3D 회전·변환·투영·카메라 시점이 모두 행렬 곱셈. 게임 = 행렬 연산.</div>
+      </div>
+      <div class="modern-card">
+        <div class="mc-icon">🤖</div>
+        <div class="mc-title">AI · 딥러닝</div>
+        <div class="mc-desc">신경망 = 거대한 행렬 곱셈의 연속. $y = WX + b$가 딥러닝의 언어.</div>
+      </div>
+      <div class="modern-card">
+        <div class="mc-icon">🔍</div>
+        <div class="mc-title">구글 검색</div>
+        <div class="mc-desc">페이지랭크 알고리즘 = 수십억 페이지의 거대 행렬 연산. 웹의 질서.</div>
+      </div>
+    </div>
+    <p style="margin-top:16px;font-size:13.5px;color:#555">케일리가 행렬 이론을 만든 1858년과 하이젠베르크가 이를 물리학에 쓴 1925년 사이: <strong>67년</strong>. "지금 쓸모없는 순수수학"이 결국 가장 강력한 도구가 됐다.</p>
+  </div>
+
+  <div class="section">
+    <div class="memory-box">
+      <div class="mb-title">🔑 핵심 암기 포인트</div>
+      <blockquote>"아서 케일리는 14년간 낮에는 변호사, 밤에는 수학자로 살았다. 그 14년 동안 200편의 논문을 썼다. 그가 1858년에 세운 행렬 이론의 규칙이 오늘날 AI, 컴퓨터 그래픽, 양자역학의 언어가 됐다. 핵심: 행렬 곱셈은 $AB \neq BA$ — 순서가 바뀌면 결과가 다르다."</blockquote>
+    </div>
+  </div>
+
+</div><!-- /p-story -->
+
+<script>
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>

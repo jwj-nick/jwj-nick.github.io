@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>파스칼 수행평가 — 확률론의 탄생</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+:root {
+  --paper: #fdfbf5;
+  --ink: #1a1a2e;
+  --blue: #1a3a5c;
+  --teal: #1a5c4a;
+  --gold: #b8860b;
+  --red: #c0392b;
+  --green: #27ae60;
+  --warn-bg: #fff3cd;
+  --warn-border: #ffc107;
+  --radius: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; background: #d4e0d8; color: var(--ink); min-height: 100vh; }
+
+.tab-bar { position: sticky; top: 0; z-index: 100; display: flex; background: var(--teal); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+.tab-btn { flex: 1; padding: 14px 8px; border: none; background: transparent; color: rgba(255,255,255,0.65); font-size: 15px; font-weight: 600; cursor: pointer; transition: all .2s; border-bottom: 3px solid transparent; }
+.tab-btn:hover { color: #fff; background: rgba(255,255,255,0.08); }
+.tab-btn.active { color: #fff; border-bottom-color: var(--gold); background: rgba(255,255,255,0.1); }
+
+.page { display: none; }
+.page.active { display: block; }
+
+#p-exam { background: var(--paper); max-width: 780px; margin: 32px auto; border-radius: var(--radius); box-shadow: 0 4px 24px rgba(0,0,0,0.15); padding: 40px 36px 56px; }
+
+.warning-box { background: var(--warn-bg); border: 2px solid var(--warn-border); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 32px; }
+.warning-box .w-title { font-size: 16px; font-weight: 700; color: #856404; margin-bottom: 6px; }
+.warning-box p { font-size: 14px; color: #533f03; line-height: 1.6; }
+
+.exam-header { text-align: center; border-bottom: 3px double var(--blue); padding-bottom: 20px; margin-bottom: 28px; }
+.exam-header .subject { font-size: 13px; color: #666; letter-spacing: 1px; margin-bottom: 6px; }
+.exam-header h1 { font-size: 22px; font-weight: 700; color: var(--blue); }
+.exam-header .subtitle { font-size: 14px; color: #555; margin-top: 6px; }
+
+.q-block { margin-bottom: 36px; }
+.q-label { font-size: 15px; font-weight: 700; color: var(--blue); border-left: 4px solid var(--blue); padding-left: 12px; margin-bottom: 14px; }
+.q-prompt { font-size: 14px; line-height: 1.8; color: #333; background: #f5f3ee; border-radius: 6px; padding: 14px 18px; margin-bottom: 14px; border: 1px solid #e0dcd0; }
+.q-prompt .limit { font-size: 12px; color: var(--gold); font-weight: 600; margin-top: 6px; }
+.answer-box { border: 1px solid #ccc; border-radius: 6px; padding: 18px 20px; background: #fff; }
+.answer-box .a-label { font-size: 12px; font-weight: 700; color: var(--teal); letter-spacing: 0.5px; margin-bottom: 10px; text-transform: uppercase; }
+.answer-box p, .answer-box li { font-size: 14.5px; line-height: 1.85; color: #222; }
+.answer-box ul { padding-left: 20px; }
+.answer-box li { margin-bottom: 4px; }
+.math-line { margin: 8px 0; }
+.char-note { font-size: 12px; color: #888; text-align: right; margin-top: 8px; }
+.formula-center { text-align: center; margin: 10px 0; }
+
+#p-story { max-width: 900px; margin: 0 auto; padding: 0 16px 64px; }
+
+.hero-banner { background: linear-gradient(135deg, var(--teal) 0%, #0d3d2a 100%); color: #fff; padding: 48px 36px; text-align: center; }
+.hero-banner .era { font-size: 13px; letter-spacing: 2px; opacity: 0.75; margin-bottom: 10px; }
+.hero-banner h2 { font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+.hero-banner .tagline { font-size: 16px; opacity: 0.85; font-style: italic; }
+
+.profile-bar { background: rgba(26,92,74,0.08); border: 1px solid rgba(26,92,74,0.2); border-radius: 0 0 var(--radius) var(--radius); display: flex; flex-wrap: wrap; margin-bottom: 32px; }
+.profile-item { flex: 1 1 150px; padding: 14px 20px; border-right: 1px solid rgba(26,92,74,0.12); }
+.profile-item:last-child { border-right: none; }
+.profile-item .pi-label { font-size: 11px; color: var(--teal); font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+.profile-item .pi-val { font-size: 14px; color: var(--ink); margin-top: 3px; font-weight: 600; }
+
+.section { background: #fff; border-radius: var(--radius); box-shadow: 0 2px 12px rgba(0,0,0,0.07); padding: 28px 32px; margin-bottom: 24px; }
+.section h3 { font-size: 18px; font-weight: 700; color: var(--teal); margin-bottom: 18px; padding-bottom: 10px; border-bottom: 2px solid rgba(26,92,74,0.15); }
+.section p { font-size: 14.5px; line-height: 1.85; color: #333; margin-bottom: 12px; }
+
+.episode-grid { display: grid; gap: 18px; }
+.ep-card { border-left: 4px solid var(--teal); background: #f5fbf8; border-radius: 0 var(--radius) var(--radius) 0; padding: 18px 20px; }
+.ep-card .ep-title { font-size: 15px; font-weight: 700; color: var(--teal); margin-bottom: 10px; }
+.ep-card p { font-size: 14px; line-height: 1.8; color: #333; margin-bottom: 8px; }
+.ep-card blockquote { border-left: 3px solid var(--gold); padding: 8px 14px; margin: 12px 0; font-style: italic; color: #555; background: #fffbf0; border-radius: 0 4px 4px 0; font-size: 13.5px; }
+
+.triangle-container { display: flex; justify-content: center; margin: 16px 0; }
+.triangle-grid { font-family: monospace; font-size: 16px; line-height: 1.9; text-align: center; color: var(--ink); background: #f0fff8; border-radius: var(--radius); padding: 20px 32px; border: 2px solid rgba(26,92,74,0.2); }
+.triangle-grid .hl { color: var(--teal); font-weight: 700; }
+
+.formula-box { background: linear-gradient(135deg, #f0fff8, #e0ffee); border: 2px solid rgba(26,92,74,0.25); border-radius: var(--radius); padding: 24px 28px; margin-bottom: 16px; }
+.formula-box .f-title { font-size: 14px; font-weight: 700; color: var(--teal); margin-bottom: 12px; }
+.f-note { font-size: 13px; color: #555; margin-top: 8px; }
+
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+.compare-col { background: #f8f8f8; border-radius: var(--radius); padding: 16px 18px; }
+.compare-col.before { border-top: 3px solid var(--red); }
+.compare-col.after { border-top: 3px solid var(--green); }
+.compare-col .c-label { font-size: 12px; font-weight: 700; letter-spacing: 1px; margin-bottom: 10px; }
+.compare-col.before .c-label { color: var(--red); }
+.compare-col.after .c-label { color: var(--green); }
+.compare-col p { font-size: 13.5px; line-height: 1.75; color: #444; }
+
+.modern-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; margin-top: 12px; }
+.modern-card { background: linear-gradient(135deg, #f0fff8, #f5fffc); border: 1px solid rgba(26,92,74,0.18); border-radius: var(--radius); padding: 16px; }
+.modern-card .mc-icon { font-size: 24px; margin-bottom: 8px; }
+.modern-card .mc-title { font-size: 13px; font-weight: 700; color: var(--teal); margin-bottom: 6px; }
+.modern-card .mc-desc { font-size: 12.5px; color: #555; line-height: 1.6; }
+
+.memory-box { background: linear-gradient(135deg, var(--teal), #0d3d2a); color: #fff; border-radius: var(--radius); padding: 28px 32px; text-align: center; }
+.memory-box .mb-title { font-size: 13px; letter-spacing: 1.5px; opacity: 0.75; margin-bottom: 14px; }
+.memory-box blockquote { font-size: 16px; line-height: 1.8; font-style: italic; }
+
+@media (max-width: 600px) {
+  #p-exam { padding: 24px 18px 40px; margin: 16px 12px; }
+  .compare { grid-template-columns: 1fr; }
+  .section { padding: 20px 18px; }
+  .hero-banner { padding: 32px 20px; }
+  .hero-banner h2 { font-size: 24px; }
+}
+</style>
+</head>
+<body>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showPage('p-exam',this)">📝 시험지 · 모범답안</button>
+  <button class="tab-btn" onclick="showPage('p-story',this)">📖 파스칼 이야기</button>
+</div>
+
+<!-- PAGE 1: EXAM -->
+<div id="p-exam" class="page active">
+
+  <div class="warning-box">
+    <div class="w-title">⚠️ 이 자료를 보는 너에게</div>
+    <p>이 모범답안을 <strong>그대로 외우지 마세요.</strong> 시험장에서 남의 문장을 기억해서 쓰는 것과, 본인이 이해하고 자신의 언어로 쓰는 것은 완전히 다릅니다. 파스칼의 이야기를 충분히 이해하고, 핵심 키워드와 논리 흐름만 기억한 뒤, <strong>시험 당일 자기 문장으로 써야 진짜 실력</strong>입니다. 탭 2의 이야기를 먼저 읽으세요.</p>
+  </div>
+
+  <div class="exam-header">
+    <div class="subject">공통수학1 · 수행평가</div>
+    <h1>수학자 탐구 보고서</h1>
+    <div class="subtitle">수학자: 블레즈 파스칼 (Blaise Pascal, 1623–1662)</div>
+  </div>
+
+  <!-- Q1 -->
+  <div class="q-block">
+    <div class="q-label">문항 1. 파스칼의 발견과 이론</div>
+    <div class="q-prompt">파스칼이 수학에서 발견하거나 주장한 이론을 서술하시오.</div>
+    <div class="answer-box">
+      <div class="a-label">▶ 모범답안</div>
+      <p>블레즈 파스칼(1623–1662)은 프랑스의 수학자·물리학자·철학자로, <strong>확률론을 수학의 정식 분야로 개척</strong>하고 <strong>파스칼의 삼각형</strong>을 통해 이항계수와 조합론의 토대를 확립했다. 39년의 짧은 생애에 수학·물리·철학·신학을 모두 변혁시킨 천재였다.</p>
+      <br>
+      <p><strong>파스칼의 삼각형:</strong> 각 수가 바로 위 행 인접한 두 수의 합이며, 각 수가 이항계수 $\binom{n}{k}$와 일치한다:</p>
+      <div class="formula-center math-line">$$\binom{n}{k} = \binom{n-1}{k-1} + \binom{n-1}{k}$$</div>
+      <p>이 삼각형의 $n$번째 행의 수들이 $(a+b)^n$ 전개 계수와 정확히 일치한다.</p>
+      <br>
+      <p><strong>확률론 창시:</strong> 1654년 도박사 친구 슈발리에 드 메레의 질문을 받아, 페르마와 서신을 교환하며 <strong>"점의 문제(Problème des Points)"</strong>를 해결했다. 핵심 아이디어: 게임이 중단된 상태에서 각 플레이어가 이길 확률의 비율로 판돈을 나눈다. 이것이 기대값(expectation) 개념의 최초 등장이다.</p>
+      <br>
+      <p>또한 19살에 <strong>파스칼린(Pascaline)</strong> — 역사상 최초의 상업적 기계식 계산기 — 를 발명했고, 사이클로이드 곡선 연구로 미적분학 발전에도 기여했다.</p>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="q-block">
+    <div class="q-label">문항 2. 공통수학1과의 연결 <span style="font-weight:400;font-size:13px;color:#888">(300자 내외)</span></div>
+    <div class="q-prompt">파스칼의 발견이 공통수학1 교과 내용과 어떻게 연결되는지 설명하시오.
+      <div class="limit">※ 300자 내외로 서술하시오.</div>
+    </div>
+    <div class="answer-box">
+      <div class="a-label">▶ 모범답안 (약 290자)</div>
+      <p>공통수학1 Ⅲ단원 '경우의 수'에서 합의 법칙, 곱의 법칙, 순열, 조합 $\binom{n}{k} = {}_n\mathrm{C}_k$를 배운다. 이 단원의 핵심 공식인 이항계수 $\binom{n}{k}$가 파스칼의 삼각형의 각 칸과 정확히 일치한다. 파스칼 삼각형의 $n$번째 행을 읽으면 $(a+b)^n$의 전개 계수를 바로 알 수 있다. 예를 들어 $(a+b)^4 = a^4 + 4a^3b + 6a^2b^2 + 4ab^3 + b^4$에서 계수 $1, 4, 6, 4, 1$이 삼각형 4번째 행이다. 또한 경우의 수 단원에서 "$n$명 중 $k$명을 뽑는 경우의 수"를 구할 때 쓰는 $\binom{n}{k}$의 점화식 $\binom{n}{k} = \binom{n-1}{k-1} + \binom{n-1}{k}$가 파스칼의 삼각형 생성 규칙 그 자체다. 파스칼의 삼각형은 단순한 숫자 패턴이 아니라 Ⅲ단원 전체의 구조적 핵심이다.</p>
+      <div class="char-note">※ 약 290자</div>
+    </div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="q-block">
+    <div class="q-label">문항 3. 수학적 사고방식의 변화와 활용 <span style="font-weight:400;font-size:13px;color:#888">(600자 내외)</span></div>
+    <div class="q-prompt">파스칼의 발견이 수학적 사고방식에 어떤 변화를 가져왔는지 설명하고, 이 사고방식이 자신의 관심 분야에서 어떻게 활용될 수 있는지 구체적으로 서술하시오.
+      <div class="limit">※ 600자 내외로 서술하시오.</div>
+    </div>
+    <div class="answer-box">
+      <div class="a-label">▶ 모범답안 (약 595자)</div>
+      <p>파스칼 이전 시대에 "우연"은 수학의 영역이 아니었다. 주사위가 어떻게 나올지는 신의 뜻이거나 운의 문제였다. 확률이라는 개념은 존재했지만 수학적으로 계산하거나 비교하는 것은 불가능하다고 여겨졌다. 도박사 드 메레가 파스칼에게 가져온 질문 — "게임 도중에 중단되면 판돈을 어떻게 나눠야 공정한가?" — 은 그 시대 누구도 수학으로 답할 수 없는 질문이었다.</p>
+      <br>
+      <p>파스칼과 페르마의 서신 교환은 이 패러다임을 전환시켰다. 핵심 아이디어: <strong>"아직 일어나지 않은 미래 사건에도 수학적 비율(확률)이 존재하며, 이 비율을 계산해 공정한 기댓값을 구할 수 있다."</strong> 우연을 수학으로 길들인 것이다. 이것이 통계와 확률론의 출발점이다.</p>
+      <br>
+      <p>나는 데이터 분석과 게임에 관심이 있다. 파스칼의 이 사고방식은 두 분야 모두에서 핵심이다. 게임에서 밸런스를 설계할 때 각 무기나 캐릭터의 기댓값(DPS, 승률)을 계산하는 것이 파스칼의 기대값 개념 그대로다. 확률이 높은 건지 낮은 건지를 수학으로 비교하지 않으면 밸런스 설계가 불가능하다. 데이터 분석에서도 마찬가지다. A/B 테스트에서 "이 버튼이 더 효과적인가"를 판단하는 통계적 유의성 검정(p-value), 머신러닝의 베이즈 분류기 — 모두 파스칼이 1654년 도박사의 질문에 답하면서 열어놓은 길 위에 서 있다. 우연을 수학으로 — 이 한 발상이 현대 데이터 과학 전체를 가능하게 했다.</p>
+      <div class="char-note">※ 약 595자</div>
+    </div>
+  </div>
+
+</div><!-- /p-exam -->
+
+<!-- PAGE 2: STORY -->
+<div id="p-story" class="page">
+
+  <div class="hero-banner">
+    <div class="era">프랑스 · 1623 – 1662</div>
+    <h2>블레즈 파스칼</h2>
+    <div class="tagline">12살에 기하학을 재발명, 19살에 계산기 발명, 31살에 확률론 창시, 39살에 사망</div>
+  </div>
+
+  <div class="profile-bar">
+    <div class="profile-item"><div class="pi-label">생몰년</div><div class="pi-val">1623–1662 (39세)</div></div>
+    <div class="profile-item"><div class="pi-label">출신</div><div class="pi-val">프랑스 클레르몽페랑</div></div>
+    <div class="profile-item"><div class="pi-label">업적</div><div class="pi-val">확률론 창시, 파스칼의 삼각형</div></div>
+    <div class="profile-item"><div class="pi-label">발명</div><div class="pi-val">파스칼린 (기계식 계산기)</div></div>
+    <div class="profile-item"><div class="pi-label">저서</div><div class="pi-val">팡세 (Pensées)</div></div>
+  </div>
+
+  <div class="section">
+    <h3>🌍 시대 배경 — 데카르트와 페르마의 17세기</h3>
+    <p>17세기 프랑스. 30년 전쟁이 유럽을 초토화하던 시기. 파스칼이 태어난 해에 갈릴레이가 종교재판을 받았다. 데카르트가 <em>방법서설</em>을 출판한 것이 파스칼이 14살 때. 페르마가 파리 살롱에서 수학 문제를 논하던 시대.</p>
+    <p>파스칼 가족은 가톨릭 내 얀센주의(Jansenism) 지지자였다. 이것이 파스칼의 삶 전체에 그림자를 드리웠다.</p>
+  </div>
+
+  <div class="section">
+    <h3>📖 에피소드 — 천재의 다섯 장면</h3>
+    <div class="episode-grid">
+      <div class="ep-card">
+        <div class="ep-title">📐 12살 — 수학책 없이 기하학을 재발명</div>
+        <p>아버지 에티엔은 "수학은 15세 전에 배우면 안 된다"며 수학책을 모두 숨겼다. 12살 파스칼은 책 없이 혼자 탐구하기 시작했다. 바닥에 도형을 그리며 스스로 이름을 붙이고 증명을 시도했다.</p>
+        <p>아버지가 방에 들어왔을 때, 파스칼은 <strong>삼각형의 내각의 합이 180°임을 혼자 증명</strong>하고 있었다. 아버지는 방침을 철회하고 유클리드 원론을 선물했다.</p>
+        <p>16살에 파스칼의 정리(원뿔곡선에 내접하는 육각형의 맞은편 세 쌍의 교점이 일직선)를 발견했다. 데카르트는 이것을 보고 "16살이 발견한 게 맞냐"고 의심했다.</p>
+      </div>
+      <div class="ep-card">
+        <div class="ep-title">⚙️ 19살 — 아버지를 위해 만든 계산기</div>
+        <p>아버지가 세금 징수관으로 일하면서 로마 숫자로 수백 개의 숫자를 더하는 고역을 했다. 파스칼은 아버지를 돕기 위해 기계식 계산기 설계에 착수했다.</p>
+        <p>3년 동안 <strong>50개 이상의 시제품</strong>을 만들고 부수기를 반복했다. 19살에 완성된 <strong>파스칼린(Pascaline)</strong>은 톱니바퀴 방식으로 자동 올림수(carry)를 처리했다.</p>
+        <blockquote>파스칼린에서 시작한 계산기 계보가 결국 오늘날의 컴퓨터로 이어진다.</blockquote>
+      </div>
+      <div class="ep-card">
+        <div class="ep-title">🎲 31살 — 도박사 친구가 수학을 바꿨다</div>
+        <p>1654년. 친구 슈발리에 드 메레가 두 가지 질문을 들고 왔다:</p>
+        <p><strong>점의 문제:</strong> 두 도박사가 게임 중 A:5점, B:3점(6점 먼저 이기면 승)일 때 게임이 중단됐다. 판돈을 어떻게 나눠야 공정한가?</p>
+        <p>파스칼은 페르마에게 편지를 썼다. <strong>파스칼-페르마의 1654년 서신 교환</strong>이 확률론의 공식 탄생으로 기록된다. 핵심: 미래 가능성을 수학적 비율로 계산해 기댓값을 구한다.</p>
+      </div>
+      <div class="ep-card">
+        <div class="ep-title">🙏 죽을 때까지 옷 안에 간직한 양피지</div>
+        <p>1654년 11월 23일 밤 10시 30분 ~ 자정 30분. 파스칼은 약 2시간의 압도적인 종교 체험을 했다. 이것을 종이에 적고, 양피지에 다시 필사해 <strong>죽을 때까지 옷 안감에 꿰매어 몸에 지니고 다녔다.</strong></p>
+        <p>살아있는 동안 아무에게도 말하지 않았다. 파스칼이 죽고 시신을 수습하던 중 발견됐다. 이 <strong>"기념 양피지(Mémorial)"</strong>는 현재 프랑스 국립도서관에 보관되어 있다.</p>
+        <p>이 체험 이후 파스칼은 사실상 수학을 포기하고 신학에 몰두했다. 미완성 노트들이 사후에 <em>팡세(Pensées)</em>로 출판됐다.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>🔺 파스칼의 삼각형 — 교과서와 직접 연결</h3>
+    <div class="triangle-container">
+      <div class="triangle-grid">
+        <div>1</div>
+        <div>1 &nbsp; 1</div>
+        <div>1 &nbsp; 2 &nbsp; 1</div>
+        <div>1 &nbsp; 3 &nbsp; 3 &nbsp; 1</div>
+        <div><span class="hl">1 &nbsp; 4 &nbsp; 6 &nbsp; 4 &nbsp; 1</span></div>
+        <div>1 &nbsp; 5 &nbsp; 10 &nbsp; 10 &nbsp; 5 &nbsp; 1</div>
+        <div>1 &nbsp; 6 &nbsp; 15 &nbsp; 20 &nbsp; 15 &nbsp; 6 &nbsp; 1</div>
+      </div>
+    </div>
+    <div class="formula-box">
+      <div class="f-title">이항정리 연결 — 4번째 행 (초록) 예시</div>
+      <div class="formula-center">
+        $$(a+b)^4 = 1\cdot a^4 + 4\cdot a^3b + 6\cdot a^2b^2 + 4\cdot ab^3 + 1\cdot b^4$$
+      </div>
+      <div class="formula-center">
+        $$\text{계수: } \binom{4}{0}, \binom{4}{1}, \binom{4}{2}, \binom{4}{3}, \binom{4}{4} = 1, 4, 6, 4, 1$$
+      </div>
+      <div class="f-note">각 행의 합 = $2^n$ | 대각선 방향: 피보나치 수열 | 홀수만 남기면: 시어핀스키 삼각형(프랙탈)</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>📊 Before &amp; After — 파스칼이 바꾼 사고방식</h3>
+    <div class="compare">
+      <div class="compare-col before">
+        <div class="c-label">⛔ Before (확률론 이전)</div>
+        <p><strong>"우연은 수학이 아니다."</strong> 주사위·도박은 운의 문제, 신의 뜻.</p>
+        <p>미래 사건을 수학적으로 비교하는 것은 불가능하다는 인식.</p>
+        <p>공정한 판돈 배분 = 감각과 경험, 수학 없음.</p>
+      </div>
+      <div class="compare-col after">
+        <div class="c-label">✅ After (확률론 이후)</div>
+        <p><strong>"우연에도 수학적 비율이 존재한다."</strong> 기댓값으로 계산 가능.</p>
+        <p>미래 가능성을 수식으로 표현 → 보험, 통계, 데이터 과학으로 이어짐.</p>
+        <p>불확실한 세계에 수학의 질서를 부여하는 새로운 사고.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>🌐 확률론이 세상을 바꾼 방법</h3>
+    <div class="modern-grid">
+      <div class="modern-card">
+        <div class="mc-icon">🏦</div>
+        <div class="mc-title">보험·금융</div>
+        <div class="mc-desc">사망 확률로 보험료를 계산. 주식 옵션 가격 책정(블랙-숄즈). 모두 기댓값.</div>
+      </div>
+      <div class="modern-card">
+        <div class="mc-icon">🎮</div>
+        <div class="mc-title">게임 밸런싱</div>
+        <div class="mc-desc">각 캐릭터·무기의 기대 DPS, 크리티컬 확률, 밸런스 설계. 파스칼의 기대값.</div>
+      </div>
+      <div class="modern-card">
+        <div class="mc-icon">📊</div>
+        <div class="mc-title">데이터 과학</div>
+        <div class="mc-desc">A/B 테스트, p-value, 베이즈 분류기. 불확실성을 수학으로 다루는 모든 것.</div>
+      </div>
+      <div class="modern-card">
+        <div class="mc-icon">🤖</div>
+        <div class="mc-title">AI · 머신러닝</div>
+        <div class="mc-desc">확률 분포, 최대우도추정, 드롭아웃 — 신경망이 배우는 방식의 언어가 확률.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="memory-box">
+      <div class="mb-title">🔑 핵심 암기 포인트</div>
+      <blockquote>"파스칼은 12살에 수학책 없이 기하학을 재발명했고, 19살에 계산기를 만들었고, 31살에 도박사 친구 덕분에 확률론을 창시했다. 39살에 죽었다. 파스칼 삼각형 = 조합 $\binom{n}{k}$의 시각적 표현 = $(a+b)^n$ 전개 계수표."</blockquote>
+    </div>
+  </div>
+
+</div><!-- /p-story -->
+
+<script>
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>

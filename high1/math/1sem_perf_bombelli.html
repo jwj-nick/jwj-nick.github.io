@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>봄벨리 수행평가 — 허수의 탄생</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+:root {
+  --paper: #fdfbf5;
+  --ink: #1a1a2e;
+  --blue: #1a3a5c;
+  --gold: #b8860b;
+  --red: #c0392b;
+  --green: #27ae60;
+  --purple: #6c3483;
+  --warn-bg: #fff3cd;
+  --warn-border: #ffc107;
+  --radius: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; background: #e8e0d0; color: var(--ink); min-height: 100vh; }
+
+/* Tab bar */
+.tab-bar { position: sticky; top: 0; z-index: 100; display: flex; background: var(--blue); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+.tab-btn { flex: 1; padding: 14px 8px; border: none; background: transparent; color: rgba(255,255,255,0.65); font-size: 15px; font-weight: 600; cursor: pointer; transition: all .2s; border-bottom: 3px solid transparent; }
+.tab-btn:hover { color: #fff; background: rgba(255,255,255,0.08); }
+.tab-btn.active { color: #fff; border-bottom-color: var(--gold); background: rgba(255,255,255,0.1); }
+
+/* Pages */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ====== PAGE 1: EXAM ====== */
+#p-exam { background: var(--paper); max-width: 780px; margin: 32px auto; border-radius: var(--radius); box-shadow: 0 4px 24px rgba(0,0,0,0.15); padding: 40px 36px 56px; }
+
+.warning-box { background: var(--warn-bg); border: 2px solid var(--warn-border); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 32px; }
+.warning-box .w-title { font-size: 16px; font-weight: 700; color: #856404; margin-bottom: 6px; }
+.warning-box p { font-size: 14px; color: #533f03; line-height: 1.6; }
+
+.exam-header { text-align: center; border-bottom: 3px double var(--blue); padding-bottom: 20px; margin-bottom: 28px; }
+.exam-header .subject { font-size: 13px; color: #666; letter-spacing: 1px; margin-bottom: 6px; }
+.exam-header h1 { font-size: 22px; font-weight: 700; color: var(--blue); }
+.exam-header .subtitle { font-size: 14px; color: #555; margin-top: 6px; }
+
+.q-block { margin-bottom: 36px; }
+.q-label { font-size: 15px; font-weight: 700; color: var(--blue); border-left: 4px solid var(--blue); padding-left: 12px; margin-bottom: 14px; }
+.q-prompt { font-size: 14px; line-height: 1.8; color: #333; background: #f5f3ee; border-radius: 6px; padding: 14px 18px; margin-bottom: 14px; border: 1px solid #e0dcd0; }
+.q-prompt .limit { font-size: 12px; color: var(--gold); font-weight: 600; margin-top: 6px; }
+
+.answer-box { border: 1px solid #ccc; border-radius: 6px; padding: 18px 20px; background: #fff; }
+.answer-box .a-label { font-size: 12px; font-weight: 700; color: var(--purple); letter-spacing: 0.5px; margin-bottom: 10px; text-transform: uppercase; }
+.answer-box p, .answer-box li { font-size: 14.5px; line-height: 1.85; color: #222; }
+.answer-box ul { padding-left: 20px; }
+.answer-box li { margin-bottom: 4px; }
+.math-line { margin: 8px 0; }
+.char-note { font-size: 12px; color: #888; text-align: right; margin-top: 8px; }
+
+/* ====== PAGE 2: STORY ====== */
+#p-story { max-width: 900px; margin: 0 auto; padding: 0 16px 64px; }
+
+.hero-banner { background: linear-gradient(135deg, var(--purple) 0%, #2c1654 100%); color: #fff; padding: 48px 36px; margin-bottom: 0; text-align: center; }
+.hero-banner .era { font-size: 13px; letter-spacing: 2px; opacity: 0.75; margin-bottom: 10px; }
+.hero-banner h2 { font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+.hero-banner .tagline { font-size: 16px; opacity: 0.85; font-style: italic; }
+
+.profile-bar { background: rgba(108,52,131,0.12); border: 1px solid rgba(108,52,131,0.25); border-radius: 0 0 var(--radius) var(--radius); display: flex; flex-wrap: wrap; gap: 0; margin-bottom: 32px; }
+.profile-item { flex: 1 1 160px; padding: 14px 20px; border-right: 1px solid rgba(108,52,131,0.15); }
+.profile-item:last-child { border-right: none; }
+.profile-item .pi-label { font-size: 11px; color: var(--purple); font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+.profile-item .pi-val { font-size: 14px; color: var(--ink); margin-top: 3px; font-weight: 600; }
+
+.section { background: #fff; border-radius: var(--radius); box-shadow: 0 2px 12px rgba(0,0,0,0.07); padding: 28px 32px; margin-bottom: 24px; }
+.section h3 { font-size: 18px; font-weight: 700; color: var(--purple); margin-bottom: 18px; padding-bottom: 10px; border-bottom: 2px solid rgba(108,52,131,0.15); }
+.section p { font-size: 14.5px; line-height: 1.85; color: #333; margin-bottom: 12px; }
+
+/* Episode cards */
+.episode-grid { display: grid; gap: 18px; }
+.ep-card { border-left: 4px solid var(--purple); background: #faf8fc; border-radius: 0 var(--radius) var(--radius) 0; padding: 18px 20px; }
+.ep-card .ep-title { font-size: 15px; font-weight: 700; color: var(--purple); margin-bottom: 10px; }
+.ep-card p { font-size: 14px; line-height: 1.8; color: #333; margin-bottom: 8px; }
+.ep-card blockquote { border-left: 3px solid var(--gold); padding: 8px 14px; margin: 12px 0; font-style: italic; color: #555; background: #fffbf0; border-radius: 0 4px 4px 0; font-size: 13.5px; }
+
+/* Formula visualization */
+.formula-box { background: linear-gradient(135deg, #f8f0ff, #ede0ff); border: 2px solid rgba(108,52,131,0.3); border-radius: var(--radius); padding: 24px 28px; margin-bottom: 16px; }
+.formula-box .f-title { font-size: 14px; font-weight: 700; color: var(--purple); margin-bottom: 12px; }
+.formula-center { text-align: center; margin: 10px 0; }
+.f-note { font-size: 13px; color: #555; margin-top: 8px; }
+
+/* Compare grid */
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+.compare-col { background: #f8f8fc; border-radius: var(--radius); padding: 16px 18px; }
+.compare-col.before { border-top: 3px solid var(--red); }
+.compare-col.after { border-top: 3px solid var(--green); }
+.compare-col .c-label { font-size: 12px; font-weight: 700; letter-spacing: 1px; margin-bottom: 10px; }
+.compare-col.before .c-label { color: var(--red); }
+.compare-col.after .c-label { color: var(--green); }
+.compare-col p { font-size: 13.5px; line-height: 1.75; color: #444; }
+
+/* Modern grid */
+.modern-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; margin-top: 12px; }
+.modern-card { background: linear-gradient(135deg, #f8f0ff, #fdf5ff); border: 1px solid rgba(108,52,131,0.2); border-radius: var(--radius); padding: 16px; }
+.modern-card .mc-icon { font-size: 24px; margin-bottom: 8px; }
+.modern-card .mc-title { font-size: 13px; font-weight: 700; color: var(--purple); margin-bottom: 6px; }
+.modern-card .mc-desc { font-size: 12.5px; color: #555; line-height: 1.6; }
+
+/* Memory box */
+.memory-box { background: linear-gradient(135deg, var(--purple), #4a235a); color: #fff; border-radius: var(--radius); padding: 28px 32px; text-align: center; margin-top: 8px; }
+.memory-box .mb-title { font-size: 13px; letter-spacing: 1.5px; opacity: 0.75; margin-bottom: 14px; }
+.memory-box blockquote { font-size: 16px; line-height: 1.8; font-style: italic; }
+
+/* Highlight table */
+.hl-table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 12px; }
+.hl-table th { background: var(--purple); color: #fff; padding: 10px 14px; text-align: left; }
+.hl-table td { padding: 10px 14px; border-bottom: 1px solid #e0dce8; }
+.hl-table tr:last-child td { border-bottom: none; }
+.hl-table tr:nth-child(even) td { background: #faf8fc; }
+
+@media (max-width: 600px) {
+  #p-exam { padding: 24px 18px 40px; margin: 16px 12px; }
+  .compare { grid-template-columns: 1fr; }
+  .section { padding: 20px 18px; }
+  .hero-banner { padding: 32px 20px; }
+  .hero-banner h2 { font-size: 24px; }
+}
+</style>
+</head>
+<body>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showPage('p-exam',this)">📝 시험지 · 모범답안</button>
+  <button class="tab-btn" onclick="showPage('p-story',this)">📖 봄벨리 이야기</button>
+</div>
+
+<!-- PAGE 1: EXAM -->
+<div id="p-exam" class="page active" style="padding:40px 36px 56px">
+
+  <div class="warning-box">
+    <div class="w-title">⚠️ 이 자료를 보는 너에게</div>
+    <p>이 모범답안을 <strong>그대로 외우지 마세요.</strong> 시험장에서 남의 문장을 기억해서 쓰는 것과, 본인이 이해하고 자신의 언어로 쓰는 것은 완전히 다릅니다. 봄벨리의 이야기를 충분히 이해하고, 핵심 키워드와 논리 흐름만 기억한 뒤, <strong>시험 당일 자기 문장으로 써야 진짜 실력</strong>입니다. 탭 2의 이야기를 먼저 읽으세요.</p>
+  </div>
+
+  <div class="exam-header">
+    <div class="subject">공통수학1 · 수행평가</div>
+    <h1>수학자 탐구 보고서</h1>
+    <div class="subtitle">수학자: 라파엘로 봄벨리 (Rafael Bombelli, 1526–1572)</div>
+  </div>
+
+  <!-- Q1 -->
+  <div class="q-block">
+    <div class="q-label">문항 1. 봄벨리의 발견과 이론</div>
+    <div class="q-prompt">봄벨리가 수학에서 발견하거나 주장한 이론을 서술하시오.</div>
+    <div class="answer-box">
+      <div class="a-label">▶ 모범답안</div>
+      <p>라파엘로 봄벨리(1526–1572)는 이탈리아의 토목 기사이자 독학 수학자로, <strong>허수(虛數)와 복소수의 개념을 최초로 체계적으로 정립</strong>한 인물이다.</p>
+      <br>
+      <p>봄벨리의 핵심 발견은 방정식 $x^3 = 15x + 4$를 풀던 과정에서 시작됐다. 이 방정식의 해는 $x = 4$임을 직접 검증으로 알 수 있었다. 그러나 카르다노의 삼차방정식 공식을 적용하면 중간 계산에서</p>
+      <div class="math-line formula-center">$$x = \sqrt[3]{2 + \sqrt{-121}} + \sqrt[3]{2 - \sqrt{-121}}$$</div>
+      <p>가 등장한다. 당시 수학자들은 $\sqrt{-121}$이라는 음수의 제곱근 앞에서 모두 포기했다. 봄벨리는 "이 수를 실제로 존재하는 수처럼 취급해서 계산하면 어떻게 될까?"라는 질문을 던지고 끝까지 계산을 밀어붙였다.</p>
+      <br>
+      <p>결과: $\sqrt[3]{2+\sqrt{-121}} = 2 + \sqrt{-1}$, $\sqrt[3]{2-\sqrt{-121}} = 2 - \sqrt{-1}$ 로 분해되고, 두 항을 더하면 $\sqrt{-1}$ 들이 상쇄되어 $x = 4$가 정확히 나왔다.</p>
+      <br>
+      <p>봄벨리는 저서 <em>L'Algebra</em>(1572)에서 허수의 사칙연산 규칙을 최초로 명시했다:</p>
+      <ul>
+        <li class="math-line">$(\sqrt{-1}) \cdot (\sqrt{-1}) = -1$ → 오늘날의 $i^2 = -1$</li>
+        <li class="math-line">$(\sqrt{-1}) \cdot (-\sqrt{-1}) = +1$ → 오늘날의 $i \cdot (-i) = 1$</li>
+      </ul>
+      <br>
+      <p>이것이 오늘날 복소수 $z = a + bi$의 연산 전체의 기초가 된 규칙이다. 봄벨리는 허수가 '상상 속의 쓸모없는 수'가 아니라 실수 답을 끌어내는 데 반드시 필요한 수라는 것을 최초로 증명한 사람이다.</p>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="q-block">
+    <div class="q-label">문항 2. 공통수학1과의 연결 <span style="font-weight:400;font-size:13px;color:#888">(300자 내외)</span></div>
+    <div class="q-prompt">봄벨리의 발견이 공통수학1 교과 내용과 어떻게 연결되는지 설명하시오.
+      <div class="limit">※ 300자 내외로 서술하시오.</div>
+    </div>
+    <div class="answer-box">
+      <div class="a-label">▶ 모범답안 (약 290자)</div>
+      <p>공통수학1 Ⅱ단원 '복소수와 이차방정식'에서 우리는 허수 $i = \sqrt{-1}$와 복소수 $a + bi$를 처음 배운다. 이 개념의 역사적 출발점이 바로 봄벨리다. 봄벨리 이전까지 수학자들은 판별식 $D = b^2 - 4ac < 0$인 이차방정식, 즉 허수 근이 나오는 경우를 "근이 없다"고 처리하거나 아예 방정식 자체가 성립하지 않는다고 포기했다. 봄벨리가 $x^3 = 15x+4$에서 $\sqrt{-121}$을 과감히 수로 취급하고 계산해 실수 답 $x = 4$를 끌어낸 것이, 허수가 반드시 필요한 수라는 것을 처음 보인 순간이다. 교과서에서 "이차방정식 $x^2+1=0$의 근은 $x = \pm i$"라고 쓰는 것, $i^2 = -1$이라는 규칙 자체가 봄벨리가 1572년 <em>L'Algebra</em>에 명시한 규칙에서 시작됐다.</p>
+      <div class="char-note">※ 약 290자</div>
+    </div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="q-block">
+    <div class="q-label">문항 3. 수학적 사고방식의 변화와 활용 <span style="font-weight:400;font-size:13px;color:#888">(600자 내외)</span></div>
+    <div class="q-prompt">봄벨리의 발견이 수학적 사고방식에 어떤 변화를 가져왔는지 설명하고, 이 사고방식이 자신의 관심 분야에서 어떻게 활용될 수 있는지 구체적으로 서술하시오.
+      <div class="limit">※ 600자 내외로 서술하시오.</div>
+    </div>
+    <div class="answer-box">
+      <div class="a-label">▶ 모범답안 (약 590자)</div>
+      <p>봄벨리 이전 수학자들의 사고방식은 "이해할 수 없는 것은 존재하지 않는다"였다. $\sqrt{-121}$ 같은 음수의 제곱근은 불가능한 수이고, 따라서 그 방정식은 풀 수 없다는 결론을 냈다. 정답이 눈앞에 있어도($x=4$를 검증해보면 맞는데) 중간 과정이 이해 안 된다는 이유로 포기한 것이다.</p>
+      <br>
+      <p>봄벨리는 이 사고를 뒤집었다. <strong>"일단 이 수가 있다고 가정하고 계산 규칙을 만든 뒤 끝까지 계산해보자."</strong> 그 결과 $\sqrt{-1}$들이 상쇄되어 완벽한 실수 답이 나왔다. 이 사고방식의 핵심은 <strong>"지금 당장 의미를 이해하지 못해도, 일관된 규칙만 유지하면 진짜 진리에 도달할 수 있다"</strong>는 것이다. 이것은 수학을 '설명 가능한 직관의 영역'에서 '규칙의 일관성이 지배하는 영역'으로 확장시킨 혁명적 전환이었다.</p>
+      <br>
+      <p>나는 컴퓨터 과학과 공학에 관심이 있다. 이 사고방식은 그 분야에서 그대로 살아있다. 전기공학에서 교류 회로를 분석할 때 $j = \sqrt{-1}$을 사용한다. 전류와 전압의 위상차를 직관적으로 이해하기 어렵지만, 허수 규칙을 일관되게 적용하면 정확한 답이 나온다. 봄벨리의 방법 그대로다. 신호처리에서 푸리에 변환도 복소수 없이는 작동하지 않는다. 머신러닝에서도 복소수 신경망이 연구되고 있다. 봄벨리가 "불가능해 보이는 수를 끝까지 써보자"고 했던 그 태도가, 오늘날 공학의 가장 강력한 도구들을 만들어냈다.</p>
+      <div class="char-note">※ 약 590자</div>
+    </div>
+  </div>
+
+</div><!-- /p-exam -->
+
+<!-- PAGE 2: STORY -->
+<div id="p-story" class="page">
+
+  <div class="hero-banner">
+    <div class="era">이탈리아 · 1526 – 1572</div>
+    <h2>라파엘로 봄벨리</h2>
+    <div class="tagline">공사판 엔지니어가 허수를 발명한 날</div>
+  </div>
+
+  <div class="profile-bar">
+    <div class="profile-item"><div class="pi-label">출생</div><div class="pi-val">1526, 볼로냐</div></div>
+    <div class="profile-item"><div class="pi-label">본업</div><div class="pi-val">토목 기사</div></div>
+    <div class="profile-item"><div class="pi-label">명저</div><div class="pi-val">L'Algebra (1572)</div></div>
+    <div class="profile-item"><div class="pi-label">업적</div><div class="pi-val">허수·복소수 최초 정립</div></div>
+    <div class="profile-item"><div class="pi-label">특이점</div><div class="pi-val">대학 교육 없이 독학</div></div>
+  </div>
+
+  <div class="section">
+    <h3>⚔️ 시대 배경 — 수학 대결의 르네상스</h3>
+    <p>16세기 이탈리아 수학자들은 <strong>공개 수학 대결(Torneo Matematico)</strong>로 명예와 돈을 걸고 싸웠다. 30문제를 내고 더 많이 푸는 사람이 이기는 방식. 지는 사람은 명성을 잃고, 이기는 사람은 귀족의 후원을 얻었다. 오늘날 e스포츠 대회 같은 것이 수학으로 벌어지던 시대였다.</p>
+    <p>카르다노, 타르탈리아, 페라리가 이 무대에서 삼차·사차방정식을 놓고 싸웠다. 봄벨리는 이 전쟁에 직접 참여하지 않고, <strong>공사 현장에서 혼자 그 문제를 해결했다.</strong></p>
+  </div>
+
+  <div class="section">
+    <h3>📖 에피소드 — 공사 중단이 만들어낸 수학사의 전환점</h3>
+    <div class="episode-grid">
+      <div class="ep-card">
+        <div class="ep-title">💧 배수로 공사 도중 탄생한 허수</div>
+        <p>봄벨리는 교황령의 <strong>발 디 키아나(Val di Chiana) 습지 배수 공사</strong> 엔지니어였다. 1550년대, 공사가 예산 문제로 갑자기 중단됐다. 할 일이 없어진 봄벨리는 카르다노의 명저 <em>Ars Magna</em>를 읽기 시작했다.</p>
+        <p>거기서 방정식 $x^3 = 15x + 4$에 막혔다. 직접 넣으면 $x=4$가 맞다. 그런데 카르다노 공식을 적용하면 중간에 $\sqrt{-121}$이 나온다. 당시 모든 수학자가 여기서 포기했다.</p>
+        <blockquote>"이것은 완전히 엉터리 같은 생각이라고 오랫동안 여겼다." — 봄벨리의 회고</blockquote>
+        <p>그런데 봄벨리는 포기하지 않았다. <strong>"이 괴물 같은 수를 진짜 수처럼 취급하면 어떻게 될까?"</strong> $\sqrt{-1}$을 일단 $m$이라 부르고 계산했다.</p>
+        <p>결과: $(2+m)+(2-m) = 4$. $\sqrt{-1}$이 사라지면서 정확히 $x=4$가 나왔다. 존재하지 않는 수를 통과해 진짜 답에 도달한 것이다.</p>
+      </div>
+      <div class="ep-card">
+        <div class="ep-title">📐 허수 사칙연산 규칙을 세우다</div>
+        <p>봄벨리는 이 결과를 체계화해 <em>L'Algebra</em>(1572)에 기록했다. 허수의 곱셈 규칙을 최초로 명시한 것이다:</p>
+        <div class="formula-center">$$i \cdot i = -1 \quad (-i) \cdot (-i) = -1 \quad i \cdot (-i) = +1$$</div>
+        <p>이것이 오늘날 $i^2 = -1$이라는 규칙과 완전히 동일하다. 그리고 이 규칙 위에 복소수 전체의 연산이 세워진다.</p>
+      </div>
+      <div class="ep-card">
+        <div class="ep-title">🏆 라이프니츠의 극찬</div>
+        <p>살아있는 동안 봄벨리는 주목받지 못했다. 그러나 수십 년 뒤, 철학자이자 수학자인 라이프니츠가 <em>L'Algebra</em>를 읽고 이렇게 썼다:</p>
+        <blockquote>"분석의 기예에서 탁월한 거장."</blockquote>
+        <p>봄벨리의 발견은 후대 수학자들이 복소수를 정식화하는 토대가 됐다. 허수가 수학의 정식 시민권을 얻는 데 200년이 더 걸렸지만, 그 문을 처음 연 것은 봄벨리였다.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>📊 Before &amp; After — 봄벨리가 바꾼 사고방식</h3>
+    <div class="compare">
+      <div class="compare-col before">
+        <div class="c-label">⛔ Before (봄벨리 이전)</div>
+        <p><strong>"이해할 수 없는 수는 존재하지 않는다."</strong></p>
+        <p>$\sqrt{-121}$이 나오면 → "이 방정식은 풀 수 없다" 또는 "실수 근이 없다"고 포기.</p>
+        <p>답이 눈앞에 있어도($x=4$ 검증됨), 중간 과정이 이해 안 되면 포기.</p>
+      </div>
+      <div class="compare-col after">
+        <div class="c-label">✅ After (봄벨리 이후)</div>
+        <p><strong>"일관된 규칙만 지키면 이해 못해도 진리에 도달할 수 있다."</strong></p>
+        <p>$\sqrt{-1}$을 수로 가정하고 규칙을 만들어 계산 → 진짜 실수 답 도달.</p>
+        <p>수학이 직관의 영역에서 <em>규칙의 일관성이 지배하는 영역</em>으로 확장.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>🔢 핵심 수식 — 카수스 이레두치빌리스의 해결</h3>
+    <div class="formula-box">
+      <div class="f-title">문제: $x^3 = 15x + 4$ (카수스 이레두치빌리스)</div>
+      <div class="formula-center">
+        $$x = \sqrt[3]{2 + \sqrt{-121}} + \sqrt[3]{2 - \sqrt{-121}}$$
+      </div>
+      <div class="formula-center">
+        $$\sqrt[3]{2+\sqrt{-121}} = 2 + i, \quad \sqrt[3]{2-\sqrt{-121}} = 2 - i$$
+      </div>
+      <div class="formula-center">
+        $$(2+i) + (2-i) = \boxed{4}$$
+      </div>
+      <div class="f-note">허수 $i$들이 정확히 상쇄되어 실수 답 $x=4$가 나온다. 존재하지 않는 수를 경유해 진짜 답에 도달하는 역설.</div>
+    </div>
+    <div class="formula-box" style="margin-top:16px">
+      <div class="f-title">복소수 연산 규칙 (봄벨리가 최초 명시)</div>
+      <div class="formula-center">
+        $$z_1 = a + bi, \quad z_2 = c + di$$
+      </div>
+      <div class="formula-center">
+        $$z_1 + z_2 = (a+c) + (b+d)i$$
+      </div>
+      <div class="formula-center">
+        $$z_1 \cdot z_2 = (ac - bd) + (ad + bc)i$$
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>🌐 허수가 세상을 바꾼 방법</h3>
+    <div class="modern-grid">
+      <div class="modern-card">
+        <div class="mc-icon">⚡</div>
+        <div class="mc-title">전기공학</div>
+        <div class="mc-desc">교류 회로 분석에서 $j = \sqrt{-1}$ 사용. 전압·전류의 위상차를 복소수로 표현.</div>
+      </div>
+      <div class="modern-card">
+        <div class="mc-icon">🎵</div>
+        <div class="mc-title">신호처리</div>
+        <div class="mc-desc">푸리에 변환 — 음악·영상 압축, MP3, JPEG 모두 복소수 없이 불가능.</div>
+      </div>
+      <div class="modern-card">
+        <div class="mc-icon">⚛️</div>
+        <div class="mc-title">양자역학</div>
+        <div class="mc-desc">슈뢰딩거 방정식은 복소수 파동함수로 기술. 원자 세계의 언어.</div>
+      </div>
+      <div class="modern-card">
+        <div class="mc-icon">🤖</div>
+        <div class="mc-title">AI · 복소수 신경망</div>
+        <div class="mc-desc">복소수 입력 처리 가능한 신경망. 레이더·MRI 신호 분석에 활용.</div>
+      </div>
+    </div>
+    <p style="margin-top:16px;font-size:13.5px;color:#555">이 모든 것의 출발점: "있을 수 없는 수를 있다고 가정하고 끝까지 계산해보자." — 봄벨리, 1570년경, 배수로 공사 현장에서.</p>
+  </div>
+
+  <div class="section">
+    <div class="memory-box">
+      <div class="mb-title">🔑 핵심 암기 포인트</div>
+      <blockquote>"공사판 엔지니어 봄벨리는 존재하지 않는 수 $\sqrt{-1}$을 도구로 써서 진짜 답을 찾아냈다. 허수가 '쓸모없는 상상의 수'가 아니라는 것을 처음 보인 사람. <em>L'Algebra</em>(1572)에서 $i^2=-1$ 규칙을 최초 명시."</blockquote>
+    </div>
+  </div>
+
+</div><!-- /p-story -->
+
+<script>
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
