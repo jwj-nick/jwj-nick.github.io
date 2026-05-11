@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>개념 탐구 — 좌표와 그래프</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.9.2/distrib/jsxgraph.css">
+<script src="https://cdn.jsdelivr.net/npm/jsxgraph@1.9.2/distrib/jsxgraphcore.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; }
+
+  .header {
+    background: linear-gradient(135deg, #4361EE 0%, #3a0ca3 100%);
+    color: white; padding: 28px 20px 24px; text-align: center;
+  }
+  .header .back-link {
+    display: inline-block; font-size: 13px; color: rgba(255,255,255,0.8);
+    text-decoration: none; margin-bottom: 10px; padding: 4px 12px;
+    border: 1px solid rgba(255,255,255,0.3); border-radius: 20px;
+  }
+  .header h1 { font-size: 24px; margin-bottom: 4px; }
+  .header .subtitle { font-size: 13px; opacity: 0.85; }
+
+  /* 진행 도트 */
+  .dots {
+    display: flex; justify-content: center; gap: 8px;
+    padding: 14px; background: white;
+    border-bottom: 1px solid #e0e4f0;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #d0d5f0; cursor: pointer; transition: all 0.2s; }
+  .dot.active { background: #4361EE; transform: scale(1.3); }
+  .dot.done { background: #a0aaee; }
+
+  .container { max-width: 700px; margin: 0 auto; padding: 20px 16px 48px; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .section-badge {
+    display: inline-block; background: #4361EE; color: white;
+    font-size: 11px; font-weight: 700; letter-spacing: 1px;
+    padding: 3px 10px; border-radius: 20px; margin-bottom: 10px;
+  }
+  .section-title { font-size: 22px; font-weight: 700; color: #1d3557; margin-bottom: 6px; line-height: 1.3; }
+  .section-sub { font-size: 14px; color: #666; margin-bottom: 20px; line-height: 1.6; }
+
+  /* 수학 언어 박스 (첫 등장) */
+  .deg-info {
+    background: #e8f5e9; border-left: 4px solid #4caf50;
+    border-radius: 0 12px 12px 0; padding: 14px 18px;
+    font-size: 14px; color: #333; margin: 16px 0; line-height: 1.7;
+  }
+  .deg-info .label { font-size: 11px; font-weight: 700; color: #4caf50; letter-spacing: 1px; margin-bottom: 6px; }
+
+  /* 개념 카드 */
+  .concept-card {
+    background: white; border-radius: 14px; padding: 20px;
+    margin-bottom: 16px; box-shadow: 0 2px 8px rgba(67,97,238,0.07);
+  }
+  .concept-card .card-title { font-size: 16px; font-weight: 700; color: #4361EE; margin-bottom: 10px; }
+  .concept-card p { font-size: 14px; color: #444; line-height: 1.7; margin-bottom: 8px; }
+
+  /* 사분면 테이블 */
+  .quad-table {
+    width: 100%; border-collapse: collapse; margin: 12px 0;
+    font-size: 14px;
+  }
+  .quad-table th {
+    background: #4361EE; color: white; padding: 8px 12px; text-align: center;
+  }
+  .quad-table td { border: 1px solid #e0e4f0; padding: 8px 12px; text-align: center; }
+  .quad-table tr:nth-child(even) td { background: #f8f9ff; }
+  .plus { color: #2e7d32; font-weight: 700; }
+  .minus { color: #c62828; font-weight: 700; }
+
+  /* JSXGraph 컨테이너 */
+  .jxg-box {
+    width: 100%; max-width: 480px; height: 320px;
+    margin: 12px auto; border-radius: 12px; overflow: hidden;
+    box-shadow: 0 2px 12px rgba(67,97,238,0.12);
+  }
+  .jxg-box-sm {
+    width: 100%; max-width: 380px; height: 300px;
+    margin: 12px auto; border-radius: 12px; overflow: hidden;
+    box-shadow: 0 2px 12px rgba(67,97,238,0.12);
+  }
+
+  /* 인터랙티브 안내 */
+  .guide-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #fff3cd; border: 1px solid #f6c90e;
+    border-radius: 20px; padding: 5px 14px; font-size: 13px; color: #7a6000;
+    margin-bottom: 12px;
+  }
+
+  /* 정보 표시 */
+  .info-panel {
+    background: #f0f4ff; border-radius: 10px; padding: 14px 18px;
+    font-size: 15px; color: #333; margin: 10px 0; line-height: 1.7;
+    min-height: 54px;
+  }
+  .info-panel strong { color: #4361EE; }
+
+  /* 경고 박스 */
+  .warn-box {
+    background: #fff8e1; border-left: 4px solid #f6c90e;
+    border-radius: 0 12px 12px 0; padding: 14px 18px;
+    font-size: 14px; color: #555; margin: 14px 0; line-height: 1.6;
+  }
+  .warn-box .warn-label { font-size: 11px; font-weight: 700; color: #b8860b; letter-spacing: 1px; margin-bottom: 6px; }
+
+  /* 그래프 표 */
+  .data-table {
+    width: 100%; border-collapse: collapse; font-size: 14px; margin: 10px 0;
+  }
+  .data-table th { background: #4361EE; color: white; padding: 8px; text-align: center; }
+  .data-table td { border: 1px solid #e0e4f0; padding: 7px; text-align: center; }
+  .data-table tr:nth-child(even) td { background: #f8f9ff; }
+
+  /* 직접 써보세요 */
+  .try-box {
+    background: #f0f4ff; border: 2px dashed #a0b0ee;
+    border-radius: 12px; padding: 20px; margin-top: 16px;
+  }
+  .try-box .try-title { font-size: 15px; font-weight: 700; color: #4361EE; margin-bottom: 10px; }
+  .try-input {
+    width: 100%; border: 2px solid #d0d8f0; border-radius: 8px;
+    padding: 10px 14px; font-size: 14px; font-family: inherit;
+    margin-top: 8px; resize: vertical;
+    transition: border-color 0.2s;
+  }
+  .try-input:focus { outline: none; border-color: #4361EE; }
+
+  /* 내비게이션 */
+  .nav-btns { display: flex; justify-content: space-between; align-items: center; margin-top: 28px; gap: 12px; }
+  .btn { padding: 12px 22px; border-radius: 12px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+  .btn-prev { background: white; color: #4361EE; border: 2px solid #d0d5f0; }
+  .btn-prev:hover { border-color: #4361EE; }
+  .btn-next { background: #4361EE; color: white; flex: 1; }
+  .btn-next:hover { background: #3452d0; }
+  .page-indicator { font-size: 13px; color: #888; min-width: 50px; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a class="back-link" href="index.html">← 단원 홈</a>
+  <h1>개념 탐구</h1>
+  <div class="subtitle">좌표와 그래프 — 직접 만져보며 익혀요</div>
+</div>
+
+<div class="dots" id="dots"></div>
+
+<div class="container">
+
+  <!-- Page 1: 순서쌍 -->
+  <div class="page active" data-page="0">
+    <div class="section-badge">개념 1</div>
+    <div class="section-title">순서쌍 (ordered pair)</div>
+    <div class="section-sub">두 수를 순서를 정해서 한 쌍으로 나타낸 것이에요.</div>
+
+    <div class="concept-card">
+      <div class="card-title">순서쌍이란?</div>
+      <p>두 수 $a$와 $b$를 순서를 정해 괄호 안에 짝지어 나타낸 것: $(a, b)$</p>
+      <p>여기서 가장 중요한 것은 <strong>순서</strong>예요!</p>
+    </div>
+
+    <div class="deg-info">
+      <div class="label">수학 언어: 순서쌍 표기</div>
+      $(2, 3)$은 "2 쉼표 3"이라고 읽어요.<br>
+      앞의 수(2)와 뒤의 수(3)의 순서가 바뀌면 완전히 다른 순서쌍이 돼요:<br>
+      <strong>$(2, 3) \neq (3, 2)$</strong> — 이 두 개는 다른 위치예요!
+    </div>
+
+    <div class="concept-card">
+      <div class="card-title">왜 순서가 중요할까요?</div>
+      <p>친구에게 만나는 장소를 말할 때 "3층 2번 교실"과 "2층 3번 교실"은 전혀 다른 곳이에요. 좌표도 마찬가지예요.</p>
+      <p>데카르트도 파리의 위치를 표현할 때 "가로 먼저, 세로 나중"이라는 약속을 정했어요. 이 약속 덕분에 전 세계 수학이 통일됐죠!</p>
+    </div>
+
+    <div class="warn-box">
+      <div class="warn-label">자주 하는 실수</div>
+      $(3, 2)$와 $(2, 3)$을 같다고 생각하는 경우가 많아요. 하지만 완전히 다른 점이에요. "순서쌍"이라는 이름 자체가 "순서가 있는 쌍"이라는 뜻이에요.
+    </div>
+
+    <div class="try-box">
+      <div class="try-title">직접 써보세요</div>
+      "순서쌍 $(a, b)$에서 $a$와 $b$를 바꾸면 어떻게 될까요? 예를 들어 생각해보세요."
+      <textarea class="try-input" rows="3" placeholder="여기에 적어보세요..."></textarea>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn btn-prev" onclick="movePage(-1)" disabled>← 이전</button>
+      <span class="page-indicator">1 / 5</span>
+      <button class="btn btn-next" onclick="movePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- Page 2: 좌표평면 인터랙티브 -->
+  <div class="page" data-page="1">
+    <div class="section-badge">개념 2</div>
+    <div class="section-title">좌표평면</div>
+    <div class="section-sub">두 수직선이 원점에서 만나는 평면이에요. 점을 찍어보세요!</div>
+
+    <div class="concept-card">
+      <div class="card-title">좌표평면의 구성</div>
+      <p><strong>$x$축</strong>: 가로 수직선 (← →)</p>
+      <p><strong>$y$축</strong>: 세로 수직선 (↑ ↓)</p>
+      <p><strong>원점 O</strong>: 두 축이 만나는 점 $(0, 0)$</p>
+    </div>
+
+    <div class="guide-chip">
+      ☝️ 좌표평면을 클릭하면 점이 찍혀요!
+    </div>
+
+    <div id="jxgCoord" class="jxg-box"></div>
+    <div class="info-panel" id="coordInfo">좌표평면을 클릭해서 점을 찍어보세요.</div>
+
+    <div class="deg-info">
+      <div class="label">수학 언어: 점 표기</div>
+      점 P의 좌표가 $(a, b)$이면 <strong>$\mathrm{P}(a, b)$</strong>라고 써요.<br>
+      앞에 점의 이름(P)을 쓰고, 괄호 안에 좌표를 쓰는 약속이에요.<br>
+      예: $\mathrm{A}(3, 2)$, $\mathrm{B}(-1, 4)$, $\mathrm{O}(0, 0)$
+    </div>
+
+    <div class="warn-box">
+      <div class="warn-label">자주 하는 실수</div>
+      <strong>$x$좌표가 먼저, $y$좌표가 나중</strong>이에요! $(x, y)$ 순서를 헷갈리지 마세요.<br>
+      점 $(3, 2)$는 오른쪽으로 3, 위로 2예요. $(2, 3)$과 다른 점이에요.
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn btn-prev" onclick="movePage(-1)">← 이전</button>
+      <span class="page-indicator">2 / 5</span>
+      <button class="btn btn-next" onclick="movePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- Page 3: 사분면 -->
+  <div class="page" data-page="2">
+    <div class="section-badge">개념 3</div>
+    <div class="section-title">사분면</div>
+    <div class="section-sub">좌표평면은 두 축에 의해 4구역으로 나뉘어요.</div>
+
+    <div class="deg-info">
+      <div class="label">수학 언어: 사분면 번호 (로마 숫자)</div>
+      사분면 번호는 <strong>로마 숫자</strong>로 써요: Ⅰ, Ⅱ, Ⅲ, Ⅳ<br>
+      순서는 오른쪽 위(Ⅰ)부터 <strong>반시계 방향</strong>으로 세요:<br>
+      Ⅰ(오른쪽 위) → Ⅱ(왼쪽 위) → Ⅲ(왼쪽 아래) → Ⅳ(오른쪽 아래)
+    </div>
+
+    <table class="quad-table">
+      <tr>
+        <th>사분면</th>
+        <th>$x$좌표</th>
+        <th>$y$좌표</th>
+        <th>예시</th>
+      </tr>
+      <tr>
+        <td><strong>제1사분면</strong></td>
+        <td class="plus">양수 (+)</td>
+        <td class="plus">양수 (+)</td>
+        <td>$(3, 2)$</td>
+      </tr>
+      <tr>
+        <td><strong>제2사분면</strong></td>
+        <td class="minus">음수 (−)</td>
+        <td class="plus">양수 (+)</td>
+        <td>$(-2, 4)$</td>
+      </tr>
+      <tr>
+        <td><strong>제3사분면</strong></td>
+        <td class="minus">음수 (−)</td>
+        <td class="minus">음수 (−)</td>
+        <td>$(-1, -3)$</td>
+      </tr>
+      <tr>
+        <td><strong>제4사분면</strong></td>
+        <td class="plus">양수 (+)</td>
+        <td class="minus">음수 (−)</td>
+        <td>$(4, -2)$</td>
+      </tr>
+    </table>
+
+    <div class="guide-chip">
+      ☝️ 점을 드래그해서 사분면을 바꿔보세요!
+    </div>
+
+    <div id="jxgQuad" class="jxg-box"></div>
+    <div class="info-panel" id="quadInfo">점을 드래그해보세요. 어느 사분면인지 알려줄게요.</div>
+
+    <div class="warn-box">
+      <div class="warn-label">중요!</div>
+      <strong>축 위의 점은 어느 사분면에도 속하지 않아요.</strong><br>
+      예: $(3, 0)$은 $x$축 위의 점이므로 사분면에 속하지 않아요.
+    </div>
+
+    <div class="try-box">
+      <div class="try-title">직접 써보세요</div>
+      점 $(-3, 5)$는 몇 사분면인지, 그 이유와 함께 써보세요.
+      <textarea class="try-input" rows="2" placeholder="여기에 적어보세요..."></textarea>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn btn-prev" onclick="movePage(-1)">← 이전</button>
+      <span class="page-indicator">3 / 5</span>
+      <button class="btn btn-next" onclick="movePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- Page 4: 그래프 읽기 -->
+  <div class="page" data-page="3">
+    <div class="section-badge">개념 4</div>
+    <div class="section-title">그래프 읽기</div>
+    <div class="section-sub">두 변수 사이의 관계를 좌표평면에 나타낸 것이 그래프예요.</div>
+
+    <div class="concept-card">
+      <div class="card-title">그래프로 알 수 있는 것</div>
+      <p><strong>$x$축</strong>: 원인, 시간, 입력값 (가로)</p>
+      <p><strong>$y$축</strong>: 결과, 변화량, 출력값 (세로)</p>
+      <p>그래프가 올라가면 → $x$ 증가 = $y$ 증가</p>
+      <p>그래프가 내려가면 → $x$ 증가 = $y$ 감소</p>
+    </div>
+
+    <p style="font-size:14px;color:#555;margin:8px 0 4px;"><strong>예시:</strong> 어떤 자전거가 초당 이동거리 (속도 일정)</p>
+
+    <table class="data-table">
+      <tr>
+        <th>시간 $x$(초)</th>
+        <td>0</td><td>1</td><td>2</td><td>3</td><td>4</td>
+      </tr>
+      <tr>
+        <th>거리 $y$(m)</th>
+        <td>0</td><td>2</td><td>4</td><td>6</td><td>8</td>
+      </tr>
+    </table>
+
+    <div id="jxgGraph" class="jxg-box-sm"></div>
+
+    <div class="concept-card">
+      <div class="card-title">표 ↔ 식 ↔ 그래프</div>
+      <p>같은 관계를 세 가지 방법으로 표현할 수 있어요:</p>
+      <p>• <strong>표</strong>: 각 값을 하나씩 나열</p>
+      <p>• <strong>식</strong>: $y = 2x$ (관계를 수식으로)</p>
+      <p>• <strong>그래프</strong>: 좌표평면에 시각적으로</p>
+    </div>
+
+    <div class="warn-box">
+      <div class="warn-label">자주 하는 실수</div>
+      그래프에서 특정 $x$값에서의 $y$값을 읽을 때, <strong>$x$축에서 수직으로 올라가 그래프와 만나는 점</strong>의 $y$좌표를 읽어야 해요.
+      가로 방향을 잘못 읽지 않도록 주의하세요.
+    </div>
+
+    <div class="try-box">
+      <div class="try-title">직접 써보세요</div>
+      위 그래프에서 $x = 2.5$일 때 $y$값은 얼마인지 추측해보고, 이유를 써보세요.
+      <textarea class="try-input" rows="2" placeholder="여기에 적어보세요..."></textarea>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn btn-prev" onclick="movePage(-1)">← 이전</button>
+      <span class="page-indicator">4 / 5</span>
+      <button class="btn btn-next" onclick="movePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- Page 5: 종합 정리 -->
+  <div class="page" data-page="4">
+    <div class="section-badge">정리</div>
+    <div class="section-title">단원 핵심 정리</div>
+    <div class="section-sub">이것만 기억하면 돼요!</div>
+
+    <div class="concept-card">
+      <div class="card-title">핵심 1: 순서쌍</div>
+      <p>$(a, b)$에서 앞이 $x$좌표, 뒤가 $y$좌표예요. <strong>순서가 바뀌면 다른 점!</strong></p>
+    </div>
+    <div class="concept-card">
+      <div class="card-title">핵심 2: 좌표평면</div>
+      <p>$x$축(가로) + $y$축(세로), 원점 O(0, 0). 점 표기: $\mathrm{P}(a, b)$</p>
+    </div>
+    <div class="concept-card">
+      <div class="card-title">핵심 3: 사분면</div>
+      <p>제1(+,+) / 제2(−,+) / 제3(−,−) / 제4(+,−)<br>
+      <strong>축 위의 점은 사분면에 속하지 않아요.</strong></p>
+    </div>
+    <div class="concept-card">
+      <div class="card-title">핵심 4: 그래프</div>
+      <p>표 ↔ 식 ↔ 그래프는 같은 관계의 세 가지 얼굴이에요.<br>
+      그래프가 올라가면 $y$가 커지고, 내려가면 $y$가 작아져요.</p>
+    </div>
+
+    <div class="try-box">
+      <div class="try-title">마지막 도전</div>
+      점 $\mathrm{A}(-2, -3)$, $\mathrm{B}(4, 0)$, $\mathrm{C}(-1, 5)$가 각각 어느 위치에 있는지 (사분면 또는 축 위) 써보세요.
+      <textarea class="try-input" rows="3" placeholder="A: ___  B: ___  C: ___"></textarea>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn btn-prev" onclick="movePage(-1)">← 이전</button>
+      <span class="page-indicator">5 / 5</span>
+      <a href="../problems/basic_app.html" style="flex:1;">
+        <button class="btn btn-next" style="width:100%;">문제 풀러 가기 →</button>
+      </a>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+  const pages = document.querySelectorAll('.page');
+  const dotsContainer = document.getElementById('dots');
+  let current = 0;
+  let jxgInit = [false, false, false, false, false];
+
+  pages.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => goPage(i));
+    dotsContainer.appendChild(d);
+  });
+
+  function updateDots() {
+    document.querySelectorAll('.dot').forEach((d, i) => {
+      d.className = 'dot' + (i === current ? ' active' : (i < current ? ' done' : ''));
+    });
+  }
+
+  function goPage(n) {
+    pages[current].classList.remove('active');
+    current = n;
+    pages[current].classList.add('active');
+    updateDots();
+    const prevBtn = pages[current].querySelector('.btn-prev');
+    if (prevBtn) prevBtn.disabled = current === 0;
+    const ind = pages[current].querySelector('.page-indicator');
+    if (ind) ind.textContent = (current + 1) + ' / ' + pages.length;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    initJXG(n);
+  }
+
+  function movePage(dir) {
+    const next = current + dir;
+    if (next >= 0 && next < pages.length) goPage(next);
+  }
+
+  // JSXGraph 초기화 (lazy)
+  function initJXG(pageIdx) {
+    if (jxgInit[pageIdx]) return;
+    jxgInit[pageIdx] = true;
+
+    if (pageIdx === 1) initCoordBoard();
+    if (pageIdx === 2) initQuadBoard();
+    if (pageIdx === 3) initGraphBoard();
+  }
+
+  // Page 2: 좌표평면 (클릭으로 점 추가)
+  function initCoordBoard() {
+    const board = JXG.JSXGraph.initBoard('jxgCoord', {
+      boundingbox: [-6, 6, 6, -6],
+      axis: true,
+      grid: true,
+      showCopyright: false,
+      showNavigation: false,
+      pan: { enabled: false },
+      zoom: { enabled: false },
+    });
+
+    let pts = [];
+    const info = document.getElementById('coordInfo');
+
+    board.on('down', function(e) {
+      const coords = board.getUsrCoordsOfMouse(e);
+      const rx = Math.round(coords[1]);
+      const ry = Math.round(coords[2]);
+      pts.forEach(p => board.removeObject(p));
+      pts = [];
+      const pt = board.create('point', [rx, ry], {
+        name: 'P', size: 5, color: '#f72585',
+        label: { offset: [10, 10], fontSize: 14, color: '#f72585' }
+      });
+      pts.push(pt);
+      let quadrant = getQuadrant(rx, ry);
+      info.innerHTML = '<strong>P(' + rx + ', ' + ry + ')</strong> — ' + quadrant +
+        '<br><small>$x$좌표: ' + rx + ' / $y$좌표: ' + ry + '</small>';
+      if (typeof renderMathInElement !== 'undefined') {
+        setTimeout(() => renderMathInElement(info, {delimiters:[{left:'$',right:'$',display:false}]}), 50);
+      }
+    });
+  }
+
+  // Page 3: 사분면 (드래그 가능 점)
+  function initQuadBoard() {
+    const board = JXG.JSXGraph.initBoard('jxgQuad', {
+      boundingbox: [-6, 6, 6, -6],
+      axis: true,
+      grid: true,
+      showCopyright: false,
+      showNavigation: false,
+      pan: { enabled: false },
+      zoom: { enabled: false },
+    });
+
+    // 사분면 색상 영역
+    board.create('polygon', [[0,0],[6,0],[6,6],[0,6]], {
+      fillColor: '#e8f5e9', strokeColor: 'none', fillOpacity: 0.4, fixed: true, vertices: {visible: false}
+    });
+    board.create('polygon', [[0,0],[-6,0],[-6,6],[0,6]], {
+      fillColor: '#e3f2fd', strokeColor: 'none', fillOpacity: 0.4, fixed: true, vertices: {visible: false}
+    });
+    board.create('polygon', [[0,0],[-6,0],[-6,-6],[0,-6]], {
+      fillColor: '#fce4ec', strokeColor: 'none', fillOpacity: 0.4, fixed: true, vertices: {visible: false}
+    });
+    board.create('polygon', [[0,0],[6,0],[6,-6],[0,-6]], {
+      fillColor: '#fff8e1', strokeColor: 'none', fillOpacity: 0.4, fixed: true, vertices: {visible: false}
+    });
+
+    // 사분면 라벨
+    board.create('text', [3.5, 4.5, 'Ⅰ'], { fontSize: 18, color: '#2e7d32', fixed: true });
+    board.create('text', [-4.5, 4.5, 'Ⅱ'], { fontSize: 18, color: '#1565c0', fixed: true });
+    board.create('text', [-4.5, -4.5, 'Ⅲ'], { fontSize: 18, color: '#c62828', fixed: true });
+    board.create('text', [3.5, -4.5, 'Ⅳ'], { fontSize: 18, color: '#e65100', fixed: true });
+
+    const pt = board.create('point', [2, 3], {
+      name: 'P', size: 6, color: '#f72585', snapToGrid: true,
+      label: { offset: [10, 10], fontSize: 14, color: '#f72585' }
+    });
+
+    const info = document.getElementById('quadInfo');
+
+    function update() {
+      const x = Math.round(pt.X());
+      const y = Math.round(pt.Y());
+      let q = getQuadrant(x, y);
+      info.innerHTML = '<strong>P(' + x + ', ' + y + ')</strong> → ' + q;
+    }
+
+    pt.on('drag', update);
+    update();
+  }
+
+  // Page 4: 그래프 (y = 2x)
+  function initGraphBoard() {
+    const board = JXG.JSXGraph.initBoard('jxgGraph', {
+      boundingbox: [-1, 10, 6, -1],
+      axis: true,
+      grid: true,
+      showCopyright: false,
+      showNavigation: false,
+      pan: { enabled: false },
+      zoom: { enabled: false },
+    });
+
+    board.create('functiongraph', [function(x){ return 2*x; }, 0, 5], {
+      strokeColor: '#4361EE', strokeWidth: 2.5
+    });
+
+    const pts = [[0,0],[1,2],[2,4],[3,6],[4,8]];
+    pts.forEach(p => {
+      board.create('point', p, {
+        size: 4, color: '#f72585', fixed: true,
+        name: '(' + p[0] + ',' + p[1] + ')',
+        label: { offset: [8, 8], fontSize: 11, color: '#333' }
+      });
+    });
+
+    board.create('text', [2.5, 9, 'y = 2x'], {
+      fontSize: 14, color: '#4361EE', fontWeight: 'bold'
+    });
+  }
+
+  function getQuadrant(x, y) {
+    if (x === 0 && y === 0) return '원점 O';
+    if (x === 0) return '$y$축 위 (사분면 아님)';
+    if (y === 0) return '$x$축 위 (사분면 아님)';
+    if (x > 0 && y > 0) return '제1사분면 ($x>0$, $y>0$)';
+    if (x < 0 && y > 0) return '제2사분면 ($x<0$, $y>0$)';
+    if (x < 0 && y < 0) return '제3사분면 ($x<0$, $y<0$)';
+    return '제4사분면 ($x>0$, $y<0$)';
+  }
+
+  // 첫 페이지 로드 시 JSXGraph 초기화 (page 1부터 적용)
+  // Page 0은 JSXGraph 없음 — goPage(0) 호출은 불필요
+</script>
+</body>
+</html>

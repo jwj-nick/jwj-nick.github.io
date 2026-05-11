@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>개념 탐구 — 소인수분해</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Malgun Gothic', sans-serif;
+    background: #eef2ff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+  .container { max-width: 700px; width: 100%; }
+  header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  header .back {
+    font-size: 13px; color: #4361EE;
+    text-decoration: none; display: inline-block; margin-bottom: 14px;
+  }
+  header .back:hover { text-decoration: underline; }
+  header .tag {
+    background: #4361EE; color: white; font-size: 11px;
+    padding: 3px 10px; border-radius: 20px; display: inline-block; margin-bottom: 10px;
+  }
+  header h1 { font-size: 24px; color: #1a1a2e; margin-bottom: 6px; }
+  header p { font-size: 14px; color: #666; }
+  /* 탭 */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .tab {
+    background: white;
+    border: 2px solid #c0c8ff;
+    color: #4361EE;
+    border-radius: 20px;
+    padding: 7px 16px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .tab.active { background: #4361EE; color: white; border-color: #4361EE; }
+  /* 섹션 */
+  .section { display: none; }
+  .section.active { display: block; }
+  /* 카드 */
+  .card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 12px rgba(67,97,238,0.08);
+    margin-bottom: 16px;
+  }
+  .card h3 { font-size: 16px; color: #4361EE; margin-bottom: 12px; }
+  .card p { font-size: 14px; line-height: 1.8; color: #333; margin-bottom: 10px; }
+  /* deg-info */
+  .deg-info {
+    background: #e8f5e9; border-left: 4px solid #43a047;
+    padding: 12px 16px; border-radius: 0 10px 10px 0;
+    margin: 12px 0; font-size: 14px; color: #2e7d32;
+  }
+  .highlight {
+    background: #eef2ff; border-left: 4px solid #4361EE;
+    padding: 12px 16px; border-radius: 0 10px 10px 0;
+    margin: 12px 0; font-size: 14px;
+  }
+  /* 소인수분해 탐구기 */
+  .explorer {
+    background: #f8f9ff; border-radius: 12px; padding: 20px; margin: 12px 0;
+  }
+  .explorer label { font-size: 14px; color: #555; margin-bottom: 8px; display: block; }
+  .input-row { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
+  input[type=number] {
+    border: 2px solid #c0c8ff; border-radius: 8px;
+    padding: 8px 12px; font-size: 15px; font-family: inherit;
+    width: 100px; text-align: center;
+  }
+  input[type=number]:focus { outline: none; border-color: #4361EE; }
+  button.go-btn {
+    background: #4361EE; color: white; border: none;
+    border-radius: 8px; padding: 8px 18px; font-size: 14px;
+    font-family: inherit; cursor: pointer; transition: background 0.15s;
+  }
+  button.go-btn:hover { background: #3451d1; }
+  .factorization-steps {
+    background: white; border-radius: 10px; padding: 14px;
+    min-height: 60px; font-size: 15px;
+  }
+  .step-line { margin: 4px 0; color: #333; }
+  .step-line .divisor { color: #4361EE; font-weight: bold; }
+  .factor-result {
+    margin-top: 12px;
+    padding: 12px;
+    background: #eef2ff;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 16px;
+    min-height: 40px;
+  }
+  /* GCD/LCM 탐구기 */
+  .two-inputs { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .two-inputs input { width: 80px; }
+  .gcd-lcm-display {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; margin-top: 12px;
+  }
+  .result-box {
+    background: white; border: 2px solid #4361EE;
+    border-radius: 10px; padding: 12px; text-align: center;
+  }
+  .result-box .label { font-size: 11px; color: #888; margin-bottom: 4px; }
+  .result-box .value { font-size: 22px; font-weight: bold; color: #4361EE; }
+  .result-box .detail { font-size: 12px; color: #666; margin-top: 4px; }
+  /* 표 */
+  table {
+    width: 100%; border-collapse: collapse; font-size: 13px; margin: 12px 0;
+  }
+  th { background: #4361EE; color: white; padding: 8px 12px; text-align: left; }
+  td { padding: 8px 12px; border-bottom: 1px solid #eef2ff; }
+  tr:last-child td { border-bottom: none; }
+  /* 경고 박스 */
+  .warn-box {
+    background: #fff3cd; border-left: 4px solid #ffc107;
+    padding: 12px 16px; border-radius: 0 10px 10px 0;
+    margin: 12px 0; font-size: 14px; color: #856404;
+  }
+  /* 빈칸 */
+  .write-area {
+    background: #fff9e6; border: 2px dashed #f4a261;
+    border-radius: 12px; padding: 16px; margin: 12px 0;
+  }
+  .write-area label {
+    font-size: 13px; color: #e07b39; font-weight: bold; display: block; margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%; min-height: 70px; border: 1px solid #ddd;
+    border-radius: 8px; padding: 10px; font-family: inherit; font-size: 13px; resize: vertical;
+  }
+  /* 보라색 한글 병기 */
+  .kor { color: #7c3aed; font-weight: bold; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <a class="back" href="index.html">← 단원 홈으로</a>
+    <div class="tag">축 A · 개념 탐구</div>
+    <h1>개념 탐구</h1>
+    <p>소인수분해의 핵심 개념을 직접 탐구해봐요</p>
+  </header>
+
+  <div class="tabs" id="tabRow">
+    <button class="tab active" onclick="showSection('sec-prime', this)">소수·합성수</button>
+    <button class="tab" onclick="showSection('sec-power', this)">거듭제곱</button>
+    <button class="tab" onclick="showSection('sec-factor', this)">소인수분해</button>
+    <button class="tab" onclick="showSection('sec-gcd', this)">GCD·LCM</button>
+  </div>
+
+  <!-- 섹션 1: 소수와 합성수 -->
+  <div class="section active" id="sec-prime">
+    <div class="card">
+      <h3>소수와 합성수란?</h3>
+      <div class="deg-info">
+        <strong>새 용어</strong><br>
+        <span class="kor">소수(prime number)</span> — 1과 자기 자신만을 약수로 가지는 1보다 큰 자연수<br>
+        <span class="kor">합성수(composite number)</span> — 약수가 3개 이상인 자연수
+      </div>
+      <p>1은 소수도 합성수도 아니에요. 1은 특별한 예외예요.</p>
+      <table>
+        <tr><th>수</th><th>약수</th><th>분류</th></tr>
+        <tr><td>1</td><td>1</td><td>소수도 합성수도 아님</td></tr>
+        <tr><td>2</td><td>1, 2</td><td>소수 (유일한 짝수 소수)</td></tr>
+        <tr><td>3</td><td>1, 3</td><td>소수</td></tr>
+        <tr><td>4</td><td>1, 2, 4</td><td>합성수</td></tr>
+        <tr><td>5</td><td>1, 5</td><td>소수</td></tr>
+        <tr><td>6</td><td>1, 2, 3, 6</td><td>합성수</td></tr>
+      </table>
+      <div class="warn-box">
+        자주 하는 실수: "2는 짝수니까 소수가 아니다" → 틀려요!<br>
+        2는 유일한 짝수 소수예요.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>이 수는 소수일까요?</h3>
+      <div class="explorer">
+        <label>확인할 수를 입력하세요 (2~200)</label>
+        <div class="input-row">
+          <input type="number" id="primeInput" value="17" min="2" max="200">
+          <button class="go-btn" onclick="checkPrime()">확인</button>
+        </div>
+        <div class="factorization-steps" id="primeResult" style="font-size:14px;">
+          확인 버튼을 눌러보세요
+        </div>
+      </div>
+      <div class="write-area">
+        <label>직접 써보기</label>
+        <textarea placeholder="1~30 사이의 소수를 모두 찾아 써봐요."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- 섹션 2: 거듭제곱 -->
+  <div class="section" id="sec-power">
+    <div class="card">
+      <h3>거듭제곱이란?</h3>
+      <p>같은 수를 여러 번 곱한 것을 <span class="kor">거듭제곱</span>이라고 해요.</p>
+      <div class="deg-info">
+        <strong>새 기호 — 지수 표기</strong><br>
+        $a^n$ 에서 $a$는 <span class="kor">밑(base)</span>, $n$은 <span class="kor">지수(exponent)</span>
+      </div>
+      <table>
+        <tr><th>표기</th><th>읽기</th><th>풀어쓰기</th><th>값</th></tr>
+        <tr><td>$2^3$</td><td>2의 3제곱</td><td>$2 \times 2 \times 2$</td><td>8</td></tr>
+        <tr><td>$3^4$</td><td>3의 4제곱</td><td>$3 \times 3 \times 3 \times 3$</td><td>81</td></tr>
+        <tr><td>$5^2$</td><td>5의 제곱</td><td>$5 \times 5$</td><td>25</td></tr>
+        <tr><td>$a^1$</td><td>a (생략)</td><td>$a$</td><td>$a$</td></tr>
+      </table>
+      <div class="warn-box">
+        자주 하는 실수: $2^3 = 6$ → 틀려요! ($2 \times 3$이 아니라 $2 \times 2 \times 2 = 8$)
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>슬라이더로 탐구하기</h3>
+      <div class="explorer">
+        <label>밑(base): <strong id="baseLabel">2</strong></label>
+        <input type="range" id="baseSlider" min="1" max="10" value="2" style="width:100%;accent-color:#4361EE;margin-bottom:16px;" oninput="updatePower()">
+        <label>지수(exponent): <strong id="expLabel">3</strong></label>
+        <input type="range" id="expSlider" min="1" max="6" value="3" style="width:100%;accent-color:#4361EE;margin-bottom:12px;" oninput="updatePower()">
+        <div class="factor-result" id="powerResult"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 섹션 3: 소인수분해 -->
+  <div class="section" id="sec-factor">
+    <div class="card">
+      <h3>소인수분해란?</h3>
+      <p>자연수를 <span class="kor">소인수(prime factor)</span>만의 곱으로 나타내는 것을 <span class="kor">소인수분해</span>라고 해요.</p>
+      <div class="highlight">
+        소인수분해 결과 표기 규칙:<br>
+        1. 소인수를 <strong>작은 수부터</strong> 나열<br>
+        2. 같은 소인수는 <strong>거듭제곱</strong>으로 표기
+      </div>
+      <div class="highlight">
+        $$60 = 2^2 \times 3 \times 5$$
+      </div>
+      <p>소인수분해 결과는 순서를 무시하면 항상 단 하나뿐이에요. (산술의 기본 정리)</p>
+    </div>
+
+    <div class="card">
+      <h3>직접 소인수분해해보기</h3>
+      <div class="explorer">
+        <label>소인수분해할 수를 입력하세요 (2~500)</label>
+        <div class="input-row">
+          <input type="number" id="factorInput" value="60" min="2" max="500">
+          <button class="go-btn" onclick="doFactorize()">소인수분해</button>
+        </div>
+        <div class="factorization-steps" id="factorSteps"></div>
+        <div class="factor-result" id="factorResult"></div>
+      </div>
+      <div class="write-area">
+        <label>직접 써보기</label>
+        <textarea placeholder="72를 소인수분해하면? 나눗셈을 단계별로 적어봐요."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- 섹션 4: GCD · LCM -->
+  <div class="section" id="sec-gcd">
+    <div class="card">
+      <h3>최대공약수(GCD)와 최소공배수(LCM)</h3>
+      <div class="deg-info">
+        <span class="kor">최대공약수(GCD)</span> — 두 수의 공통 약수 중 가장 큰 것<br>
+        <span class="kor">최소공배수(LCM)</span> — 두 수의 공통 배수 중 가장 작은 것
+      </div>
+      <p>소인수분해를 이용하면 GCD와 LCM을 구할 수 있어요.</p>
+      <div class="highlight">
+        <strong>GCD</strong>: 공통 소인수 × <strong>작은</strong> 지수<br>
+        <strong>LCM</strong>: 모든 소인수 × <strong>큰</strong> 지수
+      </div>
+      <div class="highlight">
+        $36 = 2^2 \times 3^2$, &nbsp;$48 = 2^4 \times 3$<br>
+        GCD $= 2^2 \times 3 = 12$<br>
+        LCM $= 2^4 \times 3^2 = 144$<br>
+        확인: $36 \times 48 = 1728 = 12 \times 144$ ✅
+      </div>
+      <div class="warn-box">
+        서로소: $\gcd(A, B) = 1$이면 두 수는 <span class="kor">서로소</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>두 수의 GCD와 LCM 구하기</h3>
+      <div class="explorer">
+        <label>두 수를 입력하세요</label>
+        <div class="two-inputs input-row">
+          <input type="number" id="gcdA" value="36" min="1" max="500">
+          <span style="color:#666">와</span>
+          <input type="number" id="gcdB" value="48" min="1" max="500">
+          <button class="go-btn" onclick="computeGcdLcm()">계산</button>
+        </div>
+        <div class="gcd-lcm-display" id="gcdDisplay" style="display:none;">
+          <div class="result-box">
+            <div class="label">최대공약수 (GCD)</div>
+            <div class="value" id="gcdVal">-</div>
+            <div class="detail" id="gcdDetail"></div>
+          </div>
+          <div class="result-box">
+            <div class="label">최소공배수 (LCM)</div>
+            <div class="value" id="lcmVal">-</div>
+            <div class="detail" id="lcmDetail"></div>
+          </div>
+        </div>
+        <div id="gcdSteps" style="font-size:13px;color:#555;margin-top:12px;line-height:1.8;"></div>
+      </div>
+      <div class="write-area">
+        <label>직접 써보기</label>
+        <textarea placeholder="가로 36cm, 세로 48cm 직사각형을 남김없이 자를 수 있는 가장 큰 정사각형의 한 변은 몇 cm일까요?"></textarea>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// 탭 전환
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (id === 'sec-power') updatePower();
+  if (window.renderMathInElement) {
+    renderMathInElement(document.getElementById(id), {
+      delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+    });
+  }
+}
+
+// 소수 판별
+function checkPrime() {
+  const n = parseInt(document.getElementById('primeInput').value);
+  const el = document.getElementById('primeResult');
+  if (isNaN(n) || n < 2) { el.textContent = '2 이상의 수를 입력해주세요.'; return; }
+  if (isPrime(n)) {
+    el.innerHTML = `<span style="color:#4361EE;font-weight:bold;">${n}은 소수예요!</span><br>약수: 1과 ${n}만`;
+  } else {
+    const factors = getFactors(n);
+    el.innerHTML = `<span style="color:#e63946;font-weight:bold;">${n}은 합성수예요.</span><br>약수: ${factors.join(', ')}`;
+  }
+}
+
+function isPrime(n) {
+  if (n < 2) return false;
+  for (let i = 2; i <= Math.sqrt(n); i++) if (n % i === 0) return false;
+  return true;
+}
+
+function getFactors(n) {
+  const f = [];
+  for (let i = 1; i <= n; i++) if (n % i === 0) f.push(i);
+  return f;
+}
+
+// 거듭제곱 슬라이더
+function updatePower() {
+  const base = parseInt(document.getElementById('baseSlider').value);
+  const exp = parseInt(document.getElementById('expSlider').value);
+  document.getElementById('baseLabel').textContent = base;
+  document.getElementById('expLabel').textContent = exp;
+  const result = Math.pow(base, exp);
+  const parts = Array(exp).fill(base).join(' × ');
+  const el = document.getElementById('powerResult');
+  el.innerHTML = '';
+  katex.render(`${base}^{${exp}} = ${parts} = ${result}`, el, { throwOnError: false });
+}
+
+// 소인수분해
+function doFactorize() {
+  let n = parseInt(document.getElementById('factorInput').value);
+  if (isNaN(n) || n < 2) {
+    document.getElementById('factorSteps').textContent = '2 이상의 수를 입력해주세요.';
+    return;
+  }
+  const orig = n;
+  const steps = [];
+  const primeCounts = {};
+  let p = 2;
+  while (n > 1) {
+    if (n % p === 0) {
+      steps.push(`${p} ) ${n}`);
+      primeCounts[p] = (primeCounts[p] || 0) + 1;
+      n = n / p;
+    } else {
+      p++;
+    }
+  }
+  steps.push(`    ${1}`);
+
+  // 나눗셈 표 표시
+  const stepsEl = document.getElementById('factorSteps');
+  stepsEl.innerHTML = steps.map(s => `<div class="step-line">${s}</div>`).join('');
+
+  // 소인수분해 결과
+  const parts = Object.entries(primeCounts).map(([base, exp]) =>
+    exp > 1 ? `${base}^{${exp}}` : `${base}`
+  );
+  const katexStr = `${orig} = ${parts.join(' \\times ')}`;
+  const resultEl = document.getElementById('factorResult');
+  resultEl.innerHTML = '';
+  katex.render(katexStr, resultEl, { throwOnError: false });
+}
+
+// GCD · LCM
+function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+function lcm(a, b) { return a * b / gcd(a, b); }
+
+function primeFactors(n) {
+  const f = {};
+  let p = 2;
+  while (n > 1) {
+    while (n % p === 0) { f[p] = (f[p] || 0) + 1; n /= p; }
+    p++;
+  }
+  return f;
+}
+
+function computeGcdLcm() {
+  const a = parseInt(document.getElementById('gcdA').value);
+  const b = parseInt(document.getElementById('gcdB').value);
+  if (isNaN(a) || isNaN(b) || a < 1 || b < 1) return;
+
+  const g = gcd(a, b);
+  const l = lcm(a, b);
+
+  document.getElementById('gcdVal').textContent = g;
+  document.getElementById('lcmVal').textContent = l;
+
+  const fa = primeFactors(a);
+  const fb = primeFactors(b);
+  const allPrimes = new Set([...Object.keys(fa), ...Object.keys(fb)]);
+
+  let gcdParts = [], lcmParts = [];
+  allPrimes.forEach(p => {
+    const ea = fa[p] || 0;
+    const eb = fb[p] || 0;
+    if (ea > 0 && eb > 0) gcdParts.push(Math.min(ea, eb) > 1 ? `${p}^{${Math.min(ea,eb)}}` : `${p}`);
+    const maxE = Math.max(ea, eb);
+    lcmParts.push(maxE > 1 ? `${p}^{${maxE}}` : `${p}`);
+  });
+
+  document.getElementById('gcdDetail').textContent = '= ' + gcdParts.join('×');
+  document.getElementById('lcmDetail').textContent = '= ' + lcmParts.join('×');
+
+  // 소인수분해 과정
+  const stepsEl = document.getElementById('gcdSteps');
+  const aStr = Object.entries(fa).map(([p,e]) => e>1?`${p}^{${e}}`:`${p}`).join('\\times');
+  const bStr = Object.entries(fb).map(([p,e]) => e>1?`${p}^{${e}}`:`${p}`).join('\\times');
+  stepsEl.innerHTML = '';
+  const line1 = document.createElement('div');
+  katex.render(`${a} = ${aStr}`, line1, { throwOnError: false });
+  const line2 = document.createElement('div');
+  katex.render(`${b} = ${bStr}`, line2, { throwOnError: false });
+  stepsEl.appendChild(line1);
+  stepsEl.appendChild(line2);
+
+  document.getElementById('gcdDisplay').style.display = 'grid';
+}
+
+// 초기화
+updatePower();
+</script>
+</body>
+</html>

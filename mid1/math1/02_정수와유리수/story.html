@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>브라마굽타 이야기 — 0을 발명한 수학자</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Malgun Gothic', sans-serif;
+    background: #eef2ff;
+    min-height: 100vh;
+  }
+
+  /* 네비게이션 */
+  .nav-bar {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border-radius: 30px;
+    padding: 10px 20px;
+    box-shadow: 0 4px 20px rgba(67,97,238,0.2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 100;
+  }
+  .nav-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #d0d8ff;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+  }
+  .nav-dot.active { background: #4361EE; transform: scale(1.3); }
+  .nav-btn {
+    background: #4361EE;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .nav-btn:hover { background: #3451d1; }
+  .nav-btn:disabled { background: #ccc; cursor: default; }
+
+  /* 페이지 */
+  .page {
+    display: none;
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+  .page.active { display: block; }
+
+  /* 히어로 */
+  .hero {
+    background: linear-gradient(135deg, #4361EE 0%, #3a0ca3 100%);
+    color: white;
+    padding: 60px 20px 48px;
+    text-align: center;
+  }
+  .hero .badge {
+    font-size: 12px;
+    background: rgba(255,255,255,0.2);
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+    display: inline-block;
+  }
+  .hero h1 { font-size: 28px; margin-bottom: 12px; line-height: 1.3; }
+  .hero p { font-size: 15px; opacity: 0.9; }
+  .hero-year {
+    margin-top: 20px;
+    font-size: 48px;
+    font-weight: bold;
+    opacity: 0.3;
+    letter-spacing: -2px;
+  }
+
+  /* 컨테이너 */
+  .container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 28px 16px 20px;
+  }
+
+  /* 스토리 박스 */
+  .story-card {
+    background: white;
+    border-radius: 16px;
+    padding: 28px 24px;
+    box-shadow: 0 2px 12px rgba(67,97,238,0.08);
+    margin-bottom: 16px;
+  }
+  .story-card h2 {
+    font-size: 18px;
+    color: #4361EE;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eef2ff;
+  }
+  .story-card p {
+    font-size: 15px;
+    color: #333;
+    line-height: 1.9;
+    margin-bottom: 14px;
+  }
+  .story-card p:last-child { margin-bottom: 0; }
+
+  /* 인용 박스 */
+  .quote {
+    background: #f8f9ff;
+    border-left: 4px solid #4361EE;
+    border-radius: 0 12px 12px 0;
+    padding: 16px 20px;
+    margin: 16px 0;
+    font-size: 15px;
+    color: #333;
+    font-style: italic;
+    line-height: 1.8;
+  }
+
+  /* 수학 하이라이트 */
+  .math-highlight {
+    background: #eef2ff;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    font-size: 14px;
+    color: #333;
+    line-height: 1.8;
+  }
+  .math-highlight strong { color: #4361EE; }
+
+  /* 연결 표 */
+  .connect-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 13px;
+  }
+  .connect-table th {
+    background: #4361EE;
+    color: white;
+    padding: 8px 12px;
+    text-align: left;
+  }
+  .connect-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #eef2ff;
+    vertical-align: top;
+    line-height: 1.6;
+  }
+  .connect-table tr:nth-child(even) td { background: #f8f9ff; }
+
+  /* 잡학 */
+  .trivia-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-top: 8px;
+  }
+  .trivia-card {
+    background: white;
+    border-radius: 12px;
+    padding: 18px 20px;
+    box-shadow: 0 2px 8px rgba(67,97,238,0.07);
+  }
+  .trivia-card h3 {
+    font-size: 14px;
+    color: #4361EE;
+    margin-bottom: 8px;
+  }
+  .trivia-card p {
+    font-size: 13px;
+    color: #555;
+    line-height: 1.7;
+  }
+
+  /* 글쓰기 미션 */
+  .mission-card {
+    background: linear-gradient(135deg, #f0f4ff, #e8ecff);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 14px;
+  }
+  .mission-card .level {
+    font-size: 11px;
+    font-weight: bold;
+    color: #4361EE;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+  .mission-card .prompt {
+    font-size: 15px;
+    color: #333;
+    line-height: 1.7;
+    margin-bottom: 12px;
+  }
+  .mission-card textarea {
+    width: 100%;
+    border: 2px solid #d0d8ff;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 100px;
+    background: white;
+    color: #333;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .mission-card textarea:focus { border-color: #4361EE; }
+  .mission-card textarea::placeholder { color: #aab; }
+
+  /* 섹션 제목 */
+  .section-title {
+    font-size: 15px;
+    font-weight: bold;
+    color: #4361EE;
+    margin: 24px 0 12px;
+    padding-left: 8px;
+    border-left: 3px solid #4361EE;
+  }
+
+  /* 실수 박스 */
+  .mistake-box {
+    background: #fff8f0;
+    border: 1px solid #ffd0a0;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin: 16px 0;
+  }
+  .mistake-box .label {
+    font-size: 12px;
+    font-weight: bold;
+    color: #e07000;
+    margin-bottom: 6px;
+  }
+  .mistake-box p {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  /* 첫 페이지 뒤로가기 */
+  .back-link {
+    display: inline-block;
+    margin: 16px 0 0;
+    font-size: 13px;
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+  }
+  .back-link:hover { color: white; }
+</style>
+</head>
+<body>
+
+<!-- ========== PAGE 0: 표지 ========== -->
+<div class="page active" id="p0">
+  <div class="hero">
+    <div class="badge">Unit 02 · 인물 이야기</div>
+    <h1>0을 발명한 수학자<br>브라마굽타</h1>
+    <p>아무것도 없는 것도 숫자다</p>
+    <div class="hero-year">628</div>
+    <a class="back-link" href="index.html">← 단원 홈으로</a>
+  </div>
+  <div class="container">
+    <div class="story-card">
+      <h2>이 이야기를 읽기 전에</h2>
+      <p>지금 우리는 0이 당연하다고 생각해요. 하지만 0이 "수"로 인정받기까지 수천 년이 걸렸답니다.</p>
+      <p>인도의 수학자 브라마굽타(598~668)는 628년, 30살에 두꺼운 책을 썼어요. 그 책에서 처음으로 0의 계산 규칙을 정리하고, 음수를 "수"로 받아들였죠.</p>
+      <p>오늘날 우리가 쓰는 정수와 유리수의 연산 규칙은 모두 이 30살 청년의 책에서 시작됐어요.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PAGE 1: 0의 발명 ========== -->
+<div class="page" id="p1">
+  <div class="hero" style="padding: 40px 20px 32px;">
+    <div class="badge">Chapter 1</div>
+    <h1>5에서 5를 빼면 뭐지?</h1>
+  </div>
+  <div class="container">
+    <div class="story-card">
+      <h2>628년, 인도 어딘가</h2>
+      <p>브라마굽타는 천문대 앞에 앉아 별의 위치를 계산하고 있었어요. 숫자를 계속 더하고 빼다 보니 이상한 상황이 생겼어요.</p>
+      <div class="quote">"5에서 5를 빼면... 뭐라고 써야 하지?"</div>
+      <p>당시에는 이 질문이 정말 어려운 문제였어요. 그리스 수학자들은 "아무것도 없는 건 수가 아니다"라고 했어요. 로마 사람들은 그냥 빈칸으로 뒀고요.</p>
+      <p>하지만 브라마굽타는 달랐어요.</p>
+      <div class="quote" style="font-style: normal; font-size: 16px; font-weight: bold; color: #4361EE;">
+        "아무것도 없다는 것도 하나의 수다. 이름을 붙여야 한다."
+      </div>
+      <p>그는 그것을 <strong>sunya(슌야)</strong>라고 불렀어요. 산스크리트어로 "텅 빈"이라는 뜻이에요. 이 단어가 아라비아를 거쳐 유럽으로 전해지면서 <strong>zero(제로)</strong>가 됐답니다.</p>
+    </div>
+    <div class="math-highlight">
+      <strong>수학 연결:</strong><br>
+      $a + 0 = a$ &nbsp;·&nbsp; $a - 0 = a$ &nbsp;·&nbsp; $a \times 0 = 0$<br>
+      <span style="font-size:12px; color:#888; margin-top:4px; display:block;">브라마굽타가 처음으로 글로 쓴 규칙이에요.</span>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PAGE 2: 빚도 숫자다 ========== -->
+<div class="page" id="p2">
+  <div class="hero" style="padding: 40px 20px 32px;">
+    <div class="badge">Chapter 2</div>
+    <h1>"빚"도 숫자다</h1>
+  </div>
+  <div class="container">
+    <div class="story-card">
+      <h2>음수의 발명</h2>
+      <p>브라마굽타가 더 대담했던 건 <strong>음수</strong>였어요.</p>
+      <p>당시 인도 상인들은 이런 말을 쓰고 있었어요.</p>
+      <div class="math-highlight">
+        <strong>재산(dhana)</strong> — 내가 가진 것<br>
+        <strong>빚(rina)</strong> — 내가 갚아야 할 것
+      </div>
+      <p>브라마굽타는 이걸 수학으로 끌어들였어요. 음수를 처음으로 "수학의 수"로 받아들인 거예요.</p>
+      <div class="quote">
+        "재산에 재산을 더하면 더 많은 재산.<br>
+        빚에 빚을 더하면 더 많은 빚.<br>
+        재산에서 빚을 빼면... 재산이 더 늘어난다."
+      </div>
+      <p>그리고 그는 곱셈 규칙도 썼어요.</p>
+      <div class="math-highlight">
+        <strong>빚(음수) × 빚(음수) = 재산(양수)</strong><br>
+        $(-) \times (-) = (+)$<br>
+        <span style="font-size:12px; color:#888; margin-top:4px; display:block;">
+          "빚의 반대"를 두 번 하면 재산이 된다는 생각이었어요.
+        </span>
+      </div>
+      <p>지금 우리가 중1에서 배우는 부호 규칙이 바로 여기서 시작됐어요!</p>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PAGE 3: 실수도 했다 ========== -->
+<div class="page" id="p3">
+  <div class="hero" style="padding: 40px 20px 32px;">
+    <div class="badge">Chapter 3</div>
+    <h1>실수도 했다, 그래도 위대했다</h1>
+  </div>
+  <div class="container">
+    <div class="story-card">
+      <h2>솔직히 말하면</h2>
+      <p>브라마굽타도 실수를 했어요.</p>
+      <div class="mistake-box">
+        <div class="label">브라마굽타의 실수</div>
+        <p>"$0 \div 0 = 0$"이라고 썼어요.</p>
+      </div>
+      <p>이건 틀렸어요. $0 \div 0$은 수학에서 "정의되지 않음(undefined)"이에요. 이 오류는 수백 년 뒤 다른 수학자들이 바로잡았답니다.</p>
+      <p>하지만 중요한 건 그가 <strong>처음 시도했다</strong>는 거예요.</p>
+      <p>아무도 생각하지 않았던 것을 생각하고, 아무도 쓰지 않았던 것을 썼어요. 틀리기도 했지만, 틀렸기 때문에 다음 수학자들이 더 나아갈 수 있었답니다.</p>
+      <div class="quote" style="font-style: normal; font-size: 15px;">
+        수학은 혼자 완성되는 게 아니에요.<br>
+        틀린 것도 다음 사람의 출발점이 돼요.
+      </div>
+    </div>
+
+    <div class="section-title">이야기와 수학 연결</div>
+    <div class="story-card" style="padding: 0; overflow: hidden;">
+      <table class="connect-table">
+        <tr>
+          <th>브라마굽타의 발견</th>
+          <th>우리가 배우는 수학</th>
+        </tr>
+        <tr>
+          <td>0의 계산 규칙</td>
+          <td>$a + 0 = a$, $a \times 0 = 0$</td>
+        </tr>
+        <tr>
+          <td>음수 (빚) 개념</td>
+          <td>음수, 수직선 왼쪽</td>
+        </tr>
+        <tr>
+          <td>빚 + 빚 = 더 큰 빚</td>
+          <td>$(-3) + (-2) = -5$</td>
+        </tr>
+        <tr>
+          <td>빚 × 빚 = 재산</td>
+          <td>$(-3) \times (-2) = +6$</td>
+        </tr>
+        <tr>
+          <td>재산 vs 빚의 크기</td>
+          <td>절댓값: 0으로부터의 거리</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PAGE 4: 잡학 ========== -->
+<div class="page" id="p4">
+  <div class="hero" style="padding: 40px 20px 32px;">
+    <div class="badge">Trivia</div>
+    <h1>0이 없었다면?</h1>
+  </div>
+  <div class="container">
+    <div class="trivia-grid">
+      <div class="trivia-card">
+        <h3>디지털 세계는 0으로 돌아간다</h3>
+        <p>컴퓨터는 0과 1만으로 동작해요. 스마트폰, 인터넷, 게임, 스트리밍 — 모두 0과 1의 조합이에요. 브라마굽타가 0에 이름을 붙이지 않았다면 현대 디지털 문명은 없었을지도 몰라요.</p>
+      </div>
+      <div class="trivia-card">
+        <h3>sunya → sifr → zero</h3>
+        <p>인도의 "sunya(슌야)" → 아라비아의 "sifr(시프르)" → 유럽의 "zero(제로), cipher(사이퍼)". "cipher"는 지금도 영어에서 "암호, 비밀 코드"라는 뜻으로 쓰여요. 0이 너무 혁명적이어서, 그 단어 자체가 비밀스러운 것을 뜻하게 됐답니다.</p>
+      </div>
+      <div class="trivia-card">
+        <h3>유럽은 음수를 1000년 동안 거부했다</h3>
+        <p>유럽에서는 음수를 "absurd number(말이 안 되는 수)"라고 불렀어요. 17세기 수학자들도 음수 쓰기를 불편해했답니다. 브라마굽타보다 1000년 뒤의 일이에요.</p>
+      </div>
+      <div class="trivia-card">
+        <h3>오늘날 연결</h3>
+        <p>은행 통장에 마이너스가 뜨는 것, 온도가 영하로 내려가는 것, 해발 0미터 아래의 높이 — 모두 음수와 0이 있기에 표현할 수 있어요.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PAGE 5: 글쓰기 미션 ========== -->
+<div class="page" id="p5">
+  <div class="hero" style="padding: 40px 20px 32px;">
+    <div class="badge">글쓰기 미션</div>
+    <h1>네 생각을 써봐요</h1>
+  </div>
+  <div class="container">
+    <p style="font-size:14px; color:#666; margin-bottom:20px; line-height:1.7;">
+      이야기를 읽고 떠오른 생각을 자유롭게 써봐요. 정답은 없어요. 네 언어로 쓰는 게 가장 좋아요.
+    </p>
+
+    <div class="mission-card">
+      <div class="level">미션 1 · 쉬운 버전</div>
+      <div class="prompt">내가 만약 0을 처음 발견한 사람이라면, 오늘 일기에 어떻게 쓸까? (150자 이상)</div>
+      <textarea placeholder="여기에 써봐요..."></textarea>
+    </div>
+
+    <div class="mission-card">
+      <div class="level">미션 2 · 도전 버전</div>
+      <div class="prompt">브라마굽타가 상인에게 음수를 설명하는 장면을 써보자. 상인은 왜 처음에 이해를 못 했을까? (250자 이상)</div>
+      <textarea placeholder="여기에 써봐요..."></textarea>
+    </div>
+
+    <div class="mission-card">
+      <div class="level">미션 3 · 창의 버전</div>
+      <div class="prompt">0이 없는 세상에서 하루를 보낸다면 어떤 일이 일어날까? (자유롭게)</div>
+      <textarea placeholder="여기에 써봐요..."></textarea>
+    </div>
+
+    <div style="text-align:center; margin-top:24px;">
+      <a href="concepts.html" style="display:inline-block; background:#4361EE; color:white; text-decoration:none; padding:12px 28px; border-radius:24px; font-size:14px;">
+        개념 탐구로 이동 →
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- 네비게이션 -->
+<div class="nav-bar">
+  <button class="nav-btn" id="prevBtn" onclick="changePage(-1)" disabled>◀</button>
+  <button class="nav-dot active" onclick="goPage(0)"></button>
+  <button class="nav-dot" onclick="goPage(1)"></button>
+  <button class="nav-dot" onclick="goPage(2)"></button>
+  <button class="nav-dot" onclick="goPage(3)"></button>
+  <button class="nav-dot" onclick="goPage(4)"></button>
+  <button class="nav-dot" onclick="goPage(5)"></button>
+  <button class="nav-btn" id="nextBtn" onclick="changePage(1)">▶</button>
+</div>
+
+<script>
+  let current = 0;
+  const total = 6;
+  const pages = document.querySelectorAll('.page');
+  const dots = document.querySelectorAll('.nav-dot');
+
+  function goPage(n) {
+    pages[current].classList.remove('active');
+    dots[current].classList.remove('active');
+    current = n;
+    pages[current].classList.add('active');
+    dots[current].classList.add('active');
+    document.getElementById('prevBtn').disabled = (current === 0);
+    document.getElementById('nextBtn').disabled = (current === total - 1);
+    window.scrollTo(0, 0);
+    if (window.renderMathInElement) {
+      renderMathInElement(pages[current]);
+    }
+  }
+
+  function changePage(dir) {
+    const next = current + dir;
+    if (next >= 0 && next < total) goPage(next);
+  }
+</script>
+</body>
+</html>

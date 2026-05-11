@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>데카르트 이야기 (2) — Unit 06</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; }
+  .header {
+    background: linear-gradient(135deg, #4361EE 0%, #3a0ca3 100%);
+    color: white; padding: 32px 20px 28px; text-align: center;
+  }
+  .header .back-link { display: inline-block; font-size: 13px; color: rgba(255,255,255,0.8); text-decoration: none; margin-bottom: 12px; padding: 4px 12px; border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; }
+  .header h1 { font-size: 26px; margin-bottom: 6px; }
+  .header .subtitle { font-size: 14px; opacity: 0.85; }
+  .dots { display: flex; justify-content: center; gap: 8px; padding: 16px; background: white; border-bottom: 1px solid #e0e4f0; position: sticky; top: 0; z-index: 10; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #d0d5f0; cursor: pointer; transition: all 0.2s; }
+  .dot.active { background: #4361EE; transform: scale(1.3); }
+  .dot.done { background: #a0aaee; }
+  .container { max-width: 700px; margin: 0 auto; padding: 24px 16px 48px; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-num { font-size: 12px; color: #888; margin-bottom: 6px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+  .page-title { font-size: 24px; font-weight: 700; color: #1d3557; margin-bottom: 20px; line-height: 1.3; }
+  .story-img { width: 100%; max-width: 500px; margin: 0 auto 24px; display: block; }
+  .story-text { font-size: 16px; line-height: 1.9; color: #333; margin-bottom: 16px; }
+  .story-text strong { color: #4361EE; }
+  .note-box { background: #fff8e1; border-left: 4px solid #f6c90e; border-radius: 0 12px 12px 0; padding: 14px 18px; font-size: 14px; color: #555; margin: 16px 0; line-height: 1.6; }
+  .concept-box { background: white; border: 2px solid #4361EE; border-radius: 12px; padding: 16px 20px; margin: 16px 0; font-size: 15px; color: #333; line-height: 1.6; }
+  .concept-box .label { font-size: 11px; font-weight: 700; color: #4361EE; letter-spacing: 1px; margin-bottom: 8px; }
+  .demo-svg { width: 100%; max-width: 360px; margin: 0 auto 16px; display: block; background: white; border-radius: 16px; padding: 16px; box-shadow: 0 2px 12px rgba(67,97,238,0.1); }
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 12px 0; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 6px rgba(67,97,238,0.06); }
+  .compare-table th { background: #4361EE; color: white; padding: 10px; text-align: center; }
+  .compare-table td { padding: 10px 12px; border-top: 1px solid #e0e4f0; vertical-align: top; }
+  .compare-table tr:nth-child(even) td { background: #f8f9ff; }
+  .trivia-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 8px; }
+  @media (max-width: 480px) { .trivia-grid { grid-template-columns: 1fr; } }
+  .trivia-card { background: white; border-radius: 14px; padding: 18px; box-shadow: 0 2px 8px rgba(67,97,238,0.07); }
+  .trivia-card .icon { font-size: 28px; margin-bottom: 8px; }
+  .trivia-card .title { font-size: 15px; font-weight: 700; color: #4361EE; margin-bottom: 6px; }
+  .trivia-card .body { font-size: 13px; color: #555; line-height: 1.6; }
+  .mission-box { background: linear-gradient(135deg, #f0f4ff, #e6ecff); border-radius: 16px; padding: 24px; margin-top: 16px; }
+  .mission-box .mission-title { font-size: 18px; font-weight: 700; color: #4361EE; margin-bottom: 12px; }
+  .mission-item { background: white; border-radius: 10px; padding: 14px 16px; font-size: 14px; color: #333; margin-bottom: 10px; line-height: 1.6; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s; }
+  .mission-item:hover { border-color: #4361EE; }
+  .mission-item .num { font-weight: 700; color: #4361EE; margin-right: 6px; }
+  .nav-btns { display: flex; justify-content: space-between; align-items: center; margin-top: 32px; gap: 12px; }
+  .btn { padding: 12px 24px; border-radius: 12px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+  .btn-prev { background: white; color: #4361EE; border: 2px solid #d0d5f0; }
+  .btn-prev:hover { border-color: #4361EE; }
+  .btn-next { background: #4361EE; color: white; flex: 1; }
+  .btn-next:hover { background: #3452d0; }
+  .page-indicator { font-size: 13px; color: #888; min-width: 60px; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a class="back-link" href="index.html">← 단원 홈</a>
+  <h1>데카르트 이야기 (2)</h1>
+  <div class="subtitle">식이 그림이 되는 마술 — 1637년</div>
+</div>
+
+<div class="dots" id="dots"></div>
+
+<div class="container">
+
+  <!-- Page 1: 좌표만 만들고 끝났을까? -->
+  <div class="page active" data-page="0">
+    <div class="page-num">이야기 1 / 6</div>
+    <div class="page-title">좌표만 만들고 끝났을까?</div>
+
+    <p class="story-text">
+      지난 시간에 우리는 데카르트가 침대에 누워 천장의 파리를 보다가 <strong>좌표</strong>를 발명한 이야기를 들었어요.
+      $(x, y)$ 두 숫자로 점의 위치를 표현하는 그 약속 말이에요.
+    </p>
+    <p class="story-text">
+      그런데 좌표만 만들고 끝났다면, 데카르트의 이야기는 이렇게 길게 전해지지 않았을 거예요.
+    </p>
+    <p class="story-text">
+      데카르트가 정말로 세상을 바꾼 순간은, 좌표를 만든 다음 떠올린 <strong>두 번째 질문</strong>이었어요.
+    </p>
+    <div class="concept-box">
+      <div class="label">데카르트의 두 번째 질문</div>
+      "좌표가 있다면, <strong>숫자들의 약속(=식)도 그림으로 그릴 수 있지 않을까?</strong>"
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn btn-prev" onclick="movePage(-1)" disabled>← 이전</button>
+      <span class="page-indicator" id="pageInd1">1 / 6</span>
+      <button class="btn btn-next" onclick="movePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- Page 2: 「기하학」 부록 -->
+  <div class="page" data-page="1">
+    <div class="page-num">이야기 2 / 6</div>
+    <div class="page-title">1637년, 「기하학」이라는 작은 부록</div>
+
+    <svg class="story-img" viewBox="0 0 500 220" xmlns="http://www.w3.org/2000/svg">
+      <!-- 책 표지 -->
+      <rect x="180" y="40" width="160" height="160" rx="6" fill="#d4a96a" stroke="#8b6f3a" stroke-width="2"/>
+      <rect x="195" y="55" width="130" height="2" fill="#8b6f3a"/>
+      <rect x="195" y="180" width="130" height="2" fill="#8b6f3a"/>
+      <text x="260" y="100" text-anchor="middle" font-size="14" font-weight="700" fill="#5a4520">Discours</text>
+      <text x="260" y="120" text-anchor="middle" font-size="14" font-weight="700" fill="#5a4520">de la</text>
+      <text x="260" y="140" text-anchor="middle" font-size="14" font-weight="700" fill="#5a4520">Méthode</text>
+      <text x="260" y="170" text-anchor="middle" font-size="11" fill="#8b6f3a">— 1637 —</text>
+      <!-- 작은 부록 표시 -->
+      <rect x="370" y="140" width="60" height="50" rx="4" fill="#fff8e1" stroke="#f6c90e" stroke-width="2"/>
+      <text x="400" y="160" text-anchor="middle" font-size="10" font-weight="700" fill="#7a6000">La</text>
+      <text x="400" y="175" text-anchor="middle" font-size="10" font-weight="700" fill="#7a6000">Géométrie</text>
+      <text x="400" y="200" text-anchor="middle" font-size="9" fill="#999">100 페이지</text>
+      <!-- 화살표 -->
+      <path d="M 345 165 L 365 165" stroke="#f6c90e" stroke-width="2" marker-end="url(#arr)"/>
+      <defs>
+        <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 Z" fill="#f6c90e"/>
+        </marker>
+      </defs>
+    </svg>
+
+    <p class="story-text">
+      데카르트는 1637년에 「방법서설」이라는 <strong>철학책</strong>을 냈어요.
+      그 유명한 "나는 생각한다, 고로 존재한다"가 들어 있는 책이죠.
+    </p>
+    <p class="story-text">
+      이 책 뒤에는 작은 부록 세 개가 붙어 있었는데, 그 중 마지막이 「<strong>기하학(La Géométrie)</strong>」이라는 100페이지짜리 글이었어요.
+    </p>
+    <p class="story-text">
+      지금 우리가 쓰는 거의 모든 수학 — 함수, 그래프, 미적분, 컴퓨터 그래픽 — 은 사실 이 100페이지에서 시작했어요.
+      <strong>본문(철학)보다 부록(수학)이 더 유명해진</strong> 보기 드문 책이죠.
+    </p>
+
+    <div class="concept-box">
+      <div class="label">데카르트의 말 (1637)</div>
+      "내가 $(x, y)$ 좌표를 도입한 진짜 이유는 점 하나의 위치를 말하기 위해서가 아니다.
+      <strong>무수히 많은 점들이 만드는 식 — 그것을 그림으로 보기 위해서다.</strong>"
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn btn-prev" onclick="movePage(-1)">← 이전</button>
+      <span class="page-indicator" id="pageInd2">2 / 6</span>
+      <button class="btn btn-next" onclick="movePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- Page 3: 식이 그림이 되는 마술 (정비례) -->
+  <div class="page" data-page="2">
+    <div class="page-num">이야기 3 / 6</div>
+    <div class="page-title">마술 1 — 정비례 (직선)</div>
+
+    <p class="story-text">
+      데카르트가 보여준 첫 번째 마술. 식 하나를 잡아요.
+    </p>
+    <div class="concept-box" style="text-align: center; font-size: 22px;">
+      $$y = 2x$$
+    </div>
+    <p class="story-text">
+      이건 그냥 글자와 숫자의 약속이에요. "$y$는 $x$의 2배다"라는 말.
+    </p>
+    <p class="story-text">
+      이제 데카르트가 가르쳐준 대로 해볼게요.
+    </p>
+
+    <table class="compare-table">
+      <tr><th>$x$</th><td style="text-align:center;">-2</td><td style="text-align:center;">-1</td><td style="text-align:center;">0</td><td style="text-align:center;">1</td><td style="text-align:center;">2</td></tr>
+      <tr><th>$y$</th><td style="text-align:center;">-4</td><td style="text-align:center;">-2</td><td style="text-align:center;">0</td><td style="text-align:center;">2</td><td style="text-align:center;">4</td></tr>
+    </table>
+
+    <p class="story-text">
+      이 다섯 짝을 좌표로 본 거예요: $(-2, -4)$, $(-1, -2)$, $(0, 0)$, $(1, 2)$, $(2, 4)$.
+    </p>
+
+    <svg class="demo-svg" viewBox="-100 -100 200 200" xmlns="http://www.w3.org/2000/svg">
+      <!-- 격자 -->
+      <g stroke="#e0e4f0" stroke-width="0.5">
+        <line x1="-90" y1="-50" x2="90" y2="-50"/><line x1="-90" y1="50" x2="90" y2="50"/>
+        <line x1="-50" y1="-90" x2="-50" y2="90"/><line x1="50" y1="-90" x2="50" y2="90"/>
+      </g>
+      <!-- 축 -->
+      <line x1="-90" y1="0" x2="90" y2="0" stroke="#888" stroke-width="1"/>
+      <line x1="0" y1="-90" x2="0" y2="90" stroke="#888" stroke-width="1"/>
+      <text x="92" y="4" font-size="9" fill="#888">x</text>
+      <text x="2" y="-92" font-size="9" fill="#888">y</text>
+      <!-- 직선 y = 2x  (y가 위쪽이 +, 화면은 위쪽이 -이므로 SVG y는 반전) -->
+      <line x1="-45" y1="90" x2="45" y2="-90" stroke="#4361EE" stroke-width="2"/>
+      <!-- 점 -->
+      <g fill="#4361EE">
+        <circle cx="-50" cy="100" r="0"/>
+        <circle cx="-50" cy="80" r="3"/>
+        <circle cx="-25" cy="40" r="3"/>
+        <circle cx="0" cy="0" r="3"/>
+        <circle cx="25" cy="-40" r="3"/>
+        <circle cx="50" cy="-80" r="3"/>
+      </g>
+      <text x="55" y="-78" font-size="9" fill="#4361EE" font-weight="700">y=2x</text>
+    </svg>
+
+    <p class="story-text">
+      좌표평면에 점 다섯 개를 찍고 잘 보면 — <strong>한 직선</strong> 위에 정확히 놓여요.
+    </p>
+    <div class="concept-box">
+      <div class="label">발견</div>
+      식 $y = 2x$ 가 <strong>원점을 지나는 직선</strong>이라는 그림이 됐어요.
+      글자였던 것이 그림이 됐죠.
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn btn-prev" onclick="movePage(-1)">← 이전</button>
+      <span class="page-indicator" id="pageInd3">3 / 6</span>
+      <button class="btn btn-next" onclick="movePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- Page 4: 식이 그림이 되는 마술 (반비례) -->
+  <div class="page" data-page="3">
+    <div class="page-num">이야기 4 / 6</div>
+    <div class="page-title">마술 2 — 반비례 (쌍곡선)</div>
+
+    <p class="story-text">
+      데카르트의 두 번째 마술. 이번엔 다른 식이에요.
+    </p>
+    <div class="concept-box" style="text-align: center; font-size: 22px;">
+      $$y = \frac{6}{x}$$
+    </div>
+    <p class="story-text">
+      "$x$와 $y$를 곱하면 항상 6이다"라는 약속이에요.
+    </p>
+
+    <table class="compare-table">
+      <tr><th>$x$</th><td style="text-align:center;">1</td><td style="text-align:center;">2</td><td style="text-align:center;">3</td><td style="text-align:center;">6</td><td style="text-align:center;">-1</td><td style="text-align:center;">-2</td></tr>
+      <tr><th>$y$</th><td style="text-align:center;">6</td><td style="text-align:center;">3</td><td style="text-align:center;">2</td><td style="text-align:center;">1</td><td style="text-align:center;">-6</td><td style="text-align:center;">-3</td></tr>
+    </table>
+
+    <svg class="demo-svg" viewBox="-100 -100 200 200" xmlns="http://www.w3.org/2000/svg">
+      <!-- 격자 -->
+      <g stroke="#e0e4f0" stroke-width="0.5">
+        <line x1="-90" y1="-50" x2="90" y2="-50"/><line x1="-90" y1="50" x2="90" y2="50"/>
+        <line x1="-50" y1="-90" x2="-50" y2="90"/><line x1="50" y1="-90" x2="50" y2="90"/>
+      </g>
+      <!-- 축 -->
+      <line x1="-90" y1="0" x2="90" y2="0" stroke="#888" stroke-width="1"/>
+      <line x1="0" y1="-90" x2="0" y2="90" stroke="#888" stroke-width="1"/>
+      <text x="92" y="4" font-size="9" fill="#888">x</text>
+      <text x="2" y="-92" font-size="9" fill="#888">y</text>
+      <!-- 쌍곡선 y=6/x: 한 단위=10px → x=0.7~9, y=6/x*10 -->
+      <!-- 1사분면 (x>0, y>0) -->
+      <path d="M 7,-857 Q 10,-60 15,-40 Q 20,-30 30,-20 Q 50,-12 80,-7.5"
+            stroke="#7b2ff7" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <!-- 더 깔끔한 path -->
+      <path d="M 10,-60 C 15,-40 20,-30 30,-20 S 60,-10 80,-7.5"
+            stroke="#7b2ff7" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M 80,-7.5 L 90,-6.7" stroke="#7b2ff7" stroke-width="2" stroke-linecap="round"/>
+      <!-- 3사분면 (x<0, y<0) -->
+      <path d="M -10,60 C -15,40 -20,30 -30,20 S -60,10 -80,7.5"
+            stroke="#7b2ff7" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M -80,7.5 L -90,6.7" stroke="#7b2ff7" stroke-width="2" stroke-linecap="round"/>
+      <!-- 점 (선택) -->
+      <g fill="#7b2ff7">
+        <circle cx="10" cy="-60" r="2.5"/>
+        <circle cx="20" cy="-30" r="2.5"/>
+        <circle cx="30" cy="-20" r="2.5"/>
+        <circle cx="60" cy="-10" r="2.5"/>
+        <circle cx="-10" cy="60" r="2.5"/>
+        <circle cx="-20" cy="30" r="2.5"/>
+      </g>
+      <text x="55" y="-25" font-size="9" fill="#7b2ff7" font-weight="700">y=6/x</text>
+    </svg>
+
+    <p class="story-text">
+      이 점들을 좌표평면에 찍고 부드럽게 이어보면 — <strong>두 갈래 곡선</strong>이 나타나요.
+      이걸 <strong>쌍곡선(雙曲線, hyperbola)</strong>이라고 해요.
+    </p>
+    <div class="note-box">
+      신기한 건, 이 곡선은 $x$축과 $y$축에 한없이 가까워지지만 <strong>결코 닿지 않아요</strong>.
+      손에 닿을 듯 닿지 않는 친구 같죠.
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn btn-prev" onclick="movePage(-1)">← 이전</button>
+      <span class="page-indicator" id="pageInd4">4 / 6</span>
+      <button class="btn btn-next" onclick="movePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- Page 5: 진짜 비밀 -->
+  <div class="page" data-page="4">
+    <div class="page-num">이야기 5 / 6</div>
+    <div class="page-title">데카르트가 가르친 진짜 비밀</div>
+
+    <div class="concept-box" style="text-align: center; font-size: 18px; padding: 24px;">
+      <strong style="color: #4361EE;">식과 그림은 한 몸이다.</strong>
+    </div>
+
+    <p class="story-text">
+      식만 보고 못 풀겠으면 그림으로 그려보세요.<br>
+      그림에서 안 보이면 식으로 따져보세요.
+    </p>
+    <p class="story-text">
+      같은 이야기를 두 가지 언어로 할 수 있는 거예요.
+    </p>
+
+    <table class="compare-table">
+      <tr><th>식의 언어</th><th>그림의 언어</th></tr>
+      <tr><td>$y = 2x$</td><td>원점을 지나는 직선, 오른쪽 위로</td></tr>
+      <tr><td>$y = -2x$</td><td>원점을 지나는 직선, 오른쪽 아래로</td></tr>
+      <tr><td>$y = \dfrac{6}{x}$</td><td>1·3사분면의 쌍곡선</td></tr>
+      <tr><td>$y = \dfrac{-6}{x}$</td><td>2·4사분면의 쌍곡선</td></tr>
+    </table>
+
+    <p class="story-text">
+      식이 어렵게 느껴질 때는 그림으로 옮겨봐요.<br>
+      그림이 막막할 때는 식으로 옮겨봐요.<br>
+      데카르트가 우리에게 준 <strong>마법의 도구</strong>예요.
+    </p>
+
+    <div class="nav-btns">
+      <button class="btn btn-prev" onclick="movePage(-1)">← 이전</button>
+      <span class="page-indicator" id="pageInd5">5 / 6</span>
+      <button class="btn btn-next" onclick="movePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- Page 6: 부호 함정 + 잡학 + 미션 -->
+  <div class="page" data-page="5">
+    <div class="page-num">이야기 6 / 6</div>
+    <div class="page-title">부호가 바뀌는 순간 (작은 함정)</div>
+
+    <p class="story-text">
+      마지막으로 데카르트가 우리에게 슬쩍 준 작은 함정 하나만 짚고 넘어갈게요.
+    </p>
+    <p class="story-text">
+      식 $y = \dfrac{a}{x}$ 에서 $a = -2$ 라면, 이 식은 어떻게 될까요?
+    </p>
+    <div class="concept-box" style="text-align: center; font-size: 18px;">
+      $$y = \frac{-2}{x}$$
+    </div>
+    <p class="story-text">
+      분자에 $-2$가 통째로 들어가요. <strong>분자 전체에 부호가 들어가는 약속</strong>이에요.
+    </p>
+    <p class="story-text">
+      이걸 사람에 따라 이렇게도 써요:
+    </p>
+    <div class="concept-box" style="text-align: center; font-size: 18px;">
+      $$y = \frac{-2}{x} = -\frac{2}{x}$$
+    </div>
+    <p class="story-text">
+      세 형태가 모두 <strong>같은 식</strong>이에요. 그래프도 같은 모양 (2·4사분면 쌍곡선)이고요.
+    </p>
+    <div class="note-box">
+      처음 보면 "어디로 가는 거지?" 헷갈릴 수 있어요. 식 표기는 약속이라서, 한 번 익히면 두 번째부터는 안 헷갈려요.
+      <strong>「개념 탐구」에서 슬라이더로 직접 확인</strong>해 보세요.
+    </div>
+
+    <h3 style="font-size: 18px; color: #1d3557; margin: 32px 0 12px;">잡학 (Trivia)</h3>
+    <div class="trivia-grid">
+      <div class="trivia-card">
+        <div class="icon">🍳</div>
+        <div class="title">정비례·반비례 in 일상</div>
+        <div class="body">레시피 인분(정비례), 같은 거리·속도와 시간(반비례), 사과 가격과 개수(정비례).</div>
+      </div>
+      <div class="trivia-card">
+        <div class="icon">📜</div>
+        <div class="title">프랑스어로 쓴 책</div>
+        <div class="body">「방법서설」은 라틴어 대신 프랑스어로 쓰였어요. 더 많은 사람이 읽으라는 뜻이었죠.</div>
+      </div>
+      <div class="trivia-card">
+        <div class="icon">🧑‍🏫</div>
+        <div class="title">"함수"라는 말</div>
+        <div class="body">"함수(function)"라는 단어는 데카르트보다 50년쯤 후에 라이프니츠가 처음 썼어요.</div>
+      </div>
+      <div class="trivia-card">
+        <div class="icon">📐</div>
+        <div class="title">100페이지의 혁명</div>
+        <div class="body">「기하학」 단 100쪽에서 함수·미적분·컴퓨터 그래픽이 모두 시작됐어요.</div>
+      </div>
+    </div>
+
+    <div class="mission-box">
+      <div class="mission-title">✏️ 글쓰기 미션</div>
+      <div class="mission-item"><span class="num">1.</span> 데카르트가 식 $y = 2x$를 처음 그림으로 그려본 그 순간 — 무슨 생각을 했을까?</div>
+      <div class="mission-item"><span class="num">2.</span> 내 일상 속 정비례 관계 한 가지, 반비례 관계 한 가지 — 직접 찾아 식으로 써보기.</div>
+      <div class="mission-item"><span class="num">3.</span> 보이지 않던 것을 보이게 만드는 일 — 그림으로 그려야 보이는 것에는 무엇이 있을까?</div>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn btn-prev" onclick="movePage(-1)">← 이전</button>
+      <span class="page-indicator" id="pageInd6">6 / 6</span>
+      <a class="btn btn-next" href="concepts.html" style="text-decoration:none;text-align:center;">개념 탐구로 →</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const pages = document.querySelectorAll('.page');
+  const dotsEl = document.getElementById('dots');
+  let currentPage = 0;
+
+  // Init dots
+  pages.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goPage(i);
+    dotsEl.appendChild(d);
+  });
+
+  function updateDots() {
+    [...dotsEl.children].forEach((d, i) => {
+      d.classList.toggle('active', i === currentPage);
+      d.classList.toggle('done', i < currentPage);
+    });
+  }
+
+  function goPage(n) {
+    pages[currentPage].classList.remove('active');
+    currentPage = n;
+    pages[currentPage].classList.add('active');
+    updateDots();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function movePage(d) {
+    const next = currentPage + d;
+    if (next >= 0 && next < pages.length) goPage(next);
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>단원 4 — 일차방정식</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Malgun Gothic', sans-serif;
+    background: #eef2ff;
+    min-height: 100vh;
+  }
+  .hero {
+    background: linear-gradient(135deg, #4361EE 0%, #3a0ca3 100%);
+    color: white;
+    padding: 48px 20px 40px;
+    text-align: center;
+  }
+  .hero .unit-label {
+    font-size: 13px;
+    opacity: 0.8;
+    margin-bottom: 8px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .hero h1 { font-size: 32px; margin-bottom: 10px; }
+  .hero p { font-size: 16px; opacity: 0.9; }
+  .hero .person {
+    margin-top: 20px;
+    font-size: 13px;
+    opacity: 0.75;
+    background: rgba(255,255,255,0.15);
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+  }
+  .container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 24px 16px 48px;
+  }
+  .cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 8px;
+  }
+  @media (max-width: 480px) { .cards { grid-template-columns: 1fr; } }
+  .card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 12px rgba(67,97,238,0.08);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.15s, box-shadow 0.15s;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(67,97,238,0.15);
+  }
+  .card-icon { font-size: 32px; margin-bottom: 12px; }
+  .card-title { font-size: 17px; font-weight: bold; color: #1a1a2e; margin-bottom: 6px; }
+  .card-desc { font-size: 13px; color: #666; line-height: 1.6; flex: 1; }
+  .card-tag {
+    margin-top: 14px;
+    font-size: 11px;
+    background: #eef2ff;
+    color: #4361EE;
+    padding: 3px 10px;
+    border-radius: 20px;
+    display: inline-block;
+  }
+  .section-title {
+    font-size: 15px;
+    font-weight: bold;
+    color: #4361EE;
+    margin: 28px 0 12px;
+    padding-left: 8px;
+    border-left: 3px solid #4361EE;
+  }
+  .overview {
+    background: white;
+    border-radius: 16px;
+    padding: 20px 24px;
+    box-shadow: 0 2px 12px rgba(67,97,238,0.08);
+    margin-top: 8px;
+  }
+  .overview p { font-size: 14px; color: #444; line-height: 1.8; }
+  .concept-chips {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chip {
+    font-size: 12px;
+    background: #eef2ff;
+    color: #4361EE;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+  }
+  .quote-box {
+    background: linear-gradient(135deg, #f0f4ff, #e8ecff);
+    border-left: 4px solid #4361EE;
+    border-radius: 0 12px 12px 0;
+    padding: 16px 20px;
+    margin-top: 20px;
+    font-size: 14px;
+    color: #333;
+    line-height: 1.7;
+  }
+  .quote-box .author {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #4361EE;
+    font-weight: bold;
+  }
+  .mystery-box {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 12px rgba(67,97,238,0.08);
+    margin-top: 8px;
+    text-align: center;
+  }
+  .mystery-title {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 12px;
+  }
+  .mystery-text {
+    font-size: 15px;
+    color: #1a1a2e;
+    line-height: 2;
+    font-style: italic;
+  }
+  .mystery-eq {
+    margin-top: 16px;
+    padding: 14px;
+    background: #eef2ff;
+    border-radius: 10px;
+    font-size: 16px;
+    color: #4361EE;
+  }
+  .mystery-btn {
+    margin-top: 16px;
+    background: #4361EE;
+    color: white;
+    border: none;
+    padding: 10px 28px;
+    border-radius: 24px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .mystery-btn:hover { background: #3a0ca3; }
+  .mystery-answer {
+    display: none;
+    margin-top: 14px;
+    padding: 14px;
+    background: #f0fff4;
+    border-radius: 10px;
+    font-size: 15px;
+    color: #2d6a4f;
+    font-weight: bold;
+  }
+  .timeline {
+    background: white;
+    border-radius: 16px;
+    padding: 20px 24px;
+    box-shadow: 0 2px 12px rgba(67,97,238,0.08);
+    margin-top: 8px;
+  }
+  .timeline-item {
+    display: flex;
+    gap: 16px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f8;
+  }
+  .timeline-item:last-child { border-bottom: none; }
+  .timeline-year {
+    font-size: 12px;
+    font-weight: bold;
+    color: #4361EE;
+    min-width: 65px;
+  }
+  .timeline-text { font-size: 13px; color: #444; line-height: 1.5; }
+  .step-flow {
+    background: white;
+    border-radius: 16px;
+    padding: 20px 24px;
+    box-shadow: 0 2px 12px rgba(67,97,238,0.08);
+    margin-top: 8px;
+  }
+  .step-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f8;
+  }
+  .step-row:last-child { border-bottom: none; }
+  .step-num {
+    background: #4361EE;
+    color: white;
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .step-content { flex: 1; }
+  .step-label { font-size: 14px; font-weight: bold; color: #1a1a2e; margin-bottom: 3px; }
+  .step-desc { font-size: 13px; color: #666; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="unit-label">Unit 04 · 중1 수학</div>
+  <h1>일차방정식</h1>
+  <p>모르는 것을 $x$라 놓으면 무엇이든 구할 수 있어요.</p>
+  <div class="person">인물: 디오판토스 (Diophantus, 약 200~284년경, 알렉산드리아)</div>
+</div>
+
+<div class="container">
+
+  <div class="section-title">이 단원에서 배우는 것</div>
+  <div class="overview">
+    <p>방정식은 "모르는 수($x$)를 포함한 등식"이에요. 특별한 값일 때만 참이 되는 등식을 방정식이라 하고,
+    그 값을 구하는 과정을 "방정식을 푼다"고 해요.
+    등식의 성질을 이용해 $x$를 한쪽으로 모으면 어떤 문제든 풀 수 있어요.</p>
+    <div class="concept-chips">
+      <span class="chip">방정식 vs 항등식</span>
+      <span class="chip">등식의 성질</span>
+      <span class="chip">이항</span>
+      <span class="chip">일차방정식 풀기</span>
+      <span class="chip">검산</span>
+      <span class="chip">방정식 활용</span>
+    </div>
+  </div>
+
+  <div class="quote-box">
+    "여기 디오판토스 잠들다. 그의 일생의 6분의 1은 소년으로, 12분의 1은 청년으로, 7분의 1이 지나 결혼했으며…"
+    <div class="author">— 디오판토스의 묘비명 수수께끼 (약 3세기, 알렉산드리아)</div>
+  </div>
+
+  <div class="section-title">묘비 수수께끼: 그는 몇 살을 살았을까요?</div>
+  <div class="mystery-box">
+    <div class="mystery-title">방정식으로 풀어보세요</div>
+    <div class="mystery-text">
+      일생의 1/6 → 소년<br>
+      일생의 1/12 → 청년<br>
+      일생의 1/7 → 총각<br>
+      + 5년 후 결혼, + 결혼 후 아들 탄생<br>
+      아들은 아버지 나이의 1/2 살고 사망<br>
+      그 후 4년 뒤 디오판토스 사망
+    </div>
+    <div class="mystery-eq">
+      $$\frac{x}{6} + \frac{x}{12} + \frac{x}{7} + 5 + \frac{x}{2} + 4 = x$$
+    </div>
+    <button class="mystery-btn" onclick="document.getElementById('ans').style.display='block'; this.style.display='none'">
+      정답 보기
+    </button>
+    <div class="mystery-answer" id="ans">
+      $x = 84$ 살 — 디오판토스는 84세를 살았습니다.
+    </div>
+  </div>
+
+  <div class="section-title">학습 메뉴</div>
+  <div class="cards">
+    <a class="card" href="story.html">
+      <div class="card-icon">📜</div>
+      <div class="card-title">디오판토스 이야기</div>
+      <div class="card-desc">방정식의 아버지. 페르마의 마지막 정리를 만든 책의 저자.</div>
+      <div class="card-tag">이야기</div>
+    </a>
+    <a class="card" href="concepts.html">
+      <div class="card-icon">⚖️</div>
+      <div class="card-title">개념 탐구</div>
+      <div class="card-desc">방정식이 왜 "저울"과 같은지 직접 조작하며 이해해요.</div>
+      <div class="card-tag">인터랙티브</div>
+    </a>
+    <a class="card" href="../problems/basic_app.html">
+      <div class="card-icon">✏️</div>
+      <div class="card-title">기본 문제</div>
+      <div class="card-desc">단원 전체 핵심 개념을 확인하는 기본 문제 9개예요.</div>
+      <div class="card-tag">문제 풀기</div>
+    </a>
+    <a class="card" href="../problems/types.md">
+      <div class="card-icon">📋</div>
+      <div class="card-title">유형별 연습</div>
+      <div class="card-desc">시험에 나오는 유형을 난이도별로 연습해요.</div>
+      <div class="card-tag">유형 훈련</div>
+    </a>
+  </div>
+
+  <div class="section-title">방정식 푸는 흐름 한눈에</div>
+  <div class="step-flow">
+    <div class="step-row">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-label">괄호 풀기</div>
+        <div class="step-desc">분배법칙으로 괄호 안을 먼저 정리해요.</div>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-label">분수·소수 정리</div>
+        <div class="step-desc">양변에 분모의 최소공배수(또는 10의 거듭제곱)를 곱해요.</div>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-label">이항</div>
+        <div class="step-desc">$x$항은 좌변으로, 숫자는 우변으로 부호를 바꿔 옮겨요.</div>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <div class="step-label">동류항 정리</div>
+        <div class="step-desc">양변을 각각 더하고 빼서 정리해요.</div>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <div class="step-label">$x$의 계수로 나누기</div>
+        <div class="step-desc">양변을 $x$의 계수로 나눠서 $x = ?$ 꼴로 만들어요.</div>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">6</div>
+      <div class="step-content">
+        <div class="step-label">검산</div>
+        <div class="step-desc">구한 값을 원래 식에 대입해 양변이 같은지 확인해요.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">디오판토스 타임라인</div>
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-year">약 3세기</div>
+      <div class="timeline-text">알렉산드리아에서 활동. 「Arithmetica(아리트메티카)」 13권 저술</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">9세기</div>
+      <div class="timeline-text">이슬람 학자들이 Arithmetica를 아랍어로 번역. 알콰리즈미가 참고하여 대수학 발전</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">1621년</div>
+      <div class="timeline-text">라틴어 번역본 출간. 프랑스의 페르마가 이 책을 읽으며 여백에 낙서를 남김</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">1637년</div>
+      <div class="timeline-text">페르마의 마지막 정리 탄생 — "나는 증명을 발견했지만 여백이 너무 좁다"</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">1995년</div>
+      <div class="timeline-text">앤드루 와일스가 페르마의 마지막 정리를 증명 — 358년 걸린 문제 해결</div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

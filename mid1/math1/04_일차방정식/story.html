@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>디오판토스 이야기 — 방정식의 아버지</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Malgun Gothic', sans-serif;
+    background: #eef2ff;
+    min-height: 100vh;
+  }
+  /* 페이지 시스템 */
+  .page { display: none; min-height: 100vh; flex-direction: column; }
+  .page.active { display: flex; }
+  /* 헤더 */
+  .page-header {
+    background: linear-gradient(135deg, #4361EE 0%, #3a0ca3 100%);
+    color: white;
+    padding: 28px 20px 24px;
+    text-align: center;
+  }
+  .page-header .step-label {
+    font-size: 12px;
+    opacity: 0.75;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .page-header h2 { font-size: 22px; }
+  /* 본문 */
+  .page-body {
+    flex: 1;
+    max-width: 700px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 24px 16px;
+  }
+  /* 내비게이션 */
+  .nav-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: white;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
+    position: sticky;
+    bottom: 0;
+  }
+  .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #dde;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .dot.active { background: #4361EE; transform: scale(1.3); }
+  .nav-btn {
+    background: #4361EE;
+    color: white;
+    border: none;
+    padding: 8px 22px;
+    border-radius: 24px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .nav-btn:hover { background: #3a0ca3; }
+  .nav-btn.secondary {
+    background: white;
+    color: #4361EE;
+    border: 2px solid #4361EE;
+  }
+  .nav-btn.secondary:hover { background: #eef2ff; }
+  /* 카드 스타일들 */
+  .card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px 22px;
+    box-shadow: 0 2px 12px rgba(67,97,238,0.08);
+    margin-bottom: 16px;
+  }
+  .card h3 {
+    font-size: 16px;
+    color: #1a1a2e;
+    margin-bottom: 10px;
+  }
+  .card p, .card li {
+    font-size: 14px;
+    color: #444;
+    line-height: 1.8;
+  }
+  .card ul { padding-left: 18px; }
+  .mystery-card {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    color: white;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .mystery-card .label {
+    font-size: 12px;
+    opacity: 0.6;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+  .mystery-text {
+    font-size: 14px;
+    line-height: 2.1;
+    font-style: italic;
+    opacity: 0.9;
+  }
+  .eq-card {
+    background: #eef2ff;
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    margin: 12px 0;
+  }
+  .highlight-box {
+    background: #f0f4ff;
+    border-left: 4px solid #4361EE;
+    border-radius: 0 12px 12px 0;
+    padding: 14px 18px;
+    margin: 12px 0;
+    font-size: 14px;
+    color: #333;
+    line-height: 1.7;
+  }
+  .person-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #4361EE;
+    color: white;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+  .timeline-mini {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .timeline-mini-item {
+    display: flex;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f8;
+  }
+  .timeline-mini-item:last-child { border-bottom: none; }
+  .tm-year {
+    font-size: 12px;
+    font-weight: bold;
+    color: #4361EE;
+    min-width: 55px;
+  }
+  .tm-text { font-size: 13px; color: #444; line-height: 1.5; }
+  .trivia-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 480px) { .trivia-grid { grid-template-columns: 1fr; } }
+  .trivia-item {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(67,97,238,0.07);
+  }
+  .trivia-icon { font-size: 24px; margin-bottom: 8px; }
+  .trivia-title { font-size: 13px; font-weight: bold; color: #1a1a2e; margin-bottom: 6px; }
+  .trivia-desc { font-size: 12px; color: #555; line-height: 1.6; }
+  .mission-card {
+    background: white;
+    border-radius: 16px;
+    padding: 22px;
+    box-shadow: 0 2px 12px rgba(67,97,238,0.08);
+    margin-bottom: 14px;
+  }
+  .mission-num {
+    font-size: 11px;
+    font-weight: bold;
+    color: #4361EE;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .mission-title { font-size: 15px; font-weight: bold; color: #1a1a2e; margin-bottom: 8px; }
+  .mission-desc { font-size: 13px; color: #555; line-height: 1.7; }
+  .write-area {
+    width: 100%;
+    border: 2px solid #dde0f5;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 14px;
+    font-family: 'Malgun Gothic', sans-serif;
+    resize: vertical;
+    margin-top: 10px;
+    color: #333;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .write-area:focus { border-color: #4361EE; }
+  .answer-reveal {
+    margin-top: 10px;
+  }
+  .reveal-btn {
+    background: none;
+    border: 2px solid #4361EE;
+    color: #4361EE;
+    padding: 6px 18px;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .reveal-content {
+    display: none;
+    margin-top: 10px;
+    padding: 12px;
+    background: #f0f4ff;
+    border-radius: 10px;
+    font-size: 13px;
+    color: #333;
+    line-height: 1.7;
+  }
+  .home-btn {
+    display: block;
+    text-align: center;
+    background: #eef2ff;
+    color: #4361EE;
+    text-decoration: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 14px;
+    margin-top: 16px;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+
+<!-- PAGE 0: 도입 -->
+<div class="page active" id="page-0">
+  <div class="page-header">
+    <div class="step-label">Unit 04 · 이야기</div>
+    <h2>디오판토스 — 방정식의 아버지</h2>
+  </div>
+  <div class="page-body">
+    <div class="person-badge">
+      알렉산드리아 · 약 3세기
+    </div>
+    <div class="mystery-card">
+      <div class="label">묘비에 새겨진 수수께끼</div>
+      <div class="mystery-text">
+        "그의 일생의 6분의 1은 소년으로 지났고,<br>
+        12분의 1은 청년으로 지났다.<br>
+        7분의 1이 지나고 결혼을 했으며,<br>
+        5년 후 아들을 낳았다.<br>
+        그 아들은 아버지 나이의 절반을 살다가<br>
+        먼저 세상을 떠났고,<br>
+        그로부터 4년 후, 디오판토스도 눈을 감았다."
+      </div>
+    </div>
+    <div class="card">
+      <p>이 묘비를 읽은 사람들은 멈췄습니다.</p>
+      <p style="margin-top:10px;font-weight:bold;color:#4361EE;">"그래서 그는 몇 살을 산 거야?"</p>
+      <p style="margin-top:10px;">모르는 것을 $x$라 놓으면 이 수수께끼가 방정식이 됩니다.<br>이것이 디오판토스가 세상에 가르쳐 준 것입니다.</p>
+    </div>
+  </div>
+  <div class="nav-bar">
+    <button class="dot active" onclick="goPage(0)"></button>
+    <button class="dot" onclick="goPage(1)"></button>
+    <button class="dot" onclick="goPage(2)"></button>
+    <button class="dot" onclick="goPage(3)"></button>
+    <button class="dot" onclick="goPage(4)"></button>
+    <button class="nav-btn" onclick="goPage(1)">다음 →</button>
+  </div>
+</div>
+
+<!-- PAGE 1: 그는 누구인가 -->
+<div class="page" id="page-1">
+  <div class="page-header">
+    <div class="step-label">이야기 1/4</div>
+    <h2>문자로 생각한 최초의 사람</h2>
+  </div>
+  <div class="page-body">
+    <div class="card">
+      <h3>당시 수학자들의 방식</h3>
+      <p>디오판토스가 살던 3세기에 수학자들은 문제를 <strong>말로</strong> 풀었어요.</p>
+      <div class="highlight-box" style="margin-top:12px;">
+        "어떤 수에 그 수의 3배를 더하면 20이 된다. 그 수는?"<br>
+        <span style="color:#888;font-size:12px;">— 글로 길게 설명하던 시대</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3>디오판토스의 혁신</h3>
+      <p>그는 <strong>미지수를 기호로</strong> 표현하기 시작했습니다.</p>
+      <p style="margin-top:10px;">우리가 $x$라고 쓰는 것처럼, 그는 그리스어로 '수(arithmos)'의 첫 글자를 기호로 썼어요.</p>
+      <div class="highlight-box" style="margin-top:12px;background:#f0fff4;border-color:#2d6a4f;">
+        <strong>말 대신 기호. 설명 대신 식.</strong><br>
+        이것이 그가 수학사에 남긴 가장 큰 선물입니다.
+      </div>
+    </div>
+    <div class="card">
+      <h3>「Arithmetica(아리트메티카)」</h3>
+      <p>디오판토스는 「Arithmetica」 13권을 저술했어요.</p>
+      <p style="margin-top:8px;">원래 13권이었지만, 지금은 <strong>6권만</strong> 전해집니다. 나머지 7권은 역사 속으로 사라졌어요.</p>
+      <p style="margin-top:8px;">수백 개의 문제와 풀이 — 하지만 단순한 문제집이 아니에요. 각 문제마다 <em>어떻게 식을 세우는지</em> 보여줬습니다.</p>
+    </div>
+  </div>
+  <div class="nav-bar">
+    <button class="dot" onclick="goPage(0)"></button>
+    <button class="dot active" onclick="goPage(1)"></button>
+    <button class="dot" onclick="goPage(2)"></button>
+    <button class="dot" onclick="goPage(3)"></button>
+    <button class="dot" onclick="goPage(4)"></button>
+    <button class="nav-btn secondary" onclick="goPage(0)">← 이전</button>
+    <button class="nav-btn" onclick="goPage(2)">다음 →</button>
+  </div>
+</div>
+
+<!-- PAGE 2: 페르마 연결 -->
+<div class="page" id="page-2">
+  <div class="page-header">
+    <div class="step-label">이야기 2/4</div>
+    <h2>1,400년 후의 기적</h2>
+  </div>
+  <div class="page-body">
+    <div class="card">
+      <h3>책의 여행</h3>
+      <div class="timeline-mini">
+        <div class="timeline-mini-item">
+          <div class="tm-year">3세기</div>
+          <div class="tm-text">디오판토스가 알렉산드리아에서 Arithmetica 저술</div>
+        </div>
+        <div class="timeline-mini-item">
+          <div class="tm-year">9세기</div>
+          <div class="tm-text">이슬람 학자들이 아랍어로 번역 → 알콰리즈미가 참고해 대수학 발전</div>
+        </div>
+        <div class="timeline-mini-item">
+          <div class="tm-year">1621년</div>
+          <div class="tm-text">라틴어 번역본 출간. 프랑스 수학자 <strong>피에르 드 페르마</strong>가 이 책을 읽음</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>책 여백의 낙서</h3>
+      <p>페르마는 Arithmetica 어느 페이지에서 멈췄습니다.</p>
+      <p style="margin-top:10px;">그리고 여백에 이렇게 적었어요:</p>
+      <div class="highlight-box" style="margin-top:12px;">
+        "나는 이것에 대한 놀라운 증명을 발견했지만,<br>
+        <strong>여백이 너무 좁아 적지 못한다.</strong>"<br>
+        <span style="color:#888;font-size:12px;">— 피에르 드 페르마, 1637년</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3>페르마의 마지막 정리</h3>
+      <div class="eq-card">
+        $x^n + y^n = z^n$ ($n \geq 3$일 때 자연수 해 없음)
+      </div>
+      <p style="margin-top:10px;">이 한 문장이 수학자들을 <strong>358년</strong> 동안 괴롭혔어요.</p>
+      <p style="margin-top:8px;">1995년, 앤드루 와일스가 마침내 증명에 성공했습니다.</p>
+      <p style="margin-top:8px;color:#4361EE;font-weight:bold;">디오판토스의 책 한 권이, 358년의 수학 역사를 만든 것입니다.</p>
+    </div>
+  </div>
+  <div class="nav-bar">
+    <button class="dot" onclick="goPage(0)"></button>
+    <button class="dot" onclick="goPage(1)"></button>
+    <button class="dot active" onclick="goPage(2)"></button>
+    <button class="dot" onclick="goPage(3)"></button>
+    <button class="dot" onclick="goPage(4)"></button>
+    <button class="nav-btn secondary" onclick="goPage(1)">← 이전</button>
+    <button class="nav-btn" onclick="goPage(3)">다음 →</button>
+  </div>
+</div>
+
+<!-- PAGE 3: 잡학 + 메시지 -->
+<div class="page" id="page-3">
+  <div class="page-header">
+    <div class="step-label">이야기 3/4</div>
+    <h2>잡학 코너 + 딸에게</h2>
+  </div>
+  <div class="page-body">
+    <div class="trivia-grid">
+      <div class="trivia-item">
+        <div class="trivia-icon">🧩</div>
+        <div class="trivia-title">묘비명 정답</div>
+        <div class="trivia-desc">양변에 84를 곱하면 $x=84$.<br>결혼 33세, 아들 탄생 38세, 아들 42세 사망, 디오판토스 84세 사망.</div>
+      </div>
+      <div class="trivia-item">
+        <div class="trivia-icon">📝</div>
+        <div class="trivia-title">페르마의 낙서</div>
+        <div class="trivia-desc">1637년 여백에 쓴 한 문장이 1995년까지 수학계 최대 미해결 문제. 358년 걸린 증명.</div>
+      </div>
+      <div class="trivia-item">
+        <div class="trivia-icon">🔢</div>
+        <div class="trivia-title">디오판토스 방정식</div>
+        <div class="trivia-desc">정수 해를 구하는 방정식. 오늘날 암호학·컴퓨터 보안에서 핵심적으로 사용.</div>
+      </div>
+      <div class="trivia-item">
+        <div class="trivia-icon">🌍</div>
+        <div class="trivia-title">지식의 흐름</div>
+        <div class="trivia-desc">디오판토스 → 알콰리즈미 → 유럽 수학자들 → 현대 대수학의 연결고리.</div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>딸에게 주는 메시지</h3>
+      <p>방정식은 어렵게 느껴질 수 있어요. $x$가 뭔지, 왜 이항하는지.</p>
+      <p style="margin-top:10px;">하지만 생각해봐요. 2,000년 전에는 $x$라는 글자조차 없었어요. 문제를 <em>말로</em> 풀었습니다.</p>
+      <p style="margin-top:10px;color:#4361EE;font-weight:bold;">$x$는 "모르는 것"이에요.<br>방정식은 "모르는 것을 찾는 방법"이에요.</p>
+      <p style="margin-top:10px;">디오판토스가 묘비에 수수께끼를 남긴 것처럼, 수학은 원래 <strong>퍼즐</strong>입니다.</p>
+    </div>
+  </div>
+  <div class="nav-bar">
+    <button class="dot" onclick="goPage(0)"></button>
+    <button class="dot" onclick="goPage(1)"></button>
+    <button class="dot" onclick="goPage(2)"></button>
+    <button class="dot active" onclick="goPage(3)"></button>
+    <button class="dot" onclick="goPage(4)"></button>
+    <button class="nav-btn secondary" onclick="goPage(2)">← 이전</button>
+    <button class="nav-btn" onclick="goPage(4)">다음 →</button>
+  </div>
+</div>
+
+<!-- PAGE 4: 글쓰기 미션 -->
+<div class="page" id="page-4">
+  <div class="page-header">
+    <div class="step-label">이야기 4/4</div>
+    <h2>글쓰기 미션</h2>
+  </div>
+  <div class="page-body">
+    <div class="mission-card">
+      <div class="mission-num">Mission 1</div>
+      <div class="mission-title">묘비 앞에서</div>
+      <div class="mission-desc">디오판토스의 묘비의 수수께끼를 처음 읽는 사람의 입장에서 짧은 일기를 써보세요. (200~300자)</div>
+      <textarea class="write-area" rows="5" placeholder="여기에 써보세요..."></textarea>
+    </div>
+    <div class="mission-card">
+      <div class="mission-num">Mission 2</div>
+      <div class="mission-title">내 일생의 방정식</div>
+      <div class="mission-desc">나의 나이를 $x$라 하고, 내 일상의 한 장면을 방정식으로 표현해보세요.<br>예: "하루 24시간 중 수면 시간이 전체의 1/3이라면 공부 시간은?"</div>
+      <textarea class="write-area" rows="4" placeholder="방정식을 만들어보세요..."></textarea>
+    </div>
+    <div class="mission-card">
+      <div class="mission-num">Mission 3</div>
+      <div class="mission-title">모르는 것에 이름 붙이기</div>
+      <div class="mission-desc">일상에서 '모르는 것'이 있는 상황을 1가지 찾아, $x$를 사용해 문장으로 표현해보세요.</div>
+      <textarea class="write-area" rows="4" placeholder="예: 엄마에게 용돈을 얼마 받을지 모를 때, 받을 금액을 x원이라 하면..."></textarea>
+      <div class="answer-reveal">
+        <button class="reveal-btn" onclick="toggleReveal(this)">예시 보기</button>
+        <div class="reveal-content">
+          예: "친구와 나눠 먹을 과자 개수를 모를 때, 전체 개수를 $x$라 하면 내 몫은 $\frac{x}{2}$개"<br>
+          예: "버스를 몇 번 타야 할지 모를 때, 탈 횟수를 $x$라 하면 총 요금 = $1500x$원"
+        </div>
+      </div>
+    </div>
+    <a class="home-btn" href="index.html">← 단원 4 홈으로</a>
+  </div>
+  <div class="nav-bar">
+    <button class="dot" onclick="goPage(0)"></button>
+    <button class="dot" onclick="goPage(1)"></button>
+    <button class="dot" onclick="goPage(2)"></button>
+    <button class="dot" onclick="goPage(3)"></button>
+    <button class="dot active" onclick="goPage(4)"></button>
+    <button class="nav-btn secondary" onclick="goPage(3)">← 이전</button>
+  </div>
+</div>
+
+<script>
+function goPage(n) {
+  document.querySelectorAll('.page').forEach((p,i) => {
+    p.classList.toggle('active', i === n);
+  });
+  document.querySelectorAll('.dot').forEach((d,i) => {
+    d.classList.toggle('active', i === n);
+  });
+  window.scrollTo(0,0);
+}
+function toggleReveal(btn) {
+  const content = btn.nextElementSibling;
+  if (content.style.display === 'block') {
+    content.style.display = 'none';
+    btn.textContent = '예시 보기';
+  } else {
+    content.style.display = 'block';
+    btn.textContent = '예시 닫기';
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>유클리드 이야기 — Unit 07</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; }
+  .header {
+    background: linear-gradient(135deg, #4361EE 0%, #3a0ca3 100%);
+    color: white; padding: 32px 20px 28px; text-align: center;
+  }
+  .header .back-link { display: inline-block; font-size: 13px; color: rgba(255,255,255,0.8); text-decoration: none; margin-bottom: 12px; padding: 4px 12px; border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; }
+  .header h1 { font-size: 26px; margin-bottom: 6px; }
+  .header .subtitle { font-size: 14px; opacity: 0.85; }
+  .dots { display: flex; justify-content: center; gap: 8px; padding: 16px; background: white; border-bottom: 1px solid #e0e4f0; position: sticky; top: 0; z-index: 10; flex-wrap: wrap; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #d0d5f0; cursor: pointer; transition: all 0.2s; }
+  .dot.active { background: #4361EE; transform: scale(1.3); }
+  .dot.done { background: #a0aaee; }
+  .container { max-width: 700px; margin: 0 auto; padding: 24px 16px 48px; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-num { font-size: 12px; color: #888; margin-bottom: 6px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+  .page-title { font-size: 24px; font-weight: 700; color: #1d3557; margin-bottom: 20px; line-height: 1.3; }
+  .story-text { font-size: 16px; line-height: 1.9; color: #333; margin-bottom: 16px; }
+  .story-text strong { color: #4361EE; }
+  .note-box { background: #fff8e1; border-left: 4px solid #f6c90e; border-radius: 0 12px 12px 0; padding: 14px 18px; font-size: 14px; color: #555; margin: 16px 0; line-height: 1.6; }
+  .concept-box { background: white; border: 2px solid #4361EE; border-radius: 12px; padding: 16px 20px; margin: 16px 0; font-size: 15px; color: #333; line-height: 1.6; }
+  .concept-box .label { font-size: 11px; font-weight: 700; color: #4361EE; letter-spacing: 1px; margin-bottom: 8px; }
+  .quote-large { background: linear-gradient(135deg, #f0f4ff, #e6ecff); border-radius: 16px; padding: 28px 24px; margin: 20px 0; text-align: center; }
+  .quote-large .text { font-size: 22px; font-weight: 700; color: #1d3557; line-height: 1.5; font-style: italic; }
+  .quote-large .author { font-size: 13px; color: #666; margin-top: 12px; font-style: normal; }
+  .demo-svg { width: 100%; max-width: 480px; margin: 0 auto 16px; display: block; background: white; border-radius: 16px; padding: 16px; box-shadow: 0 2px 12px rgba(67,97,238,0.1); }
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 12px 0; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 6px rgba(67,97,238,0.06); }
+  .compare-table th { background: #4361EE; color: white; padding: 10px; text-align: center; }
+  .compare-table td { padding: 10px 12px; border-top: 1px solid #e0e4f0; vertical-align: top; }
+  .compare-table tr:nth-child(even) td { background: #f8f9ff; }
+  .compare-table .katex { font-size: 1.05em; }
+  .trivia-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 8px; }
+  @media (max-width: 480px) { .trivia-grid { grid-template-columns: 1fr; } }
+  .trivia-card { background: white; border-radius: 14px; padding: 18px; box-shadow: 0 2px 8px rgba(67,97,238,0.07); }
+  .trivia-card .icon { font-size: 28px; margin-bottom: 8px; }
+  .trivia-card .title { font-size: 15px; font-weight: 700; color: #4361EE; margin-bottom: 6px; }
+  .trivia-card .body { font-size: 13px; color: #555; line-height: 1.6; }
+  .mission-box { background: linear-gradient(135deg, #f0f4ff, #e6ecff); border-radius: 16px; padding: 24px; margin-top: 16px; }
+  .mission-box .mission-title { font-size: 18px; font-weight: 700; color: #4361EE; margin-bottom: 12px; }
+  .mission-item { background: white; border-radius: 10px; padding: 14px 16px; font-size: 14px; color: #333; margin-bottom: 10px; line-height: 1.6; border: 2px solid transparent; transition: border-color 0.2s; }
+  .mission-item:hover { border-color: #4361EE; }
+  .mission-item .num { font-weight: 700; color: #4361EE; margin-right: 6px; }
+  .definition-list { background: white; border-radius: 12px; padding: 18px 22px; margin: 16px 0; box-shadow: 0 2px 8px rgba(67,97,238,0.07); border-left: 4px solid #3a0ca3; }
+  .definition-list .def-item { font-size: 14px; color: #333; line-height: 1.7; margin-bottom: 8px; }
+  .definition-list .def-item strong { color: #3a0ca3; font-weight: 700; }
+  .nav-btns { display: flex; justify-content: space-between; align-items: center; margin-top: 32px; gap: 12px; }
+  .btn { padding: 12px 24px; border-radius: 12px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+  .btn-prev { background: white; color: #4361EE; border: 2px solid #d0d5f0; }
+  .btn-prev:hover { border-color: #4361EE; }
+  .btn-prev:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-next { background: #4361EE; color: white; flex: 1; }
+  .btn-next:hover { background: #3452d0; }
+  .page-indicator { font-size: 13px; color: #888; min-width: 60px; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a class="back-link" href="index.html">← 단원 홈</a>
+  <h1>유클리드 이야기</h1>
+  <div class="subtitle">2300년을 살아남은 한 권의 책 「원론」</div>
+</div>
+
+<div class="dots" id="dots"></div>
+
+<div class="container">
+
+  <!-- Page 1: 한 권의 책이 2300년을 살았어요 -->
+  <div class="page active" data-page="0">
+    <div class="page-num">이야기 1 / 7</div>
+    <div class="page-title">한 권의 책이 2300년을 살았어요</div>
+
+    <p class="story-text">
+      지금부터 약 <strong>2300년 전</strong>, 이집트의 <strong>알렉산드리아</strong>라는 도시에서 한 권의 책이 만들어졌어요.
+    </p>
+    <p class="story-text">
+      그 책의 이름은 <strong>「원론」(Stoicheia, Elements)</strong>.
+      저자는 <strong>유클리드</strong>라는 수학자였어요.
+    </p>
+
+    <div class="concept-box">
+      <div class="label">잠시 생각해 봐요</div>
+      이집트 피라미드를 짓던 시대로부터도 한참 후이고,
+      예수님이 태어나기 전 300년이에요.<br>
+      그런데 그렇게 옛날 책이 <strong>19세기까지</strong> — 우리 할머니의 할머니의 할머니가 태어날 때까지 —
+      유럽 학교에서 <strong>수학 교과서</strong>로 쓰였어요.
+    </div>
+
+    <p class="story-text">
+      성경 다음으로 가장 많이 인쇄된 책 중 하나라고 해요.
+    </p>
+    <p class="story-text">
+      <strong>한 사람이 쓴 한 권의 책이 어떻게 그렇게 오래 살아남았을까요?</strong>
+      비밀은 책의 <strong>시작 방식</strong>에 있었어요.
+    </p>
+
+    <div class="nav-btns">
+      <button class="btn btn-prev" onclick="movePage(-1)" disabled>← 이전</button>
+      <span class="page-indicator" id="pageInd1">1 / 7</span>
+      <button class="btn btn-next" onclick="movePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- Page 2: 책의 첫 페이지를 펼치면 -->
+  <div class="page" data-page="1">
+    <div class="page-num">이야기 2 / 7</div>
+    <div class="page-title">책의 첫 페이지를 펼치면</div>
+
+    <p class="story-text">
+      「원론」은 <strong>13권</strong>으로 된 큰 책이에요.
+      하지만 그 1권의 첫 페이지를 펼치면, 놀라운 게 나와요.
+    </p>
+    <p class="story-text">
+      문제도 없고, 풀이도 없어요. 처음부터 끝까지 그냥 <strong>"정의(Definition)"</strong>가 줄지어 나와요.
+    </p>
+
+    <div class="definition-list">
+      <div class="def-item"><strong>정의 1.</strong> 점은 부분이 없는 것이다.</div>
+      <div class="def-item"><strong>정의 2.</strong> 선은 폭이 없는 길이다.</div>
+      <div class="def-item"><strong>정의 3.</strong> 선의 끝은 점이다.</div>
+      <div class="def-item"><strong>정의 4.</strong> 직선은 그 위의 점들이 고르게 놓인 선이다.</div>
+      <div class="def-item" style="color:#888;">... (이렇게 23개의 정의가 이어져요)</div>
+    </div>
+
+    <p class="story-text">
+      그 다음에는 <strong>5개의 공준(Postulate)</strong>이 나와요.
+      "공준"이란 "이건 그냥 약속이에요. 증명 없이 받아들여 주세요"라는 뜻이에요.
+    </p>
+
+    <div class="definition-list" style="border-left-color:#4361EE;">
+      <div class="def-item"><strong>공준 1.</strong> 임의의 점에서 임의의 점까지 직선을 그을 수 있다.</div>
+      <div class="def-item"><strong>공준 2.</strong> 직선은 양쪽으로 끝없이 늘릴 수 있다.</div>
+      <div class="def-item" style="color:#888;">... (이런 약속이 5개 있어요)</div>
+    </div>
+
+    <p class="story-text">
+      그리고 그 23개의 정의와 5개의 공준만 가지고 유클리드는
+      <strong>수백 개의 도형 정리</strong>를 차곡차곡 쌓아 올려요.
+      벽돌처럼. 앞에서 증명한 것을 다음 증명의 재료로 써요.
+      앞으로만 가지, 절대 뒤로 돌아가지 않아요.
+    </p>
+    <p class="story-text">
+      이게 바로 「원론」이 2300년 살아남은 이유예요.
+      <strong>"무엇을"</strong> 썼느냐가 아니라 <strong>"어떻게"</strong> 썼느냐가 비밀이었던 거예요.
+    </p>
+
+    <div class="nav-btns">
+      <button class="btn btn-prev" onclick="movePage(-1)">← 이전</button>
+      <span class="page-indicator" id="pageInd2">2 / 7</span>
+      <button class="btn btn-next" onclick="movePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- Page 3: 기하학에는 왕도가 없습니다 -->
+  <div class="page" data-page="2">
+    <div class="page-num">이야기 3 / 7</div>
+    <div class="page-title">"기하학에는 왕도가 없습니다"</div>
+
+    <p class="story-text">
+      유클리드가 알렉산드리아에서 책을 만들고 있을 때,
+      이집트는 <strong>프톨레마이오스 1세</strong>라는 왕이 다스리고 있었어요.
+    </p>
+    <p class="story-text">
+      이 왕도 수학을 배우고 싶어했어요. 하지만 「원론」은… 너무 길고, 너무 어려웠어요.
+      정의 1번을 이해하면 2번이, 2번을 이해하면 3번이, 또 4번이… 끝이 없었죠.
+    </p>
+    <p class="story-text">
+      어느 날 왕이 유클리드를 불러서 물었다고 해요.
+    </p>
+
+    <div class="concept-box">
+      <div class="label">왕의 질문</div>
+      "기하학을 더 쉽게 배우는 길은 없는가?"
+    </div>
+
+    <p class="story-text">
+      쉬운 길. 지름길. 왕만 다닐 수 있는 특별한 길.
+      그런 게 있다면 좋잖아요.
+    </p>
+    <p class="story-text">
+      유클리드의 대답이 뭐였을까요? 이게 수학사에서 가장 유명한 한 마디예요.
+    </p>
+
+    <div class="quote-large">
+      <div class="text">"기하학에는 왕도(王道)가 없습니다."</div>
+      <div class="author">— 유클리드의 답 (전설에 따르면)</div>
+    </div>
+
+    <p class="story-text">
+      왕에게도 지름길은 없다는 뜻이에요.
+      왕이든 학자든 처음 배우는 사람이든,
+      <strong>모두 1번 정의부터 차근차근 올라가야 한다</strong>는 거예요.
+    </p>
+    <div class="note-box">
+      이 일화가 정말 있었던 일인지 100% 확실하지는 않아요.
+      하지만 「원론」의 정신을 그대로 담고 있어서 2300년 동안 사람들 입에서 입으로 전해졌어요.
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn btn-prev" onclick="movePage(-1)">← 이전</button>
+      <span class="page-indicator" id="pageInd3">3 / 7</span>
+      <button class="btn btn-next" onclick="movePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- Page 4: 우리 단원의 진짜 시작 -->
+  <div class="page" data-page="3">
+    <div class="page-num">이야기 4 / 7</div>
+    <div class="page-title">우리 단원의 진짜 시작</div>
+
+    <p class="story-text">
+      지금 우리가 펼친 중1 수학 교과서의 "기본도형" 단원을 보세요.
+      처음에 뭐가 나오나요?
+    </p>
+
+    <div class="concept-box">
+      <div class="label">교과서의 첫 줄</div>
+      • 점은 위치만 있고 크기가 없다.<br>
+      • 선은 점이 모여 이루어지며 굵기가 없다.<br>
+      • 면은 선이 모여 이루어지며 두께가 없다.
+    </div>
+
+    <p class="story-text">
+      <strong>이게 바로 「원론」의 첫 정의들이에요.</strong>
+      2300년 전 알렉산드리아에서 유클리드가 적었던 정의가
+      2026년 한국의 중학교 1학년 교과서에 똑같이 들어 있는 거예요.
+    </p>
+
+    <svg class="demo-svg" viewBox="0 0 480 200" xmlns="http://www.w3.org/2000/svg">
+      <!-- 점 -->
+      <text x="60" y="30" font-size="13" fill="#1d3557" font-weight="700" text-anchor="middle">점 (point)</text>
+      <circle cx="60" cy="100" r="5" fill="#4361EE"/>
+      <text x="60" y="180" font-size="11" fill="#666" text-anchor="middle">위치만 있음</text>
+
+      <!-- 선 -->
+      <text x="220" y="30" font-size="13" fill="#1d3557" font-weight="700" text-anchor="middle">선 (line)</text>
+      <line x1="160" y1="100" x2="280" y2="100" stroke="#4361EE" stroke-width="2"/>
+      <circle cx="160" cy="100" r="3" fill="#4361EE"/>
+      <circle cx="280" cy="100" r="3" fill="#4361EE"/>
+      <circle cx="200" cy="100" r="2" fill="#4361EE"/>
+      <circle cx="240" cy="100" r="2" fill="#4361EE"/>
+      <text x="220" y="180" font-size="11" fill="#666" text-anchor="middle">점이 모여 길이가 됨</text>
+
+      <!-- 면 -->
+      <text x="400" y="30" font-size="13" fill="#1d3557" font-weight="700" text-anchor="middle">면 (plane)</text>
+      <polygon points="350,70 450,70 460,130 360,130" fill="#a0aaee" fill-opacity="0.4" stroke="#4361EE" stroke-width="1.5"/>
+      <text x="405" y="180" font-size="11" fill="#666" text-anchor="middle">선이 모여 평평한 영역이 됨</text>
+    </svg>
+
+    <p class="story-text">
+      그리고 이어서 나오는 직선·반직선·선분, 각의 종류, 수직, 평행, 동위각, 엇각… 이 모두 「원론」 1권에 정의되어 있는 것들이에요.
+    </p>
+    <p class="story-text">
+      <strong>우리는 지금 유클리드의 1권 첫 페이지를 펼친 거예요.</strong>
+    </p>
+
+    <div class="nav-btns">
+      <button class="btn btn-prev" onclick="movePage(-1)">← 이전</button>
+      <span class="page-indicator" id="pageInd4">4 / 7</span>
+      <button class="btn btn-next" onclick="movePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- Page 5: 왜 정의로 시작해야 할까? -->
+  <div class="page" data-page="4">
+    <div class="page-num">이야기 5 / 7</div>
+    <div class="page-title">왜 정의로 시작해야 할까?</div>
+
+    <p class="story-text">
+      수학 시간에 "정의"라는 단어는 좀 답답하게 들려요.
+      "이건 이런 거예요" 하고 그냥 외워야 할 것 같죠.
+    </p>
+    <p class="story-text">
+      그런데 잠깐 생각해 봐요.
+    </p>
+
+    <div class="concept-box">
+      <div class="label">상상해 보기</div>
+      친구랑 게임을 하는데, "공"이 뭔지, "선"이 뭔지, "골"이 뭔지 약속이 없다면 어떻게 될까요?<br>
+      서로 다른 걸 머릿속에 떠올리고는 "이게 골이야!" "아니야, 그건 골 아니야!" 하고 싸우게 될 거예요.
+    </div>
+
+    <p class="story-text">
+      수학도 마찬가지예요.
+      내가 머릿속에 그리는 "직선"과 친구가 머릿속에 그리는 "직선"이
+      <strong>완전히 똑같아야</strong> 다음 이야기를 할 수 있어요.
+    </p>
+    <p class="story-text">
+      그래서 유클리드는 책의 맨 앞에 정의를 모아놓은 거예요.
+    </p>
+
+    <div class="quote-large">
+      <div class="text">"우리 같은 그림을 보고 있나요?<br>그럼 시작합시다."</div>
+      <div class="author">— 「원론」 1권의 마음</div>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn btn-prev" onclick="movePage(-1)">← 이전</button>
+      <span class="page-indicator" id="pageInd5">5 / 7</span>
+      <button class="btn btn-next" onclick="movePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- Page 6: 표기라는 작은 약속들 -->
+  <div class="page" data-page="5">
+    <div class="page-num">이야기 6 / 7</div>
+    <div class="page-title">표기라는 작은 약속들</div>
+
+    <p class="story-text">
+      유클리드의 정신을 이어받아, 후대 수학자들도 약속을 만들었어요.
+    </p>
+
+    <table class="compare-table">
+      <thead>
+        <tr><th>약속</th><th>의미</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>$\overleftrightarrow{AB}$</td><td>두 점 A, B를 지나는 <strong>직선</strong> (양쪽 무한)</td></tr>
+        <tr><td>$\overrightarrow{AB}$</td><td>A에서 출발해 B 방향으로 가는 <strong>반직선</strong></td></tr>
+        <tr><td>$\overline{AB}$</td><td>A와 B 사이의 <strong>선분</strong> (잘린 부분)</td></tr>
+        <tr><td>$\angle AOB$</td><td>O를 꼭짓점으로 하는 <strong>각</strong> (가운데 글자가 꼭짓점!)</td></tr>
+        <tr><td>$\perp$</td><td>수직</td></tr>
+        <tr><td>$\parallel$</td><td>평행</td></tr>
+      </tbody>
+    </table>
+
+    <p class="story-text">
+      작아 보이는 화살표 하나, 줄 하나가 <strong>"우리는 같은 도형을 보고 있어요"</strong>라는 약속이에요.
+    </p>
+
+    <div class="note-box">
+      <strong>한 가지 작은 함정:</strong><br>
+      $\overrightarrow{AB}$ 와 $\overrightarrow{BA}$ 는 <strong>다른 도형</strong>이에요.
+      A에서 시작하느냐 B에서 시작하느냐에 따라 방향이 반대가 되거든요.<br>
+      반면 $\overline{AB}$ 와 $\overline{BA}$ 는 <strong>같은 선분</strong>이에요. (방향이 없으니까)
+    </div>
+
+    <svg class="demo-svg" viewBox="0 0 480 220" xmlns="http://www.w3.org/2000/svg">
+      <text x="240" y="20" font-size="13" fill="#1d3557" font-weight="700" text-anchor="middle">반직선의 방향 차이</text>
+
+      <!-- AB -->
+      <text x="80" y="60" font-size="14" fill="#3a0ca3" font-weight="700" text-anchor="start">$\overrightarrow{AB}$ : A에서 시작</text>
+      <line x1="120" y1="100" x2="380" y2="100" stroke="#3a0ca3" stroke-width="2.5" marker-end="url(#arrAB)"/>
+      <circle cx="120" cy="100" r="5" fill="#3a0ca3"/>
+      <text x="120" y="92" font-size="14" fill="#3a0ca3" font-weight="700" text-anchor="middle">A</text>
+      <circle cx="280" cy="100" r="3" fill="#3a0ca3"/>
+      <text x="280" y="92" font-size="13" fill="#3a0ca3" text-anchor="middle">B</text>
+
+      <!-- BA -->
+      <text x="80" y="150" font-size="14" fill="#e63946" font-weight="700" text-anchor="start">$\overrightarrow{BA}$ : B에서 시작 (반대!)</text>
+      <line x1="280" y1="190" x2="20" y2="190" stroke="#e63946" stroke-width="2.5" marker-end="url(#arrBA)"/>
+      <circle cx="280" cy="190" r="5" fill="#e63946"/>
+      <text x="280" y="182" font-size="14" fill="#e63946" font-weight="700" text-anchor="middle">B</text>
+      <circle cx="120" cy="190" r="3" fill="#e63946"/>
+      <text x="120" y="182" font-size="13" fill="#e63946" text-anchor="middle">A</text>
+
+      <defs>
+        <marker id="arrAB" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+          <polygon points="0,0 0,6 9,3" fill="#3a0ca3"/>
+        </marker>
+        <marker id="arrBA" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+          <polygon points="0,0 0,6 9,3" fill="#e63946"/>
+        </marker>
+      </defs>
+    </svg>
+
+    <div class="nav-btns">
+      <button class="btn btn-prev" onclick="movePage(-1)">← 이전</button>
+      <span class="page-indicator" id="pageInd6">6 / 7</span>
+      <button class="btn btn-next" onclick="movePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- Page 7: 「원론」이 우리에게 가르쳐 주는 것 + 잡학 + 글쓰기 -->
+  <div class="page" data-page="6">
+    <div class="page-num">이야기 7 / 7</div>
+    <div class="page-title">「원론」이 가르쳐 주는 것</div>
+
+    <p class="story-text">
+      「원론」은 단순히 도형 책이 아니에요. <strong>"어떻게 생각해야 하는가"</strong>를 가르치는 책이에요.
+    </p>
+
+    <div class="definition-list" style="border-left-color:#3a0ca3;">
+      <div class="def-item"><strong>1.</strong> 약속(정의)부터 분명히 한다.</div>
+      <div class="def-item"><strong>2.</strong> 받아들일 것(공준)과 증명할 것을 구분한다.</div>
+      <div class="def-item"><strong>3.</strong> 앞에서 증명한 것만 써서 다음을 만든다.</div>
+      <div class="def-item"><strong>4.</strong> 지름길은 없다. 한 단계씩 올라간다.</div>
+    </div>
+
+    <p class="story-text">
+      이게 수학의 방식이에요. 아니, 사실 모든 깊은 공부의 방식이에요.
+      수학자, 과학자, 변호사, 프로그래머, 의사… 중요한 일을 하는 사람들은 다 이렇게 생각해요.
+    </p>
+    <p class="story-text">
+      <strong>「원론」을 읽지 않아도, 우리는 「원론」의 자식들이에요.</strong>
+    </p>
+
+    <h3 style="margin-top: 28px; margin-bottom: 12px; color: #1d3557; font-size: 18px;">잡학 코너</h3>
+    <div class="trivia-grid">
+      <div class="trivia-card">
+        <div class="icon">🔢</div>
+        <div class="title">「원론」의 별 하나</div>
+        <div class="body">「원론」 9권에는 <strong>"소수는 무한히 많다"</strong>는 증명이 들어 있어요. Unit 01에서 만난 에라토스테네스의 동시대 사람이에요.</div>
+      </div>
+      <div class="trivia-card">
+        <div class="icon">🌌</div>
+        <div class="title">평행선 공준의 미스터리</div>
+        <div class="body">5번째 공준은 좀 이상했어요. 19세기에 가우스·로바쳅스키·보여이가 <strong>"비유클리드 기하학"</strong>을 발견. 아인슈타인의 일반 상대성 이론에 쓰임!</div>
+      </div>
+      <div class="trivia-card">
+        <div class="icon">📐</div>
+        <div class="title">자와 컴퍼스의 유산</div>
+        <div class="body">유클리드 학교는 <strong>눈금 없는 자와 컴퍼스</strong>만 사용. 이 전통은 다음 단원(작도와 합동)에서 또 만나요.</div>
+      </div>
+      <div class="trivia-card">
+        <div class="icon">📚</div>
+        <div class="title">한국어 완역</div>
+        <div class="body">「원론」 13권 전체가 한국어로 완역된 것은 <strong>2007년</strong>. 2300년 만의 한국어판이에요!</div>
+      </div>
+    </div>
+
+    <div class="mission-box">
+      <div class="mission-title">✏️ 글쓰기 미션 (셋 중 하나)</div>
+      <div class="mission-item"><span class="num">1.</span> 유클리드 학교에 입학한 첫날 일기를 써 보세요. 스승님이 "오늘은 정의 1번부터 외우자"고 하셨다면, 너는 어떤 마음일까요? (200~400자)</div>
+      <div class="mission-item"><span class="num">2.</span> 프톨레마이오스 왕이 "왕도가 없다"는 말을 들었을 때 어떤 표정이었을까요? 왕의 마음을 짧은 글로 써 보세요. (100~300자)</div>
+      <div class="mission-item"><span class="num">3.</span> 만약 너만의 "약속(정의)"을 만든다면 어떤 걸 정의해 보고 싶나요? (예: 우정의 정의, 좋은 책의 정의, 행복한 하루의 정의…)</div>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn btn-prev" onclick="movePage(-1)">← 이전</button>
+      <span class="page-indicator" id="pageInd7">7 / 7</span>
+      <a href="concepts.html" class="btn btn-next" style="text-decoration:none; text-align:center;">개념 탐구로 →</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let currentPage = 0;
+const totalPages = 7;
+const dotsContainer = document.getElementById('dots');
+
+// 도트 생성
+for (let i = 0; i < totalPages; i++) {
+  const dot = document.createElement('div');
+  dot.className = 'dot' + (i === 0 ? ' active' : '');
+  dot.addEventListener('click', () => goToPage(i));
+  dotsContainer.appendChild(dot);
+}
+
+function goToPage(n) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelector(`.page[data-page="${n}"]`).classList.add('active');
+  currentPage = n;
+  // dots
+  document.querySelectorAll('.dot').forEach((d, i) => {
+    d.classList.remove('active', 'done');
+    if (i === n) d.classList.add('active');
+    else if (i < n) d.classList.add('done');
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function movePage(delta) {
+  const next = currentPage + delta;
+  if (next >= 0 && next < totalPages) goToPage(next);
+}
+</script>
+
+</body>
+</html>

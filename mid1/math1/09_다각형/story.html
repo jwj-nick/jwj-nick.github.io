@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>가우스 이야기 — Unit 09 다각형</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; padding: 16px; }
+  .header {
+    max-width: 700px; margin: 0 auto 16px;
+    display: flex; justify-content: space-between; align-items: center;
+    background: white; border-radius: 12px; padding: 12px 20px;
+    box-shadow: 0 2px 8px rgba(67,97,238,0.08);
+  }
+  .header a { color: #4361EE; text-decoration: none; font-size: 13px; font-weight: 600; }
+  .header .title { font-size: 14px; font-weight: 700; color: #1d3557; }
+  .container { max-width: 700px; margin: 0 auto; }
+  .page { background: white; border-radius: 16px; padding: 28px 24px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); display: none; }
+  .page.active { display: block; }
+  .page-num { font-size: 12px; color: #888; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+  .page h2 { font-size: 24px; color: #1d3557; margin-bottom: 16px; line-height: 1.4; }
+  .page h3 { font-size: 17px; color: #4361EE; margin: 20px 0 10px; }
+  .page p { font-size: 15px; line-height: 1.8; color: #333; margin-bottom: 14px; }
+  .page table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+  .page th, .page td { border: 1px solid #e0e4f0; padding: 8px 12px; text-align: left; }
+  .page th { background: #eef2ff; color: #4361EE; }
+  .page strong { color: #4361EE; }
+  .quote {
+    background: linear-gradient(135deg, #f0f4ff, #e6ecff);
+    border-left: 4px solid #4361EE;
+    border-radius: 0 12px 12px 0;
+    padding: 14px 18px; margin: 18px 0;
+    font-size: 14px; color: #333; font-style: italic; line-height: 1.7;
+  }
+  .quote .speaker { display: block; font-style: normal; font-size: 12px; color: #888; margin-top: 8px; }
+  .highlight {
+    background: #fff8dc; border: 2px solid #ffd700; border-radius: 12px;
+    padding: 14px 18px; margin: 16px 0; font-size: 14px; line-height: 1.6;
+  }
+  .deg-info {
+    background: #e8f5e9; border-left: 4px solid #4caf50;
+    padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 14px; color: #2e7d32; line-height: 1.6;
+  }
+  .deg-info strong { color: #1b5e20; }
+  .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; max-width: 700px; margin-left: auto; margin-right: auto; padding: 0 8px; }
+  .dots { display: flex; gap: 8px; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; background: #c5cae9; cursor: pointer; transition: all 0.2s; }
+  .dot.active { background: #4361EE; transform: scale(1.2); }
+  .nav-btn { background: #4361EE; color: white; border: none; padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .nav-btn:disabled { background: #c5cae9; cursor: not-allowed; }
+  .next-unit-card {
+    background: linear-gradient(135deg, #4361EE 0%, #3a0ca3 100%);
+    color: white; border-radius: 16px; padding: 18px 20px; margin-top: 12px;
+    text-decoration: none; display: block;
+  }
+  .next-unit-card .label { font-size: 11px; opacity: 0.7; letter-spacing: 2px; }
+  .next-unit-card .title { font-size: 17px; font-weight: 700; margin: 6px 0; }
+  .next-unit-card .desc { font-size: 13px; opacity: 0.9; }
+  svg.illust { display: block; max-width: 100%; height: auto; margin: 18px auto; }
+  .write-box {
+    background: #fffbf0; border: 2px dashed #f9c74f; border-radius: 12px;
+    padding: 14px 18px; margin: 14px 0; font-size: 14px; line-height: 1.7;
+  }
+  .write-box strong { color: #d4651a; }
+  .badge { display: inline-block; background: #eef2ff; color: #4361EE; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; margin-right: 6px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="index.html">← 홈</a>
+  <div class="title">📖 가우스 이야기</div>
+  <a href="concepts.html">개념 탐구 →</a>
+</div>
+
+<div class="container">
+
+  <!-- Page 1 -->
+  <div class="page active" id="p1">
+    <div class="page-num">PAGE 1 / 7</div>
+    <h2>가난한 벽돌공의 아들</h2>
+    <p>1777년 4월, 독일 브라운슈바이크의 작은 집. 벽돌공 아버지와 정원사 어머니 사이에서 한 아이가 태어났어요. 이름은 <strong>카를 프리드리히 가우스</strong>.</p>
+    <p>집안은 가난했고, 아버지는 아들이 자기처럼 벽돌공이 되길 바랐어요. 그런데 가우스는 어릴 때부터 좀 이상한 아이였어요.</p>
+    <div class="quote">
+      말을 배우기도 전에 — 그러니까 세 살 때 — 아버지가 일꾼들에게 줄 돈을 계산하다 실수하자, 아기 가우스가 옆에서 <em>"아빠, 그거 틀렸어요"</em>라고 말했다는 전설이 전해져요.
+      <span class="speaker">— 가우스 어린 시절 일화</span>
+    </div>
+    <p>진짜였을지, 어머니가 자식 자랑하느라 부풀린 이야기였을지는 아무도 몰라요. 하지만 이 아이가 보통이 아니라는 건 곧 모두가 알게 됐어요.</p>
+  </div>
+
+  <!-- Page 2 -->
+  <div class="page" id="p2">
+    <div class="page-num">PAGE 2 / 7</div>
+    <h2>1부터 100까지를 한순간에</h2>
+    <p>가우스가 9살 때의 일이에요. 수업 시간에 선생님이 학생들을 조용히 시키려고 어려운 문제를 냈어요.</p>
+    <div class="quote">
+      <strong>"1 더하기 2 더하기 3 더하기 ⋯ 더하기 100을 계산하시오."</strong>
+    </div>
+    <p>학생들이 한참 끙끙대고 있는데, 가우스는 곧바로 손을 들었어요. "5050입니다."</p>
+    <p>선생님이 깜짝 놀라 어떻게 풀었냐고 물었더니, 가우스가 이렇게 말했대요.</p>
+
+    <table>
+      <tr><th>짝짓기</th><th>합</th></tr>
+      <tr><td>1 + 100</td><td>101</td></tr>
+      <tr><td>2 + 99</td><td>101</td></tr>
+      <tr><td>3 + 98</td><td>101</td></tr>
+      <tr><td>⋯</td><td>⋯</td></tr>
+      <tr><td>50 + 51</td><td>101</td></tr>
+    </table>
+
+    <p>"양쪽 끝에서부터 짝지어 더하면 모두 101이에요. 그런 짝이 50개 있으니까 $101 \times 50 = 5050$."</p>
+
+    <div class="highlight">
+      💡 이건 단순한 계산이 아니에요. <strong>"수에는 보이지 않는 패턴이 숨어 있다"</strong>는 수학자의 본능을 이미 갖고 있었던 거예요. 우리가 다각형 내각의 합을 구할 때 <strong>"삼각형으로 쪼개면 패턴이 보인다"</strong>라고 생각하는 것과 똑같은 마음이에요.
+    </div>
+  </div>
+
+  <!-- Page 3 -->
+  <div class="page" id="p3">
+    <div class="page-num">PAGE 3 / 7</div>
+    <h2>19살의 결심 — "수학자가 되겠어"</h2>
+    <p>세월이 흘러 가우스는 19살이 됐어요.</p>
+    <p>사실 그는 망설이고 있었어요. 수학을 좋아하긴 하는데, 글공부(문학·언어학)도 잘했거든요. <em>"무엇으로 평생을 살까?"</em> 한참 고민했어요.</p>
+    <p>그런데 1796년 3월 30일 새벽, 잠에서 깨자마자 한 가지 사실이 머릿속에 번쩍 떠올랐어요.</p>
+    <div class="quote">
+      <strong>"자와 컴퍼스만으로 정 17각형을 그릴 수 있다!"</strong>
+    </div>
+
+    <svg class="illust" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
+      <!-- 정 17각형 -->
+      <g transform="translate(160,160)">
+        <circle cx="0" cy="0" r="120" fill="none" stroke="#c5cae9" stroke-width="1" stroke-dasharray="3,3"/>
+        <polygon points="0,-120 43.5,-111.8 81.4,-88.4 108.7,-51 120,-7.4 113.5,36.6 91.7,75.3 57.7,103.8 16,118.9 -29.1,116.4 -69.5,98.1 -100.3,67.6 -118.5,28.3 -119.3,-15.1 -101.7,-64.7 -69.5,-98.1 -29.1,-116.4" fill="#eef2ff" stroke="#4361EE" stroke-width="2"/>
+        <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" fill="#4361EE" font-size="13" font-weight="bold">정 17각형</text>
+        <text x="0" y="18" text-anchor="middle" dominant-baseline="middle" fill="#666" font-size="10">한 외각 ≈ 21.18°</text>
+      </g>
+    </svg>
+
+    <p>그날 가우스는 일기장에 이렇게 적었어요.</p>
+    <div class="quote">
+      "오늘 나는 진로를 정했다. 나는 수학자가 되겠다."
+      <span class="speaker">— 가우스의 일기, 1796년 3월 30일</span>
+    </div>
+    <p><strong>벽돌공의 아들이 19살에 결심한 그 한 줄</strong>이 인류의 수학 역사를 바꿨어요.</p>
+  </div>
+
+  <!-- Page 4 -->
+  <div class="page" id="p4">
+    <div class="page-num">PAGE 4 / 7</div>
+    <h2>2000년 동안 풀리지 않던 문제</h2>
+    <p>왜 이게 그렇게 대단한 일이었을까요? <strong>유클리드 시대(BCE 300년경)</strong>부터 수학자들은 자(눈금 없는 직선자)와 컴퍼스만으로 도형을 그렸어요.</p>
+
+    <table>
+      <tr><th>정$n$각형</th><th>자와 컴퍼스로 그릴 수 있나?</th></tr>
+      <tr><td>정3각형</td><td>✅ 가능 (유클리드 시대부터)</td></tr>
+      <tr><td>정4각형</td><td>✅ 가능</td></tr>
+      <tr><td>정5각형</td><td>✅ 가능 (유클리드 시대부터)</td></tr>
+      <tr><td>정6각형</td><td>✅ 가능</td></tr>
+      <tr><td>정7각형</td><td>❌ <strong>불가능</strong></td></tr>
+      <tr><td>정8각형</td><td>✅ 가능</td></tr>
+      <tr><td>정9각형</td><td>❌ <strong>불가능</strong></td></tr>
+      <tr><td>⋯</td><td>⋯</td></tr>
+      <tr><td>정<strong>17</strong>각형</td><td>??? (2000년 동안 아무도 몰랐음)</td></tr>
+    </table>
+
+    <p><strong>2000년 동안</strong> 누구도 정 17각형을 그리지 못했고, 누구도 "그릴 수 있다"고 증명하지 못했어요.</p>
+
+    <div class="highlight">
+      🔗 <strong>Unit 07-08 → 09 연결</strong> — 유클리드의 자와 컴퍼스 정신은 가우스 시대까지 이어졌어요. 가우스는 그 도구로 어디까지 갈 수 있는지 새 한계를 그어준 사람이에요.
+    </div>
+
+    <p>19살 가우스가 그날 새벽 <strong>"그릴 수 있다"</strong>는 걸 증명해버렸어요. 자와 컴퍼스만 있으면 정 17각형을 정확히 그릴 수 있다는 걸요.</p>
+  </div>
+
+  <!-- Page 5 -->
+  <div class="page" id="p5">
+    <div class="page-num">PAGE 5 / 7</div>
+    <h2>묘비에 정 17각형을 새겨주오</h2>
+    <p>가우스는 평생 정 17각형을 자랑스러워했어요. 후에 그는 이런 부탁을 했대요.</p>
+    <div class="quote">
+      "내 묘비에 정 17각형을 새겨주시오."
+      <span class="speaker">— 가우스의 평생 자랑</span>
+    </div>
+
+    <div class="deg-info">
+      <strong>사실 체크</strong> — 실제로는 정 17각형 모양을 묘비에 새기기가 너무 어려워서 (변과 변 사이의 차이가 너무 작아 거의 원처럼 보이거든요) 묘비에는 새겨지지 않았어요. 하지만 그가 태어난 도시 브라운슈바이크의 한 기념비에는 정 17각형 별 모양이 새겨져 있어요.
+    </div>
+
+    <h3>다각형 — 수의 비밀이 모양으로 보이는 곳</h3>
+    <p>가우스가 발견한 정 17각형 작도법은 중1 수준에선 너무 어려워요. 하지만 우리도 가우스처럼 <strong>"다각형 속에 숨은 패턴"</strong>을 찾아볼 수 있어요.</p>
+
+    <h3>패턴 1 — 대각선의 수</h3>
+    <table>
+      <tr><th>$n$각형</th><th>한 꼭짓점</th><th>전체 대각선</th></tr>
+      <tr><td>3</td><td>0</td><td>0</td></tr>
+      <tr><td>4</td><td>1</td><td>2</td></tr>
+      <tr><td>5</td><td>2</td><td>5</td></tr>
+      <tr><td>6</td><td>3</td><td>9</td></tr>
+      <tr><td>$n$</td><td>$n-3$</td><td>$\dfrac{n(n-3)}{2}$</td></tr>
+    </table>
+
+    <p>가우스가 1+2+...+100을 짝지어 푼 것처럼, 대각선도 <strong>"한 대각선이 두 꼭짓점에서 세어지니까 ÷2"</strong>라는 패턴이 숨어 있어요.</p>
+  </div>
+
+  <!-- Page 6 -->
+  <div class="page" id="p6">
+    <div class="page-num">PAGE 6 / 7</div>
+    <h2>패턴 2 · 3 — 내각의 합과 외각의 합</h2>
+
+    <h3>패턴 2 — 내각의 합</h3>
+    <p>다각형을 한 꼭짓점에서 대각선으로 쪼개면, $n$각형은 <strong>$n-2$개의 삼각형</strong>으로 나뉘어요.</p>
+
+    <svg class="illust" viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg">
+      <!-- 오각형 분할 -->
+      <g transform="translate(160,100)">
+        <polygon points="0,-70 67,-22 41,60 -41,60 -67,-22" fill="#eef2ff" stroke="#4361EE" stroke-width="2"/>
+        <line x1="0" y1="-70" x2="41" y2="60" stroke="#7b2ff7" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <line x1="0" y1="-70" x2="-41" y2="60" stroke="#7b2ff7" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="0" y="-78" text-anchor="middle" font-size="12" fill="#1d3557" font-weight="bold">A</text>
+        <text x="0" y="-15" text-anchor="middle" font-size="11" fill="#7b2ff7">3개의 삼각형</text>
+        <text x="0" y="2" text-anchor="middle" font-size="11" fill="#7b2ff7">(오각형 = 5-2)</text>
+      </g>
+    </svg>
+
+    <table>
+      <tr><th>$n$각형</th><th>분할 삼각형</th><th>내각의 합</th></tr>
+      <tr><td>사각형</td><td>2</td><td>$180° \times 2 = 360°$</td></tr>
+      <tr><td>오각형</td><td>3</td><td>$180° \times 3 = 540°$</td></tr>
+      <tr><td>육각형</td><td>4</td><td>$180° \times 4 = 720°$</td></tr>
+      <tr><td>$n$각형</td><td>$n-2$</td><td>$\boxed{180°(n-2)}$</td></tr>
+    </table>
+
+    <h3>패턴 3 — 외각의 합 (놀라운 사실)</h3>
+
+    <table>
+      <tr><th>$n$각형</th><th>외각의 합</th></tr>
+      <tr><td>삼각형</td><td>$360°$</td></tr>
+      <tr><td>사각형</td><td>$360°$</td></tr>
+      <tr><td>오각형</td><td>$360°$</td></tr>
+      <tr><td>백각형</td><td>$360°$</td></tr>
+    </table>
+
+    <div class="highlight">
+      🌀 <strong>변이 몇 개든, 외각의 합은 항상 360°.</strong> 다각형 둘레를 한 바퀴 따라 걸으면, 우리는 결국 <strong>한 바퀴(360°) 회전한 셈</strong>이거든요. 변이 100개로 잘게 쪼개져도, 한 바퀴는 한 바퀴니까 그대로 360°.
+    </div>
+  </div>
+
+  <!-- Page 7 -->
+  <div class="page" id="p7">
+    <div class="page-num">PAGE 7 / 7</div>
+    <h2>잡학 + 글쓰기 미션</h2>
+
+    <h3>가우스의 다른 얼굴</h3>
+    <p><span class="badge">별명</span><strong>"수학의 왕자(Princeps Mathematicorum)"</strong> — 19~20세기 수학자들이 그를 그렇게 불렀어요. 그가 손대지 않은 수학 분야가 거의 없거든요.</p>
+    <p><span class="badge">천문</span><strong>케레스(Ceres)를 찾아낸 사람</strong> — 1801년 새 천체가 사라졌을 때, 24살 가우스가 단 몇 번의 관측으로 위치를 정확히 예측했어요. 위성 궤도 계산법의 시작.</p>
+    <p><span class="badge">통계</span><strong>"가우스 곡선"</strong> — 시험 성적의 종 모양 분포(정규분포)를 정리한 사람. 통계학의 토대.</p>
+    <p><span class="badge">지폐</span><strong>독일 10마르크 지폐</strong> — 2002년 유로화로 바뀌기 전까지, 가우스의 얼굴과 가우스 곡선이 그려져 있었어요.</p>
+
+    <h3>우리에게 남은 메시지</h3>
+    <p>가우스가 19살 새벽에 정 17각형을 발견했을 때, 그 비밀은 사실 <strong>"다각형 안에 숨은 패턴"</strong>을 끝까지 따라간 결과였어요.</p>
+    <p>우리도 같은 일을 할 수 있어요. 너무 어려운 17각형까지는 아니더라도, <em>왜 삼각형은 180°인가? 왜 $n$각형은 $180°(n-2)$인가? 왜 외각은 항상 360°인가?</em></p>
+    <p>이런 <strong>왜?</strong>를 한 번이라도 직접 눈으로 확인하면, 다각형은 더 이상 외울 공식 덩어리가 아니에요.</p>
+
+    <div class="write-box">
+      ✏️ <strong>글쓰기 미션 (선택)</strong>
+      <ol style="margin-left: 20px; margin-top: 8px;">
+        <li>"19살의 가우스가 정 17각형 발견 다음날 일기를 썼다면, 어떤 내용이었을까?"</li>
+        <li>"가우스처럼 1부터 100까지를 한순간에 풀어낸 경험이 있나요? (수학이 아니어도 좋아요)"</li>
+        <li>"내 묘비에 어떤 도형을 새기고 싶은가? 왜?"</li>
+      </ol>
+    </div>
+
+    <a class="next-unit-card" href="concepts.html">
+      <div class="label">NEXT</div>
+      <div class="title">개념 탐구로 이동 →</div>
+      <div class="desc">다각형을 삼각형으로 쪼개고, 외각의 한 바퀴를 직접 확인해요</div>
+    </a>
+  </div>
+
+  <div class="nav">
+    <button class="nav-btn" id="prev">← 이전</button>
+    <div class="dots" id="dots"></div>
+    <button class="nav-btn" id="next">다음 →</button>
+  </div>
+
+</div>
+
+<script>
+  const pages = document.querySelectorAll('.page');
+  const dotsEl = document.getElementById('dots');
+  const prevBtn = document.getElementById('prev');
+  const nextBtn = document.getElementById('next');
+  let cur = 0;
+  pages.forEach((p, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => go(i);
+    dotsEl.appendChild(d);
+  });
+  function go(i) {
+    pages[cur].classList.remove('active');
+    dotsEl.children[cur].classList.remove('active');
+    cur = i;
+    pages[cur].classList.add('active');
+    dotsEl.children[cur].classList.add('active');
+    prevBtn.disabled = cur === 0;
+    nextBtn.disabled = cur === pages.length - 1;
+    window.scrollTo(0, 0);
+  }
+  prevBtn.onclick = () => cur > 0 && go(cur - 1);
+  nextBtn.onclick = () => cur < pages.length - 1 && go(cur + 1);
+  prevBtn.disabled = true;
+</script>
+</body>
+</html>

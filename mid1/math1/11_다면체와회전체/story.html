@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>케플러 이야기 — Unit 11</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; padding: 16px; }
+  .app { max-width: 700px; margin: 0 auto; background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(67,97,238,0.08); overflow: hidden; }
+  header { background: linear-gradient(135deg, #4361EE 0%, #3a0ca3 100%); color: white; padding: 22px 24px; }
+  header .breadcrumb { font-size: 12px; opacity: 0.75; margin-bottom: 6px; }
+  header .breadcrumb a { color: white; text-decoration: none; }
+  header h1 { font-size: 22px; }
+  .dots { display: flex; justify-content: center; gap: 8px; padding: 16px; background: #f8f9ff; flex-wrap: wrap; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #cbd5e1; cursor: pointer; transition: 0.2s; }
+  .dot.active { background: #4361EE; transform: scale(1.3); }
+  .page { padding: 24px; min-height: 480px; display: none; line-height: 1.7; color: #333; }
+  .page.active { display: block; }
+  .page h2 { color: #1d3557; font-size: 20px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #4361EE; }
+  .page h3 { color: #4361EE; font-size: 16px; margin: 16px 0 8px; }
+  .page p { margin-bottom: 12px; }
+  .quote { background: linear-gradient(135deg, #f0f4ff, #e6ecff); border-left: 4px solid #4361EE; padding: 14px 18px; margin: 14px 0; font-style: italic; border-radius: 0 12px 12px 0; }
+  .info-box { background: #f0fdf4; border-left: 4px solid #10b981; padding: 12px 16px; margin: 14px 0; font-size: 14px; border-radius: 0 8px 8px 0; }
+  .warn-box { background: #fff7ed; border-left: 4px solid #f59e0b; padding: 12px 16px; margin: 14px 0; font-size: 14px; border-radius: 0 8px 8px 0; }
+  .figure { text-align: center; margin: 16px 0; }
+  .figure svg { background: #fafbff; border-radius: 12px; padding: 8px; max-width: 100%; }
+  .caption { font-size: 12px; color: #888; margin-top: 6px; }
+  .nav { display: flex; justify-content: space-between; padding: 16px 24px; background: #f8f9ff; }
+  .nav button { padding: 10px 22px; border: none; background: #4361EE; color: white; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  .nav button:disabled { background: #cbd5e1; cursor: not-allowed; }
+  .mission-list { background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 16px 18px; margin: 14px 0; }
+  .mission-list ol { padding-left: 20px; }
+  .mission-list li { margin-bottom: 10px; }
+  .blank-line { display: inline-block; min-width: 200px; border-bottom: 1.5px dashed #c0c0c0; margin: 0 4px; }
+  ul.bullets { padding-left: 20px; margin: 8px 0; }
+  ul.bullets li { margin-bottom: 6px; }
+  table.compare { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+  table.compare th, table.compare td { border: 1px solid #e0e4f0; padding: 8px 10px; text-align: center; }
+  table.compare th { background: #eef2ff; color: #4361EE; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <div class="breadcrumb"><a href="index.html">← Unit 11 허브</a></div>
+    <h1>📖 요하네스 케플러 이야기</h1>
+  </header>
+
+  <div class="dots" id="dots"></div>
+
+  <!-- Page 1 -->
+  <div class="page active">
+    <h2>1. 약한 아이, 별을 본 아이</h2>
+    <p>1571년 12월 27일, 독일의 작은 도시 <b>바일 데어 슈타트</b>에서 한 아기가 칠삭둥이로 태어났어요. 이름은 <b>요하네스 케플러</b>. 어머니는 약초를 잘 다루는 사람이었어요.</p>
+    <p>요하네스는 세 살 때 <b>천연두</b>에 걸려서 시력이 크게 나빠졌어요. 손에는 평생 후유증이 남았어요. 사람들은 이 아이가 큰일을 못할 거라고 생각했지요.</p>
+    <p>그런데 다섯 살이 된 어느 날, 어머니가 그를 언덕 위로 데려가서 <b>1577년 혜성</b>을 보여줬어요. 시력이 나쁜 아이 눈에도 그 빛은 분명했어요. 아홉 살 때는 <b>달의 일식</b>을 봤어요. 그날부터 그는 결심했어요.</p>
+    <div class="quote">
+      "내가 잘 안 보여도, 하늘은 분명히 거기에 있어. 내가 그것을 <b>수학으로 보면</b> 되잖아."
+    </div>
+    <div class="figure">
+      <svg width="500" height="200" viewBox="0 0 500 200">
+        <rect x="0" y="0" width="500" height="200" fill="#0f172a"/>
+        <!-- 별들 -->
+        <circle cx="80" cy="40" r="1.5" fill="white"/>
+        <circle cx="150" cy="25" r="1" fill="white"/>
+        <circle cx="220" cy="60" r="1.2" fill="white"/>
+        <circle cx="320" cy="35" r="1" fill="white"/>
+        <circle cx="400" cy="50" r="1.5" fill="white"/>
+        <circle cx="450" cy="80" r="1" fill="white"/>
+        <!-- 혜성 -->
+        <circle cx="370" cy="90" r="6" fill="#fde047"/>
+        <path d="M 376 88 Q 420 70 460 50" stroke="#fde047" stroke-width="3" fill="none" opacity="0.7"/>
+        <text x="370" y="115" text-anchor="middle" font-size="11" fill="#fde047">1577 혜성</text>
+        <!-- 어머니와 아이 -->
+        <ellipse cx="120" cy="170" rx="15" ry="20" fill="#94a3b8"/>
+        <ellipse cx="150" cy="180" rx="10" ry="12" fill="#cbd5e1"/>
+        <text x="135" y="200" text-anchor="middle" font-size="11" fill="white">어머니와 5살 요하네스</text>
+        <!-- 언덕 -->
+        <path d="M 0 200 Q 250 130 500 200" fill="#1e293b"/>
+      </svg>
+      <div class="caption">1577년 — 혜성을 본 다섯 살 케플러</div>
+    </div>
+  </div>
+
+  <!-- Page 2 -->
+  <div class="page">
+    <h2>2. 신학생에서 수학 선생님으로</h2>
+    <p>요하네스는 가난했지만 <b>장학생 시험</b>에 합격해서 튀빙겐 대학에 들어갔어요. 원래는 <b>목사</b>가 될 생각이었지요.</p>
+    <p>그런데 거기서 한 선생님(미하엘 매스틀린)을 만나요. 그 선생님은 비밀리에 <b>코페르니쿠스의 새 이론</b> — "지구가 태양을 돈다" — 을 가르치고 있었어요. 당시는 아직 "<b>지구가 우주의 중심</b>"이라고 믿던 시대. 위험한 생각이었어요.</p>
+    <p>그러나 요하네스는 단번에 빠져들었어요.</p>
+    <div class="quote">"태양 중심이 더 아름답다. 더 단순하다. 신은 단순함을 사랑하실 거야."</div>
+    <p>대학을 졸업할 즈음, 그는 목사가 되는 길을 포기하고 오스트리아 <b>그라츠</b>의 한 학교에 <b>수학 선생님</b>으로 가게 돼요. 1594년, 23살이었어요.</p>
+    <p>학생들은 거의 오지 않았고(그라츠는 작은 도시였어요), 월급도 적었지만, 그는 매일 밤 별을 바라보며 한 가지 질문에 매달렸어요.</p>
+    <div class="quote">"왜 행성은 6개일까? 그리고 왜 그 거리는 <b>그 비율</b>일까?"</div>
+    <p>당시 사람들은 행성이 6개(수성·금성·지구·화성·목성·토성)라고 알았어요. 천왕성·해왕성은 아직 발견 전이었지요.</p>
+  </div>
+
+  <!-- Page 3: 칠판 사건 -->
+  <div class="page">
+    <h2>3. 1595년 7월 19일 — 칠판에서의 발견</h2>
+    <p>그날, 그는 학생들에게 칠판에 어떤 도형을 그려주고 있었어요. 그러다가 <b>갑자기 멈췄어요</b>.</p>
+    <p>칠판에는 큰 원 안에 작은 원이 있고, 두 원 사이에 <b>정삼각형</b>이 그려져 있었어요. 보통 사람이라면 그냥 흔한 그림이지요. 하지만 케플러의 머릿속에서는 <b>번개</b>가 쳤어요.</p>
+    <div class="quote">"잠깐... <b>2차원에선</b> 정다각형으로 원과 원 사이를 끼워 넣을 수 있잖아. 그럼 <b>3차원에서는?</b> <b>정다면체</b>로 구와 구 사이를 끼울 수 있지 않을까?"</div>
+    <p>그가 학교에서 배운 사실은 이거였어요. <b>정다면체는 정확히 5개뿐이다.</b></p>
+    <ul class="bullets">
+      <li>정사면체 (면 4개, 정삼각형)</li>
+      <li>정육면체 (면 6개, 정사각형)</li>
+      <li>정팔면체 (면 8개, 정삼각형)</li>
+      <li>정십이면체 (면 12개, 정오각형)</li>
+      <li>정이십면체 (면 20개, 정삼각형)</li>
+    </ul>
+    <p>그리고 행성은 6개. 행성과 행성 <b>사이의 간격</b>은 5개. <b>5! 정다면체와 같은 5!</b></p>
+    <div class="figure">
+      <!-- 케플러 행성 모델 단순화 -->
+      <svg width="500" height="280" viewBox="0 0 500 280">
+        <rect x="0" y="0" width="500" height="280" fill="#0f172a"/>
+        <!-- 동심원 6개 (행성 궤도) -->
+        <circle cx="250" cy="140" r="20" fill="none" stroke="#fde047" stroke-width="1" opacity="0.9"/>
+        <circle cx="250" cy="140" r="40" fill="none" stroke="#a78bfa" stroke-width="1" opacity="0.7"/>
+        <circle cx="250" cy="140" r="60" fill="none" stroke="#60a5fa" stroke-width="1" opacity="0.7"/>
+        <circle cx="250" cy="140" r="85" fill="none" stroke="#f87171" stroke-width="1" opacity="0.7"/>
+        <circle cx="250" cy="140" r="110" fill="none" stroke="#fbbf24" stroke-width="1" opacity="0.7"/>
+        <circle cx="250" cy="140" r="130" fill="none" stroke="#94a3b8" stroke-width="1" opacity="0.7"/>
+        <!-- 태양 -->
+        <circle cx="250" cy="140" r="10" fill="#fde047"/>
+        <!-- 행성 표시 -->
+        <text x="250" y="40" text-anchor="middle" font-size="10" fill="#94a3b8">토성 (정육면체 끼워넣음)</text>
+        <text x="250" y="50" text-anchor="middle" font-size="10" fill="#fbbf24">목성 (정사면체)</text>
+        <text x="250" y="60" text-anchor="middle" font-size="10" fill="#f87171">화성 (정십이면체)</text>
+        <text x="250" y="70" text-anchor="middle" font-size="10" fill="#60a5fa">지구 (정이십면체)</text>
+        <text x="250" y="80" text-anchor="middle" font-size="10" fill="#a78bfa">금성 (정팔면체)</text>
+        <text x="250" y="100" text-anchor="middle" font-size="10" fill="#fde047">수성</text>
+        <text x="250" y="265" text-anchor="middle" font-size="11" fill="white" font-style="italic">케플러의 우주 모델 (1596) — 5정다면체로 6행성</text>
+      </svg>
+      <div class="caption">「Mysterium Cosmographicum (우주의 신비)」 — 25살 케플러의 모델</div>
+    </div>
+  </div>
+
+  <!-- Page 4: 틀렸지만 위대한 -->
+  <div class="page">
+    <h2>4. 틀렸지만 위대한 — 케플러 3법칙</h2>
+    <p>그런데 사실... <b>이 모델은 틀렸어요</b>.</p>
+    <p>행성들의 실제 궤도는 정다면체 비율로 정렬되지 않았어요. 천문학자 <b>티코 브라헤</b>(덴마크)가 평생 모은 가장 정밀한 관측 자료가 그것을 보여줬지요. 케플러는 1600년에 티코의 조수가 되었고, 1601년 티코가 죽자 그 자료를 모두 물려받았어요. 그리고 <b>8년</b>을 화성 궤도 하나만 계산했어요.</p>
+    <p>케플러는 정다면체 가설을 끝까지 사랑했지만, 데이터 앞에 <b>정직했어요</b>. 그는 자기 가설을 버리고 새로운 사실을 발견했어요.</p>
+    <div class="info-box">
+      <b>케플러의 3법칙 (1609, 1619)</b><br>
+      ① 행성은 태양을 한 초점으로 하는 <b>타원</b>으로 돈다 (원이 아니다!).<br>
+      ② 같은 시간에 행성이 쓸고 가는 면적은 같다.<br>
+      ③ 공전 주기의 제곱 ∝ 평균 거리의 세제곱.
+    </div>
+    <p>이 3법칙이 70년 뒤 <b>뉴턴의 만유인력 법칙</b>의 기초가 돼요. 즉 <b>현대 물리학의 출발점</b>.</p>
+    <div class="quote">
+      정다면체 가설은 틀렸지만, 그 가설을 사랑하다가 실제 우주의 법칙을 만났어요.<br>
+      "<b>틀린 가설도 위대한 시작</b>이 될 수 있다."
+    </div>
+    <div class="warn-box">
+      💛 수학을 공부하다가 틀려도 괜찮아요. 케플러도 25년을 틀린 가설을 사랑했답니다. 중요한 건 <b>틀렸을 때 데이터 앞에 정직한 것</b>이에요.
+    </div>
+  </div>
+
+  <!-- Page 5: 와인 술통 -->
+  <div class="page">
+    <h2>5. 와인 술통과 회전체</h2>
+    <p>1612년, 케플러는 두 번째 결혼식을 했어요. 술통을 사다가 거래 상인이 자기 식으로 부피를 재는 걸 보고 놀랐죠.</p>
+    <div class="quote">"이 사람이 술통 부피를 잰다고? 술통은 <b>곡면</b>인데? 어떻게?"</div>
+    <p>케플러는 술통의 부피를 정확히 잴 방법을 고민했어요. 술통은 가운데가 부른 회전체예요. 평면 도형을 회전시켜 만든 입체.</p>
+    <p>그는 술통을 <b>무한히 많은 얇은 단면</b>으로 자르고, 각 단면(원)의 넓이를 모두 더하면 부피가 된다고 봤어요. 1615년, <b>「Stereometria Doliorum Vinariorum (와인 술통의 입체기하학)」</b>을 출판했어요.</p>
+    <p>이게 무엇이었냐 하면... <b>현대 적분의 시작</b>이었어요. 50년 후 카발리에리가 발전시키고, 다시 50년 후 뉴턴과 라이프니츠가 미적분으로 완성하지요.</p>
+    <div class="info-box">
+      <b>회전체</b>: 평면도형을 한 직선 둘레로 1회전 시켜 만든 입체.<br>
+      직사각형 → <b>원기둥</b><br>
+      직각삼각형 → <b>원뿔</b><br>
+      사다리꼴 → <b>원뿔대</b><br>
+      반원 → <b>구</b>
+    </div>
+    <div class="figure">
+      <svg width="500" height="180" viewBox="0 0 500 180">
+        <!-- 회전축 -->
+        <line x1="60" y1="20" x2="60" y2="160" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="60" y="15" text-anchor="middle" font-size="10" fill="#94a3b8">회전축</text>
+        <!-- 술통 윤곽 -->
+        <path d="M 60 30 Q 90 30 120 35 Q 150 50 160 90 Q 150 130 120 145 Q 90 150 60 150 Z" fill="#92400e" opacity="0.5" stroke="#78350f" stroke-width="2"/>
+        <!-- 단면들 -->
+        <line x1="60" y1="50" x2="135" y2="50" stroke="#4361EE" stroke-width="1" opacity="0.6"/>
+        <line x1="60" y1="70" x2="148" y2="70" stroke="#4361EE" stroke-width="1" opacity="0.6"/>
+        <line x1="60" y1="90" x2="160" y2="90" stroke="#4361EE" stroke-width="1.5"/>
+        <line x1="60" y1="110" x2="148" y2="110" stroke="#4361EE" stroke-width="1" opacity="0.6"/>
+        <line x1="60" y1="130" x2="135" y2="130" stroke="#4361EE" stroke-width="1" opacity="0.6"/>
+        <text x="200" y="90" font-size="11" fill="#4361EE">← 무수히 많은 단면(원) 적분</text>
+        <text x="100" y="170" text-anchor="middle" font-size="10" fill="#666">술통 = 회전체</text>
+        <!-- 화살표 -->
+        <text x="350" y="80" font-size="11" fill="#1d3557">평면도형</text>
+        <path d="M 350 90 L 380 90" stroke="#1d3557" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+        <text x="350" y="110" font-size="11" fill="#1d3557">한 직선 둘레로</text>
+        <text x="350" y="125" font-size="11" fill="#1d3557">1회전 → 회전체</text>
+        <defs>
+          <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 7 3, 0 6" fill="#1d3557"/>
+          </marker>
+        </defs>
+      </svg>
+      <div class="caption">케플러 술통 부피 — 무수한 원 단면의 합</div>
+    </div>
+  </div>
+
+  <!-- Page 6: 어머니 변호 -->
+  <div class="page">
+    <h2>6. 어머니의 마녀 재판</h2>
+    <p>1615년, 케플러에게 끔찍한 소식이 와요. <b>어머니 카타리나</b>가 마녀로 고발됐어요.</p>
+    <p>당시 독일은 <b>30년 전쟁</b>이 막 시작되던 혼란기. 마을마다 누군가 죽으면 "마녀 짓이다!"라며 약초를 다룬 여자들을 잡아갔어요. 카타리나는 약초를 잘 다뤘고, 성격도 강했어요. 그래서 동네 사람 한 명이 그녀를 고발했지요.</p>
+    <p>마녀 재판에서 유죄가 나면 <b>고문 후 화형</b>이었어요.</p>
+    <p>케플러는 황실 수학자였지만, 모든 일을 멈추고 어머니를 변호하기 시작했어요. <b>6년</b>이 걸렸어요. 1620년 어머니가 체포되어 14개월 동안 감옥에 있었고, 1621년 마침내 <b>무죄 판결</b>을 받아내요. 그러나 어머니는 풀려난 지 6개월 만에 돌아가시고 말아요.</p>
+    <p>이 6년 동안 케플러는 어머니 변호 서류를 쓰면서도 천문학을 멈추지 않았어요. 1619년 출판된 「Harmonices Mundi (세계의 화음)」에는 그가 발견한 <b>케플러 3법칙</b>과 <b>별 모양 정다면체</b>(케플러-푸앵소 다면체)가 실려 있어요.</p>
+    <p>어머니가 감옥에 있는 동안에도 그는 별을 그렸어요.</p>
+    <div class="quote">"사람들이 가장 어두운 시간에도, 별은 빛나고 있어요."</div>
+    <div class="info-box">
+      💜 Unit 09에서 만난 <b>가우스</b>는 어머니가 자기 천재성을 처음 알아본 사람이었죠. 케플러는 어머니를 <b>죽음에서 구한</b> 천재였어요. 두 사람 모두 어머니와 깊은 인연이 있었어요.
+    </div>
+  </div>
+
+  <!-- Page 7: 행성의 음악과 마지막 + 잡학 -->
+  <div class="page">
+    <h2>7. 행성의 음악, 그리고 마지막</h2>
+    <p>케플러는 별을 본 게 아니에요. <b>별의 노래를 들었어요</b>.</p>
+    <p>그는 각 행성이 태양 둘레를 도는 속도가 미세하게 다른 걸 발견하고, 그 차이를 <b>음표</b>로 적었어요. 토성은 낮은 음. 수성은 빠르고 높은 음. 지구는 "미파미파"... 모든 행성이 모여 <b>합창</b>을 한다고 그는 믿었어요. 이게 「Harmonices Mundi」의 핵심이에요.</p>
+    <p>말년의 케플러는 30년 전쟁의 한가운데에서 가족과 함께 떠돌아 다녔어요. 황실에서 약속한 월급은 한 번도 제대로 받지 못했어요. 1630년 11월, 그는 못 받은 월급을 청구하러 <b>레겐스부르크</b>까지 가다가 길에서 열병에 걸렸고, 그곳에서 <b>59세</b>에 숨을 거두었어요.</p>
+    <p>그의 묘비명은 그가 직접 적은 거예요:</p>
+    <div class="quote">
+      "<b>나는 하늘을 측정했네. 이제 땅의 그늘을 측정하노라.<br>
+      내 영혼은 하늘의 것이었지만, 내 몸은 땅의 것이로다.</b>"<br>
+      — Mensus eram coelos, nunc terrae metior umbras...
+    </div>
+    <p>그의 무덤은 30년 전쟁 중에 파괴되어 지금은 정확한 위치를 알 수 없어요. 그러나 그의 <b>책들은 모두 살아남았답니다</b>.</p>
+
+    <h3>잡학</h3>
+    <ul class="bullets">
+      <li><b>케플러의 추측 (1611):</b> 오렌지를 가게에 쌓는 가장 좋은 방법 = 피라미드. 400년 동안 증명 못 했다가 1998년 컴퓨터로 증명됨.</li>
+      <li><b>케플러-푸앵소 다면체 (1619):</b> 정다면체 5종 외 <b>별 모양</b> 다면체 2종 발견. 200년 후 푸앵소가 2종 추가.</li>
+      <li><b>보이저 골든 디스크:</b> 외계인에게 보낸 메시지에 5개 정다면체 그림 포함. "우리는 정다면체를 안다"는 인사.</li>
+      <li><b>최초의 SF 「Somnium」:</b> 달에 가서 지구를 보는 소설. 케플러 사후 1634년 출판.</li>
+      <li><b>「광학」(1604):</b> 시력이 나빴던 케플러가 <b>망막에 거꾸로 상이 맺힌다</b>는 사실을 처음 밝힘.</li>
+      <li><b>케플러식 망원경 (1611):</b> 지금도 천문학에서 쓰이는 망원경 형식.</li>
+    </ul>
+  </div>
+
+  <!-- Page 8: 글쓰기 미션 -->
+  <div class="page">
+    <h2>8. 글쓰기 미션 ✏️</h2>
+    <div class="mission-list">
+      <ol>
+        <li><b>정다면체 발견의 순간</b><br>케플러가 칠판 앞에서 정다면체와 행성의 연결을 떠올린 그 순간을 상상해서 써보세요. 무엇을 보았고, 무엇을 느꼈을까요? (300~500자)</li>
+        <li><b>어머니에게 보내는 편지</b><br>어머니가 감옥에 있을 때, 케플러가 별을 보면서 어머니에게 쓴 편지를 상상해서 써보세요. (300~500자)</li>
+        <li><b>너에게 5개 정다면체가 주어진다면</b><br>세상이 5가지 모양으로 만들어졌다고 상상해보세요. 너의 일상에서 5가지 정다면체는 어떤 의미일까요? (자유 형식)</li>
+      </ol>
+    </div>
+    <p>고른 미션:
+      <span class="blank-line"></span>
+    </p>
+    <p>나의 글:</p>
+    <div style="border: 1.5px dashed #cbd5e1; min-height: 160px; border-radius: 12px; padding: 12px; background: #fafbff; color:#94a3b8; font-style: italic;">여기에 직접 써보세요.</div>
+
+    <div class="info-box" style="margin-top: 20px;">
+      💙 다음 단원(Unit 12)에서는 <b>입체도형의 겉넓이와 부피</b>를 만나요. 케플러가 술통을 잰 그 정신을, 카발리에리가 이어받아요.
+    </div>
+  </div>
+
+  <div class="nav">
+    <button id="prev">이전</button>
+    <button id="next">다음</button>
+  </div>
+</div>
+
+<script>
+const pages = document.querySelectorAll('.page');
+const dotsEl = document.getElementById('dots');
+const prevBtn = document.getElementById('prev');
+const nextBtn = document.getElementById('next');
+let cur = 0;
+
+pages.forEach((_, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' active' : '');
+  d.onclick = () => go(i);
+  dotsEl.appendChild(d);
+});
+
+function go(i) {
+  if (i < 0 || i >= pages.length) return;
+  pages[cur].classList.remove('active');
+  dotsEl.children[cur].classList.remove('active');
+  cur = i;
+  pages[cur].classList.add('active');
+  dotsEl.children[cur].classList.add('active');
+  prevBtn.disabled = cur === 0;
+  nextBtn.disabled = cur === pages.length - 1;
+  window.scrollTo(0, 0);
+}
+prevBtn.onclick = () => go(cur - 1);
+nextBtn.onclick = () => go(cur + 1);
+go(0);
+</script>
+</body>
+</html>

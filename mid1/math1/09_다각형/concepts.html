@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>개념 탐구 — Unit 09 다각형</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; padding: 16px; }
+  .header {
+    max-width: 700px; margin: 0 auto 16px;
+    display: flex; justify-content: space-between; align-items: center;
+    background: white; border-radius: 12px; padding: 12px 20px;
+    box-shadow: 0 2px 8px rgba(67,97,238,0.08);
+  }
+  .header a { color: #4361EE; text-decoration: none; font-size: 13px; font-weight: 600; }
+  .header .title { font-size: 14px; font-weight: 700; color: #1d3557; }
+  .container { max-width: 700px; margin: 0 auto; }
+  .page { background: white; border-radius: 16px; padding: 28px 24px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); display: none; }
+  .page.active { display: block; }
+  .page-num { font-size: 12px; color: #888; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+  .page h2 { font-size: 24px; color: #1d3557; margin-bottom: 16px; line-height: 1.4; }
+  .page h3 { font-size: 17px; color: #4361EE; margin: 20px 0 10px; }
+  .page p { font-size: 15px; line-height: 1.8; color: #333; margin-bottom: 14px; }
+  .page strong { color: #4361EE; }
+  .page table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+  .page th, .page td { border: 1px solid #e0e4f0; padding: 8px 12px; text-align: center; }
+  .page th { background: #eef2ff; color: #4361EE; }
+  .deg-info {
+    background: #e8f5e9; border-left: 4px solid #4caf50;
+    padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 14px; color: #2e7d32; line-height: 1.6;
+  }
+  .deg-info strong { color: #1b5e20; }
+  .formula-box {
+    background: #f0f4ff; border: 2px solid #4361EE; border-radius: 12px;
+    padding: 14px 18px; margin: 14px 0; text-align: center;
+    font-size: 16px; color: #1d3557;
+  }
+  .controls { background: #f8faff; border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+  .controls label { display: block; font-size: 13px; color: #4361EE; font-weight: 600; margin-bottom: 6px; }
+  .controls input[type=range] { width: 100%; }
+  .controls .value { font-weight: 700; color: #1d3557; font-size: 17px; }
+  .live-output {
+    background: white; border: 2px solid #4361EE; border-radius: 12px;
+    padding: 14px 18px; margin: 14px 0; font-size: 15px;
+    box-shadow: 0 2px 8px rgba(67,97,238,0.06);
+  }
+  .live-output .row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed #e0e4f0; }
+  .live-output .row:last-child { border-bottom: none; }
+  .live-output .label { color: #888; font-size: 13px; }
+  .live-output .val { color: #4361EE; font-weight: 700; }
+  .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; max-width: 700px; margin-left: auto; margin-right: auto; padding: 0 8px; }
+  .dots { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; background: #c5cae9; cursor: pointer; transition: all 0.2s; }
+  .dot.active { background: #4361EE; transform: scale(1.2); }
+  .nav-btn { background: #4361EE; color: white; border: none; padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .nav-btn:disabled { background: #c5cae9; cursor: not-allowed; }
+  svg.illust { display: block; max-width: 100%; height: auto; margin: 18px auto; background: #fafbff; border-radius: 8px; }
+  .write-box {
+    background: #fffbf0; border: 2px dashed #f9c74f; border-radius: 12px;
+    padding: 14px 18px; margin: 14px 0; font-size: 14px; line-height: 1.7;
+  }
+  .write-box strong { color: #d4651a; }
+  .warn-box {
+    background: #fff3f3; border-left: 4px solid #ef4444;
+    padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 14px; color: #b91c1c; line-height: 1.6;
+  }
+  .warn-box strong { color: #991b1b; }
+  .pill { display: inline-block; padding: 4px 12px; background: #eef2ff; color: #4361EE; border-radius: 12px; font-size: 13px; font-weight: 600; margin: 2px; }
+  .write-blank {
+    width: 100%; min-height: 80px; padding: 10px;
+    border: 2px dashed #f9c74f; border-radius: 8px;
+    font-family: 'Malgun Gothic', sans-serif; font-size: 14px;
+    background: #fffef8; resize: vertical;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="story.html">← 스토리</a>
+  <div class="title">⬢ 개념 탐구</div>
+  <a href="../problems/basic_app.html">기본 문제 →</a>
+</div>
+
+<div class="container">
+
+  <!-- Page 1: 다각형이란 -->
+  <div class="page active" id="p1">
+    <div class="page-num">PAGE 1 / 6</div>
+    <h2>다각형이란?</h2>
+    <p>다각형은 <strong>3개 이상의 선분으로 둘러싸인 평면도형</strong>이에요.</p>
+
+    <svg class="illust" viewBox="0 0 480 200" xmlns="http://www.w3.org/2000/svg">
+      <g transform="translate(60,100)">
+        <polygon points="0,-50 43,25 -43,25" fill="#eef2ff" stroke="#4361EE" stroke-width="2"/>
+        <text x="0" y="60" text-anchor="middle" font-size="11" fill="#1d3557">삼각형 ✅</text>
+      </g>
+      <g transform="translate(180,100)">
+        <polygon points="-40,-40 40,-40 40,40 -40,40" fill="#eef2ff" stroke="#4361EE" stroke-width="2"/>
+        <text x="0" y="60" text-anchor="middle" font-size="11" fill="#1d3557">사각형 ✅</text>
+      </g>
+      <g transform="translate(300,100)">
+        <circle cx="0" cy="0" r="40" fill="#fff3f3" stroke="#ef4444" stroke-width="2"/>
+        <text x="0" y="60" text-anchor="middle" font-size="11" fill="#b91c1c">원 ❌ (곡선)</text>
+      </g>
+      <g transform="translate(420,100)">
+        <path d="M -30,-30 L 30,-30 L 30,30 L -30,30" fill="none" stroke="#ef4444" stroke-width="2"/>
+        <text x="0" y="60" text-anchor="middle" font-size="11" fill="#b91c1c">열린 도형 ❌</text>
+      </g>
+    </svg>
+
+    <div class="deg-info">
+      <strong>다각형 조건 3가지</strong>
+      <ul style="margin-left: 20px; margin-top: 6px;">
+        <li>① 평면 위에 있어야 한다 (입체는 다각형 X)</li>
+        <li>② 선분으로만 이루어져 있어야 한다 (곡선 X)</li>
+        <li>③ 닫혀 있어야 한다 (열린 도형 X)</li>
+      </ul>
+    </div>
+
+    <h3>구성 요소</h3>
+    <table>
+      <tr><th>용어</th><th>뜻</th></tr>
+      <tr><td>변</td><td>다각형을 둘러싸는 선분</td></tr>
+      <tr><td>꼭짓점</td><td>변과 변이 만나는 점</td></tr>
+      <tr><td>이웃하는 변</td><td>한 꼭짓점을 공유하는 두 변</td></tr>
+    </table>
+
+    <div class="formula-box">
+      $n$각형은 변 $n$개, 꼭짓점 $n$개
+    </div>
+
+    <h3>이름</h3>
+    <table>
+      <tr><th>변</th><th>이름</th><th>변</th><th>이름</th></tr>
+      <tr><td>3</td><td>삼각형</td><td>7</td><td>칠각형</td></tr>
+      <tr><td>4</td><td>사각형</td><td>8</td><td>팔각형</td></tr>
+      <tr><td>5</td><td>오각형</td><td>⋯</td><td>⋯</td></tr>
+      <tr><td>6</td><td>육각형</td><td>$n$</td><td>$n$각형</td></tr>
+    </table>
+  </div>
+
+  <!-- Page 2: 대각선 -->
+  <div class="page" id="p2">
+    <div class="page-num">PAGE 2 / 6</div>
+    <h2>대각선 — 이웃 안 하는 두 꼭짓점</h2>
+    <p><strong>대각선</strong>은 다각형에서 <strong>이웃하지 않는 두 꼭짓점</strong>을 이은 선분이에요. (이웃하는 꼭짓점 사이는 변이지 대각선이 아니에요.)</p>
+
+    <div class="controls">
+      <label>변의 수 $n$ — <span class="value" id="dn-val">5</span></label>
+      <input type="range" id="dn-slider" min="3" max="10" step="1" value="5">
+    </div>
+
+    <svg class="illust" id="dn-svg" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
+      <!-- JS로 동적 생성 -->
+    </svg>
+
+    <div class="live-output">
+      <div class="row"><span class="label">$n$각형</span><span class="val" id="dn-name">오각형</span></div>
+      <div class="row"><span class="label">한 꼭짓점에서 그릴 수 있는 대각선 ($n-3$)</span><span class="val" id="dn-each">2</span></div>
+      <div class="row"><span class="label">전체 대각선 수 ($\dfrac{n(n-3)}{2}$)</span><span class="val" id="dn-total">5</span></div>
+    </div>
+
+    <h3>왜 $n-3$ 일까?</h3>
+    <p>한 꼭짓점에서 다른 모든 꼭짓점에 직선을 그어보면 — <strong>$n-1$개</strong>의 선이 나오겠죠 (자기 자신 제외).</p>
+    <p>그 중에서 <strong>이웃하는 두 꼭짓점</strong>으로 가는 2개는 변이지 대각선이 아니에요. 그래서 빼면:</p>
+    <div class="formula-box">
+      한 꼭짓점에서 그릴 대각선 $= (n-1) - 2 = n - 3$
+    </div>
+
+    <h3>왜 ÷ 2 일까?</h3>
+    <p>꼭짓점이 $n$개니까, 각 꼭짓점마다 $(n-3)$개씩 — 다 합하면 $n(n-3)$개. 그런데 한 대각선의 양쪽 끝이 두 꼭짓점이라서 <strong>두 번 세어졌어요</strong>. 그래서 ÷ 2 해야 해요.</p>
+
+    <div class="formula-box" style="font-size: 18px;">
+      $$\boxed{\;n\text{각형의 대각선 수} = \dfrac{n(n-3)}{2}\;}$$
+    </div>
+  </div>
+
+  <!-- Page 3: 삼각형의 내각·외각 -->
+  <div class="page" id="p3">
+    <div class="page-num">PAGE 3 / 6</div>
+    <h2>삼각형의 내각·외각</h2>
+
+    <h3>내각의 합 = 180°</h3>
+    <p><strong>삼각형 세 내각의 합은 항상 180°.</strong> 이게 모든 다각형 공식의 출발점이에요.</p>
+
+    <div class="controls">
+      <label>$\angle A$ 크기 — <span class="value" id="ta-val">60</span>°</label>
+      <input type="range" id="ta-slider" min="20" max="120" step="1" value="60">
+      <label>$\angle B$ 크기 — <span class="value" id="tb-val">60</span>°</label>
+      <input type="range" id="tb-slider" min="20" max="120" step="1" value="60">
+    </div>
+
+    <svg class="illust" id="tri-svg" viewBox="0 0 360 240" xmlns="http://www.w3.org/2000/svg">
+      <!-- JS 생성 -->
+    </svg>
+
+    <div class="live-output">
+      <div class="row"><span class="label">$\angle A$</span><span class="val" id="ta-show">60°</span></div>
+      <div class="row"><span class="label">$\angle B$</span><span class="val" id="tb-show">60°</span></div>
+      <div class="row"><span class="label">$\angle C$ (자동 계산)</span><span class="val" id="tc-show">60°</span></div>
+      <div class="row"><span class="label">합 (항상 180°)</span><span class="val">180°</span></div>
+    </div>
+
+    <h3>외각의 정리</h3>
+    <p>삼각형의 한 외각은 그 외각과 <strong>이웃하지 않는 두 내각의 합</strong>과 같아요.</p>
+
+    <svg class="illust" viewBox="0 0 360 200" xmlns="http://www.w3.org/2000/svg">
+      <!-- 삼각형 + 외각 -->
+      <g transform="translate(180,110)">
+        <polygon points="-100,40 100,40 -20,-60" fill="#eef2ff" stroke="#4361EE" stroke-width="2"/>
+        <line x1="100" y1="40" x2="170" y2="40" stroke="#7b2ff7" stroke-width="2" stroke-dasharray="3,3"/>
+        <text x="-80" y="48" font-size="12" fill="#1d3557">A</text>
+        <text x="100" y="35" font-size="12" fill="#1d3557">B</text>
+        <text x="-30" y="-65" font-size="12" fill="#1d3557">C</text>
+        <text x="135" y="55" font-size="11" fill="#7b2ff7" font-weight="bold">외각 = ∠A + ∠C</text>
+      </g>
+    </svg>
+
+    <div class="formula-box">
+      $\angle\text{외}_B = \angle A + \angle C$
+    </div>
+
+    <p><strong>왜?</strong> $\angle A + \angle B + \angle C = 180°$이고, $\angle B + \angle\text{외}_B = 180°$ (평각). 두 식을 비교하면 $\angle\text{외}_B = \angle A + \angle C$.</p>
+  </div>
+
+  <!-- Page 4: n각형 내각의 합 -->
+  <div class="page" id="p4">
+    <div class="page-num">PAGE 4 / 6</div>
+    <h2>$n$각형 내각의 합 — 삼각형으로 쪼개기</h2>
+    <p>가우스의 정신: <strong>"패턴이 보일 때까지 작은 단위로 쪼개라."</strong></p>
+
+    <p>다각형의 한 꼭짓점에서 다른 꼭짓점들로 대각선을 그어보면, 다각형은 <strong>여러 개의 삼각형</strong>으로 나뉘어요. 삼각형 하나당 내각의 합은 180°니까, 삼각형 개수만 알면 끝.</p>
+
+    <div class="controls">
+      <label>변의 수 $n$ — <span class="value" id="in-val">5</span></label>
+      <input type="range" id="in-slider" min="3" max="10" step="1" value="5">
+    </div>
+
+    <svg class="illust" id="in-svg" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
+      <!-- JS 생성 -->
+    </svg>
+
+    <div class="live-output">
+      <div class="row"><span class="label">$n$각형</span><span class="val" id="in-name">오각형</span></div>
+      <div class="row"><span class="label">분할 삼각형 수 ($n-2$)</span><span class="val" id="in-tri">3</span></div>
+      <div class="row"><span class="label">한 삼각형의 내각 합</span><span class="val">180°</span></div>
+      <div class="row"><span class="label">전체 내각 합 ($180°(n-2)$)</span><span class="val" id="in-sum">540°</span></div>
+    </div>
+
+    <div class="formula-box" style="font-size: 18px;">
+      $$\boxed{\;S = 180°(n-2)\;}$$
+    </div>
+
+    <h3>예시 표</h3>
+    <table>
+      <tr><th>$n$</th><th>도형</th><th>$n-2$</th><th>$180°(n-2)$</th></tr>
+      <tr><td>3</td><td>삼각형</td><td>1</td><td>180°</td></tr>
+      <tr><td>4</td><td>사각형</td><td>2</td><td>360°</td></tr>
+      <tr><td>5</td><td>오각형</td><td>3</td><td>540°</td></tr>
+      <tr><td>6</td><td>육각형</td><td>4</td><td>720°</td></tr>
+      <tr><td>10</td><td>십각형</td><td>8</td><td>1440°</td></tr>
+      <tr><td>12</td><td>십이각형</td><td>10</td><td>1800°</td></tr>
+    </table>
+
+    <div class="warn-box">
+      ⚠️ <strong>자주 하는 실수</strong>: $180°(n-2)$가 아니라 $180° \times n$으로 외우면 안 돼요. 분할되는 삼각형 수는 $n-2$. 사각형은 2개의 삼각형으로 나눠지지, 4개로 안 나눠져요.
+    </div>
+  </div>
+
+  <!-- Page 5: 외각의 합 = 360° -->
+  <div class="page" id="p5">
+    <div class="page-num">PAGE 5 / 6</div>
+    <h2>외각의 합 — 항상 360°</h2>
+    <p>이건 정말 신기한 사실이에요. <strong>변이 몇 개든 상관없이</strong>, 다각형 외각의 합은 항상 360°.</p>
+
+    <div class="controls">
+      <label>변의 수 $n$ — <span class="value" id="en-val">5</span></label>
+      <input type="range" id="en-slider" min="3" max="12" step="1" value="5">
+    </div>
+
+    <svg class="illust" id="en-svg" viewBox="0 0 320 280" xmlns="http://www.w3.org/2000/svg">
+      <!-- JS: 다각형 + 외각 화살표 -->
+    </svg>
+
+    <div class="live-output">
+      <div class="row"><span class="label">$n$각형</span><span class="val" id="en-name">오각형</span></div>
+      <div class="row"><span class="label">내각의 합 ($180°(n-2)$)</span><span class="val" id="en-in">540°</span></div>
+      <div class="row"><span class="label">$180° \times n$</span><span class="val" id="en-180n">900°</span></div>
+      <div class="row"><span class="label">외각의 합 ($180°n - 180°(n-2)$)</span><span class="val" id="en-out">360°</span></div>
+    </div>
+
+    <div class="formula-box" style="font-size: 18px;">
+      $$\boxed{\;\text{외각의 합} = 360°\;\;(\text{n에 무관})\;}$$
+    </div>
+
+    <h3>두 가지 설명</h3>
+
+    <p><strong>설명 1 (대수)</strong> — 한 꼭짓점에서 (내각) + (외각) = 180°. 꼭짓점 $n$개의 합:</p>
+    <p style="text-align: center;">$180° \times n - 180°(n-2) = 360°$</p>
+
+    <p><strong>설명 2 (직관, 한 바퀴)</strong> — 다각형 둘레를 따라 한 바퀴 걸으면, 내가 향하는 방향이 결국 360° 돌아와요. 각 꼭짓점에서 회전하는 양이 외각이고, 그 합이 정확히 한 바퀴 = 360°.</p>
+
+    <div class="deg-info">
+      🌀 <strong>변이 100개여도 360°.</strong> 변이 잘게 쪼개질수록 외각 하나는 작아지지만 (예: 정100각형은 한 외각이 3.6°), 합은 변하지 않아요. 한 바퀴는 한 바퀴니까.
+    </div>
+  </div>
+
+  <!-- Page 6: 정n각형 -->
+  <div class="page" id="p6">
+    <div class="page-num">PAGE 6 / 6</div>
+    <h2>정$n$각형 — 모두 같은 다각형</h2>
+    <p><strong>정다각형</strong>은 모든 변과 모든 내각이 같은 다각형이에요.</p>
+
+    <div class="warn-box">
+      ⚠️ <strong>두 조건 모두 필요</strong>: 변만 같으면 마름모(내각이 다를 수 있음), 내각만 같으면 직사각형(변이 다를 수 있음). 둘 다 같아야 정다각형.
+    </div>
+
+    <p>정$n$각형은 모든 내각·외각이 같으니, 합을 $n$으로 나누면 한 내각·한 외각을 알 수 있어요.</p>
+
+    <div class="controls">
+      <label>변의 수 $n$ — <span class="value" id="rn-val">5</span></label>
+      <input type="range" id="rn-slider" min="3" max="12" step="1" value="5">
+    </div>
+
+    <svg class="illust" id="rn-svg" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
+      <!-- JS: 정n각형 -->
+    </svg>
+
+    <div class="live-output">
+      <div class="row"><span class="label">정$n$각형</span><span class="val" id="rn-name">정오각형</span></div>
+      <div class="row"><span class="label">한 외각 ($\dfrac{360°}{n}$)</span><span class="val" id="rn-out">72°</span></div>
+      <div class="row"><span class="label">한 내각 ($180° - $ 한 외각)</span><span class="val" id="rn-in">108°</span></div>
+      <div class="row"><span class="label">검산 ($\dfrac{180°(n-2)}{n}$)</span><span class="val" id="rn-in2">108°</span></div>
+    </div>
+
+    <div class="formula-box">
+      한 외각 $= \dfrac{360°}{n}$ &nbsp;&nbsp; · &nbsp;&nbsp; 한 내각 $= 180° - \dfrac{360°}{n}$
+    </div>
+
+    <div class="deg-info">
+      💡 <strong>한 외각부터 구하는 게 빠르다</strong> — 외각의 합은 항상 360°라서 그냥 $n$으로 나누면 끝. 한 내각이 필요하면 $180°$에서 빼면 돼요.
+    </div>
+
+    <h3>정$n$각형 한 외각·한 내각 표</h3>
+    <table>
+      <tr><th>정$n$각형</th><th>한 외각</th><th>한 내각</th></tr>
+      <tr><td>정3</td><td>120°</td><td>60°</td></tr>
+      <tr><td>정4</td><td>90°</td><td>90°</td></tr>
+      <tr><td>정5</td><td>72°</td><td>108°</td></tr>
+      <tr><td>정6</td><td>60°</td><td>120°</td></tr>
+      <tr><td>정8</td><td>45°</td><td>135°</td></tr>
+      <tr><td>정9</td><td>40°</td><td>140°</td></tr>
+      <tr><td>정10</td><td>36°</td><td>144°</td></tr>
+      <tr><td>정12</td><td>30°</td><td>150°</td></tr>
+    </table>
+
+    <div class="write-box">
+      ✏️ <strong>직접 써보세요</strong> — 정15각형의 한 외각과 한 내각은?
+      <textarea class="write-blank" placeholder="한 외각 = 360° ÷ ___ = ___°
+한 내각 = 180° − ___° = ___°"></textarea>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="nav-btn" id="prev">← 이전</button>
+    <div class="dots" id="dots"></div>
+    <button class="nav-btn" id="next">다음 →</button>
+  </div>
+
+</div>
+
+<script>
+  // ========== 페이지 네비게이션 ==========
+  const pages = document.querySelectorAll('.page');
+  const dotsEl = document.getElementById('dots');
+  const prevBtn = document.getElementById('prev');
+  const nextBtn = document.getElementById('next');
+  let cur = 0;
+  pages.forEach((p, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => go(i);
+    dotsEl.appendChild(d);
+  });
+  function go(i) {
+    pages[cur].classList.remove('active');
+    dotsEl.children[cur].classList.remove('active');
+    cur = i;
+    pages[cur].classList.add('active');
+    dotsEl.children[cur].classList.add('active');
+    prevBtn.disabled = cur === 0;
+    nextBtn.disabled = cur === pages.length - 1;
+    window.scrollTo(0, 0);
+  }
+  prevBtn.onclick = () => cur > 0 && go(cur - 1);
+  nextBtn.onclick = () => cur < pages.length - 1 && go(cur + 1);
+  prevBtn.disabled = true;
+
+  // ========== 헬퍼 ==========
+  const NAMES = {3:'삼각형',4:'사각형',5:'오각형',6:'육각형',7:'칠각형',8:'팔각형',9:'구각형',10:'십각형',11:'십일각형',12:'십이각형'};
+  function regularPolygon(n, cx, cy, r, startAngle = -Math.PI/2) {
+    const pts = [];
+    for (let i = 0; i < n; i++) {
+      const a = startAngle + (2 * Math.PI / n) * i;
+      pts.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]);
+    }
+    return pts;
+  }
+  function ptsStr(pts) { return pts.map(p => p[0].toFixed(2) + ',' + p[1].toFixed(2)).join(' '); }
+
+  // ========== Page 2: 대각선 ==========
+  function drawDiagonals() {
+    const n = +document.getElementById('dn-slider').value;
+    document.getElementById('dn-val').textContent = n;
+    document.getElementById('dn-name').textContent = NAMES[n] || (n + '각형');
+    document.getElementById('dn-each').textContent = (n - 3);
+    document.getElementById('dn-total').textContent = (n * (n - 3) / 2);
+
+    const svg = document.getElementById('dn-svg');
+    svg.innerHTML = '';
+    const pts = regularPolygon(n, 160, 160, 110);
+    // 다각형
+    const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    poly.setAttribute('points', ptsStr(pts));
+    poly.setAttribute('fill', '#eef2ff');
+    poly.setAttribute('stroke', '#4361EE');
+    poly.setAttribute('stroke-width', '2');
+    svg.appendChild(poly);
+    // 대각선 (한 꼭짓점 0번에서)
+    for (let i = 2; i <= n - 2; i++) {
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', pts[0][0]); line.setAttribute('y1', pts[0][1]);
+      line.setAttribute('x2', pts[i][0]); line.setAttribute('y2', pts[i][1]);
+      line.setAttribute('stroke', '#7b2ff7');
+      line.setAttribute('stroke-width', '1.5');
+      line.setAttribute('stroke-dasharray', '4,3');
+      svg.appendChild(line);
+    }
+    // 꼭짓점
+    pts.forEach((p, i) => {
+      const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      c.setAttribute('cx', p[0]); c.setAttribute('cy', p[1]); c.setAttribute('r', '4');
+      c.setAttribute('fill', i === 0 ? '#7b2ff7' : '#4361EE');
+      svg.appendChild(c);
+    });
+    // 강조 텍스트
+    const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    t.setAttribute('x', '160'); t.setAttribute('y', '300');
+    t.setAttribute('text-anchor', 'middle'); t.setAttribute('font-size', '12'); t.setAttribute('fill', '#7b2ff7');
+    t.textContent = '한 꼭짓점에서 ' + (n - 3) + '개 (보라 점선)';
+    svg.appendChild(t);
+  }
+  document.getElementById('dn-slider').addEventListener('input', drawDiagonals);
+  drawDiagonals();
+
+  // ========== Page 3: 삼각형 내각 ==========
+  function drawTriangle() {
+    const A = +document.getElementById('ta-slider').value;
+    const B = +document.getElementById('tb-slider').value;
+    let C = 180 - A - B;
+    if (C < 5) C = 5; // 시각화 안전장치
+    document.getElementById('ta-val').textContent = A;
+    document.getElementById('tb-val').textContent = B;
+    document.getElementById('ta-show').textContent = A + '°';
+    document.getElementById('tb-show').textContent = B + '°';
+    document.getElementById('tc-show').textContent = (180 - A - B) + '°';
+
+    const svg = document.getElementById('tri-svg');
+    svg.innerHTML = '';
+    // 삼각형 좌표 계산: A는 왼쪽 아래(60,200), B는 오른쪽 아래
+    // BC 변 길이를 200으로 고정, 위쪽 꼭짓점 위치를 각도로 결정
+    const Ax = 60, Ay = 200;
+    const Bx = 300, By = 200;
+    // C는 변 AB의 위쪽. 각A에서 위로 각도 A로 올라가고, 각B에서 위로 각도 B로 올라감 → 교점
+    const aRad = A * Math.PI / 180;
+    const bRad = B * Math.PI / 180;
+    // 직선1: A에서 각도 A 위로 (수평기준 -A 방향, y는 위로)
+    // 직선2: B에서 각도 (180-B) 위로
+    // 교점 계산:
+    // line1: (Ax + t*cos(A), Ay - t*sin(A))
+    // line2: (Bx - s*cos(B), By - s*sin(B))
+    // Ax + t*cos(A) = Bx - s*cos(B)
+    // Ay - t*sin(A) = By - s*sin(B)  → t*sin(A) = s*sin(B) (Ay=By이므로)
+    // s = t*sin(A)/sin(B)
+    const t = (Bx - Ax) / (Math.cos(aRad) + Math.sin(aRad) * Math.cos(bRad) / Math.sin(bRad));
+    const Cx = Ax + t * Math.cos(aRad);
+    const Cy = Ay - t * Math.sin(aRad);
+
+    const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    poly.setAttribute('points', `${Ax},${Ay} ${Bx},${By} ${Cx},${Cy}`);
+    poly.setAttribute('fill', '#eef2ff');
+    poly.setAttribute('stroke', '#4361EE');
+    poly.setAttribute('stroke-width', '2');
+    svg.appendChild(poly);
+
+    // 라벨
+    const labels = [
+      {x: Ax - 10, y: Ay + 5, text: 'A ' + A + '°', fill: '#4361EE'},
+      {x: Bx + 5, y: By + 5, text: 'B ' + B + '°', fill: '#4361EE'},
+      {x: Cx, y: Cy - 8, text: 'C ' + (180 - A - B) + '°', fill: '#4361EE'},
+    ];
+    labels.forEach(l => {
+      const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      t.setAttribute('x', l.x); t.setAttribute('y', l.y);
+      t.setAttribute('text-anchor', 'middle'); t.setAttribute('font-size', '13'); t.setAttribute('font-weight', 'bold');
+      t.setAttribute('fill', l.fill);
+      t.textContent = l.text;
+      svg.appendChild(t);
+    });
+  }
+  document.getElementById('ta-slider').addEventListener('input', () => {
+    const A = +document.getElementById('ta-slider').value;
+    let B = +document.getElementById('tb-slider').value;
+    if (A + B > 175) {
+      B = 175 - A;
+      document.getElementById('tb-slider').value = B;
+    }
+    drawTriangle();
+  });
+  document.getElementById('tb-slider').addEventListener('input', () => {
+    const B = +document.getElementById('tb-slider').value;
+    let A = +document.getElementById('ta-slider').value;
+    if (A + B > 175) {
+      A = 175 - B;
+      document.getElementById('ta-slider').value = A;
+    }
+    drawTriangle();
+  });
+  drawTriangle();
+
+  // ========== Page 4: n각형 내각 ==========
+  function drawInteriorSplit() {
+    const n = +document.getElementById('in-slider').value;
+    document.getElementById('in-val').textContent = n;
+    document.getElementById('in-name').textContent = NAMES[n] || (n + '각형');
+    document.getElementById('in-tri').textContent = (n - 2);
+    document.getElementById('in-sum').textContent = (180 * (n - 2)) + '°';
+
+    const svg = document.getElementById('in-svg');
+    svg.innerHTML = '';
+    const pts = regularPolygon(n, 160, 160, 110);
+    // 분할 삼각형 (한 꼭짓점 0에서 모든 다른 꼭짓점으로 - 이웃 제외 = 대각선)
+    // 삼각형은 (0, i, i+1) 꼴 (i = 1..n-2)
+    for (let i = 1; i <= n - 2; i++) {
+      const tri = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+      tri.setAttribute('points', `${pts[0][0]},${pts[0][1]} ${pts[i][0]},${pts[i][1]} ${pts[i+1][0]},${pts[i+1][1]}`);
+      const colors = ['#bfdbfe','#c4b5fd','#fbcfe8','#fde68a','#bbf7d0','#fecaca','#a7f3d0','#fed7aa','#ddd6fe'];
+      tri.setAttribute('fill', colors[(i - 1) % colors.length]);
+      tri.setAttribute('fill-opacity', '0.5');
+      tri.setAttribute('stroke', '#7b2ff7');
+      tri.setAttribute('stroke-width', '1');
+      tri.setAttribute('stroke-dasharray', '3,2');
+      svg.appendChild(tri);
+    }
+    // 외곽 다각형
+    const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    poly.setAttribute('points', ptsStr(pts));
+    poly.setAttribute('fill', 'none');
+    poly.setAttribute('stroke', '#4361EE');
+    poly.setAttribute('stroke-width', '2.5');
+    svg.appendChild(poly);
+    // 꼭짓점 0 강조
+    const c0 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c0.setAttribute('cx', pts[0][0]); c0.setAttribute('cy', pts[0][1]); c0.setAttribute('r', '5');
+    c0.setAttribute('fill', '#7b2ff7');
+    svg.appendChild(c0);
+    // 텍스트
+    const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    t.setAttribute('x', '160'); t.setAttribute('y', '300');
+    t.setAttribute('text-anchor', 'middle'); t.setAttribute('font-size', '12'); t.setAttribute('fill', '#7b2ff7');
+    t.textContent = (n - 2) + '개의 삼각형 × 180° = ' + (180 * (n - 2)) + '°';
+    svg.appendChild(t);
+  }
+  document.getElementById('in-slider').addEventListener('input', drawInteriorSplit);
+  drawInteriorSplit();
+
+  // ========== Page 5: 외각 ==========
+  function drawExterior() {
+    const n = +document.getElementById('en-slider').value;
+    document.getElementById('en-val').textContent = n;
+    document.getElementById('en-name').textContent = NAMES[n] || (n + '각형');
+    document.getElementById('en-in').textContent = (180 * (n - 2)) + '°';
+    document.getElementById('en-180n').textContent = (180 * n) + '°';
+    document.getElementById('en-out').textContent = '360°';
+
+    const svg = document.getElementById('en-svg');
+    svg.innerHTML = '';
+    const r = 90;
+    const cx = 160, cy = 130;
+    const pts = regularPolygon(n, cx, cy, r);
+    // 다각형
+    const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    poly.setAttribute('points', ptsStr(pts));
+    poly.setAttribute('fill', '#eef2ff');
+    poly.setAttribute('stroke', '#4361EE');
+    poly.setAttribute('stroke-width', '2');
+    svg.appendChild(poly);
+    // 각 꼭짓점에서 변 연장 + 외각 호
+    for (let i = 0; i < n; i++) {
+      const A = pts[i];
+      const B = pts[(i + 1) % n];
+      // A→B 방향 단위벡터
+      const dx = B[0] - A[0], dy = B[1] - A[1];
+      const len = Math.sqrt(dx * dx + dy * dy);
+      const ux = dx / len, uy = dy / len;
+      // B에서 A→B 방향으로 연장선 (점선)
+      const ex = B[0] + ux * 22;
+      const ey = B[1] + uy * 22;
+      const ext = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      ext.setAttribute('x1', B[0]); ext.setAttribute('y1', B[1]);
+      ext.setAttribute('x2', ex); ext.setAttribute('y2', ey);
+      ext.setAttribute('stroke', '#7b2ff7');
+      ext.setAttribute('stroke-width', '1.5');
+      ext.setAttribute('stroke-dasharray', '3,2');
+      svg.appendChild(ext);
+    }
+    // 텍스트
+    const t1 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    t1.setAttribute('x', '160'); t1.setAttribute('y', '255');
+    t1.setAttribute('text-anchor', 'middle'); t1.setAttribute('font-size', '13'); t1.setAttribute('fill', '#7b2ff7');
+    t1.setAttribute('font-weight', 'bold');
+    t1.textContent = '외각의 합 = 360° (n에 무관)';
+    svg.appendChild(t1);
+    const t2 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    t2.setAttribute('x', '160'); t2.setAttribute('y', '273');
+    t2.setAttribute('text-anchor', 'middle'); t2.setAttribute('font-size', '11'); t2.setAttribute('fill', '#666');
+    t2.textContent = '한 외각 ≈ ' + (360 / n).toFixed(2) + '°';
+    svg.appendChild(t2);
+  }
+  document.getElementById('en-slider').addEventListener('input', drawExterior);
+  drawExterior();
+
+  // ========== Page 6: 정n각형 ==========
+  function drawRegular() {
+    const n = +document.getElementById('rn-slider').value;
+    const ext = 360 / n;
+    const inn = 180 - ext;
+    document.getElementById('rn-val').textContent = n;
+    document.getElementById('rn-name').textContent = '정' + (NAMES[n] || (n + '각형'));
+    document.getElementById('rn-out').textContent = (Number.isInteger(ext) ? ext : ext.toFixed(2)) + '°';
+    document.getElementById('rn-in').textContent = (Number.isInteger(inn) ? inn : inn.toFixed(2)) + '°';
+    document.getElementById('rn-in2').textContent = (Number.isInteger(inn) ? inn : inn.toFixed(2)) + '°';
+
+    const svg = document.getElementById('rn-svg');
+    svg.innerHTML = '';
+    const pts = regularPolygon(n, 160, 160, 110);
+    const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    poly.setAttribute('points', ptsStr(pts));
+    poly.setAttribute('fill', '#fffbf0');
+    poly.setAttribute('stroke', '#d4651a');
+    poly.setAttribute('stroke-width', '2.5');
+    svg.appendChild(poly);
+    // 라벨
+    const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    t.setAttribute('x', '160'); t.setAttribute('y', '163');
+    t.setAttribute('text-anchor', 'middle'); t.setAttribute('font-size', '14'); t.setAttribute('fill', '#1d3557');
+    t.setAttribute('font-weight', 'bold');
+    t.textContent = '정' + (NAMES[n] || (n + '각형'));
+    svg.appendChild(t);
+    const t2 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    t2.setAttribute('x', '160'); t2.setAttribute('y', '300');
+    t2.setAttribute('text-anchor', 'middle'); t2.setAttribute('font-size', '12'); t2.setAttribute('fill', '#d4651a');
+    t2.textContent = '한 외각 ' + (Number.isInteger(ext) ? ext : ext.toFixed(2)) + '° · 한 내각 ' + (Number.isInteger(inn) ? inn : inn.toFixed(2)) + '°';
+    svg.appendChild(t2);
+  }
+  document.getElementById('rn-slider').addEventListener('input', drawRegular);
+  drawRegular();
+</script>
+</body>
+</html>

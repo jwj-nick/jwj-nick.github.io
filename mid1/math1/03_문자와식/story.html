@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>알콰리즈미 이야기 — 지혜의 집의 비밀</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Malgun Gothic', sans-serif;
+    background: #eef2ff;
+    min-height: 100vh;
+  }
+  .nav-bar {
+    background: white;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 1px 8px rgba(67,97,238,0.08);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-bar a { color: #4361EE; text-decoration: none; font-size: 13px; }
+  .nav-bar span { color: #bbb; font-size: 13px; }
+  .nav-bar .title { font-size: 14px; font-weight: bold; color: #1a1a2e; }
+
+  .hero {
+    background: linear-gradient(135deg, #4361EE 0%, #3a0ca3 100%);
+    color: white;
+    padding: 40px 20px 32px;
+    text-align: center;
+  }
+  .hero .tag {
+    font-size: 12px;
+    opacity: 0.7;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+  }
+  .hero h1 { font-size: 26px; margin-bottom: 8px; line-height: 1.4; }
+  .hero .sub { font-size: 14px; opacity: 0.85; }
+
+  .progress-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px;
+    background: white;
+    border-bottom: 1px solid #eef2ff;
+    position: sticky;
+    top: 48px;
+    z-index: 99;
+  }
+  .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #dde3ff;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .dot.active { background: #4361EE; transform: scale(1.3); }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 24px 16px 80px;
+  }
+
+  .story-card {
+    background: white;
+    border-radius: 16px;
+    padding: 28px 24px;
+    box-shadow: 0 2px 12px rgba(67,97,238,0.08);
+    margin-bottom: 16px;
+  }
+  .story-card h2 {
+    font-size: 20px;
+    color: #1a1a2e;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #eef2ff;
+  }
+  .story-card p {
+    font-size: 15px;
+    color: #333;
+    line-height: 1.9;
+    margin-bottom: 14px;
+  }
+  .story-card p:last-child { margin-bottom: 0; }
+
+  .highlight-box {
+    background: #f0f4ff;
+    border-left: 4px solid #4361EE;
+    border-radius: 0 12px 12px 0;
+    padding: 14px 18px;
+    margin: 16px 0;
+    font-size: 14px;
+    color: #333;
+    line-height: 1.7;
+  }
+  .highlight-box strong { color: #4361EE; }
+
+  .word-origin {
+    background: white;
+    border: 2px solid #4361EE;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    text-align: center;
+  }
+  .word-origin .arabic {
+    font-size: 22px;
+    color: #3a0ca3;
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+  .word-origin .arrow { color: #4361EE; font-size: 18px; margin: 4px 0; }
+  .word-origin .modern {
+    font-size: 20px;
+    color: #4361EE;
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+  .word-origin .meaning { font-size: 13px; color: #666; }
+
+  .trivia-card {
+    background: linear-gradient(135deg, #f8f9ff, #f0f4ff);
+    border-radius: 16px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    border: 1px solid #dde3ff;
+  }
+  .trivia-card h3 {
+    font-size: 15px;
+    color: #4361EE;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .trivia-card p {
+    font-size: 14px;
+    color: #444;
+    line-height: 1.7;
+  }
+
+  .mission-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 12px rgba(67,97,238,0.08);
+    margin-bottom: 16px;
+  }
+  .mission-card h3 {
+    font-size: 15px;
+    font-weight: bold;
+    color: #4361EE;
+    margin-bottom: 12px;
+  }
+  .mission-card p {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.7;
+    margin-bottom: 12px;
+  }
+  .mission-card textarea {
+    width: 100%;
+    border: 2px solid #dde3ff;
+    border-radius: 8px;
+    padding: 12px;
+    font-family: 'Malgun Gothic', sans-serif;
+    font-size: 14px;
+    line-height: 1.7;
+    resize: vertical;
+    min-height: 100px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .mission-card textarea:focus { border-color: #4361EE; }
+
+  .nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 24px;
+  }
+  .btn {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-outline {
+    background: white;
+    color: #4361EE;
+    border: 2px solid #4361EE;
+  }
+  .btn-primary {
+    background: #4361EE;
+    color: white;
+  }
+  .btn:hover { opacity: 0.85; transform: translateY(-1px); }
+  .btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+
+  .page-num {
+    text-align: center;
+    font-size: 12px;
+    color: #aaa;
+    margin-bottom: 16px;
+  }
+
+  .back-link {
+    text-align: center;
+    margin-top: 20px;
+  }
+  .back-link a {
+    color: #4361EE;
+    text-decoration: none;
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+<div class="nav-bar">
+  <a href="index.html">← 단원 홈</a>
+  <span>/</span>
+  <span class="title">알콰리즈미 이야기</span>
+</div>
+
+<div class="hero">
+  <div class="tag">단원 3 · 인물 이야기</div>
+  <h1>지혜의 집에서 태어난<br>비밀 언어</h1>
+  <div class="sub">algebra와 algorithm의 아버지, 알콰리즈미</div>
+</div>
+
+<div class="progress-dots" id="dots"></div>
+
+<!-- Page 1: 지혜의 집 -->
+<div class="page active" id="page-0">
+  <div class="container">
+    <div class="page-num">1 / 6</div>
+    <div class="story-card">
+      <h2>세상에서 가장 큰 지식의 도시</h2>
+      <p>9세기, 지금으로부터 약 1200년 전의 이야기예요.</p>
+      <p>바그다드(Baghdad)는 그 당시 세상에서 가장 큰 도시였어요. 인구가 수십만 명, 세계 곳곳에서 상인과 학자들이 모여들었죠.</p>
+      <p>그 도시 한가운데, 특별한 건물이 있었어요.</p>
+      <div class="highlight-box">
+        <strong>지혜의 집 (Bayt al-Hikma, بيت الحكمة)</strong><br>
+        칼리파 알마문이 세운 곳. 그리스·인도·페르시아의 책을 아랍어로 번역하고, 새로운 수학·천문학·의학을 만들어내던 세계 최고의 학술 기관.
+      </div>
+      <p>도서관이면서 번역소이면서 연구소이면서 천문대. 인류 역사에서 이런 곳은 많지 않았어요.</p>
+      <p>그 지혜의 집에서, 조용하지만 누구보다 중요한 일을 하는 사람이 있었어요.</p>
+      <p>페르시아 출신의 학자, <strong>무함마드 이븐 무사 알콰리즈미</strong>.</p>
+    </div>
+    <div class="nav-buttons">
+      <button class="btn btn-outline" disabled>이전</button>
+      <button class="btn btn-primary" onclick="movePage(1)">다음 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Page 2: 대수의 탄생 -->
+<div class="page" id="page-1">
+  <div class="container">
+    <div class="page-num">2 / 6</div>
+    <div class="story-card">
+      <h2>왜 대수학이 필요했나</h2>
+      <p>알콰리즈미에게는 풀어야 할 현실적인 문제들이 있었어요.</p>
+      <p>이슬람 율법에 따른 <strong>상속 분배</strong>는 굉장히 복잡했거든요. 아들, 딸, 아내, 형제자매... 각각 다른 비율로 재산을 나눠야 했고, 사람마다 상황이 달랐어요.</p>
+      <p>"매번 새로 계산하는 것이 아니라, 한 번 방법을 정리해두면 어떨까?"</p>
+      <p>알콰리즈미는 약 825년경, 책 한 권을 써요.</p>
+      <div class="word-origin">
+        <div class="arabic">الجبر والمقابلة</div>
+        <div class="arrow">↓</div>
+        <div class="modern">Al-jabr wal-muqābala</div>
+        <div class="meaning">"복원과 균형 맞추기" — 대수학 최초의 교과서</div>
+      </div>
+      <p>이 책이 나중에 라틴어로 번역되어 유럽 대학에서 수백 년간 수학 교과서로 쓰였어요.</p>
+    </div>
+    <div class="nav-buttons">
+      <button class="btn btn-outline" onclick="movePage(-1)">← 이전</button>
+      <button class="btn btn-primary" onclick="movePage(1)">다음 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Page 3: 두 단어의 어원 -->
+<div class="page" id="page-2">
+  <div class="container">
+    <div class="page-num">3 / 6</div>
+    <div class="story-card">
+      <h2>두 단어를 세상에 남기다</h2>
+      <p>알콰리즈미의 책에서 두 개의 단어가 탄생했어요. 지금 이 순간에도 우리가 쓰고 있는 단어들이에요.</p>
+
+      <div class="word-origin" style="margin-bottom:16px;">
+        <div class="arabic" style="font-size:18px;">al-jabr → algebra</div>
+        <div class="meaning" style="margin-top:4px;">
+          "복원" → 대수학.<br>
+          방정식에서 항을 이동해 "복원"하는 작업에서 유래.
+        </div>
+      </div>
+
+      <div class="word-origin">
+        <div class="arabic" style="font-size:18px;">al-Khwārizmī → algorithm</div>
+        <div class="meaning" style="margin-top:4px;">
+          알콰리즈미의 이름 → 라틴어 Algoritmi → algorithm.<br>
+          "순서대로 따라가면 풀리는 절차."
+        </div>
+      </div>
+
+      <p style="margin-top:16px;">수학의 한 분야 이름(algebra)과 컴퓨터 과학의 핵심 개념(algorithm)이 모두 이 한 사람에게서 나왔어요.</p>
+      <p>스마트폰 추천 알고리즘, 유튜브 알고리즘, AI... 모두 이름의 뿌리가 9세기 바그다드의 수학자예요.</p>
+    </div>
+    <div class="nav-buttons">
+      <button class="btn btn-outline" onclick="movePage(-1)">← 이전</button>
+      <button class="btn btn-primary" onclick="movePage(1)">다음 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Page 4: 글자 없이 방정식 -->
+<div class="page" id="page-3">
+  <div class="container">
+    <div class="page-num">4 / 6</div>
+    <div class="story-card">
+      <h2>글자 없이 방정식을 풀다</h2>
+      <p>여기서 놀라운 사실 하나.</p>
+      <p>알콰리즈미는 방정식을 풀었지만, <strong>x, a 같은 글자(기호)를 전혀 쓰지 않았어요.</strong></p>
+      <div class="highlight-box">
+        <strong>우리가 지금 쓰는 방식:</strong><br>
+        $x + 5 = 8$<br><br>
+        <strong>알콰리즈미의 방식 (825년):</strong><br>
+        "어떤 수에 5를 더하면 8이 된다. 그 수는 무엇인가?"
+      </div>
+      <p>그는 모든 것을 <strong>말(글)로</strong> 썼어요. 기호 없이도 일차방정식과 이차방정식을 완벽하게 풀었죠.</p>
+      <p>그렇다면 우리가 쓰는 $x$, $y$, $a$ 같은 기호는 언제 생겼을까요?</p>
+      <div class="highlight-box">
+        <strong>기호의 역사:</strong><br>
+        <strong>알콰리즈미 (825년)</strong>: 글로 방정식 설명<br>
+        <strong>비에트 Viète (1591년)</strong>: 처음으로 글자를 체계적으로 사용<br>
+        <strong>데카르트 Descartes (1637년)</strong>: x, y, z = 변수 / a, b, c = 상수로 약속 확정
+      </div>
+      <p>알콰리즈미가 방정식을 발명한 뒤, <strong>약 800년이 지나서야</strong> 우리가 쓰는 기호가 생긴 거예요.</p>
+      <p>그 기호들은 자연 법칙이 아니라 <strong>사람들이 편리하게 쓰기로 만든 약속</strong>이에요.</p>
+    </div>
+    <div class="nav-buttons">
+      <button class="btn btn-outline" onclick="movePage(-1)">← 이전</button>
+      <button class="btn btn-primary" onclick="movePage(1)">다음 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Page 5: 잡학 -->
+<div class="page" id="page-4">
+  <div class="container">
+    <div class="page-num">5 / 6</div>
+    <div class="trivia-card">
+      <h3>알고리즘과 우리 일상</h3>
+      <p>알콰리즈미의 이름에서 나온 "알고리즘"은 지금 어디에 있을까요? 유튜브 추천 영상, 네이버 지도 경로, 카카오페이 결제, AI 챗봇... 이 모든 것이 알고리즘으로 동작해요. 9세기 바그다드의 수학이 21세기 스마트폰 안에 있는 거예요.</p>
+    </div>
+    <div class="trivia-card">
+      <h3>0~9 숫자를 유럽에 퍼뜨린 사람</h3>
+      <p>지금 우리가 쓰는 0, 1, 2, 3... 숫자는 인도에서 발명되었어요. 알콰리즈미가 인도 수학을 아랍어로 정리하고, 그 책이 라틴어로 번역되어 유럽에 퍼졌어요. 그 전까지 유럽은 로마 숫자(I, II, III, IV...)를 사용했답니다. 지금 방식이 훨씬 편하죠?</p>
+    </div>
+    <div class="trivia-card">
+      <h3>"algebra"가 의학 용어였다고?</h3>
+      <p>"al-jabr(복원)"은 원래 뼈를 맞추는 것도 뜻했어요. 그래서 중세 유럽에서 "algebrista"는 수학자이면서 동시에 뼈를 맞추는 접골사를 뜻하기도 했대요. 이발소에서 "algebrista"라는 간판을 달기도 했다는 기록이 있어요!</p>
+    </div>
+    <div class="trivia-card">
+      <h3>지혜의 집은 팀플레이</h3>
+      <p>알콰리즈미 혼자 일한 게 아니에요. 바누 무사(Banu Mūsā) 형제들 같은 뛰어난 동료들과 함께 연구하고 토론했어요. 수학은 1200년 전에도 팀으로 하는 것이었어요.</p>
+    </div>
+    <div class="nav-buttons">
+      <button class="btn btn-outline" onclick="movePage(-1)">← 이전</button>
+      <button class="btn btn-primary" onclick="movePage(1)">다음 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Page 6: 글쓰기 미션 -->
+<div class="page" id="page-5">
+  <div class="container">
+    <div class="page-num">6 / 6</div>
+    <div class="mission-card">
+      <h3>글쓰기 미션 1</h3>
+      <p>알콰리즈미처럼 기호 없이, 오직 한국어 말로만 이 문제를 설명해보세요:</p>
+      <p><strong>"어떤 수에 3을 곱하면 12가 된다. 그 수는?"</strong></p>
+      <p>(힌트: x, a 같은 글자를 쓰지 않고, 말로만 풀어보세요)</p>
+      <textarea placeholder="여기에 써보세요..."></textarea>
+    </div>
+    <div class="mission-card">
+      <h3>글쓰기 미션 2</h3>
+      <p>오늘 하루 내 스마트폰이나 컴퓨터에서 알고리즘이 어디에 숨어있었는지 3가지 찾아써보세요.</p>
+      <textarea placeholder="1. &#10;2. &#10;3. " style="min-height:80px;"></textarea>
+    </div>
+    <div class="mission-card">
+      <h3>글쓰기 미션 3 (선택)</h3>
+      <p>알콰리즈미의 동료에게 쓰는 편지. 오늘 어떤 문제를 풀었고 무엇을 발견했는지, 200자 정도 써보세요.</p>
+      <textarea placeholder="동료에게..."></textarea>
+    </div>
+    <div class="nav-buttons">
+      <button class="btn btn-outline" onclick="movePage(-1)">← 이전</button>
+      <button class="btn btn-primary" onclick="window.location.href='concepts.html'">개념 탐구로 →</button>
+    </div>
+    <div class="back-link">
+      <a href="index.html">← 단원 홈으로 돌아가기</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentPage = 0;
+  const totalPages = 6;
+
+  function buildDots() {
+    const dotsEl = document.getElementById('dots');
+    for (let i = 0; i < totalPages; i++) {
+      const d = document.createElement('div');
+      d.className = 'dot' + (i === 0 ? ' active' : '');
+      d.onclick = () => goPage(i);
+      dotsEl.appendChild(d);
+    }
+  }
+
+  function goPage(n) {
+    document.getElementById('page-' + currentPage).classList.remove('active');
+    document.querySelectorAll('.dot')[currentPage].classList.remove('active');
+    currentPage = n;
+    document.getElementById('page-' + currentPage).classList.add('active');
+    document.querySelectorAll('.dot')[currentPage].classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function movePage(delta) {
+    const next = currentPage + delta;
+    if (next >= 0 && next < totalPages) goPage(next);
+  }
+
+  buildDots();
+
+  // KaTeX inline render
+  document.addEventListener('DOMContentLoaded', function() {
+    if (window.renderMathInElement) {
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: '$$', right: '$$', display: true},
+          {left: '$', right: '$', display: false}
+        ]
+      });
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>단원 1 — 소인수분해</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Malgun Gothic', sans-serif;
+    background: #eef2ff;
+    min-height: 100vh;
+  }
+  /* 헤더 */
+  .hero {
+    background: linear-gradient(135deg, #4361EE 0%, #7c3aed 100%);
+    color: white;
+    padding: 48px 20px 40px;
+    text-align: center;
+  }
+  .hero .unit-label {
+    font-size: 13px;
+    opacity: 0.8;
+    margin-bottom: 8px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .hero h1 { font-size: 32px; margin-bottom: 10px; }
+  .hero p { font-size: 16px; opacity: 0.9; }
+  .hero .person {
+    margin-top: 20px;
+    font-size: 13px;
+    opacity: 0.75;
+  }
+  /* 컨테이너 */
+  .container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 24px 16px 48px;
+  }
+  /* 카드 그리드 */
+  .cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 8px;
+  }
+  @media (max-width: 480px) { .cards { grid-template-columns: 1fr; } }
+  .card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 12px rgba(67,97,238,0.08);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.15s, box-shadow 0.15s;
+    display: flex;
+    flex-direction: column;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(67,97,238,0.15);
+  }
+  .card-icon { font-size: 32px; margin-bottom: 12px; }
+  .card-title { font-size: 17px; font-weight: bold; color: #1a1a2e; margin-bottom: 6px; }
+  .card-desc { font-size: 13px; color: #666; line-height: 1.6; flex: 1; }
+  .card-tag {
+    margin-top: 14px;
+    font-size: 11px;
+    background: #eef2ff;
+    color: #4361EE;
+    padding: 3px 10px;
+    border-radius: 20px;
+    display: inline-block;
+  }
+  /* 섹션 제목 */
+  .section-title {
+    font-size: 15px;
+    font-weight: bold;
+    color: #4361EE;
+    margin: 28px 0 12px;
+    padding-left: 8px;
+    border-left: 3px solid #4361EE;
+  }
+  /* 개요 카드 */
+  .overview {
+    background: white;
+    border-radius: 16px;
+    padding: 20px 24px;
+    box-shadow: 0 2px 12px rgba(67,97,238,0.08);
+    margin-top: 8px;
+  }
+  .overview p { font-size: 14px; color: #444; line-height: 1.8; }
+  .concept-list {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .concept-tag {
+    background: #eef2ff;
+    color: #4361EE;
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid #c0c8ff;
+  }
+  /* 인물 미리보기 */
+  .person-card {
+    background: linear-gradient(135deg, #f8f9ff 0%, #eef2ff 100%);
+    border-radius: 16px;
+    padding: 20px 24px;
+    box-shadow: 0 2px 12px rgba(67,97,238,0.08);
+    margin-top: 8px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .person-avatar {
+    width: 56px; height: 56px;
+    background: #4361EE;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    flex-shrink: 0;
+  }
+  .person-info h3 { font-size: 16px; color: #1a1a2e; margin-bottom: 4px; }
+  .person-info p { font-size: 13px; color: #555; line-height: 1.7; }
+  /* 푸터 */
+  footer {
+    text-align: center;
+    font-size: 12px;
+    color: #aaa;
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="unit-label">중1 수학 · 단원 1</div>
+  <h1>소인수분해</h1>
+  <p>수의 가장 작은 조각을 찾아가는 여행</p>
+  <div class="person">인물: 에라토스테네스 (BCE 276~194)</div>
+</div>
+
+<div class="container">
+
+  <div class="section-title">단원 소개</div>
+  <div class="overview">
+    <p>모든 자연수는 소수들의 곱으로 나타낼 수 있어요. 마치 세상 모든 물질이 원자로 이루어진 것처럼, 수의 세계에서는 소수가 원자 역할을 해요. 이 단원에서는 소수를 찾고, 수를 소인수분해하고, 그것을 이용해 최대공약수와 최소공배수를 구하는 방법을 배워요.</p>
+    <div class="concept-list">
+      <span class="concept-tag">소수 · 합성수</span>
+      <span class="concept-tag">에라토스테네스의 체</span>
+      <span class="concept-tag">거듭제곱</span>
+      <span class="concept-tag">소인수분해</span>
+      <span class="concept-tag">최대공약수 (GCD)</span>
+      <span class="concept-tag">최소공배수 (LCM)</span>
+      <span class="concept-tag">서로소</span>
+    </div>
+  </div>
+
+  <div class="section-title">이 단원의 인물</div>
+  <div class="person-card">
+    <div class="person-avatar">📜</div>
+    <div class="person-info">
+      <h3>에라토스테네스</h3>
+      <p>알렉산드리아 도서관의 관장. 막대기 하나로 지구의 둘레를 재고, 소수를 찾는 체를 발명했어요. 별명은 "베타" — 모든 분야에서 2등이지만, 그 합은 누구도 따라올 수 없었던 사람.</p>
+    </div>
+  </div>
+
+  <div class="section-title">학습 자료</div>
+  <div class="cards">
+    <a class="card" href="story.html">
+      <div class="card-icon">📖</div>
+      <div class="card-title">이야기</div>
+      <div class="card-desc">에라토스테네스의 이야기. 막대기와 그림자로 지구를 재고, 소수의 체를 만든 사람.</div>
+      <span class="card-tag">축 B · 흥미 유발</span>
+    </a>
+    <a class="card" href="concepts.html">
+      <div class="card-icon">💡</div>
+      <div class="card-title">개념 탐구</div>
+      <div class="card-desc">소수, 거듭제곱, 소인수분해, 최대공약수·최소공배수를 인터랙티브하게 이해해요.</div>
+      <span class="card-tag">축 A · 개념 이해</span>
+    </a>
+    <a class="card" href="../problems/basic_app.html">
+      <div class="card-icon">✏️</div>
+      <div class="card-title">기본 문제</div>
+      <div class="card-desc">단원 전체 개념을 고루 확인하는 기본 문제 10개예요.</div>
+      <span class="card-tag">축 D · 문제 연습</span>
+    </a>
+    <a class="card" href="../problems/types.md">
+      <div class="card-icon">📋</div>
+      <div class="card-title">유형 목록</div>
+      <div class="card-desc">시험에 자주 나오는 유형을 정리했어요. 어떤 유형이 있는지 먼저 확인해봐요.</div>
+      <span class="card-tag">축 D · 유형 파악</span>
+    </a>
+  </div>
+
+  <footer>MathTelling · 단원 01 소인수분해</footer>
+</div>
+
+</body>
+</html>

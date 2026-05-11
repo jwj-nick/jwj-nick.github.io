@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>개념 탐구 — Unit 08 작도와 합동</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; }
+  .header {
+    background: linear-gradient(135deg, #4361EE 0%, #3a0ca3 100%);
+    color: white; padding: 32px 20px 28px; text-align: center;
+  }
+  .header .back-link { display: inline-block; font-size: 13px; color: rgba(255,255,255,0.8); text-decoration: none; margin-bottom: 12px; padding: 4px 12px; border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; }
+  .header h1 { font-size: 24px; margin-bottom: 6px; }
+  .header .subtitle { font-size: 14px; opacity: 0.85; }
+  .dots { display: flex; justify-content: center; gap: 8px; padding: 16px; background: white; border-bottom: 1px solid #e0e4f0; position: sticky; top: 0; z-index: 10; flex-wrap: wrap; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #d0d5f0; cursor: pointer; transition: all 0.2s; }
+  .dot.active { background: #4361EE; transform: scale(1.3); }
+  .dot.done { background: #a0aaee; }
+  .container { max-width: 700px; margin: 0 auto; padding: 24px 16px 48px; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-num { font-size: 12px; color: #888; margin-bottom: 6px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+  .page-title { font-size: 24px; font-weight: 700; color: #1d3557; margin-bottom: 16px; line-height: 1.3; }
+  .text { font-size: 15px; line-height: 1.8; color: #333; margin-bottom: 14px; }
+  .text strong { color: #4361EE; }
+
+  .deg-info { background: #d4edda; border-left: 4px solid #28a745; border-radius: 0 10px 10px 0; padding: 12px 16px; font-size: 13px; color: #155724; margin: 12px 0; line-height: 1.6; }
+  .deg-info strong { color: #0e3a16; }
+
+  .concept-card { background: white; border-radius: 12px; padding: 18px 20px; margin: 14px 0; box-shadow: 0 2px 8px rgba(67,97,238,0.07); border-left: 4px solid #4361EE; }
+  .concept-card .label { font-size: 11px; font-weight: 700; color: #4361EE; letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase; }
+  .concept-card .body { font-size: 14px; color: #333; line-height: 1.7; }
+
+  .demo-svg { width: 100%; max-width: 560px; margin: 12px auto; display: block; background: white; border-radius: 14px; padding: 14px; box-shadow: 0 2px 10px rgba(67,97,238,0.08); }
+
+  .step-controls { background: white; border-radius: 12px; padding: 16px 20px; margin: 16px 0; box-shadow: 0 2px 8px rgba(67,97,238,0.07); }
+  .step-controls .step-label { font-size: 13px; font-weight: 600; color: #1d3557; margin-bottom: 8px; }
+  .step-controls .step-current { color: #4361EE; font-weight: 700; font-size: 15px; }
+  .step-controls .step-desc { font-size: 13px; color: #555; line-height: 1.6; min-height: 38px; padding: 8px 12px; background: #f8f9ff; border-radius: 8px; margin: 8px 0; }
+  .step-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .step-btn { background: white; border: 2px solid #d0d5f0; color: #1d3557; padding: 7px 14px; border-radius: 20px; font-size: 13px; cursor: pointer; font-family: inherit; transition: all 0.15s; font-weight: 600; flex: 1; min-width: 70px; }
+  .step-btn.active { background: #4361EE; color: white; border-color: #4361EE; }
+  .step-btn:hover { border-color: #4361EE; }
+
+  .guide-chip { background: #fff3cd; color: #856404; font-size: 13px; padding: 8px 14px; border-radius: 20px; display: inline-block; margin-top: 8px; font-weight: 600; }
+
+  .table-compact { width: 100%; border-collapse: collapse; font-size: 13px; margin: 12px 0; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 6px rgba(67,97,238,0.06); }
+  .table-compact th { background: #4361EE; color: white; padding: 8px; text-align: center; font-size: 12px; }
+  .table-compact td { padding: 8px 10px; border-top: 1px solid #e0e4f0; vertical-align: middle; text-align: center; }
+  .table-compact tr:nth-child(even) td { background: #f8f9ff; }
+
+  .warn-box { background: #f8d7da; border-left: 4px solid #dc3545; border-radius: 0 10px 10px 0; padding: 12px 16px; font-size: 13px; color: #721c24; margin: 14px 0; line-height: 1.6; }
+  .warn-box strong { color: #5a181f; }
+
+  .selector-group { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+  .selector-btn { background: white; border: 2px solid #d0d5f0; color: #1d3557; padding: 8px 14px; border-radius: 20px; font-size: 13px; cursor: pointer; font-family: inherit; transition: all 0.15s; font-weight: 600; }
+  .selector-btn.active { background: #4361EE; color: white; border-color: #4361EE; }
+  .selector-btn:hover { border-color: #4361EE; }
+
+  .blank-box { background: #f0f4ff; border: 2px dashed #4361EE; border-radius: 12px; padding: 16px; margin: 14px 0; }
+  .blank-box .label { font-size: 12px; font-weight: 700; color: #4361EE; margin-bottom: 8px; }
+  .blank-box textarea { width: 100%; min-height: 80px; border: 1px solid #d0d5f0; border-radius: 8px; padding: 10px; font-family: inherit; font-size: 14px; resize: vertical; }
+
+  .nav-btns { display: flex; justify-content: space-between; align-items: center; margin-top: 28px; gap: 12px; }
+  .btn { padding: 12px 24px; border-radius: 12px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+  .btn-prev { background: white; color: #4361EE; border: 2px solid #d0d5f0; }
+  .btn-prev:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-next { background: #4361EE; color: white; flex: 1; }
+  .btn-next:hover { background: #3452d0; }
+  .page-indicator { font-size: 13px; color: #888; min-width: 60px; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a class="back-link" href="index.html">← 단원 홈</a>
+  <h1>개념 탐구 — 작도와 합동</h1>
+  <div class="subtitle">자와 컴퍼스로 직접 만들어 봐요</div>
+</div>
+
+<div class="dots" id="dots"></div>
+
+<div class="container">
+
+  <!-- Page 1: 자와 컴퍼스 -->
+  <div class="page active" data-page="0">
+    <div class="page-num">개념 1 / 6</div>
+    <div class="page-title">자와 컴퍼스 — 두 도구의 약속</div>
+
+    <p class="text">
+      <strong>작도(作圖)</strong>는 <strong>눈금 없는 자</strong>와 <strong>컴퍼스</strong>만으로 도형을 그리는 일이에요.
+    </p>
+
+    <div class="deg-info">
+      📌 <strong>약속</strong><br>
+      자에는 <strong>눈금이 없어야</strong> 해요. (길이를 직접 재면 안 됨)<br>
+      각도기는 <strong>사용 금지</strong>. 각의 크기를 직접 재면 안 됨.<br>
+      허용되는 조작은 두 가지: ① 자로 직선 긋기 ② 컴퍼스로 원/호 그리기
+    </div>
+
+    <svg class="demo-svg" viewBox="0 0 560 220" xmlns="http://www.w3.org/2000/svg">
+      <!-- 자 그림 -->
+      <text x="140" y="28" font-size="14" fill="#1d3557" font-weight="700" text-anchor="middle">눈금 없는 자</text>
+      <rect x="30" y="50" width="220" height="36" fill="#f8f9ff" stroke="#4361EE" stroke-width="2" rx="3"/>
+      <line x1="30" y1="50" x2="250" y2="50" stroke="#4361EE" stroke-width="3"/>
+      <text x="140" y="74" font-size="12" fill="#888" text-anchor="middle">반듯한 막대 — 직선만 그어요</text>
+      <text x="140" y="120" font-size="12" fill="#666" text-anchor="middle">두 점을 연결하는 직선 긋기</text>
+      <line x1="60" y1="150" x2="220" y2="150" stroke="#1d3557" stroke-width="2"/>
+      <circle cx="60" cy="150" r="4" fill="#1d3557"/>
+      <circle cx="220" cy="150" r="4" fill="#1d3557"/>
+      <text x="56" y="175" font-size="13" font-weight="700" fill="#1d3557">A</text>
+      <text x="216" y="175" font-size="13" font-weight="700" fill="#1d3557">B</text>
+
+      <!-- 컴퍼스 그림 -->
+      <text x="420" y="28" font-size="14" fill="#1d3557" font-weight="700" text-anchor="middle">컴퍼스</text>
+      <line x1="420" y1="50" x2="380" y2="120" stroke="#4361EE" stroke-width="3"/>
+      <line x1="420" y1="50" x2="460" y2="120" stroke="#4361EE" stroke-width="3"/>
+      <circle cx="420" cy="50" r="4" fill="#4361EE"/>
+      <circle cx="380" cy="120" r="3" fill="#dc3545"/>
+      <text x="362" y="115" font-size="11" fill="#dc3545" font-weight="700">중심</text>
+      <circle cx="460" cy="120" r="3" fill="#28a745"/>
+      <text x="468" y="115" font-size="11" fill="#28a745" font-weight="700">연필</text>
+      <text x="420" y="148" font-size="12" fill="#666" text-anchor="middle">한 점에서 호/원 그리기</text>
+      <!-- 작은 호 -->
+      <path d="M 380 175 A 40 40 0 0 1 460 175" stroke="#4361EE" stroke-width="2" fill="none" stroke-dasharray="4 3"/>
+      <text x="420" y="200" font-size="12" fill="#888" text-anchor="middle">길이 옮기기도 가능</text>
+    </svg>
+
+    <div class="concept-card">
+      <div class="label">왜 도구를 줄였을까?</div>
+      <div class="body">
+        각도기 없이도, 눈금 없이도 <strong>정확한 도형</strong>을 만들 수 있어요.
+        컴퍼스의 호 위 모든 점은 중심에서 같은 거리 — 이 성질이 모든 작도의 근거예요.
+      </div>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn btn-prev" onclick="movePage(-1)" disabled>← 이전</button>
+      <span class="page-indicator" id="pageInd1">1 / 6</span>
+      <button class="btn btn-next" onclick="movePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- Page 2: 길이 옮기기 + 같은 각 옮기기 -->
+  <div class="page" data-page="1">
+    <div class="page-num">개념 2 / 6</div>
+    <div class="page-title">길이 옮기기 · 같은 각 옮기기</div>
+
+    <p class="text">
+      <strong>가장 기초 작도</strong> 두 가지를 먼저 만나요. 컴퍼스가 어떻게 "같은 길이"와 "같은 각"을 만드는지 보여줘요.
+    </p>
+
+    <div class="selector-group">
+      <button class="selector-btn active" id="sel-len" onclick="selectBasic('len')">선분 옮기기</button>
+      <button class="selector-btn" id="sel-ang" onclick="selectBasic('ang')">각 옮기기</button>
+    </div>
+
+    <!-- 선분 옮기기 SVG -->
+    <svg class="demo-svg" id="svg-len" viewBox="0 0 560 280" xmlns="http://www.w3.org/2000/svg">
+      <!-- 원본 선분 -->
+      <text x="140" y="30" font-size="13" fill="#1d3557" font-weight="700" text-anchor="middle">원본 $\overline{AB}$</text>
+      <line x1="60" y1="60" x2="220" y2="60" stroke="#1d3557" stroke-width="3"/>
+      <circle cx="60" cy="60" r="5" fill="#1d3557"/>
+      <circle cx="220" cy="60" r="5" fill="#1d3557"/>
+      <text x="56" y="55" font-size="14" font-weight="700" fill="#1d3557">A</text>
+      <text x="216" y="55" font-size="14" font-weight="700" fill="#1d3557">B</text>
+
+      <!-- 화살표 -->
+      <text x="280" y="148" font-size="22" fill="#888" text-anchor="middle">→</text>
+
+      <!-- 옮긴 결과 -->
+      <text x="420" y="30" font-size="13" fill="#1d3557" font-weight="700" text-anchor="middle">새 선분 $\overline{CD}$ (같은 길이)</text>
+      <line x1="320" y1="60" x2="480" y2="60" stroke="#dc3545" stroke-width="3"/>
+      <circle cx="320" cy="60" r="5" fill="#dc3545"/>
+      <circle cx="480" cy="60" r="5" fill="#dc3545"/>
+      <text x="316" y="55" font-size="14" font-weight="700" fill="#dc3545">C</text>
+      <text x="476" y="55" font-size="14" font-weight="700" fill="#dc3545">D</text>
+
+      <!-- 작도 절차 -->
+      <text x="280" y="115" font-size="12" fill="#7b2ff7" text-anchor="middle" font-weight="700">작도 절차</text>
+      <!-- 1. 직선 -->
+      <line x1="60" y1="160" x2="500" y2="160" stroke="#888" stroke-width="1" stroke-dasharray="3 2"/>
+      <text x="50" y="155" font-size="11" fill="#888" text-anchor="end">l</text>
+      <text x="40" y="170" font-size="11" fill="#666">①</text>
+      <text x="60" y="180" font-size="11" fill="#555">직선 l 그리기</text>
+      <!-- 2. 점 C 찍기 -->
+      <circle cx="200" cy="160" r="5" fill="#dc3545"/>
+      <text x="196" y="155" font-size="13" font-weight="700" fill="#dc3545">C</text>
+      <text x="166" y="180" font-size="11" fill="#555">② 점 C</text>
+      <!-- 3. 컴퍼스로 AB 길이 잰 후 C에 꽂아 호 -->
+      <path d="M 360 160 A 160 160 0 0 0 200 160" stroke="#7b2ff7" stroke-width="2" fill="none" stroke-dasharray="4 3"/>
+      <circle cx="360" cy="160" r="5" fill="#dc3545"/>
+      <text x="356" y="155" font-size="13" font-weight="700" fill="#dc3545">D</text>
+      <text x="240" y="135" font-size="11" fill="#7b2ff7" font-weight="700" text-anchor="middle">③ 컴퍼스를 AB만큼 벌려 C에 꽂고 호</text>
+      <text x="380" y="180" font-size="11" fill="#555">④ 호와 직선 교점 = D</text>
+      <text x="280" y="220" font-size="13" fill="#28a745" text-anchor="middle" font-weight="700">→ $\overline{CD} = \overline{AB}$</text>
+      <text x="280" y="244" font-size="11" fill="#888" text-anchor="middle">컴퍼스 벌림 = 길이 그 자체</text>
+    </svg>
+
+    <!-- 각 옮기기 SVG -->
+    <svg class="demo-svg" id="svg-ang" style="display:none" viewBox="0 0 560 320" xmlns="http://www.w3.org/2000/svg">
+      <text x="280" y="22" font-size="13" fill="#1d3557" font-weight="700" text-anchor="middle">∠XOY와 같은 각을 새 직선 위에 옮기기</text>
+
+      <!-- 원본 각 (왼쪽) -->
+      <text x="135" y="50" font-size="12" fill="#1d3557" font-weight="700" text-anchor="middle">원본 ∠XOY</text>
+      <line x1="60" y1="180" x2="220" y2="180" stroke="#1d3557" stroke-width="2"/>
+      <line x1="60" y1="180" x2="200" y2="100" stroke="#1d3557" stroke-width="2"/>
+      <circle cx="60" cy="180" r="4" fill="#1d3557"/>
+      <text x="46" y="195" font-size="12" font-weight="700" fill="#1d3557">O</text>
+      <text x="222" y="195" font-size="12" font-weight="700" fill="#1d3557">Y</text>
+      <text x="206" y="92" font-size="12" font-weight="700" fill="#1d3557">X</text>
+      <!-- 호 (원본) - 컴퍼스로 그린 호 -->
+      <path d="M 110 180 A 50 50 0 0 0 103 153" stroke="#7b2ff7" stroke-width="2" fill="none"/>
+      <circle cx="110" cy="180" r="3" fill="#7b2ff7"/>
+      <circle cx="103" cy="153" r="3" fill="#7b2ff7"/>
+      <text x="106" y="200" font-size="10" fill="#7b2ff7">A</text>
+      <text x="84" y="150" font-size="10" fill="#7b2ff7">B</text>
+
+      <!-- 화살표 -->
+      <text x="280" y="148" font-size="22" fill="#888" text-anchor="middle">→</text>
+
+      <!-- 새 각 (오른쪽) -->
+      <text x="425" y="50" font-size="12" fill="#dc3545" font-weight="700" text-anchor="middle">새 각 ∠X'O'Y' (같은 크기)</text>
+      <line x1="340" y1="180" x2="500" y2="180" stroke="#dc3545" stroke-width="2"/>
+      <line x1="340" y1="180" x2="480" y2="100" stroke="#dc3545" stroke-width="2"/>
+      <circle cx="340" cy="180" r="4" fill="#dc3545"/>
+      <text x="326" y="195" font-size="12" font-weight="700" fill="#dc3545">O'</text>
+      <text x="502" y="195" font-size="12" font-weight="700" fill="#dc3545">Y'</text>
+      <text x="486" y="92" font-size="12" font-weight="700" fill="#dc3545">X'</text>
+      <path d="M 390 180 A 50 50 0 0 0 383 153" stroke="#7b2ff7" stroke-width="2" fill="none"/>
+      <circle cx="390" cy="180" r="3" fill="#7b2ff7"/>
+      <circle cx="383" cy="153" r="3" fill="#7b2ff7"/>
+      <text x="386" y="200" font-size="10" fill="#7b2ff7">A'</text>
+      <text x="364" y="150" font-size="10" fill="#7b2ff7">B'</text>
+
+      <!-- 절차 텍스트 -->
+      <text x="280" y="240" font-size="11" fill="#7b2ff7" text-anchor="middle" font-weight="700">작도 절차 — 두 번의 컴퍼스</text>
+      <text x="280" y="260" font-size="11" fill="#555" text-anchor="middle">① O 중심 호 그어 OX·OY와 만나는 A, B 찾기</text>
+      <text x="280" y="278" font-size="11" fill="#555" text-anchor="middle">② 새 직선에 O' 잡고 같은 반지름으로 호 → A' 결정</text>
+      <text x="280" y="296" font-size="11" fill="#555" text-anchor="middle">③ AB 길이를 컴퍼스로 재서 A' 중심 호 → 교점이 B' (= 같은 각)</text>
+      <text x="280" y="312" font-size="11" fill="#28a745" text-anchor="middle" font-weight="700">컴퍼스 두 번이면 같은 각이 옮겨져요</text>
+    </svg>
+
+    <div class="concept-card">
+      <div class="label">핵심 아이디어</div>
+      <div class="body">
+        <strong>같은 컴퍼스 벌림</strong>은 곧 <strong>같은 길이</strong>와 같아요.
+        길이를 옮길 때도, 각을 옮길 때도 컴퍼스의 반지름을 두 번 사용해서 "두 점 사이 거리"를 보존해요.
+      </div>
+    </div>
+
+    <div class="guide-chip">💡 컴퍼스는 길이를 "기억"하는 도구예요. 이 점이 모든 작도의 출발이에요.</div>
+
+    <div class="nav-btns">
+      <button class="btn btn-prev" onclick="movePage(-1)">← 이전</button>
+      <span class="page-indicator" id="pageInd2">2 / 6</span>
+      <button class="btn btn-next" onclick="movePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- Page 3: 수직이등분선 (단계별) -->
+  <div class="page" data-page="2">
+    <div class="page-num">개념 3 / 6</div>
+    <div class="page-title">수직이등분선 — 단계별 작도</div>
+
+    <p class="text">
+      선분 $\overline{AB}$를 정확히 <strong>반으로 나누면서</strong> 동시에 <strong>수직</strong>인 선이에요.
+      아래 버튼을 한 단계씩 눌러보세요.
+    </p>
+
+    <div class="step-controls">
+      <div class="step-label">현재 단계: <span class="step-current" id="bisLabel">0 / 4</span></div>
+      <div class="step-desc" id="bisDesc">아래 버튼을 눌러 한 단계씩 따라가 보세요.</div>
+      <div class="step-btns">
+        <button class="step-btn active" onclick="setBisStep(0)">시작</button>
+        <button class="step-btn" onclick="setBisStep(1)">1단계</button>
+        <button class="step-btn" onclick="setBisStep(2)">2단계</button>
+        <button class="step-btn" onclick="setBisStep(3)">3단계</button>
+        <button class="step-btn" onclick="setBisStep(4)">완성</button>
+      </div>
+    </div>
+
+    <svg class="demo-svg" id="bisSvg" viewBox="0 0 480 360" xmlns="http://www.w3.org/2000/svg">
+      <!-- 선분 AB는 항상 표시 -->
+      <line x1="100" y1="180" x2="380" y2="180" stroke="#1d3557" stroke-width="3"/>
+      <circle cx="100" cy="180" r="5" fill="#1d3557"/>
+      <circle cx="380" cy="180" r="5" fill="#1d3557"/>
+      <text x="92" y="200" font-size="16" font-weight="700" fill="#1d3557">A</text>
+      <text x="384" y="200" font-size="16" font-weight="700" fill="#1d3557">B</text>
+
+      <!-- 1단계: A 중심 호 -->
+      <g id="bis1" style="display:none">
+        <path d="M 100 20 A 160 160 0 0 1 100 340" stroke="#7b2ff7" stroke-width="2" fill="none" stroke-dasharray="4 3"/>
+        <text x="55" y="40" font-size="11" fill="#7b2ff7" font-weight="700">A 중심</text>
+      </g>
+
+      <!-- 2단계: B 중심 호 (반지름 같음) -->
+      <g id="bis2" style="display:none">
+        <path d="M 380 20 A 160 160 0 0 0 380 340" stroke="#28a745" stroke-width="2" fill="none" stroke-dasharray="4 3"/>
+        <text x="395" y="40" font-size="11" fill="#28a745" font-weight="700">B 중심</text>
+        <!-- 교점 P, Q 표시 -->
+        <circle cx="240" cy="89" r="4" fill="#dc3545"/>
+        <circle cx="240" cy="271" r="4" fill="#dc3545"/>
+        <text x="246" y="86" font-size="13" font-weight="700" fill="#dc3545">P</text>
+        <text x="246" y="288" font-size="13" font-weight="700" fill="#dc3545">Q</text>
+      </g>
+
+      <!-- 3단계: P, Q를 직선으로 잇기 -->
+      <g id="bis3" style="display:none">
+        <line x1="240" y1="89" x2="240" y2="271" stroke="#dc3545" stroke-width="3"/>
+      </g>
+
+      <!-- 4단계 완성: 중점 M 표시 + 직각 표시 -->
+      <g id="bis4" style="display:none">
+        <circle cx="240" cy="180" r="5" fill="#28a745"/>
+        <text x="248" y="200" font-size="14" font-weight="700" fill="#28a745">M</text>
+        <!-- 직각 표시 -->
+        <rect x="240" y="180" width="14" height="14" fill="none" stroke="#dc3545" stroke-width="2"/>
+        <text x="320" y="158" font-size="12" fill="#28a745" font-weight="700">∠ = 90°</text>
+        <text x="200" y="158" font-size="12" fill="#28a745" font-weight="700">$\overline{AM} = \overline{MB}$</text>
+      </g>
+    </svg>
+
+    <div class="concept-card">
+      <div class="label">왜 P가 A에서도 B에서도 같은 거리일까?</div>
+      <div class="body">
+        A 중심 호와 B 중심 호의 <strong>반지름이 같기 때문</strong>이에요.
+        호 위 모든 점은 중심에서 같은 거리.
+        같은 반지름의 두 호가 만난 P는 A와 B에서 같은 거리예요.
+        따라서 직선 PQ는 AB의 <strong>수직이등분선</strong>이 돼요.
+      </div>
+    </div>
+
+    <div class="warn-box">
+      ⚠️ <strong>호의 반지름이 $\overline{AB}/2$보다 커야 해요.</strong>
+      너무 작으면 두 호가 만나지 않아요. 보통 $\overline{AB}$ 정도로 크게 잡아요.
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn btn-prev" onclick="movePage(-1)">← 이전</button>
+      <span class="page-indicator" id="pageInd3">3 / 6</span>
+      <button class="btn btn-next" onclick="movePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- Page 4: 각의 이등분선 (단계별) -->
+  <div class="page" data-page="3">
+    <div class="page-num">개념 4 / 6</div>
+    <div class="page-title">각의 이등분선 — 단계별 작도</div>
+
+    <p class="text">
+      한 각 ∠XOY를 정확히 <strong>반으로 나누는</strong> 반직선을 만들어요.
+      각도기 없이 컴퍼스만으로요.
+    </p>
+
+    <div class="step-controls">
+      <div class="step-label">현재 단계: <span class="step-current" id="angBisLabel">0 / 4</span></div>
+      <div class="step-desc" id="angBisDesc">아래 버튼을 눌러 한 단계씩 따라가 보세요.</div>
+      <div class="step-btns">
+        <button class="step-btn active" onclick="setAngBisStep(0)">시작</button>
+        <button class="step-btn" onclick="setAngBisStep(1)">1단계</button>
+        <button class="step-btn" onclick="setAngBisStep(2)">2단계</button>
+        <button class="step-btn" onclick="setAngBisStep(3)">3단계</button>
+        <button class="step-btn" onclick="setAngBisStep(4)">완성</button>
+      </div>
+    </div>
+
+    <svg class="demo-svg" id="angBisSvg" viewBox="0 0 480 360" xmlns="http://www.w3.org/2000/svg">
+      <!-- 각 ∠XOY -->
+      <line x1="80" y1="280" x2="420" y2="280" stroke="#1d3557" stroke-width="3"/>
+      <line x1="80" y1="280" x2="380" y2="80" stroke="#1d3557" stroke-width="3"/>
+      <circle cx="80" cy="280" r="5" fill="#1d3557"/>
+      <text x="60" y="298" font-size="16" font-weight="700" fill="#1d3557">O</text>
+      <text x="425" y="295" font-size="14" font-weight="700" fill="#1d3557">Y</text>
+      <text x="384" y="74" font-size="14" font-weight="700" fill="#1d3557">X</text>
+
+      <!-- 1단계: O 중심 호, OX·OY와 교점 A, B -->
+      <g id="ang1" style="display:none">
+        <path d="M 200 280 A 120 120 0 0 0 180 184" stroke="#7b2ff7" stroke-width="2" fill="none"/>
+        <circle cx="200" cy="280" r="4" fill="#7b2ff7"/>
+        <circle cx="180" cy="184" r="4" fill="#7b2ff7"/>
+        <text x="200" y="304" font-size="13" font-weight="700" fill="#7b2ff7">A</text>
+        <text x="156" y="180" font-size="13" font-weight="700" fill="#7b2ff7">B</text>
+      </g>
+
+      <!-- 2단계: A 중심 호 -->
+      <g id="ang2" style="display:none">
+        <path d="M 245 220 A 70 70 0 0 0 220 178" stroke="#28a745" stroke-width="2" fill="none" stroke-dasharray="4 3"/>
+        <text x="255" y="225" font-size="11" fill="#28a745" font-weight="700">A 중심</text>
+      </g>
+
+      <!-- 3단계: B 중심 호 (같은 반지름) → 교점 P -->
+      <g id="ang3" style="display:none">
+        <path d="M 245 218 A 70 70 0 0 1 152 207" stroke="#dc3545" stroke-width="2" fill="none" stroke-dasharray="4 3"/>
+        <text x="120" y="200" font-size="11" fill="#dc3545" font-weight="700">B 중심</text>
+        <circle cx="232" cy="200" r="4" fill="#dc3545"/>
+        <text x="240" y="200" font-size="13" font-weight="700" fill="#dc3545">P</text>
+      </g>
+
+      <!-- 4단계 완성: O와 P를 잇기 + 두 각 동등 표시 -->
+      <g id="ang4" style="display:none">
+        <line x1="80" y1="280" x2="380" y2="180" stroke="#dc3545" stroke-width="3"/>
+        <text x="380" y="170" font-size="13" font-weight="700" fill="#dc3545">P</text>
+        <!-- 두 각 동등 표시 (작은 호) -->
+        <path d="M 130 263 A 53 53 0 0 0 117 230" stroke="#28a745" stroke-width="2" fill="none"/>
+        <path d="M 117 230 A 53 53 0 0 0 124 198" stroke="#28a745" stroke-width="2" fill="none"/>
+        <text x="200" y="170" font-size="13" fill="#28a745" font-weight="700">∠XOP = ∠POY</text>
+      </g>
+    </svg>
+
+    <div class="concept-card">
+      <div class="label">왜 OP가 ∠XOY를 이등분할까?</div>
+      <div class="body">
+        삼각형 OAP와 OBP에서:<br>
+        $\overline{OA} = \overline{OB}$ (1단계 같은 호의 반지름)<br>
+        $\overline{AP} = \overline{BP}$ (2·3단계 같은 반지름)<br>
+        $\overline{OP}$는 공통<br>
+        → 두 삼각형은 <strong>SSS 합동</strong> → ∠AOP = ∠BOP
+      </div>
+    </div>
+
+    <div class="guide-chip">💡 합동 조건이 작도의 정확성을 보장해요. 작도와 합동은 한 몸이에요.</div>
+
+    <div class="nav-btns">
+      <button class="btn btn-prev" onclick="movePage(-1)">← 이전</button>
+      <span class="page-indicator" id="pageInd4">4 / 6</span>
+      <button class="btn btn-next" onclick="movePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- Page 5: 합동의 정의 + 표기 -->
+  <div class="page" data-page="4">
+    <div class="page-num">개념 5 / 6</div>
+    <div class="page-title">합동 ≡ 와 대응</div>
+
+    <p class="text">
+      두 도형을 <strong>포개서 완전히 겹치면</strong> 그 두 도형은 <strong>합동(congruent)</strong>이에요.
+    </p>
+
+    <div class="deg-info">
+      📌 <strong>합동 기호 ≡</strong><br>
+      "$=$"는 수가 같다는 뜻이고, "$\equiv$"는 도형이 <strong>포개진다</strong>는 뜻이에요.
+      $\triangle ABC \equiv \triangle DEF$로 쓰고 "삼각형 ABC와 DEF는 합동이다"라고 읽어요.
+    </div>
+
+    <svg class="demo-svg" viewBox="0 0 560 280" xmlns="http://www.w3.org/2000/svg">
+      <text x="280" y="22" font-size="13" fill="#1d3557" font-weight="700" text-anchor="middle">$\triangle ABC \equiv \triangle DEF$ — 대응을 따라 읽어요</text>
+
+      <!-- 삼각형 ABC -->
+      <polygon points="80,200 220,200 150,80" fill="#eef2ff" stroke="#4361EE" stroke-width="2"/>
+      <circle cx="80" cy="200" r="4" fill="#4361EE"/>
+      <circle cx="220" cy="200" r="4" fill="#4361EE"/>
+      <circle cx="150" cy="80" r="4" fill="#4361EE"/>
+      <text x="68" y="218" font-size="15" font-weight="700" fill="#4361EE">A</text>
+      <text x="226" y="218" font-size="15" font-weight="700" fill="#4361EE">B</text>
+      <text x="144" y="72" font-size="15" font-weight="700" fill="#4361EE">C</text>
+
+      <text x="280" y="148" font-size="32" fill="#1d3557" text-anchor="middle" font-weight="700">≡</text>
+
+      <!-- 삼각형 DEF -->
+      <polygon points="340,200 480,200 410,80" fill="#fff0f5" stroke="#dc3545" stroke-width="2"/>
+      <circle cx="340" cy="200" r="4" fill="#dc3545"/>
+      <circle cx="480" cy="200" r="4" fill="#dc3545"/>
+      <circle cx="410" cy="80" r="4" fill="#dc3545"/>
+      <text x="328" y="218" font-size="15" font-weight="700" fill="#dc3545">D</text>
+      <text x="486" y="218" font-size="15" font-weight="700" fill="#dc3545">E</text>
+      <text x="404" y="72" font-size="15" font-weight="700" fill="#dc3545">F</text>
+
+      <!-- 대응 -->
+      <text x="280" y="240" font-size="12" fill="#666" text-anchor="middle">A ↔ D · B ↔ E · C ↔ F</text>
+      <text x="280" y="262" font-size="11" fill="#666" text-anchor="middle">$\overline{AB} ↔ \overline{DE}$ · $\overline{BC} ↔ \overline{EF}$ · $\overline{CA} ↔ \overline{FD}$</text>
+    </svg>
+
+    <table class="table-compact">
+      <thead>
+        <tr><th>대응 종류</th><th>예시</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>대응점</td><td>$A \leftrightarrow D, B \leftrightarrow E, C \leftrightarrow F$</td></tr>
+        <tr><td>대응변</td><td>$\overline{AB} \leftrightarrow \overline{DE}$ 등</td></tr>
+        <tr><td>대응각</td><td>$\angle A \leftrightarrow \angle D$ 등</td></tr>
+      </tbody>
+    </table>
+
+    <div class="concept-card">
+      <div class="label">합동의 성질</div>
+      <div class="body">
+        합동인 두 도형에서 <strong>대응변의 길이가 같고, 대응각의 크기가 같아요.</strong><br>
+        역방향: 모든 대응변·대응각이 같으면 합동.
+      </div>
+    </div>
+
+    <div class="warn-box">
+      ⚠️ <strong>표기 순서가 곧 대응이에요.</strong><br>
+      $\triangle ABC \equiv \triangle DEF$와 $\triangle ABC \equiv \triangle EFD$는 <strong>완전히 다른 의미</strong>예요.
+      이름을 막 쓰면 안 돼요. A의 대응점이 D인지, E인지, F인지 — 순서가 정해줘요.
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn btn-prev" onclick="movePage(-1)">← 이전</button>
+      <span class="page-indicator" id="pageInd5">5 / 6</span>
+      <button class="btn btn-next" onclick="movePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- Page 6: 합동 조건 SSS·SAS·ASA + SSA 반례 -->
+  <div class="page" data-page="5">
+    <div class="page-num">개념 6 / 6</div>
+    <div class="page-title">삼각형 합동 조건 — SSS · SAS · ASA</div>
+
+    <p class="text">
+      두 삼각형이 합동인지 알려면 <strong>여섯 가지(세 변 + 세 각)를 다 비교할 필요가 없어요</strong>.
+      세 가지 중 하나만 같아도 합동이에요.
+    </p>
+
+    <div class="selector-group">
+      <button class="selector-btn active" id="sel-sss" onclick="selectCond('sss')">SSS</button>
+      <button class="selector-btn" id="sel-sas" onclick="selectCond('sas')">SAS</button>
+      <button class="selector-btn" id="sel-asa" onclick="selectCond('asa')">ASA</button>
+      <button class="selector-btn" id="sel-ssa" onclick="selectCond('ssa')" style="border-color:#dc3545;color:#dc3545">SSA (반례)</button>
+    </div>
+
+    <!-- SSS -->
+    <div id="cond-sss" class="cond-panel">
+      <svg class="demo-svg" viewBox="0 0 480 240" xmlns="http://www.w3.org/2000/svg">
+        <text x="240" y="22" font-size="13" fill="#4361EE" font-weight="700" text-anchor="middle">SSS — 세 변의 길이가 같다</text>
+        <polygon points="60,180 180,180 120,80" fill="none" stroke="#4361EE" stroke-width="2.5"/>
+        <!-- 변 표시 (틱 마크) -->
+        <line x1="115" y1="183" x2="125" y2="177" stroke="#4361EE" stroke-width="2"/>
+        <line x1="86" y1="125" x2="94" y2="135" stroke="#4361EE" stroke-width="2"/><line x1="92" y1="120" x2="100" y2="130" stroke="#4361EE" stroke-width="2"/>
+        <line x1="146" y1="125" x2="154" y2="135" stroke="#4361EE" stroke-width="2"/><line x1="152" y1="120" x2="160" y2="130" stroke="#4361EE" stroke-width="2"/><line x1="158" y1="115" x2="166" y2="125" stroke="#4361EE" stroke-width="2"/>
+        <text x="240" y="135" font-size="22" fill="#1d3557" text-anchor="middle">≡</text>
+        <polygon points="300,180 420,180 360,80" fill="none" stroke="#dc3545" stroke-width="2.5"/>
+        <line x1="355" y1="183" x2="365" y2="177" stroke="#dc3545" stroke-width="2"/>
+        <line x1="326" y1="125" x2="334" y2="135" stroke="#dc3545" stroke-width="2"/><line x1="332" y1="120" x2="340" y2="130" stroke="#dc3545" stroke-width="2"/>
+        <line x1="386" y1="125" x2="394" y2="135" stroke="#dc3545" stroke-width="2"/><line x1="392" y1="120" x2="400" y2="130" stroke="#dc3545" stroke-width="2"/><line x1="398" y1="115" x2="406" y2="125" stroke="#dc3545" stroke-width="2"/>
+        <text x="240" y="222" font-size="11" fill="#666" text-anchor="middle">대응변 3쌍 모두 같음 (틱 마크 같은 개수)</text>
+      </svg>
+      <div class="concept-card">
+        <div class="label">SSS — Side-Side-Side</div>
+        <div class="body">
+          세 변의 길이가 각각 같으면 두 삼각형은 합동.<br>
+          → "세 변이 정해지면 삼각형 모양이 하나로 결정된다"의 다른 말.
+        </div>
+      </div>
+    </div>
+
+    <!-- SAS -->
+    <div id="cond-sas" class="cond-panel" style="display:none">
+      <svg class="demo-svg" viewBox="0 0 480 240" xmlns="http://www.w3.org/2000/svg">
+        <text x="240" y="22" font-size="13" fill="#4361EE" font-weight="700" text-anchor="middle">SAS — 두 변과 끼인각</text>
+        <polygon points="60,180 180,180 120,80" fill="none" stroke="#4361EE" stroke-width="2.5"/>
+        <!-- 두 변 틱 -->
+        <line x1="86" y1="125" x2="94" y2="135" stroke="#4361EE" stroke-width="2"/>
+        <line x1="146" y1="125" x2="154" y2="135" stroke="#4361EE" stroke-width="2"/><line x1="152" y1="120" x2="160" y2="130" stroke="#4361EE" stroke-width="2"/>
+        <!-- 끼인각 표시 (꼭짓점 C) -->
+        <path d="M 110 90 A 12 12 0 0 0 130 90" stroke="#28a745" stroke-width="2" fill="none"/>
+        <text x="120" y="75" font-size="11" fill="#28a745" font-weight="700">★</text>
+        <text x="240" y="135" font-size="22" fill="#1d3557" text-anchor="middle">≡</text>
+        <polygon points="300,180 420,180 360,80" fill="none" stroke="#dc3545" stroke-width="2.5"/>
+        <line x1="326" y1="125" x2="334" y2="135" stroke="#dc3545" stroke-width="2"/>
+        <line x1="386" y1="125" x2="394" y2="135" stroke="#dc3545" stroke-width="2"/><line x1="392" y1="120" x2="400" y2="130" stroke="#dc3545" stroke-width="2"/>
+        <path d="M 350 90 A 12 12 0 0 0 370 90" stroke="#28a745" stroke-width="2" fill="none"/>
+        <text x="360" y="75" font-size="11" fill="#28a745" font-weight="700">★</text>
+        <text x="240" y="222" font-size="11" fill="#666" text-anchor="middle">두 변 + 그 사이 (★) 끼인각</text>
+      </svg>
+      <div class="concept-card">
+        <div class="label">SAS — Side-Angle-Side</div>
+        <div class="body">
+          두 변의 길이와 그 사이에 <strong>끼인각</strong>이 같으면 합동.<br>
+          → 「원론」 1권 명제 4 (유클리드가 처음 증명한 합동).
+        </div>
+      </div>
+      <div class="warn-box">⚠️ "두 변 + 한 각"이라고 다 SAS가 아니에요. <strong>그 각이 두 변 사이에 있어야</strong> 해요. 끼인각이 아니면 SSA가 되고 합동이 보장 안 돼요.</div>
+    </div>
+
+    <!-- ASA -->
+    <div id="cond-asa" class="cond-panel" style="display:none">
+      <svg class="demo-svg" viewBox="0 0 480 240" xmlns="http://www.w3.org/2000/svg">
+        <text x="240" y="22" font-size="13" fill="#4361EE" font-weight="700" text-anchor="middle">ASA — 한 변과 양 끝 각</text>
+        <polygon points="60,180 180,180 120,80" fill="none" stroke="#4361EE" stroke-width="2.5"/>
+        <line x1="115" y1="183" x2="125" y2="177" stroke="#4361EE" stroke-width="2"/>
+        <!-- 양 끝 각 표시 -->
+        <path d="M 80 175 A 18 18 0 0 0 88 165" stroke="#28a745" stroke-width="2" fill="none"/>
+        <path d="M 160 175 A 18 18 0 0 1 152 165" stroke="#7b2ff7" stroke-width="2" fill="none"/>
+        <text x="240" y="135" font-size="22" fill="#1d3557" text-anchor="middle">≡</text>
+        <polygon points="300,180 420,180 360,80" fill="none" stroke="#dc3545" stroke-width="2.5"/>
+        <line x1="355" y1="183" x2="365" y2="177" stroke="#dc3545" stroke-width="2"/>
+        <path d="M 320 175 A 18 18 0 0 0 328 165" stroke="#28a745" stroke-width="2" fill="none"/>
+        <path d="M 400 175 A 18 18 0 0 1 392 165" stroke="#7b2ff7" stroke-width="2" fill="none"/>
+        <text x="240" y="222" font-size="11" fill="#666" text-anchor="middle">한 변 + 그 양 끝의 두 각</text>
+      </svg>
+      <div class="concept-card">
+        <div class="label">ASA — Angle-Side-Angle</div>
+        <div class="body">
+          한 변과 그 양 끝의 두 각이 같으면 합동.<br>
+          → 두 각이 정해지면 세 번째 각도 자동 결정 (각의 합 180°).
+        </div>
+      </div>
+    </div>
+
+    <!-- SSA 반례 -->
+    <div id="cond-ssa" class="cond-panel" style="display:none">
+      <svg class="demo-svg" viewBox="0 0 480 280" xmlns="http://www.w3.org/2000/svg">
+        <text x="240" y="22" font-size="13" fill="#dc3545" font-weight="700" text-anchor="middle">SSA — 합동 조건이 아니에요!</text>
+        <text x="240" y="42" font-size="11" fill="#666" text-anchor="middle">두 변(파랑·초록)과 한 각(빨강)이 같아도 두 모양 가능</text>
+
+        <!-- 공통: O를 꼭짓점, 빨강 30° 각, 한 변 OA -->
+        <line x1="80" y1="220" x2="420" y2="220" stroke="#1d3557" stroke-width="2"/>
+        <circle cx="80" cy="220" r="4" fill="#1d3557"/>
+        <text x="64" y="240" font-size="13" font-weight="700" fill="#1d3557">O</text>
+        <!-- 빨강 각 (30°) -->
+        <line x1="80" y1="220" x2="406" y2="120" stroke="#dc3545" stroke-width="2"/>
+        <path d="M 116 220 A 36 36 0 0 0 111 209" stroke="#dc3545" stroke-width="2" fill="none"/>
+        <text x="125" y="208" font-size="11" fill="#dc3545" font-weight="700">30°</text>
+
+        <!-- OA = 200 (파랑) -->
+        <line x1="80" y1="220" x2="280" y2="220" stroke="#4361EE" stroke-width="3"/>
+        <circle cx="280" cy="220" r="4" fill="#4361EE"/>
+        <text x="276" y="240" font-size="13" font-weight="700" fill="#4361EE">A</text>
+
+        <!-- 두 가능성 (초록 변 = 같은 길이지만 두 위치) -->
+        <!-- 가능성 1: P1 -->
+        <line x1="280" y1="220" x2="220" y2="160" stroke="#28a745" stroke-width="3"/>
+        <circle cx="220" cy="160" r="4" fill="#28a745"/>
+        <text x="200" y="155" font-size="13" font-weight="700" fill="#28a745">P₁</text>
+        <!-- 가능성 2: P2 -->
+        <line x1="280" y1="220" x2="378" y2="142" stroke="#28a745" stroke-width="3"/>
+        <circle cx="378" cy="142" r="4" fill="#28a745"/>
+        <text x="386" y="138" font-size="13" font-weight="700" fill="#28a745">P₂</text>
+
+        <!-- 라벨 -->
+        <text x="180" y="218" font-size="11" fill="#4361EE" font-weight="700">파란 변</text>
+        <text x="180" y="186" font-size="11" fill="#28a745" font-weight="700">초록 변 (같은 길이)</text>
+        <text x="240" y="265" font-size="11" fill="#dc3545" text-anchor="middle">→ 다른 두 삼각형 OAP₁ 와 OAP₂가 모두 가능!</text>
+      </svg>
+      <div class="warn-box">
+        ⚠️ <strong>SSA는 합동 조건이 아니에요</strong>.<br>
+        한 변(파랑) + 다른 한 변(초록) + 한 끝 각(빨강 30°)이 같다고 해도
+        다른 모양의 삼각형이 가능해요. 끼인각이 아닌 한 각만 같으면 모양이 두 가지 나올 수 있거든요.
+      </div>
+      <div class="concept-card">
+        <div class="label">왜 두 가지가 나오나요?</div>
+        <div class="body">
+          A를 중심으로 같은 반지름의 호를 그리면 빨간 변과 두 점에서 만날 수 있어요.
+          P₁(가까운 점), P₂(먼 점) — 두 삼각형 모두 "두 변과 한 각" 조건은 만족하지만 모양은 달라요.<br>
+          이게 "ambiguous case"(모호한 경우)예요.
+        </div>
+      </div>
+    </div>
+
+    <div class="blank-box">
+      <div class="label">✍️ 직접 써보세요</div>
+      <p style="font-size:13px;color:#555;margin-bottom:8px;">왜 SAS의 "끼인" 조건이 중요한지 친구에게 설명한다면? 너의 말로 적어보세요.</p>
+      <textarea placeholder="여기에 적어주세요..."></textarea>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn btn-prev" onclick="movePage(-1)">← 이전</button>
+      <span class="page-indicator" id="pageInd6">6 / 6</span>
+      <a href="../problems/basic_app.html" class="btn btn-next" style="text-decoration:none;text-align:center;flex:1;">기본 문제로 →</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // 페이지 네비게이션
+  const pages = document.querySelectorAll('.page');
+  const dotsContainer = document.getElementById('dots');
+  let currentPage = 0;
+
+  pages.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => goToPage(i));
+    dotsContainer.appendChild(d);
+  });
+  const dots = document.querySelectorAll('.dot');
+
+  function goToPage(i) {
+    if (i < 0 || i >= pages.length) return;
+    pages[currentPage].classList.remove('active');
+    dots[currentPage].classList.remove('active');
+    dots[currentPage].classList.add('done');
+    currentPage = i;
+    pages[currentPage].classList.add('active');
+    dots[currentPage].classList.add('active');
+    dots[currentPage].classList.remove('done');
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+  function movePage(dir) { goToPage(currentPage + dir); }
+
+  // Page 2: 선분/각 옮기기 셀렉터
+  function selectBasic(which) {
+    document.getElementById('sel-len').classList.toggle('active', which === 'len');
+    document.getElementById('sel-ang').classList.toggle('active', which === 'ang');
+    document.getElementById('svg-len').style.display = which === 'len' ? 'block' : 'none';
+    document.getElementById('svg-ang').style.display = which === 'ang' ? 'block' : 'none';
+  }
+
+  // Page 3: 수직이등분선 단계
+  const bisDescs = [
+    '아래 버튼을 눌러 한 단계씩 따라가 보세요.',
+    'A를 중심으로 호를 그어요. (반지름은 AB의 절반보다 크게)',
+    '같은 반지름으로 B를 중심으로 호를 그어요. 두 호가 두 점 P, Q에서 만나요.',
+    '두 점 P, Q를 자로 잇는 직선이 수직이등분선!',
+    '이 직선은 AB의 중점 M을 지나면서 AB와 90°로 만나요.'
+  ];
+  function setBisStep(s) {
+    document.getElementById('bisLabel').textContent = s + ' / 4';
+    document.getElementById('bisDesc').textContent = bisDescs[s];
+    document.querySelectorAll('#bis1, #bis2, #bis3, #bis4').forEach(el => el.style.display = 'none');
+    if (s >= 1) document.getElementById('bis1').style.display = '';
+    if (s >= 2) document.getElementById('bis2').style.display = '';
+    if (s >= 3) document.getElementById('bis3').style.display = '';
+    if (s >= 4) document.getElementById('bis4').style.display = '';
+    document.querySelectorAll('.step-controls').forEach(sc => {
+      const btns = sc.querySelectorAll('.step-btn');
+      // page 3
+    });
+    // active 토글
+    const btns = document.querySelectorAll('.page[data-page="2"] .step-btn');
+    btns.forEach((b, i) => b.classList.toggle('active', i === s));
+  }
+
+  // Page 4: 각의 이등분선 단계
+  const angBisDescs = [
+    '아래 버튼을 눌러 한 단계씩 따라가 보세요.',
+    'O를 중심으로 호를 그어 OX, OY와 만나는 점 A, B를 찾아요.',
+    'A를 중심으로 호를 그어요.',
+    '같은 반지름으로 B를 중심으로 호를 그어요. 교점이 P.',
+    'O와 P를 잇는 반직선이 ∠XOY의 이등분선!'
+  ];
+  function setAngBisStep(s) {
+    document.getElementById('angBisLabel').textContent = s + ' / 4';
+    document.getElementById('angBisDesc').textContent = angBisDescs[s];
+    document.querySelectorAll('#ang1, #ang2, #ang3, #ang4').forEach(el => el.style.display = 'none');
+    if (s >= 1) document.getElementById('ang1').style.display = '';
+    if (s >= 2) document.getElementById('ang2').style.display = '';
+    if (s >= 3) document.getElementById('ang3').style.display = '';
+    if (s >= 4) document.getElementById('ang4').style.display = '';
+    const btns = document.querySelectorAll('.page[data-page="3"] .step-btn');
+    btns.forEach((b, i) => b.classList.toggle('active', i === s));
+  }
+
+  // Page 6: 합동 조건 셀렉터
+  function selectCond(which) {
+    ['sss', 'sas', 'asa', 'ssa'].forEach(c => {
+      document.getElementById('sel-' + c).classList.toggle('active', c === which);
+      document.getElementById('cond-' + c).style.display = c === which ? 'block' : 'none';
+    });
+  }
+</script>
+
+</body>
+</html>

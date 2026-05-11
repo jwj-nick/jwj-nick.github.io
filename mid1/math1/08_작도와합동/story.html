@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>유클리드 이야기 — Unit 08</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; }
+  .header {
+    background: linear-gradient(135deg, #4361EE 0%, #3a0ca3 100%);
+    color: white; padding: 32px 20px 28px; text-align: center;
+  }
+  .header .back-link { display: inline-block; font-size: 13px; color: rgba(255,255,255,0.8); text-decoration: none; margin-bottom: 12px; padding: 4px 12px; border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; }
+  .header h1 { font-size: 26px; margin-bottom: 6px; }
+  .header .subtitle { font-size: 14px; opacity: 0.85; }
+  .dots { display: flex; justify-content: center; gap: 8px; padding: 16px; background: white; border-bottom: 1px solid #e0e4f0; position: sticky; top: 0; z-index: 10; flex-wrap: wrap; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #d0d5f0; cursor: pointer; transition: all 0.2s; }
+  .dot.active { background: #4361EE; transform: scale(1.3); }
+  .dot.done { background: #a0aaee; }
+  .container { max-width: 700px; margin: 0 auto; padding: 24px 16px 48px; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-num { font-size: 12px; color: #888; margin-bottom: 6px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+  .page-title { font-size: 24px; font-weight: 700; color: #1d3557; margin-bottom: 20px; line-height: 1.3; }
+  .story-text { font-size: 16px; line-height: 1.9; color: #333; margin-bottom: 16px; }
+  .story-text strong { color: #4361EE; }
+  .note-box { background: #fff8e1; border-left: 4px solid #f6c90e; border-radius: 0 12px 12px 0; padding: 14px 18px; font-size: 14px; color: #555; margin: 16px 0; line-height: 1.6; }
+  .concept-box { background: white; border: 2px solid #4361EE; border-radius: 12px; padding: 16px 20px; margin: 16px 0; font-size: 15px; color: #333; line-height: 1.6; }
+  .concept-box .label { font-size: 11px; font-weight: 700; color: #4361EE; letter-spacing: 1px; margin-bottom: 8px; }
+  .quote-large { background: linear-gradient(135deg, #f0f4ff, #e6ecff); border-radius: 16px; padding: 28px 24px; margin: 20px 0; text-align: center; }
+  .quote-large .text { font-size: 22px; font-weight: 700; color: #1d3557; line-height: 1.5; font-style: italic; }
+  .quote-large .author { font-size: 13px; color: #666; margin-top: 12px; font-style: normal; }
+  .demo-svg { width: 100%; max-width: 520px; margin: 0 auto 16px; display: block; background: white; border-radius: 16px; padding: 16px; box-shadow: 0 2px 12px rgba(67,97,238,0.1); }
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 12px 0; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 6px rgba(67,97,238,0.06); }
+  .compare-table th { background: #4361EE; color: white; padding: 10px; text-align: center; }
+  .compare-table td { padding: 10px 12px; border-top: 1px solid #e0e4f0; vertical-align: top; }
+  .compare-table tr:nth-child(even) td { background: #f8f9ff; }
+  .compare-table .katex { font-size: 1.05em; }
+  .step-card { background: white; border-radius: 12px; padding: 14px 16px; margin: 8px 0; box-shadow: 0 1px 4px rgba(67,97,238,0.06); display: flex; gap: 12px; align-items: flex-start; }
+  .step-card .num { background: #4361EE; color: white; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+  .step-card .body { font-size: 14px; color: #333; line-height: 1.6; }
+  .trivia-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 8px; }
+  @media (max-width: 480px) { .trivia-grid { grid-template-columns: 1fr; } }
+  .trivia-card { background: white; border-radius: 14px; padding: 18px; box-shadow: 0 2px 8px rgba(67,97,238,0.07); }
+  .trivia-card .icon { font-size: 28px; margin-bottom: 8px; }
+  .trivia-card .title { font-size: 15px; font-weight: 700; color: #4361EE; margin-bottom: 6px; }
+  .trivia-card .body { font-size: 13px; color: #555; line-height: 1.6; }
+  .mission-box { background: linear-gradient(135deg, #f0f4ff, #e6ecff); border-radius: 16px; padding: 24px; margin-top: 16px; }
+  .mission-box .mission-title { font-size: 18px; font-weight: 700; color: #4361EE; margin-bottom: 12px; }
+  .mission-item { background: white; border-radius: 10px; padding: 14px 16px; font-size: 14px; color: #333; margin-bottom: 10px; line-height: 1.6; border: 2px solid transparent; transition: border-color 0.2s; }
+  .mission-item:hover { border-color: #4361EE; }
+  .mission-item .num { font-weight: 700; color: #4361EE; margin-right: 6px; }
+  .nav-btns { display: flex; justify-content: space-between; align-items: center; margin-top: 32px; gap: 12px; }
+  .btn { padding: 12px 24px; border-radius: 12px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+  .btn-prev { background: white; color: #4361EE; border: 2px solid #d0d5f0; }
+  .btn-prev:hover { border-color: #4361EE; }
+  .btn-prev:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-next { background: #4361EE; color: white; flex: 1; }
+  .btn-next:hover { background: #3452d0; }
+  .page-indicator { font-size: 13px; color: #888; min-width: 60px; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a class="back-link" href="index.html">← 단원 홈</a>
+  <h1>유클리드 이야기</h1>
+  <div class="subtitle">유클리드의 두 손 — 자와 컴퍼스의 정신</div>
+</div>
+
+<div class="dots" id="dots"></div>
+
+<div class="container">
+
+  <!-- Page 1: 다시 만난 유클리드 -->
+  <div class="page active" data-page="0">
+    <div class="page-num">이야기 1 / 7</div>
+    <div class="page-title">다시 만난 유클리드</div>
+
+    <p class="story-text">
+      지난 단원에서 우리는 <strong>「원론」</strong>이라는 책의 첫 페이지를 펼쳐 봤어요.
+      점·선·면·각의 정의, 5개의 공준,
+      그리고 "기하학에는 왕도가 없다"는 한 마디.
+    </p>
+
+    <p class="story-text">
+      오늘 다시 유클리드를 만나러 가요.
+      하지만 이번엔 책상 위가 아니라, <strong>그의 두 손</strong>을 봐요.
+    </p>
+
+    <div class="concept-box">
+      <div class="label">유클리드의 두 손</div>
+      한 손에는 <strong>자</strong>가 들려 있어요.<br>
+      다른 손에는 <strong>컴퍼스</strong>가 들려 있어요.<br><br>
+      이상하지 않아요? 세상에 도구가 얼마나 많은데,
+      이 사람은 왜 딱 두 가지만 들고 있는 걸까요?
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn btn-prev" onclick="movePage(-1)" disabled>← 이전</button>
+      <span class="page-indicator" id="pageInd1">1 / 7</span>
+      <button class="btn btn-next" onclick="movePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- Page 2: 두 가지 도구의 약속 -->
+  <div class="page" data-page="1">
+    <div class="page-num">이야기 2 / 7</div>
+    <div class="page-title">두 가지 도구의 약속</div>
+
+    <p class="story-text">
+      유클리드 학교에는 이상한 약속이 있었어요.
+    </p>
+
+    <div class="quote-large">
+      <div class="text">"도형을 그릴 때는<br><strong>눈금 없는 자</strong>와 <strong>컴퍼스</strong>만 써라."</div>
+      <div class="author">— 유클리드 학교의 약속</div>
+    </div>
+
+    <p class="story-text">
+      자에는 <strong>눈금이 없어야</strong> 했어요.
+      센티미터, 밀리미터… 그런 게 적혀 있으면 안 됐어요.
+      그냥 반듯한 막대기 같은 거였죠.
+    </p>
+
+    <p class="story-text">
+      컴퍼스는 우리가 아는 컴퍼스예요.
+      한 다리는 한 점에 꽂고, 다른 다리는 빙 둘러서 원을 그리는 도구.
+    </p>
+
+    <p class="story-text">이 두 가지로 할 수 있는 일은 정확히 두 가지뿐이에요.</p>
+
+    <table class="compare-table">
+      <thead>
+        <tr><th>도구</th><th>할 수 있는 일</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>눈금 없는 자</td><td>두 점을 연결해 직선 긋기</td></tr>
+        <tr><td>컴퍼스</td><td>한 점을 중심으로 원 그리기 / 길이 옮기기</td></tr>
+      </tbody>
+    </table>
+
+    <p class="story-text">
+      <strong>왜 이렇게 답답하게 만들었을까요?</strong>
+      각도기로 각을 재면 빠르고, 자에 눈금이 있으면 길이도 한 번에 잴 수 있는데,
+      왜 굳이 도구를 줄였을까요?
+    </p>
+
+    <div class="nav-btns">
+      <button class="btn btn-prev" onclick="movePage(-1)">← 이전</button>
+      <span class="page-indicator" id="pageInd2">2 / 7</span>
+      <button class="btn btn-next" onclick="movePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- Page 3: 정삼각형 작도 -->
+  <div class="page" data-page="2">
+    <div class="page-num">이야기 3 / 7</div>
+    <div class="page-title">「원론」 명제 1 — 정삼각형 작도</div>
+
+    <p class="story-text">
+      너에게 "정삼각형을 그려봐"라고 했어요.
+      세 변의 길이가 똑같은 삼각형 말이에요.
+      각도기와 눈금 자가 있다면 60°를 두 번 재고, 5cm씩 그리면 빠르긴 한데…
+      손이 살짝 떨려서 60.5°가 되거나 4.9cm가 되면 정확하지 않아요.
+    </p>
+
+    <p class="story-text">
+      유클리드는 <strong>컴퍼스만으로</strong> 정확한 정삼각형을 그렸어요.
+    </p>
+
+    <svg class="demo-svg" viewBox="0 0 480 320" xmlns="http://www.w3.org/2000/svg">
+      <!-- 호 1: A 중심 -->
+      <path d="M 100 240 A 240 240 0 0 0 388.97 100.5" stroke="#7b2ff7" stroke-width="2" fill="none" stroke-dasharray="4 3" opacity="0.6"/>
+      <!-- 호 2: B 중심 -->
+      <path d="M 380 240 A 240 240 0 0 1 91.03 100.5" stroke="#28a745" stroke-width="2" fill="none" stroke-dasharray="4 3" opacity="0.6"/>
+      <!-- 정삼각형 -->
+      <line x1="100" y1="240" x2="380" y2="240" stroke="#1d3557" stroke-width="3"/>
+      <line x1="100" y1="240" x2="240" y2="97.5" stroke="#1d3557" stroke-width="3"/>
+      <line x1="380" y1="240" x2="240" y2="97.5" stroke="#1d3557" stroke-width="3"/>
+      <!-- 점 -->
+      <circle cx="100" cy="240" r="5" fill="#1d3557"/>
+      <circle cx="380" cy="240" r="5" fill="#1d3557"/>
+      <circle cx="240" cy="97.5" r="5" fill="#dc3545"/>
+      <text x="92" y="262" font-size="16" font-weight="700" fill="#1d3557">A</text>
+      <text x="384" y="262" font-size="16" font-weight="700" fill="#1d3557">B</text>
+      <text x="234" y="86" font-size="16" font-weight="700" fill="#dc3545">C</text>
+      <!-- 라벨 -->
+      <text x="240" y="20" font-size="13" fill="#7b2ff7" text-anchor="middle">A에서 그린 호 (보라)</text>
+      <text x="240" y="38" font-size="13" fill="#28a745" text-anchor="middle">B에서 그린 호 (초록)</text>
+      <text x="240" y="310" font-size="12" fill="#888" text-anchor="middle">컴퍼스를 한 번도 다시 벌리지 않았어요</text>
+    </svg>
+
+    <div class="step-card"><div class="num">1</div><div class="body">자로 직선을 한 줄 긋고 양 끝을 점 A, B라고 해요.</div></div>
+    <div class="step-card"><div class="num">2</div><div class="body">컴퍼스를 A에 꽂고, B까지 벌려서 호를 그어요.</div></div>
+    <div class="step-card"><div class="num">3</div><div class="body">컴퍼스를 똑같이 벌린 채 B에 꽂고, 호를 그어요.</div></div>
+    <div class="step-card"><div class="num">4</div><div class="body">두 호가 만나는 점을 C라고 해요.</div></div>
+    <div class="step-card"><div class="num">5</div><div class="body">A와 C, B와 C를 자로 이어요. → 정삼각형 ABC 완성!</div></div>
+
+    <div class="concept-box">
+      <div class="label">왜 세 변이 같을까?</div>
+      컴퍼스를 한 번도 다시 벌리지 않았어요.<br>
+      A에서 그은 호 위의 모든 점은 A에서 같은 거리,<br>
+      B에서 그은 호 위의 모든 점은 B에서 같은 거리예요.<br>
+      두 호가 만난 점 C는 <strong>A에서도 B에서도 같은 거리</strong>예요.<br>
+      따라서 $\overline{AC} = \overline{AB} = \overline{BC}$.
+    </div>
+
+    <div class="quote-large">
+      <div class="text">적은 도구로<br>더 확실한 진실을 만든다.</div>
+      <div class="author">— 「원론」 1권 명제 1의 정신</div>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn btn-prev" onclick="movePage(-1)">← 이전</button>
+      <span class="page-indicator" id="pageInd3">3 / 7</span>
+      <button class="btn btn-next" onclick="movePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- Page 4: 4가지 기본 작도 -->
+  <div class="page" data-page="3">
+    <div class="page-num">이야기 4 / 7</div>
+    <div class="page-title">우리도 따라 해 봐요</div>
+
+    <p class="story-text">
+      유클리드의 정신을 이어받아, 우리도 자와 컴퍼스만으로 도형을 그려요.
+      이걸 <strong>작도(作圖)</strong>라고 해요. "만들어 그리기"라는 뜻이에요.
+    </p>
+
+    <p class="story-text">이번 단원에서 우리는 <strong>4가지 기본 작도</strong>를 배워요.</p>
+
+    <table class="compare-table">
+      <thead>
+        <tr><th>작도</th><th>무엇을 만드나</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>선분 옮기기</strong></td><td>주어진 선분과 같은 길이의 선분</td></tr>
+        <tr><td><strong>각 옮기기</strong></td><td>주어진 각과 크기가 같은 각</td></tr>
+        <tr><td><strong>수직이등분선</strong></td><td>선분을 반으로 나누면서 수직인 선</td></tr>
+        <tr><td><strong>각의 이등분선</strong></td><td>각을 정확히 반으로 나누는 반직선</td></tr>
+      </tbody>
+    </table>
+
+    <p class="story-text">
+      각각이 마법 같아요.
+      컴퍼스를 두 번, 세 번 정도만 움직였는데
+      <strong>정확히 가운데</strong>가 나오고,
+      <strong>정확히 절반</strong>이 나오고,
+      <strong>정확히 90°</strong>가 나와요.
+      각도기 없이, 눈금 없이.
+    </p>
+
+    <div class="note-box">
+      💡 우리 단원의 <strong>개념 탐구 앱</strong>에서 한 단계씩 직접 해 볼 거예요.
+      컴퍼스의 호가 어디에서 만나는지, 왜 거기서 만나는지가 보일 거예요.
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn btn-prev" onclick="movePage(-1)">← 이전</button>
+      <span class="page-indicator" id="pageInd4">4 / 7</span>
+      <button class="btn btn-next" onclick="movePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- Page 5: 합동의 정의 -->
+  <div class="page" data-page="4">
+    <div class="page-num">이야기 5 / 7</div>
+    <div class="page-title">같다는 건 정확히 무엇인가요?</div>
+
+    <p class="story-text">
+      작도를 배우다 보면 자연스럽게 한 가지 질문이 떠올라요.
+      <strong>"두 도형이 '같다'는 건 정확히 무슨 뜻일까?"</strong>
+    </p>
+
+    <p class="story-text">
+      크기가 같으면 같은 건가요? 모양이 비슷하면 같은 건가요?
+      수학에서는 더 엄밀하게 말해요.
+    </p>
+
+    <div class="quote-large">
+      <div class="text">두 도형을 포개서 완전히 겹치면<br>그 두 도형은 <strong>합동(合同)</strong>이에요.</div>
+    </div>
+
+    <p class="story-text">기호로는 이렇게 써요.</p>
+
+    <div class="concept-box">
+      <div class="label">합동 기호</div>
+      $$\triangle ABC \equiv \triangle DEF$$
+      "≡"는 "같다"는 뜻이지만, <strong>"꼭 포개진다"</strong>는 더 강한 의미예요.
+    </div>
+
+    <p class="story-text">
+      여기서 한 가지 약속이 있어요.
+      <strong>꼭짓점 이름은 대응하는 순서대로 써야 해요.</strong>
+    </p>
+
+    <svg class="demo-svg" viewBox="0 0 520 240" xmlns="http://www.w3.org/2000/svg">
+      <!-- 삼각형 ABC (왼쪽) -->
+      <polygon points="60,200 200,200 130,60" fill="#eef2ff" stroke="#4361EE" stroke-width="2"/>
+      <circle cx="60" cy="200" r="4" fill="#4361EE"/>
+      <circle cx="200" cy="200" r="4" fill="#4361EE"/>
+      <circle cx="130" cy="60" r="4" fill="#4361EE"/>
+      <text x="48" y="218" font-size="15" font-weight="700" fill="#4361EE">A</text>
+      <text x="208" y="218" font-size="15" font-weight="700" fill="#4361EE">B</text>
+      <text x="124" y="50" font-size="15" font-weight="700" fill="#4361EE">C</text>
+
+      <!-- ≡ 기호 -->
+      <text x="260" y="135" font-size="36" fill="#1d3557" text-anchor="middle" font-weight="700">≡</text>
+
+      <!-- 삼각형 DEF (오른쪽) -->
+      <polygon points="320,200 460,200 390,60" fill="#fff0f5" stroke="#dc3545" stroke-width="2"/>
+      <circle cx="320" cy="200" r="4" fill="#dc3545"/>
+      <circle cx="460" cy="200" r="4" fill="#dc3545"/>
+      <circle cx="390" cy="60" r="4" fill="#dc3545"/>
+      <text x="308" y="218" font-size="15" font-weight="700" fill="#dc3545">D</text>
+      <text x="468" y="218" font-size="15" font-weight="700" fill="#dc3545">E</text>
+      <text x="384" y="50" font-size="15" font-weight="700" fill="#dc3545">F</text>
+
+      <!-- 대응 화살표 -->
+      <text x="260" y="225" font-size="11" fill="#666" text-anchor="middle">A ↔ D · B ↔ E · C ↔ F</text>
+    </svg>
+
+    <div class="note-box">
+      ⚠️ <strong>순서를 마음대로 쓰면 안 돼요.</strong><br>
+      $\triangle ABC \equiv \triangle EFD$라고 쓰면 다른 도형을 의미해요.
+      이름의 순서가 곧 도형 위 위치예요.
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn btn-prev" onclick="movePage(-1)">← 이전</button>
+      <span class="page-indicator" id="pageInd5">5 / 7</span>
+      <button class="btn btn-next" onclick="movePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- Page 6: 합동 조건 -->
+  <div class="page" data-page="5">
+    <div class="page-num">이야기 6 / 7</div>
+    <div class="page-title">같은 삼각형이 되려면 무엇이 필요한가요?</div>
+
+    <p class="story-text">
+      두 친구가 각자 자기 방에서 종이에 삼각형을 그려요.
+      서로 만나서 "내 삼각형이랑 똑같이 그려봐"라고 말하려면
+      <strong>최소한 어떤 정보를 알려줘야</strong> 할까요?
+    </p>
+
+    <div class="concept-box">
+      <div class="label">한번 생각해 봐요</div>
+      세 변의 길이를 다 알려주면? — 좋아요.<br>
+      세 각의 크기를 다 알려주면? — 음… 사실 이걸로는 안 돼요.
+      (크기가 달라도 모양이 같을 수 있거든요)
+    </div>
+
+    <p class="story-text">
+      유클리드는 「원론」에서 이 문제를 정확히 풀었어요.
+      다음 <strong>세 가지 중 하나</strong>가 같으면 두 삼각형은 합동이에요.
+    </p>
+
+    <table class="compare-table">
+      <thead>
+        <tr><th>조건</th><th>이름</th><th>무엇을 알아야</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>세 변</td><td><strong>SSS</strong></td><td>세 변의 길이</td></tr>
+        <tr><td>두 변과 끼인각</td><td><strong>SAS</strong></td><td>두 변과 그 사이의 각</td></tr>
+        <tr><td>한 변과 양 끝 각</td><td><strong>ASA</strong></td><td>한 변과 그 양 끝의 두 각</td></tr>
+      </tbody>
+    </table>
+
+    <p class="story-text">S는 Side(변), A는 Angle(각)을 뜻해요.</p>
+
+    <div class="note-box">
+      ⚠️ <strong>SAS의 "끼인"이 핵심이에요.</strong><br>
+      두 변 <strong>사이의</strong> 각이라는 뜻이에요.
+      두 변과 아무 각이나 같다고 합동이 보장되는 건 아니에요.
+      끼인각이 아니면 두 가지 모양이 가능해서 합동이 안 돼요.
+    </div>
+
+    <p class="story-text">
+      이 셋을 <strong>삼각형의 합동 조건</strong>이라고 해요.
+      2300년 전 유클리드가 「원론」 1권 <strong>명제 4(SAS)</strong>부터 차근차근 증명했어요.
+    </p>
+
+    <div class="nav-btns">
+      <button class="btn btn-prev" onclick="movePage(-1)">← 이전</button>
+      <span class="page-indicator" id="pageInd6">6 / 7</span>
+      <button class="btn btn-next" onclick="movePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- Page 7: 통합 + 잡학 + 미션 -->
+  <div class="page" data-page="6">
+    <div class="page-num">이야기 7 / 7</div>
+    <div class="page-title">작도와 합동, 같은 이야기</div>
+
+    <p class="story-text">
+      흥미로운 점이 있어요.
+      <strong>삼각형 작도 조건</strong>과 <strong>삼각형 합동 조건</strong>이 정확히 같은 세 가지(SSS, SAS, ASA)예요.
+      우연일까요? 아니에요.
+    </p>
+
+    <div class="concept-box">
+      <div class="label">같은 동전의 앞뒤</div>
+      "세 변이 주어지면 삼각형이 <strong>하나로 정해진다</strong>" → 작도 가능<br>
+      "세 변이 같으면 두 삼각형은 <strong>포개진다</strong>" → 합동<br><br>
+      두 문장은 같은 뜻이에요.
+    </div>
+
+    <p class="story-text">
+      작도란 "이만큼의 정보로 도형이 유일하게 결정된다"를 손으로 보여주는 일이에요.<br>
+      합동이란 "같은 정보가 있으면 같은 도형이다"를 정의로 말하는 일이에요.<br>
+      <strong>같은 동전의 앞과 뒤예요.</strong>
+    </p>
+
+    <div class="quote-large">
+      <div class="text">손과 머리, 도구와 정의는<br>한 사람의 두 측면이었어요.</div>
+      <div class="author">— Unit 07 ↔ Unit 08 정리</div>
+    </div>
+
+    <h3 style="font-size:18px;color:#1d3557;margin:24px 0 12px;">잡학 코너</h3>
+    <div class="trivia-grid">
+      <div class="trivia-card">
+        <div class="icon">📜</div>
+        <div class="title">「원론」 명제 1</div>
+        <div class="body">정의·공준 다음 첫 명제가 바로 정삼각형 작도예요. 인류가 손으로 만든 가장 오래된 정확한 정삼각형 중 하나.</div>
+      </div>
+      <div class="trivia-card">
+        <div class="icon">❌</div>
+        <div class="title">불가능 3대 문제</div>
+        <div class="body">각의 삼등분, 정육면체 배가, 원의 정사각형화 — 2300년 후 19세기에 "자와 컴퍼스로는 불가능"이 증명됐어요.</div>
+      </div>
+      <div class="trivia-card">
+        <div class="icon">⚠️</div>
+        <div class="title">SSA가 안 되는 이유</div>
+        <div class="body">두 변과 한 각이 같아도 그 각이 끼인각이 아니면 두 가지 모양 가능. 고등학교 사인법칙에서 다시 만나요.</div>
+      </div>
+      <div class="trivia-card">
+        <div class="icon">📃</div>
+        <div class="title">종이접기 작도</div>
+        <div class="body">종이접기로는 자·컴퍼스보다 더 많은 작도가 가능! 각의 삼등분도 종이접기로는 됩니다. 도구가 곧 가능성의 경계.</div>
+      </div>
+    </div>
+
+    <div class="mission-box">
+      <div class="mission-title">✍️ 글쓰기 미션 (셋 중 하나 골라서)</div>
+      <div class="mission-item"><span class="num">1.</span> 유클리드가 학생들에게 처음으로 정삼각형 작도를 보여주는 장면을 상상해 보세요. 컴퍼스를 한 번도 다시 벌리지 않고 정삼각형이 나타나는 순간, 한 학생의 마음을 짧은 글로 써 보세요. (200~400자)</div>
+      <div class="mission-item"><span class="num">2.</span> 만약 너에게 "도구를 하나 줄여라"라고 한다면, 일상에서 어떤 도구를 줄일 수 있을까요? 그 도구를 줄였을 때 얻는 것과 잃는 것은? (자유롭게)</div>
+      <div class="mission-item"><span class="num">3.</span> 두 친구가 같은 모양의 그림을 그리려고 해요. 어떤 정보를 주고받으면 "정확히 같은 그림"이 보장될까요? 삼각형 말고 다른 도형(직사각형? 원? 별 모양?)으로 합동 조건을 만들어 보세요. (자유롭게)</div>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn btn-prev" onclick="movePage(-1)">← 이전</button>
+      <span class="page-indicator" id="pageInd7">7 / 7</span>
+      <a href="../problems/basic_app.html" class="btn btn-next" style="text-decoration:none;text-align:center;flex:1;">기본 문제로 →</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const pages = document.querySelectorAll('.page');
+  const dotsContainer = document.getElementById('dots');
+  let currentPage = 0;
+
+  // 점 만들기
+  pages.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => goToPage(i));
+    dotsContainer.appendChild(d);
+  });
+  const dots = document.querySelectorAll('.dot');
+
+  function goToPage(i) {
+    if (i < 0 || i >= pages.length) return;
+    pages[currentPage].classList.remove('active');
+    dots[currentPage].classList.remove('active');
+    dots[currentPage].classList.add('done');
+    currentPage = i;
+    pages[currentPage].classList.add('active');
+    dots[currentPage].classList.add('active');
+    dots[currentPage].classList.remove('done');
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+  function movePage(dir) { goToPage(currentPage + dir); }
+</script>
+
+</body>
+</html>

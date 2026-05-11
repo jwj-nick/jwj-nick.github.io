@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>원과 부채꼴 개념 탐구 — Unit 10</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; padding: 16px; }
+  .app { max-width: 700px; margin: 0 auto; background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(67,97,238,0.08); overflow: hidden; }
+  header { background: linear-gradient(135deg, #4361EE 0%, #3a0ca3 100%); color: white; padding: 22px 24px; }
+  header .breadcrumb { font-size: 12px; opacity: 0.75; margin-bottom: 6px; }
+  header .breadcrumb a { color: white; text-decoration: none; }
+  header h1 { font-size: 22px; }
+  .dots { display: flex; justify-content: center; gap: 8px; padding: 16px; background: #f8f9ff; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #cbd5e1; cursor: pointer; transition: 0.2s; }
+  .dot.active { background: #4361EE; transform: scale(1.3); }
+  .page { padding: 24px; min-height: 480px; display: none; line-height: 1.7; color: #333; }
+  .page.active { display: block; }
+  .page h2 { color: #1d3557; font-size: 20px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #4361EE; }
+  .page h3 { color: #4361EE; font-size: 16px; margin: 16px 0 8px; }
+  .page p { margin-bottom: 10px; }
+  .info-box { background: #f0fdf4; border-left: 4px solid #10b981; padding: 12px 16px; margin: 12px 0; font-size: 14px; border-radius: 0 8px 8px 0; }
+  .deg-info { background: #f0fdf4; border-left: 4px solid #10b981; padding: 12px 16px; margin: 12px 0; font-size: 14px; border-radius: 0 8px 8px 0; }
+  .warn-box { background: #fff7ed; border-left: 4px solid #f59e0b; padding: 12px 16px; margin: 12px 0; font-size: 14px; border-radius: 0 8px 8px 0; }
+  .figure { text-align: center; margin: 14px 0; }
+  .figure svg { background: #fafbff; border-radius: 12px; padding: 8px; max-width: 100%; }
+  .caption { font-size: 12px; color: #888; margin-top: 6px; }
+  .nav { display: flex; justify-content: space-between; padding: 16px 24px; background: #f8f9ff; }
+  .nav button { padding: 10px 22px; border: none; background: #4361EE; color: white; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  .nav button:disabled { background: #cbd5e1; cursor: not-allowed; }
+
+  /* Slider control */
+  .control-group { background: #f0f4ff; border-radius: 12px; padding: 14px 16px; margin: 14px 0; }
+  .slider-row { display: flex; align-items: center; gap: 12px; margin: 8px 0; }
+  .slider-label { font-weight: 600; color: #4361EE; min-width: 80px; }
+  .slider-row input[type=range] { flex: 1; accent-color: #4361EE; }
+  .slider-value { font-weight: 700; color: #1d3557; min-width: 60px; text-align: right; }
+
+  .calc-row { background: #eef2ff; border-radius: 8px; padding: 10px 14px; margin: 6px 0; font-size: 15px; color: #1d3557; }
+  .calc-row b { color: #4361EE; }
+
+  table.compare { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+  table.compare th, table.compare td { border: 1px solid #e0e4f0; padding: 8px 10px; text-align: center; }
+  table.compare th { background: #eef2ff; color: #4361EE; }
+
+  ul.bullets { padding-left: 20px; margin: 8px 0; }
+  ul.bullets li { margin-bottom: 6px; }
+
+  .blank-line { display: inline-block; min-width: 200px; border-bottom: 1.5px dashed #c0c0c0; margin: 0 4px; }
+  .write-here { background: #fffbeb; border: 1px dashed #fde68a; padding: 14px 16px; border-radius: 8px; margin: 14px 0; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <div class="breadcrumb"><a href="index.html">← Unit 10 허브</a></div>
+    <h1>⊙ 원과 부채꼴 — 개념 탐구</h1>
+  </header>
+
+  <div class="dots" id="dots"></div>
+
+  <!-- Page 1: 원의 구성요소 -->
+  <div class="page active">
+    <h2>1. 원과 그 친구들</h2>
+    <p>원은 — <b>한 점(중심)으로부터 같은 거리에 있는 모든 점</b>의 모임이에요. 그 거리를 <b>반지름</b>이라고 해요.</p>
+
+    <div class="figure">
+      <svg width="380" height="320" viewBox="-160 -160 320 320">
+        <!-- 원 -->
+        <circle cx="0" cy="0" r="100" fill="none" stroke="#4361EE" stroke-width="2.5"/>
+        <!-- 중심 -->
+        <circle cx="0" cy="0" r="3" fill="#4361EE"/>
+        <text x="-12" y="4" font-size="13" font-weight="bold" fill="#4361EE">O</text>
+        <!-- 반지름 -->
+        <line x1="0" y1="0" x2="100" y2="0" stroke="#10b981" stroke-width="2.5"/>
+        <text x="50" y="-5" text-anchor="middle" font-size="12" fill="#10b981" font-weight="bold">반지름 r</text>
+        <circle cx="100" cy="0" r="3" fill="#10b981"/>
+        <text x="108" y="5" font-size="12" fill="#10b981">A</text>
+        <!-- 지름 -->
+        <line x1="-92" y1="38" x2="92" y2="-38" stroke="#ef4444" stroke-width="2"/>
+        <text x="0" y="-50" text-anchor="middle" font-size="12" fill="#ef4444" font-weight="bold">지름 = 2r</text>
+        <!-- 현 -->
+        <line x1="-70" y1="-70" x2="70" y2="-70" stroke="#7b2ff7" stroke-width="2"/>
+        <text x="0" y="-78" text-anchor="middle" font-size="12" fill="#7b2ff7" font-weight="bold">현 (선분)</text>
+        <!-- 호 (위쪽) -->
+        <path d="M -70 -70 A 100 100 0 0 1 70 -70" fill="none" stroke="#f59e0b" stroke-width="3"/>
+        <text x="0" y="-110" text-anchor="middle" font-size="12" fill="#f59e0b" font-weight="bold">호 (곡선)</text>
+        <!-- 접선 -->
+        <line x1="-50" y1="100" x2="50" y2="100" stroke="#06b6d4" stroke-width="2"/>
+        <circle cx="0" cy="100" r="3" fill="#06b6d4"/>
+        <text x="0" y="118" text-anchor="middle" font-size="12" fill="#06b6d4" font-weight="bold">접선 (한 점에서)</text>
+        <text x="-2" y="95" font-size="10" fill="#06b6d4">접점</text>
+      </svg>
+      <div class="caption">원의 구성요소들 — 색깔별로 구분</div>
+    </div>
+
+    <h3>호 vs 현 — 헷갈리지 마세요</h3>
+    <div class="warn-box">
+      ⚠️ 같은 두 점 A, B에 대해서 — <b>호는 곡선</b>(휘어진 부분), <b>현은 선분</b>(곧은 부분)이에요.<br>
+      • 호 표기: $\overset{\frown}{AB}$ (호 위에 곡선 기호)<br>
+      • 현 표기: $\overline{AB}$ (선분 표기)
+    </div>
+
+    <h3>두 가지 직선의 만남</h3>
+    <table class="compare">
+      <tr><th>이름</th><th>원과 만나는 점</th></tr>
+      <tr><td><b>할선</b> (secant)</td><td>2개</td></tr>
+      <tr><td><b>접선</b> (tangent)</td><td>1개 (← 접점)</td></tr>
+    </table>
+
+    <div class="info-box">
+      💡 <b>지름은 가장 긴 현이에요.</b> 어떤 현도 지름보다 길 수 없어요. (왜냐하면 현은 원 안에 갇혀있고, 가장 멀리 가려면 중심을 지나야 하거든요.)
+    </div>
+  </div>
+
+  <!-- Page 2: 원의 둘레와 넓이 -->
+  <div class="page">
+    <h2>2. 원의 둘레와 넓이 — π를 만나요</h2>
+    <p>원의 <b>둘레</b>를 <b>지름</b>으로 나누면 — <b>원의 크기와 상관없이 항상 같은 비율</b>이 나와요. 이 비율을 <b>π (파이)</b>라고 불러요.</p>
+
+    <div class="deg-info">
+      🌟 <b>새로운 기호 — π (그리스 문자 '파이')</b><br>
+      $\pi = \dfrac{\text{원의 둘레}}{\text{지름}}$ — 원이 크든 작든 항상 같은 값.<br>
+      $\pi \approx 3.14159\ldots$ (소수가 끝없이 이어짐, 무리수)<br>
+      📜 시험에서는 "π" 기호 그대로 답에 둬요. (예: 둘레 $6\pi$ cm)
+    </div>
+
+    <div class="control-group">
+      <div class="slider-row">
+        <span class="slider-label">반지름 r</span>
+        <input type="range" id="rad1" min="1" max="10" step="0.5" value="5">
+        <span class="slider-value" id="radv1">5</span>
+      </div>
+    </div>
+
+    <div class="figure">
+      <svg id="circleSvg" width="320" height="320" viewBox="-160 -160 320 320">
+        <circle cx="0" cy="0" r="100" fill="rgba(67,97,238,0.12)" stroke="#4361EE" stroke-width="2.5" id="bigCircle"/>
+        <line x1="0" y1="0" x2="100" y2="0" stroke="#10b981" stroke-width="2" id="rline"/>
+        <text x="50" y="-7" text-anchor="middle" font-size="13" font-weight="bold" fill="#10b981" id="rlabel">r = 5</text>
+        <circle cx="0" cy="0" r="3" fill="#1d3557"/>
+        <text x="-10" y="14" font-size="13" font-weight="bold" fill="#1d3557">O</text>
+      </svg>
+    </div>
+
+    <div class="calc-row">둘레 $C = 2\pi r =$ <b id="circ1">10π</b> (≈ <span id="circ1n">31.42</span>)</div>
+    <div class="calc-row">넓이 $A = \pi r^2 =$ <b id="area1">25π</b> (≈ <span id="area1n">78.54</span>)</div>
+
+    <div class="info-box">
+      💡 슬라이더로 반지름을 움직여보세요. 둘레는 $r$의 1차, 넓이는 $r$의 2차 — <b>반지름이 2배가 되면 둘레는 2배지만 넓이는 4배</b>가 돼요.
+    </div>
+  </div>
+
+  <!-- Page 3: 부채꼴 vs 활꼴 -->
+  <div class="page">
+    <h2>3. 부채꼴 vs 활꼴 — 그 차이는?</h2>
+    <p>원에서 만들어지는 두 가지 도형. <b>부채꼴</b>과 <b>활꼴</b>은 비슷해 보이지만 다른 도형이에요.</p>
+
+    <div class="figure">
+      <svg width="500" height="240" viewBox="0 0 500 240">
+        <!-- 부채꼴 -->
+        <g transform="translate(120, 130)">
+          <path d="M 0 0 L 80 0 A 80 80 0 0 0 -40 -69.28 Z" fill="rgba(67,97,238,0.25)" stroke="#4361EE" stroke-width="2"/>
+          <line x1="0" y1="0" x2="80" y2="0" stroke="#4361EE" stroke-width="2"/>
+          <line x1="0" y1="0" x2="-40" y2="-69.28" stroke="#4361EE" stroke-width="2"/>
+          <circle cx="0" cy="0" r="3" fill="#1d3557"/>
+          <text x="0" y="-95" text-anchor="middle" font-size="14" font-weight="bold" fill="#4361EE">부채꼴 (sector)</text>
+          <text x="0" y="50" text-anchor="middle" font-size="11" fill="#1d3557">두 반지름 + 호</text>
+          <text x="-15" y="14" font-size="11" fill="#1d3557">O</text>
+        </g>
+        <!-- 활꼴 -->
+        <g transform="translate(380, 130)">
+          <!-- 원의 모양 (참조) -->
+          <circle cx="0" cy="0" r="80" fill="none" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3,3"/>
+          <!-- 활꼴: 현 AB + 호 AB -->
+          <path d="M 80 0 A 80 80 0 0 0 -40 -69.28 L 80 0 Z" fill="rgba(247,127,36,0.25)" stroke="#f59e0b" stroke-width="2"/>
+          <circle cx="0" cy="0" r="3" fill="#1d3557"/>
+          <text x="0" y="-95" text-anchor="middle" font-size="14" font-weight="bold" fill="#f59e0b">활꼴 (segment)</text>
+          <text x="0" y="50" text-anchor="middle" font-size="11" fill="#1d3557">한 현 + 호</text>
+          <text x="-15" y="14" font-size="11" fill="#1d3557">O</text>
+        </g>
+      </svg>
+      <div class="caption">두 도형의 결정적 차이</div>
+    </div>
+
+    <table class="compare">
+      <tr><th>구분</th><th>부채꼴</th><th>활꼴</th></tr>
+      <tr><td>경계</td><td>두 <b>반지름</b> + 호</td><td>한 <b>현</b> + 호</td></tr>
+      <tr><td>중심 포함?</td><td>중심 O 포함</td><td>중심 안 포함 (보통)</td></tr>
+      <tr><td>모양</td><td>피자 한 조각 🍕</td><td>달·잎사귀 🌙</td></tr>
+    </table>
+
+    <div class="info-box">
+      💡 <b>특수 케이스</b>: 중심각이 정확히 $180°$일 때 — 부채꼴 = 활꼴 = <b>반원</b>. 이 한 경우만 두 도형이 일치해요. 지름이 곧 현이 되거든요.
+    </div>
+
+    <div class="warn-box">
+      ⚠️ 시험에서는 그림만 보고 "부채꼴이다"라고 단정하지 말고, 경계가 <b>두 반지름</b>인지 <b>한 현</b>인지 확인하세요!
+    </div>
+  </div>
+
+  <!-- Page 4: 호의 길이 -->
+  <div class="page">
+    <h2>4. 호의 길이 — 비례로 풀어요</h2>
+    <p>부채꼴은 원 전체에서 <b>$\dfrac{\theta}{360}$</b> 만큼만 차지해요. 그러니까 호의 길이도 원 전체 둘레의 그만큼만 가져가요.</p>
+
+    <div class="deg-info">
+      🌟 <b>그리스 문자 θ (세타)</b> — <b>중심각</b>을 나타내는 변수예요. (Unit 07에서 본 ∠ 와 함께 그리스 문자 사용 — 영어 알파벳과 구분하기 위함)
+    </div>
+
+    <div class="info-box" style="text-align:center; font-size:17px;">
+      $$l = 2\pi r \times \frac{\theta}{360}$$
+    </div>
+
+    <div class="control-group">
+      <div class="slider-row">
+        <span class="slider-label">반지름 r</span>
+        <input type="range" id="rad2" min="1" max="10" step="0.5" value="6">
+        <span class="slider-value" id="radv2">6</span>
+      </div>
+      <div class="slider-row">
+        <span class="slider-label">중심각 θ</span>
+        <input type="range" id="theta2" min="10" max="360" step="10" value="120">
+        <span class="slider-value" id="thetav2">120°</span>
+      </div>
+    </div>
+
+    <div class="figure">
+      <svg id="sectorSvg" width="320" height="320" viewBox="-160 -160 320 320">
+        <!-- 원 (참조) -->
+        <circle cx="0" cy="0" r="120" fill="none" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3,3"/>
+        <!-- 부채꼴 -->
+        <path id="sectorPath" d="" fill="rgba(67,97,238,0.25)" stroke="#4361EE" stroke-width="2"/>
+        <!-- 호 강조 -->
+        <path id="arcPath" d="" fill="none" stroke="#ef4444" stroke-width="3.5"/>
+        <!-- 중심 -->
+        <circle cx="0" cy="0" r="3" fill="#1d3557"/>
+        <text x="-10" y="14" font-size="12" font-weight="bold" fill="#1d3557">O</text>
+        <!-- 라벨은 JS로 -->
+        <text id="thetaLabel" x="0" y="0" font-size="14" font-weight="bold" fill="#4361EE"></text>
+      </svg>
+    </div>
+
+    <div class="calc-row">호의 길이 $l = 2\pi \cdot$ <span id="r2v">6</span> $\cdot \dfrac{\text{<span id="t2v">120</span>}}{360} =$ <b id="lv">4π</b></div>
+
+    <div class="info-box">
+      💡 θ를 슬라이더로 움직여보세요. <b>θ가 2배가 되면 호도 정확히 2배</b>예요. 이게 "호와 중심각은 정비례"의 의미.<br>
+      θ = 360°일 때는? 호 = 원 전체 둘레와 같아져요!
+    </div>
+  </div>
+
+  <!-- Page 5: 부채꼴의 넓이 -->
+  <div class="page">
+    <h2>5. 부채꼴의 넓이 — 두 가지 공식</h2>
+    <p>같은 비례 발상으로 — 부채꼴 넓이는 원 전체 넓이의 $\dfrac{\theta}{360}$ 배예요.</p>
+
+    <div class="info-box" style="text-align:center; font-size:17px;">
+      $$S = \pi r^2 \times \frac{\theta}{360}$$
+    </div>
+
+    <p>그런데 이 식을 약간 다르게 쓸 수 있어요. <b>호의 길이 $l$을 알 때</b> 이렇게:</p>
+
+    <div class="info-box" style="text-align:center; font-size:17px;">
+      $$S = \frac{1}{2} \cdot r \cdot l$$
+    </div>
+
+    <h3>왜 두 식이 같을까?</h3>
+    <div class="info-box">
+      $S = \pi r^2 \cdot \dfrac{\theta}{360} = \dfrac{1}{2} \cdot r \cdot \left(2\pi r \cdot \dfrac{\theta}{360}\right) = \dfrac{1}{2} \cdot r \cdot l$
+      <br><br>
+      이 식은 마치 <b>밑변 = $l$ (호), 높이 = $r$ (반지름)</b> 인 삼각형 넓이 같죠? 부채꼴을 잘게 쪼개면 정말 삼각형이 돼요. <b>이게 아르키메데스의 원의 넓이 증명 발상이에요.</b> 2200년 전!
+    </div>
+
+    <div class="control-group">
+      <div class="slider-row">
+        <span class="slider-label">반지름 r</span>
+        <input type="range" id="rad3" min="1" max="10" step="0.5" value="6">
+        <span class="slider-value" id="radv3">6</span>
+      </div>
+      <div class="slider-row">
+        <span class="slider-label">중심각 θ</span>
+        <input type="range" id="theta3" min="10" max="360" step="10" value="120">
+        <span class="slider-value" id="thetav3">120°</span>
+      </div>
+    </div>
+
+    <div class="figure">
+      <svg id="sectorSvg2" width="320" height="320" viewBox="-160 -160 320 320">
+        <circle cx="0" cy="0" r="120" fill="none" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3,3"/>
+        <path id="sectorPath2" d="" fill="rgba(67,97,238,0.3)" stroke="#4361EE" stroke-width="2"/>
+        <circle cx="0" cy="0" r="3" fill="#1d3557"/>
+      </svg>
+    </div>
+
+    <div class="calc-row">공식 1 — $S = \pi \cdot$ <span id="r3v">6</span>$^2 \cdot \dfrac{\text{<span id="t3v">120</span>}}{360} =$ <b id="s1v">12π</b></div>
+    <div class="calc-row">공식 2 — $S = \dfrac{1}{2} \cdot$ <span id="r3v2">6</span> $\cdot$ <span id="l3v">4π</span> $=$ <b id="s2v">12π</b></div>
+
+    <div class="info-box">
+      💡 두 공식이 항상 같은 답을 내요. 시험에서는 <b>호의 길이가 주어지면 $\dfrac{1}{2}rl$</b> 이 빠르고, <b>중심각이 주어지면 $\pi r^2 \cdot \dfrac{\theta}{360}$</b> 가 자연스러워요.
+    </div>
+
+    <div class="warn-box">
+      ⚠️ <b>부채꼴의 둘레</b>는? — 호의 길이만이 아니에요! <b>호 + 반지름 두 개</b>예요.<br>
+      $\text{부채꼴 둘레} = l + 2r$
+    </div>
+  </div>
+
+  <!-- Page 6: 호·현·중심각 관계 -->
+  <div class="page">
+    <h2>6. 호 vs 현 — 정비례할까?</h2>
+    <p>같은 원에서 중심각 θ가 변할 때 — <b>호의 길이는 정비례</b>해요. 그런데 <b>현의 길이는 정비례하지 않아요</b>. 이게 시험에서 가장 자주 함정으로 나와요.</p>
+
+    <div class="control-group">
+      <div class="slider-row">
+        <span class="slider-label">중심각 θ</span>
+        <input type="range" id="theta4" min="20" max="180" step="10" value="60">
+        <span class="slider-value" id="thetav4">60°</span>
+      </div>
+    </div>
+
+    <div class="figure">
+      <svg id="chordSvg" width="320" height="320" viewBox="-160 -160 320 320">
+        <circle cx="0" cy="0" r="120" fill="none" stroke="#4361EE" stroke-width="2"/>
+        <!-- 부채꼴 -->
+        <path id="sectorPath3" d="" fill="rgba(67,97,238,0.15)" stroke="#4361EE" stroke-width="2"/>
+        <!-- 호 -->
+        <path id="arcPath3" d="" fill="none" stroke="#10b981" stroke-width="3.5"/>
+        <!-- 현 -->
+        <line id="chordLine" x1="" y1="" x2="" y2="" stroke="#ef4444" stroke-width="3"/>
+        <!-- 중심 -->
+        <circle cx="0" cy="0" r="3" fill="#1d3557"/>
+        <text x="-10" y="14" font-size="12" font-weight="bold" fill="#1d3557">O</text>
+      </svg>
+    </div>
+
+    <div class="calc-row">호의 길이 (초록) ≈ <b id="arcL">125.66</b> ($r=120$ 단위 기준)</div>
+    <div class="calc-row">현의 길이 (빨강) ≈ <b id="chordL">120</b></div>
+    <div class="calc-row">θ = <span id="thetaShow">60</span>° 일 때 위 두 값을 비교해보세요</div>
+
+    <h3>실제로 비교해볼까요? ($r = 1$일 때)</h3>
+    <table class="compare">
+      <tr><th>중심각 θ</th><th>호의 길이</th><th>현의 길이</th></tr>
+      <tr><td>60°</td><td>$\dfrac{\pi}{3} \approx 1.047$</td><td>$1$</td></tr>
+      <tr><td>120° (60° × 2)</td><td>$\dfrac{2\pi}{3} \approx 2.094$ (정확히 2배 ✓)</td><td>$\sqrt{3} \approx 1.732$ (2배 아님 ✗)</td></tr>
+      <tr><td>180° (60° × 3)</td><td>$\pi \approx 3.142$ (정확히 3배 ✓)</td><td>$2$ (3배 아님 ✗)</td></tr>
+    </table>
+
+    <div class="warn-box">
+      ⚠️ <b>"현의 길이가 중심각에 정비례한다"</b>는 객관식 보기는 — <b>거짓</b>이에요!<br>
+      이 함정에 자주 걸려요. 호·부채꼴 넓이는 정비례 ⭕, 현은 ❌.
+    </div>
+
+    <h3>같은 원에서 비례식</h3>
+    <div class="info-box">
+      $$\frac{l_1}{l_2} = \frac{\theta_1}{\theta_2} = \frac{S_1}{S_2}$$
+      <br>
+      예: 같은 원에서 중심각 30°의 호가 5cm라면, 중심각 90°의 호는 — 30°×3 = 90°이므로 호도 정확히 3배 = <b>15cm</b>.
+    </div>
+  </div>
+
+  <!-- Page 7: 직접 계산해보세요 -->
+  <div class="page">
+    <h2>7. 직접 계산해보세요</h2>
+    <p>아르키메데스의 정신으로 — 직접 손으로 풀어봐요. 답은 그 다음 페이지(또는 머릿속)에 있어요.</p>
+
+    <h3>연습 1</h3>
+    <p>$r = 10$ cm, $\theta = 36°$ 인 부채꼴.</p>
+    <ul class="bullets">
+      <li>호의 길이 $l = $ <span class="blank-line"></span> cm</li>
+      <li>넓이 $S = $ <span class="blank-line"></span> cm²</li>
+      <li>둘레 = <span class="blank-line"></span> cm</li>
+    </ul>
+
+    <h3>연습 2</h3>
+    <p>같은 원에서, 중심각 $40°$의 호가 $4\pi$ cm 라면:</p>
+    <ul class="bullets">
+      <li>중심각 $120°$의 호의 길이 = <span class="blank-line"></span> cm (힌트: 비례)</li>
+      <li>이 원의 반지름 $r = $ <span class="blank-line"></span> cm</li>
+    </ul>
+
+    <h3>연습 3 — 색칠한 부분</h3>
+    <p>한 변의 길이가 $4$인 정사각형 안에, 한 꼭짓점을 중심으로 하는 사분원이 있어요. 정사각형 넓이에서 사분원 넓이를 빼면?</p>
+    <div class="figure">
+      <svg width="220" height="220" viewBox="-20 -20 240 240">
+        <rect x="0" y="0" width="200" height="200" fill="#f0fdf4" stroke="#10b981" stroke-width="2"/>
+        <path d="M 0 0 L 200 0 A 200 200 0 0 0 0 200 Z" fill="rgba(67,97,238,0.2)" stroke="#4361EE" stroke-width="2"/>
+        <circle cx="0" cy="0" r="3" fill="#1d3557"/>
+        <text x="100" y="-8" text-anchor="middle" font-size="13" fill="#10b981">한 변 4</text>
+        <text x="100" y="120" text-anchor="middle" font-size="13" fill="#4361EE">사분원</text>
+      </svg>
+    </div>
+    <ul class="bullets">
+      <li>색칠한 부분 넓이 = $4^2 - \pi \cdot 4^2 \cdot \dfrac{1}{4} =$ <span class="blank-line"></span></li>
+    </ul>
+
+    <div class="write-here">
+      ✏️ <b>나의 풀이</b><br><br>
+      <span class="blank-line"></span><br><br>
+      <span class="blank-line"></span><br><br>
+      <span class="blank-line"></span>
+    </div>
+
+    <div class="info-box">
+      💡 정답을 보지 않고 풀어보세요. 모르겠으면 다시 페이지를 넘겨봐도 좋아요. 아르키메데스도 며칠씩 욕조에 앉아 고민했답니다.<br>
+      (정답: 1) $l = 2\pi$ cm, $S = 10\pi$ cm², 둘레 $= 2\pi+20$ cm | 2) 호 $= 12\pi$ cm, $r = 18$ cm | 3) $16 - 4\pi$)
+    </div>
+  </div>
+
+  <div class="nav">
+    <button id="prev" onclick="go(-1)">이전</button>
+    <button id="next" onclick="go(1)">다음 →</button>
+  </div>
+</div>
+
+<script>
+const pages = document.querySelectorAll('.page');
+const dotsBox = document.getElementById('dots');
+let cur = 0;
+pages.forEach((_, i) => {
+  const dot = document.createElement('div');
+  dot.className = 'dot' + (i === 0 ? ' active' : '');
+  dot.onclick = () => goTo(i);
+  dotsBox.appendChild(dot);
+});
+const dots = document.querySelectorAll('.dot');
+function goTo(i) {
+  if (i < 0 || i >= pages.length) return;
+  pages[cur].classList.remove('active');
+  dots[cur].classList.remove('active');
+  cur = i;
+  pages[cur].classList.add('active');
+  dots[cur].classList.add('active');
+  document.getElementById('prev').disabled = (cur === 0);
+  document.getElementById('next').disabled = (cur === pages.length - 1);
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function go(d) { goTo(cur + d); }
+goTo(0);
+
+// === Page 2: 원 둘레/넓이 ===
+const rad1 = document.getElementById('rad1');
+const radv1 = document.getElementById('radv1');
+const bigCircle = document.getElementById('bigCircle');
+const rline = document.getElementById('rline');
+const rlabel = document.getElementById('rlabel');
+const circ1 = document.getElementById('circ1');
+const circ1n = document.getElementById('circ1n');
+const area1 = document.getElementById('area1');
+const area1n = document.getElementById('area1n');
+
+function fmtPi(coef) {
+  // coef × π → "Nπ" or simple fraction
+  if (Math.abs(coef - Math.round(coef)) < 1e-9) {
+    return Math.round(coef) + 'π';
+  }
+  return coef.toFixed(2) + 'π';
+}
+
+function updP2() {
+  const r = parseFloat(rad1.value);
+  radv1.textContent = r;
+  // SVG: scale r to pixel (max 100)
+  const px = r * 12;
+  bigCircle.setAttribute('r', px);
+  rline.setAttribute('x2', px);
+  rlabel.setAttribute('x', px/2);
+  rlabel.textContent = 'r = ' + r;
+  // calculations
+  const C = 2 * r; // coef of π
+  const A = r * r; // coef of π
+  circ1.textContent = fmtPi(C);
+  circ1n.textContent = (C * Math.PI).toFixed(2);
+  area1.textContent = fmtPi(A);
+  area1n.textContent = (A * Math.PI).toFixed(2);
+}
+rad1.addEventListener('input', updP2);
+updP2();
+
+// === Page 4: 부채꼴 호의 길이 ===
+const rad2 = document.getElementById('rad2');
+const radv2 = document.getElementById('radv2');
+const theta2 = document.getElementById('theta2');
+const thetav2 = document.getElementById('thetav2');
+const sectorPath = document.getElementById('sectorPath');
+const arcPath = document.getElementById('arcPath');
+const thetaLabel = document.getElementById('thetaLabel');
+const r2v = document.getElementById('r2v');
+const t2v = document.getElementById('t2v');
+const lv = document.getElementById('lv');
+
+function arcCoord(angDeg, R) {
+  // angle measured clockwise from +x axis (standard math but y flipped for SVG)
+  const a = angDeg * Math.PI / 180;
+  return { x: R * Math.cos(a), y: -R * Math.sin(a) }; // SVG y-down
+}
+
+function fmtCoefPi(num, den) {
+  // num/den * π reduced
+  const g = (function gcd(a,b){return b?gcd(b,a%b):a;})(Math.abs(num), Math.abs(den));
+  let n = num/g, d = den/g;
+  if (d === 1) return n + 'π';
+  // accept 0.5π type also
+  if (Math.abs(n) < 1e-9) return '0';
+  return n + 'π/' + d;
+}
+
+function updP4() {
+  const r = parseFloat(rad2.value);
+  let th = parseFloat(theta2.value);
+  if (th >= 360) th = 359.9; // avoid full circle path issue
+  radv2.textContent = r;
+  thetav2.textContent = parseFloat(theta2.value) + '°';
+  // SVG path: scale r to ~120
+  const R = r * 13;
+  // sector path: from O → (R,0) → arc to (cos(th), -sin(th))*R → close
+  const p1 = { x: R, y: 0 };
+  const p2 = arcCoord(th, R);
+  const largeArc = th > 180 ? 1 : 0;
+  const sweepFlag = 0; // counterclockwise (since SVG y is flipped, this draws CCW in math)
+  sectorPath.setAttribute('d', `M 0 0 L ${p1.x} ${p1.y} A ${R} ${R} 0 ${largeArc} ${sweepFlag} ${p2.x} ${p2.y} Z`);
+  arcPath.setAttribute('d', `M ${p1.x} ${p1.y} A ${R} ${R} 0 ${largeArc} ${sweepFlag} ${p2.x} ${p2.y}`);
+  // theta label position
+  const labelAng = th / 2;
+  const lp = arcCoord(labelAng, R * 0.35);
+  thetaLabel.setAttribute('x', lp.x);
+  thetaLabel.setAttribute('y', lp.y + 5);
+  thetaLabel.setAttribute('text-anchor', 'middle');
+  thetaLabel.textContent = parseFloat(theta2.value) + '°';
+  // calc
+  r2v.textContent = r;
+  t2v.textContent = parseFloat(theta2.value);
+  // l = 2πr · θ/360 = (2r·θ)/360 · π = (rθ)/180 · π
+  const num = r * parseFloat(theta2.value);
+  const den = 180;
+  lv.textContent = fmtCoefPi(num, den);
+}
+rad2.addEventListener('input', updP4);
+theta2.addEventListener('input', updP4);
+updP4();
+
+// === Page 5: 부채꼴 넓이 ===
+const rad3 = document.getElementById('rad3');
+const radv3 = document.getElementById('radv3');
+const theta3 = document.getElementById('theta3');
+const thetav3 = document.getElementById('thetav3');
+const sectorPath2 = document.getElementById('sectorPath2');
+const r3v = document.getElementById('r3v');
+const t3v = document.getElementById('t3v');
+const r3v2 = document.getElementById('r3v2');
+const l3v = document.getElementById('l3v');
+const s1v = document.getElementById('s1v');
+const s2v = document.getElementById('s2v');
+
+function updP5() {
+  const r = parseFloat(rad3.value);
+  let th = parseFloat(theta3.value);
+  if (th >= 360) th = 359.9;
+  radv3.textContent = r;
+  thetav3.textContent = parseFloat(theta3.value) + '°';
+  const R = r * 13;
+  const p1 = { x: R, y: 0 };
+  const p2 = arcCoord(th, R);
+  const largeArc = th > 180 ? 1 : 0;
+  sectorPath2.setAttribute('d', `M 0 0 L ${p1.x} ${p1.y} A ${R} ${R} 0 ${largeArc} 0 ${p2.x} ${p2.y} Z`);
+  // calc
+  r3v.textContent = r;
+  t3v.textContent = parseFloat(theta3.value);
+  r3v2.textContent = r;
+  // l = (rθ)/180 · π
+  const lNum = r * parseFloat(theta3.value);
+  l3v.textContent = fmtCoefPi(lNum, 180);
+  // S formula 1: π r² · θ/360 = r² θ / 360 · π
+  const sNum = r * r * parseFloat(theta3.value);
+  s1v.textContent = fmtCoefPi(sNum, 360);
+  // S formula 2: 1/2 · r · l = (r · rθ/180)/2 · π = r²θ/360 · π
+  s2v.textContent = fmtCoefPi(sNum, 360);
+}
+rad3.addEventListener('input', updP5);
+theta3.addEventListener('input', updP5);
+updP5();
+
+// === Page 6: 호 vs 현 ===
+const theta4 = document.getElementById('theta4');
+const thetav4 = document.getElementById('thetav4');
+const sectorPath3 = document.getElementById('sectorPath3');
+const arcPath3 = document.getElementById('arcPath3');
+const chordLine = document.getElementById('chordLine');
+const arcL = document.getElementById('arcL');
+const chordL = document.getElementById('chordL');
+const thetaShow = document.getElementById('thetaShow');
+
+function updP6() {
+  let th = parseFloat(theta4.value);
+  thetav4.textContent = th + '°';
+  thetaShow.textContent = th;
+  const R = 120;
+  // 부채꼴은 +x축에서 시작해 CCW로 th까지
+  const p1 = { x: R, y: 0 };
+  const p2 = arcCoord(th, R);
+  const largeArc = th > 180 ? 1 : 0;
+  sectorPath3.setAttribute('d', `M 0 0 L ${p1.x} ${p1.y} A ${R} ${R} 0 ${largeArc} 0 ${p2.x} ${p2.y} Z`);
+  arcPath3.setAttribute('d', `M ${p1.x} ${p1.y} A ${R} ${R} 0 ${largeArc} 0 ${p2.x} ${p2.y}`);
+  chordLine.setAttribute('x1', p1.x);
+  chordLine.setAttribute('y1', p1.y);
+  chordLine.setAttribute('x2', p2.x);
+  chordLine.setAttribute('y2', p2.y);
+  // calc (R = 120 단위)
+  const arcLen = 2 * Math.PI * R * th / 360;
+  const chordLen = 2 * R * Math.sin(th * Math.PI / 360); // 2R sin(θ/2)
+  arcL.textContent = arcLen.toFixed(2);
+  chordL.textContent = chordLen.toFixed(2);
+}
+theta4.addEventListener('input', updP6);
+updP6();
+</script>
+
+</body>
+</html>

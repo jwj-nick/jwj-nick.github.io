@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>정수와 유리수 — 개념 탐구</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; }
+
+  .nav-bar {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: white; border-radius: 30px; padding: 10px 20px;
+    box-shadow: 0 4px 20px rgba(67,97,238,0.2);
+    display: flex; align-items: center; gap: 8px; z-index: 100;
+  }
+  .nav-dot { width: 10px; height: 10px; border-radius: 50%; background: #d0d8ff; cursor: pointer; transition: all 0.2s; border: none; }
+  .nav-dot.active { background: #4361EE; transform: scale(1.3); }
+  .nav-btn { background: #4361EE; color: white; border: none; border-radius: 20px; padding: 6px 16px; font-size: 13px; cursor: pointer; font-family: inherit; }
+  .nav-btn:hover { background: #3451d1; }
+  .nav-btn:disabled { background: #ccc; cursor: default; }
+
+  .page { display: none; min-height: 100vh; padding-bottom: 80px; }
+  .page.active { display: block; }
+
+  .hero { background: linear-gradient(135deg, #4361EE 0%, #3a0ca3 100%); color: white; padding: 44px 20px 36px; text-align: center; }
+  .hero .badge { font-size: 12px; background: rgba(255,255,255,0.2); padding: 4px 14px; border-radius: 20px; margin-bottom: 12px; display: inline-block; }
+  .hero h1 { font-size: 24px; margin-bottom: 8px; }
+  .hero p { font-size: 14px; opacity: 0.85; }
+
+  .container { max-width: 700px; margin: 0 auto; padding: 24px 16px 20px; }
+  .card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 16px; }
+  .card h2 { font-size: 16px; color: #4361EE; margin-bottom: 14px; }
+  .card p { font-size: 14px; color: #444; line-height: 1.8; margin-bottom: 10px; }
+
+  .section-title { font-size: 14px; font-weight: bold; color: #4361EE; margin: 20px 0 10px; padding-left: 8px; border-left: 3px solid #4361EE; }
+
+  /* 수직선 SVG */
+  .number-line-wrap { overflow-x: auto; margin: 12px 0; }
+
+  /* 슬라이더 컨트롤 */
+  .slider-row { display: flex; align-items: center; gap: 12px; margin: 14px 0; flex-wrap: wrap; }
+  .slider-row label { font-size: 13px; color: #555; min-width: 60px; }
+  input[type="range"] { flex: 1; min-width: 120px; accent-color: #4361EE; }
+  .slider-val { font-size: 14px; font-weight: bold; color: #4361EE; min-width: 32px; text-align: center; }
+
+  /* 결과 박스 */
+  .result-box { background: #eef2ff; border-radius: 10px; padding: 14px 18px; font-size: 14px; color: #333; line-height: 1.8; margin-top: 8px; }
+  .result-box .big { font-size: 20px; font-weight: bold; color: #4361EE; }
+
+  /* 절댓값 시각화 */
+  .abs-demo { margin: 16px 0; }
+
+  /* 수 분류 트리 */
+  .tree { font-size: 13px; color: #333; background: #f8f9ff; border-radius: 12px; padding: 18px 20px; margin: 12px 0; line-height: 2; font-family: 'Consolas', monospace; }
+
+  /* 연산 규칙 표 */
+  .rule-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 10px 0; }
+  .rule-table th { background: #4361EE; color: white; padding: 8px 10px; text-align: left; }
+  .rule-table td { padding: 8px 10px; border-bottom: 1px solid #eef2ff; }
+  .rule-table tr:nth-child(even) td { background: #f8f9ff; }
+  .rule-table .pos { color: #2a8a2a; font-weight: bold; }
+  .rule-table .neg { color: #cc2222; font-weight: bold; }
+
+  /* 빈칸 */
+  .blank-section { background: #fff8e1; border: 2px dashed #ffc107; border-radius: 12px; padding: 18px 20px; margin: 16px 0; }
+  .blank-section h3 { font-size: 14px; color: #8a6000; margin-bottom: 10px; }
+  .blank-section textarea { width: 100%; border: 1px solid #ffd54f; border-radius: 8px; padding: 10px; font-family: inherit; font-size: 14px; resize: vertical; min-height: 80px; background: white; outline: none; }
+
+  /* 기호 설명 박스 */
+  .deg-info { background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 10px; padding: 14px 18px; margin: 12px 0; font-size: 13px; color: #2e7d32; line-height: 1.7; }
+  .deg-info strong { color: #1b5e20; }
+
+  /* warn box */
+  .warn-box { background: #fff3e0; border: 1px solid #ffcc80; border-radius: 10px; padding: 12px 16px; font-size: 13px; color: #e65100; margin: 10px 0; line-height: 1.7; }
+
+  /* 탭 */
+  .tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .tab-btn { padding: 8px 16px; border: 2px solid #4361EE; border-radius: 20px; font-size: 13px; cursor: pointer; background: white; color: #4361EE; font-family: inherit; transition: all 0.15s; }
+  .tab-btn.active { background: #4361EE; color: white; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+</style>
+</head>
+<body>
+
+<!-- ========== PAGE 0: 수 분류 ========== -->
+<div class="page active" id="p0">
+  <div class="hero">
+    <div class="badge">개념 1</div>
+    <h1>수의 세계 확장</h1>
+    <p>양수·음수·정수·유리수를 한눈에 정리해요</p>
+  </div>
+  <div class="container">
+    <div class="card">
+      <h2>수의 분류 구조</h2>
+      <p>중1에서 처음으로 음수를 만나요. 수의 세계가 이렇게 확장돼요.</p>
+      <div class="tree">
+유리수<br>
+├── 정수<br>
+│&nbsp;&nbsp;&nbsp;├── 양의 정수(자연수): 1, 2, 3, …<br>
+│&nbsp;&nbsp;&nbsp;├── 0<br>
+│&nbsp;&nbsp;&nbsp;└── 음의 정수: −1, −2, −3, …<br>
+└── 정수가 아닌 유리수<br>
+&nbsp;&nbsp;&nbsp;&nbsp;├── 양의 유리수: 1/2, 0.3, …<br>
+&nbsp;&nbsp;&nbsp;&nbsp;└── 음의 유리수: −1/2, −0.3, …
+      </div>
+      <p>유리수는 $\dfrac{a}{b}$ (단, $a$는 정수, $b$는 0이 아닌 정수) 꼴로 나타낼 수 있는 수예요.</p>
+      <div class="warn-box">
+        <strong>주의!</strong> 0은 양수도 음수도 아니에요. 하지만 유리수이자 정수예요.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>직접 분류해봐요</h2>
+      <p>아래 수들이 정수인지, 유리수인지, 양수인지 음수인지 생각해봐요.</p>
+      <div class="tabs">
+        <button class="tab-btn active" onclick="showNumTab(0)">−3</button>
+        <button class="tab-btn" onclick="showNumTab(1)">+2.5</button>
+        <button class="tab-btn" onclick="showNumTab(2)">0</button>
+        <button class="tab-btn" onclick="showNumTab(3)">−1/2</button>
+      </div>
+      <div class="tab-content active" id="nt0">
+        <div class="result-box">
+          <span class="big">−3</span><br>
+          정수 ✓ &nbsp;|&nbsp; 유리수 ✓ &nbsp;|&nbsp; 음의 정수 ✓<br>
+          수직선에서: 0의 왼쪽 세 번째 칸
+        </div>
+      </div>
+      <div class="tab-content" id="nt1">
+        <div class="result-box">
+          <span class="big">+2.5</span><br>
+          정수 ✗ &nbsp;|&nbsp; 유리수 ✓ &nbsp;|&nbsp; 양의 유리수 ✓<br>
+          $2.5 = \dfrac{5}{2}$ 이므로 유리수예요
+        </div>
+      </div>
+      <div class="tab-content" id="nt2">
+        <div class="result-box">
+          <span class="big">0</span><br>
+          정수 ✓ &nbsp;|&nbsp; 유리수 ✓ &nbsp;|&nbsp; 양수도 음수도 아님<br>
+          $0 = \dfrac{0}{1}$ 이므로 유리수예요
+        </div>
+      </div>
+      <div class="tab-content" id="nt3">
+        <div class="result-box">
+          <span class="big">−1/2</span><br>
+          정수 ✗ &nbsp;|&nbsp; 유리수 ✓ &nbsp;|&nbsp; 음의 유리수 ✓<br>
+          이미 $\dfrac{a}{b}$ 꼴이에요
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PAGE 1: 수직선 탐구 ========== -->
+<div class="page" id="p1">
+  <div class="hero">
+    <div class="badge">개념 2</div>
+    <h1>수직선 탐구</h1>
+    <p>슬라이더를 움직이며 수직선 위 위치를 확인해요</p>
+  </div>
+  <div class="container">
+    <div class="card">
+      <h2>수직선 위의 점</h2>
+      <p>수직선에서 0의 오른쪽은 양수, 왼쪽은 음수예요.</p>
+
+      <div class="slider-row">
+        <label>수 선택:</label>
+        <input type="range" id="nlSlider" min="-6" max="6" step="1" value="3" oninput="updateNL()">
+        <span class="slider-val" id="nlVal">3</span>
+      </div>
+
+      <div class="number-line-wrap">
+        <svg id="nlSvg" width="600" height="80" viewBox="0 0 600 80" style="min-width:340px;">
+          <!-- 축 선 -->
+          <line x1="20" y1="40" x2="580" y2="40" stroke="#4361EE" stroke-width="2"/>
+          <!-- 화살표 -->
+          <polygon points="580,40 570,35 570,45" fill="#4361EE"/>
+          <polygon points="20,40 30,35 30,45" fill="#4361EE"/>
+          <!-- 눈금 및 숫자 -->
+          <g id="ticks"></g>
+          <!-- 점 -->
+          <circle id="nlDot" cx="345" cy="40" r="8" fill="#e63946"/>
+          <text id="nlLabel" x="345" y="22" text-anchor="middle" font-size="13" fill="#e63946" font-weight="bold">3</text>
+        </svg>
+      </div>
+
+      <div class="result-box" id="nlResult">
+        수 <strong>+3</strong>은 0의 오른쪽, 양수예요.
+      </div>
+    </div>
+
+    <div class="blank-section">
+      <h3>직접 써봐요</h3>
+      <textarea placeholder="수직선을 보며 알게 된 것을 써봐요. 예) 음수는 클수록(절댓값이 클수록) 왼쪽에 있다..."></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PAGE 2: 절댓값 ========== -->
+<div class="page" id="p2">
+  <div class="hero">
+    <div class="badge">개념 3</div>
+    <h1>절댓값</h1>
+    <p>0으로부터의 거리예요</p>
+  </div>
+  <div class="container">
+
+    <div class="deg-info">
+      <strong>기호 안내: |a| (세로 막대 두 개)</strong><br>
+      이걸 "절댓값"이라고 읽어요. 수직선에서 0으로부터 a까지의 <strong>거리</strong>를 나타내요.<br>
+      거리는 항상 0 이상이에요. (음수가 될 수 없어요!)<br>
+      처음 볼 때 헷갈릴 수 있으니 꼭 기억해두세요.
+    </div>
+
+    <div class="card">
+      <h2>절댓값 직접 확인</h2>
+      <div class="slider-row">
+        <label>수 a:</label>
+        <input type="range" id="absSlider" min="-6" max="6" step="1" value="-4" oninput="updateAbs()">
+        <span class="slider-val" id="absVal">−4</span>
+      </div>
+
+      <div class="number-line-wrap">
+        <svg id="absSvg" width="600" height="90" viewBox="0 0 600 90" style="min-width:340px;">
+          <line x1="20" y1="50" x2="580" y2="50" stroke="#4361EE" stroke-width="2"/>
+          <polygon points="580,50 570,45 570,55" fill="#4361EE"/>
+          <polygon points="20,50 30,45 30,55" fill="#4361EE"/>
+          <g id="absTicks"></g>
+          <!-- 거리 표시선 -->
+          <line id="absLine" x1="260" y1="50" x2="345" y2="50" stroke="#e63946" stroke-width="3"/>
+          <!-- 점 -->
+          <circle id="absDot" cx="260" cy="50" r="8" fill="#e63946"/>
+          <text id="absDotLabel" x="260" y="32" text-anchor="middle" font-size="13" fill="#e63946" font-weight="bold">−4</text>
+          <!-- 0 점 -->
+          <circle cx="345" cy="50" r="5" fill="#4361EE"/>
+          <text x="345" y="72" text-anchor="middle" font-size="12" fill="#4361EE">0</text>
+          <!-- 거리 라벨 -->
+          <text id="absDistLabel" x="302" y="38" text-anchor="middle" font-size="12" fill="#e63946">거리 = 4</text>
+        </svg>
+      </div>
+
+      <div class="result-box" id="absResult">
+        $|{-4}| = 4$ &nbsp;·&nbsp; $|{+4}| = 4$<br>
+        <span style="font-size:12px; color:#888;">−4와 +4는 절댓값이 같아요 (0으로부터 거리가 같음)</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>절댓값 규칙 정리</h2>
+      <table class="rule-table">
+        <tr><th>경우</th><th>규칙</th><th>예</th></tr>
+        <tr><td>$a > 0$</td><td>$|a| = a$</td><td>$|+3| = 3$</td></tr>
+        <tr><td>$a = 0$</td><td>$|0| = 0$</td><td>$|0| = 0$</td></tr>
+        <tr><td>$a < 0$</td><td>$|a| = -a$ (부호 반대)</td><td>$|-3| = 3$</td></tr>
+      </table>
+      <div class="warn-box">
+        <strong>흔한 실수:</strong> $|{-3}| = -3$이라고 쓰는 경우. 절댓값은 항상 0 이상이에요!
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PAGE 3: 대소 관계 ========== -->
+<div class="page" id="p3">
+  <div class="hero">
+    <div class="badge">개념 4</div>
+    <h1>대소 관계</h1>
+    <p>수직선에서 오른쪽이 크다</p>
+  </div>
+  <div class="container">
+    <div class="card">
+      <h2>대소 관계 규칙</h2>
+      <table class="rule-table">
+        <tr><th>규칙</th><th>예</th></tr>
+        <tr><td>양수 > 0 > 음수</td><td>$+1 > 0 > -1$</td></tr>
+        <tr><td>양수끼리: 절댓값 클수록 크다</td><td>$+5 > +3$</td></tr>
+        <tr><td>음수끼리: 절댓값 클수록 작다</td><td>$-5 < -3$</td></tr>
+      </table>
+      <div class="warn-box">
+        <strong>자주 하는 실수:</strong> −5와 −3을 비교할 때 "5가 크니까 −5가 크다"고 생각하는 경우.<br>
+        수직선에서 왼쪽에 있는 수가 더 작아요. −5는 −3보다 왼쪽에 있어요!
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>두 수 비교해봐요</h2>
+      <div class="slider-row">
+        <label>수 A:</label>
+        <input type="range" id="cmpA" min="-6" max="6" step="1" value="-5" oninput="updateCmp()">
+        <span class="slider-val" id="cmpAVal">−5</span>
+      </div>
+      <div class="slider-row">
+        <label>수 B:</label>
+        <input type="range" id="cmpB" min="-6" max="6" step="1" value="-3" oninput="updateCmp()">
+        <span class="slider-val" id="cmpBVal">−3</span>
+      </div>
+      <div class="result-box" id="cmpResult">
+        <span class="big" id="cmpBig">−5 &lt; −3</span><br>
+        <span id="cmpExplain">−5는 수직선에서 −3보다 왼쪽에 있어요.</span>
+      </div>
+    </div>
+
+    <div class="blank-section">
+      <h3>직접 써봐요</h3>
+      <textarea placeholder="음수끼리 비교할 때 헷갈리는 이유가 뭔지, 어떻게 하면 안 헷갈릴지 써봐요..."></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PAGE 4: 덧셈·뺄셈 탐구 ========== -->
+<div class="page" id="p4">
+  <div class="hero">
+    <div class="badge">개념 5</div>
+    <h1>덧셈과 뺄셈</h1>
+    <p>같은 부호, 다른 부호, 뺄셈 변환</p>
+  </div>
+  <div class="container">
+    <div class="card">
+      <h2>덧셈 규칙</h2>
+      <table class="rule-table">
+        <tr><th>경우</th><th>방법</th><th>예</th></tr>
+        <tr>
+          <td>양수 + 양수</td>
+          <td>절댓값의 합, 부호 +</td>
+          <td>$(+3)+(+5) = +8$</td>
+        </tr>
+        <tr>
+          <td>음수 + 음수</td>
+          <td>절댓값의 합, 부호 −</td>
+          <td>$(-3)+(-5) = -8$</td>
+        </tr>
+        <tr>
+          <td>양수 + 음수</td>
+          <td>절댓값의 차, 큰 쪽 부호</td>
+          <td>$(+5)+(-3) = +2$</td>
+        </tr>
+        <tr>
+          <td>음수 + 양수</td>
+          <td>절댓값의 차, 큰 쪽 부호</td>
+          <td>$(-5)+(+3) = -2$</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>덧셈 직접 계산</h2>
+      <div class="slider-row">
+        <label>수 A:</label>
+        <input type="range" id="addA" min="-9" max="9" step="1" value="-5" oninput="updateAdd()">
+        <span class="slider-val" id="addAVal">−5</span>
+      </div>
+      <div class="slider-row">
+        <label>수 B:</label>
+        <input type="range" id="addB" min="-9" max="9" step="1" value="3" oninput="updateAdd()">
+        <span class="slider-val" id="addBVal">+3</span>
+      </div>
+      <div class="result-box" id="addResult">
+        <span class="big">−5 + 3 = −2</span><br>
+        <span id="addExplain">다른 부호: 절댓값의 차 = 5−3 = 2, 큰 쪽(−5)의 부호 → −2</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>뺄셈 → 덧셈으로</h2>
+      <p style="margin-bottom:8px;">뺄셈은 항상 덧셈으로 바꿀 수 있어요:</p>
+      <div class="result-box" style="text-align:center; font-size:18px; margin-bottom:12px;">
+        $A - B = A + (-B)$
+      </div>
+      <p>빼는 수의 <strong>부호를 바꾸어</strong> 더해요.</p>
+      <table class="rule-table" style="margin-top:8px;">
+        <tr><th>뺄셈</th><th>→ 덧셈으로</th><th>결과</th></tr>
+        <tr><td>$(+5) - (+3)$</td><td>$(+5) + (-3)$</td><td>$+2$</td></tr>
+        <tr><td>$(-2) - (-5)$</td><td>$(-2) + (+5)$</td><td>$+3$</td></tr>
+        <tr><td>$(-3) - (+4)$</td><td>$(-3) + (-4)$</td><td>$-7$</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PAGE 5: 곱셈·나눗셈 탐구 ========== -->
+<div class="page" id="p5">
+  <div class="hero">
+    <div class="badge">개념 6</div>
+    <h1>곱셈과 나눗셈</h1>
+    <p>부호 규칙, 역수, 분배법칙</p>
+  </div>
+  <div class="container">
+    <div class="card">
+      <h2>곱셈 부호 규칙</h2>
+      <table class="rule-table">
+        <tr><th>부호 조합</th><th>결과</th><th>예</th></tr>
+        <tr><td class="pos">(+) × (+)</td><td class="pos">+</td><td>$(+3) \times (+4) = +12$</td></tr>
+        <tr><td class="neg">(−) × (−)</td><td class="pos">+</td><td>$(-3) \times (-4) = +12$</td></tr>
+        <tr><td class="neg">(+) × (−)</td><td class="neg">−</td><td>$(+3) \times (-4) = -12$</td></tr>
+        <tr><td class="neg">(−) × (+)</td><td class="neg">−</td><td>$(-3) \times (+4) = -12$</td></tr>
+      </table>
+      <div class="deg-info" style="margin-top:12px;">
+        <strong>외우는 법:</strong> 음수의 개수가 <strong>짝수 개</strong> → 결과 +, <strong>홀수 개</strong> → 결과 −<br>
+        예: $(-1) \times (-1) \times (-1) = -1$ (음수 3개 = 홀수 → 음수)
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>곱셈 계산기</h2>
+      <div class="slider-row">
+        <label>수 A:</label>
+        <input type="range" id="mulA" min="-9" max="9" step="1" value="-3" oninput="updateMul()">
+        <span class="slider-val" id="mulAVal">−3</span>
+      </div>
+      <div class="slider-row">
+        <label>수 B:</label>
+        <input type="range" id="mulB" min="-9" max="9" step="1" value="-4" oninput="updateMul()">
+        <span class="slider-val" id="mulBVal">−4</span>
+      </div>
+      <div class="result-box" id="mulResult">
+        <span class="big">−3 × −4 = +12</span><br>
+        <span id="mulExplain">음수 2개 (짝수) → 결과: 양수. 절댓값의 곱 = 3×4 = 12</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>나눗셈 → 역수 곱하기</h2>
+      <div class="result-box" style="text-align:center; font-size:18px; margin-bottom:12px;">
+        $A \div B = A \times \dfrac{1}{B}$
+      </div>
+      <table class="rule-table">
+        <tr><th>나눗셈</th><th>→ 곱셈으로</th><th>결과</th></tr>
+        <tr><td>$(-6) \div (+2)$</td><td>$(-6) \times \frac{1}{2}$</td><td>$-3$</td></tr>
+        <tr><td>$(-6) \div (-2)$</td><td>$(-6) \times (-\frac{1}{2})$</td><td>$+3$</td></tr>
+        <tr><td>$(+8) \div (-4)$</td><td>$(+8) \times (-\frac{1}{4})$</td><td>$-2$</td></tr>
+      </table>
+      <p style="margin-top:10px; font-size:13px; color:#666;">부호 규칙은 곱셈과 동일해요!</p>
+    </div>
+
+    <div class="card">
+      <h2>분배법칙</h2>
+      <div class="result-box" style="text-align:center; font-size:16px; margin-bottom:12px;">
+        $a \times (b + c) = a \times b + a \times c$
+      </div>
+      <p>예: $(-2) \times (3 + (-5)) = (-2) \times 3 + (-2) \times (-5) = -6 + 10 = 4$</p>
+    </div>
+
+    <div class="blank-section">
+      <h3>직접 써봐요</h3>
+      <textarea placeholder="곱셈 부호 규칙 중 가장 헷갈리는 것과 이유를 써봐요..."></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- 네비게이션 -->
+<div class="nav-bar">
+  <button class="nav-btn" id="prevBtn" onclick="changePage(-1)" disabled>◀</button>
+  <button class="nav-dot active" onclick="goPage(0)"></button>
+  <button class="nav-dot" onclick="goPage(1)"></button>
+  <button class="nav-dot" onclick="goPage(2)"></button>
+  <button class="nav-dot" onclick="goPage(3)"></button>
+  <button class="nav-dot" onclick="goPage(4)"></button>
+  <button class="nav-dot" onclick="goPage(5)"></button>
+  <button class="nav-btn" id="nextBtn" onclick="changePage(1)">▶</button>
+</div>
+
+<script>
+let current = 0;
+const total = 6;
+const pages = document.querySelectorAll('.page');
+const dots = document.querySelectorAll('.nav-dot');
+
+function goPage(n) {
+  pages[current].classList.remove('active');
+  dots[current].classList.remove('active');
+  current = n;
+  pages[current].classList.add('active');
+  dots[current].classList.add('active');
+  document.getElementById('prevBtn').disabled = (current === 0);
+  document.getElementById('nextBtn').disabled = (current === total - 1);
+  window.scrollTo(0, 0);
+  initPage(n);
+}
+function changePage(dir) {
+  const next = current + dir;
+  if (next >= 0 && next < total) goPage(next);
+}
+
+// 탭
+function showNumTab(i) {
+  document.querySelectorAll('[id^="nt"]').forEach((el, idx) => {
+    el.classList.toggle('active', idx === i);
+  });
+  document.querySelectorAll('.tabs .tab-btn').forEach((btn, idx) => {
+    btn.classList.toggle('active', idx === i);
+  });
+}
+
+// ---- 수직선 공통 눈금 생성 ----
+function drawTicks(svgId, ticksId, range, cx0, step) {
+  const svg = document.getElementById(svgId);
+  const tg = document.getElementById(ticksId);
+  tg.innerHTML = '';
+  for (let v = -range; v <= range; v++) {
+    const x = cx0 + v * step;
+    const tick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    tick.setAttribute('x1', x); tick.setAttribute('y1', 35);
+    tick.setAttribute('x2', x); tick.setAttribute('y2', 45);
+    tick.setAttribute('stroke', '#4361EE'); tick.setAttribute('stroke-width', '1.5');
+    tg.appendChild(tick);
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('x', x);
+    label.setAttribute('y', svgId === 'nlSvg' ? 62 : 72);
+    label.setAttribute('text-anchor', 'middle');
+    label.setAttribute('font-size', '11');
+    label.setAttribute('fill', v === 0 ? '#4361EE' : '#888');
+    label.setAttribute('font-weight', v === 0 ? 'bold' : 'normal');
+    label.textContent = v === 0 ? '0' : v;
+    tg.appendChild(label);
+  }
+}
+
+// ---- 수직선 (Page 1) ----
+function updateNL() {
+  const v = parseInt(document.getElementById('nlSlider').value);
+  document.getElementById('nlVal').textContent = v >= 0 ? '+' + v : v;
+  const cx0 = 300, step = 42;
+  drawTicks('nlSvg', 'ticks', 6, cx0, step);
+  const x = cx0 + v * step;
+  document.getElementById('nlDot').setAttribute('cx', x);
+  document.getElementById('nlLabel').setAttribute('x', x);
+  document.getElementById('nlLabel').textContent = v >= 0 ? '+' + v : v;
+  let msg = '';
+  if (v > 0) msg = `수 <strong>+${v}</strong>은 0의 오른쪽, 양수예요.`;
+  else if (v < 0) msg = `수 <strong>${v}</strong>은 0의 왼쪽, 음수예요.`;
+  else msg = `수 <strong>0</strong>은 양수도 음수도 아니에요.`;
+  document.getElementById('nlResult').innerHTML = msg;
+}
+
+// ---- 절댓값 (Page 2) ----
+function updateAbs() {
+  const v = parseInt(document.getElementById('absSlider').value);
+  document.getElementById('absVal').textContent = v >= 0 ? '+' + v : v;
+  const cx0 = 300, step = 42;
+  drawTicks('absSvg', 'absTicks', 6, cx0, step);
+  const x = cx0 + v * step;
+  const abs = Math.abs(v);
+  document.getElementById('absDot').setAttribute('cx', x);
+  document.getElementById('absDotLabel').setAttribute('x', x);
+  document.getElementById('absDotLabel').textContent = v >= 0 ? '+' + v : v;
+  // 거리선
+  const lineX1 = Math.min(x, cx0), lineX2 = Math.max(x, cx0);
+  document.getElementById('absLine').setAttribute('x1', lineX1);
+  document.getElementById('absLine').setAttribute('x2', lineX2);
+  document.getElementById('absDistLabel').setAttribute('x', (lineX1 + lineX2) / 2);
+  document.getElementById('absDistLabel').textContent = '거리 = ' + abs;
+  const vs = v >= 0 ? '+' + v : String(v);
+  document.getElementById('absResult').innerHTML =
+    `$|{${vs}}| = ${abs}$ &nbsp;·&nbsp; 0으로부터의 거리는 <strong>${abs}</strong>이에요.`;
+  if (window.renderMathInElement) renderMathInElement(document.getElementById('absResult'));
+}
+
+// ---- 대소 (Page 3) ----
+function updateCmp() {
+  const a = parseInt(document.getElementById('cmpA').value);
+  const b = parseInt(document.getElementById('cmpB').value);
+  document.getElementById('cmpAVal').textContent = a >= 0 ? '+' + a : a;
+  document.getElementById('cmpBVal').textContent = b >= 0 ? '+' + b : b;
+  const as = a >= 0 ? '+' + a : String(a);
+  const bs = b >= 0 ? '+' + b : String(b);
+  let sym, explain;
+  if (a < b) { sym = as + ' < ' + bs; explain = as + '는 수직선에서 ' + bs + '보다 왼쪽에 있어요.'; }
+  else if (a > b) { sym = as + ' > ' + bs; explain = as + '는 수직선에서 ' + bs + '보다 오른쪽에 있어요.'; }
+  else { sym = as + ' = ' + bs; explain = '두 수는 같아요.'; }
+  document.getElementById('cmpBig').textContent = sym;
+  document.getElementById('cmpExplain').textContent = explain;
+}
+
+// ---- 덧셈 (Page 4) ----
+function updateAdd() {
+  const a = parseInt(document.getElementById('addA').value);
+  const b = parseInt(document.getElementById('addB').value);
+  document.getElementById('addAVal').textContent = a >= 0 ? '+' + a : a;
+  document.getElementById('addBVal').textContent = b >= 0 ? '+' + b : b;
+  const result = a + b;
+  const as = a >= 0 ? '+' + a : String(a);
+  const bs = b >= 0 ? '+' + b : String(b);
+  const rs = result >= 0 ? '+' + result : String(result);
+  let explain;
+  if ((a >= 0 && b >= 0) || (a < 0 && b < 0)) {
+    explain = '같은 부호: 절댓값의 합 = ' + Math.abs(a) + '+' + Math.abs(b) + ' = ' + Math.abs(result) + ', 공통 부호 적용';
+  } else {
+    const diff = Math.abs(Math.abs(a) - Math.abs(b));
+    const dominant = Math.abs(a) > Math.abs(b) ? '첫 번째 수' : '두 번째 수';
+    explain = '다른 부호: 절댓값의 차 = ' + Math.abs(result) + ', ' + dominant + ' 부호 적용';
+  }
+  document.getElementById('addResult').innerHTML =
+    `<span class="big">${as} + ${bs} = ${rs}</span><br><span id="addExplain">${explain}</span>`;
+}
+
+// ---- 곱셈 (Page 5) ----
+function updateMul() {
+  const a = parseInt(document.getElementById('mulA').value);
+  const b = parseInt(document.getElementById('mulB').value);
+  document.getElementById('mulAVal').textContent = a >= 0 ? '+' + a : a;
+  document.getElementById('mulBVal').textContent = b >= 0 ? '+' + b : b;
+  const result = a * b;
+  const as = a >= 0 ? '+' + a : String(a);
+  const bs = b >= 0 ? '+' + b : String(b);
+  const rs = result >= 0 ? '+' + result : String(result);
+  const negCount = (a < 0 ? 1 : 0) + (b < 0 ? 1 : 0);
+  const explain = `음수 ${negCount}개 (${negCount % 2 === 0 ? '짝수' : '홀수'}) → 결과: ${result >= 0 ? '양수' : '음수'}. 절댓값의 곱 = ${Math.abs(a)}×${Math.abs(b)} = ${Math.abs(result)}`;
+  document.getElementById('mulResult').innerHTML =
+    `<span class="big">${as} × ${bs} = ${rs}</span><br><span id="mulExplain">${explain}</span>`;
+}
+
+function initPage(n) {
+  if (n === 1) updateNL();
+  if (n === 2) updateAbs();
+  if (n === 3) updateCmp();
+  if (n === 4) updateAdd();
+  if (n === 5) updateMul();
+}
+
+// 초기화
+window.addEventListener('load', () => {
+  updateNL();
+  updateAbs();
+  updateCmp();
+  updateAdd();
+  updateMul();
+});
+</script>
+</body>
+</html>

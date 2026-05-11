@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>개념 탐구 — Unit 12</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; padding: 16px; }
+  .app { max-width: 700px; margin: 0 auto; background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(67,97,238,0.08); overflow: hidden; }
+  header { background: linear-gradient(135deg, #4361EE 0%, #3a0ca3 100%); color: white; padding: 22px 24px; }
+  header .breadcrumb { font-size: 12px; opacity: 0.75; margin-bottom: 6px; }
+  header .breadcrumb a { color: white; text-decoration: none; }
+  header h1 { font-size: 22px; }
+  .dots { display: flex; justify-content: center; gap: 8px; padding: 16px; background: #f8f9ff; flex-wrap: wrap; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #cbd5e1; cursor: pointer; transition: 0.2s; }
+  .dot.active { background: #4361EE; transform: scale(1.3); }
+  .page { padding: 24px; min-height: 480px; display: none; line-height: 1.7; color: #333; }
+  .page.active { display: block; }
+  .page h2 { color: #1d3557; font-size: 20px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #4361EE; }
+  .page h3 { color: #4361EE; font-size: 16px; margin: 14px 0 6px; }
+  .page p { margin-bottom: 10px; }
+  .info-box { background: #f0fdf4; border-left: 4px solid #10b981; padding: 12px 16px; margin: 14px 0; font-size: 14px; border-radius: 0 8px 8px 0; }
+  .deg-info { background: #ecfdf5; border-left: 4px solid #10b981; padding: 10px 14px; margin: 12px 0; font-size: 13px; border-radius: 0 8px 8px 0; color: #166534; }
+  .warn-box { background: #fff7ed; border-left: 4px solid #f59e0b; padding: 12px 16px; margin: 14px 0; font-size: 14px; border-radius: 0 8px 8px 0; }
+  .figure { text-align: center; margin: 14px 0; }
+  .figure svg { background: #fafbff; border-radius: 12px; padding: 8px; max-width: 100%; }
+  .caption { font-size: 12px; color: #888; margin-top: 4px; }
+  .nav { display: flex; justify-content: space-between; padding: 16px 24px; background: #f8f9ff; }
+  .nav button { padding: 10px 22px; border: none; background: #4361EE; color: white; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  .nav button:disabled { background: #cbd5e1; cursor: not-allowed; }
+  .controls { background: #f8f9ff; border-radius: 12px; padding: 14px 16px; margin: 14px 0; }
+  .controls label { display: flex; align-items: center; gap: 12px; font-size: 14px; margin-bottom: 8px; }
+  .controls input[type=range] { flex: 1; }
+  .live-val { background: #4361EE; color: white; padding: 3px 12px; border-radius: 14px; font-weight: 700; min-width: 50px; text-align: center; font-size: 13px; }
+  table.compare { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+  table.compare th, table.compare td { border: 1px solid #e0e4f0; padding: 7px 8px; text-align: center; }
+  table.compare th { background: #eef2ff; color: #4361EE; }
+  table.compare td.row-name { font-weight: 600; color: #1d3557; }
+  .blank-line { display: inline-block; min-width: 80px; border-bottom: 1.5px dashed #c0c0c0; margin: 0 4px; }
+  .formula-card { background: #eef2ff; border-radius: 12px; padding: 14px 16px; margin: 10px 0; font-size: 15px; text-align: center; color: #1d3557; }
+  .star { color: #f59e0b; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <div class="breadcrumb"><a href="index.html">← Unit 12 허브</a></div>
+    <h1>📐 개념 탐구 — 입체도형의 겉넓이와 부피</h1>
+  </header>
+
+  <div class="dots" id="dots"></div>
+
+  <!-- Page 1: 겉넓이·부피 기본 + 단위 -->
+  <div class="page active">
+    <h2>1. 겉넓이와 부피, 그리고 단위</h2>
+    <p><b>겉넓이</b>(surface area, $S$) = 입체의 <b>모든 면의 넓이의 합</b>. 입체를 종이로 감쌀 때 종이의 넓이.</p>
+    <p><b>부피</b>(volume, $V$) = 입체가 <b>차지하는 공간의 크기</b>. 그 안에 물을 부으면 들어가는 양.</p>
+
+    <div class="deg-info">
+      💚 <b>단위 함정 ⚠️</b><br>
+      겉넓이의 단위 = $\text{cm}^2$ (제곱센티미터) — 평면이니까 2차원.<br>
+      부피의 단위 = $\text{cm}^3$ (세제곱센티미터) — 입체니까 3차원.<br>
+      답을 쓸 때 <b>cm² ↔ cm³ 혼동</b>이 시험에서 가장 흔한 감점 이유예요!
+    </div>
+
+    <h3>이 단원에서 만날 다섯 입체</h3>
+    <div class="figure">
+      <svg width="500" height="170" viewBox="0 0 500 170">
+        <rect x="0" y="0" width="500" height="170" fill="#fafbff"/>
+        <!-- 각기둥 -->
+        <g transform="translate(20, 30)">
+          <polygon points="20,80 60,90 60,30 20,20" fill="#dbeafe" stroke="#1e40af" stroke-width="1.5"/>
+          <polygon points="60,90 80,80 80,20 60,30" fill="#93c5fd" stroke="#1e40af" stroke-width="1.5"/>
+          <polygon points="20,20 60,30 80,20 40,10" fill="#bfdbfe" stroke="#1e40af" stroke-width="1.5"/>
+          <text x="50" y="115" text-anchor="middle" font-size="11" font-weight="bold" fill="#1d3557">각기둥</text>
+        </g>
+        <!-- 각뿔 -->
+        <g transform="translate(120, 30)">
+          <polygon points="50,10 20,80 80,80" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+          <polygon points="50,10 80,80 75,85" fill="#fde68a" stroke="#d97706" stroke-width="1.5"/>
+          <ellipse cx="48" cy="82" rx="30" ry="6" fill="none" stroke="#d97706" stroke-width="1" stroke-dasharray="3,2"/>
+          <text x="50" y="115" text-anchor="middle" font-size="11" font-weight="bold" fill="#92400e">각뿔</text>
+        </g>
+        <!-- 원기둥 -->
+        <g transform="translate(220, 30)">
+          <ellipse cx="50" cy="20" rx="30" ry="8" fill="#d1fae5" stroke="#059669" stroke-width="1.5"/>
+          <rect x="20" y="20" width="60" height="60" fill="#a7f3d0" stroke="#059669" stroke-width="1.5"/>
+          <ellipse cx="50" cy="80" rx="30" ry="8" fill="#a7f3d0" stroke="#059669" stroke-width="1.5"/>
+          <text x="50" y="115" text-anchor="middle" font-size="11" font-weight="bold" fill="#065f46">원기둥</text>
+        </g>
+        <!-- 원뿔 -->
+        <g transform="translate(320, 30)">
+          <polygon points="50,10 20,80 80,80" fill="#fce7f3" stroke="#be185d" stroke-width="1.5"/>
+          <ellipse cx="50" cy="80" rx="30" ry="8" fill="#fbcfe8" stroke="#be185d" stroke-width="1.5"/>
+          <text x="50" y="115" text-anchor="middle" font-size="11" font-weight="bold" fill="#831843">원뿔</text>
+        </g>
+        <!-- 구 -->
+        <g transform="translate(420, 30)">
+          <circle cx="40" cy="50" r="35" fill="#ede9fe" stroke="#6d28d9" stroke-width="1.5"/>
+          <ellipse cx="40" cy="50" rx="35" ry="8" fill="none" stroke="#6d28d9" stroke-width="1" stroke-dasharray="3,2"/>
+          <text x="40" y="115" text-anchor="middle" font-size="11" font-weight="bold" fill="#5b21b6">구</text>
+        </g>
+        <text x="250" y="160" text-anchor="middle" font-size="12" fill="#888">이 단원의 다섯 주인공</text>
+      </svg>
+    </div>
+
+    <div class="info-box">
+      🔍 <b>모든 공식 뒤에는 카발리에리 원리 하나</b>: "같은 단면이면 같은 부피". 이 단원의 핵심이에요.
+    </div>
+  </div>
+
+  <!-- Page 2: 각기둥 -->
+  <div class="page">
+    <h2>2. 각기둥의 겉넓이와 부피</h2>
+    <p><b>각기둥</b>: 밑면이 합동인 두 다각형, 옆면이 직사각형. 밑넓이 $S$, 높이 $h$.</p>
+
+    <h3>겉넓이 (Surface Area)</h3>
+    <div class="formula-card">$S_{\text{전체}} = 2 \times (\text{밑넓이}) + (\text{옆넓이})$</div>
+    <div class="formula-card"><span class="star">★</span> $\text{옆넓이} = (\text{밑면 둘레}) \times (\text{높이})$</div>
+
+    <div class="figure">
+      <svg width="500" height="220" viewBox="0 0 500 220">
+        <rect x="0" y="0" width="500" height="220" fill="#fafbff"/>
+        <!-- 삼각기둥 입체 -->
+        <g transform="translate(40, 40)">
+          <text x="60" y="-12" text-anchor="middle" font-size="12" font-weight="bold" fill="#1d3557">삼각기둥</text>
+          <polygon points="0,30 50,10 80,40" fill="#dbeafe" stroke="#1e40af" stroke-width="1.5"/>
+          <polygon points="0,30 0,110 50,90 50,10" fill="#bfdbfe" stroke="#1e40af" stroke-width="1.5"/>
+          <polygon points="50,10 80,40 80,120 50,90" fill="#93c5fd" stroke="#1e40af" stroke-width="1.5"/>
+          <polygon points="0,110 50,90 80,120" fill="#dbeafe" stroke="#1e40af" stroke-width="1.5"/>
+          <line x1="0" y1="30" x2="0" y2="110" stroke="#1e40af" stroke-width="1.5"/>
+          <text x="-15" y="75" font-size="11" fill="#1e40af">$h$</text>
+        </g>
+        <!-- 화살표 -->
+        <text x="170" y="100" text-anchor="middle" font-size="20" fill="#4361EE">→</text>
+        <text x="170" y="118" text-anchor="middle" font-size="10" fill="#888">펼침</text>
+        <!-- 옆면 펼친 직사각형 -->
+        <g transform="translate(200, 50)">
+          <text x="130" y="-15" text-anchor="middle" font-size="12" font-weight="bold" fill="#1d3557">옆면 펼치기</text>
+          <rect x="0" y="0" width="80" height="80" fill="#bfdbfe" stroke="#1e40af" stroke-width="1.5"/>
+          <rect x="80" y="0" width="80" height="80" fill="#93c5fd" stroke="#1e40af" stroke-width="1.5"/>
+          <rect x="160" y="0" width="100" height="80" fill="#dbeafe" stroke="#1e40af" stroke-width="1.5"/>
+          <line x1="0" y1="90" x2="260" y2="90" stroke="#dc2626" stroke-width="2" marker-end="url(#arr1)"/>
+          <line x1="260" y1="90" x2="0" y2="90" stroke="#dc2626" stroke-width="2" marker-end="url(#arr1)"/>
+          <defs>
+            <marker id="arr1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L9,3 z" fill="#dc2626"/>
+            </marker>
+          </defs>
+          <text x="130" y="108" text-anchor="middle" font-size="11" fill="#dc2626">가로 = 밑면 둘레</text>
+          <line x1="-15" y1="0" x2="-15" y2="80" stroke="#059669" stroke-width="2"/>
+          <text x="-35" y="45" font-size="11" fill="#059669">$h$</text>
+          <text x="-25" y="60" font-size="9" fill="#059669">(높이)</text>
+        </g>
+        <text x="250" y="200" text-anchor="middle" font-size="12" font-weight="bold" fill="#4361EE">옆넓이 = 둘레 × $h$</text>
+      </svg>
+      <div class="caption">옆면을 모두 펼치면 → 가로 = 밑면 둘레, 세로 = 높이의 큰 직사각형</div>
+    </div>
+
+    <h3>부피 (Volume)</h3>
+    <div class="formula-card"><span class="star">★</span> $V = (\text{밑넓이}) \times (\text{높이}) = S \cdot h$</div>
+
+    <h3>특별한 경우</h3>
+    <table class="compare">
+      <tr><th>도형</th><th>겉넓이</th><th>부피</th></tr>
+      <tr><td class="row-name">직육면체 ($a \times b \times c$)</td><td>$2(ab+bc+ca)$</td><td>$abc$</td></tr>
+      <tr><td class="row-name">정육면체 (모서리 $a$)</td><td>$6a^2$</td><td>$a^3$</td></tr>
+    </table>
+
+    <div class="warn-box">
+      ⚠️ 옆면 6개를 하나씩 계산하면 실수가 많아요. <b>옆넓이 = 둘레 × 높이</b> 한 줄로 끝내세요!
+    </div>
+
+    <!-- 인터랙티브: 직육면체 슬라이더 -->
+    <h3>🎯 직접 만져보기 — 직육면체</h3>
+    <div class="controls">
+      <label>가로 $a$: <input id="rect-a" type="range" min="1" max="10" step="1" value="3"><span class="live-val" id="rect-a-val">3</span></label>
+      <label>세로 $b$: <input id="rect-b" type="range" min="1" max="10" step="1" value="4"><span class="live-val" id="rect-b-val">4</span></label>
+      <label>높이 $c$: <input id="rect-c" type="range" min="1" max="10" step="1" value="5"><span class="live-val" id="rect-c-val">5</span></label>
+    </div>
+    <div id="rect-result" style="text-align: center; padding: 12px; background: #f0fdf4; border-radius: 10px; font-size: 15px;"></div>
+  </div>
+
+  <!-- Page 3: 각뿔 (★ 1/3) -->
+  <div class="page">
+    <h2>3. 각뿔의 겉넓이와 부피 <span class="star">★ 1/3</span></h2>
+    <p><b>각뿔</b>: 밑면이 다각형, 옆면이 모두 삼각형, 한 꼭짓점에서 만남. 밑넓이 $S$, 높이 $h$.</p>
+
+    <h3>겉넓이</h3>
+    <div class="formula-card">$S_{\text{전체}} = (\text{밑넓이}) + (\text{옆면 삼각형들의 넓이의 합})$</div>
+    <p>정$n$각뿔이면 옆면 $n$개가 합동 → 한 옆면 넓이 × $n$.</p>
+
+    <h3>부피 <span class="star">★ 1/3 빼먹지 마세요!</span></h3>
+    <div class="formula-card"><span class="star">★</span> $V = \dfrac{1}{3} \times (\text{밑넓이}) \times (\text{높이}) = \dfrac{1}{3} S h$</div>
+
+    <h3>왜 1/3인가? (카발리에리 직관)</h3>
+    <div class="figure">
+      <svg width="500" height="180" viewBox="0 0 500 180">
+        <rect x="0" y="0" width="500" height="180" fill="#fafbff"/>
+        <!-- 정육면체 = 각뿔 3개 -->
+        <g transform="translate(50, 30)">
+          <polygon points="0,80 60,100 60,30 0,10" fill="#dbeafe" stroke="#1e40af" stroke-width="2"/>
+          <polygon points="60,100 110,80 110,10 60,30" fill="#93c5fd" stroke="#1e40af" stroke-width="2"/>
+          <polygon points="0,10 60,30 110,10 50,-10" fill="#bfdbfe" stroke="#1e40af" stroke-width="2"/>
+          <text x="55" y="130" text-anchor="middle" font-size="12" font-weight="bold" fill="#1d3557">각기둥</text>
+        </g>
+        <text x="230" y="80" text-anchor="middle" font-size="20" fill="#4361EE">=</text>
+        <g transform="translate(260, 35)">
+          <polygon points="0,75 60,95 60,25 0,5" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+          <polygon points="60,95 50,-15 0,5" fill="#fde68a" stroke="#d97706" stroke-width="2" opacity="0.6"/>
+          <text x="30" y="125" text-anchor="middle" font-size="11" fill="#92400e">각뿔 ①</text>
+        </g>
+        <text x="350" y="80" text-anchor="middle" font-size="16" fill="#4361EE">+</text>
+        <g transform="translate(370, 45)">
+          <polygon points="0,70 50,90 50,20 0,0" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+          <text x="25" y="115" text-anchor="middle" font-size="11" fill="#92400e">②</text>
+        </g>
+        <text x="445" y="80" text-anchor="middle" font-size="16" fill="#4361EE">+ ③</text>
+        <text x="250" y="170" text-anchor="middle" font-size="13" font-weight="bold" fill="#1d3557">합동인 각뿔 3개 = 각기둥 1개 → 각뿔 = 1/3 각기둥</text>
+      </svg>
+      <div class="caption">정육면체를 합동인 세 각뿔로 정확히 분할 (특별한 경우)</div>
+    </div>
+
+    <p>일반 각뿔도 카발리에리 원리로 1/3이 증명돼요. 같은 높이에서 단면적이 똑같은 비율로 줄어들기 때문이에요.</p>
+
+    <div class="warn-box">
+      ⚠️ <b>각뿔의 높이 ≠ 모선</b>! 높이 $h$는 꼭대기에서 밑면에 <b>수직</b>으로 내린 선. 옆면 삼각형의 빗변(모선)과 다릅니다.
+    </div>
+
+    <!-- 인터랙티브: 사각뿔 -->
+    <h3>🎯 직접 만져보기 — 정사각뿔</h3>
+    <div class="controls">
+      <label>밑변 $a$: <input id="pyr-a" type="range" min="1" max="10" step="1" value="4"><span class="live-val" id="pyr-a-val">4</span></label>
+      <label>높이 $h$: <input id="pyr-h" type="range" min="1" max="10" step="1" value="6"><span class="live-val" id="pyr-h-val">6</span></label>
+    </div>
+    <div id="pyr-result" style="text-align: center; padding: 12px; background: #f0fdf4; border-radius: 10px; font-size: 15px;"></div>
+  </div>
+
+  <!-- Page 4: 원기둥 -->
+  <div class="page">
+    <h2>4. 원기둥의 겉넓이와 부피</h2>
+    <p><b>원기둥</b>: 밑면이 합동인 두 원, 옆면이 곡면. 반지름 $r$, 높이 $h$.</p>
+
+    <h3>겉넓이</h3>
+    <div class="formula-card"><span class="star">★</span> $S = 2\pi r^2 + 2\pi r h$</div>
+    <p>도출:</p>
+    <ul style="padding-left: 20px;">
+      <li>두 밑면 (위·아래 원): $2 \times \pi r^2 = 2\pi r^2$</li>
+      <li>옆면을 펼치면 직사각형: 가로 = $2\pi r$ (밑면 둘레), 세로 = $h$ → 옆넓이 = $2\pi r h$</li>
+    </ul>
+
+    <div class="figure">
+      <svg width="500" height="220" viewBox="0 0 500 220">
+        <rect x="0" y="0" width="500" height="220" fill="#fafbff"/>
+        <!-- 원기둥 입체 -->
+        <g transform="translate(40, 40)">
+          <text x="50" y="-15" text-anchor="middle" font-size="12" font-weight="bold" fill="#1d3557">원기둥</text>
+          <ellipse cx="50" cy="20" rx="40" ry="10" fill="#d1fae5" stroke="#059669" stroke-width="1.5"/>
+          <rect x="10" y="20" width="80" height="100" fill="#a7f3d0" stroke="#059669" stroke-width="1.5"/>
+          <ellipse cx="50" cy="120" rx="40" ry="10" fill="#a7f3d0" stroke="#059669" stroke-width="1.5"/>
+          <line x1="100" y1="20" x2="100" y2="120" stroke="#dc2626" stroke-width="2"/>
+          <text x="108" y="75" font-size="12" fill="#dc2626">$h$</text>
+          <line x1="50" y1="20" x2="90" y2="20" stroke="#1e40af" stroke-width="2"/>
+          <text x="65" y="14" font-size="11" fill="#1e40af">$r$</text>
+        </g>
+        <text x="180" y="100" text-anchor="middle" font-size="18" fill="#4361EE">→</text>
+        <text x="180" y="118" text-anchor="middle" font-size="10" fill="#888">전개도</text>
+        <!-- 전개도 -->
+        <g transform="translate(220, 30)">
+          <text x="120" y="-5" text-anchor="middle" font-size="12" font-weight="bold" fill="#1d3557">전개도</text>
+          <circle cx="30" cy="20" r="18" fill="#d1fae5" stroke="#059669" stroke-width="1.5"/>
+          <text x="30" y="24" text-anchor="middle" font-size="9" fill="#059669">$\pi r^2$</text>
+          <rect x="55" y="0" width="170" height="80" fill="#a7f3d0" stroke="#059669" stroke-width="1.5"/>
+          <text x="140" y="45" text-anchor="middle" font-size="11" fill="#065f46">$2\pi r \times h$</text>
+          <line x1="55" y1="92" x2="225" y2="92" stroke="#dc2626" stroke-width="1.5"/>
+          <text x="140" y="105" text-anchor="middle" font-size="10" fill="#dc2626">$2\pi r$ (밑면 둘레)</text>
+          <circle cx="250" cy="20" r="18" fill="#d1fae5" stroke="#059669" stroke-width="1.5"/>
+          <text x="250" y="24" text-anchor="middle" font-size="9" fill="#059669">$\pi r^2$</text>
+          <text x="120" y="135" text-anchor="middle" font-size="11" font-weight="bold" fill="#065f46">$S = 2\pi r^2 + 2\pi r h$</text>
+        </g>
+      </svg>
+    </div>
+
+    <h3>부피</h3>
+    <div class="formula-card"><span class="star">★</span> $V = \pi r^2 h$ (밑넓이 × 높이)</div>
+
+    <!-- 인터랙티브 -->
+    <h3>🎯 직접 만져보기 — 원기둥</h3>
+    <div class="controls">
+      <label>반지름 $r$: <input id="cyl-r" type="range" min="1" max="10" step="1" value="3"><span class="live-val" id="cyl-r-val">3</span></label>
+      <label>높이 $h$: <input id="cyl-h" type="range" min="1" max="10" step="1" value="5"><span class="live-val" id="cyl-h-val">5</span></label>
+    </div>
+    <div id="cyl-result" style="text-align: center; padding: 12px; background: #f0fdf4; border-radius: 10px; font-size: 14px;"></div>
+  </div>
+
+  <!-- Page 5: 원뿔 (★ 부채꼴 옆면, h vs l) -->
+  <div class="page">
+    <h2>5. 원뿔의 겉넓이와 부피 <span class="star">★ h vs $l$</span></h2>
+    <p><b>원뿔</b>: 밑면이 원, 옆면이 곡면, 한 꼭짓점에서 만남.</p>
+    <p>반지름 $r$, <b>높이</b> $h$ (수직 거리), <b>모선</b> $l$ (옆 비스듬한 거리).</p>
+
+    <div class="deg-info">
+      💚 세 변수 사이 관계 (피타고라스): $l^2 = r^2 + h^2$.<br>
+      예: $r=3, h=4$이면 $l=5$. $r=5, h=12$이면 $l=13$.<br>
+      중1에서는 $r, h, l$ 중 두 개가 주어지면 나머지를 단순 계산.
+    </div>
+
+    <h3>겉넓이</h3>
+    <div class="formula-card"><span class="star">★</span> $S = \pi r^2 + \pi r l$</div>
+    <p>옆면을 펼치면 <b>부채꼴</b>:</p>
+    <ul style="padding-left: 20px;">
+      <li>부채꼴 반지름 = 원뿔 모선 $l$</li>
+      <li>부채꼴 호 = 밑면 둘레 $2\pi r$</li>
+      <li>부채꼴 넓이 = $\frac{1}{2} \times 호 \times 반지름 = \frac{1}{2} \times 2\pi r \times l = \pi r l$</li>
+    </ul>
+
+    <div class="figure">
+      <svg width="500" height="220" viewBox="0 0 500 220">
+        <rect x="0" y="0" width="500" height="220" fill="#fafbff"/>
+        <!-- 원뿔 입체 -->
+        <g transform="translate(40, 30)">
+          <text x="50" y="-10" text-anchor="middle" font-size="12" font-weight="bold" fill="#1d3557">원뿔</text>
+          <polygon points="50,10 10,110 90,110" fill="#fce7f3" stroke="#be185d" stroke-width="1.5"/>
+          <ellipse cx="50" cy="110" rx="40" ry="10" fill="#fbcfe8" stroke="#be185d" stroke-width="1.5"/>
+          <!-- 높이 -->
+          <line x1="50" y1="10" x2="50" y2="110" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="3,3"/>
+          <text x="55" y="65" font-size="11" fill="#dc2626">$h$</text>
+          <!-- 모선 -->
+          <text x="80" y="55" font-size="11" fill="#be185d">$l$</text>
+          <!-- 반지름 -->
+          <line x1="50" y1="110" x2="90" y2="110" stroke="#1e40af" stroke-width="1.5"/>
+          <text x="68" y="125" font-size="11" fill="#1e40af">$r$</text>
+        </g>
+        <text x="170" y="115" text-anchor="middle" font-size="18" fill="#4361EE">→</text>
+        <!-- 전개도 (부채꼴 + 원) -->
+        <g transform="translate(200, 30)">
+          <text x="140" y="-10" text-anchor="middle" font-size="12" font-weight="bold" fill="#1d3557">전개도</text>
+          <!-- 부채꼴 (반지름 60, 중심각 120°) -->
+          <path d="M 80 100 L 80 30 A 70 70 0 0 1 145 65 Z" fill="#fce7f3" stroke="#be185d" stroke-width="1.5"/>
+          <line x1="80" y1="100" x2="80" y2="30" stroke="#be185d" stroke-width="1"/>
+          <line x1="80" y1="100" x2="145" y2="65" stroke="#be185d" stroke-width="1"/>
+          <text x="76" y="65" font-size="10" fill="#be185d">$l$</text>
+          <text x="118" y="40" font-size="10" fill="#dc2626">호 = $2\pi r$</text>
+          <text x="100" y="125" font-size="10" fill="#831843" font-weight="bold">$\pi r l$</text>
+          <!-- 밑면 원 -->
+          <circle cx="200" cy="160" r="22" fill="#fbcfe8" stroke="#be185d" stroke-width="1.5"/>
+          <text x="200" y="164" text-anchor="middle" font-size="10" fill="#be185d">$\pi r^2$</text>
+          <text x="200" y="195" text-anchor="middle" font-size="11" fill="#831843">밑면</text>
+        </g>
+      </svg>
+      <div class="caption">옆면을 펼치면 부채꼴 — 호가 밑면 둘레와 같음</div>
+    </div>
+
+    <h3>부피 <span class="star">★ 1/3 빼먹지 마세요!</span></h3>
+    <div class="formula-card"><span class="star">★</span> $V = \dfrac{1}{3} \pi r^2 h$ (높이 $h$ 사용 — 모선 아님!)</div>
+
+    <h3>부채꼴 중심각</h3>
+    <div class="formula-card">$\theta = \dfrac{r}{l} \times 360°$</div>
+    <p>도출: 부채꼴 호 = 밑면 둘레 → $\frac{\theta}{360°} \times 2\pi l = 2\pi r$ → $\theta = \frac{r}{l} \cdot 360°$.</p>
+
+    <div class="warn-box">
+      ⚠️ <b>높이 $h$와 모선 $l$ 혼동 ★★★</b><br>
+      • <b>부피</b>에는 <b>높이 $h$</b> 사용 ($\frac{1}{3}\pi r^2 h$)<br>
+      • <b>겉넓이</b>(옆넓이)에는 <b>모선 $l$</b> 사용 ($\pi r l$)<br>
+      가장 흔한 시험 함정!
+    </div>
+  </div>
+
+  <!-- Page 6: 구 + 1:2:3 -->
+  <div class="page">
+    <h2>6. 구의 겉넓이와 부피, 그리고 1:2:3 비율</h2>
+    <p><b>구</b>: 공간의 한 점(중심)에서 같은 거리에 있는 모든 점들의 집합. 반지름 $r$. <b>전개도 없음.</b></p>
+
+    <h3>겉넓이</h3>
+    <div class="formula-card"><span class="star">★</span> $S = 4\pi r^2$ (= 같은 반지름 원 넓이 × 4)</div>
+
+    <h3>부피</h3>
+    <div class="formula-card"><span class="star">★</span> $V = \dfrac{4}{3} \pi r^3$</div>
+
+    <h3>★ 아르키메데스/카발리에리 1:2:3 비율</h3>
+    <p>같은 반지름 $r$, 높이 $2r$인 <b>원뿔 : 구 : 원기둥</b> 부피 비:</p>
+    <div class="figure">
+      <svg width="500" height="220" viewBox="0 0 500 220">
+        <rect x="0" y="0" width="500" height="220" fill="#fafbff"/>
+        <!-- 원뿔 -->
+        <g transform="translate(50, 30)">
+          <polygon points="50,0 0,130 100,130" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+          <ellipse cx="50" cy="130" rx="50" ry="12" fill="#fde68a" stroke="#d97706" stroke-width="2"/>
+          <text x="50" y="160" text-anchor="middle" font-size="13" font-weight="bold" fill="#92400e">원뿔</text>
+          <text x="50" y="178" text-anchor="middle" font-size="11" fill="#666">$\frac{1}{3}\pi r^2(2r) = \frac{2}{3}\pi r^3$</text>
+          <text x="50" y="200" text-anchor="middle" font-size="18" font-weight="bold" fill="#dc2626">1</text>
+        </g>
+        <!-- 구 -->
+        <g transform="translate(200, 30)">
+          <circle cx="50" cy="65" r="60" fill="#dbeafe" stroke="#1e40af" stroke-width="2"/>
+          <ellipse cx="50" cy="65" rx="60" ry="10" fill="none" stroke="#1e40af" stroke-width="1" stroke-dasharray="3,3"/>
+          <text x="50" y="160" text-anchor="middle" font-size="13" font-weight="bold" fill="#1e40af">구</text>
+          <text x="50" y="178" text-anchor="middle" font-size="11" fill="#666">$\frac{4}{3}\pi r^3$</text>
+          <text x="50" y="200" text-anchor="middle" font-size="18" font-weight="bold" fill="#dc2626">2</text>
+        </g>
+        <!-- 원기둥 -->
+        <g transform="translate(350, 30)">
+          <rect x="0" y="10" width="100" height="120" fill="#d1fae5" stroke="#059669" stroke-width="2"/>
+          <ellipse cx="50" cy="10" rx="50" ry="10" fill="#a7f3d0" stroke="#059669" stroke-width="2"/>
+          <ellipse cx="50" cy="130" rx="50" ry="10" fill="#a7f3d0" stroke="#059669" stroke-width="2"/>
+          <text x="50" y="160" text-anchor="middle" font-size="13" font-weight="bold" fill="#065f46">원기둥</text>
+          <text x="50" y="178" text-anchor="middle" font-size="11" fill="#666">$\pi r^2 (2r) = 2\pi r^3$</text>
+          <text x="50" y="200" text-anchor="middle" font-size="18" font-weight="bold" fill="#dc2626">3</text>
+        </g>
+      </svg>
+      <div class="caption">아르키메데스의 1:2:3 비율 (자기 묘비에 새기게 한 결과)</div>
+    </div>
+    <p>또한 <b>원기둥 = 구 + 원뿔 × 2</b> (부피상). 카발리에리 원리로 깔끔히 증명돼요.</p>
+
+    <h3>반구 (Hemisphere)</h3>
+    <table class="compare">
+      <tr><th></th><th>식</th><th>주의</th></tr>
+      <tr><td class="row-name">반구 겉넓이</td><td>$2\pi r^2 + \pi r^2 = 3\pi r^2$</td><td>★ 평면 원 $\pi r^2$ 빠뜨리지 마세요!</td></tr>
+      <tr><td class="row-name">반구 부피</td><td>$\frac{1}{2} \times \frac{4}{3}\pi r^3 = \frac{2}{3}\pi r^3$</td><td>구 부피의 절반</td></tr>
+    </table>
+
+    <div class="warn-box">
+      ⚠️ <b>반구 겉넓이 = $3\pi r^2$</b> (둥근 표면 $2\pi r^2$ + 평면 원 $\pi r^2$). 평면 원을 빠뜨려서 $2\pi r^2$만 답하는 실수가 흔해요!
+    </div>
+
+    <!-- 인터랙티브 -->
+    <h3>🎯 직접 만져보기 — 구</h3>
+    <div class="controls">
+      <label>반지름 $r$: <input id="sph-r" type="range" min="1" max="10" step="1" value="3"><span class="live-val" id="sph-r-val">3</span></label>
+    </div>
+    <div id="sph-result" style="text-align: center; padding: 12px; background: #f0fdf4; border-radius: 10px; font-size: 14px;"></div>
+  </div>
+
+  <!-- Page 7: 카발리에리 원리 + 직접 도전 -->
+  <div class="page">
+    <h2>7. 카발리에리 원리와 마무리</h2>
+    <div class="info-box">
+      <b>★ 카발리에리 원리:</b> 같은 높이의 두 입체에서, 모든 높이에서 단면의 넓이가 항상 같으면 두 입체의 <b>부피는 같다</b>.
+    </div>
+    <p>이 한 줄이 이 단원 모든 공식의 뿌리예요:</p>
+    <ul style="padding-left: 20px;">
+      <li>각뿔 = 각기둥의 1/3</li>
+      <li>원뿔 = 원기둥의 1/3</li>
+      <li>구 = 원기둥 − 원뿔×2 → $\frac{4}{3}\pi r^3$</li>
+      <li>1:2:3 비율 (원뿔:구:원기둥)</li>
+    </ul>
+
+    <h3>전체 공식 한눈에 보기</h3>
+    <table class="compare">
+      <tr><th>입체</th><th>겉넓이 $S$</th><th>부피 $V$</th></tr>
+      <tr><td class="row-name">각기둥</td><td>$2S_{밑} + 둘레 \cdot h$</td><td>$S_{밑} \cdot h$</td></tr>
+      <tr><td class="row-name">각뿔</td><td>$S_{밑} + \sum S_{삼각형}$</td><td>$\frac{1}{3} S_{밑} \cdot h$</td></tr>
+      <tr><td class="row-name">원기둥</td><td>$2\pi r^2 + 2\pi r h$</td><td>$\pi r^2 h$</td></tr>
+      <tr><td class="row-name">원뿔</td><td>$\pi r^2 + \pi r l$</td><td>$\frac{1}{3}\pi r^2 h$</td></tr>
+      <tr><td class="row-name">구</td><td>$4\pi r^2$</td><td>$\frac{4}{3}\pi r^3$</td></tr>
+      <tr><td class="row-name">반구</td><td>$3\pi r^2$</td><td>$\frac{2}{3}\pi r^3$</td></tr>
+    </table>
+
+    <h3>📝 직접 써보기 — 빈칸 채우기</h3>
+    <div class="warn-box">
+      • 각뿔/원뿔 부피 공식의 가장 흔한 실수: <b><span class="blank-line"></span>를 빼먹는 것</b><br>
+      • 반구 겉넓이 = $2\pi r^2$ + <span class="blank-line"></span> = $3\pi r^2$<br>
+      • 원뿔 부피에 들어가는 변수는 모선 $l$이 아니라 <span class="blank-line"></span><br>
+      • 겉넓이의 단위는 $\text{cm}^?$ → <span class="blank-line"></span> / 부피의 단위 → <span class="blank-line"></span>
+    </div>
+
+    <div class="info-box" style="margin-top: 20px;">
+      💙 이제 <b>문제 연습</b>으로 가서 직접 풀어봐요. <a href="../problems/basic_app.html">기본 문제 9개</a> → 유형별 연습 → 깊이 탐구 순서.
+    </div>
+  </div>
+
+  <div class="nav">
+    <button id="prev">이전</button>
+    <button id="next">다음</button>
+  </div>
+</div>
+
+<script>
+const pages = document.querySelectorAll('.page');
+const dotsEl = document.getElementById('dots');
+const prevBtn = document.getElementById('prev');
+const nextBtn = document.getElementById('next');
+let cur = 0;
+
+pages.forEach((_, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' active' : '');
+  d.onclick = () => go(i);
+  dotsEl.appendChild(d);
+});
+
+function go(i) {
+  if (i < 0 || i >= pages.length) return;
+  pages[cur].classList.remove('active');
+  dotsEl.children[cur].classList.remove('active');
+  cur = i;
+  pages[cur].classList.add('active');
+  dotsEl.children[cur].classList.add('active');
+  prevBtn.disabled = cur === 0;
+  nextBtn.disabled = cur === pages.length - 1;
+  window.scrollTo(0, 0);
+}
+prevBtn.onclick = () => go(cur - 1);
+nextBtn.onclick = () => go(cur + 1);
+go(0);
+
+// 직육면체 슬라이더
+function updateRect() {
+  const a = +document.getElementById('rect-a').value;
+  const b = +document.getElementById('rect-b').value;
+  const c = +document.getElementById('rect-c').value;
+  document.getElementById('rect-a-val').textContent = a;
+  document.getElementById('rect-b-val').textContent = b;
+  document.getElementById('rect-c-val').textContent = c;
+  const S = 2*(a*b + b*c + c*a);
+  const V = a*b*c;
+  document.getElementById('rect-result').innerHTML =
+    `겉넓이 $S = 2(ab+bc+ca) = 2(${a*b}+${b*c}+${c*a}) = <b>${S}\\,\\text{cm}^2</b>$<br>부피 $V = abc = <b>${V}\\,\\text{cm}^3</b>$`;
+  if (typeof renderMathInElement !== 'undefined') {
+    renderMathInElement(document.getElementById('rect-result'), {delimiters:[{left:'$',right:'$',display:false}]});
+  }
+}
+['rect-a','rect-b','rect-c'].forEach(id => document.getElementById(id).addEventListener('input', updateRect));
+setTimeout(updateRect, 100);
+
+// 사각뿔 슬라이더
+function updatePyr() {
+  const a = +document.getElementById('pyr-a').value;
+  const h = +document.getElementById('pyr-h').value;
+  document.getElementById('pyr-a-val').textContent = a;
+  document.getElementById('pyr-h-val').textContent = h;
+  const V = (1/3) * a*a * h;
+  const Vstr = Number.isInteger(V) ? V : V.toFixed(2);
+  document.getElementById('pyr-result').innerHTML =
+    `밑넓이 $S = a^2 = ${a*a}$<br>부피 $V = \\frac{1}{3} \\cdot ${a*a} \\cdot ${h} = <b>${Vstr}\\,\\text{cm}^3</b>$<br><span style="color:#dc2626; font-size:12px;">★ 1/3 잊지 마세요!</span>`;
+  if (typeof renderMathInElement !== 'undefined') {
+    renderMathInElement(document.getElementById('pyr-result'), {delimiters:[{left:'$',right:'$',display:false}]});
+  }
+}
+['pyr-a','pyr-h'].forEach(id => document.getElementById(id).addEventListener('input', updatePyr));
+setTimeout(updatePyr, 100);
+
+// 원기둥 슬라이더
+function updateCyl() {
+  const r = +document.getElementById('cyl-r').value;
+  const h = +document.getElementById('cyl-h').value;
+  document.getElementById('cyl-r-val').textContent = r;
+  document.getElementById('cyl-h-val').textContent = h;
+  const S = 2*r*r + 2*r*h;
+  const V = r*r*h;
+  document.getElementById('cyl-result').innerHTML =
+    `겉넓이 $S = 2\\pi(${r*r}) + 2\\pi(${r})(${h}) = <b>${S}\\pi\\,\\text{cm}^2</b>$<br>부피 $V = \\pi(${r*r})(${h}) = <b>${V}\\pi\\,\\text{cm}^3</b>$`;
+  if (typeof renderMathInElement !== 'undefined') {
+    renderMathInElement(document.getElementById('cyl-result'), {delimiters:[{left:'$',right:'$',display:false}]});
+  }
+}
+['cyl-r','cyl-h'].forEach(id => document.getElementById(id).addEventListener('input', updateCyl));
+setTimeout(updateCyl, 100);
+
+// 구 슬라이더
+function updateSph() {
+  const r = +document.getElementById('sph-r').value;
+  document.getElementById('sph-r-val').textContent = r;
+  const S = 4*r*r;
+  const V_num = 4*r*r*r;
+  document.getElementById('sph-result').innerHTML =
+    `겉넓이 $S = 4\\pi r^2 = <b>${S}\\pi\\,\\text{cm}^2</b>$<br>부피 $V = \\frac{4}{3}\\pi r^3 = <b>\\frac{${V_num}}{3}\\pi\\,\\text{cm}^3</b>$<br>반구 겉넓이 = $3\\pi r^2 = ${3*r*r}\\pi\\,\\text{cm}^2$`;
+  if (typeof renderMathInElement !== 'undefined') {
+    renderMathInElement(document.getElementById('sph-result'), {delimiters:[{left:'$',right:'$',display:false}]});
+  }
+}
+document.getElementById('sph-r').addEventListener('input', updateSph);
+setTimeout(updateSph, 100);
+</script>
+</body>
+</html>

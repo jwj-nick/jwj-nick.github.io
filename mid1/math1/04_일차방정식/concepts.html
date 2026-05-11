@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>개념 탐구 — 일차방정식</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Malgun Gothic', sans-serif;
+    background: #eef2ff;
+    min-height: 100vh;
+  }
+  .page { display: none; min-height: 100vh; flex-direction: column; }
+  .page.active { display: flex; }
+  .page-header {
+    background: linear-gradient(135deg, #4361EE 0%, #3a0ca3 100%);
+    color: white;
+    padding: 28px 20px 24px;
+    text-align: center;
+  }
+  .page-header .step-label {
+    font-size: 12px;
+    opacity: 0.75;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .page-header h2 { font-size: 22px; }
+  .page-body {
+    flex: 1;
+    max-width: 700px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 24px 16px;
+  }
+  .nav-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: white;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
+    position: sticky;
+    bottom: 0;
+  }
+  .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #dde;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .dot.active { background: #4361EE; transform: scale(1.3); }
+  .nav-btn {
+    background: #4361EE;
+    color: white;
+    border: none;
+    padding: 8px 22px;
+    border-radius: 24px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .nav-btn:hover { background: #3a0ca3; }
+  .nav-btn.secondary {
+    background: white;
+    color: #4361EE;
+    border: 2px solid #4361EE;
+  }
+  .nav-btn.secondary:hover { background: #eef2ff; }
+  .card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px 22px;
+    box-shadow: 0 2px 12px rgba(67,97,238,0.08);
+    margin-bottom: 16px;
+  }
+  .card h3 { font-size: 16px; color: #1a1a2e; margin-bottom: 10px; }
+  .card p, .card li { font-size: 14px; color: #444; line-height: 1.8; }
+  .card ul { padding-left: 18px; }
+  .highlight-box {
+    background: #f0f4ff;
+    border-left: 4px solid #4361EE;
+    border-radius: 0 12px 12px 0;
+    padding: 14px 18px;
+    margin: 12px 0;
+    font-size: 14px;
+    color: #333;
+    line-height: 1.7;
+  }
+  .deg-info {
+    background: #f0fff4;
+    border: 1px solid #b7e4c7;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 13px;
+    color: #2d6a4f;
+    line-height: 1.7;
+  }
+  /* 저울 SVG 시각화 */
+  .scale-container {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 12px rgba(67,97,238,0.08);
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .scale-svg {
+    display: block;
+    margin: 0 auto;
+    max-width: 340px;
+  }
+  .scale-label {
+    font-size: 13px;
+    color: #666;
+    margin-top: 8px;
+  }
+  /* 이항 시각화 */
+  .transposition-demo {
+    background: white;
+    border-radius: 16px;
+    padding: 20px 22px;
+    box-shadow: 0 2px 12px rgba(67,97,238,0.08);
+    margin-bottom: 16px;
+  }
+  .eq-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f8;
+    font-size: 18px;
+  }
+  .eq-row:last-child { border-bottom: none; }
+  .eq-highlight {
+    background: #ffecb3;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: bold;
+    color: #b45309;
+  }
+  .eq-arrow {
+    font-size: 14px;
+    color: #888;
+    margin: 0 4px;
+  }
+  .eq-note {
+    font-size: 12px;
+    color: #888;
+    text-align: right;
+    padding-right: 4px;
+  }
+  /* 인터랙티브 방정식 풀기 */
+  .solve-box {
+    background: white;
+    border-radius: 16px;
+    padding: 20px 22px;
+    box-shadow: 0 2px 12px rgba(67,97,238,0.08);
+    margin-bottom: 16px;
+  }
+  .solve-problem {
+    font-size: 20px;
+    text-align: center;
+    padding: 16px;
+    background: #eef2ff;
+    border-radius: 12px;
+    margin-bottom: 16px;
+  }
+  .solve-step {
+    border: 2px solid #eef2ff;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    transition: border-color 0.2s;
+  }
+  .solve-step.revealed { border-color: #4361EE; background: #f8f9ff; }
+  .solve-step-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0;
+    cursor: pointer;
+  }
+  .solve-step.revealed .solve-step-header { margin-bottom: 10px; }
+  .solve-step-num {
+    background: #dde0f5;
+    color: #4361EE;
+    border-radius: 50%;
+    width: 24px; height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+  .solve-step.revealed .solve-step-num { background: #4361EE; color: white; }
+  .solve-step-title { font-size: 14px; font-weight: bold; color: #666; flex: 1; }
+  .solve-step.revealed .solve-step-title { color: #1a1a2e; }
+  .solve-step-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: #4361EE;
+  }
+  .solve-step-content {
+    display: none;
+    font-size: 15px;
+    color: #333;
+    line-height: 1.8;
+    padding-left: 34px;
+  }
+  .solve-step.revealed .solve-step-content { display: block; }
+  .warn-box {
+    background: #fff3e0;
+    border: 1px solid #ffcc80;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-top: 10px;
+    font-size: 13px;
+    color: #e65100;
+    line-height: 1.6;
+  }
+  /* 비교표 */
+  .compare-table {
+    background: white;
+    border-radius: 16px;
+    padding: 20px 22px;
+    box-shadow: 0 2px 12px rgba(67,97,238,0.08);
+    margin-bottom: 16px;
+    overflow-x: auto;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th {
+    background: #4361EE;
+    color: white;
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: bold;
+  }
+  td { padding: 10px 12px; border-bottom: 1px solid #eef2ff; color: #444; }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: #f8f9ff; }
+  /* 활용 문제 유도 */
+  .use-step {
+    background: white;
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 8px rgba(67,97,238,0.07);
+    display: flex;
+    gap: 12px;
+  }
+  .use-step-num {
+    background: #4361EE;
+    color: white;
+    border-radius: 50%;
+    width: 28px; height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: bold;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .use-step-content { flex: 1; }
+  .use-step-label { font-size: 14px; font-weight: bold; color: #1a1a2e; margin-bottom: 4px; }
+  .use-step-desc { font-size: 13px; color: #555; line-height: 1.6; }
+  /* 직접 써보세요 */
+  .write-area {
+    width: 100%;
+    border: 2px solid #dde0f5;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 14px;
+    font-family: 'Malgun Gothic', sans-serif;
+    resize: vertical;
+    margin-top: 10px;
+    color: #333;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .write-area:focus { border-color: #4361EE; }
+  .write-label {
+    font-size: 13px;
+    color: #4361EE;
+    font-weight: bold;
+    margin-top: 14px;
+  }
+  .home-btn {
+    display: block;
+    text-align: center;
+    background: #eef2ff;
+    color: #4361EE;
+    text-decoration: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 14px;
+    margin-top: 16px;
+    font-weight: bold;
+  }
+  /* 슬라이더 탐구 */
+  .explore-box {
+    background: white;
+    border-radius: 16px;
+    padding: 20px 22px;
+    box-shadow: 0 2px 12px rgba(67,97,238,0.08);
+    margin-bottom: 16px;
+  }
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 10px 0;
+  }
+  .slider-label { font-size: 14px; color: #444; min-width: 80px; }
+  .slider-val {
+    font-size: 18px;
+    font-weight: bold;
+    color: #4361EE;
+    min-width: 30px;
+    text-align: center;
+  }
+  input[type=range] {
+    flex: 1;
+    accent-color: #4361EE;
+  }
+  .eq-display {
+    background: #eef2ff;
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    font-size: 18px;
+    margin: 12px 0;
+  }
+  .solve-result {
+    background: #f0fff4;
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+    font-size: 16px;
+    color: #2d6a4f;
+    font-weight: bold;
+    margin-top: 8px;
+  }
+  .guide-msg {
+    font-size: 13px;
+    color: #4361EE;
+    text-align: center;
+    margin-top: 6px;
+  }
+</style>
+</head>
+<body>
+
+<!-- PAGE 0: 방정식 vs 항등식 -->
+<div class="page active" id="page-0">
+  <div class="page-header">
+    <div class="step-label">Unit 04 · 개념 1/5</div>
+    <h2>방정식 vs 항등식</h2>
+  </div>
+  <div class="page-body">
+    <div class="card">
+      <h3>등식이란?</h3>
+      <p>등호 <span style="font-weight:bold;color:#4361EE">=</span>를 사용하여 두 식이 같음을 나타낸 식을 <strong>등식</strong>이라고 해요.</p>
+      <div class="deg-info">
+        <strong>= (등호)</strong> — "왼쪽과 오른쪽이 같다"는 뜻이에요. 수학에서 가장 중요한 기호 중 하나예요.
+      </div>
+    </div>
+    <div class="compare-table">
+      <table>
+        <tr><th>종류</th><th>뜻</th><th>예</th></tr>
+        <tr><td><strong>방정식</strong></td><td>특정 값일 때만 참이 되는 등식</td><td>$x + 3 = 5$<br><span style="font-size:12px;color:#888;">$x=2$일 때만 참</span></td></tr>
+        <tr><td><strong>항등식</strong></td><td>어떤 값을 넣어도 항상 참인 등식</td><td>$2(x+1) = 2x+2$<br><span style="font-size:12px;color:#888;">모든 $x$에 대해 참</span></td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3>핵심 용어</h3>
+      <ul>
+        <li><strong>미지수</strong>: 값을 모르는 문자 (보통 $x$)</li>
+        <li><strong>해(solution)</strong>: 방정식을 참이 되게 하는 미지수의 값</li>
+        <li><strong>풀다(solve)</strong>: 해를 구하는 것</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>$x + 3 = 5$ — 해가 $x = 2$인 이유</h3>
+      <div class="highlight-box">
+        $x = 2$ 대입: 좌변 $= 2 + 3 = 5$, 우변 $= 5$ → 같으면 해!<br>
+        $x = 1$ 대입: 좌변 $= 1 + 3 = 4$, 우변 $= 5$ → 다르면 해가 아님.
+      </div>
+      <div class="warn-box">
+        자주 하는 실수: "$x = 2$는 항상 맞는 답이겠지?"라고 생각하는 것. 방정식마다 해가 달라요!
+      </div>
+    </div>
+  </div>
+  <div class="nav-bar">
+    <button class="dot active" onclick="goPage(0)"></button>
+    <button class="dot" onclick="goPage(1)"></button>
+    <button class="dot" onclick="goPage(2)"></button>
+    <button class="dot" onclick="goPage(3)"></button>
+    <button class="dot" onclick="goPage(4)"></button>
+    <button class="nav-btn" onclick="goPage(1)">다음 →</button>
+  </div>
+</div>
+
+<!-- PAGE 1: 등식의 성질 — 저울 비유 -->
+<div class="page" id="page-1">
+  <div class="page-header">
+    <div class="step-label">Unit 04 · 개념 2/5</div>
+    <h2>등식의 성질 — 저울처럼</h2>
+  </div>
+  <div class="page-body">
+    <div class="card">
+      <h3>방정식은 저울이에요</h3>
+      <p>등식은 양쪽이 균형 잡힌 저울과 같아요. 양쪽에 같은 것을 더하거나 빼도 균형이 유지돼요.</p>
+    </div>
+
+    <!-- 저울 SVG -->
+    <div class="scale-container">
+      <svg class="scale-svg" viewBox="0 0 340 180" xmlns="http://www.w3.org/2000/svg">
+        <!-- 받침대 -->
+        <rect x="155" y="140" width="30" height="30" rx="4" fill="#4361EE"/>
+        <!-- 기둥 -->
+        <rect x="168" y="80" width="4" height="62" fill="#4361EE"/>
+        <!-- 빔 -->
+        <rect x="60" y="78" width="220" height="6" rx="3" fill="#3a0ca3"/>
+        <!-- 왼쪽 팔 -->
+        <line x1="170" y1="81" x2="90" y2="81" stroke="#3a0ca3" strokeWidth="4"/>
+        <!-- 오른쪽 팔 -->
+        <line x1="170" y1="81" x2="250" y2="81" stroke="#3a0ca3" strokeWidth="4"/>
+        <!-- 왼쪽 접시 줄 -->
+        <line x1="90" y1="81" x2="90" y2="110" stroke="#aaa" strokeWidth="2"/>
+        <line x1="70" y1="110" x2="110" y2="110" stroke="#aaa" strokeWidth="2"/>
+        <!-- 오른쪽 접시 줄 -->
+        <line x1="250" y1="81" x2="250" y2="110" stroke="#aaa" strokeWidth="2"/>
+        <line x1="230" y1="110" x2="270" y2="110" stroke="#aaa" strokeWidth="2"/>
+        <!-- 왼쪽 접시 내용 -->
+        <rect x="72" y="100" width="36" height="20" rx="8" fill="#eef2ff" stroke="#4361EE" strokeWidth="1.5"/>
+        <text x="90" y="115" textAnchor="middle" fontSize="13" fill="#4361EE" fontWeight="bold">x+3</text>
+        <!-- 오른쪽 접시 내용 -->
+        <rect x="232" y="100" width="36" height="20" rx="8" fill="#eef2ff" stroke="#4361EE" strokeWidth="1.5"/>
+        <text x="250" y="115" textAnchor="middle" fontSize="13" fill="#4361EE" fontWeight="bold">7</text>
+        <!-- = 기호 -->
+        <text x="170" y="60" textAnchor="middle" fontSize="16" fill="#4361EE" fontWeight="bold">=</text>
+        <!-- 레이블 -->
+        <text x="90" y="135" textAnchor="middle" fontSize="11" fill="#888">좌변</text>
+        <text x="250" y="135" textAnchor="middle" fontSize="11" fill="#888">우변</text>
+      </svg>
+      <div class="scale-label">$x + 3 = 7$ — 양쪽이 균형 잡힌 저울</div>
+    </div>
+
+    <div class="card">
+      <h3>등식의 4가지 성질</h3>
+      <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <tr style="background:#4361EE;color:white;">
+          <th style="padding:8px 10px;text-align:left;">성질</th>
+          <th style="padding:8px 10px;text-align:left;">표현</th>
+        </tr>
+        <tr><td style="padding:8px 10px;border-bottom:1px solid #eef2ff;">덧셈</td><td style="padding:8px 10px;border-bottom:1px solid #eef2ff;">$a=b$ 이면 $a+c = b+c$</td></tr>
+        <tr><td style="padding:8px 10px;border-bottom:1px solid #eef2ff;background:#f8f9ff;">뺄셈</td><td style="padding:8px 10px;border-bottom:1px solid #eef2ff;background:#f8f9ff;">$a=b$ 이면 $a-c = b-c$</td></tr>
+        <tr><td style="padding:8px 10px;border-bottom:1px solid #eef2ff;">곱셈</td><td style="padding:8px 10px;border-bottom:1px solid #eef2ff;">$a=b$ 이면 $a \times c = b \times c$</td></tr>
+        <tr><td style="padding:8px 10px;background:#f8f9ff;">나눗셈</td><td style="padding:8px 10px;background:#f8f9ff;">$a=b$ 이면 $\dfrac{a}{c} = \dfrac{b}{c}$ <span style="font-size:12px;color:#888;">(단, $c \neq 0$)</span></td></tr>
+      </table>
+      </div>
+      <div class="deg-info" style="margin-top:12px;">
+        <strong>$c \neq 0$ 조건</strong> — 나눗셈에서 0으로 나누면 안 돼요. "0으로 나눈다"는 것은 수학에서 정의되지 않아요.
+      </div>
+    </div>
+  </div>
+  <div class="nav-bar">
+    <button class="dot" onclick="goPage(0)"></button>
+    <button class="dot active" onclick="goPage(1)"></button>
+    <button class="dot" onclick="goPage(2)"></button>
+    <button class="dot" onclick="goPage(3)"></button>
+    <button class="dot" onclick="goPage(4)"></button>
+    <button class="nav-btn secondary" onclick="goPage(0)">← 이전</button>
+    <button class="nav-btn" onclick="goPage(2)">다음 →</button>
+  </div>
+</div>
+
+<!-- PAGE 2: 이항 -->
+<div class="page" id="page-2">
+  <div class="page-header">
+    <div class="step-label">Unit 04 · 개념 3/5</div>
+    <h2>이항 — 부호 바꿔 건너가기</h2>
+  </div>
+  <div class="page-body">
+    <div class="card">
+      <h3>이항이란?</h3>
+      <p>등식의 한 항을 <strong>부호를 바꾸어</strong> 다른 변으로 옮기는 것을 <strong>이항(transposition)</strong>이라고 해요.</p>
+      <div class="highlight-box">
+        이항은 등식의 성질(덧셈·뺄셈)을 이용해요.<br>
+        양변에서 같은 수를 빼면, 한쪽 항이 반대편으로 "부호가 바뀌어" 이동하는 것처럼 보여요.
+      </div>
+    </div>
+
+    <div class="transposition-demo">
+      <h3 style="font-size:15px;color:#1a1a2e;margin-bottom:14px;">이항 시각화</h3>
+      <div class="eq-row">
+        $x$ <span class="eq-highlight">+ 3</span> $= 7$
+        <span class="eq-arrow">→ 양변에서 3을 빼면</span>
+      </div>
+      <div class="eq-row">
+        $x + 3 - 3 = 7 - 3$
+        <span class="eq-arrow">→ 정리하면</span>
+      </div>
+      <div class="eq-row">
+        $x = 7$ <span class="eq-highlight">$- 3$</span> $= 4$
+      </div>
+      <div class="eq-note">+3이 −3으로 부호 바뀌어 우변으로 이동</div>
+      <div class="warn-box" style="margin-top:12px;">
+        자주 하는 실수: 이항할 때 부호를 안 바꾸는 것.<br>
+        $x + 3 = 7$ → $x = 7 + 3 = 10$ (틀림!) — 반드시 $x = 7 - 3 = 4$
+      </div>
+    </div>
+
+    <div class="explore-box">
+      <h3 style="font-size:15px;color:#1a1a2e;margin-bottom:12px;">직접 바꿔보세요 — $x + a = b$</h3>
+      <div class="slider-row">
+        <span class="slider-label">$a$ 값:</span>
+        <input type="range" id="aSlider" min="-10" max="10" value="3" oninput="updateTranspose()">
+        <span class="slider-val" id="aVal">3</span>
+      </div>
+      <div class="slider-row">
+        <span class="slider-label">$b$ 값:</span>
+        <input type="range" id="bSlider" min="-10" max="20" value="7" oninput="updateTranspose()">
+        <span class="slider-val" id="bVal">7</span>
+      </div>
+      <div class="eq-display" id="eqDisplay">$$x + 3 = 7$$</div>
+      <div class="solve-result" id="solveResult">$x = 7 - 3 = 4$</div>
+      <div class="guide-msg">$a$와 $b$를 바꿔보세요. 이항할 때 부호가 어떻게 바뀌는지 관찰해봐요!</div>
+    </div>
+  </div>
+  <div class="nav-bar">
+    <button class="dot" onclick="goPage(0)"></button>
+    <button class="dot" onclick="goPage(1)"></button>
+    <button class="dot active" onclick="goPage(2)"></button>
+    <button class="dot" onclick="goPage(3)"></button>
+    <button class="dot" onclick="goPage(4)"></button>
+    <button class="nav-btn secondary" onclick="goPage(1)">← 이전</button>
+    <button class="nav-btn" onclick="goPage(3)">다음 →</button>
+  </div>
+</div>
+
+<!-- PAGE 3: 일차방정식 풀기 단계별 -->
+<div class="page" id="page-3">
+  <div class="page-header">
+    <div class="step-label">Unit 04 · 개념 4/5</div>
+    <h2>일차방정식 — 단계별 풀기</h2>
+  </div>
+  <div class="page-body">
+    <div class="card">
+      <h3>일차방정식이란?</h3>
+      <p>$ax + b = 0$ 꼴 (단, $a \neq 0$)로 변형할 수 있는 방정식이에요.</p>
+      <p style="margin-top:8px;font-size:13px;color:#888;">"일차"란 미지수의 최고 차수가 1이라는 뜻이에요. ($x^2$ 없음)</p>
+    </div>
+
+    <div class="solve-box">
+      <h3 style="font-size:15px;color:#1a1a2e;margin-bottom:12px;">예제: 단계를 클릭해서 펼쳐보세요</h3>
+      <div class="solve-problem">$$2x - 3 = x + 5$$</div>
+
+      <div class="solve-step" id="step1">
+        <div class="solve-step-header" onclick="revealStep(1)">
+          <div class="solve-step-num">1</div>
+          <div class="solve-step-title">이항: $x$항은 좌변, 숫자는 우변으로</div>
+          <button class="solve-step-btn">+</button>
+        </div>
+        <div class="solve-step-content">
+          $$2x - x = 5 + 3$$
+          <div style="font-size:13px;color:#888;margin-top:6px;">
+            $x$ → 이미 좌변 / $-3$은 우변으로 $+3$이 됨 / $x$는 우변에서 좌변으로 $-x$가 됨
+          </div>
+        </div>
+      </div>
+
+      <div class="solve-step" id="step2">
+        <div class="solve-step-header" onclick="revealStep(2)">
+          <div class="solve-step-num">2</div>
+          <div class="solve-step-title">동류항 계산</div>
+          <button class="solve-step-btn">+</button>
+        </div>
+        <div class="solve-step-content">
+          $$x = 8$$
+          <div style="font-size:13px;color:#888;margin-top:6px;">
+            좌변: $2x - x = x$ / 우변: $5 + 3 = 8$
+          </div>
+        </div>
+      </div>
+
+      <div class="solve-step" id="step3">
+        <div class="solve-step-header" onclick="revealStep(3)">
+          <div class="solve-step-num">3</div>
+          <div class="solve-step-title">검산</div>
+          <button class="solve-step-btn">+</button>
+        </div>
+        <div class="solve-step-content">
+          $x=8$ 대입: 좌변 $= 2(8) - 3 = 13$, 우변 $= 8 + 5 = 13$ ✓
+          <div class="warn-box" style="margin-top:10px;">
+            검산은 귀찮아도 꼭 해야 해요! 시험에서 실수를 잡아주는 안전망이에요.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>복잡한 경우 처리 순서</h3>
+      <ul>
+        <li><strong>괄호 있으면</strong> → 먼저 분배법칙으로 풀기</li>
+        <li><strong>분수 있으면</strong> → 양변에 분모의 LCM 곱하기</li>
+        <li><strong>소수 있으면</strong> → 양변에 10, 100 등 곱하기</li>
+        <li>그 다음 이항 → 동류항 계산 → 계수로 나누기</li>
+      </ul>
+    </div>
+  </div>
+  <div class="nav-bar">
+    <button class="dot" onclick="goPage(0)"></button>
+    <button class="dot" onclick="goPage(1)"></button>
+    <button class="dot" onclick="goPage(2)"></button>
+    <button class="dot active" onclick="goPage(3)"></button>
+    <button class="dot" onclick="goPage(4)"></button>
+    <button class="nav-btn secondary" onclick="goPage(2)">← 이전</button>
+    <button class="nav-btn" onclick="goPage(4)">다음 →</button>
+  </div>
+</div>
+
+<!-- PAGE 4: 활용 + 직접 써보기 -->
+<div class="page" id="page-4">
+  <div class="page-header">
+    <div class="step-label">Unit 04 · 개념 5/5</div>
+    <h2>방정식 활용 + 직접 써보기</h2>
+  </div>
+  <div class="page-body">
+    <div class="card">
+      <h3>활용 문제 푸는 4단계</h3>
+    </div>
+    <div class="use-step">
+      <div class="use-step-num">1</div>
+      <div class="use-step-content">
+        <div class="use-step-label">미지수 설정</div>
+        <div class="use-step-desc">구하려는 것을 $x$로 놓아요. ("어떤 수를 $x$라 하면…")</div>
+      </div>
+    </div>
+    <div class="use-step">
+      <div class="use-step-num">2</div>
+      <div class="use-step-content">
+        <div class="use-step-label">방정식 세우기</div>
+        <div class="use-step-desc">수량 관계를 등식으로 표현해요. (거리=속력×시간, 전체=단가×개수 등)</div>
+      </div>
+    </div>
+    <div class="use-step">
+      <div class="use-step-num">3</div>
+      <div class="use-step-content">
+        <div class="use-step-label">방정식 풀기</div>
+        <div class="use-step-desc">이항 → 동류항 → 계수로 나누기</div>
+      </div>
+    </div>
+    <div class="use-step">
+      <div class="use-step-num">4</div>
+      <div class="use-step-content">
+        <div class="use-step-label">검토</div>
+        <div class="use-step-desc">구한 $x$가 문제 조건에 맞는지 확인. ($x$가 자연수여야 하는 경우 등)</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:6px;">
+      <h3>예제</h3>
+      <p>어떤 수의 2배에서 5를 뺀 것은 어떤 수에 3을 더한 것과 같다. 어떤 수는?</p>
+      <div class="highlight-box" style="margin-top:10px;">
+        어떤 수를 $x$라 하면: $2x - 5 = x + 3$<br>
+        이항: $2x - x = 3 + 5$<br>
+        정리: $x = 8$<br>
+        검토: $2(8)-5=11$, $8+3=11$ ✓
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="write-label">직접 써보세요</div>
+      <p style="font-size:14px;color:#444;margin-top:8px;">아래 문제를 방정식으로 풀어보세요.</p>
+      <div class="highlight-box" style="margin-top:10px;font-style:italic;">
+        "한 개에 500원인 과자와 한 개에 300원인 사탕을 합쳐서 10개 사고 4,200원을 냈다. 과자는 몇 개 샀을까?"
+      </div>
+      <textarea class="write-area" rows="6" placeholder="과자의 개수를 x라 하면..."></textarea>
+    </div>
+
+    <a class="home-btn" href="index.html">← 단원 4 홈으로</a>
+  </div>
+  <div class="nav-bar">
+    <button class="dot" onclick="goPage(0)"></button>
+    <button class="dot" onclick="goPage(1)"></button>
+    <button class="dot" onclick="goPage(2)"></button>
+    <button class="dot" onclick="goPage(3)"></button>
+    <button class="dot active" onclick="goPage(4)"></button>
+    <button class="nav-btn secondary" onclick="goPage(3)">← 이전</button>
+  </div>
+</div>
+
+<script>
+function goPage(n) {
+  document.querySelectorAll('.page').forEach((p,i) => {
+    p.classList.toggle('active', i === n);
+  });
+  document.querySelectorAll('.dot').forEach((d,i) => {
+    d.classList.toggle('active', i === n);
+  });
+  window.scrollTo(0,0);
+}
+
+function revealStep(n) {
+  const step = document.getElementById('step' + n);
+  step.classList.add('revealed');
+  const btn = step.querySelector('.solve-step-btn');
+  if (btn) btn.textContent = '−';
+  renderMath();
+}
+
+function updateTranspose() {
+  const a = parseInt(document.getElementById('aSlider').value);
+  const b = parseInt(document.getElementById('bSlider').value);
+  document.getElementById('aVal').textContent = a;
+  document.getElementById('bVal').textContent = b;
+
+  const aSign = a >= 0 ? '+' : '-';
+  const aAbs = Math.abs(a);
+  const x = b - a;
+
+  const eqTex = a >= 0
+    ? `x + ${a} = ${b}`
+    : `x - ${aAbs} = ${b}`;
+  const stepTex = a >= 0
+    ? `x = ${b} - ${a} = ${x}`
+    : `x = ${b} + ${aAbs} = ${x}`;
+
+  document.getElementById('eqDisplay').innerHTML = `\\(${eqTex}\\)`;
+  document.getElementById('solveResult').innerHTML = `\\(${stepTex}\\)`;
+
+  if (window.renderMathInElement) {
+    renderMathInElement(document.getElementById('eqDisplay'), {
+      delimiters:[{left:'\\(',right:'\\)',display:false}]
+    });
+    renderMathInElement(document.getElementById('solveResult'), {
+      delimiters:[{left:'\\(',right:'\\)',display:false}]
+    });
+  }
+}
+
+function renderMath() {
+  if (window.renderMathInElement) {
+    renderMathInElement(document.body, {
+      delimiters:[
+        {left:'$$',right:'$$',display:true},
+        {left:'$',right:'$',display:false}
+      ]
+    });
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>에라토스테네스 이야기 — 소인수분해</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Malgun Gothic', sans-serif;
+    background: #eef2ff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+  .container { max-width: 700px; width: 100%; }
+  header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  header .back {
+    font-size: 13px;
+    color: #4361EE;
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 16px;
+  }
+  header .back:hover { text-decoration: underline; }
+  header .tag {
+    background: #4361EE;
+    color: white;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 10px;
+  }
+  header h1 { font-size: 26px; color: #1a1a2e; margin-bottom: 6px; }
+  header p { font-size: 14px; color: #666; }
+  /* 진행 도트 */
+  .dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #c0c8ff;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .dot.active { background: #4361EE; }
+  /* 카드 */
+  .card {
+    background: white;
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 2px 12px rgba(67,97,238,0.08);
+    display: none;
+  }
+  .card.active { display: block; }
+  .card h2 { font-size: 20px; color: #4361EE; margin-bottom: 16px; }
+  .card p { line-height: 1.9; color: #333; margin-bottom: 14px; font-size: 15px; }
+  /* 인용 */
+  .quote {
+    background: #f8f9ff;
+    border-left: 4px solid #4361EE;
+    padding: 14px 18px;
+    border-radius: 0 12px 12px 0;
+    margin: 16px 0;
+    font-style: italic;
+    color: #555;
+  }
+  /* 수식 블록 */
+  .math-box {
+    background: #eef2ff;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    text-align: center;
+    font-size: 15px;
+  }
+  /* 잡학 박스 */
+  .trivia {
+    background: #fff9e6;
+    border-left: 4px solid #f4a261;
+    padding: 14px 18px;
+    border-radius: 0 12px 12px 0;
+    margin: 14px 0;
+  }
+  .trivia-title {
+    font-size: 12px;
+    font-weight: bold;
+    color: #e07b39;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .trivia p { font-size: 14px; color: #555; margin-bottom: 6px; }
+  /* 체 시각화 */
+  .sieve-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 4px;
+    margin: 16px 0;
+  }
+  .sieve-num {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: bold;
+    background: #eef2ff;
+    color: #4361EE;
+    transition: background 0.3s, color 0.3s, opacity 0.3s;
+  }
+  .sieve-num.crossed {
+    background: #f3f3f3;
+    color: #ccc;
+    text-decoration: line-through;
+  }
+  .sieve-num.prime {
+    background: #4361EE;
+    color: white;
+  }
+  /* 체 버튼 */
+  .sieve-btns {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  button.sieve-btn {
+    background: white;
+    border: 2px solid #4361EE;
+    color: #4361EE;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+  button.sieve-btn:hover { background: #eef2ff; }
+  button.sieve-btn.done { background: #4361EE; color: white; }
+  /* 글쓰기 미션 */
+  .mission {
+    background: #fff0f6;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 16px 0;
+  }
+  .mission-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: #c2185b;
+    margin-bottom: 10px;
+  }
+  .mission-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .mission-option {
+    background: white;
+    border: 2px solid #f8bbd9;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #555;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .mission-option:hover, .mission-option.selected {
+    border-color: #c2185b;
+    color: #c2185b;
+  }
+  textarea {
+    width: 100%;
+    min-height: 100px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    font-family: inherit;
+    font-size: 14px;
+    resize: vertical;
+  }
+  /* 네비게이션 */
+  .nav-btns {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 24px;
+  }
+  button.nav {
+    background: #4361EE;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 24px;
+    cursor: pointer;
+    font-size: 14px;
+    font-family: inherit;
+    transition: background 0.2s;
+  }
+  button.nav:hover { background: #3451d1; }
+  button.nav:disabled { background: #ccc; cursor: default; }
+  button.nav.secondary {
+    background: white;
+    color: #4361EE;
+    border: 2px solid #4361EE;
+  }
+  button.nav.secondary:hover { background: #eef2ff; }
+  /* 페이지 번호 */
+  .page-indicator {
+    text-align: center;
+    font-size: 12px;
+    color: #aaa;
+    margin-bottom: 8px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <a class="back" href="index.html">← 단원 홈으로</a>
+    <div class="tag">축 B · 이야기</div>
+    <h1>에라토스테네스 이야기</h1>
+    <p>막대기 하나와 도서관 책 한 권으로 지구를 잰 사람</p>
+  </header>
+
+  <div class="dots" id="dots"></div>
+  <div class="page-indicator" id="pageIndicator"></div>
+
+  <!-- 페이지 0: 인물 소개 -->
+  <div class="card active" id="page-0">
+    <h2>베타라는 별명</h2>
+    <p>기원전 3세기, 이집트 알렉산드리아.</p>
+    <p>에라토스테네스라는 사람이 있었다. 친구들이 그를 <strong>"베타(β)"</strong>라고 불렀다. 베타는 그리스 알파벳에서 두 번째 글자다.</p>
+    <p>수학에서도 1등. 지리학에서도 1등. 시에서도 1등. 천문학에서도 1등. 그런데 왜 베타였을까?</p>
+    <div class="quote">
+      "저 친구, 뭐든 잘하긴 하는데… 딱 한 분야의 1등은 아니야."
+    </div>
+    <p>에라토스테네스는 그냥 웃었다. 그에게는 또 다른 별명도 있었다. <strong>펜타틀로스(Pentathlos)</strong> — 5종 경기 선수. 한 종목이 아니라 모든 종목을 하는 사람.</p>
+    <div class="quote">
+      "베타면 어때. 모든 분야에서 두 번째면, 그 합은 누구도 못 따라와."
+    </div>
+    <div class="nav-btns">
+      <button class="nav secondary" onclick="changePage(-1)" disabled>← 이전</button>
+      <button class="nav" onclick="changePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- 페이지 1: 도서관 -->
+  <div class="card" id="page-1">
+    <h2>알렉산드리아 도서관</h2>
+    <p>에라토스테네스는 알렉산드리아 도서관의 3대 관장이었다. 70만 권이 넘는 두루마리 책이 있던 세계 최대의 도서관.</p>
+    <p>어느 날, 그는 책 사이에서 이상한 기록을 발견했다.</p>
+    <div class="quote">
+      "이집트의 도시 시에네에서 하짓날 정오, 깊은 우물 바닥까지 햇빛이 비친다."
+    </div>
+    <p>그 순간 그의 머릿속에서 무언가 딸깍 하는 소리가 났다.</p>
+    <p><em>만약 태양이 정확히 머리 위에 있다면… 여기 알렉산드리아에서 막대기의 그림자는 왜 생기는 걸까?</em></p>
+    <div class="nav-btns">
+      <button class="nav secondary" onclick="changePage(-1)">← 이전</button>
+      <button class="nav" onclick="changePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- 페이지 2: 지구 둘레 -->
+  <div class="card" id="page-2">
+    <h2>막대기로 지구를 재다</h2>
+    <p>에라토스테네스는 하짓날 정오, 알렉산드리아 광장에 막대기를 수직으로 세웠다.</p>
+    <!-- 지구 각도 SVG -->
+    <svg viewBox="0 0 320 200" style="width:100%;max-width:320px;display:block;margin:16px auto;">
+      <circle cx="160" cy="180" r="60" fill="none" stroke="#4361EE" stroke-width="2"/>
+      <!-- 알렉산드리아 막대 -->
+      <line x1="160" y1="120" x2="160" y2="95" stroke="#333" stroke-width="2.5"/>
+      <!-- 그림자 -->
+      <line x1="160" y1="120" x2="178" y2="120" stroke="#f4a261" stroke-width="2"/>
+      <!-- 시에네 우물 -->
+      <line x1="120" y1="130" x2="120" y2="108" stroke="#43a047" stroke-width="2.5"/>
+      <!-- 태양 광선 -->
+      <line x1="20" y1="30" x2="160" y2="95" stroke="#f9c74f" stroke-width="1.5" stroke-dasharray="5,4"/>
+      <line x1="20" y1="30" x2="120" y2="108" stroke="#f9c74f" stroke-width="1.5" stroke-dasharray="5,4"/>
+      <!-- 태양 -->
+      <circle cx="20" cy="30" r="12" fill="#f9c74f"/>
+      <!-- 각도 표시 -->
+      <path d="M160,95 A16,16 0 0,1 173,103" fill="none" stroke="#e63946" stroke-width="1.5"/>
+      <text x="176" y="104" font-size="11" fill="#e63946">7.2°</text>
+      <!-- 라벨 -->
+      <text x="163" y="118" font-size="10" fill="#333">알렉산드리아</text>
+      <text x="96" y="106" font-size="10" fill="#333">시에네</text>
+    </svg>
+    <p>시에네: 우물 바닥에 햇빛이 비친다 (그림자 없음, 태양이 정수리 바로 위)</p>
+    <p>알렉산드리아: 막대기에 그림자 생김, 각도 = <strong>7.2도</strong></p>
+    <div class="math-box">
+      7.2도 = 360도의 $\dfrac{1}{50}$
+      <br><br>
+      두 도시 거리 × 50 = 지구 둘레<br>
+      ≈ $5000 \times 50 = 250000$ 스타디아 ≈ <strong>40,000 km</strong>
+    </div>
+    <p>실제 지구 둘레 40,008km. 오차 <strong>1% 미만!</strong></p>
+    <p>위성도, 비행기도, 컴퓨터도 없이. 막대기 하나와 책 한 줄로.</p>
+    <div class="nav-btns">
+      <button class="nav secondary" onclick="changePage(-1)">← 이전</button>
+      <button class="nav" onclick="changePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- 페이지 3: 소수의 체 (인터랙티브) -->
+  <div class="card" id="page-3">
+    <h2>소수의 체 — 직접 해보기</h2>
+    <p>에라토스테네스는 소수를 찾는 "체"를 발명했어요. 밀가루를 체에 거르면 굵은 알갱이만 남듯, 숫자를 걸러 소수만 남기는 방법이에요.</p>
+
+    <div class="sieve-btns">
+      <button class="sieve-btn" id="btn2" onclick="sieveStep(2)">2의 배수 지우기</button>
+      <button class="sieve-btn" id="btn3" onclick="sieveStep(3)">3의 배수 지우기</button>
+      <button class="sieve-btn" id="btn5" onclick="sieveStep(5)">5의 배수 지우기</button>
+      <button class="sieve-btn" id="btn7" onclick="sieveStep(7)">7의 배수 지우기</button>
+      <button class="sieve-btn" id="btnReset" onclick="sieveReset()">처음으로</button>
+    </div>
+
+    <div class="sieve-grid" id="sieveGrid"></div>
+    <p id="sieveMsg" style="font-size:13px;color:#4361EE;margin-top:8px;min-height:20px;"></p>
+
+    <p>버튼을 순서대로 눌러보세요. 남은 파란 수들이 소수예요!</p>
+    <div class="nav-btns">
+      <button class="nav secondary" onclick="changePage(-1)">← 이전</button>
+      <button class="nav" onclick="changePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- 페이지 4: 소수와 소인수분해 연결 -->
+  <div class="card" id="page-4">
+    <h2>소수에서 소인수분해로</h2>
+    <p>소수는 수학의 "원자"예요. 모든 자연수는 소수들의 곱으로 나타낼 수 있어요. 이것을 <strong>소인수분해</strong>라고 해요.</p>
+    <div class="math-box">
+      $$60 = 2^2 \times 3 \times 5$$
+      $$36 = 2^2 \times 3^2$$
+      $$100 = 2^2 \times 5^2$$
+    </div>
+    <p>소인수분해를 알면 두 수의 최대공약수(GCD)와 최소공배수(LCM)도 쉽게 구할 수 있어요.</p>
+    <div class="math-box">
+      $36 = 2^2 \times 3^2$ &nbsp;&nbsp; $48 = 2^4 \times 3$<br><br>
+      GCD = $2^2 \times 3 = 12$ &nbsp;&nbsp; LCM = $2^4 \times 3^2 = 144$
+    </div>
+    <div class="nav-btns">
+      <button class="nav secondary" onclick="changePage(-1)">← 이전</button>
+      <button class="nav" onclick="changePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- 페이지 5: 잡학 -->
+  <div class="card" id="page-5">
+    <h2>잡학 코너</h2>
+
+    <div class="trivia">
+      <div class="trivia-title">소수 매미</div>
+      <p>북아메리카에는 13년 또는 17년 주기로 땅속에서 나오는 매미가 있어요. 왜 하필 13년, 17년일까요? 이 숫자들이 소수이기 때문이라는 이론이 있어요. 소수 주기의 매미는 포식자 주기와 겹칠 확률이 훨씬 낮아요. 진화가 수학을 알고 있었던 걸까요?</p>
+    </div>
+
+    <div class="trivia">
+      <div class="trivia-title">소수와 인터넷 보안</div>
+      <p>여러분이 온라인에서 결제할 때 쓰는 RSA 암호는 소인수분해의 어려움에 기반해요. 두 개의 큰 소수를 곱하는 건 쉽지만, 거꾸로 소인수분해하는 건 슈퍼컴퓨터로도 엄청난 시간이 걸려요. 에라토스테네스가 발명한 소수 찾기가 현대 인터넷 보안에 살아있어요.</p>
+    </div>
+
+    <div class="trivia">
+      <div class="trivia-title">유클리드의 발견 (심화)</div>
+      <p>에라토스테네스의 선배 수학자 유클리드는 소수가 무한히 많다는 것을 증명했어요. 그 증명은 2300년이 지난 지금도 완벽히 유효해요. "만약 소수의 개수가 유한하다고 가정하면 모순이 생긴다"는 방식의 간접 증명이에요.</p>
+    </div>
+
+    <div class="nav-btns">
+      <button class="nav secondary" onclick="changePage(-1)">← 이전</button>
+      <button class="nav" onclick="changePage(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- 페이지 6: 글쓰기 미션 -->
+  <div class="card" id="page-6">
+    <h2>글쓰기 미션</h2>
+    <p>다음 중 하나를 골라 써봐요. (300~500자 정도)</p>
+
+    <div class="mission">
+      <div class="mission-title">주제 선택</div>
+      <div class="mission-options">
+        <div class="mission-option" onclick="selectMission(this, 0)">
+          1. 에라토스테네스가 도서관에서 소수의 체를 처음 떠올린 날의 일기
+        </div>
+        <div class="mission-option" onclick="selectMission(this, 1)">
+          2. 내가 만약 에라토스테네스라면, 다음으로 뭘 재보고 싶을까?
+        </div>
+        <div class="mission-option" onclick="selectMission(this, 2)">
+          3. 베타 별명을 받았을 때의 마음 — 위로 편지 써주기
+        </div>
+      </div>
+      <textarea id="missionText" placeholder="여기에 자유롭게 써봐요..."></textarea>
+    </div>
+
+    <div class="nav-btns">
+      <button class="nav secondary" onclick="changePage(-1)">← 이전</button>
+      <button class="nav" onclick="changePage(1)">완료 →</button>
+    </div>
+  </div>
+
+  <!-- 페이지 7: 마무리 -->
+  <div class="card" id="page-7">
+    <h2>이야기를 마치며</h2>
+    <p>에라토스테네스는 수학, 지리, 천문학, 문학… 모든 분야에서 2등이었지만, 그 합은 역사에 남았어요.</p>
+    <p>그가 발명한 소수의 체는 2000년이 넘도록 살아남아 지금 여러분이 쓰는 컴퓨터 프로그램에서도 쓰이고 있어요.</p>
+    <p>수학은 책상에서만 하는 게 아니에요. 도서관 책 한 줄을 읽다가, 창밖의 그림자를 보다가, 그냥 멍하니 하늘을 보다가도 — 수학적 발견은 어디서든 시작될 수 있어요.</p>
+    <div class="math-box" style="font-size:14px;">
+      다음 학습: <strong>개념 탐구</strong>로 이동해서<br>
+      소수, 소인수분해, GCD·LCM을 직접 탐구해봐요!
+    </div>
+    <div class="nav-btns">
+      <button class="nav secondary" onclick="changePage(-1)">← 이전</button>
+      <a href="concepts.html" style="text-decoration:none;">
+        <button class="nav">개념 탐구 →</button>
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+const TOTAL = 8;
+let current = 0;
+
+function buildDots() {
+  const c = document.getElementById('dots');
+  for (let i = 0; i < TOTAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    c.appendChild(d);
+  }
+  updateIndicator();
+}
+
+function goTo(n) {
+  document.getElementById('page-' + current).classList.remove('active');
+  document.querySelectorAll('.dot')[current].classList.remove('active');
+  current = n;
+  document.getElementById('page-' + current).classList.add('active');
+  document.querySelectorAll('.dot')[current].classList.add('active');
+  updateIndicator();
+  if (current === 3) initSieve();
+  window.scrollTo(0,0);
+  if (window.renderMathInElement) {
+    renderMathInElement(document.getElementById('page-' + current), {
+      delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+    });
+  }
+}
+
+function changePage(dir) {
+  const next = current + dir;
+  if (next >= 0 && next < TOTAL) goTo(next);
+}
+
+function updateIndicator() {
+  document.getElementById('pageIndicator').textContent = (current + 1) + ' / ' + TOTAL;
+}
+
+// 에라토스테네스의 체
+let sieveState = [];
+let sieveDone = { 2: false, 3: false, 5: false, 7: false };
+let sieveInited = false;
+
+function initSieve() {
+  if (sieveInited) return;
+  sieveInited = true;
+  const grid = document.getElementById('sieveGrid');
+  grid.innerHTML = '';
+  sieveState = [];
+  for (let i = 2; i <= 50; i++) {
+    sieveState.push({ n: i, crossed: false });
+    const div = document.createElement('div');
+    div.className = 'sieve-num';
+    div.id = 'sn-' + i;
+    div.textContent = i;
+    grid.appendChild(div);
+  }
+}
+
+function sieveStep(p) {
+  if (sieveDone[p]) return;
+  sieveDone[p] = true;
+  document.getElementById('btn' + p).classList.add('done');
+  for (let i = 2 * p; i <= 50; i += p) {
+    const el = document.getElementById('sn-' + i);
+    if (el && !el.classList.contains('prime')) {
+      el.classList.add('crossed');
+    }
+  }
+  // 남은 것 중 소수 강조
+  if (sieveDone[2] && sieveDone[3] && sieveDone[5] && sieveDone[7]) {
+    for (let i = 2; i <= 50; i++) {
+      const el = document.getElementById('sn-' + i);
+      if (el && !el.classList.contains('crossed')) {
+        el.classList.add('prime');
+      }
+    }
+    document.getElementById('sieveMsg').textContent = '남은 수들이 모두 소수예요!';
+  } else {
+    document.getElementById('sieveMsg').textContent = p + '의 배수를 지웠어요.';
+  }
+}
+
+function sieveReset() {
+  sieveInited = false;
+  sieveDone = { 2: false, 3: false, 5: false, 7: false };
+  ['btn2','btn3','btn5','btn7'].forEach(id => {
+    document.getElementById(id).classList.remove('done');
+  });
+  document.getElementById('sieveMsg').textContent = '';
+  initSieve();
+}
+
+function selectMission(el, idx) {
+  document.querySelectorAll('.mission-option').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+buildDots();
+</script>
+</body>
+</html>
