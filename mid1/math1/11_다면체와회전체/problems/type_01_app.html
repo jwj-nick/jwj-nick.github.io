@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>유형 1 — 다면체 분류와 구성요소</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+:root{--primary:#4361EE;--bg:#eef2ff;--card:#fff;--ok:#2ecc71;--ng:#e74c3c;--hint:#f39c12;--L:#3498db;--M:#9b59b6;--H:#e74c3c;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic',sans-serif;background:var(--bg);padding:20px 16px 60px;color:#2d3436;}
+.header{max-width:700px;margin:0 auto 20px;}
+h1{font-size:18px;font-weight:800;color:var(--primary);margin-bottom:4px;}
+.sub{font-size:13px;color:#636e72;margin-bottom:4px;}
+.back-link{font-size:12px;color:#4361EE;text-decoration:none;}
+.tabs{display:flex;gap:8px;margin-bottom:20px;max-width:700px;margin-left:auto;margin-right:auto;}
+.tab-btn{flex:1;padding:9px 0;border-radius:10px;border:2px solid #c0c8f4;background:#fff;font-size:13px;font-weight:700;cursor:pointer;color:#636e72;font-family:inherit;}
+.tab-btn.active{color:#fff;}
+.tab-btn[data-lv="L"].active{background:var(--L);border-color:var(--L);}
+.tab-btn[data-lv="M"].active{background:var(--M);border-color:var(--M);}
+.tab-btn[data-lv="H"].active{background:var(--H);border-color:var(--H);}
+.panel{display:none;max-width:700px;margin:0 auto;}
+.panel.show{display:block;}
+.card{background:var(--card);border-radius:14px;padding:22px 22px 18px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:14px;}
+.q-head{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.q-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0;}
+.lv-L .q-num{background:var(--L);}
+.lv-M .q-num{background:var(--M);}
+.lv-H .q-num{background:var(--H);}
+.lv-tag{font-size:11px;padding:2px 9px;border-radius:20px;font-weight:700;color:#fff;}
+.lv-L .lv-tag{background:var(--L);}
+.lv-M .lv-tag{background:var(--M);}
+.lv-H .lv-tag{background:var(--H);}
+.q-text{font-size:14px;line-height:1.75;margin-bottom:14px;}
+.ans-tabs{display:flex;gap:6px;margin-bottom:10px;}
+.ans-tab{padding:6px 14px;border-radius:8px;border:2px solid #dde3ff;background:#f8f9ff;font-size:12px;font-weight:700;cursor:pointer;color:#636e72;font-family:inherit;}
+.ans-tab.open{background:var(--primary);border-color:var(--primary);color:#fff;}
+.hint-panel,.sol-panel{display:none;border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.7;margin-top:6px;}
+.hint-panel.show,.sol-panel.show{display:block;}
+.hint-panel{background:#fff8e8;border-left:4px solid var(--hint);}
+.sol-panel{background:#eef9f4;border-left:4px solid var(--ok);}
+.warn{background:#fff0f0;border-left:4px solid var(--ng);border-radius:8px;padding:10px 14px;font-size:12px;margin-top:10px;}
+.fig-svg{display:block;margin:8px auto;max-width:320px;width:100%;background:#fafbff;border-radius:8px;padding:6px;}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>유형 1 — 다면체 분류와 구성요소</h1>
+  <div class="sub">다면체 vs 회전체 / 면·모서리·꼭짓점 세기</div>
+  <a class="back-link" href="../index.html">← 단원 11 홈</a>
+</div>
+<div class="tabs">
+  <button class="tab-btn active" data-lv="L" onclick="switchTab('L',this)">L — 기본 (3문제)</button>
+  <button class="tab-btn" data-lv="M" onclick="switchTab('M',this)">M — 중간 (3문제)</button>
+  <button class="tab-btn" data-lv="H" onclick="switchTab('H',this)">H — 심화 (3문제)</button>
+</div>
+
+<!-- L 패널 -->
+<div class="panel show" id="panel-L">
+
+<div class="card lv-L">
+<div class="q-head"><div class="q-num">1</div><span class="lv-tag">L</span></div>
+<div class="q-text">다음 입체도형 중 <strong>다면체</strong>가 아닌 것은?<br>① 정육면체 &nbsp; ② 삼각기둥 &nbsp; ③ 원기둥 &nbsp; ④ 사각뿔</div>
+<div class="ans-tabs"><button class="ans-tab" onclick="toggle(this,'hint-L1')">힌트</button><button class="ans-tab" onclick="toggle(this,'sol-L1')">정답·풀이</button></div>
+<div class="hint-panel" id="hint-L1">다면체는 모든 면이 평면 다각형. 곡면 있으면 회전체.</div>
+<div class="sol-panel" id="sol-L1"><strong>③ 원기둥</strong><br>원기둥은 옆면이 곡면 → <strong>회전체</strong>이지 다면체가 아니에요. 나머지는 모두 평면 다각형 면뿐 → 다면체.</div>
+</div>
+
+<div class="card lv-L">
+<div class="q-head"><div class="q-num">2</div><span class="lv-tag">L</span></div>
+<div class="q-text">정육면체에서 면, 모서리, 꼭짓점의 수를 차례대로 쓰세요.<br>① $6, 8, 12$ &nbsp; ② $6, 12, 8$ &nbsp; ③ $8, 12, 6$ &nbsp; ④ $4, 6, 4$</div>
+<div class="ans-tabs"><button class="ans-tab" onclick="toggle(this,'hint-L2')">힌트</button><button class="ans-tab" onclick="toggle(this,'sol-L2')">정답·풀이</button></div>
+<div class="hint-panel" id="hint-L2">주사위를 떠올려봐요.</div>
+<div class="sol-panel" id="sol-L2"><strong>② 면 6, 모서리 12, 꼭짓점 8</strong><br>주사위처럼 정육면체의 윗·아래·앞·뒤·좌·우 = 6면. 각 면에 4개의 변 = 24, 모서리 1개당 2면이 공유 → 12. 꼭짓점은 위 4 + 아래 4 = 8.<br>검산 (오일러): $V - E + F = 8 - 12 + 6 = 2$ ✓</div>
+</div>
+
+<div class="card lv-L">
+<div class="q-head"><div class="q-num">3</div><span class="lv-tag">L</span></div>
+<div class="q-text">아래 입체도형의 <strong>면의 수</strong>는?</div>
+<svg class="fig-svg" viewBox="0 0 240 180">
+  <!-- 삼각기둥 -->
+  <polygon points="50,40 90,30 110,90" fill="rgba(67,97,238,0.15)" stroke="#1d3557" stroke-width="1.5"/>
+  <polygon points="50,140 90,130 110,160" fill="rgba(67,97,238,0.20)" stroke="#1d3557" stroke-width="1.5"/>
+  <line x1="50" y1="40" x2="50" y2="140" stroke="#1d3557" stroke-width="1.5"/>
+  <line x1="90" y1="30" x2="90" y2="130" stroke="#1d3557" stroke-width="1.5"/>
+  <line x1="110" y1="90" x2="110" y2="160" stroke="#1d3557" stroke-width="1.5"/>
+  <text x="80" y="175" text-anchor="middle" font-size="11" fill="#666">삼각기둥</text>
+</svg>
+<div class="q-text">① 3 &nbsp; ② 4 &nbsp; ③ 5 &nbsp; ④ 6</div>
+<div class="ans-tabs"><button class="ans-tab" onclick="toggle(this,'hint-L3')">힌트</button><button class="ans-tab" onclick="toggle(this,'sol-L3')">정답·풀이</button></div>
+<div class="hint-panel" id="hint-L3">밑면 2개 + 옆면 몇 개?</div>
+<div class="sol-panel" id="sol-L3"><strong>③ 5</strong><br>삼각기둥 = 삼각형 밑면 2개 + 직사각형 옆면 3개 = <strong>5면</strong> (오면체).</div>
+</div>
+
+</div>
+
+<!-- M 패널 -->
+<div class="panel" id="panel-M">
+
+<div class="card lv-M">
+<div class="q-head"><div class="q-num">1</div><span class="lv-tag">M</span></div>
+<div class="q-text">다음 입체 중 <strong>다면체인 것을 모두</strong> 고르면?<br>ㄱ. 사각뿔 &nbsp; ㄴ. 원뿔 &nbsp; ㄷ. 정십이면체 &nbsp; ㄹ. 구 &nbsp; ㅁ. 오각기둥<br>① ㄱ, ㄴ &nbsp; ② ㄱ, ㄷ, ㅁ &nbsp; ③ ㄱ, ㄷ, ㄹ &nbsp; ④ ㄴ, ㄹ, ㅁ</div>
+<div class="ans-tabs"><button class="ans-tab" onclick="toggle(this,'hint-M1')">힌트</button><button class="ans-tab" onclick="toggle(this,'sol-M1')">정답·풀이</button></div>
+<div class="hint-panel" id="hint-M1">곡면 있는 것 (회전체)을 빼면 다면체.</div>
+<div class="sol-panel" id="sol-M1"><strong>② ㄱ, ㄷ, ㅁ</strong><br>다면체: ㄱ 사각뿔(평면 5면), ㄷ 정십이면체(평면 12면), ㅁ 오각기둥(평면 7면). <br>회전체: ㄴ 원뿔(곡면 옆면), ㄹ 구(전체 곡면).</div>
+</div>
+
+<div class="card lv-M">
+<div class="q-head"><div class="q-num">2</div><span class="lv-tag">M</span></div>
+<div class="q-text">면이 5개인 다면체를 무엇이라고 부르나요?<br>① 오면체 &nbsp; ② 다섯각형 &nbsp; ③ 정오면체 &nbsp; ④ 오각형</div>
+<div class="ans-tabs"><button class="ans-tab" onclick="toggle(this,'hint-M2')">힌트</button><button class="ans-tab" onclick="toggle(this,'sol-M2')">정답·풀이</button></div>
+<div class="hint-panel" id="hint-M2">"면이 $n$개인 다면체 = ___면체"</div>
+<div class="sol-panel" id="sol-M2"><strong>① 오면체</strong><br>면 수에 따라 사면체·오면체·육면체... 라고 불러요. (사각형 = 변이 4인 다각형이지만, 사면체는 면이 4인 입체.)<br>⚠️ "정오면체"는 존재하지 않아요 — 정다면체는 사·육·팔·십이·이십면체 5종뿐!</div>
+</div>
+
+<div class="card lv-M">
+<div class="q-head"><div class="q-num">3</div><span class="lv-tag">M</span></div>
+<div class="q-text">정팔면체에서 한 꼭짓점에 모이는 면의 수는?<br>① 3 &nbsp; ② 4 &nbsp; ③ 5 &nbsp; ④ 6</div>
+<div class="ans-tabs"><button class="ans-tab" onclick="toggle(this,'hint-M3')">힌트</button><button class="ans-tab" onclick="toggle(this,'sol-M3')">정답·풀이</button></div>
+<div class="hint-panel" id="hint-M3">두 정사면체 결합 같은 모양이에요 (위·아래 마름모 두 개).</div>
+<div class="sol-panel" id="sol-M3"><strong>② 4</strong><br>정팔면체는 위 꼭짓점에서 4개 정삼각형, 아래 꼭짓점도 4개, 옆 4개 꼭짓점에서도 각 4개 정삼각형이 모여요. 즉 모든 꼭짓점에서 <strong>면 4개씩</strong>.<br>한 꼭짓점 각의 합 = $4 \times 60° = 240° &lt; 360°$ → 입체 가능.</div>
+</div>
+
+</div>
+
+<!-- H 패널 -->
+<div class="panel" id="panel-H">
+
+<div class="card lv-H">
+<div class="q-head"><div class="q-num">1</div><span class="lv-tag">H</span></div>
+<div class="q-text">어떤 다면체의 꼭짓점이 $10$, 모서리가 $15$ 일 때, 이 다면체의 면의 수는? (오일러 공식: $V - E + F = 2$)</div>
+<div class="ans-tabs"><button class="ans-tab" onclick="toggle(this,'hint-H1')">힌트</button><button class="ans-tab" onclick="toggle(this,'sol-H1')">정답·풀이</button></div>
+<div class="hint-panel" id="hint-H1">$F = 2 - V + E$.</div>
+<div class="sol-panel" id="sol-H1"><strong>면 7개 (칠면체)</strong><br>$V - E + F = 2$<br>$10 - 15 + F = 2$<br>$F = 2 + 15 - 10 = 7$.<br>예시: 오각기둥의 $V=10, E=15, F=7$ ✓</div>
+</div>
+
+<div class="card lv-H">
+<div class="q-head"><div class="q-num">2</div><span class="lv-tag">H</span></div>
+<div class="q-text">사각기둥 위에 사각뿔을 (사각뿔의 밑면이 사각기둥의 윗면과 정확히 일치하도록) 얹어서 만든 입체의 <strong>꼭짓점·모서리·면</strong> 수는?<br>① $V=8, E=12, F=6$ &nbsp; ② $V=9, E=16, F=9$ &nbsp; ③ $V=9, E=12, F=5$ &nbsp; ④ $V=10, E=20, F=12$</div>
+<div class="ans-tabs"><button class="ans-tab" onclick="toggle(this,'hint-H2')">힌트</button><button class="ans-tab" onclick="toggle(this,'sol-H2')">정답·풀이</button></div>
+<div class="hint-panel" id="hint-H2">두 입체의 합쳐지는 면(공유면)은 사라져요. 모서리는 공유, 꼭짓점도 공유.</div>
+<div class="sol-panel" id="sol-H2"><strong>② $V=9, E=16, F=9$</strong><br>사각기둥 단독: $V=8, E=12, F=6$.<br>사각뿔 단독: $V=5, E=8, F=5$.<br>합칠 때 공유: 꼭짓점 4 (사각형 윗면 4꼭짓점) + 모서리 4 + 면 1 (사각형 면 — 두 입체 사이에서 사라짐).<br>$V = 8+5-4 = 9$<br>$E = 12+8-4 = 16$<br>$F = 6+5-2 = 9$ (사라지는 사각형 면 1개를 양쪽에서 빼기)<br>검산 (오일러): $9-16+9 = 2$ ✓</div>
+</div>
+
+<div class="card lv-H">
+<div class="q-head"><div class="q-num">3</div><span class="lv-tag">H</span></div>
+<div class="q-text">정육면체의 한 꼭짓점을 잘라내서 새 입체를 만들었어요. 새 입체의 $V$ (꼭짓점 수), $E$ (모서리 수), $F$ (면 수) 는 각각 얼마나 변하나요?<br>① $V$ +2, $E$ +3, $F$ +1 &nbsp; ② $V$ −1, $E$ 0, $F$ +1 &nbsp; ③ $V$ +2, $E$ +3, $F$ +0 &nbsp; ④ $V$ +1, $E$ +1, $F$ +1</div>
+<div class="ans-tabs"><button class="ans-tab" onclick="toggle(this,'hint-H3')">힌트</button><button class="ans-tab" onclick="toggle(this,'sol-H3')">정답·풀이</button></div>
+<div class="hint-panel" id="hint-H3">한 꼭짓점을 자르면 그 꼭짓점이 사라지고, 자른 자리에 새 면(삼각형) + 새 꼭짓점·모서리가 생겨요.</div>
+<div class="sol-panel" id="sol-H3"><strong>① $V$ +2, $E$ +3, $F$ +1</strong><br>
+원래 정육면체 꼭짓점 1개 사라짐, 자른 자리에 정삼각형 1면 + 그 꼭짓점 3개 + 모서리 3개 새로 생김.<br>
+$V$: $-1 + 3 = +2$<br>
+$E$: $0 + 3 = +3$<br>
+$F$: $0 + 1 = +1$<br>
+검산 (오일러): 새 입체 $V = 10, E = 15, F = 7$ → $10 - 15 + 7 = 2$ ✓</div>
+</div>
+
+</div>
+
+<script>
+function switchTab(lv, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('show'));
+  document.getElementById('panel-' + lv).classList.add('show');
+}
+function toggle(btn, id) {
+  const panel = document.getElementById(id);
+  panel.classList.toggle('show');
+  btn.classList.toggle('open');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 탐구 — 반비례 (음수 표기 함정 핵심)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+:root{--primary:#4361EE;--bg:#eef2ff;--card:#fff;--ok:#2ecc71;--ng:#e74c3c;--warn:#f39c12;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic',sans-serif;background:var(--bg);padding:0 0 60px;color:#2d3436;}
+.header{background:linear-gradient(135deg,#7b2ff7,#3a0ca3);color:white;padding:28px 20px 24px;text-align:center;}
+.header h1{font-size:20px;margin-bottom:6px;}
+.header p{font-size:13px;opacity:0.85;}
+.back-link{font-size:12px;color:rgba(255,255,255,0.7);text-decoration:none;display:block;margin-top:10px;}
+.tab-bar{display:flex;gap:0;background:white;box-shadow:0 2px 8px rgba(0,0,0,0.08);position:sticky;top:0;z-index:10;}
+.tab-btn{flex:1;padding:14px 0;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;color:#888;border-bottom:3px solid transparent;transition:all 0.2s;}
+.tab-btn.active{color:#7b2ff7;border-bottom-color:#7b2ff7;}
+.tab-btn small{font-size:10px;display:block;margin-top:2px;color:#aaa;}
+.tab-btn.active small{color:#7b2ff7;}
+.tab-panel{display:none;}
+.tab-panel.show{display:block;}
+.container{max-width:700px;margin:0 auto;padding:20px 16px;}
+.section{margin-bottom:28px;}
+.section-title{font-size:15px;font-weight:bold;color:#7b2ff7;padding-left:8px;border-left:3px solid #7b2ff7;margin-bottom:14px;}
+.card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;}
+.card h3{font-size:15px;color:#1a1a2e;margin-bottom:10px;}
+.card p,.card li{font-size:14px;color:#444;line-height:1.8;}
+.card ul{padding-left:18px;}
+.highlight{background:#f4ecff;border-left:4px solid #7b2ff7;border-radius:0 10px 10px 0;padding:12px 16px;margin:10px 0;font-size:14px;color:#333;line-height:1.7;}
+.warn-box{background:#fff3e0;border:1px solid #ffcc80;border-radius:10px;padding:12px 14px;font-size:13px;color:#e65100;line-height:1.6;margin-top:10px;}
+.star-box{background:linear-gradient(135deg,#fff3cd,#ffe0a0);border:2px solid #f39c12;border-radius:14px;padding:18px;margin:14px 0;font-size:14px;color:#5a4500;line-height:1.8;}
+.star-box .star-label{font-size:12px;font-weight:bold;color:#b8860b;letter-spacing:1px;margin-bottom:6px;}
+.mistake-item{background:white;border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(67,97,238,.07);margin-bottom:10px;display:flex;gap:12px;}
+.mistake-icon{font-size:22px;flex-shrink:0;margin-top:2px;}
+.mistake-content{flex:1;}
+.mistake-title{font-size:14px;font-weight:bold;color:#e74c3c;margin-bottom:4px;}
+.mistake-desc{font-size:13px;color:#444;line-height:1.6;}
+.problem-card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;border-left:4px solid #7b2ff7;}
+.prob-label{font-size:12px;font-weight:bold;color:#7b2ff7;letter-spacing:1px;margin-bottom:8px;}
+.prob-text{font-size:15px;line-height:1.8;color:#1a1a2e;margin-bottom:12px;}
+.reveal-btn{background:none;border:2px solid #7b2ff7;color:#7b2ff7;padding:6px 18px;border-radius:20px;font-size:13px;cursor:pointer;margin-right:8px;}
+.reveal-content{display:none;margin-top:12px;background:#f4ecff;border-radius:10px;padding:12px 16px;font-size:13px;color:#5a2dab;line-height:1.7;}
+.connect-box{background:linear-gradient(135deg,#f4ecff,#ede0ff);border-radius:14px;padding:20px;font-size:14px;color:#333;line-height:1.8;}
+.connect-title{font-size:15px;font-weight:bold;color:#7b2ff7;margin-bottom:10px;}
+table.tbl{border-collapse:collapse;font-size:13px;margin:10px 0;}
+table.tbl th,table.tbl td{border:1px solid #ccd;padding:5px 12px;text-align:center;}
+table.tbl th{background:#f4ecff;}
+.formula-box{background:#f4ecff;border-radius:8px;padding:10px 14px;text-align:center;font-size:18px;color:#7b2ff7;font-weight:700;margin:8px 0;}
+.equiv-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0;}
+.equiv-grid .eq-cell{background:#f4ecff;border-radius:10px;padding:14px;text-align:center;font-size:18px;color:#7b2ff7;font-weight:700;}
+@media(max-width:480px){.equiv-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>깊이 탐구 — 반비례 ★</h1>
+  <p>식 + 그래프 + 비례상수 + 음수 표기 함정 정복</p>
+  <a class="back-link" href="../index.html">← 단원 6 홈</a>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('tab3',this)">유형 3<small>식 (★ 핵심)</small></button>
+  <button class="tab-btn" onclick="switchTab('tab4',this)">유형 4<small>그래프</small></button>
+  <button class="tab-btn" onclick="switchTab('tab5',this)">유형 5<small>비례상수</small></button>
+</div>
+
+<!-- 탭 3: 반비례 식 (★ 학습자 결정적 사례) -->
+<div class="tab-panel show" id="tab3">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 가장 중요한 이유 ★</div>
+    <div class="card">
+      <p><strong>이 단원에서 가장 헷갈리는 부분 1순위</strong>입니다.</p>
+      <p style="margin-top:8px;">반비례 식은 "$y = a/x$"라고 외웠는데, $a$가 음수일 때 표기가 여러 형태로 등장하면서 머리가 복잡해져요.</p>
+      <p style="margin-top:8px;">이 함정을 한 번만 똑바로 정복하면 평생 안 헷갈려요.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">★ 핵심 — 음수 비례상수의 5가지 모습은 모두 같은 식</div>
+    <div class="card">
+      <h3>$a = -2$일 때, 다음 다섯 식은 모두 같아요</h3>
+      <div class="equiv-grid">
+        <div class="eq-cell">$y = \dfrac{-2}{x}$</div>
+        <div class="eq-cell">$y = -\dfrac{2}{x}$</div>
+        <div class="eq-cell">$y = \dfrac{2}{-x}$</div>
+        <div class="eq-cell">$xy = -2$</div>
+      </div>
+      <p style="text-align:center;margin-top:10px;font-size:14px;color:#888;">+ 빈 칸 하나 더... <strong>$y = (-2) \cdot \dfrac{1}{x}$</strong></p>
+      <div class="star-box">
+        <div class="star-label">★ 왜 같은가</div>
+        분자에 음수가 들어간 것 ($\dfrac{-2}{x}$)과,<br>분수 앞에 음수가 붙은 것 ($-\dfrac{2}{x}$)은<br>수학적으로 완전히 같아요.<br><br>
+        $\dfrac{-2}{x} = \dfrac{-2}{x}$ &nbsp;그리고&nbsp; $-\dfrac{2}{x} = (-1) \cdot \dfrac{2}{x} = \dfrac{-2}{x}$.<br>
+        같은 값.
+      </div>
+    </div>
+    <div class="card">
+      <h3>그러나 다음은 <strong>다른 식</strong>!</h3>
+      <p style="font-size:18px;text-align:center;color:#e74c3c;margin:10px 0;">$y = \dfrac{x}{-2} \neq y = \dfrac{-2}{x}$</p>
+      <p>왼쪽은 분자에 $x$, 분모에 $-2$가 있는 식이에요. 정리하면:</p>
+      <div class="formula-box">$y = \dfrac{x}{-2} = -\dfrac{1}{2}x$</div>
+      <p>이건 $x$가 분자에 있으므로 <strong>정비례</strong>! (비례상수 $-1/2$)</p>
+      <div class="warn-box">
+        <strong>판단 핵심:</strong> "$x$가 분자에 있으면 정비례, 분모에 있으면 반비례."
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">반비례 식 세우기 — 단계별</div>
+    <div class="card">
+      <ul>
+        <li>① 일상의 관계를 보고 "두 양의 곱이 일정한가?" 확인</li>
+        <li>② 예 → 반비례. 그 곱이 비례상수 $a$.</li>
+        <li>③ 식: $y = \dfrac{a}{x}$ (또는 동등하게 $xy = a$)</li>
+      </ul>
+      <div class="highlight">
+        예: 사탕 60개를 $x$명이 나눈다면 한 명당 $y$개. 곱 $xy = 60$ (총 사탕 수 일정). → $y = \dfrac{60}{x}$.
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">😵</div>
+      <div class="mistake-content">
+        <div class="mistake-title">$y = \dfrac{x}{-2}$ 를 반비례라고 착각</div>
+        <div class="mistake-desc">$x$가 분자에 있으면 정비례. $y = \dfrac{-2}{x}$ 와 헷갈리지 말 것.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">😨</div>
+      <div class="mistake-content">
+        <div class="mistake-title">$y = \dfrac{-2}{x}$ 와 $y = -\dfrac{2}{x}$ 가 다른 식이라고 착각</div>
+        <div class="mistake-desc">두 형태는 완전히 같음. 그래프 모양도 같음 (2·4사분면 쌍곡선).</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">⚠️</div>
+      <div class="mistake-content">
+        <div class="mistake-title">$xy = a$ 형태를 못 알아봄</div>
+        <div class="mistake-desc">$xy = -3$ 도 반비례 식. 양변에 $1/x$ 곱하면 $y = -3/x$. 형태가 달라도 같은 의미.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제 (3문제)</div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 1 ★</div>
+      <div class="prob-text">다음 중 $y$가 $x$에 반비례하는 것을 모두 고르시오.<br>(가) $y = \dfrac{-3}{x}$ (나) $y = -\dfrac{3}{x}$ (다) $xy = -3$ (라) $y = \dfrac{x}{-3}$ (마) $y = \dfrac{3}{-x}$</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">반비례 = $x$가 분모에 있는 식.<br>(가) $\dfrac{-3}{x}$ — $x$ 분모에 ✓<br>(나) $-\dfrac{3}{x} = \dfrac{-3}{x}$ — 같은 식 ✓<br>(다) $xy = -3 \Rightarrow y = \dfrac{-3}{x}$ — 같은 식 ✓<br>(라) $y = \dfrac{x}{-3} = -\dfrac{1}{3}x$ — $x$ 분자에 → 정비례 X<br>(마) $\dfrac{3}{-x} = \dfrac{-3}{x}$ — 같은 식 ✓<br>★ 정답: (가), (나), (다), (마) 모두 같은 반비례 식.</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 2</div>
+      <div class="prob-text">$y$가 $x$에 반비례하고 $a = -10$이다. $y$를 $x$의 식으로 두 가지 형태 (분자 부호, 분수 앞 부호)로 나타내시오.</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">① $y = \dfrac{-10}{x}$ (분자에 부호)<br>② $y = -\dfrac{10}{x}$ (분수 앞 부호)<br>두 형태 모두 같은 식.</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 3</div>
+      <div class="prob-text">반비례 $y = \dfrac{a}{x}$ 에서 $x = 4$일 때 $y = -3$이다. $a$ 값과 식을 두 형태로 쓰시오.</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">$a = xy = 4 \times (-3) = -12$.<br>형태 1: $y = \dfrac{-12}{x}$<br>형태 2: $y = -\dfrac{12}{x}$<br>(또는 $xy = -12$ 형태도 가능)</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="connect-box">
+      <div class="connect-title">이 함정을 정복하면…</div>
+      이후 모든 반비례 문제, 더 나아가 중2의 분수식, 중3의 유리함수까지 부호 표기 때문에 헷갈릴 일이 사라져요.<br>
+      <strong>"분자 부호 = 분수 앞 부호"</strong> 한 줄만 평생 기억하면 끝.
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- 탭 4: 반비례 그래프 -->
+<div class="tab-panel" id="tab4">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>"쌍곡선" 모양이 직선보다 그리기 어렵게 느껴져요. 또 "원점을 안 지난다", "축에 닿지 않는다" 같은 새로운 개념이 등장해요.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 쌍곡선 4가지 사실</div>
+    <div class="card">
+      <h3>① 두 갈래 곡선</h3>
+      <p>반비례 그래프는 항상 <strong>두 개의 곡선</strong>으로 이루어져요. 두 곡선은 서로 만나지 않아요.</p>
+    </div>
+    <div class="card">
+      <h3>② 사분면 위치 (★ $a$ 부호)</h3>
+      <table class="tbl">
+        <tr><th>$a$ 부호</th><th>지나는 사분면</th><th>$xy$ 부호</th></tr>
+        <tr><td>$a > 0$</td><td>제1·3사분면</td><td>$xy > 0$ (같은 부호)</td></tr>
+        <tr><td>$a < 0$</td><td>제2·4사분면</td><td>$xy < 0$ (반대 부호)</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3>③ 원점을 지나지 않음</h3>
+      <p>$x = 0$일 때 $y = a/0$은 정의되지 않으니 $y$축 위에 점이 없음. 또 $y = 0$이려면 $a = 0$이어야 하지만 반비례 정의가 깨져요. → <strong>원점도 안 지남</strong>.</p>
+    </div>
+    <div class="card">
+      <h3>④ 점근선 — $x$축, $y$축에 닿을 듯 닿지 않음</h3>
+      <p>$|x|$가 매우 커지면 $y = a/x$가 0에 가까워지지만, 절대 0이 되지 않아요. → 그래프가 $x$축에 한없이 가까워짐.</p>
+      <p style="margin-top:6px;">반대로 $|x|$가 0에 가까워지면 $|y|$가 무한대로 → $y$축에 한없이 가까워짐.</p>
+      <div class="highlight">이걸 <strong>점근선(asymptote)</strong>이라고 해요. 한국어로 "점점 가까워지는 선".</div>
+    </div>
+    <div class="card">
+      <h3>⑤ $|a|$ 와 위치</h3>
+      <p>$|a|$가 클수록 곡선이 원점에서 더 멀리 있어요. ($x = 1$에서 $y = a$이므로 $|a|$만큼의 위치)</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">😵</div>
+      <div class="mistake-content">
+        <div class="mistake-title">"원점을 지난다"고 적기</div>
+        <div class="mistake-desc">반비례는 절대 원점을 지나지 않아요. 정비례와 가장 큰 차이.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">🤔</div>
+      <div class="mistake-content">
+        <div class="mistake-title">곡선이 축에 닿는다고 그리기</div>
+        <div class="mistake-desc">곡선은 축에 한없이 가까워지지만 닿지 않음. 그릴 때 곡선과 축 사이에 약간 틈을 두고 그려요.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제 (3문제)</div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 1</div>
+      <div class="prob-text">$y = \dfrac{-12}{x}$ 의 그래프에 대한 설명으로 옳은 것을 모두 고르시오.<br>(가) 쌍곡선 (나) 1·3사분면 (다) 2·4사분면 (라) 원점 통과 (마) 점근선 있음</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">$a = -12 < 0$.<br>(가) ✓ 쌍곡선<br>(나) X 1·3사분면 → 2·4사분면이 맞음<br>(다) ✓<br>(라) X — 원점 통과 안 함<br>(마) ✓ 점근선<br>정답: (가), (다), (마).</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 2</div>
+      <div class="prob-text">반비례 그래프가 1·3사분면을 지나며 점 $(2, 6)$을 지난다. 식과, $x = 4$일 때 $y$값을 구하시오.</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">$a = 2 \times 6 = 12 > 0$ (1·3사분면 일치 ✓). 식 $y = \dfrac{12}{x}$.<br>$x = 4$: $y = 3$.</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 3</div>
+      <div class="prob-text">반비례 $y = \dfrac{20}{x}$ 의 그래프 위 정수 좌표 점은 모두 몇 개?</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">$xy = 20$ 인 정수 짝.<br>양수: $(1,20), (2,10), (4,5), (5,4), (10,2), (20,1)$ → 6개<br>음수: $(-1,-20), (-2,-10), (-4,-5), (-5,-4), (-10,-2), (-20,-1)$ → 6개<br>총 12개.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="connect-box">
+      <div class="connect-title">이 유형 이해하면…</div>
+      쌍곡선은 중3 이차함수, 고1 유리함수의 시조. 또 물리학에서 "거리·시간·속도"가 일정할 때의 관계 등 자연 현상에 자주 등장해요.
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- 탭 5: 비례상수 결정 (반비례 부분) -->
+<div class="tab-panel" id="tab5">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>"점이 주어지면 식을 결정"하는 흐름은 정비례와 같지만, 반비례에서는 $a = xy$ (곱)을 써야 한다는 점이 헷갈려요.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 단계 3개</div>
+    <div class="card">
+      <h3>반비례 비례상수 결정</h3>
+      <ul>
+        <li>① 반비례 식 형태 가정: $y = \dfrac{a}{x}$</li>
+        <li>② 주어진 점 $(x_0, y_0)$ 대입: $y_0 = \dfrac{a}{x_0}$</li>
+        <li>③ 양변에 $x_0$ 곱하기: $a = x_0 y_0$</li>
+      </ul>
+      <div class="highlight">기억할 한 줄: <strong>"한 점 알면 $a = xy$"</strong>. 정비례는 나누기, 반비례는 곱하기.</div>
+    </div>
+    <div class="card">
+      <h3>정비례 vs 반비례 — 한눈에</h3>
+      <table class="tbl">
+        <tr><th></th><th>정비례</th><th>반비례</th></tr>
+        <tr><td>식</td><td>$y = ax$</td><td>$y = a/x$</td></tr>
+        <tr><td>$a$ 일정 형태</td><td>$y/x = a$</td><td>$xy = a$</td></tr>
+        <tr><td>한 점에서 $a$</td><td>$a = y/x$ (나누기)</td><td>$a = xy$ (곱하기)</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">😵</div>
+      <div class="mistake-content">
+        <div class="mistake-title">정비례 공식 $a = y/x$ 을 반비례에 적용</div>
+        <div class="mistake-desc">반비례에서는 <strong>곱하기</strong>예요: $a = xy$. 정비례와 반대.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">⚠️</div>
+      <div class="mistake-content">
+        <div class="mistake-title">부호 무시</div>
+        <div class="mistake-desc">$x = -2$, $y = 6$ 일 때 $a = (-2)(6) = -12$. 부호 끝까지 따져요.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제 (3문제)</div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 1</div>
+      <div class="prob-text">$y$가 $x$에 반비례하고 $x = -3$일 때 $y = 4$이다. $x = 6$일 때 $y$값?</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">$a = (-3)(4) = -12$. 식 $y = \dfrac{-12}{x}$.<br>$x = 6$: $y = -12/6 = -2$.</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 2</div>
+      <div class="prob-text">반비례 그래프가 점 $(\dfrac{1}{2}, 8)$을 지난다. 식과 $x = -4$일 때 $y$값?</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">$a = \dfrac{1}{2} \times 8 = 4$. 식 $y = \dfrac{4}{x}$.<br>$x = -4$: $y = -1$.</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 3</div>
+      <div class="prob-text">$y$가 $x$에 반비례하고 $x = 4$일 때 $y$값과 $x = 8$일 때 $y$값을 합하면 9이다. $a$값?</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">$\dfrac{a}{4} + \dfrac{a}{8} = 9$.<br>공통분모: $\dfrac{2a}{8} + \dfrac{a}{8} = \dfrac{3a}{8} = 9$.<br>$a = 24$.<br>확인: $24/4 + 24/8 = 6 + 3 = 9$ ✓.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="connect-box">
+      <div class="connect-title">이 유형 이해하면…</div>
+      "점 → $a$"는 반비례 모든 문제의 시작점. 또 정비례 vs 반비례 구분 ($y/x$ vs $xy$)이 명확해져요.
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('show'));
+  btn.classList.add('active');
+  document.getElementById(id).classList.add('show');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+function reveal(btn) {
+  const c = btn.nextElementSibling;
+  c.style.display = c.style.display === 'block' ? 'none' : 'block';
+  if (window.renderMathInElement) renderMathInElement(c, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});
+}
+</script>
+</body>
+</html>

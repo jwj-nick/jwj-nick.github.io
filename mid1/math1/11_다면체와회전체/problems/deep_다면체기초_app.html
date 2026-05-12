@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 탐구 — 다면체 기초</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+:root{--primary:#4361EE;--bg:#eef2ff;--card:#fff;--ok:#2ecc71;--ng:#e74c3c;--warn:#f39c12;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic',sans-serif;background:var(--bg);padding:0 0 60px;color:#2d3436;}
+.header{background:linear-gradient(135deg,#4361EE,#3a0ca3);color:white;padding:28px 20px 24px;text-align:center;}
+.header h1{font-size:20px;margin-bottom:6px;}
+.header p{font-size:13px;opacity:0.85;}
+.back-link{font-size:12px;color:rgba(255,255,255,0.7);text-decoration:none;display:block;margin-top:10px;}
+.tab-bar{display:flex;gap:0;background:white;box-shadow:0 2px 8px rgba(0,0,0,0.08);position:sticky;top:0;z-index:10;}
+.tab-btn{flex:1;padding:14px 0;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;color:#888;border-bottom:3px solid transparent;font-family:inherit;}
+.tab-btn.active{color:#4361EE;border-bottom-color:#4361EE;}
+.tab-btn small{font-size:10px;display:block;margin-top:2px;color:#aaa;}
+.tab-btn.active small{color:#4361EE;}
+.tab-panel{display:none;}
+.tab-panel.show{display:block;}
+.container{max-width:700px;margin:0 auto;padding:20px 16px;}
+.section{margin-bottom:28px;}
+.section-title{font-size:15px;font-weight:bold;color:#4361EE;padding-left:8px;border-left:3px solid #4361EE;margin-bottom:14px;}
+.card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;}
+.card h3{font-size:15px;color:#1a1a2e;margin-bottom:10px;}
+.card p,.card li{font-size:14px;color:#444;line-height:1.8;}
+.card ul,.card ol{padding-left:18px;}
+.highlight{background:#f0f4ff;border-left:4px solid #4361EE;border-radius:0 10px 10px 0;padding:12px 16px;margin:10px 0;font-size:14px;color:#333;line-height:1.7;}
+.mistake-item{background:white;border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(67,97,238,.07);margin-bottom:10px;display:flex;gap:12px;}
+.mistake-icon{font-size:22px;flex-shrink:0;margin-top:2px;}
+.mistake-content{flex:1;}
+.mistake-title{font-size:14px;font-weight:bold;color:#e74c3c;margin-bottom:4px;}
+.mistake-desc{font-size:13px;color:#444;line-height:1.6;}
+.problem-card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;border-left:4px solid #4361EE;}
+.prob-label{font-size:12px;font-weight:bold;color:#4361EE;letter-spacing:1px;margin-bottom:8px;}
+.prob-text{font-size:15px;line-height:1.8;color:#1a1a2e;margin-bottom:12px;}
+.reveal-btn{background:none;border:2px solid #4361EE;color:#4361EE;padding:6px 18px;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;}
+.reveal-content{display:none;margin-top:12px;background:#f0fff4;border-radius:10px;padding:12px 16px;font-size:13px;color:#1b5e20;line-height:1.7;}
+.connect-box{background:linear-gradient(135deg,#f0f4ff,#e8ecff);border-radius:14px;padding:20px;font-size:14px;color:#333;line-height:1.8;}
+.connect-title{font-size:15px;font-weight:bold;color:#4361EE;margin-bottom:10px;}
+table.tbl{border-collapse:collapse;font-size:13px;margin:10px 0;width:100%;}
+table.tbl th,table.tbl td{border:1px solid #ccd;padding:6px 10px;text-align:center;}
+table.tbl th{background:#eef2ff;}
+.formula-box{background:#eef2ff;border-radius:8px;padding:10px 14px;text-align:center;font-size:16px;color:#4361EE;font-weight:700;margin:8px 0;}
+.fig-svg{display:block;margin:10px auto;max-width:340px;width:100%;background:#fafbff;border-radius:8px;padding:8px;border:1px solid #eef2ff;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>깊이 탐구 — 다면체 기초</h1>
+  <p>다면체 분류·구성요소 + 각기둥·각뿔·각뿔대 (유형 1·2 통합)</p>
+  <a class="back-link" href="../index.html">← 단원 11 홈</a>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('tab1',this)">유형 1<small>분류·구성요소</small></button>
+  <button class="tab-btn" onclick="switchTab('tab2',this)">유형 2<small>각기둥·각뿔·각뿔대</small></button>
+</div>
+
+<!-- 탭 1: 다면체 분류와 구성요소 -->
+<div class="tab-panel show" id="tab1">
+<div class="container">
+
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>입체도형은 평면 도형보다 한 차원 더 복잡해요. 종이에 그린 그림으로는 <strong>뒷면이 안 보이니까</strong> 꼭짓점·모서리를 빠뜨리기 쉬워요. 그리고 다면체 vs 회전체 구분도 처음에는 헷갈려요.</p>
+      <ul>
+        <li><strong>다면체</strong>: 모든 면이 평면 다각형 (각기둥, 각뿔, 정다면체)</li>
+        <li><strong>회전체</strong>: 곡면 포함 (원기둥, 원뿔, 구) — Phase 2에서 다룸</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 다면체의 3요소</div>
+    <div class="card">
+      <table class="tbl">
+        <tr><th>요소</th><th>정의</th><th>기호</th></tr>
+        <tr><td>면 (face)</td><td>평평한 다각형 부분</td><td>$F$</td></tr>
+        <tr><td>모서리 (edge)</td><td>두 면이 만나는 선분</td><td>$E$</td></tr>
+        <tr><td>꼭짓점 (vertex)</td><td>모서리들이 만나는 점 (3개 이상)</td><td>$V$</td></tr>
+      </table>
+      <div class="highlight">★ <strong>오일러 공식</strong>: $V - E + F = 2$ — 모든 (구멍 없는) 다면체에서 성립.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">단계별 풀이 흐름</div>
+    <div class="card">
+      <h3>다면체 V·E·F 세는 4단계</h3>
+      <ol>
+        <li>그림이 입체이면 <strong>위·아래·옆·뒤</strong>를 모두 떠올려보기.</li>
+        <li><strong>면</strong>은 가장 세기 쉬워요. 한 번에 한 면씩 색칠하듯 세기.</li>
+        <li><strong>꼭짓점</strong>은 위쪽·아래쪽 따로 세서 합치기.</li>
+        <li><strong>모서리</strong>는 위·아래 밑면 + 옆 모서리로 나눠 세기.</li>
+        <li>마지막에 <strong>오일러 공식 검산</strong>: $V - E + F = 2$.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">곡면 입체를 다면체로 분류</div>
+        <div class="mistake-desc">원기둥, 구, 원뿔은 곡면이 있어 다면체가 아니에요 (회전체).</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">뒷면 꼭짓점·모서리 빠뜨리기</div>
+        <div class="mistake-desc">정육면체 그릴 때 점선으로 보이는 모서리도 셈에 포함! 정육면체 모서리는 12개 (보이는 9 + 안 보이는 3).</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">"면이 5인 다면체 = 오각형"</div>
+        <div class="mistake-desc">오각형은 평면 다각형. 면이 5인 입체는 <strong>오면체</strong>이라고 불러요.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제 (5-c와 다름)</div>
+
+    <div class="problem-card">
+      <div class="prob-label">L</div>
+      <div class="prob-text">정사면체의 면, 모서리, 꼭짓점 수를 차례로 쓰세요.</div>
+      <button class="reveal-btn" onclick="reveal(this,'p11-1')">정답 보기</button>
+      <div class="reveal-content" id="p11-1">$F = 4, E = 6, V = 4$. (오일러 검산: $4-6+4=2$ ✓)</div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">M</div>
+      <div class="prob-text">어떤 다면체의 꼭짓점이 $6$ 개이고 면이 $5$ 개일 때, 모서리의 수는?</div>
+      <button class="reveal-btn" onclick="reveal(this,'p11-2')">정답 보기</button>
+      <div class="reveal-content" id="p11-2">$V - E + F = 2 \to 6 - E + 5 = 2 \to E = 9$. (예: 삼각기둥 $V=6, E=9, F=5$ ✓)</div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">H</div>
+      <div class="prob-text">두 정사면체를 한 면씩 정확히 맞붙였어요. 만들어진 입체의 면, 모서리, 꼭짓점 수를 구하세요.</div>
+      <button class="reveal-btn" onclick="reveal(this,'p11-3')">정답 보기</button>
+      <div class="reveal-content" id="p11-3">정사면체 1개: $V=4, E=6, F=4$. 두 개 결합 시 한 면 공유 → 면 1개씩 사라짐 (총 -2). 꼭짓점 3개 공유, 모서리 3개 공유.<br>$V = 4+4-3 = 5$<br>$E = 6+6-3 = 9$<br>$F = 4+4-2 = 6$<br>오일러 검산: $5-9+6 = 2$ ✓<br>(이 입체는 6면체 = "삼각형 양면뿔"이에요.)</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- 탭 2: 각기둥·각뿔·각뿔대 -->
+<div class="tab-panel" id="tab2">
+<div class="container">
+
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>$n$각 기둥/뿔/뿔대 공식을 외울 때 뭐가 $2n$이고 뭐가 $3n$인지 헷갈려요. 또한 면 수를 보고 $n$을 거꾸로 알아내는 <strong>역산</strong>이 시험 단골인데 자주 틀려요.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 일반화 공식 ($n$각 기준)</div>
+    <div class="card">
+      <table class="tbl">
+        <tr><th></th><th>각기둥</th><th>각뿔</th><th>각뿔대</th></tr>
+        <tr><td>$V$</td><td>$2n$</td><td>$n+1$</td><td>$2n$</td></tr>
+        <tr><td>$E$</td><td>$3n$</td><td>$2n$</td><td>$3n$</td></tr>
+        <tr><td>$F$</td><td>$n+2$</td><td>$n+1$</td><td>$n+2$</td></tr>
+        <tr><td>옆면 모양</td><td>직사각형</td><td>삼각형</td><td>사다리꼴</td></tr>
+      </table>
+      <div class="highlight">🌟 $n$각기둥과 $n$각뿔대는 $V, E, F$가 같아요! 차이는 옆면 모양 + 두 밑면 관계 (합동 vs 닮음).</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">단계별 풀이 흐름 — "면 수 → 다른 양 역산"</div>
+    <div class="card">
+      <h3>예: "어떤 각뿔의 면이 7일 때 모서리는?"</h3>
+      <ol>
+        <li>각뿔 면 수 = $n+1 = 7$ → $n = 6$.</li>
+        <li>각뿔 모서리 수 = $2n = 2 \times 6 = 12$.</li>
+        <li>검산: $V = 7, E = 12, F = 7$ → $V-E+F = 7-12+7 = 2$ ✓</li>
+      </ol>
+      <div class="highlight">⚠️ <strong>가장 흔한 실수</strong>: $n$을 7로 잘못 두기. "면 7" → 자신이 어떤 입체인지 따라 $n$을 다르게 풀어야 함!</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">$n$각기둥 모서리 = $2n$</div>
+        <div class="mistake-desc">옆 모서리 $n$개를 빠뜨리는 실수. 정답은 $3n$ (위 $n$ + 아래 $n$ + 옆 $n$).</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">$n$ 역산을 안 하고 그대로 대입</div>
+        <div class="mistake-desc">"면 8인 각뿔 모서리?" → $n=8$로 잘못 두면 $2 \times 8 = 16$. 정답은 $n=7$ 칠각뿔, 모서리 $14$.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">각기둥과 각뿔대 차이 못 구분</div>
+        <div class="mistake-desc">$V, E, F$가 같다고 같은 입체인 줄 착각. 옆면 모양(직사각형 vs 사다리꼴)으로 구별!</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제 (5-c와 다름)</div>
+
+    <div class="problem-card">
+      <div class="prob-label">L</div>
+      <div class="prob-text">팔각기둥의 모서리 수는?</div>
+      <button class="reveal-btn" onclick="reveal(this,'p12-1')">정답 보기</button>
+      <div class="reveal-content" id="p12-1">$E = 3n = 3 \times 8 = 24$.</div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">M</div>
+      <div class="prob-text">어떤 각뿔대의 모서리 수가 $24$ 일 때, 면의 수와 꼭짓점의 수는?</div>
+      <button class="reveal-btn" onclick="reveal(this,'p12-2')">정답 보기</button>
+      <div class="reveal-content" id="p12-2">$E = 3n = 24 \to n = 8$ (팔각뿔대).<br>$F = n+2 = 10$, $V = 2n = 16$.<br>검산: $16-24+10 = 2$ ✓</div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">H</div>
+      <div class="prob-text">$n$각기둥의 꼭짓점·모서리·면 수의 합 ($V + E + F$)이 $50$ 일 때, $n$은 얼마인가요?</div>
+      <button class="reveal-btn" onclick="reveal(this,'p12-3')">정답 보기</button>
+      <div class="reveal-content" id="p12-3">$V + E + F = 2n + 3n + (n+2) = 6n + 2 = 50$<br>$6n = 48 \to n = 8$. (팔각기둥)<br>검산: $V=16, E=24, F=10$, 합 = 50 ✓ 오일러 $16-24+10 = 2$ ✓</div>
+    </div>
+  </div>
+
+  <div class="connect-box">
+    <div class="connect-title">🔗 연결 개념</div>
+    <p>다면체 V·E·F의 일반화는 <strong>오일러 공식</strong>($V-E+F=2$)으로 모든 다면체에 통일돼요. 이건 케플러 100년 후 오일러(Euler)가 1750년에 발견했고, 위상수학(topology)이라는 현대 수학의 출발점이 됐어요.</p>
+    <p>다음 유형(정다면체 ★)에서 오일러 공식이 5종 정다면체 모두에서 성립하는 걸 직접 확인해요. 또 Unit 12에서 입체의 겉넓이·부피로 이 단원이 이어집니다.</p>
+  </div>
+</div>
+</div>
+
+<script>
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('show'));
+  document.getElementById(id).classList.add('show');
+}
+function reveal(btn, id) {
+  const c = document.getElementById(id);
+  c.style.display = c.style.display === 'block' ? 'none' : 'block';
+  btn.textContent = c.style.display === 'block' ? '닫기' : '정답 보기';
+}
+</script>
+</body>
+</html>

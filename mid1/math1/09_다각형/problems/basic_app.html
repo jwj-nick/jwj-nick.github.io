@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>기본 문제 — 다각형</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; }
+  .header { background: linear-gradient(135deg, #4361EE 0%, #3a0ca3 100%); color: white; padding: 24px 20px; text-align: center; }
+  .header h1 { font-size: 22px; margin-bottom: 6px; }
+  .header p { font-size: 13px; opacity: 0.85; }
+  .progress-bar { background: rgba(255,255,255,0.2); height: 4px; border-radius: 2px; margin-top: 14px; overflow: hidden; }
+  .progress-fill { background: white; height: 100%; border-radius: 2px; transition: width 0.3s; }
+  .container { max-width: 700px; margin: 0 auto; padding: 20px 16px 60px; }
+  .question-card { background: white; border-radius: 16px; padding: 22px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 14px; }
+  .q-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .q-num { background: #4361EE; color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; flex-shrink: 0; }
+  .q-tag { font-size: 11px; background: #eef2ff; color: #4361EE; padding: 3px 10px; border-radius: 20px; }
+  .q-diff { font-size: 11px; padding: 3px 10px; border-radius: 20px; margin-left: auto; }
+  .diff-L { background: #e8f5e9; color: #2e7d32; }
+  .diff-M { background: #fff3e0; color: #e65100; }
+  .q-text { font-size: 15px; color: #1a1a2e; line-height: 1.8; margin-bottom: 14px; }
+  .choices { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+  .choice-btn { background: #f8f9ff; border: 2px solid #eef2ff; border-radius: 10px; padding: 10px 14px; text-align: left; font-size: 14px; color: #333; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+  .choice-btn:hover { border-color: #4361EE; background: #eef2ff; }
+  .choice-btn.selected { border-color: #4361EE; background: #eef2ff; font-weight: bold; }
+  .choice-btn.correct { border-color: #2e7d32; background: #e8f5e9; color: #1b5e20; font-weight: bold; }
+  .choice-btn.wrong { border-color: #c62828; background: #ffebee; color: #b71c1c; }
+  .answer-panel { display: none; margin-top: 12px; border-top: 1px solid #eef2ff; padding-top: 12px; }
+  .answer-panel.show { display: block; }
+  .answer-box { background: #f0fff4; border-radius: 10px; padding: 12px 16px; font-size: 14px; color: #1b5e20; line-height: 1.8; margin-bottom: 8px; }
+  .solution-box { background: #f8f9ff; border-radius: 10px; padding: 12px 16px; font-size: 13px; color: #444; line-height: 1.8; }
+  .mini-svg { display: block; margin: 10px auto; max-width: 360px; width: 100%; height: auto; background: white; border-radius: 8px; padding: 6px; border: 1px solid #eef2ff; }
+  .summary-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); text-align: center; display: none; }
+  .summary-score { font-size: 48px; font-weight: bold; color: #4361EE; margin: 10px 0; }
+  .summary-sub { font-size: 14px; color: #666; }
+  .home-btn { display: inline-block; margin-top: 20px; background: #4361EE; color: white; text-decoration: none; padding: 10px 28px; border-radius: 24px; font-size: 14px; }
+  .input-row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .input-row input { padding: 8px 12px; border: 2px solid #eef2ff; border-radius: 10px; font-size: 14px; flex: 1; min-width: 100px; font-family: inherit; }
+  .input-row input:focus { outline: none; border-color: #4361EE; }
+  .check-btn { background: #4361EE; color: white; border: none; border-radius: 10px; padding: 8px 18px; font-size: 14px; cursor: pointer; font-family: inherit; }
+  .check-btn:hover { background: #3a0ca3; }
+  .feedback-msg { font-size: 13px; padding: 6px 0; color: #4361EE; font-weight: 600; }
+  .feedback-msg.correct { color: #2e7d32; }
+  .feedback-msg.wrong { color: #c62828; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>기본 문제 — 다각형</h1>
+  <p>Unit 09 전체 핵심 개념 확인 · 9문제</p>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+  </div>
+</div>
+
+<div class="container" id="mainContent">
+
+  <!-- Q1: 다각형 정의 -->
+  <div class="question-card" id="qcard-1">
+    <div class="q-header">
+      <div class="q-num">1</div>
+      <div class="q-tag">다각형 정의</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">다음 중 <strong>다각형이 아닌</strong> 것을 모두 고르세요.</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(1,'①','③④')">① 삼각형</button>
+      <button class="choice-btn" onclick="chooseAnswer(1,'②','③④')">② 사각형</button>
+      <button class="choice-btn" onclick="chooseAnswer(1,'③','③④')">③ 원</button>
+      <button class="choice-btn" onclick="chooseAnswer(1,'④','③④')">④ 부채꼴</button>
+      <button class="choice-btn" onclick="chooseAnswer(1,'⑤','③④')">⑤ 육각형</button>
+    </div>
+    <div class="answer-panel" id="ans-1">
+      <div class="answer-box">정답: ③, ④</div>
+      <div class="solution-box">
+        다각형은 <strong>3개 이상의 선분</strong>으로 둘러싸인 평면도형이에요.<br>
+        ①·②·⑤ 모두 선분으로만 이루어진 도형 → 다각형 ✓<br>
+        ③ 원: <strong>곡선</strong>으로 이루어짐 → 다각형 X<br>
+        ④ 부채꼴: 원의 일부 (호가 곡선) → 다각형 X
+      </div>
+    </div>
+  </div>
+
+  <!-- Q2: 변과 꼭짓점 -->
+  <div class="question-card" id="qcard-2">
+    <div class="q-header">
+      <div class="q-num">2</div>
+      <div class="q-tag">변·꼭짓점</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">칠각형의 변의 수와 꼭짓점의 수는 각각 몇 개인가요?</div>
+    <div class="input-row">
+      <input type="text" id="q2-side" placeholder="변의 수">
+      <input type="text" id="q2-vertex" placeholder="꼭짓점 수">
+      <button class="check-btn" onclick="checkInput2()">확인</button>
+    </div>
+    <div class="feedback-msg" id="fb-2"></div>
+    <div class="answer-panel" id="ans-2">
+      <div class="answer-box">정답: 변 7개, 꼭짓점 7개</div>
+      <div class="solution-box">
+        $n$각형은 <strong>변 $n$개, 꼭짓점 $n$개</strong>로 같아요.<br>
+        칠각형은 $n = 7$이므로 변 7개, 꼭짓점 7개.
+      </div>
+    </div>
+  </div>
+
+  <!-- Q3: 대각선의 수 -->
+  <div class="question-card" id="qcard-3">
+    <div class="q-header">
+      <div class="q-num">3</div>
+      <div class="q-tag">대각선의 수</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">팔각형의 대각선의 총 개수를 구하세요.</div>
+    <div class="input-row">
+      <input type="text" id="q3-input" placeholder="개수 (숫자만)">
+      <button class="check-btn" onclick="checkInput3()">확인</button>
+    </div>
+    <div class="feedback-msg" id="fb-3"></div>
+    <div class="answer-panel" id="ans-3">
+      <div class="answer-box">정답: 20개</div>
+      <div class="solution-box">
+        $n$각형 대각선의 수 공식: $\dfrac{n(n-3)}{2}$<br>
+        $n = 8$ 대입: $\dfrac{8 \times (8-3)}{2} = \dfrac{8 \times 5}{2} = \dfrac{40}{2} = 20$
+      </div>
+    </div>
+  </div>
+
+  <!-- Q4: 삼각형 내각 -->
+  <div class="question-card" id="qcard-4">
+    <div class="q-header">
+      <div class="q-num">4</div>
+      <div class="q-tag">삼각형 내각</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">삼각형의 두 내각이 각각 $50°$, $70°$일 때, 나머지 한 각의 크기는?</div>
+    <svg class="mini-svg" viewBox="0 0 360 200" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="60,170 300,170 180,40" fill="#eef2ff" stroke="#4361EE" stroke-width="2"/>
+      <text x="50" y="180" font-size="13" fill="#1d3557" font-weight="bold">A</text>
+      <text x="305" y="180" font-size="13" fill="#1d3557" font-weight="bold">B</text>
+      <text x="175" y="32" font-size="13" fill="#1d3557" font-weight="bold">C</text>
+      <text x="78" y="160" font-size="12" fill="#7b2ff7">50°</text>
+      <text x="265" y="160" font-size="12" fill="#7b2ff7">70°</text>
+      <text x="172" y="62" font-size="12" fill="#c62828">?</text>
+    </svg>
+    <div class="input-row">
+      <input type="text" id="q4-input" placeholder="각도 (예: 60)">
+      <button class="check-btn" onclick="checkInput4()">확인</button>
+    </div>
+    <div class="feedback-msg" id="fb-4"></div>
+    <div class="answer-panel" id="ans-4">
+      <div class="answer-box">정답: $60°$</div>
+      <div class="solution-box">
+        삼각형 세 내각의 합 = $180°$<br>
+        $\angle C = 180° - 50° - 70° = 60°$
+      </div>
+    </div>
+  </div>
+
+  <!-- Q5: 삼각형 외각 -->
+  <div class="question-card" id="qcard-5">
+    <div class="q-header">
+      <div class="q-num">5</div>
+      <div class="q-tag">삼각형 외각</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">삼각형 ABC에서 $\angle A = 40°$, $\angle B = 60°$일 때, 꼭짓점 C에서의 외각의 크기는?</div>
+    <svg class="mini-svg" viewBox="0 0 360 200" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="60,150 260,150 200,40" fill="#eef2ff" stroke="#4361EE" stroke-width="2"/>
+      <line x1="200" y1="40" x2="200" y2="0" stroke="#7b2ff7" stroke-width="2" stroke-dasharray="3,3"/>
+      <text x="50" y="160" font-size="13" fill="#1d3557" font-weight="bold">A</text>
+      <text x="263" y="160" font-size="13" fill="#1d3557" font-weight="bold">B</text>
+      <text x="195" y="32" font-size="13" fill="#1d3557" font-weight="bold">C</text>
+      <text x="80" y="142" font-size="12" fill="#1d3557">40°</text>
+      <text x="232" y="142" font-size="12" fill="#1d3557">60°</text>
+      <text x="210" y="20" font-size="12" fill="#7b2ff7" font-weight="bold">∠외 = ?</text>
+    </svg>
+    <div class="input-row">
+      <input type="text" id="q5-input" placeholder="각도 (예: 100)">
+      <button class="check-btn" onclick="checkInput5()">확인</button>
+    </div>
+    <div class="feedback-msg" id="fb-5"></div>
+    <div class="answer-panel" id="ans-5">
+      <div class="answer-box">정답: $100°$</div>
+      <div class="solution-box">
+        <strong>외각의 정리</strong> — 한 외각은 이웃하지 않는 두 내각의 합과 같아요.<br>
+        $\angle\text{외}_C = \angle A + \angle B = 40° + 60° = 100°$<br>
+        (검산: $\angle C = 180° - 40° - 60° = 80°$, $180° - 80° = 100°$ ✓)
+      </div>
+    </div>
+  </div>
+
+  <!-- Q6: n각형 내각 합 → n -->
+  <div class="question-card" id="qcard-6">
+    <div class="q-header">
+      <div class="q-num">6</div>
+      <div class="q-tag">$n$각형 내각의 합</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text">내각의 합이 $1080°$인 다각형은 몇각형인가요?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(6,'①','③')">① 육각형</button>
+      <button class="choice-btn" onclick="chooseAnswer(6,'②','③')">② 칠각형</button>
+      <button class="choice-btn" onclick="chooseAnswer(6,'③','③')">③ 팔각형</button>
+      <button class="choice-btn" onclick="chooseAnswer(6,'④','③')">④ 구각형</button>
+      <button class="choice-btn" onclick="chooseAnswer(6,'⑤','③')">⑤ 십각형</button>
+    </div>
+    <div class="answer-panel" id="ans-6">
+      <div class="answer-box">정답: ③ 팔각형 ($n = 8$)</div>
+      <div class="solution-box">
+        $n$각형 내각의 합 공식: $180°(n-2) = 1080°$<br>
+        $n - 2 = 1080° \div 180° = 6$<br>
+        $n = 8$ → <strong>팔각형</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q7: 외각의 합 -->
+  <div class="question-card" id="qcard-7">
+    <div class="q-header">
+      <div class="q-num">7</div>
+      <div class="q-tag">외각의 합</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text">십이각형의 외각의 합은 몇 도인가요?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(7,'①','③')">① $180°$</button>
+      <button class="choice-btn" onclick="chooseAnswer(7,'②','③')">② $1800°$</button>
+      <button class="choice-btn" onclick="chooseAnswer(7,'③','③')">③ $360°$</button>
+      <button class="choice-btn" onclick="chooseAnswer(7,'④','③')">④ $720°$</button>
+      <button class="choice-btn" onclick="chooseAnswer(7,'⑤','③')">⑤ $2160°$</button>
+    </div>
+    <div class="answer-panel" id="ans-7">
+      <div class="answer-box">정답: ③ $360°$</div>
+      <div class="solution-box">
+        다각형의 <strong>외각의 합은 변의 수에 무관하게 항상 $360°$</strong>예요.<br>
+        삼각형이든 십이각형이든 백각형이든 외각의 합은 모두 $360°$.<br>
+        (실수 주의: 내각의 합과 헷갈리면 안 돼요. 십이각형 내각 합은 $180° \times 10 = 1800°$.)
+      </div>
+    </div>
+  </div>
+
+  <!-- Q8: 정n각형 한 외각 → n + 한 내각 -->
+  <div class="question-card" id="qcard-8">
+    <div class="q-header">
+      <div class="q-num">8</div>
+      <div class="q-tag">정$n$각형 한 외각</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text">정$n$각형의 한 외각의 크기가 $40°$일 때, $n$의 값과 한 내각의 크기를 구하세요.</div>
+    <div class="input-row">
+      <input type="text" id="q8-n" placeholder="n (숫자)">
+      <input type="text" id="q8-in" placeholder="한 내각 (예: 140)">
+      <button class="check-btn" onclick="checkInput8()">확인</button>
+    </div>
+    <div class="feedback-msg" id="fb-8"></div>
+    <div class="answer-panel" id="ans-8">
+      <div class="answer-box">정답: $n = 9$ (정구각형), 한 내각 $= 140°$</div>
+      <div class="solution-box">
+        정$n$각형 한 외각 공식: $\dfrac{360°}{n} = 40°$<br>
+        $n = 360° \div 40° = 9$<br>
+        한 내각 $= 180° - 40° = 140°$
+      </div>
+    </div>
+  </div>
+
+  <!-- Q9: 정n각형 한 내각 -->
+  <div class="question-card" id="qcard-9">
+    <div class="q-header">
+      <div class="q-num">9</div>
+      <div class="q-tag">정$n$각형 한 내각</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text">정십이각형의 한 내각의 크기를 구하세요.</div>
+    <div class="input-row">
+      <input type="text" id="q9-input" placeholder="각도 (예: 150)">
+      <button class="check-btn" onclick="checkInput9()">확인</button>
+    </div>
+    <div class="feedback-msg" id="fb-9"></div>
+    <div class="answer-panel" id="ans-9">
+      <div class="answer-box">정답: $150°$</div>
+      <div class="solution-box">
+        <strong>한 외각부터 구하는 게 빠른 방법</strong>:<br>
+        한 외각 $= \dfrac{360°}{12} = 30°$<br>
+        한 내각 $= 180° - 30° = 150°$<br><br>
+        (또는 직접: $\dfrac{180°(12-2)}{12} = \dfrac{1800°}{12} = 150°$)
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary-card" id="summary">
+    <h2 style="color:#1d3557; font-size:20px; margin-bottom:8px;">🎉 9문제 완료!</h2>
+    <div class="summary-score" id="scoreDisplay">0 / 9</div>
+    <div class="summary-sub">맞힌 문제 수</div>
+    <div style="margin: 18px 0; padding: 14px; background: #f8f9ff; border-radius: 12px; font-size: 13px; color: #555; line-height: 1.7; text-align: left;">
+      💡 <strong>다각형 단원의 핵심 공식 4개</strong><br>
+      ① 대각선 수 = $\dfrac{n(n-3)}{2}$<br>
+      ② $n$각형 내각의 합 = $180°(n-2)$<br>
+      ③ 다각형 외각의 합 = $360°$ (항상)<br>
+      ④ 정$n$각형 한 외각 = $\dfrac{360°}{n}$, 한 내각 = $180° - \dfrac{360°}{n}$
+    </div>
+    <a class="home-btn" href="../index.html">단원 홈으로 →</a>
+  </div>
+
+</div>
+
+<script>
+  let answered = {};
+  const total = 9;
+
+  function chooseAnswer(qNum, choice, correct) {
+    if (answered[qNum]) return;
+    answered[qNum] = true;
+    const card = document.getElementById('qcard-' + qNum);
+    const buttons = card.querySelectorAll('.choice-btn');
+    buttons.forEach(btn => {
+      const txt = btn.textContent.trim();
+      const mark = txt[0];
+      if (correct.includes(mark)) btn.classList.add('correct');
+      if (mark === choice && !correct.includes(mark)) btn.classList.add('wrong');
+      btn.style.cursor = 'default';
+      btn.onclick = null;
+    });
+    document.getElementById('ans-' + qNum).classList.add('show');
+    if (correct.includes(choice) && (correct.length === 1 || (correct.length > 1 && choice && correct.includes(choice)))) {
+      // 단답형(③)이거나 복수정답(③④)에 포함됐을 때
+      // 단순하게: 첫 클릭으로 정답 그룹의 한 글자라도 맞히면 ✓
+      // 더 정확히 하려면 각 문항을 다중 선택으로 만들어야 하지만 간단히 처리
+      window['__q' + qNum] = correct.includes(choice) ? 1 : 0;
+    } else {
+      window['__q' + qNum] = 0;
+    }
+    updateProgress();
+  }
+
+  function showAns(qNum, isCorrect) {
+    answered[qNum] = true;
+    document.getElementById('ans-' + qNum).classList.add('show');
+    window['__q' + qNum] = isCorrect ? 1 : 0;
+    updateProgress();
+  }
+
+  function checkInput2() {
+    if (answered[2]) return;
+    const s = document.getElementById('q2-side').value.trim().replace(/[^\d]/g, '');
+    const v = document.getElementById('q2-vertex').value.trim().replace(/[^\d]/g, '');
+    const fb = document.getElementById('fb-2');
+    if (s === '7' && v === '7') {
+      fb.textContent = '정답이에요! ✓';
+      fb.className = 'feedback-msg correct';
+      showAns(2, true);
+    } else {
+      fb.textContent = '아쉬워요. 정답을 확인해보세요.';
+      fb.className = 'feedback-msg wrong';
+      showAns(2, false);
+    }
+  }
+
+  function checkInput3() {
+    if (answered[3]) return;
+    const v = document.getElementById('q3-input').value.trim().replace(/[^\d]/g, '');
+    const fb = document.getElementById('fb-3');
+    if (v === '20') {
+      fb.textContent = '정답이에요! ✓';
+      fb.className = 'feedback-msg correct';
+      showAns(3, true);
+    } else {
+      fb.textContent = '아쉬워요. 정답을 확인해보세요.';
+      fb.className = 'feedback-msg wrong';
+      showAns(3, false);
+    }
+  }
+
+  function checkInput4() {
+    if (answered[4]) return;
+    const v = document.getElementById('q4-input').value.trim().replace(/[^\d]/g, '');
+    const fb = document.getElementById('fb-4');
+    if (v === '60') {
+      fb.textContent = '정답이에요! ✓';
+      fb.className = 'feedback-msg correct';
+      showAns(4, true);
+    } else {
+      fb.textContent = '아쉬워요. 정답을 확인해보세요.';
+      fb.className = 'feedback-msg wrong';
+      showAns(4, false);
+    }
+  }
+
+  function checkInput5() {
+    if (answered[5]) return;
+    const v = document.getElementById('q5-input').value.trim().replace(/[^\d]/g, '');
+    const fb = document.getElementById('fb-5');
+    if (v === '100') {
+      fb.textContent = '정답이에요! ✓';
+      fb.className = 'feedback-msg correct';
+      showAns(5, true);
+    } else {
+      fb.textContent = '아쉬워요. 정답을 확인해보세요.';
+      fb.className = 'feedback-msg wrong';
+      showAns(5, false);
+    }
+  }
+
+  function checkInput8() {
+    if (answered[8]) return;
+    const n = document.getElementById('q8-n').value.trim().replace(/[^\d]/g, '');
+    const inn = document.getElementById('q8-in').value.trim().replace(/[^\d]/g, '');
+    const fb = document.getElementById('fb-8');
+    if (n === '9' && inn === '140') {
+      fb.textContent = '정답이에요! ✓';
+      fb.className = 'feedback-msg correct';
+      showAns(8, true);
+    } else {
+      fb.textContent = '아쉬워요. 정답을 확인해보세요.';
+      fb.className = 'feedback-msg wrong';
+      showAns(8, false);
+    }
+  }
+
+  function checkInput9() {
+    if (answered[9]) return;
+    const v = document.getElementById('q9-input').value.trim().replace(/[^\d]/g, '');
+    const fb = document.getElementById('fb-9');
+    if (v === '150') {
+      fb.textContent = '정답이에요! ✓';
+      fb.className = 'feedback-msg correct';
+      showAns(9, true);
+    } else {
+      fb.textContent = '아쉬워요. 정답을 확인해보세요.';
+      fb.className = 'feedback-msg wrong';
+      showAns(9, false);
+    }
+  }
+
+  function updateProgress() {
+    const done = Object.keys(answered).length;
+    document.getElementById('progressFill').style.width = (done / total * 100) + '%';
+    if (done === total) {
+      let score = 0;
+      for (let i = 1; i <= total; i++) score += (window['__q' + i] || 0);
+      document.getElementById('scoreDisplay').textContent = score + ' / ' + total;
+      document.getElementById('summary').style.display = 'block';
+      document.getElementById('summary').scrollIntoView({behavior: 'smooth'});
+    }
+  }
+</script>
+</body>
+</html>

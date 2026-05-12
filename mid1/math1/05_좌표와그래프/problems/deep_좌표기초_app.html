@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 탐구 — 좌표 기초 (순서쌍·좌표·사분면)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+:root{--primary:#4361EE;--bg:#eef2ff;--card:#fff;--ok:#2ecc71;--ng:#e74c3c;--warn:#f39c12;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic',sans-serif;background:var(--bg);padding:0 0 60px;color:#2d3436;}
+.header{background:linear-gradient(135deg,#4361EE,#3a0ca3);color:white;padding:28px 20px 24px;text-align:center;}
+.header h1{font-size:20px;margin-bottom:6px;}
+.header p{font-size:13px;opacity:0.85;}
+.back-link{font-size:12px;color:rgba(255,255,255,0.7);text-decoration:none;display:block;margin-top:10px;}
+.tab-bar{display:flex;gap:0;background:white;box-shadow:0 2px 8px rgba(0,0,0,0.08);position:sticky;top:0;z-index:10;}
+.tab-btn{flex:1;padding:14px 0;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;color:#888;border-bottom:3px solid transparent;transition:all 0.2s;}
+.tab-btn.active{color:#4361EE;border-bottom-color:#4361EE;}
+.tab-btn small{font-size:10px;display:block;margin-top:2px;color:#aaa;}
+.tab-btn.active small{color:#4361EE;}
+.tab-panel{display:none;}
+.tab-panel.show{display:block;}
+.container{max-width:700px;margin:0 auto;padding:20px 16px;}
+.section{margin-bottom:28px;}
+.section-title{font-size:15px;font-weight:bold;color:#4361EE;padding-left:8px;border-left:3px solid #4361EE;margin-bottom:14px;}
+.card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;}
+.card h3{font-size:15px;color:#1a1a2e;margin-bottom:10px;}
+.card p,.card li{font-size:14px;color:#444;line-height:1.8;}
+.card ul{padding-left:18px;}
+.highlight{background:#f0f4ff;border-left:4px solid #4361EE;border-radius:0 10px 10px 0;padding:12px 16px;margin:10px 0;font-size:14px;color:#333;line-height:1.7;}
+.warn-box{background:#fff3e0;border:1px solid #ffcc80;border-radius:10px;padding:12px 14px;font-size:13px;color:#e65100;line-height:1.6;margin-top:10px;}
+.mistake-item{background:white;border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(67,97,238,.07);margin-bottom:10px;display:flex;gap:12px;}
+.mistake-icon{font-size:22px;flex-shrink:0;margin-top:2px;}
+.mistake-content{flex:1;}
+.mistake-title{font-size:14px;font-weight:bold;color:#e74c3c;margin-bottom:4px;}
+.mistake-desc{font-size:13px;color:#444;line-height:1.6;}
+.problem-card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;border-left:4px solid #4361EE;}
+.prob-label{font-size:12px;font-weight:bold;color:#4361EE;letter-spacing:1px;margin-bottom:8px;}
+.prob-text{font-size:15px;line-height:1.8;color:#1a1a2e;margin-bottom:12px;}
+.reveal-btn{background:none;border:2px solid #4361EE;color:#4361EE;padding:6px 18px;border-radius:20px;font-size:13px;cursor:pointer;margin-right:8px;}
+.reveal-content{display:none;margin-top:12px;background:#f0fff4;border-radius:10px;padding:12px 16px;font-size:13px;color:#1b5e20;line-height:1.7;}
+.connect-box{background:linear-gradient(135deg,#f0f4ff,#e8ecff);border-radius:14px;padding:20px;font-size:14px;color:#333;line-height:1.8;}
+.connect-title{font-size:15px;font-weight:bold;color:#4361EE;margin-bottom:10px;}
+.quad-vis{display:grid;grid-template-columns:1fr 1fr;gap:0;width:200px;height:200px;margin:14px auto;border:2px solid #333;}
+.quad-vis div{display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:bold;}
+.q1{background:#ffe8e8;color:#c62828;}
+.q2{background:#fff3e0;color:#e65100;}
+.q3{background:#e8f5e9;color:#2e7d32;}
+.q4{background:#e3f2fd;color:#1565c0;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>깊이 탐구 — 좌표 기초</h1>
+  <p>순서쌍 + 좌표 읽기 + 사분면 판별 (3유형 통합)</p>
+  <a class="back-link" href="../index.html">← 단원 5 홈</a>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('tab1',this)">유형 1<small>순서쌍·좌표</small></button>
+  <button class="tab-btn" onclick="switchTab('tab2',this)">유형 2<small>사분면(수치)</small></button>
+  <button class="tab-btn" onclick="switchTab('tab3',this)">유형 3<small>사분면(문자)</small></button>
+</div>
+
+<!-- 탭 1 -->
+<div class="tab-panel show" id="tab1">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>"순서쌍"이라는 이름이 낯설어요. 그냥 "두 개의 수가 묶여 있는 것"이라고 생각하면 돼요.</p>
+      <p style="margin-top:8px;"><strong>핵심 함정 두 가지</strong>:<br>
+      ① $(2, 3)$과 $(3, 2)$는 다른 점인데 같다고 헷갈림<br>
+      ② $x$좌표·$y$좌표 순서를 거꾸로 씀</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어</div>
+    <div class="card">
+      <h3>점은 "두 개의 거리"로 표현</h3>
+      <p>좌표평면에서 한 점의 위치를 정확히 말하려면 두 가지 정보가 필요해요:</p>
+      <ul>
+        <li>가로 방향($x$축)으로 얼마나? → $x$좌표</li>
+        <li>세로 방향($y$축)으로 얼마나? → $y$좌표</li>
+      </ul>
+      <div class="highlight">
+        $\mathrm{P}(a, b)$의 의미:<br>
+        원점에서 <strong>가로로 $a$, 세로로 $b$</strong> 떨어진 점.<br>
+        $a$가 양수면 오른쪽, 음수면 왼쪽.<br>
+        $b$가 양수면 위, 음수면 아래.
+      </div>
+    </div>
+    <div class="card">
+      <h3>같은 순서쌍 = 같은 자리 값이 같음</h3>
+      <p>$(a, b) = (c, d)$ 일 때:<br>
+      $\Rightarrow a = c$ 그리고 $b = d$</p>
+      <p>두 식을 따로 풀면 미지수 두 개를 구할 수 있어요.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">😵</div>
+      <div class="mistake-content">
+        <div class="mistake-title">$x$좌표·$y$좌표 순서 바꿔 쓰기</div>
+        <div class="mistake-desc">"오른쪽 3, 위로 5인 점" → $(5, 3)$ ❌ → $(3, 5)$ ✓<br>$x$좌표(가로)가 <strong>먼저</strong>, $y$좌표(세로)가 <strong>나중</strong>.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">🤔</div>
+      <div class="mistake-content">
+        <div class="mistake-title">"왼쪽으로 2"를 $x = 2$로 잘못 쓰기</div>
+        <div class="mistake-desc">왼쪽 = 음수 방향. "왼쪽 2" → $x = -2$.<br>방향과 부호를 매칭하는 연습이 필요해요.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제 (3문제)</div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 1</div>
+      <div class="prob-text">두 순서쌍 $(2x - 1, 5)$와 $(3, y + 2)$가 같을 때, $x$와 $y$를 구하세요.</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">$2x - 1 = 3 \Rightarrow x = 2$<br>$5 = y + 2 \Rightarrow y = 3$</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 2</div>
+      <div class="prob-text">점 $\mathrm{A}(a, 4)$와 점 $\mathrm{B}(-3, b)$가 같은 점일 때 $a + b$의 값은?</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">$a = -3, b = 4$<br>$a + b = -3 + 4 = 1$</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 3</div>
+      <div class="prob-text">두 순서쌍 $(a + 2, 3b - 1)$과 $(5, 8)$이 같을 때 $a, b$를 구하세요.</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">$a + 2 = 5 \Rightarrow a = 3$<br>$3b - 1 = 8 \Rightarrow 3b = 9 \Rightarrow b = 3$</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="connect-box">
+      <div class="connect-title">이 유형 이해하면…</div>
+      두 순서쌍이 같다는 조건은 사실 <strong>두 개의 일차방정식</strong>이에요. 단원 4(일차방정식)를 좌표로 응용하는 출발점!<br>
+      유형 2·3 (사분면 판별)도 이 좌표 표기 위에서 시작돼요.
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- 탭 2 -->
+<div class="tab-panel" id="tab2">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>사분면이 4개나 되고, 번호 붙이는 순서가 익숙하지 않아요.<br>
+      "왜 시계 방향이 아니라 반시계 방향?"이라고 의문이 들 수 있죠.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 한 장의 그림</div>
+    <div class="card">
+      <h3>사분면 4개 부호표</h3>
+      <div class="quad-vis">
+        <div class="q2">제2사분면<br>(−, +)</div>
+        <div class="q1">제1사분면<br>(+, +)</div>
+        <div class="q3">제3사분면<br>(−, −)</div>
+        <div class="q4">제4사분면<br>(+, −)</div>
+      </div>
+      <p style="text-align:center;margin-top:8px;font-size:12px;color:#888;">위 = $y$ 양수, 아래 = $y$ 음수<br>오른쪽 = $x$ 양수, 왼쪽 = $x$ 음수</p>
+      <div class="highlight">
+        외우는 팁: 1사분면(오른쪽 위)부터 <strong>반시계 방향</strong>으로 1→2→3→4.<br>
+        $x$좌표 부호: 1·4는 +, 2·3은 −<br>
+        $y$좌표 부호: 1·2는 +, 3·4는 −
+      </div>
+    </div>
+    <div class="card">
+      <h3>축 위의 점 = 사분면 X</h3>
+      <p>$x = 0$ 또는 $y = 0$인 점은 축 위에 있어 어느 사분면에도 속하지 않아요.</p>
+      <ul>
+        <li>$(3, 0)$ → $x$축 위</li>
+        <li>$(0, -2)$ → $y$축 위</li>
+        <li>$(0, 0)$ → 원점 (둘 다 0)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">⚠️</div>
+      <div class="mistake-content">
+        <div class="mistake-title">축 위의 점을 사분면에 분류</div>
+        <div class="mistake-desc">$(3, 0)$ → "1사분면" ❌ → $x$축 위(어느 사분면에도 X)<br>$x$ 또는 $y$ 중 하나라도 0이면 축 위.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">😵</div>
+      <div class="mistake-content">
+        <div class="mistake-title">2사분면과 3사분면 헷갈림</div>
+        <div class="mistake-desc">2사분면(왼쪽 <strong>위</strong>): $(-, +)$<br>3사분면(왼쪽 <strong>아래</strong>): $(-, -)$<br>$y$ 부호로 위/아래 구분!</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제 (3문제)</div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 1</div>
+      <div class="prob-text">5개 점 $(2,3), (-1,4), (-2,-5), (0,3), (4,-1)$ 중 1사분면 점은 몇 개?</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">$(2,3)$ → 1 ✓<br>$(-1,4)$ → 2<br>$(-2,-5)$ → 3<br>$(0,3)$ → $y$축 (사분면 X)<br>$(4,-1)$ → 4<br>1사분면은 $(2,3)$ 1개만.</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 2</div>
+      <div class="prob-text">점 $(0, -7)$은 어느 위치에 있나요?</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">$x = 0$이므로 $y$축 위.<br>$y = -7 < 0$이므로 $y$축의 음의 부분 (원점 아래쪽).</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 3</div>
+      <div class="prob-text">점 $(-3, -8)$이 속하는 사분면을 구하고, 그 점에서 $x$축까지의 거리, $y$축까지의 거리를 각각 구하세요.</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">$(-, -)$ → 제3사분면<br>$x$축까지 거리 = $|-8| = 8$ (수직 거리)<br>$y$축까지 거리 = $|-3| = 3$ (수평 거리)<br>한 점에서 축까지 거리는 다른 좌표의 절댓값!</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="connect-box">
+      <div class="connect-title">이 유형 이해하면…</div>
+      유형 3(문자 부호 사분면)이 자연스럽게 풀려요. $a, b$의 부호 → $-a, ab$ 등의 부호 → 사분면 매칭.<br>
+      그래프 단원에서 "1사분면만 그려진 그래프" 같은 표현도 잡힙니다.
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- 탭 3 -->
+<div class="tab-panel" id="tab3">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>구체적인 수가 아니라 <strong>문자 $a, b$의 부호 조건</strong>으로 사분면을 판별해요. 두 단계 추론이 필요해서 헷갈려요.</p>
+      <p style="margin-top:8px;"><strong>예</strong>: "$a > 0, b < 0$일 때 점 $(-a, ab)$는?"<br>
+      → $-a$의 부호? $ab$의 부호? → 사분면.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어</div>
+    <div class="card">
+      <h3>2단계 풀이법</h3>
+      <ol style="padding-left:20px;font-size:14px;color:#444;line-height:1.8;">
+        <li><strong>1단계</strong>: 주어진 $a, b$의 부호를 표시 (예: $a > 0$, $b < 0$)</li>
+        <li><strong>2단계</strong>: 변형된 좌표값 각각의 부호 결정 (예: $-a < 0$, $ab < 0$)</li>
+        <li><strong>3단계</strong>: 부호 → 사분면 매칭</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3>부호 변환 공식</h3>
+      <ul>
+        <li>$a > 0$ → $-a < 0$ (양수에 마이너스 → 음수)</li>
+        <li>$a < 0$ → $-a > 0$ (음수에 마이너스 → 양수)</li>
+        <li>$a > 0, b > 0$ → $ab > 0$ (양 × 양 = 양)</li>
+        <li>$a > 0, b < 0$ → $ab < 0$ (양 × 음 = 음)</li>
+        <li>$a < 0, b < 0$ → $ab > 0$ (음 × 음 = 양)</li>
+      </ul>
+      <div class="warn-box">정수의 곱셈 규칙(단원 2)을 다시 한 번 떠올려요. <strong>음 × 음 = 양</strong>이 가장 자주 헷갈려요.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">😵</div>
+      <div class="mistake-content">
+        <div class="mistake-title">$-a$가 항상 음수라고 착각</div>
+        <div class="mistake-desc">$-a$의 부호는 <strong>$a$의 부호 반대</strong>일 뿐.<br>$a < 0$이면 $-a > 0$. 마이너스 기호가 붙었다고 무조건 음수가 아님!</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">⚠️</div>
+      <div class="mistake-content">
+        <div class="mistake-title">$ab$의 부호 헷갈림</div>
+        <div class="mistake-desc">곱셈 부호 결정: 두 수 모두 같은 부호 → 양수, 다른 부호 → 음수.<br>$(+)(+) = +$, $(-)(-)= +$, $(+)(-) = -$.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제 (3문제)</div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 1</div>
+      <div class="prob-text">$a < 0, b > 0$일 때 점 $(a, -b)$는 어느 사분면?</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">$a < 0$ ($x$좌표 음수)<br>$b > 0 \Rightarrow -b < 0$ ($y$좌표 음수)<br>$(-, -)$ → <strong>3사분면</strong></div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 2</div>
+      <div class="prob-text">점 $\mathrm{P}(a, b)$가 1사분면에 있을 때 점 $\mathrm{Q}(-a, -b)$, 점 $\mathrm{R}(a, -b)$는 각각 어느 사분면?</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">P가 1사분면 → $a > 0, b > 0$<br>Q $(-a, -b) = (음, 음)$ → <strong>3사분면</strong> (P를 원점 대칭)<br>R $(a, -b) = (양, 음)$ → <strong>4사분면</strong> (P를 $x$축 대칭)</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 3</div>
+      <div class="prob-text">$a, b$의 부호가 $a > 0, b < 0$일 때 다음 점이 어느 사분면인지 모두 답하세요. ① $(a, b)$ ② $(b, a)$ ③ $(ab, a-b)$</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">① $(a, b) = (+, -)$ → 4사분면<br>② $(b, a) = (-, +)$ → 2사분면 (자리 바뀌면 사분면도 바뀜)<br>③ $ab = + \times - = -$<br>$a - b = + - (-) = + + + = +$ (예: $a=2, b=-3 \Rightarrow a-b = 5$)<br>$(ab, a-b) = (-, +)$ → 2사분면</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="connect-box">
+      <div class="connect-title">이 유형 이해하면…</div>
+      대칭이동(유형 4)이 쉬워져요. $x$축 대칭 = $y$ 부호만 바꿈, $y$축 대칭 = $x$ 부호만 바꿈, 원점 대칭 = 둘 다 바꿈. 모두 사분면 변화로 시각화 가능!
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+function switchTab(tabId, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('show'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('show');
+  if (window.renderMathInElement) renderMathInElement(document.getElementById(tabId), {
+    delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+  });
+}
+function reveal(btn) {
+  const next = btn.nextElementSibling;
+  if (next.style.display === 'block') {
+    next.style.display = 'none';
+    btn.textContent = '풀이 보기';
+  } else {
+    next.style.display = 'block';
+    btn.textContent = '풀이 숨기기';
+    if (window.renderMathInElement) renderMathInElement(next, {
+      delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+    });
+  }
+}
+</script>
+</body>
+</html>

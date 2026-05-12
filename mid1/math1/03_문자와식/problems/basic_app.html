@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 문자와 식 — 기본문제</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body, {delimiters:[
+    {left:'$$',right:'$$',display:true},
+    {left:'$',right:'$',display:false}
+  ]})"></script>
+<style>
+  :root {
+    --primary: #4361EE;
+    --bg: #eef2ff;
+    --card: #ffffff;
+    --correct: #2ecc71;
+    --wrong: #e74c3c;
+    --hint: #f39c12;
+    --text: #2d3436;
+    --muted: #636e72;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 20px 16px 60px;
+  }
+  .top-bar {
+    max-width: 700px;
+    margin: 0 auto 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .unit-tag {
+    background: var(--primary);
+    color: white;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 700;
+  }
+  .top-bar h1 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--primary);
+  }
+  .progress-row {
+    max-width: 700px;
+    margin: 0 auto 20px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .dot {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 2px solid #c0c8f4;
+    background: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--muted);
+  }
+  .dot.active { background: var(--primary); color: white; border-color: var(--primary); }
+  .dot.done { background: var(--correct); color: white; border-color: var(--correct); }
+  .dot.wrong-mark { background: var(--wrong); color: white; border-color: var(--wrong); }
+
+  .card {
+    max-width: 700px;
+    margin: 0 auto 16px;
+    background: var(--card);
+    border-radius: 16px;
+    padding: 24px 24px 20px;
+    box-shadow: 0 2px 12px rgba(67,97,238,0.08);
+  }
+  .q-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .q-num {
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .q-topic {
+    font-size: 12px;
+    color: var(--primary);
+    background: #eef2ff;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  .q-text {
+    font-size: 15px;
+    line-height: 1.7;
+    margin-bottom: 18px;
+  }
+  .choices {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .choice-btn {
+    background: #f8f9ff;
+    border: 2px solid #dde3ff;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.18s;
+    color: var(--text);
+    width: 100%;
+  }
+  .choice-btn:hover:not(:disabled) { border-color: var(--primary); background: #eef2ff; }
+  .choice-btn.selected-correct { background: #d4f9e5; border-color: var(--correct); color: #1a7a45; }
+  .choice-btn.selected-wrong { background: #fde8e8; border-color: var(--wrong); color: #a52020; }
+  .choice-btn.reveal-correct { background: #d4f9e5; border-color: var(--correct); }
+
+  .input-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+    align-items: stretch;
+  }
+  .ans-input {
+    flex: 1;
+    border: 2px solid #dde3ff;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.18s;
+    background: #f8f9ff;
+  }
+  .ans-input:focus { border-color: var(--primary); }
+  .ans-input.correct { border-color: var(--correct); background: #d4f9e5; }
+  .ans-input.wrong { border-color: var(--wrong); background: #fde8e8; }
+
+  .btn-check {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.18s;
+  }
+  .btn-check:hover:not(:disabled) { background: #3450d4; }
+  .btn-check:disabled { background: #c0c8f4; cursor: default; }
+
+  .feedback-box {
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-top: 12px;
+    display: none;
+  }
+  .feedback-box.show { display: block; }
+  .feedback-box.correct-fb { background: #d4f9e5; border-left: 4px solid var(--correct); }
+  .feedback-box.wrong-fb { background: #fde8e8; border-left: 4px solid var(--wrong); }
+  .hint-box {
+    background: #fff8e8;
+    border-left: 4px solid var(--hint);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-top: 10px;
+    display: none;
+  }
+  .hint-box.show { display: block; }
+
+  .action-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .btn-hint {
+    background: white;
+    border: 2px solid var(--hint);
+    color: var(--hint);
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-next {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 7px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-left: auto;
+    display: none;
+  }
+  .btn-next.show { display: block; }
+
+  .summary-card {
+    max-width: 700px;
+    margin: 0 auto;
+    background: var(--card);
+    border-radius: 16px;
+    padding: 32px 28px;
+    box-shadow: 0 2px 12px rgba(67,97,238,0.08);
+    display: none;
+    text-align: center;
+  }
+  .summary-card.show { display: block; }
+  .summary-score {
+    font-size: 52px;
+    font-weight: 900;
+    color: var(--primary);
+    margin: 12px 0 4px;
+  }
+  .summary-label { font-size: 15px; color: var(--muted); margin-bottom: 24px; }
+  .summary-stars {
+    font-size: 32px;
+    margin-bottom: 20px;
+    letter-spacing: 4px;
+  }
+  .btn-retry {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 32px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 16px;
+  }
+  .section-divider {
+    max-width: 700px;
+    margin: 24px auto 12px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #c0c8f4;
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <span class="unit-tag">Unit 03</span>
+  <h1>문자와 식 — 기본문제</h1>
+</div>
+
+<div class="progress-row" id="progressRow"></div>
+
+<!-- 문제 카드 영역 -->
+<div id="questionArea"></div>
+
+<!-- 결과 요약 -->
+<div class="summary-card" id="summaryCard">
+  <div style="font-size:24px; font-weight:800; color:#2d3436;">기본문제 완료!</div>
+  <div class="summary-score" id="scoreNum"></div>
+  <div class="summary-label">/ 9문제 정답</div>
+  <div class="summary-stars" id="starsDisplay"></div>
+  <div style="font-size:14px; color:#636e72; line-height:1.7;" id="summaryMsg"></div>
+  <button class="btn-retry" onclick="restartQuiz()">다시 풀기</button>
+</div>
+
+<script>
+// ====== 문제 데이터 ======
+const questions = [
+  // Q1 — 문자를 사용한 식 (식 세우기)
+  {
+    id: 1,
+    topic: '문자를 사용한 식',
+    type: 'choice',
+    q: '1자루에 $a$원인 연필 4자루와 1권에 $b$원인 공책 3권을 샀을 때, 전체 금액을 문자를 사용한 식으로 나타내세요.',
+    choices: ['$4a + 3b$', '$4 + a + 3 + b$', '$a4 + b3$', '$7ab$'],
+    answer: 0,
+    hint: '연필 값은 (단가)×(개수), 공책 값도 마찬가지예요. 두 금액을 더하면 됩니다.',
+    explanation: '연필 4자루: $4a$원, 공책 3권: $3b$원. 합계는 $4a + 3b$원이에요. 숫자는 문자 앞에 쓰는 것 잊지 마세요!'
+  },
+
+  // Q2 — 곱셈 기호 생략
+  {
+    id: 2,
+    topic: '곱셈 기호 생략',
+    type: 'choice',
+    q: '다음 중 곱셈 기호를 올바르게 생략한 것을 고르세요.\n\n$(-1) \\times x \\times x$를 기호 생략 규칙에 따라 나타내면?',
+    choices: ['$-1x^2$', '$-x^2$', '$x^2$', '$(-x)^2$'],
+    answer: 1,
+    hint: '계수가 $-1$일 때는 숫자 $1$을 생략하고 부호만 남겨요. 같은 문자의 곱은 거듭제곱으로 써요.',
+    explanation: '$(-1) \\times x \\times x = -1 \\times x^2$인데, 계수 $-1$에서 $1$은 생략하므로 $-x^2$이 됩니다.'
+  },
+
+  // Q3 — 나눗셈 분수 변환
+  {
+    id: 3,
+    topic: '나눗셈 → 분수',
+    type: 'choice',
+    q: '$x \\div 5$를 분수 형태로 바르게 나타낸 것은?',
+    choices: ['$5x$', '$\\dfrac{5}{x}$', '$\\dfrac{x}{5}$', '$x - 5$'],
+    answer: 2,
+    hint: '나눗셈 $a \\div b$는 분수 $\\dfrac{a}{b}$로 바꿀 수 있어요.',
+    explanation: '$x \\div 5 = \\dfrac{x}{5}$예요. $x$가 나누어지는 수(분자)이고 $5$가 나누는 수(분모)가 됩니다.'
+  },
+
+  // Q4 — 식의 값 (양수 대입)
+  {
+    id: 4,
+    topic: '식의 값',
+    type: 'input',
+    q: '$x = 4$일 때, $3x - 5$의 값을 구하세요.',
+    answer: '7',
+    hint: '문자 $x$ 자리에 $4$를 그대로 넣고 계산해 보세요.',
+    explanation: '$3x - 5 = 3 \\times 4 - 5 = 12 - 5 = 7$이에요.'
+  },
+
+  // Q5 — 식의 값 (음수 대입)
+  {
+    id: 5,
+    topic: '식의 값 (음수 대입)',
+    type: 'input',
+    q: '$a = -3$일 때, $a^2 + 2a$의 값을 구하세요.',
+    answer: '3',
+    hint: '음수를 대입할 때는 꼭 괄호를 써요. $a = (-3)$으로 바꿔 넣고 계산해 보세요.',
+    explanation: '$a^2 + 2a = (-3)^2 + 2 \\times (-3) = 9 + (-6) = 3$이에요. 음수 대입 시 괄호 필수!'
+  },
+
+  // Q6 — 단항식/다항식 판별, 차수
+  {
+    id: 6,
+    topic: '단항식·다항식·차수',
+    type: 'choice',
+    q: '$2x^2 - 3x + 1$에 대한 설명으로 옳지 않은 것은?',
+    choices: [
+      '다항식이다.',
+      '항이 3개이다.',
+      '일차식이다.',
+      '$x$의 계수는 $-3$이다.',
+    ],
+    answer: 2,
+    hint: '가장 높은 차수가 얼마인지 확인해 보세요. 일차식은 최고차수가 정확히 1인 식이에요.',
+    explanation: '$2x^2 - 3x + 1$의 최고차수는 $x^2$의 차수인 $2$이므로 이차식이에요. 일차식이 아닙니다! 따라서 ③번 "일차식이다"가 틀린 설명이에요. ①다항식 O, ②항 3개 O, ④$x$계수 $-3$ O'
+  },
+
+  // Q7 — 동류항 계산
+  {
+    id: 7,
+    topic: '동류항 모으기',
+    type: 'input',
+    q: '$5x - 2 - 3x + 7$을 간단히 해 보세요. 답을 $ax + b$ 형태로 입력하세요.\n(예: $2x+5$)',
+    answer: '2x+5',
+    hint: '$x$가 붙은 항끼리, 숫자만 있는 항끼리 따로 모아서 계산해 보세요.',
+    explanation: '$5x - 3x = 2x$, $-2 + 7 = 5$이므로 $2x + 5$예요.',
+    altAnswers: ['2x + 5']
+  },
+
+  // Q8 — 일차식 × 수
+  {
+    id: 8,
+    topic: '일차식의 계산',
+    type: 'input',
+    q: '$3(2x - 4)$를 전개하면? ($ax + b$ 형태로 입력)',
+    answer: '6x-12',
+    hint: '분배법칙: 괄호 앞의 $3$을 안에 있는 모든 항에 곱해요.',
+    explanation: '$3 \\times 2x - 3 \\times 4 = 6x - 12$예요.',
+    altAnswers: ['6x - 12']
+  },
+
+  // Q9 — 일차식 뺄셈 (괄호 부호 반전)
+  {
+    id: 9,
+    topic: '일차식 뺄셈 (부호 주의)',
+    type: 'choice',
+    q: '$(4x + 3) - (2x - 1)$을 계산하면?',
+    choices: ['$2x + 2$', '$2x + 4$', '$2x - 2$', '$6x + 4$'],
+    answer: 1,
+    hint: '뒤에 오는 괄호 앞에 $-$가 있으면, 괄호 안 모든 항의 부호가 바뀌어요.',
+    explanation: '$(4x + 3) - (2x - 1)$\n$= 4x + 3 - 2x + 1$ (괄호를 풀 때 $-1$이 곱해져서 $-2x$가 $-2x$, $-1$이 $+1$로)\n$= 2x + 4$예요.'
+  },
+];
+
+// ====== 상태 ======
+let current = 0;
+let results = Array(questions.length).fill(null); // null | 'correct' | 'wrong'
+let hintShown = Array(questions.length).fill(false);
+
+function buildDots() {
+  const row = document.getElementById('progressRow');
+  row.innerHTML = '';
+  questions.forEach((q, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === current ? ' active' : '');
+    if (results[i] === 'correct') d.className = 'dot done' + (i === current ? ' active' : '');
+    if (results[i] === 'wrong') d.className = 'dot wrong-mark' + (i === current ? ' active' : '');
+    d.textContent = i + 1;
+    d.onclick = () => jumpTo(i);
+    row.appendChild(d);
+  });
+}
+
+function jumpTo(idx) {
+  current = idx;
+  buildDots();
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const area = document.getElementById('questionArea');
+  area.innerHTML = '';
+  if (current >= questions.length) {
+    showSummary();
+    return;
+  }
+  const q = questions[current];
+  const answered = results[current] !== null;
+
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  // Header
+  card.innerHTML = `
+    <div class="q-header">
+      <div class="q-num">${q.id}</div>
+      <span class="q-topic">${q.topic}</span>
+    </div>
+    <div class="q-text">${q.q.replace(/\n/g, '<br>')}</div>
+  `;
+
+  if (q.type === 'choice') {
+    const choicesDiv = document.createElement('div');
+    choicesDiv.className = 'choices';
+    q.choices.forEach((c, ci) => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.innerHTML = `${['①','②','③','④'][ci]} ${c}`;
+      if (answered) {
+        btn.disabled = true;
+        if (ci === q.answer) btn.classList.add('reveal-correct');
+        if (results[current] === 'wrong' && ci === getSelectedIdx(current)) btn.classList.add('selected-wrong');
+        if (results[current] === 'correct' && ci === q.answer) btn.classList.add('selected-correct');
+      } else {
+        btn.onclick = () => handleChoice(ci, q, card);
+      }
+      choicesDiv.appendChild(btn);
+    });
+    card.appendChild(choicesDiv);
+  } else {
+    // input type
+    const row = document.createElement('div');
+    row.className = 'input-row';
+    const inp = document.createElement('input');
+    inp.className = 'ans-input';
+    inp.id = 'ansInput' + current;
+    inp.placeholder = '답을 입력하세요';
+    inp.type = 'text';
+    if (answered) {
+      inp.disabled = true;
+      inp.value = q.answer;
+      inp.classList.add(results[current] === 'correct' ? 'correct' : 'wrong');
+    } else {
+      inp.onkeydown = (e) => { if (e.key === 'Enter') checkInput(q, card); };
+    }
+    const btn = document.createElement('button');
+    btn.className = 'btn-check';
+    btn.textContent = '확인';
+    btn.disabled = answered;
+    if (!answered) btn.onclick = () => checkInput(q, card);
+    row.appendChild(inp);
+    row.appendChild(btn);
+    card.appendChild(row);
+  }
+
+  // Hint
+  const hintBox = document.createElement('div');
+  hintBox.className = 'hint-box' + (hintShown[current] ? ' show' : '');
+  hintBox.innerHTML = `힌트: ${q.hint}`;
+  card.appendChild(hintBox);
+
+  // Feedback
+  const fbBox = document.createElement('div');
+  if (answered) {
+    fbBox.className = 'feedback-box show ' + (results[current] === 'correct' ? 'correct-fb' : 'wrong-fb');
+    fbBox.innerHTML = (results[current] === 'correct' ? '정답이에요! ' : '') + q.explanation;
+  } else {
+    fbBox.className = 'feedback-box';
+  }
+  card.appendChild(fbBox);
+
+  // Action row
+  const actionRow = document.createElement('div');
+  actionRow.className = 'action-row';
+  if (!answered) {
+    const hintBtn = document.createElement('button');
+    hintBtn.className = 'btn-hint';
+    hintBtn.textContent = '힌트 보기';
+    hintBtn.onclick = () => {
+      hintShown[current] = true;
+      hintBox.classList.add('show');
+    };
+    actionRow.appendChild(hintBtn);
+  }
+  const nextBtn = document.createElement('button');
+  nextBtn.className = 'btn-next' + (answered ? ' show' : '');
+  nextBtn.textContent = current < questions.length - 1 ? '다음 문제 →' : '결과 보기 →';
+  nextBtn.onclick = () => {
+    if (current < questions.length - 1) {
+      current++;
+      buildDots();
+      renderQuestion();
+    } else {
+      showSummary();
+    }
+  };
+  actionRow.appendChild(nextBtn);
+  card.appendChild(actionRow);
+
+  area.appendChild(card);
+
+  // Re-render KaTeX
+  if (window.renderMathInElement) {
+    renderMathInElement(card, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false}
+      ]
+    });
+  }
+}
+
+// 선택한 인덱스 기억용
+const selectedMap = {};
+function handleChoice(ci, q, card) {
+  selectedMap[current] = ci;
+  const isCorrect = ci === q.answer;
+  results[current] = isCorrect ? 'correct' : 'wrong';
+  buildDots();
+
+  // 선택지 버튼 업데이트
+  const btns = card.querySelectorAll('.choice-btn');
+  btns.forEach((btn, idx) => {
+    btn.disabled = true;
+    if (idx === q.answer) btn.classList.add('reveal-correct');
+    if (idx === ci && !isCorrect) btn.classList.add('selected-wrong');
+  });
+
+  // 피드백
+  const fbBox = card.querySelector('.feedback-box');
+  fbBox.className = 'feedback-box show ' + (isCorrect ? 'correct-fb' : 'wrong-fb');
+  fbBox.innerHTML = (isCorrect ? '정답이에요! ' : '') + q.explanation;
+
+  // 다음 버튼
+  card.querySelector('.btn-next').classList.add('show');
+
+  if (window.renderMathInElement) {
+    renderMathInElement(card, {
+      delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+    });
+  }
+}
+function getSelectedIdx(qi) { return selectedMap[qi] ?? -1; }
+
+function normalizeAns(s) {
+  return s.replace(/\s+/g, '').toLowerCase();
+}
+function checkInput(q, card) {
+  const inp = document.getElementById('ansInput' + current);
+  const val = normalizeAns(inp.value);
+  const correct = normalizeAns(q.answer);
+  const alts = (q.altAnswers || []).map(normalizeAns);
+  const isCorrect = val === correct || alts.includes(val);
+
+  results[current] = isCorrect ? 'correct' : 'wrong';
+  inp.disabled = true;
+  inp.classList.add(isCorrect ? 'correct' : 'wrong');
+
+  const checkBtn = card.querySelector('.btn-check');
+  if (checkBtn) checkBtn.disabled = true;
+
+  const fbBox = card.querySelector('.feedback-box');
+  fbBox.className = 'feedback-box show ' + (isCorrect ? 'correct-fb' : 'wrong-fb');
+  fbBox.innerHTML = (isCorrect ? '정답이에요! ' : `정답은 <strong>${q.answer}</strong>이에요. `) + q.explanation;
+
+  card.querySelector('.btn-next').classList.add('show');
+  buildDots();
+
+  if (window.renderMathInElement) {
+    renderMathInElement(card, {
+      delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+    });
+  }
+}
+
+function showSummary() {
+  document.getElementById('questionArea').innerHTML = '';
+  const correct = results.filter(r => r === 'correct').length;
+  const scoreEl = document.getElementById('scoreNum');
+  scoreEl.textContent = correct;
+  const stars = correct >= 8 ? '★★★' : correct >= 6 ? '★★☆' : correct >= 4 ? '★☆☆' : '☆☆☆';
+  document.getElementById('starsDisplay').textContent = stars;
+  const msgs = {
+    '★★★': '완벽해요! 문자와 식 기본 개념을 모두 이해했어요.',
+    '★★☆': '잘 했어요! 틀린 문제만 다시 풀어보면 완벽해질 거예요.',
+    '★☆☆': '도전했어 용감해요. 힌트를 활용하면서 다시 한 번 해봐요.',
+    '☆☆☆': '처음엔 어렵게 느껴지는 게 당연해요. 개념을 한 번 더 보고 다시 도전해요!'
+  };
+  document.getElementById('summaryMsg').textContent = msgs[stars];
+  document.getElementById('summaryCard').classList.add('show');
+  buildDots();
+}
+
+function restartQuiz() {
+  current = 0;
+  results = Array(questions.length).fill(null);
+  hintShown = Array(questions.length).fill(false);
+  Object.keys(selectedMap).forEach(k => delete selectedMap[k]);
+  document.getElementById('summaryCard').classList.remove('show');
+  buildDots();
+  renderQuestion();
+}
+
+// Init
+buildDots();
+renderQuestion();
+</script>
+</body>
+</html>

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 탐구 — 정비례 (식·그래프·비례상수)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+:root{--primary:#4361EE;--bg:#eef2ff;--card:#fff;--ok:#2ecc71;--ng:#e74c3c;--warn:#f39c12;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic',sans-serif;background:var(--bg);padding:0 0 60px;color:#2d3436;}
+.header{background:linear-gradient(135deg,#4361EE,#3a0ca3);color:white;padding:28px 20px 24px;text-align:center;}
+.header h1{font-size:20px;margin-bottom:6px;}
+.header p{font-size:13px;opacity:0.85;}
+.back-link{font-size:12px;color:rgba(255,255,255,0.7);text-decoration:none;display:block;margin-top:10px;}
+.tab-bar{display:flex;gap:0;background:white;box-shadow:0 2px 8px rgba(0,0,0,0.08);position:sticky;top:0;z-index:10;}
+.tab-btn{flex:1;padding:14px 0;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;color:#888;border-bottom:3px solid transparent;transition:all 0.2s;}
+.tab-btn.active{color:#4361EE;border-bottom-color:#4361EE;}
+.tab-btn small{font-size:10px;display:block;margin-top:2px;color:#aaa;}
+.tab-btn.active small{color:#4361EE;}
+.tab-panel{display:none;}
+.tab-panel.show{display:block;}
+.container{max-width:700px;margin:0 auto;padding:20px 16px;}
+.section{margin-bottom:28px;}
+.section-title{font-size:15px;font-weight:bold;color:#4361EE;padding-left:8px;border-left:3px solid #4361EE;margin-bottom:14px;}
+.card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;}
+.card h3{font-size:15px;color:#1a1a2e;margin-bottom:10px;}
+.card p,.card li{font-size:14px;color:#444;line-height:1.8;}
+.card ul{padding-left:18px;}
+.highlight{background:#f0f4ff;border-left:4px solid #4361EE;border-radius:0 10px 10px 0;padding:12px 16px;margin:10px 0;font-size:14px;color:#333;line-height:1.7;}
+.warn-box{background:#fff3e0;border:1px solid #ffcc80;border-radius:10px;padding:12px 14px;font-size:13px;color:#e65100;line-height:1.6;margin-top:10px;}
+.mistake-item{background:white;border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(67,97,238,.07);margin-bottom:10px;display:flex;gap:12px;}
+.mistake-icon{font-size:22px;flex-shrink:0;margin-top:2px;}
+.mistake-content{flex:1;}
+.mistake-title{font-size:14px;font-weight:bold;color:#e74c3c;margin-bottom:4px;}
+.mistake-desc{font-size:13px;color:#444;line-height:1.6;}
+.problem-card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;border-left:4px solid #4361EE;}
+.prob-label{font-size:12px;font-weight:bold;color:#4361EE;letter-spacing:1px;margin-bottom:8px;}
+.prob-text{font-size:15px;line-height:1.8;color:#1a1a2e;margin-bottom:12px;}
+.reveal-btn{background:none;border:2px solid #4361EE;color:#4361EE;padding:6px 18px;border-radius:20px;font-size:13px;cursor:pointer;margin-right:8px;}
+.reveal-content{display:none;margin-top:12px;background:#f0fff4;border-radius:10px;padding:12px 16px;font-size:13px;color:#1b5e20;line-height:1.7;}
+.connect-box{background:linear-gradient(135deg,#f0f4ff,#e8ecff);border-radius:14px;padding:20px;font-size:14px;color:#333;line-height:1.8;}
+.connect-title{font-size:15px;font-weight:bold;color:#4361EE;margin-bottom:10px;}
+table.tbl{border-collapse:collapse;font-size:13px;margin:10px 0;}
+table.tbl th,table.tbl td{border:1px solid #ccd;padding:5px 12px;text-align:center;}
+table.tbl th{background:#eef2ff;}
+.formula-box{background:#eef2ff;border-radius:8px;padding:10px 14px;text-align:center;font-size:18px;color:#4361EE;font-weight:700;margin:8px 0;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>깊이 탐구 — 정비례</h1>
+  <p>식 세우기 + 그래프 + 비례상수 결정 (3유형 통합)</p>
+  <a class="back-link" href="../index.html">← 단원 6 홈</a>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('tab1',this)">유형 1<small>식 세우기</small></button>
+  <button class="tab-btn" onclick="switchTab('tab2',this)">유형 2<small>그래프</small></button>
+  <button class="tab-btn" onclick="switchTab('tab5',this)">유형 5<small>비례상수</small></button>
+</div>
+
+<!-- 탭 1: 정비례 식 세우기 -->
+<div class="tab-panel show" id="tab1">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>"정비례"라는 말은 익숙하지만, 일상의 관계를 보고 그게 정비례인지 아닌지 판별하는 게 쉽지 않아요.</p>
+      <p style="margin-top:8px;"><strong>핵심 함정 두 가지</strong>:<br>
+      ① 단순한 덧셈 관계 ($y = x + 5$) 도 정비례로 착각<br>
+      ② 표를 보고 정비례인지 확인 못 함</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 두 가지 신호</div>
+    <div class="card">
+      <h3>① 식의 모양: $y = ax$ ($a \neq 0$)</h3>
+      <p>정비례 식의 형태는 항상 이거예요. 추가 상수항도 안 되고 ($y = ax + b$ 같은 건 정비례 X), $x$가 분모에 있어도 안 돼요 ($y = a/x$ 는 반비례).</p>
+      <div class="formula-box">$y = ax$ &nbsp; ($a \neq 0$)</div>
+    </div>
+    <div class="card">
+      <h3>② 표의 모양: $\dfrac{y}{x}$ 일정</h3>
+      <p>표가 주어졌을 때, $\dfrac{y}{x}$ 값을 모든 짝에서 계산. 모두 같으면 정비례.</p>
+      <table class="tbl"><tr><th>$x$</th><td>1</td><td>2</td><td>3</td><td>4</td></tr><tr><th>$y$</th><td>3</td><td>6</td><td>9</td><td>12</td></tr><tr><th>$y/x$</th><td>3</td><td>3</td><td>3</td><td>3</td></tr></table>
+      <p>$y/x = 3$ 모두 같음 → 정비례 → 식 $y = 3x$.</p>
+    </div>
+    <div class="card">
+      <h3>일상 관계 → 정비례 판별 체크리스트</h3>
+      <ul>
+        <li>$x$가 0이면 $y$도 0인가?</li>
+        <li>$x$가 2배 되면 $y$도 2배 되는가?</li>
+        <li>두 양 사이에 곱셈 비율 하나로 표현되는가?</li>
+      </ul>
+      <div class="highlight">세 질문 모두 "예" → 정비례. 비례상수 = $y/x$ 값 (또는 1단위에서 $y$ 값).</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">⚠️</div>
+      <div class="mistake-content">
+        <div class="mistake-title">상수항을 정비례에 포함</div>
+        <div class="mistake-desc">"공책 한 권 1500원, 주문할 때 배송비 3000원" → $y = 1500x + 3000$ 은 정비례 X.<br>배송비 같은 고정값이 있으면 정비례가 아니에요.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">🤔</div>
+      <div class="mistake-content">
+        <div class="mistake-title">$y/x$가 아니라 $y - x$를 비교</div>
+        <div class="mistake-desc">정비례는 비율이 일정. <strong>차</strong>가 아니라 <strong>나눗셈</strong>이에요.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제 (3문제)</div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 1</div>
+      <div class="prob-text">$y$가 $x$에 정비례하고 $x = 6$일 때 $y = -18$이다. 식과 $x = -4$일 때 $y$값은?</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">$-18 = 6a \Rightarrow a = -3$. 식 $y = -3x$.<br>$x = -4$: $y = (-3)(-4) = 12$.</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 2</div>
+      <div class="prob-text">자전거 1분에 250 m를 간다. $x$분 동안 간 거리를 $y$ m라 할 때 식과, 1.5 km 가는 데 걸리는 시간은?</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">$y = 250x$ (정비례).<br>1.5 km = 1500 m. $1500 = 250x \Rightarrow x = 6$ 분.</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 3</div>
+      <div class="prob-text">표를 보고 $y$가 $x$에 정비례인지 판별하고 식을 구하시오.<br>($x, y$): $(2, -8)$, $(-3, 12)$, $(5, -20)$</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">$y/x$: $-8/2 = -4$, $12/(-3) = -4$, $-20/5 = -4$ → 모두 $-4$ → 정비례.<br>식 $y = -4x$.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="connect-box">
+      <div class="connect-title">이 유형 이해하면…</div>
+      정비례 식을 자유자재로 세우면 <strong>유형 2 (정비례 그래프)</strong>가 자연스럽게 따라와요. $a$의 부호·크기만 보면 그래프 모양을 알 수 있죠.<br>
+      또한 단원 4 (일차방정식) 의 식 세우기 능력이 여기서 강화돼요.
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- 탭 2: 정비례 그래프 -->
+<div class="tab-panel" id="tab2">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>식만 보고 그래프 모양 (사분면, 가팔기) 을 떠올리는 게 처음엔 어려워요. 하지만 패턴 4가지만 외우면 끝이에요.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 4가지 패턴</div>
+    <div class="card">
+      <h3>$a$ 부호와 그래프 위치</h3>
+      <table class="tbl">
+        <tr><th>$a$ 부호</th><th>지나는 사분면</th><th>방향</th></tr>
+        <tr><td>$a > 0$</td><td>제1·3사분면</td><td>오른쪽 위로 →↗</td></tr>
+        <tr><td>$a < 0$</td><td>제2·4사분면</td><td>오른쪽 아래로 →↘</td></tr>
+      </table>
+      <div class="highlight">정비례 그래프는 항상 <strong>원점을 지나는 직선</strong>. 사분면 위치는 $a$ 부호로만 결정.</div>
+    </div>
+    <div class="card">
+      <h3>$|a|$ 크기와 가팔기</h3>
+      <p>$|a|$가 클수록 그래프가 $y$축에 더 가까워져요 (가팔어짐).</p>
+      <div class="formula-box">$|a|$ 클수록 가파름</div>
+      <p>예: $y = 2x$ vs $y = 5x$ → 둘 다 1·3사분면이지만 $y = 5x$가 더 가파름.</p>
+    </div>
+    <div class="card">
+      <h3>그래프 그리는 방법</h3>
+      <ul>
+        <li>① 원점 $(0, 0)$ 표시</li>
+        <li>② 식에 $x = 1$ 대입해서 $(1, a)$ 점 찾기</li>
+        <li>③ 두 점을 직선으로 연결, 양쪽으로 무한히 연장</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">😵</div>
+      <div class="mistake-content">
+        <div class="mistake-title">$a$의 부호와 사분면 매칭 헷갈림</div>
+        <div class="mistake-desc">$y = -2x$ → 1·3사분면이라고 적기. $a < 0$이면 2·4사분면!<br>한 번 외우고 매번 머릿속에서 "$a$부호 → 사분면" 거꾸로 확인.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">🤨</div>
+      <div class="mistake-content">
+        <div class="mistake-title">"가팔기"와 "기울기"의 부호 혼동</div>
+        <div class="mistake-desc">가팔기는 $|a|$로 결정 (부호 무관). $a = -5$의 직선은 $a = 2$의 직선보다 더 가파름 (5 > 2).</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제 (3문제)</div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 1</div>
+      <div class="prob-text">$y = 4x$의 그래프 위에 있는 점을 모두 고르시오. (가) $(0, 0)$ (나) $(1, 4)$ (다) $(-2, 8)$ (라) $(3, 12)$</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">각 점 식에 대입:<br>(가) $0 = 4 \times 0$ ✓<br>(나) $4 = 4 \times 1$ ✓<br>(다) $8 \neq 4 \times (-2) = -8$ X<br>(라) $12 = 4 \times 3$ ✓<br>정답: (가), (나), (라).</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 2</div>
+      <div class="prob-text">아래 네 식 중 그래프가 가장 완만한 것은? $y = 7x$, $y = -2x$, $y = \dfrac{x}{4}$, $y = -3x$</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">$|a|$ 값: $7, 2, 1/4, 3$. 가장 작은 것 → $|1/4| = 1/4$ → $y = \dfrac{x}{4}$가 가장 완만.</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 3</div>
+      <div class="prob-text">$y = ax$의 그래프가 점 $(-2, 8)$을 지난다. 이 그래프는 어느 사분면을 지나는가?</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">$8 = -2a \Rightarrow a = -4 < 0$ → 제2·4사분면.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="connect-box">
+      <div class="connect-title">이 유형 이해하면…</div>
+      그래프 모양을 머릿속에 떠올릴 수 있게 돼요. 이 능력은 중2의 일차함수, 중3의 이차함수까지 평생 사용해요.
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- 탭 5: 비례상수 결정 (정비례 부분) -->
+<div class="tab-panel" id="tab5">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>"한 점이 주어진다 → 식을 결정한다"는 흐름이 처음엔 추상적이에요. 하지만 패턴은 단순해요.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 단계 3개</div>
+    <div class="card">
+      <h3>정비례 비례상수 결정</h3>
+      <ul>
+        <li>① 정비례 식 형태 가정: $y = ax$</li>
+        <li>② 주어진 점 $(x_0, y_0)$ 대입: $y_0 = a \cdot x_0$</li>
+        <li>③ $a = \dfrac{y_0}{x_0}$ 계산</li>
+      </ul>
+      <div class="highlight">기억할 한 줄: <strong>"한 점 알면 $a = y/x$"</strong>. 그러면 식은 $y = (y_0/x_0) x$.</div>
+    </div>
+    <div class="card">
+      <h3>다른 점 좌표 구하기</h3>
+      <p>식을 결정한 다음엔, 다른 $x$ 값을 식에 대입해 $y$값을 구하거나, 주어진 $y$값을 식에 대입해 $x$값을 구해요.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">😵</div>
+      <div class="mistake-content">
+        <div class="mistake-title">$a = x/y$ 거꾸로 계산</div>
+        <div class="mistake-desc">정비례에서 $\dfrac{y}{x} = a$. $\dfrac{x}{y}$ 가 아님.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">⚠️</div>
+      <div class="mistake-content">
+        <div class="mistake-title">부호 무시</div>
+        <div class="mistake-desc">$x = -3$, $y = 12$ 일 때 $a = -4$이지 $4$가 아님. 부호를 끝까지 따져요.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제 (3문제)</div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 1</div>
+      <div class="prob-text">$y$가 $x$에 정비례하고 $x = -2$일 때 $y = 10$이다. $x = 7$일 때 $y$값은?</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">$10 = -2a \Rightarrow a = -5$. 식 $y = -5x$.<br>$x = 7$: $y = -5 \times 7 = -35$.</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 2</div>
+      <div class="prob-text">정비례 그래프가 점 $(\dfrac{2}{3}, 6)$을 지난다. 식과 $x = -1$일 때 $y$값을 구하시오.</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">$6 = \dfrac{2}{3} a \Rightarrow a = 6 \times \dfrac{3}{2} = 9$. 식 $y = 9x$.<br>$x = -1$: $y = -9$.</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 3</div>
+      <div class="prob-text">$y$가 $x$에 정비례. $x$ 변화량 5, $y$ 변화량 -15. $a$의 값과 식?</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">변화량 비도 $a$ 와 같음: $a = -15/5 = -3$. 식 $y = -3x$.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="connect-box">
+      <div class="connect-title">이 유형 이해하면…</div>
+      "한 점 → 식" 패턴은 단원 6 전반의 핵심. 반비례에서도 동일 (단, $a = xy$).<br>
+      나아가 중2 일차함수에서 "두 점 → 직선의 식"으로 확장돼요.
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('show'));
+  btn.classList.add('active');
+  document.getElementById(id).classList.add('show');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+function reveal(btn) {
+  const c = btn.nextElementSibling;
+  c.style.display = c.style.display === 'block' ? 'none' : 'block';
+  if (window.renderMathInElement) renderMathInElement(c, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});
+}
+</script>
+</body>
+</html>

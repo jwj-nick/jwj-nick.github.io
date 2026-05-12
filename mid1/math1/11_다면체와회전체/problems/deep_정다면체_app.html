@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 탐구 — 정다면체 ★</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+:root{--primary:#7b2ff7;--bg:#f5f0ff;--card:#fff;--ok:#2ecc71;--ng:#e74c3c;--warn:#f39c12;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic',sans-serif;background:var(--bg);padding:0 0 60px;color:#2d3436;}
+.header{background:linear-gradient(135deg,#7b2ff7,#3a0ca3);color:white;padding:28px 20px 24px;text-align:center;}
+.header h1{font-size:20px;margin-bottom:6px;}
+.header p{font-size:13px;opacity:0.85;}
+.back-link{font-size:12px;color:rgba(255,255,255,0.7);text-decoration:none;display:block;margin-top:10px;}
+.container{max-width:700px;margin:0 auto;padding:20px 16px;}
+.section{margin-bottom:28px;}
+.section-title{font-size:15px;font-weight:bold;color:#7b2ff7;padding-left:8px;border-left:3px solid #7b2ff7;margin-bottom:14px;}
+.card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(123,47,247,.08);margin-bottom:12px;}
+.card h3{font-size:15px;color:#1a1a2e;margin-bottom:10px;}
+.card p,.card li{font-size:14px;color:#444;line-height:1.8;}
+.card ul,.card ol{padding-left:18px;}
+.highlight{background:#f5f0ff;border-left:4px solid #7b2ff7;border-radius:0 10px 10px 0;padding:12px 16px;margin:10px 0;font-size:14px;color:#333;line-height:1.7;}
+.mistake-item{background:white;border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(123,47,247,.07);margin-bottom:10px;display:flex;gap:12px;}
+.mistake-icon{font-size:22px;flex-shrink:0;margin-top:2px;}
+.mistake-content{flex:1;}
+.mistake-title{font-size:14px;font-weight:bold;color:#e74c3c;margin-bottom:4px;}
+.mistake-desc{font-size:13px;color:#444;line-height:1.6;}
+.problem-card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(123,47,247,.08);margin-bottom:12px;border-left:4px solid #7b2ff7;}
+.prob-label{font-size:12px;font-weight:bold;color:#7b2ff7;letter-spacing:1px;margin-bottom:8px;}
+.prob-text{font-size:15px;line-height:1.8;color:#1a1a2e;margin-bottom:12px;}
+.reveal-btn{background:none;border:2px solid #7b2ff7;color:#7b2ff7;padding:6px 18px;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;}
+.reveal-content{display:none;margin-top:12px;background:#f0fff4;border-radius:10px;padding:12px 16px;font-size:13px;color:#1b5e20;line-height:1.7;}
+.connect-box{background:linear-gradient(135deg,#f5f0ff,#ebe0ff);border-radius:14px;padding:20px;font-size:14px;color:#333;line-height:1.8;}
+.connect-title{font-size:15px;font-weight:bold;color:#7b2ff7;margin-bottom:10px;}
+table.tbl{border-collapse:collapse;font-size:13px;margin:10px 0;width:100%;}
+table.tbl th,table.tbl td{border:1px solid #ccd;padding:6px 10px;text-align:center;}
+table.tbl th{background:#f5f0ff;color:#7b2ff7;}
+.formula-box{background:#f5f0ff;border-radius:8px;padding:10px 14px;text-align:center;font-size:16px;color:#7b2ff7;font-weight:700;margin:8px 0;}
+.fig-svg{display:block;margin:10px auto;max-width:340px;width:100%;background:#fafbff;border-radius:8px;padding:8px;border:1px solid #f5f0ff;}
+.kepler-banner{background:linear-gradient(135deg,#fef3c7,#fde68a);border-left:4px solid #f59e0b;border-radius:0 10px 10px 0;padding:14px 16px;margin:12px 0;font-size:13px;color:#78350f;line-height:1.7;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>★ 깊이 탐구 — 정다면체</h1>
+  <p>왜 정확히 5종뿐인가? 오일러 공식 + 케플러 행성 모델</p>
+  <a class="back-link" href="../index.html">← 단원 11 홈</a>
+</div>
+
+<div class="container">
+
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>정다면체는 평생 처음 만나는 도형들이에요. 그리고 가장 큰 함정은 두 가지:</p>
+      <ol>
+        <li><strong>"정"이라는 글자만 보고 정다면체로 착각</strong> — 정사각뿔, 정삼각기둥은 정다면체 ❌</li>
+        <li><strong>"정다면체는 더 많을 것 같다"는 직관</strong> — 정확히 5종뿐</li>
+      </ol>
+      <p>이 단원의 핵심은 <strong>왜 5종뿐인지 직접 이해하는 것</strong>이에요.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 ① — 정다면체의 두 조건</div>
+    <div class="card">
+      <p>정다면체는 다음 <strong>두 조건을 모두</strong> 만족하는 다면체:</p>
+      <ol>
+        <li>모든 면이 <strong>합동인 정다각형</strong></li>
+        <li>각 꼭짓점에 모이는 <strong>면의 수가 모두 같음</strong></li>
+      </ol>
+      <div class="highlight">⚠️ <strong>둘 다</strong> 만족해야 정다면체. 하나만 만족하면 정다면체 아니에요.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 ② — 정다면체 5종 표</div>
+    <div class="card">
+      <table class="tbl">
+        <tr><th>이름</th><th>면 모양</th><th>$F$</th><th>$V$</th><th>$E$</th><th>꼭짓점에 모인 면</th></tr>
+        <tr><td>정사면체</td><td>정삼각형</td><td>4</td><td>4</td><td>6</td><td>3</td></tr>
+        <tr><td>정육면체</td><td>정사각형</td><td>6</td><td>8</td><td>12</td><td>3</td></tr>
+        <tr><td>정팔면체</td><td>정삼각형</td><td>8</td><td>6</td><td>12</td><td>4</td></tr>
+        <tr><td>정십이면체</td><td>정오각형</td><td>12</td><td>20</td><td>30</td><td>3</td></tr>
+        <tr><td>정이십면체</td><td>정삼각형</td><td>20</td><td>12</td><td>30</td><td>5</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">★ 단계별 풀이 — 왜 정확히 5종뿐인가?</div>
+
+    <div class="card">
+      <h3>Step 1. 한 꼭짓점 조건</h3>
+      <p>다면체의 한 꼭짓점에 모인 다각형들의 <strong>내각의 합 &lt; 360°</strong> 이어야 입체가 닫혀요.</p>
+      <ul>
+        <li>360° 정확히 → <strong>평면</strong>이 됨 (입체 안 됨)</li>
+        <li>360° 초과 → 닫히지 않고 평평해지지도 못함</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Step 2. 면 종류별 분석</h3>
+      <p>가능한 정다각형 (내각이 작은 것부터):</p>
+      <table class="tbl">
+        <tr><th>면 모양</th><th>한 내각</th><th>모인 수</th><th>각 합</th><th>입체?</th></tr>
+        <tr><td rowspan="4">정삼각형</td><td rowspan="4">60°</td><td>3</td><td>180°</td><td>✅ <strong>정사면체</strong></td></tr>
+        <tr><td>4</td><td>240°</td><td>✅ <strong>정팔면체</strong></td></tr>
+        <tr><td>5</td><td>300°</td><td>✅ <strong>정이십면체</strong></td></tr>
+        <tr><td>6</td><td>360°</td><td>❌ 평면 (벌집)</td></tr>
+        <tr><td rowspan="2">정사각형</td><td rowspan="2">90°</td><td>3</td><td>270°</td><td>✅ <strong>정육면체</strong></td></tr>
+        <tr><td>4</td><td>360°</td><td>❌ 평면 (바둑판)</td></tr>
+        <tr><td rowspan="2">정오각형</td><td rowspan="2">108°</td><td>3</td><td>324°</td><td>✅ <strong>정십이면체</strong></td></tr>
+        <tr><td>4</td><td>432°</td><td>❌ 360° 초과</td></tr>
+        <tr><td>정육각형</td><td>120°</td><td>3</td><td>360°</td><td>❌ 평면 (벌집)</td></tr>
+        <tr><td>정칠각형 이상</td><td>≥128°</td><td>3</td><td>≥384°</td><td>❌ 360° 초과</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Step 3. 결론</h3>
+      <p>위 표에서 ✅ 표시 = 정확히 5종:</p>
+      <div class="formula-box">정사면체 + 정팔면체 + 정이십면체 + 정육면체 + 정십이면체</div>
+      <p>정삼각형 면으로 3종 (3·4·5 모임), 정사각형 면으로 1종, 정오각형 면으로 1종. 정육각형 이상은 만들 수 없음.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 ③ — 오일러 공식</div>
+    <div class="card">
+      <div class="formula-box">$V - E + F = 2$</div>
+      <p>5종 모두 검증:</p>
+      <table class="tbl">
+        <tr><th>정다면체</th><th>$V$</th><th>$E$</th><th>$F$</th><th>$V-E+F$</th></tr>
+        <tr><td>정사면체</td><td>4</td><td>6</td><td>4</td><td>$4-6+4=$<strong>2</strong> ✓</td></tr>
+        <tr><td>정육면체</td><td>8</td><td>12</td><td>6</td><td>$8-12+6=$<strong>2</strong> ✓</td></tr>
+        <tr><td>정팔면체</td><td>6</td><td>12</td><td>8</td><td>$6-12+8=$<strong>2</strong> ✓</td></tr>
+        <tr><td>정십이면체</td><td>20</td><td>30</td><td>12</td><td>$20-30+12=$<strong>2</strong> ✓</td></tr>
+        <tr><td>정이십면체</td><td>12</td><td>30</td><td>20</td><td>$12-30+20=$<strong>2</strong> ✓</td></tr>
+      </table>
+      <div class="highlight">신기하죠? 모든 다면체에서 성립. 1750년 <strong>오일러(Leonhard Euler)</strong>가 발견.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">★ 쌍대 (Dual) — 신기한 짝</div>
+    <div class="card">
+      <p>5종 정다면체에는 <strong>짝</strong>이 있어요:</p>
+      <table class="tbl">
+        <tr><th>입체 A</th><th>입체 B</th><th>$V \leftrightarrow F$ 관계</th></tr>
+        <tr><td>정사면체</td><td>정사면체 (자기 자신)</td><td>$V=F=4$</td></tr>
+        <tr><td>정육면체 ($V=8, F=6$)</td><td>정팔면체 ($V=6, F=8$)</td><td>$V$ ↔ $F$ 교환</td></tr>
+        <tr><td>정십이면체 ($V=20, F=12$)</td><td>정이십면체 ($V=12, F=20$)</td><td>$V$ ↔ $F$ 교환</td></tr>
+      </table>
+      <p>두 입체에서 한 입체의 <strong>각 면 중심을 꼭짓점</strong>으로 하면 다른 입체가 만들어져요. 이걸 <strong>쌍대(dual)</strong> 관계라고 해요.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">정사각뿔, 정삼각기둥을 정다면체로 착각</div>
+        <div class="mistake-desc">"정"자가 붙어도 정다면체 아닐 수 있음. 정사각뿔: 옆면(정삼각형)과 밑면(정사각형) 합동 X. 정삼각기둥: 옆면(정사각형)과 밑면(정삼각형) 합동 X.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">"정육각형 정다면체가 있을 것 같다"</div>
+        <div class="mistake-desc">정육각형 한 내각 = 120°. 한 꼭짓점에 3개만 모여도 360° → 평면. 입체 못 만듦.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">정다면체가 5개보다 많다고 착각</div>
+        <div class="mistake-desc">위 분석으로 정확히 5종. 더는 없어요. (수학에서 가장 우아한 사실 중 하나!)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제 (5-c와 다름)</div>
+
+    <div class="problem-card">
+      <div class="prob-label">L</div>
+      <div class="prob-text">정십이면체의 면의 수, 꼭짓점의 수, 모서리의 수의 합 ($V+E+F$)은?</div>
+      <button class="reveal-btn" onclick="reveal(this,'p1')">정답 보기</button>
+      <div class="reveal-content" id="p1">정십이면체: $V=20, E=30, F=12$. 합 = $62$.</div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">M</div>
+      <div class="prob-text">한 꼭짓점에 정삼각형 4개가 모인 정다면체가 있어요. 한 꼭짓점에 모인 각의 합과 이 정다면체 이름은?</div>
+      <button class="reveal-btn" onclick="reveal(this,'p2')">정답 보기</button>
+      <div class="reveal-content" id="p2">한 꼭짓점 각 합 = $4 \times 60° = 240°$. $&lt; 360°$이므로 입체 가능. 정다면체 = <strong>정팔면체</strong>.</div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">M</div>
+      <div class="prob-text">정육면체의 모든 면이 정사각형이고, 한 꼭짓점에 모인 각 합이 $270°$ 인 이유를 설명하세요.</div>
+      <button class="reveal-btn" onclick="reveal(this,'p2b')">정답 보기</button>
+      <div class="reveal-content" id="p2b">정사각형 한 내각 = $90°$. 한 꼭짓점에 정사각형 3개 모임 → 각 합 = $3 \times 90° = 270° &lt; 360°$ → 입체 가능 → 정육면체.</div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">H</div>
+      <div class="prob-text">정사면체와 정팔면체에서 모서리 수의 비는?</div>
+      <button class="reveal-btn" onclick="reveal(this,'p3')">정답 보기</button>
+      <div class="reveal-content" id="p3">정사면체 $E = 6$, 정팔면체 $E = 12$. 비 = $6 : 12 = 1 : 2$.</div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">H</div>
+      <div class="prob-text">"각 꼭짓점에 모이는 면의 수"가 모든 정다면체에서 같은가요? 답하고 5종 각각의 값을 적어보세요.</div>
+      <button class="reveal-btn" onclick="reveal(this,'p4')">정답 보기</button>
+      <div class="reveal-content" id="p4"><strong>정다면체마다 다름.</strong><br>정사면체 → 3개<br>정육면체 → 3개<br>정팔면체 → 4개<br>정십이면체 → 3개<br>정이십면체 → 5개<br>💡 한 정다면체 안에서는 모든 꼭짓점 모임 수가 <strong>같아야</strong> 정의 만족 (그게 정다면체 둘째 조건). 그러나 다른 정다면체끼리는 서로 다름.</div>
+    </div>
+  </div>
+
+  <div class="kepler-banner">
+    🪐 <strong>케플러의 우주 모델 (1596)</strong> — 25살 케플러는 5개 정다면체로 6개 행성 궤도를 설명하려 했어요. 가장 안쪽 수성 → 정팔면체 → 금성 → 정이십면체 → 지구 → 정십이면체 → 화성 → 정사면체 → 목성 → 정육면체 → 토성. 모델은 결국 <strong>틀렸어요</strong>. 그러나 그 시도가 케플러 3법칙 → 뉴턴 만유인력 → 현대 물리학으로 이어졌어요.<br>"틀린 가설도 위대한 출발점이 될 수 있다."
+  </div>
+
+  <div class="connect-box">
+    <div class="connect-title">🔗 연결 개념</div>
+    <p><strong>위로</strong>: 오일러 공식 $V-E+F=2$는 정다면체뿐 아니라 모든 (구멍 없는) 다면체에서 성립 — Unit 12에서 다시 만남.</p>
+    <p><strong>옆으로</strong>: 정다면체의 면이 정다각형이라는 조건은 Unit 09(다각형) 정다각형 단원으로 직접 이어짐. 정육각형이 정다면체를 못 만든다는 사실은 정육각형의 한 내각이 120°이기 때문 — 다각형 단원에서 배운 공식.</p>
+    <p><strong>아래로</strong>: 케플러-푸앵소 다면체(별 모양 정다면체) 4종은 정다면체 5종의 확장 버전. 면이 면을 가로지르는 신기한 입체. 연구심화 자료로!</p>
+  </div>
+</div>
+
+<script>
+function reveal(btn, id) {
+  const c = document.getElementById(id);
+  c.style.display = c.style.display === 'block' ? 'none' : 'block';
+  btn.textContent = c.style.display === 'block' ? '닫기' : '정답 보기';
+}
+</script>
+</body>
+</html>

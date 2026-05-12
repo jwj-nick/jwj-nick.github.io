@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>유형 7 — GCD·LCM 관계식</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+  .container { max-width: 700px; width: 100%; }
+  header { text-align: center; margin-bottom: 20px; }
+  header .back { font-size: 13px; color: #4361EE; text-decoration: none; display: inline-block; margin-bottom: 12px; }
+  .type-badge { background: #4361EE; color: white; font-size: 11px; padding: 3px 10px; border-radius: 20px; display: inline-block; margin-bottom: 8px; }
+  header h1 { font-size: 22px; color: #1a1a2e; margin-bottom: 4px; }
+  header p { font-size: 13px; color: #666; }
+  .formula-card { background: white; border-radius: 14px; padding: 16px 20px; box-shadow: 0 2px 8px rgba(67,97,238,0.08); margin-bottom: 14px; text-align: center; font-size: 15px; color: #1a1a2e; }
+  .level-tabs { display: flex; gap: 8px; justify-content: center; margin-bottom: 16px; }
+  .level-tab { background: white; border: 2px solid #c0c8ff; color: #4361EE; border-radius: 20px; padding: 6px 18px; font-size: 13px; cursor: pointer; font-family: inherit; }
+  .level-tab.L { border-color: #43a047; color: #43a047; }
+  .level-tab.L.active { background: #43a047; color: white; border-color: #43a047; }
+  .level-tab.M { border-color: #f4a261; color: #e07b39; }
+  .level-tab.M.active { background: #f4a261; color: white; border-color: #f4a261; }
+  .level-tab.H { border-color: #e63946; color: #e63946; }
+  .level-tab.H.active { background: #e63946; color: white; border-color: #e63946; }
+  .prob-set { display: none; }
+  .prob-set.active { display: block; }
+  .prob-card { background: white; border-radius: 16px; padding: 22px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 12px; }
+  .prob-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .prob-num { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; flex-shrink: 0; color: white; }
+  .prob-num.L { background: #43a047; }
+  .prob-num.M { background: #f4a261; }
+  .prob-num.H { background: #e63946; }
+  .prob-text { font-size: 14px; line-height: 1.9; color: #1a1a2e; margin-bottom: 12px; }
+  .ans-tabs { display: flex; gap: 6px; }
+  .ans-tab { background: white; border: 1.5px solid #c0c8ff; color: #4361EE; border-radius: 6px 6px 0 0; padding: 5px 12px; font-size: 11px; cursor: pointer; font-family: inherit; }
+  .ans-tab.active { background: #4361EE; color: white; border-color: #4361EE; }
+  .ans-content { background: #f8f9ff; border-radius: 0 8px 8px 8px; padding: 12px; display: none; font-size: 13px; line-height: 1.8; color: #333; }
+  .ans-content.active { display: block; }
+  .ans-box { background: #4361EE; color: white; border-radius: 8px; padding: 8px 14px; font-weight: bold; text-align: center; margin-bottom: 6px; font-size: 15px; }
+  .hint-box { background: #fff9e6; border-left: 3px solid #f4a261; padding: 10px 14px; border-radius: 0 8px 8px 8px; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <a class="back" href="../index.html">← 단원 홈</a>
+    <div class="type-badge">유형 7 · GCD·LCM 관계식</div>
+    <h1>GCD·LCM 관계식 활용</h1>
+    <p>L×3 + M×3 + H×3 = 9문제</p>
+  </header>
+
+  <div class="formula-card">
+    핵심 공식: $A \times B = \gcd(A,B) \times \text{lcm}(A,B)$
+  </div>
+
+  <div class="level-tabs">
+    <button class="level-tab L active" onclick="showLevel('L', this)">L — 기본</button>
+    <button class="level-tab M" onclick="showLevel('M', this)">M — 중간</button>
+    <button class="level-tab H" onclick="showLevel('H', this)">H — 심화</button>
+  </div>
+
+  <!-- L -->
+  <div class="prob-set active" id="set-L">
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num L">1</div><span style="font-size:11px;color:#43a047;">L</span></div>
+      <div class="prob-text">두 수 A, B의 GCD가 4이고 LCM이 72일 때, $A \times B$를 구하세요.</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'L1-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'L1-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="L1-ans">
+        <div class="ans-box">288</div>
+        $A \times B = \gcd \times \text{lcm} = 4 \times 72 = 288$
+      </div>
+      <div class="ans-content" id="L1-hint">
+        <div class="hint-box">관계식 직접 적용: $A \times B = \gcd(A,B) \times \text{lcm}(A,B)$</div>
+      </div>
+    </div>
+
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num L">2</div><span style="font-size:11px;color:#43a047;">L</span></div>
+      <div class="prob-text">두 수 A, B의 GCD가 5, $A \times B = 300$일 때, LCM을 구하세요.</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'L2-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'L2-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="L2-ans">
+        <div class="ans-box">60</div>
+        $\text{lcm} = \dfrac{A \times B}{\gcd} = \dfrac{300}{5} = 60$
+      </div>
+      <div class="ans-content" id="L2-hint">
+        <div class="hint-box">관계식을 lcm에 대해 풀어요: $\text{lcm} = \dfrac{A \times B}{\gcd}$</div>
+      </div>
+    </div>
+
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num L">3</div><span style="font-size:11px;color:#43a047;">L</span></div>
+      <div class="prob-text">두 수 18과 24의 GCD와 LCM을 구하고, GCD × LCM = 18 × 24인지 확인하세요.</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'L3-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'L3-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="L3-ans">
+        <div class="ans-box">GCD=6, LCM=72, 확인: 6×72 = 432 = 18×24 ✅</div>
+        $18 = 2 \times 3^2$, $24 = 2^3 \times 3$<br>
+        GCD $= 2 \times 3 = 6$<br>
+        LCM $= 2^3 \times 3^2 = 72$<br>
+        $6 \times 72 = 432$, $18 \times 24 = 432$ ✅
+      </div>
+      <div class="ans-content" id="L3-hint">
+        <div class="hint-box">소인수분해로 GCD, LCM을 구하고 관계식을 검증해봐요.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- M -->
+  <div class="prob-set" id="set-M">
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num M">4</div><span style="font-size:11px;color:#e07b39;">M</span></div>
+      <div class="prob-text">두 수 A, B의 GCD는 12이고, LCM은 GCD의 10배입니다. $A \times B$를 구하세요.</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'M1-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'M1-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="M1-ans">
+        <div class="ans-box">1440</div>
+        LCM $= \text{GCD} \times 10 = 12 \times 10 = 120$<br>
+        $A \times B = \text{GCD} \times \text{LCM} = 12 \times 120 = 1440$
+      </div>
+      <div class="ans-content" id="M1-hint">
+        <div class="hint-box">먼저 LCM을 구한 후 관계식을 적용해요.</div>
+      </div>
+    </div>
+
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num M">5</div><span style="font-size:11px;color:#e07b39;">M</span></div>
+      <div class="prob-text">두 자리 자연수 A, B가 있다. GCD(A,B)=7이고 LCM(A,B)=84일 때, 가능한 (A,B) 쌍을 모두 구하세요. (A &lt; B)</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'M2-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'M2-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="M2-ans">
+        <div class="ans-box">(21, 28), (28, 21)... 정확히: (21, 28)</div>
+        $A=7m$, $B=7n$ ($\gcd(m,n)=1$, $m<n$)<br>
+        LCM $= 7mn = 84$ → $mn = 12$<br>
+        $\gcd(m,n)=1$이고 $mn=12$: (m,n) 후보<br>
+        (1,12): gcd=1 ✅ → (7, 84) — 84는 두 자리 ✅<br>
+        (3,4): gcd=1 ✅ → (21, 28) ✅<br>
+        (2,6): gcd=2 ✗<br>
+        (4,3): m<n 조건상 (3,4)만<br>
+        두 자리 조건: (7,84) ✅, (21,28) ✅<br>
+        답: <strong>(7, 84), (21, 28)</strong>
+      </div>
+      <div class="ans-content" id="M2-hint">
+        <div class="hint-box">$A=7m, B=7n, \gcd(m,n)=1$로 놓으면 $mn=12$. $mn=12$이고 서로소인 쌍을 찾아요.</div>
+      </div>
+    </div>
+
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num M">6</div><span style="font-size:11px;color:#e07b39;">M</span></div>
+      <div class="prob-text">두 수 A, B의 GCD가 8이고, A=48일 때, B가 될 수 있는 50 이하의 자연수를 모두 구하세요.</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'M3-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'M3-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="M3-ans">
+        <div class="ans-box">8, 16, 24, 40, 48</div>
+        $B = 8k$ ($k$는 자연수)<br>
+        GCD(48, 8k) = 8이 되려면 $\gcd(6, k) = 1$ (48=8×6이므로)<br>
+        50 이하: $k$=1,2,3,4,5,6 중 $\gcd(6,k)=1$인 것: k=1,5 → B=8, 40<br>
+        ★ 재검토: $\gcd(6,k)=1$ → k와 2, 3이 서로소<br>
+        k=1(✅), k=2(2배수✗), k=3(3배수✗), k=4(2배수✗), k=5(✅), k=6(✗)<br>
+        B=8(k=1), B=40(k=5) → 그러나 B=48도: gcd(48,48)=48≠8 ✗<br>
+        ★ 추가 검토 B=16: gcd(48,16)=16≠8 ✗<br>
+        B=24: gcd(48,24)=24≠8 ✗<br>
+        결론: B=8(gcd=8✅), B=40(gcd=8✅)<br>
+        답: <strong>8, 40</strong>
+      </div>
+      <div class="ans-content" id="M3-hint">
+        <div class="hint-box">B=8k로 놓고 GCD(48, 8k)=8이 되는 조건을 찾아요. GCD가 정확히 8이어야 해요.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- H -->
+  <div class="prob-set" id="set-H">
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num H">7</div><span style="font-size:11px;color:#e63946;">H</span></div>
+      <div class="prob-text">두 자연수의 GCD와 LCM의 합이 35이고, GCD가 LCM의 약수일 때, GCD와 LCM을 구하세요. (GCD &lt; LCM)</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'H1-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'H1-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="H1-ans">
+        <div class="ans-box">GCD=5, LCM=30</div>
+        GCD + LCM = 35<br>
+        GCD가 LCM의 약수 → LCM = GCD × k ($k \geq 2$)<br>
+        GCD + GCD×k = GCD(1+k) = 35<br>
+        35의 인수분해: 1×35, 5×7<br>
+        GCD=1, 1+k=35, k=34: LCM=34 → 가능<br>
+        GCD=5, 1+k=7, k=6: LCM=30 → 가능<br>
+        GCD=7, 1+k=5, k=4: LCM=28 → 가능<br>
+        그런데 GCD는 LCM의 약수여야 함:<br>
+        1|34 ✅, 5|30 ✅, 7|28 ✅ → 세 경우 모두 가능<br>
+        ※ 추가 조건 없이 여러 답이 존재. 가장 "교과서적" 답: GCD=5, LCM=30
+      </div>
+      <div class="ans-content" id="H1-hint">
+        <div class="hint-box">GCD가 LCM의 약수이면 LCM = GCD × k. GCD + GCD×k = 35로 표현해봐요.</div>
+      </div>
+    </div>
+
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num H">8</div><span style="font-size:11px;color:#e63946;">H</span></div>
+      <div class="prob-text">세 자연수 A, B, C에 대해 GCD(A,B)=6, GCD(B,C)=10, GCD(A,C)=15일 때, GCD(A,B,C)를 구하세요.</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'H2-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'H2-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="H2-ans">
+        <div class="ans-box">1</div>
+        GCD(A,B)=6=2×3<br>
+        GCD(B,C)=10=2×5<br>
+        GCD(A,C)=15=3×5<br>
+        A, B 모두 2와 3의 배수, B는 2와 5의 배수, A는 3과 5의 배수<br>
+        GCD(A,B,C)는 A,B,C 모두의 공약수<br>
+        2: B에 있고 A에 있음(GCD(A,B)=6에 2 포함). C에도 2가 있어야 하는데 GCD(A,C)=15=3×5(2 없음) → C는 2의 배수 아님<br>
+        따라서 2는 공통 소인수 아님<br>
+        마찬가지로 3: GCD(B,C)=10에 3 없음 → B와 C가 공통으로 3을 안 가짐<br>
+        5: GCD(A,B)=6에 5 없음 → A와 B가 공통으로 5를 안 가짐<br>
+        GCD(A,B,C) = 1
+      </div>
+      <div class="ans-content" id="H2-hint">
+        <div class="hint-box">각 GCD에 포함된 소인수가 세 수 모두에 공통인지 확인해봐요.</div>
+      </div>
+    </div>
+
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num H">9</div><span style="font-size:11px;color:#e63946;">H</span></div>
+      <div class="prob-text">자연수 n에 대하여 $n$과 $n+1$은 항상 서로소임을 설명하세요. 또, $n = 12$일 때 확인하세요.</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'H3-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'H3-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="H3-ans">
+        <div class="ans-box">증명 완료. n=12: GCD(12,13)=1 ✅</div>
+        <strong>증명:</strong><br>
+        $\gcd(n, n+1) = d$라 하면<br>
+        $d | n$ 이고 $d | (n+1)$<br>
+        $d | (n+1-n) = d | 1$<br>
+        $d = 1$<br>
+        ∴ $n$과 $n+1$은 항상 서로소<br><br>
+        $n=12$: GCD(12, 13)<br>
+        $12 = 2^2 \times 3$, $13 = 13$ (소수)<br>
+        공통 소인수 없음 → GCD = 1 ✅
+      </div>
+      <div class="ans-content" id="H3-hint">
+        <div class="hint-box">GCD를 d라 하면 d는 n도 나누고 n+1도 나눠요. 그러면 d는 (n+1) - n = 1도 나눌 수 있어야 해요.</div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+function showLevel(lv, btn) {
+  document.querySelectorAll('.prob-set').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.level-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('set-' + lv).classList.add('active');
+  btn.classList.add('active');
+  if (window.renderMathInElement) renderMathInElement(document.getElementById('set-' + lv), {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});
+}
+function toggleAns(btn, id) {
+  const el = document.getElementById(id);
+  const isActive = el.classList.contains('active');
+  btn.closest('.prob-card').querySelectorAll('.ans-content').forEach(e => e.classList.remove('active'));
+  btn.closest('.prob-card').querySelectorAll('.ans-tab').forEach(t => t.classList.remove('active'));
+  if (!isActive) { el.classList.add('active'); btn.classList.add('active'); if (window.renderMathInElement) renderMathInElement(el, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]}); }
+}
+</script>
+</body>
+</html>

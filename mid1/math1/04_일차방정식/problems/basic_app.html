@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>기본 문제 — 일차방정식</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Malgun Gothic', sans-serif;
+    background: #eef2ff;
+    min-height: 100vh;
+  }
+  .header {
+    background: linear-gradient(135deg, #4361EE 0%, #3a0ca3 100%);
+    color: white;
+    padding: 24px 20px;
+    text-align: center;
+  }
+  .header h1 { font-size: 22px; margin-bottom: 6px; }
+  .header p { font-size: 13px; opacity: 0.85; }
+  .progress-bar {
+    background: rgba(255,255,255,0.2);
+    height: 4px;
+    border-radius: 2px;
+    margin-top: 14px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    background: white;
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.3s;
+  }
+  .container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 20px 16px 60px;
+  }
+  .question-card {
+    background: white;
+    border-radius: 16px;
+    padding: 22px;
+    box-shadow: 0 2px 12px rgba(67,97,238,0.08);
+    margin-bottom: 14px;
+    transition: box-shadow 0.2s;
+  }
+  .question-card.answered { box-shadow: 0 2px 12px rgba(67,97,238,0.15); }
+  .q-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .q-num {
+    background: #4361EE;
+    color: white;
+    border-radius: 50%;
+    width: 28px; height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+  .q-tag {
+    font-size: 11px;
+    background: #eef2ff;
+    color: #4361EE;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .q-diff {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-left: auto;
+  }
+  .diff-L { background: #e8f5e9; color: #2e7d32; }
+  .diff-M { background: #fff3e0; color: #e65100; }
+  .q-text {
+    font-size: 15px;
+    color: #1a1a2e;
+    line-height: 1.8;
+    margin-bottom: 14px;
+  }
+  .choices {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .choice-btn {
+    background: #f8f9ff;
+    border: 2px solid #eef2ff;
+    border-radius: 10px;
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .choice-btn:hover { border-color: #4361EE; background: #eef2ff; }
+  .choice-btn.selected { border-color: #4361EE; background: #eef2ff; font-weight: bold; }
+  .choice-btn.correct { border-color: #2e7d32; background: #e8f5e9; color: #1b5e20; font-weight: bold; }
+  .choice-btn.wrong { border-color: #c62828; background: #ffebee; color: #b71c1c; }
+  .open-input {
+    width: 100%;
+    border: 2px solid #eef2ff;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 16px;
+    font-family: 'Malgun Gothic', sans-serif;
+    color: #333;
+    outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 10px;
+  }
+  .open-input:focus { border-color: #4361EE; }
+  .open-input.correct { border-color: #2e7d32; background: #e8f5e9; }
+  .open-input.wrong { border-color: #c62828; background: #ffebee; }
+  .check-btn {
+    background: #4361EE;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 24px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .check-btn:hover { background: #3a0ca3; }
+  .check-btn:disabled { background: #aaa; cursor: default; }
+  .answer-panel {
+    display: none;
+    margin-top: 12px;
+    border-top: 1px solid #eef2ff;
+    padding-top: 12px;
+  }
+  .answer-panel.show { display: block; }
+  .answer-box {
+    background: #f0fff4;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 14px;
+    color: #1b5e20;
+    line-height: 1.8;
+    margin-bottom: 8px;
+  }
+  .solution-box {
+    background: #f8f9ff;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #444;
+    line-height: 1.8;
+  }
+  .result-badge {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-top: 8px;
+  }
+  .badge-correct { background: #e8f5e9; color: #2e7d32; }
+  .badge-wrong { background: #ffebee; color: #c62828; }
+  /* 요약 카드 */
+  .summary-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 12px rgba(67,97,238,0.08);
+    text-align: center;
+    display: none;
+  }
+  .summary-score {
+    font-size: 48px;
+    font-weight: bold;
+    color: #4361EE;
+    margin: 10px 0;
+  }
+  .summary-sub { font-size: 14px; color: #666; }
+  .home-btn {
+    display: inline-block;
+    margin-top: 20px;
+    background: #4361EE;
+    color: white;
+    text-decoration: none;
+    padding: 10px 28px;
+    border-radius: 24px;
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>기본 문제 — 일차방정식</h1>
+  <p>Unit 04 전체 핵심 개념 확인 · 9문제</p>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+  </div>
+</div>
+
+<div class="container" id="mainContent">
+
+  <!-- Q1 -->
+  <div class="question-card" id="qcard-1">
+    <div class="q-header">
+      <div class="q-num">1</div>
+      <div class="q-tag">방정식의 해</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">$x = 2$를 방정식 $3x - 1 = 5$에 대입하면 이 방정식의 해인지 알 수 있어요.<br>대입했을 때 좌변의 값은?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(1,'①','5')">① 5</button>
+      <button class="choice-btn" onclick="chooseAnswer(1,'②','4')">② 4</button>
+      <button class="choice-btn" onclick="chooseAnswer(1,'③','6')">③ 6</button>
+      <button class="choice-btn" onclick="chooseAnswer(1,'④','3')">④ 3</button>
+    </div>
+    <div class="answer-panel" id="ans-1">
+      <div class="answer-box">정답: ① 5 (→ 해가 맞습니다)</div>
+      <div class="solution-box">$3 \times 2 - 1 = 6 - 1 = 5$ = 우변 → 해 O</div>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="question-card" id="qcard-2">
+    <div class="q-header">
+      <div class="q-num">2</div>
+      <div class="q-tag">항등식 구분</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">다음 중 항등식인 것을 고르세요.</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(2,'①','x+1=5')">① $x + 1 = 5$</button>
+      <button class="choice-btn" onclick="chooseAnswer(2,'②','2(x+3)=2x+6')">② $2(x+3) = 2x + 6$</button>
+      <button class="choice-btn" onclick="chooseAnswer(2,'③','x-2=0')">③ $x - 2 = 0$</button>
+      <button class="choice-btn" onclick="chooseAnswer(2,'④','3x=9')">④ $3x = 9$</button>
+    </div>
+    <div class="answer-panel" id="ans-2">
+      <div class="answer-box">정답: ② $2(x+3) = 2x + 6$</div>
+      <div class="solution-box">분배법칙: $2x+6 = 2x+6$ → 어떤 $x$를 넣어도 참 → 항등식<br>나머지는 특정 값에서만 참 → 방정식</div>
+    </div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="question-card" id="qcard-3">
+    <div class="q-header">
+      <div class="q-num">3</div>
+      <div class="q-tag">등식의 성질</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">등식 $x - 4 = 3$에서 양변에 4를 더하면 $x = $ □ 이 됩니다. □ 안에 들어갈 수를 쓰세요.</div>
+    <input class="open-input" id="input-3" type="number" placeholder="답을 입력하세요">
+    <br><button class="check-btn" onclick="checkOpen(3,'7')">확인</button>
+    <div class="answer-panel" id="ans-3">
+      <div class="answer-box">정답: 7</div>
+      <div class="solution-box">$x - 4 + 4 = 3 + 4$<br>$x = 7$<br>검산: $7 - 4 = 3$ ✓</div>
+    </div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="question-card" id="qcard-4">
+    <div class="q-header">
+      <div class="q-num">4</div>
+      <div class="q-tag">이항</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">$2x + 5 = 11$을 이항을 이용하여 풀면 $x = $ ?</div>
+    <input class="open-input" id="input-4" type="number" placeholder="답을 입력하세요">
+    <br><button class="check-btn" onclick="checkOpen(4,'3')">확인</button>
+    <div class="answer-panel" id="ans-4">
+      <div class="answer-box">정답: 3</div>
+      <div class="solution-box">$2x = 11 - 5 = 6$<br>$x = 3$<br>검산: $2(3)+5=11$ ✓</div>
+    </div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="question-card" id="qcard-5">
+    <div class="q-header">
+      <div class="q-num">5</div>
+      <div class="q-tag">일차방정식 풀기</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">$3x - 7 = 2x + 1$을 풀어라.</div>
+    <input class="open-input" id="input-5" type="number" placeholder="x = ?">
+    <br><button class="check-btn" onclick="checkOpen(5,'8')">확인</button>
+    <div class="answer-panel" id="ans-5">
+      <div class="answer-box">정답: $x = 8$</div>
+      <div class="solution-box">$3x - 2x = 1 + 7$<br>$x = 8$<br>검산: $3(8)-7=17$, $2(8)+1=17$ ✓</div>
+    </div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="question-card" id="qcard-6">
+    <div class="q-header">
+      <div class="q-num">6</div>
+      <div class="q-tag">분수 계수</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text">$\dfrac{x}{2} + 1 = 4$를 풀어라.</div>
+    <input class="open-input" id="input-6" type="number" placeholder="x = ?">
+    <br><button class="check-btn" onclick="checkOpen(6,'6')">확인</button>
+    <div class="answer-panel" id="ans-6">
+      <div class="answer-box">정답: $x = 6$</div>
+      <div class="solution-box">양변에 2를 곱하면: $x + 2 = 8$<br>이항: $x = 8 - 2 = 6$<br>검산: $6/2 + 1 = 4$ ✓</div>
+    </div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="question-card" id="qcard-7">
+    <div class="q-header">
+      <div class="q-num">7</div>
+      <div class="q-tag">괄호 있는 방정식</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text">$2(x - 3) = x + 1$을 풀어라.</div>
+    <input class="open-input" id="input-7" type="number" placeholder="x = ?">
+    <br><button class="check-btn" onclick="checkOpen(7,'7')">확인</button>
+    <div class="answer-panel" id="ans-7">
+      <div class="answer-box">정답: $x = 7$</div>
+      <div class="solution-box">괄호 풀기: $2x - 6 = x + 1$<br>이항: $2x - x = 1 + 6$<br>$x = 7$<br>검산: $2(7-3)=8$, $7+1=8$ ✓</div>
+    </div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="question-card" id="qcard-8">
+    <div class="q-header">
+      <div class="q-num">8</div>
+      <div class="q-tag">소수 계수</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text">$0.3x + 0.5 = 1.4$를 풀어라.</div>
+    <input class="open-input" id="input-8" type="number" placeholder="x = ?">
+    <br><button class="check-btn" onclick="checkOpen(8,'3')">확인</button>
+    <div class="answer-panel" id="ans-8">
+      <div class="answer-box">정답: $x = 3$</div>
+      <div class="solution-box">양변에 10을 곱하면: $3x + 5 = 14$<br>이항: $3x = 9$<br>$x = 3$<br>검산: $0.3(3)+0.5 = 1.4$ ✓</div>
+    </div>
+  </div>
+
+  <!-- Q9 -->
+  <div class="question-card" id="qcard-9">
+    <div class="q-header">
+      <div class="q-num">9</div>
+      <div class="q-tag">방정식 활용</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text">연속하는 두 자연수의 합이 25일 때, 두 수 중 <strong>작은 수</strong>를 구하시오.</div>
+    <input class="open-input" id="input-9" type="number" placeholder="작은 수 = ?">
+    <br><button class="check-btn" onclick="checkOpen(9,'12')">확인</button>
+    <div class="answer-panel" id="ans-9">
+      <div class="answer-box">정답: 12 (두 수: 12, 13)</div>
+      <div class="solution-box">작은 수를 $x$라 하면 $x + (x+1) = 25$<br>$2x + 1 = 25$<br>$2x = 24$<br>$x = 12$<br>검토: $12+13=25$ ✓, 자연수 조건 ✓</div>
+    </div>
+  </div>
+
+  <!-- 결과 요약 -->
+  <div class="summary-card" id="summaryCard">
+    <div style="font-size:32px;">🎉</div>
+    <div class="summary-score" id="scoreNum">0</div>
+    <div class="summary-sub" id="scoreText">/ 9 문제 맞았어요!</div>
+    <div style="margin-top:16px;font-size:14px;color:#555;line-height:1.7;" id="summaryMsg"></div>
+    <a class="home-btn" href="../index.html">단원 4 홈으로</a>
+  </div>
+
+</div>
+
+<script>
+const TOTAL = 9;
+let answered = {};
+let correct = {};
+
+function chooseAnswer(qNum, chosen, correctAns) {
+  if (answered[qNum]) return;
+  answered[qNum] = true;
+
+  const btns = document.querySelectorAll(`#qcard-${qNum} .choice-btn`);
+  btns.forEach(b => {
+    b.disabled = true;
+    const label = b.textContent.trim().slice(0,1);
+    if (label === chosen) {
+      b.classList.add(chosen === correctAns ? 'correct' : 'wrong');
+    }
+    if (label === correctAns && chosen !== correctAns) {
+      b.classList.add('correct');
+    }
+  });
+
+  correct[qNum] = (chosen === correctAns);
+  const badge = document.createElement('div');
+  badge.className = 'result-badge ' + (correct[qNum] ? 'badge-correct' : 'badge-wrong');
+  badge.textContent = correct[qNum] ? '정답!' : '오답';
+  document.querySelector(`#qcard-${qNum} .choices`).after(badge);
+
+  document.getElementById(`ans-${qNum}`).classList.add('show');
+  updateProgress();
+  checkAllDone();
+  if (window.renderMathInElement) renderMathInElement(document.getElementById(`ans-${qNum}`), {
+    delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+  });
+}
+
+function checkOpen(qNum, correctAns) {
+  if (answered[qNum]) return;
+  const input = document.getElementById(`input-${qNum}`);
+  const val = input.value.trim();
+  if (!val) return;
+
+  answered[qNum] = true;
+  correct[qNum] = (val === correctAns);
+
+  input.disabled = true;
+  input.classList.add(correct[qNum] ? 'correct' : 'wrong');
+  document.querySelector(`#qcard-${qNum} .check-btn`).disabled = true;
+
+  const badge = document.createElement('div');
+  badge.className = 'result-badge ' + (correct[qNum] ? 'badge-correct' : 'badge-wrong');
+  badge.textContent = correct[qNum] ? '정답!' : '오답';
+  badge.style.marginTop = '8px';
+  document.querySelector(`#qcard-${qNum} .check-btn`).after(badge);
+
+  document.getElementById(`ans-${qNum}`).classList.add('show');
+  updateProgress();
+  checkAllDone();
+  if (window.renderMathInElement) renderMathInElement(document.getElementById(`ans-${qNum}`), {
+    delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+  });
+}
+
+function updateProgress() {
+  const done = Object.keys(answered).length;
+  document.getElementById('progressFill').style.width = (done/TOTAL*100) + '%';
+}
+
+function checkAllDone() {
+  if (Object.keys(answered).length < TOTAL) return;
+  const score = Object.values(correct).filter(Boolean).length;
+  const summary = document.getElementById('summaryCard');
+  document.getElementById('scoreNum').textContent = score;
+  document.getElementById('scoreText').textContent = `/ ${TOTAL} 문제 맞았어요!`;
+
+  let msg = '';
+  if (score === TOTAL) msg = '완벽해요! 일차방정식의 핵심을 모두 이해했어요.';
+  else if (score >= 7) msg = '잘 했어요! 조금 더 연습하면 완벽해질 거예요.';
+  else if (score >= 5) msg = '절반 이상 맞았어요. 틀린 문제의 풀이를 다시 읽어봐요.';
+  else msg = '틀린 문제의 풀이를 꼼꼼히 읽고 다시 도전해봐요!';
+
+  document.getElementById('summaryMsg').textContent = msg;
+  summary.style.display = 'block';
+  if (window.renderMathInElement) renderMathInElement(summary, {
+    delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+  });
+}
+</script>
+</body>
+</html>

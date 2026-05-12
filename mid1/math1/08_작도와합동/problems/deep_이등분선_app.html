@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 탐구 — 이등분선 (수직이등분선·각의 이등분선)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+:root{--primary:#4361EE;--bg:#eef2ff;--card:#fff;--ok:#2ecc71;--ng:#e74c3c;--warn:#f39c12;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic',sans-serif;background:var(--bg);padding:0 0 60px;color:#2d3436;}
+.header{background:linear-gradient(135deg,#4361EE,#3a0ca3);color:white;padding:28px 20px 24px;text-align:center;}
+.header h1{font-size:20px;margin-bottom:6px;}
+.header p{font-size:13px;opacity:0.85;}
+.back-link{font-size:12px;color:rgba(255,255,255,0.7);text-decoration:none;display:block;margin-top:10px;}
+.tab-bar{display:flex;gap:0;background:white;box-shadow:0 2px 8px rgba(0,0,0,0.08);position:sticky;top:0;z-index:10;}
+.tab-btn{flex:1;padding:14px 0;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;color:#888;border-bottom:3px solid transparent;font-family:inherit;}
+.tab-btn.active{color:#4361EE;border-bottom-color:#4361EE;}
+.tab-btn small{font-size:10px;display:block;margin-top:2px;color:#aaa;}
+.tab-btn.active small{color:#4361EE;}
+.tab-panel{display:none;}
+.tab-panel.show{display:block;}
+.container{max-width:700px;margin:0 auto;padding:20px 16px;}
+.section{margin-bottom:28px;}
+.section-title{font-size:15px;font-weight:bold;color:#4361EE;padding-left:8px;border-left:3px solid #4361EE;margin-bottom:14px;}
+.card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;}
+.card h3{font-size:15px;color:#1a1a2e;margin-bottom:10px;}
+.card p,.card li{font-size:14px;color:#444;line-height:1.8;}
+.card ul{padding-left:18px;}
+.highlight{background:#f0f4ff;border-left:4px solid #4361EE;border-radius:0 10px 10px 0;padding:12px 16px;margin:10px 0;font-size:14px;color:#333;line-height:1.7;}
+.warn-box{background:#fff3e0;border:1px solid #ffcc80;border-radius:10px;padding:12px 14px;font-size:13px;color:#e65100;line-height:1.6;margin-top:10px;}
+.mistake-item{background:white;border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(67,97,238,.07);margin-bottom:10px;display:flex;gap:12px;}
+.mistake-icon{font-size:22px;flex-shrink:0;margin-top:2px;}
+.mistake-content{flex:1;}
+.mistake-title{font-size:14px;font-weight:bold;color:#e74c3c;margin-bottom:4px;}
+.mistake-desc{font-size:13px;color:#444;line-height:1.6;}
+.problem-card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;border-left:4px solid #4361EE;}
+.prob-label{font-size:12px;font-weight:bold;color:#4361EE;letter-spacing:1px;margin-bottom:8px;}
+.prob-text{font-size:15px;line-height:1.8;color:#1a1a2e;margin-bottom:12px;}
+.reveal-btn{background:none;border:2px solid #4361EE;color:#4361EE;padding:6px 18px;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;}
+.reveal-content{display:none;margin-top:12px;background:#f0fff4;border-radius:10px;padding:12px 16px;font-size:13px;color:#1b5e20;line-height:1.7;}
+.connect-box{background:linear-gradient(135deg,#f0f4ff,#e8ecff);border-radius:14px;padding:20px;font-size:14px;color:#333;line-height:1.8;}
+.connect-title{font-size:15px;font-weight:bold;color:#4361EE;margin-bottom:10px;}
+table.tbl{border-collapse:collapse;font-size:13px;margin:10px 0;width:100%;}
+table.tbl th,table.tbl td{border:1px solid #ccd;padding:6px 10px;text-align:center;}
+table.tbl th{background:#eef2ff;}
+.formula-box{background:#eef2ff;border-radius:8px;padding:10px 14px;text-align:center;font-size:16px;color:#4361EE;font-weight:700;margin:8px 0;}
+.fig-svg{display:block;margin:10px auto;max-width:380px;width:100%;background:#fafbff;border-radius:8px;padding:8px;border:1px solid #eef2ff;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>깊이 탐구 — 이등분선</h1>
+  <p>수직이등분선 · 각의 이등분선 (2유형 통합)</p>
+  <a class="back-link" href="../index.html">← 단원 8 홈</a>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('tab1',this)">유형 3<small>수직이등분선</small></button>
+  <button class="tab-btn" onclick="switchTab('tab2',this)">유형 4<small>각의 이등분선</small></button>
+</div>
+
+<!-- 탭 1: 수직이등분선 -->
+<div class="tab-panel show" id="tab1">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>"왜 두 호의 교점이 수직이등분선 위에 있는가?"가 처음엔 마법처럼 보여요. 단순한 단계지만 이유는 합동에서 나와요.</p>
+      <p style="margin-top:8px;"><strong>핵심 함정</strong>:<br>
+      ① 호 반지름이 $\overline{AB}/2$보다 작으면 두 호가 안 만남<br>
+      ② "수직이등분선 위 점은 두 끝점에서 같은 거리"라는 성질을 활용 못함</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 두 끝에서 같은 거리</div>
+    <div class="card">
+      <h3>작도 절차 (4단계)</h3>
+      <ul>
+        <li>① A 중심으로 호 (반지름 $r > \overline{AB}/2$)</li>
+        <li>② 같은 반지름 $r$로 B 중심 호 → 두 교점 P, Q</li>
+        <li>③ 자로 PQ 잇기 → 수직이등분선</li>
+        <li>④ PQ가 AB를 만나는 점이 중점 M, ∠AMP = 90°</li>
+      </ul>
+      <div class="formula-box">수직이등분선 위 점 P ⇔ $\overline{PA} = \overline{PB}$</div>
+    </div>
+
+    <div class="card">
+      <h3>왜 PQ가 수직이등분선인가? (SSS 합동)</h3>
+      <p>두 호의 교점 P에서:<br>
+      $\overline{PA} = r$ (A 중심 호 위)<br>
+      $\overline{PB} = r$ (B 중심 호 위, 같은 반지름)<br>
+      → $\overline{PA} = \overline{PB}$<br>
+      마찬가지로 Q도 두 끝에서 같은 거리.<br>
+      "두 끝에서 같은 거리인 점들의 모임"이 곧 수직이등분선이에요.</p>
+      <div class="highlight">▶ 더 엄밀하게 SSS 합동으로: 삼각형 APM과 BPM (M = AB와 PQ 교점)에서 $\overline{PA}=\overline{PB}, \overline{PM}$ 공통, $\overline{AM}=\overline{BM}$ → SSS → ∠AMP = ∠BMP, 둘의 합 180° → 90°.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">호 반지름이 $\overline{AB}/2$보다 작음</div>
+        <div class="mistake-desc">두 호가 만나지 않아 작도 실패. 안전하게 $\overline{AB}$ 정도로 잡으면 됨.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">A·B 중심 호의 반지름을 다르게 잡음</div>
+        <div class="mistake-desc">다른 반지름이면 교점이 두 끝에서 같은 거리가 아님 → 수직이등분선 X.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">"수직이등분선 위 점 = 직선 위에서 같은 거리"라고 착각</div>
+        <div class="mistake-desc">"같은 거리"는 두 점 A, B에서의 거리, 즉 $\overline{PA} = \overline{PB}$. 직선 위 거리는 무관.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제 (점진적 난이도)</div>
+
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 1 (L)</div>
+      <div class="prob-text">$\overline{AB} = 10$ cm일 때, 수직이등분선 작도에 사용할 수 있는 컴퍼스 반지름은?<br>① 4 cm ② 5 cm ③ 6 cm ④ 12 cm</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content">
+        <strong>③ 6 cm, ④ 12 cm</strong><br>
+        $r > 10/2 = 5$ cm여야 두 호가 만남.<br>
+        ① 4 < 5 X<br>② 5 = 5 → 한 점에서만 만남(중점) → 수직 X<br>③ 6 > 5 ✓<br>④ 12 > 5 ✓
+      </div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 2 (M)</div>
+      <div class="prob-text">두 점 A, B에서 같은 거리에 있고 $\overline{AB}$ 위에 <strong>없는</strong> 점이 존재하는가? 있다면 어떤 도형인가?</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content">
+        <strong>존재. AB의 수직이등분선 위 점 (중점 M 제외)</strong><br>
+        $\overline{PA} = \overline{PB}$인 점 P의 모임 = AB의 수직이등분선.<br>
+        그 중 M(중점)은 AB 위, 나머지 모든 점은 AB 밖.<br>
+        예: 직각삼각형의 빗변의 수직이등분선 위 한 점, 정삼각형의 꼭지점 등.
+      </div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 3 (H)</div>
+      <div class="prob-text">사각형 ABCD가 있다. 네 변의 수직이등분선이 한 점에서 만나려면 사각형이 어떤 조건을 만족해야 할까?</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content">
+        <strong>네 꼭짓점이 한 원 위에 있어야 함 (원에 내접하는 사각형)</strong><br>
+        세 점이 한 원 위에 있다 = 그 세 점이 만드는 두 현의 수직이등분선이 한 점(=원의 중심)에서 만남.<br>
+        네 꼭짓점이 모두 한 원 위에 있으면 4개 변(현)의 수직이등분선이 모두 그 중심을 지남 → 한 점에서 만남.<br>
+        → "원에 내접하는 사각형(circumscriptable)" 조건. 일반 사각형은 X.<br>
+        → 삼각형은 항상 외접원 가능. 사각형은 그렇지 않음 (일반적으로).
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">이 유형 이해 후 무엇이 쉬워지나</div>
+    <div class="connect-box">
+      <div class="connect-title">→ 외심·외접원 (중3, 고등) 이해</div>
+      삼각형의 세 변의 수직이등분선이 한 점에서 만나는 점 = 외심. 외심에서 세 꼭짓점까지의 거리가 모두 같음 = 외접원의 반지름. 수직이등분선의 성질을 단단하게 알면 자연스럽게 이해돼요.
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- 탭 2: 각의 이등분선 -->
+<div class="tab-panel" id="tab2">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>각의 이등분선은 작도 절차가 수직이등분선과 비슷해 헷갈리기 쉬워요. 또한 "각의 이등분선 위 점은 두 변에서 같은 거리"라는 성질이 수직이등분선의 "두 끝에서 같은 거리"와 비슷하지만 다른 의미.</p>
+      <p style="margin-top:8px;"><strong>핵심 함정</strong>:<br>
+      ① 1단계 호의 반지름과 2·3단계 호의 반지름을 헷갈림<br>
+      ② "두 변에서의 거리"의 의미: 점에서 직선까지의 <strong>수직 거리</strong></p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 두 변에서 같은 거리</div>
+    <div class="card">
+      <h3>작도 절차 (4단계)</h3>
+      <ul>
+        <li>① O 중심 호 → OX, OY와 만나는 A, B</li>
+        <li>② A 중심 호 (반지름 적당히)</li>
+        <li>③ 같은 반지름으로 B 중심 호 → 교점 P</li>
+        <li>④ 자로 OP 잇기 → 이등분선</li>
+      </ul>
+      <div class="formula-box">각의 이등분선 위 점 P ⇔ 두 변에서 거리 같음</div>
+    </div>
+
+    <div class="card">
+      <h3>왜 OP가 ∠XOY를 이등분하는가? (SSS 합동)</h3>
+      <p>삼각형 OAP와 OBP에서:<br>
+      $\overline{OA} = \overline{OB}$ (① 같은 호의 반지름)<br>
+      $\overline{AP} = \overline{BP}$ (② = ③ 같은 반지름)<br>
+      $\overline{OP}$ 공통<br>
+      → SSS 합동 → ∠AOP = ∠BOP (대응각) → 이등분 ✓</p>
+    </div>
+
+    <div class="card">
+      <h3>이등분선 위 점의 성질 (★ 핵심)</h3>
+      <p>이등분선 위 점 P에서 두 변 OX, OY로 내린 수선의 발을 H₁, H₂라 하면:<br>
+      $\overline{OP}$ 공통, ∠POH₁ = ∠POH₂ (이등분), ∠PH₁O = ∠PH₂O = 90°<br>
+      → ASA 합동 → $\overline{PH_1} = \overline{PH_2}$<br>
+      <strong>즉, 이등분선 위 점은 두 변에서 거리(수직 거리)가 같음.</strong></p>
+      <div class="highlight">▶ 역방향: 두 변에서 같은 거리에 있는 점 = 이등분선 위. 이 성질은 내심·내접원의 근거.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">A 중심 호와 B 중심 호의 반지름을 다르게 잡음</div>
+        <div class="mistake-desc">$\overline{AP} = \overline{BP}$가 보장되지 않으면 SSS 합동 X → 이등분 보장 X.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">"임의의 각이 자와 컴퍼스로 항상 삼등분 가능"이라고 생각</div>
+        <div class="mistake-desc">이등분은 가능, 삼등분은 일반적으로 불가능 (그리스 3대 작도 불능 문제). 19세기에 증명됨.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제 (점진적 난이도)</div>
+
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 1 (L)</div>
+      <div class="prob-text">∠XOY = 120°일 때, 두 번 이등분 후의 각은?</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content">
+        <strong>30°</strong><br>
+        1번: $120° / 2 = 60°$<br>
+        2번: $60° / 2 = 30°$<br>
+        → 자와 컴퍼스로 120°를 4등분.
+      </div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 2 (M)</div>
+      <div class="prob-text">∠XOY의 이등분선 위 점 P에서 OX까지의 거리가 4cm이다. P에서 OY까지의 거리는?</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content">
+        <strong>4 cm</strong><br>
+        이등분선 위 점은 두 변에서 같은 거리 (수직 거리).<br>
+        → $\overline{PH_1} = \overline{PH_2} = 4$ cm.
+      </div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 3 (H)</div>
+      <div class="prob-text">"내심"의 정의를 작도 관점에서 설명하시오. 삼각형 ABC에서 어떻게 작도하나? 내심의 성질은?</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content">
+        <strong>내심 = 세 내각의 이등분선의 교점</strong><br>
+        <strong>작도</strong>: 세 내각 ∠A, ∠B, ∠C의 이등분선을 각각 작도. 세 직선이 한 점 I에서 만남 (이게 내심).<br>
+        <strong>왜 한 점에서?</strong><br>
+        ∠A 이등분선 위 I → I는 변 AB·AC에서 같은 거리<br>
+        ∠B 이등분선 위 I → I는 변 BA·BC에서 같은 거리<br>
+        → I는 세 변 모두에서 같은 거리 → 그 거리만큼 반지름인 원이 세 변에 모두 닿음 (내접원)<br>
+        <strong>성질</strong>: 내심에서 세 변까지의 거리 = 내접원의 반지름.
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">이 유형 이해 후 무엇이 쉬워지나</div>
+    <div class="connect-box">
+      <div class="connect-title">→ 내심·내접원 (중3, 고등) 이해</div>
+      외심이 수직이등분선의 교점이라면, 내심은 각 이등분선의 교점이에요. 두 짝꿍 개념. 둘 다 "거리 같음"이라는 핵심 성질로 작도되고 증명돼요.
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('show'));
+  btn.classList.add('active');
+  document.getElementById(id).classList.add('show');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+function reveal(btn) {
+  const content = btn.nextElementSibling;
+  const isShow = content.style.display === 'block';
+  content.style.display = isShow ? 'none' : 'block';
+  btn.textContent = isShow ? '정답·풀이 보기' : '닫기';
+}
+</script>
+</body>
+</html>

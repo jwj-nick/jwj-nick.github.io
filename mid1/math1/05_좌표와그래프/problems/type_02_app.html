@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>유형 2 — 사분면 판별 (수치 좌표)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+:root{--primary:#4361EE;--bg:#eef2ff;--card:#fff;--ok:#2ecc71;--ng:#e74c3c;--hint:#f39c12;--L:#3498db;--M:#9b59b6;--H:#e74c3c;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic',sans-serif;background:var(--bg);padding:20px 16px 60px;color:#2d3436;}
+.header{max-width:700px;margin:0 auto 20px;}
+h1{font-size:18px;font-weight:800;color:var(--primary);margin-bottom:4px;}
+.sub{font-size:13px;color:#636e72;margin-bottom:4px;}
+.back-link{font-size:12px;color:#4361EE;text-decoration:none;}
+.tabs{display:flex;gap:8px;margin-bottom:20px;max-width:700px;margin-left:auto;margin-right:auto;}
+.tab-btn{flex:1;padding:9px 0;border-radius:10px;border:2px solid #c0c8f4;background:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:all .18s;color:#636e72;}
+.tab-btn.active{color:#fff;}
+.tab-btn[data-lv="L"].active{background:var(--L);border-color:var(--L);}
+.tab-btn[data-lv="M"].active{background:var(--M);border-color:var(--M);}
+.tab-btn[data-lv="H"].active{background:var(--H);border-color:var(--H);}
+.panel{display:none;max-width:700px;margin:0 auto;}
+.panel.show{display:block;}
+.card{background:var(--card);border-radius:14px;padding:22px 22px 18px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:14px;}
+.q-head{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.q-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0;}
+.lv-L .q-num{background:var(--L);}
+.lv-M .q-num{background:var(--M);}
+.lv-H .q-num{background:var(--H);}
+.lv-tag{font-size:11px;padding:2px 9px;border-radius:20px;font-weight:700;color:#fff;}
+.lv-L .lv-tag{background:var(--L);}
+.lv-M .lv-tag{background:var(--M);}
+.lv-H .lv-tag{background:var(--H);}
+.q-text{font-size:14px;line-height:1.75;margin-bottom:14px;}
+.ans-tabs{display:flex;gap:6px;margin-bottom:10px;}
+.ans-tab{padding:6px 14px;border-radius:8px;border:2px solid #dde3ff;background:#f8f9ff;font-size:12px;font-weight:700;cursor:pointer;color:#636e72;}
+.ans-tab.open{background:var(--primary);border-color:var(--primary);color:#fff;}
+.hint-panel,.sol-panel{display:none;border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.7;margin-top:6px;}
+.hint-panel.show,.sol-panel.show{display:block;}
+.hint-panel{background:#fff8e8;border-left:4px solid var(--hint);}
+.sol-panel{background:#eef9f4;border-left:4px solid var(--ok);}
+.warn{background:#fff0f0;border-left:4px solid var(--ng);border-radius:8px;padding:10px 14px;font-size:12px;margin-top:10px;}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>유형 2 — 사분면 판별 (수치 좌표)</h1>
+  <div class="sub">좌표 부호로 사분면 결정 — 1(++), 2(−+), 3(−−), 4(+−), 축 위 예외</div>
+  <a class="back-link" href="../index.html">← 단원 5 홈</a>
+</div>
+<div class="tabs">
+  <button class="tab-btn active" data-lv="L" onclick="switchTab('L',this)">L — 기본 (3문제)</button>
+  <button class="tab-btn" data-lv="M" onclick="switchTab('M',this)">M — 중간 (3문제)</button>
+  <button class="tab-btn" data-lv="H" onclick="switchTab('H',this)">H — 심화 (3문제)</button>
+</div>
+
+<!-- L 패널 -->
+<div class="panel show" id="panel-L">
+
+<div class="card lv-L">
+<div class="q-head"><div class="q-num">1</div><span class="lv-tag">L</span></div>
+<div class="q-text">점 $(3, 5)$는 어느 사분면에 속하나요?</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-L1')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-L1')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-L1">$x$좌표와 $y$좌표의 부호를 확인해봐요.</div>
+<div class="sol-panel" id="sol-L1"><strong>제1사분면</strong><br>$x = 3 > 0$ (양수), $y = 5 > 0$ (양수)<br>두 좌표 모두 양수 → 제1사분면 (오른쪽 위).</div>
+</div>
+
+<div class="card lv-L">
+<div class="q-head"><div class="q-num">2</div><span class="lv-tag">L</span></div>
+<div class="q-text">점 $(-2, -7)$는 어느 사분면에 속하나요?</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-L2')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-L2')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-L2">두 좌표 모두 음수일 때는 어느 사분면일까요?</div>
+<div class="sol-panel" id="sol-L2"><strong>제3사분면</strong><br>$x < 0$, $y < 0$ → 제3사분면 (왼쪽 아래).</div>
+</div>
+
+<div class="card lv-L">
+<div class="q-head"><div class="q-num">3</div><span class="lv-tag">L</span></div>
+<div class="q-text">점 $(0, 4)$는 어느 사분면에 속하나요?</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-L3')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-L3')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-L3">$x$좌표가 0이면 어디에 있는 점일까요? 사분면일까요?</div>
+<div class="sol-panel" id="sol-L3"><strong>어느 사분면에도 속하지 않아요 ($y$축 위의 점)</strong><br>$x = 0$ → $y$축 위의 점이에요.<br>
+<div class="warn">축 위의 점은 사분면에 속하지 않아요! 이 점은 자주 나오는 함정.</div></div>
+</div>
+
+</div><!-- end panel-L -->
+
+<!-- M 패널 -->
+<div class="panel" id="panel-M">
+
+<div class="card lv-M">
+<div class="q-head"><div class="q-num">1</div><span class="lv-tag">M</span></div>
+<div class="q-text">다음 중 제2사분면에 속하는 점을 모두 고르세요.<br>① $(3, 4)$ &nbsp; ② $(-1, 5)$ &nbsp; ③ $(-2, -3)$ &nbsp; ④ $(-7, 2)$ &nbsp; ⑤ $(4, -1)$</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-M1')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-M1')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-M1">제2사분면 = $x$ 음수 + $y$ 양수.</div>
+<div class="sol-panel" id="sol-M1"><strong>② $(-1, 5)$, ④ $(-7, 2)$</strong><br>각 점 사분면:<br>① $(3, 4)$ → 1사분면<br>② $(-1, 5)$ → 2사분면 ✓<br>③ $(-2, -3)$ → 3사분면<br>④ $(-7, 2)$ → 2사분면 ✓<br>⑤ $(4, -1)$ → 4사분면</div>
+</div>
+
+<div class="card lv-M">
+<div class="q-head"><div class="q-num">2</div><span class="lv-tag">M</span></div>
+<div class="q-text">다음 중 어느 사분면에도 속하지 않는 점을 모두 고르세요.<br>① $(0, 0)$ &nbsp; ② $(-3, 0)$ &nbsp; ③ $(2, 5)$ &nbsp; ④ $(0, -1)$ &nbsp; ⑤ $(-4, 6)$</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-M2')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-M2')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-M2">$x$좌표 = 0이거나 $y$좌표 = 0이면 축 위의 점이에요.</div>
+<div class="sol-panel" id="sol-M2"><strong>① $(0, 0)$, ② $(-3, 0)$, ④ $(0, -1)$</strong><br>① 원점 — 축 위<br>② $y = 0$ → $x$축 위<br>③ 1사분면<br>④ $x = 0$ → $y$축 위<br>⑤ 2사분면<br>축 위의 점은 사분면 X.</div>
+</div>
+
+<div class="card lv-M">
+<div class="q-head"><div class="q-num">3</div><span class="lv-tag">M</span></div>
+<div class="q-text">점 $\mathrm{A}(-3, 5)$, $\mathrm{B}(2, -4)$, $\mathrm{C}(-1, -2)$가 각각 어느 사분면에 속하는지 쓰세요.</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-M3')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-M3')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-M3">각 점의 $(x, y)$ 부호를 빠르게 체크해서 1·2·3·4 사분면 표에 매칭.</div>
+<div class="sol-panel" id="sol-M3"><strong>A: 2사분면, B: 4사분면, C: 3사분면</strong><br>A $(-, +)$ → 2<br>B $(+, -)$ → 4<br>C $(-, -)$ → 3</div>
+</div>
+
+</div><!-- end panel-M -->
+
+<!-- H 패널 -->
+<div class="panel" id="panel-H">
+
+<div class="card lv-H">
+<div class="q-head"><div class="q-num">1</div><span class="lv-tag">H</span></div>
+<div class="q-text">다섯 점 $(-2, 0)$, $(3, -1)$, $(-4, -5)$, $(1, 6)$, $(-3, 2)$ 중 제3사분면에 속하는 점은 모두 몇 개인가요?</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-H1')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-H1')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-H1">제3사분면은 $(x < 0, y < 0)$. 축 위 점에 주의.</div>
+<div class="sol-panel" id="sol-H1"><strong>1개</strong><br>$(-2, 0)$ → $x$축 위 (사분면 X)<br>$(3, -1)$ → 4사분면<br>$(-4, -5)$ → 3사분면 ✓<br>$(1, 6)$ → 1사분면<br>$(-3, 2)$ → 2사분면<br>제3사분면은 $(-4, -5)$ 1개뿐.</div>
+</div>
+
+<div class="card lv-H">
+<div class="q-head"><div class="q-num">2</div><span class="lv-tag">H</span></div>
+<div class="q-text">점 $\mathrm{P}(a, b)$가 제2사분면에 있을 때, $a$와 $b$의 부호로 가능한 것은?<br>① $a > 0, b > 0$ &nbsp; ② $a < 0, b > 0$ &nbsp; ③ $a < 0, b < 0$ &nbsp; ④ $a > 0, b < 0$</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-H2')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-H2')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-H2">제2사분면 = 왼쪽 위 = $x$ 음수, $y$ 양수.</div>
+<div class="sol-panel" id="sol-H2"><strong>② $a < 0, b > 0$</strong><br>제2사분면: $x$좌표 음수, $y$좌표 양수<br>$\therefore a < 0, b > 0$</div>
+</div>
+
+<div class="card lv-H">
+<div class="q-head"><div class="q-num">3</div><span class="lv-tag">H</span></div>
+<div class="q-text">좌표평면 위의 8개 점 $(0, 5)$, $(-1, 4)$, $(2, 0)$, $(-3, -2)$, $(0, 0)$, $(4, 7)$, $(-2, 6)$, $(5, -1)$ 중 어느 사분면에도 속하지 않는 점의 개수를 구하세요.</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-H3')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-H3')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-H3">축 위의 점 = $x = 0$ 또는 $y = 0$. 원점도 포함이에요.</div>
+<div class="sol-panel" id="sol-H3"><strong>3개</strong><br>$(0, 5)$ → $y$축 ✓<br>$(-1, 4)$ → 2사분면<br>$(2, 0)$ → $x$축 ✓<br>$(-3, -2)$ → 3사분면<br>$(0, 0)$ → 원점 ✓<br>$(4, 7)$ → 1사분면<br>$(-2, 6)$ → 2사분면<br>$(5, -1)$ → 4사분면<br>축 위 점: $(0,5), (2,0), (0,0)$ → 3개.<br>
+<div class="warn">원점 $(0, 0)$도 어느 사분면에도 속하지 않아요!</div></div>
+</div>
+
+</div><!-- end panel-H -->
+
+<script>
+function switchTab(lv, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('show'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + lv).classList.add('show');
+}
+function toggle(btn, id) {
+  const panel = document.getElementById(id);
+  const isShow = panel.classList.contains('show');
+  btn.parentElement.querySelectorAll('.hint-panel, .sol-panel').forEach(p => p.classList.remove('show'));
+  btn.parentElement.querySelectorAll('.ans-tab').forEach(b => b.classList.remove('open'));
+  if (!isShow) { panel.classList.add('show'); btn.classList.add('open'); }
+}
+</script>
+</body>
+</html>

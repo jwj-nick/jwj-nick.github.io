@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 탐구 — 방정식 기초 (방정식/항등식 + 등식의 성질)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+:root{--primary:#4361EE;--bg:#eef2ff;--card:#fff;--ok:#2ecc71;--ng:#e74c3c;--warn:#f39c12;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic',sans-serif;background:var(--bg);padding:0 0 60px;color:#2d3436;}
+.header{
+  background:linear-gradient(135deg,#4361EE,#3a0ca3);
+  color:white;
+  padding:28px 20px 24px;
+  text-align:center;
+}
+.header h1{font-size:20px;margin-bottom:6px;}
+.header p{font-size:13px;opacity:0.85;}
+.back-link{font-size:12px;color:rgba(255,255,255,0.7);text-decoration:none;display:block;margin-top:10px;}
+.tab-bar{
+  display:flex;
+  gap:0;
+  background:white;
+  box-shadow:0 2px 8px rgba(0,0,0,0.08);
+  position:sticky;top:0;z-index:10;
+}
+.tab-btn{
+  flex:1;padding:14px 0;font-size:14px;font-weight:700;
+  border:none;background:none;cursor:pointer;color:#888;
+  border-bottom:3px solid transparent;transition:all 0.2s;
+}
+.tab-btn.active{color:#4361EE;border-bottom-color:#4361EE;}
+.tab-panel{display:none;}
+.tab-panel.show{display:block;}
+.container{max-width:700px;margin:0 auto;padding:20px 16px;}
+.section{margin-bottom:28px;}
+.section-title{
+  font-size:15px;font-weight:bold;color:#4361EE;
+  padding-left:8px;border-left:3px solid #4361EE;
+  margin-bottom:14px;
+}
+.card{
+  background:white;border-radius:14px;padding:20px;
+  box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;
+}
+.card h3{font-size:15px;color:#1a1a2e;margin-bottom:10px;}
+.card p,.card li{font-size:14px;color:#444;line-height:1.8;}
+.card ul{padding-left:18px;}
+.highlight{
+  background:#f0f4ff;border-left:4px solid #4361EE;
+  border-radius:0 10px 10px 0;padding:12px 16px;
+  margin:10px 0;font-size:14px;color:#333;line-height:1.7;
+}
+.warn-box{
+  background:#fff3e0;border:1px solid #ffcc80;
+  border-radius:10px;padding:12px 14px;
+  font-size:13px;color:#e65100;line-height:1.6;margin-top:10px;
+}
+.mistake-item{
+  background:white;border-radius:12px;padding:16px;
+  box-shadow:0 2px 8px rgba(67,97,238,.07);
+  margin-bottom:10px;
+  display:flex;gap:12px;
+}
+.mistake-icon{font-size:22px;flex-shrink:0;margin-top:2px;}
+.mistake-content{flex:1;}
+.mistake-title{font-size:14px;font-weight:bold;color:#e74c3c;margin-bottom:4px;}
+.mistake-desc{font-size:13px;color:#444;line-height:1.6;}
+.problem-card{
+  background:white;border-radius:14px;padding:20px;
+  box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;
+  border-left:4px solid #4361EE;
+}
+.prob-label{font-size:12px;font-weight:bold;color:#4361EE;letter-spacing:1px;margin-bottom:8px;}
+.prob-text{font-size:15px;line-height:1.8;color:#1a1a2e;margin-bottom:12px;}
+.reveal-btn{
+  background:none;border:2px solid #4361EE;color:#4361EE;
+  padding:6px 18px;border-radius:20px;font-size:13px;cursor:pointer;
+  margin-right:8px;
+}
+.reveal-content{
+  display:none;margin-top:12px;
+  background:#f0fff4;border-radius:10px;
+  padding:12px 16px;font-size:13px;color:#1b5e20;line-height:1.7;
+}
+.connect-box{
+  background:linear-gradient(135deg,#f0f4ff,#e8ecff);
+  border-radius:14px;padding:20px;
+  font-size:14px;color:#333;line-height:1.8;
+}
+.connect-title{font-size:15px;font-weight:bold;color:#4361EE;margin-bottom:10px;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>깊이 탐구 — 방정식 기초</h1>
+  <p>방정식·항등식 판별 + 등식의 성질</p>
+  <a class="back-link" href="../index.html">← 단원 4 홈</a>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('tab1',this)">유형 1<br><small>방정식/항등식</small></button>
+  <button class="tab-btn" onclick="switchTab('tab2',this)">유형 2<br><small>등식의 성질</small></button>
+</div>
+
+<!-- 탭 1: 방정식/항등식 -->
+<div class="tab-panel show" id="tab1">
+<div class="container">
+
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>방정식과 항등식은 둘 다 "등식"이에요. 겉모습이 비슷해서 헷갈려요.</p>
+      <p style="margin-top:8px;">핵심 차이는 딱 하나: <strong>특정 값에서만 참</strong>이면 방정식, <strong>모든 값에서 참</strong>이면 항등식.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어</div>
+    <div class="highlight">
+      <strong>확인 방법</strong>:<br>
+      $x$에 0, 1, 2를 대입해서 3번 모두 참 → 항등식일 가능성 높음<br>
+      한 번이라도 거짓 → 방정식<br>
+      단, 확실히 하려면 식을 전개해서 양변 비교!
+    </div>
+    <div class="highlight" style="margin-top:8px;">
+      <strong>항등식 미정계수 문제</strong>:<br>
+      $ax+b = cx+d$가 항등식 → $a=c$이고 $b=d$<br>
+      (같은 위치의 계수끼리 같아야 함)
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">단계별 풀이 흐름</div>
+    <div class="card">
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <div style="background:#4361EE;color:white;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;flex-shrink:0;margin-top:2px;">1</div>
+          <div><strong>등식을 확인</strong>: 좌변과 우변을 구분해요.</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <div style="background:#4361EE;color:white;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;flex-shrink:0;margin-top:2px;">2</div>
+          <div><strong>양변 전개</strong>: 분배법칙 등으로 전개해요.</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <div style="background:#4361EE;color:white;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;flex-shrink:0;margin-top:2px;">3</div>
+          <div><strong>비교</strong>: 양변이 같은 식이면 항등식, 아니면 방정식.</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <div style="background:#4361EE;color:white;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;flex-shrink:0;margin-top:2px;">4</div>
+          <div><strong>미정계수</strong>: 계수 비교로 $a$, $b$ 결정.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">해가 있으면 방정식이라고 착각</div>
+        <div class="mistake-desc">항등식도 해가 있어요. 아니, 항등식은 모든 값이 해예요! "해"의 개수로 구분하지 마세요.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">$x=0$만 대입해서 확인</div>
+        <div class="mistake-desc">$x=0$에서만 참인 방정식도 있어요. 최소 2~3개 값을 대입해서 확인하세요.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">미정계수 문제에서 상수항을 빠뜨림</div>
+        <div class="mistake-desc">$ax+b=3x+c$에서 $a=3$만 구하고 $b=c$ 조건을 빠뜨리는 실수.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제 (5-c와 겹치지 않음)</div>
+
+    <div class="problem-card">
+      <div class="prob-label">문제 1</div>
+      <div class="prob-text">$2(3x - a) = 6x + 4$가 $x$에 관한 항등식이 되도록 하는 $a$의 값을 구하세요.</div>
+      <button class="reveal-btn" onclick="toggleReveal(this)">풀이 보기</button>
+      <div class="reveal-content">좌변 전개: $6x - 2a$<br>항등식: $6x-2a=6x+4$<br>계수 비교: $-2a=4 \Rightarrow a=-2$</div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">문제 2</div>
+      <div class="prob-text">$x = -1$이 방정식 $3x + a = x - 5$의 해일 때, 상수 $a$의 값을 구하세요.</div>
+      <button class="reveal-btn" onclick="toggleReveal(this)">풀이 보기</button>
+      <div class="reveal-content">$x=-1$ 대입: $3(-1)+a=(-1)-5$<br>$-3+a=-6$<br>$a=-3$<br>확인: $3(-1)+(-3)=-6$, $(-1)-5=-6$ ✓</div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">문제 3</div>
+      <div class="prob-text">다음 중 항등식인 것을 모두 고르세요.<br>① $x+2=2+x$ &nbsp; ② $x-x=0$ &nbsp; ③ $x^2=x$ &nbsp; ④ $2x=x+x$</div>
+      <button class="reveal-btn" onclick="toggleReveal(this)">풀이 보기</button>
+      <div class="reveal-content">① 교환법칙으로 항등식 ✓<br>② $x-x=0$은 어떤 $x$든 0=0 → 항등식 ✓<br>③ $x=0$ 또는 $x=1$일 때만 참 → 방정식<br>④ $x+x=2x$이므로 $2x=x+x$ → 항등식 ✓<br><strong>답: ①②④</strong></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">연결 개념</div>
+    <div class="connect-box">
+      <div class="connect-title">이 유형 이해 후 쉬워지는 것</div>
+      <ul style="padding-left:18px;font-size:14px;color:#333;line-height:1.8;">
+        <li><strong>이차방정식 (중3)</strong>: 방정식의 해 개념이 더 복잡해져요. 항등식 vs 방정식 구분이 기초가 돼요.</li>
+        <li><strong>함수 (중1~2)</strong>: 등식 $y = 2x+1$은 방정식처럼 보이지만 "모든 $x$에 대해" 정의 → 항등식적 성질.</li>
+        <li><strong>증명 (고등)</strong>: 등식 증명 문제에서 항등식 조건을 직접 사용해요.</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- 탭 2: 등식의 성질 -->
+<div class="tab-panel" id="tab2">
+<div class="container">
+
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>등식의 성질은 쉬워 보이지만, 나눗셈의 <strong>"$c \neq 0$ 조건"</strong>을 자꾸 잊어요.</p>
+      <p style="margin-top:8px;">또한 여러 단계로 연결해서 사용할 때 각 단계의 근거를 명확히 해야 해요.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 저울 원리</div>
+    <div class="highlight">
+      등식은 <strong>저울</strong>과 같아요.<br>
+      양쪽에 같은 것을 더하거나 빼도 → 균형 유지<br>
+      양쪽을 같은 수로 곱하거나 나눠도 → 균형 유지<br>
+      단, 0으로 나누면 → 저울 자체가 망가짐 (정의 불가)
+    </div>
+    <div class="warn-box">
+      <strong>0으로 나누기 금지!</strong><br>
+      $\dfrac{a}{0}$은 어떤 값도 될 수 없어요. 수학에서 정의되지 않아요.
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">4가지 성질 한눈에</div>
+    <div class="card">
+      <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <tr style="background:#4361EE;color:white;">
+          <th style="padding:8px;text-align:left;">성질</th>
+          <th style="padding:8px;text-align:left;">수식</th>
+          <th style="padding:8px;text-align:left;">조건</th>
+        </tr>
+        <tr><td style="padding:8px;border-bottom:1px solid #eef2ff;">덧셈</td><td style="padding:8px;border-bottom:1px solid #eef2ff;">$a=b \Rightarrow a+c=b+c$</td><td style="padding:8px;border-bottom:1px solid #eef2ff;">없음</td></tr>
+        <tr><td style="padding:8px;border-bottom:1px solid #eef2ff;background:#f8f9ff;">뺄셈</td><td style="padding:8px;border-bottom:1px solid #eef2ff;background:#f8f9ff;">$a=b \Rightarrow a-c=b-c$</td><td style="padding:8px;border-bottom:1px solid #eef2ff;background:#f8f9ff;">없음</td></tr>
+        <tr><td style="padding:8px;border-bottom:1px solid #eef2ff;">곱셈</td><td style="padding:8px;border-bottom:1px solid #eef2ff;">$a=b \Rightarrow ac=bc$</td><td style="padding:8px;border-bottom:1px solid #eef2ff;">없음</td></tr>
+        <tr><td style="padding:8px;background:#f8f9ff;">나눗셈</td><td style="padding:8px;background:#f8f9ff;">$a=b \Rightarrow a/c=b/c$</td><td style="padding:8px;background:#f8f9ff;color:#e74c3c;font-weight:bold;">$c \neq 0$</td></tr>
+      </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">나눗셈 성질에서 $c=0$ 대입</div>
+        <div class="mistake-desc">0으로 나누는 것은 항상 오류예요. 조건 "$c \neq 0$"을 잊으면 안 돼요.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">등식의 성질을 한 번에 여러 번 쓰는 실수</div>
+        <div class="mistake-desc">$x-3=5$에서 "$x$의 계수가 1이니까 바로 $x=8$"이라고 넘어가는 것은 나쁜 습관이에요. 한 단계씩 근거를 잡아요.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제 (5-c와 겹치지 않음)</div>
+
+    <div class="problem-card">
+      <div class="prob-label">문제 1</div>
+      <div class="prob-text">$a = b$일 때, 다음 중 항상 참인 것을 모두 고르세요.<br>① $a+5 = b+5$ &nbsp; ② $3a = 3b$ &nbsp; ③ $a/0 = b/0$ &nbsp; ④ $-a = -b$</div>
+      <button class="reveal-btn" onclick="toggleReveal(this)">풀이 보기</button>
+      <div class="reveal-content">① $a=b$ → 양변+5 → 참 ✓<br>② $a=b$ → 양변×3 → 참 ✓<br>③ 0으로 나누기 → 거짓 ✗<br>④ $a=b$ → 양변×(−1) → $-a=-b$ → 참 ✓<br><strong>답: ①②④</strong></div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">문제 2</div>
+      <div class="prob-text">등식의 성질만 이용하여 $\dfrac{x}{5} = 3$을 단계별로 풀어보세요.</div>
+      <button class="reveal-btn" onclick="toggleReveal(this)">풀이 보기</button>
+      <div class="reveal-content">양변 × 5: $\dfrac{x}{5} \times 5 = 3 \times 5$<br>$x = 15$<br>검산: $15/5=3$ ✓</div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">문제 3</div>
+      <div class="prob-text">$5a = 5b$이면 $a = b$가 성립하나요? 이유와 함께 설명하세요.</div>
+      <button class="reveal-btn" onclick="toggleReveal(this)">풀이 보기</button>
+      <div class="reveal-content"><strong>성립합니다.</strong><br>$5a=5b$ → 양변을 5로 나눔 ($5 \neq 0$이므로 가능)<br>$a=b$ ✓<br>나눗셈 성질의 조건 $c \neq 0$을 만족하므로 사용 가능해요.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">연결 개념</div>
+    <div class="connect-box">
+      <div class="connect-title">이 유형 이해 후 쉬워지는 것</div>
+      <ul style="padding-left:18px;font-size:14px;color:#333;line-height:1.8;">
+        <li><strong>방정식 풀기 (유형 3~6)</strong>: 이항의 원리가 등식의 성질에서 비롯돼요. 근거를 알면 실수가 줄어요.</li>
+        <li><strong>부등식 (중2)</strong>: 등식 성질과 비슷하지만, 곱셈/나눗셈에서 음수이면 부등호 방향이 바뀌어요.</li>
+        <li><strong>연립방정식 (중2)</strong>: 두 방정식에 같은 수를 곱한 뒤 더하거나 빼는 방법 = 등식 성질의 확장.</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('show'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('show');
+  btn.classList.add('active');
+  window.scrollTo(0,0);
+}
+function toggleReveal(btn) {
+  const content = btn.nextElementSibling;
+  if (content.style.display === 'block') {
+    content.style.display = 'none';
+    btn.textContent = '풀이 보기';
+  } else {
+    content.style.display = 'block';
+    btn.textContent = '풀이 닫기';
+    if (window.renderMathInElement) {
+      renderMathInElement(content, {
+        delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+      });
+    }
+  }
+}
+</script>
+</body>
+</html>

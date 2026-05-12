@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>기본 문제 — 다면체와 회전체</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; }
+  .header { background: linear-gradient(135deg, #4361EE 0%, #3a0ca3 100%); color: white; padding: 24px 20px; text-align: center; }
+  .header h1 { font-size: 22px; margin-bottom: 6px; }
+  .header p { font-size: 13px; opacity: 0.85; }
+  .progress-bar { background: rgba(255,255,255,0.2); height: 4px; border-radius: 2px; margin-top: 14px; overflow: hidden; }
+  .progress-fill { background: white; height: 100%; border-radius: 2px; transition: width 0.3s; }
+  .container { max-width: 700px; margin: 0 auto; padding: 20px 16px 60px; }
+  .question-card { background: white; border-radius: 16px; padding: 22px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 14px; }
+  .q-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .q-num { background: #4361EE; color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; flex-shrink: 0; }
+  .q-tag { font-size: 11px; background: #eef2ff; color: #4361EE; padding: 3px 10px; border-radius: 20px; }
+  .q-diff { font-size: 11px; padding: 3px 10px; border-radius: 20px; margin-left: auto; }
+  .diff-L { background: #e8f5e9; color: #2e7d32; }
+  .diff-M { background: #fff3e0; color: #e65100; }
+  .q-text { font-size: 15px; color: #1a1a2e; line-height: 1.8; margin-bottom: 14px; }
+  .choices { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+  .choice-btn { background: #f8f9ff; border: 2px solid #eef2ff; border-radius: 10px; padding: 10px 14px; text-align: left; font-size: 14px; color: #333; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+  .choice-btn:hover { border-color: #4361EE; background: #eef2ff; }
+  .choice-btn.selected { border-color: #4361EE; background: #eef2ff; font-weight: bold; }
+  .choice-btn.correct { border-color: #2e7d32; background: #e8f5e9; color: #1b5e20; font-weight: bold; }
+  .choice-btn.wrong { border-color: #c62828; background: #ffebee; color: #b71c1c; }
+  .answer-panel { display: none; margin-top: 12px; border-top: 1px solid #eef2ff; padding-top: 12px; }
+  .answer-panel.show { display: block; }
+  .answer-box { background: #f0fff4; border-radius: 10px; padding: 12px 16px; font-size: 14px; color: #1b5e20; line-height: 1.8; margin-bottom: 8px; }
+  .solution-box { background: #f8f9ff; border-radius: 10px; padding: 12px 16px; font-size: 13px; color: #444; line-height: 1.8; }
+  .mini-svg { display: block; margin: 10px auto; max-width: 320px; width: 100%; height: auto; background: white; border-radius: 8px; padding: 6px; border: 1px solid #eef2ff; }
+  .summary-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); text-align: center; display: none; }
+  .summary-score { font-size: 48px; font-weight: bold; color: #4361EE; margin: 10px 0; }
+  .summary-sub { font-size: 14px; color: #666; }
+  .home-btn { display: inline-block; margin-top: 20px; background: #4361EE; color: white; text-decoration: none; padding: 10px 28px; border-radius: 24px; font-size: 14px; }
+  .input-row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .input-row input { padding: 8px 12px; border: 2px solid #eef2ff; border-radius: 10px; font-size: 14px; flex: 1; min-width: 100px; font-family: inherit; }
+  .input-row input:focus { outline: none; border-color: #4361EE; }
+  .check-btn { background: #4361EE; color: white; border: none; border-radius: 10px; padding: 8px 18px; font-size: 14px; cursor: pointer; font-family: inherit; }
+  .check-btn:hover { background: #3a0ca3; }
+  .feedback-msg { font-size: 13px; padding: 6px 0; color: #4361EE; font-weight: 600; }
+  .feedback-msg.correct { color: #2e7d32; }
+  .feedback-msg.wrong { color: #c62828; }
+  .input-hint { font-size: 11px; color: #888; margin-top: -6px; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>기본 문제 — 다면체와 회전체</h1>
+  <p>Unit 11 전체 핵심 개념 확인 · 9문제</p>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+  </div>
+</div>
+
+<div class="container" id="mainContent">
+
+  <!-- Q1: 다면체 정의 -->
+  <div class="question-card" id="qcard-1">
+    <div class="q-header">
+      <div class="q-num">1</div>
+      <div class="q-tag">다면체 정의</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">다음 중 다면체에 관한 설명으로 <strong>잘못된</strong> 것은?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(1,'①','③')">① 다각형인 면들로만 둘러싸인 입체이다.</button>
+      <button class="choice-btn" onclick="chooseAnswer(1,'②','③')">② 면, 모서리, 꼭짓점으로 이루어져 있다.</button>
+      <button class="choice-btn" onclick="chooseAnswer(1,'③','③')">③ 곡면이 포함되어 있어도 다면체이다.</button>
+      <button class="choice-btn" onclick="chooseAnswer(1,'④','③')">④ 정사면체는 면이 4개인 다면체이다.</button>
+    </div>
+    <div class="answer-panel" id="ans-1">
+      <div class="answer-box">정답: ③</div>
+      <div class="solution-box">
+        다면체는 <strong>다각형(평면) 면들로만</strong> 둘러싸여 있어야 해요. 곡면(원기둥의 옆면 같은 둥근 면)이 있으면 회전체이지 다면체가 아니랍니다.
+      </div>
+    </div>
+  </div>
+
+  <!-- Q2: 정육면체 V+E+F -->
+  <div class="question-card" id="qcard-2">
+    <div class="q-header">
+      <div class="q-num">2</div>
+      <div class="q-tag">정육면체 $V, E, F$</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">정육면체의 꼭짓점 수 $V$, 모서리 수 $E$, 면 수 $F$ 를 모두 합한 값 $V + E + F$ 는?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(2,'①','②')">① $24$</button>
+      <button class="choice-btn" onclick="chooseAnswer(2,'②','②')">② $26$</button>
+      <button class="choice-btn" onclick="chooseAnswer(2,'③','②')">③ $28$</button>
+      <button class="choice-btn" onclick="chooseAnswer(2,'④','②')">④ $30$</button>
+    </div>
+    <div class="answer-panel" id="ans-2">
+      <div class="answer-box">정답: ② $V + E + F = 26$</div>
+      <div class="solution-box">
+        정육면체: $V = 8$ (꼭짓점), $E = 12$ (모서리), $F = 6$ (면).<br>
+        $V + E + F = 8 + 12 + 6 = 26$.<br><br>
+        ✨ 검산 (오일러 공식): $V - E + F = 8 - 12 + 6 = 2$ ✓
+      </div>
+    </div>
+  </div>
+
+  <!-- Q3: 오각기둥 모서리 -->
+  <div class="question-card" id="qcard-3">
+    <div class="q-header">
+      <div class="q-num">3</div>
+      <div class="q-tag">$n$각기둥 모서리</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">오각기둥의 모서리의 수는? (숫자만 입력)</div>
+    <div class="input-row">
+      <input type="text" id="q3-input" placeholder="예: 15">
+      <button class="check-btn" onclick="checkInput3()">확인</button>
+    </div>
+    <div class="feedback-msg" id="fb-3"></div>
+    <div class="answer-panel" id="ans-3">
+      <div class="answer-box">정답: $15$</div>
+      <div class="solution-box">
+        $n$각기둥의 모서리 수 = $3n$ (위 밑면 $n$ + 아래 밑면 $n$ + 옆 모서리 $n$).<br>
+        $n = 5$ → $3 \times 5 = 15$.<br><br>
+        ⚠️ 자주 하는 실수: 옆 모서리를 까먹고 $2n = 10$ 으로 답하기.
+      </div>
+    </div>
+  </div>
+
+  <!-- Q4: 정사각형 면 정다면체 -->
+  <div class="question-card" id="qcard-4">
+    <div class="q-header">
+      <div class="q-num">4</div>
+      <div class="q-tag">정다면체 5종</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">다음 정다면체 중 면이 <strong>정사각형</strong>인 것은?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(4,'①','②')">① 정사면체</button>
+      <button class="choice-btn" onclick="chooseAnswer(4,'②','②')">② 정육면체</button>
+      <button class="choice-btn" onclick="chooseAnswer(4,'③','②')">③ 정팔면체</button>
+      <button class="choice-btn" onclick="chooseAnswer(4,'④','②')">④ 정십이면체</button>
+      <button class="choice-btn" onclick="chooseAnswer(4,'⑤','②')">⑤ 정이십면체</button>
+    </div>
+    <div class="answer-panel" id="ans-4">
+      <div class="answer-box">정답: ② 정육면체</div>
+      <div class="solution-box">
+        정삼각형 면: 정사면체·정팔면체·정이십면체 (3종)<br>
+        정사각형 면: <strong>정육면체</strong> (1종)<br>
+        정오각형 면: 정십이면체 (1종)<br>
+        그래서 총 5종.
+      </div>
+    </div>
+  </div>
+
+  <!-- Q5: 회전체 식별 -->
+  <div class="question-card" id="qcard-5">
+    <div class="q-header">
+      <div class="q-num">5</div>
+      <div class="q-tag">회전체 식별</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">다음 평면도형을 한 직선을 회전축으로 하여 1회전 시켰을 때 만들어지는 회전체로 옳게 짝지어진 것은?</div>
+    <div class="q-text" style="font-size:14px;">
+      • 직사각형 (한 변을 회전축) → ( ㄱ )<br>
+      • 직각삼각형 (직각을 낀 한 변을 회전축) → ( ㄴ )<br>
+      • 반원 (지름을 회전축) → ( ㄷ )
+    </div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(5,'①','②')">① ㄱ-원뿔, ㄴ-원기둥, ㄷ-구</button>
+      <button class="choice-btn" onclick="chooseAnswer(5,'②','②')">② ㄱ-원기둥, ㄴ-원뿔, ㄷ-구</button>
+      <button class="choice-btn" onclick="chooseAnswer(5,'③','②')">③ ㄱ-원기둥, ㄴ-원뿔대, ㄷ-반구</button>
+      <button class="choice-btn" onclick="chooseAnswer(5,'④','②')">④ ㄱ-원뿔, ㄴ-원기둥, ㄷ-반구</button>
+    </div>
+    <div class="answer-panel" id="ans-5">
+      <div class="answer-box">정답: ② ㄱ-원기둥, ㄴ-원뿔, ㄷ-구</div>
+      <div class="solution-box">
+        • 직사각형 → 회전 → 원기둥<br>
+        • 직각삼각형 → 회전 → 원뿔<br>
+        • 반원 → 회전 → 구<br>
+        • (참고) 사다리꼴 → 회전 → 원뿔대
+      </div>
+    </div>
+  </div>
+
+  <!-- Q6: n각뿔 면→n→모서리 -->
+  <div class="question-card" id="qcard-6">
+    <div class="q-header">
+      <div class="q-num">6</div>
+      <div class="q-tag">각뿔 면 ↔ 모서리</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text">어떤 각뿔의 면의 수가 $8$ 일 때, 이 각뿔의 모서리의 수는? (숫자만)</div>
+    <div class="input-row">
+      <input type="text" id="q6-input" placeholder="예: 14">
+      <button class="check-btn" onclick="checkInput6()">확인</button>
+    </div>
+    <div class="feedback-msg" id="fb-6"></div>
+    <div class="answer-panel" id="ans-6">
+      <div class="answer-box">정답: $14$</div>
+      <div class="solution-box">
+        Step 1. $n$각뿔의 면 수 = $n + 1 = 8$ → $n = 7$ (칠각뿔).<br>
+        Step 2. $n$각뿔의 모서리 수 = $2n = 2 \times 7 = 14$.<br><br>
+        ⚠️ 자주 하는 실수: $n = 8$ 로 잘못 두고 $2 \times 8 = 16$ 답하기.<br>
+        ✨ 검산 (오일러): $V = 8, E = 14, F = 8$ → $8 - 14 + 8 = 2$ ✓
+      </div>
+    </div>
+  </div>
+
+  <!-- Q7: 원뿔 옆면 호 -->
+  <div class="question-card" id="qcard-7">
+    <div class="q-header">
+      <div class="q-num">7</div>
+      <div class="q-tag">원뿔 옆면 호 길이</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text">밑면의 반지름이 $5$ cm, 모선의 길이가 $12$ cm인 원뿔의 <strong>옆면 전개도(부채꼴)의 호의 길이</strong>는?</div>
+    <svg class="mini-svg" viewBox="0 0 320 160">
+      <!-- 원뿔 -->
+      <line x1="80" y1="20" x2="80" y2="140" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,3"/>
+      <ellipse cx="80" cy="130" rx="40" ry="8" fill="rgba(67,97,238,0.20)" stroke="#1d3557" stroke-width="1.5"/>
+      <line x1="40" y1="130" x2="80" y2="30" stroke="#1d3557" stroke-width="1.5"/>
+      <line x1="120" y1="130" x2="80" y2="30" stroke="#1d3557" stroke-width="1.5"/>
+      <text x="55" y="80" font-size="10" fill="#4361EE">$l=12$</text>
+      <text x="80" y="155" text-anchor="middle" font-size="10" fill="#666">$r=5$</text>
+      <!-- 화살표 -->
+      <text x="160" y="78" font-size="16" fill="#1d3557">→</text>
+      <!-- 부채꼴 -->
+      <path d="M 230 80 L 290 30 A 70 70 0 0 1 305 110 Z" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+      <text x="252" y="60" font-size="10" fill="#f59e0b">$l$</text>
+      <text x="290" y="135" font-size="10" fill="#666">호 = ?</text>
+    </svg>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(7,'①','②')">① $5\pi$ cm</button>
+      <button class="choice-btn" onclick="chooseAnswer(7,'②','②')">② $10\pi$ cm</button>
+      <button class="choice-btn" onclick="chooseAnswer(7,'③','②')">③ $12\pi$ cm</button>
+      <button class="choice-btn" onclick="chooseAnswer(7,'④','②')">④ $24\pi$ cm</button>
+    </div>
+    <div class="answer-panel" id="ans-7">
+      <div class="answer-box">정답: ② $10\pi$ cm</div>
+      <div class="solution-box">
+        ★ 핵심: 원뿔 옆면 부채꼴의 <strong>호의 길이 = 밑면 둘레</strong>.<br>
+        호 = $2\pi r = 2\pi \times 5 = 10\pi$ cm.<br><br>
+        ⚠️ 모선 $l = 12$ 는 부채꼴의 <strong>반지름</strong>이지 호의 길이가 아니에요. 잘못 쓰면 $24\pi$ 함정!
+      </div>
+    </div>
+  </div>
+
+  <!-- Q8: 회전체 단면 (★ 함정) -->
+  <div class="question-card" id="qcard-8">
+    <div class="q-header">
+      <div class="q-num">8</div>
+      <div class="q-tag">★ 단면 (수직 vs 축단면)</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text">원뿔을 <strong>회전축에 수직</strong>으로 자른 단면의 모양은?</div>
+    <svg class="mini-svg" viewBox="0 0 280 160">
+      <line x1="140" y1="20" x2="140" y2="140" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,3"/>
+      <text x="140" y="15" text-anchor="middle" font-size="10" fill="#94a3b8">회전축</text>
+      <ellipse cx="140" cy="130" rx="50" ry="10" fill="rgba(67,97,238,0.20)" stroke="#1d3557" stroke-width="1.5"/>
+      <line x1="90" y1="130" x2="140" y2="30" stroke="#1d3557" stroke-width="1.5"/>
+      <line x1="190" y1="130" x2="140" y2="30" stroke="#1d3557" stroke-width="1.5"/>
+      <!-- 수직 단면 (가로 자른 면) -->
+      <line x1="105" y1="80" x2="175" y2="80" stroke="#ef4444" stroke-width="2"/>
+      <text x="180" y="84" font-size="10" fill="#ef4444">← 수직 단면 위치</text>
+    </svg>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(8,'①','①')">① 원</button>
+      <button class="choice-btn" onclick="chooseAnswer(8,'②','①')">② 이등변삼각형</button>
+      <button class="choice-btn" onclick="chooseAnswer(8,'③','①')">③ 직사각형</button>
+      <button class="choice-btn" onclick="chooseAnswer(8,'④','①')">④ 부채꼴</button>
+    </div>
+    <div class="answer-panel" id="ans-8">
+      <div class="answer-box">정답: ① 원</div>
+      <div class="solution-box">
+        ★ <strong>회전체의 수직 단면 = 항상 원</strong> (회전체 정의상 자명).<br>
+        이등변삼각형은 <strong>축단면</strong>(회전축을 <em>포함</em>하는 단면)이에요. 헷갈리지 마세요.<br><br>
+        💡 외우는 법: <strong>수직 = 원</strong>, <strong>축단면 = 좌우대칭 도형</strong>.
+      </div>
+    </div>
+  </div>
+
+  <!-- Q9: 정다면체 함정 -->
+  <div class="question-card" id="qcard-9">
+    <div class="q-header">
+      <div class="q-num">9</div>
+      <div class="q-tag">★ 정다면체 조건</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text">다음 중 <strong>정다면체가 아닌</strong> 것은?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(9,'①','④')">① 정사면체</button>
+      <button class="choice-btn" onclick="chooseAnswer(9,'②','④')">② 정육면체</button>
+      <button class="choice-btn" onclick="chooseAnswer(9,'③','④')">③ 정팔면체</button>
+      <button class="choice-btn" onclick="chooseAnswer(9,'④','④')">④ 정사각뿔</button>
+      <button class="choice-btn" onclick="chooseAnswer(9,'⑤','④')">⑤ 정십이면체</button>
+    </div>
+    <div class="answer-panel" id="ans-9">
+      <div class="answer-box">정답: ④ 정사각뿔</div>
+      <div class="solution-box">
+        정사각뿔은 밑면(정사각형)과 옆면(정삼각형)이 <strong>합동이 아닙니다</strong>.<br>
+        → 정다면체의 첫째 조건(<strong>모든 면이 합동인 정다각형</strong>) 위반!<br><br>
+        💡 정다면체는 정확히 <strong>5종</strong>: 정사면체·정육면체·정팔면체·정십이면체·정이십면체.<br>
+        "정"이라는 말만 보고 정다면체로 착각하면 안 돼요.
+      </div>
+    </div>
+  </div>
+
+  <!-- 요약 -->
+  <div class="summary-card" id="summary">
+    <h2 style="color: #4361EE;">🎉 9문제 완료!</h2>
+    <div class="summary-score" id="scoreDisplay">- / 9</div>
+    <div class="summary-sub">잘 했어요. 이제 유형별 연습으로 가요!</div>
+    <div class="solution-box" style="margin-top: 16px; text-align:left;">
+      <strong>핵심 공식 정리</strong><br>
+      ① $n$각기둥: $V=2n, E=3n, F=n+2$<br>
+      ② $n$각뿔: $V=n+1, E=2n, F=n+1$<br>
+      ③ 정다면체 5종: 사면·육면·팔면·십이면·이십면<br>
+      ④ 오일러: $V - E + F = 2$<br>
+      ⑤ 회전체: 직사각형→원기둥, 직각삼각형→원뿔, 사다리꼴→원뿔대, 반원→구<br>
+      ⑥ 옆면 전개도 호 = 밑면 둘레 = $2\pi r$<br>
+      ⑦ ★ 수직 단면 = 원 / 축단면 = 좌우대칭 도형
+    </div>
+    <a class="home-btn" href="../index.html">단원 홈으로 →</a>
+  </div>
+
+</div>
+
+<script>
+  let answered = {};
+  const total = 9;
+
+  function chooseAnswer(qNum, choice, correct) {
+    if (answered[qNum]) return;
+    answered[qNum] = true;
+    const card = document.getElementById('qcard-' + qNum);
+    const buttons = card.querySelectorAll('.choice-btn');
+    buttons.forEach(btn => {
+      const txt = btn.textContent.trim();
+      const mark = txt[0];
+      if (correct.includes(mark)) btn.classList.add('correct');
+      if (mark === choice && !correct.includes(mark)) btn.classList.add('wrong');
+      btn.style.cursor = 'default';
+      btn.onclick = null;
+    });
+    document.getElementById('ans-' + qNum).classList.add('show');
+    window['__q' + qNum] = correct.includes(choice) ? 1 : 0;
+    updateProgress();
+  }
+
+  function showAns(qNum, isCorrect) {
+    answered[qNum] = true;
+    document.getElementById('ans-' + qNum).classList.add('show');
+    window['__q' + qNum] = isCorrect ? 1 : 0;
+    updateProgress();
+  }
+
+  function checkIntInput(qNum, expected) {
+    if (answered[qNum]) return;
+    const v = document.getElementById('q' + qNum + '-input').value.trim().replace(/[^\d.]/g, '');
+    const fb = document.getElementById('fb-' + qNum);
+    if (parseFloat(v) === expected) {
+      fb.textContent = '정답이에요! ✓';
+      fb.className = 'feedback-msg correct';
+      showAns(qNum, true);
+    } else {
+      fb.textContent = '아쉬워요. 정답을 확인해보세요.';
+      fb.className = 'feedback-msg wrong';
+      showAns(qNum, false);
+    }
+  }
+
+  function checkInput3() { checkIntInput(3, 15); }
+  function checkInput6() { checkIntInput(6, 14); }
+
+  function updateProgress() {
+    const done = Object.keys(answered).length;
+    document.getElementById('progressFill').style.width = (done / total * 100) + '%';
+    if (done === total) {
+      let score = 0;
+      for (let i = 1; i <= total; i++) score += (window['__q' + i] || 0);
+      document.getElementById('scoreDisplay').textContent = score + ' / ' + total;
+      document.getElementById('summary').style.display = 'block';
+      document.getElementById('summary').scrollIntoView({behavior: 'smooth'});
+    }
+  }
+</script>
+</body>
+</html>

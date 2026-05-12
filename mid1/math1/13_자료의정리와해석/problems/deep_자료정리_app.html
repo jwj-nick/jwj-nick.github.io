@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>깊이 탐구 — 자료 정리</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<style>
+  :root{--primary:#4361EE; --bg:#eef2ff; --card:#ffffff; --ink:#1f2330; --muted:#5b6478; --line:#dfe4ff; --L:#10b981; --M:#f59e0b; --H:#ef4444;}
+  *{box-sizing:border-box} body{margin:0; font-family:"Noto Sans KR",system-ui,sans-serif; color:var(--ink); background:var(--bg); padding:16px;}
+  .wrap{max-width:700px; margin:0 auto;}
+  header{background:var(--card); padding:14px 18px; border-radius:14px; display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;}
+  header a{color:var(--primary); text-decoration:none; font-size:14px;} header .title{font-weight:700; font-size:15px;}
+  .toptabs{display:flex; gap:8px; background:var(--card); padding:8px; border-radius:14px; margin-bottom:14px;}
+  .toptab{flex:1; padding:10px; background:#e5e7eb; border:none; border-radius:10px; cursor:pointer; font-size:13px; font-weight:700; color:#555;}
+  .toptab.active{background:var(--primary); color:white;}
+  .tab-content{display:none;}
+  .tab-content.active{display:block;}
+  .section{background:var(--card); border-radius:14px; padding:18px 20px; margin-bottom:14px; box-shadow:0 2px 12px rgba(67,97,238,0.06);}
+  .section h3{margin:0 0 10px; color:var(--primary); font-size:17px;}
+  .section h4{margin:14px 0 6px; color:#444; font-size:15px;}
+  .section p{line-height:1.7; font-size:14.5px; margin:8px 0;}
+  .key{background:#ecfdf5; border-left:4px solid #10b981; padding:12px 14px; border-radius:8px; margin:10px 0; font-size:14px; line-height:1.7;}
+  .key b{color:#047857;}
+  .warn{background:#fff8e6; border:1px solid #fbbf24; border-radius:10px; padding:12px 14px; margin:10px 0; font-size:14px; line-height:1.7;}
+  .warn b{color:#b45309;}
+  .stemleaf{font-family:"Noto Sans Mono",monospace; background:#f9fafb; border:1px solid var(--line); border-radius:8px; padding:10px 14px; white-space:pre; line-height:1.5; font-size:13px; margin:8px 0;}
+  table{border-collapse:collapse; margin:8px 0; font-size:13px;} th,td{border:1px solid var(--line); padding:5px 10px; text-align:center;} th{background:#f5f7ff;}
+  .practice{background:#f5f7ff; border-radius:10px; padding:12px 14px; margin:10px 0;}
+  .practice .q{font-weight:600; color:#333; margin:8px 0 4px;}
+  .practice details{margin:6px 0;} .practice summary{cursor:pointer; color:var(--primary); font-size:13px;}
+  .practice .ans{padding:8px; background:white; border-radius:6px; margin-top:6px; font-size:13.5px;}
+  .link{background:#fef3c7; border:1px solid #f59e0b; padding:12px; border-radius:8px; margin:10px 0; font-size:14px;}
+  .link b{color:#b45309;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><a href="../index.html">← 메인</a><span class="title">깊이 탐구 · 자료 정리</span><span style="font-size:12px; color:var(--muted);">3 tabs</span></header>
+
+  <div class="toptabs">
+    <button class="toptab active" data-tab="t1">유형 01<br>줄기잎</button>
+    <button class="toptab" data-tab="t2">유형 02<br>도수분포표</button>
+    <button class="toptab" data-tab="t3">유형 03<br>표 만들기</button>
+  </div>
+
+  <!-- Tab 1: 줄기와 잎 그림 -->
+  <div class="tab-content active" id="t1">
+    <div class="section">
+      <h3>유형 01 — 줄기와 잎 그림</h3>
+
+      <h4>1. 왜 이런 그림이 필요한가</h4>
+      <p>자료 10개, 20개를 그냥 나열하면 보기 어렵다. <b>비슷한 크기끼리 묶으면 분포가 보인다.</b> 줄기와 잎 그림은 자료를 보존하면서도 분포를 시각화하는 가장 단순한 도구다.</p>
+
+      <h4>2. 핵심 전략</h4>
+      <div class="key">
+        <b>3단계 작성법</b><br>
+        ① 자료의 십의 자리 = 줄기 → 작은 줄기부터 큰 줄기까지 적기<br>
+        ② 일의 자리 = 잎 → 해당 줄기 옆에 작은 수부터 큰 수 순서로<br>
+        ③ 같은 잎이 여러 번이면 그 횟수만큼 모두 적기 (예: 95가 두 번이면 "5 5")
+      </div>
+
+      <h4>3. 자주 하는 실수</h4>
+      <div class="warn">
+        <b>실수 ①</b> 잎을 정렬하지 않음. → 항상 작은 수부터.<br>
+        <b>실수 ②</b> 같은 값이 두 번 있는데 한 번만 적음. → 자료 개수가 줄어듦.<br>
+        <b>실수 ③</b> 줄기가 자릿수가 다른데 같은 줄에 적음. → 줄기는 한 자리 또는 한 자릿수 위치만.
+      </div>
+
+      <h4>4. 등-줄기 잎 그림 (두 집단 비교)</h4>
+      <p>두 집단을 같은 줄기로 비교하려면 줄기를 가운데 두고 잎을 양쪽으로 펼친다.</p>
+      <div class="stemleaf">    A반    │ 줄기 │  B반
+  8 5 2 │  6   │ 1 4
+7 6 4 1 │  7   │ 0 3 5
+    5 2 │  8   │ 2 4 6 9</div>
+      <p><b>A반의 잎은 오른쪽부터 왼쪽으로 작은 수 → 큰 수</b>. 헷갈리면 거울 보듯이 읽으면 된다.</p>
+
+      <div class="practice">
+        <div class="q">연습 1) 자료 23, 27, 31, 35, 38, 42, 47의 줄기와 잎 그림을 만들어보자.</div>
+        <details><summary>정답 보기</summary>
+          <div class="ans"><pre>줄기 │ 잎
+ 2  │ 3 7
+ 3  │ 1 5 8
+ 4  │ 2 7</pre></div></details>
+
+        <div class="q">연습 2) 등-줄기 잎 그림에서 A반(왼쪽) 잎이 "9 7 4 2"라면, A반의 자료는?</div>
+        <details><summary>정답 보기</summary>
+          <div class="ans">왼쪽으로 멀어질수록 큰 수. 따라서 작은 수부터 정렬하면 <b>2, 4, 7, 9</b>.</div></details>
+      </div>
+
+      <div class="link"><b>다음 단계로</b> 자료가 많아져서 줄기/잎으로는 보기 어려울 때 → <b>도수분포표</b>로 묶어서 정리.</div>
+    </div>
+  </div>
+
+  <!-- Tab 2: 도수분포표 -->
+  <div class="tab-content" id="t2">
+    <div class="section">
+      <h3>유형 02 — 도수분포표 기본</h3>
+
+      <h4>1. 4가지 핵심 용어 — 끝까지 안 헷갈리게</h4>
+      <table>
+        <tr><th>용어</th><th>뜻</th><th>예 (계급 60~70)</th></tr>
+        <tr><td>계급</td><td>자료를 나눈 구간</td><td>"60 이상 70 미만"</td></tr>
+        <tr><td>계급의 크기</td><td>한 구간의 너비</td><td>$70-60 = 10$</td></tr>
+        <tr><td>계급값</td><td>구간의 가운데 값</td><td>$(60+70)\div 2 = 65$</td></tr>
+        <tr><td>도수</td><td>그 구간에 속한 자료 개수</td><td>"3명"</td></tr>
+      </table>
+
+      <h4>2. 핵심 함정 — "이상" vs "미만"</h4>
+      <div class="warn">
+        <b>★ 가장 중요한 함정 ★</b><br>
+        "70 이상 80 미만"이라고 하면, <b>70은 포함</b>, <b>80은 포함 안 됨</b>.<br>
+        그래서 정확히 80점인 학생은 이 계급이 아니라 <b>"80 이상 90 미만"</b>에 속한다.<br>
+        시험에 자주 나오는 함정.
+      </div>
+
+      <h4>3. 빈칸 채우기 — 합계로 역산</h4>
+      <div class="key">
+        <b>핵심</b> 합계 = 모든 도수의 합. 한 자리가 비었으면 (합계) − (다른 도수들).
+      </div>
+
+      <h4>4. 도수의 비를 묻는 문제</h4>
+      <p>두 계급의 도수가 12와 4 → 비 $12:4 = 3:1$. 최대공약수로 약분.</p>
+
+      <div class="practice">
+        <div class="q">연습 1) "30 이상 40 미만" 계급의 계급값은?</div>
+        <details><summary>정답 보기</summary>
+          <div class="ans">$(30+40) \div 2 = 35$</div></details>
+
+        <div class="q">연습 2) 도수 합 30. 도수 3, 5, 12, ?, 4. 빈칸은?</div>
+        <details><summary>정답 보기</summary>
+          <div class="ans">$30 - (3+5+12+4) = 30 - 24 = 6$</div></details>
+
+        <div class="q">연습 3) 변량이 80점이고 계급이 "70 이상 80 미만"과 "80 이상 90 미만" 중 어느 쪽에 속하나?</div>
+        <details><summary>정답 보기</summary>
+          <div class="ans">"미만"은 그 수를 포함 안 함, "이상"은 포함. → <b>"80 이상 90 미만"</b>에 속함.</div></details>
+      </div>
+
+      <div class="link"><b>다음 단계로</b> 도수분포표만으로는 모양이 안 보임 → <b>히스토그램</b>으로 시각화.</div>
+    </div>
+  </div>
+
+  <!-- Tab 3: 도수분포표 만들기 -->
+  <div class="tab-content" id="t3">
+    <div class="section">
+      <h3>유형 03 — 도수분포표 만들기</h3>
+
+      <h4>1. 원자료가 주어졌을 때 — 3단계</h4>
+      <div class="key">
+        <b>① 최댓값·최솟값 찾기</b> → 자료 전체 범위 파악<br>
+        <b>② 계급의 크기 정하기</b> → 보통 5나 10 (계급이 5~15개 되도록)<br>
+        <b>③ 각 계급에 속한 자료 개수 세기</b> → 정자(正) 표시로 빠뜨림 방지
+      </div>
+
+      <h4>2. 자주 하는 실수 — 검산이 답</h4>
+      <div class="warn">
+        <b>★ 핵심 검산</b> 자료를 다 셌으면 <b>도수의 합 = 전체 자료 개수</b>여야 함.<br>
+        만약 안 맞으면 어딘가 빠뜨렸거나 두 번 셌다.<br>
+        ★ 또 하나 — 경계값(예: 정확히 80점) 처리 실수 ("80 이상 90 미만"으로).
+      </div>
+
+      <h4>3. 계급의 크기와 개수 정하기</h4>
+      <p>최댓값 89, 최솟값 12, 계급의 크기 10:</p>
+      <ul style="line-height:1.7;">
+        <li>12를 포함하는 가장 작은 계급: <b>10 이상 20 미만</b></li>
+        <li>89를 포함하는 가장 큰 계급: <b>80 이상 90 미만</b></li>
+        <li>총 계급 수: 10대, 20대, ..., 80대 → <b>8개</b></li>
+      </ul>
+
+      <h4>4. 정자(正) 표시 — 5개 묶음으로 빠뜨림 방지</h4>
+      <p>각 자료를 읽으며 해당 계급에 "丅"부터 시작해서 "正" 한 글자 = 5개. 한 글자 채워질 때마다 5개씩 집계. 이렇게 하면 도중에 의심스러우면 다시 셀 수 있다.</p>
+
+      <div class="practice">
+        <div class="q">연습 1) 자료 12, 18, 23, 27, 31, 14, 25, 29, 33의 도수분포표 (계급 크기 10, 계급 10~20, 20~30, 30~40).</div>
+        <details><summary>정답 보기</summary>
+          <div class="ans">10~20: 12, 18, 14 = <b>3개</b><br>20~30: 23, 27, 25, 29 = <b>4개</b><br>30~40: 31, 33 = <b>2개</b><br>합 = 9 = 자료 개수 ✓</div></details>
+
+        <div class="q">연습 2) 최댓값 67, 최솟값 21, 계급 크기 10. 필요한 계급 수는?</div>
+        <details><summary>정답 보기</summary>
+          <div class="ans">20대, 30대, 40대, 50대, 60대 → <b>5개</b>.</div></details>
+      </div>
+
+      <div class="link"><b>13단원 마지막 메시지</b> 자료를 정리하는 일은 단순 작업처럼 보이지만, <b>나이팅게일이 야전병원에서 한 일</b>이 정확히 이것이었다. 한 환자 한 환자의 사망 원인을 표로 옮긴 것 — 그게 그래프가 되고, 의회를 설득하고, 군대를 살렸다.</div>
+    </div>
+  </div>
+
+</div>
+<script>
+const tabs = document.querySelectorAll('.toptab');
+const contents = document.querySelectorAll('.tab-content');
+tabs.forEach(t => t.onclick = () => {
+  tabs.forEach(x => x.classList.remove('active'));
+  contents.forEach(x => x.classList.remove('active'));
+  t.classList.add('active');
+  document.getElementById(t.dataset.tab).classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+  if (window.renderMathInElement) renderMathInElement(document.getElementById(t.dataset.tab), {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});
+});
+</script>
+</body>
+</html>

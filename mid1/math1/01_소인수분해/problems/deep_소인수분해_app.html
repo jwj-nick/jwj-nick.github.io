@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 탐구 — 소인수분해</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+  .container { max-width: 700px; width: 100%; }
+  header { text-align: center; margin-bottom: 20px; }
+  header .back { font-size: 13px; color: #4361EE; text-decoration: none; display: inline-block; margin-bottom: 12px; }
+  .deep-badge { background: linear-gradient(135deg, #7c3aed, #4361EE); color: white; font-size: 11px; padding: 3px 12px; border-radius: 20px; display: inline-block; margin-bottom: 8px; }
+  header h1 { font-size: 22px; color: #1a1a2e; margin-bottom: 4px; }
+  header p { font-size: 13px; color: #666; }
+  /* 섹션 카드 */
+  .section-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 16px; }
+  .section-card h2 { font-size: 17px; color: #4361EE; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .section-card h2 .icon { font-size: 20px; }
+  .section-card p { font-size: 14px; line-height: 1.8; color: #333; margin-bottom: 10px; }
+  /* 핵심 아이디어 */
+  .idea-box { background: #eef2ff; border-left: 4px solid #4361EE; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 12px 0; }
+  /* 단계별 풀이 */
+  .steps-container { margin: 12px 0; }
+  .step-btn { background: white; border: 2px solid #c0c8ff; border-radius: 10px; padding: 10px 16px; width: 100%; text-align: left; font-size: 14px; font-family: inherit; cursor: pointer; margin-bottom: 6px; transition: all 0.15s; color: #4361EE; }
+  .step-btn:hover { border-color: #4361EE; background: #f0f3ff; }
+  .step-btn.revealed { border-color: #4361EE; background: #eef2ff; }
+  .step-content { background: #f8f9ff; border-radius: 0 0 10px 10px; padding: 12px 16px; font-size: 13px; line-height: 1.8; color: #333; display: none; margin-top: -6px; margin-bottom: 6px; }
+  .step-content.show { display: block; }
+  /* 실수 패턴 */
+  .mistake-list { list-style: none; }
+  .mistake-list li { background: #fff3cd; border-left: 3px solid #ffc107; padding: 10px 14px; border-radius: 0 8px 8px 0; margin-bottom: 8px; font-size: 13px; color: #856404; }
+  .mistake-list li strong { color: #e07b39; }
+  /* 추가 문제 */
+  .extra-prob { background: #f8f9ff; border-radius: 12px; padding: 16px; margin-bottom: 10px; }
+  .extra-num { display: inline-block; background: #7c3aed; color: white; width: 24px; height: 24px; border-radius: 50%; text-align: center; line-height: 24px; font-size: 12px; font-weight: bold; margin-right: 8px; }
+  .extra-text { font-size: 14px; color: #1a1a2e; margin-bottom: 10px; }
+  .extra-ans-btn { background: #7c3aed; color: white; border: none; border-radius: 8px; padding: 6px 14px; font-size: 12px; cursor: pointer; font-family: inherit; }
+  .extra-ans { background: white; border: 1px solid #e0d4ff; border-radius: 8px; padding: 10px; font-size: 13px; display: none; margin-top: 8px; line-height: 1.7; }
+  .extra-ans.show { display: block; }
+  .ans-box-sm { background: #7c3aed; color: white; border-radius: 6px; padding: 4px 12px; font-weight: bold; font-size: 14px; display: inline-block; margin-bottom: 4px; }
+  /* 연결 개념 */
+  .connect-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .connect-tag { background: #eef2ff; color: #4361EE; font-size: 12px; padding: 4px 12px; border-radius: 20px; border: 1px solid #c0c8ff; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <a class="back" href="type_03_app.html">← 유형 3으로</a>
+    <div class="deep-badge">깊이 탐구 · 소인수분해</div>
+    <h1>소인수분해 완전 이해</h1>
+    <p>어려운 문제가 어려운 이유와 핵심 아이디어를 탐구해요</p>
+  </header>
+
+  <!-- 1. 왜 어려운가 -->
+  <div class="section-card">
+    <h2><span class="icon">🤔</span> 이 유형이 어려운 이유</h2>
+    <p>소인수분해 자체는 쉬운데, 심화 문제에서 막히는 이유가 있어요:</p>
+    <div class="idea-box">
+      1. <strong>역방향 사고</strong> — 소인수분해 결과에서 원래 수를 역추론해야 할 때<br>
+      2. <strong>조건 조합</strong> — "소인수분해가 $2^a \times 3^b$이고, 약수 개수가 n개"처럼 여러 조건이 동시에 붙을 때<br>
+      3. <strong>지수의 의미</strong> — 지수를 "몇 번 곱하는지"가 아니라 "몇 가지 경우가 가능한지"로 읽어야 할 때
+    </div>
+    <p>이 세 가지를 구별하면 어떤 문제도 풀 수 있어요.</p>
+  </div>
+
+  <!-- 2. 핵심 아이디어 — 단계별 공개 -->
+  <div class="section-card">
+    <h2><span class="icon">💡</span> 핵심 아이디어 — 클릭하여 단계 공개</h2>
+    <p>문제: <strong>"$2^a \times 3^b$의 약수의 개수가 12개일 때, a+b의 최솟값은?"</strong></p>
+
+    <div class="steps-container">
+      <button class="step-btn" onclick="revealStep(this, 'step1')">1단계: 약수의 개수 공식 적용</button>
+      <div class="step-content" id="step1">
+        $(a+1)(b+1) = 12$<br>
+        12를 두 양의 정수의 곱으로 나타내는 방법:<br>
+        $1\times12$, $2\times6$, $3\times4$, $4\times3$, $6\times2$, $12\times1$
+      </div>
+
+      <button class="step-btn" onclick="revealStep(this, 'step2')">2단계: (a+1, b+1) 쌍 목록 만들기</button>
+      <div class="step-content" id="step2">
+        $(a+1, b+1)$ → $(a, b)$:<br>
+        $(1,12)$ → $(0,11)$: $a=0$은 $2^0=1$이므로 소인수 2가 없음<br>
+        $(2,6)$ → $(1,5)$: a+b=6<br>
+        $(3,4)$ → $(2,3)$: a+b=5<br>
+        $(4,3)$ → $(3,2)$: a+b=5<br>
+        $(6,2)$ → $(5,1)$: a+b=6<br>
+        $(12,1)$ → $(11,0)$: $b=0$은 소인수 3이 없음
+      </div>
+
+      <button class="step-btn" onclick="revealStep(this, 'step3')">3단계: 조건에서 최솟값 찾기</button>
+      <div class="step-content" id="step3">
+        a, b ≥ 1 조건이 있다면: (1,5), (2,3), (3,2), (5,1)<br>
+        a+b 최솟값 = 5 ($(a,b)=(2,3)$ 또는 $(3,2)$일 때)<br>
+        이 때 수는: $2^2 \times 3^3 = 108$ 또는 $2^3 \times 3^2 = 72$
+      </div>
+
+      <button class="step-btn" onclick="revealStep(this, 'step4')">4단계: 검증</button>
+      <div class="step-content" id="step4">
+        $72 = 2^3 \times 3^2$ → 약수 개수 = $(3+1)(2+1) = 12$ ✅<br>
+        $108 = 2^2 \times 3^3$ → 약수 개수 = $(2+1)(3+1) = 12$ ✅<br>
+        a+b = 5 ✅
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 자주 하는 실수 -->
+  <div class="section-card">
+    <h2><span class="icon">⚠️</span> 자주 하는 실수 패턴</h2>
+    <ul class="mistake-list">
+      <li><strong>실수 1:</strong> $(a+1)(b+1)=12$에서 $(a,b)=(12,1)$처럼 한 쪽에만 다 넣음 → 조건을 만족하지만 최솟값/최댓값이 아닐 수 있음</li>
+      <li><strong>실수 2:</strong> "소인수분해 결과에서 소인수 확인" 시 지수 대신 밑만 보기 → $2^3 \times 3^2$의 소인수는 2, 3 (3이나 9가 아님)</li>
+      <li><strong>실수 3:</strong> 소인수분해가 유일하다는 것을 활용 안 함 → 조건을 만족하는 수가 하나뿐이라고 확신할 수 있는 근거</li>
+      <li><strong>실수 4:</strong> 나눗셈 과정에서 나누다가 멈춤 → 몫이 1이 될 때까지 계속 나눠야 함</li>
+    </ul>
+  </div>
+
+  <!-- 4. 추가 문제 -->
+  <div class="section-card">
+    <h2><span class="icon">✏️</span> 추가 연습 문제</h2>
+
+    <div class="extra-prob">
+      <div class="extra-text"><span class="extra-num">1</span>$n^3 = 2^6 \times 3^3$일 때, $n$을 소인수분해하세요.</div>
+      <button class="extra-ans-btn" onclick="toggleExtra(this, 'ext1')">정답 보기</button>
+      <div class="extra-ans" id="ext1">
+        <div class="ans-box-sm">$n = 2^2 \times 3 = 12$</div><br>
+        $n^3 = (2^2 \times 3)^3 = 2^6 \times 3^3$이므로<br>
+        $n = 2^2 \times 3 = 12$
+      </div>
+    </div>
+
+    <div class="extra-prob">
+      <div class="extra-text"><span class="extra-num">2</span>어떤 자연수 $N$을 소인수분해하면 $2^a \times 5^b$ ($a, b \geq 1$) 꼴이 되고, 약수의 개수가 6개입니다. $N$이 될 수 있는 수를 모두 구하세요.</div>
+      <button class="extra-ans-btn" onclick="toggleExtra(this, 'ext2')">정답 보기</button>
+      <div class="extra-ans" id="ext2">
+        <div class="ans-box-sm">20, 50, 100, 500</div><br>
+        $(a+1)(b+1)=6$, $a,b \geq 1$<br>
+        $(a+1, b+1)$: $(2,3), (3,2)$<br>
+        $(a,b)$: $(1,2), (2,1)$<br>
+        $2^1 \times 5^2 = 50$, $2^2 \times 5^1 = 20$<br>
+        ※ 범위 제한 없으면 무한히 많음. 두 자리 이하: 20, 50
+      </div>
+    </div>
+
+    <div class="extra-prob">
+      <div class="extra-text"><span class="extra-num">3</span>$\dfrac{756}{n}$이 자연수의 제곱이 되도록 하는 가장 작은 자연수 $n$을 구하세요.</div>
+      <button class="extra-ans-btn" onclick="toggleExtra(this, 'ext3')">정답 보기</button>
+      <div class="extra-ans" id="ext3">
+        <div class="ans-box-sm">$n = 21$</div><br>
+        $756 = 2^2 \times 3^3 \times 7$<br>
+        $\dfrac{756}{n} = \dfrac{2^2 \times 3^3 \times 7}{n}$이 완전제곱수가 되려면<br>
+        홀수 지수를 짝수로 만들어야 함: $3^3$ (지수 3), $7^1$ (지수 1)<br>
+        $n = 3 \times 7 = 21$<br>
+        $\dfrac{756}{21} = 36 = 6^2$ ✅
+      </div>
+    </div>
+
+    <div class="extra-prob">
+      <div class="extra-text"><span class="extra-num">4</span>1부터 100까지의 자연수 중 소인수가 2뿐인 수의 개수를 구하세요.</div>
+      <button class="extra-ans-btn" onclick="toggleExtra(this, 'ext4')">정답 보기</button>
+      <div class="extra-ans" id="ext4">
+        <div class="ans-box-sm">6개</div><br>
+        2의 거듭제곱만: $2^1=2$, $2^2=4$, $2^3=8$, $2^4=16$, $2^5=32$, $2^6=64$<br>
+        $2^7=128>100$ → 6개
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. 연결 개념 -->
+  <div class="section-card">
+    <h2><span class="icon">🔗</span> 이 유형을 이해하면...</h2>
+    <p>소인수분해를 완전히 이해하면 다음이 쉬워져요:</p>
+    <div class="connect-tags">
+      <span class="connect-tag">약수의 개수 공식</span>
+      <span class="connect-tag">GCD · LCM 계산</span>
+      <span class="connect-tag">완전제곱수 판별</span>
+      <span class="connect-tag">RSA 암호 원리</span>
+      <span class="connect-tag">정수론 전반</span>
+    </div>
+    <p style="margin-top:12px;">특히 소인수분해의 <strong>유일성</strong>(산술의 기본 정리)은 수학 전체에서 가장 중요한 성질 중 하나예요. 같은 수가 두 가지 소인수분해를 가질 수 없다는 이 사실이 모든 계산의 기반이 돼요.</p>
+  </div>
+</div>
+
+<script>
+function revealStep(btn, id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('show');
+  btn.classList.toggle('revealed');
+  if (window.renderMathInElement) renderMathInElement(el, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});
+}
+function toggleExtra(btn, id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('show');
+  btn.textContent = el.classList.contains('show') ? '정답 닫기' : '정답 보기';
+  if (window.renderMathInElement) renderMathInElement(el, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});
+}
+</script>
+</body>
+</html>

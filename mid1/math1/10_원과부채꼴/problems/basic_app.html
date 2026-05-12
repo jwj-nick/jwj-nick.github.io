@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>기본 문제 — 원과 부채꼴</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; }
+  .header { background: linear-gradient(135deg, #4361EE 0%, #3a0ca3 100%); color: white; padding: 24px 20px; text-align: center; }
+  .header h1 { font-size: 22px; margin-bottom: 6px; }
+  .header p { font-size: 13px; opacity: 0.85; }
+  .progress-bar { background: rgba(255,255,255,0.2); height: 4px; border-radius: 2px; margin-top: 14px; overflow: hidden; }
+  .progress-fill { background: white; height: 100%; border-radius: 2px; transition: width 0.3s; }
+  .container { max-width: 700px; margin: 0 auto; padding: 20px 16px 60px; }
+  .question-card { background: white; border-radius: 16px; padding: 22px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 14px; }
+  .q-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .q-num { background: #4361EE; color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; flex-shrink: 0; }
+  .q-tag { font-size: 11px; background: #eef2ff; color: #4361EE; padding: 3px 10px; border-radius: 20px; }
+  .q-diff { font-size: 11px; padding: 3px 10px; border-radius: 20px; margin-left: auto; }
+  .diff-L { background: #e8f5e9; color: #2e7d32; }
+  .diff-M { background: #fff3e0; color: #e65100; }
+  .q-text { font-size: 15px; color: #1a1a2e; line-height: 1.8; margin-bottom: 14px; }
+  .choices { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+  .choice-btn { background: #f8f9ff; border: 2px solid #eef2ff; border-radius: 10px; padding: 10px 14px; text-align: left; font-size: 14px; color: #333; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+  .choice-btn:hover { border-color: #4361EE; background: #eef2ff; }
+  .choice-btn.selected { border-color: #4361EE; background: #eef2ff; font-weight: bold; }
+  .choice-btn.correct { border-color: #2e7d32; background: #e8f5e9; color: #1b5e20; font-weight: bold; }
+  .choice-btn.wrong { border-color: #c62828; background: #ffebee; color: #b71c1c; }
+  .answer-panel { display: none; margin-top: 12px; border-top: 1px solid #eef2ff; padding-top: 12px; }
+  .answer-panel.show { display: block; }
+  .answer-box { background: #f0fff4; border-radius: 10px; padding: 12px 16px; font-size: 14px; color: #1b5e20; line-height: 1.8; margin-bottom: 8px; }
+  .solution-box { background: #f8f9ff; border-radius: 10px; padding: 12px 16px; font-size: 13px; color: #444; line-height: 1.8; }
+  .mini-svg { display: block; margin: 10px auto; max-width: 320px; width: 100%; height: auto; background: white; border-radius: 8px; padding: 6px; border: 1px solid #eef2ff; }
+  .summary-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); text-align: center; display: none; }
+  .summary-score { font-size: 48px; font-weight: bold; color: #4361EE; margin: 10px 0; }
+  .summary-sub { font-size: 14px; color: #666; }
+  .home-btn { display: inline-block; margin-top: 20px; background: #4361EE; color: white; text-decoration: none; padding: 10px 28px; border-radius: 24px; font-size: 14px; }
+  .input-row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .input-row input { padding: 8px 12px; border: 2px solid #eef2ff; border-radius: 10px; font-size: 14px; flex: 1; min-width: 100px; font-family: inherit; }
+  .input-row input:focus { outline: none; border-color: #4361EE; }
+  .check-btn { background: #4361EE; color: white; border: none; border-radius: 10px; padding: 8px 18px; font-size: 14px; cursor: pointer; font-family: inherit; }
+  .check-btn:hover { background: #3a0ca3; }
+  .feedback-msg { font-size: 13px; padding: 6px 0; color: #4361EE; font-weight: 600; }
+  .feedback-msg.correct { color: #2e7d32; }
+  .feedback-msg.wrong { color: #c62828; }
+  .input-hint { font-size: 11px; color: #888; margin-top: -6px; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>기본 문제 — 원과 부채꼴</h1>
+  <p>Unit 10 전체 핵심 개념 확인 · 9문제</p>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+  </div>
+</div>
+
+<div class="container" id="mainContent">
+
+  <!-- Q1: 원 구성요소 -->
+  <div class="question-card" id="qcard-1">
+    <div class="q-header">
+      <div class="q-num">1</div>
+      <div class="q-tag">원의 구성요소</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">다음 중 <strong>잘못된 설명</strong>은?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(1,'①','③')">① 원은 한 점에서 일정한 거리에 있는 점들의 집합이다.</button>
+      <button class="choice-btn" onclick="chooseAnswer(1,'②','③')">② 지름은 원의 가장 긴 현이다.</button>
+      <button class="choice-btn" onclick="chooseAnswer(1,'③','③')">③ 접선은 원과 두 점에서 만나는 직선이다.</button>
+      <button class="choice-btn" onclick="chooseAnswer(1,'④','③')">④ 호는 원 위의 두 점 사이의 곡선이다.</button>
+    </div>
+    <div class="answer-panel" id="ans-1">
+      <div class="answer-box">정답: ③</div>
+      <div class="solution-box">
+        <strong>접선</strong>은 원과 <strong>한 점</strong>에서만 만나는 직선이에요. (그 점을 접점이라고 해요.)<br>
+        두 점에서 만나는 건 <strong>할선</strong>(secant)입니다.
+      </div>
+    </div>
+  </div>
+
+  <!-- Q2: 반지름·지름 -->
+  <div class="question-card" id="qcard-2">
+    <div class="q-header">
+      <div class="q-num">2</div>
+      <div class="q-tag">반지름·지름</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">지름이 $14$ cm 인 원의 반지름의 길이를 구하세요. (단위 빼고 숫자만 입력)</div>
+    <div class="input-row">
+      <input type="text" id="q2-input" placeholder="예: 7">
+      <button class="check-btn" onclick="checkInput2()">확인</button>
+    </div>
+    <div class="feedback-msg" id="fb-2"></div>
+    <div class="answer-panel" id="ans-2">
+      <div class="answer-box">정답: $7$ cm</div>
+      <div class="solution-box">
+        지름과 반지름의 관계: $d = 2r$<br>
+        $r = \dfrac{d}{2} = \dfrac{14}{2} = 7$ cm
+      </div>
+    </div>
+  </div>
+
+  <!-- Q3: 원 둘레 -->
+  <div class="question-card" id="qcard-3">
+    <div class="q-header">
+      <div class="q-num">3</div>
+      <div class="q-tag">원의 둘레</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">반지름이 $5$ cm 인 원의 둘레는?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(3,'①','②')">① $5\pi$ cm</button>
+      <button class="choice-btn" onclick="chooseAnswer(3,'②','②')">② $10\pi$ cm</button>
+      <button class="choice-btn" onclick="chooseAnswer(3,'③','②')">③ $25\pi$ cm</button>
+      <button class="choice-btn" onclick="chooseAnswer(3,'④','②')">④ $50\pi$ cm</button>
+    </div>
+    <div class="answer-panel" id="ans-3">
+      <div class="answer-box">정답: ② $10\pi$ cm</div>
+      <div class="solution-box">
+        원의 둘레 공식: $C = 2\pi r$<br>
+        $C = 2\pi \times 5 = 10\pi$ cm<br><br>
+        ⚠️ 흔한 실수: ③ $25\pi$ 는 <strong>넓이 공식 $\pi r^2$</strong>의 결과예요. 둘레와 넓이를 헷갈리지 마세요.
+      </div>
+    </div>
+  </div>
+
+  <!-- Q4: 원 넓이 -->
+  <div class="question-card" id="qcard-4">
+    <div class="q-header">
+      <div class="q-num">4</div>
+      <div class="q-tag">원의 넓이</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">반지름이 $4$ cm 인 원의 넓이는?</div>
+    <svg class="mini-svg" viewBox="-90 -90 180 180">
+      <circle cx="0" cy="0" r="70" fill="rgba(67,97,238,0.15)" stroke="#4361EE" stroke-width="2"/>
+      <line x1="0" y1="0" x2="70" y2="0" stroke="#10b981" stroke-width="2"/>
+      <text x="35" y="-6" text-anchor="middle" font-size="12" fill="#10b981" font-weight="bold">r = 4 cm</text>
+      <circle cx="0" cy="0" r="3" fill="#1d3557"/>
+    </svg>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(4,'①','③')">① $4\pi$ cm²</button>
+      <button class="choice-btn" onclick="chooseAnswer(4,'②','③')">② $8\pi$ cm²</button>
+      <button class="choice-btn" onclick="chooseAnswer(4,'③','③')">③ $16\pi$ cm²</button>
+      <button class="choice-btn" onclick="chooseAnswer(4,'④','③')">④ $32\pi$ cm²</button>
+    </div>
+    <div class="answer-panel" id="ans-4">
+      <div class="answer-box">정답: ③ $16\pi$ cm²</div>
+      <div class="solution-box">
+        원의 넓이 공식: $A = \pi r^2$<br>
+        $A = \pi \times 4^2 = 16\pi$ cm²<br><br>
+        💡 단위는 cm² (제곱). 넓이는 항상 길이의 제곱 단위예요.
+      </div>
+    </div>
+  </div>
+
+  <!-- Q5: 부채꼴 vs 활꼴 -->
+  <div class="question-card" id="qcard-5">
+    <div class="q-header">
+      <div class="q-num">5</div>
+      <div class="q-tag">부채꼴 · 활꼴</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">다음 중 <strong>활꼴</strong>의 정의로 옳은 것은?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(5,'①','②')">① 원에서 두 반지름과 호로 둘러싸인 도형</button>
+      <button class="choice-btn" onclick="chooseAnswer(5,'②','②')">② 원에서 한 현과 호로 둘러싸인 도형</button>
+      <button class="choice-btn" onclick="chooseAnswer(5,'③','②')">③ 원에서 두 현으로 둘러싸인 도형</button>
+      <button class="choice-btn" onclick="chooseAnswer(5,'④','②')">④ 원의 일부분 전체</button>
+    </div>
+    <div class="answer-panel" id="ans-5">
+      <div class="answer-box">정답: ② 한 현과 호로 둘러싸인 도형</div>
+      <div class="solution-box">
+        <strong>부채꼴</strong> = 두 <strong>반지름</strong> + 호 (피자 한 조각)<br>
+        <strong>활꼴</strong> = 한 <strong>현</strong> + 호 (달·잎사귀)<br><br>
+        ① 은 부채꼴의 정의예요.
+      </div>
+    </div>
+  </div>
+
+  <!-- Q6: 호의 길이 -->
+  <div class="question-card" id="qcard-6">
+    <div class="q-header">
+      <div class="q-num">6</div>
+      <div class="q-tag">호의 길이</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text">반지름 $9$ cm, 중심각 $40°$ 인 부채꼴의 호의 길이는?</div>
+    <svg class="mini-svg" viewBox="-100 -100 200 200">
+      <circle cx="0" cy="0" r="80" fill="none" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3,3"/>
+      <path d="M 0 0 L 80 0 A 80 80 0 0 0 61.28 -51.42 Z" fill="rgba(67,97,238,0.25)" stroke="#4361EE" stroke-width="2"/>
+      <path d="M 80 0 A 80 80 0 0 0 61.28 -51.42" fill="none" stroke="#ef4444" stroke-width="3"/>
+      <circle cx="0" cy="0" r="3" fill="#1d3557"/>
+      <text x="40" y="-22" font-size="11" fill="#4361EE">40°</text>
+      <text x="50" y="14" font-size="11" fill="#10b981">r=9</text>
+    </svg>
+    <div class="input-row">
+      <input type="text" id="q6-input" placeholder="예: 2π 또는 2pi">
+      <button class="check-btn" onclick="checkInput6()">확인</button>
+    </div>
+    <div class="input-hint">입력 형식: "2π", "2pi", "2*pi" 모두 가능</div>
+    <div class="feedback-msg" id="fb-6"></div>
+    <div class="answer-panel" id="ans-6">
+      <div class="answer-box">정답: $2\pi$ cm</div>
+      <div class="solution-box">
+        호의 길이 공식: $l = 2\pi r \times \dfrac{\theta}{360}$<br>
+        $l = 2\pi \times 9 \times \dfrac{40}{360} = 18\pi \times \dfrac{1}{9} = 2\pi$ cm
+      </div>
+    </div>
+  </div>
+
+  <!-- Q7: 부채꼴 넓이 -->
+  <div class="question-card" id="qcard-7">
+    <div class="q-header">
+      <div class="q-num">7</div>
+      <div class="q-tag">부채꼴 넓이</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text">반지름 $6$ cm, 중심각 $150°$ 인 부채꼴의 넓이는?</div>
+    <div class="input-row">
+      <input type="text" id="q7-input" placeholder="예: 15π">
+      <button class="check-btn" onclick="checkInput7()">확인</button>
+    </div>
+    <div class="input-hint">입력 형식: "15π", "15pi", "15*pi" 모두 가능</div>
+    <div class="feedback-msg" id="fb-7"></div>
+    <div class="answer-panel" id="ans-7">
+      <div class="answer-box">정답: $15\pi$ cm²</div>
+      <div class="solution-box">
+        부채꼴 넓이 공식: $S = \pi r^2 \times \dfrac{\theta}{360}$<br>
+        $S = \pi \times 6^2 \times \dfrac{150}{360} = 36\pi \times \dfrac{5}{12} = 15\pi$ cm²
+      </div>
+    </div>
+  </div>
+
+  <!-- Q8: 호와 반지름으로 넓이 -->
+  <div class="question-card" id="qcard-8">
+    <div class="q-header">
+      <div class="q-num">8</div>
+      <div class="q-tag">$\frac{1}{2}rl$ 공식</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text">반지름 $8$ cm, 호의 길이 $5\pi$ cm 인 부채꼴의 넓이는?</div>
+    <div class="input-row">
+      <input type="text" id="q8-input" placeholder="예: 20π">
+      <button class="check-btn" onclick="checkInput8()">확인</button>
+    </div>
+    <div class="input-hint">입력 형식: "20π", "20pi", "20*pi"</div>
+    <div class="feedback-msg" id="fb-8"></div>
+    <div class="answer-panel" id="ans-8">
+      <div class="answer-box">정답: $20\pi$ cm²</div>
+      <div class="solution-box">
+        호의 길이가 주어지면 — $S = \dfrac{1}{2}rl$ 공식이 빠르고 편해요.<br>
+        $S = \dfrac{1}{2} \times 8 \times 5\pi = 4 \times 5\pi = 20\pi$ cm²<br><br>
+        💡 검산: 중심각 구해서 풀어도 같음. $5\pi = 2\pi \times 8 \times \dfrac{\theta}{360}$ → $\theta = \dfrac{5 \times 360}{16} = 112.5°$. $S = \pi \times 64 \times \dfrac{112.5}{360} = 64\pi \times \dfrac{5}{16} = 20\pi$ ✓
+      </div>
+    </div>
+  </div>
+
+  <!-- Q9: 호의 정비례 -->
+  <div class="question-card" id="qcard-9">
+    <div class="q-header">
+      <div class="q-num">9</div>
+      <div class="q-tag">호 정비례 ★</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text">같은 원에서 중심각 $30°$ 인 호의 길이가 $2\pi$ cm 일 때, 같은 원에서 중심각 $90°$ 인 호의 길이는?</div>
+    <div class="input-row">
+      <input type="text" id="q9-input" placeholder="예: 6π">
+      <button class="check-btn" onclick="checkInput9()">확인</button>
+    </div>
+    <div class="input-hint">입력 형식: "6π", "6pi", "6*pi"</div>
+    <div class="feedback-msg" id="fb-9"></div>
+    <div class="answer-panel" id="ans-9">
+      <div class="answer-box">정답: $6\pi$ cm</div>
+      <div class="solution-box">
+        ★ 같은 원에서 <strong>호의 길이는 중심각에 정비례</strong>해요.<br>
+        $\dfrac{30°}{90°} = \dfrac{2\pi}{x}$ → $x = 2\pi \times 3 = 6\pi$ cm<br><br>
+        💡 또는: 90°는 30°의 3배 → 호도 정확히 3배.<br>
+        ⚠️ 같은 식이 <strong>현</strong>에는 성립하지 않아요! 현은 정비례 X.
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary-card" id="summary">
+    <h2 style="color:#1d3557; font-size:20px; margin-bottom:8px;">🎉 9문제 완료!</h2>
+    <div class="summary-score" id="scoreDisplay">0 / 9</div>
+    <div class="summary-sub">맞힌 문제 수</div>
+    <div style="margin: 18px 0; padding: 14px; background: #f8f9ff; border-radius: 12px; font-size: 13px; color: #555; line-height: 1.7; text-align: left;">
+      💡 <strong>원과 부채꼴의 핵심 공식 4개</strong><br>
+      ① 원의 둘레 $C = 2\pi r$<br>
+      ② 원의 넓이 $A = \pi r^2$<br>
+      ③ 호의 길이 $l = 2\pi r \cdot \dfrac{\theta}{360}$<br>
+      ④ 부채꼴 넓이 $S = \pi r^2 \cdot \dfrac{\theta}{360} = \dfrac{1}{2}rl$<br><br>
+      ⭐ <strong>가장 자주 틀리는 함정</strong>: 호와 부채꼴 넓이는 중심각에 <strong>정비례 ⭕</strong>, 현은 <strong>정비례 ❌</strong>
+    </div>
+    <a class="home-btn" href="../index.html">단원 홈으로 →</a>
+  </div>
+
+</div>
+
+<script>
+  let answered = {};
+  const total = 9;
+
+  function chooseAnswer(qNum, choice, correct) {
+    if (answered[qNum]) return;
+    answered[qNum] = true;
+    const card = document.getElementById('qcard-' + qNum);
+    const buttons = card.querySelectorAll('.choice-btn');
+    buttons.forEach(btn => {
+      const txt = btn.textContent.trim();
+      const mark = txt[0];
+      if (correct.includes(mark)) btn.classList.add('correct');
+      if (mark === choice && !correct.includes(mark)) btn.classList.add('wrong');
+      btn.style.cursor = 'default';
+      btn.onclick = null;
+    });
+    document.getElementById('ans-' + qNum).classList.add('show');
+    window['__q' + qNum] = correct.includes(choice) ? 1 : 0;
+    updateProgress();
+  }
+
+  function showAns(qNum, isCorrect) {
+    answered[qNum] = true;
+    document.getElementById('ans-' + qNum).classList.add('show');
+    window['__q' + qNum] = isCorrect ? 1 : 0;
+    updateProgress();
+  }
+
+  // 입력값 정규화: "6π", "6pi", "6*pi", "6 pi" → 숫자 부분만 추출
+  function parsePiCoef(s) {
+    if (!s) return null;
+    const cleaned = s.toLowerCase().replace(/\s+/g, '').replace('π', 'pi').replace(/\*/g, '');
+    // "6pi" or "pi" or "6"
+    const match = cleaned.match(/^(\d+(?:\.\d+)?)?(pi)?$/);
+    if (!match) return null;
+    const numPart = match[1];
+    const piPart = match[2];
+    if (!piPart) return null; // π 없으면 부정확 (이 단원은 π 답 위주)
+    return numPart === undefined || numPart === '' ? 1 : parseFloat(numPart);
+  }
+
+  function checkInput2() {
+    if (answered[2]) return;
+    const v = document.getElementById('q2-input').value.trim().replace(/[^\d.]/g, '');
+    const fb = document.getElementById('fb-2');
+    if (parseFloat(v) === 7) {
+      fb.textContent = '정답이에요! ✓';
+      fb.className = 'feedback-msg correct';
+      showAns(2, true);
+    } else {
+      fb.textContent = '아쉬워요. 정답을 확인해보세요.';
+      fb.className = 'feedback-msg wrong';
+      showAns(2, false);
+    }
+  }
+
+  function checkPiInput(qNum, expectedCoef) {
+    if (answered[qNum]) return;
+    const v = document.getElementById('q' + qNum + '-input').value.trim();
+    const fb = document.getElementById('fb-' + qNum);
+    const coef = parsePiCoef(v);
+    if (coef !== null && Math.abs(coef - expectedCoef) < 1e-9) {
+      fb.textContent = '정답이에요! ✓';
+      fb.className = 'feedback-msg correct';
+      showAns(qNum, true);
+    } else {
+      fb.textContent = '아쉬워요. 정답을 확인해보세요.';
+      fb.className = 'feedback-msg wrong';
+      showAns(qNum, false);
+    }
+  }
+
+  function checkInput6() { checkPiInput(6, 2); }
+  function checkInput7() { checkPiInput(7, 15); }
+  function checkInput8() { checkPiInput(8, 20); }
+  function checkInput9() { checkPiInput(9, 6); }
+
+  function updateProgress() {
+    const done = Object.keys(answered).length;
+    document.getElementById('progressFill').style.width = (done / total * 100) + '%';
+    if (done === total) {
+      let score = 0;
+      for (let i = 1; i <= total; i++) score += (window['__q' + i] || 0);
+      document.getElementById('scoreDisplay').textContent = score + ' / ' + total;
+      document.getElementById('summary').style.display = 'block';
+      document.getElementById('summary').scrollIntoView({behavior: 'smooth'});
+    }
+  }
+</script>
+</body>
+</html>

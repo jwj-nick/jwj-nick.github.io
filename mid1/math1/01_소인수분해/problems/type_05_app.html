@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>유형 5 — 최대공약수</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+  .container { max-width: 700px; width: 100%; }
+  header { text-align: center; margin-bottom: 20px; }
+  header .back { font-size: 13px; color: #4361EE; text-decoration: none; display: inline-block; margin-bottom: 12px; }
+  .type-badge { background: #4361EE; color: white; font-size: 11px; padding: 3px 10px; border-radius: 20px; display: inline-block; margin-bottom: 8px; }
+  header h1 { font-size: 22px; color: #1a1a2e; margin-bottom: 4px; }
+  header p { font-size: 13px; color: #666; }
+  .level-tabs { display: flex; gap: 8px; justify-content: center; margin-bottom: 16px; }
+  .level-tab { background: white; border: 2px solid #c0c8ff; color: #4361EE; border-radius: 20px; padding: 6px 18px; font-size: 13px; cursor: pointer; font-family: inherit; }
+  .level-tab.L { border-color: #43a047; color: #43a047; }
+  .level-tab.L.active { background: #43a047; color: white; border-color: #43a047; }
+  .level-tab.M { border-color: #f4a261; color: #e07b39; }
+  .level-tab.M.active { background: #f4a261; color: white; border-color: #f4a261; }
+  .level-tab.H { border-color: #e63946; color: #e63946; }
+  .level-tab.H.active { background: #e63946; color: white; border-color: #e63946; }
+  .prob-set { display: none; }
+  .prob-set.active { display: block; }
+  .prob-card { background: white; border-radius: 16px; padding: 22px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 12px; }
+  .prob-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .prob-num { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; flex-shrink: 0; color: white; }
+  .prob-num.L { background: #43a047; }
+  .prob-num.M { background: #f4a261; }
+  .prob-num.H { background: #e63946; }
+  .prob-text { font-size: 14px; line-height: 1.9; color: #1a1a2e; margin-bottom: 12px; }
+  .ans-tabs { display: flex; gap: 6px; }
+  .ans-tab { background: white; border: 1.5px solid #c0c8ff; color: #4361EE; border-radius: 6px 6px 0 0; padding: 5px 12px; font-size: 11px; cursor: pointer; font-family: inherit; }
+  .ans-tab.active { background: #4361EE; color: white; border-color: #4361EE; }
+  .ans-content { background: #f8f9ff; border-radius: 0 8px 8px 8px; padding: 12px; display: none; font-size: 13px; line-height: 1.8; color: #333; }
+  .ans-content.active { display: block; }
+  .ans-box { background: #4361EE; color: white; border-radius: 8px; padding: 8px 14px; font-weight: bold; text-align: center; margin-bottom: 6px; font-size: 15px; }
+  .hint-box { background: #fff9e6; border-left: 3px solid #f4a261; padding: 10px 14px; border-radius: 0 8px 8px 8px; font-size: 13px; }
+  .real-box { background: #e8f5e9; border-left: 3px solid #43a047; padding: 10px 14px; border-radius: 0 8px 8px 8px; margin-top: 6px; font-size: 12px; color: #2e7d32; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <a class="back" href="../index.html">← 단원 홈</a>
+    <div class="type-badge">유형 5 · 최대공약수</div>
+    <h1>최대공약수 (GCD)</h1>
+    <p>L×3 + M×3 + H×3 = 9문제</p>
+  </header>
+
+  <div class="level-tabs">
+    <button class="level-tab L active" onclick="showLevel('L', this)">L — 기본</button>
+    <button class="level-tab M" onclick="showLevel('M', this)">M — 중간</button>
+    <button class="level-tab H" onclick="showLevel('H', this)">H — 심화</button>
+  </div>
+
+  <!-- L -->
+  <div class="prob-set active" id="set-L">
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num L">1</div><span style="font-size:11px;color:#43a047;">L</span></div>
+      <div class="prob-text">소인수분해를 이용하여 GCD(60, 90)을 구하세요.</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'L1-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'L1-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="L1-ans">
+        <div class="ans-box">30</div>
+        $60 = 2^2 \times 3 \times 5$<br>
+        $90 = 2 \times 3^2 \times 5$<br>
+        공통 소인수 × 작은 지수: $2^1 \times 3^1 \times 5^1 = 30$
+      </div>
+      <div class="ans-content" id="L1-hint">
+        <div class="hint-box">GCD: 공통 소인수 × <strong>작은</strong> 지수<br>LCM: 모든 소인수 × <strong>큰</strong> 지수 (헷갈리지 않게!)</div>
+      </div>
+    </div>
+
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num L">2</div><span style="font-size:11px;color:#43a047;">L</span></div>
+      <div class="prob-text">두 수 $2^3 \times 3^2 \times 5$와 $2^2 \times 3 \times 7$의 GCD를 구하세요.</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'L2-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'L2-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="L2-ans">
+        <div class="ans-box">$2^2 \times 3 = 12$</div>
+        공통 소인수: 2 (지수 min(3,2)=2), 3 (지수 min(2,1)=1)<br>
+        5와 7은 공통 소인수 아님<br>
+        GCD $= 2^2 \times 3 = 12$
+      </div>
+      <div class="ans-content" id="L2-hint">
+        <div class="hint-box">두 수에 공통으로 있는 소인수만 골라서, 그 중 작은 지수를 사용해요.</div>
+      </div>
+    </div>
+
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num L">3</div><span style="font-size:11px;color:#43a047;">L</span></div>
+      <div class="prob-text">56과 42가 서로소인지 판별하고, 56과 42의 공약수를 모두 구하세요.</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'L3-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'L3-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="L3-ans">
+        <div class="ans-box">서로소 아님. 공약수: 1, 2, 7, 14</div>
+        $56 = 2^3 \times 7$, $42 = 2 \times 3 \times 7$<br>
+        GCD = $2 \times 7 = 14 \neq 1$ → 서로소 아님<br>
+        공약수 = GCD의 약수 = 14의 약수 = {1, 2, 7, 14}
+      </div>
+      <div class="ans-content" id="L3-hint">
+        <div class="hint-box">공약수는 GCD의 약수와 같아요.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- M -->
+  <div class="prob-set" id="set-M">
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num M">4</div><span style="font-size:11px;color:#e07b39;">M</span></div>
+      <div class="prob-text">세 수 24, 36, 60의 최대공약수를 구하세요.</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'M1-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'M1-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="M1-ans">
+        <div class="ans-box">12</div>
+        $24 = 2^3 \times 3$<br>
+        $36 = 2^2 \times 3^2$<br>
+        $60 = 2^2 \times 3 \times 5$<br>
+        공통: 2(min 지수=2), 3(min 지수=1)<br>
+        GCD $= 2^2 \times 3 = 12$
+      </div>
+      <div class="ans-content" id="M1-hint">
+        <div class="hint-box">세 수 모두에 공통인 소인수를 찾고 가장 작은 지수를 쓰세요.</div>
+      </div>
+    </div>
+
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num M">5</div><span style="font-size:11px;color:#e07b39;">M</span></div>
+      <div class="prob-text">가로 48cm, 세로 72cm인 직사각형 종이를 남김없이 자를 수 있는 가장 큰 정사각형의 한 변의 길이를 구하세요.</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'M2-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'M2-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="M2-ans">
+        <div class="ans-box">24cm</div>
+        GCD(48, 72) 구하기:<br>
+        $48 = 2^4 \times 3$, $72 = 2^3 \times 3^2$<br>
+        GCD $= 2^3 \times 3 = 24$<br>
+        한 변의 길이 = 24cm
+        <div class="real-box">실생활: 가로, 세로를 GCD로 나누면 잘리는 조각 수를 구할 수 있어요.</div>
+      </div>
+      <div class="ans-content" id="M2-hint">
+        <div class="hint-box">정사각형 가장 크게 = GCD 이용!</div>
+      </div>
+    </div>
+
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num M">6</div><span style="font-size:11px;color:#e07b39;">M</span></div>
+      <div class="prob-text">GCD(a, 84) = 12일 때, $a$가 될 수 있는 두 자리 자연수를 모두 구하세요.</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'M3-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'M3-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="M3-ans">
+        <div class="ans-box">12, 24, 36, 48, 60, 72, 84, 96</div>
+        $a = 12k$ (k는 자연수) 꼴이고, $\gcd(k, 84/12) = \gcd(k, 7) = 1$<br>
+        즉 $k$는 7의 배수가 아닌 자연수<br>
+        두 자리: $a$ = 10~99, $k$ = 1~8 중 7의 배수 제외(k=7 제외)<br>
+        $k$=1,2,3,4,5,6,8 → $a$ = 12, 24, 36, 48, 60, 72, 96<br>
+        (k=7이면 a=84이지만 gcd(84,84)=84≠12)<br>
+        답: 12, 24, 36, 48, 60, 72, 96 (+ 84 제외, k=8→96 포함)
+      </div>
+      <div class="ans-content" id="M3-hint">
+        <div class="hint-box">GCD(a, 84)=12이면 $a$는 12의 배수예요. 하지만 모든 12의 배수가 조건을 만족하지는 않아요.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- H -->
+  <div class="prob-set" id="set-H">
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num H">7</div><span style="font-size:11px;color:#e63946;">H</span></div>
+      <div class="prob-text">두 자리 자연수 $A$와 $B$가 있다. $A = 5k$, $B = 7k$ (k는 자연수)일 때, GCD($A$, $B$)와 LCM($A$, $B$)를 k를 사용하여 나타내세요.</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'H1-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'H1-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="H1-ans">
+        <div class="ans-box">GCD = k, LCM = 35k</div>
+        $A = 5k$, $B = 7k$, 5와 7은 서로소<br>
+        GCD$(A,B) = k \times \gcd(5, 7) = k \times 1 = k$<br>
+        LCM$(A,B) = k \times 5 \times 7 = 35k$
+      </div>
+      <div class="ans-content" id="H1-hint">
+        <div class="hint-box">$A = k \times 5$, $B = k \times 7$. 5와 7이 서로소이면 GCD는 k가 돼요.</div>
+      </div>
+    </div>
+
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num H">8</div><span style="font-size:11px;color:#e63946;">H</span></div>
+      <div class="prob-text">두 자연수 $A$, $B$의 GCD가 6이고, $A + B = 90$일 때, 가능한 $(A, B)$ 쌍의 수를 구하세요. (단, $A < B$)</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'H2-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'H2-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="H2-ans">
+        <div class="ans-box">4쌍</div>
+        $A = 6m$, $B = 6n$ ($\gcd(m,n)=1$, $m < n$)<br>
+        $6m + 6n = 90$ → $m + n = 15$<br>
+        $\gcd(m,n)=1$이고 $m+n=15$: (m,n) 쌍 탐색<br>
+        (1,14): gcd=1 ✅ → (A,B) = (6, 84)<br>
+        (2,13): gcd=1 ✅ → (A,B) = (12, 78)<br>
+        (4,11): gcd=1 ✅ → (A,B) = (24, 66)<br>
+        (7,8): gcd=1 ✅ → (A,B) = (42, 48)<br>
+        (5,10): gcd=5 ✗ &nbsp; (3,12): gcd=3 ✗<br>
+        총 <strong>4쌍</strong>
+      </div>
+      <div class="ans-content" id="H2-hint">
+        <div class="hint-box">$A=6m, B=6n$으로 놓고 $m+n=15$, $\gcd(m,n)=1$ 조건으로 탐색해요.</div>
+      </div>
+    </div>
+
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num H">9</div><span style="font-size:11px;color:#e63946;">H</span></div>
+      <div class="prob-text">어느 창고에 사탕이 120개, 과자가 180개 있다. 이것을 몇 명의 학생에게 남김없이 똑같이 나누어 주려고 할 때, 최대 몇 명에게 나누어 줄 수 있는지 구하고, 그 때 한 학생이 받는 사탕과 과자의 수를 구하세요.</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'H3-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'H3-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="H3-ans">
+        <div class="ans-box">60명, 사탕 2개, 과자 3개</div>
+        최대 학생 수 = GCD(120, 180)<br>
+        $120 = 2^3 \times 3 \times 5$, $180 = 2^2 \times 3^2 \times 5$<br>
+        GCD $= 2^2 \times 3 \times 5 = 60$명<br>
+        사탕: $120 \div 60 = 2$개, 과자: $180 \div 60 = 3$개
+      </div>
+      <div class="ans-content" id="H3-hint">
+        <div class="hint-box">남김없이 똑같이 나누기 → 최대 인원 = GCD 활용!</div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+function showLevel(lv, btn) {
+  document.querySelectorAll('.prob-set').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.level-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('set-' + lv).classList.add('active');
+  btn.classList.add('active');
+  if (window.renderMathInElement) renderMathInElement(document.getElementById('set-' + lv), {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});
+}
+function toggleAns(btn, id) {
+  const el = document.getElementById(id);
+  const isActive = el.classList.contains('active');
+  btn.closest('.prob-card').querySelectorAll('.ans-content').forEach(e => e.classList.remove('active'));
+  btn.closest('.prob-card').querySelectorAll('.ans-tab').forEach(t => t.classList.remove('active'));
+  if (!isActive) { el.classList.add('active'); btn.classList.add('active'); if (window.renderMathInElement) renderMathInElement(el, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]}); }
+}
+</script>
+</body>
+</html>

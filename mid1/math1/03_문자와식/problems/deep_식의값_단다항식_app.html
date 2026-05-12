@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 탐구 — 식의 값 & 단항식·다항식</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+:root{--primary:#4361EE;--bg:#eef2ff;--card:#fff;--ok:#2ecc71;--ng:#e74c3c;--hint:#f39c12;--deep:#6c3483;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);padding:20px 16px 60px;color:#2d3436;}
+.top-banner{max-width:700px;margin:0 auto 20px;background:linear-gradient(135deg,#9b59b6,#4361EE);border-radius:16px;padding:22px 24px;color:white;}
+.top-banner h1{font-size:20px;font-weight:900;margin-bottom:6px;}
+.top-banner p{font-size:13px;opacity:.85;line-height:1.5;}
+.tab-bar{max-width:700px;margin:0 auto 24px;display:flex;gap:4px;background:#dde3ff;border-radius:12px;padding:4px;}
+.tab-btn{flex:1;padding:10px 4px;border-radius:9px;border:none;background:transparent;font-size:13px;font-weight:700;cursor:pointer;color:#636e72;transition:all .18s;}
+.tab-btn.active{background:white;color:var(--primary);box-shadow:0 2px 8px rgba(67,97,238,.15);}
+.panel{display:none;max-width:700px;margin:0 auto;}
+.panel.show{display:block;}
+.strategy-card{background:linear-gradient(135deg,#fff,#f8f4ff);border:2px solid #d4b8f0;border-radius:16px;padding:22px 24px;margin-bottom:16px;}
+.strategy-card h2{font-size:16px;font-weight:800;color:#6c3483;margin-bottom:12px;}
+.strategy-steps{display:flex;flex-direction:column;gap:8px;}
+.step{display:flex;gap:10px;align-items:flex-start;}
+.step-num{width:24px;height:24px;border-radius:50%;background:#6c3483;color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;margin-top:2px;}
+.step-text{font-size:13px;line-height:1.6;}
+.q-section-title{font-size:14px;font-weight:800;color:var(--deep);margin:20px 0 12px;padding-left:4px;display:flex;align-items:center;gap:8px;}
+.q-section-title::before{content:'';width:4px;height:16px;background:var(--deep);border-radius:2px;}
+.card{background:var(--card);border-radius:14px;padding:20px 20px 16px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;}
+.q-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.lv-badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:700;color:#fff;}
+.lv-M{background:#9b59b6;}
+.lv-H{background:#e74c3c;}
+.q-text{font-size:14px;line-height:1.75;margin-bottom:12px;}
+.ans-tabs{display:flex;gap:6px;margin-bottom:8px;}
+.ans-tab{padding:6px 14px;border-radius:8px;border:2px solid #dde3ff;background:#f8f9ff;font-size:12px;font-weight:700;cursor:pointer;color:#636e72;}
+.ans-tab.open{background:var(--primary);border-color:var(--primary);color:#fff;}
+.hint-panel,.sol-panel{display:none;border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.7;margin-top:6px;}
+.hint-panel.show,.sol-panel.show{display:block;}
+.hint-panel{background:#fff8e8;border-left:4px solid var(--hint);}
+.sol-panel{background:#eef9f4;border-left:4px solid var(--ok);}
+.warn-inline{background:#fff0f0;border-left:3px solid var(--ng);border-radius:6px;padding:8px 12px;font-size:12px;margin-top:8px;}
+.mistake-box{background:#fff0f0;border:2px solid #e74c3c;border-radius:12px;padding:16px 18px;margin-bottom:16px;}
+.mistake-box h3{font-size:14px;font-weight:800;color:#c0392b;margin-bottom:10px;}
+.mistake-item{display:flex;gap:8px;margin-bottom:8px;font-size:13px;line-height:1.6;}
+.mistake-x{color:#e74c3c;font-weight:800;flex-shrink:0;}
+.mistake-o{color:#27ae60;font-weight:800;flex-shrink:0;}
+.connect-box{background:#f0f3ff;border-radius:12px;padding:16px 18px;margin-bottom:12px;font-size:13px;line-height:1.7;}
+.connect-box h3{font-size:14px;font-weight:800;color:var(--primary);margin-bottom:8px;}
+</style>
+</head>
+<body>
+
+<div class="top-banner">
+  <h1>깊이 탐구 — 식의 값 & 단항식·다항식</h1>
+  <p>같은 식을 두 관점으로 보기: 값을 계산하는 관점 vs 구조를 읽는 관점</p>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('strategy',this)">핵심 전략</button>
+  <button class="tab-btn" onclick="switchTab('problems',this)">M+H 문제</button>
+  <button class="tab-btn" onclick="switchTab('mistakes',this)">자주 하는 실수</button>
+  <button class="tab-btn" onclick="switchTab('connect',this)">연결 개념</button>
+</div>
+
+<!-- 전략 탭 -->
+<div class="panel show" id="panel-strategy">
+  <div class="strategy-card">
+    <h2>식의 값 계산 전략</h2>
+    <div class="strategy-steps">
+      <div class="step"><div class="step-num">1</div><div class="step-text"><strong>대입 전 준비</strong>: 음수 값은 괄호로 묶어요. $x = -3$이면 $x$ 자리에 $(-3)$ 그대로 씀.</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text"><strong>거듭제곱 주의</strong>: $(-3)^2 = 9$ (양수), $-3^2 = -9$ (음수). 괄호 위치가 결과를 바꿔요.</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text"><strong>분수 대입</strong>: $x = \dfrac{1}{2}$ 같은 분수를 대입할 때도 괄호로! $3 \times \left(\dfrac{1}{2}\right) = \dfrac{3}{2}$</div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text"><strong>두 변수</strong>: $x$, $y$ 모두 있으면 각각 따로 대입하고 계산해요.</div></div>
+    </div>
+  </div>
+
+  <div class="strategy-card">
+    <h2>단항식·다항식 구조 읽기 전략</h2>
+    <div class="strategy-steps">
+      <div class="step"><div class="step-num">1</div><div class="step-text"><strong>항 나누기</strong>: '+', '−'로 나뉘는 각 덩어리가 항이에요. (괄호 안은 하나의 항!)</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text"><strong>계수 읽기</strong>: 문자 앞 숫자가 계수. 보이지 않으면 $1$ 또는 $-1$이에요.</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text"><strong>차수 세기</strong>: 하나의 항에서 문자가 곱해진 총 횟수가 그 항의 차수. ($x^2y$의 차수 = $3$)</div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text"><strong>다항식 차수</strong>: 모든 항 중 가장 높은 차수가 그 다항식의 차수.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 문제 탭 -->
+<div class="panel" id="panel-problems">
+
+  <div class="q-section-title">M — 중간 난이도</div>
+
+  <div class="card">
+    <div class="q-head"><span class="lv-badge lv-M">M1</span></div>
+    <div class="q-text">$a = -2$, $b = 3$일 때, $a^2 - ab + b$의 값을 구하세요.</div>
+    <div class="ans-tabs">
+      <button class="ans-tab" onclick="toggle(this,'hint-m1')">힌트</button>
+      <button class="ans-tab" onclick="toggle(this,'sol-m1')">정답·풀이</button>
+    </div>
+    <div class="hint-panel" id="hint-m1">$a^2 = (-2)^2 = 4$, $ab = (-2)(3) = -6$이에요. 각 항을 따로 계산!</div>
+    <div class="sol-panel" id="sol-m1">정답: $13$<br>$a^2 = (-2)^2 = 4$<br>$ab = (-2)(3) = -6$<br>$a^2 - ab + b = 4 - (-6) + 3 = 4 + 6 + 3 = 13$</div>
+  </div>
+
+  <div class="card">
+    <div class="q-head"><span class="lv-badge lv-M">M2</span></div>
+    <div class="q-text">$3x^2y - 2xy + x - 5$에서 다음을 구하세요.<br>① $xy$의 계수 &nbsp;&nbsp; ② 다항식의 차수 &nbsp;&nbsp; ③ 상수항</div>
+    <div class="ans-tabs">
+      <button class="ans-tab" onclick="toggle(this,'hint-m2')">힌트</button>
+      <button class="ans-tab" onclick="toggle(this,'sol-m2')">정답·풀이</button>
+    </div>
+    <div class="hint-panel" id="hint-m2">$3x^2y$의 차수 = $2+1 = 3$, $-2xy$의 차수 = $1+1 = 2$이에요.</div>
+    <div class="sol-panel" id="sol-m2">① $xy$의 계수: $-2$<br>② 다항식의 차수: $3$ ($3x^2y$의 차수가 가장 높음)<br>③ 상수항: $-5$</div>
+  </div>
+
+  <div class="card">
+    <div class="q-head"><span class="lv-badge lv-M">M3</span></div>
+    <div class="q-text">$x = \dfrac{1}{3}$일 때, $9x^2 - 3x + 1$의 값을 구하세요.</div>
+    <div class="ans-tabs">
+      <button class="ans-tab" onclick="toggle(this,'hint-m3')">힌트</button>
+      <button class="ans-tab" onclick="toggle(this,'sol-m3')">정답·풀이</button>
+    </div>
+    <div class="hint-panel" id="hint-m3">$x = \dfrac{1}{3}$을 대입: $x^2 = \left(\dfrac{1}{3}\right)^2 = \dfrac{1}{9}$이에요.</div>
+    <div class="sol-panel" id="sol-m3">정답: $1$<br>$9x^2 = 9 \times \left(\dfrac{1}{3}\right)^2 = 9 \times \dfrac{1}{9} = 1$<br>$3x = 3 \times \dfrac{1}{3} = 1$<br>$1 - 1 + 1 = 1$</div>
+  </div>
+
+  <div class="q-section-title">H — 심화 난이도</div>
+
+  <div class="card">
+    <div class="q-head"><span class="lv-badge lv-H">H1</span></div>
+    <div class="q-text">$x + y = 5$, $xy = 4$일 때, $\dfrac{x}{y} + \dfrac{y}{x}$의 값을 구하세요.</div>
+    <div class="ans-tabs">
+      <button class="ans-tab" onclick="toggle(this,'hint-h1')">힌트</button>
+      <button class="ans-tab" onclick="toggle(this,'sol-h1')">정답·풀이</button>
+    </div>
+    <div class="hint-panel" id="hint-h1">$\dfrac{x}{y} + \dfrac{y}{x}$를 통분하면 $\dfrac{x^2 + y^2}{xy}$가 돼요. $x^2 + y^2 = (x+y)^2 - 2xy$를 이용!</div>
+    <div class="sol-panel" id="sol-h1">정답: $\dfrac{17}{4}$<br>$\dfrac{x}{y} + \dfrac{y}{x} = \dfrac{x^2 + y^2}{xy}$<br>$x^2 + y^2 = (x+y)^2 - 2xy = 25 - 8 = 17$<br>$xy = 4$<br>$\dfrac{17}{4}$</div>
+  </div>
+
+  <div class="card">
+    <div class="q-head"><span class="lv-badge lv-H">H2</span></div>
+    <div class="q-text">$(a^2 + 1)x^3 + (b - 3)x^2 + cx + 2$가 일차식이 되려면 $a$, $b$, $c$에 어떤 조건이 필요한가요?</div>
+    <div class="ans-tabs">
+      <button class="ans-tab" onclick="toggle(this,'hint-h2')">힌트</button>
+      <button class="ans-tab" onclick="toggle(this,'sol-h2')">정답·풀이</button>
+    </div>
+    <div class="hint-panel" id="hint-h2">일차식이 되려면 $x^3$, $x^2$의 계수가 $0$이어야 해요. $x$의 계수는 $0$이 아니어야 해요.</div>
+    <div class="sol-panel" id="sol-h2">$x^3$ 계수: $a^2 + 1 = 0$ → $a^2 = -1$인데 실수에서 불가능하므로 조건 없음<br>잠깐 — $a^2 + 1 \geq 1 > 0$이므로 $x^3$ 계수가 절대로 $0$이 될 수 없어요!<br>따라서 이 식은 어떤 실수 $a$에 대해서도 일차식이 될 수 없어요.
+    <div class="warn-inline">$a^2 \geq 0$이므로 $a^2 + 1 \geq 1 > 0$ — 항상 양수!</div></div>
+  </div>
+
+  <div class="card">
+    <div class="q-head"><span class="lv-badge lv-H">H3</span></div>
+    <div class="q-text">$f(x) = 2x^2 - 3x + 1$이라 할 때, $f(2) + f(-1)$의 값을 구하세요.</div>
+    <div class="ans-tabs">
+      <button class="ans-tab" onclick="toggle(this,'hint-h3')">힌트</button>
+      <button class="ans-tab" onclick="toggle(this,'sol-h3')">정답·풀이</button>
+    </div>
+    <div class="hint-panel" id="hint-h3">$f(2)$는 $x = 2$를 대입한 식의 값, $f(-1)$은 $x = -1$을 대입한 값이에요.</div>
+    <div class="sol-panel" id="sol-h3">정답: $9$<br>$f(2) = 2(4) - 3(2) + 1 = 8 - 6 + 1 = 3$<br>$f(-1) = 2(1) - 3(-1) + 1 = 2 + 3 + 1 = 6$<br>$f(2) + f(-1) = 3 + 6 = 9$</div>
+  </div>
+
+</div>
+
+<!-- 자주 하는 실수 탭 -->
+<div class="panel" id="panel-mistakes">
+  <div class="mistake-box">
+    <h3>식의 값에서 자주 하는 실수</h3>
+    <div class="mistake-item"><span class="mistake-x">✗</span><div>$(-2)^2 = -4$라고 계산 (음수 제곱을 음수로 착각)</div></div>
+    <div class="mistake-item"><span class="mistake-o">✓</span><div>$(-2)^2 = (-2) \times (-2) = 4$ (음수 × 음수 = 양수)</div></div>
+    <div class="mistake-item" style="margin-top:12px;"><span class="mistake-x">✗</span><div>$-2^2 = 4$라고 계산 ($-$를 괄호 안으로 넣음)</div></div>
+    <div class="mistake-item"><span class="mistake-o">✓</span><div>$-2^2 = -(2^2) = -4$ (지수는 $2$에만 적용)</div></div>
+    <div class="mistake-item" style="margin-top:12px;"><span class="mistake-x">✗</span><div>음수 대입 시 괄호 생략: $3x$에 $x=-2$ 대입할 때 $3 \times -2$</div></div>
+    <div class="mistake-item"><span class="mistake-o">✓</span><div>괄호 필수: $3 \times (-2) = -6$</div></div>
+  </div>
+
+  <div class="mistake-box" style="margin-top:12px;">
+    <h3>단항식·다항식 구조에서 자주 하는 실수</h3>
+    <div class="mistake-item"><span class="mistake-x">✗</span><div>$-x$의 계수를 $1$이라고 함</div></div>
+    <div class="mistake-item"><span class="mistake-o">✓</span><div>$-x = (-1) \times x$이므로 계수는 $-1$</div></div>
+    <div class="mistake-item" style="margin-top:12px;"><span class="mistake-x">✗</span><div>$2x^2$의 차수를 $4$라고 함 (계수와 지수를 곱함)</div></div>
+    <div class="mistake-item"><span class="mistake-o">✓</span><div>차수는 지수만! $2x^2$의 차수 = $2$ (계수 $2$는 관계없음)</div></div>
+    <div class="mistake-item" style="margin-top:12px;"><span class="mistake-x">✗</span><div>$\dfrac{1}{x}$을 다항식이라고 분류</div></div>
+    <div class="mistake-item"><span class="mistake-o">✓</span><div>$\dfrac{1}{x} = x^{-1}$: 중1 범위의 다항식이 아니에요 (분모에 문자 불가)</div></div>
+  </div>
+</div>
+
+<!-- 연결 개념 탭 -->
+<div class="panel" id="panel-connect">
+  <div class="connect-box">
+    <h3>식의 값과 다항식 구조의 관계</h3>
+    <p>같은 식 $2x^2 - 3x + 1$을 두 관점에서 봐요.</p>
+    <br>
+    <p><strong>구조 관점</strong>: 이 식은 3개의 항으로 된 이차 다항식. $x^2$의 계수는 $2$, $x$의 계수는 $-3$, 상수항은 $1$.</p>
+    <br>
+    <p><strong>계산 관점</strong>: $x = 2$를 넣으면 $2(4) - 3(2) + 1 = 3$. 구체적인 수가 나와요.</p>
+    <br>
+    <p>구조를 알면 → 대입 전에 어떤 항이 클지 예측할 수 있어요!</p>
+  </div>
+  <div class="connect-box">
+    <h3>다음 단원과의 연결</h3>
+    <p><strong>4단원 일차방정식</strong>: "이차항의 계수가 $0$인 식" = 일차식 → 방정식이 돼요.</p>
+    <br>
+    <p><strong>함수 $f(x)$ 표기</strong>: 고등학교에서 배울 함수 표기법의 기초. $f(2)$는 "식에 $2$를 대입한 값"이에요.</p>
+    <br>
+    <p><strong>수학 언어 관점</strong>: 알콰리즈미 이전에는 "어떤 수의 제곱에서 그 수를 빼고 1을 더한 것"을 말로 설명해야 했어요. 지금은 $x^2 - x + 1$로 깔끔하게 쓸 수 있죠!</p>
+  </div>
+</div>
+
+<script>
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('show'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + id).classList.add('show');
+  const el = document.getElementById('panel-'+id);
+  if (window.renderMathInElement) {
+    renderMathInElement(el, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});
+  }
+}
+function toggle(btn, id) {
+  const el = document.getElementById(id);
+  const willOpen = !el.classList.contains('show');
+  const card = btn.closest('.card');
+  const type = id.startsWith('hint') ? 'hint-panel' : 'sol-panel';
+  card.querySelectorAll('.'+type).forEach(p => p.classList.remove('show'));
+  card.querySelectorAll('.ans-tab').forEach(b => {
+    const m = b.getAttribute('onclick').match(/'([^']+)'/);
+    if (m) { const t = document.getElementById(m[1]); if (t && t.classList.contains(type)) b.classList.remove('open'); }
+  });
+  if (willOpen) { el.classList.add('show'); btn.classList.add('open'); }
+  if (window.renderMathInElement) {
+    renderMathInElement(el, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});
+  }
+}
+</script>
+</body>
+</html>

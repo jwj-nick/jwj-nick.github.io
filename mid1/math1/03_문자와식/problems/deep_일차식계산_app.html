@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 탐구 — 일차식의 계산</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+:root{--primary:#4361EE;--bg:#eef2ff;--card:#fff;--ok:#2ecc71;--ng:#e74c3c;--hint:#f39c12;--deep:#16a085;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);padding:20px 16px 60px;color:#2d3436;}
+.top-banner{max-width:700px;margin:0 auto 20px;background:linear-gradient(135deg,#16a085,#4361EE);border-radius:16px;padding:22px 24px;color:white;}
+.top-banner h1{font-size:20px;font-weight:900;margin-bottom:6px;}
+.top-banner p{font-size:13px;opacity:.85;line-height:1.5;}
+.tab-bar{max-width:700px;margin:0 auto 24px;display:flex;gap:4px;background:#dde3ff;border-radius:12px;padding:4px;flex-wrap:wrap;}
+.tab-btn{flex:1;min-width:60px;padding:9px 4px;border-radius:9px;border:none;background:transparent;font-size:12px;font-weight:700;cursor:pointer;color:#636e72;transition:all .18s;}
+.tab-btn.active{background:white;color:var(--primary);box-shadow:0 2px 8px rgba(67,97,238,.15);}
+.panel{display:none;max-width:700px;margin:0 auto;}
+.panel.show{display:block;}
+.strategy-card{background:linear-gradient(135deg,#fff,#f0fff9);border:2px solid #a8e6d8;border-radius:16px;padding:22px 24px;margin-bottom:16px;}
+.strategy-card h2{font-size:15px;font-weight:800;color:var(--deep);margin-bottom:12px;}
+.strategy-steps{display:flex;flex-direction:column;gap:8px;}
+.step{display:flex;gap:10px;align-items:flex-start;}
+.step-num{width:24px;height:24px;border-radius:50%;background:var(--deep);color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;margin-top:2px;}
+.step-text{font-size:13px;line-height:1.6;}
+.flow-box{background:#fff;border:2px solid #a8e6d8;border-radius:12px;padding:16px 18px;margin-top:12px;text-align:center;font-size:14px;line-height:2;}
+.arrow{color:var(--deep);font-weight:900;margin:0 8px;}
+.q-section-title{font-size:14px;font-weight:800;color:var(--deep);margin:20px 0 12px;padding-left:4px;display:flex;align-items:center;gap:8px;}
+.q-section-title::before{content:'';width:4px;height:16px;background:var(--deep);border-radius:2px;}
+.card{background:var(--card);border-radius:14px;padding:20px 20px 16px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;}
+.q-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.lv-badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:700;color:#fff;}
+.lv-M{background:#9b59b6;}
+.lv-H{background:#e74c3c;}
+.q-text{font-size:14px;line-height:1.75;margin-bottom:12px;}
+.ans-tabs{display:flex;gap:6px;margin-bottom:8px;}
+.ans-tab{padding:6px 14px;border-radius:8px;border:2px solid #dde3ff;background:#f8f9ff;font-size:12px;font-weight:700;cursor:pointer;color:#636e72;}
+.ans-tab.open{background:var(--primary);border-color:var(--primary);color:#fff;}
+.hint-panel,.sol-panel{display:none;border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.7;margin-top:6px;}
+.hint-panel.show,.sol-panel.show{display:block;}
+.hint-panel{background:#fff8e8;border-left:4px solid var(--hint);}
+.sol-panel{background:#eef9f4;border-left:4px solid var(--ok);}
+.warn-inline{background:#fff0f0;border-left:3px solid var(--ng);border-radius:6px;padding:8px 12px;font-size:12px;margin-top:8px;}
+.mistake-box{background:#fff0f0;border:2px solid #e74c3c;border-radius:12px;padding:16px 18px;margin-bottom:16px;}
+.mistake-box h3{font-size:14px;font-weight:800;color:#c0392b;margin-bottom:10px;}
+.mistake-item{display:flex;gap:8px;margin-bottom:8px;font-size:13px;line-height:1.6;}
+.mistake-x{color:#e74c3c;font-weight:800;flex-shrink:0;}
+.mistake-o{color:#27ae60;font-weight:800;flex-shrink:0;}
+.connect-box{background:#f0fff9;border-radius:12px;padding:16px 18px;margin-bottom:12px;font-size:13px;line-height:1.7;border:1px solid #a8e6d8;}
+.connect-box h3{font-size:14px;font-weight:800;color:var(--deep);margin-bottom:8px;}
+</style>
+</head>
+<body>
+
+<div class="top-banner">
+  <h1>깊이 탐구 — 일차식의 계산</h1>
+  <p>동류항 정리 → 덧셈·뺄셈 → 곱셈·나눗셈. 세 가지 계산이 하나의 흐름으로 연결돼요.</p>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('strategy',this)">핵심 전략</button>
+  <button class="tab-btn" onclick="switchTab('problems',this)">M+H 문제</button>
+  <button class="tab-btn" onclick="switchTab('mistakes',this)">자주 하는 실수</button>
+  <button class="tab-btn" onclick="switchTab('connect',this)">연결 개념</button>
+</div>
+
+<!-- 전략 탭 -->
+<div class="panel show" id="panel-strategy">
+
+  <div class="strategy-card">
+    <h2>통합 계산 흐름 — 이 순서로!</h2>
+    <div class="flow-box">
+      괄호 전개<span class="arrow">→</span>동류항 모으기<span class="arrow">→</span>계수끼리 계산
+    </div>
+    <div style="margin-top:12px; font-size:13px; line-height:1.7;">
+      <strong>괄호 전개 시 핵심 규칙:</strong><br>
+      · 덧셈 괄호 $(+)$: 부호 그대로<br>
+      · 뺄셈 괄호 $(-)$: 안의 부호 모두 반전<br>
+      · 계수 곱셈 $k(\cdots)$: 분배법칙으로 각 항에 $k$ 곱하기
+    </div>
+  </div>
+
+  <div class="strategy-card">
+    <h2>동류항 정리 핵심</h2>
+    <div class="strategy-steps">
+      <div class="step"><div class="step-num">1</div><div class="step-text">동류항 = 문자와 차수 모두 같은 항 ($3x$와 $5x$ → 같음, $3x$와 $3x^2$ → 다름)</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text">동류항끼리는 계수만 더하고 빼요 — $3x + 5x = (3+5)x = 8x$</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text">다른 종류의 항은 절대 합칠 수 없어요 — $2x + 3$은 $5x$가 아니에요!</div></div>
+    </div>
+  </div>
+
+  <div class="strategy-card">
+    <h2>분수 계수 계산 핵심</h2>
+    <div class="strategy-steps">
+      <div class="step"><div class="step-num">1</div><div class="step-text">$\div k$는 $\times \dfrac{1}{k}$로 바꿔 분배법칙 적용</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text">분모가 다른 분수 계수의 합은 통분 후 계산</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text">$\dfrac{1}{2}(4x - 6) = 2x - 3$ (약분되는 경우 깔끔하게)</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 문제 탭 -->
+<div class="panel" id="panel-problems">
+
+  <div class="q-section-title">M — 중간 난이도 (동류항 + 덧뺄셈 + 곱나눗셈 통합)</div>
+
+  <div class="card">
+    <div class="q-head"><span class="lv-badge lv-M">M1</span></div>
+    <div class="q-text">$2(3x - 1) - 3(x + 2) + 4$를 계산하세요.</div>
+    <div class="ans-tabs">
+      <button class="ans-tab" onclick="toggle(this,'hint-m1')">힌트</button>
+      <button class="ans-tab" onclick="toggle(this,'sol-m1')">정답·풀이</button>
+    </div>
+    <div class="hint-panel" id="hint-m1">각 괄호에 앞 계수를 분배하고, 상수 $4$는 상수항으로 동류항 정리에 포함해요.</div>
+    <div class="sol-panel" id="sol-m1">정답: $3x - 4$<br>$6x - 2 - 3x - 6 + 4$<br>$= (6-3)x + (-2 - 6 + 4)$<br>$= 3x - 4$</div>
+  </div>
+
+  <div class="card">
+    <div class="q-head"><span class="lv-badge lv-M">M2</span></div>
+    <div class="q-text">$\dfrac{x + 2}{3} - \dfrac{2x - 1}{6}$을 계산하세요.</div>
+    <div class="ans-tabs">
+      <button class="ans-tab" onclick="toggle(this,'hint-m2')">힌트</button>
+      <button class="ans-tab" onclick="toggle(this,'sol-m2')">정답·풀이</button>
+    </div>
+    <div class="hint-panel" id="hint-m2">분모 3과 6의 최소공배수는 6이에요. $\dfrac{x+2}{3} = \dfrac{2(x+2)}{6}$으로 변환해요.</div>
+    <div class="sol-panel" id="sol-m2">정답: $\dfrac{5}{6}$<br>$\dfrac{2(x+2)}{6} - \dfrac{2x-1}{6} = \dfrac{2x+4-2x+1}{6} = \dfrac{5}{6}$<br>$x$가 사라지고 상수만 남아요!</div>
+  </div>
+
+  <div class="card">
+    <div class="q-head"><span class="lv-badge lv-M">M3</span></div>
+    <div class="q-text">$A = 3x - 2$, $B = x + 4$일 때, $\dfrac{1}{2}(4A - 2B)$를 계산하세요.</div>
+    <div class="ans-tabs">
+      <button class="ans-tab" onclick="toggle(this,'hint-m3')">힌트</button>
+      <button class="ans-tab" onclick="toggle(this,'sol-m3')">정답·풀이</button>
+    </div>
+    <div class="hint-panel" id="hint-m3">먼저 $4A - 2B$를 계산하고, 그 결과에 $\dfrac{1}{2}$를 곱해요.</div>
+    <div class="sol-panel" id="sol-m3">정답: $5x - 8$<br>$4A - 2B = 4(3x-2) - 2(x+4) = 12x - 8 - 2x - 8 = 10x - 16$<br>$\dfrac{1}{2}(10x - 16) = 5x - 8$</div>
+  </div>
+
+  <div class="q-section-title">H — 심화 난이도 (복합 계산)</div>
+
+  <div class="card">
+    <div class="q-head"><span class="lv-badge lv-H">H1</span></div>
+    <div class="q-text">$3\{2x - (x - 3)\} - 4(x + 2)$를 계산하세요.</div>
+    <div class="ans-tabs">
+      <button class="ans-tab" onclick="toggle(this,'hint-h1')">힌트</button>
+      <button class="ans-tab" onclick="toggle(this,'sol-h1')">정답·풀이</button>
+    </div>
+    <div class="hint-panel" id="hint-h1">안쪽 소괄호부터: $(x - 3)$을 먼저 처리 → 중괄호 전개 → 분배 → 동류항 정리</div>
+    <div class="sol-panel" id="sol-h1">정답: $-x + 1$<br>$3\{2x - x + 3\} - 4x - 8$<br>$= 3\{x + 3\} - 4x - 8$<br>$= 3x + 9 - 4x - 8$<br>$= -x + 1$</div>
+  </div>
+
+  <div class="card">
+    <div class="q-head"><span class="lv-badge lv-H">H2</span></div>
+    <div class="q-text">어떤 일차식에 $2$를 곱하면 $6x - 4$가 되고, 다른 일차식에서 $x + 1$을 빼면 $3x - 2$가 돼요.<br>두 일차식의 합을 구하세요.</div>
+    <div class="ans-tabs">
+      <button class="ans-tab" onclick="toggle(this,'hint-h2')">힌트</button>
+      <button class="ans-tab" onclick="toggle(this,'sol-h2')">정답·풀이</button>
+    </div>
+    <div class="hint-panel" id="hint-h2">첫 번째 일차식: $6x - 4$를 $2$로 나눠요. 두 번째 일차식: $3x - 2$에 $x + 1$을 더해요.</div>
+    <div class="sol-panel" id="sol-h2">정답: $7x - 3$<br>첫 번째 일차식: $(6x - 4) \div 2 = 3x - 2$<br>두 번째 일차식: $(3x - 2) + (x + 1) = 4x - 1$<br>합: $(3x - 2) + (4x - 1) = 7x - 3$</div>
+  </div>
+
+  <div class="card">
+    <div class="q-head"><span class="lv-badge lv-H">H3</span></div>
+    <div class="q-text">$\dfrac{4x - 3}{2} - \dfrac{3x + 1}{4} = ax + b$일 때, $4a - b$의 값을 구하세요.</div>
+    <div class="ans-tabs">
+      <button class="ans-tab" onclick="toggle(this,'hint-h3')">힌트</button>
+      <button class="ans-tab" onclick="toggle(this,'sol-h3')">정답·풀이</button>
+    </div>
+    <div class="hint-panel" id="hint-h3">먼저 좌변을 통분해서 계산하고 $ax + b$ 형태로 만들어요. 분모 2와 4의 최소공배수는 4.</div>
+    <div class="sol-panel" id="sol-h3">정답: $4a - b = 4 \times \dfrac{5}{4} - \left(-\dfrac{7}{4}\right) = 5 + \dfrac{7}{4} = \dfrac{27}{4}$<br><br>계산 과정:<br>$\dfrac{2(4x-3)}{4} - \dfrac{3x+1}{4} = \dfrac{8x - 6 - 3x - 1}{4} = \dfrac{5x - 7}{4}$<br>$a = \dfrac{5}{4}$, $b = -\dfrac{7}{4}$<br>$4a - b = 4 \times \dfrac{5}{4} - \left(-\dfrac{7}{4}\right) = 5 + \dfrac{7}{4} = \dfrac{27}{4}$</div>
+  </div>
+
+</div>
+
+<!-- 자주 하는 실수 탭 -->
+<div class="panel" id="panel-mistakes">
+  <div class="mistake-box">
+    <h3>동류항 정리에서 자주 하는 실수</h3>
+    <div class="mistake-item"><span class="mistake-x">✗</span><div>$2x + 3 = 5x$로 계산 (다른 종류의 항을 더함)</div></div>
+    <div class="mistake-item"><span class="mistake-o">✓</span><div>$2x + 3$은 더 간단히 할 수 없어요. $x$항과 상수항은 다른 종류!</div></div>
+    <div class="mistake-item" style="margin-top:12px;"><span class="mistake-x">✗</span><div>$x^2 + x = 2x^2$으로 계산 (차수가 다른 항을 더함)</div></div>
+    <div class="mistake-item"><span class="mistake-o">✓</span><div>$x^2$과 $x$는 차수가 달라서 합칠 수 없어요.</div></div>
+  </div>
+  <div class="mistake-box" style="margin-top:12px;">
+    <h3>괄호 전개에서 자주 하는 실수</h3>
+    <div class="mistake-item"><span class="mistake-x">✗</span><div>$(4x + 2) - (x - 3) = 4x + 2 - x - 3 = 3x - 1$</div></div>
+    <div class="mistake-item"><span class="mistake-o">✓</span><div>$-(x - 3) = -x + 3$ → $4x + 2 - x + 3 = 3x + 5$</div></div>
+    <div class="mistake-item" style="margin-top:12px;"><span class="mistake-x">✗</span><div>$-2(x + 1) = -2x + 2$ (마이너스 분배 오류)</div></div>
+    <div class="mistake-item"><span class="mistake-o">✓</span><div>$-2(x + 1) = -2x - 2$ (모든 항에 $-2$ 곱하기)</div></div>
+  </div>
+  <div class="mistake-box" style="margin-top:12px;">
+    <h3>분수 계산에서 자주 하는 실수</h3>
+    <div class="mistake-item"><span class="mistake-x">✗</span><div>$\dfrac{x+1}{2} + \dfrac{x+3}{4} = \dfrac{2x+4}{6}$ (분모를 더함)</div></div>
+    <div class="mistake-item"><span class="mistake-o">✓</span><div>통분해서 분모를 같게 만들고 분자를 더해요.</div></div>
+    <div class="mistake-item" style="margin-top:12px;"><span class="mistake-x">✗</span><div>$\dfrac{2x+4}{4} - \dfrac{x+1}{4} = \dfrac{2x+4-x+1}{4}$ (빼기 분자 처리 오류)</div></div>
+    <div class="mistake-item"><span class="mistake-o">✓</span><div>$= \dfrac{(2x+4)-(x+1)}{4} = \dfrac{x+3}{4}$ (분자 전체를 빼야 해요!)</div></div>
+  </div>
+</div>
+
+<!-- 연결 개념 탭 -->
+<div class="panel" id="panel-connect">
+  <div class="connect-box">
+    <h3>동류항 → 덧뺄셈 → 곱나눗셈의 연결</h3>
+    <p><strong>동류항 정리</strong>는 모든 계산의 마지막 단계예요.<br>
+    덧셈·뺄셈을 하면 괄호를 풀고 → 동류항 모아서 정리.<br>
+    곱셈·나눗셈을 하면 분배법칙 → 동류항 모아서 정리.<br>
+    결국 <strong>모든 계산의 끝은 동류항 정리</strong>예요!</p>
+  </div>
+  <div class="connect-box">
+    <h3>4단원 일차방정식으로 연결</h3>
+    <p>방정식 $2(x - 1) = 3x + 5$를 풀 때,<br>
+    좌변 전개: $2x - 2 = 3x + 5$<br>
+    이항하면: $2x - 3x = 5 + 2$<br>
+    동류항 정리: $-x = 7$<br>
+    이 모든 과정이 이 단원에서 배운 계산이에요!</p>
+  </div>
+  <div class="connect-box">
+    <h3>알콰리즈미와 연결</h3>
+    <p>알콰리즈미는 "al-jabr(등호 이동)"과 "al-muqabala(동류항 정리)"라는 두 연산을 발명했어요.<br>
+    지금 우리가 하는 "이항"과 "동류항 정리"가 바로 이 두 연산이에요.<br>
+    algebra(대수학)라는 단어 자체가 "al-jabr"에서 왔어요!</p>
+  </div>
+</div>
+
+<script>
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('show'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + id).classList.add('show');
+  const el = document.getElementById('panel-'+id);
+  if (window.renderMathInElement) {
+    renderMathInElement(el, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});
+  }
+}
+function toggle(btn, id) {
+  const el = document.getElementById(id);
+  const willOpen = !el.classList.contains('show');
+  const card = btn.closest('.card');
+  const type = id.startsWith('hint') ? 'hint-panel' : 'sol-panel';
+  card.querySelectorAll('.'+type).forEach(p => p.classList.remove('show'));
+  card.querySelectorAll('.ans-tab').forEach(b => {
+    const m = b.getAttribute('onclick').match(/'([^']+)'/);
+    if (m) { const t = document.getElementById(m[1]); if (t && t.classList.contains(type)) b.classList.remove('open'); }
+  });
+  if (willOpen) { el.classList.add('show'); btn.classList.add('open'); }
+  if (window.renderMathInElement) {
+    renderMathInElement(el, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});
+  }
+}
+</script>
+</body>
+</html>

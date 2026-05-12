@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>유형 2 — 거듭제곱 계산</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+  .container { max-width: 700px; width: 100%; }
+  header { text-align: center; margin-bottom: 20px; }
+  header .back { font-size: 13px; color: #4361EE; text-decoration: none; display: inline-block; margin-bottom: 12px; }
+  .type-badge { background: #4361EE; color: white; font-size: 11px; padding: 3px 10px; border-radius: 20px; display: inline-block; margin-bottom: 8px; }
+  header h1 { font-size: 22px; color: #1a1a2e; margin-bottom: 4px; }
+  header p { font-size: 13px; color: #666; }
+  .level-tabs { display: flex; gap: 8px; justify-content: center; margin-bottom: 16px; }
+  .level-tab { background: white; border: 2px solid #c0c8ff; color: #4361EE; border-radius: 20px; padding: 6px 18px; font-size: 13px; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+  .level-tab.L { border-color: #43a047; color: #43a047; }
+  .level-tab.L.active { background: #43a047; color: white; border-color: #43a047; }
+  .level-tab.M { border-color: #f4a261; color: #e07b39; }
+  .level-tab.M.active { background: #f4a261; color: white; border-color: #f4a261; }
+  .level-tab.H { border-color: #e63946; color: #e63946; }
+  .level-tab.H.active { background: #e63946; color: white; border-color: #e63946; }
+  .prob-set { display: none; }
+  .prob-set.active { display: block; }
+  .prob-card { background: white; border-radius: 16px; padding: 22px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 12px; }
+  .prob-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .prob-num { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; flex-shrink: 0; color: white; }
+  .prob-num.L { background: #43a047; }
+  .prob-num.M { background: #f4a261; }
+  .prob-num.H { background: #e63946; }
+  .prob-text { font-size: 14px; line-height: 1.9; color: #1a1a2e; margin-bottom: 12px; }
+  .ans-tabs { display: flex; gap: 6px; }
+  .ans-tab { background: white; border: 1.5px solid #c0c8ff; color: #4361EE; border-radius: 6px 6px 0 0; padding: 5px 12px; font-size: 11px; cursor: pointer; font-family: inherit; }
+  .ans-tab.active { background: #4361EE; color: white; border-color: #4361EE; }
+  .ans-content { background: #f8f9ff; border-radius: 0 8px 8px 8px; padding: 12px; display: none; font-size: 13px; line-height: 1.8; color: #333; }
+  .ans-content.active { display: block; }
+  .ans-box { background: #4361EE; color: white; border-radius: 8px; padding: 8px 14px; font-weight: bold; text-align: center; margin-bottom: 6px; font-size: 15px; }
+  .hint-box { background: #fff9e6; border-left: 3px solid #f4a261; padding: 10px 14px; border-radius: 0 8px 8px 8px; font-size: 13px; }
+  .warn { background: #fff3cd; border-left: 3px solid #ffc107; padding: 10px 14px; border-radius: 0 8px 8px 0; margin-top: 6px; font-size: 12px; color: #856404; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <a class="back" href="../index.html">← 단원 홈</a>
+    <div class="type-badge">유형 2 · 거듭제곱 계산</div>
+    <h1>거듭제곱 표기와 계산</h1>
+    <p>L×3 + M×3 + H×3 = 9문제</p>
+  </header>
+
+  <div class="level-tabs">
+    <button class="level-tab L active" onclick="showLevel('L', this)">L — 기본</button>
+    <button class="level-tab M" onclick="showLevel('M', this)">M — 중간</button>
+    <button class="level-tab H" onclick="showLevel('H', this)">H — 심화</button>
+  </div>
+
+  <!-- L -->
+  <div class="prob-set active" id="set-L">
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num L">1</div><span style="font-size:11px;color:#43a047;">L</span></div>
+      <div class="prob-text">다음을 계산하세요.<br>(1) $3^3$ &nbsp;&nbsp; (2) $2^5$ &nbsp;&nbsp; (3) $5^2$</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'L1-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'L1-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="L1-ans">
+        <div class="ans-box">(1) 27 &nbsp; (2) 32 &nbsp; (3) 25</div>
+        $3^3 = 3\times3\times3 = 27$<br>
+        $2^5 = 2\times2\times2\times2\times2 = 32$<br>
+        $5^2 = 5\times5 = 25$
+      </div>
+      <div class="ans-content" id="L1-hint">
+        <div class="hint-box">$a^n$은 $a$를 $n$번 곱한 것이에요.</div>
+      </div>
+    </div>
+
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num L">2</div><span style="font-size:11px;color:#43a047;">L</span></div>
+      <div class="prob-text">$2\times2\times2\times5\times5$를 거듭제곱을 사용하여 나타내세요.</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'L2-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'L2-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="L2-ans">
+        <div class="ans-box">$2^3 \times 5^2$</div>
+        2가 3번, 5가 2번 → $2^3 \times 5^2$
+      </div>
+      <div class="ans-content" id="L2-hint">
+        <div class="hint-box">같은 수가 몇 번 나오는지 세어보세요.</div>
+      </div>
+    </div>
+
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num L">3</div><span style="font-size:11px;color:#43a047;">L</span></div>
+      <div class="prob-text">$2^3$과 $3^2$ 중 어느 것이 더 큰지 비교하세요.</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'L3-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'L3-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="L3-ans">
+        <div class="ans-box">$2^3 = 8 < 3^2 = 9$, 따라서 $3^2$이 더 크다</div>
+      </div>
+      <div class="ans-content" id="L3-hint">
+        <div class="hint-box">각각 계산해서 비교해봐요. $2^3 = ?$, $3^2 = ?$</div>
+        <div class="warn">주의: $2^3$과 $3^2$는 다릅니다. 밑과 지수가 바뀌면 값이 달라져요.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- M -->
+  <div class="prob-set" id="set-M">
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num M">4</div><span style="font-size:11px;color:#e07b39;">M</span></div>
+      <div class="prob-text">$2^4 \times 3^2 - 5^2 + 2^3$을 계산하세요.</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'M1-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'M1-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="M1-ans">
+        <div class="ans-box">127</div>
+        $2^4 = 16$, $3^2 = 9$, $5^2 = 25$, $2^3 = 8$<br>
+        $16 \times 9 - 25 + 8 = 144 - 25 + 8 = 127$
+      </div>
+      <div class="ans-content" id="M1-hint">
+        <div class="hint-box">각 거듭제곱을 먼저 계산한 후 사칙연산해요. 곱셈 먼저!</div>
+      </div>
+    </div>
+
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num M">5</div><span style="font-size:11px;color:#e07b39;">M</span></div>
+      <div class="prob-text">$2^a = 64$일 때, $a$의 값을 구하세요.</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'M2-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'M2-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="M2-ans">
+        <div class="ans-box">a = 6</div>
+        $2^1=2, 2^2=4, 2^3=8, 2^4=16, 2^5=32, 2^6=64$<br>
+        ∴ $a=6$
+      </div>
+      <div class="ans-content" id="M2-hint">
+        <div class="hint-box">2의 거듭제곱을 순서대로 계산해서 64가 되는 지수를 찾아봐요.</div>
+      </div>
+    </div>
+
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num M">6</div><span style="font-size:11px;color:#e07b39;">M</span></div>
+      <div class="prob-text">$10^6$을 숫자로 쓰면 자리수가 몇 자리인가요? 또, $10^6$은 몇 만인가요?</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'M3-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'M3-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="M3-ans">
+        <div class="ans-box">7자리, 100만</div>
+        $10^6 = 1000000$ → 7자리 수<br>
+        $10^6 = 100 \times 10000 = 100$만
+      </div>
+      <div class="ans-content" id="M3-hint">
+        <div class="hint-box">$10^n$은 1 뒤에 0이 n개 붙은 수예요.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- H -->
+  <div class="prob-set" id="set-H">
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num H">7</div><span style="font-size:11px;color:#e63946;">H</span></div>
+      <div class="prob-text">$2^{10}$과 $3^6$의 크기를 비교하세요. (단, 계산기 사용 불가)</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'H1-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'H1-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="H1-ans">
+        <div class="ans-box">$2^{10} > 3^6$</div>
+        $2^{10} = (2^5)^2 = 32^2 = 1024$<br>
+        $3^6 = (3^2)^3 = 9^3 = 729$<br>
+        $1024 > 729$ ∴ $2^{10} > 3^6$
+      </div>
+      <div class="ans-content" id="H1-hint">
+        <div class="hint-box">$2^{10} = 2^5 \times 2^5 = 32 \times 32$, $3^6 = 3^2 \times 3^2 \times 3^2 = 9 \times 9 \times 9$로 계산해봐요.</div>
+      </div>
+    </div>
+
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num H">8</div><span style="font-size:11px;color:#e63946;">H</span></div>
+      <div class="prob-text">$3^{n+1} - 3^n$을 $3^n$을 이용하여 간단히 나타내세요.</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'H2-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'H2-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="H2-ans">
+        <div class="ans-box">$2 \times 3^n$</div>
+        $3^{n+1} = 3^n \times 3$<br>
+        $3^{n+1} - 3^n = 3^n \times 3 - 3^n = 3^n(3-1) = 2 \times 3^n$
+      </div>
+      <div class="ans-content" id="H2-hint">
+        <div class="hint-box">$3^{n+1} = 3^n \times 3^1 = 3 \cdot 3^n$이에요. 공통인수 $3^n$으로 묶어봐요.</div>
+      </div>
+    </div>
+
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num H">9</div><span style="font-size:11px;color:#e63946;">H</span></div>
+      <div class="prob-text">$A = 2^{100}$의 일의 자리 숫자를 구하세요.</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'H3-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'H3-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="H3-ans">
+        <div class="ans-box">6</div>
+        2의 거듭제곱 일의 자리: 2, 4, 8, 6, 2, 4, 8, 6, … (주기 4)<br>
+        100 ÷ 4 = 25 나머지 0 → 주기의 4번째 → 일의 자리 <strong>6</strong>
+      </div>
+      <div class="ans-content" id="H3-hint">
+        <div class="hint-box">$2^1, 2^2, 2^3, 2^4, 2^5, \ldots$의 일의 자리를 써보면 패턴이 보여요!</div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+function showLevel(lv, btn) {
+  document.querySelectorAll('.prob-set').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.level-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('set-' + lv).classList.add('active');
+  btn.classList.add('active');
+  if (window.renderMathInElement) renderMathInElement(document.getElementById('set-' + lv), {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});
+}
+function toggleAns(btn, id) {
+  const el = document.getElementById(id);
+  const isActive = el.classList.contains('active');
+  btn.closest('.prob-card').querySelectorAll('.ans-content').forEach(e => e.classList.remove('active'));
+  btn.closest('.prob-card').querySelectorAll('.ans-tab').forEach(t => t.classList.remove('active'));
+  if (!isActive) { el.classList.add('active'); btn.classList.add('active'); if (window.renderMathInElement) renderMathInElement(el, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]}); }
+}
+</script>
+</body>
+</html>

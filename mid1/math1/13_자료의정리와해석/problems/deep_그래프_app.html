@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>깊이 탐구 — 히스토그램·도수분포다각형</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<style>
+  :root{--primary:#4361EE; --bg:#eef2ff; --card:#ffffff; --ink:#1f2330; --muted:#5b6478; --line:#dfe4ff;}
+  *{box-sizing:border-box} body{margin:0; font-family:"Noto Sans KR",system-ui,sans-serif; color:var(--ink); background:var(--bg); padding:16px;}
+  .wrap{max-width:700px; margin:0 auto;}
+  header{background:var(--card); padding:14px 18px; border-radius:14px; display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;}
+  header a{color:var(--primary); text-decoration:none; font-size:14px;} header .title{font-weight:700; font-size:15px;}
+  .toptabs{display:flex; gap:8px; background:var(--card); padding:8px; border-radius:14px; margin-bottom:14px;}
+  .toptab{flex:1; padding:10px; background:#e5e7eb; border:none; border-radius:10px; cursor:pointer; font-size:13px; font-weight:700; color:#555;}
+  .toptab.active{background:var(--primary); color:white;}
+  .tab-content{display:none;}
+  .tab-content.active{display:block;}
+  .section{background:var(--card); border-radius:14px; padding:18px 20px; margin-bottom:14px; box-shadow:0 2px 12px rgba(67,97,238,0.06);}
+  .section h3{margin:0 0 10px; color:var(--primary); font-size:17px;}
+  .section h4{margin:14px 0 6px; color:#444; font-size:15px;}
+  .section p{line-height:1.7; font-size:14.5px; margin:8px 0;}
+  .key{background:#ecfdf5; border-left:4px solid #10b981; padding:12px 14px; border-radius:8px; margin:10px 0; font-size:14px; line-height:1.7;}
+  .key b{color:#047857;}
+  .warn{background:#fff8e6; border:1px solid #fbbf24; border-radius:10px; padding:12px 14px; margin:10px 0; font-size:14px; line-height:1.7;}
+  .warn b{color:#b45309;}
+  .chart{display:flex; justify-content:center; margin:12px 0;}
+  .practice{background:#f5f7ff; border-radius:10px; padding:12px 14px; margin:10px 0;}
+  .practice .q{font-weight:600; color:#333; margin:8px 0 4px;}
+  .practice details{margin:6px 0;} .practice summary{cursor:pointer; color:var(--primary); font-size:13px;}
+  .practice .ans{padding:8px; background:white; border-radius:6px; margin-top:6px; font-size:13.5px;}
+  .link{background:#fef3c7; border:1px solid #f59e0b; padding:12px; border-radius:8px; margin:10px 0; font-size:14px;}
+  .link b{color:#b45309;}
+  .formula{background:#f5f7ff; border-radius:8px; padding:10px 14px; text-align:center; font-size:15px; margin:10px 0;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><a href="../index.html">← 메인</a><span class="title">깊이 탐구 · 그래프</span><span style="font-size:12px; color:var(--muted);">2 tabs</span></header>
+
+  <div class="toptabs">
+    <button class="toptab active" data-tab="t1">유형 04<br>히스토그램</button>
+    <button class="toptab" data-tab="t2">유형 05<br>도수분포다각형</button>
+  </div>
+
+  <!-- Tab 1: Histogram -->
+  <div class="tab-content active" id="t1">
+    <div class="section">
+      <h3>유형 04 — 히스토그램</h3>
+
+      <h4>1. 그리는 방법</h4>
+      <div class="key">
+        <b>3가지 약속</b><br>
+        ① 가로축: <b>계급</b> (구간), 세로축: <b>도수</b><br>
+        ② 각 막대의 <b>가로폭 = 계급의 크기</b> (모두 같음)<br>
+        ③ 막대 사이 <b>간격 없음</b> (자료가 연속이므로 빈틈 없음)
+      </div>
+
+      <div class="chart">
+        <svg width="360" height="220" viewBox="0 0 360 220">
+          <line x1="50" y1="180" x2="350" y2="180" stroke="#333" stroke-width="1.5"/>
+          <line x1="50" y1="20" x2="50" y2="180" stroke="#333" stroke-width="1.5"/>
+          <rect x="50" y="160" width="60" height="20" fill="#4361EE" opacity="0.85" stroke="white"/>
+          <rect x="110" y="130" width="60" height="50" fill="#4361EE" opacity="0.85" stroke="white"/>
+          <rect x="170" y="100" width="60" height="80" fill="#4361EE" opacity="0.85" stroke="white"/>
+          <rect x="230" y="150" width="60" height="30" fill="#4361EE" opacity="0.85" stroke="white"/>
+          <rect x="290" y="170" width="60" height="10" fill="#4361EE" opacity="0.85" stroke="white"/>
+          <text x="50" y="195" font-size="10" text-anchor="middle">50</text>
+          <text x="110" y="195" font-size="10" text-anchor="middle">60</text>
+          <text x="170" y="195" font-size="10" text-anchor="middle">70</text>
+          <text x="230" y="195" font-size="10" text-anchor="middle">80</text>
+          <text x="290" y="195" font-size="10" text-anchor="middle">90</text>
+          <text x="350" y="195" font-size="10" text-anchor="middle">100</text>
+        </svg>
+      </div>
+
+      <h4>2. ★ 넓이 공식 — 이게 핵심</h4>
+      <div class="formula">
+        $\text{히스토그램 전체 넓이} = (\text{계급의 크기}) \times (\text{도수의 합})$
+      </div>
+      <p>각 막대 = (가로) × (세로) = (계급 크기) × (그 계급 도수). 모두 더하면 = (계급 크기) × (도수의 합).</p>
+
+      <h4>3. 자주 하는 실수</h4>
+      <div class="warn">
+        <b>실수 ①</b> 막대 사이 간격을 띄움. → 도수분포표 자료는 연속 구간이라 간격 없음.<br>
+        <b>실수 ②</b> 가로축에 계급값(중점)만 쓰고 경계 안 씀. → 가로축은 보통 경계(예: 50, 60, 70...) 또는 경계+계급값 둘 다 표시.<br>
+        <b>실수 ③</b> 도수가 0인 계급을 생략. → 계급이 비어 있어도 표시(빈 막대).
+      </div>
+
+      <div class="practice">
+        <div class="q">연습 1) 위 히스토그램의 전체 도수와 모든 막대의 넓이의 합은?</div>
+        <details><summary>정답 보기</summary>
+          <div class="ans">도수: 2+5+8+3+1 = <b>19명</b>. 넓이 합 $= 10 \times 19 = 190$. (★ 그림은 모식적 표현, 정확한 도수는 막대 높이에 따라 다름. 위 예에서 2,5,8,3,1.)</div></details>
+
+        <div class="q">연습 2) 계급 크기 5, 전체 도수 24인 히스토그램의 모든 막대 넓이 합은?</div>
+        <details><summary>정답 보기</summary>
+          <div class="ans">$5 \times 24 = 120$</div></details>
+
+        <div class="q">연습 3) 히스토그램에서 어떤 막대의 가로폭이 10, 세로(도수)가 7이다. 이 막대 하나의 넓이는?</div>
+        <details><summary>정답 보기</summary>
+          <div class="ans">$10 \times 7 = 70$</div></details>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 2: Frequency polygon -->
+  <div class="tab-content" id="t2">
+    <div class="section">
+      <h3>유형 05 — 도수분포다각형</h3>
+
+      <h4>1. 그리는 방법 — 히스토그램에서 이어짐</h4>
+      <div class="key">
+        <b>2단계</b><br>
+        ① 히스토그램 각 막대의 <b>윗변 중점</b>(= 계급값 위치)에 점을 찍기<br>
+        ② <b>양 끝</b>은 도수 0인 계급의 계급값까지 연장해 가로축에 닿게 함 → 닫힌 도형
+      </div>
+
+      <div class="chart">
+        <svg width="360" height="220" viewBox="0 0 360 220">
+          <line x1="50" y1="180" x2="350" y2="180" stroke="#333" stroke-width="1.5"/>
+          <line x1="50" y1="20" x2="50" y2="180" stroke="#333" stroke-width="1.5"/>
+          <!-- faded histogram -->
+          <rect x="50" y="160" width="60" height="20" fill="#4361EE" opacity="0.15"/>
+          <rect x="110" y="130" width="60" height="50" fill="#4361EE" opacity="0.15"/>
+          <rect x="170" y="100" width="60" height="80" fill="#4361EE" opacity="0.15"/>
+          <rect x="230" y="150" width="60" height="30" fill="#4361EE" opacity="0.15"/>
+          <rect x="290" y="170" width="60" height="10" fill="#4361EE" opacity="0.15"/>
+          <!-- polygon -->
+          <polyline points="20,180 80,160 140,130 200,100 260,150 320,170 350,180" fill="rgba(220,38,38,0.1)" stroke="#dc2626" stroke-width="2.5"/>
+          <circle cx="80" cy="160" r="3.5" fill="#dc2626"/>
+          <circle cx="140" cy="130" r="3.5" fill="#dc2626"/>
+          <circle cx="200" cy="100" r="3.5" fill="#dc2626"/>
+          <circle cx="260" cy="150" r="3.5" fill="#dc2626"/>
+          <circle cx="320" cy="170" r="3.5" fill="#dc2626"/>
+          <circle cx="20" cy="180" r="3" fill="#dc2626" opacity="0.5"/>
+          <circle cx="350" cy="180" r="3" fill="#dc2626" opacity="0.5"/>
+          <text x="20" y="195" font-size="9" fill="#999" text-anchor="middle">45</text>
+          <text x="80" y="195" font-size="10" text-anchor="middle">55</text>
+          <text x="200" y="195" font-size="10" text-anchor="middle">75</text>
+          <text x="320" y="195" font-size="10" text-anchor="middle">95</text>
+          <text x="350" y="195" font-size="9" fill="#999" text-anchor="middle">105</text>
+        </svg>
+      </div>
+      <p style="text-align:center; color:var(--muted); font-size:12px;">희미한 막대 = 히스토그램. 빨간 꺾은선 = 도수분포다각형. 양 끝(45, 105)은 도수 0으로 연장.</p>
+
+      <h4>2. ★ 핵심 사실</h4>
+      <div class="formula">
+        도수분포다각형과 가로축으로 둘러싸인 넓이 = 히스토그램 전체 넓이
+      </div>
+      <p>꺾은선이 막대 위로 솟은 작은 삼각형의 넓이 = 막대에서 떨어져 나간 작은 삼각형의 넓이. 정확히 면적이 이동만 했을 뿐. <b>같은 공식</b>: $(\text{계급 크기}) \times (\text{도수 합})$.</p>
+
+      <h4>3. 왜 도수분포다각형이 좋은가</h4>
+      <div class="key">
+        <b>두 집단 비교</b>에 좋다. 히스토그램 두 개를 겹쳐 그리면 막대가 가려져 안 보이지만, 꺾은선은 두 개를 색깔만 다르게 그리면 깔끔하게 비교됨.<br>
+        → 나이팅게일이 좋아할 만한 방식.
+      </div>
+
+      <h4>4. 자주 하는 실수</h4>
+      <div class="warn">
+        <b>실수 ①</b> 막대 윗변의 끝(좌·우 모서리)을 이음. → 막대 윗변의 <b>중점</b>(즉 계급값)을 이어야 함.<br>
+        <b>실수 ②</b> 양 끝을 가로축에 연장 안 함. → 닫힌 도형이 안 되어 넓이 의미가 흐려짐.<br>
+        <b>실수 ③</b> 가로축에 계급 경계(예: 50, 60)를 적음. → 도수분포다각형의 가로축은 <b>계급값</b>(예: 55, 65) 단위.
+      </div>
+
+      <div class="practice">
+        <div class="q">연습 1) 계급 크기 10, 도수 합 20인 자료의 도수분포다각형이 가로축과 둘러싼 넓이는?</div>
+        <details><summary>정답 보기</summary>
+          <div class="ans">$10 \times 20 = 200$ (히스토그램 넓이와 같음)</div></details>
+
+        <div class="q">연습 2) 도수분포다각형에서 가로축의 단위는 계급 경계인가 계급값인가?</div>
+        <details><summary>정답 보기</summary>
+          <div class="ans"><b>계급값</b>. 다각형의 점은 각 막대 중점에 찍힘.</div></details>
+
+        <div class="q">연습 3) 두 집단의 분포를 한 그래프에 표시하려면 히스토그램과 도수분포다각형 중 어느 것?</div>
+        <details><summary>정답 보기</summary>
+          <div class="ans"><b>도수분포다각형</b>. 꺾은선 둘을 색깔로 구분하면 잘 보인다.</div></details>
+      </div>
+
+      <div class="link"><b>나이팅게일과 연결</b> 그녀가 만든 코크스콤은 정확히 "도수분포 + 시각화" 한 결과. 21세기 미디어가 매일 보여주는 그래프의 시작.</div>
+    </div>
+  </div>
+
+</div>
+<script>
+const tabs = document.querySelectorAll('.toptab');
+const contents = document.querySelectorAll('.tab-content');
+tabs.forEach(t => t.onclick = () => {
+  tabs.forEach(x => x.classList.remove('active'));
+  contents.forEach(x => x.classList.remove('active'));
+  t.classList.add('active');
+  document.getElementById(t.dataset.tab).classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+  if (window.renderMathInElement) renderMathInElement(document.getElementById(t.dataset.tab), {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});
+});
+</script>
+</body>
+</html>

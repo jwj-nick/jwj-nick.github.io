@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>유형 7 — 색칠한 부분의 넓이</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+:root{--primary:#4361EE;--bg:#eef2ff;--card:#fff;--ok:#2ecc71;--ng:#e74c3c;--hint:#f39c12;--L:#3498db;--M:#9b59b6;--H:#e74c3c;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic',sans-serif;background:var(--bg);padding:20px 16px 60px;color:#2d3436;}
+.header{max-width:700px;margin:0 auto 20px;}
+h1{font-size:18px;font-weight:800;color:var(--primary);margin-bottom:4px;}
+.sub{font-size:13px;color:#636e72;margin-bottom:4px;}
+.back-link{font-size:12px;color:#4361EE;text-decoration:none;}
+.tabs{display:flex;gap:8px;margin-bottom:20px;max-width:700px;margin-left:auto;margin-right:auto;}
+.tab-btn{flex:1;padding:9px 0;border-radius:10px;border:2px solid #c0c8f4;background:#fff;font-size:13px;font-weight:700;cursor:pointer;color:#636e72;font-family:inherit;}
+.tab-btn.active{color:#fff;}
+.tab-btn[data-lv="L"].active{background:var(--L);border-color:var(--L);}
+.tab-btn[data-lv="M"].active{background:var(--M);border-color:var(--M);}
+.tab-btn[data-lv="H"].active{background:var(--H);border-color:var(--H);}
+.panel{display:none;max-width:700px;margin:0 auto;}
+.panel.show{display:block;}
+.card{background:var(--card);border-radius:14px;padding:22px 22px 18px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:14px;}
+.q-head{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.q-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0;}
+.lv-L .q-num{background:var(--L);}
+.lv-M .q-num{background:var(--M);}
+.lv-H .q-num{background:var(--H);}
+.lv-tag{font-size:11px;padding:2px 9px;border-radius:20px;font-weight:700;color:#fff;}
+.lv-L .lv-tag{background:var(--L);}
+.lv-M .lv-tag{background:var(--M);}
+.lv-H .lv-tag{background:var(--H);}
+.q-text{font-size:14px;line-height:1.75;margin-bottom:14px;}
+.ans-tabs{display:flex;gap:6px;margin-bottom:10px;}
+.ans-tab{padding:6px 14px;border-radius:8px;border:2px solid #dde3ff;background:#f8f9ff;font-size:12px;font-weight:700;cursor:pointer;color:#636e72;font-family:inherit;}
+.ans-tab.open{background:var(--primary);border-color:var(--primary);color:#fff;}
+.hint-panel,.sol-panel{display:none;border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.7;margin-top:6px;}
+.hint-panel.show,.sol-panel.show{display:block;}
+.hint-panel{background:#fff8e8;border-left:4px solid var(--hint);}
+.sol-panel{background:#eef9f4;border-left:4px solid var(--ok);}
+.warn{background:#fff0f0;border-left:4px solid var(--ng);border-radius:8px;padding:10px 14px;font-size:12px;margin-top:10px;}
+.fig-svg{display:block;margin:8px auto;max-width:300px;width:100%;background:#fafbff;border-radius:8px;padding:6px;}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>유형 7 — 색칠한 부분의 넓이</h1>
+  <div class="sub">도형 합·차로 분해 + 이동·합치기 전략</div>
+  <a class="back-link" href="../index.html">← 단원 10 홈</a>
+</div>
+<div class="tabs">
+  <button class="tab-btn active" data-lv="L" onclick="switchTab('L',this)">L — 기본 (3문제)</button>
+  <button class="tab-btn" data-lv="M" onclick="switchTab('M',this)">M — 중간 (3문제)</button>
+  <button class="tab-btn" data-lv="H" onclick="switchTab('H',this)">H — 심화 (3문제)</button>
+</div>
+
+<!-- L -->
+<div class="panel show" id="panel-L">
+
+<div class="card lv-L">
+<div class="q-head"><div class="q-num">1</div><span class="lv-tag">L</span></div>
+<div class="q-text">한 변이 $4$ cm 인 정사각형 안에, 한 꼭짓점을 중심으로 하는 사분원이 그려져 있어요. 색칠한 부분 (정사각형에서 사분원을 뺀 부분)의 넓이는?</div>
+<svg class="fig-svg" viewBox="-15 -15 230 230">
+  <rect x="0" y="0" width="200" height="200" fill="rgba(67,97,238,0.25)" stroke="#4361EE" stroke-width="2"/>
+  <path d="M 0 0 L 200 0 A 200 200 0 0 0 0 200 Z" fill="white" stroke="#4361EE" stroke-width="2"/>
+  <text x="100" y="-4" text-anchor="middle" font-size="11" fill="#1d3557">한 변 4</text>
+</svg>
+<div class="ans-tabs"><button class="ans-tab" onclick="toggle(this,'hint-L1')">힌트</button><button class="ans-tab" onclick="toggle(this,'sol-L1')">정답·풀이</button></div>
+<div class="hint-panel" id="hint-L1">정사각형 - 사분원. 사분원의 반지름은 정사각형 한 변과 같음.</div>
+<div class="sol-panel" id="sol-L1"><strong>$(16 - 4\pi)$ cm²</strong><br>정사각형 넓이 = $4 \times 4 = 16$ cm²<br>사분원 넓이 = $\pi(4)^2 \cdot \dfrac{1}{4} = 4\pi$ cm²<br>색칠 = $16 - 4\pi$ cm²</div>
+</div>
+
+<div class="card lv-L">
+<div class="q-head"><div class="q-num">2</div><span class="lv-tag">L</span></div>
+<div class="q-text">반지름 $5$ cm 인 큰 원과 반지름 $3$ cm 인 작은 원의 중심이 같다. 큰 원과 작은 원 사이의 색칠한 부분 (도넛 모양)의 넓이는?</div>
+<div class="ans-tabs"><button class="ans-tab" onclick="toggle(this,'hint-L2')">힌트</button><button class="ans-tab" onclick="toggle(this,'sol-L2')">정답·풀이</button></div>
+<div class="hint-panel" id="hint-L2">큰 원 - 작은 원.</div>
+<div class="sol-panel" id="sol-L2"><strong>$16\pi$ cm²</strong><br>$\pi(5)^2 - \pi(3)^2 = 25\pi - 9\pi = 16\pi$ cm²</div>
+</div>
+
+<div class="card lv-L">
+<div class="q-head"><div class="q-num">3</div><span class="lv-tag">L</span></div>
+<div class="q-text">반지름 $6$ cm 인 반원의 넓이는?</div>
+<div class="ans-tabs"><button class="ans-tab" onclick="toggle(this,'hint-L3')">힌트</button><button class="ans-tab" onclick="toggle(this,'sol-L3')">정답·풀이</button></div>
+<div class="hint-panel" id="hint-L3">반원 = 원의 1/2.</div>
+<div class="sol-panel" id="sol-L3"><strong>$18\pi$ cm²</strong><br>$\dfrac{1}{2} \pi(6)^2 = \dfrac{36\pi}{2} = 18\pi$ cm²</div>
+</div>
+
+</div>
+
+<!-- M -->
+<div class="panel" id="panel-M">
+
+<div class="card lv-M">
+<div class="q-head"><div class="q-num">1</div><span class="lv-tag">M</span></div>
+<div class="q-text">한 변이 $4$ cm 인 정사각형의 두 마주 보는 꼭짓점을 중심으로 하는 사분원 두 개가 그려져 있다. 그 두 사분원이 만드는 잎사귀 모양의 넓이는?</div>
+<svg class="fig-svg" viewBox="-15 -15 230 230">
+  <rect x="0" y="0" width="200" height="200" fill="#fff" stroke="#cbd5e1" stroke-width="1.5"/>
+  <!-- two quarter circles overlap -->
+  <path d="M 200 0 A 200 200 0 0 0 0 200 A 200 200 0 0 0 200 0 Z" fill="rgba(247,127,36,0.4)" stroke="#f59e0b" stroke-width="2"/>
+  <text x="100" y="-4" text-anchor="middle" font-size="11" fill="#1d3557">한 변 4</text>
+</svg>
+<div class="ans-tabs"><button class="ans-tab" onclick="toggle(this,'hint-M1')">힌트</button><button class="ans-tab" onclick="toggle(this,'sol-M1')">정답·풀이</button></div>
+<div class="hint-panel" id="hint-M1">두 사분원의 합 - 정사각형. 또는 활꼴 두 개의 합.</div>
+<div class="sol-panel" id="sol-M1"><strong>$(8\pi - 16)$ cm²</strong><br>두 사분원 합 = $2 \times \pi(4)^2 \cdot \dfrac{1}{4} = 2 \times 4\pi = 8\pi$<br>합집합 = 정사각형 = 16<br>잎 (교집합) = 두 사분원 합 - 합집합 = $8\pi - 16$ cm²<br><br>또는: 활꼴 한 개 (사분원 - 직각이등변) = $4\pi - 8$. 잎 = 활꼴 × 2 = $8\pi - 16$ ✓</div>
+</div>
+
+<div class="card lv-M">
+<div class="q-head"><div class="q-num">2</div><span class="lv-tag">M</span></div>
+<div class="q-text">아래 그림처럼 한 변이 $6$ cm 인 정사각형 안에, 정사각형의 두 변에 닿는 반원과 사분원이 있다. 색칠한 부분의 넓이는? (정사각형에서 반원과 사분원을 뺀 부분)</div>
+<svg class="fig-svg" viewBox="-15 -15 230 230">
+  <rect x="0" y="0" width="200" height="200" fill="rgba(67,97,238,0.25)" stroke="#4361EE" stroke-width="2"/>
+  <!-- 반원: 윗변 (반지름 100) -->
+  <path d="M 0 0 A 100 100 0 0 1 200 0 L 0 0 Z" fill="white" stroke="#4361EE" stroke-width="2" transform="translate(0, 0)"/>
+  <!-- 사분원: 오른쪽 아래 꼭짓점 (반지름 200) — 사분원이 정사각형 안에 다 들어가지 않으니 변경 -->
+  <!-- 다른 구성: 윗변 반원 + 왼쪽아래 꼭짓점 사분원 (반지름 100, 정사각형 절반) -->
+  <path d="M 0 200 L 100 200 A 100 100 0 0 0 0 100 Z" fill="white" stroke="#4361EE" stroke-width="2"/>
+  <text x="100" y="-4" text-anchor="middle" font-size="11" fill="#1d3557">한 변 6</text>
+</svg>
+<div class="q-text">반원: 정사각형 윗변을 지름으로 (반지름 3 cm). 사분원: 왼쪽 아래 꼭짓점을 중심으로 반지름 3 cm.</div>
+<div class="ans-tabs"><button class="ans-tab" onclick="toggle(this,'hint-M2')">힌트</button><button class="ans-tab" onclick="toggle(this,'sol-M2')">정답·풀이</button></div>
+<div class="hint-panel" id="hint-M2">색칠 = 정사각형 - 반원 - 사분원. 두 도형이 겹치지 않음 확인.</div>
+<div class="sol-panel" id="sol-M2"><strong>$(36 - \dfrac{9\pi}{2} - \dfrac{9\pi}{4}) = (36 - \dfrac{27\pi}{4})$ cm²</strong><br>정사각형 = $6^2 = 36$<br>반원 (반지름 3) = $\dfrac{1}{2}\pi(3)^2 = \dfrac{9\pi}{2}$<br>사분원 (반지름 3) = $\dfrac{1}{4}\pi(3)^2 = \dfrac{9\pi}{4}$<br>색칠 = $36 - \dfrac{9\pi}{2} - \dfrac{9\pi}{4} = 36 - \dfrac{18\pi + 9\pi}{4} = 36 - \dfrac{27\pi}{4}$ cm²</div>
+</div>
+
+<div class="card lv-M">
+<div class="q-head"><div class="q-num">3</div><span class="lv-tag">M</span></div>
+<div class="q-text">중심이 같은 두 사분원(중심각 $90°$)이 있다. 큰 사분원의 반지름은 $6$ cm, 작은 사분원의 반지름은 $3$ cm 이다. 색칠한 부분(큰 사분원 — 작은 사분원, 즉 사분원 모양 띠)의 넓이는?</div>
+<svg class="fig-svg" viewBox="-15 -130 230 150">
+  <path d="M 0 0 L 200 0 A 200 200 0 0 0 0 -200 Z" fill="rgba(67,97,238,0.3)" stroke="#4361EE" stroke-width="2"/>
+  <path d="M 0 0 L 100 0 A 100 100 0 0 0 0 -100 Z" fill="white" stroke="#4361EE" stroke-width="2"/>
+  <text x="100" y="-110" text-anchor="middle" font-size="11" fill="#4361EE">큰 사분원 R=6, 작은 R=3</text>
+</svg>
+<div class="ans-tabs"><button class="ans-tab" onclick="toggle(this,'hint-M3')">힌트</button><button class="ans-tab" onclick="toggle(this,'sol-M3')">정답·풀이</button></div>
+<div class="hint-panel" id="hint-M3">큰 사분원 - 작은 사분원. 각각 $\dfrac{1}{4}\pi r^2$.</div>
+<div class="sol-panel" id="sol-M3"><strong>$\dfrac{27\pi}{4}$ cm²</strong><br>큰 사분원 = $\pi(6)^2 \cdot \dfrac{1}{4} = 9\pi$<br>작은 사분원 = $\pi(3)^2 \cdot \dfrac{1}{4} = \dfrac{9\pi}{4}$<br>띠 모양 색칠 = $9\pi - \dfrac{9\pi}{4} = \dfrac{36\pi - 9\pi}{4} = \dfrac{27\pi}{4}$ cm²<br><br>💡 또는 통째로: $\dfrac{1}{4}\pi(6^2 - 3^2) = \dfrac{1}{4}\pi(27) = \dfrac{27\pi}{4}$ ✓</div>
+</div>
+
+</div>
+
+<!-- H -->
+<div class="panel" id="panel-H">
+
+<div class="card lv-H">
+<div class="q-head"><div class="q-num">1</div><span class="lv-tag">H ★</span></div>
+<div class="q-text">아래 그림에서 색칠한 부분의 넓이는? (한 변 $10$ cm 인 정사각형, 두 사분원은 마주 보는 두 꼭짓점을 중심으로 그려져 있고 반지름은 $10$ cm)</div>
+<svg class="fig-svg" viewBox="-15 -15 230 230">
+  <rect x="0" y="0" width="200" height="200" fill="#fff" stroke="#cbd5e1" stroke-width="1.5"/>
+  <path d="M 200 0 A 200 200 0 0 0 0 200 A 200 200 0 0 0 200 0 Z" fill="rgba(247,127,36,0.4)" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="100" y="-4" text-anchor="middle" font-size="11" fill="#1d3557">한 변 10</text>
+</svg>
+<div class="ans-tabs"><button class="ans-tab" onclick="toggle(this,'hint-H1')">힌트</button><button class="ans-tab" onclick="toggle(this,'sol-H1')">정답·풀이</button></div>
+<div class="hint-panel" id="hint-H1">잎사귀 모양 = 두 사분원의 교집합 = 두 사분원 합 - 정사각형.</div>
+<div class="sol-panel" id="sol-H1"><strong>$(50\pi - 100)$ cm²</strong><br>두 사분원 한 개 = $\pi(10)^2 \cdot \dfrac{1}{4} = 25\pi$<br>두 사분원 합 = $50\pi$<br>두 사분원이 정사각형 전체를 덮음 (정사각형 한 변 = 사분원 반지름) → 합집합 = 정사각형 = 100<br>잎 = 합 - 합집합 = $50\pi - 100$ cm²</div>
+</div>
+
+<div class="card lv-H">
+<div class="q-head"><div class="q-num">2</div><span class="lv-tag">H</span></div>
+<div class="q-text">반지름 $4$ cm 인 원이 있다. 중심을 지나는 두 직선이 직각으로 만나서 원을 4개의 사분원 영역으로 나눈다. 한 사분원 영역에서 두 반지름을 두 변으로 하는 직각이등변삼각형을 그렸을 때, 사분원과 그 삼각형 사이의 활꼴 부분의 넓이는?</div>
+<div class="ans-tabs"><button class="ans-tab" onclick="toggle(this,'hint-H2')">힌트</button><button class="ans-tab" onclick="toggle(this,'sol-H2')">정답·풀이</button></div>
+<div class="hint-panel" id="hint-H2">사분원 - 직각이등변삼각형.</div>
+<div class="sol-panel" id="sol-H2"><strong>$(4\pi - 8)$ cm²</strong><br>사분원 (반지름 4) = $\pi(4)^2 \cdot \dfrac{1}{4} = 4\pi$ cm²<br>직각이등변삼각형 (두 변 = 4) = $\dfrac{1}{2}(4)(4) = 8$ cm²<br>활꼴 = $4\pi - 8$ cm²</div>
+</div>
+
+<div class="card lv-H">
+<div class="q-head"><div class="q-num">3</div><span class="lv-tag">H ★</span></div>
+<div class="q-text">한 변이 $4$ cm 인 정사각형의 네 꼭짓점을 중심으로 하는 반지름 $2$ cm 인 사분원이 4개 그려져 있다. 정사각형 안에서 사분원에 덮이지 않은 부분의 넓이는?</div>
+<svg class="fig-svg" viewBox="-15 -15 230 230">
+  <rect x="0" y="0" width="200" height="200" fill="rgba(67,97,238,0.25)" stroke="#4361EE" stroke-width="2"/>
+  <!-- 4 quarter circles, radius 100 (= half of 200 = 4cm/2 * 50 scale? no, 2cm radius in 4cm square: half) -->
+  <!-- We need radius=100 (half of 200) -->
+  <path d="M 0 0 L 100 0 A 100 100 0 0 0 0 100 Z" fill="white" stroke="#4361EE" stroke-width="1.5"/>
+  <path d="M 200 0 L 100 0 A 100 100 0 0 1 200 100 Z" fill="white" stroke="#4361EE" stroke-width="1.5"/>
+  <path d="M 200 200 L 200 100 A 100 100 0 0 1 100 200 Z" fill="white" stroke="#4361EE" stroke-width="1.5"/>
+  <path d="M 0 200 L 0 100 A 100 100 0 0 1 100 200 Z" fill="white" stroke="#4361EE" stroke-width="1.5"/>
+  <text x="100" y="-4" text-anchor="middle" font-size="11" fill="#1d3557">한 변 4 (사분원 반지름 2)</text>
+</svg>
+<div class="ans-tabs"><button class="ans-tab" onclick="toggle(this,'hint-H3')">힌트</button><button class="ans-tab" onclick="toggle(this,'sol-H3')">정답·풀이</button></div>
+<div class="hint-panel" id="hint-H3">정사각형 - 사분원 4개. 사분원 4개의 합 = ?</div>
+<div class="sol-panel" id="sol-H3"><strong>$(16 - 4\pi)$ cm²</strong><br>정사각형 = $4 \times 4 = 16$<br>사분원 한 개 (반지름 2) = $\pi(2)^2 \cdot \dfrac{1}{4} = \pi$<br>사분원 4개의 합 = $4\pi$ (각 꼭짓점에서 한 개씩, 서로 겹치지 않음 — 반지름 2가 정사각형 한 변의 절반이므로)<br>색칠 = $16 - 4\pi$ cm²<br><br>💡 <strong>패턴 인식</strong>: 4개의 사분원이 서로 겹치지 않을 때 — 합 = 1개의 완전한 원과 같다. ($\pi r^2 = \pi(2)^2 = 4\pi$.) 이걸 한 번에 보면 빠르게 풀어요.</div>
+</div>
+
+</div>
+
+<script>
+function switchTab(lv, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('show'));
+  document.getElementById('panel-' + lv).classList.add('show');
+}
+function toggle(btn, id) {
+  const panel = document.getElementById(id);
+  panel.classList.toggle('show');
+  btn.classList.toggle('open');
+}
+</script>
+</body>
+</html>

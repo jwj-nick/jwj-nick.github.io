@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 탐구 — 회전체 종합</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+:root{--primary:#4361EE;--bg:#eef2ff;--card:#fff;--ok:#2ecc71;--ng:#e74c3c;--warn:#f39c12;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic',sans-serif;background:var(--bg);padding:0 0 60px;color:#2d3436;}
+.header{background:linear-gradient(135deg,#4361EE,#3a0ca3);color:white;padding:28px 20px 24px;text-align:center;}
+.header h1{font-size:20px;margin-bottom:6px;}
+.header p{font-size:13px;opacity:0.85;}
+.back-link{font-size:12px;color:rgba(255,255,255,0.7);text-decoration:none;display:block;margin-top:10px;}
+.tab-bar{display:flex;gap:0;background:white;box-shadow:0 2px 8px rgba(0,0,0,0.08);position:sticky;top:0;z-index:10;flex-wrap:wrap;}
+.tab-btn{flex:1;min-width:25%;padding:12px 4px;font-size:12px;font-weight:700;border:none;background:none;cursor:pointer;color:#888;border-bottom:3px solid transparent;font-family:inherit;}
+.tab-btn.active{color:#4361EE;border-bottom-color:#4361EE;}
+.tab-btn small{font-size:9px;display:block;margin-top:2px;color:#aaa;}
+.tab-btn.active small{color:#4361EE;}
+.tab-panel{display:none;}
+.tab-panel.show{display:block;}
+.container{max-width:700px;margin:0 auto;padding:20px 16px;}
+.section{margin-bottom:28px;}
+.section-title{font-size:15px;font-weight:bold;color:#4361EE;padding-left:8px;border-left:3px solid #4361EE;margin-bottom:14px;}
+.card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;}
+.card h3{font-size:15px;color:#1a1a2e;margin-bottom:10px;}
+.card p,.card li{font-size:14px;color:#444;line-height:1.8;}
+.card ul,.card ol{padding-left:18px;}
+.highlight{background:#f0f4ff;border-left:4px solid #4361EE;border-radius:0 10px 10px 0;padding:12px 16px;margin:10px 0;font-size:14px;color:#333;line-height:1.7;}
+.warn-box{background:#fff7ed;border-left:4px solid #f59e0b;border-radius:0 10px 10px 0;padding:12px 16px;margin:10px 0;font-size:14px;color:#78350f;line-height:1.7;}
+.mistake-item{background:white;border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(67,97,238,.07);margin-bottom:10px;display:flex;gap:12px;}
+.mistake-icon{font-size:22px;flex-shrink:0;margin-top:2px;}
+.mistake-content{flex:1;}
+.mistake-title{font-size:14px;font-weight:bold;color:#e74c3c;margin-bottom:4px;}
+.mistake-desc{font-size:13px;color:#444;line-height:1.6;}
+.problem-card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;border-left:4px solid #4361EE;}
+.prob-label{font-size:12px;font-weight:bold;color:#4361EE;letter-spacing:1px;margin-bottom:8px;}
+.prob-text{font-size:15px;line-height:1.8;color:#1a1a2e;margin-bottom:12px;}
+.reveal-btn{background:none;border:2px solid #4361EE;color:#4361EE;padding:6px 18px;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;}
+.reveal-content{display:none;margin-top:12px;background:#f0fff4;border-radius:10px;padding:12px 16px;font-size:13px;color:#1b5e20;line-height:1.7;}
+.connect-box{background:linear-gradient(135deg,#f0f4ff,#e8ecff);border-radius:14px;padding:20px;font-size:14px;color:#333;line-height:1.8;}
+.connect-title{font-size:15px;font-weight:bold;color:#4361EE;margin-bottom:10px;}
+table.tbl{border-collapse:collapse;font-size:13px;margin:10px 0;width:100%;}
+table.tbl th,table.tbl td{border:1px solid #ccd;padding:6px 10px;text-align:center;}
+table.tbl th{background:#eef2ff;}
+.formula-box{background:#eef2ff;border-radius:8px;padding:10px 14px;text-align:center;font-size:16px;color:#4361EE;font-weight:700;margin:8px 0;}
+.fig-svg{display:block;margin:10px auto;max-width:340px;width:100%;background:#fafbff;border-radius:8px;padding:8px;border:1px solid #eef2ff;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>깊이 탐구 — 회전체 종합</h1>
+  <p>식별·단면·전개도·종합 (유형 4·5·6·7 통합)</p>
+  <a class="back-link" href="../index.html">← 단원 11 홈</a>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('tab1',this)">유형 4<small>회전체 식별</small></button>
+  <button class="tab-btn" onclick="switchTab('tab2',this)">유형 5 ★<small>단면</small></button>
+  <button class="tab-btn" onclick="switchTab('tab3',this)">유형 6<small>전개도</small></button>
+  <button class="tab-btn" onclick="switchTab('tab4',this)">유형 7<small>종합 추론</small></button>
+</div>
+
+<!-- 탭 1: 회전체 식별 -->
+<div class="tab-panel show" id="tab1">
+<div class="container">
+
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>"이 평면도형을 회전축으로 1회전하면?" 이라는 질문은 머릿속에서 <strong>입체로 변환</strong>해야 해요. 평면 → 입체 상상이 약하면 헷갈릴 수 있어요.</p>
+      <p>특히 회전축의 위치(도형의 변 vs 외부 직선)에 따라 결과가 완전히 달라져요.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 4가지 회전체</div>
+    <div class="card">
+      <table class="tbl">
+        <tr><th>평면도형</th><th>회전축</th><th>회전체</th></tr>
+        <tr><td>직사각형</td><td>한 변</td><td>원기둥</td></tr>
+        <tr><td>직각삼각형</td><td>직각 낀 한 변</td><td>원뿔</td></tr>
+        <tr><td>사다리꼴</td><td>평행 변에 수직인 변</td><td>원뿔대</td></tr>
+        <tr><td>반원</td><td>지름</td><td>구</td></tr>
+      </table>
+      <div class="highlight">⚠️ <strong>각기둥은 회전체 ❌</strong>. 모든 면이 평면이라 다면체.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">단계별 풀이 — 회전체 추론 3단계</div>
+    <div class="card">
+      <ol>
+        <li><strong>회전축의 위치</strong>를 명확히 파악 (도형의 변? 외부?)</li>
+        <li>회전 후 만들어질 <strong>밑면</strong>(원)과 <strong>옆면</strong>(곡면) 상상.</li>
+        <li>4가지 표준 회전체 중 일치하는 것 선택. 일치 안 하면 <strong>합성 입체</strong>(원기둥+원뿔) 가능성.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">각기둥을 회전체로 분류</div>
+        <div class="mistake-desc">각기둥은 다면체. 회전체는 곡면 포함.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">회전축 위치 무시</div>
+        <div class="mistake-desc">"직각삼각형 회전 = 원뿔"이라는 단순 외움. 직각변이냐 빗변이냐에 따라 결과 다름.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제</div>
+
+    <div class="problem-card">
+      <div class="prob-label">M</div>
+      <div class="prob-text">반원의 중심이 회전축 위에 있고, 회전축이 반원의 지름과 일치할 때 만들어지는 회전체는?</div>
+      <button class="reveal-btn" onclick="reveal(this,'p41')">정답 보기</button>
+      <div class="reveal-content" id="p41">구. 반원이 지름을 회전축으로 1회전 시키면 정확히 구가 만들어져요.</div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">H</div>
+      <div class="prob-text">밑변의 길이 6, 높이 8, 빗변 10인 직각삼각형을 빗변을 축으로 1회전 시켰어요. 만들어진 입체에 대해 설명하세요.</div>
+      <button class="reveal-btn" onclick="reveal(this,'p42')">정답 보기</button>
+      <div class="reveal-content" id="p42">두 원뿔이 밑면을 공유하며 위·아래로 붙은 모양 ("북도장"). 직각꼭짓점이 회전 중 그리는 원이 두 원뿔의 공통 밑면. 그 원의 반지름은 직각꼭짓점에서 빗변까지의 거리 = $\dfrac{6 \times 8}{10} = 4.8$ (높이 공식, 또는 $\dfrac{ab}{c}$).</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- 탭 2: 단면 ★ -->
+<div class="tab-panel" id="tab2">
+<div class="container">
+
+  <div class="section">
+    <div class="section-title">★ 이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>이 단원의 <strong>가장 큰 함정</strong>이에요. 시험에서 단골로 틀리는 부분이 바로 여기.</p>
+      <p>"수직 단면" vs "축단면" 이라는 말 자체가 헷갈리는데, 둘 결과가 완전히 달라요.</p>
+      <div class="warn-box">⚠️ "원뿔의 단면" 이라고만 하면 보통 <strong>축단면(이등변삼각형)</strong>을 떠올리지만, 시험 문제는 "수직 단면"을 묻기도 해요. 그러면 정답은 <strong>원</strong>!</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">★ 핵심 아이디어 — 두 종류 단면</div>
+    <div class="card">
+      <h3>① 회전축에 <strong>수직</strong>인 단면 — 항상 <strong>원</strong></h3>
+      <p>회전체의 정의에 의해, 회전축에 수직으로 자르면 자른 자리는 <strong>회전 중 그려진 원</strong>이에요. 원기둥·원뿔·원뿔대·구 모두 수직 단면 = 원.</p>
+
+      <h3>② 회전축을 <strong>포함</strong>하는 단면 (= 축단면) — <strong>좌우대칭 도형</strong></h3>
+      <p>회전축이 그 단면 안에 들어 있도록 자르면, 회전 전 도형 + 거울상 = 좌우대칭 도형이 보여요.</p>
+
+      <table class="tbl">
+        <tr><th>회전체</th><th>수직 단면</th><th>축단면</th></tr>
+        <tr><td>원기둥</td><td>원</td><td>직사각형</td></tr>
+        <tr><td>원뿔</td><td>원</td><td>이등변삼각형</td></tr>
+        <tr><td>원뿔대</td><td>원</td><td>(등변)사다리꼴</td></tr>
+        <tr><td>구</td><td>원</td><td>원</td></tr>
+      </table>
+      <div class="highlight">💡 외우는 법: <strong>수직 = 원</strong>, <strong>축단면 = 좌우대칭 도형</strong>.</div>
+      <div class="highlight">★ 모든 축단면은 <strong>합동</strong>이에요. 어느 방향으로 회전축을 포함해 잘라도 같은 모양.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수 (★ 단원 핵심)</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">"원뿔의 수직 단면 = 이등변삼각형"</div>
+        <div class="mistake-desc">시험에서 가장 많이 틀리는 답. 이등변삼각형은 <strong>축단면</strong>! 수직 단면은 <strong>원</strong>이에요.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">"원기둥의 축단면 = 원"</div>
+        <div class="mistake-desc">원기둥의 축단면은 <strong>직사각형</strong>. 수직이 원이에요.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">원뿔의 축단면 둘레 계산 시 모선이 아닌 높이 사용</div>
+        <div class="mistake-desc">원뿔 축단면(이등변삼각형)의 변은 <strong>모선 $l$ 두 개 + 지름 $2r$</strong>. 높이 아니라 모선!</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제</div>
+
+    <div class="problem-card">
+      <div class="prob-label">M</div>
+      <div class="prob-text">반지름 6, 높이 8인 원뿔의 축단면(이등변삼각형)의 둘레는? (모선 = 10 임)</div>
+      <button class="reveal-btn" onclick="reveal(this,'p51')">정답 보기</button>
+      <div class="reveal-content" id="p51">축단면 = 이등변삼각형. 두 변(모선) = 10 each. 밑변(지름) = $2r = 12$.<br>둘레 = $10 + 10 + 12 = 32$.</div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">H</div>
+      <div class="prob-text">반지름 5인 원뿔대의 축단면(사다리꼴)의 두 평행한 변(아랫변·윗변) 길이가 각각 $10, 6$ 일 때, 윗 밑면 반지름은?</div>
+      <button class="reveal-btn" onclick="reveal(this,'p52')">정답 보기</button>
+      <div class="reveal-content" id="p52">축단면 사다리꼴의 아랫변 = 아래 밑면 지름 = $10$ → 아래 반지름 5 (조건 일치 ✓).<br>윗변 = 위 밑면 지름 = $6$ → 윗 밑면 반지름 = $3$.<br>💡 축단면의 평행한 변 길이 = 두 밑면의 지름.</div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">H</div>
+      <div class="prob-text">반지름 10인 구를 중심에서 6 떨어진 곳에서 수직으로 자른 단면의 넓이는?</div>
+      <button class="reveal-btn" onclick="reveal(this,'p53')">정답 보기</button>
+      <div class="reveal-content" id="p53">단면 반지름 $a$: 피타고라스 $a^2 + 6^2 = 10^2 \to a^2 = 64 \to a = 8$.<br>넓이 = $\pi a^2 = 64\pi$.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- 탭 3: 전개도 -->
+<div class="tab-panel" id="tab3">
+<div class="container">
+
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>전개도는 입체를 평면에 펼친 그림. 곡면(원기둥·원뿔)을 어떻게 평면으로 바꾸는지 직관이 약하면 어려워요.</p>
+      <p>특히 원뿔 옆면이 <strong>부채꼴</strong>이라는 사실이 처음에는 의외로 다가와요.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">★ 핵심 아이디어 — 옆면 = 둘레</div>
+    <div class="card">
+      <h3>원기둥의 전개도</h3>
+      <ul>
+        <li>밑면 2개: 반지름 $r$인 원</li>
+        <li>옆면: <strong>직사각형</strong> (가로 = $2\pi r$, 세로 = 높이 $h$)</li>
+      </ul>
+      <div class="formula-box">옆면 직사각형 가로 = 밑면 둘레 $= 2\pi r$</div>
+
+      <h3>원뿔의 전개도</h3>
+      <ul>
+        <li>밑면 1개: 반지름 $r$인 원</li>
+        <li>옆면: <strong>부채꼴</strong> (반지름 = 모선 $l$, 호 = $2\pi r$)</li>
+      </ul>
+      <div class="formula-box">옆면 부채꼴 호 = 밑면 둘레 $= 2\pi r$</div>
+      <div class="formula-box">옆면 부채꼴 반지름 = 모선 $l$</div>
+      <div class="formula-box">옆면 부채꼴 중심각 $\theta = \dfrac{r}{l} \times 360°$</div>
+
+      <h3>구의 전개도?</h3>
+      <p>구는 <strong>전개도가 없어요</strong>. 평면에 완전히 펼칠 수 없어요. 그래서 지구본을 평면 지도로 만들 때 항상 <strong>왜곡</strong>이 생긴답니다.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">단계별 풀이 — 옆면 부채꼴 중심각 도출</div>
+    <div class="card">
+      <h3>핵심 사고 흐름</h3>
+      <ol>
+        <li>원뿔 옆면을 펼치면 부채꼴.</li>
+        <li>이 부채꼴의 호 길이 = 원뿔 밑면 둘레 = $2\pi r$.</li>
+        <li>부채꼴 호 공식 (Unit 10): $\dfrac{\theta}{360} \times 2\pi l = $ 호.</li>
+        <li>$\dfrac{\theta}{360} \times 2\pi l = 2\pi r$ → $\theta = \dfrac{r}{l} \times 360°$.</li>
+      </ol>
+      <p>예: $r=3, l=12 \to \theta = \dfrac{3}{12} \times 360° = 90°$ (사분원).</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">원뿔 옆면을 삼각형이라 생각</div>
+        <div class="mistake-desc">곡면이라서 펼치면 <strong>부채꼴</strong>이에요. 삼각형이 아님.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">옆면 직사각형 가로를 반지름이라 생각</div>
+        <div class="mistake-desc">가로는 <strong>둘레 $2\pi r$</strong>. 반지름이 아님.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">부채꼴 호 = 모선 $l$로 헷갈림</div>
+        <div class="mistake-desc">모선은 부채꼴 <strong>반지름</strong>. 호는 <strong>밑면 둘레</strong> = $2\pi r$.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제</div>
+
+    <div class="problem-card">
+      <div class="prob-label">L</div>
+      <div class="prob-text">밑면 반지름 6인 원기둥의 옆면 직사각형 가로의 길이는?</div>
+      <button class="reveal-btn" onclick="reveal(this,'p61')">정답 보기</button>
+      <div class="reveal-content" id="p61">$2\pi r = 12\pi$.</div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">M</div>
+      <div class="prob-text">밑면 반지름 4, 모선 12인 원뿔의 옆면 부채꼴의 중심각은?</div>
+      <button class="reveal-btn" onclick="reveal(this,'p62')">정답 보기</button>
+      <div class="reveal-content" id="p62">$\theta = \dfrac{r}{l} \times 360° = \dfrac{4}{12} \times 360° = 120°$.</div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">H</div>
+      <div class="prob-text">옆면 부채꼴의 중심각이 $144°$, 반지름이 $10$ 인 원뿔의 밑면 반지름은?</div>
+      <button class="reveal-btn" onclick="reveal(this,'p63')">정답 보기</button>
+      <div class="reveal-content" id="p63">$\theta = \dfrac{r}{l} \times 360°$ → $144 = \dfrac{r}{10} \times 360$ → $r = \dfrac{144 \times 10}{360} = 4$.<br>밑면 반지름 = $4$.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- 탭 4: 종합 -->
+<div class="tab-panel" id="tab4">
+<div class="container">
+
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>여러 개념이 섞여 나오는 문제. 단면·전개도·V·E·F·결합 입체 모두 동원돼요. 풀려면 <strong>차근차근 분해</strong>하는 능력이 중요.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">단계별 풀이 — 결합 입체 V·E·F</div>
+    <div class="card">
+      <h3>핵심 원리</h3>
+      <p>두 입체를 한 면을 따라 결합하면:</p>
+      <ul>
+        <li><strong>면</strong>: 합쳐진 면이 양쪽에서 사라짐 → $-2$</li>
+        <li><strong>모서리</strong>: 합쳐진 면 둘레의 모서리 공유 → $-($공유 모서리 수$)$</li>
+        <li><strong>꼭짓점</strong>: 공유 꼭짓점 → $-($공유 꼭짓점 수$)$</li>
+      </ul>
+      <h3>예: 사각기둥 + 사각뿔 (위에 얹기)</h3>
+      <ul>
+        <li>사각기둥: $V=8, E=12, F=6$</li>
+        <li>사각뿔: $V=5, E=8, F=5$</li>
+        <li>공유: 꼭짓점 4, 모서리 4, 면 1 (합쳐 $-2$ 면)</li>
+        <li>결과: $V = 8+5-4 = 9$, $E = 12+8-4 = 16$, $F = 6+5-2 = 9$</li>
+        <li>오일러 검산: $9-16+9 = 2$ ✓</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">단계별 풀이 — 평면도형의 합·차 → 회전체의 합·차</div>
+    <div class="card">
+      <p>"ㄱ자" 같은 복잡한 평면도형을 회전축 둘레로 회전시킬 때, 도형을 단순한 부분(직사각형·삼각형 등)으로 <strong>분해</strong>하면 회전체도 분해돼요.</p>
+      <ul>
+        <li>도형 A − 도형 B (평면) → 회전체 A − 회전체 B (입체)</li>
+        <li>예: ㄱ자 = 큰 직사각형 − 작은 직사각형 → 큰 원기둥 − 작은 원기둥</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">결합 입체에서 공유면을 빼기 한 번만</div>
+        <div class="mistake-desc">공유면은 <strong>양쪽에서 1번씩 = 총 2번</strong> 빼야 해요.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">전개도 = 정사면체 식별 오류</div>
+        <div class="mistake-desc">정삼각형 4개라고 모두 정사면체 전개도 아님. 배치(접었을 때 한 점에서 만나는지) 확인 필요.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제</div>
+
+    <div class="problem-card">
+      <div class="prob-label">M</div>
+      <div class="prob-text">정삼각형 4개의 전개도 중 정사면체가 되는 배치가 있어요. 정사면체 전개도 종류는 몇 가지인가요?</div>
+      <button class="reveal-btn" onclick="reveal(this,'p71')">정답 보기</button>
+      <div class="reveal-content" id="p71">정사면체 전개도: <strong>2가지</strong> (큰 정삼각형 모양, T자 모양). 정사각형 전개도가 11가지인 것에 비해 적어요.</div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">H</div>
+      <div class="prob-text">삼각기둥 두 개를 한 직사각형 면을 정확히 일치시켜 결합했어요. 만들어진 입체의 $V, E, F$는?</div>
+      <button class="reveal-btn" onclick="reveal(this,'p72')">정답 보기</button>
+      <div class="reveal-content" id="p72">삼각기둥 1개: $V=6, E=9, F=5$.<br>공유: 직사각형 면 1, 그 면의 꼭짓점 4, 모서리 4.<br>$V = 6+6-4 = 8$<br>$E = 9+9-4 = 14$<br>$F = 5+5-2 = 8$<br>오일러: $8-14+8 = 2$ ✓<br>(이 입체는 8면체이며 사각기둥이 아니에요 — 단면 모양이 5각형 등이 됩니다.)</div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">H</div>
+      <div class="prob-text">반지름 5, 높이 12인 원뿔과 반지름 5, 높이 8인 원기둥을 한 밑면이 일치하도록 위·아래로 결합한 입체의 축단면 모양과 둘레를 구하세요. (원뿔이 위에 있다 가정)</div>
+      <button class="reveal-btn" onclick="reveal(this,'p73')">정답 보기</button>
+      <div class="reveal-content" id="p73">축단면 = 위에 이등변삼각형(원뿔 부분) + 아래에 직사각형(원기둥 부분) = <strong>오각형 (집 모양)</strong>.<br>변 길이:<br>- 직사각형 두 옆변: 8 each (원기둥 높이)<br>- 직사각형 밑변: 10 (지름 $2r$)<br>- 삼각형 두 모선: $\sqrt{5^2 + 12^2} = 13$ each (피타고라스)<br>둘레 = $8 + 8 + 10 + 13 + 13 = 52$.</div>
+    </div>
+  </div>
+
+  <div class="connect-box">
+    <div class="connect-title">🔗 연결 개념</div>
+    <p><strong>Unit 12로 이어짐</strong>: 다면체와 회전체를 알았으면, 다음은 <strong>겉넓이와 부피</strong>예요. 전개도가 핵심 도구가 됩니다 (옆면을 펼쳐서 면적을 더하면 겉넓이).</p>
+    <p><strong>역사적 연결</strong>: 케플러의 「Stereometria」(1615)는 회전체 부피 계산의 시조. 50년 후 카발리에리, 다시 50년 후 뉴턴/라이프니츠 미적분으로 이어짐.</p>
+    <p><strong>현대 응용</strong>: 회전체는 산업 현장에서 가장 많이 쓰이는 형태. 음료 캔(원기둥), 깔때기(원뿔), 농구공(구), 와인 술통(회전체) — 모두 케플러가 다룬 도형들.</p>
+  </div>
+</div>
+</div>
+
+<script>
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('show'));
+  document.getElementById(id).classList.add('show');
+}
+function reveal(btn, id) {
+  const c = document.getElementById(id);
+  c.style.display = c.style.display === 'block' ? 'none' : 'block';
+  btn.textContent = c.style.display === 'block' ? '닫기' : '정답 보기';
+}
+</script>
+</body>
+</html>

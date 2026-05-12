@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>기본 문제 — 기본도형</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; }
+  .header { background: linear-gradient(135deg, #4361EE 0%, #3a0ca3 100%); color: white; padding: 24px 20px; text-align: center; }
+  .header h1 { font-size: 22px; margin-bottom: 6px; }
+  .header p { font-size: 13px; opacity: 0.85; }
+  .progress-bar { background: rgba(255,255,255,0.2); height: 4px; border-radius: 2px; margin-top: 14px; overflow: hidden; }
+  .progress-fill { background: white; height: 100%; border-radius: 2px; transition: width 0.3s; }
+  .container { max-width: 700px; margin: 0 auto; padding: 20px 16px 60px; }
+  .question-card { background: white; border-radius: 16px; padding: 22px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 14px; }
+  .q-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .q-num { background: #4361EE; color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; flex-shrink: 0; }
+  .q-tag { font-size: 11px; background: #eef2ff; color: #4361EE; padding: 3px 10px; border-radius: 20px; }
+  .q-diff { font-size: 11px; padding: 3px 10px; border-radius: 20px; margin-left: auto; }
+  .diff-L { background: #e8f5e9; color: #2e7d32; }
+  .diff-M { background: #fff3e0; color: #e65100; }
+  .q-text { font-size: 15px; color: #1a1a2e; line-height: 1.8; margin-bottom: 14px; }
+  .choices { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+  .choice-btn { background: #f8f9ff; border: 2px solid #eef2ff; border-radius: 10px; padding: 10px 14px; text-align: left; font-size: 14px; color: #333; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+  .choice-btn:hover { border-color: #4361EE; background: #eef2ff; }
+  .choice-btn.selected { border-color: #4361EE; background: #eef2ff; font-weight: bold; }
+  .choice-btn.correct { border-color: #2e7d32; background: #e8f5e9; color: #1b5e20; font-weight: bold; }
+  .choice-btn.wrong { border-color: #c62828; background: #ffebee; color: #b71c1c; }
+  .open-input { width: 100%; border: 2px solid #eef2ff; border-radius: 10px; padding: 10px 14px; font-size: 16px; font-family: inherit; color: #333; outline: none; margin-bottom: 10px; }
+  .open-input:focus { border-color: #4361EE; }
+  .open-input.correct { border-color: #2e7d32; background: #e8f5e9; }
+  .open-input.wrong { border-color: #c62828; background: #ffebee; }
+  .check-btn { background: #4361EE; color: white; border: none; padding: 10px 24px; border-radius: 24px; font-size: 14px; cursor: pointer; font-family: inherit; }
+  .check-btn:hover { background: #3a0ca3; }
+  .check-btn:disabled { background: #aaa; cursor: default; }
+  .answer-panel { display: none; margin-top: 12px; border-top: 1px solid #eef2ff; padding-top: 12px; }
+  .answer-panel.show { display: block; }
+  .answer-box { background: #f0fff4; border-radius: 10px; padding: 12px 16px; font-size: 14px; color: #1b5e20; line-height: 1.8; margin-bottom: 8px; }
+  .solution-box { background: #f8f9ff; border-radius: 10px; padding: 12px 16px; font-size: 13px; color: #444; line-height: 1.8; }
+  .mini-svg { display: block; margin: 10px auto; max-width: 360px; width: 100%; height: auto; background: white; border-radius: 8px; padding: 6px; border: 1px solid #eef2ff; }
+  .summary-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); text-align: center; display: none; }
+  .summary-score { font-size: 48px; font-weight: bold; color: #4361EE; margin: 10px 0; }
+  .summary-sub { font-size: 14px; color: #666; }
+  .home-btn { display: inline-block; margin-top: 20px; background: #4361EE; color: white; text-decoration: none; padding: 10px 28px; border-radius: 24px; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>기본 문제 — 기본도형</h1>
+  <p>Unit 07 전체 핵심 개념 확인 · 9문제</p>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+  </div>
+</div>
+
+<div class="container" id="mainContent">
+
+  <!-- Q1: 직선·반직선·선분 표기 -->
+  <div class="question-card" id="qcard-1">
+    <div class="q-header">
+      <div class="q-num">1</div>
+      <div class="q-tag">표기 구분</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">두 점 A, B가 있을 때, 다음 중 <strong>"A에서 시작해 B 방향으로 끝없이 뻗은 도형"</strong>을 나타내는 기호는?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(1,'①','③')">① $\overline{AB}$</button>
+      <button class="choice-btn" onclick="chooseAnswer(1,'②','③')">② $\overleftrightarrow{AB}$</button>
+      <button class="choice-btn" onclick="chooseAnswer(1,'③','③')">③ $\overrightarrow{AB}$</button>
+      <button class="choice-btn" onclick="chooseAnswer(1,'④','③')">④ $\overrightarrow{BA}$</button>
+    </div>
+    <div class="answer-panel" id="ans-1">
+      <div class="answer-box">정답: ③ $\overrightarrow{AB}$ — 반직선</div>
+      <div class="solution-box">
+        ① $\overline{AB}$: 선분 (양 끝 있음)<br>
+        ② $\overleftrightarrow{AB}$: 직선 (양쪽 무한)<br>
+        ③ $\overrightarrow{AB}$: 반직선, A에서 시작 → B 방향 ✓<br>
+        ④ $\overrightarrow{BA}$: 반직선, B에서 시작 → A 방향 (방향 반대!)
+      </div>
+    </div>
+  </div>
+
+  <!-- Q2: 같은 도형 식별 -->
+  <div class="question-card" id="qcard-2">
+    <div class="q-header">
+      <div class="q-num">2</div>
+      <div class="q-tag">표기 등식</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">다음 중 <strong>옳은 것</strong>은?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(2,'①','③')">① $\overrightarrow{AB} = \overrightarrow{BA}$</button>
+      <button class="choice-btn" onclick="chooseAnswer(2,'②','③')">② $\overline{AB} \neq \overline{BA}$</button>
+      <button class="choice-btn" onclick="chooseAnswer(2,'③','③')">③ $\overleftrightarrow{AB} = \overleftrightarrow{BA}$</button>
+      <button class="choice-btn" onclick="chooseAnswer(2,'④','③')">④ $\overrightarrow{AB}$ 와 $\overline{AB}$ 는 같은 도형</button>
+    </div>
+    <div class="answer-panel" id="ans-2">
+      <div class="answer-box">정답: ③ $\overleftrightarrow{AB} = \overleftrightarrow{BA}$</div>
+      <div class="solution-box">
+        ① 반직선은 <strong>방향</strong>이 다르면 다른 도형 → 거짓<br>
+        ② 선분은 방향이 없어 같음 → 거짓<br>
+        ③ 직선도 방향이 없어 같음 → <strong>참</strong><br>
+        ④ 반직선은 무한, 선분은 끝이 있음 → 다름
+      </div>
+    </div>
+  </div>
+
+  <!-- Q3: 각의 종류 -->
+  <div class="question-card" id="qcard-3">
+    <div class="q-header">
+      <div class="q-num">3</div>
+      <div class="q-tag">각의 종류</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">크기가 $130°$인 각은 무슨 각?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(3,'①','③')">① 예각</button>
+      <button class="choice-btn" onclick="chooseAnswer(3,'②','③')">② 직각</button>
+      <button class="choice-btn" onclick="chooseAnswer(3,'③','③')">③ 둔각</button>
+      <button class="choice-btn" onclick="chooseAnswer(3,'④','③')">④ 평각</button>
+    </div>
+    <div class="answer-panel" id="ans-3">
+      <div class="answer-box">정답: ③ 둔각</div>
+      <div class="solution-box">
+        예각: $0° < \angle < 90°$<br>
+        직각: $= 90°$<br>
+        둔각: $90° < \angle < 180°$ → $130°$ 포함 ✓<br>
+        평각: $= 180°$
+      </div>
+    </div>
+  </div>
+
+  <!-- Q4: 각의 표기 (꼭짓점) -->
+  <div class="question-card" id="qcard-4">
+    <div class="q-header">
+      <div class="q-num">4</div>
+      <div class="q-tag">각의 표기</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">$\angle AOB$ 에서 <strong>꼭짓점</strong>은?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(4,'①','②')">① 점 A</button>
+      <button class="choice-btn" onclick="chooseAnswer(4,'②','②')">② 점 O</button>
+      <button class="choice-btn" onclick="chooseAnswer(4,'③','②')">③ 점 B</button>
+      <button class="choice-btn" onclick="chooseAnswer(4,'④','②')">④ 알 수 없음</button>
+    </div>
+    <div class="answer-panel" id="ans-4">
+      <div class="answer-box">정답: ② 점 O</div>
+      <div class="solution-box">
+        $\angle AOB$ 표기는 <strong>가운데 글자</strong>가 꼭짓점이에요.<br>
+        $\angle AOB = \angle BOA$ (시작과 끝은 바꿀 수 있어요)
+      </div>
+    </div>
+  </div>
+
+  <!-- Q5: 맞꼭지각 -->
+  <div class="question-card" id="qcard-5">
+    <div class="q-header">
+      <div class="q-num">5</div>
+      <div class="q-tag">맞꼭지각</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">두 직선이 만나서 한 각이 $40°$가 되었어요. <strong>맞꼭지각</strong>의 크기는?</div>
+    <svg class="mini-svg" viewBox="0 0 320 220" xmlns="http://www.w3.org/2000/svg">
+      <line x1="40" y1="110" x2="280" y2="110" stroke="#1d3557" stroke-width="2"/>
+      <line x1="80" y1="40" x2="240" y2="180" stroke="#1d3557" stroke-width="2"/>
+      <circle cx="160" cy="110" r="3" fill="#1d3557"/>
+      <text x="200" y="95" font-size="14" fill="#e63946" font-weight="700">40°</text>
+      <text x="120" y="135" font-size="14" fill="#4361EE" font-weight="700">?</text>
+      <text x="180" y="140" font-size="11" fill="#999">(맞꼭지)</text>
+    </svg>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(5,'①','②')">① $20°$</button>
+      <button class="choice-btn" onclick="chooseAnswer(5,'②','②')">② $40°$</button>
+      <button class="choice-btn" onclick="chooseAnswer(5,'③','②')">③ $140°$</button>
+      <button class="choice-btn" onclick="chooseAnswer(5,'④','②')">④ $180°$</button>
+    </div>
+    <div class="answer-panel" id="ans-5">
+      <div class="answer-box">정답: ② $40°$</div>
+      <div class="solution-box">
+        <strong>맞꼭지각은 서로 같다.</strong> 한 각이 $40°$이면 마주보는 각도 $40°$.<br>
+        (참고: 이웃한 두 각의 합은 평각 $180°$이므로, 옆 각은 $180° - 40° = 140°$)
+      </div>
+    </div>
+  </div>
+
+  <!-- Q6: 동위각·엇각 (M) -->
+  <div class="question-card" id="qcard-6">
+    <div class="q-header">
+      <div class="q-num">6</div>
+      <div class="q-tag">평행선과 각</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text">$l \parallel m$ 일 때, 그림에서 $\angle x$ 의 크기는?</div>
+    <svg class="mini-svg" viewBox="0 0 360 240" xmlns="http://www.w3.org/2000/svg">
+      <!-- l (평행) -->
+      <line x1="20" y1="80" x2="340" y2="80" stroke="#3a0ca3" stroke-width="2"/>
+      <text x="20" y="74" font-size="13" fill="#3a0ca3" font-weight="700">$l$</text>
+      <!-- m (평행) -->
+      <line x1="20" y1="180" x2="340" y2="180" stroke="#3a0ca3" stroke-width="2"/>
+      <text x="20" y="174" font-size="13" fill="#3a0ca3" font-weight="700">$m$</text>
+      <!-- 횡단선 -->
+      <line x1="80" y1="30" x2="280" y2="220" stroke="#1d3557" stroke-width="2"/>
+      <!-- 위 교점 (≈ 130, 80) -->
+      <circle cx="130" cy="80" r="3" fill="#1d3557"/>
+      <text x="150" y="68" font-size="14" fill="#e63946" font-weight="700">75°</text>
+      <!-- 아래 교점 (≈ 234, 180), 엇각 위치 = 위교점의 동위각 = 같은 자리에서 m -->
+      <!-- 75°는 위교점의 위쪽-오른쪽 각, x는 아래교점의 위쪽-오른쪽 각 (동위각) -->
+      <circle cx="234" cy="180" r="3" fill="#1d3557"/>
+      <text x="252" y="170" font-size="16" fill="#4361EE" font-weight="700">$x$</text>
+    </svg>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(6,'①','②')">① $15°$</button>
+      <button class="choice-btn" onclick="chooseAnswer(6,'②','②')">② $75°$</button>
+      <button class="choice-btn" onclick="chooseAnswer(6,'③','②')">③ $105°$</button>
+      <button class="choice-btn" onclick="chooseAnswer(6,'④','②')">④ $180°$</button>
+    </div>
+    <div class="answer-panel" id="ans-6">
+      <div class="answer-box">정답: ② $x = 75°$</div>
+      <div class="solution-box">
+        그림에서 $75°$ 와 $x$ 는 <strong>동위각</strong> (같은 위치 — 두 교점 모두 횡단선의 위쪽·오른쪽).<br>
+        $l \parallel m$ 이므로 동위각이 같음 → $x = 75°$.
+      </div>
+    </div>
+  </div>
+
+  <!-- Q7: 위치 관계 (평면) -->
+  <div class="question-card" id="qcard-7">
+    <div class="q-header">
+      <div class="q-num">7</div>
+      <div class="q-tag">위치 관계 (평면)</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text"><strong>평면에서</strong> 두 직선의 위치 관계로 옳지 <strong>않은</strong> 것은?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(7,'①','④')">① 한 점에서 만난다</button>
+      <button class="choice-btn" onclick="chooseAnswer(7,'②','④')">② 평행하다</button>
+      <button class="choice-btn" onclick="chooseAnswer(7,'③','④')">③ 일치한다</button>
+      <button class="choice-btn" onclick="chooseAnswer(7,'④','④')">④ 꼬인 위치에 있다</button>
+    </div>
+    <div class="answer-panel" id="ans-7">
+      <div class="answer-box">정답: ④ 꼬인 위치 — 평면에서는 불가능</div>
+      <div class="solution-box">
+        <strong>평면(2D)</strong>: 한 점 만남 / 평행 / 일치 — 3가지<br>
+        <strong>꼬인 위치</strong>는 <strong>같은 평면 위에 없을 때</strong>만 생기므로 <strong>공간(3D)</strong>에만 있어요.
+      </div>
+    </div>
+  </div>
+
+  <!-- Q8: 직각 + 일부 (M) -->
+  <div class="question-card" id="qcard-8">
+    <div class="q-header">
+      <div class="q-num">8</div>
+      <div class="q-tag">각의 합</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text">$\angle AOB = 90°$이고 점 C가 $\angle AOB$의 내부에 있어 $\angle AOC = 35°$ 일 때, $\angle COB$의 크기는?</div>
+    <svg class="mini-svg" viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg">
+      <!-- O 꼭짓점 -->
+      <circle cx="80" cy="160" r="4" fill="#1d3557"/>
+      <text x="62" y="178" font-size="14" fill="#1d3557" font-weight="700">O</text>
+      <!-- OA (오른쪽 가로) -->
+      <line x1="80" y1="160" x2="280" y2="160" stroke="#3a0ca3" stroke-width="2.5"/>
+      <text x="290" y="165" font-size="14" fill="#3a0ca3" font-weight="700">A</text>
+      <!-- OB (위로 수직, 90도) -->
+      <line x1="80" y1="160" x2="80" y2="40" stroke="#3a0ca3" stroke-width="2.5"/>
+      <text x="68" y="32" font-size="14" fill="#3a0ca3" font-weight="700">B</text>
+      <!-- OC (35도 위) - 내부 -->
+      <line x1="80" y1="160" x2="244" y2="46" stroke="#4361EE" stroke-width="2"/>
+      <text x="252" y="42" font-size="14" fill="#4361EE" font-weight="700">C</text>
+      <!-- 직각 표시 -->
+      <polyline points="80,140 100,140 100,160" fill="none" stroke="#666" stroke-width="1"/>
+      <!-- 35° 호 -->
+      <path d="M 110 160 A 30 30 0 0 0 105 142" fill="none" stroke="#e63946" stroke-width="1.5"/>
+      <text x="118" y="152" font-size="11" fill="#e63946" font-weight="700">35°</text>
+      <text x="100" y="100" font-size="13" fill="#4361EE" font-weight="700">?</text>
+    </svg>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(8,'①','③')">① $35°$</button>
+      <button class="choice-btn" onclick="chooseAnswer(8,'②','③')">② $45°$</button>
+      <button class="choice-btn" onclick="chooseAnswer(8,'③','③')">③ $55°$</button>
+      <button class="choice-btn" onclick="chooseAnswer(8,'④','③')">④ $145°$</button>
+    </div>
+    <div class="answer-panel" id="ans-8">
+      <div class="answer-box">정답: ③ $\angle COB = 55°$</div>
+      <div class="solution-box">
+        $\angle AOC + \angle COB = \angle AOB = 90°$<br>
+        $35° + \angle COB = 90°$<br>
+        $\angle COB = 90° - 35° = 55°$
+      </div>
+    </div>
+  </div>
+
+  <!-- Q9: 직육면체 꼬인 위치 (M) -->
+  <div class="question-card" id="qcard-9">
+    <div class="q-header">
+      <div class="q-num">9</div>
+      <div class="q-tag">공간 위치 관계</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text">아래 직육면체에서, 모서리 $\overline{AB}$ 와 <strong>꼬인 위치</strong>에 있는 모서리는?</div>
+    <svg class="mini-svg" viewBox="0 0 360 280" xmlns="http://www.w3.org/2000/svg">
+      <!-- 뒷면 -->
+      <polygon points="100,60 280,60 280,160 100,160" fill="none" stroke="#a0aaee" stroke-width="1.3" stroke-dasharray="4,3"/>
+      <!-- 앞면 -->
+      <polygon points="60,110 240,110 240,210 60,210" fill="none" stroke="#1d3557" stroke-width="2"/>
+      <!-- 연결 -->
+      <line x1="100" y1="60" x2="60" y2="110" stroke="#1d3557" stroke-width="2"/>
+      <line x1="280" y1="60" x2="240" y2="110" stroke="#1d3557" stroke-width="2"/>
+      <line x1="280" y1="160" x2="240" y2="210" stroke="#1d3557" stroke-width="2"/>
+      <line x1="100" y1="160" x2="60" y2="210" stroke="#a0aaee" stroke-width="1.3" stroke-dasharray="4,3"/>
+
+      <!-- 강조: AB (앞면 위쪽) -->
+      <line x1="60" y1="110" x2="240" y2="110" stroke="#e63946" stroke-width="3"/>
+
+      <!-- 꼭짓점 라벨 -->
+      <text x="42" y="115" font-size="13" fill="#e63946" font-weight="700">A</text>
+      <text x="248" y="115" font-size="13" fill="#e63946" font-weight="700">B</text>
+      <text x="248" y="225" font-size="13" fill="#1d3557" font-weight="700">C</text>
+      <text x="38" y="225" font-size="13" fill="#1d3557" font-weight="700">D</text>
+      <text x="92" y="56" font-size="13" fill="#666" font-weight="700">E</text>
+      <text x="284" y="56" font-size="13" fill="#666" font-weight="700">F</text>
+      <text x="284" y="172" font-size="13" fill="#666" font-weight="700">G</text>
+      <text x="92" y="172" font-size="13" fill="#666" font-weight="700">H</text>
+    </svg>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(9,'①','③')">① $\overline{EF}$ (뒷면 위)</button>
+      <button class="choice-btn" onclick="chooseAnswer(9,'②','③')">② $\overline{DC}$ (앞면 아래)</button>
+      <button class="choice-btn" onclick="chooseAnswer(9,'③','③')">③ $\overline{FG}$ (뒷면 오른쪽 세로)</button>
+      <button class="choice-btn" onclick="chooseAnswer(9,'④','③')">④ $\overline{AE}$ (왼쪽 위 연결)</button>
+    </div>
+    <div class="answer-panel" id="ans-9">
+      <div class="answer-box">정답: ③ $\overline{FG}$</div>
+      <div class="solution-box">
+        ① $\overline{EF}$: 앞면 위와 뒷면 위 → <strong>평행</strong> (만나지 않으면서 같은 평면 위)<br>
+        ② $\overline{DC}$: 앞면 위·아래 → <strong>평행</strong><br>
+        ③ $\overline{FG}$: 뒷면 오른쪽 세로 → 만나지 않고, 같은 평면에도 없음 → <strong>꼬인 위치</strong> ✓<br>
+        ④ $\overline{AE}$: 점 A에서 만남 → <strong>한 점에서 만남</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- 결과 카드 -->
+  <div class="summary-card" id="summaryCard">
+    <h2 style="font-size:20px; color:#1d3557;">9문제 모두 풀었어요!</h2>
+    <div class="summary-score" id="finalScore">0 / 9</div>
+    <div class="summary-sub">유클리드의 1권 첫 페이지를 무사히 펼쳤어요. 다음은 유형별 연습으로!</div>
+    <a href="../index.html" class="home-btn">단원 홈으로</a>
+  </div>
+
+</div>
+
+<script>
+let answered = {};
+let correctCount = 0;
+
+function chooseAnswer(qNum, picked, correct) {
+  if (answered[qNum]) return;
+  answered[qNum] = true;
+  const card = document.getElementById('qcard-' + qNum);
+  const buttons = card.querySelectorAll('.choice-btn');
+  buttons.forEach(btn => {
+    const txt = btn.textContent.trim();
+    btn.disabled = true;
+    btn.style.cursor = 'default';
+    if (txt.startsWith(correct)) btn.classList.add('correct');
+    if (txt.startsWith(picked) && picked !== correct) btn.classList.add('wrong');
+  });
+  if (picked === correct) correctCount++;
+  document.getElementById('ans-' + qNum).classList.add('show');
+  // progress
+  const done = Object.keys(answered).length;
+  document.getElementById('progressFill').style.width = (done / 9 * 100) + '%';
+  if (done === 9) {
+    document.getElementById('finalScore').textContent = correctCount + ' / 9';
+    document.getElementById('summaryCard').style.display = 'block';
+    document.getElementById('summaryCard').scrollIntoView({ behavior: 'smooth' });
+  }
+}
+</script>
+
+</body>
+</html>

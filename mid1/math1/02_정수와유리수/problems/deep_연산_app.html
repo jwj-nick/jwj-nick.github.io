@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 탐구 — 덧셈·뺄셈 & 곱셈·나눗셈</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Malgun Gothic',sans-serif;background:#eef2ff;min-height:100vh;}
+  .header{background:linear-gradient(135deg,#4361EE,#3a0ca3);color:white;padding:32px 20px 24px;text-align:center;}
+  .header .badge{font-size:12px;background:rgba(255,255,255,0.2);padding:4px 14px;border-radius:20px;margin-bottom:12px;display:inline-block;}
+  .header h1{font-size:22px;margin-bottom:8px;}
+  .header p{font-size:13px;opacity:.85;}
+  .container{max-width:700px;margin:0 auto;padding:24px 16px 60px;}
+  .main-tabs{display:flex;gap:0;margin-bottom:0;border-bottom:2px solid #4361EE;}
+  .main-tab-btn{flex:1;padding:12px;border:none;background:white;color:#4361EE;font-size:14px;cursor:pointer;font-family:inherit;font-weight:bold;border-bottom:2px solid transparent;margin-bottom:-2px;}
+  .main-tab-btn.active{background:#4361EE;color:white;border-bottom-color:#4361EE;}
+  .main-tab-content{display:none;} .main-tab-content.active{display:block;}
+  .section{background:white;border-radius:14px;padding:22px 20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin:16px 0;}
+  .section h2{font-size:16px;color:#4361EE;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #eef2ff;}
+  .section p{font-size:14px;color:#444;line-height:1.9;margin-bottom:10px;}
+  .key-idea{background:#eef2ff;border-left:4px solid #4361EE;border-radius:0 12px 12px 0;padding:14px 18px;margin:12px 0;font-size:14px;color:#333;line-height:1.8;}
+  .key-idea strong{color:#4361EE;}
+  .mistake-box{background:#fff3e0;border:1px solid #ffcc80;border-radius:10px;padding:14px 18px;margin:12px 0;font-size:13px;color:#e65100;line-height:1.7;}
+  .mistake-box .label{font-weight:bold;margin-bottom:6px;}
+  .step-box{margin:12px 0;}
+  .step-item{display:flex;gap:12px;margin-bottom:10px;align-items:flex-start;}
+  .step-num{background:#4361EE;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;flex-shrink:0;margin-top:2px;}
+  .step-text{font-size:14px;color:#333;line-height:1.8;}
+  .prob-card{background:#f8f9ff;border:2px solid #d0d8ff;border-radius:12px;padding:18px 20px;margin-bottom:14px;}
+  .prob-q{font-size:14px;color:#222;line-height:1.9;margin-bottom:12px;}
+  .prob-step{display:none;background:white;border-radius:8px;padding:12px 14px;margin-top:10px;font-size:13px;color:#333;line-height:1.8;}
+  .prob-step.show{display:block;}
+  .prob-ans{display:none;background:#e8f5e9;border-radius:8px;padding:10px 14px;margin-top:8px;font-size:14px;font-weight:bold;color:#1b5e20;}
+  .prob-ans.show{display:block;}
+  .reveal-btn{background:none;border:1px solid #4361EE;border-radius:8px;padding:6px 14px;font-size:12px;color:#4361EE;cursor:pointer;font-family:inherit;margin-right:8px;}
+  .reveal-btn:hover{background:#eef2ff;}
+  .connect-box{background:#f0faf0;border:1px solid #a5d6a7;border-radius:10px;padding:14px 18px;margin-top:16px;font-size:13px;color:#2e7d32;line-height:1.8;}
+  .connect-box h3{color:#1b5e20;margin-bottom:8px;font-size:14px;}
+  .diff-badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:10px;margin-left:6px;}
+  .diff-M{background:#fff8e1;color:#8a6000;} .diff-H{background:#ffebee;color:#b71c1c;}
+  .rule-table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0;}
+  .rule-table th{background:#4361EE;color:white;padding:8px 10px;text-align:left;}
+  .rule-table td{padding:8px 10px;border-bottom:1px solid #eef2ff;}
+  .rule-table tr:nth-child(even) td{background:#f8f9ff;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="badge">Unit 02 · 깊이 탐구</div>
+  <h1>덧셈·뺄셈 &amp; 곱셈·나눗셈</h1>
+  <p>부호 처리의 핵심 전략을 익혀요</p>
+</div>
+
+<div class="container">
+<div class="main-tabs">
+  <button class="main-tab-btn active" onclick="mainTab(0)">유형 05 · 덧셈·뺄셈</button>
+  <button class="main-tab-btn" onclick="mainTab(1)">유형 06 · 곱셈·나눗셈</button>
+</div>
+
+<!-- ===== 탭 0: 덧셈·뺄셈 ===== -->
+<div class="main-tab-content active" id="mt0">
+
+  <div class="section">
+    <h2>이 유형이 어려운 이유</h2>
+    <div class="mistake-box">
+      <div class="label">흔한 실수 패턴</div>
+      • 뺄셈을 덧셈으로 바꿀 때 부호 실수: $(-3)-(+4)$를 $(-3)+4$로 쓰는 경우 (올바른 변환: $(-3)+(-4)$)<br>
+      • 다른 부호 덧셈에서 "큰 쪽" 판단 실수: $(+3)+(-5)$에서 절댓값 차 = 2, 큰 쪽(−5)의 부호 = −<br>
+      • 혼합 계산에서 음수끼리 합산 빠뜨리기
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>핵심 아이디어</h2>
+    <div class="key-idea">
+      <strong>뺄셈 → 덧셈 변환이 핵심!</strong><br>
+      $A - B = A + (-B)$ : 빼는 수의 부호를 반대로 바꿔요
+    </div>
+    <div class="key-idea">
+      <strong>덧셈 두 가지 경우</strong><br>
+      같은 부호: 절댓값의 합, 공통 부호<br>
+      다른 부호: 절댓값의 차, 절댓값 큰 쪽의 부호
+    </div>
+    <div class="key-idea">
+      <strong>혼합 계산 전략</strong><br>
+      ① 모든 뺄셈 → 덧셈 변환<br>
+      ② 양수끼리 합산, 음수끼리 합산<br>
+      ③ 두 합을 최종 계산
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>함께 풀어봐요</h2>
+
+    <div class="prob-card">
+      <div class="prob-q"><span class="diff-badge diff-M">M</span> 계산하세요.<br>$$(-5) + (+8) - (-3) + (-6)$$</div>
+      <button class="reveal-btn" onclick="reveal('p1-step')">풀이 단계 보기</button>
+      <button class="reveal-btn" onclick="reveal('p1-ans')">정답 보기</button>
+      <div class="prob-step" id="p1-step">
+        <strong>① 뺄셈 → 덧셈:</strong> $(-5) + (+8) + (+3) + (-6)$<br>
+        <strong>② 양수끼리:</strong> $+8 + (+3) = +11$<br>
+        <strong>③ 음수끼리:</strong> $(-5) + (-6) = -11$<br>
+        <strong>④ 최종:</strong> $(+11) + (-11) = 0$
+      </div>
+      <div class="prob-ans" id="p1-ans">정답: 0</div>
+    </div>
+
+    <div class="prob-card">
+      <div class="prob-q"><span class="diff-badge diff-M">M</span> $a = -\dfrac{1}{2}$, $b = +\dfrac{3}{4}$일 때, $a + b - (-a)$의 값을 구하세요.</div>
+      <button class="reveal-btn" onclick="reveal('p2-step')">풀이 단계 보기</button>
+      <button class="reveal-btn" onclick="reveal('p2-ans')">정답 보기</button>
+      <div class="prob-step" id="p2-step">
+        <strong>①</strong> $-(-a) = +a = -\dfrac{1}{2}$<br>
+        <strong>②</strong> $a + b + a = 2a + b = 2 \times (-\dfrac{1}{2}) + \dfrac{3}{4} = -1 + \dfrac{3}{4} = -\dfrac{1}{4}$
+      </div>
+      <div class="prob-ans" id="p2-ans">정답: $-\dfrac{1}{4}$</div>
+    </div>
+
+    <div class="prob-card">
+      <div class="prob-q"><span class="diff-badge diff-H">H</span> $x - (-3) = -2$일 때, $x + 5$의 값을 구하세요.</div>
+      <button class="reveal-btn" onclick="reveal('p3-step')">풀이 단계 보기</button>
+      <button class="reveal-btn" onclick="reveal('p3-ans')">정답 보기</button>
+      <div class="prob-step" id="p3-step">
+        <strong>①</strong> $x - (-3) = x + 3 = -2$<br>
+        <strong>②</strong> $x = -2 - 3 = -5$<br>
+        <strong>③</strong> $x + 5 = (-5) + 5 = 0$
+      </div>
+      <div class="prob-ans" id="p3-ans">정답: 0</div>
+    </div>
+  </div>
+
+  <div class="connect-box">
+    <h3>이 유형을 이해하면 무엇이 쉬워지나요?</h3>
+    정수 덧셈·뺄셈은 → 중1 일차방정식의 이항(이항 = 뺄셈을 덧셈으로 바꿔 이동)의 직접 기초예요.<br>
+    또한 유리수 연산은 중2 연립방정식에서도 핵심이에요.
+  </div>
+</div>
+
+<!-- ===== 탭 1: 곱셈·나눗셈 ===== -->
+<div class="main-tab-content" id="mt1">
+
+  <div class="section">
+    <h2>이 유형이 어려운 이유</h2>
+    <div class="mistake-box">
+      <div class="label">흔한 실수 패턴</div>
+      • 음수 개수 홀짝 판단 실수: $(−2)×(−3)×(−1)$에서 음수 3개(홀수) → 음수임을 놓침<br>
+      • 역수 계산 오류: $-\dfrac{3}{4}$의 역수를 $\dfrac{4}{3}$(부호 빠뜨림)으로 쓰는 경우<br>
+      • 나눗셈 → 역수 변환 미적용: $6 \div \dfrac{2}{3}$을 $6 × \dfrac{2}{3} = 4$로 계산하는 오류
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>핵심 아이디어</h2>
+    <div class="key-idea">
+      <strong>부호 결정 규칙 (음수 개수)</strong><br>
+      음수 개수 짝수 → 결과 양수 (+)<br>
+      음수 개수 홀수 → 결과 음수 (−)
+    </div>
+    <div class="key-idea">
+      <strong>역수</strong>: 분자↔분모 교환, 부호 유지<br>
+      $-\dfrac{3}{4}$의 역수 = $-\dfrac{4}{3}$
+    </div>
+    <div class="key-idea">
+      <strong>나눗셈 → 역수 곱셈</strong><br>
+      $A \div B = A \times \dfrac{1}{B}$
+    </div>
+    <div class="key-idea">
+      <strong>분배법칙 역으로 활용</strong><br>
+      $a \times b + a \times c = a \times (b + c)$<br>
+      공통인수를 묶으면 계산이 빨라져요!
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>함께 풀어봐요</h2>
+
+    <div class="prob-card">
+      <div class="prob-q"><span class="diff-badge diff-M">M</span> 계산하세요. $$\left(-\frac{3}{4}\right) \div \left(-\frac{9}{8}\right)$$</div>
+      <button class="reveal-btn" onclick="reveal('p4-step')">풀이 단계 보기</button>
+      <button class="reveal-btn" onclick="reveal('p4-ans')">정답 보기</button>
+      <div class="prob-step" id="p4-step">
+        <strong>① 역수 변환:</strong> $(-\dfrac{3}{4}) \times (-\dfrac{8}{9})$<br>
+        <strong>② 부호:</strong> (−) × (−) = (+)<br>
+        <strong>③ 절댓값:</strong> $\dfrac{3}{4} \times \dfrac{8}{9} = \dfrac{24}{36} = \dfrac{2}{3}$<br>
+        <strong>④ 결과:</strong> $+\dfrac{2}{3}$
+      </div>
+      <div class="prob-ans" id="p4-ans">정답: $+\dfrac{2}{3}$</div>
+    </div>
+
+    <div class="prob-card">
+      <div class="prob-q"><span class="diff-badge diff-M">M</span> 분배법칙을 이용해 계산하세요.<br>$$99 \times (-12) + (-12)$$</div>
+      <button class="reveal-btn" onclick="reveal('p5-step')">풀이 단계 보기</button>
+      <button class="reveal-btn" onclick="reveal('p5-ans')">정답 보기</button>
+      <div class="prob-step" id="p5-step">
+        <strong>공통인수 묶기:</strong> $(-12) \times 99 + (-12) \times 1 = (-12) \times (99 + 1) = (-12) \times 100 = -1200$<br>
+        직접 계산보다 훨씬 빠르죠!
+      </div>
+      <div class="prob-ans" id="p5-ans">정답: −1200</div>
+    </div>
+
+    <div class="prob-card">
+      <div class="prob-q"><span class="diff-badge diff-H">H</span> $(-2)^2 \times (-3) \div \left(-\dfrac{1}{2}\right)^3$을 계산하세요.</div>
+      <button class="reveal-btn" onclick="reveal('p6-step')">풀이 단계 보기</button>
+      <button class="reveal-btn" onclick="reveal('p6-ans')">정답 보기</button>
+      <div class="prob-step" id="p6-step">
+        <strong>① 거듭제곱 먼저:</strong><br>
+        $(-2)^2 = +4$ (짝수 지수 → 양수)<br>
+        $(-\dfrac{1}{2})^3 = -\dfrac{1}{8}$ (홀수 지수 → 음수)<br>
+        <strong>② 나눗셈 → 역수:</strong><br>
+        $+4 \times (-3) \times (-8)$<br>
+        (왜냐면 $\div (-\dfrac{1}{8}) = \times (-8)$)<br>
+        <strong>③ 부호:</strong> 음수 개수: (−3), (−8) → 2개(짝수) → 양수<br>
+        <strong>④ 절댓값:</strong> $4 \times 3 \times 8 = 96$<br>
+        <strong>⑤ 결과:</strong> $+96$
+      </div>
+      <div class="prob-ans" id="p6-ans">정답: +96</div>
+    </div>
+  </div>
+
+  <div class="connect-box">
+    <h3>이 유형을 이해하면 무엇이 쉬워지나요?</h3>
+    곱셈·나눗셈 부호 규칙은 → 중1 문자와 식(단원 3)에서 계수 계산의 직접 기초예요.<br>
+    분배법칙은 → 일차식 전개와 인수분해의 핵심이에요.
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+function mainTab(i) {
+  document.querySelectorAll('.main-tab-content').forEach((el,idx) => el.classList.toggle('active', idx===i));
+  document.querySelectorAll('.main-tab-btn').forEach((btn,idx) => btn.classList.toggle('active', idx===i));
+  window.scrollTo(0,0);
+  if (window.renderMathInElement) renderMathInElement(document.body);
+}
+function reveal(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('show');
+  if (window.renderMathInElement) renderMathInElement(el);
+}
+</script>
+</body>
+</html>

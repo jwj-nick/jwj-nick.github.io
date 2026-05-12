@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 탐구 — 내각·외각 (삼각형부터 n각형까지)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+:root{--primary:#4361EE;--bg:#eef2ff;--card:#fff;--ok:#2ecc71;--ng:#e74c3c;--warn:#f39c12;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic',sans-serif;background:var(--bg);padding:0 0 60px;color:#2d3436;}
+.header{background:linear-gradient(135deg,#4361EE,#3a0ca3);color:white;padding:28px 20px 24px;text-align:center;}
+.header h1{font-size:20px;margin-bottom:6px;}
+.header p{font-size:13px;opacity:0.85;}
+.back-link{font-size:12px;color:rgba(255,255,255,0.7);text-decoration:none;display:block;margin-top:10px;}
+.tab-bar{display:flex;gap:0;background:white;box-shadow:0 2px 8px rgba(0,0,0,0.08);position:sticky;top:0;z-index:10;}
+.tab-btn{flex:1;padding:14px 0;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;color:#888;border-bottom:3px solid transparent;font-family:inherit;}
+.tab-btn.active{color:#4361EE;border-bottom-color:#4361EE;}
+.tab-btn small{font-size:10px;display:block;margin-top:2px;color:#aaa;}
+.tab-btn.active small{color:#4361EE;}
+.tab-panel{display:none;}
+.tab-panel.show{display:block;}
+.container{max-width:700px;margin:0 auto;padding:20px 16px;}
+.section{margin-bottom:28px;}
+.section-title{font-size:15px;font-weight:bold;color:#4361EE;padding-left:8px;border-left:3px solid #4361EE;margin-bottom:14px;}
+.card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;}
+.card h3{font-size:15px;color:#1a1a2e;margin-bottom:10px;}
+.card p,.card li{font-size:14px;color:#444;line-height:1.8;}
+.card ul{padding-left:18px;}
+.highlight{background:#f0f4ff;border-left:4px solid #4361EE;border-radius:0 10px 10px 0;padding:12px 16px;margin:10px 0;font-size:14px;color:#333;line-height:1.7;}
+.mistake-item{background:white;border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(67,97,238,.07);margin-bottom:10px;display:flex;gap:12px;}
+.mistake-icon{font-size:22px;flex-shrink:0;margin-top:2px;}
+.mistake-content{flex:1;}
+.mistake-title{font-size:14px;font-weight:bold;color:#e74c3c;margin-bottom:4px;}
+.mistake-desc{font-size:13px;color:#444;line-height:1.6;}
+.problem-card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;border-left:4px solid #4361EE;}
+.prob-label{font-size:12px;font-weight:bold;color:#4361EE;letter-spacing:1px;margin-bottom:8px;}
+.prob-text{font-size:15px;line-height:1.8;color:#1a1a2e;margin-bottom:12px;}
+.reveal-btn{background:none;border:2px solid #4361EE;color:#4361EE;padding:6px 18px;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;}
+.reveal-content{display:none;margin-top:12px;background:#f0fff4;border-radius:10px;padding:12px 16px;font-size:13px;color:#1b5e20;line-height:1.7;}
+.connect-box{background:linear-gradient(135deg,#f0f4ff,#e8ecff);border-radius:14px;padding:20px;font-size:14px;color:#333;line-height:1.8;}
+.connect-title{font-size:15px;font-weight:bold;color:#4361EE;margin-bottom:10px;}
+table.tbl{border-collapse:collapse;font-size:13px;margin:10px 0;width:100%;}
+table.tbl th,table.tbl td{border:1px solid #ccd;padding:6px 10px;text-align:center;}
+table.tbl th{background:#eef2ff;}
+.formula-box{background:#eef2ff;border-radius:8px;padding:10px 14px;text-align:center;font-size:16px;color:#4361EE;font-weight:700;margin:8px 0;}
+.fig-svg{display:block;margin:10px auto;max-width:380px;width:100%;background:#fafbff;border-radius:8px;padding:8px;border:1px solid #eef2ff;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>깊이 탐구 — 내각·외각</h1>
+  <p>삼각형 → $n$각형 → 외각 (유형 3·4·5 통합)</p>
+  <a class="back-link" href="../index.html">← 단원 9 홈</a>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('tab3',this)">유형 3<small>삼각형</small></button>
+  <button class="tab-btn" onclick="switchTab('tab4',this)">유형 4<small>$n$각형 내각</small></button>
+  <button class="tab-btn" onclick="switchTab('tab5',this)">유형 5<small>외각</small></button>
+</div>
+
+<!-- 탭 3: 삼각형 -->
+<div class="tab-panel show" id="tab3">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>삼각형 내각의 합 $180°$는 누구나 외우지만, <strong>외각의 정리</strong>(외각 = 이웃 안 하는 두 내각의 합)는 막상 문제에서 활용하기 어려워요. 보조각·이등분선 같은 변형이 많기 때문.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 두 가지 도구</div>
+    <div class="card">
+      <div class="formula-box">① 내각의 합 = $180°$</div>
+      <div class="formula-box">② 한 외각 = 이웃 안 하는 두 내각의 합</div>
+      <div class="highlight"><strong>왜 둘이 같은 사실인가?</strong><br>$\angle A + \angle B + \angle C = 180°$ ① $\quad$ $\angle C + \angle\text{외}_C = 180°$ ② (평각)<br>두 식 비교 → $\angle\text{외}_C = \angle A + \angle B$</div>
+    </div>
+
+    <div class="card">
+      <h3>도구 활용법</h3>
+      <ul>
+        <li>두 각이 주어지면 → 셋째 각 = $180°$ - 두 각의 합</li>
+        <li>한 외각이 주어지면 → (1) 그 꼭짓점 내각 = $180°$ - 외각, (2) 다른 두 내각의 합 = 외각</li>
+        <li>비례식 ($\angle A : \angle B : \angle C$) → $kx + lx + mx = 180°$로 $x$ 구하기</li>
+        <li>이등변삼각형: 두 밑각이 같음 — 이 사실을 추가 정보로 활용</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">"외각의 정리"에 모든 외각이 다 포함된다고 착각</div>
+        <div class="mistake-desc">한 꼭짓점에서 본 외각은 1개. (양쪽으로 그릴 수는 있지만 맞꼭지각이라 같음.) 삼각형 전체 외각의 합은 $360°$.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">"이웃하지 않는 두 내각" = 그냥 다른 두 내각</div>
+        <div class="mistake-desc">맞아요 — 삼각형이라 그게 그거. 하지만 "이웃하지 않는"이라는 표현이 정확.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">이등변 삼각형 두 밑각 합 = $180°$로 착각</div>
+        <div class="mistake-desc">두 밑각의 합은 $180° - $ 꼭지각이에요. 두 밑각만 더해 180°가 되면 꼭지각이 0이 돼야 해서 불가능.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제</div>
+    <div class="problem-card">
+      <div class="prob-label">PROB 1</div>
+      <div class="prob-text">삼각형 ABC에서 $\angle A$의 외각이 $130°$이고 $\angle B = 60°$일 때 $\angle C$를 구하시오.</div>
+      <button class="reveal-btn" onclick="reveal(this,'r-tab3-1')">정답·풀이</button>
+      <div class="reveal-content" id="r-tab3-1">$\angle A$ = $180° - 130° = 50°$. $\angle C = 180° - 50° - 60° = 70°$.</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROB 2</div>
+      <div class="prob-text">이등변삼각형의 꼭지각이 $40°$일 때 한 밑각의 외각의 크기를 구하시오.</div>
+      <button class="reveal-btn" onclick="reveal(this,'r-tab3-2')">정답·풀이</button>
+      <div class="reveal-content" id="r-tab3-2">한 밑각 = $(180° - 40°) \div 2 = 70°$. 외각 = $180° - 70° = 110°$. (또는 외각 정리: 꼭지각 + 다른 밑각 = $40° + 70° = 110°$ ✓)</div>
+    </div>
+  </div>
+
+  <div class="connect-box">
+    <div class="connect-title">🔗 연결 개념</div>
+    삼각형의 내각합 $180°$가 <strong>모든 다각형 공식의 출발점</strong>이에요. $n$각형 내각합 $180°(n-2)$는 다각형을 $n-2$개의 삼각형으로 나눈 결과.
+  </div>
+</div>
+</div>
+
+<!-- 탭 4: n각형 내각 -->
+<div class="tab-panel" id="tab4">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>$180°(n-2)$ 공식 자체는 단순하지만, <strong>직접/역산/미지각</strong> 세 가지 방향으로 변형되어 나와요. 또한 "한 꼭짓점 분할 삼각형 = $n-2$" "내각합 = $180°(n-2)$" 두 사실을 분리해서 기억해야 해요.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 분할 삼각형</div>
+    <div class="card">
+      <div class="formula-box">$n$각형 내각의 합 = $180° \times (n-2)$</div>
+      <p>다각형의 한 꼭짓점에서 다른 꼭짓점들로 대각선을 그으면 $n - 2$개의 삼각형이 만들어져요. 삼각형 하나당 $180°$.</p>
+      <table class="tbl">
+        <tr><th>$n$각형</th><th>분할 삼각형</th><th>내각의 합</th></tr>
+        <tr><td>3</td><td>1</td><td>180°</td></tr>
+        <tr><td>4</td><td>2</td><td>360°</td></tr>
+        <tr><td>5</td><td>3</td><td>540°</td></tr>
+        <tr><td>6</td><td>4</td><td>720°</td></tr>
+        <tr><td>7</td><td>5</td><td>900°</td></tr>
+        <tr><td>8</td><td>6</td><td>1080°</td></tr>
+        <tr><td>9</td><td>7</td><td>1260°</td></tr>
+        <tr><td>10</td><td>8</td><td>1440°</td></tr>
+        <tr><td>12</td><td>10</td><td>1800°</td></tr>
+      </table>
+      <div class="highlight"><strong>외워두면 좋은 값</strong>: 사각형 360, 오각형 540, 육각형 720, 팔각형 1080, 십각형 1440, 십이각형 1800.</div>
+    </div>
+
+    <div class="card">
+      <h3>역산 — 내각합 → $n$ 구하기</h3>
+      <p>$180°(n-2) = S$ → $n - 2 = S \div 180$ → $n = S \div 180 + 2$.</p>
+      <ul>
+        <li>$S = 540°$ → $n = 5$</li>
+        <li>$S = 720°$ → $n = 6$</li>
+        <li>$S = 1080°$ → $n = 8$</li>
+        <li>$S = 1440°$ → $n = 10$</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>미지각 — 다각형의 한 각 찾기</h3>
+      <p>다각형의 모든 내각이 주어지고 한 각만 미지수일 때:<br>
+      $\sum \angle_i = 180°(n-2)$ 식에 모든 알려진 각을 대입하고 미지각을 풀어요.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">"$n$각형 내각합 = $180° \times n$"으로 외움</div>
+        <div class="mistake-desc">분할 삼각형 수는 $n-2$. 사각형은 2개의 삼각형로 나뉘지 4개로 안 나뉘어요.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">"분할 삼각형 수 = $n - 3$" (대각선 수와 헷갈림)</div>
+        <div class="mistake-desc">$n - 3$은 한 꼭짓점에서 그을 수 있는 <strong>대각선</strong> 수. 분할 삼각형은 그것보다 1 더 많은 $n - 2$.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">내각합 비례 풀이에서 단위 누락</div>
+        <div class="mistake-desc">"$2x + 3x + 4x = 180$" 처럼 도수(°) 표시 없이 풀면 헷갈려요. 항상 $180°$, $540°$ 단위 표시.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제</div>
+    <div class="problem-card">
+      <div class="prob-label">PROB 1</div>
+      <div class="prob-text">내각의 합이 $1800°$인 다각형의 변의 수는?</div>
+      <button class="reveal-btn" onclick="reveal(this,'r-tab4-1')">정답·풀이</button>
+      <div class="reveal-content" id="r-tab4-1">$180°(n-2) = 1800°$ → $n = 12$. 십이각형, 변 12개.</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROB 2</div>
+      <div class="prob-text">한 꼭짓점에서 분할되는 삼각형이 9개인 다각형의 모든 내각의 합은?</div>
+      <button class="reveal-btn" onclick="reveal(this,'r-tab4-2')">정답·풀이</button>
+      <div class="reveal-content" id="r-tab4-2">$n - 2 = 9$ → $n = 11$. 내각합 = $180° \times 9 = 1620°$.</div>
+    </div>
+  </div>
+
+  <div class="connect-box">
+    <div class="connect-title">🔗 연결 개념</div>
+    내각합 공식 도출 정신("삼각형으로 쪼개기")은 <strong>가우스의 패턴 발견</strong>과 같아요. 다음 단계: 외각의 합도 사실 이 공식에서 나와요 (180n - 180(n-2) = 360).
+  </div>
+</div>
+</div>
+
+<!-- 탭 5: 외각 -->
+<div class="tab-panel" id="tab5">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>외각의 합 = $360°$가 <strong>변의 수에 무관</strong>이라는 사실이 처음엔 직관에 어긋나요. "삼각형이든 백각형이든 같다고?" 하는 의문이 들 수 있어요.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 두 가지 설명</div>
+    <div class="card">
+      <h3>설명 1 — 대수적</h3>
+      <p>한 꼭짓점에서 (내각) + (외각) = $180°$.<br>
+      모든 꼭짓점의 합 = $180° \times n$.<br>
+      외각의 합 = $180°n - $ 내각의 합 = $180°n - 180°(n-2) = 360°$.</p>
+      <div class="formula-box">외각의 합 = $360°$ ($n$ 무관)</div>
+    </div>
+
+    <div class="card">
+      <h3>설명 2 — 한 바퀴 (직관)</h3>
+      <p>다각형 둘레를 따라 한 바퀴 걷는 상황을 상상해보세요. 한 바퀴 돌면 <strong>방향이 360° 회전</strong>한 셈. 그 회전량이 외각의 합.</p>
+      <div class="highlight"><strong>변이 잘게 쪼개질수록 외각 하나는 작아져요</strong> — 정100각형은 한 외각이 $3.6°$. 하지만 합은 항상 $360°$. 한 바퀴는 한 바퀴니까.</div>
+    </div>
+
+    <div class="card">
+      <h3>활용 — 미지 외각 / 미지 $n$</h3>
+      <ul>
+        <li>외각이 모두 같은 정$n$각형: 한 외각 = $\dfrac{360°}{n}$</li>
+        <li>외각 비례 $a : b : c : d$ → 합 비례로 $360°$ 분할</li>
+        <li>일부 외각이 주어지면 나머지 외각 = $360° - $ 알려진 외각의 합</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">"외각의 합도 $n$에 따라 변한다"</div>
+        <div class="mistake-desc">변의 수에 관계없이 항상 $360°$. 이 점이 다각형 단원 시험에서 가장 자주 나오는 함정.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">"한 외각 = $\dfrac{180°}{n}$"</div>
+        <div class="mistake-desc">정$n$각형 한 외각은 $\dfrac{360°}{n}$. (외각의 합 = 360°이니까.)</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">한 꼭짓점에서 외각을 두 번 더함</div>
+        <div class="mistake-desc">한 꼭짓점에서 외각은 양쪽으로 그릴 수 있지만 맞꼭지각이라 같음 → 1개로 셈.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제</div>
+    <div class="problem-card">
+      <div class="prob-label">PROB 1</div>
+      <div class="prob-text">백각형의 외각의 합은?</div>
+      <button class="reveal-btn" onclick="reveal(this,'r-tab5-1')">정답·풀이</button>
+      <div class="reveal-content" id="r-tab5-1">$360°$. 외각의 합은 변의 수에 관계없이 항상 $360°$.</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROB 2</div>
+      <div class="prob-text">한 다각형의 모든 외각이 같고 그 크기가 $24°$일 때, 변의 수는?</div>
+      <button class="reveal-btn" onclick="reveal(this,'r-tab5-2')">정답·풀이</button>
+      <div class="reveal-content" id="r-tab5-2">$\dfrac{360°}{n} = 24°$ → $n = 15$. 정십오각형.</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROB 3</div>
+      <div class="prob-text">사각형 ABCD에서 세 외각이 $80°, 95°, 105°$일 때 나머지 한 외각과 그 꼭짓점의 내각의 크기는?</div>
+      <button class="reveal-btn" onclick="reveal(this,'r-tab5-3')">정답·풀이</button>
+      <div class="reveal-content" id="r-tab5-3">나머지 외각 = $360° - 80° - 95° - 105° = 80°$. 그 꼭짓점 내각 = $180° - 80° = 100°$.</div>
+    </div>
+  </div>
+
+  <div class="connect-box">
+    <div class="connect-title">🔗 연결 개념</div>
+    외각의 합 $360°$는 <strong>정다각형 한 외각</strong>(유형 6) 공식의 핵심 ($\dfrac{360°}{n}$). 또한 "한 바퀴 회전 = $360°$" 직관은 단원 10(원과 부채꼴)의 중심각 합 $360°$로 자연스럽게 이어져요.
+  </div>
+</div>
+</div>
+
+<script>
+function switchTab(id, btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('show'));
+  document.getElementById(id).classList.add('show');
+}
+function reveal(btn, id){
+  const e = document.getElementById(id);
+  if(e.style.display === 'block'){e.style.display = 'none'; btn.textContent = '정답·풀이';}
+  else{e.style.display = 'block'; btn.textContent = '닫기';}
+}
+</script>
+</body>
+</html>

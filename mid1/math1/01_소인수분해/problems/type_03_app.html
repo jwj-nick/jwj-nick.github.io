@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>유형 3 — 소인수분해 실행</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+  .container { max-width: 700px; width: 100%; }
+  header { text-align: center; margin-bottom: 20px; }
+  header .back { font-size: 13px; color: #4361EE; text-decoration: none; display: inline-block; margin-bottom: 12px; }
+  .type-badge { background: #4361EE; color: white; font-size: 11px; padding: 3px 10px; border-radius: 20px; display: inline-block; margin-bottom: 8px; }
+  header h1 { font-size: 22px; color: #1a1a2e; margin-bottom: 4px; }
+  header p { font-size: 13px; color: #666; }
+  .level-tabs { display: flex; gap: 8px; justify-content: center; margin-bottom: 16px; }
+  .level-tab { background: white; border: 2px solid #c0c8ff; color: #4361EE; border-radius: 20px; padding: 6px 18px; font-size: 13px; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+  .level-tab.L { border-color: #43a047; color: #43a047; }
+  .level-tab.L.active { background: #43a047; color: white; border-color: #43a047; }
+  .level-tab.M { border-color: #f4a261; color: #e07b39; }
+  .level-tab.M.active { background: #f4a261; color: white; border-color: #f4a261; }
+  .level-tab.H { border-color: #e63946; color: #e63946; }
+  .level-tab.H.active { background: #e63946; color: white; border-color: #e63946; }
+  .prob-set { display: none; }
+  .prob-set.active { display: block; }
+  .prob-card { background: white; border-radius: 16px; padding: 22px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 12px; }
+  .prob-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .prob-num { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; flex-shrink: 0; color: white; }
+  .prob-num.L { background: #43a047; }
+  .prob-num.M { background: #f4a261; }
+  .prob-num.H { background: #e63946; }
+  .prob-text { font-size: 14px; line-height: 1.9; color: #1a1a2e; margin-bottom: 12px; }
+  .ans-tabs { display: flex; gap: 6px; }
+  .ans-tab { background: white; border: 1.5px solid #c0c8ff; color: #4361EE; border-radius: 6px 6px 0 0; padding: 5px 12px; font-size: 11px; cursor: pointer; font-family: inherit; }
+  .ans-tab.active { background: #4361EE; color: white; border-color: #4361EE; }
+  .ans-content { background: #f8f9ff; border-radius: 0 8px 8px 8px; padding: 12px; display: none; font-size: 13px; line-height: 1.8; color: #333; }
+  .ans-content.active { display: block; }
+  .ans-box { background: #4361EE; color: white; border-radius: 8px; padding: 8px 14px; font-weight: bold; text-align: center; margin-bottom: 6px; font-size: 15px; }
+  .hint-box { background: #fff9e6; border-left: 3px solid #f4a261; padding: 10px 14px; border-radius: 0 8px 8px 8px; font-size: 13px; }
+  .warn { background: #fff3cd; border-left: 3px solid #ffc107; padding: 8px 12px; border-radius: 0 8px 8px 0; margin-top: 6px; font-size: 12px; color: #856404; }
+  .division-table { font-family: monospace; font-size: 14px; line-height: 1.7; margin: 8px 0; padding: 10px; background: white; border-radius: 6px; display: inline-block; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <a class="back" href="../index.html">← 단원 홈</a>
+    <div class="type-badge">유형 3 · 소인수분해 실행</div>
+    <h1>소인수분해</h1>
+    <p>L×3 + M×3 + H×3 = 9문제</p>
+  </header>
+
+  <div class="level-tabs">
+    <button class="level-tab L active" onclick="showLevel('L', this)">L — 기본</button>
+    <button class="level-tab M" onclick="showLevel('M', this)">M — 중간</button>
+    <button class="level-tab H" onclick="showLevel('H', this)">H — 심화</button>
+  </div>
+
+  <!-- L -->
+  <div class="prob-set active" id="set-L">
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num L">1</div><span style="font-size:11px;color:#43a047;">L</span></div>
+      <div class="prob-text">48을 소인수분해하세요.</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'L1-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'L1-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="L1-ans">
+        <div class="ans-box">$2^4 \times 3$</div>
+        <div class="division-table">
+2 | 48<br>2 | 24<br>2 | 12<br>2 |  6<br>   3</div>
+        $48 = 2^4 \times 3$
+      </div>
+      <div class="ans-content" id="L1-hint">
+        <div class="hint-box">가장 작은 소수(2)로 나누어 떨어질 때까지 계속 나눠요.</div>
+      </div>
+    </div>
+
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num L">2</div><span style="font-size:11px;color:#43a047;">L</span></div>
+      <div class="prob-text">다음 소인수분해 결과 중 올바른 것을 고르세요.<br>① $36 = 2 \times 18$ &nbsp;&nbsp;② $36 = 4 \times 9$ &nbsp;&nbsp;③ $36 = 2^2 \times 3^2$ &nbsp;&nbsp;④ $36 = 6^2$</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'L2-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'L2-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="L2-ans">
+        <div class="ans-box">③ $36 = 2^2 \times 3^2$</div>
+        ①, ② 18, 4, 9는 소수가 아님<br>
+        ④ 6은 소수가 아님<br>
+        ③만 소수들의 곱으로만 표현됨 ✅
+        <div class="warn">소인수분해는 반드시 소수(prime)들의 곱으로만 나타내야 해요.</div>
+      </div>
+      <div class="ans-content" id="L2-hint">
+        <div class="hint-box">소인수분해의 결과에 소수가 아닌 수(4, 6, 9, 18)가 있으면 안 돼요.</div>
+      </div>
+    </div>
+
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num L">3</div><span style="font-size:11px;color:#43a047;">L</span></div>
+      <div class="prob-text">75의 소인수를 모두 구하세요.</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'L3-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'L3-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="L3-ans">
+        <div class="ans-box">3, 5</div>
+        $75 = 3 \times 25 = 3 \times 5^2$<br>
+        소인수: 3, 5
+      </div>
+      <div class="ans-content" id="L3-hint">
+        <div class="hint-box">소인수분해 후 밑(base)만 추출해요. 지수는 관계없어요.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- M -->
+  <div class="prob-set" id="set-M">
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num M">4</div><span style="font-size:11px;color:#e07b39;">M</span></div>
+      <div class="prob-text">180을 소인수분해하고, 모든 약수를 구하세요.</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'M1-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'M1-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="M1-ans">
+        <div class="ans-box">$180 = 2^2 \times 3^2 \times 5$<br>약수의 개수: 18개</div>
+        <div class="division-table">
+2 | 180<br>2 |  90<br>3 |  45<br>3 |  15<br>   5</div>
+        $180 = 2^2 \times 3^2 \times 5^1$<br>
+        약수의 개수: $(2+1)(2+1)(1+1) = 3\times3\times2 = 18$개<br>
+        약수: 1, 2, 3, 4, 5, 6, 9, 10, 12, 15, 18, 20, 30, 36, 45, 60, 90, 180
+      </div>
+      <div class="ans-content" id="M1-hint">
+        <div class="hint-box">$2^2 \times 3^2 \times 5$의 약수는 $2^a \times 3^b \times 5^c$ 꼴 (a=0,1,2, b=0,1,2, c=0,1)</div>
+      </div>
+    </div>
+
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num M">5</div><span style="font-size:11px;color:#e07b39;">M</span></div>
+      <div class="prob-text">$2^3 \times 3^2 \times 7$과 같은 소인수를 갖는 가장 작은 자연수를 구하세요.</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'M2-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'M2-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="M2-ans">
+        <div class="ans-box">42</div>
+        소인수: 2, 3, 7<br>
+        같은 소인수를 갖는 가장 작은 수 = 각 소인수를 한 번씩만 곱한 수<br>
+        $2 \times 3 \times 7 = 42$
+      </div>
+      <div class="ans-content" id="M2-hint">
+        <div class="hint-box">"같은 소인수"란 소인수의 종류가 같다는 뜻이에요. 지수는 최소(1)로!</div>
+      </div>
+    </div>
+
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num M">6</div><span style="font-size:11px;color:#e07b39;">M</span></div>
+      <div class="prob-text">어떤 자연수 $n$에 대하여 $n^2 = 2^4 \times 3^2$일 때, $n$을 구하세요.</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'M3-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'M3-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="M3-ans">
+        <div class="ans-box">n = 12</div>
+        $n^2 = 2^4 \times 3^2 = (2^2 \times 3)^2 = 12^2$<br>
+        ∴ $n = 12$
+      </div>
+      <div class="ans-content" id="M3-hint">
+        <div class="hint-box">$n^2$이 되려면 모든 소인수의 지수가 짝수여야 해요. $2^4 = (2^2)^2$, $3^2 = (3^1)^2$</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- H -->
+  <div class="prob-set" id="set-H">
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num H">7</div><span style="font-size:11px;color:#e63946;">H</span></div>
+      <div class="prob-text">$2^3 \times 3^a \times 5$의 약수의 개수가 24개일 때, $a$의 값을 구하세요.</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'H1-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'H1-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="H1-ans">
+        <div class="ans-box">a = 2</div>
+        약수의 개수 = $(3+1)(a+1)(1+1) = 4(a+1) \times 2 = 8(a+1)$<br>
+        $8(a+1) = 24$<br>
+        $a+1 = 3$<br>
+        $a = 2$
+      </div>
+      <div class="ans-content" id="H1-hint">
+        <div class="hint-box">약수의 개수 공식: $p^a \times q^b \times r^c$의 약수 개수 = $(a+1)(b+1)(c+1)$</div>
+      </div>
+    </div>
+
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num H">8</div><span style="font-size:11px;color:#e63946;">H</span></div>
+      <div class="prob-text">자연수 $N$을 소인수분해하면 $2^a \times 3^b$이고, 약수의 개수가 12개이며 약수 중 소수는 2개뿐이다. $N$의 최솟값을 구하세요.</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'H2-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'H2-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="H2-ans">
+        <div class="ans-box">72</div>
+        약수 중 소수가 2개 = 소인수가 2, 3만 → $2^a \times 3^b$ 꼴 (a, b ≥ 1)<br>
+        약수의 개수: $(a+1)(b+1) = 12$<br>
+        가능한 (a,b) (단 a,b≥1): (5,1), (3,2), (2,3), (1,5)<br>
+        각 N: $2^5 \times 3 = 96$, $2^3 \times 3^2 = 72$, $2^2 \times 3^3 = 108$, $2 \times 3^5 = 486$<br>
+        최솟값: <strong>72</strong>
+      </div>
+      <div class="ans-content" id="H2-hint">
+        <div class="hint-box">$(a+1)(b+1) = 12$를 만족하는 양의 정수 쌍을 모두 찾아봐요. a, b ≥ 1 조건 주의!</div>
+      </div>
+    </div>
+
+    <div class="prob-card">
+      <div class="prob-header"><div class="prob-num H">9</div><span style="font-size:11px;color:#e63946;">H</span></div>
+      <div class="prob-text">$\sqrt{252n}$이 자연수가 되도록 하는 가장 작은 자연수 $n$을 구하세요.</div>
+      <div class="ans-tabs">
+        <button class="ans-tab" onclick="toggleAns(this,'H3-ans')">정답</button>
+        <button class="ans-tab" onclick="toggleAns(this,'H3-hint')">힌트</button>
+      </div>
+      <div class="ans-content" id="H3-ans">
+        <div class="ans-box">n = 7</div>
+        $252 = 2^2 \times 3^2 \times 7$<br>
+        $\sqrt{252n} = \sqrt{2^2 \times 3^2 \times 7 \times n}$<br>
+        자연수가 되려면 근호 안이 완전제곱수여야 함<br>
+        7의 지수가 1(홀수) → $n = 7$로 $7^2$를 만들어야 함<br>
+        $n=7$이면: $\sqrt{2^2 \times 3^2 \times 7^2} = 2 \times 3 \times 7 = 42$
+      </div>
+      <div class="ans-content" id="H3-hint">
+        <div class="hint-box">252를 소인수분해하면 지수가 홀수인 소인수가 있어요. 그것을 짝수로 만들어주는 최소의 n을 찾아요.</div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+function showLevel(lv, btn) {
+  document.querySelectorAll('.prob-set').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.level-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('set-' + lv).classList.add('active');
+  btn.classList.add('active');
+  if (window.renderMathInElement) renderMathInElement(document.getElementById('set-' + lv), {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});
+}
+function toggleAns(btn, id) {
+  const el = document.getElementById(id);
+  const isActive = el.classList.contains('active');
+  btn.closest('.prob-card').querySelectorAll('.ans-content').forEach(e => e.classList.remove('active'));
+  btn.closest('.prob-card').querySelectorAll('.ans-tab').forEach(t => t.classList.remove('active'));
+  if (!isActive) { el.classList.add('active'); btn.classList.add('active'); if (window.renderMathInElement) renderMathInElement(el, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]}); }
+}
+</script>
+</body>
+</html>

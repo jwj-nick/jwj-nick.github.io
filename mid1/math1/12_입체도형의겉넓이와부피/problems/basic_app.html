@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>기본 문제 — 입체도형의 겉넓이와 부피</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; }
+  .header { background: linear-gradient(135deg, #4361EE 0%, #3a0ca3 100%); color: white; padding: 24px 20px; text-align: center; }
+  .header h1 { font-size: 22px; margin-bottom: 6px; }
+  .header p { font-size: 13px; opacity: 0.85; }
+  .progress-bar { background: rgba(255,255,255,0.2); height: 4px; border-radius: 2px; margin-top: 14px; overflow: hidden; }
+  .progress-fill { background: white; height: 100%; border-radius: 2px; transition: width 0.3s; }
+  .container { max-width: 700px; margin: 0 auto; padding: 20px 16px 60px; }
+  .question-card { background: white; border-radius: 16px; padding: 22px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 14px; }
+  .q-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .q-num { background: #4361EE; color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; flex-shrink: 0; }
+  .q-tag { font-size: 11px; background: #eef2ff; color: #4361EE; padding: 3px 10px; border-radius: 20px; }
+  .q-diff { font-size: 11px; padding: 3px 10px; border-radius: 20px; margin-left: auto; }
+  .diff-L { background: #e8f5e9; color: #2e7d32; }
+  .diff-M { background: #fff3e0; color: #e65100; }
+  .q-text { font-size: 15px; color: #1a1a2e; line-height: 1.8; margin-bottom: 14px; }
+  .choices { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+  .choice-btn { background: #f8f9ff; border: 2px solid #eef2ff; border-radius: 10px; padding: 10px 14px; text-align: left; font-size: 14px; color: #333; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+  .choice-btn:hover { border-color: #4361EE; background: #eef2ff; }
+  .choice-btn.selected { border-color: #4361EE; background: #eef2ff; font-weight: bold; }
+  .choice-btn.correct { border-color: #2e7d32; background: #e8f5e9; color: #1b5e20; font-weight: bold; }
+  .choice-btn.wrong { border-color: #c62828; background: #ffebee; color: #b71c1c; }
+  .answer-panel { display: none; margin-top: 12px; border-top: 1px solid #eef2ff; padding-top: 12px; }
+  .answer-panel.show { display: block; }
+  .answer-box { background: #f0fff4; border-radius: 10px; padding: 12px 16px; font-size: 14px; color: #1b5e20; line-height: 1.8; margin-bottom: 8px; }
+  .solution-box { background: #f8f9ff; border-radius: 10px; padding: 12px 16px; font-size: 13px; color: #444; line-height: 1.8; }
+  .mini-svg { display: block; margin: 10px auto; max-width: 320px; width: 100%; height: auto; background: white; border-radius: 8px; padding: 6px; border: 1px solid #eef2ff; }
+  .summary-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); text-align: center; display: none; }
+  .summary-score { font-size: 48px; font-weight: bold; color: #4361EE; margin: 10px 0; }
+  .summary-sub { font-size: 14px; color: #666; }
+  .home-btn { display: inline-block; margin-top: 20px; background: #4361EE; color: white; text-decoration: none; padding: 10px 28px; border-radius: 24px; font-size: 14px; }
+  .input-row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .input-row input { padding: 8px 12px; border: 2px solid #eef2ff; border-radius: 10px; font-size: 14px; flex: 1; min-width: 100px; font-family: inherit; }
+  .input-row input:focus { outline: none; border-color: #4361EE; }
+  .check-btn { background: #4361EE; color: white; border: none; border-radius: 10px; padding: 8px 18px; font-size: 14px; cursor: pointer; font-family: inherit; }
+  .check-btn:hover { background: #3a0ca3; }
+  .feedback-msg { font-size: 13px; padding: 6px 0; color: #4361EE; font-weight: 600; }
+  .feedback-msg.correct { color: #2e7d32; }
+  .feedback-msg.wrong { color: #c62828; }
+  .input-hint { font-size: 11px; color: #888; margin-top: -6px; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>기본 문제 — 입체도형의 겉넓이와 부피</h1>
+  <p>Unit 12 전체 핵심 개념 확인 · 9문제</p>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+  </div>
+</div>
+
+<div class="container" id="mainContent">
+
+  <!-- Q1: 각기둥 옆넓이 공식 -->
+  <div class="question-card" id="qcard-1">
+    <div class="q-header">
+      <div class="q-num">1</div>
+      <div class="q-tag">각기둥 옆넓이</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">밑면의 둘레가 $20$ cm, 높이가 $7$ cm인 사각기둥의 <b>옆넓이</b>는?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(1,'①','③')">① $70$ cm²</button>
+      <button class="choice-btn" onclick="chooseAnswer(1,'②','③')">② $100$ cm²</button>
+      <button class="choice-btn" onclick="chooseAnswer(1,'③','③')">③ $140$ cm²</button>
+      <button class="choice-btn" onclick="chooseAnswer(1,'④','③')">④ $200$ cm²</button>
+    </div>
+    <div class="answer-panel" id="ans-1">
+      <div class="answer-box">정답: ③ $140$ cm²</div>
+      <div class="solution-box">
+        ★ 옆넓이 = 밑면 둘레 × 높이 = $20 \times 7 = 140$ cm².<br>
+        옆면을 모두 펼치면 가로 = 밑면 둘레, 세로 = 높이인 큰 직사각형이 돼요.
+      </div>
+    </div>
+  </div>
+
+  <!-- Q2: 직육면체 부피 -->
+  <div class="question-card" id="qcard-2">
+    <div class="q-header">
+      <div class="q-num">2</div>
+      <div class="q-tag">직육면체 부피</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">가로 $5$ cm, 세로 $4$ cm, 높이 $3$ cm인 직육면체의 부피를 구하시오. (숫자만, 단위 cm³)</div>
+    <div class="input-row">
+      <input type="text" id="q2-input" placeholder="예: 60">
+      <button class="check-btn" onclick="checkInput2()">확인</button>
+    </div>
+    <div class="feedback-msg" id="fb-2"></div>
+    <div class="answer-panel" id="ans-2">
+      <div class="answer-box">정답: $60$ cm³</div>
+      <div class="solution-box">
+        $V = abc = 5 \times 4 \times 3 = 60$ cm³.<br>
+        ⚠️ 단위는 cm³ (제곱이 아니라 세제곱). 부피 = 입체가 차지하는 공간!
+      </div>
+    </div>
+  </div>
+
+  <!-- Q3: 각뿔 부피 (★ 1/3) -->
+  <div class="question-card" id="qcard-3">
+    <div class="q-header">
+      <div class="q-num">3</div>
+      <div class="q-tag">각뿔 부피 ★ 1/3</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">밑넓이 $30$ cm², 높이 $9$ cm인 각뿔의 <b>부피</b>는?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(3,'①','③')">① $30$ cm³</button>
+      <button class="choice-btn" onclick="chooseAnswer(3,'②','③')">② $45$ cm³</button>
+      <button class="choice-btn" onclick="chooseAnswer(3,'③','③')">③ $90$ cm³</button>
+      <button class="choice-btn" onclick="chooseAnswer(3,'④','③')">④ $270$ cm³</button>
+    </div>
+    <div class="answer-panel" id="ans-3">
+      <div class="answer-box">정답: ③ $90$ cm³</div>
+      <div class="solution-box">
+        ★ 각뿔 부피 = $\frac{1}{3} \times \text{밑넓이} \times \text{높이} = \frac{1}{3} \times 30 \times 9 = 90$ cm³.<br>
+        ⚠️ ④ $270$은 1/3을 빠뜨린 오답 (같은 밑면·높이의 각기둥 부피). <b>★ 1/3 반드시!</b>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q4: 원기둥 부피 -->
+  <div class="question-card" id="qcard-4">
+    <div class="q-header">
+      <div class="q-num">4</div>
+      <div class="q-tag">원기둥 부피</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">밑면의 반지름이 $4$ cm, 높이가 $10$ cm인 원기둥의 <b>부피</b>는?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(4,'①','③')">① $40\pi$ cm³</button>
+      <button class="choice-btn" onclick="chooseAnswer(4,'②','③')">② $80\pi$ cm³</button>
+      <button class="choice-btn" onclick="chooseAnswer(4,'③','③')">③ $160\pi$ cm³</button>
+      <button class="choice-btn" onclick="chooseAnswer(4,'④','③')">④ $200\pi$ cm³</button>
+    </div>
+    <div class="answer-panel" id="ans-4">
+      <div class="answer-box">정답: ③ $160\pi$ cm³</div>
+      <div class="solution-box">
+        $V = \pi r^2 h = \pi \times 4^2 \times 10 = \pi \times 16 \times 10 = 160\pi$ cm³.<br>
+        밑넓이 $\pi r^2 = 16\pi$ → 높이 $h = 10$ 곱하기.
+      </div>
+    </div>
+  </div>
+
+  <!-- Q5: 구의 부피 -->
+  <div class="question-card" id="qcard-5">
+    <div class="q-header">
+      <div class="q-num">5</div>
+      <div class="q-tag">구의 부피</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">반지름이 $3$ cm인 구의 <b>부피</b>는?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(5,'①','③')">① $9\pi$ cm³</button>
+      <button class="choice-btn" onclick="chooseAnswer(5,'②','③')">② $27\pi$ cm³</button>
+      <button class="choice-btn" onclick="chooseAnswer(5,'③','③')">③ $36\pi$ cm³</button>
+      <button class="choice-btn" onclick="chooseAnswer(5,'④','③')">④ $108\pi$ cm³</button>
+    </div>
+    <div class="answer-panel" id="ans-5">
+      <div class="answer-box">정답: ③ $36\pi$ cm³</div>
+      <div class="solution-box">
+        $V = \frac{4}{3}\pi r^3 = \frac{4}{3}\pi \times 27 = 4\pi \times 9 = 36\pi$ cm³.<br>
+        ⚠️ 자주 하는 실수: $r^3$ 자리에 $r^2$ 쓰기. $r^3 = 27$이지 $r^2 = 9$가 아니에요.<br>
+        ⚠️ 또 하나: $\frac{4}{3}$을 $\frac{3}{4}$로 뒤집기. <b>부피는 $\frac{4}{3}\pi r^3$!</b>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q6: 정육면체 겉넓이 -->
+  <div class="question-card" id="qcard-6">
+    <div class="q-header">
+      <div class="q-num">6</div>
+      <div class="q-tag">정육면체 겉넓이</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text">정육면체의 한 모서리의 길이가 $5$ cm일 때 <b>겉넓이</b>를 구하시오. (숫자만, 단위 cm²)</div>
+    <div class="input-row">
+      <input type="text" id="q6-input" placeholder="예: 150">
+      <button class="check-btn" onclick="checkInput6()">확인</button>
+    </div>
+    <div class="feedback-msg" id="fb-6"></div>
+    <div class="answer-panel" id="ans-6">
+      <div class="answer-box">정답: $150$ cm²</div>
+      <div class="solution-box">
+        정육면체는 면 6개가 모두 합동인 정사각형 (한 면 넓이 $a^2$).<br>
+        $S = 6a^2 = 6 \times 25 = 150$ cm².<br>
+        ⚠️ 자주 하는 실수: $a^3 = 125$ (부피 $V$) 와 혼동! <b>겉넓이는 $6a^2$, 단위 cm².</b>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q7: 원뿔 겉넓이 (모선 l) -->
+  <div class="question-card" id="qcard-7">
+    <div class="q-header">
+      <div class="q-num">7</div>
+      <div class="q-tag">원뿔 겉넓이 (모선 $l$)</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text">밑면의 반지름이 $3$ cm, 모선이 $5$ cm인 원뿔의 <b>겉넓이</b>는?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(7,'①','③')">① $9\pi$ cm²</button>
+      <button class="choice-btn" onclick="chooseAnswer(7,'②','③')">② $15\pi$ cm²</button>
+      <button class="choice-btn" onclick="chooseAnswer(7,'③','③')">③ $24\pi$ cm²</button>
+      <button class="choice-btn" onclick="chooseAnswer(7,'④','③')">④ $45\pi$ cm²</button>
+    </div>
+    <div class="answer-panel" id="ans-7">
+      <div class="answer-box">정답: ③ $24\pi$ cm²</div>
+      <div class="solution-box">
+        $S = \pi r^2 + \pi r l$<br>
+        = $\pi \times 9 + \pi \times 3 \times 5$<br>
+        = $9\pi + 15\pi = 24\pi$ cm².<br><br>
+        ⚠️ ① $9\pi$ = 밑면만, ② $15\pi$ = 옆면만. <b>겉넓이는 둘 다 더해야 함.</b><br>
+        ★ 옆넓이 공식 $\pi r l$ (밑면 둘레 × 모선 ÷ 2 = $\frac{1}{2} \times 2\pi r \times l$).
+      </div>
+    </div>
+  </div>
+
+  <!-- Q8: 원뿔 부피 (★ h vs l) -->
+  <div class="question-card" id="qcard-8">
+    <div class="q-header">
+      <div class="q-num">8</div>
+      <div class="q-tag">원뿔 부피 (★ $h$ vs $l$)</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text">밑면의 반지름이 $3$ cm, 높이가 $4$ cm인 원뿔의 <b>부피</b>는?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(8,'①','②')">① $9\pi$ cm³</button>
+      <button class="choice-btn" onclick="chooseAnswer(8,'②','②')">② $12\pi$ cm³</button>
+      <button class="choice-btn" onclick="chooseAnswer(8,'③','②')">③ $15\pi$ cm³</button>
+      <button class="choice-btn" onclick="chooseAnswer(8,'④','②')">④ $36\pi$ cm³</button>
+    </div>
+    <div class="answer-panel" id="ans-8">
+      <div class="answer-box">정답: ② $12\pi$ cm³</div>
+      <div class="solution-box">
+        $V = \frac{1}{3}\pi r^2 h = \frac{1}{3}\pi \times 9 \times 4 = 12\pi$ cm³.<br><br>
+        ★ <b>부피는 모선이 아니라 높이 $h$ 사용</b>! (가장 흔한 시험 함정)<br>
+        피타고라스로 모선 $l = \sqrt{3^2+4^2} = 5$이지만 부피 계산에는 등장하지 않아요.<br>
+        ⚠️ ④ $36\pi$ = 1/3 빠뜨린 오답 (= 같은 밑면·높이 원기둥 부피).
+      </div>
+    </div>
+  </div>
+
+  <!-- Q9: 반구 겉넓이 (★ 평면 원 포함) -->
+  <div class="question-card" id="qcard-9">
+    <div class="q-header">
+      <div class="q-num">9</div>
+      <div class="q-tag">반구 겉넓이 (★ 평면 원)</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text">반지름이 $6$ cm인 반구의 <b>겉넓이</b>는?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(9,'①','③')">① $36\pi$ cm²</button>
+      <button class="choice-btn" onclick="chooseAnswer(9,'②','③')">② $72\pi$ cm²</button>
+      <button class="choice-btn" onclick="chooseAnswer(9,'③','③')">③ $108\pi$ cm²</button>
+      <button class="choice-btn" onclick="chooseAnswer(9,'④','③')">④ $144\pi$ cm²</button>
+    </div>
+    <div class="answer-panel" id="ans-9">
+      <div class="answer-box">정답: ③ $108\pi$ cm²</div>
+      <div class="solution-box">
+        반구 겉넓이 = (둥근 표면) + (평면 원)<br>
+        = $\frac{1}{2}\times 4\pi r^2 + \pi r^2$<br>
+        = $2\pi \times 36 + \pi \times 36$<br>
+        = $72\pi + 36\pi = 108\pi$ cm². (= $3\pi r^2$)<br><br>
+        ⚠️ ② $72\pi$만 답하면 <b>★ 평면 원을 빠뜨린 가장 흔한 실수</b>! 반구는 잘린 면(평면 원 $\pi r^2$)도 겉넓이의 일부예요.<br>
+        ★ 반구 겉넓이 = $\mathbf{3\pi r^2}$로 외우세요.
+      </div>
+    </div>
+  </div>
+
+  <!-- 요약 -->
+  <div class="summary-card" id="summary">
+    <h2 style="color: #4361EE;">🎉 9문제 완료!</h2>
+    <div class="summary-score" id="scoreDisplay">- / 9</div>
+    <div class="summary-sub">잘 했어요. 이제 유형별 연습으로 가요!</div>
+    <div class="solution-box" style="margin-top: 16px; text-align:left;">
+      <strong>★ 핵심 공식 정리</strong><br>
+      ① 각기둥 옆넓이 = 밑면 둘레 × 높이<br>
+      ② 각기둥 부피 = 밑넓이 × 높이<br>
+      ③ ★ 각뿔/원뿔 부피 = $\frac{1}{3} \times$ 밑넓이 × 높이<br>
+      ④ 원기둥: $S = 2\pi r^2 + 2\pi rh$, $V = \pi r^2 h$<br>
+      ⑤ 원뿔: $S = \pi r^2 + \pi rl$ (옆면은 모선 $l$), $V = \frac{1}{3}\pi r^2 h$ (부피는 높이 $h$)<br>
+      ⑥ 구: $S = 4\pi r^2$, $V = \frac{4}{3}\pi r^3$<br>
+      ⑦ ★ 반구 겉넓이 = $3\pi r^2$ (둥근 $2\pi r^2$ + 평면 $\pi r^2$)<br>
+      ⑧ ★ 단위: 겉넓이 cm², 부피 cm³
+    </div>
+    <a class="home-btn" href="../index.html">단원 홈으로 →</a>
+  </div>
+
+</div>
+
+<script>
+  let answered = {};
+  const total = 9;
+
+  function chooseAnswer(qNum, choice, correct) {
+    if (answered[qNum]) return;
+    answered[qNum] = true;
+    const card = document.getElementById('qcard-' + qNum);
+    const buttons = card.querySelectorAll('.choice-btn');
+    buttons.forEach(btn => {
+      const txt = btn.textContent.trim();
+      const mark = txt[0];
+      if (correct.includes(mark)) btn.classList.add('correct');
+      if (mark === choice && !correct.includes(mark)) btn.classList.add('wrong');
+      btn.style.cursor = 'default';
+      btn.onclick = null;
+    });
+    document.getElementById('ans-' + qNum).classList.add('show');
+    window['__q' + qNum] = correct.includes(choice) ? 1 : 0;
+    updateProgress();
+  }
+
+  function showAns(qNum, isCorrect) {
+    answered[qNum] = true;
+    document.getElementById('ans-' + qNum).classList.add('show');
+    window['__q' + qNum] = isCorrect ? 1 : 0;
+    updateProgress();
+  }
+
+  function checkIntInput(qNum, expected) {
+    if (answered[qNum]) return;
+    const v = document.getElementById('q' + qNum + '-input').value.trim().replace(/[^\d.]/g, '');
+    const fb = document.getElementById('fb-' + qNum);
+    if (parseFloat(v) === expected) {
+      fb.textContent = '정답이에요! ✓';
+      fb.className = 'feedback-msg correct';
+      showAns(qNum, true);
+    } else {
+      fb.textContent = '아쉬워요. 정답을 확인해보세요.';
+      fb.className = 'feedback-msg wrong';
+      showAns(qNum, false);
+    }
+  }
+
+  function checkInput2() { checkIntInput(2, 60); }
+  function checkInput6() { checkIntInput(6, 150); }
+
+  function updateProgress() {
+    const done = Object.keys(answered).length;
+    document.getElementById('progressFill').style.width = (done / total * 100) + '%';
+    if (done === total) {
+      let score = 0;
+      for (let i = 1; i <= total; i++) score += (window['__q' + i] || 0);
+      document.getElementById('scoreDisplay').textContent = score + ' / ' + total;
+      document.getElementById('summary').style.display = 'block';
+      document.getElementById('summary').scrollIntoView({behavior: 'smooth'});
+    }
+  }
+</script>
+</body>
+</html>

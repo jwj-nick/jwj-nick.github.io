@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>유형 6 — 그래프에서 값 읽기</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+:root{--primary:#4361EE;--bg:#eef2ff;--card:#fff;--ok:#2ecc71;--ng:#e74c3c;--hint:#f39c12;--L:#3498db;--M:#9b59b6;--H:#e74c3c;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic',sans-serif;background:var(--bg);padding:20px 16px 60px;color:#2d3436;}
+.header{max-width:700px;margin:0 auto 20px;}
+h1{font-size:18px;font-weight:800;color:var(--primary);margin-bottom:4px;}
+.sub{font-size:13px;color:#636e72;margin-bottom:4px;}
+.back-link{font-size:12px;color:#4361EE;text-decoration:none;}
+.tabs{display:flex;gap:8px;margin-bottom:20px;max-width:700px;margin-left:auto;margin-right:auto;}
+.tab-btn{flex:1;padding:9px 0;border-radius:10px;border:2px solid #c0c8f4;background:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:all .18s;color:#636e72;}
+.tab-btn.active{color:#fff;}
+.tab-btn[data-lv="L"].active{background:var(--L);border-color:var(--L);}
+.tab-btn[data-lv="M"].active{background:var(--M);border-color:var(--M);}
+.tab-btn[data-lv="H"].active{background:var(--H);border-color:var(--H);}
+.panel{display:none;max-width:700px;margin:0 auto;}
+.panel.show{display:block;}
+.card{background:var(--card);border-radius:14px;padding:22px 22px 18px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:14px;}
+.q-head{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.q-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0;}
+.lv-L .q-num{background:var(--L);}
+.lv-M .q-num{background:var(--M);}
+.lv-H .q-num{background:var(--H);}
+.lv-tag{font-size:11px;padding:2px 9px;border-radius:20px;font-weight:700;color:#fff;}
+.lv-L .lv-tag{background:var(--L);}
+.lv-M .lv-tag{background:var(--M);}
+.lv-H .lv-tag{background:var(--H);}
+.q-text{font-size:14px;line-height:1.75;margin-bottom:14px;}
+.ans-tabs{display:flex;gap:6px;margin-bottom:10px;}
+.ans-tab{padding:6px 14px;border-radius:8px;border:2px solid #dde3ff;background:#f8f9ff;font-size:12px;font-weight:700;cursor:pointer;color:#636e72;}
+.ans-tab.open{background:var(--primary);border-color:var(--primary);color:#fff;}
+.hint-panel,.sol-panel{display:none;border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.7;margin-top:6px;}
+.hint-panel.show,.sol-panel.show{display:block;}
+.hint-panel{background:#fff8e8;border-left:4px solid var(--hint);}
+.sol-panel{background:#eef9f4;border-left:4px solid var(--ok);}
+.warn{background:#fff0f0;border-left:4px solid var(--ng);border-radius:8px;padding:10px 14px;font-size:12px;margin-top:10px;}
+.data-table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0;}
+.data-table th{background:#4361EE;color:white;padding:6px;text-align:center;}
+.data-table td{border:1px solid #dde3ff;padding:6px;text-align:center;}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>유형 6 — 그래프에서 값 읽기</h1>
+  <div class="sub">표 ↔ 식 ↔ 그래프 — 그래프 위에서 $x, y$ 값 찾기</div>
+  <a class="back-link" href="../index.html">← 단원 5 홈</a>
+</div>
+<div class="tabs">
+  <button class="tab-btn active" data-lv="L" onclick="switchTab('L',this)">L — 기본 (3문제)</button>
+  <button class="tab-btn" data-lv="M" onclick="switchTab('M',this)">M — 중간 (3문제)</button>
+  <button class="tab-btn" data-lv="H" onclick="switchTab('H',this)">H — 심화 (3문제)</button>
+</div>
+
+<!-- L 패널 -->
+<div class="panel show" id="panel-L">
+
+<div class="card lv-L">
+<div class="q-head"><div class="q-num">1</div><span class="lv-tag">L</span></div>
+<div class="q-text">식 $y = x + 3$일 때, $x = 2$를 대입하면 $y$의 값은?</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-L1')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-L1')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-L1">$x$ 자리에 2를 넣어 계산해봐요.</div>
+<div class="sol-panel" id="sol-L1"><strong>$y = 5$</strong><br>$y = x + 3$<br>$y = 2 + 3 = 5$<br>점으로 쓰면 $(2, 5)$가 그래프 위에 있어요.</div>
+</div>
+
+<div class="card lv-L">
+<div class="q-head"><div class="q-num">2</div><span class="lv-tag">L</span></div>
+<div class="q-text">아래 표는 어떤 식 $y = $ ? 를 나타내는 표예요. 빈칸의 식을 구하세요.
+<table class="data-table">
+<tr><th>$x$</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td></tr>
+<tr><th>$y$</th><td>0</td><td>3</td><td>6</td><td>9</td><td>12</td></tr>
+</table></div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-L2')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-L2')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-L2">$x$가 1 늘 때마다 $y$가 얼마나 늘어요?</div>
+<div class="sol-panel" id="sol-L2"><strong>$y = 3x$</strong><br>$x$가 1 증가할 때마다 $y$는 3 증가.<br>$x = 0$일 때 $y = 0$ → 원점 통과.<br>$\therefore y = 3x$<br>확인: $x=4 \Rightarrow y=3 \times 4 = 12$ ✓</div>
+</div>
+
+<div class="card lv-L">
+<div class="q-head"><div class="q-num">3</div><span class="lv-tag">L</span></div>
+<div class="q-text">식 $y = -2x + 1$일 때, $x = 3$을 대입하면 $y$값은?</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-L3')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-L3')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-L3">$y = -2 \times 3 + 1$ 계산.</div>
+<div class="sol-panel" id="sol-L3"><strong>$y = -5$</strong><br>$y = -2x + 1$<br>$y = -2(3) + 1 = -6 + 1 = -5$<br>점 $(3, -5)$가 그래프 위.</div>
+</div>
+
+</div><!-- end panel-L -->
+
+<!-- M 패널 -->
+<div class="panel" id="panel-M">
+
+<div class="card lv-M">
+<div class="q-head"><div class="q-num">1</div><span class="lv-tag">M</span></div>
+<div class="q-text">식 $y = 2x - 3$의 그래프 위에 있는 점은?<br>① $(0, 3)$ &nbsp; ② $(1, -1)$ &nbsp; ③ $(2, 0)$ &nbsp; ④ $(3, 4)$</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-M1')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-M1')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-M1">각 점의 $x$값을 식에 대입해서 $y$값과 일치하는지 확인.</div>
+<div class="sol-panel" id="sol-M1"><strong>② $(1, -1)$</strong><br>① $x=0 \Rightarrow y=-3$, 보기 3 → 거짓<br>② $x=1 \Rightarrow y=2-3=-1$ ✓<br>③ $x=2 \Rightarrow y=4-3=1$, 보기 0 → 거짓<br>④ $x=3 \Rightarrow y=6-3=3$, 보기 4 → 거짓</div>
+</div>
+
+<div class="card lv-M">
+<div class="q-head"><div class="q-num">2</div><span class="lv-tag">M</span></div>
+<div class="q-text">식 $y = x + 1$에서 $y$의 값이 $5$가 되는 $x$의 값은?</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-M2')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-M2')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-M2">$y$ 자리에 5를 넣고 $x$를 구해요. (방정식 풀기와 같음)</div>
+<div class="sol-panel" id="sol-M2"><strong>$x = 4$</strong><br>$5 = x + 1$<br>$x = 5 - 1 = 4$<br>$\therefore$ 점 $(4, 5)$가 그래프 위에 있어요.</div>
+</div>
+
+<div class="card lv-M">
+<div class="q-head"><div class="q-num">3</div><span class="lv-tag">M</span></div>
+<div class="q-text">식 $y = -x + 4$의 그래프에서 $x$절편 (그래프가 $x$축과 만나는 점의 $x$좌표)을 구하세요.</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-M3')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-M3')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-M3">$x$축과 만나는 점은 $y = 0$인 점.</div>
+<div class="sol-panel" id="sol-M3"><strong>$x = 4$</strong><br>$y = 0$ 대입: $0 = -x + 4$<br>$x = 4$<br>그래프는 점 $(4, 0)$에서 $x$축과 만나요.</div>
+</div>
+
+</div><!-- end panel-M -->
+
+<!-- H 패널 -->
+<div class="panel" id="panel-H">
+
+<div class="card lv-H">
+<div class="q-head"><div class="q-num">1</div><span class="lv-tag">H</span></div>
+<div class="q-text">식 $y = 3x + a$의 그래프가 점 $(2, 7)$을 지날 때, 상수 $a$의 값을 구하세요.</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-H1')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-H1')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-H1">"그래프가 점 (2, 7)을 지난다" → $x=2, y=7$을 식에 대입해도 등식이 성립.</div>
+<div class="sol-panel" id="sol-H1"><strong>$a = 1$</strong><br>$x = 2, y = 7$ 대입:<br>$7 = 3(2) + a$<br>$7 = 6 + a$<br>$a = 1$<br>$\therefore$ 식은 $y = 3x + 1$</div>
+</div>
+
+<div class="card lv-H">
+<div class="q-head"><div class="q-num">2</div><span class="lv-tag">H</span></div>
+<div class="q-text">아래 표는 어떤 식 $y = ax + b$ 형태의 관계예요. $a$와 $b$를 구하세요.
+<table class="data-table">
+<tr><th>$x$</th><td>0</td><td>1</td><td>2</td><td>3</td></tr>
+<tr><th>$y$</th><td>4</td><td>2</td><td>0</td><td>−2</td></tr>
+</table></div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-H2')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-H2')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-H2">$x$ 1 증가할 때 $y$ 변화 = $a$. $x = 0$일 때 $y$값 = $b$.</div>
+<div class="sol-panel" id="sol-H2"><strong>$a = -2, b = 4$</strong><br>$x$가 1 증가할 때마다 $y$는 $-2$ → $a = -2$<br>$x = 0$일 때 $y = 4$ → $b = 4$<br>식: $y = -2x + 4$<br>확인: $x=3 \Rightarrow y = -6 + 4 = -2$ ✓<br>
+<div class="warn">$y$ 변화량을 $x$ 변화량으로 나눈 값이 기울기 $a$. 음수일 수도 있음에 주의.</div></div>
+</div>
+
+<div class="card lv-H">
+<div class="q-head"><div class="q-num">3</div><span class="lv-tag">H</span></div>
+<div class="q-text">두 점 $(1, 5)$, $(3, 11)$을 모두 지나는 직선 $y = ax + b$의 식을 구하세요.</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-H3')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-H3')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-H3">두 점을 식에 대입 → 두 식 → $a, b$.</div>
+<div class="sol-panel" id="sol-H3"><strong>$y = 3x + 2$</strong><br>점 $(1, 5)$: $5 = a + b$ ……①<br>점 $(3, 11)$: $11 = 3a + b$ ……②<br>②$-$①: $6 = 2a \Rightarrow a = 3$<br>①에 대입: $5 = 3 + b \Rightarrow b = 2$<br>$\therefore y = 3x + 2$<br>검산: $(1, 5)$: $3(1)+2=5$ ✓ &nbsp; $(3, 11)$: $3(3)+2=11$ ✓</div>
+</div>
+
+</div><!-- end panel-H -->
+
+<script>
+function switchTab(lv, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('show'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + lv).classList.add('show');
+}
+function toggle(btn, id) {
+  const panel = document.getElementById(id);
+  const isShow = panel.classList.contains('show');
+  btn.parentElement.querySelectorAll('.hint-panel, .sol-panel').forEach(p => p.classList.remove('show'));
+  btn.parentElement.querySelectorAll('.ans-tab').forEach(b => b.classList.remove('open'));
+  if (!isShow) { panel.classList.add('show'); btn.classList.add('open'); }
+}
+</script>
+</body>
+</html>

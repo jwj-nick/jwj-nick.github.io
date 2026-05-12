@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 탐구 — 다각형 기초 (정의·대각선)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+:root{--primary:#4361EE;--bg:#eef2ff;--card:#fff;--ok:#2ecc71;--ng:#e74c3c;--warn:#f39c12;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic',sans-serif;background:var(--bg);padding:0 0 60px;color:#2d3436;}
+.header{background:linear-gradient(135deg,#4361EE,#3a0ca3);color:white;padding:28px 20px 24px;text-align:center;}
+.header h1{font-size:20px;margin-bottom:6px;}
+.header p{font-size:13px;opacity:0.85;}
+.back-link{font-size:12px;color:rgba(255,255,255,0.7);text-decoration:none;display:block;margin-top:10px;}
+.tab-bar{display:flex;gap:0;background:white;box-shadow:0 2px 8px rgba(0,0,0,0.08);position:sticky;top:0;z-index:10;}
+.tab-btn{flex:1;padding:14px 0;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;color:#888;border-bottom:3px solid transparent;font-family:inherit;}
+.tab-btn.active{color:#4361EE;border-bottom-color:#4361EE;}
+.tab-btn small{font-size:10px;display:block;margin-top:2px;color:#aaa;}
+.tab-btn.active small{color:#4361EE;}
+.tab-panel{display:none;}
+.tab-panel.show{display:block;}
+.container{max-width:700px;margin:0 auto;padding:20px 16px;}
+.section{margin-bottom:28px;}
+.section-title{font-size:15px;font-weight:bold;color:#4361EE;padding-left:8px;border-left:3px solid #4361EE;margin-bottom:14px;}
+.card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;}
+.card h3{font-size:15px;color:#1a1a2e;margin-bottom:10px;}
+.card p,.card li{font-size:14px;color:#444;line-height:1.8;}
+.card ul{padding-left:18px;}
+.highlight{background:#f0f4ff;border-left:4px solid #4361EE;border-radius:0 10px 10px 0;padding:12px 16px;margin:10px 0;font-size:14px;color:#333;line-height:1.7;}
+.mistake-item{background:white;border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(67,97,238,.07);margin-bottom:10px;display:flex;gap:12px;}
+.mistake-icon{font-size:22px;flex-shrink:0;margin-top:2px;}
+.mistake-content{flex:1;}
+.mistake-title{font-size:14px;font-weight:bold;color:#e74c3c;margin-bottom:4px;}
+.mistake-desc{font-size:13px;color:#444;line-height:1.6;}
+.problem-card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;border-left:4px solid #4361EE;}
+.prob-label{font-size:12px;font-weight:bold;color:#4361EE;letter-spacing:1px;margin-bottom:8px;}
+.prob-text{font-size:15px;line-height:1.8;color:#1a1a2e;margin-bottom:12px;}
+.reveal-btn{background:none;border:2px solid #4361EE;color:#4361EE;padding:6px 18px;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;}
+.reveal-content{display:none;margin-top:12px;background:#f0fff4;border-radius:10px;padding:12px 16px;font-size:13px;color:#1b5e20;line-height:1.7;}
+.connect-box{background:linear-gradient(135deg,#f0f4ff,#e8ecff);border-radius:14px;padding:20px;font-size:14px;color:#333;line-height:1.8;}
+.connect-title{font-size:15px;font-weight:bold;color:#4361EE;margin-bottom:10px;}
+table.tbl{border-collapse:collapse;font-size:13px;margin:10px 0;width:100%;}
+table.tbl th,table.tbl td{border:1px solid #ccd;padding:6px 10px;text-align:center;}
+table.tbl th{background:#eef2ff;}
+.formula-box{background:#eef2ff;border-radius:8px;padding:10px 14px;text-align:center;font-size:16px;color:#4361EE;font-weight:700;margin:8px 0;}
+.fig-svg{display:block;margin:10px auto;max-width:380px;width:100%;background:#fafbff;border-radius:8px;padding:8px;border:1px solid #eef2ff;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>깊이 탐구 — 다각형 기초</h1>
+  <p>정의 · 대각선 (유형 1·2 통합)</p>
+  <a class="back-link" href="../index.html">← 단원 9 홈</a>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('tab1',this)">유형 1<small>정의</small></button>
+  <button class="tab-btn" onclick="switchTab('tab2',this)">유형 2<small>대각선</small></button>
+</div>
+
+<!-- 탭 1: 다각형 정의 -->
+<div class="tab-panel show" id="tab1">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>다각형의 정의는 단순해 보이지만, <strong>"무엇이 다각형인가?"</strong>를 정확히 따져 보면 의외로 헷갈려요. 원·부채꼴·열린 도형 같은 경계 사례가 시험에서 자주 나와요.</p>
+      <p style="margin-top:8px;"><strong>핵심 체크리스트 3가지</strong>:<br>
+      ① <strong>평면</strong> 위에 있는가? (입체 X)<br>
+      ② <strong>선분</strong>으로만 이루어졌는가? (곡선 X)<br>
+      ③ <strong>닫혀</strong> 있는가? (열린 도형 X)</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — $n$각형의 일관성</div>
+    <div class="card">
+      <p>$n$각형에서 모든 수치는 $n$ 하나로 결정돼요. 이게 다각형 단원의 가장 큰 무기.</p>
+      <table class="tbl">
+        <tr><th>대상</th><th>$n$각형의 수</th></tr>
+        <tr><td>변의 수</td><td>$n$</td></tr>
+        <tr><td>꼭짓점의 수</td><td>$n$</td></tr>
+        <tr><td>한 꼭짓점에서 그을 수 있는 대각선</td><td>$n - 3$</td></tr>
+        <tr><td>한 꼭짓점에서 분할되는 삼각형</td><td>$n - 2$</td></tr>
+        <tr><td>전체 대각선</td><td>$\dfrac{n(n-3)}{2}$</td></tr>
+        <tr><td>내각의 합</td><td>$180°(n-2)$</td></tr>
+        <tr><td>외각의 합</td><td>$360°$</td></tr>
+      </table>
+      <div class="highlight"><strong>변의 수 = 꼭짓점의 수</strong>는 다각형이 닫힌 도형이라서 생기는 결과예요. 한 변마다 끝점이 두 개고, 각 점은 두 변의 끝이라 항상 짝이 맞아요.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">부채꼴이 다각형이라고 생각</div>
+        <div class="mistake-desc">부채꼴은 호(곡선)가 들어가서 다각형이 아니에요. 두 반지름은 선분이지만 호는 곡선.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">변의 수와 꼭짓점의 수가 다를 수 있다고 생각</div>
+        <div class="mistake-desc">다각형에서 변과 꼭짓점은 항상 같은 수예요. 닫혀 있는 한.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">"꼭짓점 6개에서 그을 수 있는 대각선" 질문에 6개라고 답</div>
+        <div class="mistake-desc">한 꼭짓점에서 그을 수 있는 대각선은 $n-3$개 (이웃 두 점·자신 제외). 육각형이면 3개.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제</div>
+    <div class="problem-card">
+      <div class="prob-label">PROB 1</div>
+      <div class="prob-text">사면체(피라미드 같은 입체)가 다각형인지 판단하시오.</div>
+      <button class="reveal-btn" onclick="reveal(this,'r-tab1-1')">정답·풀이</button>
+      <div class="reveal-content" id="r-tab1-1"><strong>다각형 아님</strong> — 다각형은 평면도형이어야 해요. 사면체는 입체. 사면체의 각 면은 삼각형이라 다각형이지만, 사면체 자체는 다각형이 아니에요.</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROB 2</div>
+      <div class="prob-text">변의 수가 13개인 다각형의 꼭짓점 수와 한 꼭짓점에서 그을 수 있는 대각선 수를 구하시오.</div>
+      <button class="reveal-btn" onclick="reveal(this,'r-tab1-2')">정답·풀이</button>
+      <div class="reveal-content" id="r-tab1-2">꼭짓점 = 13, 한 꼭짓점 대각선 = $13 - 3 = 10$.</div>
+    </div>
+  </div>
+
+  <div class="connect-box">
+    <div class="connect-title">🔗 연결 개념</div>
+    이 유형을 확실히 이해하면 → <strong>유형 2 (대각선의 수)</strong>로 자연스럽게 넘어가요. $n$각형의 정체성이 분명해지면 대각선 공식이 단순한 공식이 아니라 "왜 그래야 하는지" 이해돼요.
+  </div>
+</div>
+</div>
+
+<!-- 탭 2: 대각선 -->
+<div class="tab-panel" id="tab2">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>대각선 공식 $\dfrac{n(n-3)}{2}$ 자체는 외울 수 있지만, <strong>"왜 $n-3$인지" "왜 ÷2 하는지"</strong>를 모르고 외우면 역산 문제(대각선 수 → $n$ 구하기)에서 막혀요.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 두 단계 도출</div>
+    <div class="card">
+      <h3>① 한 꼭짓점에서 $n-3$개</h3>
+      <p>한 꼭짓점에서 다른 꼭짓점까지 직선을 그어보면 $n-1$개. (자기 자신 제외)<br>
+      그 중 <strong>이웃하는 두 꼭짓점</strong>으로 가는 2개는 변이지 대각선이 아님.<br>
+      → 대각선 = $(n-1) - 2 = n - 3$</p>
+      <div class="formula-box">한 꼭짓점에서 = $n - 3$</div>
+
+      <h3 style="margin-top:14px;">② 전체는 $\dfrac{n(n-3)}{2}$</h3>
+      <p>꼭짓점이 $n$개니까, 각 꼭짓점마다 $(n-3)$개씩 합하면 $n(n-3)$개. 그런데 한 대각선은 양쪽 끝이 두 꼭짓점이라서 <strong>두 번 세어졌어요</strong>.<br>
+      → 전체 = $\dfrac{n(n-3)}{2}$</p>
+      <div class="formula-box">전체 = $\dfrac{n(n-3)}{2}$</div>
+    </div>
+
+    <div class="card">
+      <h3>역산 — 대각선 수 → $n$ 구하기</h3>
+      <p>대각선 수가 주어지면 $n(n-3)$ = (대각선 수 × 2)인 정수 $n$을 찾아요. 자연수라는 조건이 있어 보통 한 가지 답만 나와요.</p>
+      <table class="tbl">
+        <tr><th>대각선 수</th><th>$n(n-3)$</th><th>$n$</th></tr>
+        <tr><td>5</td><td>10</td><td>5</td></tr>
+        <tr><td>9</td><td>18</td><td>6</td></tr>
+        <tr><td>14</td><td>28</td><td>7</td></tr>
+        <tr><td>20</td><td>40</td><td>8</td></tr>
+        <tr><td>27</td><td>54</td><td>9</td></tr>
+        <tr><td>35</td><td>70</td><td>10</td></tr>
+        <tr><td>54</td><td>108</td><td>12</td></tr>
+      </table>
+      <div class="highlight"><strong>팁</strong>: 대각선 수가 작으면 외워두는 게 빠름. 시험에 자주 나오는 7~10각형 대각선 수: 14, 20, 27, 35.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">$n - 3$ 대신 $n - 2$로 헷갈림</div>
+        <div class="mistake-desc">$n - 2$는 <strong>분할 삼각형 수</strong> (한 꼭짓점에서 대각선 $n-3$개를 그으면 $n-2$개의 삼각형이 만들어짐). 대각선 수 자체는 $n - 3$.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">전체 대각선 = $n(n-3)$ (÷2 빼먹기)</div>
+        <div class="mistake-desc">한 대각선이 두 꼭짓점에서 세어지므로 반드시 ÷2.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">"한 꼭짓점에서 대각선" 묻는데 전체 답 (또는 반대)</div>
+        <div class="mistake-desc">문제의 "한 꼭짓점" / "전체" 단어를 정확히 읽기.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제</div>
+    <div class="problem-card">
+      <div class="prob-label">PROB 1</div>
+      <div class="prob-text">한 꼭짓점에서 그을 수 있는 대각선이 $7$개인 다각형의 모든 대각선의 수는?</div>
+      <button class="reveal-btn" onclick="reveal(this,'r-tab2-1')">정답·풀이</button>
+      <div class="reveal-content" id="r-tab2-1">한 꼭짓점에서 $n-3=7$ → $n=10$. 전체 대각선 = $\dfrac{10 \times 7}{2} = 35$.</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROB 2</div>
+      <div class="prob-text">대각선의 수가 $44$개인 다각형은 몇각형인가?</div>
+      <button class="reveal-btn" onclick="reveal(this,'r-tab2-2')">정답·풀이</button>
+      <div class="reveal-content" id="r-tab2-2">$\dfrac{n(n-3)}{2}=44$ → $n(n-3)=88$. $n=11$일 때 $11 \times 8 = 88$ ✓. 십일각형.</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROB 3</div>
+      <div class="prob-text">대각선의 수가 변의 수의 3배인 다각형은 몇각형인가?</div>
+      <button class="reveal-btn" onclick="reveal(this,'r-tab2-3')">정답·풀이</button>
+      <div class="reveal-content" id="r-tab2-3">$\dfrac{n(n-3)}{2} = 3n$ → $n(n-3) = 6n$ → $n - 3 = 6$ ($n \neq 0$) → $n = 9$. 구각형.</div>
+    </div>
+  </div>
+
+  <div class="connect-box">
+    <div class="connect-title">🔗 연결 개념</div>
+    대각선 공식의 도출 정신("÷2는 중복을 빼는 것")은 <strong>가우스가 1+2+...+100을 풀던 방법</strong>과 같아요. 또한 분할 삼각형 수 ($n-2$)는 <strong>유형 4 (내각의 합)</strong>의 출발점.
+  </div>
+</div>
+</div>
+
+<script>
+function switchTab(id, btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('show'));
+  document.getElementById(id).classList.add('show');
+}
+function reveal(btn, id){
+  const e = document.getElementById(id);
+  if(e.style.display === 'block'){e.style.display = 'none'; btn.textContent = '정답·풀이';}
+  else{e.style.display = 'block'; btn.textContent = '닫기';}
+}
+</script>
+</body>
+</html>

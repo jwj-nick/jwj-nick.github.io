@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 탐구 — 그래프 (값 읽기·해석)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+:root{--primary:#4361EE;--bg:#eef2ff;--card:#fff;--ok:#2ecc71;--ng:#e74c3c;--warn:#f39c12;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic',sans-serif;background:var(--bg);padding:0 0 60px;color:#2d3436;}
+.header{background:linear-gradient(135deg,#4361EE,#3a0ca3);color:white;padding:28px 20px 24px;text-align:center;}
+.header h1{font-size:20px;margin-bottom:6px;}
+.header p{font-size:13px;opacity:0.85;}
+.back-link{font-size:12px;color:rgba(255,255,255,0.7);text-decoration:none;display:block;margin-top:10px;}
+.tab-bar{display:flex;gap:0;background:white;box-shadow:0 2px 8px rgba(0,0,0,0.08);position:sticky;top:0;z-index:10;}
+.tab-btn{flex:1;padding:14px 0;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;color:#888;border-bottom:3px solid transparent;transition:all 0.2s;}
+.tab-btn.active{color:#4361EE;border-bottom-color:#4361EE;}
+.tab-btn small{font-size:10px;display:block;margin-top:2px;color:#aaa;}
+.tab-btn.active small{color:#4361EE;}
+.tab-panel{display:none;}
+.tab-panel.show{display:block;}
+.container{max-width:700px;margin:0 auto;padding:20px 16px;}
+.section{margin-bottom:28px;}
+.section-title{font-size:15px;font-weight:bold;color:#4361EE;padding-left:8px;border-left:3px solid #4361EE;margin-bottom:14px;}
+.card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;}
+.card h3{font-size:15px;color:#1a1a2e;margin-bottom:10px;}
+.card p,.card li{font-size:14px;color:#444;line-height:1.8;}
+.card ul, .card ol{padding-left:18px;}
+.highlight{background:#f0f4ff;border-left:4px solid #4361EE;border-radius:0 10px 10px 0;padding:12px 16px;margin:10px 0;font-size:14px;color:#333;line-height:1.7;}
+.warn-box{background:#fff3e0;border:1px solid #ffcc80;border-radius:10px;padding:12px 14px;font-size:13px;color:#e65100;line-height:1.6;margin-top:10px;}
+.mistake-item{background:white;border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(67,97,238,.07);margin-bottom:10px;display:flex;gap:12px;}
+.mistake-icon{font-size:22px;flex-shrink:0;margin-top:2px;}
+.mistake-content{flex:1;}
+.mistake-title{font-size:14px;font-weight:bold;color:#e74c3c;margin-bottom:4px;}
+.mistake-desc{font-size:13px;color:#444;line-height:1.6;}
+.problem-card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;border-left:4px solid #4361EE;}
+.prob-label{font-size:12px;font-weight:bold;color:#4361EE;letter-spacing:1px;margin-bottom:8px;}
+.prob-text{font-size:15px;line-height:1.8;color:#1a1a2e;margin-bottom:12px;}
+.reveal-btn{background:none;border:2px solid #4361EE;color:#4361EE;padding:6px 18px;border-radius:20px;font-size:13px;cursor:pointer;margin-right:8px;}
+.reveal-content{display:none;margin-top:12px;background:#f0fff4;border-radius:10px;padding:12px 16px;font-size:13px;color:#1b5e20;line-height:1.7;}
+.connect-box{background:linear-gradient(135deg,#f0f4ff,#e8ecff);border-radius:14px;padding:20px;font-size:14px;color:#333;line-height:1.8;}
+.connect-title{font-size:15px;font-weight:bold;color:#4361EE;margin-bottom:10px;}
+.data-table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0;}
+.data-table th{background:#4361EE;color:white;padding:6px;text-align:center;}
+.data-table td{border:1px solid #dde3ff;padding:6px;text-align:center;}
+.data-table tr:nth-child(even) td{background:#f8f9ff;}
+.mini-graph{display:block;margin:10px auto;max-width:300px;width:100%;height:auto;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>깊이 탐구 — 그래프</h1>
+  <p>그래프에서 값 읽기 + 그래프 해석 (2유형 통합)</p>
+  <a class="back-link" href="../index.html">← 단원 5 홈</a>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('tab1',this)">유형 6<small>값 읽기</small></button>
+  <button class="tab-btn" onclick="switchTab('tab2',this)">유형 7<small>상황 해석</small></button>
+</div>
+
+<!-- 탭 1: 그래프에서 값 읽기 -->
+<div class="tab-panel show" id="tab1">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>같은 관계가 <strong>표·식·그래프</strong> 세 가지 형태로 나타나서, 어느 형태에서든 다른 형태로 변환할 수 있어야 해요.</p>
+      <p style="margin-top:8px;">"식만 봐도 답"인 경우와 "그래프를 보고 읽어야 답"인 경우를 구분하는 게 핵심.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 표↔식↔그래프 변환</div>
+    <div class="card">
+      <h3>식 → 표</h3>
+      <p>$x$값을 0, 1, 2, 3 순서로 대입해 $y$값을 구하면 표가 만들어져요.</p>
+      <p>예: $y = 2x + 1$</p>
+      <table class="data-table">
+        <tr><th>$x$</th><td>0</td><td>1</td><td>2</td><td>3</td></tr>
+        <tr><th>$y$</th><td>1</td><td>3</td><td>5</td><td>7</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3>표 → 식</h3>
+      <p>$x$가 1 증가할 때 $y$ 변화량 = 기울기 $a$<br>$x = 0$일 때 $y$값 = 절편 $b$</p>
+      <p>예: 위 표에서 $x$ 1 증가 → $y$ 2 증가, $x=0$일 때 $y=1$ → $y = 2x + 1$ ✓</p>
+    </div>
+    <div class="card">
+      <h3>식 → 그래프</h3>
+      <ol>
+        <li>두 점($x = 0$일 때, $x = 1$일 때 등) 좌표 구하기</li>
+        <li>좌표평면에 두 점 찍기</li>
+        <li>두 점을 잇는 직선 그리기</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3>그래프 → 값</h3>
+      <p><strong>특정 $x$값에서 $y$값 찾기</strong>:</p>
+      <ol>
+        <li>$x$축에서 그 값 찾기</li>
+        <li>위로 수직선 그어 그래프와 만나는 점</li>
+        <li>그 점의 $y$좌표 읽기</li>
+      </ol>
+      <div class="warn-box">⚠️ 가로 방향이 아니라 <strong>세로 방향</strong>으로 올라가야 해요!</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">😵</div>
+      <div class="mistake-content">
+        <div class="mistake-title">"그래프가 점 (a, b)를 지난다" 의미 헷갈림</div>
+        <div class="mistake-desc">$x = a, y = b$를 식에 대입하면 등식 성립.<br>$x$좌표만 대입하는 게 아니라 <strong>$y$좌표도 함께 사용</strong>!</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">⚠️</div>
+      <div class="mistake-content">
+        <div class="mistake-title">$x$절편 vs $y$절편 헷갈림</div>
+        <div class="mistake-desc">$x$절편 = 그래프가 $x$축과 만나는 점의 $x$좌표 ($y = 0$일 때)<br>$y$절편 = 그래프가 $y$축과 만나는 점의 $y$좌표 ($x = 0$일 때)<br>이름 따라 어느 축에서 만나는지 정해져요.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제 (3문제)</div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 1</div>
+      <div class="prob-text">식 $y = -3x + 6$의 그래프에서 $x$절편과 $y$절편을 각각 구하세요.</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">$x$절편: $y = 0$ 대입 → $0 = -3x + 6 \Rightarrow x = 2$<br>$y$절편: $x = 0$ 대입 → $y = 6$<br>그래프는 $(2, 0)$과 $(0, 6)$을 지나는 직선이에요.</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 2</div>
+      <div class="prob-text">$y = ax - 2$ 그래프가 점 $(3, 4)$를 지날 때 $a$의 값은?</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">점 $(3, 4)$ 대입: $4 = 3a - 2$<br>$3a = 6 \Rightarrow a = 2$</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 3</div>
+      <div class="prob-text">아래 표가 식 $y = ax + b$를 나타낼 때 $a, b$를 구하세요.
+<table class="data-table">
+<tr><th>$x$</th><td>0</td><td>2</td><td>4</td><td>6</td></tr>
+<tr><th>$y$</th><td>3</td><td>0</td><td>−3</td><td>−6</td></tr>
+</table></div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">$x$가 2 증가할 때 $y$는 −3 변화 → 1 증가당 $y$는 $-\frac{3}{2}$ 변화 → $a = -\frac{3}{2}$<br>$x = 0$일 때 $y = 3 \Rightarrow b = 3$<br>식: $y = -\dfrac{3}{2} x + 3$</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="connect-box">
+      <div class="connect-title">이 유형 이해하면…</div>
+      다음 단원 06(정비례·반비례), 그리고 중2 일차함수가 자연스럽게 시작됩니다.<br>
+      "표 ↔ 식 ↔ 그래프"는 모든 함수 단원의 공통 언어!
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- 탭 2: 그래프 해석 (상황) -->
+<div class="tab-panel" id="tab2">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>그래프가 단순히 식이 아니라 <strong>"실제 상황의 모양"</strong>을 나타내요. 일상의 표현(빠르다, 멈춘다, 가장 높다)을 그래프 모양으로 옮길 수 있어야 해요.</p>
+      <p style="margin-top:8px;">그래프의 한 부분이 어떤 의미인지 매 구간 해석해야 해서, <strong>구간별로 끊어 읽는 습관</strong>이 필요해요.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 그래프 모양 사전</div>
+    <div class="card">
+      <h3>모양 → 의미 표</h3>
+      <table class="data-table">
+        <tr><th>모양</th><th>의미 (시간-거리 그래프 예시)</th></tr>
+        <tr><td>우상향 직선</td><td>일정 속력으로 진행 (등속)</td></tr>
+        <tr><td>우하향 직선</td><td>되돌아오기 (반대 방향)</td></tr>
+        <tr><td>수평선 (가로)</td><td>정지 (거리 변화 X)</td></tr>
+        <tr><td>경사 가파름</td><td>속력 빠름 (단위 시간당 큰 거리)</td></tr>
+        <tr><td>경사 완만</td><td>속력 느림</td></tr>
+        <tr><td>최고점 (꼭대기)</td><td>최댓값 (가장 멀리/가장 높이)</td></tr>
+        <tr><td>최저점 (골짜기)</td><td>최솟값</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3>"가장 ~" 질문 정리</h3>
+      <ul>
+        <li>"가장 높은 시각" → 최고점의 <strong>$x$좌표</strong></li>
+        <li>"가장 높은 기온" → 최고점의 <strong>$y$좌표</strong></li>
+        <li>"가장 빨리 변한 구간" → <strong>경사가 가장 가파른 구간</strong></li>
+        <li>"두 사람이 만나는 시점" → 두 그래프의 <strong>교점</strong></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">😵</div>
+      <div class="mistake-content">
+        <div class="mistake-title">"가장 높은" 질문에서 $x, y$ 헷갈림</div>
+        <div class="mistake-desc">"기온이 가장 높은 <strong>시각</strong>" → $x$좌표 (시간)<br>"기온이 가장 높은 <strong>온도</strong>" → $y$좌표 (기온 값)<br>질문이 무엇을 묻는지 먼저 확인!</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">⚠️</div>
+      <div class="mistake-content">
+        <div class="mistake-title">기울기 = 변화의 빠르기 잊기</div>
+        <div class="mistake-desc">시간-거리 그래프에서 <strong>기울기 = 속력</strong>.<br>두 사람의 그래프 비교에서 "더 빠른 사람"은 기울기가 더 큰 사람!</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">🤔</div>
+      <div class="mistake-content">
+        <div class="mistake-title">단위 통일 까먹기</div>
+        <div class="mistake-desc">"1시간에 50km" + "30분 후" → 30분 = 0.5시간으로 통일.<br>분과 시간을 섞어 계산하면 큰 오류! "단위 한 가지로" 원칙.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제 (3문제)</div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 1</div>
+      <div class="prob-text">A는 시속 60km로, B는 시속 80km로 같은 길을 같은 시각에 같은 출발점에서 출발했어요. 시간-거리 그래프에서 두 사람의 그래프 모양은 어떻게 다른가요?</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">둘 다 원점에서 시작하는 직선.<br>A의 기울기: 60 (1시간에 60km)<br>B의 기울기: 80 (1시간에 80km)<br>$\therefore$ B의 그래프가 더 가파르게 올라감 (위에 있음).<br>같은 시각에 B가 더 멀리 가 있음.</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 2</div>
+      <div class="prob-text">정민이는 학교에서 출발해 5분에 300m를 걷고, 친구를 만나 10분 동안 멈춘 뒤, 다시 5분에 300m를 더 걸었어요. 시간-거리 그래프 모양을 말로 설명하세요.</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">3개 구간:<br>① 0~5분: 우상향 직선 (300m로 올라감)<br>② 5~15분: 수평선 (300m 유지, 거리 변화 X)<br>③ 15~20분: 다시 우상향 (600m까지 올라감)<br>총 모양: 계단처럼 올라가다 평평해지고 다시 올라감.</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 3</div>
+      <div class="prob-text">물탱크에 1분에 4L씩 물을 넣을 때, 시간 $x$분과 물의 양 $y$L 사이의 관계식을 쓰고, 5분 후 물의 양을 구하세요. 그래프는 어떤 모양인가요?</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">관계식: $y = 4x$ (정비례)<br>5분 후: $y = 4 \times 5 = 20$ L<br>그래프 모양: 원점에서 시작하는 우상향 직선 (기울기 4).<br>이 식이 바로 다음 단원(정비례)의 출발점이에요!</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="connect-box">
+      <div class="connect-title">이 유형 이해하면…</div>
+      통계·자료 단원(13)의 그래프 해석으로 자연스럽게 연결돼요.<br>
+      또 일상에서 그래프를 만나면 "이 그래프는 무슨 이야기를 하고 있나"를 읽을 수 있게 됩니다.<br>
+      <strong>나이팅게일이 그래프로 군대를 살린 것</strong>처럼, 그래프는 강력한 도구!
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+function switchTab(tabId, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('show'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('show');
+  if (window.renderMathInElement) renderMathInElement(document.getElementById(tabId), {
+    delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+  });
+}
+function reveal(btn) {
+  const next = btn.nextElementSibling;
+  if (next.style.display === 'block') {
+    next.style.display = 'none';
+    btn.textContent = '풀이 보기';
+  } else {
+    next.style.display = 'block';
+    btn.textContent = '풀이 숨기기';
+    if (window.renderMathInElement) renderMathInElement(next, {
+      delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+    });
+  }
+}
+</script>
+</body>
+</html>

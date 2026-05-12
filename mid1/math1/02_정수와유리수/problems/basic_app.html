@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 02 기본문제 — 정수와 유리수</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; }
+
+  .header {
+    background: linear-gradient(135deg, #4361EE, #3a0ca3);
+    color: white; padding: 28px 20px 24px; text-align: center;
+  }
+  .header h1 { font-size: 20px; margin-bottom: 6px; }
+  .header p { font-size: 13px; opacity: 0.85; }
+
+  .progress-bar {
+    background: white; padding: 12px 20px;
+    display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 2px 8px rgba(67,97,238,0.08);
+    position: sticky; top: 0; z-index: 10;
+  }
+  .prog-label { font-size: 12px; color: #4361EE; font-weight: bold; white-space: nowrap; }
+  .prog-track { flex: 1; height: 6px; background: #eef2ff; border-radius: 3px; }
+  .prog-fill { height: 100%; background: #4361EE; border-radius: 3px; transition: width 0.3s; }
+  .prog-score { font-size: 12px; color: #888; white-space: nowrap; }
+
+  .container { max-width: 700px; margin: 0 auto; padding: 20px 16px 80px; }
+
+  .q-card {
+    background: white; border-radius: 16px; padding: 24px;
+    box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 20px;
+  }
+  .q-num {
+    font-size: 11px; font-weight: bold; color: #4361EE;
+    margin-bottom: 8px; letter-spacing: 1px;
+  }
+  .q-tag {
+    display: inline-block; font-size: 10px; background: #eef2ff; color: #4361EE;
+    padding: 2px 8px; border-radius: 10px; margin-left: 8px;
+  }
+  .q-text { font-size: 15px; color: #222; line-height: 1.8; margin-bottom: 16px; }
+
+  /* 수직선 SVG */
+  .nl-wrap { overflow-x: auto; margin: 8px 0 14px; }
+
+  /* 선택지 */
+  .choices { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+  .choice-btn {
+    background: #f8f9ff; border: 2px solid #d0d8ff; border-radius: 10px;
+    padding: 10px 16px; text-align: left; cursor: pointer;
+    font-size: 14px; font-family: inherit; color: #333; transition: all 0.15s;
+  }
+  .choice-btn:hover { border-color: #4361EE; background: #eef2ff; }
+  .choice-btn.correct { border-color: #2a8a2a; background: #e8f5e9; color: #1b5e20; }
+  .choice-btn.wrong { border-color: #cc2222; background: #ffebee; color: #b71c1c; }
+  .choice-btn:disabled { cursor: default; }
+
+  /* 단답형 */
+  .short-row { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+  .short-input {
+    flex: 1; min-width: 120px; max-width: 200px; border: 2px solid #d0d8ff;
+    border-radius: 10px; padding: 10px 14px; font-size: 15px; font-family: inherit;
+    outline: none; transition: border-color 0.2s;
+  }
+  .short-input:focus { border-color: #4361EE; }
+  .short-input.correct { border-color: #2a8a2a; background: #e8f5e9; }
+  .short-input.wrong { border-color: #cc2222; background: #ffebee; }
+  .check-btn {
+    background: #4361EE; color: white; border: none; border-radius: 10px;
+    padding: 10px 18px; font-size: 14px; cursor: pointer; font-family: inherit;
+  }
+  .check-btn:hover { background: #3451d1; }
+  .check-btn:disabled { background: #ccc; cursor: default; }
+
+  /* 피드백 */
+  .feedback { display: none; border-radius: 10px; padding: 12px 16px; font-size: 13px; line-height: 1.7; margin-top: 4px; }
+  .feedback.show { display: block; }
+  .feedback.ok { background: #e8f5e9; color: #1b5e20; border: 1px solid #a5d6a7; }
+  .feedback.ng { background: #ffebee; color: #b71c1c; border: 1px solid #ef9a9a; }
+
+  /* 힌트 */
+  .hint-btn {
+    background: none; border: 1px solid #d0d8ff; border-radius: 8px;
+    padding: 5px 12px; font-size: 12px; color: #4361EE; cursor: pointer; font-family: inherit;
+  }
+  .hint-btn:hover { background: #eef2ff; }
+  .hint-box {
+    display: none; background: #fff8e1; border: 1px solid #ffe082; border-radius: 8px;
+    padding: 10px 14px; font-size: 13px; color: #555; line-height: 1.7; margin-top: 8px;
+  }
+  .hint-box.show { display: block; }
+
+  /* 결과 패널 */
+  .result-panel {
+    display: none; background: white; border-radius: 16px; padding: 32px 24px;
+    box-shadow: 0 2px 16px rgba(67,97,238,0.12); text-align: center; margin-top: 20px;
+  }
+  .result-panel.show { display: block; }
+  .result-score { font-size: 48px; font-weight: bold; color: #4361EE; margin-bottom: 8px; }
+  .result-msg { font-size: 15px; color: #555; line-height: 1.7; }
+  .retry-btn {
+    margin-top: 20px; background: #4361EE; color: white; border: none; border-radius: 20px;
+    padding: 12px 32px; font-size: 15px; cursor: pointer; font-family: inherit;
+  }
+  .retry-btn:hover { background: #3451d1; }
+
+  .q-divider { height: 1px; background: #eef2ff; margin: 14px 0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Unit 02 기본문제</h1>
+  <p>정수와 유리수 · 10문제</p>
+</div>
+
+<div class="progress-bar">
+  <span class="prog-label">진행</span>
+  <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+  <span class="prog-score" id="progScore">0 / 10</span>
+</div>
+
+<div class="container">
+
+<!-- Q1 -->
+<div class="q-card" id="qc1">
+  <div class="q-num">Q1 <span class="q-tag">수 분류</span></div>
+  <div class="q-text">다음 수 $-7$에 대한 설명으로 <strong>옳지 않은</strong> 것을 고르세요.</div>
+  <div class="choices" id="ch1">
+    <button class="choice-btn" onclick="checkMC(1,this,false)">① 음수이다</button>
+    <button class="choice-btn" onclick="checkMC(1,this,false)">② 정수이다</button>
+    <button class="choice-btn" onclick="checkMC(1,this,true)">③ 자연수이다</button>
+    <button class="choice-btn" onclick="checkMC(1,this,false)">④ 유리수이다</button>
+    <button class="choice-btn" onclick="checkMC(1,this,false)">⑤ 음의 정수이다</button>
+  </div>
+  <button class="hint-btn" onclick="toggleHint('h1')">힌트 보기</button>
+  <div class="hint-box" id="h1">자연수는 1, 2, 3, … 양의 정수예요. −7은 0보다 작으므로 자연수가 아니에요.</div>
+  <div class="feedback" id="fb1"></div>
+</div>
+
+<!-- Q2 -->
+<div class="q-card" id="qc2">
+  <div class="q-num">Q2 <span class="q-tag">수직선</span></div>
+  <div class="q-text">아래 수직선에서 점 A가 나타내는 수를 쓰세요.</div>
+  <div class="nl-wrap">
+    <svg width="540" height="70" viewBox="0 0 540 70" style="min-width:300px;">
+      <line x1="20" y1="35" x2="520" y2="35" stroke="#4361EE" stroke-width="2"/>
+      <polygon points="520,35 510,30 510,40" fill="#4361EE"/>
+      <polygon points="20,35 30,30 30,40" fill="#4361EE"/>
+      <!-- 눈금 -5 ~ +5 -->
+      <g id="nl2ticks"></g>
+      <!-- 점 A at -2: cx0=270, step=50, v=-2 → x=170 -->
+      <circle cx="170" cy="35" r="7" fill="#e63946"/>
+      <text x="170" y="18" text-anchor="middle" font-size="13" fill="#e63946" font-weight="bold">A</text>
+    </svg>
+  </div>
+  <div class="short-row">
+    <input type="text" class="short-input" id="in2" placeholder="예: −2">
+    <button class="check-btn" id="cb2" onclick="checkShort(2,'-2')">확인</button>
+  </div>
+  <button class="hint-btn" onclick="toggleHint('h2')">힌트 보기</button>
+  <div class="hint-box" id="h2">수직선에서 0을 기준으로 왼쪽으로 몇 칸인지 세어봐요.</div>
+  <div class="feedback" id="fb2"></div>
+</div>
+
+<!-- Q3 -->
+<div class="q-card" id="qc3">
+  <div class="q-num">Q3 <span class="q-tag">유리수 판별</span></div>
+  <div class="q-text">다음 중 <strong>정수가 아닌 유리수</strong>를 고르세요.</div>
+  <div class="choices" id="ch3">
+    <button class="choice-btn" onclick="checkMC(3,this,false)">① $-5$</button>
+    <button class="choice-btn" onclick="checkMC(3,this,false)">② $0$</button>
+    <button class="choice-btn" onclick="checkMC(3,this,true)">③ $+\dfrac{3}{4}$</button>
+    <button class="choice-btn" onclick="checkMC(3,this,false)">④ $+3$</button>
+    <button class="choice-btn" onclick="checkMC(3,this,false)">⑤ $-2$</button>
+  </div>
+  <button class="hint-btn" onclick="toggleHint('h3')">힌트 보기</button>
+  <div class="hint-box" id="h3">정수가 아닌 유리수는 분수나 소수처럼 정수와 정수 사이에 있는 수예요. $\frac{3}{4}$은 0과 1 사이에 있어요.</div>
+  <div class="feedback" id="fb3"></div>
+</div>
+
+<!-- Q4 -->
+<div class="q-card" id="qc4">
+  <div class="q-num">Q4 <span class="q-tag">절댓값</span></div>
+  <div class="q-text">$|-5|$ 의 값을 구하세요.</div>
+  <div class="short-row">
+    <input type="text" class="short-input" id="in4" placeholder="숫자만">
+    <button class="check-btn" id="cb4" onclick="checkShort(4,'5')">확인</button>
+  </div>
+  <button class="hint-btn" onclick="toggleHint('h4')">힌트 보기</button>
+  <div class="hint-box" id="h4">절댓값은 수직선에서 0까지의 거리예요. 부호와 관계없이 양수예요.</div>
+  <div class="feedback" id="fb4"></div>
+</div>
+
+<!-- Q5 -->
+<div class="q-card" id="qc5">
+  <div class="q-num">Q5 <span class="q-tag">절댓값 조건</span></div>
+  <div class="q-text">절댓값이 $3$인 수를 모두 쓰세요. (쉼표로 구분)</div>
+  <div class="short-row">
+    <input type="text" class="short-input" id="in5" placeholder="예: +3, −3">
+    <button class="check-btn" id="cb5" onclick="checkShort5()">확인</button>
+  </div>
+  <button class="hint-btn" onclick="toggleHint('h5')">힌트 보기</button>
+  <div class="hint-box" id="h5">수직선에서 0으로부터 거리가 3인 수는 몇 개일까요?</div>
+  <div class="feedback" id="fb5"></div>
+</div>
+
+<!-- Q6 -->
+<div class="q-card" id="qc6">
+  <div class="q-num">Q6 <span class="q-tag">대소 관계</span></div>
+  <div class="q-text">다음 수를 작은 것부터 차례로 나열하세요.<br><br>$$+3, \quad 0, \quad -5, \quad -2$$</div>
+  <div class="short-row">
+    <input type="text" class="short-input" style="max-width:300px;" id="in6" placeholder="예: −5, −2, 0, +3">
+    <button class="check-btn" id="cb6" onclick="checkShort6()">확인</button>
+  </div>
+  <button class="hint-btn" onclick="toggleHint('h6')">힌트 보기</button>
+  <div class="hint-box" id="h6">수직선에서 왼쪽에 있을수록 작아요. 음수끼리는 절댓값이 클수록 작아요.</div>
+  <div class="feedback" id="fb6"></div>
+</div>
+
+<!-- Q7 -->
+<div class="q-card" id="qc7">
+  <div class="q-num">Q7 <span class="q-tag">덧셈</span></div>
+  <div class="q-text">다음을 계산하세요.<br>$$( +3 ) + ( -5 )$$</div>
+  <div class="short-row">
+    <input type="text" class="short-input" id="in7" placeholder="예: −2">
+    <button class="check-btn" id="cb7" onclick="checkShort(7,'-2')">확인</button>
+  </div>
+  <button class="hint-btn" onclick="toggleHint('h7')">힌트 보기</button>
+  <div class="hint-box" id="h7">다른 부호끼리 더할 때: 절댓값의 차를 구하고, 절댓값이 더 큰 쪽의 부호를 붙여요.</div>
+  <div class="feedback" id="fb7"></div>
+</div>
+
+<!-- Q8 -->
+<div class="q-card" id="qc8">
+  <div class="q-num">Q8 <span class="q-tag">뺄셈→덧셈</span></div>
+  <div class="q-text">다음을 계산하세요.<br>$$( -3 ) - ( +4 )$$</div>
+  <div class="short-row">
+    <input type="text" class="short-input" id="in8" placeholder="예: −7">
+    <button class="check-btn" id="cb8" onclick="checkShort(8,'-7')">확인</button>
+  </div>
+  <button class="hint-btn" onclick="toggleHint('h8')">힌트 보기</button>
+  <div class="hint-box" id="h8">뺄셈 → 덧셈: $A - B = A + (-B)$. 빼는 수 +4의 부호를 −4로 바꿔 더해봐요.</div>
+  <div class="feedback" id="fb8"></div>
+</div>
+
+<!-- Q9 -->
+<div class="q-card" id="qc9">
+  <div class="q-num">Q9 <span class="q-tag">곱셈</span></div>
+  <div class="q-text">다음을 계산하세요.<br>$$( -3 ) \times ( -4 )$$</div>
+  <div class="short-row">
+    <input type="text" class="short-input" id="in9" placeholder="예: +12">
+    <button class="check-btn" id="cb9" onclick="checkShort(9,'+12')">확인</button>
+  </div>
+  <button class="hint-btn" onclick="toggleHint('h9')">힌트 보기</button>
+  <div class="hint-box" id="h9">음수 × 음수 = 양수. 절댓값끼리 곱하면 3×4=12, 부호는 +.</div>
+  <div class="feedback" id="fb9"></div>
+</div>
+
+<!-- Q10 -->
+<div class="q-card" id="qc10">
+  <div class="q-num">Q10 <span class="q-tag">혼합계산</span></div>
+  <div class="q-text">다음을 계산하세요.<br>$$(-3) + (+2) \times (-2) - (-1)$$</div>
+  <div class="short-row">
+    <input type="text" class="short-input" id="in10" placeholder="예: −6">
+    <button class="check-btn" id="cb10" onclick="checkShort(10,'-6')">확인</button>
+  </div>
+  <button class="hint-btn" onclick="toggleHint('h10')">힌트 보기</button>
+  <div class="hint-box" id="h10">
+    순서: 곱셈 먼저 → $(+2) \times (-2) = -4$<br>
+    그러면: $(-3) + (-4) - (-1)$<br>
+    뺄셈 → 덧셈: $(-3) + (-4) + (+1)$<br>
+    마지막으로 더해봐요!
+  </div>
+  <div class="feedback" id="fb10"></div>
+</div>
+
+<!-- 결과 패널 -->
+<div class="result-panel" id="resultPanel">
+  <div class="result-score" id="finalScore">0 / 10</div>
+  <div class="result-msg" id="finalMsg"></div>
+  <button class="retry-btn" onclick="retry()">다시 풀기</button>
+</div>
+
+</div><!-- /container -->
+
+<script>
+let answered = new Array(10).fill(false);
+let correct = new Array(10).fill(false);
+let score = 0;
+
+// 수직선 Q2 눈금 그리기
+(function drawNL2() {
+  const g = document.getElementById('nl2ticks');
+  const cx0 = 270, step = 50;
+  for (let v = -5; v <= 5; v++) {
+    const x = cx0 + v * step;
+    const tick = document.createElementNS('http://www.w3.org/2000/svg','line');
+    tick.setAttribute('x1',x); tick.setAttribute('y1',30);
+    tick.setAttribute('x2',x); tick.setAttribute('y2',40);
+    tick.setAttribute('stroke','#4361EE'); tick.setAttribute('stroke-width','1.5');
+    g.appendChild(tick);
+    const lbl = document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('x',x); lbl.setAttribute('y',56);
+    lbl.setAttribute('text-anchor','middle'); lbl.setAttribute('font-size','11');
+    lbl.setAttribute('fill', v===0 ? '#4361EE' : '#888');
+    lbl.setAttribute('font-weight', v===0 ? 'bold' : 'normal');
+    lbl.textContent = v===0 ? '0' : v;
+    g.appendChild(lbl);
+  }
+})();
+
+function updateProgress() {
+  const done = answered.filter(Boolean).length;
+  const pct = (done / 10) * 100;
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progScore').textContent = done + ' / 10';
+  if (done === 10) showResult();
+}
+
+// 객관식 (복수 정답 지원, 여기선 "모두 선택"이 아니라 클릭마다 판정)
+function checkMC(qn, btn, isCorrect) {
+  if (answered[qn-1]) return;
+  const btns = document.querySelectorAll(`#ch${qn} .choice-btn`);
+  if (isCorrect) {
+    btn.classList.add('correct');
+    correct[qn-1] = true;
+    answered[qn-1] = true;
+    showFb(qn, true, '정답이에요! 잘했어요.');
+    btns.forEach(b => b.disabled = true);
+    score++;
+  } else {
+    btn.classList.add('wrong');
+    // 틀린 것 하나 클릭 → 이 문제는 오답 처리
+    answered[qn-1] = true;
+    correct[qn-1] = false;
+    showFb(qn, false, getWrongMsg(qn));
+    btns.forEach(b => b.disabled = true);
+  }
+  updateProgress();
+}
+
+// Q3는 보기가 모두 정답 — 클릭하면 어느 것이든 correct (단, "모두 유리수" 메시지)
+// 이미 checkMC에서 isCorrect=true로 처리됨
+
+function checkShort(qn, ans) {
+  if (answered[qn-1]) return;
+  const inp = document.getElementById('in' + qn);
+  const val = inp.value.trim().replace(/\s/g,'');
+  // 정규화: 공백 제거, 전각숫자 처리
+  const norm = (s) => s.replace(/\s/g,'').replace(/−/g,'-').replace(/＋/g,'+');
+  const answers = ans.split('|').map(norm);
+  const userNorm = norm(val);
+  if (answers.includes(userNorm)) {
+    inp.classList.add('correct');
+    document.getElementById('cb' + qn).disabled = true;
+    showFb(qn, true, '정답이에요! 잘했어요.');
+    correct[qn-1] = true;
+    score++;
+  } else {
+    inp.classList.add('wrong');
+    document.getElementById('cb' + qn).disabled = true;
+    showFb(qn, false, getWrongMsg(qn));
+    correct[qn-1] = false;
+  }
+  answered[qn-1] = true;
+  updateProgress();
+}
+
+// Q6 특수 처리 (순서 확인, 공백 무시)
+function checkShort6() {
+  if (answered[5]) return;
+  const inp = document.getElementById('in6');
+  const val = inp.value.trim().replace(/\s/g,'').replace(/−/g,'-').replace(/＋/g,'+').replace(/，/g,',');
+  // 허용 답: -5,-2,0,+3 또는 -5,-2,0,3
+  const ok = ['-5,-2,0,+3','-5,-2,0,3'].includes(val);
+  if (ok) {
+    inp.classList.add('correct');
+    document.getElementById('cb6').disabled = true;
+    showFb(6, true, '정답! 수직선 왼쪽부터 순서대로 −5 < −2 < 0 < +3이에요.');
+    correct[5] = true;
+    score++;
+  } else {
+    inp.classList.add('wrong');
+    document.getElementById('cb6').disabled = true;
+    showFb(6, false, '틀렸어요. 음수끼리는 절댓값이 클수록 더 작아요. 순서: −5 < −2 < 0 < +3');
+    correct[5] = false;
+  }
+  answered[5] = true;
+  updateProgress();
+}
+
+// Q5 특수 처리 (두 수 모두 있어야 정답)
+function checkShort5() {
+  if (answered[4]) return;
+  const inp = document.getElementById('in5');
+  const val = inp.value.trim().replace(/\s/g,'').replace(/−/g,'-').replace(/＋/g,'+').toLowerCase();
+  const has3 = val.includes('+3') || val.includes('3');
+  const hasMinus3 = val.includes('-3');
+  if (has3 && hasMinus3) {
+    inp.classList.add('correct');
+    document.getElementById('cb5').disabled = true;
+    showFb(5, true, '정답! +3과 −3 모두 절댓값이 3이에요.');
+    correct[4] = true;
+    score++;
+  } else {
+    inp.classList.add('wrong');
+    document.getElementById('cb5').disabled = true;
+    showFb(5, false, '0으로부터 거리가 3인 수는 오른쪽(+3)과 왼쪽(−3) 두 개예요.');
+    correct[4] = false;
+  }
+  answered[4] = true;
+  updateProgress();
+}
+
+function getWrongMsg(qn) {
+  const msgs = {
+    1: '틀렸어요. −7은 자연수가 아니에요. 자연수는 1, 2, 3, … 양의 정수만이에요.',
+    2: '틀렸어요. 점 A는 0의 왼쪽으로 두 칸, 즉 −2예요.',
+    3: '틀렸어요. $\\frac{3}{4}$이 정수가 아닌 유리수예요. ①②④⑤는 모두 정수예요.',
+    4: '틀렸어요. $|-5| = 5$예요. 절댓값은 항상 0 이상이에요.',
+    5: '틀렸어요. 절댓값이 3인 수는 +3과 −3 두 개예요.',
+    6: '틀렸어요. 수직선 순서: −5 < −2 < 0 < +3',
+    7: '틀렸어요. 다른 부호: |3|−|5|=2, 절댓값 큰 쪽(−5) 부호 → −2',
+    8: '틀렸어요. (−3)−(+4) = (−3)+(−4) = −7',
+    9: '틀렸어요. (−)×(−) = (+), 3×4=12 → +12',
+    10: '틀렸어요. 곱셈 먼저: (+2)×(−2)=−4, 그 다음 (−3)+(−4)+(+1)=−6'
+  };
+  return msgs[qn] || '틀렸어요. 다시 생각해봐요.';
+}
+
+function showFb(qn, ok, msg) {
+  const fb = document.getElementById('fb' + qn);
+  fb.textContent = ok ? '✓ ' + msg : '✗ ' + msg;
+  fb.className = 'feedback show ' + (ok ? 'ok' : 'ng');
+  if (window.renderMathInElement) renderMathInElement(fb);
+}
+
+function toggleHint(id) {
+  const box = document.getElementById(id);
+  box.classList.toggle('show');
+}
+
+function showResult() {
+  const panel = document.getElementById('resultPanel');
+  panel.classList.add('show');
+  document.getElementById('finalScore').textContent = score + ' / 10';
+  let msg = '';
+  if (score === 10) msg = '완벽해요! 단원 전체 개념을 다 이해했어요. 정말 멋있어요!';
+  else if (score >= 8) msg = '아주 잘했어요! 틀린 문제의 힌트를 다시 확인해봐요.';
+  else if (score >= 5) msg = '절반 이상 맞혔어요! 틀린 개념 위주로 다시 공부해봐요.';
+  else msg = '괜찮아요, 다시 한 번 도전해봐요! 개념 탐구 앱부터 다시 해볼까요?';
+  document.getElementById('finalMsg').textContent = msg;
+  panel.scrollIntoView({ behavior: 'smooth' });
+}
+
+function retry() {
+  answered = new Array(10).fill(false);
+  correct = new Array(10).fill(false);
+  score = 0;
+  document.getElementById('progFill').style.width = '0%';
+  document.getElementById('progScore').textContent = '0 / 10';
+  document.getElementById('resultPanel').classList.remove('show');
+
+  // 선택지 초기화
+  document.querySelectorAll('.choice-btn').forEach(btn => {
+    btn.classList.remove('correct','wrong');
+    btn.disabled = false;
+  });
+  document.querySelectorAll('.short-input').forEach(inp => {
+    inp.classList.remove('correct','wrong');
+    inp.disabled = false;
+    inp.value = '';
+  });
+  document.querySelectorAll('.check-btn').forEach(btn => { btn.disabled = false; });
+  document.querySelectorAll('.feedback').forEach(fb => {
+    fb.classList.remove('show','ok','ng');
+    fb.textContent = '';
+  });
+  document.querySelectorAll('.hint-box').forEach(box => { box.classList.remove('show'); });
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>

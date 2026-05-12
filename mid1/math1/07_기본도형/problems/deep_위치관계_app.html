@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 탐구 — 위치 관계 (평면·공간)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+:root{--primary:#4361EE;--bg:#eef2ff;--card:#fff;--ok:#2ecc71;--ng:#e74c3c;--warn:#f39c12;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic',sans-serif;background:var(--bg);padding:0 0 60px;color:#2d3436;}
+.header{background:linear-gradient(135deg,#4361EE,#3a0ca3);color:white;padding:28px 20px 24px;text-align:center;}
+.header h1{font-size:20px;margin-bottom:6px;}
+.header p{font-size:13px;opacity:0.85;}
+.back-link{font-size:12px;color:rgba(255,255,255,0.7);text-decoration:none;display:block;margin-top:10px;}
+.tab-bar{display:flex;gap:0;background:white;box-shadow:0 2px 8px rgba(0,0,0,0.08);position:sticky;top:0;z-index:10;}
+.tab-btn{flex:1;padding:14px 0;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;color:#888;border-bottom:3px solid transparent;font-family:inherit;}
+.tab-btn.active{color:#4361EE;border-bottom-color:#4361EE;}
+.tab-btn small{font-size:10px;display:block;margin-top:2px;color:#aaa;}
+.tab-btn.active small{color:#4361EE;}
+.tab-panel{display:none;}
+.tab-panel.show{display:block;}
+.container{max-width:700px;margin:0 auto;padding:20px 16px;}
+.section{margin-bottom:28px;}
+.section-title{font-size:15px;font-weight:bold;color:#4361EE;padding-left:8px;border-left:3px solid #4361EE;margin-bottom:14px;}
+.card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;}
+.card h3{font-size:15px;color:#1a1a2e;margin-bottom:10px;}
+.card p,.card li{font-size:14px;color:#444;line-height:1.8;}
+.card ul{padding-left:18px;}
+.highlight{background:#f0f4ff;border-left:4px solid #4361EE;border-radius:0 10px 10px 0;padding:12px 16px;margin:10px 0;font-size:14px;color:#333;line-height:1.7;}
+.warn-box{background:#fff3e0;border:1px solid #ffcc80;border-radius:10px;padding:12px 14px;font-size:13px;color:#e65100;line-height:1.6;margin-top:10px;}
+.mistake-item{background:white;border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(67,97,238,.07);margin-bottom:10px;display:flex;gap:12px;}
+.mistake-icon{font-size:22px;flex-shrink:0;margin-top:2px;}
+.mistake-content{flex:1;}
+.mistake-title{font-size:14px;font-weight:bold;color:#e74c3c;margin-bottom:4px;}
+.mistake-desc{font-size:13px;color:#444;line-height:1.6;}
+.problem-card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;border-left:4px solid #4361EE;}
+.prob-label{font-size:12px;font-weight:bold;color:#4361EE;letter-spacing:1px;margin-bottom:8px;}
+.prob-text{font-size:15px;line-height:1.8;color:#1a1a2e;margin-bottom:12px;}
+.reveal-btn{background:none;border:2px solid #4361EE;color:#4361EE;padding:6px 18px;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;}
+.reveal-content{display:none;margin-top:12px;background:#f0fff4;border-radius:10px;padding:12px 16px;font-size:13px;color:#1b5e20;line-height:1.7;}
+.connect-box{background:linear-gradient(135deg,#f0f4ff,#e8ecff);border-radius:14px;padding:20px;font-size:14px;color:#333;line-height:1.8;}
+.connect-title{font-size:15px;font-weight:bold;color:#4361EE;margin-bottom:10px;}
+table.tbl{border-collapse:collapse;font-size:13px;margin:10px 0;width:100%;}
+table.tbl th,table.tbl td{border:1px solid #ccd;padding:6px 10px;text-align:center;}
+table.tbl th{background:#eef2ff;}
+.formula-box{background:#eef2ff;border-radius:8px;padding:10px 14px;text-align:center;font-size:16px;color:#4361EE;font-weight:700;margin:8px 0;}
+.fig-svg{display:block;margin:10px auto;max-width:380px;width:100%;background:#fafbff;border-radius:8px;padding:8px;border:1px solid #eef2ff;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>깊이 탐구 — 위치 관계</h1>
+  <p>평면(2D) + 공간(3D) — 꼬인 위치 함정 정복</p>
+  <a class="back-link" href="../index.html">← 단원 7 홈</a>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('tab6',this)">유형 6<small>평면</small></button>
+  <button class="tab-btn" onclick="switchTab('tab7',this)">유형 7<small>공간 ★</small></button>
+</div>
+
+<!-- 탭 6: 평면 -->
+<div class="tab-panel show" id="tab6">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>평면에서 두 직선의 위치 관계는 단순해요 (3가지). 다만 <strong>"꼬인 위치"가 평면에 없다는 점</strong>을 빼먹으면 함정에 빠짐.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 3가지 (평면)</div>
+    <div class="card">
+      <table class="tbl">
+        <tr><th>관계</th><th>특징</th><th>도형 예</th></tr>
+        <tr><td>한 점에서 만남</td><td>교점 1개</td><td>X 모양</td></tr>
+        <tr><td>평행</td><td>만나지 않음</td><td>= 모양</td></tr>
+        <tr><td>일치</td><td>완전히 겹침</td><td>한 직선</td></tr>
+      </table>
+      <div class="warn-box">평면에서는 모든 직선이 같은 평면에 있어 "꼬인 위치" 불가능. 시험 단골 함정!</div>
+    </div>
+
+    <div class="card">
+      <h3>평행의 추이성 (평면)</h3>
+      <div class="formula-box">$l \parallel m$, $m \parallel n$ $\Rightarrow$ $l \parallel n$</div>
+      <p style="margin-top:8px;">평면에서는 성립. (단, 공간에서도 성립 — 옆 탭 참조)</p>
+    </div>
+
+    <div class="card">
+      <h3>한 점에서 평행선은 1개 (유클리드 5번 공준)</h3>
+      <p>평면에서 직선 $l$ 밖의 한 점 P를 지나며 $l$과 평행한 직선은 <strong>단 하나</strong>.</p>
+      <div class="highlight">이 공준이 19세기 비유클리드 기하학(아인슈타인 일반 상대성!) 으로 이어짐.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">⚠️</div>
+      <div class="mistake-content">
+        <div class="mistake-title">"꼬인 위치"를 평면 답으로 선택</div>
+        <div class="mistake-desc">평면(2D)에서 모든 두 직선은 같은 평면 위 → 꼬인 위치 X. 공간(3D)에만 있음.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">🤔</div>
+      <div class="mistake-content">
+        <div class="mistake-title">정사각형의 두 변 → 모두 평행이라고 답함</div>
+        <div class="mistake-desc">정사각형 ABCD: 마주보는 변(AB↔DC, BC↔DA)만 평행. 이웃한 변(AB↔BC)은 한 점에서 만남(수직).</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 연습</div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 1 (L)</div>
+      <div class="prob-text">정사각형 ABCD 에서 변 $\overline{AC}$ (대각선) 와 변 $\overline{BD}$ (대각선) 의 위치 관계는?</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content"><strong>한 점 (정사각형 중심) 에서 만남, 수직</strong><br>정사각형의 두 대각선은 중심에서 만나고 직각.</div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 2 (M)</div>
+      <div class="prob-text">정육각형 ABCDEF 에서 변 $\overline{BC}$ 와 평행한 변은?</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content"><strong>$\overline{EF}$</strong><br>정육각형: 마주보는 변끼리 평행. AB ↔ DE, BC ↔ EF, CD ↔ FA.</div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 3 (H)</div>
+      <div class="prob-text">평면에 평행하지 않은 두 직선 $l, m$ 이 있다. 한 점 P가 $l$ 위에도, $m$ 위에도 없다. P를 지나며 $l$ 과도 $m$ 과도 평행한 직선이 존재할까?</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content"><strong>존재하지 않음</strong><br>P를 지나며 $l$과 평행한 직선은 1개 (5번 공준).<br>P를 지나며 $m$과 평행한 직선도 1개.<br>$l \not\parallel m$ 이라 두 직선이 다름. 따라서 한 직선이 둘 다와 평행할 수 없음.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">이 유형을 이해하면</div>
+    <div class="connect-box">
+      <div class="connect-title">▸ 다음이 쉬워져요</div>
+      • <strong>공간 위치 관계</strong> (옆 탭): 평면에 없는 "꼬인 위치"가 추가될 뿐<br>
+      • <strong>좌표평면 위 직선</strong> (Unit 05): 기울기가 같으면 평행, 기울기 곱 = -1 이면 수직
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- 탭 7: 공간 ★ -->
+<div class="tab-panel" id="tab7">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유 ★</div>
+    <div class="card">
+      <p>평면(2D) 머릿속에서 갑자기 공간(3D)으로 넘어가면 직관이 흐려져요. 특히 <strong>"꼬인 위치"</strong>는 평생 처음 보는 관계.</p>
+      <p style="margin-top:8px;"><strong>핵심 함정</strong>:<br>
+      ① "만나지 않는다 = 평행"이 평면에서는 맞지만 <strong>공간에서는 틀림</strong> (꼬인 위치도 안 만남)<br>
+      ② "수직"이 만남에만 있는 게 아니라 <strong>꼬인 위치이면서 직각</strong>일 수도</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 4가지 도구</div>
+    <div class="card">
+      <h3>① 두 직선의 관계 (공간)</h3>
+      <table class="tbl">
+        <tr><th>관계</th><th>만남?</th><th>같은 평면?</th></tr>
+        <tr><td>한 점에서 만남</td><td>O</td><td>O</td></tr>
+        <tr><td>평행</td><td>X</td><td>O</td></tr>
+        <tr><td><strong>꼬인 위치</strong></td><td>X</td><td><strong>X</strong></td></tr>
+      </table>
+      <div class="warn-box"><strong>꼬인 위치 정의</strong>: 만나지 않으면서 같은 평면 위에도 없음. 평행과 다름!</div>
+    </div>
+
+    <div class="card">
+      <h3>② 직육면체에서 한 모서리와의 관계 카운트</h3>
+      <div class="formula-box">전체 11 = 평행 3 + 만남 4 + 꼬인 위치 4</div>
+      <p style="margin-top:8px;">한 모서리(자기 자신 제외 11개) 중:</p>
+      <ul>
+        <li>평행: 같은 방향 3개</li>
+        <li>한 점에서 만남: 양 끝점에서 출발하는 다른 모서리 2 + 2 = 4개</li>
+        <li>꼬인 위치: 11 - 3 - 4 = 4개</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>③ 직선과 평면의 관계</h3>
+      <table class="tbl">
+        <tr><th>관계</th><th>설명</th></tr>
+        <tr><td>포함</td><td>직선이 평면 위에 모두 있음</td></tr>
+        <tr><td>한 점에서 만남</td><td>교점 1개</td></tr>
+        <tr><td>평행</td><td>만나지 않음</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>④ 두 평면의 관계</h3>
+      <table class="tbl">
+        <tr><th>관계</th><th>설명</th></tr>
+        <tr><td>교선에서 만남</td><td>교선 (한 직선)</td></tr>
+        <tr><td>평행</td><td>만나지 않음</td></tr>
+        <tr><td>일치</td><td>완전히 겹침</td></tr>
+      </table>
+      <div class="highlight">두 평면이 만나는 모양은 점이 아닌 <strong>선</strong>(교선)이에요. 두 평면이 점 하나에서만 만날 수는 없음!</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">⚠️</div>
+      <div class="mistake-content">
+        <div class="mistake-title">"꼬인 위치 = 안 만남" 으로 생각</div>
+        <div class="mistake-desc">평행도 안 만남. 꼬인 위치는 <strong>안 만남 + 같은 평면 X</strong> 두 조건 모두 필요.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">🤔</div>
+      <div class="mistake-content">
+        <div class="mistake-title">"수직"을 만남에만 적용</div>
+        <div class="mistake-desc">두 직선이 <strong>꼬인 위치이면서</strong> 방향이 직각이면 수직 ✓ — 만나지 않아도 수직 가능.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">📦</div>
+      <div class="mistake-content">
+        <div class="mistake-title">직육면체에서 평행 모서리 개수 잘못 셈</div>
+        <div class="mistake-desc">한 모서리와 같은 방향 모서리는 <strong>3개</strong> (자기 자신 제외). 4개라고 답하면 자기 자신 포함한 것.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 연습</div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 1 (M)</div>
+      <div class="prob-text">정육면체에서 한 모서리와 <strong>꼬인 위치</strong>인 모서리는 모두 몇 개?</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content"><strong>4개</strong><br>정육면체 = 직육면체의 특수형. 카운트 공식 동일:<br>전체 11 - 평행 3 - 만남 4 = <strong>4</strong>.</div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 2 (M)</div>
+      <div class="prob-text">직육면체에서 면 ABCD 와 한 점에서 만나는 모서리는 모두 몇 개?</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content"><strong>4개</strong><br>면 ABCD 위에는 4개 모서리(AB, BC, CD, DA — 면 위에 포함).<br>마주보는 면 EFGH 위에 4개 모서리(EF, FG, GH, HE — 평행).<br>나머지 4개 모서리(AE, BF, CG, DH)가 면 ABCD 와 한 점에서 만남.<br>$\therefore$ 4개.</div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 3 (H) — 수직의 함정</div>
+      <div class="prob-text">정육면체에서 한 모서리 $\overline{AB}$ 와 <strong>수직</strong>이면서 <strong>꼬인 위치</strong>인 모서리는 몇 개?</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content"><strong>4개</strong><br>$\overline{AB}$ 와 수직인 모서리 = 8개 (다른 방향 두 종류 × 4개).<br>그 8개 중 만남: $\overline{AD}, \overline{AE}, \overline{BC}, \overline{BF}$ → 4개.<br>꼬인 위치이면서 수직: 8 - 4 = <strong>4개</strong>.<br>(예: $\overline{DH}, \overline{CG}, \overline{EH}, \overline{FG}$)</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">이 유형을 이해하면</div>
+    <div class="connect-box">
+      <div class="connect-title">▸ 다음이 쉬워져요</div>
+      • <strong>다면체와 회전체</strong> (Unit 11): 모서리·면의 위치 관계 응용<br>
+      • <strong>입체도형의 겉넓이·부피</strong> (Unit 12): 어떤 면이 만나는지·평행한지 분류<br>
+      • <strong>벡터·공간기하</strong> (고등): 3D 좌표에서 직선·평면의 관계
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">유클리드의 마지막 한 마디</div>
+    <div class="card" style="background:linear-gradient(135deg,#f3eafd,#e8ecff);">
+      <p style="font-style:italic;text-align:center;font-size:15px;color:#1d3557;">
+        "기하학에는 왕도가 없습니다."
+      </p>
+      <p style="margin-top:10px;text-align:center;font-size:13px;color:#666;">
+        평면에서 익숙해진 다음, 공간으로 한 걸음씩.<br>
+        2300년 전 유클리드의 학생들도 여러분과 같았어요.
+      </p>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('show'));
+  btn.classList.add('active');
+  document.getElementById(id).classList.add('show');
+  window.scrollTo({ top: 0 });
+}
+function reveal(btn) {
+  const c = btn.nextElementSibling;
+  const isShow = c.style.display === 'block';
+  c.style.display = isShow ? 'none' : 'block';
+  btn.textContent = isShow ? '정답·풀이 보기' : '풀이 닫기';
+}
+</script>
+</body>
+</html>

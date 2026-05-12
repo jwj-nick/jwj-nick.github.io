@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>기본문제 — 소인수분해</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Malgun Gothic', sans-serif;
+    background: #eef2ff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+  .container { max-width: 700px; width: 100%; }
+  header { text-align: center; margin-bottom: 20px; }
+  header .back { font-size: 13px; color: #4361EE; text-decoration: none; display: inline-block; margin-bottom: 12px; }
+  header .back:hover { text-decoration: underline; }
+  header .tag { background: #4361EE; color: white; font-size: 11px; padding: 3px 10px; border-radius: 20px; display: inline-block; margin-bottom: 10px; }
+  header h1 { font-size: 24px; color: #1a1a2e; margin-bottom: 6px; }
+  header p { font-size: 13px; color: #666; }
+  /* 진행 표시 */
+  .progress-bar {
+    background: #c0c8ff; border-radius: 10px; height: 8px; margin-bottom: 6px; overflow: hidden;
+  }
+  .progress-fill { background: #4361EE; height: 100%; border-radius: 10px; transition: width 0.3s; }
+  .progress-text { text-align: right; font-size: 12px; color: #888; margin-bottom: 16px; }
+  /* 문제 카드 */
+  .q-card {
+    background: white; border-radius: 16px; padding: 24px;
+    box-shadow: 0 2px 12px rgba(67,97,238,0.08); display: none;
+  }
+  .q-card.active { display: block; }
+  .q-header {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+  }
+  .q-number {
+    background: #4361EE; color: white; width: 32px; height: 32px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: bold; flex-shrink: 0;
+  }
+  .q-concept {
+    font-size: 11px; background: #eef2ff; color: #4361EE;
+    padding: 3px 10px; border-radius: 20px;
+  }
+  .q-text { font-size: 15px; line-height: 1.8; color: #1a1a2e; margin-bottom: 18px; }
+  /* 보기 (객관식) */
+  .choices { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .choice {
+    border: 2px solid #c0c8ff; border-radius: 10px; padding: 10px 16px;
+    font-size: 14px; cursor: pointer; transition: all 0.15s; background: white;
+    text-align: left; font-family: inherit; color: #333;
+  }
+  .choice:hover { border-color: #4361EE; background: #f0f3ff; }
+  .choice.selected { border-color: #4361EE; background: #eef2ff; color: #4361EE; }
+  .choice.correct { border-color: #43a047; background: #e8f5e9; color: #2e7d32; }
+  .choice.wrong { border-color: #e63946; background: #ffeaed; color: #b71c1c; }
+  /* 단답형 입력 */
+  .short-input-row { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
+  input.short-input {
+    border: 2px solid #c0c8ff; border-radius: 8px; padding: 8px 14px;
+    font-size: 15px; font-family: inherit; width: 160px;
+  }
+  input.short-input:focus { outline: none; border-color: #4361EE; }
+  button.check-btn {
+    background: #4361EE; color: white; border: none; border-radius: 8px;
+    padding: 8px 18px; font-size: 14px; font-family: inherit; cursor: pointer;
+  }
+  button.check-btn:hover { background: #3451d1; }
+  /* 정답·해설 탭 */
+  .answer-tabs { display: flex; gap: 6px; margin-bottom: 0; }
+  .answer-tab {
+    background: white; border: 2px solid #c0c8ff; color: #4361EE; border-radius: 8px 8px 0 0;
+    padding: 6px 14px; font-size: 12px; cursor: pointer; font-family: inherit;
+    transition: all 0.15s;
+  }
+  .answer-tab.active { background: #4361EE; color: white; border-color: #4361EE; }
+  .answer-content {
+    background: #f8f9ff; border-radius: 0 10px 10px 10px;
+    padding: 14px; display: none; font-size: 13px; line-height: 1.8; color: #333;
+  }
+  .answer-content.active { display: block; }
+  .answer-box {
+    background: #4361EE; color: white; border-radius: 8px; padding: 10px 16px;
+    font-size: 16px; font-weight: bold; text-align: center; margin-bottom: 8px;
+  }
+  /* 네비게이션 */
+  .nav-btns { display: flex; justify-content: space-between; margin-top: 20px; }
+  button.nav {
+    background: #4361EE; color: white; border: none; border-radius: 10px;
+    padding: 10px 22px; cursor: pointer; font-size: 14px; font-family: inherit;
+    transition: background 0.15s;
+  }
+  button.nav:hover { background: #3451d1; }
+  button.nav:disabled { background: #ccc; cursor: default; }
+  button.nav.secondary {
+    background: white; color: #4361EE; border: 2px solid #4361EE;
+  }
+  button.nav.secondary:hover { background: #eef2ff; }
+  /* 결과 카드 */
+  .result-card {
+    background: white; border-radius: 16px; padding: 32px;
+    box-shadow: 0 2px 12px rgba(67,97,238,0.08); text-align: center;
+    display: none;
+  }
+  .result-card.active { display: block; }
+  .score-circle {
+    width: 100px; height: 100px; border-radius: 50%;
+    background: linear-gradient(135deg, #4361EE, #7c3aed);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px; color: white; font-size: 28px; font-weight: bold;
+  }
+  .result-card h2 { font-size: 22px; color: #1a1a2e; margin-bottom: 10px; }
+  .result-card p { font-size: 14px; color: #666; line-height: 1.8; }
+  .result-tags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 16px 0; }
+  .result-tag { background: #eef2ff; color: #4361EE; font-size: 12px; padding: 4px 12px; border-radius: 20px; }
+  .result-tag.wrong-tag { background: #ffeaed; color: #e63946; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <a class="back" href="../index.html">← 단원 홈으로</a>
+    <div class="tag">축 D · 기본문제</div>
+    <h1>기본문제</h1>
+    <p>단원 전체 개념을 고루 확인하는 10문제예요</p>
+  </header>
+
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:10%"></div></div>
+  <div class="progress-text" id="progressText">1 / 10</div>
+
+  <!-- 문제 1: 소수 판별 (체크박스형) -->
+  <div class="q-card active" id="q1">
+    <div class="q-header">
+      <div class="q-number">1</div>
+      <span class="q-concept">소수·합성수</span>
+    </div>
+    <div class="q-text">다음 수 중 소수인 것을 모두 고르세요.<br>1, 2, 9, 11, 15, 17, 21, 23</div>
+    <div class="choices" id="choices1">
+      <button class="choice" onclick="toggleChoice(this, 1)">1</button>
+      <button class="choice" onclick="toggleChoice(this, 1)">2</button>
+      <button class="choice" onclick="toggleChoice(this, 1)">9</button>
+      <button class="choice" onclick="toggleChoice(this, 1)">11</button>
+      <button class="choice" onclick="toggleChoice(this, 1)">15</button>
+      <button class="choice" onclick="toggleChoice(this, 1)">17</button>
+      <button class="choice" onclick="toggleChoice(this, 1)">21</button>
+      <button class="choice" onclick="toggleChoice(this, 1)">23</button>
+    </div>
+    <button class="check-btn" onclick="checkMulti(1, [1,3,5,7])">확인</button>
+    <div style="margin-top:12px;">
+      <div class="answer-tabs">
+        <button class="answer-tab" id="tab1-ans" onclick="showAnswer(1, 'ans')">정답</button>
+        <button class="answer-tab" id="tab1-sol" onclick="showAnswer(1, 'sol')">풀이</button>
+      </div>
+      <div class="answer-content" id="ans1">
+        <div class="answer-box">2, 11, 17, 23</div>
+      </div>
+      <div class="answer-content" id="sol1">
+        1은 소수도 합성수도 아니에요.<br>
+        2: 약수 1, 2 → 소수 ✅<br>
+        9 = 3×3 → 합성수<br>
+        11: 약수 1, 11 → 소수 ✅<br>
+        15 = 3×5 → 합성수<br>
+        17: 약수 1, 17 → 소수 ✅<br>
+        21 = 3×7 → 합성수<br>
+        23: 약수 1, 23 → 소수 ✅
+      </div>
+    </div>
+    <div class="nav-btns">
+      <button class="nav secondary" disabled>← 이전</button>
+      <button class="nav" onclick="nextQ(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- 문제 2: 거듭제곱 계산 -->
+  <div class="q-card" id="q2">
+    <div class="q-header">
+      <div class="q-number">2</div>
+      <span class="q-concept">거듭제곱</span>
+    </div>
+    <div class="q-text">$2^4 + 3^2$의 값을 구하세요.</div>
+    <div class="short-input-row">
+      <input class="short-input" id="ans2" type="number" placeholder="답 입력">
+      <button class="check-btn" onclick="checkShort(2, '25')">확인</button>
+    </div>
+    <div>
+      <div class="answer-tabs">
+        <button class="answer-tab" id="tab2-ans" onclick="showAnswer(2, 'ans')">정답</button>
+        <button class="answer-tab" id="tab2-sol" onclick="showAnswer(2, 'sol')">풀이</button>
+      </div>
+      <div class="answer-content" id="ans2-content">
+        <div class="answer-box">25</div>
+      </div>
+      <div class="answer-content" id="sol2">
+        $2^4 = 2 \times 2 \times 2 \times 2 = 16$<br>
+        $3^2 = 3 \times 3 = 9$<br>
+        $16 + 9 = 25$
+      </div>
+    </div>
+    <div class="nav-btns">
+      <button class="nav secondary" onclick="prevQ(2)">← 이전</button>
+      <button class="nav" onclick="nextQ(2)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- 문제 3: 소인수분해 -->
+  <div class="q-card" id="q3">
+    <div class="q-header">
+      <div class="q-number">3</div>
+      <span class="q-concept">소인수분해</span>
+    </div>
+    <div class="q-text">84를 소인수분해하세요.</div>
+    <div class="choices" id="choices3">
+      <button class="choice" onclick="selectChoice(this, 3)">$2 \times 3 \times 14$</button>
+      <button class="choice" onclick="selectChoice(this, 3)">$2^2 \times 3 \times 7$</button>
+      <button class="choice" onclick="selectChoice(this, 3)">$2 \times 42$</button>
+      <button class="choice" onclick="selectChoice(this, 3)">$4 \times 21$</button>
+    </div>
+    <div>
+      <div class="answer-tabs">
+        <button class="answer-tab" id="tab3-ans" onclick="showAnswer(3, 'ans')">정답</button>
+        <button class="answer-tab" id="tab3-sol" onclick="showAnswer(3, 'sol')">풀이</button>
+      </div>
+      <div class="answer-content" id="ans3">
+        <div class="answer-box">$2^2 \times 3 \times 7$</div>
+      </div>
+      <div class="answer-content" id="sol3">
+        $84 \div 2 = 42$<br>
+        $42 \div 2 = 21$<br>
+        $21 \div 3 = 7$ (7은 소수)<br>
+        ∴ $84 = 2^2 \times 3 \times 7$<br><br>
+        소인수분해는 소수들의 곱으로만 나타내야 해요. 14, 42, 21은 소수가 아니에요.
+      </div>
+    </div>
+    <div class="nav-btns">
+      <button class="nav secondary" onclick="prevQ(3)">← 이전</button>
+      <button class="nav" onclick="nextQ(3)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- 문제 4: 소인수 구하기 -->
+  <div class="q-card" id="q4">
+    <div class="q-header">
+      <div class="q-number">4</div>
+      <span class="q-concept">소인수</span>
+    </div>
+    <div class="q-text">120의 소인수를 모두 구하세요.</div>
+    <div class="short-input-row">
+      <input class="short-input" id="ans4" type="text" placeholder="예: 2, 3, 5" style="width:200px;">
+      <button class="check-btn" onclick="checkTextContains(4, ['2','3','5'])">확인</button>
+    </div>
+    <div>
+      <div class="answer-tabs">
+        <button class="answer-tab" id="tab4-ans" onclick="showAnswer(4, 'ans')">정답</button>
+        <button class="answer-tab" id="tab4-sol" onclick="showAnswer(4, 'sol')">풀이</button>
+      </div>
+      <div class="answer-content" id="ans4-content">
+        <div class="answer-box">2, 3, 5</div>
+      </div>
+      <div class="answer-content" id="sol4">
+        $120 = 2^3 \times 3 \times 5$<br>
+        소인수(소수인 약수): 2, 3, 5
+      </div>
+    </div>
+    <div class="nav-btns">
+      <button class="nav secondary" onclick="prevQ(4)">← 이전</button>
+      <button class="nav" onclick="nextQ(4)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- 문제 5: 약수의 개수 -->
+  <div class="q-card" id="q5">
+    <div class="q-header">
+      <div class="q-number">5</div>
+      <span class="q-concept">약수의 개수</span>
+    </div>
+    <div class="q-text">$2^2 \times 3$의 약수의 개수를 구하세요.</div>
+    <div class="choices" id="choices5">
+      <button class="choice" onclick="selectChoice(this, 5)">4개</button>
+      <button class="choice" onclick="selectChoice(this, 5)">5개</button>
+      <button class="choice" onclick="selectChoice(this, 5)">6개</button>
+      <button class="choice" onclick="selectChoice(this, 5)">8개</button>
+    </div>
+    <div>
+      <div class="answer-tabs">
+        <button class="answer-tab" id="tab5-ans" onclick="showAnswer(5, 'ans')">정답</button>
+        <button class="answer-tab" id="tab5-sol" onclick="showAnswer(5, 'sol')">풀이</button>
+      </div>
+      <div class="answer-content" id="ans5">
+        <div class="answer-box">6개</div>
+      </div>
+      <div class="answer-content" id="sol5">
+        $2^2 \times 3^1$이므로<br>
+        약수의 개수 = $(2+1) \times (1+1) = 3 \times 2 = 6$개<br>
+        실제 약수: 1, 2, 3, 4, 6, 12
+      </div>
+    </div>
+    <div class="nav-btns">
+      <button class="nav secondary" onclick="prevQ(5)">← 이전</button>
+      <button class="nav" onclick="nextQ(5)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- 문제 6: 최대공약수 -->
+  <div class="q-card" id="q6">
+    <div class="q-header">
+      <div class="q-number">6</div>
+      <span class="q-concept">최대공약수</span>
+    </div>
+    <div class="q-text">24와 36의 최대공약수를 구하세요.</div>
+    <div class="short-input-row">
+      <input class="short-input" id="ans6" type="number" placeholder="답 입력">
+      <button class="check-btn" onclick="checkShort(6, '12')">확인</button>
+    </div>
+    <div>
+      <div class="answer-tabs">
+        <button class="answer-tab" id="tab6-ans" onclick="showAnswer(6, 'ans')">정답</button>
+        <button class="answer-tab" id="tab6-sol" onclick="showAnswer(6, 'sol')">풀이</button>
+      </div>
+      <div class="answer-content" id="ans6-content">
+        <div class="answer-box">12</div>
+      </div>
+      <div class="answer-content" id="sol6">
+        $24 = 2^3 \times 3$<br>
+        $36 = 2^2 \times 3^2$<br>
+        공통 소인수: $2^2$(작은 지수), $3^1$(작은 지수)<br>
+        GCD $= 2^2 \times 3 = 12$
+      </div>
+    </div>
+    <div class="nav-btns">
+      <button class="nav secondary" onclick="prevQ(6)">← 이전</button>
+      <button class="nav" onclick="nextQ(6)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- 문제 7: 최소공배수 -->
+  <div class="q-card" id="q7">
+    <div class="q-header">
+      <div class="q-number">7</div>
+      <span class="q-concept">최소공배수</span>
+    </div>
+    <div class="q-text">12와 18의 최소공배수를 구하세요.</div>
+    <div class="short-input-row">
+      <input class="short-input" id="ans7" type="number" placeholder="답 입력">
+      <button class="check-btn" onclick="checkShort(7, '36')">확인</button>
+    </div>
+    <div>
+      <div class="answer-tabs">
+        <button class="answer-tab" id="tab7-ans" onclick="showAnswer(7, 'ans')">정답</button>
+        <button class="answer-tab" id="tab7-sol" onclick="showAnswer(7, 'sol')">풀이</button>
+      </div>
+      <div class="answer-content" id="ans7-content">
+        <div class="answer-box">36</div>
+      </div>
+      <div class="answer-content" id="sol7">
+        $12 = 2^2 \times 3$<br>
+        $18 = 2 \times 3^2$<br>
+        모든 소인수: $2^2$(큰 지수), $3^2$(큰 지수)<br>
+        LCM $= 2^2 \times 3^2 = 4 \times 9 = 36$
+      </div>
+    </div>
+    <div class="nav-btns">
+      <button class="nav secondary" onclick="prevQ(7)">← 이전</button>
+      <button class="nav" onclick="nextQ(7)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- 문제 8: GCD × LCM 관계 -->
+  <div class="q-card" id="q8">
+    <div class="q-header">
+      <div class="q-number">8</div>
+      <span class="q-concept">GCD·LCM 관계</span>
+    </div>
+    <div class="q-text">두 수 A, B의 최대공약수가 6이고 최소공배수가 60일 때, $A \times B$의 값을 구하세요.</div>
+    <div class="short-input-row">
+      <input class="short-input" id="ans8" type="number" placeholder="답 입력">
+      <button class="check-btn" onclick="checkShort(8, '360')">확인</button>
+    </div>
+    <div>
+      <div class="answer-tabs">
+        <button class="answer-tab" id="tab8-ans" onclick="showAnswer(8, 'ans')">정답</button>
+        <button class="answer-tab" id="tab8-sol" onclick="showAnswer(8, 'sol')">풀이</button>
+      </div>
+      <div class="answer-content" id="ans8-content">
+        <div class="answer-box">360</div>
+      </div>
+      <div class="answer-content" id="sol8">
+        $A \times B = \text{GCD}(A,B) \times \text{LCM}(A,B)$<br>
+        $= 6 \times 60 = 360$
+      </div>
+    </div>
+    <div class="nav-btns">
+      <button class="nav secondary" onclick="prevQ(8)">← 이전</button>
+      <button class="nav" onclick="nextQ(8)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- 문제 9: 서로소 -->
+  <div class="q-card" id="q9">
+    <div class="q-header">
+      <div class="q-number">9</div>
+      <span class="q-concept">서로소</span>
+    </div>
+    <div class="q-text">다음 두 수 중 서로소인 쌍을 모두 고르세요.<br>(가) 8과 15 &nbsp;(나) 6과 9 &nbsp;(다) 4와 12 &nbsp;(라) 10과 21</div>
+    <div class="choices" id="choices9">
+      <button class="choice" onclick="toggleChoice(this, 9)">(가) 8과 15</button>
+      <button class="choice" onclick="toggleChoice(this, 9)">(나) 6과 9</button>
+      <button class="choice" onclick="toggleChoice(this, 9)">(다) 4와 12</button>
+      <button class="choice" onclick="toggleChoice(this, 9)">(라) 10과 21</button>
+    </div>
+    <button class="check-btn" onclick="checkMulti(9, [0, 3])">확인</button>
+    <div style="margin-top:12px;">
+      <div class="answer-tabs">
+        <button class="answer-tab" id="tab9-ans" onclick="showAnswer(9, 'ans')">정답</button>
+        <button class="answer-tab" id="tab9-sol" onclick="showAnswer(9, 'sol')">풀이</button>
+      </div>
+      <div class="answer-content" id="ans9">
+        <div class="answer-box">(가), (라)</div>
+      </div>
+      <div class="answer-content" id="sol9">
+        서로소: GCD = 1인 두 수<br>
+        (가) GCD(8, 15) = 1 → 서로소 ✅<br>
+        (나) GCD(6, 9) = 3 → 서로소 아님<br>
+        (다) GCD(4, 12) = 4 → 서로소 아님<br>
+        (라) GCD(10, 21) = 1 → 서로소 ✅
+      </div>
+    </div>
+    <div class="nav-btns">
+      <button class="nav secondary" onclick="prevQ(9)">← 이전</button>
+      <button class="nav" onclick="nextQ(9)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- 문제 10: 실생활 응용 -->
+  <div class="q-card" id="q10">
+    <div class="q-header">
+      <div class="q-number">10</div>
+      <span class="q-concept">LCM 응용</span>
+    </div>
+    <div class="q-text">버스 A는 12분마다, 버스 B는 18분마다 출발합니다. 오전 8시에 두 버스가 동시에 출발했다면, 다음에 다시 동시에 출발하는 시각은?</div>
+    <div class="choices" id="choices10">
+      <button class="choice" onclick="selectChoice(this, 10)">오전 8시 24분</button>
+      <button class="choice" onclick="selectChoice(this, 10)">오전 8시 30분</button>
+      <button class="choice" onclick="selectChoice(this, 10)">오전 8시 36분</button>
+      <button class="choice" onclick="selectChoice(this, 10)">오전 8시 48분</button>
+    </div>
+    <div>
+      <div class="answer-tabs">
+        <button class="answer-tab" id="tab10-ans" onclick="showAnswer(10, 'ans')">정답</button>
+        <button class="answer-tab" id="tab10-sol" onclick="showAnswer(10, 'sol')">풀이</button>
+      </div>
+      <div class="answer-content" id="ans10">
+        <div class="answer-box">오전 8시 36분</div>
+      </div>
+      <div class="answer-content" id="sol10">
+        LCM(12, 18)을 구해요.<br>
+        $12 = 2^2 \times 3$, $18 = 2 \times 3^2$<br>
+        LCM $= 2^2 \times 3^2 = 36$분 후<br>
+        오전 8시 + 36분 = <strong>오전 8시 36분</strong>
+      </div>
+    </div>
+    <div class="nav-btns">
+      <button class="nav secondary" onclick="prevQ(10)">← 이전</button>
+      <button class="nav" onclick="showResult()">결과 보기</button>
+    </div>
+  </div>
+
+  <!-- 결과 카드 -->
+  <div class="result-card" id="resultCard">
+    <div class="score-circle" id="scoreCircle">-/10</div>
+    <h2 id="resultTitle">수고했어요!</h2>
+    <p id="resultMsg"></p>
+    <div class="result-tags" id="resultTags"></div>
+    <button class="nav" onclick="restartAll()" style="margin-top:16px;">처음부터 다시</button>
+    <br>
+    <a href="../index.html" style="text-decoration:none;">
+      <button class="nav secondary" style="margin-top:10px;">단원 홈으로</button>
+    </a>
+  </div>
+</div>
+
+<script>
+const TOTAL = 10;
+let current = 1;
+let score = 0;
+const answered = {};
+// 각 문제에서 사용자가 선택한 인덱스 저장 (multi: Set, single: number, short: string)
+const userAnswers = {};
+const CORRECT = {
+  1: [1, 3, 5, 7], // 보기 인덱스 (0-based): 2, 11, 17, 23
+  3: 1,            // 보기 인덱스: $2^2 × 3 × 7$
+  5: 2,            // 보기 인덱스: 6개
+  9: [0, 3],       // 보기 인덱스: (가), (라)
+  10: 2            // 보기 인덱스: 오전 8시 36분
+};
+const CONCEPTS = {
+  1: '소수·합성수', 2: '거듭제곱', 3: '소인수분해', 4: '소인수',
+  5: '약수의 개수', 6: '최대공약수', 7: '최소공배수', 8: 'GCD·LCM 관계',
+  9: '서로소', 10: 'LCM 응용'
+};
+
+function updateProgress() {
+  const pct = (current / TOTAL) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = current + ' / ' + TOTAL;
+}
+
+function nextQ(n) {
+  document.getElementById('q' + n).classList.remove('active');
+  current = n + 1;
+  document.getElementById('q' + current).classList.add('active');
+  updateProgress();
+  window.scrollTo(0, 0);
+  if (window.renderMathInElement) {
+    renderMathInElement(document.getElementById('q' + current), {
+      delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+    });
+  }
+}
+
+function prevQ(n) {
+  document.getElementById('q' + n).classList.remove('active');
+  current = n - 1;
+  document.getElementById('q' + current).classList.add('active');
+  updateProgress();
+  window.scrollTo(0, 0);
+}
+
+// 탭 전환 (정답/풀이)
+function showAnswer(n, type) {
+  const ansEl = document.getElementById('ans' + n) || document.getElementById('ans' + n + '-content');
+  const solEl = document.getElementById('sol' + n);
+  const tabAns = document.getElementById('tab' + n + '-ans');
+  const tabSol = document.getElementById('tab' + n + '-sol');
+
+  // 선택된 것만 보임
+  [ansEl, solEl].forEach(el => { if (el) el.classList.remove('active'); });
+  [tabAns, tabSol].forEach(el => { if (el) el.classList.remove('active'); });
+
+  if (type === 'ans') {
+    if (ansEl) ansEl.classList.add('active');
+    if (tabAns) tabAns.classList.add('active');
+  } else {
+    if (solEl) solEl.classList.add('active');
+    if (tabSol) tabSol.classList.add('active');
+  }
+
+  if (window.renderMathInElement) {
+    const target = type === 'ans' ? ansEl : solEl;
+    if (target) renderMathInElement(target, {
+      delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+    });
+  }
+}
+
+// 객관식 단일 선택
+function selectChoice(btn, n) {
+  document.querySelectorAll('#choices' + n + ' .choice').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  const btns = Array.from(document.querySelectorAll('#choices' + n + ' .choice'));
+  userAnswers[n] = btns.indexOf(btn);
+}
+
+// 객관식 다중 선택 (토글)
+function toggleChoice(btn, n) {
+  btn.classList.toggle('selected');
+}
+
+// 다중 선택 확인
+function checkMulti(n, correctIndices) {
+  if (answered[n]) return;
+  const btns = Array.from(document.querySelectorAll('#choices' + n + ' .choice'));
+  const selected = btns.reduce((acc, b, i) => { if (b.classList.contains('selected')) acc.push(i); return acc; }, []);
+  const correct = correctIndices.sort().join(',');
+  const given = selected.sort().join(',');
+
+  btns.forEach((b, i) => {
+    if (correctIndices.includes(i)) b.classList.add('correct');
+    else if (selected.includes(i)) b.classList.add('wrong');
+  });
+
+  answered[n] = true;
+  if (correct === given) score++;
+}
+
+// 단답형 확인
+function checkShort(n, correctVal) {
+  if (answered[n]) return;
+  const el = document.getElementById('ans' + n);
+  const val = el ? el.value.trim() : '';
+  answered[n] = true;
+  if (val === correctVal) score++;
+}
+
+// 텍스트 포함 확인 (소인수 등)
+function checkTextContains(n, mustContain) {
+  if (answered[n]) return;
+  const el = document.getElementById('ans' + n);
+  const val = (el ? el.value : '').toLowerCase().replace(/\s/g, '');
+  const allContained = mustContain.every(s => val.includes(s));
+  answered[n] = true;
+  if (allContained) score++;
+}
+
+function showResult() {
+  document.getElementById('q' + current).classList.remove('active');
+  document.getElementById('resultCard').classList.add('active');
+  document.getElementById('scoreCircle').textContent = score + '/10';
+  const msgs = ['조금 더 연습해봐요!', '잘 하고 있어요!', '좋아요!', '아주 잘했어요!', '완벽해요!'];
+  const msgIdx = Math.min(4, Math.floor(score / 2));
+  document.getElementById('resultTitle').textContent = msgs[msgIdx];
+  document.getElementById('resultMsg').textContent = `${score}문제를 맞혔어요. 틀린 문제는 풀이를 다시 확인해봐요.`;
+
+  // 개념 태그
+  const tagsEl = document.getElementById('resultTags');
+  tagsEl.innerHTML = '';
+  for (let i = 1; i <= TOTAL; i++) {
+    const tag = document.createElement('span');
+    tag.className = 'result-tag';
+    tag.textContent = CONCEPTS[i];
+    tagsEl.appendChild(tag);
+  }
+  window.scrollTo(0, 0);
+}
+
+function restartAll() {
+  score = 0;
+  Object.keys(answered).forEach(k => delete answered[k]);
+  current = 1;
+  document.getElementById('resultCard').classList.remove('active');
+  document.querySelectorAll('.q-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('q1').classList.add('active');
+  updateProgress();
+  window.scrollTo(0, 0);
+}
+
+updateProgress();
+</script>
+</body>
+</html>

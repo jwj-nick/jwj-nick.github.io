@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 탐구 — 복잡한 방정식 (괄호+분수 복합)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+:root{--primary:#4361EE;--bg:#eef2ff;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic',sans-serif;background:var(--bg);padding:0 0 60px;color:#2d3436;}
+.header{background:linear-gradient(135deg,#4361EE,#3a0ca3);color:white;padding:28px 20px 24px;text-align:center;}
+.header h1{font-size:20px;margin-bottom:6px;}
+.header p{font-size:13px;opacity:0.85;}
+.back-link{font-size:12px;color:rgba(255,255,255,0.7);text-decoration:none;display:block;margin-top:10px;}
+.container{max-width:700px;margin:0 auto;padding:20px 16px;}
+.section{margin-bottom:28px;}
+.section-title{font-size:15px;font-weight:bold;color:#4361EE;padding-left:8px;border-left:3px solid #4361EE;margin-bottom:14px;}
+.card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;}
+.card p,.card li{font-size:14px;color:#444;line-height:1.8;}
+.card ul{padding-left:18px;}
+.highlight{background:#f0f4ff;border-left:4px solid #4361EE;border-radius:0 10px 10px 0;padding:12px 16px;margin:10px 0;font-size:14px;color:#333;line-height:1.7;}
+.warn-box{background:#fff3e0;border:1px solid #ffcc80;border-radius:10px;padding:12px 14px;font-size:13px;color:#e65100;line-height:1.6;margin-top:10px;}
+.mistake-item{background:white;border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(67,97,238,.07);margin-bottom:10px;display:flex;gap:12px;}
+.mistake-icon{font-size:22px;flex-shrink:0;margin-top:2px;}
+.mistake-content{flex:1;}
+.mistake-title{font-size:14px;font-weight:bold;color:#e74c3c;margin-bottom:4px;}
+.mistake-desc{font-size:13px;color:#444;line-height:1.6;}
+.problem-card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;border-left:4px solid #4361EE;}
+.prob-label{font-size:12px;font-weight:bold;color:#4361EE;letter-spacing:1px;margin-bottom:8px;}
+.prob-text{font-size:15px;line-height:1.8;color:#1a1a2e;margin-bottom:12px;}
+.reveal-btn{background:none;border:2px solid #4361EE;color:#4361EE;padding:6px 18px;border-radius:20px;font-size:13px;cursor:pointer;margin-right:8px;}
+.reveal-content{display:none;margin-top:12px;background:#f0fff4;border-radius:10px;padding:12px 16px;font-size:13px;color:#1b5e20;line-height:1.7;}
+.connect-box{background:linear-gradient(135deg,#f0f4ff,#e8ecff);border-radius:14px;padding:20px;font-size:14px;color:#333;line-height:1.8;}
+.connect-title{font-size:15px;font-weight:bold;color:#4361EE;margin-bottom:10px;}
+.flow-box{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;}
+.flow-step{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid #f0f0f8;}
+.flow-step:last-child{border-bottom:none;}
+.flow-num{background:#4361EE;color:white;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;flex-shrink:0;margin-top:2px;}
+.flow-text{font-size:14px;color:#444;line-height:1.7;flex:1;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>깊이 탐구 — 복잡한 방정식</h1>
+  <p>괄호 + 분수 복합 처리</p>
+  <a class="back-link" href="../index.html">← 단원 4 홈</a>
+</div>
+
+<div class="container">
+
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>괄호와 분수가 동시에 나와요. 처리 순서를 모르면 계속 틀려요.</p>
+      <p style="margin-top:8px;">또한 분수 안에 괄호가 있거나, LCM을 곱할 때 괄호를 빠뜨리는 실수가 많아요.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 처리 순서</div>
+    <div class="flow-box">
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-text"><strong>분수 제거 먼저</strong>: LCM을 양변에 곱해요. 분수 안의 괄호는 그대로 유지.</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div class="flow-text"><strong>괄호 전개</strong>: 분배법칙으로 모든 괄호를 풀어요.</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div class="flow-text"><strong>이항 + 동류항</strong>: $x$항 좌변, 숫자 우변으로.</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">4</div>
+        <div class="flow-text"><strong>계수로 나누기</strong>: $x = ?$ 꼴로 만들어요.</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">5</div>
+        <div class="flow-text"><strong>검산</strong>: 원래 식에 대입해 확인.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">예제 단계별 풀이</div>
+    <div class="card">
+      <p style="font-size:16px;font-weight:bold;text-align:center;margin-bottom:14px;">$$\frac{x-1}{2} - \frac{x+2}{3} = 1$$</p>
+      <div class="highlight">
+        <strong>단계 1</strong>: LCM(2,3) = 6. 양변에 6을 곱하면:<br>
+        $6 \cdot \dfrac{x-1}{2} - 6 \cdot \dfrac{x+2}{3} = 6$<br>
+        $3(x-1) - 2(x+2) = 6$
+      </div>
+      <div class="highlight" style="margin-top:8px;">
+        <strong>단계 2</strong>: 괄호 전개:<br>
+        $3x - 3 - 2x - 4 = 6$<br>
+        $x - 7 = 6$
+      </div>
+      <div class="highlight" style="margin-top:8px;">
+        <strong>단계 3~4</strong>: 이항 + 정리:<br>
+        $x = 13$
+      </div>
+      <div class="highlight" style="margin-top:8px;background:#f0fff4;border-color:#2e7d32;">
+        <strong>검산</strong>: $\dfrac{12}{2} - \dfrac{15}{3} = 6 - 5 = 1$ ✓
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">LCM 곱할 때 괄호 전체에 적용 안 함</div>
+        <div class="mistake-desc">$\frac{x-1}{2}$에 ×6 적용: $3(x-1)$ (맞음)<br>하지만 $3x-1$로 쓰는 실수! → $3x-3$이어야 해요.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">$-\frac{x+2}{3}$에서 부호 실수</div>
+        <div class="mistake-desc">×6하면 $-2(x+2)=-2x-4$ (맞음)<br>$-2x+4$로 쓰는 실수가 자주 발생해요!</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">LCM을 최소공배수가 아닌 공배수로 선택</div>
+        <div class="mistake-desc">분모가 2, 3, 6이면 LCM = 6이에요. 12나 24를 써도 되지만, 숫자가 커져서 실수가 늘어요. 최소공배수를 사용하는 습관!</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제 (5-c와 겹치지 않음)</div>
+    <div class="problem-card">
+      <div class="prob-label">문제 1</div>
+      <div class="prob-text">$\dfrac{2x+1}{3} + \dfrac{x-2}{6} = 2$를 풀어라.</div>
+      <button class="reveal-btn" onclick="toggleReveal(this)">풀이 보기</button>
+      <div class="reveal-content">LCM = 6. 양변 × 6:<br>$2(2x+1)+(x-2)=12$<br>$4x+2+x-2=12$<br>$5x=12$, $x=\dfrac{12}{5}$<br>검산: $\frac{2(12/5)+1}{3}+\frac{12/5-2}{6}=\frac{29/5}{3}+\frac{2/5}{6}=\frac{29}{15}+\frac{1}{15}=\frac{30}{15}=2$ ✓</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">문제 2</div>
+      <div class="prob-text">$\dfrac{x+3}{4} - \dfrac{2x-1}{3} = -\dfrac{1}{2}$를 풀어라.</div>
+      <button class="reveal-btn" onclick="toggleReveal(this)">풀이 보기</button>
+      <div class="reveal-content">LCM(4,3,2) = 12. 양변 × 12:<br>$3(x+3)-4(2x-1)=-6$<br>$3x+9-8x+4=-6$<br>$-5x+13=-6$<br>$-5x=-19$, $x=\dfrac{19}{5}$<br>검산: $\frac{19/5+3}{4}-\frac{2(19/5)-1}{3}=\frac{34/5}{4}-\frac{33/5}{3}=\frac{17}{10}-\frac{11}{5}=\frac{17}{10}-\frac{22}{10}=-\frac{5}{10}=-\frac{1}{2}$ ✓</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">문제 3</div>
+      <div class="prob-text">방정식 $\dfrac{ax+1}{2} = \dfrac{3x-2}{4}$의 해가 $x = 2$일 때, $a$의 값을 구하세요.</div>
+      <button class="reveal-btn" onclick="toggleReveal(this)">풀이 보기</button>
+      <div class="reveal-content">$x=2$ 대입: $\dfrac{2a+1}{2}=\dfrac{4}{4}=1$<br>$2a+1=2$, $a=\dfrac{1}{2}$<br>확인: $\frac{1+1}{2}=1$, $\frac{6-2}{4}=1$ ✓</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">연결 개념</div>
+    <div class="connect-box">
+      <div class="connect-title">복잡한 방정식을 마스터하면 쉬워지는 것</div>
+      <ul style="padding-left:18px;font-size:14px;color:#333;line-height:1.8;">
+        <li><strong>연립방정식 (중2)</strong>: 두 방정식이 각각 이 형태일 수 있어요. LCM 처리가 자동으로 돼야 해요.</li>
+        <li><strong>이차방정식 (중3)</strong>: 더 복잡한 식에서도 LCM으로 분수를 없애는 전략은 동일해요.</li>
+        <li><strong>방정식 활용 (유형 7) 고급</strong>: 활용에서 나온 식이 이 형태인 경우가 많아요.</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function toggleReveal(btn) {
+  const content = btn.nextElementSibling;
+  if (content.style.display === 'block') {
+    content.style.display = 'none';
+    btn.textContent = '풀이 보기';
+  } else {
+    content.style.display = 'block';
+    btn.textContent = '풀이 닫기';
+    if (window.renderMathInElement) {
+      renderMathInElement(content, {
+        delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+      });
+    }
+  }
+}
+</script>
+</body>
+</html>

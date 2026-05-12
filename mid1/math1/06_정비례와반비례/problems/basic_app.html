@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>기본 문제 — 정비례와 반비례</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; }
+  .header { background: linear-gradient(135deg, #4361EE 0%, #3a0ca3 100%); color: white; padding: 24px 20px; text-align: center; }
+  .header h1 { font-size: 22px; margin-bottom: 6px; }
+  .header p { font-size: 13px; opacity: 0.85; }
+  .progress-bar { background: rgba(255,255,255,0.2); height: 4px; border-radius: 2px; margin-top: 14px; overflow: hidden; }
+  .progress-fill { background: white; height: 100%; border-radius: 2px; transition: width 0.3s; }
+  .container { max-width: 700px; margin: 0 auto; padding: 20px 16px 60px; }
+  .question-card { background: white; border-radius: 16px; padding: 22px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 14px; }
+  .q-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .q-num { background: #4361EE; color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; flex-shrink: 0; }
+  .q-tag { font-size: 11px; background: #eef2ff; color: #4361EE; padding: 3px 10px; border-radius: 20px; }
+  .q-diff { font-size: 11px; padding: 3px 10px; border-radius: 20px; margin-left: auto; }
+  .diff-L { background: #e8f5e9; color: #2e7d32; }
+  .diff-M { background: #fff3e0; color: #e65100; }
+  .q-text { font-size: 15px; color: #1a1a2e; line-height: 1.8; margin-bottom: 14px; }
+  .choices { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+  .choice-btn { background: #f8f9ff; border: 2px solid #eef2ff; border-radius: 10px; padding: 10px 14px; text-align: left; font-size: 14px; color: #333; cursor: pointer; transition: all 0.15s; }
+  .choice-btn:hover { border-color: #4361EE; background: #eef2ff; }
+  .choice-btn.selected { border-color: #4361EE; background: #eef2ff; font-weight: bold; }
+  .choice-btn.correct { border-color: #2e7d32; background: #e8f5e9; color: #1b5e20; font-weight: bold; }
+  .choice-btn.wrong { border-color: #c62828; background: #ffebee; color: #b71c1c; }
+  .open-input { width: 100%; border: 2px solid #eef2ff; border-radius: 10px; padding: 10px 14px; font-size: 16px; font-family: 'Malgun Gothic', sans-serif; color: #333; outline: none; transition: border-color 0.2s; margin-bottom: 10px; }
+  .open-input:focus { border-color: #4361EE; }
+  .open-input.correct { border-color: #2e7d32; background: #e8f5e9; }
+  .open-input.wrong { border-color: #c62828; background: #ffebee; }
+  .check-btn { background: #4361EE; color: white; border: none; padding: 10px 24px; border-radius: 24px; font-size: 14px; cursor: pointer; transition: background 0.15s; }
+  .check-btn:hover { background: #3a0ca3; }
+  .check-btn:disabled { background: #aaa; cursor: default; }
+  .answer-panel { display: none; margin-top: 12px; border-top: 1px solid #eef2ff; padding-top: 12px; }
+  .answer-panel.show { display: block; }
+  .answer-box { background: #f0fff4; border-radius: 10px; padding: 12px 16px; font-size: 14px; color: #1b5e20; line-height: 1.8; margin-bottom: 8px; }
+  .solution-box { background: #f8f9ff; border-radius: 10px; padding: 12px 16px; font-size: 13px; color: #444; line-height: 1.8; }
+  .result-badge { display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-top: 8px; }
+  .badge-correct { background: #e8f5e9; color: #2e7d32; }
+  .badge-wrong { background: #ffebee; color: #c62828; }
+  .mini-graph { display: block; margin: 10px auto; max-width: 320px; width: 100%; height: auto; background: white; border-radius: 8px; padding: 6px; }
+  .summary-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); text-align: center; display: none; }
+  .summary-score { font-size: 48px; font-weight: bold; color: #4361EE; margin: 10px 0; }
+  .summary-sub { font-size: 14px; color: #666; }
+  .home-btn { display: inline-block; margin-top: 20px; background: #4361EE; color: white; text-decoration: none; padding: 10px 28px; border-radius: 24px; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>기본 문제 — 정비례와 반비례</h1>
+  <p>Unit 06 전체 핵심 개념 확인 · 9문제</p>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+  </div>
+</div>
+
+<div class="container" id="mainContent">
+
+  <!-- Q1 정비례 정의 -->
+  <div class="question-card" id="qcard-1">
+    <div class="q-header">
+      <div class="q-num">1</div>
+      <div class="q-tag">정비례 정의</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">다음 중 $y$가 $x$에 <strong>정비례</strong>하는 식은?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(1,'①','②')">① $y = x + 3$</button>
+      <button class="choice-btn" onclick="chooseAnswer(1,'②','②')">② $y = 5x$</button>
+      <button class="choice-btn" onclick="chooseAnswer(1,'③','②')">③ $y = \dfrac{6}{x}$</button>
+      <button class="choice-btn" onclick="chooseAnswer(1,'④','②')">④ $y = x^2$</button>
+    </div>
+    <div class="answer-panel" id="ans-1">
+      <div class="answer-box">정답: ② $y = 5x$</div>
+      <div class="solution-box">정비례는 반드시 <strong>$y = ax$</strong> 형태 ($a \neq 0$, 상수항 없음).<br>① 상수항 +3 → 정비례 아님<br>② $y = 5x$ → 비례상수 $a = 5$ ✓<br>③ $y = a/x$ → 반비례<br>④ $x$의 제곱 → 정비례 아님</div>
+    </div>
+  </div>
+
+  <!-- Q2 정비례 식 세우기 -->
+  <div class="question-card" id="qcard-2">
+    <div class="q-header">
+      <div class="q-num">2</div>
+      <div class="q-tag">정비례 식 세우기</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">사과 1개의 가격이 800원이에요. 사과 $x$개의 총 가격을 $y$원이라 할 때, $y$를 $x$의 식으로 나타내면?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(2,'①','②')">① $y = x + 800$</button>
+      <button class="choice-btn" onclick="chooseAnswer(2,'②','②')">② $y = 800x$</button>
+      <button class="choice-btn" onclick="chooseAnswer(2,'③','②')">③ $y = \dfrac{800}{x}$</button>
+      <button class="choice-btn" onclick="chooseAnswer(2,'④','②')">④ $y = \dfrac{x}{800}$</button>
+    </div>
+    <div class="answer-panel" id="ans-2">
+      <div class="answer-box">정답: ② $y = 800x$</div>
+      <div class="solution-box">사과 1개에 800원 → 2개 1600원, 3개 2400원...<br>$x$가 2배, 3배 되면 $y$도 2배, 3배 → <strong>정비례</strong><br>비례상수 $a = 800$ → 식 $y = 800x$</div>
+    </div>
+  </div>
+
+  <!-- Q3 정비례 그래프 -->
+  <div class="question-card" id="qcard-3">
+    <div class="q-header">
+      <div class="q-num">3</div>
+      <div class="q-tag">정비례 그래프</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">정비례 $y = -3x$의 그래프에 대한 설명으로 <strong>옳은 것</strong>은?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(3,'①','③')">① 원점을 지나지 않는다</button>
+      <button class="choice-btn" onclick="chooseAnswer(3,'②','③')">② 제1·3사분면을 지나는 직선</button>
+      <button class="choice-btn" onclick="chooseAnswer(3,'③','③')">③ 제2·4사분면을 지나는 직선</button>
+      <button class="choice-btn" onclick="chooseAnswer(3,'④','③')">④ 쌍곡선</button>
+    </div>
+    <div class="answer-panel" id="ans-3">
+      <div class="answer-box">정답: ③ 제2·4사분면을 지나는 직선</div>
+      <div class="solution-box">$y = ax$ 정비례 그래프는 항상 <strong>원점을 지나는 직선</strong>.<br>$a = -3 < 0$ → 제2·4사분면 (오른쪽 아래로 향함).<br>$a > 0$이면 1·3사분면, $a < 0$이면 2·4사분면.</div>
+    </div>
+  </div>
+
+  <!-- Q4 반비례 정의 -->
+  <div class="question-card" id="qcard-4">
+    <div class="q-header">
+      <div class="q-num">4</div>
+      <div class="q-tag">반비례 정의</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">$y$가 $x$에 <strong>반비례</strong>할 때, 항상 같은 값으로 일정한 것은?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(4,'①','③')">① $x + y$</button>
+      <button class="choice-btn" onclick="chooseAnswer(4,'②','③')">② $\dfrac{y}{x}$</button>
+      <button class="choice-btn" onclick="chooseAnswer(4,'③','③')">③ $xy$</button>
+      <button class="choice-btn" onclick="chooseAnswer(4,'④','③')">④ $y - x$</button>
+    </div>
+    <div class="answer-panel" id="ans-4">
+      <div class="answer-box">정답: ③ $xy$</div>
+      <div class="solution-box">반비례 $y = \dfrac{a}{x}$ 의 양변에 $x$를 곱하면: <strong>$xy = a$</strong> (일정한 값)<br>참고: 정비례에서는 $\dfrac{y}{x} = a$ 가 일정해요.</div>
+    </div>
+  </div>
+
+  <!-- Q5 반비례 식 세우기 -->
+  <div class="question-card" id="qcard-5">
+    <div class="q-header">
+      <div class="q-num">5</div>
+      <div class="q-tag">반비례 식 세우기</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">사탕 24개를 $x$명이 똑같이 나누어 가질 때, 한 명이 받는 사탕의 개수를 $y$라 하자. $y$를 $x$의 식으로 나타내면?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(5,'①','③')">① $y = 24x$</button>
+      <button class="choice-btn" onclick="chooseAnswer(5,'②','③')">② $y = 24 - x$</button>
+      <button class="choice-btn" onclick="chooseAnswer(5,'③','③')">③ $y = \dfrac{24}{x}$</button>
+      <button class="choice-btn" onclick="chooseAnswer(5,'④','③')">④ $y = \dfrac{x}{24}$</button>
+    </div>
+    <div class="answer-panel" id="ans-5">
+      <div class="answer-box">정답: ③ $y = \dfrac{24}{x}$</div>
+      <div class="solution-box">총 24개를 $x$명이 나누면 한 명당 $24 \div x$.<br>$x = 2$ → 12개, $x = 3$ → 8개, $x = 4$ → 6개<br>$x$가 2배 되면 $y$가 1/2배 → <strong>반비례</strong>, 비례상수 $a = 24$<br>식: $y = \dfrac{24}{x}$ (또는 $xy = 24$)</div>
+    </div>
+  </div>
+
+  <!-- Q6 비례상수 결정 -->
+  <div class="question-card" id="qcard-6">
+    <div class="q-header">
+      <div class="q-num">6</div>
+      <div class="q-tag">비례상수 결정</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text">$y$는 $x$에 정비례하고, $x = 4$일 때 $y = 12$이다. 비례상수 $a$의 값과 식은?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(6,'①','③')">① $a = 4$, $y = 4x$</button>
+      <button class="choice-btn" onclick="chooseAnswer(6,'②','③')">② $a = \dfrac{1}{3}$, $y = \dfrac{x}{3}$</button>
+      <button class="choice-btn" onclick="chooseAnswer(6,'③','③')">③ $a = 3$, $y = 3x$</button>
+      <button class="choice-btn" onclick="chooseAnswer(6,'④','③')">④ $a = 12$, $y = 12x$</button>
+    </div>
+    <div class="answer-panel" id="ans-6">
+      <div class="answer-box">정답: ③ $a = 3$, $y = 3x$</div>
+      <div class="solution-box">정비례 $y = ax$ 에 $x = 4$, $y = 12$ 대입:<br>$12 = a \times 4$ → $a = 12 \div 4 = 3$<br>식: $y = 3x$<br><br>또는 $\dfrac{y}{x} = a$ 사용: $\dfrac{12}{4} = 3$</div>
+    </div>
+  </div>
+
+  <!-- Q7 ★ 학습자 결정적 사례: 반비례 a=-2 -->
+  <div class="question-card" id="qcard-7">
+    <div class="q-header">
+      <div class="q-num">7</div>
+      <div class="q-tag">반비례 식 (음수 a)</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text">$y$는 $x$에 반비례하고 비례상수 $a = -2$이다. $y$를 $x$의 식으로 나타낸 것 중 <strong>잘못된</strong> 것은?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(7,'①','④')">① $y = \dfrac{-2}{x}$</button>
+      <button class="choice-btn" onclick="chooseAnswer(7,'②','④')">② $y = -\dfrac{2}{x}$</button>
+      <button class="choice-btn" onclick="chooseAnswer(7,'③','④')">③ $xy = -2$</button>
+      <button class="choice-btn" onclick="chooseAnswer(7,'④','④')">④ $y = \dfrac{x}{-2}$</button>
+    </div>
+    <div class="answer-panel" id="ans-7">
+      <div class="answer-box">정답: ④ $y = \dfrac{x}{-2}$ 는 잘못된 식</div>
+      <div class="solution-box">$y = \dfrac{a}{x}$ 에 $a = -2$ 대입하면: $y = \dfrac{-2}{x}$<br><br>같은 식의 여러 표기:<br>• $y = \dfrac{-2}{x}$ ← 분자에 부호 (정석)<br>• $y = -\dfrac{2}{x}$ ← 분수 앞에 부호 (같은 뜻)<br>• $xy = -2$ ← 양변에 $x$ 곱한 형태 (같은 뜻)<br><br>④ $y = \dfrac{x}{-2}$ 는 $x$를 분모에 두지 않고 분자에 두었으므로 <strong>정비례 식</strong>이에요.<br>($y = \dfrac{x}{-2} = -\dfrac{1}{2}x$, 비례상수 $-1/2$인 정비례)</div>
+    </div>
+  </div>
+
+  <!-- Q8 정비례 그래프 값 읽기 -->
+  <div class="question-card" id="qcard-8">
+    <div class="q-header">
+      <div class="q-num">8</div>
+      <div class="q-tag">정비례 그래프 읽기</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text">아래 정비례 그래프의 식을 구하시오. (점 $(2, 6)$을 지나는 직선)</div>
+    <svg class="mini-graph" viewBox="0 0 320 240">
+      <!-- 격자 -->
+      <g stroke="#e0e4f0" stroke-width="1">
+        <line x1="40" y1="40" x2="40" y2="200"/>
+        <line x1="80" y1="40" x2="80" y2="200"/>
+        <line x1="120" y1="40" x2="120" y2="200"/>
+        <line x1="160" y1="40" x2="160" y2="200"/>
+        <line x1="200" y1="40" x2="200" y2="200"/>
+        <line x1="240" y1="40" x2="240" y2="200"/>
+        <line x1="280" y1="40" x2="280" y2="200"/>
+        <line x1="40" y1="40" x2="280" y2="40"/>
+        <line x1="40" y1="80" x2="280" y2="80"/>
+        <line x1="40" y1="120" x2="280" y2="120"/>
+        <line x1="40" y1="160" x2="280" y2="160"/>
+      </g>
+      <!-- 축 -->
+      <line x1="40" y1="200" x2="280" y2="200" stroke="#333" stroke-width="2"/>
+      <line x1="40" y1="40" x2="40" y2="200" stroke="#333" stroke-width="2"/>
+      <!-- 라벨 (x: 0,1,2,3,4,5,6; y: 0,3,6,9,12) -->
+      <text x="40" y="215" font-size="11" text-anchor="middle">0</text>
+      <text x="80" y="215" font-size="11" text-anchor="middle">1</text>
+      <text x="120" y="215" font-size="11" text-anchor="middle">2</text>
+      <text x="160" y="215" font-size="11" text-anchor="middle">3</text>
+      <text x="200" y="215" font-size="11" text-anchor="middle">4</text>
+      <text x="240" y="215" font-size="11" text-anchor="middle">5</text>
+      <text x="280" y="215" font-size="11" text-anchor="middle">6</text>
+      <text x="290" y="205" font-size="12" font-style="italic">x</text>
+      <text x="35" y="200" font-size="11" text-anchor="end">0</text>
+      <text x="35" y="165" font-size="11" text-anchor="end">3</text>
+      <text x="35" y="125" font-size="11" text-anchor="end">6</text>
+      <text x="35" y="85" font-size="11" text-anchor="end">9</text>
+      <text x="35" y="45" font-size="11" text-anchor="end">12</text>
+      <text x="32" y="35" font-size="12" font-style="italic">y</text>
+      <!-- y=3x: x=0(40,200), x=4(200,40), x=2(120,120) 통과 -->
+      <line x1="40" y1="200" x2="240" y2="40" stroke="#4361EE" stroke-width="2.5"/>
+      <!-- 점 (2,6): x=2 → 120, y=6 → 120 -->
+      <circle cx="120" cy="120" r="4" fill="#7b2ff7"/>
+      <text x="125" y="115" font-size="12" fill="#7b2ff7" font-weight="bold">(2, 6)</text>
+    </svg>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(8,'①','②')">① $y = 2x$</button>
+      <button class="choice-btn" onclick="chooseAnswer(8,'②','②')">② $y = 3x$</button>
+      <button class="choice-btn" onclick="chooseAnswer(8,'③','②')">③ $y = 6x$</button>
+      <button class="choice-btn" onclick="chooseAnswer(8,'④','②')">④ $y = \dfrac{x}{3}$</button>
+    </div>
+    <div class="answer-panel" id="ans-8">
+      <div class="answer-box">정답: ② $y = 3x$</div>
+      <div class="solution-box">원점을 지나는 직선이고 $(2, 6)$을 지남 → 정비례 $y = ax$.<br>$x = 2$, $y = 6$ 대입: $6 = a \times 2$ → $a = 3$<br>식: $y = 3x$<br><br>확인: $\dfrac{y}{x} = \dfrac{6}{2} = 3$ ✓</div>
+    </div>
+  </div>
+
+  <!-- Q9 반비례 그래프 사분면 판별 -->
+  <div class="question-card" id="qcard-9">
+    <div class="q-header">
+      <div class="q-num">9</div>
+      <div class="q-tag">반비례 그래프 사분면</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text">반비례 $y = \dfrac{-6}{x}$ 의 그래프에 대한 설명으로 <strong>옳은 것</strong>을 모두 고르면? (2개)</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(9,'①','③⑤')">① 점 $(2, 3)$을 지난다</button>
+      <button class="choice-btn" onclick="chooseAnswer(9,'②','③⑤')">② 제1·3사분면에 있는 쌍곡선</button>
+      <button class="choice-btn" onclick="chooseAnswer(9,'③','③⑤')">③ 제2·4사분면에 있는 쌍곡선</button>
+      <button class="choice-btn" onclick="chooseAnswer(9,'④','③⑤')">④ 원점을 지난다</button>
+      <button class="choice-btn" onclick="chooseAnswer(9,'⑤','③⑤')">⑤ $x$축, $y$축에 한없이 가까워지나 닿지 않는다</button>
+    </div>
+    <div class="answer-panel" id="ans-9">
+      <div class="answer-box">정답: ③, ⑤ (정답 둘 다 고르면 정답)</div>
+      <div class="solution-box">$y = \dfrac{-6}{x}$ 에서 $a = -6 < 0$.<br>① $x = 2$ 대입: $y = -6/2 = -3$ → $(2, -3)$. $(2, 3)$이 아니므로 X.<br>② $a < 0$이므로 1·3사분면 X.<br>③ $a < 0$ → 2·4사분면 ✓<br>④ 반비례는 원점을 지나지 않음 X.<br>⑤ 점근선 — 닿지 않음 ✓<br><br>(객관식이라 한 개씩만 누르도록 만들었어요. ③ 또는 ⑤ 중 어느 것을 골라도 정답으로 인정합니다.)</div>
+    </div>
+  </div>
+
+  <!-- 결과 요약 -->
+  <div class="summary-card" id="summaryCard">
+    <div style="font-size:32px;">🎉</div>
+    <div class="summary-score" id="scoreNum">0</div>
+    <div class="summary-sub" id="scoreText">/ 9 문제 맞았어요!</div>
+    <div style="margin-top:16px;font-size:14px;color:#555;line-height:1.7;" id="summaryMsg"></div>
+    <a class="home-btn" href="../index.html">단원 6 홈으로</a>
+  </div>
+
+</div>
+
+<script>
+const TOTAL = 9;
+let answered = {};
+let correct = {};
+
+function chooseAnswer(qNum, chosen, correctAns) {
+  if (answered[qNum]) return;
+  answered[qNum] = true;
+
+  // Q9 다중정답 처리: ③ 또는 ⑤ 중 하나만 골라도 정답
+  let isCorrect;
+  if (qNum === 9) {
+    isCorrect = (chosen === '③' || chosen === '⑤');
+  } else {
+    isCorrect = (chosen === correctAns);
+  }
+
+  const btns = document.querySelectorAll(`#qcard-${qNum} .choice-btn`);
+  btns.forEach(b => {
+    b.disabled = true;
+    const label = b.textContent.trim().slice(0,1);
+    if (label === chosen) {
+      b.classList.add(isCorrect ? 'correct' : 'wrong');
+    }
+    // 모든 정답 옵션 표시
+    if (qNum === 9) {
+      if ((label === '③' || label === '⑤') && label !== chosen) {
+        b.classList.add('correct');
+      }
+    } else if (label === correctAns && chosen !== correctAns) {
+      b.classList.add('correct');
+    }
+  });
+
+  correct[qNum] = isCorrect;
+  const badge = document.createElement('div');
+  badge.className = 'result-badge ' + (correct[qNum] ? 'badge-correct' : 'badge-wrong');
+  badge.textContent = correct[qNum] ? '정답!' : '오답';
+  document.querySelector(`#qcard-${qNum} .choices`).after(badge);
+
+  document.getElementById(`ans-${qNum}`).classList.add('show');
+  updateProgress();
+  checkAllDone();
+  if (window.renderMathInElement) renderMathInElement(document.getElementById(`ans-${qNum}`), {
+    delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+  });
+}
+
+function updateProgress() {
+  const done = Object.keys(answered).length;
+  document.getElementById('progressFill').style.width = (done/TOTAL*100) + '%';
+}
+
+function checkAllDone() {
+  if (Object.keys(answered).length < TOTAL) return;
+  const score = Object.values(correct).filter(Boolean).length;
+  const summary = document.getElementById('summaryCard');
+  document.getElementById('scoreNum').textContent = score;
+  document.getElementById('scoreText').textContent = `/ ${TOTAL} 문제 맞았어요!`;
+
+  let msg = '';
+  if (score === TOTAL) msg = '완벽해요! 정비례·반비례의 핵심을 모두 이해했어요.';
+  else if (score >= 7) msg = '잘 했어요! 조금 더 연습하면 완벽해질 거예요.';
+  else if (score >= 5) msg = '절반 이상 맞았어요. 틀린 문제의 풀이를 다시 읽어봐요.';
+  else msg = '틀린 문제의 풀이를 꼼꼼히 읽고 다시 도전해봐요!';
+
+  document.getElementById('summaryMsg').textContent = msg;
+  summary.style.display = 'block';
+  if (window.renderMathInElement) renderMathInElement(summary, {
+    delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+  });
+}
+</script>
+</body>
+</html>

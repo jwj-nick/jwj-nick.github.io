@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 탐구 — 점·선·각 (표기·길이·종류)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+:root{--primary:#4361EE;--bg:#eef2ff;--card:#fff;--ok:#2ecc71;--ng:#e74c3c;--warn:#f39c12;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic',sans-serif;background:var(--bg);padding:0 0 60px;color:#2d3436;}
+.header{background:linear-gradient(135deg,#4361EE,#3a0ca3);color:white;padding:28px 20px 24px;text-align:center;}
+.header h1{font-size:20px;margin-bottom:6px;}
+.header p{font-size:13px;opacity:0.85;}
+.back-link{font-size:12px;color:rgba(255,255,255,0.7);text-decoration:none;display:block;margin-top:10px;}
+.tab-bar{display:flex;gap:0;background:white;box-shadow:0 2px 8px rgba(0,0,0,0.08);position:sticky;top:0;z-index:10;}
+.tab-btn{flex:1;padding:14px 0;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;color:#888;border-bottom:3px solid transparent;font-family:inherit;}
+.tab-btn.active{color:#4361EE;border-bottom-color:#4361EE;}
+.tab-btn small{font-size:10px;display:block;margin-top:2px;color:#aaa;}
+.tab-btn.active small{color:#4361EE;}
+.tab-panel{display:none;}
+.tab-panel.show{display:block;}
+.container{max-width:700px;margin:0 auto;padding:20px 16px;}
+.section{margin-bottom:28px;}
+.section-title{font-size:15px;font-weight:bold;color:#4361EE;padding-left:8px;border-left:3px solid #4361EE;margin-bottom:14px;}
+.card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;}
+.card h3{font-size:15px;color:#1a1a2e;margin-bottom:10px;}
+.card p,.card li{font-size:14px;color:#444;line-height:1.8;}
+.card ul{padding-left:18px;}
+.highlight{background:#f0f4ff;border-left:4px solid #4361EE;border-radius:0 10px 10px 0;padding:12px 16px;margin:10px 0;font-size:14px;color:#333;line-height:1.7;}
+.warn-box{background:#fff3e0;border:1px solid #ffcc80;border-radius:10px;padding:12px 14px;font-size:13px;color:#e65100;line-height:1.6;margin-top:10px;}
+.mistake-item{background:white;border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(67,97,238,.07);margin-bottom:10px;display:flex;gap:12px;}
+.mistake-icon{font-size:22px;flex-shrink:0;margin-top:2px;}
+.mistake-content{flex:1;}
+.mistake-title{font-size:14px;font-weight:bold;color:#e74c3c;margin-bottom:4px;}
+.mistake-desc{font-size:13px;color:#444;line-height:1.6;}
+.problem-card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;border-left:4px solid #4361EE;}
+.prob-label{font-size:12px;font-weight:bold;color:#4361EE;letter-spacing:1px;margin-bottom:8px;}
+.prob-text{font-size:15px;line-height:1.8;color:#1a1a2e;margin-bottom:12px;}
+.reveal-btn{background:none;border:2px solid #4361EE;color:#4361EE;padding:6px 18px;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;}
+.reveal-content{display:none;margin-top:12px;background:#f0fff4;border-radius:10px;padding:12px 16px;font-size:13px;color:#1b5e20;line-height:1.7;}
+.connect-box{background:linear-gradient(135deg,#f0f4ff,#e8ecff);border-radius:14px;padding:20px;font-size:14px;color:#333;line-height:1.8;}
+.connect-title{font-size:15px;font-weight:bold;color:#4361EE;margin-bottom:10px;}
+table.tbl{border-collapse:collapse;font-size:13px;margin:10px 0;width:100%;}
+table.tbl th,table.tbl td{border:1px solid #ccd;padding:6px 10px;text-align:center;}
+table.tbl th{background:#eef2ff;}
+.formula-box{background:#eef2ff;border-radius:8px;padding:10px 14px;text-align:center;font-size:16px;color:#4361EE;font-weight:700;margin:8px 0;}
+.fig-svg{display:block;margin:10px auto;max-width:380px;width:100%;background:#fafbff;border-radius:8px;padding:8px;border:1px solid #eef2ff;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>깊이 탐구 — 점·선·각</h1>
+  <p>표기 + 길이 + 각의 종류 (3유형 통합)</p>
+  <a class="back-link" href="../index.html">← 단원 7 홈</a>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('tab1',this)">유형 1<small>표기</small></button>
+  <button class="tab-btn" onclick="switchTab('tab2',this)">유형 2<small>길이</small></button>
+  <button class="tab-btn" onclick="switchTab('tab3',this)">유형 3<small>각</small></button>
+</div>
+
+<!-- 탭 1: 직선·반직선·선분 표기 -->
+<div class="tab-panel show" id="tab1">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>$\overleftrightarrow{AB}, \overrightarrow{AB}, \overline{AB}$ 처럼 비슷해 보이는 기호 3가지가 한꺼번에 등장해요.</p>
+      <p style="margin-top:8px;"><strong>핵심 함정</strong>:<br>
+      ① 화살표 모양만 보고 "비슷한 거 아닐까?" 헷갈리는 순간<br>
+      ② <strong>방향이 있는 것</strong>(반직선)과 <strong>없는 것</strong>(선분, 직선)을 같이 취급</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — "끝"과 "방향"으로 구분</div>
+    <div class="card">
+      <table class="tbl">
+        <tr><th>표기</th><th>이름</th><th>끝</th><th>방향성</th></tr>
+        <tr><td>$\overleftrightarrow{AB}$</td><td>직선</td><td>둘 다 무한</td><td>없음</td></tr>
+        <tr><td>$\overrightarrow{AB}$</td><td>반직선</td><td>한쪽만 무한</td><td><strong>있음 (A에서 B 방향)</strong></td></tr>
+        <tr><td>$\overline{AB}$</td><td>선분</td><td>둘 다 끝</td><td>없음</td></tr>
+      </table>
+      <div class="highlight">결정적 차이: <strong>반직선만 방향이 있다.</strong><br>
+      $\overrightarrow{AB} \neq \overrightarrow{BA}$ ← 이게 평생 잊으면 안 되는 한 줄</div>
+    </div>
+
+    <div class="card">
+      <h3>등식 판별 규칙</h3>
+      <ul>
+        <li>$\overline{AB} = \overline{BA}$ ✓ (선분, 방향 없음)</li>
+        <li>$\overleftrightarrow{AB} = \overleftrightarrow{BA}$ ✓ (직선, 방향 없음)</li>
+        <li>$\overrightarrow{AB} = \overrightarrow{BA}$ ✗ (반직선, 방향 다름)</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>한 직선 위 점 여러 개일 때 반직선 등식</h3>
+      <p>한 직선 위에 점 A, B, C 가 이 순서대로 있다면:</p>
+      <div class="formula-box">$\overrightarrow{AB} = \overrightarrow{AC}$</div>
+      <p style="margin-top:8px;">이유: 시작점 같음 (A) + 방향 같음 (B 방향 = C 방향, 점 순서가 A→B→C이므로).</p>
+      <div class="warn-box">단, $\overrightarrow{AB} \neq \overrightarrow{BC}$ — 시작점 다름!</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">⚠️</div>
+      <div class="mistake-content">
+        <div class="mistake-title">$\overrightarrow{AB} = \overrightarrow{BA}$ 라고 답함</div>
+        <div class="mistake-desc">"두 점이 같으니까 같은 도형 아닐까?" — 함정. 반직선은 <strong>시작점</strong>이 핵심.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">🤔</div>
+      <div class="mistake-content">
+        <div class="mistake-title">선분과 반직선을 같다고 함</div>
+        <div class="mistake-desc">$\overline{AB}$ 는 끝이 둘 다 있고, $\overrightarrow{AB}$ 는 한쪽이 무한. 길이도 다르고 모양도 다름.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">📍</div>
+      <div class="mistake-content">
+        <div class="mistake-title">한 직선 위 점들로 만든 직선이 여러 개라고 답</div>
+        <div class="mistake-desc">한 직선 위에 점이 5개 있어도 그 직선은 <strong>딱 하나</strong>. ($\overleftrightarrow{AB} = \overleftrightarrow{BC} = ... = $ 모두 같은 직선)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 연습 (난이도 ↑)</div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 1 (M)</div>
+      <div class="prob-text">한 직선 위에 점 A, B, C, D 가 이 순서대로 있다. $\overrightarrow{BC}$ 와 같은 도형은? (모두 고르시오)<br>① $\overrightarrow{BD}$ &nbsp; ② $\overrightarrow{CD}$ &nbsp; ③ $\overrightarrow{AB}$</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content"><strong>① 만 같음</strong><br>$\overrightarrow{BC}$: B 에서 시작, C 방향 (= D 방향).<br>① $\overrightarrow{BD}$: B 시작, D 방향 → 같음 ✓<br>② $\overrightarrow{CD}$: C 시작 → 다름 (시작점이 B가 아님)<br>③ $\overrightarrow{AB}$: A 시작 → 다름</div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 2 (M)</div>
+      <div class="prob-text">서로 다른 5개의 점이 한 직선 위에 있다. 이 점들로 만들 수 있는 <strong>서로 다른 반직선</strong>의 개수는?</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content"><strong>8개</strong><br>각 점은 시작점이 될 수 있고, 두 방향이 있음.<br>하지만 <strong>양 끝점</strong>은 한 방향만 가능 (다른 쪽은 점이 없음).<br>점 5개 중: 양 끝 2개 × 1방향 + 안쪽 3개 × 2방향 = 2 + 6 = <strong>8</strong></div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 3 (H)</div>
+      <div class="prob-text">평면에 점 A, B, C, D, E 5개가 있고 어느 세 점도 한 직선 위에 있지 않다. 이 점들로 만들 수 있는 <strong>서로 다른 직선</strong>의 개수는?</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content"><strong>10개</strong><br>"어느 세 점도 한 직선 위에 없다" → 모든 두 점 쌍이 다른 직선 만듦.<br>5점 중 2점 고르는 조합: $\dfrac{5 \times 4}{2} = 10$.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">이 유형을 이해하면</div>
+    <div class="connect-box">
+      <div class="connect-title">▸ 다음이 쉬워져요</div>
+      • <strong>각의 표기</strong>: $\angle AOB$ 의 가운데 글자가 꼭짓점 — 이런 약속의 중요성 체득<br>
+      • <strong>도형 합동·증명</strong>: 어느 변(선분)이 어느 변과 대응하는지 명확히 표기<br>
+      • <strong>벡터</strong> (고등): 반직선의 방향성 개념이 그대로 화살표 벡터로 연결
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- 탭 2: 선분 길이의 합·중점 -->
+<div class="tab-panel" id="tab2">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>한 직선 위 여러 점이 있을 때, 점의 <strong>순서</strong>를 정확히 파악해야 길이의 합·차를 풀 수 있어요.</p>
+      <p style="margin-top:8px;"><strong>핵심 함정</strong>: "한 직선 위에 있다"고만 하면 점 순서가 모호해져 답이 두 개일 수도.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 그림 그리기 → 식 세우기</div>
+    <div class="card">
+      <h3>① 중점 공식</h3>
+      <p>M이 $\overline{AB}$의 중점일 때:</p>
+      <div class="formula-box">$\overline{AM} = \overline{MB} = \dfrac{1}{2}\overline{AB}$</div>
+    </div>
+    <div class="card">
+      <h3>② 한 점이 다른 두 점 사이에 있을 때</h3>
+      <p>점 B가 A와 C 사이에 있다면:</p>
+      <div class="formula-box">$\overline{AC} = \overline{AB} + \overline{BC}$</div>
+    </div>
+    <div class="card">
+      <h3>③ 두 중점 사이의 거리 (중요!)</h3>
+      <p>한 직선 위에 점 A, B, C 가 이 순서. M은 $\overline{AB}$의 중점, N은 $\overline{BC}$의 중점.</p>
+      <div class="formula-box">$\overline{MN} = \dfrac{1}{2}\overline{AC}$</div>
+      <p style="margin-top:6px;">증명: $\overline{MB} = \dfrac{a}{2}$, $\overline{BN} = \dfrac{b}{2}$ → $\overline{MN} = \dfrac{a+b}{2} = \dfrac{\overline{AC}}{2}$</p>
+      <div class="highlight">이 결과가 <strong>$a, b$ 길이와 무관</strong>하게 항상 성립한다는 게 멋진 점!</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">⚠️</div>
+      <div class="mistake-content">
+        <div class="mistake-title">점 순서를 가정하지 않고 풀이</div>
+        <div class="mistake-desc">"한 직선 위 점 A, B, C" 라고만 하면 순서가 ABC, ACB, BAC 등 여러 가지일 수 있어요. 그림으로 확인!</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">🤔</div>
+      <div class="mistake-content">
+        <div class="mistake-title">중점의 중점에서 분수가 헷갈림</div>
+        <div class="mistake-desc">M이 AB 중점이면 AM = AB/2. N이 AM 중점이면 AN = AM/2 = AB/4. 분수 단계로 차근차근 계산.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 연습</div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 1 (M)</div>
+      <div class="prob-text">$\overline{AB} = 36$ cm. M은 $\overline{AB}$의 중점. N은 $\overline{AM}$의 중점. K는 $\overline{NB}$의 중점. $\overline{MK}$의 길이는?</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content"><strong>$\overline{MK} = 4.5$ cm</strong><br>각 점의 A로부터의 거리를 차례로 구해요:<br>• $\overline{AM} = 18$ (M은 AB 중점)<br>• $\overline{AN} = 9$ (N은 AM 중점)<br>• $\overline{NB} = 36 - 9 = 27$<br>• $\overline{NK} = 27/2 = 13.5$ (K는 NB 중점)<br>• $\overline{AK} = 9 + 13.5 = 22.5$<br>$\overline{MK} = \overline{AK} - \overline{AM} = 22.5 - 18 = $ <strong>4.5 cm</strong></div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 2 (M)</div>
+      <div class="prob-text">한 직선 위 점 A, B, C, D 가 이 순서. $\overline{AB} : \overline{BC} : \overline{CD} = 2 : 3 : 5$, $\overline{AD} = 40$ cm. $\overline{AC}$의 길이는?</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content"><strong>$\overline{AC} = 20$ cm</strong><br>$\overline{AB} = 2k$, $\overline{BC} = 3k$, $\overline{CD} = 5k$, 합 $10k = 40$ → $k = 4$.<br>$\overline{AC} = \overline{AB} + \overline{BC} = 2k + 3k = 5k = 20$ cm.</div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 3 (H)</div>
+      <div class="prob-text">한 직선 위 점 A, B, C 가 있고 $\overline{AB} = 12$, $\overline{BC} = 4$. M은 $\overline{AC}$ 의 중점. $\overline{BM}$의 가능한 길이를 모두 구하시오.</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content"><strong>$\overline{BM} = 4$ cm 또는 $\overline{BM} = 8$ cm</strong><br>경우 1: A — B — C → $\overline{AC} = 16$, $\overline{AM} = 8$, $\overline{BM} = |12 - 8| = 4$.<br>경우 2: A — C — B → $\overline{AC} = 8$, $\overline{AM} = 4$, $\overline{BM} = 12 - 4 = 8$.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">이 유형을 이해하면</div>
+    <div class="connect-box">
+      <div class="connect-title">▸ 다음이 쉬워져요</div>
+      • <strong>좌표평면 위 거리</strong> (고1): 두 점 사이 거리, 중점 좌표 공식<br>
+      • <strong>도형 닮음·합동</strong>: 변의 비율, 길이 합 활용 증명
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- 탭 3: 각의 종류와 크기 -->
+<div class="tab-panel" id="tab3">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>각의 종류 (예각·직각·둔각·평각·우각) 5가지 분류는 단순해 보여요. 하지만 시험 문제에서는 <strong>분할각의 합·차</strong>로 미지각을 구하는 경우가 많아요.</p>
+      <p style="margin-top:8px;"><strong>핵심 함정</strong>: 90°와 180°가 둔각·우각의 범위에 들지 않음을 잊는 것.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 분류 + 합·차 식</div>
+    <div class="card">
+      <h3>분류 (등호 위치 주의!)</h3>
+      <table class="tbl">
+        <tr><th>이름</th><th>범위</th><th>예</th></tr>
+        <tr><td>예각</td><td>$0° < \angle < 90°$</td><td>30°</td></tr>
+        <tr><td>직각</td><td>$= 90°$</td><td>90°</td></tr>
+        <tr><td>둔각</td><td>$90° < \angle < 180°$</td><td>120°</td></tr>
+        <tr><td>평각</td><td>$= 180°$</td><td>180°</td></tr>
+        <tr><td>우각</td><td>$180° < \angle < 360°$</td><td>270°</td></tr>
+      </table>
+      <div class="warn-box">$90°$ 은 직각, $180°$ 은 평각 — 둔각·우각의 범위에 들지 않아요.</div>
+    </div>
+
+    <div class="card">
+      <h3>분할각의 합·차</h3>
+      <p>점 C가 $\angle AOB$ 의 내부에 있을 때:</p>
+      <div class="formula-box">$\angle AOB = \angle AOC + \angle COB$</div>
+      <p style="margin-top:8px;">→ 미지각: $\angle AOC = \angle AOB - \angle COB$.</p>
+    </div>
+
+    <div class="card">
+      <h3>이등분선·각의 비</h3>
+      <p>$\overrightarrow{OC}$ 가 $\angle AOB$ 의 이등분선 → $\angle AOC = \angle COB = \dfrac{1}{2}\angle AOB$.</p>
+      <p>비율 $\angle AOC : \angle COB = m : n$ → 단위 $k$ 두기. $\angle AOC = mk, \angle COB = nk$.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">⚠️</div>
+      <div class="mistake-content">
+        <div class="mistake-title">$90°$ 를 둔각이라고 답함</div>
+        <div class="mistake-desc">$90°$ 는 <strong>직각</strong>이에요. 둔각은 $90° < \angle < 180°$ — 90도는 빠집니다.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">🤔</div>
+      <div class="mistake-content">
+        <div class="mistake-title">분할각 식 세울 때 점 위치 안 그림</div>
+        <div class="mistake-desc">"C가 ∠AOB 내부에" 라는 조건을 안 쓰면 식이 맞지 않을 수 있어요. 그림 그리기 필수.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 연습</div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 1 (M)</div>
+      <div class="prob-text">$\angle AOB = 60°$, $\overrightarrow{OC}$ 가 $\angle AOB$ 의 이등분선이다. $\angle AOC$ 의 종류는?</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content"><strong>$\angle AOC = 30°$ → 예각</strong><br>이등분 → $\angle AOC = 60°/2 = 30°$. 0 < 30 < 90 → <strong>예각</strong>.</div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 2 (M)</div>
+      <div class="prob-text">$\angle AOB = 90°$, 점 C, D 가 $\angle AOB$ 의 내부에. $\angle AOC = 30°$, $\angle BOD = 25°$. $\angle COD$ 의 크기는?</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content"><strong>$\angle COD = 35°$</strong><br>$\angle AOC + \angle COD + \angle DOB = 90°$<br>$30° + \angle COD + 25° = 90°$<br>$\angle COD = 35°$.<br>(점 순서 A — C — D — B 가정)</div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 3 (H)</div>
+      <div class="prob-text">평각 $\angle AOB$ 의 내부에 점 C, D 가 있다. $\angle AOC : \angle COD : \angle DOB = 1 : 2 : 3$. $\angle AOC + \angle DOB$ 의 크기는?</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content"><strong>$120°$</strong><br>$\angle AOC = k, \angle COD = 2k, \angle DOB = 3k$. 합 $6k = 180°$ → $k = 30°$.<br>$\angle AOC + \angle DOB = k + 3k = 4k = 120°$.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">이 유형을 이해하면</div>
+    <div class="connect-box">
+      <div class="connect-title">▸ 다음이 쉬워져요</div>
+      • <strong>맞꼭지각</strong> (유형 4): 두 직선 만남 시 4각이 평각 2개 + 분할 2개<br>
+      • <strong>다각형 내각의 합</strong> (Unit 09): 한 점에서 갈라진 각의 합 = 360°<br>
+      • <strong>삼각형 내각의 합 = 180°</strong> 증명도 평각·동위각 활용
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('show'));
+  btn.classList.add('active');
+  document.getElementById(id).classList.add('show');
+  window.scrollTo({ top: 0 });
+}
+function reveal(btn) {
+  const c = btn.nextElementSibling;
+  const isShow = c.style.display === 'block';
+  c.style.display = isShow ? 'none' : 'block';
+  btn.textContent = isShow ? '정답·풀이 보기' : '풀이 닫기';
+}
+</script>
+</body>
+</html>

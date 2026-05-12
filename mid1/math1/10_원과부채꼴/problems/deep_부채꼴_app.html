@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 탐구 — 부채꼴 (정의·호·넓이)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+:root{--primary:#4361EE;--bg:#eef2ff;--card:#fff;--ok:#2ecc71;--ng:#e74c3c;--warn:#f39c12;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic',sans-serif;background:var(--bg);padding:0 0 60px;color:#2d3436;}
+.header{background:linear-gradient(135deg,#4361EE,#3a0ca3);color:white;padding:28px 20px 24px;text-align:center;}
+.header h1{font-size:20px;margin-bottom:6px;}
+.header p{font-size:13px;opacity:0.85;}
+.back-link{font-size:12px;color:rgba(255,255,255,0.7);text-decoration:none;display:block;margin-top:10px;}
+.tab-bar{display:flex;gap:0;background:white;box-shadow:0 2px 8px rgba(0,0,0,0.08);position:sticky;top:0;z-index:10;}
+.tab-btn{flex:1;padding:14px 0;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;color:#888;border-bottom:3px solid transparent;font-family:inherit;}
+.tab-btn.active{color:#4361EE;border-bottom-color:#4361EE;}
+.tab-btn small{font-size:10px;display:block;margin-top:2px;color:#aaa;}
+.tab-btn.active small{color:#4361EE;}
+.tab-panel{display:none;}
+.tab-panel.show{display:block;}
+.container{max-width:700px;margin:0 auto;padding:20px 16px;}
+.section{margin-bottom:28px;}
+.section-title{font-size:15px;font-weight:bold;color:#4361EE;padding-left:8px;border-left:3px solid #4361EE;margin-bottom:14px;}
+.card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;}
+.card h3{font-size:15px;color:#1a1a2e;margin-bottom:10px;}
+.card p,.card li{font-size:14px;color:#444;line-height:1.8;}
+.card ul{padding-left:18px;}
+.highlight{background:#f0f4ff;border-left:4px solid #4361EE;border-radius:0 10px 10px 0;padding:12px 16px;margin:10px 0;font-size:14px;color:#333;line-height:1.7;}
+.mistake-item{background:white;border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(67,97,238,.07);margin-bottom:10px;display:flex;gap:12px;}
+.mistake-icon{font-size:22px;flex-shrink:0;margin-top:2px;}
+.mistake-content{flex:1;}
+.mistake-title{font-size:14px;font-weight:bold;color:#e74c3c;margin-bottom:4px;}
+.mistake-desc{font-size:13px;color:#444;line-height:1.6;}
+.problem-card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;border-left:4px solid #4361EE;}
+.prob-label{font-size:12px;font-weight:bold;color:#4361EE;letter-spacing:1px;margin-bottom:8px;}
+.prob-text{font-size:15px;line-height:1.8;color:#1a1a2e;margin-bottom:12px;}
+.reveal-btn{background:none;border:2px solid #4361EE;color:#4361EE;padding:6px 18px;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;}
+.reveal-content{display:none;margin-top:12px;background:#f0fff4;border-radius:10px;padding:12px 16px;font-size:13px;color:#1b5e20;line-height:1.7;}
+.connect-box{background:linear-gradient(135deg,#f0f4ff,#e8ecff);border-radius:14px;padding:20px;font-size:14px;color:#333;line-height:1.8;}
+.connect-title{font-size:15px;font-weight:bold;color:#4361EE;margin-bottom:10px;}
+table.tbl{border-collapse:collapse;font-size:13px;margin:10px 0;width:100%;}
+table.tbl th,table.tbl td{border:1px solid #ccd;padding:6px 10px;text-align:center;}
+table.tbl th{background:#eef2ff;}
+.formula-box{background:#eef2ff;border-radius:8px;padding:10px 14px;text-align:center;font-size:16px;color:#4361EE;font-weight:700;margin:8px 0;}
+.fig-svg{display:block;margin:10px auto;max-width:340px;width:100%;background:#fafbff;border-radius:8px;padding:8px;border:1px solid #eef2ff;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>깊이 탐구 — 부채꼴</h1>
+  <p>정의 · 호의 길이 · 넓이 (유형 3·4·5 통합)</p>
+  <a class="back-link" href="../index.html">← 단원 10 홈</a>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('tab3',this)">유형 3<small>부채꼴/활꼴</small></button>
+  <button class="tab-btn" onclick="switchTab('tab4',this)">유형 4<small>호의 길이</small></button>
+  <button class="tab-btn" onclick="switchTab('tab5',this)">유형 5<small>넓이</small></button>
+</div>
+
+<!-- 탭 3: 부채꼴/활꼴 -->
+<div class="tab-panel show" id="tab3">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>부채꼴과 활꼴 — 둘 다 호가 들어가니까 비슷해 보여요. 하지만 경계 한 부분이 다르고 (반지름 vs 현), 그게 시험에서 결정적 함정이에요.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 한 글자 차이</div>
+    <div class="card">
+      <table class="tbl">
+        <tr><th>도형</th><th>경계</th><th>중심 포함?</th><th>모양</th></tr>
+        <tr><td>부채꼴</td><td>두 <b>반지름</b> + 호</td><td>O 포함</td><td>피자 🍕</td></tr>
+        <tr><td>활꼴</td><td>한 <b>현</b> + 호</td><td>O 안 포함</td><td>달 🌙</td></tr>
+      </table>
+      <div class="highlight"><strong>특수 케이스</strong>: 중심각 $180°$ → 부채꼴 = 활꼴 = 반원. 두 반지름이 일직선이 되어 지름이 곧 현이 되는 유일한 경우.</div>
+    </div>
+
+    <div class="card">
+      <h3>활꼴 넓이 — 부채꼴에서 삼각형 빼기</h3>
+      <p>활꼴 넓이 = 부채꼴 넓이 − 두 반지름과 현이 만드는 삼각형 넓이</p>
+      <p>특히 시험에서 자주 나오는 두 가지:</p>
+      <ul>
+        <li><strong>중심각 $90°$</strong>: 삼각형 = 직각이등변삼각형 (밑변·높이 = $r$) → 넓이 $\dfrac{r^2}{2}$</li>
+        <li><strong>중심각 $60°$</strong>: 삼각형 = 정삼각형 (한 변 = $r$) → 넓이 $\dfrac{\sqrt{3}}{4}r^2$</li>
+        <li><strong>중심각 $120°$</strong>: 삼각형 = 둔각이등변삼각형. 중심에서 현에 수선 → 두 직각삼각형. 분석 필요.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">활꼴을 부채꼴이라 함</div>
+        <div class="mistake-desc">둘 다 호가 들어가서 헷갈리지만, 경계의 직선 부분이 <strong>두 반지름</strong>인지 <strong>한 현</strong>인지 확인.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">활꼴 넓이 = 부채꼴 넓이라고 생각</div>
+        <div class="mistake-desc">활꼴 넓이 = 부채꼴 - 삼각형. 항상 부채꼴보다 작아요.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제</div>
+
+    <div class="problem-card">
+      <div class="prob-label">★ 추가 문제 1</div>
+      <div class="prob-text">반지름 $4$ cm, 중심각 $90°$ 인 부채꼴이 있다. 이 부채꼴 안에서 두 반지름과 현으로 둘러싸인 활꼴의 넓이는?</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content">
+        <strong>$(4\pi - 8)$ cm²</strong><br>
+        부채꼴 = $\pi(4)^2 \cdot \dfrac{1}{4} = 4\pi$<br>
+        삼각형 (직각이등변, 두 변 $4$) = $\dfrac{1}{2}(4)(4) = 8$<br>
+        활꼴 = $4\pi - 8$ cm²
+      </div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">★ 추가 문제 2</div>
+      <div class="prob-text">반지름 $r$ 인 원의 일부를 정삼각형 한 변과 같은 현으로 잘라 만든 활꼴이 있다 (중심각 $60°$). 이 활꼴의 넓이를 $r$로 표현하세요.</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content">
+        <strong>$\left(\dfrac{\pi r^2}{6} - \dfrac{\sqrt{3}r^2}{4}\right)$</strong><br>
+        부채꼴 = $\pi r^2 \cdot \dfrac{60}{360} = \dfrac{\pi r^2}{6}$<br>
+        삼각형 (정삼각형, 한 변 $r$) = $\dfrac{\sqrt{3}}{4}r^2$<br>
+        활꼴 = $\dfrac{\pi r^2}{6} - \dfrac{\sqrt{3}r^2}{4}$
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">연결 개념</div>
+    <div class="connect-box">
+      <div class="connect-title">🔗 이 유형 이해 후 무엇이 쉬워질까?</div>
+      활꼴/부채꼴 구분이 명확해지면 <strong>유형 7 (색칠한 부분)</strong>이 매우 쉬워져요. 복잡한 도형을 <strong>부채꼴 + 활꼴 + 다각형</strong>의 합·차로 깔끔하게 분해할 수 있거든요.
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- 탭 4: 호의 길이 -->
+<div class="tab-panel" id="tab4">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>호의 길이 공식 $l = 2\pi r \cdot \dfrac{\theta}{360}$ 자체는 단순. 하지만:</p>
+      <ul>
+        <li>역산 (호 → $\theta$ 또는 $r$)에서 식 변형이 익숙하지 않음</li>
+        <li>부채꼴 <strong>둘레</strong>를 호 길이만 답하는 실수</li>
+        <li>띠 모양·복합 도형에서 두 호 길이 합·차</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 비례 발상</div>
+    <div class="card">
+      <div class="formula-box">$l = 2\pi r \cdot \dfrac{\theta}{360}$</div>
+      <div class="highlight">"부채꼴은 원 전체의 <b>$\dfrac{\theta}{360}$</b> 만큼만 차지"라는 단순한 비례 발상이 모든 공식의 뿌리. 호 길이는 원 둘레의 그만큼만 가져가요.</div>
+
+      <p style="margin-top:10px;"><strong>특수각 빠른 비교</strong>:</p>
+      <table class="tbl">
+        <tr><th>$\theta$</th><th>$\dfrac{\theta}{360}$</th><th>호 길이 ($r=6$)</th></tr>
+        <tr><td>30°</td><td>$\dfrac{1}{12}$</td><td>$\pi$</td></tr>
+        <tr><td>60°</td><td>$\dfrac{1}{6}$</td><td>$2\pi$</td></tr>
+        <tr><td>90°</td><td>$\dfrac{1}{4}$</td><td>$3\pi$</td></tr>
+        <tr><td>120°</td><td>$\dfrac{1}{3}$</td><td>$4\pi$</td></tr>
+        <tr><td>180°</td><td>$\dfrac{1}{2}$</td><td>$6\pi$</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>★ 부채꼴 둘레 공식</h3>
+      <div class="formula-box">부채꼴 둘레 = $l + 2r$ (호 + 두 반지름)</div>
+      <p>"둘레 = 호 길이"라고 답하면 <strong>틀려요</strong>! 부채꼴 영역이 닫혀 있으려면 두 반지름도 포함되어야 해요.</p>
+    </div>
+
+    <div class="card">
+      <h3>패턴 인식 — 사분원 4개 = 원 1개</h3>
+      <div class="highlight">
+        4개의 사분원 호의 합 = 원 한 개 둘레 ($2\pi r$).<br>
+        2개의 반원 호의 합 = 원 한 개 둘레.<br>
+        이런 빠른 패턴 인식이 시험에서 시간을 절약해줘요.
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">부채꼴 둘레에서 반지름 빠뜨리기</div>
+        <div class="mistake-desc">"둘레 = 호 길이만"이 아니에요. 호 + 두 반지름 = $l + 2r$.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">반원 둘레 = 호 길이만 = $\pi r$</div>
+        <div class="mistake-desc">반원 둘레는 호 + 지름 = $\pi r + 2r$. 직선 부분 (지름) 잊지 않기.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">호 길이를 일반 길이로 보고 $\pi$ 빼기</div>
+        <div class="mistake-desc">호 길이는 $\pi$를 포함한 양. "5π cm"가 답이라면 그대로 쓰지, "5 cm"로 바꾸지 않아요.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제</div>
+
+    <div class="problem-card">
+      <div class="prob-label">★ 추가 문제 1</div>
+      <div class="prob-text">반지름이 $r$ 인 원에서 중심각이 $\theta°$ 인 호의 길이가 같은 원의 둘레의 $\dfrac{1}{5}$ 이다. $\theta$ 의 값은?</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content">
+        <strong>$72°$</strong><br>
+        $l = 2\pi r \cdot \dfrac{\theta}{360}$<br>
+        $\dfrac{l}{C} = \dfrac{\theta}{360}$<br>
+        $\dfrac{1}{5} = \dfrac{\theta}{360}$ → $\theta = 72°$
+      </div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">★ 추가 문제 2</div>
+      <div class="prob-text">반지름 $5$ cm 인 원 위에서 중심각이 같은 두 부채꼴 A, B 가 만들어졌다. A의 호 길이가 $2\pi$ cm, B의 호 길이가 $3\pi$ cm 일 때 — 잠깐, 같은 원 같은 중심각인데 호 길이가 다를 수 있을까?</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content">
+        <strong>없다 (모순)</strong><br>
+        같은 원·같은 중심각 → 호 길이는 정해진 한 값. 이건 모순이에요.<br><br>
+        💡 이 문제는 <strong>"같은 원에서 호와 중심각은 일대일 대응"</strong>이라는 핵심 원리를 확인하는 함정 문제예요. 시험에 나오면 "그런 부채꼴은 없다"라고 답.
+      </div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">★ 추가 문제 3</div>
+      <div class="prob-text">아래 그림의 굵은 선의 길이는? (한 변 $6$ cm 인 정삼각형의 각 꼭짓점을 중심으로 반지름 $2$ cm 인 부채꼴 호가 그려져 있다. 부채꼴 중심각 = ?)</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content">
+        <strong>$2\pi$ cm</strong><br>
+        정삼각형의 한 내각 = $60°$. 부채꼴은 정삼각형 외부에 있을 때 중심각이 $360° - 60° \cdot 2$ 등 위치에 따라 다름. 단, 한 꼭짓점 기준으로 정삼각형 두 변 사이에서 그려진 부채꼴이라면 중심각 = $60°$.<br><br>
+        한 부채꼴 호 = $2\pi(2) \cdot \dfrac{60}{360} = \dfrac{2\pi}{3}$ cm<br>
+        3개 합 = $3 \times \dfrac{2\pi}{3} = 2\pi$ cm<br><br>
+        💡 패턴: 정$n$각형 내각 호의 합 = $\dfrac{(n-2)\pi r \cdot 2}{n}$ 형태. 정삼각형 ($n=3$)에서 호 합 = $\dfrac{2\pi r}{3}$.
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">연결 개념</div>
+    <div class="connect-box">
+      <div class="connect-title">🔗 이 유형 이해 후 무엇이 쉬워질까?</div>
+      호 길이 공식이 자연스러워지면:<br>
+      • <strong>유형 5 (부채꼴 넓이)</strong>의 두 번째 공식 $\dfrac{1}{2}rl$ 이 자연스러움 (호 $l$이 도구로 됨)<br>
+      • <strong>유형 6 (호·현·중심각)</strong>의 정비례 사고 강화<br>
+      • <strong>Unit 11 (회전체)</strong>: 원기둥의 옆면을 펼치면 직사각형, 그 한 변이 원의 둘레 (= 호 일반화)
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- 탭 5: 부채꼴 넓이 -->
+<div class="tab-panel" id="tab5">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>부채꼴 넓이엔 <strong>두 가지 공식</strong>이 있어요:</p>
+      <div class="formula-box">$S = \pi r^2 \cdot \dfrac{\theta}{360}$ (중심각 알 때)</div>
+      <div class="formula-box">$S = \dfrac{1}{2} r l$ (호 길이 알 때)</div>
+      <p>어느 걸 언제 써야 빠른지 판단이 어려워요. 또 역산 (넓이 → $r$ 또는 $\theta$) 도 한 단계 더.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 두 공식의 관계</div>
+    <div class="card">
+      <p>두 공식은 사실 같아요. 호 길이 $l$ 의 정의로부터:</p>
+      <p style="text-align:center; margin:10px 0;">$S = \pi r^2 \cdot \dfrac{\theta}{360} = \dfrac{1}{2} \cdot r \cdot \left(2\pi r \cdot \dfrac{\theta}{360}\right) = \dfrac{1}{2} r l$</p>
+      <div class="highlight">
+        <strong>$\dfrac{1}{2}rl$ 은 마치 밑변 $l$, 높이 $r$ 인 삼각형 같죠?</strong> 이게 우연이 아니에요. 부채꼴을 잘게 잘게 자르면 정말 삼각형이 됩니다. <strong>이게 바로 아르키메데스의 원의 넓이 증명 방법</strong>이에요. 2200년 전!
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>언제 어떤 공식을 쓸까?</h3>
+      <table class="tbl">
+        <tr><th>주어진 것</th><th>편한 공식</th></tr>
+        <tr><td>$r$, $\theta$ → 넓이</td><td>$\pi r^2 \cdot \dfrac{\theta}{360}$</td></tr>
+        <tr><td>$r$, $l$ → 넓이</td><td>$\dfrac{1}{2} r l$ (빠름)</td></tr>
+        <tr><td>$l$, $\theta$ → 넓이</td><td>먼저 $r$ 구하기</td></tr>
+        <tr><td>넓이, $\theta$ → $r$</td><td>$\pi r^2 \cdot \dfrac{\theta}{360} = S$</td></tr>
+        <tr><td>넓이, $r$ → $\theta$</td><td>같은 공식, $\theta$에 대해 풀기</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">두 공식 혼동: $\dfrac{1}{2}rl$ 에 $\theta$ 도 곱하기</div>
+        <div class="mistake-desc">$\dfrac{1}{2}rl$ 은 그 자체로 완전한 공식. $\theta$ 추가로 곱하지 않아요.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">호 공식과 넓이 공식 혼동</div>
+        <div class="mistake-desc">호: $r$의 1차 / 넓이: $r$의 2차. 둘 다 $\theta/360$ 곱함.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">$r^2 = 16$ 에서 $r = ±4$로 답</div>
+        <div class="mistake-desc">반지름은 길이라서 항상 양수 → $r = 4$만 정답.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제</div>
+
+    <div class="problem-card">
+      <div class="prob-label">★ 추가 문제 1</div>
+      <div class="prob-text">한 부채꼴의 호의 길이가 $4\pi$ cm, 반지름이 $6$ cm 일 때 — (1) 중심각, (2) 넓이를 두 가지 공식으로 각각 구하고 같음을 확인하세요.</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content">
+        <strong>중심각 $120°$, 넓이 $12\pi$ cm²</strong><br>
+        (1) 중심각: $4\pi = 2\pi(6) \cdot \dfrac{\theta}{360} = \dfrac{12\pi\theta}{360} = \dfrac{\pi\theta}{30}$<br>
+        $\theta = \dfrac{4\pi \cdot 30}{\pi} = 120°$<br><br>
+        (2) 넓이 — 공식 1: $\pi(6)^2 \cdot \dfrac{120}{360} = 36\pi \cdot \dfrac{1}{3} = 12\pi$<br>
+        공식 2: $\dfrac{1}{2}(6)(4\pi) = 12\pi$ ✓<br>
+        같은 답.
+      </div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">★ 추가 문제 2</div>
+      <div class="prob-text">반지름 $r$, 호 길이 $l$ 인 부채꼴이 둘레가 $14$ cm, 넓이가 $12$ cm² 이다. $r$의 값으로 가능한 모든 값을 구하세요.</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content">
+        <strong>$r = 3$ 또는 $r = 4$</strong><br>
+        둘레: $l + 2r = 14$ → $l = 14 - 2r$<br>
+        넓이: $\dfrac{1}{2}rl = 12$ → $rl = 24$<br>
+        대입: $r(14 - 2r) = 24$<br>
+        $14r - 2r^2 = 24$<br>
+        $r^2 - 7r + 12 = 0$<br>
+        $(r - 3)(r - 4) = 0$<br>
+        $r = 3$ 또는 $r = 4$<br><br>
+        검산:<br>
+        • $r=3$ → $l = 14-6 = 8$, 넓이 $= \dfrac{1}{2}(3)(8) = 12$ ✓<br>
+        • $r=4$ → $l = 14-8 = 6$, 넓이 $= \dfrac{1}{2}(4)(6) = 12$ ✓
+      </div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">★ 추가 문제 3</div>
+      <div class="prob-text">아르키메데스의 정신으로 — 반지름 $r$ 인 원의 넓이를 부채꼴 무한 분할로 유도하세요. (힌트: 부채꼴 → 작은 삼각형 근사)</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content">
+        <strong>$\pi r^2$</strong><br>
+        원을 $n$개의 균등한 부채꼴로 자르고 일렬로 펼쳐 늘어놓아요. 부채꼴 호가 위·아래 번갈아 가며 $n$이 매우 커지면, 결과 도형은 <strong>밑변이 원 둘레의 절반 ($\pi r$), 높이가 반지름 ($r$)인 직사각형</strong>에 가까워져요.<br><br>
+        직사각형 넓이 = $\pi r \times r = \pi r^2$ ✓<br><br>
+        💡 이게 아르키메데스의 발상이에요. <strong>"부채꼴을 작게 자르면 삼각형, 다 합치면 직사각형"</strong>. 미적분이 발명되기 1900년 전에 그가 한 거예요.
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">연결 개념</div>
+    <div class="connect-box">
+      <div class="connect-title">🔗 이 유형 이해 후 무엇이 쉬워질까?</div>
+      부채꼴 넓이가 손에 익으면:<br>
+      • <strong>유형 7 (색칠한 부분)</strong>: 모든 색칠 영역을 부채꼴·반원·사분원의 합·차로 분해<br>
+      • <strong>고2~ 적분</strong>: $\int x \, dx$ 의 발상 = 아르키메데스의 부채꼴 분할의 현대 버전<br>
+      • <strong>Unit 11 (구의 부피·겉넓이)</strong>: 아르키메데스가 묘비에 새긴 그 정리 — $V = \dfrac{4}{3}\pi r^3$ 도 같은 발상으로 도출
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('show'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('show');
+  btn.classList.add('active');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+function reveal(btn) {
+  const next = btn.nextElementSibling;
+  next.style.display = next.style.display === 'block' ? 'none' : 'block';
+  btn.textContent = next.style.display === 'block' ? '닫기' : '정답·풀이 보기';
+}
+</script>
+</body>
+</html>

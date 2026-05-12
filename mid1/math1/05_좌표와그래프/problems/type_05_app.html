@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>유형 5 — 좌표로 도형 만들기</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+:root{--primary:#4361EE;--bg:#eef2ff;--card:#fff;--ok:#2ecc71;--ng:#e74c3c;--hint:#f39c12;--L:#3498db;--M:#9b59b6;--H:#e74c3c;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic',sans-serif;background:var(--bg);padding:20px 16px 60px;color:#2d3436;}
+.header{max-width:700px;margin:0 auto 20px;}
+h1{font-size:18px;font-weight:800;color:var(--primary);margin-bottom:4px;}
+.sub{font-size:13px;color:#636e72;margin-bottom:4px;}
+.back-link{font-size:12px;color:#4361EE;text-decoration:none;}
+.tabs{display:flex;gap:8px;margin-bottom:20px;max-width:700px;margin-left:auto;margin-right:auto;}
+.tab-btn{flex:1;padding:9px 0;border-radius:10px;border:2px solid #c0c8f4;background:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:all .18s;color:#636e72;}
+.tab-btn.active{color:#fff;}
+.tab-btn[data-lv="L"].active{background:var(--L);border-color:var(--L);}
+.tab-btn[data-lv="M"].active{background:var(--M);border-color:var(--M);}
+.tab-btn[data-lv="H"].active{background:var(--H);border-color:var(--H);}
+.panel{display:none;max-width:700px;margin:0 auto;}
+.panel.show{display:block;}
+.card{background:var(--card);border-radius:14px;padding:22px 22px 18px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:14px;}
+.q-head{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.q-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0;}
+.lv-L .q-num{background:var(--L);}
+.lv-M .q-num{background:var(--M);}
+.lv-H .q-num{background:var(--H);}
+.lv-tag{font-size:11px;padding:2px 9px;border-radius:20px;font-weight:700;color:#fff;}
+.lv-L .lv-tag{background:var(--L);}
+.lv-M .lv-tag{background:var(--M);}
+.lv-H .lv-tag{background:var(--H);}
+.q-text{font-size:14px;line-height:1.75;margin-bottom:14px;}
+.ans-tabs{display:flex;gap:6px;margin-bottom:10px;}
+.ans-tab{padding:6px 14px;border-radius:8px;border:2px solid #dde3ff;background:#f8f9ff;font-size:12px;font-weight:700;cursor:pointer;color:#636e72;}
+.ans-tab.open{background:var(--primary);border-color:var(--primary);color:#fff;}
+.hint-panel,.sol-panel{display:none;border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.7;margin-top:6px;}
+.hint-panel.show,.sol-panel.show{display:block;}
+.hint-panel{background:#fff8e8;border-left:4px solid var(--hint);}
+.sol-panel{background:#eef9f4;border-left:4px solid var(--ok);}
+.warn{background:#fff0f0;border-left:4px solid var(--ng);border-radius:8px;padding:10px 14px;font-size:12px;margin-top:10px;}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>유형 5 — 좌표로 도형 만들기</h1>
+  <div class="sub">여러 점의 좌표 → 도형 종류·넓이</div>
+  <a class="back-link" href="../index.html">← 단원 5 홈</a>
+</div>
+<div class="tabs">
+  <button class="tab-btn active" data-lv="L" onclick="switchTab('L',this)">L — 기본 (3문제)</button>
+  <button class="tab-btn" data-lv="M" onclick="switchTab('M',this)">M — 중간 (3문제)</button>
+  <button class="tab-btn" data-lv="H" onclick="switchTab('H',this)">H — 심화 (3문제)</button>
+</div>
+
+<!-- L 패널 -->
+<div class="panel show" id="panel-L">
+
+<div class="card lv-L">
+<div class="q-head"><div class="q-num">1</div><span class="lv-tag">L</span></div>
+<div class="q-text">두 점 $\mathrm{A}(1, 0)$, $\mathrm{B}(5, 0)$ 사이의 거리를 구하세요.</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-L1')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-L1')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-L1">두 점 모두 $x$축 위. $x$좌표 차이 = 거리.</div>
+<div class="sol-panel" id="sol-L1"><strong>4</strong><br>두 점이 $x$축 위 (같은 $y$좌표 0)이므로 $x$좌표 차이가 거리.<br>$5 - 1 = 4$</div>
+</div>
+
+<div class="card lv-L">
+<div class="q-head"><div class="q-num">2</div><span class="lv-tag">L</span></div>
+<div class="q-text">두 점 $\mathrm{P}(2, -3)$와 $\mathrm{Q}(2, 5)$ 사이의 거리를 구하세요.</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-L2')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-L2')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-L2">두 점의 $x$좌표가 같음 → 세로 방향의 거리.</div>
+<div class="sol-panel" id="sol-L2"><strong>8</strong><br>$x$좌표가 같으므로 $y$좌표 차이가 거리.<br>$5 - (-3) = 8$<br>(부호 빼는 것 주의: $5$에서 $-3$을 빼면 $5 + 3 = 8$)</div>
+</div>
+
+<div class="card lv-L">
+<div class="q-head"><div class="q-num">3</div><span class="lv-tag">L</span></div>
+<div class="q-text">네 점 $\mathrm{A}(0, 0)$, $\mathrm{B}(3, 0)$, $\mathrm{C}(3, 2)$, $\mathrm{D}(0, 2)$를 차례로 이으면 어떤 도형인가요?</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-L3')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-L3')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-L3">가로변과 세로변의 길이를 각각 계산해봐요.</div>
+<div class="sol-panel" id="sol-L3"><strong>직사각형</strong><br>가로(A→B): $3 - 0 = 3$<br>세로(B→C): $2 - 0 = 2$<br>가로 3, 세로 2의 직사각형. (정사각형은 아님)</div>
+</div>
+
+</div><!-- end panel-L -->
+
+<!-- M 패널 -->
+<div class="panel" id="panel-M">
+
+<div class="card lv-M">
+<div class="q-head"><div class="q-num">1</div><span class="lv-tag">M</span></div>
+<div class="q-text">네 점 $\mathrm{A}(2, 1)$, $\mathrm{B}(-2, 1)$, $\mathrm{C}(-2, -1)$, $\mathrm{D}(2, -1)$를 꼭짓점으로 하는 사각형의 넓이는?</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-M1')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-M1')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-M1">먼저 가로·세로를 구하면 직사각형 넓이 = 가로 × 세로.</div>
+<div class="sol-panel" id="sol-M1"><strong>$8$</strong><br>가로(A→B): $|2-(-2)| = 4$<br>세로(A→D): $|1-(-1)| = 2$<br>$\therefore$ 넓이 $= 4 \times 2 = 8$</div>
+</div>
+
+<div class="card lv-M">
+<div class="q-head"><div class="q-num">2</div><span class="lv-tag">M</span></div>
+<div class="q-text">세 점 $\mathrm{A}(0, 0)$, $\mathrm{B}(6, 0)$, $\mathrm{C}(0, 4)$를 꼭짓점으로 하는 삼각형의 넓이는?</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-M2')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-M2')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-M2">A는 원점, B는 $x$축 위, C는 $y$축 위 → 직각삼각형. 넓이 = 밑변×높이÷2.</div>
+<div class="sol-panel" id="sol-M2"><strong>$12$</strong><br>밑변 AB $= 6$, 높이 AC $= 4$<br>직각삼각형 넓이 $= \dfrac{1}{2} \times 6 \times 4 = 12$</div>
+</div>
+
+<div class="card lv-M">
+<div class="q-head"><div class="q-num">3</div><span class="lv-tag">M</span></div>
+<div class="q-text">세 점 $\mathrm{A}(1, 2)$, $\mathrm{B}(5, 2)$, $\mathrm{C}(5, 6)$이 있을 때, 사각형이 되도록 네 번째 점 $\mathrm{D}$의 좌표를 구해 직사각형을 만드세요.</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-M3')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-M3')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-M3">A, B, C 위치를 그려보고 직사각형이 되려면 어디에 점을 찍어야 할지 보세요.</div>
+<div class="sol-panel" id="sol-M3"><strong>$\mathrm{D}(1, 6)$</strong><br>A(1,2), B(5,2): 가로변 (y=2)<br>B(5,2), C(5,6): 세로변 (x=5)<br>직사각형 = 마주보는 변이 같음<br>D는 A 위로 4만큼 = $(1, 6)$<br>확인: D(1,6) - C(5,6)도 가로변 (y=6) ✓</div>
+</div>
+
+</div><!-- end panel-M -->
+
+<!-- H 패널 -->
+<div class="panel" id="panel-H">
+
+<div class="card lv-H">
+<div class="q-head"><div class="q-num">1</div><span class="lv-tag">H</span></div>
+<div class="q-text">네 점 $\mathrm{A}(1, 1)$, $\mathrm{B}(5, 1)$, $\mathrm{C}(5, 5)$, $\mathrm{D}(1, 5)$를 꼭짓점으로 하는 사각형의 모양과 넓이를 구하세요.</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-H1')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-H1')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-H1">가로와 세로 길이가 같은지 확인.</div>
+<div class="sol-panel" id="sol-H1"><strong>정사각형, 넓이 $16$</strong><br>가로 AB $= 5-1 = 4$<br>세로 AD $= 5-1 = 4$<br>가로=세로=4 → 정사각형!<br>넓이 $= 4 \times 4 = 16$<br>
+<div class="warn">정사각형은 직사각형의 특별한 경우. 가로=세로일 때만 정사각형이라고 부를 수 있어요.</div></div>
+</div>
+
+<div class="card lv-H">
+<div class="q-head"><div class="q-num">2</div><span class="lv-tag">H</span></div>
+<div class="q-text">세 점 $\mathrm{A}(-1, -2)$, $\mathrm{B}(5, -2)$, $\mathrm{C}(2, 4)$를 꼭짓점으로 하는 삼각형의 넓이를 구하세요.</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-H2')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-H2')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-H2">A와 B가 같은 $y$좌표 → AB가 밑변. C에서 AB까지의 거리 = 높이.</div>
+<div class="sol-panel" id="sol-H2"><strong>$18$</strong><br>밑변 AB $= 5 - (-1) = 6$ ($y = -2$ 위)<br>높이 = C의 $y$좌표 $4$ 와 직선 $y = -2$의 거리 $= 4 - (-2) = 6$<br>$\therefore$ 넓이 $= \dfrac{1}{2} \times 6 \times 6 = 18$</div>
+</div>
+
+<div class="card lv-H">
+<div class="q-head"><div class="q-num">3</div><span class="lv-tag">H</span></div>
+<div class="q-text">세 점 $\mathrm{A}(0, 0)$, $\mathrm{B}(4, 0)$, $\mathrm{C}(0, 3)$이 있어요. 이 세 점과 함께 평행사변형이 되도록 네 번째 점 $\mathrm{D}$의 좌표가 될 수 있는 후보를 모두 찾으세요.</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-H3')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-H3')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-H3">평행사변형은 마주보는 변이 평행하고 길이가 같음. 세 점 중 어느 두 점이 마주보는 변인지에 따라 D 위치가 다름. 3가지 경우.</div>
+<div class="sol-panel" id="sol-H3"><strong>$\mathrm{D}(4, 3)$, $(-4, 3)$, $(4, -3)$ 중 하나 (총 3가지)</strong><br>경우 1: AB가 한 변, AC가 한 변 → D = B + C = $(4, 3)$<br>경우 2: AC가 한 변, BC가 한 변 → D = $(0, 3) + (0, 3) - (4, 0) = (-4, 3)$<br>경우 3: AB가 한 변, BC가 한 변 → D = $(4, 0) + (4, 0) - (0, 3) = (4, -3)$<br>
+<div class="warn">평행사변형 4번째 점은 세 가지 경우가 있을 수 있어요! "한 가지만 답"으로 단정하지 마세요.</div></div>
+</div>
+
+</div><!-- end panel-H -->
+
+<script>
+function switchTab(lv, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('show'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + lv).classList.add('show');
+}
+function toggle(btn, id) {
+  const panel = document.getElementById(id);
+  const isShow = panel.classList.contains('show');
+  btn.parentElement.querySelectorAll('.hint-panel, .sol-panel').forEach(p => p.classList.remove('show'));
+  btn.parentElement.querySelectorAll('.ans-tab').forEach(b => b.classList.remove('open'));
+  if (!isShow) { panel.classList.add('show'); btn.classList.add('open'); }
+}
+</script>
+</body>
+</html>

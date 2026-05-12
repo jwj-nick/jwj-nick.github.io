@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 탐구 — 원 기초 (구성요소·둘레·넓이)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+:root{--primary:#4361EE;--bg:#eef2ff;--card:#fff;--ok:#2ecc71;--ng:#e74c3c;--warn:#f39c12;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic',sans-serif;background:var(--bg);padding:0 0 60px;color:#2d3436;}
+.header{background:linear-gradient(135deg,#4361EE,#3a0ca3);color:white;padding:28px 20px 24px;text-align:center;}
+.header h1{font-size:20px;margin-bottom:6px;}
+.header p{font-size:13px;opacity:0.85;}
+.back-link{font-size:12px;color:rgba(255,255,255,0.7);text-decoration:none;display:block;margin-top:10px;}
+.tab-bar{display:flex;gap:0;background:white;box-shadow:0 2px 8px rgba(0,0,0,0.08);position:sticky;top:0;z-index:10;}
+.tab-btn{flex:1;padding:14px 0;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;color:#888;border-bottom:3px solid transparent;font-family:inherit;}
+.tab-btn.active{color:#4361EE;border-bottom-color:#4361EE;}
+.tab-btn small{font-size:10px;display:block;margin-top:2px;color:#aaa;}
+.tab-btn.active small{color:#4361EE;}
+.tab-panel{display:none;}
+.tab-panel.show{display:block;}
+.container{max-width:700px;margin:0 auto;padding:20px 16px;}
+.section{margin-bottom:28px;}
+.section-title{font-size:15px;font-weight:bold;color:#4361EE;padding-left:8px;border-left:3px solid #4361EE;margin-bottom:14px;}
+.card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;}
+.card h3{font-size:15px;color:#1a1a2e;margin-bottom:10px;}
+.card p,.card li{font-size:14px;color:#444;line-height:1.8;}
+.card ul{padding-left:18px;}
+.highlight{background:#f0f4ff;border-left:4px solid #4361EE;border-radius:0 10px 10px 0;padding:12px 16px;margin:10px 0;font-size:14px;color:#333;line-height:1.7;}
+.mistake-item{background:white;border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(67,97,238,.07);margin-bottom:10px;display:flex;gap:12px;}
+.mistake-icon{font-size:22px;flex-shrink:0;margin-top:2px;}
+.mistake-content{flex:1;}
+.mistake-title{font-size:14px;font-weight:bold;color:#e74c3c;margin-bottom:4px;}
+.mistake-desc{font-size:13px;color:#444;line-height:1.6;}
+.problem-card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;border-left:4px solid #4361EE;}
+.prob-label{font-size:12px;font-weight:bold;color:#4361EE;letter-spacing:1px;margin-bottom:8px;}
+.prob-text{font-size:15px;line-height:1.8;color:#1a1a2e;margin-bottom:12px;}
+.reveal-btn{background:none;border:2px solid #4361EE;color:#4361EE;padding:6px 18px;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;}
+.reveal-content{display:none;margin-top:12px;background:#f0fff4;border-radius:10px;padding:12px 16px;font-size:13px;color:#1b5e20;line-height:1.7;}
+.connect-box{background:linear-gradient(135deg,#f0f4ff,#e8ecff);border-radius:14px;padding:20px;font-size:14px;color:#333;line-height:1.8;}
+.connect-title{font-size:15px;font-weight:bold;color:#4361EE;margin-bottom:10px;}
+table.tbl{border-collapse:collapse;font-size:13px;margin:10px 0;width:100%;}
+table.tbl th,table.tbl td{border:1px solid #ccd;padding:6px 10px;text-align:center;}
+table.tbl th{background:#eef2ff;}
+.formula-box{background:#eef2ff;border-radius:8px;padding:10px 14px;text-align:center;font-size:16px;color:#4361EE;font-weight:700;margin:8px 0;}
+.fig-svg{display:block;margin:10px auto;max-width:340px;width:100%;background:#fafbff;border-radius:8px;padding:8px;border:1px solid #eef2ff;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>깊이 탐구 — 원 기초</h1>
+  <p>구성요소 · 둘레 · 넓이 (유형 1·2 통합)</p>
+  <a class="back-link" href="../index.html">← 단원 10 홈</a>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('tab1',this)">유형 1<small>구성요소</small></button>
+  <button class="tab-btn" onclick="switchTab('tab2',this)">유형 2<small>둘레·넓이</small></button>
+</div>
+
+<!-- 탭 1: 원 구성요소 -->
+<div class="tab-panel show" id="tab1">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>원의 구성요소는 단순한 용어 암기 같지만, <strong>호 vs 현</strong>처럼 한 글자 차이로 의미가 완전히 달라지는 게 함정이에요. 시험에서 가장 자주 함정으로 나오는 게 이거예요.</p>
+      <ul>
+        <li><strong>호</strong> (곡선) ↔ <strong>현</strong> (선분)</li>
+        <li><strong>접선</strong> (한 점) ↔ <strong>할선</strong> (두 점)</li>
+        <li><strong>반지름</strong> (중심→원) ↔ <strong>지름</strong> (원→원, 중심 통과)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 한눈에 보는 표</div>
+    <div class="card">
+      <table class="tbl">
+        <tr><th>이름</th><th>정체</th><th>표기</th></tr>
+        <tr><td>중심 O</td><td>원의 한가운데 점</td><td>$O$</td></tr>
+        <tr><td>반지름 $r$</td><td>중심→원 위 점, 거리 또는 선분</td><td>$\overline{OA}$</td></tr>
+        <tr><td>지름 $d$</td><td>원→원 (중심 통과), $d=2r$</td><td>$d$</td></tr>
+        <tr><td>호 $\overset{\frown}{AB}$</td><td>원 위 두 점 사이 곡선</td><td>$\overset{\frown}{AB}$</td></tr>
+        <tr><td>현 $\overline{AB}$</td><td>원 위 두 점을 잇는 선분</td><td>$\overline{AB}$</td></tr>
+        <tr><td>할선</td><td>원과 두 점에서 만나는 직선</td><td>—</td></tr>
+        <tr><td>접선</td><td>원과 한 점에서만 만나는 직선</td><td>—</td></tr>
+        <tr><td>접점</td><td>접선과 원이 만나는 그 한 점</td><td>—</td></tr>
+      </table>
+      <div class="highlight"><strong>지름은 가장 긴 현이에요.</strong> 어떤 현이라도 지름보다 길 수 없어요. 가장 긴 길은 중심을 지나는 길이거든요.</div>
+    </div>
+
+    <div class="card">
+      <h3>★ 중심에서 현에 내린 수선</h3>
+      <p>이건 단원의 가장 중요한 성질 중 하나:</p>
+      <div class="formula-box">중심에서 현에 내린 수선 → 그 현을 이등분</div>
+      <p style="margin-top:8px;">왜? 중심 $O$, 현 $\overline{AB}$, 수선의 발 $M$일 때:<br>
+      $\triangle OAM \equiv \triangle OBM$ — SAS 합동 (Unit 08 연결!)<br>
+      • $\overline{OA} = \overline{OB} = r$ (반지름)<br>
+      • $\overline{OM}$ 공통<br>
+      • $\angle OMA = \angle OMB = 90°$<br>
+      → $\overline{AM} = \overline{MB}$ (대응변)</p>
+      <div class="highlight">이 성질을 쓰면 <strong>피타고라스</strong>로 현의 길이를 빠르게 구할 수 있어요. 직각삼각형 $OAM$에서 $\overline{OA}^2 = \overline{OM}^2 + \overline{AM}^2$.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">호와 현 헷갈리기</div>
+        <div class="mistake-desc">"두 점 사이의 호의 길이" = 곡선 길이 / "두 점 사이의 현의 길이" = 선분 길이. 이름 한 글자 차이지만 완전히 다른 양.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">접선과 할선 혼동</div>
+        <div class="mistake-desc">접선 = 살짝 닿는 (한 점), 할선 = 가르는 (두 점). 둘 다 직선이지만 성질이 달라요.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">"반지름이 곧 원"이라고 생각</div>
+        <div class="mistake-desc">반지름은 거리(또는 선분), 원은 그 거리에 있는 점들의 모임. 반지름 자체가 원은 아니에요.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제</div>
+
+    <div class="problem-card">
+      <div class="prob-label">★ 추가 문제 1</div>
+      <div class="prob-text">반지름 $r$ 인 원의 중심에서 현 $\overline{AB}$ 까지의 거리가 $\dfrac{r}{2}$ 일 때, 현의 길이를 $r$로 표현하세요.</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content">
+        <strong>$\overline{AB} = r\sqrt{3}$</strong><br>
+        중심에서 현 $\overline{AB}$ 까지 거리 = $\overline{OM} = \dfrac{r}{2}$ (수선의 발 $M$).<br>
+        직각삼각형 $OAM$: $\overline{OA}^2 = \overline{OM}^2 + \overline{AM}^2$<br>
+        $r^2 = \dfrac{r^2}{4} + \overline{AM}^2$<br>
+        $\overline{AM}^2 = \dfrac{3r^2}{4}$ → $\overline{AM} = \dfrac{r\sqrt{3}}{2}$<br>
+        현 $\overline{AB} = 2\overline{AM} = r\sqrt{3}$
+      </div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">★ 추가 문제 2</div>
+      <div class="prob-text">반지름 $13$ cm 인 원에서 현의 길이가 $24$ cm 이다. 이 현의 중심으로부터의 거리는?</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content">
+        <strong>$5$ cm</strong><br>
+        현의 절반 = 12, 반지름 = 13.<br>
+        직각삼각형: $12^2 + d^2 = 13^2$<br>
+        $d^2 = 169 - 144 = 25$ → $d = 5$ cm<br>
+        💡 5-12-13 피타고라스 수.
+      </div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">★ 추가 문제 3</div>
+      <div class="prob-text">한 원에 그어진 모든 직선·선분 5종 (지름·반지름·현·접선·할선) 중 <strong>원 위에 양 끝점</strong>이 있는 것을 모두 고르세요.</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content">
+        <strong>지름과 현</strong><br>
+        • 지름: 양 끝이 모두 원 위 ✓<br>
+        • 반지름: 한 끝은 중심, 다른 끝은 원 위 (양 끝 X)<br>
+        • 현: 양 끝 모두 원 위 ✓<br>
+        • 접선·할선: 직선 (양 끝 없음, 무한히 뻗음)
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">연결 개념</div>
+    <div class="connect-box">
+      <div class="connect-title">🔗 이 유형 이해 후 무엇이 쉬워질까?</div>
+      이 유형은 단원의 어휘 기반이에요. 호·현 구분이 명확해지면:<br>
+      • <strong>유형 3 (부채꼴/활꼴)</strong>: "두 반지름 vs 한 현" 구분이 자연스럽게 됨<br>
+      • <strong>유형 6 (호·현·중심각)</strong>: 호와 현의 본질적 차이를 알기에 정비례 함정에 안 빠짐<br>
+      • <strong>유형 7 (색칠한 부분)</strong>: 도형 분해할 때 어디가 호고 어디가 현인지 즉시 식별
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- 탭 2: 둘레·넓이 -->
+<div class="tab-panel" id="tab2">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>원 둘레와 넓이 공식 자체는 단순해요 ($2\pi r$, $\pi r^2$). 하지만:</p>
+      <ul>
+        <li><strong>둘레 공식과 넓이 공식 헷갈림</strong> — $r$과 $r^2$ 한 글자 차이</li>
+        <li><strong>역산 (둘레/넓이 → $r$)</strong> 이 한 단계 더 필요</li>
+        <li><strong>반원·도넛·복합 모양</strong> 에서는 분해·재조합이 핵심</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 두 공식</div>
+    <div class="card">
+      <div class="formula-box">$C = 2\pi r = \pi d$</div>
+      <div class="formula-box">$A = \pi r^2$</div>
+      <div class="highlight">
+        <strong>$r$의 차원으로 외우세요</strong>:<br>
+        • 둘레 = $r$의 1차 (길이)<br>
+        • 넓이 = $r$의 2차 (제곱)<br>
+        그래서 단위도 cm, cm² 로 다른 거예요.
+      </div>
+      <p style="margin-top:12px;"><strong>반지름이 2배가 되면?</strong></p>
+      <ul>
+        <li>둘레는 정확히 2배</li>
+        <li>넓이는 4배 ($2^2 = 4$)</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>역산 — 둘레 또는 넓이로부터 $r$</h3>
+      <table class="tbl">
+        <tr><th>주어진 것</th><th>$r$ 구하기</th></tr>
+        <tr><td>둘레 $C$</td><td>$r = \dfrac{C}{2\pi}$</td></tr>
+        <tr><td>넓이 $A$</td><td>$r = \sqrt{\dfrac{A}{\pi}}$</td></tr>
+      </table>
+      <div class="highlight"><strong>$\pi r^2 = 16\pi$</strong> 같은 식에서는 양쪽의 $\pi$ 가 약분돼서 $r^2 = 16$ → $r = 4$. 깨끗한 처리.</div>
+    </div>
+
+    <div class="card">
+      <h3>반원·도넛·복합 모양</h3>
+      <ul>
+        <li>반원 넓이 = 원의 1/2 → $\dfrac{1}{2}\pi r^2$</li>
+        <li>반원 둘레 = ⚠️ <strong>호 + 지름</strong> = $\pi r + 2r$ (지름 빠뜨리지 않기!)</li>
+        <li>사분원 넓이 = $\dfrac{1}{4}\pi r^2$</li>
+        <li>사분원 둘레 = 호 + 두 반지름 = $\dfrac{\pi r}{2} + 2r$</li>
+        <li>도넛(원환) 넓이 = $\pi R^2 - \pi r^2 = \pi(R^2 - r^2)$</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">"반지름 5 → 둘레 25π"</div>
+        <div class="mistake-desc">$25\pi$ 는 <strong>넓이</strong>예요 ($r^2$). 둘레는 $2\pi r = 10\pi$. 두 공식 헷갈리지 않기.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">반원 둘레에서 지름 빼먹기</div>
+        <div class="mistake-desc">반원 둘레는 곡선($\pi r$)만이 아니에요. 닫힌 도형이 되려면 지름($2r$)도 더해야.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">단위 빼먹기 (cm vs cm²)</div>
+        <div class="mistake-desc">길이 = cm, 넓이 = cm² (제곱). 시험에서 단위까지 정확히 써야 해요.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제</div>
+
+    <div class="problem-card">
+      <div class="prob-label">★ 추가 문제 1</div>
+      <div class="prob-text">반지름이 $r$ 일 때 둘레와 넓이가 같은 값을 가지는 $r$ 은? (단, 단위는 동일하다고 가정.)</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content">
+        <strong>$r = 2$</strong><br>
+        $2\pi r = \pi r^2$<br>
+        $\pi$ 약분: $2r = r^2$<br>
+        $r^2 - 2r = 0$ → $r(r - 2) = 0$<br>
+        $r > 0$ 이므로 $r = 2$.<br><br>
+        💡 단순한 듯 하지만 단위가 다른 양(둘레 cm vs 넓이 cm²)이 같아진다는 게 신기. 이는 무차원 단위 약속에서만 의미.
+      </div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">★ 추가 문제 2</div>
+      <div class="prob-text">두 원의 반지름 비가 $1 : 3$ 일 때, 두 원의 (1) 둘레의 비, (2) 넓이의 비는 각각?</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content">
+        <strong>둘레 $1:3$, 넓이 $1:9$</strong><br>
+        둘레 = $2\pi r$ → $r$에 정비례 → $1:3$<br>
+        넓이 = $\pi r^2$ → $r^2$에 정비례 → $1^2:3^2 = 1:9$<br><br>
+        💡 일반화: 반지름 비 $a:b$ → 둘레 비 $a:b$, 넓이 비 $a^2:b^2$. (모든 닮은 도형의 일반 패턴.)
+      </div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">★ 추가 문제 3</div>
+      <div class="prob-text">큰 원 안에 같은 크기의 작은 원 4개가 큰 원과 접하며 서로 접해 정사각형 모양으로 배치되어 있다. 작은 원의 반지름이 $r$ 일 때, 큰 원의 반지름을 $r$로 표현하세요.</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content">
+        <strong>$R = (1 + \sqrt{2})r$</strong><br>
+        4개 작은 원이 정사각형으로 배치 → 작은 원 중심들이 변 길이 $2r$ 인 정사각형의 꼭짓점.<br>
+        정사각형 대각선 = $2r\sqrt{2}$ → 대각선 절반 = $r\sqrt{2}$ (= 큰 원 중심에서 작은 원 중심까지 거리)<br>
+        큰 원 반지름 = (중심 간 거리) + (작은 원 반지름) = $r\sqrt{2} + r = (1+\sqrt{2})r$<br><br>
+        💡 도형 단원의 마무리 — 원과 정사각형이 함께 등장하는 응용.
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">연결 개념</div>
+    <div class="connect-box">
+      <div class="connect-title">🔗 이 유형 이해 후 무엇이 쉬워질까?</div>
+      원의 둘레·넓이 공식이 손에 익으면:<br>
+      • <strong>유형 4·5 (호·부채꼴 넓이)</strong>: $\dfrac{\theta}{360}$ 곱하기만 추가하면 됨<br>
+      • <strong>유형 7 (색칠한 부분)</strong>: 모든 도형을 원·반원·사분원의 합·차로 분해<br>
+      • <strong>Unit 11~12 (입체)</strong>: 원기둥 옆넓이 = 사각형(둘레 × 높이), 구의 부피 = 아르키메데스 발견 ($\dfrac{4}{3}\pi r^3$). 모두 $r$의 거듭제곱과 $\pi$ 의 조합.
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('show'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('show');
+  btn.classList.add('active');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+function reveal(btn) {
+  const next = btn.nextElementSibling;
+  next.style.display = next.style.display === 'block' ? 'none' : 'block';
+  btn.textContent = next.style.display === 'block' ? '닫기' : '정답·풀이 보기';
+}
+</script>
+</body>
+</html>

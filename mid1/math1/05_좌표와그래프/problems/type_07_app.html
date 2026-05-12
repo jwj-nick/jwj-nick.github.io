@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>유형 7 — 그래프 해석 (상황 그래프)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+:root{--primary:#4361EE;--bg:#eef2ff;--card:#fff;--ok:#2ecc71;--ng:#e74c3c;--hint:#f39c12;--L:#3498db;--M:#9b59b6;--H:#e74c3c;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic',sans-serif;background:var(--bg);padding:20px 16px 60px;color:#2d3436;}
+.header{max-width:700px;margin:0 auto 20px;}
+h1{font-size:18px;font-weight:800;color:var(--primary);margin-bottom:4px;}
+.sub{font-size:13px;color:#636e72;margin-bottom:4px;}
+.back-link{font-size:12px;color:#4361EE;text-decoration:none;}
+.tabs{display:flex;gap:8px;margin-bottom:20px;max-width:700px;margin-left:auto;margin-right:auto;}
+.tab-btn{flex:1;padding:9px 0;border-radius:10px;border:2px solid #c0c8f4;background:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:all .18s;color:#636e72;}
+.tab-btn.active{color:#fff;}
+.tab-btn[data-lv="L"].active{background:var(--L);border-color:var(--L);}
+.tab-btn[data-lv="M"].active{background:var(--M);border-color:var(--M);}
+.tab-btn[data-lv="H"].active{background:var(--H);border-color:var(--H);}
+.panel{display:none;max-width:700px;margin:0 auto;}
+.panel.show{display:block;}
+.card{background:var(--card);border-radius:14px;padding:22px 22px 18px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:14px;}
+.q-head{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.q-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0;}
+.lv-L .q-num{background:var(--L);}
+.lv-M .q-num{background:var(--M);}
+.lv-H .q-num{background:var(--H);}
+.lv-tag{font-size:11px;padding:2px 9px;border-radius:20px;font-weight:700;color:#fff;}
+.lv-L .lv-tag{background:var(--L);}
+.lv-M .lv-tag{background:var(--M);}
+.lv-H .lv-tag{background:var(--H);}
+.q-text{font-size:14px;line-height:1.75;margin-bottom:14px;}
+.ans-tabs{display:flex;gap:6px;margin-bottom:10px;}
+.ans-tab{padding:6px 14px;border-radius:8px;border:2px solid #dde3ff;background:#f8f9ff;font-size:12px;font-weight:700;cursor:pointer;color:#636e72;}
+.ans-tab.open{background:var(--primary);border-color:var(--primary);color:#fff;}
+.hint-panel,.sol-panel{display:none;border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.7;margin-top:6px;}
+.hint-panel.show,.sol-panel.show{display:block;}
+.hint-panel{background:#fff8e8;border-left:4px solid var(--hint);}
+.sol-panel{background:#eef9f4;border-left:4px solid var(--ok);}
+.warn{background:#fff0f0;border-left:4px solid var(--ng);border-radius:8px;padding:10px 14px;font-size:12px;margin-top:10px;}
+.mini-graph{display:block;margin:10px auto;max-width:300px;width:100%;height:auto;}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>유형 7 — 그래프 해석 (상황 그래프)</h1>
+  <div class="sub">기온·거리·물의 양 — 일상의 변화를 그래프로</div>
+  <a class="back-link" href="../index.html">← 단원 5 홈</a>
+</div>
+<div class="tabs">
+  <button class="tab-btn active" data-lv="L" onclick="switchTab('L',this)">L — 기본 (3문제)</button>
+  <button class="tab-btn" data-lv="M" onclick="switchTab('M',this)">M — 중간 (3문제)</button>
+  <button class="tab-btn" data-lv="H" onclick="switchTab('H',this)">H — 심화 (3문제)</button>
+</div>
+
+<!-- L 패널 -->
+<div class="panel show" id="panel-L">
+
+<div class="card lv-L">
+<div class="q-head"><div class="q-num">1</div><span class="lv-tag">L</span></div>
+<div class="q-text">아래 그래프는 시간에 따른 거리예요. $x$축 한 칸은 1초, $y$축 한 칸은 1m. 3초 후 거리는?</div>
+<svg class="mini-graph" viewBox="0 0 280 200">
+<g stroke="#e0e4f0" stroke-width="1">
+<line x1="40" y1="40" x2="40" y2="170"/><line x1="80" y1="40" x2="80" y2="170"/><line x1="120" y1="40" x2="120" y2="170"/><line x1="160" y1="40" x2="160" y2="170"/><line x1="200" y1="40" x2="200" y2="170"/><line x1="240" y1="40" x2="240" y2="170"/>
+<line x1="40" y1="170" x2="240" y2="170"/><line x1="40" y1="130" x2="240" y2="130"/><line x1="40" y1="90" x2="240" y2="90"/><line x1="40" y1="50" x2="240" y2="50"/>
+</g>
+<line x1="40" y1="170" x2="240" y2="170" stroke="#333" stroke-width="2"/>
+<line x1="40" y1="40" x2="40" y2="170" stroke="#333" stroke-width="2"/>
+<text x="40" y="183" font-size="10" text-anchor="middle">0</text>
+<text x="80" y="183" font-size="10" text-anchor="middle">1</text>
+<text x="120" y="183" font-size="10" text-anchor="middle">2</text>
+<text x="160" y="183" font-size="10" text-anchor="middle">3</text>
+<text x="200" y="183" font-size="10" text-anchor="middle">4</text>
+<text x="245" y="175" font-size="11">초</text>
+<text x="35" y="173" font-size="10" text-anchor="end">0</text>
+<text x="35" y="133" font-size="10" text-anchor="end">2</text>
+<text x="35" y="93" font-size="10" text-anchor="end">4</text>
+<text x="35" y="53" font-size="10" text-anchor="end">6</text>
+<text x="30" y="35" font-size="11">m</text>
+<line x1="40" y1="170" x2="200" y2="50" stroke="#4361EE" stroke-width="2.5"/>
+</svg>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-L1')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-L1')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-L1">$x = 3$인 위치(가로축에서 3)에서 수직으로 올라가 그래프와 만나는 점의 $y$값.</div>
+<div class="sol-panel" id="sol-L1"><strong>4.5 m</strong> (그래프에서 약 4~5m, 정확히 $\dfrac{6}{4} \times 3 = 4.5$)<br>그래프는 등속 운동(직선)이고 4초에 6m. 1초당 1.5m.<br>3초 후 = $1.5 \times 3 = 4.5$ m</div>
+</div>
+
+<div class="card lv-L">
+<div class="q-head"><div class="q-num">2</div><span class="lv-tag">L</span></div>
+<div class="q-text">어떤 그래프가 일정 구간에서 수평선(가로 직선)일 때, 그 의미는 무엇인가요?</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-L2')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-L2')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-L2">$x$가 변하는데 $y$가 안 바뀌면?</div>
+<div class="sol-panel" id="sol-L2"><strong>$y$값이 변하지 않음 (정지·유지)</strong><br>예: 시간에 따른 거리 그래프에서 수평선 = 멈춤<br>시간에 따른 기온 그래프에서 수평선 = 같은 온도 유지</div>
+</div>
+
+<div class="card lv-L">
+<div class="q-head"><div class="q-num">3</div><span class="lv-tag">L</span></div>
+<div class="q-text">그래프가 오른쪽으로 갈수록 위로 올라가면 $x$ 증가에 따라 $y$는?</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-L3')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-L3')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-L3">올라간다 = $y$ 커짐.</div>
+<div class="sol-panel" id="sol-L3"><strong>$y$ 증가 (커짐)</strong><br>그래프가 우상향 → $x$ 증가하면 $y$ 증가.<br>반대로 우하향 → $x$ 증가하면 $y$ 감소.</div>
+</div>
+
+</div><!-- end panel-L -->
+
+<!-- M 패널 -->
+<div class="panel" id="panel-M">
+
+<div class="card lv-M">
+<div class="q-head"><div class="q-num">1</div><span class="lv-tag">M</span></div>
+<div class="q-text">한낮 기온 그래프에서, 새벽 6시 12℃ → 오후 2시 28℃ → 저녁 8시 18℃로 변했어요. 기온이 가장 높은 시각과 그때의 기온은?</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-M1')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-M1')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-M1">"가장 높은" = 그래프 최고점. $y$값이 가장 큰 곳의 $x$좌표 + $y$값.</div>
+<div class="sol-panel" id="sol-M1"><strong>오후 2시, 28℃</strong><br>주어진 세 점에서 $y$값(기온)이 가장 큰 곳: 28℃<br>그 시각 = 오후 2시.</div>
+</div>
+
+<div class="card lv-M">
+<div class="q-head"><div class="q-num">2</div><span class="lv-tag">M</span></div>
+<div class="q-text">물탱크에 물이 채워지는 그래프에서, $x$축 = 시간(분), $y$축 = 물의 양(L). 5분 동안 30L를 채웠다면, 1분당 채우는 물의 양은?</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-M2')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-M2')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-M2">전체 변화량 ÷ 시간 = 1분당 변화. (이것이 그래프 기울기)</div>
+<div class="sol-panel" id="sol-M2"><strong>6 L/분</strong><br>$\dfrac{30 \text{ L}}{5 \text{ 분}} = 6$ L/분<br>그래프는 직선이고 기울기 6.<br>1분에 6L씩 채워져요.</div>
+</div>
+
+<div class="card lv-M">
+<div class="q-head"><div class="q-num">3</div><span class="lv-tag">M</span></div>
+<div class="q-text">버스가 출발해서 30km를 간 뒤 정류장에서 5분 정차하고, 다시 출발해 50km까지 갔어요. 시간-거리 그래프에서 정차 구간은 어떤 모양인가요?</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-M3')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-M3')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-M3">정차 = 거리 변화 없음. 시간은 흐름.</div>
+<div class="sol-panel" id="sol-M3"><strong>수평선 (가로 직선)</strong><br>정차 = 거리 그대로 (30km 유지)<br>시간만 5분 흘러감 → $x$ 증가, $y$ 일정 → 수평선<br>그래프 모양: 올라가는 직선 → 수평선 → 다시 올라가는 직선</div>
+</div>
+
+</div><!-- end panel-M -->
+
+<!-- H 패널 -->
+<div class="panel" id="panel-H">
+
+<div class="card lv-H">
+<div class="q-head"><div class="q-num">1</div><span class="lv-tag">H</span></div>
+<div class="q-text">두 사람 A, B가 같은 출발점에서 동시에 출발했어요. A는 직선 그래프(기울기 4), B는 직선 그래프(기울기 6). 누가 더 빠른가요? 어떻게 알 수 있죠?</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-H1')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-H1')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-H1">기울기 = 1단위 시간에 가는 거리 = 속력.</div>
+<div class="sol-panel" id="sol-H1"><strong>B가 더 빠름</strong><br>시간-거리 그래프의 기울기 = 속력.<br>A: 4 (단위 시간당 4 거리)<br>B: 6 (단위 시간당 6 거리)<br>B가 같은 시간에 더 멀리 감 → B가 빠름.<br>
+<div class="warn">시간-거리 그래프 기울기가 클수록 빠름. 작을수록 느림. 0이면 정지!</div></div>
+</div>
+
+<div class="card lv-H">
+<div class="q-head"><div class="q-num">2</div><span class="lv-tag">H</span></div>
+<div class="q-text">두 친구 P와 Q가 같은 출발점에서 출발해 같은 길을 가는데, 그래프에서 두 직선이 한 점에서 만났어요. 이 점의 의미는 무엇인가요?</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-H2')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-H2')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-H2">같은 시각에 같은 거리 = ?</div>
+<div class="sol-panel" id="sol-H2"><strong>두 사람이 만나는 시각·위치</strong><br>같은 $x$(시간)에서 같은 $y$(위치) → 그 순간 두 사람이 같은 위치.<br>예: 한 사람은 빨리 출발, 다른 사람은 빨리 가는 경우 → 따라잡는 순간.</div>
+</div>
+
+<div class="card lv-H">
+<div class="q-head"><div class="q-num">3</div><span class="lv-tag">H</span></div>
+<div class="q-text">한 시간에 25km를 가는 자전거가 있어요. 시간 $x$(시간)에 따라 거리 $y$(km) 사이의 관계를 식으로 쓰고, 2시간 30분 후 거리를 구하세요.</div>
+<div class="ans-tabs">
+  <button class="ans-tab" onclick="toggle(this,'hint-H3')">힌트</button>
+  <button class="ans-tab" onclick="toggle(this,'sol-H3')">정답·풀이</button>
+</div>
+<div class="hint-panel" id="hint-H3">"한 시간에 25km" → $x$ 1당 $y$ 25 → $y = 25x$. 2시간 30분 = 2.5시간.</div>
+<div class="sol-panel" id="sol-H3"><strong>식: $y = 25x$, &nbsp; 거리: $62.5$ km</strong><br>1시간에 25km → $y = 25x$ (정비례)<br>$x = 2.5$ 대입: $y = 25 \times 2.5 = 62.5$<br>$\therefore$ 2시간 30분 후 62.5 km<br>
+<div class="warn">시간을 시간 단위로 통일! 30분 = 0.5시간. 분 단위로 두면 안 돼요.</div></div>
+</div>
+
+</div><!-- end panel-H -->
+
+<script>
+function switchTab(lv, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('show'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + lv).classList.add('show');
+}
+function toggle(btn, id) {
+  const panel = document.getElementById(id);
+  const isShow = panel.classList.contains('show');
+  btn.parentElement.querySelectorAll('.hint-panel, .sol-panel').forEach(p => p.classList.remove('show'));
+  btn.parentElement.querySelectorAll('.ans-tab').forEach(b => b.classList.remove('open'));
+  if (!isShow) { panel.classList.add('show'); btn.classList.add('open'); }
+}
+</script>
+</body>
+</html>

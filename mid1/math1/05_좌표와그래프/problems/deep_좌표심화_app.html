@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 탐구 — 좌표 심화 (대칭이동·도형)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+:root{--primary:#4361EE;--bg:#eef2ff;--card:#fff;--ok:#2ecc71;--ng:#e74c3c;--warn:#f39c12;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic',sans-serif;background:var(--bg);padding:0 0 60px;color:#2d3436;}
+.header{background:linear-gradient(135deg,#4361EE,#3a0ca3);color:white;padding:28px 20px 24px;text-align:center;}
+.header h1{font-size:20px;margin-bottom:6px;}
+.header p{font-size:13px;opacity:0.85;}
+.back-link{font-size:12px;color:rgba(255,255,255,0.7);text-decoration:none;display:block;margin-top:10px;}
+.tab-bar{display:flex;gap:0;background:white;box-shadow:0 2px 8px rgba(0,0,0,0.08);position:sticky;top:0;z-index:10;}
+.tab-btn{flex:1;padding:14px 0;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;color:#888;border-bottom:3px solid transparent;transition:all 0.2s;}
+.tab-btn.active{color:#4361EE;border-bottom-color:#4361EE;}
+.tab-btn small{font-size:10px;display:block;margin-top:2px;color:#aaa;}
+.tab-btn.active small{color:#4361EE;}
+.tab-panel{display:none;}
+.tab-panel.show{display:block;}
+.container{max-width:700px;margin:0 auto;padding:20px 16px;}
+.section{margin-bottom:28px;}
+.section-title{font-size:15px;font-weight:bold;color:#4361EE;padding-left:8px;border-left:3px solid #4361EE;margin-bottom:14px;}
+.card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;}
+.card h3{font-size:15px;color:#1a1a2e;margin-bottom:10px;}
+.card p,.card li{font-size:14px;color:#444;line-height:1.8;}
+.card ul, .card ol{padding-left:18px;}
+.highlight{background:#f0f4ff;border-left:4px solid #4361EE;border-radius:0 10px 10px 0;padding:12px 16px;margin:10px 0;font-size:14px;color:#333;line-height:1.7;}
+.warn-box{background:#fff3e0;border:1px solid #ffcc80;border-radius:10px;padding:12px 14px;font-size:13px;color:#e65100;line-height:1.6;margin-top:10px;}
+.mistake-item{background:white;border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(67,97,238,.07);margin-bottom:10px;display:flex;gap:12px;}
+.mistake-icon{font-size:22px;flex-shrink:0;margin-top:2px;}
+.mistake-content{flex:1;}
+.mistake-title{font-size:14px;font-weight:bold;color:#e74c3c;margin-bottom:4px;}
+.mistake-desc{font-size:13px;color:#444;line-height:1.6;}
+.problem-card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(67,97,238,.08);margin-bottom:12px;border-left:4px solid #4361EE;}
+.prob-label{font-size:12px;font-weight:bold;color:#4361EE;letter-spacing:1px;margin-bottom:8px;}
+.prob-text{font-size:15px;line-height:1.8;color:#1a1a2e;margin-bottom:12px;}
+.reveal-btn{background:none;border:2px solid #4361EE;color:#4361EE;padding:6px 18px;border-radius:20px;font-size:13px;cursor:pointer;margin-right:8px;}
+.reveal-content{display:none;margin-top:12px;background:#f0fff4;border-radius:10px;padding:12px 16px;font-size:13px;color:#1b5e20;line-height:1.7;}
+.connect-box{background:linear-gradient(135deg,#f0f4ff,#e8ecff);border-radius:14px;padding:20px;font-size:14px;color:#333;line-height:1.8;}
+.connect-title{font-size:15px;font-weight:bold;color:#4361EE;margin-bottom:10px;}
+.sym-table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0;}
+.sym-table th{background:#4361EE;color:white;padding:8px;text-align:center;}
+.sym-table td{border:1px solid #dde3ff;padding:8px;text-align:center;}
+.sym-table tr:nth-child(even) td{background:#f8f9ff;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>깊이 탐구 — 좌표 심화</h1>
+  <p>대칭이동·평행이동 + 좌표로 도형 만들기 (2유형 통합)</p>
+  <a class="back-link" href="../index.html">← 단원 5 홈</a>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('tab1',this)">유형 4<small>대칭·평행이동</small></button>
+  <button class="tab-btn" onclick="switchTab('tab2',this)">유형 5<small>좌표→도형</small></button>
+</div>
+
+<!-- 탭 1: 대칭·평행이동 -->
+<div class="tab-panel show" id="tab1">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>$x$축 대칭, $y$축 대칭, 원점 대칭. 셋이 비슷해 보여서 헷갈려요.</p>
+      <p style="margin-top:8px;"><strong>거울로 떠올리세요</strong>: 거울이 어느 축에 놓이는지에 따라 좌표가 어떻게 변하는지 보면 한 번에 구분돼요.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 표 한 장으로 정리</div>
+    <div class="card">
+      <h3>대칭이동 공식 표</h3>
+      <table class="sym-table">
+        <tr><th>대칭 종류</th><th>$x$좌표</th><th>$y$좌표</th><th>예: $(3, -2)$ →</th></tr>
+        <tr><td><strong>$x$축 대칭</strong></td><td>그대로</td><td>부호 반전</td><td>$(3, 2)$</td></tr>
+        <tr><td><strong>$y$축 대칭</strong></td><td>부호 반전</td><td>그대로</td><td>$(-3, -2)$</td></tr>
+        <tr><td><strong>원점 대칭</strong></td><td>부호 반전</td><td>부호 반전</td><td>$(-3, 2)$</td></tr>
+      </table>
+      <div class="highlight">
+        <strong>외우기 팁</strong>:<br>
+        $x$축 대칭 → "$y$만 바꿈" (이름의 반대축 좌표만 변함)<br>
+        $y$축 대칭 → "$x$만 바꿈"<br>
+        원점 대칭 → "둘 다 바꿈" (= $x$축 + $y$축 동시)
+      </div>
+    </div>
+    <div class="card">
+      <h3>평행이동: 점을 그냥 옮기기</h3>
+      <p>점 $(x, y)$를 오른쪽으로 $a$, 위로 $b$ 평행이동:<br>
+      $\Rightarrow (x + a, y + b)$</p>
+      <ul>
+        <li>오른쪽 = $x$ 더하기, 왼쪽 = $x$ 빼기</li>
+        <li>위 = $y$ 더하기, 아래 = $y$ 빼기</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">😵</div>
+      <div class="mistake-content">
+        <div class="mistake-title">$x$축 대칭에서 $x$좌표 바꿈</div>
+        <div class="mistake-desc">"$x$축 대칭"이란 이름 때문에 $x$좌표를 바꾼다고 착각.<br>실제로는 <strong>$y$좌표를 바꿔요</strong>! 거울이 $x$축에 놓이면 위·아래만 뒤집힘.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">⚠️</div>
+      <div class="mistake-content">
+        <div class="mistake-title">평행이동에서 부호 헷갈림</div>
+        <div class="mistake-desc">"왼쪽으로 3 이동" → $x - 3$ ✓ (음수 더하기와 같음)<br>"위로 5 이동" → $y + 5$ ✓<br>방향과 부호를 또박또박 매칭하세요.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">🤔</div>
+      <div class="mistake-content">
+        <div class="mistake-title">"이동 후 점이 (3, 5)인데 원래는?" 역방향 헷갈림</div>
+        <div class="mistake-desc">이동 후 → 원래로 돌아가려면 <strong>반대로</strong> 움직이세요.<br>"오른쪽 2, 위 1" 후 (3, 5) → 원래는 (3-2, 5-1) = (1, 4).</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제 (3문제)</div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 1</div>
+      <div class="prob-text">점 $\mathrm{A}(-4, 7)$의 $y$축 대칭점을 $\mathrm{B}$, $\mathrm{B}$의 원점 대칭점을 $\mathrm{C}$라 하면 $\mathrm{C}$의 좌표는?</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">A $(-4, 7)$<br>B = A의 $y$축 대칭 = $(4, 7)$<br>C = B의 원점 대칭 = $(-4, -7)$<br>(결과적으로 A → C는 $x$축 대칭과 같아요)</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 2</div>
+      <div class="prob-text">점 $\mathrm{P}(a, 5)$를 $x$축 대칭한 점이 $(3, b)$이고, 그 후 다시 $y$축 대칭한 점이 $(c, -5)$일 때 $a + b + c$를 구하세요.</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">P $(a, 5)$ → $x$축 대칭 → $(a, -5) = (3, b)$<br>$\Rightarrow a = 3, b = -5$<br>$(3, -5) \to y$축 대칭 → $(-3, -5) = (c, -5)$<br>$\Rightarrow c = -3$<br>$a + b + c = 3 + (-5) + (-3) = -5$</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 3</div>
+      <div class="prob-text">점 $\mathrm{A}(2, -3)$를 왼쪽으로 5, 위로 7만큼 평행이동한 점의 좌표는? 또 그 점이 어느 사분면에 있나요?</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">$x$좌표: $2 - 5 = -3$<br>$y$좌표: $-3 + 7 = 4$<br>이동 후: $(-3, 4)$<br>$(-, +)$ → <strong>제2사분면</strong></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="connect-box">
+      <div class="connect-title">이 유형 이해하면…</div>
+      함수의 평행이동/대칭이동(2학년 일차함수, 3학년 이차함수)이 같은 원리로 설명돼요. 이 단원이 사실 함수 그래프 변형의 시작점!
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- 탭 2: 좌표 → 도형 -->
+<div class="tab-panel" id="tab2">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>점 좌표만 보고 머릿속에 도형을 그려야 해요. 좌표 → 점 위치 → 도형 모양 → 넓이까지 추론하는 길이 길어서 어려워요.</p>
+      <p style="margin-top:8px;"><strong>해결책</strong>: 격자 종이를 떠올리고, 좌표를 점으로 찍어보는 습관.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어</div>
+    <div class="card">
+      <h3>두 점 사이 거리 (수평·수직만)</h3>
+      <ul>
+        <li><strong>$y$좌표 같음</strong> (가로 평행) → $x$좌표 차이가 거리</li>
+        <li><strong>$x$좌표 같음</strong> (세로 평행) → $y$좌표 차이가 거리</li>
+      </ul>
+      <p style="margin-top:8px;">예: $(2, 3)$과 $(7, 3)$ → $7 - 2 = 5$ (거리)</p>
+      <div class="warn-box">대각선 거리는 중1에서 다루지 않아요. 직사각형 둘레/넓이 등은 가로·세로만 알면 충분.</div>
+    </div>
+    <div class="card">
+      <h3>도형 종류 판별 (사각형)</h3>
+      <ul>
+        <li><strong>정사각형</strong>: 네 변 모두 같은 길이</li>
+        <li><strong>직사각형</strong>: 마주보는 변 같음, 네 각이 직각 (가로 ≠ 세로)</li>
+        <li><strong>평행사변형</strong>: 마주보는 변이 평행이고 같음 (직각이 아닐 수 있음)</li>
+      </ul>
+      <p style="margin-top:8px;">좌표가 격자 위에 깔끔하게 놓이면 대부분 직사각형 또는 정사각형!</p>
+    </div>
+    <div class="card">
+      <h3>넓이 계산 핵심</h3>
+      <ul>
+        <li>직사각형: 가로 × 세로</li>
+        <li>직각삼각형 (한 점이 원점, 두 다리가 축에 있는 경우): $\frac{1}{2}$ × 밑변 × 높이</li>
+        <li>일반 삼각형: 한 변을 밑변으로, 그 변과 다른 한 점 사이 수직 거리를 높이로</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">😵</div>
+      <div class="mistake-content">
+        <div class="mistake-title">정사각형/직사각형 구분 실패</div>
+        <div class="mistake-desc">"가로·세로 같음" → 정사각형, "다름" → 직사각형. 가로와 세로 길이를 <strong>각각</strong> 계산해서 비교 필요.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">⚠️</div>
+      <div class="mistake-content">
+        <div class="mistake-title">평행사변형의 4번째 점이 1개라고 착각</div>
+        <div class="mistake-desc">세 점만 주어졌을 때 평행사변형의 4번째 점은 <strong>3가지 가능</strong>!<br>(어느 두 점이 마주보는 변인지에 따라 달라짐)</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">🤔</div>
+      <div class="mistake-content">
+        <div class="mistake-title">두 점 거리에서 빼기 방향 실수</div>
+        <div class="mistake-desc">$(7, 0)$와 $(2, 0)$ 사이 거리: $|7 - 2| = 5$ ✓<br>음수가 끼면: $(3, 0)$와 $(-2, 0)$ → $3 - (-2) = 5$ (절댓값으로 계산하면 안전).</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제 (3문제)</div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 1</div>
+      <div class="prob-text">두 점 $(-3, 2)$와 $(5, 2)$ 사이의 거리를 구하세요.</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">$y$좌표가 모두 2로 같음 → 가로 거리.<br>$|5 - (-3)| = |5 + 3| = 8$</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 2</div>
+      <div class="prob-text">네 점 $\mathrm{A}(0, 0)$, $\mathrm{B}(4, 0)$, $\mathrm{C}(4, 4)$, $\mathrm{D}(0, 4)$로 만든 도형의 모양과 넓이는?</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">가로 AB = 4, 세로 BC = 4 → 가로=세로 → <strong>정사각형</strong><br>넓이 = $4 \times 4 = 16$</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 3</div>
+      <div class="prob-text">세 점 $\mathrm{A}(-2, 0)$, $\mathrm{B}(4, 0)$, $\mathrm{C}(0, 5)$로 만든 삼각형의 넓이는?</div>
+      <button class="reveal-btn" onclick="reveal(this)">풀이 보기</button>
+      <div class="reveal-content">A, B 모두 $x$축 위 → AB가 밑변<br>밑변 AB = $4 - (-2) = 6$<br>C의 $y$좌표 = 5 → 높이 = 5<br>넓이 = $\dfrac{1}{2} \times 6 \times 5 = 15$</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="connect-box">
+      <div class="connect-title">이 유형 이해하면…</div>
+      도형 단원(7~12)에서 좌표를 활용한 풀이가 가능해져요. 그리고 데카르트의 진짜 발견 — <strong>"도형이 식으로, 식이 도형으로"</strong> — 의 첫 단계예요!
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+function switchTab(tabId, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('show'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('show');
+  if (window.renderMathInElement) renderMathInElement(document.getElementById(tabId), {
+    delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+  });
+}
+function reveal(btn) {
+  const next = btn.nextElementSibling;
+  if (next.style.display === 'block') {
+    next.style.display = 'none';
+    btn.textContent = '풀이 보기';
+  } else {
+    next.style.display = 'block';
+    btn.textContent = '풀이 숨기기';
+    if (window.renderMathInElement) renderMathInElement(next, {
+      delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+    });
+  }
+}
+</script>
+</body>
+</html>

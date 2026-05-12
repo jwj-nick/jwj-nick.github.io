@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 탐구 — 삼각형 합동 (작도 조건·식별·활용)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+:root{--primary:#7b2ff7;--bg:#f7f0ff;--card:#fff;--ok:#2ecc71;--ng:#e74c3c;--warn:#f39c12;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic',sans-serif;background:var(--bg);padding:0 0 60px;color:#2d3436;}
+.header{background:linear-gradient(135deg,#7b2ff7,#5b21b6);color:white;padding:28px 20px 24px;text-align:center;}
+.header h1{font-size:20px;margin-bottom:6px;}
+.header p{font-size:13px;opacity:0.85;}
+.header .star{display:inline-block;background:rgba(255,255,255,0.2);padding:3px 10px;border-radius:12px;font-size:11px;margin-top:8px;}
+.back-link{font-size:12px;color:rgba(255,255,255,0.7);text-decoration:none;display:block;margin-top:10px;}
+.tab-bar{display:flex;gap:0;background:white;box-shadow:0 2px 8px rgba(0,0,0,0.08);position:sticky;top:0;z-index:10;}
+.tab-btn{flex:1;padding:14px 0;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;color:#888;border-bottom:3px solid transparent;font-family:inherit;}
+.tab-btn.active{color:#7b2ff7;border-bottom-color:#7b2ff7;}
+.tab-btn small{font-size:10px;display:block;margin-top:2px;color:#aaa;}
+.tab-btn.active small{color:#7b2ff7;}
+.tab-panel{display:none;}
+.tab-panel.show{display:block;}
+.container{max-width:700px;margin:0 auto;padding:20px 16px;}
+.section{margin-bottom:28px;}
+.section-title{font-size:15px;font-weight:bold;color:#7b2ff7;padding-left:8px;border-left:3px solid #7b2ff7;margin-bottom:14px;}
+.card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(123,47,247,.08);margin-bottom:12px;}
+.card h3{font-size:15px;color:#1a1a2e;margin-bottom:10px;}
+.card p,.card li{font-size:14px;color:#444;line-height:1.8;}
+.card ul{padding-left:18px;}
+.highlight{background:#f7f0ff;border-left:4px solid #7b2ff7;border-radius:0 10px 10px 0;padding:12px 16px;margin:10px 0;font-size:14px;color:#333;line-height:1.7;}
+.warn-box{background:#fff3e0;border:1px solid #ffcc80;border-radius:10px;padding:12px 14px;font-size:13px;color:#e65100;line-height:1.6;margin-top:10px;}
+.mistake-item{background:white;border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(123,47,247,.07);margin-bottom:10px;display:flex;gap:12px;}
+.mistake-icon{font-size:22px;flex-shrink:0;margin-top:2px;}
+.mistake-content{flex:1;}
+.mistake-title{font-size:14px;font-weight:bold;color:#e74c3c;margin-bottom:4px;}
+.mistake-desc{font-size:13px;color:#444;line-height:1.6;}
+.problem-card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(123,47,247,.08);margin-bottom:12px;border-left:4px solid #7b2ff7;}
+.prob-label{font-size:12px;font-weight:bold;color:#7b2ff7;letter-spacing:1px;margin-bottom:8px;}
+.prob-text{font-size:15px;line-height:1.8;color:#1a1a2e;margin-bottom:12px;}
+.reveal-btn{background:none;border:2px solid #7b2ff7;color:#7b2ff7;padding:6px 18px;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;}
+.reveal-content{display:none;margin-top:12px;background:#f0fff4;border-radius:10px;padding:12px 16px;font-size:13px;color:#1b5e20;line-height:1.7;}
+.connect-box{background:linear-gradient(135deg,#f7f0ff,#ede0ff);border-radius:14px;padding:20px;font-size:14px;color:#333;line-height:1.8;}
+.connect-title{font-size:15px;font-weight:bold;color:#7b2ff7;margin-bottom:10px;}
+table.tbl{border-collapse:collapse;font-size:13px;margin:10px 0;width:100%;}
+table.tbl th,table.tbl td{border:1px solid #d4c8e8;padding:6px 10px;text-align:center;}
+table.tbl th{background:#f7f0ff;}
+.formula-box{background:#f7f0ff;border-radius:8px;padding:10px 14px;text-align:center;font-size:16px;color:#7b2ff7;font-weight:700;margin:8px 0;}
+.fig-svg{display:block;margin:10px auto;max-width:380px;width:100%;background:#fafbff;border-radius:8px;padding:8px;border:1px solid #ede0ff;}
+.euclid-quote{background:linear-gradient(135deg,#f7f0ff,#ede0ff);border-radius:16px;padding:24px;text-align:center;margin-top:24px;}
+.euclid-quote .text{font-size:17px;font-weight:700;color:#5b21b6;font-style:italic;line-height:1.5;}
+.euclid-quote .author{font-size:12px;color:#888;margin-top:10px;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>깊이 탐구 — 삼각형 합동</h1>
+  <p>작도 조건 · 식별·대응 · 활용 (3유형 통합)</p>
+  <div class="star">★ 시험 빈출 1순위</div>
+  <a class="back-link" href="../index.html">← 단원 8 홈</a>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('tab1',this)">유형 5<small>작도 조건</small></button>
+  <button class="tab-btn" onclick="switchTab('tab2',this)">유형 6<small>식별·대응</small></button>
+  <button class="tab-btn" onclick="switchTab('tab3',this)">유형 7<small>활용</small></button>
+</div>
+
+<!-- 탭 1: 삼각형 작도 조건 -->
+<div class="tab-panel show" id="tab1">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>SSS·SAS·ASA가 비슷해 보여 헷갈리고, "끼인각" 개념이 추상적이에요. 또 "AAA는 안 되는 이유", "SSA의 모호성"을 이해해야 해요.</p>
+      <p style="margin-top:8px;"><strong>핵심 함정</strong>:<br>
+      ① "두 변과 한 각" → 그 한 각이 끼인각인지 확인 안 함 (SSA 함정)<br>
+      ② AAA = 닮음 ≠ 합동 (크기 정보 없음)<br>
+      ③ "각 두 개의 합 < 180°" 같은 조건 만족 여부 확인 안 함</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 삼각형이 "유일하게" 정해지는 세 조건</div>
+    <div class="card">
+      <table class="tbl">
+        <tr><th>조건</th><th>의미</th><th>예</th></tr>
+        <tr><td><strong>SSS</strong></td><td>세 변 길이</td><td>4, 5, 6</td></tr>
+        <tr><td><strong>SAS</strong></td><td>두 변 + <strong>끼인각</strong></td><td>4, 6, 끼인각 60°</td></tr>
+        <tr><td><strong>ASA</strong></td><td>한 변 + 양 끝 두 각</td><td>5, 50°, 70°</td></tr>
+      </table>
+      <div class="highlight">★ <strong>SAS의 "끼인각"</strong>: 두 변 사이의 각. 두 변이 만나는 꼭짓점에 있어야 끼인각.</div>
+    </div>
+
+    <div class="card">
+      <h3>왜 AAA가 합동 조건이 아닌가?</h3>
+      <p>한 변 1cm 정삼각형과 한 변 100cm 정삼각형: 둘 다 세 각이 60°·60°·60°.<br>
+      → 모양은 같지만 크기가 다름 → 합동 X (포개도 안 겹침).<br>
+      → AAA는 <strong>닮음(similar)</strong> 조건이지만 합동 조건이 아니에요.</p>
+      <div class="formula-box">합동 = 모양 + 크기 모두 같음</div>
+    </div>
+
+    <div class="card">
+      <h3>왜 SSA(끼인각 아닌)가 합동 조건이 아닌가?</h3>
+      <p>두 변과 한 각만 같다고 해서 모양이 정해지지 않아요.<br>
+      예: 한 각 30° + 한 변 5cm + 다른 변 4cm (끼인각 X) → 두 가지 모양 가능.<br>
+      이를 "ambiguous case(모호한 경우)"라고 해요.</p>
+      <div class="warn-box">★ 끼인각은 <strong>두 변 사이</strong>에 있는 각. 두 변과 인접한 다른 각이면 SSA.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">"두 변 + 한 각이면 무조건 SAS"</div>
+        <div class="mistake-desc">그 각이 두 변 사이에 있는지 확인 필수. 아니면 SSA → 합동 보장 X.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">"세 각이 같으니 합동"</div>
+        <div class="mistake-desc">AAA는 닮음만. 크기 정보(길이) 적어도 한 개가 필요해요.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">조건은 만족하지만 실제 삼각형 불가능 모름</div>
+        <div class="mistake-desc">2+3=5 < 6은 삼각형 부등식 위반. 100°+90°=190°는 내각 합 모순. 조건 충족 + 실현 가능성도 봐야.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제 (점진적 난이도)</div>
+
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 1 (L)</div>
+      <div class="prob-text">"두 변 5, 7과 끼인각 50°"는 어떤 작도 조건?</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content"><strong>SAS</strong> — 두 변 + 끼인각 → SAS. 삼각형이 하나로 정해짐.</div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 2 (M)</div>
+      <div class="prob-text">한 변 8cm와 한 끝의 각 60°가 주어졌다. 추가로 어떤 정보가 있으면 SAS·ASA·SSS 중 어느 조건이 성립하나?</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content">
+        <strong>여러 가능성:</strong><br>
+        • 같은 끝의 또 다른 각(60°와 인접) → ASA<br>
+        • 60° 각의 다른 변 길이 → SAS (60°가 끼인각)<br>
+        • 다른 두 변의 길이 → SSS<br>
+        → 한 변과 한 각만으로는 부족. 어떤 정보를 추가하느냐에 따라 합동 조건이 결정.
+      </div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 3 (H)</div>
+      <div class="prob-text">SAS 조건으로 작도한 삼각형이 SSS·ASA로도 같은 삼각형임을 보일 수 있는가? 그 의미는?</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content">
+        <strong>가능. 같은 삼각형은 어느 합동 조건으로도 식별됨.</strong><br>
+        SAS로 작도된 삼각형: 두 변 a, b + 끼인각 ∠C가 정해짐.<br>
+        → 삼각형이 유일하게 결정 → 세 변·세 각 모두 정해짐 → SSS·ASA로도 같은 결론 가능.<br>
+        <strong>의미</strong>: 합동 조건 SSS·SAS·ASA는 같은 사실을 다른 정보로 표현한 것. 어느 조건이든 충분히 한 삼각형을 결정.<br>
+        → 「원론」에서 유클리드는 SAS(명제 4)로 시작해 다른 합동들을 차례로 증명.
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">이 유형 이해 후 무엇이 쉬워지나</div>
+    <div class="connect-box">
+      <div class="connect-title">→ 합동 식별·활용 (유형 6, 7)</div>
+      작도 조건은 합동 조건과 같음. SSS·SAS·ASA를 이해하면 두 도형이 합동인지 판단할 때 어떤 조건을 사용할지 자연스럽게 보임.
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- 탭 2: 합동 식별·대응 -->
+<div class="tab-panel" id="tab2">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>합동 표기 $\triangle ABC \equiv \triangle DEF$의 <strong>순서</strong>가 곧 대응이라는 약속이 학습자에게 어색해요. 표기를 마음대로 쓰는 실수가 자주 발생.</p>
+      <p style="margin-top:8px;"><strong>핵심 함정</strong>:<br>
+      ① $\triangle ABC \equiv \triangle DEF$를 보고 A↔E라고 착각<br>
+      ② $\overline{AB}$의 대응변을 $\overline{EF}$ 또는 $\overline{FD}$로 잘못 답함<br>
+      ③ 도형이 회전·뒤집힌 그림에서 대응을 못 찾음</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 표기 순서 = 대응</div>
+    <div class="card">
+      <h3>대응 규칙</h3>
+      <p>$\triangle ABC \equiv \triangle DEF$<br>
+      → 첫째끼리: A ↔ D<br>
+      → 둘째끼리: B ↔ E<br>
+      → 셋째끼리: C ↔ F</p>
+
+      <table class="tbl">
+        <tr><th>대응 종류</th><th>찾는 법</th></tr>
+        <tr><td>대응점</td><td>같은 자리(1번째, 2번째, 3번째)</td></tr>
+        <tr><td>대응변</td><td>두 글자 묶음, 같은 자리 묶음과 짝</td></tr>
+        <tr><td>대응각</td><td>꼭짓점이 같은 자리인 각</td></tr>
+      </table>
+
+      <div class="formula-box">$\overline{AB}$의 대응변: A→D, B→E → $\overline{DE}$</div>
+    </div>
+
+    <div class="card">
+      <h3>같은 합동을 여러 표기로</h3>
+      <p>$\triangle ABC \equiv \triangle DEF$ (A↔D, B↔E, C↔F)는 다음과 같이도 쓸 수 있어요:<br>
+      $\triangle BAC \equiv \triangle EDF$ (B↔E, A↔D, C↔F)<br>
+      $\triangle CBA \equiv \triangle FED$ (C↔F, B↔E, A↔D)<br>
+      → <strong>대응만 일관되게 유지</strong>되면 여러 표기 모두 옳음.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">표기 순서를 무시하고 대응 결정</div>
+        <div class="mistake-desc">$\triangle ABC \equiv \triangle EFD$를 ABC와 EFD가 합동이라고 표기하면 A↔E, B↔F, C↔D로 다른 도형 의미.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">대응변 찾을 때 글자 순서 무시</div>
+        <div class="mistake-desc">$\overline{AB}$의 대응변은 A↔D, B↔E이니 $\overline{DE}$. 임의로 $\overline{EF}$나 $\overline{FD}$ 답하면 X.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제 (점진적 난이도)</div>
+
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 1 (L)</div>
+      <div class="prob-text">$\triangle PQR \equiv \triangle ABC$이고 $\overline{QR} = 6$cm. $\overline{BC}$는?</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content">
+        <strong>6 cm</strong><br>
+        Q↔B, R↔C → $\overline{QR}$의 대응변은 $\overline{BC}$ → 6 cm.
+      </div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 2 (M)</div>
+      <div class="prob-text">$\triangle ABC \equiv \triangle DEF$이고 $\angle A = 50°, \angle B = 60°, \overline{AB} = 8, \overline{BC} = 6, \overline{CA} = 5$. 다음을 모두 구하시오.<br>(1) $\angle F$ &nbsp; (2) $\overline{DE}$ &nbsp; (3) $\overline{EF}$ &nbsp; (4) $\overline{DF}$</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content">
+        <strong>(1) 70° &nbsp; (2) 8 cm &nbsp; (3) 6 cm &nbsp; (4) 5 cm</strong><br>
+        (1) $\angle C = 180° - 50° - 60° = 70°$. F↔C → $\angle F = 70°$<br>
+        (2) D↔A, E↔B → $\overline{DE}$의 대응변 = $\overline{AB}$ = 8<br>
+        (3) E↔B, F↔C → $\overline{EF}$의 대응변 = $\overline{BC}$ = 6<br>
+        (4) D↔A, F↔C → $\overline{DF}$의 대응변 = $\overline{AC}$ = 5
+      </div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 3 (H)</div>
+      <div class="prob-text">두 삼각형이 합동이고, A↔Y, B↔Z, C↔X 대응이 성립한다. 가장 자연스러운 합동 표기를 적으시오. (3가지 방법으로)</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content">
+        <strong>$\triangle ABC \equiv \triangle YZX$</strong> (가장 자연스럽게 ABC 순서로)<br>
+        다른 표현:<br>
+        $\triangle BCA \equiv \triangle ZXY$<br>
+        $\triangle CAB \equiv \triangle XYZ$<br>
+        → 대응만 유지되면 글자 순서를 회전(rotate)해도 OK.<br>
+        주의: $\triangle XYZ \equiv \triangle CAB$ 도 같은 의미. 어느 쪽을 먼저 쓸지는 자유.
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">이 유형 이해 후 무엇이 쉬워지나</div>
+    <div class="connect-box">
+      <div class="connect-title">→ 합동 활용 문제 (유형 7)</div>
+      합동을 보인 후 "그러므로 어떤 변·각이 같다"는 결론 도출이 합동 활용의 핵심. 대응 규칙을 단단히 알면 결론을 빠르게 적을 수 있어요.
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- 탭 3: 합동 조건 활용 -->
+<div class="tab-panel" id="tab3">
+<div class="container">
+  <div class="section">
+    <div class="section-title">이 유형이 어려운 이유</div>
+    <div class="card">
+      <p>그림에서 어떤 두 삼각형이 합동인지 직접 발견해야 하고, 어느 합동 조건(SSS·SAS·ASA)으로 보일지 판단해야 해요. 또한 "합동 → 대응 정보 활용"이라는 패턴에 익숙해져야 해요.</p>
+      <p style="margin-top:8px;"><strong>핵심 함정</strong>:<br>
+      ① 공통변·맞꼭지각·중점 같은 정보를 활용 못 함<br>
+      ② 합동 조건 식별 후 결론 도출 누락<br>
+      ③ 두 변과 한 각만 같을 때 끼인각 여부 확인 안 함</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">핵심 아이디어 — 합동의 활용 패턴</div>
+    <div class="card">
+      <h3>1단계: 같은 정보 모으기</h3>
+      <ul>
+        <li><strong>가정에서 직접 주어진 같은 변·각</strong></li>
+        <li><strong>공통변</strong>: 두 삼각형이 공유하는 변 (자동으로 같음)</li>
+        <li><strong>맞꼭지각</strong>: 교차하는 두 직선의 마주보는 각</li>
+        <li><strong>중점</strong>: $\overline{AM} = \overline{MB}$</li>
+        <li><strong>이등분선</strong>: 같은 두 각</li>
+        <li><strong>이등변삼각형</strong>: 두 변 같음</li>
+        <li><strong>평행 + 엇각/동위각</strong>: 같은 두 각</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>2단계: 합동 조건 식별</h3>
+      <p>모은 정보가 SSS·SAS·ASA 중 어느 조건을 만족하는지 확인.<br>
+      특히 SAS는 끼인각 여부를 반드시 점검.</p>
+      <div class="warn-box">★ "두 변과 한 각" 발견 시: 그 각이 두 변 사이의 끼인각인지 확인! 끼인각이 아니면 SSA(합동 X).</div>
+    </div>
+
+    <div class="card">
+      <h3>3단계: 합동 결론 → 대응 정보 활용</h3>
+      <p>$\triangle ABC \equiv \triangle DEF$를 보였으면:<br>
+      → 모든 대응변·대응각이 같음<br>
+      → 문제에서 묻는 변·각의 길이/크기 결론.</p>
+      <div class="formula-box">합동 보이기 → 대응 정보 추출 → 결론</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">자주 하는 실수</div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">"공통변" 활용 누락</div>
+        <div class="mistake-desc">두 삼각형이 한 변을 공유하면 그 변이 자동으로 두 삼각형 모두에 포함. 이게 SAS 합동의 한 변이 됨.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">합동을 보였지만 결론 도출 안 함</div>
+        <div class="mistake-desc">"합동이다"로 멈추면 안 됨. 합동의 결과로 어떤 변·각이 같은지가 답이 되는 경우가 많음.</div>
+      </div>
+    </div>
+    <div class="mistake-item">
+      <div class="mistake-icon">❌</div>
+      <div class="mistake-content">
+        <div class="mistake-title">SSA를 SAS로 착각</div>
+        <div class="mistake-desc">두 변과 한 각이 있으면 무조건 SAS라고 단정. 그 각이 끼인각이 아니면 합동 보장 X.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">추가 문제 (점진적 난이도)</div>
+
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 1 (L)</div>
+      <div class="prob-text">두 삼각형 ABC와 ABD가 변 $\overline{AB}$를 공유하고 $\overline{AC} = \overline{AD}, \angle BAC = \angle BAD$이다. 합동인가? 어느 조건?</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content">
+        <strong>합동, SAS</strong><br>
+        $\overline{AC} = \overline{AD}$ (가정)<br>
+        $\angle BAC = \angle BAD$ (가정, 끼인각)<br>
+        $\overline{AB}$ 공통<br>
+        → SAS 합동.
+      </div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 2 (M)</div>
+      <div class="prob-text">정삼각형 ABC가 있다. 변 BC 위에 점 D, 변 CA 위에 점 E를 잡아 $\overline{BD} = \overline{CE}$가 되도록 했다. $\triangle ABD \equiv \triangle BCE$임을 보이시오.</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content">
+        <strong>SAS 합동</strong><br>
+        $\overline{AB} = \overline{BC}$ (정삼각형)<br>
+        $\angle ABD = \angle BCE = 60°$ (정삼각형 내각, 끼인각)<br>
+        $\overline{BD} = \overline{CE}$ (가정)<br>
+        → SAS 합동 ✓<br>
+        $\therefore \triangle ABD \equiv \triangle BCE$<br>
+        → 결과로 $\overline{AD} = \overline{BE}$ 등도 알 수 있음.
+      </div>
+    </div>
+
+    <div class="problem-card">
+      <div class="prob-label">PROBLEM 3 (H)</div>
+      <div class="prob-text">평행사변형 ABCD에서 대각선 AC와 BD의 교점을 O라 하자. $\triangle AOB \equiv \triangle COD$ 임을 보이고, 평행사변형의 대각선이 서로를 이등분함을 결론지으시오.</div>
+      <button class="reveal-btn" onclick="reveal(this)">정답·풀이 보기</button>
+      <div class="reveal-content">
+        <strong>ASA 합동</strong><br>
+        $\overline{AB} = \overline{CD}$ (평행사변형의 대변)<br>
+        $\angle OAB = \angle OCD$ ($\overline{AB} \parallel \overline{CD}$, 엇각)<br>
+        $\angle OBA = \angle ODC$ (엇각)<br>
+        → 한 변($\overline{AB} = \overline{CD}$)과 양 끝의 두 각 같음 → ASA 합동 ✓<br>
+        $\therefore \triangle AOB \equiv \triangle COD$<br>
+        대응변에서:<br>
+        $\overline{AO} = \overline{CO}$ (O가 AC의 중점)<br>
+        $\overline{BO} = \overline{DO}$ (O가 BD의 중점)<br>
+        → <strong>평행사변형의 대각선은 서로를 이등분</strong>한다는 결론!<br>
+        → 합동을 활용한 평면도형 증명의 대표 패턴.
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">이 유형 이해 후 무엇이 쉬워지나</div>
+    <div class="connect-box">
+      <div class="connect-title">→ 평면도형 증명 (중2~3, 고등)</div>
+      합동을 활용한 증명은 평면도형 단원의 가장 기본적 도구예요. 이등변삼각형·평행사변형·다각형의 성질, 외심·내심까지 모두 합동 증명에서 출발해요. 이번 단원에서 단단히 잡으면 다음 단원이 쉬워져요.
+    </div>
+  </div>
+
+  <div class="euclid-quote">
+    <div class="text">"손과 머리,<br>도구와 정의는<br>한 사람의 두 측면이었다."</div>
+    <div class="author">— 유클리드 2부작 (Unit 07 ↔ Unit 08) 마무리</div>
+  </div>
+</div>
+</div>
+
+<script>
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('show'));
+  btn.classList.add('active');
+  document.getElementById(id).classList.add('show');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+function reveal(btn) {
+  const content = btn.nextElementSibling;
+  const isShow = content.style.display === 'block';
+  content.style.display = isShow ? 'none' : 'block';
+  btn.textContent = isShow ? '정답·풀이 보기' : '닫기';
+}
+</script>
+</body>
+</html>

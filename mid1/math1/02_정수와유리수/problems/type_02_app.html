@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>유형 02 — 수직선과 좌표</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; }
+  .header { background: linear-gradient(135deg,#4361EE,#3a0ca3); color:white; padding:28px 20px 20px; text-align:center; }
+  .header h1 { font-size:18px; margin-bottom:4px; }
+  .header p { font-size:12px; opacity:.85; }
+  .container { max-width:700px; margin:0 auto; padding:20px 16px 60px; }
+  .tabs { display:flex; gap:8px; margin-bottom:20px; overflow-x:auto; padding-bottom:4px; }
+  .tab-btn { padding:8px 20px; border:2px solid #4361EE; border-radius:20px; font-size:13px; cursor:pointer; background:white; color:#4361EE; font-family:inherit; white-space:nowrap; }
+  .tab-btn.active { background:#4361EE; color:white; }
+  .tab-content { display:none; }
+  .tab-content.active { display:block; }
+  .q-card { background:white; border-radius:14px; padding:22px 20px; box-shadow:0 2px 10px rgba(67,97,238,.08); margin-bottom:16px; }
+  .q-num { font-size:11px; font-weight:bold; color:#4361EE; margin-bottom:8px; }
+  .diff-badge { display:inline-block; font-size:10px; padding:2px 8px; border-radius:10px; margin-left:6px; }
+  .diff-L { background:#e8f5e9; color:#2a8a2a; }
+  .diff-M { background:#fff8e1; color:#8a6000; }
+  .diff-H { background:#ffebee; color:#b71c1c; }
+  .q-text { font-size:14px; color:#333; line-height:1.9; margin-bottom:12px; }
+  .nl-wrap { overflow-x:auto; margin:8px 0 12px; }
+  .choices { display:flex; flex-direction:column; gap:7px; margin-bottom:12px; }
+  .c-btn { background:#f8f9ff; border:2px solid #d0d8ff; border-radius:9px; padding:9px 14px; text-align:left; cursor:pointer; font-size:13px; font-family:inherit; color:#333; transition:all .15s; }
+  .c-btn:hover { border-color:#4361EE; background:#eef2ff; }
+  .c-btn.correct { border-color:#2a8a2a; background:#e8f5e9; color:#1b5e20; }
+  .c-btn.wrong { border-color:#cc2222; background:#ffebee; color:#b71c1c; }
+  .c-btn:disabled { cursor:default; }
+  .ans-row { display:flex; gap:8px; align-items:center; margin-bottom:12px; flex-wrap:wrap; }
+  .ans-inp { flex:1; min-width:100px; max-width:220px; border:2px solid #d0d8ff; border-radius:9px; padding:9px 12px; font-size:14px; font-family:inherit; outline:none; }
+  .ans-inp:focus { border-color:#4361EE; }
+  .ans-inp.correct { border-color:#2a8a2a; background:#e8f5e9; }
+  .ans-inp.wrong { border-color:#cc2222; background:#ffebee; }
+  .chk-btn { background:#4361EE; color:white; border:none; border-radius:9px; padding:9px 16px; font-size:13px; cursor:pointer; font-family:inherit; }
+  .chk-btn:disabled { background:#ccc; cursor:default; }
+  .fb { display:none; border-radius:9px; padding:10px 14px; font-size:13px; line-height:1.7; margin-top:4px; }
+  .fb.show { display:block; }
+  .fb.ok { background:#e8f5e9; color:#1b5e20; }
+  .fb.ng { background:#ffebee; color:#b71c1c; }
+  .hint-btn { background:none; border:1px solid #d0d8ff; border-radius:8px; padding:4px 10px; font-size:12px; color:#4361EE; cursor:pointer; font-family:inherit; margin-bottom:4px; }
+  .hint-box { display:none; background:#fff8e1; border:1px solid #ffe082; border-radius:8px; padding:9px 12px; font-size:12px; color:#555; line-height:1.7; margin-top:4px; }
+  .hint-box.show { display:block; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>유형 02 — 수직선과 좌표</h1>
+  <p>수직선 읽기·표시·간격 계산 · L×3 M×3 H×3</p>
+</div>
+<div class="container">
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('L')">쉬운 (L)</button>
+  <button class="tab-btn" onclick="showTab('M')">중간 (M)</button>
+  <button class="tab-btn" onclick="showTab('H')">어려운 (H)</button>
+</div>
+
+<!-- ===== L ===== -->
+<div class="tab-content active" id="tab-L">
+
+<div class="q-card">
+  <div class="q-num">L-1 <span class="diff-badge diff-L">쉬움</span></div>
+  <div class="q-text">아래 수직선에서 점 A, B가 나타내는 수를 각각 쓰세요.</div>
+  <div class="nl-wrap">
+    <svg width="520" height="65" viewBox="0 0 520 65" style="min-width:300px;">
+      <line x1="20" y1="32" x2="500" y2="32" stroke="#4361EE" stroke-width="2"/>
+      <polygon points="500,32 490,27 490,37" fill="#4361EE"/>
+      <g id="nl1ticks"></g>
+      <!-- A at -3, B at +2: cx0=260, step=40 → A=260-120=140, B=260+80=340 -->
+      <circle cx="140" cy="32" r="6" fill="#e63946"/>
+      <text x="140" y="18" text-anchor="middle" font-size="12" fill="#e63946" font-weight="bold">A</text>
+      <circle cx="340" cy="32" r="6" fill="#3a0ca3"/>
+      <text x="340" y="18" text-anchor="middle" font-size="12" fill="#3a0ca3" font-weight="bold">B</text>
+    </svg>
+  </div>
+  <div class="q-text" style="font-size:13px; color:#666;">A = ? , B = ? (쉼표로 구분)</div>
+  <div class="ans-row">
+    <input type="text" class="ans-inp" id="inl1" placeholder="예: −3, +2">
+    <button class="chk-btn" id="cbl1" onclick="checkL1()">확인</button>
+  </div>
+  <div class="fb" id="fbl1"></div>
+</div>
+
+<div class="q-card">
+  <div class="q-num">L-2 <span class="diff-badge diff-L">쉬움</span></div>
+  <div class="q-text">수직선 위에서 +4에 해당하는 점이 0으로부터 오른쪽으로 몇 칸인지 쓰세요.</div>
+  <div class="ans-row">
+    <input type="text" class="ans-inp" id="inl2" placeholder="숫자">
+    <button class="chk-btn" id="cbl2" onclick="finShort('inl2','cbl2','fbl2','4','4칸이에요. 양수이므로 0의 오른쪽으로 4칸.')">확인</button>
+  </div>
+  <div class="fb" id="fbl2"></div>
+</div>
+
+<div class="q-card">
+  <div class="q-num">L-3 <span class="diff-badge diff-L">쉬움</span></div>
+  <div class="q-text">수직선에서 −2와 +3 사이에 있는 <strong>정수</strong>를 모두 쓰세요. (−2와 +3은 제외)</div>
+  <div class="ans-row">
+    <input type="text" class="ans-inp" style="max-width:250px;" id="inl3" placeholder="예: −1, 0, +1, +2">
+    <button class="chk-btn" id="cbl3" onclick="checkL3()">확인</button>
+  </div>
+  <button class="hint-btn" onclick="toggleH('hl3')">힌트</button>
+  <div class="hint-box" id="hl3">수직선에서 −2보다 크고 +3보다 작은 정수를 차례로 나열해봐요.</div>
+  <div class="fb" id="fbl3"></div>
+</div>
+
+</div><!-- /tab-L -->
+
+<!-- ===== M ===== -->
+<div class="tab-content" id="tab-M">
+
+<div class="q-card">
+  <div class="q-num">M-1 <span class="diff-badge diff-M">중간</span></div>
+  <div class="q-text">아래 수직선에서 한 눈금의 크기는 $\dfrac{1}{2}$예요. 점 P가 나타내는 수를 쓰세요.</div>
+  <div class="nl-wrap">
+    <svg width="520" height="65" viewBox="0 0 520 65" style="min-width:300px;">
+      <line x1="20" y1="32" x2="500" y2="32" stroke="#4361EE" stroke-width="2"/>
+      <polygon points="500,32 490,27 490,37" fill="#4361EE"/>
+      <!-- 0 at 260, step=30 (1/2 단위) → -3,-2.5,-2,...,3 -->
+      <!-- P at -3/2: x = 260 + (-3)*30 = 170 -->
+      <g id="nlm1ticks"></g>
+      <circle cx="170" cy="32" r="6" fill="#e63946"/>
+      <text x="170" y="18" text-anchor="middle" font-size="12" fill="#e63946" font-weight="bold">P</text>
+    </svg>
+  </div>
+  <div class="ans-row">
+    <input type="text" class="ans-inp" id="inm1" placeholder="분수나 소수로">
+    <button class="chk-btn" id="cbm1" onclick="checkM1()">확인</button>
+  </div>
+  <button class="hint-btn" onclick="toggleH('hm1')">힌트</button>
+  <div class="hint-box" id="hm1">0에서 왼쪽으로 눈금이 3개이면 $\frac{1}{2} \times 3 = \frac{3}{2}$이에요. 왼쪽이므로 음수.</div>
+  <div class="fb" id="fbm1"></div>
+</div>
+
+<div class="q-card">
+  <div class="q-num">M-2 <span class="diff-badge diff-M">중간</span></div>
+  <div class="q-text">수직선 위에서 −5로부터 오른쪽으로 8칸 이동했을 때 도착하는 수를 구하세요. (한 눈금 = 1)</div>
+  <div class="ans-row">
+    <input type="text" class="ans-inp" id="inm2" placeholder="예: +3">
+    <button class="chk-btn" id="cbm2" onclick="finShort('inm2','cbm2','fbm2','+3|3','−5에서 오른쪽으로 8칸: −5+8=+3이에요.')">확인</button>
+  </div>
+  <button class="hint-btn" onclick="toggleH('hm2')">힌트</button>
+  <div class="hint-box" id="hm2">출발점에서 오른쪽으로 k칸 = 출발점 + k예요.</div>
+  <div class="fb" id="fbm2"></div>
+</div>
+
+<div class="q-card">
+  <div class="q-num">M-3 <span class="diff-badge diff-M">중간</span></div>
+  <div class="q-text">두 점 A, B가 수직선 위에 있고, A는 −4, B는 +2에 있어요. A, B 사이의 거리(눈금 수)를 구하세요.</div>
+  <div class="ans-row">
+    <input type="text" class="ans-inp" id="inm3" placeholder="숫자">
+    <button class="chk-btn" id="cbm3" onclick="finShort('inm3','cbm3','fbm3','6','|+2−(−4)| = |2+4| = 6이에요.')">확인</button>
+  </div>
+  <button class="hint-btn" onclick="toggleH('hm3')">힌트</button>
+  <div class="hint-box" id="hm3">두 수 사이의 거리 = |큰 수 − 작은 수|예요.</div>
+  <div class="fb" id="fbm3"></div>
+</div>
+
+</div><!-- /tab-M -->
+
+<!-- ===== H ===== -->
+<div class="tab-content" id="tab-H">
+
+<div class="q-card">
+  <div class="q-num">H-1 <span class="diff-badge diff-H">어려움</span></div>
+  <div class="q-text">수직선에서 −3과 +1의 한가운데에 있는 점이 나타내는 수를 구하세요.</div>
+  <div class="ans-row">
+    <input type="text" class="ans-inp" id="inh1" placeholder="분수 또는 소수">
+    <button class="chk-btn" id="cbh1" onclick="checkH1()">확인</button>
+  </div>
+  <button class="hint-btn" onclick="toggleH('hh1')">힌트</button>
+  <div class="hint-box" id="hh1">두 수의 평균이 한가운데 수예요. $\dfrac{(-3)+(+1)}{2}$를 계산해봐요.</div>
+  <div class="fb" id="fbh1"></div>
+</div>
+
+<div class="q-card">
+  <div class="q-num">H-2 <span class="diff-badge diff-H">어려움</span></div>
+  <div class="q-text">수직선에서 −$\dfrac{5}{3}$과 $+\dfrac{7}{3}$ 사이에 있는 <strong>정수</strong>를 모두 쓰세요.</div>
+  <div class="ans-row">
+    <input type="text" class="ans-inp" style="max-width:250px;" id="inh2" placeholder="예: −1, 0, +1, +2">
+    <button class="chk-btn" id="cbh2" onclick="checkH2()">확인</button>
+  </div>
+  <button class="hint-btn" onclick="toggleH('hh2')">힌트</button>
+  <div class="hint-box" id="hh2">$-\frac{5}{3} \approx -1.67$, $+\frac{7}{3} \approx 2.33$이에요. 이 사이의 정수는?</div>
+  <div class="fb" id="fbh2"></div>
+</div>
+
+<div class="q-card">
+  <div class="q-num">H-3 <span class="diff-badge diff-H">어려움</span></div>
+  <div class="q-text">수직선 위의 두 점 A, B에 대해 A는 $-\dfrac{3}{2}$, B는 $+\dfrac{5}{2}$에 있어요. A, B 사이의 거리를 구하세요.</div>
+  <div class="ans-row">
+    <input type="text" class="ans-inp" id="inh3" placeholder="분수 또는 정수">
+    <button class="chk-btn" id="cbh3" onclick="checkH3()">확인</button>
+  </div>
+  <button class="hint-btn" onclick="toggleH('hh3')">힌트</button>
+  <div class="hint-box" id="hh3">거리 = $\left|\frac{5}{2}-\left(-\frac{3}{2}\right)\right| = \left|\frac{5}{2}+\frac{3}{2}\right|$</div>
+  <div class="fb" id="fbh3"></div>
+</div>
+
+</div><!-- /tab-H -->
+</div>
+
+<script>
+function showTab(t) {
+  document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(btn=>btn.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// 수직선 눈금 그리기
+function drawNLTicks(svgId, ticksId, cx0, step, min, max) {
+  const g = document.getElementById(ticksId);
+  if (!g) return;
+  g.innerHTML = '';
+  for (let i = min; i <= max; i++) {
+    const x = cx0 + i * step;
+    const tick = document.createElementNS('http://www.w3.org/2000/svg','line');
+    tick.setAttribute('x1',x); tick.setAttribute('y1',28);
+    tick.setAttribute('x2',x); tick.setAttribute('y2',36);
+    tick.setAttribute('stroke','#4361EE'); tick.setAttribute('stroke-width','1.5');
+    g.appendChild(tick);
+  }
+  // 정수 레이블만
+  for (let v = Math.ceil(min/1); v <= Math.floor(max/1); v++) {
+    if (typeof v !== 'number') continue;
+    const x = cx0 + v * step;
+    const lbl = document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('x',x); lbl.setAttribute('y',55);
+    lbl.setAttribute('text-anchor','middle'); lbl.setAttribute('font-size','11');
+    lbl.setAttribute('fill', v===0?'#4361EE':'#888');
+    lbl.setAttribute('font-weight', v===0?'bold':'normal');
+    lbl.textContent = v===0 ? '0' : v;
+    g.appendChild(lbl);
+  }
+}
+
+window.addEventListener('load', function() {
+  // NL1: cx0=260, step=40, -5~5
+  drawNLTicks('','nl1ticks',260,40,-5,5);
+  // NLM1: cx0=260, step=30 (1/2 단위), -3~3 (half units: -6~6)
+  const gm1 = document.getElementById('nlm1ticks');
+  if (gm1) {
+    gm1.innerHTML = '';
+    const cx0=260, step=30;
+    for (let h = -6; h <= 6; h++) {
+      const x = cx0 + h * step;
+      const isInt = (h % 2 === 0);
+      const tick = document.createElementNS('http://www.w3.org/2000/svg','line');
+      tick.setAttribute('x1',x); tick.setAttribute('y1', isInt ? 26 : 29);
+      tick.setAttribute('x2',x); tick.setAttribute('y2',36);
+      tick.setAttribute('stroke','#4361EE'); tick.setAttribute('stroke-width', isInt ? '2':'1');
+      gm1.appendChild(tick);
+      if (isInt) {
+        const v = h/2;
+        const lbl = document.createElementNS('http://www.w3.org/2000/svg','text');
+        lbl.setAttribute('x',x); lbl.setAttribute('y',55);
+        lbl.setAttribute('text-anchor','middle'); lbl.setAttribute('font-size','11');
+        lbl.setAttribute('fill', v===0?'#4361EE':'#888');
+        lbl.setAttribute('font-weight', v===0?'bold':'normal');
+        lbl.textContent = v===0?'0':v;
+        gm1.appendChild(lbl);
+      }
+    }
+  }
+});
+
+function mc(btn, correct) {
+  const card = btn.closest('.q-card');
+  if (card.dataset.done) return;
+  card.dataset.done = '1';
+  card.querySelectorAll('.c-btn').forEach(b=>b.disabled=true);
+  const fbEl = card.querySelector('.fb');
+  if (correct) { btn.classList.add('correct'); showFb(fbEl.id, true, '정답이에요!'); }
+  else { btn.classList.add('wrong'); showFb(fbEl.id, false, '틀렸어요. 힌트를 확인해보세요.'); }
+}
+
+function finShort(inId, btnId, fbId, ans, okMsg) {
+  const inp = document.getElementById(inId);
+  const btn = document.getElementById(btnId);
+  if (btn.disabled) return;
+  btn.disabled = true;
+  const v = inp.value.trim().replace(/\s/g,'').replace(/−/g,'-').replace(/＋/g,'+');
+  const answers = ans.split('|');
+  if (answers.includes(v)) {
+    inp.classList.add('correct');
+    showFb(fbId, true, okMsg);
+  } else {
+    inp.classList.add('wrong');
+    showFb(fbId, false, '틀렸어요. 힌트를 확인해보세요.');
+  }
+}
+
+function checkL1() {
+  if (document.getElementById('cbl1').disabled) return;
+  document.getElementById('cbl1').disabled = true;
+  const v = document.getElementById('inl1').value.replace(/\s/g,'').replace(/−/g,'-').replace(/＋/g,'+');
+  const ok = ['-3,+2','-3,2'].includes(v);
+  document.getElementById('inl1').classList.add(ok?'correct':'wrong');
+  showFb('fbl1', ok, ok?'정답! A=−3, B=+2예요.':'틀렸어요. 수직선에서 눈금을 다시 세어봐요. A=−3, B=+2예요.');
+}
+
+function checkL3() {
+  if (document.getElementById('cbl3').disabled) return;
+  document.getElementById('cbl3').disabled = true;
+  const v = document.getElementById('inl3').value.replace(/\s/g,'').replace(/−/g,'-').replace(/＋/g,'+');
+  const ok = ['-1,0,+1,+2','-1,0,1,2'].includes(v);
+  document.getElementById('inl3').classList.add(ok?'correct':'wrong');
+  showFb('fbl3', ok, ok?'정답! −1, 0, +1, +2예요.':'틀렸어요. −2 초과, +3 미만 정수를 순서대로 나열해봐요: −1, 0, +1, +2');
+}
+
+function checkM1() {
+  if (document.getElementById('cbm1').disabled) return;
+  document.getElementById('cbm1').disabled = true;
+  const v = document.getElementById('inm1').value.replace(/\s/g,'').replace(/−/g,'-');
+  const ok = ['-3/2','-1.5'].includes(v);
+  document.getElementById('inm1').classList.add(ok?'correct':'wrong');
+  showFb('fbm1', ok, ok?'정답! 0에서 왼쪽으로 3눈금, 눈금 크기 1/2 → −3/2예요.':'틀렸어요. 눈금 크기가 1/2이고 왼쪽으로 3칸이니 −3/2예요.');
+}
+
+function checkH1() {
+  if (document.getElementById('cbh1').disabled) return;
+  document.getElementById('cbh1').disabled = true;
+  const v = document.getElementById('inh1').value.replace(/\s/g,'').replace(/−/g,'-');
+  const ok = ['-1','-1/1','-2/2'].includes(v);
+  document.getElementById('inh1').classList.add(ok?'correct':'wrong');
+  showFb('fbh1', ok, ok?'정답! (−3+1)/2 = −2/2 = −1이에요.':'틀렸어요. (−3)+(+1) = −2, 이를 2로 나누면 −1이에요.');
+}
+
+function checkH2() {
+  if (document.getElementById('cbh2').disabled) return;
+  document.getElementById('cbh2').disabled = true;
+  const v = document.getElementById('inh2').value.replace(/\s/g,'').replace(/−/g,'-').replace(/＋/g,'+');
+  const ok = ['-1,0,+1,+2','-1,0,1,2'].includes(v);
+  document.getElementById('inh2').classList.add(ok?'correct':'wrong');
+  showFb('fbh2', ok, ok?'정답! −5/3≈−1.67 < x < +7/3≈2.33이므로 정수는 −1, 0, +1, +2예요.':'틀렸어요. −5/3≈−1.67, +7/3≈2.33. 이 사이 정수: −1, 0, +1, +2');
+}
+
+function checkH3() {
+  if (document.getElementById('cbh3').disabled) return;
+  document.getElementById('cbh3').disabled = true;
+  const v = document.getElementById('inh3').value.replace(/\s/g,'').replace(/−/g,'-');
+  const ok = ['4','4/1'].includes(v);
+  document.getElementById('inh3').classList.add(ok?'correct':'wrong');
+  showFb('fbh3', ok, ok?'정답! |5/2−(−3/2)| = |5/2+3/2| = |8/2| = 4예요.':'틀렸어요. 거리 = |5/2−(−3/2)| = |5/2+3/2| = |8/2| = 4');
+}
+
+function showFb(id, ok, msg) {
+  const el = document.getElementById(id);
+  el.textContent = (ok?'✓ ':'✗ ') + msg;
+  el.className = 'fb show '+(ok?'ok':'ng');
+  if (window.renderMathInElement) renderMathInElement(el);
+}
+
+function toggleH(id) { document.getElementById(id).classList.toggle('show'); }
+</script>
+</body>
+</html>

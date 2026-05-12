@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>유형 01 — 수의 분류</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; }
+  .header { background: linear-gradient(135deg,#4361EE,#3a0ca3); color:white; padding:28px 20px 20px; text-align:center; }
+  .header h1 { font-size:18px; margin-bottom:4px; }
+  .header p { font-size:12px; opacity:.85; }
+  .container { max-width:700px; margin:0 auto; padding:20px 16px 60px; }
+  .tabs { display:flex; gap:8px; margin-bottom:20px; overflow-x:auto; padding-bottom:4px; }
+  .tab-btn { padding:8px 20px; border:2px solid #4361EE; border-radius:20px; font-size:13px; cursor:pointer; background:white; color:#4361EE; font-family:inherit; white-space:nowrap; }
+  .tab-btn.active { background:#4361EE; color:white; }
+  .tab-content { display:none; }
+  .tab-content.active { display:block; }
+
+  .q-card { background:white; border-radius:14px; padding:22px 20px; box-shadow:0 2px 10px rgba(67,97,238,.08); margin-bottom:16px; }
+  .q-num { font-size:11px; font-weight:bold; color:#4361EE; margin-bottom:8px; letter-spacing:1px; }
+  .diff-badge { display:inline-block; font-size:10px; padding:2px 8px; border-radius:10px; margin-left:6px; }
+  .diff-L { background:#e8f5e9; color:#2a8a2a; }
+  .diff-M { background:#fff8e1; color:#8a6000; }
+  .diff-H { background:#ffebee; color:#b71c1c; }
+  .q-text { font-size:14px; color:#333; line-height:1.9; margin-bottom:14px; }
+
+  .choices { display:flex; flex-direction:column; gap:7px; margin-bottom:12px; }
+  .c-btn { background:#f8f9ff; border:2px solid #d0d8ff; border-radius:9px; padding:9px 14px; text-align:left; cursor:pointer; font-size:13px; font-family:inherit; color:#333; transition:all .15s; }
+  .c-btn:hover { border-color:#4361EE; background:#eef2ff; }
+  .c-btn.correct { border-color:#2a8a2a; background:#e8f5e9; color:#1b5e20; }
+  .c-btn.wrong { border-color:#cc2222; background:#ffebee; color:#b71c1c; }
+  .c-btn:disabled { cursor:default; }
+
+  .ans-row { display:flex; gap:8px; align-items:center; margin-bottom:12px; flex-wrap:wrap; }
+  .ans-inp { flex:1; min-width:100px; max-width:200px; border:2px solid #d0d8ff; border-radius:9px; padding:9px 12px; font-size:14px; font-family:inherit; outline:none; }
+  .ans-inp:focus { border-color:#4361EE; }
+  .ans-inp.correct { border-color:#2a8a2a; background:#e8f5e9; }
+  .ans-inp.wrong { border-color:#cc2222; background:#ffebee; }
+  .chk-btn { background:#4361EE; color:white; border:none; border-radius:9px; padding:9px 16px; font-size:13px; cursor:pointer; font-family:inherit; }
+  .chk-btn:disabled { background:#ccc; cursor:default; }
+
+  .fb { display:none; border-radius:9px; padding:10px 14px; font-size:13px; line-height:1.7; margin-top:4px; }
+  .fb.show { display:block; }
+  .fb.ok { background:#e8f5e9; color:#1b5e20; }
+  .fb.ng { background:#ffebee; color:#b71c1c; }
+
+  .hint-btn { background:none; border:1px solid #d0d8ff; border-radius:8px; padding:4px 10px; font-size:12px; color:#4361EE; cursor:pointer; font-family:inherit; margin-bottom:4px; }
+  .hint-box { display:none; background:#fff8e1; border:1px solid #ffe082; border-radius:8px; padding:9px 12px; font-size:12px; color:#555; line-height:1.7; margin-top:4px; }
+  .hint-box.show { display:block; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>유형 01 — 수의 분류</h1>
+  <p>정수와 유리수 · 양수·음수·자연수 분류 · L×3 M×3 H×3</p>
+</div>
+<div class="container">
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('L')">쉬운 (L)</button>
+  <button class="tab-btn" onclick="showTab('M')">중간 (M)</button>
+  <button class="tab-btn" onclick="showTab('H')">어려운 (H)</button>
+</div>
+
+<!-- ===== L 탭 ===== -->
+<div class="tab-content active" id="tab-L">
+
+<div class="q-card">
+  <div class="q-num">L-1 <span class="diff-badge diff-L">쉬움</span></div>
+  <div class="q-text">다음 수 중 <strong>음의 정수</strong>를 고르세요.<br>$+2, \quad -3, \quad 0, \quad \dfrac{1}{2}, \quad -0.5$</div>
+  <div class="choices">
+    <button class="c-btn" onclick="mc(this,false)">① $+2$</button>
+    <button class="c-btn" onclick="mc(this,true)">② $-3$</button>
+    <button class="c-btn" onclick="mc(this,false)">③ $0$</button>
+    <button class="c-btn" onclick="mc(this,false)">④ $\dfrac{1}{2}$</button>
+    <button class="c-btn" onclick="mc(this,false)">⑤ $-0.5$</button>
+  </div>
+  <div class="fb" id="fbl1"></div>
+</div>
+
+<div class="q-card">
+  <div class="q-num">L-2 <span class="diff-badge diff-L">쉬움</span></div>
+  <div class="q-text">다음 보기에서 자연수를 모두 고르세요.<br>$$-1, \quad 0, \quad +3, \quad \frac{5}{2}, \quad +7$$</div>
+  <div class="ans-row">
+    <input type="text" class="ans-inp" id="inl2" placeholder="+3, +7">
+    <button class="chk-btn" id="cbl2" onclick="checkL2()">확인</button>
+  </div>
+  <button class="hint-btn" onclick="toggleH('hl2')">힌트</button>
+  <div class="hint-box" id="hl2">자연수 = 양의 정수 = 1, 2, 3, … 0은 자연수가 아니에요.</div>
+  <div class="fb" id="fbl2"></div>
+</div>
+
+<div class="q-card">
+  <div class="q-num">L-3 <span class="diff-badge diff-L">쉬움</span></div>
+  <div class="q-text">$-\dfrac{3}{5}$에 대한 설명으로 <strong>옳은</strong> 것을 고르세요.</div>
+  <div class="choices">
+    <button class="c-btn" onclick="mc(this,false)">① 정수이다</button>
+    <button class="c-btn" onclick="mc(this,false)">② 자연수이다</button>
+    <button class="c-btn" onclick="mc(this,false)">③ 양수이다</button>
+    <button class="c-btn" onclick="mc(this,true)">④ 음의 유리수이다</button>
+    <button class="c-btn" onclick="mc(this,false)">⑤ 0보다 크다</button>
+  </div>
+  <div class="fb" id="fbl3"></div>
+</div>
+
+</div><!-- /tab-L -->
+
+<!-- ===== M 탭 ===== -->
+<div class="tab-content" id="tab-M">
+
+<div class="q-card">
+  <div class="q-num">M-1 <span class="diff-badge diff-M">중간</span></div>
+  <div class="q-text">다음 중 옳지 <strong>않은</strong> 것을 고르세요.</div>
+  <div class="choices">
+    <button class="c-btn" onclick="mc(this,false)">① 모든 자연수는 정수이다</button>
+    <button class="c-btn" onclick="mc(this,false)">② 모든 정수는 유리수이다</button>
+    <button class="c-btn" onclick="mc(this,true)">③ 모든 유리수는 정수이다</button>
+    <button class="c-btn" onclick="mc(this,false)">④ 0은 정수이다</button>
+    <button class="c-btn" onclick="mc(this,false)">⑤ 음수는 모두 유리수이다</button>
+  </div>
+  <button class="hint-btn" onclick="toggleH('hm1')">힌트</button>
+  <div class="hint-box" id="hm1">$\frac{1}{2}$은 유리수이지만 정수는 아니에요. 큰 집합에서 작은 집합 방향만 성립해요.</div>
+  <div class="fb" id="fbm1"></div>
+</div>
+
+<div class="q-card">
+  <div class="q-num">M-2 <span class="diff-badge diff-M">중간</span></div>
+  <div class="q-text">다음 수를 양의 정수, 음의 정수, 정수가 아닌 유리수로 분류했을 때 각 그룹에 속하는 수의 개수를 구하세요.<br><br>$$-4, \quad +\frac{2}{3}, \quad +5, \quad 0, \quad -\frac{1}{2}, \quad +1, \quad -3$$</div>
+  <div class="q-text" style="font-size:13px; color:#666;">(양의 정수 개수, 음의 정수 개수, 정수가 아닌 유리수 개수 순서로 쉼표 구분)</div>
+  <div class="ans-row">
+    <input type="text" class="ans-inp" style="max-width:180px;" id="inm2" placeholder="예: 2, 3, 2">
+    <button class="chk-btn" id="cbm2" onclick="checkM2()">확인</button>
+  </div>
+  <button class="hint-btn" onclick="toggleH('hm2')">힌트</button>
+  <div class="hint-box" id="hm2">0은 정수이지만 양수도 음수도 아니에요. 0의 분류에 주의하세요.</div>
+  <div class="fb" id="fbm2"></div>
+</div>
+
+<div class="q-card">
+  <div class="q-num">M-3 <span class="diff-badge diff-M">중간</span></div>
+  <div class="q-text">유리수의 분류에서 정수를 $A$, 정수가 아닌 유리수를 $B$, 양의 정수를 $C$라 할 때, 다음 중 옳은 것을 고르세요.</div>
+  <div class="choices">
+    <button class="c-btn" onclick="mc(this,false)">① $C \subset B$</button>
+    <button class="c-btn" onclick="mc(this,true)">② $C \subset A$</button>
+    <button class="c-btn" onclick="mc(this,false)">③ $A \subset B$</button>
+    <button class="c-btn" onclick="mc(this,false)">④ $B \subset A$</button>
+    <button class="c-btn" onclick="mc(this,false)">⑤ $A = C$</button>
+  </div>
+  <button class="hint-btn" onclick="toggleH('hm3')">힌트</button>
+  <div class="hint-box" id="hm3">양의 정수(자연수)는 정수의 부분집합이에요. $C \subset A$가 성립해요.</div>
+  <div class="fb" id="fbm3"></div>
+</div>
+
+</div><!-- /tab-M -->
+
+<!-- ===== H 탭 ===== -->
+<div class="tab-content" id="tab-H">
+
+<div class="q-card">
+  <div class="q-num">H-1 <span class="diff-badge diff-H">어려움</span></div>
+  <div class="q-text">다음 설명 중 옳은 것의 개수를 구하세요.<br><br>
+    (ㄱ) 양수와 음수는 모두 유리수이다.<br>
+    (ㄴ) 0은 양수도 음수도 아니므로 유리수가 아니다.<br>
+    (ㄷ) 자연수는 모두 정수이다.<br>
+    (ㄹ) 음의 유리수 중에 정수인 것이 있다.<br>
+    (ㅁ) 모든 정수는 자연수이다.
+  </div>
+  <div class="choices">
+    <button class="c-btn" onclick="mc(this,false)">① 1개</button>
+    <button class="c-btn" onclick="mc(this,false)">② 2개</button>
+    <button class="c-btn" onclick="mc(this,true)">③ 3개</button>
+    <button class="c-btn" onclick="mc(this,false)">④ 4개</button>
+    <button class="c-btn" onclick="mc(this,false)">⑤ 5개</button>
+  </div>
+  <button class="hint-btn" onclick="toggleH('hh1')">힌트</button>
+  <div class="hint-box" id="hh1">
+    ㄴ: 0도 유리수예요 ($0=\frac{0}{1}$).<br>
+    ㄹ: 음의 정수(−1, −2, …)는 음의 유리수이자 정수예요.<br>
+    ㅁ: 0과 음의 정수는 자연수가 아니에요.
+  </div>
+  <div class="fb" id="fbh1"></div>
+</div>
+
+<div class="q-card">
+  <div class="q-num">H-2 <span class="diff-badge diff-H">어려움</span></div>
+  <div class="q-text">다음 조건을 모두 만족하는 수를 구하세요.<br><br>
+    • 유리수이다<br>
+    • 정수이다<br>
+    • 0보다 작다<br>
+    • 절댓값이 2보다 작거나 같다
+  </div>
+  <div class="ans-row">
+    <input type="text" class="ans-inp" style="max-width:200px;" id="inh2" placeholder="예: −1, −2">
+    <button class="chk-btn" id="cbh2" onclick="checkH2()">확인</button>
+  </div>
+  <button class="hint-btn" onclick="toggleH('hh2')">힌트</button>
+  <div class="hint-box" id="hh2">0보다 작은 정수 = 음의 정수. 절댓값이 2 이하 = 0으로부터 거리가 2 이하.</div>
+  <div class="fb" id="fbh2"></div>
+</div>
+
+<div class="q-card">
+  <div class="q-num">H-3 <span class="diff-badge diff-H">어려움</span></div>
+  <div class="q-text">다음 중 옳은 것을 모두 고르세요. (해당하는 것 전부)</div>
+  <div class="choices" id="ch-h3">
+    <button class="c-btn" onclick="mcH3(this,false)">① 음수는 정수가 아니다</button>
+    <button class="c-btn" onclick="mcH3(this,true)">② 양의 유리수 중에 정수인 것이 있다</button>
+    <button class="c-btn" onclick="mcH3(this,false)">③ 정수가 아닌 유리수는 항상 양수이다</button>
+    <button class="c-btn" onclick="mcH3(this,true)">④ 유리수에는 양의 유리수, 0, 음의 유리수가 있다</button>
+    <button class="c-btn" onclick="mcH3(this,false)">⑤ 0은 양의 정수이다</button>
+  </div>
+  <button class="hint-btn" onclick="toggleH('hh3')">힌트</button>
+  <div class="hint-box" id="hh3">① 음의 정수(−1, −2, …)는 정수예요. ③ −1/2은 정수가 아닌 음의 유리수예요.</div>
+  <div class="fb" id="fbh3"></div>
+</div>
+
+</div><!-- /tab-H -->
+</div>
+
+<script>
+function showTab(t) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function mc(btn, correct) {
+  const card = btn.closest('.q-card');
+  if (card.dataset.done) return;
+  card.dataset.done = '1';
+  card.querySelectorAll('.c-btn').forEach(b => b.disabled = true);
+  const fbId = card.querySelector('.fb').id;
+  if (correct) {
+    btn.classList.add('correct');
+    showFb(fbId, true, '정답이에요!');
+  } else {
+    btn.classList.add('wrong');
+    showFb(fbId, false, '틀렸어요. 힌트를 확인해보세요.');
+  }
+}
+
+function checkL2() {
+  const v = document.getElementById('inl2').value.replace(/\s/g,'').replace(/＋/g,'+');
+  const ok = v === '+3,+7' || v === '+7,+3' || v === '3,7' || v === '7,3' || v === '+3,7' || v === '3,+7';
+  finShort('inl2','cbl2','fbl2', ok, '정답! +3과 +7이 자연수예요.', '틀렸어요. 자연수는 양의 정수(1,2,3,…)예요. +3, +7이 맞아요.');
+}
+
+function checkM2() {
+  const v = document.getElementById('inm2').value.replace(/\s/g,'');
+  const ok = ['2,3,2'].includes(v);
+  finShort('inm2','cbm2','fbm2', ok,
+    '정답! 양의 정수(+5, +1) 2개, 음의 정수(−4, −3) 2개, 정수아닌유리수(+2/3, −1/2) 2개. 0은 정수지만 양수도 음수도 아니에요.',
+    '틀렸어요. 양의 정수: +5, +1 → 2개. 음의 정수: −4, −3 → 2개. 정수 아닌 유리수: +2/3, −1/2 → 2개. 0은 정수이지만 양수도 음수도 아니라서 앞의 두 그룹에 포함 안 돼요.');
+}
+
+function checkH2() {
+  const v = document.getElementById('inh2').value.replace(/\s/g,'').replace(/−/g,'-').replace(/＋/g,'+');
+  const ok = (v==='-1,-2'||v==='-2,-1');
+  finShort('inh2','cbh2','fbh2', ok,
+    '정답! 0보다 작은 정수 중 절댓값이 2 이하인 수는 −1, −2예요.',
+    '틀렸어요. 0보다 작은 정수 = −1, −2, −3, …에서 절댓값이 2 이하인 것 → −1(|−1|=1≤2)과 −2(|−2|=2≤2)예요.');
+}
+
+let h3selected = [];
+function mcH3(btn, correct) {
+  if (btn.classList.contains('correct')||btn.classList.contains('wrong')) return;
+  // H3: 여러 개 클릭, 최종 "정답 확인" 없이 각 버튼 클릭 시 즉시 피드백
+  if (correct) {
+    btn.classList.add('correct');
+  } else {
+    btn.classList.add('wrong');
+    showFb('fbh3', false, '틀린 선택지예요. 힌트를 확인해봐요.');
+  }
+}
+
+function finShort(inId, btnId, fbId, ok, okMsg, ngMsg) {
+  const inp = document.getElementById(inId);
+  document.getElementById(btnId).disabled = true;
+  if (ok) { inp.classList.add('correct'); showFb(fbId, true, okMsg); }
+  else { inp.classList.add('wrong'); showFb(fbId, false, ngMsg); }
+}
+
+function showFb(id, ok, msg) {
+  const el = document.getElementById(id);
+  el.textContent = (ok ? '✓ ' : '✗ ') + msg;
+  el.className = 'fb show ' + (ok ? 'ok' : 'ng');
+  if (window.renderMathInElement) renderMathInElement(el);
+}
+
+function toggleH(id) { document.getElementById(id).classList.toggle('show'); }
+</script>
+</body>
+</html>

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>기본 문제 — 작도와 합동</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; }
+  .header { background: linear-gradient(135deg, #4361EE 0%, #3a0ca3 100%); color: white; padding: 24px 20px; text-align: center; }
+  .header h1 { font-size: 22px; margin-bottom: 6px; }
+  .header p { font-size: 13px; opacity: 0.85; }
+  .progress-bar { background: rgba(255,255,255,0.2); height: 4px; border-radius: 2px; margin-top: 14px; overflow: hidden; }
+  .progress-fill { background: white; height: 100%; border-radius: 2px; transition: width 0.3s; }
+  .container { max-width: 700px; margin: 0 auto; padding: 20px 16px 60px; }
+  .question-card { background: white; border-radius: 16px; padding: 22px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 14px; }
+  .q-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .q-num { background: #4361EE; color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; flex-shrink: 0; }
+  .q-tag { font-size: 11px; background: #eef2ff; color: #4361EE; padding: 3px 10px; border-radius: 20px; }
+  .q-diff { font-size: 11px; padding: 3px 10px; border-radius: 20px; margin-left: auto; }
+  .diff-L { background: #e8f5e9; color: #2e7d32; }
+  .diff-M { background: #fff3e0; color: #e65100; }
+  .q-text { font-size: 15px; color: #1a1a2e; line-height: 1.8; margin-bottom: 14px; }
+  .choices { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+  .choice-btn { background: #f8f9ff; border: 2px solid #eef2ff; border-radius: 10px; padding: 10px 14px; text-align: left; font-size: 14px; color: #333; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+  .choice-btn:hover { border-color: #4361EE; background: #eef2ff; }
+  .choice-btn.selected { border-color: #4361EE; background: #eef2ff; font-weight: bold; }
+  .choice-btn.correct { border-color: #2e7d32; background: #e8f5e9; color: #1b5e20; font-weight: bold; }
+  .choice-btn.wrong { border-color: #c62828; background: #ffebee; color: #b71c1c; }
+  .answer-panel { display: none; margin-top: 12px; border-top: 1px solid #eef2ff; padding-top: 12px; }
+  .answer-panel.show { display: block; }
+  .answer-box { background: #f0fff4; border-radius: 10px; padding: 12px 16px; font-size: 14px; color: #1b5e20; line-height: 1.8; margin-bottom: 8px; }
+  .solution-box { background: #f8f9ff; border-radius: 10px; padding: 12px 16px; font-size: 13px; color: #444; line-height: 1.8; }
+  .mini-svg { display: block; margin: 10px auto; max-width: 360px; width: 100%; height: auto; background: white; border-radius: 8px; padding: 6px; border: 1px solid #eef2ff; }
+  .summary-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); text-align: center; display: none; }
+  .summary-score { font-size: 48px; font-weight: bold; color: #4361EE; margin: 10px 0; }
+  .summary-sub { font-size: 14px; color: #666; }
+  .home-btn { display: inline-block; margin-top: 20px; background: #4361EE; color: white; text-decoration: none; padding: 10px 28px; border-radius: 24px; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>기본 문제 — 작도와 합동</h1>
+  <p>Unit 08 전체 핵심 개념 확인 · 9문제</p>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+  </div>
+</div>
+
+<div class="container" id="mainContent">
+
+  <!-- Q1: 작도 도구 -->
+  <div class="question-card" id="qcard-1">
+    <div class="q-header">
+      <div class="q-num">1</div>
+      <div class="q-tag">작도 도구</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">작도(作圖)에서 사용할 수 있는 도구는?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(1,'①','③')">① 자(눈금 있음), 컴퍼스, 각도기</button>
+      <button class="choice-btn" onclick="chooseAnswer(1,'②','③')">② 자(눈금 있음), 컴퍼스</button>
+      <button class="choice-btn" onclick="chooseAnswer(1,'③','③')">③ 자(눈금 없음), 컴퍼스</button>
+      <button class="choice-btn" onclick="chooseAnswer(1,'④','③')">④ 자(눈금 없음), 컴퍼스, 각도기</button>
+    </div>
+    <div class="answer-panel" id="ans-1">
+      <div class="answer-box">정답: ③ 눈금 없는 자 + 컴퍼스</div>
+      <div class="solution-box">
+        작도는 <strong>눈금 없는 자</strong>와 <strong>컴퍼스</strong>만으로 도형을 그리는 일이에요.<br>
+        자에 눈금이 있어 길이를 직접 재면 작도가 아니에요. 각도기 사용도 금지.<br>
+        자는 두 점을 잇는 직선만, 컴퍼스는 호·원만 그려요.
+      </div>
+    </div>
+  </div>
+
+  <!-- Q2: 컴퍼스의 역할 -->
+  <div class="question-card" id="qcard-2">
+    <div class="q-header">
+      <div class="q-num">2</div>
+      <div class="q-tag">컴퍼스의 역할</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">작도에서 <strong>컴퍼스의 역할이 아닌 것</strong>은?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(2,'①','③')">① 한 점을 중심으로 원 그리기</button>
+      <button class="choice-btn" onclick="chooseAnswer(2,'②','③')">② 같은 길이를 다른 곳으로 옮기기</button>
+      <button class="choice-btn" onclick="chooseAnswer(2,'③','③')">③ 두 점을 잇는 직선 긋기</button>
+      <button class="choice-btn" onclick="chooseAnswer(2,'④','③')">④ 한 점에서 호 그리기</button>
+    </div>
+    <div class="answer-panel" id="ans-2">
+      <div class="answer-box">정답: ③ — 직선 긋기는 자의 역할이에요</div>
+      <div class="solution-box">
+        ①·④ 컴퍼스로 원·호 그리기 ✓<br>
+        ② 컴퍼스의 벌림 = 길이. 다른 곳에 옮길 수 있음 ✓<br>
+        ③ <strong>두 점을 잇는 직선은 자가 그어요</strong>. 컴퍼스는 직선을 못 그어요.
+      </div>
+    </div>
+  </div>
+
+  <!-- Q3: 수직이등분선 작도 -->
+  <div class="question-card" id="qcard-3">
+    <div class="q-header">
+      <div class="q-num">3</div>
+      <div class="q-tag">수직이등분선</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">선분 $\overline{AB}$의 수직이등분선을 작도하려고 한다. 다음 중 <strong>가장 먼저</strong> 해야 할 일은?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(3,'①','②')">① 선분 AB를 자로 측정한다</button>
+      <button class="choice-btn" onclick="chooseAnswer(3,'②','②')">② A를 중심으로 호를 그린다 (반지름은 AB의 절반보다 큼)</button>
+      <button class="choice-btn" onclick="chooseAnswer(3,'③','②')">③ AB의 중점 M을 자로 표시한다</button>
+      <button class="choice-btn" onclick="chooseAnswer(3,'④','②')">④ B에서 90° 방향으로 직선을 긋는다</button>
+    </div>
+    <div class="answer-panel" id="ans-3">
+      <div class="answer-box">정답: ② A를 중심으로 호 그리기</div>
+      <div class="solution-box">
+        수직이등분선 작도 절차:<br>
+        ① A 중심 호 → ② 같은 반지름으로 B 중심 호 → 두 교점 P, Q<br>
+        → ③ 자로 PQ 직선 잇기 (이게 수직이등분선)<br>
+        ①은 작도가 아닌 측정 (불가). ③은 결과를 미리 가정. ④는 각도기 사용 (불가).
+      </div>
+    </div>
+  </div>
+
+  <!-- Q4: 각의 이등분선 -->
+  <div class="question-card" id="qcard-4">
+    <div class="q-header">
+      <div class="q-num">4</div>
+      <div class="q-tag">각의 이등분선</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">∠XOY의 이등분선을 작도하는 과정에서 <strong>옳지 않은</strong> 것은?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(4,'①','④')">① O를 중심으로 호를 그어 OX, OY와의 교점을 A, B로 한다</button>
+      <button class="choice-btn" onclick="chooseAnswer(4,'②','④')">② A, B를 각각 중심으로 같은 반지름의 호를 그린다</button>
+      <button class="choice-btn" onclick="chooseAnswer(4,'③','④')">③ 두 호의 교점을 P라 하고, 자로 OP를 잇는다</button>
+      <button class="choice-btn" onclick="chooseAnswer(4,'④','④')">④ ∠XOY를 각도기로 잰 후 그 절반을 다시 잰다</button>
+    </div>
+    <div class="answer-panel" id="ans-4">
+      <div class="answer-box">정답: ④ — 각도기는 작도에서 사용 금지</div>
+      <div class="solution-box">
+        각의 이등분선 작도는 ①→②→③의 순서로 진행해요. 각도기 없이 컴퍼스만으로!<br>
+        삼각형 OAP와 OBP가 SSS 합동(OA=OB, AP=BP, OP 공통)이라서 ∠AOP = ∠BOP가 보장돼요.
+      </div>
+    </div>
+  </div>
+
+  <!-- Q5: 삼각형 작도 조건 SAS -->
+  <div class="question-card" id="qcard-5">
+    <div class="q-header">
+      <div class="q-num">5</div>
+      <div class="q-tag">삼각형 작도 조건</div>
+      <div class="q-diff diff-L">L</div>
+    </div>
+    <div class="q-text">다음 중 삼각형이 <strong>하나로 정해지는</strong> 경우가 <strong>아닌</strong> 것은?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(5,'①','④')">① 세 변의 길이를 알 때 (SSS)</button>
+      <button class="choice-btn" onclick="chooseAnswer(5,'②','④')">② 두 변의 길이와 그 끼인각을 알 때 (SAS)</button>
+      <button class="choice-btn" onclick="chooseAnswer(5,'③','④')">③ 한 변의 길이와 그 양 끝의 두 각을 알 때 (ASA)</button>
+      <button class="choice-btn" onclick="chooseAnswer(5,'④','④')">④ 세 각의 크기만 알 때 (AAA)</button>
+    </div>
+    <div class="answer-panel" id="ans-5">
+      <div class="answer-box">정답: ④ — 세 각만으로는 삼각형이 정해지지 않음</div>
+      <div class="solution-box">
+        세 각이 같아도 크기가 다른 삼각형이 무수히 많아요 (모양만 같고 크기 다름 = 닮음).<br>
+        삼각형이 하나로 정해지는 조건은 <strong>SSS, SAS, ASA</strong> 세 가지.<br>
+        나머지 한 가지 (한 변 + 그 양 끝이 아닌 두 각)도 가능하지만 ASA로 환원됨 (각의 합 180°).
+      </div>
+    </div>
+  </div>
+
+  <!-- Q6: 합동 표기 순서 -->
+  <div class="question-card" id="qcard-6">
+    <div class="q-header">
+      <div class="q-num">6</div>
+      <div class="q-tag">합동 표기 ★</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text">$\triangle ABC \equiv \triangle DEF$일 때, $\angle B$의 대응각은?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(6,'①','②')">① $\angle D$</button>
+      <button class="choice-btn" onclick="chooseAnswer(6,'②','②')">② $\angle E$</button>
+      <button class="choice-btn" onclick="chooseAnswer(6,'③','②')">③ $\angle F$</button>
+      <button class="choice-btn" onclick="chooseAnswer(6,'④','②')">④ 알 수 없다</button>
+    </div>
+    <div class="answer-panel" id="ans-6">
+      <div class="answer-box">정답: ② $\angle E$</div>
+      <div class="solution-box">
+        합동 표기 $\triangle ABC \equiv \triangle DEF$에서 <strong>같은 자리</strong>가 대응이에요.<br>
+        A ↔ D (1번째), B ↔ E (2번째), C ↔ F (3번째)<br>
+        따라서 $\angle B$의 대응각은 $\angle E$.
+      </div>
+    </div>
+  </div>
+
+  <!-- Q7: SAS 끼인각 (M, ★ 학습자 결정적 사례) -->
+  <div class="question-card" id="qcard-7">
+    <div class="q-header">
+      <div class="q-num">7</div>
+      <div class="q-tag">SAS 끼인각 ★</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text">두 삼각형 ABC와 DEF에서 $\overline{AB} = \overline{DE}$이고 $\overline{BC} = \overline{EF}$일 때, 이 두 삼각형이 합동임을 보이려면 <strong>다음 중 어떤 조건</strong>이 추가로 필요할까?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(7,'①','②')">① $\angle A = \angle D$</button>
+      <button class="choice-btn" onclick="chooseAnswer(7,'②','②')">② $\angle B = \angle E$</button>
+      <button class="choice-btn" onclick="chooseAnswer(7,'③','②')">③ $\angle C = \angle F$</button>
+      <button class="choice-btn" onclick="chooseAnswer(7,'④','②')">④ 어느 각도 추가하면 합동이다</button>
+    </div>
+    <div class="answer-panel" id="ans-7">
+      <div class="answer-box">정답: ② $\angle B = \angle E$ (끼인각이어야 SAS)</div>
+      <div class="solution-box">
+        $\overline{AB}$와 $\overline{BC}$가 만나는 꼭짓점은 <strong>B</strong>.<br>
+        $\overline{DE}$와 $\overline{EF}$가 만나는 꼭짓점은 <strong>E</strong>.<br>
+        두 변 사이의 <strong>끼인각</strong>은 ∠B (또는 대응 ∠E)예요.<br>
+        ①은 ∠A — 두 변 AB, AC 사이라야 끼인각인데 AC 정보가 없음 → SSA가 되어 합동 보장 X.<br>
+        ③도 마찬가지로 끼인각이 아님.<br>
+        ④ "아무 각이나" 안 됨 — SSA 반례 (모호한 경우) 가능.
+      </div>
+    </div>
+  </div>
+
+  <!-- Q8: 합동 조건 식별 (SVG) -->
+  <div class="question-card" id="qcard-8">
+    <div class="q-header">
+      <div class="q-num">8</div>
+      <div class="q-tag">합동 조건 식별</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text">아래 두 삼각형은 합동이다. 어떤 합동 조건에 해당하는가?</div>
+    <svg class="mini-svg" viewBox="0 0 360 200" xmlns="http://www.w3.org/2000/svg">
+      <!-- 삼각형 1 -->
+      <polygon points="40,160 140,160 90,60" fill="none" stroke="#4361EE" stroke-width="2"/>
+      <!-- 양 끝 각 표시 (한 변 위 두 각) -->
+      <path d="M 60 155 A 18 18 0 0 0 67 145" stroke="#28a745" stroke-width="2" fill="none"/>
+      <path d="M 120 155 A 18 18 0 0 1 113 144" stroke="#7b2ff7" stroke-width="2" fill="none"/>
+      <!-- 변 틱 (밑변) -->
+      <line x1="86" y1="156" x2="94" y2="164" stroke="#4361EE" stroke-width="2"/>
+      <text x="90" y="190" font-size="11" fill="#666" text-anchor="middle">삼각형 1</text>
+
+      <!-- 삼각형 2 -->
+      <polygon points="220,160 320,160 270,60" fill="none" stroke="#dc3545" stroke-width="2"/>
+      <path d="M 240 155 A 18 18 0 0 0 247 145" stroke="#28a745" stroke-width="2" fill="none"/>
+      <path d="M 300 155 A 18 18 0 0 1 293 144" stroke="#7b2ff7" stroke-width="2" fill="none"/>
+      <line x1="266" y1="156" x2="274" y2="164" stroke="#dc3545" stroke-width="2"/>
+      <text x="270" y="190" font-size="11" fill="#666" text-anchor="middle">삼각형 2</text>
+    </svg>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(8,'①','③')">① SSS</button>
+      <button class="choice-btn" onclick="chooseAnswer(8,'②','③')">② SAS</button>
+      <button class="choice-btn" onclick="chooseAnswer(8,'③','③')">③ ASA</button>
+      <button class="choice-btn" onclick="chooseAnswer(8,'④','③')">④ AAA</button>
+    </div>
+    <div class="answer-panel" id="ans-8">
+      <div class="answer-box">정답: ③ ASA</div>
+      <div class="solution-box">
+        같은 표시(틱·각 호)가 있는 부분이 같은 값이에요.<br>
+        밑변 1쌍 (틱 1개) + 양 끝 두 각 (초록·보라) 같음 → <strong>한 변 + 양 끝 각 = ASA</strong>.
+      </div>
+    </div>
+  </div>
+
+  <!-- Q9: 합동 조건 활용 (M, 대응변 찾기) -->
+  <div class="question-card" id="qcard-9">
+    <div class="q-header">
+      <div class="q-num">9</div>
+      <div class="q-tag">대응변 찾기</div>
+      <div class="q-diff diff-M">M</div>
+    </div>
+    <div class="q-text">$\triangle ABC \equiv \triangle DEF$이고 $\overline{AB} = 7$cm, $\overline{BC} = 5$cm, $\overline{CA} = 6$cm이다. $\overline{EF}$의 길이는?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="chooseAnswer(9,'①','②')">① 7 cm</button>
+      <button class="choice-btn" onclick="chooseAnswer(9,'②','②')">② 5 cm</button>
+      <button class="choice-btn" onclick="chooseAnswer(9,'③','②')">③ 6 cm</button>
+      <button class="choice-btn" onclick="chooseAnswer(9,'④','②')">④ 알 수 없다</button>
+    </div>
+    <div class="answer-panel" id="ans-9">
+      <div class="answer-box">정답: ② 5 cm</div>
+      <div class="solution-box">
+        합동 표기 $\triangle ABC \equiv \triangle DEF$에서 대응:<br>
+        A↔D, B↔E, C↔F<br>
+        $\overline{EF}$의 대응변은 $\overline{BC}$ (E↔B, F↔C, 두 글자 묶음으로).<br>
+        $\overline{BC} = 5$ cm이므로 $\overline{EF} = 5$ cm.
+      </div>
+    </div>
+  </div>
+
+  <div class="summary-card" id="summaryCard">
+    <p>모든 문제를 풀었어요!</p>
+    <div class="summary-score" id="scoreText">0 / 9</div>
+    <div class="summary-sub" id="scoreSub"></div>
+    <a href="../index.html" class="home-btn">단원 홈으로</a>
+  </div>
+
+</div>
+
+<script>
+  let answered = {};
+  const total = 9;
+
+  function chooseAnswer(qNum, picked, correct) {
+    if (answered[qNum]) return;
+    answered[qNum] = true;
+    const card = document.getElementById('qcard-' + qNum);
+    const buttons = card.querySelectorAll('.choice-btn');
+    buttons.forEach(btn => {
+      const label = btn.textContent.trim().charAt(0);
+      if (label === correct) btn.classList.add('correct');
+      else if (label === picked && picked !== correct) btn.classList.add('wrong');
+      btn.disabled = true;
+      btn.style.cursor = 'default';
+    });
+    document.getElementById('ans-' + qNum).classList.add('show');
+
+    // 점수
+    if (picked === correct) {
+      answered[qNum + '_correct'] = true;
+    }
+    const count = Object.keys(answered).filter(k => !k.endsWith('_correct')).length;
+    document.getElementById('progressFill').style.width = (count / total * 100) + '%';
+
+    // 모두 끝나면 요약
+    if (count === total) {
+      const score = Object.keys(answered).filter(k => k.endsWith('_correct')).length;
+      document.getElementById('scoreText').textContent = score + ' / ' + total;
+      let msg = '';
+      if (score === total) msg = '완벽해요! 작도와 합동을 잘 이해했어요.';
+      else if (score >= 7) msg = '잘했어요! 틀린 문제는 풀이를 다시 확인해 봐요.';
+      else if (score >= 5) msg = '괜찮아요. 헷갈린 부분만 다시 천천히 봐요.';
+      else msg = '천천히 다시 한 번 봐요. 표기 순서와 끼인각이 핵심이에요.';
+      document.getElementById('scoreSub').textContent = msg;
+      document.getElementById('summaryCard').style.display = 'block';
+    }
+  }
+</script>
+
+</body>
+</html>

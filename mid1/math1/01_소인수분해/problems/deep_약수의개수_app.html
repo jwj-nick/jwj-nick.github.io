@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>깊이 탐구 — 약수의 개수</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+  .container { max-width: 700px; width: 100%; }
+  header { text-align: center; margin-bottom: 20px; }
+  header .back { font-size: 13px; color: #4361EE; text-decoration: none; display: inline-block; margin-bottom: 12px; }
+  .deep-badge { background: linear-gradient(135deg, #7c3aed, #4361EE); color: white; font-size: 11px; padding: 3px 12px; border-radius: 20px; display: inline-block; margin-bottom: 8px; }
+  header h1 { font-size: 22px; color: #1a1a2e; margin-bottom: 4px; }
+  header p { font-size: 13px; color: #666; }
+  .section-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 16px; }
+  .section-card h2 { font-size: 17px; color: #4361EE; margin-bottom: 14px; }
+  .section-card p { font-size: 14px; line-height: 1.8; color: #333; margin-bottom: 10px; }
+  .idea-box { background: #eef2ff; border-left: 4px solid #4361EE; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 12px 0; }
+  .steps-container { margin: 12px 0; }
+  .step-btn { background: white; border: 2px solid #c0c8ff; border-radius: 10px; padding: 10px 16px; width: 100%; text-align: left; font-size: 14px; font-family: inherit; cursor: pointer; margin-bottom: 6px; transition: all 0.15s; color: #4361EE; }
+  .step-btn.revealed { border-color: #4361EE; background: #eef2ff; }
+  .step-content { background: #f8f9ff; border-radius: 0 0 10px 10px; padding: 12px 16px; font-size: 13px; line-height: 1.8; color: #333; display: none; margin-top: -6px; margin-bottom: 6px; }
+  .step-content.show { display: block; }
+  .mistake-list { list-style: none; }
+  .mistake-list li { background: #fff3cd; border-left: 3px solid #ffc107; padding: 10px 14px; border-radius: 0 8px 8px 0; margin-bottom: 8px; font-size: 13px; color: #856404; }
+  .extra-prob { background: #f8f9ff; border-radius: 12px; padding: 16px; margin-bottom: 10px; }
+  .extra-num { display: inline-block; background: #7c3aed; color: white; width: 24px; height: 24px; border-radius: 50%; text-align: center; line-height: 24px; font-size: 12px; font-weight: bold; margin-right: 8px; }
+  .extra-text { font-size: 14px; color: #1a1a2e; margin-bottom: 10px; }
+  .extra-ans-btn { background: #7c3aed; color: white; border: none; border-radius: 8px; padding: 6px 14px; font-size: 12px; cursor: pointer; font-family: inherit; }
+  .extra-ans { background: white; border: 1px solid #e0d4ff; border-radius: 8px; padding: 10px; font-size: 13px; display: none; margin-top: 8px; line-height: 1.7; }
+  .extra-ans.show { display: block; }
+  .ans-box-sm { background: #7c3aed; color: white; border-radius: 6px; padding: 4px 12px; font-weight: bold; font-size: 14px; display: inline-block; margin-bottom: 4px; }
+  .connect-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .connect-tag { background: #eef2ff; color: #4361EE; font-size: 12px; padding: 4px 12px; border-radius: 20px; border: 1px solid #c0c8ff; }
+  /* 인터랙티브 약수 탐구기 */
+  .factor-explorer { background: #f8f9ff; border-radius: 12px; padding: 18px; margin: 12px 0; }
+  .factor-explorer label { font-size: 13px; color: #555; margin-bottom: 8px; display: block; }
+  .factor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 6px; margin: 10px 0; }
+  .factor-cell { background: white; border: 1.5px solid #c0c8ff; border-radius: 6px; padding: 6px; text-align: center; font-size: 13px; color: #4361EE; transition: background 0.2s; }
+  .factor-cell.divides { background: #4361EE; color: white; border-color: #4361EE; }
+  input[type=number].factor-input { border: 2px solid #c0c8ff; border-radius: 8px; padding: 7px 12px; font-size: 15px; font-family: inherit; width: 100px; text-align: center; }
+  button.factor-btn { background: #4361EE; color: white; border: none; border-radius: 8px; padding: 8px 16px; font-size: 13px; font-family: inherit; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <a class="back" href="type_04_app.html">← 유형 4으로</a>
+    <div class="deep-badge">깊이 탐구 · 약수의 개수</div>
+    <h1>약수의 개수 완전 이해</h1>
+    <p>공식의 원리부터 역방향 문제까지</p>
+  </header>
+
+  <!-- 왜 어려운가 -->
+  <div class="section-card">
+    <h2>🤔 이 유형이 어려운 이유</h2>
+    <div class="idea-box">
+      1. <strong>공식은 외웠는데 원리를 모름</strong> — $(a+1)(b+1)$이 왜 약수의 개수인지 이해 안 됨<br>
+      2. <strong>역방향 문제</strong> — "약수의 개수가 n개인 수 찾기"에서 경우의 수 탐색을 체계적으로 못 함<br>
+      3. <strong>조건 복합</strong> — "소인수도 조건 있고, 약수 개수도 조건 있는" 문제
+    </div>
+  </div>
+
+  <!-- 공식의 원리 -->
+  <div class="section-card">
+    <h2>💡 왜 (a+1)(b+1)인가 — 원리 이해</h2>
+    <p>$2^3 \times 5^2$의 약수를 모두 쓰면:</p>
+    <div class="idea-box">
+      약수 = $2^a \times 5^b$ 꼴 (a = 0, 1, 2, 3 / b = 0, 1, 2)<br><br>
+      a 선택: 4가지 (0, 1, 2, 3) = (지수 3) + 1<br>
+      b 선택: 3가지 (0, 1, 2) = (지수 2) + 1<br>
+      총 약수 = 4 × 3 = 12개
+    </div>
+    <p>즉, 각 소인수에 대해 "지수를 0부터 해당 지수까지" 선택하는 경우의 수를 곱한 것이에요. 이게 $(a+1)(b+1)$ 공식의 의미예요.</p>
+
+    <div class="steps-container">
+      <button class="step-btn" onclick="revealStep(this, 'step1')">직접 확인: 12의 약수 모두 열거하기</button>
+      <div class="step-content" id="step1">
+        $12 = 2^2 \times 3^1$<br>
+        약수: $2^a \times 3^b$ (a=0,1,2 / b=0,1)<br><br>
+        | b\a | a=0 | a=1 | a=2 |<br>
+        |-----|-----|-----|-----|<br>
+        | b=0 |  1  |  2  |  4  |<br>
+        | b=1 |  3  |  6  | 12  |<br><br>
+        총 3×2=6개: 1, 2, 3, 4, 6, 12 ✅
+      </div>
+    </div>
+
+    <!-- 인터랙티브 약수 탐구기 -->
+    <div class="factor-explorer">
+      <label>수를 입력하고 약수를 확인해봐요 (2~200)</label>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;">
+        <input type="number" class="factor-input" id="factorN" value="12" min="2" max="200">
+        <button class="factor-btn" onclick="showFactors()">약수 표시</button>
+      </div>
+      <div id="factorResult" style="font-size:13px;color:#555;margin-bottom:8px;"></div>
+      <div class="factor-grid" id="factorGrid"></div>
+    </div>
+  </div>
+
+  <!-- 단계별 풀이 -->
+  <div class="section-card">
+    <h2>💡 역방향 문제 핵심 전략</h2>
+    <p>문제: <strong>"약수의 개수가 8인 자연수 중 가장 작은 것은?"</strong></p>
+
+    <div class="steps-container">
+      <button class="step-btn" onclick="revealStep(this, 'st1')">1단계: 8을 인수분해하기</button>
+      <div class="step-content" id="st1">
+        $8 = 8\times1 = 4\times2 = 2\times4 = 2\times2\times2$<br>
+        → $(a+1)$ 조합: $(8)$, $(4,2)$, $(2,2,2)$<br>
+        → $(a)$ 조합: $(7)$, $(3,1)$, $(1,1,1)$
+      </div>
+
+      <button class="step-btn" onclick="revealStep(this, 'st2')">2단계: 각 경우의 수 계산</button>
+      <div class="step-content" id="st2">
+        $(a)=(7)$: $p^7$, 가장 작음 = $2^7=128$<br>
+        $(a,b)=(3,1)$: $p^3 \times q$, 가장 작음 = $2^3 \times 3=24$<br>
+        $(a,b,c)=(1,1,1)$: $p \times q \times r$, 가장 작음 = $2\times3\times5=30$
+      </div>
+
+      <button class="step-btn" onclick="revealStep(this, 'st3')">3단계: 최솟값 선택</button>
+      <div class="step-content" id="st3">
+        후보: 128, 24, 30<br>
+        최솟값: <strong>24</strong><br>
+        검증: $24 = 2^3 \times 3$ → 약수 개수 = $(3+1)(1+1) = 8$ ✅
+      </div>
+    </div>
+  </div>
+
+  <!-- 자주 하는 실수 -->
+  <div class="section-card">
+    <h2>⚠️ 자주 하는 실수</h2>
+    <ul class="mistake-list">
+      <li><strong>실수 1:</strong> 인수분해 경우를 빠뜨림 — 8=2×4처럼 순서도 다른 경우로 셈</li>
+      <li><strong>실수 2:</strong> 소수를 선택할 때 가장 작은 소수(2, 3, 5 …)를 쓰지 않음 → 최솟값이 아님</li>
+      <li><strong>실수 3:</strong> 지수에 0을 포함하는 것 잊음 — 약수에는 $p^0=1$도 포함됨</li>
+    </ul>
+  </div>
+
+  <!-- 추가 문제 -->
+  <div class="section-card">
+    <h2>✏️ 추가 연습 문제</h2>
+
+    <div class="extra-prob">
+      <div class="extra-text"><span class="extra-num">1</span>약수의 개수가 4인 자연수 중 100 이하인 것의 개수를 구하세요.</div>
+      <button class="extra-ans-btn" onclick="toggleExtra(this,'ext1')">정답 보기</button>
+      <div class="extra-ans" id="ext1">
+        <div class="ans-box-sm">30개</div>
+        약수 4개: $p^3$ 또는 $p \times q$ 꼴<br>
+        $p^3$: 8, 27 → 2개<br>
+        $p \times q$ (p&lt;q 소수): 6,10,14,15,21,22,26,33,34,35,38,39,46,51,55,57,58,62,65,69,74,77,82,85,86,87,91,93,94,95 → 계산 후 28개<br>
+        총 30개
+      </div>
+    </div>
+
+    <div class="extra-prob">
+      <div class="extra-text"><span class="extra-num">2</span>$N = 2^3 \times 3 \times 5^2$의 약수 중 홀수인 것의 개수를 구하세요.</div>
+      <button class="extra-ans-btn" onclick="toggleExtra(this,'ext2')">정답 보기</button>
+      <div class="extra-ans" id="ext2">
+        <div class="ans-box-sm">6개</div>
+        홀수 약수 = $2^0 \times 3^b \times 5^c$ (b=0,1 / c=0,1,2)<br>
+        개수 = $(1+1)(2+1) = 2 \times 3 = 6$개
+      </div>
+    </div>
+
+    <div class="extra-prob">
+      <div class="extra-text"><span class="extra-num">3</span>약수의 개수가 소수인 자연수를 무엇이라고 하나요? 50 이하에서 2개를 찾으세요.</div>
+      <button class="extra-ans-btn" onclick="toggleExtra(this,'ext3')">정답 보기</button>
+      <div class="extra-ans" id="ext3">
+        <div class="ans-box-sm">$p^2$ 꼴 (약수 3개): 4, 9, 25, 49</div>
+        약수의 개수가 소수 → $(a+1)=$ 소수 → $a+1=2$(약수2개=소수) 또는 $a+1=3$(약수3개=$p^2$꼴)<br>
+        약수 2개 = 소수 자체<br>
+        약수 3개 = $p^2$ 꼴: 4(=2²), 9(=3²), 25(=5²), 49(=7²)
+      </div>
+    </div>
+  </div>
+
+  <!-- 연결 개념 -->
+  <div class="section-card">
+    <h2>🔗 이 유형을 이해하면...</h2>
+    <div class="connect-tags">
+      <span class="connect-tag">완전수 (약수의 합이 자신)</span>
+      <span class="connect-tag">완전제곱수 (약수 개수 홀수)</span>
+      <span class="connect-tag">GCD·LCM 계산 심화</span>
+      <span class="connect-tag">조합론 기초</span>
+    </div>
+  </div>
+</div>
+<script>
+function revealStep(btn, id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('show');
+  btn.classList.toggle('revealed');
+  if (window.renderMathInElement) renderMathInElement(el, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});
+}
+function toggleExtra(btn, id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('show');
+  btn.textContent = el.classList.contains('show') ? '정답 닫기' : '정답 보기';
+  if (window.renderMathInElement) renderMathInElement(el, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});
+}
+function showFactors() {
+  const n = parseInt(document.getElementById('factorN').value);
+  if (isNaN(n) || n < 2 || n > 200) return;
+  const grid = document.getElementById('factorGrid');
+  const result = document.getElementById('factorResult');
+  grid.innerHTML = '';
+  const factors = [];
+  for (let i = 1; i <= n; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'factor-cell';
+    if (n % i === 0) { cell.classList.add('divides'); factors.push(i); }
+    cell.textContent = i;
+    grid.appendChild(cell);
+  }
+  result.textContent = `${n}의 약수: ${factors.join(', ')} → 약수의 개수: ${factors.length}개`;
+}
+showFactors();
+</script>
+</body>
+</html>
