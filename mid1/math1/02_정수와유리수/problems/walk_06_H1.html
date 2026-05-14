@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>단계별 풀이 — 유형 6 H1 (분배법칙)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; color: #1a1a2e; }
+  .nav-top { background: #312e81; color: #e0e7ff; font-size: 13px; padding: 10px 16px; display: flex; justify-content: space-between; gap: 12px; }
+  .nav-top a { color: #e0e7ff; text-decoration: none; }
+  .nav-top a:hover { text-decoration: underline; }
+  .progress { background: white; padding: 14px 16px; box-shadow: 0 2px 8px rgba(67,97,238,0.06); position: sticky; top: 0; z-index: 10; }
+  .dots { display: flex; justify-content: center; gap: 10px; max-width: 700px; margin: 0 auto; }
+  .dot { width: 28px; height: 28px; border-radius: 50%; background: #d0d8ff; color: #4361EE; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.15s; border: 2px solid transparent; }
+  .dot.active { background: #4361EE; color: white; transform: scale(1.15); }
+  .dot.visited { background: #c3d0ff; }
+  .dot:hover { border-color: #4361EE; }
+  .container { max-width: 700px; margin: 0 auto; padding: 28px 16px 80px; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-label { display: inline-block; background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; font-size: 11px; padding: 4px 12px; border-radius: 20px; letter-spacing: 1px; margin-bottom: 10px; }
+  .page-title { font-size: 22px; color: #1a1a2e; margin-bottom: 6px; line-height: 1.4; }
+  .page-why { font-size: 13px; color: #7c3aed; font-style: italic; margin-bottom: 18px; padding: 8px 14px; background: #f5edff; border-left: 3px solid #7c3aed; border-radius: 0 8px 8px 0; }
+  .card { background: white; border-radius: 14px; padding: 22px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 14px; }
+  .card p { font-size: 14px; line-height: 1.9; color: #333; margin-bottom: 10px; }
+  .card p:last-child { margin-bottom: 0; }
+  .derive-box { background: #f0f4ff; border: 1.5px solid #c3d0ff; border-radius: 10px; padding: 16px 20px; margin: 10px 0; font-size: 14px; line-height: 2.2; }
+  .think-box { background: #fffbe6; border-left: 4px solid #f59e0b; border-radius: 0 10px 10px 0; padding: 12px 16px; margin: 10px 0; font-size: 13px; line-height: 1.8; color: #444; }
+  .warn-box { background: #fff0f0; border-left: 4px solid #ef4444; border-radius: 0 10px 10px 0; padding: 12px 16px; margin: 10px 0; font-size: 13px; line-height: 1.8; color: #444; }
+  .answer-box { background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; border-radius: 16px; padding: 24px; text-align: center; margin-bottom: 18px; }
+  .answer-box .label { font-size: 12px; letter-spacing: 2px; opacity: 0.85; margin-bottom: 8px; }
+  .answer-box .value { font-size: 28px; font-weight: bold; }
+  .flow-steps { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .flow-step { background: white; border: 1.5px solid #c3d0ff; border-radius: 20px; padding: 6px 14px; font-size: 12px; color: #4361EE; font-weight: bold; }
+  .flow-step::before { content: '→ '; }
+  .flow-step:first-child::before { content: ''; }
+  .legend { background: white; border-radius: 12px; padding: 14px 18px; margin-bottom: 14px; font-size: 12px; color: #555; line-height: 2; box-shadow: 0 1px 6px rgba(67,97,238,0.07); }
+  .legend strong { color: #4361EE; }
+  .btn-row { display: flex; gap: 10px; margin-top: 24px; }
+  .btn { flex: 1; padding: 13px; border: none; border-radius: 12px; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.15s; }
+  .btn-prev { background: #e0e7ff; color: #4361EE; }
+  .btn-next { background: #4361EE; color: white; }
+  .btn:hover { opacity: 0.85; transform: translateY(-1px); }
+  .btn:disabled { opacity: 0.3; cursor: default; transform: none; }
+  .back-link { display: block; text-align: center; margin-top: 20px; font-size: 13px; color: #4361EE; text-decoration: none; }
+  .back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div class="nav-top">
+  <a href="../../">← 중1 수학 홈</a>
+  <a href="types.html">← 유형 목록</a>
+</div>
+
+<div class="progress">
+  <div class="dots" id="dotRow"></div>
+</div>
+
+<div class="container">
+
+  <!-- Page 0: 문제 -->
+  <div class="page active" id="page-0">
+    <div class="legend">
+      <strong>정수</strong> 양의 정수·0·음의 정수 &nbsp;|&nbsp;
+      <strong>유리수</strong> $\frac{a}{b}$ ($a,b$ 정수, $b\neq0$) &nbsp;|&nbsp;
+      <strong>절댓값 $|a|$</strong> 수직선에서 원점까지 거리 &nbsp;|&nbsp;
+      <strong>역수</strong> 곱해서 1이 되는 수
+    </div>
+    <span class="page-label">유형 6 · H1 &nbsp; 곱셈과 나눗셈</span>
+    <h2 class="page-title">$(-7) \times (8 + (-3))$ 을 계산하세요.</h2>
+    <p class="page-why">분배법칙을 쓰면 더 쉽게 계산할 수 있어.</p>
+    <div class="card">
+      <p>다음을 계산하세요.</p>
+      <div class="derive-box">
+        $$(-7) \times (8 + (-3))$$
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-prev" disabled>이전</button>
+      <button class="btn btn-next" onclick="goPage(1)">풀이 시작 →</button>
+    </div>
+  </div>
+
+  <!-- Page 1: 분배법칙 적용 -->
+  <div class="page" id="page-1">
+    <span class="page-label">Step 1 &nbsp; 분배법칙 적용</span>
+    <h2 class="page-title">$(-7)$을 각 항에 분배하기</h2>
+    <p class="page-why">$a \times (b+c) = a \times b + a \times c$</p>
+    <div class="card">
+      <p>분배법칙: $(-7) \times (8 + (-3))$</p>
+      <div class="derive-box">
+        $= (-7) \times 8 + (-7) \times (-3)$<br>
+        $= (-56) + (+21)$
+      </div>
+      <div class="think-box">
+        $(-7) \times 8 = -56$ (음수 × 양수 = 음수)<br>
+        $(-7) \times (-3) = +21$ (음수 × 음수 = 양수)
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-prev" onclick="goPage(0)">← 이전</button>
+      <button class="btn btn-next" onclick="goPage(2)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- Page 2: 최종 계산 -->
+  <div class="page" id="page-2">
+    <span class="page-label">Step 2 &nbsp; 덧셈 마무리</span>
+    <h2 class="page-title">$(-56) + (+21)$ 계산</h2>
+    <p class="page-why">절댓값이 큰 음수가 이기므로 음수 부호!</p>
+    <div class="card">
+      <div class="derive-box">
+        $(-56) + (+21)$<br>
+        $= -(56 - 21)$<br>
+        $= -35$
+      </div>
+      <div class="think-box">$|{-56}| = 56$, $|{+21}| = 21$. $56 > 21$이므로 음수. $56 - 21 = 35$.</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-prev" onclick="goPage(1)">← 이전</button>
+      <button class="btn btn-next" onclick="goPage(3)">정답 확인 →</button>
+    </div>
+  </div>
+
+  <!-- Page ★: 정답 -->
+  <div class="page" id="page-3">
+    <span class="page-label">정답</span>
+    <div class="answer-box">
+      <div class="label">최종 답</div>
+      <div class="value">$-35$</div>
+    </div>
+    <div class="flow-steps">
+      <span class="flow-step">분배법칙 적용</span>
+      <span class="flow-step">$(-56)+(+21)$</span>
+      <span class="flow-step">$-35$</span>
+    </div>
+    <div class="warn-box">
+      <strong>자주 틀리는 곳:</strong> $(-7) \times (-3)$에서 음수×음수=양수 부호를 놓치는 실수!<br>
+      또는 괄호 안을 먼저 계산하면 $8+(-3)=5$이므로 $(-7)\times5=-35$로 바로 풀어도 됩니다.
+    </div>
+    <a class="back-link" href="deep_연산_app.html">더 깊이 탐구하기 →</a>
+    <div class="btn-row">
+      <button class="btn btn-prev" onclick="goPage(2)">← 이전</button>
+      <button class="btn btn-next" disabled>완료!</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const TOTAL = 4;
+const LABELS = ['문제','Step 1','Step 2','★'];
+let current = 0;
+
+function buildDots() {
+  const row = document.getElementById('dotRow');
+  row.innerHTML = '';
+  for (let i = 0; i < TOTAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.textContent = LABELS[i];
+    d.onclick = () => goPage(i);
+    row.appendChild(d);
+  }
+}
+
+function goPage(n) {
+  document.getElementById('page-' + current).classList.remove('active');
+  const dots = document.querySelectorAll('.dot');
+  dots[current].classList.remove('active');
+  dots[current].classList.add('visited');
+  current = n;
+  document.getElementById('page-' + current).classList.add('active');
+  dots[current].classList.remove('visited');
+  dots[current].classList.add('active');
+  window.scrollTo(0, 0);
+  if (window.renderMathInElement) {
+    renderMathInElement(document.getElementById('page-' + current), {
+      delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+    });
+  }
+}
+
+buildDots();
+</script>
+</body>
+</html>

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>단계별 풀이 — 유형 1 H1 (중심에서 현에 수선 — 이등분)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; color: #1a1a2e; }
+  .nav-top { background: #312e81; color: #e0e7ff; font-size: 13px; padding: 10px 16px; display: flex; justify-content: space-between; gap: 12px; }
+  .nav-top a { color: #e0e7ff; text-decoration: none; }
+  .nav-top a:hover { text-decoration: underline; }
+  .progress { background: white; padding: 14px 16px; box-shadow: 0 2px 8px rgba(67,97,238,0.06); position: sticky; top: 0; z-index: 10; }
+  .dots { display: flex; justify-content: center; gap: 10px; max-width: 700px; margin: 0 auto; }
+  .dot { width: 28px; height: 28px; border-radius: 50%; background: #d0d8ff; color: #4361EE; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.15s; border: 2px solid transparent; }
+  .dot.active { background: #4361EE; color: white; transform: scale(1.15); }
+  .dot.visited { background: #c3d0ff; }
+  .dot:hover { border-color: #4361EE; }
+  .container { max-width: 700px; margin: 0 auto; padding: 28px 16px 80px; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-label { display: inline-block; background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; font-size: 11px; padding: 4px 12px; border-radius: 20px; letter-spacing: 1px; margin-bottom: 10px; }
+  .page-title { font-size: 22px; color: #1a1a2e; margin-bottom: 6px; line-height: 1.4; }
+  .page-why { font-size: 13px; color: #7c3aed; font-style: italic; margin-bottom: 18px; padding: 8px 14px; background: #f5edff; border-left: 3px solid #7c3aed; border-radius: 0 8px 8px 0; }
+  .card { background: white; border-radius: 14px; padding: 22px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 14px; }
+  .card p { font-size: 14px; line-height: 1.9; color: #333; margin-bottom: 10px; }
+  .card p:last-child { margin-bottom: 0; }
+  .card .label { font-size: 12px; color: #4361EE; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .prob-box { background: white; border: 2px solid #4361EE; border-radius: 14px; padding: 20px; font-size: 15px; line-height: 1.9; color: #1a1a2e; margin-bottom: 16px; }
+  .derive-box { background: #f0f4ff; border-left: 4px solid #4361EE; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 12px 0; font-size: 14px; line-height: 1.9; }
+  .warn-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 13px; line-height: 1.8; color: #856404; }
+  .warn-box .warn-label { font-weight: bold; color: #e07b39; display: block; margin-bottom: 4px; }
+  .think-box { background: #e3f2fd; border-left: 4px solid #2196f3; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 14px; line-height: 1.8; color: #0d47a1; }
+  .think-box .think-label { font-weight: bold; display: block; margin-bottom: 6px; }
+  .answer-box { background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; border-radius: 14px; padding: 24px; text-align: center; font-size: 22px; font-weight: bold; margin: 20px 0; box-shadow: 0 4px 16px rgba(67,97,238,0.3); }
+  .next-btn { display: block; width: 100%; padding: 14px; background: #4361EE; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; font-family: inherit; margin-top: 16px; transition: all 0.15s; }
+  .next-btn:hover { background: #3a52d8; transform: translateY(-1px); }
+  .prev-btn { display: inline-block; background: white; color: #4361EE; border: 2px solid #4361EE; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-family: inherit; cursor: pointer; margin-right: 8px; text-decoration: none; }
+  .nav-bottom { display: flex; gap: 8px; margin-top: 16px; }
+  .flow-step { display: flex; align-items: flex-start; gap: 10px; margin: 10px 0; padding: 10px 14px; background: #f8f9ff; border-radius: 10px; font-size: 13px; line-height: 1.7; }
+  .flow-step .flow-num { background: #4361EE; color: white; width: 24px; height: 24px; min-width: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
+  .legend { background: #fff8e1; border: 1px solid #f4d96f; border-radius: 10px; padding: 10px 14px; font-size: 12px; line-height: 1.7; color: #5d4715; margin-bottom: 16px; }
+  .legend strong { color: #8b6914; }
+  .legend .legend-title { font-weight: bold; color: #8b6914; margin-right: 6px; }
+  svg.fig { display: block; margin: 10px auto; max-width: 260px; width: 100%; }
+</style>
+</head>
+<body>
+
+<div class="nav-top">
+  <a href="../../">← 중1 수학 홈</a>
+  <a href="types.html">← 유형 목록</a>
+</div>
+
+<div class="progress">
+  <div class="dots">
+    <div class="dot active" data-page="0" onclick="goPage(0)">0</div>
+    <div class="dot" data-page="1" onclick="goPage(1)">1</div>
+    <div class="dot" data-page="2" onclick="goPage(2)">2</div>
+    <div class="dot" data-page="3" onclick="goPage(3)">3</div>
+    <div class="dot" data-page="4" onclick="goPage(4)">★</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Page 0 -->
+  <div class="page active" id="p0">
+    <div class="page-label">문제 · Page 0</div>
+    <h1 class="page-title">단계별로 풀어볼까요?</h1>
+    <div class="page-why">정답은 마지막에 확인해요. 먼저 스스로 생각해보고, 막히면 다음 단계로 넘어가세요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      원의 둘레(원주): $2\pi r$ &nbsp;·&nbsp; 원의 넓이: $\pi r^2$ &nbsp;·&nbsp; 부채꼴 호의 길이: $2\pi r \times \dfrac{\theta}{360°}$ &nbsp;·&nbsp; 부채꼴 넓이: $\pi r^2 \times \dfrac{\theta}{360°} = \dfrac{1}{2}rl$ ($l$은 호의 길이) &nbsp;·&nbsp; $\pi$(파이) ≈ 3.14…
+    </div>
+
+    <div class="prob-box">
+      <strong>유형 1 · H1</strong><br><br>
+      원의 중심 O에서 현 AB에 내린 수선의 발이 M이라고 해요. 다음 중 항상 옳은 것은?<br><br>
+      ① $\overline{OM} = \overline{AM}$<br>
+      ② $\overline{AM} = \overline{MB}$<br>
+      ③ $\overline{OA} = \overline{OM}$<br>
+      ④ M은 원 위의 점이다.
+    </div>
+
+    <div class="think-box">
+      <span class="think-label">🤔 잠깐, 손으로 풀어보세요</span>
+      중심 O에서 현 AB까지 수선을 그으면 어떤 삼각형이 생기나요? 그 삼각형에서 같은 길이의 변이 있을까요?
+    </div>
+
+    <button class="next-btn" onclick="goPage(1)">1단계로 →</button>
+  </div>
+
+  <!-- Page 1 -->
+  <div class="page" id="p1">
+    <div class="page-label">1단계 · Page 1</div>
+    <h1 class="page-title">그림으로 파악하기</h1>
+    <div class="page-why">왜 이 단계? — 문제를 정확히 그림으로 옮겨야 어떤 삼각형이 생기는지 보여요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      원의 둘레(원주): $2\pi r$ &nbsp;·&nbsp; 원의 넓이: $\pi r^2$ &nbsp;·&nbsp; 부채꼴 호의 길이: $2\pi r \times \dfrac{\theta}{360°}$ &nbsp;·&nbsp; 부채꼴 넓이: $\pi r^2 \times \dfrac{\theta}{360°} = \dfrac{1}{2}rl$ &nbsp;·&nbsp; $\pi$ ≈ 3.14…
+    </div>
+
+    <div class="card">
+      <div class="label">상황 정리</div>
+      <svg class="fig" viewBox="-110 -110 220 200">
+        <circle cx="0" cy="0" r="90" fill="none" stroke="#4361EE" stroke-width="2"/>
+        <circle cx="0" cy="0" r="3" fill="#1d3557"/>
+        <text x="-14" y="4" font-size="12" font-weight="bold" fill="#1d3557">O</text>
+        <line x1="-72" y1="-54" x2="72" y2="-54" stroke="#7c3aed" stroke-width="2.5"/>
+        <line x1="0" y1="0" x2="0" y2="-54" stroke="#10b981" stroke-width="1.8" stroke-dasharray="4,3"/>
+        <line x1="0" y1="0" x2="-72" y2="-54" stroke="#10b981" stroke-width="1.5"/>
+        <line x1="0" y1="0" x2="72" y2="-54" stroke="#10b981" stroke-width="1.5"/>
+        <circle cx="0" cy="-54" r="3" fill="#e74c3c"/>
+        <text x="-82" y="-58" font-size="12" font-weight="bold" fill="#7c3aed">A</text>
+        <text x="76" y="-58" font-size="12" font-weight="bold" fill="#7c3aed">B</text>
+        <text x="6" y="-58" font-size="11" fill="#e74c3c">M</text>
+        <rect x="-7" y="-61" width="7" height="7" fill="none" stroke="#10b981" stroke-width="1.2"/>
+        <text x="-52" y="-20" font-size="11" fill="#10b981">$r$</text>
+        <text x="30" y="-20" font-size="11" fill="#10b981">$r$</text>
+        <text x="4" y="-28" font-size="11" fill="#10b981">$d$</text>
+      </svg>
+      <p>O: 원의 중심 &nbsp;·&nbsp; A, B: 현의 양 끝점 (원 위) &nbsp;·&nbsp; M: 수선의 발 (현 위)</p>
+      <div class="derive-box">
+        $\overline{OA} = \overline{OB} = r$ (반지름이므로 같음)<br>
+        $\overline{OM} \perp \overline{AB}$ (수선이므로 직각)<br>
+        $\overline{OM}$은 양쪽 삼각형의 공통 변
+      </div>
+    </div>
+
+    <div class="think-box">
+      <span class="think-label">🤔 다음 단계 힌트</span>
+      삼각형 OAM과 삼각형 OBM에서 같은 요소를 세어봐요. 두 삼각형이 합동이라면 대응하는 변도 같겠죠?
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(0)">← 이전</a>
+      <button class="next-btn" onclick="goPage(2)" style="flex:1">2단계로 →</button>
+    </div>
+  </div>
+
+  <!-- Page 2 -->
+  <div class="page" id="p2">
+    <div class="page-label">2단계 · Page 2</div>
+    <h1 class="page-title">두 삼각형 합동 확인하기</h1>
+    <div class="page-why">왜 이 단계? — 두 삼각형이 합동이면 대응하는 변이 같다는 것을 이용해요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      원의 둘레(원주): $2\pi r$ &nbsp;·&nbsp; 원의 넓이: $\pi r^2$ &nbsp;·&nbsp; 부채꼴 호의 길이: $2\pi r \times \dfrac{\theta}{360°}$ &nbsp;·&nbsp; 부채꼴 넓이: $\pi r^2 \times \dfrac{\theta}{360°} = \dfrac{1}{2}rl$ &nbsp;·&nbsp; $\pi$ ≈ 3.14…
+    </div>
+
+    <div class="card">
+      <div class="label">삼각형 OAM과 OBM 비교</div>
+      <div class="derive-box">
+        조건 1: $\overline{OA} = \overline{OB} = r$ (반지름)<br>
+        조건 2: $\overline{OM}$ 공통 (같은 변)<br>
+        조건 3: $\angle OMA = \angle OMB = 90°$ (수선의 조건)
+      </div>
+      <p>직각을 끼고 있는 두 변이 각각 같아요. 즉 <strong>RHS 합동</strong> (직각, 빗변, 한 변)이에요.</p>
+      <div class="derive-box">
+        $\triangle OAM \equiv \triangle OBM$ (RHS)
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="label">결론 — 대응하는 변</div>
+      <p>두 삼각형이 합동이면 대응하는 변의 길이가 같아요.</p>
+      <div class="derive-box">
+        대응: $A \leftrightarrow B$, $O \leftrightarrow O$, $M \leftrightarrow M$<br>
+        따라서 &nbsp; $\overline{AM} = \overline{MB}$
+      </div>
+      <p>즉 <strong>중심에서 현에 내린 수선은 그 현을 이등분</strong>해요.</p>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(1)">← 이전</a>
+      <button class="next-btn" onclick="goPage(3)" style="flex:1">3단계로 →</button>
+    </div>
+  </div>
+
+  <!-- Page 3 -->
+  <div class="page" id="p3">
+    <div class="page-label">3단계 · Page 3</div>
+    <h1 class="page-title">나머지 보기 확인하기</h1>
+    <div class="page-why">왜 이 단계? — ①③④가 왜 틀렸는지 정확히 알아야 비슷한 문제에서 헷갈리지 않아요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      원의 둘레(원주): $2\pi r$ &nbsp;·&nbsp; 원의 넓이: $\pi r^2$ &nbsp;·&nbsp; 부채꼴 호의 길이: $2\pi r \times \dfrac{\theta}{360°}$ &nbsp;·&nbsp; 부채꼴 넓이: $\pi r^2 \times \dfrac{\theta}{360°} = \dfrac{1}{2}rl$ &nbsp;·&nbsp; $\pi$ ≈ 3.14…
+    </div>
+
+    <div class="card">
+      <div class="label">① $\overline{OM} = \overline{AM}$ — 거짓</div>
+      <p>$\overline{OM}$은 직각삼각형 OAM의 <strong>높이</strong>, $\overline{AM}$은 <strong>밑변의 절반</strong>이에요. 이 둘이 같을 이유가 없어요.</p>
+      <div class="derive-box">
+        피타고라스: $\overline{OA}^2 = \overline{OM}^2 + \overline{AM}^2$ &nbsp;→&nbsp; $\overline{OM} \ne \overline{AM}$ (일반적으로)
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="label">③ $\overline{OA} = \overline{OM}$ — 거짓</div>
+      <p>$\overline{OA} = r$ (반지름), $\overline{OM}$은 현까지의 거리. M이 현 위에 있으니 $\overline{OM} < r$.</p>
+    </div>
+
+    <div class="card">
+      <div class="label">④ M은 원 위의 점 — 거짓</div>
+      <p>M은 <strong>현 위</strong>의 점이에요. 현은 원 안쪽에 있으므로 M이 원 위에 있으려면 현이 지름이 되어야 해요. 이건 항상 성립하지 않아요.</p>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-label">⚠️ 핵심 함정</span>
+      "수선의 발 M = 원 위의 점"이라고 착각하기 쉬워요. M은 <strong>현 위</strong>(원 안쪽 또는 경계)에 있을 뿐이에요.
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(2)">← 이전</a>
+      <button class="next-btn" onclick="goPage(4)" style="flex:1">정답 보기 →</button>
+    </div>
+  </div>
+
+  <!-- Page 4 (★) -->
+  <div class="page" id="p4">
+    <div class="page-label">정답 · Page ★</div>
+    <h1 class="page-title">정답 + 풀이 흐름 요약</h1>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      원의 둘레(원주): $2\pi r$ &nbsp;·&nbsp; 원의 넓이: $\pi r^2$ &nbsp;·&nbsp; 부채꼴 호의 길이: $2\pi r \times \dfrac{\theta}{360°}$ &nbsp;·&nbsp; 부채꼴 넓이: $\pi r^2 \times \dfrac{\theta}{360°} = \dfrac{1}{2}rl$ &nbsp;·&nbsp; $\pi$ ≈ 3.14…
+    </div>
+
+    <div class="answer-box">
+      ② $\overline{AM} = \overline{MB}$<br>
+      <span style="font-size:14px;font-weight:normal;opacity:0.9">(중심에서 현에 내린 수선 → 현을 이등분)</span>
+    </div>
+
+    <div class="card">
+      <div class="label">전체 풀이 흐름</div>
+      <div class="flow-step"><div class="flow-num">1</div><div>O에서 현 AB에 수선 내림 → M이 수선의 발. $\overline{OM} \perp \overline{AB}$</div></div>
+      <div class="flow-step"><div class="flow-num">2</div><div>$\overline{OA} = \overline{OB} = r$, $\overline{OM}$ 공통, 각 $OMA = OMB = 90°$ → $\triangle OAM \equiv \triangle OBM$ (RHS)</div></div>
+      <div class="flow-step"><div class="flow-num">3</div><div>합동 → 대응변 같음 → $\overline{AM} = \overline{MB}$ ✓</div></div>
+      <div class="flow-step"><div class="flow-num">4</div><div>①③④ 모두 반례 존재 → 거짓</div></div>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-label">⚠️ 이 유형의 핵심 성질</span>
+      <strong>중심에서 현에 내린 수선은 그 현을 이등분한다.</strong> — 이 성질은 아주 자주 나와요. H3 피타고라스 문제에서도 이 성질을 먼저 쓰고 시작해요!
+    </div>
+
+    <div class="card">
+      <div class="label">📚 이 유형 더 연습하고 싶다면</div>
+      <p style="font-size:13px"><a href="type_01_app.html" style="color:#4361EE">→ 유형 1 (원의 구성요소) 다른 문제 연습</a></p>
+      <p style="font-size:13px"><a href="walk_01_H3.html" style="color:#7c3aed">→ H3 · 피타고라스 정리 응용 (현의 길이)</a></p>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(3)">← 이전</a>
+      <a class="prev-btn" href="types.html" style="flex:1;text-align:center">유형 목록으로 →</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function goPage(n) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('p' + n).classList.add('active');
+  document.querySelectorAll('.dot').forEach(d => {
+    d.classList.remove('active');
+    if (parseInt(d.dataset.page) < n) d.classList.add('visited');
+    if (parseInt(d.dataset.page) === n) d.classList.add('active');
+  });
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  if (window.renderMathInElement) {
+    renderMathInElement(document.getElementById('p' + n), {
+      delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+    });
+  }
+}
+</script>
+</body>
+</html>

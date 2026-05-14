@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>단계별 풀이 — 유형 7 H3 (직사각형 둘레)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; color: #1a1a2e; }
+  .nav-top { background: #312e81; color: #e0e7ff; font-size: 13px; padding: 10px 16px; display: flex; justify-content: space-between; gap: 12px; }
+  .nav-top a { color: #e0e7ff; text-decoration: none; }
+  .nav-top a:hover { text-decoration: underline; }
+
+  .progress { background: white; padding: 14px 16px; box-shadow: 0 2px 8px rgba(67,97,238,0.06); position: sticky; top: 0; z-index: 10; }
+  .dots { display: flex; justify-content: center; gap: 10px; max-width: 700px; margin: 0 auto; }
+  .dot { width: 28px; height: 28px; border-radius: 50%; background: #d0d8ff; color: #4361EE; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.15s; border: 2px solid transparent; }
+  .dot.active { background: #4361EE; color: white; transform: scale(1.15); }
+  .dot.visited { background: #c3d0ff; }
+  .dot:hover { border-color: #4361EE; }
+
+  .container { max-width: 700px; margin: 0 auto; padding: 28px 16px 80px; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .page-label { display: inline-block; background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; font-size: 11px; padding: 4px 12px; border-radius: 20px; letter-spacing: 1px; margin-bottom: 10px; }
+  .page-title { font-size: 22px; color: #1a1a2e; margin-bottom: 6px; line-height: 1.4; }
+  .page-why { font-size: 13px; color: #7c3aed; font-style: italic; margin-bottom: 18px; padding: 8px 14px; background: #f5edff; border-left: 3px solid #7c3aed; border-radius: 0 8px 8px 0; }
+
+  .card { background: white; border-radius: 14px; padding: 22px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 14px; }
+  .card p { font-size: 14px; line-height: 1.9; color: #333; margin-bottom: 10px; }
+  .card p:last-child { margin-bottom: 0; }
+  .card .label { font-size: 12px; color: #4361EE; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+
+  .prob-box { background: white; border: 2px solid #4361EE; border-radius: 14px; padding: 20px; font-size: 15px; line-height: 1.9; color: #1a1a2e; margin-bottom: 16px; }
+
+  .derive-box { background: #f0f4ff; border-left: 4px solid #4361EE; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 12px 0; font-size: 14px; line-height: 1.9; }
+
+  .warn-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 13px; line-height: 1.8; color: #856404; }
+  .warn-box .warn-label { font-weight: bold; color: #e07b39; display: block; margin-bottom: 4px; }
+
+  .think-box { background: #f9fffe; border: 2px dashed #4cc9b0; border-radius: 14px; padding: 18px 20px; margin-bottom: 16px; font-size: 14px; line-height: 1.9; color: #1a1a2e; }
+  .think-box .think-label { font-size: 12px; color: #4cc9b0; font-weight: bold; margin-bottom: 8px; display: block; }
+
+  .answer-box { background: #fff; border: 2px solid #7c3aed; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .answer-box .ans-label { font-size: 12px; color: #7c3aed; font-weight: bold; margin-bottom: 8px; display: block; }
+  .answer-box .ans-main { font-size: 22px; font-weight: bold; color: #7c3aed; margin-bottom: 10px; }
+  .answer-box .ans-caption { font-size: 13px; color: #555; line-height: 1.8; }
+
+  .flow-step { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; font-size: 13px; line-height: 1.7; }
+  .flow-num { width: 24px; height: 24px; border-radius: 50%; background: #4361EE; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; flex-shrink: 0; margin-top: 2px; }
+
+  .legend { background: #f8f9ff; border-radius: 12px; padding: 14px 18px; margin-bottom: 16px; font-size: 13px; line-height: 1.9; }
+  .legend .leg-title { font-size: 11px; color: #4361EE; font-weight: bold; margin-bottom: 8px; letter-spacing: 0.5px; }
+
+  .next-btn { display: block; width: 100%; padding: 16px; background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; border: none; border-radius: 14px; font-size: 16px; font-weight: bold; cursor: pointer; font-family: 'Malgun Gothic', sans-serif; transition: opacity 0.2s; margin-top: 8px; }
+  .next-btn:hover { opacity: 0.9; }
+</style>
+</head>
+<body>
+
+<div class="nav-top">
+  <a href="../../">← 중1 수학 홈</a>
+  <a href="types.html">← 유형 목록</a>
+</div>
+
+<div class="progress">
+  <div class="dots">
+    <div class="dot active" data-page="0" onclick="goPage(0)">문제</div>
+    <div class="dot" data-page="1" onclick="goPage(1)">1</div>
+    <div class="dot" data-page="2" onclick="goPage(2)">2</div>
+    <div class="dot" data-page="3" onclick="goPage(3)">★</div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- PAGE 0 : 문제 -->
+<div class="page active" id="p0">
+  <span class="page-label">유형 7 · H3 — 방정식 활용 (도형)</span>
+  <h2 class="page-title">문제를 읽고 생각해 봐요</h2>
+  <p class="page-why">도형 문제는 공식(둘레, 넓이)을 방정식으로 표현하는 게 핵심이에요.</p>
+
+  <div class="prob-box">
+    가로의 길이가 세로의 길이보다 6 cm 더 긴 직사각형이 있습니다.<br>
+    이 직사각형의 둘레가 60 cm일 때,<br>
+    가로와 세로의 길이를 각각 구하세요.
+  </div>
+
+  <div class="think-box">
+    <span class="think-label">생각 공간 — 여기서 먼저 풀어 봐요</span>
+    무엇을 $x$로 놓을 건가요?<br><br>
+    가로를 $x$로 놓으면 세로는 어떻게 표현할 수 있나요?<br><br>
+    직사각형의 둘레 공식은 무엇인가요?<br><br>
+    방정식을 세워서 풀어 봐요.
+  </div>
+
+  <button class="next-btn" onclick="goPage(1)">풀이 시작 →</button>
+</div>
+
+<!-- PAGE 1 : 미지수 설정 + 방정식 세우기 -->
+<div class="page" id="p1">
+  <span class="page-label">STEP 1</span>
+  <h2 class="page-title">미지수 설정과 방정식 세우기</h2>
+  <p class="page-why">세로를 $x$로 놓으면 가로는 $x+6$이에요. 둘레 공식에 대입해요.</p>
+
+  <div class="legend">
+    <div class="leg-title">직사각형 둘레 공식</div>
+    (둘레) = 2 × {(가로) + (세로)}<br>
+    $l = 2(a + b)$
+  </div>
+
+  <div class="card">
+    <div class="label">미지수 설정</div>
+    <p>세로의 길이를 $x$ cm라 하면<br>
+    가로의 길이는 $(x + 6)$ cm예요.</p>
+  </div>
+
+  <div class="derive-box">
+    둘레 = 2 × {(가로) + (세로)} = 60<br><br>
+    $$2\{(x+6) + x\} = 60$$<br>
+    $$2(2x + 6) = 60$$
+  </div>
+
+  <div class="warn-box">
+    <span class="warn-label">흔한 실수</span>
+    "가로 + 가로 + 세로 + 세로 = 60"이라고 생각해서<br>
+    $(x+6) + x = 60$으로 쓰는 실수를 자주 해요.<br>
+    둘레는 <strong>네 변의 합</strong>이므로 반드시 $2(가로+세로) = 60$으로 세워야 해요!
+  </div>
+
+  <button class="next-btn" onclick="goPage(2)">다음 →</button>
+</div>
+
+<!-- PAGE 2 : 방정식 풀기 + 검토 -->
+<div class="page" id="p2">
+  <span class="page-label">STEP 2</span>
+  <h2 class="page-title">방정식 풀기</h2>
+  <p class="page-why">괄호를 풀고 $x$를 구해요. 세로를 구한 다음 가로를 계산해요.</p>
+
+  <div class="derive-box">
+    $$2(2x + 6) = 60$$<br>
+    $$4x + 12 = 60$$<br>
+    $$4x = 48$$<br>
+    $$x = 12$$
+  </div>
+
+  <div class="card">
+    <div class="label">가로 계산</div>
+    <p>세로 = 12 cm</p>
+    <p>가로 = $12 + 6 = 18$ cm</p>
+  </div>
+
+  <div class="card">
+    <div class="label">검토</div>
+    <p>둘레 = $2 \times (18 + 12) = 2 \times 30 = 60$ cm ✓</p>
+    <p>가로 = 세로 + 6 → $18 = 12 + 6$ ✓</p>
+  </div>
+
+  <button class="next-btn" onclick="goPage(3)">정답 확인 →</button>
+</div>
+
+<!-- PAGE 3 : 정답 -->
+<div class="page" id="p3">
+  <span class="page-label">★ 정답</span>
+  <h2 class="page-title">정리해 봐요</h2>
+
+  <div class="answer-box">
+    <span class="ans-label">정답</span>
+    <div class="ans-main">가로 18 cm, 세로 12 cm</div>
+    <div class="ans-caption">
+      둘레 = $2(18+12) = 2\times30 = 60$ cm ✓<br>
+      가로 = 세로 + 6 → $18 = 12 + 6$ ✓
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="label">풀이 흐름</div>
+    <div class="flow-step"><div class="flow-num">1</div><div>미지수 설정: 세로 = $x$ cm, 가로 = $(x+6)$ cm</div></div>
+    <div class="flow-step"><div class="flow-num">2</div><div>둘레 공식: $2\{(x+6)+x\}=60$</div></div>
+    <div class="flow-step"><div class="flow-num">3</div><div>정리: $2(2x+6)=60$ → $4x+12=60$</div></div>
+    <div class="flow-step"><div class="flow-num">4</div><div>이항: $4x=48$ → $x=12$</div></div>
+    <div class="flow-step"><div class="flow-num">5</div><div>가로 = $12+6=18$ cm, 세로 = 12 cm</div></div>
+    <div class="flow-step"><div class="flow-num">6</div><div>검토: 둘레 = 60 cm ✓</div></div>
+  </div>
+
+  <div class="warn-box">
+    <span class="warn-label">핵심 포인트</span>
+    도형 활용 문제: 공식을 먼저 쓰고, 거기에 미지수를 대입해요.<br>
+    답을 구한 후 <strong>조건 두 가지 모두</strong> (둘레 조건 + 가로·세로 관계) 검토하는 습관을 들여요!
+  </div>
+
+  <a href="types.html" style="display:block;text-align:center;margin-top:24px;color:#4361EE;font-size:14px;text-decoration:none;">← 유형 목록으로 돌아가기</a>
+</div>
+
+</div><!-- /container -->
+
+<script>
+function goPage(n) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('p' + n).classList.add('active');
+  document.querySelectorAll('.dot').forEach(d => {
+    d.classList.remove('active');
+    if (parseInt(d.dataset.page) < n) d.classList.add('visited');
+    if (parseInt(d.dataset.page) === n) d.classList.add('active');
+  });
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  if (window.renderMathInElement) {
+    renderMathInElement(document.getElementById('p' + n), {
+      delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+    });
+  }
+}
+</script>
+</body>
+</html>

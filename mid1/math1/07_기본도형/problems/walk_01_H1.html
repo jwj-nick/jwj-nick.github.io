@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>단계별 풀이 — 유형 1 H1 (같은 반직선 찾기)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; color: #1a1a2e; }
+  .nav-top { background: #312e81; color: #e0e7ff; font-size: 13px; padding: 10px 16px; display: flex; justify-content: space-between; gap: 12px; }
+  .nav-top a { color: #e0e7ff; text-decoration: none; }
+  .nav-top a:hover { text-decoration: underline; }
+  .progress { background: white; padding: 14px 16px; box-shadow: 0 2px 8px rgba(67,97,238,0.06); position: sticky; top: 0; z-index: 10; }
+  .dots { display: flex; justify-content: center; gap: 10px; max-width: 700px; margin: 0 auto; }
+  .dot { width: 28px; height: 28px; border-radius: 50%; background: #d0d8ff; color: #4361EE; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.15s; border: 2px solid transparent; }
+  .dot.active { background: #4361EE; color: white; transform: scale(1.15); }
+  .dot.visited { background: #c3d0ff; }
+  .dot:hover { border-color: #4361EE; }
+  .container { max-width: 700px; margin: 0 auto; padding: 28px 16px 80px; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-label { display: inline-block; background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; font-size: 11px; padding: 4px 12px; border-radius: 20px; letter-spacing: 1px; margin-bottom: 10px; }
+  .page-title { font-size: 22px; color: #1a1a2e; margin-bottom: 6px; line-height: 1.4; }
+  .page-why { font-size: 13px; color: #7c3aed; font-style: italic; margin-bottom: 18px; padding: 8px 14px; background: #f5edff; border-left: 3px solid #7c3aed; border-radius: 0 8px 8px 0; }
+  .card { background: white; border-radius: 14px; padding: 22px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 14px; }
+  .card p { font-size: 14px; line-height: 1.9; color: #333; margin-bottom: 10px; }
+  .card p:last-child { margin-bottom: 0; }
+  .card .label { font-size: 12px; color: #4361EE; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .prob-box { background: white; border: 2px solid #4361EE; border-radius: 14px; padding: 20px; font-size: 15px; line-height: 1.9; color: #1a1a2e; margin-bottom: 16px; }
+  .derive-box { background: #f0f4ff; border-left: 4px solid #4361EE; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 12px 0; font-size: 14px; line-height: 1.9; }
+  .warn-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 13px; line-height: 1.8; color: #856404; }
+  .warn-box .warn-label { font-weight: bold; color: #e07b39; display: block; margin-bottom: 4px; }
+  .think-box { background: #e3f2fd; border-left: 4px solid #2196f3; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 14px; line-height: 1.8; color: #0d47a1; }
+  .think-box .think-label { font-weight: bold; display: block; margin-bottom: 6px; }
+  .answer-box { background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; border-radius: 14px; padding: 24px; text-align: center; font-size: 22px; font-weight: bold; margin: 20px 0; box-shadow: 0 4px 16px rgba(67,97,238,0.3); }
+  .next-btn { display: block; width: 100%; padding: 14px; background: #4361EE; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; font-family: inherit; margin-top: 16px; transition: all 0.15s; }
+  .next-btn:hover { background: #3a52d8; transform: translateY(-1px); }
+  .prev-btn { display: inline-block; background: white; color: #4361EE; border: 2px solid #4361EE; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-family: inherit; cursor: pointer; margin-right: 8px; text-decoration: none; }
+  .nav-bottom { display: flex; gap: 8px; margin-top: 16px; }
+  .flow-step { display: flex; align-items: flex-start; gap: 10px; margin: 10px 0; padding: 10px 14px; background: #f8f9ff; border-radius: 10px; font-size: 13px; line-height: 1.7; }
+  .flow-step .flow-num { background: #4361EE; color: white; width: 24px; height: 24px; min-width: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
+  .legend { background: #fff8e1; border: 1px solid #f4d96f; border-radius: 10px; padding: 10px 14px; font-size: 12px; line-height: 1.7; color: #5d4715; margin-bottom: 16px; }
+  .legend strong { color: #8b6914; }
+  .legend .legend-title { font-weight: bold; color: #8b6914; margin-right: 6px; }
+</style>
+</head>
+<body>
+
+<div class="nav-top">
+  <a href="../../">← 중1 수학 홈</a>
+  <a href="types.html">← 유형 목록</a>
+</div>
+
+<div class="progress">
+  <div class="dots">
+    <div class="dot active" data-page="0" onclick="goPage(0)">0</div>
+    <div class="dot" data-page="1" onclick="goPage(1)">1</div>
+    <div class="dot" data-page="2" onclick="goPage(2)">2</div>
+    <div class="dot" data-page="3" onclick="goPage(3)">3</div>
+    <div class="dot" data-page="4" onclick="goPage(4)">★</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ============ Page 0: 문제만 ============ -->
+  <div class="page active" id="p0">
+    <div class="page-label">문제 · Page 0</div>
+    <h1 class="page-title">단계별로 풀어볼까요?</h1>
+    <div class="page-why">정답은 마지막에 확인해요. 먼저 스스로 생각해보고, 막히면 다음 단계로 넘어가세요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      직선 AB: 양방향으로 무한히 뻗는 선 · 반직선 $\overrightarrow{AB}$ (→ 방향): A에서 시작해 B 방향으로 뻗는 선 · 선분 $\overline{AB}$ (−AB): A와 B를 잇는 유한한 선 · $\angle AOB$: 꼭짓점이 O인 각 · $\perp$: 두 직선이 수직으로 만남 · $\parallel$: 두 직선이 서로 평행함
+    </div>
+
+    <div class="prob-box">
+      <strong>유형 1 · H1</strong><br><br>
+      한 직선 위에 점 4개 A, B, C, D가 이 순서대로 있다.<br>
+      $\overrightarrow{BC}$ 와 같은 도형은? (모두 고르시오)<br><br>
+      ① $\overrightarrow{BD}$ &nbsp; ② $\overrightarrow{CD}$ &nbsp; ③ $\overrightarrow{AC}$ &nbsp; ④ $\overrightarrow{BA}$
+    </div>
+
+    <div class="think-box">
+      <span class="think-label">🤔 잠깐, 손으로 풀어보세요</span>
+      $\overrightarrow{BC}$ 가 어떤 조건을 가져야 "같은 도형"이 되는지 먼저 적어보세요. 막연하다면 다음 페이지로 넘어가요.
+    </div>
+
+    <button class="next-btn" onclick="goPage(1)">1단계로 →</button>
+  </div>
+
+  <!-- ============ Page 1: 반직선이 같으려면 ============ -->
+  <div class="page" id="p1">
+    <div class="page-label">1단계 · Page 1</div>
+    <h1 class="page-title">반직선이 "같다"는 게 뭘 의미할까요?</h1>
+    <div class="page-why">왜 이 단계? — 문제를 풀려면 "같은 반직선"의 정의를 먼저 명확히 해야 해요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      직선 AB: 양방향으로 무한히 뻗는 선 · 반직선 $\overrightarrow{AB}$: A에서 시작해 B 방향으로 무한히 뻗는 선 · 선분 $\overline{AB}$: A와 B를 잇는 유한한 선
+    </div>
+
+    <div class="card">
+      <div class="label">반직선의 정의</div>
+      <p>반직선 $\overrightarrow{AB}$ 는 두 가지가 결정돼요:</p>
+      <div class="derive-box">
+        (1) <strong>시작점</strong>: 첫 번째 글자 → A<br>
+        (2) <strong>방향</strong>: 두 번째 글자가 가리키는 방향 → B 방향으로 무한히 뻗음
+      </div>
+      <p>두 반직선이 같으려면 <strong>시작점이 같고</strong>, <strong>방향이 같아야</strong> 해요.</p>
+    </div>
+
+    <div class="card">
+      <div class="label">문제의 반직선</div>
+      <p>$\overrightarrow{BC}$ 를 분석하면:</p>
+      <div class="derive-box">
+        시작점: <strong>B</strong><br>
+        방향: <strong>C 방향</strong> (한 직선 위 점 순서 A→B→C→D이므로, C는 B의 오른쪽)
+      </div>
+    </div>
+
+    <div class="think-box">
+      <span class="think-label">🤔 생각해보기</span>
+      B에서 시작해 C 방향으로 무한히 뻗는 반직선 — C와 D 중 어느 쪽이 같은 방향인가요? 점 순서를 생각해보세요.
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(0)">← 이전</a>
+      <button class="next-btn" onclick="goPage(2)" style="flex:1">2단계로 →</button>
+    </div>
+  </div>
+
+  <!-- ============ Page 2: 방향이 같다는 것 ============ -->
+  <div class="page" id="p2">
+    <div class="page-label">2단계 · Page 2</div>
+    <h1 class="page-title">"같은 방향"을 판단해요</h1>
+    <div class="page-why">왜 이 단계? — 점 순서가 주어지면, 방향이 같은지를 논리적으로 확인할 수 있어요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      반직선 $\overrightarrow{AB}$: A에서 시작해 B 방향으로 무한히 뻗는 선
+    </div>
+
+    <div class="card">
+      <div class="label">핵심 원리</div>
+      <p>한 직선 위에 A→B→C→D 순서로 있을 때:<br>
+      B에서 보면 C와 D는 <strong>같은 방향 (오른쪽)</strong>에 있어요.</p>
+      <div class="derive-box">
+        $\overrightarrow{BC}$: B에서 시작, C(=오른쪽) 방향<br>
+        $\overrightarrow{BD}$: B에서 시작, D(=오른쪽) 방향<br>
+        → 시작점 같음(B) + 방향 같음(오른쪽) → <strong>같은 반직선</strong> ✓
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="label">나머지 선택지 검토</div>
+      <div class="derive-box">
+        ② $\overrightarrow{CD}$: 시작점이 <strong>C</strong> → B와 다름 ✗<br>
+        ③ $\overrightarrow{AC}$: 시작점이 <strong>A</strong> → B와 다름 ✗<br>
+        ④ $\overrightarrow{BA}$: 시작점은 B로 같지만, A는 B의 <strong>왼쪽</strong> → 방향 반대 ✗
+      </div>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-label">⚠️ 핵심 주의</span>
+      $\overrightarrow{BA}$ 와 $\overrightarrow{BC}$ 는 <strong>시작점이 같아도 방향이 반대</strong>라 다른 반직선이에요! 두 조건 모두 충족해야 같아요.
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(1)">← 이전</a>
+      <button class="next-btn" onclick="goPage(3)" style="flex:1">3단계로 →</button>
+    </div>
+  </div>
+
+  <!-- ============ Page 3: 정리 ============ -->
+  <div class="page" id="p3">
+    <div class="page-label">3단계 · Page 3</div>
+    <h1 class="page-title">선택지를 모두 정리해요</h1>
+    <div class="page-why">왜 이 단계? — 각 선택지를 기준 (시작점 B, 방향 C쪽)에 맞춰 하나씩 판단해요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      반직선 $\overrightarrow{AB}$: A에서 시작해 B 방향으로 무한히 뻗는 선
+    </div>
+
+    <div class="card">
+      <div class="label">기준: $\overrightarrow{BC}$ = 시작점 B, 방향 오른쪽(C, D 쪽)</div>
+      <div class="derive-box">
+        ① $\overrightarrow{BD}$: 시작점 B ✓, 방향 D(=C와 같은 오른쪽) ✓ → <strong>같음</strong><br>
+        ② $\overrightarrow{CD}$: 시작점 C ✗ → 다름<br>
+        ③ $\overrightarrow{AC}$: 시작점 A ✗ → 다름<br>
+        ④ $\overrightarrow{BA}$: 시작점 B ✓, 방향 A(=왼쪽, 반대) ✗ → 다름
+      </div>
+      <p>따라서 $\overrightarrow{BC}$ 와 같은 반직선은 <strong>① $\overrightarrow{BD}$ 하나뿐</strong>이에요.</p>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(2)">← 이전</a>
+      <button class="next-btn" onclick="goPage(4)" style="flex:1">정답 보기 →</button>
+    </div>
+  </div>
+
+  <!-- ============ Page 4: 정답 + 요약 ============ -->
+  <div class="page" id="p4">
+    <div class="page-label">정답 · Page ★</div>
+    <h1 class="page-title">정답 + 풀이 흐름 요약</h1>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      직선 AB: 양방향으로 무한히 뻗는 선 · 반직선 $\overrightarrow{AB}$: A에서 시작해 B 방향으로 뻗는 선 · 선분 $\overline{AB}$: A와 B를 잇는 유한한 선 · $\angle AOB$: 꼭짓점이 O인 각 · $\perp$: 두 직선이 수직으로 만남 · $\parallel$: 두 직선이 서로 평행함
+    </div>
+
+    <div class="answer-box">
+      ① $\overrightarrow{BD}$<br>
+      <span style="font-size:14px;font-weight:normal;opacity:0.9">(시작점 B, 방향 오른쪽 — $\overrightarrow{BC}$와 같은 반직선)</span>
+    </div>
+
+    <div class="card">
+      <div class="label">전체 풀이 흐름 — 3단계</div>
+      <div class="flow-step"><div class="flow-num">1</div><div>반직선이 같으려면: 시작점 같고 + 방향 같아야 함</div></div>
+      <div class="flow-step"><div class="flow-num">2</div><div>$\overrightarrow{BC}$: 시작점 B, 방향 = C쪽 (오른쪽). 점 순서 A→B→C→D이므로 D도 같은 오른쪽 방향</div></div>
+      <div class="flow-step"><div class="flow-num">3</div><div>① $\overrightarrow{BD}$만 시작점 B + 방향 D(=오른쪽) 모두 충족 → 정답</div></div>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-label">⚠️ 이 유형의 핵심 함정</span>
+      "시작점만 같으면 같은 반직선"이라고 착각하면 틀려요. $\overrightarrow{BA}$는 시작점은 B로 같지만 방향이 반대예요. 두 조건 모두 확인해야 해요.
+    </div>
+
+    <div class="card">
+      <div class="label">📚 이 유형 더 연습하고 싶다면</div>
+      <p style="font-size:13px"><a href="type_01_app.html" style="color:#4361EE">→ 유형 1 (직선·반직선·선분) 다른 문제 연습</a></p>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(3)">← 이전</a>
+      <a class="prev-btn" href="types.html" style="flex:1;text-align:center">유형 목록으로 →</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function goPage(n) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('p' + n).classList.add('active');
+  document.querySelectorAll('.dot').forEach(d => {
+    d.classList.remove('active');
+    if (parseInt(d.dataset.page) < n) d.classList.add('visited');
+    if (parseInt(d.dataset.page) === n) d.classList.add('active');
+  });
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  if (window.renderMathInElement) {
+    renderMathInElement(document.getElementById('p' + n), {
+      delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+    });
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>단계별 풀이 — 유형 3 H3 (제곱근이 자연수 되는 n)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; color: #1a1a2e; }
+  .nav-top { background: #312e81; color: #e0e7ff; font-size: 13px; padding: 10px 16px; display: flex; justify-content: space-between; gap: 12px; }
+  .nav-top a { color: #e0e7ff; text-decoration: none; }
+  .nav-top a:hover { text-decoration: underline; }
+  .progress { background: white; padding: 14px 16px; box-shadow: 0 2px 8px rgba(67,97,238,0.06); position: sticky; top: 0; z-index: 10; }
+  .dots { display: flex; justify-content: center; gap: 10px; max-width: 700px; margin: 0 auto; }
+  .dot { width: 28px; height: 28px; border-radius: 50%; background: #d0d8ff; color: #4361EE; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.15s; border: 2px solid transparent; }
+  .dot.active { background: #4361EE; color: white; transform: scale(1.15); }
+  .dot.visited { background: #c3d0ff; }
+  .dot:hover { border-color: #4361EE; }
+  .container { max-width: 700px; margin: 0 auto; padding: 28px 16px 80px; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-label { display: inline-block; background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; font-size: 11px; padding: 4px 12px; border-radius: 20px; letter-spacing: 1px; margin-bottom: 10px; }
+  .page-title { font-size: 22px; color: #1a1a2e; margin-bottom: 6px; line-height: 1.4; }
+  .page-why { font-size: 13px; color: #7c3aed; font-style: italic; margin-bottom: 18px; padding: 8px 14px; background: #f5edff; border-left: 3px solid #7c3aed; border-radius: 0 8px 8px 0; }
+  .card { background: white; border-radius: 14px; padding: 22px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 14px; }
+  .card p { font-size: 14px; line-height: 1.9; color: #333; margin-bottom: 10px; }
+  .card p:last-child { margin-bottom: 0; }
+  .card .label { font-size: 12px; color: #4361EE; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .prob-box { background: white; border: 2px solid #4361EE; border-radius: 14px; padding: 20px; font-size: 15px; line-height: 1.9; color: #1a1a2e; margin-bottom: 16px; }
+  .derive-box { background: #f0f4ff; border-left: 4px solid #4361EE; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 12px 0; font-size: 14px; line-height: 1.9; }
+  .warn-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 13px; line-height: 1.8; color: #856404; }
+  .warn-box .warn-label { font-weight: bold; color: #e07b39; display: block; margin-bottom: 4px; }
+  .think-box { background: #e3f2fd; border-left: 4px solid #2196f3; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 14px; line-height: 1.8; color: #0d47a1; }
+  .think-box .think-label { font-weight: bold; display: block; margin-bottom: 6px; }
+  .answer-box { background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; border-radius: 14px; padding: 24px; text-align: center; font-size: 22px; font-weight: bold; margin: 20px 0; box-shadow: 0 4px 16px rgba(67,97,238,0.3); }
+  .next-btn { display: block; width: 100%; padding: 14px; background: #4361EE; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; font-family: inherit; margin-top: 16px; transition: all 0.15s; }
+  .next-btn:hover { background: #3a52d8; transform: translateY(-1px); }
+  .prev-btn { display: inline-block; background: white; color: #4361EE; border: 2px solid #4361EE; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-family: inherit; cursor: pointer; margin-right: 8px; text-decoration: none; }
+  .nav-bottom { display: flex; gap: 8px; margin-top: 16px; }
+  .flow-step { display: flex; align-items: flex-start; gap: 10px; margin: 10px 0; padding: 10px 14px; background: #f8f9ff; border-radius: 10px; font-size: 13px; line-height: 1.7; }
+  .flow-step .flow-num { background: #4361EE; color: white; width: 24px; height: 24px; min-width: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
+  .legend { background: #fff8e1; border: 1px solid #f4d96f; border-radius: 10px; padding: 10px 14px; font-size: 12px; line-height: 1.7; color: #5d4715; margin-bottom: 16px; }
+  .legend strong { color: #8b6914; }
+  .legend .legend-title { font-weight: bold; color: #8b6914; margin-right: 6px; }
+</style>
+</head>
+<body>
+
+<div class="nav-top">
+  <a href="../../">← 중1 수학 홈</a>
+  <a href="types.html">← 유형 목록</a>
+</div>
+
+<div class="progress">
+  <div class="dots">
+    <div class="dot active" data-page="0" onclick="goPage(0)">0</div>
+    <div class="dot" data-page="1" onclick="goPage(1)">1</div>
+    <div class="dot" data-page="2" onclick="goPage(2)">2</div>
+    <div class="dot" data-page="3" onclick="goPage(3)">3</div>
+    <div class="dot" data-page="4" onclick="goPage(4)">★</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Page 0 -->
+  <div class="page active" id="p0">
+    <div class="page-label">문제 · Page 0</div>
+    <h1 class="page-title">단계별로 풀어볼까요?</h1>
+    <div class="page-why">정답은 마지막에 확인해요. 먼저 스스로 생각해보고, 막히면 다음 단계로 넘어가세요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 핵심:</span>
+      $\sqrt{x}$가 자연수가 되려면 $x$가 <strong>완전제곱수</strong>여야 해요. 완전제곱수란 소인수분해했을 때 모든 지수가 <strong>짝수</strong>인 수.
+    </div>
+
+    <div class="prob-box">
+      <strong>유형 3 · H3</strong><br><br>
+      $\sqrt{252n}$이 자연수가 되도록 하는 가장 작은 자연수 $n$을 구하세요.
+    </div>
+
+    <div class="think-box">
+      <span class="think-label">🤔 잠깐, 손으로 생각해보세요</span>
+      먼저 $252$를 소인수분해해봐요. 어떤 소인수의 지수가 홀수인가요? 그게 단서예요.
+    </div>
+
+    <button class="next-btn" onclick="goPage(1)">1단계로 →</button>
+  </div>
+
+  <!-- Page 1 -->
+  <div class="page" id="p1">
+    <div class="page-label">1단계 · Page 1</div>
+    <h1 class="page-title">$252$ 소인수분해</h1>
+    <div class="page-why">왜 이 단계? — 소인수의 지수가 짝수인지 홀수인지 봐야 어떤 $n$이 필요한지 알 수 있어요.</div>
+
+    <div class="card">
+      <div class="label">나눗셈 반복</div>
+      <div class="derive-box">
+        $252 \div 2 = 126$<br>
+        $126 \div 2 = 63$<br>
+        $63 \div 3 = 21$<br>
+        $21 \div 3 = 7$<br>
+        $7$은 소수 → 종료
+      </div>
+      <div class="derive-box">
+        $252 = 2^2 \times 3^2 \times 7$
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="label">지수 살펴보기</div>
+      <p>각 소인수의 지수:</p>
+      <div class="derive-box">
+        $2$의 지수: $2$ (짝수) ✅<br>
+        $3$의 지수: $2$ (짝수) ✅<br>
+        $7$의 지수: $1$ (홀수) ⚠️
+      </div>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(0)">← 이전</a>
+      <button class="next-btn" onclick="goPage(2)" style="flex:1">2단계로 →</button>
+    </div>
+  </div>
+
+  <!-- Page 2 -->
+  <div class="page" id="p2">
+    <div class="page-label">2단계 · Page 2</div>
+    <h1 class="page-title">완전제곱수가 되려면?</h1>
+    <div class="page-why">왜 이 단계? — 근호 안이 완전제곱수가 되어야 한다는 조건을 지수로 바꿔 생각.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 원리:</span>
+      $\sqrt{p^{2k}} = p^k$ (지수가 짝수면 깔끔하게 나옴). 지수가 홀수면 근호 밖으로 못 나가요.
+    </div>
+
+    <div class="card">
+      <div class="label">$252 \times n$의 소인수분해</div>
+      <p>$\sqrt{252n}$이 자연수가 되려면 $252n$의 모든 소인수 지수가 짝수여야 해요. 지금 $7$의 지수가 $1$로 홀수.</p>
+      <div class="derive-box">
+        $7$의 지수를 짝수로 만들려면 $n$에 $7$을 한 번 더 곱하면 됩니다.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="label">가장 작은 $n$</div>
+      <p>$n = 7$이면:</p>
+      <div class="derive-box">
+        $252 \times 7 = 2^2 \times 3^2 \times 7^2$<br>
+        모든 지수가 짝수 → 완전제곱수 ✅
+      </div>
+      <p>$n$을 $7$보다 더 작게 잡으면 $7$의 지수가 짝수가 안 돼요. 따라서 $n = 7$이 최소.</p>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(1)">← 이전</a>
+      <button class="next-btn" onclick="goPage(3)" style="flex:1">3단계로 →</button>
+    </div>
+  </div>
+
+  <!-- Page 3 -->
+  <div class="page" id="p3">
+    <div class="page-label">3단계 · Page 3</div>
+    <h1 class="page-title">검산</h1>
+    <div class="page-why">왜 이 단계? — 실제로 $\sqrt{252 \times 7}$이 자연수가 되는지 확인.</div>
+
+    <div class="card">
+      <div class="label">계산</div>
+      <div class="derive-box">
+        $252 \times 7 = 1764$<br>
+        $\sqrt{1764} = \sqrt{2^2 \times 3^2 \times 7^2}$<br>
+        $= 2 \times 3 \times 7 = 42$
+      </div>
+      <p>자연수 $42$가 나왔어요! ✅</p>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-label">⚠️ 흔한 실수</span>
+      "$n = 1$이면 $\sqrt{252} \approx 15.87$" — 자연수 아님. "$n = 4$이면 $\sqrt{1008}$" — $7$의 지수가 여전히 홀수라 자연수 아님. <strong>지수가 홀수인 소인수를 짝수로 만들어주는 최소 곱</strong>이 답.
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(2)">← 이전</a>
+      <button class="next-btn" onclick="goPage(4)" style="flex:1">정답 보기 →</button>
+    </div>
+  </div>
+
+  <!-- Page ★ -->
+  <div class="page" id="p4">
+    <div class="page-label">정답 · Page ★</div>
+    <h1 class="page-title">정답 + 풀이 흐름 요약</h1>
+
+    <div class="legend">
+      <span class="legend-title">📖 핵심:</span>
+      $\sqrt{Nn}$ 자연수 ⟺ $Nn$이 완전제곱수 ⟺ 모든 소인수 지수가 짝수
+    </div>
+
+    <div class="answer-box">
+      $n = 7$
+    </div>
+
+    <div class="card">
+      <div class="label">전체 풀이 흐름 — 4단계</div>
+      <div class="flow-step"><div class="flow-num">1</div><div>$252 = 2^2 \times 3^2 \times 7$ — 소인수분해</div></div>
+      <div class="flow-step"><div class="flow-num">2</div><div>지수가 홀수인 소인수: $7$ (지수 1) — 이게 문제</div></div>
+      <div class="flow-step"><div class="flow-num">3</div><div>$n = 7$을 곱하면 $7$의 지수가 $2$가 되어 모두 짝수</div></div>
+      <div class="flow-step"><div class="flow-num">4</div><div>검산: $\sqrt{252 \times 7} = \sqrt{1764} = 42$ ✅</div></div>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-label">⚠️ 이 유형의 핵심 함정</span>
+      여러 소인수의 지수가 홀수일 수도 있어요! 그땐 <strong>모든 홀수 지수 소인수를 한 번씩 곱해</strong>야 해요. (예: $\sqrt{12n}$의 경우 $12 = 2^2 \times 3^1$이므로 $n = 3$)
+    </div>
+
+    <div class="card">
+      <div class="label">📚 이 유형 더 연습하고 싶다면</div>
+      <p style="font-size:13px"><a href="type_03_app.html" style="color:#4361EE">→ 유형 3 (소인수분해 실행) 다른 문제 연습</a></p>
+      <p style="font-size:13px"><a href="deep_소인수분해_app.html" style="color:#7c3aed">→ 깊이 탐구 — 소인수분해 완전 이해</a></p>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(3)">← 이전</a>
+      <a class="prev-btn" href="types.html" style="flex:1;text-align:center">유형 목록으로 →</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function goPage(n) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('p' + n).classList.add('active');
+  document.querySelectorAll('.dot').forEach(d => {
+    d.classList.remove('active');
+    if (parseInt(d.dataset.page) < n) d.classList.add('visited');
+    if (parseInt(d.dataset.page) === n) d.classList.add('active');
+  });
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  if (window.renderMathInElement) {
+    renderMathInElement(document.getElementById('p' + n), {
+      delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+    });
+  }
+}
+</script>
+</body>
+</html>

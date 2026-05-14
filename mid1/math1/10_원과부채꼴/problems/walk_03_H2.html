@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>단계별 풀이 — 유형 3 H2 (60° 부채꼴의 활꼴 넓이)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; color: #1a1a2e; }
+  .nav-top { background: #312e81; color: #e0e7ff; font-size: 13px; padding: 10px 16px; display: flex; justify-content: space-between; gap: 12px; }
+  .nav-top a { color: #e0e7ff; text-decoration: none; }
+  .nav-top a:hover { text-decoration: underline; }
+  .progress { background: white; padding: 14px 16px; box-shadow: 0 2px 8px rgba(67,97,238,0.06); position: sticky; top: 0; z-index: 10; }
+  .dots { display: flex; justify-content: center; gap: 10px; max-width: 700px; margin: 0 auto; }
+  .dot { width: 28px; height: 28px; border-radius: 50%; background: #d0d8ff; color: #4361EE; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.15s; border: 2px solid transparent; }
+  .dot.active { background: #4361EE; color: white; transform: scale(1.15); }
+  .dot.visited { background: #c3d0ff; }
+  .dot:hover { border-color: #4361EE; }
+  .container { max-width: 700px; margin: 0 auto; padding: 28px 16px 80px; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-label { display: inline-block; background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; font-size: 11px; padding: 4px 12px; border-radius: 20px; letter-spacing: 1px; margin-bottom: 10px; }
+  .page-title { font-size: 22px; color: #1a1a2e; margin-bottom: 6px; line-height: 1.4; }
+  .page-why { font-size: 13px; color: #7c3aed; font-style: italic; margin-bottom: 18px; padding: 8px 14px; background: #f5edff; border-left: 3px solid #7c3aed; border-radius: 0 8px 8px 0; }
+  .card { background: white; border-radius: 14px; padding: 22px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 14px; }
+  .card p { font-size: 14px; line-height: 1.9; color: #333; margin-bottom: 10px; }
+  .card p:last-child { margin-bottom: 0; }
+  .card .label { font-size: 12px; color: #4361EE; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .prob-box { background: white; border: 2px solid #4361EE; border-radius: 14px; padding: 20px; font-size: 15px; line-height: 1.9; color: #1a1a2e; margin-bottom: 16px; }
+  .derive-box { background: #f0f4ff; border-left: 4px solid #4361EE; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 12px 0; font-size: 14px; line-height: 1.9; }
+  .warn-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 13px; line-height: 1.8; color: #856404; }
+  .warn-box .warn-label { font-weight: bold; color: #e07b39; display: block; margin-bottom: 4px; }
+  .think-box { background: #e3f2fd; border-left: 4px solid #2196f3; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 14px; line-height: 1.8; color: #0d47a1; }
+  .think-box .think-label { font-weight: bold; display: block; margin-bottom: 6px; }
+  .answer-box { background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; border-radius: 14px; padding: 24px; text-align: center; font-size: 22px; font-weight: bold; margin: 20px 0; box-shadow: 0 4px 16px rgba(67,97,238,0.3); }
+  .next-btn { display: block; width: 100%; padding: 14px; background: #4361EE; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; font-family: inherit; margin-top: 16px; transition: all 0.15s; }
+  .next-btn:hover { background: #3a52d8; transform: translateY(-1px); }
+  .prev-btn { display: inline-block; background: white; color: #4361EE; border: 2px solid #4361EE; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-family: inherit; cursor: pointer; margin-right: 8px; text-decoration: none; }
+  .nav-bottom { display: flex; gap: 8px; margin-top: 16px; }
+  .flow-step { display: flex; align-items: flex-start; gap: 10px; margin: 10px 0; padding: 10px 14px; background: #f8f9ff; border-radius: 10px; font-size: 13px; line-height: 1.7; }
+  .flow-step .flow-num { background: #4361EE; color: white; width: 24px; height: 24px; min-width: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
+  .legend { background: #fff8e1; border: 1px solid #f4d96f; border-radius: 10px; padding: 10px 14px; font-size: 12px; line-height: 1.7; color: #5d4715; margin-bottom: 16px; }
+  .legend strong { color: #8b6914; }
+  .legend .legend-title { font-weight: bold; color: #8b6914; margin-right: 6px; }
+</style>
+</head>
+<body>
+
+<div class="nav-top">
+  <a href="../../">← 중1 수학 홈</a>
+  <a href="types.html">← 유형 목록</a>
+</div>
+
+<div class="progress">
+  <div class="dots">
+    <div class="dot active" data-page="0" onclick="goPage(0)">0</div>
+    <div class="dot" data-page="1" onclick="goPage(1)">1</div>
+    <div class="dot" data-page="2" onclick="goPage(2)">2</div>
+    <div class="dot" data-page="3" onclick="goPage(3)">3</div>
+    <div class="dot" data-page="4" onclick="goPage(4)">★</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Page 0 -->
+  <div class="page active" id="p0">
+    <div class="page-label">문제 · Page 0</div>
+    <h1 class="page-title">단계별로 풀어볼까요?</h1>
+    <div class="page-why">정답은 마지막에 확인해요. 먼저 스스로 생각해보고, 막히면 다음 단계로 넘어가세요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      원의 둘레(원주): $2\pi r$ &nbsp;·&nbsp; 원의 넓이: $\pi r^2$ &nbsp;·&nbsp; 부채꼴 호의 길이: $2\pi r \times \dfrac{\theta}{360°}$ &nbsp;·&nbsp; 부채꼴 넓이: $\pi r^2 \times \dfrac{\theta}{360°} = \dfrac{1}{2}rl$ ($l$은 호의 길이) &nbsp;·&nbsp; $\pi$ ≈ 3.14…
+    </div>
+
+    <div class="prob-box">
+      <strong>유형 3 · H2</strong><br><br>
+      중심각이 $60°$, 반지름이 $6$ cm인 부채꼴이 있어요. 이 부채꼴의 호와 현으로 만든 <strong>활꼴의 넓이</strong>는?<br><br>
+      (정삼각형 넓이 공식: $\dfrac{\sqrt{3}}{4}a^2$ 활용)
+    </div>
+
+    <div class="think-box">
+      <span class="think-label">🤔 잠깐, 손으로 풀어보세요</span>
+      활꼴 = 부채꼴 $-$ 삼각형. 두 반지름의 길이가 같고 끼인각이 $60°$이면 삼각형은 어떤 삼각형일까요?
+    </div>
+
+    <button class="next-btn" onclick="goPage(1)">1단계로 →</button>
+  </div>
+
+  <!-- Page 1 -->
+  <div class="page" id="p1">
+    <div class="page-label">1단계 · Page 1</div>
+    <h1 class="page-title">60° 이등변삼각형 → 정삼각형!</h1>
+    <div class="page-why">왜 이 단계? — 두 반지름이 만드는 삼각형이 특수한 경우라는 것을 인식하는 게 핵심이에요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      원의 둘레(원주): $2\pi r$ &nbsp;·&nbsp; 원의 넓이: $\pi r^2$ &nbsp;·&nbsp; 부채꼴 호의 길이: $2\pi r \times \dfrac{\theta}{360°}$ &nbsp;·&nbsp; 부채꼴 넓이: $\pi r^2 \times \dfrac{\theta}{360°} = \dfrac{1}{2}rl$ &nbsp;·&nbsp; $\pi$ ≈ 3.14…
+    </div>
+
+    <div class="card">
+      <div class="label">핵심 관찰</div>
+      <p>삼각형 OAB (O: 중심, A, B: 원 위 두 점)에서:</p>
+      <div class="derive-box">
+        $\overline{OA} = \overline{OB} = r = 6$ cm &nbsp;&nbsp;(두 반지름 같음)<br>
+        $\angle AOB = 60°$ &nbsp;&nbsp;(중심각)<br>
+        이등변삼각형에서 꼭짓각이 $60°$ → 두 밑각도 $60°$<br>
+        → 세 각이 모두 $60°$ → <strong>정삼각형!</strong>
+      </div>
+      <p>정삼각형이면 세 변 모두 같아요: $\overline{AB} = 6$ cm.</p>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-label">⚠️ 호·현 비례 함정</span>
+      "60° 부채꼴이니까 현 = 반지름 × (60/180) 같은 건 아닐까?" — 아니에요! 현은 중심각에 비례하지 않아요. 이번처럼 기하적으로 직접 계산해야 해요.
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(0)">← 이전</a>
+      <button class="next-btn" onclick="goPage(2)" style="flex:1">2단계로 →</button>
+    </div>
+  </div>
+
+  <!-- Page 2 -->
+  <div class="page" id="p2">
+    <div class="page-label">2단계 · Page 2</div>
+    <h1 class="page-title">부채꼴 넓이와 삼각형 넓이 각각 계산</h1>
+    <div class="page-why">왜 이 단계? — 활꼴 = 부채꼴 $-$ 삼각형. 두 넓이를 따로 구해요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      원의 둘레(원주): $2\pi r$ &nbsp;·&nbsp; 원의 넓이: $\pi r^2$ &nbsp;·&nbsp; 부채꼴 호의 길이: $2\pi r \times \dfrac{\theta}{360°}$ &nbsp;·&nbsp; 부채꼴 넓이: $\pi r^2 \times \dfrac{\theta}{360°} = \dfrac{1}{2}rl$ &nbsp;·&nbsp; $\pi$ ≈ 3.14…
+    </div>
+
+    <div class="card">
+      <div class="label">부채꼴 넓이</div>
+      <div class="derive-box">
+        $S_{부채꼴} = \pi r^2 \cdot \dfrac{\theta}{360} = \pi(6)^2 \cdot \dfrac{60}{360}$<br>
+        $= 36\pi \cdot \dfrac{1}{6} = 6\pi$ cm²
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="label">정삼각형 넓이 (한 변 $a = 6$)</div>
+      <div class="derive-box">
+        $S_{삼각형} = \dfrac{\sqrt{3}}{4} a^2 = \dfrac{\sqrt{3}}{4} \times 6^2 = \dfrac{36\sqrt{3}}{4} = 9\sqrt{3}$ cm²
+      </div>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(1)">← 이전</a>
+      <button class="next-btn" onclick="goPage(3)" style="flex:1">3단계로 →</button>
+    </div>
+  </div>
+
+  <!-- Page 3 -->
+  <div class="page" id="p3">
+    <div class="page-label">3단계 · Page 3</div>
+    <h1 class="page-title">활꼴 넓이 = 부채꼴 $-$ 삼각형</h1>
+    <div class="page-why">왜 이 단계? — 두 값을 빼서 최종 답을 구해요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      원의 둘레(원주): $2\pi r$ &nbsp;·&nbsp; 원의 넓이: $\pi r^2$ &nbsp;·&nbsp; 부채꼴 호의 길이: $2\pi r \times \dfrac{\theta}{360°}$ &nbsp;·&nbsp; 부채꼴 넓이: $\pi r^2 \times \dfrac{\theta}{360°} = \dfrac{1}{2}rl$ &nbsp;·&nbsp; $\pi$ ≈ 3.14…
+    </div>
+
+    <div class="card">
+      <div class="label">최종 계산</div>
+      <div class="derive-box">
+        활꼴 = 부채꼴 $-$ 삼각형<br>
+        $= 6\pi - 9\sqrt{3}$ cm²
+      </div>
+    </div>
+
+    <div class="think-box">
+      <span class="think-label">💡 답의 형태</span>
+      $6\pi - 9\sqrt{3}$는 두 개의 다른 무리수($\pi$와 $\sqrt{3}$)로 이루어진 식이에요. 더 이상 간단히 할 수 없어요. 이 형태 그대로가 정답.
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(2)">← 이전</a>
+      <button class="next-btn" onclick="goPage(4)" style="flex:1">정답 보기 →</button>
+    </div>
+  </div>
+
+  <!-- Page 4 (★) -->
+  <div class="page" id="p4">
+    <div class="page-label">정답 · Page ★</div>
+    <h1 class="page-title">정답 + 풀이 흐름 요약</h1>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      원의 둘레(원주): $2\pi r$ &nbsp;·&nbsp; 원의 넓이: $\pi r^2$ &nbsp;·&nbsp; 부채꼴 호의 길이: $2\pi r \times \dfrac{\theta}{360°}$ &nbsp;·&nbsp; 부채꼴 넓이: $\pi r^2 \times \dfrac{\theta}{360°} = \dfrac{1}{2}rl$ &nbsp;·&nbsp; $\pi$ ≈ 3.14…
+    </div>
+
+    <div class="answer-box">
+      $(6\pi - 9\sqrt{3})$ cm²
+    </div>
+
+    <div class="card">
+      <div class="label">전체 풀이 흐름</div>
+      <div class="flow-step"><div class="flow-num">1</div><div>활꼴 = 부채꼴 $-$ 삼각형 OAB</div></div>
+      <div class="flow-step"><div class="flow-num">2</div><div>$r = 6$, $\theta = 60°$, 이등변삼각형에서 꼭짓각 $60°$ → 정삼각형 (한 변 = 6)</div></div>
+      <div class="flow-step"><div class="flow-num">3</div><div>부채꼴 넓이 = $\pi(6)^2 \cdot \frac{1}{6} = 6\pi$ cm²</div></div>
+      <div class="flow-step"><div class="flow-num">4</div><div>정삼각형 넓이 = $\frac{\sqrt{3}}{4}(6)^2 = 9\sqrt{3}$ cm²</div></div>
+      <div class="flow-step"><div class="flow-num">5</div><div>활꼴 = $6\pi - 9\sqrt{3}$ cm²</div></div>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-label">⚠️ 이 유형의 핵심 아이디어</span>
+      <strong>60° 이등변삼각형 = 정삼각형</strong>. 이 인식이 없으면 삼각형 넓이 계산이 막막해져요.<br>
+      특수각 중심각 (30°, 60°, 90°, 120°) → 특수한 삼각형 → 공식 적용.
+    </div>
+
+    <div class="card">
+      <div class="label">📚 이 유형 더 연습하고 싶다면</div>
+      <p style="font-size:13px"><a href="type_03_app.html" style="color:#4361EE">→ 유형 3 (부채꼴·활꼴 구분) 다른 문제 연습</a></p>
+      <p style="font-size:13px"><a href="deep_부채꼴_app.html" style="color:#7c3aed">→ 깊이 탐구 — 부채꼴 통합 앱</a></p>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(3)">← 이전</a>
+      <a class="prev-btn" href="types.html" style="flex:1;text-align:center">유형 목록으로 →</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function goPage(n) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('p' + n).classList.add('active');
+  document.querySelectorAll('.dot').forEach(d => {
+    d.classList.remove('active');
+    if (parseInt(d.dataset.page) < n) d.classList.add('visited');
+    if (parseInt(d.dataset.page) === n) d.classList.add('active');
+  });
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  if (window.renderMathInElement) {
+    renderMathInElement(document.getElementById('p' + n), {
+      delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+    });
+  }
+}
+</script>
+</body>
+</html>

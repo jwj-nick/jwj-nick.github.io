@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>단계별 풀이 — 유형 3 H1 (정삼각형 6개가 한 꼭짓점에 모이면?)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; color: #1a1a2e; }
+  .nav-top { background: #312e81; color: #e0e7ff; font-size: 13px; padding: 10px 16px; display: flex; justify-content: space-between; gap: 12px; }
+  .nav-top a { color: #e0e7ff; text-decoration: none; }
+  .nav-top a:hover { text-decoration: underline; }
+  .progress { background: white; padding: 14px 16px; box-shadow: 0 2px 8px rgba(67,97,238,0.06); position: sticky; top: 0; z-index: 10; }
+  .dots { display: flex; justify-content: center; gap: 10px; max-width: 700px; margin: 0 auto; }
+  .dot { width: 28px; height: 28px; border-radius: 50%; background: #d0d8ff; color: #4361EE; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.15s; border: 2px solid transparent; }
+  .dot.active { background: #4361EE; color: white; transform: scale(1.15); }
+  .dot.visited { background: #c3d0ff; }
+  .dot:hover { border-color: #4361EE; }
+  .container { max-width: 700px; margin: 0 auto; padding: 28px 16px 80px; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-label { display: inline-block; background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; font-size: 11px; padding: 4px 12px; border-radius: 20px; letter-spacing: 1px; margin-bottom: 10px; }
+  .page-title { font-size: 22px; color: #1a1a2e; margin-bottom: 6px; line-height: 1.4; }
+  .page-why { font-size: 13px; color: #7c3aed; font-style: italic; margin-bottom: 18px; padding: 8px 14px; background: #f5edff; border-left: 3px solid #7c3aed; border-radius: 0 8px 8px 0; }
+  .card { background: white; border-radius: 14px; padding: 22px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 14px; }
+  .card p { font-size: 14px; line-height: 1.9; color: #333; margin-bottom: 10px; }
+  .card p:last-child { margin-bottom: 0; }
+  .card .label { font-size: 12px; color: #4361EE; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .prob-box { background: white; border: 2px solid #4361EE; border-radius: 14px; padding: 20px; font-size: 15px; line-height: 1.9; color: #1a1a2e; margin-bottom: 16px; }
+  .derive-box { background: #f0f4ff; border-left: 4px solid #4361EE; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 12px 0; font-size: 14px; line-height: 1.9; }
+  .warn-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 13px; line-height: 1.8; color: #856404; }
+  .warn-box .warn-label { font-weight: bold; color: #e07b39; display: block; margin-bottom: 4px; }
+  .think-box { background: #e3f2fd; border-left: 4px solid #2196f3; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 14px; line-height: 1.8; color: #0d47a1; }
+  .think-box .think-label { font-weight: bold; display: block; margin-bottom: 6px; }
+  .answer-box { background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; border-radius: 14px; padding: 24px; text-align: center; font-size: 20px; font-weight: bold; margin: 20px 0; box-shadow: 0 4px 16px rgba(67,97,238,0.3); }
+  .next-btn { display: block; width: 100%; padding: 14px; background: #4361EE; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; font-family: inherit; margin-top: 16px; transition: all 0.15s; }
+  .next-btn:hover { background: #3a52d8; transform: translateY(-1px); }
+  .prev-btn { display: inline-block; background: white; color: #4361EE; border: 2px solid #4361EE; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-family: inherit; cursor: pointer; margin-right: 8px; text-decoration: none; }
+  .nav-bottom { display: flex; gap: 8px; margin-top: 16px; }
+  .flow-step { display: flex; align-items: flex-start; gap: 10px; margin: 10px 0; padding: 10px 14px; background: #f8f9ff; border-radius: 10px; font-size: 13px; line-height: 1.7; }
+  .flow-step .flow-num { background: #4361EE; color: white; width: 24px; height: 24px; min-width: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
+  .legend { background: #fff8e1; border: 1px solid #f4d96f; border-radius: 10px; padding: 10px 14px; font-size: 12px; line-height: 1.7; color: #5d4715; margin-bottom: 16px; }
+  .legend strong { color: #8b6914; }
+  .legend .legend-title { font-weight: bold; color: #8b6914; margin-right: 6px; }
+</style>
+</head>
+<body>
+
+<div class="nav-top">
+  <a href="../../">← 중1 수학 홈</a>
+  <a href="types.html">← 유형 목록</a>
+</div>
+
+<div class="progress">
+  <div class="dots">
+    <div class="dot active" data-page="0" onclick="goPage(0)">0</div>
+    <div class="dot" data-page="1" onclick="goPage(1)">1</div>
+    <div class="dot" data-page="2" onclick="goPage(2)">2</div>
+    <div class="dot" data-page="3" onclick="goPage(3)">3</div>
+    <div class="dot" data-page="4" onclick="goPage(4)">★</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Page 0 -->
+  <div class="page active" id="p0">
+    <div class="page-label">문제 · Page 0</div>
+    <h1 class="page-title">단계별로 풀어볼까요?</h1>
+    <div class="page-why">정답은 마지막에 확인해요. 먼저 스스로 생각해보고, 막히면 다음 단계로 넘어가세요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      <strong>다면체</strong>: 다각형으로만 둘러싸인 입체도형 &nbsp;·&nbsp;
+      <strong>꼭짓점(V)</strong>·<strong>모서리(E)</strong>·<strong>면(F)</strong> &nbsp;·&nbsp;
+      <strong>오일러 공식</strong>: $V-E+F=2$ &nbsp;·&nbsp;
+      <strong>정다면체</strong>: ①모든 면이 합동인 정다각형 ②각 꼭짓점에 모인 면의 수가 같음 &nbsp;·&nbsp;
+      <strong>회전체</strong>: 평면도형을 직선(축) 주위로 1회전시켜 만든 입체
+    </div>
+
+    <div class="prob-box">
+      <strong>유형 3 · H1</strong><br><br>
+      한 꼭짓점에 정삼각형 <strong>6개</strong>가 모이면 정다면체가 만들어질까요? 그 이유와 함께 답하세요.
+    </div>
+
+    <div class="think-box">
+      <span class="think-label">🤔 잠깐, 손으로 풀어보세요</span>
+      정삼각형 한 내각은 몇 도인가요? 6개가 모이면 각의 합이 어떻게 될지 계산해봐요.
+    </div>
+
+    <button class="next-btn" onclick="goPage(1)">1단계로 →</button>
+  </div>
+
+  <!-- Page 1 -->
+  <div class="page" id="p1">
+    <div class="page-label">1단계 · Page 1</div>
+    <h1 class="page-title">입체가 만들어지는 조건</h1>
+    <div class="page-why">왜 이 단계? — 정다면체가 만들어지려면 꼭짓점에서 각의 합이 얼마여야 하는지 알아야 해요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      <strong>꼭짓점 각의 합 조건</strong>: 입체가 되려면 꼭짓점에 모인 각의 합이 <strong>360°보다 작아야</strong> 해요
+    </div>
+
+    <div class="card">
+      <div class="label">왜 360°보다 작아야 하나요?</div>
+      <p>여러 면이 한 꼭짓점에서 만나 입체로 "솟아오르려면" 각의 합이 완전히 평면($360°$)이 되지 않아야 해요.</p>
+      <div class="derive-box">
+        각의 합 &lt; $360°$ → 입체 가능<br>
+        각의 합 $= 360°$ → 평면 (입체 불가)<br>
+        각의 합 &gt; $360°$ → 불가능 (면이 겹침)
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="label">정삼각형 정다면체 3종</div>
+      <div class="derive-box">
+        정삼각형 3개: $3 \times 60° = 180°$ → 정사면체 ✓<br>
+        정삼각형 4개: $4 \times 60° = 240°$ → 정팔면체 ✓<br>
+        정삼각형 5개: $5 \times 60° = 300°$ → 정이십면체 ✓
+      </div>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(0)">← 이전</a>
+      <button class="next-btn" onclick="goPage(2)" style="flex:1">2단계로 →</button>
+    </div>
+  </div>
+
+  <!-- Page 2 -->
+  <div class="page" id="p2">
+    <div class="page-label">2단계 · Page 2</div>
+    <h1 class="page-title">정삼각형 6개 분석</h1>
+    <div class="page-why">왜 이 단계? — 6개가 모일 때 각의 합을 직접 계산해요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      정삼각형 한 내각 = $60°$
+    </div>
+
+    <div class="card">
+      <div class="label">각의 합 계산</div>
+      <div class="derive-box">
+        $6 \times 60° = 360°$
+      </div>
+      <p>360°! 이는 정확히 <strong>평면</strong>이에요.</p>
+    </div>
+
+    <div class="card">
+      <div class="label">결론</div>
+      <p>각의 합이 $360°$이면 평면이 되어 입체가 만들어지지 않아요.</p>
+      <div class="derive-box">
+        $6 \times 60° = 360°$ → 평면 (벌집 모양) → 정다면체 불가
+      </div>
+      <p>실제로 정삼각형 6개를 한 점에 모아보면 육각형 타일 모양(벌집)이 되어 평면에 깔려요.</p>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(1)">← 이전</a>
+      <button class="next-btn" onclick="goPage(3)" style="flex:1">3단계로 →</button>
+    </div>
+  </div>
+
+  <!-- Page 3 -->
+  <div class="page" id="p3">
+    <div class="page-label">3단계 · Page 3</div>
+    <h1 class="page-title">정다면체가 5종뿐인 이유</h1>
+    <div class="page-why">왜 이 단계? — 이 문제의 더 큰 맥락, 왜 정다면체가 정확히 5종인지 이해해요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      5가지 정다면체: 정사면체(4), 정육면체(6), 정팔면체(8), 정십이면체(12), 정이십면체(20)
+    </div>
+
+    <div class="card">
+      <div class="label">각 정다각형별 가능 개수</div>
+      <div class="derive-box">
+        정삼각형(60°): 3·4·5개 가능 (3종)<br>
+        정사각형(90°): 3개만 (3×90°=270°) — 4개 = 360° 평면<br>
+        정오각형(108°): 3개만 (3×108°=324°) — 4개 = 432° 불가<br>
+        정육각형(120°): 3개 = 360° → 평면 → 불가
+      </div>
+      <p>→ 총 5종의 정다면체만 가능해요.</p>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(2)">← 이전</a>
+      <button class="next-btn" onclick="goPage(4)" style="flex:1">정답 보기 →</button>
+    </div>
+  </div>
+
+  <!-- Page ★ -->
+  <div class="page" id="p4">
+    <div class="page-label">정답 · Page ★</div>
+    <h1 class="page-title">정답 + 풀이 흐름 요약</h1>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      정다면체 조건: 꼭짓점 각의 합 &lt; $360°$
+    </div>
+
+    <div class="answer-box">
+      아니요. 평면이 되어 입체가 만들어지지 않아요.<br>
+      <span style="font-size:13px;font-weight:normal;opacity:0.9">$6 \times 60° = 360°$ → 평면 (벌집 무늬)</span>
+    </div>
+
+    <div class="card">
+      <div class="label">전체 풀이 흐름 — 3단계</div>
+      <div class="flow-step"><div class="flow-num">1</div><div>입체 조건: 꼭짓점에 모인 각의 합 &lt; 360°</div></div>
+      <div class="flow-step"><div class="flow-num">2</div><div>정삼각형 6개: $6 \times 60° = 360°$ → 360°와 같으므로 평면이 됨</div></div>
+      <div class="flow-step"><div class="flow-num">3</div><div>정삼각형 정다면체는 3·4·5개가 모일 때만 가능 → 정사면체·정팔면체·정이십면체</div></div>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-label">⚠️ 이 유형의 핵심</span>
+      정다면체가 5종뿐인 이유는 각의 합이 360° 미만이어야 하는 조건 때문이에요. 수학적으로 딱 5가지 경우만 허용돼요.
+    </div>
+
+    <div class="card">
+      <div class="label">📚 이 유형 더 연습하고 싶다면</div>
+      <p style="font-size:13px"><a href="type_03_app.html" style="color:#4361EE">→ 유형 3 (정다면체 5종) 다른 문제 연습</a></p>
+      <p style="font-size:13px"><a href="deep_정다면체_app.html" style="color:#7c3aed">→ 깊이 탐구 — 정다면체 완전 이해 (★ 보라 톤)</a></p>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(3)">← 이전</a>
+      <a class="prev-btn" href="types.html" style="flex:1;text-align:center">유형 목록으로 →</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function goPage(n) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('p' + n).classList.add('active');
+  document.querySelectorAll('.dot').forEach(d => {
+    d.classList.remove('active');
+    if (parseInt(d.dataset.page) < n) d.classList.add('visited');
+    if (parseInt(d.dataset.page) === n) d.classList.add('active');
+  });
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  if (window.renderMathInElement) {
+    renderMathInElement(document.getElementById('p' + n), {
+      delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+    });
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>단계별 풀이 — 유형 7 H1 (그래프로 속도 비교)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; color: #1a1a2e; }
+  .nav-top { background: #312e81; color: #e0e7ff; font-size: 13px; padding: 10px 16px; display: flex; justify-content: space-between; gap: 12px; }
+  .nav-top a { color: #e0e7ff; text-decoration: none; }
+  .nav-top a:hover { text-decoration: underline; }
+  .progress { background: white; padding: 14px 16px; box-shadow: 0 2px 8px rgba(67,97,238,0.06); position: sticky; top: 0; z-index: 10; }
+  .dots { display: flex; justify-content: center; gap: 10px; max-width: 700px; margin: 0 auto; }
+  .dot { width: 28px; height: 28px; border-radius: 50%; background: #d0d8ff; color: #4361EE; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.15s; border: 2px solid transparent; }
+  .dot.active { background: #4361EE; color: white; transform: scale(1.15); }
+  .dot.visited { background: #c3d0ff; }
+  .dot:hover { border-color: #4361EE; }
+  .container { max-width: 700px; margin: 0 auto; padding: 28px 16px 80px; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-label { display: inline-block; background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; font-size: 11px; padding: 4px 12px; border-radius: 20px; letter-spacing: 1px; margin-bottom: 10px; }
+  .page-title { font-size: 22px; color: #1a1a2e; margin-bottom: 6px; line-height: 1.4; }
+  .page-why { font-size: 13px; color: #7c3aed; font-style: italic; margin-bottom: 18px; padding: 8px 14px; background: #f5edff; border-left: 3px solid #7c3aed; border-radius: 0 8px 8px 0; }
+  .card { background: white; border-radius: 14px; padding: 22px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 14px; }
+  .card p { font-size: 14px; line-height: 1.9; color: #333; margin-bottom: 10px; }
+  .card p:last-child { margin-bottom: 0; }
+  .card .label { font-size: 12px; color: #4361EE; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .prob-box { background: white; border: 2px solid #4361EE; border-radius: 14px; padding: 20px; font-size: 15px; line-height: 1.9; color: #1a1a2e; margin-bottom: 16px; }
+  .derive-box { background: #f0f4ff; border-left: 4px solid #4361EE; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 12px 0; font-size: 14px; line-height: 1.9; }
+  .warn-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 13px; line-height: 1.8; color: #856404; }
+  .warn-box .warn-label { font-weight: bold; color: #e07b39; display: block; margin-bottom: 4px; }
+  .answer-box { background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; border-radius: 14px; padding: 24px; text-align: center; font-size: 22px; font-weight: bold; margin: 20px 0; box-shadow: 0 4px 16px rgba(67,97,238,0.3); }
+  .next-btn { display: block; width: 100%; padding: 14px; background: #4361EE; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; font-family: inherit; margin-top: 16px; transition: all 0.15s; }
+  .next-btn:hover { background: #3a52d8; transform: translateY(-1px); }
+  .prev-btn { display: inline-block; background: white; color: #4361EE; border: 2px solid #4361EE; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-family: inherit; cursor: pointer; margin-right: 8px; text-decoration: none; }
+  .nav-bottom { display: flex; gap: 8px; margin-top: 16px; }
+  .flow-step { display: flex; align-items: flex-start; gap: 10px; margin: 10px 0; padding: 10px 14px; background: #f8f9ff; border-radius: 10px; font-size: 13px; line-height: 1.7; }
+  .flow-step .flow-num { background: #4361EE; color: white; width: 24px; height: 24px; min-width: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
+  .legend { background: #fff8e1; border: 1px solid #f4d96f; border-radius: 10px; padding: 10px 14px; font-size: 12px; line-height: 1.7; color: #5d4715; margin-bottom: 16px; }
+  .legend strong { color: #8b6914; }
+  .legend .legend-title { font-weight: bold; color: #8b6914; margin-right: 6px; }
+  .graph-area { background: #f8f9ff; border-radius: 12px; padding: 16px; margin: 12px 0; }
+  .graph-area svg { display: block; margin: 0 auto; }
+</style>
+</head>
+<body>
+
+<nav class="nav-top">
+  <a href="../../">← 중1 수학 홈</a>
+  <a href="types.html">← 유형 목록</a>
+</nav>
+
+<div class="progress">
+  <div class="dots">
+    <div class="dot active" data-page="0" onclick="goPage(0)">문제</div>
+    <div class="dot" data-page="1" onclick="goPage(1)">1</div>
+    <div class="dot" data-page="2" onclick="goPage(2)">2</div>
+    <div class="dot" data-page="3" onclick="goPage(3)">★</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Page 0: 문제 -->
+  <div class="page active" id="p0">
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      순서쌍 (a, b): x좌표 a, y좌표 b인 점 · 제1사분면(Ⅰ): x&gt;0, y&gt;0 · 제2사분면(Ⅱ): x&lt;0, y&gt;0 · 제3사분면(Ⅲ): x&lt;0, y&lt;0 · 제4사분면(Ⅳ): x&gt;0, y&lt;0 · 축 위의 점은 사분면에 속하지 않아요
+    </div>
+    <span class="page-label">유형 7 · H1</span>
+    <h2 class="page-title">그래프 기울기로 속도 비교</h2>
+    <div class="prob-box">
+      <p>시간($x$, 분)과 이동 거리($y$, km)의 그래프에서 A의 기울기는 4, B의 기울기는 6이에요.</p>
+      <p>A와 B 중 누가 더 빠른가요?</p>
+    </div>
+    <div class="card">
+      <p class="label">생각해보기</p>
+      <p>그래프가 가파를수록 빠를까요, 느릴까요? 기울기가 크면 같은 시간에 얼마나 더 많이 이동하나요?</p>
+    </div>
+    <button class="next-btn" onclick="goPage(1)">풀어볼게요 →</button>
+  </div>
+
+  <!-- Page 1: 기울기 = 속도 -->
+  <div class="page" id="p1">
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      순서쌍 (a, b): x좌표 a, y좌표 b인 점 · 제1사분면(Ⅰ): x&gt;0, y&gt;0 · 제2사분면(Ⅱ): x&lt;0, y&gt;0 · 제3사분면(Ⅲ): x&lt;0, y&lt;0 · 제4사분면(Ⅳ): x&gt;0, y&lt;0 · 축 위의 점은 사분면에 속하지 않아요
+    </div>
+    <span class="page-label">단계 1 / 2</span>
+    <h2 class="page-title">기울기 = 단위 시간당 이동 거리 = 속도</h2>
+    <div class="page-why">시간-거리 그래프에서 기울기는 "1분에 몇 km"를 나타내므로 곧 속도예요.</div>
+    <div class="card">
+      <p>$y = ax$ 형태에서 $x$가 1 증가하면 $y$는 $a$만큼 증가해요.</p>
+      <p>→ 1분에 $a$ km 이동 = 속도 $a$ (km/분)</p>
+    </div>
+    <div class="derive-box">
+      A의 기울기 = 4 → 속도 = 4 km/분<br>
+      B의 기울기 = 6 → 속도 = 6 km/분
+    </div>
+    <div class="warn-box">
+      <span class="warn-label">⚡ 핵심</span>
+      시간-거리 그래프에서 기울기가 클수록 더 가파르고, 더 빠릅니다. 그래프가 "더 서 있는" 쪽이 빠른 쪽!
+    </div>
+    <div class="nav-bottom">
+      <button class="prev-btn" onclick="goPage(0)">← 이전</button>
+      <button class="next-btn" onclick="goPage(2)" style="flex:1">다음 →</button>
+    </div>
+  </div>
+
+  <!-- Page 2: 비교 결론 -->
+  <div class="page" id="p2">
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      순서쌍 (a, b): x좌표 a, y좌표 b인 점 · 제1사분면(Ⅰ): x&gt;0, y&gt;0 · 제2사분면(Ⅱ): x&lt;0, y&gt;0 · 제3사분면(Ⅲ): x&lt;0, y&lt;0 · 제4사분면(Ⅳ): x&gt;0, y&lt;0 · 축 위의 점은 사분면에 속하지 않아요
+    </div>
+    <span class="page-label">단계 2 / 2</span>
+    <h2 class="page-title">비교: B가 더 빠르다</h2>
+    <div class="page-why">숫자를 직접 비교해볼게요.</div>
+    <div class="card">
+      <p>1분 뒤 이동 거리:</p>
+      <p>A: $y = 4 \times 1 = 4$ km</p>
+      <p>B: $y = 6 \times 1 = 6$ km</p>
+      <p>같은 시간에 B가 더 멀리 이동 → B가 더 빠릅니다.</p>
+    </div>
+    <div class="derive-box">
+      $6 > 4$ → B의 속도 &gt; A의 속도<br>
+      $$\therefore\; \text{B가 더 빠르다}$$
+    </div>
+    <div class="nav-bottom">
+      <button class="prev-btn" onclick="goPage(1)">← 이전</button>
+      <button class="next-btn" onclick="goPage(3)" style="flex:1">정답 확인 →</button>
+    </div>
+  </div>
+
+  <!-- Page 3: ★ 정답 -->
+  <div class="page" id="p3">
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      순서쌍 (a, b): x좌표 a, y좌표 b인 점 · 제1사분면(Ⅰ): x&gt;0, y&gt;0 · 제2사분면(Ⅱ): x&lt;0, y&gt;0 · 제3사분면(Ⅲ): x&lt;0, y&lt;0 · 제4사분면(Ⅳ): x&gt;0, y&lt;0 · 축 위의 점은 사분면에 속하지 않아요
+    </div>
+    <span class="page-label">★ 정답</span>
+    <h2 class="page-title">B가 더 빠르다</h2>
+    <div class="answer-box">B가 더 빠르다 (기울기 6 &gt; 4)</div>
+
+    <div class="card">
+      <p class="label">풀이 흐름 요약</p>
+      <div class="flow-step"><div class="flow-num">1</div><div>시간-거리 그래프에서 기울기 = 속도</div></div>
+      <div class="flow-step"><div class="flow-num">2</div><div>A 기울기 4, B 기울기 6 → 6 &gt; 4</div></div>
+      <div class="flow-step"><div class="flow-num">3</div><div>기울기가 큰 B가 더 빠르다</div></div>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-label">⚡ 실생활 그래프 읽기</span>
+      시간-거리 그래프가 더 가파를수록(기울기 클수록) 속도가 빠릅니다. 그래프 모양이 평평하면 느린 것, 가파르면 빠른 것!
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <p class="label">이 유형 더 연습하고 싶다면</p>
+      <p>→ <a href="type_07_app.html" style="color:#4361EE;">유형 7 연습 문제 앱</a></p>
+    </div>
+
+    <div class="nav-bottom">
+      <button class="prev-btn" onclick="goPage(2)">← 이전</button>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+function goPage(n) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('p' + n).classList.add('active');
+  document.querySelectorAll('.dot').forEach(d => {
+    d.classList.remove('active');
+    if (parseInt(d.dataset.page) < n) d.classList.add('visited');
+    if (parseInt(d.dataset.page) === n) d.classList.add('active');
+  });
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  if (window.renderMathInElement) {
+    renderMathInElement(document.getElementById('p' + n), {
+      delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+    });
+  }
+}
+</script>
+</body>
+</html>

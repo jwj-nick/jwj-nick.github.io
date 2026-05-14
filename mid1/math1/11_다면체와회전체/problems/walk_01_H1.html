@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>단계별 풀이 — 유형 1 H1 (오일러 공식으로 면의 수)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; color: #1a1a2e; }
+  .nav-top { background: #312e81; color: #e0e7ff; font-size: 13px; padding: 10px 16px; display: flex; justify-content: space-between; gap: 12px; }
+  .nav-top a { color: #e0e7ff; text-decoration: none; }
+  .nav-top a:hover { text-decoration: underline; }
+  .progress { background: white; padding: 14px 16px; box-shadow: 0 2px 8px rgba(67,97,238,0.06); position: sticky; top: 0; z-index: 10; }
+  .dots { display: flex; justify-content: center; gap: 10px; max-width: 700px; margin: 0 auto; }
+  .dot { width: 28px; height: 28px; border-radius: 50%; background: #d0d8ff; color: #4361EE; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.15s; border: 2px solid transparent; }
+  .dot.active { background: #4361EE; color: white; transform: scale(1.15); }
+  .dot.visited { background: #c3d0ff; }
+  .dot:hover { border-color: #4361EE; }
+  .container { max-width: 700px; margin: 0 auto; padding: 28px 16px 80px; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-label { display: inline-block; background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; font-size: 11px; padding: 4px 12px; border-radius: 20px; letter-spacing: 1px; margin-bottom: 10px; }
+  .page-title { font-size: 22px; color: #1a1a2e; margin-bottom: 6px; line-height: 1.4; }
+  .page-why { font-size: 13px; color: #7c3aed; font-style: italic; margin-bottom: 18px; padding: 8px 14px; background: #f5edff; border-left: 3px solid #7c3aed; border-radius: 0 8px 8px 0; }
+  .card { background: white; border-radius: 14px; padding: 22px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 14px; }
+  .card p { font-size: 14px; line-height: 1.9; color: #333; margin-bottom: 10px; }
+  .card p:last-child { margin-bottom: 0; }
+  .card .label { font-size: 12px; color: #4361EE; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .prob-box { background: white; border: 2px solid #4361EE; border-radius: 14px; padding: 20px; font-size: 15px; line-height: 1.9; color: #1a1a2e; margin-bottom: 16px; }
+  .derive-box { background: #f0f4ff; border-left: 4px solid #4361EE; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 12px 0; font-size: 14px; line-height: 1.9; }
+  .warn-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 13px; line-height: 1.8; color: #856404; }
+  .warn-box .warn-label { font-weight: bold; color: #e07b39; display: block; margin-bottom: 4px; }
+  .think-box { background: #e3f2fd; border-left: 4px solid #2196f3; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 14px; line-height: 1.8; color: #0d47a1; }
+  .think-box .think-label { font-weight: bold; display: block; margin-bottom: 6px; }
+  .answer-box { background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; border-radius: 14px; padding: 24px; text-align: center; font-size: 22px; font-weight: bold; margin: 20px 0; box-shadow: 0 4px 16px rgba(67,97,238,0.3); }
+  .next-btn { display: block; width: 100%; padding: 14px; background: #4361EE; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; font-family: inherit; margin-top: 16px; transition: all 0.15s; }
+  .next-btn:hover { background: #3a52d8; transform: translateY(-1px); }
+  .prev-btn { display: inline-block; background: white; color: #4361EE; border: 2px solid #4361EE; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-family: inherit; cursor: pointer; margin-right: 8px; text-decoration: none; }
+  .nav-bottom { display: flex; gap: 8px; margin-top: 16px; }
+  .flow-step { display: flex; align-items: flex-start; gap: 10px; margin: 10px 0; padding: 10px 14px; background: #f8f9ff; border-radius: 10px; font-size: 13px; line-height: 1.7; }
+  .flow-step .flow-num { background: #4361EE; color: white; width: 24px; height: 24px; min-width: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
+  .legend { background: #fff8e1; border: 1px solid #f4d96f; border-radius: 10px; padding: 10px 14px; font-size: 12px; line-height: 1.7; color: #5d4715; margin-bottom: 16px; }
+  .legend strong { color: #8b6914; }
+  .legend .legend-title { font-weight: bold; color: #8b6914; margin-right: 6px; }
+</style>
+</head>
+<body>
+
+<div class="nav-top">
+  <a href="../../">← 중1 수학 홈</a>
+  <a href="types.html">← 유형 목록</a>
+</div>
+
+<div class="progress">
+  <div class="dots">
+    <div class="dot active" data-page="0" onclick="goPage(0)">0</div>
+    <div class="dot" data-page="1" onclick="goPage(1)">1</div>
+    <div class="dot" data-page="2" onclick="goPage(2)">2</div>
+    <div class="dot" data-page="3" onclick="goPage(3)">3</div>
+    <div class="dot" data-page="4" onclick="goPage(4)">★</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Page 0 -->
+  <div class="page active" id="p0">
+    <div class="page-label">문제 · Page 0</div>
+    <h1 class="page-title">단계별로 풀어볼까요?</h1>
+    <div class="page-why">정답은 마지막에 확인해요. 먼저 스스로 생각해보고, 막히면 다음 단계로 넘어가세요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      <strong>다면체</strong>: 다각형으로만 둘러싸인 입체도형 &nbsp;·&nbsp;
+      <strong>꼭짓점(V)</strong>·<strong>모서리(E)</strong>·<strong>면(F)</strong> &nbsp;·&nbsp;
+      <strong>오일러 공식</strong>: $V-E+F=2$ &nbsp;·&nbsp;
+      <strong>정다면체</strong>: ①모든 면이 합동인 정다각형 ②각 꼭짓점에 모인 면의 수가 같음 &nbsp;·&nbsp;
+      <strong>회전체</strong>: 평면도형을 직선(축) 주위로 1회전시켜 만든 입체
+    </div>
+
+    <div class="prob-box">
+      <strong>유형 1 · H1</strong><br><br>
+      어떤 다면체의 꼭짓점이 $10$, 모서리가 $15$ 일 때, 이 다면체의 면의 수는?<br><br>
+      (오일러 공식: $V - E + F = 2$)
+    </div>
+
+    <div class="think-box">
+      <span class="think-label">🤔 잠깐, 손으로 풀어보세요</span>
+      $V = 10$, $E = 15$ 로 주어졌어요. 오일러 공식에 대입해서 $F$를 직접 구해봐요.
+    </div>
+
+    <button class="next-btn" onclick="goPage(1)">1단계로 →</button>
+  </div>
+
+  <!-- Page 1 -->
+  <div class="page" id="p1">
+    <div class="page-label">1단계 · Page 1</div>
+    <h1 class="page-title">오일러 공식이 뭔가요?</h1>
+    <div class="page-why">왜 이 단계? — 공식의 의미를 제대로 알아야 올바르게 적용해요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      <strong>다면체</strong>: 다각형으로만 둘러싸인 입체도형 &nbsp;·&nbsp; <strong>V</strong>=꼭짓점, <strong>E</strong>=모서리, <strong>F</strong>=면 &nbsp;·&nbsp; <strong>오일러 공식</strong>: $V-E+F=2$
+    </div>
+
+    <div class="card">
+      <div class="label">오일러 공식</div>
+      <p>모든 볼록 다면체에 대해 다음이 항상 성립해요:</p>
+      <div class="derive-box">
+        $V - E + F = 2$<br>
+        (꼭짓점 수) − (모서리 수) + (면 수) = 2
+      </div>
+      <p>이 공식은 레온하르트 오일러가 발견했어요. 어떤 다면체라도 (볼록 다면체) 항상 성립해요.</p>
+    </div>
+
+    <div class="card">
+      <div class="label">검산 예시 — 정육면체</div>
+      <div class="derive-box">
+        정육면체: $V = 8$, $E = 12$, $F = 6$<br>
+        $8 - 12 + 6 = 2$ ✓
+      </div>
+      <p>삼각기둥: $V = 6$, $E = 9$, $F = 5$ → $6 - 9 + 5 = 2$ ✓</p>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(0)">← 이전</a>
+      <button class="next-btn" onclick="goPage(2)" style="flex:1">2단계로 →</button>
+    </div>
+  </div>
+
+  <!-- Page 2 -->
+  <div class="page" id="p2">
+    <div class="page-label">2단계 · Page 2</div>
+    <h1 class="page-title">공식에 대입해요</h1>
+    <div class="page-why">왜 이 단계? — $V$와 $E$가 주어졌으니, $F$에 대해 풀면 돼요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      <strong>V</strong>=꼭짓점, <strong>E</strong>=모서리, <strong>F</strong>=면 &nbsp;·&nbsp; <strong>오일러 공식</strong>: $V-E+F=2$
+    </div>
+
+    <div class="card">
+      <div class="label">주어진 조건 정리</div>
+      <div class="derive-box">
+        꼭짓점 $V = 10$<br>
+        모서리 $E = 15$<br>
+        면 $F = ?$
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="label">오일러 공식에 대입</div>
+      <div class="derive-box">
+        $V - E + F = 2$<br>
+        $10 - 15 + F = 2$<br>
+        $-5 + F = 2$<br>
+        $F = 2 + 5 = 7$
+      </div>
+    </div>
+
+    <div class="think-box">
+      <span class="think-label">💡 검산해볼까요?</span>
+      $V = 10$, $E = 15$, $F = 7$ → $10 - 15 + 7 = 2$ ✓<br>
+      어떤 다면체일까요? 오각기둥! 오각기둥은 $V = 10$, $E = 15$, $F = 7$ 이에요.
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(1)">← 이전</a>
+      <button class="next-btn" onclick="goPage(3)" style="flex:1">3단계로 →</button>
+    </div>
+  </div>
+
+  <!-- Page 3 -->
+  <div class="page" id="p3">
+    <div class="page-label">3단계 · Page 3</div>
+    <h1 class="page-title">답 확정 + 다면체 이름 추측</h1>
+    <div class="page-why">왜 이 단계? — 계산 마무리 + 오각기둥으로 검증해봐요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      <strong>오각기둥</strong>: $n=5$인 각기둥 → $V=2n=10$, $E=3n=15$, $F=n+2=7$
+    </div>
+
+    <div class="card">
+      <div class="label">오각기둥 검증</div>
+      <p>면 수 $F = 7$인 다면체 예시 = 오각기둥</p>
+      <div class="derive-box">
+        오각기둥 = 오각형 밑면 2개 + 직사각형 옆면 5개 = $F = 7$<br>
+        꼭짓점: 위 5개 + 아래 5개 = $V = 10$ ✓<br>
+        모서리: 위 5개 + 아래 5개 + 옆 5개 = $E = 15$ ✓
+      </div>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-label">⚠️ 흔한 실수</span>
+      $F = 2 - V + E$ 로 쓸 때 부호를 헷갈리기 쉬워요.<br>
+      $V - E + F = 2$ → $F = 2 - V + E = 2 - 10 + 15 = 7$ ✓<br>
+      $V$와 $E$ 순서를 바꾸지 않도록 해요.
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(2)">← 이전</a>
+      <button class="next-btn" onclick="goPage(4)" style="flex:1">정답 보기 →</button>
+    </div>
+  </div>
+
+  <!-- Page ★ -->
+  <div class="page" id="p4">
+    <div class="page-label">정답 · Page ★</div>
+    <h1 class="page-title">정답 + 풀이 흐름 요약</h1>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      <strong>오일러 공식</strong>: $V-E+F=2$ &nbsp;·&nbsp; 모든 볼록 다면체에서 성립
+    </div>
+
+    <div class="answer-box">
+      면의 수 $F = 7$ (칠면체)<br>
+      <span style="font-size:14px;font-weight:normal;opacity:0.9">예: 오각기둥 $V=10, E=15, F=7$</span>
+    </div>
+
+    <div class="card">
+      <div class="label">전체 풀이 흐름 — 3단계</div>
+      <div class="flow-step"><div class="flow-num">1</div><div>오일러 공식 $V - E + F = 2$ 확인</div></div>
+      <div class="flow-step"><div class="flow-num">2</div><div>주어진 값 대입: $10 - 15 + F = 2$</div></div>
+      <div class="flow-step"><div class="flow-num">3</div><div>$F = 7$ 계산 후 오일러 검산 $10 - 15 + 7 = 2$ ✓</div></div>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-label">⚠️ 이 유형의 핵심</span>
+      오일러 공식 $V - E + F = 2$는 V, E, F 중 두 개를 알면 나머지 하나를 반드시 구할 수 있어요. 항상 공식 기억 + 검산!
+    </div>
+
+    <div class="card">
+      <div class="label">📚 이 유형 더 연습하고 싶다면</div>
+      <p style="font-size:13px"><a href="type_01_app.html" style="color:#4361EE">→ 유형 1 (다면체 분류와 구성요소) 다른 문제 연습</a></p>
+      <p style="font-size:13px"><a href="deep_다면체기초_app.html" style="color:#7c3aed">→ 깊이 탐구 — 다면체 기초 완전 이해</a></p>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(3)">← 이전</a>
+      <a class="prev-btn" href="types.html" style="flex:1;text-align:center">유형 목록으로 →</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function goPage(n) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('p' + n).classList.add('active');
+  document.querySelectorAll('.dot').forEach(d => {
+    d.classList.remove('active');
+    if (parseInt(d.dataset.page) < n) d.classList.add('visited');
+    if (parseInt(d.dataset.page) === n) d.classList.add('active');
+  });
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  if (window.renderMathInElement) {
+    renderMathInElement(document.getElementById('p' + n), {
+      delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+    });
+  }
+}
+</script>
+</body>
+</html>

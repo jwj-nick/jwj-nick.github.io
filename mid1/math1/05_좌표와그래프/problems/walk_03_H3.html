@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>단계별 풀이 — 유형 3 H3 (나눗셈 부호와 사분면)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; color: #1a1a2e; }
+  .nav-top { background: #312e81; color: #e0e7ff; font-size: 13px; padding: 10px 16px; display: flex; justify-content: space-between; gap: 12px; }
+  .nav-top a { color: #e0e7ff; text-decoration: none; }
+  .nav-top a:hover { text-decoration: underline; }
+  .progress { background: white; padding: 14px 16px; box-shadow: 0 2px 8px rgba(67,97,238,0.06); position: sticky; top: 0; z-index: 10; }
+  .dots { display: flex; justify-content: center; gap: 10px; max-width: 700px; margin: 0 auto; }
+  .dot { width: 28px; height: 28px; border-radius: 50%; background: #d0d8ff; color: #4361EE; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.15s; border: 2px solid transparent; }
+  .dot.active { background: #4361EE; color: white; transform: scale(1.15); }
+  .dot.visited { background: #c3d0ff; }
+  .dot:hover { border-color: #4361EE; }
+  .container { max-width: 700px; margin: 0 auto; padding: 28px 16px 80px; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-label { display: inline-block; background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; font-size: 11px; padding: 4px 12px; border-radius: 20px; letter-spacing: 1px; margin-bottom: 10px; }
+  .page-title { font-size: 22px; color: #1a1a2e; margin-bottom: 6px; line-height: 1.4; }
+  .page-why { font-size: 13px; color: #7c3aed; font-style: italic; margin-bottom: 18px; padding: 8px 14px; background: #f5edff; border-left: 3px solid #7c3aed; border-radius: 0 8px 8px 0; }
+  .card { background: white; border-radius: 14px; padding: 22px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 14px; }
+  .card p { font-size: 14px; line-height: 1.9; color: #333; margin-bottom: 10px; }
+  .card p:last-child { margin-bottom: 0; }
+  .card .label { font-size: 12px; color: #4361EE; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .prob-box { background: white; border: 2px solid #4361EE; border-radius: 14px; padding: 20px; font-size: 15px; line-height: 1.9; color: #1a1a2e; margin-bottom: 16px; }
+  .derive-box { background: #f0f4ff; border-left: 4px solid #4361EE; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 12px 0; font-size: 14px; line-height: 1.9; }
+  .warn-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 13px; line-height: 1.8; color: #856404; }
+  .warn-box .warn-label { font-weight: bold; color: #e07b39; display: block; margin-bottom: 4px; }
+  .think-box { background: #e3f2fd; border-left: 4px solid #2196f3; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 14px; line-height: 1.8; color: #0d47a1; }
+  .think-box .think-label { font-weight: bold; display: block; margin-bottom: 6px; }
+  .answer-box { background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; border-radius: 14px; padding: 24px; text-align: center; font-size: 22px; font-weight: bold; margin: 20px 0; box-shadow: 0 4px 16px rgba(67,97,238,0.3); }
+  .next-btn { display: block; width: 100%; padding: 14px; background: #4361EE; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; font-family: inherit; margin-top: 16px; transition: all 0.15s; }
+  .next-btn:hover { background: #3a52d8; transform: translateY(-1px); }
+  .prev-btn { display: inline-block; background: white; color: #4361EE; border: 2px solid #4361EE; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-family: inherit; cursor: pointer; margin-right: 8px; text-decoration: none; }
+  .nav-bottom { display: flex; gap: 8px; margin-top: 16px; }
+  .flow-step { display: flex; align-items: flex-start; gap: 10px; margin: 10px 0; padding: 10px 14px; background: #f8f9ff; border-radius: 10px; font-size: 13px; line-height: 1.7; }
+  .flow-step .flow-num { background: #4361EE; color: white; width: 24px; height: 24px; min-width: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
+  .legend { background: #fff8e1; border: 1px solid #f4d96f; border-radius: 10px; padding: 10px 14px; font-size: 12px; line-height: 1.7; color: #5d4715; margin-bottom: 16px; }
+  .legend strong { color: #8b6914; }
+  .legend .legend-title { font-weight: bold; color: #8b6914; margin-right: 6px; }
+</style>
+</head>
+<body>
+
+<div class="nav-top">
+  <a href="../../">← 중1 수학 홈</a>
+  <a href="types.html">← 유형 목록</a>
+</div>
+
+<div class="progress">
+  <div class="dots">
+    <div class="dot active" data-page="0" onclick="goPage(0)">0</div>
+    <div class="dot" data-page="1" onclick="goPage(1)">1</div>
+    <div class="dot" data-page="2" onclick="goPage(2)">2</div>
+    <div class="dot" data-page="3" onclick="goPage(3)">3</div>
+    <div class="dot" data-page="4" onclick="goPage(4)">★</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ============ Page 0: 문제만 ============ -->
+  <div class="page active" id="p0">
+    <div class="page-label">문제 · Page 0</div>
+    <h1 class="page-title">단계별로 풀어볼까요?</h1>
+    <div class="page-why">정답은 마지막에 확인해요. 먼저 스스로 생각해보고, 막히면 다음 단계로 넘어가세요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      순서쌍 $(a, b)$: $x$좌표 $a$, $y$좌표 $b$인 점 &nbsp;·&nbsp;
+      제1사분면(Ⅰ): $x>0, y>0$ &nbsp;·&nbsp; 제2사분면(Ⅱ): $x<0, y>0$ &nbsp;·&nbsp;
+      제3사분면(Ⅲ): $x<0, y<0$ &nbsp;·&nbsp; 제4사분면(Ⅳ): $x>0, y<0$ &nbsp;·&nbsp;
+      축 위의 점은 사분면에 속하지 않아요
+    </div>
+
+    <div class="prob-box">
+      <strong>유형 3 · H3</strong><br><br>
+      점 $\mathrm{A}(a,\,b)$가 제4사분면 위에 있을 때,<br>
+      점 $\mathrm{B}\!\left(\dfrac{a}{b},\; b - a\right)$는 어느 사분면에 속하는가?
+    </div>
+
+    <div class="think-box">
+      <span class="think-label">🤔 잠깐, 손으로 풀어보세요</span>
+      제Ⅳ사분면이면 $a, b$의 부호는 어떻게 되죠? $a/b$는 양수인가요 음수인가요? $b - a$는?
+    </div>
+
+    <button class="next-btn" onclick="goPage(1)">1단계로 →</button>
+  </div>
+
+  <!-- ============ Page 1: a, b 부호 ============ -->
+  <div class="page" id="p1">
+    <div class="page-label">1단계 · Page 1</div>
+    <h1 class="page-title">제Ⅳ사분면 → $a, b$ 부호 확정</h1>
+    <div class="page-why">왜 이 단계? — 먼저 $a, b$ 부호를 명확히 해야 복잡한 식의 부호를 계산할 수 있어요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      순서쌍 $(a, b)$: $x$좌표 $a$, $y$좌표 $b$인 점 &nbsp;·&nbsp;
+      제4사분면(Ⅳ): $x>0, y<0$ &nbsp;·&nbsp;
+      축 위의 점은 사분면에 속하지 않아요
+    </div>
+
+    <div class="card">
+      <div class="label">제Ⅳ사분면 조건</div>
+      <p>점 $(a, b)$가 제Ⅳ사분면 → "오른쪽 아래" → $x > 0, y < 0$</p>
+      <div class="derive-box">
+        $a = x$좌표 $> 0$ → $a$는 <strong>양수</strong><br>
+        $b = y$좌표 $< 0$ → $b$는 <strong>음수</strong>
+      </div>
+      <p>예: $a = 3, b = -2$라고 생각해봐요.</p>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(0)">← 이전</a>
+      <button class="next-btn" onclick="goPage(2)" style="flex:1">2단계로 →</button>
+    </div>
+  </div>
+
+  <!-- ============ Page 2: a/b, b-a 부호 계산 ============ -->
+  <div class="page" id="p2">
+    <div class="page-label">2단계 · Page 2</div>
+    <h1 class="page-title">$\dfrac{a}{b}$와 $b - a$의 부호를 계산해요</h1>
+    <div class="page-why">왜 이 단계? — 나눗셈 부호 규칙과 뺄셈 부호 판단, 두 가지를 적용해요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      순서쌍 $(a, b)$: $x$좌표 $a$, $y$좌표 $b$인 점 &nbsp;·&nbsp;
+      제3사분면(Ⅲ): $x<0, y<0$ &nbsp;·&nbsp;
+      축 위의 점은 사분면에 속하지 않아요
+    </div>
+
+    <div class="card">
+      <div class="label">$a / b$ — 나눗셈 부호 규칙</div>
+      <div class="derive-box">
+        $a > 0$ (양수), $b < 0$ (음수)<br>
+        양수 ÷ 음수 = <strong>음수</strong><br>
+        $\dfrac{a}{b} < 0$<br>
+        예: $3 \div (-2) = -1.5 < 0$
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="label">$b - a$ — 뺄셈 부호 판단</div>
+      <div class="derive-box">
+        $b < 0$ (음수), $a > 0$ (양수)<br>
+        음수에서 양수를 빼면 더 음수가 됨<br>
+        $b - a = $ (음) $-$ (양) $= $ (음) $+$ (음) $= $ <strong>음수</strong><br>
+        예: $b - a = -2 - 3 = -5 < 0$
+      </div>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-label">⚠️ 뺄셈 부호 주의</span>
+      $b - a$에서 $b$가 음수이고 $a$가 양수일 때:<br>
+      "음수 - 양수 = 음수" — 예: $-2 - 3 = -5$ (더 음수가 됨)<br>
+      $a - b$와 $b - a$를 헷갈리지 마세요!
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(1)">← 이전</a>
+      <button class="next-btn" onclick="goPage(3)" style="flex:1">3단계로 →</button>
+    </div>
+  </div>
+
+  <!-- ============ Page 3: 사분면 결정 ============ -->
+  <div class="page" id="p3">
+    <div class="page-label">3단계 · Page 3</div>
+    <h1 class="page-title">점 B의 사분면 결정</h1>
+    <div class="page-why">왜 이 단계? — 두 좌표 부호를 확정했으니 사분면 표에 대입해요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      순서쌍 $(a, b)$: $x$좌표 $a$, $y$좌표 $b$인 점 &nbsp;·&nbsp;
+      제3사분면(Ⅲ): $x<0, y<0$ &nbsp;·&nbsp;
+      축 위의 점은 사분면에 속하지 않아요
+    </div>
+
+    <div class="card">
+      <div class="label">사분면 결정</div>
+      <div class="derive-box">
+        점 $\mathrm{B}\!\left(\dfrac{a}{b},\; b-a\right)$에서<br>
+        $x$좌표 $= \dfrac{a}{b} < 0$ (음수)<br>
+        $y$좌표 $= b - a < 0$ (음수)<br>
+        $(-, -)$ → <strong>제Ⅲ사분면</strong>
+      </div>
+      <p>예로 확인: $a=3, b=-2$ → 점 $(-1.5, -5)$ → 제Ⅲ사분면 ✓</p>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(2)">← 이전</a>
+      <button class="next-btn" onclick="goPage(4)" style="flex:1">정답 보기 →</button>
+    </div>
+  </div>
+
+  <!-- ============ Page 4: 정답 + 요약 ============ -->
+  <div class="page" id="p4">
+    <div class="page-label">정답 · Page ★</div>
+    <h1 class="page-title">정답 + 풀이 흐름 요약</h1>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      순서쌍 $(a, b)$: $x$좌표 $a$, $y$좌표 $b$인 점 &nbsp;·&nbsp;
+      제1사분면(Ⅰ): $x>0, y>0$ &nbsp;·&nbsp; 제2사분면(Ⅱ): $x<0, y>0$ &nbsp;·&nbsp;
+      제3사분면(Ⅲ): $x<0, y<0$ &nbsp;·&nbsp; 제4사분면(Ⅳ): $x>0, y<0$ &nbsp;·&nbsp;
+      축 위의 점은 사분면에 속하지 않아요
+    </div>
+
+    <div class="answer-box">
+      점 B는 <strong>제Ⅲ사분면</strong><br>
+      <span style="font-size:14px;font-weight:normal;opacity:0.9">$(-, -)$ = 왼쪽 아래</span>
+    </div>
+
+    <div class="card">
+      <div class="label">전체 풀이 흐름 — 3단계</div>
+      <div class="flow-step"><div class="flow-num">1</div><div>제Ⅳ사분면 → $a > 0$ (양수), $b < 0$ (음수)</div></div>
+      <div class="flow-step"><div class="flow-num">2</div><div>$a/b$: 양÷음 = 음수 / $b - a$: 음-양 = 음수</div></div>
+      <div class="flow-step"><div class="flow-num">3</div><div>점 B$(a/b,\; b-a)$ = $(-, -)$ → 제Ⅲ사분면</div></div>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-label">⚠️ 이 유형의 핵심 전략</span>
+      변형식 부호 계산 순서: ① $a, b$ 부호 확정 → ② 나눗셈/곱셈/뺄셈 부호 규칙 적용 → ③ 사분면 결정<br>
+      숫자 예시를 잡아서 검산하면 실수 방지에 효과적이에요!
+    </div>
+
+    <div class="card">
+      <div class="label">📚 이 유형 더 연습하고 싶다면</div>
+      <p style="font-size:13px"><a href="type_03_app.html" style="color:#4361EE">→ 유형 3 (사분면 판별 문자) 다른 문제 연습</a></p>
+      <p style="font-size:13px"><a href="deep_좌표기초_app.html" style="color:#7c3aed">→ 깊이 탐구 — 좌표 기초 완전 이해</a></p>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(3)">← 이전</a>
+      <a class="prev-btn" href="types.html" style="flex:1;text-align:center">유형 목록으로 →</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function goPage(n) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('p' + n).classList.add('active');
+  document.querySelectorAll('.dot').forEach(d => {
+    d.classList.remove('active');
+    if (parseInt(d.dataset.page) < n) d.classList.add('visited');
+    if (parseInt(d.dataset.page) === n) d.classList.add('active');
+  });
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  if (window.renderMathInElement) {
+    renderMathInElement(document.getElementById('p' + n), {
+      delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+    });
+  }
+}
+</script>
+</body>
+</html>

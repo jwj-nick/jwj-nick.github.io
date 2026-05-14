@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>단계별 풀이 — 유형 4 H3 (직각삼각형 회전 원뿔)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; color: #1a1a2e; }
+  .nav-top { background: #312e81; color: #e0e7ff; font-size: 13px; padding: 10px 16px; display: flex; justify-content: space-between; gap: 12px; }
+  .nav-top a { color: #e0e7ff; text-decoration: none; }
+  .nav-top a:hover { text-decoration: underline; }
+  .progress { background: white; padding: 14px 16px; box-shadow: 0 2px 8px rgba(67,97,238,0.06); position: sticky; top: 0; z-index: 10; }
+  .dots { display: flex; justify-content: center; gap: 10px; max-width: 700px; margin: 0 auto; }
+  .dot { width: 28px; height: 28px; border-radius: 50%; background: #d0d8ff; color: #4361EE; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.15s; border: 2px solid transparent; }
+  .dot.active { background: #4361EE; color: white; transform: scale(1.15); }
+  .dot.visited { background: #c3d0ff; }
+  .dot:hover { border-color: #4361EE; }
+  .container { max-width: 700px; margin: 0 auto; padding: 28px 16px 80px; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-label { display: inline-block; background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; font-size: 11px; padding: 4px 12px; border-radius: 20px; letter-spacing: 1px; margin-bottom: 10px; }
+  .page-title { font-size: 22px; color: #1a1a2e; margin-bottom: 6px; line-height: 1.4; }
+  .page-why { font-size: 13px; color: #7c3aed; font-style: italic; margin-bottom: 18px; padding: 8px 14px; background: #f5edff; border-left: 3px solid #7c3aed; border-radius: 0 8px 8px 0; }
+  .card { background: white; border-radius: 14px; padding: 22px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 14px; }
+  .card p { font-size: 14px; line-height: 1.9; color: #333; margin-bottom: 10px; }
+  .card p:last-child { margin-bottom: 0; }
+  .card .label { font-size: 12px; color: #4361EE; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .prob-box { background: white; border: 2px solid #4361EE; border-radius: 14px; padding: 20px; font-size: 15px; line-height: 1.9; color: #1a1a2e; margin-bottom: 16px; }
+  .derive-box { background: #f0f4ff; border-left: 4px solid #4361EE; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 12px 0; font-size: 14px; line-height: 1.9; }
+  .warn-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 13px; line-height: 1.8; color: #856404; }
+  .warn-box .warn-label { font-weight: bold; color: #e07b39; display: block; margin-bottom: 4px; }
+  .think-box { background: #e3f2fd; border-left: 4px solid #2196f3; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 14px; line-height: 1.8; color: #0d47a1; }
+  .think-box .think-label { font-weight: bold; display: block; margin-bottom: 6px; }
+  .answer-box { background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; border-radius: 14px; padding: 24px; text-align: center; font-size: 22px; font-weight: bold; margin: 20px 0; box-shadow: 0 4px 16px rgba(67,97,238,0.3); }
+  .next-btn { display: block; width: 100%; padding: 14px; background: #4361EE; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; font-family: inherit; margin-top: 16px; transition: all 0.15s; }
+  .next-btn:hover { background: #3a52d8; transform: translateY(-1px); }
+  .prev-btn { display: inline-block; background: white; color: #4361EE; border: 2px solid #4361EE; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-family: inherit; cursor: pointer; margin-right: 8px; text-decoration: none; }
+  .nav-bottom { display: flex; gap: 8px; margin-top: 16px; }
+  .flow-step { display: flex; align-items: flex-start; gap: 10px; margin: 10px 0; padding: 10px 14px; background: #f8f9ff; border-radius: 10px; font-size: 13px; line-height: 1.7; }
+  .flow-step .flow-num { background: #4361EE; color: white; width: 24px; height: 24px; min-width: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
+  .legend { background: #fff8e1; border: 1px solid #f4d96f; border-radius: 10px; padding: 10px 14px; font-size: 12px; line-height: 1.7; color: #5d4715; margin-bottom: 16px; }
+  .legend strong { color: #8b6914; }
+  .legend .legend-title { font-weight: bold; color: #8b6914; margin-right: 6px; }
+</style>
+</head>
+<body>
+<div class="nav-top">
+  <a href="../../">← 중1 수학 홈</a>
+  <a href="types.html">← 유형 목록</a>
+</div>
+<div class="progress">
+  <div class="dots">
+    <div class="dot active" data-page="0" onclick="goPage(0)">0</div>
+    <div class="dot" data-page="1" onclick="goPage(1)">1</div>
+    <div class="dot" data-page="2" onclick="goPage(2)">2</div>
+    <div class="dot" data-page="3" onclick="goPage(3)">★</div>
+  </div>
+</div>
+<div class="container">
+
+  <div class="page active" id="p0">
+    <div class="page-label">문제 · Page 0</div>
+    <h1 class="page-title">단계별로 풀어볼까요?</h1>
+    <div class="page-why">정답은 마지막에 확인해요. 먼저 스스로 생각해보고, 막히면 다음 단계로 넘어가세요.</div>
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      기둥 부피: (밑넓이)×h · <strong>뿔 부피: (밑넓이)×h×(1/3)</strong> · 구 겉넓이: 4πr² · 구 부피: (4/3)πr³ · <strong>모선(l): 원뿔의 꼭짓점에서 밑면 원의 둘레까지 이은 선분</strong> · <strong>원뿔 겉넓이: πrl+πr² (옆면+밑면)</strong>
+    </div>
+    <div class="prob-box">
+      <strong>유형 4 · H3</strong><br><br>
+      직각변이 $3$ cm, $4$ cm이고 빗변이 $5$ cm인 직각삼각형을 <b>높이가 $4$인 직각변</b>을 축으로 한 바퀴 돌렸어요. 만들어지는 원뿔의 <b>부피</b>와 <b>옆넓이</b>를 차례로 쓰면?<br><br>
+      ① $12\pi$ cm³, $15\pi$ cm² &nbsp; ② $16\pi$ cm³, $20\pi$ cm² &nbsp; ③ $12\pi$ cm³, $20\pi$ cm² &nbsp; ④ $16\pi$ cm³, $15\pi$ cm²
+    </div>
+    <div class="think-box">
+      <span class="think-label">🤔 잠깐, 손으로 풀어보세요</span>
+      축 = 길이 $4$ 직각변 → 높이 $h=4$, 반지름 $r=3$, 모선 $l=5$(빗변). 부피와 옆넓이 각각 계산해요.
+    </div>
+    <button class="next-btn" onclick="goPage(1)">1단계로 →</button>
+  </div>
+
+  <div class="page" id="p1">
+    <div class="page-label">1단계 · Page 1</div>
+    <h1 class="page-title">r, h, l 결정</h1>
+    <div class="page-why">왜 이 단계? — 회전 결과 원뿔의 세 값(반지름, 높이, 모선)을 먼저 확정해요.</div>
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      기둥 부피: (밑넓이)×h · <strong>뿔 부피: (밑넓이)×h×(1/3)</strong> · 구 겉넓이: 4πr² · 구 부피: (4/3)πr³ · <strong>모선(l): 원뿔의 꼭짓점에서 밑면 원의 둘레까지 이은 선분</strong> · <strong>원뿔 겉넓이: πrl+πr² (옆면+밑면)</strong>
+    </div>
+    <div class="card">
+      <div class="label">회전 결과</div>
+      <p>축 = 길이 $4$인 직각변 → 이 변이 원뿔의 <strong>높이</strong></p>
+      <div class="derive-box">
+        높이 $h = 4$ cm (회전축 변)<br>
+        반지름 $r = 3$ cm (다른 직각변 → 밑면 원 반지름)<br>
+        모선 $l = 5$ cm (빗변 → 꼭짓점에서 밑면 가장자리까지)
+      </div>
+    </div>
+    <div class="think-box">
+      <span class="think-label">💡 핵심 직관</span>
+      직각삼각형의 빗변이 회전할 때 원뿔 옆면(부채꼴)을 그리므로, <strong>빗변 = 모선 $l$</strong>이 됩니다.
+    </div>
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(0)">← 이전</a>
+      <button class="next-btn" onclick="goPage(2)" style="flex:1">2단계로 →</button>
+    </div>
+  </div>
+
+  <div class="page" id="p2">
+    <div class="page-label">2단계 · Page 2</div>
+    <h1 class="page-title">부피와 옆넓이 계산</h1>
+    <div class="page-why">왜 이 단계? — 부피는 $h$, 옆넓이는 $l$. 혼동 없이 계산해요.</div>
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      기둥 부피: (밑넓이)×h · <strong>뿔 부피: (밑넓이)×h×(1/3)</strong> · 구 겉넓이: 4πr² · 구 부피: (4/3)πr³ · <strong>모선(l): 원뿔의 꼭짓점에서 밑면 원의 둘레까지 이은 선분</strong> · <strong>원뿔 겉넓이: πrl+πr² (옆면+밑면)</strong>
+    </div>
+    <div class="card">
+      <div class="label">부피 (h 사용)</div>
+      <div class="derive-box">
+        $V = \dfrac{1}{3}\pi r^2 h = \dfrac{1}{3}\pi \times 9 \times 4 = 12\pi$ cm³
+      </div>
+    </div>
+    <div class="card">
+      <div class="label">옆넓이 (l 사용)</div>
+      <div class="derive-box">
+        $S_{옆} = \pi r l = \pi \times 3 \times 5 = 15\pi$ cm²
+      </div>
+    </div>
+    <div class="warn-box">
+      <span class="warn-label">⚠️ ★★★ 바꿔치기 함정!</span>
+      부피에 $l=5$ 쓰면: $\frac{1}{3}\pi \times 9 \times 5 = 15\pi$ (오답)<br>
+      옆넓이에 $h=4$ 쓰면: $\pi \times 3 \times 4 = 12\pi$ (오답)<br>
+      두 값이 정확히 맞바뀌어 보여서 선지 ③ 헷갈리게 만들어요!
+    </div>
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(1)">← 이전</a>
+      <button class="next-btn" onclick="goPage(3)" style="flex:1">정답 보기 →</button>
+    </div>
+  </div>
+
+  <div class="page" id="p3">
+    <div class="page-label">정답 · Page ★</div>
+    <h1 class="page-title">정답 + 풀이 흐름 요약</h1>
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      기둥 부피: (밑넓이)×h · <strong>뿔 부피: (밑넓이)×h×(1/3)</strong> · 구 겉넓이: 4πr² · 구 부피: (4/3)πr³ · <strong>모선(l): 원뿔의 꼭짓점에서 밑면 원의 둘레까지 이은 선분</strong> · <strong>원뿔 겉넓이: πrl+πr² (옆면+밑면)</strong>
+    </div>
+    <div class="answer-box">
+      ① 부피 $12\pi$ cm³, 옆넓이 $15\pi$ cm²<br>
+      <span style="font-size:14px;font-weight:normal;opacity:0.9">(부피: $h=4$, 옆넓이: $l=5$)</span>
+    </div>
+    <div class="card">
+      <div class="label">전체 풀이 흐름</div>
+      <div class="flow-step"><div class="flow-num">1</div><div>축=$4$ → $r=3$, $h=4$, $l=5$(빗변)</div></div>
+      <div class="flow-step"><div class="flow-num">2</div><div>부피 $= \frac{1}{3}\pi\times 9\times 4 = 12\pi$ cm³</div></div>
+      <div class="flow-step"><div class="flow-num">3</div><div>옆넓이 $= \pi\times 3\times 5 = 15\pi$ cm²</div></div>
+    </div>
+    <div class="card">
+      <div class="label">📚 이 유형 더 연습하고 싶다면</div>
+      <p style="font-size:13px"><a href="type_04_app.html" style="color:#4361EE">→ 유형 4 (원뿔의 겉넓이·부피) 다른 문제 연습</a></p>
+      <p style="font-size:13px"><a href="deep_원기둥뿔구_app.html" style="color:#7c3aed">→ 깊이 탐구 — 원기둥·원뿔·구 통합 앱</a></p>
+    </div>
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(2)">← 이전</a>
+      <a class="prev-btn" href="types.html" style="flex:1;text-align:center">유형 목록으로 →</a>
+    </div>
+  </div>
+</div>
+<script>
+function goPage(n) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('p' + n).classList.add('active');
+  document.querySelectorAll('.dot').forEach(d => {
+    d.classList.remove('active');
+    if (parseInt(d.dataset.page) < n) d.classList.add('visited');
+    if (parseInt(d.dataset.page) === n) d.classList.add('active');
+  });
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  if (window.renderMathInElement) renderMathInElement(document.getElementById('p' + n), {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});
+}
+</script>
+</body>
+</html>

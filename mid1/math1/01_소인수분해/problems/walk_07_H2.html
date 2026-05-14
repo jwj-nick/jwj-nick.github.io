@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>단계별 풀이 — 유형 7 H2 (세 수의 GCD)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; color: #1a1a2e; }
+  .nav-top { background: #312e81; color: #e0e7ff; font-size: 13px; padding: 10px 16px; display: flex; justify-content: space-between; gap: 12px; }
+  .nav-top a { color: #e0e7ff; text-decoration: none; }
+  .nav-top a:hover { text-decoration: underline; }
+
+  /* 진행 도트 */
+  .progress { background: white; padding: 14px 16px; box-shadow: 0 2px 8px rgba(67,97,238,0.06); position: sticky; top: 0; z-index: 10; }
+  .dots { display: flex; justify-content: center; gap: 10px; max-width: 700px; margin: 0 auto; }
+  .dot { width: 28px; height: 28px; border-radius: 50%; background: #d0d8ff; color: #4361EE; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.15s; border: 2px solid transparent; }
+  .dot.active { background: #4361EE; color: white; transform: scale(1.15); }
+  .dot.visited { background: #c3d0ff; }
+  .dot:hover { border-color: #4361EE; }
+
+  /* 페이지 */
+  .container { max-width: 700px; margin: 0 auto; padding: 28px 16px 80px; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* 페이지 헤더 */
+  .page-label { display: inline-block; background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; font-size: 11px; padding: 4px 12px; border-radius: 20px; letter-spacing: 1px; margin-bottom: 10px; }
+  .page-title { font-size: 22px; color: #1a1a2e; margin-bottom: 6px; line-height: 1.4; }
+  .page-why { font-size: 13px; color: #7c3aed; font-style: italic; margin-bottom: 18px; padding: 8px 14px; background: #f5edff; border-left: 3px solid #7c3aed; border-radius: 0 8px 8px 0; }
+
+  /* 카드 */
+  .card { background: white; border-radius: 14px; padding: 22px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 14px; }
+  .card p { font-size: 14px; line-height: 1.9; color: #333; margin-bottom: 10px; }
+  .card p:last-child { margin-bottom: 0; }
+  .card .label { font-size: 12px; color: #4361EE; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+
+  /* 문제 박스 */
+  .prob-box { background: white; border: 2px solid #4361EE; border-radius: 14px; padding: 20px; font-size: 15px; line-height: 1.9; color: #1a1a2e; margin-bottom: 16px; }
+
+  /* 도출 박스 */
+  .derive-box { background: #f0f4ff; border-left: 4px solid #4361EE; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 12px 0; font-size: 14px; line-height: 1.9; }
+
+  /* 흔한 실수 */
+  .warn-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 13px; line-height: 1.8; color: #856404; }
+  .warn-box .warn-label { font-weight: bold; color: #e07b39; display: block; margin-bottom: 4px; }
+
+  /* 생각해보기 (학생에게 시간 주는 박스) */
+  .think-box { background: #e3f2fd; border-left: 4px solid #2196f3; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 14px; line-height: 1.8; color: #0d47a1; }
+  .think-box .think-label { font-weight: bold; display: block; margin-bottom: 6px; }
+
+  /* 정답 박스 */
+  .answer-box { background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; border-radius: 14px; padding: 24px; text-align: center; font-size: 22px; font-weight: bold; margin: 20px 0; box-shadow: 0 4px 16px rgba(67,97,238,0.3); }
+
+  /* 다음 페이지 버튼 */
+  .next-btn { display: block; width: 100%; padding: 14px; background: #4361EE; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; font-family: inherit; margin-top: 16px; transition: all 0.15s; }
+  .next-btn:hover { background: #3a52d8; transform: translateY(-1px); }
+  .next-btn.disabled { background: #999; cursor: default; }
+  .prev-btn { display: inline-block; background: white; color: #4361EE; border: 2px solid #4361EE; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-family: inherit; cursor: pointer; margin-right: 8px; text-decoration: none; }
+  .nav-bottom { display: flex; gap: 8px; margin-top: 16px; }
+
+  /* 요약 페이지 흐름 */
+  .flow-step { display: flex; align-items: flex-start; gap: 10px; margin: 10px 0; padding: 10px 14px; background: #f8f9ff; border-radius: 10px; font-size: 13px; line-height: 1.7; }
+  .flow-step .flow-num { background: #4361EE; color: white; width: 24px; height: 24px; min-width: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
+
+  /* 용어 노트 (페이지마다 항상 표시) */
+  .legend { background: #fff8e1; border: 1px solid #f4d96f; border-radius: 10px; padding: 10px 14px; font-size: 12px; line-height: 1.7; color: #5d4715; margin-bottom: 16px; }
+  .legend strong { color: #8b6914; }
+  .legend .legend-title { font-weight: bold; color: #8b6914; margin-right: 6px; }
+</style>
+</head>
+<body>
+
+<div class="nav-top">
+  <a href="../../">← 중1 수학 홈</a>
+  <a href="types.html">← 유형 목록</a>
+</div>
+
+<!-- 진행 도트 -->
+<div class="progress">
+  <div class="dots">
+    <div class="dot active" data-page="0" onclick="goPage(0)">0</div>
+    <div class="dot" data-page="1" onclick="goPage(1)">1</div>
+    <div class="dot" data-page="2" onclick="goPage(2)">2</div>
+    <div class="dot" data-page="3" onclick="goPage(3)">3</div>
+    <div class="dot" data-page="4" onclick="goPage(4)">4</div>
+    <div class="dot" data-page="5" onclick="goPage(5)">★</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ============ Page 0: 문제만 ============ -->
+  <div class="page active" id="p0">
+    <div class="page-label">문제 · Page 0</div>
+    <h1 class="page-title">단계별로 풀어볼까요?</h1>
+    <div class="page-why">정답은 마지막에 확인해요. 먼저 스스로 생각해보고, 막히면 다음 단계로 넘어가세요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어·기호:</span>
+      <strong>gcd</strong>(A, B) = <strong>최대공약수</strong> (영문 <em>greatest common divisor</em>의 약자) &nbsp;·&nbsp;
+      <strong>$d \mid n$</strong> = "<strong>$d$는 $n$의 약수</strong>" (정수론에서 쓰는 짧은 기호)
+    </div>
+
+    <div class="prob-box">
+      <strong>유형 7 · H2</strong><br><br>
+      세 자연수 $A$, $B$, $C$에 대해 다음이 성립합니다.
+      $$\gcd(A,B)=6,\quad \gcd(B,C)=10,\quad \gcd(A,C)=15$$
+      이때 $\gcd(A,B,C)$ (= 세 수의 최대공약수)를 구하세요.
+    </div>
+
+    <div class="think-box">
+      <span class="think-label">🤔 잠깐, 손으로 풀어보세요</span>
+      종이에 $\gcd(A,B,C)$가 무엇을 의미하는지 적어보세요. $A$, $B$, $C$의 어떤 성질일까요? 막연하다면 다음 페이지로 넘어가요.
+    </div>
+
+    <button class="next-btn" onclick="goPage(1)">1단계로 →</button>
+  </div>
+
+  <!-- ============ Page 1: GCD의 의미 ============ -->
+  <div class="page" id="p1">
+    <div class="page-label">1단계 · Page 1</div>
+    <h1 class="page-title">$\gcd(A,B,C)$가 뭐였더라?</h1>
+    <div class="page-why">왜 이 단계? — 구해야 할 대상의 정의부터 명확히. 그래야 어떻게 접근할지 보입니다.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어·기호:</span>
+      <strong>gcd</strong>(A, B) = <strong>최대공약수</strong> (영문 <em>greatest common divisor</em>의 약자) &nbsp;·&nbsp;
+      <strong>$d \mid n$</strong> = "<strong>$d$는 $n$의 약수</strong>"
+    </div>
+
+    <div class="card">
+      <div class="label">정의 복습 — 최대공약수</div>
+      <p>$\gcd(A,B,C)$, 즉 세 수의 <strong>최대공약수</strong>는<br>
+      "$A$, $B$, $C$를 모두 나누는 자연수" 중 <strong>가장 큰 것</strong>이에요.</p>
+      <div class="derive-box">
+        $\gcd(A,B,C) = d$ &nbsp; ⟺ &nbsp; $d$는 $A$, $B$, $C$ 모두의 약수이고, 그런 약수 중 가장 큰 수
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="label">우리가 가진 정보</div>
+      <p>문제는 두 수씩의 최대공약수만 알려줘요:</p>
+      <div class="derive-box">
+        $\gcd(A,B) = 6$ &nbsp;&nbsp; $\gcd(B,C) = 10$ &nbsp;&nbsp; $\gcd(A,C) = 15$
+      </div>
+      <p>세 수씩의 최대공약수는 직접 알려주지 않아요. 그럼 어떻게 끌어내야 할까요?</p>
+    </div>
+
+    <div class="think-box">
+      <span class="think-label">🤔 다음 단계 힌트</span>
+      $d = \gcd(A,B,C)$라 두면, $d$는 $A$도 나누고, $B$도 나누고, $C$도 나눠요. 그럼 $d$와 $\gcd(A,B)$의 관계는?
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(0)">← 이전</a>
+      <button class="next-btn" onclick="goPage(2)" style="flex:1">2단계로 →</button>
+    </div>
+  </div>
+
+  <!-- ============ Page 2: 핵심 관찰 ============ -->
+  <div class="page" id="p2">
+    <div class="page-label">2단계 · Page 2</div>
+    <h1 class="page-title">핵심 관찰 — $d$는 어떤 수들의 약수?</h1>
+    <div class="page-why">왜 이 단계? — 정의에서 자연스럽게 끌어낼 수 있는 관찰. 이게 풀이의 열쇠가 됩니다.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어·기호:</span>
+      <strong>gcd</strong> = 최대공약수 &nbsp;·&nbsp;
+      <strong>$d \mid n$</strong> = "<strong>$d$는 $n$의 약수</strong>"라는 짧은 표기.
+      예: $3 \mid 12$ 는 "3은 12의 약수"라는 뜻.
+    </div>
+
+    <div class="card">
+      <div class="label">관찰 1 — 공약수는 최대공약수의 약수</div>
+      <p>$d = \gcd(A,B,C)$가 $A$도 나누고 $B$도 나누면,<br>
+      $d$는 <strong>$A$와 $B$의 공약수</strong>이고,<br>
+      따라서 $d$는 <strong>$\gcd(A,B)$의 약수</strong>예요.</p>
+      <div class="derive-box">
+        $d$가 $A$의 약수이고 $d$가 $B$의 약수 &nbsp;⟹&nbsp; $d$는 $\gcd(A,B)$의 약수<br>
+        <span style="color:#7c3aed">기호로 짧게: &nbsp; $d \mid A$ 이고 $d \mid B$ &nbsp;⟹&nbsp; $d \mid \gcd(A,B)$</span>
+      </div>
+      <p>(이 사실은 매우 자주 쓰여요. "공약수는 모두 최대공약수의 약수"라는 성질.)</p>
+    </div>
+
+    <div class="card">
+      <div class="label">관찰 2 — 세 쌍 모두에 적용</div>
+      <p>같은 논리를 세 쌍 $(A,B), (B,C), (A,C)$ 모두에 적용:</p>
+      <div class="derive-box">
+        $d$는 $\gcd(A,B) = 6$의 약수<br>
+        $d$는 $\gcd(B,C) = 10$의 약수<br>
+        $d$는 $\gcd(A,C) = 15$의 약수
+      </div>
+      <p>즉, $d$는 <strong>$6$, $10$, $15$ 세 수 모두의 약수</strong>!</p>
+    </div>
+
+    <div class="card">
+      <div class="label">결론</div>
+      <p>"$d$가 세 수 모두의 약수"라는 것은 곧 "$d$는 그 세 수의 공약수"라는 뜻. 그러면 다시 관찰 1을 적용해서:</p>
+      <div class="derive-box">
+        $d = \gcd(A,B,C)$ &nbsp;는 &nbsp; $\gcd(6, 10, 15)$의 약수
+      </div>
+      <p>그리고 사실 <strong>$d$의 가장 큰 후보가 바로 $\gcd(6, 10, 15)$</strong>예요. 이제 그 값을 계산하면 끝!</p>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(1)">← 이전</a>
+      <button class="next-btn" onclick="goPage(3)" style="flex:1">3단계로 →</button>
+    </div>
+  </div>
+
+  <!-- ============ Page 3: 계산 ============ -->
+  <div class="page" id="p3">
+    <div class="page-label">3단계 · Page 3</div>
+    <h1 class="page-title">$\gcd(6, 10, 15)$를 계산해요</h1>
+    <div class="page-why">왜 이 단계? — 이제 우리가 아는 최대공약수 계산법(소인수분해)을 그대로 적용.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어:</span>
+      <strong>gcd</strong> = 최대공약수
+    </div>
+
+    <div class="card">
+      <div class="label">소인수분해</div>
+      <div class="derive-box">
+        $6 = 2 \times 3$<br>
+        $10 = 2 \times 5$<br>
+        $15 = 3 \times 5$
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="label">공통 소인수 찾기</div>
+      <p>세 수 모두에 공통으로 등장하는 소인수는?</p>
+      <div class="derive-box">
+        $2$: $6$과 $10$엔 있지만 $15$엔 없음 → 공통 아님<br>
+        $3$: $6$과 $15$엔 있지만 $10$엔 없음 → 공통 아님<br>
+        $5$: $10$과 $15$엔 있지만 $6$엔 없음 → 공통 아님
+      </div>
+      <p>세 수 모두 공통인 소인수가 <strong>하나도 없어요</strong>.</p>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-label">⚠️ 흔한 실수</span>
+      "공통 소인수가 없으니 GCD가 0?" — 아니에요! 공약수에는 <strong>항상 1이 있어요</strong>. 그래서 공통 소인수가 없으면 $\gcd = 1$.
+    </div>
+
+    <div class="card">
+      <div class="label">결과</div>
+      <div class="derive-box">
+        $\gcd(6, 10, 15) = 1$
+      </div>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(2)">← 이전</a>
+      <button class="next-btn" onclick="goPage(4)" style="flex:1">4단계로 →</button>
+    </div>
+  </div>
+
+  <!-- ============ Page 4: 답 확정 ============ -->
+  <div class="page" id="p4">
+    <div class="page-label">4단계 · Page 4</div>
+    <h1 class="page-title">답을 확정합니다</h1>
+    <div class="page-why">왜 이 단계? — 2단계에서 "$d$는 $\gcd(6,10,15)$의 약수"라고 했어요. 그 값이 1로 나왔으니 마무리.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어:</span>
+      <strong>gcd</strong> = 최대공약수
+    </div>
+
+    <div class="card">
+      <div class="label">정리</div>
+      <p>2단계에서 얻은 결론:</p>
+      <div class="derive-box">
+        $d = \gcd(A, B, C)$ 는 $\gcd(6, 10, 15) = 1$의 약수
+      </div>
+      <p>그런데 <strong>1의 약수는 1뿐이에요</strong> (1을 나누는 자연수는 자기 자신밖에 없으니까).</p>
+      <div class="derive-box">
+        $d$가 $1$의 약수 &nbsp;⟹&nbsp; $d = 1$
+      </div>
+    </div>
+
+    <div class="think-box">
+      <span class="think-label">💡 큰 그림</span>
+      세 수씩 GCD를 직접 안 알려줘도, 두 수씩 GCD들($6, 10, 15$)에서 추론할 수 있다는 게 이 문제의 핵심이에요.<br>
+      세 GCD 값에 <strong>공통 소인수가 하나도 없으면</strong>, 세 수 전체의 GCD는 항상 $1$.
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-label">⚠️ 이 유형의 함정</span>
+      $\gcd(6, 10, 15)$를 계산하지 않고 "그냥 6, 10, 15 중 작은 거?" 라고 답하면 틀려요. <strong>$\gcd$를 다시 계산해야</strong> 합니다.
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(3)">← 이전</a>
+      <button class="next-btn" onclick="goPage(5)" style="flex:1">정답 보기 →</button>
+    </div>
+  </div>
+
+  <!-- ============ Page 5: 정답 + 요약 ============ -->
+  <div class="page" id="p5">
+    <div class="page-label">정답 · Page ★</div>
+    <h1 class="page-title">정답 + 풀이 흐름 요약</h1>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 다시 확인:</span>
+      <strong>gcd</strong> = 최대공약수 (영문 <em>greatest common divisor</em>) &nbsp;·&nbsp;
+      <strong>$d \mid n$</strong> = "$d$는 $n$의 약수"
+    </div>
+
+    <div class="answer-box">
+      $\gcd(A, B, C) = 1$<br>
+      <span style="font-size:14px;font-weight:normal;opacity:0.9">(세 수의 최대공약수 = 1)</span>
+    </div>
+
+    <div class="card">
+      <div class="label">전체 풀이 흐름 — 5단계</div>
+      <div class="flow-step"><div class="flow-num">1</div><div>$\gcd(A,B,C) = d$는 $A,B,C$를 모두 나누는 가장 큰 자연수 (= 세 수의 최대공약수) — 정의 복습</div></div>
+      <div class="flow-step"><div class="flow-num">2</div><div>$d$는 $A$도 $B$도 나누므로 $d$는 $\gcd(A,B)$의 약수. 같은 식으로 $\gcd(B,C)$, $\gcd(A,C)$의 약수</div></div>
+      <div class="flow-step"><div class="flow-num">3</div><div>즉 $d$는 $\gcd(6, 10, 15)$의 약수</div></div>
+      <div class="flow-step"><div class="flow-num">4</div><div>$\gcd(6, 10, 15)$ 계산: $6 = 2 \cdot 3$, $10 = 2 \cdot 5$, $15 = 3 \cdot 5$ — 세 수 공통 소인수 없음 → $\gcd = 1$</div></div>
+      <div class="flow-step"><div class="flow-num">5</div><div>$d$가 $1$의 약수이므로 $d = 1$, 즉 $\gcd(A,B,C) = 1$</div></div>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-label">⚠️ 이 유형의 핵심 함정</span>
+      "세 수 GCD"는 "두 수씩 GCD"로부터 직접 계산할 수 있다는 것 — 두 수씩 GCD들의 GCD를 다시 구하면 돼요. 처음 보면 막막하지만 정의에서 출발하면 자연스럽게 끌려나옵니다.
+    </div>
+
+    <div class="card">
+      <div class="label">📚 이 유형 더 연습하고 싶다면</div>
+      <p style="font-size:13px"><a href="type_07_app.html" style="color:#4361EE">→ 유형 7 (GCD·LCM 관계식) 다른 문제 연습</a></p>
+      <p style="font-size:13px"><a href="deep_GCD_LCM_app.html" style="color:#7c3aed">→ 깊이 탐구 — GCD·LCM·관계식 통합 앱</a></p>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(4)">← 이전</a>
+      <a class="prev-btn" href="types.html" style="flex:1;text-align:center">유형 목록으로 →</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function goPage(n) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('p' + n).classList.add('active');
+  document.querySelectorAll('.dot').forEach(d => {
+    d.classList.remove('active');
+    if (parseInt(d.dataset.page) < n) d.classList.add('visited');
+    if (parseInt(d.dataset.page) === n) d.classList.add('active');
+  });
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  if (window.renderMathInElement) {
+    renderMathInElement(document.getElementById('p' + n), {
+      delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+    });
+  }
+}
+</script>
+</body>
+</html>

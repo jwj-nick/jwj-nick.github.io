@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>단계별 풀이 — 유형 3 H1 (수직이등분선 합동 증명)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; color: #1a1a2e; }
+  .nav-top { background: #312e81; color: #e0e7ff; font-size: 13px; padding: 10px 16px; display: flex; justify-content: space-between; gap: 12px; }
+  .nav-top a { color: #e0e7ff; text-decoration: none; }
+  .nav-top a:hover { text-decoration: underline; }
+  .progress { background: white; padding: 14px 16px; box-shadow: 0 2px 8px rgba(67,97,238,0.06); position: sticky; top: 0; z-index: 10; }
+  .dots { display: flex; justify-content: center; gap: 10px; max-width: 700px; margin: 0 auto; }
+  .dot { width: 28px; height: 28px; border-radius: 50%; background: #d0d8ff; color: #4361EE; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.15s; border: 2px solid transparent; }
+  .dot.active { background: #4361EE; color: white; transform: scale(1.15); }
+  .dot.visited { background: #c3d0ff; }
+  .dot:hover { border-color: #4361EE; }
+  .container { max-width: 700px; margin: 0 auto; padding: 28px 16px 80px; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-label { display: inline-block; background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; font-size: 11px; padding: 4px 12px; border-radius: 20px; letter-spacing: 1px; margin-bottom: 10px; }
+  .page-title { font-size: 22px; color: #1a1a2e; margin-bottom: 6px; line-height: 1.4; }
+  .page-why { font-size: 13px; color: #7c3aed; font-style: italic; margin-bottom: 18px; padding: 8px 14px; background: #f5edff; border-left: 3px solid #7c3aed; border-radius: 0 8px 8px 0; }
+  .card { background: white; border-radius: 14px; padding: 22px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 14px; }
+  .card p { font-size: 14px; line-height: 1.9; color: #333; margin-bottom: 10px; }
+  .card p:last-child { margin-bottom: 0; }
+  .card .label { font-size: 12px; color: #4361EE; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .prob-box { background: white; border: 2px solid #4361EE; border-radius: 14px; padding: 20px; font-size: 15px; line-height: 1.9; color: #1a1a2e; margin-bottom: 16px; }
+  .derive-box { background: #f0f4ff; border-left: 4px solid #4361EE; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 12px 0; font-size: 14px; line-height: 1.9; }
+  .warn-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 13px; line-height: 1.8; color: #856404; }
+  .warn-box .warn-label { font-weight: bold; color: #e07b39; display: block; margin-bottom: 4px; }
+  .think-box { background: #e3f2fd; border-left: 4px solid #2196f3; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 14px; line-height: 1.8; color: #0d47a1; }
+  .think-box .think-label { font-weight: bold; display: block; margin-bottom: 6px; }
+  .answer-box { background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; border-radius: 14px; padding: 24px; text-align: center; font-size: 20px; font-weight: bold; margin: 20px 0; box-shadow: 0 4px 16px rgba(67,97,238,0.3); }
+  .next-btn { display: block; width: 100%; padding: 14px; background: #4361EE; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; font-family: inherit; margin-top: 16px; transition: all 0.15s; }
+  .next-btn:hover { background: #3a52d8; transform: translateY(-1px); }
+  .prev-btn { display: inline-block; background: white; color: #4361EE; border: 2px solid #4361EE; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-family: inherit; cursor: pointer; margin-right: 8px; text-decoration: none; }
+  .nav-bottom { display: flex; gap: 8px; margin-top: 16px; }
+  .flow-step { display: flex; align-items: flex-start; gap: 10px; margin: 10px 0; padding: 10px 14px; background: #f8f9ff; border-radius: 10px; font-size: 13px; line-height: 1.7; }
+  .flow-step .flow-num { background: #4361EE; color: white; width: 24px; height: 24px; min-width: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
+  .legend { background: #fff8e1; border: 1px solid #f4d96f; border-radius: 10px; padding: 10px 14px; font-size: 12px; line-height: 1.7; color: #5d4715; margin-bottom: 16px; }
+  .legend strong { color: #8b6914; }
+  .legend .legend-title { font-weight: bold; color: #8b6914; margin-right: 6px; }
+</style>
+</head>
+<body>
+
+<div class="nav-top">
+  <a href="../../">← 중1 수학 홈</a>
+  <a href="types.html">← 유형 목록</a>
+</div>
+
+<div class="progress">
+  <div class="dots">
+    <div class="dot active" data-page="0" onclick="goPage(0)">0</div>
+    <div class="dot" data-page="1" onclick="goPage(1)">1</div>
+    <div class="dot" data-page="2" onclick="goPage(2)">2</div>
+    <div class="dot" data-page="3" onclick="goPage(3)">3</div>
+    <div class="dot" data-page="4" onclick="goPage(4)">4</div>
+    <div class="dot" data-page="5" onclick="goPage(5)">★</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Page 0 -->
+  <div class="page active" id="p0">
+    <div class="page-label">문제 · Page 0</div>
+    <h1 class="page-title">단계별로 풀어볼까요?</h1>
+    <div class="page-why">정답은 마지막에 확인해요. 먼저 스스로 생각해보고, 막히면 다음 단계로 넘어가세요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      <strong>합동(≅)</strong>: 두 도형이 모양과 크기가 완전히 같음 &nbsp;·&nbsp;
+      <strong>대응</strong>: 합동인 두 도형에서 서로 겹치는 꼭짓점·변·각 &nbsp;·&nbsp;
+      <strong>SSS 합동</strong>: 세 변의 길이가 모두 같음 &nbsp;·&nbsp;
+      <strong>SAS 합동</strong>: 두 변의 길이와 그 사이 각이 같음 &nbsp;·&nbsp;
+      <strong>ASA 합동</strong>: 두 각의 크기와 그 사이 변의 길이가 같음
+    </div>
+
+    <div class="prob-box">
+      <strong>유형 3 · H1</strong><br><br>
+      수직이등분선 작도가 정확하다는 것을 합동을 사용해 설명하시오.<br><br>
+      (수직이등분선이 PQ, 중점 M일 때, 왜 ∠AMP = 90°인가?)
+    </div>
+
+    <div class="think-box">
+      <span class="think-label">🤔 잠깐, 손으로 풀어보세요</span>
+      두 삼각형 APM과 BPM을 그려보세요. 세 변의 길이를 각각 비교하면 어떤 합동 조건이 보이나요?
+    </div>
+
+    <button class="next-btn" onclick="goPage(1)">1단계로 →</button>
+  </div>
+
+  <!-- Page 1 -->
+  <div class="page" id="p1">
+    <div class="page-label">1단계 · Page 1</div>
+    <h1 class="page-title">수직이등분선 작도 복습</h1>
+    <div class="page-why">왜 이 단계? — 증명에 사용할 사실들이 작도 절차에서 나오므로 먼저 정리해요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      <strong>수직이등분선</strong>: 선분의 중점을 지나며 수직인 직선 &nbsp;·&nbsp;
+      <strong>SSS 합동</strong>: 세 변 같음
+    </div>
+
+    <div class="card">
+      <div class="label">수직이등분선 작도 절차</div>
+      <div class="derive-box">
+        A 중심 호 (반지름 $r$ &gt; $\overline{AB}/2$) → 호<br>
+        B 중심 호 (같은 반지름 $r$) → 호<br>
+        두 호의 교점: 위쪽 P, 아래쪽 Q (또는 한쪽만)<br>
+        자로 PQ 연결 → 수직이등분선
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="label">작도에서 얻어지는 사실</div>
+      <p>작도 절차에서 직접 읽어낼 수 있는 등변 관계:</p>
+      <div class="derive-box">
+        $\overline{PA} = \overline{PB}$ (두 호의 반지름이 같으므로: P는 A 중심 호 위이면서 B 중심 호 위)<br>
+        $\overline{QA} = \overline{QB}$ (같은 이유로 Q도)
+      </div>
+      <p>M은 PQ와 $\overline{AB}$의 교점이에요. M에서도 $\overline{MA}$와 $\overline{MB}$를 비교할 수 있어요.</p>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(0)">← 이전</a>
+      <button class="next-btn" onclick="goPage(2)" style="flex:1">2단계로 →</button>
+    </div>
+  </div>
+
+  <!-- Page 2 -->
+  <div class="page" id="p2">
+    <div class="page-label">2단계 · Page 2</div>
+    <h1 class="page-title">두 삼각형 비교 — APM과 BPM</h1>
+    <div class="page-why">왜 이 단계? — ∠AMP = 90°를 보이려면 두 삼각형이 합동임을 먼저 보여야 해요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      <strong>SSS 합동</strong>: 세 변 같음 → 대응각 같음 &nbsp;·&nbsp;
+      <strong>공통변</strong>: 두 삼각형이 공유하는 변 (자동으로 같음)
+    </div>
+
+    <div class="card">
+      <div class="label">삼각형 APM과 BPM의 세 변 비교</div>
+      <div class="derive-box">
+        $\overline{PA} = \overline{PB}$ (1단계에서: 두 호 같은 반지름)<br>
+        $\overline{MA} = \overline{MB}$ (M이 중점이므로 — 아래 확인)<br>
+        $\overline{PM}$ 공통<br>
+        → 세 변이 모두 같음 → <strong>SSS 합동</strong>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="label">잠깐 — MA = MB는 어떻게?</div>
+      <p>M이 중점이라는 것을 어떻게 알까요? 사실 M이 중점임도 이 합동에서 나와요.</p>
+      <p>P와 Q 모두 $\overline{PA}=\overline{PB}$, $\overline{QA}=\overline{QB}$이므로 PQ 위 모든 점은 A·B에서 같은 거리를 가져요. 특히 M도 마찬가지: $\overline{MA} = \overline{MB}$.</p>
+      <div class="derive-box">
+        PQ 위 점 M → $\overline{MA} = \overline{MB}$ (PQ 성질)
+      </div>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(1)">← 이전</a>
+      <button class="next-btn" onclick="goPage(3)" style="flex:1">3단계로 →</button>
+    </div>
+  </div>
+
+  <!-- Page 3 -->
+  <div class="page" id="p3">
+    <div class="page-label">3단계 · Page 3</div>
+    <h1 class="page-title">합동에서 90° 도출</h1>
+    <div class="page-why">왜 이 단계? — SSS 합동이 성립하므로 대응각이 같고, 그 대응각들이 평각을 이루면 90°가 나와요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      <strong>평각</strong>: 180°가 되는 각 (반직선) &nbsp;·&nbsp;
+      <strong>대응각</strong>: SSS 합동인 두 삼각형에서 같은 위치의 각
+    </div>
+
+    <div class="card">
+      <div class="label">합동 → 대응각 같음</div>
+      <div class="derive-box">
+        삼각형 APM ≅ 삼각형 BPM (SSS)<br>
+        → ∠AMP = ∠BMP (대응각)
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="label">평각 활용 → 90°</div>
+      <p>∠AMP와 ∠BMP는 직선 $\overline{AB}$ 위에서 같은 점 M에서 만나므로 <strong>평각을 이뤄요</strong>.</p>
+      <div class="derive-box">
+        ∠AMP + ∠BMP = 180° (평각)<br>
+        ∠AMP = ∠BMP (합동에서)<br>
+        → $2 \times \angle AMP = 180°$<br>
+        → $\angle AMP = 90°$ ✓
+      </div>
+      <p>따라서 PQ는 $\overline{AB}$에 수직! 그리고 M은 $\overline{AB}$의 중점. PQ는 <strong>수직이등분선</strong>이 맞아요.</p>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(2)">← 이전</a>
+      <button class="next-btn" onclick="goPage(4)" style="flex:1">4단계로 →</button>
+    </div>
+  </div>
+
+  <!-- Page 4 -->
+  <div class="page" id="p4">
+    <div class="page-label">4단계 · Page 4</div>
+    <h1 class="page-title">M이 중점임도 같은 합동으로!</h1>
+    <div class="page-why">왜 이 단계? — M = 중점임도 따로 가정한 것이 아니라 합동에서 도출돼요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      <strong>중점</strong>: 선분을 정확히 반으로 나누는 점
+    </div>
+
+    <div class="card">
+      <div class="label">M = 중점 증명</div>
+      <p>삼각형 APM ≅ 삼각형 BPM (SSS)이므로 대응변도 같아요.</p>
+      <div class="derive-box">
+        M이 대응변: $\overline{AM} \leftrightarrow \overline{BM}$<br>
+        → $\overline{AM} = \overline{BM}$ ✓<br>
+        → M은 $\overline{AB}$의 중점
+      </div>
+      <p>이처럼 수직(∠AMP = 90°)과 이등분(AM = BM) <strong>두 성질이 동시에</strong> 합동 하나에서 나와요.</p>
+    </div>
+
+    <div class="think-box">
+      <span class="think-label">💡 큰 그림</span>
+      작도가 "정확하다"는 것을 수학적으로 증명하는 방법은 항상 합동이에요. 자와 컴퍼스로 만들어진 두 삼각형의 세 변이 같음(SSS)을 보이면, 모든 각도 같고 모든 결론이 따라와요.
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(3)">← 이전</a>
+      <button class="next-btn" onclick="goPage(5)" style="flex:1">정답 보기 →</button>
+    </div>
+  </div>
+
+  <!-- Page 5 -->
+  <div class="page" id="p5">
+    <div class="page-label">정답 · Page ★</div>
+    <h1 class="page-title">정답 + 풀이 흐름 요약</h1>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      <strong>합동(≅)</strong>: 두 도형 모양·크기 완전히 같음 &nbsp;·&nbsp;
+      <strong>SSS 합동</strong>: 세 변 같음 → 대응각 같음
+    </div>
+
+    <div class="answer-box">
+      삼각형 APM ≅ 삼각형 BPM (SSS) → ∠AMP = ∠BMP<br>
+      <span style="font-size:14px;font-weight:normal;opacity:0.9">평각 180° → ∠AMP = 90°</span>
+    </div>
+
+    <div class="card">
+      <div class="label">전체 풀이 흐름</div>
+      <div class="flow-step"><div class="flow-num">1</div><div>작도에서: $\overline{PA} = \overline{PB}$ (두 호 같은 반지름)</div></div>
+      <div class="flow-step"><div class="flow-num">2</div><div>PQ 위 M은 $\overline{MA} = \overline{MB}$ (PQ의 성질)</div></div>
+      <div class="flow-step"><div class="flow-num">3</div><div>$\overline{PM}$ 공통 → 삼각형 APM ≅ BPM (SSS)</div></div>
+      <div class="flow-step"><div class="flow-num">4</div><div>대응각: ∠AMP = ∠BMP</div></div>
+      <div class="flow-step"><div class="flow-num">5</div><div>평각: ∠AMP + ∠BMP = 180° → ∠AMP = 90° ✓</div></div>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-label">⚠️ 핵심 통찰</span>
+      수직(90°)과 이등분(AM=BM) 두 성질 모두 같은 SSS 합동 하나에서 나와요. 작도의 정확성 증명 = SSS 합동 1개면 끝!
+    </div>
+
+    <div class="card">
+      <div class="label">📚 이 유형 더 연습하고 싶다면</div>
+      <p style="font-size:13px"><a href="type_03_app.html" style="color:#4361EE">→ 유형 3 (수직이등분선) 다른 문제 연습</a></p>
+      <p style="font-size:13px"><a href="deep_이등분선_app.html" style="color:#7c3aed">→ 깊이 탐구 — 이등분선 통합 앱</a></p>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(4)">← 이전</a>
+      <a class="prev-btn" href="types.html" style="flex:1;text-align:center">유형 목록으로 →</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function goPage(n) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('p' + n).classList.add('active');
+  document.querySelectorAll('.dot').forEach(d => {
+    d.classList.remove('active');
+    if (parseInt(d.dataset.page) < n) d.classList.add('visited');
+    if (parseInt(d.dataset.page) === n) d.classList.add('active');
+  });
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  if (window.renderMathInElement) {
+    renderMathInElement(document.getElementById('p' + n), {
+      delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+    });
+  }
+}
+</script>
+</body>
+</html>

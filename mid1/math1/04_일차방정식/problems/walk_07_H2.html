@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>단계별 풀이 — 유형 7 H2 (농도 — 두 소금물 혼합)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; color: #1a1a2e; }
+  .nav-top { background: #312e81; color: #e0e7ff; font-size: 13px; padding: 10px 16px; display: flex; justify-content: space-between; gap: 12px; }
+  .nav-top a { color: #e0e7ff; text-decoration: none; }
+  .nav-top a:hover { text-decoration: underline; }
+
+  .progress { background: white; padding: 14px 16px; box-shadow: 0 2px 8px rgba(67,97,238,0.06); position: sticky; top: 0; z-index: 10; }
+  .dots { display: flex; justify-content: center; gap: 10px; max-width: 700px; margin: 0 auto; }
+  .dot { width: 28px; height: 28px; border-radius: 50%; background: #d0d8ff; color: #4361EE; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.15s; border: 2px solid transparent; }
+  .dot.active { background: #4361EE; color: white; transform: scale(1.15); }
+  .dot.visited { background: #c3d0ff; }
+  .dot:hover { border-color: #4361EE; }
+
+  .container { max-width: 700px; margin: 0 auto; padding: 28px 16px 80px; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .page-label { display: inline-block; background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; font-size: 11px; padding: 4px 12px; border-radius: 20px; letter-spacing: 1px; margin-bottom: 10px; }
+  .page-title { font-size: 22px; color: #1a1a2e; margin-bottom: 6px; line-height: 1.4; }
+  .page-why { font-size: 13px; color: #7c3aed; font-style: italic; margin-bottom: 18px; padding: 8px 14px; background: #f5edff; border-left: 3px solid #7c3aed; border-radius: 0 8px 8px 0; }
+
+  .card { background: white; border-radius: 14px; padding: 22px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 14px; }
+  .card p { font-size: 14px; line-height: 1.9; color: #333; margin-bottom: 10px; }
+  .card p:last-child { margin-bottom: 0; }
+  .card .label { font-size: 12px; color: #4361EE; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+
+  .prob-box { background: white; border: 2px solid #4361EE; border-radius: 14px; padding: 20px; font-size: 15px; line-height: 1.9; color: #1a1a2e; margin-bottom: 16px; }
+
+  .derive-box { background: #f0f4ff; border-left: 4px solid #4361EE; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 12px 0; font-size: 14px; line-height: 1.9; }
+
+  .warn-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 13px; line-height: 1.8; color: #856404; }
+  .warn-box .warn-label { font-weight: bold; color: #e07b39; display: block; margin-bottom: 4px; }
+
+  .think-box { background: #f9fffe; border: 2px dashed #4cc9b0; border-radius: 14px; padding: 18px 20px; margin-bottom: 16px; font-size: 14px; line-height: 1.9; color: #1a1a2e; }
+  .think-box .think-label { font-size: 12px; color: #4cc9b0; font-weight: bold; margin-bottom: 8px; display: block; }
+
+  .answer-box { background: #fff; border: 2px solid #7c3aed; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .answer-box .ans-label { font-size: 12px; color: #7c3aed; font-weight: bold; margin-bottom: 8px; display: block; }
+  .answer-box .ans-main { font-size: 22px; font-weight: bold; color: #7c3aed; margin-bottom: 10px; }
+  .answer-box .ans-caption { font-size: 13px; color: #555; line-height: 1.8; }
+
+  .flow-step { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; font-size: 13px; line-height: 1.7; }
+  .flow-num { width: 24px; height: 24px; border-radius: 50%; background: #4361EE; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; flex-shrink: 0; margin-top: 2px; }
+
+  .legend { background: #f8f9ff; border-radius: 12px; padding: 14px 18px; margin-bottom: 16px; font-size: 13px; line-height: 1.9; }
+  .legend .leg-title { font-size: 11px; color: #4361EE; font-weight: bold; margin-bottom: 8px; letter-spacing: 0.5px; }
+
+  .next-btn { display: block; width: 100%; padding: 16px; background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; border: none; border-radius: 14px; font-size: 16px; font-weight: bold; cursor: pointer; font-family: 'Malgun Gothic', sans-serif; transition: opacity 0.2s; margin-top: 8px; }
+  .next-btn:hover { opacity: 0.9; }
+</style>
+</head>
+<body>
+
+<div class="nav-top">
+  <a href="../../">← 중1 수학 홈</a>
+  <a href="types.html">← 유형 목록</a>
+</div>
+
+<div class="progress">
+  <div class="dots">
+    <div class="dot active" data-page="0" onclick="goPage(0)">문제</div>
+    <div class="dot" data-page="1" onclick="goPage(1)">1</div>
+    <div class="dot" data-page="2" onclick="goPage(2)">2</div>
+    <div class="dot" data-page="3" onclick="goPage(3)">3</div>
+    <div class="dot" data-page="4" onclick="goPage(4)">★</div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- PAGE 0 : 문제 -->
+<div class="page active" id="p0">
+  <span class="page-label">유형 7 · H2 — 방정식 활용 (농도 혼합)</span>
+  <h2 class="page-title">문제를 읽고 생각해 봐요</h2>
+  <p class="page-why">두 소금물을 섞는 문제는 "각 소금물의 소금량 합 = 섞은 소금량"으로 식을 세워요.</p>
+
+  <div class="prob-box">
+    8 % 소금물 A와 14 % 소금물 B를 섞어<br>
+    12 % 소금물 300 g을 만들려고 합니다.<br>
+    소금물 A는 몇 g 필요한가요?
+  </div>
+
+  <div class="think-box">
+    <span class="think-label">생각 공간 — 여기서 먼저 풀어 봐요</span>
+    A의 양을 $x$ g이라 하면 B는 몇 g인가요?<br><br>
+    A에 들어 있는 소금은 몇 g인가요?<br><br>
+    B에 들어 있는 소금은 몇 g인가요?<br><br>
+    섞은 소금물 300 g, 농도 12 %면 소금은 몇 g인가요?<br><br>
+    방정식을 세워 봐요.
+  </div>
+
+  <button class="next-btn" onclick="goPage(1)">풀이 시작 →</button>
+</div>
+
+<!-- PAGE 1 : 미지수 설정 + 소금량 파악 -->
+<div class="page" id="p1">
+  <span class="page-label">STEP 1</span>
+  <h2 class="page-title">미지수 설정과 소금량 파악</h2>
+  <p class="page-why">두 소금물의 합은 300 g이에요. 하나를 $x$로 놓으면 나머지는 자동으로 결정돼요.</p>
+
+  <div class="legend">
+    <div class="leg-title">핵심 공식</div>
+    (소금의 양) = (농도) × (소금물의 양)<br>
+    $\text{소금} = \dfrac{\text{농도}}{100} \times \text{소금물}$
+  </div>
+
+  <div class="card">
+    <div class="label">미지수 설정</div>
+    <p>소금물 A의 양을 $x$ g이라 하면<br>
+    소금물 B의 양은 $(300 - x)$ g이에요.</p>
+  </div>
+
+  <div class="derive-box">
+    A의 소금: $\dfrac{8}{100} \times x = \dfrac{8x}{100}$ g<br><br>
+    B의 소금: $\dfrac{14}{100} \times (300-x) = \dfrac{14(300-x)}{100}$ g<br><br>
+    섞은 소금물의 소금: $\dfrac{12}{100} \times 300 = 36$ g
+  </div>
+
+  <button class="next-btn" onclick="goPage(2)">다음 →</button>
+</div>
+
+<!-- PAGE 2 : 방정식 세우기 -->
+<div class="page" id="p2">
+  <span class="page-label">STEP 2</span>
+  <h2 class="page-title">방정식 세우기</h2>
+  <p class="page-why">A의 소금 + B의 소금 = 섞은 소금물의 소금이에요.</p>
+
+  <div class="derive-box">
+    $$\frac{8x}{100} + \frac{14(300-x)}{100} = 36$$<br><br>
+    양변에 100을 곱하면:<br>
+    $$8x + 14(300-x) = 3600$$
+  </div>
+
+  <div class="warn-box">
+    <span class="warn-label">흔한 실수</span>
+    $14(300-x)$에서 괄호를 풀 때 <strong>분배법칙</strong>을 잊으면 안 돼요.<br>
+    $14 \times 300 - 14 \times x = 4200 - 14x$
+  </div>
+
+  <button class="next-btn" onclick="goPage(3)">다음 →</button>
+</div>
+
+<!-- PAGE 3 : 방정식 풀기 -->
+<div class="page" id="p3">
+  <span class="page-label">STEP 3</span>
+  <h2 class="page-title">방정식 풀기</h2>
+  <p class="page-why">괄호를 풀고 이항해서 $x$를 구해요.</p>
+
+  <div class="derive-box">
+    $$8x + 14(300-x) = 3600$$<br>
+    $$8x + 4200 - 14x = 3600$$<br>
+    $$8x - 14x = 3600 - 4200$$<br>
+    $$-6x = -600$$<br>
+    $$x = 100$$
+  </div>
+
+  <div class="card">
+    <div class="label">검토</div>
+    <p>A = 100 g (8 %), B = 200 g (14 %)</p>
+    <p>A의 소금: $\frac{8}{100}\times100 = 8$ g</p>
+    <p>B의 소금: $\frac{14}{100}\times200 = 28$ g</p>
+    <p>합계: $8 + 28 = 36$ g</p>
+    <p>300 g 소금물의 소금: $\frac{12}{100}\times300 = 36$ g ✓</p>
+  </div>
+
+  <button class="next-btn" onclick="goPage(4)">정답 확인 →</button>
+</div>
+
+<!-- PAGE 4 : 정답 -->
+<div class="page" id="p4">
+  <span class="page-label">★ 정답</span>
+  <h2 class="page-title">정리해 봐요</h2>
+
+  <div class="answer-box">
+    <span class="ans-label">정답</span>
+    <div class="ans-main">소금물 A = 100 g</div>
+    <div class="ans-caption">
+      A(8 %) 100 g + B(14 %) 200 g = 12 % 소금물 300 g<br>
+      소금: $8 + 28 = 36$ g, 농도 = $\frac{36}{300} = 12\,\%$ ✓
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="label">풀이 흐름</div>
+    <div class="flow-step"><div class="flow-num">1</div><div>미지수 설정: A = $x$ g, B = $(300-x)$ g</div></div>
+    <div class="flow-step"><div class="flow-num">2</div><div>각 소금량 계산: $\frac{8x}{100}$, $\frac{14(300-x)}{100}$, 목표 소금 36 g</div></div>
+    <div class="flow-step"><div class="flow-num">3</div><div>방정식: $\frac{8x}{100}+\frac{14(300-x)}{100}=36$</div></div>
+    <div class="flow-step"><div class="flow-num">4</div><div>양변 ×100 → $8x+14(300-x)=3600$</div></div>
+    <div class="flow-step"><div class="flow-num">5</div><div>정리 → $-6x=-600$ → $x=100$</div></div>
+    <div class="flow-step"><div class="flow-num">6</div><div>검토: 소금 합 = 36 g, 농도 12 % ✓</div></div>
+  </div>
+
+  <div class="warn-box">
+    <span class="warn-label">핵심 포인트</span>
+    두 소금물 혼합 문제: <strong>소금의 양의 합 = 섞은 소금의 양</strong>으로 방정식을 세워요.<br>
+    소금물의 양이 아닌 <strong>소금(용질)의 양</strong>이 보존된다는 점을 기억해요!
+  </div>
+
+  <a href="types.html" style="display:block;text-align:center;margin-top:24px;color:#4361EE;font-size:14px;text-decoration:none;">← 유형 목록으로 돌아가기</a>
+</div>
+
+</div><!-- /container -->
+
+<script>
+function goPage(n) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('p' + n).classList.add('active');
+  document.querySelectorAll('.dot').forEach(d => {
+    d.classList.remove('active');
+    if (parseInt(d.dataset.page) < n) d.classList.add('visited');
+    if (parseInt(d.dataset.page) === n) d.classList.add('active');
+  });
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  if (window.renderMathInElement) {
+    renderMathInElement(document.getElementById('p' + n), {
+      delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+    });
+  }
+}
+</script>
+</body>
+</html>

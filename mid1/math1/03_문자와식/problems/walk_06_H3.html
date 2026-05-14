@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>단계별 풀이 — 유형 6 H3 (중첩 괄호 전개)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; color: #1a1a2e; }
+  .nav-top { background: #312e81; color: #e0e7ff; font-size: 13px; padding: 10px 16px; display: flex; justify-content: space-between; gap: 12px; }
+  .nav-top a { color: #e0e7ff; text-decoration: none; }
+  .nav-top a:hover { text-decoration: underline; }
+  .progress { background: white; padding: 14px 16px; box-shadow: 0 2px 8px rgba(67,97,238,0.06); position: sticky; top: 0; z-index: 10; }
+  .dots { display: flex; justify-content: center; gap: 10px; max-width: 700px; margin: 0 auto; }
+  .dot { width: 28px; height: 28px; border-radius: 50%; background: #d0d8ff; color: #4361EE; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.15s; border: 2px solid transparent; }
+  .dot.active { background: #4361EE; color: white; transform: scale(1.15); }
+  .dot.visited { background: #c3d0ff; }
+  .dot:hover { border-color: #4361EE; }
+  .container { max-width: 700px; margin: 0 auto; padding: 28px 16px 80px; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-label { display: inline-block; background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; font-size: 11px; padding: 4px 12px; border-radius: 20px; letter-spacing: 1px; margin-bottom: 10px; }
+  .page-title { font-size: 22px; color: #1a1a2e; margin-bottom: 6px; line-height: 1.4; }
+  .page-why { font-size: 13px; color: #7c3aed; font-style: italic; margin-bottom: 18px; padding: 8px 14px; background: #f5edff; border-left: 3px solid #7c3aed; border-radius: 0 8px 8px 0; }
+  .card { background: white; border-radius: 14px; padding: 22px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 14px; }
+  .card p { font-size: 14px; line-height: 1.9; color: #333; margin-bottom: 10px; }
+  .card p:last-child { margin-bottom: 0; }
+  .card .label { font-size: 12px; color: #4361EE; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .prob-box { background: white; border: 2px solid #4361EE; border-radius: 14px; padding: 20px; font-size: 15px; line-height: 1.9; color: #1a1a2e; margin-bottom: 16px; }
+  .derive-box { background: #f0f4ff; border-left: 4px solid #4361EE; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 12px 0; font-size: 14px; line-height: 1.9; }
+  .warn-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 13px; line-height: 1.8; color: #856404; }
+  .warn-box .warn-label { font-weight: bold; color: #e07b39; display: block; margin-bottom: 4px; }
+  .think-box { background: #e3f2fd; border-left: 4px solid #2196f3; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 14px; line-height: 1.8; color: #0d47a1; }
+  .think-box .think-label { font-weight: bold; display: block; margin-bottom: 6px; }
+  .answer-box { background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; border-radius: 14px; padding: 24px; text-align: center; font-size: 22px; font-weight: bold; margin: 20px 0; box-shadow: 0 4px 16px rgba(67,97,238,0.3); }
+  .next-btn { display: block; width: 100%; padding: 14px; background: #4361EE; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; font-family: inherit; margin-top: 16px; transition: all 0.15s; }
+  .next-btn:hover { background: #3a52d8; transform: translateY(-1px); }
+  .prev-btn { display: inline-block; background: white; color: #4361EE; border: 2px solid #4361EE; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-family: inherit; cursor: pointer; margin-right: 8px; text-decoration: none; }
+  .nav-bottom { display: flex; gap: 8px; margin-top: 16px; }
+  .flow-step { display: flex; align-items: flex-start; gap: 10px; margin: 10px 0; padding: 10px 14px; background: #f8f9ff; border-radius: 10px; font-size: 13px; line-height: 1.7; }
+  .flow-step .flow-num { background: #4361EE; color: white; width: 24px; height: 24px; min-width: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
+  .legend { background: #fff8e1; border: 1px solid #f4d96f; border-radius: 10px; padding: 10px 14px; font-size: 12px; line-height: 1.7; color: #5d4715; margin-bottom: 16px; }
+  .legend strong { color: #8b6914; }
+  .legend .legend-title { font-weight: bold; color: #8b6914; margin-right: 6px; }
+</style>
+</head>
+<body>
+
+<div class="nav-top">
+  <a href="../../">← 중1 수학 홈</a>
+  <a href="types.html">← 유형 목록</a>
+</div>
+
+<div class="progress">
+  <div class="dots">
+    <div class="dot active" data-page="0" onclick="goPage(0)">0</div>
+    <div class="dot" data-page="1" onclick="goPage(1)">1</div>
+    <div class="dot" data-page="2" onclick="goPage(2)">2</div>
+    <div class="dot" data-page="3" onclick="goPage(3)">3</div>
+    <div class="dot" data-page="4" onclick="goPage(4)">★</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ============ Page 0: 문제만 ============ -->
+  <div class="page active" id="p0">
+    <div class="page-label">문제 · Page 0</div>
+    <h1 class="page-title">단계별로 풀어볼까요?</h1>
+    <div class="page-why">정답은 마지막에 확인해요. 먼저 스스로 생각해보고, 막히면 다음 단계로 넘어가세요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      <strong>항</strong>: 수나 문자의 곱으로 이루어진 단위 &nbsp;·&nbsp;
+      <strong>계수</strong>: 문자 앞의 수 ($3x$ → 계수 3) &nbsp;·&nbsp;
+      <strong>상수항</strong>: 문자 없는 항 &nbsp;·&nbsp;
+      <strong>동류항</strong>: 문자와 차수가 같은 항 &nbsp;·&nbsp;
+      <strong>일차식</strong>: 차수 1인 식 &nbsp;·&nbsp;
+      <strong>분배법칙</strong>: $a(b+c)=ab+ac$
+    </div>
+
+    <div class="prob-box">
+      <strong>유형 6 · H3</strong><br><br>
+      $A - \{2B - (A + B)\}$를 간단히 하세요. ($A$, $B$는 일차식)
+    </div>
+
+    <div class="think-box">
+      <span class="think-label">🤔 잠깐, 손으로 풀어보세요</span>
+      중괄호 $\{\}$ 안에 소괄호 $()$가 있어요. 어떤 괄호부터 먼저 풀어야 할까요?
+    </div>
+
+    <button class="next-btn" onclick="goPage(1)">1단계로 →</button>
+  </div>
+
+  <!-- ============ Page 1: 안쪽 괄호 ============ -->
+  <div class="page" id="p1">
+    <div class="page-label">1단계 · Page 1</div>
+    <h1 class="page-title">안쪽 괄호 $()$부터 풀어요</h1>
+    <div class="page-why">왜 이 단계? — 괄호가 중첩될 때는 항상 가장 안쪽 괄호부터 전개해요. 바깥에서 안으로 가면 안 돼요!</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      <strong>괄호 우선순위</strong>: 소괄호 () → 중괄호 {} → 대괄호 [] 순서로 안쪽부터 전개
+    </div>
+
+    <div class="card">
+      <div class="label">소괄호 전개</div>
+      <p>$\{2B - (A + B)\}$에서 안쪽 $(A + B)$ 앞에 $-$가 붙어있어요:</p>
+      <div class="derive-box">
+        $2B - (A + B)$<br>
+        $= 2B - A - B$ &nbsp;&nbsp; ← $-(A+B) = -A - B$<br>
+        $= -A + B$ &nbsp;&nbsp; ← $2B - B = B$
+      </div>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-label">⚠️ 부호 반전 주의</span>
+      $-(A + B) = -A - B$예요. 괄호 안의 모든 항의 부호가 반전돼요.
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(0)">← 이전</a>
+      <button class="next-btn" onclick="goPage(2)" style="flex:1">2단계로 →</button>
+    </div>
+  </div>
+
+  <!-- ============ Page 2: 중괄호 전개 ============ -->
+  <div class="page" id="p2">
+    <div class="page-label">2단계 · Page 2</div>
+    <h1 class="page-title">중괄호 $\{\}$ 전개해요</h1>
+    <div class="page-why">왜 이 단계? — 1단계에서 $\{2B - (A+B)\} = \{-A + B\}$로 정리했어요. 이제 중괄호를 전개해요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      $-\{-A + B\} = A - B$ (중괄호 앞 $-$ → 안 모든 항 부호 반전)
+    </div>
+
+    <div class="card">
+      <div class="label">전체 식에 적용</div>
+      <p>1단계 결과를 원래 식에 적용:</p>
+      <div class="derive-box">
+        $A - \{2B - (A + B)\}$<br>
+        $= A - \{-A + B\}$ &nbsp;&nbsp; ← 1단계 결과 대입<br>
+        $= A - (-A + B)$ &nbsp;&nbsp; ← 중괄호 = 소괄호와 동일<br>
+        $= A + A - B$ &nbsp;&nbsp; ← $-(-A) = +A$, $-(+B) = -B$<br>
+        $= 2A - B$
+      </div>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(1)">← 이전</a>
+      <button class="next-btn" onclick="goPage(3)" style="flex:1">3단계로 →</button>
+    </div>
+  </div>
+
+  <!-- ============ Page 3: 확인 ============ -->
+  <div class="page" id="p3">
+    <div class="page-label">3단계 · Page 3</div>
+    <h1 class="page-title">전체 흐름을 한눈에 정리해요</h1>
+    <div class="page-why">왜 이 단계? — 중첩 괄호를 한 번에 다 쓰면서 확인하면 실수를 잡을 수 있어요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      중첩 괄호 전개 순서: 안쪽 → 바깥쪽
+    </div>
+
+    <div class="card">
+      <div class="label">전체 전개 한눈에</div>
+      <div class="derive-box">
+        $A - \{2B - (A + B)\}$<br>
+        $= A - \{2B - A - B\}$ &nbsp;&nbsp; ← 소괄호 전개<br>
+        $= A - \{B - A\}$ &nbsp;&nbsp; ← $2B - B = B$ 정리<br>
+        $= A - B + A$ &nbsp;&nbsp; ← 중괄호 전개 ($-\{B-A\} = -B+A$)<br>
+        $= 2A - B$
+      </div>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-label">⚠️ 실수 포인트</span>
+      중괄호 앞 $-$ 부호를 처리할 때 $B - A$의 $-A$가 $+A$로 바뀌어요. 부호 반전을 빠뜨리면 틀려요.
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(2)">← 이전</a>
+      <button class="next-btn" onclick="goPage(4)" style="flex:1">정답 보기 →</button>
+    </div>
+  </div>
+
+  <!-- ============ Page 4: 정답 + 요약 ============ -->
+  <div class="page" id="p4">
+    <div class="page-label">정답 · Page ★</div>
+    <h1 class="page-title">정답 + 풀이 흐름 요약</h1>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      <strong>중첩 괄호</strong>: 안쪽부터 전개 &nbsp;·&nbsp;
+      <strong>뺄셈 괄호 부호 반전</strong>
+    </div>
+
+    <div class="answer-box">
+      $A - \{2B - (A+B)\} = 2A - B$
+    </div>
+
+    <div class="card">
+      <div class="label">전체 풀이 흐름 — 3단계</div>
+      <div class="flow-step"><div class="flow-num">1</div><div>안쪽 소괄호 전개: $2B - (A+B) = 2B - A - B = -A + B$</div></div>
+      <div class="flow-step"><div class="flow-num">2</div><div>중괄호 전개: $A - \{-A + B\} = A + A - B$</div></div>
+      <div class="flow-step"><div class="flow-num">3</div><div>동류항 정리: $A + A = 2A$ → 결과 $2A - B$</div></div>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-label">⚠️ 이 유형의 핵심 법칙</span>
+      중첩 괄호는 반드시 <strong>안쪽부터</strong> 전개해요. 바깥 괄호를 먼저 전개하면 안 쪽 부호 처리가 뒤죽박죽이 돼요. 그리고 뺄셈 괄호는 항상 안의 모든 부호를 반전!
+    </div>
+
+    <div class="card">
+      <div class="label">📚 이 유형 더 연습하고 싶다면</div>
+      <p style="font-size:13px"><a href="type_06_app.html" style="color:#4361EE">→ 유형 6 (일차식 덧셈·뺄셈) 다른 문제 연습</a></p>
+      <p style="font-size:13px"><a href="deep_일차식계산_app.html" style="color:#7c3aed">→ 깊이 탐구 — 일차식 계산 통합 앱</a></p>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(3)">← 이전</a>
+      <a class="prev-btn" href="types.html" style="flex:1;text-align:center">유형 목록으로 →</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function goPage(n) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('p' + n).classList.add('active');
+  document.querySelectorAll('.dot').forEach(d => {
+    d.classList.remove('active');
+    if (parseInt(d.dataset.page) < n) d.classList.add('visited');
+    if (parseInt(d.dataset.page) === n) d.classList.add('active');
+  });
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  if (window.renderMathInElement) {
+    renderMathInElement(document.getElementById('p' + n), {
+      delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+    });
+  }
+}
+</script>
+</body>
+</html>

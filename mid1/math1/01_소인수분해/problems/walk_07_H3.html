@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>단계별 풀이 — 유형 7 H3 (n과 n+1은 서로소)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; color: #1a1a2e; }
+  .nav-top { background: #312e81; color: #e0e7ff; font-size: 13px; padding: 10px 16px; display: flex; justify-content: space-between; gap: 12px; }
+  .nav-top a { color: #e0e7ff; text-decoration: none; }
+  .nav-top a:hover { text-decoration: underline; }
+  .progress { background: white; padding: 14px 16px; box-shadow: 0 2px 8px rgba(67,97,238,0.06); position: sticky; top: 0; z-index: 10; }
+  .dots { display: flex; justify-content: center; gap: 10px; max-width: 700px; margin: 0 auto; }
+  .dot { width: 28px; height: 28px; border-radius: 50%; background: #d0d8ff; color: #4361EE; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.15s; border: 2px solid transparent; }
+  .dot.active { background: #4361EE; color: white; transform: scale(1.15); }
+  .dot.visited { background: #c3d0ff; }
+  .dot:hover { border-color: #4361EE; }
+  .container { max-width: 700px; margin: 0 auto; padding: 28px 16px 80px; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-label { display: inline-block; background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; font-size: 11px; padding: 4px 12px; border-radius: 20px; letter-spacing: 1px; margin-bottom: 10px; }
+  .page-title { font-size: 22px; color: #1a1a2e; margin-bottom: 6px; line-height: 1.4; }
+  .page-why { font-size: 13px; color: #7c3aed; font-style: italic; margin-bottom: 18px; padding: 8px 14px; background: #f5edff; border-left: 3px solid #7c3aed; border-radius: 0 8px 8px 0; }
+  .card { background: white; border-radius: 14px; padding: 22px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 14px; }
+  .card p { font-size: 14px; line-height: 1.9; color: #333; margin-bottom: 10px; }
+  .card p:last-child { margin-bottom: 0; }
+  .card .label { font-size: 12px; color: #4361EE; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .prob-box { background: white; border: 2px solid #4361EE; border-radius: 14px; padding: 20px; font-size: 15px; line-height: 1.9; color: #1a1a2e; margin-bottom: 16px; }
+  .derive-box { background: #f0f4ff; border-left: 4px solid #4361EE; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 12px 0; font-size: 14px; line-height: 1.9; }
+  .warn-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 13px; line-height: 1.8; color: #856404; }
+  .warn-box .warn-label { font-weight: bold; color: #e07b39; display: block; margin-bottom: 4px; }
+  .think-box { background: #e3f2fd; border-left: 4px solid #2196f3; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 14px; line-height: 1.8; color: #0d47a1; }
+  .think-box .think-label { font-weight: bold; display: block; margin-bottom: 6px; }
+  .answer-box { background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; border-radius: 14px; padding: 24px; text-align: center; font-size: 22px; font-weight: bold; margin: 20px 0; box-shadow: 0 4px 16px rgba(67,97,238,0.3); }
+  .next-btn { display: block; width: 100%; padding: 14px; background: #4361EE; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; font-family: inherit; margin-top: 16px; transition: all 0.15s; }
+  .next-btn:hover { background: #3a52d8; transform: translateY(-1px); }
+  .prev-btn { display: inline-block; background: white; color: #4361EE; border: 2px solid #4361EE; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-family: inherit; cursor: pointer; margin-right: 8px; text-decoration: none; }
+  .nav-bottom { display: flex; gap: 8px; margin-top: 16px; }
+  .flow-step { display: flex; align-items: flex-start; gap: 10px; margin: 10px 0; padding: 10px 14px; background: #f8f9ff; border-radius: 10px; font-size: 13px; line-height: 1.7; }
+  .flow-step .flow-num { background: #4361EE; color: white; width: 24px; height: 24px; min-width: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
+  .legend { background: #fff8e1; border: 1px solid #f4d96f; border-radius: 10px; padding: 10px 14px; font-size: 12px; line-height: 1.7; color: #5d4715; margin-bottom: 16px; }
+  .legend strong { color: #8b6914; }
+  .legend .legend-title { font-weight: bold; color: #8b6914; margin-right: 6px; }
+</style>
+</head>
+<body>
+
+<div class="nav-top">
+  <a href="../../">← 중1 수학 홈</a>
+  <a href="types.html">← 유형 목록</a>
+</div>
+
+<div class="progress">
+  <div class="dots">
+    <div class="dot active" data-page="0" onclick="goPage(0)">0</div>
+    <div class="dot" data-page="1" onclick="goPage(1)">1</div>
+    <div class="dot" data-page="2" onclick="goPage(2)">2</div>
+    <div class="dot" data-page="3" onclick="goPage(3)">3</div>
+    <div class="dot" data-page="4" onclick="goPage(4)">★</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Page 0 -->
+  <div class="page active" id="p0">
+    <div class="page-label">문제 · Page 0</div>
+    <h1 class="page-title">단계별로 풀어볼까요?</h1>
+    <div class="page-why">정답은 마지막에 확인해요. 먼저 스스로 생각해보고, 막히면 다음 단계로 넘어가세요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어·기호:</span>
+      <strong>서로소</strong> = 두 수의 gcd가 $1$.
+      <strong>$d \mid n$</strong> = "$d$는 $n$의 약수". 예: $3 \mid 12$.
+    </div>
+
+    <div class="prob-box">
+      <strong>유형 7 · H3</strong><br><br>
+      자연수 $n$에 대하여 $n$과 $n+1$은 항상 서로소임을 설명하세요. 또, $n = 12$일 때 확인하세요.
+    </div>
+
+    <div class="think-box">
+      <span class="think-label">🤔 잠깐, 손으로 생각해보세요</span>
+      $n$과 $n+1$의 공약수 $d$가 있다면, $d$는 두 수의 <strong>차</strong>도 나눠요. 그 차가 뭐죠?
+    </div>
+
+    <button class="next-btn" onclick="goPage(1)">1단계로 →</button>
+  </div>
+
+  <!-- Page 1 -->
+  <div class="page" id="p1">
+    <div class="page-label">1단계 · Page 1</div>
+    <h1 class="page-title">핵심 성질 — 공약수는 차도 나눈다</h1>
+    <div class="page-why">왜 이 단계? — 증명의 출발점. 두 수 모두를 나누는 수는 둘의 차도 나눠요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 핵심 정리:</span>
+      $d \mid a$이고 $d \mid b$이면 $d \mid (a - b)$. ($d$가 $a$도 나누고 $b$도 나누면, 차도 나눠요.)
+    </div>
+
+    <div class="card">
+      <div class="label">왜 그런가</div>
+      <p>$a = d \times p$, $b = d \times q$이면:</p>
+      <div class="derive-box">
+        $a - b = d \times p - d \times q = d \times (p - q)$
+      </div>
+      <p>즉, $a - b$도 $d$로 나누어떨어져요.</p>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(0)">← 이전</a>
+      <button class="next-btn" onclick="goPage(2)" style="flex:1">2단계로 →</button>
+    </div>
+  </div>
+
+  <!-- Page 2 -->
+  <div class="page" id="p2">
+    <div class="page-label">2단계 · Page 2</div>
+    <h1 class="page-title">증명: $\gcd(n, n+1) = 1$</h1>
+    <div class="page-why">왜 이 단계? — 1단계 성질을 적용하면 한 줄에 결론이 나와요.</div>
+
+    <div class="card">
+      <div class="label">설정</div>
+      <p>$d = \gcd(n, n+1)$이라 둬요. 그러면:</p>
+      <div class="derive-box">
+        $d \mid n$ ($d$는 $n$의 약수)<br>
+        $d \mid (n+1)$ ($d$는 $n+1$의 약수)
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="label">차에 적용</div>
+      <p>두 수의 차는 $(n+1) - n = 1$. 1단계 성질에 따라:</p>
+      <div class="derive-box">
+        $d \mid \big((n+1) - n\big) = d \mid 1$
+      </div>
+      <p>$d$가 $1$의 약수 → $d = 1$ (자연수에서 $1$을 나누는 건 자기 자신뿐).</p>
+    </div>
+
+    <div class="card">
+      <div class="label">결론</div>
+      <div class="derive-box">
+        $\gcd(n, n+1) = 1$ → $n$과 $n+1$은 <strong>항상 서로소</strong> ∎
+      </div>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(1)">← 이전</a>
+      <button class="next-btn" onclick="goPage(3)" style="flex:1">3단계로 →</button>
+    </div>
+  </div>
+
+  <!-- Page 3 -->
+  <div class="page" id="p3">
+    <div class="page-label">3단계 · Page 3</div>
+    <h1 class="page-title">$n = 12$일 때 확인</h1>
+    <div class="page-why">왜 이 단계? — 증명을 구체적인 수로 검증.</div>
+
+    <div class="card">
+      <div class="label">$\gcd(12, 13)$ 계산</div>
+      <div class="derive-box">
+        $12 = 2^2 \times 3$<br>
+        $13 = 13$ (소수)
+      </div>
+      <p>공통 소인수 없음:</p>
+      <div class="derive-box">
+        $\gcd(12, 13) = 1$ ✅
+      </div>
+    </div>
+
+    <div class="think-box">
+      <span class="think-label">💡 보너스 관찰</span>
+      $13$이 마침 소수라 더 명확하지만, $13$이 소수가 아니어도 결과는 같아요. 예: $\gcd(20, 21) = ?$ $20 = 2^2 \cdot 5$, $21 = 3 \cdot 7$ → 공통 없음 → $1$ ✅
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-label">⚠️ 흔한 실수</span>
+      "$\gcd(12, 13) = 1$"이 "13이 소수라서" 라고만 설명하면 부족! 증명은 <strong>$n$이 어떤 자연수든</strong> 성립해야 해요. 그래서 "차 = 1"이 핵심 단서.
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(2)">← 이전</a>
+      <button class="next-btn" onclick="goPage(4)" style="flex:1">정답 보기 →</button>
+    </div>
+  </div>
+
+  <!-- Page ★ -->
+  <div class="page" id="p4">
+    <div class="page-label">정답 · Page ★</div>
+    <h1 class="page-title">정답 + 풀이 흐름 요약</h1>
+
+    <div class="legend">
+      <span class="legend-title">📖 핵심 정리:</span>
+      $d \mid a$이고 $d \mid b$ → $d \mid (a - b)$. 이걸 "연속 자연수의 차 = 1"에 적용하면 끝.
+    </div>
+
+    <div class="answer-box">
+      <span style="font-size:18px">$n$과 $n+1$은 항상 서로소 (증명 완료)</span><br>
+      <span style="font-size:14px;font-weight:normal;opacity:0.9">$n = 12$: $\gcd(12, 13) = 1$ ✅</span>
+    </div>
+
+    <div class="card">
+      <div class="label">전체 풀이 흐름 — 4단계</div>
+      <div class="flow-step"><div class="flow-num">1</div><div>핵심 성질: $d \mid a$, $d \mid b$ → $d \mid (a - b)$</div></div>
+      <div class="flow-step"><div class="flow-num">2</div><div>$d = \gcd(n, n+1)$이면 $d \mid n$, $d \mid (n+1)$</div></div>
+      <div class="flow-step"><div class="flow-num">3</div><div>$d \mid \big((n+1) - n\big) = d \mid 1$ → $d = 1$</div></div>
+      <div class="flow-step"><div class="flow-num">4</div><div>확인: $\gcd(12, 13) = 1$ ($12 = 2^2 \times 3$, $13 = 13$ 공통 없음)</div></div>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-label">⚠️ 이 유형의 핵심 함정</span>
+      "구체적 수로 확인"과 "일반적 증명"은 달라요! 구체 예 하나로는 모든 $n$에서 성립함을 보장하지 못해요. <strong>"차의 약수" 논리</strong>가 진짜 증명이에요.
+    </div>
+
+    <div class="card">
+      <div class="label">📚 이 유형 더 연습하고 싶다면</div>
+      <p style="font-size:13px"><a href="type_07_app.html" style="color:#4361EE">→ 유형 7 (GCD·LCM 관계식) 다른 문제 연습</a></p>
+      <p style="font-size:13px"><a href="deep_GCD_LCM_app.html" style="color:#7c3aed">→ 깊이 탐구 — GCD·LCM·관계식 통합</a></p>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(3)">← 이전</a>
+      <a class="prev-btn" href="types.html" style="flex:1;text-align:center">유형 목록으로 →</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function goPage(n) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('p' + n).classList.add('active');
+  document.querySelectorAll('.dot').forEach(d => {
+    d.classList.remove('active');
+    if (parseInt(d.dataset.page) < n) d.classList.add('visited');
+    if (parseInt(d.dataset.page) === n) d.classList.add('active');
+  });
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  if (window.renderMathInElement) {
+    renderMathInElement(document.getElementById('p' + n), {
+      delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+    });
+  }
+}
+</script>
+</body>
+</html>

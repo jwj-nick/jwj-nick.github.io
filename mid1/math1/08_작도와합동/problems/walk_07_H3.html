@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>단계별 풀이 — 유형 7 H3 (OA=OB, OC=OD, ∠AOC=∠BOD → SAS → AC=BD)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; color: #1a1a2e; }
+  .nav-top { background: #312e81; color: #e0e7ff; font-size: 13px; padding: 10px 16px; display: flex; justify-content: space-between; gap: 12px; }
+  .nav-top a { color: #e0e7ff; text-decoration: none; }
+  .nav-top a:hover { text-decoration: underline; }
+  .progress { background: white; padding: 14px 16px; box-shadow: 0 2px 8px rgba(67,97,238,0.06); position: sticky; top: 0; z-index: 10; }
+  .dots { display: flex; justify-content: center; gap: 10px; max-width: 700px; margin: 0 auto; }
+  .dot { width: 28px; height: 28px; border-radius: 50%; background: #d0d8ff; color: #4361EE; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.15s; border: 2px solid transparent; }
+  .dot.active { background: #4361EE; color: white; transform: scale(1.15); }
+  .dot.visited { background: #c3d0ff; }
+  .dot:hover { border-color: #4361EE; }
+  .container { max-width: 700px; margin: 0 auto; padding: 28px 16px 80px; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-label { display: inline-block; background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; font-size: 11px; padding: 4px 12px; border-radius: 20px; letter-spacing: 1px; margin-bottom: 10px; }
+  .page-title { font-size: 22px; color: #1a1a2e; margin-bottom: 6px; line-height: 1.4; }
+  .page-why { font-size: 13px; color: #7c3aed; font-style: italic; margin-bottom: 18px; padding: 8px 14px; background: #f5edff; border-left: 3px solid #7c3aed; border-radius: 0 8px 8px 0; }
+  .card { background: white; border-radius: 14px; padding: 22px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 14px; }
+  .card p { font-size: 14px; line-height: 1.9; color: #333; margin-bottom: 10px; }
+  .card p:last-child { margin-bottom: 0; }
+  .legend { background: #fffbea; border: 1px solid #fcd34d; border-radius: 10px; padding: 14px 18px; margin-bottom: 14px; font-size: 12.5px; line-height: 2; color: #78350f; }
+  .legend strong { color: #92400e; }
+  .derive-box { background: #f0f4ff; border-left: 4px solid #4361EE; border-radius: 0 10px 10px 0; padding: 12px 16px; margin: 10px 0; font-size: 13.5px; line-height: 1.85; }
+  .warn-box { background: #fff0f0; border-left: 4px solid #e74c3c; border-radius: 0 10px 10px 0; padding: 12px 16px; margin: 10px 0; font-size: 13px; line-height: 1.8; }
+  .think-box { background: #f0fdf4; border: 2px dashed #34d399; border-radius: 12px; padding: 16px 18px; margin: 14px 0; font-size: 13.5px; line-height: 1.85; color: #065f46; }
+  .answer-box { background: linear-gradient(135deg, #4361EE 0%, #7c3aed 100%); color: white; border-radius: 16px; padding: 24px; margin: 14px 0; }
+  .answer-box .ans-title { font-size: 13px; opacity: 0.85; margin-bottom: 8px; }
+  .answer-box .ans-main { font-size: 18px; font-weight: bold; margin-bottom: 12px; line-height: 1.6; }
+  .answer-box .ans-detail { font-size: 13px; opacity: 0.9; line-height: 1.8; }
+  .flow-step { display: flex; gap: 10px; margin: 6px 0; align-items: flex-start; }
+  .flow-num { background: rgba(255,255,255,0.25); border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; flex-shrink: 0; margin-top: 1px; }
+  .nav-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 28px; padding-top: 20px; border-top: 1px solid #dde3ff; }
+  .nav-btn { background: #4361EE; color: white; border: none; border-radius: 10px; padding: 10px 22px; font-size: 14px; cursor: pointer; font-family: inherit; }
+  .nav-btn:hover { background: #3451d1; }
+  .nav-btn.sec { background: white; color: #4361EE; border: 2px solid #4361EE; }
+  .nav-btn.sec:hover { background: #eef2ff; }
+  .proof-step { background: white; border-radius: 10px; padding: 14px 16px; margin: 8px 0; font-size: 13.5px; line-height: 1.85; border-left: 4px solid #7c3aed; }
+  .proof-step .reason { color: #7c3aed; font-size: 12px; margin-top: 4px; }
+  .highlight-box { background: #f5edff; border: 2px solid #7c3aed; border-radius: 12px; padding: 16px 18px; margin: 12px 0; font-size: 14px; line-height: 1.85; color: #4c1d95; }
+</style>
+</head>
+<body>
+
+<div class="nav-top">
+  <a href="../../">← 중1 수학 홈</a>
+  <a href="types.html">← 유형 목록</a>
+</div>
+
+<div class="progress">
+  <div class="dots">
+    <div class="dot active" onclick="goPage(0)">0</div>
+    <div class="dot" onclick="goPage(1)">1</div>
+    <div class="dot" onclick="goPage(2)">2</div>
+    <div class="dot" onclick="goPage(3)">3</div>
+    <div class="dot" onclick="goPage(4)">★</div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- PAGE 0 -->
+<div class="page active" id="page-0">
+  <span class="page-label">유형 7 · H3</span>
+  <h1 class="page-title">OA=OB, OC=OD, ∠AOC=∠BOD → AC=BD 증명</h1>
+  <p class="page-why">합동의 최대 활용 — 합동을 보이는 목적은 대응 관계에서 원하는 정보를 추출하는 것이에요.</p>
+
+  <div class="legend">
+    <strong>이 단원 핵심 용어</strong><br>
+    합동(≅): 두 도형이 모양과 크기가 완전히 같음 (≡ 기호 쓰기도 함) ·
+    대응: 합동인 두 도형에서 서로 겹치는 꼭짓점·변·각 ·
+    SSS 합동: 세 변의 길이가 모두 같음 ·
+    SAS 합동: 두 변의 길이와 그 사이 각이 같음 ·
+    ASA 합동: 두 각의 크기와 그 사이 변의 길이가 같음
+  </div>
+
+  <div class="card">
+    <p><strong>문제</strong></p>
+    <p>$\overline{OA} = \overline{OB}$, $\overline{OC} = \overline{OD}$이고 $\angle AOC = \angle BOD$인 그림에서,<br>
+    $\triangle AOC$와 $\triangle BOD$가 합동임을 보이시오.<br>
+    또 $\overline{AC} = \overline{BD}$의 결론까지 도출하시오.</p>
+  </div>
+
+  <div class="think-box">
+    주어진 것 3가지: OA=OB, OC=OD, ∠AOC=∠BOD<br>
+    두 변과 끼인각 — SAS의 냄새가 나요!<br>
+    ∠AOC가 변 OA와 변 OC 사이의 각인지 확인하면 됩니다.
+  </div>
+
+  <button class="nav-btn" onclick="goPage(1)" style="width:100%;margin-top:8px;">단계별 풀이 시작 →</button>
+</div>
+
+<!-- PAGE 1 -->
+<div class="page" id="page-1">
+  <span class="page-label">STEP 1</span>
+  <h2 class="page-title">SAS 조건 확인</h2>
+  <p class="page-why">세 가지 주어진 조건이 SAS를 만족하는지 정리해요.</p>
+
+  <div class="card">
+    <p>$\triangle AOC$와 $\triangle BOD$에서:</p>
+
+    <div class="proof-step">
+      <strong>① $\overline{OA} = \overline{OB}$</strong>
+      <div class="reason">이유: 주어진 조건</div>
+    </div>
+
+    <div class="proof-step">
+      <strong>② $\angle AOC = \angle BOD$</strong>
+      <div class="reason">이유: 주어진 조건</div>
+    </div>
+
+    <div class="proof-step">
+      <strong>③ $\overline{OC} = \overline{OD}$</strong>
+      <div class="reason">이유: 주어진 조건</div>
+    </div>
+  </div>
+
+  <div class="derive-box">
+    패턴 확인: 변 OA — 각 ∠AOC — 변 OC<br>
+    → ∠AOC는 꼭짓점 O에서 OA와 OC가 만드는 각<br>
+    → OA와 OC 사이의 끼인각 = ∠AOC ✓<br>
+    → <strong>SAS 성립!</strong>
+  </div>
+
+  <div class="nav-bottom">
+    <button class="nav-btn sec" onclick="goPage(0)">← 문제</button>
+    <button class="nav-btn" onclick="goPage(2)">다음 →</button>
+  </div>
+</div>
+
+<!-- PAGE 2 -->
+<div class="page" id="page-2">
+  <span class="page-label">STEP 2</span>
+  <h2 class="page-title">합동 결론 내리기</h2>
+  <p class="page-why">SAS 조건 확인 완료 → 합동 선언!</p>
+
+  <div class="card">
+    <div class="derive-box">
+      $\overline{OA} = \overline{OB}$ (주어짐)<br>
+      $\angle AOC = \angle BOD$ (주어짐, 끼인각)<br>
+      $\overline{OC} = \overline{OD}$ (주어짐)<br>
+      <br>
+      $$\therefore \triangle AOC \equiv \triangle BOD \quad (\text{SAS})$$
+    </div>
+    <p>합동이 확인되었으므로 대응 관계를 읽어요.</p>
+    <div class="derive-box">
+      대응: A ↔ B, O ↔ O, C ↔ D<br>
+      대응변: $\overline{AC} \leftrightarrow \overline{BD}$
+    </div>
+  </div>
+
+  <div class="nav-bottom">
+    <button class="nav-btn sec" onclick="goPage(1)">← 이전</button>
+    <button class="nav-btn" onclick="goPage(3)">다음 →</button>
+  </div>
+</div>
+
+<!-- PAGE 3 -->
+<div class="page" id="page-3">
+  <span class="page-label">STEP 3</span>
+  <h2 class="page-title">최종 결론: AC = BD</h2>
+  <p class="page-why">합동에서 대응변이 같다는 사실 → 원하는 결론 도출!</p>
+
+  <div class="card">
+    <div class="derive-box">
+      $\triangle AOC \equiv \triangle BOD$ (SAS)<br>
+      A ↔ B, O ↔ O, C ↔ D<br>
+      대응변 $\overline{AC} \leftrightarrow \overline{BD}$<br>
+      <br>
+      $$\therefore \overline{AC} = \overline{BD}$$
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>합동 활용의 핵심 패턴:</strong><br>
+    합동을 보이는 것 자체가 목적이 아니에요.<br>
+    합동을 보인 다음, 대응변·대응각이 같다는 정보를 끌어내는 것이 진짜 목적이에요.<br>
+    "합동 증명 → 대응 읽기 → 원하는 정보 추출" 이 3단계가 기본 패턴입니다.
+  </div>
+
+  <div class="nav-bottom">
+    <button class="nav-btn sec" onclick="goPage(2)">← 이전</button>
+    <button class="nav-btn" onclick="goPage(4)">정답 확인 →</button>
+  </div>
+</div>
+
+<!-- PAGE ★ -->
+<div class="page" id="page-4">
+  <span class="page-label">정답 ★</span>
+  <h2 class="page-title">SAS 합동 → AC = BD</h2>
+
+  <div class="answer-box">
+    <div class="ans-title">정답</div>
+    <div class="ans-main">△AOC ≡ △BOD (SAS)<br>∴ AC = BD</div>
+    <div class="ans-detail">
+      <div class="flow-step"><span class="flow-num">1</span><span>OA=OB, OC=OD (주어짐)</span></div>
+      <div class="flow-step"><span class="flow-num">2</span><span>∠AOC=∠BOD (주어짐, 끼인각)</span></div>
+      <div class="flow-step"><span class="flow-num">3</span><span>변·끼인각·변 → SAS 합동</span></div>
+      <div class="flow-step"><span class="flow-num">4</span><span>대응 A↔B, O↔O, C↔D → 대응변 AC ↔ BD</span></div>
+      <div class="flow-step"><span class="flow-num">5</span><span>대응변 같음 → AC = BD ✓</span></div>
+    </div>
+  </div>
+
+  <div class="warn-box">
+    <strong>합동 증명의 3단계 패턴:</strong><br>
+    ① 같은 것 3가지 모으기 (변·각·변 또는 변·변·변 또는 각·변·각)<br>
+    ② 합동 조건 이름 쓰기 (SAS / SSS / ASA)<br>
+    ③ 대응 관계에서 원하는 결론 읽기<br><br>
+    이 패턴이 중1부터 고등학교 기하까지 이어지는 증명의 기본 골격이에요.
+  </div>
+
+  <div class="nav-bottom">
+    <button class="nav-btn sec" onclick="goPage(3)">← 이전</button>
+    <a href="types.html"><button class="nav-btn">유형 목록으로 →</button></a>
+  </div>
+</div>
+
+</div><!-- container -->
+
+<script>
+const total = 5;
+let visited = new Set([0]);
+function goPage(n) {
+  document.querySelectorAll('.page').forEach((p,i) => p.classList.toggle('active', i === n));
+  document.querySelectorAll('.dot').forEach((d,i) => {
+    d.classList.toggle('active', i === n);
+    d.classList.toggle('visited', visited.has(i) && i !== n);
+  });
+  visited.add(n);
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  if (window.renderMathInElement) renderMathInElement(document.body);
+}
+</script>
+</body>
+</html>

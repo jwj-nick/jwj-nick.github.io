@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>단계별 풀이 — 유형 3 H2 (우체국 위치 — 수직이등분선 자취)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; color: #1a1a2e; }
+  .nav-top { background: #312e81; color: #e0e7ff; font-size: 13px; padding: 10px 16px; display: flex; justify-content: space-between; gap: 12px; }
+  .nav-top a { color: #e0e7ff; text-decoration: none; }
+  .nav-top a:hover { text-decoration: underline; }
+  .progress { background: white; padding: 14px 16px; box-shadow: 0 2px 8px rgba(67,97,238,0.06); position: sticky; top: 0; z-index: 10; }
+  .dots { display: flex; justify-content: center; gap: 10px; max-width: 700px; margin: 0 auto; }
+  .dot { width: 28px; height: 28px; border-radius: 50%; background: #d0d8ff; color: #4361EE; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.15s; border: 2px solid transparent; }
+  .dot.active { background: #4361EE; color: white; transform: scale(1.15); }
+  .dot.visited { background: #c3d0ff; }
+  .dot:hover { border-color: #4361EE; }
+  .container { max-width: 700px; margin: 0 auto; padding: 28px 16px 80px; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-label { display: inline-block; background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; font-size: 11px; padding: 4px 12px; border-radius: 20px; letter-spacing: 1px; margin-bottom: 10px; }
+  .page-title { font-size: 22px; color: #1a1a2e; margin-bottom: 6px; line-height: 1.4; }
+  .page-why { font-size: 13px; color: #7c3aed; font-style: italic; margin-bottom: 18px; padding: 8px 14px; background: #f5edff; border-left: 3px solid #7c3aed; border-radius: 0 8px 8px 0; }
+  .card { background: white; border-radius: 14px; padding: 22px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 14px; }
+  .card p { font-size: 14px; line-height: 1.9; color: #333; margin-bottom: 10px; }
+  .card p:last-child { margin-bottom: 0; }
+  .card .label { font-size: 12px; color: #4361EE; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .prob-box { background: white; border: 2px solid #4361EE; border-radius: 14px; padding: 20px; font-size: 15px; line-height: 1.9; color: #1a1a2e; margin-bottom: 16px; }
+  .derive-box { background: #f0f4ff; border-left: 4px solid #4361EE; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 12px 0; font-size: 14px; line-height: 1.9; }
+  .warn-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 13px; line-height: 1.8; color: #856404; }
+  .warn-box .warn-label { font-weight: bold; color: #e07b39; display: block; margin-bottom: 4px; }
+  .think-box { background: #e3f2fd; border-left: 4px solid #2196f3; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 14px; line-height: 1.8; color: #0d47a1; }
+  .think-box .think-label { font-weight: bold; display: block; margin-bottom: 6px; }
+  .answer-box { background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; border-radius: 14px; padding: 24px; text-align: center; font-size: 20px; font-weight: bold; margin: 20px 0; box-shadow: 0 4px 16px rgba(67,97,238,0.3); }
+  .next-btn { display: block; width: 100%; padding: 14px; background: #4361EE; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; font-family: inherit; margin-top: 16px; transition: all 0.15s; }
+  .next-btn:hover { background: #3a52d8; transform: translateY(-1px); }
+  .prev-btn { display: inline-block; background: white; color: #4361EE; border: 2px solid #4361EE; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-family: inherit; cursor: pointer; margin-right: 8px; text-decoration: none; }
+  .nav-bottom { display: flex; gap: 8px; margin-top: 16px; }
+  .flow-step { display: flex; align-items: flex-start; gap: 10px; margin: 10px 0; padding: 10px 14px; background: #f8f9ff; border-radius: 10px; font-size: 13px; line-height: 1.7; }
+  .flow-step .flow-num { background: #4361EE; color: white; width: 24px; height: 24px; min-width: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
+  .legend { background: #fff8e1; border: 1px solid #f4d96f; border-radius: 10px; padding: 10px 14px; font-size: 12px; line-height: 1.7; color: #5d4715; margin-bottom: 16px; }
+  .legend strong { color: #8b6914; }
+  .legend .legend-title { font-weight: bold; color: #8b6914; margin-right: 6px; }
+</style>
+</head>
+<body>
+
+<div class="nav-top">
+  <a href="../../">← 중1 수학 홈</a>
+  <a href="types.html">← 유형 목록</a>
+</div>
+
+<div class="progress">
+  <div class="dots">
+    <div class="dot active" data-page="0" onclick="goPage(0)">0</div>
+    <div class="dot" data-page="1" onclick="goPage(1)">1</div>
+    <div class="dot" data-page="2" onclick="goPage(2)">2</div>
+    <div class="dot" data-page="3" onclick="goPage(3)">3</div>
+    <div class="dot" data-page="4" onclick="goPage(4)">★</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Page 0 -->
+  <div class="page active" id="p0">
+    <div class="page-label">문제 · Page 0</div>
+    <h1 class="page-title">단계별로 풀어볼까요?</h1>
+    <div class="page-why">정답은 마지막에 확인해요. 먼저 스스로 생각해보고, 막히면 다음 단계로 넘어가세요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      <strong>합동(≅)</strong>: 두 도형이 모양과 크기가 완전히 같음 &nbsp;·&nbsp;
+      <strong>대응</strong>: 합동인 두 도형에서 서로 겹치는 꼭짓점·변·각 &nbsp;·&nbsp;
+      <strong>SSS 합동</strong>: 세 변의 길이가 모두 같음 &nbsp;·&nbsp;
+      <strong>SAS 합동</strong>: 두 변의 길이와 그 사이 각이 같음 &nbsp;·&nbsp;
+      <strong>ASA 합동</strong>: 두 각의 크기와 그 사이 변의 길이가 같음
+    </div>
+
+    <div class="prob-box">
+      <strong>유형 3 · H2</strong><br><br>
+      두 마을 A, B가 있다. 두 마을에서 <strong>똑같이 떨어진 곳</strong>에 우체국을 짓고 싶다. 가능한 위치를 모두 표현하면?
+    </div>
+
+    <div class="think-box">
+      <span class="think-label">🤔 잠깐, 손으로 풀어보세요</span>
+      "두 점에서 같은 거리에 있는 점" — 이런 점이 딱 한 개일까요, 아니면 여러 개일까요? 여러 개라면 어떤 모양을 이룰까요?
+    </div>
+
+    <button class="next-btn" onclick="goPage(1)">1단계로 →</button>
+  </div>
+
+  <!-- Page 1 -->
+  <div class="page" id="p1">
+    <div class="page-label">1단계 · Page 1</div>
+    <h1 class="page-title">수직이등분선의 핵심 성질</h1>
+    <div class="page-why">왜 이 단계? — "두 점에서 같은 거리" 조건을 만족하는 모든 점의 집합이 무엇인지 알아야 해요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      <strong>수직이등분선</strong>: 선분의 중점을 지나며 수직인 직선
+    </div>
+
+    <div class="card">
+      <div class="label">수직이등분선의 성질 (핵심)</div>
+      <p>수직이등분선 위의 <strong>모든 점</strong>은 선분의 두 끝점에서 같은 거리를 가져요.</p>
+      <div class="derive-box">
+        PQ가 $\overline{AB}$의 수직이등분선<br>
+        PQ 위 임의의 점 X → $\overline{XA} = \overline{XB}$
+      </div>
+      <p>역도 성립해요: $\overline{XA} = \overline{XB}$인 점 X는 반드시 PQ 위에 있어요.</p>
+    </div>
+
+    <div class="card">
+      <div class="label">역 — "같은 거리"이면 수직이등분선 위</div>
+      <div class="derive-box">
+        $\overline{XA} = \overline{XB}$ ⟺ X는 $\overline{AB}$의 수직이등분선 위
+      </div>
+      <p>이 "⟺"(필요충분조건)이 중요해요. 한쪽만 아니라 양방향이에요.</p>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(0)">← 이전</a>
+      <button class="next-btn" onclick="goPage(2)" style="flex:1">2단계로 →</button>
+    </div>
+  </div>
+
+  <!-- Page 2 -->
+  <div class="page" id="p2">
+    <div class="page-label">2단계 · Page 2</div>
+    <h1 class="page-title">우체국 문제에 적용</h1>
+    <div class="page-why">왜 이 단계? — 수학 성질을 실제 상황에 번역해요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      <strong>자취</strong>: 어떤 조건을 만족하는 모든 점들이 이루는 도형
+    </div>
+
+    <div class="card">
+      <div class="label">문제 번역</div>
+      <p>"두 마을 A, B에서 똑같이 떨어진 우체국 위치" = "$\overline{XA} = \overline{XB}$인 점 X의 집합"</p>
+      <div class="derive-box">
+        조건: $\overline{XA} = \overline{XB}$<br>
+        수학: X는 $\overline{AB}$의 수직이등분선 위 (역 성질 적용)<br>
+        → 가능한 위치 = 수직이등분선 전체
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="label">가능한 위치는 무수히 많다</div>
+      <p>수직이등분선은 직선이에요. 직선 위에는 무수히 많은 점이 있으므로 우체국 후보지도 무수히 많아요.</p>
+      <div class="derive-box">
+        우체국 후보: $\overline{AB}$의 수직이등분선 위 <em>어느 점이든</em> 가능<br>
+        → 무수히 많은 위치 (직선 전체)
+      </div>
+      <p>실제로는 이 직선 위에서 "접근성", "지형" 등 다른 조건으로 한 점을 고르겠죠.</p>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(1)">← 이전</a>
+      <button class="next-btn" onclick="goPage(3)" style="flex:1">3단계로 →</button>
+    </div>
+  </div>
+
+  <!-- Page 3 -->
+  <div class="page" id="p3">
+    <div class="page-label">3단계 · Page 3</div>
+    <h1 class="page-title">작도로 위치를 찾는다</h1>
+    <div class="page-why">왜 이 단계? — 실용적으로 이 직선을 어떻게 그리는지 연결해요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      <strong>수직이등분선 작도</strong>: A, B 중심 같은 반지름 호 두 개 그려 교점 연결
+    </div>
+
+    <div class="card">
+      <div class="label">작도 절차로 후보 직선 그리기</div>
+      <div class="derive-box">
+        ① 지도 위에 마을 A, B를 점으로 표시<br>
+        ② A 중심으로 호 (반지름 &gt; $\overline{AB}/2$)<br>
+        ③ 같은 반지름으로 B 중심 호<br>
+        ④ 두 교점 P, Q를 자로 연결<br>
+        ⑤ PQ = $\overline{AB}$의 수직이등분선 = 우체국 후보 직선
+      </div>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-label">⚠️ 수직이등분선의 실용 의미</span>
+      수직이등분선은 단순히 "중점에서 수직"이 아니라 <strong>"두 점에서 같은 거리인 점들의 집합"</strong>이라는 강력한 의미가 있어요. 이 성질이 다양한 실생활 문제(최적 위치, 외심 등)에 활용돼요.
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(2)">← 이전</a>
+      <button class="next-btn" onclick="goPage(4)" style="flex:1">정답 보기 →</button>
+    </div>
+  </div>
+
+  <!-- Page 4 -->
+  <div class="page" id="p4">
+    <div class="page-label">정답 · Page ★</div>
+    <h1 class="page-title">정답 + 풀이 흐름 요약</h1>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      <strong>수직이등분선</strong>: 선분의 중점을 지나며 수직인 직선 &nbsp;·&nbsp;
+      <strong>자취</strong>: 조건을 만족하는 모든 점들의 집합
+    </div>
+
+    <div class="answer-box">
+      $\overline{AB}$의 수직이등분선 위 모든 점<br>
+      <span style="font-size:14px;font-weight:normal;opacity:0.9">가능한 위치 = 무수히 많음 (직선 전체)</span>
+    </div>
+
+    <div class="card">
+      <div class="label">전체 풀이 흐름</div>
+      <div class="flow-step"><div class="flow-num">1</div><div>"두 마을에서 같은 거리" = $\overline{XA} = \overline{XB}$인 점 X</div></div>
+      <div class="flow-step"><div class="flow-num">2</div><div>수직이등분선 성질(역): $\overline{XA}=\overline{XB}$ ⟺ X가 수직이등분선 위</div></div>
+      <div class="flow-step"><div class="flow-num">3</div><div>우체국 후보 = $\overline{AB}$의 수직이등분선 위 모든 점</div></div>
+      <div class="flow-step"><div class="flow-num">4</div><div>작도로 그 직선 결정 가능</div></div>
+    </div>
+
+    <div class="card">
+      <div class="label">📚 이 유형 더 연습하고 싶다면</div>
+      <p style="font-size:13px"><a href="type_03_app.html" style="color:#4361EE">→ 유형 3 (수직이등분선) 다른 문제 연습</a></p>
+      <p style="font-size:13px"><a href="deep_이등분선_app.html" style="color:#7c3aed">→ 깊이 탐구 — 이등분선 통합 앱</a></p>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(3)">← 이전</a>
+      <a class="prev-btn" href="types.html" style="flex:1;text-align:center">유형 목록으로 →</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function goPage(n) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('p' + n).classList.add('active');
+  document.querySelectorAll('.dot').forEach(d => {
+    d.classList.remove('active');
+    if (parseInt(d.dataset.page) < n) d.classList.add('visited');
+    if (parseInt(d.dataset.page) === n) d.classList.add('active');
+  });
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  if (window.renderMathInElement) {
+    renderMathInElement(document.getElementById('p' + n), {
+      delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+    });
+  }
+}
+</script>
+</body>
+</html>

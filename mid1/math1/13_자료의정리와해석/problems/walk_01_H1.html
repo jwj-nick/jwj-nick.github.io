@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>단계별 풀이 — 유형 01 H1 (등-줄기 잎 그림: 자료 개수)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #eef2ff; min-height: 100vh; color: #1a1a2e; }
+  .nav-top { background: #312e81; color: #e0e7ff; font-size: 13px; padding: 10px 16px; display: flex; justify-content: space-between; gap: 12px; }
+  .nav-top a { color: #e0e7ff; text-decoration: none; }
+  .nav-top a:hover { text-decoration: underline; }
+  .progress { background: white; padding: 14px 16px; box-shadow: 0 2px 8px rgba(67,97,238,0.06); position: sticky; top: 0; z-index: 10; }
+  .dots { display: flex; justify-content: center; gap: 10px; max-width: 700px; margin: 0 auto; }
+  .dot { width: 28px; height: 28px; border-radius: 50%; background: #d0d8ff; color: #4361EE; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.15s; border: 2px solid transparent; }
+  .dot.active { background: #4361EE; color: white; transform: scale(1.15); }
+  .dot.visited { background: #c3d0ff; }
+  .dot:hover { border-color: #4361EE; }
+  .container { max-width: 700px; margin: 0 auto; padding: 28px 16px 80px; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-label { display: inline-block; background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; font-size: 11px; padding: 4px 12px; border-radius: 20px; letter-spacing: 1px; margin-bottom: 10px; }
+  .page-title { font-size: 22px; color: #1a1a2e; margin-bottom: 6px; line-height: 1.4; }
+  .page-why { font-size: 13px; color: #7c3aed; font-style: italic; margin-bottom: 18px; padding: 8px 14px; background: #f5edff; border-left: 3px solid #7c3aed; border-radius: 0 8px 8px 0; }
+  .card { background: white; border-radius: 14px; padding: 22px; box-shadow: 0 2px 12px rgba(67,97,238,0.08); margin-bottom: 14px; }
+  .card p { font-size: 14px; line-height: 1.9; color: #333; margin-bottom: 10px; }
+  .card p:last-child { margin-bottom: 0; }
+  .card .label { font-size: 12px; color: #4361EE; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .prob-box { background: white; border: 2px solid #4361EE; border-radius: 14px; padding: 20px; font-size: 15px; line-height: 1.9; color: #1a1a2e; margin-bottom: 16px; }
+  .derive-box { background: #f0f4ff; border-left: 4px solid #4361EE; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 12px 0; font-size: 14px; line-height: 1.9; }
+  .warn-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 13px; line-height: 1.8; color: #856404; }
+  .warn-box .warn-label { font-weight: bold; color: #e07b39; display: block; margin-bottom: 4px; }
+  .think-box { background: #e3f2fd; border-left: 4px solid #2196f3; padding: 14px 18px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 14px; line-height: 1.8; color: #0d47a1; }
+  .think-box .think-label { font-weight: bold; display: block; margin-bottom: 6px; }
+  .answer-box { background: linear-gradient(135deg, #4361EE, #7c3aed); color: white; border-radius: 14px; padding: 24px; text-align: center; font-size: 22px; font-weight: bold; margin: 20px 0; box-shadow: 0 4px 16px rgba(67,97,238,0.3); }
+  .next-btn { display: block; width: 100%; padding: 14px; background: #4361EE; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; font-family: inherit; margin-top: 16px; transition: all 0.15s; }
+  .next-btn:hover { background: #3a52d8; transform: translateY(-1px); }
+  .prev-btn { display: inline-block; background: white; color: #4361EE; border: 2px solid #4361EE; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-family: inherit; cursor: pointer; margin-right: 8px; text-decoration: none; }
+  .nav-bottom { display: flex; gap: 8px; margin-top: 16px; }
+  .flow-step { display: flex; align-items: flex-start; gap: 10px; margin: 10px 0; padding: 10px 14px; background: #f8f9ff; border-radius: 10px; font-size: 13px; line-height: 1.7; }
+  .flow-step .flow-num { background: #4361EE; color: white; width: 24px; height: 24px; min-width: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
+  .legend { background: #fff8e1; border: 1px solid #f4d96f; border-radius: 10px; padding: 10px 14px; font-size: 12px; line-height: 1.7; color: #5d4715; margin-bottom: 16px; }
+  .legend .legend-title { font-weight: bold; color: #8b6914; margin-right: 6px; }
+  .stemleaf { font-family: 'Courier New', monospace; background: #f9fafb; border: 1px solid #dfe4ff; border-radius: 8px; padding: 10px 14px; white-space: pre; line-height: 1.6; font-size: 13px; margin: 8px 0; }
+</style>
+</head>
+<body>
+
+<div class="nav-top">
+  <a href="../../">← 중1 수학 홈</a>
+  <a href="types.html">← 유형 목록</a>
+</div>
+
+<div class="progress">
+  <div class="dots">
+    <div class="dot active" data-page="0" onclick="goPage(0)">0</div>
+    <div class="dot" data-page="1" onclick="goPage(1)">1</div>
+    <div class="dot" data-page="2" onclick="goPage(2)">2</div>
+    <div class="dot" data-page="3" onclick="goPage(3)">3</div>
+    <div class="dot" data-page="4" onclick="goPage(4)">★</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Page 0 -->
+  <div class="page active" id="p0">
+    <div class="page-label">문제 · Page 0</div>
+    <h1 class="page-title">단계별로 풀어볼까요?</h1>
+    <div class="page-why">정답은 마지막에 확인해요. 먼저 스스로 생각해보고, 막히면 다음 단계로 넘어가세요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      도수: 각 계급에 속하는 자료의 수 · 계급: 자료를 나누는 구간 (예: 10 이상 20 미만) · 계급의 크기: 구간의 너비 · 상대도수: (그 계급의 도수)÷(전체 도수) · 누적도수: 해당 계급까지의 도수를 모두 더한 값 · 히스토그램: 도수분포표를 직사각형 막대로 나타낸 그래프
+    </div>
+
+    <div class="prob-box">
+      <strong>유형 01 · H1</strong><br><br>
+      두 반 A, B의 점수를 등-줄기 잎 그림으로 나타냈다.
+      <div class="stemleaf">       A반    │ 줄기 │  B반
+   8 5 2 │  6   │ 1 4
+ 7 6 4 1 │  7   │ 0 3 5 8
+   5 2   │  8   │ 2 4 6 9
+       3 │  9   │ 1 5</div>
+      A반의 자료 개수와 B반의 자료 개수의 합은?
+    </div>
+
+    <div class="think-box">
+      <span class="think-label">🤔 잠깐, 손으로 풀어보세요</span>
+      등-줄기 잎 그림에서 각 반의 자료 개수를 어떻게 셀 수 있을까요? 잎의 개수에 주목해보세요.
+    </div>
+
+    <button class="next-btn" onclick="goPage(1)">1단계로 →</button>
+  </div>
+
+  <!-- Page 1 -->
+  <div class="page" id="p1">
+    <div class="page-label">1단계 · Page 1</div>
+    <h1 class="page-title">등-줄기 잎 그림 읽는 법</h1>
+    <div class="page-why">왜 이 단계? — 그림 구조를 먼저 이해해야 자료 개수를 셀 수 있어요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      도수: 각 계급에 속하는 자료의 수 · 계급: 자료를 나누는 구간 · 줄기와 잎: 줄기(십의 자리) | 잎(일의 자리)
+    </div>
+
+    <div class="card">
+      <div class="label">등-줄기 잎 그림 구조</div>
+      <p>가운데 줄기(십의 자리), 왼쪽이 A반 잎, 오른쪽이 B반 잎이에요.</p>
+      <div class="derive-box">
+        A반: 잎은 <strong>오른쪽에서 왼쪽</strong>으로 읽어요<br>
+        B반: 잎은 <strong>왼쪽에서 오른쪽</strong>으로 읽어요<br><br>
+        예: 줄기 6 행 → A반: 62, 65, 68 / B반: 61, 64
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="label">자료 개수 = 잎의 개수</div>
+      <p>각 반의 자료 개수는 그 반의 잎 개수를 모두 세면 돼요.</p>
+      <div class="derive-box">
+        A반 잎 수: 줄기별로 세어요<br>
+        B반 잎 수: 줄기별로 세어요
+      </div>
+    </div>
+
+    <div class="think-box">
+      <span class="think-label">🤔 해봐요</span>
+      줄기 6에서 A반 잎이 몇 개인지, B반 잎이 몇 개인지 직접 세어보세요.
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(0)">← 이전</a>
+      <button class="next-btn" onclick="goPage(2)" style="flex:1">2단계로 →</button>
+    </div>
+  </div>
+
+  <!-- Page 2 -->
+  <div class="page" id="p2">
+    <div class="page-label">2단계 · Page 2</div>
+    <h1 class="page-title">A반 잎 개수 세기</h1>
+    <div class="page-why">왜 이 단계? — 줄기별로 차례차례 세면 실수가 없어요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      도수: 각 계급에 속하는 자료의 수 · 잎: 일의 자리 숫자
+    </div>
+
+    <div class="card">
+      <div class="label">A반 잎 세기</div>
+      <div class="stemleaf">       A반    │ 줄기
+   8 5 2 │  6   → 잎: 2, 5, 8 → 3개
+ 7 6 4 1 │  7   → 잎: 1, 4, 6, 7 → 4개
+   5 2   │  8   → 잎: 2, 5 → 2개
+       3 │  9   → 잎: 3 → 1개</div>
+      <div class="derive-box">
+        A반 합계: $3 + 4 + 2 + 1 = \mathbf{10}$명
+      </div>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-label">⚠️ 흔한 실수</span>
+      A반 잎은 줄기 기준으로 왼쪽에 있어요. "8 5 2"는 왼쪽부터 읽으면 8, 5, 2 — 이 세 숫자가 각각 잎(일의 자리)이에요.
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(1)">← 이전</a>
+      <button class="next-btn" onclick="goPage(3)" style="flex:1">3단계로 →</button>
+    </div>
+  </div>
+
+  <!-- Page 3 -->
+  <div class="page" id="p3">
+    <div class="page-label">3단계 · Page 3</div>
+    <h1 class="page-title">B반 잎 개수 세기</h1>
+    <div class="page-why">왜 이 단계? — A반과 같은 방법으로 B반도 세어요.</div>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      도수: 각 계급에 속하는 자료의 수 · 잎: 일의 자리 숫자
+    </div>
+
+    <div class="card">
+      <div class="label">B반 잎 세기</div>
+      <div class="stemleaf">줄기 │  B반
+  6  │ 1 4       → 잎: 1, 4 → 2개
+  7  │ 0 3 5 8   → 잎: 0, 3, 5, 8 → 4개
+  8  │ 2 4 6 9   → 잎: 2, 4, 6, 9 → 4개
+  9  │ 1 5       → 잎: 1, 5 → 2개</div>
+      <div class="derive-box">
+        B반 합계: $2 + 4 + 4 + 2 = \mathbf{12}$명
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="label">합 계산</div>
+      <div class="derive-box">
+        A반 자료 수 + B반 자료 수 $= 10 + 12 = \mathbf{22}$명
+      </div>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(2)">← 이전</a>
+      <button class="next-btn" onclick="goPage(4)" style="flex:1">정답 보기 →</button>
+    </div>
+  </div>
+
+  <!-- Page ★ -->
+  <div class="page" id="p4">
+    <div class="page-label">정답 · Page ★</div>
+    <h1 class="page-title">정답 + 풀이 흐름 요약</h1>
+
+    <div class="legend">
+      <span class="legend-title">📖 용어 노트</span>
+      도수: 각 계급에 속하는 자료의 수 · 계급: 자료를 나누는 구간 · 잎: 일의 자리 숫자
+    </div>
+
+    <div class="answer-box">
+      22명<br>
+      <span style="font-size:14px;font-weight:normal;opacity:0.9">(A반 10명 + B반 12명)</span>
+    </div>
+
+    <div class="card">
+      <div class="label">전체 풀이 흐름</div>
+      <div class="flow-step"><div class="flow-num">1</div><div>등-줄기 잎 그림에서 잎의 개수 = 자료의 개수</div></div>
+      <div class="flow-step"><div class="flow-num">2</div><div>A반: 줄기 6(3개) + 7(4개) + 8(2개) + 9(1개) = 10명</div></div>
+      <div class="flow-step"><div class="flow-num">3</div><div>B반: 줄기 6(2개) + 7(4개) + 8(4개) + 9(2개) = 12명</div></div>
+      <div class="flow-step"><div class="flow-num">4</div><div>합 = 10 + 12 = <strong>22명</strong></div></div>
+    </div>
+
+    <div class="warn-box">
+      <span class="warn-label">⚠️ 이 유형의 핵심</span>
+      등-줄기 잎 그림에서 A반 잎은 줄기 왼쪽, B반 잎은 오른쪽에 있어요. 어느 쪽인지 혼동하지 않도록 주의해요.
+    </div>
+
+    <div class="card">
+      <div class="label">📚 이 유형 더 연습하고 싶다면</div>
+      <p style="font-size:13px"><a href="type_01_app.html" style="color:#4361EE">→ 유형 01 (줄기와 잎 그림) 다른 문제 연습</a></p>
+      <p style="font-size:13px"><a href="deep_자료정리_app.html" style="color:#7c3aed">→ 깊이 탐구 — 자료 정리 통합 앱</a></p>
+    </div>
+
+    <div class="nav-bottom">
+      <a class="prev-btn" onclick="goPage(3)">← 이전</a>
+      <a class="prev-btn" href="types.html" style="flex:1;text-align:center">유형 목록으로 →</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function goPage(n) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('p' + n).classList.add('active');
+  document.querySelectorAll('.dot').forEach(d => {
+    d.classList.remove('active');
+    if (parseInt(d.dataset.page) < n) d.classList.add('visited');
+    if (parseInt(d.dataset.page) === n) d.classList.add('active');
+  });
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  if (window.renderMathInElement) {
+    renderMathInElement(document.getElementById('p' + n), {
+      delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+    });
+  }
+}
+</script>
+</body>
+</html>
