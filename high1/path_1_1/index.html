@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>진로 탐색기 — 과천고 2026 (v2)</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:#f1f5f9;color:#1e293b;font-size:14px}
+a{color:#2563eb;text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ── Layout ── */
+.app{display:flex;min-height:100vh}
+#sidebar{width:240px;background:#fff;border-right:1px solid #e2e8f0;flex-shrink:0;display:flex;flex-direction:column;overflow-y:auto}
+#content{flex:1;overflow-y:auto;padding:0 0 60px}
+#mob-sel{display:none}
+
+/* ── Sidebar ── */
+.sb-head{padding:14px 16px 12px;border-bottom:1px solid #e2e8f0;background:#fafafa}
+.sb-head h1{font-size:13px;font-weight:700;color:#1e293b;line-height:1.4}
+.sb-head p{font-size:11px;color:#94a3b8;margin-top:3px}
+.sb-group{border-bottom:1px solid #f1f5f9}
+.sb-group-head{padding:10px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:700;color:#475569;background:#fafafa;user-select:none}
+.sb-group-head:hover{background:#f1f5f9}
+.sb-group-head .arrow{font-size:10px;color:#94a3b8;transition:transform .2s}
+.sb-group.collapsed .arrow{transform:rotate(-90deg)}
+.sb-group.collapsed .career-list{display:none}
+.career-list{padding:4px 0}
+.ci{display:flex;align-items:center;gap:9px;padding:8px 14px 8px 22px;cursor:pointer;transition:background .15s;border-left:3px solid transparent;position:relative}
+.ci:hover{background:#f8fafc}
+.ci.active{background:#f0f9ff;border-left-color:var(--c)}
+.ci .ico{font-size:18px;flex-shrink:0}
+.ci .txt{flex:1;min-width:0}
+.ci .txt .nm{font-size:12.5px;font-weight:600;color:#374151;line-height:1.3}
+.ci .txt .sb{font-size:10.5px;color:#9ca3af;margin-top:1px}
+.ci .visited{position:absolute;right:10px;font-size:11px;color:#10b981;font-weight:700}
+
+/* ── Content Header ── */
+.c-hero{padding:24px 28px 20px;background:#fff;border-bottom:1px solid #e2e8f0}
+.c-hero-top{display:flex;align-items:flex-start;gap:14px}
+.c-hero-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+.c-hero-info h2{font-size:20px;font-weight:700;color:#0f172a}
+.c-hero-info .sub{font-size:13px;color:#64748b;margin-top:3px}
+.c-hero-desc{margin-top:12px;font-size:14px;color:#374151;line-height:1.7;max-width:680px}
+.tip-bar{margin-top:14px;padding:10px 14px;background:#f8fafc;border-radius:8px;border-left:3px solid var(--c);font-size:13px;color:#374151;max-width:680px}
+.suneung-badge{display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:5px 10px;border-radius:20px;background:var(--cl);color:var(--c);font-size:12px;font-weight:600;border:1px solid var(--c)}
+
+/* ── Section ── */
+.section{padding:20px 28px 0}
+.section-title{font-size:15px;font-weight:700;color:#0f172a;margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.section-title::before{content:'';width:4px;height:16px;background:var(--c);border-radius:2px;display:inline-block}
+
+/* ── Schedule Table ── */
+.sched-block{margin-bottom:20px;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden}
+.sched-block-head{padding:10px 14px;background:#f8fafc;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center}
+.sched-block-head .sem-name{font-size:13px;font-weight:700;color:#374151}
+.sched-block-head .sem-pts{font-size:11px;color:#94a3b8}
+.sched-rows{padding:10px 14px;display:flex;flex-direction:column;gap:8px}
+.sched-row{display:flex;gap:8px;align-items:flex-start}
+.sched-label{flex-shrink:0;width:110px;padding:4px 8px;border-radius:5px;font-size:11px;font-weight:600;text-align:center}
+.label-mandatory{background:#f1f5f9;color:#64748b}
+.label-choice{color:#fff;font-weight:700}
+.badge-wrap{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.badge{display:inline-flex;padding:3px 9px;border-radius:20px;font-size:12px;font-weight:500}
+.badge-m{background:#f1f5f9;color:#64748b}
+.badge-pick{color:#fff}
+.badge-note{font-size:11px;color:#94a3b8;font-style:italic;align-self:center;margin-left:4px}
+
+/* ── Tabs ── */
+.explore-tabs{display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap}
+.etab{padding:7px 14px;border-radius:20px;cursor:pointer;font-size:13px;font-weight:500;color:#64748b;background:#f1f5f9;border:none;transition:all .15s}
+.etab.active{background:var(--c);color:#fff}
+.epanel{display:none}
+.epanel.show{display:block}
+
+/* ── Curiosity Questions ── */
+.q-cat{margin-bottom:18px}
+.q-cat-title{font-size:13px;font-weight:700;color:#475569;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.q-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+.q-item{padding:11px 14px 11px 30px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;font-size:13.5px;color:#374151;line-height:1.5;position:relative}
+.q-item::before{content:'?';position:absolute;left:10px;top:12px;width:16px;height:16px;border-radius:50%;background:var(--cl);color:var(--c);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.q-cat-self .q-item::before{background:#fef3c7;color:#a16207;content:'🤔'}
+.q-cat-world .q-item::before{background:#dbeafe;color:#1e40af;content:'🔍'}
+.q-cat-action .q-item::before{background:#dcfce7;color:#15803d;content:'🚀'}
+.q-cat-subject .q-item::before{background:#fce7f3;color:#9d174d;content:'📚'}
+
+/* ── Search / Real ── */
+.search-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px}
+.schip{padding:7px 13px;border-radius:20px;background:var(--cl);color:var(--c);font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--c);transition:all .15s}
+.schip:hover{background:var(--c);color:#fff}
+
+.real-section{margin-top:18px;padding:14px;background:#ecfdf5;border-left:5px solid #059669;border-radius:8px}
+.real-section h4{font-size:13px;color:#065f46;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.real-section h4::before{content:'✅ 실제';background:#059669;color:#fff;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700}
+.real-list{display:flex;flex-direction:column;gap:6px;font-size:13px;color:#1f2937}
+.real-list .label{font-size:11px;font-weight:700;color:#047857;margin-right:6px}
+.real-list a{color:#059669;font-weight:500}
+
+/* ── Personas (가상) ── */
+.persona-warn{padding:12px 14px;background:#faf5ff;border:1.5px dashed #a78bfa;border-radius:8px;margin-bottom:14px;font-size:13px;color:#5b21b6;line-height:1.6}
+.persona-warn b{color:#7c3aed}
+.persona-card{position:relative;margin-bottom:10px;border-left:8px solid #7c3aed;background:linear-gradient(135deg,#faf5ff 0%,#f3e8ff 100%);border-radius:8px;padding:14px 16px 14px 18px;overflow:hidden;cursor:pointer}
+.persona-card.collapsed .persona-detail{display:none}
+.persona-card::before{content:'🎭 가상';position:absolute;top:10px;right:10px;background:#7c3aed;color:#fff;padding:3px 9px;border-radius:12px;font-size:10.5px;font-weight:700;z-index:2}
+.persona-card::after{content:'SCENARIO';position:absolute;right:-30px;top:50%;font-size:80px;color:rgba(124,58,237,0.06);transform:rotate(-30deg) translateY(-50%);pointer-events:none;font-weight:900;letter-spacing:-2px;white-space:nowrap}
+.persona-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;position:relative;z-index:1}
+.persona-name{font-size:15px;font-weight:700;color:#5b21b6}
+.persona-meta{font-size:12px;color:#7c3aed}
+.persona-role{font-size:13px;color:#374151;margin-top:3px;position:relative;z-index:1}
+.persona-detail{margin-top:10px;position:relative;z-index:1;font-size:13px;color:#374151;line-height:1.6}
+.persona-detail .row{margin-top:6px}
+.persona-detail .label{font-size:11px;font-weight:700;color:#7c3aed;margin-right:6px;text-transform:uppercase;letter-spacing:.5px}
+.persona-detail .quote{margin-top:8px;padding:8px 12px;background:rgba(124,58,237,0.08);border-radius:6px;font-style:italic;color:#5b21b6}
+.persona-detail .source-link{margin-top:8px;font-size:12px}
+.persona-toggle{font-size:11px;color:#7c3aed;margin-top:6px;font-weight:600}
+
+/* ── Univ Cards ── */
+.univ-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:12px}
+.univ-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px;position:relative}
+.univ-card .uc-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px}
+.univ-card h4{font-size:14px;font-weight:700;color:#0f172a}
+.univ-card .uc-conf{font-size:10.5px;color:#059669;font-weight:700;background:#dcfce7;padding:2px 8px;border-radius:10px;white-space:nowrap}
+.univ-card .uc-info{font-size:12px;color:#64748b;margin-bottom:10px;line-height:1.5}
+.univ-card .uc-info .lbl{font-weight:600;color:#475569}
+.univ-card .uc-tag{font-size:11.5px;color:#7c3aed;background:#faf5ff;padding:4px 8px;border-radius:5px;margin-bottom:10px;line-height:1.5}
+.univ-card .uc-links{display:flex;flex-wrap:wrap;gap:6px}
+.univ-card .uc-links a{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;background:#f1f5f9;color:#475569;border-radius:6px;font-size:11.5px;font-weight:500;border:1px solid #e2e8f0}
+.univ-card .uc-links a:hover{background:#e0e7ff;color:#3730a3;text-decoration:none}
+.univ-card .uc-links a.pdf{background:#fef2f2;color:#b91c1c;border-color:#fecaca}
+.univ-card .uc-links a.note{background:#f0fdf4;color:#15803d;border-color:#bbf7d0}
+
+/* ── More Read ── */
+.md-content{padding:18px 20px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;font-size:13.5px;line-height:1.7;color:#374151;max-height:600px;overflow-y:auto}
+.md-content h1{font-size:18px;margin:14px 0 10px;color:#0f172a}
+.md-content h2{font-size:16px;margin:14px 0 8px;color:#0f172a;border-bottom:1px solid #e2e8f0;padding-bottom:5px}
+.md-content h3{font-size:14px;margin:12px 0 6px;color:#1e293b}
+.md-content p{margin:7px 0}
+.md-content ul,.md-content ol{margin:7px 0 7px 20px}
+.md-content li{margin:3px 0}
+.md-content table{border-collapse:collapse;width:100%;margin:10px 0;font-size:12.5px}
+.md-content th,.md-content td{border:1px solid #e2e8f0;padding:5px 8px;text-align:left}
+.md-content th{background:#f8fafc;font-weight:700}
+.md-content code{background:#f1f5f9;padding:1px 5px;border-radius:3px;font-size:12px}
+.md-content blockquote{border-left:4px solid #cbd5e1;padding:4px 12px;margin:8px 0;color:#64748b;background:#f8fafc}
+.md-loading{padding:30px;text-align:center;color:#94a3b8;font-size:13px}
+.md-error{padding:18px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;color:#b91c1c;font-size:13px;line-height:1.6}
+
+.doc-links{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.doc-link{padding:9px 12px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;cursor:pointer;font-size:13px;color:#374151;display:flex;justify-content:space-between;align-items:center}
+.doc-link:hover{background:#f8fafc;border-color:#cbd5e1}
+.doc-link.active{background:#eff6ff;border-color:var(--c)}
+.doc-link .doc-meta{font-size:11px;color:#94a3b8}
+
+/* ── Notes ── */
+.notes-wrap{margin-top:16px}
+.notes-wrap label{font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:6px}
+.notes-wrap textarea{width:100%;height:100px;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit;resize:vertical;color:#374151;background:#fff;outline:none;transition:border .15s}
+.notes-wrap textarea:focus{border-color:var(--c)}
+.notes-wrap .save-hint{font-size:11px;color:#94a3b8;margin-top:4px}
+
+/* ── Welcome ── */
+.welcome{padding:36px 28px}
+.welcome h2{font-size:22px;font-weight:700;color:#0f172a;margin-bottom:8px}
+.welcome .lead{font-size:14px;color:#64748b;margin-bottom:24px;line-height:1.7;max-width:680px}
+.welcome-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;max-width:920px;margin-bottom:20px}
+.wc{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:18px;border-top:4px solid #2563eb}
+.wc:nth-child(2){border-top-color:#7c3aed}
+.wc:nth-child(3){border-top-color:#059669}
+.wc .wc-icon{font-size:26px;margin-bottom:8px}
+.wc h3{font-size:14.5px;font-weight:700;color:#0f172a;margin-bottom:6px}
+.wc p{font-size:13px;color:#475569;line-height:1.7}
+.wc .wc-hint{margin-top:10px;font-size:11.5px;color:#94a3b8;font-style:italic}
+
+.fiction-notice{background:#fefce8;border:1.5px solid #fde68a;border-radius:10px;padding:14px 18px;font-size:13px;color:#713f12;line-height:1.7;max-width:920px}
+.fiction-notice b{color:#9d174d}
+
+/* ── Intro Modal ── */
+.modal-bg{position:fixed;inset:0;background:rgba(15,23,42,0.6);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px}
+.modal{background:#fff;border-radius:12px;max-width:520px;width:100%;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+.modal h3{font-size:17px;font-weight:700;color:#0f172a;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.modal-body{font-size:13.5px;line-height:1.8;color:#374151}
+.modal-body p{margin:8px 0}
+.modal-body .icon-line{display:flex;align-items:flex-start;gap:8px;margin:10px 0}
+.modal-body .icon-line .ic{flex-shrink:0;width:22px;text-align:center}
+.modal-body .v-label{display:inline-block;background:#7c3aed;color:#fff;padding:2px 7px;border-radius:10px;font-size:11px;font-weight:700;margin-right:4px}
+.modal-body .r-label{display:inline-block;background:#059669;color:#fff;padding:2px 7px;border-radius:10px;font-size:11px;font-weight:700;margin-right:4px}
+.modal-btn{margin-top:18px;width:100%;padding:11px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}
+.modal-btn:hover{background:#1d4ed8}
+
+/* ── Mobile ── */
+@media(max-width:780px){
+  #sidebar{display:none}
+  #mob-sel{display:block;width:100%;padding:13px 16px;font-size:14px;border:none;border-bottom:2px solid #e2e8f0;background:#fff;outline:none;color:#1e293b}
+  .app{flex-direction:column}
+  .c-hero{padding:16px}
+  .section{padding:14px 16px 0}
+  .sched-row{flex-direction:column;gap:4px}
+  .sched-label{width:auto;text-align:left}
+  .univ-grid{grid-template-columns:1fr}
+}
+@media print{#sidebar,#mob-sel,.explore-tabs,.etab,.notes-wrap .save-hint{display:none}.epanel{display:block!important}.app{display:block}.persona-card.collapsed .persona-detail{display:block}}
+</style>
+</head>
+<body>
+
+<!-- Intro Modal -->
+<div class="modal-bg" id="intro-modal" style="display:none">
+  <div class="modal">
+    <h3>🎭 이 앱에 들어오기 전에 — 꼭 알아두기</h3>
+    <div class="modal-body">
+      <p>이 앱 안에는 두 종류의 정보가 섞여 있어. 색깔로 구분돼 있으니 잘 봐줘.</p>
+      <div class="icon-line"><div class="ic">🎭</div>
+        <div><span class="v-label">가상</span><b>보라색 카드</b>의 인물들은 <b>모두 가상 시나리오</b>야.
+          NCC(=Claude)가 2040년대를 가정해서 만든 <b>상상의 인물</b>이고, <b>실존하지 않아</b>.
+          진로의 *느낌과 가능성*을 보여주려고 만든 거니까, "그런 사람이 진짜 있구나"라고 오해하면 안 돼.</div>
+      </div>
+      <div class="icon-line"><div class="ic">✅</div>
+        <div><span class="r-label">실제</span><b>초록색 박스</b>의 인물·책·사이트는 <b>실제로 존재</b>해. Google 검색 칩을 누르면 직접 확인할 수 있어.</div>
+      </div>
+      <div class="icon-line"><div class="ic">🏫</div>
+        <div><b>학교 카드</b>는 2026년 4월 30일 공시된 <b>2028학년도 시행계획 공식 PDF</b>를 기반으로 정리됐어 (★★★★★ 신뢰도).</div>
+      </div>
+      <p style="margin-top:14px;padding:10px;background:#f8fafc;border-radius:6px;font-size:12.5px;color:#64748b">
+        🎯 사이드바 첫 그룹 = <b>축구분석가 4 path</b> (진로 1순위).
+        먼저 ⚽ 4개를 비교해보고, 일반 진로·AI 플러스도 둘러봐.
+      </p>
+    </div>
+    <button class="modal-btn" onclick="closeIntro()">이해했어요. 시작하기</button>
+  </div>
+</div>
+
+<!-- Mobile dropdown -->
+<select id="mob-sel" onchange="render(this.value)"></select>
+
+<div class="app">
+  <aside id="sidebar">
+    <div class="sb-head">
+      <h1>진로 탐색기 v2</h1>
+      <p>과천고 2026 · 18개 진로 · 7개 학교 카드</p>
+    </div>
+    <div id="sidebar-groups"></div>
+  </aside>
+  <main id="content">
+    <div class="welcome" id="welcome">
+      <h2>🗺️ 진로 탐색기</h2>
+      <p class="lead">2~3학년 선택과목을 결정하기 위해, 진로별로 <b>과목 스케줄</b>·<b>호기심 질문</b>·<b>가상 시나리오</b>·<b>실제 대학 정보</b>를 한 곳에서 둘러볼 수 있어요.
+      답을 정해주는 도구가 아니라 <b>스스로 질문하고, 검색하고, 메모하기 위한 도구</b>입니다.</p>
+      <div class="welcome-cards">
+        <div class="wc">
+          <div class="wc-icon">🎯</div>
+          <h3>1순위 = 축구분석가 4 path</h3>
+          <p>데이터사이언스 · 컴퓨터비전 · 저널리즘 · 구단 내부 — 네 갈래 길을 비교해보고, 어떤 길이 <i>나의 기질</i>과 맞는지 생각해보세요.</p>
+          <div class="wc-hint">← 사이드바 ⚽ 1순위 클릭</div>
+        </div>
+        <div class="wc">
+          <div class="wc-icon">💭</div>
+          <h3>호기심 질문에 답하기</h3>
+          <p>진로별로 4 종류 질문이 있어요: <b>🤔 자기</b>·<b>🔍 세상</b>·<b>🚀 다음 행동</b>·<b>📚 과목</b>.
+          <i>답이 잘 안 나오는 질문</i>이 바로 다음 탐색의 출발점입니다.</p>
+          <div class="wc-hint">메모는 자동 저장돼요</div>
+        </div>
+        <div class="wc">
+          <div class="wc-icon">🏫</div>
+          <h3>대학 공식 자료 직접 보기</h3>
+          <p>7개 대학(SNU·연세·고려·SKKU·CAU·한양·UOS)의 <b>2028 시행계획 PDF</b>를 직접 열어볼 수 있어요. 어떤 학교를 가고 싶은지 <i>상상</i>해보세요.</p>
+          <div class="wc-hint">학과 홈 · 입학처 · PDF · 분석노트 4링크</div>
+        </div>
+      </div>
+      <div class="fiction-notice">
+        🎭 <b>이 앱의 인물 이야기는 모두 가상입니다.</b>
+        보라색 카드(🎭 가상)는 <b>NCC가 만든 시나리오</b>로, 실존 인물이 아닙니다.
+        실제 인물·자료는 초록색 박스(<b>✅ 실제</b>)에 별도로 정리되어 있어요.
+        학교 정보(🏫)는 공식 PDF 기반으로 신뢰도 ★★★★★ 입니다.
+      </div>
+    </div>
+    <div id="career-detail" style="display:none"></div>
+  </main>
+</div>
+
+<script>
+/* ═════════════════════════════════════════════════════════════════
+   DATA — 가상 페르소나는 PERSONAS_*, 실제 자료는 REAL_REFS,
+   대학 카드는 UNIV_CARDS. 모든 페르소나에 가상 라벨 적용.
+   ════════════════════════════════════════════════════════════════ */
+
+// ── 학교 카드 (공식 PDF 기반 ★★★★★) ──
+const UNIV_CARDS = {
+  cau_appstat: {name:'중앙대 응용통계학과', college:'경영경제대학', cap:37, group:'가군',
+    method:'수능89%+출결11%', tagline:'언론 추정치 → 공식 PDF 전면재작성 ★',
+    home:'https://stat.cau.ac.kr', admission:'https://admission.cau.ac.kr',
+    pdf:'06_univ_data/cau_2028_official.pdf', note:'06_univ_data/cau_appstat_2028.md'},
+  uos_stat: {name:'서울시립대 통계학과', college:'자연과학대학', cap:27, group:'가/나군',
+    method:'수능80%+교과18%+출결2% ★', tagline:'2028 정시 수능100% → 80% 변경. 가성비 ★',
+    home:'https://stat.uos.ac.kr', admission:'https://admission.uos.ac.kr',
+    pdf:'06_univ_data/uos_2028_official.pdf', note:'06_univ_data/uos_stat_2028.md'},
+  hanyang_data: {name:'한양대 데이터사이언스학부', college:'공과대학', cap:60, group:'가군',
+    method:'수능90%+학생부종합10% ★', tagline:'2028 정시 변경 + 면접형 신설(수능면제). 탐구 2과목 ★',
+    home:'https://datascience.hanyang.ac.kr', admission:'https://go.hanyang.ac.kr',
+    pdf:'06_univ_data/hanyang_2028_official.pdf', note:'06_univ_data/hanyang_2028.md'},
+  skku_socsci: {name:'성균관대 사회과학계열', college:'(광역모집)', cap:336, group:'나군',
+    method:'수능100% (광역)', tagline:'2학년 진학 시 통계·경제·심리 등 선택 가능',
+    home:'https://admission.skku.edu', admission:'https://admission.skku.edu',
+    pdf:'06_univ_data/[성균관대] 2028학년도 입학전형 시행계획.pdf', note:'06_univ_data/skku_socsci_2028.md'},
+  snu_stat: {name:'서울대 통계학과', college:'자연과학대학', cap:28, group:'나군',
+    method:'수능60+교과역량40', tagline:'전 전형 면접. 최상위. 데이터사이언스 연계전공 운영',
+    home:'https://stat.snu.ac.kr', admission:'https://admission.snu.ac.kr',
+    pdf:'06_univ_data/snu_2028_official.pdf', note:'06_univ_data/snu_stat_2028.md'},
+  yonsei_appstat: {name:'연세대 응용통계학과', college:'상경대학', cap:'(연세 PDF 직접 추출)', group:'-',
+    method:'(상경계열 적용)', tagline:'PoC 3호 — 직접 PDF URL이 가장 깨끗',
+    home:'https://stat.yonsei.ac.kr', admission:'https://admission.yonsei.ac.kr',
+    pdf:'https://www2.yonsei.ac.kr/entrance/plan/2028_plan.pdf', note:'06_univ_data/yonsei_appstat_2028.md'},
+  korea_stat: {name:'고려대 통계학과 + 데이터과학과', college:'정경대/정보대', cap:'82+40', group:'가군',
+    method:'수능100% / 80+교과20', tagline:'학업우수 4합9+한국사4. 데이터과학 입결 최정점',
+    home:'https://stat.korea.ac.kr', admission:'https://admission.korea.ac.kr',
+    pdf:'06_univ_data/korea_2028_official.pdf', note:'06_univ_data/korea_stat_2028.md'}
+};
+
+// ── 가상 페르소나 (NCC 창작 — 2040년대 가정) ──
+const PERSONAS = {
+  soccer_data: [
+    {name:'김지호', age:31, year:2040, role:'K리그1 A구단 데이터 분석 담당',
+     path:'통계학과 + 본인 블로그 → 인턴 → 정직원', quote:'축구는 90분, 데이터는 90시간',
+     src:'04_career/축구분석가_데이터사이언스.md'},
+    {name:'이민서', age:29, year:2040, role:'StatsBomb 한국법인 분석가',
+     path:'산업공학 + Kaggle 입상 → 해외 분석 회사', quote:'축구 데이터는 글로벌 언어',
+     src:'04_career/축구분석가_데이터사이언스.md'},
+    {name:'박재훈', age:38, year:2040, role:'한국형 분석 서비스 창업가',
+     path:'KAIST 산업공학 → 컨설팅 → 창업', quote:'한국 클럽이 살 수 있는 분석 도구를 만든다',
+     src:'04_career/축구분석가_데이터사이언스.md'},
+    {name:'최서연', age:27, year:2040, role:'프리랜서 분석가 + 콘텐츠 크리에이터',
+     path:'응용통계 학부 + 유튜브 → 클럽 외주', quote:'독립 분석가의 시대',
+     src:'04_career/축구분석가_데이터사이언스.md'}
+  ],
+  soccer_cv: [
+    {name:'강승우', age:33, year:2042, role:'SkillCorner 한국지사 시니어 엔지니어',
+     path:'전기전자공학 + 컴퓨터비전 대학원 → 해외 영상 분석 회사',
+     quote:'보는 것을 분석할 수 있게 만든다', src:'04_career/축구분석가_컴퓨터비전.md'},
+    {name:'이가람', age:28, year:2042, role:'유소년·아마추어 분석 앱 스타트업 창업가',
+     path:'컴퓨터공학 + 본인 프로젝트 → 창업',
+     quote:'축구가 있는 모든 곳에 분석을 가져간다', src:'04_career/축구분석가_컴퓨터비전.md'},
+    {name:'정현수', age:40, year:2042, role:'대기업 영상 AI 연구원 + 축구 자문',
+     path:'카이스트 전산 박사 → 대기업 → 컨설팅 부업',
+     quote:'기술이 축구를 변화시키는 지점을 본다', src:'04_career/축구분석가_컴퓨터비전.md'},
+    {name:'박지원', age:36, year:2042, role:'영상 분석 SaaS 회사 PM',
+     path:'산업디자인 + UX + ML 부전공 → 스포츠테크 회사',
+     quote:'엔지니어와 코치 사이의 통역가', src:'04_career/축구분석가_컴퓨터비전.md'}
+  ],
+  soccer_jrn: [
+    {name:'송재민', age:28, year:2042, role:'유튜브 채널 "전술의 결" 운영 + K리그 자문',
+     path:'고교 블로그 → 대학 유튜브 → 자문', quote:'꾸준함이 재능을 이긴다',
+     src:'04_career/축구분석가_저널리즘콘텐츠.md'},
+    {name:'김다영', age:35, year:2042, role:'풋볼 뉴스레터 Sideline Insights 발행자',
+     path:'신문방송학 + 본인 콘텐츠 → 유료 구독 사업',
+     quote:'1만 명의 독자가 100만 명의 시청자보다 깊다',
+     src:'04_career/축구분석가_저널리즘콘텐츠.md'},
+    {name:'한지훈', age:42, year:2042, role:'풋볼리스트 칼럼니스트 + 팟캐스트',
+     path:'국문학 → 기자 → 프리랜서 분석가', quote:'글로 축구를 사랑하는 법',
+     src:'04_career/축구분석가_저널리즘콘텐츠.md'},
+    {name:'이세빈', age:24, year:2042, role:'TikTok·Shorts 1분 분석 크리에이터',
+     path:'자유전공 + SNS 운영 → 광고 수익',
+     quote:'Z세대 언어로 축구를 번역한다', src:'04_career/축구분석가_저널리즘콘텐츠.md'}
+  ],
+  soccer_club: [
+    {name:'조민혁', age:34, year:2042, role:'K리그1 D구단 영입·스카우팅 총괄',
+     path:'경영학 + 산업공학 부전공 → 분석 인턴 → 정직원 → 승진',
+     quote:'선수 1명의 영입이 클럽 5년을 좌우한다',
+     src:'04_career/축구분석가_구단내부.md'},
+    {name:'윤아라', age:31, year:2042, role:'구단 심리 분석 코치 (선수단 멘탈)',
+     path:'심리학 + 데이터 부전공 → 클럽 코치진 합류',
+     quote:'기록보다 그 기록 뒤의 사람을 본다',
+     src:'04_career/축구분석가_구단내부.md'},
+    {name:'이도현', age:40, year:2042, role:'유스 아카데미 디렉터 + 데이터 책임자',
+     path:'사범대 체육교육 → 코치 자격 + 분석 능력 결합',
+     quote:'10년 후의 1군은 오늘의 유스가 만든다',
+     src:'04_career/축구분석가_구단내부.md'},
+    {name:'박정연', age:28, year:2042, role:'K리그2 신생 구단 통합 분석가',
+     path:'산업공학 + 영어 → 신생 클럽 초기 멤버',
+     quote:'작은 클럽이 큰 클럽을 이기는 길은 분석이다',
+     src:'04_career/축구분석가_구단내부.md'}
+  ],
+  aip_med: [
+    {name:'이가현', age:39, year:2040, role:'신약 개발 의사',
+     path:'분자 시뮬레이션 AI로 후보물질 설계 → 임상 1상 진입',
+     quote:'환자 한 명의 얼굴이 분자 100만 개보다 무겁다',
+     src:'04_career/AI플러스_의약생명.md'},
+    {name:'박준우', age:45, year:2040, role:'정밀의료 임상의',
+     path:'환자 디지털 트윈으로 처방 시뮬레이션',
+     quote:'내가 모든 답을 알 필요 없다. 답을 찾는 길을 알면 된다',
+     src:'04_career/AI플러스_의약생명.md'},
+    {name:'김세린', age:52, year:2040, role:'의료 AI 윤리·감독 책임자',
+     path:'LLM 진단 시스템의 편향·오류 감사', quote:'AI가 틀려도 책임은 인간이 진다',
+     src:'04_career/AI플러스_의약생명.md'},
+    {name:'정태우', age:33, year:2040, role:'디지털 헬스 창업가',
+     path:'웨어러블+AI로 만성질환 관리 플랫폼', quote:'병원 밖에서 일어나는 건강을 디자인한다',
+     src:'04_career/AI플러스_의약생명.md'},
+    {name:'양미주', age:29, year:2040, role:'합성생물학 연구원',
+     path:'AI로 박테리아·세포 회로 설계 → 바이오 생산',
+     quote:'코딩으로 생명을 프로그래밍하는 시대', src:'04_career/AI플러스_의약생명.md'}
+  ],
+  aip_sci: [
+    {name:'윤도현', age:34, year:2040, role:'입자물리 + 머신러닝 연구자 (CERN)',
+     path:'LHC 데이터에서 이상 신호 탐지', quote:'거인의 어깨에 AI가 더해진 풍경',
+     src:'04_career/AI플러스_자연과학.md'},
+    {name:'한지원', age:41, year:2040, role:'컴퓨테이셔널 화학자',
+     path:'AI 시뮬레이션으로 신소재 설계', quote:'분자를 설계하는 건축가',
+     src:'04_career/AI플러스_자연과학.md'},
+    {name:'서민호', age:38, year:2040, role:'순수 수학자 + AI 협업',
+     path:'DeepMind 도구로 정리 가설 발견', quote:'AI가 추측하고, 나는 증명한다',
+     src:'04_career/AI플러스_자연과학.md'},
+    {name:'김유나', age:29, year:2040, role:'천체물리 시뮬레이션 박사후',
+     path:'우주 거대구조 시뮬레이션', quote:'한 우주의 작동을 시연하는 것',
+     src:'04_career/AI플러스_자연과학.md'},
+    {name:'이정훈', age:47, year:2040, role:'양자 컴퓨팅 + 화학 융합 PI',
+     path:'양자 알고리즘 + 고전 ML 혼합', quote:'고전과 양자 사이의 통역가',
+     src:'04_career/AI플러스_자연과학.md'}
+  ],
+  aip_hum: [
+    {name:'정해린', age:37, year:2040, role:'AI 차별·디지털권리 변호사',
+     path:'알고리즘 감사 도구, 자동 판례 분석',
+     quote:'코드가 법을 만들기 전에, 법이 코드를 만들어야 한다',
+     src:'04_career/AI플러스_인문사회.md'},
+    {name:'송재훈', age:42, year:2040, role:'데이터 저널리스트',
+     path:'정부·기업 데이터셋 분석, AI 거짓 탐지',
+     quote:'진실은 데이터에 있고, 의미는 사람에게 있다',
+     src:'04_career/AI플러스_인문사회.md'},
+    {name:'김하나', age:33, year:2040, role:'디지털 인류학자',
+     path:'NLP로 가상세계 커뮤니티 텍스트 분석', quote:'디지털도 사람이 사는 곳이다',
+     src:'04_career/AI플러스_인문사회.md'},
+    {name:'박서연', age:45, year:2040, role:'AI 정책 입안자 (정부)',
+     path:'정책 시뮬레이션, 영향 분석', quote:'기술은 빠르고 법은 느리다. 그래서 우리가 필요하다',
+     src:'04_career/AI플러스_인문사회.md'},
+    {name:'이상준', age:52, year:2040, role:'임상심리사 + AI 보조 진단',
+     path:'환자 발화 패턴 분석, AI 챗봇 상담 검토',
+     quote:'사람과 사람이 만나야 치료된다', src:'04_career/AI플러스_인문사회.md'}
+  ],
+  aip_biz: [
+    {name:'최예진', age:32, year:2040, role:'1인 기업 운영자 (디자인 콘텐츠)',
+     path:'LLM·생성AI 워크플로우, 자동화 마케팅',
+     quote:'혼자서 50명 회사를 운영한다는 것의 의미',
+     src:'04_career/AI플러스_경영경제.md'},
+    {name:'김재현', age:38, year:2040, role:'퀀트 트레이더 + 모델 디자이너',
+     path:'자체 ML 모델 + 시장 미시구조 분석',
+     quote:'직관과 수학 사이에서 균형을 잡는다',
+     src:'04_career/AI플러스_경영경제.md'},
+    {name:'박은서', age:47, year:2040, role:'거시경제학자 (정부 정책 자문)',
+     path:'에이전트 기반 경제 시뮬레이션', quote:'AI 시대에 노동은 어떤 의미를 가지는가',
+     src:'04_career/AI플러스_경영경제.md'},
+    {name:'이도윤', age:40, year:2040, role:'전략 컨설턴트 (대형 펌)',
+     path:'시나리오 자동 생성 + 의사결정 지원',
+     quote:'정답이 아니라 좋은 질문을 파는 게 컨설팅',
+     src:'04_career/AI플러스_경영경제.md'},
+    {name:'한슬기', age:35, year:2040, role:'핀테크 창업가',
+     path:'신용평가 AI + 모바일 뱅킹', quote:'은행이 못 본 사람들을 본다',
+     src:'04_career/AI플러스_경영경제.md'}
+  ],
+  aip_edu: [
+    {name:'임수영', age:36, year:2040, role:'중학교 수학 교사 + AI 튜터 디자이너',
+     path:'학생별 맞춤 AI 튜터 운영, 학습 데이터 분석',
+     quote:'AI는 내 동료다. 학생은 여전히 나의 것이다',
+     src:'04_career/AI플러스_교육사범.md'},
+    {name:'김도훈', age:43, year:2040, role:'교육청 학습 데이터 사이언티스트',
+     path:'학교 단위 학습 데이터 분석, 정책 자문',
+     quote:'통계가 한 명의 학생을 가리지 않게',
+     src:'04_career/AI플러스_교육사범.md'},
+    {name:'박혜경', age:39, year:2040, role:'특수교육 교사 (자폐 스펙트럼 전담)',
+     path:'AI 의사소통 보조, 행동 패턴 분석',
+     quote:'말이 없어도, 모든 아이는 무언가를 말하고 싶어한다',
+     src:'04_career/AI플러스_교육사범.md'},
+    {name:'정민지', age:51, year:2040, role:'평생교육 큐레이터 (시니어 대상)',
+     path:'LLM 활용한 학습 코치, 학습 경로 설계',
+     quote:'60대에 처음 배우는 사람의 눈빛이 가장 빛난다',
+     src:'04_career/AI플러스_교육사범.md'},
+    {name:'송재민', age:29, year:2040, role:'에듀테크 창업가',
+     path:'AI 튜터 + 부모-자녀 학습 플랫폼',
+     quote:'학습은 학교 안에서만 일어나지 않는다',
+     src:'04_career/AI플러스_교육사범.md'}
+  ],
+  aip_art: [
+    {name:'강민호', age:38, year:2040, role:'컴퓨테이셔널 건축가 (도시 스케일)',
+     path:'도시 시뮬레이션 + 생성 디자인',
+     quote:'건물은 사람의 시간을 담는 그릇이다',
+     src:'04_career/AI플러스_예체능건축.md'},
+    {name:'윤시아', age:34, year:2040, role:'시각 예술가 (회화·설치)',
+     path:'AI 협업 + 인간 손작업 병행', quote:'내 흔적이 남아야 내 작품이다',
+     src:'04_career/AI플러스_예체능건축.md'},
+    {name:'정해영', age:41, year:2040, role:'안무가 + 인터랙티브 미디어 연출',
+     path:'실시간 모션 + AI 영상 생성',
+     quote:'몸은 가장 오래된 미디어이자 가장 강력한 미디어',
+     src:'04_career/AI플러스_예체능건축.md'},
+    {name:'이재훈', age:29, year:2040, role:'영화감독 (독립영화)',
+     path:'AI VFX, 자동 편집 보조', quote:'예산이 아니라 시선이 영화를 만든다',
+     src:'04_career/AI플러스_예체능건축.md'},
+    {name:'박지원', age:36, year:2040, role:'산업 디자이너 (지속가능성 전문)',
+     path:'생성 디자인 + 라이프사이클 분석',
+     quote:'예쁜 것보다 책임 있는 것이 좋은 디자인이다',
+     src:'04_career/AI플러스_예체능건축.md'}
+  ]
+};
+
+// ── 실제 인물·자료 (Google 검색 가이드) ──
+const REAL_REFS = {
+  soccer_data: {
+    people:['Ted Knutson (StatsBomb CEO)','David Sumpter (Soccermatics 저자)','Karun Singh (@karun1710)','한준희 해설위원','김다솔 (축구 데이터 분석가)'],
+    sites:[{n:'FBref',u:'https://fbref.com'},{n:'StatsBomb Open Data',u:'https://github.com/statsbomb/open-data'},{n:'Friends of Tracking',u:'https://www.youtube.com/c/FriendsofTracking'}],
+    books:['Soccermatics (David Sumpter)','The Numbers Game (Anderson & Sally)','Football Hackers (Christoph Biermann)']
+  },
+  soccer_cv: {
+    people:['Sergio Llana (SkillCorner 분석)','Devin Pleuler (Toronto FC 분석 디렉터)','이일구 (한국 스포츠비전 연구자)'],
+    sites:[{n:'SkillCorner',u:'https://skillcorner.com'},{n:'Hudl Sportscode',u:'https://www.hudl.com'},{n:'OpenCV 공식',u:'https://opencv.org'}],
+    books:['Computer Vision: Algorithms and Applications (Szeliski)','Deep Learning for Vision Systems (Mohamed Elgendy)']
+  },
+  soccer_jrn: {
+    people:['Michael Cox (Zonal Marking)','Jonathan Wilson (Inverting the Pyramid 저자)','한준희·박문성 해설위원','김환·서형욱 해설'],
+    sites:[{n:'The Athletic',u:'https://www.nytimes.com/athletic/'},{n:'풋볼리스트',u:'https://www.thefootballist.co.kr'},{n:'Tifo Football (YouTube)',u:'https://www.youtube.com/@TifoFootball'}],
+    books:['Inverting the Pyramid (Jonathan Wilson)','Zonal Marking (Michael Cox)','풋볼리스트 칼럼 모음']
+  },
+  soccer_club: {
+    people:['Daniel Levy (Tottenham 회장)','Damien Comolli (Toulouse 회장, Moneyball)','이재성·정현규 K리그 선수 (분석실 인터뷰 등장)'],
+    sites:[{n:'Transfermarkt',u:'https://www.transfermarkt.com'},{n:'KFA 한국축구협회',u:'https://www.kfa.or.kr'},{n:'K League 공식',u:'https://www.kleague.com'}],
+    books:['Moneyball (Michael Lewis)','The Club (Joshua Robinson)','Soccernomics (Kuper & Szymanski)']
+  },
+  eng: {
+    people:['Elon Musk (Tesla/SpaceX)','Linus Torvalds (Linux 창시자)','이종호 (前 과기정통부 장관·전자공학자)','임지순 (서울대 물리학과 석학)'],
+    sites:[{n:'Coursera 공학',u:'https://www.coursera.org/browse/physical-science-and-engineering'},{n:'한국공학한림원',u:'https://www.naek.or.kr'}],
+    books:['The Soul of a New Machine','Skunk Works','공학자의 길']
+  },
+  ai: {
+    people:['Geoffrey Hinton','Yann LeCun','Andrej Karpathy','Sam Altman (OpenAI CEO)','김선주 (연세대 AI 교수)','최예진 (워싱턴대 NLP 교수)'],
+    sites:[{n:'OpenAI',u:'https://openai.com'},{n:'Hugging Face',u:'https://huggingface.co'},{n:'Kaggle',u:'https://www.kaggle.com'},{n:'arXiv',u:'https://arxiv.org'}],
+    books:['Hands-On Machine Learning (Géron)','Deep Learning (Goodfellow)','AI 슈퍼파워 (李開復)']
+  },
+  med: {
+    people:['Eric Topol (Scripps, 의료 AI)','Atul Gawande (외과의·작가)','김주한 (서울대 의료정보학)','홍윤철 (서울대 예방의학)'],
+    sites:[{n:'PubMed',u:'https://pubmed.ncbi.nlm.nih.gov'},{n:'대한의사협회',u:'https://www.kma.org'},{n:'대학병원 의대 입시 정보',u:'https://www.kuksiwon.or.kr'}],
+    books:['Being Mortal (Atul Gawande)','Deep Medicine (Eric Topol)','의료 AI 입문서']
+  },
+  sci: {
+    people:['김상욱 (경희대 물리학 교수)','이강영 (경상대 물리학)','이정모 (前 국립과천과학관장)','Brian Greene (이론물리학자)'],
+    sites:[{n:'KAIST 물리학과',u:'https://physics.kaist.ac.kr'},{n:'IBS 기초과학연구원',u:'https://www.ibs.re.kr'},{n:'Nature',u:'https://www.nature.com'}],
+    books:['김상욱의 양자 공부','떨림과 울림','코스모스 (Carl Sagan)']
+  },
+  hum: {
+    people:['김누리 (중앙대 독문학)','임명묵 (작가)','유시민','강유정 (평론가)','Yuval Noah Harari'],
+    sites:[{n:'대법원 종합법률정보',u:'https://glaw.scourt.go.kr'},{n:'KOSIS 통계청',u:'https://kosis.kr'},{n:'경향·한겨레·조선·중앙 사설'}],
+    books:['사피엔스 (Harari)','정의란 무엇인가 (Sandel)','이방인 (Camus)']
+  },
+  biz: {
+    people:['Warren Buffett','Ray Dalio (Bridgewater)','홍춘욱 (이코노미스트)','조정훈 (前 IMF 이코노미스트)'],
+    sites:[{n:'Investing.com',u:'https://www.investing.com'},{n:'한국은행 경제통계시스템',u:'https://ecos.bok.or.kr'},{n:'다트 전자공시',u:'https://dart.fss.or.kr'}],
+    books:['Principles (Ray Dalio)','Thinking, Fast and Slow (Kahneman)','넛지 (Thaler)']
+  },
+  edu: {
+    people:['Salman Khan (Khan Academy)','조벽 (前 동국대 석좌교수)','이혜정 (교육과혁신연구소)','김누리'],
+    sites:[{n:'Khan Academy',u:'https://www.khanacademy.org'},{n:'교육부',u:'https://www.moe.go.kr'},{n:'EBSi',u:'https://www.ebsi.co.kr'}],
+    books:['One World Schoolhouse (Salman Khan)','교사도 사람이다','학교의 시계는 멈췄다']
+  },
+  art: {
+    people:['승효상 (건축가)','유현준 (홍익대 건축학)','김창열 (화가)','BTS 방시혁','박재범'],
+    sites:[{n:'국립현대미술관',u:'https://www.mmca.go.kr'},{n:'예술의전당',u:'https://www.sac.or.kr'},{n:'ArchDaily',u:'https://www.archdaily.com'}],
+    books:['도시는 무엇으로 사는가 (유현준)','공간이 만든 공간 (유현준)','예술의 종말']
+  }
+};
+// AI 플러스용 실제 인물은 일반 진로와 동일 그룹 사용
+['aip_med','aip_sci','aip_hum','aip_biz','aip_edu','aip_art'].forEach(k => {
+  const base = {aip_med:'med',aip_sci:'sci',aip_hum:'hum',aip_biz:'biz',aip_edu:'edu',aip_art:'art'}[k];
+  REAL_REFS[k] = REAL_REFS[base];
+});
+
+// ── 호기심 질문 (4 카테고리) ──
+const QUESTIONS = {
+  soccer_data: {
+    self:['나는 K리그 한 경기 90분을 *수치로 메모하며* 보는 게 재미있을까?','결과 예측이 빗나갔을 때 나는 어떻게 반응할까? 좌절일까, 호기심일까?','데이터에 푹 빠져있을 때 친구들과 어울리지 못해도 괜찮을까?'],
+    world:['FBref 한 페이지를 열어보면 어떤 숫자들이 있을까?','한국 K리그 구단 중 데이터 분석가가 있는 곳은 몇 개일까?','분석가 연봉은 한국과 해외가 얼마나 차이날까?'],
+    action:['이번 주말, 좋아하는 팀의 경기 1개를 1페이지로 분석해볼까?','StatsBomb Open Data 한 경기를 Python으로 불러볼 수 있을까?','xG, PPDA 같은 용어를 5분 안에 설명할 수 있는 글을 써볼까?'],
+    subject:['정보(2-1) 안 들으면 데이터 분석 학습이 어디서 막힐까?','인공지능 수학(2-2)과 미적분Ⅱ(3-1) — 둘 다 필요한 이유는?','확률과 통계(3-1 필수)는 어떻게 축구 분석에 쓰일까?']
+  },
+  soccer_cv: {
+    self:['영상을 보면서 \'저 장면을 컴퓨터가 자동으로 인식하면 좋겠다\'라고 생각해본 적 있나?','코드 디버깅에 몇 시간을 매달려도 지치지 않을 수 있나?','새 기술이 나올 때마다 따라가는 것이 부담일까, 즐거움일까?'],
+    world:['OpenCV로 축구공을 자동으로 인식하는 데 코드 몇 줄이 필요할까?','SkillCorner·Hudl 같은 영상 분석 회사는 어떻게 돈을 벌까?','K리그 클럽이 영상 분석 시스템을 도입하면 비용은 얼마나 들까?'],
+    action:['스마트폰으로 공원 축구를 30초 찍어서 OpenCV에 넣어볼까?','GitHub에서 \'soccer ball detection\' 검색해서 코드 1개를 돌려볼까?','내가 만들고 싶은 영상 분석 도구를 1문장으로 적어볼까?'],
+    subject:['역학과 에너지(2-2)와 인공지능 수학(2-2) — 비전 분야에 둘 다 필요한가?','전자기와 양자(3-1)는 카메라 센서를 이해하는 데 쓰일까?','정보(2-1)와 인공지능 기초(2-2)는 비전 학습의 어느 단계에 쓰일까?']
+  },
+  soccer_jrn: {
+    self:['내가 좋아하는 축구 경기를 글로 풀어내는 것이 즐거울까?','매주 한 편씩 5년간 쓸 수 있는 끈기가 있을까?','조회수가 0이 나와도 다음 글을 쓸 수 있을까?'],
+    world:['풋볼리스트·The Athletic·Tifo Football은 각각 어떤 톤으로 쓸까?','유튜브 축구 콘텐츠 크리에이터의 월 수입은 얼마부터 얼마까지일까?','한국에서 축구 기자가 되는 정식 경로는 어떤 것들이 있을까?'],
+    action:['이번 주, 좋아하는 경기 한 편의 분석 글 1편을 블로그에 올려볼까?','Tifo Football 영상 1개를 보고, 같은 주제를 한국어로 다시 만들어볼까?','내 \'관전 메모\'를 매 주말 1줄씩 한 달간 모아볼까?'],
+    subject:['독서와 작문(3-1 필수)·논술(3-2 필수)이 콘텐츠 작가에게 정말 도움이 될까?','매체 의사소통(3-2 막3-A)은 영상·SNS 시대에 어떻게 활용될까?','미디어 영어(3-2 막3-A)와 심화 영어 독해와 작문 — 둘 중 무엇이 더 필요할까?']
+  },
+  soccer_club: {
+    self:['축구 선수·코치 사이에서 \'분석가\'로 인정받는 일이 매력적인가?','사람 관찰을 좋아하는가, 시스템 설계를 좋아하는가?','회사보다 \'클럽\'이라는 조직 문화에 매력을 느끼는가?'],
+    world:['K리그 클럽 사무국 인원은 평균 몇 명이고, 분석 인력은 그중 몇 %일까?','클럽 분석가가 감독·단장과 같은 회의에 들어가는 클럽은 어디일까?','한국에서 클럽 내부 분석가로 가는 정식 채용 공고는 1년에 몇 건 나올까?'],
+    action:['좋아하는 K리그 클럽의 지난 시즌 영입·방출 3건을 분석 노트로 정리해볼까?','클럽 SNS·인터뷰에서 \'분석실\' 언급이 나온 사례를 찾아볼까?','구단 인턴 채용 페이지 1곳을 북마크해놓을까?'],
+    subject:['경영·경제 시나리오의 사회·문화(2-1)와 법과 사회(2-2)가 클럽 운영에 어떻게 쓰일까?','심리학 진로라면 윤리와 사상(2-2)·인문학과 윤리(3-1)가 필요할까?','데이터 과학(3-1 막1-A)이 구단 분석가에게도 필요한 이유는?']
+  },
+  // ── 일반 진로 ──
+  eng: {
+    self:['손으로 무언가를 만드는 것이 즐거운가, 설계만 하는 게 더 좋은가?','실패한 시제품 앞에서 며칠씩 매달릴 끈기가 있나?','대기업 vs 스타트업 — 어디가 끌리나?'],
+    world:['전기·기계·화공 — 한국에서 채용 규모와 연봉이 어떻게 다를까?','반도체·자동차·이차전지 — 2030년대 가장 큰 산업은 어디일까?','엔지니어가 AI 도구로 대체될 작업과 대체 안 될 작업은?'],
+    action:['관심 회사 1곳의 채용 페이지에서 \'엔지니어\' JD 1개 읽어볼까?','유튜브 \'엔지니어 vlog\' 영상 1편 보고 메모해볼까?','Arduino·라즈베리파이로 작은 프로젝트 하나 만들어볼까?'],
+    subject:['물리학(2-1)과 역학과 에너지(2-2) — 둘 다 들어야 하는 이유는?','화공 vs 기계 — 어느 쪽이 화학 반응의 세계(3-1)가 더 필요할까?','정보(2-1)는 모든 공학 전공에 다 필요할까?']
+  },
+  ai: {
+    self:['수학이 막힐 때 며칠 동안 매달릴 수 있나?','AI가 만든 결과를 \'왜 그런지\' 캐묻는 게 재미있나?','코드와 수학 중 어느 쪽이 더 손에 잡히는가?'],
+    world:['LLM의 학습에는 GPU가 몇 개나 필요하고, 비용은 얼마일까?','OpenAI·Anthropic·DeepMind는 어떻게 다른 회사인가?','한국 AI 스타트업 중 글로벌 진출한 사례는?'],
+    action:['Hugging Face에서 모델 1개를 다운받아 돌려볼까?','Kaggle 입문 컴페티션 1개를 시도해볼까?','ChatGPT·Claude로 30분짜리 프로젝트 1개 완성해볼까?'],
+    subject:['인공지능 수학(2-2)과 미적분Ⅱ(3-1) — 둘 다 필요한가?','데이터 과학(3-1 막1-A)이 AI 학습의 어디까지를 커버하나?','정보 → 인공지능 기초 → 데이터 과학 → 소프트웨어와 생활 4단 콤보 — 빠뜨리면 어디가 약해질까?']
+  },
+  med: {
+    self:['피·고통·죽음을 마주하는 일이 견딜 만한가?','30대 후반까지 계속 공부할 끈기가 있나?','환자 한 명을 길게 만나는 일과 빠르게 진단하는 일 중 어느 게 끌리나?'],
+    world:['의대 정원·약대 정원·간호대 정원은 2028 기준 얼마인가?','의료 AI가 의사를 대체할까, 보조할까? 어느 분야부터?','지역의료·국가공보의 — 어떤 길이 있나?'],
+    action:['병원 진료 1번을 의사의 시각에서 관찰 메모해볼까?','의료 다큐멘터리 1편을 보고 직업적 가치관을 정리해볼까?','의대 한 곳의 \'학생 일과\' 인터뷰 1편 찾아볼까?'],
+    subject:['생명과학(2-1) → 세포와 물질대사(2-2) → 생물의 유전(3-1) 3단계가 왜 필요한가?','의대도 물리학(2-1)·전자기와 양자(3-1)가 필요한 이유는?','논술(3-2 필수)이 의대 입시에서 어떻게 쓰이나?']
+  },
+  sci: {
+    self:['답이 나오지 않는 문제를 몇 년씩 붙들 수 있나?','대학원 6년·박사후 4년 — 그 긴 시간을 견딜 수 있나?','연봉이 평범해도 \'아는 즐거움\'으로 살 수 있나?'],
+    world:['한국 기초과학 박사 후 연구원의 현실은 어떤가?','노벨상 수상자들의 공통점은 무엇인가?','KAIST·POSTECH·서울대 자연대의 차이는?'],
+    action:['관심 분야 논문 1편의 초록(abstract)을 한국어로 정리해볼까?','한국 물리학회·수학회 학술대회 일정을 한 번 살펴볼까?','과학 다큐멘터리 1편을 보고 \'내가 풀고 싶은 문제\'를 1줄로 적어볼까?'],
+    subject:['수학과제 탐구(3-1 막5)는 어떤 과제를 다룰까?','행성우주과학(3-1 막5)을 들어야 천문학과 가는가?','수학과 문화(3-2 막3-A)는 수학의 어떤 면을 보여주나?']
+  },
+  hum: {
+    self:['글로 사람의 마음을 움직이는 것이 매력적인가?','토론에서 \'내가 틀렸을지도\' 인정하는 일이 가능한가?','법·정치·언론 중 어느 쪽이 더 본능적으로 끌리나?'],
+    world:['로스쿨 vs 사법시험 폐지 후 변호사 되는 길은?','국제기구 채용 자격·경로는 어떻게 되나?','언론사 입사 경쟁률과 신입 기자 연봉은?'],
+    action:['좋아하는 사회 이슈 1개로 1페이지 논평을 써볼까?','법·정치 팟캐스트 1편을 듣고 의견 메모해볼까?','국제기구 인턴 자격 페이지를 1개 찾아볼까?'],
+    subject:['사회와 문화·법과 사회·윤리와 사상 — 4과목을 다 들으면 무엇이 좋은가?','한문(2-1)·언어생활과 한자(2-2)는 법학에 정말 쓰이나?','독서 토론과 글쓰기(3-2 막3-A)는 어떤 시험에 도움이 되나?']
+  },
+  biz: {
+    self:['돈의 흐름·시장의 변화를 분석하는 것이 즐거운가?','정량(숫자)과 정성(사람) 중 어느 쪽이 더 익숙한가?','대기업 vs 스타트업 vs 자기 사업 — 어디가 끌리는가?'],
+    world:['금융권 신입 연봉과 컨설팅펌 신입 연봉의 차이는?','회계사 vs CFA vs MBA — 진입 경로는 어떻게 다른가?','한국 핀테크 시장의 주요 플레이어는?'],
+    action:['관심 회사 1곳의 사업보고서(다트)를 30분만 읽어볼까?','매주 코스피 1개 종목의 뉴스를 1주일 추적해볼까?','경영 시뮬레이션 게임 1개를 30분 해볼까?'],
+    subject:['경제(3-1 막5)와 정치(3-1 막5)를 함께 듣는 효과는?','인공지능 수학(2-2)이 경영에 쓰이는 분야는?','실용 통계(3-2 막3-A)는 어떤 비즈니스 의사결정에 쓰이는가?']
+  },
+  edu: {
+    self:['아이들 앞에서 1년에 200시간 이상 설명하는 일이 즐거울까?','학생 한 명이 \'이해 안 돼요\'라고 했을 때 200번을 다시 설명할 수 있을까?','내가 가르치고 싶은 학생은 어떤 학생인가?'],
+    world:['교대 vs 사범대의 임용률·임금·근무 환경 차이는?','에듀테크가 교사 역할을 바꾸는 양상은?','사범대 → 사교육·교육 콘텐츠 회사로 가는 길도 있나?'],
+    action:['좋아하는 과목을 친구에게 30분 가르쳐보고 그 경험을 메모해볼까?','EBS 명강의 1편을 보고 \'좋은 교사\'의 특징을 적어볼까?','교육 다큐 1편을 보고 자기 교육관을 1줄로 써볼까?'],
+    subject:['수학교육과 지망이면 기하·미적분Ⅱ는 반드시 들어야 하는가?','윤리와 사상(2-2)·인문학과 윤리(3-1)가 교사 소양에 어떻게 쓰이나?','소프트웨어와 생활(3-2 막1-A) — 에듀테크 시대 교사에게 필요한가?']
+  },
+  art: {
+    self:['손·몸·눈 중 어느 것이 가장 \'내 것\' 같은가?','실기 평가에서 \'내가 못한 것\' 인정할 수 있나?','예술로 평생 생활비를 벌 수 있을지 불안해도 갈 수 있나?'],
+    world:['건축학과 5년제 vs 산업디자인 4년제 — 진로 차이는?','예체능 입시의 실기 비중과 학업 비중은?','한국 예술가의 평균 수입 분포는?'],
+    action:['좋아하는 예술 작품 1개를 \'왜 좋은지\' 500자로 써볼까?','관심 분야 작가의 일상을 다룬 다큐 1편 볼까?','내 작품 1개를 SNS에 올려볼까?'],
+    subject:['건축 지망이면 기하(2-1)와 역학과 에너지(2-2) — 둘 다 필요한가?','미술과 매체(3-1 막1-B)는 어떤 작업을 다루는가?','문학과 영상(2-1)이 예술 시야 확장에 도움이 될까?']
+  }
+};
+// AI 플러스 질문은 일반 진로와 공유 (전용 질문 추가는 차후)
+['aip_med','aip_sci','aip_hum','aip_biz','aip_edu','aip_art'].forEach(k => {
+  const base = {aip_med:'med',aip_sci:'sci',aip_hum:'hum',aip_biz:'biz',aip_edu:'edu',aip_art:'art'}[k];
+  QUESTIONS[k] = {
+    self: [...QUESTIONS[base].self, '내 분야에 AI가 들어왔을 때 *내 일의 본질*은 무엇이 남을까?'],
+    world: [...QUESTIONS[base].world, '이 분야에서 AI가 가장 빨리 바꾸고 있는 영역은 어디일까?'],
+    action: [...QUESTIONS[base].action, 'ChatGPT/Claude로 내 분야의 한 작업을 자동화해볼까?'],
+    subject: [...QUESTIONS[base].subject, '인공지능 기초(2-2)·데이터 과학(3-1)·소프트웨어와 생활(3-2) — 인문/예체능 진로에도 필요할까?']
+  };
+});
+
+// ── 검색어 (기존 explore.search 유지·확장) ──
+const SEARCH_TERMS = {
+  soccer_data: ['StatsBomb open data 분석','xG expected goals 계산','FBref Opta Wyscout 차이','K리그 데이터 분석','Kaggle football analysis'],
+  soccer_cv: ['SkillCorner 트래킹','soccer ball detection OpenCV','sports vision AI','컴퓨터비전 축구 영상'],
+  soccer_jrn: ['풋볼리스트 칼럼','The Athletic 축구','Tifo Football','축구 콘텐츠 크리에이터 수입'],
+  soccer_club: ['K리그 클럽 분석 인력','Moneyball 축구','구단 스카우팅','Transfermarkt 이적'],
+  eng: ['전기공학 하는 일','기계공학 취업 현실','화학공학 연봉','엔지니어 일상 vlog'],
+  ai: ['AI 개발자 하루 일과','컴퓨터공학과 커리큘럼','데이터 사이언티스트 취업','AI 스타트업 현실'],
+  med: ['의대 입결 2028','약대 생활 현실','생명공학과 취업','의료 AI 트렌드'],
+  sci: ['물리학과 진로','수학과 취업 현실','이론물리학자 하는 일','KAIST 물리학과'],
+  hum: ['법학과 진로','정치외교학과 취업','사회학 하는 일','언론사 입사','국제기구 취업 방법'],
+  biz: ['경영학과 vs 경제학과','금융권 취업 준비','컨설턴트 하는 일','회계사 되는 법'],
+  edu: ['교대 입결 2028','사범대 취업 현실','교사 이외 교육 직종','에듀테크 트렌드'],
+  art: ['건축학과 커리큘럼','시각디자인 취업','체육 관련 직종','예술대학 입학 준비']
+};
+['aip_med','aip_sci','aip_hum','aip_biz','aip_edu','aip_art'].forEach(k => {
+  const base = {aip_med:'med',aip_sci:'sci',aip_hum:'hum',aip_biz:'biz',aip_edu:'edu',aip_art:'art'}[k];
+  SEARCH_TERMS[k] = [...SEARCH_TERMS[base], 'AI 활용 ' + base, 'LLM ' + base];
+});
+
+// ── 학과 매핑 (기존 majors) ──
+const MAJORS = {
+  soccer_data: ['통계학과','응용통계학과','수학과','산업공학과','컴퓨터공학과(데이터트랙)','데이터사이언스학과'],
+  soccer_cv: ['컴퓨터공학과','전기전자공학과','AI학과','소프트웨어학과','전산학과'],
+  soccer_jrn: ['언론정보학과','미디어커뮤니케이션','국어국문학과','자유전공','신문방송학과'],
+  soccer_club: ['경영학과','산업공학과','심리학과','체육교육과(분석트랙)','국제학부'],
+  eng: ['전기전자공학과','기계공학과','화학공학과','신소재공학과','항공우주공학과','산업공학과'],
+  ai: ['컴퓨터공학과','소프트웨어학과','인공지능학과','수학과','통계학과','전기전자공학과(AI트랙)'],
+  med: ['의학과','치의학과','한의학과','약학과','간호학과','생명공학과','의생명공학과'],
+  sci: ['물리학과','수학과','화학과','천문학과','지구환경과학과','통계학과'],
+  hum: ['법학과','정치외교학과','사회학과','심리학과','언론정보학과','국제학부','행정학과'],
+  biz: ['경영학과','경제학과','통계학과','무역학과','금융학과','회계학과','국제통상학과'],
+  edu: ['초등교육과(교대)','국어교육과','수학교육과','과학교육과','교육학과','사회복지학과','상담심리학과'],
+  art: ['건축학과','산업디자인과','시각디자인과','체육교육과','음악학과','미술학과','무용학과']
+};
+['aip_med','aip_sci','aip_hum','aip_biz','aip_edu','aip_art'].forEach(k => {
+  const base = {aip_med:'med',aip_sci:'sci',aip_hum:'hum',aip_biz:'biz',aip_edu:'edu',aip_art:'art'}[k];
+  MAJORS[k] = MAJORS[base];
+});
+
+// ── 진로별 매칭 학교 카드 ──
+const UNIV_MATCH = {
+  soccer_data: ['cau_appstat','uos_stat','hanyang_data','skku_socsci','yonsei_appstat','korea_stat','snu_stat'],
+  soccer_cv: ['hanyang_data','korea_stat','snu_stat'],
+  soccer_jrn: [],
+  soccer_club: ['cau_appstat','hanyang_data','skku_socsci'],
+  eng: [],
+  ai: ['hanyang_data','korea_stat','snu_stat'],
+  med: [],
+  sci: ['snu_stat','yonsei_appstat','korea_stat'],
+  hum: ['skku_socsci'],
+  biz: ['cau_appstat','skku_socsci','yonsei_appstat'],
+  edu: [],
+  art: [],
+  aip_med: [], aip_sci: ['snu_stat','korea_stat'],
+  aip_hum: ['skku_socsci'], aip_biz: ['cau_appstat','skku_socsci'],
+  aip_edu: [], aip_art: []
+};
+
+// ── 더 읽기 자료 인덱스 ──
+const DOCS = {
+  soccer_data:[{p:'04_career/축구분석가_데이터사이언스.md',t:'축구분석가 — 데이터사이언스 (전문)'},
+               {p:'04_career/INDEX_축구분석가.md',t:'4 path 통합 INDEX'}],
+  soccer_cv:[{p:'04_career/축구분석가_컴퓨터비전.md',t:'축구분석가 — 컴퓨터비전 (전문)'},
+             {p:'04_career/INDEX_축구분석가.md',t:'4 path 통합 INDEX'}],
+  soccer_jrn:[{p:'04_career/축구분석가_저널리즘콘텐츠.md',t:'축구분석가 — 저널리즘·콘텐츠 (전문)'},
+              {p:'04_career/INDEX_축구분석가.md',t:'4 path 통합 INDEX'}],
+  soccer_club:[{p:'04_career/축구분석가_구단내부.md',t:'축구분석가 — 구단 내부 (전문)'},
+               {p:'04_career/INDEX_축구분석가.md',t:'4 path 통합 INDEX'}],
+  eng:[{p:'03_analysis/과목분류.md',t:'과목분류 — 시나리오 1: 공학 일반'}],
+  ai:[{p:'03_analysis/과목분류.md',t:'과목분류 — 시나리오 2: AI·SW'}],
+  med:[{p:'03_analysis/과목분류.md',t:'과목분류 — 시나리오 3: 의약·생명'}],
+  sci:[{p:'03_analysis/과목분류.md',t:'과목분류 — 시나리오 4: 자연과학'}],
+  hum:[{p:'03_analysis/과목분류.md',t:'과목분류 — 시나리오 5: 인문·사회'}],
+  biz:[{p:'03_analysis/과목분류.md',t:'과목분류 — 시나리오 6: 경영·경제'}],
+  edu:[{p:'03_analysis/과목분류.md',t:'과목분류 — 시나리오 7: 교육·사범'}],
+  art:[{p:'03_analysis/과목분류.md',t:'과목분류 — 시나리오 8: 예체능·건축·디자인'}],
+  aip_med:[{p:'04_career/AI플러스_의약생명.md',t:'AI+의약·생명 (전문)'},{p:'04_career/INDEX_AI플러스시나리오.md',t:'AI 플러스 통합 INDEX'}],
+  aip_sci:[{p:'04_career/AI플러스_자연과학.md',t:'AI+자연과학 (전문)'},{p:'04_career/INDEX_AI플러스시나리오.md',t:'AI 플러스 통합 INDEX'}],
+  aip_hum:[{p:'04_career/AI플러스_인문사회.md',t:'AI+인문·사회 (전문)'},{p:'04_career/INDEX_AI플러스시나리오.md',t:'AI 플러스 통합 INDEX'}],
+  aip_biz:[{p:'04_career/AI플러스_경영경제.md',t:'AI+경영·경제 (전문)'},{p:'04_career/INDEX_AI플러스시나리오.md',t:'AI 플러스 통합 INDEX'}],
+  aip_edu:[{p:'04_career/AI플러스_교육사범.md',t:'AI+교육·사범 (전문)'},{p:'04_career/INDEX_AI플러스시나리오.md',t:'AI 플러스 통합 INDEX'}],
+  aip_art:[{p:'04_career/AI플러스_예체능건축.md',t:'AI+예체능·건축 (전문)'},{p:'04_career/INDEX_AI플러스시나리오.md',t:'AI 플러스 통합 INDEX'}]
+};
+
+// ── 진로 카드 (기존 8개 + 신규 10개 = 18개) ──
+// 기존 8개는 sched·tip·suneung 유지, 신규 10개는 base 진로의 sched를 가리킴
+const COMMON_SCHED_REFS = {
+  soccer_data: 'ai', soccer_cv: 'ai', soccer_jrn: 'hum', soccer_club: 'biz',
+  aip_med: 'med', aip_sci: 'sci', aip_hum: 'hum', aip_biz: 'biz', aip_edu: 'edu', aip_art: 'art'
+};
+
+const CAREERS = [
+  // ─ 1순위 (축구분석가 4 path) ─
+  {id:'soccer_data', group:'soccer', no:1, name:'⚽1 축구분석가 — 데이터사이언스', sub:'통계·산업공·응용수학',
+   ico:'📊', color:'#0d9488', light:'#ccfbf1',
+   desc:'축구를 *숫자로 읽는 능력*이 새로운 축구 언어. 통계·산업공·응용수학 → 클럽/분석회사/프리랜서.',
+   tip:'AI·SW 시나리오 + 영어 강화 조합. 정보(2-1) → 인공지능 수학(2-2) → 데이터 과학(3-1) 흐름.',
+   suneung:'물리학Ⅰ + 화학Ⅰ (또는 사회/경제)',
+   schedRef: 'ai_overridden'},
+  {id:'soccer_cv', group:'soccer', no:2, name:'⚽2 축구분석가 — 컴퓨터비전', sub:'컴공·전자·AI학과',
+   ico:'📹', color:'#0891b2', light:'#cffafe',
+   desc:'영상을 데이터로 바꾸는 기술. SkillCorner·Hudl 같은 영상 분석 회사 또는 클럽 내부 영상실.',
+   tip:'AI·SW 시나리오 + ★미술과 매체 추가. 카메라·센서 이해를 위해 전자기와 양자(3-1)도 유용.',
+   suneung:'물리학Ⅰ + 화학Ⅰ',
+   schedRef: 'ai_overridden'},
+  {id:'soccer_jrn', group:'soccer', no:3, name:'⚽3 축구분석가 — 저널리즘·콘텐츠', sub:'언론·미디어·자유전공',
+   ico:'📝', color:'#e11d48', light:'#ffe4e6',
+   desc:'분석가의 자리는 *콘텐츠로 직접 만드는* 시대. 유튜브·뉴스레터·팟캐스트로 시작 가능.',
+   tip:'인문·사회 시나리오 + 미디어 과목 강화. 5~10년 콘텐츠 누적이 자기소개서가 됨.',
+   suneung:'사회·문화 + 생활과 윤리',
+   schedRef: 'hum_overridden'},
+  {id:'soccer_club', group:'soccer', no:4, name:'⚽4 축구분석가 — 구단 내부', sub:'경영·심리·체육 융합',
+   ico:'🏟️', color:'#9333ea', light:'#f3e8ff',
+   desc:'경기장 뒤의 의사결정자. 영입·스카우팅·심리·유스 등 구단 운영의 다양한 역할.',
+   tip:'경영·경제 시나리오 + 영어·데이터 강화. 진입 경쟁은 적지만 시즌중 워라밸 나쁨.',
+   suneung:'사회·문화 + 경제',
+   schedRef: 'biz_overridden'},
+  // ─ 일반 8 진로 (기존 id 유지) ─
+  {id:'eng', group:'general', no:5, name:'⚙️ 공학 일반', sub:'전기·전자·기계·화공',
+   ico:'⚙️', color:'#2563eb', light:'#eff6ff',
+   desc:'기계, 전기전자, 화학공정 등 공과대학 전반. 물리학과 화학을 기반으로 기술을 설계하고 제조하는 분야. 졸업 후 대기업 제조·연구소·스타트업 등 폭넓은 진로.',
+   tip:'물리+화학+수학 3종 세트가 핵심. 수능 물리Ⅰ/화학Ⅰ 대비와 과목 선택이 완벽히 연계됨.',
+   suneung:'물리학Ⅰ + 화학Ⅰ',
+   sched:[
+     {sem:'2-1',name:'2학년 1학기',mandatory:['화법과 언어(4)','대수(4)','영어Ⅰ(4)','★스포츠 생활1(2)'],
+      choices:[{label:'[막4] 4과목 선택 (12학점)',picks:['기하','물리학','화학','생명과학'],note:'화공→생명과학, 환경공학·지구과학'},
+               {label:'[막1] 1과목 선택 (3학점)',picks:['정보'],note:''}]},
+     {sem:'2-2',name:'2학년 2학기',mandatory:['문학(4)','미적분Ⅰ(4)','영어Ⅱ(4)','★스포츠 생활2(2)'],
+      choices:[{label:'[막4] 4과목 선택 (12학점)',picks:['역학과 에너지','물질과 에너지','인공지능 수학','세포와 물질대사'],note:'바이오화공→세포 / 일반공학→지구시스템과학 대체 가능'},
+               {label:'[막1] 1과목 선택 (3학점)',picks:['인공지능 기초'],note:''}]},
+     {sem:'3-1',name:'3학년 1학기',mandatory:['독서와 작문(4)','확률과 통계(4)','★스포츠 과학(1)'],
+      choices:[{label:'[막5] 5과목 선택 (15학점)',picks:['미적분Ⅱ','전자기와 양자','화학 반응의 세계','영어 독해와 작문','수학과제 탐구'],note:'기계·항공→행성우주과학 대체 가능'},
+               {label:'[막1]-A (3학점)',picks:['데이터 과학'],note:''},
+               {label:'[막1]-B 예체능 (2학점)',picks:['★미술과 매체'],note:'설계·CAD 감각'}]},
+     {sem:'3-2',name:'3학년 2학기',mandatory:['생태와 환경(2)','논술(2)','★스포츠 문화(2)'],
+      choices:[{label:'[막3]-A 3과목 선택 (9학점)',picks:['실용 통계','심화 영어 독해와 작문','독서 토론과 글쓰기'],note:''},
+               {label:'[막3]-B 3과목 선택 (9학점)',picks:['★융합과학 탐구','★기후변화와 환경생태','★과학의 역사와 문화'],note:''},
+               {label:'[막1]-A (3학점)',picks:['소프트웨어와 생활'],note:''},
+               {label:'[막1]-B 예체능 (2학점)',picks:['★미술 감상과 비평'],note:''}]}]},
+  {id:'ai', group:'general', no:6, name:'🤖 AI·SW', sub:'컴퓨터공학·데이터사이언스',
+   ico:'🤖', color:'#7c3aed', light:'#f5f3ff',
+   desc:'인공지능, 소프트웨어 개발, 데이터 분석 등 디지털 기술의 중심. 이론과 코딩을 결합해 실제 서비스·제품을 만드는 분야. 스타트업부터 빅테크까지 수요가 폭발적.',
+   tip:'정보(2-1) → 인공지능 기초(2-2) → 데이터 과학(3-1) → 소프트웨어와 생활(3-2)의 4단 콤보가 이 시나리오의 핵심.',
+   suneung:'물리학Ⅰ + 화학Ⅰ (or 지구과학Ⅰ)',
+   sched:[
+     {sem:'2-1',name:'2학년 1학기',mandatory:['화법과 언어(4)','대수(4)','영어Ⅰ(4)','★스포츠 생활1(2)'],
+      choices:[{label:'[막4] 4과목 선택 (12학점)',picks:['기하','물리학','화학','현대사회와 윤리'],note:'AI 윤리 감각; 화학→사회와 문화 대체 가능'},
+               {label:'[막1] 1과목 선택 (3학점)',picks:['정보'],note:'★필수급 선택'}]},
+     {sem:'2-2',name:'2학년 2학기',mandatory:['문학(4)','미적분Ⅰ(4)','영어Ⅱ(4)','★스포츠 생활2(2)'],
+      choices:[{label:'[막4] 4과목 선택 (12학점)',picks:['인공지능 수학','역학과 에너지','물질과 에너지','지구시스템과학'],note:'인공지능 수학 필수; 4번째는 세포와 물질대사도 가능'},
+               {label:'[막1] 1과목 선택 (3학점)',picks:['인공지능 기초'],note:'★필수급 선택'}]},
+     {sem:'3-1',name:'3학년 1학기',mandatory:['독서와 작문(4)','확률과 통계(4)','★스포츠 과학(1)'],
+      choices:[{label:'[막5] 5과목 선택 (15학점)',picks:['미적분Ⅱ','수학과제 탐구','전자기와 양자','영어 독해와 작문','화학 반응의 세계'],note:'딥러닝 수학 + HW 구조 이해 + 논문 영어'},
+               {label:'[막1]-A (3학점)',picks:['데이터 과학'],note:'★필수급 선택'},
+               {label:'[막1]-B 예체능 (2학점)',picks:['★미술과 매체'],note:'UI/UX 감각'}]},
+     {sem:'3-2',name:'3학년 2학기',mandatory:['생태와 환경(2)','논술(2)','★스포츠 문화(2)'],
+      choices:[{label:'[막3]-A 3과목 선택 (9학점)',picks:['실용 통계','심화 영어 독해와 작문','미디어 영어'],note:'데이터 분석 + AI 논문 + 커뮤니케이션'},
+               {label:'[막3]-B 3과목 선택 (9학점)',picks:['★융합과학 탐구','★과학의 역사와 문화','★기후변화와 환경생태'],note:''},
+               {label:'[막1]-A (3학점)',picks:['소프트웨어와 생활'],note:'★필수급 선택'},
+               {label:'[막1]-B 예체능 (2학점)',picks:['★미술 감상과 비평'],note:''}]}]},
+  {id:'med', group:'general', no:7, name:'🩺 의약·생명', sub:'의대·약대·한의대·간호·생명공학',
+   ico:'🩺', color:'#059669', light:'#ecfdf5',
+   desc:'의학, 약학, 한의학, 간호학, 생명공학 등 생명과 건강을 다루는 분야. 가장 높은 수능 성적이 필요하지만 사회적 안정성과 보람이 큰 길.',
+   tip:'생명과학 → 세포와 물질대사 → 생물의 유전 3단 계열성이 의약계 핵심. 논술(3-2 필수)이 의대 입시에 활용됨.',
+   suneung:'생명과학Ⅰ + 화학Ⅰ',
+   sched:[
+     {sem:'2-1',name:'2학년 1학기',mandatory:['화법과 언어(4)','대수(4)','영어Ⅰ(4)','★스포츠 생활1(2)'],
+      choices:[{label:'[막4] 4과목 선택 (12학점)',picks:['기하','생명과학','화학','물리학'],note:'수능 탐구 4과목 기반 완성'},
+               {label:'[막1] 1과목 선택 (3학점)',picks:['정보'],note:''}]},
+     {sem:'2-2',name:'2학년 2학기',mandatory:['문학(4)','미적분Ⅰ(4)','영어Ⅱ(4)','★스포츠 생활2(2)'],
+      choices:[{label:'[막4] 4과목 선택 (12학점)',picks:['세포와 물질대사','물질과 에너지','역학과 에너지','인공지능 수학'],note:'생명·화학 심화 + 의대 물리'},
+               {label:'[막1] 1과목 선택 (3학점)',picks:['인공지능 기초'],note:'의료 AI 트렌드 대응'}]},
+     {sem:'3-1',name:'3학년 1학기',mandatory:['독서와 작문(4)','확률과 통계(4)','★스포츠 과학(1)'],
+      choices:[{label:'[막5] 5과목 선택 (15학점)',picks:['미적분Ⅱ','생물의 유전','화학 반응의 세계','영어 독해와 작문','전자기와 양자'],note:'유전학·약학·의학물리 심화'},
+               {label:'[막1]-A (3학점)',picks:['데이터 과학'],note:'임상 데이터 분석'},
+               {label:'[막1]-B 예체능 (2학점)',picks:['★음악 연주와 창작'],note:'의대 인성 소양'}]},
+     {sem:'3-2',name:'3학년 2학기',mandatory:['생태와 환경(2)','논술(2)','★스포츠 문화(2)'],
+      choices:[{label:'[막3]-A 3과목 선택 (9학점)',picks:['독서 토론과 글쓰기','실용 통계','심화 영어 독해와 작문'],note:'논술·통계·의학 영어'},
+               {label:'[막3]-B 3과목 선택 (9학점)',picks:['★기후변화와 환경생태','★융합과학 탐구','★과학의 역사와 문화'],note:''},
+               {label:'[막1]-A (3학점)',picks:['소프트웨어와 생활'],note:''},
+               {label:'[막1]-B 예체능 (2학점)',picks:['★음악 감상과 비평'],note:''}]}]},
+  {id:'sci', group:'general', no:8, name:'🔬 자연과학', sub:'물리학과·수학과·화학과·천문학',
+   ico:'🔬', color:'#0891b2', light:'#ecfeff',
+   desc:'현상의 근본 원리를 탐구하는 기초과학. 물리, 수학, 화학, 천문학 등. 대학원 진학이 일반적이며 연구자·교수·전문직으로 이어지는 길.',
+   tip:'3-1에서 수학 2과목(미적분Ⅱ + 수학과제 탐구) + 과학 3과목 조합이 이 시나리오의 차별점.',
+   suneung:'물리학Ⅰ + 화학Ⅰ (천문학→지구과학Ⅰ)',
+   sched:[
+     {sem:'2-1',name:'2학년 1학기',mandatory:['화법과 언어(4)','대수(4)','영어Ⅰ(4)','★스포츠 생활1(2)'],
+      choices:[{label:'[막4] 4과목 선택 (12학점)',picks:['기하','물리학','화학','지구과학'],note:'수학과→기하+물리+화학+생명과학 / 천문학→지구과학'},
+               {label:'[막1] 1과목 선택 (3학점)',picks:['정보'],note:''}]},
+     {sem:'2-2',name:'2학년 2학기',mandatory:['문학(4)','미적분Ⅰ(4)','영어Ⅱ(4)','★스포츠 생활2(2)'],
+      choices:[{label:'[막4] 4과목 선택 (12학점)',picks:['인공지능 수학','역학과 에너지','물질과 에너지','지구시스템과학'],note:''},
+               {label:'[막1] 1과목 선택 (3학점)',picks:['인공지능 기초'],note:''}]},
+     {sem:'3-1',name:'3학년 1학기',mandatory:['독서와 작문(4)','확률과 통계(4)','★스포츠 과학(1)'],
+      choices:[{label:'[막5] 5과목 선택 (15학점)',picks:['미적분Ⅱ','수학과제 탐구','전자기와 양자','화학 반응의 세계','행성우주과학'],note:'수학×2 + 과학×3 이론과학 최강 조합'},
+               {label:'[막1]-A (3학점)',picks:['데이터 과학'],note:''},
+               {label:'[막1]-B 예체능 (2학점)',picks:['★미술과 매체'],note:''}]},
+     {sem:'3-2',name:'3학년 2학기',mandatory:['생태와 환경(2)','논술(2)','★스포츠 문화(2)'],
+      choices:[{label:'[막3]-A 3과목 선택 (9학점)',picks:['수학과 문화','실용 통계','심화 영어 독해와 작문'],note:'수학 소양 + 논문 영어'},
+               {label:'[막3]-B 3과목 선택 (9학점)',picks:['★융합과학 탐구','★과학의 역사와 문화','★기후변화와 환경생태'],note:''},
+               {label:'[막1]-A (3학점)',picks:['소프트웨어와 생활'],note:''},
+               {label:'[막1]-B 예체능 (2학점)',picks:['★음악 감상과 비평'],note:''}]}]},
+  {id:'hum', group:'general', no:9, name:'📚 인문·사회', sub:'법대·정치·사회·심리·언론·국제',
+   ico:'📚', color:'#d97706', light:'#fffbeb',
+   desc:'법, 정치, 사회, 심리, 언론, 국제관계 등 인간과 사회를 이해하는 분야. 말과 글, 논리와 설득이 핵심 역량. 다양한 직업군으로 이어지는 유연한 진로.',
+   tip:'2-1/2-2에서 사회·윤리 과목 최대 8개 이수 = 수능 탐구 선택지 극대화. 국어·영어·논술 역량이 입시의 핵심.',
+   suneung:'사회·문화 + 생활과 윤리 (or 정치와 법)',
+   sched:[
+     {sem:'2-1',name:'2학년 1학기',mandatory:['화법과 언어(4)','대수(4)','영어Ⅰ(4)','★스포츠 생활1(2)'],
+      choices:[{label:'[막4] 4과목 선택 (12학점)',picks:['사회와 문화','세계사','현대사회와 윤리','세계시민과 지리'],note:'사회·윤리 4종 완결'},
+               {label:'[막1] 1과목 선택 (3학점)',picks:['한문'],note:'국제·외교→일본어/중국어 대체 가능'}]},
+     {sem:'2-2',name:'2학년 2학기',mandatory:['문학(4)','미적분Ⅰ(4)','영어Ⅱ(4)','★스포츠 생활2(2)'],
+      choices:[{label:'[막4] 4과목 선택 (12학점)',picks:['법과 사회','동아시아역사기행','윤리와 사상','한국지리 탐구'],note:'법·사회·윤리·지리 심화'},
+               {label:'[막1] 1과목 선택 (3학점)',picks:['언어생활과 한자'],note:'법학·한문 소양; 외국어 트랙→일본어 회화'}]},
+     {sem:'3-1',name:'3학년 1학기',mandatory:['독서와 작문(4)','확률과 통계(4)','★스포츠 과학(1)'],
+      choices:[{label:'[막5] 5과목 선택 (15학점)',picks:['주제 탐구 독서','영어 독해와 작문','영미 문학 읽기','정치','경제'],note:'사회과학 2 + 국어·영어 강화'},
+               {label:'[막1]-A (3학점)',picks:['한문 고전 읽기'],note:'인문 소양; 데이터 과학도 가능'},
+               {label:'[막1]-B 예체능 (2학점)',picks:['★음악 연주와 창작'],note:''}]},
+     {sem:'3-2',name:'3학년 2학기',mandatory:['생태와 환경(2)','논술(2)','★스포츠 문화(2)'],
+      choices:[{label:'[막3]-A 3과목 선택 (9학점)',picks:['독서 토론과 글쓰기','심화 영어 독해와 작문','매체 의사소통'],note:'언론·법조 핵심 역량'},
+               {label:'[막3]-B 3과목 선택 (9학점)',picks:['★사회문제 탐구','★윤리문제 탐구','★역사로 탐구하는 현대세계'],note:'인문사회 심화'},
+               {label:'[막1]-A (3학점)',picks:['소프트웨어와 생활'],note:''},
+               {label:'[막1]-B 예체능 (2학점)',picks:['★음악 감상과 비평'],note:''}]}]},
+  {id:'biz', group:'general', no:10, name:'📊 경영·경제', sub:'경상대학·금융·회계·무역',
+   ico:'📊', color:'#dc2626', light:'#fef2f2',
+   desc:'기업과 시장을 이해하고 운영하는 분야. 경영, 경제, 금융, 회계, 무역 등. 다양한 산업에서 활용되는 범용성이 높은 진로.',
+   tip:'경제(3-1 [막5])와 데이터 과학(3-1 [막1]-A)의 조합 = 핀테크·경영 데이터 분석의 핵심.',
+   suneung:'사회·문화 + 경제',
+   sched:[
+     {sem:'2-1',name:'2학년 1학기',mandatory:['화법과 언어(4)','대수(4)','영어Ⅰ(4)','★스포츠 생활1(2)'],
+      choices:[{label:'[막4] 4과목 선택 (12학점)',picks:['기하','사회와 문화','현대사회와 윤리','세계사'],note:'수학 1 + 사회 3 균형'},
+               {label:'[막1] 1과목 선택 (3학점)',picks:['정보'],note:'비즈니스 IT 기초; 무역→외국어 대체 가능'}]},
+     {sem:'2-2',name:'2학년 2학기',mandatory:['문학(4)','미적분Ⅰ(4)','영어Ⅱ(4)','★스포츠 생활2(2)'],
+      choices:[{label:'[막4] 4과목 선택 (12학점)',picks:['인공지능 수학','법과 사회','언어생활 탐구','한국지리 탐구'],note:'수학·법·국어·사회 균형'},
+               {label:'[막1] 1과목 선택 (3학점)',picks:['인공지능 기초'],note:''}]},
+     {sem:'3-1',name:'3학년 1학기',mandatory:['독서와 작문(4)','확률과 통계(4)','★스포츠 과학(1)'],
+      choices:[{label:'[막5] 5과목 선택 (15학점)',picks:['미적분Ⅱ','경제','정치','영어 독해와 작문','도시의 미래탐구'],note:'수학+사회과학(경제·정치)+영어'},
+               {label:'[막1]-A (3학점)',picks:['데이터 과학'],note:'핀테크·경영분석 핵심'},
+               {label:'[막1]-B 예체능 (2학점)',picks:['★음악 연주와 창작'],note:''}]},
+     {sem:'3-2',name:'3학년 2학기',mandatory:['생태와 환경(2)','논술(2)','★스포츠 문화(2)'],
+      choices:[{label:'[막3]-A 3과목 선택 (9학점)',picks:['실용 통계','심화 영어 독해와 작문','독서 토론과 글쓰기'],note:'통계·영어·사고력'},
+               {label:'[막3]-B 3과목 선택 (9학점)',picks:['★사회문제 탐구','★역사로 탐구하는 현대세계','★여행지리'],note:'글로벌 비즈니스 시각'},
+               {label:'[막1]-A (3학점)',picks:['소프트웨어와 생활'],note:''},
+               {label:'[막1]-B 예체능 (2학점)',picks:['★음악 감상과 비평'],note:''}]}]},
+  {id:'edu', group:'general', no:11, name:'🎓 교육·사범', sub:'교대·사범대·사회복지·상담',
+   ico:'🎓', color:'#ca8a04', light:'#fefce8',
+   desc:'교육, 상담, 사회복지 등 사람을 키우고 돕는 분야. 교대(초등)·사범대(중고등)·복지학과 등으로 나뉘며 안정적 직업과 보람을 동시에 추구.',
+   tip:'전 과목 균형 잡힌 선택이 핵심. 담당 교과가 정해졌다면 해당 교과 과목을 집중 선택으로 전환.',
+   suneung:'(전공 교과 연계) — 담당 교과에 따라 탐구 선택이 달라짐',
+   sched:[
+     {sem:'2-1',name:'2학년 1학기',mandatory:['화법과 언어(4)','대수(4)','영어Ⅰ(4)','★스포츠 생활1(2)'],
+      choices:[{label:'[막4] 4과목 선택 (12학점)',picks:['현대사회와 윤리','사회와 문화','생명과학','기하'],note:'사회+과학+수학 균형; 과목별 교사→해당 과목 집중'},
+               {label:'[막1] 1과목 선택 (3학점)',picks:['한문'],note:'교육 기초 소양'}]},
+     {sem:'2-2',name:'2학년 2학기',mandatory:['문학(4)','미적분Ⅰ(4)','영어Ⅱ(4)','★스포츠 생활2(2)'],
+      choices:[{label:'[막4] 4과목 선택 (12학점)',picks:['윤리와 사상','언어생활 탐구','세포와 물질대사','법과 사회'],note:'윤리·국어·과학·법 균형'},
+               {label:'[막1] 1과목 선택 (3학점)',picks:['언어생활과 한자'],note:'국어 교사 준비; 영어→일본어 회화 대체 가능'}]},
+     {sem:'3-1',name:'3학년 1학기',mandatory:['독서와 작문(4)','확률과 통계(4)','★스포츠 과학(1)'],
+      choices:[{label:'[막5] 5과목 선택 (15학점)',picks:['주제 탐구 독서','영어 독해와 작문','인문학과 윤리','경제','도시의 미래탐구'],note:'교양 폭 넓히기'},
+               {label:'[막1]-A (3학점)',picks:['한문 고전 읽기'],note:'또는 데이터 과학'},
+               {label:'[막1]-B 예체능 (2학점)',picks:['★음악 연주와 창작'],note:'교사 예술 소양'}]},
+     {sem:'3-2',name:'3학년 2학기',mandatory:['생태와 환경(2)','논술(2)','★스포츠 문화(2)'],
+      choices:[{label:'[막3]-A 3과목 선택 (9학점)',picks:['독서 토론과 글쓰기','매체 의사소통','수학과 문화'],note:'교사 역량 핵심'},
+               {label:'[막3]-B 3과목 선택 (9학점)',picks:['★사회문제 탐구','★윤리문제 탐구','★기후변화와 환경생태'],note:'교육 소재 다양성'},
+               {label:'[막1]-A (3학점)',picks:['소프트웨어와 생활'],note:'에듀테크 트렌드'},
+               {label:'[막1]-B 예체능 (2학점)',picks:['★음악 감상과 비평'],note:''}]}]},
+  {id:'art', group:'general', no:12, name:'🎨 예체능·건축·디자인', sub:'예술대·체육대·건축학과',
+   ico:'🎨', color:'#db2777', light:'#fdf2f8',
+   desc:'미술, 음악, 체육, 건축, 디자인 등 창의성과 실기가 결합되는 분야. 실기 준비가 병행되어야 하지만 자신의 표현을 직업으로 연결하는 특별한 길.',
+   tip:'건축: 기하(공간)+물리(구조)+도시미래탐구(도시론) 조합. 미술: ★미술과 매체 필수. 체육: ★스포츠 교육 필수.',
+   suneung:'(실기 중심이므로 학교별 상이) — 건축: 물리Ⅰ + 수학',
+   sched:[
+     {sem:'2-1',name:'2학년 1학기',mandatory:['화법과 언어(4)','대수(4)','영어Ⅰ(4)','★스포츠 생활1(2)'],
+      choices:[{label:'[막4] 4과목 선택 (12학점)',picks:['기하','물리학','사회와 문화','문학과 영상'],note:'건축: 기하+물리 필수 / 음악: 문학과영상+사회 / 체육: 물리+생명과학'},
+               {label:'[막1] 1과목 선택 (3학점)',picks:['정보'],note:'디지털 디자인·BIM 기초'}]},
+     {sem:'2-2',name:'2학년 2학기',mandatory:['문학(4)','미적분Ⅰ(4)','영어Ⅱ(4)','★스포츠 생활2(2)'],
+      choices:[{label:'[막4] 4과목 선택 (12학점)',picks:['인공지능 수학','언어생활 탐구','역학과 에너지','윤리와 사상'],note:'건축: 역학 필수 / 미술: 언어·윤리 강화'},
+               {label:'[막1] 1과목 선택 (3학점)',picks:['인공지능 기초'],note:''}]},
+     {sem:'3-1',name:'3학년 1학기',mandatory:['독서와 작문(4)','확률과 통계(4)','★스포츠 과학(1)'],
+      choices:[{label:'[막5] 5과목 선택 (15학점)',picks:['미적분Ⅱ','주제 탐구 독서','인문학과 윤리','도시의 미래탐구','영어 독해와 작문'],note:'건축·디자인 인문 기반; 체육→★스포츠 교육 필수 포함'},
+               {label:'[막1]-A (3학점)',picks:['데이터 과학'],note:'또는 일본 문화·중국 문화'},
+               {label:'[막1]-B 예체능 (2학점)',picks:['★미술과 매체'],note:'미술·건축 필수 / 음악→★음악 연주와 창작'}]},
+     {sem:'3-2',name:'3학년 2학기',mandatory:['생태와 환경(2)','논술(2)','★스포츠 문화(2)'],
+      choices:[{label:'[막3]-A 3과목 선택 (9학점)',picks:['독서 토론과 글쓰기','매체 의사소통','심화 영어 독해와 작문'],note:''},
+               {label:'[막3]-B 3과목 선택 (9학점)',picks:['★여행지리','★역사로 탐구하는 현대세계','★과학의 역사와 문화'],note:'예술·문화 배경지식'},
+               {label:'[막1]-A (3학점)',picks:['소프트웨어와 생활'],note:''},
+               {label:'[막1]-B 예체능 (2학점)',picks:['★미술 감상과 비평'],note:'미술·건축 / 음악→★음악 감상과 비평'}]}]},
+  // ─ AI 플러스 6 시나리오 ─
+  {id:'aip_med', group:'aiplus', no:13, name:'✨ AI+의약·생명', sub:'AI 시대의 의사·약사·연구자',
+   ico:'💊', color:'#10b981', light:'#d1fae5',
+   desc:'AI가 진단·신약·정밀의료를 바꾸는 시대. 의학을 가장 깊이 이해하는 의사가 AI를 가장 잘 쓸 수 있다.',
+   tip:'기본은 의약·생명 시나리오 + 인공지능 기초·데이터 과학 강화.',
+   suneung:'생명과학Ⅰ + 화학Ⅰ',
+   schedRef:'med'},
+  {id:'aip_sci', group:'aiplus', no:14, name:'✨ AI+자연과학', sub:'AI 시대의 과학자',
+   ico:'🧪', color:'#06b6d4', light:'#cffafe',
+   desc:'AI는 망원경. *어디를 볼지*는 인간이 결정. 데이터·시뮬레이션이 과학 탐구의 새 도구.',
+   tip:'자연과학 시나리오 + 인공지능 수학·데이터 과학 필수.',
+   suneung:'물리학Ⅰ + 화학Ⅰ',
+   schedRef:'sci'},
+  {id:'aip_hum', group:'aiplus', no:15, name:'✨ AI+인문·사회', sub:'AI가 만든 문제를 푸는 인문학자',
+   ico:'📜', color:'#f59e0b', light:'#fef3c7',
+   desc:'AI 시대에 *법·정치·심리·언론*의 역할이 새로 정의되는 중. 윤리·정책·디지털 권리가 화두.',
+   tip:'인문·사회 시나리오 + 데이터 과학 1과목 추가 추천.',
+   suneung:'사회·문화 + 생활과 윤리',
+   schedRef:'hum'},
+  {id:'aip_biz', group:'aiplus', no:16, name:'✨ AI+경영·경제', sub:'AI 시대의 사업·투자·정책',
+   ico:'💼', color:'#ef4444', light:'#fee2e2',
+   desc:'더 많이 일하는 사람이 아니라 *더 잘 위임하는 사람*이 이긴다. 1인 기업·퀀트·핀테크의 시대.',
+   tip:'경영·경제 시나리오 + 인공지능 수학·데이터 과학 필수.',
+   suneung:'사회·문화 + 경제',
+   schedRef:'biz'},
+  {id:'aip_edu', group:'aiplus', no:17, name:'✨ AI+교육·사범', sub:'AI 시대의 교사·교육 디자이너',
+   ico:'🎓', color:'#eab308', light:'#fef9c3',
+   desc:'AI는 가르치고, 교사는 *사람을 키운다*. 학습 데이터와 AI 튜터가 교사의 새 동료.',
+   tip:'교육 시나리오 + 소프트웨어와 생활·데이터 과학 강화.',
+   suneung:'(전공 교과 연계)',
+   schedRef:'edu'},
+  {id:'aip_art', group:'aiplus', no:18, name:'✨ AI+예체능·건축', sub:'AI 협업 예술가·디자이너',
+   ico:'🎨', color:'#ec4899', light:'#fce7f3',
+   desc:'*왜 이걸 만드는가*에 인생을 걸 수 있어야 AI 시대의 예술가가 된다. 생성 디자인·인터랙티브 미디어 등.',
+   tip:'예체능 시나리오 + 인공지능 기초·소프트웨어와 생활 추가.',
+   suneung:'(실기 중심)',
+   schedRef:'art'}
+];
+
+// schedRef로 sched 공유
+CAREERS.forEach(c => {
+  if (c.schedRef && !c.sched) {
+    const base = CAREERS.find(x => x.id === c.schedRef);
+    if (base) c.sched = base.sched;
+  }
+  // soccer 4종도 ai/hum/biz 베이스 공유
+  if (c.id === 'soccer_data' || c.id === 'soccer_cv') c.sched = CAREERS.find(x=>x.id==='ai').sched;
+  if (c.id === 'soccer_jrn') c.sched = CAREERS.find(x=>x.id==='hum').sched;
+  if (c.id === 'soccer_club') c.sched = CAREERS.find(x=>x.id==='biz').sched;
+});
+
+/* ═════════════════════════════════════════════════════════════════
+   RENDER
+   ════════════════════════════════════════════════════════════════ */
+
+let curId = null;
+let curTab = 'sched';
+
+function setAccent(color, light) {
+  document.documentElement.style.setProperty('--c', color);
+  document.documentElement.style.setProperty('--cl', light);
+}
+
+function markVisited(id) {
+  const v = JSON.parse(localStorage.getItem('visited') || '[]');
+  if (!v.includes(id)) { v.push(id); localStorage.setItem('visited', JSON.stringify(v)); }
+}
+function isVisited(id) {
+  return (JSON.parse(localStorage.getItem('visited') || '[]')).includes(id);
+}
+function hasNote(id) {
+  return !!(localStorage.getItem('career_note_' + id) || '').trim();
+}
+
+function render(id) {
+  if (!id) return;
+  curId = id;
+  curTab = 'sched';
+  const career = CAREERS.find(c => c.id === id);
+  if (!career) return;
+
+  markVisited(id);
+  setAccent(career.color, career.light);
+  document.getElementById('welcome').style.display = 'none';
+  const detail = document.getElementById('career-detail');
+  detail.style.display = 'block';
+
+  document.querySelectorAll('.ci').forEach(el => el.classList.remove('active'));
+  const si = document.querySelector(`.ci[data-id="${id}"]`);
+  if (si) si.classList.add('active');
+
+  const mobSel = document.getElementById('mob-sel');
+  if (mobSel.value !== id) mobSel.value = id;
+
+  const personas = PERSONAS[id] || [];
+  const refs = REAL_REFS[id];
+  const univMatch = UNIV_MATCH[id] || [];
+  const docs = DOCS[id] || [];
+
+  const tabs = [
+    {k:'sched', label:'📅 과목 스케줄'},
+    {k:'q', label:'💭 호기심 질문'},
+    {k:'s', label:'🔍 검색·실제 인물'},
+    {k:'m', label:'🏫 관련 학과·학교'},
+    ...(personas.length ? [{k:'p', label:`👥 가상 페르소나 (${personas.length})`}] : []),
+    ...(docs.length ? [{k:'d', label:'📖 더 읽기'}] : [])
+  ];
+
+  detail.innerHTML = `
+    <div class="c-hero">
+      <div class="c-hero-top">
+        <div class="c-hero-icon" style="background:${career.light}">${career.ico}</div>
+        <div class="c-hero-info">
+          <h2>${career.no}. ${career.name.replace(/^[⚽✨][1-6]?\s/, '').replace(/^[⚙️🤖🩺🔬📚📊🎓🎨💊🧪📜💼]\s/, '')}</h2>
+          <div class="sub">${career.sub}</div>
+          <div class="suneung-badge">🎯 수능 탐구: ${career.suneung}</div>
+        </div>
+      </div>
+      <div class="c-hero-desc">${career.desc}</div>
+      <div class="tip-bar">💡 ${career.tip}</div>
+    </div>
+
+    <div class="section">
+      <div class="explore-tabs">
+        ${tabs.map(t => `<button class="etab ${curTab===t.k?'active':''}" onclick="switchTab('${t.k}')">${t.label}</button>`).join('')}
+      </div>
+      <div id="ep-sched" class="epanel ${curTab==='sched'?'show':''}">${renderSched(career)}</div>
+      <div id="ep-q" class="epanel ${curTab==='q'?'show':''}">${renderQuestions(id)}</div>
+      <div id="ep-s" class="epanel ${curTab==='s'?'show':''}">${renderSearchAndReal(id)}</div>
+      <div id="ep-m" class="epanel ${curTab==='m'?'show':''}">${renderUniv(id)}</div>
+      ${personas.length ? `<div id="ep-p" class="epanel ${curTab==='p'?'show':''}">${renderPersonas(personas)}</div>` : ''}
+      ${docs.length ? `<div id="ep-d" class="epanel ${curTab==='d'?'show':''}">${renderDocs(id, docs)}</div>` : ''}
+    </div>
+
+    <div class="section" style="margin-top:20px;margin-bottom:40px">
+      <div class="section-title">나의 메모</div>
+      <div class="notes-wrap">
+        <label>이 진로에 대해 떠오른 생각, 질문, 느낀 점을 자유롭게 적어보세요</label>
+        <textarea id="notes-${id}" placeholder="예: 엄마·아빠한테 물어볼 것, 검색해볼 것, 다음 주말에 해볼 것..."
+          oninput="saveNote('${id}', this.value)">${loadNote(id)}</textarea>
+        <div class="save-hint">자동 저장됩니다 (이 기기에서만 유지) · 메모하면 사이드바에 📝 표시</div>
+      </div>
+    </div>
+  `;
+
+  // sidebar 갱신 (visited/note 아이콘)
+  refreshSidebarIcons();
+}
+
+function renderSched(career) {
+  return career.sched.map(s => `
+    <div class="sched-block">
+      <div class="sched-block-head">
+        <span class="sem-name">${s.name} (${s.sem})</span>
+        <span class="sem-pts">선택+필수 = 29학점</span>
+      </div>
+      <div class="sched-rows">
+        <div class="sched-row">
+          <div class="sched-label label-mandatory">필수</div>
+          <div class="badge-wrap">
+            ${s.mandatory.map(m=>`<span class="badge badge-m">${m}</span>`).join('')}
+          </div>
+        </div>
+        ${s.choices.map(ch=>`
+          <div class="sched-row">
+            <div class="sched-label label-choice" style="background:var(--c)">${ch.label.split(' ')[0]}</div>
+            <div class="badge-wrap">
+              ${ch.picks.map(p=>`<span class="badge badge-pick" style="background:var(--c)">${p}</span>`).join('')}
+              ${ch.note?`<span class="badge-note">※ ${ch.note}</span>`:''}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderQuestions(id) {
+  const q = QUESTIONS[id];
+  if (!q) return '<p style="color:#94a3b8;padding:14px">질문 데이터가 아직 준비되지 않았어요.</p>';
+  return `
+    <div class="q-cat q-cat-self">
+      <div class="q-cat-title">🤔 자기 자신에게 던지는 질문 — <span style="color:#94a3b8;font-weight:500">기질·감정</span></div>
+      <ul class="q-list">${q.self.map(x=>`<li class="q-item">${x}</li>`).join('')}</ul>
+    </div>
+    <div class="q-cat q-cat-world">
+      <div class="q-cat-title">🔍 세상에 묻는 질문 — <span style="color:#94a3b8;font-weight:500">사실·현실</span></div>
+      <ul class="q-list">${q.world.map(x=>`<li class="q-item">${x}</li>`).join('')}</ul>
+    </div>
+    <div class="q-cat q-cat-action">
+      <div class="q-cat-title">🚀 다음 행동 질문 — <span style="color:#94a3b8;font-weight:500">바로 시작 가능한 것</span></div>
+      <ul class="q-list">${q.action.map(x=>`<li class="q-item">${x}</li>`).join('')}</ul>
+    </div>
+    <div class="q-cat q-cat-subject">
+      <div class="q-cat-title">📚 과목 선택에 던지는 질문 — <span style="color:#94a3b8;font-weight:500">2~3학년 선택과 직결</span></div>
+      <ul class="q-list">${q.subject.map(x=>`<li class="q-item">${x}</li>`).join('')}</ul>
+    </div>
+  `;
+}
+
+function renderSearchAndReal(id) {
+  const terms = SEARCH_TERMS[id] || [];
+  const refs = REAL_REFS[id];
+  let html = `
+    <p style="font-size:12px;color:#94a3b8;margin-bottom:10px">클릭하면 Google에서 바로 검색돼요</p>
+    <div class="search-chips">
+      ${terms.map(s=>`<span class="schip" onclick="window.open('https://www.google.com/search?q='+encodeURIComponent('${s.replace(/'/g,"\\'")}'),'_blank')">${s}</span>`).join('')}
+    </div>
+  `;
+  if (refs) {
+    html += `
+      <div class="real-section">
+        <h4>실제 인물·자료 (Google·공식 사이트로 직접 확인)</h4>
+        <div class="real-list">
+          <div><span class="label">PEOPLE</span>${(refs.people||[]).map(p=>`<span class="schip" style="background:#fff;border-color:#059669;color:#059669" onclick="window.open('https://www.google.com/search?q='+encodeURIComponent('${p.replace(/'/g,"\\'")}'),'_blank')">${p}</span>`).join(' ')}</div>
+          ${refs.sites?`<div style="margin-top:8px"><span class="label">SITES</span>${refs.sites.map(s=>`<a href="${s.u}" target="_blank">${s.n}</a>`).join(' · ')}</div>`:''}
+          ${refs.books?`<div style="margin-top:6px"><span class="label">BOOKS</span>${refs.books.join(' · ')}</div>`:''}
+        </div>
+      </div>
+    `;
+  }
+  return html;
+}
+
+function renderUniv(id) {
+  const match = UNIV_MATCH[id] || [];
+  const majors = MAJORS[id] || [];
+  let html = '';
+  if (majors.length) {
+    html += `<h3 style="font-size:13px;font-weight:700;color:#475569;margin-bottom:8px">📋 관련 학과 (참고)</h3>`;
+    html += `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px">${majors.map(m=>`<span style="padding:6px 12px;border-radius:6px;background:#f8fafc;border:1px solid #e2e8f0;font-size:12.5px;color:#374151">${m}</span>`).join('')}</div>`;
+  }
+  if (match.length) {
+    html += `<h3 style="font-size:13px;font-weight:700;color:#475569;margin-bottom:10px;margin-top:6px">🏫 공식 자료가 정리된 학교 (2028 시행계획 PDF 기반 ★★★★★)</h3>`;
+    html += `<div class="univ-grid">${match.map(k => {
+      const u = UNIV_CARDS[k];
+      if (!u) return '';
+      return `
+        <div class="univ-card">
+          <div class="uc-head">
+            <div>
+              <h4>${u.name}</h4>
+              <div style="font-size:11.5px;color:#94a3b8;margin-top:2px">${u.college}</div>
+            </div>
+            <div class="uc-conf">★★★★★</div>
+          </div>
+          <div class="uc-info">
+            <span class="lbl">정원:</span> ${u.cap}명 · <span class="lbl">정시군:</span> ${u.group} · <span class="lbl">방식:</span> ${u.method}
+          </div>
+          <div class="uc-tag">${u.tagline}</div>
+          <div class="uc-links">
+            <a href="${u.home}" target="_blank">🏛️ 학과 홈</a>
+            <a href="${u.admission}" target="_blank">📋 입학처</a>
+            <a class="pdf" href="${u.pdf}" target="_blank">📄 2028 PDF</a>
+            <a class="note" href="${u.note}" target="_blank">📝 분석 노트</a>
+          </div>
+        </div>
+      `;
+    }).join('')}</div>`;
+  } else {
+    html += `<p style="padding:14px;background:#f8fafc;border-left:3px solid #94a3b8;border-radius:6px;color:#64748b;font-size:13px;line-height:1.6">
+      이 진로에 직접 매칭된 학교 분석 카드는 아직 정리되지 않았어요.
+      <br>현재 정리된 7개 학교: <b>SNU·연세·고려·SKKU·CAU·한양·UOS</b> (통계·응통·데이터사이언스 위주)
+      <br>관련 학과를 정한 후 다음 라운드에 추가 학교를 정리할 예정.
+    </p>`;
+  }
+  return html;
+}
+
+function renderPersonas(personas) {
+  return `
+    <div class="persona-warn">
+      ⚠️ <b>이 탭의 모든 인물은 NCC가 만든 가상 시나리오입니다.</b>
+      2040년대를 가정한 상상의 인물이며, <b>실존하지 않습니다</b>.
+      각 카드를 클릭하면 자세한 정보가 펼쳐져요.
+    </div>
+    ${personas.map((p, idx) => `
+      <div class="persona-card ${idx===0?'':'collapsed'}" onclick="togglePersona(this)">
+        <div class="persona-head">
+          <div class="persona-name">${p.name}</div>
+          <div class="persona-meta">${p.age}세 · ${p.year}년 시점 (가상)</div>
+        </div>
+        <div class="persona-role">${p.role}</div>
+        <div class="persona-detail">
+          <div class="row"><span class="label">PATH</span>${p.path}</div>
+          <div class="quote">"${p.quote}"</div>
+          <div class="source-link">📖 전체 스토리: <a href="${p.src}" target="_blank">${p.src.split('/').pop()}</a></div>
+        </div>
+        <div class="persona-toggle">▾ 자세히 보기 / 접기 (클릭)</div>
+      </div>
+    `).join('')}
+  `;
+}
+
+function togglePersona(el) {
+  el.classList.toggle('collapsed');
+}
+
+function renderDocs(id, docs) {
+  return `
+    <p style="font-size:12.5px;color:#64748b;margin-bottom:10px;line-height:1.6">
+      이 진로에 관련된 .md 문서를 인라인으로 읽어볼 수 있어요. 호스팅 환경에서는 자동 렌더링, 로컬(file://) 환경에서는 새 탭으로 열림.
+    </p>
+    <div class="doc-links">
+      ${docs.map((d, i)=>`<div class="doc-link" onclick="loadDoc('${id}',${i})" data-doc-i="${i}">
+        <span>📖 ${d.t}</span>
+        <span class="doc-meta">${d.p.split('/').pop()}</span>
+      </div>`).join('')}
+    </div>
+    <div id="md-target-${id}"></div>
+  `;
+}
+
+async function loadDoc(id, idx) {
+  const doc = DOCS[id][idx];
+  const target = document.getElementById(`md-target-${id}`);
+  if (!target) return;
+  // 활성화 표시
+  document.querySelectorAll(`#ep-d .doc-link`).forEach((el, i) => el.classList.toggle('active', i===idx));
+  target.innerHTML = `<div class="md-loading">📖 불러오는 중...</div>`;
+  try {
+    const res = await fetch(doc.p);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    if (typeof marked !== 'undefined') {
+      target.innerHTML = `<div class="md-content">${marked.parse(text)}</div>`;
+    } else {
+      target.innerHTML = `<div class="md-content"><pre style="white-space:pre-wrap">${text.replace(/[<>&]/g, c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}</pre></div>`;
+    }
+  } catch (e) {
+    target.innerHTML = `<div class="md-error">
+      ⚠️ 파일을 자동으로 불러올 수 없어요 (${e.message}).<br>
+      로컬에서 보고 있다면 직접 열어보세요: <a href="${doc.p}" target="_blank">${doc.p}</a><br>
+      <span style="font-size:12px;color:#94a3b8">브라우저 보안 정책(CORS) 때문일 수 있어요. 새 탭에서 열기는 가능합니다.</span>
+    </div>`;
+  }
+}
+
+function switchTab(tab) {
+  curTab = tab;
+  document.querySelectorAll('.epanel').forEach(p => p.classList.remove('show'));
+  const target = document.getElementById('ep-' + tab);
+  if (target) target.classList.add('show');
+  document.querySelectorAll('.etab').forEach(el => el.classList.remove('active'));
+  // 현재 클릭된 버튼 하이라이트 (innerText로 매칭)
+  document.querySelectorAll('.etab').forEach(el => {
+    const onclickAttr = el.getAttribute('onclick') || '';
+    if (onclickAttr.includes(`'${tab}'`)) el.classList.add('active');
+  });
+}
+
+/* ─── Sidebar ─── */
+function buildSidebar() {
+  const root = document.getElementById('sidebar-groups');
+  const groups = [
+    {key:'soccer', title:'🎯 1순위 진로 (축구분석가)', collapsed:false},
+    {key:'general', title:'🌐 일반 진로 탐색', collapsed:true},
+    {key:'aiplus', title:'✨ AI 플러스 시나리오', collapsed:true}
+  ];
+  root.innerHTML = groups.map(g => {
+    const items = CAREERS.filter(c => c.group === g.key);
+    return `
+      <div class="sb-group ${g.collapsed?'collapsed':''}" data-grp="${g.key}">
+        <div class="sb-group-head" onclick="toggleGroup('${g.key}')">
+          <span>${g.title} (${items.length})</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="career-list">
+          ${items.map(c => `
+            <div class="ci" data-id="${c.id}" onclick="render('${c.id}')" style="--c:${c.color}">
+              <div class="ico">${c.ico}</div>
+              <div class="txt">
+                <div class="nm">${c.name.replace(/^[⚽✨][1-6]?\s/, '').replace(/^[⚙️🤖🩺🔬📚📊🎓🎨💊🧪📜💼]\s/, '')}</div>
+                <div class="sb">${c.sub}</div>
+              </div>
+              <div class="visited"></div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+  refreshSidebarIcons();
+}
+
+function toggleGroup(key) {
+  const grp = document.querySelector(`.sb-group[data-grp="${key}"]`);
+  if (grp) grp.classList.toggle('collapsed');
+}
+
+function refreshSidebarIcons() {
+  document.querySelectorAll('.ci').forEach(el => {
+    const id = el.getAttribute('data-id');
+    const v = el.querySelector('.visited');
+    if (!v) return;
+    let mark = '';
+    if (hasNote(id)) mark += '📝';
+    if (isVisited(id)) mark += '✓';
+    v.textContent = mark;
+  });
+}
+
+function buildMobSel() {
+  const el = document.getElementById('mob-sel');
+  const groups = [
+    {key:'soccer', label:'🎯 1순위 축구분석가'},
+    {key:'general', label:'🌐 일반 진로'},
+    {key:'aiplus', label:'✨ AI 플러스'}
+  ];
+  el.innerHTML = '<option value="">── 진로를 선택하세요 ──</option>' +
+    groups.map(g => `<optgroup label="${g.label}">${
+      CAREERS.filter(c=>c.group===g.key).map(c=>`<option value="${c.id}">${c.no}. ${c.name}</option>`).join('')
+    }</optgroup>`).join('');
+}
+
+/* ─── Notes ─── */
+function saveNote(id, val) {
+  localStorage.setItem('career_note_' + id, val);
+  refreshSidebarIcons();
+}
+function loadNote(id) {
+  return (localStorage.getItem('career_note_' + id) || '').replace(/</g,'&lt;');
+}
+
+/* ─── Intro Modal ─── */
+function closeIntro() {
+  document.getElementById('intro-modal').style.display = 'none';
+  localStorage.setItem('seen_intro_v2', '1');
+}
+function checkIntro() {
+  if (!localStorage.getItem('seen_intro_v2')) {
+    document.getElementById('intro-modal').style.display = 'flex';
+  }
+}
+
+/* ─── INIT ─── */
+buildSidebar();
+buildMobSel();
+checkIntro();
+
+// URL ?career=... 지원
+const params = new URLSearchParams(location.search);
+const startId = params.get('career');
+if (startId && CAREERS.find(c=>c.id===startId)) render(startId);
+</script>
+</body>
+</html>
