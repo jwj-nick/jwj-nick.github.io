@@ -308,5 +308,51 @@
     window.__timelines['story-unit07'] = tl;
     tl.play();
   </script>
+
+  <!-- Audio button must come BEFORE the audio script so getElementById works -->
+  <button id="audio-btn" style="
+    position:fixed; bottom:20px; right:20px;
+    background:rgba(0,0,0,0.6); color:#fff;
+    border:1.5px solid rgba(255,255,255,0.3); border-radius:20px;
+    padding:8px 20px; font-size:13px; cursor:pointer; z-index:200;
+    font-family:-apple-system,sans-serif;
+  ">🔊 음성 켜기</button>
+
+  <script>
+    const NARRATION = `2300년 전 알렉산드리아. 한 권의 책이 시작됩니다. 그가 쓴 책 원론은, 2300년 동안 인류의 기하학 교과서였어요. 성경 다음으로 많이 인쇄된 책 중 하나입니다. 왕이 그에게 물었어요. 기하학을 더 쉽게 배울 길이 없는가. 그의 답은 단호했어요. 기하학에는 왕도가 없습니다. 한 걸음씩, 점에서 선으로, 선에서 면으로 나아가는 길뿐이라고. 점, 선, 면, 각. 그가 정리한 단어들이 오늘 우리 기하의 시작이에요. 그 작은 약속에서 모든 도형이 자라납니다. 이 단원에서, 유클리드를 만나봅시다.`;
+
+    let _speaking = false;
+    const btn = document.getElementById('audio-btn');
+
+    function speak() {
+      const utter = new SpeechSynthesisUtterance(NARRATION);
+      utter.lang = 'ko-KR';
+      utter.rate = 0.85;
+      const voices = speechSynthesis.getVoices();
+      const koVoice = voices.find(v => v.lang.startsWith('ko'));
+      if (koVoice) utter.voice = koVoice;
+      utter.onend = () => { _speaking = false; btn.textContent = '🔊 음성 켜기'; };
+      speechSynthesis.cancel();
+      speechSynthesis.speak(utter);
+      _speaking = true;
+      btn.textContent = '🔇 음성 끄기';
+    }
+
+    btn.addEventListener('click', function () {
+      if (_speaking) {
+        speechSynthesis.cancel();
+        _speaking = false;
+        btn.textContent = '🔊 음성 켜기';
+      } else {
+        tl.restart();
+        if (speechSynthesis.getVoices().length > 0) {
+          speak();
+        } else {
+          speechSynthesis.onvoiceschanged = () => { speak(); };
+          speak();
+        }
+      }
+    });
+  </script>
 </body>
 </html>

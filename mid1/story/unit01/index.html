@@ -307,5 +307,52 @@
     window.__timelines['story-unit01'] = tl;
     tl.play();
   </script>
+
+  <!-- 버튼을 먼저 DOM에 추가한 뒤 JS 실행 -->
+  <button id="audio-btn" style="
+    position:fixed; bottom:20px; right:20px;
+    background:rgba(0,0,0,0.6); color:#fff;
+    border:1.5px solid rgba(255,255,255,0.3); border-radius:20px;
+    padding:8px 20px; font-size:13px; cursor:pointer; z-index:200;
+    font-family:-apple-system,sans-serif;
+  ">🔊 음성 켜기</button>
+
+  <script>
+    const NARRATION = `기원전 3세기, 알렉산드리아에서 시작된 이야기. 도서관에서 일하던 한 학자가 있었습니다. 친구들은 그를 베타라 불렀어요. 모든 분야에서 2등이라는 별명. 수학의 원자, 소수. 어디에 어떻게 있을까. 그는 체를 생각했어요. 숫자를 체로 걸러 소수만 남기는 방법. 2000년이 지난 지금도 컴퓨터가 그대로 씁니다. 모든 자연수는 소수들의 곱으로 나타낼 수 있어요. 이것을 소인수분해라고 합니다. 오늘 그가 걸었던 길을 함께 걸어봅시다. 이 단원에서, 에라토스테네스를 만나봅시다.`;
+
+    let _speaking = false;
+    const btn = document.getElementById('audio-btn');
+
+    function speak() {
+      const utter = new SpeechSynthesisUtterance(NARRATION);
+      utter.lang = 'ko-KR';
+      utter.rate = 0.85;
+      const voices = speechSynthesis.getVoices();
+      const koVoice = voices.find(v => v.lang.startsWith('ko'));
+      if (koVoice) utter.voice = koVoice;
+      utter.onend = () => { _speaking = false; btn.textContent = '🔊 음성 켜기'; };
+      speechSynthesis.cancel();
+      speechSynthesis.speak(utter);
+      _speaking = true;
+      btn.textContent = '🔇 음성 끄기';
+    }
+
+    btn.addEventListener('click', function () {
+      if (_speaking) {
+        speechSynthesis.cancel();
+        _speaking = false;
+        btn.textContent = '🔊 음성 켜기';
+      } else {
+        tl.restart();
+        /* voices가 아직 로딩 중이면 잠시 후 실행 */
+        if (speechSynthesis.getVoices().length > 0) {
+          speak();
+        } else {
+          speechSynthesis.onvoiceschanged = () => { speak(); };
+          speak(); /* 일부 브라우저는 onvoiceschanged 없이도 동작 */
+        }
+      }
+    });
+  </script>
 </body>
 </html>

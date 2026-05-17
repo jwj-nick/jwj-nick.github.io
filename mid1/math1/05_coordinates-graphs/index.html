@@ -145,6 +145,53 @@
     line-height: 1.6;
   }
   .quote-box .author { font-style: normal; font-size: 13px; color: #888; margin-top: 8px; }
+  .play-btn {
+    display: inline-block;
+    margin-top: 10px;
+    background: rgba(255,255,255,0.2);
+    color: white;
+    border: 1.5px solid rgba(255,255,255,0.4);
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+  .play-btn:hover { background: rgba(255,255,255,0.35); }
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.82);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: #0f172a;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+  }
+  .modal-header {
+    background: #1e293b;
+    color: #e0e7ff;
+    padding: 10px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    font-family: inherit;
+  }
+  .modal-close {
+    background: none; border: none; color: #94a3b8;
+    font-size: 20px; cursor: pointer; line-height: 1; padding: 0 4px;
+  }
+  .modal-close:hover { color: #f1f5f9; }
+  .iframe-wrap { overflow: hidden; display: block; }
+  .iframe-wrap iframe { display: block; border: none; transform-origin: top left; }
 </style>
 </head>
 <body>
@@ -155,6 +202,7 @@
   <h1>좌표와 그래프</h1>
   <p>침대에서 천장의 파리를 보다가 수학을 바꾼 사람</p>
   <div class="person">르네 데카르트 (1596~1650)</div>
+  <button class="play-btn" onclick="openStoryModal()">▶ 이야기 애니메이션 보기</button>
 </div>
 
 <div class="container">
@@ -232,5 +280,38 @@
   </div>
 
 </div>
+<div class="modal-overlay" id="story-modal" onclick="if(event.target===this)closeStoryModal()">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span>Unit 05 · 이야기 애니메이션</span>
+      <button class="modal-close" onclick="closeStoryModal()">✕</button>
+    </div>
+    <div class="iframe-wrap" id="iframe-wrap">
+      <iframe id="story-frame" src="about:blank"></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openStoryModal() {
+    const scale = Math.min((window.innerWidth * 0.92) / 1280, (window.innerHeight * 0.88) / 720);
+    const w = Math.round(1280 * scale);
+    const h = Math.round(720 * scale);
+    const wrap = document.getElementById('iframe-wrap');
+    wrap.style.width = w + 'px';
+    wrap.style.height = h + 'px';
+    const frame = document.getElementById('story-frame');
+    frame.style.width = '1280px';
+    frame.style.height = '720px';
+    frame.style.transform = 'scale(' + scale + ')';
+    frame.src = '../../story/unit05/index.html';
+    document.getElementById('story-modal').classList.add('open');
+  }
+  function closeStoryModal() {
+    document.getElementById('story-modal').classList.remove('open');
+    document.getElementById('story-frame').src = 'about:blank';
+    speechSynthesis.cancel();
+  }
+</script>
 </body>
 </html>

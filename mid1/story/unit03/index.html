@@ -311,5 +311,51 @@
     window.__timelines['story-unit03'] = tl;
     tl.play();
   </script>
+
+  <!-- Audio button must come BEFORE the audio script so getElementById works -->
+  <button id="audio-btn" style="
+    position:fixed; bottom:20px; right:20px;
+    background:rgba(0,0,0,0.6); color:#fff;
+    border:1.5px solid rgba(255,255,255,0.3); border-radius:20px;
+    padding:8px 20px; font-size:13px; cursor:pointer; z-index:200;
+    font-family:-apple-system,sans-serif;
+  ">🔊 음성 켜기</button>
+
+  <script>
+    const NARRATION = `9세기 바그다드. 세계에서 가장 큰 도서관에서. 그리스, 인도, 페르시아의 책이 모이던 도시. 그곳의 학자 알콰리즈미는 새로운 수학을 발명했어요. 그가 쓴 책의 제목, 알지브르. 복원과 균형이라는 뜻이에요. 방정식의 한쪽을 옮기고, 양쪽을 같게 만들어 답을 찾는 기술. 이것이 오늘의 대수, 알지브라입니다. 글자로 수를 나타내고, 식을 세우고, 푸는 법. 우리가 배우는 모든 대수는 그의 책에서 시작되었습니다. 이 단원에서, 알콰리즈미를 만나봅시다.`;
+
+    let _speaking = false;
+    const btn = document.getElementById('audio-btn');
+
+    function speak() {
+      const utter = new SpeechSynthesisUtterance(NARRATION);
+      utter.lang = 'ko-KR';
+      utter.rate = 0.85;
+      const voices = speechSynthesis.getVoices();
+      const koVoice = voices.find(v => v.lang.startsWith('ko'));
+      if (koVoice) utter.voice = koVoice;
+      utter.onend = () => { _speaking = false; btn.textContent = '🔊 음성 켜기'; };
+      speechSynthesis.cancel();
+      speechSynthesis.speak(utter);
+      _speaking = true;
+      btn.textContent = '🔇 음성 끄기';
+    }
+
+    btn.addEventListener('click', function () {
+      if (_speaking) {
+        speechSynthesis.cancel();
+        _speaking = false;
+        btn.textContent = '🔊 음성 켜기';
+      } else {
+        tl.restart();
+        if (speechSynthesis.getVoices().length > 0) {
+          speak();
+        } else {
+          speechSynthesis.onvoiceschanged = () => { speak(); };
+          speak();
+        }
+      }
+    });
+  </script>
 </body>
 </html>

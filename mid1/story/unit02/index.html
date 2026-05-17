@@ -302,5 +302,51 @@
     window.__timelines['story-unit02'] = tl;
     tl.play();
   </script>
+
+  <!-- Audio button must come BEFORE the audio script so getElementById works -->
+  <button id="audio-btn" style="
+    position:fixed; bottom:20px; right:20px;
+    background:rgba(0,0,0,0.6); color:#fff;
+    border:1.5px solid rgba(255,255,255,0.3); border-radius:20px;
+    padding:8px 20px; font-size:13px; cursor:pointer; z-index:200;
+    font-family:-apple-system,sans-serif;
+  ">🔊 음성 켜기</button>
+
+  <script>
+    const NARRATION = `7세기 인도. 한 수학자가 새로운 수를 발명합니다. 그 전까지, 아무것도 없는 상태는 수가 아니었어요. 브라마굽타는 이렇게 썼습니다. 0은 수다. 그는 빚을 음수로, 재산을 양수로 적었어요. 음수끼리 더하면 더 큰 음수. 음수에서 음수를 빼면 양수. 인류 최초의 정수 셈법이 인도에서 태어났습니다. 0을 중심으로 양쪽으로 펼쳐지는 수. 양수와 음수, 그리고 0. 우리가 수직선에서 만나는 모든 수의 시작입니다. 이 단원에서, 브라마굽타를 만나봅시다.`;
+
+    let _speaking = false;
+    const btn = document.getElementById('audio-btn');
+
+    function speak() {
+      const utter = new SpeechSynthesisUtterance(NARRATION);
+      utter.lang = 'ko-KR';
+      utter.rate = 0.85;
+      const voices = speechSynthesis.getVoices();
+      const koVoice = voices.find(v => v.lang.startsWith('ko'));
+      if (koVoice) utter.voice = koVoice;
+      utter.onend = () => { _speaking = false; btn.textContent = '🔊 음성 켜기'; };
+      speechSynthesis.cancel();
+      speechSynthesis.speak(utter);
+      _speaking = true;
+      btn.textContent = '🔇 음성 끄기';
+    }
+
+    btn.addEventListener('click', function () {
+      if (_speaking) {
+        speechSynthesis.cancel();
+        _speaking = false;
+        btn.textContent = '🔊 음성 켜기';
+      } else {
+        tl.restart();
+        if (speechSynthesis.getVoices().length > 0) {
+          speak();
+        } else {
+          speechSynthesis.onvoiceschanged = () => { speak(); };
+          speak();
+        }
+      }
+    });
+  </script>
 </body>
 </html>

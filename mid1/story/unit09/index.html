@@ -300,5 +300,51 @@
     window.__timelines['story-unit09'] = tl;
     tl.play();
   </script>
+
+  <!-- Audio button must come BEFORE the audio script so getElementById works -->
+  <button id="audio-btn" style="
+    position:fixed; bottom:20px; right:20px;
+    background:rgba(0,0,0,0.6); color:#fff;
+    border:1.5px solid rgba(255,255,255,0.3); border-radius:20px;
+    padding:8px 20px; font-size:13px; cursor:pointer; z-index:200;
+    font-family:-apple-system,sans-serif;
+  ">🔊 음성 켜기</button>
+
+  <script>
+    const NARRATION = `18세기 독일. 열아홉 살의 한 청년이 잠 못 들어 했습니다. 어릴 적 선생님이 1부터 100까지 더하라 하자, 그는 1분 만에 답했어요. 짝을 지어 더하면 5050. 그는 이미 수학의 황태자였습니다. 2천 년 동안 아무도 풀지 못한 문제가 있었어요. 정17각형을 자와 컴퍼스만으로 그릴 수 있을까. 19살의 그는, 어느 새벽 그 길을 찾아냈어요. 삼각형, 사각형, 오각형. 변의 수에 따라 펼쳐지는 다각형의 세계. 그가 사랑한 도형들의 이야기에요. 이 단원에서, 가우스를 만나봅시다.`;
+
+    let _speaking = false;
+    const btn = document.getElementById('audio-btn');
+
+    function speak() {
+      const utter = new SpeechSynthesisUtterance(NARRATION);
+      utter.lang = 'ko-KR';
+      utter.rate = 0.85;
+      const voices = speechSynthesis.getVoices();
+      const koVoice = voices.find(v => v.lang.startsWith('ko'));
+      if (koVoice) utter.voice = koVoice;
+      utter.onend = () => { _speaking = false; btn.textContent = '🔊 음성 켜기'; };
+      speechSynthesis.cancel();
+      speechSynthesis.speak(utter);
+      _speaking = true;
+      btn.textContent = '🔇 음성 끄기';
+    }
+
+    btn.addEventListener('click', function () {
+      if (_speaking) {
+        speechSynthesis.cancel();
+        _speaking = false;
+        btn.textContent = '🔊 음성 켜기';
+      } else {
+        tl.restart();
+        if (speechSynthesis.getVoices().length > 0) {
+          speak();
+        } else {
+          speechSynthesis.onvoiceschanged = () => { speak(); };
+          speak();
+        }
+      }
+    });
+  </script>
 </body>
 </html>

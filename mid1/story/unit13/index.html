@@ -310,5 +310,51 @@
     window.__timelines['story-unit13'] = tl;
     tl.play();
   </script>
+
+  <!-- Audio button must come BEFORE the audio script so getElementById works -->
+  <button id="audio-btn" style="
+    position:fixed; bottom:20px; right:20px;
+    background:rgba(0,0,0,0.6); color:#fff;
+    border:1.5px solid rgba(255,255,255,0.3); border-radius:20px;
+    padding:8px 20px; font-size:13px; cursor:pointer; z-index:200;
+    font-family:-apple-system,sans-serif;
+  ">🔊 음성 켜기</button>
+
+  <script>
+    const NARRATION = `19세기 영국. 등불을 든 여인이 데이터로 군대를 살립니다. 크림 전쟁의 야전병원에서, 병사들은 총상보다 위생 부족으로 더 많이 죽었어요. 그녀는 그 모든 사실을 숫자로 기록했지요. 글로 된 보고서는 통하지 않았어요. 그래서 그녀는 그림을 그렸어요. 한 번 보면 잊을 수 없는 코크스콤 차트. 부채꼴의 넓이로 사망자의 수를 보여주었지요. 표와 그래프로 자료를 정리하고, 그 안에 숨은 이야기를 읽어냅니다. 그녀가 처음 보여준 통계의 따뜻한 힘이에요. 이 단원에서, 나이팅게일을 만나봅시다.`;
+
+    let _speaking = false;
+    const btn = document.getElementById('audio-btn');
+
+    function speak() {
+      const utter = new SpeechSynthesisUtterance(NARRATION);
+      utter.lang = 'ko-KR';
+      utter.rate = 0.85;
+      const voices = speechSynthesis.getVoices();
+      const koVoice = voices.find(v => v.lang.startsWith('ko'));
+      if (koVoice) utter.voice = koVoice;
+      utter.onend = () => { _speaking = false; btn.textContent = '🔊 음성 켜기'; };
+      speechSynthesis.cancel();
+      speechSynthesis.speak(utter);
+      _speaking = true;
+      btn.textContent = '🔇 음성 끄기';
+    }
+
+    btn.addEventListener('click', function () {
+      if (_speaking) {
+        speechSynthesis.cancel();
+        _speaking = false;
+        btn.textContent = '🔊 음성 켜기';
+      } else {
+        tl.restart();
+        if (speechSynthesis.getVoices().length > 0) {
+          speak();
+        } else {
+          speechSynthesis.onvoiceschanged = () => { speak(); };
+          speak();
+        }
+      }
+    });
+  </script>
 </body>
 </html>

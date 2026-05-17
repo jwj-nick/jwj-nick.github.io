@@ -305,5 +305,51 @@
     window.__timelines['story-unit10'] = tl;
     tl.play();
   </script>
+
+  <!-- Audio button must come BEFORE the audio script so getElementById works -->
+  <button id="audio-btn" style="
+    position:fixed; bottom:20px; right:20px;
+    background:rgba(0,0,0,0.6); color:#fff;
+    border:1.5px solid rgba(255,255,255,0.3); border-radius:20px;
+    padding:8px 20px; font-size:13px; cursor:pointer; z-index:200;
+    font-family:-apple-system,sans-serif;
+  ">🔊 음성 켜기</button>
+
+  <script>
+    const NARRATION = `기원전 3세기 시칠리아. 욕조에서 외친 한 마디로 시작합니다. 왕이 의심한 황금왕관. 진짜 금일까. 그는 욕조에서 답을 찾고 외쳤어요. 유레카! 알아냈다는 그리스 말. 원의 둘레는 지름의 몇 배일까. 그는 원의 안과 밖에 96각형을 그렸어요. 그 사이를 좁혀가며, 손으로 거의 정확한 원주율 파이를 찾아냈지요. 컴퓨터도 없던 시대에. 원의 둘레와 넓이, 부채꼴의 호와 넓이. 그가 처음 측정한 곡선의 세계를 함께 따라가 봅시다. 이 단원에서, 아르키메데스를 만나봅시다.`;
+
+    let _speaking = false;
+    const btn = document.getElementById('audio-btn');
+
+    function speak() {
+      const utter = new SpeechSynthesisUtterance(NARRATION);
+      utter.lang = 'ko-KR';
+      utter.rate = 0.85;
+      const voices = speechSynthesis.getVoices();
+      const koVoice = voices.find(v => v.lang.startsWith('ko'));
+      if (koVoice) utter.voice = koVoice;
+      utter.onend = () => { _speaking = false; btn.textContent = '🔊 음성 켜기'; };
+      speechSynthesis.cancel();
+      speechSynthesis.speak(utter);
+      _speaking = true;
+      btn.textContent = '🔇 음성 끄기';
+    }
+
+    btn.addEventListener('click', function () {
+      if (_speaking) {
+        speechSynthesis.cancel();
+        _speaking = false;
+        btn.textContent = '🔊 음성 켜기';
+      } else {
+        tl.restart();
+        if (speechSynthesis.getVoices().length > 0) {
+          speak();
+        } else {
+          speechSynthesis.onvoiceschanged = () => { speak(); };
+          speak();
+        }
+      }
+    });
+  </script>
 </body>
 </html>

@@ -295,5 +295,51 @@
     window.__timelines['story-unit11'] = tl;
     tl.play();
   </script>
+
+  <!-- Audio button must come BEFORE the audio script so getElementById works -->
+  <button id="audio-btn" style="
+    position:fixed; bottom:20px; right:20px;
+    background:rgba(0,0,0,0.6); color:#fff;
+    border:1.5px solid rgba(255,255,255,0.3); border-radius:20px;
+    padding:8px 20px; font-size:13px; cursor:pointer; z-index:200;
+    font-family:-apple-system,sans-serif;
+  ">🔊 음성 켜기</button>
+
+  <script>
+    const NARRATION = `17세기. 한 천문학자가 별빛 속에서 도형을 발견합니다. 그는 평생 행성의 움직임을 연구했어요. 그리고 우주가 다섯 정다면체로 설계되어 있다고 믿었지요. 천체와 도형은 그의 마음 속에서 하나였습니다. 정사면체, 정육면체, 정팔면체, 정십이면체, 정이십면체. 오직 다섯 종류만 존재하는 정다면체. 그는 이 다섯 도형을 우주를 떠받치는 기둥으로 보았어요. 다면체와 회전체. 평면 도형을 돌려 입체를 만들고, 면을 모아 다면체를 만듭니다. 그가 사랑한 입체의 세계로 떠나봅시다. 이 단원에서, 케플러를 만나봅시다.`;
+
+    let _speaking = false;
+    const btn = document.getElementById('audio-btn');
+
+    function speak() {
+      const utter = new SpeechSynthesisUtterance(NARRATION);
+      utter.lang = 'ko-KR';
+      utter.rate = 0.85;
+      const voices = speechSynthesis.getVoices();
+      const koVoice = voices.find(v => v.lang.startsWith('ko'));
+      if (koVoice) utter.voice = koVoice;
+      utter.onend = () => { _speaking = false; btn.textContent = '🔊 음성 켜기'; };
+      speechSynthesis.cancel();
+      speechSynthesis.speak(utter);
+      _speaking = true;
+      btn.textContent = '🔇 음성 끄기';
+    }
+
+    btn.addEventListener('click', function () {
+      if (_speaking) {
+        speechSynthesis.cancel();
+        _speaking = false;
+        btn.textContent = '🔊 음성 켜기';
+      } else {
+        tl.restart();
+        if (speechSynthesis.getVoices().length > 0) {
+          speak();
+        } else {
+          speechSynthesis.onvoiceschanged = () => { speak(); };
+          speak();
+        }
+      }
+    });
+  </script>
 </body>
 </html>
