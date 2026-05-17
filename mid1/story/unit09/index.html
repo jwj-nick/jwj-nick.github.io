@@ -1,0 +1,303 @@
+<!doctype html>
+<!-- story-master.html — Story 영상 마스터 템플릿 v1. 명세: 90_video/_docs/STORY_VIDEO_GUIDE.md -->
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1280, height=720" />
+  <title>카를 가우스 — Unit 09 — 다각형</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../_assets/palettes.css">
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 1280px;
+      height: 720px;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+    }
+
+    .stage {
+      position: relative;
+      width: 1280px;
+      height: 720px;
+      overflow: hidden;
+    }
+
+    /* 모든 장면은 절대 좌표로 겹쳐서 fade로 전환 */
+    .scene {
+      position: absolute;
+      inset: 0;
+      width: 1280px;
+      height: 720px;
+      opacity: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 64px 96px;
+    }
+
+    /* ─── Scene 1: 타이틀 ────────────────────────────── */
+    .s1 .title {
+      font-family: var(--font-serif);
+      font-size: var(--title-size);
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -1px;
+      text-align: center;
+    }
+    .s1 .era {
+      margin-top: 16px;
+      font-size: var(--subtitle-size);
+      color: var(--muted);
+      letter-spacing: 4px;
+      text-transform: none;
+    }
+    .s1 .unit-label {
+      position: absolute;
+      bottom: 48px;
+      right: 64px;
+      font-size: var(--caption-size);
+      color: var(--accent);
+      letter-spacing: 2px;
+    }
+
+    /* ─── Scene 2: 인물 등장 ─────────────────────────── */
+    .s2 {
+      flex-direction: row;
+      gap: 56px;
+      align-items: center;
+      justify-content: center;
+    }
+    .s2 .visual {
+      width: 360px;
+      height: 360px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+    }
+    .s2 .visual svg {
+      width: 100%;
+      height: 100%;
+    }
+    .s2 .text {
+      max-width: 560px;
+      text-align: left;
+    }
+    .s2 .head {
+      font-family: var(--font-serif);
+      font-size: 44px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1.3;
+      margin-bottom: 24px;
+    }
+    .s2 .body {
+      font-size: var(--body-size);
+      line-height: 1.65;
+      color: var(--text);
+    }
+
+    /* ─── Scene 3: 결정적 순간 ───────────────────────── */
+    .s3 {
+      flex-direction: column;
+      gap: 36px;
+    }
+    .s3 .metaphor {
+      width: 480px;
+      height: 320px;
+      color: var(--accent);
+    }
+    .s3 .metaphor svg { width: 100%; height: 100%; }
+    .s3 .keyword {
+      font-family: var(--font-serif);
+      font-size: 52px;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: -1px;
+    }
+    .s3 .text {
+      max-width: 880px;
+      text-align: center;
+      font-size: 26px;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    /* ─── Scene 4: 수학 연결 ─────────────────────────── */
+    .s4 {
+      gap: 28px;
+    }
+    .s4 .head {
+      font-family: var(--font-serif);
+      font-size: 38px;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .s4 .diagram {
+      width: 480px;
+      height: 240px;
+      color: var(--accent);
+    }
+    .s4 .diagram svg { width: 100%; height: 100%; }
+    .s4 .text {
+      max-width: 880px;
+      text-align: center;
+      font-size: 24px;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    /* ─── Scene 5: 마무리 ────────────────────────────── */
+    .s5 {
+      flex-direction: column;
+      gap: 28px;
+    }
+    .s5 .text {
+      font-family: var(--font-serif);
+      font-size: 42px;
+      font-weight: 700;
+      color: var(--text);
+      text-align: center;
+      letter-spacing: -0.5px;
+    }
+    .s5 .unit-mark {
+      font-size: var(--subtitle-size);
+      color: var(--accent);
+      letter-spacing: 6px;
+    }
+  </style>
+</head>
+
+<body class="unit-09">
+  <div
+    id="root"
+    class="stage"
+    data-composition-id="story-unit09"
+    data-start="0"
+    data-duration="46"
+    data-width="1280"
+    data-height="720">
+
+    <!-- ─── Scene 1: 타이틀 (0~5s) ─── -->
+    <div class="scene s1" id="scene1">
+      <div class="title">카를 가우스</div>
+      <div class="era">1796년 · 독일 괴팅겐</div>
+      <div class="unit-label">Unit 09 — 다각형</div>
+    </div>
+
+    <!-- ─── Scene 2: 인물 등장 (5~15s) ─── -->
+    <div class="scene s2" id="scene2">
+      <div class="visual"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M50 22 L50 84"/>
+  <path d="M50 22 C40 16, 22 16, 14 20 L14 78 C22 74, 40 74, 50 80" fill="currentColor" fill-opacity="0.12"/>
+  <path d="M50 22 C60 16, 78 16, 86 20 L86 78 C78 74, 60 74, 50 80" fill="currentColor" fill-opacity="0.12"/>
+  <path d="M22 32 L40 32"/>
+  <path d="M22 42 L40 42"/>
+  <path d="M22 52 L40 52"/>
+  <path d="M60 32 L78 32"/>
+  <path d="M60 42 L78 42"/>
+  <path d="M60 52 L78 52"/>
+</svg></div>
+      <div class="text">
+        <div class="head">수학의 황태자</div>
+        <div class="body">어릴 적 선생님이 1부터 100까지 더하라 하자, 그는 1분 만에 답을 했어요. 짝을 지어 더하면 5050이에요.</div>
+      </div>
+    </div>
+
+    <!-- ─── Scene 3: 결정적 순간 (15~32s) ─── -->
+    <div class="scene s3" id="scene3">
+      <div class="metaphor"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+  <path d="M50 10 L86 30 L86 70 L50 90 L14 70 L14 30 Z" fill="currentColor" fill-opacity="0.18"/>
+  <path d="M50 10 L50 50 L14 30"/>
+  <path d="M50 50 L86 30"/>
+  <path d="M50 50 L50 90"/>
+  <path d="M14 70 L50 50 L86 70" stroke-dasharray="3,3"/>
+</svg></div>
+      <div class="keyword">17각형의 비밀</div>
+      <div class="text">2천 년 동안 아무도 못 풀던 문제. 정17각형은 자와 컴퍼스로 작도할 수 있을까.</div>
+    </div>
+
+    <!-- ─── Scene 4: 수학 연결 (32~45s) ─── -->
+    <div class="scene s4" id="scene4">
+      <div class="head">오늘 우리는</div>
+      <div class="diagram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="currentColor">
+  <path d="M50 6 L61 38 L95 38 L67 58 L78 92 L50 72 L22 92 L33 58 L5 38 L39 38 Z"/>
+</svg></div>
+      <div class="text">삼각형, 사각형, 오각형… 변의 수에 따라 펼쳐지는 다각형의 세계를 만납니다.</div>
+    </div>
+
+    <!-- ─── Scene 5: 마무리 (45~50s) ─── -->
+    <div class="scene s5" id="scene5">
+      <div class="text">이 단원에서, 가우스를 만나봅시다</div>
+      <div class="unit-mark">Unit 09 — 다각형</div>
+    </div>
+  </div>
+
+  <script>
+    /* ─── GSAP 타임라인 (5장면 fade in/out) ─── */
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+
+    /* 장면 절대 시간 — 실제 영상 길이에 비례 스케일링 (기준 50s) */
+    const DUR = parseFloat(document.getElementById('root').dataset.duration) || 50;
+    const SCALE = DUR / 51;  /* duration은 audio+1, 기준 50s 매핑 */
+    const T = {
+      s1: 0.0,
+      s2: 5.0 * SCALE,
+      s3: 15.0 * SCALE,
+      s4: 32.0 * SCALE,
+      s5: 45.0 * SCALE,
+      end: 50.0 * SCALE,
+    };
+
+    /* Scene 1 in */
+    tl.to('#scene1', { opacity: 1, duration: 0.8 }, T.s1);
+    /* Scene 1 out / Scene 2 in (cross-fade at 5s) */
+    tl.to('#scene1', { opacity: 0, duration: 0.8 }, T.s2 - 0.4);
+    tl.to('#scene2', { opacity: 1, duration: 0.8 }, T.s2);
+
+    /* Scene 2 → 3 */
+    tl.to('#scene2', { opacity: 0, duration: 0.8 }, T.s3 - 0.4);
+    tl.to('#scene3', { opacity: 1, duration: 0.8 }, T.s3);
+
+    /* Scene 3 → 4 */
+    tl.to('#scene3', { opacity: 0, duration: 0.8 }, T.s4 - 0.4);
+    tl.to('#scene4', { opacity: 1, duration: 0.8 }, T.s4);
+
+    /* Scene 4 → 5 */
+    tl.to('#scene4', { opacity: 0, duration: 0.8 }, T.s5 - 0.4);
+    tl.to('#scene5', { opacity: 1, duration: 0.8 }, T.s5);
+
+    /* Final fade out */
+    tl.to('#scene5', { opacity: 0, duration: 1.0 }, T.end - 1.0);
+
+    /* 내부 요소 미세 모션 — 정적 영상 방지 */
+    /* S1 부제는 살짝 늦게 등장 */
+    tl.from('#scene1 .era', { opacity: 0, y: 12, duration: 0.8 }, T.s1 + 1.2);
+    tl.from('#scene1 .unit-label', { opacity: 0, duration: 0.6 }, T.s1 + 2.0);
+
+    /* S2 본문은 헤드라인 직후 */
+    tl.from('#scene2 .body', { opacity: 0, y: 16, duration: 0.8 }, T.s2 + 1.4);
+
+    /* S3 키워드 살짝 강조 */
+    tl.from('#scene3 .keyword', { scale: 0.96, duration: 1.2, ease: 'power1.out' }, T.s3 + 0.6);
+    tl.from('#scene3 .text', { opacity: 0, y: 12, duration: 1.0 }, T.s3 + 2.0);
+
+    /* S4 다이어그램은 헤드 이후 */
+    tl.from('#scene4 .diagram', { opacity: 0, scale: 0.95, duration: 1.0 }, T.s4 + 1.2);
+    tl.from('#scene4 .text', { opacity: 0, y: 12, duration: 0.8 }, T.s4 + 2.4);
+
+    window.__timelines['story-unit09'] = tl;
+  </script>
+</body>
+</html>
