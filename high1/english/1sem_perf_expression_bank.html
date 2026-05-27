@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C · Expression Bank — 영어 수행평가</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f5f5;color:#1f2937;line-height:1.55}
+header{background:#fff;border-bottom:1px solid #e5e7eb;padding:18px 20px}
+.back{font-size:13px;color:#2563eb;text-decoration:none}
+h1{font-size:20px;font-weight:700;margin-top:8px}
+.subtitle{font-size:12px;color:#9ca3af;margin-top:4px}
+
+.mode-bar{display:flex;gap:6px;padding:14px 20px;background:#fff;border-bottom:1px solid #e5e7eb}
+.mode-btn{flex:1;padding:10px;border:2px solid #e5e7eb;background:#fff;border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;color:#6b7280}
+.mode-btn.active{background:#fce7f3;border-color:#db2777;color:#9d174d}
+
+.cat-bar{display:flex;gap:5px;padding:10px 14px;background:#fff;border-bottom:1px solid #e5e7eb;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.cat-btn{padding:7px 14px;border:1px solid #e5e7eb;background:#fff;border-radius:14px;cursor:pointer;font-size:12px;font-weight:600;color:#6b7280;white-space:nowrap}
+.cat-btn.active{background:#fce7f3;border-color:#db2777;color:#9d174d}
+
+main{max-width:760px;margin:0 auto;padding:18px}
+
+/* List mode */
+.expr-grid{display:grid;gap:10px}
+.expr-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px}
+.expr-card .en{font-size:15px;font-weight:700;color:#1f2937}
+.expr-card .ko{font-size:12px;color:#9d174d;margin-top:4px}
+.expr-card .example{font-size:12px;color:#6b7280;font-style:italic;margin-top:8px;background:#fdf2f8;padding:8px 12px;border-radius:6px;border-left:2px solid #f9a8d4}
+
+/* Flashcard mode */
+.flashcard-area{display:flex;justify-content:center;padding:20px 0}
+.flashcard{width:100%;max-width:480px;min-height:280px;background:#fff;border-radius:18px;border:2px solid #fce7f3;padding:30px;cursor:pointer;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;transition:all .2s;box-shadow:0 4px 20px rgba(217,70,141,.08)}
+.flashcard:hover{transform:translateY(-2px)}
+.flashcard .label{font-size:11px;font-weight:700;letter-spacing:.1em;color:#9d174d;margin-bottom:14px}
+.flashcard .main{font-size:24px;font-weight:700;color:#1f2937;line-height:1.4}
+.flashcard .sub{font-size:14px;color:#6b7280;margin-top:14px}
+.flashcard .example{font-size:13px;color:#9d174d;margin-top:18px;font-style:italic;background:#fdf2f8;padding:10px 14px;border-radius:8px}
+.flashcard .flip-hint{font-size:11px;color:#9ca3af;margin-top:18px}
+
+.fc-controls{display:flex;justify-content:space-between;gap:10px;margin-top:14px;align-items:center}
+.fc-controls .progress-text{font-size:13px;color:#6b7280;font-weight:600}
+.btn{padding:10px 18px;background:#db2777;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer}
+.btn:hover{background:#be185d}
+.btn-secondary{background:#fff;color:#9d174d;border:2px solid #db2777}
+.btn-secondary:hover{background:#fce7f3}
+
+/* Match mode */
+.match-area{background:#fff;border-radius:14px;padding:20px;border:1px solid #e5e7eb}
+.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.match-item{padding:12px 14px;background:#f9fafb;border:2px solid #e5e7eb;border-radius:8px;cursor:pointer;font-size:13px;line-height:1.4;transition:all .12s;text-align:left}
+.match-item:hover{background:#fdf2f8;border-color:#f9a8d4}
+.match-item.selected{background:#fce7f3;border-color:#db2777}
+.match-item.matched{background:#d1fae5;border-color:#10b981;color:#065f46;cursor:default}
+.match-item.wrong{background:#fee2e2;border-color:#dc2626;animation:shake .4s}
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+
+.match-header{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#6b7280}
+.match-header b{color:#9d174d}
+
+@media (max-width:640px){
+  main{padding:14px}
+  .flashcard{padding:24px;min-height:220px}
+  .flashcard .main{font-size:20px}
+  .match-grid{grid-template-columns:1fr}
+  .mode-btn{font-size:12px}
+}
+</style>
+</head>
+<body>
+<nav style="background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:7px 16px;font-size:12px;display:flex;align-items:center;gap:5px">
+  <a href="../index.html" style="color:#6b7280;text-decoration:none">고1</a>
+  <span style="color:#d1d5db">›</span>
+  <a href="index.html" style="color:#2563eb;text-decoration:none;font-weight:600">English_1_1</a>
+</nav>
+<header>
+  <a class="back" href="index.html">← English_1_1</a>
+  <h1>C · Expression Bank</h1>
+  <p class="subtitle">에세이 표현 50+ · 리스트 / 플래시카드 / 매칭 퀴즈</p>
+</header>
+
+<div class="mode-bar">
+  <button class="mode-btn active" data-mode="list" onclick="setMode('list')">📋 리스트</button>
+  <button class="mode-btn" data-mode="flash" onclick="setMode('flash')">🃏 플래시카드</button>
+  <button class="mode-btn" data-mode="match" onclick="setMode('match')">🎯 매칭 퀴즈</button>
+</div>
+
+<div class="cat-bar" id="catBar"></div>
+
+<main id="appArea"></main>
+
+<script>
+const DATA = {
+  intro: {label:'서론·주장', items:[
+    {en:'In my opinion, ~', ko:'내 생각에는', ex:'In my opinion, AI will create more opportunities than it takes away.'},
+    {en:'I firmly believe that ~', ko:'~라고 강하게 믿는다', ex:'I firmly believe that schools must adapt to AI.'},
+    {en:'I strongly support the idea that ~', ko:'~라는 생각을 강력히 지지한다', ex:'I strongly support the idea that governments should regulate AI.'},
+    {en:'I agree that ~', ko:'~에 동의한다', ex:'I agree that creativity is essential.'},
+    {en:'I maintain that ~', ko:'~라고 주장한다', ex:'I maintain that personal data must be protected.'},
+    {en:'I disagree that ~', ko:'~에 동의하지 않는다', ex:'I disagree that AI will replace all human jobs.'},
+    {en:'I question whether ~', ko:'~인지 의문이다', ex:'I question whether AI development should remain unrestricted.'}
+  ]},
+  reason: {label:'이유 나열', items:[
+    {en:'First, ~', ko:'첫째', ex:'First, jobs requiring empathy cannot be automated.'},
+    {en:'Second, ~', ko:'둘째', ex:'Second, new jobs are being created by AI.'},
+    {en:'Third, ~', ko:'셋째', ex:'Third, education must change.'},
+    {en:'Finally, ~', ko:'마지막으로', ex:'Finally, we must learn to coexist with AI.'},
+    {en:'First of all, ~', ko:'우선', ex:'First of all, students must learn AI literacy.'},
+    {en:'To begin with, ~', ko:'시작하자면', ex:'To begin with, AI is changing every industry.'},
+    {en:'Furthermore, ~', ko:'더 나아가', ex:'Furthermore, AI itself is generating new types of work.'},
+    {en:'Moreover, ~', ko:'게다가', ex:'Moreover, lifelong learning has become essential.'},
+    {en:'In addition, ~', ko:'또한', ex:'In addition, ethical considerations are important.'}
+  ]},
+  example: {label:'예시·자료', items:[
+    {en:'For example, ~', ko:'예를 들어', ex:'For example, ChatGPT can write essays in seconds.'},
+    {en:'For instance, ~', ko:'예를 들어', ex:'For instance, self-driving cars rely on machine learning.'},
+    {en:'As evidence, ~', ko:'증거로', ex:'As evidence, a 2023 OECD report shows ...'},
+    {en:'According to ~', ko:'~에 따르면', ex:'According to the WEF, 69 million new jobs will appear by 2027.'},
+    {en:'A study by ~ shows that ~', ko:'~의 연구에 따르면', ex:'A study by McKinsey shows that 30% of jobs will change by 2030.'},
+    {en:'Research indicates that ~', ko:'연구는 ~를 보여준다', ex:'Research indicates that AI literacy improves academic performance.'}
+  ]},
+  cause: {label:'인과 (원인·결과)', items:[
+    {en:'Since ~', ko:'~이므로', ex:'Since AI handles routine tasks, workers can focus on creative work.'},
+    {en:'Because (of) ~', ko:'~ 때문에', ex:'Because AI tools are widely available, schools must teach AI literacy.'},
+    {en:'Due to ~', ko:'~로 인해', ex:'Due to rapid AI growth, regulations are needed.'},
+    {en:'For this reason, ~', ko:'이러한 이유로', ex:'For this reason, lifelong learning becomes essential.'},
+    {en:'Therefore, ~', ko:'그러므로', ex:'Therefore, regulation is necessary.'},
+    {en:'As a result, ~', ko:'결과적으로', ex:'As a result, demand for human-AI collaboration is growing.'},
+    {en:'Consequently, ~', ko:'결과적으로', ex:'Consequently, traditional jobs are disappearing.'},
+    {en:'Accordingly, ~', ko:'따라서', ex:'Accordingly, students should learn new skills.'},
+    {en:'This results in ~', ko:'이것은 ~를 초래한다', ex:'This results in major changes in education.'}
+  ]},
+  contrast: {label:'대조·양보', items:[
+    {en:'On the other hand, ~', ko:'반면에', ex:'On the other hand, routine workers may face displacement.'},
+    {en:'On the contrary, ~', ko:'반대로', ex:'On the contrary, AI creates new opportunities.'},
+    {en:'Nevertheless, ~', ko:'그럼에도 불구하고', ex:'Nevertheless, history proves that technology benefits us.'},
+    {en:'Conversely, ~', ko:'반대로', ex:'Conversely, human-only skills are gaining value.'},
+    {en:'Even though ~, ~', ko:'비록 ~일지라도', ex:'Even though AI is useful, it cannot replace empathy.'},
+    {en:'Rather than ~, ~', ko:'~ 대신', ex:'Rather than fearing AI, we should learn to use it.'},
+    {en:'In spite of ~, ~', ko:'~에도 불구하고', ex:'In spite of its risks, AI offers great benefits.'},
+    {en:'Similarly, ~', ko:'마찬가지로', ex:'Similarly, the internet once seemed scary too.'},
+    {en:'Likewise, ~', ko:'마찬가지로', ex:'Likewise, future generations will adapt.'}
+  ]},
+  emphasis: {label:'강조', items:[
+    {en:'Significantly, ~', ko:'눈에 띄게', ex:'Significantly, AI investment doubled in 2023.'},
+    {en:'Notably, ~', ko:'특히', ex:'Notably, the EU passed the AI Act in 2024.'},
+    {en:'Importantly, ~', ko:'중요한 것은', ex:'Importantly, ethics must come first.'}
+  ]},
+  conclusion: {label:'결론', items:[
+    {en:'In conclusion, ~', ko:'결론적으로', ex:'In conclusion, AI is not the end of work but its transformation.'},
+    {en:'To conclude, ~', ko:'결론짓자면', ex:'To conclude, education must evolve.'},
+    {en:'Overall, ~', ko:'전반적으로', ex:'Overall, the benefits of AI outweigh the risks.'},
+    {en:'All things considered, ~', ko:'모든 것을 고려하면', ex:'All things considered, balanced regulation is the answer.'},
+    {en:'To sum up, ~', ko:'요약하면', ex:'To sum up, we must learn, adapt, and create.'},
+    {en:'In summary, ~', ko:'요약하자면', ex:'In summary, AI offers both challenges and opportunities.'},
+    {en:'In short, ~', ko:'간단히 말해', ex:'In short, AI is here to stay — let us use it wisely.'},
+    {en:'In brief, ~', ko:'간단히', ex:'In brief, balanced action is required.'}
+  ]}
+};
+const CAT_ORDER = ['intro','reason','example','cause','contrast','emphasis','conclusion'];
+const STORE_KEY = 'eng_expr_bank';
+
+let state = loadState() || {mode:'list', cat:'intro', flashIdx:0, flipped:false};
+
+function loadState(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY)); }catch(e){ return null; } }
+function saveState(){ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+
+function setMode(m){
+  state.mode = m;
+  state.flashIdx = 0;
+  state.flipped = false;
+  saveState();
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('active', b.dataset.mode===m));
+  render();
+}
+
+function renderCatBar(){
+  const bar = document.getElementById('catBar');
+  bar.innerHTML = CAT_ORDER.map(k=>`<button class="cat-btn ${state.cat===k?'active':''}" onclick="setCat('${k}')">${DATA[k].label} (${DATA[k].items.length})</button>`).join('');
+}
+function setCat(k){
+  state.cat = k;
+  state.flashIdx = 0;
+  state.flipped = false;
+  saveState();
+  render();
+}
+
+function render(){
+  renderCatBar();
+  const area = document.getElementById('appArea');
+  if(state.mode === 'list') area.innerHTML = renderList();
+  else if(state.mode === 'flash') area.innerHTML = renderFlash();
+  else if(state.mode === 'match') area.innerHTML = renderMatch();
+  if(state.mode === 'match') initMatch();
+}
+
+function renderList(){
+  const items = DATA[state.cat].items;
+  return `<div class="expr-grid">${items.map(it=>`
+    <div class="expr-card">
+      <div class="en">${it.en}</div>
+      <div class="ko">${it.ko}</div>
+      <div class="example">${it.ex}</div>
+    </div>`).join('')}</div>`;
+}
+
+function renderFlash(){
+  const items = DATA[state.cat].items;
+  const i = state.flashIdx % items.length;
+  const it = items[i];
+  return `
+    <div class="flashcard-area">
+      <div class="flashcard" onclick="flipCard()">
+        ${state.flipped ? `
+          <div class="label">정답</div>
+          <div class="main">${it.en}</div>
+          <div class="sub">${it.ko}</div>
+          <div class="example">${it.ex}</div>
+          <div class="flip-hint">👆 다시 카드 보기</div>
+        ` : `
+          <div class="label">${DATA[state.cat].label} — ${i+1}/${items.length}</div>
+          <div class="main">${it.ko}</div>
+          <div class="flip-hint">👆 클릭해서 영어 표현 보기</div>
+        `}
+      </div>
+    </div>
+    <div class="fc-controls">
+      <button class="btn-secondary btn" onclick="prevFlash()">← 이전</button>
+      <span class="progress-text">${i+1} / ${items.length}</span>
+      <button class="btn" onclick="nextFlash()">다음 →</button>
+    </div>`;
+}
+function flipCard(){ state.flipped = !state.flipped; saveState(); render(); }
+function nextFlash(){ state.flashIdx = (state.flashIdx + 1) % DATA[state.cat].items.length; state.flipped = false; saveState(); render(); }
+function prevFlash(){ const len = DATA[state.cat].items.length; state.flashIdx = (state.flashIdx - 1 + len) % len; state.flipped = false; saveState(); render(); }
+
+// Match mode
+let matchState = {};
+function renderMatch(){
+  return `<div class="match-area">
+    <div class="match-header">
+      <span><b>${DATA[state.cat].label}</b> 매칭 퀴즈 — 한글과 영어 표현을 맞추세요.</span>
+      <button class="btn-secondary btn" style="font-size:11px;padding:6px 10px" onclick="resetMatch()">↻ 다시</button>
+    </div>
+    <div id="matchResult" style="font-size:13px;color:#10b981;font-weight:700;margin-top:10px;display:none"></div>
+    <div class="match-grid" id="matchGrid"></div>
+  </div>`;
+}
+function initMatch(){
+  const items = DATA[state.cat].items.slice(0, Math.min(6, DATA[state.cat].items.length));
+  const left = items.map((it,i)=>({type:'ko', idx:i, text:it.ko}));
+  const right = items.map((it,i)=>({type:'en', idx:i, text:it.en}));
+  matchState = {items, left:shuffle([...left]), right:shuffle([...right]), selected:null, matched:new Set()};
+  paintMatch();
+}
+function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
+function paintMatch(){
+  const grid = document.getElementById('matchGrid');
+  const all = [];
+  matchState.left.forEach((it,i)=>{ all.push({side:'L', i, it}); });
+  // interleave: alternate L and R per row
+  // We render side by side: two columns, paired by row index
+  const html = matchState.left.map((l,i)=>{
+    const r = matchState.right[i];
+    return `<div class="match-item ${cls('L',l.idx)}" onclick="pickMatch('L',${l.idx})">${l.text}</div>
+            <div class="match-item ${cls('R',r.idx)}" onclick="pickMatch('R',${r.idx})">${r.text}</div>`;
+  }).join('');
+  grid.innerHTML = html;
+  if(matchState.matched.size === matchState.items.length){
+    const r = document.getElementById('matchResult');
+    r.style.display='block';
+    r.textContent = '🎉 모두 맞췄어요! 다른 카테고리로 이동하거나 다시 도전해보세요.';
+  }
+}
+function cls(side, idx){
+  if(matchState.matched.has(idx)) return 'matched';
+  if(matchState.selected && matchState.selected.side===side && matchState.selected.idx===idx) return 'selected';
+  return '';
+}
+function pickMatch(side, idx){
+  if(matchState.matched.has(idx)) return;
+  if(!matchState.selected){ matchState.selected = {side, idx}; paintMatch(); return; }
+  if(matchState.selected.side === side){ matchState.selected = {side, idx}; paintMatch(); return; }
+  if(matchState.selected.idx === idx){
+    matchState.matched.add(idx);
+    matchState.selected = null;
+    paintMatch();
+  } else {
+    // wrong — flash
+    const wrongIdx = matchState.selected.idx;
+    matchState.selected = null;
+    paintMatch();
+    setTimeout(()=>paintMatch(), 200);
+  }
+}
+function resetMatch(){ initMatch(); }
+
+render();
+</script>
+</body>
+</html>

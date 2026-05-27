@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F · Self-Review Rubric — 영어 수행평가</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f5f5;color:#1f2937;line-height:1.55}
+header{background:#fff;border-bottom:1px solid #e5e7eb;padding:18px 20px}
+.back{font-size:13px;color:#2563eb;text-decoration:none}
+h1{font-size:20px;font-weight:700;margin-top:8px}
+.subtitle{font-size:12px;color:#9ca3af;margin-top:4px}
+
+main{max-width:900px;margin:0 auto;padding:18px}
+.panel{background:#fff;border-radius:14px;padding:22px;margin-bottom:14px;border:1px solid #e5e7eb}
+.panel h2{font-size:16px;color:#5b21b6;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+
+textarea{width:100%;padding:14px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:'Times New Roman',serif;line-height:1.8;resize:vertical;min-height:240px}
+textarea:focus{outline:none;border-color:#7c3aed}
+
+.btn{padding:11px 22px;background:#7c3aed;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer}
+.btn:hover{background:#6d28d9}
+.btn-secondary{background:#fff;color:#5b21b6;border:2px solid #7c3aed}
+
+.dual{display:grid;grid-template-columns:1.2fr 1fr;gap:14px;margin-top:14px}
+
+.score-grid{display:grid;gap:10px}
+.criterion{padding:14px;background:#f9fafb;border-radius:10px;border:1px solid #e5e7eb}
+.criterion .head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.criterion .head .label{font-weight:700;font-size:13px;color:#5b21b6}
+.criterion .head .max{font-size:11px;color:#9ca3af;font-weight:600}
+.criterion .detail{font-size:12px;color:#6b7280;margin-bottom:8px;line-height:1.45}
+.criterion .stars{display:flex;gap:4px}
+.star{width:26px;height:26px;border-radius:6px;background:#e5e7eb;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#9ca3af}
+.star.on{background:#7c3aed;color:#fff}
+
+.total-card{background:linear-gradient(135deg,#ede9fe 0%,#ddd6fe 100%);border:1px solid #c4b5fd;border-radius:14px;padding:20px;text-align:center}
+.total-card .num{font-size:48px;font-weight:800;color:#5b21b6}
+.total-card .max{font-size:18px;color:#7c3aed;font-weight:700}
+.total-card .label{font-size:12px;color:#5b21b6;margin-top:6px;text-transform:uppercase;letter-spacing:.05em}
+
+.radar-wrap{display:flex;justify-content:center;align-items:center}
+.radar{width:300px;height:300px;max-width:100%}
+
+.feedback{padding:14px;background:#faf5ff;border-radius:8px;border-left:3px solid #7c3aed;font-size:13px;color:#374151;line-height:1.65;margin-top:10px}
+.feedback b{color:#5b21b6}
+
+.auto-result{background:#f3f4f6;border-radius:8px;padding:12px;font-size:12px;color:#374151;margin-top:10px}
+.auto-result .row{padding:5px 0;display:flex;justify-content:space-between;align-items:center}
+.auto-result .row .key{font-weight:600}
+.auto-result .row .val{font-family:'Courier New',monospace}
+.tag-ok{display:inline-block;padding:1px 8px;background:#dcfce7;color:#166534;border-radius:8px;font-size:11px;font-weight:600}
+.tag-no{display:inline-block;padding:1px 8px;background:#fee2e2;color:#991b1b;border-radius:8px;font-size:11px;font-weight:600}
+
+@media (max-width:760px){
+  .dual{grid-template-columns:1fr}
+  main{padding:14px}
+  .radar{width:260px;height:260px}
+}
+</style>
+</head>
+<body>
+<nav style="background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:7px 16px;font-size:12px;display:flex;align-items:center;gap:5px">
+  <a href="../index.html" style="color:#6b7280;text-decoration:none">고1</a>
+  <span style="color:#d1d5db">›</span>
+  <a href="index.html" style="color:#2563eb;text-decoration:none;font-weight:600">English_1_1</a>
+</nav>
+<header>
+  <a class="back" href="index.html">← English_1_1</a>
+  <h1>F · Self-Review Rubric</h1>
+  <p class="subtitle">자기 글을 5개 축으로 자가 채점 · Radar Chart 시각화 · 만점 14점</p>
+</header>
+
+<main>
+<div class="panel">
+  <h2>📝 내 영어 에세이 붙여넣기</h2>
+  <textarea id="essayText" placeholder="여기에 내가 쓴 영어 에세이를 붙여넣으세요. 자동 분석 + 자가 채점."></textarea>
+  <div style="margin-top:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <button class="btn" onclick="analyze()">🔍 분석 + 자가 채점 시작</button>
+    <span id="wordCount" style="font-size:13px;color:#6b7280">0 words</span>
+  </div>
+  <div class="auto-result" id="autoResult" style="display:none"></div>
+</div>
+
+<div id="reviewArea" style="display:none">
+  <div class="dual">
+    <div>
+      <div class="panel">
+        <h2>⭐ 자가 채점 (5개 기준 · 만점 14)</h2>
+        <p style="font-size:12px;color:#6b7280;margin-bottom:12px">각 기준에 솔직하게 별점을 매겨주세요. 자동 분석을 참고하되, 최종 판단은 본인.</p>
+        <div class="score-grid" id="scoreGrid"></div>
+      </div>
+    </div>
+    <div>
+      <div class="total-card">
+        <div class="label">총점</div>
+        <div><span class="num" id="totalScore">0</span><span class="max"> / 14</span></div>
+        <div class="label" id="grade">-</div>
+      </div>
+      <div class="panel" style="margin-top:14px">
+        <h2>📡 Radar Chart</h2>
+        <div class="radar-wrap"><svg class="radar" id="radarSvg" viewBox="0 0 300 300"></svg></div>
+      </div>
+      <div class="panel" style="margin-top:14px">
+        <h2>💡 개선 제안</h2>
+        <div id="suggestions"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+const CRITERIA = [
+  {key:'structure', label:'Structure (구조)', max:3, detail:'Intro / Body1 / Body2 / Conclusion 4부 구조 명확. Hook + Powerful Ending 존재.'},
+  {key:'grammar', label:'3종 문법 (Grammar Triad)', max:3, detail:'가주어-진주어 / 관계대명사 / 분사 — 각 1회씩 자연스럽게 사용.'},
+  {key:'expression', label:'표현 다양성 (Variety)', max:3, detail:'논리연결어와 어휘가 다양하고 반복이 적음. 같은 단어 3회 이상 반복 X.'},
+  {key:'source', label:'출처·자료 (Source)', max:2, detail:'According to ~ 등 객관적 자료 1회 이상 인용.'},
+  {key:'wordcount', label:'단어 수 (Word Count)', max:3, detail:'150~250 범위. 130 이하 또는 270 이상은 감점.'}
+];
+const STORE_KEY = 'eng_self_review';
+let state = loadState() || {essay:'', scores:{structure:0,grammar:0,expression:0,source:0,wordcount:0}};
+
+function loadState(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY)); }catch(e){ return null; } }
+function saveState(){ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+
+document.getElementById('essayText').value = state.essay;
+document.getElementById('essayText').addEventListener('input', e=>{
+  state.essay = e.target.value;
+  saveState();
+  updateWordCount();
+});
+function updateWordCount(){
+  const n = (state.essay||'').trim().split(/\s+/).filter(Boolean).length;
+  document.getElementById('wordCount').textContent = n + ' words';
+}
+updateWordCount();
+
+function analyze(){
+  const t = state.essay || '';
+  const words = t.trim().split(/\s+/).filter(Boolean).length;
+  const hasIt = /\b[Ii]t\s+(is|was|seems|becomes)\s+\w+\s+(that|to)\b/.test(t);
+  const hasRel = /\b(who|which|that)\s+(is|are|was|were|has|have|had|can|could|will|would|may|might|do|does|did|make|makes|made|use|uses|used|require|requires|required|need|needs|needed|work|works|worked|help|helps|helped|cause|causes|caused|provide|provides|provided|generate|generates|generated)\b/i.test(t);
+  const hasPart = /\b\w+\s+(using|requiring|involving|including|providing|making|generating|relying|trusting|teaching|learning|creating|developing)\s+\w+/i.test(t)
+    || /\b\w+\s+(used|made|collected|generated|written|taught|created|developed|provided|trained|automated|displaced|produced|reported)\s+(by|in|from|to|with)\b/i.test(t);
+  const hasSource = /according to|study by|research|reports? (that|by)|data from|as reported/i.test(t);
+  const hasIntro = /\b(in my opinion|i firmly believe|i strongly support|i agree|i disagree|i maintain)\b/i.test(t);
+  const hasConclusion = /\b(in conclusion|to conclude|to sum up|in summary|in short|in brief|overall|all things considered)\b/i.test(t);
+  const hasExample = /for example|for instance|as evidence/i.test(t);
+  const hasReasonOrder = /\b(first|to begin|first of all)\b/i.test(t) && /\b(second|moreover|furthermore|in addition|finally)\b/i.test(t);
+  const hasContrast = /on the other hand|on the contrary|nevertheless|however|even though|in spite of|rather than|conversely/i.test(t);
+
+  // word repetition check (top 3 content words)
+  const tokens = t.toLowerCase().replace(/[^a-z\s]/g,' ').split(/\s+/).filter(w=>w.length>3 && !['that','this','they','their','them','with','from','have','will','would','could','should','about','because','which','these','those','what','your','there'].includes(w));
+  const freq = {};
+  tokens.forEach(w=> freq[w] = (freq[w]||0)+1);
+  const topRep = Object.entries(freq).sort((a,b)=>b[1]-a[1])[0];
+  const repWarn = topRep && topRep[1] >= 5;
+
+  // Render auto result
+  const auto = document.getElementById('autoResult');
+  auto.style.display = 'block';
+  auto.innerHTML = `
+    <div class="row"><span class="key">단어 수</span><span class="val">${words} ${words>=150&&words<=250?'<span class="tag-ok">OK</span>':'<span class="tag-no">범위 벗어남</span>'}</span></div>
+    <div class="row"><span class="key">Essay 구조 (Intro)</span><span class="val">${hasIntro?'<span class="tag-ok">검출</span>':'<span class="tag-no">미검출</span>'}</span></div>
+    <div class="row"><span class="key">Essay 구조 (Conclusion)</span><span class="val">${hasConclusion?'<span class="tag-ok">검출</span>':'<span class="tag-no">미검출</span>'}</span></div>
+    <div class="row"><span class="key">이유 나열 (First/Moreover)</span><span class="val">${hasReasonOrder?'<span class="tag-ok">검출</span>':'<span class="tag-no">미검출</span>'}</span></div>
+    <div class="row"><span class="key">예시 (For example/instance)</span><span class="val">${hasExample?'<span class="tag-ok">검출</span>':'<span class="tag-no">미검출</span>'}</span></div>
+    <div class="row"><span class="key">대조 (On the other hand 등)</span><span class="val">${hasContrast?'<span class="tag-ok">검출</span>':'<span class="tag-no">미검출</span>'}</span></div>
+    <div class="row"><span class="key">가주어-진주어 (It ~ that/to)</span><span class="val">${hasIt?'<span class="tag-ok">검출</span>':'<span class="tag-no">미검출</span>'}</span></div>
+    <div class="row"><span class="key">관계대명사 (who/which/that)</span><span class="val">${hasRel?'<span class="tag-ok">검출</span>':'<span class="tag-no">미검출</span>'}</span></div>
+    <div class="row"><span class="key">분사 (Ving / PP)</span><span class="val">${hasPart?'<span class="tag-ok">검출</span>':'<span class="tag-no">미검출</span>'}</span></div>
+    <div class="row"><span class="key">출처 (According to ~)</span><span class="val">${hasSource?'<span class="tag-ok">검출</span>':'<span class="tag-no">미검출</span>'}</span></div>
+    <div class="row"><span class="key">반복 검사</span><span class="val">${repWarn?`<span class="tag-no">"${topRep[0]}" ${topRep[1]}회 반복</span>`:'<span class="tag-ok">OK</span>'}</span></div>`;
+
+  // Auto-suggest scores
+  let s = state.scores;
+  // Structure: hasIntro + hasConclusion + hasReasonOrder → 0~3
+  s.structure = (hasIntro?1:0) + (hasConclusion?1:0) + (hasReasonOrder?1:0);
+  s.grammar = (hasIt?1:0) + (hasRel?1:0) + (hasPart?1:0);
+  // Expression variety: hasExample + hasContrast + !repWarn → 0~3
+  s.expression = (hasExample?1:0) + (hasContrast?1:0) + (!repWarn?1:0);
+  s.source = hasSource ? 2 : 0;
+  // Wordcount: 150-250 → 3 / 130-149 or 251-270 → 2 / 100-129 or 271-300 → 1 / else 0
+  if(words>=150 && words<=250) s.wordcount = 3;
+  else if((words>=130 && words<150) || (words>250 && words<=270)) s.wordcount = 2;
+  else if((words>=100 && words<130) || (words>270 && words<=300)) s.wordcount = 1;
+  else s.wordcount = 0;
+  saveState();
+
+  document.getElementById('reviewArea').style.display = 'block';
+  renderScoreGrid();
+  renderRadar();
+  renderSuggestions({hasIt,hasRel,hasPart,hasSource,hasIntro,hasConclusion,hasReasonOrder,hasExample,hasContrast,repWarn,topRep,words});
+  document.getElementById('reviewArea').scrollIntoView({behavior:'smooth'});
+}
+
+function renderScoreGrid(){
+  document.getElementById('scoreGrid').innerHTML = CRITERIA.map(c=>{
+    const cur = state.scores[c.key] || 0;
+    let stars = '';
+    for(let i=1;i<=c.max;i++){
+      stars += `<div class="star ${i<=cur?'on':''}" onclick="setScore('${c.key}',${i})">${i}</div>`;
+    }
+    return `<div class="criterion">
+      <div class="head"><span class="label">${c.label}</span><span class="max">${cur}/${c.max}</span></div>
+      <div class="detail">${c.detail}</div>
+      <div class="stars">${stars}</div>
+    </div>`;
+  }).join('');
+  updateTotal();
+}
+function setScore(key, val){
+  // Toggle: clicking same value resets to val-1
+  if(state.scores[key] === val) state.scores[key] = val - 1;
+  else state.scores[key] = val;
+  saveState();
+  renderScoreGrid();
+  renderRadar();
+}
+function updateTotal(){
+  const sum = CRITERIA.reduce((acc,c)=>acc + (state.scores[c.key]||0), 0);
+  document.getElementById('totalScore').textContent = sum;
+  const g = document.getElementById('grade');
+  if(sum >= 13) g.textContent = '🏆 만점급';
+  else if(sum >= 11) g.textContent = '🌟 우수';
+  else if(sum >= 8) g.textContent = '👍 보통';
+  else if(sum >= 5) g.textContent = '⚠️ 보강 필요';
+  else g.textContent = '🔴 다시 작성 권장';
+}
+
+function renderRadar(){
+  const svg = document.getElementById('radarSvg');
+  const cx=150, cy=150, R=110;
+  const n = CRITERIA.length;
+  let html = '';
+  // grid: 3 rings
+  for(let r=1; r<=3; r++){
+    const pts = [];
+    for(let i=0;i<n;i++){
+      const a = -Math.PI/2 + i*2*Math.PI/n;
+      pts.push((cx + R*r/3 * Math.cos(a))+','+(cy + R*r/3 * Math.sin(a)));
+    }
+    html += `<polygon points="${pts.join(' ')}" fill="none" stroke="#e5e7eb" stroke-width="1"/>`;
+  }
+  // axes + labels
+  for(let i=0;i<n;i++){
+    const a = -Math.PI/2 + i*2*Math.PI/n;
+    const x = cx + R * Math.cos(a);
+    const y = cy + R * Math.sin(a);
+    html += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#e5e7eb" stroke-width="1"/>`;
+    const lx = cx + (R+20) * Math.cos(a);
+    const ly = cy + (R+20) * Math.sin(a);
+    const shortLabel = CRITERIA[i].label.split(' ')[0];
+    html += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" font-size="11" font-weight="700" fill="#5b21b6">${shortLabel}</text>`;
+  }
+  // data polygon
+  const pts = [];
+  for(let i=0;i<n;i++){
+    const a = -Math.PI/2 + i*2*Math.PI/n;
+    const ratio = (state.scores[CRITERIA[i].key]||0) / CRITERIA[i].max;
+    pts.push((cx + R*ratio*Math.cos(a))+','+(cy + R*ratio*Math.sin(a)));
+  }
+  html += `<polygon points="${pts.join(' ')}" fill="rgba(124,58,237,0.3)" stroke="#7c3aed" stroke-width="2"/>`;
+  // points
+  for(let i=0;i<n;i++){
+    const a = -Math.PI/2 + i*2*Math.PI/n;
+    const ratio = (state.scores[CRITERIA[i].key]||0) / CRITERIA[i].max;
+    const x = cx + R*ratio*Math.cos(a);
+    const y = cy + R*ratio*Math.sin(a);
+    html += `<circle cx="${x}" cy="${y}" r="4" fill="#7c3aed"/>`;
+  }
+  svg.innerHTML = html;
+}
+
+function renderSuggestions(d){
+  const tips = [];
+  if(!d.hasIntro) tips.push('🔴 <b>Intro의 자기 주장 표현 없음</b> — "In my opinion, ~" 또는 "I firmly believe that ~"으로 시작하세요.');
+  if(!d.hasConclusion) tips.push('🔴 <b>Conclusion 표현 없음</b> — "In conclusion, ~" 또는 "To sum up, ~"으로 결론을 표시하세요.');
+  if(!d.hasIt) tips.push('🔴 <b>가주어-진주어 미사용</b> — 예: "It is clear that AI ~" 한 문장 추가.');
+  if(!d.hasRel) tips.push('🔴 <b>관계대명사 미사용</b> — 예: "People who use AI ~" 한 문장 추가.');
+  if(!d.hasPart) tips.push('🔴 <b>분사 미사용</b> — 예: "data collected by ~" / "students using AI" 한 표현 추가.');
+  if(!d.hasSource) tips.push('🟡 <b>객관적 출처 인용 없음</b> — "According to the WEF, ~" 한 문장으로 점수 +2 가능.');
+  if(!d.hasExample) tips.push('🟡 <b>예시 표현 없음</b> — "For example, ~" 한 번 사용 권장.');
+  if(!d.hasContrast) tips.push('🟡 <b>대조 표현 없음</b> — "On the other hand, ~" 또는 "Nevertheless, ~" 한 번 추가.');
+  if(!d.hasReasonOrder) tips.push('🟡 <b>이유 나열 표현 부족</b> — "First, ~" "Moreover, ~" 같이 시작하면 구조가 명확해집니다.');
+  if(d.repWarn) tips.push(`🟡 <b>단어 반복</b> — "${d.topRep[0]}"이 ${d.topRep[1]}회 사용됨. 동의어로 일부 교체하세요.`);
+  if(d.words < 150) tips.push(`🔴 <b>단어 수 부족</b> — 현재 ${d.words}, 목표 150~250.`);
+  if(d.words > 250) tips.push(`🟡 <b>단어 수 초과</b> — 현재 ${d.words}, 250 이내로 다듬으세요.`);
+
+  if(tips.length === 0) tips.push('🎉 <b>완벽해요!</b> 모든 기준을 통과했습니다. 만점급 글입니다.');
+
+  document.getElementById('suggestions').innerHTML = tips.map(t=>`<div class="feedback">${t}</div>`).join('');
+}
+
+// Initial render if there's saved data
+if(state.essay){ analyze(); }
+</script>
+</body>
+</html>
