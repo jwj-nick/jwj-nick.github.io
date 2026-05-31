@@ -1,0 +1,377 @@
+﻿<!doctype html>
+<!-- story-master.html — Story 영상 마스터 템플릿 v1. 명세: 90_video/_docs/STORY_VIDEO_GUIDE.md -->
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>다시, 데카르트 — Unit 06 — 정비례와 반비례</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../_assets/palettes.css">
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 1280px;
+      height: 720px;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+    }
+
+    .stage {
+      position: relative;
+      width: 1280px;
+      height: 720px;
+      overflow: hidden;
+    }
+
+    /* 모든 장면은 절대 좌표로 겹쳐서 fade로 전환 */
+    .scene {
+      position: absolute;
+      inset: 0;
+      width: 1280px;
+      height: 720px;
+      opacity: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 64px 96px;
+    }
+
+    /* ─── Scene 1: 타이틀 ────────────────────────────── */
+    .s1 .title {
+      font-family: var(--font-serif);
+      font-size: var(--title-size);
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -1px;
+      text-align: center;
+    }
+    .s1 .era {
+      margin-top: 16px;
+      font-size: var(--subtitle-size);
+      color: var(--muted);
+      letter-spacing: 4px;
+      text-transform: none;
+    }
+    .s1 .unit-label {
+      position: absolute;
+      bottom: 48px;
+      right: 64px;
+      font-size: var(--caption-size);
+      color: var(--accent);
+      letter-spacing: 2px;
+    }
+
+    /* ─── Scene 2: 인물 등장 ─────────────────────────── */
+    .s2 {
+      flex-direction: row;
+      gap: 56px;
+      align-items: center;
+      justify-content: center;
+    }
+    .s2 .visual {
+      width: 360px;
+      height: 360px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+    }
+    .s2 .visual svg {
+      width: 100%;
+      height: 100%;
+    }
+    .s2 .text {
+      max-width: 560px;
+      text-align: left;
+    }
+    .s2 .head {
+      font-family: var(--font-serif);
+      font-size: 44px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1.3;
+      margin-bottom: 24px;
+    }
+    .s2 .body {
+      font-size: var(--body-size);
+      line-height: 1.65;
+      color: var(--text);
+    }
+
+    /* ─── Scene 3: 결정적 순간 ───────────────────────── */
+    .s3 {
+      flex-direction: column;
+      gap: 36px;
+    }
+    .s3 .metaphor {
+      width: 480px;
+      height: 320px;
+      color: var(--accent);
+    }
+    .s3 .metaphor svg { width: 100%; height: 100%; }
+    .s3 .keyword {
+      font-family: var(--font-serif);
+      font-size: 52px;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: -1px;
+    }
+    .s3 .text {
+      max-width: 880px;
+      text-align: center;
+      font-size: 26px;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    /* ─── Scene 4: 수학 연결 ─────────────────────────── */
+    .s4 {
+      gap: 28px;
+    }
+    .s4 .head {
+      font-family: var(--font-serif);
+      font-size: 38px;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .s4 .diagram {
+      width: 480px;
+      height: 240px;
+      color: var(--accent);
+    }
+    .s4 .diagram svg { width: 100%; height: 100%; }
+    .s4 .text {
+      max-width: 880px;
+      text-align: center;
+      font-size: 24px;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    /* ─── Scene 5: 마무리 ────────────────────────────── */
+    .s5 {
+      flex-direction: column;
+      gap: 28px;
+    }
+    .s5 .text {
+      font-family: var(--font-serif);
+      font-size: 42px;
+      font-weight: 700;
+      color: var(--text);
+      text-align: center;
+      letter-spacing: -0.5px;
+    }
+    .s5 .unit-mark {
+      font-size: var(--subtitle-size);
+      color: var(--accent);
+      letter-spacing: 6px;
+    }
+  </style>
+</head>
+
+<body class="unit-06">
+  <div
+    id="root"
+    class="stage"
+    data-composition-id="story-unit06"
+    data-start="0"
+    data-duration="47"
+    data-width="1280"
+    data-height="720">
+
+    <!-- ─── Scene 1: 타이틀 (0~5s) ─── -->
+    <div class="scene s1" id="scene1">
+      <div class="title">다시, 데카르트</div>
+      <div class="era">1637년 · 프랑스</div>
+      <div class="unit-label">Unit 06 — 정비례와 반비례</div>
+    </div>
+
+    <!-- ─── Scene 2: 인물 등장 (5~15s) ─── -->
+    <div class="scene s2" id="scene2">
+      <div class="visual"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M50 22 L50 84"/>
+  <path d="M50 22 C40 16, 22 16, 14 20 L14 78 C22 74, 40 74, 50 80" fill="currentColor" fill-opacity="0.12"/>
+  <path d="M50 22 C60 16, 78 16, 86 20 L86 78 C78 74, 60 74, 50 80" fill="currentColor" fill-opacity="0.12"/>
+  <path d="M22 32 L40 32"/>
+  <path d="M22 42 L40 42"/>
+  <path d="M22 52 L40 52"/>
+  <path d="M60 32 L78 32"/>
+  <path d="M60 42 L78 42"/>
+  <path d="M60 52 L78 52"/>
+</svg></div>
+      <div class="text">
+        <div class="head">식이 도형이 되다</div>
+        <div class="body">y가 x의 두 배. y가 x의 절반. 두 변수의 약속을 좌표 위에 그리면 어떤 모습일까요?</div>
+      </div>
+    </div>
+
+    <!-- ─── Scene 3: 결정적 순간 (15~32s) ─── -->
+    <div class="scene s3" id="scene3">
+      <div class="metaphor"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+  <line x1="10" y1="50" x2="92" y2="50"/>
+  <line x1="50" y1="92" x2="50" y2="10"/>
+  <path d="M92 50 L86 47 L86 53 Z" fill="currentColor"/>
+  <path d="M50 10 L47 16 L53 16 Z" fill="currentColor"/>
+  <circle cx="68" cy="32" r="4" fill="currentColor"/>
+  <line x1="50" y1="32" x2="68" y2="32" stroke-dasharray="2,3"/>
+  <line x1="68" y1="50" x2="68" y2="32" stroke-dasharray="2,3"/>
+  <text x="72" y="28" font-family="Noto Sans KR" font-size="9" fill="currentColor" stroke="none">P</text>
+</svg></div>
+      <div class="keyword">정비례와 반비례</div>
+      <div class="text">y = ax는 원점을 지나는 직선. y = a/x는 부드럽게 휘어지는 곡선.</div>
+    </div>
+
+    <!-- ─── Scene 4: 수학 연결 (32~45s) ─── -->
+    <div class="scene s4" id="scene4">
+      <div class="head">오늘 우리는</div>
+      <div class="diagram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <line x1="50" y1="22" x2="50" y2="78"/>
+  <line x1="50" y1="78" x2="36" y2="86"/>
+  <line x1="50" y1="78" x2="64" y2="86"/>
+  <line x1="36" y1="86" x2="64" y2="86"/>
+  <line x1="14" y1="32" x2="86" y2="32"/>
+  <line x1="20" y1="32" x2="20" y2="42"/>
+  <line x1="80" y1="32" x2="80" y2="42"/>
+  <path d="M6 42 L34 42 L26 56 L14 56 Z" fill="currentColor" fill-opacity="0.2"/>
+  <path d="M66 42 L94 42 L86 56 L74 56 Z" fill="currentColor" fill-opacity="0.2"/>
+  <circle cx="50" cy="22" r="3" fill="currentColor"/>
+</svg></div>
+      <div class="text">두 변수의 관계를 식으로 적고, 그 식을 그래프로 그려봅니다.</div>
+    </div>
+
+    <!-- ─── Scene 5: 마무리 (45~50s) ─── -->
+    <div class="scene s5" id="scene5">
+      <div class="text">이 단원에서, 비례의 풍경을 만나봅시다</div>
+      <div class="unit-mark">Unit 06 — 정비례와 반비례</div>
+    </div>
+  </div>
+
+  <script>
+    /* ─── GSAP 타임라인 (5장면 fade in/out) ─── */
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+
+    /* 장면 절대 시간 — 실제 영상 길이에 비례 스케일링 (기준 50s) */
+    const DUR = parseFloat(document.getElementById('root').dataset.duration) || 50;
+    const SCALE = DUR / 51;  /* duration은 audio+1, 기준 50s 매핑 */
+    const T = {
+      s1: 0.0,
+      s2: 5.0 * SCALE,
+      s3: 15.0 * SCALE,
+      s4: 32.0 * SCALE,
+      s5: 45.0 * SCALE,
+      end: 50.0 * SCALE,
+    };
+
+    /* Scene 1 in */
+    tl.to('#scene1', { opacity: 1, duration: 0.8 }, T.s1);
+    /* Scene 1 out / Scene 2 in (cross-fade at 5s) */
+    tl.to('#scene1', { opacity: 0, duration: 0.8 }, T.s2 - 0.4);
+    tl.to('#scene2', { opacity: 1, duration: 0.8 }, T.s2);
+
+    /* Scene 2 → 3 */
+    tl.to('#scene2', { opacity: 0, duration: 0.8 }, T.s3 - 0.4);
+    tl.to('#scene3', { opacity: 1, duration: 0.8 }, T.s3);
+
+    /* Scene 3 → 4 */
+    tl.to('#scene3', { opacity: 0, duration: 0.8 }, T.s4 - 0.4);
+    tl.to('#scene4', { opacity: 1, duration: 0.8 }, T.s4);
+
+    /* Scene 4 → 5 */
+    tl.to('#scene4', { opacity: 0, duration: 0.8 }, T.s5 - 0.4);
+    tl.to('#scene5', { opacity: 1, duration: 0.8 }, T.s5);
+
+    /* Final fade out */
+    tl.to('#scene5', { opacity: 0, duration: 1.0 }, T.end - 1.0);
+
+    /* 내부 요소 미세 모션 — 정적 영상 방지 */
+    /* S1 부제는 살짝 늦게 등장 */
+    tl.from('#scene1 .era', { opacity: 0, y: 12, duration: 0.8 }, T.s1 + 1.2);
+    tl.from('#scene1 .unit-label', { opacity: 0, duration: 0.6 }, T.s1 + 2.0);
+
+    /* S2 본문은 헤드라인 직후 */
+    tl.from('#scene2 .body', { opacity: 0, y: 16, duration: 0.8 }, T.s2 + 1.4);
+
+    /* S3 키워드 살짝 강조 */
+    tl.from('#scene3 .keyword', { scale: 0.96, duration: 1.2, ease: 'power1.out' }, T.s3 + 0.6);
+    tl.from('#scene3 .text', { opacity: 0, y: 12, duration: 1.0 }, T.s3 + 2.0);
+
+    /* S4 다이어그램은 헤드 이후 */
+    tl.from('#scene4 .diagram', { opacity: 0, scale: 0.95, duration: 1.0 }, T.s4 + 1.2);
+    tl.from('#scene4 .text', { opacity: 0, y: 12, duration: 0.8 }, T.s4 + 2.4);
+
+    window.__timelines['story-unit06'] = tl;
+    tl.play();
+  </script>
+
+  <!-- Audio button must come BEFORE the audio script so getElementById works -->
+  <button id="audio-btn" style="
+    position:fixed; bottom:20px; right:20px;
+    background:rgba(0,0,0,0.6); color:#fff;
+    border:1.5px solid rgba(255,255,255,0.3); border-radius:20px;
+    padding:8px 20px; font-size:13px; cursor:pointer; z-index:200;
+    font-family:-apple-system,sans-serif;
+  ">🔊 음성 켜기</button>
+
+  <script>
+    const NARRATION = `다시 그의 책을 펴봅시다. 식과 도형이 만나는 곳에서. y가 x의 두 배. y가 x의 절반. 두 변수의 약속을 좌표 위에 그리면, 어떤 모습일까요. 그가 보여준 새로운 풍경. y는 ax. 원점을 지나는 곧은 직선이 됩니다. y는 a 나누기 x. 부드럽게 휘어지는 곡선이 되지요. 두 그래프는 같은 이야기를 다른 모양으로 들려줍니다. 두 변수의 관계를 식으로 적고, 그 식이 그리는 그래프를 만나봅니다. 식과 도형이 하나가 되는 순간입니다. 이 단원에서, 비례의 풍경을 만나봅시다.`;
+
+    let _speaking = false;
+    const btn = document.getElementById('audio-btn');
+
+    function speak() {
+      const utter = new SpeechSynthesisUtterance(NARRATION);
+      utter.lang = 'ko-KR';
+      utter.rate = 0.85;
+      const voices = speechSynthesis.getVoices();
+      const koVoice = voices.find(v => v.lang.startsWith('ko'));
+      if (koVoice) utter.voice = koVoice;
+      utter.onend = () => { _speaking = false; btn.textContent = '🔊 음성 켜기'; };
+      speechSynthesis.cancel();
+      speechSynthesis.speak(utter);
+      _speaking = true;
+      btn.textContent = '🔇 음성 끄기';
+    }
+
+    btn.addEventListener('click', function () {
+      if (_speaking) {
+        speechSynthesis.cancel();
+        _speaking = false;
+        btn.textContent = '🔊 음성 켜기';
+      } else {
+        tl.restart();
+        if (speechSynthesis.getVoices().length > 0) {
+          speak();
+        } else {
+          speechSynthesis.onvoiceschanged = () => { speak(); };
+          speak();
+        }
+      }
+    });
+  </script>
+  <script>
+    (function(){
+      function fit(){
+        var s=Math.min(window.innerWidth/1280,window.innerHeight/720);
+        if(s<1){
+          document.body.style.transform='scale('+s+')';
+          document.body.style.transformOrigin='top left';
+          document.documentElement.style.overflow='hidden';
+          document.documentElement.style.height=(720*s)+'px';
+        }
+      }
+      fit();
+      window.addEventListener('resize',fit);
+    })();
+  </script>
+</body>
+</html>
