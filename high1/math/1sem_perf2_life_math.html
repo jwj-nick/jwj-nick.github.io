@@ -136,6 +136,17 @@
   .chk:last-child{border-bottom:none}
   .chk input{margin-top:4px;width:17px;height:17px;flex-shrink:0;accent-color:var(--blue)}
 
+  /* process timeline */
+  .card ul{margin:6px 0 8px 18px}
+  .card li{font-size:13.5px;margin:5px 0}
+  .rd-q{background:#eff6ff;border-left:4px solid var(--blue);padding:11px 14px;border-radius:0 8px 8px 0;
+    font-size:13.5px;margin-bottom:12px;color:#334155}
+  .rd-q b{color:var(--blue-d)}
+  .chip{display:inline-block;background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:6px;
+    padding:3px 9px;font-size:11px;margin:2px 4px 2px 0;font-weight:600}
+  .commit{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;background:#1e293b;color:#a5b4fc;
+    padding:1px 7px;border-radius:5px}
+
   /* flowchart */
   .flow-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:12px 0;border:1px solid var(--line);
     border-radius:10px;background:#fcfcfd;padding:6px}
@@ -180,6 +191,7 @@
   <button class="tab" data-t="3">📐 개념 정리</button>
   <button class="tab" data-t="5">🧪 예상문제</button>
   <button class="tab" data-t="4">✏️ 연습·점검</button>
+  <button class="tab" data-t="6">🎬 제작과정</button>
 </div>
 
 <div class="wrap">
@@ -589,6 +601,33 @@
   </div>
 </section>
 
+<!-- ===================== TAB 6 : 제작과정 ===================== -->
+<section class="page" data-p="6">
+  <div class="card">
+    <h2>🎬 이 앱이 만들어진 과정</h2>
+    <p class="lead">아빠(Nick)와 <b>Claude Code</b>가 대화로 주고받으며 이 앱을 완성한 실제 기록입니다. AI에게 일을 맡기는 방법을 보여주는 예시예요.</p>
+    <div class="box b">
+      <div class="t">💡 Claude Code란?</div>
+      터미널에서 <b>대화만으로</b> 파일을 읽고·만들고·고치고, 그림(시험지 사진)도 직접 보고, GitHub에 배포까지 하는 AI 코딩 도구. 이 앱의 모든 글·코드·그림 정리가 대화로 만들어졌어요.
+    </div>
+    <div class="box p">
+      <div class="t">🤝 협업 방식</div>
+      사람 말은 <code>(Nick)</code>, AI 답은 <code>(Claude)</code> 접두어로 <b>.md 파일에 차곡차곡</b> 쌓아요. 채팅과 파일을 함께 쓰는 "파일 기반 비동기 소통".
+    </div>
+  </div>
+
+  <div id="rounds-tl"></div>
+
+  <div class="card">
+    <h2>🎓 아이에게 — AI를 잘 쓰는 6가지</h2>
+    <div id="lessons"></div>
+    <div class="box g" style="margin-top:12px">
+      <div class="t">한 줄 요약</div>
+      <b>구체적으로 시키고 · 중간 결과를 확인하고 · 피드백으로 고치고 · AI의 답도 검증한다.</b>
+    </div>
+  </div>
+</section>
+
 </div>
 
 <script>
@@ -784,6 +823,67 @@ const checks=[
 ];
 document.getElementById('checks').innerHTML=checks.map(c=>`
   <label class="chk"><input type="checkbox"><span>${c}</span></label>`).join('');
+
+/* ---- process timeline ---- */
+const rounds=[
+  {n:1,title:'요청 — 캡쳐 확인 & 계획',
+   q:'수행평가 준비하려는데 시험지 캡쳐를 figure_1st/에 넣어뒀어. 내용 확인하고 어떻게 진행할지 계획 세워줘.',
+   did:['시험지 사진 3장을 <b>멀티모달 Read</b>로 직접 판독','1번(나트륨·연립부등식)·2번(고궁·경우의 수) 문제 구조 분석','폴더 구조 + 5단계 진행안 제안'],
+   ref:['figure_1st/수학수행2-1~3.jpg','CLAUDE.md (프로젝트 규약)','기존 수행평가-수학 폴더']},
+  {n:2,title:'요청 — 완성형 앱 + 사이트 연결',
+   q:'최종적으로 1~5까지 정리 다 된 앱으로. high1 사이트에 새 카드로 연결되게.',
+   did:['앱 <b>설계 원칙</b>과 <b>배포 규칙</b> 학습','기존 앱·허브 인덱스 구조 파악'],
+   ref:['APP_PRINCIPLES.md','APP_HOSTING.md','high1/index.html · math/index.html','기존 viete 앱']},
+  {n:3,title:'⚠️ 피드백 — 분석만 말고 파일 만들며 진행',
+   q:'진행이 안 되는 것 같아. 파일·디렉토리가 안 생겼는데? 중간중간 결과물 만들며 진행해줘. (계획·로그 파일도 둘 것)',
+   did:['피드백 즉시 수용: "분석만 X → 만들며 진행"','경우의 수 9개 박스 값 <b>전부 손계산·검증</b>','디렉토리 + 계획/할일/학습/이슈/세션로그 파일 생성','예시문항 본문 정리(02_text) → 5탭 앱 제작 → 배포 + 카드 추가','이 피드백을 <b>AI 기억(memory)</b>에 저장 → 다음부터 자동 적용'],
+   ref:['멀티모달 Read','APP_PRINCIPLES/HOSTING','Claude 영구 메모리'],
+   note:'사람이 진행 "방식"을 교정하면 AI는 바로 반영해야 한다.',commit:'e682ba8'},
+  {n:4,title:'요청 — 예상문제 추가',
+   q:'실전은 이 패턴인데 소재·숫자만 달라져. 연립부등식·경우의 수 예제를 각 2개씩 더 만들어줘.',
+   did:['숫자가 깔끔히 떨어지도록 설계한 <b>예상문제 4개</b> 작성','앱에 🧪 예상문제 탭 추가'],
+   ref:['02_text/예시문항.md (패턴 참조)','순열·조합 교육과정'],commit:'bea9faf'},
+  {n:5,title:'요청 — 경우의 수를 완결형으로 시각화',
+   q:'경우의 수 예상문제는 문제 자체가 스스로 완결되도록 visualize 해줘.',
+   did:['<b>SVG 플로우차트 렌더러</b>(drawFlow) 직접 작성','박스=문제·화살표=식 → 추적형 그래프로 교체','"정답 경로 보기" 하이라이트 + <b>node 헤드리스 검증</b>'],
+   ref:['원본 2번 플로우차트 사진','SVG · JavaScript'],
+   note:'첫 배포 커밋은 명령어 문법 오류로 실패 → 원인 찾아 재커밋. (실수도 숨기지 않고 기록)',commit:'d720622'},
+  {n:6,title:'요청 — 계획부터 말해봐 + 검증',
+   q:'어떤 식으로 할지 계획을 먼저 얘기해봐.',
+   did:['3트랙 계획 제시 후 <b>선택지로 합의</b>(렌더검증/품질검토/예상문제+1)','자동 기하·구조 린트 실행','<b>검토 에이전트</b>(app-reviewer) 2회 실행','지적을 취사선택 — 유효(분수 모호·시험범위·터치타겟) 반영 / 무효(예시경로·분기라벨) 근거 들어 기각','시험범위 내 ③ 도서관 미션 플로우차트 추가'],
+   ref:['APP_PRINCIPLES.md','app-reviewer 에이전트','node 린트 스크립트'],
+   note:'AI(검토 에이전트)의 지적도 무조건 수용 X → 검증 후 채택/기각.',commit:'c8eb550'},
+  {n:7,title:'요청 — 제작과정 문서화 (지금 이 탭)',
+   q:'이 제작 과정을 문서로 만들어줘. 아이에게 Claude Code 실전 예시로 보여주고 싶어. 앱 탭으로 넣어도 좋고.',
+   did:['대화 라운드별 <b>질문·작업·참조자료</b>를 타임라인으로 정리','이 "제작과정" 탭과 제작과정.md 문서 생성'],
+   ref:['세션 로그(cht_log/0531_session.md)','이 대화 전체']},
+];
+document.getElementById('rounds-tl').innerHTML=rounds.map(r=>`
+  <div class="card">
+    <h2><span class="num">${r.n}</span> ${r.title}</h2>
+    <div class="rd-q">💬 <b>(Nick)</b> “${r.q}”</div>
+    <h3>Claude가 한 일</h3>
+    <ul>${r.did.map(d=>`<li>${d}</li>`).join('')}</ul>
+    <h3>참조한 자료·도구</h3>
+    <div>${r.ref.map(x=>`<span class="chip">${x}</span>`).join('')}</div>
+    ${r.note?`<div class="box a" style="margin-top:11px"><div class="t">✦ 포인트</div>${r.note}</div>`:''}
+    ${r.commit?`<p style="font-size:11px;color:var(--sub);margin-top:9px">배포 기록 <span class="commit">${r.commit}</span></p>`:''}
+  </div>`).join('');
+
+const lessons=[
+  ['🎯 구체적으로 시켜라','"앱 만들어줘"보다 "1~5 정리된 앱을, 사이트 새 카드로"처럼 결과물·조건을 분명히.'],
+  ['👀 중간 결과를 확인하라','파일이 실제로 생겼는지 보라. 안 보이면 "왜 안 만들어?"라고 바로 물어라.'],
+  ['🔁 피드백으로 고쳐라','마음에 안 들면 즉시 교정 요청 → AI는 방향을 바꾼다.'],
+  ['🗺️ 계획부터 맞춰라','큰 작업은 "어떻게 할 건지 먼저 말해봐"로 방향을 합의한 뒤 시작.'],
+  ['🔍 AI의 답도 검증하라','AI가 만든 코드·AI의 검토 의견조차 다시 확인. 틀린 지적은 근거 들어 거른다.'],
+  ['📝 실수는 기록·수정하라','커밋 실패·오류도 숨기지 말고 원인 찾아 고치고 로그에 남긴다.'],
+];
+document.getElementById('lessons').innerHTML=lessons.map((l,i)=>`
+  <div style="display:flex;gap:11px;padding:10px 0;border-bottom:${i<lessons.length-1?'1px solid var(--line)':'none'}">
+    <div style="font-size:15px;font-weight:800;color:var(--blue);flex-shrink:0">${i+1}</div>
+    <div><div style="font-weight:700;font-size:14px">${l[0]}</div>
+    <div style="font-size:13px;color:#475569;margin-top:2px">${l[1]}</div></div>
+  </div>`).join('');
 </script>
 </body>
 </html>
