@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>수학 지도 — 중1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Nanum+Myeongjo:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#14110d; --fg:#f3ead9; --muted:#a99b80; --gold:#c9a14a; --gold2:#D9A441;
+    --line:#3a3324; --card:#1d1812; --card2:#241d15;
+  }
+  body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--fg);
+    min-height:100vh;padding:max(14px,env(safe-area-inset-top)) 14px max(28px,env(safe-area-inset-bottom));}
+  .wrap{width:100%;max-width:760px;margin:0 auto}
+  .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .back{color:var(--gold);text-decoration:none;font-size:14px}
+  h1{font-family:'Nanum Myeongjo',serif;font-size:clamp(22px,6vw,30px);margin:8px 0 2px;text-align:center}
+  .sub{color:var(--muted);font-size:13px;text-align:center;margin-bottom:16px}
+  .toggles{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:8px}
+  .tg{font-size:12.5px;color:var(--muted);background:var(--card);border:1px solid var(--line);
+    border-radius:999px;padding:7px 13px;cursor:pointer;user-select:none;transition:.15s}
+  .tg[data-on="1"]{color:var(--bg);font-weight:700}
+  .tg.concept[data-on="1"]{background:#7fb3d5;border-color:#7fb3d5}
+  .tg.person[data-on="1"]{background:var(--gold2);border-color:var(--gold2)}
+  .tg.forward[data-on="1"]{background:#b08fd0;border-color:#b08fd0}
+  .hint{text-align:center;color:#6f6450;font-size:11.5px;margin:2px 0 14px}
+
+  .timeline{position:relative;padding-left:30px}
+  .timeline::before{content:"";position:absolute;left:11px;top:8px;bottom:8px;width:2px;
+    background:linear-gradient(#3a3324,#6b5a2e,#3a3324)}
+  .unit{position:relative;margin-bottom:14px}
+  .dot{position:absolute;left:-23px;top:20px;width:14px;height:14px;border-radius:50%;
+    border:2px solid var(--bg);box-shadow:0 0 0 2px var(--line)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .card-head{display:flex;align-items:center;gap:10px;padding:13px 14px;cursor:pointer}
+  .word{flex:0 0 auto;font-family:'Nanum Myeongjo',serif;color:var(--gold2);font-weight:800;
+    font-size:13px;border:1px solid #6b5a2e;border-radius:999px;padding:3px 11px;white-space:nowrap}
+  .meta{flex:1 1 auto;min-width:0}
+  .ttl{font-size:16px;font-weight:700;line-height:1.25}
+  .ch{color:var(--muted);font-size:12px}
+  .ppl{color:var(--gold);font-size:12.5px;margin-top:2px}
+  .era{flex:0 0 auto;font-size:11px;color:var(--muted);border:1px solid var(--line);
+    border-radius:6px;padding:2px 7px}
+  .chev{flex:0 0 auto;color:var(--muted);font-size:13px;transition:.2s}
+  .unit.open .chev{transform:rotate(90deg)}
+
+  .conns{padding:0 14px;display:none;flex-direction:column;gap:5px;padding-bottom:11px}
+  .unit.show-conn .conns{display:flex}
+  .chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--fg);
+    background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:6px 10px;
+    text-decoration:none;cursor:pointer;line-height:1.3}
+  .chip .k{flex:0 0 auto;font-size:11px;border-radius:5px;padding:1px 6px;color:var(--bg);font-weight:700}
+  .chip.c-concept .k{background:#7fb3d5}
+  .chip.c-person  .k{background:var(--gold2)}
+  .chip.c-forward .k{background:#b08fd0}
+  .chip .lab{color:var(--muted)}
+
+  .body{display:none;padding:0 14px 14px;border-top:1px solid var(--line);margin-top:2px}
+  .unit.open .body{display:block}
+  .body h4{font-size:12px;color:var(--muted);margin:12px 0 6px;font-weight:500}
+  .concepts{display:flex;flex-wrap:wrap;gap:6px}
+  .cc{font-size:12px;color:var(--fg);background:var(--card2);border:1px solid var(--line);
+    border-radius:7px;padding:4px 9px}
+  .btns{display:flex;gap:9px;margin-top:13px;flex-wrap:wrap}
+  .btns a{flex:1 1 0;min-width:120px;text-align:center;text-decoration:none;font-size:14px;font-weight:700;
+    border-radius:10px;padding:11px 12px}
+  .btns .video{background:var(--gold);color:#1a1206}
+  .btns .app{background:transparent;color:var(--fg);border:1px solid var(--gold)}
+  .legend{margin-top:18px;color:#6f6450;font-size:11.5px;text-align:center;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a class="back" href="../index.html">← 중1 학습 앱</a><span style="font-size:13px;color:var(--muted)">13 units</span></div>
+  <h1>수학 지도</h1>
+  <div class="sub">중1 수학 13단원이 어떻게 이어지는지 · 인물 · 시대</div>
+
+  <div class="toggles">
+    <span class="tg concept" data-edge="concept-prereq" data-on="0" onclick="toggle(this)">개념 흐름</span>
+    <span class="tg person"  data-edge="same-person"    data-on="0" onclick="toggle(this)">같은 인물</span>
+    <span class="tg forward" data-edge="forward"         data-on="0" onclick="toggle(this)">상위 학년 →</span>
+  </div>
+  <div class="hint">버튼을 켜면 단원이 어떻게 연결되는지 보여요. 카드를 누르면 개념·영상·앱으로 이동.</div>
+
+  <div class="timeline" id="timeline"></div>
+
+  <div class="legend">
+    🔵 개념 흐름 — 한 단원이 다음 단원의 바탕<br>
+    🟡 같은 인물 — 한 수학자가 여러 단원에 등장<br>
+    🟣 상위 학년 — 중2·중3에서 이어질 내용
+  </div>
+</div>
+
+<script>
+const ERA_COLOR = {"고대":"#c98b3a","중세":"#5e8d6e","르네상스":"#9d6bb0","근대초":"#5a7fa6","근대":"#a65a6e","":"#6b5a2e"};
+const unitOf = id => id && id.startsWith("u") ? id.split("-")[0] : id; // u03-c05 -> u03 ; future:.. -> itself
+
+let G=null, units=[], byId={};
+
+function toggle(el){
+  el.dataset.on = el.dataset.on==="1" ? "0" : "1";
+  applyConns();
+}
+function applyConns(){
+  const on = {};
+  document.querySelectorAll(".tg").forEach(t=>on[t.dataset.edge]=t.dataset.on==="1");
+  const anyOn = Object.values(on).some(Boolean);
+  document.querySelectorAll(".unit").forEach(u=>{
+    const chips = u.querySelectorAll(".chip");
+    let shown=0;
+    chips.forEach(c=>{ const vis = on[c.dataset.edge]; c.style.display = vis?"inline-flex":"none"; if(vis) shown++; });
+    u.classList.toggle("show-conn", anyOn && shown>0);
+  });
+}
+
+function buildConnChips(uid){
+  // collect edges touching this unit, grouped
+  const out=[];
+  for(const e of G.edges){
+    const fu=unitOf(e.from), tu=unitOf(e.to);
+    if(e.type==="concept-prereq"){
+      if(fu===uid && tu!==uid) out.push({edge:e.type, target:tu, k:"개념", lab:e.label, dir:"→"});
+      else if(tu===uid && fu!==uid) out.push({edge:e.type, target:fu, k:"개념", lab:e.label, dir:"←"});
+    } else if(e.type==="same-person"){
+      if(fu===uid) out.push({edge:e.type, target:tu, k:e.label, lab:"같은 인물", dir:"↔"});
+      else if(tu===uid) out.push({edge:e.type, target:fu, k:e.label, lab:"같은 인물", dir:"↔"});
+    } else if(e.type==="forward"){
+      if(fu===uid) out.push({edge:e.type, target:e.to, k:"상위", lab:e.label, dir:"⤴", future:true});
+    }
+  }
+  return out.map(o=>{
+    const cls = o.edge==="concept-prereq"?"c-concept":o.edge==="same-person"?"c-person":"c-forward";
+    const tnode = o.future?null:byId[o.target];
+    const tname = o.future ? o.target.split(":")[1] : (tnode? `${o.target.slice(1)}단원 ${tnode.title}`:o.target);
+    const onclick = o.future?"":`onclick="goTo('${o.target}')"`;
+    return `<span class="chip ${cls}" data-edge="${o.edge}" ${onclick}>
+      <span class="k">${o.k}</span><span>${o.dir} ${tname}</span><span class="lab">${o.lab}</span></span>`;
+  }).join("");
+}
+
+function conceptsOf(uid){
+  return G.nodes.filter(n=>n.level==="concept" && n.parent===uid)
+    .map(n=>`<span class="cc">${n.label}</span>`).join("");
+}
+
+function goTo(uid){
+  const el=document.getElementById("card-"+uid);
+  if(el){ el.scrollIntoView({behavior:"smooth",block:"center"});
+    el.classList.add("flash"); setTimeout(()=>el.classList.remove("flash"),900); }
+}
+
+function render(){
+  units = G.nodes.filter(n=>n.level==="unit").sort((a,b)=>a.chapter-b.chapter);
+  G.nodes.forEach(n=>byId[n.id]=n);
+  const tl=document.getElementById("timeline");
+  tl.innerHTML = units.map(u=>{
+    const col = ERA_COLOR[u.era]||ERA_COLOR[""];
+    return `<div class="unit" id="card-${u.id}">
+      <span class="dot" style="background:${col}"></span>
+      <div class="card">
+        <div class="card-head" onclick="this.closest('.unit').classList.toggle('open')">
+          <span class="word">${u.word}</span>
+          <span class="meta"><div class="ttl">${u.title}</div>
+            <div class="ch">${u.chapter}단원</div>
+            <div class="ppl">${(u.persons||[]).join(' · ')}</div></span>
+          <span class="era">${u.era||''}</span>
+          <span class="chev">▸</span>
+        </div>
+        <div class="conns">${buildConnChips(u.id)}</div>
+        <div class="body">
+          <h4>이 단원 개념</h4>
+          <div class="concepts">${conceptsOf(u.id)}</div>
+          <div class="btns">
+            <a class="video" href="${u.links.video}">📺 인물 영상</a>
+            <a class="app" href="${u.links.app}">📱 수학 앱</a>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+  applyConns();
+}
+
+fetch("connections.json").then(r=>r.json()).then(g=>{G=g;render();})
+  .catch(e=>{document.getElementById("timeline").innerHTML="<p style='color:#a99b80'>지도 데이터를 불러오지 못했습니다.</p>";});
+</script>
+<style>
+  .unit.flash .card{border-color:var(--gold2);box-shadow:0 0 0 2px rgba(217,164,65,.4);transition:.3s}
+</style>
+</body>
+</html>
