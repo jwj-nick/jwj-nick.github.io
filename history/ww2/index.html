@@ -136,6 +136,19 @@
   .lmap{height:340px;border-radius:12px;overflow:hidden;border:1px solid var(--line);z-index:0;}
   .mapcap{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.6;}
   .mapcap .msrc{font-size:11.5px;opacity:.8;}
+  /* image (S1 — PD 역사지도/사진 + 선택적 hotspot) */
+  .figimg{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow-sm);}
+  .figstory{font-size:15.5px;line-height:1.8;margin-bottom:12px;color:var(--ink);}
+  .figstory b{color:var(--accent);}
+  .imgbox{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#f4efe8;}
+  .imgbox img{width:100%;height:auto;display:block;}
+  .hsdot{position:absolute;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;border:2px solid #fff;font-size:12px;font-weight:800;cursor:pointer;box-shadow:0 2px 7px rgba(0,0,0,.32);display:flex;align-items:center;justify-content:center;line-height:1;}
+  .hsdot:hover{background:var(--navy);}
+  .hsinfo{margin-top:10px;font-size:14px;background:var(--cream);border-radius:9px;padding:11px 13px;display:none;line-height:1.7;}
+  .hsinfo.show{display:block;}
+  .hsinfo b{color:var(--accent);}
+  .figcap{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.65;}
+  .figcap .msrc{font-size:11.5px;opacity:.85;}
   .pager{display:flex; justify-content:space-between; gap:12px; margin-top:46px;}
   .pager a{flex:1; text-decoration:none; background:#fff; border:1px solid var(--line); border-radius:14px; padding:15px 18px; color:var(--navy); box-shadow:var(--shadow-sm); transition:transform .12s, box-shadow .12s; cursor:pointer;}
   .pager a:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
@@ -286,6 +299,18 @@ function mapHTML(m,sid){
     + '<div class="lmap" id="lmap_'+sid+'"></div>'
     + '<div class="mapcap">'+(m.caption||'')+(m.source?' <span class="msrc">· 지도 ⓒ '+m.source+'</span>':'')+'</div></div>';
 }
+function imageHTML(im,sid){
+  const hs=im.hotspots||[];
+  return '<h2 class="block">'+(im.h||'자료로 보기 🖼️')+'</h2><figure class="figimg">'
+    + (im.story?'<div class="figstory">'+T(im.story)+'</div>':'')
+    + '<div class="imgbox" id="imgbox_'+sid+'">'
+    + '<img src="'+im.src+'" alt="'+(im.alt||'')+'" loading="lazy">'
+    + hs.map((h,i)=>'<button class="hsdot" data-hi="'+i+'" style="left:'+h.x+'%;top:'+h.y+'%" aria-label="'+(h.label||'')+'">'+(i+1)+'</button>').join('')
+    + '</div>'
+    + (hs.length?'<div class="hsinfo" id="hsinfo_'+sid+'">점(번호)을 눌러 보세요.</div>':'')
+    + '<figcaption class="figcap">'+(im.caption||'')+(im.source?' <span class="msrc">· 출처: '+im.source+(im.license?' · '+im.license:'')+'</span>':'')+'</figcaption>'
+    + '</figure>';
+}
 function lensBlock(l){ return '<div class="lens"><div class="lh">🕯️ 그때 사람들은 이렇게 생각했어요</div><div>'+T(l)+'</div></div>'; }
 function personBlock(p){
   return '<div class="person"><div class="pheader"><div class="pface">'+(p.face||'👤')+'</div>'
@@ -310,6 +335,7 @@ function render(s,idx){
   +(s.quote2?quoteBlock(s.quote2):'')
   +(s.people?'<h2 class="block">꼭 알아야 할 인물</h2><div class="people">'+s.people.map(personBlock).join('')+'</div>':'')
   +(s.map?mapHTML(s.map,s.id):'')
+  +(s.image?imageHTML(s.image,s.id):'')
   +'<h2 class="block">한눈에 보는 흐름</h2><div class="timeline">'
   +s.timeline.map(t=>'<div class="tl"><span class="tl-yr">'+t.yr+'</span> <span class="tl-txt">'+t.t+'</span></div>').join('')+'</div>'
   +'<h2 class="block">이야기 연결 고리</h2><div class="connect"><span class="ico">🔗</span><div>'+s.connect+'</div></div>'
@@ -345,6 +371,12 @@ function render(s,idx){
     if(s.map.line) L.polyline(s.map.line,{color:'#b5546a',weight:3,dashArray:'6 6'}).addTo(currentMap);
     (s.map.markers||[]).forEach(mk=>L.circleMarker([mk.lat,mk.lng],{radius:9,color:'#fff',weight:2,fillColor:'#B5546A',fillOpacity:1}).addTo(currentMap).bindPopup('<b>'+mk.label+'</b><br>'+mk.desc));
     setTimeout(()=>{ if(currentMap) currentMap.invalidateSize(); },200);
+  }
+  if(s.image && s.image.hotspots && s.image.hotspots.length){
+    const info=document.getElementById('hsinfo_'+s.id);
+    view.querySelectorAll('#imgbox_'+s.id+' .hsdot').forEach(d=>d.addEventListener('click',()=>{
+      const h=s.image.hotspots[+d.dataset.hi]; info.innerHTML='<b>'+h.label+'</b> '+(h.desc||''); info.classList.add('show');
+    }));
   }
   markVisited(s.id); setActive(s.id); window.scrollTo(0,0);
 }
