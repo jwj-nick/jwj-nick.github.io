@@ -1,9 +1,9 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>데카르트 — Unit 05 — 좌표와 그래프</title>
+<title>Unit 05 — 좌표와 그래프 — 데카르트 · 페르마</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Nanum+Myeongjo:wght@700;800&display=swap" rel="stylesheet">
@@ -12,12 +12,19 @@
   body{font-family:'Noto Sans KR',sans-serif;background:#14110d;color:#f3ead9;
     min-height:100vh;display:flex;flex-direction:column;align-items:center;
     padding:max(16px,env(safe-area-inset-top)) 16px max(20px,env(safe-area-inset-bottom));}
-  .top{width:100%;max-width:880px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .top{width:100%;max-width:880px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
   .back{color:#c9a14a;text-decoration:none;font-size:14px}
-  .word{font-family:'Nanum Myeongjo',serif;color:#D9A441;font-weight:800;font-size:15px;
-    border:1px solid #6b5a2e;border-radius:999px;padding:4px 14px}
-  h1{font-family:'Nanum Myeongjo',serif;font-size:clamp(22px,5vw,30px);margin:6px 0 2px;text-align:center}
-  .sub{color:#a99b80;font-size:14px;margin-bottom:16px;text-align:center}
+  h1{font-family:'Nanum Myeongjo',serif;font-size:clamp(20px,5vw,28px);margin:4px 0 2px;text-align:center}
+  .sub{color:#a99b80;font-size:14px;margin-bottom:6px;text-align:center}
+  .wrap-note{max-width:620px;color:#b7a884;font-size:13.5px;line-height:1.6;text-align:center;margin:2px 0 16px}
+  .picker{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+  .p{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;
+    background:#1d1812;border:1px solid #3a3324;border-radius:13px;padding:11px 18px;min-width:128px;transition:.15s}
+  .p:hover{border-color:#6b5a2e}
+  .p[data-on="1"]{border-color:#c9a14a;background:#241d15}
+  .p .nm{font-family:'Nanum Myeongjo',serif;font-weight:800;font-size:17px;color:#f3ead9}
+  .p .wd{font-size:12px;color:#D9A441}
+  .p .ds{font-size:11.5px;color:#9a8d72}
   .player{width:100%;max-width:880px;border-radius:14px;overflow:hidden;
     box-shadow:0 10px 40px rgba(0,0,0,.55);background:#000}
   video{width:100%;height:auto;display:block}
@@ -30,19 +37,45 @@
 <body>
   <div class="top">
     <a class="back" href="../index.html">← 이야기 목록</a>
-    <span class="word">한 단어 · 만남</span>
+    <span style="font-family:'Nanum Myeongjo',serif;color:#D9A441;font-weight:800;font-size:14px;border:1px solid #6b5a2e;border-radius:999px;padding:4px 13px">Unit 05 · 좌표와 그래프</span>
   </div>
-  <h1>데카르트</h1>
-  <div class="sub">Unit 05 · 좌표와 그래프</div>
+  <h1 id="ttl">데카르트</h1>
+  <div class="sub" id="sub">그림 → 식</div>
+  <div class="wrap-note">같은 <b>좌표</b>를 두 방향으로 봐요.<br>데카르트는 그림을 식으로, 페르마는 <b>식을 그림으로</b> — 좌표는 둘 사이의 번역기.</div>
+
+  <div class="picker">
+    <div class="p" data-on="1" onclick="pick('p1')">
+      <span class="nm">데카르트</span><span class="wd">한 단어 · 만남</span><span class="ds">그림 → 식</span>
+    </div>
+    <div class="p" data-on="0" onclick="pick('p2')">
+      <span class="nm">페르마</span><span class="wd">한 단어 · 번역</span><span class="ds">식 → 그림</span>
+    </div>
+  </div>
+
   <div class="player">
-    <video controls playsinline preload="metadata" poster="../_video/unit05.jpg">
-      <source src="../_video/unit05.mp4" type="video/mp4" />
+    <video id="vid" controls playsinline preload="metadata" poster="../_video/unit05.jpg">
+      <source id="vsrc" src="../_video/unit05.mp4" type="video/mp4" />
       이 브라우저는 영상을 지원하지 않습니다.
     </video>
   </div>
+
   <div class="foot">
     <a href="anim.html">🎞 예전 애니메이션 버전</a>
     <a href="../../math1/index.html">📐 수학 단원 앱</a>
   </div>
+
+<script>
+const DATA = {
+  p1: {ttl:"데카르트", sub:"그림 → 식", mp4:"../_video/unit05.mp4",            jpg:"../_video/unit05.jpg"},
+  p2: {ttl:"페르마",  sub:"식 → 그림",  mp4:"../_video/unit05-fermat.mp4", jpg:"../_video/unit05-fermat.jpg"}
+};
+function pick(who){
+  const d=DATA[who], v=document.getElementById("vid"), s=document.getElementById("vsrc");
+  document.getElementById("ttl").textContent=d.ttl;
+  document.getElementById("sub").textContent=d.sub;
+  v.pause(); s.src=d.mp4; v.setAttribute("poster",d.jpg); v.load();
+  document.querySelectorAll(".p").forEach((p,i)=>p.dataset.on=(["p1","p2"][i]===who)?"1":"0");
+}
+</script>
 </body>
 </html>
