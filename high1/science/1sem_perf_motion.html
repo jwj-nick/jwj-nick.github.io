@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>물체의 운동 분석 — 통합과학1 수행평가</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
+<style>
+  :root{
+    --bg:#0f172a; --panel:#fff; --ink:#1e293b; --sub:#64748b; --line:#e2e8f0;
+    --blue:#2563eb; --blue-d:#1e40af; --green:#16a34a; --green-bg:#f0fdf4;
+    --amber:#d97706; --amber-bg:#fffbeb; --red:#dc2626; --red-bg:#fef2f2;
+    --purple:#7c3aed; --purple-bg:#f5f3ff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',sans-serif;
+    background:#f1f5f9;color:var(--ink);line-height:1.7;-webkit-text-size-adjust:100%}
+  a{color:var(--blue)}
+
+  .crumb{background:#f8fafc;border-bottom:1px solid var(--line);padding:7px 16px;font-size:12px;
+    display:flex;align-items:center;gap:5px}
+  .crumb a{color:var(--sub);text-decoration:none}
+  .crumb a.cur{color:var(--blue);font-weight:600}
+  .crumb span{color:#cbd5e1}
+
+  .hero{background:linear-gradient(135deg,#0c4a6e,#0ea5e9);color:#fff;padding:26px 18px 22px;text-align:center}
+  .hero .badge{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);
+    border-radius:20px;padding:3px 13px;font-size:12px;margin-bottom:10px}
+  .hero h1{font-size:21px;font-weight:800;letter-spacing:-.3px}
+  .hero p{font-size:13px;opacity:.92;margin-top:6px}
+
+  .tabs{position:sticky;top:0;z-index:50;display:flex;background:#0f172a;overflow-x:auto;
+    scrollbar-width:none;-ms-overflow-style:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;padding:13px 15px;color:#94a3b8;font-size:13.5px;font-weight:600;cursor:pointer;
+    border:none;background:none;border-bottom:3px solid transparent;white-space:nowrap;transition:.15s}
+  .tab.active{color:#fff;border-bottom-color:#38bdf8}
+  .tab:hover{color:#cbd5e1}
+
+  .wrap{max-width:780px;margin:0 auto;padding:22px 16px 70px}
+  .page{display:none}
+  .page.active{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;
+    box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .card h2{font-size:18px;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+  .card h3{font-size:15px;font-weight:700;margin:16px 0 8px;color:var(--blue-d)}
+  .card p{font-size:14px;margin-bottom:8px}
+  .lead{color:var(--sub);font-size:13px;margin-bottom:14px}
+
+  .num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:8px;
+    background:var(--blue);color:#fff;font-size:14px;font-weight:800;flex-shrink:0}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:7px 9px;text-align:center}
+  th{background:#f8fafc;font-weight:700}
+  td.l,th.l{text-align:left}
+
+  .quote{background:#f8fafc;border-left:4px solid #94a3b8;padding:12px 14px;font-size:13px;
+    color:#475569;border-radius:0 8px 8px 0;margin:10px 0}
+
+  .box{border-radius:10px;padding:13px 15px;margin:10px 0;font-size:13.5px}
+  .box.g{background:var(--green-bg);border:1px solid #bbf7d0}
+  .box.a{background:var(--amber-bg);border:1px solid #fde68a}
+  .box.r{background:var(--red-bg);border:1px solid #fecaca}
+  .box.b{background:#eff6ff;border:1px solid #bfdbfe}
+  .box.p{background:var(--purple-bg);border:1px solid #ddd6fe}
+  .box .t{font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+  .box.g .t{color:var(--green)} .box.a .t{color:var(--amber)} .box.r .t{color:var(--red)}
+  .box.b .t{color:var(--blue-d)} .box.p .t{color:var(--purple)}
+
+  .ans{background:#ecfdf5;border:2px solid #6ee7b7;border-radius:10px;padding:13px 15px;text-align:center;
+    font-size:16px;font-weight:800;color:#065f46;margin:10px 0}
+
+  /* canvas sim */
+  .sim{border:1px solid var(--line);border-radius:12px;background:#0f172a;margin:12px 0;overflow:hidden}
+  .sim canvas{display:block;width:100%;background:linear-gradient(#1e293b,#0f172a)}
+  .simbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 12px;background:#1e293b;
+    border-top:1px solid #334155}
+  .simbar .rd{display:flex;gap:9px;flex-wrap:wrap;margin-left:auto}
+  .chipv{background:#0f172a;border:1px solid #334155;border-radius:7px;padding:4px 9px;font-size:11.5px;
+    color:#cbd5e1;font-weight:600}
+  .chipv b{color:#38bdf8}
+  .sbtn{background:#0ea5e9;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12.5px;
+    font-weight:700;cursor:pointer;min-height:40px}
+  .sbtn:hover{background:#0284c7}
+  .sbtn.ghost{background:#334155}.sbtn.ghost:hover{background:#475569}
+  .simlbl{font-size:11px;color:#94a3b8;padding:0 10px 9px}
+
+  /* formula cards */
+  .fcard{border:1px solid var(--line);border-radius:10px;padding:13px 15px;margin:9px 0;background:#fff}
+  .fcard .ft{font-weight:800;font-size:14px;color:var(--blue-d);margin-bottom:5px}
+  .fcard .fe{font-size:15px;margin:6px 0}
+  .fcard .fd{font-size:12.5px;color:var(--sub)}
+
+  /* scientist */
+  .sci{display:flex;gap:13px;align-items:flex-start;background:linear-gradient(135deg,#fffbeb,#fef3c7);
+    border:1px solid #fde68a;border-radius:12px;padding:15px;margin:12px 0}
+  .sci .ava{font-size:34px;line-height:1;flex-shrink:0}
+  .sci .st{font-weight:800;color:#92400e;font-size:14px;margin-bottom:3px}
+  .sci .sd{font-size:13px;color:#78350f}
+
+  /* safety cards */
+  .sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:12px 0}
+  .scell{border:1px solid var(--line);border-radius:10px;padding:13px;background:#fff;cursor:pointer;transition:.15s}
+  .scell:hover{border-color:var(--blue);box-shadow:0 2px 8px rgba(37,99,235,.12)}
+  .scell .si{font-size:24px}
+  .scell .sn{font-weight:800;font-size:13.5px;margin:6px 0 4px}
+  .scell .sp{font-size:11.5px;color:#475569;display:none;line-height:1.5}
+  .scell.show .sp{display:block}
+  .scell .sk{font-size:10.5px;color:var(--sub)}
+
+  /* warm-up */
+  .prob{border:1px solid var(--line);border-radius:10px;padding:14px;margin:11px 0;background:#fff}
+  .prob .ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;gap:8px}
+  .prob .pno{font-weight:800;font-size:13px}
+  .lv{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:5px}
+  .lv.e{background:var(--green-bg);color:var(--green)}
+  .lv.m{background:var(--amber-bg);color:var(--amber)}
+  .lv.h{background:var(--red-bg);color:var(--red)}
+  .prob .pq{font-size:13.5px;margin-bottom:9px}
+  .tgl{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:10px 15px;font-size:13px;
+    font-weight:700;cursor:pointer;min-height:44px}
+  .tgl:hover{background:var(--blue-d)}
+  .sol{display:none;margin-top:10px;padding:11px 13px;background:#f8fafc;border-radius:8px;font-size:13px;
+    border:1px solid var(--line)}
+  .sol.open{display:block}
+
+  /* challenge */
+  .ch{border:1px solid var(--line);border-radius:12px;padding:16px;margin:14px 0;background:#fff}
+  .ch .chh{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+  .ch .ctitle{font-weight:800;font-size:14.5px}
+  .ch .time{font-size:11px;font-weight:700;background:#fef2f2;color:var(--red);border:1px solid #fecaca;
+    border-radius:20px;padding:3px 11px;white-space:nowrap}
+  .ch .cq{font-size:14px;margin:8px 0;line-height:1.65}
+  .coach{background:#eff6ff;border:1px dashed #93c5fd;border-radius:8px;padding:10px 12px;font-size:12.5px;
+    color:#1e40af;margin:10px 0}
+  .timerbox{display:flex;align-items:center;gap:10px;margin:10px 0;flex-wrap:wrap}
+  .tdisp{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:22px;font-weight:800;color:var(--ink);
+    min-width:74px}
+  .tdisp.over{color:var(--red)}
+  .step{border:1px solid var(--line);border-radius:10px;margin:9px 0;overflow:hidden}
+  .step-h{background:#f8fafc;padding:11px 14px;font-weight:700;font-size:13.5px;cursor:pointer;min-height:44px;
+    display:flex;justify-content:space-between;align-items:center;gap:8px;user-select:none}
+  .step-h:hover{background:#f1f5f9}
+  .step-h .arr{transition:.2s;color:var(--sub);font-size:12px}
+  .step.open .step-h .arr{transform:rotate(90deg)}
+  .step-b{display:none;padding:13px 15px;font-size:13.5px;border-top:1px solid var(--line)}
+  .step.open .step-b{display:block}
+  .stepwrap{display:none;margin-top:6px}
+  .stepwrap.open{display:block}
+
+  /* checklist */
+  .chk{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+  .chk:last-child{border-bottom:none}
+  .chk input{margin-top:4px;width:17px;height:17px;flex-shrink:0;accent-color:var(--blue)}
+  .pill{display:inline-block;background:#eef2ff;color:#4338ca;border-radius:6px;padding:2px 9px;
+    font-size:11px;font-weight:700;margin:2px 3px 2px 0}
+
+  @media(max-width:640px){
+    .hero h1{font-size:18px}
+    .card{padding:16px}
+    .sgrid{grid-template-columns:repeat(2,1fr)}
+  }
+</style>
+</head>
+<body>
+
+<nav class="crumb">
+  <a href="../index.html">고1</a><span>›</span>
+  <a href="index.html">Science_1_1</a><span>›</span>
+  <a class="cur">물체의 운동 분석</a>
+</nav>
+
+<div class="hero">
+  <div class="badge">통합과학1 · 수행평가 · 15점</div>
+  <h1>🚀 물체의 운동 분석</h1>
+  <p>📅 2026년 6월 11일(목) 6교시 · 중력 운동 · 운동량 · 관성</p>
+</div>
+
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="0">📋 개요</button>
+  <button class="tab" data-t="1">🌍 중력 운동</button>
+  <button class="tab" data-t="2">💥 운동량·충격량</button>
+  <button class="tab" data-t="3">🛡️ 관성·안전</button>
+  <button class="tab" data-t="4">📐 공식카드</button>
+  <button class="tab" data-t="5">🔥 몸풀기</button>
+  <button class="tab" data-t="6">⏱️ 도전문제</button>
+  <button class="tab" data-t="7">✅ 실전점검</button>
+</div>
+
+<div class="wrap">
+
+<!-- ===================== TAB 0 : 개요 ===================== -->
+<section class="page active" data-p="0">
+  <div class="card">
+    <h2>📋 이 수행평가, 한눈에</h2>
+    <table>
+      <tr><th class="l">항목</th><th class="l">내용</th></tr>
+      <tr><td class="l">평가명</td><td class="l">물체의 운동 분석하기</td></tr>
+      <tr><td class="l">배점</td><td class="l"><b>15점</b></td></tr>
+      <tr><td class="l">일시</td><td class="l">6월 11일(목) 6교시 · 각 반 교실</td></tr>
+      <tr><td class="l">범위</td><td class="l">교과서 114~127쪽 + 학습지</td></tr>
+    </table>
+    <div class="box b"><div class="t">🎯 평가 3요소</div>
+      <b>①</b> 중력에 의한 운동 분석 — 구간별 이동거리·평균속도·속도변화량·가속도<br>
+      <b>②</b> 충격 받은 물체의 운동량 변화 — 충격량·운동량 변화량·평균 충격력<br>
+      <b>③</b> 관성 법칙으로 안전사고·안전장치 설명
+    </div>
+    <div class="box a"><div class="t">⚠️ 핵심은 "분석"</div>
+      교실에서 <b>주어진 데이터로 빠르고 정확하게 계산</b>하고 <b>과정을 서술</b>하는 평가예요.
+      공식만 외우면 안 되고, 손에 익혀서 3분 안에 표를 채울 수 있어야 합니다.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🤔 왜 이걸 배울까?</h2>
+    <p class="lead">"운동 분석"은 시험을 위한 게 아니라, 세상이 움직이는 규칙을 읽는 능력이에요.</p>
+    <div class="box g"><div class="t">🚗 너의 목숨을 지킨다</div>
+      안전벨트·에어백·헬멧은 전부 <b>운동량과 충격량</b> 공식으로 설계돼요. 이걸 이해하면
+      "왜 푹신한 게 안전한가"를 과학적으로 말할 수 있어요.</div>
+    <div class="box b"><div class="t">⚽ 스포츠·게임의 비밀</div>
+      야구 배트, 축구 슈팅, 농구 점프슛 — 전부 포물선(수평투사)과 충격량의 세계.
+      좋은 분석가는 공의 궤적을 숫자로 읽어요.</div>
+    <div class="box p"><div class="t">🚀 로켓·우주의 언어</div>
+      달 착륙, 화성 탐사 모두 이 단원의 공식에서 출발해요. 갈릴레오·뉴턴이 만든 이 규칙은
+      400년이 지나도 그대로 쓰입니다.</div>
+  </div>
+
+  <div class="card">
+    <h2>🗺️ 이 앱 사용법</h2>
+    <ul style="margin-left:18px;font-size:13.5px">
+      <li><b>🌍 중력 운동 / 💥 운동량 / 🛡️ 관성</b> — 애니메이션으로 개념을 눈으로 이해</li>
+      <li><b>📐 공식카드</b> — 시험 직전 빠른 복습</li>
+      <li><b>🔥 몸풀기</b> — 쉬운 문제로 감 잡기 (즉시 정답)</li>
+      <li><b>⏱️ 도전문제</b> — 실전형. <b>문제 먼저 풀고</b> → 타이머 재고 → 단계별 풀이 확인</li>
+      <li><b>✅ 실전점검</b> — 시험장 전략 + 자가 체크리스트</li>
+    </ul>
+    <div class="box a" style="margin-top:6px"><div class="t">💡 추천 순서</div>
+      개념 3탭 → 공식카드 → 몸풀기 → 도전문제(스스로!) → 실전점검</div>
+  </div>
+</section>
+
+<!-- ===================== TAB 1 : 중력 운동 ===================== -->
+<section class="page" data-p="1">
+  <div class="card">
+    <h2>🌍 중력에 의한 운동</h2>
+    <p class="lead">중력만 받는 물체는 <b>일정한 가속도</b>(g≈10 m/s²)로 빨라져요. 두 가지 상황을 봅니다.</p>
+
+    <h3>① 자유 낙하 — 가만히 떨어뜨리기</h3>
+    <p>처음 속도 0. 시간이 갈수록 빨라지고, 떨어진 거리는 시간의 <b>제곱</b>으로 늘어나요.</p>
+    <div class="sim">
+      <canvas id="cvFall" height="300"></canvas>
+      <div class="simlbl">▶ 재생을 누르면 공이 떨어집니다. 오른쪽 띠는 매 1초 구간 거리 (1 : 3 : 5 비율!)</div>
+      <div class="simbar">
+        <button class="sbtn" onclick="Fall.play()">▶ 재생</button>
+        <button class="sbtn ghost" onclick="Fall.reset()">↺ 처음</button>
+        <div class="rd">
+          <span class="chipv">t = <b id="fT">0.0</b> s</span>
+          <span class="chipv">v = <b id="fV">0</b> m/s</span>
+          <span class="chipv">s = <b id="fS">0</b> m</span>
+        </div>
+      </div>
+    </div>
+    <div class="box g"><div class="t">🔑 핵심 공식</div>
+      속도 $v = g\,t$ &nbsp;|&nbsp; 떨어진 거리 $s = \tfrac12 g t^2$ &nbsp;|&nbsp;
+      매 1초 구간 거리비 <b>1 : 3 : 5 : 7</b></div>
+
+    <h3>② 수평으로 던진 물체 — 포물선</h3>
+    <p>수평 방향은 <b>등속</b>(힘 없음), 연직 방향은 <b>자유낙하</b>. 두 운동이 <b>따로따로</b> 동시에 일어나요.</p>
+    <div class="sim">
+      <canvas id="cvProj" height="300"></canvas>
+      <div class="simlbl">▶ 왼쪽: 수평으로 던진 공(파랑) / 오른쪽: 그냥 떨어뜨린 공(회색) — <b>연직 높이는 항상 같다!</b></div>
+      <div class="simbar">
+        <button class="sbtn" onclick="Proj.play()">▶ 재생</button>
+        <button class="sbtn ghost" onclick="Proj.reset()">↺ 처음</button>
+        <div class="rd">
+          <span class="chipv">t = <b id="pT">0.0</b> s</span>
+          <span class="chipv">vₓ = <b>20</b> m/s (일정)</span>
+          <span class="chipv">vᵧ = <b id="pVy">0</b> m/s</span>
+        </div>
+      </div>
+    </div>
+    <div class="box b"><div class="t">💡 왜 동시에 떨어질까?</div>
+      수평 속도는 연직 운동에 영향을 주지 않아요. 그래서 던진 공과 떨어뜨린 공은 <b>똑같은 순간</b> 바닥에 닿습니다.</div>
+
+    <div class="sci">
+      <div class="ava">🪶</div>
+      <div>
+        <div class="st">갈릴레오 갈릴레이 (1564~1642)</div>
+        <div class="sd">아리스토텔레스는 "무거운 게 빨리 떨어진다"고 1500년간 가르쳤어요. 갈릴레오는
+        "무게와 상관없이 동시에 떨어진다"고 반박했죠(피사의 사탑 일화로 유명).
+        <b>1971년 아폴로 15호</b>의 우주인은 공기 없는 <b>달에서 망치와 깃털을 동시에 떨어뜨려</b>
+        둘이 똑같이 착지하는 걸 보여줬어요 — 갈릴레오가 350년 만에 증명된 순간! 🌙</div>
+      </div>
+    </div>
+
+    <h3>📊 분석에 쓰는 4가지 값</h3>
+    <table>
+      <tr><th class="l">값</th><th>구하는 법</th></tr>
+      <tr><td class="l">구간 이동거리</td><td>$s_2 - s_1$</td></tr>
+      <tr><td class="l">구간 평균속도</td><td>$\dfrac{\text{구간 거리}}{\text{구간 시간}}$</td></tr>
+      <tr><td class="l">속도 변화량</td><td>$v_{나중}-v_{처음}$</td></tr>
+      <tr><td class="l">가속도</td><td>$\dfrac{\Delta v}{\Delta t}$ (자유낙하면 = g)</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ===================== TAB 2 : 운동량·충격량 ===================== -->
+<section class="page" data-p="2">
+  <div class="card">
+    <h2>💥 운동량과 충격량</h2>
+    <p class="lead">충돌을 분석하는 두 무기. <b>운동량</b>은 "움직이는 정도", <b>충격량</b>은 "운동량을 바꾼 양".</p>
+
+    <div class="fcard"><div class="ft">운동량 (momentum)</div>
+      <div class="fe">$p = m v$ &nbsp;<span class="fd">[kg·m/s]</span></div>
+      <div class="fd">질량 × 속도. 무겁거나 빠를수록 멈추기 어렵다. <b>방향이 있는 벡터.</b></div></div>
+    <div class="fcard"><div class="ft">충격량 (impulse)</div>
+      <div class="fe">$I = F\,\Delta t = \Delta p = mv' - mv$ &nbsp;<span class="fd">[N·s]</span></div>
+      <div class="fd">힘 × 작용 시간 = 운동량의 변화량. 평균 충격력 $F = \dfrac{\Delta p}{\Delta t}$</div></div>
+
+    <h3>🧪 충돌 시뮬레이터 — 시간을 늘리면?</h3>
+    <p>같은 운동량 변화라도 <b>충돌 시간</b>이 길면 평균 힘이 작아져요. 두 상황을 비교해 보세요.</p>
+    <div class="sim">
+      <canvas id="cvColl" height="260"></canvas>
+      <div class="simlbl">▶ 같은 공이 같은 속도로 벽에 부딪혀요. 위=딱딱한 벽(짧은 시간), 아래=에어백(긴 시간)</div>
+      <div class="simbar">
+        <button class="sbtn" onclick="Coll.play()">▶ 충돌!</button>
+        <button class="sbtn ghost" onclick="Coll.reset()">↺ 처음</button>
+        <div class="rd">
+          <span class="chipv">Δp = <b>같음</b></span>
+          <span class="chipv">딱딱: F = <b id="cF1">—</b></span>
+          <span class="chipv">에어백: F = <b id="cF2">—</b></span>
+        </div>
+      </div>
+    </div>
+    <div class="box g"><div class="t">🔑 충격을 줄이는 비결</div>
+      운동량 변화 $\Delta p$가 정해져 있을 때, <b>충돌 시간 $\Delta t$를 늘리면</b>
+      평균 충격력 $F = \Delta p/\Delta t$ 가 작아진다. → 에어백·번지줄·푹신한 매트·야구 글러브의 원리!</div>
+
+    <div class="sci">
+      <div class="ava">🍎</div>
+      <div>
+        <div class="st">아이작 뉴턴 (1643~1727)</div>
+        <div class="sd">뉴턴은 『프린키피아』(1687)에서 운동량을 "질량 × 속도"로 정의하고,
+        힘은 "운동량을 시간에 따라 바꾸는 것"이라 했어요. 이 한 줄에서 로켓 추진, 자동차 충돌 안전,
+        총의 반동까지 전부 설명됩니다. 우리가 지금 푸는 충격량 문제가 바로 뉴턴의 언어예요. 🪐</div>
+      </div>
+    </div>
+
+    <div class="box a"><div class="t">⚠️ 시험장 실수 1순위</div>
+      방향이 반대로 바뀌면 <b>부호</b>를 꼭 바꿔서 계산! 예: +40 m/s로 와서 반대로 60 m/s면
+      $\Delta v = -60-40 = -100$ (그냥 20이 아니에요).</div>
+  </div>
+</section>
+
+<!-- ===================== TAB 3 : 관성·안전장치 ===================== -->
+<section class="page" data-p="3">
+  <div class="card">
+    <h2>🛡️ 관성과 안전장치</h2>
+    <p class="lead"><b>관성</b> = 물체가 지금의 운동 상태를 그대로 유지하려는 성질 (뉴턴 제1법칙).</p>
+
+    <h3>🚌 관성 체험 — 급정거하면?</h3>
+    <p>달리던 버스가 갑자기 멈추면, 승객의 몸은 <b>계속 가려는 성질</b> 때문에 앞으로 쏠려요.</p>
+    <div class="sim">
+      <canvas id="cvInert" height="220"></canvas>
+      <div class="simlbl">▶ 버스가 달리다 급정거합니다. 안전벨트 없는 승객(빨강)이 어떻게 되는지 보세요.</div>
+      <div class="simbar">
+        <button class="sbtn" onclick="Inert.play()">▶ 급정거</button>
+        <button class="sbtn ghost" onclick="Inert.reset()">↺ 처음</button>
+        <span class="chipv" id="inMsg" style="margin-left:auto">버스 정지 중</span>
+      </div>
+    </div>
+    <div class="box b"><div class="t">💡 핵심</div>
+      버스(외부)는 멈췄지만 승객(물체)에는 멈추는 힘이 안 닿았어요. 그래서 몸은 운동 상태를 유지 → 앞으로 쏠림.
+      <b>질량이 클수록 관성이 크다</b>(상태 바꾸기 더 어렵다).</div>
+
+    <h3>🔧 안전장치의 과학 (눌러서 원리 확인)</h3>
+    <div class="sgrid" id="safeGrid"></div>
+
+    <div class="box g"><div class="t">📝 서술형 대비 — 두 가지 논리</div>
+      <b>관성 논리:</b> "몸이 운동 상태를 유지하려 해서 ~한다, 그래서 ~로 막아준다."<br>
+      <b>충격량 논리:</b> "충돌 시간을 늘려 $F=\Delta p/\Delta t$의 평균 힘을 줄인다."<br>
+      안전벨트·머리받침대 → 관성 / 에어백·헬멧·매트 → 충격량(시간)</div>
+
+    <div class="sci">
+      <div class="ava">🎢</div>
+      <div>
+        <div class="st">일상 속 관성 찾기</div>
+        <div class="sd">컵 위 종이를 빠르게 빼면 컵은 그대로(정지 유지) · 망치 자루를 바닥에 내리치면 머리가 박힘(운동 유지)
+        · 버스 급출발 때 몸이 뒤로 쏠림(정지 유지). 전부 같은 원리예요!</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== TAB 4 : 공식카드 ===================== -->
+<section class="page" data-p="4">
+  <div class="card">
+    <h2>📐 공식 카드 — 시험 직전 복습</h2>
+    <p class="lead">g = 10 m/s² 로 계산(문제 지시 우선). 단위 꼭 쓰기!</p>
+
+    <h3>🌍 중력에 의한 운동</h3>
+    <div class="fcard"><div class="ft">자유낙하 속도</div><div class="fe">$v = g\,t$</div>
+      <div class="fd">처음 속도 0. 1초마다 10 m/s씩 빨라짐.</div></div>
+    <div class="fcard"><div class="ft">자유낙하 거리</div><div class="fe">$s = \tfrac12 g t^2$</div>
+      <div class="fd">시간의 제곱에 비례. 구간 거리비 1:3:5:7.</div></div>
+    <div class="fcard"><div class="ft">수평투사</div><div class="fe">$x = v_x t,\quad y = \tfrac12 g t^2$</div>
+      <div class="fd">수평=등속(vₓ 일정), 연직=자유낙하. 독립!</div></div>
+    <div class="fcard"><div class="ft">구간 평균속도 · 가속도</div>
+      <div class="fe">$\bar v = \dfrac{\Delta s}{\Delta t},\quad a = \dfrac{\Delta v}{\Delta t}$</div>
+      <div class="fd">자유낙하면 가속도 = g로 일정.</div></div>
+
+    <h3>💥 운동량·충격량</h3>
+    <div class="fcard"><div class="ft">운동량</div><div class="fe">$p = mv$ &nbsp;<span class="fd">[kg·m/s]</span></div></div>
+    <div class="fcard"><div class="ft">충격량 = 운동량 변화량</div>
+      <div class="fe">$I = F\,\Delta t = \Delta p = mv' - mv$ &nbsp;<span class="fd">[N·s]</span></div></div>
+    <div class="fcard"><div class="ft">평균 충격력</div><div class="fe">$F = \dfrac{\Delta p}{\Delta t}$</div>
+      <div class="fd">시간 길수록 힘 작아짐 = 안전.</div></div>
+
+    <h3>🛡️ 관성</h3>
+    <div class="fcard"><div class="ft">뉴턴 제1법칙</div>
+      <div class="fe">외력 없으면 운동 상태 유지</div>
+      <div class="fd">정지→정지, 운동→등속직선. 질량 클수록 관성 큼.</div></div>
+
+    <div class="box a"><div class="t">✍️ 서술 채점 포인트</div>
+      공식 → 값 대입 → 답 → <b>단위</b> 순서로 줄 세우기 · 방향(부호) 명시 ·
+      규칙(1:3:5 등) 한 줄 언급</div>
+  </div>
+</section>
+
+<!-- ===================== TAB 5 : 몸풀기 ===================== -->
+<section class="page" data-p="5">
+  <div class="card">
+    <h2>🔥 몸풀기 — 개념 확인</h2>
+    <p class="lead">쉬운 문제로 감을 잡아요. 먼저 머리로 답하고 → [정답 확인]. (g = 10)</p>
+    <div id="warmList"></div>
+  </div>
+</section>
+
+<!-- ===================== TAB 6 : 도전문제 ===================== -->
+<section class="page" data-p="6">
+  <div class="card">
+    <h2>⏱️ 도전 문제 — 실전처럼</h2>
+    <div class="box r"><div class="t">🎯 푸는 법 (중요!)</div>
+      1. <b>먼저 스스로 풀어요.</b> [⏱ 타이머 시작]을 누르고 권장 시간 안에 도전!<br>
+      2. 연습장에 <b>공식 → 대입 → 답 → 단위</b>를 줄 세워 적어요.<br>
+      3. 다 풀었으면 [풀이 보기]로 단계별 확인. <b>먼저 보지 말기!</b></div>
+    <div id="chList"></div>
+  </div>
+</section>
+
+<!-- ===================== TAB 7 : 실전점검 ===================== -->
+<section class="page" data-p="7">
+  <div class="card">
+    <h2>✅ 시험장 전략</h2>
+    <div class="box b"><div class="t">⏱️ 시간 배분</div>
+      계산 문제는 <b>표 먼저 채우고</b> 서술. 막히면 넘어갔다 돌아오기.
+      자유낙하 표는 v=gt, s=½gt²만 알면 30초 컷.</div>
+    <div class="box g"><div class="t">✍️ 서술형 만점 공식</div>
+      ① 어떤 공식을 쓰는지 명시 → ② 값 대입 → ③ 계산 → ④ <b>단위</b> →
+      ⑤ (가능하면) 규칙·이유 한 줄. 안전장치는 <b>"관성/충격량 중 무엇"</b>인지 먼저 정하기.</div>
+    <div class="box a"><div class="t">⚠️ 단골 실수</div>
+      단위 누락 · 방향(부호) 무시 · 평균속도≠순간속도 · 수평속도는 안 변함 ·
+      "충격력은 시간으로 줄인다"를 "힘으로"로 착각</div>
+  </div>
+
+  <div class="card">
+    <h2>📋 자가 점검 체크리스트</h2>
+    <p class="lead">시험 전, 스스로 ✓ 해보세요.</p>
+    <div id="chkList"></div>
+  </div>
+
+  <div class="card">
+    <h2>🏷️ 약점 태그</h2>
+    <span class="pill">과학:자유낙하</span><span class="pill">과학:수평투사</span>
+    <span class="pill">과학:운동량</span><span class="pill">과학:충격량</span>
+    <span class="pill">과학:관성</span><span class="pill">과학:안전장치</span>
+    <div class="box b" style="margin-top:10px"><div class="t">보강 방향</div>
+      구간 거리·평균속도 표를 5문제만 반복하면 손에 익어요. 충격량은 부호 처리, 안전장치는
+      "관성이냐 충격량이냐" 분류 연습이 핵심.</div>
+  </div>
+</section>
+
+</div>
+
+<script>
+/* ---------- tabs (lazy-init sims) ---------- */
+document.getElementById('tabs').addEventListener('click',e=>{
+  const b=e.target.closest('.tab'); if(!b)return;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  b.classList.add('active');
+  document.querySelector(`.page[data-p="${b.dataset.t}"]`).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  const t=b.dataset.t;
+  if(t==='1'){Fall.init();Proj.init();}
+  if(t==='2')Coll.init();
+  if(t==='3')Inert.init();
+});
+
+/* ---------- canvas helper ---------- */
+function setupCanvas(cv){
+  const dpr=window.devicePixelRatio||1;
+  const w=cv.clientWidth||cv.parentElement.clientWidth;
+  const h=cv.height;
+  cv.width=w*dpr; cv.style.height=h+'px';
+  const ctx=cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
+  return {ctx,w,h};
+}
+
+/* ===== Free fall ===== */
+const Fall={raf:0,t:0,ready:false,
+  init(){const cv=document.getElementById('cvFall');const c=setupCanvas(cv);this.cv=cv;this.ctx=c.ctx;this.w=c.w;this.h=c.h;this.ready=true;this.draw();},
+  reset(){cancelAnimationFrame(this.raf);this.t=0;this.draw();this.upd();},
+  play(){cancelAnimationFrame(this.raf);this.t=0;const T=3,start=performance.now();
+    const loop=now=>{this.t=Math.min(T,(now-start)/1000*1.0);this.draw();this.upd();
+      if(this.t<T)this.raf=requestAnimationFrame(loop);};this.raf=requestAnimationFrame(loop);},
+  upd(){const g=10,t=this.t;document.getElementById('fT').textContent=t.toFixed(1);
+    document.getElementById('fV').textContent=Math.round(g*t);
+    document.getElementById('fS').textContent=Math.round(0.5*g*t*t);},
+  draw(){if(!this.ready)return;const ctx=this.ctx,w=this.w,h=this.h,t=this.t;
+    ctx.clearRect(0,0,w,h);
+    const top=24,bot=h-24,H=bot-top, maxS=45;
+    // segment bands (1:3:5) on right
+    const segs=[[0,5],[5,20],[20,45]],cols=['rgba(56,189,248,.16)','rgba(56,189,248,.26)','rgba(56,189,248,.4)'];
+    segs.forEach((s,i)=>{const y1=top+H*s[0]/maxS,y2=top+H*s[1]/maxS;
+      ctx.fillStyle=cols[i];ctx.fillRect(w-70,y1,46,y2-y1);
+      ctx.fillStyle='#7dd3fc';ctx.font='11px sans-serif';ctx.textAlign='center';
+      ctx.fillText((s[1]-s[0])+'m',w-47,(y1+y2)/2+4);});
+    ctx.fillStyle='#94a3b8';ctx.font='10px sans-serif';ctx.textAlign='center';
+    ctx.fillText('구간거리',w-47,top-8);ctx.fillText('1 : 3 : 5',w-47,bot+16);
+    // tick labels (time)
+    ctx.textAlign='left';ctx.fillStyle='#64748b';
+    [[0,'0s'],[5,'1s'],[20,'2s'],[45,'3s']].forEach(d=>{const y=top+H*d[0]/maxS;
+      ctx.strokeStyle='#334155';ctx.beginPath();ctx.moveTo(34,y);ctx.lineTo(w-72,y);ctx.stroke();
+      ctx.fillText(d[1],8,y+4);});
+    // ball
+    const s=0.5*10*t*t, y=top+H*Math.min(s,maxS)/maxS, x=80;
+    // trail
+    for(let k=1;k<=6;k++){const tt=Math.max(0,t-k*0.08),ss=0.5*10*tt*tt;
+      ctx.fillStyle=`rgba(56,189,248,${0.18-k*0.025})`;ctx.beginPath();
+      ctx.arc(x,top+H*Math.min(ss,maxS)/maxS,9,0,7);ctx.fill();}
+    ctx.fillStyle='#38bdf8';ctx.beginPath();ctx.arc(x,y,11,0,7);ctx.fill();
+    ctx.fillStyle='#0ea5e9';ctx.beginPath();ctx.arc(x-3,y-3,4,0,7);ctx.fill();
+  }};
+
+/* ===== Projectile ===== */
+const Proj={raf:0,t:0,ready:false,vx:20,
+  init(){const cv=document.getElementById('cvProj');const c=setupCanvas(cv);this.cv=cv;this.ctx=c.ctx;this.w=c.w;this.h=c.h;this.ready=true;this.draw();},
+  reset(){cancelAnimationFrame(this.raf);this.t=0;this.draw();this.upd();},
+  play(){cancelAnimationFrame(this.raf);this.t=0;const T=3,start=performance.now();
+    const loop=now=>{this.t=Math.min(T,(now-start)/1000*1.0);this.draw();this.upd();
+      if(this.t<T)this.raf=requestAnimationFrame(loop);};this.raf=requestAnimationFrame(loop);},
+  upd(){const g=10,t=this.t;document.getElementById('pT').textContent=t.toFixed(1);
+    document.getElementById('pVy').textContent=Math.round(g*t);},
+  draw(){if(!this.ready)return;const ctx=this.ctx,w=this.w,h=this.h,t=this.t;
+    ctx.clearRect(0,0,w,h);
+    const top=22,bot=h-22,H=bot-top,maxY=45,maxX=60;
+    const x0=44,xScale=(w-90)/maxX;
+    // ground
+    ctx.strokeStyle='#475569';ctx.beginPath();ctx.moveTo(0,bot);ctx.lineTo(w,bot);ctx.stroke();
+    // dashed height guides
+    ctx.strokeStyle='#334155';ctx.setLineDash([4,4]);
+    [0,1,2,3].forEach(tt=>{const yy=top+H*(0.5*10*tt*tt)/maxY;
+      ctx.beginPath();ctx.moveTo(0,yy);ctx.lineTo(w,yy);ctx.stroke();});
+    ctx.setLineDash([]);
+    // projectile path
+    ctx.strokeStyle='rgba(56,189,248,.5)';ctx.beginPath();
+    for(let tt=0;tt<=t;tt+=0.03){const px=x0+this.vx*tt*xScale,py=top+H*(0.5*10*tt*tt)/maxY;
+      tt===0?ctx.moveTo(px,py):ctx.lineTo(px,py);}ctx.stroke();
+    // projectile ball
+    const bx=x0+this.vx*t*xScale,by=top+H*Math.min(0.5*10*t*t,maxY)/maxY;
+    ctx.fillStyle='#38bdf8';ctx.beginPath();ctx.arc(bx,by,10,0,7);ctx.fill();
+    // dropped ball (gray) on right reference line
+    const dx=w-40,dy=by;
+    ctx.fillStyle='#94a3b8';ctx.beginPath();ctx.arc(dx,dy,10,0,7);ctx.fill();
+    // height-equal connector
+    ctx.strokeStyle='rgba(148,163,184,.4)';ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(bx,by);ctx.lineTo(dx,dy);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='#64748b';ctx.font='10px sans-serif';ctx.textAlign='center';
+    ctx.fillText('던진 공',bx,by-15);ctx.fillText('떨어뜨린 공',dx,dy-15);
+  }};
+
+/* ===== Collision (impulse) ===== */
+const Coll={raf:0,ready:false,
+  init(){const cv=document.getElementById('cvColl');const c=setupCanvas(cv);this.cv=cv;this.ctx=c.ctx;this.w=c.w;this.h=c.h;this.ready=true;this.reset();},
+  reset(){cancelAnimationFrame(this.raf);this.p=0;this.phase='run';this.draw();
+    document.getElementById('cF1').textContent='—';document.getElementById('cF2').textContent='—';},
+  play(){cancelAnimationFrame(this.raf);const start=performance.now();
+    const loop=now=>{const e=(now-start)/1000;this.p=e;this.draw();
+      if(e>2.6){document.getElementById('cF1').textContent='크다';
+        document.getElementById('cF2').textContent='작다';return;}
+      this.raf=requestAnimationFrame(loop);};this.raf=requestAnimationFrame(loop);},
+  ball(ctx,x,y,r,col){ctx.fillStyle=col;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,.4)';ctx.beginPath();ctx.arc(x-r*0.3,y-r*0.3,r*0.3,0,7);ctx.fill();},
+  draw(){if(!this.ready)return;const ctx=this.ctx,w=this.w,h=this.h,p=this.p;
+    ctx.clearRect(0,0,w,h);
+    const wallX=w-70, r=15, startX=40, approach=1.2;
+    const rows=[{y:h*0.28,col:'#f87171',hard:true,lbl:'딱딱한 벽 (짧은 충돌)'},
+                {y:h*0.72,col:'#34d399',hard:false,lbl:'에어백 (긴 충돌)'}];
+    rows.forEach(row=>{
+      // wall / airbag
+      if(row.hard){ctx.fillStyle='#64748b';ctx.fillRect(wallX,row.y-40,12,80);}
+      else{ctx.fillStyle='rgba(52,211,153,.25)';ctx.strokeStyle='#34d399';
+        let cw=14; if(p>approach&&p<approach+0.6)cw=14+34*Math.sin((p-approach)/0.6*Math.PI);
+        ctx.fillRect(wallX-cw+12,row.y-34,cw,68);ctx.strokeRect(wallX-cw+12,row.y-34,cw,68);}
+      // ball motion
+      let x;
+      if(p<approach){x=startX+(wallX-r-startX)*(p/approach);}
+      else if(p<approach+0.6){x=wallX-r;}            // contact
+      else{const bp=Math.min(1,(p-approach-0.6)/approach);x=(wallX-r)-(wallX-r-startX)*bp;}
+      this.ball(ctx,x,row.y,r,row.col);
+      // impact flash
+      if(p>approach&&p<approach+(row.hard?0.25:0.6)){
+        ctx.strokeStyle=row.hard?'#fca5a5':'#6ee7b7';ctx.lineWidth=2;
+        for(let a=0;a<6;a++){const ang=a/6*7,len=row.hard?20:10;
+          ctx.beginPath();ctx.moveTo(wallX-r,row.y);
+          ctx.lineTo(wallX-r-Math.cos(ang)*len,row.y-Math.sin(ang)*len*0.6);ctx.stroke();}
+        ctx.lineWidth=1;}
+      ctx.fillStyle='#cbd5e1';ctx.font='11px sans-serif';ctx.textAlign='left';
+      ctx.fillText(row.lbl,startX-4,row.y-46);
+    });
+  }};
+
+/* ===== Inertia (bus) ===== */
+const Inert={raf:0,ready:false,
+  init(){const cv=document.getElementById('cvInert');const c=setupCanvas(cv);this.cv=cv;this.ctx=c.ctx;this.w=c.w;this.h=c.h;this.ready=true;this.reset();},
+  reset(){cancelAnimationFrame(this.raf);this.busX=20;this.pasDX=0;this.phase='idle';
+    document.getElementById('inMsg').textContent='버스 정지 중';this.draw();},
+  play(){cancelAnimationFrame(this.raf);const start=performance.now();const self=this;
+    const drive=1.4,stopAt=1.4;
+    const loop=now=>{const e=(now-start)/1000;
+      const busW=180, baseX=self.w/2-busW/2;
+      if(e<drive){self.busX=baseX;self.pasDX=0;document.getElementById('inMsg').textContent='🚌 달리는 중…';}
+      else{const k=Math.min(1,(e-drive)/0.5);
+        self.pasDX=40*Math.sin(k*Math.PI*0.5)*(1-0.0);  // lurch forward
+        if(k<1){document.getElementById('inMsg').textContent='🛑 급정거! 몸이 앞으로!';}
+        else{document.getElementById('inMsg').textContent='⚠️ 관성으로 앞으로 쏠림';}
+      }
+      self.draw();
+      if(e<drive+0.9)self.raf=requestAnimationFrame(loop);};
+    this.raf=requestAnimationFrame(loop);},
+  draw(){if(!this.ready)return;const ctx=this.ctx,w=this.w,h=this.h;
+    ctx.clearRect(0,0,w,h);
+    const busW=180,busH=90,bx=w/2-busW/2,by=h/2-busH/2;
+    // road
+    ctx.strokeStyle='#475569';ctx.beginPath();ctx.moveTo(0,by+busH+18);ctx.lineTo(w,by+busH+18);ctx.stroke();
+    // bus body
+    ctx.fillStyle='#1d4ed8';ctx.strokeStyle='#60a5fa';ctx.lineWidth=2;
+    roundRect(ctx,bx,by,busW,busH,12);ctx.fill();ctx.stroke();ctx.lineWidth=1;
+    // window
+    ctx.fillStyle='#bae6fd';roundRect(ctx,bx+16,by+14,busW-32,38,7);ctx.fill();
+    // wheels
+    ctx.fillStyle='#0f172a';[bx+38,bx+busW-38].forEach(wx=>{ctx.beginPath();ctx.arc(wx,by+busH,15,0,7);ctx.fill();
+      ctx.fillStyle='#475569';ctx.beginPath();ctx.arc(wx,by+busH,6,0,7);ctx.fill();ctx.fillStyle='#0f172a';});
+    // passenger (seat fixed point + body lurch)
+    const seatX=bx+busW/2-20, seatY=by+30;
+    ctx.fillStyle='#475569';ctx.fillRect(seatX-6,seatY+6,10,40); // seat
+    const px=seatX+this.pasDX, py=seatY;
+    ctx.strokeStyle='#f87171';ctx.lineWidth=4;ctx.lineCap='round';
+    // body
+    ctx.beginPath();ctx.moveTo(seatX,seatY+30);ctx.lineTo(px,py+10);ctx.stroke(); // torso lean
+    ctx.beginPath();ctx.moveTo(px,py+10);ctx.lineTo(px-6,py+34);ctx.moveTo(px,py+10);ctx.lineTo(px+8,py+30);ctx.stroke();//legs
+    ctx.fillStyle='#f87171';ctx.beginPath();ctx.arc(px,py,9,0,7);ctx.fill(); // head
+    ctx.lineWidth=1;
+  }};
+function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+
+/* ---------- safety cards ---------- */
+const safe=[
+  {i:'🔒',n:'안전벨트',k:'관성',p:'급정거 때 관성으로 앞으로 쏠리는 몸을 좌석에 붙잡아 준다.'},
+  {i:'🎈',n:'에어백',k:'충격량',p:'충돌 시간을 늘려 평균 충격력 F=Δp/Δt 를 줄인다.'},
+  {i:'⛑️',n:'헬멧',k:'충격량',p:'충격 시간을 늘리고 힘을 넓게 분산해 머리를 보호한다.'},
+  {i:'💺',n:'머리받침대',k:'관성',p:'추돌 때 머리가 뒤로 젖혀지는 관성을 막아 목을 보호.'},
+  {i:'🥅',n:'그물·매트',k:'충격량',p:'멈추는 시간을 늘려 충격력을 줄인다(번지·체조).'},
+  {i:'🧤',n:'야구 글러브',k:'충격량',p:'손을 뒤로 빼며 받으면 시간↑ → 손이 덜 아프다.'},
+];
+document.getElementById('safeGrid').innerHTML=safe.map(s=>`
+  <div class="scell" onclick="this.classList.toggle('show')">
+    <div class="si">${s.i}</div>
+    <div class="sn">${s.n} <span class="lv ${s.k==='관성'?'m':'h'}" style="font-size:9.5px">${s.k}</span></div>
+    <div class="sk">눌러서 원리 보기</div>
+    <div class="sp">${s.p}</div>
+  </div>`).join('');
+
+/* ---------- warm-up ---------- */
+const warm=[
+  {q:'자유낙하 <b>2초 후</b> 속도는? (g=10)',a:'$v=gt=10×2=$ <b>20 m/s</b>'},
+  {q:'자유낙하 <b>2초 동안</b> 떨어진 거리는?',a:'$s=\\tfrac12gt^2=\\tfrac12×10×4=$ <b>20 m</b>'},
+  {q:'질량 2 kg, 속도 3 m/s 물체의 운동량은?',a:'$p=mv=2×3=$ <b>6 kg·m/s</b>'},
+  {q:'충격량의 단위는?',a:'<b>N·s</b> (= kg·m/s)'},
+  {q:'관성이란 무엇인가?',a:'물체가 <b>현재 운동 상태를 유지</b>하려는 성질 (뉴턴 1법칙)'},
+  {q:'수평으로 던진 물체의 <b>수평 속도</b>는 변할까?',a:'안 변함 — <b>등속</b>(수평엔 힘이 없음)'},
+  {q:'에어백이 충격을 줄이는 핵심은 "힘"? "시간"?',a:'<b>시간</b>을 늘려 평균 힘을 줄인다'},
+];
+document.getElementById('warmList').innerHTML=warm.map((p,i)=>`
+  <div class="prob">
+    <div class="ph"><span class="pno">W${i+1}</span><span class="lv e">쉬움</span></div>
+    <div class="pq">${p.q}</div>
+    <button class="tgl" onclick="this.nextElementSibling.classList.toggle('open')">정답 확인</button>
+    <div class="sol">${p.a}</div>
+  </div>`).join('');
+
+/* ---------- challenge (timer + step reveal) ---------- */
+const challenges=[
+  {title:'도전 1 — 자유낙하 구간 분석',time:'권장 3분',
+   q:'공을 가만히 떨어뜨렸다 (g=10). 0~1초, 1~2초, 2~3초의 <b>구간 이동거리·구간 평균속도</b>를 구하고, <b>가속도</b>를 구하라.',
+   coach:'표를 그려라. v=gt 와 s=½gt² 두 줄이면 끝. 단위 꼭!',
+   steps:[
+     ['1단계 — 각 시각 속도','$v=gt$ : 0s→0, 1s→10, 2s→20, 3s→<b>30 m/s</b>'],
+     ['2단계 — 각 시각 낙하거리','$s=\\tfrac12gt^2$ : 0s→0, 1s→5, 2s→20, 3s→<b>45 m</b>'],
+     ['3단계 — 구간 이동거리','거리 차: 0~1→<b>5 m</b>, 1~2→<b>15 m</b>, 2~3→<b>25 m</b> (비 1:3:5 ✓)'],
+     ['4단계 — 구간 평균속도','거리÷1초: <b>5, 15, 25 m/s</b>'],
+     ['5단계 — 가속도','매 구간 $\\Delta v=10$ m/s → $a=\\Delta v/\\Delta t=$ <b>10 m/s² (일정 = g)</b>'],
+   ]},
+  {title:'도전 2 — 수평으로 던진 물체',time:'권장 4분',
+   q:'높이 45 m에서 공을 수평으로 20 m/s로 던졌다 (g=10). (1) 바닥에 닿는 시간 (2) 수평 도달 거리 (3) 닿는 순간 연직 속도를 구하라.',
+   coach:'수평·연직을 분리! 연직은 자유낙하, 수평은 등속. 시간을 먼저 구해라.',
+   steps:[
+     ['1단계 — 낙하 시간 (연직)','연직은 자유낙하: $45=\\tfrac12×10×t^2 \\Rightarrow t^2=9 \\Rightarrow t=$ <b>3 s</b>'],
+     ['2단계 — 수평 거리','수평은 등속: $x=v_x t=20×3=$ <b>60 m</b>'],
+     ['3단계 — 연직 속도','$v_y=gt=10×3=$ <b>30 m/s</b> (착지 속력 $\\sqrt{20^2+30^2}≈36$ m/s)'],
+     ['💡 포인트','수평·연직은 독립! 그냥 떨어뜨린 공과 <b>동시에</b> 바닥에 닿는다.'],
+   ]},
+  {title:'도전 3 — 야구공 충격량',time:'권장 4분',
+   q:'0.15 kg 야구공이 40 m/s로 날아와 방망이에 맞고 <b>반대 방향</b>으로 60 m/s로 튕겼다. 접촉 시간 0.01초. (1) 운동량 변화량 (2) 충격량 (3) 평균 충격력을 구하라.',
+   coach:'방향 부호 주의! 들어온 쪽 +, 튕긴 쪽 −. Δv는 −100이다.',
+   steps:[
+     ['1단계 — 방향과 속도변화','들어옴 +40, 튕김 −60 → $\\Delta v=-60-40=$ <b>−100 m/s</b>'],
+     ['2단계 — 운동량 변화량','$\\Delta p=m\\Delta v=0.15×(-100)=$ <b>−15 kg·m/s</b> (크기 15)'],
+     ['3단계 — 충격량','$I=\\Delta p=$ <b>15 N·s</b> (친 방향)'],
+     ['4단계 — 평균 충격력','$F=\\dfrac{\\Delta p}{\\Delta t}=\\dfrac{15}{0.01}=$ <b>1500 N</b>'],
+   ]},
+  {title:'도전 4 — 안전장치 서술형',time:'권장 3분',
+   q:'"에어백이 운전자의 부상을 줄이는 원리"를 <b>충격량 식으로</b> 설명하라.',
+   coach:'키워드: 운동량 변화량 일정 · 충돌 시간 증가 · 평균 충격력 감소 · I=FΔt=Δp',
+   steps:[
+     ['모범 서술','충돌 시 운전자의 운동량 변화량 $\\Delta p$는 정해져 있다. $I=F\\Delta t=\\Delta p$ 에서 에어백은 <b>충돌 시간 $\\Delta t$를 늘려</b> 준다. $\\Delta p$가 같을 때 $\\Delta t$가 커지면 평균 충격력 $F=\\Delta p/\\Delta t$ 가 <b>작아지므로</b> 부상이 줄어든다.'],
+     ['채점 키워드','① 운동량 변화량 일정 ② 충돌 시간 증가 ③ 평균 충격력 감소 ④ 식 I=FΔt=Δp 인용'],
+   ]},
+];
+document.getElementById('chList').innerHTML=challenges.map((c,ci)=>`
+  <div class="ch">
+    <div class="chh"><span class="ctitle">${c.title}</span><span class="time">${c.time}</span></div>
+    <div class="cq">${c.q}</div>
+    <div class="coach">💬 코칭: ${c.coach}</div>
+    <div class="timerbox">
+      <button class="sbtn" style="background:var(--green)" onclick="startTimer(${ci})">⏱ 타이머 시작</button>
+      <span class="tdisp" id="td${ci}">0:00</span>
+      <button class="tgl" onclick="document.getElementById('sw${ci}').classList.toggle('open')">풀이 보기</button>
+    </div>
+    <div class="stepwrap" id="sw${ci}">
+      ${c.steps.map(s=>`<div class="step"><div class="step-h" onclick="this.parentElement.classList.toggle('open')">
+        <span>${s[0]}</span><span class="arr">▶</span></div>
+        <div class="step-b">${s[1]}</div></div>`).join('')}
+    </div>
+  </div>`).join('');
+
+const timers={};
+function startTimer(i){
+  if(timers[i])clearInterval(timers[i].id);
+  const el=document.getElementById('td'+i);el.classList.remove('over');
+  let s=0;el.textContent='0:00';
+  timers[i]={id:setInterval(()=>{s++;const m=Math.floor(s/60),ss=String(s%60).padStart(2,'0');
+    el.textContent=m+':'+ss;
+    const lim=challenges[i].time.includes('3')?180:240;
+    if(s>=lim)el.classList.add('over');},1000)};
+}
+
+/* ---------- checklist ---------- */
+const checks=[
+  '자유낙하 v=gt, s=½gt² 외웠다',
+  '구간 이동거리·평균속도 표를 30초 안에 채울 수 있다',
+  '수평투사에서 수평은 등속·연직은 자유낙하임을 안다',
+  '운동량 p=mv, 충격량 I=FΔt=Δp 를 안다',
+  '방향이 바뀌면 부호를 바꿔 Δv를 계산할 수 있다',
+  '관성으로 안전벨트·머리받침대를 설명할 수 있다',
+  '충격량(시간)으로 에어백·헬멧을 설명할 수 있다',
+  '서술형은 공식→대입→답→단위 순으로 쓴다',
+];
+document.getElementById('chkList').innerHTML=checks.map((c,i)=>`
+  <label class="chk"><input type="checkbox"><span>${c}</span></label>`).join('');
+
+/* ---------- re-init active sim on resize / orientation ---------- */
+let _resizeT;
+window.addEventListener('resize',()=>{clearTimeout(_resizeT);_resizeT=setTimeout(()=>{
+  const act=document.querySelector('.tab.active');if(!act)return;const t=act.dataset.t;
+  if(t==='1'){Fall.init();Proj.init();}
+  if(t==='2')Coll.init();
+  if(t==='3')Inert.init();
+},250);});
+</script>
+</body>
+</html>
