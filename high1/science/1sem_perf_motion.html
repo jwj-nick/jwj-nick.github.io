@@ -506,9 +506,14 @@ document.getElementById('tabs').addEventListener('click',e=>{
 /* ---------- canvas helper ---------- */
 function setupCanvas(cv){
   const dpr=window.devicePixelRatio||1;
-  const w=cv.clientWidth||cv.parentElement.clientWidth;
-  const h=cv.height;
-  cv.width=w*dpr; cv.style.height=h+'px';
+  // logical height: cache original 'height' attr once (it gets overwritten by the bitmap size below)
+  if(!cv.dataset.h) cv.dataset.h = cv.getAttribute('height') || '300';
+  const h=parseInt(cv.dataset.h,10);
+  const w=cv.clientWidth||cv.parentElement.clientWidth||320;
+  cv.style.width='100%';
+  cv.style.height=h+'px';
+  cv.width=Math.round(w*dpr);
+  cv.height=Math.round(h*dpr);          // ← 핵심: 높이도 DPR로 스케일 (이전엔 너비만 함)
   const ctx=cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
   return {ctx,w,h};
 }
