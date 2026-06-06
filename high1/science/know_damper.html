@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>흔들림을 잡는 기술 — 질량댐퍼와 면진장치</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
+<style>
+  :root{--ink:#1e293b;--sub:#64748b;--line:#e2e8f0;--blue:#2563eb;--blue-d:#1e40af;--green:#16a34a;--green-bg:#f0fdf4;--amber:#d97706;--amber-bg:#fffbeb;--red:#dc2626;--red-bg:#fef2f2;--purple:#7c3aed;--purple-bg:#f5f3ff}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',sans-serif;background:#f1f5f9;color:var(--ink);line-height:1.7;-webkit-text-size-adjust:100%}
+  a{color:var(--blue)}
+  .crumb{background:#0f172a;color:#cbd5e1;padding:9px 14px;font-size:13px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50}
+  .crumb button{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:7px 12px;font-size:13px;font-weight:600;cursor:pointer;min-height:40px}
+  .crumb .t{font-weight:700;color:#fff}
+  .hero{background:linear-gradient(135deg,#374151,#0f766e);color:#fff;padding:26px 18px 22px;text-align:center}
+  .hero .badge{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:3px 13px;font-size:12px;margin-bottom:10px}
+  .hero h1{font-size:22px;font-weight:800;letter-spacing:-.3px}
+  .hero p{font-size:13.5px;opacity:.95;margin-top:8px;max-width:640px;margin-left:auto;margin-right:auto}
+  .wrap{max-width:780px;margin:0 auto;padding:20px 16px 80px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .card h2{font-size:18px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .card h3{font-size:15px;font-weight:700;margin:16px 0 8px;color:var(--blue-d)}
+  .card p{font-size:14px;margin-bottom:9px}
+  .lead{color:var(--sub);font-size:13.5px;margin-bottom:14px}
+  .fig{margin:14px 0;text-align:center}
+  .fig svg{max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fcfdff}
+  .cap{font-size:12px;color:var(--sub);margin-top:6px}
+  .photo{margin:12px 0;text-align:center}
+  .photo img{max-width:100%;border-radius:10px;border:1px solid var(--line)}
+  .box{border-radius:10px;padding:13px 15px;margin:11px 0;font-size:13.5px}
+  .box .t{font-weight:700;margin-bottom:5px}
+  .box.g{background:var(--green-bg);border:1px solid #bbf7d0}
+  .box.a{background:var(--amber-bg);border:1px solid #fde68a}
+  .box.r{background:var(--red-bg);border:1px solid #fecaca}
+  .box.b{background:#eff6ff;border:1px solid #bfdbfe}
+  .box.p{background:var(--purple-bg);border:1px solid #ddd6fe}
+  .ubadge{display:inline-block;background:#1e293b;color:#fff;border-radius:6px;padding:1px 7px;font-size:11.5px;font-weight:600;margin:0 2px}
+  .eq{background:#0f172a;color:#fff;border-radius:12px;padding:16px;margin:12px 0;text-align:center}
+  .eq .katex{color:#fff;font-size:1.1em}
+  .major{background:linear-gradient(135deg,#312e81,#4338ca);color:#fff;border-radius:12px;padding:16px;margin:14px 0}
+  .major .t{font-weight:800;font-size:15px;margin-bottom:8px}
+  .major .m{display:inline-block;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:4px 10px;font-size:12.5px;margin:3px 4px 3px 0}
+  .major small{display:block;opacity:.92;font-size:12px;margin-top:8px;line-height:1.6}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 9px;text-align:center}
+  th{background:#f8fafc;font-weight:700}
+  td.l,th.l{text-align:left}
+  .next h3{font-size:15px;font-weight:800;margin:6px 0 10px}
+  .nlink{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 15px;margin-bottom:10px;text-decoration:none;color:var(--ink);transition:.15s}
+  .nlink:hover{border-color:var(--blue);box-shadow:0 2px 8px rgba(37,99,235,.12)}
+  .nlink .ic{font-size:26px;flex-shrink:0}
+  .nlink .nt{font-weight:700;font-size:14px}
+  .nlink .nd{font-size:12px;color:var(--sub)}
+  .nlink .ar{margin-left:auto;color:var(--blue);font-weight:800;font-size:18px}
+</style>
+</head>
+<body>
+<div class="crumb">
+  <button onclick="history.length>1?history.back():location.href='1sem_perf_motion.html'">← 돌아가기</button>
+  <span class="t">🏢 질량댐퍼 · 면진장치</span>
+</div>
+
+<div class="hero">
+  <div class="badge">더 큰 세계 · 묶음 2</div>
+  <h1>🏢 마천루는 어떻게 안 쓰러질까</h1>
+  <p>바람과 지진은 끊임없이 건물을 흔들어요. 거대한 건물을 흔들림으로부터 지키는 두 가지 정반대 전략 —
+  꼭대기에 <b>추</b>를 달거나(질량댐퍼), 바닥을 <b>분리</b>하거나(면진장치).</p>
+</div>
+
+<div class="wrap">
+
+  <div class="card">
+    <h2>🌊 먼저: 왜 흔들릴까 — 공진</h2>
+    <p>모든 건물엔 "잘 흔들리는 고유의 리듬"(고유진동수)이 있어요. 바람·지진이 마침 그 리듬과 맞으면
+    그네를 박자 맞춰 밀듯 흔들림이 <b>점점 커집니다</b>. 이게 <b>공진(resonance)</b> — 가장 위험한 상황이에요.</p>
+    <div class="box b">해결의 두 갈래: ① 흔들림 에너지를 <b>딴 데로 빼서 없앤다</b>(질량댐퍼) ② 흔들림이 <b>건물에 닿지 못하게 막는다</b>(면진).</div>
+  </div>
+
+  <!-- TMD -->
+  <div class="card">
+    <h2>① 동조질량댐퍼 (TMD) — 꼭대기의 거대한 추</h2>
+    <p>건물 꼭대기에 무거운 추를 매달아 둡니다. 건물이 오른쪽으로 쏠리면, 추는 <b>관성</b> 때문에
+    제자리에 있으려다 상대적으로 <b>왼쪽</b>으로 처져요. 즉 건물과 <b>반대 박자</b>로 움직이며 흔들림을 상쇄합니다.
+    추의 흔들리는 리듬을 건물의 고유리듬에 딱 맞춰(동조, tuned) 둔 거예요.</p>
+
+    <div class="fig">
+      <svg viewBox="0 0 420 180" role="img" aria-label="동조질량댐퍼 도해">
+        <!-- building tilt right -->
+        <g transform="rotate(4 200 170)">
+          <rect x="160" y="30" width="80" height="140" fill="#cbd5e1" stroke="#94a3b8"/>
+          <line x1="180" y1="55" x2="220" y2="55" stroke="#94a3b8"/>
+          <line x1="180" y1="80" x2="220" y2="80" stroke="#94a3b8"/>
+          <line x1="180" y1="105" x2="220" y2="105" stroke="#94a3b8"/>
+          <!-- pendulum -->
+          <line x1="200" y1="40" x2="178" y2="95" stroke="#334155" stroke-width="2"/>
+          <circle cx="178" cy="100" r="16" fill="#0f766e"/>
+        </g>
+        <text x="200" y="22" font-size="11.5" fill="#0f172a" font-weight="700" text-anchor="middle">건물 →쏠림</text>
+        <text x="120" y="120" font-size="11.5" fill="#0f766e" font-weight="700" text-anchor="middle">추는 ←반대로</text>
+        <!-- arrows -->
+        <line x1="250" y1="50" x2="285" y2="50" stroke="#dc2626" stroke-width="2"/><polygon points="285,50 277,46 277,54" fill="#dc2626"/>
+        <line x1="150" y1="100" x2="115" y2="100" stroke="#0f766e" stroke-width="2"/><polygon points="115,100 123,96 123,104" fill="#0f766e"/>
+        <text x="335" y="54" font-size="10.5" fill="#b91c1c">건물</text>
+        <text x="95" y="90" font-size="10.5" fill="#0f766e">추</text>
+      </svg>
+      <div class="cap">건물과 추가 서로 반대로 움직여(역위상) 흔들림 에너지를 상쇄·흡수한다.</div>
+    </div>
+
+    <div class="box a"><div class="t">🎯 타이베이101의 황금 공</div>
+    대만 타이베이101(약 508 m)의 87~92층에는 지름 5.5 m, <b>660톤</b>짜리 강철 공이 케이블에 매달려 있어요.
+    바람·지진 때 반대로 흔들려 건물 흔들림을 <b>최대 약 40%</b> 줄여줍니다. 관광객이 직접 볼 수 있는 명물!</div>
+
+    <div class="photo">
+      <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Taipei_101_Tuned_Mass_Damper_2010.jpg?width=640"
+           alt="타이베이101 동조질량댐퍼" loading="lazy"
+           onerror="this.parentElement.style.display='none'">
+      <figcaption class="cap">타이베이101의 660톤 동조질량댐퍼. 사진: Wikimedia Commons</figcaption>
+    </div>
+    <div class="box g">💬 이게 바로 관성탭에서 본 "마천루 질량댐퍼"의 정체 — 안전벨트가 <b>관성</b>으로 몸을 잡듯,
+    이 추는 <b>관성</b>으로 건물의 흔들림에 맞선다.</div>
+  </div>
+
+  <!-- base isolation -->
+  <div class="card">
+    <h2>② 면진장치 — 바닥을 땅에서 떼어낸다</h2>
+    <p>전략이 정반대예요. 건물과 땅 사이에 <b>부드러운 고무·납 베어링</b>을 깔아, 땅이 흔들려도
+    그 흔들림이 건물로 잘 <b>전달되지 않게</b> 합니다. 건물은 땅 위에서 좌우로 천천히 미끄러지듯 움직이는 셈.</p>
+
+    <div class="fig">
+      <svg viewBox="0 0 420 180" role="img" aria-label="면진장치 도해">
+        <!-- building stays -->
+        <rect x="140" y="20" width="140" height="95" fill="#cbd5e1" stroke="#94a3b8"/>
+        <text x="210" y="70" font-size="12" fill="#334155" font-weight="700" text-anchor="middle">건물(거의 안 흔들림)</text>
+        <!-- isolators -->
+        <g fill="#0f766e">
+          <rect x="155" y="118" width="26" height="20" rx="4"/>
+          <rect x="197" y="118" width="26" height="20" rx="4"/>
+          <rect x="239" y="118" width="26" height="20" rx="4"/>
+        </g>
+        <text x="210" y="153" font-size="11" fill="#0f766e" font-weight="700" text-anchor="middle">고무·납 베어링(면진)</text>
+        <!-- ground shaking -->
+        <rect x="60" y="158" width="300" height="20" fill="#a8a29e"/>
+        <path d="M70 168 q15 -8 30 0 t30 0 t30 0 t30 0 t30 0 t30 0 t30 0 t30 0" stroke="#b91c1c" fill="none" stroke-width="2"/>
+        <text x="210" y="175" font-size="10.5" fill="#7f1d1d" text-anchor="middle">땅: 지진으로 흔들림 →←</text>
+      </svg>
+      <div class="cap">부드러운 받침이 지진 에너지를 흡수·차단하고, 건물의 "흔들리는 주기"를 길게 늘려 충격을 줄인다.</div>
+    </div>
+
+    <div class="box b"><div class="t">🔑 충격량 원리로 연결 — Δt를 늘린다</div>
+    면진의 핵심은 건물이 흔들리는 주기를 <b>길게 늘리는 것</b>. 갑작스러운 지진 충격을
+    <b>더 긴 시간에 걸쳐 받게</b> 만들어요. 충격량 $I=F\Delta t$ 에서 같은 $I$ 라도
+    $\Delta t$ 를 늘리면 건물이 받는 평균 힘 $F$ 가 줄어듭니다 — <b>에어백·펜더와 똑같은 논리</b>!
+    납 베어링은 그 과정에서 흔들림 에너지를 <b>열로 바꿔</b> 없애요.</div>
+  </div>
+
+  <!-- compare -->
+  <div class="card">
+    <h2>③ 두 전략 비교</h2>
+    <table>
+      <tr><th></th><th>동조질량댐퍼(TMD)</th><th>면진장치</th></tr>
+      <tr><td class="l">위치</td><td>꼭대기</td><td>바닥</td></tr>
+      <tr><td class="l">방법</td><td>반대로 흔드는 추(관성)</td><td>땅과 분리(주기 늘림)</td></tr>
+      <tr><td class="l">핵심</td><td>흔들림을 <b>상쇄·흡수</b></td><td>흔들림을 <b>차단</b></td></tr>
+      <tr><td class="l">물리</td><td>관성·공진 제어</td><td>충격량 $I=F\Delta t$</td></tr>
+      <tr><td class="l">주로</td><td>초고층(바람)</td><td>지진 다발 지역</td></tr>
+    </table>
+    <div class="box p">💡 둘은 경쟁이 아니라 <b>짝</b>이에요. 요즘은 면진으로 차단하고, 남은 흔들림을 댐퍼로 잡는
+    <b>조합 설계</b>가 많아요. 큰 건물·다리·교량에 함께 들어갑니다.</div>
+  </div>
+
+  <!-- major -->
+  <div class="major">
+    <div class="t">🎓 이런 걸 다루는 대학 전공</div>
+    <span class="m">건축공학 (구조·내진)</span><span class="m">토목공학</span>
+    <span class="m">기계공학 (진동제어)</span><span class="m">지진공학</span>
+    <small>건물·다리가 지진·바람을 견디게 설계하는 분야가 <b>건축/토목공학</b>의 구조·내진 전공,
+    "진동을 어떻게 다스릴까"는 <b>기계공학</b>의 진동·제어 분야예요. 공진·고유진동수·감쇠가 핵심 개념이고,
+    지진이 잦은 우리나라·일본에서 특히 중요한 기술입니다.</small>
+  </div>
+
+  <!-- next -->
+  <div class="next">
+    <h3>🔗 다음 이야기 — 꼬리에 꼬리를 무는 지식</h3>
+    <a class="nlink" href="know_ins.html">
+      <span class="ic">🧭</span>
+      <span><span class="nt">흔들림을 "측정"하는 센서 — 관성항법</span>
+      <span class="nd">능동 제어 댐퍼는 관성센서로 흔들림을 읽고 반응한다</span></span>
+      <span class="ar">→</span>
+    </a>
+    <a class="nlink" href="know_flywheel.html">
+      <span class="ic">🌀</span>
+      <span><span class="nt">회전관성으로 에너지를 담는 플라이휠</span>
+      <span class="nd">진동·회전을 다루는 또 하나의 관성 기술</span></span>
+      <span class="ar">→</span>
+    </a>
+    <a class="nlink" href="know_giants.html">
+      <span class="ic">🏭</span>
+      <span><span class="nt">거대한 관성·충격량의 세계</span>
+      <span class="nd">유조선·열차·펜더·항타기 — 펜더가 면진과 같은 원리</span></span>
+      <span class="ar">→</span>
+    </a>
+  </div>
+
+</div>
+</body>
+</html>

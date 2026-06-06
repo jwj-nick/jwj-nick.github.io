@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>관성항법(INS) — GPS 없이 길을 찾는 법</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
+<style>
+  :root{--ink:#1e293b;--sub:#64748b;--line:#e2e8f0;--blue:#2563eb;--blue-d:#1e40af;--green:#16a34a;--green-bg:#f0fdf4;--amber:#d97706;--amber-bg:#fffbeb;--red:#dc2626;--red-bg:#fef2f2;--purple:#7c3aed;--purple-bg:#f5f3ff}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',sans-serif;background:#f1f5f9;color:var(--ink);line-height:1.7;-webkit-text-size-adjust:100%}
+  a{color:var(--blue)}
+  .crumb{background:#0f172a;color:#cbd5e1;padding:9px 14px;font-size:13px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50}
+  .crumb button{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:7px 12px;font-size:13px;font-weight:600;cursor:pointer;min-height:40px}
+  .crumb .t{font-weight:700;color:#fff}
+  .hero{background:linear-gradient(135deg,#0c4a6e,#0369a1);color:#fff;padding:26px 18px 22px;text-align:center}
+  .hero .badge{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:3px 13px;font-size:12px;margin-bottom:10px}
+  .hero h1{font-size:22px;font-weight:800;letter-spacing:-.3px}
+  .hero p{font-size:13.5px;opacity:.95;margin-top:8px;max-width:640px;margin-left:auto;margin-right:auto}
+  .wrap{max-width:780px;margin:0 auto;padding:20px 16px 80px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .card h2{font-size:18px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .card h3{font-size:15px;font-weight:700;margin:16px 0 8px;color:var(--blue-d)}
+  .card p{font-size:14px;margin-bottom:9px}
+  .lead{color:var(--sub);font-size:13.5px;margin-bottom:14px}
+  .fig{margin:14px 0;text-align:center}
+  .fig svg{max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fcfdff}
+  .cap{font-size:12px;color:var(--sub);margin-top:6px}
+  .box{border-radius:10px;padding:13px 15px;margin:11px 0;font-size:13.5px}
+  .box .t{font-weight:700;margin-bottom:5px}
+  .box.g{background:var(--green-bg);border:1px solid #bbf7d0}
+  .box.a{background:var(--amber-bg);border:1px solid #fde68a}
+  .box.r{background:var(--red-bg);border:1px solid #fecaca}
+  .box.b{background:#eff6ff;border:1px solid #bfdbfe}
+  .box.p{background:var(--purple-bg);border:1px solid #ddd6fe}
+  .ubadge{display:inline-block;background:#1e293b;color:#fff;border-radius:6px;padding:1px 7px;font-size:11.5px;font-weight:600;margin:0 2px}
+  .eq{background:#0f172a;color:#fff;border-radius:12px;padding:16px;margin:12px 0;text-align:center}
+  .eq .katex{color:#fff;font-size:1.1em}
+  .chain{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;margin:12px 0}
+  .chip{background:#f1f5f9;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13px;font-weight:700;text-align:center}
+  .chip b{display:block;font-size:11px;color:var(--sub);font-weight:600}
+  .arrowx{font-weight:800;color:var(--blue);font-size:15px}
+  .major{background:linear-gradient(135deg,#312e81,#4338ca);color:#fff;border-radius:12px;padding:16px;margin:14px 0}
+  .major .t{font-weight:800;font-size:15px;margin-bottom:8px}
+  .major .m{display:inline-block;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:4px 10px;font-size:12.5px;margin:3px 4px 3px 0}
+  .major small{display:block;opacity:.92;font-size:12px;margin-top:8px;line-height:1.6}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 9px;text-align:center}
+  th{background:#f8fafc;font-weight:700}
+  td.l,th.l{text-align:left}
+  .next h3{font-size:15px;font-weight:800;margin:6px 0 10px}
+  .nlink{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 15px;margin-bottom:10px;text-decoration:none;color:var(--ink);transition:.15s}
+  .nlink:hover{border-color:var(--blue);box-shadow:0 2px 8px rgba(37,99,235,.12)}
+  .nlink .ic{font-size:26px;flex-shrink:0}
+  .nlink .nt{font-weight:700;font-size:14px}
+  .nlink .nd{font-size:12px;color:var(--sub)}
+  .nlink .ar{margin-left:auto;color:var(--blue);font-weight:800;font-size:18px}
+</style>
+</head>
+<body>
+<div class="crumb">
+  <button onclick="history.length>1?history.back():location.href='1sem_perf_motion.html'">← 돌아가기</button>
+  <span class="t">🧭 관성항법 INS</span>
+</div>
+
+<div class="hero">
+  <div class="badge">더 큰 세계 · 단독</div>
+  <h1>🧭 GPS 없이도 "지금 내가 어디 있는지" 아는 법</h1>
+  <p>잠수함은 물속에 있어 GPS 신호가 안 닿아요. 미사일은 적이 GPS를 교란하죠.
+  그런데도 정확히 길을 찾습니다. 비밀은 외부 신호가 아니라 <b>관성</b> — 너가 배운 그 관성!</p>
+</div>
+
+<div class="wrap">
+
+  <div class="card">
+    <h2>① 핵심 아이디어</h2>
+    <p>차를 타고 눈을 감아도, <b>출발점</b>을 알고 "얼마나 세게 가속됐는지 + 얼마나 방향을 틀었는지"를
+    매 순간 느끼면, 눈을 떠보지 않아도 <b>지금 위치를 계산</b>할 수 있어요. INS(관성항법장치)가 바로 그걸 합니다.
+    외부 신호 없이 오로지 내부 센서만으로.</p>
+    <div class="box b"><div class="t">두 가지 센서</div>
+    🔵 <b>가속도계(accelerometer)</b> — "얼마나 세게 밀렸나"(가속도 $a$)를 측정.<br>
+    🟣 <b>자이로스코프(gyroscope)</b> — "얼마나 돌았나"(회전·방향)를 측정.
+    (옛날 기계식은 팽이의 회전관성을 썼고, 요즘은 빛이나 미세 칩을 이용해요 — 아래 ④ 참고)</div>
+  </div>
+
+  <!-- 2 integration chain -->
+  <div class="card">
+    <h2>② 원리 — 가속도를 두 번 더하면 위치!</h2>
+    <p>여기서 너가 <b>이론깊이 탭에서 배운 그 개념</b>이 그대로 나와요.
+    속도는 가속도가 쌓인 것, 거리는 속도가 쌓인 것 — 즉 <b>두 번의 누적(적분)</b>이에요.</p>
+
+    <div class="chain">
+      <div class="chip">$a$<b>가속도 m/s²</b></div>
+      <span class="arrowx">— ∫ →</span>
+      <div class="chip">$v$<b>속도 m/s</b></div>
+      <span class="arrowx">— ∫ →</span>
+      <div class="chip">$s$<b>위치 m</b></div>
+    </div>
+
+    <div class="box g"><div class="t">🟢 지금 직관으로</div>
+    가속도 $a$ 가 일정하면 $v=at$ (속도가 시간에 비례해 쌓임), $s=\tfrac12 a t^2$ (거리가 더 빨리 쌓임).
+    바로 <b>중력운동 탭의 $v=gt,\ s=\tfrac12 g t^2$ 와 똑같은 식</b>! 자유낙하가 곧 INS의 1차원 버전이에요.</div>
+    <div class="box p"><div class="t">🟣 나중에 적분으로</div>
+    실제 가속도는 매 순간 변하니, 컴퓨터가 아주 짧은 시간마다 더해 나갑니다($\int a\,dt = v$, $\int v\,dt = s$).
+    이 "잘게 쪼개 더하기"가 <b>적분</b> — 고등 수학·물리에서 곧 배워요.</div>
+
+    <div class="fig">
+      <svg viewBox="0 0 420 150" role="img" aria-label="INS 적분 그래프">
+        <line x1="40" y1="20" x2="40" y2="120" stroke="#94a3b8"/>
+        <line x1="40" y1="120" x2="400" y2="120" stroke="#94a3b8"/>
+        <text x="20" y="24" font-size="11" fill="#475569">v</text>
+        <text x="392" y="138" font-size="11" fill="#475569">t</text>
+        <line x1="40" y1="120" x2="360" y2="40" stroke="#2563eb" stroke-width="2.5"/>
+        <polygon points="40,120 360,40 360,120" fill="#2563eb" opacity="0.13"/>
+        <text x="230" y="100" font-size="12" fill="#1e40af" font-weight="700">넓이 = 이동거리 s</text>
+        <text x="250" y="55" font-size="11" fill="#2563eb">v = a·t (기울기 a)</text>
+      </svg>
+      <div class="cap">v–t 그래프 아래 넓이가 거리 — 가속도를 누적하면 속도, 속도를 누적하면 거리.</div>
+    </div>
+  </div>
+
+  <!-- 3 drift -->
+  <div class="card">
+    <h2>③ 약점 — 시간이 갈수록 어긋난다 (드리프트)</h2>
+    <p>가속도를 <b>두 번</b> 더하다 보니, 센서의 작은 오차도 함께 두 번 쌓여서 위치 오차가 시간에 따라 점점 커져요.
+    이걸 <b>드리프트(drift)</b>라고 합니다.</p>
+    <div class="fig">
+      <svg viewBox="0 0 420 140" role="img" aria-label="드리프트 증가 그래프">
+        <line x1="40" y1="20" x2="40" y2="110" stroke="#94a3b8"/>
+        <line x1="40" y1="110" x2="400" y2="110" stroke="#94a3b8"/>
+        <text x="8" y="24" font-size="11" fill="#475569">위치오차</text>
+        <text x="392" y="128" font-size="11" fill="#475569">시간</text>
+        <path d="M40 108 Q260 105 380 30" fill="none" stroke="#dc2626" stroke-width="2.5"/>
+        <text x="250" y="60" font-size="11.5" fill="#b91c1c" font-weight="700">오차가 점점 가속</text>
+      </svg>
+      <div class="cap">그래서 INS는 주기적으로 GPS·별·지형으로 위치를 "리셋"해 오차를 잡아준다.</div>
+    </div>
+    <div class="box a"><div class="t">🎯 그래서 짝을 짓는다</div>
+    여객기·잠수함은 INS(끊김 없음, 교란에 강함) + GPS(장기적으로 정확)를 <b>합쳐서</b> 써요.
+    INS가 순간순간을 메우고, GPS가 가끔 오차를 바로잡는 역할 분담.</div>
+  </div>
+
+  <!-- 4 tech & use -->
+  <div class="card">
+    <h2>④ 기술과 활용</h2>
+    <h3>자이로의 진화</h3>
+    <p>옛날엔 진짜 도는 팽이(기계식)였지만, 지금은 빛이나 미세 칩을 써요.</p>
+    <table>
+      <tr><th>방식</th><th class="l">설명</th></tr>
+      <tr><td>링 레이저 자이로(RLG)</td><td class="l">레이저 빛을 양방향으로 돌려, 회전 시 두 빛의 차이로 회전을 잼 — 여객기·로켓</td></tr>
+      <tr><td>광섬유 자이로(FOG)</td><td class="l">광섬유 코일을 이용한 같은 원리 — 잠수함 정밀 항법</td></tr>
+      <tr><td>MEMS</td><td class="l">손톱만 한 미세 칩 — <b>네 스마트폰</b> 속 자이로/가속도계가 바로 이것!</td></tr>
+    </table>
+    <div class="box b"><div class="t">📱 사실 네 폰에도 INS가 있다</div>
+    화면 자동 회전, 만보계, 게임 기울이기 조작 — 전부 폰 속 MEMS 관성센서(IMU)가 가속도·회전을 재서 동작해요.
+    "관성으로 길 찾기"의 초소형 버전이 주머니 속에!</div>
+
+    <h3>큰 무대에서의 활용</h3>
+    <p>🚢 잠수함(SINS) · ✈️ 여객기 · 🚀 로켓·미사일 · 🛰️ 인공위성 — GPS가 끊기거나 교란돼도
+    스스로 길을 찾아야 하는 곳엔 반드시 INS가 들어갑니다.</p>
+  </div>
+
+  <!-- major -->
+  <div class="major">
+    <div class="t">🎓 이런 걸 다루는 대학 전공</div>
+    <span class="m">항공우주공학 (항법·유도·제어)</span><span class="m">전자공학 (MEMS·센서)</span>
+    <span class="m">제어공학</span><span class="m">로봇공학</span>
+    <small>"센서로 잰 값을 적분해 위치·자세를 추정"하는 분야가 <b>항법·제어공학</b>,
+    초소형 관성센서 칩 설계는 <b>전자공학(MEMS)</b>이에요. 자율주행차·드론·로봇도 전부 이 기술을 씁니다.
+    여기서 핵심 수학이 바로 <b>적분</b> — 그래서 미적분이 중요해요.</small>
+  </div>
+
+  <!-- next -->
+  <div class="next">
+    <h3>🔗 다음 이야기 — 꼬리에 꼬리를 무는 지식</h3>
+    <a class="nlink" href="know_flywheel.html">
+      <span class="ic">🌀</span>
+      <span><span class="nt">회전관성으로 에너지를 저장하는 플라이휠</span>
+      <span class="nd">돌고 있는 것은 멈추기 싫어한다 — 그 성질로 에너지를 담는다</span></span>
+      <span class="ar">→</span>
+    </a>
+    <a class="nlink" href="know_damper.html">
+      <span class="ic">🏢</span>
+      <span><span class="nt">센서로 흔들림을 읽고 잡는 건물</span>
+      <span class="nd">관성센서 + 제어 = 능동 진동 제어</span></span>
+      <span class="ar">→</span>
+    </a>
+  </div>
+
+</div>
+</body>
+</html>

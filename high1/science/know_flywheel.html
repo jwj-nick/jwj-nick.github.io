@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>플라이휠 — 관성에 에너지를 저장하다</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
+<style>
+  :root{--ink:#1e293b;--sub:#64748b;--line:#e2e8f0;--blue:#2563eb;--blue-d:#1e40af;--green:#16a34a;--green-bg:#f0fdf4;--amber:#d97706;--amber-bg:#fffbeb;--red:#dc2626;--red-bg:#fef2f2;--purple:#7c3aed;--purple-bg:#f5f3ff}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',sans-serif;background:#f1f5f9;color:var(--ink);line-height:1.7;-webkit-text-size-adjust:100%}
+  a{color:var(--blue)}
+  .crumb{background:#0f172a;color:#cbd5e1;padding:9px 14px;font-size:13px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50}
+  .crumb button{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:7px 12px;font-size:13px;font-weight:600;cursor:pointer;min-height:40px}
+  .crumb .t{font-weight:700;color:#fff}
+  .hero{background:linear-gradient(135deg,#7c2d12,#ea580c);color:#fff;padding:26px 18px 22px;text-align:center}
+  .hero .badge{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:3px 13px;font-size:12px;margin-bottom:10px}
+  .hero h1{font-size:22px;font-weight:800;letter-spacing:-.3px}
+  .hero p{font-size:13.5px;opacity:.95;margin-top:8px;max-width:640px;margin-left:auto;margin-right:auto}
+  .wrap{max-width:780px;margin:0 auto;padding:20px 16px 80px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .card h2{font-size:18px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .card h3{font-size:15px;font-weight:700;margin:16px 0 8px;color:var(--blue-d)}
+  .card p{font-size:14px;margin-bottom:9px}
+  .lead{color:var(--sub);font-size:13.5px;margin-bottom:14px}
+  .fig{margin:14px 0;text-align:center}
+  .fig svg{max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fcfdff}
+  .cap{font-size:12px;color:var(--sub);margin-top:6px}
+  .photo{margin:12px 0;text-align:center}
+  .photo img{max-width:100%;border-radius:10px;border:1px solid var(--line)}
+  .box{border-radius:10px;padding:13px 15px;margin:11px 0;font-size:13.5px}
+  .box .t{font-weight:700;margin-bottom:5px}
+  .box.g{background:var(--green-bg);border:1px solid #bbf7d0}
+  .box.a{background:var(--amber-bg);border:1px solid #fde68a}
+  .box.r{background:var(--red-bg);border:1px solid #fecaca}
+  .box.b{background:#eff6ff;border:1px solid #bfdbfe}
+  .box.p{background:var(--purple-bg);border:1px solid #ddd6fe}
+  .ubadge{display:inline-block;background:#1e293b;color:#fff;border-radius:6px;padding:1px 7px;font-size:11.5px;font-weight:600;margin:0 2px}
+  .eq{background:#0f172a;color:#fff;border-radius:12px;padding:16px;margin:12px 0;text-align:center}
+  .eq .katex{color:#fff;font-size:1.15em}
+  .major{background:linear-gradient(135deg,#312e81,#4338ca);color:#fff;border-radius:12px;padding:16px;margin:14px 0}
+  .major .t{font-weight:800;font-size:15px;margin-bottom:8px}
+  .major .m{display:inline-block;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:4px 10px;font-size:12.5px;margin:3px 4px 3px 0}
+  .major small{display:block;opacity:.92;font-size:12px;margin-top:8px;line-height:1.6}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 9px;text-align:center}
+  th{background:#f8fafc;font-weight:700}
+  td.l,th.l{text-align:left}
+  .next h3{font-size:15px;font-weight:800;margin:6px 0 10px}
+  .nlink{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 15px;margin-bottom:10px;text-decoration:none;color:var(--ink);transition:.15s}
+  .nlink:hover{border-color:var(--blue);box-shadow:0 2px 8px rgba(37,99,235,.12)}
+  .nlink .ic{font-size:26px;flex-shrink:0}
+  .nlink .nt{font-weight:700;font-size:14px}
+  .nlink .nd{font-size:12px;color:var(--sub)}
+  .nlink .ar{margin-left:auto;color:var(--blue);font-weight:800;font-size:18px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .spin{transform-origin:130px 90px;animation:spin 1.6s linear infinite}
+</style>
+</head>
+<body>
+<div class="crumb">
+  <button onclick="history.length>1?history.back():location.href='1sem_perf_motion.html'">← 돌아가기</button>
+  <span class="t">🌀 플라이휠</span>
+</div>
+
+<div class="hero">
+  <div class="badge">더 큰 세계 · 단독</div>
+  <h1>🌀 멈추기 싫어하는 성질로 에너지를 저장한다</h1>
+  <p>관성은 보통 "골칫거리"(안 멈춤)였죠. 그런데 그 <b>멈추기 싫어하는 성질</b>을 거꾸로 이용하면
+  전기를 "회전"으로 바꿔 저장할 수 있어요. 그게 플라이휠(flywheel)입니다.</p>
+</div>
+
+<div class="wrap">
+
+  <!-- 1 what -->
+  <div class="card">
+    <h2>① 무엇인가</h2>
+    <p>무거운 원판을 진공 통 안에서 <b>초고속으로 회전</b>시켜 둡니다. 전기가 남을 땐 모터로 더 빠르게 돌려 에너지를 "충전"하고,
+    전기가 필요할 땐 같은 장치를 <b>발전기</b>로 써서 회전을 전기로 "방전"해요. 배터리가 화학으로 저장한다면,
+    플라이휠은 <b>운동(회전)</b>으로 저장하는 셈.</p>
+
+    <div class="fig">
+      <svg viewBox="0 0 360 180" role="img" aria-label="플라이휠 구조 도해">
+        <rect x="20" y="20" width="320" height="140" rx="10" fill="#f1f5f9" stroke="#94a3b8" stroke-dasharray="5 4"/>
+        <text x="30" y="38" font-size="11" fill="#64748b">진공 통 (공기저항 ↓)</text>
+        <!-- rotor -->
+        <g class="spin">
+          <circle cx="130" cy="90" r="55" fill="none" stroke="#ea580c" stroke-width="16"/>
+          <circle cx="130" cy="90" r="55" fill="none" stroke="#fdba74" stroke-width="4"/>
+          <line x1="130" y1="40" x2="130" y2="60" stroke="#9a3412" stroke-width="3"/>
+        </g>
+        <circle cx="130" cy="90" r="10" fill="#334155"/>
+        <text x="130" y="160" font-size="11.5" fill="#9a3412" font-weight="700" text-anchor="middle">무거운 림(rim) · 고속 회전 ω</text>
+        <!-- axis to motor -->
+        <line x1="185" y1="90" x2="240" y2="90" stroke="#334155" stroke-width="4"/>
+        <rect x="240" y="68" width="70" height="44" rx="6" fill="#1e293b"/>
+        <text x="275" y="86" font-size="10.5" fill="#fff" text-anchor="middle">모터 ↔</text>
+        <text x="275" y="100" font-size="10.5" fill="#fff" text-anchor="middle">발전기</text>
+        <text x="275" y="128" font-size="10" fill="#64748b" text-anchor="middle">충전/방전</text>
+      </svg>
+      <div class="cap">자기 베어링으로 축을 공중에 띄워 마찰을 없애고, 진공으로 공기저항을 줄여 오래 돈다.</div>
+    </div>
+  </div>
+
+  <!-- 2 physics -->
+  <div class="card">
+    <h2>② 물리 — 얼마나 저장될까</h2>
+    <p>직선운동의 운동에너지가 $\tfrac12 m v^2$ 이듯, <b>회전</b>운동의 에너지는 다음과 같아요.</p>
+    <div class="eq">$E=\tfrac12 I \omega^2$</div>
+    <table>
+      <tr><th>기호</th><th>뜻</th><th>단위</th></tr>
+      <tr><td>$E$</td><td class="l">저장 에너지</td><td><span class="ubadge">J</span></td></tr>
+      <tr><td>$I$</td><td class="l">회전관성(관성모멘트) — "회전을 싫어하는 정도"</td><td><span class="ubadge">kg·m²</span></td></tr>
+      <tr><td>$\omega$</td><td class="l">각속도 — 얼마나 빨리 도는가</td><td><span class="ubadge">rad/s</span></td></tr>
+    </table>
+
+    <div class="box b"><div class="t">🔑 두 가지 설계 비밀</div>
+    ① 에너지는 속도의 <b>제곱</b>($\omega^2$)에 비례 → <b>빠르게 돌릴수록</b> 압도적으로 유리.<br>
+    ② 원판의 회전관성 $I=\tfrac12 M R^2$ → 질량을 <b>바깥쪽(큰 $R$)</b>에 둘수록 유리.
+    그래서 무게를 테두리(림)에 몰아줍니다.</div>
+
+    <div class="box r"><div class="t">⚠️ 왜 무한정 못 돌리나 — 재료의 한계</div>
+    빨리 돌수록 림이 바깥으로 터지려는 힘(원심·후프 응력)이 $\omega^2$ 으로 커져요.
+    이 힘이 재료의 <b>인장강도</b>를 넘으면 산산조각 납니다. 그래서 저장 한계는 사실상
+    <b>재료의 (강도 ÷ 밀도)</b> 가 결정 → 가볍고 질긴 <b>탄소섬유 복합재</b>가 강철보다 유리.
+    고속형은 분당 <b>2만~6만 회전(rpm)</b>까지 돌아요.</div>
+
+    <div class="box a"><div class="t">🎯 깜짝 사실 — 우주에도 있다</div>
+    인공위성·우주정거장의 자세를 잡는 <b>반작용 휠(reaction wheel)</b>도 사실 작은 플라이휠이에요.
+    연료를 안 쓰고 바퀴를 돌렸다 멈췄다 하며 방향을 트는 거죠. 회전관성의 우주 버전!</div>
+  </div>
+
+  <!-- 3 use -->
+  <div class="card">
+    <h2>③ 어디에 쓰나</h2>
+    <table>
+      <tr><th>분야</th><th class="l">활용</th></tr>
+      <tr><td>전력망</td><td class="l">정전·변동 순간 <b>1초 이내</b> 방전 → 주파수(60 Hz) 안정. 화학 배터리보다 반응이 빠르고 수십만 번 충방전해도 안 닳음</td></tr>
+      <tr><td>비상전원(UPS)</td><td class="l">데이터센터·병원에서 발전기가 켜질 때까지 수 초~수 분 버팀</td></tr>
+      <tr><td>회생제동</td><td class="l">일부 경주차(KERS)·버스가 브레이크 에너지를 회전으로 저장했다 재가속에 사용</td></tr>
+      <tr><td>우주</td><td class="l">위성·우주정거장 자세 제어(반작용 휠)</td></tr>
+    </table>
+    <div class="photo">
+      <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Beacon_Power_New_York_-_20_MW_Flywheel_Energy_Storage.jpg?width=640"
+           alt="Beacon Power 20MW 플라이휠 저장 발전소" loading="lazy"
+           onerror="this.parentElement.style.display='none'">
+      <figcaption class="cap">미국 비콘파워 20 MW 플라이휠 발전소 — 전력망 주파수 안정용. 사진: Wikimedia Commons</figcaption>
+    </div>
+  </div>
+
+  <!-- 4 metaphor -->
+  <div class="card">
+    <h2>④ 🧠 상식 확장 — "플라이휠"이라는 말의 또 다른 뜻</h2>
+    <p>플라이휠은 물리 장치를 넘어 <b>비유</b>로도 아주 유명해요. 경영·자기계발에서
+    "플라이휠 효과(flywheel effect)"라고 하면 이런 뜻입니다.</p>
+
+    <div class="box p"><div class="t">🔁 플라이휠 효과 (Jim Collins, 『좋은 기업을 넘어 위대한 기업으로』)</div>
+    "무거운 바퀴는 <b>처음 한 바퀴 돌리기가 가장 힘들다.</b> 하지만 같은 방향으로
+    꾸준히 계속 밀면, 한 번의 회전이 다음 회전을 도와 <b>점점 빨라지고, 어느 순간 스스로 굴러간다.</b>"<br>
+    → 단 한 번의 대박이 아니라, <b>작은 노력의 누적이 복리처럼 쌓여</b> 돌파가 온다는 뜻.</div>
+
+    <div class="fig">
+      <svg viewBox="0 0 460 130" role="img" aria-label="플라이휠 효과 — 노력 누적">
+        <line x1="20" y1="100" x2="440" y2="100" stroke="#94a3b8" stroke-width="1.5"/>
+        <path d="M20 95 C140 92 250 80 440 25" fill="none" stroke="#7c3aed" stroke-width="3"/>
+        <circle cx="80" cy="93" r="4" fill="#7c3aed"/><text x="60" y="118" font-size="10.5" fill="#64748b">힘듦</text>
+        <circle cx="200" cy="84" r="4" fill="#7c3aed"/><text x="175" y="118" font-size="10.5" fill="#64748b">꾸준히</text>
+        <circle cx="320" cy="58" r="4" fill="#7c3aed"/><text x="300" y="118" font-size="10.5" fill="#64748b">탄력</text>
+        <text x="405" y="20" font-size="11" fill="#7c3aed" font-weight="800">돌파!</text>
+        <text x="20" y="18" font-size="11" fill="#475569">성과 ↑</text>
+      </svg>
+      <div class="cap">처음엔 더디지만, 누적된 회전이 다음 회전을 밀어주는 "선순환(virtuous cycle)".</div>
+    </div>
+
+    <div class="box g"><div class="t">💬 아마존도 이걸 그렸다</div>
+    아마존의 제프 베이조스는 이 "플라이휠"을 사업 모델로 그렸어요: 낮은 가격 → 고객 증가 → 판매자 증가 →
+    선택폭 확대 → 다시 고객 증가… 한 부분이 다음 부분을 밀어주는 <b>자기강화 고리</b>.
+    "어떤 일이 순환하며 점점 좋아진다"를 표현할 때 "플라이휠을 돌린다"고 말해요.</div>
+
+    <div class="box b">📌 <b>너의 공부에도</b>: 매일 조금씩 하는 복습이 처음엔 표가 안 나지만, 누적되면
+    개념이 개념을 끌어주는 순간이 와요. 그게 너의 학습 플라이휠 — 이 수행평가 준비도 그 한 바퀴!</div>
+  </div>
+
+  <!-- major -->
+  <div class="major">
+    <div class="t">🎓 이런 걸 다루는 대학 전공</div>
+    <span class="m">기계공학 (동역학)</span><span class="m">전기공학 (전력계통)</span>
+    <span class="m">재료공학 (복합재)</span><span class="m">항공우주공학</span>
+    <small>회전체의 운동·진동은 <b>기계공학</b>, 전력망 저장·주파수 제어는 <b>전기공학</b>,
+    터지지 않는 고속 림 소재는 <b>재료공학</b>이 연구해요. "에너지를 어떻게 저장할까"는 미래 에너지 핵심 주제.</small>
+  </div>
+
+  <!-- next -->
+  <div class="next">
+    <h3>🔗 다음 이야기 — 꼬리에 꼬리를 무는 지식</h3>
+    <a class="nlink" href="know_ins.html">
+      <span class="ic">🧭</span>
+      <span><span class="nt">관성으로 길을 찾는다 — 관성항법(INS)</span>
+      <span class="nd">가속도계·자이로로 GPS 없이 위치를 추적하는 또 다른 관성 기술</span></span>
+      <span class="ar">→</span>
+    </a>
+    <a class="nlink" href="know_damper.html">
+      <span class="ic">🏢</span>
+      <span><span class="nt">건물의 흔들림을 잡는 거대한 추</span>
+      <span class="nd">회전·진동을 다스리는 또 다른 기술 — 질량댐퍼</span></span>
+      <span class="ar">→</span>
+    </a>
+    <a class="nlink" href="know_giants.html">
+      <span class="ic">🏭</span>
+      <span><span class="nt">멈출 수 없는 거대한 것들</span>
+      <span class="nd">유조선·열차·펜더·항타기 속 관성과 충격량</span></span>
+      <span class="ar">→</span>
+    </a>
+  </div>
+
+</div>
+</body>
+</html>
