@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>지도 비주얼 랩 — 역사 이야기</title>
+<meta name="description" content="같은 역사를 여러 방식으로: 단계형 전투지도부터 3D 글로브까지, 지도 시각화 기법을 직접 비교·체험하는 실험실.">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css"/>
+<style>
+  :root{--rose:#C98B8B;--navy:#33406B;--cream:#FBF7F2;--ink:#2E2A28;--muted:#857B74;--line:#EBE0D5;--accent:#B5546A;--gold:#C49A4A;--green:#2E7D4F;--shadow:0 6px 22px rgba(51,64,107,.10);}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:var(--cream);color:var(--ink);line-height:1.75;word-break:keep-all;-webkit-font-smoothing:antialiased;}
+  a{color:inherit;}
+  .hero{padding:52px 24px 40px;background:linear-gradient(140deg,var(--navy),#6a4a6e);color:#fff;text-align:center;}
+  .hero h1{font-size:30px;font-weight:800;}
+  .hero .sub{font-size:14.5px;color:#E8C8C5;margin-top:10px;max-width:640px;margin-left:auto;margin-right:auto;}
+  .back{display:inline-block;margin-top:18px;color:#fff;font-size:12.5px;text-decoration:none;border:1px solid rgba(255,255,255,.3);border-radius:9px;padding:6px 13px;}
+  .toc{max-width:880px;margin:22px auto 0;padding:0 20px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+  .toc a{font-size:12px;font-weight:700;text-decoration:none;color:var(--navy);background:#fff;border:1px solid var(--line);border-radius:20px;padding:6px 13px;}
+  .wrap{max-width:880px;margin:0 auto;padding:30px 20px 100px;}
+  .demo{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px 20px 22px;box-shadow:var(--shadow);margin-bottom:26px;}
+  .tier{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.04em;color:#fff;background:var(--accent);border-radius:7px;padding:2px 9px;margin-bottom:8px;}
+  .tier.t0{background:var(--green);} .tier.t1{background:var(--gold);} .tier.t2{background:var(--navy);} .tier.t3{background:#6a4a6e;}
+  .demo h2{font-size:20px;color:var(--navy);font-weight:800;}
+  .demo .what{font-size:14px;color:var(--muted);margin:5px 0 14px;}
+  .map{width:100%;height:420px;border-radius:13px;overflow:hidden;border:1px solid var(--line);background:#eef3ee;}
+  .map.tall{height:480px;}
+  .ctrls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;}
+  .ctrls button{background:var(--navy);color:#fff;border:none;border-radius:9px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer;}
+  .ctrls button:disabled{opacity:.4;cursor:default;}
+  .ctrls button.alt{background:#fff;color:var(--navy);border:1px solid var(--line);}
+  .plabel{font-size:13.5px;font-weight:800;color:var(--accent);min-width:150px;}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--ink);margin-top:10px;align-items:center;}
+  .legend span{display:inline-flex;align-items:center;gap:5px;}
+  .legend i{width:16px;height:0;border-top:3px solid;display:inline-block;border-radius:2px;}
+  .pros{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px;font-size:13px;}
+  @media(max-width:560px){.pros{grid-template-columns:1fr;}}
+  .pros div{background:var(--cream);border-radius:9px;padding:9px 12px;}
+  .pros b{color:var(--navy);}
+  .pros .con b{color:var(--accent);}
+  .note{font-size:11.5px;color:var(--muted);margin-top:10px;}
+  .baseline{display:flex;gap:14px;align-items:center;background:var(--cream);border-radius:13px;padding:14px 16px;}
+  .baseline .big{font-size:30px;}
+  .scrolly{position:relative;}
+  .scrolly .stage{position:sticky;top:14px;height:60vh;min-height:340px;border-radius:13px;overflow:hidden;border:1px solid var(--line);}
+  .scrolly .steps{margin-top:14px;display:grid;gap:60vh;}
+  .scrolly .step{background:#fff;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:11px;padding:14px 16px;font-size:14.5px;box-shadow:var(--shadow);}
+  .scrolly .step b{color:var(--navy);}
+  .err{font-size:12.5px;color:#b00;background:#fdeaea;border-radius:8px;padding:8px 10px;margin-top:8px;display:none;}
+</style>
+</head>
+<body>
+  <div class="hero">
+    <h1>🧪 지도 비주얼 랩</h1>
+    <div class="sub">같은 역사(동학·제국주의)를 <b>여러 방식</b>으로 그려 봤어요. 위에서 아래로 내려갈수록 <b>표현이 진화</b>합니다. 직접 눌러 보고, 어떤 수준이 좋은지 골라 주세요.</div>
+    <a class="back" href="../index.html">← 역사 이야기 허브</a>
+    <div class="toc">
+      <a href="#b">기준선(현재)</a><a href="#a">T0 단계 전투지도</a><a href="#scrolly">T1 스크롤리텔링</a><a href="#mlib">T2 벡터·3D</a><a href="#globe">T3 3D 글로브</a>
+    </div>
+  </div>
+  <div class="wrap">
+
+    <!-- 기준선 B -->
+    <section class="demo" id="b">
+      <span class="tier t0">기준선 · 현재 방식(B)</span>
+      <h2>SVG 진격 연출 — 지금 에피소드에 들어간 방식</h2>
+      <div class="what">그림 지도 한 장 위에 화살표를 그리는 방식. 한반도 전체라 <b>점이 작고 글자가 겹치는</b> 한계가 있었죠(Nick 지적). 아래 기법들과 비교해 보세요.</div>
+      <div class="baseline">
+        <div class="big">🗺️</div>
+        <div>현재 동학 지도(B)는 제국주의 에피소드 안에 있어요 → <a href="../imperialism/index.html#korea" target="_blank" style="color:var(--accent);font-weight:700;">위기의 조선에서 보기 ↗</a><br><span class="note">이 랩의 목적: 이보다 나은 방식을 찾는 것.</span></div>
+      </div>
+    </section>
+
+    <!-- T0-A Leaflet + antpath -->
+    <section class="demo" id="a">
+      <span class="tier t0">T0 · 실측 전투지도(A)</span>
+      <h2>진짜 지도 위 단계형 진격 — 동학 1894</h2>
+      <div class="what">실제 지도(확대/이동 가능)에 <b>흐르는 화살표</b>로 진군을, ⚔️로 격전지를 표시. <b>[다음]</b>으로 단계 진행. 화면을 전라·충청으로 <b>확대</b>해 점이 안 겹쳐요. <b>🎨 고지도풍</b>으로 질감도 바꿔 보세요.</div>
+      <div class="map" id="mapA"></div>
+      <div class="ctrls">
+        <button id="aPrev" class="alt" disabled>← 이전</button>
+        <div class="plabel" id="aLabel">1. 고부 봉기</div>
+        <button id="aNext">다음 →</button>
+        <button id="aVintage" class="alt">🎨 고지도풍</button>
+      </div>
+      <div class="legend">
+        <span><i style="border-color:#2E7D4F"></i> 농민군(저항)</span>
+        <span><i style="border-color:#B5546A"></i> 일본군(침탈)</span>
+        <span>🚩 시작 · ⚔️ 격전 · 🏯 점령 · ✖️ 패배</span>
+      </div>
+      <div class="pros"><div><b>장점</b> 위치 정확·확대 가능·겹침 적음·범례</div><div class="con"><b>한계</b> 곡선 연출은 절제됨(직선 흐름)</div></div>
+      <div class="err" id="errA">지도 A 로드 실패 — 네트워크 확인.</div>
+    </section>
+
+    <!-- T1 scrollytelling -->
+    <section class="demo" id="scrolly">
+      <span class="tier t1">T1 · 스크롤리텔링</span>
+      <h2>스크롤하면 지도가 따라온다</h2>
+      <div class="what">글을 읽으며 <b>스크롤</b>하면 지도가 그 장소로 <b>날아가</b>요. 이야기와 지도가 한 몸이 되는 방식(뉴스·다큐에서 많이 써요).</div>
+      <div class="scrolly">
+        <div class="stage map" id="mapScrolly"></div>
+        <div class="steps">
+          <div class="step" data-lat="35.62" data-lng="126.78" data-zoom="10"><b>1. 고부 봉기</b><br>전라도 고부에서 농민들이 학정에 맞서 들고일어났어요.</div>
+          <div class="step" data-lat="35.82" data-lng="127.15" data-zoom="10"><b>2. 전주성 점령</b><br>북상한 농민군이 전주성을 차지하며 기세를 올렸죠.</div>
+          <div class="step" data-lat="36.43" data-lng="127.10" data-zoom="11"><b>3. 우금치 대패</b><br>공주 우금치에서 일본군의 우세한 화력에 크게 꺾였어요.</div>
+          <div class="step" data-lat="35.37" data-lng="127.14" data-zoom="11"><b>4. 전봉준 체포</b><br>순창으로 피했던 전봉준이 붙잡히며 봉기는 막을 내립니다.</div>
+        </div>
+      </div>
+      <div class="pros"><div><b>장점</b> 몰입·읽는 순서가 분명</div><div class="con"><b>한계</b> 제작 손이 더 감</div></div>
+      <div class="err" id="errS">스크롤 지도 로드 실패.</div>
+    </section>
+
+    <!-- T2 MapLibre vector + 3D -->
+    <section class="demo" id="mlib">
+      <span class="tier t2">T2 · 벡터 + 3D (MapLibre)</span>
+      <h2>선명한 벡터 지도와 3D 시점</h2>
+      <div class="what">확대해도 글씨가 또렷한 <b>벡터 지도</b>를, 기울여서 <b>3D</b>로 봅니다. (Mapbox 아님 — 키가 필요 없는 오픈소스 MapLibre + 무료 벡터타일.) 마우스로 드래그·기울이기 해보세요.</div>
+      <div class="map tall" id="mapMlib"></div>
+      <div class="ctrls"><button id="mlibSpin" class="alt">⟳ 자동 회전 켜기/끄기</button></div>
+      <div class="pros"><div><b>장점</b> 벡터 선명·3D·커스텀 스타일(고지도풍 가능)</div><div class="con"><b>한계</b> 무거움·구현 복잡</div></div>
+      <div class="note">미래에 3D 지형(산악 전투)·시대별 커스텀 스타일까지 확장 가능. 키 불필요.</div>
+      <div class="err" id="errM">벡터 지도 로드 실패.</div>
+    </section>
+
+    <!-- T3 globe -->
+    <section class="demo" id="globe">
+      <span class="tier t3">T3 · 3D 글로브</span>
+      <h2>지구본 위에서 보는 제국주의</h2>
+      <div class="what">회전하는 <b>3D 지구본</b> 위에 <b>본국 → 식민지</b>를 잇는 곡선(arc)으로 제국주의의 전 지구적 팽창을 한눈에. 드래그로 돌려 보세요.</div>
+      <div class="map tall" id="mapGlobe" style="background:#0b1020;"></div>
+      <div class="legend"><span><i style="border-color:#C49A4A"></i> 본국 → 식민지(지배의 손길)</span></div>
+      <div class="pros"><div><b>장점</b> 전 지구 스케일·강한 임팩트</div><div class="con"><b>한계</b> 정밀 지역 표현엔 부적합</div></div>
+      <div class="err" id="errG">글로브 로드 실패.</div>
+    </section>
+
+  </div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-ant-path@1.3.0/dist/leaflet-ant-path.js"></script>
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/globe.gl@2.33.0/dist/globe.gl.min.js"></script>
+<script>
+const PT={ gobu:[35.62,126.78], hwang:[35.58,126.86], jeonju:[35.82,127.15], ugeum:[36.43,127.10], sunchang:[35.37,127.14], hanseong:[37.57,126.98], incheon:[37.45,126.62] };
+function lazy(id, fn){ const el=document.getElementById(id); if(!el) return;
+  const io=new IntersectionObserver((es)=>{ es.forEach(e=>{ if(e.isIntersecting){ io.disconnect(); try{ fn(); }catch(err){ console.error(err); const er=document.getElementById('err'+id.slice(3,4).toUpperCase()); } } }); },{rootMargin:'200px'});
+  io.observe(el);
+}
+function showErr(id){ const e=document.getElementById(id); if(e) e.style.display='block'; }
+
+/* ---------- T0-A: Leaflet + ant-path + stepper + vintage ---------- */
+lazy('mapA', function(){
+  try{
+    const map=L.map('mapA',{scrollWheelZoom:false}).setView([36.1,127.0],8);
+    const normal=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:14,attribution:'© OpenStreetMap'});
+    const vintage=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:14,className:'vintage-tiles',attribution:'© OpenStreetMap'});
+    normal.addTo(map);
+    let isVintage=false;
+    document.getElementById('aVintage').onclick=function(){ isVintage=!isVintage; if(isVintage){map.removeLayer(normal);vintage.addTo(map);}else{map.removeLayer(vintage);normal.addTo(map);} this.classList.toggle('alt',!isVintage); };
+    const ic=(emoji,color)=>L.divIcon({className:'',html:'<div style="font-size:20px;filter:drop-shadow(0 1px 1px #0006)">'+emoji+'</div>',iconSize:[24,24],iconAnchor:[12,12]});
+    function mk(p,emoji,label){ return L.marker(p,{icon:ic(emoji)}).bindTooltip(label,{permanent:true,direction:'top',offset:[0,-8],className:'mm-tt'}); }
+    const layers=[[],[],[]];
+    // phase 1
+    layers[0].push(mk(PT.gobu,'🚩','고부 봉기'));
+    // phase 2
+    layers[1].push(mk(PT.hwang,'⚔️','황토현 승리'), mk(PT.jeonju,'🏯','전주성 점령'),
+      L.polyline.antPath([PT.gobu,PT.hwang,PT.jeonju],{color:'#2E7D4F',weight:4,delay:1000,dashArray:[10,22],pulseColor:'#fff'}));
+    // phase 3
+    layers[2].push(mk(PT.ugeum,'✖️','우금치 대패'), mk(PT.sunchang,'•','순창(체포)'),
+      L.polyline.antPath([PT.incheon,PT.ugeum],{color:'#B5546A',weight:4,delay:1000,dashArray:[10,22],pulseColor:'#fff'}),
+      L.polyline.antPath([PT.jeonju,PT.ugeum],{color:'#2E7D4F',weight:4,delay:1000,dashArray:[10,22],pulseColor:'#fff'}));
+    const labels=['1. 고부 봉기','2. 황토현 승리·전주성 점령','3. 일본군 남하·우금치 대패'];
+    let cur=0;
+    function render(){ layers.forEach((grp,i)=>grp.forEach(l=> i<=cur?l.addTo(map):map.removeLayer(l)));
+      document.getElementById('aLabel').textContent=labels[cur];
+      document.getElementById('aPrev').disabled=cur<=0; document.getElementById('aNext').disabled=cur>=2;
+      const pts=[]; for(let i=0;i<=cur;i++) layers[i].forEach(l=>{ if(l.getLatLng) pts.push(l.getLatLng()); else if(l.getLatLngs) l.getLatLngs().forEach(x=>pts.push(x)); });
+      if(pts.length) map.fitBounds(L.latLngBounds(pts).pad(0.35)); }
+    document.getElementById('aNext').onclick=()=>{ cur=Math.min(2,cur+1); render(); };
+    document.getElementById('aPrev').onclick=()=>{ cur=Math.max(0,cur-1); render(); };
+    render(); setTimeout(()=>map.invalidateSize(),200);
+  }catch(e){ console.error(e); showErr('errA'); }
+});
+
+/* ---------- T1: scrollytelling ---------- */
+lazy('mapScrolly', function(){
+  try{
+    const map=L.map('mapScrolly',{scrollWheelZoom:false,zoomControl:false,dragging:true}).setView([35.9,127.0],8);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:14,attribution:'© OpenStreetMap'}).addTo(map);
+    let marker=null;
+    const steps=document.querySelectorAll('#scrolly .step');
+    const io=new IntersectionObserver((es)=>{ es.forEach(e=>{ if(e.isIntersecting){ const d=e.target.dataset; const ll=[+d.lat,+d.lng];
+      map.flyTo(ll,+d.zoom,{duration:1.2}); if(marker) map.removeLayer(marker); marker=L.marker(ll).addTo(map); } }); },{threshold:0.6});
+    steps.forEach(s=>io.observe(s));
+    setTimeout(()=>map.invalidateSize(),200);
+  }catch(e){ console.error(e); showErr('errS'); }
+});
+
+/* ---------- T2: MapLibre vector + 3D ---------- */
+lazy('mapMlib', function(){
+  try{
+    const m=new maplibregl.Map({container:'mapMlib',style:'https://tiles.openfreemap.org/styles/liberty',center:[126.98,37.57],zoom:10,pitch:60,bearing:-20});
+    m.addControl(new maplibregl.NavigationControl({visualizePitch:true}));
+    new maplibregl.Marker({color:'#B5546A'}).setLngLat([126.98,37.57]).setPopup(new maplibregl.Popup().setText('한성(서울)')).addTo(m);
+    let spin=false,raf;
+    function frame(){ if(!spin) return; m.setBearing(m.getBearing()+0.25); raf=requestAnimationFrame(frame); }
+    document.getElementById('mlibSpin').onclick=()=>{ spin=!spin; if(spin) frame(); };
+    m.on('error',()=>showErr('errM'));
+  }catch(e){ console.error(e); showErr('errM'); }
+});
+
+/* ---------- T3: 3D globe ---------- */
+lazy('mapGlobe', function(){
+  try{
+    const arcs=[
+      {from:[51.5,-0.12],to:[28.6,77.2],label:'영국→인도'},
+      {from:[51.5,-0.12],to:[22.3,114.2],label:'영국→홍콩'},
+      {from:[35.68,139.69],to:[37.57,126.98],label:'일본→조선'},
+      {from:[48.85,2.35],to:[21.0,105.85],label:'프랑스→베트남'},
+      {from:[52.37,4.9],to:[-6.2,106.8],label:'네덜란드→인도네시아'}
+    ];
+    const data=arcs.map(a=>({startLat:a.from[0],startLng:a.from[1],endLat:a.to[0],endLng:a.to[1],label:a.label}));
+    const pts=[]; arcs.forEach(a=>{pts.push({lat:a.from[0],lng:a.from[1],c:'#C49A4A'});pts.push({lat:a.to[0],lng:a.to[1],c:'#E8C8C5'});});
+    const g=Globe()(document.getElementById('mapGlobe'))
+      .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-dark.jpg')
+      .backgroundColor('#0b1020')
+      .arcsData(data).arcColor(()=>['#C49A4A','#E8C8C5']).arcDashLength(0.5).arcDashGap(0.25).arcDashAnimateTime(2200).arcStroke(0.6).arcLabel('label')
+      .pointsData(pts).pointColor('c').pointAltitude(0.01).pointRadius(0.4);
+    const el=document.getElementById('mapGlobe');
+    g.width(el.clientWidth).height(el.clientHeight);
+    g.controls().autoRotate=true; g.controls().autoRotateSpeed=0.7; g.pointOfView({lat:30,lng:90,altitude:2.2});
+    window.addEventListener('resize',()=>g.width(el.clientWidth).height(el.clientHeight));
+  }catch(e){ console.error(e); showErr('errG'); }
+});
+</script>
+<style>
+  .mm-tt{background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:5px;font-size:11px;font-weight:700;color:var(--navy);padding:1px 5px;box-shadow:none;}
+  .mm-tt:before{display:none;}
+  .vintage-tiles{filter:sepia(.65) saturate(.7) contrast(.95) brightness(1.02);}
+</style>
+</body>
+</html>
