@@ -37,7 +37,7 @@
   .crumb a{color:var(--mut);text-decoration:none}
   .crumb a.cur{color:var(--crumb-link);font-weight:600}
   .crumb .sep{color:var(--crumb-sep)}
-  .tbtn{background:var(--panel2);color:var(--mut);border:1px solid var(--line);border-radius:20px;width:36px;height:36px;font-size:15px;cursor:pointer;flex:0 0 auto}
+  .tbtn{background:var(--panel2);color:var(--mut);border:1px solid var(--line);border-radius:22px;width:44px;height:44px;font-size:16px;cursor:pointer;flex:0 0 auto}
   .hwrap{max-width:680px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px}
   .htitle{font-weight:800;font-size:15px}
   .hsub{color:var(--dim);font-size:11px;margin-top:1px}
@@ -45,7 +45,7 @@
   /* tabs */
   .tabs{max-width:680px;margin:0 auto;display:flex;gap:4px;padding:8px 8px 0;overflow-x:auto}
   .tab{flex:0 0 auto;background:none;border:none;color:var(--mut);font-size:13px;font-weight:600;
-    padding:9px 12px;border-radius:9px 9px 0 0;cursor:pointer;white-space:nowrap}
+    padding:9px 13px;min-height:44px;border-radius:9px 9px 0 0;cursor:pointer;white-space:nowrap}
   .tab.on{background:var(--panel);color:var(--ink)}
   main{max-width:680px;margin:0 auto;padding:16px}
   .view{display:none;animation:fade .2s ease}
@@ -132,7 +132,7 @@
 
 <div class="tabs" id="tabs"></div>
 <main id="main"></main>
-<footer>한국사1 수행평가 대비 학습 앱 · 정본 28용어 · 표기 정확도가 점수를 가른다</footer>
+<footer id="foot">한국사1 수행평가 대비 학습 앱 · 표기 정확도가 점수를 가른다</footer>
 
 <script>
 /* ───────── DATA (정본: 02_text/용어정본.md) ───────── */
@@ -197,8 +197,6 @@ const DISTRACT=["강화도","광성보","남연군","박규수","김홍집","박
 /* ───────── helpers ───────── */
 const $=s=>document.querySelector(s);
 const norm=s=>(s||"").replace(/\s+/g,"").replace(/[·.]/g,"").trim();
-const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=(i*9301+49297)%(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;};
-// seeded-ish shuffle to avoid Math.random restrictions is unnecessary in browser; use real random:
 function rshuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function isCorrect(term,input){
   const set=[term.t,...(term.acc||[])].map(norm);
@@ -455,8 +453,8 @@ function prShell(){
 function prStart(){
   prScore={c:0,n:0};prList=[];
   PAIRS.forEach(p=>{
-    prList.push({clue:p.a.c,ans:p.a.t,opts:[p.a.t,p.b.t]});
-    prList.push({clue:p.b.c,ans:p.b.t,opts:[p.a.t,p.b.t]});
+    prList.push({clue:p.a.c,ans:p.a.t,opts:[p.a.t,p.b.t],info:[p.a,p.b]});
+    prList.push({clue:p.b.c,ans:p.b.t,opts:[p.a.t,p.b.t],info:[p.a,p.b]});
   });
   prList=rshuffle(prList);prIdx=0;prDraw();
 }
@@ -480,8 +478,9 @@ function prPick(choice){
   if(prDone)return;
   const q=prList[prIdx];const ok=choice===q.ans;
   prDone=true;prScore.n++;if(ok)prScore.c++;
+  const cmp=q.info?`<div class="note" style="margin-top:8px">${q.info.map(x=>`<div style="margin:2px 0"><b style="color:var(--acc)">${x.t}</b> — ${x.c}</div>`).join("")}</div>`:"";
   $("#prfb").innerHTML=(ok?`<div class="fb ok">✅ 정답! <b>${q.ans}</b></div>`
-    :`<div class="fb no">❌ 정답은 <b>${q.ans}</b></div>`)
+    :`<div class="fb no">❌ 정답은 <b>${q.ans}</b></div>`)+cmp
     +`<div class="row" style="margin-top:8px"><button class="btn" onclick="prNext()" style="flex:1">${prIdx<prList.length-1?"다음 ▶":"결과"}</button></div>`;
 }
 function prNext(){prIdx++;prDraw();}
@@ -493,7 +492,7 @@ function mkShell(){
     <p class="mut" style="font-size:13px">핵심 용어 ${N}개를 랜덤 순서로 모두 푼다. 끝나면 <b>평가 척도</b>로 점수를 환산한다. (실제 시험은 30문항)</p>
     <label style="display:flex;align-items:center;gap:8px;margin-top:12px;font-size:14px;cursor:pointer">
       <input type="checkbox" id="mkbankchk" ${store.bank?"checked":""} style="width:18px;height:18px;flex:0 0 auto">
-      <span>📋 예시 단어 보기 — 약 <b>${N+DISTRACT.length}개</b> 목록에서 고르기 (실제 시험 형식)</span>
+      <span>📋 예시 단어 보기 — <b>${N+DISTRACT.length}개</b> 목록에서 고르기 (실제 시험 형식)</span>
     </label>
     <div class="row" style="margin-top:12px"><button class="btn" onclick="mkStart()">시작하기 ▶</button></div>
   </div>
@@ -580,6 +579,7 @@ function toggleTheme(){applyTheme(store.theme==="light"?"dark":"light");}
 /* ───────── init ───────── */
 applyTheme(store.theme||"dark");
 $("#hsub").textContent=`Ⅲ-01~Ⅲ-02 · 서술형 빈칸 · ${N}용어`;
+$("#foot").textContent=`한국사1 수행평가 대비 · 핵심 용어 ${N}개 · 표기 정확도가 점수를 가른다`;
 renderTabs();renderView();
 </script>
 </body>
