@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>북아메리카 — 새로운 나라가 태어나다</title>
+<meta name="description" content="원주민의 땅에서 13개 식민지, 독립혁명, 서부 개척과 눈물의 길, 남북전쟁을 지나 초강대국까지 — 미국이라는 나라의 빛과 그림자.">
+<style>
+  :root{
+    --rose:#C98B8B; --rose-soft:#E8C8C5; --navy:#33406B; --navy-2:#46527f; --navy-soft:#6F79A0;
+    --cream:#FBF7F2; --paper:#FFFFFF; --ink:#2E2A28; --muted:#857B74; --line:#EBE0D5;
+    --accent:#B5546A; --gold:#C49A4A;
+    --shadow:0 6px 22px rgba(51,64,107,.09); --shadow-sm:0 2px 10px rgba(51,64,107,.06);
+    --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+    background:var(--cream); color:var(--ink); line-height:1.78;
+    -webkit-font-smoothing:antialiased; word-break:keep-all;
+  }
+  a{color:inherit;}
+  #progress{position:fixed; top:0; left:0; height:3px; width:0%; background:linear-gradient(90deg,var(--rose),var(--accent)); z-index:60; transition:width .1s;}
+  .layout{display:flex; min-height:100vh;}
+  .sidebar{width:276px; flex:0 0 276px; background:linear-gradient(180deg,var(--navy),#2b3559); color:#fff; padding:26px 16px 30px; position:sticky; top:0; height:100vh; overflow-y:auto;}
+  .content{flex:1; min-width:0;}
+  .hub-back{display:inline-block; color:var(--rose-soft); font-size:12px; text-decoration:none; padding:4px 8px; margin:0 0 14px; border:1px solid rgba(255,255,255,.14); border-radius:9px; transition:background .15s,color .15s;}
+  .hub-back:hover{background:rgba(255,255,255,.1); color:#fff;}
+  .brand{cursor:pointer; padding:0 6px; margin-bottom:6px;}
+  .brand .bt{font-size:19px; font-weight:800; line-height:1.35;}
+  .brand .sub{display:block; font-size:11.5px; font-weight:500; color:var(--rose-soft); margin-top:7px; letter-spacing:.01em;}
+  .nav{margin-top:20px; list-style:none;}
+  .nav li{margin:3px 0;}
+  .nav a{display:flex; align-items:center; gap:11px; text-decoration:none; color:#dde0ee; font-size:14px; padding:10px 11px; border-radius:12px; transition:background .15s,color .15s; cursor:pointer; position:relative;}
+  .nav a .num{font-size:10.5px; color:var(--navy-soft); width:18px; font-weight:800; flex:0 0 18px;}
+  .nav a:hover{background:rgba(255,255,255,.09); color:#fff;}
+  .nav a.active{background:var(--rose); color:#fff; font-weight:700;}
+  .nav a.active .num{color:#fff;}
+  .nav a.star{background:rgba(196,154,74,.15);}
+  .nav a.star.active{background:var(--accent);}
+  .nav a.star .num{color:var(--gold);}
+  .nav a.visited:not(.active)::after{content:"✓"; margin-left:auto; font-size:11px; color:#8fd9a8; font-weight:800;}
+  .nav a.star .tag{font-size:9.5px; background:var(--gold); color:#3a2f10; padding:1px 6px; border-radius:8px; margin-left:auto; font-weight:800;}
+  .nav a.star.visited .tag{display:none;}
+  .nav .home-link{font-weight:700; color:#fff; background:rgba(255,255,255,.06); margin-bottom:8px;}
+  .side-foot{margin-top:24px; padding:16px 8px 0; font-size:11px; color:var(--navy-soft); line-height:1.7; border-top:1px solid rgba(255,255,255,.1);}
+  .topbar{display:none; align-items:center; gap:12px; background:var(--navy); color:#fff; padding:12px 16px; position:sticky; top:0; z-index:40;}
+  .topbar .hamb{font-size:22px; background:none;border:none;color:#fff;cursor:pointer;line-height:1;}
+  .topbar .tb-title{font-size:14.5px; font-weight:700;}
+  .topbar .tb-hub{margin-left:auto; color:#fff; font-size:12.5px; font-weight:700; text-decoration:none; border:1px solid rgba(255,255,255,.35); border-radius:9px; padding:5px 10px; white-space:nowrap;}
+  .topbar .tb-hub:active{background:rgba(255,255,255,.15);}
+  .scrim{display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:30;}
+  .hero{padding:54px 40px 36px; color:#fff; position:relative; overflow:hidden;}
+  .hero .kicker{font-size:12.5px; letter-spacing:.14em; font-weight:700; text-transform:uppercase; opacity:.92;}
+  .hero h1{font-size:31px; margin-top:10px; line-height:1.3; font-weight:800; max-width:680px;}
+  .hero .era{display:inline-flex; align-items:center; gap:7px; margin-top:16px; font-size:12.5px; background:rgba(255,255,255,.16); padding:6px 14px; border-radius:20px;}
+  .hero .motif{position:absolute; right:-10px; bottom:-20px; opacity:.16; width:180px; height:180px;}
+  .wrap{max-width:740px; margin:0 auto; padding:36px 28px 90px;}
+  .hook{font-size:18px; line-height:1.92; color:var(--navy); border-left:4px solid var(--rose); padding:4px 0 4px 20px; margin-bottom:30px; font-weight:500;}
+  h2.block{font-size:14px; letter-spacing:.05em; color:var(--accent); font-weight:800; margin:38px 0 15px; display:flex; align-items:center; gap:9px; text-transform:uppercase;}
+  h2.block::before{content:""; width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block; flex:0 0 8px;}
+  .why{background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:22px 24px; box-shadow:var(--shadow-sm); font-size:16px;}
+  .why b{color:var(--accent);}
+  .lens{background:linear-gradient(135deg,#fff,#f3f0fa); border:1px solid #d8cfe8; border-left:5px solid #7a6aa8; border-radius:14px; padding:18px 22px; margin:24px 0; font-size:15.5px;}
+  .lens .lh{font-weight:800; color:#5b4a86; font-size:13.5px; letter-spacing:.03em; margin-bottom:6px; display:flex; gap:7px; align-items:center;}
+  .quote{margin:30px 0; background:linear-gradient(135deg,#fff,#fdf2ef); border:1px solid var(--rose-soft); border-left:5px solid var(--rose); border-radius:14px; padding:22px 26px; box-shadow:var(--shadow-sm);}
+  .quote .qt{font-size:18.5px; font-style:italic; color:var(--navy); line-height:1.8;}
+  .quote .qs{display:block; margin-top:12px; font-size:13px; color:var(--muted); font-style:normal;}
+  .quote .qm{font-size:40px; color:var(--rose-soft); line-height:0; display:block; height:18px;}
+  .cards{display:grid; gap:14px;}
+  @media(min-width:620px){ .cards{grid-template-columns:1fr 1fr;} }
+  .card{background:var(--paper); border:1px solid var(--line); border-radius:15px; padding:18px 20px; box-shadow:var(--shadow-sm); transition:transform .12s, box-shadow .12s;}
+  .card:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
+  .card .yr{font-size:11.5px; font-weight:800; color:var(--rose); letter-spacing:.04em; text-transform:uppercase;}
+  .card h3{font-size:16.5px; color:var(--navy); margin:5px 0 6px;}
+  .card p{font-size:15px; color:var(--ink);}
+  .term{color:var(--accent); font-weight:700; border-bottom:1.5px dotted var(--rose); cursor:help;}
+  .people{display:grid; gap:14px;}
+  @media(min-width:620px){ .people{grid-template-columns:1fr 1fr;} }
+  .person{background:#fff; border:1px solid var(--line); border-radius:15px; padding:18px 20px; box-shadow:var(--shadow-sm);}
+  .person .pheader{display:flex; gap:13px; align-items:center; margin-bottom:8px;}
+  .person .pface{flex:0 0 46px; height:46px; border-radius:12px; background:linear-gradient(135deg,var(--rose),var(--accent)); display:flex;align-items:center;justify-content:center;font-size:22px; color:#fff;}
+  .person .pname{font-size:16.5px; font-weight:800; color:var(--navy);}
+  .person .pwho{font-size:12px; color:var(--muted);}
+  .person .pwhy{font-size:14.5px; margin-bottom:8px;}
+  .person .pquote{font-size:14px; font-style:italic; color:var(--accent); border-left:3px solid var(--rose-soft); padding-left:10px; margin:8px 0;}
+  .person .pshadow{font-size:13.5px; color:var(--muted); background:var(--cream); border-radius:9px; padding:8px 11px;}
+  .person .pmore{display:inline-block; margin-top:10px; font-size:13px; font-weight:700; text-decoration:none; color:var(--accent); border:1px solid var(--rose-soft); border-radius:9px; padding:6px 12px;}
+  .person .pmore:hover{background:var(--accent); color:#fff; border-color:var(--accent);}
+  .movies{display:grid; gap:14px;}
+  .movie{background:#fff; border:1px solid var(--line); border-radius:15px; padding:16px 18px; box-shadow:var(--shadow-sm);}
+  .movie .mhead{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:4px;}
+  .movie .mtitle{font-size:16.5px; font-weight:800; color:var(--navy);}
+  .movie .mfit{font-size:11.5px; font-weight:700; border-radius:7px; padding:2px 8px; white-space:nowrap;}
+  .movie .mfit.green{background:#E5F3E8; color:#2E7D4F;}
+  .movie .mfit.yellow{background:#FBF1D8; color:#9A7B22;}
+  .movie .mfit.red{background:#F7E0E0; color:#B5546A;}
+  .movie .mmeta{font-size:12.5px; color:var(--muted); margin-bottom:9px;}
+  .movie .mmeta b{color:var(--accent);}
+  .movie .mwhy{font-size:14.5px; margin-bottom:9px;}
+  .movie .mreal{font-size:13px; color:var(--muted); background:var(--cream); border-radius:9px; padding:8px 11px; margin-bottom:10px;}
+  .movie .mreal .lbl{font-weight:800; color:var(--gold); margin-right:6px;}
+  .movie .mlinks{display:flex; gap:8px; flex-wrap:wrap;}
+  .movie .mlink{font-size:12.5px; font-weight:700; text-decoration:none; color:var(--navy); border:1px solid var(--line); border-radius:8px; padding:5px 11px;}
+  .movie .mlink:hover{border-color:var(--accent); color:var(--accent);}
+  .movie .mlink.slug{color:var(--accent); border-color:var(--rose-soft);}
+  .relations{background:#fff; border:1px solid var(--line); border-radius:15px; padding:18px 18px 16px; box-shadow:var(--shadow-sm);}
+  .relations .rtitle{font-size:16px; font-weight:800; color:var(--navy); text-align:center; margin-bottom:6px;}
+  .relations .rintro{font-size:14px; color:var(--muted); text-align:center; margin-bottom:14px;}
+  .rsides{display:grid; gap:12px;}
+  @media(min-width:600px){ .rsides{grid-template-columns:repeat(auto-fit,minmax(160px,1fr));} }
+  .rside{border-radius:13px; padding:13px 14px;}
+  .rside.red{background:#FBEAEA; border:1px solid #E8C0C0;}
+  .rside.blue{background:#E9EEF7; border:1px solid #C2D0E6;}
+  .rside.green{background:#E7F1EA; border:1px solid #BFD9C7;}
+  .rside .rslabel{font-size:13px; font-weight:800; margin-bottom:9px; letter-spacing:.02em;}
+  .rside.red .rslabel{color:#B5546A;}
+  .rside.blue .rslabel{color:#33406B;}
+  .rside.green .rslabel{color:#2E7D4F;}
+  .rmember{background:#fff; border:1px solid var(--line); border-radius:9px; padding:8px 10px; margin-bottom:7px; font-size:13.5px;}
+  .rmember b{color:var(--navy); margin-right:6px;}
+  .rmember span{color:var(--muted);}
+  .rmember .rlink{text-decoration:none;}
+  .rtensions{margin-top:14px; display:grid; gap:9px;}
+  .rtension{background:var(--cream); border-left:3px solid var(--gold); border-radius:9px; padding:10px 12px; font-size:13.5px;}
+  .rtension .rvs{font-weight:800; color:var(--accent); margin-bottom:3px;}
+  .marchmap{background:#fff; border:1px solid var(--line); border-radius:15px; padding:16px; box-shadow:var(--shadow-sm);}
+  .marchmap .mm-title{font-weight:800; color:var(--navy); text-align:center; font-size:16px;}
+  .marchmap .mm-intro{font-size:14px; color:var(--muted); text-align:center; margin:6px 0 12px;}
+  .mm-stage{position:relative; max-width:360px; margin:0 auto; aspect-ratio:1866/2891; background:#eef3ee; border-radius:10px; overflow:hidden;}
+  .mm-base{position:absolute; inset:0; width:100%; height:100%; object-fit:contain;}
+  .mm-arrows{position:absolute; inset:0; width:100%; height:100%; overflow:visible;}
+  .mm-arrow{fill:none; stroke-width:1.4; stroke-linecap:round; stroke-dasharray:300; stroke-dashoffset:300; opacity:0; transition:stroke-dashoffset .8s ease, opacity .3s;}
+  .mm-arrow.on{stroke-dashoffset:0; opacity:.95;}
+  .mm-arrow.tone-resist{stroke:#2E7D4F;} .mh.resist{fill:#2E7D4F;}
+  .mm-arrow.tone-invade{stroke:#B5546A;} .mh.invade{fill:#B5546A;}
+  .mm-alab{font-size:3.4px; font-weight:800; opacity:0; transition:opacity .3s;} .mm-alab.on{opacity:.9;}
+  .mm-alab.tone-resist{fill:#2E7D4F;} .mm-alab.tone-invade{fill:#B5546A;}
+  .mm-place{position:absolute; transform:translate(-50%,-50%); opacity:0; transition:opacity .35s; display:flex; flex-direction:column; align-items:center; pointer-events:none; z-index:2;}
+  .mm-place.on{opacity:1;}
+  .mm-dot{width:11px; height:11px; border-radius:50%; background:var(--navy); border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,.35);}
+  .mm-place.k-battle .mm-dot{background:#B5546A;} .mm-place.k-loss .mm-dot{background:#7a2e3f;}
+  .mm-place.k-win .mm-dot{background:#2E7D4F;} .mm-place.k-start .mm-dot{background:var(--gold);}
+  .mm-lbl{font-size:11px; font-weight:700; color:var(--navy); background:rgba(255,255,255,.9); border-radius:5px; padding:0 4px; margin-top:3px; white-space:nowrap;}
+  .mm-step{display:flex; align-items:center; gap:10px; justify-content:center; margin-top:13px;}
+  .mm-step button{background:var(--navy); color:#fff; border:none; border-radius:9px; padding:7px 14px; font-size:13px; font-weight:700; cursor:pointer;}
+  .mm-step button:disabled{opacity:.4; cursor:default;}
+  .mm-plabel{font-size:13.5px; font-weight:800; color:var(--accent); min-width:150px; text-align:center;}
+  .mm-cap{font-size:11px; color:var(--muted); text-align:center; margin-top:9px; line-height:1.5;}
+  .battlemap{background:#fff; border:1px solid var(--line); border-radius:15px; padding:16px; box-shadow:var(--shadow-sm);}
+  .battlemap .bm-intro{font-size:14px; color:var(--muted); text-align:center; margin-bottom:11px;}
+  .bm-map{width:100%; height:380px; border-radius:11px; overflow:hidden; border:1px solid var(--line); background:#eef3ee;}
+  .bm-ic div{font-size:19px; filter:drop-shadow(0 1px 1px rgba(0,0,0,.4));}
+  .bm-tt{background:rgba(255,255,255,.92); border:1px solid var(--line); border-radius:5px; font-size:11px; font-weight:700; color:var(--navy); padding:1px 5px; box-shadow:none;}
+  .bm-tt:before{display:none;}
+  .bm-step{display:flex; align-items:center; gap:10px; justify-content:center; margin-top:12px;}
+  .bm-step button{background:var(--navy); color:#fff; border:none; border-radius:9px; padding:7px 14px; font-size:13px; font-weight:700; cursor:pointer;}
+  .bm-step button:disabled{opacity:.4; cursor:default;}
+  .bm-plabel{font-size:13.5px; font-weight:800; color:var(--accent); min-width:150px; text-align:center;}
+  .bm-legend{display:flex; gap:14px; flex-wrap:wrap; justify-content:center; font-size:12.5px; margin-top:11px;}
+  .bm-legend span{display:inline-flex; align-items:center; gap:5px;}
+  .bm-legend i{width:16px; border-top:3px solid; display:inline-block; border-radius:2px;}
+  .bm-cap{font-size:11px; color:var(--muted); text-align:center; margin-top:9px;}
+  .deepdive{margin:18px 0 6px; border:1px solid var(--line); border-radius:13px; background:linear-gradient(180deg,#fff,#fbf6ef); overflow:hidden;}
+  .deepdive summary{cursor:pointer; padding:14px 18px; font-size:15px; font-weight:800; color:var(--navy); list-style:none; display:flex; align-items:center; gap:8px;}
+  .deepdive summary::-webkit-details-marker{display:none;}
+  .deepdive summary:after{content:"▾"; margin-left:auto; color:var(--accent); transition:transform .2s;}
+  .deepdive[open] summary:after{transform:rotate(180deg);}
+  .deepdive summary:hover{background:rgba(181,84,106,.05);}
+  .dd-body{padding:4px 18px 18px;}
+  .dd-item{border-top:1px solid var(--line); padding:13px 0;}
+  .dd-item:first-child{border-top:none;}
+  .dd-item h3{font-size:15px; color:var(--accent); margin-bottom:6px;}
+  .dd-text{font-size:14.5px; line-height:1.8;}
+  .dd-src{font-size:12.5px; color:var(--muted); background:var(--cream); border-radius:8px; padding:7px 11px; margin-top:8px;}
+  .timeline{position:relative; margin:6px 0 6px 9px; padding-left:26px; border-left:2.5px solid var(--rose-soft);}
+  .tl{position:relative; padding:5px 0 17px;}
+  .tl::before{content:""; position:absolute; left:-33.5px; top:9px; width:13px;height:13px;border-radius:50%;background:var(--rose); border:3px solid var(--cream);}
+  .tl .tl-yr{font-weight:800; color:var(--navy); font-size:13.5px;}
+  .tl .tl-txt{font-size:15px;}
+  .connect{background:#fff; border:1px dashed var(--rose); border-radius:14px; padding:17px 22px; font-size:15.5px; color:var(--navy); display:flex; gap:12px; align-items:flex-start;}
+  .connect .ico{flex:0 0 22px; font-size:18px;}
+  .connect b{color:var(--accent);}
+  .yt{display:flex; gap:14px; align-items:flex-start; text-decoration:none; background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin-bottom:11px; transition:transform .12s, box-shadow .12s;}
+  .yt:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
+  .yt .play{flex:0 0 42px; height:42px; border-radius:11px; background:#FF0000; color:#fff; display:flex;align-items:center;justify-content:center;font-size:16px;}
+  .yt .play.search{background:var(--navy);}
+  .yt .yt-body{flex:1; min-width:0;}
+  .yt .yt-title{font-weight:700; color:var(--navy); font-size:15px; line-height:1.45;}
+  .yt .yt-meta{font-size:12px; color:var(--muted); margin-top:3px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+  .yt .pill{background:var(--cream); border:1px solid var(--line); border-radius:6px; padding:1px 6px; font-weight:700;}
+  .yt .pill.ko{color:#2f7d4f;} .yt .pill.en{color:#3a5bb5;} .yt .pill.find{color:var(--navy);}
+  .yt .yt-desc{font-size:13.5px; margin-top:5px; color:var(--ink);}
+  .reflect{background:#fff; border:2px solid var(--rose-soft); border-radius:var(--radius); padding:20px 22px; box-shadow:var(--shadow-sm);}
+  .reflect .q{font-weight:700; color:var(--navy); margin-bottom:9px; font-size:15.5px;}
+  .reflect textarea{width:100%; min-height:88px; border:1px solid var(--line); border-radius:11px; padding:13px; font-family:inherit; font-size:15px; resize:vertical; background:#fffdfb; color:var(--ink); line-height:1.7;}
+  .reflect textarea:focus{outline:none; border-color:var(--rose); box-shadow:0 0 0 3px rgba(201,139,139,.15);}
+  .reflect textarea + .q{margin-top:18px;}
+  .reflect .saved{font-size:12px; color:var(--gold); margin-top:6px; height:15px; font-weight:600;}
+  /* quiz (R1) */
+  .quizwrap{display:flex;flex-direction:column;gap:14px;}
+  .quizq{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow-sm);}
+  .quizq .qq{font-weight:700;color:var(--navy);font-size:15.5px;margin-bottom:10px;}
+  .qopts{display:flex;flex-direction:column;gap:8px;}
+  .quiz-opt{text-align:left;font-family:inherit;font-size:14.5px;background:var(--cream);border:1px solid var(--line);border-radius:10px;padding:10px 13px;cursor:pointer;color:var(--ink);transition:background .12s;}
+  .quiz-opt:hover:not(:disabled){background:#f3ece4;}
+  .quiz-opt:disabled{cursor:default;}
+  .quiz-opt.correct{background:#e8f5ec;border-color:#8fcea5;color:#1f7a44;font-weight:700;}
+  .quiz-opt.wrong{background:#fbeaec;border-color:#e3a3ad;color:#a83246;}
+  .qexp{font-size:14px;color:var(--ink);margin-top:10px;display:none;line-height:1.7;background:var(--cream);border-radius:9px;padding:10px 12px;}
+  .qexp.show{display:block;}
+  .qexp b{color:var(--accent);}
+  /* notes export (R2) */
+  .nav .notes-link{font-weight:700;color:#fff;background:rgba(196,154,74,.16);}
+  .note-actions{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+  .notes-view{background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px 26px;box-shadow:var(--shadow-sm);}
+  .note-sec{margin-bottom:22px;}
+  .note-sh{font-weight:800;color:var(--accent);font-size:13px;letter-spacing:.04em;border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:10px;}
+  .note-q{font-weight:700;color:var(--navy);font-size:14.5px;margin-top:12px;}
+  .note-a{font-size:14.5px;white-space:pre-wrap;margin-top:3px;}
+  .note-a.empty{color:var(--muted);font-style:italic;}
+  @media print{ .sidebar,.topbar,.scrim,#progress,.noprint{display:none!important;} .content{width:100%;} .home-hero{background:#fff!important;color:#000!important;padding:10px 0 0;} .home-hero h1{color:#000;} .home-hero .hsub{color:#555;} .notes-view{border:none;box-shadow:none;padding:0;} body{background:#fff;} }
+  /* map (R3 — 실제 지도, Leaflet+OSM) */
+  .mapwrap{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow-sm);}
+  .lmap{height:340px;border-radius:12px;overflow:hidden;border:1px solid var(--line);z-index:0;}
+  .mapcap{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.6;}
+  .mapcap .msrc{font-size:11.5px;opacity:.8;}
+  /* image (S1 — PD 역사지도/사진 + 선택적 hotspot) */
+  .figimg{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow-sm);}
+  .figstory{font-size:15.5px;line-height:1.8;margin-bottom:12px;color:var(--ink);}
+  .figstory b{color:var(--accent);}
+  .imgbox{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#f4efe8;}
+  .imgbox img{width:100%;height:auto;display:block;}
+  .hsdot{position:absolute;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;border:2px solid #fff;font-size:12px;font-weight:800;cursor:pointer;box-shadow:0 2px 7px rgba(0,0,0,.32);display:flex;align-items:center;justify-content:center;line-height:1;}
+  .hsdot:hover{background:var(--navy);}
+  .hsinfo{margin-top:10px;font-size:14px;background:var(--cream);border-radius:9px;padding:11px 13px;display:none;line-height:1.7;}
+  .hsinfo.show{display:block;}
+  .hsinfo b{color:var(--accent);}
+  .figcap{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.65;}
+  .figcap .msrc{font-size:11.5px;opacity:.85;}
+  /* oldmap (고지도 — 시대감) */
+  .oldmap{background:linear-gradient(180deg,#f7f0e2,#efe4cf);border:1px solid #d8c7a6;border-radius:16px;padding:16px;box-shadow:var(--shadow-sm);}
+  .oldmap-frame{border-radius:10px;overflow:hidden;border:3px solid #8a6d3b;box-shadow:inset 0 0 40px rgba(94,66,20,.25);background:#e8dcc2;}
+  .oldmap-frame img{width:100%;height:auto;display:block;filter:sepia(.32) contrast(1.04) saturate(.9);}
+  .oldmap .figcap{color:#6b5836;}
+  /* voice (S3 — 일기·편지체 1인칭) */
+  .voice{background:linear-gradient(135deg,#fffdf8,#f6efe3);border:1px solid #e6d9c4;border-left:5px solid var(--gold);border-radius:14px;padding:20px 24px;box-shadow:var(--shadow-sm);}
+  .voice .vbadge{display:inline-block;font-size:11px;font-weight:800;padding:2px 10px;border-radius:8px;margin-bottom:12px;letter-spacing:.02em;}
+  .voice .vbadge.real{background:#e6f0e8;color:#2f6b43;}
+  .voice .vbadge.imag{background:#f3eadb;color:#8a6d2f;}
+  .voice .vbody{font-size:16.5px;font-style:italic;line-height:1.95;color:#3a352f;}
+  .voice .vbody::before{content:"“";font-size:34px;color:var(--gold);line-height:0;vertical-align:-12px;margin-right:3px;}
+  .voice .vspeaker{margin-top:14px;font-size:13px;color:var(--muted);}
+  .voice .vspeaker b{color:var(--navy);}
+  .voice .vsrc{display:block;font-size:11.5px;opacity:.85;margin-top:3px;}
+  /* chart (S4 — 자체 막대 + 체감 비교) */
+  .chart{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow-sm);}
+  .chart .ctitle{font-weight:800;color:var(--navy);font-size:15.5px;}
+  .chart .cunit{font-size:12px;color:var(--muted);margin:3px 0 14px;}
+  .crow{display:flex;align-items:center;gap:10px;margin:9px 0;}
+  .crow .clabel{flex:0 0 72px;font-size:13px;color:var(--ink);text-align:right;}
+  .crow .cbarwrap{flex:1;background:var(--cream);border-radius:7px;overflow:hidden;height:24px;}
+  .crow .cbar{height:100%;background:linear-gradient(90deg,var(--rose),var(--accent));border-radius:7px;min-width:3px;}
+  .crow .cval{flex:0 0 auto;font-size:12.5px;font-weight:700;color:var(--accent);min-width:62px;}
+  .crelate{margin-top:15px;font-size:14.5px;background:#fdf2ef;border:1px solid var(--rose-soft);border-radius:10px;padding:12px 14px;line-height:1.7;}
+  .crelate b{color:var(--accent);}
+  .csrc{font-size:11.5px;color:var(--muted);margin-top:11px;opacity:.85;}
+  /* compare (S5 — 단계 토글 / before·after) */
+  .compare{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow-sm);}
+  .cmpintro{font-size:15px;margin-bottom:13px;color:var(--ink);line-height:1.7;}
+  .cmptabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px;}
+  .cmptab{font-family:inherit;font-size:13px;font-weight:700;background:var(--cream);border:1px solid var(--line);border-radius:20px;padding:7px 14px;cursor:pointer;color:var(--navy);transition:background .12s;}
+  .cmptab:hover{background:#f3ece4;}
+  .cmptab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .cmppanel .cmh{font-weight:800;color:var(--navy);font-size:16.5px;margin-bottom:7px;}
+  .cmppanel .cmb{font-size:15px;line-height:1.85;}
+  .cmppanel img{width:100%;border-radius:10px;margin-top:11px;border:1px solid var(--line);display:block;}
+  .cmpcap{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.6;}
+  /* choice (S7 — 너라면? 도덕적 딜레마) */
+  .choice{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow-sm);}
+  .chprompt{font-weight:700;color:var(--navy);font-size:15.5px;margin-bottom:14px;line-height:1.75;}
+  .chopts{display:flex;flex-direction:column;gap:9px;}
+  .chopt{text-align:left;font-family:inherit;font-size:14.5px;background:var(--cream);border:1px solid var(--line);border-radius:11px;padding:12px 14px;cursor:pointer;color:var(--ink);transition:background .12s;}
+  .chopt:hover{background:#f3ece4;}
+  .chopt.picked{border-color:var(--accent);background:#fdf2ef;font-weight:700;}
+  .chres{font-size:14px;margin-top:8px;background:#f7f3fb;border:1px solid #e0d6ee;border-radius:9px;padding:11px 13px;display:none;line-height:1.75;}
+  .chres.show{display:block;}
+  .chafter{margin-top:15px;font-size:14px;background:var(--cream);border-radius:9px;padding:12px 14px;line-height:1.75;display:none;}
+  .chafter.show{display:block;}
+  .chafter b{color:var(--accent);}
+  .pager{display:flex; justify-content:space-between; gap:12px; margin-top:46px;}
+  .pager a{flex:1; text-decoration:none; background:#fff; border:1px solid var(--line); border-radius:14px; padding:15px 18px; color:var(--navy); box-shadow:var(--shadow-sm); transition:transform .12s, box-shadow .12s; cursor:pointer;}
+  .pager a:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
+  .pager a.next{text-align:right; background:var(--navy); color:#fff; border-color:var(--navy);}
+  .pager .pg-label{font-size:11.5px; color:var(--muted);}
+  .pager a.next .pg-label{color:var(--rose-soft);}
+  .pager .pg-title{font-weight:700; font-size:15px; margin-top:3px;}
+  .home-hero{padding:60px 32px 44px; background:linear-gradient(140deg,var(--navy) 0%, #54608c 100%); color:#fff; text-align:center;}
+  .home-hero h1{font-size:33px; font-weight:800; line-height:1.32;}
+  .home-hero .hsub{font-size:15px; color:var(--rose-soft); margin-top:12px;}
+  .home-hero .hq{margin:26px auto 0; max-width:460px; font-style:italic; font-size:15px; opacity:.92; line-height:1.8;}
+  .home-hero .hq small{display:block; font-style:normal; opacity:.7; font-size:12px; margin-top:8px;}
+  .home-wrap{max-width:760px; margin:0 auto; padding:36px 26px 90px;}
+  .home-intro{font-size:16.5px; background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:24px 26px; box-shadow:var(--shadow-sm); line-height:1.85;}
+  .home-intro b{color:var(--accent);}
+  .start-btns{display:flex; gap:12px; flex-wrap:wrap; margin:24px 0 8px;}
+  .btn{flex:1; min-width:200px; text-decoration:none; text-align:center; padding:16px; border-radius:14px; font-weight:700; font-size:15.5px; box-shadow:var(--shadow-sm); transition:transform .12s; cursor:pointer;}
+  .btn:hover{transform:translateY(-2px);}
+  .btn.primary{background:var(--navy); color:#fff;}
+  .btn.star{background:linear-gradient(135deg,var(--rose),var(--accent)); color:#fff;}
+  .path{list-style:none; margin-top:14px;}
+  .path li{display:flex; gap:16px; align-items:flex-start; cursor:pointer; padding:14px 16px; border-radius:14px; transition:background .12s;}
+  .path li:hover{background:#fff;}
+  .path .pn{flex:0 0 34px; height:34px; border-radius:50%; background:var(--navy); color:#fff; display:flex;align-items:center;justify-content:center; font-weight:800; font-size:14px;}
+  .path li.star .pn{background:var(--accent);}
+  .path .ph{font-weight:700; color:var(--navy); font-size:16px;}
+  .path .ph .star-mark{color:var(--gold);}
+  .path .pp{font-size:14px; color:var(--muted); margin-top:2px;}
+  #tip{position:fixed; z-index:70; max-width:260px; background:var(--navy); color:#fff; font-size:13px; line-height:1.6; padding:11px 14px; border-radius:11px; box-shadow:0 8px 24px rgba(0,0,0,.28); display:none; pointer-events:none;}
+  .leaflet-popup-content{font-family:inherit;font-size:13.5px;line-height:1.6;}
+  .leaflet-popup-content b{color:var(--accent);}
+  @media (max-width:880px){
+    .sidebar{position:fixed; left:0; top:0; z-index:35; transform:translateX(-100%); transition:transform .25s;}
+    .sidebar.open{transform:translateX(0);}
+    .topbar{display:flex;}
+    .scrim.show{display:block;}
+    .hero{padding:34px 22px 26px;} .hero h1{font-size:25px;} .hero .motif{width:120px;height:120px;}
+    .home-hero{padding:40px 20px 32px;} .home-hero h1{font-size:26px;}
+    .wrap,.home-wrap{padding:26px 18px 76px;}
+  }
+</style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-ant-path@1.3.0/dist/leaflet-ant-path.js"></script>
+</head>
+<body>
+<div id="progress"></div>
+<div class="layout">
+  <nav class="sidebar" id="sidebar">
+    <a class="hub-back" id="hubBack" href="../index.html">← 역사 이야기 허브</a>
+    <div class="brand" id="brandHome"><div class="bt" id="brandTitle"></div><span class="sub" id="brandSub"></span></div>
+    <ul class="nav" id="navList"></ul>
+    <div class="side-foot" id="sideFoot"></div>
+  </nav>
+  <div class="scrim" id="scrim"></div>
+  <main class="content">
+    <div class="topbar"><button class="hamb" id="hamb" aria-label="메뉴">☰</button><span class="tb-title" id="tbTitle"></span><a class="tb-hub" id="tbHub" href="../index.html">🏛️ 역사 허브</a></div>
+    <div id="view"></div>
+  </main>
+</div>
+<div id="tip"></div>
+
+<!-- 에피소드 데이터 (build.py가 주입) -->
+<script id="episode-data">window.EPISODE = {"meta": {"lang": "ko", "slug": "north-america", "title": "북아메리카 — 새로운 나라가 태어나다", "description": "원주민의 땅에서 13개 식민지, 독립혁명, 서부 개척과 눈물의 길, 남북전쟁을 지나 초강대국까지 — 미국이라는 나라의 빛과 그림자.", "brand": {"title": "북아메리카", "sub": "새로운 나라가 태어나다"}, "foot": "역사 이야기 · 아메리카 허브<br>천천히, 이야기로 따라가요 🌿", "home": {"h1": "원주민의 땅 위에,<br>새로운 나라가 태어나다", "sub": "독립과 개척, 그리고 그 그늘 🗽", "intro": "오늘 세계에서 가장 힘센 나라 미국 — 그런데 이 나라는 지구상의 나라들 중 아주 드물게, <b>시작한 날짜가 있는 나라</b>예요(1776년 7월 4일). 이번 파일은 그 탄생의 이야기입니다. 다만 탐정의 규칙은 여기서도 같아요. 이 땅은 '빈 땅'이 아니었어요 — 수백 개의 원주민 민족이 수천 년을 살아온 땅이었죠. <b>새 나라의 탄생과 원래 주인들의 비극</b>이 같은 페이지에 적혀 있다는 것, 그 두 기록을 나란히 읽는 게 이 파일의 기술이에요. 대항해시대(에피소드 04)의 정복 이야기에서 곧장 이어집니다.", "startPrimary": {"label": "원주민의 땅부터 시작하기 →", "to": "natives"}, "startStar": {"label": "★ 가장 아픈 장(눈물의 길)으로 바로 가기", "to": "expansion"}, "pathLabel": "한 나라가 만들어지는 길"}}, "terms": {"식민지": "다른 나라의 지배를 받는 땅과 사람들을 말해요.", "청교도": "영국 국교회를 더 깨끗하게(purify) 바꾸자던 개신교 신자들이에요. 박해를 피해 아메리카로 건너간 이들이 많았어요.", "독립선언": "1776년 7월 4일, 13개 식민지가 '모든 사람은 평등하게 태어났다'며 영국으로부터의 독립을 선포한 문서예요.", "계몽사상": "왕이 아니라 이성과 자연권(태어날 때부터 갖는 권리)이 사회의 기준이라는 17~18세기 사상이에요. 미국 독립선언의 뿌리죠.", "명백한 운명": "'미국이 대륙 전체로 뻗는 것은 신이 정한 운명'이라던 19세기 미국의 구호예요. 서부 개척을 정당화했지만, 원주민에겐 침탈의 논리였어요.", "눈물의 길": "1830년대 미국 정부가 체로키 등 원주민 민족들을 고향에서 서쪽 보호구역으로 강제 이주시킨 길이에요. 수천 명이 도중에 목숨을 잃었어요.", "보호구역": "원주민들에게 지정된 거주 구역이에요. 말은 '보호'지만 실제로는 고향을 빼앗고 가둔 땅인 경우가 많았어요.", "노예제": "사람을 재산처럼 사고팔고 부리던 제도예요. 미국 남부 플랜테이션 경제가 이 위에 서 있었어요.", "남북전쟁": "1861~65년 노예제 등을 둘러싸고 미국 북부와 남부가 벌인 내전이에요. 미국 역사상 가장 많은 미국인이 죽은 전쟁이죠.", "노예해방선언": "1863년 링컨 대통령이 남부 반란 지역의 노예 해방을 선언한 문서예요. 전쟁의 의미를 '연방 유지'에서 '자유'로 넓혔어요.", "재건 시대": "남북전쟁 후 남부를 다시 연방으로 통합하던 시기(1865~77)예요. 흑인의 권리가 잠시 커졌다가 다시 꺾이는 아픈 반전이 있었어요.", "짐 크로 법": "재건 이후 남부 주들이 만든 흑백 분리·차별 법들을 통틀어 부르는 말이에요. 1960년대 민권운동 때까지 이어졌어요.", "골드러시": "1848년 캘리포니아에서 금이 발견되자 수십만 명이 서부로 몰려간 사건이에요.", "이민": "다른 나라로 삶의 터전을 옮기는 것. 미국은 유럽·아시아·중남미 이민자들이 만든 '이민의 나라'예요."}, "sections": [{"id": "natives", "num": "00", "label": "원주민의 땅", "accent": "#7a5a3a", "kicker": "시작 — 빈 땅이 아니었다", "era": "~1600s", "motif": "sun", "title": "수천 년의 주인들 — 콜럼버스 이전의 북아메리카", "hook": "미국 역사책은 흔히 1492년이나 1620년(메이플라워호)에서 시작해요. 그런데 이상하지 않나요? 그 배가 닿은 해변에는 이미 길이 나 있었고, 옥수수밭이 있었고, 마을과 도시가 있었어요. 북아메리카에는 수백 개의 서로 다른 민족 — 각자의 언어와 법과 신앙을 가진 — 수백만 명이 수천 년을 살고 있었거든요. 이 파일의 첫 장이 '원주민의 땅'인 이유예요. 어떤 이야기든, 원래 주인을 먼저 소개하는 게 공정하니까요.", "why": "이 장을 건너뛰면 이후의 모든 이야기 — 식민지·개척·서부 — 가 '빈 땅을 채운 모험담'으로 잘못 읽혀요. 실제 역사는 '이미 주인이 있던 땅에서 벌어진 일'이었죠. 미국 건국 신화의 빛을 보기 전에, 그 무대가 누구의 땅이었는지 먼저 새겨 두는 것 — 이 에피소드 전체의 균형추예요.", "lens": "유럽인들은 원주민의 땅에 '주인이 없다'고 봤어요. 울타리도, 등기 문서도 없었으니까요. 하지만 원주민들에게 땅은 사고파는 재산이 아니라 <b>함께 살아가는 존재</b>였어요. '땅을 판다'는 개념 자체가 없는 사람들에게 '땅을 샀다'고 주장하는 일이 반복됐죠. 같은 단어(소유)를 전혀 다르게 이해하는 두 세계가 만나면 무슨 일이 생기는지 — 이 파일 내내 확인하게 될 단서예요.", "cards": [{"yr": "다양", "h": "하나의 '인디언'은 없다", "p": "북동부 숲의 이로쿼이, 대평원의 라코타, 남서부 사막의 푸에블로, 북서해안의 연어잡이 민족들 — 수백 개 민족이 전혀 다른 언어와 생활을 가졌어요. '인디언'이라는 한 단어로 뭉뚱그릴 수 없는 세계였죠."}, {"yr": "문명", "h": "도시와 농업", "p": "미시시피강 유역의 카호키아는 12세기에 인구 1만이 넘는 도시였어요(같은 시기 런던과 비슷한 규모). 옥수수·콩·호박을 함께 심는 '세 자매' 농법은 정교한 농업 지식의 증거예요."}, {"yr": "정치", "h": "이로쿼이 연맹", "p": "다섯(후에 여섯) 민족이 전쟁을 멈추고 만든 연맹 — 대표를 보내 회의로 결정하는 체계를 가졌어요. 훗날 미국 건국자들이 연방제를 구상할 때 참고했다는 평가도 있어요."}, {"yr": "격변", "h": "다가오는 폭풍", "p": "유럽인 도착 후 전염병이 해안에서 내륙으로 번지며, 유럽인이 직접 만나기도 전에 많은 마을이 무너졌어요. '텅 빈 땅'처럼 보인 곳들 중 일부는 사실 비극의 직후였던 거예요."}], "voice": {"h": "그때, 한 사람의 목소리 🗣️", "imagined": true, "body": "할머니는 말씀하셨다. 이 강은 우리가 태어나기 전부터 우리 민족의 이야기를 싣고 흘렀다고. 우리는 땅의 주인이 아니라 땅의 손님이며, 손님답게 다음 세대를 위해 깨끗이 쓰고 물려주는 거라고. 바다 쪽에서 왔다는 사람들은 땅에 말뚝을 박고 자기 것이라 한다던데 — 강을, 바람을, 사슴의 길을 어떻게 자기 것이라 하는 걸까.", "speaker": "북동부 숲 지대의 원주민 소녀 (상상)", "era": "1600년경", "source": "북미 원주민들의 땅 개념에 대한 구전·기록에 기반한 상상 재구성"}, "battlemaps": [{"title": "지도로 보기 — 수백 개 민족의 대륙 🗺️", "intro": "유럽인이 오기 전의 북아메리카를 봅니다. '빈 땅'이 아니라, 환경에 맞춘 다양한 삶의 방식이 대륙을 채우고 있었어요.", "center": [40.0, -100.0], "zoom": 3, "fit": true, "legend": [{"c": "#2E7D4F", "label": "원주민 문화권 (일부 예시)"}], "phases": [{"label": "1600년 이전 — 다양한 문화권", "markers": [{"at": [43.0, -76.0], "kind": "capital", "label": "이로쿼이 연맹 — 회의로 다스리는 다섯 민족"}, {"at": [38.66, -90.06], "kind": "city", "label": "카호키아 — 미시시피 문화의 대도시(12세기 인구 1만+)"}, {"at": [44.0, -103.0], "kind": "city", "label": "대평원 — 라코타 등 들소와 함께 사는 민족들"}, {"at": [35.7, -106.0], "kind": "city", "label": "푸에블로 — 사막의 농경 도시 문화"}, {"at": [47.6, -122.3], "kind": "city", "label": "북서해안 — 연어와 토템의 민족들"}], "arrows": []}], "caption": "이 지도에 찍은 점은 수백 개 민족 중 다섯 개의 예시일 뿐이에요. 현재 지도 위에 옛 문화권의 대략적 위치를 표시한 것입니다."}], "chart": {"h": "숫자로 보기 — 사라진 이웃들 📊", "title": "북아메리카(현 미국·캐나다 지역) 원주민 인구 (추정, 학자별 편차 큼)", "unit": "추정 인구 (만 명)", "data": [{"label": "1492년경", "value": 500, "disp": "수백만 (추정 200만~1,000만+)"}, {"label": "1900년경", "value": 25, "disp": "약 25만 (미국 집계)"}], "relatable": "400년 사이에 일어난 일이에요. 전염병이 가장 컸고, 전쟁·강제 이주·삶의 터전 파괴가 겹쳤죠. 1492년 인구는 학자마다 추정이 크게 갈리지만, <b>한 세계가 무너질 만큼의 비극</b>이었다는 데는 이견이 없어요. 그리고 — 원주민은 사라지지 않았어요. 오늘날 미국의 원주민 인구는 수백만 명으로 회복 중이고, 570여 개 부족이 자치 정부를 갖고 있어요. (추정값)", "source": "북미 원주민 인구사 연구(추정 편차 큼) 일반"}, "timeline": [{"yr": "수천 년 전", "t": "다양한 민족·문화가 대륙 곳곳에 뿌리내림"}, {"yr": "1100s", "t": "카호키아 전성기 — 미시시피 문화"}, {"yr": "1500s~", "t": "유럽발 전염병, 해안에서 내륙으로"}, {"yr": "1607·1620", "t": "영국인 정착 시작 (다음 장)"}], "connect": "이 땅에 배들이 닿기 시작합니다. 종교의 자유를 찾아서, 돈을 벌려고, 혹은 쫓겨나서 — 대서양을 건너온 사람들이 해안에 마을을 세워요. 다음 장, <b>식민지 시대</b>입니다.", "yt": [{"type": "search", "q": "북미 원주민 역사 콜럼버스 이전 다큐", "title": "콜럼버스 이전의 아메리카 (한국어로 찾기)", "lang": "ko", "desc": "유럽인 도착 전 북미 원주민 문명을 다룬 한국어 영상을 찾아보세요."}, {"type": "search", "q": "native americans before Columbus Cahokia documentary", "title": "Native America before 1492 (영어로 찾기)", "lang": "en", "desc": "카호키아·이로쿼이 등 콜럼버스 이전 북미를 다룬 영어 영상을 찾아보세요."}], "quiz": [{"q": "유럽인 도착 이전의 북아메리카에 대한 설명으로 맞는 것은?", "options": ["사람이 거의 살지 않는 빈 땅이었다", "수백 개의 서로 다른 민족이 도시·농업·연맹 정치까지 갖추고 살았다", "하나의 '인디언' 국가가 대륙을 다스렸다"], "answer": 1, "explain": "카호키아 같은 도시, '세 자매' 농법, 이로쿼이 연맹 — 다양하고 정교한 세계였어요. '빈 땅' 이미지는 이후의 점령을 정당화하며 만들어진 신화에 가까워요."}], "reflect": ["🔎 '땅은 사고파는 재산인가, 함께 사는 존재인가' — 두 세계관 중 지금 우리는 어느 쪽에 가깝게 살고 있을까? 기후위기 시대에 이 질문을 다시 읽어 보세요."], "deepdive": [{"h": "카호키아 — 교과서가 잘 안 가르쳐 준 도시", "body": "지금의 세인트루이스 근처에 있던 카호키아는 12세기 전성기에 인구 1만~2만으로 추정되는 미시시피 문화의 중심 도시였어요. 높이 30m의 거대한 흙 피라미드(몽크스 마운드)와 천문 관측용 목재 원형 구조물('우드헨지')까지 갖췄죠. 1250년경 당시 런던보다 컸다는 추정도 있어요. 유럽인이 오기 한참 전에 쇠퇴해 미스터리로 남았지만 — '북미엔 도시 문명이 없었다'는 통념을 무너뜨리는 유적이에요.", "source": "카호키아 고고학 연구 일반"}, {"h": "이로쿼이 연맹과 미국 헌법 — 영향 논쟁", "body": "이로쿼이(하우데노사우니) 연맹은 다섯 민족이 '대평화의 법' 아래 연합한 정치체로, 각 민족의 자치와 연맹 회의를 결합했어요. 벤저민 프랭클린이 이 연맹을 언급하며 식민지 연합을 촉구한 기록이 있고, 1988년 미국 의회는 연맹이 헌법에 영향을 줬음을 인정하는 결의를 채택했죠. 영향의 정도를 두고는 학계 논쟁이 있지만 — '민주적 연방'의 아이디어가 유럽만의 발명이 아니었다는 건 분명해요. 흥미로운 사실 하나: 연맹에서 지도자(사켐) 지명권은 <b>씨족 어머니들</b>에게 있었어요.", "source": "하우데노사우니 연맹·1988 미 의회 결의 일반"}, {"h": "전염병 — 만나기도 전에 도착한 재앙", "body": "대항해시대 파일에서 본 패턴이 북미에서도 반복됐어요. 해안 교역으로 들어온 천연두·홍역이 원주민 교역로를 타고 내륙으로 번져, 유럽인이 직접 가 보기도 전에 마을들을 무너뜨렸죠. 1620년 메이플라워호가 정착한 곳도 몇 년 전 전염병으로 비워진 왐파노아그의 마을 터(파툭셋)였어요. '신이 우리를 위해 땅을 비워 주셨다'는 당시 정착민의 기록은, 사실은 비극의 기록이었던 거예요.", "source": "북미 전염병 전파·플리머스 정착 일반"}, {"h": "땅의 두 언어 — 소유와 관계", "body": "유럽 법은 땅을 측량하고 등기해 배타적으로 소유하는 재산으로 봤고, 많은 원주민 사회는 땅을 특정 용도(사냥·경작)로 '함께 쓸 권리'의 망으로 봤어요. 그래서 초기의 '토지 매매'는 자주 비극적 오해였죠 — 원주민 쪽은 '함께 쓰자'에 동의했다고 생각했는데, 유럽 쪽은 '영구히 내 것'이라는 증서를 갖게 된 거예요. 이 어긋남은 이후 수백 건의 조약 분쟁으로 이어지고, 지금도 토지 반환 소송으로 살아 있는 문제예요.", "source": "원주민 토지 개념·조약사 연구 일반"}, {"h": "'사라진 민족'이라는 신화를 거부하기", "body": "19세기 미국 문학·회화는 원주민을 '석양 속으로 사라지는 민족'으로 즐겨 그렸어요. 동정처럼 보이지만 사실은 '어차피 사라질 운명'이라는 체념을 심어 점령을 정당화하는 서사였죠. 현실의 원주민들은 사라지지 않았어요 — 강제 이주와 동화 정책을 견뎌 내고, 언어를 되살리고, 법정에서 조약 권리를 되찾고 있어요(2020년 미 대법원 맥거트 판결은 오클라호마 동부 절반이 여전히 원주민 보호구역임을 인정했어요). '비극의 피해자'로만 기억하는 것도 절반의 역사라는 것 — 이 에피소드의 마지막까지 기억할 단서예요.", "source": "'배니싱 인디언' 서사 비판·McGirt v. Oklahoma(2020) 일반"}], "order": ["hook", "why", "lens", "cards", "voice", "battlemap*", "image", "chart", "timeline", "connect", "deepdive", "yt", "quiz", "reflect"], "image": {"h": "한 장의 그림 — 들소와 함께 사는 사람들 📷", "story": "1830년대 화가 조지 캐틀린이 대평원에서 직접 보고 그린 들소 사냥이에요. 캐틀린은 \"이 세계가 곧 사라질 것\"을 직감하고 수백 점의 그림으로 원주민들의 삶을 기록했죠. 들소는 식량이자 옷이자 집(가죽 천막)이자 신앙 — 평원 민족의 세계 그 자체였어요. 이 그림의 세계가 어떻게 무너지는지, 서부 개척 장에서 다시 만나게 됩니다.", "src": "img/catlin_buffalo.jpg", "alt": "조지 캐틀린의 들소 사냥 그림 (1830년대)", "caption": "조지 캐틀린, 〈들소 사냥〉(1830년대) — 사라지기 전의 세계를 기록한 그림.", "source": "Wikimedia Commons — George Catlin, Buffalo Hunt", "license": "퍼블릭 도메인"}}, {"id": "colonies", "num": "10", "label": "식민지 시대", "accent": "#4a5a7a", "kicker": "대서양을 건너온 사람들", "era": "1607~1763", "motif": "ship", "title": "13개의 식민지 — 메이플라워에서 보스턴까지", "hook": "1620년 11월, 폭풍의 대서양을 66일간 건너온 낡은 배 한 척이 케이프코드 해안에 닿았어요. 메이플라워호 — 승객 102명 중 절반은 종교의 자유를 찾아온 청교도들이었죠. 첫 겨울에 절반이 죽었어요. 살아남은 이들은 왐파노아그 사람들에게 옥수수 농사를 배웠고, 다음 해 가을 첫 수확을 함께 나눴다고 전해져요(추수감사절의 기원). 그런데 이 따뜻한 장면 뒤로, 150년에 걸쳐 13개의 식민지가 해안을 채우며 — 원주민의 땅은 줄어들고, 남쪽 항구에는 노예선이 들어오기 시작합니다.", "why": "13개 식민지의 성격이 곧 미래의 미국을 결정해요. 스스로 의회를 꾸리고 세금을 정하던 자치의 경험(→독립혁명의 토양), 북부의 상공업과 남부의 노예 플랜테이션이라는 다른 경제(→남북전쟁의 씨앗) — 이 장에 다음 모든 장의 복선이 깔려 있어요.", "lens": "같은 배를 타고 와도 꿈은 달랐어요. 누군가에겐 신앙의 자유가 걸린 약속의 땅, 누군가에겐 한밑천 잡을 기회의 땅, 그리고 사슬에 묶여 끌려온 사람들에겐 지옥의 땅이었죠. 1619년 버지니아에 첫 아프리카인들이 끌려온 것은 메이플라워호보다도 1년 빨라요. '자유를 찾아온 나라'와 '부자유를 강요한 나라'가 같은 해안에서 동시에 시작됐다는 것 — 미국이라는 수수께끼의 첫 단서예요.", "cards": [{"yr": "1607", "h": "제임스타운 — 돈의 식민지", "p": "첫 영구 정착지는 회사(버지니아 회사)가 세웠어요. 굶주림으로 거의 전멸할 뻔하다 담배 농사로 살아났죠. 담배밭의 노동 수요가 곧 노예제로 이어집니다."}, {"yr": "1620", "h": "플리머스 — 신앙의 식민지", "p": "청교도들은 상륙 전 배 위에서 '다수의 동의로 다스린다'는 메이플라워 서약을 맺었어요. 자치의 첫 씨앗으로 평가받는 문서예요."}, {"yr": "성장", "h": "13개의 서로 다른 식민지", "p": "북부(뉴잉글랜드)는 소농·상공업·타운미팅, 중부는 곡물과 다양한 이민, 남부는 담배·쌀 플랜테이션과 노예제 — 한 나라가 되기엔 너무 다른 세 지역이 자라났어요."}, {"yr": "1754~63", "h": "프렌치-인디언 전쟁", "p": "북미를 둘러싼 영국 vs 프랑스의 전쟁(7년전쟁의 북미 무대). 영국이 이겼지만 빚더미에 앉았고 — 그 빚을 식민지 세금으로 메우려다 다음 장의 혁명을 부릅니다."}], "voice": {"h": "그때, 한 사람의 목소리 🗣️", "imagined": true, "body": "아버지는 영국에서 예배 한 번 드리려고 숨어 다니셨다고 했다. 여기선 우리 식대로 기도할 수 있다. 하지만 지난 장날, 항구에서 사슬에 묶인 사람들이 배에서 내려와 팔리는 것을 보았다. 목사님은 '그들은 다르다'고 하셨지만 — 모두가 하느님의 자녀라고 가르치신 것도 목사님이었다. 자유를 찾아온 땅에서 자유를 빼앗는 일이 어떻게 같이 있을 수 있을까.", "speaker": "보스턴의 청교도 집안 소년 (상상)", "era": "1700년경", "source": "뉴잉글랜드에도 노예제·노예무역이 존재했던 사실에 기반한 상상 재구성"}, "battlemaps": [{"title": "지도로 보기 — 해안의 13개 식민지 🗺️", "intro": "대서양 해안을 따라 늘어선 13개 식민지(①)와, 그 너머의 세력 구도(②)를 봅니다.", "center": [38.0, -77.0], "zoom": 4, "fit": true, "legend": [{"c": "#B5546A", "label": "영국 13식민지"}, {"c": "#2E7D4F", "label": "원주민·프랑스 세력"}], "phases": [{"label": "① 1607~1750s — 세 가지 색의 식민지", "markers": [{"at": [37.21, -76.78], "kind": "start", "label": "제임스타운 1607 — 담배와 (1619) 첫 노예선"}, {"at": [41.96, -70.66], "kind": "start", "label": "플리머스 1620 — 메이플라워 서약"}, {"at": [42.36, -71.06], "kind": "city", "label": "보스턴 — 북부 상공업의 중심"}, {"at": [39.95, -75.16], "kind": "city", "label": "필라델피아 — 중부, 관용의 도시"}, {"at": [32.78, -79.93], "kind": "loss", "label": "찰스턴 — 남부 플랜테이션·노예 무역항"}], "arrows": []}, {"label": "② 1754~63 — 산맥 너머의 충돌", "reset": true, "markers": [{"at": [46.81, -71.21], "kind": "battle", "label": "퀘벡 1759 — 영국, 프랑스령 캐나다 장악"}, {"at": [40.44, -79.99], "kind": "battle", "label": "오하이오 계곡 — 전쟁의 발화점"}, {"at": [43.0, -76.0], "kind": "win", "label": "이로쿼이 등 원주민 — 양 제국 사이에서 동맹 외교"}], "arrows": [{"path": [[42.36, -71.06], [46.81, -71.21]], "tone": "invade"}]}], "caption": "프렌치-인디언 전쟁에서 원주민 민족들은 '들러리'가 아니라 양쪽이 서로 모셔 가려던 핵심 세력이었어요. 전쟁 후 영국이 애팔래치아 산맥 서쪽 정착을 금지(1763 선언선)한 것도 원주민과의 약속 때문 — 식민지인들의 불만이 또 하나 쌓입니다."}], "timeline": [{"yr": "1607", "t": "제임스타운 — 첫 영구 정착지"}, {"yr": "1619", "t": "버지니아에 첫 아프리카인 노예 도착"}, {"yr": "1620", "t": "메이플라워호 — 플리머스 정착·서약"}, {"yr": "1754~63", "t": "프렌치-인디언 전쟁 — 영국 승리, 그러나 빚더미"}, {"yr": "1763", "t": "선언선 — 서부 정착 금지령, 식민지 불만 누적"}], "connect": "전쟁 빚에 쪼들린 영국이 식민지에 세금 고지서를 내밀기 시작해요. 그런데 식민지 사람들은 따져 물었죠 — \"우리 대표도 없는 의회가 정한 세금을 왜 내야 하지?\" 찻잎이 바다에 쏟아지고, 총성이 울립니다. <b>독립혁명</b>의 장으로.", "yt": [{"type": "search", "q": "메이플라워 청교도 13식민지 미국 역사 다큐", "title": "13개 식민지와 메이플라워 (한국어로 찾기)", "lang": "ko", "desc": "청교도 정착과 13개 식민지의 형성을 다룬 한국어 영상을 찾아보세요."}, {"type": "search", "q": "thirteen colonies Jamestown Plymouth crash course", "title": "The Thirteen Colonies (영어로 찾기)", "lang": "en", "desc": "제임스타운·플리머스와 식민지 시대를 정리한 영어 영상을 찾아보세요."}], "quiz": [{"q": "13개 식민지에 대한 설명으로 맞는 것은?", "options": ["13개 모두 종교의 자유를 위해 세워졌다", "북부 상공업·남부 플랜테이션 등 성격이 서로 크게 달랐다", "영국 왕이 직접 다스려 자치가 전혀 없었다"], "answer": 1, "explain": "돈의 식민지(제임스타운)와 신앙의 식민지(플리머스)부터 달랐고, 북부·중부·남부의 경제도 전혀 달랐어요. 각자 의회를 꾸려 자치 경험을 쌓은 것이 훗날 독립의 토양이 되죠."}, {"q": "1619년 버지니아에서 일어난 일은?", "options": ["첫 아프리카인들이 노예로 끌려왔다 — 메이플라워보다 1년 먼저", "금광이 발견됐다", "독립이 선언됐다"], "answer": 0, "explain": "'자유의 나라'의 시작점에 노예제가 함께 있었다는 사실 — 미국사의 가장 깊은 모순이 여기서 시작돼요."}], "reflect": ["🔎 '우리 대표 없이 과세 없다(No taxation without representation)' — 다음 장의 구호를 미리 만났어요. 학교나 집에서 '나와 관련된 결정에 내 목소리가 없던' 경험이 있다면, 그때 기분을 단서로 적어 보세요."], "deepdive": [{"h": "추수감사절의 두 기억", "body": "1621년 가을 플리머스의 첫 수확 잔치에 왐파노아그 사람들이 함께한 기록은 실재해요. 정착 초기 옥수수 농법과 생존 기술을 가르쳐 준 것도 그들이었죠(스콴토라는 인물은 영어까지 할 줄 알았는데 — 그 자신이 과거 납치돼 유럽에 노예로 팔렸다 돌아온 사람이었어요). 하지만 이후 반세기 만에 정착민 확장과 '필립 왕 전쟁'(1675~76)으로 왐파노아그 사회는 무너져요. 그래서 오늘날 일부 원주민들은 추수감사절을 '국가 애도의 날'로 기려요. 같은 날의 두 기억 — 콜럼버스의 날 논쟁과 같은 구조죠.", "source": "플리머스·왐파노아그·필립 왕 전쟁 일반"}, {"h": "1619년 — 또 하나의 출발점", "body": "1619년 8월, 버지니아 포인트컴포트에 '20여 명의 니그로'를 실은 배가 닿았다는 기록이 미국 본토 노예제의 출발점으로 꼽혀요. 처음엔 계약 하인과 노예의 경계가 흐릿했지만, 17세기 후반 버지니아 법들이 '어머니가 노예면 자식도 노예' 같은 규정을 만들며 인종 기반 세습 노예제가 법으로 굳어요. 미국 언론이 2019년 '1619 프로젝트'로 건국사를 노예제 중심으로 다시 쓰자고 제안해 큰 논쟁이 벌어진 것도 — 이 출발점을 어디로 볼 것인가의 싸움이에요.", "source": "1619년 버지니아·노예법제화 일반"}, {"h": "자치의 학교 — 식민지 의회와 타운미팅", "body": "영국 본국은 멀었고(편지 왕복 석 달), 식민지들은 일찍부터 스스로를 다스렸어요. 버지니아 하원(1619, 신대륙 첫 대의 의회), 뉴잉글랜드의 타운미팅(주민 전체 회의) — 150년의 자치 경험이 쌓이며 '우리 일은 우리가 정한다'가 상식이 됐죠. 영국이 뒤늦게 고삐를 죄려 하자 충돌한 거예요. 혁명은 갑자기 오지 않고, 오래 연습된 습관에서 온다는 단서예요.", "source": "식민지 자치 제도사 일반"}, {"h": "선언선(1763) — 산맥에 그어진 금지선", "body": "프렌치-인디언 전쟁 직후 영국 왕은 애팔래치아 산맥 서쪽으로의 정착을 금지했어요. 폰티액 전쟁(원주민 연합 봉기)을 겪고서, 원주민 땅을 보호해 충돌을 줄이려던 조치였죠. 그런데 식민지 정착민·토지 투기꾼들(워싱턴도 그중 하나)에겐 '우리가 피 흘려 얻은 땅을 왜 막느냐'는 분노가 됐어요. 원주민 보호선이 혁명의 불씨 중 하나였다는 역설 — 독립혁명을 입체적으로 보게 하는 사실이에요.", "source": "1763 선언선·폰티액 전쟁 일반"}, {"h": "북부에도 노예제가 있었다", "body": "노예제를 남부만의 일로 기억하기 쉽지만, 식민지 시대에는 뉴욕·보스턴에도 노예가 있었고, 뉴잉글랜드 상인들은 럼주-노예-설탕의 삼각무역(대항해시대 파일)으로 부를 쌓았어요. 북부가 노예제를 점차 폐지한 것은 독립 이후의 일이고, 그 뒤로도 북부 은행·보험·공장은 남부 면화 경제와 깊이 얽혀 있었죠. '깨끗한 북부 vs 나쁜 남부'라는 단순 구도가 아니라, 나라 전체가 노예제 경제 위에 서 있었다는 것 — 남북전쟁 장을 위한 복선이에요.", "source": "북부 노예제·삼각무역 연관 연구 일반"}], "order": ["hook", "why", "lens", "cards", "voice", "battlemap*", "image", "timeline", "connect", "deepdive", "yt", "quiz", "reflect"], "image": {"h": "한 장의 그림 — 플리머스의 메이플라워 📷", "story": "겨울 바다에 닻을 내린 메이플라워호 — 1882년 핼솔이 그린 그림이에요. 쓸쓸하고 장엄하게 그려졌죠. 실제 첫 겨울은 그림보다 혹독해서 102명 중 절반이 죽었고, 살아남은 절반은 왐파노아그 사람들의 도움으로 버텼어요. 그림이 주는 \"경건한 시작\"의 인상과, 그 시작이 서 있던 땅의 원래 주인들 — 둘을 함께 기억하며 보세요.", "src": "img/mayflower.jpg", "alt": "윌리엄 핼솔의 〈플리머스 항의 메이플라워호〉(1882)", "caption": "핼솔, 〈플리머스 항의 메이플라워호〉(1882) — 신화가 된 배.", "source": "Wikimedia Commons — William Halsall, Mayflower in Plymouth Harbor", "license": "퍼블릭 도메인"}}, {"id": "revolution", "num": "20", "label": "독립혁명", "star": true, "accent": "#33508c", "kicker": "1776 — 새로운 나라", "era": "1763~1789", "motif": "torch", "title": "모든 사람은 평등하게 태어났다 — 미국 독립혁명", "hook": "1776년 7월 4일 필라델피아. 13개 식민지의 대표들이 한 문서에 서명했어요. \"우리는 다음을 자명한 진리로 여긴다 — 모든 사람은 평등하게 태어났고, 생명·자유·행복 추구의 권리를 부여받았다.\" 왕이 다스리는 게 당연하던 시대에, 식민지 주제에 세계 최강 제국을 상대로 — '왕 없는 나라'를 선언한 거예요. 그런데 탐정이라면 한 줄을 더 읽어야 해요. 이 아름다운 문장을 쓴 제퍼슨은, 그 순간에도 수백 명의 노예를 소유하고 있었습니다.", "why": "미국 독립혁명은 한 나라의 탄생을 넘어 <b>세계사의 방향을 바꾼 실험</b>이에요. 계몽사상('왕권은 신이 아니라 국민의 동의에서 나온다')을 현실의 나라로 처음 만들어 본 거죠. 이 실험이 프랑스혁명과 라틴아메리카 독립(남미 에피소드)으로 번지며, 시대 사슬의 '계몽·시민혁명' 칸을 엽니다. 동시에 '모든 사람'에 누가 빠져 있었는지를 보는 것 — 그게 이 장의 깊이예요.", "lens": "혁명 직전, 식민지 사람들 대부분은 스스로를 '자랑스러운 영국인'이라 여겼어요. 그들의 첫 요구는 독립이 아니라 '영국인다운 권리' — 대표 없이 과세받지 않을 권리 — 였죠. 영국이 그 요구를 총으로 답하면서, '권리를 지키려는 영국인'이 '새 나라를 만드는 미국인'으로 바뀐 거예요. 정체성은 타고나는 게 아니라 사건 속에서 만들어진다는 단서 — 우리 역사의 3·1운동 전후와도 견줘 볼 만해요.", "cards": [{"yr": "1765~", "h": "세금 전쟁", "p": "인지세법·차(茶)세 — 전쟁 빚에 쪼들린 영국이 세금을 매기자, 식민지는 '대표 없이 과세 없다'로 맞섰어요. 1773년엔 보스턴 항구에서 차 상자 342개를 바다에 던져 버리죠(보스턴 차 사건)."}, {"yr": "1775", "h": "첫 총성", "p": "렉싱턴과 콩코드에서 민병대와 영국군이 충돌 — '세계에 울려 퍼진 총성'이에요. 식민지 연합군 총사령관에 조지 워싱턴이 임명됩니다."}, {"yr": "1776", "h": "독립선언", "p": "제퍼슨이 기초한 선언문이 7월 4일 채택돼요. 왕에 대한 충성을 끊고, 정부의 권력은 '통치받는 자들의 동의'에서 나온다고 선포했죠 — 계몽사상의 교과서적 실현이에요."}, {"yr": "1781~83", "h": "승리, 그리고 헌법", "p": "프랑스의 참전(영국 견제!) 덕에 요크타운에서 승리, 1783년 독립을 인정받아요. 1787년엔 헌법을 만들어 세계 첫 대통령제 연방 공화국이 — 그리고 워싱턴은 두 번의 임기 후 스스로 권좌에서 내려옵니다."}], "people": [{"face": "🎖️", "name": "조지 워싱턴", "who": "독립군 총사령관 · 초대 대통령 · '왕이 되기를 거절한 사람'", "why": "8년의 열세 속 전쟁을 버텨 승리로 이끌었고, 초대 대통령이 된 뒤 두 번의 임기만 마치고 스스로 물러났어요. '권력을 내려놓는 전통'을 만든 것이 그의 가장 큰 유산으로 꼽혀요.", "shadow": "평생 수백 명의 노예를 소유한 대농장주였어요(유언으로 자신 몫의 노예 해방을 지시했지만, 살아서는 도망 노예를 끈질기게 추적했죠). 자유의 아버지와 노예 소유주 — 한 사람 안의 모순이에요.", "slug": "washington"}], "battlemaps": [{"title": "지도로 보기 — 식민지가 제국을 이기기까지 🗺️", "intro": "세계 최강 영국을 상대로 식민지가 이긴 비결은 '버티기'와 '국제전 만들기'였어요. 두 국면으로 봅니다.", "center": [40.0, -75.0], "zoom": 4, "fit": true, "legend": [{"c": "#2E7D4F", "label": "독립군·동맹"}, {"c": "#B5546A", "label": "영국군"}], "phases": [{"label": "① 1775~77 — 버티는 전쟁", "markers": [{"at": [42.45, -71.23], "kind": "start", "label": "렉싱턴·콩코드 1775 — 첫 총성"}, {"at": [39.95, -75.16], "kind": "capital", "label": "필라델피아 — 1776.7.4 독립선언"}, {"at": [40.7, -74.0], "kind": "loss", "label": "뉴욕 1776 — 워싱턴군 대패, 후퇴"}, {"at": [43.0, -73.6], "kind": "win", "label": "새러토가 1777 — 전세 전환, 프랑스를 움직이다"}], "arrows": []}, {"label": "② 1778~81 — 국제전, 그리고 요크타운", "reset": true, "markers": [{"at": [40.07, -75.55], "kind": "battle", "label": "밸리포지 1777~78 겨울 — 굶주림 속 재훈련"}, {"at": [37.23, -76.5], "kind": "win", "label": "요크타운 1781 — 미·프 연합, 영국군 항복"}], "arrows": [{"path": [[39.95, -75.16], [37.23, -76.5]], "tone": "resist"}]}], "caption": "새러토가의 승리가 프랑스를 참전시켰고(영국의 라이벌!), 요크타운에서는 프랑스 함대가 바다를 막아 줬어요. '미국 혼자의 기적'이 아니라 유럽 열강 경쟁을 활용한 승리 — 국제 정치 감각이 신생국의 첫 무기였죠."}], "voice": {"h": "그때, 한 사람의 목소리 🗣️", "imagined": true, "body": "주인님 댁 식탁에서 신사들이 밤새 외쳤다. '우리는 영국의 노예가 아니다!' 나는 차를 따르며 생각했다. 노예가 무엇인지는 제가 압니다, 나리들. 들리는 말로는, 영국 편에 서면 자유를 준다고 한다. 독립군에 들어가 싸우면 자유를 준다는 주(州)도 있다고 한다. 어느 쪽이든 — 그들이 외치는 그 '자유'라는 말이 언젠가 나에게도 닿을까.", "speaker": "버지니아 농장의 흑인 하인 (상상)", "era": "1776년", "source": "혁명기 흑인들이 영국 측(덴모어 포고)·독립군 양쪽에서 자유를 걸고 참전한 사실에 기반한 상상 재구성"}, "chart": {"h": "숫자로 보기 — '모든 사람'은 몇 명이었나 📊", "title": "독립선언 당시 13개 식민지 인구 구성 (1776년경, 대략값)", "unit": "만 명", "data": [{"label": "전체 인구", "value": 250, "disp": "약 250만"}, {"label": "그중 노예", "value": 50, "disp": "약 50만 (5명 중 1명)"}, {"label": "투표할 수 있던 사람", "value": 40, "disp": "수십만 (재산 있는 백인 남성)"}], "relatable": "'모든 사람은 평등하다'고 선언한 나라에서, 다섯 명 중 한 명이 노예였고, 여성과 가난한 사람과 원주민에겐 투표권이 없었어요. 그럼에도 이 선언이 위대한 건 — 빠진 사람들이 두고두고 <b>이 문장을 무기로</b> 자기 권리를 요구했기 때문이에요. 노예해방도, 여성 참정권도, 민권운동도 모두 이 문장을 인용하며 싸웠죠. (대략값)", "source": "1776년경 식민지 인구·노예 인구 추정 일반"}, "timeline": [{"yr": "1773", "t": "보스턴 차 사건"}, {"yr": "1775", "t": "렉싱턴·콩코드 — 전쟁 시작"}, {"yr": "1776.7.4", "t": "독립선언"}, {"yr": "1781", "t": "요크타운 승리 (1783 파리조약 — 독립 인정)"}, {"yr": "1787~89", "t": "헌법 제정 · 워싱턴 초대 대통령"}], "connect": "새 나라는 곧 굶주린 듯 서쪽을 바라봅니다. 루이지애나를 사들이고, 산맥을 넘고, 금을 캐러 달려가죠. 그 길을 '명백한 운명'이라 불렀어요 — 하지만 그 길 위에는 이미 사람들이 살고 있었습니다. 가장 아픈 장, <b>서부 개척과 눈물의 길</b>로.", "yt": [{"type": "search", "q": "미국 독립혁명 독립선언 보스턴 차사건 다큐", "title": "미국 독립혁명 (한국어로 찾기)", "lang": "ko", "desc": "보스턴 차 사건부터 독립선언·요크타운까지 한국어 영상으로 찾아보세요."}, {"type": "search", "q": "American revolution crash course", "title": "The American Revolution (영어로 찾기)", "lang": "en", "desc": "미국 독립혁명의 원인과 전개를 정리한 영어 영상을 찾아보세요."}], "quiz": [{"q": "식민지가 영국에 맞선 핵심 구호는?", "options": ["'세금은 무조건 내기 싫다'", "'대표 없이 과세 없다' — 우리 동의 없는 결정은 무효", "'왕을 우리가 차지하자'"], "answer": 1, "explain": "단순한 세금 거부가 아니라 '내 운명을 결정하는 자리에 내 목소리가 있어야 한다'는 원리의 싸움이었어요. 이 원리가 독립선언의 '통치받는 자의 동의'로 이어지죠."}, {"q": "독립선언의 '모든 사람은 평등하다'에 대한 정직한 설명은?", "options": ["선언 즉시 모든 주민이 평등해졌다", "당시엔 노예·여성·원주민이 빠져 있었지만, 후대가 이 문장을 무기로 권리를 넓혀 갔다", "별 의미 없는 장식 문구였다"], "answer": 1, "explain": "링컨도, 민권운동의 킹 목사도 이 문장을 인용하며 싸웠어요. '아직 지켜지지 않은 약속'이 역사를 움직이는 힘이 된 거예요."}], "reflect": ["✉️ '모든 사람은 평등하게 태어났다'를 쓴 손이 노예를 소유했어요. 이 모순을 어떻게 봐야 할까 — 위선일까, 시대의 한계일까, 미래를 향한 약속일까? 너의 판결문을 짧게 써 보세요."], "deepdive": [{"h": "계몽사상 — 혁명의 설계도", "body": "독립선언의 문장들은 제퍼슨의 발명이 아니라 유럽 계몽사상의 번역이에요. 로크의 '생명·자유·재산의 자연권'과 '정부가 권리를 침해하면 갈아치울 권리', 몽테스키외의 삼권분립 — 책 속의 사상이 처음으로 나라의 설계도가 된 거죠. 거꾸로 미국의 성공은 유럽 계몽사상가들에게 '되는구나!'라는 증거가 되어 프랑스혁명(1789)을 자극해요. 사상→혁명→사상의 순환 — 시대 사슬의 '계몽·시민혁명' 허브(준비 중)에서 본격적으로 다룰 이야기예요.", "source": "로크·몽테스키외와 미국 건국 일반"}, {"h": "혁명 속의 흑인들 — 양쪽 모두에서 싸웠다", "body": "영국 측은 1775년 '반란군 주인을 떠나 영국군에 오는 노예에게 자유를' 선포했고(덴모어 포고), 수만 명이 영국 쪽으로 탈출했어요. 독립군 쪽에서도 약 5천 명의 흑인이 싸웠죠(로드아일랜드 흑인 연대 등). 전후 영국은 약속대로 수천 명을 노바스코샤 등지로 철수시켰어요 — '자유'를 찾는 길이 '독립' 반대편에 있기도 했다는 것. 혁명을 흑인의 눈으로 보면 전혀 다른 지도가 그려져요.", "source": "덴모어 포고·흑인 충성파 연구 일반"}, {"h": "여성들의 혁명 — \"숙녀들을 기억하세요\"", "body": "1776년 애비게일 애덤스는 헌법을 논의하러 간 남편 존 애덤스에게 편지를 썼어요. \"새 법을 만들 때 숙녀들을 기억하세요. 모든 남편에게 무제한의 권력을 주지 마세요.\" 남편은 농담으로 받아넘겼고, 여성 참정권은 그로부터 144년 뒤(1920)에야 옵니다. 혁명의 식탁에서 빠진 사람들이 보낸 편지들 — 역사는 그 편지들이 결국 답장을 받아 내는 과정이기도 해요.", "source": "애비게일 애덤스 서한(1776) 일반"}, {"h": "워싱턴이 왕이 되지 않은 것의 무게", "body": "전쟁에서 이긴 장군이 권력을 잡는 게 역사의 공식이었어요(시저, 나폴레옹…). 워싱턴은 종전 후 군 통수권을 의회에 반납했고, 대통령도 두 번만 하고 물러났죠. 영국 왕 조지 3세가 '그게 사실이라면 그는 세상에서 가장 위대한 사람'이라 말했다는 일화가 전해질 정도예요. 제도는 종이 위 약속일 뿐, 첫 권력자가 그 약속을 지키는 순간 전통이 된다는 것 — 신생 공화국들이 자주 실패한 바로 그 지점이에요(남미 에피소드의 카우디요와 비교해 보세요).", "source": "워싱턴 권력 이양 일화 일반"}, {"h": "독립혁명과 원주민 — 또 하나의 패자", "body": "전쟁 중 많은 원주민 민족은 영국 편에 섰어요 — 1763년 선언선처럼 영국이 그나마 정착민의 서진을 막아 줬으니까요. 미국이 이기면서 그 방어선이 사라졌고, 1783년 파리조약은 원주민 의사와 무관하게 그들의 땅을 미국에 '양도'했어요. 이로쿼이 연맹은 이 전쟁으로 분열·붕괴했죠. 미국의 탄생이 원주민에게는 더 빠른 상실의 시작이었다는 것 — 다음 장(눈물의 길)의 서막이에요.", "source": "독립혁명기 원주민 동맹·파리조약 일반"}], "order": ["hook", "why", "lens", "cards", "people", "battlemap*", "image", "voice", "chart", "timeline", "connect", "deepdive", "yt", "quiz", "reflect"], "image": {"h": "한 장의 그림 — 독립선언의 방 📷", "story": "존 트럼불의 〈독립선언〉(1819) — 미국 국회의사당에 걸려 있고 2달러 지폐에도 들어간 그림이에요. 가운데 서 있는 다섯 명이 기초위원(키 큰 제퍼슨이 문서를 내려놓고 있죠, 그 옆이 프랭클린·애덤스). 탐정의 눈으로 보면 — 이 방의 56명 서명자 중 상당수가 노예 소유주였고, 이 그림에 여성·흑인·원주민은 없어요. \"모든 사람\"의 방에 누가 없었는지까지 읽으면, 이 그림은 두 배로 많은 것을 말해 줍니다.", "src": "img/declaration.jpg", "alt": "존 트럼불의 〈독립선언〉(1819) — 대륙회의에 선언문을 제출하는 장면", "caption": "트럼불, 〈독립선언〉(1819) — 그려진 사람들과 그려지지 않은 사람들.", "source": "Wikimedia Commons — John Trumbull, Declaration of Independence", "license": "퍼블릭 도메인"}}, {"id": "expansion", "num": "30", "label": "서부 개척", "accent": "#8a5a3a", "kicker": "확장 — 그리고 눈물의 길", "era": "1803~1890", "motif": "map", "title": "'명백한 운명'의 두 얼굴 — 서부 개척과 눈물의 길", "hook": "1830년대 말, 체로키 사람들이 조지아의 고향을 떠나 1,600km 서쪽으로 걸었어요. 떠나고 싶어서가 아니에요 — 군대가 와서 집에서 끌어냈거든요. 겨울 길 위에서 약 4천 명이 목숨을 잃었어요. 체로키 말로 '우리가 울었던 길'. 같은 시기 미국의 신문들은 이렇게 썼습니다 — \"대륙을 채우는 것은 미국의 명백한 운명이다.\" 한쪽의 운명이라는 말이, 다른 쪽에겐 길 위의 죽음이었던 거예요.", "why": "이 장은 미국이 대서양의 신생국에서 태평양까지 닿는 대륙 국가가 되는 이야기이자, 그 확장의 비용을 누가 치렀는지의 이야기예요. 개척 서사(통나무집·골드러시·대륙횡단철도)와 원주민 비극(강제 이주·들소 절멸·보호구역)은 별개의 두 역사가 아니라 <b>같은 사건의 양면</b>이에요 — 이 에피소드에서 가장 지켜야 할 균형이죠.", "lens": "'명백한 운명(Manifest Destiny)'이라는 말을 뜯어보세요. '명백한' — 의심할 필요가 없다는 뜻이고, '운명' — 누구의 선택도 책임도 아니라는 뜻이에요. 즉 이 구호는 침탈을 '자연스러운 일'로 만드는 언어 장치였어요. 제국주의 시대의 '문명화 사명'(에피소드 02·03)과 똑같은 문법이죠. 큰일을 '운명'이라 부르는 사람을 만나면, 누가 그 운명의 값을 치르는지 물어보기 — 탐정의 기술이에요.", "cards": [{"yr": "1803", "h": "루이지애나 매입", "p": "나폴레옹이 전쟁 자금이 급해 루이지애나를 통째로 팔았어요(1,500만 달러). 하룻밤에 영토가 두 배 — 단, 그 땅에 살던 원주민들에겐 아무도 묻지 않았죠."}, {"yr": "1838", "h": "눈물의 길", "p": "인디언 이주법(1830)에 따라 체로키·촉토 등 동남부의 다섯 민족이 강제 이주됐어요. 체로키는 대법원에서 이기고도 쫓겨났죠 — 잭슨 대통령이 판결을 무시했거든요."}, {"yr": "1848", "h": "전쟁과 골드러시", "p": "멕시코와의 전쟁으로 캘리포니아·뉴멕시코 등을 빼앗고(멕시코 영토의 절반!), 그 직후 캘리포니아에서 금이 발견돼요. 수십만이 서부로 — 대륙 국가가 완성됩니다."}, {"yr": "1869~90", "h": "철도, 들소, 그리고 운디드니", "p": "대륙횡단철도가 놓이고 들소가 절멸 수준으로 사냥되며 평원 민족들의 삶의 기반이 무너져요. 1890년 운디드니에서의 학살이 '인디언 전쟁'의 비극적 마침표로 기록됩니다."}], "people": [{"face": "🦬", "name": "시팅 불", "who": "라코타의 지도자 · 리틀빅혼의 승리자", "why": "1876년 리틀빅혼 전투에서 커스터의 기병대를 전멸시킨 평원 연합의 정신적 지도자예요. '우리는 우리 방식대로 살 권리가 있다'는 원칙을 끝까지 굽히지 않았죠.", "shadow": "그 자신의 그림자라기보다 시대의 그림자 — 승리에도 불구하고 들소가 사라지고 보급이 끊기자 결국 투항해야 했고, 1890년 체포 과정에서 살해됐어요. 그가 지키려 한 삶의 방식과 함께요.", "slug": "sitting-bull"}], "battlemaps": [{"title": "지도로 보기 — 확장의 길, 눈물의 길 🗺️", "intro": "미국 영토가 서쪽으로 자라는 과정(①)과, 같은 지도 위에서 원주민들이 걸어야 했던 길(②). 같은 화살표 방향, 전혀 다른 의미예요.", "center": [38.0, -97.0], "zoom": 4, "fit": true, "legend": [{"c": "#B5546A", "label": "미국의 확장·강제 이주"}, {"c": "#2E7D4F", "label": "원주민의 저항"}], "phases": [{"label": "① 1803~48 — 대륙 국가로", "markers": [{"at": [38.63, -90.2], "kind": "start", "label": "세인트루이스 — 서부로 가는 관문"}, {"at": [29.95, -90.07], "kind": "win", "label": "루이지애나 매입 1803 — 영토 2배"}, {"at": [37.77, -122.42], "kind": "win", "label": "캘리포니아 1848 — 멕시코 전쟁으로 획득 · 골드러시"}], "arrows": [{"path": [[38.63, -90.2], [39.0, -105.0], [37.77, -122.42]], "tone": "invade"}]}, {"label": "② 1838~90 — 쫓겨난 사람들, 맞선 사람들", "reset": true, "markers": [{"at": [34.5, -84.0], "kind": "loss", "label": "체로키의 고향(조지아) — 1838 강제 이주"}, {"at": [35.5, -97.5], "kind": "loss", "label": "'인디언 준주'(오클라호마) — 이주의 종착지"}, {"at": [45.57, -107.43], "kind": "win", "label": "리틀빅혼 1876 — 시팅 불·크레이지 호스의 승리"}, {"at": [43.14, -102.36], "kind": "loss", "label": "운디드니 1890 — 학살, 시대의 비극적 마침표"}], "arrows": [{"path": [[34.5, -84.0], [35.5, -97.5]], "tone": "invade"}]}], "caption": "①의 빨간 화살표와 ②의 빨간 화살표는 같은 시대의 같은 힘이에요 — 한쪽 끝에서는 '개척'이라 불렀고, 다른 쪽 끝에서는 '눈물의 길'이라 불렀습니다."}], "voice": {"h": "그때, 한 사람의 목소리 🗣️", "imagined": true, "body": "군인들이 왔을 때 어머니는 솥을 챙기려 했지만 허락되지 않았다. 우리 과수원의 사과가 막 익고 있었는데. 길은 끝이 없고, 밤마다 누군가를 묻었다. 할아버지는 걸으시며 낮게 노래하셨다. 노래를 멈추면 우리가 누구인지 잊을 것 같아서라고 하셨다. 나는 새 땅에서 태어날 동생들에게 말해 줄 것이다. 우리에겐 사과나무가 있었다고. 우리는 거기서 왔다고.", "speaker": "눈물의 길 위의 체로키 소녀 (상상)", "era": "1838년 겨울", "source": "체로키 강제 이주(1838~39, 약 4천 명 사망) 생존자 증언·기록에 기반한 상상 재구성"}, "chart": {"h": "숫자로 보기 — 들소가 사라진 속도 📊", "title": "북미 들소(바이슨) 개체 수 (추정)", "unit": "만 마리", "data": [{"label": "1800년경", "value": 3000, "disp": "약 3,000만+"}, {"label": "1890년경", "value": 0.1, "disp": "1,000마리 미만"}], "relatable": "한 세기 만에 3,000만이 거의 0이 됐어요. 철도 회사와 사냥꾼들이 가죽과 '스포츠'로 쏘아 댔고, 군은 들소 절멸이 평원 민족을 굴복시키는 길임을 알고 있었죠 — 들소는 그들의 식량이자 옷이자 신앙이었으니까요. 생태계 파괴가 곧 정복의 무기였던 사례예요. (지금은 보호 노력으로 수십만 마리까지 회복됐어요.) (추정값)", "source": "북미 바이슨 개체수 연구 일반"}, "timeline": [{"yr": "1803", "t": "루이지애나 매입 — 영토 2배"}, {"yr": "1830", "t": "인디언 이주법 — 강제 이주의 법제화"}, {"yr": "1838~39", "t": "눈물의 길 — 체로키 4천여 명 사망"}, {"yr": "1848", "t": "멕시코 전쟁 종결·캘리포니아 골드러시"}, {"yr": "1876 / 1890", "t": "리틀빅혼의 승리 / 운디드니의 비극"}], "connect": "대륙은 하나로 이어졌지만, 나라는 둘로 갈라지고 있었어요. 새로 생기는 주마다 같은 질문이 폭탄처럼 떨어졌거든요 — \"이 주에서 노예제를 허용할 것인가?\" 더는 미룰 수 없게 된 질문, <b>남북전쟁</b>의 장으로.", "yt": [{"type": "search", "q": "눈물의 길 체로키 인디언 강제이주 다큐", "title": "눈물의 길 — 체로키 강제 이주 (한국어로 찾기)", "lang": "ko", "desc": "인디언 이주법과 눈물의 길의 진실을 한국어 영상으로 찾아보세요."}, {"type": "search", "q": "manifest destiny westward expansion trail of tears", "title": "Westward Expansion (영어로 찾기)", "lang": "en", "desc": "'명백한 운명'과 서부 확장의 양면을 다룬 영어 영상을 찾아보세요."}], "quiz": [{"q": "'명백한 운명'이라는 구호의 실제 기능은?", "options": ["서부의 날씨를 예보하는 말이었다", "대륙 확장(과 그 과정의 침탈)을 '자연스러운 운명'으로 정당화하는 언어였다", "원주민의 권리를 보호하자는 운동이었다"], "answer": 1, "explain": "'운명'이라 부르면 선택도 책임도 사라져 보여요. 제국주의의 '문명화 사명'과 같은 문법의 정당화 장치였죠."}, {"q": "체로키 강제 이주(눈물의 길)에 대한 사실은?", "options": ["체로키가 자발적으로 떠났다", "체로키는 대법원 소송에서 이기고도, 대통령이 판결을 무시해 결국 군대에 의해 쫓겨났다", "이주 과정에서 아무도 다치지 않았다"], "answer": 1, "explain": "우스터 판결(1832)은 체로키의 권리를 인정했지만 잭슨 행정부는 집행하지 않았어요. 1838~39년 강제 이주에서 약 4천 명이 목숨을 잃었습니다."}], "reflect": ["✉️ 눈물의 길 위의 체로키 소녀에게, 혹은 '명백한 운명'을 믿었던 개척민 아이에게 — 둘 중 한 명을 골라 짧은 편지를 써 보세요. 어느 쪽을 골랐는지 자체가 너의 단서예요."], "deepdive": [{"h": "체로키의 선택 — '문명화'로도 막을 수 없었다", "body": "체로키는 흔한 통념과 정반대의 길을 걸었어요. 문자를 만들고(세쿼야의 체로키 문자), 신문을 발행하고, 헌법을 제정하고, 미국식 농장을 운영했죠 — 당시 백인들이 요구하던 '문명화'를 가장 충실히 이룬 민족이었어요. 그런데도 조지아에서 금이 발견되자 쫓겨났습니다. '문명화되면 공존할 수 있다'는 약속이 거짓이었음을, 즉 문제는 문화가 아니라 <b>땅에 대한 욕망</b>이었음을 보여 주는 가장 아픈 증거예요.", "source": "체로키 국가·세쿼야 문자·조지아 금광 일반"}, {"h": "대법원에서 이기고도 — 법의 한계", "body": "우스터 대 조지아(1832)에서 연방대법원은 체로키 영토에 조지아 법이 미치지 않는다고 판결했어요. 그러나 잭슨 대통령은 집행을 거부했고('마셜이 판결했으니 마셜더러 집행하라 했다'는 일화가 전해져요 — 실제 발언 여부는 논쟁), 강제 이주는 진행됐죠. 법이 옳은 판결을 내려도 집행할 권력이 외면하면 종이가 된다는 것 — 그리고 188년 뒤 맥거트 판결(2020)처럼 그 종이가 다시 살아나 권리의 근거가 되기도 한다는 것. 법과 정의의 관계를 생각하게 하는 사례예요.", "source": "Worcester v. Georgia(1832)·잭슨 행정부 일반"}, {"h": "멕시코 전쟁 — 미국 안에서도 논쟁이었다", "body": "1846~48년 멕시코 전쟁으로 미국은 멕시코 영토의 절반(캘리포니아·네바다·유타·애리조나 등)을 가져갔어요. 그런데 이 전쟁은 미국 안에서도 뜨거운 논쟁거리였죠. 신참 하원의원 링컨은 개전 명분을 따져 물었고, 사상가 소로는 전쟁 세금 납부를 거부하고 감옥에 갔어요 — 이때 쓴 『시민 불복종』이 훗날 간디와 킹 목사에게 영향을 줍니다. 부당한 국가 행위에 개인이 어떻게 맞설 것인가라는 질문이, 침략 전쟁의 한복판에서 태어난 거예요.", "source": "멕시코 전쟁·소로 『시민 불복종』 일반"}, {"h": "골드러시의 다국적 풍경 — 그리고 차별의 법", "body": "1849년 캘리포니아로 몰려간 '포티나이너스' 중에는 중국인·칠레인·멕시코인·유럽인이 섞여 있었어요. 그런데 금이 귀해지자 '외국인 광부세'가 만들어져 사실상 중국인·라틴계만 겨냥했고, 캘리포니아 원주민 인구는 학살과 질병으로 10여 년 만에 급감했죠(주 정부가 민병대 원정에 돈을 댄 기록이 남아 있어요 — 2019년 캘리포니아 주지사가 공식 사과했습니다). 기회의 땅의 문이 모두에게 같은 크기로 열려 있지 않았다는 것 — '이민의 나라' 장의 복선이에요.", "source": "캘리포니아 골드러시·원주민 학살 사과(2019) 일반"}, {"h": "기억의 전쟁 — 서부극에서 박물관까지", "body": "20세기 내내 헐리우드 서부극은 '용감한 기병대 vs 야만적 인디언'의 공식을 찍어 냈어요. 이 공식이 뒤집히기 시작한 건 1970년대부터죠(『작은 거인』, 후의 『늑대와 춤을』). 1990년 미 의회는 '운디드니 학살'에 유감을 표명했고, 2004년 워싱턴에 국립 아메리카 인디언 박물관이 — 원주민들 자신의 목소리로 — 세워졌어요. 역사의 사실이 바뀐 게 아니라 <b>누가 이야기의 마이크를 쥐는가</b>가 바뀐 거예요. 이 시리즈가 voice 블록을 고집하는 이유이기도 해요.", "source": "서부극 수정주의·운디드니 결의(1990) 일반"}], "order": ["hook", "why", "lens", "cards", "people", "battlemap*", "image", "voice", "chart", "timeline", "connect", "deepdive", "yt", "quiz", "reflect"], "image": {"h": "한 장의 그림 — '명백한 운명'의 자화상 📷", "story": "1872년 존 개스트의 〈미국의 전진〉 — 이 시대의 생각을 한 장에 담은 그림이에요. 빛의 여신이 전신줄을 끌며 서쪽으로 날아가고, 그 뒤로 철도·역마차·농부가 따라오죠. 그런데 왼쪽 어두운 곳을 보세요 — 원주민들과 들소가 어둠 속으로 밀려나고 있어요. 화가는 이걸 \"문명이 야만을 밀어내는 영광\"으로 그렸지만, 150년 뒤의 우리는 같은 그림에서 정반대의 이야기를 읽을 수 있죠. 그림은 그대로인데 보는 눈이 자란 거예요.", "src": "img/american_progress.jpg", "alt": "존 개스트의 〈미국의 전진〉(1872) — 명백한 운명을 그린 우의화", "caption": "개스트, 〈미국의 전진〉(1872) — 빛과 어둠의 배치가 곧 이 시대의 세계관.", "source": "Wikimedia Commons — John Gast, American Progress", "license": "퍼블릭 도메인"}}, {"id": "civil-war", "num": "40", "label": "남북전쟁", "accent": "#5a4a66", "kicker": "갈라진 집", "era": "1850s~1877", "motif": "split", "title": "갈라진 집은 설 수 없다 — 남북전쟁", "hook": "1858년, 한 정치인이 연설에서 성경 구절을 빌려 말했어요. \"스스로 갈라진 집은 설 수 없습니다. 이 나라는 절반은 노예, 절반은 자유인 채로 영원히 갈 수 없습니다.\" 그의 이름은 에이브러햄 링컨. 2년 뒤 그가 대통령에 당선되자 남부 주들은 차례로 연방을 탈퇴했고 — 미국인이 미국인에게 총을 겨눈 4년이 시작됩니다. 미국 역사상 가장 많은 미국인이 죽은 전쟁(약 62만~75만 명)은 외적이 아니라 자기 자신과의 전쟁이었어요.", "why": "건국 때 미뤄 둔 숙제 — '모든 사람은 평등하다'와 노예제의 모순 — 가 마침내 청구서로 돌아온 사건이에요. 이 전쟁으로 400만 명이 노예 신분에서 풀려났고, '미국은 쪼개질 수 있는 동맹이 아니라 하나의 국가'라는 답이 피로 쓰였죠. 그리고 전쟁이 끝난 뒤에도 끝나지 않은 것들 — 그게 이 장의 후반부이자, 지금 미국 뉴스에서도 보이는 이야기예요.", "lens": "남부는 이 전쟁을 '주(州)의 권리'를 지키는 싸움이라 불렀어요. 그런데 남부 주들이 탈퇴하며 발표한 선언문들을 직접 읽어 보면, 그 '권리'의 내용이 무엇인지 분명히 적혀 있어요 — 노예를 소유할 권리요. 전쟁이 끝난 뒤 '잃어버린 대의'라는 이름으로 남부의 명분을 미화하는 기억 운동이 한 세기를 갔죠. 사건만이 아니라 <b>사건의 기억을 둘러싼 싸움</b>이 또 하나의 역사라는 것 — 일본의 역사 교과서 문제를 아는 우리에겐 낯설지 않은 단서예요.", "cards": [{"yr": "원인", "h": "두 개의 경제, 하나의 질문", "p": "북부는 공장과 임금 노동, 남부는 면화 플랜테이션과 400만 노예. 서부의 새 주가 생길 때마다 '노예주인가 자유주인가'를 두고 충돌이 격해졌어요 — 타협이 바닥난 거예요."}, {"yr": "1861", "h": "분리, 그리고 개전", "p": "링컨 당선에 남부 11개 주가 연방을 탈퇴해 '남부연합'을 세웠어요. 1861년 4월 섬터 요새 포격으로 전쟁 시작 — 다들 몇 달이면 끝난다고 생각했죠."}, {"yr": "1863", "h": "전환점", "p": "1월 노예해방선언으로 전쟁의 의미가 '연방 유지'에서 '자유'로 넓어졌고, 7월 게티즈버그에서 남군의 북진이 꺾여요. 그해 가을 링컨은 그 전장에서 2분짜리 연설을 남기죠 — '국민의, 국민에 의한, 국민을 위한 정부'."}, {"yr": "1865~77", "h": "승리, 암살, 그리고 미완", "p": "1865년 4월 남군 항복 — 닷새 뒤 링컨이 암살돼요. 수정헌법 13·14·15조로 노예제 폐지와 흑인 시민권·투표권이 새겨지지만, 재건 시대가 끝나자(1877) 남부엔 짐 크로 차별 체제가 들어섭니다."}], "people": [{"face": "🎩", "name": "링컨", "who": "제16대 대통령 · 연방을 지키고 노예제를 끝낸 사람", "why": "변방의 가난한 통나무집에서 독학으로 변호사가 된 입지전적 인물이에요. 내전이라는 최악의 위기에서 연방을 지켜 냈고, 노예해방선언과 수정헌법 13조로 미국에서 노예제를 영구히 폐지했어요. 게티즈버그 연설은 민주주의의 정의(定義)로 지금도 인용되죠.", "shadow": "처음부터 노예제 폐지론자는 아니었어요 — 초기엔 '연방 유지가 우선'이라 했고, 한때 해방 노예의 해외 이주안을 검토하기도 했죠. 전쟁과 흑인 병사들의 희생 속에서 그의 입장도 자라났어요. 완성된 영웅이 아니라 '성장한 사람'으로 보는 게 더 정확해요.", "slug": "lincoln"}], "battlemaps": [{"title": "지도로 보기 — 갈라진 나라, 다시 꿰매기까지 🗺️", "intro": "북부(연방) vs 남부(연합)의 4년(①)과, 전쟁을 끝낸 진격로(②)를 봅니다.", "center": [36.0, -85.0], "zoom": 4, "fit": true, "legend": [{"c": "#2E7D4F", "label": "북부(연방)의 진격"}, {"c": "#B5546A", "label": "남부(연합)의 공세"}], "phases": [{"label": "① 1861~63 — 백중세, 그리고 게티즈버그", "markers": [{"at": [32.75, -79.87], "kind": "start", "label": "섬터 요새 1861.4 — 첫 포성"}, {"at": [38.9, -77.04], "kind": "capital", "label": "워싱턴 — 연방 수도"}, {"at": [37.54, -77.44], "kind": "capital", "label": "리치먼드 — 남부연합 수도 (지척의 두 수도!)"}, {"at": [39.81, -77.23], "kind": "win", "label": "게티즈버그 1863.7 — 남군 북진의 좌절"}], "arrows": [{"path": [[37.54, -77.44], [39.81, -77.23]], "tone": "invade"}]}, {"label": "② 1863~65 — 조여드는 포위", "reset": true, "markers": [{"at": [32.3, -90.18], "kind": "win", "label": "빅스버그 1863.7 — 미시시피강 장악, 남부 양분"}, {"at": [33.75, -84.39], "kind": "battle", "label": "애틀랜타 1864 — 셔먼의 '바다로의 행진' 시작"}, {"at": [37.3, -78.4], "kind": "win", "label": "애퍼매턱스 1865.4 — 리 장군 항복"}], "arrows": [{"path": [[32.3, -90.18], [33.75, -84.39], [32.08, -81.09]], "tone": "resist"}, {"path": [[33.75, -84.39], [37.3, -78.4]], "tone": "resist"}]}], "caption": "전쟁의 결정타는 화려한 회전이 아니라 강(미시시피)과 철도와 공장 — 북부의 압도적 생산력이었어요. 산업의 힘이 전쟁을 결정하는 시대가 왔다는 것, 이후 세계대전(에피소드 01)의 예고편이죠."}], "voice": {"h": "그때, 한 사람의 목소리 🗣️", "imagined": true, "body": "주인이 도망치던 날, 북군의 나팔 소리를 들었다. 나는 짐을 싸는 대신 푸른 군복을 입으러 갔다. 사람들은 물었다. 왜 너희가 백인들의 전쟁에서 싸우느냐고. 아니다 — 이것은 우리의 전쟁이다. 내가 총을 드는 순간, 누구도 다시는 나를 재산이라 부를 수 없다. 내 아이들은 글을 배울 것이고, 투표를 할 것이다. 그것을 위해서라면.", "speaker": "북군에 입대한 해방 노예 병사 (상상)", "era": "1863년", "source": "남북전쟁에 약 18만 명의 흑인 병사(USCT)가 참전한 사실에 기반한 상상 재구성"}, "chart": {"h": "숫자로 보기 — 두 개의 경제 📊", "title": "1860년의 북부 vs 남부 (대략값)", "unit": "상대 규모", "data": [{"label": "인구 (북부)", "value": 2200, "disp": "약 2,200만"}, {"label": "인구 (남부, 노예 400만 포함)", "value": 900, "disp": "약 900만"}, {"label": "공장 생산 (북부)", "value": 90, "disp": "전국의 약 90%"}, {"label": "철도 길이 (북부)", "value": 70, "disp": "전국의 약 70%"}], "relatable": "숫자만 보면 남부의 패배는 정해진 듯하지만, 전쟁은 4년을 끌며 60만이 넘는 목숨을 삼켰어요. 남부엔 뛰어난 장군들과 '홈그라운드'가 있었고, 북부는 이기는 것뿐 아니라 '점령'까지 해야 했으니까요. 그리고 남부 인구의 약 40%는 노예였다는 것 — 남부가 지키려던 경제의 실체를 이 숫자가 말해 줘요. (대략값)", "source": "1860년 인구조사·산업 통계 일반"}, "timeline": [{"yr": "1861.4", "t": "섬터 요새 — 전쟁 시작"}, {"yr": "1863.1", "t": "노예해방선언"}, {"yr": "1863.7", "t": "게티즈버그·빅스버그 — 전세 전환"}, {"yr": "1865.4", "t": "남군 항복 · 링컨 암살"}, {"yr": "1865~70", "t": "수정헌법 13(노예제 폐지)·14(시민권)·15(투표권)"}, {"yr": "1877", "t": "재건 종료 — 짐 크로 시대의 시작 (미완의 해방)"}], "connect": "다시 하나가 된 나라는 무서운 속도로 자랍니다. 철도왕과 석유왕이 등장하고, 유럽과 아시아에서 이민선이 줄지어 들어오고 — 한 세기 전 식민지였던 나라가 20세기의 문 앞에서 초강대국으로 올라서요. 마지막 장, <b>강대국으로</b>.", "yt": [{"type": "search", "q": "남북전쟁 링컨 노예해방 게티즈버그 다큐", "title": "남북전쟁과 링컨 (한국어로 찾기)", "lang": "ko", "desc": "남북전쟁의 원인부터 노예해방·게티즈버그까지 한국어 영상으로 찾아보세요."}, {"type": "search", "q": "American civil war crash course", "title": "The American Civil War (영어로 찾기)", "lang": "en", "desc": "남북전쟁의 전개와 의미를 정리한 영어 영상을 찾아보세요."}], "quiz": [{"q": "남북전쟁의 근본 원인으로 가장 정확한 것은?", "options": ["남부와 북부의 음식 취향 차이", "노예제를 둘러싼 갈등 — 새 주가 생길 때마다 폭발한 모순", "외국의 침략"], "answer": 1, "explain": "남부 주들의 탈퇴 선언문 자체가 노예제 수호를 명시했어요. '주의 권리' 프레임의 실제 내용도 결국 노예 소유의 권리였죠."}, {"q": "전쟁 후 흑인들의 처지는?", "options": ["곧바로 완전한 평등을 누렸다", "수정헌법으로 자유·시민권을 얻었지만, 재건 종료 후 짐 크로 차별이 한 세기 가까이 이어졌다", "다시 노예가 되었다"], "answer": 1, "explain": "해방은 됐지만 평등은 미뤄졌어요. 투표 방해·분리 시설·린치의 시대가 1960년대 민권운동까지 이어집니다 — '미완의 해방'이라 불리는 이유예요."}], "reflect": ["🔎 '국민의, 국민에 의한, 국민을 위한 정부' — 게티즈버그 연설의 이 구절은 우리 헌법 정신과도 통해요. 세 구절 중 지금 우리 사회에 가장 부족한 건 어느 부분일까? 이유 한 줄과 함께."], "deepdive": [{"h": "전쟁 전의 균열들 — 타협이 바닥나는 과정", "body": "1820년 미주리 타협(노예주·자유주 1:1 균형), 1850년 타협(도망노예법 강화), 1854년 캔자스-네브래스카법(주민이 결정 → '피의 캔자스' 유혈 사태), 1857년 드레드 스콧 판결(대법원이 '흑인은 시민이 아니다'라고 판결!) — 30여 년간 타협의 줄타기가 점점 가팔라지다 끊어진 거예요. 큰 전쟁은 벼락처럼 오지 않고, 실패한 타협들의 계단을 밟고 온다는 것 — 1차대전 전야(에피소드 02 화약고)와 같은 패턴이에요.", "source": "전전 타협사·드레드 스콧 판결 일반"}, {"h": "프레더릭 더글러스 — 탈출한 노예, 시대의 목소리", "body": "노예로 태어나 몰래 글을 배우고 탈출한 프레더릭 더글러스는 당대 최고의 연설가·언론인이 됐어요. \"7월 4일은 노예에게 무엇인가\"라는 연설로 독립선언의 위선을 정면으로 찔렀고, 링컨을 만나 흑인 병사 모집과 처우 개선을 압박했죠. 해방을 '받은' 것이 아니라 흑인 자신들이 싸워 '쟁취'했다는 것 — 더글러스와 18만 흑인 병사가 그 증거예요. (그는 훗날 도감에 모실 후보 1순위예요.)", "source": "프레더릭 더글러스 일반"}, {"h": "게티즈버그 연설 — 272단어의 재건국", "body": "두 시간짜리 명연설 뒤에 등판한 링컨의 연설은 2분, 272단어였어요. 그런데 이 짧은 연설이 한 일은 거대해요 — 미국의 기원을 헌법(1787)이 아니라 독립선언(1776)의 '모든 사람은 평등하다'로 다시 찍은 거예요. 전쟁의 의미를 '연방 수호'에서 '자유의 새로운 탄생'으로 끌어올린 거죠. 잘 고른 말 몇 마디가 나라의 자기 이해를 바꿀 수 있다는 것 — 글쓰기의 힘을 보여 주는 최고의 사례예요.", "source": "게티즈버그 연설 일반"}, {"h": "재건 시대 — 짧았던 봄과 긴 겨울", "body": "전후 10여 년, 남부에서 놀라운 일들이 벌어졌어요. 흑인 남성들이 투표했고, 주 의회와 연방 의회에 흑인 의원들이 진출했고(상원의원도 나왔어요!), 공립학교가 세워졌죠. 그러나 1877년 연방군이 철수하자 남부 주들은 투표세·문맹 시험·할아버지 조항으로 흑인 투표를 막고, 분리 시설(짐 크로)과 폭력(KKK·린치)으로 봄을 되돌렸어요. 권리는 한 번 얻으면 끝이 아니라 지켜 내야 하는 것 — 민권운동(1950~60s)이 이 미완의 숙제를 다시 꺼내 들게 됩니다.", "source": "재건 시대·짐 크로 일반"}, {"h": "'잃어버린 대의' — 기억을 둘러싼 두 번째 전쟁", "body": "패전 후 남부에서는 '우리의 싸움은 노예제가 아니라 고귀한 명분을 위한 것이었다'는 '잃어버린 대의' 서사가 만들어졌어요. 남부연합 장군들의 동상이 세워진 시기는 흥미롭게도 전쟁 직후가 아니라 짐 크로가 굳어지던 1900년대와 민권운동기 — 즉 기념물 자체가 인종 질서의 메시지였던 거죠. 2015~2020년 동상 철거 논쟁과 철거 물결은 그 기억 전쟁의 현재형이에요. 세실 로즈·레오폴드 동상 논쟁(에피소드 03)과 나란히 놓고 보세요 — 같은 시대, 같은 질문이에요.", "source": "Lost Cause 서사·기념물 논쟁 일반"}], "order": ["hook", "why", "lens", "cards", "people", "battlemap*", "image", "voice", "chart", "timeline", "connect", "deepdive", "yt", "quiz", "reflect"], "image": {"h": "한 장의 그림 — 게티즈버그 📷", "story": "남북전쟁 최대의 격전 게티즈버그(1863.7, 사흘간 약 5만 명 사상)를 그린 툴스트럽의 그림이에요. 화약 연기 속 푸른 군복(북군)과 회색 군복(남군) — 같은 말을 쓰고 같은 노래를 부르던 사람들이었어요. 링컨이 넉 달 뒤 이 들판에서 그 유명한 연설을 했죠. \"이들의 죽음을 헛되이 하지 않겠다고, 여기서 우리가 다짐합시다.\"", "src": "img/gettysburg.jpg", "alt": "툴스트럽의 〈게티즈버그 전투〉 석판화", "caption": "툴스트럽, 〈게티즈버그 전투〉(1887년 인쇄) — 내전의 한복판.", "source": "Wikimedia Commons — Thure de Thulstrup, Battle of Gettysburg (L. Prang & Co.)", "license": "퍼블릭 도메인"}}, {"id": "modern", "num": "50", "label": "강대국으로", "accent": "#3f6f74", "kicker": "이민의 나라, 세계의 무대로", "era": "1870s~1945", "motif": "gear", "title": "자유의 여신상 아래로 — 이민의 나라, 초강대국으로", "hook": "1900년 전후, 뉴욕 항에 들어서는 배의 갑판은 늘 만원이었어요. 아일랜드의 감자 기근을 피해서, 러시아의 박해를 피해서, 이탈리아의 가난을 피해서 — 사람들은 자유의 여신상이 보이면 울음을 터뜨렸다고 해요. 엘리스섬 이민국을 거쳐 들어온 사람만 수십 년간 1,200만 명. 그 손들이 철도를 깔고 강철을 만들며, 식민지였던 나라는 한 세기 만에 영국을 추월하는 산업 대국이 됩니다. 우리 시리즈의 다른 에피소드들과 시간이 겹쳐지는 지점이에요 — 이제 이 나라가 세계 무대로 걸어 나옵니다.", "why": "이 장은 아메리카 허브와 세계사 에피소드들을 잇는 다리예요. 산업화·이민으로 힘을 키운 미국이 1898년 스페인과의 전쟁으로 제국 클럽에 가입하고(에피소드 02·03의 '후발 주자'), 두 차례 세계대전(에피소드 01)을 거치며 초강대국이 되는 과정 — 북아메리카 이야기가 세계사의 본류로 합류하는 장면이죠.", "lens": "자유의 여신상 받침대에는 이런 시가 새겨져 있어요. \"지치고 가난한, 자유를 숨쉬기를 갈망하는 무리를 내게 보내라.\" 그런데 같은 시대 미국 의회는 중국인 배제법(1882)으로 특정 민족의 이민을 통째로 막았어요 — 미국 역사상 처음으로 '국적'을 이유로요. 환영의 시와 배제의 법이 같은 항구에 서 있던 것 — '이민의 나라'가 늘 품어 온 두 마음이에요. 지금의 이민 논쟁 뉴스와 겹쳐 보세요.", "cards": [{"yr": "산업", "h": "도금 시대", "p": "카네기(강철)·록펠러(석유)·밴더빌트(철도) — 거대 기업가들이 등장하고 미국 산업 생산이 세계 1위로 올라서요. 화려함 뒤에 12시간 노동과 아동 노동이 있어 '도금(겉만 금) 시대'라 불렸죠."}, {"yr": "이민", "h": "엘리스섬의 1,200만", "p": "1892~1954년 엘리스섬으로 약 1,200만 명이 들어왔어요. 오늘 미국인의 약 40%가 이곳을 거친 이민자의 후손으로 추정될 정도 — 그러나 중국인 배제법(1882) 같은 차별의 문턱도 함께 있었어요."}, {"yr": "1898", "h": "제국 클럽 가입", "p": "스페인과의 전쟁에서 이겨 푸에르토리코·괌·필리핀을 차지해요. '제국주의 반대' 논쟁이 미국 안에서도 뜨거웠지만 — 신생 공화국이 어느새 식민지를 가진 열강이 된 거예요(에피소드 02·03과 연결)."}, {"yr": "1917·1941", "h": "두 번의 세계대전", "p": "1차대전 참전으로 유럽의 채권국이 되고, 2차대전(진주만 이후)을 거치며 군사·경제 초강대국으로 — 이 이야기의 자세한 내용은 에피소드 01(세계대전)에서 이미 만났죠."}], "voice": {"h": "그때, 한 사람의 목소리 🗣️", "imagined": true, "body": "검사관이 내 이름을 듣더니 얼굴을 찡그리고 서류에 다르게 적었다. 더 '미국답게' 들린다나. 갑판에서 본 여신상은 정말 컸다. 아버지는 모자를 벗으셨다. 공장 숙소는 좁고 영어는 벽 같지만, 일요일마다 야학에 간다. 선생님이 말했다 — 네 아이들은 투표를 하게 될 거라고. 고향에선 꿈도 못 꿀 말. 그 말 하나로 12시간 교대를 버틴다.", "speaker": "엘리스섬을 거쳐 온 동유럽 이민자 소녀 (상상)", "era": "1907년경", "source": "엘리스섬 이민 기록·이민자 수기에 기반한 상상 재구성 (이름 개명 일화는 흔한 전승이지만 실제로는 선박 명부 기준이었다는 연구도 있어요)"}, "chart": {"h": "숫자로 보기 — 추월의 세기 📊", "title": "세계 공업 생산에서 차지하는 비중 (대략값)", "unit": "%", "data": [{"label": "1860 영국", "value": 20, "disp": "약 20%"}, {"label": "1860 미국", "value": 7, "disp": "약 7%"}, {"label": "1913 영국", "value": 14, "disp": "약 14%"}, {"label": "1913 미국", "value": 32, "disp": "약 32%"}], "relatable": "반세기 만에 식민지였던 나라가 옛 본국을 두 배 이상으로 추월했어요. 비결은 광대한 자원 + 이민 노동력 + 대륙 크기의 단일 시장 — 유럽 열강들이 식민지에서 구하려던 것들을 미국은 자기 대륙 안에 갖고 있었던 거예요(그 대륙이 어떻게 '확보'됐는지는 앞 장들이 말해 주죠). (대략값)", "source": "베어록 등 세계 공업생산 비중 추정 일반"}, "timeline": [{"yr": "1869", "t": "대륙횡단철도 완성"}, {"yr": "1882", "t": "중국인 배제법 — 이민의 나라의 그늘"}, {"yr": "1886·1892", "t": "자유의 여신상 제막 · 엘리스섬 개장"}, {"yr": "1898", "t": "미국-스페인 전쟁 — 필리핀·푸에르토리코 획득"}, {"yr": "1917 / 1941", "t": "1차대전 참전 / 진주만 — 2차대전 (에피소드 01로)"}], "connect": "북아메리카의 파일은 여기서 세계사의 본류와 합류합니다 — 미국의 20세기는 <b>에피소드 01(세계대전)</b>의 태평양·전후 장에서 이어져요. 그리고 같은 대륙의 남쪽 절반은 전혀 다른 길을 걸었어요. 정복의 상처에서 출발해 해방자들의 시대를 거쳐 — <b>라틴아메리카 에피소드</b>에서 만나요. (허브로 돌아가 선택하세요 🗂️)", "yt": [{"type": "search", "q": "엘리스섬 미국 이민 역사 다큐", "title": "이민의 나라 미국 — 엘리스섬 (한국어로 찾기)", "lang": "ko", "desc": "1,200만 이민자의 관문 엘리스섬과 이민의 나라의 형성을 찾아보세요."}, {"type": "search", "q": "gilded age industrialization immigration america", "title": "The Gilded Age (영어로 찾기)", "lang": "en", "desc": "도금 시대의 산업화와 이민·노동을 다룬 영어 영상을 찾아보세요."}], "quiz": [{"q": "19세기 말 미국이 영국을 추월하는 산업 대국이 된 비결로 적절한 것은?", "options": ["광대한 자원·이민 노동력·대륙 크기의 단일 시장", "식민지가 전혀 없어서", "유럽보다 인구가 항상 많아서"], "answer": 0, "explain": "유럽 열강이 식민지에서 구하던 자원·시장·노동력을 미국은 대륙 안에서 확보했어요 — 그 대륙의 '확보' 과정에 원주민의 비극이 있었다는 것까지가 정직한 답이에요."}, {"q": "1898년 미국-스페인 전쟁의 의미는?", "options": ["미국이 식민지를 가진 제국주의 열강 대열에 합류했다", "미국이 스페인의 식민지가 되었다", "아무 영토 변화가 없었다"], "answer": 0, "explain": "푸에르토리코·괌·필리핀을 차지하며 '반(反)식민지에서 출발한 나라가 식민지를 갖게 된' 역설이 시작돼요 — 필리핀에서는 곧 독립을 요구하는 필리핀인들과의 전쟁이 이어졌죠."}], "reflect": ["✉️ 엘리스섬의 이민자 소녀에게, 혹은 지금 한국에 와 있는 이주민 친구에게 — '새로운 땅에서 산다는 것'에 대해 짧은 편지를 써 보세요. 두 이야기가 얼마나 닮았는지가 단서예요."], "deepdive": [{"h": "도금 시대 — 부의 탄생과 노동의 대가", "body": "카네기는 가난한 이민자 출신으로 강철왕이 됐고 말년에 재산 대부분을 도서관·대학에 기부했어요(카네기홀·카네기멜런대). 그런데 같은 카네기의 제철소에서 1892년 홈스테드 파업이 유혈 진압됐죠. 12시간 2교대, 아동 노동, 산재 — '아메리칸 드림'의 공장 바닥이에요. 이 모순에서 노동운동과 혁신주의 개혁(반독점법·아동노동 금지·식품안전법)이 자라나요. 산업혁명 장(에피소드 02 #industry)의 영국과 같은 패턴 — 성장과 고통, 그리고 고통이 만든 제도.", "source": "도금 시대·홈스테드 파업·혁신주의 일반"}, {"h": "중국인 배제법 — '이민의 나라'의 첫 빗장", "body": "대륙횡단철도의 험한 구간을 뚫은 주역은 중국인 노동자들이었어요(완공 기념사진엔 그들이 빠져 있죠). 그런데 경기가 나빠지자 '일자리를 뺏는다'는 분노가 그들을 향했고, 1882년 중국인 배제법으로 중국인 이민이 금지돼요 — 특정 국적을 콕 집은 미국 첫 이민 금지법이에요(1943년에야 폐지, 2011~12년 의회가 공식 유감 표명). 위기 때 가장 약한 이방인을 탓하는 패턴 — 이 시리즈에서 여러 번 본, 그리고 지금도 반복되는 패턴이죠.", "source": "대륙횡단철도 중국인 노동자·배제법(1882) 일반"}, {"h": "1898년의 논쟁 — '우리가 제국이 되어도 되는가'", "body": "필리핀 획득을 두고 미국이 둘로 갈라졌어요. 한쪽은 '문명화의 의무'(키플링의 시 '백인의 짐'이 바로 이때 미국을 향해 쓰였어요), 다른 쪽은 마크 트웨인이 이끈 반제국주의 연맹 — '독립선언의 나라가 남의 독립을 짓밟을 수 없다'. 결국 미국은 필리핀을 차지했고, 독립을 기대했던 필리핀인들과의 전쟁(1899~1902)에서 수십만 명이 희생됩니다. 콩고를 고발한 트웨인(에피소드 03)이 자기 나라의 제국주의에도 펜을 들었다는 것 — 일관된 양심의 모습이에요.", "source": "미서전쟁·필리핀-미국 전쟁·반제국주의 연맹 일반"}, {"h": "대공황과 뉴딜 — 시장의 실패, 정부의 재발명", "body": "1929년 주가 폭락으로 시작된 대공황은 실업률을 25%까지 밀어 올렸어요(에피소드 01에서 독일 나치 부상의 배경으로 만난 그 공황이에요 — 같은 사건의 미국 쪽 얼굴이죠). 루스벨트의 뉴딜은 사회보장·예금보험·대규모 공공사업으로 '정부가 경제에 책임진다'는 새 표준을 만들었어요. 비스마르크의 사회보험(에피소드 03)에서 시작된 흐름이 대서양을 건너 완성된 셈 — 위기가 제도를 발명한다는 패턴이에요.", "source": "대공황·뉴딜 일반"}, {"h": "미완의 약속들 — 이 에피소드가 현재에 닿는 곳", "body": "이 에피소드에서 만난 숙제들은 20세기 후반에 다시 무대에 올라요. 짐 크로는 1950~60년대 민권운동(로자 파크스, 킹 목사의 '나에게는 꿈이 있습니다' — 게티즈버그처럼 독립선언을 인용했죠)으로 무너지기 시작했고, 원주민들은 1970년대부터 자치권과 조약 권리를 되찾는 운동을 벌였으며, 이민 논쟁은 지금도 미국 정치의 한복판이에요. '모든 사람은 평등하다'는 1776년의 약속이 아직도 공사 중이라는 것 — 그게 이 나라를 읽는 가장 정확한 렌즈예요.", "source": "민권운동·원주민 권리 운동 개관 일반"}], "order": ["hook", "why", "lens", "cards", "voice", "image", "chart", "timeline", "connect", "deepdive", "yt", "quiz", "reflect"], "image": {"h": "한 장의 사진 — 엘리스섬의 대기줄 📷", "story": "1904년 엘리스섬 이민국 건물 안 — 방금 배에서 내린 사람들이 입국 심사를 기다리는 실제 사진이에요. 옷깃의 번호표, 난간으로 나뉜 줄들. 이 줄에 선 사람들의 손자·손녀가 지금 미국인의 큰 부분이에요. 어쩌면 이 사진 속 누군가의 후손이 달에 갔거나, 영화를 만들었거나, 대통령이 됐을지도 — 줄 서 있는 한 사람 한 사람이 가능성이었던 거죠.", "src": "img/ellis_island.jpg", "alt": "1904년 엘리스섬 이민국에서 입국 심사를 기다리는 이민자들 사진", "caption": "엘리스섬 이민국(1904) — 1,200만 명이 거쳐 간 문.", "source": "Wikimedia Commons — Underwood & Underwood (1904)", "license": "퍼블릭 도메인"}}]};</script>
+
+<!-- 렌더 엔진 (모든 에피소드 공통) -->
+<script>
+const EP = window.EPISODE;
+const META = EP.meta, TERMS = EP.terms||{}, SECTIONS = EP.sections, PEOPLE = EP.people||null;
+
+function T(text){ let out=text; for(const k of Object.keys(TERMS)){ out=out.split(k).join('<span class="term" data-term="'+k+'">'+k+'</span>'); } return out; }
+function ytURL(v){ return v.type==='search' ? 'https://www.youtube.com/results?search_query='+encodeURIComponent(v.q) : 'https://www.youtube.com/watch?v='+v.id; }
+
+const MOTIF = {
+  flag:'<path d="M40 30v140M40 36h110l-20 28 20 28H40" fill="none" stroke="#fff" stroke-width="7"/>',
+  crowd:'<g fill="#fff"><circle cx="60" cy="70" r="22"/><circle cx="110" cy="60" r="26"/><circle cx="150" cy="78" r="20"/><rect x="38" y="96" width="44" height="70" rx="18"/><rect x="84" y="90" width="52" height="80" rx="20"/><rect x="132" y="100" width="40" height="66" rx="16"/></g>',
+  book:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M105 50c-18-14-44-14-62 0v96c18-14 44-14 62 0M105 50c18-14 44-14 62 0v96c-18-14-44-14-62 0M105 50v96"/></g>',
+  map:'<g fill="none" stroke="#fff" stroke-width="6"><path d="M50 50l38 14 36-14 38 16v100l-38-16-36 14-38-14z"/><path d="M88 64v100M124 50v104"/></g>',
+  wave:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M30 110c20-26 40-26 60 0s40 26 60 0 40-26 40 0"/><path d="M30 150c20-26 40-26 60 0s40 26 60 0 40-26 40 0"/></g>',
+  sun:'<g fill="none" stroke="#fff" stroke-width="7"><circle cx="105" cy="105" r="34"/><path d="M105 40v22M105 148v22M40 105h22M148 105h22M58 58l16 16M152 152l-16-16M152 58l-16 16M58 152l16-16"/></g>',
+  split:'<g fill="none" stroke="#fff" stroke-width="7"><rect x="44" y="50" width="118" height="110" rx="10"/><path d="M103 50v110" stroke-dasharray="10 9"/></g>',
+  dove:'<g fill="#fff"><path d="M60 120c30 6 70-6 96-44-4 30-2 50 18 64-30 10-72 8-96-20z"/><circle cx="150" cy="74" r="6"/></g>',
+  globe:'<g fill="none" stroke="#fff" stroke-width="6"><circle cx="105" cy="105" r="58"/><ellipse cx="105" cy="105" rx="24" ry="58"/><path d="M47 105h116M55 76h100M55 134h100"/></g>',
+  ship:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M48 132h114l-16 30H64z"/><path d="M105 132V46M105 60l44 16-44 16M105 66l-34 12 34 12"/></g>',
+  torch:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M105 40c18 16 18 40 0 52-18-12-18-36 0-52z"/><path d="M88 96h34l-8 64H96z"/></g>',
+  gear:'<g fill="none" stroke="#fff" stroke-width="7"><circle cx="105" cy="105" r="26"/><path d="M105 52v18M105 140v18M52 105h18M140 105h18M68 68l13 13M137 137l-13-13M137 68l-13 13M68 137l13-13"/></g>'
+};
+
+const view=document.getElementById('view'), navList=document.getElementById('navList');
+const sidebar=document.getElementById('sidebar'), scrim=document.getElementById('scrim'), progress=document.getElementById('progress');
+let currentMap=null, bmaps=[];
+function killMap(){ if(currentMap){ try{currentMap.remove();}catch(e){} currentMap=null; }
+  bmaps.forEach(m=>{ try{m.remove();}catch(e){} }); bmaps=[]; }
+
+function visited(id){ return localStorage.getItem(META.slug+'_v_'+id)==='1'; }
+function markVisited(id){ localStorage.setItem(META.slug+'_v_'+id,'1'); }
+
+function head(){
+  if(META.hub){ const hb=document.getElementById('hubBack'); hb.href=META.hub.url; hb.textContent=META.hub.label;
+    const th=document.getElementById('tbHub'); if(th){ th.href=META.hub.url; } }
+  document.getElementById('brandTitle').textContent=META.brand.title;
+  document.getElementById('brandSub').textContent=META.brand.sub;
+  document.getElementById('sideFoot').innerHTML=META.foot||'';
+  document.getElementById('tbTitle').textContent=META.brand.title;
+}
+
+function buildNav(){
+  let html='<li><a class="home-link" data-id="home">🏠 홈 · 이야기 시작</a></li>'
+    +'<li><a class="notes-link" data-id="notes">📝 내 메모 모아보기</a></li>';
+  html+=SECTIONS.map(s=>'<li><a data-id="'+s.id+'" class="'+(s.star?'star':'')+' '+(visited(s.id)?'visited':'')+'">'
+    +'<span class="num">'+s.num+'</span>'+s.label+(s.star?'<span class="tag">★</span>':'')+'</a></li>').join('');
+  navList.innerHTML=html;
+  navList.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{ go(a.dataset.id); closeSide(); }));
+}
+
+function renderHome(){
+  const h=META.home;
+  view.innerHTML=
+  '<div class="home-hero"><h1>'+h.h1+'</h1><div class="hsub">'+h.sub+'</div>'
+  +(h.quote?'<div class="hq">"'+h.quote.text+'"<small>'+h.quote.by+'</small></div>':'')+'</div>'
+  +'<div class="home-wrap"><div class="home-intro">'+h.intro+'</div>'
+  +'<div class="start-btns"><a class="btn primary" data-id="'+h.startPrimary.to+'">'+h.startPrimary.label+'</a>'
+  +(h.startStar?'<a class="btn star" data-id="'+h.startStar.to+'">'+h.startStar.label+'</a>':'')+'</div>'
+  +'<h2 class="block" style="margin-top:34px;">'+(h.pathLabel||'이야기 흐름')+'</h2><ul class="path">'
+  +SECTIONS.map(s=>'<li class="'+(s.star?'star':'')+'" data-id="'+s.id+'"><span class="pn">'+s.num+'</span>'
+    +'<span><span class="ph">'+s.label+(s.star?' <span class="star-mark">★</span>':'')+'</span>'
+    +'<span class="pp">'+s.kicker+' · '+s.era+'</span></span></li>').join('')
+  +'</ul></div>';
+  view.querySelectorAll('[data-id]').forEach(el=>el.addEventListener('click',()=>{ go(el.dataset.id); closeSide(); }));
+  setActive('home'); window.scrollTo(0,0); progress.style.width='0%';
+}
+
+function ytBlock(v){
+  const pill = v.type==='search' ? '<span class="pill find">검색</span>' : (v.lang==='en'?'<span class="pill en">영어·자막</span>':'<span class="pill ko">한국어</span>');
+  return '<a class="yt" href="'+ytURL(v)+'" target="_blank" rel="noopener">'
+    +'<span class="play '+(v.type==='search'?'search':'')+'">'+(v.type==='search'?'🔍':'▶')+'</span>'
+    +'<span class="yt-body"><span class="yt-title">'+v.title+'</span>'
+    +'<span class="yt-meta">'+pill+(v.channel?'<span class="pill">'+v.channel+'</span>':'')+(v.length?'<span>'+v.length+'</span>':'')+'</span>'
+    +'<span class="yt-desc">'+v.desc+'</span></span></a>';
+}
+function quoteBlock(q){ return '<div class="quote"><span class="qm">"</span><div class="qt">'+q.qt+'</div><span class="qs">'+q.qs+'</span></div>'; }
+function quizHTML(quiz,sid){
+  return '<h2 class="block">잠깐, 기억나니? 🧠</h2><div class="quizwrap">'
+    + quiz.map((q,qi)=>'<div class="quizq" data-qi="'+qi+'"><div class="qq">'+(qi+1)+'. '+q.q+'</div><div class="qopts">'
+      + q.options.map((o,oi)=>'<button class="quiz-opt" data-oi="'+oi+'">'+o+'</button>').join('')
+      + '</div><div class="qexp" id="qexp_'+sid+'_'+qi+'"></div></div>').join('')
+    + '</div>';
+}
+function mapHTML(m,sid){
+  return '<h2 class="block">지도로 보기 🗺️</h2><div class="mapwrap">'
+    + '<div class="lmap" id="lmap_'+sid+'"></div>'
+    + '<div class="mapcap">'+(m.caption||'')+(m.source?' <span class="msrc">· 지도 ⓒ '+m.source+'</span>':'')+'</div></div>';
+}
+function choiceHTML(c,sid){
+  const opts=c.options.map((o,i)=>'<div><button class="chopt" data-oi="'+i+'">'+o.label+'</button>'
+    +'<div class="chres" id="chres_'+sid+'_'+i+'">'+T(o.result)+'</div></div>').join('');
+  return '<h2 class="block">'+(c.h||'너라면? 🤔')+'</h2><div class="choice" id="ch_'+sid+'">'
+    +'<div class="chprompt">'+T(c.prompt)+'</div><div class="chopts">'+opts+'</div>'
+    +(c.after?'<div class="chafter" id="chafter_'+sid+'">💬 '+T(c.after)+'</div>':'')+'</div>';
+}
+function compareHTML(c,sid){
+  const tabs=c.states.map((st,i)=>'<button class="cmptab'+(i===0?' active':'')+'" data-ci="'+i+'">'+st.label+'</button>').join('');
+  return '<h2 class="block">'+(c.h||'견주어 보기 ⚖️')+'</h2><div class="compare" id="cmp_'+sid+'">'
+    +(c.intro?'<div class="cmpintro">'+T(c.intro)+'</div>':'')
+    +'<div class="cmptabs">'+tabs+'</div><div class="cmppanel" id="cmppanel_'+sid+'"></div></div>';
+}
+function chartHTML(c,sid){
+  const max=Math.max.apply(null, c.data.map(d=>d.value))||1;
+  const rows=c.data.map(d=>'<div class="crow"><div class="clabel">'+d.label+'</div>'
+    +'<div class="cbarwrap"><div class="cbar" style="width:'+(d.value/max*100)+'%"></div></div>'
+    +'<div class="cval">'+(d.disp||d.value)+'</div></div>').join('');
+  return '<h2 class="block">'+(c.h||'숫자로 보기 📊')+'</h2><div class="chart"><div class="ctitle">'+c.title+'</div>'
+    +(c.unit?'<div class="cunit">'+c.unit+'</div>':'')+rows
+    +(c.relatable?'<div class="crelate">💡 '+T(c.relatable)+'</div>':'')
+    +(c.source?'<div class="csrc">출처: '+c.source+'</div>':'')+'</div>';
+}
+function voiceHTML(v){
+  const real = v.imagined===false;
+  return '<h2 class="block">'+(v.h||'그 사람의 목소리 🗣️')+'</h2><div class="voice">'
+    + '<span class="vbadge '+(real?'real':'imag')+'">'+(real?'실제 기록':'✍️ 사실에 기반한 상상')+'</span>'
+    + '<div class="vbody">'+T(v.body)+'”</div>'
+    + '<div class="vspeaker"><b>— '+v.speaker+'</b>'+(v.era?' · '+v.era:'')+(v.source?'<span class="vsrc">'+v.source+'</span>':'')+'</div>'
+    + '</div>';
+}
+function imageHTML(im,sid){
+  const hs=im.hotspots||[];
+  return '<h2 class="block">'+(im.h||'자료로 보기 🖼️')+'</h2><figure class="figimg">'
+    + (im.story?'<div class="figstory">'+T(im.story)+'</div>':'')
+    + '<div class="imgbox" id="imgbox_'+sid+'">'
+    + '<img src="'+im.src+'" alt="'+(im.alt||'')+'" loading="lazy">'
+    + hs.map((h,i)=>'<button class="hsdot" data-hi="'+i+'" style="left:'+h.x+'%;top:'+h.y+'%" aria-label="'+(h.label||'')+'">'+(i+1)+'</button>').join('')
+    + '</div>'
+    + (hs.length?'<div class="hsinfo" id="hsinfo_'+sid+'">점(번호)을 눌러 보세요.</div>':'')
+    + '<figcaption class="figcap">'+(im.caption||'')+(im.source?' <span class="msrc">· 출처: '+im.source+(im.license?' · '+im.license:'')+'</span>':'')+'</figcaption>'
+    + '</figure>';
+}
+function oldmapHTML(o,sid){
+  return '<h2 class="block">'+(o.h||'옛 지도로 보기 🗺️')+'</h2><figure class="oldmap">'
+    + (o.story?'<div class="figstory">'+T(o.story)+'</div>':'')
+    + '<div class="oldmap-frame"><img src="'+o.src+'" alt="'+(o.alt||'')+'" loading="lazy"></div>'
+    + '<figcaption class="figcap">'+(o.caption||'')+(o.source?' <span class="msrc">· 출처: '+o.source+(o.license?' · '+o.license:'')+'</span>':'')+'</figcaption>'
+    + '</figure>';
+}
+function lensBlock(l){ return '<div class="lens"><div class="lh">🕯️ 그때 사람들은 이렇게 생각했어요</div><div>'+T(l)+'</div></div>'; }
+function personBlock(p){
+  return '<div class="person"><div class="pheader"><div class="pface">'+(p.face||'👤')+'</div>'
+    +'<div><div class="pname">'+p.name+'</div><div class="pwho">'+(p.who||'')+'</div></div></div>'
+    +(p.why?'<div class="pwhy">'+T(p.why)+'</div>':'')
+    +(p.quote?'<div class="pquote">"'+p.quote+'"</div>':'')
+    +(p.shadow?'<div class="pshadow">빛과 그림자 · '+p.shadow+'</div>':'')
+    +(p.slug?'<a class="pmore" href="../people/'+p.slug+'/">📖 인물 도감에서 더 보기 →</a>':'')+'</div>';
+}
+
+const FIT={green:{e:'🟢',t:'전체 관람'},yellow:{e:'🟡',t:'부모와 함께'},red:{e:'🔴',t:'핵심 장면·맥락만'}};
+function movieBlock(m){
+  const f=FIT[m.fit]||FIT.yellow;
+  let s='<div class="movie"><div class="mhead"><div class="mtitle">🎬 '+m.title+'</div>'
+    +'<span class="mfit '+(m.fit||'yellow')+'">'+f.e+' '+f.t+'</span></div>'
+    +'<div class="mmeta">'+[m.year,m.director].filter(Boolean).join(' · ')
+    +(m.basedOn?' · <b>'+m.basedOn+'</b>':'')+'</div>';
+  if(m.why) s+='<div class="mwhy">'+T(m.why)+'</div>';
+  if(m.realVsFiction) s+='<div class="mreal"><span class="lbl">실화 vs 각색</span>'+m.realVsFiction+'</div>';
+  let links=[];
+  if(m.slug) links.push('<a class="mlink slug" href="../people/'+m.slug+'/">📖 인물 도감</a>');
+  (m.links||[]).forEach(l=>links.push('<a class="mlink" href="'+l.url+'" target="_blank" rel="noopener">'+l.label+' ↗</a>'));
+  if(links.length) s+='<div class="mlinks">'+links.join('')+'</div>';
+  return s+'</div>';
+}
+function battlemapHTML(bm,sid,idx){
+  const id='bm_'+sid+'_'+idx;
+  let s='<h2 class="block">'+(bm.title||'전투 지도')+' 🗺️</h2><div class="battlemap" id="'+id+'">';
+  if(bm.intro) s+='<div class="bm-intro">'+T(bm.intro)+'</div>';
+  s+='<div class="bm-map" id="'+id+'_map"></div>'
+    +'<div class="bm-step"><button class="bm-prev" disabled>← 이전</button><div class="bm-plabel" id="'+id+'_lab"></div><button class="bm-next">다음 →</button></div>';
+  if(bm.legend&&bm.legend.length) s+='<div class="bm-legend">'+bm.legend.map(l=>'<span><i style="border-color:'+l.c+'"></i> '+l.label+'</span>').join('')+'</div>';
+  if(bm.caption) s+='<div class="bm-cap">'+bm.caption+'</div>';
+  return s+'</div>';
+}
+function deepdiveHTML(dd){
+  let s='<details class="deepdive"><summary>🔎 더 깊이 — 고등·일반 수준으로 (펼치기)</summary><div class="dd-body">';
+  dd.forEach(it=>{ s+='<div class="dd-item"><h3>'+it.h+'</h3><div class="dd-text">'+T(it.body)+'</div>'
+    +(it.source?'<div class="dd-src">📜 '+it.source+'</div>':'')+'</div>'; });
+  return s+'</div></details>';
+}
+function marchmapHTML(m,sid){
+  const SY=1.55; // viewBox 0 0 100 155 (베이스맵 종횡비 ≈ 1866/2891)
+  const P={}; (m.places||[]).forEach(p=>P[p.id]=p);
+  const placePhase={};
+  (m.phases||[]).forEach((ph,i)=>(ph.show||[]).forEach(id=>{ if(placePhase[id]===undefined) placePhase[id]=i; }));
+  const KIND={start:'🚩',battle:'⚔️',win:'✔️',loss:'✖️',capital:'🏯',city:'•'};
+  let dots='';
+  (m.places||[]).forEach(p=>{
+    const ph=placePhase[p.id]!==undefined?placePhase[p.id]:0;
+    const emo=KIND[p.kind]||'';
+    dots+='<div class="mm-place k-'+(p.kind||'city')+'" data-ph="'+ph+'" style="left:'+p.x+'%;top:'+p.y+'%">'
+      +'<span class="mm-dot"></span><span class="mm-lbl">'+(emo&&emo!=='•'?emo+' ':'')+p.label+'</span></div>';
+  });
+  let paths='';
+  (m.phases||[]).forEach((ph,i)=>{
+    (ph.arrows||[]).forEach(a=>{
+      const f=P[a.from], t=P[a.to]; if(!f||!t) return;
+      const fx=f.x, fy=f.y*SY, tx=t.x, ty=t.y*SY;
+      const mx=(fx+tx)/2, my=(fy+ty)/2, dx=tx-fx, dy=ty-fy;
+      const cx=(mx-dy*0.16).toFixed(1), cy=(my+dx*0.16).toFixed(1);
+      const tone=a.tone||'resist';
+      paths+='<path class="mm-arrow tone-'+tone+'" data-ph="'+i+'" d="M'+fx+' '+fy.toFixed(1)+' Q'+cx+' '+cy+' '+tx+' '+ty.toFixed(1)+'" marker-end="url(#mmh-'+tone+')"></path>';
+      if(a.label) paths+='<text class="mm-alab tone-'+tone+'" data-ph="'+i+'" x="'+cx+'" y="'+cy+'">'+a.label+'</text>';
+    });
+  });
+  const n=(m.phases||[]).length, first=(m.phases&&m.phases[0]?m.phases[0].label:'');
+  let s='<h2 class="block">진격으로 따라가기 🗺️</h2><div class="marchmap" id="mm_'+sid+'" data-ph="0" data-n="'+n+'">';
+  if(m.title) s+='<div class="mm-title">'+m.title+'</div>';
+  if(m.intro) s+='<div class="mm-intro">'+T(m.intro)+'</div>';
+  s+='<div class="mm-stage"><img class="mm-base" src="'+m.base.src+'" alt="'+(m.title||'지도')+'" loading="lazy">'
+    +'<svg class="mm-arrows" viewBox="0 0 100 155" preserveAspectRatio="xMidYMid meet"><defs>'
+    +'<marker id="mmh-resist" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" class="mh resist"/></marker>'
+    +'<marker id="mmh-invade" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" class="mh invade"/></marker>'
+    +'</defs>'+paths+'</svg>'+dots+'</div>';
+  s+='<div class="mm-step"><button class="mm-prev" disabled>← 이전</button>'
+    +'<div class="mm-plabel" id="mmlab_'+sid+'">'+first+'</div><button class="mm-next">다음 →</button></div>';
+  if(m.caption) s+='<div class="mm-cap">'+m.caption+'</div>';
+  return s+'</div>';
+}
+function relationsHTML(r,sid){
+  let s='<h2 class="block">힘의 관계 한눈에 보기 ⚖️</h2><div class="relations">';
+  if(r.title) s+='<div class="rtitle">'+r.title+'</div>';
+  if(r.intro) s+='<div class="rintro">'+T(r.intro)+'</div>';
+  s+='<div class="rsides">';
+  (r.sides||[]).forEach(side=>{
+    s+='<div class="rside '+(side.color||'')+'"><div class="rslabel">'+side.label+'</div>';
+    (side.members||[]).forEach(m=>{
+      s+='<div class="rmember"><b>'+m.name+'</b><span>'+(m.role||'')+'</span>'
+        +(m.slug?' <a class="rlink" href="../people/'+m.slug+'/">📖</a>':'')+'</div>';
+    });
+    s+='</div>';
+  });
+  s+='</div>';
+  if(r.tensions&&r.tensions.length){
+    s+='<div class="rtensions">';
+    r.tensions.forEach(t=>{ s+='<div class="rtension"><div class="rvs">⚔️ '+t.a+' ↔ '+t.b+'</div><div>'+T(t.label)+'</div></div>'; });
+    s+='</div>';
+  }
+  return s+'</div>';
+}
+// 블록 registry + 섹션별 순서(order) — 데이터로 흐름 제어. order 없으면 DEFAULT(하위호환).
+function renderBlocks(s){
+  const B={
+    hook:()=>'<p class="hook">'+T(s.hook)+'</p>'+(s.quote?quoteBlock(s.quote):''),
+    why:()=>'<h2 class="block">왜 중요할까</h2><div class="why">'+s.why+'</div>',
+    lens:()=>s.lens?lensBlock(s.lens):'',
+    voice:()=>s.voice?voiceHTML(s.voice):'',
+    cards:()=>'<h2 class="block">핵심 따라가기</h2><div class="cards">'
+      +s.cards.map(c=>'<div class="card"><span class="yr">'+c.yr+'</span><h3>'+c.h+'</h3><p>'+T(c.p)+'</p></div>').join('')+'</div>'
+      +(s.quote2?quoteBlock(s.quote2):''),
+    people:()=>s.people?'<h2 class="block">꼭 알아야 할 인물</h2><div class="people">'+s.people.map(personBlock).join('')+'</div>':'',
+    map:()=>s.map?mapHTML(s.map,s.id):'',
+    image:(i)=>{ const arr=Array.isArray(s.image); const im=arr?s.image[i||0]:s.image; const sid=(arr&&i!=null)?s.id+'_'+i:s.id; return im?imageHTML(im,sid):''; },
+    oldmap:()=>s.oldmap?oldmapHTML(s.oldmap,s.id):'',
+    chart:(i)=>{ const arr=Array.isArray(s.chart); const c=arr?s.chart[i||0]:s.chart; return c?chartHTML(c,(arr&&i!=null)?s.id+'_'+i:s.id):''; },
+    compare:()=>s.compare?compareHTML(s.compare,s.id):'',
+    relations:()=>s.relations?relationsHTML(s.relations,s.id):'',
+    marchmap:()=>s.marchmap?marchmapHTML(s.marchmap,s.id):'',
+    battlemap:(i)=>{ const bm=(s.battlemaps||[])[i]; return bm?battlemapHTML(bm,s.id,i):''; },
+    timeline:()=>'<h2 class="block">한눈에 보는 흐름</h2><div class="timeline">'
+      +s.timeline.map(t=>'<div class="tl"><span class="tl-yr">'+t.yr+'</span> <span class="tl-txt">'+t.t+'</span></div>').join('')+'</div>',
+    connect:()=>'<h2 class="block">이야기 연결 고리</h2><div class="connect"><span class="ico">🔗</span><div>'+s.connect+'</div></div>',
+    yt:()=>'<h2 class="block">영상으로 보기</h2>'+s.yt.map(ytBlock).join(''),
+    movies:()=>s.movies?'<h2 class="block">영화로 만나기 🎬</h2><div class="movies">'+s.movies.map(movieBlock).join('')+'</div>':'',
+    choice:()=>s.choice?choiceHTML(s.choice,s.id):'',
+    quiz:()=>s.quiz?quizHTML(s.quiz,s.id):'',
+    deepdive:()=>s.deepdive?deepdiveHTML(s.deepdive):'',
+    reflect:()=>'<h2 class="block">내 생각 적어보기 ✍️</h2><div class="reflect">'
+      +s.reflect.map((q,i)=>'<div class="q">'+q+'</div><textarea data-key="'+s.id+'_'+i+'" placeholder="여기에 자유롭게 적어보세요. 자동으로 저장돼요."></textarea><div class="saved" id="saved_'+s.id+'_'+i+'"></div>').join('')+'</div>'
+  };
+  const DEFAULT=['hook','why','lens','voice','cards','people','map','image','oldmap','chart','compare','relations','marchmap','battlemap*','timeline','connect','yt','movies','choice','quiz','deepdive','reflect'];
+  const order=(s.order&&s.order.length)?s.order:DEFAULT;
+  let html='';
+  order.forEach(tok=>{
+    if(tok.charAt(tok.length-1)==='*'){
+      const name=tok.slice(0,-1);
+      let arr=[];
+      if(name==='battlemap') arr=s.battlemaps||[];
+      else if(Array.isArray(s[name])) arr=s[name];
+      else if(s[name]) arr=[s[name]];
+      arr.forEach((_,i)=>{ if(B[name]) html+=B[name](i); });
+      return;
+    }
+    const p=tok.split(':'), name=p[0], idx=p.length>1?+p[1]:null;
+    if(B[name]) html+=B[name](idx);
+  });
+  return html;
+}
+function render(s,idx){
+  const prev=SECTIONS[idx-1], next=SECTIONS[idx+1];
+  view.innerHTML=
+  '<div class="hero" style="background:linear-gradient(135deg,var(--navy) 0%, '+s.accent+' 100%)">'
+  +'<div class="kicker">'+s.kicker+'</div><h1>'+s.title+'</h1><div class="era">⏳ '+s.era+'</div>'
+  +'<svg class="motif" viewBox="0 0 210 210">'+(MOTIF[s.motif]||'')+'</svg></div>'
+  +'<div class="wrap">'
+  +renderBlocks(s)
+  +'<div class="pager">'
+  +(prev?'<a class="prev" data-id="'+prev.id+'"><div class="pg-label">← 이전</div><div class="pg-title">'+prev.label+'</div></a>':'<a class="prev" data-id="home"><div class="pg-label">← 홈</div><div class="pg-title">이야기 시작</div></a>')
+  +(next?'<a class="next" data-id="'+next.id+'"><div class="pg-label">다음 →</div><div class="pg-title">'+next.label+'</div></a>':'<a class="next" data-id="home"><div class="pg-label">이야기 끝 →</div><div class="pg-title">홈으로</div></a>')
+  +'</div></div>';
+  view.querySelectorAll('.pager a[data-id]').forEach(a=>a.addEventListener('click',()=>go(a.dataset.id)));
+  view.querySelectorAll('textarea[data-key]').forEach(ta=>{
+    const k=META.slug+'_m_'+ta.dataset.key; ta.value=localStorage.getItem(k)||''; let timer;
+    ta.addEventListener('input',()=>{ localStorage.setItem(k,ta.value); const tag=document.getElementById('saved_'+ta.dataset.key); tag.textContent='저장됨 ✓'; clearTimeout(timer); timer=setTimeout(()=>tag.textContent='',1300); });
+  });
+  if(s.quiz){ view.querySelectorAll('.quizq').forEach(qd=>{
+    const qi=+qd.dataset.qi, q=s.quiz[qi];
+    qd.querySelectorAll('.quiz-opt').forEach(btn=>btn.addEventListener('click',()=>{
+      if(qd.classList.contains('done')) return; qd.classList.add('done');
+      const oi=+btn.dataset.oi;
+      qd.querySelectorAll('.quiz-opt').forEach((b,i)=>{ if(i===q.answer) b.classList.add('correct'); if(i===oi&&oi!==q.answer) b.classList.add('wrong'); b.disabled=true; });
+      const exp=document.getElementById('qexp_'+s.id+'_'+qi);
+      exp.innerHTML=(oi===q.answer?'<b>맞았어요! ✓</b> ':'<b>아쉬워요, 다시 볼까요?</b> ')+(q.explain||'');
+      exp.classList.add('show');
+    }));
+  }); }
+  if(s.map && window.L){
+    const mel=document.getElementById('lmap_'+s.id);
+    currentMap=L.map(mel,{scrollWheelZoom:false}).setView(s.map.center, s.map.zoom);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(currentMap);
+    if(s.map.line) L.polyline(s.map.line,{color:'#b5546a',weight:3,dashArray:'6 6'}).addTo(currentMap);
+    (s.map.markers||[]).forEach(mk=>L.circleMarker([mk.lat,mk.lng],{radius:9,color:'#fff',weight:2,fillColor:'#B5546A',fillOpacity:1}).addTo(currentMap).bindPopup('<b>'+mk.label+'</b><br>'+mk.desc));
+    setTimeout(()=>{ if(currentMap) currentMap.invalidateSize(); },200);
+  }
+  if(s.image && s.image.hotspots && s.image.hotspots.length){
+    const info=document.getElementById('hsinfo_'+s.id);
+    view.querySelectorAll('#imgbox_'+s.id+' .hsdot').forEach(d=>d.addEventListener('click',()=>{
+      const h=s.image.hotspots[+d.dataset.hi]; info.innerHTML='<b>'+h.label+'</b> '+(h.desc||''); info.classList.add('show');
+    }));
+  }
+  if(s.compare){
+    const c=s.compare, panel=document.getElementById('cmppanel_'+s.id);
+    const tabs=view.querySelectorAll('#cmp_'+s.id+' .cmptab');
+    const fill=(i)=>{ const st=c.states[i]; panel.innerHTML='<div class="cmh">'+st.title+'</div><div class="cmb">'+T(st.body)+'</div>'
+      +(st.img?'<img src="'+st.img+'" alt="'+(st.alt||'')+'" loading="lazy">':'')+(st.caption?'<div class="cmpcap">'+st.caption+'</div>':'');
+      tabs.forEach((b,bi)=>b.classList.toggle('active',bi===i)); };
+    tabs.forEach(b=>b.addEventListener('click',()=>fill(+b.dataset.ci)));
+    fill(0);
+  }
+  if(s.choice){
+    const af=document.getElementById('chafter_'+s.id);
+    view.querySelectorAll('#ch_'+s.id+' .chopt').forEach(b=>b.addEventListener('click',()=>{
+      document.getElementById('chres_'+s.id+'_'+b.dataset.oi).classList.add('show');
+      b.classList.add('picked'); if(af) af.classList.add('show');
+    }));
+  }
+  if(s.marchmap){
+    const mm=document.getElementById('mm_'+s.id), n=+mm.dataset.n, lab=document.getElementById('mmlab_'+s.id);
+    const prev=mm.querySelector('.mm-prev'), next=mm.querySelector('.mm-next'), phases=s.marchmap.phases||[];
+    const upd=()=>{ const cur=+mm.dataset.ph;
+      mm.querySelectorAll('.mm-place,.mm-arrow,.mm-alab').forEach(el=>el.classList.toggle('on',+el.dataset.ph<=cur));
+      lab.textContent=phases[cur]?phases[cur].label:''; prev.disabled=cur<=0; next.disabled=cur>=n-1; };
+    prev.addEventListener('click',()=>{ mm.dataset.ph=Math.max(0,+mm.dataset.ph-1); upd(); });
+    next.addEventListener('click',()=>{ mm.dataset.ph=Math.min(n-1,+mm.dataset.ph+1); upd(); });
+    upd();
+  }
+  (s.battlemaps||[]).forEach((bm,idx)=>{
+    const id='bm_'+s.id+'_'+idx;
+    try{
+      const map=L.map(id+'_map',{scrollWheelZoom:false}).setView(bm.center||[37,127],bm.zoom||6);
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:14,attribution:'© OpenStreetMap'}).addTo(map);
+      bmaps.push(map);
+      const KIND={start:'🚩',battle:'⚔️',win:'✔️',loss:'✖️',capital:'🏯',city:'•',sea:'⚓'};
+      const ic=(e)=>L.divIcon({className:'bm-ic',html:'<div>'+e+'</div>',iconSize:[26,26],iconAnchor:[13,13]});
+      const phases=bm.phases||[], layers=phases.map(()=>[]);
+      phases.forEach((ph,i)=>{
+        (ph.markers||[]).forEach(m=>layers[i].push(L.marker(m.at,{icon:ic(KIND[m.kind]||'•')}).bindTooltip(m.label,{permanent:true,direction:'top',offset:[0,-10],className:'bm-tt'})));
+        (ph.arrows||[]).forEach(a=>layers[i].push(L.polyline.antPath(a.path,{color:a.tone==='invade'?'#B5546A':'#2E7D4F',weight:4,delay:1000,dashArray:[10,22],pulseColor:'#fff'})));
+      });
+      const lab=document.getElementById(id+'_lab'), prev=document.querySelector('#'+id+' .bm-prev'), next=document.querySelector('#'+id+' .bm-next'), n=phases.length;
+      let cur=0;
+      const lowAt=(c)=>{ let r=0; for(let i=1;i<=c;i++){ if(phases[i]&&phases[i].reset) r=i; } return r; };
+      const upd=()=>{ const lo=lowAt(cur);
+        layers.forEach((grp,i)=>grp.forEach(l=> (i>=lo&&i<=cur)?l.addTo(map):map.removeLayer(l)));
+        lab.textContent=phases[cur]?phases[cur].label:''; prev.disabled=cur<=0; next.disabled=cur>=n-1;
+        if(bm.fit){ const pts=[]; for(let i=lo;i<=cur;i++) layers[i].forEach(l=>{ if(l.getLatLng) pts.push(l.getLatLng()); });
+          if(pts.length>=2) map.fitBounds(L.latLngBounds(pts).pad(0.4)); else if(pts.length===1) map.setView(pts[0], map.getZoom()); } };
+      next.onclick=()=>{cur=Math.min(n-1,cur+1);upd();}; prev.onclick=()=>{cur=Math.max(0,cur-1);upd();};
+      upd(); setTimeout(()=>map.invalidateSize(),200);
+    }catch(e){ console.error('battlemap',e); }
+  });
+  markVisited(s.id); setActive(s.id); window.scrollTo(0,0);
+}
+
+function renderNotes(){
+  const body=SECTIONS.map(s=>{
+    const items=s.reflect.map((q,i)=>{ const v=(localStorage.getItem(META.slug+'_m_'+s.id+'_'+i)||'').trim();
+      return '<div class="note-q">'+q+'</div><div class="note-a'+(v?'':' empty')+'">'+(v?v.replace(/</g,'&lt;'):'(아직 적지 않았어요)')+'</div>'; }).join('');
+    return '<div class="note-sec"><div class="note-sh">'+s.num+' · '+s.label+'</div>'+items+'</div>';
+  }).join('');
+  view.innerHTML='<div class="home-hero"><h1>📝 내 메모 모아보기</h1><div class="hsub">'+META.brand.title+' — 내가 적은 생각들</div></div>'
+    +'<div class="home-wrap"><div class="note-actions noprint">'
+    +'<button class="btn primary" id="notePrint">🖨️ 인쇄 / PDF 저장</button>'
+    +'<button class="btn" id="noteCopy" style="background:#fff;border:1px solid var(--line);color:var(--navy)">📋 전체 복사</button></div>'
+    +'<div class="notes-view" id="notesView">'+body+'</div></div>';
+  document.getElementById('notePrint').addEventListener('click',()=>window.print());
+  document.getElementById('noteCopy').addEventListener('click',()=>{ const t=document.getElementById('notesView').innerText;
+    if(navigator.clipboard){ navigator.clipboard.writeText(t); const b=document.getElementById('noteCopy'); b.textContent='복사됨 ✓'; setTimeout(()=>b.textContent='📋 전체 복사',1500); } });
+  setActive('notes'); window.scrollTo(0,0); progress.style.width='0%';
+}
+
+function setActive(id){
+  navList.querySelectorAll('a').forEach(a=>{ a.classList.toggle('active', a.dataset.id===id); if(a.dataset.id && a.dataset.id!=='home' && visited(a.dataset.id)) a.classList.add('visited'); });
+}
+function go(id){ killMap(); if(id==='home'){ renderHome(); location.hash='home'; return; }
+  if(id==='notes'){ renderNotes(); location.hash='notes'; return; } const idx=SECTIONS.findIndex(s=>s.id===id); if(idx<0) return; render(SECTIONS[idx],idx); location.hash=id; }
+function openSide(){ sidebar.classList.add('open'); scrim.classList.add('show'); }
+function closeSide(){ sidebar.classList.remove('open'); scrim.classList.remove('show'); }
+document.getElementById('hamb').addEventListener('click',openSide);
+document.getElementById('brandHome').addEventListener('click',()=>{ go('home'); closeSide(); });
+scrim.addEventListener('click',closeSide);
+window.addEventListener('scroll',()=>{ const h=document.documentElement.scrollHeight-window.innerHeight; progress.style.width=(h>0?(window.scrollY/h*100):0)+'%'; });
+const tip=document.getElementById('tip');
+function showTip(e,t){ tip.textContent=TERMS[t.dataset.term]||''; tip.style.display='block'; moveTip(e); }
+document.addEventListener('mouseover',e=>{ const t=e.target.closest('.term'); if(t) showTip(e,t); });
+document.addEventListener('mousemove',e=>{ if(tip.style.display==='block') moveTip(e); });
+document.addEventListener('mouseout',e=>{ if(e.target.closest('.term')) tip.style.display='none'; });
+document.addEventListener('click',e=>{ const t=e.target.closest('.term'); if(t){ showTip(e,t); setTimeout(()=>tip.style.display='none',2800); } });
+function moveTip(e){ tip.style.left=Math.min(e.clientX+14,window.innerWidth-278)+'px'; tip.style.top=Math.min(e.clientY+16,window.innerHeight-92)+'px'; }
+
+head(); buildNav();
+const start=location.hash.replace('#','');
+if(start==='notes') renderNotes();
+else if(start && SECTIONS.some(s=>s.id===start)) go(start);
+else renderHome();
+</script>
+</body>
+</html>
