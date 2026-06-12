@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>나폴레옹 — 인물 도감</title>
 <meta name="description" content="혁명이 낳은 황제 — 한 손에 법전, 한 손에 왕관">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
   :root{--rose:#C98B8B;--rose-soft:#E8C8C5;--navy:#33406B;--cream:#FBF7F2;--paper:#FFFFFF;--ink:#2E2A28;--muted:#857B74;--line:#EBE0D5;--accent:#B5546A;--gold:#C49A4A;--shadow-sm:0 2px 10px rgba(51,64,107,.06);--shadow:0 6px 22px rgba(51,64,107,.09);}
   *{box-sizing:border-box;margin:0;padding:0;}
@@ -31,6 +32,29 @@
   .pcard .pone{font-size:12.5px;color:var(--muted);margin-top:2px;}
   .pcard .pmeta{font-size:11.5px;color:var(--accent);margin-top:5px;font-weight:700;}
   .pcard .parrow{margin-left:auto;color:var(--rose);font-size:18px;align-self:center;}
+  .pcard .pinfo{min-width:0;}
+  /* ---- 색인 도구막대(검색·정렬·보기) ---- */
+  .toolbar{position:sticky;top:0;z-index:5;background:var(--cream);padding:12px 0 14px;margin-bottom:6px;border-bottom:1px solid var(--line);}
+  .search{width:100%;font-size:15px;font-family:inherit;border:1.5px solid var(--line);border-radius:12px;padding:12px 15px;background:#fff;color:var(--ink);}
+  .search:focus{outline:none;border-color:var(--accent);}
+  .ctrls{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:10px;}
+  .ctrls .lbl{font-size:12px;color:var(--muted);font-weight:700;}
+  .ctrls select{font-family:inherit;font-size:13px;border:1px solid var(--line);border-radius:9px;padding:7px 10px;background:#fff;color:var(--navy);font-weight:700;}
+  .ctrls .vbtn{font-family:inherit;font-size:13px;font-weight:700;color:var(--navy);background:#fff;border:1px solid var(--line);border-radius:9px;padding:7px 13px;cursor:pointer;}
+  .ctrls .vbtn:hover{border-color:var(--accent);}
+  .rescount{margin-left:auto;font-size:12.5px;color:var(--accent);font-weight:800;}
+  .nohit{grid-column:1/-1;text-align:center;color:var(--muted);font-size:14px;padding:30px 0;}
+  /* ---- 색인 리스트(카드/목록 보기) ---- */
+  .plist{display:grid;gap:14px;}
+  @media(min-width:640px){.plist{grid-template-columns:1fr 1fr;}}
+  .plist .eph{grid-column:1/-1;}
+  .plist.compact{grid-template-columns:1fr;gap:7px;}
+  .plist.compact .eph{margin:18px 0 7px;}
+  .plist.compact .pcard{padding:8px 13px;gap:11px;}
+  .plist.compact .ph{flex-basis:40px;width:40px;height:40px;border-radius:9px;}
+  .plist.compact .pname{font-size:15px;}
+  .plist.compact .pone{display:none;}
+  .plist.compact .pmeta{margin-top:1px;}
   /* ---- 상세 ---- */
   .portrait{text-align:center;margin:4px 0 20px;}
   .portrait img{max-width:260px;width:60%;border-radius:14px;border:1px solid var(--line);box-shadow:var(--shadow);}
@@ -130,6 +154,7 @@
 <div class="panel bio"><h2>생애</h2><p>코르시카의 시골 귀족 아들로, 혁명이 신분의 천장을 부수자 재능 하나로 26세에 장군이 됐어요 — &#x27;기회의 평등&#x27;이 풀어놓은 에너지의 가장 극적인 증명이죠. 1799년 쿠데타로 권력을 잡고 1804년 스스로 황제관을 썼어요.</p><p>안으로는 나폴레옹 법전(법 앞의 평등·재산권·신앙의 자유)으로 혁명을 제도화했고, 은행·학교(리세)·행정 체계까지 — 오늘날 프랑스의 골격 상당 부분이 그의 설계예요. 밖으로는 정복 전쟁으로 그 법전을 유럽에 퍼뜨렸고, 의도치 않게 각지의 민족주의를 깨웠죠(독일 통일 → 에피소드 03!).</p><p>그림자 — 쿠데타와 검열, 식민지 노예제 부활(아이티 원정 — 그리고 패배!), 수백만 명이 죽은 전쟁들. 러시아의 겨울(1812)에 제국이 꺾이고 워털루(1815) 후 세인트헬레나섬에서 생을 마쳤어요. &#x27;내 진짜 영광은 전승이 아니라 민법전&#x27;이라던 그의 예언은 적중했죠 — 제국은 10년, 법전은 200년을 넘게 살고 있으니까요.</p></div>
 <div class="panel"><h2>남긴 말</h2><div class="quotes"><div class="quote"><div class="qt">“나의 진정한 영광은 마흔 번의 전투 승리가 아니다. 워털루가 그 모든 기억을 지웠으니까. 무엇도 지우지 못할 것은 나의 민법전이다.”</div><div class="qc">유배지 세인트헬레나에서 자신의 일생을 되돌아보며 한 말로 전해짐 · 출처: 세인트헬레나 회고(라스 카즈 기록, 전언)</div></div><div class="quote"><div class="qt">“역사란 사람들이 합의한 하나의 우화일 뿐이다.”</div><div class="qc">역사 서술의 자의성에 대해 남겼다고 전해지는 경구 · 출처: 나폴레옹의 말로 전해지나 원출처는 논쟁(전언)</div></div></div></div>
 <div class="panel"><h2>연표</h2><ul class="tl"><li><span class="yr">1769</span>코르시카에서 출생</li><li><span class="yr">1799</span>브뤼메르 쿠데타</li><li><span class="yr">1804</span>법전 공포 · 황제 즉위</li><li><span class="yr">1812</span>러시아 원정 — 파국</li><li><span class="yr">1815</span>워털루 — 세인트헬레나 유배</li><li><span class="yr">1821</span>사망</li></ul></div>
+<div class="panel"><h2>생애의 길 — 코르시카에서 세인트헬레나까지 🗺️</h2><div class="jintro">변방 섬의 소년이 유럽을 제패하고 외딴섬에서 스러지기까지. 번호를 차례로 눌러 보세요.</div><div class="jmap" id="jmap"></div><div class="jcap">현재 지도 위 경로예요. 지도가 이렇게까지 넓어지는 인물은 드물어요 — 그가 흔든 세계의 크기이자, 마지막 점(세인트헬레나)이 얼마나 멀고 외로운 곳인지도 함께 보여 줘요.</div></div>
 <div class="panel"><div class="shadow"><span class="lbl">빛과 그림자</span>해방자이자 정복자, 혁명의 전파자이자 배신자 — 이 도감에서 &#x27;빛과 그림자&#x27; 연습의 종합 문제 같은 인물이에요. 유럽 각국에서 그에 대한 평가가 지금도 갈리는 이유죠.</div></div>
 <div class="panel"><h2>더 깊이 (고등·일반)</h2><details class="ddv"><summary>나폴레옹 법전 — 칼보다 오래 남은 것</summary><div class="ddb">1804년의 나폴레옹 법전(프랑스 민법전)은 그의 가장 오래가는 유산이에요. 신분이 아니라 법 앞의 평등, 계약의 자유, 사유재산 보호, 종교의 자유를 한 권에 명문화했죠. 이 법전은 그가 정복한 유럽 곳곳에 이식됐고, 이후 라틴아메리카·중동·동아시아의 민법에까지 영향을 줬어요. 한국 민법의 뿌리를 거슬러 올라가도 이 흐름이 닿아요. &#x27;혁명의 이념을 일상의 규칙으로 굳힌 책&#x27;이라는 점에서, 전쟁보다 이 법전이 그를 더 멀리 데려갔어요.<div class="dds">참고: 나폴레옹 법전(프랑스 민법전) 영향 일반</div></div></details><details class="ddv"><summary>해방자인가 정복자인가 — 유럽의 두 기억</summary><div class="ddb">나폴레옹이 진군한 곳에서는 봉건적 특권과 농노제가 무너지고 법 앞의 평등이 들어왔어요. 그래서 어떤 지역은 그를 &#x27;구체제를 부순 해방자&#x27;로 기억하죠. 동시에 그의 군대는 점령지에서 막대한 세금과 징병, 약탈을 강요했고, 이는 도리어 각 나라의 &#x27;민족주의&#x27;를 깨웠어요(특히 독일·스페인). 같은 군대가 누군가에겐 해방, 누군가에겐 점령이었던 것 — 제국주의 에피소드의 &#x27;문명화 사명&#x27; 논쟁과도 닮은 양가성이에요.<div class="dds">참고: 나폴레옹 점령의 양가적 평가 일반</div></div></details><details class="ddv"><summary>스스로 관을 쓴 황제 — 혁명의 자기 부정?</summary><div class="ddb">1804년 대관식에서 나폴레옹은 교황이 지켜보는 가운데 스스로 황제관을 머리에 얹었어요. 왕을 처형하고 시작한 혁명이 다시 황제를 세운 이 장면은, 혁명의 자기 배신처럼 읽혀요. 그를 흠모하던 베토벤이 교향곡 〈영웅〉의 헌정을 철회했다는 일화도 여기서 나오죠. 하지만 그는 혁명의 &#x27;능력주의&#x27;와 법 개혁을 황제정 안에 담아 유지하려 했어요 — 단순한 복고가 아니라 &#x27;혁명의 성과를 한 사람이 독점한&#x27; 복잡한 사건이에요.<div class="dds">참고: 나폴레옹 대관식·평가 일반</div></div></details><details class="ddv"><summary>노예제를 되살린 손 — 아이티의 비극</summary><div class="ddb">혁명기 프랑스는 1794년 식민지 노예제를 폐지했었어요. 그런데 나폴레옹은 1802년 이를 뒤집어 노예제를 다시 도입하려 했고, 카리브해 생도맹그(아이티)에 대군을 보냈어요. 이 전쟁에서 흑인 지도자 투생 루베르튀르가 속아 붙잡혀 프랑스 감옥에서 죽지만, 결국 아이티는 독립을 쟁취하죠(도감의 투생 페이지). &#x27;자유·평등&#x27;을 법전에 새긴 그가 다른 손으로 노예제를 되살리려 했다는 것 — 나폴레옹의 가장 어두운 그림자예요.<div class="dds">참고: 1802 노예제 재도입·아이티 혁명 일반</div></div></details><details class="ddv"><summary>세인트헬레나 — 신화를 직접 만든 유배</summary><div class="ddb">워털루 패전 뒤 나폴레옹은 대서양 외딴섬 세인트헬레나에 유배돼 그곳에서 죽었어요. 그는 마지막 몇 년 동안 측근에게 회고를 받아 적게 하며, 자신을 &#x27;혁명의 수호자이자 평화를 원했던 사람&#x27;으로 그리는 이야기를 정성껏 빚었죠. 오늘날 우리가 아는 &#x27;낭만적 영웅 나폴레옹&#x27;의 상당 부분이 이 자기 연출의 산물이에요. (그의 사인을 두고 위암설과 비소 중독설이 오래 논쟁됐다는 점도 이 섬의 미스터리고요.)<div class="dds">참고: 세인트헬레나 회고록·사인 논쟁 일반</div></div></details></div>
 <div class="panel"><h2>사람의 그물 — 함께 읽을 인물</h2><div class="net"><a href="../toussaint/index.html">투생 루베르튀르 <span class="rel-l">노예제 재도입으로 맞부딪친 두 혁명</span></a><a href="../robespierre/index.html">로베스피에르 <span class="rel-l">혁명을 이어받고 또 갈아 치운 자리</span></a><a href="../bolivar/index.html">시몬 볼리바르 <span class="rel-l">그가 흔든 시대가 연 라틴아메리카 독립</span></a></div></div>
@@ -146,5 +171,20 @@
    ta.addEventListener('input',function(){try{localStorage.setItem(k,ta.value);}catch(e){}
      tag.textContent='저장됨 ✓';clearTimeout(t);t=setTimeout(function(){tag.textContent='';},1300);});})();
   </script>
-</body>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function(){var J={"h": "생애의 길 — 코르시카에서 세인트헬레나까지 🗺️", "intro": "변방 섬의 소년이 유럽을 제패하고 외딴섬에서 스러지기까지. 번호를 차례로 눌러 보세요.", "markers": [{"at": [41.93, 8.74], "kind": "start", "label": "코르시카 아작시오 (1769)", "desc": "변방 섬의 가난한 귀족 가문에서 출생"}, {"at": [48.86, 2.35], "kind": "capital", "label": "파리", "desc": "포병 장교에서 혁명의 군인으로 — 권력의 중심"}, {"at": [30.04, 31.24], "kind": "battle", "label": "이집트 원정 (1798)", "desc": "동방의 꿈 — 피라미드 전투, 그러나 함대는 침몰"}, {"at": [49.13, 16.76], "kind": "win", "label": "아우스터리츠 (1805)", "desc": "최고의 승리 — 유럽 제패의 정점"}, {"at": [55.76, 37.62], "kind": "loss", "label": "모스크바 (1812)", "desc": "불타는 도시와 겨울 — 대육군이 무너진 곳"}, {"at": [50.68, 4.41], "kind": "loss", "label": "워털루 (1815)", "desc": "마지막 패배 — 백일천하의 끝"}, {"at": [-15.96, -5.71], "kind": "loss", "label": "세인트헬레나 (1815~21)", "desc": "대서양 외딴섬 유배 — 회고록을 쓰며 죽다"}], "path": [[41.93, 8.74], [48.86, 2.35], [30.04, 31.24], [49.13, 16.76], [55.76, 37.62], [50.68, 4.41], [-15.96, -5.71]], "caption": "현재 지도 위 경로예요. 지도가 이렇게까지 넓어지는 인물은 드물어요 — 그가 흔든 세계의 크기이자, 마지막 점(세인트헬레나)이 얼마나 멀고 외로운 곳인지도 함께 보여 줘요."};var el=document.getElementById('jmap');if(!el||!window.L)return;
+var map=L.map('jmap',{scrollWheelZoom:false});
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap'}).addTo(map);
+var KIND={start:'🚩',city:'•',battle:'⚔️',win:'✔️',loss:'✖️',capital:'🏛️'};
+var pts=[];
+(J.markers||[]).forEach(function(m,i){
+  pts.push(m.at);
+  var ic=L.divIcon({className:'',html:'<div style="font-size:17px;text-shadow:0 1px 3px #fff,0 0 5px #fff">'+(KIND[m.kind]||'•')+'</div>',iconSize:[22,22],iconAnchor:[11,11]});
+  L.marker(m.at,{icon:ic}).addTo(map).bindPopup('<b>'+(i+1)+'. '+m.label+'</b>'+(m.desc?'<br>'+m.desc:''));
+});
+if(J.path){L.polyline(J.path,{color:'#B5546A',weight:3,opacity:.75,dashArray:'7 7'}).addTo(map);}
+if(pts.length){map.fitBounds(L.latLngBounds(pts).pad(0.18));}
+})();
+</script></body>
 </html>

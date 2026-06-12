@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>조지 워싱턴 — 인물 도감</title>
 <meta name="description" content="독립군 총사령관 · 초대 대통령 · 권력을 스스로 내려놓은 사람">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
   :root{--rose:#C98B8B;--rose-soft:#E8C8C5;--navy:#33406B;--cream:#FBF7F2;--paper:#FFFFFF;--ink:#2E2A28;--muted:#857B74;--line:#EBE0D5;--accent:#B5546A;--gold:#C49A4A;--shadow-sm:0 2px 10px rgba(51,64,107,.06);--shadow:0 6px 22px rgba(51,64,107,.09);}
   *{box-sizing:border-box;margin:0;padding:0;}
@@ -31,6 +32,29 @@
   .pcard .pone{font-size:12.5px;color:var(--muted);margin-top:2px;}
   .pcard .pmeta{font-size:11.5px;color:var(--accent);margin-top:5px;font-weight:700;}
   .pcard .parrow{margin-left:auto;color:var(--rose);font-size:18px;align-self:center;}
+  .pcard .pinfo{min-width:0;}
+  /* ---- 색인 도구막대(검색·정렬·보기) ---- */
+  .toolbar{position:sticky;top:0;z-index:5;background:var(--cream);padding:12px 0 14px;margin-bottom:6px;border-bottom:1px solid var(--line);}
+  .search{width:100%;font-size:15px;font-family:inherit;border:1.5px solid var(--line);border-radius:12px;padding:12px 15px;background:#fff;color:var(--ink);}
+  .search:focus{outline:none;border-color:var(--accent);}
+  .ctrls{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:10px;}
+  .ctrls .lbl{font-size:12px;color:var(--muted);font-weight:700;}
+  .ctrls select{font-family:inherit;font-size:13px;border:1px solid var(--line);border-radius:9px;padding:7px 10px;background:#fff;color:var(--navy);font-weight:700;}
+  .ctrls .vbtn{font-family:inherit;font-size:13px;font-weight:700;color:var(--navy);background:#fff;border:1px solid var(--line);border-radius:9px;padding:7px 13px;cursor:pointer;}
+  .ctrls .vbtn:hover{border-color:var(--accent);}
+  .rescount{margin-left:auto;font-size:12.5px;color:var(--accent);font-weight:800;}
+  .nohit{grid-column:1/-1;text-align:center;color:var(--muted);font-size:14px;padding:30px 0;}
+  /* ---- 색인 리스트(카드/목록 보기) ---- */
+  .plist{display:grid;gap:14px;}
+  @media(min-width:640px){.plist{grid-template-columns:1fr 1fr;}}
+  .plist .eph{grid-column:1/-1;}
+  .plist.compact{grid-template-columns:1fr;gap:7px;}
+  .plist.compact .eph{margin:18px 0 7px;}
+  .plist.compact .pcard{padding:8px 13px;gap:11px;}
+  .plist.compact .ph{flex-basis:40px;width:40px;height:40px;border-radius:9px;}
+  .plist.compact .pname{font-size:15px;}
+  .plist.compact .pone{display:none;}
+  .plist.compact .pmeta{margin-top:1px;}
   /* ---- 상세 ---- */
   .portrait{text-align:center;margin:4px 0 20px;}
   .portrait img{max-width:260px;width:60%;border-radius:14px;border:1px solid var(--line);box-shadow:var(--shadow);}
@@ -130,6 +154,7 @@
 <div class="panel bio"><h2>생애</h2><p>버지니아의 측량사·농장주 출신으로, 독립전쟁에서 13개 식민지 연합군 총사령관을 맡았어요. 8년의 열세 속에서 군대를 지켜 내며(밸리포지의 겨울) 요크타운의 승리까지 — 신생국의 구심점 그 자체였죠.</p><p>1789년 만장일치로 초대 대통령에 뽑혔고, 두 번의 임기를 마친 뒤 권력을 스스로 내려놓았어요. 전쟁 영웅이 왕이 되던 역사의 공식을 깬 이 선례가 &#x27;대통령제&#x27;라는 실험을 진짜로 만들었다는 평가를 받아요.</p><p>동시에 그는 평생 수백 명의 노예를 부린 대농장주였어요. 유언으로 자기 몫 노예의 해방을 지시했지만, 살아서는 도망친 노예를 끈질기게 추적했죠. 미국이라는 나라의 모순 — 자유의 선언과 노예제 — 이 그 한 사람 안에 그대로 들어 있어요.</p></div>
 <div class="panel"><h2>남긴 말</h2><div class="quotes"><div class="quote"><div class="qt">“외국과의 영구적인 동맹은 멀리하는 것이 우리의 참된 길입니다.”</div><div class="qc">세 번째 임기를 거절하고 물러나며 국민에게 남긴 고별사의 핵심 조언 · 출처: 워싱턴 고별사 1796 (요지·번역)</div></div><div class="quote"><div class="qt">“나는 이제 큰 무대를 떠나 여러분께 작별을 고합니다.”</div><div class="qc">독립전쟁 승리 직후, 군 통수권을 의회에 반납하며 — 왕이 될 수도 있었던 자리에서 · 출처: 대륙군 사령관직 사임 연설 1783 (번역)</div></div></div></div>
 <div class="panel"><h2>연표</h2><ul class="tl"><li><span class="yr">1732</span>출생 (버지니아)</li><li><span class="yr">1775</span>대륙군 총사령관 임명</li><li><span class="yr">1781</span>요크타운 승리</li><li><span class="yr">1789</span>초대 대통령 취임</li><li><span class="yr">1797</span>두 임기 후 스스로 퇴임 — 선례를 만들다</li><li><span class="yr">1799</span>사망</li></ul></div>
+<div class="panel"><h2>생애의 길 — 마운트버넌과 독립전쟁 🗺️</h2><div class="jintro">농장주에서 총사령관, 그리고 스스로 물러난 대통령까지. 번호를 차례로 눌러 보세요.</div><div class="jmap" id="jmap"></div><div class="jcap">현재 지도 위 경로예요. 가장 큰 권력을 쥔 자리에서 다시 농장으로 돌아간 사람 — 마지막 화살표가 다시 집을 향했다는 게 이 인물의 핵심이에요.</div></div>
 <div class="panel"><div class="shadow"><span class="lbl">빛과 그림자</span>권력을 내려놓아 민주주의의 전통을 만든 사람 — 그리고 노예의 노동 위에서 살았던 사람. 한 인물의 빛과 그림자를 함께 들 수 있는지가, 이 도감 전체의 연습 문제예요.</div></div>
 <div class="panel"><h2>더 깊이 (고등·일반)</h2><details class="ddv"><summary>권력을 내려놓은 사람 — 신화와 사실</summary><div class="ddb">독립전쟁에서 이긴 워싱턴은 마음만 먹으면 왕이나 종신 통치자가 될 수도 있었어요. 그런데 그는 1783년 군 통수권을 의회에 반납하고 고향으로 돌아갔고, 대통령이 된 뒤에도 두 번의 임기만 마치고 스스로 물러났죠. 사람들은 그를 권력을 내려놓고 농장으로 돌아간 로마의 킨키나투스에 비유했어요. 미국 대통령의 &#x27;두 임기 관행&#x27;은 헌법이 아니라 워싱턴의 이 선택에서 시작됐고, 150년 뒤 수정헌법 제22조로 법이 됐어요.<div class="dds">참고: 워싱턴의 권력 이양·임기 관행 일반</div></div></details><details class="ddv"><summary>자유의 아버지가 노예를 소유했다는 모순</summary><div class="ddb">워싱턴은 평생 수백 명의 노예를 거느린 대농장주였어요. &#x27;모든 사람은 평등하게 창조되었다&#x27;는 나라를 세운 사람이 말이죠. 말년에 그는 생각을 바꿔, 유언으로 &#x27;내 노예를 (아내가 죽은 뒤) 해방하라&#x27;고 명시했어요 — 건국 세대 주요 인물 중 노예를 법적으로 해방한 드문 경우예요. 다만 아내 쪽 소유의 노예는 풀어 줄 수 없었죠. 위대함과 위선이 한 사람 안에 공존한다는 것, 이 도감의 &#x27;빛과 그림자&#x27;가 가장 분명히 드러나는 지점이에요.<div class="dds">참고: 워싱턴과 노예제·유언 일반</div></div></details><details class="ddv"><summary>대통령직을 &#x27;발명&#x27;하다 — 선례가 곧 헌법</summary><div class="ddb">워싱턴은 세계 최초의 근대적 대통령이었어요. 참고할 전례가 하나도 없었다는 뜻이죠. 그래서 그의 사소한 행동 하나하나가 곧 제도가 됐어요 — &#x27;폐하&#x27; 같은 왕족 호칭을 거부하고 그냥 &#x27;미스터 프레지던트&#x27;로 불리게 한 것, 장관들을 모아 내각을 운영한 것, 임기를 스스로 제한한 것까지. 그는 &#x27;무엇을 하는가&#x27;만큼이나 &#x27;무엇을 하지 않는가&#x27;로 대통령이라는 자리의 품격을 설계했어요.<div class="dds">참고: 초대 대통령직 선례 형성 일반</div></div></details><details class="ddv"><summary>고별사와 미국의 &#x27;얽히지 않기&#x27; 전통</summary><div class="ddb">물러나며 남긴 고별사에서 워싱턴은 두 가지를 경고했어요 — 정파 싸움(당파)과 외국과의 영구 동맹. 특히 &#x27;유럽의 분쟁에 휘말리지 말라&#x27;는 조언은 이후 100년 넘게 미국 외교의 기본 정서(고립주의)가 됐죠. 두 차례 세계대전과 냉전을 거치며 미국이 결국 세계에 깊이 개입하게 되는 것과 견줘 보면, 건국의 아버지가 그어 둔 선이 얼마나 오래, 또 얼마나 변형되며 살아남았는지 보여요.<div class="dds">참고: 워싱턴 고별사와 미 외교 전통 일반</div></div></details><details class="ddv"><summary>벚나무를 베지 않았다 — 신화 vs 인간</summary><div class="ddb">&#x27;어린 워싱턴이 벚나무를 베고 거짓말을 하지 않았다&#x27;는 일화는 사실 그가 죽은 뒤 한 전기 작가가 지어낸 이야기예요. 정직의 화신이라는 이미지 자체가 &#x27;만들어진 신화&#x27;였던 셈이죠. 실제 워싱턴은 야심 있고 자존심 강하며 때로 패전을 거듭한 사령관이기도 했어요. 신화를 걷어내고 보면, 결점 있는 인간이 &#x27;자리에 맞게&#x27; 자신을 다스리려 애쓴 이야기가 더 인상적이에요.<div class="dds">참고: 워싱턴 일화의 허구성(M. L. Weems) 일반</div></div></details></div>
 <div class="panel"><h2>사람의 그물 — 함께 읽을 인물</h2><div class="net"><a href="../bolivar/index.html">시몬 볼리바르 <span class="rel-l">떠난 자와 남은 자 (인물 이야기)</span></a><a href="../lincoln/index.html">에이브러햄 링컨 <span class="rel-l">나라를 세운 자와 그 약속을 지킨 자</span></a><a href="../toussaint/index.html">투생 루베르튀르 <span class="rel-l">같은 시대, 노예가 일으킨 또 하나의 혁명</span></a></div></div>
@@ -146,5 +171,20 @@
    ta.addEventListener('input',function(){try{localStorage.setItem(k,ta.value);}catch(e){}
      tag.textContent='저장됨 ✓';clearTimeout(t);t=setTimeout(function(){tag.textContent='';},1300);});})();
   </script>
-</body>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function(){var J={"h": "생애의 길 — 마운트버넌과 독립전쟁 🗺️", "intro": "농장주에서 총사령관, 그리고 스스로 물러난 대통령까지. 번호를 차례로 눌러 보세요.", "markers": [{"at": [38.19, -76.93], "kind": "start", "label": "버지니아 (1732)", "desc": "포프스크리크 농장에서 출생"}, {"at": [38.71, -77.09], "kind": "capital", "label": "마운트버넌", "desc": "그의 농장 저택 — 노예가 일하던 곳이자, 늘 돌아온 집"}, {"at": [40.22, -74.76], "kind": "battle", "label": "트렌턴 (1776)", "desc": "한겨울 델라웨어강 도강 기습 — 꺼져 가던 독립의 불씨를 살림"}, {"at": [40.1, -75.46], "kind": "loss", "label": "밸리포지 (1777~78)", "desc": "혹한과 굶주림 속 버틴 겨울 — 군대가 단련된 곳"}, {"at": [37.24, -76.51], "kind": "win", "label": "요크타운 (1781)", "desc": "영국군 항복 — 독립 확정"}, {"at": [40.71, -74.01], "kind": "city", "label": "뉴욕 (1789)", "desc": "초대 대통령 취임(임시 수도) — 두 임기 뒤 스스로 마운트버넌으로 귀향"}], "path": [[38.19, -76.93], [38.71, -77.09], [40.22, -74.76], [40.1, -75.46], [37.24, -76.51], [40.71, -74.01]], "caption": "현재 지도 위 경로예요. 가장 큰 권력을 쥔 자리에서 다시 농장으로 돌아간 사람 — 마지막 화살표가 다시 집을 향했다는 게 이 인물의 핵심이에요."};var el=document.getElementById('jmap');if(!el||!window.L)return;
+var map=L.map('jmap',{scrollWheelZoom:false});
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap'}).addTo(map);
+var KIND={start:'🚩',city:'•',battle:'⚔️',win:'✔️',loss:'✖️',capital:'🏛️'};
+var pts=[];
+(J.markers||[]).forEach(function(m,i){
+  pts.push(m.at);
+  var ic=L.divIcon({className:'',html:'<div style="font-size:17px;text-shadow:0 1px 3px #fff,0 0 5px #fff">'+(KIND[m.kind]||'•')+'</div>',iconSize:[22,22],iconAnchor:[11,11]});
+  L.marker(m.at,{icon:ic}).addTo(map).bindPopup('<b>'+(i+1)+'. '+m.label+'</b>'+(m.desc?'<br>'+m.desc:''));
+});
+if(J.path){L.polyline(J.path,{color:'#B5546A',weight:3,opacity:.75,dashArray:'7 7'}).addTo(map);}
+if(pts.length){map.fitBounds(L.latLngBounds(pts).pad(0.18));}
+})();
+</script></body>
 </html>

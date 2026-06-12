@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>안네 프랑크 — 인물 도감</title>
 <meta name="description" content="『안네의 일기』를 남긴 유대인 소녀">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
   :root{--rose:#C98B8B;--rose-soft:#E8C8C5;--navy:#33406B;--cream:#FBF7F2;--paper:#FFFFFF;--ink:#2E2A28;--muted:#857B74;--line:#EBE0D5;--accent:#B5546A;--gold:#C49A4A;--shadow-sm:0 2px 10px rgba(51,64,107,.06);--shadow:0 6px 22px rgba(51,64,107,.09);}
   *{box-sizing:border-box;margin:0;padding:0;}
@@ -31,6 +32,29 @@
   .pcard .pone{font-size:12.5px;color:var(--muted);margin-top:2px;}
   .pcard .pmeta{font-size:11.5px;color:var(--accent);margin-top:5px;font-weight:700;}
   .pcard .parrow{margin-left:auto;color:var(--rose);font-size:18px;align-self:center;}
+  .pcard .pinfo{min-width:0;}
+  /* ---- 색인 도구막대(검색·정렬·보기) ---- */
+  .toolbar{position:sticky;top:0;z-index:5;background:var(--cream);padding:12px 0 14px;margin-bottom:6px;border-bottom:1px solid var(--line);}
+  .search{width:100%;font-size:15px;font-family:inherit;border:1.5px solid var(--line);border-radius:12px;padding:12px 15px;background:#fff;color:var(--ink);}
+  .search:focus{outline:none;border-color:var(--accent);}
+  .ctrls{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:10px;}
+  .ctrls .lbl{font-size:12px;color:var(--muted);font-weight:700;}
+  .ctrls select{font-family:inherit;font-size:13px;border:1px solid var(--line);border-radius:9px;padding:7px 10px;background:#fff;color:var(--navy);font-weight:700;}
+  .ctrls .vbtn{font-family:inherit;font-size:13px;font-weight:700;color:var(--navy);background:#fff;border:1px solid var(--line);border-radius:9px;padding:7px 13px;cursor:pointer;}
+  .ctrls .vbtn:hover{border-color:var(--accent);}
+  .rescount{margin-left:auto;font-size:12.5px;color:var(--accent);font-weight:800;}
+  .nohit{grid-column:1/-1;text-align:center;color:var(--muted);font-size:14px;padding:30px 0;}
+  /* ---- 색인 리스트(카드/목록 보기) ---- */
+  .plist{display:grid;gap:14px;}
+  @media(min-width:640px){.plist{grid-template-columns:1fr 1fr;}}
+  .plist .eph{grid-column:1/-1;}
+  .plist.compact{grid-template-columns:1fr;gap:7px;}
+  .plist.compact .eph{margin:18px 0 7px;}
+  .plist.compact .pcard{padding:8px 13px;gap:11px;}
+  .plist.compact .ph{flex-basis:40px;width:40px;height:40px;border-radius:9px;}
+  .plist.compact .pname{font-size:15px;}
+  .plist.compact .pone{display:none;}
+  .plist.compact .pmeta{margin-top:1px;}
   /* ---- 상세 ---- */
   .portrait{text-align:center;margin:4px 0 20px;}
   .portrait img{max-width:260px;width:60%;border-radius:14px;border:1px solid var(--line);box-shadow:var(--shadow);}
@@ -130,6 +154,7 @@
 <div class="panel bio"><h2>생애</h2><p>1929년 독일 프랑크푸르트의 유대인 가정에서 태어났어요. 나치의 박해를 피해 가족과 함께 네덜란드 암스테르담으로 옮겨 갔지요.</p><p>1942년부터 약 2년간, 아버지 회사 건물 뒤편의 &#x27;은신처(Achterhuis)&#x27;에 여덟 명이 숨어 지냈어요. 안네는 열세 번째 생일에 받은 일기장에 &#x27;Kitty&#x27;라는 이름을 붙여, 두려움과 희망, 자라나는 마음을 편지처럼 써 내려갔어요.</p><p>1944년 8월 은신처가 발각되어 수용소로 끌려갔고, 1945년 초 베르겐-벨젠 수용소에서 언니 마르고와 함께 병으로 짧은 생을 마쳤어요(발진티푸스로 추정). 가족 중 홀로 살아남은 아버지 오토가 딸의 일기를 세상에 펴냈답니다.</p></div>
 <div class="panel"><h2>남긴 말</h2><div class="quotes"><div class="quote"><div class="qt">“그래도 나는 여전히, 사람들의 마음은 근본적으로 선하다고 믿어요.”</div><div class="qc">은신처가 발각되기 약 3주 전, 절망과 희망 사이에서 쓴 대목 · 출처: 『안네의 일기』 1944.7.15 (번역)</div></div><div class="quote"><div class="qt">“종이는 사람보다 참을성이 많다.”</div><div class="qc">마음을 털어놓을 친구가 없어 일기에 &#x27;Kitty&#x27;라는 이름을 붙이며 · 출처: 『안네의 일기』 1942.6 (번역)</div></div><div class="quote"><div class="qt">“나는 죽은 뒤에도 계속 살아가고 싶어요.”</div><div class="qc">작가·기자가 되고 싶다는 꿈을 적으며 — 글로 영원히 남기를 · 출처: 『안네의 일기』 1944.4.5 (번역)</div></div></div></div>
 <div class="panel"><h2>연표</h2><ul class="tl"><li><span class="yr">1929</span>독일 프랑크푸르트에서 출생</li><li><span class="yr">1942.7</span>암스테르담 은신처 생활 시작</li><li><span class="yr">1944.8</span>은신처 발각·체포</li><li><span class="yr">1945 초</span>베르겐-벨젠 수용소에서 사망(15세)</li><li><span class="yr">1947</span>아버지 오토가 『안네의 일기』 출간</li></ul></div>
+<div class="panel"><h2>생애의 길 — 프랑크푸르트에서 베르겐-벨젠까지 🗺️</h2><div class="jintro">평범한 소녀가 어떻게 수용소까지 끌려갔는지, 지도 위 번호를 차례로 눌러 보세요. 화살표가 어디로 향하는지가 이 지도의 슬픔이에요.</div><div class="jmap" id="jmap"></div><div class="jcap">현재 지도 위에 표시한 경로예요(당시 국경과 달라요). 집에서 시작해 수용소로 이어지는 화살표 — 그 길이 곧 600만 명의 길이었어요.</div></div>
 <div class="panel"><div class="shadow"><span class="lbl">빛과 그림자</span>한 소녀의 일기가 전쟁의 비극을 &#x27;한 사람의 마음&#x27;으로 온 세상에 전했어요. 그 뒤에는 이름조차 남기지 못한 수많은 희생이 있었다는 것도 함께 기억해야 해요.</div></div>
 <div class="panel"><h2>더 깊이 (고등·일반)</h2><details class="ddv"><summary>한 권의 일기가 어떻게 &#x27;세계의 책&#x27;이 되었나</summary><div class="ddb">지금 우리가 읽는 『안네의 일기』는 사실 세 겹의 글이에요. 처음 쓴 일기(판본 A), 안네 스스로 출간을 꿈꾸며 고쳐 쓴 원고(판본 B), 그리고 아버지 오토가 두 판본을 추려 1947년에 펴낸 책(판본 C)이죠. 오토는 딸의 사춘기·성(性)에 관한 솔직한 대목과 어머니에 대한 날 선 표현 일부를 덜어냈는데, 1986년 네덜란드 국립전쟁문서연구소(NIOD)가 모든 판본을 함께 실은 &#x27;비평판&#x27;을 내면서 안네의 원래 목소리가 온전히 복원됐어요. 편집이 곧 검열이었나, 아버지의 보호였나 — 지금도 논의되는 질문이에요.<div class="dds">참고: 안네 프랑크 일기 비평판(NIOD, 1986) 관련 연구 일반</div></div></details><details class="ddv"><summary>필적과 잉크가 증명한 진실 — 부정론과의 법정 싸움</summary><div class="ddb">홀로코스트를 부정하는 사람들은 일기가 위조라고 끈질기게 공격했어요. 이에 맞서 NIOD는 종이·잉크·접착제·필적을 과학적으로 감정했고, 1940년대에 구할 수 있던 재료와 안네의 필적임을 확인했죠. 비평판 자체가 그 감정 보고서였어요. 한 소녀의 사적인 일기가, 역사를 부정하려는 시도 앞에서 가장 단단한 증거가 된 거예요.<div class="dds">참고: NIOD 필적·재료 감정(1986) 일반</div></div></details><details class="ddv"><summary>누가 밀고했나 — 80년째 닫히지 않은 사건</summary><div class="ddb">1944년 8월 4일, 은신처는 누군가의 제보로 발각됐어요. 범인이 누구였는지는 끝내 밝혀지지 않았죠. 2022년 전직 FBI 수사관이 이끈 &#x27;콜드케이스&#x27; 팀이 한 유대인 공증인을 지목해 화제가 됐지만, 역사학자들은 증거가 정황뿐이고 한 사람에게 누명을 씌울 위험이 크다며 강하게 반박했어요. 누가 밀고했느냐는 질문이 자칫 &#x27;피해자들 사이의 책임 떠넘기기&#x27;가 될 수 있다는 점 — 이 사건이 다루기 어려운 이유예요.<div class="dds">참고: 은신처 밀고 가설(2022)과 학계 반론 일반</div></div></details><details class="ddv"><summary>&#x27;희망의 소녀&#x27;라는 기억의 그늘</summary><div class="ddb">안네는 흔히 &#x27;그래도 사람을 믿는다&#x27;는 한 문장으로 기억돼요. 하지만 그 문장을 쓴 소녀는 그 직후 체포돼 아우슈비츠를 거쳐 베르겐-벨젠 수용소에서 열다섯에 죽었어요. 비평가들은 안네를 &#x27;보편적 희망의 아이콘&#x27;으로만 소비하면, 그녀가 &#x27;유대인이기 때문에&#x27; 죽임당했다는 홀로코스트의 구체성이 흐려진다고 지적해요. 희망으로 기억하되, 그 희망이 끝내 짓밟힌 현실까지 함께 기억하는 것 — 이 도감의 &#x27;빛과 그림자&#x27; 원칙이에요.<div class="dds">참고: 안네 프랑크 수용(reception) 비평 일반</div></div></details><details class="ddv"><summary>일기 너머의 안네 — 작가가 되려던 열다섯</summary><div class="ddb">안네는 일기 말고도 단편·우화·은신처 일화를 모은 글(『은신처 이야기』)을 따로 썼고, 전쟁이 끝나면 &#x27;은신처&#x27;라는 제목의 책을 내겠다는 구체적 계획까지 세웠어요. 즉 우리가 읽는 일기는 우연히 남은 사적 기록이 아니라, 작가가 되려던 한 사람이 의식적으로 다듬던 작품이기도 해요. 그녀를 &#x27;피해자&#x27;로만 보지 않고 &#x27;재능 있는 어린 작가&#x27;로 볼 때, 잃어버린 것의 크기가 더 또렷해져요.<div class="dds">참고: 안네의 창작 원고(Tales from the Secret Annex) 일반</div></div></details></div>
 <div class="panel"><h2>사람의 그물 — 함께 읽을 인물</h2><div class="net"><a href="../sadako-sasaki/index.html">사다코 사사키 <span class="rel-l">전쟁의 양 끝에 선 두 소녀 (인물 이야기)</span></a><a href="../wladyslaw-szpilman/index.html">블라디스와프 슈필만 <span class="rel-l">같은 점령 유럽에서 숨어 살아남은 사람</span></a><a href="../oskar-schindler/index.html">오스카어 신들러 <span class="rel-l">같은 홀로코스트, 구한 자의 자리</span></a></div></div>
@@ -146,5 +171,20 @@
    ta.addEventListener('input',function(){try{localStorage.setItem(k,ta.value);}catch(e){}
      tag.textContent='저장됨 ✓';clearTimeout(t);t=setTimeout(function(){tag.textContent='';},1300);});})();
   </script>
-</body>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function(){var J={"h": "생애의 길 — 프랑크푸르트에서 베르겐-벨젠까지 🗺️", "intro": "평범한 소녀가 어떻게 수용소까지 끌려갔는지, 지도 위 번호를 차례로 눌러 보세요. 화살표가 어디로 향하는지가 이 지도의 슬픔이에요.", "markers": [{"at": [50.11, 8.68], "kind": "start", "label": "프랑크푸르트 (1929)", "desc": "독일 유대인 가정에서 출생"}, {"at": [52.37, 4.9], "kind": "city", "label": "암스테르담 (1934)", "desc": "나치 박해를 피해 가족과 이주"}, {"at": [52.375, 4.884], "kind": "capital", "label": "은신처 (1942~44)", "desc": "프린선흐라흐트 263 — 여덟 명이 2년간 숨어, 안네가 일기를 씀"}, {"at": [52.92, 6.6], "kind": "loss", "label": "베스터르보르크 (1944.8)", "desc": "은신처 발각 직후 끌려간 통과수용소"}, {"at": [50.03, 19.18], "kind": "loss", "label": "아우슈비츠 (1944.9)", "desc": "마지막 이송 열차 — 어머니·언니와 갈라짐"}, {"at": [52.76, 9.91], "kind": "loss", "label": "베르겐-벨젠 (1945 초)", "desc": "언니 마르고와 함께, 해방 두 달 전 병으로 떠남(15세)"}], "path": [[50.11, 8.68], [52.37, 4.9], [52.375, 4.884], [52.92, 6.6], [50.03, 19.18], [52.76, 9.91]], "caption": "현재 지도 위에 표시한 경로예요(당시 국경과 달라요). 집에서 시작해 수용소로 이어지는 화살표 — 그 길이 곧 600만 명의 길이었어요."};var el=document.getElementById('jmap');if(!el||!window.L)return;
+var map=L.map('jmap',{scrollWheelZoom:false});
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap'}).addTo(map);
+var KIND={start:'🚩',city:'•',battle:'⚔️',win:'✔️',loss:'✖️',capital:'🏛️'};
+var pts=[];
+(J.markers||[]).forEach(function(m,i){
+  pts.push(m.at);
+  var ic=L.divIcon({className:'',html:'<div style="font-size:17px;text-shadow:0 1px 3px #fff,0 0 5px #fff">'+(KIND[m.kind]||'•')+'</div>',iconSize:[22,22],iconAnchor:[11,11]});
+  L.marker(m.at,{icon:ic}).addTo(map).bindPopup('<b>'+(i+1)+'. '+m.label+'</b>'+(m.desc?'<br>'+m.desc:''));
+});
+if(J.path){L.polyline(J.path,{color:'#B5546A',weight:3,opacity:.75,dashArray:'7 7'}).addTo(map);}
+if(pts.length){map.fitBounds(L.latLngBounds(pts).pad(0.18));}
+})();
+</script></body>
 </html>

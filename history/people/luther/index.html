@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>마르틴 루터 — 인물 도감</title>
 <meta name="description" content="95개조로 천 년의 교회에 질문을 던진 수도사 — 종교개혁의 문을 연 사람">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
   :root{--rose:#C98B8B;--rose-soft:#E8C8C5;--navy:#33406B;--cream:#FBF7F2;--paper:#FFFFFF;--ink:#2E2A28;--muted:#857B74;--line:#EBE0D5;--accent:#B5546A;--gold:#C49A4A;--shadow-sm:0 2px 10px rgba(51,64,107,.06);--shadow:0 6px 22px rgba(51,64,107,.09);}
   *{box-sizing:border-box;margin:0;padding:0;}
@@ -31,6 +32,29 @@
   .pcard .pone{font-size:12.5px;color:var(--muted);margin-top:2px;}
   .pcard .pmeta{font-size:11.5px;color:var(--accent);margin-top:5px;font-weight:700;}
   .pcard .parrow{margin-left:auto;color:var(--rose);font-size:18px;align-self:center;}
+  .pcard .pinfo{min-width:0;}
+  /* ---- 색인 도구막대(검색·정렬·보기) ---- */
+  .toolbar{position:sticky;top:0;z-index:5;background:var(--cream);padding:12px 0 14px;margin-bottom:6px;border-bottom:1px solid var(--line);}
+  .search{width:100%;font-size:15px;font-family:inherit;border:1.5px solid var(--line);border-radius:12px;padding:12px 15px;background:#fff;color:var(--ink);}
+  .search:focus{outline:none;border-color:var(--accent);}
+  .ctrls{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:10px;}
+  .ctrls .lbl{font-size:12px;color:var(--muted);font-weight:700;}
+  .ctrls select{font-family:inherit;font-size:13px;border:1px solid var(--line);border-radius:9px;padding:7px 10px;background:#fff;color:var(--navy);font-weight:700;}
+  .ctrls .vbtn{font-family:inherit;font-size:13px;font-weight:700;color:var(--navy);background:#fff;border:1px solid var(--line);border-radius:9px;padding:7px 13px;cursor:pointer;}
+  .ctrls .vbtn:hover{border-color:var(--accent);}
+  .rescount{margin-left:auto;font-size:12.5px;color:var(--accent);font-weight:800;}
+  .nohit{grid-column:1/-1;text-align:center;color:var(--muted);font-size:14px;padding:30px 0;}
+  /* ---- 색인 리스트(카드/목록 보기) ---- */
+  .plist{display:grid;gap:14px;}
+  @media(min-width:640px){.plist{grid-template-columns:1fr 1fr;}}
+  .plist .eph{grid-column:1/-1;}
+  .plist.compact{grid-template-columns:1fr;gap:7px;}
+  .plist.compact .eph{margin:18px 0 7px;}
+  .plist.compact .pcard{padding:8px 13px;gap:11px;}
+  .plist.compact .ph{flex-basis:40px;width:40px;height:40px;border-radius:9px;}
+  .plist.compact .pname{font-size:15px;}
+  .plist.compact .pone{display:none;}
+  .plist.compact .pmeta{margin-top:1px;}
   /* ---- 상세 ---- */
   .portrait{text-align:center;margin:4px 0 20px;}
   .portrait img{max-width:260px;width:60%;border-radius:14px;border:1px solid var(--line);box-shadow:var(--shadow);}
@@ -130,6 +154,7 @@
 <div class="panel bio"><h2>생애</h2><p>광부의 아들로 태어나 법학도였다가, 벼락 속의 서원으로 수도사가 됐어요. 누구보다 진지한 수도사였죠 — &#x27;나는 죄인인데 어떻게 구원받는가&#x27;를 스스로에게 끝까지 물었고, &#x27;믿음으로&#x27;라는 답에 이르렀어요.</p><p>1517년 면벌부 판매를 비판하는 95개조를 내걸었고, 1521년 황제 앞에서 철회를 거부했어요 — &#x27;내 양심은 신의 말씀에 묶여 있습니다. 나는 달리 행동할 수 없습니다.&#x27; 숨어 지낸 바르트부르크 성에서 성서를 일상의 독일어로 옮겨, 누구나 직접 읽는 신앙과 표준 독일어의 길을 함께 열었죠.</p><p>그림자도 분명해요 — 농민전쟁(1524~25)에서 봉기한 농민이 아니라 제후들의 진압 편에 섰고, 말년에는 유대인에 대한 증오의 글을 남겨 400년 뒤 나치가 악용했어요(에피소드 01의 어두운 연결). 빛이 큰 만큼 그림자도 정면으로 봐야 하는 인물이에요.</p></div>
 <div class="panel"><h2>남긴 말</h2><div class="quotes"><div class="quote"><div class="qt">“내가 여기 서 있나이다. 나는 달리 어쩔 수 없습니다.”</div><div class="qc">보름스 제국의회에서 황제 앞에 서서, 자신의 주장을 철회하라는 요구를 거부하며 한 말로 널리 전해짐 · 출처: 보름스 제국의회 1521 (후대에 다듬어진 표현일 가능성 — 전언)</div></div><div class="quote"><div class="qt">“성경과 명백한 이성으로 내 잘못을 보여 주지 않는 한, 나는 철회할 수 없고 철회하지 않겠습니다.”</div><div class="qc">같은 보름스 의회에서, 양심의 근거를 밝힌 진술의 핵심 · 출처: 보름스 제국의회 진술 1521 (요지·번역)</div></div></div></div>
 <div class="panel"><h2>연표</h2><ul class="tl"><li><span class="yr">1483</span>아이슬레벤에서 출생</li><li><span class="yr">1517.10.31</span>95개조</li><li><span class="yr">1521</span>보름스 의회 — 철회 거부·파문</li><li><span class="yr">1522</span>독일어 신약성서</li><li><span class="yr">1546</span>사망</li></ul></div>
+<div class="panel"><h2>생애의 길 — 작은 도시들에서 시작된 개혁 🗺️</h2><div class="jintro">한 수도사의 양심이 어디서 천 년의 권위에 맞섰는지, 번호를 차례로 눌러 보세요.</div><div class="jmap" id="jmap"></div><div class="jcap">현재 지도 위 경로예요. 멀리 가지 않은 사람의 이야기예요 — 독일 가운데 작은 도시들에서 일어난 일이 인쇄술을 타고 온 유럽을 바꿨다는 게 놀라운 점이죠.</div></div>
 <div class="panel"><div class="shadow"><span class="lbl">빛과 그림자</span>&#x27;최고 권위에도 근거를 묻는다&#x27;는 선례와 &#x27;모두의 언어&#x27;를 남긴 빛 — 농민 진압 촉구와 반유대 저작이라는 그림자. 한 사람 안의 명암을 통째로 드는 연습 문제로, 이 도감에서 손꼽히는 인물이에요.</div></div>
 <div class="panel"><h2>더 깊이 (고등·일반)</h2><details class="ddv"><summary>95개조와 인쇄술 — 종교개혁이 &#x27;퍼진&#x27; 이유</summary><div class="ddb">1517년 루터가 비텐베르크 성당 문에 95개조 반박문을 붙였다는 이야기는 유명하죠(실제로 못으로 박았는지는 논쟁이 있어요). 더 중요한 건 그다음이에요 — 구텐베르크의 인쇄술 덕분에 그의 글이 몇 주 만에 독일 전역으로, 곧 유럽으로 번졌거든요. 과거였다면 한 수도사의 항의로 묻혔을 일이, 인쇄된 소책자가 되어 수만 부씩 팔리며 여론을 만들었어요. 종교개혁은 &#x27;루터의 생각 × 인쇄술&#x27;이라는 곱셈의 결과예요(도감의 구텐베르크 페이지와 이어 읽어 보세요).<div class="dds">참고: 종교개혁과 인쇄술의 관계 일반</div></div></details><details class="ddv"><summary>성경을 독일어로 — 언어와 민족을 빚다</summary><div class="ddb">바르트부르크 성에 숨어 지내며 루터는 신약성경을 독일어로 옮겼어요. 라틴어를 모르는 평범한 사람도 스스로 성경을 읽게 한 것 — 이는 &#x27;신과 나 사이에 사제가 꼭 있어야 하는가&#x27;라는 질문을 일상으로 끌어내렸죠. 동시에 그의 번역은 여러 갈래로 나뉘어 있던 독일어에 하나의 표준을 제공해, 근대 독일어와 독일인의 정체성 형성에까지 영향을 줬어요. 신앙의 개혁이 언어의 통일로 이어진 거예요.<div class="dds">참고: 루터 성경 번역과 독일어 표준화 일반</div></div></details><details class="ddv"><summary>농민전쟁과 루터의 배신</summary><div class="ddb">루터의 &#x27;그리스도인의 자유&#x27;에 고무된 독일 농민들이 1525년 봉기했을 때, 루터는 그들 편에 서지 않았어요. 오히려 『살인하고 약탈하는 농민 무리에 반대하여』라는 격한 글로 영주들에게 진압을 촉구했죠. 수만 명이 죽었어요. &#x27;양심의 자유&#x27;를 외친 그가 사회적 약자의 봉기에는 냉정했다는 것 — 종교개혁이 영적 해방이었지 사회 혁명은 아니었음을 보여 주는, 루터의 분명한 그림자예요.<div class="dds">참고: 독일 농민전쟁(1525)과 루터의 입장 일반</div></div></details><details class="ddv"><summary>루터의 반유대주의 — 후대에 악용된 그늘</summary><div class="ddb">정직하게 기억해야 할 어두운 면이 있어요. 말년의 루터는 유대인을 향한 격렬한 적대 저작(『유대인과 그들의 거짓말에 관하여』, 1543)을 남겼어요. 회당과 집을 불태우라는 끔찍한 선동까지 담겨 있었죠. 400년 뒤 나치는 이 글을 자신들의 반유대주의를 정당화하는 데 인용했어요. 위대한 개혁가의 글이 어떻게 후대의 증오에 도구로 쓰일 수 있는지 — 한 인물의 빛만 보아서는 안 되는 이유예요. (전후 루터교회들은 이 저작을 공식 거부했어요.)<div class="dds">참고: 루터의 반유대 저작과 후대 수용 일반</div></div></details><details class="ddv"><summary>만인사제설과 근대적 개인의 탄생</summary><div class="ddb">루터의 핵심 주장 중 하나가 &#x27;만인사제설&#x27; — 모든 신자가 사제이며, 신 앞에 직접 설 수 있다는 거예요. 사제 계급의 중재 없이 개인이 성경을 읽고 양심으로 판단한다는 이 생각은, 종교를 넘어 &#x27;권위에 스스로 묻는 개인&#x27;이라는 근대적 태도의 씨앗이 됐어요. 사회학자 막스 베버는 여기서 자라난 윤리가 근대 자본주의 정신과도 연결된다고 봤죠. 보름스에서 &#x27;내가 여기 섰다&#x27;고 한 한 사람의 양심이, 멀리 갈릴레이의 자리(개인 vs 권위)와도 이어져요.<div class="dds">참고: 만인사제설과 근대 개인주의 논의(M. Weber 등) 일반</div></div></details></div>
 <div class="panel"><h2>사람의 그물 — 함께 읽을 인물</h2><div class="net"><a href="../gutenberg/index.html">구텐베르크 <span class="rel-l">그의 항의를 들불로 만든 인쇄술</span></a><a href="../galilei/index.html">갈릴레이 <span class="rel-l">교회의 권위에 양심으로 맞선 또 하나의 자리</span></a></div></div>
@@ -146,5 +171,20 @@
    ta.addEventListener('input',function(){try{localStorage.setItem(k,ta.value);}catch(e){}
      tag.textContent='저장됨 ✓';clearTimeout(t);t=setTimeout(function(){tag.textContent='';},1300);});})();
   </script>
-</body>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function(){var J={"h": "생애의 길 — 작은 도시들에서 시작된 개혁 🗺️", "intro": "한 수도사의 양심이 어디서 천 년의 권위에 맞섰는지, 번호를 차례로 눌러 보세요.", "markers": [{"at": [51.53, 11.55], "kind": "start", "label": "아이슬레벤 (1483)", "desc": "광부의 아들로 출생 — 훗날 같은 도시에서 눈을 감음"}, {"at": [50.98, 11.03], "kind": "city", "label": "에르푸르트 (1505)", "desc": "벼락을 맞은 뒤 수도사가 되기로 결심한 대학·수도원 도시"}, {"at": [51.87, 12.65], "kind": "capital", "label": "비텐베르크 (1517)", "desc": "성당 문에 95개조 — 종교개혁의 진원지"}, {"at": [49.63, 8.36], "kind": "battle", "label": "보름스 (1521)", "desc": "황제 앞에서 '내가 여기 섰다' — 철회를 거부"}, {"at": [50.97, 10.31], "kind": "city", "label": "바르트부르크 성 (1521~22)", "desc": "쫓기며 숨어 성경을 독일어로 번역"}, {"at": [51.53, 11.55], "kind": "loss", "label": "아이슬레벤 (1546)", "desc": "태어난 도시에서 세상을 떠남"}], "path": [[51.53, 11.55], [50.98, 11.03], [51.87, 12.65], [49.63, 8.36], [50.97, 10.31], [51.53, 11.55]], "caption": "현재 지도 위 경로예요. 멀리 가지 않은 사람의 이야기예요 — 독일 가운데 작은 도시들에서 일어난 일이 인쇄술을 타고 온 유럽을 바꿨다는 게 놀라운 점이죠."};var el=document.getElementById('jmap');if(!el||!window.L)return;
+var map=L.map('jmap',{scrollWheelZoom:false});
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap'}).addTo(map);
+var KIND={start:'🚩',city:'•',battle:'⚔️',win:'✔️',loss:'✖️',capital:'🏛️'};
+var pts=[];
+(J.markers||[]).forEach(function(m,i){
+  pts.push(m.at);
+  var ic=L.divIcon({className:'',html:'<div style="font-size:17px;text-shadow:0 1px 3px #fff,0 0 5px #fff">'+(KIND[m.kind]||'•')+'</div>',iconSize:[22,22],iconAnchor:[11,11]});
+  L.marker(m.at,{icon:ic}).addTo(map).bindPopup('<b>'+(i+1)+'. '+m.label+'</b>'+(m.desc?'<br>'+m.desc:''));
+});
+if(J.path){L.polyline(J.path,{color:'#B5546A',weight:3,opacity:.75,dashArray:'7 7'}).addTo(map);}
+if(pts.length){map.fitBounds(L.latLngBounds(pts).pad(0.18));}
+})();
+</script></body>
 </html>
