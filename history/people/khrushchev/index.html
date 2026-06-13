@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>니키타 흐루쇼프 — 인물 도감</title>
+<meta name="description" content="스탈린의 공포정치를 폭로하고, 쿠바 위기에서 핵전쟁 직전 물러선 소련 지도자.">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  :root{--rose:#C98B8B;--rose-soft:#E8C8C5;--navy:#33406B;--cream:#FBF7F2;--paper:#FFFFFF;--ink:#2E2A28;--muted:#857B74;--line:#EBE0D5;--accent:#B5546A;--gold:#C49A4A;--shadow-sm:0 2px 10px rgba(51,64,107,.06);--shadow:0 6px 22px rgba(51,64,107,.09);}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:var(--cream);color:var(--ink);line-height:1.78;word-break:keep-all;-webkit-font-smoothing:antialiased;}
+  a{color:inherit;}
+  .hero{padding:50px 28px 38px;background:linear-gradient(140deg,var(--navy) 0%, #6a4a6e 100%);color:#fff;text-align:center;}
+  .hero h1{font-size:29px;font-weight:800;line-height:1.3;}
+  .hero .sub{font-size:14.5px;color:var(--rose-soft);margin-top:11px;}
+  .backrow{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:18px;}
+  .back{display:inline-block;color:#fff;font-size:12.5px;text-decoration:none;border:1px solid rgba(255,255,255,.3);border-radius:9px;padding:6px 13px;}
+  .back:hover{background:rgba(255,255,255,.12);}
+  .wrap{max-width:820px;margin:0 auto;padding:32px 22px 90px;}
+  .intro{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px 22px;box-shadow:var(--shadow-sm);font-size:15.5px;margin-bottom:6px;}
+  .intro b{color:var(--accent);}
+  .eph{font-size:14px;letter-spacing:.04em;color:var(--accent);font-weight:800;margin:34px 0 14px;text-transform:uppercase;display:flex;align-items:center;gap:9px;}
+  .eph::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent);}
+  /* ---- 색인 카드 ---- */
+  .people{display:grid;gap:14px;}
+  @media(min-width:640px){.people{grid-template-columns:1fr 1fr;}}
+  .pcard{display:flex;gap:14px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:15px;padding:14px 16px;box-shadow:var(--shadow-sm);text-decoration:none;color:inherit;transition:transform .12s,box-shadow .12s;}
+  .pcard:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
+  .pcard .ph{flex:0 0 62px;width:62px;height:62px;border-radius:12px;object-fit:cover;object-position:top center;background:linear-gradient(135deg,var(--rose),var(--accent));border:1px solid var(--line);}
+  .pcard .pname{font-size:16.5px;font-weight:800;color:var(--navy);}
+  .pcard .pone{font-size:12.5px;color:var(--muted);margin-top:2px;}
+  .pcard .pmeta{font-size:11.5px;color:var(--accent);margin-top:5px;font-weight:700;}
+  .pcard .parrow{margin-left:auto;color:var(--rose);font-size:18px;align-self:center;}
+  .pcard .pinfo{min-width:0;}
+  /* ---- 색인 도구막대(검색·정렬·보기) ---- */
+  .toolbar{position:sticky;top:0;z-index:5;background:var(--cream);padding:12px 0 14px;margin-bottom:6px;border-bottom:1px solid var(--line);}
+  .search{width:100%;font-size:15px;font-family:inherit;border:1.5px solid var(--line);border-radius:12px;padding:12px 15px;background:#fff;color:var(--ink);}
+  .search:focus{outline:none;border-color:var(--accent);}
+  .ctrls{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:10px;}
+  .ctrls .lbl{font-size:12px;color:var(--muted);font-weight:700;}
+  .ctrls select{font-family:inherit;font-size:13px;border:1px solid var(--line);border-radius:9px;padding:7px 10px;background:#fff;color:var(--navy);font-weight:700;}
+  .ctrls .vbtn{font-family:inherit;font-size:13px;font-weight:700;color:var(--navy);background:#fff;border:1px solid var(--line);border-radius:9px;padding:7px 13px;cursor:pointer;}
+  .ctrls .vbtn:hover{border-color:var(--accent);}
+  .rescount{margin-left:auto;font-size:12.5px;color:var(--accent);font-weight:800;}
+  .nohit{grid-column:1/-1;text-align:center;color:var(--muted);font-size:14px;padding:30px 0;}
+  /* ---- 색인 리스트(카드/목록 보기) ---- */
+  .plist{display:grid;gap:14px;}
+  @media(min-width:640px){.plist{grid-template-columns:1fr 1fr;}}
+  .plist .eph{grid-column:1/-1;}
+  .plist.compact{grid-template-columns:1fr;gap:7px;}
+  .plist.compact .eph{margin:18px 0 7px;}
+  .plist.compact .pcard{padding:8px 13px;gap:11px;}
+  .plist.compact .ph{flex-basis:40px;width:40px;height:40px;border-radius:9px;}
+  .plist.compact .pname{font-size:15px;}
+  .plist.compact .pone{display:none;}
+  .plist.compact .pmeta{margin-top:1px;}
+  /* ---- 패싯(지역·시대) 칩 ---- */
+  .facets{margin-top:10px;display:grid;gap:7px;}
+  .fbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+  .fbar .fl{font-size:11px;color:var(--muted);font-weight:800;flex:0 0 34px;letter-spacing:.02em;}
+  .chip{font-family:inherit;font-size:12.5px;font-weight:700;color:var(--navy);background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer;line-height:1.2;}
+  .chip:hover{border-color:var(--accent);}
+  .chip.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .chip .c{opacity:.55;font-weight:600;margin-left:5px;font-size:10.5px;}
+  .chip.on .c{opacity:.85;}
+  /* ---- 상세 ---- */
+  .portrait{text-align:center;margin:4px 0 20px;}
+  .portrait img{max-width:260px;width:60%;border-radius:14px;border:1px solid var(--line);box-shadow:var(--shadow);}
+  .portrait figcaption{font-size:11.5px;color:var(--muted);margin-top:9px;line-height:1.6;}
+  .portrait .note{display:block;color:var(--accent);margin-top:3px;}
+  .panel{background:#fff;border:1px solid var(--line);border-radius:15px;padding:18px 20px;box-shadow:var(--shadow-sm);margin-bottom:14px;}
+  .panel h2{font-size:14px;color:var(--accent);font-weight:800;margin-bottom:12px;letter-spacing:.02em;}
+  .names{display:grid;gap:7px;}
+  .names .row{display:flex;gap:10px;font-size:14.5px;align-items:baseline;}
+  .names .k{flex:0 0 96px;color:var(--muted);font-size:12.5px;font-weight:700;}
+  .names .v{font-weight:600;color:var(--ink);}
+  .names .v.big{font-size:18px;color:var(--navy);font-weight:800;}
+  .meta{font-size:13.5px;color:var(--muted);margin-bottom:14px;text-align:center;}
+  .meta b{color:var(--navy);}
+  .bio p{font-size:15.5px;margin-bottom:11px;}
+  .bio p:last-child{margin-bottom:0;}
+  .tl{list-style:none;border-left:2px solid var(--rose-soft);margin-left:6px;padding-left:16px;}
+  .tl li{position:relative;margin-bottom:12px;font-size:14.5px;}
+  .tl li::before{content:"";position:absolute;left:-22px;top:7px;width:9px;height:9px;border-radius:50%;background:var(--accent);}
+  .tl .yr{font-weight:800;color:var(--navy);margin-right:7px;}
+  .shadow{background:var(--cream);border-radius:11px;padding:13px 15px;font-size:14.5px;}
+  .shadow .lbl{font-weight:800;color:var(--gold);margin-right:6px;}
+  .rel{display:flex;flex-direction:column;gap:9px;}
+  .rel a{display:flex;align-items:center;gap:9px;background:var(--cream);border:1px solid var(--line);border-radius:10px;padding:11px 14px;text-decoration:none;font-size:14.5px;font-weight:700;color:var(--navy);}
+  .rel a:hover{border-color:var(--accent);}
+  .rel .ep{font-size:11px;color:var(--accent);font-weight:800;}
+  .rel .go{margin-left:auto;color:var(--rose);}
+  .links{display:flex;flex-direction:column;gap:9px;}
+  .links a{display:flex;align-items:center;gap:9px;text-decoration:none;font-size:14px;color:var(--navy);border:1px solid var(--line);border-radius:10px;padding:10px 13px;}
+  .links a:hover{border-color:var(--accent);background:#fff;}
+  .lang{flex:0 0 auto;font-size:10.5px;font-weight:800;letter-spacing:.03em;color:#fff;background:var(--navy);border-radius:6px;padding:2px 7px;}
+  .lang.official,.lang.encyclopedia{background:var(--accent);}
+  .links .ext{margin-left:auto;color:var(--muted);font-size:11px;}
+  /* ---- v3 패널 ---- */
+  .qcard{background:linear-gradient(135deg,#fff,#FBF4EC);border:1.5px solid var(--gold);border-radius:15px;padding:15px 18px;box-shadow:var(--shadow-sm);margin-bottom:14px;}
+  .qcard .qera{font-size:12px;color:var(--gold);font-weight:800;letter-spacing:.04em;}
+  .qcard .qkeys{display:flex;gap:7px;flex-wrap:wrap;margin:9px 0;}
+  .qcard .qkeys span{font-size:12.5px;font-weight:700;color:var(--navy);background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px 11px;}
+  .qcard .qq{font-size:14.5px;margin-top:4px;}
+  .qcard .qq b{color:var(--accent);}
+  .whyhere{border-left:4px solid var(--accent);padding:4px 0 4px 14px;font-size:15px;}
+  .quotes{display:grid;gap:12px;}
+  .quote{background:var(--cream);border-radius:11px;padding:13px 16px;}
+  .quote .qt{font-size:15.5px;font-weight:700;color:var(--navy);line-height:1.7;}
+  .quote .qc{font-size:12.5px;color:var(--muted);margin-top:7px;}
+  .ddv{border:1px solid var(--line);border-radius:11px;margin-bottom:9px;background:var(--cream);overflow:hidden;}
+  .ddv summary{cursor:pointer;padding:12px 15px;font-size:14.5px;font-weight:800;color:var(--navy);list-style:none;}
+  .ddv summary::before{content:"\25B8 ";color:var(--accent);}
+  .ddv[open] summary::before{content:"\25BE ";}
+  .ddv .ddb{padding:0 15px 13px;font-size:14.5px;}
+  .ddv .dds{font-size:11.5px;color:var(--muted);margin-top:7px;}
+  .net{display:flex;gap:9px;flex-wrap:wrap;}
+  .net a{display:inline-flex;align-items:center;gap:7px;background:var(--cream);border:1px solid var(--line);border-radius:999px;padding:7px 14px;text-decoration:none;font-size:13.5px;color:var(--navy);font-weight:700;}
+  .net a:hover{border-color:var(--accent);}
+  .net .rel-l{font-size:11px;color:var(--muted);font-weight:400;}
+  .study .sgrp{margin-bottom:12px;}
+  .study .sgh{font-size:12.5px;font-weight:800;color:var(--gold);margin-bottom:6px;}
+  .study ul{list-style:none;display:grid;gap:6px;}
+  .study li{font-size:14px;background:var(--cream);border-radius:9px;padding:9px 13px;}
+  .study li b{color:var(--navy);}
+  .study li .sn{display:block;font-size:12.5px;color:var(--muted);margin-top:2px;}
+  /* ---- v3.1: 시각자료 갤러리 + 경로 지도 ---- */
+  .gal{display:grid;gap:12px;grid-template-columns:1fr 1fr;}
+  @media(max-width:560px){.gal{grid-template-columns:1fr;}}
+  .gal figure{margin:0;background:var(--cream);border:1px solid var(--line);border-radius:12px;padding:10px;}
+  .gal img{width:100%;height:180px;object-fit:contain;display:block;cursor:zoom-in;background:#fff;border-radius:8px;}
+  .gal figcaption{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.6;}
+  .gal figcaption b{color:var(--navy);display:block;font-size:13px;}
+  .lightbox{position:fixed;inset:0;background:rgba(22,19,16,.93);display:none;align-items:center;justify-content:center;z-index:99;padding:16px;cursor:zoom-out;}
+  .lightbox.show{display:flex;}
+  .lightbox img{max-width:96vw;max-height:90vh;border-radius:8px;box-shadow:0 12px 44px rgba(0,0,0,.55);}
+  .lightbox .lb-cap{position:fixed;left:0;right:0;bottom:10px;text-align:center;color:#E8C8C5;font-size:12px;padding:0 22px;}
+  .jmap{height:380px;border-radius:12px;border:1px solid var(--line);}
+  .jintro{font-size:14.5px;margin-bottom:11px;}
+  .jcap{font-size:12px;color:var(--muted);margin-top:9px;}
+  .reflect label{display:block;font-size:14.5px;margin-bottom:9px;}
+  .reflect textarea{width:100%;min-height:96px;border:1px solid var(--line);border-radius:11px;padding:12px 14px;font-family:inherit;font-size:14.5px;line-height:1.7;resize:vertical;background:var(--cream);}
+  .reflect textarea:focus{outline:none;border-color:var(--accent);background:#fff;}
+  .saved{font-size:11.5px;color:var(--gold);font-weight:700;height:14px;margin-top:5px;}
+</style>
+</head>
+<body>
+  <div class="hero">
+    <h1>🧑 니키타 흐루쇼프</h1>
+    <div class="sub">스탈린의 공포정치를 폭로하고, 쿠바 위기에서 핵전쟁 직전 물러선 소련 지도자.</div>
+    <div class="backrow">
+      <a class="back" href="../index.html">← 인물 도감</a>
+      <a class="back" href="../../index.html">역사 허브</a>
+    </div>
+  </div>
+  <div class="wrap">
+<figure class="portrait"><img src="../img/khrushchev.jpg" alt="훈장을 단 니키타 흐루쇼프의 초상"><figcaption>출처: Wikimedia Commons — Stanley Tretick · 퍼블릭 도메인</figcaption></figure>
+<div class="qcard"><div class="qera">⏱️ 10초 카드 · 스탈린 이후의 소련 (1894~1971)</div><div class="qkeys"><span>스탈린 격하</span><span>평화 공존</span><span>쿠바 미사일 위기</span><span>우주 경쟁</span></div><div class="qq"><b>여는 질문</b> — 독재자를 비판한 사람도, 또 다른 억압을 저지를 수 있을까?</div></div>
+<div class="panel"><h2>이름</h2><div class="names"><div class="row"><span class="k">한국어</span><span class="v big">니키타 흐루쇼프</span></div><div class="row"><span class="k">원어</span><span class="v">Никита Хрущёв</span></div><div class="row"><span class="k">실제 발음</span><span class="v">니키타 흐루쇼프</span></div><div class="row"><span class="k">로마자</span><span class="v">Nikita Khrushchev</span></div><div class="row"><span class="k">영어권</span><span class="v">Nikita Khrushchev</span></div></div></div>
+<div class="meta"><b>소련</b> · 1894~1971</div>
+<div class="panel"><h2>왜 이 사람인가</h2><div class="whyhere">냉전의 소련 쪽 얼굴이에요. 스탈린을 비판해 &#x27;해빙&#x27;을 열었지만 헝가리를 짓밟은 모순, 쿠바에서 물러선 결단까지 — 냉전이 &#x27;단순한 선악 대결&#x27;이 아님을 보여 주는 입체적 인물이죠. (냉전 → 쿠바 섹션)</div></div>
+<div class="panel bio"><h2>생애</h2><p>가난한 광부의 아들로 태어나 스탈린 밑에서 출세했어요. 1953년 스탈린이 죽자 권력 다툼 끝에 소련의 최고 지도자가 됐죠. 그는 스탈린과는 다른 길을 가려 했어요.</p><p>1956년, 그는 비밀 연설에서 스탈린의 잔혹한 공포정치와 개인숭배를 정면으로 비판했어요(스탈린 격하). 공산권 전체가 흔들릴 만큼 충격적인 일이었죠. 서방과는 &#x27;평화 공존&#x27;을 내세웠지만, 같은 해 헝가리의 봉기는 탱크로 짓밟았어요.</p><p>1957년 스푸트니크로 우주 경쟁을 이끌었고, 1962년엔 쿠바에 미사일을 들였다가 핵전쟁 직전 철수했어요. 이 &#x27;도박&#x27;과 거듭된 농업 실패로 신뢰를 잃어, 1964년 동료들에게 권력에서 밀려났죠. 스탈린 시대와 달리, 실각한 그는 처형되지 않고 조용히 여생을 보냈어요 — 그것 자체가 그가 바꾼 변화였어요.</p></div>
+<div class="panel"><h2>자료로 보기 — 유묵·사진</h2><div class="gal"><figure><img src="../img/khrushchev_un.jpg" alt="유엔 회의장에 앉아 있는 흐루쇼프" loading="lazy"><figcaption><b>유엔 총회의 흐루쇼프 (1960)</b>1960년 유엔 총회의 흐루쇼프(가운데, &#x27;소비에트 연방&#x27; 명패 옆). 이 회의에서 그가 신발로 책상을 두드렸다는 유명한 일화가 전해져요.<span>출처: Wikimedia Commons — Warren K. Leffler, U.S. News &amp; World Report · 퍼블릭 도메인</span></figcaption></figure><figure><img src="../img/khrushchev_eisenhower.jpg" alt="리셉션에서 아이젠하워 부부와 담소하는 흐루쇼프 부부" loading="lazy"><figcaption><b>아이젠하워와 함께 (1959)</b>1959년 흐루쇼프(왼쪽)의 미국 방문. 미국 대통령 아이젠하워(오른쪽)와 만나 잠시 &#x27;해빙&#x27; 분위기가 돌았어요. 소련 지도자의 첫 미국 방문이었죠.<span>출처: Wikimedia Commons · 퍼블릭 도메인</span></figcaption></figure><figure><img src="../img/kennedy_vienna.jpg" alt="소파에 마주 앉은 흐루쇼프와 케네디" loading="lazy"><figcaption><b>케네디와의 비엔나 회담 (1961)</b>1961년 비엔나에서 젊은 케네디(오른쪽)와 마주한 노련한 흐루쇼프(왼쪽). 1년 뒤 두 사람은 쿠바에서 인류의 운명을 건 13일을 맞게 돼요.<span>출처: Wikimedia Commons — U.S. Dept. of State · 퍼블릭 도메인</span></figcaption></figure></div></div>
+<div class="panel"><h2>남긴 말</h2><div class="quotes"><div class="quote"><div class="qt">“우리가 당신들을 묻어 버리겠다. (We will bury you.)”</div><div class="qc">1956년 서방 외교관들 앞에서 한 말. &#x27;핵으로 멸망시키겠다&#x27;는 협박처럼 잘못 번역돼 공포를 키웠지만, 본뜻은 &#x27;너희 자본주의보다 우리 체제가 더 오래 살아남을 것&#x27;이라는 의미였어요. · 출처: 1956년 폴란드 대사관 연설 (번역 논쟁 있음)</div></div><div class="quote"><div class="qt">“스탈린은 &#x27;인민의 적&#x27;이라는 개념을 만들어, 자신과 다른 모든 이를 제거했습니다.”</div><div class="qc">1956년 스탈린 격하 비밀 연설의 일부. 전임자의 공포정치를 정면 비판했어요. · 출처: 제20차 당대회 비밀 연설 (1956)</div></div></div></div>
+<div class="panel"><h2>연표</h2><ul class="tl"><li><span class="yr">1894</span>러시아(현 우크라이나 인근) 광부 집안 출생</li><li><span class="yr">1953</span>스탈린 사후 권력 장악</li><li><span class="yr">1956</span>스탈린 격하 비밀 연설 · 헝가리 봉기 진압</li><li><span class="yr">1962</span>쿠바 미사일 위기 — 철수를 선택</li><li><span class="yr">1964</span>실각 (처형 없이 은퇴) · 1971 사망</li></ul></div>
+<div class="panel"><h2>광부의 아들에서 소련의 최고 지도자로</h2><div class="jintro">가난한 집안에서 출세해 스탈린의 뒤를 잇고, 세계를 핵전쟁 직전까지 몰았다가 조용히 물러난 길이에요.</div><div class="jmap" id="jmap"></div><div class="jcap">고향에서 크렘린까지, 그리고 유엔 무대를 거쳐 다시 크렘린에서 물러나기까지 — 실제 좌표 위에 표시했어요.</div></div>
+<div class="panel"><div class="shadow"><span class="lbl">빛과 그림자</span>스탈린의 공포정치를 깨고 &#x27;해빙&#x27;과 평화 공존을 시도한 점은 큰 진전이었어요. 실각자가 죽임당하지 않는 시대를 연 것도 그의 변화죠. 하지만 헝가리 봉기를 무력 진압했고, 쿠바에 미사일을 들인 위험한 도박을 벌였으며, 무리한 농업 정책으로 큰 실패를 남겼어요.</div></div>
+<div class="panel"><h2>더 깊이 (고등·일반)</h2><details class="ddv"><summary>스탈린 격하 비밀 연설 (1956)</summary><div class="ddb">흐루쇼프는 당 대회에서 스탈린의 대숙청·개인숭배를 폭로했어요. &#x27;비밀&#x27; 연설이었지만 곧 전 세계로 새어 나갔죠. 이는 공산권에 큰 충격을 줬고, 헝가리·폴란드의 동요로 이어졌어요. 자기 진영의 과거를 스스로 비판한 드문 사건이지만, 동시에 자신도 그 체제의 일원이었다는 한계가 있었죠.<div class="dds">참고: 제20차 소련공산당 대회 비밀 연설 (1956)</div></div></details><details class="ddv"><summary>헝가리, 1956 — 해빙의 두 얼굴</summary><div class="ddb">스탈린을 비판하며 &#x27;자유화&#x27;를 말하던 바로 그해, 헝가리에서 더 큰 자유를 요구하는 봉기가 일어나자 흐루쇼프는 탱크를 보내 짓밟았어요. 수천 명이 죽었죠. &#x27;개혁을 말하되 진영의 이탈은 허락하지 않는다&#x27; — 공산권 지도자의 한계를 보여 준 장면이에요.<div class="dds">참고: 1956년 헝가리 혁명과 소련의 진압</div></div></details><details class="ddv"><summary>물러설 줄 안 지도자 — 그리고 실각</summary><div class="ddb">쿠바에서 흐루쇼프는 &#x27;지는 것처럼 보이는&#x27; 철수를 택해 핵전쟁을 막았어요. 하지만 이 &#x27;굴욕&#x27;과 농업 실패가 겹쳐 1964년 권력을 잃었죠. 중요한 건, 그가 스탈린 시대와 달리 처형되지 않고 은퇴했다는 점이에요. 그가 연 &#x27;해빙&#x27;이 자신에게도 적용된 셈이죠.<div class="dds">참고: 흐루쇼프의 실각 (1964)</div></div></details></div>
+<div class="panel"><h2>사람의 그물 — 함께 읽을 인물</h2><div class="net"><a href="../stalin/index.html">스탈린 <span class="rel-l">그가 모셨다가, 죽은 뒤 정면으로 비판한 전임자</span></a><a href="../kennedy/index.html">케네디 <span class="rel-l">쿠바 미사일 위기에서 마주 선 상대</span></a><a href="../mao-zedong/index.html">마오쩌둥 <span class="rel-l">&#x27;누가 진짜 공산주의인가&#x27;를 두고 갈라선 라이벌 (중·소 분쟁)</span></a></div></div>
+<div class="panel"><h2>이 인물이 나오는 이야기</h2><div class="rel"><a href="../../coldwar/index.html#cuba"><span><span class="ep">냉전</span><br>쿠바 미사일 위기</span><span class="go">→ 이야기로</span></a></div></div>
+<div class="panel study"><h2>더 공부하기 — 여기서 출발하세요</h2><div class="sgrp"><div class="sgh">📚 책으로</div><ul><li><b><a href="https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=All&amp;SearchWord=%ED%9D%90%EB%A3%A8%EC%87%BC%ED%94%84" target="_blank" rel="noopener">흐루쇼프 회고록 / 평전 ↗</a></b> · (관련 도서)<span class="sn">스탈린 이후 소련을 이해하는 1차·2차 자료.</span></li><li><b><a href="https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=All&amp;SearchWord=%EB%83%89%EC%A0%84%EC%9D%98%20%EC%97%AD%EC%82%AC%20%EA%B0%9C%EB%94%94%EC%8A%A4" target="_blank" rel="noopener">냉전의 역사 ↗</a></b> · 존 루이스 개디스<span class="sn">냉전 전체 흐름 속 흐루쇼프의 자리를 본다.</span></li></ul></div><div class="sgrp"><div class="sgh">📜 1차 사료</div><ul><li><b><a href="https://history.state.gov/milestones/1961-1968/cuban-missile-crisis" target="_blank" rel="noopener">미 국무부 사료 — 쿠바 미사일 위기 ↗</a></b><span class="sn">흐루쇼프가 얽힌 냉전 최대 위기의 공식 역사 정리.</span></li></ul></div><div class="sgrp"><div class="sgh">🎬 영상으로</div><ul><li><b><a href="https://www.youtube.com/results?search_query=Nikita%20Khrushchev%20documentary%20biography" target="_blank" rel="noopener">다큐 — 니키타 흐루쇼프 ↗</a></b> · YouTube 검색<span class="sn">People Profiles 등 영어 다큐를 찾아보세요.</span></li></ul></div><div class="sgrp"><div class="sgh">📍 가 볼 곳</div><ul><li><b>모스크바 (크렘린)</b><span class="sn">그가 권력을 쥐고 또 잃은 곳.</span></li><li><b>노보데비치 묘지 (모스크바)</b><span class="sn">그가 묻힌 곳. 흑백이 뒤섞인 묘비가 그의 두 얼굴을 상징해요.</span></li></ul></div></div>
+<div class="panel"><h2>더 알아보기 (공식·신뢰할 수 있는 링크)</h2><div class="links"><a href="https://ko.wikipedia.org/wiki/%EB%8B%88%ED%82%A4%ED%83%80%20%ED%9D%90%EB%A3%A8%EC%87%BC%ED%94%84" target="_blank" rel="noopener"><span class="lang wiki">ko</span>위키백과 (한국어)<span class="ext">↗</span></a><a href="https://en.wikipedia.org/wiki/Nikita%20Khrushchev" target="_blank" rel="noopener"><span class="lang wiki">en</span>Wikipedia (English)<span class="ext">↗</span></a></div></div>
+<div class="panel reflect"><h2>이 인물에게 편지</h2><label>스탈린의 잘못을 폭로한 흐루쇼프가, 정작 헝가리는 탱크로 짓밟았어요. 사람은 왜 자신이 비판한 잘못을 똑같이 저지를까? 생각을 적어 보자.</label><textarea id="rf" placeholder="여기에 네 생각을 적어 보세요. 자동으로 저장돼요."></textarea><div class="saved" id="rfsaved"></div></div>
+  </div>
+  <script>
+  // '편지' 메모 자동 저장(앱 전체의 '빈칸 남기기' 원칙)
+  (function(){var ta=document.getElementById('rf');if(!ta)return;var k='people_reflect_khrushchev';
+   try{ta.value=localStorage.getItem(k)||'';}catch(e){}
+   var tag=document.getElementById('rfsaved'),t;
+   ta.addEventListener('input',function(){try{localStorage.setItem(k,ta.value);}catch(e){}
+     tag.textContent='저장됨 ✓';clearTimeout(t);t=setTimeout(function(){tag.textContent='';},1300);});})();
+  </script>
+<script>
+(function(){var lb=document.createElement('div');lb.className='lightbox';
+lb.innerHTML='<img alt=""><div class="lb-cap"></div>';document.body.appendChild(lb);
+document.addEventListener('click',function(e){
+  if(e.target.closest('.lightbox')){lb.classList.remove('show');document.body.style.overflow='';return;}
+  var im=e.target.closest('.gal img, .portrait img');
+  if(im){lb.querySelector('img').src=im.src;lb.querySelector('.lb-cap').textContent=im.alt||'';
+    lb.classList.add('show');document.body.style.overflow='hidden';}
+});})();
+</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function(){var J={"h": "광부의 아들에서 소련의 최고 지도자로", "intro": "가난한 집안에서 출세해 스탈린의 뒤를 잇고, 세계를 핵전쟁 직전까지 몰았다가 조용히 물러난 길이에요.", "markers": [{"at": [51.3, 35.2], "kind": "start", "label": "칼리노프카 (러시아)", "desc": "1894년 광부 집안에서 태어난 고향"}, {"at": [55.751, 37.618], "kind": "capital", "label": "모스크바 (크렘린)", "desc": "1953년 권력을 장악하다"}, {"at": [40.749, -73.968], "kind": "city", "label": "뉴욕 (유엔)", "desc": "1960년 유엔 총회 — 평화 공존을 외치다"}, {"at": [55.751, 37.618], "kind": "loss", "label": "모스크바 (실각)", "desc": "1964년 권력을 잃다 (처형 없이 은퇴)"}], "path": [[51.3, 35.2], [55.751, 37.618], [40.749, -73.968], [55.751, 37.618]], "caption": "고향에서 크렘린까지, 그리고 유엔 무대를 거쳐 다시 크렘린에서 물러나기까지 — 실제 좌표 위에 표시했어요."};var el=document.getElementById('jmap');if(!el||!window.L)return;
+var map=L.map('jmap',{scrollWheelZoom:false});
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap'}).addTo(map);
+var KIND={start:'🚩',city:'•',battle:'⚔️',win:'✔️',loss:'✖️',capital:'🏛️'};
+var pts=[];
+(J.markers||[]).forEach(function(m,i){
+  pts.push(m.at);
+  var ic=L.divIcon({className:'',html:'<div style="font-size:17px;text-shadow:0 1px 3px #fff,0 0 5px #fff">'+(KIND[m.kind]||'•')+'</div>',iconSize:[22,22],iconAnchor:[11,11]});
+  L.marker(m.at,{icon:ic}).addTo(map).bindPopup('<b>'+(i+1)+'. '+m.label+'</b>'+(m.desc?'<br>'+m.desc:''));
+});
+if(J.path){L.polyline(J.path,{color:'#B5546A',weight:3,opacity:.75,dashArray:'7 7'}).addTo(map);}
+if(pts.length){map.fitBounds(L.latLngBounds(pts).pad(0.18));}
+})();
+</script></body>
+</html>

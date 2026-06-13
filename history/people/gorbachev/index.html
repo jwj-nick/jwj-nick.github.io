@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>미하일 고르바초프 — 인물 도감</title>
+<meta name="description" content="개혁(글라스노스트·페레스트로이카)으로 소련을 살리려다, 냉전을 평화롭게 끝낸 마지막 소련 지도자.">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  :root{--rose:#C98B8B;--rose-soft:#E8C8C5;--navy:#33406B;--cream:#FBF7F2;--paper:#FFFFFF;--ink:#2E2A28;--muted:#857B74;--line:#EBE0D5;--accent:#B5546A;--gold:#C49A4A;--shadow-sm:0 2px 10px rgba(51,64,107,.06);--shadow:0 6px 22px rgba(51,64,107,.09);}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:var(--cream);color:var(--ink);line-height:1.78;word-break:keep-all;-webkit-font-smoothing:antialiased;}
+  a{color:inherit;}
+  .hero{padding:50px 28px 38px;background:linear-gradient(140deg,var(--navy) 0%, #6a4a6e 100%);color:#fff;text-align:center;}
+  .hero h1{font-size:29px;font-weight:800;line-height:1.3;}
+  .hero .sub{font-size:14.5px;color:var(--rose-soft);margin-top:11px;}
+  .backrow{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:18px;}
+  .back{display:inline-block;color:#fff;font-size:12.5px;text-decoration:none;border:1px solid rgba(255,255,255,.3);border-radius:9px;padding:6px 13px;}
+  .back:hover{background:rgba(255,255,255,.12);}
+  .wrap{max-width:820px;margin:0 auto;padding:32px 22px 90px;}
+  .intro{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px 22px;box-shadow:var(--shadow-sm);font-size:15.5px;margin-bottom:6px;}
+  .intro b{color:var(--accent);}
+  .eph{font-size:14px;letter-spacing:.04em;color:var(--accent);font-weight:800;margin:34px 0 14px;text-transform:uppercase;display:flex;align-items:center;gap:9px;}
+  .eph::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent);}
+  /* ---- 색인 카드 ---- */
+  .people{display:grid;gap:14px;}
+  @media(min-width:640px){.people{grid-template-columns:1fr 1fr;}}
+  .pcard{display:flex;gap:14px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:15px;padding:14px 16px;box-shadow:var(--shadow-sm);text-decoration:none;color:inherit;transition:transform .12s,box-shadow .12s;}
+  .pcard:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
+  .pcard .ph{flex:0 0 62px;width:62px;height:62px;border-radius:12px;object-fit:cover;object-position:top center;background:linear-gradient(135deg,var(--rose),var(--accent));border:1px solid var(--line);}
+  .pcard .pname{font-size:16.5px;font-weight:800;color:var(--navy);}
+  .pcard .pone{font-size:12.5px;color:var(--muted);margin-top:2px;}
+  .pcard .pmeta{font-size:11.5px;color:var(--accent);margin-top:5px;font-weight:700;}
+  .pcard .parrow{margin-left:auto;color:var(--rose);font-size:18px;align-self:center;}
+  .pcard .pinfo{min-width:0;}
+  /* ---- 색인 도구막대(검색·정렬·보기) ---- */
+  .toolbar{position:sticky;top:0;z-index:5;background:var(--cream);padding:12px 0 14px;margin-bottom:6px;border-bottom:1px solid var(--line);}
+  .search{width:100%;font-size:15px;font-family:inherit;border:1.5px solid var(--line);border-radius:12px;padding:12px 15px;background:#fff;color:var(--ink);}
+  .search:focus{outline:none;border-color:var(--accent);}
+  .ctrls{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:10px;}
+  .ctrls .lbl{font-size:12px;color:var(--muted);font-weight:700;}
+  .ctrls select{font-family:inherit;font-size:13px;border:1px solid var(--line);border-radius:9px;padding:7px 10px;background:#fff;color:var(--navy);font-weight:700;}
+  .ctrls .vbtn{font-family:inherit;font-size:13px;font-weight:700;color:var(--navy);background:#fff;border:1px solid var(--line);border-radius:9px;padding:7px 13px;cursor:pointer;}
+  .ctrls .vbtn:hover{border-color:var(--accent);}
+  .rescount{margin-left:auto;font-size:12.5px;color:var(--accent);font-weight:800;}
+  .nohit{grid-column:1/-1;text-align:center;color:var(--muted);font-size:14px;padding:30px 0;}
+  /* ---- 색인 리스트(카드/목록 보기) ---- */
+  .plist{display:grid;gap:14px;}
+  @media(min-width:640px){.plist{grid-template-columns:1fr 1fr;}}
+  .plist .eph{grid-column:1/-1;}
+  .plist.compact{grid-template-columns:1fr;gap:7px;}
+  .plist.compact .eph{margin:18px 0 7px;}
+  .plist.compact .pcard{padding:8px 13px;gap:11px;}
+  .plist.compact .ph{flex-basis:40px;width:40px;height:40px;border-radius:9px;}
+  .plist.compact .pname{font-size:15px;}
+  .plist.compact .pone{display:none;}
+  .plist.compact .pmeta{margin-top:1px;}
+  /* ---- 패싯(지역·시대) 칩 ---- */
+  .facets{margin-top:10px;display:grid;gap:7px;}
+  .fbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+  .fbar .fl{font-size:11px;color:var(--muted);font-weight:800;flex:0 0 34px;letter-spacing:.02em;}
+  .chip{font-family:inherit;font-size:12.5px;font-weight:700;color:var(--navy);background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer;line-height:1.2;}
+  .chip:hover{border-color:var(--accent);}
+  .chip.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .chip .c{opacity:.55;font-weight:600;margin-left:5px;font-size:10.5px;}
+  .chip.on .c{opacity:.85;}
+  /* ---- 상세 ---- */
+  .portrait{text-align:center;margin:4px 0 20px;}
+  .portrait img{max-width:260px;width:60%;border-radius:14px;border:1px solid var(--line);box-shadow:var(--shadow);}
+  .portrait figcaption{font-size:11.5px;color:var(--muted);margin-top:9px;line-height:1.6;}
+  .portrait .note{display:block;color:var(--accent);margin-top:3px;}
+  .panel{background:#fff;border:1px solid var(--line);border-radius:15px;padding:18px 20px;box-shadow:var(--shadow-sm);margin-bottom:14px;}
+  .panel h2{font-size:14px;color:var(--accent);font-weight:800;margin-bottom:12px;letter-spacing:.02em;}
+  .names{display:grid;gap:7px;}
+  .names .row{display:flex;gap:10px;font-size:14.5px;align-items:baseline;}
+  .names .k{flex:0 0 96px;color:var(--muted);font-size:12.5px;font-weight:700;}
+  .names .v{font-weight:600;color:var(--ink);}
+  .names .v.big{font-size:18px;color:var(--navy);font-weight:800;}
+  .meta{font-size:13.5px;color:var(--muted);margin-bottom:14px;text-align:center;}
+  .meta b{color:var(--navy);}
+  .bio p{font-size:15.5px;margin-bottom:11px;}
+  .bio p:last-child{margin-bottom:0;}
+  .tl{list-style:none;border-left:2px solid var(--rose-soft);margin-left:6px;padding-left:16px;}
+  .tl li{position:relative;margin-bottom:12px;font-size:14.5px;}
+  .tl li::before{content:"";position:absolute;left:-22px;top:7px;width:9px;height:9px;border-radius:50%;background:var(--accent);}
+  .tl .yr{font-weight:800;color:var(--navy);margin-right:7px;}
+  .shadow{background:var(--cream);border-radius:11px;padding:13px 15px;font-size:14.5px;}
+  .shadow .lbl{font-weight:800;color:var(--gold);margin-right:6px;}
+  .rel{display:flex;flex-direction:column;gap:9px;}
+  .rel a{display:flex;align-items:center;gap:9px;background:var(--cream);border:1px solid var(--line);border-radius:10px;padding:11px 14px;text-decoration:none;font-size:14.5px;font-weight:700;color:var(--navy);}
+  .rel a:hover{border-color:var(--accent);}
+  .rel .ep{font-size:11px;color:var(--accent);font-weight:800;}
+  .rel .go{margin-left:auto;color:var(--rose);}
+  .links{display:flex;flex-direction:column;gap:9px;}
+  .links a{display:flex;align-items:center;gap:9px;text-decoration:none;font-size:14px;color:var(--navy);border:1px solid var(--line);border-radius:10px;padding:10px 13px;}
+  .links a:hover{border-color:var(--accent);background:#fff;}
+  .lang{flex:0 0 auto;font-size:10.5px;font-weight:800;letter-spacing:.03em;color:#fff;background:var(--navy);border-radius:6px;padding:2px 7px;}
+  .lang.official,.lang.encyclopedia{background:var(--accent);}
+  .links .ext{margin-left:auto;color:var(--muted);font-size:11px;}
+  /* ---- v3 패널 ---- */
+  .qcard{background:linear-gradient(135deg,#fff,#FBF4EC);border:1.5px solid var(--gold);border-radius:15px;padding:15px 18px;box-shadow:var(--shadow-sm);margin-bottom:14px;}
+  .qcard .qera{font-size:12px;color:var(--gold);font-weight:800;letter-spacing:.04em;}
+  .qcard .qkeys{display:flex;gap:7px;flex-wrap:wrap;margin:9px 0;}
+  .qcard .qkeys span{font-size:12.5px;font-weight:700;color:var(--navy);background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px 11px;}
+  .qcard .qq{font-size:14.5px;margin-top:4px;}
+  .qcard .qq b{color:var(--accent);}
+  .whyhere{border-left:4px solid var(--accent);padding:4px 0 4px 14px;font-size:15px;}
+  .quotes{display:grid;gap:12px;}
+  .quote{background:var(--cream);border-radius:11px;padding:13px 16px;}
+  .quote .qt{font-size:15.5px;font-weight:700;color:var(--navy);line-height:1.7;}
+  .quote .qc{font-size:12.5px;color:var(--muted);margin-top:7px;}
+  .ddv{border:1px solid var(--line);border-radius:11px;margin-bottom:9px;background:var(--cream);overflow:hidden;}
+  .ddv summary{cursor:pointer;padding:12px 15px;font-size:14.5px;font-weight:800;color:var(--navy);list-style:none;}
+  .ddv summary::before{content:"\25B8 ";color:var(--accent);}
+  .ddv[open] summary::before{content:"\25BE ";}
+  .ddv .ddb{padding:0 15px 13px;font-size:14.5px;}
+  .ddv .dds{font-size:11.5px;color:var(--muted);margin-top:7px;}
+  .net{display:flex;gap:9px;flex-wrap:wrap;}
+  .net a{display:inline-flex;align-items:center;gap:7px;background:var(--cream);border:1px solid var(--line);border-radius:999px;padding:7px 14px;text-decoration:none;font-size:13.5px;color:var(--navy);font-weight:700;}
+  .net a:hover{border-color:var(--accent);}
+  .net .rel-l{font-size:11px;color:var(--muted);font-weight:400;}
+  .study .sgrp{margin-bottom:12px;}
+  .study .sgh{font-size:12.5px;font-weight:800;color:var(--gold);margin-bottom:6px;}
+  .study ul{list-style:none;display:grid;gap:6px;}
+  .study li{font-size:14px;background:var(--cream);border-radius:9px;padding:9px 13px;}
+  .study li b{color:var(--navy);}
+  .study li .sn{display:block;font-size:12.5px;color:var(--muted);margin-top:2px;}
+  /* ---- v3.1: 시각자료 갤러리 + 경로 지도 ---- */
+  .gal{display:grid;gap:12px;grid-template-columns:1fr 1fr;}
+  @media(max-width:560px){.gal{grid-template-columns:1fr;}}
+  .gal figure{margin:0;background:var(--cream);border:1px solid var(--line);border-radius:12px;padding:10px;}
+  .gal img{width:100%;height:180px;object-fit:contain;display:block;cursor:zoom-in;background:#fff;border-radius:8px;}
+  .gal figcaption{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.6;}
+  .gal figcaption b{color:var(--navy);display:block;font-size:13px;}
+  .lightbox{position:fixed;inset:0;background:rgba(22,19,16,.93);display:none;align-items:center;justify-content:center;z-index:99;padding:16px;cursor:zoom-out;}
+  .lightbox.show{display:flex;}
+  .lightbox img{max-width:96vw;max-height:90vh;border-radius:8px;box-shadow:0 12px 44px rgba(0,0,0,.55);}
+  .lightbox .lb-cap{position:fixed;left:0;right:0;bottom:10px;text-align:center;color:#E8C8C5;font-size:12px;padding:0 22px;}
+  .jmap{height:380px;border-radius:12px;border:1px solid var(--line);}
+  .jintro{font-size:14.5px;margin-bottom:11px;}
+  .jcap{font-size:12px;color:var(--muted);margin-top:9px;}
+  .reflect label{display:block;font-size:14.5px;margin-bottom:9px;}
+  .reflect textarea{width:100%;min-height:96px;border:1px solid var(--line);border-radius:11px;padding:12px 14px;font-family:inherit;font-size:14.5px;line-height:1.7;resize:vertical;background:var(--cream);}
+  .reflect textarea:focus{outline:none;border-color:var(--accent);background:#fff;}
+  .saved{font-size:11.5px;color:var(--gold);font-weight:700;height:14px;margin-top:5px;}
+</style>
+</head>
+<body>
+  <div class="hero">
+    <h1>🕊️ 미하일 고르바초프</h1>
+    <div class="sub">개혁(글라스노스트·페레스트로이카)으로 소련을 살리려다, 냉전을 평화롭게 끝낸 마지막 소련 지도자.</div>
+    <div class="backrow">
+      <a class="back" href="../index.html">← 인물 도감</a>
+      <a class="back" href="../../index.html">역사 허브</a>
+    </div>
+  </div>
+  <div class="wrap">
+<figure class="portrait"><img src="../img/gorbachev.jpg" alt="미하일 고르바초프의 초상 (이마의 반점이 보임)"><figcaption>출처: Wikimedia Commons — Leo Medvedev · CC BY-SA 4.0</figcaption></figure>
+<div class="qcard"><div class="qera">⏱️ 10초 카드 · 냉전을 끝낸 개혁가 (1931~2022)</div><div class="qkeys"><span>글라스노스트(개방)</span><span>페레스트로이카(개혁)</span><span>냉전 종식</span><span>소련 해체</span></div><div class="qq"><b>여는 질문</b> — 나라를 살리려던 개혁이, 오히려 나라를 무너뜨릴 수도 있을까?</div></div>
+<div class="panel"><h2>이름</h2><div class="names"><div class="row"><span class="k">한국어</span><span class="v big">미하일 고르바초프</span></div><div class="row"><span class="k">원어</span><span class="v">Михаил Горбачёв</span></div><div class="row"><span class="k">실제 발음</span><span class="v">미하일 고르바초프</span></div><div class="row"><span class="k">로마자</span><span class="v">Mikhail Gorbachev</span></div><div class="row"><span class="k">영어권</span><span class="v">Mikhail Gorbachev</span></div></div></div>
+<div class="meta"><b>소련</b> · 1931~2022</div>
+<div class="panel"><h2>왜 이 사람인가</h2><div class="whyhere">냉전을 &#x27;전쟁이 아니라 개혁과 양보로&#x27; 끝낸 결정적 인물이에요. 동유럽에 탱크를 보내지 않은 그의 선택이 1989년의 평화로운 변화를 가능하게 했죠. 좋은 의도와 통제 불능의 결과를 함께 보여 주는 인물이에요. (냉전 → 장벽 붕괴 섹션)</div></div>
+<div class="panel bio"><h2>생애</h2><p>남부 시골 농가에서 태어나 공산당 안에서 차근차근 올라갔어요. 1985년, 비교적 젊은 나이(54세)에 소련 최고 지도자가 됐죠. 그는 소련 경제가 군비 부담과 비효율로 병들어 있음을 알았고, 근본적인 개혁이 필요하다고 봤어요.</p><p>그의 두 무기는 &#x27;글라스노스트(개방)&#x27;와 &#x27;페레스트로이카(재건)&#x27;였어요. 언론의 자유를 넓히고 경제를 뜯어고치려 했죠. 서방과는 군축에 합의하고(1987년 INF 조약), 무엇보다 동유럽이 스스로 길을 정하도록 군대를 보내지 않았어요. 그 결과 1989년 베를린 장벽이 평화롭게 무너졌죠.</p><p>하지만 개혁은 그의 의도를 넘어섰어요. 자유가 열리자 억눌렸던 불만과 민족주의가 터져 나왔고, 1991년 결국 소련은 해체됐어요. 그는 냉전을 끝낸 공로로 노벨평화상을 받았지만, 많은 러시아인에게는 &#x27;위대한 나라를 잃은 사람&#x27;으로 미움받았어요. 같은 사람을 두고 평가가 이토록 갈리는 인물도 드물죠.</p></div>
+<div class="panel"><h2>자료로 보기 — 유묵·사진</h2><div class="gal"><figure><img src="../img/gorbachev_reagan.jpg" alt="백악관에서 레이건과 나란히 문서에 서명하는 고르바초프" loading="lazy"><figcaption><b>INF 조약 서명 (1987)</b>1987년 백악관, 고르바초프(왼쪽)와 미국 대통령 레이건(오른쪽)이 중거리 핵미사일을 없애는 INF 조약에 서명해요. 군축의 큰 돌파구였죠.<span>출처: Wikimedia Commons — White House Photographic Office · 퍼블릭 도메인</span></figcaption></figure><figure><img src="../img/gorbachev_summit.jpg" alt="제네바에서 레이건과 함께 선 외투 차림의 고르바초프" loading="lazy"><figcaption><b>제네바 정상회담 (1985)</b>1985년 제네바, 취임 첫해 레이건(왼쪽)과 만난 고르바초프(오른쪽). 두 초강대국 지도자가 대화의 물꼬를 튼 자리였어요.<span>출처: Wikimedia Commons — White House Photo Office · 퍼블릭 도메인</span></figcaption></figure><figure><img src="../img/gorbachev_speech.jpg" alt="연단에서 연설하는 고르바초프" loading="lazy"><figcaption><b>연설하는 고르바초프</b>개혁(페레스트로이카)과 개방(글라스노스트)을 호소하는 고르바초프. 그의 말은 소련 안팎을 통째로 흔들었어요.<span>출처: Wikimedia Commons — Yuryi Abramochkin / РИА Новости · CC BY-SA 3.0</span></figcaption></figure></div></div>
+<div class="panel"><h2>남긴 말</h2><div class="quotes"><div class="quote"><div class="qt">“우리는 더 이상 이렇게 살 수 없습니다.”</div><div class="qc">페레스트로이카(개혁)를 시작하며 소련 사회의 정체와 위기를 진단한 말이에요. · 출처: 고르바초프, 페레스트로이카 관련 발언</div></div><div class="quote"><div class="qt">“삶은 늦게 오는 자를 벌한다.”</div><div class="qc">동유럽의 변화를 막지 말라는 뜻으로 인용된 말. 시대의 흐름을 거스르지 말라는 경고였죠. · 출처: 1989년 동베를린 방문 무렵 (널리 인용됨)</div></div><div class="quote"><div class="qt">“나는 내 인생을 후회하지 않는다. 자유 없는 나라를 자유롭게 하려 했다.”</div><div class="qc">훗날 자신의 개혁을 돌아보며 한 말이에요. · 출처: 고르바초프 회고</div></div></div></div>
+<div class="panel"><h2>연표</h2><ul class="tl"><li><span class="yr">1931</span>소련 남부 스타브로폴 농가 출생</li><li><span class="yr">1985</span>소련 최고 지도자 취임 — 개혁 시작</li><li><span class="yr">1987</span>미국과 INF 조약 — 중거리 핵미사일 폐기 합의</li><li><span class="yr">1989</span>동유럽 불간섭 — 베를린 장벽 평화롭게 붕괴</li><li><span class="yr">1990</span>노벨평화상 · 독일 통일</li><li><span class="yr">1991</span>소련 해체 — 사임 · 2022 별세</li></ul></div>
+<div class="panel"><h2>시골 농가에서 냉전을 끝낸 자리로</h2><div class="jintro">남부 농가의 아들이 소련 최고 지도자가 되어, 개혁으로 한 시대를 끝내고 나라의 해체까지 지켜본 길이에요.</div><div class="jmap" id="jmap"></div><div class="jcap">고향에서 크렘린, 정상회담장을 거쳐 다시 크렘린에서 한 시대를 닫기까지 — 실제 좌표 위에 표시했어요.</div></div>
+<div class="panel"><div class="shadow"><span class="lbl">빛과 그림자</span>무력 없이 냉전을 끝내고 동유럽의 자유화를 막지 않은 결단은 세계사적이었어요(노벨평화상). 하지만 그의 개혁은 통제를 잃어 소련 붕괴와 극심한 경제 혼란으로 이어졌고, 그 때문에 러시아 안에서는 지금도 평가가 엇갈려요. &#x27;서방의 영웅, 러시아의 죄인&#x27;이라는 두 시선을 함께 봐야 해요.</div></div>
+<div class="panel"><h2>더 깊이 (고등·일반)</h2><details class="ddv"><summary>페레스트로이카의 역설 — 살리려다 무너뜨리다</summary><div class="ddb">고르바초프의 목표는 소련을 &#x27;해체&#x27;가 아니라 &#x27;개혁해서 살리는&#x27; 것이었어요. 하지만 일단 표현의 자유(글라스노스트)가 열리자, 억눌렸던 불만과 민족주의가 한꺼번에 터져 나왔죠. 경제 개혁은 더디고 혼란스러웠고, 결국 통제할 수 없는 흐름이 됐어요. &#x27;조금 열었더니 둑이 무너졌다&#x27; — 개혁의 역설을 보여 주는 대표 사례예요.<div class="dds">참고: 페레스트로이카와 소련 해체</div></div></details><details class="ddv"><summary>탱크를 보내지 않은 결정</summary><div class="ddb">1989년 동유럽에서 잇따라 공산 정권이 흔들렸을 때, 이전 소련 지도자들(헝가리 1956·체코 1968)은 탱크로 진압했어요. 하지만 고르바초프는 군대를 보내지 않았죠. 이 &#x27;불간섭&#x27; 결정이 베를린 장벽이 큰 유혈 없이 무너질 수 있었던 핵심이에요. 냉전이 &#x27;평화롭게&#x27; 끝난 데에는 이 선택의 무게가 컸어요.<div class="dds">참고: 고르바초프의 동유럽 불간섭(시나트라 독트린)</div></div></details><details class="ddv"><summary>갈라진 평가 — 영웅인가, 죄인인가</summary><div class="ddb">서방에서 고르바초프는 냉전을 끝낸 영웅이자 노벨평화상 수상자예요. 하지만 많은 러시아인에게는 강대국 소련을 잃고 1990년대의 극심한 혼란을 부른 사람으로 기억되죠. 같은 행동이 보는 위치에 따라 정반대로 평가되는 것 — 역사를 &#x27;한쪽 눈&#x27;으로만 보면 안 되는 이유예요.<div class="dds">참고: 고르바초프에 대한 동·서양의 상반된 평가</div></div></details></div>
+<div class="panel"><h2>사람의 그물 — 함께 읽을 인물</h2><div class="net"><a href="../stalin/index.html">스탈린 <span class="rel-l">그가 만든 공포의 소련 체제를, 고르바초프가 끝내 해체하게 된다</span></a><a href="../khrushchev/index.html">흐루쇼프 <span class="rel-l">앞서 &#x27;해빙&#x27;으로 개혁을 시도했던 선배 — 고르바초프가 더 멀리 나아갔다</span></a></div></div>
+<div class="panel"><h2>이 인물이 나오는 이야기</h2><div class="rel"><a href="../../coldwar/index.html#fall"><span><span class="ep">냉전</span><br>장벽이 무너지다</span><span class="go">→ 이야기로</span></a></div></div>
+<div class="panel study"><h2>더 공부하기 — 여기서 출발하세요</h2><div class="sgrp"><div class="sgh">📚 책으로</div><ul><li><b><a href="https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=All&amp;SearchWord=%EA%B3%A0%EB%A5%B4%EB%B0%94%EC%B4%88%ED%94%84%20%ED%8E%98%EB%A0%88%EC%8A%A4%ED%8A%B8%EB%A1%9C%EC%9D%B4%EC%B9%B4" target="_blank" rel="noopener">페레스트로이카 / 고르바초프 회고록 ↗</a></b> · 미하일 고르바초프<span class="sn">개혁의 동기를 본인의 목소리로.</span></li><li><b><a href="https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=All&amp;SearchWord=%EB%83%89%EC%A0%84%EC%9D%98%20%EC%97%AD%EC%82%AC%20%EA%B0%9C%EB%94%94%EC%8A%A4" target="_blank" rel="noopener">냉전의 역사 ↗</a></b> · 존 루이스 개디스<span class="sn">냉전이 어떻게 끝났는지 큰 그림으로.</span></li></ul></div><div class="sgrp"><div class="sgh">📜 1차 사료</div><ul><li><b><a href="https://www.nobelprize.org/prizes/peace/1990/gorbachev/facts/" target="_blank" rel="noopener">노벨평화상 1990 — 고르바초프 (공식) ↗</a></b><span class="sn">수상 이유와 연설을 담은 공식 페이지.</span></li></ul></div><div class="sgrp"><div class="sgh">🎬 영상으로</div><ul><li><b><a href="https://www.youtube.com/results?search_query=Mikhail%20Gorbachev%20documentary%20end%20of%20cold%20war" target="_blank" rel="noopener">다큐 — 미하일 고르바초프와 냉전의 끝 ↗</a></b> · YouTube 검색<span class="sn">냉전 종식과 그의 개혁을 다룬 다큐를 찾아보세요.</span></li></ul></div><div class="sgrp"><div class="sgh">📍 가 볼 곳</div><ul><li><b>모스크바 (크렘린)</b><span class="sn">개혁을 이끌고 소련의 마지막을 지킨 곳.</span></li><li><b>스타브로폴 (러시아 남부)</b><span class="sn">그가 태어나고 정치를 시작한 고향 지역.</span></li></ul></div></div>
+<div class="panel"><h2>더 알아보기 (공식·신뢰할 수 있는 링크)</h2><div class="links"><a href="https://ko.wikipedia.org/wiki/%EB%AF%B8%ED%95%98%EC%9D%BC%20%EA%B3%A0%EB%A5%B4%EB%B0%94%EC%B4%88%ED%94%84" target="_blank" rel="noopener"><span class="lang wiki">ko</span>위키백과 (한국어)<span class="ext">↗</span></a><a href="https://en.wikipedia.org/wiki/Mikhail%20Gorbachev" target="_blank" rel="noopener"><span class="lang wiki">en</span>Wikipedia (English)<span class="ext">↗</span></a><a href="https://www.nobelprize.org/prizes/peace/1990/gorbachev/facts/" target="_blank" rel="noopener"><span class="lang site">en</span>노벨평화상 1990 (공식)<span class="ext">↗</span></a></div></div>
+<div class="panel reflect"><h2>이 인물에게 편지</h2><label>고르바초프는 나라를 &#x27;살리려고&#x27; 개혁했지만 결과는 &#x27;해체&#x27;였어요. 좋은 의도가 늘 좋은 결과로 이어지지는 않아요. 너라면 그래도 개혁을 시작했을까? 적어 보자.</label><textarea id="rf" placeholder="여기에 네 생각을 적어 보세요. 자동으로 저장돼요."></textarea><div class="saved" id="rfsaved"></div></div>
+  </div>
+  <script>
+  // '편지' 메모 자동 저장(앱 전체의 '빈칸 남기기' 원칙)
+  (function(){var ta=document.getElementById('rf');if(!ta)return;var k='people_reflect_gorbachev';
+   try{ta.value=localStorage.getItem(k)||'';}catch(e){}
+   var tag=document.getElementById('rfsaved'),t;
+   ta.addEventListener('input',function(){try{localStorage.setItem(k,ta.value);}catch(e){}
+     tag.textContent='저장됨 ✓';clearTimeout(t);t=setTimeout(function(){tag.textContent='';},1300);});})();
+  </script>
+<script>
+(function(){var lb=document.createElement('div');lb.className='lightbox';
+lb.innerHTML='<img alt=""><div class="lb-cap"></div>';document.body.appendChild(lb);
+document.addEventListener('click',function(e){
+  if(e.target.closest('.lightbox')){lb.classList.remove('show');document.body.style.overflow='';return;}
+  var im=e.target.closest('.gal img, .portrait img');
+  if(im){lb.querySelector('img').src=im.src;lb.querySelector('.lb-cap').textContent=im.alt||'';
+    lb.classList.add('show');document.body.style.overflow='hidden';}
+});})();
+</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function(){var J={"h": "시골 농가에서 냉전을 끝낸 자리로", "intro": "남부 농가의 아들이 소련 최고 지도자가 되어, 개혁으로 한 시대를 끝내고 나라의 해체까지 지켜본 길이에요.", "markers": [{"at": [45.8, 42.7], "kind": "start", "label": "프리볼노예 (스타브로폴)", "desc": "1931년 농가에서 태어난 고향"}, {"at": [55.751, 37.618], "kind": "capital", "label": "모스크바 (크렘린)", "desc": "1985년 최고 지도자로 개혁 시작"}, {"at": [64.147, -21.94], "kind": "city", "label": "레이캬비크", "desc": "1986년 미·소 정상회담 — 군축의 돌파구"}, {"at": [52.516, 13.377], "kind": "city", "label": "베를린", "desc": "1989년 장벽이 평화롭게 무너지다"}, {"at": [55.751, 37.618], "kind": "win", "label": "모스크바 (1991)", "desc": "소련 해체 — 냉전이 끝나다"}], "path": [[45.8, 42.7], [55.751, 37.618], [64.147, -21.94], [52.516, 13.377], [55.751, 37.618]], "caption": "고향에서 크렘린, 정상회담장을 거쳐 다시 크렘린에서 한 시대를 닫기까지 — 실제 좌표 위에 표시했어요."};var el=document.getElementById('jmap');if(!el||!window.L)return;
+var map=L.map('jmap',{scrollWheelZoom:false});
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap'}).addTo(map);
+var KIND={start:'🚩',city:'•',battle:'⚔️',win:'✔️',loss:'✖️',capital:'🏛️'};
+var pts=[];
+(J.markers||[]).forEach(function(m,i){
+  pts.push(m.at);
+  var ic=L.divIcon({className:'',html:'<div style="font-size:17px;text-shadow:0 1px 3px #fff,0 0 5px #fff">'+(KIND[m.kind]||'•')+'</div>',iconSize:[22,22],iconAnchor:[11,11]});
+  L.marker(m.at,{icon:ic}).addTo(map).bindPopup('<b>'+(i+1)+'. '+m.label+'</b>'+(m.desc?'<br>'+m.desc:''));
+});
+if(J.path){L.polyline(J.path,{color:'#B5546A',weight:3,opacity:.75,dashArray:'7 7'}).addTo(map);}
+if(pts.length){map.fitBounds(L.latLngBounds(pts).pad(0.18));}
+})();
+</script></body>
+</html>
