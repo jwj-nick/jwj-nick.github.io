@@ -50,6 +50,12 @@
     .card .name { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
     .card .desc { font-size: 13px; color: #666; line-height: 1.5; }
     .card .url { font-size: 11px; color: #2563eb; margin-top: 8px; word-break: break-all; }
+    .card.private { border-color: #f59e0b; background: #fffbeb; }
+    .card.private .badge {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      color: #b45309; background: #fef3c7; border-radius: 6px;
+      padding: 2px 8px; margin-bottom: 6px;
+    }
     .error { color: #dc2626; }
     .tip {
       text-align: center;
@@ -79,6 +85,20 @@
       'anthropic_skilljar_study': { desc: 'Anthropic Skilljar 13개 코스 학습 가이드' },
       'Cert-CompSys': { desc: '컴퓨터시스템기사 기출 학습 앱 (Phase 1~4)' },
     };
+
+    // 🔒 사설 앱 — 집 네트워크/Tailscale에서만 열림. 외부 공개 아님(콘텐츠는 내 서버에만).
+    // ★ 미니PC 마련 후 아래 url만 Tailscale 고정주소로 교체 (예: 'http://minipc:8000/quiz-app/').
+    //   (현재는 노트북 LAN IP라 DHCP 바뀌면 url 숫자도 갱신 필요)
+    const PRIVATE_APPS = [
+      {
+        name: '경제 학습',
+        badge: '🔒 사설 · 내 네트워크 전용',
+        description: '집 Wi-Fi 또는 Tailscale에서만 접속. 외부 비공개.',
+        url: 'http://192.168.123.102:8000/quiz-app/',
+        private: true,
+        updated: '2026-06-13T00:00:00Z',
+      },
+    ];
 
     // Sub-path apps not discoverable via GitHub API — listed manually
     const EXTRA_APPS = [
@@ -148,7 +168,8 @@
       // Merge extra apps and sort by most recently updated
       const all = [...EXTRA_APPS, ...pagesRepos];
       all.sort((a, b) => new Date(b.updated) - new Date(a.updated));
-      return all;
+      // 사설 앱은 항상 맨 위에 고정
+      return [...PRIVATE_APPS, ...all];
     }
 
     async function render() {
@@ -167,7 +188,8 @@
         }
 
         grid.innerHTML = apps.map(app => `
-          <a class="card" href="${app.url}" target="_blank" rel="noopener">
+          <a class="card${app.private ? ' private' : ''}" href="${app.url}" target="_blank" rel="noopener">
+            ${app.badge ? `<div class="badge">${app.badge}</div>` : ''}
             <div class="name">${app.name}</div>
             ${app.description ? `<div class="desc">${app.description}</div>` : ''}
             <div class="url">${app.url}</div>
