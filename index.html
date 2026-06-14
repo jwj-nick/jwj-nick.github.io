@@ -78,6 +78,11 @@
     const USERNAME = 'jwj-nick';
     const PAGES_BASE = `https://${USERNAME}.github.io`;
 
+    // GitHub Pages auto-discovery에서 제외할 repo (Vercel 등 다른 곳에 배포)
+    const SKIP_REPOS = new Set([
+      'diary-app',  // → Vercel (EXTRA_APPS 아래에 카드 등록)
+    ]);
+
     // App metadata overrides (optional descriptions for known repos)
     const META = {
       'study-quiz': { desc: '퀴즈 앱 (90문항, SR, Daily Quiz, Code Sandbox)' },
@@ -103,6 +108,13 @@
 
     // Sub-path apps not discoverable via GitHub API — listed manually
     const EXTRA_APPS = [
+      {
+        name: '가족 일기장 (diary-app)',
+        description: '3인 가족(아빠·세준·세은) 공유 일기/일정/목표/시험/할일/기념일 앱 — Supabase + Vercel. Cmd/Ctrl+K 명령 팔레트, 다크모드, 가족 공유, 멀티월 캘린더 뷰',
+        url: 'https://diary-app-iota-five.vercel.app',
+        repoUrl: 'https://github.com/jwj-nick/diary-app',
+        updated: '2026-06-14T00:00:00Z',
+      },
       {
         name: '에스에이엠티 (031330) 분석',
         description: '기업 시나리오 분석 — 주가차트·실적/배당 시각화·달력 이벤트·배당/주가 4모델 슬라이더 (불곰 2019 → 2026 업데이트)',
@@ -159,6 +171,7 @@
       const pagesRepos = [];
       for (const repo of repos) {
         if (repo.name === `${USERNAME}.github.io`) continue; // skip this portal itself
+        if (SKIP_REPOS.has(repo.name)) continue; // 다른 호스팅에 배포된 repo는 EXTRA_APPS에서 처리
         const pagesUrl = repo.has_pages
           ? `${PAGES_BASE}/${repo.name}/`
           : null;
