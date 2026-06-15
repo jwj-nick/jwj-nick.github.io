@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>과학기술 — 인류가 세상을 푸는 법</title>
+<meta name="description" content="과학혁명에서 AI 반도체까지, 핵심 개념과 작동 원리까지 파고드는 과학기술 통사. 고등학생·일반 독자를 위한 지식 확장형 읽기.">
+<style>
+  :root{
+    --rose:#C98B8B; --rose-soft:#E8C8C5; --navy:#33406B; --navy-2:#46527f; --navy-soft:#6F79A0;
+    --cream:#FBF7F2; --paper:#FFFFFF; --ink:#2E2A28; --muted:#857B74; --line:#EBE0D5;
+    --accent:#B5546A; --gold:#C49A4A;
+    --shadow:0 6px 22px rgba(51,64,107,.09); --shadow-sm:0 2px 10px rgba(51,64,107,.06);
+    --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+    background:var(--cream); color:var(--ink); line-height:1.78;
+    -webkit-font-smoothing:antialiased; word-break:keep-all;
+  }
+  a{color:inherit;}
+  #progress{position:fixed; top:0; left:0; height:3px; width:0%; background:linear-gradient(90deg,var(--rose),var(--accent)); z-index:60; transition:width .1s;}
+  .layout{display:flex; min-height:100vh;}
+  .sidebar{width:276px; flex:0 0 276px; background:linear-gradient(180deg,var(--navy),#2b3559); color:#fff; padding:26px 16px 30px; position:sticky; top:0; height:100vh; overflow-y:auto;}
+  .content{flex:1; min-width:0;}
+  .hub-back{display:inline-block; color:var(--rose-soft); font-size:12px; text-decoration:none; padding:4px 8px; margin:0 0 14px; border:1px solid rgba(255,255,255,.14); border-radius:9px; transition:background .15s,color .15s;}
+  .hub-back:hover{background:rgba(255,255,255,.1); color:#fff;}
+  .brand{cursor:pointer; padding:0 6px; margin-bottom:6px;}
+  .brand .bt{font-size:19px; font-weight:800; line-height:1.35;}
+  .brand .sub{display:block; font-size:11.5px; font-weight:500; color:var(--rose-soft); margin-top:7px; letter-spacing:.01em;}
+  .nav{margin-top:20px; list-style:none;}
+  .nav li{margin:3px 0;}
+  .nav a{display:flex; align-items:center; gap:11px; text-decoration:none; color:#dde0ee; font-size:14px; padding:10px 11px; border-radius:12px; transition:background .15s,color .15s; cursor:pointer; position:relative;}
+  .nav a .num{font-size:10.5px; color:var(--navy-soft); width:18px; font-weight:800; flex:0 0 18px;}
+  .nav a:hover{background:rgba(255,255,255,.09); color:#fff;}
+  .nav a.active{background:var(--rose); color:#fff; font-weight:700;}
+  .nav a.active .num{color:#fff;}
+  .nav a.star{background:rgba(196,154,74,.15);}
+  .nav a.star.active{background:var(--accent);}
+  .nav a.star .num{color:var(--gold);}
+  .nav a.visited:not(.active)::after{content:"✓"; margin-left:auto; font-size:11px; color:#8fd9a8; font-weight:800;}
+  .nav a.star .tag{font-size:9.5px; background:var(--gold); color:#3a2f10; padding:1px 6px; border-radius:8px; margin-left:auto; font-weight:800;}
+  .nav a.star.visited .tag{display:none;}
+  .nav .home-link{font-weight:700; color:#fff; background:rgba(255,255,255,.06); margin-bottom:8px;}
+  .side-foot{margin-top:24px; padding:16px 8px 0; font-size:11px; color:var(--navy-soft); line-height:1.7; border-top:1px solid rgba(255,255,255,.1);}
+  .topbar{display:none; align-items:center; gap:12px; background:var(--navy); color:#fff; padding:12px 16px; position:sticky; top:0; z-index:40;}
+  .topbar .hamb{font-size:22px; background:none;border:none;color:#fff;cursor:pointer;line-height:1;}
+  .topbar .tb-title{font-size:14.5px; font-weight:700;}
+  .topbar .tb-hub{margin-left:auto; color:#fff; font-size:12.5px; font-weight:700; text-decoration:none; border:1px solid rgba(255,255,255,.35); border-radius:9px; padding:5px 10px; white-space:nowrap;}
+  .topbar .tb-hub:active{background:rgba(255,255,255,.15);}
+  .scrim{display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:30;}
+  .hero{padding:54px 40px 36px; color:#fff; position:relative; overflow:hidden;}
+  .hero .kicker{font-size:12.5px; letter-spacing:.14em; font-weight:700; text-transform:uppercase; opacity:.92;}
+  .hero h1{font-size:31px; margin-top:10px; line-height:1.3; font-weight:800; max-width:680px;}
+  .hero .era{display:inline-flex; align-items:center; gap:7px; margin-top:16px; font-size:12.5px; background:rgba(255,255,255,.16); padding:6px 14px; border-radius:20px;}
+  .hero .motif{position:absolute; right:-10px; bottom:-20px; opacity:.16; width:180px; height:180px;}
+  .wrap{max-width:740px; margin:0 auto; padding:36px 28px 90px;}
+  .hook{font-size:18px; line-height:1.92; color:var(--navy); border-left:4px solid var(--rose); padding:4px 0 4px 20px; margin-bottom:30px; font-weight:500;}
+  h2.block{font-size:14px; letter-spacing:.05em; color:var(--accent); font-weight:800; margin:38px 0 15px; display:flex; align-items:center; gap:9px; text-transform:uppercase;}
+  h2.block::before{content:""; width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block; flex:0 0 8px;}
+  .why{background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:22px 24px; box-shadow:var(--shadow-sm); font-size:16px;}
+  .why b{color:var(--accent);}
+  .lens{background:linear-gradient(135deg,#fff,#f3f0fa); border:1px solid #d8cfe8; border-left:5px solid #7a6aa8; border-radius:14px; padding:18px 22px; margin:24px 0; font-size:15.5px;}
+  .lens .lh{font-weight:800; color:#5b4a86; font-size:13.5px; letter-spacing:.03em; margin-bottom:6px; display:flex; gap:7px; align-items:center;}
+  .quote{margin:30px 0; background:linear-gradient(135deg,#fff,#fdf2ef); border:1px solid var(--rose-soft); border-left:5px solid var(--rose); border-radius:14px; padding:22px 26px; box-shadow:var(--shadow-sm);}
+  .quote .qt{font-size:18.5px; font-style:italic; color:var(--navy); line-height:1.8;}
+  .quote .qs{display:block; margin-top:12px; font-size:13px; color:var(--muted); font-style:normal;}
+  .quote .qm{font-size:40px; color:var(--rose-soft); line-height:0; display:block; height:18px;}
+  .cards{display:grid; gap:14px;}
+  @media(min-width:620px){ .cards{grid-template-columns:1fr 1fr;} }
+  .card{background:var(--paper); border:1px solid var(--line); border-radius:15px; padding:18px 20px; box-shadow:var(--shadow-sm); transition:transform .12s, box-shadow .12s;}
+  .card:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
+  .card .yr{font-size:11.5px; font-weight:800; color:var(--rose); letter-spacing:.04em; text-transform:uppercase;}
+  .card h3{font-size:16.5px; color:var(--navy); margin:5px 0 6px;}
+  .card p{font-size:15px; color:var(--ink);}
+  .term{color:var(--accent); font-weight:700; border-bottom:1.5px dotted var(--rose); cursor:help;}
+  .people{display:grid; gap:14px;}
+  @media(min-width:620px){ .people{grid-template-columns:1fr 1fr;} }
+  .person{background:#fff; border:1px solid var(--line); border-radius:15px; padding:18px 20px; box-shadow:var(--shadow-sm);}
+  .person .pheader{display:flex; gap:13px; align-items:center; margin-bottom:8px;}
+  .person .pface{flex:0 0 46px; height:46px; border-radius:12px; background:linear-gradient(135deg,var(--rose),var(--accent)); display:flex;align-items:center;justify-content:center;font-size:22px; color:#fff;}
+  .person .pname{font-size:16.5px; font-weight:800; color:var(--navy);}
+  .person .pwho{font-size:12px; color:var(--muted);}
+  .person .pwhy{font-size:14.5px; margin-bottom:8px;}
+  .person .pquote{font-size:14px; font-style:italic; color:var(--accent); border-left:3px solid var(--rose-soft); padding-left:10px; margin:8px 0;}
+  .person .pshadow{font-size:13.5px; color:var(--muted); background:var(--cream); border-radius:9px; padding:8px 11px;}
+  .person .pmore{display:inline-block; margin-top:10px; font-size:13px; font-weight:700; text-decoration:none; color:var(--accent); border:1px solid var(--rose-soft); border-radius:9px; padding:6px 12px;}
+  .person .pmore:hover{background:var(--accent); color:#fff; border-color:var(--accent);}
+  .movies{display:grid; gap:14px;}
+  .movie{background:#fff; border:1px solid var(--line); border-radius:15px; padding:16px 18px; box-shadow:var(--shadow-sm);}
+  .movie .mhead{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:4px;}
+  .movie .mtitle{font-size:16.5px; font-weight:800; color:var(--navy);}
+  .movie .mfit{font-size:11.5px; font-weight:700; border-radius:7px; padding:2px 8px; white-space:nowrap;}
+  .movie .mfit.green{background:#E5F3E8; color:#2E7D4F;}
+  .movie .mfit.yellow{background:#FBF1D8; color:#9A7B22;}
+  .movie .mfit.red{background:#F7E0E0; color:#B5546A;}
+  .movie .mmeta{font-size:12.5px; color:var(--muted); margin-bottom:9px;}
+  .movie .mmeta b{color:var(--accent);}
+  .movie .mwhy{font-size:14.5px; margin-bottom:9px;}
+  .movie .mreal{font-size:13px; color:var(--muted); background:var(--cream); border-radius:9px; padding:8px 11px; margin-bottom:10px;}
+  .movie .mreal .lbl{font-weight:800; color:var(--gold); margin-right:6px;}
+  .movie .mlinks{display:flex; gap:8px; flex-wrap:wrap;}
+  .movie .mlink{font-size:12.5px; font-weight:700; text-decoration:none; color:var(--navy); border:1px solid var(--line); border-radius:8px; padding:5px 11px;}
+  .movie .mlink:hover{border-color:var(--accent); color:var(--accent);}
+  .movie .mlink.slug{color:var(--accent); border-color:var(--rose-soft);}
+  .relations{background:#fff; border:1px solid var(--line); border-radius:15px; padding:18px 18px 16px; box-shadow:var(--shadow-sm);}
+  .relations .rtitle{font-size:16px; font-weight:800; color:var(--navy); text-align:center; margin-bottom:6px;}
+  .relations .rintro{font-size:14px; color:var(--muted); text-align:center; margin-bottom:14px;}
+  .rsides{display:grid; gap:12px;}
+  @media(min-width:600px){ .rsides{grid-template-columns:repeat(auto-fit,minmax(160px,1fr));} }
+  .rside{border-radius:13px; padding:13px 14px;}
+  .rside.red{background:#FBEAEA; border:1px solid #E8C0C0;}
+  .rside.blue{background:#E9EEF7; border:1px solid #C2D0E6;}
+  .rside.green{background:#E7F1EA; border:1px solid #BFD9C7;}
+  .rside .rslabel{font-size:13px; font-weight:800; margin-bottom:9px; letter-spacing:.02em;}
+  .rside.red .rslabel{color:#B5546A;}
+  .rside.blue .rslabel{color:#33406B;}
+  .rside.green .rslabel{color:#2E7D4F;}
+  .rmember{background:#fff; border:1px solid var(--line); border-radius:9px; padding:8px 10px; margin-bottom:7px; font-size:13.5px;}
+  .rmember b{color:var(--navy); margin-right:6px;}
+  .rmember span{color:var(--muted);}
+  .rmember .rlink{text-decoration:none;}
+  .rtensions{margin-top:14px; display:grid; gap:9px;}
+  .rtension{background:var(--cream); border-left:3px solid var(--gold); border-radius:9px; padding:10px 12px; font-size:13.5px;}
+  .rtension .rvs{font-weight:800; color:var(--accent); margin-bottom:3px;}
+  .marchmap{background:#fff; border:1px solid var(--line); border-radius:15px; padding:16px; box-shadow:var(--shadow-sm);}
+  .marchmap .mm-title{font-weight:800; color:var(--navy); text-align:center; font-size:16px;}
+  .marchmap .mm-intro{font-size:14px; color:var(--muted); text-align:center; margin:6px 0 12px;}
+  .mm-stage{position:relative; max-width:360px; margin:0 auto; aspect-ratio:1866/2891; background:#eef3ee; border-radius:10px; overflow:hidden;}
+  .mm-base{position:absolute; inset:0; width:100%; height:100%; object-fit:contain;}
+  .mm-arrows{position:absolute; inset:0; width:100%; height:100%; overflow:visible;}
+  .mm-arrow{fill:none; stroke-width:1.4; stroke-linecap:round; stroke-dasharray:300; stroke-dashoffset:300; opacity:0; transition:stroke-dashoffset .8s ease, opacity .3s;}
+  .mm-arrow.on{stroke-dashoffset:0; opacity:.95;}
+  .mm-arrow.tone-resist{stroke:#2E7D4F;} .mh.resist{fill:#2E7D4F;}
+  .mm-arrow.tone-invade{stroke:#B5546A;} .mh.invade{fill:#B5546A;}
+  .mm-alab{font-size:3.4px; font-weight:800; opacity:0; transition:opacity .3s;} .mm-alab.on{opacity:.9;}
+  .mm-alab.tone-resist{fill:#2E7D4F;} .mm-alab.tone-invade{fill:#B5546A;}
+  .mm-place{position:absolute; transform:translate(-50%,-50%); opacity:0; transition:opacity .35s; display:flex; flex-direction:column; align-items:center; pointer-events:none; z-index:2;}
+  .mm-place.on{opacity:1;}
+  .mm-dot{width:11px; height:11px; border-radius:50%; background:var(--navy); border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,.35);}
+  .mm-place.k-battle .mm-dot{background:#B5546A;} .mm-place.k-loss .mm-dot{background:#7a2e3f;}
+  .mm-place.k-win .mm-dot{background:#2E7D4F;} .mm-place.k-start .mm-dot{background:var(--gold);}
+  .mm-lbl{font-size:11px; font-weight:700; color:var(--navy); background:rgba(255,255,255,.9); border-radius:5px; padding:0 4px; margin-top:3px; white-space:nowrap;}
+  .mm-step{display:flex; align-items:center; gap:10px; justify-content:center; margin-top:13px;}
+  .mm-step button{background:var(--navy); color:#fff; border:none; border-radius:9px; padding:7px 14px; font-size:13px; font-weight:700; cursor:pointer;}
+  .mm-step button:disabled{opacity:.4; cursor:default;}
+  .mm-plabel{font-size:13.5px; font-weight:800; color:var(--accent); min-width:150px; text-align:center;}
+  .mm-cap{font-size:11px; color:var(--muted); text-align:center; margin-top:9px; line-height:1.5;}
+  .battlemap{background:#fff; border:1px solid var(--line); border-radius:15px; padding:16px; box-shadow:var(--shadow-sm);}
+  .battlemap .bm-intro{font-size:14px; color:var(--muted); text-align:center; margin-bottom:11px;}
+  .bm-map{width:100%; height:380px; border-radius:11px; overflow:hidden; border:1px solid var(--line); background:#eef3ee;}
+  .bm-ic div{font-size:19px; filter:drop-shadow(0 1px 1px rgba(0,0,0,.4));}
+  .bm-tt{background:rgba(255,255,255,.92); border:1px solid var(--line); border-radius:5px; font-size:11px; font-weight:700; color:var(--navy); padding:1px 5px; box-shadow:none;}
+  .bm-tt:before{display:none;}
+  .bm-step{display:flex; align-items:center; gap:10px; justify-content:center; margin-top:12px;}
+  .bm-step button{background:var(--navy); color:#fff; border:none; border-radius:9px; padding:7px 14px; font-size:13px; font-weight:700; cursor:pointer;}
+  .bm-step button:disabled{opacity:.4; cursor:default;}
+  .bm-plabel{font-size:13.5px; font-weight:800; color:var(--accent); min-width:150px; text-align:center;}
+  .bm-legend{display:flex; gap:14px; flex-wrap:wrap; justify-content:center; font-size:12.5px; margin-top:11px;}
+  .bm-legend span{display:inline-flex; align-items:center; gap:5px;}
+  .bm-legend i{width:16px; border-top:3px solid; display:inline-block; border-radius:2px;}
+  .bm-cap{font-size:11px; color:var(--muted); text-align:center; margin-top:9px;}
+  .deepdive{margin:18px 0 6px; border:1px solid var(--line); border-radius:13px; background:linear-gradient(180deg,#fff,#fbf6ef); overflow:hidden;}
+  .deepdive summary{cursor:pointer; padding:14px 18px; font-size:15px; font-weight:800; color:var(--navy); list-style:none; display:flex; align-items:center; gap:8px;}
+  .deepdive summary::-webkit-details-marker{display:none;}
+  .deepdive summary:after{content:"▾"; margin-left:auto; color:var(--accent); transition:transform .2s;}
+  .deepdive[open] summary:after{transform:rotate(180deg);}
+  .deepdive summary:hover{background:rgba(181,84,106,.05);}
+  .dd-body{padding:4px 18px 18px;}
+  .dd-item{border-top:1px solid var(--line); padding:13px 0;}
+  .dd-item:first-child{border-top:none;}
+  .dd-item h3{font-size:15px; color:var(--accent); margin-bottom:6px;}
+  .dd-text{font-size:14.5px; line-height:1.8;}
+  .dd-src{font-size:12.5px; color:var(--muted); background:var(--cream); border-radius:8px; padding:7px 11px; margin-top:8px;}
+  .timeline{position:relative; margin:6px 0 6px 9px; padding-left:26px; border-left:2.5px solid var(--rose-soft);}
+  .tl{position:relative; padding:5px 0 17px;}
+  .tl::before{content:""; position:absolute; left:-33.5px; top:9px; width:13px;height:13px;border-radius:50%;background:var(--rose); border:3px solid var(--cream);}
+  .tl .tl-yr{font-weight:800; color:var(--navy); font-size:13.5px;}
+  .tl .tl-txt{font-size:15px;}
+  .connect{background:#fff; border:1px dashed var(--rose); border-radius:14px; padding:17px 22px; font-size:15.5px; color:var(--navy); display:flex; gap:12px; align-items:flex-start;}
+  .connect .ico{flex:0 0 22px; font-size:18px;}
+  .connect b{color:var(--accent);}
+  .yt{display:flex; gap:14px; align-items:flex-start; text-decoration:none; background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin-bottom:11px; transition:transform .12s, box-shadow .12s;}
+  .yt:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
+  .yt .play{flex:0 0 42px; height:42px; border-radius:11px; background:#FF0000; color:#fff; display:flex;align-items:center;justify-content:center;font-size:16px;}
+  .yt .play.search{background:var(--navy);}
+  .yt .yt-body{flex:1; min-width:0;}
+  .yt .yt-title{font-weight:700; color:var(--navy); font-size:15px; line-height:1.45;}
+  .yt .yt-meta{font-size:12px; color:var(--muted); margin-top:3px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+  .yt .pill{background:var(--cream); border:1px solid var(--line); border-radius:6px; padding:1px 6px; font-weight:700;}
+  .yt .pill.ko{color:#2f7d4f;} .yt .pill.en{color:#3a5bb5;} .yt .pill.find{color:var(--navy);}
+  .yt .yt-desc{font-size:13.5px; margin-top:5px; color:var(--ink);}
+  .reflect{background:#fff; border:2px solid var(--rose-soft); border-radius:var(--radius); padding:20px 22px; box-shadow:var(--shadow-sm);}
+  .reflect .q{font-weight:700; color:var(--navy); margin-bottom:9px; font-size:15.5px;}
+  .reflect textarea{width:100%; min-height:88px; border:1px solid var(--line); border-radius:11px; padding:13px; font-family:inherit; font-size:15px; resize:vertical; background:#fffdfb; color:var(--ink); line-height:1.7;}
+  .reflect textarea:focus{outline:none; border-color:var(--rose); box-shadow:0 0 0 3px rgba(201,139,139,.15);}
+  .reflect textarea + .q{margin-top:18px;}
+  .reflect .saved{font-size:12px; color:var(--gold); margin-top:6px; height:15px; font-weight:600;}
+  /* quiz (R1) */
+  .quizwrap{display:flex;flex-direction:column;gap:14px;}
+  .quizq{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow-sm);}
+  .quizq .qq{font-weight:700;color:var(--navy);font-size:15.5px;margin-bottom:10px;}
+  .qopts{display:flex;flex-direction:column;gap:8px;}
+  .quiz-opt{text-align:left;font-family:inherit;font-size:14.5px;background:var(--cream);border:1px solid var(--line);border-radius:10px;padding:10px 13px;cursor:pointer;color:var(--ink);transition:background .12s;}
+  .quiz-opt:hover:not(:disabled){background:#f3ece4;}
+  .quiz-opt:disabled{cursor:default;}
+  .quiz-opt.correct{background:#e8f5ec;border-color:#8fcea5;color:#1f7a44;font-weight:700;}
+  .quiz-opt.wrong{background:#fbeaec;border-color:#e3a3ad;color:#a83246;}
+  .qexp{font-size:14px;color:var(--ink);margin-top:10px;display:none;line-height:1.7;background:var(--cream);border-radius:9px;padding:10px 12px;}
+  .qexp.show{display:block;}
+  .qexp b{color:var(--accent);}
+  /* notes export (R2) */
+  .nav .notes-link{font-weight:700;color:#fff;background:rgba(196,154,74,.16);}
+  .note-actions{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+  .notes-view{background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px 26px;box-shadow:var(--shadow-sm);}
+  .note-sec{margin-bottom:22px;}
+  .note-sh{font-weight:800;color:var(--accent);font-size:13px;letter-spacing:.04em;border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:10px;}
+  .note-q{font-weight:700;color:var(--navy);font-size:14.5px;margin-top:12px;}
+  .note-a{font-size:14.5px;white-space:pre-wrap;margin-top:3px;}
+  .note-a.empty{color:var(--muted);font-style:italic;}
+  @media print{ .sidebar,.topbar,.scrim,#progress,.noprint{display:none!important;} .content{width:100%;} .home-hero{background:#fff!important;color:#000!important;padding:10px 0 0;} .home-hero h1{color:#000;} .home-hero .hsub{color:#555;} .notes-view{border:none;box-shadow:none;padding:0;} body{background:#fff;} }
+  /* map (R3 — 실제 지도, Leaflet+OSM) */
+  .mapwrap{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow-sm);}
+  .lmap{height:340px;border-radius:12px;overflow:hidden;border:1px solid var(--line);z-index:0;}
+  .mapcap{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.6;}
+  .mapcap .msrc{font-size:11.5px;opacity:.8;}
+  /* image (S1 — PD 역사지도/사진 + 선택적 hotspot) */
+  .figimg{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow-sm);}
+  .figstory{font-size:15.5px;line-height:1.8;margin-bottom:12px;color:var(--ink);}
+  .figstory b{color:var(--accent);}
+  .imgbox{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#f4efe8;}
+  .imgbox img{width:100%;height:auto;display:block;}
+  .hsdot{position:absolute;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;border:2px solid #fff;font-size:12px;font-weight:800;cursor:pointer;box-shadow:0 2px 7px rgba(0,0,0,.32);display:flex;align-items:center;justify-content:center;line-height:1;}
+  .hsdot:hover{background:var(--navy);}
+  .hsinfo{margin-top:10px;font-size:14px;background:var(--cream);border-radius:9px;padding:11px 13px;display:none;line-height:1.7;}
+  .hsinfo.show{display:block;}
+  .hsinfo b{color:var(--accent);}
+  .figcap{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.65;}
+  .figcap .msrc{font-size:11.5px;opacity:.85;}
+  /* oldmap (고지도 — 시대감) */
+  .oldmap{background:linear-gradient(180deg,#f7f0e2,#efe4cf);border:1px solid #d8c7a6;border-radius:16px;padding:16px;box-shadow:var(--shadow-sm);}
+  .oldmap-frame{border-radius:10px;overflow:hidden;border:3px solid #8a6d3b;box-shadow:inset 0 0 40px rgba(94,66,20,.25);background:#e8dcc2;}
+  .oldmap-frame img{width:100%;height:auto;display:block;filter:sepia(.32) contrast(1.04) saturate(.9);}
+  .oldmap .figcap{color:#6b5836;}
+  /* lightbox (이미지 클릭 확대 — image/oldmap 공통) */
+  .imgbox img,.oldmap-frame img{cursor:zoom-in;}
+  .lightbox{position:fixed;inset:0;background:rgba(22,19,16,.93);display:none;align-items:center;justify-content:center;z-index:99;padding:16px;cursor:zoom-out;}
+  .lightbox.show{display:flex;}
+  .lightbox img{max-width:96vw;max-height:90vh;width:auto;height:auto;border-radius:8px;box-shadow:0 12px 44px rgba(0,0,0,.55);}
+  .lightbox .lb-cap{position:fixed;left:0;right:0;bottom:10px;text-align:center;color:#E8C8C5;font-size:12px;padding:0 22px;line-height:1.5;}
+  /* companion (짝 에피소드 배지) */
+  .companion-link{display:block;margin:6px 14px 0;padding:7px 11px;border:1px dashed rgba(255,255,255,.35);border-radius:9px;color:#fff;font-size:12px;text-decoration:none;opacity:.92;}
+  .companion-link:hover{background:rgba(255,255,255,.1);}
+  /* voice (S3 — 일기·편지체 1인칭) */
+  .voice{background:linear-gradient(135deg,#fffdf8,#f6efe3);border:1px solid #e6d9c4;border-left:5px solid var(--gold);border-radius:14px;padding:20px 24px;box-shadow:var(--shadow-sm);}
+  .voice .vbadge{display:inline-block;font-size:11px;font-weight:800;padding:2px 10px;border-radius:8px;margin-bottom:12px;letter-spacing:.02em;}
+  .voice .vbadge.real{background:#e6f0e8;color:#2f6b43;}
+  .voice .vbadge.imag{background:#f3eadb;color:#8a6d2f;}
+  .voice .vbody{font-size:16.5px;font-style:italic;line-height:1.95;color:#3a352f;}
+  .voice .vbody::before{content:"“";font-size:34px;color:var(--gold);line-height:0;vertical-align:-12px;margin-right:3px;}
+  .voice .vspeaker{margin-top:14px;font-size:13px;color:var(--muted);}
+  .voice .vspeaker b{color:var(--navy);}
+  .voice .vsrc{display:block;font-size:11.5px;opacity:.85;margin-top:3px;}
+  /* chart (S4 — 자체 막대 + 체감 비교) */
+  .chart{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow-sm);}
+  .chart .ctitle{font-weight:800;color:var(--navy);font-size:15.5px;}
+  .chart .cunit{font-size:12px;color:var(--muted);margin:3px 0 14px;}
+  .crow{display:flex;align-items:center;gap:10px;margin:9px 0;}
+  .crow .clabel{flex:0 0 72px;font-size:13px;color:var(--ink);text-align:right;}
+  .crow .cbarwrap{flex:1;background:var(--cream);border-radius:7px;overflow:hidden;height:24px;}
+  .crow .cbar{height:100%;background:linear-gradient(90deg,var(--rose),var(--accent));border-radius:7px;min-width:3px;}
+  .crow .cval{flex:0 0 auto;font-size:12.5px;font-weight:700;color:var(--accent);min-width:62px;}
+  .crelate{margin-top:15px;font-size:14.5px;background:#fdf2ef;border:1px solid var(--rose-soft);border-radius:10px;padding:12px 14px;line-height:1.7;}
+  .crelate b{color:var(--accent);}
+  .csrc{font-size:11.5px;color:var(--muted);margin-top:11px;opacity:.85;}
+  /* compare (S5 — 단계 토글 / before·after) */
+  .compare{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow-sm);}
+  .cmpintro{font-size:15px;margin-bottom:13px;color:var(--ink);line-height:1.7;}
+  .cmptabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px;}
+  .cmptab{font-family:inherit;font-size:13px;font-weight:700;background:var(--cream);border:1px solid var(--line);border-radius:20px;padding:7px 14px;cursor:pointer;color:var(--navy);transition:background .12s;}
+  .cmptab:hover{background:#f3ece4;}
+  .cmptab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .cmppanel .cmh{font-weight:800;color:var(--navy);font-size:16.5px;margin-bottom:7px;}
+  .cmppanel .cmb{font-size:15px;line-height:1.85;}
+  .cmppanel img{width:100%;border-radius:10px;margin-top:11px;border:1px solid var(--line);display:block;}
+  .cmpcap{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.6;}
+  /* choice (S7 — 너라면? 도덕적 딜레마) */
+  .choice{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow-sm);}
+  .chprompt{font-weight:700;color:var(--navy);font-size:15.5px;margin-bottom:14px;line-height:1.75;}
+  .chopts{display:flex;flex-direction:column;gap:9px;}
+  .chopt{text-align:left;font-family:inherit;font-size:14.5px;background:var(--cream);border:1px solid var(--line);border-radius:11px;padding:12px 14px;cursor:pointer;color:var(--ink);transition:background .12s;}
+  .chopt:hover{background:#f3ece4;}
+  .chopt.picked{border-color:var(--accent);background:#fdf2ef;font-weight:700;}
+  .chres{font-size:14px;margin-top:8px;background:#f7f3fb;border:1px solid #e0d6ee;border-radius:9px;padding:11px 13px;display:none;line-height:1.75;}
+  .chres.show{display:block;}
+  .chafter{margin-top:15px;font-size:14px;background:var(--cream);border-radius:9px;padding:12px 14px;line-height:1.75;display:none;}
+  .chafter.show{display:block;}
+  .chafter b{color:var(--accent);}
+  .pager{display:flex; justify-content:space-between; gap:12px; margin-top:46px;}
+  .pager a{flex:1; text-decoration:none; background:#fff; border:1px solid var(--line); border-radius:14px; padding:15px 18px; color:var(--navy); box-shadow:var(--shadow-sm); transition:transform .12s, box-shadow .12s; cursor:pointer;}
+  .pager a:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
+  .pager a.next{text-align:right; background:var(--navy); color:#fff; border-color:var(--navy);}
+  .pager .pg-label{font-size:11.5px; color:var(--muted);}
+  .pager a.next .pg-label{color:var(--rose-soft);}
+  .pager .pg-title{font-weight:700; font-size:15px; margin-top:3px;}
+  .home-hero{padding:60px 32px 44px; background:linear-gradient(140deg,var(--navy) 0%, #54608c 100%); color:#fff; text-align:center;}
+  .home-hero h1{font-size:33px; font-weight:800; line-height:1.32;}
+  .home-hero .hsub{font-size:15px; color:var(--rose-soft); margin-top:12px;}
+  .home-hero .hq{margin:26px auto 0; max-width:460px; font-style:italic; font-size:15px; opacity:.92; line-height:1.8;}
+  .home-hero .hq small{display:block; font-style:normal; opacity:.7; font-size:12px; margin-top:8px;}
+  .home-wrap{max-width:760px; margin:0 auto; padding:36px 26px 90px;}
+  .home-intro{font-size:16.5px; background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:24px 26px; box-shadow:var(--shadow-sm); line-height:1.85;}
+  .home-intro b{color:var(--accent);}
+  .start-btns{display:flex; gap:12px; flex-wrap:wrap; margin:24px 0 8px;}
+  .btn{flex:1; min-width:200px; text-decoration:none; text-align:center; padding:16px; border-radius:14px; font-weight:700; font-size:15.5px; box-shadow:var(--shadow-sm); transition:transform .12s; cursor:pointer;}
+  .btn:hover{transform:translateY(-2px);}
+  .btn.primary{background:var(--navy); color:#fff;}
+  .btn.star{background:linear-gradient(135deg,var(--rose),var(--accent)); color:#fff;}
+  .path{list-style:none; margin-top:14px;}
+  .path li{display:flex; gap:16px; align-items:flex-start; cursor:pointer; padding:14px 16px; border-radius:14px; transition:background .12s;}
+  .path li:hover{background:#fff;}
+  .path .pn{flex:0 0 34px; height:34px; border-radius:50%; background:var(--navy); color:#fff; display:flex;align-items:center;justify-content:center; font-weight:800; font-size:14px;}
+  .path li.star .pn{background:var(--accent);}
+  .path .ph{font-weight:700; color:var(--navy); font-size:16px;}
+  .path .ph .star-mark{color:var(--gold);}
+  .path .pp{font-size:14px; color:var(--muted); margin-top:2px;}
+  #tip{position:fixed; z-index:70; max-width:260px; background:var(--navy); color:#fff; font-size:13px; line-height:1.6; padding:11px 14px; border-radius:11px; box-shadow:0 8px 24px rgba(0,0,0,.28); display:none; pointer-events:none;}
+  .leaflet-popup-content{font-family:inherit;font-size:13.5px;line-height:1.6;}
+  .leaflet-popup-content b{color:var(--accent);}
+  @media (max-width:880px){
+    .sidebar{position:fixed; left:0; top:0; z-index:35; transform:translateX(-100%); transition:transform .25s;}
+    .sidebar.open{transform:translateX(0);}
+    .topbar{display:flex;}
+    .scrim.show{display:block;}
+    .hero{padding:34px 22px 26px;} .hero h1{font-size:25px;} .hero .motif{width:120px;height:120px;}
+    .home-hero{padding:40px 20px 32px;} .home-hero h1{font-size:26px;}
+    .wrap,.home-wrap{padding:26px 18px 76px;}
+  }
+</style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-ant-path@1.3.0/dist/leaflet-ant-path.js"></script>
+</head>
+<body>
+<div id="progress"></div>
+<div class="layout">
+  <nav class="sidebar" id="sidebar">
+    <a class="hub-back" id="hubBack" href="../index.html">← 역사 이야기 허브</a>
+    <div class="brand" id="brandHome"><div class="bt" id="brandTitle"></div><span class="sub" id="brandSub"></span></div>
+    <ul class="nav" id="navList"></ul>
+    <div class="side-foot" id="sideFoot"></div>
+  </nav>
+  <div class="scrim" id="scrim"></div>
+  <main class="content">
+    <div class="topbar"><button class="hamb" id="hamb" aria-label="메뉴">☰</button><span class="tb-title" id="tbTitle"></span><a class="tb-hub" id="tbHub" href="../index.html">🏛️ 역사 허브</a></div>
+    <div id="view"></div>
+  </main>
+</div>
+<div id="tip"></div>
+
+<!-- 에피소드 데이터 (build.py가 주입) -->
+<script id="episode-data">window.EPISODE = {"meta": {"lang": "ko", "slug": "tracks/sci-tech", "title": "과학기술 — 인류가 세상을 푸는 법", "description": "과학혁명에서 AI 반도체까지, 핵심 개념과 작동 원리까지 파고드는 과학기술 통사. 고등학생·일반 독자를 위한 지식 확장형 읽기.", "brand": {"title": "과학기술의 역사", "sub": "개념과 원리로 읽는 9정거장"}, "foot": "역사 이야기 · 분야 트랙 ① · 고등/일반 수준", "home": {"h1": "인류가 세상을<br>'푸는' 법", "sub": "과학혁명에서 AI 반도체까지 — 개념과 원리로 읽는 9정거장", "quote": {"text": "자연이라는 책은 수학의 언어로 쓰여 있다.", "by": "갈릴레오 갈릴레이"}, "intro": "정치와 전쟁의 연대기를 가로질러, 인류가 무엇을 <b>발견하고 만들어 왔는가</b>의 관점에서 역사를 다시 읽는다. 단순한 사건 나열이 아니라 각 정거장의 <b>핵심 개념과 그것이 작동하는 원리</b>까지 파고든다. 하늘을 의심한 과학혁명에서 시작해, 마지막 칸에서는 오늘날 AI를 떠받치는 <b>반도체·코덱 기술의 속살</b>까지 들여다본다. 각 정거장의 '심화' 칸은 한 단계 더 깊은 공학·이론을 담았다.", "startPrimary": {"label": "처음부터 — 과학혁명 →", "to": "revolution"}, "startStar": {"label": "★ 마지막 칸 — AI와 반도체로", "to": "ai-chip"}, "pathLabel": "기술의 사슬"}}, "terms": {"지동설": "지구가 태양 주위를 돈다는 태양중심설. 그 반대인 천동설(지구중심설)은 하늘이 지구를 돈다는 고대의 우주관이다.", "만유인력": "질량을 가진 모든 물체가 서로 끌어당기는 힘. 사과의 낙하와 달의 공전을 같은 법칙으로 설명한다.", "질량보존": "화학 반응 전후로 물질 전체의 질량은 변하지 않는다는 법칙.", "원자": "물질을 이루는 기본 입자. 화학 반응에서 더 쪼개지지 않는 단위로 다뤄진다.", "주기율표": "원소를 원자번호와 화학적 성질의 주기성에 따라 배열한 표.", "원소": "한 종류의 원자로 이루어진 순물질(예: 산소·철·규소).", "하버법": "공기 중 질소를 암모니아로 고정해 비료 원료를 대량 합성하는 공정(하버–보슈법).", "연금술": "비금속을 금으로 바꾸려던 전근대의 시도. 정량적 실험으로 대체되며 근대 화학으로 발전했다.", "전자기파": "전기장과 자기장이 함께 진동하며 빛의 속도로 전파되는 파동. 가시광·전파·X선이 모두 여기 속한다.", "대역폭": "통신 채널이 단위 시간에 전달할 수 있는 정보량의 한계. 압축이 필요한 근본 이유다.", "코덱": "영상·음성·이미지를 압축(부호화)하고 복원(복호화)하는 기술. coder+decoder의 합성어.", "세균설": "특정 미생물이 특정 질병을 일으킨다는 이론. 코흐의 가설로 인과가 확립됐다.", "항생제": "세균을 죽이거나 증식을 막는 약물. 페니실린이 최초의 항생제다.", "DNA": "네 종류의 염기(A·T·G·C) 서열로 유전 정보를 저장하는 이중나선 분자.", "유전자": "특정 단백질이나 기능을 지정하는 DNA의 한 구간.", "상대성이론": "시간·공간·질량·에너지의 관계를 다시 정의한 아인슈타인의 이론. 특수·일반으로 나뉜다.", "방사능": "불안정한 원자핵이 스스로 방사선을 내며 붕괴하는 성질.", "핵분열": "무거운 원자핵이 둘로 쪼개지며 큰 에너지를 방출하는 반응. 원자력과 핵무기의 원리.", "트랜지스터": "전류를 켜고 끄거나 증폭하는 반도체 소자. 디지털 회로의 기본 스위치.", "반도체": "조건에 따라 전기 전도도를 조절할 수 있는 물질. 트랜지스터·집적회로의 재료(주로 규소).", "집적회로": "다수의 트랜지스터·소자를 하나의 칩에 집적한 회로(IC).", "무어의 법칙": "집적회로의 트랜지스터 수가 약 2년마다 두 배가 된다는 경험적 경향.", "폰노이만 구조": "프로그램과 데이터를 같은 메모리에 두고 순차 처리하는 컴퓨터 기본 구조.", "패킷": "네트워크에서 데이터를 잘게 나눈 전송 단위. 각각 독립적으로 경로를 찾아간다.", "픽셀": "디지털 영상을 이루는 최소 색점.", "압축": "정보를 더 적은 데이터로 표현하는 것. 손실/무손실 방식이 있다.", "변환부호화": "영상을 주파수 성분(예: DCT)으로 바꿔, 사람이 둔감한 성분을 줄여 압축하는 기법.", "딥러닝": "여러 층의 신경망으로 데이터에서 표현과 규칙을 스스로 학습하는 기계학습 방법.", "신경망": "가중치로 연결된 인공 뉴런 층들로 입력을 출력으로 변환하는 계산 모형.", "가중치": "신경망의 연결 강도를 나타내는 매개변수. 학습이란 이 값들을 조정하는 과정이다.", "행렬연산": "행렬의 곱·합 연산. 신경망 계산의 대부분을 차지하는 대규모 곱셈-누산이다.", "NPU": "신경망 연산에 특화된 가속기(Neural Processing Unit). 곱셈-누산을 병렬·저전력으로 처리한다.", "GPU": "본래 그래픽용이지만 대규모 병렬 연산에 강해 AI 학습/추론에 널리 쓰이는 프로세서.", "파운드리": "다른 회사가 설계한 반도체를 위탁 생산하는 제조 기업(예: 첨단 미세공정 파운드리)."}, "sections": [{"id": "revolution", "num": "00", "label": "과학혁명", "accent": "#2f4858", "kicker": "1543 ~ 1687", "era": "과학혁명", "motif": "sun", "title": "하늘을 의심하다 — 방법의 탄생", "hook": "1543년, 코페르니쿠스는 죽음을 앞두고서야 자신의 책을 세상에 내놓았다. 『천구의 회전에 관하여』. 그 안에는 천 년 넘게 이어진 상식을 뒤집는 주장이 있었다 — 우주의 중심은 지구가 아니라 태양이며, 도는 쪽은 우리라는 것. 그것은 천문학 가설을 넘어, '무엇을 근거로 진리를 판단하는가'라는 물음 자체를 바꾸는 사건이었다.", "why": "과학혁명의 본질은 새로운 사실의 목록이 아니라 <b>방법의 전환</b>이다. 경전이나 고대 철학자의 권위가 아니라, 관찰과 실험으로 검증되고 수학으로 표현되는 것만을 지식으로 인정하기 시작했다. 이 인식론적 전환이 이후 모든 과학과 공학의 토대가 된다.", "lens": "당대에 진리란 성경과 약 1,500년 전 아리스토텔레스의 저작에 이미 적혀 있는 것이었다. 따라서 직접 의심하고 검증한다는 태도는 지적 도발이자 때로 신앙적 위협이었다. 갈릴레이의 종교재판은 새로운 방법과 기존 권위가 충돌한 상징적 장면이다.", "cards": [{"yr": "1543", "h": "코페르니쿠스 — 태양중심설", "p": "지구중심설을 태양중심설로 대체했다. 행성의 역행 운동 같은 복잡한 현상을 더 단순한 모형으로 설명했지만, 당대의 관측 직관·종교 상식과 정면으로 충돌했다."}, {"yr": "1609", "h": "갈릴레이 — 망원경 관측", "p": "직접 만든 망원경으로 목성의 위성, 달의 분화구, 금성의 위상을 관측했다. '천상은 완전하고 불변하다'는 아리스토텔레스적 우주관을 경험적으로 반박했다."}, {"yr": "1619", "h": "케플러 — 타원 궤도", "p": "튀코 브라헤의 정밀 관측 자료를 분석해 행성이 타원 궤도를 돈다는 세 법칙을 정식화했다. '원운동이라야 한다'는 미적 선입견을 데이터로 깨뜨렸다."}, {"yr": "1687", "h": "뉴턴 — 종합", "p": "『프린키피아』에서 세 운동 법칙과 만유인력으로 지상의 낙하와 천체의 운행을 하나의 수학 체계로 통합했다. 근대 물리학의 출발점이다."}], "timeline": [{"yr": "1543", "t": "코페르니쿠스 『천구의 회전에 관하여』"}, {"yr": "1609", "t": "갈릴레이, 망원경 천체 관측"}, {"yr": "1633", "t": "갈릴레이 종교재판"}, {"yr": "1687", "t": "뉴턴 『프린키피아』"}], "connect": "'자연은 수학으로 기술된다'는 이 믿음이, 다음 정거장에서 '그 법칙으로 동력을 설계한다'는 산업혁명으로 이어진다.", "yt": [{"type": "search", "q": "과학혁명 코페르니쿠스 갈릴레이 뉴턴 다큐", "title": "과학혁명 — 방법의 전환", "lang": "ko", "desc": "태양중심설과 뉴턴 종합이 왜 인식론적 사건이었는지 다루는 영상을 찾아보세요."}, {"type": "search", "q": "Scientific Revolution Kepler Newton Principia", "title": "케플러에서 뉴턴까지", "lang": "en", "desc": "관측 데이터와 수학적 종합의 과정을 다룬 영어 영상."}], "quiz": [{"q": "과학혁명의 핵심을 가장 잘 설명한 것은?", "options": ["새 대륙과 자원의 발견", "권위 대신 관찰·실험·수학적 검증을 지식의 기준으로 삼은 방법론의 전환", "교회 권력의 소멸"], "answer": 1, "explain": "개별 발견보다 '지식을 생산하는 절차' 자체가 바뀐 것이 본질이다. 이 방법론이 이후 모든 과학·공학의 공통 기반이 된다."}], "reflect": ["오늘날 '모두가 당연하게 받아들이지만 근거가 약한' 통념을 하나 골라, 그것을 검증하려면 어떤 관찰·실험이 필요할지 적어보자."], "deepdive": [{"h": "🔬 심화 — '과학적 방법'이라는 메타 발명", "body": "과학혁명이 남긴 가장 큰 유산은 특정 발견이 아니라 <b>지식을 생산하는 절차 그 자체</b>다. 가설을 세우고, 통제된 관찰·실험으로 검증하며, 규칙성을 수학적 형식으로 환원한다. 갈릴레이의 '자연은 수학의 언어로 쓰였다'는 선언과 뉴턴의 『프린키피아』가 그 정점이었다. 핵심은 <b>예측 가능성과 반증 가능성</b>이다 — 몇 개의 공리적 법칙에서 다양한 현상을 연역하고, 그 예측을 관측으로 시험할 수 있게 만든 것. 이 '수학화된 자연관'이 없었다면 산업혁명을 떠받친 열역학도, 디지털 컴퓨팅의 불 대수도, 딥러닝의 최적화 이론도 성립하지 않았다. 또한 이 혁명은 유럽의 고립된 성취가 아니라, 이슬람 황금기의 실험적 광학(이븐 알하이삼)과 정밀 천문 관측, 인도·중국의 수학·천문 전통이 축적된 토대 위에서 일어났다는 점도 기억할 필요가 있다.", "source": "과학사 통설 (코페르니쿠스 1543, 케플러 1609–1619, 뉴턴 1687)"}], "order": ["hook", "why", "lens", "cards", "deepdive", "timeline", "connect", "yt", "quiz", "reflect"]}, {"id": "industry", "num": "01", "label": "산업혁명", "accent": "#6b4a3a", "kicker": "1760 ~ 1840", "era": "산업혁명", "motif": "gear", "title": "동력을 설계하다", "hook": "수천 년 동안 인류가 동원할 수 있는 힘은 근육·가축·바람·물에 한정돼 있었다. 18세기 후반 영국에서, 석탄을 태운 열을 일정한 회전 운동으로 바꾸는 기계가 등장하면서 이 한계가 무너진다. 인류 역사상 처음으로 동력이 자연 조건에서 풀려나, 원하는 장소에서 원하는 만큼 공급되기 시작했다.", "why": "산업혁명의 본질은 공장이 아니라 <b>에너지 변환</b>이다. 화학 에너지(석탄)를 열로, 열을 역학적 일로 바꾸는 법을 익히면서 생산성이 기하급수적으로 뛰었다. 이때부터 '얼마나 많은 에너지를 효율적으로 다루는가'가 국가 경쟁력의 척도가 된다.", "lens": "동시대인에게 공장제는 풍요의 약속이자 낯선 재난이었다. 인클로저로 토지를 잃은 농민이 도시로 흘러들어 장시간 노동·아동 노동·매연·전염병에 노출됐다. 기술이 만든 부와 그것이 분배되는 방식은 별개의 문제라는 사실이, 이때 처음으로 사회 전면에 드러났다.", "cards": [{"yr": "1769", "h": "와트의 증기기관", "p": "분리 응축기로 열효율을 크게 끌어올렸다. 광산 배수용에 머물던 증기기관이 공장·기관차·증기선의 범용 동력원으로 확장됐다."}, {"yr": "1780년대", "h": "기계제 방직", "p": "방적·방직의 기계화로 면직물 생산비가 급락했다. 원료·시장을 둘러싼 수요가 제국주의적 팽창과 맞물린다."}, {"yr": "1825", "h": "철도", "p": "증기 기관차가 사람·화물의 이동 속도와 비용을 재정의했다. 시장·시간·공간 감각 자체가 바뀌었다."}, {"yr": "그림자", "h": "도시·노동·계급", "p": "급격한 도시화와 열악한 노동 조건이 노동운동·사회개혁·공중보건이라는 근대적 과제를 낳았다."}], "timeline": [{"yr": "1769", "t": "와트, 증기기관 개량 특허"}, {"yr": "1825", "t": "스톡턴–달링턴 철도 개통"}, {"yr": "1840년대", "t": "공장제 생산의 유럽 확산"}], "connect": "기계가 쏟아낸 생산력은 다음 정거장 <b>화학</b>이 새로운 재료·비료·염료를 합성하며 한 단계 더 도약한다. 동시에 이 힘은 식민지 팽창의 동력이 된다(→ 제국주의 허브).", "yt": [{"type": "search", "q": "산업혁명 증기기관 열효율 원리", "title": "산업혁명의 동력학", "lang": "ko", "desc": "증기기관의 열-일 변환 원리와 사회적 충격을 함께 다룬 영상을 찾아보세요."}], "quiz": [{"q": "산업혁명의 기술적 핵심을 한 줄로 말하면?", "options": ["새로운 종교 개혁", "화학(열)에너지를 역학적 일로 변환하는 능력의 획득", "신대륙 발견"], "answer": 1, "explain": "에너지 변환 능력의 도약이 생산성을 폭발시켰고, 그 위에서 도시·노동·계급이라는 근대 사회 구조가 형성됐다."}], "reflect": ["한 기술이 만들어내는 '부'와 그 부의 '분배'는 왜 별개의 문제일까? 오늘날 비슷한 사례를 하나 들어보자."], "deepdive": [{"h": "⚡ 심화 — 에너지 사다리와 열역학", "body": "기술사를 관통하는 한 축은 인류가 제어하는 에너지의 밀도와 효율이다: 근육 → 수력·풍력 → <b>증기(석탄)</b> → 내연기관·전기 → 원자력. 산업혁명은 이 사다리에서 화석연료의 열을 일로 바꾸는 단계였고, 그 과정을 정량화하려는 시도가 곧 <b>열역학</b>을 낳았다. 카르노는 열기관의 이론적 최대 효율이 고온부·저온부의 온도에만 의존함을 보였고(카르노 효율), 이는 '에너지는 보존되지만 쓸 수 있는 형태로는 점점 줄어든다'는 열역학 제2법칙(엔트로피)으로 이어진다. 흥미롭게도 과학이 기술을 이끈 게 아니라, 더 나은 증기기관을 만들려는 공학적 동기가 기초 물리학을 견인했다 — 이론과 응용이 서로를 끌어올리는 관계는 이후 모든 정거장에서 반복된다.", "source": "산업혁명·열역학사 통설 (와트 1769, 카르노 1824)"}], "order": ["hook", "why", "lens", "cards", "deepdive", "timeline", "connect", "yt", "quiz", "reflect"]}, {"id": "chemistry", "num": "02", "label": "화학·물질", "accent": "#4a5b3a", "kicker": "1770 ~ 1930", "era": "화학·물질", "motif": "torch", "title": "물질의 규칙을 발견하다", "hook": "연금술사들은 비금속을 금으로 바꾸려다 번번이 실패했다. 그러나 그들이 남긴 실험 기술과, 무엇보다 '정확히 측정한다'는 태도가 전혀 다른 성취를 낳았다 — 세상이 무엇으로 이루어졌고 어떤 규칙으로 결합하는지를 밝혀낸 것이다.", "why": "화학은 물질의 조성과 변환을 정량적 규칙으로 환원한 과학이다. 무엇이 무엇과 어떤 비율로 반응하는지를 알게 되자, 인류는 자연에 없던 물질 — 합성 비료·의약·염료·고분자, 그리고 훗날 반도체의 재료까지 — 을 <b>설계해 합성</b>하기 시작했다.", "lens": "연금술과 화학을 가른 것은 정밀한 저울이었다. 신비로운 변성(變成) 대신 질량과 비율을 측정하면서, 마법처럼 보이던 변화가 보존 법칙과 정량 관계로 환원됐다. 과학혁명의 방법론이 물질 세계로 들어온 것이다.", "cards": [{"yr": "1789", "h": "라부아지에 — 화학혁명", "p": "정밀한 질량 측정으로 질량보존을 확립하고, 연소를 '플로지스톤의 방출'이 아니라 '산소와의 결합'으로 재정의했다. 근대 화학의 기점이다."}, {"yr": "1803~1869", "h": "원자론에서 주기율표로", "p": "돌턴의 원자론과 일정 성분비 법칙이 화합물을 정수비로 설명했고, 멘델레예프가 원소를 주기성에 따라 배열해 미발견 원소까지 예측했다."}, {"yr": "1909~1913", "h": "하버–보슈법", "p": "공기 중 질소를 암모니아로 고정해 비료를 대량 생산하는 길을 열었다. 식량 증산으로 수십억을 부양했지만, 같은 공정이 폭약 원료도 공급했다."}, {"yr": "1907~", "h": "고분자·합성소재", "p": "베이클라이트를 시작으로 플라스틱·합성섬유가 등장해 20세기 산업과 일상을 바꿨다. 재료를 '설계'하는 시대가 열렸다."}], "timeline": [{"yr": "1789", "t": "라부아지에 『화학원론』"}, {"yr": "1869", "t": "멘델레예프 주기율표"}, {"yr": "1907", "t": "베이클라이트 — 최초의 합성수지"}, {"yr": "1913", "t": "하버–보슈법 공업화"}], "connect": "물질의 조성을 제어하게 되자, 다음은 보이지 않는 힘 <b>전기</b>의 차례다. 그리고 화학이 정립한 '재료의 규칙'은 훗날 <b>반도체(규소)</b>에서 다시 결정적으로 등장한다(→ AI·반도체 정거장).", "yt": [{"type": "search", "q": "주기율표 멘델레예프 원소 예측 원리", "title": "주기율표는 어떻게 예측이 됐나", "lang": "ko", "desc": "주기성과 원자번호, 미발견 원소 예측의 논리를 다룬 영상을 찾아보세요."}], "quiz": [{"q": "멘델레예프 주기율표가 과학적으로 강력했던 이유는?", "options": ["모든 원소를 무게순으로 단순 나열해서", "주기성에 근거해 미발견 원소의 존재와 성질까지 예측할 수 있어서", "금의 합성법을 제시해서"], "answer": 1, "explain": "갈륨·게르마늄 등이 예측과 거의 일치하게 발견되며 표의 예측력이 입증됐다. 이는 원소가 원자번호라는 규칙으로 정렬되기 때문이다."}], "reflect": ["하버–보슈법처럼 '같은 원리가 생명을 살리기도, 해치기도 하는' 이중용도 기술의 예를 하나 들고, 사회가 그것을 어떻게 다뤄야 할지 적어보자."], "deepdive": [{"h": "⚗️ 심화 — 주기성의 근거, 그리고 이중용도", "body": "멘델레예프(1869)는 당시 알려진 원소를 원자량과 성질에 따라 배열하다 <b>빈칸</b>을 남기고 '여기 들어갈 원소가 존재하며 성질은 이러할 것'이라 예측했다. 갈륨·게르마늄·스칸듐이 예측대로 발견되며 표는 단순한 분류표가 아니라 <b>예측 도구</b>임이 증명됐다. 그 근거는 훗날 양자역학이 설명한다 — 원소의 화학적 성질은 원자번호(양성자 수)와 전자껍질 구조의 주기적 반복에서 나온다. 한편 화학은 이중용도의 전형을 보여준다. 하버–보슈법은 대기 질소를 암모니아로 고정해 식량 생산을 혁신했지만(오늘날 인류 단백질의 상당 부분이 여기에 의존한다), 동일 공정이 1차대전의 폭약 질산염을 공급했다. 기술 자체는 가치중립적이며 그 사용과 통제가 윤리의 영역이라는 명제는, 핵·AI까지 이 트랙에서 거듭 등장한다. (멘델레예프가 예측한 게르마늄, 그리고 규소는 훗날 반도체 산업의 토대가 된다.)", "source": "화학사 통설 (라부아지에 1789, 멘델레예프 1869, 하버–보슈 1909–1913)"}], "order": ["hook", "why", "lens", "cards", "deepdive", "timeline", "connect", "yt", "quiz", "reflect"]}, {"id": "electric", "num": "03", "label": "전기·통신", "accent": "#3a3a6b", "kicker": "1830 ~ 1900", "era": "전기·통신", "motif": "wave", "title": "전자기, 그리고 '정보를 신호로'", "hook": "오랫동안 번개는 두려움의 대상일 뿐이었다. 19세기 들어 과학자들은 전기와 자기가 사실 하나의 현상의 두 얼굴임을 밝혀내고, 그 힘을 도선과 공간에 실어 제어하기 시작했다. 그 결과는 단지 전등과 모터가 아니라, '정보를 신호로 바꿔 먼 곳에 즉시 전한다'는 완전히 새로운 능력이었다.", "why": "전기 시대는 인류에게 두 가지를 동시에 주었다 — 제어 가능한 <b>동력</b>(발전·모터)과 즉각적인 <b>통신</b>(전신·전화). 특히 '물리량을 부호화된 신호로 변환해 전송한다'는 발상은, 한 세기 뒤 디지털 통신과 영상 압축의 직접적 뿌리가 된다.", "lens": "당대에 전기는 거의 마술처럼 보였고, 표준을 둘러싼 이해관계가 첨예했다. 에디슨의 직류와 테슬라·웨스팅하우스의 교류가 맞붙은 '전류 전쟁'은, 기술 표준이 단지 과학이 아니라 자본·특허·여론의 싸움이기도 함을 보여준다.", "cards": [{"yr": "1831", "h": "패러데이 — 전자기 유도", "p": "변화하는 자기장이 전류를 유도함을 발견했다. 발전기·변압기·모터의 원리이자, 맥스웰의 이론적 종합으로 가는 출발점이다."}, {"yr": "1865", "h": "맥스웰 — 장의 통합", "p": "전기와 자기를 네 개의 방정식으로 통합하고, 그 해(解)가 빛의 속도로 전파되는 파동임을 예측했다. '빛은 전자기파'라는 결론이다."}, {"yr": "1844~1876", "h": "전신과 전화", "p": "모스 부호는 문자를 점·선의 이산 신호로 부호화했고, 벨의 전화는 음성을 연속 전기 신호로 변환했다. 정보가 매질을 갈아타기 시작했다."}, {"yr": "1880년대", "h": "전력 시스템과 표준", "p": "에디슨의 전구와 발전, 그리고 교류 송전(테슬라·웨스팅하우스)이 도시를 밝혔다. 장거리 송전에 유리한 교류가 표준으로 자리 잡았다."}], "timeline": [{"yr": "1831", "t": "패러데이, 전자기 유도"}, {"yr": "1865", "t": "맥스웰 방정식 발표"}, {"yr": "1876", "t": "벨, 전화 특허"}, {"yr": "1888", "t": "교류 송전 시스템 상용화"}], "connect": "'정보를 신호로'라는 발상과 '채널에는 한계가 있다'는 자각이 만나, 훗날 신호를 0과 1로 바꾸고(디지털화) 불필요한 부분을 줄이는 <b>압축</b>으로 이어진다(→ 컴퓨터·인터넷 정거장).", "yt": [{"type": "search", "q": "맥스웰 방정식 전자기파 쉽게 설명", "title": "전자기와 정보 전송", "lang": "ko", "desc": "전자기 유도에서 맥스웰의 통합, 통신으로 이어지는 흐름을 다룬 영상을 찾아보세요."}], "quiz": [{"q": "맥스웰 이론의 가장 큰 함의는?", "options": ["전기는 자기와 무관하다", "전기·자기가 하나의 장으로 통합되며, 빛이 곧 전자기파임이 드러났다", "전기는 빛보다 느리다"], "answer": 1, "explain": "맥스웰의 통합으로 빛·전파가 같은 전자기파임이 밝혀졌고, 이는 무선 통신과 현대 정보기술의 이론적 토대가 됐다."}], "reflect": ["'정보를 어떤 물리량(전압·빛·전파)에 실어 보낸다'는 발상은 오늘날 어디에 쓰이고 있을까? 주변의 예를 세 가지 찾아보자."], "deepdive": [{"h": "🔧 엔지니어의 시선 ① — 채널의 한계가 압축을 부른다", "body": "전기 시대의 가장 깊은 함의는 전등이 아니라 <b>정보를 신호로 변환·전송할 수 있다</b>는 사실이다. 모스 부호는 이미 문자를 이산 부호로 매핑한 '부호화'였고, 맥스웰의 종합(1865)은 그 신호가 전자기파로 공간을 달릴 수 있음을 보였다. 그런데 어떤 매질이든 단위 시간에 실어 나를 수 있는 정보량에는 한계가 있다. 20세기 중반 섀넌은 이를 정량화해, 채널 용량이 <b>대역폭과 신호대잡음비</b>로 결정됨을 보였다(C = B·log₂(1+S/N)). 이 '한계'야말로 압축의 존재 이유다 — 한정된 채널로 더 많은 의미를 보내려면, 신호에서 잉여를 걷어내야 한다. 여기서 두 갈래가 갈린다. 잡음을 이기기 위해 의도적으로 잉여를 더하는 <b>채널 부호화</b>(오류정정), 그리고 잉여를 덜어내 크기를 줄이는 <b>소스 부호화</b>(압축, 곧 코덱). 전신에서 시작된 '정보를 신호로'라는 줄기가, 인터넷 정거장의 영상 압축으로 곧장 이어진다.", "source": "전자기학·정보이론 통설 (패러데이 1831, 맥스웰 1865, 섀넌 1948). 통신/부호화 해석은 Nick 검수 대상"}], "order": ["hook", "why", "lens", "cards", "deepdive", "timeline", "connect", "yt", "quiz", "reflect"]}, {"id": "life", "num": "04", "label": "의학·생명", "accent": "#2f6f5f", "kicker": "1860 ~ 현재", "era": "의학·생명", "motif": "dove", "title": "보이지 않는 적에서 생명의 코드까지", "hook": "19세기 중반, 수술은 성공해도 환자들이 며칠 뒤 패혈증으로 죽어 나갔다. 의사들은 손도 기구도 씻지 않았다 — 눈에 보이지 않는 미생물이 병을 옮긴다는 주장을, 의학계 다수가 받아들이지 않았기 때문이다. 이 보이지 않는 적의 정체를 밝히는 일이, 인류 평균수명을 가장 크게 끌어올린 사건이 된다.", "why": "생명과학은 두 번의 결정적 도약을 했다. 첫째는 질병의 <b>인과</b>를 규명한 세균설로, 위생·백신·항생제를 통해 사망률을 급감시켰다. 둘째는 생명의 <b>정보적 토대</b>인 DNA의 해독으로, 진단·치료·백신을 분자 수준에서 설계하는 길을 열었다.", "lens": "세균설은 처음에 조롱받았다. 보이지 않는 원인을 인정시키려면 반복 가능한 실험과 통계적 증거가 필요했고, 의학은 권위·관행과 오래 싸워야 했다. 과학적 합의는 선언이 아니라 증거의 누적으로 형성된다는 사실을 잘 보여주는 사례다.", "cards": [{"yr": "1860년대", "h": "세균설 — 파스퇴르·코흐", "p": "특정 미생물이 특정 질병을 일으킴을 실험으로 입증했다(코흐의 가설). 소독·멸균·공중보건이 자리 잡으며 사망률이 급감했다."}, {"yr": "1928", "h": "페니실린 — 플레밍", "p": "곰팡이가 분비하는 물질의 항균 작용을 발견했다. 최초의 항생제로, 사소한 감염도 치명적이던 시대를 끝냈다(이후 내성 문제도 동반)."}, {"yr": "1953", "h": "DNA 이중나선", "p": "왓슨·크릭이 구조를 규명했고, 로절린드 프랭클린의 X선 회절 사진(Photo 51)이 결정적 단서였다. 생명을 정보의 관점에서 보게 만든 전환점이다."}, {"yr": "1990s~2020", "h": "유전체에서 mRNA로", "p": "인간 유전체 해독, 유전자 편집(CRISPR), mRNA 백신으로 이어졌다. 생명의 코드를 '읽고 쓰는' 시대가 열렸다(→ 다극·미중·AI 허브의 팬데믹)."}], "timeline": [{"yr": "1860년대", "t": "세균설 확립(파스퇴르·코흐)"}, {"yr": "1928", "t": "페니실린 발견"}, {"yr": "1953", "t": "DNA 이중나선 구조"}, {"yr": "2003", "t": "인간 유전체 지도 완성"}, {"yr": "2020", "t": "mRNA 백신 실용화"}], "connect": "생명을 정보(코드)로 다루기 시작하면서, 그 정보를 누가 어떻게 <b>읽고 계산</b>하느냐가 관건이 된다 — 더 작은 세계(원자)와 더 큰 계산(컴퓨터)으로 이어진다(→ 원자·우주, 컴퓨터 정거장).", "yt": [{"type": "search", "q": "세균설 DNA 이중나선 발견 과학사", "title": "의학을 바꾼 두 번의 도약", "lang": "ko", "desc": "세균설과 DNA 발견이 어떻게 수명과 의학을 바꿨는지 다룬 영상을 찾아보세요."}], "quiz": [{"q": "DNA의 발견이 의학·생명과학에 준 근본적 변화는?", "options": ["질병을 신의 벌로 설명하게 됐다", "생명을 '정보(코드)'로 보고 분자 수준에서 설계·개입할 수 있게 됐다", "수술이 불필요해졌다"], "answer": 1, "explain": "DNA를 정보로 이해하면서 유전체 해독, 유전자 편집, mRNA 백신처럼 생명의 코드를 읽고 쓰는 의학이 가능해졌다."}], "reflect": ["생명을 '코드'로 다루는 기술(유전자 편집 등)이 열어줄 가능성과, 그것이 제기하는 윤리적 쟁점을 각각 하나씩 적어보자."], "deepdive": [{"h": "🧬 심화 — 정보로서의 생명, 그리고 공로의 분배", "body": "DNA는 네 염기(A·T·G·C)의 서열로 정보를 저장하는 디지털에 가까운 매체다. 코드(코돈)가 아미노산으로 번역되어 단백질을 만들고, 그 단백질이 생명 현상을 수행한다 — 정보 저장(DNA)→전달(RNA)→실행(단백질)이라는 흐름은 공학자에게 익숙한 추상화다. 1953년 왓슨과 크릭의 이중나선 모형은 그 정보 구조를 드러냈지만, 결정적 실험 데이터인 'Photo 51' X선 회절 사진은 <b>로절린드 프랭클린</b>의 작업이었고 그의 기여는 오래 저평가됐다. 이는 과학이 단독 천재의 산물이 아니라 데이터와 협업의 누적이라는 점, 그리고 인정과 공로의 분배가 과학사의 중요한 주제임을 보여준다. 오늘날 이 흐름은 유전자 편집(CRISPR)과 mRNA 설계를 거쳐, <b>단백질 구조 예측(예: 딥러닝 기반 모델)</b>과 신약 탐색으로 이어진다 — 생명과학이 컴퓨팅·AI와 수렴하는 지점이다(→ AI·반도체 정거장).", "source": "분자생물학사 통설 (세균설 1860년대, 왓슨·크릭·프랭클린 1953, 유전체 2003)"}], "order": ["hook", "why", "lens", "cards", "deepdive", "timeline", "connect", "yt", "quiz", "reflect"]}, {"id": "atom-space", "num": "05", "label": "원자·우주", "accent": "#2b2b55", "kicker": "1905 ~ 1969", "era": "원자·우주", "motif": "globe", "title": "가장 작은 것과 가장 먼 곳", "hook": "1905년, 특허청 심사관으로 일하던 26세의 아인슈타인이 발표한 논문 몇 편이 물리학의 전제를 다시 썼다. 시간과 공간은 절대적이지 않고, 질량과 에너지는 같은 것의 두 표현이라는 것. 그가 적은 E=mc²은 훗날 도시를 한순간에 지울 힘이자, 인류를 달까지 보낸 추진력의 이론적 배경이 된다.", "why": "20세기 물리학은 양극단으로 향했다 — 원자 내부의 미시 세계(양자역학)와 우주 규모의 거시 세계(상대성·우주론). 이 둘은 분리되지 않는다. 원자핵을 이해한 힘이 로켓과 원자력을 낳았고, 별과 우주를 향한 질문이 입자물리를 밀어붙였다.", "lens": "이 시대에는 핵의 공포와 우주의 동경이 나란히 존재했다. 특히 냉전의 두 진영은 우주·핵 능력을 국력과 체제 우월의 상징으로 삼아 경쟁을 가속했다(→ 냉전 허브). 순수한 호기심과 국가 전략, 거대 예산이 뒤엉킨 '거대과학'의 시대다.", "cards": [{"yr": "1898", "h": "퀴리 — 방사능", "p": "마리 퀴리는 방사성 붕괴를 연구해 폴로늄·라듐을 분리했다. 서로 다른 두 분야(물리·화학) 노벨상을 받으며 원자 내부 연구의 문을 열었다."}, {"yr": "1905·1915", "h": "아인슈타인 — 상대성", "p": "특수상대성으로 질량-에너지 등가(E=mc²)를, 일반상대성으로 중력을 시공간의 휘어짐으로 설명했다. 우주론과 GPS까지 영향을 미친다."}, {"yr": "1938~1945", "h": "핵분열 — 맨해튼 계획", "p": "핵분열의 발견이 원자폭탄으로 이어졌다(→ 세계대전 허브). 같은 원리를 제어하면 원자력 발전이 된다."}, {"yr": "1957~1969", "h": "우주경쟁", "p": "스푸트니크에서 아폴로 11호까지, 냉전 경쟁이 우주개발을 폭발적으로 끌어올렸다(→ 냉전 허브)."}], "timeline": [{"yr": "1905", "t": "아인슈타인, 특수상대성이론"}, {"yr": "1938", "t": "핵분열 발견"}, {"yr": "1945", "t": "히로시마·나가사키"}, {"yr": "1957", "t": "스푸트니크 발사"}, {"yr": "1969", "t": "아폴로 11호 달 착륙"}], "connect": "원자와 우주를 다루려면 방대한 수치 계산이 필요했다. 그 계산을 자동화하려는 요구가 다음 정거장 <b>컴퓨터</b>의 발전을 직접 견인한다.", "yt": [{"type": "search", "q": "상대성이론 E=mc2 핵분열 원리", "title": "상대성과 핵에너지", "lang": "ko", "desc": "질량-에너지 등가와 핵분열의 원리를 함께 다룬 영상을 찾아보세요."}, {"type": "search", "q": "Apollo program space race documentary", "title": "우주경쟁과 아폴로", "lang": "en", "desc": "냉전 우주경쟁과 달 착륙을 다룬 영어 다큐멘터리."}], "quiz": [{"q": "E=mc²이 함의하는 바는?", "options": ["빛은 질량을 가질 수 없다", "작은 질량에도 막대한 에너지가 등가로 대응한다", "에너지는 보존되지 않는다"], "answer": 1, "explain": "이 등가 관계가 핵분열·핵융합에서 방출되는 거대한 에너지의 근거다. 제어 방식에 따라 발전이 되기도, 무기가 되기도 한다."}], "reflect": ["강력한 발견을 한 과학자에게 사회는 어떤 책임을 물어야 할까? '발견 자체'와 '사용·통제'의 책임을 구분해 적어보자."], "choice": {"h": "당신이라면? 🤔", "prompt": "당신이 1940년대의 핵물리학자라고 가정하자. 당신의 연구는 전쟁을 끝낼 수도, 수많은 인명을 해칠 무기가 될 수도 있다. 연구를 계속하고 결과를 공개하겠는가?", "options": [{"label": "공개한다 — 진실의 진보는 막을 수 없다", "result": "과학의 자유와 불가피성을 강조하는 입장이다. 다만 오펜하이머는 트리니티 실험 직후 깊은 회한을 남겼고, 전후 수소폭탄 개발에는 반대했다. '할 수 있다'와 '해야 한다'는 다른 문제다."}, {"label": "공개하지 않는다 — 결과에 책임이 있다", "result": "책임 윤리를 앞세우는 입장이다. 그러나 한 연구자가 멈춰도 발견은 다른 곳에서 재현될 수 있다(독일·소련도 핵을 연구했다). 그래서 개인의 결단을 넘어 '국제적 통제'라는 제도적 해법이 모색됐다."}], "after": "정답은 없다. 같은 물음이 오늘날 인공지능 연구자들에게 거의 동일한 형태로 다시 제기되고 있다(→ AI·반도체 정거장)."}, "deepdive": [{"h": "⚛️ 심화 — 질량-에너지 등가와 거대과학의 윤리", "body": "E=mc²에서 c(빛의 속도)는 약 3×10⁸ m/s로, 그 제곱은 천문학적 수다. 따라서 극미량의 질량 결손도 막대한 에너지로 전환된다 — 핵분열은 무거운 핵이 쪼개질 때, 핵융합은 가벼운 핵이 합쳐질 때 질량 일부가 에너지로 풀려나는 현상이다. 제어된 연쇄반응은 원자력 발전, 순간적 연쇄반응은 핵무기가 된다. 맨해튼 계획은 과학·공학·국가가 결합한 최초의 '거대과학'이었고, 히로시마·나가사키(→ 세계대전 허브)는 과학이 처음으로 문명 단위의 파괴력을 손에 쥔 사건이었다. 오펜하이머의 전후 행보(수소폭탄 반대, 보안 청문회)는 '발견의 책임'을 둘러싼 최초의 대규모 논쟁을 상징한다. 이 물음 — 강력한 이중용도 기술을 어떻게 개발하고 통제할 것인가 — 은 핵에서 멈추지 않고 AI 시대로 그대로 계승된다.", "source": "현대물리학사 통설 (아인슈타인 1905·1915, 핵분열 1938, 맨해튼 계획 1945)"}], "order": ["hook", "why", "lens", "cards", "deepdive", "choice", "timeline", "connect", "yt", "quiz", "reflect"]}, {"id": "computer", "num": "06", "label": "컴퓨터", "accent": "#2f4a4a", "kicker": "1936 ~ 1975", "era": "컴퓨터", "motif": "gear", "title": "계산을 기계화하다 — 0과 1의 세계", "hook": "1940년대, 1만 8천 개의 진공관으로 이루어진 에니악이 가동을 시작했다. 사람 여럿이 며칠을 매달려야 할 탄도 계산을 이 기계는 분 단위로 끝냈다. 인류가 '논리적 계산'이라는 사고의 한 부분을 처음으로 기계에 위임한 순간이었다.", "why": "컴퓨터의 핵심은 부품이 아니라 <b>추상화</b>다. 모든 정보를 0과 1로 표현하고(이진 부호화), 모든 처리를 논리 연산의 조합으로 환원하면, 단일한 기계가 글·이미지·음성·계산을 보편적으로 다룰 수 있다. 이 '범용성'이 디지털 문명 전체의 토대다.", "lens": "당시 컴퓨터는 군사·과학용의 거대하고 희소한 자원이었고, '개인이 소유한다'는 발상은 비현실적이었다. 트랜지스터·집적회로로 비용과 크기가 지수적으로 줄면서 비로소 컴퓨팅이 민주화됐다 — 기술의 보급은 성능만큼이나 '단가 곡선'의 문제다.", "cards": [{"yr": "1936", "h": "튜링 — 계산의 이론", "p": "튜링 기계로 '계산 가능성'을 정의하고 범용 기계의 개념을 제시했다. 모든 컴퓨터의 이론적 기초이자 '기계가 사고할 수 있는가'라는 물음의 출발점이다."}, {"yr": "1945", "h": "폰 노이만 구조", "p": "프로그램과 데이터를 같은 메모리에 저장하는 구조가 제시됐다(에니악·에드박). 오늘날 대부분의 컴퓨터가 이 골격을 따른다."}, {"yr": "1947", "h": "트랜지스터", "p": "벨연구소에서 발명된 반도체 스위치. 진공관보다 작고, 빠르고, 적은 전력으로 동작해 소형화 혁명을 열었다."}, {"yr": "1958~1971", "h": "집적회로와 마이크로프로세서", "p": "다수의 트랜지스터를 한 칩에 집적(IC)하고, 마침내 CPU 전체를 한 칩에 담은 마이크로프로세서가 등장했다. 개인용 컴퓨터의 전제 조건이다."}], "timeline": [{"yr": "1936", "t": "튜링, 계산 가능성 이론"}, {"yr": "1945", "t": "폰 노이만 구조 정식화"}, {"yr": "1947", "t": "트랜지스터 발명"}, {"yr": "1958", "t": "집적회로(IC)"}, {"yr": "1971", "t": "마이크로프로세서 등장"}], "connect": "트랜지스터를 더 작게·더 많이 집적하는 경쟁(무어의 법칙)이 시작된다. 그리고 이 칩들을 <b>네트워크로 연결</b>하면 무슨 일이 벌어지는가 — 다음 정거장, 인터넷이다.", "yt": [{"type": "search", "q": "튜링 머신 폰노이만 구조 트랜지스터 컴퓨터 역사", "title": "컴퓨터의 이론과 하드웨어", "lang": "ko", "desc": "계산 이론에서 트랜지스터·집적회로로 이어지는 흐름을 다룬 영상을 찾아보세요."}], "quiz": [{"q": "컴퓨터를 '범용 기계'로 만든 핵심 아이디어는?", "options": ["모든 정보를 그림으로 저장한다", "정보를 0/1로 부호화하고 처리를 논리 연산으로 환원해 한 기계로 무엇이든 다룬다", "기계가 사람의 뇌를 그대로 복제한다"], "answer": 1, "explain": "이진 부호화와 범용 처리(튜링·폰 노이만)가 디지털의 보편성을 낳았다. 단일 하드웨어가 글·소리·영상·계산을 모두 다룰 수 있게 된 것이다."}], "reflect": ["'성능'이 아니라 '단가 하락'이 기술 보급을 결정한 사례(컴퓨터 외에도)를 하나 찾아보고, 그 이유를 적어보자."], "deepdive": [{"h": "🔧 엔지니어의 시선 ② — 추상화의 사다리, 그리고 스케일링의 끝", "body": "디지털 시스템은 여러 층의 추상화로 쌓여 있다: 물리(트랜지스터의 켜짐/꺼짐) → 논리(불 대수, AND·OR·NOT) → 산술(이진 덧셈기) → 명령어 집합(ISA) → 운영체제 → 응용. 각 층은 아래 층의 세부를 감추고 위 층에 깨끗한 인터페이스를 제공한다 — 이 계층화 덕분에 수십억 개 소자로 이루어진 칩 위에서 사람이 앱을 짤 수 있다. 하드웨어 발전은 두 경향이 이끌었다. <b>무어의 법칙</b>(집적도 2배/약 2년)과 <b>데너드 스케일링</b>(소자가 작아질수록 전력 밀도가 유지된다)이다. 그러나 2000년대 중반 데너드 스케일링이 한계에 부딪히면서 클럭만 높이는 시대가 끝났고, 칩은 <b>병렬화(멀티코어)</b>와 <b>특화(도메인 전용 가속기)</b>로 방향을 틀었다. 이 전환이 GPU·NPU 같은 전용 칩 시대의 직접적 배경이며, 코덱 같은 고정기능 가속기가 일찍부터 존재한 이유이기도 하다(→ 인터넷·AI 정거장).", "source": "컴퓨터구조사 통설 (튜링 1936, 폰 노이만 1945, 무어 1965, 데너드 1974). 구조/스케일링 해석은 Nick 검수 대상"}], "order": ["hook", "why", "lens", "cards", "deepdive", "timeline", "connect", "yt", "quiz", "reflect"]}, {"id": "internet", "num": "07", "label": "인터넷·디지털", "accent": "#2a5a6b", "kicker": "1969 ~ 2007", "era": "인터넷·디지털", "motif": "globe", "title": "연결, 그리고 압축의 공학", "hook": "1969년, 한 컴퓨터가 멀리 떨어진 다른 컴퓨터에 'LOGIN'을 입력하려다 'LO'에서 시스템이 멈췄다. 첫 메시지로는 초라했지만, 그 두 글자가 인류 최대의 연결망 — 인터넷의 시작이었다. 이후 글·소리·이미지·영상이 모두 0과 1로 환원되어 이 그물 위를 흐르기 시작했다.", "why": "전기 통신이 신호 하나를 멀리 보냈다면, 인터넷은 <b>패킷 교환</b>으로 수많은 노드를 견고하게 연결했다. 그리고 미디어의 <b>디지털화</b>가 더해지며, 채널의 한계 안에서 방대한 콘텐츠를 실어 나르기 위한 <b>압축(코덱)</b>이 디지털 시대의 숨은 핵심 기술이 됐다.", "lens": "초기 인터넷은 학계·군의 도구였으나, 웹과 스마트폰을 거치며 한 세대 만에 일상 인프라가 됐다. 이렇게 빠른 사회적 침투는 역사적으로 드물며, 그 속도가 곧 규범·법·프라이버시 문제의 시차를 만들어냈다.", "cards": [{"yr": "1969", "h": "아르파넷 — 패킷 교환", "p": "회선을 고정 점유하지 않고 데이터를 패킷으로 잘게 나눠 독립적으로 라우팅한다. 일부 경로가 끊겨도 우회 가능한 견고한 그물 구조다."}, {"yr": "1974~1983", "h": "TCP/IP", "p": "이종(異種) 네트워크를 잇는 공통 규약이 확립됐다. '네트워크의 네트워크'라는 인터넷의 정의가 여기서 나온다."}, {"yr": "1989~1991", "h": "월드와이드웹", "p": "버너스리가 하이퍼링크로 문서를 연결하는 웹을 고안했다. 진입장벽이 낮아지며 인터넷이 대중화됐다."}, {"yr": "1990s~2007", "h": "디지털 미디어와 스마트폰", "p": "JPEG·MP3·H.264 등 코덱이 미디어를 압축해 네트워크에 실었고, 스마트폰이 연결을 주머니 속으로 옮겼다(→ 세계화 허브)."}], "timeline": [{"yr": "1969", "t": "아르파넷 첫 통신"}, {"yr": "1983", "t": "TCP/IP 표준 채택"}, {"yr": "1991", "t": "월드와이드웹 공개"}, {"yr": "2007", "t": "스마트폰 대중화"}], "connect": "그물 위로 흐르는 데이터가 폭증하면서, 인류는 그 데이터로 <b>기계를 학습</b>시키기 시작한다 — 마지막 정거장 AI다. 그리고 그 학습과 추론을 떠받치는 것은 점점 특화된 반도체다.", "yt": [{"type": "search", "q": "패킷 교환 영상 압축 코덱 원리 설명", "title": "인터넷과 영상 압축", "lang": "ko", "desc": "패킷 교환과 영상 코덱(압축)의 기본 원리를 다룬 영상을 찾아보세요."}], "quiz": [{"q": "영상 압축(코덱)이 반드시 필요한 근본 이유는?", "options": ["화질을 일부러 떨어뜨리려고", "원본 영상의 데이터량이 채널 용량을 압도하므로 잉여를 제거해야 하기 때문", "전기를 아끼려고"], "answer": 1, "explain": "비압축 영상은 대역폭·저장을 압도한다. 코덱은 공간·시간 잉여와 사람의 지각 한계를 이용해 데이터를 수십~수백 배 줄인다."}], "reflect": ["'사람이 잘 인지하지 못하는 정보를 버린다'는 압축의 원리는 영상·소리 말고 또 어디에 응용될 수 있을까? 아이디어를 적어보자."], "deepdive": [{"h": "🔧 엔지니어의 시선 ③ — 영상 코덱은 어떻게 동작하는가", "body": "1080p 영상을 비압축으로 보내면 초당 1Gbps를 훌쩍 넘긴다 — 어떤 망도 감당하기 어렵다. 그래서 <b>소스 부호화(압축)</b>가 필요하고, 영상 코덱(H.264/HEVC 등)은 네 가지 잉여를 공략한다. ① <b>공간적 잉여</b>: 한 화면 안에서 이웃 픽셀은 비슷하다 → 화면 내 예측(인트라). ② <b>시간적 잉여</b>: 연속한 프레임은 대부분 같고 일부만 움직인다 → <b>움직임 예측·보상</b>으로 '바뀐 부분(잔차)'만 부호화. ③ <b>지각적 잉여</b>: 사람 눈은 밝기 변화엔 민감하나 색·고주파 디테일엔 둔감하다 → 잔차를 <b>변환부호화(DCT 등)</b>로 주파수 성분으로 바꾼 뒤, 둔감한 고주파를 거칠게 양자화해 버린다(여기서 '손실'이 발생). ④ <b>통계적 잉여</b>: 자주 나오는 값에 짧은 코드를 준다 → 엔트로피 부호화. 이 모든 단계가 화소마다 초당 수십 번 반복되는 막대한 연산이라, 폰·TV에는 이 일만 전담하는 <b>고정기능 코덱 IP(전용 하드웨어 블록)</b>가 들어간다. 핵심 통찰은 '정해진 무거운 연산을 전용 회로로 저전력에 처리한다'는 설계 철학이며, 이는 다음 정거장의 AI 가속기로 그대로 이어진다. ※ 이 칸의 코덱 설명은 영상 코덱 IP를 설계해 온 Nick의 검수 대상이다.", "source": "영상압축 표준 통설 (JPEG 1992, MP3 1993, H.264 2003, HEVC 2013). 코덱 동작 설명은 Nick 검수 대상"}], "order": ["hook", "why", "lens", "cards", "deepdive", "timeline", "connect", "yt", "quiz", "reflect"]}, {"id": "ai-chip", "num": "08", "label": "AI·반도체", "star": true, "accent": "#4a2b55", "kicker": "2012 ~ 현재", "era": "AI·반도체", "motif": "book", "title": "학습하는 기계와 그것을 떠받치는 칩", "hook": "사람은 '고양이'를 규칙으로 정의해 본 적이 없다. 수없이 보며 저절로 알게 됐을 뿐이다. 2012년, 깊은 신경망이 이미지 인식 대회에서 기존 방법을 압도하며 같은 일을 해냈다 — 규칙을 일일이 짜주지 않아도 데이터에서 스스로 패턴을 학습한 것이다. 이 사건과 함께, 그 막대한 계산을 감당할 '반도체'가 시대의 중심으로 올라섰다.", "why": "고전적 프로그램은 사람이 규칙을 명시한다. 딥러닝은 <b>데이터로부터 규칙(가중치)을 스스로 추정</b>한다. 그 대가로 학습·추론에 엄청난 연산이 필요해졌고, 이를 효율적으로 처리하는 <b>전용 반도체</b>가 AI 시대의 결정적 인프라가 됐다. 오늘날 반도체가 '새로운 석유'로 불리는 이유다.", "lens": "현재진행형 기술인 만큼, AI에는 기대와 불안이 공존한다 — 생산성과 창의의 확장이라는 약속, 그리고 일자리·편향·허위정보·집중된 권력이라는 위험. 이 정거장은 아직 결말이 정해지지 않았고, 그 답은 사실상 지금 사회가 함께 쓰고 있는 중이다.", "cards": [{"yr": "2012", "h": "딥러닝의 부상", "p": "GPU로 학습한 심층 신경망(AlexNet)이 이미지 인식 정확도를 비약적으로 끌어올렸다. 데이터+연산+알고리즘의 결합이 임계점을 넘은 순간이다."}, {"yr": "2016", "h": "알파고", "p": "탐색과 학습을 결합한 바둑 AI가 정상급 기사를 이겼다. 직관·평가가 필요한 영역도 학습으로 다룰 수 있음을 보였다."}, {"yr": "2017~2022", "h": "트랜스포머와 생성형 AI", "p": "트랜스포머 구조가 대규모 언어·이미지 모델의 토대가 됐고, 생성형 AI가 대중화되며 사회 전반에 파급됐다."}, {"yr": "현재", "h": "반도체 지정학", "p": "첨단 AI 칩의 설계·제조 능력이 국가 전략 자산이 됐다. 미세공정 파운드리가 집중된 대만이 세계 공급망의 급소가 됐다(→ 다극·미중·AI 허브)."}], "timeline": [{"yr": "2012", "t": "딥러닝, 이미지 인식 석권"}, {"yr": "2016", "t": "알파고 승리"}, {"yr": "2017", "t": "트랜스포머 등장"}, {"yr": "2022~", "t": "생성형 AI 대중화"}], "connect": "여기서 이 트랙의 줄기들이 합류한다 — 화학이 정제한 <b>규소</b>, 컴퓨터의 <b>0과 1</b>, 인터넷이 축적한 <b>데이터</b>, 그리고 전용 하드웨어의 <b>설계 철학</b>이 모두 이 한 칸으로 모인다. 그리고 이 이야기는 끝나지 않았다(→ 다극·미중·AI 허브의 '우리가 만들 질서').", "yt": [{"type": "search", "q": "딥러닝 신경망 학습 원리 설명", "title": "AI는 어떻게 학습하는가", "lang": "ko", "desc": "신경망의 가중치 학습 원리를 설명하는 영상을 찾아보세요."}, {"type": "search", "q": "why GPU NPU accelerate AI systolic array", "title": "AI는 왜 전용 칩을 쓰는가", "lang": "en", "desc": "행렬연산과 전용 가속기(GPU/NPU)의 관계를 다룬 영어 영상."}], "quiz": [{"q": "딥러닝이 고전적 프로그램과 근본적으로 다른 점은?", "options": ["전기를 쓰지 않는다", "규칙을 사람이 명시하지 않고 데이터에서 가중치로 학습한다", "결코 오류를 내지 않는다"], "answer": 1, "explain": "규칙을 데이터로부터 추정하기에 유연하지만, 막대한 연산(행렬곱)과 데이터·전력을 요구한다. 그래서 전용 가속기가 핵심이 된다."}], "reflect": ["AI에게 맡겨도 좋다고 보는 일과, 사람이 끝까지 책임져야 한다고 보는 일을 각각 적고, 그 경계를 가른 기준을 설명해보자."], "choice": {"h": "당신이라면? 🤔", "prompt": "AI가 글·이미지·코드를 사람보다 빠르게 생성하는 시대다. 어떤 이는 'AI는 인간 능력을 확장하는 도구'라 보고, 어떤 이는 '일자리와 판단·권력을 잠식하는 위협'이라 본다. 당신은 어느 쪽에 더 가까운가?", "options": [{"label": "도구다 — 적절히 다루면 역량을 확장한다", "result": "증기기관·컴퓨터처럼 과거의 범용기술도 초기엔 일자리 위협으로 여겨졌으나 장기적으로 새로운 직무와 가치를 창출했다는 입장이다. 단, 그 전환기의 고통과 '이익이 누구에게 귀속되는가'의 문제는 늘 실재했다."}, {"label": "위협이다 — 속도와 집중이 위험하다", "result": "기술 변화 속도가 제도·규범을 앞질러 편향·허위정보·실업·권력 집중 같은 실질적 위험이 있다는 입장이다. 그래서 'AI를 어떻게 만들고 배치할지'에 대한 사회적 합의와 거버넌스가 기술 자체만큼 중요해졌다."}], "after": "정답은 없다 — 지금 사회가 함께 풀고 있는 진행형 문제다. 분명한 것은, 이 물음의 답을 다음 세대가 만들어 간다는 점이다."}, "deepdive": [{"h": "🔧 엔지니어의 시선 ④ — 코덱에서 NPU로: 전용 가속기의 계보", "body": "딥러닝에서 '학습'이란 손실을 줄이는 방향으로 신경망의 <b>가중치</b>(수십억~수조 개)를 경사하강법으로 조금씩 갱신하는 과정이고, '추론'은 학습된 가중치로 입력을 변환하는 과정이다. 두 경우 모두 연산의 대부분은 <b>대규모 행렬곱(곱셈-누산, MAC)</b>이다. 범용 CPU는 분기·다양성에 최적화돼 있어 이런 단순·규칙적 연산의 대량 반복에는 비효율적이다(폰 노이만 병목: 연산보다 데이터 이동이 비싸다). 그래서 <b>병렬성과 데이터 재사용</b>을 극대화한 전용 하드웨어가 등장한다 — GPU(대규모 SIMD), 그리고 더 특화된 NPU/TPU(시스톨릭 MAC 어레이, 온칩 메모리, INT8 같은 저정밀 연산). 핵심 설계 원리는 '연산을 데이터 곁으로 가져가 이동을 줄이고, 정해진 연산을 고정·병렬 회로로 저전력에 처리한다'는 것이다. 바로 여기서 영상 <b>코덱 IP</b>와 만난다 — 코덱 역시 정해진 무거운 연산(변환·움직임 예측)을 고정기능 블록으로 처리하며, 데이터 흐름(dataflow)·메모리 계층·전력당 성능(energy/op)을 다투는 같은 공학이다. 그래서 영상 코덱 하드웨어를 설계하던 역량이 AI 가속기(NPU) 설계로 자연스럽게 확장된다. 한편 이 칩의 몸은 화학(S2)이 정제한 규소이고, 이를 나노미터급으로 새기는 공정은 오늘날 가장 어렵고 값진 기술이자 지정학적 급소가 됐다(→ 다극·미중·AI 허브의 '반도체 전쟁'). ※ 이 칸의 코덱↔NPU 해석은 해당 분야를 설계해 온 Nick의 검수 대상이다.", "source": "딥러닝·컴퓨터구조 통설 (딥러닝 2012, 트랜스포머 2017, 도메인 전용 가속기 2010s~). 코덱↔NPU 연결은 Nick 검수 대상"}], "order": ["hook", "why", "lens", "cards", "deepdive", "choice", "timeline", "connect", "yt", "quiz", "reflect"]}], "people": []};</script>
+
+<!-- 렌더 엔진 (모든 에피소드 공통) -->
+<script>
+const EP = window.EPISODE;
+const META = EP.meta, TERMS = EP.terms||{}, SECTIONS = EP.sections, PEOPLE = EP.people||null;
+
+function T(text){ let out=text; for(const k of Object.keys(TERMS)){ out=out.split(k).join('<span class="term" data-term="'+k+'">'+k+'</span>'); } return out; }
+function ytURL(v){ return v.type==='search' ? 'https://www.youtube.com/results?search_query='+encodeURIComponent(v.q) : 'https://www.youtube.com/watch?v='+v.id; }
+
+const MOTIF = {
+  flag:'<path d="M40 30v140M40 36h110l-20 28 20 28H40" fill="none" stroke="#fff" stroke-width="7"/>',
+  crowd:'<g fill="#fff"><circle cx="60" cy="70" r="22"/><circle cx="110" cy="60" r="26"/><circle cx="150" cy="78" r="20"/><rect x="38" y="96" width="44" height="70" rx="18"/><rect x="84" y="90" width="52" height="80" rx="20"/><rect x="132" y="100" width="40" height="66" rx="16"/></g>',
+  book:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M105 50c-18-14-44-14-62 0v96c18-14 44-14 62 0M105 50c18-14 44-14 62 0v96c-18-14-44-14-62 0M105 50v96"/></g>',
+  map:'<g fill="none" stroke="#fff" stroke-width="6"><path d="M50 50l38 14 36-14 38 16v100l-38-16-36 14-38-14z"/><path d="M88 64v100M124 50v104"/></g>',
+  wave:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M30 110c20-26 40-26 60 0s40 26 60 0 40-26 40 0"/><path d="M30 150c20-26 40-26 60 0s40 26 60 0 40-26 40 0"/></g>',
+  sun:'<g fill="none" stroke="#fff" stroke-width="7"><circle cx="105" cy="105" r="34"/><path d="M105 40v22M105 148v22M40 105h22M148 105h22M58 58l16 16M152 152l-16-16M152 58l-16 16M58 152l16-16"/></g>',
+  split:'<g fill="none" stroke="#fff" stroke-width="7"><rect x="44" y="50" width="118" height="110" rx="10"/><path d="M103 50v110" stroke-dasharray="10 9"/></g>',
+  dove:'<g fill="#fff"><path d="M60 120c30 6 70-6 96-44-4 30-2 50 18 64-30 10-72 8-96-20z"/><circle cx="150" cy="74" r="6"/></g>',
+  globe:'<g fill="none" stroke="#fff" stroke-width="6"><circle cx="105" cy="105" r="58"/><ellipse cx="105" cy="105" rx="24" ry="58"/><path d="M47 105h116M55 76h100M55 134h100"/></g>',
+  ship:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M48 132h114l-16 30H64z"/><path d="M105 132V46M105 60l44 16-44 16M105 66l-34 12 34 12"/></g>',
+  torch:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M105 40c18 16 18 40 0 52-18-12-18-36 0-52z"/><path d="M88 96h34l-8 64H96z"/></g>',
+  gear:'<g fill="none" stroke="#fff" stroke-width="7"><circle cx="105" cy="105" r="26"/><path d="M105 52v18M105 140v18M52 105h18M140 105h18M68 68l13 13M137 137l-13-13M137 68l-13 13M68 137l13-13"/></g>'
+};
+
+const view=document.getElementById('view'), navList=document.getElementById('navList');
+const sidebar=document.getElementById('sidebar'), scrim=document.getElementById('scrim'), progress=document.getElementById('progress');
+let currentMap=null, bmaps=[];
+function killMap(){ if(currentMap){ try{currentMap.remove();}catch(e){} currentMap=null; }
+  bmaps.forEach(m=>{ try{m.remove();}catch(e){} }); bmaps=[]; }
+
+function visited(id){ return localStorage.getItem(META.slug+'_v_'+id)==='1'; }
+function markVisited(id){ localStorage.setItem(META.slug+'_v_'+id,'1'); }
+
+function head(){
+  if(META.hub){ const hb=document.getElementById('hubBack'); hb.href=META.hub.url; hb.textContent=META.hub.label;
+    const th=document.getElementById('tbHub'); if(th){ th.href=META.hub.url; } }
+  document.getElementById('brandTitle').textContent=META.brand.title;
+  document.getElementById('brandSub').textContent=META.brand.sub;
+  document.getElementById('sideFoot').innerHTML=META.foot||'';
+  document.getElementById('tbTitle').textContent=META.brand.title;
+}
+
+function buildNav(){
+  let html='<li><a class="home-link" data-id="home">🏠 홈 · 이야기 시작</a></li>'
+    +'<li><a class="notes-link" data-id="notes">📝 내 메모 모아보기</a></li>';
+  html+=SECTIONS.map(s=>'<li><a data-id="'+s.id+'" class="'+(s.star?'star':'')+' '+(visited(s.id)?'visited':'')+'">'
+    +'<span class="num">'+s.num+'</span>'+s.label+(s.star?'<span class="tag">★</span>':'')+'</a></li>').join('');
+  navList.innerHTML=html;
+  navList.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{ go(a.dataset.id); closeSide(); }));
+}
+
+function renderHome(){
+  const h=META.home;
+  view.innerHTML=
+  '<div class="home-hero"><h1>'+h.h1+'</h1><div class="hsub">'+h.sub+'</div>'
+  +(h.quote?'<div class="hq">"'+h.quote.text+'"<small>'+h.quote.by+'</small></div>':'')+'</div>'
+  +'<div class="home-wrap"><div class="home-intro">'+h.intro+'</div>'
+  +'<div class="start-btns"><a class="btn primary" data-id="'+h.startPrimary.to+'">'+h.startPrimary.label+'</a>'
+  +(h.startStar?'<a class="btn star" data-id="'+h.startStar.to+'">'+h.startStar.label+'</a>':'')+'</div>'
+  +'<h2 class="block" style="margin-top:34px;">'+(h.pathLabel||'이야기 흐름')+'</h2><ul class="path">'
+  +SECTIONS.map(s=>'<li class="'+(s.star?'star':'')+'" data-id="'+s.id+'"><span class="pn">'+s.num+'</span>'
+    +'<span><span class="ph">'+s.label+(s.star?' <span class="star-mark">★</span>':'')+'</span>'
+    +'<span class="pp">'+s.kicker+' · '+s.era+'</span></span></li>').join('')
+  +'</ul></div>';
+  view.querySelectorAll('[data-id]').forEach(el=>el.addEventListener('click',()=>{ go(el.dataset.id); closeSide(); }));
+  setActive('home'); window.scrollTo(0,0); progress.style.width='0%';
+}
+
+function ytBlock(v){
+  const pill = v.type==='search' ? '<span class="pill find">검색</span>' : (v.lang==='en'?'<span class="pill en">영어·자막</span>':'<span class="pill ko">한국어</span>');
+  return '<a class="yt" href="'+ytURL(v)+'" target="_blank" rel="noopener">'
+    +'<span class="play '+(v.type==='search'?'search':'')+'">'+(v.type==='search'?'🔍':'▶')+'</span>'
+    +'<span class="yt-body"><span class="yt-title">'+v.title+'</span>'
+    +'<span class="yt-meta">'+pill+(v.channel?'<span class="pill">'+v.channel+'</span>':'')+(v.length?'<span>'+v.length+'</span>':'')+'</span>'
+    +'<span class="yt-desc">'+v.desc+'</span></span></a>';
+}
+function quoteBlock(q){ return '<div class="quote"><span class="qm">"</span><div class="qt">'+q.qt+'</div><span class="qs">'+q.qs+'</span></div>'; }
+function quizHTML(quiz,sid){
+  return '<h2 class="block">잠깐, 기억나니? 🧠</h2><div class="quizwrap">'
+    + quiz.map((q,qi)=>'<div class="quizq" data-qi="'+qi+'"><div class="qq">'+(qi+1)+'. '+q.q+'</div><div class="qopts">'
+      + q.options.map((o,oi)=>'<button class="quiz-opt" data-oi="'+oi+'">'+o+'</button>').join('')
+      + '</div><div class="qexp" id="qexp_'+sid+'_'+qi+'"></div></div>').join('')
+    + '</div>';
+}
+function mapHTML(m,sid){
+  return '<h2 class="block">지도로 보기 🗺️</h2><div class="mapwrap">'
+    + '<div class="lmap" id="lmap_'+sid+'"></div>'
+    + '<div class="mapcap">'+(m.caption||'')+(m.source?' <span class="msrc">· 지도 ⓒ '+m.source+'</span>':'')+'</div></div>';
+}
+function choiceHTML(c,sid){
+  const opts=c.options.map((o,i)=>'<div><button class="chopt" data-oi="'+i+'">'+o.label+'</button>'
+    +'<div class="chres" id="chres_'+sid+'_'+i+'">'+T(o.result)+'</div></div>').join('');
+  return '<h2 class="block">'+(c.h||'너라면? 🤔')+'</h2><div class="choice" id="ch_'+sid+'">'
+    +'<div class="chprompt">'+T(c.prompt)+'</div><div class="chopts">'+opts+'</div>'
+    +(c.after?'<div class="chafter" id="chafter_'+sid+'">💬 '+T(c.after)+'</div>':'')+'</div>';
+}
+function compareHTML(c,sid){
+  const tabs=c.states.map((st,i)=>'<button class="cmptab'+(i===0?' active':'')+'" data-ci="'+i+'">'+st.label+'</button>').join('');
+  return '<h2 class="block">'+(c.h||'견주어 보기 ⚖️')+'</h2><div class="compare" id="cmp_'+sid+'">'
+    +(c.intro?'<div class="cmpintro">'+T(c.intro)+'</div>':'')
+    +'<div class="cmptabs">'+tabs+'</div><div class="cmppanel" id="cmppanel_'+sid+'"></div></div>';
+}
+function chartHTML(c,sid){
+  const max=Math.max.apply(null, c.data.map(d=>d.value))||1;
+  const rows=c.data.map(d=>'<div class="crow"><div class="clabel">'+d.label+'</div>'
+    +'<div class="cbarwrap"><div class="cbar" style="width:'+(d.value/max*100)+'%"></div></div>'
+    +'<div class="cval">'+(d.disp||d.value)+'</div></div>').join('');
+  return '<h2 class="block">'+(c.h||'숫자로 보기 📊')+'</h2><div class="chart"><div class="ctitle">'+c.title+'</div>'
+    +(c.unit?'<div class="cunit">'+c.unit+'</div>':'')+rows
+    +(c.relatable?'<div class="crelate">💡 '+T(c.relatable)+'</div>':'')
+    +(c.source?'<div class="csrc">출처: '+c.source+'</div>':'')+'</div>';
+}
+function voiceHTML(v){
+  const real = v.imagined===false;
+  return '<h2 class="block">'+(v.h||'그 사람의 목소리 🗣️')+'</h2><div class="voice">'
+    + '<span class="vbadge '+(real?'real':'imag')+'">'+(real?'실제 기록':'✍️ 사실에 기반한 상상')+'</span>'
+    + '<div class="vbody">'+T(v.body)+'”</div>'
+    + '<div class="vspeaker"><b>— '+v.speaker+'</b>'+(v.era?' · '+v.era:'')+(v.source?'<span class="vsrc">'+v.source+'</span>':'')+'</div>'
+    + '</div>';
+}
+function imageHTML(im,sid){
+  const hs=im.hotspots||[];
+  return '<h2 class="block">'+(im.h||'자료로 보기 🖼️')+'</h2><figure class="figimg">'
+    + (im.story?'<div class="figstory">'+T(im.story)+'</div>':'')
+    + '<div class="imgbox" id="imgbox_'+sid+'">'
+    + '<img src="'+im.src+'" alt="'+(im.alt||'')+'" loading="lazy">'
+    + hs.map((h,i)=>'<button class="hsdot" data-hi="'+i+'" style="left:'+h.x+'%;top:'+h.y+'%" aria-label="'+(h.label||'')+'">'+(i+1)+'</button>').join('')
+    + '</div>'
+    + (hs.length?'<div class="hsinfo" id="hsinfo_'+sid+'">점(번호)을 눌러 보세요.</div>':'')
+    + '<figcaption class="figcap">'+(im.caption||'')+(im.source?' <span class="msrc">· 출처: '+im.source+(im.license?' · '+im.license:'')+'</span>':'')+'</figcaption>'
+    + '</figure>';
+}
+function oldmapHTML(o,sid){
+  return '<h2 class="block">'+(o.h||'옛 지도로 보기 🗺️')+'</h2><figure class="oldmap">'
+    + (o.story?'<div class="figstory">'+T(o.story)+'</div>':'')
+    + '<div class="oldmap-frame"><img src="'+o.src+'" alt="'+(o.alt||'')+'" loading="lazy"></div>'
+    + '<figcaption class="figcap">'+(o.caption||'')+(o.source?' <span class="msrc">· 출처: '+o.source+(o.license?' · '+o.license:'')+'</span>':'')+'</figcaption>'
+    + '</figure>';
+}
+function lensBlock(l){ return '<div class="lens"><div class="lh">🕯️ 그때 사람들은 이렇게 생각했어요</div><div>'+T(l)+'</div></div>'; }
+function personBlock(p){
+  return '<div class="person"><div class="pheader"><div class="pface">'+(p.face||'👤')+'</div>'
+    +'<div><div class="pname">'+p.name+'</div><div class="pwho">'+(p.who||'')+'</div></div></div>'
+    +(p.why?'<div class="pwhy">'+T(p.why)+'</div>':'')
+    +(p.quote?'<div class="pquote">"'+p.quote+'"</div>':'')
+    +(p.shadow?'<div class="pshadow">빛과 그림자 · '+p.shadow+'</div>':'')
+    +(p.slug?'<a class="pmore" href="../people/'+p.slug+'/">📖 인물 도감에서 더 보기 →</a>':'')+'</div>';
+}
+
+const FIT={green:{e:'🟢',t:'전체 관람'},yellow:{e:'🟡',t:'부모와 함께'},red:{e:'🔴',t:'핵심 장면·맥락만'}};
+function movieBlock(m){
+  const f=FIT[m.fit]||FIT.yellow;
+  let s='<div class="movie"><div class="mhead"><div class="mtitle">🎬 '+m.title+'</div>'
+    +'<span class="mfit '+(m.fit||'yellow')+'">'+f.e+' '+f.t+'</span></div>'
+    +'<div class="mmeta">'+[m.year,m.director].filter(Boolean).join(' · ')
+    +(m.basedOn?' · <b>'+m.basedOn+'</b>':'')+'</div>';
+  if(m.why) s+='<div class="mwhy">'+T(m.why)+'</div>';
+  if(m.realVsFiction) s+='<div class="mreal"><span class="lbl">실화 vs 각색</span>'+m.realVsFiction+'</div>';
+  let links=[];
+  if(m.slug) links.push('<a class="mlink slug" href="../people/'+m.slug+'/">📖 인물 도감</a>');
+  (m.links||[]).forEach(l=>links.push('<a class="mlink" href="'+l.url+'" target="_blank" rel="noopener">'+l.label+' ↗</a>'));
+  if(links.length) s+='<div class="mlinks">'+links.join('')+'</div>';
+  return s+'</div>';
+}
+function battlemapHTML(bm,sid,idx){
+  const id='bm_'+sid+'_'+idx;
+  let s='<h2 class="block">'+(bm.title||'전투 지도')+' 🗺️</h2><div class="battlemap" id="'+id+'">';
+  if(bm.intro) s+='<div class="bm-intro">'+T(bm.intro)+'</div>';
+  s+='<div class="bm-map" id="'+id+'_map"></div>'
+    +'<div class="bm-step"><button class="bm-prev" disabled>← 이전</button><div class="bm-plabel" id="'+id+'_lab"></div><button class="bm-next">다음 →</button></div>';
+  if(bm.legend&&bm.legend.length) s+='<div class="bm-legend">'+bm.legend.map(l=>'<span><i style="border-color:'+l.c+'"></i> '+l.label+'</span>').join('')+'</div>';
+  if(bm.caption) s+='<div class="bm-cap">'+bm.caption+'</div>';
+  return s+'</div>';
+}
+function deepdiveHTML(dd){
+  let s='<details class="deepdive"><summary>🔎 더 깊이 — 고등·일반 수준으로 (펼치기)</summary><div class="dd-body">';
+  dd.forEach(it=>{ s+='<div class="dd-item"><h3>'+it.h+'</h3><div class="dd-text">'+T(it.body)+'</div>'
+    +(it.source?'<div class="dd-src">📜 '+it.source+'</div>':'')+'</div>'; });
+  return s+'</div></details>';
+}
+function marchmapHTML(m,sid){
+  const SY=1.55; // viewBox 0 0 100 155 (베이스맵 종횡비 ≈ 1866/2891)
+  const P={}; (m.places||[]).forEach(p=>P[p.id]=p);
+  const placePhase={};
+  (m.phases||[]).forEach((ph,i)=>(ph.show||[]).forEach(id=>{ if(placePhase[id]===undefined) placePhase[id]=i; }));
+  const KIND={start:'🚩',battle:'⚔️',win:'✔️',loss:'✖️',capital:'🏯',city:'•'};
+  let dots='';
+  (m.places||[]).forEach(p=>{
+    const ph=placePhase[p.id]!==undefined?placePhase[p.id]:0;
+    const emo=KIND[p.kind]||'';
+    dots+='<div class="mm-place k-'+(p.kind||'city')+'" data-ph="'+ph+'" style="left:'+p.x+'%;top:'+p.y+'%">'
+      +'<span class="mm-dot"></span><span class="mm-lbl">'+(emo&&emo!=='•'?emo+' ':'')+p.label+'</span></div>';
+  });
+  let paths='';
+  (m.phases||[]).forEach((ph,i)=>{
+    (ph.arrows||[]).forEach(a=>{
+      const f=P[a.from], t=P[a.to]; if(!f||!t) return;
+      const fx=f.x, fy=f.y*SY, tx=t.x, ty=t.y*SY;
+      const mx=(fx+tx)/2, my=(fy+ty)/2, dx=tx-fx, dy=ty-fy;
+      const cx=(mx-dy*0.16).toFixed(1), cy=(my+dx*0.16).toFixed(1);
+      const tone=a.tone||'resist';
+      paths+='<path class="mm-arrow tone-'+tone+'" data-ph="'+i+'" d="M'+fx+' '+fy.toFixed(1)+' Q'+cx+' '+cy+' '+tx+' '+ty.toFixed(1)+'" marker-end="url(#mmh-'+tone+')"></path>';
+      if(a.label) paths+='<text class="mm-alab tone-'+tone+'" data-ph="'+i+'" x="'+cx+'" y="'+cy+'">'+a.label+'</text>';
+    });
+  });
+  const n=(m.phases||[]).length, first=(m.phases&&m.phases[0]?m.phases[0].label:'');
+  let s='<h2 class="block">진격으로 따라가기 🗺️</h2><div class="marchmap" id="mm_'+sid+'" data-ph="0" data-n="'+n+'">';
+  if(m.title) s+='<div class="mm-title">'+m.title+'</div>';
+  if(m.intro) s+='<div class="mm-intro">'+T(m.intro)+'</div>';
+  s+='<div class="mm-stage"><img class="mm-base" src="'+m.base.src+'" alt="'+(m.title||'지도')+'" loading="lazy">'
+    +'<svg class="mm-arrows" viewBox="0 0 100 155" preserveAspectRatio="xMidYMid meet"><defs>'
+    +'<marker id="mmh-resist" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" class="mh resist"/></marker>'
+    +'<marker id="mmh-invade" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" class="mh invade"/></marker>'
+    +'</defs>'+paths+'</svg>'+dots+'</div>';
+  s+='<div class="mm-step"><button class="mm-prev" disabled>← 이전</button>'
+    +'<div class="mm-plabel" id="mmlab_'+sid+'">'+first+'</div><button class="mm-next">다음 →</button></div>';
+  if(m.caption) s+='<div class="mm-cap">'+m.caption+'</div>';
+  return s+'</div>';
+}
+function relationsHTML(r,sid){
+  let s='<h2 class="block">힘의 관계 한눈에 보기 ⚖️</h2><div class="relations">';
+  if(r.title) s+='<div class="rtitle">'+r.title+'</div>';
+  if(r.intro) s+='<div class="rintro">'+T(r.intro)+'</div>';
+  s+='<div class="rsides">';
+  (r.sides||[]).forEach(side=>{
+    s+='<div class="rside '+(side.color||'')+'"><div class="rslabel">'+side.label+'</div>';
+    (side.members||[]).forEach(m=>{
+      s+='<div class="rmember"><b>'+m.name+'</b><span>'+(m.role||'')+'</span>'
+        +(m.slug?' <a class="rlink" href="../people/'+m.slug+'/">📖</a>':'')+'</div>';
+    });
+    s+='</div>';
+  });
+  s+='</div>';
+  if(r.tensions&&r.tensions.length){
+    s+='<div class="rtensions">';
+    r.tensions.forEach(t=>{ s+='<div class="rtension"><div class="rvs">⚔️ '+t.a+' ↔ '+t.b+'</div><div>'+T(t.label)+'</div></div>'; });
+    s+='</div>';
+  }
+  return s+'</div>';
+}
+// 블록 registry + 섹션별 순서(order) — 데이터로 흐름 제어. order 없으면 DEFAULT(하위호환).
+function renderBlocks(s){
+  const B={
+    hook:()=>'<p class="hook">'+T(s.hook)+'</p>'+(s.quote?quoteBlock(s.quote):''),
+    why:()=>'<h2 class="block">왜 중요할까</h2><div class="why">'+s.why+'</div>',
+    lens:()=>s.lens?lensBlock(s.lens):'',
+    voice:()=>s.voice?voiceHTML(s.voice):'',
+    cards:()=>'<h2 class="block">핵심 따라가기</h2><div class="cards">'
+      +s.cards.map(c=>'<div class="card"><span class="yr">'+c.yr+'</span><h3>'+c.h+'</h3><p>'+T(c.p)+'</p></div>').join('')+'</div>'
+      +(s.quote2?quoteBlock(s.quote2):''),
+    people:()=>s.people?'<h2 class="block">꼭 알아야 할 인물</h2><div class="people">'+s.people.map(personBlock).join('')+'</div>':'',
+    map:()=>s.map?mapHTML(s.map,s.id):'',
+    image:(i)=>{ const arr=Array.isArray(s.image); const im=arr?s.image[i||0]:s.image; const sid=(arr&&i!=null)?s.id+'_'+i:s.id; return im?imageHTML(im,sid):''; },
+    oldmap:()=>s.oldmap?oldmapHTML(s.oldmap,s.id):'',
+    chart:(i)=>{ const arr=Array.isArray(s.chart); const c=arr?s.chart[i||0]:s.chart; return c?chartHTML(c,(arr&&i!=null)?s.id+'_'+i:s.id):''; },
+    compare:()=>s.compare?compareHTML(s.compare,s.id):'',
+    relations:()=>s.relations?relationsHTML(s.relations,s.id):'',
+    marchmap:()=>s.marchmap?marchmapHTML(s.marchmap,s.id):'',
+    battlemap:(i)=>{ const bm=(s.battlemaps||[])[i]; return bm?battlemapHTML(bm,s.id,i):''; },
+    timeline:()=>'<h2 class="block">한눈에 보는 흐름</h2><div class="timeline">'
+      +s.timeline.map(t=>'<div class="tl"><span class="tl-yr">'+t.yr+'</span> <span class="tl-txt">'+t.t+'</span></div>').join('')+'</div>',
+    connect:()=>'<h2 class="block">이야기 연결 고리</h2><div class="connect"><span class="ico">🔗</span><div>'+s.connect+'</div></div>',
+    yt:()=>'<h2 class="block">영상으로 보기</h2>'+s.yt.map(ytBlock).join(''),
+    movies:()=>s.movies?'<h2 class="block">영화로 만나기 🎬</h2><div class="movies">'+s.movies.map(movieBlock).join('')+'</div>':'',
+    choice:()=>s.choice?choiceHTML(s.choice,s.id):'',
+    quiz:()=>s.quiz?quizHTML(s.quiz,s.id):'',
+    deepdive:()=>s.deepdive?deepdiveHTML(s.deepdive):'',
+    reflect:()=>'<h2 class="block">내 생각 적어보기 ✍️</h2><div class="reflect">'
+      +s.reflect.map((q,i)=>'<div class="q">'+q+'</div><textarea data-key="'+s.id+'_'+i+'" placeholder="여기에 자유롭게 적어보세요. 자동으로 저장돼요."></textarea><div class="saved" id="saved_'+s.id+'_'+i+'"></div>').join('')+'</div>'
+  };
+  const DEFAULT=['hook','why','lens','voice','cards','people','map','image','oldmap','chart','compare','relations','marchmap','battlemap*','timeline','connect','yt','movies','choice','quiz','deepdive','reflect'];
+  const order=(s.order&&s.order.length)?s.order:DEFAULT;
+  let html='';
+  order.forEach(tok=>{
+    if(tok.charAt(tok.length-1)==='*'){
+      const name=tok.slice(0,-1);
+      let arr=[];
+      if(name==='battlemap') arr=s.battlemaps||[];
+      else if(Array.isArray(s[name])) arr=s[name];
+      else if(s[name]) arr=[s[name]];
+      arr.forEach((_,i)=>{ if(B[name]) html+=B[name](i); });
+      return;
+    }
+    const p=tok.split(':'), name=p[0], idx=p.length>1?+p[1]:null;
+    if(B[name]) html+=B[name](idx);
+  });
+  return html;
+}
+function render(s,idx){
+  const prev=SECTIONS[idx-1], next=SECTIONS[idx+1];
+  view.innerHTML=
+  '<div class="hero" style="background:linear-gradient(135deg,var(--navy) 0%, '+s.accent+' 100%)">'
+  +'<div class="kicker">'+s.kicker+'</div><h1>'+s.title+'</h1><div class="era">⏳ '+s.era+'</div>'
+  +'<svg class="motif" viewBox="0 0 210 210">'+(MOTIF[s.motif]||'')+'</svg></div>'
+  +'<div class="wrap">'
+  +renderBlocks(s)
+  +'<div class="pager">'
+  +(prev?'<a class="prev" data-id="'+prev.id+'"><div class="pg-label">← 이전</div><div class="pg-title">'+prev.label+'</div></a>':'<a class="prev" data-id="home"><div class="pg-label">← 홈</div><div class="pg-title">이야기 시작</div></a>')
+  +(next?'<a class="next" data-id="'+next.id+'"><div class="pg-label">다음 →</div><div class="pg-title">'+next.label+'</div></a>':'<a class="next" data-id="home"><div class="pg-label">이야기 끝 →</div><div class="pg-title">홈으로</div></a>')
+  +'</div></div>';
+  view.querySelectorAll('.pager a[data-id]').forEach(a=>a.addEventListener('click',()=>go(a.dataset.id)));
+  view.querySelectorAll('textarea[data-key]').forEach(ta=>{
+    const k=META.slug+'_m_'+ta.dataset.key; ta.value=localStorage.getItem(k)||''; let timer;
+    ta.addEventListener('input',()=>{ localStorage.setItem(k,ta.value); const tag=document.getElementById('saved_'+ta.dataset.key); tag.textContent='저장됨 ✓'; clearTimeout(timer); timer=setTimeout(()=>tag.textContent='',1300); });
+  });
+  if(s.quiz){ view.querySelectorAll('.quizq').forEach(qd=>{
+    const qi=+qd.dataset.qi, q=s.quiz[qi];
+    qd.querySelectorAll('.quiz-opt').forEach(btn=>btn.addEventListener('click',()=>{
+      if(qd.classList.contains('done')) return; qd.classList.add('done');
+      const oi=+btn.dataset.oi;
+      qd.querySelectorAll('.quiz-opt').forEach((b,i)=>{ if(i===q.answer) b.classList.add('correct'); if(i===oi&&oi!==q.answer) b.classList.add('wrong'); b.disabled=true; });
+      const exp=document.getElementById('qexp_'+s.id+'_'+qi);
+      exp.innerHTML=(oi===q.answer?'<b>맞았어요! ✓</b> ':'<b>아쉬워요, 다시 볼까요?</b> ')+(q.explain||'');
+      exp.classList.add('show');
+    }));
+  }); }
+  if(s.map && window.L){
+    const mel=document.getElementById('lmap_'+s.id);
+    currentMap=L.map(mel,{scrollWheelZoom:false}).setView(s.map.center, s.map.zoom);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(currentMap);
+    if(s.map.line) L.polyline(s.map.line,{color:'#b5546a',weight:3,dashArray:'6 6'}).addTo(currentMap);
+    (s.map.markers||[]).forEach(mk=>L.circleMarker([mk.lat,mk.lng],{radius:9,color:'#fff',weight:2,fillColor:'#B5546A',fillOpacity:1}).addTo(currentMap).bindPopup('<b>'+mk.label+'</b><br>'+mk.desc));
+    setTimeout(()=>{ if(currentMap) currentMap.invalidateSize(); },200);
+  }
+  if(s.image && s.image.hotspots && s.image.hotspots.length){
+    const info=document.getElementById('hsinfo_'+s.id);
+    view.querySelectorAll('#imgbox_'+s.id+' .hsdot').forEach(d=>d.addEventListener('click',()=>{
+      const h=s.image.hotspots[+d.dataset.hi]; info.innerHTML='<b>'+h.label+'</b> '+(h.desc||''); info.classList.add('show');
+    }));
+  }
+  if(s.compare){
+    const c=s.compare, panel=document.getElementById('cmppanel_'+s.id);
+    const tabs=view.querySelectorAll('#cmp_'+s.id+' .cmptab');
+    const fill=(i)=>{ const st=c.states[i]; panel.innerHTML='<div class="cmh">'+st.title+'</div><div class="cmb">'+T(st.body)+'</div>'
+      +(st.img?'<img src="'+st.img+'" alt="'+(st.alt||'')+'" loading="lazy">':'')+(st.caption?'<div class="cmpcap">'+st.caption+'</div>':'');
+      tabs.forEach((b,bi)=>b.classList.toggle('active',bi===i)); };
+    tabs.forEach(b=>b.addEventListener('click',()=>fill(+b.dataset.ci)));
+    fill(0);
+  }
+  if(s.choice){
+    const af=document.getElementById('chafter_'+s.id);
+    view.querySelectorAll('#ch_'+s.id+' .chopt').forEach(b=>b.addEventListener('click',()=>{
+      document.getElementById('chres_'+s.id+'_'+b.dataset.oi).classList.add('show');
+      b.classList.add('picked'); if(af) af.classList.add('show');
+    }));
+  }
+  if(s.marchmap){
+    const mm=document.getElementById('mm_'+s.id), n=+mm.dataset.n, lab=document.getElementById('mmlab_'+s.id);
+    const prev=mm.querySelector('.mm-prev'), next=mm.querySelector('.mm-next'), phases=s.marchmap.phases||[];
+    const upd=()=>{ const cur=+mm.dataset.ph;
+      mm.querySelectorAll('.mm-place,.mm-arrow,.mm-alab').forEach(el=>el.classList.toggle('on',+el.dataset.ph<=cur));
+      lab.textContent=phases[cur]?phases[cur].label:''; prev.disabled=cur<=0; next.disabled=cur>=n-1; };
+    prev.addEventListener('click',()=>{ mm.dataset.ph=Math.max(0,+mm.dataset.ph-1); upd(); });
+    next.addEventListener('click',()=>{ mm.dataset.ph=Math.min(n-1,+mm.dataset.ph+1); upd(); });
+    upd();
+  }
+  (s.battlemaps||[]).forEach((bm,idx)=>{
+    const id='bm_'+s.id+'_'+idx;
+    try{
+      const map=L.map(id+'_map',{scrollWheelZoom:false}).setView(bm.center||[37,127],bm.zoom||6);
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:14,attribution:'© OpenStreetMap'}).addTo(map);
+      bmaps.push(map);
+      const KIND={start:'🚩',battle:'⚔️',win:'✔️',loss:'✖️',capital:'🏯',city:'•',sea:'⚓'};
+      const ic=(e)=>L.divIcon({className:'bm-ic',html:'<div>'+e+'</div>',iconSize:[26,26],iconAnchor:[13,13]});
+      const phases=bm.phases||[], layers=phases.map(()=>[]);
+      phases.forEach((ph,i)=>{
+        (ph.markers||[]).forEach(m=>layers[i].push(L.marker(m.at,{icon:ic(KIND[m.kind]||'•')}).bindTooltip(m.label,{permanent:true,direction:'top',offset:[0,-10],className:'bm-tt'})));
+        (ph.arrows||[]).forEach(a=>layers[i].push(L.polyline.antPath(a.path,{color:a.tone==='invade'?'#B5546A':'#2E7D4F',weight:4,delay:1000,dashArray:[10,22],pulseColor:'#fff'})));
+      });
+      const lab=document.getElementById(id+'_lab'), prev=document.querySelector('#'+id+' .bm-prev'), next=document.querySelector('#'+id+' .bm-next'), n=phases.length;
+      let cur=0;
+      const lowAt=(c)=>{ let r=0; for(let i=1;i<=c;i++){ if(phases[i]&&phases[i].reset) r=i; } return r; };
+      const upd=()=>{ const lo=lowAt(cur);
+        layers.forEach((grp,i)=>grp.forEach(l=> (i>=lo&&i<=cur)?l.addTo(map):map.removeLayer(l)));
+        lab.textContent=phases[cur]?phases[cur].label:''; prev.disabled=cur<=0; next.disabled=cur>=n-1;
+        if(bm.fit){ const pts=[]; for(let i=lo;i<=cur;i++) layers[i].forEach(l=>{ if(l.getLatLng) pts.push(l.getLatLng()); });
+          if(pts.length>=2) map.fitBounds(L.latLngBounds(pts).pad(0.4)); else if(pts.length===1) map.setView(pts[0], map.getZoom()); } };
+      next.onclick=()=>{cur=Math.min(n-1,cur+1);upd();}; prev.onclick=()=>{cur=Math.max(0,cur-1);upd();};
+      upd(); setTimeout(()=>map.invalidateSize(),200);
+    }catch(e){ console.error('battlemap',e); }
+  });
+  markVisited(s.id); setActive(s.id); window.scrollTo(0,0);
+}
+
+function renderNotes(){
+  const body=SECTIONS.map(s=>{
+    const items=s.reflect.map((q,i)=>{ const v=(localStorage.getItem(META.slug+'_m_'+s.id+'_'+i)||'').trim();
+      return '<div class="note-q">'+q+'</div><div class="note-a'+(v?'':' empty')+'">'+(v?v.replace(/</g,'&lt;'):'(아직 적지 않았어요)')+'</div>'; }).join('');
+    return '<div class="note-sec"><div class="note-sh">'+s.num+' · '+s.label+'</div>'+items+'</div>';
+  }).join('');
+  view.innerHTML='<div class="home-hero"><h1>📝 내 메모 모아보기</h1><div class="hsub">'+META.brand.title+' — 내가 적은 생각들</div></div>'
+    +'<div class="home-wrap"><div class="note-actions noprint">'
+    +'<button class="btn primary" id="notePrint">🖨️ 인쇄 / PDF 저장</button>'
+    +'<button class="btn" id="noteCopy" style="background:#fff;border:1px solid var(--line);color:var(--navy)">📋 전체 복사</button></div>'
+    +'<div class="notes-view" id="notesView">'+body+'</div></div>';
+  document.getElementById('notePrint').addEventListener('click',()=>window.print());
+  document.getElementById('noteCopy').addEventListener('click',()=>{ const t=document.getElementById('notesView').innerText;
+    if(navigator.clipboard){ navigator.clipboard.writeText(t); const b=document.getElementById('noteCopy'); b.textContent='복사됨 ✓'; setTimeout(()=>b.textContent='📋 전체 복사',1500); } });
+  setActive('notes'); window.scrollTo(0,0); progress.style.width='0%';
+}
+
+function setActive(id){
+  navList.querySelectorAll('a').forEach(a=>{ a.classList.toggle('active', a.dataset.id===id); if(a.dataset.id && a.dataset.id!=='home' && visited(a.dataset.id)) a.classList.add('visited'); });
+}
+function go(id){ killMap(); if(id==='home'){ renderHome(); location.hash='home'; return; }
+  if(id==='notes'){ renderNotes(); location.hash='notes'; return; } const idx=SECTIONS.findIndex(s=>s.id===id); if(idx<0) return; render(SECTIONS[idx],idx); location.hash=id; }
+function openSide(){ sidebar.classList.add('open'); scrim.classList.add('show'); }
+function closeSide(){ sidebar.classList.remove('open'); scrim.classList.remove('show'); }
+document.getElementById('hamb').addEventListener('click',openSide);
+document.getElementById('brandHome').addEventListener('click',()=>{ go('home'); closeSide(); });
+scrim.addEventListener('click',closeSide);
+
+/* companion 배지 — meta.companion:{slug,label} 이면 사이드바에 짝 에피소드 링크 */
+if(META.companion && META.companion.slug){
+  const cl=document.createElement('a');
+  cl.className='companion-link';
+  cl.href='../'+META.companion.slug+'/index.html';
+  cl.textContent='🔗 짝 에피소드 · '+(META.companion.label||META.companion.slug);
+  const hb=document.getElementById('hubBack');
+  hb.parentNode.insertBefore(cl,hb.nextSibling);
+}
+
+/* lightbox — image/oldmap 이미지 클릭 확대 */
+const lb=document.createElement('div'); lb.className='lightbox';
+lb.innerHTML='<img alt=""><div class="lb-cap"></div>';
+document.body.appendChild(lb);
+document.addEventListener('click',e=>{
+  if(e.target.closest('.lightbox')){ lb.classList.remove('show'); document.body.style.overflow=''; return; }
+  const im=e.target.closest('.imgbox img, .oldmap-frame img');
+  if(im){ lb.querySelector('img').src=im.src; lb.querySelector('.lb-cap').textContent=im.alt||''; lb.classList.add('show'); document.body.style.overflow='hidden'; }
+});
+window.addEventListener('scroll',()=>{ const h=document.documentElement.scrollHeight-window.innerHeight; progress.style.width=(h>0?(window.scrollY/h*100):0)+'%'; });
+const tip=document.getElementById('tip');
+function showTip(e,t){ tip.textContent=TERMS[t.dataset.term]||''; tip.style.display='block'; moveTip(e); }
+document.addEventListener('mouseover',e=>{ const t=e.target.closest('.term'); if(t) showTip(e,t); });
+document.addEventListener('mousemove',e=>{ if(tip.style.display==='block') moveTip(e); });
+document.addEventListener('mouseout',e=>{ if(e.target.closest('.term')) tip.style.display='none'; });
+document.addEventListener('click',e=>{ const t=e.target.closest('.term'); if(t){ showTip(e,t); setTimeout(()=>tip.style.display='none',2800); } });
+function moveTip(e){ tip.style.left=Math.min(e.clientX+14,window.innerWidth-278)+'px'; tip.style.top=Math.min(e.clientY+16,window.innerHeight-92)+'px'; }
+
+head(); buildNav();
+const start=location.hash.replace('#','');
+if(start==='notes') renderNotes();
+else if(start && SECTIONS.some(s=>s.id===start)) go(start);
+else renderHome();
+</script>
+</body>
+</html>
