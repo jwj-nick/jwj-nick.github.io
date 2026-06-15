@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<title>PQO · Perceptual Preprocessing</title>
+<style>
+  :root{
+    --bg:#0f172a; --bg2:#1e293b; --card:#1e293b; --line:#334155;
+    --fg:#e2e8f0; --mut:#94a3b8; --acc:#38bdf8; --acc2:#818cf8;
+    --ok:#34d399; --warn:#fbbf24; --bad:#f87171;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Apple SD Gothic Neo',sans-serif;
+    background:var(--bg);color:var(--fg);line-height:1.55;padding-bottom:72px}
+  header{position:sticky;top:0;z-index:10;background:rgba(15,23,42,.92);backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);padding:14px 16px calc(14px + env(safe-area-inset-top,0));padding-top:max(14px,env(safe-area-inset-top,0))}
+  header h1{font-size:17px;letter-spacing:.2px}
+  header .sub{font-size:11.5px;color:var(--mut);margin-top:2px}
+  header .upd{font-size:10.5px;color:var(--acc);margin-top:3px}
+  .wrap{max-width:760px;margin:0 auto;padding:16px}
+  /* tab bar */
+  nav{position:fixed;bottom:0;left:0;right:0;z-index:20;display:flex;background:var(--bg2);
+    border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0)}
+  nav button{flex:1;background:none;border:none;color:var(--mut);font-size:11.5px;
+    padding:11px 4px;cursor:pointer;font-weight:600;border-top:2px solid transparent}
+  nav button.on{color:var(--acc);border-top-color:var(--acc)}
+  nav button .ic{display:block;font-size:17px;margin-bottom:1px}
+  /* cards */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px;margin-bottom:13px}
+  .card h2{font-size:15px;margin-bottom:8px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .card h3{font-size:13.5px;color:var(--acc);margin:14px 0 5px}
+  .card p{font-size:13px;color:var(--fg);margin-bottom:7px}
+  .mut{color:var(--mut)!important}
+  .small{font-size:11.5px}
+  .badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap}
+  .b-active{background:rgba(52,211,153,.16);color:var(--ok)}
+  .b-plan{background:rgba(148,163,184,.16);color:var(--mut)}
+  .b-ind{background:rgba(52,211,153,.16);color:var(--ok)}
+  .b-cou{background:rgba(248,113,113,.16);color:var(--bad)}
+  .b-mix{background:rgba(251,191,36,.16);color:var(--warn)}
+  .b-na{background:rgba(148,163,184,.16);color:var(--mut)}
+  .b-peer{background:rgba(56,189,248,.14);color:var(--acc)}
+  .b-std{background:rgba(129,140,248,.16);color:var(--acc2)}
+  .b-vendor{background:rgba(251,191,36,.16);color:var(--warn)}
+  .b-repo,.b-docs{background:rgba(148,163,184,.16);color:var(--mut)}
+  /* checklist */
+  .chk{display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--line);cursor:pointer}
+  .chk:first-of-type{border-top:none}
+  .chk input{appearance:none;width:19px;height:19px;border:2px solid var(--line);border-radius:5px;
+    margin-top:1px;flex:none;position:relative;cursor:pointer;background:var(--bg)}
+  .chk input:checked{background:var(--ok);border-color:var(--ok)}
+  .chk input:checked::after{content:"✓";position:absolute;top:-2px;left:2px;font-size:14px;color:#06281d;font-weight:900}
+  .chk span{font-size:12.5px}
+  .chk input:checked + span{color:var(--mut);text-decoration:line-through}
+  .cp{font-size:12px;background:rgba(56,189,248,.08);border-left:3px solid var(--acc);
+    border-radius:0 8px 8px 0;padding:8px 10px;margin-top:10px}
+  .cp b{color:var(--acc)}
+  /* progress */
+  .prog{height:6px;background:var(--bg);border-radius:6px;overflow:hidden;margin:8px 0 2px}
+  .prog>i{display:block;height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));width:0;transition:width .3s}
+  .ptxt{font-size:11px;color:var(--mut)}
+  /* ref links */
+  a.ref{display:block;text-decoration:none;color:inherit;border-top:1px solid var(--line);padding:10px 0}
+  a.ref:first-of-type{border-top:none}
+  a.ref .t{font-size:13px;font-weight:600;display:flex;gap:6px;align-items:baseline;flex-wrap:wrap}
+  a.ref .w{font-size:11px;color:var(--mut);margin-top:2px}
+  a.ref .n{font-size:11px;color:var(--acc);margin-top:3px}
+  .ladder{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+  .ladder .step{flex:1;min-width:64px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px;text-align:center}
+  .ladder .step b{font-size:12px;display:block;color:var(--acc)}
+  .ladder .step span{font-size:10px;color:var(--mut)}
+  .ladder .arr{align-self:center;color:var(--mut);font-size:12px}
+  ul.q{list-style:none;margin:4px 0}
+  ul.q li{font-size:12.5px;padding:5px 0 5px 16px;position:relative;border-top:1px solid var(--line)}
+  ul.q li:first-child{border-top:none}
+  ul.q li::before{content:"›";position:absolute;left:2px;color:var(--acc)}
+  .foot{text-align:center;font-size:11px;color:var(--mut);padding:18px 0 4px}
+  .hide{display:none}
+</style>
+</head>
+<body>
+<header>
+  <h1 id="h-title">PQO</h1>
+  <div class="sub" id="h-sub"></div>
+  <div class="upd" id="h-upd"></div>
+</header>
+
+<main class="wrap" id="view"></main>
+
+<nav id="nav">
+  <button data-tab="overview" class="on"><span class="ic">🎯</span>개요</button>
+  <button data-tab="part1"><span class="ic">📐</span>Part 1</button>
+  <button data-tab="part2"><span class="ic">🎛️</span>Part 2</button>
+  <button data-tab="refs"><span class="ic">📚</span>자료</button>
+</nav>
+
+<script src="content.js"></script>
+<script>
+const D = window.PQO;
+const $ = (id)=>document.getElementById(id);
+const LS = "pqo_chk_v1";
+const store = JSON.parse(localStorage.getItem(LS) || "{}");
+const save = ()=>localStorage.setItem(LS, JSON.stringify(store));
+const esc = (s)=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+$("h-title").textContent = D.title;
+$("h-sub").textContent = D.subtitle;
+$("h-upd").textContent = "업데이트 " + D.updated + " · 개인 학습 로드맵";
+
+const couplingBadge = (c)=>{
+  if(!c) return "";
+  const m={independent:["b-ind","독립"],coupled:["b-cou","인코더 결합"],mixed:["b-mix","mixed"],"n/a":["b-na","n/a"]};
+  const x=m[c]||["b-na",c];
+  return `<span class="badge ${x[0]}">${x[1]}</span>`;
+};
+const gradeBadge = (g)=>{
+  const m={peer:["b-peer","논문"],standard:["b-std","표준"],vendor:["b-vendor","벤더"],repo:["b-repo","repo"],docs:["b-docs","docs"]};
+  const x=m[g]||["b-repo",g];
+  return `<span class="badge ${x[0]}">${x[1]}</span>`;
+};
+
+function partProgress(part){
+  let done=0,total=0;
+  part.cats.forEach(cat=>cat.items.forEach((_,i)=>{total++;if(store[`${part.id}.${cat.id}.${i}`])done++;}));
+  return {done,total,pct: total? Math.round(done/total*100):0};
+}
+
+function renderOverview(){
+  const o=D.overview;
+  const ladder = o.costLadder.map((s,i)=>
+    `<div class="step"><b>${esc(s.k)}</b><span>${esc(s.v)}</span></div>`+
+    (i<o.costLadder.length-1?`<div class="arr">‹</div>`:"")
+  ).join("");
+  const mq = o.metricQuestions.map(q=>`<li>${esc(q)}</li>`).join("");
+  return `
+  <div class="card">
+    <h2>이게 뭔가</h2>
+    <p>${esc(o.what)}</p>
+  </div>
+  <div class="card" style="border-color:var(--warn)">
+    <h2>💡 ${esc(o.insight.title)}</h2>
+    <p>${esc(o.insight.body)}</p>
+  </div>
+  <div class="card">
+    <h2>메트릭 정책</h2>
+    <p>${esc(o.metricPolicy)}</p>
+    <h3>절감 수치 볼 때 강제 질문</h3>
+    <ul class="q">${mq}</ul>
+  </div>
+  <div class="card">
+    <h2>HW 비용 사다리</h2>
+    <div class="ladder">${ladder}</div>
+    <p class="small mut">모든 기법을 "실리콘에 올리면 얼마짜리냐"로 환원 (라인/프레임버퍼·ME·MAC).</p>
+  </div>
+  <div class="card">
+    <h2>다음 단계 (예정)</h2>
+    ${D.upcoming.map(u=>`<p class="small"><b>${esc(u.title)}</b> <span class="mut">— ${esc(u.note)}</span></p>`).join("")}
+  </div>`;
+}
+
+function renderPart(part){
+  const p=partProgress(part);
+  const cats=part.cats.map(cat=>{
+    const items=cat.items.map((it,i)=>{
+      const key=`${part.id}.${cat.id}.${i}`;
+      return `<label class="chk"><input type="checkbox" data-k="${key}" ${store[key]?"checked":""}><span>${esc(it)}</span></label>`;
+    }).join("");
+    return `<div class="card">
+      <h2>${esc(cat.title)} ${couplingBadge(cat.tag)}</h2>
+      <p class="small mut">${esc(cat.goal)}</p>
+      ${items}
+      <div class="cp"><b>체크포인트</b> · ${esc(cat.checkpoint)}</div>
+    </div>`;
+  }).join("");
+  return `
+  <div class="card">
+    <h2>${esc(part.title)} <span class="badge ${part.status==='active'?'b-active':'b-plan'}">${part.status==='active'?'진행':'예정'}</span></h2>
+    <p class="small mut">${esc(part.goal)}</p>
+    <div class="prog"><i style="width:${p.pct}%"></i></div>
+    <div class="ptxt">${p.done}/${p.total} 완료 · ${p.pct}%</div>
+  </div>
+  ${cats}`;
+}
+
+function renderRefs(){
+  const refRow=(r)=>`<a class="ref" href="${r.u}" target="_blank" rel="noopener">
+    <div class="t">${esc(r.t)} ${gradeBadge(r.g)} ${r.c?couplingBadge(r.c):""}</div>
+    <div class="w">${esc(r.w)}</div>
+    ${r.n?`<div class="n">${esc(r.n)}</div>`:""}
+  </a>`;
+  const swRow=(s)=>`<a class="ref" href="${s.u}" target="_blank" rel="noopener">
+    <div class="t">${esc(s.name)} ${couplingBadge(s.c)}</div>
+    <div class="w">${esc(s.use)}</div>
+  </a>`;
+  return `
+  <div class="card"><h2>Part 1 — 이론 & 메트릭</h2>${D.refs.part1.map(refRow).join("")}</div>
+  <div class="card"><h2>Part 2 — 신호처리 & 표준</h2>${D.refs.part2.map(refRow).join("")}</div>
+  <div class="card"><h2>Reference SW</h2>${D.refs.sw.map(swRow).join("")}</div>
+  <div class="foot">링크는 모두 공개 논문/표준/repo · 출처등급·인코더결합 태그 표기</div>`;
+}
+
+function route(tab){
+  const v=$("view");
+  if(tab==="overview") v.innerHTML=renderOverview();
+  else if(tab==="part1") v.innerHTML=renderPart(D.parts[0]);
+  else if(tab==="part2") v.innerHTML=renderPart(D.parts[1]);
+  else if(tab==="refs") v.innerHTML=renderRefs();
+  window.scrollTo(0,0);
+  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.tab===tab));
+  localStorage.setItem("pqo_tab",tab);
+}
+
+$("nav").addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(b) route(b.dataset.tab);
+});
+$("view").addEventListener("change",e=>{
+  const cb=e.target.closest("input[type=checkbox]"); if(!cb) return;
+  store[cb.dataset.k]=cb.checked; save();
+  // 진도바 갱신 (현재 part 다시 그리기)
+  const tab=localStorage.getItem("pqo_tab")||"overview";
+  if(tab==="part1"||tab==="part2"){
+    const part = tab==="part1"?D.parts[0]:D.parts[1];
+    const p=partProgress(part);
+    const bar=$("view").querySelector(".prog>i"); const txt=$("view").querySelector(".ptxt");
+    if(bar) bar.style.width=p.pct+"%";
+    if(txt) txt.textContent=`${p.done}/${p.total} 완료 · ${p.pct}%`;
+  }
+});
+
+route(localStorage.getItem("pqo_tab")||"overview");
+</script>
+</body>
+</html>
