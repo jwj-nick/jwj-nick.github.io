@@ -11,19 +11,19 @@ window.PQO_STUDIES = [
   "grade": "peer",
   "coupling": "n/a",
   "url": "https://www.sciencedirect.com/science/article/abs/pii/S1047320311000204",
-  "tldr": "인간 시각계(HVS)가 인지하는 품질을 예측하는 perceptual visual quality metric(PVQM) 설계의 빌딩블록을 체계적으로 정리한 서베이. '왜 전처리로 비트를 줄일 수 있는가'의 이론적 토대 — 통계적 중복과 별개로 존재하는 perceptual redundancy를 정의한다.",
+  "tldr": "HVS가 인지하는 quality를 예측하는 perceptual visual quality metric(PVQM) 설계의 building block을 체계적으로 정리한 survey. '왜 전처리로 비트를 줄일 수 있는가'의 이론적 토대 — statistical redundancy와 별개로 존재하는 perceptual redundancy를 정의한다.",
   "ideas": [
-   "통계적 중복(statistical redundancy, 픽셀 간 상관)과 별개로 perceptual redundancy(HVS가 어차피 못 보는 성분)가 존재한다 — 후자를 제거하는 것이 전처리/지각 코딩의 본질.",
-   "PVQM 공통 파이프라인: (1) 신호 분해(주파수/방향 서브밴드, DCT·웨이블릿·가버), (2) JND(just-noticeable distortion) 임계 추정, (3) 시각 주의(visual attention/saliency)로 영역 가중, (4) 공통 특징·아티팩트 검출(블로킹·블러·링잉), (5) 풀링(pooling)으로 단일 점수화.",
-   "JND가 핵심 모듈 — CSF(주파수 가중) + 휘도 적응 + 대비/텍스처 마스킹의 결합으로 per-pixel 또는 per-coeff 가시성 임계를 만든다.",
-   "메트릭은 FR(full-reference)/RR/NR로 분류되며, MSE/PSNR이 지각과 어긋나는 이유(에너지 동일해도 가시성 다름)를 HVS 모델로 보정한다.",
-   "시청 조건(시거리, 디스플레이 화소밀도→cpd 환산)이 모든 주파수 가중의 전제 — 같은 영상도 보는 거리에 따라 가시성이 달라진다."
+   "statistical redundancy(픽셀 간 correlation)와 별개로 perceptual redundancy(HVS가 어차피 못 보는 성분)가 존재한다 — 후자를 제거하는 것이 전처리/perceptual coding의 본질.",
+   "PVQM 공통 pipeline: (1) signal decomposition(frequency/orientation subband, DCT·wavelet·Gabor), (2) JND(just-noticeable distortion) threshold estimation, (3) visual attention/saliency로 영역 weighting, (4) 공통 feature·artifact detection(blocking·blur·ringing), (5) pooling으로 single score화.",
+   "JND가 핵심 module — CSF(frequency weighting) + luminance adaptation + contrast/texture masking의 결합으로 per-pixel 또는 per-coeff visibility threshold를 만든다.",
+   "metric은 FR(full-reference)/RR/NR로 분류되며, MSE/PSNR이 perception과 어긋나는 이유(energy가 같아도 visibility가 다름)를 HVS model로 보정한다.",
+   "viewing condition(viewing distance, display pixel density→cpd 환산)이 모든 frequency weighting의 전제 — 같은 영상도 보는 거리에 따라 visibility가 달라진다."
   ],
-  "method": "서베이는 PVQM을 '신호 분해 → JND/마스킹 → 주의·특징·아티팩트 → 풀링'의 모듈 조합으로 일반화한다. 신호 분해는 HVS의 다중채널 특성(주파수·방향별 분리 처리)을 모사하고, 각 채널에 CSF 기반 가중을 준다. JND 모듈은 배경 휘도(luminance adaptation)와 국소 활동도(contrast/texture masking)에 따라 가시 임계를 올린다 — 밝거나 복잡한 영역일수록 더 큰 왜곡을 숨길 수 있다. 주의 모델은 saliency로 영역별 중요도를 가중하고, 아티팩트 검출기는 압축 특유의 왜곡(블로킹·링잉)을 따로 잡는다. 마지막 풀링(Minkowski 합 등)으로 채널·영역 점수를 합쳐 단일 품질값을 낸다.",
+  "method": "이 survey는 PVQM을 'signal decomposition → JND/masking → attention·feature·artifact → pooling'의 module 조합으로 일반화한다. signal decomposition은 HVS의 multi-channel 특성(frequency·orientation별 분리 처리)을 모사하고, 각 channel에 CSF 기반 weighting을 준다. JND module은 background luminance(luminance adaptation)와 국소 activity(contrast/texture masking)에 따라 visibility threshold를 올린다 — 밝거나 복잡한 영역일수록 더 큰 distortion을 숨길 수 있다. attention model은 saliency로 영역별 중요도를 weighting하고, artifact detector는 압축 특유의 distortion(blocking·ringing)을 따로 잡는다. 마지막 pooling(Minkowski sum 등)으로 channel·영역 score를 합쳐 single quality 값을 낸다.",
   "savings": null,
-  "metricCaveat": "이 논문 자체가 '메트릭이 무엇을 측정하는가'를 다루는 메타 문헌. 비트 절감 수치 없음. 단, 여기서 정리된 PVQM(특히 VMAF 류)이 후속 절감 주장의 측정 도구가 되므로, 모든 절감 주장은 '어떤 metric으로 잰 것인가'를 반드시 동반해야 한다는 출발점.",
-  "hw": "이 서베이가 정의한 모듈을 실시간 HW로 환원하면 비용이 갈린다. 신호 분해(블록 DCT/웨이블릿)와 휘도 평균은 블록버퍼 + MAC 수준(저렴, 2DNR~3DNR 사이). JND/마스킹 임계 맵은 블록당 평균·분산·DCT 계수만 있으면 라인/블록버퍼로 계산 가능. 반면 saliency/visual attention은 전역 컨텍스트가 필요해 CNN(경량 NPU) 비용으로 올라간다. 즉 'JND 맵까지는 싸고, attention부터 비싸다'가 RTL 직관.",
-  "nick": "코덱의 양자화(Q-matrix)가 사실상 거친 JND 근사임을 명시적으로 보여주는 토대. 코덱은 주파수별 가중(=CSF의 흔적)을 Q-table에 박아두고 고주파를 더 죽인다. 전처리는 이를 '인코더 밖에서, 코덱과 무관하게' 먼저 수행하는 것 — 즉 인코더가 어차피 버릴 perceptual redundancy를 입력 단에서 미리 깎아 잔차를 줄인다. RTL 엔지니어에겐 'Q-table의 일부 기능을 캡처→전처리 파이프로 외부화한다'는 그림.",
+  "metricCaveat": "이 논문 자체가 'metric이 무엇을 측정하는가'를 다루는 meta 문헌. 비트 절감 수치 없음. 단, 여기서 정리된 PVQM(특히 VMAF 류)이 후속 절감 주장의 measurement tool이 되므로, 모든 절감 주장은 '어떤 metric으로 잰 것인가'를 반드시 동반해야 한다는 출발점.",
+  "hw": "이 survey가 정의한 module을 real-time HW로 환원하면 비용이 갈린다. signal decomposition(block DCT/wavelet)과 luminance 평균은 block buffer + MAC 수준(저렴, 2DNR~3DNR 사이). JND/masking threshold map은 block당 mean·variance·DCT coefficient만 있으면 line/block buffer로 계산 가능. 반면 saliency/visual attention은 global context가 필요해 CNN(경량 NPU) 비용으로 올라간다. 즉 'JND map까지는 싸고, attention부터 비싸다'가 RTL 직관.",
+  "nick": "코덱의 quantization(Q-matrix)이 사실상 거친 JND approximation임을 명시적으로 보여주는 토대. 코덱은 frequency별 weighting(=CSF의 흔적)을 Q-table에 박아두고 high frequency를 더 죽인다. 전처리는 이를 '인코더 밖에서, 코덱과 무관하게' 먼저 수행하는 것 — 즉 인코더가 어차피 버릴 perceptual redundancy를 input 단에서 미리 깎아 residual을 줄인다. RTL 엔지니어에겐 'Q-table의 일부 기능을 capture→전처리 pipe로 외부화한다'는 그림.",
   "caution": null
  },
  {
@@ -37,20 +37,20 @@ window.PQO_STUDIES = [
   "grade": "peer",
   "coupling": "n/a",
   "url": "https://ieeexplore.ieee.org/document/1055250",
-  "tldr": "영상 부호화의 충실도 기준을 'MSE'가 아니라 'HVS가 보는 오차'로 바꾸기 위해, 인간 대비 민감도 함수(CSF)를 해석적 대역통과 모델로 정식화한 고전. 거의 모든 후속 주파수 가중·JND 모델이 인용하는 CSF의 원점.",
+  "tldr": "영상 부호화의 fidelity criterion을 'MSE'가 아니라 'HVS가 보는 error'로 바꾸기 위해, Contrast Sensitivity Function(CSF)을 analytic band-pass model로 정식화한 고전. 거의 모든 후속 frequency weighting·JND model이 인용하는 CSF의 원점.",
   "ideas": [
-   "충실도 기준을 비선형(휘도→밝기 인지의 거듭제곱/로그 압축) + 주파수 가중(CSF)으로 정의 — 오차 영상을 HVS 필터로 통과시킨 뒤 에너지를 재야 지각 오차에 맞다.",
-   "CSF는 대역통과(band-pass) 형태: 저주파에서 민감도가 떨어지고, 중주파에서 peak(약 4-6 cpd), 고주파에서 급격히 감쇠(cutoff 약 30 cpd 부근).",
-   "정현파 격자(sinusoidal grating) 검출 실험으로 임계 대비를 측정해 함수 형태를 적합 — 심리물리 측정이 모델의 근거.",
-   "이 CSF로 오차 스펙트럼을 가중하면, 같은 MSE라도 '눈에 잘 보이는 주파수의 오차'에 더 큰 페널티를 주는 지각 충실도 기준이 된다.",
-   "결과적으로 부호기가 비트를 HVS 민감 대역에 집중·둔감 대역(특히 고주파)에서 절약하도록 유도 — 지각 코딩의 첫 정량적 정당화."
+   "fidelity criterion을 nonlinearity(luminance→brightness 인지의 power/log compression) + frequency weighting(CSF)으로 정의 — error 영상을 HVS filter로 통과시킨 뒤 energy를 재야 perceptual error에 맞다.",
+   "CSF는 band-pass 형태: low frequency에서 sensitivity가 떨어지고, mid frequency에서 peak(약 4-6 cpd), high frequency에서 급격히 attenuation(cutoff 약 30 cpd 부근).",
+   "sinusoidal grating detection 실험으로 threshold contrast를 측정해 함수 형태를 fitting — psychophysical 측정이 model의 근거.",
+   "이 CSF로 error spectrum을 weighting하면, 같은 MSE라도 '눈에 잘 보이는 frequency의 error'에 더 큰 penalty를 주는 perceptual fidelity criterion이 된다.",
+   "결과적으로 encoder가 비트를 HVS 민감 band에 집중·둔감 band(특히 high frequency)에서 절약하도록 유도 — perceptual coding의 첫 정량적 정당화."
   ],
-  "method": "Mannos-Sakrison은 시각 인지를 '점별 비선형(밝기 압축) → 선형 공간 필터(CSF) → 에너지 누적'의 직렬 모델로 본다. CSF는 보통 A(a+f/f0)exp(-(f/f0)^b) 형태의 대역통과 곡선으로 적합되며, 주파수 f는 cycles-per-degree(cpd) 단위 — 즉 화면 주파수가 아니라 '망막에 맺힌 각주파수'다. 시청거리·화소밀도가 cpd 환산의 전제. 격자 검출 실험에서 각 공간주파수의 검출 임계 대비를 측정하고 그 역수를 민감도로 삼아 곡선을 피팅한다. 부호화 단계에서는 원본과 복원의 오차 영상을 이 CSF로 필터링한 뒤 norm을 최소화하도록 비트를 배분 — 고주파 오차는 어차피 안 보이므로 거기서 비트를 줄인다.",
+  "method": "Mannos-Sakrison은 visual perception을 'point-wise nonlinearity(brightness compression) → linear spatial filter(CSF) → energy 누적'의 cascade model로 본다. CSF는 보통 A(a+f/f0)exp(-(f/f0)^b) 형태의 band-pass 곡선으로 fitting되며, frequency f는 cycles-per-degree(cpd) 단위 — 즉 화면 frequency가 아니라 '망막에 맺힌 angular frequency'다. viewing distance·pixel density가 cpd 환산의 전제. grating detection 실험에서 각 spatial frequency의 detection threshold contrast를 측정하고 그 역수를 sensitivity로 삼아 곡선을 fitting한다. 부호화 단계에서는 원본과 reconstruction의 error 영상을 이 CSF로 filtering한 뒤 norm을 최소화하도록 비트를 배분 — high frequency error는 어차피 안 보이므로 거기서 비트를 줄인다.",
   "savings": null,
-  "metricCaveat": "1974년 흑백 정지영상 모델. 컬러(색대비 CSF는 저역통과로 다름)·시간 차원·디스플레이 비선형은 미포함. peak/cutoff 수치(4-6, 30 cpd)는 시청거리·휘도·평균밝기에 따라 이동하는 대표값이며 절대 상수가 아님.",
-  "hw": "CSF 가중은 실시간 HW에서 가장 싼 부류. 블록 DCT 후 계수에 주파수별 상수 가중(LUT) 한 번 곱하면 끝 — 추가 라인버퍼 거의 불필요, 사실상 코덱 Q-table과 같은 비용. 단 '진짜' cpd 가중을 하려면 시청거리·DPI를 알아 cpd→DCT-bin 매핑을 런타임에 잡아야 하는데, 보통 고정 시청조건 가정으로 LUT를 미리 굽는다. 비용 사다리상 2DNR보다도 가벼운 '곱셈 가중' 레벨.",
-  "nick": "코덱의 주파수별 양자화(JPEG/H.26x의 Q-matrix가 저주파 작게·고주파 크게 양자화)가 바로 이 CSF의 이산화 구현이다. RTL로 보면 DCT→Q 단계의 Q-table이 'HVS 대역통과 가중'을 박아둔 것. 전처리 관점에서는, 인코더 Q-table에 손대지 않고도 입력 단에서 고주파(눈이 둔한 대역) 에너지를 미리 살짝 깎으면(또는 그 대역의 노이즈를 제거하면) 인코더가 만들 잔차가 줄어 비트가 절약된다 — 인코더 독립 전처리의 1차 원리.",
-  "caution": "출처 미확인: 정확한 계수(A, f0, 지수)와 그래프 수치는 IEEE 본문 미열람(403). peak~4-6 cpd, cutoff~30 cpd 및 band-pass 형태는 다수 2차 문헌으로 확인했으나, 인용 시 '대표값/근사'로 표기 권장."
+  "metricCaveat": "1974년 흑백 still image model. color(chroma CSF는 low-pass로 다름)·temporal 차원·display nonlinearity는 미포함. peak/cutoff 수치(4-6, 30 cpd)는 viewing distance·luminance·mean brightness에 따라 이동하는 대표값이며 절대 상수가 아님.",
+  "hw": "CSF weighting은 real-time HW에서 가장 싼 부류. block DCT 후 coefficient에 frequency별 상수 weighting(LUT) 한 번 곱하면 끝 — 추가 line buffer 거의 불필요, 사실상 코덱 Q-table과 같은 비용. 단 '진짜' cpd weighting을 하려면 viewing distance·DPI를 알아 cpd→DCT-bin mapping을 runtime에 잡아야 하는데, 보통 고정 viewing condition 가정으로 LUT를 미리 굽는다. 비용 사다리상 2DNR보다도 가벼운 'multiply weighting' 레벨.",
+  "nick": "코덱의 frequency별 quantization(JPEG/H.26x의 Q-matrix가 low frequency 작게·high frequency 크게 quantize)이 바로 이 CSF의 discretization 구현이다. RTL로 보면 DCT→Q 단계의 Q-table이 'HVS band-pass weighting'을 박아둔 것. 전처리 관점에서는, 인코더 Q-table에 손대지 않고도 input 단에서 high frequency(눈이 둔한 band) energy를 미리 살짝 깎으면(또는 그 band의 noise를 제거하면) 인코더가 만들 residual이 줄어 비트가 절약된다 — 인코더 독립 전처리의 1차 원리.",
+  "caution": "출처 미확인: 정확한 coefficient(A, f0, exponent)와 그래프 수치는 IEEE 본문 미열람(403). peak~4-6 cpd, cutoff~30 cpd 및 band-pass 형태는 다수 2차 문헌으로 확인했으나, 인용 시 '대표값/approximation'으로 표기 권장."
  },
  {
   "id": "jnd_chou1995",
@@ -63,20 +63,20 @@ window.PQO_STUDIES = [
   "grade": "peer",
   "coupling": "n/a",
   "url": "https://ieeexplore.ieee.org/document/475889/",
-  "tldr": "픽셀(공간)-도메인 JND 프로파일의 고전적 원점. 배경 휘도 적응과 텍스처 마스킹을 결합해 픽셀마다 '안 보이는 왜곡 한계(JND)'를 추정하고, 이를 서브밴드 코더의 가시성 임계로 써서 perceptually 무손실에 가까운 압축을 한다.",
+  "tldr": "pixel(spatial)-domain JND profile의 고전적 원점. luminance adaptation과 texture masking을 결합해 픽셀마다 '안 보이는 distortion 한계(JND)'를 추정하고, 이를 subband coder의 visibility threshold로 써서 perceptually near-lossless 압축을 한다.",
   "ideas": [
-   "per-pixel JND = max(휘도 적응 임계, 텍스처 마스킹 임계) 형태로 두 효과를 결합 — '둘 중 더 관대한 쪽이 가시 임계를 지배'.",
-   "휘도 적응: 배경이 어둡거나(매우 낮은 휘도) 매우 밝은 영역에서 가시 임계가 올라가는 U/V자형 — 중간 휘도에서 가장 민감.",
-   "텍스처 마스킹: 국소 활동도(에지/텍스처가 많은 영역)가 높을수록 왜곡이 숨겨져 임계 상승, 평탄 영역은 임계가 낮아 작은 왜곡도 보인다.",
-   "이 JND 맵으로 영상 의존적 양자화 행렬을 만들어, 가시 임계 이하의 서브밴드 성분을 버리거나 거칠게 양자화 → perceptual redundancy 직접 제거.",
+   "per-pixel JND = max(luminance adaptation threshold, texture masking threshold) 형태로 두 effect를 결합 — '둘 중 더 관대한 쪽이 visibility threshold를 지배'.",
+   "luminance adaptation: background가 어둡거나(very low luminance) 매우 밝은 영역에서 visibility threshold가 올라가는 U/V자형 — mid luminance에서 가장 민감.",
+   "texture masking: 국소 activity(edge/texture가 많은 영역)가 높을수록 distortion이 masking되어 threshold 상승, flat 영역은 threshold가 낮아 작은 distortion도 보인다.",
+   "이 JND map으로 image-dependent quantization matrix를 만들어, visibility threshold 이하의 subband 성분을 버리거나 거칠게 quantize → perceptual redundancy 직접 제거.",
    "결과적으로 JPEG baseline 대비 같은 화질에서 비트 절감 (논문 보고: 약 0.25-0.9 bpp 구간에서 우수)."
   ],
-  "method": "공간 도메인에서 각 픽셀의 JND를 두 항으로 모델링한다. (1) 휘도 적응 항: 국소 배경 휘도(주변 평균)를 입력으로, 어두운/밝은 극단에서 임계를 높이는 비선형 함수 — Weber 법칙의 변형. (2) 텍스처(공간) 마스킹 항: 국소 그래디언트/활동도를 측정해, 활동이 높을수록(에지·텍스처) 임계를 올린다. 두 항을 비선형 결합(대개 가산 또는 max + 보정)해 픽셀별 JND 값을 얻는다. 이 JND 프로파일을 서브밴드/변환 계수 도메인의 가시 임계로 환산해, 임계 이하 성분은 지각적으로 무의미하므로 제거·조대 양자화한다. 영상마다 다른 image-dependent 양자화 행렬이 나오는 것이 핵심.",
-  "savings": "JPEG baseline 대비 같은(또는 더 나은) 주관 화질에서 비트율 우수 — 논문은 약 0.25-0.9 bpp 구간에서 baseline JPEG을 능가한다고 보고.",
-  "metricCaveat": "메트릭: 주로 주관 화질(perceptually lossless 주장) + bpp 비교. 출처 등급: peer(IEEE T-CSVT). 콘텐츠 의존성 큼 — 텍스처/에지가 풍부한 영상일수록 마스킹 여지가 커 이득이 크고, 평탄·저활동 영상은 이득이 작다. 1995년 흑백 정지영상 기준.",
-  "hw": "공간 도메인 JND라 HW가 비교적 친절하다. 휘도 적응 항은 국소 평균(박스 필터/적분영상)→LUT, 텍스처 항은 국소 그래디언트/분산이면 충분해 작은 윈도(예: 3x3~ 블록)면 라인버퍼 몇 줄 수준. 프레임버퍼 불필요(정지영상·공간 only). 비용 사다리상 2DNR 근처 — 라인버퍼 + 곱셈/LUT. CNN보다 훨씬 싸고, 진짜 비용은 '서브밴드/DCT 분해'쪽이지 JND 맵 자체가 아님.",
-  "nick": "코덱의 양자화 결정을 픽셀/영역별로 적응시키는 adaptive quantization(예: HEVC의 AQ, x264 psy/AQ)의 사상적 조상. 코덱 내부에서는 이 JND를 QP 변조로 쓰지만, 전처리 관점에서는 JND 맵을 '얼마나 세게 디노이즈/스무딩해도 안 보이는가'의 공간 마스크로 쓴다 — 평탄 영역은 살살, 텍스처 영역은 과감히 제거해 잔차를 줄이되 가시 왜곡은 임계 이하로. RTL적으로는 디노이저 강도를 JND 맵으로 픽셀별 게이팅하는 구조.",
-  "caution": "출처 미확인: 휘도/텍스처 항의 정확한 수식·계수 및 결합 방식은 IEEE 본문 미열람(418). 두 마스킹 항의 존재와 image-dependent Q-matrix, JPEG 대비 우수성은 2차 문헌(scispace/IEEE 초록)으로 확인. 정확한 함수형은 본문 확인 필요."
+  "method": "spatial domain에서 각 픽셀의 JND를 두 항으로 modeling한다. (1) luminance adaptation 항: 국소 background luminance(주변 평균)를 입력으로, 어두운/밝은 극단에서 threshold를 높이는 nonlinear 함수 — Weber's law의 변형. (2) texture(spatial) masking 항: 국소 gradient/activity를 측정해, activity가 높을수록(edge·texture) threshold를 올린다. 두 항을 nonlinear 결합(대개 addition 또는 max + 보정)해 픽셀별 JND 값을 얻는다. 이 JND profile을 subband/transform coefficient domain의 visibility threshold로 환산해, threshold 이하 성분은 perceptually 무의미하므로 제거·coarse quantize한다. 영상마다 다른 image-dependent quantization matrix가 나오는 것이 핵심.",
+  "savings": "JPEG baseline 대비 같은(또는 더 나은) subjective quality에서 bitrate 우수 — 논문은 약 0.25-0.9 bpp 구간에서 baseline JPEG을 능가한다고 보고.",
+  "metricCaveat": "metric: 주로 subjective quality(perceptually lossless 주장) + bpp 비교. 출처 등급: peer(IEEE T-CSVT). content 의존성 큼 — texture/edge가 풍부한 영상일수록 masking 여지가 커 이득이 크고, flat·low-activity 영상은 이득이 작다. 1995년 흑백 still image 기준.",
+  "hw": "spatial domain JND라 HW가 비교적 친절하다. luminance adaptation 항은 국소 mean(box filter/integral image)→LUT, texture 항은 국소 gradient/variance면 충분해 작은 window(예: 3x3~ block)면 line buffer 몇 줄 수준. frame buffer 불필요(still image·spatial only). 비용 사다리상 2DNR 근처 — line buffer + multiply/LUT. CNN보다 훨씬 싸고, 진짜 비용은 'subband/DCT decomposition'쪽이지 JND map 자체가 아님.",
+  "nick": "코덱의 quantization 결정을 픽셀/영역별로 적응시키는 adaptive quantization(예: HEVC의 AQ, x264 psy/AQ)의 사상적 조상. 코덱 내부에서는 이 JND를 QP modulation으로 쓰지만, 전처리 관점에서는 JND map을 '얼마나 세게 denoise/smoothing해도 안 보이는가'의 spatial mask로 쓴다 — flat 영역은 살살, texture 영역은 과감히 제거해 residual을 줄이되 visible distortion은 threshold 이하로. RTL적으로는 denoiser strength를 JND map으로 픽셀별 gating하는 구조.",
+  "caution": "출처 미확인: luminance/texture 항의 정확한 수식·coefficient 및 결합 방식은 IEEE 본문 미열람(418). 두 masking 항의 존재와 image-dependent Q-matrix, JPEG 대비 우수성은 2차 문헌(scispace/IEEE abstract)으로 확인. 정확한 함수형은 본문 확인 필요."
  },
  {
   "id": "jnd_weingan2009",
@@ -89,20 +89,20 @@ window.PQO_STUDIES = [
   "grade": "peer",
   "coupling": "n/a",
   "url": "https://ieeexplore.ieee.org/document/4783051/",
-  "tldr": "DCT 도메인에서 영상/비디오 JND를 공간(CSF+휘도적응+대비마스킹)과 시간(시간 CSF/안구운동) 축으로 통합한 표준적 모델. 블록 DCT 계수마다 가시 임계를 주는 형태라 코덱·전처리에 바로 꽂기 좋다.",
+  "tldr": "DCT domain에서 image/video JND를 spatial(CSF+luminance adaptation+contrast masking)과 temporal(temporal CSF/eye movement) 축으로 통합한 표준적 model. block DCT coefficient마다 visibility threshold를 주는 형태라 코덱·전처리에 바로 꽂기 좋다.",
   "ideas": [
-   "기저 임계 = 공간 CSF 기반 DCT-bin별 기본 JND — 각 DCT 주파수(수평·수직 인덱스로 cpd 환산)의 민감도 역수.",
-   "휘도 적응(LA) 인자: 블록의 평균 휘도(DC 성분)로 임계를 스케일 — 어둡고 밝은 블록에서 임계 상승(piece-wise 함수). 감마 보정도 반영.",
-   "대비 마스킹(CM) 인자: 블록을 plane/edge/texture로 분류해, 텍스처 블록은 임계를 크게 올리고 에지 블록은 (구조 보존 위해) 보수적으로 — 분류 기반 가중.",
-   "시간 마스킹/시간 CSF 인자: 시간 주파수(프레임 간 변화·모션)에 따른 민감도 저하를 모델 — 빠르게 변하는 성분은 안 보여 임계 상승, 안구운동(smooth pursuit) 보상 고려.",
-   "최종 JND(i,j,t) = 기저(CSF) x LA x CM x 시간인자 — 곱셈형 결합으로 per-coeff 임계 맵 생성."
+   "base threshold = spatial CSF 기반 DCT-bin별 basic JND — 각 DCT frequency(horizontal·vertical index로 cpd 환산)의 sensitivity 역수.",
+   "luminance adaptation(LA) factor: block의 average luminance(DC 성분)로 threshold를 scaling — 어둡고 밝은 block에서 threshold 상승(piece-wise 함수). gamma correction도 반영.",
+   "contrast masking(CM) factor: block을 plane/edge/texture로 분류해, texture block은 threshold를 크게 올리고 edge block은 (구조 보존 위해) 보수적으로 — classification 기반 weighting.",
+   "temporal masking/temporal CSF factor: temporal frequency(frame 간 변화·motion)에 따른 sensitivity 저하를 model — 빠르게 변하는 성분은 안 보여 threshold 상승, eye movement(smooth pursuit) 보상 고려.",
+   "최종 JND(i,j,t) = base(CSF) x LA x CM x temporal factor — multiplicative 결합으로 per-coeff threshold map 생성."
   ],
-  "method": "8x8 블록 DCT 후 각 계수 (i,j)에 대해 기본 가시 임계를 공간 CSF로 정한다 — DCT 인덱스를 공간주파수(cpd)로 환산하고 그 주파수의 민감도 역수를 기본 JND로 삼는다. 여기에 곱셈 인자를 차례로 적용: 휘도 적응은 블록 DC(평균 휘도)에 따른 piece-wise 스케일, 대비 마스킹은 블록 에너지 분포로 plane/edge/texture 분류 후 카테고리별 가중(텍스처>에지>plane 순으로 관대), 시간 인자는 프레임 간 시간주파수와 모션 방향으로 시간 CSF를 적용해 빠른 변화 성분의 임계를 높인다. 결과는 DCT 계수마다 '이만큼 왜곡해도 안 보인다'는 임계 맵으로, 양자화 스텝·전처리 강도의 상한으로 직접 사용된다.",
+  "method": "8x8 block DCT 후 각 coefficient (i,j)에 대해 basic visibility threshold를 spatial CSF로 정한다 — DCT index를 spatial frequency(cpd)로 환산하고 그 frequency의 sensitivity 역수를 basic JND로 삼는다. 여기에 multiplicative factor를 차례로 적용: luminance adaptation은 block DC(average luminance)에 따른 piece-wise scaling, contrast masking은 block energy 분포로 plane/edge/texture 분류 후 category별 weighting(texture>edge>plane 순으로 관대), temporal factor는 frame 간 temporal frequency와 motion 방향으로 temporal CSF를 적용해 빠른 변화 성분의 threshold를 높인다. 결과는 DCT coefficient마다 '이만큼 distortion해도 안 보인다'는 threshold map으로, quantization step·전처리 strength의 상한으로 직접 사용된다.",
   "savings": null,
-  "metricCaveat": "모델 논문 — 절감 자체보다 임계 정확도가 본체. 적용 시 절감은 후속 코더에서 측정되며 콘텐츠 의존(텍스처·고모션 영상에서 마스킹 여지 큼). 출처 등급 peer(IEEE T-CSVT). 시간 인자는 안구운동 가정·모션추정 정확도에 민감.",
-  "hw": "공간 항(CSF/LA/CM)은 싸다 — 블록 DCT(어차피 코덱이 보유)·블록 평균(DC)·블록 분류(에너지/분산)면 블록버퍼 수준. 분류는 분산·AC 에너지 임계 비교라 MAC 약간 + 비교기. 비싼 건 시간 항: 시간주파수/모션 방향을 알려면 프레임버퍼(3DNR급) + 사실상 모션추정(ME)이 필요 → 비용 사다리에서 NLM/MCTF 영역으로 점프. 즉 '공간 JND는 블록버퍼로 끝, 시간 JND를 켜는 순간 프레임버퍼+ME 비용'이 핵심 RTL 분기점.",
-  "nick": "DCT 계수별 임계라 코덱과 인터페이스가 가장 자연스러운 JND. 코덱 내부에선 이 임계로 변환계수 dead-zone/QP를 변조하지만, 인코더 독립 전처리에서는 임계 맵을 '시공간 디노이즈/MCTF의 픽셀·계수별 강도 상한'으로 쓴다 — 고모션·텍스처 영역에서 과감히 시간 필터링(겹프레임 평균)을 걸어도 안 보이는 영역을 시간 JND가 알려준다. RTL 설계자에겐 '전처리에 프레임버퍼와 ME를 투입할지'를 시간 JND의 효용으로 정당화하는 근거 모델.",
-  "caution": "출처 미확인: 각 인자의 정확한 수식·계수, 블록 분류 임계, 시간 CSF 파라미터는 IEEE 본문 미열람(418). 4개 구성요소(공간 CSF·LA·블록분류 기반 CM·시간 마스킹)와 곱셈형 결합, 감마 보정 반영은 2차 문헌(ResearchGate/Scholar 초록)으로 확인. 정확한 수식은 본문 확인 필요."
+  "metricCaveat": "model 논문 — 절감 자체보다 threshold accuracy가 본체. 적용 시 절감은 후속 coder에서 측정되며 content 의존(texture·high-motion 영상에서 masking 여지 큼). 출처 등급 peer(IEEE T-CSVT). temporal factor는 eye movement 가정·motion estimation accuracy에 민감.",
+  "hw": "spatial 항(CSF/LA/CM)은 싸다 — block DCT(어차피 코덱이 보유)·block 평균(DC)·block classification(energy/variance)면 block buffer 수준. classification은 variance·AC energy threshold 비교라 MAC 약간 + comparator. 비싼 건 temporal 항: temporal frequency/motion 방향을 알려면 frame buffer(3DNR급) + 사실상 motion estimation(ME)이 필요 → 비용 사다리에서 NLM/MCTF 영역으로 점프. 즉 'spatial JND는 block buffer로 끝, temporal JND를 켜는 순간 frame buffer+ME 비용'이 핵심 RTL 분기점.",
+  "nick": "DCT coefficient별 threshold라 코덱과 interface가 가장 자연스러운 JND. 코덱 내부에선 이 threshold로 transform coefficient dead-zone/QP를 modulation하지만, 인코더 독립 전처리에서는 threshold map을 'spatio-temporal denoise/MCTF의 픽셀·coefficient별 strength 상한'으로 쓴다 — high-motion·texture 영역에서 과감히 temporal filtering(겹frame 평균)을 걸어도 안 보이는 영역을 temporal JND가 알려준다. RTL 설계자에겐 '전처리에 frame buffer와 ME를 투입할지'를 temporal JND의 효용으로 정당화하는 근거 model.",
+  "caution": "출처 미확인: 각 factor의 정확한 수식·coefficient, block classification threshold, temporal CSF parameter는 IEEE 본문 미열람(418). 4개 구성요소(spatial CSF·LA·block classification 기반 CM·temporal masking)와 multiplicative 결합, gamma correction 반영은 2차 문헌(ResearchGate/Scholar abstract)으로 확인. 정확한 수식은 본문 확인 필요."
  },
  {
   "id": "jnd_baekim2013",
@@ -115,20 +115,20 @@ window.PQO_STUDIES = [
   "grade": "peer",
   "coupling": "n/a",
   "url": "https://ieeexplore.ieee.org/document/6553124/",
-  "tldr": "기존 DCT-JND가 휘도 적응(LA)을 '배경 휘도만의 함수'로 단순화한 것을 바로잡아, LA 임계가 '배경 휘도 x DCT 주파수' 양쪽에 의존함을 심리물리 실험으로 밝히고 주파수 의존 LA-JND 모델을 제안한 짧은 letter.",
+  "tldr": "기존 DCT-JND가 luminance adaptation(LA)을 'background luminance만의 함수'로 단순화한 것을 바로잡아, LA threshold가 'background luminance x DCT frequency' 양쪽에 의존함을 psychophysical 실험으로 밝히고 frequency-dependent LA-JND model을 제안한 짧은 letter.",
   "ideas": [
-   "핵심 발견: LA 효과는 배경 휘도뿐 아니라 DCT 주파수에도 의존한다 — 기존 모델(휘도만의 인자)은 주파수 차원을 놓쳤다.",
-   "실험적 형태: LA-JND 임계가 (배경 휘도 축에서) 준포물선(quasi-parabolic) 모양이며, 저주파에서는 곡률이 낮고(완만) 고주파에서는 곡률이 높다(가파름).",
-   "기존 Wei-Ngan류 piece-wise LA를 주파수별로 다른 포물선 계수로 대체 → 같은 배경 휘도라도 DCT-bin마다 다른 LA 보정.",
-   "심리물리(psychophysical) 측정으로 모델 검증 — 임계 데이터에 포물선 적합.",
-   "더 정확한 LA 항은 더 타이트한 전체 JND를 주어, 같은 가시 화질에서 더 공격적인 양자화/전처리를 허용."
+   "핵심 발견: LA effect는 background luminance뿐 아니라 DCT frequency에도 의존한다 — 기존 model(luminance만의 factor)은 frequency 차원을 놓쳤다.",
+   "실험적 형태: LA-JND threshold가 (background luminance 축에서) quasi-parabolic 모양이며, low frequency에서는 곡률이 낮고(완만) high frequency에서는 곡률이 높다(가파름).",
+   "기존 Wei-Ngan류 piece-wise LA를 frequency별로 다른 parabola coefficient로 대체 → 같은 background luminance라도 DCT-bin마다 다른 LA 보정.",
+   "psychophysical 측정으로 model 검증 — threshold data에 parabola fitting.",
+   "더 정확한 LA 항은 더 tight한 전체 JND를 주어, 같은 visible quality에서 더 aggressive한 quantization/전처리를 허용."
   ],
-  "method": "정현파 패턴(특정 DCT 주파수)을 다양한 배경 휘도 위에 올려놓고 검출 임계를 측정하는 심리물리 실험을 주파수별로 반복한다. 그 결과 LA-JND 임계를 배경 휘도의 함수로 그리면 위로 볼록한 준포물선이 나오되, 저주파 성분은 곡률이 작아 휘도 변화에 둔감하고 고주파 성분은 곡률이 커 휘도 의존이 강하다. 따라서 LA 인자를 '배경 휘도와 DCT 주파수의 결합 함수'(주파수별 포물선 계수)로 정식화하고, 이를 기존 DCT-JND의 LA 항에 대입한다. 결과는 per-coeff 가시 임계를 기존 모델보다 정밀하게 — 특히 극단 휘도·고주파 조합에서 — 추정한다.",
+  "method": "sinusoidal pattern(특정 DCT frequency)을 다양한 background luminance 위에 올려놓고 detection threshold를 측정하는 psychophysical 실험을 frequency별로 반복한다. 그 결과 LA-JND threshold를 background luminance의 함수로 그리면 위로 볼록한 quasi-parabola가 나오되, low frequency 성분은 곡률이 작아 luminance 변화에 둔감하고 high frequency 성분은 곡률이 커 luminance 의존이 강하다. 따라서 LA factor를 'background luminance와 DCT frequency의 joint function'(frequency별 parabola coefficient)으로 정식화하고, 이를 기존 DCT-JND의 LA 항에 대입한다. 결과는 per-coeff visibility threshold를 기존 model보다 정밀하게 — 특히 극단 luminance·high frequency 조합에서 — 추정한다.",
   "savings": null,
-  "metricCaveat": "letter는 LA 항의 정확도(임계 적합/주관 가시성) 검증이 목적이며 직접적 BD-rate 절감 제시가 아님. 출처 peer(IEEE SPL). 이득은 후속 코더 적용 시 콘텐츠·휘도 분포 의존. '더 정밀한 임계 → 더 공격적 절감 여지'는 정성적 함의.",
-  "hw": "여전히 싸다 — 기존 DCT-JND 대비 추가 비용은 LA 인자를 'DC(블록 평균 휘도) 단일 LUT'에서 'DC x 주파수-bin 2D LUT(또는 bin별 포물선 계수)'로 바꾸는 정도. 블록버퍼·블록 DCT는 동일하게 재사용, 추가는 작은 2D LUT 한 장 + 곱셈. 비용 사다리 위치는 Wei-Ngan 공간 JND와 동일(블록버퍼 레벨), 프레임버퍼/ME 불필요. RTL 부담은 무시할 만하고 정확도만 오르는 '공짜에 가까운 개선'.",
-  "nick": "코덱의 휘도 적응형 양자화(밝기에 따라 QP를 미세 변조)를 주파수 차원까지 정교화한 것. 전처리 관점에선 'DC가 매우 낮거나 높은 블록에서, 고주파 성분일수록 더 많이 깎아도 안 보인다'는 정밀 마스크를 제공 — 어두운/밝은 평탄부의 고주파 노이즈(필름 그레인·센서 노이즈)를 더 과감히 제거할 근거. RTL적으로는 디노이저/양자화 전처리의 강도 LUT를 (휘도, 주파수) 2D로 키우는 작은 변경으로 가시 임계를 타이트하게 맞추는 사례.",
-  "caution": "출처 미확인: 포물선 계수의 정확한 수식·실험 조건은 IEEE 본문 미열람(418). 다만 핵심 결론('LA가 휘도+DCT주파수 의존, 준포물선, 저주파 저곡률·고주파 고곡률')은 IEEE 초록·Wikidata·2차 문헌으로 확인됨. 참고: 일부 출처는 정식 제목을 '...Luminance Adaptation Effect in DCT Frequency'로 표기."
+  "metricCaveat": "letter는 LA 항의 accuracy(threshold fitting/subjective visibility) 검증이 목적이며 직접적 BD-rate 절감 제시가 아님. 출처 peer(IEEE SPL). 이득은 후속 coder 적용 시 content·luminance 분포 의존. '더 정밀한 threshold → 더 aggressive 절감 여지'는 정성적 함의.",
+  "hw": "여전히 싸다 — 기존 DCT-JND 대비 추가 비용은 LA factor를 'DC(block average luminance) 단일 LUT'에서 'DC x frequency-bin 2D LUT(또는 bin별 parabola coefficient)'로 바꾸는 정도. block buffer·block DCT는 동일하게 재사용, 추가는 작은 2D LUT 한 장 + multiply. 비용 사다리 위치는 Wei-Ngan spatial JND와 동일(block buffer 레벨), frame buffer/ME 불필요. RTL 부담은 무시할 만하고 accuracy만 오르는 '공짜에 가까운 개선'.",
+  "nick": "코덱의 luminance-adaptive quantization(brightness에 따라 QP를 미세 modulation)을 frequency 차원까지 정교화한 것. 전처리 관점에선 'DC가 매우 낮거나 높은 block에서, high frequency 성분일수록 더 많이 깎아도 안 보인다'는 정밀 mask를 제공 — 어두운/밝은 flat부의 high frequency noise(film grain·sensor noise)를 더 과감히 제거할 근거. RTL적으로는 denoiser/quantization 전처리의 strength LUT를 (luminance, frequency) 2D로 키우는 작은 변경으로 visibility threshold를 tight하게 맞추는 사례.",
+  "caution": "출처 미확인: parabola coefficient의 정확한 수식·실험 조건은 IEEE 본문 미열람(418). 다만 핵심 결론('LA가 luminance+DCT frequency 의존, quasi-parabolic, low frequency low curvature·high frequency high curvature')은 IEEE abstract·Wikidata·2차 문헌으로 확인됨. 참고: 일부 출처는 정식 제목을 '...Luminance Adaptation Effect in DCT Frequency'로 표기."
  },
  {
   "id": "vmaf_2016",
@@ -141,20 +141,20 @@ window.PQO_STUDIES = [
   "grade": "vendor",
   "coupling": "n/a",
   "url": "https://netflixtechblog.com/toward-a-practical-perceptual-video-quality-metric-653f208b9652",
-  "tldr": "VMAF는 단일 수식이 아니라 여러 기초 화질 지표를 머신러닝(SVR)으로 융합한 풀레퍼런스 메트릭이다. 압축+스케일링 아티팩트가 섞인 스트리밍 환경에서 PSNR/SSIM이 주관 화질과 어긋나는 문제를 보완하려고 Netflix+USC가 만들었고, 주관 점수(DMOS)에 회귀로 맞춰 0~100 스케일을 낸다. 핵심은 '한 지표로 안 되니 여러 지표를 학습으로 묶었다'는 발상.",
+  "tldr": "VMAF는 단일 수식이 아니라 여러 elementary quality feature를 machine learning(SVR)으로 fusion한 full-reference metric이다. compression+scaling artifact가 섞인 streaming 환경에서 PSNR/SSIM이 subjective quality와 어긋나는 문제를 보완하려고 Netflix+USC가 만들었고, subjective score(DMOS)에 regression으로 fit시켜 0~100 scale을 낸다. 핵심은 'single metric으론 안 되니 여러 feature를 learning으로 묶었다'는 발상.",
   "ideas": [
-   "기초 지표 3종 융합: VIF(Visual Information Fidelity)를 멀티스케일로 써서 각 스케일의 정보충실도 손실을 개별 feature로, DLM(Detail Loss Metric)으로 디테일 손실과 산만한 임페어먼트를 분리 측정, Motion으로 인접 프레임 휘도의 평균 절대차(시간 정보)를 본다.",
-   "융합기는 SVR(Support Vector Regression). 각 feature를 입력으로 받아 주관 점수에 맞도록 회귀 학습 → 사람이 가중치를 손으로 정하지 않고 데이터가 정한다.",
-   "NFLX-TRAIN으로 학습, NFLX-TEST로 검증. 즉 '특정 콘텐츠/주관 데이터셋에 맞춰진' 메트릭이라 학습 분포 밖에서는 신뢰도가 떨어질 수 있음(메트릭이 본질적으로 모델이라는 점).",
-   "동기: PSNR/SSIM은 압축 아티팩트와 스케일링(해상도 사다리)이 섞인 적응형 스트리밍에서 주관 화질 순위를 자주 뒤집는다 → 사람 눈에 맞춘 단일 점수가 필요했다.",
-   "출력은 0~100. 절대 화질이 아니라 '레퍼런스 대비 열화'를 사람이 느끼는 정도의 예측치라는 점이 중요(레퍼런스가 곧 100 부근)."
+   "elementary feature 3종 fusion: VIF(Visual Information Fidelity)를 multi-scale로 써서 각 scale의 information fidelity loss를 개별 feature로, DLM(Detail Loss Measure)으로 detail loss와 distracting impairment를 분리 측정, Motion으로 인접 frame luma의 mean absolute difference(temporal information)를 본다.",
+   "fusion engine은 SVR(Support Vector Regression). 각 feature를 input으로 받아 subjective score에 fit하도록 regression learning → weight를 hand-tuning하지 않고 data가 정한다.",
+   "NFLX-TRAIN으로 train, NFLX-TEST로 validate. 즉 'specific content/subjective dataset에 tuning된' metric이라 training distribution 밖에서는 신뢰도가 떨어질 수 있음(metric이 본질적으로 model이라는 점).",
+   "motivation: PSNR/SSIM은 compression artifact와 scaling(resolution ladder)이 섞인 adaptive streaming에서 subjective quality 순위를 자주 뒤집는다 → human perception에 맞춘 single score가 필요했다.",
+   "output은 0~100. absolute quality가 아니라 'reference 대비 degradation'을 사람이 느끼는 정도의 prediction이라는 점이 중요(reference가 곧 100 부근)."
   ],
-  "method": "기초 feature 추출(멀티스케일 VIF의 스케일별 정보충실도 손실 + DLM 디테일 손실 + 프레임 간 휘도 평균 절대차 Motion) → 이들을 SVR로 융합 → 주관 DMOS에 회귀. 학습/검증 셋이 분리되어 있고, 모델 파일 형태(vmaf_v0.6.1)로 배포된다. 즉 VMAF는 '학습된 회귀 모델'이다.",
+  "method": "elementary feature 추출(multi-scale VIF의 scale별 information fidelity loss + DLM detail loss + frame 간 luma mean absolute difference Motion) → 이들을 SVR로 fusion → subjective DMOS에 regression. train/validate set이 분리되어 있고, model 파일 형태(vmaf_v0.6.1)로 배포된다. 즉 VMAF는 'trained regression model'이다.",
   "savings": null,
-  "metricCaveat": "VMAF는 회귀 모델이라 학습 데이터(콘텐츠/디스토션 종류) 밖에서는 빗나갈 수 있고, VIF/DLM이 enhancement(샤프닝/대비)에 과반응하는 약점을 이 단계에서 이미 내포한다. 본 스터디 정책상 VMAF 점수를 1차로 보되, enhancement 의심 시 VMAF-NEG와의 격차로 교차검증한다.",
-  "hw": "메트릭 자체는 HW 비용이 아니라 전처리 평가 파이프(denoise/preproc → encode → VMAF)의 '심판'이다. 전처리 블록이 비트를 줄였는지(동일 VMAF에서 비트↓ = BD-rate 이득) 판정하는 자(尺)이며, 메트릭의 약점이 그대로 전처리 평가의 함정이 된다.",
-  "nick": "전처리 효과를 VMAF만으로 평가하면 '정보를 지워 비트를 줄인 것'과 '엣지를 증폭해 점수를 올린 것'을 구분 못 한다. 정직한 측정은 동일 인코더 설정에서 BD-rate(여러 QP의 비트레이트 vs VMAF 곡선)로 보고, 반드시 VMAF-NEG를 함께 띄워 점수 출처를 의심하는 것.",
-  "caution": "블로그 본문 직접 fetch는 TLS 인증서 오류로 실패. VIF 멀티스케일/DLM/Motion + SVR 융합, NFLX-TRAIN/TEST 학습 사실은 검색 결과와 다수 2차 출처(HandWiki, features.md)로 교차확인했으나, 원문 문구 1:1 인용은 미확인."
+  "metricCaveat": "VMAF는 regression model이라 training data(content/distortion 종류) 밖에서는 빗나갈 수 있고, VIF/DLM이 enhancement(sharpening/contrast)에 over-respond하는 약점을 이 단계에서 이미 내포한다. 본 스터디 정책상 VMAF score를 1차로 보되, enhancement 의심 시 VMAF-NEG와의 격차로 cross-validate한다.",
+  "hw": "metric 자체는 HW 비용이 아니라 preprocessing 평가 pipeline(denoise/preproc → encode → VMAF)의 'judge'다. preprocessing block이 비트를 줄였는지(동일 VMAF에서 비트↓ = BD-rate 이득) 판정하는 자(尺)이며, metric의 약점이 그대로 preprocessing 평가의 함정이 된다.",
+  "nick": "preprocessing 효과를 VMAF만으로 평가하면 'information을 지워 비트를 줄인 것'과 'edge를 amplify해 score를 올린 것'을 구분 못 한다. 정직한 측정은 동일 encoder setting에서 BD-rate(여러 QP의 bitrate vs VMAF 곡선)로 보고, 반드시 VMAF-NEG를 함께 띄워 score 출처를 의심하는 것.",
+  "caution": "블로그 본문 직접 fetch는 TLS 인증서 오류로 실패. VIF multi-scale/DLM/Motion + SVR fusion, NFLX-TRAIN/TEST training 사실은 검색 결과와 다수 2차 출처(HandWiki, features.md)로 교차확인했으나, 원문 문구 1:1 인용은 미확인."
  },
  {
   "id": "vmafneg_2020",
@@ -167,20 +167,20 @@ window.PQO_STUDIES = [
   "grade": "vendor",
   "coupling": "n/a",
   "url": "https://netflixtechblog.com/toward-a-better-quality-metric-for-the-video-community-7ed94e752a30",
-  "tldr": "기본 VMAF는 enhancement(샤프닝/대비/히스토그램 평활화)로 '실제 화질이 안 좋아져도' 점수가 오르는 약점이 있다. NEG(No Enhancement Gain)는 enhancement에서 오는 VMAF 이득의 크기를 측정해 빼버린, 즉 VIF/DLM의 enhancement gain을 1.0으로 클립한 모드다. 코덱/전처리 평가에서 '메트릭 해킹'을 막는 가드레일.",
+  "tldr": "기본 VMAF는 enhancement(sharpening/contrast/histogram equalization)로 'actual quality가 안 좋아져도' score가 오르는 약점이 있다. NEG(No Enhancement Gain)는 enhancement에서 오는 VMAF gain의 크기를 측정해 빼버린, 즉 VIF/DLM의 enhancement gain을 1.0으로 clip한 mode다. codec/preprocessing 평가에서 'metric hacking'을 막는 guardrail.",
   "ideas": [
-   "문제 진단: VMAF의 4개 구성요소 중 VIF와 DLM이 샤프닝/대비/히스토그램 평활화 같은 enhancement에 과반응한다. enhancement가 부적절하면 주관 화질이 오히려 떨어져도 VMAF는 올라간다 → overprediction.",
-   "해법: enhancement에서 오는 gain을 검출해 빼는 NEG 모델. 구현은 두 gain limit을 1.0으로 묶는 것 — vif_enhn_gain_limit=1.0, adm_enhn_gain_limit=1.0(ADM=DLM 계열).",
-   "gain limit=1.0의 의미: distortion(열화)은 그대로 반영하되, 레퍼런스보다 '더 좋아 보이게' 만든 부분(gain>1)은 보상하지 않음. 즉 enhancement는 점수에 못 보태고 over-sharpen으로 인한 열화는 잡힌다.",
-   "용도: 코덱 평가에서 '압축으로 얻은 이득'만 측정하고 '전처리 enhancement로 얻은 이득'은 배제하려는 것 → 모델 파일명 끝 neg를 쓰면 됨.",
-   "NEG는 별도 발명이 아니라 같은 VMAF에 gain 제한만 건 변형. 그래서 일반 콘텐츠에선 VMAF와 NEG가 비슷하고, enhancement가 개입할 때만 둘이 벌어진다 → 그 격차가 곧 진단 신호."
+   "문제 진단: VMAF의 4개 component 중 VIF와 DLM이 sharpening/contrast/histogram equalization 같은 enhancement에 over-respond한다. enhancement가 부적절하면 subjective quality가 오히려 떨어져도 VMAF는 올라간다 → overprediction.",
+   "해법: enhancement에서 오는 gain을 detect해 빼는 NEG model. 구현은 두 gain limit을 1.0으로 묶는 것 — vif_enhn_gain_limit=1.0, adm_enhn_gain_limit=1.0(ADM=DLM 계열).",
+   "gain limit=1.0의 의미: distortion(degradation)은 그대로 반영하되, reference보다 'better looking'으로 만든 부분(gain>1)은 보상하지 않음. 즉 enhancement는 score에 못 보태고 over-sharpen으로 인한 degradation은 잡힌다.",
+   "용도: codec 평가에서 'compression으로 얻은 gain'만 측정하고 'preprocessing enhancement로 얻은 gain'은 배제하려는 것 → model 파일명 끝 neg를 쓰면 됨.",
+   "NEG는 별도 발명이 아니라 같은 VMAF에 gain limit만 건 variant. 그래서 일반 content에선 VMAF와 NEG가 비슷하고, enhancement가 개입할 때만 둘이 벌어진다 → 그 격차가 곧 diagnostic signal."
   ],
-  "method": "VMAF의 VIF/DLM(ADM) feature 계산 시 enhancement gain 항을 상한 1.0으로 클립(vif_enhn_gain_limit=1.0, adm_enhn_gain_limit=1.0). 이렇게 만든 모델 파일이 vmaf_v0.6.1neg. 나머지 융합 구조(SVR)는 동일.",
+  "method": "VMAF의 VIF/DLM(ADM) feature 계산 시 enhancement gain 항을 상한 1.0으로 clip(vif_enhn_gain_limit=1.0, adm_enhn_gain_limit=1.0). 이렇게 만든 model 파일이 vmaf_v0.6.1neg. 나머지 fusion 구조(SVR)는 동일.",
   "savings": null,
-  "metricCaveat": "핵심 한 줄: VMAF는 enhancement를 '화질 향상'으로 보상하지만 NEG는 그 gain을 1.0으로 막아 보상하지 않는다. 따라서 VMAF가 높은데 NEG가 따라오지 못하면(둘의 격차 큼) 그 이득은 압축 효율이 아니라 enhancement/메트릭 해킹일 가능성이 크다.",
-  "hw": "전처리 평가 파이프(denoise/sharpen → encode → VMAF & VMAF-NEG)에서 NEG는 '두 번째 계기판'. 전처리 블록이 디테일을 지워(진짜 비트 절감) 점수가 오른 건지, 엣지/대비를 증폭(메트릭 해킹)해 오른 건지를 VMAF↔NEG 격차로 구분하게 해준다 — over-smooth/over-enhance 둘 다 잡는 장치.",
-  "nick": "전처리 효과의 정직한 측정 = VMAF와 VMAF-NEG를 항상 한 화면에. 본 스터디 정책상 NEG는 '점수 목표'가 아니라 '메트릭 해킹 탐지용 게이지'. NEG가 VMAF를 잘 따라오면 절감이 진짜에 가깝고, NEG가 뒤처지면 enhancement 성분을 의심하고 주관/BD-rate로 재검증.",
-  "caution": "블로그 본문 직접 fetch는 TLS 인증서 오류로 실패. NEG=enhancement gain 차감, VIF/DLM 과반응, vif_enhn_gain_limit/adm_enhn_gain_limit=1.0 사실은 검색 결과·models.md·Streaming Learning Center 등으로 교차확인. 원문 문구 1:1 인용은 미확인."
+  "metricCaveat": "핵심 한 줄: VMAF는 enhancement를 'quality 향상'으로 보상하지만 NEG는 그 gain을 1.0으로 막아 보상하지 않는다. 따라서 VMAF가 높은데 NEG가 따라오지 못하면(둘의 격차 큼) 그 gain은 compression efficiency가 아니라 enhancement/metric hacking일 가능성이 크다.",
+  "hw": "preprocessing 평가 pipeline(denoise/sharpen → encode → VMAF & VMAF-NEG)에서 NEG는 'second dashboard'. preprocessing block이 detail을 지워(진짜 비트 절감) score가 오른 건지, edge/contrast를 amplify(metric hacking)해 오른 건지를 VMAF↔NEG 격차로 구분하게 해준다 — over-smooth/over-enhance 둘 다 잡는 장치.",
+  "nick": "preprocessing 효과의 정직한 측정 = VMAF와 VMAF-NEG를 항상 한 화면에. 본 스터디 정책상 NEG는 'score 목표'가 아니라 'metric hacking 탐지용 gauge'. NEG가 VMAF를 잘 따라오면 절감이 진짜에 가깝고, NEG가 뒤처지면 enhancement 성분을 의심하고 subjective/BD-rate로 재검증.",
+  "caution": "블로그 본문 직접 fetch는 TLS 인증서 오류로 실패. NEG=enhancement gain 차감, VIF/DLM over-response, vif_enhn_gain_limit/adm_enhn_gain_limit=1.0 사실은 검색 결과·models.md·Streaming Learning Center 등으로 교차확인. 원문 문구 1:1 인용은 미확인."
  },
  {
   "id": "vmaf_repo",
@@ -193,20 +193,20 @@ window.PQO_STUDIES = [
   "grade": "repo",
   "coupling": "n/a",
   "url": "https://github.com/Netflix/vmaf",
-  "tldr": "실무 도구 본체. libvmaf(C 라이브러리)와 모델 파일들(vmaf_v0.6.1=기본 1080p, vmaf_v0.6.1neg=enhancement gain 차단, vmaf_4k_v0.6.1=4K)을 제공하고, FFmpeg에 libvmaf 필터로 붙여 쓴다. models.md가 모델 선택의 SSOT. '어떤 모델로 돌리느냐'가 결과 해석을 바꾼다.",
+  "tldr": "실무 도구 본체. libvmaf(C library)와 model 파일들(vmaf_v0.6.1=기본 1080p, vmaf_v0.6.1neg=enhancement gain 차단, vmaf_4k_v0.6.1=4K)을 제공하고, FFmpeg에 libvmaf filter로 붙여 쓴다. models.md가 model 선택의 SSOT. '어떤 model로 돌리느냐'가 결과 해석을 바꾼다.",
   "ideas": [
-   "libvmaf = 스탠드얼론 C 라이브러리(+Python 래퍼). FFmpeg는 ./configure --enable-libvmaf로 빌드하면 libvmaf 필터로 VMAF를 바로 계산.",
-   "모델 3종: vmaf_v0.6.1.json(기본, 1080p HDTV 거실 3H 시청거리 가정) / vmaf_v0.6.1neg.json(기본과 동일하되 enhancement gain 비활성) / vmaf_4k_v0.6.1.json(4K TV 1.5H 거리).",
-   "모델은 시청 조건(해상도·거리)을 가정한 값 → 4K 콘텐츠를 1080p 모델로 재면 의미가 어긋난다. 모델·시청거리 가정을 명시해야 점수가 비교 가능.",
-   "코덱 평가에는 neg 모델 권장: '압축으로 얻은 이득만, 전처리 enhancement 이득은 배제'. 모델 파일명 끝 neg가 그 스위치.",
-   "models.md / resource/doc가 어떤 모델을 언제 쓰는지의 단일 출처. CLI 옵션으로 enhancement gain limit도 직접 제어 가능."
+   "libvmaf = standalone C library(+Python wrapper). FFmpeg는 ./configure --enable-libvmaf로 빌드하면 libvmaf filter로 VMAF를 바로 계산.",
+   "model 3종: vmaf_v0.6.1.json(기본, 1080p HDTV 거실 3H viewing distance 가정) / vmaf_v0.6.1neg.json(기본과 동일하되 enhancement gain 비활성) / vmaf_4k_v0.6.1.json(4K TV 1.5H 거리).",
+   "model은 viewing condition(resolution·distance)을 가정한 값 → 4K content를 1080p model로 재면 의미가 어긋난다. model·viewing distance 가정을 명시해야 score가 comparable.",
+   "codec 평가에는 neg model 권장: 'compression으로 얻은 gain만, preprocessing enhancement gain은 배제'. model 파일명 끝 neg가 그 switch.",
+   "models.md / resource/doc가 어떤 model을 언제 쓰는지의 single source. CLI option으로 enhancement gain limit도 직접 control 가능."
   ],
-  "method": "libvmaf로 (레퍼런스, 디스토션) 한 쌍에 대해 feature 추출+SVR 융합 → 0~100. FFmpeg 예: libvmaf 필터에 model=path=...vmaf_v0.6.1neg.json 지정. 전처리 평가는 보통 같은 인코더로 여러 QP를 돌려 (비트레이트, VMAF) 곡선을 만들고 BD-rate로 비교.",
+  "method": "libvmaf로 (reference, distorted) 한 쌍에 대해 feature 추출+SVR fusion → 0~100. FFmpeg 예: libvmaf filter에 model=path=...vmaf_v0.6.1neg.json 지정. preprocessing 평가는 보통 같은 encoder로 여러 QP를 돌려 (bitrate, VMAF) 곡선을 만들고 BD-rate로 비교.",
   "savings": null,
-  "metricCaveat": "같은 영상도 어떤 모델(기본/neg/4k)로 재느냐에 따라 점수가 달라진다. 본 스터디 정책: 1차 점수는 기본 VMAF로 보고, neg 모델을 같이 돌려 격차로 enhancement/over-smooth를 점검. neg는 점수 목표가 아니라 진단용.",
-  "hw": "이 repo가 전처리 평가 파이프의 '측정기' 그 자체. 전처리 블록(2DNR/3DNR/CNN denoise 등) → FFmpeg encode → libvmaf(기본 & neg)로 동일 조건 BD-rate를 뽑는 게 실측 PoC의 표준 절차. 메트릭은 HW 비용이 아니지만, 어떤 모델로 재느냐가 '절감 주장'의 신뢰도를 좌우.",
-  "nick": "정직한 측정 절차: (1) 전처리 on/off 두 트랙을 같은 인코더·여러 QP로 인코딩, (2) 각 출력에 libvmaf 기본 모델과 neg 모델을 둘 다 적용, (3) (비트레이트 vs VMAF) BD-rate로 절감 산출, (4) 기본↔neg 격차가 크면 enhancement 해킹 의심 → 주관 확인. PoC는 WSL FFmpeg에서.",
-  "caution": "models.md 원문은 models.md 페이지 fetch로 모델명·시청거리 가정·neg 권장을 확인. 다만 repo는 버전에 따라 모델 파일·CLI 옵션이 바뀔 수 있으니 실제 사용 시 설치된 버전의 resource/doc를 SSOT로 재확인 필요."
+  "metricCaveat": "같은 영상도 어떤 model(기본/neg/4k)로 재느냐에 따라 score가 달라진다. 본 스터디 정책: 1차 score는 기본 VMAF로 보고, neg model을 같이 돌려 격차로 enhancement/over-smooth를 점검. neg는 score 목표가 아니라 진단용.",
+  "hw": "이 repo가 preprocessing 평가 pipeline의 'measurement instrument' 그 자체. preprocessing block(2DNR/3DNR/CNN denoise 등) → FFmpeg encode → libvmaf(기본 & neg)로 동일 조건 BD-rate를 뽑는 게 실측 PoC의 표준 절차. metric은 HW 비용이 아니지만, 어떤 model로 재느냐가 'savings 주장'의 신뢰도를 좌우.",
+  "nick": "정직한 측정 절차: (1) preprocessing on/off 두 track을 같은 encoder·여러 QP로 encode, (2) 각 output에 libvmaf 기본 model과 neg model을 둘 다 적용, (3) (bitrate vs VMAF) BD-rate로 savings 산출, (4) 기본↔neg 격차가 크면 enhancement hacking 의심 → subjective 확인. PoC는 WSL FFmpeg에서.",
+  "caution": "models.md 원문은 models.md 페이지 fetch로 model명·viewing distance 가정·neg 권장을 확인. 다만 repo는 버전에 따라 model 파일·CLI option이 바뀔 수 있으니 실제 사용 시 설치된 버전의 resource/doc를 SSOT로 재확인 필요."
  },
  {
   "id": "hackingvmaf_2021",
@@ -219,20 +219,20 @@ window.PQO_STUDIES = [
   "grade": "peer",
   "coupling": "n/a",
   "url": "https://arxiv.org/abs/2107.04510",
-  "tldr": "전처리만으로 VMAF를 최대 +218.8%, VMAF-NEG도 최대 +23.6% 부풀릴 수 있음을 정량 입증한 논문. 같은 영상을 사람에게 보여주면 화질은 그대로거나 오히려 나빠진다(직접 비교에서 원본이 58.3% 우세). 즉 메트릭 점수 상승 ≠ 화질 상승. 본 스터디의 '의심선' 근거.",
+  "tldr": "preprocessing만으로 VMAF를 최대 +218.8%, VMAF-NEG도 최대 +23.6% 부풀릴 수 있음을 정량 입증한 논문. 같은 영상을 사람에게 보여주면 quality는 그대로거나 오히려 나빠진다(direct comparison에서 원본이 58.3% 우세). 즉 metric score 상승 ≠ quality 상승. 본 스터디의 'suspicion line' 근거.",
   "ideas": [
-   "전처리 파라미터를 메트릭 점수가 오르도록 자동 튜닝하는 파이프라인을 제안 — '공격자' 관점에서 메트릭 취약성을 보임.",
-   "테스트한 전처리: 대비(감마 보정, 3차 다항/선형 대비 변환), 샤프닝(unsharp masking), 히스토그램(평활화·CLAHE), 톤매핑(Drago/Mantiuk/Retinex/Reinhard), 그리고 SGD로 컨볼루션 가중치 근사.",
-   "CLAHE가 VMAF를 가장 크게 올림: 최고 +218.8%, 중앙값 +50.2%, 3사분위 +86.8%. 단순 국소 대비 증폭이 메트릭을 통째로 흔든다.",
-   "VMAF-NEG도 뚫린다: 감마 보정+unsharp masking 조합이 NEG를 최대 +23.6% 상승. NEG가 가드레일이지만 면역은 아니다 — 격차가 작아졌을 뿐.",
-   "주관 검증: Subjectify.us로 114명, 응답 1,584건. 직접 비교에서 원본(GT)이 전처리본보다 58.3%에서 더 낫다고 판정 → 점수는 올랐는데 사람은 더 나쁘다고 봄."
+   "preprocessing parameter를 metric score가 오르도록 자동 tuning하는 pipeline을 제안 — 'attacker' 관점에서 metric vulnerability를 보임.",
+   "테스트한 preprocessing: contrast(gamma 보정, cubic/linear contrast 변환), sharpening(unsharp masking), histogram(equalization·CLAHE), tone mapping(Drago/Mantiuk/Retinex/Reinhard), 그리고 SGD로 convolution weight approximation.",
+   "CLAHE가 VMAF를 가장 크게 올림: 최고 +218.8%, median +50.2%, 3사분위 +86.8%. 단순 local contrast amplification이 metric을 통째로 흔든다.",
+   "VMAF-NEG도 뚫린다: gamma 보정+unsharp masking 조합이 NEG를 최대 +23.6% 상승. NEG가 guardrail이지만 immune은 아니다 — 격차가 작아졌을 뿐.",
+   "subjective 검증: Subjectify.us로 114명, 응답 1,584건. direct comparison에서 원본(GT)이 preprocessed본보다 58.3%에서 더 낫다고 판정 → score는 올랐는데 사람은 더 나쁘다고 봄."
   ],
-  "method": "여러 전처리(대비/샤프닝/히스토그램/톤매핑)를 파라미터 튜닝으로 VMAF·NEG 점수가 극대화되도록 적용 → 점수 상승폭을 측정. 동시에 Subjectify.us 크라우드 주관 페어와이즈 비교(114명/1,584응답)로 실제 화질 변화를 확인해 메트릭-주관 괴리를 드러냄.",
-  "savings": "비트 절감이 아니라 '메트릭 부풀림' 수치 (메트릭: VMAF & VMAF-NEG / 출처: peer-reviewed AICCC / 콘텐츠 의존: 전처리·콘텐츠별 편차 큼). VMAF 최고 +218.8%(CLAHE, 중앙값 +50.2%), VMAF-NEG 최고 +23.6%(감마+unsharp). 주관: 원본이 58.3%에서 우세 = 화질은 정체/하락.",
-  "metricCaveat": "핵심: NEG도 완전 면역은 아니지만(+23.6%) VMAF(+218.8%)보다 한 자릿수~열 배 가까이 덜 뚫린다. 그래서 VMAF↔NEG 격차가 3배 이상 벌어지면 enhancement/메트릭 해킹을 강하게 의심하는 잣대로 쓴다. 점수 절대값보다 둘의 비(比)가 진단 신호.",
-  "hw": "전처리 평가 파이프에서 이 논문은 '함정 지도'. 캡처→전처리→인코더 경로에 샤프닝/대비/CLAHE를 넣으면 VMAF가 치솟지만 비트 절감과 무관(오히려 디테일 증폭으로 비트↑일 수 있음). HW로 전처리 블록을 평가할 때 점수 상승을 절감으로 착각하지 않게 NEG·주관으로 교차검증해야 함을 정량적으로 못박음.",
-  "nick": "정직한 측정의 반례 카탈로그. 전처리 효과 측정 시: (1) VMAF 단독 상승은 신뢰하지 말 것, (2) VMAF-NEG를 반드시 병행해 격차를 보고, (3) 격차가 크면 주관(또는 NEG 기준 BD-rate)으로 재판정. CLAHE/unsharp가 들어간 전처리는 자동으로 의심 대상.",
-  "caution": "초록·본문 수치(218.8% / 23.6% / CLAHE 최대 / 감마+unsharp / 114명·1,584응답 / GT 58.3% 우세)는 arxiv 초록과 ar5iv 본문으로 직접 확인. venue를 AICCC로 표기했으나 정확한 게재처 명칭/연도 형식은 출처에 따라 표기 차가 있을 수 있어 인용 시 arXiv 2107.04510을 1차 출처로."
+  "method": "여러 preprocessing(contrast/sharpening/histogram/tone mapping)을 parameter tuning으로 VMAF·NEG score가 극대화되도록 적용 → score 상승폭을 측정. 동시에 Subjectify.us crowd subjective pairwise comparison(114명/1,584응답)으로 actual quality 변화를 확인해 metric-subjective 괴리를 드러냄.",
+  "savings": "비트 절감이 아니라 'metric 부풀림' 수치 (metric: VMAF & VMAF-NEG / 출처: peer-reviewed AICCC / content 의존: preprocessing·content별 편차 큼). VMAF 최고 +218.8%(CLAHE, median +50.2%), VMAF-NEG 최고 +23.6%(gamma+unsharp). subjective: 원본이 58.3%에서 우세 = quality는 정체/하락.",
+  "metricCaveat": "핵심: NEG도 완전 immune은 아니지만(+23.6%) VMAF(+218.8%)보다 한 자릿수~열 배 가까이 덜 뚫린다. 그래서 VMAF↔NEG 격차가 3배 이상 벌어지면 enhancement/metric hacking을 강하게 의심하는 잣대로 쓴다. score absolute 값보다 둘의 비(比)가 diagnostic signal.",
+  "hw": "preprocessing 평가 pipeline에서 이 논문은 'trap map'. capture→preprocessing→encoder 경로에 sharpening/contrast/CLAHE를 넣으면 VMAF가 치솟지만 비트 절감과 무관(오히려 detail amplification으로 비트↑일 수 있음). HW로 preprocessing block을 평가할 때 score 상승을 savings로 착각하지 않게 NEG·subjective로 cross-validate해야 함을 정량적으로 못박음.",
+  "nick": "정직한 측정의 반례 catalog. preprocessing 효과 측정 시: (1) VMAF 단독 상승은 신뢰하지 말 것, (2) VMAF-NEG를 반드시 병행해 격차를 보고, (3) 격차가 크면 subjective(또는 NEG 기준 BD-rate)로 재판정. CLAHE/unsharp가 들어간 preprocessing은 자동으로 의심 대상.",
+  "caution": "초록·본문 수치(218.8% / 23.6% / CLAHE 최대 / gamma+unsharp / 114명·1,584응답 / GT 58.3% 우세)는 arxiv 초록과 ar5iv 본문으로 직접 확인. venue를 AICCC로 표기했으나 정확한 게재처 명칭/연도 형식은 출처에 따라 표기 차가 있을 수 있어 인용 시 arXiv 2107.04510을 1차 출처로."
  },
  {
   "id": "vqmbench_2022",
@@ -245,20 +245,20 @@ window.PQO_STUDIES = [
   "grade": "peer",
   "coupling": "n/a",
   "url": "https://arxiv.org/abs/2211.12109",
-  "tldr": "약 2,500개의 압축 스트림(AVC/HEVC/VP9/AV1/VVC)에 크라우드 주관 점수를 붙인 데이터셋+벤치마크. VMAF를 포함한 풀레퍼런스/학습형 화질 메트릭이 '실제 압축 아티팩트'에서 주관 MOS와 얼마나 상관하는지 비교한다. 핵심 발견: 최신 노레퍼런스(학습형) 메트릭이 상위 풀레퍼런스 수준에 근접.",
+  "tldr": "약 2,500개의 compressed stream(AVC/HEVC/VP9/AV1/VVC)에 crowd subjective score를 붙인 dataset+benchmark. VMAF를 포함한 full-reference/learning-based quality metric이 'actual compression artifact'에서 subjective MOS와 얼마나 correlation하는지 비교한다. 핵심 발견: 최신 no-reference(learning-based) metric이 상위 full-reference 수준에 근접.",
   "ideas": [
-   "데이터셋 규모/다양성: 약 2,500 스트림, 5개 코덱 표준(AVC, HEVC, VP9, AV1, VVC) — 최신 코덱(AV1/VVC) 아티팩트까지 포함해 메트릭을 실전 분포에서 검증.",
-   "주관 점수는 크라우드소싱 페어와이즈 비교로 수집 → 압축 아티팩트에 대한 사람 판정을 대규모로 확보(메트릭이 맞춰야 할 정답).",
-   "비교 대상에 VMAF 등 풀레퍼런스와 '머신러닝/신경망 기반' 최신 메트릭 다수를 포함 → 어떤 메트릭이 MOS와 잘 맞는지 순위화.",
-   "핵심 발견: 새 노레퍼런스 메트릭들이 주관과 높은 상관을 보이며 최상위 풀레퍼런스 메트릭 성능에 근접 — '레퍼런스 없이도 압축 화질 추정' 가능성을 시사.",
-   "메트릭이 만능이 아니라 '특정 디스토션(압축)·콘텐츠에서의 상관'으로만 신뢰된다는 점을 데이터로 못박음 → 학습 분포 밖 일반화는 별개 문제."
+   "dataset 규모/다양성: 약 2,500 stream, 5개 codec 표준(AVC, HEVC, VP9, AV1, VVC) — 최신 codec(AV1/VVC) artifact까지 포함해 metric을 실전 distribution에서 검증.",
+   "subjective score는 crowdsourcing pairwise comparison으로 수집 → compression artifact에 대한 human judgment를 대규모로 확보(metric이 맞춰야 할 ground truth).",
+   "비교 대상에 VMAF 등 full-reference와 'machine learning/neural network 기반' 최신 metric 다수를 포함 → 어떤 metric이 MOS와 잘 맞는지 ranking.",
+   "핵심 발견: 새 no-reference metric들이 subjective와 높은 correlation을 보이며 top full-reference metric 성능에 근접 — 'reference 없이도 compression quality 추정' 가능성을 시사.",
+   "metric이 만능이 아니라 'specific distortion(compression)·content에서의 correlation'으로만 신뢰된다는 점을 data로 못박음 → training distribution 밖 generalization은 별개 문제."
   ],
-  "method": "약 2,500개 압축 스트림(AVC/HEVC/VP9/AV1/VVC) 생성 → 크라우드소싱 페어와이즈 주관 비교로 점수화 → VMAF 및 학습형 VQA 메트릭들의 예측을 주관 MOS와 상관(순위)으로 평가하는 벤치마크 구축. 데이터셋·코드 공개(D&B 트랙).",
-  "savings": "절감 수치 아님 — 메트릭-주관 '상관' 벤치마크 (메트릭: VMAF 포함 다수 FR/NR / 출처: peer-reviewed NeurIPS D&B / 콘텐츠 의존: 압축 아티팩트 한정, 5개 코덱). 정성 결론: 최신 노레퍼런스 메트릭이 상위 풀레퍼런스에 근접한 주관 상관. 정확한 SROCC/PLCC 수치는 본문/리더보드 참조(초록엔 미기재).",
-  "metricCaveat": "이 벤치마크는 '압축' 디스토션에서의 상관을 본 것이지, enhancement/전처리 해킹 내성을 직접 측정한 게 아니다. 따라서 'VMAF가 압축 평가에선 MOS와 잘 맞는다'는 결론을 '전처리 평가에서도 안전하다'로 확대 해석하면 안 됨(그 함정은 Hacking VMAF가 담당). 본 스터디 정책상 VMAF 1차 + NEG 게이지는 그대로 유지.",
-  "hw": "전처리 평가 파이프의 '신뢰 영역 지도'. 압축 아티팩트 평가에서는 VMAF류가 MOS와 잘 맞는다는 근거 → denoise→encode 후 압축 효율(BD-rate) 측정에는 VMAF가 합리적 심판. 단 전처리 단계의 enhancement는 이 벤치마크 범위 밖이라, 거기선 NEG/주관 교차검증이 여전히 필요.",
-  "nick": "정직한 측정 관점: '메트릭이 사람과 맞는 구간'을 데이터로 확인한 자료. 전처리+압축을 함께 평가할 때, 압축 부분은 VMAF로 BD-rate 비교가 정당화되지만, 전처리가 점수를 흔드는 구간은 별도 가드(NEG·주관)가 필요함을 상기시킴. 데이터셋을 받아 직접 메트릭을 재평가할 수도 있는 공개 자산.",
-  "caution": "스트림 수(~2,500), 코덱(AVC/HEVC/VP9/AV1/VVC), 크라우드 페어와이즈, '노레퍼런스가 풀레퍼런스에 근접' 결론은 arXiv 초록으로 확인. 다만 초록은 VMAF를 명시 나열하지 않고 메트릭별 상관계수(SROCC/PLCC)·참가자 수도 미기재 → 구체 수치는 본문/공개 리더보드로 확인 필요(출처 미확인 부분 표기)."
+  "method": "약 2,500개 compressed stream(AVC/HEVC/VP9/AV1/VVC) 생성 → crowdsourcing pairwise subjective comparison으로 점수화 → VMAF 및 learning-based VQA metric들의 prediction을 subjective MOS와 correlation(ranking)으로 평가하는 benchmark 구축. dataset·code 공개(D&B 트랙).",
+  "savings": "절감 수치 아님 — metric-subjective 'correlation' benchmark (metric: VMAF 포함 다수 FR/NR / 출처: peer-reviewed NeurIPS D&B / content 의존: compression artifact 한정, 5개 codec). 정성 결론: 최신 no-reference metric이 상위 full-reference에 근접한 subjective correlation. 정확한 SROCC/PLCC 수치는 본문/leaderboard 참조(초록엔 미기재).",
+  "metricCaveat": "이 benchmark는 'compression' distortion에서의 correlation을 본 것이지, enhancement/preprocessing hacking 내성을 직접 측정한 게 아니다. 따라서 'VMAF가 compression 평가에선 MOS와 잘 맞는다'는 결론을 'preprocessing 평가에서도 안전하다'로 확대 해석하면 안 됨(그 함정은 Hacking VMAF가 담당). 본 스터디 정책상 VMAF 1차 + NEG gauge는 그대로 유지.",
+  "hw": "preprocessing 평가 pipeline의 'trust region map'. compression artifact 평가에서는 VMAF류가 MOS와 잘 맞는다는 근거 → denoise→encode 후 compression efficiency(BD-rate) 측정에는 VMAF가 합리적 judge. 단 preprocessing 단계의 enhancement는 이 benchmark 범위 밖이라, 거기선 NEG/subjective cross-validation이 여전히 필요.",
+  "nick": "정직한 측정 관점: 'metric이 사람과 맞는 구간'을 data로 확인한 자료. preprocessing+compression을 함께 평가할 때, compression 부분은 VMAF로 BD-rate 비교가 정당화되지만, preprocessing이 score를 흔드는 구간은 별도 guard(NEG·subjective)가 필요함을 상기시킴. dataset을 받아 직접 metric을 재평가할 수도 있는 공개 자산.",
+  "caution": "stream 수(~2,500), codec(AVC/HEVC/VP9/AV1/VVC), crowd pairwise, 'no-reference가 full-reference에 근접' 결론은 arXiv 초록으로 확인. 다만 초록은 VMAF를 명시 나열하지 않고 metric별 correlation 계수(SROCC/PLCC)·참가자 수도 미기재 → 구체 수치는 본문/공개 leaderboard로 확인 필요(출처 미확인 부분 표기)."
  },
  {
   "id": "fgs_norkin2018",
@@ -271,19 +271,19 @@ window.PQO_STUDIES = [
   "grade": "peer",
   "coupling": "mixed",
   "url": "https://norkin.org/pdf/DCC_2018_AV1_film_grain.pdf",
-  "tldr": "AV1 FGS의 원전 논문. grain은 압축이 어려운 랜덤 신호라 '들어갈 때 지우고(인코더 앞단 denoise) 나올 때 다시 그린다(디코더 뒷단 재합성)'. grain을 자기회귀(AR) 모델 + 강도 스케일 함수로 요약해 비트스트림에 싣고, 디코더가 그 파라미터로 grain을 재생성한다. heavy-grain에서 비트 절감의 원천은 '원본 grain 제거'다.",
+  "tldr": "AV1 FGS의 원전 논문. film grain은 압축이 어려운 random 신호라 '들어갈 때 지우고(encoder 앞단 denoise) 나올 때 다시 그린다(decoder 뒷단 re-synthesis)'. grain을 autoregressive(AR) model + scaling function으로 요약해 bitstream에 싣고, decoder가 그 parameter로 grain을 re-synthesize한다. heavy-grain에서 bit 절감의 원천은 '원본 grain 제거(denoise)'다.",
   "ideas": [
-   "AR(자기회귀) grain 모델: G(x,y) = 인과적 이웃 grain들의 가중합 + 단위분산 Gaussian 노이즈 z. lag L은 0~3 (L=0은 백색 Gaussian, L↑이면 굵은 grain). AR 계수 개수 = luma 2L(L+1), chroma는 +1(co-located luma 상관). Yule-Walker로 추정. Gaussian 시퀀스는 인코더/디코더가 공유하는 사전정의 집합.",
-   "강도 스케일 = 구간선형 함수 f(Y): Y' = Y + f(Y)·G_L. luma/Cb/Cr 각각 별도. grain 세기가 신호 밝기에 의존(additive/multiplicative 모두 표현). 256-entry LUT로 구현, >8bit는 선형보간. chroma 인덱스 u = b·C + d·Y_av + h로 luma 밝기까지 반영.",
-   "2단계 파이프라인 분리: ① 인코더 앞단 — Denoiser로 grain 제거 → denoised를 인코딩 + (noisy−denoised) 차분의 flat 영역에서 grain 파라미터 추정. Canny 에지검출 3-scale + dilation으로 평탄영역만 사용(에지/텍스처/저휘도 제외). ② 디코더 뒷단 — 파라미터로 grain 재합성 후 복원 프레임에 가산.",
-   "디코더 재합성 = 블록 기반 저비용: AR 계수로 64×64 luma + 두 개 32×32 chroma 템플릿을 raster 생성 → 32×32 luma/16×16 chroma 블록 단위로 템플릿에서 랜덤 오프셋 추출, f(Y) LUT로 스케일, 가산 후 clip. 저주파 grain의 블록 아티팩트는 overlap 블렌딩으로 완화.",
-   "결정적 PRNG = shift-back LFSR(16-bit, 피드백 다항식 x^16+x^15+x^13+x^4+1). 상위 비트로 오프셋 s_x, s_y 생성(luma 오프셋은 chroma의 2배수). 32×32 블록 행마다 syntax합·행번호 기반으로 seed 재초기화 → 병렬 처리 가능 + bit-exact 재현. 파라미터 총량 ≤145 bytes(스케일 64 + AR 74)로 코딩 비트 대비 무시할 수준."
+   "AR(autoregressive) grain model: G(x,y) = causal neighbor grain들의 weighted sum + unit-variance Gaussian noise z. lag L은 0~3 (L=0은 white Gaussian, L↑이면 coarse grain). AR coefficient 개수 = luma 2L(L+1), chroma는 +1(co-located luma 상관). Yule-Walker로 추정. Gaussian sequence는 encoder/decoder가 공유하는 predefined set.",
+   "scaling = piecewise-linear function f(Y): Y' = Y + f(Y)·G_L. luma/Cb/Cr 각각 별도. grain 세기가 신호 luma에 의존(additive/multiplicative 모두 표현). 256-entry LUT로 구현, >8bit는 linear interpolation. chroma index u = b·C + d·Y_av + h로 luma 밝기까지 반영.",
+   "2-stage pipeline 분리: ① encoder 앞단 — denoiser로 grain 제거 → denoised를 인코딩 + (noisy−denoised) residual의 flat 영역에서 grain parameter 추정. Canny edge detection 3-scale + dilation으로 flat 영역만 사용(edge/texture/low-luma 제외). ② decoder 뒷단 — parameter로 grain을 re-synthesize 후 reconstructed frame에 가산.",
+   "decoder re-synthesis = block 기반 저비용: AR coefficient로 64×64 luma + 두 개 32×32 chroma template을 raster 생성 → 32×32 luma/16×16 chroma block 단위로 template에서 random offset 추출, f(Y) LUT로 scale, 가산 후 clip. low-frequency grain의 block artifact는 overlap blending으로 완화.",
+   "deterministic PRNG = shift-back LFSR(16-bit, feedback polynomial x^16+x^15+x^13+x^4+1). 상위 bit로 offset s_x, s_y 생성(luma offset은 chroma의 2배수). 32×32 block 행마다 syntax 합·행번호 기반으로 seed 재초기화 → parallel 처리 가능 + bit-exact 재현. parameter 총량 ≤145 bytes(scaling 64 + AR 74)로 coding bit 대비 무시할 수준."
   ],
-  "method": "캡처→[전처리: Denoiser로 grain 제거]→인코더→비트스트림(+grain params)→디코더→[후처리: AR+스케일 LUT+LFSR로 grain 재합성·가산]→출력. 비트 절감은 ①단(인코더 앞 denoise로 압축 불가능한 랜덤성 제거)에서 발생하고, ②단(디코더 재합성)은 '룩 복원'만 담당. grain 파라미터는 display 해상도 기준으로 1회(시퀀스) 또는 프레임마다 시그널.",
-  "savings": "up to 50% — 메트릭: 주관(preliminary subjective comparison, 정량 메트릭 미제시) / 출처: peer-reviewed (DCC 2018) / 콘텐츠: heavy film grain 시퀀스 한정 best case. clean 콘텐츠에는 해당 없음.",
-  "metricCaveat": "논문은 '예비 주관 비교'라고만 명시하고 VMAF/MOS 점수표를 제시하지 않음. 50%는 heavy-grain 최선 케이스이므로 일반화 금지. denoise=정보 삭감형(진짜 절감)이라 메트릭 해킹(엣지/대비 증폭)과 방향이 반대 — VMAF 부풀리기 위험은 낮으나, denoise 강도가 과하면 디테일 손실로 VMAF-NEG 하락 가능.",
-  "hw": "디코더 재합성 = 저비용 고정함수: AR 필터(lag 0~3 = 최대 ~24 tap MAC), 64×64/32×32 grain 템플릿(8bit 4KB/1KB, 캐시·SRAM 친화), 256-entry 구간선형 강도 LUT, 16-bit LFSR PRNG, 32×32/16×16 블록 가산+clip+overlap. 1프레임 버퍼 불필요(복원 직후 후처리). 진짜 HW 비용은 인코더측 Denoiser — 비용 사다리 2DNR<3DNR<CNN<NLM/MCTF 상에서 grain 추정용 평탄영역 검출(Canny 다중스케일)까지 포함되며, denoiser 등급이 절감 폭을 좌우.",
-  "nick": "AV1 디코더 IP를 아는 입장에서 FGS 재합성 블록은 '디코더 파이프 끝단 post-filter' — loop filter/CDEF/film-grain 순서 중 마지막. AR 템플릿 생성기 + LFSR + LUT는 전부 결정적이라 RTL로 bit-exact 떨어지고, 템플릿이 작아 라인버퍼/프레임버퍼 부담이 거의 없다. 핵심 통찰: 디코더에 들어가는 grain 모델은 '코덱이 정의한 syntax'(비용 작음)지만, 비트 절감을 만드는 denoise는 인코더 앞단의 별개 전처리 IP(비용 큼). HW 설계 관점에서 둘을 절대 같은 예산으로 보면 안 됨.",
+  "method": "capture→[preprocessing: denoiser로 grain 제거]→encoder→bitstream(+grain params)→decoder→[post-filter: AR+scaling LUT+LFSR로 grain re-synthesis·가산]→출력. bit 절감은 ①단(encoder 앞 denoise로 압축 불가능한 randomness 제거)에서 발생하고, ②단(decoder re-synthesis)은 'look 복원'만 담당. grain parameter는 display resolution 기준으로 1회(sequence) 또는 frame마다 signal.",
+  "savings": "up to 50% — 메트릭: 주관(preliminary subjective comparison, 정량 metric 미제시) / 출처: peer-reviewed (DCC 2018) / 콘텐츠: heavy film grain sequence 한정 best case. clean 콘텐츠에는 해당 없음.",
+  "metricCaveat": "논문은 'preliminary subjective comparison'이라고만 명시하고 VMAF/MOS score 표를 제시하지 않음. 50%는 heavy-grain best case이므로 일반화 금지. denoise=정보 삭감형(진짜 절감)이라 metric 해킹(edge/contrast 증폭)과 방향이 반대 — VMAF 부풀리기 위험은 낮으나, denoise 강도가 과하면 detail 손실로 VMAF-NEG 하락 가능.",
+  "hw": "decoder re-synthesis = 저비용 fixed-function: AR filter(lag 0~3 = 최대 ~24 tap MAC), 64×64/32×32 grain template(8bit 4KB/1KB, cache·SRAM 친화), 256-entry piecewise-linear scaling LUT, 16-bit LFSR PRNG, 32×32/16×16 block 가산+clip+overlap. frame buffer 1장 불필요(reconstruction 직후 post-filter). 진짜 HW 비용은 encoder측 denoiser — 비용 사다리 2DNR<3DNR<CNN<NLM/MCTF 상에서 grain 추정용 flat 영역 검출(Canny multi-scale)까지 포함되며, denoiser 등급이 절감 폭을 좌우.",
+  "nick": "AV1 decoder IP를 아는 입장에서 FGS re-synthesis 블록은 'decoder pipe 끝단 post-filter' — loop filter/CDEF/film-grain 순서 중 마지막. AR template 생성기 + LFSR + LUT는 전부 deterministic이라 RTL로 bit-exact 떨어지고, template이 작아 line buffer/frame buffer 부담이 거의 없다. 핵심 통찰: decoder에 들어가는 grain model은 'codec이 정의한 syntax'(비용 작음)지만, bit 절감을 만드는 denoise는 encoder 앞단의 별개 preprocessing IP(비용 큼). HW 설계 관점에서 둘을 절대 같은 예산으로 보면 안 됨.",
   "caution": null
  },
  {
@@ -297,20 +297,20 @@ window.PQO_STUDIES = [
   "grade": "standard",
   "coupling": "n/a",
   "url": "https://aomediacodec.github.io/av1-spec/av1-spec.pdf",
-  "tldr": "Norkin 논문의 FGS를 코덱 표준의 '정규(normative) 디코더 프로세스'로 못박은 문서. §5.9.30 film_grain_params 신택스로 파라미터를 받고, §7.18.3 film grain synthesis process로 grain을 재합성한다. 디코더 IP가 bit-exact 구현해야 할 대상은 '재합성(②단)'뿐 — denoise(①단)는 스펙 밖 인코더 자유 영역.",
+  "tldr": "Norkin 논문의 FGS를 codec 표준의 normative decoder process로 못박은 문서. §5.9.30 film_grain_params syntax로 parameter를 받고, §7.18.3 film grain synthesis process로 grain을 re-synthesize한다. decoder IP가 bit-exact 구현해야 할 대상은 're-synthesis(②단)'뿐 — denoise(①단)는 spec 밖 encoder 자유 영역.",
   "ideas": [
-   "정규 디코더 프로세스(§7.18.3): film grain은 출력 직전 OutY/OutU/OutV에 가산되는 마지막 단계. 모든 준수 디코더가 동일 출력(bit-exact)을 내야 하므로 PRNG·AR·스케일·블록 적용이 전부 결정적으로 규정됨. 디코딩 루프 자체(예측/변환)에는 영향 없음 = 순수 후처리.",
-   "신택스(§5.9.30): ar_coeffs_y_plus_128 / ar_coeffs_cb_plus_128 / ar_coeffs_cr_plus_128, ar_coeff_lag(0~3, 계수 개수 결정), grain_scaling_minus_8(scaling_shift), num_y_points/point_y_value/point_y_scaling(구간선형 점), apply_grain, grain_seed, overlap_flag, clip_to_restricted_range, chroma_scaling_from_luma 등.",
-   "강도 스케일 LUT: point_*_value/point_*_scaling로 정의된 구간선형 곡선을 luma/chroma 밝기→grain 진폭으로 매핑. scaling_shift(grain_scaling)로 전체 강도 비트시프트. luma 점 최대 14개, chroma 각 10개. 디코더는 이 점들로 LUT를 채워 결정적으로 적용.",
-   "결정적 PRNG: grain_seed(16-bit) + 위치 기반으로 LFSR형 get_random_number를 구동해 grain 배열과 블록 오프셋 생성. seed가 같으면 모든 디코더가 같은 grain → 표준 준수의 핵심. 블록 단위 재시드로 위치 독립·병렬화.",
-   "grain 배열·블록: AR로 luma grain 배열(여유 패딩 포함, 약 82×73 규모)과 chroma 배열 생성 후, 32×32(luma)/16×16(chroma 4:2:0) 단위로 프레임에 적용. overlap_flag면 인접 블록 경계를 수직/수평 가중 블렌딩해 블록 아티팩트 제거."
+   "normative decoder process(§7.18.3): film grain은 출력 직전 OutY/OutU/OutV에 가산되는 마지막 단계. 모든 conformant decoder가 동일 출력(bit-exact)을 내야 하므로 PRNG·AR·scaling·block 적용이 전부 deterministic으로 규정됨. decoding loop 자체(prediction/transform)에는 영향 없음 = 순수 post-filter.",
+   "syntax(§5.9.30): ar_coeffs_y_plus_128 / ar_coeffs_cb_plus_128 / ar_coeffs_cr_plus_128, ar_coeff_lag(0~3, coefficient 개수 결정), grain_scaling_minus_8(scaling_shift), num_y_points/point_y_value/point_y_scaling(piecewise-linear point), apply_grain, grain_seed, overlap_flag, clip_to_restricted_range, chroma_scaling_from_luma 등.",
+   "scaling LUT: point_*_value/point_*_scaling로 정의된 piecewise-linear curve를 luma/chroma 밝기→grain amplitude로 매핑. scaling_shift(grain_scaling)로 전체 강도 bit-shift. luma point 최대 14개, chroma 각 10개. decoder는 이 point들로 LUT를 채워 deterministic하게 적용.",
+   "deterministic PRNG: grain_seed(16-bit) + 위치 기반으로 LFSR형 get_random_number를 구동해 grain array와 block offset 생성. seed가 같으면 모든 decoder가 같은 grain → 표준 준수의 핵심. block 단위 re-seed로 위치 독립·parallel 가능.",
+   "grain array·block: AR로 luma grain array(여유 padding 포함, 약 82×73 규모)와 chroma array 생성 후, 32×32(luma)/16×16(chroma 4:2:0) 단위로 frame에 적용. overlap_flag면 인접 block 경계를 vertical/horizontal weighted blending해 block artifact 제거."
   ],
-  "method": "스펙은 ②단(디코더 재합성)만 정규로 규정한다: 비트스트림 film_grain_params 파싱 → grain_seed로 PRNG 초기화 → AR 계수+lag로 grain 템플릿 합성 → 구간선형 scaling LUT 구성 → 32×32/16×16 블록마다 랜덤 오프셋으로 grain 추출·스케일·가산·(overlap)·clip → 출력. ①단 denoise는 인코더 구현 자유(코덱은 grain을 '제거됐다 가정'하고 syntax만 표준화).",
+  "method": "spec은 ②단(decoder re-synthesis)만 normative로 규정한다: bitstream film_grain_params parsing → grain_seed로 PRNG 초기화 → AR coefficient+lag로 grain template 합성 → piecewise-linear scaling LUT 구성 → 32×32/16×16 block마다 random offset으로 grain 추출·scale·가산·(overlap)·clip → 출력. ①단 denoise는 encoder 구현 자유(codec은 grain을 'denoised 가정'하고 syntax만 표준화).",
   "savings": null,
-  "metricCaveat": "스펙 문서는 절감 수치를 제시하지 않음(표준은 디코더 동작만 규정, 코딩 효율은 인코더/콘텐츠 의존). 절감은 §7.18.3 자체가 아니라 인코더 denoise 단계의 산물.",
-  "hw": "디코더 IP가 실제로 게이트로 구현하는 부분 = 전부 여기. 비용 항목: AR 필터(lag별 가변 tap), grain 배열 SRAM(luma ~82×73, chroma 배열), 14/10점 구간선형 scaling LUT 생성기, 결정적 PRNG(get_random_number), 32×32/16×16 블록 가산기 + overlap 블렌더 + clip. 전부 고정함수·소면적·캐시 친화, 추가 프레임버퍼 불필요. denoise는 스펙 밖이라 디코더 HW 비용에 미포함 — 비용은 인코더로 외부화됨.",
-  "nick": "디코더 IP 검증자 시점: FGS는 '정규 출력' 항목이라 conformance 비트스트림으로 bit-exact를 반드시 맞춰야 한다(loop filter/CDEF/LR처럼 틀리면 미준수). grain_seed·LFSR·AR 계수가 결정적이라 RTL과 reference C(libaom)를 픽셀 단위로 cross-check 가능 — UVM scoreboard로 딱 떨어지는 구조. 적용 순서(LR 뒤, 출력 직전)와 overlap 경계 처리, restricted-range clip이 흔한 버그 포인트. 면적은 작지만 정확도 0% 마진.",
-  "caution": "출처 미확인: 본 노트의 배열 크기(~82×73)·점 개수(14/10) 등 구체 수치는 일반 문헌·libaom 관행 기반으로 기술. 정확한 정규 값은 §5.9.30/§7.18.3 본문 표를 직접 대조 요(WebFetch가 PDF 압축 스트림이라 본문 텍스트 추출 실패, 섹션 존재는 확인됨)."
+  "metricCaveat": "spec 문서는 절감 수치를 제시하지 않음(표준은 decoder 동작만 규정, coding efficiency는 encoder/콘텐츠 의존). 절감은 §7.18.3 자체가 아니라 encoder denoise 단계의 산물.",
+  "hw": "decoder IP가 실제로 gate로 구현하는 부분 = 전부 여기. 비용 항목: AR filter(lag별 가변 tap), grain array SRAM(luma ~82×73, chroma array), 14/10 point piecewise-linear scaling LUT 생성기, deterministic PRNG(get_random_number), 32×32/16×16 block 가산기 + overlap blender + clip. 전부 fixed-function·소면적·cache 친화, 추가 frame buffer 불필요. denoise는 spec 밖이라 decoder HW 비용에 미포함 — 비용은 encoder로 외부화됨.",
+  "nick": "decoder IP 검증자 시점: FGS는 'normative 출력' 항목이라 conformance bitstream으로 bit-exact를 반드시 맞춰야 한다(loop filter/CDEF/LR처럼 틀리면 non-conformant). grain_seed·LFSR·AR coefficient가 deterministic이라 RTL과 reference C(libaom)를 pixel 단위로 cross-check 가능 — UVM scoreboard로 딱 떨어지는 구조. 적용 순서(LR 뒤, 출력 직전)와 overlap 경계 처리, restricted-range clip이 흔한 bug 포인트. 면적은 작지만 정확도 0% margin.",
+  "caution": "출처 미확인: 본 노트의 array 크기(~82×73)·point 개수(14/10) 등 구체 수치는 일반 문헌·libaom 관행 기반으로 기술. 정확한 normative 값은 §5.9.30/§7.18.3 본문 표를 직접 대조 요(WebFetch가 PDF 압축 스트림이라 본문 텍스트 추출 실패, 섹션 존재는 확인됨)."
  },
  {
   "id": "afgs1_2024",
@@ -323,19 +323,19 @@ window.PQO_STUDIES = [
   "grade": "standard",
   "coupling": "n/a",
   "url": "https://aomediacodec.github.io/afgs1-spec/",
-  "tldr": "AV1 안에 묶여 있던 FGS를 '코덱 무관 메타데이터 구동 합성 스테이지'로 떼어낸 표준. grain 모델(AR/Gaussian/PRNG/구간선형 스케일)은 AV1과 동일하되, 파라미터를 비트스트림이 아니라 ITU-T T.35 메타데이터로 실어 어떤 코덱·전송에도 붙일 수 있게 일반화. 재합성을 디코더와 분리된 독립 후처리 단계로 만든 것.",
+  "tldr": "AV1 안에 묶여 있던 FGS를 'codec 무관 metadata-driven synthesis stage'로 떼어낸 표준. grain model(AR/Gaussian/PRNG/piecewise-linear scaling)은 AV1과 동일하되, parameter를 bitstream이 아니라 ITU-T T.35 metadata로 실어 어떤 codec·전송에도 붙일 수 있게 일반화. re-synthesis를 decoder와 분리된 독립 post-filter stage로 만든 것.",
   "ideas": [
-   "코덱 비종속: '어떤 비디오 코딩/전송 메커니즘과도 함께 사용·시그널 가능'. grain 합성을 디코딩에서 분리 → 디코더 또는 비디오 post-processing 모듈 출력 어디에든 선택적 최종 단계로 적용.",
-   "메타데이터 전달: grain 파라미터를 ITU-T T.35 registered user metadata로 운반(코덱 비트스트림에 임베드하지 않음). HEVC/H.264 SEI처럼 코덱마다 따로 정의할 필요 없이 동일 메타데이터로 통일.",
-   "다중 파라미터 세트 + 해상도 독립: 한 디코딩 픽처에 grain 파라미터 세트를 둘 이상 둘 수 있고, 디코딩 해상도와 다른 해상도에서 grain 합성 적용 가능 → 다운스케일/업스케일 파이프라인과 분리 운용.",
-   "AV1 컴포넌트 그대로 재사용: AR 필터 계수, 공유 Gaussian 시퀀스, PRNG, 구간선형 스케일 함수, 노이즈 블렌딩 로직이 알고리즘적으로 동일. 즉 ②단(재합성) HW를 AV1과 사실상 공유 가능.",
-   "독립 후처리 = ①denoise / ②synthesize 분리가 더 명확해짐: 합성이 OutY/OutU/OutV를 독립 수정하는 옵셔널 최종 스테이지. 인코더·코덱과 완전히 decouple된 '룩 복원' 모듈로 자리매김."
+   "codec 비종속: '어떤 video coding/전송 mechanism과도 함께 사용·signal 가능'. grain synthesis를 decoding에서 분리 → decoder 또는 video post-processing 모듈 출력 어디에든 optional 최종 stage로 적용.",
+   "metadata 전달: grain parameter를 ITU-T T.35 registered user metadata로 운반(codec bitstream에 embed하지 않음). HEVC/H.264 SEI처럼 codec마다 따로 정의할 필요 없이 동일 metadata로 통일.",
+   "multiple parameter set + resolution 독립: 한 decoded picture에 grain parameter set을 둘 이상 둘 수 있고, decoding resolution과 다른 resolution에서 grain synthesis 적용 가능 → downscale/upscale pipeline과 분리 운용.",
+   "AV1 component 그대로 재사용: AR filter coefficient, 공유 Gaussian sequence, PRNG, piecewise-linear scaling function, noise blending logic이 algorithm적으로 동일. 즉 ②단(re-synthesis) HW를 AV1과 사실상 공유 가능.",
+   "독립 post-filter = ①denoise / ②synthesize 분리가 더 명확해짐: synthesis가 OutY/OutU/OutV를 독립 수정하는 optional 최종 stage. encoder·codec과 완전히 decouple된 'look 복원' 모듈로 자리매김."
   ],
-  "method": "①단(인코더 denoise)은 여전히 코덱·구현 자유 영역(절감의 원천). 차이는 파라미터 경로: AV1은 grain을 자기 비트스트림 syntax로 싣지만, AFGS1은 T.35 메타데이터로 분리 전달 → ②단 재합성을 '디코더 뒤에 붙는 코덱 무관 스테이지'로 운용. 모델 수학(AR+스케일+PRNG)은 AV1과 동일하므로 재합성 동작은 보존.",
+  "method": "①단(encoder denoise)은 여전히 codec·구현 자유 영역(절감의 원천). 차이는 parameter 경로: AV1은 grain을 자기 bitstream syntax로 싣지만, AFGS1은 T.35 metadata로 분리 전달 → ②단 re-synthesis를 'decoder 뒤에 붙는 codec 무관 stage'로 운용. model 수학(AR+scaling+PRNG)은 AV1과 동일하므로 re-synthesis 동작은 보존.",
   "savings": null,
-  "metricCaveat": "AFGS1 스펙/TR은 절감 수치 표준화 문서가 아님(합성 동작·메타데이터 포맷 규정). 절감은 적용 인코더의 denoise와 콘텐츠에 의존하므로 본 문서에서 인용 금지.",
-  "hw": "재합성 HW 비용은 AV1 FGS와 동일·공유 가능(AR + 구간선형 LUT + 결정적 PRNG + grain 템플릿, 저비용·캐시 친화). 추가되는 것은 '메타데이터 파서(T.35)'와 '다중 파라미터 세트/해상도 분리 적용' 제어 로직뿐 — 픽셀 데이터패스 추가 비용 거의 없음. denoise는 여전히 외부(인코더) 비용. 장점: 코덱 디코더와 grain 합성 IP를 물리적으로 분리 배치 가능(예: 디스플레이 파이프 측 후처리).",
-  "nick": "RTL 관점에서 AFGS1은 'grain 합성 IP를 코덱 디코더에서 떼어 재사용 가능한 IP 블록으로 승격'한 것 — AV1 디코더 안에 박혀 있던 §7.18.3 데이터패스를 동일하게 쓰되 입력을 비트스트림이 아닌 T.35 메타데이터 포트로 바꾸면 됨. 멀티코덱 SoC에서 디코더(AV1/HEVC/...)별로 grain 로직을 중복 구현하지 않고 한 개의 공용 post-FGS 블록으로 통합하는 그림이 가능. 해상도 독립 적용은 grain을 스케일러 앞/뒤 어디에 둘지 파이프 배치 자유도를 줌.",
+  "metricCaveat": "AFGS1 spec/TR은 절감 수치 표준화 문서가 아님(synthesis 동작·metadata format 규정). 절감은 적용 encoder의 denoise와 콘텐츠에 의존하므로 본 문서에서 인용 금지.",
+  "hw": "re-synthesis HW 비용은 AV1 FGS와 동일·공유 가능(AR + piecewise-linear LUT + deterministic PRNG + grain template, 저비용·cache 친화). 추가되는 것은 'metadata parser(T.35)'와 'multiple parameter set/resolution 분리 적용' 제어 logic뿐 — pixel datapath 추가 비용 거의 없음. denoise는 여전히 외부(encoder) 비용. 장점: codec decoder와 grain synthesis IP를 물리적으로 분리 배치 가능(예: display pipe 측 post-filter).",
+  "nick": "RTL 관점에서 AFGS1은 'grain synthesis IP를 codec decoder에서 떼어 재사용 가능한 IP 블록으로 승격'한 것 — AV1 decoder 안에 박혀 있던 §7.18.3 datapath를 동일하게 쓰되 입력을 bitstream이 아닌 T.35 metadata port로 바꾸면 됨. multi-codec SoC에서 decoder(AV1/HEVC/...)별로 grain logic을 중복 구현하지 않고 한 개의 공용 post-FGS 블록으로 통합하는 그림이 가능. resolution 독립 적용은 grain을 scaler 앞/뒤 어디에 둘지 pipe 배치 자유도를 줌.",
   "caution": null
  },
  {
@@ -349,20 +349,20 @@ window.PQO_STUDIES = [
   "grade": "vendor",
   "coupling": "mixed",
   "url": "https://netflixtechblog.com/av1-scale-film-grain-synthesis-the-awakening-ee09cfdff40b",
-  "tldr": "Netflix가 AV1 FGS를 catalog 규모로 배포한 운영 사례. '들어갈 때 지우고 나올 때 다시 그린다'는 동일 원리를 ~300 타이틀에 적용. 해상도별로 절감 효과가 갈린다: grain이 살아있는 1080p+에서는 크고, <1080p에서는 다운스케일이 noise를 지워버려 작아진다. 단, 절감 산출에 쓴 품질 메트릭은 블로그에 명시되지 않음.",
+  "tldr": "Netflix가 AV1 FGS를 catalog 규모로 배포한 운영 사례. '들어갈 때 지우고 나올 때 다시 그린다'는 동일 원리를 ~300 타이틀에 적용. resolution별로 절감 효과가 갈린다: grain이 살아있는 1080p+에서는 크고, <1080p에서는 downscale이 noise를 지워버려 작아진다. 단, 절감 산출에 쓴 quality metric은 블로그에 명시되지 않음.",
   "ideas": [
-   "운영 파이프라인 = 2단계 그대로: 인코딩 전 원본에서 grain 제거(denoise) → grain 패턴·깊이를 추정·전송 → 재생 시 grain 재합성·재통합. denoised 비디오가 압축이 쉬워져 비트가 절감되는 구조.",
-   "해상도 의존 절감: 1080p 이상에서 평균 ~36% 비트레이트 감소, 1080p 미만에서는 ~10%로 작아짐. 이유는 '다운스케일 과정에서 noise(grain)가 필터링돼 사라지기 때문' — 지울 grain이 적으면 절감 여지도 적다.",
-   "콘텐츠 의존 best case: heavy-grain 장면에서는 단일 비교로 ~66% 절감 예시(일반 AV1 8274 kbps vs FGS 적용 2804 kbps). 평균이 아니라 특정 heavy-grain 케이스의 극단값.",
-   "규모: 약 300개 타이틀(grain 정도가 제각각)을 평가한 catalog 단위 결과 → 단일 클립 데모가 아닌 분포 기반 주장.",
-   "FGS는 '룩 보존' 수단: grain을 압축하느라 비트를 낭비하는 대신 제거 후 재합성해 창작 의도(grain look)는 유지하면서 대역폭·QoE를 개선한다는 운영 동기."
+   "운영 pipeline = 2-stage 그대로: 인코딩 전 원본에서 grain 제거(denoise) → grain pattern·depth를 추정·전송 → 재생 시 grain re-synthesis·재통합. denoised video가 압축이 쉬워져 bit가 절감되는 구조.",
+   "resolution 의존 절감: 1080p 이상에서 평균 ~36% bitrate 감소, 1080p 미만에서는 ~10%로 작아짐. 이유는 'downscale 과정에서 noise(grain)가 filtering돼 사라지기 때문' — 지울 grain이 적으면 절감 여지도 적다.",
+   "콘텐츠 의존 best case: heavy-grain 장면에서는 단일 비교로 ~66% 절감 예시(일반 AV1 8274 kbps vs FGS 적용 2804 kbps). 평균이 아니라 특정 heavy-grain case의 극단값.",
+   "규모: 약 300개 타이틀(grain 정도가 제각각)을 평가한 catalog 단위 결과 → 단일 clip demo가 아닌 분포 기반 주장.",
+   "FGS는 'look 보존' 수단: grain을 압축하느라 bit를 낭비하는 대신 제거 후 re-synthesize해 창작 의도(grain look)는 유지하면서 대역폭·QoE를 개선한다는 운영 동기."
   ],
-  "method": "①단(인코더 앞 denoise)에서 grain 제거 → 압축 용이 → 비트 절감. grain 패턴/깊이는 AR 파라미터로 추정·전송. ②단(재생 시 재합성)에서 grain 복원 = 룩 유지. 절감 폭은 해상도(grain 잔존량)와 콘텐츠 graininess에 강하게 의존.",
-  "savings": "~36% (1080p+) / ~10% (<1080p), heavy-grain 단일 예시 ~66%(8274→2804 kbps) — 메트릭: 미명시(블로그가 절감 측정에 쓴 품질 기준 VMAF/MOS를 명시하지 않음) / 출처: vendor(Netflix TechBlog, peer review 아님) / 콘텐츠: graininess 의존(1080p+ heavy-grain일수록 큼, 다운스케일된 저해상도일수록 작음).",
-  "metricCaveat": "벤더 수치 + 메트릭 미명시 → 신뢰도 하향. '동일 품질에서 N% 절감'의 '동일 품질' 기준이 무엇인지(VMAF/VMAF-NEG/주관) 블로그에 없음. FGS는 VMAF 해석을 교란하는 것으로 알려져(Netflix/vmaf #1192) 합성 grain이 VMAF 점수에 잡히는 방식이 모호 → 36%/10%를 BD-rate 등가로 받아들이지 말 것. denoise=정보 삭감형이라 메트릭 해킹 방향은 아니나, 측정 기준 부재가 핵심 caveat.",
-  "hw": "재합성 비용은 AV1 §7.18.3과 동일(저비용 디코더 후처리: AR+LUT+PRNG+템플릿). 이 블로그의 절감은 전적으로 ①단 denoise의 품질에서 나옴 — Netflix는 클라우드 인코딩이라 무거운 denoise(NLM/MCTF급, 비용 사다리 최상단)를 감당 가능. 즉 절감 = 오프라인 인코더측 고비용 denoise의 결과이고, 단말 디코더 HW에는 저비용 재합성만 부담. <1080p에서 절감이 작은 것도 '스케일러가 이미 grain을 지워 denoise할 게 없다'는 데이터패스 직관과 일치.",
-  "nick": "단말 디코더 IP 설계자에겐 희소식: catalog의 36% 대역폭 절감을 누리는 비용이 디코더 측에서는 작은 고정함수 FGS 블록뿐(인코더의 무거운 denoise는 Netflix 클라우드가 부담). 다만 conformance가 중요 — FGS가 on인 스트림을 받으면 디코더가 grain을 정확히 재합성해야 '룩'이 맞다(끄면 밋밋, 잘못 그리면 아티팩트). 해상도 의존 절감은 'grain은 고주파라 다운스케일 LPF에서 죽는다'는 신호처리 상식 그대로 — RTL에서 스케일러와 FGS 적용 순서를 어디에 두느냐가 룩에 직접 영향.",
-  "caution": "출처 미확인: 36%/10%/66%/300타이틀 수치는 벤더 블로그(2차 요약 포함)에서 수집했고, 품질 메트릭·측정 프로토콜이 공개되지 않아 정량 비교 근거로는 약함. 원문 본문은 cert 오류로 직접 fetch 실패 — 수치는 검색 요약 및 1개 리포스트로 교차확인했으나 원문 표 대조 권장."
+  "method": "①단(encoder 앞 denoise)에서 grain 제거 → 압축 용이 → bit 절감. grain pattern/depth는 AR parameter로 추정·전송. ②단(재생 시 re-synthesis)에서 grain 복원 = look 유지. 절감 폭은 resolution(grain 잔존량)과 콘텐츠 graininess에 강하게 의존.",
+  "savings": "~36% (1080p+) / ~10% (<1080p), heavy-grain 단일 예시 ~66%(8274→2804 kbps) — 메트릭: 미명시(블로그가 절감 측정에 쓴 quality 기준 VMAF/MOS를 명시하지 않음) / 출처: vendor(Netflix TechBlog, peer review 아님) / 콘텐츠: graininess 의존(1080p+ heavy-grain일수록 큼, downscale된 저해상도일수록 작음).",
+  "metricCaveat": "vendor 수치 + metric 미명시 → 신뢰도 하향. '동일 품질에서 N% 절감'의 '동일 품질' 기준이 무엇인지(VMAF/VMAF-NEG/주관) 블로그에 없음. FGS는 VMAF 해석을 교란하는 것으로 알려져(Netflix/vmaf #1192) 합성 grain이 VMAF score에 잡히는 방식이 모호 → 36%/10%를 BD-rate 등가로 받아들이지 말 것. denoise=정보 삭감형이라 metric 해킹 방향은 아니나, 측정 기준 부재가 핵심 caveat.",
+  "hw": "re-synthesis 비용은 AV1 §7.18.3과 동일(저비용 decoder post-filter: AR+LUT+PRNG+template). 이 블로그의 절감은 전적으로 ①단 denoise의 quality에서 나옴 — Netflix는 cloud encoding이라 무거운 denoise(NLM/MCTF급, 비용 사다리 최상단)를 감당 가능. 즉 절감 = offline encoder측 고비용 denoise의 결과이고, 단말 decoder HW에는 저비용 re-synthesis만 부담. <1080p에서 절감이 작은 것도 'scaler가 이미 grain을 지워 denoise할 게 없다'는 datapath 직관과 일치.",
+  "nick": "단말 decoder IP 설계자에겐 희소식: catalog의 36% 대역폭 절감을 누리는 비용이 decoder 측에서는 작은 fixed-function FGS 블록뿐(encoder의 무거운 denoise는 Netflix cloud가 부담). 다만 conformance가 중요 — FGS가 on인 stream을 받으면 decoder가 grain을 정확히 re-synthesize해야 'look'이 맞다(끄면 밋밋, 잘못 그리면 artifact). resolution 의존 절감은 'grain은 high-frequency라 downscale LPF에서 죽는다'는 신호처리 상식 그대로 — RTL에서 scaler와 FGS 적용 순서를 어디에 두느냐가 look에 직접 영향.",
+  "caution": "출처 미확인: 36%/10%/66%/300타이틀 수치는 vendor 블로그(2차 요약 포함)에서 수집했고, quality metric·측정 protocol이 공개되지 않아 정량 비교 근거로는 약함. 원문 본문은 cert 오류로 직접 fetch 실패 — 수치는 검색 요약 및 1개 repost로 cross-check했으나 원문 표 대조 권장."
  },
  {
   "id": "eamctf_2023",
@@ -375,20 +375,20 @@ window.PQO_STUDIES = [
   "grade": "peer",
   "coupling": "coupled",
   "url": "https://www.amazon.science/publications/encoder-aware-motion-compensated-temporal-filtering-for-video-compression",
-  "tldr": "MCTF는 인코딩 직전에 인접 프레임을 모션보상 정렬 후 시간 평균해 노이즈/디테일을 깎아 비트를 줄이는 전(前)필터다. 단, 강도(weight)를 GOP 구조·QP·참조 빈도로 결정하므로 '전처리'라는 이름과 달리 인코더에 강하게 결합된다(coupled). EA-MCTF의 핵심 기여는 블록 단위 콘텐츠+인코딩 파라미터 적응으로, 기존 HM-MCTF의 막대한 연산을 실용 수준으로 낮추면서 BD-rate 이득을 유지한 것.",
+  "tldr": "MCTF는 인코딩 직전에 인접 프레임을 motion-compensated align 후 temporal average해 noise/detail을 깎아 비트를 줄이는 pre-filter다. 단, weight를 GOP 구조·QP·reference frequency로 결정하므로 '전처리'라는 이름과 달리 encoder에 강하게 결합된다(coupled). EA-MCTF의 핵심 기여는 block 단위 content + encoding parameter adaptation으로, 기존 HM-MCTF의 막대한 연산을 실용 수준으로 낮추면서 BD-rate gain을 유지한 것.",
   "ideas": [
-   "MCTF는 '독립 denoise'가 아니라 GOP/QP/temporal-layer에 강도를 맞추는 인코더 결합형 전필터 — 같은 시간평활이라도 rate-control과 한 몸이다.",
-   "HM 기준 MCTF는 모든 위치에 고정·전역 강도로 ME+필터를 돌려 인코딩 시간이 폭증(약 784%). EA는 블록별로 필터를 켜고 끄거나 강도를 조절해 약 17% 오버헤드로 낮춘다.",
-   "블록 적응 신호 = 블록 QP, 블록 분산(variance), 모션보상 차분의 MSE, 슬라이스 타입, 참조 빈도(reference frequency). 즉 '이 블록이 인코더에서 비싸게 먹힐지'를 미리 보고 필터를 배분.",
-   "BD-rate 이득은 디테일을 깎아 비트를 아끼는 정보 삭감형 — 메트릭 해킹(엣지 강조)과는 방향이 반대라 신뢰도가 높은 편.",
-   "ME가 필수라 비용 사다리 최상단. 순수 입력 전처리(bilateral/hqdn3d)와 달리 인코더 컨텍스트 없이는 동작 자체가 정의되지 않는다."
+   "MCTF는 'independent denoise'가 아니라 GOP/QP/temporal sub-layer에 강도를 맞추는 encoder-coupled pre-filter — 같은 temporal smoothing이라도 rate-control과 한 몸이다.",
+   "HM 기준 MCTF는 모든 위치에 고정·global 강도로 ME + filter를 돌려 encoding time이 폭증(약 784%). EA는 block별로 filter를 켜고 끄거나 강도를 조절해 약 17% overhead로 낮춘다.",
+   "Block adaptation signal = block QP, block variance, motion-compensated 차분의 MSE, slice type, reference frequency. 즉 '이 block이 encoder에서 비싸게 먹힐지'를 미리 보고 filter를 배분.",
+   "BD-rate gain은 detail을 깎아 비트를 아끼는 정보 삭감형 — metric hacking(edge enhancement)과는 방향이 반대라 신뢰도가 높은 편.",
+   "ME가 필수라 cost ladder 최상단. 순수 input pre-processing(bilateral/hqdn3d)과 달리 encoder context 없이는 동작 자체가 정의되지 않는다."
   ],
-  "method": "1) 현재 프레임 기준 인접 N프레임을 모션추정으로 정렬(모션보상). 2) 정렬된 프레임 스택을 픽셀(블록)별로 가중 평균 — 시간 저역통과. 3) 가중치 w를 GOP 내 temporal sub-layer와 QP에서 도출(상위 레이어/저 QP일수록 보존). 4) [EA 추가] 블록별로 QP·분산·MC차분 MSE·슬라이스타입·참조빈도를 보고 필터 강도/적용 여부를 적응 결정 → 인코더가 어차피 깎을 고비용 영역에 집중. 5) 필터링된 프레임을 그대로 인코더에 입력(인코더는 표준 그대로).",
-  "savings": "평균 −12.4% VMAF BD-rate (HEVC, 무필터 인코딩 대비). 출처=Amazon peer-reviewed(SPIE/DCC 2023). 콘텐츠=다중 시퀀스 평균(개별 콘텐츠 의존성/grainy-clean 분해는 원문 확인 필요). 인코딩 시간 오버헤드: HM-MCTF 약 784% vs EA-MCTF 약 17% — 이는 '품질 이득'이 아니라 연산 비용 절감 수치다(함정 주의).",
-  "metricCaveat": "−12.4%는 VMAF base(NEG 아님)다. base VMAF는 enhancement/샤프닝 성분에 점수가 부풀 여지가 있어, MCTF의 시간평균이 미세 텍스처를 '깎으면서도' VMAF가 잘 유지된 데에 메트릭 관용이 섞였을 가능성을 배제 못 한다. VMAF-NEG 동반 수치가 없으면 순수 압축 이득과 메트릭 유리분을 분리하기 어렵다. '784% vs 17%'는 인코딩 시간 비교일 뿐 품질 메트릭이 아니다.",
-  "hw": "비용 사다리 최상단(NLM/MCTF 군). 프레임버퍼 N개(참조 프레임 정렬 보관) + 모션추정 엔진이 핵심 비용: ME = 탐색범위 × 참조프레임 수 × 블록당 SAD 연산. 픽셀당 MAC은 시간 평균 자체는 가볍지만(N-tap) ME가 지배적. 대역폭은 참조 프레임 다중 read로 큼. 파이프라인상 캡처→[MCTF+인코더 컨텍스트]→인코더로, 인코더 통계(QP맵)를 되먹여야 해 독립 블록으로 떼기 어렵다. 1프레임 이상 지연(look-ahead).",
-  "nick": "실리콘에 올린다면 ME 하드웨어를 인코더와 공유하지 않으면 ME를 두 번 도는 셈 — 비싸다. EA의 '블록 QP/참조빈도' 입력은 인코더 1-pass 통계나 look-ahead가 필요해 진짜 독립 전처리 IP로는 부적합(인코더 결합 IP로 봐야). 부작용: 과한 시간평활은 ghosting/모션 트레일(빠른 객체에서 잔상), 미세 텍스처 over-smooth로 '플라스틱 룩'. ME 실패 블록에서 정렬 오차가 번지면 blocking 유발. RTL 관점에선 'denoise IP'가 아니라 'encoder pre-pass'로 분류해야 정직하다.",
-  "caution": "웹페이지 초록에서 −12.4% VMAF BD-rate와 블록 적응 신호는 확인했으나, 784%/17% 인코딩 시간 수치와 VMAF 변종(base 가정)·테스트 시퀀스 목록은 페이지 본문에 없어 원 논문(SPIE ADIP XLVI / DCC 2023) 직접 확인 권장. 시간 수치는 통상 보고치 기준이며 인코더/앵커 설정에 따라 달라질 수 있다."
+  "method": "1) current frame 기준 인접 N frame을 motion estimation으로 align(motion compensation). 2) align된 frame stack을 pixel(block)별로 weighted average — temporal low-pass. 3) weight w를 GOP 내 temporal sub-layer와 QP에서 도출(상위 layer/low QP일수록 보존). 4) [EA 추가] block별로 QP·variance·MC 차분 MSE·slice type·reference frequency를 보고 filter 강도/적용 여부를 adaptive 결정 → encoder가 어차피 깎을 high-cost 영역에 집중. 5) filtered frame을 그대로 encoder에 입력(encoder는 표준 그대로).",
+  "savings": "평균 −12.4% VMAF BD-rate (HEVC, no-filter encoding 대비). 출처=Amazon peer-reviewed(SPIE/DCC 2023). 콘텐츠=다중 sequence 평균(개별 content dependency/grainy-clean 분해는 원문 확인 필요). encoding time overhead: HM-MCTF 약 784% vs EA-MCTF 약 17% — 이는 'quality gain'이 아니라 연산 cost 절감 수치다(함정 주의).",
+  "metricCaveat": "−12.4%는 VMAF base(NEG 아님)다. base VMAF는 enhancement/sharpening 성분에 점수가 부풀 여지가 있어, MCTF의 temporal average가 미세 texture를 '깎으면서도' VMAF가 잘 유지된 데에 metric tolerance가 섞였을 가능성을 배제 못 한다. VMAF-NEG 동반 수치가 없으면 순수 compression gain과 metric 유리분을 분리하기 어렵다. '784% vs 17%'는 encoding time 비교일 뿐 quality metric이 아니다.",
+  "hw": "cost ladder 최상단(NLM/MCTF 군). frame buffer N개(reference frame align 보관) + motion estimation engine이 핵심 cost: ME = search window × reference frame 수 × block당 SAD 연산. MAC/pixel은 temporal average 자체는 가볍지만(N-tap) ME가 dominant. bandwidth는 reference frame multi-read로 큼. 파이프라인상 capture→[MCTF + encoder context]→encoder로, encoder 통계(QP map)를 feedback해야 해 independent block으로 떼기 어렵다. 1프레임 이상 지연(look-ahead).",
+  "nick": "실리콘에 올린다면 ME hardware를 encoder와 공유하지 않으면 ME를 두 번 도는 셈 — 비싸다. EA의 'block QP/reference frequency' 입력은 encoder 1-pass 통계나 look-ahead가 필요해 진짜 independent pre-processing IP로는 부적합(encoder-coupled IP로 봐야). 부작용: 과한 temporal smoothing은 ghosting/motion trail(빠른 객체에서 잔상), 미세 texture over-smooth로 '플라스틱 룩'. ME 실패 block에서 align 오차가 번지면 blocking 유발. RTL 관점에선 'denoise IP'가 아니라 'encoder pre-pass'로 분류해야 정직하다.",
+  "caution": "웹페이지 abstract에서 −12.4% VMAF BD-rate와 block adaptation signal은 확인했으나, 784%/17% encoding time 수치와 VMAF 변종(base 가정)·test sequence 목록은 페이지 본문에 없어 원 논문(SPIE ADIP XLVI / DCC 2023) 직접 확인 권장. time 수치는 통상 보고치 기준이며 encoder/anchor 설정에 따라 달라질 수 있다."
  },
  {
   "id": "jvet_o0549",
@@ -401,20 +401,20 @@ window.PQO_STUDIES = [
   "grade": "standard",
   "coupling": "coupled",
   "url": "https://jvet-experts.org/",
-  "tldr": "VTM(VVC 참조 SW)에 채택된 GOP 기반 시간 필터. RA(random access) 구성에서 특정 POC(예: POC%8==0, 상위 temporal layer)만 인코딩 전에 모션보상 시간 필터로 다듬어 비트를 절감한다. 강도를 temporal sub-layer와 QP로 설정하므로 표준 디코더는 그대로지만 인코더 동작/설정에 강하게 결합(coupled)된다 — 'encoder-only'라는 이름이 인코더 무관을 뜻하지 않는다.",
+  "tldr": "VTM(VVC reference SW)에 채택된 GOP-based temporal filter. RA(random access) 구성에서 특정 POC(예: POC%8==0, 상위 temporal layer)만 encoding 전에 motion-compensated temporal filter로 다듬어 비트를 절감한다. 강도를 temporal sub-layer와 QP로 설정하므로 표준 decoder는 그대로지만 encoder 동작/설정에 강하게 결합(coupled)된다 — 'encoder-only'라는 이름이 encoder-independent를 뜻하지 않는다.",
   "ideas": [
-   "Encoder-only = 비트스트림/디코더 변경 없음. 하지만 어떤 프레임에, 얼마나 거는지는 GOP 구조·temporal layer·QP가 결정 → 인코더 결합형.",
-   "전 프레임이 아니라 GOP 내 낮은 temporal layer(예: RA에서 POC가 8의 배수, TL0/TL1)만 필터링. 이 프레임들은 다수 프레임의 참조원이라 여기서 비트를 아끼면 전파 이득이 크다.",
-   "강도(필터 weight)는 QP와 temporal layer 의존 — 저 QP/상위 레이어는 약하게, 고 QP는 강하게. rate-control 철학과 동조.",
+   "Encoder-only = bitstream/decoder 변경 없음. 하지만 어떤 frame에, 얼마나 거는지는 GOP 구조·temporal layer·QP가 결정 → encoder-coupled.",
+   "전 frame이 아니라 GOP 내 낮은 temporal layer(예: RA에서 POC가 8의 배수, TL0/TL1)만 filtering. 이 frame들은 다수 frame의 reference원이라 여기서 비트를 아끼면 전파 gain이 크다.",
+   "강도(filter weight)는 QP와 temporal layer 의존 — low QP/상위 layer는 약하게, high QP는 강하게. rate-control 철학과 동조.",
    "MCTF 계열의 표준 진영 버전 = VVC BD-rate 향상의 baseline 도구. EA-MCTF 같은 후속 연구의 비교 기준점.",
-   "본질은 인접 프레임을 모션보상해 시간 평균 → 노이즈/미세 디테일 삭감으로 압축 효율↑. EA-MCTF의 '블록 적응' 이전의 프레임 단위 적응 버전."
+   "본질은 인접 frame을 motion-compensated해 temporal average → noise/미세 detail 삭감으로 compression efficiency↑. EA-MCTF의 'block adaptation' 이전의 frame 단위 adaptation 버전."
   ],
-  "method": "1) RA GOP에서 필터 적용 대상 POC 선별(낮은 temporal layer, 예 POC%8==0의 TL0/TL1). 2) 대상 프레임 전후의 인접 프레임들을 모션추정으로 정렬. 3) 정렬된 프레임들을 가중 시간 평균(픽셀별), 가중치는 모션보상 오차·QP·temporal layer로 스케일. 4) 필터링 결과를 인코더 입력으로 사용. 디코더/비트스트림 신택스는 불변(encoder-only).",
+  "method": "1) RA GOP에서 filter 적용 대상 POC 선별(낮은 temporal layer, 예 POC%8==0의 TL0/TL1). 2) 대상 frame 전후의 인접 frame들을 motion estimation으로 align. 3) align된 frame들을 weighted temporal average(pixel별), weight는 motion-compensated 오차·QP·temporal layer로 scale. 4) filtered 결과를 encoder 입력으로 사용. decoder/bitstream syntax는 불변(encoder-only).",
   "savings": null,
-  "metricCaveat": "표준 기여서의 BD-rate(통상 PSNR/Y-PSNR 기준 RA에서 수 % 이득)는 메트릭/앵커 설정 의존적이며 본 노트에서 수치 미확정. 시간평균 기반이라 미세 텍스처 삭감 성격 → 주관 화질에서 over-smooth 인상 가능. 정확한 이득은 채택 당시 JVET 공통 테스트 조건(CTC) 기준 확인 필요.",
-  "hw": "비용 사다리 최상단(MCTF 군). 프레임버퍼 다수(대상 POC 전후 참조 프레임 보관) + 모션추정. 단, 전 프레임이 아니라 일부 POC만 처리하므로 EA-MCTF보다 평균 부하는 낮을 수 있음. ME = 탐색범위 × 인접프레임 수 × 블록 SAD. 파이프라인은 인코더 GOP 스케줄러와 동기(어느 POC인지 알아야 함) → look-ahead/GOP 컨텍스트 필수, 독립 블록 불가.",
-  "nick": "RTL로 보면 'GOP 구조를 아는 시간 필터'라 인코더 프런트엔드에 묶인다. 독립 전처리 IP로는 불가 — 인코더의 POC/temporal-id 신호가 입력. ME HW는 인코더와 공유하는 게 정석. 부작용: 시간평균이라 ghosting/잔상, 정적 영역의 디테일 over-smooth. 일부 프레임만 처리하므로 처리/비처리 프레임 간 미세한 화질 불균형(pumping)이 주관적으로 보일 수 있다. EA-MCTF 대비 적응 입도가 거칠다(프레임 vs 블록).",
-  "caution": "출처 미확인: JVET-O0549 Phenix 원문 PDF 직접 미확인, doc id로 확인 권장. POC%8==0/TL0·TL1 등 적용 규칙과 강도 산식은 확립된 VTM 동작 기반 요약이며 채택 버전/세부 파라미터는 원 기여서 및 VTM 소스로 검증 권장. 저자/회의(2019 Gothenburg) 표기도 doc id 기준 재확인 권장."
+  "metricCaveat": "표준 contribution의 BD-rate(통상 PSNR/Y-PSNR 기준 RA에서 수 % gain)는 metric/anchor 설정 의존적이며 본 노트에서 수치 미확정. temporal average 기반이라 미세 texture 삭감 성격 → 주관 화질에서 over-smooth 인상 가능. 정확한 gain은 채택 당시 JVET Common Test Conditions(CTC) 기준 확인 필요.",
+  "hw": "cost ladder 최상단(MCTF 군). frame buffer 다수(대상 POC 전후 reference frame 보관) + motion estimation. 단, 전 frame이 아니라 일부 POC만 처리하므로 EA-MCTF보다 평균 부하는 낮을 수 있음. ME = search window × 인접 frame 수 × block SAD. 파이프라인은 encoder GOP scheduler와 동기(어느 POC인지 알아야 함) → look-ahead/GOP context 필수, independent block 불가.",
+  "nick": "RTL로 보면 'GOP 구조를 아는 temporal filter'라 encoder front-end에 묶인다. independent pre-processing IP로는 불가 — encoder의 POC/temporal-id signal이 입력. ME HW는 encoder와 공유하는 게 정석. 부작용: temporal average라 ghosting/잔상, static 영역의 detail over-smooth. 일부 frame만 처리하므로 처리/비처리 frame 간 미세한 화질 불균형(pumping)이 주관적으로 보일 수 있다. EA-MCTF 대비 adaptation granularity가 거칠다(frame vs block).",
+  "caution": "출처 미확인: JVET-O0549 Phenix 원문 PDF 직접 미확인, doc id로 확인 권장. POC%8==0/TL0·TL1 등 적용 규칙과 강도 산식은 확립된 VTM 동작 기반 요약이며 채택 버전/세부 parameter는 원 contribution 및 VTM source로 검증 권장. 저자/회의(2019 Gothenburg) 표기도 doc id 기준 재확인 권장."
  },
  {
   "id": "bm3d_2007",
@@ -427,20 +427,20 @@ window.PQO_STUDIES = [
   "grade": "peer",
   "coupling": "independent",
   "url": "https://webpages.tuni.fi/foi/GCF-BM3D/BM3D_TIP_2007.pdf",
-  "tldr": "유사한 2D 블록들을 모아 3D 스택을 만들고, 3D 변환 도메인에서 협업 필터링(shrinkage)으로 노이즈를 죽인 뒤 역변환·가중 집계하는 비국소(non-local) denoiser. 자연영상의 유사 패치 반복성 + 변환 도메인 희소성을 동시에 활용해 당대 최고 화질을 냈으나, 블록 매칭 + 그룹별 3D 변환 + 2단 처리로 denoise 4종 중 연산 비용 최상위. 순수 입력 전처리(independent).",
+  "tldr": "유사한 2D block들을 모아 3D stack을 만들고, 3D transform domain에서 collaborative filtering(shrinkage)으로 noise를 죽인 뒤 inverse transform·weighted aggregation하는 non-local denoiser. 자연영상의 유사 patch 반복성 + transform domain sparsity를 동시에 활용해 당대 최고 화질을 냈으나, block-matching + 그룹별 3D transform + 2-pass 처리로 denoise 4종 중 연산 cost 최상위. 순수 input pre-processing(independent).",
   "ideas": [
-   "핵심 통찰: 비슷한 블록끼리 모으면(그룹) 그 3D 그룹은 변환 도메인에서 매우 희소 → 임계화(shrink)로 노이즈만 효과적으로 제거.",
-   "'Collaborative': 한 블록을 단독이 아니라 유사 블록 그룹과 함께 필터링 — 그룹 내 공통 구조는 살리고 무상관 노이즈는 죽인다.",
-   "2단 구조: (1단) hard-thresholding으로 기초 추정(basic estimate), (2단) 기초 추정을 가이드로 Wiener 필터링 → 최종. 1단 결과가 2단의 블록 매칭/필터 계수를 안내.",
-   "각 블록이 여러 그룹에 중복 등장 → 추정도 중복 → 신뢰도(잔여 비제로 계수 수)에 반비례한 가중치로 집계(aggregation)해 최종 픽셀값.",
-   "V-BM3D는 시간 축으로 확장: 인접 프레임에서도 유사 블록을 찾아 그룹에 포함(predictive search) → 비디오용. 비용은 더 커진다."
+   "핵심 통찰: 비슷한 block끼리 모으면(group) 그 3D group은 transform domain에서 매우 sparse → shrinkage(shrink)로 noise만 효과적으로 제거.",
+   "'Collaborative': 한 block을 단독이 아니라 유사 block group과 함께 filtering — group 내 공통 구조는 살리고 uncorrelated noise는 죽인다.",
+   "2-pass 구조: (1st) hard-thresholding으로 basic estimate, (2nd) basic estimate를 guide로 Wiener filtering → 최종. 1st 결과가 2nd의 block-matching/filter coefficient를 안내.",
+   "각 block이 여러 group에 중복 등장 → estimate도 중복 → 신뢰도(non-zero coefficient 수)에 반비례한 weight로 aggregation해 최종 pixel값.",
+   "V-BM3D는 temporal 축으로 확장: 인접 frame에서도 유사 block을 찾아 group에 포함(predictive search) → video용. cost는 더 커진다."
   ],
-  "method": "[Step1 hard-threshold] 1) 참조 블록마다 탐색창에서 유사 블록 탐색(block matching, 거리 임계). 2) 매칭 블록들을 3D 그룹으로 스택. 3) 3D 변환(예: 2D DCT/바이오르 + 1D Haar) 적용. 4) hard-thresholding으로 계수 shrink. 5) 역 3D 변환 → 각 블록 추정. 6) 비제로 계수 수 기반 가중 집계로 basic estimate 생성. [Step2 Wiener] basic estimate로 다시 그룹핑→3D 변환→Wiener 게인 적용(노이즈/신호 에너지 비)→역변환→가중 집계로 최종 추정.",
+  "method": "[Step1 hard-threshold] 1) reference block마다 search window에서 유사 block 탐색(block-matching, distance 임계). 2) matching block들을 3D group으로 stack. 3) 3D transform(예: 2D DCT/biorthogonal + 1D Haar) 적용. 4) hard-thresholding으로 coefficient shrink. 5) inverse 3D transform → 각 block estimate. 6) non-zero coefficient 수 기반 weighted aggregation으로 basic estimate 생성. [Step2 Wiener] basic estimate로 다시 grouping→3D transform→Wiener gain 적용(noise/signal energy 비)→inverse transform→weighted aggregation으로 최종 estimate.",
   "savings": null,
-  "metricCaveat": "알고리즘 논문 — BD-rate가 아니라 denoising PSNR/SSIM로 평가됨. 전처리로 인코더 앞에 붙였을 때의 비트 절감은 콘텐츠(노이즈/grain 양)에 극히 의존하며 본 논문 범위 밖. clean 콘텐츠에 과적용 시 디테일 손실로 오히려 주관 화질 저하 가능.",
-  "hw": "비용 사다리 최상위(독립 denoise 중 최고; 전체로는 NLM/MCTF 군에 근접). 블록 매칭(탐색창 내 다수 SAD = NLM의 패치 탐색과 동급 이상) + 그룹별 3D 변환(2D변환×K블록 + 1D변환) + 2-pass(hard→Wiener). 픽셀당 MAC 매우 높음, 그룹 버퍼링으로 온칩 SRAM 다수, 가변 그룹 크기로 데이터패스 제어 복잡. 라인버퍼로는 불가 — 탐색창 높이만큼 프레임/스트라이프 버퍼 필요. V-BM3D는 프레임버퍼 추가. 실시간 비디오 IP로는 가장 비현실적.",
-  "nick": "실리콘 관점: 4종 중 가장 안 올리고 싶은 후보. 가변 길이 그룹 + 2-pass + 3D 변환은 고정 파이프라인 RTL과 상극(제어 오버헤드·메모리 가변성). 굳이 한다면 그룹 크기 상한 고정·탐색창 축소·Wiener 단계 생략 등 대폭 근사 필요(그러면 화질 이점 상당 소실). 부작용: 과필터 시 텍스처 평탄화로 over-smooth, 평탄 영역에 변환 도메인 특유의 ringing/저주파 얼룩, grain 제거가 좋아 압축엔 유리하나 '필름 룩' 상실. 현실 HW denoiser는 BM3D를 이상치 기준으로 두고 그 아래(NLM/bilateral)에서 타협한다.",
-  "caution": "출처 미확인: tuni.fi 원 PDF가 이번 fetch에서 바이너리로만 수신되어 본문 직접 파싱 실패. 알고리즘 흐름(block match→3D 변환→shrink→역변환→집계, 2-pass hard+Wiener)과 V-BM3D 시간 확장은 확립된 정설 기반 요약. 정확한 변환 종류/임계 상수/매칭 파라미터는 원문 직접 확인 권장."
+  "metricCaveat": "algorithm 논문 — BD-rate가 아니라 denoising PSNR/SSIM로 평가됨. pre-processing으로 encoder 앞에 붙였을 때의 bit 절감은 content(noise/grain 양)에 극히 의존하며 본 논문 범위 밖. clean 콘텐츠에 과적용 시 detail 손실로 오히려 주관 화질 저하 가능.",
+  "hw": "cost ladder 최상위(independent denoise 중 최고; 전체로는 NLM/MCTF 군에 근접). block-matching(search window 내 다수 SAD = NLM의 patch search와 동급 이상) + 그룹별 3D transform(2D transform×K block + 1D transform) + 2-pass(hard→Wiener). MAC/pixel 매우 높음, group buffering으로 on-chip SRAM 다수, 가변 group size로 datapath control 복잡. line buffer로는 불가 — search window 높이만큼 frame/stripe buffer 필요. V-BM3D는 frame buffer 추가. real-time video IP로는 가장 비현실적.",
+  "nick": "실리콘 관점: 4종 중 가장 안 올리고 싶은 후보. 가변 길이 group + 2-pass + 3D transform은 고정 파이프라인 RTL과 상극(control overhead·memory 가변성). 굳이 한다면 group size 상한 고정·search window 축소·Wiener 단계 생략 등 대폭 approximation 필요(그러면 화질 이점 상당 소실). 부작용: over-filter 시 texture 평탄화로 over-smooth, 평탄 영역에 transform domain 특유의 ringing/저주파 얼룩, grain 제거가 좋아 compression엔 유리하나 'film look' 상실. 현실 HW denoiser는 BM3D를 이상치 기준으로 두고 그 아래(NLM/bilateral)에서 타협한다.",
+  "caution": "출처 미확인: tuni.fi 원 PDF가 이번 fetch에서 binary로만 수신되어 본문 직접 파싱 실패. algorithm 흐름(block-match→3D transform→shrink→inverse transform→aggregation, 2-pass hard+Wiener)과 V-BM3D temporal 확장은 확립된 정설 기반 요약. 정확한 transform 종류/threshold 상수/matching parameter는 원문 직접 확인 권장."
  },
  {
   "id": "nlmeans_2005",
@@ -453,20 +453,20 @@ window.PQO_STUDIES = [
   "grade": "peer",
   "coupling": "independent",
   "url": "https://www.iro.umontreal.ca/~mignotte/IFT6150/Articles/Buades-NonLocal.pdf",
-  "tldr": "한 픽셀의 복원값을 그 픽셀 주변 패치와 '유사한 패치를 가진' 탐색창 내 모든 픽셀의 가중 평균으로 구한다. 가중치 = 패치 간 가우시안 가중 유클리드 거리에 지수적으로 감소. '공간적으로 가깝다'가 아니라 '패치가 닮았다'를 쓰는 비국소(non-local) 평균이라 텍스처/엣지를 잘 보존. 순수 입력 전처리(independent). BM3D의 직계 전신.",
+  "tldr": "한 pixel의 복원값을 그 pixel 주변 patch와 '유사한 patch를 가진' search window 내 모든 pixel의 weighted average로 구한다. weight = patch 간 Gaussian-weighted Euclidean distance에 exponential하게 감소. 'spatial하게 가깝다'가 아니라 'patch가 닮았다'를 쓰는 non-local means라 texture/edge를 잘 보존. 순수 input pre-processing(independent). BM3D의 직계 전신.",
   "ideas": [
-   "비국소 원리: 가까운 픽셀이 아니라 '비슷한 이웃(패치)을 가진' 픽셀을 평균 → 자연영상의 자기유사성(반복 구조) 활용.",
-   "유사도 = 두 픽셀 주변 패치(neighborhood)의 가우시안 가중 L2 거리. 거리가 작을수록 가중치 큼. 평탄 영역은 많은 픽셀이 닮아 강하게 평활, 엣지/텍스처는 닮은 게 적어 덜 평활 → 자동 엣지 보존.",
-   "필터링 파라미터 h가 가중치 감쇠를 제어(노이즈 표준편차에 비례 설정). h↑ = 더 강한 평활.",
-   "이론상 전 영상이 탐색 대상이나 실용상 탐색창(search window)으로 제한 — 비용/효과 절충의 핵심 손잡이.",
-   "BM3D로 이어지는 다리: NLM의 '닮은 패치 가중평균'을 '닮은 블록 그룹의 변환 도메인 협업 필터'로 끌어올린 게 BM3D."
+   "Non-local 원리: 가까운 pixel이 아니라 '비슷한 neighborhood(patch)을 가진' pixel을 average → 자연영상의 self-similarity(반복 구조) 활용.",
+   "유사도 = 두 pixel 주변 patch(neighborhood)의 Gaussian-weighted L2 distance. distance가 작을수록 weight 큼. 평탄 영역은 많은 pixel이 닮아 강하게 smoothing, edge/texture는 닮은 게 적어 덜 smoothing → 자동 edge preservation.",
+   "filtering parameter h가 weight 감쇠를 제어(noise 표준편차에 비례 설정). h↑ = 더 강한 smoothing.",
+   "이론상 전 image가 search 대상이나 실용상 search window로 제한 — cost/효과 절충의 핵심 손잡이.",
+   "BM3D로 이어지는 다리: NLM의 '닮은 patch weighted average'를 '닮은 block group의 transform domain collaborative filter'로 끌어올린 게 BM3D."
   ],
-  "method": "각 픽셀 i에 대해: 1) i 주변 패치 N_i를 정의. 2) 탐색창 내 모든 픽셀 j에 대해 패치 N_j와 N_i의 가우시안 가중 유클리드 거리 d(i,j) 계산. 3) 가중치 w(i,j)=exp(−max(d²−2σ², 0)/h²) (정규화 상수로 나눔). 4) 복원값 NL(i)=Σ_j w(i,j)·u(j). 즉 패치 유사도 기반 적응 가중 평균. 반복 없음(1-pass), 픽셀 단위 독립.",
+  "method": "각 pixel i에 대해: 1) i 주변 patch N_i를 정의. 2) search window 내 모든 pixel j에 대해 patch N_j와 N_i의 Gaussian-weighted Euclidean distance d(i,j) 계산. 3) weight w(i,j)=exp(−max(d²−2σ², 0)/h²) (normalization 상수로 나눔). 4) 복원값 NL(i)=Σ_j w(i,j)·u(j). 즉 patch similarity 기반 adaptive weighted average. 반복 없음(1-pass), pixel 단위 독립.",
   "savings": null,
-  "metricCaveat": "알고리즘 논문 — 평가는 denoising PSNR/method noise 기준이며 비트 절감 수치 없음. 전처리 적용 시 절감은 노이즈/콘텐츠 의존. clean 영상에 강한 h로 적용하면 텍스처 평탄화로 주관 화질 저하.",
-  "hw": "비용 사다리 중상위(NLM/MCTF 군의 NLM 자리, BM3D보다 아래). 픽셀당 비용 = 탐색창 픽셀 수 × 패치당 차이 연산(P×P MAC). 라인버퍼로는 부족 — 탐색창 높이 + 패치 높이만큼의 스트라이프/부분프레임 버퍼 필요. 모션추정은 없지만 '공간 패치 탐색'이 사실상 인트라프레임 블록 매칭이라 연산량 큼. 픽셀당 MAC 높음, 대역폭은 탐색창 재사용 설계로 완화 가능(슬라이딩 윈도우 캐시). 고정 파이프라인화는 BM3D보다 쉬움(가변 그룹 없음).",
-  "nick": "실리콘 관점: 탐색창·패치 크기를 작게 고정하면(예 7x7 창, 3x3 패치) 합리적 비용의 공간 denoiser IP가 된다 — bilateral보다 비싸고 BM3D보다 싸다. 핵심 손잡이는 탐색창 크기(면적/대역폭 직결)와 h(평활 강도). 부작용: 과한 h나 큰 창에서 over-smooth·'rare patch' 손실(드문 디테일이 닮은 짝 없어 보존 실패), 평탄 영역에 미세 얼룩(method noise). 시간 확장 없으면 ghosting은 없지만 프레임 독립이라 시간적 깜빡임은 잡지 못함. RTL: 패치 거리 누산 + 지수 LUT + 정규화 나눗셈이 데이터패스 핵심.",
-  "caution": "출처 미확인: montreal 미러 PDF가 이번 fetch에서 봇 차단(Anubis) 페이지로 수신되어 본문 직접 파싱 실패. 가중치 식 w=exp(−max(d²−2σ²,0)/h²)와 패치/탐색창 구조는 확립된 정설 기반 요약. 정확한 σ·h 설정과 패치/창 크기 권고값은 원문 직접 확인 권장."
+  "metricCaveat": "algorithm 논문 — 평가는 denoising PSNR/method noise 기준이며 bit 절감 수치 없음. pre-processing 적용 시 절감은 noise/content 의존. clean image에 강한 h로 적용하면 texture 평탄화로 주관 화질 저하.",
+  "hw": "cost ladder 중상위(NLM/MCTF 군의 NLM 자리, BM3D보다 아래). pixel당 cost = search window pixel 수 × patch당 차이 연산(P×P MAC). line buffer로는 부족 — search window 높이 + patch 높이만큼의 stripe/부분 frame buffer 필요. motion estimation은 없지만 'spatial patch search'가 사실상 intra-frame block-matching이라 연산량 큼. MAC/pixel 높음, bandwidth는 search window 재사용 설계로 완화 가능(sliding window cache). 고정 파이프라인화는 BM3D보다 쉬움(가변 group 없음).",
+  "nick": "실리콘 관점: search window·patch size를 작게 고정하면(예 7x7 window, 3x3 patch) 합리적 cost의 spatial denoiser IP가 된다 — bilateral보다 비싸고 BM3D보다 싸다. 핵심 손잡이는 search window size(area/bandwidth 직결)와 h(smoothing 강도). 부작용: 과한 h나 큰 window에서 over-smooth·'rare patch' 손실(드문 detail이 닮은 짝 없어 보존 실패), 평탄 영역에 미세 얼룩(method noise). temporal 확장 없으면 ghosting은 없지만 frame independent라 시간적 깜빡임은 잡지 못함. RTL: patch distance 누산 + exponential LUT + normalization 나눗셈이 datapath 핵심.",
+  "caution": "출처 미확인: montreal mirror PDF가 이번 fetch에서 봇 차단(Anubis) 페이지로 수신되어 본문 직접 파싱 실패. weight 식 w=exp(−max(d²−2σ²,0)/h²)와 patch/search window 구조는 확립된 정설 기반 요약. 정확한 σ·h 설정과 patch/window size 권고값은 원문 직접 확인 권장."
  },
  {
   "id": "bilateral_1998",
@@ -479,19 +479,19 @@ window.PQO_STUDIES = [
   "grade": "peer",
   "coupling": "independent",
   "url": "https://users.soe.ucsc.edu/~manduchi/Papers/ICCV98.pdf",
-  "tldr": "공간 거리 가우시안(domain)과 강도 차이 가우시안(range)을 곱한 가중치로 평균하는 엣지보존 평활 필터. '가깝고 + 밝기도 비슷한' 픽셀만 평균하므로 경계를 넘어 흐려지지 않는다. 비반복·로컬·단일 패스라 denoise 4종 중 연산 비용 최저, 다수 HW denoiser의 토대. 순수 입력 전처리(independent).",
+  "tldr": "spatial distance Gaussian(domain)과 intensity difference Gaussian(range)을 곱한 weight로 average하는 edge-preserving smoothing filter. '가깝고 + 밝기도 비슷한' pixel만 average하므로 경계를 넘어 흐려지지 않는다. non-iterative·local·single-pass라 denoise 4종 중 연산 cost 최저, 다수 HW denoiser의 토대. 순수 input pre-processing(independent).",
   "ideas": [
-   "두 가우시안의 곱: 공간 가우시안 σ_d(기하적 근접) × 레인지 가우시안 σ_r(광도 유사). 둘 다 높아야 가중치 큼.",
-   "엣지 보존 원리: 경계 반대편 픽셀은 강도 차가 커 레인지 항이 ~0 → 경계를 넘는 평균을 자동 차단. 평탄 영역에선 레인지 항이 ~1이라 일반 가우시안처럼 평활.",
-   "비반복·로컬·1-pass: 각 픽셀을 이웃만 보고 한 번 처리 → 분리형 가우시안 필터 수준의 단순 비용.",
-   "컬러는 RGB 독립 필터링이 엣지에서 위색(phantom color)을 만들므로, CIE-Lab 등 지각적 거리 공간에서 채널을 함께 처리.",
-   "σ_d=윈도우 크기(공간 범위), σ_r=엣지 보존 강도(작으면 약한 엣지도 보존, 크면 더 평활). 두 손잡이가 직관적."
+   "두 Gaussian의 곱: spatial Gaussian σ_d(기하적 근접) × range Gaussian σ_r(광도 유사). 둘 다 높아야 weight 큼.",
+   "edge preservation 원리: 경계 반대편 pixel은 intensity 차가 커 range 항이 ~0 → 경계를 넘는 average를 자동 차단. 평탄 영역에선 range 항이 ~1이라 일반 Gaussian처럼 smoothing.",
+   "non-iterative·local·1-pass: 각 pixel을 neighbor만 보고 한 번 처리 → separable Gaussian filter 수준의 단순 cost.",
+   "color는 RGB independent filtering이 edge에서 phantom color를 만들므로, CIE-Lab 등 perceptual distance space에서 channel을 함께 처리.",
+   "σ_d=window size(spatial 범위), σ_r=edge preservation 강도(작으면 약한 edge도 보존, 크면 더 smoothing). 두 손잡이가 직관적."
   ],
-  "method": "출력 픽셀 = Σ_neighbor [ G_σd(공간거리) · G_σr(강도차) · 입력 ] / 정규화합. 1) 중심 픽셀 주변 윈도우 순회. 2) 각 이웃에 대해 공간거리 가우시안 × 강도차 가우시안 가중치 계산. 3) 가중 평균. 반복 없음, 픽셀 독립, 모션/시간 정보 없음(순수 공간).",
+  "method": "출력 pixel = Σ_neighbor [ G_σd(spatial distance) · G_σr(intensity 차) · 입력 ] / normalization 합. 1) 중심 pixel 주변 window 순회. 2) 각 neighbor에 대해 spatial distance Gaussian × intensity 차 Gaussian weight 계산. 3) weighted average. 반복 없음, pixel 독립, motion/temporal 정보 없음(순수 spatial).",
   "savings": null,
-  "metricCaveat": "알고리즘 논문 — 비트 절감 수치 없음(엣지보존 평활 효과 위주). 전처리 절감은 노이즈/콘텐츠 의존. 약한 σ_r로 쓰면 노이즈 제거가 약하고, 강한 σ_r은 텍스처를 뭉갠다.",
-  "hw": "비용 사다리 최하단(2DNR/라인버퍼). 공간만 보므로 라인버퍼 = 커널 높이(예 5탭이면 5라인)면 충분 — 프레임버퍼 불필요. 픽셀당 MAC = 윈도우 크기(K×K) + 강도차 가우시안은 LUT로 대체 가능. 분리 불가(레인지 항 때문에 완전 분리형은 근사) 하지만 윈도우가 작아 비용 낮음. 대역폭 최소(라인 스트리밍). 실시간 비디오 전처리 IP로 가장 현실적이고, 실제 ISP/디스플레이 denoiser가 변형(joint/guided bilateral)으로 널리 채택.",
-  "nick": "실리콘 관점: 4종 중 가장 올리기 쉽다 — 라인버퍼 몇 개 + 가우시안 LUT + MAC 어레이. 핵심 손잡이 σ_d(라인버퍼 수=면적), σ_r(엣지보존). 부작용: 강한 σ_r에서 'cartoon/watercolor' 룩(계단형 평탄화, gradient reversal), 약한 텍스처 over-smooth. 시간 정보 없어 프레임 깜빡임/시간 노이즈는 못 잡음(그래서 hqdn3d 같은 3DNR이 보완). banding은 평탄화로 약하게 유발 가능하나 MCTF류보다 ghosting 위험은 없음. RTL: 정규화 나눗셈(또는 역수 LUT)이 유일한 비싼 연산. guided/bilateral grid로 더 가볍게 근사 가능.",
+  "metricCaveat": "algorithm 논문 — bit 절감 수치 없음(edge-preserving smoothing 효과 위주). pre-processing 절감은 noise/content 의존. 약한 σ_r로 쓰면 noise 제거가 약하고, 강한 σ_r은 texture를 뭉갠다.",
+  "hw": "cost ladder 최하단(2DNR/line buffer). spatial만 보므로 line buffer = kernel 높이(예 5-tap이면 5 line)면 충분 — frame buffer 불필요. MAC/pixel = window size(K×K) + intensity 차 Gaussian은 LUT로 대체 가능. separable 불가(range 항 때문에 완전 separable은 approximation) 하지만 window가 작아 cost 낮음. bandwidth 최소(line streaming). real-time video pre-processing IP로 가장 현실적이고, 실제 ISP/display denoiser가 변형(joint/guided bilateral)으로 널리 채택.",
+  "nick": "실리콘 관점: 4종 중 가장 올리기 쉽다 — line buffer 몇 개 + Gaussian LUT + MAC array. 핵심 손잡이 σ_d(line buffer 수=area), σ_r(edge preservation). 부작용: 강한 σ_r에서 'cartoon/watercolor' 룩(계단형 평탄화, gradient reversal), 약한 texture over-smooth. temporal 정보 없어 frame 깜빡임/temporal noise는 못 잡음(그래서 hqdn3d 같은 3DNR이 보완). banding은 평탄화로 약하게 유발 가능하나 MCTF류보다 ghosting 위험은 없음. RTL: normalization 나눗셈(또는 reciprocal LUT)이 유일한 비싼 연산. guided/bilateral grid로 더 가볍게 approximation 가능.",
   "caution": null
  },
  {
@@ -505,20 +505,20 @@ window.PQO_STUDIES = [
   "grade": "docs",
   "coupling": "independent",
   "url": "https://ffmpeg.org/ffmpeg-filters.html#hqdn3d",
-  "tldr": "분리형 공간 저역통과 + 시간 재귀(recursive) 저역통과를 결합한 실용 3D denoiser. 공간은 라인버퍼로, 시간은 직전(prev) 1프레임만 들고 재귀 누적하므로 프레임버퍼 1개면 충분 — 가장 싼 실용 시공간(3DNR) denoiser. 인코더와 무관한 순수 입력 전처리(independent). FFmpeg/MPlayer 표준 denoise 필터로 PoC에 가장 흔히 쓰임.",
+  "tldr": "separable spatial low-pass + temporal recursive low-pass를 결합한 실용 3D denoiser. spatial은 line buffer로, temporal은 직전(prev) 1 frame만 들고 recursive 누적하므로 frame buffer 1개면 충분 — 가장 싼 실용 spatial-temporal(3DNR) denoiser. encoder와 무관한 순수 input pre-processing(independent). FFmpeg/MPlayer 표준 denoise filter로 PoC에 가장 흔히 쓰임.",
   "ideas": [
-   "3D = 2 공간(폭·높이) + 1 시간(프레임). 공간으로 한 프레임 내 노이즈, 시간으로 프레임 간 무상관 노이즈를 잡는다.",
-   "시간 재귀: 전 프레임 전체를 N개 쌓는 게 아니라 직전 출력 1장과 가중 혼합(IIR식) → 프레임버퍼 1개로 시간 평활. MCTF의 다중 참조+ME와 결정적 차이.",
-   "모션추정 없음: 시간 항은 단순 픽셀 정렬(같은 좌표) 차분 기반 — 큰 움직임에선 ghosting 위험(ME가 없으니까). 그래서 강한 시간 강도는 정지 콘텐츠에 안전.",
-   "파라미터 4개: luma_spatial, chroma_spatial, luma_tmp, chroma_tmp — 공간/시간 × 휘도/색차 강도를 독립 조절.",
-   "차분 기반 적응: 인접 픽셀/프레임 간 차가 크면 적게 섞어(엣지/움직임 보존), 작으면 많이 섞어 평활 — bilateral의 레인지 항과 같은 정신."
+   "3D = 2 spatial(폭·높이) + 1 temporal(frame). spatial로 한 frame 내 noise, temporal로 frame 간 uncorrelated noise를 잡는다.",
+   "temporal recursive: 전 frame 전체를 N개 쌓는 게 아니라 직전 출력 1장과 weighted mix(IIR식) → frame buffer 1개로 temporal smoothing. MCTF의 multi-reference + ME와 결정적 차이.",
+   "motion estimation 없음: temporal 항은 단순 pixel align(같은 좌표) 차분 기반 — 큰 움직임에선 ghosting 위험(ME가 없으니까). 그래서 강한 temporal 강도는 정지 콘텐츠에 안전.",
+   "parameter 4개: luma_spatial, chroma_spatial, luma_tmp, chroma_tmp — spatial/temporal × luma/chroma 강도를 독립 조절.",
+   "차분 기반 adaptation: 인접 pixel/frame 간 차가 크면 적게 섞어(edge/움직임 보존), 작으면 많이 섞어 smoothing — bilateral의 range 항과 같은 정신."
   ],
-  "method": "1) 공간 단계: 분리형(수평→수직) 저역통과를, 인접 픽셀 차분에 따라 적응 가중(차 크면 덜 섞음)으로 적용 → 한 프레임 내 평활. 2) 시간 단계: 현재 공간필터 출력과 직전 프레임의 (필터된) 값을 픽셀별 차분 기반 가중으로 재귀 혼합 → 시간 평활. 3) luma/chroma 각각 spatial/tmp 강도 파라미터로 제어. 모션추정 없음, 같은 좌표 픽셀끼리만 시간 결합.",
+  "method": "1) spatial 단계: separable(horizontal→vertical) low-pass를, 인접 pixel 차분에 따라 adaptive weight(차 크면 덜 섞음)로 적용 → 한 frame 내 smoothing. 2) temporal 단계: 현재 spatial filter 출력과 직전 frame의 (filtered) 값을 pixel별 차분 기반 weight로 recursive mix → temporal smoothing. 3) luma/chroma 각각 spatial/tmp 강도 parameter로 제어. motion estimation 없음, 같은 좌표 pixel끼리만 temporal 결합.",
   "savings": null,
-  "metricCaveat": "필터 docs — 비트 절감 수치 없음. PoC로 measure할 땐 grainy 콘텐츠에서 절감 큼, clean에선 미세 디테일만 깎여 이득↓·주관 손실↑. 시간 강도가 강하면 정지 영역은 좋지만 움직임 영역에서 ghosting으로 주관 화질이 메트릭과 어긋날 수 있음.",
-  "hw": "비용 사다리 3DNR 자리(2DNR bilateral 위, NLM/MCTF 아래). 공간=라인버퍼(분리형이라 커널 높이만큼), 시간=프레임버퍼 1개(직전 프레임/출력 보관)면 충분 — MCTF의 다중 프레임버퍼+ME와 대비되는 핵심 이점. 픽셀당 MAC 낮음(공간 분리형 + 시간 1탭 IIR), 대역폭 = 프레임 read/write 1쌍 추가. 모션추정 없음 → 면적/전력 크게 절감. 1프레임 지연 정도. 실시간 비디오 전처리 IP로 매우 현실적(고전 3DNR 블록과 동일 구조).",
-  "nick": "실리콘 관점: 고전적 3DNR IP 그 자체 — 라인버퍼 + 프레임버퍼1 + 차분 LUT면 끝. bilateral에 '시간 항 한 줄' 더한 비용. 핵심 손잡이는 luma_tmp(강하면 정지 영역 깨끗하나 움직임에서 ghosting), spatial(over-smooth/banding). 부작용: ME 없어 빠른 움직임에서 잔상/트레일(ghosting)이 대표 약점, 강한 spatial은 평탄화로 banding·텍스처 손실. ME 없는 게 비용엔 축복, 화질엔 한계 — 움직임 많은 콘텐츠는 MCTF가 우위. PoC 1순위로 적합(FFmpeg 한 줄, 인코더 독립).",
-  "caution": "최초 저자 귀속 출처 미확인: hqdn3d는 MPlayer 시절 기원의 필터로 FFmpeg가 이식한 것으로 알려졌으나 원작자/원 논문이 명확치 않음(docs 등급). 알고리즘 세부(공간 분리형·시간 재귀·차분 적응)는 FFmpeg 문서와 확립된 구현 기반 요약. 파라미터 4종(luma/chroma × spatial/tmp)은 FFmpeg docs에서 확인."
+  "metricCaveat": "filter docs — bit 절감 수치 없음. PoC로 measure할 땐 grainy 콘텐츠에서 절감 큼, clean에선 미세 detail만 깎여 gain↓·주관 손실↑. temporal 강도가 강하면 정지 영역은 좋지만 움직임 영역에서 ghosting으로 주관 화질이 metric과 어긋날 수 있음.",
+  "hw": "cost ladder 3DNR 자리(2DNR bilateral 위, NLM/MCTF 아래). spatial=line buffer(separable이라 kernel 높이만큼), temporal=frame buffer 1개(직전 frame/출력 보관)면 충분 — MCTF의 multi frame buffer + ME와 대비되는 핵심 이점. MAC/pixel 낮음(spatial separable + temporal 1-tap IIR), bandwidth = frame read/write 1쌍 추가. motion estimation 없음 → area/power 크게 절감. 1프레임 지연 정도. real-time video pre-processing IP로 매우 현실적(고전 3DNR block과 동일 구조).",
+  "nick": "실리콘 관점: 고전적 3DNR IP 그 자체 — line buffer + frame buffer 1 + 차분 LUT면 끝. bilateral에 'temporal 항 한 줄' 더한 cost. 핵심 손잡이는 luma_tmp(강하면 정지 영역 깨끗하나 움직임에서 ghosting), spatial(over-smooth/banding). 부작용: ME 없어 빠른 움직임에서 잔상/trail(ghosting)이 대표 약점, 강한 spatial은 평탄화로 banding·texture 손실. ME 없는 게 cost엔 축복, 화질엔 한계 — 움직임 많은 콘텐츠는 MCTF가 우위. PoC 1순위로 적합(FFmpeg 한 줄, encoder-independent).",
+  "caution": "최초 저자 귀속 출처 미확인: hqdn3d는 MPlayer 시절 기원의 filter로 FFmpeg가 이식한 것으로 알려졌으나 원작자/원 논문이 명확치 않음(docs 등급). algorithm 세부(spatial separable·temporal recursive·차분 adaptation)는 FFmpeg 문서와 확립된 구현 기반 요약. parameter 4종(luma/chroma × spatial/tmp)은 FFmpeg docs에서 확인."
  },
  {
   "id": "sw_vmaf",
@@ -531,143 +531,143 @@ window.PQO_STUDIES = [
   "grade": "repo",
   "coupling": "metric",
   "url": "https://github.com/Netflix/vmaf",
-  "tldr": "VMAF/VMAF-NEG를 측정하는 라이브러리(libvmaf)+Python. 전처리 효과를 정직하게 채점하는 기준 계측기.",
+  "tldr": "VMAF/VMAF-NEG를 측정하는 library(libvmaf)+Python. preprocessing 효과를 정직하게 채점하는 reference metric tool.",
   "ideas": [
-   "모델 3종: vmaf_v0.6.1 / ..neg / 4k",
+   "model 3종: vmaf_v0.6.1 / ..neg / 4k",
    "FFmpeg `-lavfi libvmaf`로 호출",
-   "NEG 모델이 enhancement(샤프닝/대비) 보상을 클립",
-   "resource/doc/models.md가 모델 SSOT"
+   "NEG model이 enhancement(sharpening/contrast) gain을 clip",
+   "resource/doc/models.md가 model SSOT"
   ],
-  "method": "reference/distorted를 입력 → 프레임별 점수 → 평균. FFmpeg는 `--enable-libvmaf`로 빌드. 전처리 평가는 denoise→encode→libvmaf 체인으로 BD-rate 산출.",
+  "method": "reference/distorted를 입력 → per-frame score → 평균. FFmpeg는 `--enable-libvmaf`로 build. preprocessing 평가는 denoise→encode→libvmaf chain으로 BD-rate 산출.",
   "savings": null,
-  "metricCaveat": "본 스터디 정책: VMAF 주 집중 + VMAF-NEG는 점수 목표가 아닌 메트릭 해킹 탐지 계기판. VMAF↔NEG 격차 크면 enhancement 의심.",
-  "hw": "메트릭 자체는 HW 비용이 아님. 단 전처리 블록의 ROI 판정 잣대 — PoC에서 VMAF/NEG BD-rate 산출에 필수.",
-  "nick": "전처리 IP의 가치를 메트릭 해킹에 안 속고 증명하는 도구. \"진짜 절감 vs 메트릭 유리\" 구분의 기준.",
+  "metricCaveat": "본 스터디 정책: VMAF 주 집중 + VMAF-NEG는 점수 목표가 아닌 metric hacking 탐지 gauge. VMAF↔NEG gap 크면 enhancement 의심.",
+  "hw": "Metric 자체는 HW cost가 아님. 단 preprocessing block의 ROI 판정 잣대 — PoC에서 VMAF/NEG BD-rate 산출에 필수.",
+  "nick": "Preprocessing IP의 가치를 metric hacking에 안 속고 증명하는 도구. \"real saving vs metric-favorable\" 구분의 기준.",
   "caution": null
  },
  {
   "id": "sw_ffmpeg",
   "part": "sw",
   "cat": "sw",
-  "title": "FFmpeg (denoise 필터 + libvmaf)",
+  "title": "FFmpeg (denoise filters + libvmaf)",
   "authors": "FFmpeg",
   "year": "-",
   "venue": "공식 docs",
   "grade": "docs",
   "coupling": "independent",
   "url": "https://ffmpeg.org/ffmpeg-filters.html",
-  "tldr": "전처리 denoise 필터(hqdn3d/nlmeans/bm3d/bilateral)와 libvmaf를 한 도구에서. 실측 PoC 벤치의 핵심.",
+  "tldr": "Preprocessing denoise filters(hqdn3d/nlmeans/bm3d/bilateral)와 libvmaf를 한 도구에서. 실측 PoC bench의 핵심.",
   "ideas": [
-   "필터: hqdn3d, nlmeans, bm3d(nlmeans prefilter), bilateral, atadenoise",
-   "전부 pre-encode = 인코더 무관",
-   "libvmaf 통합으로 품질 측정",
+   "filters: hqdn3d, nlmeans, bm3d(nlmeans prefilter), bilateral, atadenoise",
+   "전부 pre-encode = encoder-independent",
+   "libvmaf 통합으로 quality 측정",
    "grainy vs clean 비교 실험"
   ],
-  "method": "`ffmpeg -i in -vf hqdn3d=...` 로 전처리본 생성 → 동일 인코더로 QP 래더 인코딩 → libvmaf로 VMAF/NEG → BD-rate. WSL2에서 수행.",
+  "method": "`ffmpeg -i in -vf hqdn3d=...`로 preprocessed clip 생성 → 동일 encoder로 QP ladder encoding → libvmaf로 VMAF/NEG → BD-rate. WSL2에서 수행.",
   "savings": null,
-  "metricCaveat": "VMAF만 보고 절감 확정 금지. NEG 병기.",
-  "hw": "각 필터가 비용 사다리(2DNR<3DNR<CNN<NLM/MCTF)의 어디인지 실험으로 체감(hqdn3d=3DNR, nlmeans/bm3d=상단).",
-  "nick": "실리콘 올리기 전 \"이 필터가 grainy에서 얼마 버나\"를 싸게 검증하는 1단계 PoC 도구.",
+  "metricCaveat": "VMAF만 보고 saving 확정 금지. NEG 병기.",
+  "hw": "각 filter가 cost ladder(2DNR<3DNR<CNN<NLM/MCTF)의 어디인지 실험으로 체감(hqdn3d=3DNR, nlmeans/bm3d=상단).",
+  "nick": "실리콘 올리기 전 \"이 filter가 grainy에서 얼마 버나\"를 싸게 검증하는 1st-stage PoC 도구.",
   "caution": null
  },
  {
   "id": "sw_svtav1",
   "part": "sw",
   "cat": "sw",
-  "title": "SVT-AV1 (프로덕션 AV1 인코더)",
+  "title": "SVT-AV1 (production AV1 encoder)",
   "authors": "AOMedia",
   "year": "-",
   "venue": "GitLab repo",
   "grade": "repo",
   "coupling": "encoder",
   "url": "https://gitlab.com/AOMediaCodec/SVT-AV1",
-  "tldr": "속도/품질 균형의 AV1 인코더. Film Grain Synthesis(denoise + AR 파라미터 signaling) 지원.",
+  "tldr": "속도/품질 균형의 AV1 encoder. Film Grain Synthesis(denoise + AR parameter signaling) 지원.",
   "ideas": [
-   "FGS 지원 — denoise→model→signal 흐름",
+   "FGS 지원 — denoise→model→signal flow",
    "film-grain-table import",
-   "libaom보다 빠른 현실적 동작점",
-   "scalable 멀티스레드"
+   "libaom보다 빠른 현실적 operating point",
+   "scalable multi-thread"
   ],
-  "method": "전처리 denoise 후 인코딩, 또는 내장 grain 경로로 FGS 실험. FGS 절감 측정 시 인코더로 사용.",
+  "method": "Preprocessing denoise 후 encoding, 또는 내장 grain path로 FGS 실험. FGS saving 측정 시 encoder로 사용.",
   "savings": null,
   "metricCaveat": null,
-  "hw": "인코더 SW지만 FGS의 인코더 앞단(denoise+파라미터 추정) 동작을 관찰 — 진짜 HW 비용이 어디인지 감.",
-  "nick": "AV1 FGS 절감을 실측할 때의 현실적 인코더. libaom은 정밀검증, SVT는 속도.",
+  "hw": "Encoder SW지만 FGS의 encoder 앞단(denoise + parameter estimation) 동작을 관찰 — 진짜 HW cost가 어디인지 감.",
+  "nick": "AV1 FGS saving을 실측할 때의 현실적 encoder. libaom은 정밀검증, SVT는 속도.",
   "caution": null
  },
  {
   "id": "sw_libaom",
   "part": "sw",
   "cat": "sw",
-  "title": "libaom (AV1 레퍼런스 코덱 + grain 툴링)",
+  "title": "libaom (AV1 reference codec + grain tooling)",
   "authors": "AOMedia",
   "year": "-",
   "venue": "Google Git repo",
   "grade": "repo",
   "coupling": "encoder",
   "url": "https://aomedia.googlesource.com/aom/",
-  "tldr": "AV1 bit-exact 레퍼런스. grain-table 생성 툴(noise_model, photon_noise_table) 포함.",
+  "tldr": "AV1 bit-exact reference. grain-table 생성 tool(noise_model, photon_noise_table) 포함.",
   "ideas": [
-   "`--film-grain-table`로 grain 파라미터 주입",
-   "examples/noise_model.c = 원본 vs denoised에서 grain 추정",
-   "photon_noise_table = 물리 광자노이즈 모델",
-   "느리지만 권위 있는 기준"
+   "`--film-grain-table`로 grain parameter 주입",
+   "examples/noise_model.c = source vs denoised에서 grain 추정",
+   "photon_noise_table = 물리 photon-noise model",
+   "느리지만 권위 있는 reference"
   ],
-  "method": "오프라인 grain 파라미터 추정(실시간 HW 경로 아님) → 인코딩. HW 재합성 블록이 소비할 AR/강도 파라미터를 만든다.",
+  "method": "Offline grain parameter estimation(real-time HW path 아님) → encoding. HW re-synthesis block이 소비할 AR/scaling parameter를 만든다.",
   "savings": null,
   "metricCaveat": null,
-  "hw": "grain 파라미터 추정은 오프라인. 이 출력(AR/LUT)이 디코더 HW 재합성의 입력 — 인코더/디코더 비용 분리 이해에 유용.",
-  "nick": "FGS 파이프의 \"인코더 앞단\" 실체를 코드로 확인. AV1 디코더 IP 경험과 디코더측 재합성을 대조.",
+  "hw": "Grain parameter estimation은 offline. 이 출력(AR/LUT)이 decoder HW re-synthesis의 입력 — encoder/decoder cost 분리 이해에 유용.",
+  "nick": "FGS pipe의 \"encoder 앞단\" 실체를 code로 확인. AV1 decoder IP 경험과 decoder-side re-synthesis를 대조.",
   "caution": null
  },
  {
   "id": "sw_x265",
   "part": "sw",
   "cat": "sw",
-  "title": "x265 (HEVC 인코더, film-grain SEI)",
+  "title": "x265 (HEVC encoder, film-grain SEI)",
   "authors": "MulticoreWare",
   "year": "-",
   "venue": "Bitbucket repo",
   "grade": "repo",
   "coupling": "encoder",
   "url": "https://bitbucket.org/multicoreware/x265_git",
-  "tldr": "HEVC 인코더. `--film-grain`(FGC SEI) + `--aom-film-grain`(v4.1+, AOM grain table 소비).",
+  "tldr": "HEVC encoder. `--film-grain`(FGC SEI) + `--aom-film-grain`(v4.1+, AOM grain table 소비).",
   "ideas": [
-   "FGC SEI로 grain 신호",
+   "FGC SEI로 grain signaling",
    "AOM grain table 크로스 적용",
-   "HEVC측 FGS 경로",
-   "코덱 간 grain 비교"
+   "HEVC측 FGS path",
+   "codec 간 grain 비교"
   ],
-  "method": "grain table을 SEI로 실어 디코더가 재합성. AV1 FGS와 같은 원리를 HEVC에서.",
+  "method": "Grain table을 SEI로 실어 decoder가 re-synthesis. AV1 FGS와 같은 원리를 HEVC에서.",
   "savings": null,
   "metricCaveat": null,
-  "hw": "grain syntax가 코덱마다 다르지만 \"denoise+파라미터+재합성\" 원리는 동일 — 코덱 독립적 HW 재합성 블록 설계의 일반화 근거.",
-  "nick": "codec-agnostic grain 재합성 IP를 그릴 때 HEVC/AV1 양쪽 syntax 비교용.",
+  "hw": "Grain syntax가 codec마다 다르지만 \"denoise + parameter + re-synthesis\" 원리는 동일 — codec-agnostic HW re-synthesis block 설계의 일반화 근거.",
+  "nick": "Codec-agnostic grain re-synthesis IP를 그릴 때 HEVC/AV1 양쪽 syntax 비교용.",
   "caution": null
  },
  {
   "id": "sw_dav1d",
   "part": "sw",
   "cat": "sw",
-  "title": "dav1d (AV1 디코더 — grain 재합성)",
+  "title": "dav1d (AV1 decoder — grain re-synthesis)",
   "authors": "VideoLAN",
   "year": "-",
   "venue": "GitLab repo",
   "grade": "repo",
   "coupling": "decoder",
   "url": "https://code.videolan.org/videolan/dav1d/",
-  "tldr": "고속 AV1 디코더. 디코더측 grain 재합성 비용의 최적 레퍼런스 — HW post-filter의 거울.",
+  "tldr": "고속 AV1 decoder. decoder-side grain re-synthesis cost의 reference — HW post-filter의 거울.",
   "ideas": [
    "row 단위 32×32 FILM_GRAIN task",
-   "SIMD/asm grain 생성",
+   "SIMD/asm grain generation",
    "LUT를 L1/L2에 상주",
-   "결정적 PRNG"
+   "deterministic PRNG"
   ],
-  "method": "디코딩 후 AR 파라미터로 grain template 생성 → 블록별 적용. 추가 프레임버퍼 거의 없이 동작.",
+  "method": "Decoding 후 AR parameter로 grain template 생성 → block별 적용. 추가 frame buffer 거의 없이 동작.",
   "savings": null,
   "metricCaveat": null,
-  "hw": "디코더 재합성은 LUT+PRNG+소형 SRAM = 저비용(추가 프레임버퍼 불필요). \"FGS 절감은 디코더가 아니라 인코더 denoise에서\"를 코드로 확증.",
-  "nick": "AV1 디코더 IP에 grain 재합성 후처리를 붙일 때 면적/대역폭 예산의 실제 하한.",
+  "hw": "Decoder re-synthesis는 LUT + PRNG + 소형 SRAM = low cost(추가 frame buffer 불필요). \"FGS saving은 decoder가 아니라 encoder denoise에서\"를 code로 확증.",
+  "nick": "AV1 decoder IP에 grain re-synthesis post-filter를 붙일 때 area/bandwidth budget의 실제 하한.",
   "caution": null
  }
 ];
