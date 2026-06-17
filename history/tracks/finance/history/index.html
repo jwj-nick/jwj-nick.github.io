@@ -349,6 +349,30 @@
     .home-hero{padding:40px 20px 32px;} .home-hero h1{font-size:26px;}
     .wrap,.home-wrap{padding:26px 18px 76px;}
   }
+  /* ───────── 시각효과 업그레이드 v2 (additive) ───────── */
+  /* 정적 폴리시 (모션 무관) */
+  .imgbox{overflow:hidden;}
+  .imgbox img{transition:transform .5s cubic-bezier(.22,1,.36,1);}
+  .imgbox:hover img{transform:scale(1.045);}
+  .why,.chart,.compare,.choice,.voice,.relations,.connect{transition:box-shadow .22s ease, transform .22s ease;}
+  .why:hover,.chart:hover,.compare:hover,.choice:hover,.voice:hover{box-shadow:var(--shadow);}
+  h2.block::before{box-shadow:0 0 0 4px rgba(181,84,106,.12);}
+  .spark{position:relative; overflow:hidden;}
+  .spark::after{content:""; position:absolute; inset:0; background:radial-gradient(150px 90px at 92% 0%, rgba(196,154,74,.16), transparent 70%); pointer-events:none;}
+  .hero::after{content:""; position:absolute; left:0; right:0; top:0; height:130%; background:radial-gradient(60% 55% at 82% 0%, rgba(255,255,255,.13), transparent 62%); pointer-events:none;}
+  .lk,.yt,.card,.pager a{will-change:transform;}
+  /* 모션 (저모션 사용자 보호: no-preference 일 때만) */
+  @media (prefers-reduced-motion: no-preference){
+    .reveal{opacity:0; transform:translateY(16px); transition:opacity .55s ease, transform .6s cubic-bezier(.22,1,.36,1);}
+    .reveal.in{opacity:1; transform:none;}
+    .crow .cbar{transition:width 1.05s cubic-bezier(.22,1,.36,1);}
+    .hero h1{animation:vHeroRise .55s ease both;}
+    .hero .kicker{animation:vHeroRise .55s .06s ease both;}
+    .hero .era{animation:vHeroRise .55s .12s ease both;}
+    @keyframes vHeroRise{from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:none;}}
+    .quiz-opt.correct{animation:vPop .42s ease;}
+    @keyframes vPop{0%{transform:scale(1);} 42%{transform:scale(1.035);} 100%{transform:scale(1);}}
+  }
 </style>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -438,7 +462,7 @@ function renderHome(){
     +'<span class="pp">'+s.kicker+' · '+s.era+'</span></span></li>').join('')
   +'</ul></div>';
   view.querySelectorAll('[data-id]').forEach(el=>el.addEventListener('click',()=>{ go(el.dataset.id); closeSide(); }));
-  setActive('home'); window.scrollTo(0,0); progress.style.width='0%';
+  setActive('home'); window.scrollTo(0,0); progress.style.width='0%'; vfx();
 }
 
 function ytBlock(v){
@@ -677,6 +701,25 @@ function renderBlocks(s){
   });
   return html;
 }
+/* 시각효과: 블록 스크롤 리빌 + 차트 바 성장 (additive·실패 무해·저모션 가드) */
+function vfx(){
+  try{
+    const scope=view.querySelector('.wrap')||view.querySelector('.home-wrap')||view.querySelector('.notes-view');
+    if(!scope||!('IntersectionObserver' in window)) return;
+    if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const blocks=Array.prototype.filter.call(scope.children,el=>!el.classList.contains('pager'));
+    view.querySelectorAll('.crow .cbar').forEach(b=>{ b.dataset.w=b.style.width||''; b.style.width='0%'; });
+    const io=new IntersectionObserver(function(ents,obs){
+      ents.forEach(function(en){ if(en.isIntersecting){ const t=en.target; t.classList.add('in');
+        t.querySelectorAll('.crow .cbar').forEach(function(b){ if(b.dataset.w) b.style.width=b.dataset.w; });
+        obs.unobserve(t); } });
+    },{threshold:0.12, rootMargin:'0px 0px -7% 0px'});
+    blocks.forEach(function(b){ b.classList.add('reveal'); io.observe(b); });
+    /* 안전망: 옵저버가 어떤 이유로든 못 발동해도 콘텐츠가 사라지지 않게 보장 */
+    setTimeout(function(){ blocks.forEach(function(b){ b.classList.add('in');
+      b.querySelectorAll('.crow .cbar').forEach(function(c){ if(c.dataset.w) c.style.width=c.dataset.w; }); }); }, 2600);
+  }catch(e){ /* 시각효과 실패는 콘텐츠에 영향 없음 */ }
+}
 function render(s,idx){
   const prev=SECTIONS[idx-1], next=SECTIONS[idx+1];
   view.innerHTML=
@@ -770,7 +813,7 @@ function render(s,idx){
       upd(); setTimeout(()=>map.invalidateSize(),200);
     }catch(e){ console.error('battlemap',e); }
   });
-  markVisited(s.id); setActive(s.id); window.scrollTo(0,0);
+  markVisited(s.id); setActive(s.id); window.scrollTo(0,0); vfx();
 }
 
 function renderNotes(){
@@ -787,7 +830,7 @@ function renderNotes(){
   document.getElementById('notePrint').addEventListener('click',()=>window.print());
   document.getElementById('noteCopy').addEventListener('click',()=>{ const t=document.getElementById('notesView').innerText;
     if(navigator.clipboard){ navigator.clipboard.writeText(t); const b=document.getElementById('noteCopy'); b.textContent='복사됨 ✓'; setTimeout(()=>b.textContent='📋 전체 복사',1500); } });
-  setActive('notes'); window.scrollTo(0,0); progress.style.width='0%';
+  setActive('notes'); window.scrollTo(0,0); progress.style.width='0%'; vfx();
 }
 
 function setActive(id){
