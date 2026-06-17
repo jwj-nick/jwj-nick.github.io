@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>돈과 삶 — 너에게 주는 편지</title>
+<meta name="description" content="자본주의란 무엇인가, 복리의 힘, 삶에서의 투자란, 어떤 마음가짐으로 살 것인가. 곧 어른이 될 자녀에게 돈을 아는 법을 전하는 편지. 특정 투자 권유가 아닌 '생각하는 틀'에 관한 이야기.">
+<style>
+  :root{
+    --rose:#C98B8B; --rose-soft:#E8C8C5; --navy:#33406B; --navy-2:#46527f; --navy-soft:#6F79A0;
+    --cream:#FBF7F2; --paper:#FFFFFF; --ink:#2E2A28; --muted:#857B74; --line:#EBE0D5;
+    --accent:#B5546A; --gold:#C49A4A;
+    --shadow:0 6px 22px rgba(51,64,107,.09); --shadow-sm:0 2px 10px rgba(51,64,107,.06);
+    --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+    background:var(--cream); color:var(--ink); line-height:1.78;
+    -webkit-font-smoothing:antialiased; word-break:keep-all;
+  }
+  a{color:inherit;}
+  #progress{position:fixed; top:0; left:0; height:3px; width:0%; background:linear-gradient(90deg,var(--rose),var(--accent)); z-index:60; transition:width .1s;}
+  .layout{display:flex; min-height:100vh;}
+  .sidebar{width:276px; flex:0 0 276px; background:linear-gradient(180deg,var(--navy),#2b3559); color:#fff; padding:26px 16px 30px; position:sticky; top:0; height:100vh; overflow-y:auto;}
+  .content{flex:1; min-width:0;}
+  .hub-back{display:inline-block; color:var(--rose-soft); font-size:12px; text-decoration:none; padding:4px 8px; margin:0 0 14px; border:1px solid rgba(255,255,255,.14); border-radius:9px; transition:background .15s,color .15s;}
+  .hub-back:hover{background:rgba(255,255,255,.1); color:#fff;}
+  .brand{cursor:pointer; padding:0 6px; margin-bottom:6px;}
+  .brand .bt{font-size:19px; font-weight:800; line-height:1.35;}
+  .brand .sub{display:block; font-size:11.5px; font-weight:500; color:var(--rose-soft); margin-top:7px; letter-spacing:.01em;}
+  .nav{margin-top:20px; list-style:none;}
+  .nav li{margin:3px 0;}
+  .nav a{display:flex; align-items:center; gap:11px; text-decoration:none; color:#dde0ee; font-size:14px; padding:10px 11px; border-radius:12px; transition:background .15s,color .15s; cursor:pointer; position:relative;}
+  .nav a .num{font-size:10.5px; color:var(--navy-soft); width:18px; font-weight:800; flex:0 0 18px;}
+  .nav a:hover{background:rgba(255,255,255,.09); color:#fff;}
+  .nav a.active{background:var(--rose); color:#fff; font-weight:700;}
+  .nav a.active .num{color:#fff;}
+  .nav a.star{background:rgba(196,154,74,.15);}
+  .nav a.star.active{background:var(--accent);}
+  .nav a.star .num{color:var(--gold);}
+  .nav a.visited:not(.active)::after{content:"✓"; margin-left:auto; font-size:11px; color:#8fd9a8; font-weight:800;}
+  .nav a.star .tag{font-size:9.5px; background:var(--gold); color:#3a2f10; padding:1px 6px; border-radius:8px; margin-left:auto; font-weight:800;}
+  .nav a.star.visited .tag{display:none;}
+  .nav .home-link{font-weight:700; color:#fff; background:rgba(255,255,255,.06); margin-bottom:8px;}
+  .side-foot{margin-top:24px; padding:16px 8px 0; font-size:11px; color:var(--navy-soft); line-height:1.7; border-top:1px solid rgba(255,255,255,.1);}
+  .topbar{display:none; align-items:center; gap:12px; background:var(--navy); color:#fff; padding:12px 16px; position:sticky; top:0; z-index:40;}
+  .topbar .hamb{font-size:22px; background:none;border:none;color:#fff;cursor:pointer;line-height:1;}
+  .topbar .tb-title{font-size:14.5px; font-weight:700;}
+  .topbar .tb-hub{margin-left:auto; color:#fff; font-size:12.5px; font-weight:700; text-decoration:none; border:1px solid rgba(255,255,255,.35); border-radius:9px; padding:5px 10px; white-space:nowrap;}
+  .topbar .tb-hub:active{background:rgba(255,255,255,.15);}
+  .scrim{display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:30;}
+  .hero{padding:54px 40px 36px; color:#fff; position:relative; overflow:hidden;}
+  .hero .kicker{font-size:12.5px; letter-spacing:.14em; font-weight:700; text-transform:uppercase; opacity:.92;}
+  .hero h1{font-size:31px; margin-top:10px; line-height:1.3; font-weight:800; max-width:680px;}
+  .hero .era{display:inline-flex; align-items:center; gap:7px; margin-top:16px; font-size:12.5px; background:rgba(255,255,255,.16); padding:6px 14px; border-radius:20px;}
+  .hero .motif{position:absolute; right:-10px; bottom:-20px; opacity:.16; width:180px; height:180px;}
+  .wrap{max-width:740px; margin:0 auto; padding:36px 28px 90px;}
+  .hook{font-size:18px; line-height:1.92; color:var(--navy); border-left:4px solid var(--rose); padding:4px 0 4px 20px; margin-bottom:30px; font-weight:500;}
+  h2.block{font-size:14px; letter-spacing:.05em; color:var(--accent); font-weight:800; margin:38px 0 15px; display:flex; align-items:center; gap:9px; text-transform:uppercase;}
+  h2.block::before{content:""; width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block; flex:0 0 8px;}
+  .why{background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:22px 24px; box-shadow:var(--shadow-sm); font-size:16px;}
+  .why b{color:var(--accent);}
+  .lens{background:linear-gradient(135deg,#fff,#f3f0fa); border:1px solid #d8cfe8; border-left:5px solid #7a6aa8; border-radius:14px; padding:18px 22px; margin:24px 0; font-size:15.5px;}
+  .lens .lh{font-weight:800; color:#5b4a86; font-size:13.5px; letter-spacing:.03em; margin-bottom:6px; display:flex; gap:7px; align-items:center;}
+  .quote{margin:30px 0; background:linear-gradient(135deg,#fff,#fdf2ef); border:1px solid var(--rose-soft); border-left:5px solid var(--rose); border-radius:14px; padding:22px 26px; box-shadow:var(--shadow-sm);}
+  .quote .qt{font-size:18.5px; font-style:italic; color:var(--navy); line-height:1.8;}
+  .quote .qs{display:block; margin-top:12px; font-size:13px; color:var(--muted); font-style:normal;}
+  .quote .qm{font-size:40px; color:var(--rose-soft); line-height:0; display:block; height:18px;}
+  .cards{display:grid; gap:14px;}
+  @media(min-width:620px){ .cards{grid-template-columns:1fr 1fr;} }
+  .card{background:var(--paper); border:1px solid var(--line); border-radius:15px; padding:18px 20px; box-shadow:var(--shadow-sm); transition:transform .12s, box-shadow .12s;}
+  .card:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
+  .card .yr{font-size:11.5px; font-weight:800; color:var(--rose); letter-spacing:.04em; text-transform:uppercase;}
+  .card h3{font-size:16.5px; color:var(--navy); margin:5px 0 6px;}
+  .card p{font-size:15px; color:var(--ink);}
+  .term{color:var(--accent); font-weight:700; border-bottom:1.5px dotted var(--rose); cursor:help;}
+  .people{display:grid; gap:14px;}
+  @media(min-width:620px){ .people{grid-template-columns:1fr 1fr;} }
+  .person{background:#fff; border:1px solid var(--line); border-radius:15px; padding:18px 20px; box-shadow:var(--shadow-sm);}
+  .person .pheader{display:flex; gap:13px; align-items:center; margin-bottom:8px;}
+  .person .pface{flex:0 0 46px; height:46px; border-radius:12px; background:linear-gradient(135deg,var(--rose),var(--accent)); display:flex;align-items:center;justify-content:center;font-size:22px; color:#fff;}
+  .person .pname{font-size:16.5px; font-weight:800; color:var(--navy);}
+  .person .pwho{font-size:12px; color:var(--muted);}
+  .person .pwhy{font-size:14.5px; margin-bottom:8px;}
+  .person .pquote{font-size:14px; font-style:italic; color:var(--accent); border-left:3px solid var(--rose-soft); padding-left:10px; margin:8px 0;}
+  .person .pshadow{font-size:13.5px; color:var(--muted); background:var(--cream); border-radius:9px; padding:8px 11px;}
+  .person .pmore{display:inline-block; margin-top:10px; font-size:13px; font-weight:700; text-decoration:none; color:var(--accent); border:1px solid var(--rose-soft); border-radius:9px; padding:6px 12px;}
+  .person .pmore:hover{background:var(--accent); color:#fff; border-color:var(--accent);}
+  .movies{display:grid; gap:14px;}
+  .movie{background:#fff; border:1px solid var(--line); border-radius:15px; padding:16px 18px; box-shadow:var(--shadow-sm);}
+  .movie .mhead{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:4px;}
+  .movie .mtitle{font-size:16.5px; font-weight:800; color:var(--navy);}
+  .movie .mfit{font-size:11.5px; font-weight:700; border-radius:7px; padding:2px 8px; white-space:nowrap;}
+  .movie .mfit.green{background:#E5F3E8; color:#2E7D4F;}
+  .movie .mfit.yellow{background:#FBF1D8; color:#9A7B22;}
+  .movie .mfit.red{background:#F7E0E0; color:#B5546A;}
+  .movie .mmeta{font-size:12.5px; color:var(--muted); margin-bottom:9px;}
+  .movie .mmeta b{color:var(--accent);}
+  .movie .mwhy{font-size:14.5px; margin-bottom:9px;}
+  .movie .mreal{font-size:13px; color:var(--muted); background:var(--cream); border-radius:9px; padding:8px 11px; margin-bottom:10px;}
+  .movie .mreal .lbl{font-weight:800; color:var(--gold); margin-right:6px;}
+  .movie .mlinks{display:flex; gap:8px; flex-wrap:wrap;}
+  .movie .mlink{font-size:12.5px; font-weight:700; text-decoration:none; color:var(--navy); border:1px solid var(--line); border-radius:8px; padding:5px 11px;}
+  .movie .mlink:hover{border-color:var(--accent); color:var(--accent);}
+  .movie .mlink.slug{color:var(--accent); border-color:var(--rose-soft);}
+  .relations{background:#fff; border:1px solid var(--line); border-radius:15px; padding:18px 18px 16px; box-shadow:var(--shadow-sm);}
+  .relations .rtitle{font-size:16px; font-weight:800; color:var(--navy); text-align:center; margin-bottom:6px;}
+  .relations .rintro{font-size:14px; color:var(--muted); text-align:center; margin-bottom:14px;}
+  .rsides{display:grid; gap:12px;}
+  @media(min-width:600px){ .rsides{grid-template-columns:repeat(auto-fit,minmax(160px,1fr));} }
+  .rside{border-radius:13px; padding:13px 14px;}
+  .rside.red{background:#FBEAEA; border:1px solid #E8C0C0;}
+  .rside.blue{background:#E9EEF7; border:1px solid #C2D0E6;}
+  .rside.green{background:#E7F1EA; border:1px solid #BFD9C7;}
+  .rside .rslabel{font-size:13px; font-weight:800; margin-bottom:9px; letter-spacing:.02em;}
+  .rside.red .rslabel{color:#B5546A;}
+  .rside.blue .rslabel{color:#33406B;}
+  .rside.green .rslabel{color:#2E7D4F;}
+  .rmember{background:#fff; border:1px solid var(--line); border-radius:9px; padding:8px 10px; margin-bottom:7px; font-size:13.5px;}
+  .rmember b{color:var(--navy); margin-right:6px;}
+  .rmember span{color:var(--muted);}
+  .rmember .rlink{text-decoration:none;}
+  .rtensions{margin-top:14px; display:grid; gap:9px;}
+  .rtension{background:var(--cream); border-left:3px solid var(--gold); border-radius:9px; padding:10px 12px; font-size:13.5px;}
+  .rtension .rvs{font-weight:800; color:var(--accent); margin-bottom:3px;}
+  .marchmap{background:#fff; border:1px solid var(--line); border-radius:15px; padding:16px; box-shadow:var(--shadow-sm);}
+  .marchmap .mm-title{font-weight:800; color:var(--navy); text-align:center; font-size:16px;}
+  .marchmap .mm-intro{font-size:14px; color:var(--muted); text-align:center; margin:6px 0 12px;}
+  .mm-stage{position:relative; max-width:360px; margin:0 auto; aspect-ratio:1866/2891; background:#eef3ee; border-radius:10px; overflow:hidden;}
+  .mm-base{position:absolute; inset:0; width:100%; height:100%; object-fit:contain;}
+  .mm-arrows{position:absolute; inset:0; width:100%; height:100%; overflow:visible;}
+  .mm-arrow{fill:none; stroke-width:1.4; stroke-linecap:round; stroke-dasharray:300; stroke-dashoffset:300; opacity:0; transition:stroke-dashoffset .8s ease, opacity .3s;}
+  .mm-arrow.on{stroke-dashoffset:0; opacity:.95;}
+  .mm-arrow.tone-resist{stroke:#2E7D4F;} .mh.resist{fill:#2E7D4F;}
+  .mm-arrow.tone-invade{stroke:#B5546A;} .mh.invade{fill:#B5546A;}
+  .mm-alab{font-size:3.4px; font-weight:800; opacity:0; transition:opacity .3s;} .mm-alab.on{opacity:.9;}
+  .mm-alab.tone-resist{fill:#2E7D4F;} .mm-alab.tone-invade{fill:#B5546A;}
+  .mm-place{position:absolute; transform:translate(-50%,-50%); opacity:0; transition:opacity .35s; display:flex; flex-direction:column; align-items:center; pointer-events:none; z-index:2;}
+  .mm-place.on{opacity:1;}
+  .mm-dot{width:11px; height:11px; border-radius:50%; background:var(--navy); border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,.35);}
+  .mm-place.k-battle .mm-dot{background:#B5546A;} .mm-place.k-loss .mm-dot{background:#7a2e3f;}
+  .mm-place.k-win .mm-dot{background:#2E7D4F;} .mm-place.k-start .mm-dot{background:var(--gold);}
+  .mm-lbl{font-size:11px; font-weight:700; color:var(--navy); background:rgba(255,255,255,.9); border-radius:5px; padding:0 4px; margin-top:3px; white-space:nowrap;}
+  .mm-step{display:flex; align-items:center; gap:10px; justify-content:center; margin-top:13px;}
+  .mm-step button{background:var(--navy); color:#fff; border:none; border-radius:9px; padding:7px 14px; font-size:13px; font-weight:700; cursor:pointer;}
+  .mm-step button:disabled{opacity:.4; cursor:default;}
+  .mm-plabel{font-size:13.5px; font-weight:800; color:var(--accent); min-width:150px; text-align:center;}
+  .mm-cap{font-size:11px; color:var(--muted); text-align:center; margin-top:9px; line-height:1.5;}
+  .battlemap{background:#fff; border:1px solid var(--line); border-radius:15px; padding:16px; box-shadow:var(--shadow-sm);}
+  .battlemap .bm-intro{font-size:14px; color:var(--muted); text-align:center; margin-bottom:11px;}
+  .bm-map{width:100%; height:380px; border-radius:11px; overflow:hidden; border:1px solid var(--line); background:#eef3ee;}
+  .bm-ic div{font-size:19px; filter:drop-shadow(0 1px 1px rgba(0,0,0,.4));}
+  .bm-tt{background:rgba(255,255,255,.92); border:1px solid var(--line); border-radius:5px; font-size:11px; font-weight:700; color:var(--navy); padding:1px 5px; box-shadow:none;}
+  .bm-tt:before{display:none;}
+  .bm-step{display:flex; align-items:center; gap:10px; justify-content:center; margin-top:12px;}
+  .bm-step button{background:var(--navy); color:#fff; border:none; border-radius:9px; padding:7px 14px; font-size:13px; font-weight:700; cursor:pointer;}
+  .bm-step button:disabled{opacity:.4; cursor:default;}
+  .bm-plabel{font-size:13.5px; font-weight:800; color:var(--accent); min-width:150px; text-align:center;}
+  .bm-legend{display:flex; gap:14px; flex-wrap:wrap; justify-content:center; font-size:12.5px; margin-top:11px;}
+  .bm-legend span{display:inline-flex; align-items:center; gap:5px;}
+  .bm-legend i{width:16px; border-top:3px solid; display:inline-block; border-radius:2px;}
+  .bm-cap{font-size:11px; color:var(--muted); text-align:center; margin-top:9px;}
+  .deepdive{margin:18px 0 6px; border:1px solid var(--line); border-radius:13px; background:linear-gradient(180deg,#fff,#fbf6ef); overflow:hidden;}
+  .deepdive summary{cursor:pointer; padding:14px 18px; font-size:15px; font-weight:800; color:var(--navy); list-style:none; display:flex; align-items:center; gap:8px;}
+  .deepdive summary::-webkit-details-marker{display:none;}
+  .deepdive summary:after{content:"▾"; margin-left:auto; color:var(--accent); transition:transform .2s;}
+  .deepdive[open] summary:after{transform:rotate(180deg);}
+  .deepdive summary:hover{background:rgba(181,84,106,.05);}
+  .links{display:grid; gap:10px; margin:6px 0 4px;}
+  .links .lk{display:block; padding:13px 16px; border:1px solid var(--line); border-radius:12px; background:#fff; text-decoration:none; transition:border-color .15s, transform .15s;}
+  .links .lk:hover{border-color:var(--accent); transform:translateY(-2px);}
+  .links .lk-label{display:block; font-weight:800; color:var(--navy); font-size:15px;}
+  .links .lk-label:after{content:" ↗"; color:var(--accent); font-weight:700;}
+  .links .lk-note{display:block; font-size:13.5px; color:var(--ink); margin-top:3px; line-height:1.6;}
+  .links .lk-src{display:block; font-size:12px; color:var(--muted); margin-top:4px;}
+  .spark{margin:16px 0; padding:16px 18px 18px; border-left:5px solid var(--accent); border-radius:12px; background:linear-gradient(180deg,#fff8f3,#fdeee6); box-shadow:var(--shadow-sm);}
+  .spark-h{font-size:16px; font-weight:800; color:var(--accent); margin-bottom:7px; letter-spacing:-.01em;}
+  .spark-body{font-size:15.5px; line-height:1.85; color:var(--ink);}
+  .spark-mind{margin-top:11px; padding-top:10px; border-top:1px dashed var(--line); font-size:14.5px; color:var(--navy); line-height:1.7;}
+  .dd-body{padding:4px 18px 18px;}
+  .dd-item{border-top:1px solid var(--line); padding:13px 0;}
+  .dd-item:first-child{border-top:none;}
+  .dd-item h3{font-size:15px; color:var(--accent); margin-bottom:6px;}
+  .dd-text{font-size:14.5px; line-height:1.8;}
+  .dd-src{font-size:12.5px; color:var(--muted); background:var(--cream); border-radius:8px; padding:7px 11px; margin-top:8px;}
+  .timeline{position:relative; margin:6px 0 6px 9px; padding-left:26px; border-left:2.5px solid var(--rose-soft);}
+  .tl{position:relative; padding:5px 0 17px;}
+  .tl::before{content:""; position:absolute; left:-33.5px; top:9px; width:13px;height:13px;border-radius:50%;background:var(--rose); border:3px solid var(--cream);}
+  .tl .tl-yr{font-weight:800; color:var(--navy); font-size:13.5px;}
+  .tl .tl-txt{font-size:15px;}
+  .connect{background:#fff; border:1px dashed var(--rose); border-radius:14px; padding:17px 22px; font-size:15.5px; color:var(--navy); display:flex; gap:12px; align-items:flex-start;}
+  .connect .ico{flex:0 0 22px; font-size:18px;}
+  .connect b{color:var(--accent);}
+  .yt{display:flex; gap:14px; align-items:flex-start; text-decoration:none; background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin-bottom:11px; transition:transform .12s, box-shadow .12s;}
+  .yt:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
+  .yt .play{flex:0 0 42px; height:42px; border-radius:11px; background:#FF0000; color:#fff; display:flex;align-items:center;justify-content:center;font-size:16px;}
+  .yt .play.search{background:var(--navy);}
+  .yt .yt-body{flex:1; min-width:0;}
+  .yt .yt-title{font-weight:700; color:var(--navy); font-size:15px; line-height:1.45;}
+  .yt .yt-meta{font-size:12px; color:var(--muted); margin-top:3px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+  .yt .pill{background:var(--cream); border:1px solid var(--line); border-radius:6px; padding:1px 6px; font-weight:700;}
+  .yt .pill.ko{color:#2f7d4f;} .yt .pill.en{color:#3a5bb5;} .yt .pill.find{color:var(--navy);}
+  .yt .yt-desc{font-size:13.5px; margin-top:5px; color:var(--ink);}
+  .reflect{background:#fff; border:2px solid var(--rose-soft); border-radius:var(--radius); padding:20px 22px; box-shadow:var(--shadow-sm);}
+  .reflect .q{font-weight:700; color:var(--navy); margin-bottom:9px; font-size:15.5px;}
+  .reflect textarea{width:100%; min-height:88px; border:1px solid var(--line); border-radius:11px; padding:13px; font-family:inherit; font-size:15px; resize:vertical; background:#fffdfb; color:var(--ink); line-height:1.7;}
+  .reflect textarea:focus{outline:none; border-color:var(--rose); box-shadow:0 0 0 3px rgba(201,139,139,.15);}
+  .reflect textarea + .q{margin-top:18px;}
+  .reflect .saved{font-size:12px; color:var(--gold); margin-top:6px; height:15px; font-weight:600;}
+  /* quiz (R1) */
+  .quizwrap{display:flex;flex-direction:column;gap:14px;}
+  .quizq{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow-sm);}
+  .quizq .qq{font-weight:700;color:var(--navy);font-size:15.5px;margin-bottom:10px;}
+  .qopts{display:flex;flex-direction:column;gap:8px;}
+  .quiz-opt{text-align:left;font-family:inherit;font-size:14.5px;background:var(--cream);border:1px solid var(--line);border-radius:10px;padding:10px 13px;cursor:pointer;color:var(--ink);transition:background .12s;}
+  .quiz-opt:hover:not(:disabled){background:#f3ece4;}
+  .quiz-opt:disabled{cursor:default;}
+  .quiz-opt.correct{background:#e8f5ec;border-color:#8fcea5;color:#1f7a44;font-weight:700;}
+  .quiz-opt.wrong{background:#fbeaec;border-color:#e3a3ad;color:#a83246;}
+  .qexp{font-size:14px;color:var(--ink);margin-top:10px;display:none;line-height:1.7;background:var(--cream);border-radius:9px;padding:10px 12px;}
+  .qexp.show{display:block;}
+  .qexp b{color:var(--accent);}
+  /* notes export (R2) */
+  .nav .notes-link{font-weight:700;color:#fff;background:rgba(196,154,74,.16);}
+  .note-actions{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+  .notes-view{background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px 26px;box-shadow:var(--shadow-sm);}
+  .note-sec{margin-bottom:22px;}
+  .note-sh{font-weight:800;color:var(--accent);font-size:13px;letter-spacing:.04em;border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:10px;}
+  .note-q{font-weight:700;color:var(--navy);font-size:14.5px;margin-top:12px;}
+  .note-a{font-size:14.5px;white-space:pre-wrap;margin-top:3px;}
+  .note-a.empty{color:var(--muted);font-style:italic;}
+  @media print{ .sidebar,.topbar,.scrim,#progress,.noprint{display:none!important;} .content{width:100%;} .home-hero{background:#fff!important;color:#000!important;padding:10px 0 0;} .home-hero h1{color:#000;} .home-hero .hsub{color:#555;} .notes-view{border:none;box-shadow:none;padding:0;} body{background:#fff;} }
+  /* map (R3 — 실제 지도, Leaflet+OSM) */
+  .mapwrap{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow-sm);}
+  .lmap{height:340px;border-radius:12px;overflow:hidden;border:1px solid var(--line);z-index:0;}
+  .mapcap{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.6;}
+  .mapcap .msrc{font-size:11.5px;opacity:.8;}
+  /* image (S1 — PD 역사지도/사진 + 선택적 hotspot) */
+  .figimg{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow-sm);}
+  .figstory{font-size:15.5px;line-height:1.8;margin-bottom:12px;color:var(--ink);}
+  .figstory b{color:var(--accent);}
+  .imgbox{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#f4efe8;}
+  .imgbox img{width:100%;height:auto;display:block;}
+  .hsdot{position:absolute;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;border:2px solid #fff;font-size:12px;font-weight:800;cursor:pointer;box-shadow:0 2px 7px rgba(0,0,0,.32);display:flex;align-items:center;justify-content:center;line-height:1;}
+  .hsdot:hover{background:var(--navy);}
+  .hsinfo{margin-top:10px;font-size:14px;background:var(--cream);border-radius:9px;padding:11px 13px;display:none;line-height:1.7;}
+  .hsinfo.show{display:block;}
+  .hsinfo b{color:var(--accent);}
+  .figcap{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.65;}
+  .figcap .msrc{font-size:11.5px;opacity:.85;}
+  /* oldmap (고지도 — 시대감) */
+  .oldmap{background:linear-gradient(180deg,#f7f0e2,#efe4cf);border:1px solid #d8c7a6;border-radius:16px;padding:16px;box-shadow:var(--shadow-sm);}
+  .oldmap-frame{border-radius:10px;overflow:hidden;border:3px solid #8a6d3b;box-shadow:inset 0 0 40px rgba(94,66,20,.25);background:#e8dcc2;}
+  .oldmap-frame img{width:100%;height:auto;display:block;filter:sepia(.32) contrast(1.04) saturate(.9);}
+  .oldmap .figcap{color:#6b5836;}
+  /* lightbox (이미지 클릭 확대 — image/oldmap 공통) */
+  .imgbox img,.oldmap-frame img{cursor:zoom-in;}
+  .lightbox{position:fixed;inset:0;background:rgba(22,19,16,.93);display:none;align-items:center;justify-content:center;z-index:99;padding:16px;cursor:zoom-out;}
+  .lightbox.show{display:flex;}
+  .lightbox img{max-width:96vw;max-height:90vh;width:auto;height:auto;border-radius:8px;box-shadow:0 12px 44px rgba(0,0,0,.55);}
+  .lightbox .lb-cap{position:fixed;left:0;right:0;bottom:10px;text-align:center;color:#E8C8C5;font-size:12px;padding:0 22px;line-height:1.5;}
+  /* companion (짝 에피소드 배지) */
+  .companion-link{display:block;margin:6px 14px 0;padding:7px 11px;border:1px dashed rgba(255,255,255,.35);border-radius:9px;color:#fff;font-size:12px;text-decoration:none;opacity:.92;}
+  .companion-link:hover{background:rgba(255,255,255,.1);}
+  /* voice (S3 — 일기·편지체 1인칭) */
+  .voice{background:linear-gradient(135deg,#fffdf8,#f6efe3);border:1px solid #e6d9c4;border-left:5px solid var(--gold);border-radius:14px;padding:20px 24px;box-shadow:var(--shadow-sm);}
+  .voice .vbadge{display:inline-block;font-size:11px;font-weight:800;padding:2px 10px;border-radius:8px;margin-bottom:12px;letter-spacing:.02em;}
+  .voice .vbadge.real{background:#e6f0e8;color:#2f6b43;}
+  .voice .vbadge.imag{background:#f3eadb;color:#8a6d2f;}
+  .voice .vbody{font-size:16.5px;font-style:italic;line-height:1.95;color:#3a352f;}
+  .voice .vbody::before{content:"“";font-size:34px;color:var(--gold);line-height:0;vertical-align:-12px;margin-right:3px;}
+  .voice .vspeaker{margin-top:14px;font-size:13px;color:var(--muted);}
+  .voice .vspeaker b{color:var(--navy);}
+  .voice .vsrc{display:block;font-size:11.5px;opacity:.85;margin-top:3px;}
+  /* chart (S4 — 자체 막대 + 체감 비교) */
+  .chart{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow-sm);}
+  .chart .ctitle{font-weight:800;color:var(--navy);font-size:15.5px;}
+  .chart .cunit{font-size:12px;color:var(--muted);margin:3px 0 14px;}
+  .crow{display:flex;align-items:center;gap:10px;margin:9px 0;}
+  .crow .clabel{flex:0 0 72px;font-size:13px;color:var(--ink);text-align:right;}
+  .crow .cbarwrap{flex:1;background:var(--cream);border-radius:7px;overflow:hidden;height:24px;}
+  .crow .cbar{height:100%;background:linear-gradient(90deg,var(--rose),var(--accent));border-radius:7px;min-width:3px;}
+  .crow .cval{flex:0 0 auto;font-size:12.5px;font-weight:700;color:var(--accent);min-width:62px;}
+  .crelate{margin-top:15px;font-size:14.5px;background:#fdf2ef;border:1px solid var(--rose-soft);border-radius:10px;padding:12px 14px;line-height:1.7;}
+  .crelate b{color:var(--accent);}
+  .csrc{font-size:11.5px;color:var(--muted);margin-top:11px;opacity:.85;}
+  /* compare (S5 — 단계 토글 / before·after) */
+  .compare{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow-sm);}
+  .cmpintro{font-size:15px;margin-bottom:13px;color:var(--ink);line-height:1.7;}
+  .cmptabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px;}
+  .cmptab{font-family:inherit;font-size:13px;font-weight:700;background:var(--cream);border:1px solid var(--line);border-radius:20px;padding:7px 14px;cursor:pointer;color:var(--navy);transition:background .12s;}
+  .cmptab:hover{background:#f3ece4;}
+  .cmptab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .cmppanel .cmh{font-weight:800;color:var(--navy);font-size:16.5px;margin-bottom:7px;}
+  .cmppanel .cmb{font-size:15px;line-height:1.85;}
+  .cmppanel img{width:100%;border-radius:10px;margin-top:11px;border:1px solid var(--line);display:block;}
+  .cmpcap{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.6;}
+  /* choice (S7 — 너라면? 도덕적 딜레마) */
+  .choice{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow-sm);}
+  .chprompt{font-weight:700;color:var(--navy);font-size:15.5px;margin-bottom:14px;line-height:1.75;}
+  .chopts{display:flex;flex-direction:column;gap:9px;}
+  .chopt{text-align:left;font-family:inherit;font-size:14.5px;background:var(--cream);border:1px solid var(--line);border-radius:11px;padding:12px 14px;cursor:pointer;color:var(--ink);transition:background .12s;}
+  .chopt:hover{background:#f3ece4;}
+  .chopt.picked{border-color:var(--accent);background:#fdf2ef;font-weight:700;}
+  .chres{font-size:14px;margin-top:8px;background:#f7f3fb;border:1px solid #e0d6ee;border-radius:9px;padding:11px 13px;display:none;line-height:1.75;}
+  .chres.show{display:block;}
+  .chafter{margin-top:15px;font-size:14px;background:var(--cream);border-radius:9px;padding:12px 14px;line-height:1.75;display:none;}
+  .chafter.show{display:block;}
+  .chafter b{color:var(--accent);}
+  .pager{display:flex; justify-content:space-between; gap:12px; margin-top:46px;}
+  .pager a{flex:1; text-decoration:none; background:#fff; border:1px solid var(--line); border-radius:14px; padding:15px 18px; color:var(--navy); box-shadow:var(--shadow-sm); transition:transform .12s, box-shadow .12s; cursor:pointer;}
+  .pager a:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
+  .pager a.next{text-align:right; background:var(--navy); color:#fff; border-color:var(--navy);}
+  .pager .pg-label{font-size:11.5px; color:var(--muted);}
+  .pager a.next .pg-label{color:var(--rose-soft);}
+  .pager .pg-title{font-weight:700; font-size:15px; margin-top:3px;}
+  .home-hero{padding:60px 32px 44px; background:linear-gradient(140deg,var(--navy) 0%, #54608c 100%); color:#fff; text-align:center;}
+  .home-hero h1{font-size:33px; font-weight:800; line-height:1.32;}
+  .home-hero .hsub{font-size:15px; color:var(--rose-soft); margin-top:12px;}
+  .home-hero .hq{margin:26px auto 0; max-width:460px; font-style:italic; font-size:15px; opacity:.92; line-height:1.8;}
+  .home-hero .hq small{display:block; font-style:normal; opacity:.7; font-size:12px; margin-top:8px;}
+  .home-wrap{max-width:760px; margin:0 auto; padding:36px 26px 90px;}
+  .home-intro{font-size:16.5px; background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:24px 26px; box-shadow:var(--shadow-sm); line-height:1.85;}
+  .home-intro b{color:var(--accent);}
+  .start-btns{display:flex; gap:12px; flex-wrap:wrap; margin:24px 0 8px;}
+  .btn{flex:1; min-width:200px; text-decoration:none; text-align:center; padding:16px; border-radius:14px; font-weight:700; font-size:15.5px; box-shadow:var(--shadow-sm); transition:transform .12s; cursor:pointer;}
+  .btn:hover{transform:translateY(-2px);}
+  .btn.primary{background:var(--navy); color:#fff;}
+  .btn.star{background:linear-gradient(135deg,var(--rose),var(--accent)); color:#fff;}
+  .path{list-style:none; margin-top:14px;}
+  .path li{display:flex; gap:16px; align-items:flex-start; cursor:pointer; padding:14px 16px; border-radius:14px; transition:background .12s;}
+  .path li:hover{background:#fff;}
+  .path .pn{flex:0 0 34px; height:34px; border-radius:50%; background:var(--navy); color:#fff; display:flex;align-items:center;justify-content:center; font-weight:800; font-size:14px;}
+  .path li.star .pn{background:var(--accent);}
+  .path .ph{font-weight:700; color:var(--navy); font-size:16px;}
+  .path .ph .star-mark{color:var(--gold);}
+  .path .pp{font-size:14px; color:var(--muted); margin-top:2px;}
+  #tip{position:fixed; z-index:70; max-width:260px; background:var(--navy); color:#fff; font-size:13px; line-height:1.6; padding:11px 14px; border-radius:11px; box-shadow:0 8px 24px rgba(0,0,0,.28); display:none; pointer-events:none;}
+  .leaflet-popup-content{font-family:inherit;font-size:13.5px;line-height:1.6;}
+  .leaflet-popup-content b{color:var(--accent);}
+  @media (max-width:880px){
+    .sidebar{position:fixed; left:0; top:0; z-index:35; transform:translateX(-100%); transition:transform .25s;}
+    .sidebar.open{transform:translateX(0);}
+    .topbar{display:flex;}
+    .scrim.show{display:block;}
+    .hero{padding:34px 22px 26px;} .hero h1{font-size:25px;} .hero .motif{width:120px;height:120px;}
+    .home-hero{padding:40px 20px 32px;} .home-hero h1{font-size:26px;}
+    .wrap,.home-wrap{padding:26px 18px 76px;}
+  }
+</style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-ant-path@1.3.0/dist/leaflet-ant-path.js"></script>
+</head>
+<body>
+<div id="progress"></div>
+<div class="layout">
+  <nav class="sidebar" id="sidebar">
+    <a class="hub-back" id="hubBack" href="../index.html">← 역사 이야기 허브</a>
+    <div class="brand" id="brandHome"><div class="bt" id="brandTitle"></div><span class="sub" id="brandSub"></span></div>
+    <ul class="nav" id="navList"></ul>
+    <div class="side-foot" id="sideFoot"></div>
+  </nav>
+  <div class="scrim" id="scrim"></div>
+  <main class="content">
+    <div class="topbar"><button class="hamb" id="hamb" aria-label="메뉴">☰</button><span class="tb-title" id="tbTitle"></span><a class="tb-hub" id="tbHub" href="../index.html">🏛️ 역사 허브</a></div>
+    <div id="view"></div>
+  </main>
+</div>
+<div id="tip"></div>
+
+<!-- 에피소드 데이터 (build.py가 주입) -->
+<script id="episode-data">window.EPISODE = {"meta": {"lang": "ko", "slug": "tracks/finance/wisdom", "title": "돈과 삶 — 너에게 주는 편지", "description": "자본주의란 무엇인가, 복리의 힘, 삶에서의 투자란, 어떤 마음가짐으로 살 것인가. 곧 어른이 될 자녀에게 돈을 아는 법을 전하는 편지. 특정 투자 권유가 아닌 '생각하는 틀'에 관한 이야기.", "brand": {"title": "돈과 삶", "sub": "너에게 주는 편지"}, "foot": "경제·금융 허브 · ④ 돈과 삶 · ⚠️ 투자 조언 아님 · 교육용", "home": {"h1": "돈을 안다는 것은<br>휘둘리지 않는 것이다", "sub": "자본주의·복리·투자·마음가짐 — 곧 어른이 될 너에게", "quote": {"text": "돈은 훌륭한 하인이지만, 끔찍한 주인이다.", "by": "(오래된 격언)"}, "intro": "이 마지막 편지는 너를 위해 쓴다. 돈을 많이 벌라는 게 아니라, 돈이 무엇이고 어떻게 움직이는지를 알아서 평생 겁먹지도 휩쓸리지도 않기를 바라는 마음에서다. 자본주의가 무엇인지, 복리가 왜 강한지, 투자란 실제로 무엇이고 어떤 마음가짐이 필요한지를 함께 생각해 보자. 분명히 해둔다 — 여기엔 어떤 종목이나 코인을 사라는 조언은 한 줄도 없다. 남기고 싶은 건 '생각하는 틀'이다.", "startPrimary": {"label": "처음부터 — 왜 이 이야기를 너에게 →", "to": "letter"}, "startStar": {"label": "★ 복리 — 세상에서 가장 강한 힘", "to": "compound"}, "pathLabel": "삶의 사슬"}, "hub": {"url": "../index.html", "label": "← 경제·금융 허브"}}, "terms": {"자본주의": "개인·기업이 자유롭게 사고팔고 이윤을 추구하며, 시장 가격으로 자원이 배분되는 경제 체제.", "복리": "이자에 다시 이자가 붙는 것. 시간이 길수록 눈덩이처럼 불어난다.", "단리": "원금에만 이자가 붙는 것. 복리와 달리 시간이 지나도 증가 속도가 일정하다.", "72의 법칙": "72를 연이율로 나누면, 원금이 약 2배가 되는 데 걸리는 햇수가 나오는 간단한 어림법.", "분산투자": "한 곳에 몰지 않고 여러 자산에 나눠 위험을 줄이는 방법('계란을 한 바구니에 담지 마라').", "인덱스펀드": "특정 시장 전체(예: 주요 기업 묶음)를 그대로 따라가도록 만든 투자 상품.", "변동성": "가격이 위아래로 출렁이는 정도. 클수록 수익도 손실도 커질 수 있다.", "투기": "가치 분석 없이 가격 오르내림에만 베팅하는 것. 투자와 구분된다.", "리스크": "기대와 다른 결과(특히 손실)가 날 가능성. 수익을 바라면 늘 따라온다.", "기회비용": "어떤 선택을 하느라 포기한 다른 선택의 가치."}, "sections": [{"id": "letter", "num": "00", "label": "왜 이 이야기를 너에게", "accent": "#9a7b2e", "kicker": "여는 편지", "era": "시작하며", "motif": "torch", "title": "겁먹지도, 휩쓸리지도 않기를", "hook": "사랑하는 아이에게. 너는 곧 어른이 된다. 어른의 세상은 끊임없이 너에게 돈에 관한 결정을 요구할 것이다 — 무엇을 살지, 얼마를 모을지, 빚을 낼지, 누구의 말을 믿을지. 나는 네가 부자가 되기를 바라기보다, <b>돈 앞에서 당당하기를</b> 바란다. 돈을 모르면 평생 돈에 끌려다니지만, 돈을 알면 돈을 도구로 부릴 수 있다. 이 편지는 그 '아는 법'에 관한 것이다.", "spark": {"title": "이 편지가 약속하지 않는 것", "body": "이 글은 '어떻게 빨리 부자가 되는가'를 말하지 않는다. 그런 비법은 대개 거짓이거나, 누군가 네 돈을 노리는 미끼다. 대신 이 글은 평생 너를 지켜줄 몇 가지 '생각의 틀'을 남긴다 — 자본주의의 작동 원리, 복리와 시간, 투자와 투기의 차이, 그리고 돈을 대하는 태도.", "mind": "돈에 관한 가장 위험한 말은 '쉽고 빠르게 큰돈을 벌 수 있다'이다. 그 말을 들을 때마다, 한 걸음 물러서서 의심하는 법을 배우는 것 — 그것만으로도 이 편지는 제값을 한다."}, "why": "돈 공부가 왜 중요할까? 학교는 미적분과 역사를 가르치지만, '월급을 어떻게 관리하고, 빚이 왜 무섭고, 투자와 도박이 어떻게 다른지'는 잘 가르치지 않는다. 그러나 이것들은 평생 너의 삶의 질을 좌우한다. 돈을 아는 것은 욕심이 아니라 <b>자기 삶을 스스로 지키는 힘</b>이다.<br><br>📚 <b>교과 연결</b> — 「통합사회」 합리적 선택과 금융생활, 「경제」 가계의 의사결정.", "cards": [{"yr": "목표 1", "h": "휘둘리지 않기", "p": "광고·유행·'쉬운 돈' 유혹에 끌려다니지 않는 판단력."}, {"yr": "목표 2", "h": "겁먹지 않기", "p": "돈을 몰라서 생기는 막연한 불안에서 벗어나기."}, {"yr": "목표 3", "h": "도구로 부리기", "p": "돈을 인생의 목적이 아니라, 원하는 삶을 위한 수단으로 쓰기."}], "connect": "먼저, 우리가 사는 이 경제 체제 — 자본주의 — 가 도대체 무엇인지부터 짚어 보자. 게임의 규칙을 알아야 게임을 잘할 수 있으니까.", "links": [{"label": "금융 이해력(금융 문해력)", "url": "https://en.wikipedia.org/wiki/Financial_literacy", "source": "Wikipedia(영문)", "note": "돈을 다루는 기본 지식과 그 중요성."}, {"label": "개인 재무관리", "url": "https://ko.wikipedia.org/wiki/개인_재무", "source": "위키백과", "note": "수입·지출·저축·투자의 기본."}], "reflect": ["너에게 '돈을 잘 안다'는 것은 어떤 모습일까? 부자가 되는 것과 같을까, 다를까?"], "order": ["hook", "spark", "why", "cards", "connect", "links", "reflect"]}, {"id": "capitalism", "image": [{"src": "img/market.jpg", "alt": "물건이 가득한 상점", "caption": "풍요의 진열대 — 자본주의는 엄청난 생산력으로 물질적 풍요를 가져왔다. 그러나 그 열매는 고르게 나뉘지 않는다.", "source": "Wikimedia Commons", "license": "CC BY 2.0"}], "num": "01", "label": "자본주의란 무엇인가", "accent": "#3a5b4b", "kicker": "게임의 규칙", "era": "우리가 사는 체제", "motif": "gear", "title": "우리가 사는 게임의 규칙", "hook": "너는 자본주의 안에서 태어났다. 물 속의 물고기가 물을 의식하지 못하듯, 우리는 이 체제를 너무 당연하게 여겨 그 규칙을 잘 들여다보지 않는다. 자본주의란 한마디로 <b>'각자 자유롭게 사고팔고, 가격이 모든 것을 조율하는' 경제 게임</b>이다. 이 게임은 인류 역사상 가장 큰 풍요를 만들었지만, 동시에 가장 큰 불평등도 낳았다. 규칙을 알면, 게임이 다르게 보인다.", "spark": {"title": "숫자의 충격 — 풍요의 폭발", "body": "산업화와 시장경제가 퍼지기 전, 인류 대부분은 극심한 가난 속에 살았다. 그러나 지난 200년간, 자본주의적 생산력은 식량·의약·물자를 폭발적으로 늘려 전 세계 극빈율을 극적으로 떨어뜨렸다. 인류가 이렇게 짧은 시간에 이만큼 부유해진 적은 없었다.", "mind": "200년 전엔 세계 인구의 약 90%가 극빈 상태였지만, 오늘날엔 10% 안팎이다 — 다만 '평균의 풍요'가 '모두의 풍요'를 뜻하진 않는다."}, "why": "자본주의의 엔진은 세 가지다 — ①사유재산(내 것을 가질 수 있다) ②시장과 가격(무엇을 얼마나 만들지 가격이 신호를 준다) ③경쟁과 이윤(더 잘 만들면 보상받는다). 이 구조가 사람들의 노력과 혁신을 끌어내 엄청난 생산력을 낳았다. 하지만 같은 구조가 '이긴 자에게 더 몰리는' 불평등도 만든다. 그래서 대부분의 나라는 순수 자본주의가 아니라, 세금·복지·규제로 그늘을 보완한 '혼합경제'를 택한다.<br><br>📚 <b>교과 연결</b> — 「통합사회」 시장경제와 정부, 「경제」 시장의 기능과 한계.", "chart": {"title": "전 세계 극빈율(하루 최저 생계 미만 인구 비율)", "unit": "%", "data": [{"label": "1820", "value": 90, "disp": "약 90%"}, {"label": "1950", "value": 55, "disp": "약 55%"}, {"label": "1990", "value": 37, "disp": "약 37%"}, {"label": "2015", "value": 10, "disp": "약 10%"}], "relatable": "산업화·시장경제가 퍼지며 절대빈곤은 크게 줄었다. 풍요는 자본주의의 빛이고, 불평등은 그림자다.", "source": "전 세계 극빈율 추정 일반 통설(대략값)"}, "lens": "그러니 자본주의를 '무조건 좋다/나쁘다'로 보는 건 너무 단순하다. 풍요를 만든 것도, 불평등을 만든 것도 같은 엔진이다. 현명한 어른은 그 빛과 그림자를 함께 보고, '이 게임에서 나는 어떻게 살 것인가'를 스스로 정한다.", "cards": [{"yr": "엔진 1", "h": "사유재산", "p": "내가 일하고 모은 것을 '내 것'으로 가질 수 있다."}, {"yr": "엔진 2", "h": "시장·가격", "p": "가격이 '무엇을 얼마나 만들지'를 자동으로 신호한다."}, {"yr": "엔진 3", "h": "경쟁·이윤", "p": "더 잘 만들면 보상받는다 — 혁신의 동력."}, {"yr": "그늘", "h": "불평등", "p": "이긴 쪽에 부가 몰린다. 그래서 복지·규제로 보완한다."}], "connect": "이 게임 안에서, 보통 사람이 쓸 수 있는 가장 강력한 도구가 하나 있다. 화려하지 않지만 시간이 지날수록 무섭게 강해지는 것 — 복리다.", "links": [{"label": "자본주의", "url": "https://ko.wikipedia.org/wiki/자본주의", "source": "위키백과", "note": "시장경제 체제의 원리와 특징."}, {"label": "혼합경제", "url": "https://ko.wikipedia.org/wiki/혼합경제", "source": "위키백과", "note": "시장 + 정부의 보완."}, {"label": "경제적 불평등", "url": "https://ko.wikipedia.org/wiki/경제적_불평등", "source": "위키백과", "note": "자본주의의 그늘과 대응."}], "quiz": [{"q": "자본주의에 대한 가장 균형 잡힌 이해는?", "options": ["완벽한 체제라 손댈 필요가 없다", "큰 풍요를 만든 동시에 불평등도 낳는, 빛과 그림자를 함께 가진 체제다", "실패한 체제여서 곧 사라질 것이다"], "answer": 1, "explain": "풍요(빛)와 불평등(그림자)은 같은 엔진에서 나온다. 그래서 대부분의 나라가 시장에 복지·규제를 더한 혼합경제를 택한다."}], "reflect": ["자본주의의 '빛'과 '그림자' 중, 너는 어느 쪽을 더 자주 느끼며 살고 있니? 왜 그럴까?"], "order": ["hook", "spark", "why", "chart", "lens", "cards", "image:0", "connect", "links", "quiz", "reflect"]}, {"id": "compound", "star": true, "num": "02", "label": "★ 복리 — 가장 강한 힘", "accent": "#7a5b2e", "kicker": "시간의 마법", "era": "복리의 원리", "motif": "sun", "title": "세상에서 가장 강한 힘", "hook": "'세계 8대 불가사의는 복리다.' 아인슈타인이 했다고 흔히 전해지는 말이다(사실 출처는 불확실하다). 출처야 어떻든, 이 말이 가리키는 진실은 분명하다. 복리는 화려하지 않다. 하루하루는 거의 변화가 없어 보인다. 그런데 충분한 <b>시간</b>이 지나면, 그 작은 차이가 믿기 힘든 격차로 벌어진다. 복리는 부자들의 비밀이 아니라, 누구에게나 열린 — 다만 대부분이 참지 못해 놓치는 — 힘이다.", "spark": {"title": "일상 속 숨은 원리 — 72의 법칙", "body": "'내 돈이 2배가 되는 데 몇 년 걸릴까?'를 암산하는 간단한 방법이 있다. 72를 연이율로 나누면 된다. 연 6%면 72÷6=12년, 연 9%면 72÷9=8년. 이 작은 공식 하나로, 너는 어떤 금융 상품의 약속이 현실적인지 머릿속으로 가늠할 수 있다.", "mind": "'연 30% 수익 보장'이라는 광고를 보면 72÷30≈2.4년마다 돈이 2배가 된다는 뜻이다 — 그런 일은 현실에서 거의 없다. 즉 그것은 십중팔구 사기다."}, "why": "복리의 핵심은 '이자가 이자를 낳는다'는 것이다. 단리는 원금에만 이자가 붙어 일정하게 늘지만, 복리는 불어난 돈 전체에 다시 이자가 붙어 갈수록 가속한다. 그래서 복리에서 가장 중요한 변수는 '수익률'보다 오히려 <b>'시간'</b>이다. 일찍, 그리고 오래 — 이것이 복리를 내 편으로 만드는 유일한 비결이다.<br><br>📚 <b>교과 연결</b> — 「수학」 지수·등비수열, 「경제」 이자와 복리.", "chart": {"title": "100만원을 연 7% 복리로 두면 (예시)", "unit": "만원", "data": [{"label": "0년", "value": 100, "disp": "100만원"}, {"label": "10년", "value": 197, "disp": "약 197만원"}, {"label": "20년", "value": 387, "disp": "약 387만원"}, {"label": "30년", "value": 761, "disp": "약 761만원"}, {"label": "40년", "value": 1497, "disp": "약 1,497만원"}], "relatable": "처음 100만원에 새 돈을 한 푼도 더 넣지 않아도, 40년이면 약 15배가 된다 — 더한 것은 오직 '시간'이다.", "source": "복리 공식(1.07ⁿ) 계산 예시 — 실제 수익률은 보장되지 않음"}, "cards": [{"yr": "원리", "h": "이자가 이자를", "p": "불어난 돈 전체에 다시 이자가 붙어 갈수록 빨라진다."}, {"yr": "핵심", "h": "시간 > 수익률", "p": "높은 수익률보다, 오래 굴리는 시간이 더 강력하다."}, {"yr": "도구", "h": "72의 법칙", "p": "72÷이율 = 2배 되는 햇수. 비현실적 약속을 거르는 잣대."}, {"yr": "경고", "h": "양날의 검", "p": "복리는 자산엔 천사지만, 빚에는 악마가 된다(다음 편)."}], "timeline": [{"yr": "단리", "t": "원금에만 이자 — 일정하게 증가"}, {"yr": "복리", "t": "이자에 이자 — 갈수록 가속"}, {"yr": "시간", "t": "길수록 격차가 폭발적으로 벌어짐"}], "connect": "복리는 자산을 불릴 때만 작동하는 게 아니다. 정확히 같은 원리가 '빚'에도 작동한다 — 그것도 너에게 불리한 방향으로. 그래서 삶에서의 진짜 투자는 '빚의 복리'를 이해하는 데서 시작한다.", "links": [{"label": "복리", "url": "https://ko.wikipedia.org/wiki/복리", "source": "위키백과", "note": "이자에 이자가 붙는 원리."}, {"label": "72의 법칙", "url": "https://en.wikipedia.org/wiki/Rule_of_72", "source": "Wikipedia(영문)", "note": "2배 되는 기간을 어림하는 법."}], "quiz": [{"q": "복리에서 가장 결정적인 요소에 가장 가까운 것은?", "options": ["딱 한 번의 큰 수익", "오래 굴리는 '시간'", "거래를 자주 하는 부지런함"], "answer": 1, "explain": "복리는 시간을 먹고 자란다. 같은 수익률이라도 기간이 길수록 결과는 폭발적으로 커진다. 그래서 '일찍·오래'가 핵심이다."}, {"q": "'연 30% 수익을 보장한다'는 제안을 만났을 때 현명한 반응은?", "options": ["기회를 놓칠까 봐 서둘러 돈을 넣는다", "72÷30≈2.4년마다 2배라는 비현실적 약속임을 떠올리고, 사기를 강하게 의심한다", "수익률이 높으니 무조건 안전하다고 본다"], "answer": 1, "explain": "지속적인 고수익 '보장'은 현실에 거의 없다. 72의 법칙으로 비현실성을 가늠하고 의심하는 습관이 너를 사기에서 지킨다."}], "reflect": ["복리에서 '시간'이 가장 중요하다면, 지금 10대~20대인 너는 어떤 자산을 이미 가지고 있는 걸까?"], "order": ["hook", "spark", "why", "chart", "cards", "timeline", "connect", "links", "quiz", "reflect"]}, {"id": "real-investing", "num": "03", "label": "삶에서의 복리투자란", "accent": "#5b3a3a", "kicker": "현실의 투자", "era": "원칙과 경고", "motif": "wave", "title": "천사의 복리, 악마의 복리", "hook": "복리는 두 얼굴을 가졌다. 네가 모은 돈에 붙으면 천사가 되어 너를 부유하게 하지만, 네가 진 빚에 붙으면 악마가 되어 너를 삼킨다. 카드 리볼빙이나 고금리 대출이 무서운 이유가 바로 이것이다 — <b>갚지 않은 빚도 복리로 불어난다.</b> 삶에서의 진짜 투자는 화려한 종목 찾기가 아니라, 먼저 '악마의 복리'를 피하는 데서 시작한다.", "spark": {"title": "숫자의 충격 — 빚의 복리", "body": "연 20%짜리 빚 100만원을 갚지 않고 두면, 복리로 5년 뒤 약 249만원, 10년 뒤 약 619만원이 된다. 돈을 더 빌리지 않았는데도 빚이 6배로 불어나는 것이다. 자산의 복리는 천천히 느껴지지만, 빚의 복리는 무섭게 빠르게 너를 덮친다.", "mind": "부자가 되는 가장 확실한 첫걸음은 '고금리 빚을 지지 않는 것'이다 — 연 20% 빚을 안 지는 것은, 연 20% 수익을 내는 것과 똑같은 가치다."}, "why": "그렇다면 자산의 복리는 어떻게 내 편으로 만들까? 전 세계에서 오랫동안 가르쳐 온 '교과서적 원칙'은 화려하지 않다 — ①일찍 시작하고 ②꾸준히 모으고 ③한 곳에 몰지 말고 넓게 분산하고(분산투자) ④오래 기다리는 것. 많은 전문가가 보통 사람에게 '시장 전체를 사서 오래 묻어두는' 인덱스 방식을 권하는 이유도, 그것이 단순하고 비용이 낮으며 분산되기 때문이다.<br><br>⚠️ 이것은 일반적인 '교육 원칙'을 소개하는 것이지, 특정 상품을 사라는 권유가 아니다. 모든 투자에는 손실 위험이 있고, 선택과 책임은 본인의 몫이다.<br><br>📚 <b>교과 연결</b> — 「통합사회」 합리적 금융생활, 「경제」 저축과 투자.", "chart": {"title": "안 갚은 빚 100만원, 연 20% 복리 (예시)", "unit": "만원", "data": [{"label": "0년", "value": 100, "disp": "100만원"}, {"label": "3년", "value": 173, "disp": "약 173만원"}, {"label": "5년", "value": 249, "disp": "약 249만원"}, {"label": "10년", "value": 619, "disp": "약 619만원"}], "relatable": "더 빌리지 않아도 빚은 복리로 스스로 불어난다. 고금리 빚을 피하는 것이 최고의 '투자'인 이유다.", "source": "복리 공식(1.20ⁿ) 계산 예시"}, "cards": [{"yr": "0순위", "h": "악마 피하기", "p": "고금리 빚(카드 리볼빙·일수 등)을 먼저 끊는다."}, {"yr": "원칙 1", "h": "일찍·꾸준히", "p": "적은 돈이라도 일찍, 규칙적으로. 시간을 내 편으로."}, {"yr": "원칙 2", "h": "넓게 분산", "p": "한 종목·한 자산에 올인하지 않는다(계란 한 바구니 금지)."}, {"yr": "원칙 3", "h": "비용·세금 줄이기", "p": "잦은 거래의 수수료·세금이 복리를 갉아먹는다."}], "timeline": [{"yr": "1단계", "t": "고금리 빚 정리(악마의 복리 차단)"}, {"yr": "2단계", "t": "비상금 마련(예상치 못한 일 대비)"}, {"yr": "3단계", "t": "일찍·꾸준히·분산해 오래 투자"}], "connect": "분산·장기의 원칙에서 빠지지 않는 것이 '주식'이다. 그런데 주식이란 도대체 무엇이고, 사기 전에 무엇을 알아야 할까?", "links": [{"label": "분산투자", "url": "https://ko.wikipedia.org/wiki/분산_투자", "source": "위키백과", "note": "위험을 나누는 기본 원칙."}, {"label": "인덱스 펀드", "url": "https://ko.wikipedia.org/wiki/인덱스_펀드", "source": "위키백과", "note": "시장 전체를 따라가는 투자 방식."}, {"label": "복리(빚 포함)", "url": "https://ko.wikipedia.org/wiki/복리", "source": "위키백과", "note": "자산에도 빚에도 작동하는 원리."}], "quiz": [{"q": "'삶에서의 투자'의 가장 현명한 첫걸음으로 가장 알맞은 것은?", "options": ["가진 돈을 전부 한 인기 종목에 넣는다", "고금리 빚(악마의 복리)부터 끊고, 비상금을 마련한 뒤 일찍·꾸준히·분산해 오래 투자한다", "빚을 크게 내서 더 크게 투자한다"], "answer": 1, "explain": "고금리 빚을 피하는 것이 최고의 투자다. 그 뒤 비상금 → 일찍·꾸준히·분산·장기가 교과서적 순서다. (특정 상품 권유 아님)"}], "reflect": ["'연 20% 빚을 안 지는 것 = 연 20% 수익을 내는 것'이라는 말의 뜻을 너의 말로 설명해 보자."], "order": ["hook", "spark", "why", "chart", "cards", "timeline", "connect", "links", "quiz", "reflect"]}, {"id": "stock-knowledge", "image": [{"src": "img/stock_exchange.jpg", "alt": "증권거래소", "caption": "주식시장 — 회사의 '조각'을 사고파는 곳. 주식을 산다는 것은 그 회사의 일부 주인이 되는 것이다.", "source": "Wikimedia Commons", "license": "퍼블릭 도메인(PD)"}], "num": "04", "label": "주식 — 무엇을 알아야 하나", "accent": "#33406B", "kicker": "지식의 준비", "era": "주식이란", "motif": "globe", "title": "주식을 산다는 것의 진짜 의미", "hook": "많은 사람이 주식을 '오르면 팔아 차익을 남기는 숫자 게임'으로 여긴다. 하지만 주식의 본래 뜻은 그게 아니다. 주식 한 주를 산다는 것은, <b>그 회사의 아주 작은 한 조각의 주인이 되는 것</b>이다. 즉 너는 그 회사의 미래에 함께 올라타는 것이다. 이 사실 하나만 제대로 이해해도, 주식을 보는 눈이 완전히 달라진다.", "spark": {"title": "상식 뒤집기", "body": "'주식 투자 = 차트를 보고 사고파는 것'이라고들 한다. 그러나 역사적으로 큰 부를 쌓은 투자자들은 대개 정반대였다 — 좋은 회사의 주인이 되어 오래 함께 성장했다. 주식은 '거래하는 종이'가 아니라 '소유하는 사업'이라는 관점이, 단타의 유혹에서 너를 지킨다.", "mind": "주식시장 전체는 길게 보면 우상향해 왔지만, 그 길은 결코 직선이 아니었다 — 폭락과 회복을 수없이 반복하며 올라왔다. 그 출렁임을 견디지 못하면, 우상향의 열매도 얻지 못한다."}, "why": "주식을 알기 위해 꼭 기억할 것들 — ①주식은 회사의 소유권이다(빌려주는 채권과 다르다). ②시장은 단기적으로 예측 불가능하다(아무도 내일을 모른다). ③정보는 비대칭이다(전문가·기관이 너보다 많이 안다). ④비용과 세금이 수익을 갉아먹는다. ⑤'모두가 아는 좋은 소식'은 이미 가격에 반영돼 있다. 이 다섯 가지를 모르고 뛰어드는 것은, 규칙도 모르고 경기장에 들어서는 것과 같다.<br><br>⚠️ 이 글은 주식을 사라거나 사지 말라는 권유가 아니라, '알고 시작하라'는 이야기다.<br><br>📚 <b>교과 연결</b> — 「경제」 주식회사와 자본시장, 「통합사회」 정보와 합리적 선택.", "cards": [{"yr": "사실 1", "h": "회사의 소유권", "p": "주식 = 회사의 일부. 빌려주는 빚(채권)과 다르다."}, {"yr": "사실 2", "h": "단기는 예측 불가", "p": "내일의 가격은 아무도 모른다. 확신하는 사람을 의심하라."}, {"yr": "사실 3", "h": "정보 비대칭", "p": "기관·전문가는 너보다 많이, 빨리 안다."}, {"yr": "사실 4", "h": "비용이 샌다", "p": "수수료·세금이 잦은 거래마다 수익을 깎는다."}], "connect": "이제 '무엇을 알아야 하는가'를 봤으니, 마지막으로 가장 중요한 것이 남았다 — 같은 지식을 가지고도 성패를 가르는 것, 바로 '마음가짐'이다.", "links": [{"label": "주식", "url": "https://ko.wikipedia.org/wiki/주식", "source": "위키백과", "note": "회사 소유권의 한 조각."}, {"label": "주식회사", "url": "https://ko.wikipedia.org/wiki/주식회사", "source": "위키백과", "note": "소유를 잘게 나눈 기업 형태."}, {"label": "효율적 시장 가설", "url": "https://ko.wikipedia.org/wiki/효율적_시장_가설", "source": "위키백과", "note": "'좋은 소식은 이미 가격에 있다'는 생각."}], "quiz": [{"q": "'주식을 산다'는 것의 가장 본질적인 의미는?", "options": ["정부에 돈을 빌려주는 것", "그 회사의 아주 작은 한 조각의 '주인'이 되는 것", "은행에 돈을 예금하는 것"], "answer": 1, "explain": "주식은 회사의 소유권 한 조각이다. '거래하는 종이'가 아니라 '소유하는 사업'으로 볼 때 단타의 유혹에서 멀어진다."}], "reflect": ["'주식 = 회사의 소유권'이라는 관점과 '주식 = 사고파는 숫자'라는 관점은, 너의 행동을 어떻게 다르게 만들까?"], "order": ["hook", "spark", "why", "cards", "image:0", "connect", "links", "quiz", "reflect"]}, {"id": "mindset", "num": "05", "label": "어떤 마음가짐으로", "accent": "#4b3a6b", "kicker": "태도의 준비", "era": "마음의 근육", "motif": "dove", "title": "결국 이기는 건 마음이다", "hook": "투자에서 가장 큰 적은 시장이 아니라 <b>너 자신</b>이다. 가격이 오르면 '더 늦기 전에!' 하는 탐욕이, 떨어지면 '다 잃을지도 몰라!' 하는 공포가 너를 흔든다. 똑같은 지식을 가진 두 사람도, 이 감정을 다스리는 능력에서 성패가 갈린다. 돈을 다루는 일은 머리의 문제이기 전에 <b>마음의 문제</b>다.", "spark": {"title": "상식 뒤집기 — 공포와 탐욕", "body": "사람들은 대개 가격이 한껏 오른 '비쌀 때' 흥분해서 사고, 폭락한 '쌀 때' 겁에 질려 판다. 즉 본능을 따르면 '비싸게 사서 싸게 파는' 정반대 행동을 하게 된다. 그래서 현명한 투자자는 자기 본능을 의심하고, 군중과 반대로 생각하는 훈련을 한다.", "mind": "투자의 가장 어려운 기술은 '분석'이 아니라 '아무것도 하지 않고 견디는 것'이다 — 공포와 탐욕 속에서 가만히 있기가 가장 어렵다."}, "why": "그래서 필요한 마음의 원칙들 — ①잃어도 삶이 흔들리지 않을 돈으로만 한다. ②빚으로 투자하지 않는다(빚은 공포를 두 배로 키운다). ③'쉽고 빠른 큰돈' 이야기는 일단 사기로 의심한다. ④남과 비교하지 않는다(SNS의 자랑은 대개 과장이거나 운이다). ⑤내가 이해하지 못하는 것에는 손대지 않는다. 이 다섯 가지는 수익을 보장하진 않지만, <b>너를 파국에서 지켜준다.</b><br><br>⚠️ 투자 권유가 아니다. 어떤 결정을 하든, 그 책임과 위험은 본인에게 있다.<br><br>📚 <b>교과 연결</b> — 「통합사회」 합리적 의사결정과 자기관리.", "compare": {"h": "투자 vs 투기 vs 도박 ⚖️", "states": [{"label": "투자", "title": "투자 — 가치에 근거", "body": "회사·자산의 실제 가치를 분석하고, 위험을 관리하며, 길게 본다. 시간을 내 편으로 삼는다."}, {"label": "투기", "title": "투기 — 가격에 베팅", "body": "가치는 보지 않고 '오를 것'에만 단기로 베팅한다. 운과 타이밍에 의존한다."}, {"label": "도박", "title": "도박 — 확률이 불리", "body": "구조적으로 잃게 설계된 게임. '큰 한 방'의 환상이 미끼다. 투자와 혼동하면 위험하다."}]}, "cards": [{"yr": "원칙 1", "h": "잃어도 될 돈만", "p": "생활비·등록금·빚낸 돈으로 투자하지 않는다."}, {"yr": "원칙 2", "h": "사기 의심", "p": "'보장된 고수익', '비밀 정보'는 거의 다 미끼다."}, {"yr": "원칙 3", "h": "비교 금지", "p": "남의 '대박 자랑'은 과장·생존편향·운인 경우가 많다."}, {"yr": "원칙 4", "h": "모르면 패스", "p": "이해 못 하는 상품엔 손대지 않는다. 그게 용기다."}], "connect": "지식과 마음가짐을 모두 갖췄다면, 마지막으로 가장 큰 질문이 남는다 — 그래서 돈으로 어떤 삶을 살 것인가? 이 편지의 마지막 장으로 가자.", "links": [{"label": "행동경제학", "url": "https://ko.wikipedia.org/wiki/행동경제학", "source": "위키백과", "note": "사람의 감정·편향이 돈 결정에 미치는 영향."}, {"label": "투기", "url": "https://ko.wikipedia.org/wiki/투기", "source": "위키백과", "note": "투자와 투기의 차이."}, {"label": "폰지 사기", "url": "https://ko.wikipedia.org/wiki/폰지_사기", "source": "위키백과", "note": "'고수익 보장'의 대표적 사기 구조."}], "quiz": [{"q": "투자에서 '마음가짐'이 결정적인 이유로 가장 알맞은 것은?", "options": ["감정은 투자와 아무 상관이 없어서", "탐욕·공포에 휘둘리면 본능적으로 '비싸게 사서 싸게 파는' 잘못을 저지르기 때문에", "마음만 강하면 반드시 큰 수익이 나서"], "answer": 1, "explain": "지식이 같아도 감정 통제력이 성패를 가른다. 다만 마음가짐이 좋아도 수익이 '보장'되진 않는다 — 위험은 늘 존재한다."}], "reflect": ["'잃어도 삶이 흔들리지 않을 돈으로만 한다'는 원칙이 왜 가장 먼저 지켜야 할 약속일까?"], "order": ["hook", "spark", "why", "compare", "cards", "connect", "links", "quiz", "reflect"]}, {"id": "grown-up", "num": "06", "label": "돈을 아는 어른으로", "accent": "#2e5b4b", "kicker": "닫는 편지", "era": "마치며", "motif": "torch", "title": "돈은 목적이 아니라 도구다", "hook": "긴 이야기의 끝에서, 가장 하고 싶은 말을 남긴다. 돈은 중요하다 — 그러나 돈은 <b>목적이 아니라 도구</b>다. 통장의 숫자를 늘리는 것 자체가 인생의 목표가 되면, 아무리 많이 모아도 늘 부족하고 불안하다. 돈을 아는 진짜 이유는, 돈 걱정에 인생을 빼앗기지 않고 <b>네가 정말 원하는 삶</b>에 집중하기 위해서다.", "spark": {"title": "진짜 자산은 따로 있다", "body": "복리는 돈에만 있는 게 아니다. 건강·지식·신뢰·관계도 시간이 지날수록 복리로 불어나는 자산이다. 그리고 이것들은 돈으로 되살 수 없다. 젊을 때 가장 크게 가진 자산은 통장 잔고가 아니라, 앞에 놓인 긴 '시간'이다 — 그 시간을 무엇에 쓰느냐가 모든 복리의 출발점이다.", "mind": "부자의 진짜 기준은 '얼마를 가졌나'가 아니라 '돈 때문에 하기 싫은 일을 얼마나 안 해도 되나'일지 모른다 — 그것이 자유다."}, "why": "그러니 이렇게 살기를 바란다. 버는 것보다 적게 쓰고, 그 차이를 일찍부터 꾸준히 모으고, 고금리 빚을 멀리하고, 이해하는 것에만 길게 투자하고, 무엇보다 돈을 '무엇을 위한 도구'로 쓸지를 늘 생각하기를. 그렇게 하면 너는 큰 부자가 되지 않더라도, 돈에 휘둘리지 않는 <b>자유로운 어른</b>이 될 수 있다. 그거면 충분하다.<br><br>📚 <b>교과 연결</b> — 「통합사회」 행복과 삶의 질, 합리적 금융생활.", "cards": [{"yr": "기억 1", "h": "도구일 뿐", "p": "돈은 목적이 아니라 원하는 삶을 위한 수단이다."}, {"yr": "기억 2", "h": "시간이 최고 자산", "p": "젊음의 긴 시간이 모든 복리의 출발점이다."}, {"yr": "기억 3", "h": "안 보이는 부", "p": "건강·지식·관계도 복리로 자라는, 돈 못 사는 자산."}, {"yr": "기억 4", "h": "자유가 목표", "p": "'하기 싫은 일을 안 해도 되는 힘'이 진짜 부유함."}], "connect": "여기까지 읽어줘서 고맙다. 이 4부작이 너의 평생에 작은 나침반이 되기를 바란다. 돈을 알되, 돈에 삼켜지지 않는 어른으로 살아가기를. — 너를 사랑하는 사람이.", "links": [{"label": "행복경제학", "url": "https://en.wikipedia.org/wiki/Happiness_economics", "source": "Wikipedia(영문)", "note": "돈과 행복의 관계 연구."}, {"label": "경제적 자유", "url": "https://en.wikipedia.org/wiki/Financial_independence", "source": "Wikipedia(영문)", "note": "돈에 덜 휘둘리는 상태."}], "reflect": ["네가 생각하는 '돈을 잘 아는 어른'의 모습을 한 문장으로 적어보자. 그리고 그렇게 되기 위해 오늘 할 수 있는 작은 일 하나를 적어보자."], "order": ["hook", "spark", "why", "cards", "connect", "links", "reflect"]}]};</script>
+
+<!-- 렌더 엔진 (모든 에피소드 공통) -->
+<script>
+const EP = window.EPISODE;
+const META = EP.meta, TERMS = EP.terms||{}, SECTIONS = EP.sections, PEOPLE = EP.people||null;
+
+function T(text){ let out=text; for(const k of Object.keys(TERMS)){ out=out.split(k).join('<span class="term" data-term="'+k+'">'+k+'</span>'); } return out; }
+function ytURL(v){ return v.type==='search' ? 'https://www.youtube.com/results?search_query='+encodeURIComponent(v.q) : 'https://www.youtube.com/watch?v='+v.id; }
+
+const MOTIF = {
+  flag:'<path d="M40 30v140M40 36h110l-20 28 20 28H40" fill="none" stroke="#fff" stroke-width="7"/>',
+  crowd:'<g fill="#fff"><circle cx="60" cy="70" r="22"/><circle cx="110" cy="60" r="26"/><circle cx="150" cy="78" r="20"/><rect x="38" y="96" width="44" height="70" rx="18"/><rect x="84" y="90" width="52" height="80" rx="20"/><rect x="132" y="100" width="40" height="66" rx="16"/></g>',
+  book:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M105 50c-18-14-44-14-62 0v96c18-14 44-14 62 0M105 50c18-14 44-14 62 0v96c-18-14-44-14-62 0M105 50v96"/></g>',
+  map:'<g fill="none" stroke="#fff" stroke-width="6"><path d="M50 50l38 14 36-14 38 16v100l-38-16-36 14-38-14z"/><path d="M88 64v100M124 50v104"/></g>',
+  wave:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M30 110c20-26 40-26 60 0s40 26 60 0 40-26 40 0"/><path d="M30 150c20-26 40-26 60 0s40 26 60 0 40-26 40 0"/></g>',
+  sun:'<g fill="none" stroke="#fff" stroke-width="7"><circle cx="105" cy="105" r="34"/><path d="M105 40v22M105 148v22M40 105h22M148 105h22M58 58l16 16M152 152l-16-16M152 58l-16 16M58 152l16-16"/></g>',
+  split:'<g fill="none" stroke="#fff" stroke-width="7"><rect x="44" y="50" width="118" height="110" rx="10"/><path d="M103 50v110" stroke-dasharray="10 9"/></g>',
+  dove:'<g fill="#fff"><path d="M60 120c30 6 70-6 96-44-4 30-2 50 18 64-30 10-72 8-96-20z"/><circle cx="150" cy="74" r="6"/></g>',
+  globe:'<g fill="none" stroke="#fff" stroke-width="6"><circle cx="105" cy="105" r="58"/><ellipse cx="105" cy="105" rx="24" ry="58"/><path d="M47 105h116M55 76h100M55 134h100"/></g>',
+  ship:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M48 132h114l-16 30H64z"/><path d="M105 132V46M105 60l44 16-44 16M105 66l-34 12 34 12"/></g>',
+  torch:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M105 40c18 16 18 40 0 52-18-12-18-36 0-52z"/><path d="M88 96h34l-8 64H96z"/></g>',
+  gear:'<g fill="none" stroke="#fff" stroke-width="7"><circle cx="105" cy="105" r="26"/><path d="M105 52v18M105 140v18M52 105h18M140 105h18M68 68l13 13M137 137l-13-13M137 68l-13 13M68 137l13-13"/></g>'
+};
+
+const view=document.getElementById('view'), navList=document.getElementById('navList');
+const sidebar=document.getElementById('sidebar'), scrim=document.getElementById('scrim'), progress=document.getElementById('progress');
+let currentMap=null, bmaps=[];
+function killMap(){ if(currentMap){ try{currentMap.remove();}catch(e){} currentMap=null; }
+  bmaps.forEach(m=>{ try{m.remove();}catch(e){} }); bmaps=[]; }
+
+function visited(id){ return localStorage.getItem(META.slug+'_v_'+id)==='1'; }
+function markVisited(id){ localStorage.setItem(META.slug+'_v_'+id,'1'); }
+
+function head(){
+  if(META.hub){ const hb=document.getElementById('hubBack'); hb.href=META.hub.url; hb.textContent=META.hub.label;
+    const th=document.getElementById('tbHub'); if(th){ th.href=META.hub.url; } }
+  document.getElementById('brandTitle').textContent=META.brand.title;
+  document.getElementById('brandSub').textContent=META.brand.sub;
+  document.getElementById('sideFoot').innerHTML=META.foot||'';
+  document.getElementById('tbTitle').textContent=META.brand.title;
+}
+
+function buildNav(){
+  let html='<li><a class="home-link" data-id="home">🏠 홈 · 이야기 시작</a></li>'
+    +'<li><a class="notes-link" data-id="notes">📝 내 메모 모아보기</a></li>';
+  html+=SECTIONS.map(s=>'<li><a data-id="'+s.id+'" class="'+(s.star?'star':'')+' '+(visited(s.id)?'visited':'')+'">'
+    +'<span class="num">'+s.num+'</span>'+s.label+(s.star?'<span class="tag">★</span>':'')+'</a></li>').join('');
+  navList.innerHTML=html;
+  navList.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{ go(a.dataset.id); closeSide(); }));
+}
+
+function renderHome(){
+  const h=META.home;
+  view.innerHTML=
+  '<div class="home-hero"><h1>'+h.h1+'</h1><div class="hsub">'+h.sub+'</div>'
+  +(h.quote?'<div class="hq">"'+h.quote.text+'"<small>'+h.quote.by+'</small></div>':'')+'</div>'
+  +'<div class="home-wrap"><div class="home-intro">'+h.intro+'</div>'
+  +'<div class="start-btns"><a class="btn primary" data-id="'+h.startPrimary.to+'">'+h.startPrimary.label+'</a>'
+  +(h.startStar?'<a class="btn star" data-id="'+h.startStar.to+'">'+h.startStar.label+'</a>':'')+'</div>'
+  +'<h2 class="block" style="margin-top:34px;">'+(h.pathLabel||'이야기 흐름')+'</h2><ul class="path">'
+  +SECTIONS.map(s=>'<li class="'+(s.star?'star':'')+'" data-id="'+s.id+'"><span class="pn">'+s.num+'</span>'
+    +'<span><span class="ph">'+s.label+(s.star?' <span class="star-mark">★</span>':'')+'</span>'
+    +'<span class="pp">'+s.kicker+' · '+s.era+'</span></span></li>').join('')
+  +'</ul></div>';
+  view.querySelectorAll('[data-id]').forEach(el=>el.addEventListener('click',()=>{ go(el.dataset.id); closeSide(); }));
+  setActive('home'); window.scrollTo(0,0); progress.style.width='0%';
+}
+
+function ytBlock(v){
+  const pill = v.type==='search' ? '<span class="pill find">검색</span>' : (v.lang==='en'?'<span class="pill en">영어·자막</span>':'<span class="pill ko">한국어</span>');
+  return '<a class="yt" href="'+ytURL(v)+'" target="_blank" rel="noopener">'
+    +'<span class="play '+(v.type==='search'?'search':'')+'">'+(v.type==='search'?'🔍':'▶')+'</span>'
+    +'<span class="yt-body"><span class="yt-title">'+v.title+'</span>'
+    +'<span class="yt-meta">'+pill+(v.channel?'<span class="pill">'+v.channel+'</span>':'')+(v.length?'<span>'+v.length+'</span>':'')+'</span>'
+    +'<span class="yt-desc">'+v.desc+'</span></span></a>';
+}
+function quoteBlock(q){ return '<div class="quote"><span class="qm">"</span><div class="qt">'+q.qt+'</div><span class="qs">'+q.qs+'</span></div>'; }
+function quizHTML(quiz,sid){
+  return '<h2 class="block">잠깐, 기억나니? 🧠</h2><div class="quizwrap">'
+    + quiz.map((q,qi)=>'<div class="quizq" data-qi="'+qi+'"><div class="qq">'+(qi+1)+'. '+q.q+'</div><div class="qopts">'
+      + q.options.map((o,oi)=>'<button class="quiz-opt" data-oi="'+oi+'">'+o+'</button>').join('')
+      + '</div><div class="qexp" id="qexp_'+sid+'_'+qi+'"></div></div>').join('')
+    + '</div>';
+}
+function mapHTML(m,sid){
+  return '<h2 class="block">지도로 보기 🗺️</h2><div class="mapwrap">'
+    + '<div class="lmap" id="lmap_'+sid+'"></div>'
+    + '<div class="mapcap">'+(m.caption||'')+(m.source?' <span class="msrc">· 지도 ⓒ '+m.source+'</span>':'')+'</div></div>';
+}
+function choiceHTML(c,sid){
+  const opts=c.options.map((o,i)=>'<div><button class="chopt" data-oi="'+i+'">'+o.label+'</button>'
+    +'<div class="chres" id="chres_'+sid+'_'+i+'">'+T(o.result)+'</div></div>').join('');
+  return '<h2 class="block">'+(c.h||'너라면? 🤔')+'</h2><div class="choice" id="ch_'+sid+'">'
+    +'<div class="chprompt">'+T(c.prompt)+'</div><div class="chopts">'+opts+'</div>'
+    +(c.after?'<div class="chafter" id="chafter_'+sid+'">💬 '+T(c.after)+'</div>':'')+'</div>';
+}
+function compareHTML(c,sid){
+  const tabs=c.states.map((st,i)=>'<button class="cmptab'+(i===0?' active':'')+'" data-ci="'+i+'">'+st.label+'</button>').join('');
+  return '<h2 class="block">'+(c.h||'견주어 보기 ⚖️')+'</h2><div class="compare" id="cmp_'+sid+'">'
+    +(c.intro?'<div class="cmpintro">'+T(c.intro)+'</div>':'')
+    +'<div class="cmptabs">'+tabs+'</div><div class="cmppanel" id="cmppanel_'+sid+'"></div></div>';
+}
+function chartHTML(c,sid){
+  const max=Math.max.apply(null, c.data.map(d=>d.value))||1;
+  const rows=c.data.map(d=>'<div class="crow"><div class="clabel">'+d.label+'</div>'
+    +'<div class="cbarwrap"><div class="cbar" style="width:'+(d.value/max*100)+'%"></div></div>'
+    +'<div class="cval">'+(d.disp||d.value)+'</div></div>').join('');
+  return '<h2 class="block">'+(c.h||'숫자로 보기 📊')+'</h2><div class="chart"><div class="ctitle">'+c.title+'</div>'
+    +(c.unit?'<div class="cunit">'+c.unit+'</div>':'')+rows
+    +(c.relatable?'<div class="crelate">💡 '+T(c.relatable)+'</div>':'')
+    +(c.source?'<div class="csrc">출처: '+c.source+'</div>':'')+'</div>';
+}
+function voiceHTML(v){
+  const real = v.imagined===false;
+  return '<h2 class="block">'+(v.h||'그 사람의 목소리 🗣️')+'</h2><div class="voice">'
+    + '<span class="vbadge '+(real?'real':'imag')+'">'+(real?'실제 기록':'✍️ 사실에 기반한 상상')+'</span>'
+    + '<div class="vbody">'+T(v.body)+'”</div>'
+    + '<div class="vspeaker"><b>— '+v.speaker+'</b>'+(v.era?' · '+v.era:'')+(v.source?'<span class="vsrc">'+v.source+'</span>':'')+'</div>'
+    + '</div>';
+}
+function imageHTML(im,sid){
+  const hs=im.hotspots||[];
+  return '<h2 class="block">'+(im.h||'자료로 보기 🖼️')+'</h2><figure class="figimg">'
+    + (im.story?'<div class="figstory">'+T(im.story)+'</div>':'')
+    + '<div class="imgbox" id="imgbox_'+sid+'">'
+    + '<img src="'+im.src+'" alt="'+(im.alt||'')+'" loading="lazy">'
+    + hs.map((h,i)=>'<button class="hsdot" data-hi="'+i+'" style="left:'+h.x+'%;top:'+h.y+'%" aria-label="'+(h.label||'')+'">'+(i+1)+'</button>').join('')
+    + '</div>'
+    + (hs.length?'<div class="hsinfo" id="hsinfo_'+sid+'">점(번호)을 눌러 보세요.</div>':'')
+    + '<figcaption class="figcap">'+(im.caption||'')+(im.source?' <span class="msrc">· 출처: '+im.source+(im.license?' · '+im.license:'')+'</span>':'')+'</figcaption>'
+    + '</figure>';
+}
+function oldmapHTML(o,sid){
+  return '<h2 class="block">'+(o.h||'옛 지도로 보기 🗺️')+'</h2><figure class="oldmap">'
+    + (o.story?'<div class="figstory">'+T(o.story)+'</div>':'')
+    + '<div class="oldmap-frame"><img src="'+o.src+'" alt="'+(o.alt||'')+'" loading="lazy"></div>'
+    + '<figcaption class="figcap">'+(o.caption||'')+(o.source?' <span class="msrc">· 출처: '+o.source+(o.license?' · '+o.license:'')+'</span>':'')+'</figcaption>'
+    + '</figure>';
+}
+function lensBlock(l){ return '<div class="lens"><div class="lh">🕯️ 그때 사람들은 이렇게 생각했어요</div><div>'+T(l)+'</div></div>'; }
+function personBlock(p){
+  return '<div class="person"><div class="pheader"><div class="pface">'+(p.face||'👤')+'</div>'
+    +'<div><div class="pname">'+p.name+'</div><div class="pwho">'+(p.who||'')+'</div></div></div>'
+    +(p.why?'<div class="pwhy">'+T(p.why)+'</div>':'')
+    +(p.quote?'<div class="pquote">"'+p.quote+'"</div>':'')
+    +(p.shadow?'<div class="pshadow">빛과 그림자 · '+p.shadow+'</div>':'')
+    +(p.slug?'<a class="pmore" href="../people/'+p.slug+'/">📖 인물 도감에서 더 보기 →</a>':'')+'</div>';
+}
+
+const FIT={green:{e:'🟢',t:'전체 관람'},yellow:{e:'🟡',t:'부모와 함께'},red:{e:'🔴',t:'핵심 장면·맥락만'}};
+function movieBlock(m){
+  const f=FIT[m.fit]||FIT.yellow;
+  let s='<div class="movie"><div class="mhead"><div class="mtitle">🎬 '+m.title+'</div>'
+    +'<span class="mfit '+(m.fit||'yellow')+'">'+f.e+' '+f.t+'</span></div>'
+    +'<div class="mmeta">'+[m.year,m.director].filter(Boolean).join(' · ')
+    +(m.basedOn?' · <b>'+m.basedOn+'</b>':'')+'</div>';
+  if(m.why) s+='<div class="mwhy">'+T(m.why)+'</div>';
+  if(m.realVsFiction) s+='<div class="mreal"><span class="lbl">실화 vs 각색</span>'+m.realVsFiction+'</div>';
+  let links=[];
+  if(m.slug) links.push('<a class="mlink slug" href="../people/'+m.slug+'/">📖 인물 도감</a>');
+  (m.links||[]).forEach(l=>links.push('<a class="mlink" href="'+l.url+'" target="_blank" rel="noopener">'+l.label+' ↗</a>'));
+  if(links.length) s+='<div class="mlinks">'+links.join('')+'</div>';
+  return s+'</div>';
+}
+function battlemapHTML(bm,sid,idx){
+  const id='bm_'+sid+'_'+idx;
+  let s='<h2 class="block">'+(bm.title||'전투 지도')+' 🗺️</h2><div class="battlemap" id="'+id+'">';
+  if(bm.intro) s+='<div class="bm-intro">'+T(bm.intro)+'</div>';
+  s+='<div class="bm-map" id="'+id+'_map"></div>'
+    +'<div class="bm-step"><button class="bm-prev" disabled>← 이전</button><div class="bm-plabel" id="'+id+'_lab"></div><button class="bm-next">다음 →</button></div>';
+  if(bm.legend&&bm.legend.length) s+='<div class="bm-legend">'+bm.legend.map(l=>'<span><i style="border-color:'+l.c+'"></i> '+l.label+'</span>').join('')+'</div>';
+  if(bm.caption) s+='<div class="bm-cap">'+bm.caption+'</div>';
+  return s+'</div>';
+}
+function deepdiveHTML(dd){
+  let s='<details class="deepdive"><summary>🔎 더 깊이 — 고등·일반 수준으로 (펼치기)</summary><div class="dd-body">';
+  dd.forEach(it=>{ s+='<div class="dd-item"><h3>'+it.h+'</h3><div class="dd-text">'+T(it.body)+'</div>'
+    +(it.source?'<div class="dd-src">📜 '+it.source+'</div>':'')+'</div>'; });
+  return s+'</div></details>';
+}
+function linksHTML(arr){
+  let s='<h2 class="block">더 깊이 알아보기 🔗</h2><div class="links">';
+  arr.forEach(it=>{ s+='<a class="lk" href="'+it.url+'" target="_blank" rel="noopener">'
+    +'<span class="lk-label">'+it.label+'</span>'
+    +(it.note?'<span class="lk-note">'+T(it.note)+'</span>':'')
+    +(it.source?'<span class="lk-src">'+it.source+'</span>':'')+'</a>'; });
+  return s+'</div>';
+}
+function sparkHTML(sp){
+  let s='<div class="spark"><div class="spark-h">'+(sp.icon||'🤯')+' '+(sp.title||'상상해보기')+'</div>';
+  s+='<div class="spark-body">'+T(sp.body)+'</div>';
+  if(sp.mind) s+='<div class="spark-mind"><b>🌀 상식 뒤집기</b> — '+T(sp.mind)+'</div>';
+  return s+'</div>';
+}
+function marchmapHTML(m,sid){
+  const SY=1.55; // viewBox 0 0 100 155 (베이스맵 종횡비 ≈ 1866/2891)
+  const P={}; (m.places||[]).forEach(p=>P[p.id]=p);
+  const placePhase={};
+  (m.phases||[]).forEach((ph,i)=>(ph.show||[]).forEach(id=>{ if(placePhase[id]===undefined) placePhase[id]=i; }));
+  const KIND={start:'🚩',battle:'⚔️',win:'✔️',loss:'✖️',capital:'🏯',city:'•'};
+  let dots='';
+  (m.places||[]).forEach(p=>{
+    const ph=placePhase[p.id]!==undefined?placePhase[p.id]:0;
+    const emo=KIND[p.kind]||'';
+    dots+='<div class="mm-place k-'+(p.kind||'city')+'" data-ph="'+ph+'" style="left:'+p.x+'%;top:'+p.y+'%">'
+      +'<span class="mm-dot"></span><span class="mm-lbl">'+(emo&&emo!=='•'?emo+' ':'')+p.label+'</span></div>';
+  });
+  let paths='';
+  (m.phases||[]).forEach((ph,i)=>{
+    (ph.arrows||[]).forEach(a=>{
+      const f=P[a.from], t=P[a.to]; if(!f||!t) return;
+      const fx=f.x, fy=f.y*SY, tx=t.x, ty=t.y*SY;
+      const mx=(fx+tx)/2, my=(fy+ty)/2, dx=tx-fx, dy=ty-fy;
+      const cx=(mx-dy*0.16).toFixed(1), cy=(my+dx*0.16).toFixed(1);
+      const tone=a.tone||'resist';
+      paths+='<path class="mm-arrow tone-'+tone+'" data-ph="'+i+'" d="M'+fx+' '+fy.toFixed(1)+' Q'+cx+' '+cy+' '+tx+' '+ty.toFixed(1)+'" marker-end="url(#mmh-'+tone+')"></path>';
+      if(a.label) paths+='<text class="mm-alab tone-'+tone+'" data-ph="'+i+'" x="'+cx+'" y="'+cy+'">'+a.label+'</text>';
+    });
+  });
+  const n=(m.phases||[]).length, first=(m.phases&&m.phases[0]?m.phases[0].label:'');
+  let s='<h2 class="block">진격으로 따라가기 🗺️</h2><div class="marchmap" id="mm_'+sid+'" data-ph="0" data-n="'+n+'">';
+  if(m.title) s+='<div class="mm-title">'+m.title+'</div>';
+  if(m.intro) s+='<div class="mm-intro">'+T(m.intro)+'</div>';
+  s+='<div class="mm-stage"><img class="mm-base" src="'+m.base.src+'" alt="'+(m.title||'지도')+'" loading="lazy">'
+    +'<svg class="mm-arrows" viewBox="0 0 100 155" preserveAspectRatio="xMidYMid meet"><defs>'
+    +'<marker id="mmh-resist" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" class="mh resist"/></marker>'
+    +'<marker id="mmh-invade" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" class="mh invade"/></marker>'
+    +'</defs>'+paths+'</svg>'+dots+'</div>';
+  s+='<div class="mm-step"><button class="mm-prev" disabled>← 이전</button>'
+    +'<div class="mm-plabel" id="mmlab_'+sid+'">'+first+'</div><button class="mm-next">다음 →</button></div>';
+  if(m.caption) s+='<div class="mm-cap">'+m.caption+'</div>';
+  return s+'</div>';
+}
+function relationsHTML(r,sid){
+  let s='<h2 class="block">힘의 관계 한눈에 보기 ⚖️</h2><div class="relations">';
+  if(r.title) s+='<div class="rtitle">'+r.title+'</div>';
+  if(r.intro) s+='<div class="rintro">'+T(r.intro)+'</div>';
+  s+='<div class="rsides">';
+  (r.sides||[]).forEach(side=>{
+    s+='<div class="rside '+(side.color||'')+'"><div class="rslabel">'+side.label+'</div>';
+    (side.members||[]).forEach(m=>{
+      s+='<div class="rmember"><b>'+m.name+'</b><span>'+(m.role||'')+'</span>'
+        +(m.slug?' <a class="rlink" href="../people/'+m.slug+'/">📖</a>':'')+'</div>';
+    });
+    s+='</div>';
+  });
+  s+='</div>';
+  if(r.tensions&&r.tensions.length){
+    s+='<div class="rtensions">';
+    r.tensions.forEach(t=>{ s+='<div class="rtension"><div class="rvs">⚔️ '+t.a+' ↔ '+t.b+'</div><div>'+T(t.label)+'</div></div>'; });
+    s+='</div>';
+  }
+  return s+'</div>';
+}
+// 블록 registry + 섹션별 순서(order) — 데이터로 흐름 제어. order 없으면 DEFAULT(하위호환).
+function renderBlocks(s){
+  const B={
+    hook:()=>'<p class="hook">'+T(s.hook)+'</p>'+(s.quote?quoteBlock(s.quote):''),
+    spark:()=>s.spark?sparkHTML(s.spark):'',
+    why:()=>'<h2 class="block">왜 중요할까</h2><div class="why">'+s.why+'</div>',
+    lens:()=>s.lens?lensBlock(s.lens):'',
+    voice:()=>s.voice?voiceHTML(s.voice):'',
+    cards:()=>'<h2 class="block">핵심 따라가기</h2><div class="cards">'
+      +s.cards.map(c=>'<div class="card"><span class="yr">'+c.yr+'</span><h3>'+c.h+'</h3><p>'+T(c.p)+'</p></div>').join('')+'</div>'
+      +(s.quote2?quoteBlock(s.quote2):''),
+    people:()=>s.people?'<h2 class="block">꼭 알아야 할 인물</h2><div class="people">'+s.people.map(personBlock).join('')+'</div>':'',
+    map:()=>s.map?mapHTML(s.map,s.id):'',
+    image:(i)=>{ const arr=Array.isArray(s.image); const im=arr?s.image[i||0]:s.image; const sid=(arr&&i!=null)?s.id+'_'+i:s.id; return im?imageHTML(im,sid):''; },
+    oldmap:()=>s.oldmap?oldmapHTML(s.oldmap,s.id):'',
+    chart:(i)=>{ const arr=Array.isArray(s.chart); const c=arr?s.chart[i||0]:s.chart; return c?chartHTML(c,(arr&&i!=null)?s.id+'_'+i:s.id):''; },
+    compare:()=>s.compare?compareHTML(s.compare,s.id):'',
+    relations:()=>s.relations?relationsHTML(s.relations,s.id):'',
+    marchmap:()=>s.marchmap?marchmapHTML(s.marchmap,s.id):'',
+    battlemap:(i)=>{ const bm=(s.battlemaps||[])[i]; return bm?battlemapHTML(bm,s.id,i):''; },
+    timeline:()=>'<h2 class="block">한눈에 보는 흐름</h2><div class="timeline">'
+      +s.timeline.map(t=>'<div class="tl"><span class="tl-yr">'+t.yr+'</span> <span class="tl-txt">'+t.t+'</span></div>').join('')+'</div>',
+    connect:()=>'<h2 class="block">이야기 연결 고리</h2><div class="connect"><span class="ico">🔗</span><div>'+s.connect+'</div></div>',
+    yt:()=>'<h2 class="block">영상으로 보기</h2>'+s.yt.map(ytBlock).join(''),
+    movies:()=>s.movies?'<h2 class="block">영화로 만나기 🎬</h2><div class="movies">'+s.movies.map(movieBlock).join('')+'</div>':'',
+    choice:()=>s.choice?choiceHTML(s.choice,s.id):'',
+    quiz:()=>s.quiz?quizHTML(s.quiz,s.id):'',
+    deepdive:()=>s.deepdive?deepdiveHTML(s.deepdive):'',
+    links:()=>s.links?linksHTML(s.links):'',
+    reflect:()=>'<h2 class="block">내 생각 적어보기 ✍️</h2><div class="reflect">'
+      +s.reflect.map((q,i)=>'<div class="q">'+q+'</div><textarea data-key="'+s.id+'_'+i+'" placeholder="여기에 자유롭게 적어보세요. 자동으로 저장돼요."></textarea><div class="saved" id="saved_'+s.id+'_'+i+'"></div>').join('')+'</div>'
+  };
+  const DEFAULT=['hook','spark','why','lens','voice','cards','people','map','image','oldmap','chart','compare','relations','marchmap','battlemap*','timeline','connect','yt','movies','choice','quiz','deepdive','links','reflect'];
+  const order=(s.order&&s.order.length)?s.order:DEFAULT;
+  let html='';
+  order.forEach(tok=>{
+    if(tok.charAt(tok.length-1)==='*'){
+      const name=tok.slice(0,-1);
+      let arr=[];
+      if(name==='battlemap') arr=s.battlemaps||[];
+      else if(Array.isArray(s[name])) arr=s[name];
+      else if(s[name]) arr=[s[name]];
+      arr.forEach((_,i)=>{ if(B[name]) html+=B[name](i); });
+      return;
+    }
+    const p=tok.split(':'), name=p[0], idx=p.length>1?+p[1]:null;
+    if(B[name]) html+=B[name](idx);
+  });
+  return html;
+}
+function render(s,idx){
+  const prev=SECTIONS[idx-1], next=SECTIONS[idx+1];
+  view.innerHTML=
+  '<div class="hero" style="background:linear-gradient(135deg,var(--navy) 0%, '+s.accent+' 100%)">'
+  +'<div class="kicker">'+s.kicker+'</div><h1>'+s.title+'</h1><div class="era">⏳ '+s.era+'</div>'
+  +'<svg class="motif" viewBox="0 0 210 210">'+(MOTIF[s.motif]||'')+'</svg></div>'
+  +'<div class="wrap">'
+  +renderBlocks(s)
+  +'<div class="pager">'
+  +(prev?'<a class="prev" data-id="'+prev.id+'"><div class="pg-label">← 이전</div><div class="pg-title">'+prev.label+'</div></a>':'<a class="prev" data-id="home"><div class="pg-label">← 홈</div><div class="pg-title">이야기 시작</div></a>')
+  +(next?'<a class="next" data-id="'+next.id+'"><div class="pg-label">다음 →</div><div class="pg-title">'+next.label+'</div></a>':'<a class="next" data-id="home"><div class="pg-label">이야기 끝 →</div><div class="pg-title">홈으로</div></a>')
+  +'</div></div>';
+  view.querySelectorAll('.pager a[data-id]').forEach(a=>a.addEventListener('click',()=>go(a.dataset.id)));
+  view.querySelectorAll('textarea[data-key]').forEach(ta=>{
+    const k=META.slug+'_m_'+ta.dataset.key; ta.value=localStorage.getItem(k)||''; let timer;
+    ta.addEventListener('input',()=>{ localStorage.setItem(k,ta.value); const tag=document.getElementById('saved_'+ta.dataset.key); tag.textContent='저장됨 ✓'; clearTimeout(timer); timer=setTimeout(()=>tag.textContent='',1300); });
+  });
+  if(s.quiz){ view.querySelectorAll('.quizq').forEach(qd=>{
+    const qi=+qd.dataset.qi, q=s.quiz[qi];
+    qd.querySelectorAll('.quiz-opt').forEach(btn=>btn.addEventListener('click',()=>{
+      if(qd.classList.contains('done')) return; qd.classList.add('done');
+      const oi=+btn.dataset.oi;
+      qd.querySelectorAll('.quiz-opt').forEach((b,i)=>{ if(i===q.answer) b.classList.add('correct'); if(i===oi&&oi!==q.answer) b.classList.add('wrong'); b.disabled=true; });
+      const exp=document.getElementById('qexp_'+s.id+'_'+qi);
+      exp.innerHTML=(oi===q.answer?'<b>맞았어요! ✓</b> ':'<b>아쉬워요, 다시 볼까요?</b> ')+(q.explain||'');
+      exp.classList.add('show');
+    }));
+  }); }
+  if(s.map && window.L){
+    const mel=document.getElementById('lmap_'+s.id);
+    currentMap=L.map(mel,{scrollWheelZoom:false}).setView(s.map.center, s.map.zoom);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(currentMap);
+    if(s.map.line) L.polyline(s.map.line,{color:'#b5546a',weight:3,dashArray:'6 6'}).addTo(currentMap);
+    (s.map.markers||[]).forEach(mk=>L.circleMarker([mk.lat,mk.lng],{radius:9,color:'#fff',weight:2,fillColor:'#B5546A',fillOpacity:1}).addTo(currentMap).bindPopup('<b>'+mk.label+'</b><br>'+mk.desc));
+    setTimeout(()=>{ if(currentMap) currentMap.invalidateSize(); },200);
+  }
+  if(s.image && s.image.hotspots && s.image.hotspots.length){
+    const info=document.getElementById('hsinfo_'+s.id);
+    view.querySelectorAll('#imgbox_'+s.id+' .hsdot').forEach(d=>d.addEventListener('click',()=>{
+      const h=s.image.hotspots[+d.dataset.hi]; info.innerHTML='<b>'+h.label+'</b> '+(h.desc||''); info.classList.add('show');
+    }));
+  }
+  if(s.compare){
+    const c=s.compare, panel=document.getElementById('cmppanel_'+s.id);
+    const tabs=view.querySelectorAll('#cmp_'+s.id+' .cmptab');
+    const fill=(i)=>{ const st=c.states[i]; panel.innerHTML='<div class="cmh">'+st.title+'</div><div class="cmb">'+T(st.body)+'</div>'
+      +(st.img?'<img src="'+st.img+'" alt="'+(st.alt||'')+'" loading="lazy">':'')+(st.caption?'<div class="cmpcap">'+st.caption+'</div>':'');
+      tabs.forEach((b,bi)=>b.classList.toggle('active',bi===i)); };
+    tabs.forEach(b=>b.addEventListener('click',()=>fill(+b.dataset.ci)));
+    fill(0);
+  }
+  if(s.choice){
+    const af=document.getElementById('chafter_'+s.id);
+    view.querySelectorAll('#ch_'+s.id+' .chopt').forEach(b=>b.addEventListener('click',()=>{
+      document.getElementById('chres_'+s.id+'_'+b.dataset.oi).classList.add('show');
+      b.classList.add('picked'); if(af) af.classList.add('show');
+    }));
+  }
+  if(s.marchmap){
+    const mm=document.getElementById('mm_'+s.id), n=+mm.dataset.n, lab=document.getElementById('mmlab_'+s.id);
+    const prev=mm.querySelector('.mm-prev'), next=mm.querySelector('.mm-next'), phases=s.marchmap.phases||[];
+    const upd=()=>{ const cur=+mm.dataset.ph;
+      mm.querySelectorAll('.mm-place,.mm-arrow,.mm-alab').forEach(el=>el.classList.toggle('on',+el.dataset.ph<=cur));
+      lab.textContent=phases[cur]?phases[cur].label:''; prev.disabled=cur<=0; next.disabled=cur>=n-1; };
+    prev.addEventListener('click',()=>{ mm.dataset.ph=Math.max(0,+mm.dataset.ph-1); upd(); });
+    next.addEventListener('click',()=>{ mm.dataset.ph=Math.min(n-1,+mm.dataset.ph+1); upd(); });
+    upd();
+  }
+  (s.battlemaps||[]).forEach((bm,idx)=>{
+    const id='bm_'+s.id+'_'+idx;
+    try{
+      const map=L.map(id+'_map',{scrollWheelZoom:false}).setView(bm.center||[37,127],bm.zoom||6);
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:14,attribution:'© OpenStreetMap'}).addTo(map);
+      bmaps.push(map);
+      const KIND={start:'🚩',battle:'⚔️',win:'✔️',loss:'✖️',capital:'🏯',city:'•',sea:'⚓'};
+      const ic=(e)=>L.divIcon({className:'bm-ic',html:'<div>'+e+'</div>',iconSize:[26,26],iconAnchor:[13,13]});
+      const phases=bm.phases||[], layers=phases.map(()=>[]);
+      phases.forEach((ph,i)=>{
+        (ph.markers||[]).forEach(m=>layers[i].push(L.marker(m.at,{icon:ic(KIND[m.kind]||'•')}).bindTooltip(m.label,{permanent:true,direction:'top',offset:[0,-10],className:'bm-tt'})));
+        (ph.arrows||[]).forEach(a=>layers[i].push(L.polyline.antPath(a.path,{color:a.tone==='invade'?'#B5546A':'#2E7D4F',weight:4,delay:1000,dashArray:[10,22],pulseColor:'#fff'})));
+      });
+      const lab=document.getElementById(id+'_lab'), prev=document.querySelector('#'+id+' .bm-prev'), next=document.querySelector('#'+id+' .bm-next'), n=phases.length;
+      let cur=0;
+      const lowAt=(c)=>{ let r=0; for(let i=1;i<=c;i++){ if(phases[i]&&phases[i].reset) r=i; } return r; };
+      const upd=()=>{ const lo=lowAt(cur);
+        layers.forEach((grp,i)=>grp.forEach(l=> (i>=lo&&i<=cur)?l.addTo(map):map.removeLayer(l)));
+        lab.textContent=phases[cur]?phases[cur].label:''; prev.disabled=cur<=0; next.disabled=cur>=n-1;
+        if(bm.fit){ const pts=[]; for(let i=lo;i<=cur;i++) layers[i].forEach(l=>{ if(l.getLatLng) pts.push(l.getLatLng()); });
+          if(pts.length>=2) map.fitBounds(L.latLngBounds(pts).pad(0.4)); else if(pts.length===1) map.setView(pts[0], map.getZoom()); } };
+      next.onclick=()=>{cur=Math.min(n-1,cur+1);upd();}; prev.onclick=()=>{cur=Math.max(0,cur-1);upd();};
+      upd(); setTimeout(()=>map.invalidateSize(),200);
+    }catch(e){ console.error('battlemap',e); }
+  });
+  markVisited(s.id); setActive(s.id); window.scrollTo(0,0);
+}
+
+function renderNotes(){
+  const body=SECTIONS.map(s=>{
+    const items=s.reflect.map((q,i)=>{ const v=(localStorage.getItem(META.slug+'_m_'+s.id+'_'+i)||'').trim();
+      return '<div class="note-q">'+q+'</div><div class="note-a'+(v?'':' empty')+'">'+(v?v.replace(/</g,'&lt;'):'(아직 적지 않았어요)')+'</div>'; }).join('');
+    return '<div class="note-sec"><div class="note-sh">'+s.num+' · '+s.label+'</div>'+items+'</div>';
+  }).join('');
+  view.innerHTML='<div class="home-hero"><h1>📝 내 메모 모아보기</h1><div class="hsub">'+META.brand.title+' — 내가 적은 생각들</div></div>'
+    +'<div class="home-wrap"><div class="note-actions noprint">'
+    +'<button class="btn primary" id="notePrint">🖨️ 인쇄 / PDF 저장</button>'
+    +'<button class="btn" id="noteCopy" style="background:#fff;border:1px solid var(--line);color:var(--navy)">📋 전체 복사</button></div>'
+    +'<div class="notes-view" id="notesView">'+body+'</div></div>';
+  document.getElementById('notePrint').addEventListener('click',()=>window.print());
+  document.getElementById('noteCopy').addEventListener('click',()=>{ const t=document.getElementById('notesView').innerText;
+    if(navigator.clipboard){ navigator.clipboard.writeText(t); const b=document.getElementById('noteCopy'); b.textContent='복사됨 ✓'; setTimeout(()=>b.textContent='📋 전체 복사',1500); } });
+  setActive('notes'); window.scrollTo(0,0); progress.style.width='0%';
+}
+
+function setActive(id){
+  navList.querySelectorAll('a').forEach(a=>{ a.classList.toggle('active', a.dataset.id===id); if(a.dataset.id && a.dataset.id!=='home' && visited(a.dataset.id)) a.classList.add('visited'); });
+}
+function go(id){ killMap(); if(id==='home'){ renderHome(); location.hash='home'; return; }
+  if(id==='notes'){ renderNotes(); location.hash='notes'; return; } const idx=SECTIONS.findIndex(s=>s.id===id); if(idx<0) return; render(SECTIONS[idx],idx); location.hash=id; }
+function openSide(){ sidebar.classList.add('open'); scrim.classList.add('show'); }
+function closeSide(){ sidebar.classList.remove('open'); scrim.classList.remove('show'); }
+document.getElementById('hamb').addEventListener('click',openSide);
+document.getElementById('brandHome').addEventListener('click',()=>{ go('home'); closeSide(); });
+scrim.addEventListener('click',closeSide);
+
+/* companion 배지 — meta.companion:{slug,label} 이면 사이드바에 짝 에피소드 링크 */
+if(META.companion && META.companion.slug){
+  const cl=document.createElement('a');
+  cl.className='companion-link';
+  cl.href='../'+META.companion.slug+'/index.html';
+  cl.textContent='🔗 짝 에피소드 · '+(META.companion.label||META.companion.slug);
+  const hb=document.getElementById('hubBack');
+  hb.parentNode.insertBefore(cl,hb.nextSibling);
+}
+
+/* lightbox — image/oldmap 이미지 클릭 확대 */
+const lb=document.createElement('div'); lb.className='lightbox';
+lb.innerHTML='<img alt=""><div class="lb-cap"></div>';
+document.body.appendChild(lb);
+document.addEventListener('click',e=>{
+  if(e.target.closest('.lightbox')){ lb.classList.remove('show'); document.body.style.overflow=''; return; }
+  const im=e.target.closest('.imgbox img, .oldmap-frame img');
+  if(im){ lb.querySelector('img').src=im.src; lb.querySelector('.lb-cap').textContent=im.alt||''; lb.classList.add('show'); document.body.style.overflow='hidden'; }
+});
+window.addEventListener('scroll',()=>{ const h=document.documentElement.scrollHeight-window.innerHeight; progress.style.width=(h>0?(window.scrollY/h*100):0)+'%'; });
+const tip=document.getElementById('tip');
+function showTip(e,t){ tip.textContent=TERMS[t.dataset.term]||''; tip.style.display='block'; moveTip(e); }
+document.addEventListener('mouseover',e=>{ const t=e.target.closest('.term'); if(t) showTip(e,t); });
+document.addEventListener('mousemove',e=>{ if(tip.style.display==='block') moveTip(e); });
+document.addEventListener('mouseout',e=>{ if(e.target.closest('.term')) tip.style.display='none'; });
+document.addEventListener('click',e=>{ const t=e.target.closest('.term'); if(t){ showTip(e,t); setTimeout(()=>tip.style.display='none',2800); } });
+function moveTip(e){ tip.style.left=Math.min(e.clientX+14,window.innerWidth-278)+'px'; tip.style.top=Math.min(e.clientY+16,window.innerHeight-92)+'px'; }
+
+head(); buildNav();
+const start=location.hash.replace('#','');
+if(start==='notes') renderNotes();
+else if(start && SECTIONS.some(s=>s.id===start)) go(start);
+else renderHome();
+</script>
+</body>
+</html>
