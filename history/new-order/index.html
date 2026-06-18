@@ -363,8 +363,17 @@
   .lk,.yt,.card,.pager a{will-change:transform;}
   /* 모션 (저모션 사용자 보호: no-preference 일 때만) */
   @media (prefers-reduced-motion: no-preference){
-    .reveal{opacity:0; transform:translateY(16px); transition:opacity .55s ease, transform .6s cubic-bezier(.22,1,.36,1);}
-    .reveal.in{opacity:1; transform:none;}
+    /* 블록 진입 — 순수 CSS 스태거(fill-mode both → 항상 보이게 끝남, JS 의존 0) */
+    .wrap > *, .home-wrap > *{animation:vBlockIn .55s cubic-bezier(.22,1,.36,1) both;}
+    .wrap > *:nth-child(1),.home-wrap > *:nth-child(1){animation-delay:.03s;}
+    .wrap > *:nth-child(2),.home-wrap > *:nth-child(2){animation-delay:.10s;}
+    .wrap > *:nth-child(3),.home-wrap > *:nth-child(3){animation-delay:.17s;}
+    .wrap > *:nth-child(4),.home-wrap > *:nth-child(4){animation-delay:.24s;}
+    .wrap > *:nth-child(5),.home-wrap > *:nth-child(5){animation-delay:.31s;}
+    .wrap > *:nth-child(6),.home-wrap > *:nth-child(6){animation-delay:.37s;}
+    .wrap > *:nth-child(7),.home-wrap > *:nth-child(7){animation-delay:.43s;}
+    .wrap > *:nth-child(n+8),.home-wrap > *:nth-child(n+8){animation-delay:.48s;}
+    @keyframes vBlockIn{from{opacity:0; transform:translateY(15px);} to{opacity:1; transform:none;}}
     .crow .cbar{transition:width 1.05s cubic-bezier(.22,1,.36,1);}
     .hero h1{animation:vHeroRise .55s ease both;}
     .hero .kicker{animation:vHeroRise .55s .06s ease both;}
@@ -701,23 +710,15 @@ function renderBlocks(s){
   });
   return html;
 }
-/* 시각효과: 블록 스크롤 리빌 + 차트 바 성장 (additive·실패 무해·저모션 가드) */
+/* 시각효과: 차트 바 성장만 JS로(0→목표 rAF). 블록 진입은 순수 CSS라 JS 불필요.
+   가시성은 CSS animation(fill-mode both)이 보장 → 이 함수가 실패해도 콘텐츠는 항상 보임. */
 function vfx(){
   try{
-    const scope=view.querySelector('.wrap')||view.querySelector('.home-wrap')||view.querySelector('.notes-view');
-    if(!scope||!('IntersectionObserver' in window)) return;
     if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const blocks=Array.prototype.filter.call(scope.children,el=>!el.classList.contains('pager'));
-    view.querySelectorAll('.crow .cbar').forEach(b=>{ b.dataset.w=b.style.width||''; b.style.width='0%'; });
-    const io=new IntersectionObserver(function(ents,obs){
-      ents.forEach(function(en){ if(en.isIntersecting){ const t=en.target; t.classList.add('in');
-        t.querySelectorAll('.crow .cbar').forEach(function(b){ if(b.dataset.w) b.style.width=b.dataset.w; });
-        obs.unobserve(t); } });
-    },{threshold:0.12, rootMargin:'0px 0px -7% 0px'});
-    blocks.forEach(function(b){ b.classList.add('reveal'); io.observe(b); });
-    /* 안전망: 옵저버가 어떤 이유로든 못 발동해도 콘텐츠가 사라지지 않게 보장 */
-    setTimeout(function(){ blocks.forEach(function(b){ b.classList.add('in');
-      b.querySelectorAll('.crow .cbar').forEach(function(c){ if(c.dataset.w) c.style.width=c.dataset.w; }); }); }, 2600);
+    view.querySelectorAll('.crow .cbar').forEach(function(b){
+      const w=b.style.width||''; if(!w) return; b.style.width='0%';
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ b.style.width=w; }); });
+    });
   }catch(e){ /* 시각효과 실패는 콘텐츠에 영향 없음 */ }
 }
 function render(s,idx){
