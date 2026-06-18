@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>빅리그의 시스템 — 축구는 어떻게 굴러가나</title>
+<meta name="description" content="승강제와 리그 피라미드, 5대 리그 비교, 이적시장과 상각, 중계권·소유구조, FFP/PSR와 슈퍼리그, 유럽 대항전까지 — 빅리그가 실제로 작동하는 메커니즘을 전문가 수준으로.">
+<style>
+  :root{
+    --rose:#C98B8B; --rose-soft:#E8C8C5; --navy:#33406B; --navy-2:#46527f; --navy-soft:#6F79A0;
+    --cream:#FBF7F2; --paper:#FFFFFF; --ink:#2E2A28; --muted:#857B74; --line:#EBE0D5;
+    --accent:#B5546A; --gold:#C49A4A;
+    --shadow:0 6px 22px rgba(51,64,107,.09); --shadow-sm:0 2px 10px rgba(51,64,107,.06);
+    --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+    background:var(--cream); color:var(--ink); line-height:1.78;
+    -webkit-font-smoothing:antialiased; word-break:keep-all;
+  }
+  a{color:inherit;}
+  #progress{position:fixed; top:0; left:0; height:3px; width:0%; background:linear-gradient(90deg,var(--rose),var(--accent)); z-index:60; transition:width .1s;}
+  .layout{display:flex; min-height:100vh;}
+  .sidebar{width:276px; flex:0 0 276px; background:linear-gradient(180deg,var(--navy),#2b3559); color:#fff; padding:26px 16px 30px; position:sticky; top:0; height:100vh; overflow-y:auto;}
+  .content{flex:1; min-width:0;}
+  .hub-back{display:inline-block; color:var(--rose-soft); font-size:12px; text-decoration:none; padding:4px 8px; margin:0 0 14px; border:1px solid rgba(255,255,255,.14); border-radius:9px; transition:background .15s,color .15s;}
+  .hub-back:hover{background:rgba(255,255,255,.1); color:#fff;}
+  .brand{cursor:pointer; padding:0 6px; margin-bottom:6px;}
+  .brand .bt{font-size:19px; font-weight:800; line-height:1.35;}
+  .brand .sub{display:block; font-size:11.5px; font-weight:500; color:var(--rose-soft); margin-top:7px; letter-spacing:.01em;}
+  .nav{margin-top:20px; list-style:none;}
+  .nav li{margin:3px 0;}
+  .nav a{display:flex; align-items:center; gap:11px; text-decoration:none; color:#dde0ee; font-size:14px; padding:10px 11px; border-radius:12px; transition:background .15s,color .15s; cursor:pointer; position:relative;}
+  .nav a .num{font-size:10.5px; color:var(--navy-soft); width:18px; font-weight:800; flex:0 0 18px;}
+  .nav a:hover{background:rgba(255,255,255,.09); color:#fff;}
+  .nav a.active{background:var(--rose); color:#fff; font-weight:700;}
+  .nav a.active .num{color:#fff;}
+  .nav a.star{background:rgba(196,154,74,.15);}
+  .nav a.star.active{background:var(--accent);}
+  .nav a.star .num{color:var(--gold);}
+  .nav a.visited:not(.active)::after{content:"✓"; margin-left:auto; font-size:11px; color:#8fd9a8; font-weight:800;}
+  .nav a.star .tag{font-size:9.5px; background:var(--gold); color:#3a2f10; padding:1px 6px; border-radius:8px; margin-left:auto; font-weight:800;}
+  .nav a.star.visited .tag{display:none;}
+  .nav .home-link{font-weight:700; color:#fff; background:rgba(255,255,255,.06); margin-bottom:8px;}
+  .side-foot{margin-top:24px; padding:16px 8px 0; font-size:11px; color:var(--navy-soft); line-height:1.7; border-top:1px solid rgba(255,255,255,.1);}
+  .topbar{display:none; align-items:center; gap:12px; background:var(--navy); color:#fff; padding:12px 16px; position:sticky; top:0; z-index:40;}
+  .topbar .hamb{font-size:22px; background:none;border:none;color:#fff;cursor:pointer;line-height:1;}
+  .topbar .tb-title{font-size:14.5px; font-weight:700;}
+  .topbar .tb-hub{margin-left:auto; color:#fff; font-size:12.5px; font-weight:700; text-decoration:none; border:1px solid rgba(255,255,255,.35); border-radius:9px; padding:5px 10px; white-space:nowrap;}
+  .topbar .tb-hub:active{background:rgba(255,255,255,.15);}
+  .scrim{display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:30;}
+  .hero{padding:54px 40px 36px; color:#fff; position:relative; overflow:hidden;}
+  .hero .kicker{font-size:12.5px; letter-spacing:.14em; font-weight:700; text-transform:uppercase; opacity:.92;}
+  .hero h1{font-size:31px; margin-top:10px; line-height:1.3; font-weight:800; max-width:680px;}
+  .hero .era{display:inline-flex; align-items:center; gap:7px; margin-top:16px; font-size:12.5px; background:rgba(255,255,255,.16); padding:6px 14px; border-radius:20px;}
+  .hero .motif{position:absolute; right:-10px; bottom:-20px; opacity:.16; width:180px; height:180px;}
+  .wrap{max-width:740px; margin:0 auto; padding:36px 28px 90px;}
+  .hook{font-size:18px; line-height:1.92; color:var(--navy); border-left:4px solid var(--rose); padding:4px 0 4px 20px; margin-bottom:30px; font-weight:500;}
+  h2.block{font-size:14px; letter-spacing:.05em; color:var(--accent); font-weight:800; margin:38px 0 15px; display:flex; align-items:center; gap:9px; text-transform:uppercase;}
+  h2.block::before{content:""; width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block; flex:0 0 8px;}
+  .why{background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:22px 24px; box-shadow:var(--shadow-sm); font-size:16px;}
+  .why b{color:var(--accent);}
+  .lens{background:linear-gradient(135deg,#fff,#f3f0fa); border:1px solid #d8cfe8; border-left:5px solid #7a6aa8; border-radius:14px; padding:18px 22px; margin:24px 0; font-size:15.5px;}
+  .lens .lh{font-weight:800; color:#5b4a86; font-size:13.5px; letter-spacing:.03em; margin-bottom:6px; display:flex; gap:7px; align-items:center;}
+  .quote{margin:30px 0; background:linear-gradient(135deg,#fff,#fdf2ef); border:1px solid var(--rose-soft); border-left:5px solid var(--rose); border-radius:14px; padding:22px 26px; box-shadow:var(--shadow-sm);}
+  .quote .qt{font-size:18.5px; font-style:italic; color:var(--navy); line-height:1.8;}
+  .quote .qs{display:block; margin-top:12px; font-size:13px; color:var(--muted); font-style:normal;}
+  .quote .qm{font-size:40px; color:var(--rose-soft); line-height:0; display:block; height:18px;}
+  .cards{display:grid; gap:14px;}
+  @media(min-width:620px){ .cards{grid-template-columns:1fr 1fr;} }
+  .card{background:var(--paper); border:1px solid var(--line); border-radius:15px; padding:18px 20px; box-shadow:var(--shadow-sm); transition:transform .12s, box-shadow .12s;}
+  .card:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
+  .card .yr{font-size:11.5px; font-weight:800; color:var(--rose); letter-spacing:.04em; text-transform:uppercase;}
+  .card h3{font-size:16.5px; color:var(--navy); margin:5px 0 6px;}
+  .card p{font-size:15px; color:var(--ink);}
+  .term{color:var(--accent); font-weight:700; border-bottom:1.5px dotted var(--rose); cursor:help;}
+  .people{display:grid; gap:14px;}
+  @media(min-width:620px){ .people{grid-template-columns:1fr 1fr;} }
+  .person{background:#fff; border:1px solid var(--line); border-radius:15px; padding:18px 20px; box-shadow:var(--shadow-sm);}
+  .person .pheader{display:flex; gap:13px; align-items:center; margin-bottom:8px;}
+  .person .pface{flex:0 0 46px; height:46px; border-radius:12px; background:linear-gradient(135deg,var(--rose),var(--accent)); display:flex;align-items:center;justify-content:center;font-size:22px; color:#fff;}
+  .person .pname{font-size:16.5px; font-weight:800; color:var(--navy);}
+  .person .pwho{font-size:12px; color:var(--muted);}
+  .person .pwhy{font-size:14.5px; margin-bottom:8px;}
+  .person .pquote{font-size:14px; font-style:italic; color:var(--accent); border-left:3px solid var(--rose-soft); padding-left:10px; margin:8px 0;}
+  .person .pshadow{font-size:13.5px; color:var(--muted); background:var(--cream); border-radius:9px; padding:8px 11px;}
+  .person .pmore{display:inline-block; margin-top:10px; font-size:13px; font-weight:700; text-decoration:none; color:var(--accent); border:1px solid var(--rose-soft); border-radius:9px; padding:6px 12px;}
+  .person .pmore:hover{background:var(--accent); color:#fff; border-color:var(--accent);}
+  .movies{display:grid; gap:14px;}
+  .movie{background:#fff; border:1px solid var(--line); border-radius:15px; padding:16px 18px; box-shadow:var(--shadow-sm);}
+  .movie .mhead{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:4px;}
+  .movie .mtitle{font-size:16.5px; font-weight:800; color:var(--navy);}
+  .movie .mfit{font-size:11.5px; font-weight:700; border-radius:7px; padding:2px 8px; white-space:nowrap;}
+  .movie .mfit.green{background:#E5F3E8; color:#2E7D4F;}
+  .movie .mfit.yellow{background:#FBF1D8; color:#9A7B22;}
+  .movie .mfit.red{background:#F7E0E0; color:#B5546A;}
+  .movie .mmeta{font-size:12.5px; color:var(--muted); margin-bottom:9px;}
+  .movie .mmeta b{color:var(--accent);}
+  .movie .mwhy{font-size:14.5px; margin-bottom:9px;}
+  .movie .mreal{font-size:13px; color:var(--muted); background:var(--cream); border-radius:9px; padding:8px 11px; margin-bottom:10px;}
+  .movie .mreal .lbl{font-weight:800; color:var(--gold); margin-right:6px;}
+  .movie .mlinks{display:flex; gap:8px; flex-wrap:wrap;}
+  .movie .mlink{font-size:12.5px; font-weight:700; text-decoration:none; color:var(--navy); border:1px solid var(--line); border-radius:8px; padding:5px 11px;}
+  .movie .mlink:hover{border-color:var(--accent); color:var(--accent);}
+  .movie .mlink.slug{color:var(--accent); border-color:var(--rose-soft);}
+  .relations{background:#fff; border:1px solid var(--line); border-radius:15px; padding:18px 18px 16px; box-shadow:var(--shadow-sm);}
+  .relations .rtitle{font-size:16px; font-weight:800; color:var(--navy); text-align:center; margin-bottom:6px;}
+  .relations .rintro{font-size:14px; color:var(--muted); text-align:center; margin-bottom:14px;}
+  .rsides{display:grid; gap:12px;}
+  @media(min-width:600px){ .rsides{grid-template-columns:repeat(auto-fit,minmax(160px,1fr));} }
+  .rside{border-radius:13px; padding:13px 14px;}
+  .rside.red{background:#FBEAEA; border:1px solid #E8C0C0;}
+  .rside.blue{background:#E9EEF7; border:1px solid #C2D0E6;}
+  .rside.green{background:#E7F1EA; border:1px solid #BFD9C7;}
+  .rside .rslabel{font-size:13px; font-weight:800; margin-bottom:9px; letter-spacing:.02em;}
+  .rside.red .rslabel{color:#B5546A;}
+  .rside.blue .rslabel{color:#33406B;}
+  .rside.green .rslabel{color:#2E7D4F;}
+  .rmember{background:#fff; border:1px solid var(--line); border-radius:9px; padding:8px 10px; margin-bottom:7px; font-size:13.5px;}
+  .rmember b{color:var(--navy); margin-right:6px;}
+  .rmember span{color:var(--muted);}
+  .rmember .rlink{text-decoration:none;}
+  .rtensions{margin-top:14px; display:grid; gap:9px;}
+  .rtension{background:var(--cream); border-left:3px solid var(--gold); border-radius:9px; padding:10px 12px; font-size:13.5px;}
+  .rtension .rvs{font-weight:800; color:var(--accent); margin-bottom:3px;}
+  .marchmap{background:#fff; border:1px solid var(--line); border-radius:15px; padding:16px; box-shadow:var(--shadow-sm);}
+  .marchmap .mm-title{font-weight:800; color:var(--navy); text-align:center; font-size:16px;}
+  .marchmap .mm-intro{font-size:14px; color:var(--muted); text-align:center; margin:6px 0 12px;}
+  .mm-stage{position:relative; max-width:360px; margin:0 auto; aspect-ratio:1866/2891; background:#eef3ee; border-radius:10px; overflow:hidden;}
+  .mm-base{position:absolute; inset:0; width:100%; height:100%; object-fit:contain;}
+  .mm-arrows{position:absolute; inset:0; width:100%; height:100%; overflow:visible;}
+  .mm-arrow{fill:none; stroke-width:1.4; stroke-linecap:round; stroke-dasharray:300; stroke-dashoffset:300; opacity:0; transition:stroke-dashoffset .8s ease, opacity .3s;}
+  .mm-arrow.on{stroke-dashoffset:0; opacity:.95;}
+  .mm-arrow.tone-resist{stroke:#2E7D4F;} .mh.resist{fill:#2E7D4F;}
+  .mm-arrow.tone-invade{stroke:#B5546A;} .mh.invade{fill:#B5546A;}
+  .mm-alab{font-size:3.4px; font-weight:800; opacity:0; transition:opacity .3s;} .mm-alab.on{opacity:.9;}
+  .mm-alab.tone-resist{fill:#2E7D4F;} .mm-alab.tone-invade{fill:#B5546A;}
+  .mm-place{position:absolute; transform:translate(-50%,-50%); opacity:0; transition:opacity .35s; display:flex; flex-direction:column; align-items:center; pointer-events:none; z-index:2;}
+  .mm-place.on{opacity:1;}
+  .mm-dot{width:11px; height:11px; border-radius:50%; background:var(--navy); border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,.35);}
+  .mm-place.k-battle .mm-dot{background:#B5546A;} .mm-place.k-loss .mm-dot{background:#7a2e3f;}
+  .mm-place.k-win .mm-dot{background:#2E7D4F;} .mm-place.k-start .mm-dot{background:var(--gold);}
+  .mm-lbl{font-size:11px; font-weight:700; color:var(--navy); background:rgba(255,255,255,.9); border-radius:5px; padding:0 4px; margin-top:3px; white-space:nowrap;}
+  .mm-step{display:flex; align-items:center; gap:10px; justify-content:center; margin-top:13px;}
+  .mm-step button{background:var(--navy); color:#fff; border:none; border-radius:9px; padding:7px 14px; font-size:13px; font-weight:700; cursor:pointer;}
+  .mm-step button:disabled{opacity:.4; cursor:default;}
+  .mm-plabel{font-size:13.5px; font-weight:800; color:var(--accent); min-width:150px; text-align:center;}
+  .mm-cap{font-size:11px; color:var(--muted); text-align:center; margin-top:9px; line-height:1.5;}
+  .battlemap{background:#fff; border:1px solid var(--line); border-radius:15px; padding:16px; box-shadow:var(--shadow-sm);}
+  .battlemap .bm-intro{font-size:14px; color:var(--muted); text-align:center; margin-bottom:11px;}
+  .bm-map{width:100%; height:380px; border-radius:11px; overflow:hidden; border:1px solid var(--line); background:#eef3ee;}
+  .bm-ic div{font-size:19px; filter:drop-shadow(0 1px 1px rgba(0,0,0,.4));}
+  .bm-tt{background:rgba(255,255,255,.92); border:1px solid var(--line); border-radius:5px; font-size:11px; font-weight:700; color:var(--navy); padding:1px 5px; box-shadow:none;}
+  .bm-tt:before{display:none;}
+  .bm-step{display:flex; align-items:center; gap:10px; justify-content:center; margin-top:12px;}
+  .bm-step button{background:var(--navy); color:#fff; border:none; border-radius:9px; padding:7px 14px; font-size:13px; font-weight:700; cursor:pointer;}
+  .bm-step button:disabled{opacity:.4; cursor:default;}
+  .bm-plabel{font-size:13.5px; font-weight:800; color:var(--accent); min-width:150px; text-align:center;}
+  .bm-legend{display:flex; gap:14px; flex-wrap:wrap; justify-content:center; font-size:12.5px; margin-top:11px;}
+  .bm-legend span{display:inline-flex; align-items:center; gap:5px;}
+  .bm-legend i{width:16px; border-top:3px solid; display:inline-block; border-radius:2px;}
+  .bm-cap{font-size:11px; color:var(--muted); text-align:center; margin-top:9px;}
+  .deepdive{margin:18px 0 6px; border:1px solid var(--line); border-radius:13px; background:linear-gradient(180deg,#fff,#fbf6ef); overflow:hidden;}
+  .deepdive summary{cursor:pointer; padding:14px 18px; font-size:15px; font-weight:800; color:var(--navy); list-style:none; display:flex; align-items:center; gap:8px;}
+  .deepdive summary::-webkit-details-marker{display:none;}
+  .deepdive summary:after{content:"▾"; margin-left:auto; color:var(--accent); transition:transform .2s;}
+  .deepdive[open] summary:after{transform:rotate(180deg);}
+  .deepdive summary:hover{background:rgba(181,84,106,.05);}
+  .links{display:grid; gap:10px; margin:6px 0 4px;}
+  .links .lk{display:block; padding:13px 16px; border:1px solid var(--line); border-radius:12px; background:#fff; text-decoration:none; transition:border-color .15s, transform .15s;}
+  .links .lk:hover{border-color:var(--accent); transform:translateY(-2px);}
+  .links .lk-label{display:block; font-weight:800; color:var(--navy); font-size:15px;}
+  .links .lk-label:after{content:" ↗"; color:var(--accent); font-weight:700;}
+  .links .lk-note{display:block; font-size:13.5px; color:var(--ink); margin-top:3px; line-height:1.6;}
+  .links .lk-src{display:block; font-size:12px; color:var(--muted); margin-top:4px;}
+  .spark{margin:16px 0; padding:16px 18px 18px; border-left:5px solid var(--accent); border-radius:12px; background:linear-gradient(180deg,#fff8f3,#fdeee6); box-shadow:var(--shadow-sm);}
+  .spark-h{font-size:16px; font-weight:800; color:var(--accent); margin-bottom:7px; letter-spacing:-.01em;}
+  .spark-body{font-size:15.5px; line-height:1.85; color:var(--ink);}
+  .spark-mind{margin-top:11px; padding-top:10px; border-top:1px dashed var(--line); font-size:14.5px; color:var(--navy); line-height:1.7;}
+  .dd-body{padding:4px 18px 18px;}
+  .dd-item{border-top:1px solid var(--line); padding:13px 0;}
+  .dd-item:first-child{border-top:none;}
+  .dd-item h3{font-size:15px; color:var(--accent); margin-bottom:6px;}
+  .dd-text{font-size:14.5px; line-height:1.8;}
+  .dd-src{font-size:12.5px; color:var(--muted); background:var(--cream); border-radius:8px; padding:7px 11px; margin-top:8px;}
+  .timeline{position:relative; margin:6px 0 6px 9px; padding-left:26px; border-left:2.5px solid var(--rose-soft);}
+  .tl{position:relative; padding:5px 0 17px;}
+  .tl::before{content:""; position:absolute; left:-33.5px; top:9px; width:13px;height:13px;border-radius:50%;background:var(--rose); border:3px solid var(--cream);}
+  .tl .tl-yr{font-weight:800; color:var(--navy); font-size:13.5px;}
+  .tl .tl-txt{font-size:15px;}
+  .connect{background:#fff; border:1px dashed var(--rose); border-radius:14px; padding:17px 22px; font-size:15.5px; color:var(--navy); display:flex; gap:12px; align-items:flex-start;}
+  .connect .ico{flex:0 0 22px; font-size:18px;}
+  .connect b{color:var(--accent);}
+  .yt{display:flex; gap:14px; align-items:flex-start; text-decoration:none; background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin-bottom:11px; transition:transform .12s, box-shadow .12s;}
+  .yt:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
+  .yt .play{flex:0 0 42px; height:42px; border-radius:11px; background:#FF0000; color:#fff; display:flex;align-items:center;justify-content:center;font-size:16px;}
+  .yt .play.search{background:var(--navy);}
+  .yt .yt-body{flex:1; min-width:0;}
+  .yt .yt-title{font-weight:700; color:var(--navy); font-size:15px; line-height:1.45;}
+  .yt .yt-meta{font-size:12px; color:var(--muted); margin-top:3px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+  .yt .pill{background:var(--cream); border:1px solid var(--line); border-radius:6px; padding:1px 6px; font-weight:700;}
+  .yt .pill.ko{color:#2f7d4f;} .yt .pill.en{color:#3a5bb5;} .yt .pill.find{color:var(--navy);}
+  .yt .yt-desc{font-size:13.5px; margin-top:5px; color:var(--ink);}
+  .reflect{background:#fff; border:2px solid var(--rose-soft); border-radius:var(--radius); padding:20px 22px; box-shadow:var(--shadow-sm);}
+  .reflect .q{font-weight:700; color:var(--navy); margin-bottom:9px; font-size:15.5px;}
+  .reflect textarea{width:100%; min-height:88px; border:1px solid var(--line); border-radius:11px; padding:13px; font-family:inherit; font-size:15px; resize:vertical; background:#fffdfb; color:var(--ink); line-height:1.7;}
+  .reflect textarea:focus{outline:none; border-color:var(--rose); box-shadow:0 0 0 3px rgba(201,139,139,.15);}
+  .reflect textarea + .q{margin-top:18px;}
+  .reflect .saved{font-size:12px; color:var(--gold); margin-top:6px; height:15px; font-weight:600;}
+  /* quiz (R1) */
+  .quizwrap{display:flex;flex-direction:column;gap:14px;}
+  .quizq{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow-sm);}
+  .quizq .qq{font-weight:700;color:var(--navy);font-size:15.5px;margin-bottom:10px;}
+  .qopts{display:flex;flex-direction:column;gap:8px;}
+  .quiz-opt{text-align:left;font-family:inherit;font-size:14.5px;background:var(--cream);border:1px solid var(--line);border-radius:10px;padding:10px 13px;cursor:pointer;color:var(--ink);transition:background .12s;}
+  .quiz-opt:hover:not(:disabled){background:#f3ece4;}
+  .quiz-opt:disabled{cursor:default;}
+  .quiz-opt.correct{background:#e8f5ec;border-color:#8fcea5;color:#1f7a44;font-weight:700;}
+  .quiz-opt.wrong{background:#fbeaec;border-color:#e3a3ad;color:#a83246;}
+  .qexp{font-size:14px;color:var(--ink);margin-top:10px;display:none;line-height:1.7;background:var(--cream);border-radius:9px;padding:10px 12px;}
+  .qexp.show{display:block;}
+  .qexp b{color:var(--accent);}
+  /* notes export (R2) */
+  .nav .notes-link{font-weight:700;color:#fff;background:rgba(196,154,74,.16);}
+  .note-actions{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+  .notes-view{background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px 26px;box-shadow:var(--shadow-sm);}
+  .note-sec{margin-bottom:22px;}
+  .note-sh{font-weight:800;color:var(--accent);font-size:13px;letter-spacing:.04em;border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:10px;}
+  .note-q{font-weight:700;color:var(--navy);font-size:14.5px;margin-top:12px;}
+  .note-a{font-size:14.5px;white-space:pre-wrap;margin-top:3px;}
+  .note-a.empty{color:var(--muted);font-style:italic;}
+  @media print{ .sidebar,.topbar,.scrim,#progress,.noprint{display:none!important;} .content{width:100%;} .home-hero{background:#fff!important;color:#000!important;padding:10px 0 0;} .home-hero h1{color:#000;} .home-hero .hsub{color:#555;} .notes-view{border:none;box-shadow:none;padding:0;} body{background:#fff;} }
+  /* map (R3 — 실제 지도, Leaflet+OSM) */
+  .mapwrap{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow-sm);}
+  .lmap{height:340px;border-radius:12px;overflow:hidden;border:1px solid var(--line);z-index:0;}
+  .mapcap{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.6;}
+  .mapcap .msrc{font-size:11.5px;opacity:.8;}
+  /* image (S1 — PD 역사지도/사진 + 선택적 hotspot) */
+  .figimg{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow-sm);}
+  .figstory{font-size:15.5px;line-height:1.8;margin-bottom:12px;color:var(--ink);}
+  .figstory b{color:var(--accent);}
+  .imgbox{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#f4efe8;}
+  .imgbox img{width:100%;height:auto;display:block;}
+  .hsdot{position:absolute;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;border:2px solid #fff;font-size:12px;font-weight:800;cursor:pointer;box-shadow:0 2px 7px rgba(0,0,0,.32);display:flex;align-items:center;justify-content:center;line-height:1;}
+  .hsdot:hover{background:var(--navy);}
+  .hsinfo{margin-top:10px;font-size:14px;background:var(--cream);border-radius:9px;padding:11px 13px;display:none;line-height:1.7;}
+  .hsinfo.show{display:block;}
+  .hsinfo b{color:var(--accent);}
+  .figcap{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.65;}
+  .figcap .msrc{font-size:11.5px;opacity:.85;}
+  /* oldmap (고지도 — 시대감) */
+  .oldmap{background:linear-gradient(180deg,#f7f0e2,#efe4cf);border:1px solid #d8c7a6;border-radius:16px;padding:16px;box-shadow:var(--shadow-sm);}
+  .oldmap-frame{border-radius:10px;overflow:hidden;border:3px solid #8a6d3b;box-shadow:inset 0 0 40px rgba(94,66,20,.25);background:#e8dcc2;}
+  .oldmap-frame img{width:100%;height:auto;display:block;filter:sepia(.32) contrast(1.04) saturate(.9);}
+  .oldmap .figcap{color:#6b5836;}
+  /* lightbox (이미지 클릭 확대 — image/oldmap 공통) */
+  .imgbox img,.oldmap-frame img{cursor:zoom-in;}
+  .lightbox{position:fixed;inset:0;background:rgba(22,19,16,.93);display:none;align-items:center;justify-content:center;z-index:99;padding:16px;cursor:zoom-out;}
+  .lightbox.show{display:flex;}
+  .lightbox img{max-width:96vw;max-height:90vh;width:auto;height:auto;border-radius:8px;box-shadow:0 12px 44px rgba(0,0,0,.55);}
+  .lightbox .lb-cap{position:fixed;left:0;right:0;bottom:10px;text-align:center;color:#E8C8C5;font-size:12px;padding:0 22px;line-height:1.5;}
+  /* companion (짝 에피소드 배지) */
+  .companion-link{display:block;margin:6px 14px 0;padding:7px 11px;border:1px dashed rgba(255,255,255,.35);border-radius:9px;color:#fff;font-size:12px;text-decoration:none;opacity:.92;}
+  .companion-link:hover{background:rgba(255,255,255,.1);}
+  /* voice (S3 — 일기·편지체 1인칭) */
+  .voice{background:linear-gradient(135deg,#fffdf8,#f6efe3);border:1px solid #e6d9c4;border-left:5px solid var(--gold);border-radius:14px;padding:20px 24px;box-shadow:var(--shadow-sm);}
+  .voice .vbadge{display:inline-block;font-size:11px;font-weight:800;padding:2px 10px;border-radius:8px;margin-bottom:12px;letter-spacing:.02em;}
+  .voice .vbadge.real{background:#e6f0e8;color:#2f6b43;}
+  .voice .vbadge.imag{background:#f3eadb;color:#8a6d2f;}
+  .voice .vbody{font-size:16.5px;font-style:italic;line-height:1.95;color:#3a352f;}
+  .voice .vbody::before{content:"“";font-size:34px;color:var(--gold);line-height:0;vertical-align:-12px;margin-right:3px;}
+  .voice .vspeaker{margin-top:14px;font-size:13px;color:var(--muted);}
+  .voice .vspeaker b{color:var(--navy);}
+  .voice .vsrc{display:block;font-size:11.5px;opacity:.85;margin-top:3px;}
+  /* chart (S4 — 자체 막대 + 체감 비교) */
+  .chart{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow-sm);}
+  .chart .ctitle{font-weight:800;color:var(--navy);font-size:15.5px;}
+  .chart .cunit{font-size:12px;color:var(--muted);margin:3px 0 14px;}
+  .crow{display:flex;align-items:center;gap:10px;margin:9px 0;}
+  .crow .clabel{flex:0 0 72px;font-size:13px;color:var(--ink);text-align:right;}
+  .crow .cbarwrap{flex:1;background:var(--cream);border-radius:7px;overflow:hidden;height:24px;}
+  .crow .cbar{height:100%;background:linear-gradient(90deg,var(--rose),var(--accent));border-radius:7px;min-width:3px;}
+  .crow .cval{flex:0 0 auto;font-size:12.5px;font-weight:700;color:var(--accent);min-width:62px;}
+  .crelate{margin-top:15px;font-size:14.5px;background:#fdf2ef;border:1px solid var(--rose-soft);border-radius:10px;padding:12px 14px;line-height:1.7;}
+  .crelate b{color:var(--accent);}
+  .csrc{font-size:11.5px;color:var(--muted);margin-top:11px;opacity:.85;}
+  /* compare (S5 — 단계 토글 / before·after) */
+  .compare{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow-sm);}
+  .cmpintro{font-size:15px;margin-bottom:13px;color:var(--ink);line-height:1.7;}
+  .cmptabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px;}
+  .cmptab{font-family:inherit;font-size:13px;font-weight:700;background:var(--cream);border:1px solid var(--line);border-radius:20px;padding:7px 14px;cursor:pointer;color:var(--navy);transition:background .12s;}
+  .cmptab:hover{background:#f3ece4;}
+  .cmptab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .cmppanel .cmh{font-weight:800;color:var(--navy);font-size:16.5px;margin-bottom:7px;}
+  .cmppanel .cmb{font-size:15px;line-height:1.85;}
+  .cmppanel img{width:100%;border-radius:10px;margin-top:11px;border:1px solid var(--line);display:block;}
+  .cmpcap{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.6;}
+  /* choice (S7 — 너라면? 도덕적 딜레마) */
+  .choice{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow-sm);}
+  .chprompt{font-weight:700;color:var(--navy);font-size:15.5px;margin-bottom:14px;line-height:1.75;}
+  .chopts{display:flex;flex-direction:column;gap:9px;}
+  .chopt{text-align:left;font-family:inherit;font-size:14.5px;background:var(--cream);border:1px solid var(--line);border-radius:11px;padding:12px 14px;cursor:pointer;color:var(--ink);transition:background .12s;}
+  .chopt:hover{background:#f3ece4;}
+  .chopt.picked{border-color:var(--accent);background:#fdf2ef;font-weight:700;}
+  .chres{font-size:14px;margin-top:8px;background:#f7f3fb;border:1px solid #e0d6ee;border-radius:9px;padding:11px 13px;display:none;line-height:1.75;}
+  .chres.show{display:block;}
+  .chafter{margin-top:15px;font-size:14px;background:var(--cream);border-radius:9px;padding:12px 14px;line-height:1.75;display:none;}
+  .chafter.show{display:block;}
+  .chafter b{color:var(--accent);}
+  .pager{display:flex; justify-content:space-between; gap:12px; margin-top:46px;}
+  .pager a{flex:1; text-decoration:none; background:#fff; border:1px solid var(--line); border-radius:14px; padding:15px 18px; color:var(--navy); box-shadow:var(--shadow-sm); transition:transform .12s, box-shadow .12s; cursor:pointer;}
+  .pager a:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
+  .pager a.next{text-align:right; background:var(--navy); color:#fff; border-color:var(--navy);}
+  .pager .pg-label{font-size:11.5px; color:var(--muted);}
+  .pager a.next .pg-label{color:var(--rose-soft);}
+  .pager .pg-title{font-weight:700; font-size:15px; margin-top:3px;}
+  .home-hero{padding:60px 32px 44px; background:linear-gradient(140deg,var(--navy) 0%, #54608c 100%); color:#fff; text-align:center;}
+  .home-hero h1{font-size:33px; font-weight:800; line-height:1.32;}
+  .home-hero .hsub{font-size:15px; color:var(--rose-soft); margin-top:12px;}
+  .home-hero .hq{margin:26px auto 0; max-width:460px; font-style:italic; font-size:15px; opacity:.92; line-height:1.8;}
+  .home-hero .hq small{display:block; font-style:normal; opacity:.7; font-size:12px; margin-top:8px;}
+  .home-wrap{max-width:760px; margin:0 auto; padding:36px 26px 90px;}
+  .home-intro{font-size:16.5px; background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:24px 26px; box-shadow:var(--shadow-sm); line-height:1.85;}
+  .home-intro b{color:var(--accent);}
+  .start-btns{display:flex; gap:12px; flex-wrap:wrap; margin:24px 0 8px;}
+  .btn{flex:1; min-width:200px; text-decoration:none; text-align:center; padding:16px; border-radius:14px; font-weight:700; font-size:15.5px; box-shadow:var(--shadow-sm); transition:transform .12s; cursor:pointer;}
+  .btn:hover{transform:translateY(-2px);}
+  .btn.primary{background:var(--navy); color:#fff;}
+  .btn.star{background:linear-gradient(135deg,var(--rose),var(--accent)); color:#fff;}
+  .path{list-style:none; margin-top:14px;}
+  .path li{display:flex; gap:16px; align-items:flex-start; cursor:pointer; padding:14px 16px; border-radius:14px; transition:background .12s;}
+  .path li:hover{background:#fff;}
+  .path .pn{flex:0 0 34px; height:34px; border-radius:50%; background:var(--navy); color:#fff; display:flex;align-items:center;justify-content:center; font-weight:800; font-size:14px;}
+  .path li.star .pn{background:var(--accent);}
+  .path .ph{font-weight:700; color:var(--navy); font-size:16px;}
+  .path .ph .star-mark{color:var(--gold);}
+  .path .pp{font-size:14px; color:var(--muted); margin-top:2px;}
+  #tip{position:fixed; z-index:70; max-width:260px; background:var(--navy); color:#fff; font-size:13px; line-height:1.6; padding:11px 14px; border-radius:11px; box-shadow:0 8px 24px rgba(0,0,0,.28); display:none; pointer-events:none;}
+  .leaflet-popup-content{font-family:inherit;font-size:13.5px;line-height:1.6;}
+  .leaflet-popup-content b{color:var(--accent);}
+  @media (max-width:880px){
+    .sidebar{position:fixed; left:0; top:0; z-index:35; transform:translateX(-100%); transition:transform .25s;}
+    .sidebar.open{transform:translateX(0);}
+    .topbar{display:flex;}
+    .scrim.show{display:block;}
+    .hero{padding:34px 22px 26px;} .hero h1{font-size:25px;} .hero .motif{width:120px;height:120px;}
+    .home-hero{padding:40px 20px 32px;} .home-hero h1{font-size:26px;}
+    .wrap,.home-wrap{padding:26px 18px 76px;}
+  }
+  /* ───────── 시각효과 업그레이드 v2 (additive) ───────── */
+  /* 정적 폴리시 (모션 무관) */
+  .imgbox{overflow:hidden;}
+  .imgbox img{transition:transform .5s cubic-bezier(.22,1,.36,1);}
+  .imgbox:hover img{transform:scale(1.045);}
+  .why,.chart,.compare,.choice,.voice,.relations,.connect{transition:box-shadow .22s ease, transform .22s ease;}
+  .why:hover,.chart:hover,.compare:hover,.choice:hover,.voice:hover{box-shadow:var(--shadow);}
+  h2.block::before{box-shadow:0 0 0 4px rgba(181,84,106,.12);}
+  .spark{position:relative; overflow:hidden;}
+  .spark::after{content:""; position:absolute; inset:0; background:radial-gradient(150px 90px at 92% 0%, rgba(196,154,74,.16), transparent 70%); pointer-events:none;}
+  .hero::after{content:""; position:absolute; left:0; right:0; top:0; height:130%; background:radial-gradient(60% 55% at 82% 0%, rgba(255,255,255,.13), transparent 62%); pointer-events:none;}
+  .lk,.yt,.card,.pager a{will-change:transform;}
+  /* 모션 (저모션 사용자 보호: no-preference 일 때만) */
+  @media (prefers-reduced-motion: no-preference){
+    /* 블록 진입 — 순수 CSS 스태거(fill-mode both → 항상 보이게 끝남, JS 의존 0) */
+    .wrap > *, .home-wrap > *{animation:vBlockIn .55s cubic-bezier(.22,1,.36,1) both;}
+    .wrap > *:nth-child(1),.home-wrap > *:nth-child(1){animation-delay:.03s;}
+    .wrap > *:nth-child(2),.home-wrap > *:nth-child(2){animation-delay:.10s;}
+    .wrap > *:nth-child(3),.home-wrap > *:nth-child(3){animation-delay:.17s;}
+    .wrap > *:nth-child(4),.home-wrap > *:nth-child(4){animation-delay:.24s;}
+    .wrap > *:nth-child(5),.home-wrap > *:nth-child(5){animation-delay:.31s;}
+    .wrap > *:nth-child(6),.home-wrap > *:nth-child(6){animation-delay:.37s;}
+    .wrap > *:nth-child(7),.home-wrap > *:nth-child(7){animation-delay:.43s;}
+    .wrap > *:nth-child(n+8),.home-wrap > *:nth-child(n+8){animation-delay:.48s;}
+    @keyframes vBlockIn{from{opacity:0; transform:translateY(15px);} to{opacity:1; transform:none;}}
+    .crow .cbar{transition:width 1.05s cubic-bezier(.22,1,.36,1);}
+    .hero h1{animation:vHeroRise .55s ease both;}
+    .hero .kicker{animation:vHeroRise .55s .06s ease both;}
+    .hero .era{animation:vHeroRise .55s .12s ease both;}
+    @keyframes vHeroRise{from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:none;}}
+    .quiz-opt.correct{animation:vPop .42s ease;}
+    @keyframes vPop{0%{transform:scale(1);} 42%{transform:scale(1.035);} 100%{transform:scale(1);}}
+  }
+</style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-ant-path@1.3.0/dist/leaflet-ant-path.js"></script>
+</head>
+<body>
+<div id="progress"></div>
+<div class="layout">
+  <nav class="sidebar" id="sidebar">
+    <a class="hub-back" id="hubBack" href="../index.html">← 역사 이야기 허브</a>
+    <div class="brand" id="brandHome"><div class="bt" id="brandTitle"></div><span class="sub" id="brandSub"></span></div>
+    <ul class="nav" id="navList"></ul>
+    <div class="side-foot" id="sideFoot"></div>
+  </nav>
+  <div class="scrim" id="scrim"></div>
+  <main class="content">
+    <div class="topbar"><button class="hamb" id="hamb" aria-label="메뉴">☰</button><span class="tb-title" id="tbTitle"></span><a class="tb-hub" id="tbHub" href="../index.html">🏛️ 역사 허브</a></div>
+    <div id="view"></div>
+  </main>
+</div>
+<div id="tip"></div>
+
+<!-- 에피소드 데이터 (build.py가 주입) -->
+<script id="episode-data">window.EPISODE = {"meta": {"lang": "ko", "slug": "tracks/sports/leagues", "title": "빅리그의 시스템 — 축구는 어떻게 굴러가나", "description": "승강제와 리그 피라미드, 5대 리그 비교, 이적시장과 상각, 중계권·소유구조, FFP/PSR와 슈퍼리그, 유럽 대항전까지 — 빅리그가 실제로 작동하는 메커니즘을 전문가 수준으로.", "brand": {"title": "빅리그의 시스템", "sub": "메커니즘으로 읽기"}, "foot": "축구 허브 · ② 빅리그 시스템 · 심화·전문가 수준", "home": {"h1": "빅리그는<br>어떻게 굴러가나", "sub": "승강제·돈·이적·소유·FFP — 시스템 6정거장", "quote": {"text": "축구의 승패는 90분에 갈리지만, 클럽의 운명은 회계장부와 규정집에서 갈린다.", "by": "(편집자 노트)"}, "intro": "오늘날 빅리그는 단순한 '경기들의 모음'이 아니라, 승강제·중계권·이적·소유·재정규정이 정교하게 맞물린 거대한 시스템이다. 이 2부는 그 메커니즘을 분해한다 — 왜 유럽엔 승강제가 있고 미국엔 없는지, 이적료는 회계상 어떻게 처리되는지, 중계권은 어떻게 나뉘고, 누가 구단을 소유하며, '돈을 쓰는 데도 규칙(FFP)'이 왜 생겼는지. 1부의 역사가 깔아놓은 구조 위에서, 빅리그가 실제로 어떻게 작동하는지를 본다.", "startPrimary": {"label": "처음부터 — 승강제와 리그 피라미드 →", "to": "pyramid"}, "startStar": {"label": "★ 돈을 쓰는 데도 규칙이 있다 — FFP와 슈퍼리그", "to": "ffp"}, "pathLabel": "시스템의 사슬"}, "hub": {"url": "../index.html", "label": "← 축구 허브"}}, "terms": {"승강제": "성적에 따라 상·하위 리그를 오르내리는 제도(promotion/relegation). 개방형 리그 피라미드의 핵심.", "낙하산 지원금": "1부에서 강등된 팀에 한시적으로 주는 보전금(parachute payment). 충격 완화책이자 '2부 경쟁 왜곡' 논란의 대상.", "상각": "이적료를 한 번에 비용처리하지 않고 계약기간으로 나눠 매년 분할 비용처리하는 회계(amortization). FFP·PSR 계산의 핵심.", "집단판매": "리그가 중계권을 한데 모아 팔아 구단에 분배하는 방식(EPL). 개별판매(과거 라리가)보다 경쟁균형에 유리.", "FFP": "재정적 페어플레이(UEFA, 2011~). '버는 만큼 쓴다'를 강제하려는 규정. 현재는 스쿼드 코스트 비율 등으로 진화.", "PSR": "잉글랜드 프리미어리그의 수익성·지속가능성 규정(Profit and Sustainability Rules). 3년 누적 손실 한도(약 1.05억£) — 위반 시 승점 삭감.", "소시오": "회원(socio)이 클럽을 소유·투표하는 회원제 모델. 레알 마드리드·바르셀로나·분데스 다수 구단.", "50+1": "독일 분데스리가 규칙. 모기업이 아닌 '클럽 회원'이 의결권 과반(50%+1)을 보유해야 한다 — 팬 통제·외부자본 제한.", "멀티클럽 소유": "한 자본이 여러 나라 여러 구단을 소유하는 모델(시티풋볼그룹·레드불 등). 육성·이적 네트워크 이점과 이해충돌 논란.", "슈퍼리그": "2021년 유럽 빅클럽들이 추진하다 무산된 폐쇄형 분리 리그 구상. 승강 없는 기득권 리그라는 반발로 좌초.", "UEFA 계수": "각국 리그·클럽의 유럽대항전 성적을 누적해 산출하는 점수. 리그별 챔스 출전권 수를 결정한다."}, "sections": [{"id": "pyramid", "num": "00", "label": "승강제와 리그 피라미드", "accent": "#2e5b3a", "kicker": "구조의 기본", "era": "개방형 vs 폐쇄형", "motif": "gear", "title": "꼴찌에게 공포를, 약팀에게 희망을", "hook": "유럽 축구의 가장 근본적인 특징 하나 — <b>승강제</b>다. 시즌 꼴찌 3팀은 하부 리그로 강등되고, 2부 상위 팀은 1부로 승격한다. 이 단순한 규칙이 모든 것을 바꾼다. 중위권 팀도 '강등 공포'로 끝까지 싸우고, 4부의 작은 클럽도 이론상 1부까지 올라갈 '희망'을 갖는다. 반면 미국 스포츠엔 승강제가 없다 — 왜 이 결정적 차이가 생겼을까?", "spark": {"title": "상식 뒤집기 — 승강제는 '경쟁'을 위로도 아래로도 무한 연장한다", "body": "리그 우승 경쟁은 보통 상위 몇 팀의 일이다. 그런데 승강제가 있으면 <b>하위권에도 똑같이 치열한 '생존 경쟁'</b>이 생긴다. 시즌 마지막 라운드에 우승만큼이나 강등권 싸움이 뜨거운 이유다. 한 리그 안에 '우승 리그'와 '생존 리그'가 동시에 돌아가는 셈이다.", "mind": "승강제는 '꼴찌도 의미 있게' 만든다 — 모든 경기가 무언가를 건 경기가 되도록 설계된, 유럽 축구의 숨은 엔진이다."}, "why": "잉글랜드는 1893년부터 승강제를 제도화했고, 오늘날 프리미어리그(1부)부터 수많은 비(非)리그 단계까지 단일 피라미드로 연결된다(이론상 동네 클럽도 승격을 거듭하면 1부까지). 이 '개방형(open)' 구조는 미국식 '폐쇄형(closed) 프랜차이즈'와 근본적으로 다르다 — 미국은 고정된 구단(프랜차이즈)이 강등 없이 영구히 리그에 속하고, 약팀 보호 장치(드래프트·샐러리캡)로 전력을 평준화한다.<br><br>📚 <b>심화</b> — 승강제의 그늘이 <b>낙하산 지원금</b>이다. 강등 팀의 재정 충격을 줄이려 1부가 보전금을 주는데, 이 돈이 2부에서 '강등팀 vs 순수 2부팀'의 재정 격차를 키워 승격 경쟁을 왜곡한다는 비판이 크다. 제도 하나가 또 다른 불균형을 낳는 전형.", "compare": {"h": "개방형(유럽) vs 폐쇄형(미국) ⚖️", "states": [{"label": "개방형(유럽)", "title": "개방형 — 승강제", "body": "성적으로 리그를 오르내림. 진입장벽 낮고 경쟁이 상·하위로 무한 연장. 단, 빈익빈·재정 충격(낙하산 지원금) 문제."}, {"label": "폐쇄형(미국)", "title": "폐쇄형 — 프랜차이즈", "body": "고정 구단이 강등 없이 영구 소속. 드래프트·샐러리캡으로 전력 평준화·수익 안정. 단, 약팀의 '탱킹(고의 부진)' 유인과 신규 진입 차단."}]}, "cards": [{"yr": "1893", "h": "승강제 제도화", "p": "잉글랜드 2부 도입과 함께 승강제 시작 — 개방형 피라미드의 출발."}, {"yr": "구조", "h": "단일 피라미드", "p": "1부~비리그까지 연결. 이론상 동네 클럽도 1부까지 승격 가능."}, {"yr": "효과", "h": "이중 경쟁", "p": "우승 경쟁 + 강등 생존 경쟁이 한 리그에 공존."}, {"yr": "그늘", "h": "낙하산 지원금", "p": "강등팀 보전금이 2부 경쟁을 왜곡한다는 논란."}], "connect": "그럼 그 개방형 피라미드의 꼭대기 — 유럽 5대 리그 — 는 서로 어떻게 다를까? 같은 '빅리그'라도 운영 철학이 제각각이다.", "links": [{"label": "승강제", "url": "https://ko.wikipedia.org/wiki/승강제", "source": "위키백과", "note": "개방형 리그의 핵심."}, {"label": "잉글랜드 풋볼 피라미드", "url": "https://en.wikipedia.org/wiki/English_football_league_system", "source": "Wikipedia(영문)", "note": "1부~비리그 단일 체계."}, {"label": "낙하산 지원금", "url": "https://en.wikipedia.org/wiki/Parachute_payment", "source": "Wikipedia(영문)", "note": "강등팀 보전금과 그 논란."}], "quiz": [{"q": "유럽식 '개방형' 리그와 미국식 '폐쇄형' 리그의 핵심 차이는?", "options": ["공의 크기가 다르다", "개방형은 성적에 따른 승강제가 있고, 폐쇄형은 고정 구단이 강등 없이 영구 소속된다", "개방형은 샐러리캡이 있고 폐쇄형은 없다"], "answer": 1, "explain": "승강제(개방형) vs 고정 프랜차이즈+전력 평준화(폐쇄형)가 두 모델의 근본 차이다. 이는 3부 MLS에서 다시 다룬다."}], "reflect": ["승강제(긴장·희망)와 폐쇄형(안정·평준화) 중 '스포츠로서 더 매력적인' 쪽은 무엇일까? 팬·구단·리그 각각의 입장에서 생각해 보자."], "order": ["hook", "spark", "why", "compare", "cards", "connect", "links", "quiz", "reflect"]}, {"id": "big5", "num": "01", "label": "5대 리그 비교", "accent": "#3a4b6b", "kicker": "EPL·라리가·분데스·세리에A·리그앙", "era": "다섯 개의 철학", "motif": "flag", "title": "같은 빅리그, 다른 운영 철학", "hook": "유럽 '5대 리그'는 묶어 부르지만, 운영 방식은 놀랄 만큼 다르다. 잉글랜드는 중계권을 똑같이 나눠 경쟁균형을 사고, 독일은 팬이 구단을 통제하며, 스페인은 두 거인이 지배하고, 이탈리아는 영광에서 추락했다 회복 중이며, 프랑스는 인재를 길러 수출한다. <b>같은 스포츠, 다섯 개의 자본주의</b>다.", "spark": {"title": "숫자의 충격 — 중계권을 '어떻게 나누나'가 리그 성격을 만든다", "body": "프리미어리그는 중계권을 <b>집단판매</b>해 구단 간 분배 격차를 비교적 좁게 유지한다(상·하위 배분 비율 차이가 작다). 반면 스페인은 오랫동안 <b>개별판매</b>여서 레알·바르사가 수익을 독식했고, 2015년에야 집단판매로 전환했다. '돈을 어떻게 나누느냐'가 곧 '리그가 얼마나 경쟁적이냐'를 결정한다.", "mind": "리그의 경쟁균형은 운(運)이 아니라 '분배 규칙의 설계'다 — EPL의 흥행은 축구 실력보다 중계권 분배 모델의 산물일 수 있다."}, "why": "각 리그의 정체성을 가른 핵심 변수는 ①중계권 분배(집단 vs 개별) ②소유 모델(자본 vs 회원제 vs 50+1) ③전략(상업화 vs 육성)이다. EPL은 집단판매+글로벌 상업화+외국자본 유입으로 매출 1위가 됐고, 분데스는 50+1과 낮은 티켓값으로 세계 최고 관중·재정 건전성을 지켰다. 라리가는 양강 체제와 유스, 세리에A는 전술 전통과 노후 인프라·회복, 리그앙은 육성 강국이지만 중계권 위기를 겪었다.<br><br>📚 <b>심화</b> — '경쟁균형(competitive balance)'은 리그의 상품가치를 좌우한다. 한 팀이 매번 우승하면 흥미가 떨어진다. 그래서 분배·규정 설계가 중요하다 — 분데스(바이에른 독주)와 EPL(상위권 다툼)의 차이도 여기서 나온다.", "compare": {"h": "5대 리그, 철학 비교 ⚖️", "states": [{"label": "EPL", "title": "잉글랜드 — 상업화의 챔피언", "body": "중계권 집단판매 + 글로벌 시청 + 외국자본. 매출 세계 1위, 상위권 경쟁 치열. 단, 외부자본·소유 논란."}, {"label": "분데스", "title": "독일 — 팬의 리그", "body": "50+1로 팬이 의결권 통제. 낮은 티켓값·세계 최고 관중·재정 건전. 단, 바이에른 독주와 글로벌 매출 격차."}, {"label": "라리가", "title": "스페인 — 두 거인과 육성", "body": "오랜 개별판매로 레알·바르사 독식 → 2015 집단판매 전환. 강한 유스·기술 축구. 재정 통제(살라리 캡) 엄격."}, {"label": "세리에A", "title": "이탈리아 — 영광과 회복", "body": "전술의 본고장. 2000년대 추락(승부조작·재정난·노후 구장) 후 회복 중. 구장 소유·인프라가 과제."}, {"label": "리그앙", "title": "프랑스 — 육성과 PSG", "body": "세계적 유스 생산·수출. PSG(카타르 자본)의 독주, 중계권 사업 위기 등 상업화 과제."}]}, "image": [{"src": "img/allianz.jpg", "alt": "독일 알리안츠 아레나", "caption": "알리안츠 아레나(뮌헨) — 분데스리가는 50+1과 낮은 티켓값으로 세계 최고 관중을 유지한다.", "source": "Wikimedia Commons", "license": "CC BY-SA 4.0"}], "cards": [{"yr": "EPL", "h": "집단판매·상업화", "p": "분배 격차가 작아 경쟁균형↑, 글로벌 매출 1위."}, {"yr": "분데스", "h": "50+1·관중", "p": "팬 통제·낮은 티켓값·재정 건전, 바이에른 독주."}, {"yr": "라리가", "h": "양강·유스", "p": "개별→집단판매(2015), 기술 축구·엄격한 재정 통제."}, {"yr": "세리에/리그앙", "h": "회복·육성", "p": "이탈리아 인프라 과제, 프랑스 육성 강국·PSG 독주."}], "connect": "리그가 클럽을 강하게 만드는 또 하나의 엔진 — 선수를 사고파는 이적시장. 그 돈은 회계상 어떻게 움직일까?", "links": [{"label": "프리미어리그", "url": "https://ko.wikipedia.org/wiki/프리미어리그", "source": "위키백과", "note": "집단판매·상업화의 정점."}, {"label": "분데스리가", "url": "https://ko.wikipedia.org/wiki/분데스리가", "source": "위키백과", "note": "50+1·팬 소유 모델."}, {"label": "라리가", "url": "https://ko.wikipedia.org/wiki/라리가", "source": "위키백과", "note": "양강 체제·집단판매 전환."}], "quiz": [{"q": "프리미어리그가 비교적 높은 '경쟁균형'을 갖게 된 핵심 요인은?", "options": ["선수들이 더 잘해서", "중계권을 집단판매해 구단 간 분배 격차를 좁게 유지해서", "경기 수가 더 많아서"], "answer": 1, "explain": "중계권 집단판매로 상·하위 배분 격차가 작다. 과거 개별판매였던 스페인의 양강 독식과 대비된다 — 분배 규칙이 리그 성격을 만든다."}], "reflect": ["독일(50+1·팬 통제)과 잉글랜드(외국자본·상업화)는 정반대 길을 갔다. 어느 모델이 '건강한 축구'에 가깝다고 보나? 왜?"], "order": ["hook", "spark", "why", "compare", "image:0", "cards", "connect", "links", "quiz", "reflect"]}, {"id": "transfers", "num": "02", "label": "이적시장의 메커니즘", "accent": "#6b3a3a", "kicker": "이적료·상각·에이전트", "era": "선수라는 자산", "motif": "gear", "title": "이적료는 '한 번에 내는 돈'이 아니다", "hook": "네이마르 이적료 2억2200만 유로(2017) — 뉴스는 충격적인 총액을 외친다. 하지만 구단 회계에서 이 돈은 한 번에 비용으로 잡히지 않는다. <b>계약기간으로 나눠 매년 분할 처리(상각)</b>된다. 5년 계약이면 매년 약 4440만 유로씩. 이적료의 진짜 의미를 이해하려면, 뉴스 헤드라인이 아니라 <b>회계장부</b>를 봐야 한다.", "spark": {"title": "일상 속 숨은 원리 — 상각이 이적시장을 움직인다", "body": "이적료를 계약기간으로 나눠 비용처리하는 '상각' 덕에, 구단은 거액 영입의 비용을 여러 해에 분산할 수 있다. 그래서 '장기 계약'은 단순한 선수 묶어두기가 아니라 <b>연간 비용을 낮추는 회계 전략</b>이기도 하다. 반대로 계약 잔여기간이 짧아지면 장부상 선수 가치(잔존가)가 줄어, 헐값에라도 팔아야 하는 압박이 생긴다.", "mind": "현대 구단에 선수는 '사람'이자 '감가상각되는 자산'이다 — 이적·재계약 결정의 상당 부분이 운동장이 아니라 회계 원리에서 나온다."}, "why": "이적시장의 핵심 메커니즘들 — ①상각: 이적료÷계약연수로 연간 비용 산정(FFP·PSR 계산의 토대). ②에이전트: 선수 대리인이 이적·연봉 협상을 주도하며 막대한 수수료를 받는다(FIFA가 수수료 상한 규제를 시도). ③보스만·웹스터: 계약 만료(보스만) 또는 일정 조건(웹스터 조항)에서 자유·저비용 이적 가능. ④이적기간(window): 여름·겨울에만 영입 가능. ⑤셀링 클럽 vs 바잉 클럽: 길러 파는 구단과 사 모으는 구단의 역할 분화.<br><br>📚 <b>심화</b> — FIFA는 2015년 <b>제3자 소유(TPO)</b>를 전면 금지했다. 과거 남미에서 펀드·에이전트가 선수의 '이적료 지분'을 미리 사두고 차익을 노리던 관행으로, 선수를 금융상품처럼 거래해 이해충돌·인신매매 논란을 빚었기 때문이다(3부 남미 편과 연결).", "chart": {"title": "세계 최고 이적료 기록의 진화 (대략, €)", "unit": "백만 €", "data": [{"label": "1992 시뇨리", "value": 10, "disp": "약 1천만"}, {"label": "2001 지단", "value": 77, "disp": "약 7700만"}, {"label": "2013 베일", "value": 100, "disp": "약 1억"}, {"label": "2017 네이마르", "value": 222, "disp": "약 2.22억"}], "relatable": "25년 만에 최고 이적료가 약 20배로. 중계권 폭증(1부 참조)이 이적 인플레이션을 떠받쳤다.", "source": "역대 세계 최고 이적료 기록 일반 통설(대략값, €)"}, "cards": [{"yr": "상각", "h": "분할 비용처리", "p": "이적료를 계약연수로 나눠 매년 비용 — FFP 계산의 토대."}, {"yr": "에이전트", "h": "협상의 주역", "p": "대리인이 이적·연봉을 주도, 막대한 수수료(FIFA 규제 시도)."}, {"yr": "보스만/웹스터", "h": "자유 이적", "p": "계약 만료·일정 조건에서 저비용·자유 이적."}, {"yr": "TPO 금지", "h": "제3자 소유 금지(2015)", "p": "선수를 금융상품화하던 관행을 FIFA가 전면 금지."}], "timeline": [{"yr": "1995", "t": "보스만 — 자유 이적"}, {"yr": "2015", "t": "제3자 소유(TPO) 금지"}, {"yr": "2017", "t": "네이마르 €2.22억(기록)"}, {"yr": "2023", "t": "FIFA 에이전트 수수료 규제 추진"}], "connect": "이적료가 이렇게 커지자, '돈이 어디서 오고 어떻게 쓰이는가' — 구단의 수입 구조와 소유주가 결정적 변수가 된다.", "links": [{"label": "이적 (축구)", "url": "https://en.wikipedia.org/wiki/Transfer_(association_football)", "source": "Wikipedia(영문)", "note": "이적료·계약·이적기간."}, {"label": "제3자 소유(TPO)", "url": "https://en.wikipedia.org/wiki/Third-party_ownership_in_association_football", "source": "Wikipedia(영문)", "note": "2015 FIFA 금지."}, {"label": "축구 에이전트", "url": "https://en.wikipedia.org/wiki/Football_agent", "source": "Wikipedia(영문)", "note": "대리인·수수료·규제."}], "quiz": [{"q": "이적료의 '상각(amortization)'을 가장 정확히 설명한 것은?", "options": ["이적료 전액을 이적 당해에 한 번에 비용처리하는 것", "이적료를 계약기간으로 나눠 매년 분할 비용처리하는 것", "이적료를 선수에게 직접 지급하는 것"], "answer": 1, "explain": "상각은 이적료를 계약연수로 나눠 매년 비용으로 잡는 회계다. 그래서 장기계약이 연간 비용을 낮추는 전략이 되고, FFP·PSR 계산의 토대가 된다."}], "reflect": ["선수를 '감가상각되는 자산'으로 다루는 회계는 효율적이지만, 인간을 상품화한다는 비판도 받는다. 이 긴장을 어떻게 볼까?"], "order": ["hook", "spark", "why", "chart", "cards", "timeline", "connect", "links", "quiz", "reflect"]}, {"id": "money", "num": "03", "label": "돈의 구조와 소유", "accent": "#5b4a2e", "kicker": "수입 3축·소유 모델", "era": "누가 구단을 갖는가", "motif": "globe", "title": "중계권·상업·관중, 그리고 주인", "hook": "빅클럽의 수입은 세 기둥에서 나온다 — <b>중계권·상업(스폰서/머천다이징)·매치데이(티켓)</b>. 30년 전 가장 컸던 매치데이는 이제 가장 작은 축이 됐고, 중계권과 글로벌 상업 수입이 그 자리를 차지했다. 그리고 이 거대한 돈을 누가 통제하느냐 — 연고 팬인가, 미국 펀드인가, 국부펀드인가 — 가 구단의 영혼을 가른다.", "spark": {"title": "숫자의 충격 — 관중석보다 거실, 그리고 국경 밖 자본", "body": "오늘날 빅클럽 수입에서 티켓(매치데이) 비중은 흔히 가장 작고, 중계권+상업 수입이 대부분을 차지한다. 즉 구단의 진짜 시장은 '경기장 4만 석'이 아니라 '전 세계 수억 시청자와 스폰서'다. 그래서 아시아 투어·SNS·글로벌 브랜딩이 경기만큼 중요해졌다.", "mind": "현대 빅클럽은 '동네 팀'이 아니라 '글로벌 미디어·엔터테인먼트 기업'이다 — 그 소유권을 국부펀드가 노리는 이유이기도 하다."}, "why": "소유 모델은 크게 넷이다. ①회원제(소시오): 레알·바르사·분데스 다수 — 팬·회원이 통제(50+1). ②사적 자본/미국식: 글레이저(맨유)·펜웨이(리버풀) 등 — 레버리지·수익 경영, 때로 팬 반발. ③국부펀드(국가 자본): 만수르의 맨시티(ADUG), 사우디 PIF의 뉴캐슬, 카타르의 PSG — 막대한 투자와 함께 '스포츠워싱' 논쟁(3부 중동 편). ④멀티클럽 소유: 시티풋볼그룹·레드불 — 여러 나라 구단을 묶어 육성·이적 네트워크를 만든다(이해충돌·대항전 동시 진출 문제).<br><br>📚 <b>심화</b> — 멀티클럽 소유(MCO)는 빠르게 늘고 있다. 한 그룹이 A국·B국 구단을 모두 소유하면 유망주를 그룹 내에서 돌리고 이적료를 절약할 수 있다. 그러나 같은 그룹의 두 구단이 같은 대항전에 나오면 '경기 무결성' 문제가 생겨, UEFA가 규제에 나섰다.", "cards": [{"yr": "수입①", "h": "중계권", "p": "최대 수입원. 분배 방식이 리그 경쟁균형을 좌우."}, {"yr": "수입②", "h": "상업/스폰서", "p": "글로벌 브랜딩·머천다이징 — 빠르게 성장하는 축."}, {"yr": "수입③", "h": "매치데이", "p": "티켓·경기장 수입 — 비중은 상대적으로 축소."}, {"yr": "소유", "h": "회원제·자본·국부·멀티", "p": "누가 통제하느냐가 구단의 성격과 논쟁을 가른다."}], "connect": "이렇게 큰 돈과 외부 자본이 밀려들자, 리그는 '돈 쓰는 데도 규칙'을 만들기 시작했다 — FFP. 그리고 빅클럽들은 아예 분리 리그(슈퍼리그)를 시도했다.", "links": [{"label": "데일로이트 풋볼 머니리그", "url": "https://en.wikipedia.org/wiki/Deloitte_Football_Money_League", "source": "Wikipedia(영문)", "note": "구단 수입 순위·구조."}, {"label": "시티풋볼그룹(멀티클럽)", "url": "https://en.wikipedia.org/wiki/City_Football_Group", "source": "Wikipedia(영문)", "note": "멀티클럽 소유의 대표 사례."}, {"label": "스포츠 구단 소유", "url": "https://ko.wikipedia.org/wiki/축구_클럽", "source": "위키백과", "note": "구단의 형태와 소유."}], "quiz": [{"q": "현대 빅클럽의 수입 구조 변화로 옳은 것은?", "options": ["티켓(매치데이) 수입이 가장 큰 비중으로 커졌다", "중계권·상업 수입이 대부분을 차지하고 매치데이 비중은 상대적으로 작아졌다", "수입의 대부분이 선수 이적료에서 나온다"], "answer": 1, "explain": "중계권+글로벌 상업 수입이 주력이 되고 매치데이 비중은 작아졌다. 그래서 빅클럽은 '글로벌 미디어 기업'처럼 움직인다."}], "reflect": ["국부펀드의 막대한 투자는 약체 구단을 단숨에 강호로 만든다. 이것은 '축구의 발전'일까 '돈의 지배'일까? (3부 스포츠워싱과 함께 생각해 보자.)"], "order": ["hook", "spark", "why", "chart", "cards", "connect", "links", "quiz", "reflect"], "chart": {"title": "빅클럽 수입 3축 비중 (대략)", "unit": "%", "data": [{"label": "중계권", "value": 50, "disp": "약 50%"}, {"label": "상업/스폰서", "value": 35, "disp": "약 35%"}, {"label": "매치데이", "value": 15, "disp": "약 15%"}], "relatable": "30년 전 가장 컸던 매치데이(티켓)는 이제 가장 작은 축 — 구단은 글로벌 미디어 기업이 됐다.", "source": "빅클럽 수입 구조 일반 통설(대략값)"}}, {"id": "ffp", "star": true, "num": "04", "label": "★ FFP·재정규제와 슈퍼리그", "accent": "#4b3a6b", "kicker": "2011 ~ 현재", "era": "돈 쓰는 규칙", "motif": "split", "title": "돈을 쓰는 데도 규칙이 있다", "hook": "축구에서 '많이 쓰면 이긴다'는 대체로 사실이다. 그래서 무한 경쟁은 클럽을 파산으로 몬다. 2011년 UEFA는 <b>재정적 페어플레이(FFP)</b> — '버는 만큼만 써라' — 를 도입한다. 그러나 빅클럽들은 규제가 못마땅했다. 2021년 4월, 12개 빅클럽이 승강 없는 폐쇄형 <b>유러피언 슈퍼리그</b>를 전격 발표했다 — 그리고 48시간 만에 팬·정부의 분노 속에 무너졌다.", "spark": {"title": "상식 뒤집기 — 규제는 약자가 아니라 '시스템'을 지킨다", "body": "FFP는 흔히 '빅클럽 봐주기'로 오해되지만, 본래 목적은 <b>구단의 파산 방지와 리그 전체의 지속가능성</b>이다. 무분별한 적자 지출은 한 구단의 문제가 아니라 리그 생태계(선수·하청·하부리그)를 위협한다. 동시에 '이미 부유한 클럽의 지위를 굳힌다'는 반대 논리도 강하다 — 규제의 두 얼굴이다.", "mind": "축구의 진짜 경기는 90분이 아니라, 규정집을 둘러싼 빅클럽·리그·법원의 끝없는 줄다리기일지 모른다."}, "why": "FFP는 진화해 왔다. 초기엔 단순 '손익분기'였지만, 현재 UEFA는 <b>스쿼드 코스트 비율</b>(선수단 비용을 수입의 일정 비율 이내로) 규제로 옮겨갔다. 잉글랜드는 자체 <b>PSR</b>(3년 누적 손실 약 1.05억£ 한도)을 운영하며, 2024년 에버턴·노팅엄 포레스트가 위반으로 <b>승점 삭감</b>을 받았다 — 규정이 실제로 순위를 바꾼 것이다. 한편 슈퍼리그는 '승강 없는 기득권 리그'라는 반발로 무산됐지만, 2023년 유럽사법재판소(ECJ)는 'UEFA의 대회 독점에 일부 문제가 있다'고 판단해 거버넌스 논쟁에 불을 붙였다.<br><br>📚 <b>심화</b> — FFP·PSR의 핵심은 결국 <b>회계</b>다. 무엇을 '수입'으로 인정하고(스폰서가 구단주 관련사면 시장가치로 조정), 이적료 상각을 어떻게 계산하느냐가 승점 삭감으로 이어진다. 그래서 빅클럽은 회계사·변호사 군단을 둔다 — 재정규제 시대의 축구는 법정에서도 경기한다.", "cards": [{"yr": "2011", "h": "FFP 도입", "p": "UEFA '버는 만큼 써라' — 파산 방지·지속가능성."}, {"yr": "진화", "h": "스쿼드 코스트 비율", "p": "선수단 비용을 수입의 일정 비율 이내로 제한하는 방식으로."}, {"yr": "2021", "h": "슈퍼리그 무산", "p": "12개 빅클럽의 폐쇄 분리 시도 → 48시간 만에 좌초."}, {"yr": "2024", "h": "승점 삭감", "p": "PSR 위반으로 에버턴·포레스트 승점 삭감 — 규정이 순위를 바꿈."}], "timeline": [{"yr": "2011", "t": "UEFA FFP 도입"}, {"yr": "2021", "t": "유러피언 슈퍼리그 시도·무산"}, {"yr": "2023", "t": "ECJ 판결 — 거버넌스 논쟁"}, {"yr": "2024", "t": "PSR 위반 승점 삭감 사례"}], "connect": "국내 규제를 넘어, 빅클럽의 진짜 무대이자 최대 수입원은 국경을 넘는 유럽 대항전이다. 그 캘린더와 권력으로.", "links": [{"label": "재정적 페어플레이(FFP)", "url": "https://ko.wikipedia.org/wiki/재정적_페어플레이", "source": "위키백과", "note": "UEFA 재정 규제."}, {"label": "유러피언 슈퍼리그", "url": "https://ko.wikipedia.org/wiki/유러피언_슈퍼리그", "source": "위키백과", "note": "2021 폐쇄 분리 시도와 무산."}, {"label": "UEFA 재정 규정(FFP)", "url": "https://en.wikipedia.org/wiki/UEFA_Financial_Fair_Play_Regulations", "source": "Wikipedia(영문)", "note": "FFP·재정 규제(PSR 포함 맥락)."}], "quiz": [{"q": "재정적 페어플레이(FFP)의 본래 취지에 가장 가까운 것은?", "options": ["빅클럽이 마음껏 돈을 쓰게 풀어주는 것", "구단의 파산을 막고 리그 전체의 지속가능성을 지키려는 것('버는 만큼 써라')", "선수 연봉을 0으로 만드는 것"], "answer": 1, "explain": "FFP는 무분별한 적자 지출로 인한 파산·생태계 붕괴를 막으려는 규제다. 다만 '기득권을 굳힌다'는 반대 논리도 있어 두 얼굴을 가진다."}], "reflect": ["슈퍼리그는 왜 48시간 만에 무너졌을까? '구단은 누구의 것인가'(투자자 vs 팬·지역사회)라는 질문과 연결해 생각해 보자."], "order": ["hook", "spark", "why", "cards", "timeline", "connect", "links", "quiz", "reflect"]}, {"id": "europe", "num": "05", "label": "유럽 대항전과 캘린더", "accent": "#2e5b5b", "kicker": "챔스·계수·일정", "era": "국경을 넘는 무대", "motif": "globe", "title": "빅클럽의 진짜 무대는 국경 밖이다", "hook": "맨시티·레알 같은 빅클럽에게 국내 리그는 '기본'이고, 진짜 위신과 돈은 <b>챔피언스리그</b>에서 나온다. 유럽 대항전 출전권은 각국 리그의 <b>UEFA 계수</b>로 배분되고, 상금·중계권은 빅클럽 수입의 큰 축이다. 그래서 빅클럽은 '국내 4위 안(챔스 진출권)'에 사활을 건다 — 4위가 우승만큼 중요한 역설.", "spark": {"title": "숫자의 충격 — '톱4'가 우승만큼 중요한 이유", "body": "챔피언스리그 진출은 단순 명예가 아니라 막대한 상금·중계·상업 수입과 스타 영입력을 의미한다. 그래서 빅리그에서 '리그 4위 안에 드는 것'이 그 자체로 사활적 목표가 된다. 우승 경쟁만큼이나 '챔스 티켓 경쟁'이 시즌을 지배하는 이유다.", "mind": "현대 빅클럽의 손익은 국내 우승보다 '챔피언스리그 몇 라운드까지 갔느냐'에 더 크게 좌우된다 — 진짜 리그는 유럽에 있다."}, "why": "UEFA는 챔피언스리그·유로파리그·콘퍼런스리그로 유럽 대항전을 운영하고, 각국 리그의 출전 쿼터는 누적 성적(계수)으로 정한다. 2024-25부터 챔스는 조별리그를 폐지하고 36팀 단일 리그(스위스 시스템)로 확대됐다 — 경기 수와 수입을 늘리려는 방향이다. 동시에 FIFA는 클럽월드컵을 32팀으로 확대했다. 그 결과 <b>경기 과부하(fixture congestion)</b>와 '클럽 vs 국가대표' 일정 충돌, 선수 혹사·부상 논란이 커지고 있다.<br><br>📚 <b>심화</b> — 이 모든 확장의 동력은 결국 '더 많은 빅매치 = 더 많은 중계권'이다. 그러나 선수노조(FIFPRO)는 일정 과부하를 건강·노동 문제로 제기하고, 일부 리그·선수는 FIFA·UEFA를 상대로 법적 대응에 나섰다 — 슈퍼리그 무산 이후에도 '누가 캘린더를 통제하는가'라는 권력 다툼은 계속된다.", "cards": [{"yr": "대회", "h": "챔스·유로파·콘퍼런스", "p": "유럽 클럽 대항전 3종 — 위신과 수입의 핵심."}, {"yr": "계수", "h": "UEFA 계수", "p": "리그별 성적 누적으로 챔스 출전 쿼터 결정."}, {"yr": "확대", "h": "스위스 시스템(2024)", "p": "챔스 36팀 단일 리그로 — 경기·수입 확대."}, {"yr": "부작용", "h": "경기 과부하", "p": "클럽 vs 대표팀 일정 충돌, 선수 혹사 논란."}], "connect": "지금까지 본 건 유럽 빅리그의 시스템이다. 그런데 세계의 축구는 이 모델만으로 돌아가지 않는다. 남미·아시아·중동·북미는 전혀 다른 시스템을 택했다 — 3부로.", "links": [{"label": "UEFA 챔피언스리그", "url": "https://ko.wikipedia.org/wiki/UEFA_챔피언스리그", "source": "위키백과", "note": "유럽 최고 클럽 대항전."}, {"label": "UEFA 계수", "url": "https://en.wikipedia.org/wiki/UEFA_coefficient", "source": "Wikipedia(영문)", "note": "출전 쿼터 산정."}, {"label": "경기 일정 과부하", "url": "https://en.wikipedia.org/wiki/Fixture_congestion", "source": "Wikipedia(영문)", "note": "선수 혹사·일정 충돌."}], "quiz": [{"q": "빅리그에서 '리그 4위 안에 드는 것'이 사활적 목표가 되는 이유는?", "options": ["4위까지 우승 트로피를 주기 때문", "챔피언스리그 진출권이 막대한 상금·중계·영입력으로 이어지기 때문", "4위 안에 들면 강등을 면하기 때문"], "answer": 1, "explain": "챔스 진출은 거대한 수입·위신·스타 영입력을 의미한다. 그래서 '톱4 경쟁'이 우승 경쟁만큼 치열하다."}], "reflect": ["대회·경기 수를 계속 늘리는 동력은 '더 많은 중계권'이다. 선수 건강·경기 질과 상업적 확장은 어떻게 균형을 잡아야 할까?"], "order": ["hook", "spark", "why", "cards", "image:0", "connect", "links", "quiz", "reflect"], "image": [{"src": "img/cl_stadium.jpg", "alt": "웸블리 스타디움(런던)", "caption": "웸블리 스타디움(런던) — 빅클럽과 대형 이벤트의 무대. 위신과 수입은 챔피언스리그에서 나온다.", "source": "Wikimedia Commons", "license": "CC BY-SA 2.0"}]}]};</script>
+
+<!-- 렌더 엔진 (모든 에피소드 공통) -->
+<script>
+const EP = window.EPISODE;
+const META = EP.meta, TERMS = EP.terms||{}, SECTIONS = EP.sections, PEOPLE = EP.people||null;
+
+function T(text){ let out=text; for(const k of Object.keys(TERMS)){ out=out.split(k).join('<span class="term" data-term="'+k+'">'+k+'</span>'); } return out; }
+function ytURL(v){ return v.type==='search' ? 'https://www.youtube.com/results?search_query='+encodeURIComponent(v.q) : 'https://www.youtube.com/watch?v='+v.id; }
+
+const MOTIF = {
+  flag:'<path d="M40 30v140M40 36h110l-20 28 20 28H40" fill="none" stroke="#fff" stroke-width="7"/>',
+  crowd:'<g fill="#fff"><circle cx="60" cy="70" r="22"/><circle cx="110" cy="60" r="26"/><circle cx="150" cy="78" r="20"/><rect x="38" y="96" width="44" height="70" rx="18"/><rect x="84" y="90" width="52" height="80" rx="20"/><rect x="132" y="100" width="40" height="66" rx="16"/></g>',
+  book:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M105 50c-18-14-44-14-62 0v96c18-14 44-14 62 0M105 50c18-14 44-14 62 0v96c-18-14-44-14-62 0M105 50v96"/></g>',
+  map:'<g fill="none" stroke="#fff" stroke-width="6"><path d="M50 50l38 14 36-14 38 16v100l-38-16-36 14-38-14z"/><path d="M88 64v100M124 50v104"/></g>',
+  wave:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M30 110c20-26 40-26 60 0s40 26 60 0 40-26 40 0"/><path d="M30 150c20-26 40-26 60 0s40 26 60 0 40-26 40 0"/></g>',
+  sun:'<g fill="none" stroke="#fff" stroke-width="7"><circle cx="105" cy="105" r="34"/><path d="M105 40v22M105 148v22M40 105h22M148 105h22M58 58l16 16M152 152l-16-16M152 58l-16 16M58 152l16-16"/></g>',
+  split:'<g fill="none" stroke="#fff" stroke-width="7"><rect x="44" y="50" width="118" height="110" rx="10"/><path d="M103 50v110" stroke-dasharray="10 9"/></g>',
+  dove:'<g fill="#fff"><path d="M60 120c30 6 70-6 96-44-4 30-2 50 18 64-30 10-72 8-96-20z"/><circle cx="150" cy="74" r="6"/></g>',
+  globe:'<g fill="none" stroke="#fff" stroke-width="6"><circle cx="105" cy="105" r="58"/><ellipse cx="105" cy="105" rx="24" ry="58"/><path d="M47 105h116M55 76h100M55 134h100"/></g>',
+  ship:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M48 132h114l-16 30H64z"/><path d="M105 132V46M105 60l44 16-44 16M105 66l-34 12 34 12"/></g>',
+  torch:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M105 40c18 16 18 40 0 52-18-12-18-36 0-52z"/><path d="M88 96h34l-8 64H96z"/></g>',
+  gear:'<g fill="none" stroke="#fff" stroke-width="7"><circle cx="105" cy="105" r="26"/><path d="M105 52v18M105 140v18M52 105h18M140 105h18M68 68l13 13M137 137l-13-13M137 68l-13 13M68 137l13-13"/></g>'
+};
+
+const view=document.getElementById('view'), navList=document.getElementById('navList');
+const sidebar=document.getElementById('sidebar'), scrim=document.getElementById('scrim'), progress=document.getElementById('progress');
+let currentMap=null, bmaps=[];
+function killMap(){ if(currentMap){ try{currentMap.remove();}catch(e){} currentMap=null; }
+  bmaps.forEach(m=>{ try{m.remove();}catch(e){} }); bmaps=[]; }
+
+function visited(id){ return localStorage.getItem(META.slug+'_v_'+id)==='1'; }
+function markVisited(id){ localStorage.setItem(META.slug+'_v_'+id,'1'); }
+
+function head(){
+  if(META.hub){ const hb=document.getElementById('hubBack'); hb.href=META.hub.url; hb.textContent=META.hub.label;
+    const th=document.getElementById('tbHub'); if(th){ th.href=META.hub.url; } }
+  document.getElementById('brandTitle').textContent=META.brand.title;
+  document.getElementById('brandSub').textContent=META.brand.sub;
+  document.getElementById('sideFoot').innerHTML=META.foot||'';
+  document.getElementById('tbTitle').textContent=META.brand.title;
+}
+
+function buildNav(){
+  let html='<li><a class="home-link" data-id="home">🏠 홈 · 이야기 시작</a></li>'
+    +'<li><a class="notes-link" data-id="notes">📝 내 메모 모아보기</a></li>';
+  html+=SECTIONS.map(s=>'<li><a data-id="'+s.id+'" class="'+(s.star?'star':'')+' '+(visited(s.id)?'visited':'')+'">'
+    +'<span class="num">'+s.num+'</span>'+s.label+(s.star?'<span class="tag">★</span>':'')+'</a></li>').join('');
+  navList.innerHTML=html;
+  navList.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{ go(a.dataset.id); closeSide(); }));
+}
+
+function renderHome(){
+  const h=META.home;
+  view.innerHTML=
+  '<div class="home-hero"><h1>'+h.h1+'</h1><div class="hsub">'+h.sub+'</div>'
+  +(h.quote?'<div class="hq">"'+h.quote.text+'"<small>'+h.quote.by+'</small></div>':'')+'</div>'
+  +'<div class="home-wrap"><div class="home-intro">'+h.intro+'</div>'
+  +'<div class="start-btns"><a class="btn primary" data-id="'+h.startPrimary.to+'">'+h.startPrimary.label+'</a>'
+  +(h.startStar?'<a class="btn star" data-id="'+h.startStar.to+'">'+h.startStar.label+'</a>':'')+'</div>'
+  +'<h2 class="block" style="margin-top:34px;">'+(h.pathLabel||'이야기 흐름')+'</h2><ul class="path">'
+  +SECTIONS.map(s=>'<li class="'+(s.star?'star':'')+'" data-id="'+s.id+'"><span class="pn">'+s.num+'</span>'
+    +'<span><span class="ph">'+s.label+(s.star?' <span class="star-mark">★</span>':'')+'</span>'
+    +'<span class="pp">'+s.kicker+' · '+s.era+'</span></span></li>').join('')
+  +'</ul></div>';
+  view.querySelectorAll('[data-id]').forEach(el=>el.addEventListener('click',()=>{ go(el.dataset.id); closeSide(); }));
+  setActive('home'); window.scrollTo(0,0); progress.style.width='0%'; vfx();
+}
+
+function ytBlock(v){
+  const pill = v.type==='search' ? '<span class="pill find">검색</span>' : (v.lang==='en'?'<span class="pill en">영어·자막</span>':'<span class="pill ko">한국어</span>');
+  return '<a class="yt" href="'+ytURL(v)+'" target="_blank" rel="noopener">'
+    +'<span class="play '+(v.type==='search'?'search':'')+'">'+(v.type==='search'?'🔍':'▶')+'</span>'
+    +'<span class="yt-body"><span class="yt-title">'+v.title+'</span>'
+    +'<span class="yt-meta">'+pill+(v.channel?'<span class="pill">'+v.channel+'</span>':'')+(v.length?'<span>'+v.length+'</span>':'')+'</span>'
+    +'<span class="yt-desc">'+v.desc+'</span></span></a>';
+}
+function quoteBlock(q){ return '<div class="quote"><span class="qm">"</span><div class="qt">'+q.qt+'</div><span class="qs">'+q.qs+'</span></div>'; }
+function quizHTML(quiz,sid){
+  return '<h2 class="block">잠깐, 기억나니? 🧠</h2><div class="quizwrap">'
+    + quiz.map((q,qi)=>'<div class="quizq" data-qi="'+qi+'"><div class="qq">'+(qi+1)+'. '+q.q+'</div><div class="qopts">'
+      + q.options.map((o,oi)=>'<button class="quiz-opt" data-oi="'+oi+'">'+o+'</button>').join('')
+      + '</div><div class="qexp" id="qexp_'+sid+'_'+qi+'"></div></div>').join('')
+    + '</div>';
+}
+function mapHTML(m,sid){
+  return '<h2 class="block">지도로 보기 🗺️</h2><div class="mapwrap">'
+    + '<div class="lmap" id="lmap_'+sid+'"></div>'
+    + '<div class="mapcap">'+(m.caption||'')+(m.source?' <span class="msrc">· 지도 ⓒ '+m.source+'</span>':'')+'</div></div>';
+}
+function choiceHTML(c,sid){
+  const opts=c.options.map((o,i)=>'<div><button class="chopt" data-oi="'+i+'">'+o.label+'</button>'
+    +'<div class="chres" id="chres_'+sid+'_'+i+'">'+T(o.result)+'</div></div>').join('');
+  return '<h2 class="block">'+(c.h||'너라면? 🤔')+'</h2><div class="choice" id="ch_'+sid+'">'
+    +'<div class="chprompt">'+T(c.prompt)+'</div><div class="chopts">'+opts+'</div>'
+    +(c.after?'<div class="chafter" id="chafter_'+sid+'">💬 '+T(c.after)+'</div>':'')+'</div>';
+}
+function compareHTML(c,sid){
+  const tabs=c.states.map((st,i)=>'<button class="cmptab'+(i===0?' active':'')+'" data-ci="'+i+'">'+st.label+'</button>').join('');
+  return '<h2 class="block">'+(c.h||'견주어 보기 ⚖️')+'</h2><div class="compare" id="cmp_'+sid+'">'
+    +(c.intro?'<div class="cmpintro">'+T(c.intro)+'</div>':'')
+    +'<div class="cmptabs">'+tabs+'</div><div class="cmppanel" id="cmppanel_'+sid+'"></div></div>';
+}
+function chartHTML(c,sid){
+  const max=Math.max.apply(null, c.data.map(d=>d.value))||1;
+  const rows=c.data.map(d=>'<div class="crow"><div class="clabel">'+d.label+'</div>'
+    +'<div class="cbarwrap"><div class="cbar" style="width:'+(d.value/max*100)+'%"></div></div>'
+    +'<div class="cval">'+(d.disp||d.value)+'</div></div>').join('');
+  return '<h2 class="block">'+(c.h||'숫자로 보기 📊')+'</h2><div class="chart"><div class="ctitle">'+c.title+'</div>'
+    +(c.unit?'<div class="cunit">'+c.unit+'</div>':'')+rows
+    +(c.relatable?'<div class="crelate">💡 '+T(c.relatable)+'</div>':'')
+    +(c.source?'<div class="csrc">출처: '+c.source+'</div>':'')+'</div>';
+}
+function voiceHTML(v){
+  const real = v.imagined===false;
+  return '<h2 class="block">'+(v.h||'그 사람의 목소리 🗣️')+'</h2><div class="voice">'
+    + '<span class="vbadge '+(real?'real':'imag')+'">'+(real?'실제 기록':'✍️ 사실에 기반한 상상')+'</span>'
+    + '<div class="vbody">'+T(v.body)+'”</div>'
+    + '<div class="vspeaker"><b>— '+v.speaker+'</b>'+(v.era?' · '+v.era:'')+(v.source?'<span class="vsrc">'+v.source+'</span>':'')+'</div>'
+    + '</div>';
+}
+function imageHTML(im,sid){
+  const hs=im.hotspots||[];
+  return '<h2 class="block">'+(im.h||'자료로 보기 🖼️')+'</h2><figure class="figimg">'
+    + (im.story?'<div class="figstory">'+T(im.story)+'</div>':'')
+    + '<div class="imgbox" id="imgbox_'+sid+'">'
+    + '<img src="'+im.src+'" alt="'+(im.alt||'')+'" loading="lazy">'
+    + hs.map((h,i)=>'<button class="hsdot" data-hi="'+i+'" style="left:'+h.x+'%;top:'+h.y+'%" aria-label="'+(h.label||'')+'">'+(i+1)+'</button>').join('')
+    + '</div>'
+    + (hs.length?'<div class="hsinfo" id="hsinfo_'+sid+'">점(번호)을 눌러 보세요.</div>':'')
+    + '<figcaption class="figcap">'+(im.caption||'')+(im.source?' <span class="msrc">· 출처: '+im.source+(im.license?' · '+im.license:'')+'</span>':'')+'</figcaption>'
+    + '</figure>';
+}
+function oldmapHTML(o,sid){
+  return '<h2 class="block">'+(o.h||'옛 지도로 보기 🗺️')+'</h2><figure class="oldmap">'
+    + (o.story?'<div class="figstory">'+T(o.story)+'</div>':'')
+    + '<div class="oldmap-frame"><img src="'+o.src+'" alt="'+(o.alt||'')+'" loading="lazy"></div>'
+    + '<figcaption class="figcap">'+(o.caption||'')+(o.source?' <span class="msrc">· 출처: '+o.source+(o.license?' · '+o.license:'')+'</span>':'')+'</figcaption>'
+    + '</figure>';
+}
+function lensBlock(l){ return '<div class="lens"><div class="lh">🕯️ 그때 사람들은 이렇게 생각했어요</div><div>'+T(l)+'</div></div>'; }
+function personBlock(p){
+  return '<div class="person"><div class="pheader"><div class="pface">'+(p.face||'👤')+'</div>'
+    +'<div><div class="pname">'+p.name+'</div><div class="pwho">'+(p.who||'')+'</div></div></div>'
+    +(p.why?'<div class="pwhy">'+T(p.why)+'</div>':'')
+    +(p.quote?'<div class="pquote">"'+p.quote+'"</div>':'')
+    +(p.shadow?'<div class="pshadow">빛과 그림자 · '+p.shadow+'</div>':'')
+    +(p.slug?'<a class="pmore" href="../people/'+p.slug+'/">📖 인물 도감에서 더 보기 →</a>':'')+'</div>';
+}
+
+const FIT={green:{e:'🟢',t:'전체 관람'},yellow:{e:'🟡',t:'부모와 함께'},red:{e:'🔴',t:'핵심 장면·맥락만'}};
+function movieBlock(m){
+  const f=FIT[m.fit]||FIT.yellow;
+  let s='<div class="movie"><div class="mhead"><div class="mtitle">🎬 '+m.title+'</div>'
+    +'<span class="mfit '+(m.fit||'yellow')+'">'+f.e+' '+f.t+'</span></div>'
+    +'<div class="mmeta">'+[m.year,m.director].filter(Boolean).join(' · ')
+    +(m.basedOn?' · <b>'+m.basedOn+'</b>':'')+'</div>';
+  if(m.why) s+='<div class="mwhy">'+T(m.why)+'</div>';
+  if(m.realVsFiction) s+='<div class="mreal"><span class="lbl">실화 vs 각색</span>'+m.realVsFiction+'</div>';
+  let links=[];
+  if(m.slug) links.push('<a class="mlink slug" href="../people/'+m.slug+'/">📖 인물 도감</a>');
+  (m.links||[]).forEach(l=>links.push('<a class="mlink" href="'+l.url+'" target="_blank" rel="noopener">'+l.label+' ↗</a>'));
+  if(links.length) s+='<div class="mlinks">'+links.join('')+'</div>';
+  return s+'</div>';
+}
+function battlemapHTML(bm,sid,idx){
+  const id='bm_'+sid+'_'+idx;
+  let s='<h2 class="block">'+(bm.title||'전투 지도')+' 🗺️</h2><div class="battlemap" id="'+id+'">';
+  if(bm.intro) s+='<div class="bm-intro">'+T(bm.intro)+'</div>';
+  s+='<div class="bm-map" id="'+id+'_map"></div>'
+    +'<div class="bm-step"><button class="bm-prev" disabled>← 이전</button><div class="bm-plabel" id="'+id+'_lab"></div><button class="bm-next">다음 →</button></div>';
+  if(bm.legend&&bm.legend.length) s+='<div class="bm-legend">'+bm.legend.map(l=>'<span><i style="border-color:'+l.c+'"></i> '+l.label+'</span>').join('')+'</div>';
+  if(bm.caption) s+='<div class="bm-cap">'+bm.caption+'</div>';
+  return s+'</div>';
+}
+function deepdiveHTML(dd){
+  let s='<details class="deepdive"><summary>🔎 더 깊이 — 고등·일반 수준으로 (펼치기)</summary><div class="dd-body">';
+  dd.forEach(it=>{ s+='<div class="dd-item"><h3>'+it.h+'</h3><div class="dd-text">'+T(it.body)+'</div>'
+    +(it.source?'<div class="dd-src">📜 '+it.source+'</div>':'')+'</div>'; });
+  return s+'</div></details>';
+}
+function linksHTML(arr){
+  let s='<h2 class="block">더 깊이 알아보기 🔗</h2><div class="links">';
+  arr.forEach(it=>{ s+='<a class="lk" href="'+it.url+'" target="_blank" rel="noopener">'
+    +'<span class="lk-label">'+it.label+'</span>'
+    +(it.note?'<span class="lk-note">'+T(it.note)+'</span>':'')
+    +(it.source?'<span class="lk-src">'+it.source+'</span>':'')+'</a>'; });
+  return s+'</div>';
+}
+function sparkHTML(sp){
+  let s='<div class="spark"><div class="spark-h">'+(sp.icon||'🤯')+' '+(sp.title||'상상해보기')+'</div>';
+  s+='<div class="spark-body">'+T(sp.body)+'</div>';
+  if(sp.mind) s+='<div class="spark-mind"><b>🌀 상식 뒤집기</b> — '+T(sp.mind)+'</div>';
+  return s+'</div>';
+}
+function marchmapHTML(m,sid){
+  const SY=1.55; // viewBox 0 0 100 155 (베이스맵 종횡비 ≈ 1866/2891)
+  const P={}; (m.places||[]).forEach(p=>P[p.id]=p);
+  const placePhase={};
+  (m.phases||[]).forEach((ph,i)=>(ph.show||[]).forEach(id=>{ if(placePhase[id]===undefined) placePhase[id]=i; }));
+  const KIND={start:'🚩',battle:'⚔️',win:'✔️',loss:'✖️',capital:'🏯',city:'•'};
+  let dots='';
+  (m.places||[]).forEach(p=>{
+    const ph=placePhase[p.id]!==undefined?placePhase[p.id]:0;
+    const emo=KIND[p.kind]||'';
+    dots+='<div class="mm-place k-'+(p.kind||'city')+'" data-ph="'+ph+'" style="left:'+p.x+'%;top:'+p.y+'%">'
+      +'<span class="mm-dot"></span><span class="mm-lbl">'+(emo&&emo!=='•'?emo+' ':'')+p.label+'</span></div>';
+  });
+  let paths='';
+  (m.phases||[]).forEach((ph,i)=>{
+    (ph.arrows||[]).forEach(a=>{
+      const f=P[a.from], t=P[a.to]; if(!f||!t) return;
+      const fx=f.x, fy=f.y*SY, tx=t.x, ty=t.y*SY;
+      const mx=(fx+tx)/2, my=(fy+ty)/2, dx=tx-fx, dy=ty-fy;
+      const cx=(mx-dy*0.16).toFixed(1), cy=(my+dx*0.16).toFixed(1);
+      const tone=a.tone||'resist';
+      paths+='<path class="mm-arrow tone-'+tone+'" data-ph="'+i+'" d="M'+fx+' '+fy.toFixed(1)+' Q'+cx+' '+cy+' '+tx+' '+ty.toFixed(1)+'" marker-end="url(#mmh-'+tone+')"></path>';
+      if(a.label) paths+='<text class="mm-alab tone-'+tone+'" data-ph="'+i+'" x="'+cx+'" y="'+cy+'">'+a.label+'</text>';
+    });
+  });
+  const n=(m.phases||[]).length, first=(m.phases&&m.phases[0]?m.phases[0].label:'');
+  let s='<h2 class="block">진격으로 따라가기 🗺️</h2><div class="marchmap" id="mm_'+sid+'" data-ph="0" data-n="'+n+'">';
+  if(m.title) s+='<div class="mm-title">'+m.title+'</div>';
+  if(m.intro) s+='<div class="mm-intro">'+T(m.intro)+'</div>';
+  s+='<div class="mm-stage"><img class="mm-base" src="'+m.base.src+'" alt="'+(m.title||'지도')+'" loading="lazy">'
+    +'<svg class="mm-arrows" viewBox="0 0 100 155" preserveAspectRatio="xMidYMid meet"><defs>'
+    +'<marker id="mmh-resist" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" class="mh resist"/></marker>'
+    +'<marker id="mmh-invade" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" class="mh invade"/></marker>'
+    +'</defs>'+paths+'</svg>'+dots+'</div>';
+  s+='<div class="mm-step"><button class="mm-prev" disabled>← 이전</button>'
+    +'<div class="mm-plabel" id="mmlab_'+sid+'">'+first+'</div><button class="mm-next">다음 →</button></div>';
+  if(m.caption) s+='<div class="mm-cap">'+m.caption+'</div>';
+  return s+'</div>';
+}
+function relationsHTML(r,sid){
+  let s='<h2 class="block">힘의 관계 한눈에 보기 ⚖️</h2><div class="relations">';
+  if(r.title) s+='<div class="rtitle">'+r.title+'</div>';
+  if(r.intro) s+='<div class="rintro">'+T(r.intro)+'</div>';
+  s+='<div class="rsides">';
+  (r.sides||[]).forEach(side=>{
+    s+='<div class="rside '+(side.color||'')+'"><div class="rslabel">'+side.label+'</div>';
+    (side.members||[]).forEach(m=>{
+      s+='<div class="rmember"><b>'+m.name+'</b><span>'+(m.role||'')+'</span>'
+        +(m.slug?' <a class="rlink" href="../people/'+m.slug+'/">📖</a>':'')+'</div>';
+    });
+    s+='</div>';
+  });
+  s+='</div>';
+  if(r.tensions&&r.tensions.length){
+    s+='<div class="rtensions">';
+    r.tensions.forEach(t=>{ s+='<div class="rtension"><div class="rvs">⚔️ '+t.a+' ↔ '+t.b+'</div><div>'+T(t.label)+'</div></div>'; });
+    s+='</div>';
+  }
+  return s+'</div>';
+}
+// 블록 registry + 섹션별 순서(order) — 데이터로 흐름 제어. order 없으면 DEFAULT(하위호환).
+function renderBlocks(s){
+  const B={
+    hook:()=>'<p class="hook">'+T(s.hook)+'</p>'+(s.quote?quoteBlock(s.quote):''),
+    spark:()=>s.spark?sparkHTML(s.spark):'',
+    why:()=>'<h2 class="block">왜 중요할까</h2><div class="why">'+s.why+'</div>',
+    lens:()=>s.lens?lensBlock(s.lens):'',
+    voice:()=>s.voice?voiceHTML(s.voice):'',
+    cards:()=>s.cards?('<h2 class="block">핵심 따라가기</h2><div class="cards">'
+      +s.cards.map(c=>'<div class="card"><span class="yr">'+c.yr+'</span><h3>'+c.h+'</h3><p>'+T(c.p)+'</p></div>').join('')+'</div>'
+      +(s.quote2?quoteBlock(s.quote2):'')):'',
+    people:()=>s.people?'<h2 class="block">꼭 알아야 할 인물</h2><div class="people">'+s.people.map(personBlock).join('')+'</div>':'',
+    map:()=>s.map?mapHTML(s.map,s.id):'',
+    image:(i)=>{ const arr=Array.isArray(s.image); const im=arr?s.image[i||0]:s.image; const sid=(arr&&i!=null)?s.id+'_'+i:s.id; return im?imageHTML(im,sid):''; },
+    oldmap:()=>s.oldmap?oldmapHTML(s.oldmap,s.id):'',
+    chart:(i)=>{ const arr=Array.isArray(s.chart); const c=arr?s.chart[i||0]:s.chart; return c?chartHTML(c,(arr&&i!=null)?s.id+'_'+i:s.id):''; },
+    compare:()=>s.compare?compareHTML(s.compare,s.id):'',
+    relations:()=>s.relations?relationsHTML(s.relations,s.id):'',
+    marchmap:()=>s.marchmap?marchmapHTML(s.marchmap,s.id):'',
+    battlemap:(i)=>{ const bm=(s.battlemaps||[])[i]; return bm?battlemapHTML(bm,s.id,i):''; },
+    timeline:()=>s.timeline?('<h2 class="block">한눈에 보는 흐름</h2><div class="timeline">'
+      +s.timeline.map(t=>'<div class="tl"><span class="tl-yr">'+t.yr+'</span> <span class="tl-txt">'+t.t+'</span></div>').join('')+'</div>'):'',
+    connect:()=>s.connect?('<h2 class="block">이야기 연결 고리</h2><div class="connect"><span class="ico">🔗</span><div>'+s.connect+'</div></div>'):'',
+    yt:()=>s.yt?('<h2 class="block">영상으로 보기</h2>'+s.yt.map(ytBlock).join('')):'',
+    movies:()=>s.movies?'<h2 class="block">영화로 만나기 🎬</h2><div class="movies">'+s.movies.map(movieBlock).join('')+'</div>':'',
+    choice:()=>s.choice?choiceHTML(s.choice,s.id):'',
+    quiz:()=>s.quiz?quizHTML(s.quiz,s.id):'',
+    deepdive:()=>s.deepdive?deepdiveHTML(s.deepdive):'',
+    links:()=>s.links?linksHTML(s.links):'',
+    reflect:()=>s.reflect?('<h2 class="block">내 생각 적어보기 ✍️</h2><div class="reflect">'
+      +s.reflect.map((q,i)=>'<div class="q">'+q+'</div><textarea data-key="'+s.id+'_'+i+'" placeholder="여기에 자유롭게 적어보세요. 자동으로 저장돼요."></textarea><div class="saved" id="saved_'+s.id+'_'+i+'"></div>').join('')+'</div>'):''
+  };
+  const DEFAULT=['hook','spark','why','lens','voice','cards','people','map','image','oldmap','chart','compare','relations','marchmap','battlemap*','timeline','connect','yt','movies','choice','quiz','deepdive','links','reflect'];
+  const order=(s.order&&s.order.length)?s.order:DEFAULT;
+  let html='';
+  order.forEach(tok=>{
+    if(tok.charAt(tok.length-1)==='*'){
+      const name=tok.slice(0,-1);
+      let arr=[];
+      if(name==='battlemap') arr=s.battlemaps||[];
+      else if(Array.isArray(s[name])) arr=s[name];
+      else if(s[name]) arr=[s[name]];
+      arr.forEach((_,i)=>{ if(B[name]) html+=B[name](i); });
+      return;
+    }
+    const p=tok.split(':'), name=p[0], idx=p.length>1?+p[1]:null;
+    if(B[name]) html+=B[name](idx);
+  });
+  return html;
+}
+/* 시각효과: 차트 바 성장만 JS로(0→목표 rAF). 블록 진입은 순수 CSS라 JS 불필요.
+   가시성은 CSS animation(fill-mode both)이 보장 → 이 함수가 실패해도 콘텐츠는 항상 보임. */
+function vfx(){
+  try{
+    if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    view.querySelectorAll('.crow .cbar').forEach(function(b){
+      const w=b.style.width||''; if(!w) return; b.style.width='0%';
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ b.style.width=w; }); });
+    });
+  }catch(e){ /* 시각효과 실패는 콘텐츠에 영향 없음 */ }
+}
+function render(s,idx){
+  const prev=SECTIONS[idx-1], next=SECTIONS[idx+1];
+  view.innerHTML=
+  '<div class="hero" style="background:linear-gradient(135deg,var(--navy) 0%, '+s.accent+' 100%)">'
+  +'<div class="kicker">'+s.kicker+'</div><h1>'+s.title+'</h1><div class="era">⏳ '+s.era+'</div>'
+  +'<svg class="motif" viewBox="0 0 210 210">'+(MOTIF[s.motif]||'')+'</svg></div>'
+  +'<div class="wrap">'
+  +renderBlocks(s)
+  +'<div class="pager">'
+  +(prev?'<a class="prev" data-id="'+prev.id+'"><div class="pg-label">← 이전</div><div class="pg-title">'+prev.label+'</div></a>':'<a class="prev" data-id="home"><div class="pg-label">← 홈</div><div class="pg-title">이야기 시작</div></a>')
+  +(next?'<a class="next" data-id="'+next.id+'"><div class="pg-label">다음 →</div><div class="pg-title">'+next.label+'</div></a>':'<a class="next" data-id="home"><div class="pg-label">이야기 끝 →</div><div class="pg-title">홈으로</div></a>')
+  +'</div></div>';
+  view.querySelectorAll('.pager a[data-id]').forEach(a=>a.addEventListener('click',()=>go(a.dataset.id)));
+  view.querySelectorAll('textarea[data-key]').forEach(ta=>{
+    const k=META.slug+'_m_'+ta.dataset.key; ta.value=localStorage.getItem(k)||''; let timer;
+    ta.addEventListener('input',()=>{ localStorage.setItem(k,ta.value); const tag=document.getElementById('saved_'+ta.dataset.key); tag.textContent='저장됨 ✓'; clearTimeout(timer); timer=setTimeout(()=>tag.textContent='',1300); });
+  });
+  if(s.quiz){ view.querySelectorAll('.quizq').forEach(qd=>{
+    const qi=+qd.dataset.qi, q=s.quiz[qi];
+    qd.querySelectorAll('.quiz-opt').forEach(btn=>btn.addEventListener('click',()=>{
+      if(qd.classList.contains('done')) return; qd.classList.add('done');
+      const oi=+btn.dataset.oi;
+      qd.querySelectorAll('.quiz-opt').forEach((b,i)=>{ if(i===q.answer) b.classList.add('correct'); if(i===oi&&oi!==q.answer) b.classList.add('wrong'); b.disabled=true; });
+      const exp=document.getElementById('qexp_'+s.id+'_'+qi);
+      exp.innerHTML=(oi===q.answer?'<b>맞았어요! ✓</b> ':'<b>아쉬워요, 다시 볼까요?</b> ')+(q.explain||'');
+      exp.classList.add('show');
+    }));
+  }); }
+  if(s.map && window.L){
+    const mel=document.getElementById('lmap_'+s.id);
+    currentMap=L.map(mel,{scrollWheelZoom:false}).setView(s.map.center, s.map.zoom);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(currentMap);
+    if(s.map.line) L.polyline(s.map.line,{color:'#b5546a',weight:3,dashArray:'6 6'}).addTo(currentMap);
+    (s.map.markers||[]).forEach(mk=>L.circleMarker([mk.lat,mk.lng],{radius:9,color:'#fff',weight:2,fillColor:'#B5546A',fillOpacity:1}).addTo(currentMap).bindPopup('<b>'+mk.label+'</b><br>'+mk.desc));
+    setTimeout(()=>{ if(currentMap) currentMap.invalidateSize(); },200);
+  }
+  if(s.image && s.image.hotspots && s.image.hotspots.length){
+    const info=document.getElementById('hsinfo_'+s.id);
+    view.querySelectorAll('#imgbox_'+s.id+' .hsdot').forEach(d=>d.addEventListener('click',()=>{
+      const h=s.image.hotspots[+d.dataset.hi]; info.innerHTML='<b>'+h.label+'</b> '+(h.desc||''); info.classList.add('show');
+    }));
+  }
+  if(s.compare){
+    const c=s.compare, panel=document.getElementById('cmppanel_'+s.id);
+    const tabs=view.querySelectorAll('#cmp_'+s.id+' .cmptab');
+    const fill=(i)=>{ const st=c.states[i]; panel.innerHTML='<div class="cmh">'+st.title+'</div><div class="cmb">'+T(st.body)+'</div>'
+      +(st.img?'<img src="'+st.img+'" alt="'+(st.alt||'')+'" loading="lazy">':'')+(st.caption?'<div class="cmpcap">'+st.caption+'</div>':'');
+      tabs.forEach((b,bi)=>b.classList.toggle('active',bi===i)); };
+    tabs.forEach(b=>b.addEventListener('click',()=>fill(+b.dataset.ci)));
+    fill(0);
+  }
+  if(s.choice){
+    const af=document.getElementById('chafter_'+s.id);
+    view.querySelectorAll('#ch_'+s.id+' .chopt').forEach(b=>b.addEventListener('click',()=>{
+      document.getElementById('chres_'+s.id+'_'+b.dataset.oi).classList.add('show');
+      b.classList.add('picked'); if(af) af.classList.add('show');
+    }));
+  }
+  if(s.marchmap){
+    const mm=document.getElementById('mm_'+s.id), n=+mm.dataset.n, lab=document.getElementById('mmlab_'+s.id);
+    const prev=mm.querySelector('.mm-prev'), next=mm.querySelector('.mm-next'), phases=s.marchmap.phases||[];
+    const upd=()=>{ const cur=+mm.dataset.ph;
+      mm.querySelectorAll('.mm-place,.mm-arrow,.mm-alab').forEach(el=>el.classList.toggle('on',+el.dataset.ph<=cur));
+      lab.textContent=phases[cur]?phases[cur].label:''; prev.disabled=cur<=0; next.disabled=cur>=n-1; };
+    prev.addEventListener('click',()=>{ mm.dataset.ph=Math.max(0,+mm.dataset.ph-1); upd(); });
+    next.addEventListener('click',()=>{ mm.dataset.ph=Math.min(n-1,+mm.dataset.ph+1); upd(); });
+    upd();
+  }
+  (s.battlemaps||[]).forEach((bm,idx)=>{
+    const id='bm_'+s.id+'_'+idx;
+    try{
+      const map=L.map(id+'_map',{scrollWheelZoom:false}).setView(bm.center||[37,127],bm.zoom||6);
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:14,attribution:'© OpenStreetMap'}).addTo(map);
+      bmaps.push(map);
+      const KIND={start:'🚩',battle:'⚔️',win:'✔️',loss:'✖️',capital:'🏯',city:'•',sea:'⚓'};
+      const ic=(e)=>L.divIcon({className:'bm-ic',html:'<div>'+e+'</div>',iconSize:[26,26],iconAnchor:[13,13]});
+      const phases=bm.phases||[], layers=phases.map(()=>[]);
+      phases.forEach((ph,i)=>{
+        (ph.markers||[]).forEach(m=>layers[i].push(L.marker(m.at,{icon:ic(KIND[m.kind]||'•')}).bindTooltip(m.label,{permanent:true,direction:'top',offset:[0,-10],className:'bm-tt'})));
+        (ph.arrows||[]).forEach(a=>layers[i].push(L.polyline.antPath(a.path,{color:a.tone==='invade'?'#B5546A':'#2E7D4F',weight:4,delay:1000,dashArray:[10,22],pulseColor:'#fff'})));
+      });
+      const lab=document.getElementById(id+'_lab'), prev=document.querySelector('#'+id+' .bm-prev'), next=document.querySelector('#'+id+' .bm-next'), n=phases.length;
+      let cur=0;
+      const lowAt=(c)=>{ let r=0; for(let i=1;i<=c;i++){ if(phases[i]&&phases[i].reset) r=i; } return r; };
+      const upd=()=>{ const lo=lowAt(cur);
+        layers.forEach((grp,i)=>grp.forEach(l=> (i>=lo&&i<=cur)?l.addTo(map):map.removeLayer(l)));
+        lab.textContent=phases[cur]?phases[cur].label:''; prev.disabled=cur<=0; next.disabled=cur>=n-1;
+        if(bm.fit){ const pts=[]; for(let i=lo;i<=cur;i++) layers[i].forEach(l=>{ if(l.getLatLng) pts.push(l.getLatLng()); });
+          if(pts.length>=2) map.fitBounds(L.latLngBounds(pts).pad(0.4)); else if(pts.length===1) map.setView(pts[0], map.getZoom()); } };
+      next.onclick=()=>{cur=Math.min(n-1,cur+1);upd();}; prev.onclick=()=>{cur=Math.max(0,cur-1);upd();};
+      upd(); setTimeout(()=>map.invalidateSize(),200);
+    }catch(e){ console.error('battlemap',e); }
+  });
+  markVisited(s.id); setActive(s.id); window.scrollTo(0,0); vfx();
+}
+
+function renderNotes(){
+  const body=SECTIONS.map(s=>{
+    const items=s.reflect.map((q,i)=>{ const v=(localStorage.getItem(META.slug+'_m_'+s.id+'_'+i)||'').trim();
+      return '<div class="note-q">'+q+'</div><div class="note-a'+(v?'':' empty')+'">'+(v?v.replace(/</g,'&lt;'):'(아직 적지 않았어요)')+'</div>'; }).join('');
+    return '<div class="note-sec"><div class="note-sh">'+s.num+' · '+s.label+'</div>'+items+'</div>';
+  }).join('');
+  view.innerHTML='<div class="home-hero"><h1>📝 내 메모 모아보기</h1><div class="hsub">'+META.brand.title+' — 내가 적은 생각들</div></div>'
+    +'<div class="home-wrap"><div class="note-actions noprint">'
+    +'<button class="btn primary" id="notePrint">🖨️ 인쇄 / PDF 저장</button>'
+    +'<button class="btn" id="noteCopy" style="background:#fff;border:1px solid var(--line);color:var(--navy)">📋 전체 복사</button></div>'
+    +'<div class="notes-view" id="notesView">'+body+'</div></div>';
+  document.getElementById('notePrint').addEventListener('click',()=>window.print());
+  document.getElementById('noteCopy').addEventListener('click',()=>{ const t=document.getElementById('notesView').innerText;
+    if(navigator.clipboard){ navigator.clipboard.writeText(t); const b=document.getElementById('noteCopy'); b.textContent='복사됨 ✓'; setTimeout(()=>b.textContent='📋 전체 복사',1500); } });
+  setActive('notes'); window.scrollTo(0,0); progress.style.width='0%'; vfx();
+}
+
+function setActive(id){
+  navList.querySelectorAll('a').forEach(a=>{ a.classList.toggle('active', a.dataset.id===id); if(a.dataset.id && a.dataset.id!=='home' && visited(a.dataset.id)) a.classList.add('visited'); });
+}
+function go(id){ killMap(); if(id==='home'){ renderHome(); location.hash='home'; return; }
+  if(id==='notes'){ renderNotes(); location.hash='notes'; return; } const idx=SECTIONS.findIndex(s=>s.id===id); if(idx<0) return; render(SECTIONS[idx],idx); location.hash=id; }
+function openSide(){ sidebar.classList.add('open'); scrim.classList.add('show'); }
+function closeSide(){ sidebar.classList.remove('open'); scrim.classList.remove('show'); }
+document.getElementById('hamb').addEventListener('click',openSide);
+document.getElementById('brandHome').addEventListener('click',()=>{ go('home'); closeSide(); });
+scrim.addEventListener('click',closeSide);
+
+/* companion 배지 — meta.companion:{slug,label} 이면 사이드바에 짝 에피소드 링크 */
+if(META.companion && META.companion.slug){
+  const cl=document.createElement('a');
+  cl.className='companion-link';
+  cl.href='../'+META.companion.slug+'/index.html';
+  cl.textContent='🔗 짝 에피소드 · '+(META.companion.label||META.companion.slug);
+  const hb=document.getElementById('hubBack');
+  hb.parentNode.insertBefore(cl,hb.nextSibling);
+}
+
+/* lightbox — image/oldmap 이미지 클릭 확대 */
+const lb=document.createElement('div'); lb.className='lightbox';
+lb.innerHTML='<img alt=""><div class="lb-cap"></div>';
+document.body.appendChild(lb);
+document.addEventListener('click',e=>{
+  if(e.target.closest('.lightbox')){ lb.classList.remove('show'); document.body.style.overflow=''; return; }
+  const im=e.target.closest('.imgbox img, .oldmap-frame img');
+  if(im){ lb.querySelector('img').src=im.src; lb.querySelector('.lb-cap').textContent=im.alt||''; lb.classList.add('show'); document.body.style.overflow='hidden'; }
+});
+window.addEventListener('scroll',()=>{ const h=document.documentElement.scrollHeight-window.innerHeight; progress.style.width=(h>0?(window.scrollY/h*100):0)+'%'; });
+const tip=document.getElementById('tip');
+function showTip(e,t){ tip.textContent=TERMS[t.dataset.term]||''; tip.style.display='block'; moveTip(e); }
+document.addEventListener('mouseover',e=>{ const t=e.target.closest('.term'); if(t) showTip(e,t); });
+document.addEventListener('mousemove',e=>{ if(tip.style.display==='block') moveTip(e); });
+document.addEventListener('mouseout',e=>{ if(e.target.closest('.term')) tip.style.display='none'; });
+document.addEventListener('click',e=>{ const t=e.target.closest('.term'); if(t){ showTip(e,t); setTimeout(()=>tip.style.display='none',2800); } });
+function moveTip(e){ tip.style.left=Math.min(e.clientX+14,window.innerWidth-278)+'px'; tip.style.top=Math.min(e.clientY+16,window.innerHeight-92)+'px'; }
+
+head(); buildNav();
+const start=location.hash.replace('#','');
+if(start==='notes') renderNotes();
+else if(start && SECTIONS.some(s=>s.id===start)) go(start);
+else renderHome();
+</script>
+</body>
+</html>
