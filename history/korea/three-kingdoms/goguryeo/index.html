@@ -69,6 +69,25 @@
   .legendbox .lgbody{color:#4a4036; line-height:1.85;}
   .legendbox .lgmoral{margin-top:10px; padding-top:10px; border-top:1px dashed #e0cda0; color:#6b5a3a; font-size:14px;}
   .legendbox .lgsrc{margin-top:8px; font-size:12px; color:#9a8a6a;}
+  .lin-intro{font-size:14.5px; color:#5a534d; background:#fff; border:1px solid var(--line); border-left:5px solid var(--gold,#c49a4a); border-radius:12px; padding:14px 18px; margin:6px 0 18px; box-shadow:var(--shadow-sm);}
+  .lineage{margin:6px 0 8px;}
+  .lin-dyn{margin:0 0 22px;}
+  .lin-dyn-h{font-size:17px; font-weight:800; color:var(--navy); margin:18px 0 4px; padding-bottom:6px; border-bottom:2px solid var(--gold-soft,#e3c486);}
+  .lin-dyn-intro{font-size:13.5px; color:var(--muted); margin:0 0 12px;}
+  .lin-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:8px;}
+  .lin-item{background:#fff; border:1px solid var(--line); border-radius:10px; box-shadow:var(--shadow-sm); overflow:hidden; transition:border-color .15s;}
+  .lin-item[open]{border-color:var(--gold,#c49a4a); box-shadow:var(--shadow);}
+  .lin-item.lin-key{border-left:4px solid var(--red);}
+  .lin-item summary{list-style:none; cursor:pointer; padding:11px 14px; display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;}
+  .lin-item summary::-webkit-details-marker{display:none;}
+  .lin-item summary::after{content:"＋"; margin-left:auto; color:var(--gold,#c49a4a); font-weight:800; font-size:15px;}
+  .lin-item[open] summary::after{content:"－";}
+  .lin-item summary:hover{background:#fbf6ec;}
+  .lin-n{font-size:11px; font-weight:800; color:#fff; background:var(--gold,#c49a4a); border-radius:999px; padding:2px 8px; white-space:nowrap;}
+  .lin-name{font-size:15.5px; font-weight:800; color:var(--navy);}
+  .lin-star{color:var(--red); font-size:12px;}
+  .lin-reign{font-size:12px; color:var(--muted); font-weight:700;}
+  .lin-note{padding:0 14px 13px; font-size:13.5px; color:#4a4036; line-height:1.75; border-top:1px dashed var(--line); margin-top:2px; padding-top:10px;}
   .quote{margin:30px 0; background:linear-gradient(135deg,#fff,#fdf2ef); border:1px solid var(--rose-soft); border-left:5px solid var(--rose); border-radius:14px; padding:22px 26px; box-shadow:var(--shadow-sm);}
   .quote .qt{font-size:18.5px; font-style:italic; color:var(--navy); line-height:1.8;}
   .quote .qs{display:block; margin-top:12px; font-size:13px; color:var(--muted); font-style:normal;}
@@ -557,6 +576,29 @@ function legendHTML(lg){
     +(lg.moral?'<div class="lgmoral">💭 '+T(lg.moral)+'</div>':'')
     +(lg.source?'<div class="lgsrc">📜 '+lg.source+'</div>':'')+'</div>';
 }
+/* lineage(왕조 계보): 클릭/터치하면 펼쳐지는 왕 목록. 네이티브 <details>라 JS 없이도 동작(모바일 터치 OK). */
+function lineageRow(r){
+  return '<details class="lin-item'+(r.star?' lin-key':'')+'">'
+    +'<summary><span class="lin-n">'+(r.n||'')+'</span>'
+    +'<span class="lin-name">'+r.name+(r.star?' <span class="lin-star">★</span>':'')+'</span>'
+    +'<span class="lin-reign">'+(r.reign||'')+'</span></summary>'
+    +'<div class="lin-note">'+T(r.note||'')+'</div></details>';
+}
+function lineageHTML(lg){
+  let body='';
+  if(lg.dynasties){
+    body=lg.dynasties.map(function(d){
+      return '<div class="lin-dyn"><h3 class="lin-dyn-h">'+d.label+'</h3>'
+        +(d.intro?'<p class="lin-dyn-intro">'+T(d.intro)+'</p>':'')
+        +'<div class="lin-grid">'+d.rulers.map(lineageRow).join('')+'</div></div>';
+    }).join('');
+  } else {
+    body='<div class="lin-grid">'+(lg.rulers||[]).map(lineageRow).join('')+'</div>';
+  }
+  return '<h2 class="block">'+(lg.h||'왕조 계보')+'</h2>'
+    +(lg.intro?'<div class="lin-intro">'+T(lg.intro)+'</div>':'')
+    +'<div class="lineage">'+body+'</div>';
+}
 function personBlock(p){
   return '<div class="person"><div class="pheader"><div class="pface">'+(p.face||'👤')+'</div>'
     +'<div><div class="pname">'+p.name+'</div><div class="pwho">'+(p.who||'')+'</div></div></div>'
@@ -679,6 +721,7 @@ function renderBlocks(s){
     why:()=>'<h2 class="block">왜 중요할까</h2><div class="why">'+s.why+'</div>',
     lens:()=>s.lens?lensBlock(s.lens):'',
     legend:()=>s.legend?legendHTML(s.legend):'',
+    lineage:()=>s.lineage?lineageHTML(s.lineage):'',
     voice:()=>s.voice?voiceHTML(s.voice):'',
     cards:()=>s.cards?('<h2 class="block">핵심 따라가기</h2><div class="cards">'
       +s.cards.map(c=>'<div class="card"><span class="yr">'+c.yr+'</span><h3>'+c.h+'</h3><p>'+T(c.p)+'</p></div>').join('')+'</div>'
@@ -704,7 +747,7 @@ function renderBlocks(s){
     reflect:()=>s.reflect?('<h2 class="block">내 생각 적어보기 ✍️</h2><div class="reflect">'
       +s.reflect.map((q,i)=>'<div class="q">'+q+'</div><textarea data-key="'+s.id+'_'+i+'" placeholder="여기에 자유롭게 적어보세요. 자동으로 저장돼요."></textarea><div class="saved" id="saved_'+s.id+'_'+i+'"></div>').join('')+'</div>'):''
   };
-  const DEFAULT=['hook','spark','why','lens','legend','voice','cards','people','map','image','oldmap','chart','compare','relations','marchmap','battlemap*','timeline','connect','yt','movies','choice','quiz','deepdive','links','reflect'];
+  const DEFAULT=['hook','spark','why','lens','legend','lineage','voice','cards','people','map','image','oldmap','chart','compare','relations','marchmap','battlemap*','timeline','connect','yt','movies','choice','quiz','deepdive','links','reflect'];
   const order=(s.order&&s.order.length)?s.order:DEFAULT;
   let html='';
   order.forEach(tok=>{
