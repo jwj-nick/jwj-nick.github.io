@@ -248,6 +248,8 @@
   .qexp b{color:var(--accent);}
   /* notes export (R2) */
   .nav .notes-link{font-weight:700;color:#fff;background:rgba(196,154,74,.16);}
+  .nav .lineage-link{font-weight:700;color:#fff;background:rgba(196,154,74,.22);margin-top:8px;}
+  .nav .lineage-link:hover{background:var(--gold,#c49a4a);color:#2a1410;}
   .note-actions{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
   .notes-view{background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px 26px;box-shadow:var(--shadow-sm);}
   .note-sec{margin-bottom:22px;}
@@ -353,6 +355,7 @@
   .btn:hover{transform:translateY(-2px);}
   .btn.primary{background:var(--navy); color:#fff;}
   .btn.star{background:linear-gradient(135deg,var(--rose),var(--accent)); color:#fff;}
+  .btn.lineage{background:linear-gradient(135deg,var(--gold,#c49a4a),#a8842f); color:#2a1410;}
   .path{list-style:none; margin-top:14px;}
   .path li{display:flex; gap:16px; align-items:flex-start; cursor:pointer; padding:14px 16px; border-radius:14px; transition:background .12s;}
   .path li:hover{background:#fff;}
@@ -477,8 +480,9 @@ function buildNav(){
     +'<li><a class="notes-link" data-id="notes">📝 내 메모 모아보기</a></li>';
   html+=SECTIONS.map(s=>'<li><a data-id="'+s.id+'" class="'+(s.star?'star':'')+' '+(visited(s.id)?'visited':'')+'">'
     +'<span class="num">'+s.num+'</span>'+s.label+(s.star?'<span class="tag">★</span>':'')+'</a></li>').join('');
+  if(META.home&&META.home.lineage){ html+='<li><a class="lineage-link" href="'+META.home.lineage.url+'">📜 '+META.home.lineage.label+'</a></li>'; }
   navList.innerHTML=html;
-  navList.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{ go(a.dataset.id); closeSide(); }));
+  navList.querySelectorAll('a[data-id]').forEach(a=>a.addEventListener('click',()=>{ go(a.dataset.id); closeSide(); }));
 }
 
 function renderHome(){
@@ -488,7 +492,8 @@ function renderHome(){
   +(h.quote?'<div class="hq">"'+h.quote.text+'"<small>'+h.quote.by+'</small></div>':'')+'</div>'
   +'<div class="home-wrap"><div class="home-intro">'+h.intro+'</div>'
   +'<div class="start-btns"><a class="btn primary" data-id="'+h.startPrimary.to+'">'+h.startPrimary.label+'</a>'
-  +(h.startStar?'<a class="btn star" data-id="'+h.startStar.to+'">'+h.startStar.label+'</a>':'')+'</div>'
+  +(h.startStar?'<a class="btn star" data-id="'+h.startStar.to+'">'+h.startStar.label+'</a>':'')
+  +(h.lineage?'<a class="btn lineage" href="'+h.lineage.url+'">'+h.lineage.label+'</a>':'')+'</div>'
   +'<h2 class="block" style="margin-top:34px;">'+(h.pathLabel||'이야기 흐름')+'</h2><ul class="path">'
   +SECTIONS.map(s=>'<li class="'+(s.star?'star':'')+'" data-id="'+s.id+'"><span class="pn">'+s.num+'</span>'
     +'<span><span class="ph">'+s.label+(s.star?' <span class="star-mark">★</span>':'')+'</span>'
