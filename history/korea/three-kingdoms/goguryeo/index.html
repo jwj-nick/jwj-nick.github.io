@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>고구려 — 만주를 호령한 정복 국가</title>
+<meta name="description" content="졸본의 작은 산성에서 일어나 만주와 한반도 북부를 호령한 고구려. 광개토대왕·장수왕의 전성기, 고분 벽화의 기상, 그리고 수·당 두 제국의 침략을 막아 낸 70년 전쟁까지 — 지도와 인물로 깊이 읽는 고구려.">
+<style>
+  :root{
+    --rose:#C98B8B; --rose-soft:#E8C8C5; --navy:#33406B; --navy-2:#46527f; --navy-soft:#6F79A0;
+    --cream:#FBF7F2; --paper:#FFFFFF; --ink:#2E2A28; --muted:#857B74; --line:#EBE0D5;
+    --accent:#B5546A; --gold:#C49A4A;
+    --shadow:0 6px 22px rgba(51,64,107,.09); --shadow-sm:0 2px 10px rgba(51,64,107,.06);
+    --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+    background:var(--cream); color:var(--ink); line-height:1.78;
+    -webkit-font-smoothing:antialiased; word-break:keep-all;
+  }
+  a{color:inherit;}
+  #progress{position:fixed; top:0; left:0; height:3px; width:0%; background:linear-gradient(90deg,var(--rose),var(--accent)); z-index:60; transition:width .1s;}
+  .layout{display:flex; min-height:100vh;}
+  .sidebar{width:276px; flex:0 0 276px; background:linear-gradient(180deg,var(--navy),#2b3559); color:#fff; padding:26px 16px 30px; position:sticky; top:0; height:100vh; overflow-y:auto;}
+  .content{flex:1; min-width:0;}
+  .hub-back{display:inline-block; color:var(--rose-soft); font-size:12px; text-decoration:none; padding:4px 8px; margin:0 0 14px; border:1px solid rgba(255,255,255,.14); border-radius:9px; transition:background .15s,color .15s;}
+  .hub-back:hover{background:rgba(255,255,255,.1); color:#fff;}
+  .brand{cursor:pointer; padding:0 6px; margin-bottom:6px;}
+  .brand .bt{font-size:19px; font-weight:800; line-height:1.35;}
+  .brand .sub{display:block; font-size:11.5px; font-weight:500; color:var(--rose-soft); margin-top:7px; letter-spacing:.01em;}
+  .nav{margin-top:20px; list-style:none;}
+  .nav li{margin:3px 0;}
+  .nav a{display:flex; align-items:center; gap:11px; text-decoration:none; color:#dde0ee; font-size:14px; padding:10px 11px; border-radius:12px; transition:background .15s,color .15s; cursor:pointer; position:relative;}
+  .nav a .num{font-size:10.5px; color:var(--navy-soft); width:18px; font-weight:800; flex:0 0 18px;}
+  .nav a:hover{background:rgba(255,255,255,.09); color:#fff;}
+  .nav a.active{background:var(--rose); color:#fff; font-weight:700;}
+  .nav a.active .num{color:#fff;}
+  .nav a.star{background:rgba(196,154,74,.15);}
+  .nav a.star.active{background:var(--accent);}
+  .nav a.star .num{color:var(--gold);}
+  .nav a.visited:not(.active)::after{content:"✓"; margin-left:auto; font-size:11px; color:#8fd9a8; font-weight:800;}
+  .nav a.star .tag{font-size:9.5px; background:var(--gold); color:#3a2f10; padding:1px 6px; border-radius:8px; margin-left:auto; font-weight:800;}
+  .nav a.star.visited .tag{display:none;}
+  .nav .home-link{font-weight:700; color:#fff; background:rgba(255,255,255,.06); margin-bottom:8px;}
+  .side-foot{margin-top:24px; padding:16px 8px 0; font-size:11px; color:var(--navy-soft); line-height:1.7; border-top:1px solid rgba(255,255,255,.1);}
+  .topbar{display:none; align-items:center; gap:12px; background:var(--navy); color:#fff; padding:12px 16px; position:sticky; top:0; z-index:40;}
+  .topbar .hamb{font-size:22px; background:none;border:none;color:#fff;cursor:pointer;line-height:1;}
+  .topbar .tb-title{font-size:14.5px; font-weight:700;}
+  .topbar .tb-hub{margin-left:auto; color:#fff; font-size:12.5px; font-weight:700; text-decoration:none; border:1px solid rgba(255,255,255,.35); border-radius:9px; padding:5px 10px; white-space:nowrap;}
+  .topbar .tb-hub:active{background:rgba(255,255,255,.15);}
+  .scrim{display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:30;}
+  .hero{padding:54px 40px 36px; color:#fff; position:relative; overflow:hidden;}
+  .hero .kicker{font-size:12.5px; letter-spacing:.14em; font-weight:700; text-transform:uppercase; opacity:.92;}
+  .hero h1{font-size:31px; margin-top:10px; line-height:1.3; font-weight:800; max-width:680px;}
+  .hero .era{display:inline-flex; align-items:center; gap:7px; margin-top:16px; font-size:12.5px; background:rgba(255,255,255,.16); padding:6px 14px; border-radius:20px;}
+  .hero .motif{position:absolute; right:-10px; bottom:-20px; opacity:.16; width:180px; height:180px;}
+  .wrap{max-width:740px; margin:0 auto; padding:36px 28px 90px;}
+  .hook{font-size:18px; line-height:1.92; color:var(--navy); border-left:4px solid var(--rose); padding:4px 0 4px 20px; margin-bottom:30px; font-weight:500;}
+  h2.block{font-size:14px; letter-spacing:.05em; color:var(--accent); font-weight:800; margin:38px 0 15px; display:flex; align-items:center; gap:9px; text-transform:uppercase;}
+  h2.block::before{content:""; width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block; flex:0 0 8px;}
+  .why{background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:22px 24px; box-shadow:var(--shadow-sm); font-size:16px;}
+  .why b{color:var(--accent);}
+  .lens{background:linear-gradient(135deg,#fff,#f3f0fa); border:1px solid #d8cfe8; border-left:5px solid #7a6aa8; border-radius:14px; padding:18px 22px; margin:24px 0; font-size:15.5px;}
+  .lens .lh{font-weight:800; color:#5b4a86; font-size:13.5px; letter-spacing:.03em; margin-bottom:6px; display:flex; gap:7px; align-items:center;}
+  .quote{margin:30px 0; background:linear-gradient(135deg,#fff,#fdf2ef); border:1px solid var(--rose-soft); border-left:5px solid var(--rose); border-radius:14px; padding:22px 26px; box-shadow:var(--shadow-sm);}
+  .quote .qt{font-size:18.5px; font-style:italic; color:var(--navy); line-height:1.8;}
+  .quote .qs{display:block; margin-top:12px; font-size:13px; color:var(--muted); font-style:normal;}
+  .quote .qm{font-size:40px; color:var(--rose-soft); line-height:0; display:block; height:18px;}
+  .cards{display:grid; gap:14px;}
+  @media(min-width:620px){ .cards{grid-template-columns:1fr 1fr;} }
+  .card{background:var(--paper); border:1px solid var(--line); border-radius:15px; padding:18px 20px; box-shadow:var(--shadow-sm); transition:transform .12s, box-shadow .12s;}
+  .card:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
+  .card .yr{font-size:11.5px; font-weight:800; color:var(--rose); letter-spacing:.04em; text-transform:uppercase;}
+  .card h3{font-size:16.5px; color:var(--navy); margin:5px 0 6px;}
+  .card p{font-size:15px; color:var(--ink);}
+  .term{color:var(--accent); font-weight:700; border-bottom:1.5px dotted var(--rose); cursor:help;}
+  .people{display:grid; gap:14px;}
+  @media(min-width:620px){ .people{grid-template-columns:1fr 1fr;} }
+  .person{background:#fff; border:1px solid var(--line); border-radius:15px; padding:18px 20px; box-shadow:var(--shadow-sm);}
+  .person .pheader{display:flex; gap:13px; align-items:center; margin-bottom:8px;}
+  .person .pface{flex:0 0 46px; height:46px; border-radius:12px; background:linear-gradient(135deg,var(--rose),var(--accent)); display:flex;align-items:center;justify-content:center;font-size:22px; color:#fff;}
+  .person .pname{font-size:16.5px; font-weight:800; color:var(--navy);}
+  .person .pwho{font-size:12px; color:var(--muted);}
+  .person .pwhy{font-size:14.5px; margin-bottom:8px;}
+  .person .pquote{font-size:14px; font-style:italic; color:var(--accent); border-left:3px solid var(--rose-soft); padding-left:10px; margin:8px 0;}
+  .person .pshadow{font-size:13.5px; color:var(--muted); background:var(--cream); border-radius:9px; padding:8px 11px;}
+  .person .pmore{display:inline-block; margin-top:10px; font-size:13px; font-weight:700; text-decoration:none; color:var(--accent); border:1px solid var(--rose-soft); border-radius:9px; padding:6px 12px;}
+  .person .pmore:hover{background:var(--accent); color:#fff; border-color:var(--accent);}
+  .movies{display:grid; gap:14px;}
+  .movie{background:#fff; border:1px solid var(--line); border-radius:15px; padding:16px 18px; box-shadow:var(--shadow-sm);}
+  .movie .mhead{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:4px;}
+  .movie .mtitle{font-size:16.5px; font-weight:800; color:var(--navy);}
+  .movie .mfit{font-size:11.5px; font-weight:700; border-radius:7px; padding:2px 8px; white-space:nowrap;}
+  .movie .mfit.green{background:#E5F3E8; color:#2E7D4F;}
+  .movie .mfit.yellow{background:#FBF1D8; color:#9A7B22;}
+  .movie .mfit.red{background:#F7E0E0; color:#B5546A;}
+  .movie .mmeta{font-size:12.5px; color:var(--muted); margin-bottom:9px;}
+  .movie .mmeta b{color:var(--accent);}
+  .movie .mwhy{font-size:14.5px; margin-bottom:9px;}
+  .movie .mreal{font-size:13px; color:var(--muted); background:var(--cream); border-radius:9px; padding:8px 11px; margin-bottom:10px;}
+  .movie .mreal .lbl{font-weight:800; color:var(--gold); margin-right:6px;}
+  .movie .mlinks{display:flex; gap:8px; flex-wrap:wrap;}
+  .movie .mlink{font-size:12.5px; font-weight:700; text-decoration:none; color:var(--navy); border:1px solid var(--line); border-radius:8px; padding:5px 11px;}
+  .movie .mlink:hover{border-color:var(--accent); color:var(--accent);}
+  .movie .mlink.slug{color:var(--accent); border-color:var(--rose-soft);}
+  .relations{background:#fff; border:1px solid var(--line); border-radius:15px; padding:18px 18px 16px; box-shadow:var(--shadow-sm);}
+  .relations .rtitle{font-size:16px; font-weight:800; color:var(--navy); text-align:center; margin-bottom:6px;}
+  .relations .rintro{font-size:14px; color:var(--muted); text-align:center; margin-bottom:14px;}
+  .rsides{display:grid; gap:12px;}
+  @media(min-width:600px){ .rsides{grid-template-columns:repeat(auto-fit,minmax(160px,1fr));} }
+  .rside{border-radius:13px; padding:13px 14px;}
+  .rside.red{background:#FBEAEA; border:1px solid #E8C0C0;}
+  .rside.blue{background:#E9EEF7; border:1px solid #C2D0E6;}
+  .rside.green{background:#E7F1EA; border:1px solid #BFD9C7;}
+  .rside .rslabel{font-size:13px; font-weight:800; margin-bottom:9px; letter-spacing:.02em;}
+  .rside.red .rslabel{color:#B5546A;}
+  .rside.blue .rslabel{color:#33406B;}
+  .rside.green .rslabel{color:#2E7D4F;}
+  .rmember{background:#fff; border:1px solid var(--line); border-radius:9px; padding:8px 10px; margin-bottom:7px; font-size:13.5px;}
+  .rmember b{color:var(--navy); margin-right:6px;}
+  .rmember span{color:var(--muted);}
+  .rmember .rlink{text-decoration:none;}
+  .rtensions{margin-top:14px; display:grid; gap:9px;}
+  .rtension{background:var(--cream); border-left:3px solid var(--gold); border-radius:9px; padding:10px 12px; font-size:13.5px;}
+  .rtension .rvs{font-weight:800; color:var(--accent); margin-bottom:3px;}
+  .marchmap{background:#fff; border:1px solid var(--line); border-radius:15px; padding:16px; box-shadow:var(--shadow-sm);}
+  .marchmap .mm-title{font-weight:800; color:var(--navy); text-align:center; font-size:16px;}
+  .marchmap .mm-intro{font-size:14px; color:var(--muted); text-align:center; margin:6px 0 12px;}
+  .mm-stage{position:relative; max-width:360px; margin:0 auto; aspect-ratio:1866/2891; background:#eef3ee; border-radius:10px; overflow:hidden;}
+  .mm-base{position:absolute; inset:0; width:100%; height:100%; object-fit:contain;}
+  .mm-arrows{position:absolute; inset:0; width:100%; height:100%; overflow:visible;}
+  .mm-arrow{fill:none; stroke-width:1.4; stroke-linecap:round; stroke-dasharray:300; stroke-dashoffset:300; opacity:0; transition:stroke-dashoffset .8s ease, opacity .3s;}
+  .mm-arrow.on{stroke-dashoffset:0; opacity:.95;}
+  .mm-arrow.tone-resist{stroke:#2E7D4F;} .mh.resist{fill:#2E7D4F;}
+  .mm-arrow.tone-invade{stroke:#B5546A;} .mh.invade{fill:#B5546A;}
+  .mm-alab{font-size:3.4px; font-weight:800; opacity:0; transition:opacity .3s;} .mm-alab.on{opacity:.9;}
+  .mm-alab.tone-resist{fill:#2E7D4F;} .mm-alab.tone-invade{fill:#B5546A;}
+  .mm-place{position:absolute; transform:translate(-50%,-50%); opacity:0; transition:opacity .35s; display:flex; flex-direction:column; align-items:center; pointer-events:none; z-index:2;}
+  .mm-place.on{opacity:1;}
+  .mm-dot{width:11px; height:11px; border-radius:50%; background:var(--navy); border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,.35);}
+  .mm-place.k-battle .mm-dot{background:#B5546A;} .mm-place.k-loss .mm-dot{background:#7a2e3f;}
+  .mm-place.k-win .mm-dot{background:#2E7D4F;} .mm-place.k-start .mm-dot{background:var(--gold);}
+  .mm-lbl{font-size:11px; font-weight:700; color:var(--navy); background:rgba(255,255,255,.9); border-radius:5px; padding:0 4px; margin-top:3px; white-space:nowrap;}
+  .mm-step{display:flex; align-items:center; gap:10px; justify-content:center; margin-top:13px;}
+  .mm-step button{background:var(--navy); color:#fff; border:none; border-radius:9px; padding:7px 14px; font-size:13px; font-weight:700; cursor:pointer;}
+  .mm-step button:disabled{opacity:.4; cursor:default;}
+  .mm-plabel{font-size:13.5px; font-weight:800; color:var(--accent); min-width:150px; text-align:center;}
+  .mm-cap{font-size:11px; color:var(--muted); text-align:center; margin-top:9px; line-height:1.5;}
+  .battlemap{background:#fff; border:1px solid var(--line); border-radius:15px; padding:16px; box-shadow:var(--shadow-sm);}
+  .battlemap .bm-intro{font-size:14px; color:var(--muted); text-align:center; margin-bottom:11px;}
+  .bm-map{width:100%; height:380px; border-radius:11px; overflow:hidden; border:1px solid var(--line); background:#eef3ee;}
+  .bm-ic div{font-size:19px; filter:drop-shadow(0 1px 1px rgba(0,0,0,.4));}
+  .bm-tt{background:rgba(255,255,255,.92); border:1px solid var(--line); border-radius:5px; font-size:11px; font-weight:700; color:var(--navy); padding:1px 5px; box-shadow:none;}
+  .bm-tt:before{display:none;}
+  .bm-step{display:flex; align-items:center; gap:10px; justify-content:center; margin-top:12px;}
+  .bm-step button{background:var(--navy); color:#fff; border:none; border-radius:9px; padding:7px 14px; font-size:13px; font-weight:700; cursor:pointer;}
+  .bm-step button:disabled{opacity:.4; cursor:default;}
+  .bm-plabel{font-size:13.5px; font-weight:800; color:var(--accent); min-width:150px; text-align:center;}
+  .bm-legend{display:flex; gap:14px; flex-wrap:wrap; justify-content:center; font-size:12.5px; margin-top:11px;}
+  .bm-legend span{display:inline-flex; align-items:center; gap:5px;}
+  .bm-legend i{width:16px; border-top:3px solid; display:inline-block; border-radius:2px;}
+  .bm-cap{font-size:11px; color:var(--muted); text-align:center; margin-top:9px;}
+  .deepdive{margin:18px 0 6px; border:1px solid var(--line); border-radius:13px; background:linear-gradient(180deg,#fff,#fbf6ef); overflow:hidden;}
+  .deepdive summary{cursor:pointer; padding:14px 18px; font-size:15px; font-weight:800; color:var(--navy); list-style:none; display:flex; align-items:center; gap:8px;}
+  .deepdive summary::-webkit-details-marker{display:none;}
+  .deepdive summary:after{content:"▾"; margin-left:auto; color:var(--accent); transition:transform .2s;}
+  .deepdive[open] summary:after{transform:rotate(180deg);}
+  .deepdive summary:hover{background:rgba(181,84,106,.05);}
+  .links{display:grid; gap:10px; margin:6px 0 4px;}
+  .links .lk{display:block; padding:13px 16px; border:1px solid var(--line); border-radius:12px; background:#fff; text-decoration:none; transition:border-color .15s, transform .15s;}
+  .links .lk:hover{border-color:var(--accent); transform:translateY(-2px);}
+  .links .lk-label{display:block; font-weight:800; color:var(--navy); font-size:15px;}
+  .links .lk-label:after{content:" ↗"; color:var(--accent); font-weight:700;}
+  .links .lk-note{display:block; font-size:13.5px; color:var(--ink); margin-top:3px; line-height:1.6;}
+  .links .lk-src{display:block; font-size:12px; color:var(--muted); margin-top:4px;}
+  .spark{margin:16px 0; padding:16px 18px 18px; border-left:5px solid var(--accent); border-radius:12px; background:linear-gradient(180deg,#fff8f3,#fdeee6); box-shadow:var(--shadow-sm);}
+  .spark-h{font-size:16px; font-weight:800; color:var(--accent); margin-bottom:7px; letter-spacing:-.01em;}
+  .spark-body{font-size:15.5px; line-height:1.85; color:var(--ink);}
+  .spark-mind{margin-top:11px; padding-top:10px; border-top:1px dashed var(--line); font-size:14.5px; color:var(--navy); line-height:1.7;}
+  .dd-body{padding:4px 18px 18px;}
+  .dd-item{border-top:1px solid var(--line); padding:13px 0;}
+  .dd-item:first-child{border-top:none;}
+  .dd-item h3{font-size:15px; color:var(--accent); margin-bottom:6px;}
+  .dd-text{font-size:14.5px; line-height:1.8;}
+  .dd-src{font-size:12.5px; color:var(--muted); background:var(--cream); border-radius:8px; padding:7px 11px; margin-top:8px;}
+  .timeline{position:relative; margin:6px 0 6px 9px; padding-left:26px; border-left:2.5px solid var(--rose-soft);}
+  .tl{position:relative; padding:5px 0 17px;}
+  .tl::before{content:""; position:absolute; left:-33.5px; top:9px; width:13px;height:13px;border-radius:50%;background:var(--rose); border:3px solid var(--cream);}
+  .tl .tl-yr{font-weight:800; color:var(--navy); font-size:13.5px;}
+  .tl .tl-txt{font-size:15px;}
+  .connect{background:#fff; border:1px dashed var(--rose); border-radius:14px; padding:17px 22px; font-size:15.5px; color:var(--navy); display:flex; gap:12px; align-items:flex-start;}
+  .connect .ico{flex:0 0 22px; font-size:18px;}
+  .connect b{color:var(--accent);}
+  .yt{display:flex; gap:14px; align-items:flex-start; text-decoration:none; background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin-bottom:11px; transition:transform .12s, box-shadow .12s;}
+  .yt:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
+  .yt .play{flex:0 0 42px; height:42px; border-radius:11px; background:#FF0000; color:#fff; display:flex;align-items:center;justify-content:center;font-size:16px;}
+  .yt .play.search{background:var(--navy);}
+  .yt .yt-body{flex:1; min-width:0;}
+  .yt .yt-title{font-weight:700; color:var(--navy); font-size:15px; line-height:1.45;}
+  .yt .yt-meta{font-size:12px; color:var(--muted); margin-top:3px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+  .yt .pill{background:var(--cream); border:1px solid var(--line); border-radius:6px; padding:1px 6px; font-weight:700;}
+  .yt .pill.ko{color:#2f7d4f;} .yt .pill.en{color:#3a5bb5;} .yt .pill.find{color:var(--navy);}
+  .yt .yt-desc{font-size:13.5px; margin-top:5px; color:var(--ink);}
+  .reflect{background:#fff; border:2px solid var(--rose-soft); border-radius:var(--radius); padding:20px 22px; box-shadow:var(--shadow-sm);}
+  .reflect .q{font-weight:700; color:var(--navy); margin-bottom:9px; font-size:15.5px;}
+  .reflect textarea{width:100%; min-height:88px; border:1px solid var(--line); border-radius:11px; padding:13px; font-family:inherit; font-size:15px; resize:vertical; background:#fffdfb; color:var(--ink); line-height:1.7;}
+  .reflect textarea:focus{outline:none; border-color:var(--rose); box-shadow:0 0 0 3px rgba(201,139,139,.15);}
+  .reflect textarea + .q{margin-top:18px;}
+  .reflect .saved{font-size:12px; color:var(--gold); margin-top:6px; height:15px; font-weight:600;}
+  /* quiz (R1) */
+  .quizwrap{display:flex;flex-direction:column;gap:14px;}
+  .quizq{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow-sm);}
+  .quizq .qq{font-weight:700;color:var(--navy);font-size:15.5px;margin-bottom:10px;}
+  .qopts{display:flex;flex-direction:column;gap:8px;}
+  .quiz-opt{text-align:left;font-family:inherit;font-size:14.5px;background:var(--cream);border:1px solid var(--line);border-radius:10px;padding:10px 13px;cursor:pointer;color:var(--ink);transition:background .12s;}
+  .quiz-opt:hover:not(:disabled){background:#f3ece4;}
+  .quiz-opt:disabled{cursor:default;}
+  .quiz-opt.correct{background:#e8f5ec;border-color:#8fcea5;color:#1f7a44;font-weight:700;}
+  .quiz-opt.wrong{background:#fbeaec;border-color:#e3a3ad;color:#a83246;}
+  .qexp{font-size:14px;color:var(--ink);margin-top:10px;display:none;line-height:1.7;background:var(--cream);border-radius:9px;padding:10px 12px;}
+  .qexp.show{display:block;}
+  .qexp b{color:var(--accent);}
+  /* notes export (R2) */
+  .nav .notes-link{font-weight:700;color:#fff;background:rgba(196,154,74,.16);}
+  .note-actions{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+  .notes-view{background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px 26px;box-shadow:var(--shadow-sm);}
+  .note-sec{margin-bottom:22px;}
+  .note-sh{font-weight:800;color:var(--accent);font-size:13px;letter-spacing:.04em;border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:10px;}
+  .note-q{font-weight:700;color:var(--navy);font-size:14.5px;margin-top:12px;}
+  .note-a{font-size:14.5px;white-space:pre-wrap;margin-top:3px;}
+  .note-a.empty{color:var(--muted);font-style:italic;}
+  @media print{ .sidebar,.topbar,.scrim,#progress,.noprint{display:none!important;} .content{width:100%;} .home-hero{background:#fff!important;color:#000!important;padding:10px 0 0;} .home-hero h1{color:#000;} .home-hero .hsub{color:#555;} .notes-view{border:none;box-shadow:none;padding:0;} body{background:#fff;} }
+  /* map (R3 — 실제 지도, Leaflet+OSM) */
+  .mapwrap{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow-sm);}
+  .lmap{height:340px;border-radius:12px;overflow:hidden;border:1px solid var(--line);z-index:0;}
+  .mapcap{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.6;}
+  .mapcap .msrc{font-size:11.5px;opacity:.8;}
+  /* image (S1 — PD 역사지도/사진 + 선택적 hotspot) */
+  .figimg{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow-sm);}
+  .figstory{font-size:15.5px;line-height:1.8;margin-bottom:12px;color:var(--ink);}
+  .figstory b{color:var(--accent);}
+  .imgbox{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#f4efe8;}
+  .imgbox img{width:100%;height:auto;display:block;}
+  .hsdot{position:absolute;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;border:2px solid #fff;font-size:12px;font-weight:800;cursor:pointer;box-shadow:0 2px 7px rgba(0,0,0,.32);display:flex;align-items:center;justify-content:center;line-height:1;}
+  .hsdot:hover{background:var(--navy);}
+  .hsinfo{margin-top:10px;font-size:14px;background:var(--cream);border-radius:9px;padding:11px 13px;display:none;line-height:1.7;}
+  .hsinfo.show{display:block;}
+  .hsinfo b{color:var(--accent);}
+  .figcap{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.65;}
+  .figcap .msrc{font-size:11.5px;opacity:.85;}
+  /* oldmap (고지도 — 시대감) */
+  .oldmap{background:linear-gradient(180deg,#f7f0e2,#efe4cf);border:1px solid #d8c7a6;border-radius:16px;padding:16px;box-shadow:var(--shadow-sm);}
+  .oldmap-frame{border-radius:10px;overflow:hidden;border:3px solid #8a6d3b;box-shadow:inset 0 0 40px rgba(94,66,20,.25);background:#e8dcc2;}
+  .oldmap-frame img{width:100%;height:auto;display:block;filter:sepia(.32) contrast(1.04) saturate(.9);}
+  .oldmap .figcap{color:#6b5836;}
+  /* lightbox (이미지 클릭 확대 — image/oldmap 공통) */
+  .imgbox img,.oldmap-frame img{cursor:zoom-in;}
+  .lightbox{position:fixed;inset:0;background:rgba(22,19,16,.93);display:none;align-items:center;justify-content:center;z-index:99;padding:16px;cursor:zoom-out;}
+  .lightbox.show{display:flex;}
+  .lightbox img{max-width:96vw;max-height:90vh;width:auto;height:auto;border-radius:8px;box-shadow:0 12px 44px rgba(0,0,0,.55);}
+  .lightbox .lb-cap{position:fixed;left:0;right:0;bottom:10px;text-align:center;color:#E8C8C5;font-size:12px;padding:0 22px;line-height:1.5;}
+  /* companion (짝 에피소드 배지) */
+  .companion-link{display:block;margin:6px 14px 0;padding:7px 11px;border:1px dashed rgba(255,255,255,.35);border-radius:9px;color:#fff;font-size:12px;text-decoration:none;opacity:.92;}
+  .companion-link:hover{background:rgba(255,255,255,.1);}
+  /* voice (S3 — 일기·편지체 1인칭) */
+  .voice{background:linear-gradient(135deg,#fffdf8,#f6efe3);border:1px solid #e6d9c4;border-left:5px solid var(--gold);border-radius:14px;padding:20px 24px;box-shadow:var(--shadow-sm);}
+  .voice .vbadge{display:inline-block;font-size:11px;font-weight:800;padding:2px 10px;border-radius:8px;margin-bottom:12px;letter-spacing:.02em;}
+  .voice .vbadge.real{background:#e6f0e8;color:#2f6b43;}
+  .voice .vbadge.imag{background:#f3eadb;color:#8a6d2f;}
+  .voice .vbody{font-size:16.5px;font-style:italic;line-height:1.95;color:#3a352f;}
+  .voice .vbody::before{content:"“";font-size:34px;color:var(--gold);line-height:0;vertical-align:-12px;margin-right:3px;}
+  .voice .vspeaker{margin-top:14px;font-size:13px;color:var(--muted);}
+  .voice .vspeaker b{color:var(--navy);}
+  .voice .vsrc{display:block;font-size:11.5px;opacity:.85;margin-top:3px;}
+  /* chart (S4 — 자체 막대 + 체감 비교) */
+  .chart{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow-sm);}
+  .chart .ctitle{font-weight:800;color:var(--navy);font-size:15.5px;}
+  .chart .cunit{font-size:12px;color:var(--muted);margin:3px 0 14px;}
+  .crow{display:flex;align-items:center;gap:10px;margin:9px 0;}
+  .crow .clabel{flex:0 0 72px;font-size:13px;color:var(--ink);text-align:right;}
+  .crow .cbarwrap{flex:1;background:var(--cream);border-radius:7px;overflow:hidden;height:24px;}
+  .crow .cbar{height:100%;background:linear-gradient(90deg,var(--rose),var(--accent));border-radius:7px;min-width:3px;}
+  .crow .cval{flex:0 0 auto;font-size:12.5px;font-weight:700;color:var(--accent);min-width:62px;}
+  .crelate{margin-top:15px;font-size:14.5px;background:#fdf2ef;border:1px solid var(--rose-soft);border-radius:10px;padding:12px 14px;line-height:1.7;}
+  .crelate b{color:var(--accent);}
+  .csrc{font-size:11.5px;color:var(--muted);margin-top:11px;opacity:.85;}
+  /* compare (S5 — 단계 토글 / before·after) */
+  .compare{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow-sm);}
+  .cmpintro{font-size:15px;margin-bottom:13px;color:var(--ink);line-height:1.7;}
+  .cmptabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px;}
+  .cmptab{font-family:inherit;font-size:13px;font-weight:700;background:var(--cream);border:1px solid var(--line);border-radius:20px;padding:7px 14px;cursor:pointer;color:var(--navy);transition:background .12s;}
+  .cmptab:hover{background:#f3ece4;}
+  .cmptab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .cmppanel .cmh{font-weight:800;color:var(--navy);font-size:16.5px;margin-bottom:7px;}
+  .cmppanel .cmb{font-size:15px;line-height:1.85;}
+  .cmppanel img{width:100%;border-radius:10px;margin-top:11px;border:1px solid var(--line);display:block;}
+  .cmpcap{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.6;}
+  /* choice (S7 — 너라면? 도덕적 딜레마) */
+  .choice{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow-sm);}
+  .chprompt{font-weight:700;color:var(--navy);font-size:15.5px;margin-bottom:14px;line-height:1.75;}
+  .chopts{display:flex;flex-direction:column;gap:9px;}
+  .chopt{text-align:left;font-family:inherit;font-size:14.5px;background:var(--cream);border:1px solid var(--line);border-radius:11px;padding:12px 14px;cursor:pointer;color:var(--ink);transition:background .12s;}
+  .chopt:hover{background:#f3ece4;}
+  .chopt.picked{border-color:var(--accent);background:#fdf2ef;font-weight:700;}
+  .chres{font-size:14px;margin-top:8px;background:#f7f3fb;border:1px solid #e0d6ee;border-radius:9px;padding:11px 13px;display:none;line-height:1.75;}
+  .chres.show{display:block;}
+  .chafter{margin-top:15px;font-size:14px;background:var(--cream);border-radius:9px;padding:12px 14px;line-height:1.75;display:none;}
+  .chafter.show{display:block;}
+  .chafter b{color:var(--accent);}
+  .pager{display:flex; justify-content:space-between; gap:12px; margin-top:46px;}
+  .pager a{flex:1; text-decoration:none; background:#fff; border:1px solid var(--line); border-radius:14px; padding:15px 18px; color:var(--navy); box-shadow:var(--shadow-sm); transition:transform .12s, box-shadow .12s; cursor:pointer;}
+  .pager a:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
+  .pager a.next{text-align:right; background:var(--navy); color:#fff; border-color:var(--navy);}
+  .pager .pg-label{font-size:11.5px; color:var(--muted);}
+  .pager a.next .pg-label{color:var(--rose-soft);}
+  .pager .pg-title{font-weight:700; font-size:15px; margin-top:3px;}
+  .home-hero{padding:60px 32px 44px; background:linear-gradient(140deg,var(--navy) 0%, #54608c 100%); color:#fff; text-align:center;}
+  .home-hero h1{font-size:33px; font-weight:800; line-height:1.32;}
+  .home-hero .hsub{font-size:15px; color:var(--rose-soft); margin-top:12px;}
+  .home-hero .hq{margin:26px auto 0; max-width:460px; font-style:italic; font-size:15px; opacity:.92; line-height:1.8;}
+  .home-hero .hq small{display:block; font-style:normal; opacity:.7; font-size:12px; margin-top:8px;}
+  .home-wrap{max-width:760px; margin:0 auto; padding:36px 26px 90px;}
+  .home-intro{font-size:16.5px; background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:24px 26px; box-shadow:var(--shadow-sm); line-height:1.85;}
+  .home-intro b{color:var(--accent);}
+  .start-btns{display:flex; gap:12px; flex-wrap:wrap; margin:24px 0 8px;}
+  .btn{flex:1; min-width:200px; text-decoration:none; text-align:center; padding:16px; border-radius:14px; font-weight:700; font-size:15.5px; box-shadow:var(--shadow-sm); transition:transform .12s; cursor:pointer;}
+  .btn:hover{transform:translateY(-2px);}
+  .btn.primary{background:var(--navy); color:#fff;}
+  .btn.star{background:linear-gradient(135deg,var(--rose),var(--accent)); color:#fff;}
+  .path{list-style:none; margin-top:14px;}
+  .path li{display:flex; gap:16px; align-items:flex-start; cursor:pointer; padding:14px 16px; border-radius:14px; transition:background .12s;}
+  .path li:hover{background:#fff;}
+  .path .pn{flex:0 0 34px; height:34px; border-radius:50%; background:var(--navy); color:#fff; display:flex;align-items:center;justify-content:center; font-weight:800; font-size:14px;}
+  .path li.star .pn{background:var(--accent);}
+  .path .ph{font-weight:700; color:var(--navy); font-size:16px;}
+  .path .ph .star-mark{color:var(--gold);}
+  .path .pp{font-size:14px; color:var(--muted); margin-top:2px;}
+  #tip{position:fixed; z-index:70; max-width:260px; background:var(--navy); color:#fff; font-size:13px; line-height:1.6; padding:11px 14px; border-radius:11px; box-shadow:0 8px 24px rgba(0,0,0,.28); display:none; pointer-events:none;}
+  .leaflet-popup-content{font-family:inherit;font-size:13.5px;line-height:1.6;}
+  .leaflet-popup-content b{color:var(--accent);}
+  @media (max-width:880px){
+    .sidebar{position:fixed; left:0; top:0; z-index:35; transform:translateX(-100%); transition:transform .25s;}
+    .sidebar.open{transform:translateX(0);}
+    .topbar{display:flex;}
+    .scrim.show{display:block;}
+    .hero{padding:34px 22px 26px;} .hero h1{font-size:25px;} .hero .motif{width:120px;height:120px;}
+    .home-hero{padding:40px 20px 32px;} .home-hero h1{font-size:26px;}
+    .wrap,.home-wrap{padding:26px 18px 76px;}
+  }
+  /* ───────── 시각효과 업그레이드 v2 (additive) ───────── */
+  /* 정적 폴리시 (모션 무관) */
+  .imgbox{overflow:hidden;}
+  .imgbox img{transition:transform .5s cubic-bezier(.22,1,.36,1);}
+  .imgbox:hover img{transform:scale(1.045);}
+  .why,.chart,.compare,.choice,.voice,.relations,.connect{transition:box-shadow .22s ease, transform .22s ease;}
+  .why:hover,.chart:hover,.compare:hover,.choice:hover,.voice:hover{box-shadow:var(--shadow);}
+  h2.block::before{box-shadow:0 0 0 4px rgba(181,84,106,.12);}
+  .spark{position:relative; overflow:hidden;}
+  .spark::after{content:""; position:absolute; inset:0; background:radial-gradient(150px 90px at 92% 0%, rgba(196,154,74,.16), transparent 70%); pointer-events:none;}
+  .hero::after{content:""; position:absolute; left:0; right:0; top:0; height:130%; background:radial-gradient(60% 55% at 82% 0%, rgba(255,255,255,.13), transparent 62%); pointer-events:none;}
+  .lk,.yt,.card,.pager a{will-change:transform;}
+  /* 모션 (저모션 사용자 보호: no-preference 일 때만) */
+  @media (prefers-reduced-motion: no-preference){
+    /* 블록 진입 — 순수 CSS 스태거(fill-mode both → 항상 보이게 끝남, JS 의존 0) */
+    .wrap > *, .home-wrap > *{animation:vBlockIn .55s cubic-bezier(.22,1,.36,1) both;}
+    .wrap > *:nth-child(1),.home-wrap > *:nth-child(1){animation-delay:.03s;}
+    .wrap > *:nth-child(2),.home-wrap > *:nth-child(2){animation-delay:.10s;}
+    .wrap > *:nth-child(3),.home-wrap > *:nth-child(3){animation-delay:.17s;}
+    .wrap > *:nth-child(4),.home-wrap > *:nth-child(4){animation-delay:.24s;}
+    .wrap > *:nth-child(5),.home-wrap > *:nth-child(5){animation-delay:.31s;}
+    .wrap > *:nth-child(6),.home-wrap > *:nth-child(6){animation-delay:.37s;}
+    .wrap > *:nth-child(7),.home-wrap > *:nth-child(7){animation-delay:.43s;}
+    .wrap > *:nth-child(n+8),.home-wrap > *:nth-child(n+8){animation-delay:.48s;}
+    @keyframes vBlockIn{from{opacity:0; transform:translateY(15px);} to{opacity:1; transform:none;}}
+    .crow .cbar{transition:width 1.05s cubic-bezier(.22,1,.36,1);}
+    .hero h1{animation:vHeroRise .55s ease both;}
+    .hero .kicker{animation:vHeroRise .55s .06s ease both;}
+    .hero .era{animation:vHeroRise .55s .12s ease both;}
+    @keyframes vHeroRise{from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:none;}}
+    .quiz-opt.correct{animation:vPop .42s ease;}
+    @keyframes vPop{0%{transform:scale(1);} 42%{transform:scale(1.035);} 100%{transform:scale(1);}}
+  }
+</style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-ant-path@1.3.0/dist/leaflet-ant-path.js"></script>
+</head>
+<body>
+<div id="progress"></div>
+<div class="layout">
+  <nav class="sidebar" id="sidebar">
+    <a class="hub-back" id="hubBack" href="../index.html">← 역사 이야기 허브</a>
+    <div class="brand" id="brandHome"><div class="bt" id="brandTitle"></div><span class="sub" id="brandSub"></span></div>
+    <ul class="nav" id="navList"></ul>
+    <div class="side-foot" id="sideFoot"></div>
+  </nav>
+  <div class="scrim" id="scrim"></div>
+  <main class="content">
+    <div class="topbar"><button class="hamb" id="hamb" aria-label="메뉴">☰</button><span class="tb-title" id="tbTitle"></span><a class="tb-hub" id="tbHub" href="../index.html">🏛️ 역사 허브</a></div>
+    <div id="view"></div>
+  </main>
+</div>
+<div id="tip"></div>
+
+<!-- 에피소드 데이터 (build.py가 주입) -->
+<script id="episode-data">window.EPISODE = {"meta": {"lang": "ko", "slug": "korea/three-kingdoms/goguryeo", "title": "고구려 — 만주를 호령한 정복 국가", "description": "졸본의 작은 산성에서 일어나 만주와 한반도 북부를 호령한 고구려. 광개토대왕·장수왕의 전성기, 고분 벽화의 기상, 그리고 수·당 두 제국의 침략을 막아 낸 70년 전쟁까지 — 지도와 인물로 깊이 읽는 고구려.", "brand": {"title": "고구려", "sub": "만주를 호령하다"}, "hub": {"url": "../index.html", "label": "← 삼국·남북국"}, "foot": "한국사 이야기 · 삼국 심화 · <b>고구려</b> (기원전 37 ~ 668)<br>만주를 호령한 정복 국가", "home": {"h1": "만주를<br>호령하다", "sub": "졸본의 산성에서 동아시아의 강자로 — 고구려 (기원전 37 ~ 668)", "quote": {"text": "은혜로운 혜택이 하늘에 미치고, 위엄과 무력은 사해(四海)에 떨쳤다. 나쁜 무리를 쓸어 없애니, 백성이 생업에 편안하였다.", "by": "광개토대왕릉비(414년) 비문"}, "intro": "주몽이 부여를 떠나 졸본의 작은 산성에 나라를 세운 지 7백 년. 고구려는 척박한 산악에서 일어나 <b>만주와 한반도 북부를 호령한 정복 국가</b>로 자라났어요. 광개토대왕과 장수왕 때 동아시아의 한 축이 됐고, 무엇보다 <b>수·당이라는 두 거대 제국의 침략을 70년간 막아 낸</b> 방파제였죠. 고분 벽화의 힘찬 선과 거대한 비석에 새겨진 정복의 기록으로, 고구려를 깊이 들여다봐요.", "startPrimary": {"label": "처음부터 — 졸본의 건국 →", "to": "founding"}, "startStar": {"label": "★ 수·당과의 70년 전쟁", "to": "sui-tang"}, "pathLabel": "고구려 700년"}}, "terms": {"졸본": "고구려가 처음 도읍한 곳. 압록강 지류의 산악 지대(지금의 중국 환런)로, 험한 산성에 의지한 정복 국가의 출발점이에요.", "국내성": "졸본 다음의 도읍(지금의 중국 지안). 압록강 중류에 자리해 오랫동안 고구려의 중심이었어요.", "제가회의": "고구려의 귀족 회의. 여러 ‘가(加, 부족장·귀족)’가 모여 국가 중대사와 죄인 처벌을 결정했어요. 왕권을 견제하는 귀족 정치의 틀이죠.", "진대법": "고구려 고국천왕 때 재상 을파소의 건의로 시행한 빈민 구휼 제도. 봄에 곡식을 빌려주고 가을에 갚게 해, 가난한 백성이 노비로 전락하는 것을 막았어요.", "영락": "광개토대왕이 사용한 연호(年號). 중국과 별개로 독자적 연호를 썼다는 건, 고구려가 스스로를 ‘천하의 중심’으로 여긴 자주적 천하관을 보여줘요.", "남하정책": "장수왕이 평양으로 도읍을 옮기고 한반도 남쪽으로 세력을 넓힌 정책. 475년 백제 한성을 함락시킨 게 그 절정이에요.", "사신도": "무덤 안 네 벽에 그린 네 방위의 수호신 — 동쪽 청룡, 서쪽 백호, 남쪽 주작, 북쪽 현무. 강서대묘 벽화가 대표적이에요.", "살수대첩": "612년 을지문덕이 이끄는 고구려군이 수 양제의 별동대를 살수(청천강)에서 거의 전멸시킨 전투. 수나라 멸망의 결정타가 됐어요.", "안시성": "645년 당 태종의 대군을 끝내 막아 낸 고구려의 성(요동 지역). 동아시아 최강 제국 당을 좌절시켰어요.", "천리장성": "고구려가 당의 침입에 대비해 부여성에서 비사성까지 쌓은 긴 방어선. 연개소문이 공사를 감독하며 군사력을 키웠어요.", "연개소문": "정변으로 권력을 잡고 당에 강경하게 맞선 고구려 말기의 실력자. 나라를 지켰지만, 그가 죽은 뒤 아들들의 분열이 멸망을 불렀어요."}, "sections": [{"id": "founding", "num": "01", "label": "졸본의 건국", "accent": "#5a4a3a", "kicker": "주몽·국내성·체제 정비 · 기원전 37 ~ 4세기", "era": "기원전 37년 ~ 4세기", "motif": "flag", "title": "졸본의 건국", "hook": "부여에서 쫓기듯 남쪽으로 내려온 한 사내가, 압록강 지류의 험한 산골 졸본에 나라를 세웠어요. 활을 잘 쏘아 ‘주몽’이라 불린 그가 세운 작은 산성의 나라가, 7백 년 뒤 동아시아를 뒤흔드는 제국이 될 줄 누가 알았을까요?", "spark": {"icon": "🤯", "title": "땅이 척박해서 강해졌다", "body": "고구려가 일어난 졸본·국내성 일대는 산이 많고 농사지을 땅이 적었어요. 먹을 게 부족하니, 고구려는 일찍부터 이웃을 정복해 식량과 물자를 얻는 <b>약탈·정복 경제</b>로 살아갔죠.", "mind": "‘부족함’이 오히려 고구려를 강하고 호전적인 정복 국가로 단련시킨 거예요. 풍요로웠다면, 오히려 그렇게 강해지지 않았을지도 몰라요."}, "why": "고구려는 기원전 37년 주몽이 <b>졸본</b>에서 세웠다고 전해져요. 부여에서 갈라져 나온 세력이 압록강 중류의 산악 지대에 자리 잡은 거죠. 척박한 환경 탓에 일찍부터 <b>정복 국가</b>의 성격을 띠었고, 곧 <b>국내성</b>으로 도읍을 옮겨요. 이후 태조왕 때 주변 소국을 정복하며 고대국가의 기틀을 닦고, <b>소수림왕</b>(4세기)이 <b>불교 수용·태학 설립·율령 반포</b>(372~373)로 중앙집권의 제도를 완성하죠. 이 단단한 토대 위에서, 곧 광개토대왕·장수왕의 대정복 시대가 열립니다.", "cards": [{"yr": "기원전 37", "h": "주몽, 졸본에 서다", "p": "부여를 떠난 주몽이 졸본에 고구려를 세웠어요. 험한 산성에 의지한 작은 나라였지만, 처음부터 강한 군사력과 정복 의지를 품었죠."}, {"yr": "1세기", "h": "국내성 천도·태조왕", "p": "도읍을 국내성으로 옮기고, 태조왕이 옥저 등 주변을 정복하며 영토를 넓혔어요. 왕위가 한 집안(고씨)으로 이어지며 고대국가의 틀이 잡혀 갔죠."}, {"yr": "194", "h": "진대법 — 백성을 지키다", "p": "고국천왕이 재상 을파소의 건의로 진대법을 시행했어요. 봄에 곡식을 빌려주고 가을에 갚게 해, 가난한 농민이 노비가 되는 걸 막은 앞선 복지 제도예요."}, {"yr": "372~373", "h": "소수림왕, 기틀을 완성", "p": "불교를 받아들이고(372), 국립학교 태학을 세우고, 율령을 반포(373)했어요. 사상·교육·법의 틀을 갖춰, 대정복 시대로 도약할 발판을 놓았죠."}], "image": {"h": "자료로 보기 — 오녀산성(졸본) 🖼️", "story": "고구려의 첫 도읍 졸본으로 추정되는 <b>오녀산성</b>이에요(중국 환런). 깎아지른 절벽 위에 쌓은 천연 요새죠. ‘산성에 의지한 정복 국가’ 고구려의 출발점이 어떤 곳이었는지, 이 험한 지형이 말해줘요.", "src": "img/osan_fortress.jpg", "alt": "멀리 보이는, 꼭대기가 평평한 거대한 절벽 산 — 오녀산성이 자리한 천연 요새", "caption": "오녀산(졸본 추정, 중국 환런) — 꼭대기가 평평한 절벽 위에 오녀산성이 있던, 고구려가 일어난 천연 요새.", "source": "Wikimedia Commons", "license": "CC BY-SA 4.0"}, "connect": "산성의 작은 나라가 제도를 갖추고 힘을 모으자, 이제 고구려는 ‘지키는 나라’가 아니라 ‘넓히는 나라’가 돼요. 동아시아를 뒤흔든 두 정복 군주 — 광개토대왕과 장수왕의 시대로 갑니다. →", "reflect": ["‘척박한 환경이 오히려 고구려를 강하게 만들었다’는 이야기를, 우리 삶의 ‘부족함’에 빗대어 생각해 볼 수 있을까요? 부족함은 늘 약점이기만 할까요?"], "order": ["hook", "spark", "why", "cards", "image", "connect", "reflect"]}, {"id": "expansion", "num": "02", "label": "광개토대왕·장수왕의 전성기", "accent": "#7a3f3f", "kicker": "대정복 시대 · 만주에서 한강까지 · 4~5세기", "era": "391년 ~ 491년", "motif": "map", "title": "광개토대왕·장수왕의 전성기", "hook": "열여덟 살에 왕위에 오른 한 청년이, 즉위하자마자 사방으로 말을 달렸어요. 그가 ‘영락(永樂)’이라는 자기만의 연호를 쓴 건, ‘우리가 곧 천하의 중심’이라는 자부심이었죠. 광개토대왕과 그의 아들 장수왕 — 두 대(代)에 걸쳐 고구려는 역사상 가장 넓은 영토를 손에 넣어요.", "spark": {"icon": "🤯", "title": "고구려는 ‘제국’이었다", "body": "광개토대왕은 중국 황제처럼 <b>자기만의 연호(영락)</b>를 썼어요. 광개토대왕릉비에는 그가 신라를 도와 왜를 물리치고(400년), 백제를 굴복시킨 일이 새겨져 있죠. 신라는 사실상 고구려의 영향 아래 있었어요.", "mind": "당시 동아시아는 ‘중국=중심, 나머지=변방’이 아니었어요. 고구려는 스스로를 또 하나의 ‘천하의 중심’으로 여긴 <b>독자적 천하관</b>을 가진 제국이었던 거예요."}, "why": "<b>광개토대왕</b>(391~412)은 즉위 후 거침없는 정복에 나섰어요. 북으로 만주의 후연·부여를, 남으로 백제를 압박했고, 400년에는 신라의 구원 요청을 받아 왜를 물리치며 신라를 영향권에 뒀죠. 그의 아들 <b>장수왕</b>(413~491)은 427년 <b>평양으로 천도</b>하고 본격적인 <b>남하정책</b>을 폈어요. 475년 백제의 수도 한성을 함락하고 개로왕을 죽여, 백제를 웅진(공주)으로 쫓아냈죠. 이로써 고구려는 만주에서 한강 이남까지 아우른 <b>역사상 최대 영토</b>를 이뤘어요. 광개토대왕릉비와 충주 고구려비가 그 위세를 지금도 증언합니다.", "oldmap": {"h": "지도로 보기 — 고구려의 전성기 🗺️", "story": "5세기, 광개토대왕·장수왕 시대 고구려가 차지한 <b>최대 영역</b>이에요(가운데 ‘高句麗’). 만주 대부분과 한반도 중부까지 — 동아시아의 한 축이었음이 한눈에 보이죠. 둘레의 백제(百済)·신라(新羅)·가야(伽倻), 그리고 중국의 여러 나라와 견주어 보세요.", "src": "img/goguryeo_max.png", "alt": "5세기 고구려가 만주와 한반도 중부까지 차지한 전성기 영역과 주변 나라들을 표시한 지도", "caption": "5세기 고구려 전성기(광개토·장수왕 무렵) — 만주에서 한강 이남까지.", "source": "Wikimedia Commons", "license": "CC BY-SA 3.0"}, "image": [{"h": "사료로 보기 — 광개토대왕릉비 🖼️", "story": "414년, 장수왕이 아버지의 업적을 기려 세운 높이 6m가 넘는 거대한 비석이에요. 1,775자에 이르는 비문에 광개토대왕의 정복 전쟁이 빼곡히 새겨져 있죠. 고구려 전성기를 직접 증언하는 <b>1차 사료</b>로, 4~5세기 동아시아 국제 관계를 알려 주는 보물이에요.", "src": "img/gwanggaeto_stele.jpg", "alt": "보호각 안에 세워진, 6미터가 넘는 광개토대왕릉비", "caption": "광개토대왕릉비(414, 중국 지안) — 고구려 전성기를 새긴 1차 사료.", "source": "Wikimedia Commons", "license": "CC BY-SA 4.0"}, {"h": "자료로 보기 — 장군총 🖼️", "story": "잘 다듬은 화강암을 7층으로 쌓아 올린 거대한 돌무지무덤 <b>장군총</b>이에요(중국 지안). 흔히 장수왕의 무덤으로 추정되죠. ‘동방의 피라미드’라 불릴 만큼 정교하고 웅장해, 전성기 고구려의 국력과 기술을 보여줘요.", "src": "img/janggun_tomb.jpg", "alt": "잘 다듬은 화강암을 계단식 7층으로 쌓아 올린 고구려의 돌무지무덤 장군총", "caption": "장군총(중국 지안) — ‘동방의 피라미드’, 전성기 고구려의 위용.", "source": "Wikimedia Commons", "license": "CC BY 2.0"}], "timeline": [{"yr": "391~412", "t": "광개토대왕 — 만주·한강 이북 정복, 신라 구원(400)"}, {"yr": "414", "t": "광개토대왕릉비 건립(장수왕)"}, {"yr": "427", "t": "장수왕, 평양 천도 — 남하정책"}, {"yr": "475", "t": "백제 한성 함락 — 고구려 최대 영토"}], "connect": "넓은 영토와 강한 군대만으로 제국이 되는 건 아니에요. 고구려는 그 힘을 떠받칠 제도와, 무덤 벽에까지 살아 숨 쉬는 독특한 문화를 함께 갖추고 있었죠. 그 안을 들여다봐요. →", "reflect": ["광개토대왕이 중국과 별개로 ‘영락’이라는 자기 연호를 쓴 것은, 고구려가 스스로를 어떻게 여겼음을 보여줄까요? ‘중심’과 ‘변방’은 누가 정하는 걸까요?"], "order": ["hook", "spark", "why", "oldmap", "image:0", "image:1", "timeline", "connect", "reflect"]}, {"id": "society-culture", "num": "03", "label": "제도와 기상의 문화", "accent": "#4a5a4a", "kicker": "제가회의·진대법·고분 벽화 · 사회와 문화", "era": "고구려의 사회·문화", "motif": "book", "title": "제도와 기상의 문화", "hook": "고구려 사람들은 무덤 안을 캄캄한 어둠으로 두지 않았어요. 벽 가득 사냥하는 무사와 춤추는 사람들, 그리고 네 방위를 지키는 신령한 짐승을 그렸죠. 천오백 년이 지난 지금도 그 선은 살아 움직이는 듯해요. 무덤 벽화에 담긴 고구려의 ‘기상’을 만나 봐요.", "why": "고구려의 정치는 <b>제가회의</b>라는 귀족 회의가 큰 몫을 했어요. 여러 ‘가(加)’가 모여 중대사를 정하고 죄인을 다뤘죠 — 강한 왕권과 귀족 세력이 함께 굴러간 거예요. 사회적으로는 <b>진대법</b> 같은 앞선 빈민 구휼 제도로 백성을 보살폈고, 척박한 환경에서 단련된 <b>상무(尙武) 정신</b>이 강했어요. 문화의 절정은 단연 <b>고분 벽화</b>예요. 무용총의 사냥 그림, 강서대묘의 <b>사신도</b>(청룡·백호·주작·현무)는 힘차고 생동감 넘치는 선으로 고구려의 씩씩한 기상과 세계관을 담아냈죠. 도교와 불교가 어우러진 정신세계도 엿보여요.", "cards": [{"yr": "정치", "h": "제가회의 — 귀족의 정치", "p": "여러 귀족(가)이 모인 제가회의에서 국가 중대사와 죄인 처벌을 결정했어요. 왕권과 귀족 세력이 균형을 이루며 나라를 운영한 거죠."}, {"yr": "사회", "h": "진대법과 상무 정신", "p": "진대법으로 가난한 백성을 보살피는 한편, 척박한 환경에서 단련된 굳센 상무 정신이 사회를 떠받쳤어요. 활쏘기·말타기에 능한 무사의 나라였죠."}, {"yr": "문화", "h": "고분 벽화 — 살아 있는 기상", "p": "무용총 수렵도, 강서대묘 사신도처럼 무덤 벽에 사냥·춤·수호신을 힘차게 그렸어요. 고구려 특유의 생동감과 세계관이 담긴, 동아시아 최고의 고분 벽화예요."}, {"yr": "정신", "h": "불교와 도교가 어우러지다", "p": "소수림왕 때 받아들인 불교와, 후기에 융성한 도교가 어우러졌어요. 사신도에는 우주의 네 방위를 지키는 도교적 세계관이 담겨 있죠."}], "image": {"h": "자료로 보기 — 강서대묘 사신도 ‘청룡’ 🖼️", "story": "고구려 무덤의 동쪽 벽을 지키는 수호신 <b>청룡</b>이에요(강서대묘 사신도). 붉고 푸른 빛으로 그린 용이 금방이라도 벽을 박차고 날아오를 듯하죠. 글로 남은 기록이 적은 고구려를, 이 힘찬 그림이 ‘이런 기상을 가진 사람들’이라고 말해줘요.", "src": "img/goguryeo_mural.jpg", "alt": "고구려 강서대묘 벽화의 청룡 — 붉고 푸른 빛으로 힘차게 그린 용", "caption": "고구려 고분 벽화 ‘청룡’(강서대묘) — 무덤에 남은 고구려의 기상.", "source": "Wikimedia Commons", "license": "퍼블릭 도메인"}, "connect": "이 강한 제도와 기상은, 곧 고구려를 동아시아 전체의 운명을 가르는 무대로 끌어올려요. 중국 대륙을 통일한 두 거대 제국, 수와 당이 고구려로 밀려옵니다. →", "reflect": ["고구려가 무덤 벽에까지 그토록 힘차고 생동감 넘치는 그림을 남긴 까닭은 무엇일까요? 사람들은 왜 ‘죽음의 공간’을 아름답게 꾸미려 했을까요?"], "order": ["hook", "why", "cards", "image", "connect", "reflect"]}, {"id": "sui-tang", "num": "04", "label": "수·당과의 70년 전쟁", "accent": "#6b2b2b", "star": true, "kicker": "동아시아의 방파제 · 수·당 vs 고구려 · 598~668", "era": "598년 ~ 668년", "motif": "flag", "title": "수·당과의 70년 전쟁", "hook": "오랜 분열을 끝내고 중국 대륙을 통일한 거대 제국 수(隋). 그 압도적인 힘이 가장 먼저 향한 곳이 바로 고구려였어요. 수 양제가 동원한 군대는 무려 113만. 인류 역사에서 손꼽히는 대군이었죠. 그런데 그 거대한 제국이, 변방의 고구려에 부딪혀 무너지기 시작합니다.", "spark": {"icon": "🤯", "title": "고구려가 ‘제국 둘’을 무너뜨렸다", "body": "612년 수 양제의 113만 대군은 살수에서 을지문덕에게 궤멸당했고(<b>살수대첩</b>), 이 충격으로 수나라는 곧 망해요. 뒤이은 당 태종마저 645년 <b>안시성</b>에서 막혀 물러나죠. 고구려는 7세기 동아시아 최강 제국 둘을 잇따라 좌절시킨 거예요.", "mind": "만약 고구려가 무너졌다면, 통일 제국의 힘은 곧장 한반도 전체로 밀려왔을 거예요. 고구려는 백제·신라를 등 뒤에 두고 막아 선 <b>동아시아의 방파제</b>였던 셈이죠."}, "why": "수·당이 그토록 집요하게 고구려를 친 데는 이유가 있어요. 고구려는 <b>만주를 차지한 동북아의 강자</b>로, 통일 제국의 안보에 큰 위협이었거든요. 또 고구려가 북방의 돌궐 같은 세력과 손잡으면 제국의 배후가 흔들릴 수 있었죠. 그래서 <b>수 문제</b>(598)에 이어 <b>수 양제</b>가 612·613·614년 세 차례 대군을 보냈지만, 612년 <b>살수대첩</b>에서 을지문덕에게 참패했어요. 무리한 원정은 결국 수나라를 멸망으로 몰아넣었죠. 뒤이은 <b>당 태종</b>도 645년 직접 대군을 이끌었지만 <b>안시성</b>의 끈질긴 저항에 막혀 철군했어요. 이 시기 <b>연개소문</b>이 정변으로 권력을 잡고 당에 강경하게 맞섰죠. 70년에 걸친 이 전쟁에서 고구려는 거듭 승리했지만, 오랜 전쟁의 소모는 나라의 힘을 서서히 갉아먹고 있었어요.", "oldmap": {"h": "지도로 보기 — 당(唐) 제국의 규모 🗺️", "story": "중국 대륙을 통째로 통일한 <b>당(唐) 제국</b>의 거대함을 보세요(7세기 후반, 700년경). 서쪽으로 멀리 중앙아시아까지 뻗었죠. 고구려는 멸망(668) 직전까지 바로 이 압도적인 제국과 70년을 겨뤘어요 — ‘제국 대 변방’이 아니라, 동아시아 패권을 건 두 강자의 대결이었던 거예요.", "src": "img/tang_map.png", "alt": "7세기 후반 당 제국이 중국 대륙 전체와 중앙아시아까지 차지한 거대한 판도를 표시한 지도", "caption": "당(唐) 제국의 판도(700년경) — 고구려가 70년을 맞섰던 제국의 규모.", "source": "Wikimedia Commons", "license": "CC BY-SA 3.0"}, "cards": [{"yr": "598 · 수 문제", "h": "첫 충돌", "p": "중국을 통일한 수 문제가 30만 대군으로 고구려를 쳤지만, 장마와 전염병·보급 실패로 큰 성과 없이 물러났어요. 두 강대국의 긴 전쟁이 시작된 거죠."}, {"yr": "612 · 살수대첩", "h": "을지문덕, 수를 무너뜨리다", "p": "수 양제가 113만 대군을 동원했어요. 을지문덕은 거짓 후퇴로 적을 깊숙이 끌어들인 뒤, 살수(청천강)에서 30만 별동대를 거의 전멸시켰죠. 살아 돌아간 자가 수천에 불과했어요."}, {"yr": "618 · 수의 멸망", "h": "원정의 대가", "p": "거듭된 고구려 원정 실패와 무리한 토목 공사로 민심을 잃은 수나라는, 612년 직후 곳곳에서 반란이 일어나 멸망했어요. 변방의 한 나라가 대제국의 운명을 흔든 거예요."}, {"yr": "645 · 안시성", "h": "당 태종도 막아 내다", "p": "수를 이은 당 태종이 직접 대군을 이끌고 요동을 휩쓸었지만, 안시성에서 수개월의 끈질긴 저항에 막혔어요. 추위와 보급난까지 겹쳐, 당 태종은 끝내 철군해야 했죠."}], "map": {"caption": "수·당과 고구려가 맞붙은 주요 전장이에요. 점을 눌러 보세요. 요동의 성들(요동성·안시성)이 1차 방어선, 그 뒤 살수(청천강)와 수도 평양이 최후의 보루였죠.", "source": "OpenStreetMap", "center": [41.0, 124.5], "zoom": 5, "markers": [{"lat": 41.27, "lng": 123.18, "label": "요동성", "desc": "요동 방어의 핵심 성. 수·당이 거듭 공격한 1차 방어선이에요."}, {"lat": 40.1, "lng": 122.3, "label": "안시성 (645)", "desc": "당 태종의 대군을 끝내 막아 낸 성. 동아시아 최강 제국을 좌절시켰어요."}, {"lat": 39.7, "lng": 125.8, "label": "살수 = 청천강 (612)", "desc": "을지문덕이 수나라 별동대를 궤멸시킨 살수대첩의 무대."}, {"lat": 41.13, "lng": 126.19, "label": "국내성", "desc": "압록강 중류의 옛 도읍. 고구려의 오랜 중심지였어요."}, {"lat": 39.02, "lng": 125.74, "label": "평양 (수도)", "desc": "장수왕 이래의 수도. 70년 전쟁에서 끝까지 지켜 낸 최후의 보루였지만, 668년 결국 함락돼요."}]}, "connect": "두 제국을 잇따라 물리친 고구려. 하지만 70년 전쟁의 소모와, 나라를 떠받치던 인물들의 시대가 저물면서 — 강철 같던 고구려에도 균열이 생기기 시작해요. 그 마지막 장으로 가기 전에, 이 나라를 만든 사람들을 만나 봐요. →", "reflect": ["고구려가 수·당의 침략을 막아 낸 것이 ‘우리 역사’만이 아니라 ‘동아시아 전체’에 어떤 의미였을까요? ‘방파제’라는 표현은 어떤 점에서 적절하고, 어떤 점은 조심해야 할까요?"], "order": ["hook", "spark", "why", "oldmap", "cards", "map", "connect", "reflect"]}, {"id": "people", "num": "05", "label": "고구려를 만든 사람들", "accent": "#5a4a6b", "kicker": "인물 — 건국자에서 명장까지", "era": "고구려의 사람들", "motif": "crowd", "title": "고구려를 만든 사람들", "hook": "한 나라의 역사는 결국 사람의 이야기예요. 부여를 떠나 새 나라를 연 건국자, 천하를 호령한 정복 군주, 그리고 거대 제국 앞에서 나라를 지켜 낸 명장들. 고구려라는 이름을 만든 사람들을 한자리에서 만나 봐요.", "why": "고구려 700년은 걸출한 인물들이 이어 쓴 이야기예요. <b>주몽</b>이 나라를 열고, <b>광개토대왕·장수왕</b>이 제국으로 키웠으며, <b>을지문덕·연개소문</b>이 거대 제국의 침략으로부터 지켜 냈죠. 다만 영웅의 이야기에는 늘 ‘빛과 그림자’가 함께 있어요. 특히 말기의 강력한 실력자 연개소문은 나라를 지킨 동시에, 그가 죽은 뒤의 권력 다툼이 멸망의 빌미가 되기도 했죠. 사람을 통해 역사를 보되, 한 면만 보지 않는 눈이 필요해요.", "people": [{"face": "🏹", "name": "주몽 (동명성왕)", "who": "고구려 건국 시조 (기원전 37 건국)", "why": "부여에서 남하해 졸본에 고구려를 세웠어요. 활을 잘 쏘아 ‘주몽’이라 불렸다고 전해지죠. 건국 신화의 주인공이자, 정복 국가 고구려의 출발점이에요.", "quote": "알에서 태어나 활을 들고 새 나라를 열다 — 《삼국사기》·《삼국유사》가 전하는 건국 이야기.", "shadow": "건국 시조의 이야기는 신화와 사실이 섞여 있어요. ‘알에서 태어났다’ 같은 대목은 사실이 아니라, 시조를 신성하게 기리려는 건국 신화의 표현으로 읽어야 해요."}, {"face": "👑", "name": "광개토대왕", "who": "고구려 19대 왕 · 정복 군주 (391~412)", "why": "즉위 후 만주와 한강 이북으로 영토를 크게 넓혔어요. ‘영락’이라는 독자 연호를 쓰고, 400년 신라를 도와 왜를 물리쳐 한반도 남부까지 영향력을 미쳤죠. 고구려 전성기를 연 군주예요.", "quote": "은택이 하늘에 미치고 위무는 사해에 떨쳤다. — 광개토대왕릉비", "shadow": "위대한 정복 군주였지만, 정복은 곧 상대편(백제·후연 등)에게는 침략이기도 했어요. ‘누구의 눈으로 보느냐’를 늘 함께 생각해야 해요."}, {"face": "🏯", "name": "장수왕", "who": "고구려 20대 왕 · 남하정책 (413~491)", "why": "아버지 광개토대왕의 업적을 비석에 새기고, 427년 평양으로 천도해 남하정책을 폈어요. 475년 백제 한성을 함락해 고구려 최대 영토를 이뤘죠. 이름처럼 98세까지 장수하며 80년 가까이 나라를 다스렸어요.", "quote": "도읍을 평양으로 옮기고, 남쪽으로 나아가다 (427).", "shadow": "강력한 남하정책은 백제·신라를 위기로 몰아, 두 나라가 손잡는(나제동맹) 계기가 됐어요. 한쪽의 전성기는 다른 쪽에겐 절박한 위기였죠."}, {"face": "🛡️", "name": "을지문덕", "who": "고구려 명장 · 살수대첩의 영웅 (7세기 초)", "why": "612년 수 양제의 113만 대군을 맞아, 거짓 후퇴로 적을 지치게 한 뒤 살수에서 궤멸시켰어요(살수대첩). 지혜로 대군을 이긴 전략가의 표본이에요.", "quote": "그대의 신묘한 책략은 하늘의 이치를 다했고, 교묘한 셈은 땅의 이치를 꿰뚫었소. 싸워 이긴 공이 이미 높으니, 만족함을 알거든 그만두기를 바라오. — 적장 우중문에게 보낸 시", "shadow": "을지문덕에 대한 기록은 살수대첩 전후에 집중돼 있어, 생애의 다른 부분은 거의 알려져 있지 않아요. 영웅조차 사료가 적으면 ‘일부’만 알 수 있는 거죠."}, {"face": "⚔️", "name": "연개소문", "who": "고구려 말기의 실력자 (7세기 중엽)", "why": "정변을 일으켜 권력을 장악하고, 천리장성을 쌓으며 당에 강경하게 맞섰어요. 645년 당 태종의 침입을 막아 낸 시기의 실질적 최고 권력자였죠.", "quote": "당에 굴복하지 않고 끝까지 맞서다 — 강경 대외 정책의 상징.", "shadow": "나라를 지킨 강한 지도자였지만, 권력을 한 손에 쥔 독재자이기도 했어요. 그가 죽은 뒤 세 아들의 권력 다툼이 고구려 멸망의 결정적 빌미가 됐죠. 강한 한 사람에게 모든 게 쏠리는 것의 위험을 보여줘요."}], "connect": "이 사람들이 일군 고구려도, 끝내 마지막을 맞아요. 70년 전쟁의 소모와 내부의 분열 속에서, 만주를 호령하던 제국이 어떻게 저물었는지 — 그리고 그 정신이 어떻게 이어졌는지 봐요. →", "reflect": ["연개소문은 ‘나라를 지킨 영웅’이면서 동시에 ‘멸망의 빌미를 만든 독재자’예요. 한 인물의 빛과 그림자를 함께 본다는 건 어떤 의미일까요?"], "order": ["hook", "why", "people", "connect", "reflect"]}, {"id": "fall-legacy", "num": "06", "label": "멸망, 그리고 계승", "accent": "#6b5a3a", "kicker": "내분·멸망·부흥·발해로 · 668 이후", "era": "660년대 ~ 그 후", "motif": "torch", "title": "멸망, 그리고 계승", "hook": "두 제국을 물리친 강철의 나라 고구려. 그런 고구려를 끝내 무너뜨린 건, 뜻밖에도 바깥의 적이 아니라 ‘안’이었어요. 70년 전쟁의 피로가 쌓인 위에, 권력을 둘러싼 형제의 다툼이 마지막 빗장을 열어젖힙니다.", "why": "거듭된 승리에도, 70년에 걸친 전쟁은 고구려의 국력을 깊이 소모시켰어요. 결정타는 <b>내분</b>이었죠. 연개소문이 죽자 세 아들이 권력을 다퉜고, 맏아들 연남생이 당으로 망명해 길잡이가 되는 일까지 벌어져요. 이 틈을 타 <b>나당연합군</b>이 총공세를 폈고, 668년 평양성이 함락되며 고구려는 멸망합니다. 하지만 끝이 아니었어요. 검모잠·안승 등이 <b>부흥 운동</b>을 일으켰고, 무엇보다 30년 뒤 고구려 유민 대조영이 만주에 <b>발해</b>를 세워 고구려를 계승하죠. 고구려의 기상과 영토 의식은, 그렇게 발해로, 그리고 후대 한국사의 자부심으로 이어졌어요.", "cards": [{"yr": "666", "h": "연개소문 사후의 분열", "p": "강력한 실력자 연개소문이 죽자 세 아들이 권력을 다퉜어요. 맏아들 연남생이 동생들에게 밀려 당에 항복하고, 고구려 공격의 길잡이가 되는 비극이 벌어졌죠."}, {"yr": "668", "h": "평양성 함락 — 멸망", "p": "내분으로 약해진 틈을 타 나당연합군이 총공세를 폈어요. 668년 수도 평양성이 무너지며, 700년 고구려는 역사 속으로 사라집니다."}, {"yr": "670년대", "h": "부흥 운동", "p": "검모잠이 안승을 왕으로 받들어 고구려를 되살리려 했어요. 비록 실패했지만, 무너진 나라를 다시 세우려는 끈질긴 의지를 보여줬죠."}, {"yr": "698", "h": "발해로 — 고구려의 계승", "p": "30년 뒤, 고구려 유민 대조영이 만주에 발해를 세웠어요. 발해는 ‘고구려를 잇는 나라’임을 분명히 했죠. 고구려의 기상과 영토는 발해로 이어졌어요."}], "timeline": [{"yr": "666", "t": "연개소문 사후 아들들의 분열"}, {"yr": "668", "t": "평양성 함락 — 고구려 멸망"}, {"yr": "670년대", "t": "검모잠·안승의 부흥 운동"}, {"yr": "698", "t": "대조영, 발해 건국 — 고구려 계승"}], "connect": "만주를 호령하던 고구려는 졌지만, 그 기상은 발해로 이어졌어요. 이제 시선을 남쪽으로 돌려 볼까요? 고구려와 끝까지 맞서고, 또 손잡기도 했던 또 하나의 나라 — 바다의 왕국 <b>백제</b>로 가 봐요. →", "reflect": ["두 제국을 막아 낸 고구려가 ‘바깥의 적’이 아니라 ‘안의 분열’로 무너졌다는 건 무엇을 일깨워 줄까요? 강한 공동체를 무너뜨리는 건 종종 어디에서 올까요?"], "links": [{"label": "우리역사넷 — 고구려", "url": "http://contents.history.go.kr/front", "note": "고구려의 정치·문화·대외 항쟁을 사료와 함께 더 깊이 볼 수 있어요.", "source": "국사편찬위원회"}, {"label": "← 백제 / 신라도 보기 (삼국·남북국 허브)", "url": "../index.html", "note": "삼국·남북국 전체 흐름과 백제·신라 심화 페이지로 이어집니다.", "source": "한국사 이야기"}], "order": ["hook", "why", "cards", "timeline", "connect", "links", "reflect"]}]};</script>
+
+<!-- 렌더 엔진 (모든 에피소드 공통) -->
+<script>
+const EP = window.EPISODE;
+const META = EP.meta, TERMS = EP.terms||{}, SECTIONS = EP.sections, PEOPLE = EP.people||null;
+
+function T(text){ let out=text; for(const k of Object.keys(TERMS)){ out=out.split(k).join('<span class="term" data-term="'+k+'">'+k+'</span>'); } return out; }
+function ytURL(v){ return v.type==='search' ? 'https://www.youtube.com/results?search_query='+encodeURIComponent(v.q) : 'https://www.youtube.com/watch?v='+v.id; }
+
+const MOTIF = {
+  flag:'<path d="M40 30v140M40 36h110l-20 28 20 28H40" fill="none" stroke="#fff" stroke-width="7"/>',
+  crowd:'<g fill="#fff"><circle cx="60" cy="70" r="22"/><circle cx="110" cy="60" r="26"/><circle cx="150" cy="78" r="20"/><rect x="38" y="96" width="44" height="70" rx="18"/><rect x="84" y="90" width="52" height="80" rx="20"/><rect x="132" y="100" width="40" height="66" rx="16"/></g>',
+  book:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M105 50c-18-14-44-14-62 0v96c18-14 44-14 62 0M105 50c18-14 44-14 62 0v96c-18-14-44-14-62 0M105 50v96"/></g>',
+  map:'<g fill="none" stroke="#fff" stroke-width="6"><path d="M50 50l38 14 36-14 38 16v100l-38-16-36 14-38-14z"/><path d="M88 64v100M124 50v104"/></g>',
+  wave:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M30 110c20-26 40-26 60 0s40 26 60 0 40-26 40 0"/><path d="M30 150c20-26 40-26 60 0s40 26 60 0 40-26 40 0"/></g>',
+  sun:'<g fill="none" stroke="#fff" stroke-width="7"><circle cx="105" cy="105" r="34"/><path d="M105 40v22M105 148v22M40 105h22M148 105h22M58 58l16 16M152 152l-16-16M152 58l-16 16M58 152l16-16"/></g>',
+  split:'<g fill="none" stroke="#fff" stroke-width="7"><rect x="44" y="50" width="118" height="110" rx="10"/><path d="M103 50v110" stroke-dasharray="10 9"/></g>',
+  dove:'<g fill="#fff"><path d="M60 120c30 6 70-6 96-44-4 30-2 50 18 64-30 10-72 8-96-20z"/><circle cx="150" cy="74" r="6"/></g>',
+  globe:'<g fill="none" stroke="#fff" stroke-width="6"><circle cx="105" cy="105" r="58"/><ellipse cx="105" cy="105" rx="24" ry="58"/><path d="M47 105h116M55 76h100M55 134h100"/></g>',
+  ship:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M48 132h114l-16 30H64z"/><path d="M105 132V46M105 60l44 16-44 16M105 66l-34 12 34 12"/></g>',
+  torch:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M105 40c18 16 18 40 0 52-18-12-18-36 0-52z"/><path d="M88 96h34l-8 64H96z"/></g>',
+  gear:'<g fill="none" stroke="#fff" stroke-width="7"><circle cx="105" cy="105" r="26"/><path d="M105 52v18M105 140v18M52 105h18M140 105h18M68 68l13 13M137 137l-13-13M137 68l-13 13M68 137l13-13"/></g>'
+};
+
+const view=document.getElementById('view'), navList=document.getElementById('navList');
+const sidebar=document.getElementById('sidebar'), scrim=document.getElementById('scrim'), progress=document.getElementById('progress');
+let currentMap=null, bmaps=[];
+function killMap(){ if(currentMap){ try{currentMap.remove();}catch(e){} currentMap=null; }
+  bmaps.forEach(m=>{ try{m.remove();}catch(e){} }); bmaps=[]; }
+
+function visited(id){ return localStorage.getItem(META.slug+'_v_'+id)==='1'; }
+function markVisited(id){ localStorage.setItem(META.slug+'_v_'+id,'1'); }
+
+function head(){
+  if(META.hub){ const hb=document.getElementById('hubBack'); hb.href=META.hub.url; hb.textContent=META.hub.label;
+    const th=document.getElementById('tbHub'); if(th){ th.href=META.hub.url; } }
+  document.getElementById('brandTitle').textContent=META.brand.title;
+  document.getElementById('brandSub').textContent=META.brand.sub;
+  document.getElementById('sideFoot').innerHTML=META.foot||'';
+  document.getElementById('tbTitle').textContent=META.brand.title;
+}
+
+function buildNav(){
+  let html='<li><a class="home-link" data-id="home">🏠 홈 · 이야기 시작</a></li>'
+    +'<li><a class="notes-link" data-id="notes">📝 내 메모 모아보기</a></li>';
+  html+=SECTIONS.map(s=>'<li><a data-id="'+s.id+'" class="'+(s.star?'star':'')+' '+(visited(s.id)?'visited':'')+'">'
+    +'<span class="num">'+s.num+'</span>'+s.label+(s.star?'<span class="tag">★</span>':'')+'</a></li>').join('');
+  navList.innerHTML=html;
+  navList.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{ go(a.dataset.id); closeSide(); }));
+}
+
+function renderHome(){
+  const h=META.home;
+  view.innerHTML=
+  '<div class="home-hero"><h1>'+h.h1+'</h1><div class="hsub">'+h.sub+'</div>'
+  +(h.quote?'<div class="hq">"'+h.quote.text+'"<small>'+h.quote.by+'</small></div>':'')+'</div>'
+  +'<div class="home-wrap"><div class="home-intro">'+h.intro+'</div>'
+  +'<div class="start-btns"><a class="btn primary" data-id="'+h.startPrimary.to+'">'+h.startPrimary.label+'</a>'
+  +(h.startStar?'<a class="btn star" data-id="'+h.startStar.to+'">'+h.startStar.label+'</a>':'')+'</div>'
+  +'<h2 class="block" style="margin-top:34px;">'+(h.pathLabel||'이야기 흐름')+'</h2><ul class="path">'
+  +SECTIONS.map(s=>'<li class="'+(s.star?'star':'')+'" data-id="'+s.id+'"><span class="pn">'+s.num+'</span>'
+    +'<span><span class="ph">'+s.label+(s.star?' <span class="star-mark">★</span>':'')+'</span>'
+    +'<span class="pp">'+s.kicker+' · '+s.era+'</span></span></li>').join('')
+  +'</ul></div>';
+  view.querySelectorAll('[data-id]').forEach(el=>el.addEventListener('click',()=>{ go(el.dataset.id); closeSide(); }));
+  setActive('home'); window.scrollTo(0,0); progress.style.width='0%'; vfx();
+}
+
+function ytBlock(v){
+  const pill = v.type==='search' ? '<span class="pill find">검색</span>' : (v.lang==='en'?'<span class="pill en">영어·자막</span>':'<span class="pill ko">한국어</span>');
+  return '<a class="yt" href="'+ytURL(v)+'" target="_blank" rel="noopener">'
+    +'<span class="play '+(v.type==='search'?'search':'')+'">'+(v.type==='search'?'🔍':'▶')+'</span>'
+    +'<span class="yt-body"><span class="yt-title">'+v.title+'</span>'
+    +'<span class="yt-meta">'+pill+(v.channel?'<span class="pill">'+v.channel+'</span>':'')+(v.length?'<span>'+v.length+'</span>':'')+'</span>'
+    +'<span class="yt-desc">'+v.desc+'</span></span></a>';
+}
+function quoteBlock(q){ return '<div class="quote"><span class="qm">"</span><div class="qt">'+q.qt+'</div><span class="qs">'+q.qs+'</span></div>'; }
+function quizHTML(quiz,sid){
+  return '<h2 class="block">잠깐, 기억나니? 🧠</h2><div class="quizwrap">'
+    + quiz.map((q,qi)=>'<div class="quizq" data-qi="'+qi+'"><div class="qq">'+(qi+1)+'. '+q.q+'</div><div class="qopts">'
+      + q.options.map((o,oi)=>'<button class="quiz-opt" data-oi="'+oi+'">'+o+'</button>').join('')
+      + '</div><div class="qexp" id="qexp_'+sid+'_'+qi+'"></div></div>').join('')
+    + '</div>';
+}
+function mapHTML(m,sid){
+  return '<h2 class="block">지도로 보기 🗺️</h2><div class="mapwrap">'
+    + '<div class="lmap" id="lmap_'+sid+'"></div>'
+    + '<div class="mapcap">'+(m.caption||'')+(m.source?' <span class="msrc">· 지도 ⓒ '+m.source+'</span>':'')+'</div></div>';
+}
+function choiceHTML(c,sid){
+  const opts=c.options.map((o,i)=>'<div><button class="chopt" data-oi="'+i+'">'+o.label+'</button>'
+    +'<div class="chres" id="chres_'+sid+'_'+i+'">'+T(o.result)+'</div></div>').join('');
+  return '<h2 class="block">'+(c.h||'너라면? 🤔')+'</h2><div class="choice" id="ch_'+sid+'">'
+    +'<div class="chprompt">'+T(c.prompt)+'</div><div class="chopts">'+opts+'</div>'
+    +(c.after?'<div class="chafter" id="chafter_'+sid+'">💬 '+T(c.after)+'</div>':'')+'</div>';
+}
+function compareHTML(c,sid){
+  const tabs=c.states.map((st,i)=>'<button class="cmptab'+(i===0?' active':'')+'" data-ci="'+i+'">'+st.label+'</button>').join('');
+  return '<h2 class="block">'+(c.h||'견주어 보기 ⚖️')+'</h2><div class="compare" id="cmp_'+sid+'">'
+    +(c.intro?'<div class="cmpintro">'+T(c.intro)+'</div>':'')
+    +'<div class="cmptabs">'+tabs+'</div><div class="cmppanel" id="cmppanel_'+sid+'"></div></div>';
+}
+function chartHTML(c,sid){
+  const max=Math.max.apply(null, c.data.map(d=>d.value))||1;
+  const rows=c.data.map(d=>'<div class="crow"><div class="clabel">'+d.label+'</div>'
+    +'<div class="cbarwrap"><div class="cbar" style="width:'+(d.value/max*100)+'%"></div></div>'
+    +'<div class="cval">'+(d.disp||d.value)+'</div></div>').join('');
+  return '<h2 class="block">'+(c.h||'숫자로 보기 📊')+'</h2><div class="chart"><div class="ctitle">'+c.title+'</div>'
+    +(c.unit?'<div class="cunit">'+c.unit+'</div>':'')+rows
+    +(c.relatable?'<div class="crelate">💡 '+T(c.relatable)+'</div>':'')
+    +(c.source?'<div class="csrc">출처: '+c.source+'</div>':'')+'</div>';
+}
+function voiceHTML(v){
+  const real = v.imagined===false;
+  return '<h2 class="block">'+(v.h||'그 사람의 목소리 🗣️')+'</h2><div class="voice">'
+    + '<span class="vbadge '+(real?'real':'imag')+'">'+(real?'실제 기록':'✍️ 사실에 기반한 상상')+'</span>'
+    + '<div class="vbody">'+T(v.body)+'”</div>'
+    + '<div class="vspeaker"><b>— '+v.speaker+'</b>'+(v.era?' · '+v.era:'')+(v.source?'<span class="vsrc">'+v.source+'</span>':'')+'</div>'
+    + '</div>';
+}
+function imageHTML(im,sid){
+  const hs=im.hotspots||[];
+  return '<h2 class="block">'+(im.h||'자료로 보기 🖼️')+'</h2><figure class="figimg">'
+    + (im.story?'<div class="figstory">'+T(im.story)+'</div>':'')
+    + '<div class="imgbox" id="imgbox_'+sid+'">'
+    + '<img src="'+im.src+'" alt="'+(im.alt||'')+'" loading="lazy">'
+    + hs.map((h,i)=>'<button class="hsdot" data-hi="'+i+'" style="left:'+h.x+'%;top:'+h.y+'%" aria-label="'+(h.label||'')+'">'+(i+1)+'</button>').join('')
+    + '</div>'
+    + (hs.length?'<div class="hsinfo" id="hsinfo_'+sid+'">점(번호)을 눌러 보세요.</div>':'')
+    + '<figcaption class="figcap">'+(im.caption||'')+(im.source?' <span class="msrc">· 출처: '+im.source+(im.license?' · '+im.license:'')+'</span>':'')+'</figcaption>'
+    + '</figure>';
+}
+function oldmapHTML(o,sid){
+  return '<h2 class="block">'+(o.h||'옛 지도로 보기 🗺️')+'</h2><figure class="oldmap">'
+    + (o.story?'<div class="figstory">'+T(o.story)+'</div>':'')
+    + '<div class="oldmap-frame"><img src="'+o.src+'" alt="'+(o.alt||'')+'" loading="lazy"></div>'
+    + '<figcaption class="figcap">'+(o.caption||'')+(o.source?' <span class="msrc">· 출처: '+o.source+(o.license?' · '+o.license:'')+'</span>':'')+'</figcaption>'
+    + '</figure>';
+}
+function lensBlock(l){ return '<div class="lens"><div class="lh">🕯️ 그때 사람들은 이렇게 생각했어요</div><div>'+T(l)+'</div></div>'; }
+function personBlock(p){
+  return '<div class="person"><div class="pheader"><div class="pface">'+(p.face||'👤')+'</div>'
+    +'<div><div class="pname">'+p.name+'</div><div class="pwho">'+(p.who||'')+'</div></div></div>'
+    +(p.why?'<div class="pwhy">'+T(p.why)+'</div>':'')
+    +(p.quote?'<div class="pquote">"'+p.quote+'"</div>':'')
+    +(p.shadow?'<div class="pshadow">빛과 그림자 · '+p.shadow+'</div>':'')
+    +(p.slug?'<a class="pmore" href="../people/'+p.slug+'/">📖 인물 도감에서 더 보기 →</a>':'')+'</div>';
+}
+
+const FIT={green:{e:'🟢',t:'전체 관람'},yellow:{e:'🟡',t:'부모와 함께'},red:{e:'🔴',t:'핵심 장면·맥락만'}};
+function movieBlock(m){
+  const f=FIT[m.fit]||FIT.yellow;
+  let s='<div class="movie"><div class="mhead"><div class="mtitle">🎬 '+m.title+'</div>'
+    +'<span class="mfit '+(m.fit||'yellow')+'">'+f.e+' '+f.t+'</span></div>'
+    +'<div class="mmeta">'+[m.year,m.director].filter(Boolean).join(' · ')
+    +(m.basedOn?' · <b>'+m.basedOn+'</b>':'')+'</div>';
+  if(m.why) s+='<div class="mwhy">'+T(m.why)+'</div>';
+  if(m.realVsFiction) s+='<div class="mreal"><span class="lbl">실화 vs 각색</span>'+m.realVsFiction+'</div>';
+  let links=[];
+  if(m.slug) links.push('<a class="mlink slug" href="../people/'+m.slug+'/">📖 인물 도감</a>');
+  (m.links||[]).forEach(l=>links.push('<a class="mlink" href="'+l.url+'" target="_blank" rel="noopener">'+l.label+' ↗</a>'));
+  if(links.length) s+='<div class="mlinks">'+links.join('')+'</div>';
+  return s+'</div>';
+}
+function battlemapHTML(bm,sid,idx){
+  const id='bm_'+sid+'_'+idx;
+  let s='<h2 class="block">'+(bm.title||'전투 지도')+' 🗺️</h2><div class="battlemap" id="'+id+'">';
+  if(bm.intro) s+='<div class="bm-intro">'+T(bm.intro)+'</div>';
+  s+='<div class="bm-map" id="'+id+'_map"></div>'
+    +'<div class="bm-step"><button class="bm-prev" disabled>← 이전</button><div class="bm-plabel" id="'+id+'_lab"></div><button class="bm-next">다음 →</button></div>';
+  if(bm.legend&&bm.legend.length) s+='<div class="bm-legend">'+bm.legend.map(l=>'<span><i style="border-color:'+l.c+'"></i> '+l.label+'</span>').join('')+'</div>';
+  if(bm.caption) s+='<div class="bm-cap">'+bm.caption+'</div>';
+  return s+'</div>';
+}
+function deepdiveHTML(dd){
+  let s='<details class="deepdive"><summary>🔎 더 깊이 — 고등·일반 수준으로 (펼치기)</summary><div class="dd-body">';
+  dd.forEach(it=>{ s+='<div class="dd-item"><h3>'+it.h+'</h3><div class="dd-text">'+T(it.body)+'</div>'
+    +(it.source?'<div class="dd-src">📜 '+it.source+'</div>':'')+'</div>'; });
+  return s+'</div></details>';
+}
+function linksHTML(arr){
+  let s='<h2 class="block">더 깊이 알아보기 🔗</h2><div class="links">';
+  arr.forEach(it=>{ s+='<a class="lk" href="'+it.url+'" target="_blank" rel="noopener">'
+    +'<span class="lk-label">'+it.label+'</span>'
+    +(it.note?'<span class="lk-note">'+T(it.note)+'</span>':'')
+    +(it.source?'<span class="lk-src">'+it.source+'</span>':'')+'</a>'; });
+  return s+'</div>';
+}
+function sparkHTML(sp){
+  let s='<div class="spark"><div class="spark-h">'+(sp.icon||'🤯')+' '+(sp.title||'상상해보기')+'</div>';
+  s+='<div class="spark-body">'+T(sp.body)+'</div>';
+  if(sp.mind) s+='<div class="spark-mind"><b>🌀 상식 뒤집기</b> — '+T(sp.mind)+'</div>';
+  return s+'</div>';
+}
+function marchmapHTML(m,sid){
+  const SY=1.55; // viewBox 0 0 100 155 (베이스맵 종횡비 ≈ 1866/2891)
+  const P={}; (m.places||[]).forEach(p=>P[p.id]=p);
+  const placePhase={};
+  (m.phases||[]).forEach((ph,i)=>(ph.show||[]).forEach(id=>{ if(placePhase[id]===undefined) placePhase[id]=i; }));
+  const KIND={start:'🚩',battle:'⚔️',win:'✔️',loss:'✖️',capital:'🏯',city:'•'};
+  let dots='';
+  (m.places||[]).forEach(p=>{
+    const ph=placePhase[p.id]!==undefined?placePhase[p.id]:0;
+    const emo=KIND[p.kind]||'';
+    dots+='<div class="mm-place k-'+(p.kind||'city')+'" data-ph="'+ph+'" style="left:'+p.x+'%;top:'+p.y+'%">'
+      +'<span class="mm-dot"></span><span class="mm-lbl">'+(emo&&emo!=='•'?emo+' ':'')+p.label+'</span></div>';
+  });
+  let paths='';
+  (m.phases||[]).forEach((ph,i)=>{
+    (ph.arrows||[]).forEach(a=>{
+      const f=P[a.from], t=P[a.to]; if(!f||!t) return;
+      const fx=f.x, fy=f.y*SY, tx=t.x, ty=t.y*SY;
+      const mx=(fx+tx)/2, my=(fy+ty)/2, dx=tx-fx, dy=ty-fy;
+      const cx=(mx-dy*0.16).toFixed(1), cy=(my+dx*0.16).toFixed(1);
+      const tone=a.tone||'resist';
+      paths+='<path class="mm-arrow tone-'+tone+'" data-ph="'+i+'" d="M'+fx+' '+fy.toFixed(1)+' Q'+cx+' '+cy+' '+tx+' '+ty.toFixed(1)+'" marker-end="url(#mmh-'+tone+')"></path>';
+      if(a.label) paths+='<text class="mm-alab tone-'+tone+'" data-ph="'+i+'" x="'+cx+'" y="'+cy+'">'+a.label+'</text>';
+    });
+  });
+  const n=(m.phases||[]).length, first=(m.phases&&m.phases[0]?m.phases[0].label:'');
+  let s='<h2 class="block">진격으로 따라가기 🗺️</h2><div class="marchmap" id="mm_'+sid+'" data-ph="0" data-n="'+n+'">';
+  if(m.title) s+='<div class="mm-title">'+m.title+'</div>';
+  if(m.intro) s+='<div class="mm-intro">'+T(m.intro)+'</div>';
+  s+='<div class="mm-stage"><img class="mm-base" src="'+m.base.src+'" alt="'+(m.title||'지도')+'" loading="lazy">'
+    +'<svg class="mm-arrows" viewBox="0 0 100 155" preserveAspectRatio="xMidYMid meet"><defs>'
+    +'<marker id="mmh-resist" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" class="mh resist"/></marker>'
+    +'<marker id="mmh-invade" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" class="mh invade"/></marker>'
+    +'</defs>'+paths+'</svg>'+dots+'</div>';
+  s+='<div class="mm-step"><button class="mm-prev" disabled>← 이전</button>'
+    +'<div class="mm-plabel" id="mmlab_'+sid+'">'+first+'</div><button class="mm-next">다음 →</button></div>';
+  if(m.caption) s+='<div class="mm-cap">'+m.caption+'</div>';
+  return s+'</div>';
+}
+function relationsHTML(r,sid){
+  let s='<h2 class="block">힘의 관계 한눈에 보기 ⚖️</h2><div class="relations">';
+  if(r.title) s+='<div class="rtitle">'+r.title+'</div>';
+  if(r.intro) s+='<div class="rintro">'+T(r.intro)+'</div>';
+  s+='<div class="rsides">';
+  (r.sides||[]).forEach(side=>{
+    s+='<div class="rside '+(side.color||'')+'"><div class="rslabel">'+side.label+'</div>';
+    (side.members||[]).forEach(m=>{
+      s+='<div class="rmember"><b>'+m.name+'</b><span>'+(m.role||'')+'</span>'
+        +(m.slug?' <a class="rlink" href="../people/'+m.slug+'/">📖</a>':'')+'</div>';
+    });
+    s+='</div>';
+  });
+  s+='</div>';
+  if(r.tensions&&r.tensions.length){
+    s+='<div class="rtensions">';
+    r.tensions.forEach(t=>{ s+='<div class="rtension"><div class="rvs">⚔️ '+t.a+' ↔ '+t.b+'</div><div>'+T(t.label)+'</div></div>'; });
+    s+='</div>';
+  }
+  return s+'</div>';
+}
+// 블록 registry + 섹션별 순서(order) — 데이터로 흐름 제어. order 없으면 DEFAULT(하위호환).
+function renderBlocks(s){
+  const B={
+    hook:()=>'<p class="hook">'+T(s.hook)+'</p>'+(s.quote?quoteBlock(s.quote):''),
+    spark:()=>s.spark?sparkHTML(s.spark):'',
+    why:()=>'<h2 class="block">왜 중요할까</h2><div class="why">'+s.why+'</div>',
+    lens:()=>s.lens?lensBlock(s.lens):'',
+    voice:()=>s.voice?voiceHTML(s.voice):'',
+    cards:()=>s.cards?('<h2 class="block">핵심 따라가기</h2><div class="cards">'
+      +s.cards.map(c=>'<div class="card"><span class="yr">'+c.yr+'</span><h3>'+c.h+'</h3><p>'+T(c.p)+'</p></div>').join('')+'</div>'
+      +(s.quote2?quoteBlock(s.quote2):'')):'',
+    people:()=>s.people?'<h2 class="block">꼭 알아야 할 인물</h2><div class="people">'+s.people.map(personBlock).join('')+'</div>':'',
+    map:()=>s.map?mapHTML(s.map,s.id):'',
+    image:(i)=>{ const arr=Array.isArray(s.image); const im=arr?s.image[i||0]:s.image; const sid=(arr&&i!=null)?s.id+'_'+i:s.id; return im?imageHTML(im,sid):''; },
+    oldmap:()=>s.oldmap?oldmapHTML(s.oldmap,s.id):'',
+    chart:(i)=>{ const arr=Array.isArray(s.chart); const c=arr?s.chart[i||0]:s.chart; return c?chartHTML(c,(arr&&i!=null)?s.id+'_'+i:s.id):''; },
+    compare:()=>s.compare?compareHTML(s.compare,s.id):'',
+    relations:()=>s.relations?relationsHTML(s.relations,s.id):'',
+    marchmap:()=>s.marchmap?marchmapHTML(s.marchmap,s.id):'',
+    battlemap:(i)=>{ const bm=(s.battlemaps||[])[i]; return bm?battlemapHTML(bm,s.id,i):''; },
+    timeline:()=>s.timeline?('<h2 class="block">한눈에 보는 흐름</h2><div class="timeline">'
+      +s.timeline.map(t=>'<div class="tl"><span class="tl-yr">'+t.yr+'</span> <span class="tl-txt">'+t.t+'</span></div>').join('')+'</div>'):'',
+    connect:()=>s.connect?('<h2 class="block">이야기 연결 고리</h2><div class="connect"><span class="ico">🔗</span><div>'+s.connect+'</div></div>'):'',
+    yt:()=>s.yt?('<h2 class="block">영상으로 보기</h2>'+s.yt.map(ytBlock).join('')):'',
+    movies:()=>s.movies?'<h2 class="block">영화로 만나기 🎬</h2><div class="movies">'+s.movies.map(movieBlock).join('')+'</div>':'',
+    choice:()=>s.choice?choiceHTML(s.choice,s.id):'',
+    quiz:()=>s.quiz?quizHTML(s.quiz,s.id):'',
+    deepdive:()=>s.deepdive?deepdiveHTML(s.deepdive):'',
+    links:()=>s.links?linksHTML(s.links):'',
+    reflect:()=>s.reflect?('<h2 class="block">내 생각 적어보기 ✍️</h2><div class="reflect">'
+      +s.reflect.map((q,i)=>'<div class="q">'+q+'</div><textarea data-key="'+s.id+'_'+i+'" placeholder="여기에 자유롭게 적어보세요. 자동으로 저장돼요."></textarea><div class="saved" id="saved_'+s.id+'_'+i+'"></div>').join('')+'</div>'):''
+  };
+  const DEFAULT=['hook','spark','why','lens','voice','cards','people','map','image','oldmap','chart','compare','relations','marchmap','battlemap*','timeline','connect','yt','movies','choice','quiz','deepdive','links','reflect'];
+  const order=(s.order&&s.order.length)?s.order:DEFAULT;
+  let html='';
+  order.forEach(tok=>{
+    if(tok.charAt(tok.length-1)==='*'){
+      const name=tok.slice(0,-1);
+      let arr=[];
+      if(name==='battlemap') arr=s.battlemaps||[];
+      else if(Array.isArray(s[name])) arr=s[name];
+      else if(s[name]) arr=[s[name]];
+      arr.forEach((_,i)=>{ if(B[name]) html+=B[name](i); });
+      return;
+    }
+    const p=tok.split(':'), name=p[0], idx=p.length>1?+p[1]:null;
+    if(B[name]) html+=B[name](idx);
+  });
+  return html;
+}
+/* 시각효과: 차트 바 성장만 JS로(0→목표 rAF). 블록 진입은 순수 CSS라 JS 불필요.
+   가시성은 CSS animation(fill-mode both)이 보장 → 이 함수가 실패해도 콘텐츠는 항상 보임. */
+function vfx(){
+  try{
+    if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    view.querySelectorAll('.crow .cbar').forEach(function(b){
+      const w=b.style.width||''; if(!w) return; b.style.width='0%';
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ b.style.width=w; }); });
+    });
+  }catch(e){ /* 시각효과 실패는 콘텐츠에 영향 없음 */ }
+}
+function render(s,idx){
+  const prev=SECTIONS[idx-1], next=SECTIONS[idx+1];
+  view.innerHTML=
+  '<div class="hero" style="background:linear-gradient(135deg,var(--navy) 0%, '+s.accent+' 100%)">'
+  +'<div class="kicker">'+s.kicker+'</div><h1>'+s.title+'</h1><div class="era">⏳ '+s.era+'</div>'
+  +'<svg class="motif" viewBox="0 0 210 210">'+(MOTIF[s.motif]||'')+'</svg></div>'
+  +'<div class="wrap">'
+  +renderBlocks(s)
+  +'<div class="pager">'
+  +(prev?'<a class="prev" data-id="'+prev.id+'"><div class="pg-label">← 이전</div><div class="pg-title">'+prev.label+'</div></a>':'<a class="prev" data-id="home"><div class="pg-label">← 홈</div><div class="pg-title">이야기 시작</div></a>')
+  +(next?'<a class="next" data-id="'+next.id+'"><div class="pg-label">다음 →</div><div class="pg-title">'+next.label+'</div></a>':'<a class="next" data-id="home"><div class="pg-label">이야기 끝 →</div><div class="pg-title">홈으로</div></a>')
+  +'</div></div>';
+  view.querySelectorAll('.pager a[data-id]').forEach(a=>a.addEventListener('click',()=>go(a.dataset.id)));
+  view.querySelectorAll('textarea[data-key]').forEach(ta=>{
+    const k=META.slug+'_m_'+ta.dataset.key; ta.value=localStorage.getItem(k)||''; let timer;
+    ta.addEventListener('input',()=>{ localStorage.setItem(k,ta.value); const tag=document.getElementById('saved_'+ta.dataset.key); tag.textContent='저장됨 ✓'; clearTimeout(timer); timer=setTimeout(()=>tag.textContent='',1300); });
+  });
+  if(s.quiz){ view.querySelectorAll('.quizq').forEach(qd=>{
+    const qi=+qd.dataset.qi, q=s.quiz[qi];
+    qd.querySelectorAll('.quiz-opt').forEach(btn=>btn.addEventListener('click',()=>{
+      if(qd.classList.contains('done')) return; qd.classList.add('done');
+      const oi=+btn.dataset.oi;
+      qd.querySelectorAll('.quiz-opt').forEach((b,i)=>{ if(i===q.answer) b.classList.add('correct'); if(i===oi&&oi!==q.answer) b.classList.add('wrong'); b.disabled=true; });
+      const exp=document.getElementById('qexp_'+s.id+'_'+qi);
+      exp.innerHTML=(oi===q.answer?'<b>맞았어요! ✓</b> ':'<b>아쉬워요, 다시 볼까요?</b> ')+(q.explain||'');
+      exp.classList.add('show');
+    }));
+  }); }
+  if(s.map && window.L){
+    const mel=document.getElementById('lmap_'+s.id);
+    currentMap=L.map(mel,{scrollWheelZoom:false}).setView(s.map.center, s.map.zoom);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(currentMap);
+    if(s.map.line) L.polyline(s.map.line,{color:'#b5546a',weight:3,dashArray:'6 6'}).addTo(currentMap);
+    (s.map.markers||[]).forEach(mk=>L.circleMarker([mk.lat,mk.lng],{radius:9,color:'#fff',weight:2,fillColor:'#B5546A',fillOpacity:1}).addTo(currentMap).bindPopup('<b>'+mk.label+'</b><br>'+mk.desc));
+    setTimeout(()=>{ if(currentMap) currentMap.invalidateSize(); },200);
+  }
+  if(s.image && s.image.hotspots && s.image.hotspots.length){
+    const info=document.getElementById('hsinfo_'+s.id);
+    view.querySelectorAll('#imgbox_'+s.id+' .hsdot').forEach(d=>d.addEventListener('click',()=>{
+      const h=s.image.hotspots[+d.dataset.hi]; info.innerHTML='<b>'+h.label+'</b> '+(h.desc||''); info.classList.add('show');
+    }));
+  }
+  if(s.compare){
+    const c=s.compare, panel=document.getElementById('cmppanel_'+s.id);
+    const tabs=view.querySelectorAll('#cmp_'+s.id+' .cmptab');
+    const fill=(i)=>{ const st=c.states[i]; panel.innerHTML='<div class="cmh">'+st.title+'</div><div class="cmb">'+T(st.body)+'</div>'
+      +(st.img?'<img src="'+st.img+'" alt="'+(st.alt||'')+'" loading="lazy">':'')+(st.caption?'<div class="cmpcap">'+st.caption+'</div>':'');
+      tabs.forEach((b,bi)=>b.classList.toggle('active',bi===i)); };
+    tabs.forEach(b=>b.addEventListener('click',()=>fill(+b.dataset.ci)));
+    fill(0);
+  }
+  if(s.choice){
+    const af=document.getElementById('chafter_'+s.id);
+    view.querySelectorAll('#ch_'+s.id+' .chopt').forEach(b=>b.addEventListener('click',()=>{
+      document.getElementById('chres_'+s.id+'_'+b.dataset.oi).classList.add('show');
+      b.classList.add('picked'); if(af) af.classList.add('show');
+    }));
+  }
+  if(s.marchmap){
+    const mm=document.getElementById('mm_'+s.id), n=+mm.dataset.n, lab=document.getElementById('mmlab_'+s.id);
+    const prev=mm.querySelector('.mm-prev'), next=mm.querySelector('.mm-next'), phases=s.marchmap.phases||[];
+    const upd=()=>{ const cur=+mm.dataset.ph;
+      mm.querySelectorAll('.mm-place,.mm-arrow,.mm-alab').forEach(el=>el.classList.toggle('on',+el.dataset.ph<=cur));
+      lab.textContent=phases[cur]?phases[cur].label:''; prev.disabled=cur<=0; next.disabled=cur>=n-1; };
+    prev.addEventListener('click',()=>{ mm.dataset.ph=Math.max(0,+mm.dataset.ph-1); upd(); });
+    next.addEventListener('click',()=>{ mm.dataset.ph=Math.min(n-1,+mm.dataset.ph+1); upd(); });
+    upd();
+  }
+  (s.battlemaps||[]).forEach((bm,idx)=>{
+    const id='bm_'+s.id+'_'+idx;
+    try{
+      const map=L.map(id+'_map',{scrollWheelZoom:false}).setView(bm.center||[37,127],bm.zoom||6);
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:14,attribution:'© OpenStreetMap'}).addTo(map);
+      bmaps.push(map);
+      const KIND={start:'🚩',battle:'⚔️',win:'✔️',loss:'✖️',capital:'🏯',city:'•',sea:'⚓'};
+      const ic=(e)=>L.divIcon({className:'bm-ic',html:'<div>'+e+'</div>',iconSize:[26,26],iconAnchor:[13,13]});
+      const phases=bm.phases||[], layers=phases.map(()=>[]);
+      phases.forEach((ph,i)=>{
+        (ph.markers||[]).forEach(m=>layers[i].push(L.marker(m.at,{icon:ic(KIND[m.kind]||'•')}).bindTooltip(m.label,{permanent:true,direction:'top',offset:[0,-10],className:'bm-tt'})));
+        (ph.arrows||[]).forEach(a=>layers[i].push(L.polyline.antPath(a.path,{color:a.tone==='invade'?'#B5546A':'#2E7D4F',weight:4,delay:1000,dashArray:[10,22],pulseColor:'#fff'})));
+      });
+      const lab=document.getElementById(id+'_lab'), prev=document.querySelector('#'+id+' .bm-prev'), next=document.querySelector('#'+id+' .bm-next'), n=phases.length;
+      let cur=0;
+      const lowAt=(c)=>{ let r=0; for(let i=1;i<=c;i++){ if(phases[i]&&phases[i].reset) r=i; } return r; };
+      const upd=()=>{ const lo=lowAt(cur);
+        layers.forEach((grp,i)=>grp.forEach(l=> (i>=lo&&i<=cur)?l.addTo(map):map.removeLayer(l)));
+        lab.textContent=phases[cur]?phases[cur].label:''; prev.disabled=cur<=0; next.disabled=cur>=n-1;
+        if(bm.fit){ const pts=[]; for(let i=lo;i<=cur;i++) layers[i].forEach(l=>{ if(l.getLatLng) pts.push(l.getLatLng()); });
+          if(pts.length>=2) map.fitBounds(L.latLngBounds(pts).pad(0.4)); else if(pts.length===1) map.setView(pts[0], map.getZoom()); } };
+      next.onclick=()=>{cur=Math.min(n-1,cur+1);upd();}; prev.onclick=()=>{cur=Math.max(0,cur-1);upd();};
+      upd(); setTimeout(()=>map.invalidateSize(),200);
+    }catch(e){ console.error('battlemap',e); }
+  });
+  markVisited(s.id); setActive(s.id); window.scrollTo(0,0); vfx();
+}
+
+function renderNotes(){
+  const body=SECTIONS.map(s=>{
+    const items=s.reflect.map((q,i)=>{ const v=(localStorage.getItem(META.slug+'_m_'+s.id+'_'+i)||'').trim();
+      return '<div class="note-q">'+q+'</div><div class="note-a'+(v?'':' empty')+'">'+(v?v.replace(/</g,'&lt;'):'(아직 적지 않았어요)')+'</div>'; }).join('');
+    return '<div class="note-sec"><div class="note-sh">'+s.num+' · '+s.label+'</div>'+items+'</div>';
+  }).join('');
+  view.innerHTML='<div class="home-hero"><h1>📝 내 메모 모아보기</h1><div class="hsub">'+META.brand.title+' — 내가 적은 생각들</div></div>'
+    +'<div class="home-wrap"><div class="note-actions noprint">'
+    +'<button class="btn primary" id="notePrint">🖨️ 인쇄 / PDF 저장</button>'
+    +'<button class="btn" id="noteCopy" style="background:#fff;border:1px solid var(--line);color:var(--navy)">📋 전체 복사</button></div>'
+    +'<div class="notes-view" id="notesView">'+body+'</div></div>';
+  document.getElementById('notePrint').addEventListener('click',()=>window.print());
+  document.getElementById('noteCopy').addEventListener('click',()=>{ const t=document.getElementById('notesView').innerText;
+    if(navigator.clipboard){ navigator.clipboard.writeText(t); const b=document.getElementById('noteCopy'); b.textContent='복사됨 ✓'; setTimeout(()=>b.textContent='📋 전체 복사',1500); } });
+  setActive('notes'); window.scrollTo(0,0); progress.style.width='0%'; vfx();
+}
+
+function setActive(id){
+  navList.querySelectorAll('a').forEach(a=>{ a.classList.toggle('active', a.dataset.id===id); if(a.dataset.id && a.dataset.id!=='home' && visited(a.dataset.id)) a.classList.add('visited'); });
+}
+function go(id){ killMap(); if(id==='home'){ renderHome(); location.hash='home'; return; }
+  if(id==='notes'){ renderNotes(); location.hash='notes'; return; } const idx=SECTIONS.findIndex(s=>s.id===id); if(idx<0) return; render(SECTIONS[idx],idx); location.hash=id; }
+function openSide(){ sidebar.classList.add('open'); scrim.classList.add('show'); }
+function closeSide(){ sidebar.classList.remove('open'); scrim.classList.remove('show'); }
+document.getElementById('hamb').addEventListener('click',openSide);
+document.getElementById('brandHome').addEventListener('click',()=>{ go('home'); closeSide(); });
+scrim.addEventListener('click',closeSide);
+
+/* companion 배지 — meta.companion:{slug,label} 이면 사이드바에 짝 에피소드 링크 */
+if(META.companion && META.companion.slug){
+  const cl=document.createElement('a');
+  cl.className='companion-link';
+  cl.href='../'+META.companion.slug+'/index.html';
+  cl.textContent='🔗 짝 에피소드 · '+(META.companion.label||META.companion.slug);
+  const hb=document.getElementById('hubBack');
+  hb.parentNode.insertBefore(cl,hb.nextSibling);
+}
+
+/* lightbox — image/oldmap 이미지 클릭 확대 */
+const lb=document.createElement('div'); lb.className='lightbox';
+lb.innerHTML='<img alt=""><div class="lb-cap"></div>';
+document.body.appendChild(lb);
+document.addEventListener('click',e=>{
+  if(e.target.closest('.lightbox')){ lb.classList.remove('show'); document.body.style.overflow=''; return; }
+  const im=e.target.closest('.imgbox img, .oldmap-frame img');
+  if(im){ lb.querySelector('img').src=im.src; lb.querySelector('.lb-cap').textContent=im.alt||''; lb.classList.add('show'); document.body.style.overflow='hidden'; }
+});
+window.addEventListener('scroll',()=>{ const h=document.documentElement.scrollHeight-window.innerHeight; progress.style.width=(h>0?(window.scrollY/h*100):0)+'%'; });
+const tip=document.getElementById('tip');
+function showTip(e,t){ tip.textContent=TERMS[t.dataset.term]||''; tip.style.display='block'; moveTip(e); }
+document.addEventListener('mouseover',e=>{ const t=e.target.closest('.term'); if(t) showTip(e,t); });
+document.addEventListener('mousemove',e=>{ if(tip.style.display==='block') moveTip(e); });
+document.addEventListener('mouseout',e=>{ if(e.target.closest('.term')) tip.style.display='none'; });
+document.addEventListener('click',e=>{ const t=e.target.closest('.term'); if(t){ showTip(e,t); setTimeout(()=>tip.style.display='none',2800); } });
+function moveTip(e){ tip.style.left=Math.min(e.clientX+14,window.innerWidth-278)+'px'; tip.style.top=Math.min(e.clientY+16,window.innerHeight-92)+'px'; }
+
+head(); buildNav();
+const start=location.hash.replace('#','');
+if(start==='notes') renderNotes();
+else if(start && SECTIONS.some(s=>s.id===start)) go(start);
+else renderHome();
+</script>
+</body>
+</html>
