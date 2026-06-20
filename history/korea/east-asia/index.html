@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>동아시아 속의 한국 — 관계사로 다시 읽기</title>
+<meta name="description" content="한국사를 고립된 ‘국사’가 아니라 동아시아 관계사로 다시 읽는 캡스톤. 중국과의 사대·책봉·조공, 일본과의 교린·통신사·양란, 북방 민족과의 천 년, 중화질서 속 작은 나라의 외교 지혜, 그리고 오늘의 역사 갈등까지 — 시대를 가로질러 ‘관계’의 눈으로 통째로 다시 보는 통사.">
+<style>
+  :root{
+    --rose:#C98B8B; --rose-soft:#E8C8C5; --navy:#33406B; --navy-2:#46527f; --navy-soft:#6F79A0;
+    --cream:#FBF7F2; --paper:#FFFFFF; --ink:#2E2A28; --muted:#857B74; --line:#EBE0D5;
+    --accent:#B5546A; --gold:#C49A4A;
+    --shadow:0 6px 22px rgba(51,64,107,.09); --shadow-sm:0 2px 10px rgba(51,64,107,.06);
+    --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+    background:var(--cream); color:var(--ink); line-height:1.78;
+    -webkit-font-smoothing:antialiased; word-break:keep-all;
+  }
+  a{color:inherit;}
+  #progress{position:fixed; top:0; left:0; height:3px; width:0%; background:linear-gradient(90deg,var(--rose),var(--accent)); z-index:60; transition:width .1s;}
+  .layout{display:flex; min-height:100vh;}
+  .sidebar{width:276px; flex:0 0 276px; background:linear-gradient(180deg,var(--navy),#2b3559); color:#fff; padding:26px 16px 30px; position:sticky; top:0; height:100vh; overflow-y:auto;}
+  .content{flex:1; min-width:0;}
+  .hub-back{display:inline-block; color:var(--rose-soft); font-size:12px; text-decoration:none; padding:4px 8px; margin:0 0 14px; border:1px solid rgba(255,255,255,.14); border-radius:9px; transition:background .15s,color .15s;}
+  .hub-back:hover{background:rgba(255,255,255,.1); color:#fff;}
+  .brand{cursor:pointer; padding:0 6px; margin-bottom:6px;}
+  .brand .bt{font-size:19px; font-weight:800; line-height:1.35;}
+  .brand .sub{display:block; font-size:11.5px; font-weight:500; color:var(--rose-soft); margin-top:7px; letter-spacing:.01em;}
+  .nav{margin-top:20px; list-style:none;}
+  .nav li{margin:3px 0;}
+  .nav a{display:flex; align-items:center; gap:11px; text-decoration:none; color:#dde0ee; font-size:14px; padding:10px 11px; border-radius:12px; transition:background .15s,color .15s; cursor:pointer; position:relative;}
+  .nav a .num{font-size:10.5px; color:var(--navy-soft); width:18px; font-weight:800; flex:0 0 18px;}
+  .nav a:hover{background:rgba(255,255,255,.09); color:#fff;}
+  .nav a.active{background:var(--rose); color:#fff; font-weight:700;}
+  .nav a.active .num{color:#fff;}
+  .nav a.star{background:rgba(196,154,74,.15);}
+  .nav a.star.active{background:var(--accent);}
+  .nav a.star .num{color:var(--gold);}
+  .nav a.visited:not(.active)::after{content:"✓"; margin-left:auto; font-size:11px; color:#8fd9a8; font-weight:800;}
+  .nav a.star .tag{font-size:9.5px; background:var(--gold); color:#3a2f10; padding:1px 6px; border-radius:8px; margin-left:auto; font-weight:800;}
+  .nav a.star.visited .tag{display:none;}
+  .nav .home-link{font-weight:700; color:#fff; background:rgba(255,255,255,.06); margin-bottom:8px;}
+  .side-foot{margin-top:24px; padding:16px 8px 0; font-size:11px; color:var(--navy-soft); line-height:1.7; border-top:1px solid rgba(255,255,255,.1);}
+  .topbar{display:none; align-items:center; gap:12px; background:var(--navy); color:#fff; padding:12px 16px; position:sticky; top:0; z-index:40;}
+  .topbar .hamb{font-size:22px; background:none;border:none;color:#fff;cursor:pointer;line-height:1;}
+  .topbar .tb-title{font-size:14.5px; font-weight:700;}
+  .topbar .tb-hub{margin-left:auto; color:#fff; font-size:12.5px; font-weight:700; text-decoration:none; border:1px solid rgba(255,255,255,.35); border-radius:9px; padding:5px 10px; white-space:nowrap;}
+  .topbar .tb-hub:active{background:rgba(255,255,255,.15);}
+  .scrim{display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:30;}
+  .hero{padding:54px 40px 36px; color:#fff; position:relative; overflow:hidden;}
+  .hero .kicker{font-size:12.5px; letter-spacing:.14em; font-weight:700; text-transform:uppercase; opacity:.92;}
+  .hero h1{font-size:31px; margin-top:10px; line-height:1.3; font-weight:800; max-width:680px;}
+  .hero .era{display:inline-flex; align-items:center; gap:7px; margin-top:16px; font-size:12.5px; background:rgba(255,255,255,.16); padding:6px 14px; border-radius:20px;}
+  .hero .motif{position:absolute; right:-10px; bottom:-20px; opacity:.16; width:180px; height:180px;}
+  .wrap{max-width:740px; margin:0 auto; padding:36px 28px 90px;}
+  .hook{font-size:18px; line-height:1.92; color:var(--navy); border-left:4px solid var(--rose); padding:4px 0 4px 20px; margin-bottom:30px; font-weight:500;}
+  h2.block{font-size:14px; letter-spacing:.05em; color:var(--accent); font-weight:800; margin:38px 0 15px; display:flex; align-items:center; gap:9px; text-transform:uppercase;}
+  h2.block::before{content:""; width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block; flex:0 0 8px;}
+  .why{background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:22px 24px; box-shadow:var(--shadow-sm); font-size:16px;}
+  .why b{color:var(--accent);}
+  .lens{background:linear-gradient(135deg,#fff,#f3f0fa); border:1px solid #d8cfe8; border-left:5px solid #7a6aa8; border-radius:14px; padding:18px 22px; margin:24px 0; font-size:15.5px;}
+  .lens .lh{font-weight:800; color:#5b4a86; font-size:13.5px; letter-spacing:.03em; margin-bottom:6px; display:flex; gap:7px; align-items:center;}
+  .legendbox{background:linear-gradient(135deg,#fdf8ee,#f6ecd8); border:1px solid #e6d4b0; border-left:5px solid var(--gold,#c49a4a); border-radius:14px; padding:18px 22px; margin:24px 0; font-size:15px; box-shadow:var(--shadow-sm); position:relative;}
+  .legendbox .lgh{font-weight:800; color:#9a6b1e; font-size:14px; letter-spacing:.02em; margin-bottom:8px;}
+  .legendbox .lgbody{color:#4a4036; line-height:1.85;}
+  .legendbox .lgmoral{margin-top:10px; padding-top:10px; border-top:1px dashed #e0cda0; color:#6b5a3a; font-size:14px;}
+  .legendbox .lgsrc{margin-top:8px; font-size:12px; color:#9a8a6a;}
+  .lin-intro{font-size:14.5px; color:#5a534d; background:#fff; border:1px solid var(--line); border-left:5px solid var(--gold,#c49a4a); border-radius:12px; padding:14px 18px; margin:6px 0 18px; box-shadow:var(--shadow-sm);}
+  .lineage{margin:6px 0 8px;}
+  .lin-dyn{margin:0 0 22px;}
+  .lin-dyn-h{font-size:17px; font-weight:800; color:var(--navy); margin:18px 0 4px; padding-bottom:6px; border-bottom:2px solid var(--gold-soft,#e3c486);}
+  .lin-dyn-intro{font-size:13.5px; color:var(--muted); margin:0 0 12px;}
+  .lin-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:8px;}
+  .lin-item{background:#fff; border:1px solid var(--line); border-radius:10px; box-shadow:var(--shadow-sm); overflow:hidden; transition:border-color .15s;}
+  .lin-item[open]{border-color:var(--gold,#c49a4a); box-shadow:var(--shadow);}
+  .lin-item.lin-key{border-left:4px solid var(--red);}
+  .lin-item summary{list-style:none; cursor:pointer; padding:11px 14px; display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;}
+  .lin-item summary::-webkit-details-marker{display:none;}
+  .lin-item summary::after{content:"＋"; margin-left:auto; color:var(--gold,#c49a4a); font-weight:800; font-size:15px;}
+  .lin-item[open] summary::after{content:"－";}
+  .lin-item summary:hover{background:#fbf6ec;}
+  .lin-n{font-size:11px; font-weight:800; color:#fff; background:var(--gold,#c49a4a); border-radius:999px; padding:2px 8px; white-space:nowrap;}
+  .lin-name{font-size:15.5px; font-weight:800; color:var(--navy);}
+  .lin-star{color:var(--red); font-size:12px;}
+  .lin-reign{font-size:12px; color:var(--muted); font-weight:700;}
+  .lin-note{padding:0 14px 13px; font-size:13.5px; color:#4a4036; line-height:1.75; border-top:1px dashed var(--line); margin-top:2px; padding-top:10px;}
+  .quote{margin:30px 0; background:linear-gradient(135deg,#fff,#fdf2ef); border:1px solid var(--rose-soft); border-left:5px solid var(--rose); border-radius:14px; padding:22px 26px; box-shadow:var(--shadow-sm);}
+  .quote .qt{font-size:18.5px; font-style:italic; color:var(--navy); line-height:1.8;}
+  .quote .qs{display:block; margin-top:12px; font-size:13px; color:var(--muted); font-style:normal;}
+  .quote .qm{font-size:40px; color:var(--rose-soft); line-height:0; display:block; height:18px;}
+  .cards{display:grid; gap:14px;}
+  @media(min-width:620px){ .cards{grid-template-columns:1fr 1fr;} }
+  .card{background:var(--paper); border:1px solid var(--line); border-radius:15px; padding:18px 20px; box-shadow:var(--shadow-sm); transition:transform .12s, box-shadow .12s;}
+  .card:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
+  .card .yr{font-size:11.5px; font-weight:800; color:var(--rose); letter-spacing:.04em; text-transform:uppercase;}
+  .card h3{font-size:16.5px; color:var(--navy); margin:5px 0 6px;}
+  .card p{font-size:15px; color:var(--ink);}
+  .term{color:var(--accent); font-weight:700; border-bottom:1.5px dotted var(--rose); cursor:help;}
+  .people{display:grid; gap:14px;}
+  @media(min-width:620px){ .people{grid-template-columns:1fr 1fr;} }
+  .person{background:#fff; border:1px solid var(--line); border-radius:15px; padding:18px 20px; box-shadow:var(--shadow-sm);}
+  .person .pheader{display:flex; gap:13px; align-items:center; margin-bottom:8px;}
+  .person .pface{flex:0 0 46px; height:46px; border-radius:12px; background:linear-gradient(135deg,var(--rose),var(--accent)); display:flex;align-items:center;justify-content:center;font-size:22px; color:#fff;}
+  .person .pname{font-size:16.5px; font-weight:800; color:var(--navy);}
+  .person .pwho{font-size:12px; color:var(--muted);}
+  .person .pwhy{font-size:14.5px; margin-bottom:8px;}
+  .person .pquote{font-size:14px; font-style:italic; color:var(--accent); border-left:3px solid var(--rose-soft); padding-left:10px; margin:8px 0;}
+  .person .pshadow{font-size:13.5px; color:var(--muted); background:var(--cream); border-radius:9px; padding:8px 11px;}
+  .person .pmore{display:inline-block; margin-top:10px; font-size:13px; font-weight:700; text-decoration:none; color:var(--accent); border:1px solid var(--rose-soft); border-radius:9px; padding:6px 12px;}
+  .person .pmore:hover{background:var(--accent); color:#fff; border-color:var(--accent);}
+  .movies{display:grid; gap:14px;}
+  .movie{background:#fff; border:1px solid var(--line); border-radius:15px; padding:16px 18px; box-shadow:var(--shadow-sm);}
+  .movie .mhead{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:4px;}
+  .movie .mtitle{font-size:16.5px; font-weight:800; color:var(--navy);}
+  .movie .mfit{font-size:11.5px; font-weight:700; border-radius:7px; padding:2px 8px; white-space:nowrap;}
+  .movie .mfit.green{background:#E5F3E8; color:#2E7D4F;}
+  .movie .mfit.yellow{background:#FBF1D8; color:#9A7B22;}
+  .movie .mfit.red{background:#F7E0E0; color:#B5546A;}
+  .movie .mmeta{font-size:12.5px; color:var(--muted); margin-bottom:9px;}
+  .movie .mmeta b{color:var(--accent);}
+  .movie .mwhy{font-size:14.5px; margin-bottom:9px;}
+  .movie .mreal{font-size:13px; color:var(--muted); background:var(--cream); border-radius:9px; padding:8px 11px; margin-bottom:10px;}
+  .movie .mreal .lbl{font-weight:800; color:var(--gold); margin-right:6px;}
+  .movie .mlinks{display:flex; gap:8px; flex-wrap:wrap;}
+  .movie .mlink{font-size:12.5px; font-weight:700; text-decoration:none; color:var(--navy); border:1px solid var(--line); border-radius:8px; padding:5px 11px;}
+  .movie .mlink:hover{border-color:var(--accent); color:var(--accent);}
+  .movie .mlink.slug{color:var(--accent); border-color:var(--rose-soft);}
+  .relations{background:#fff; border:1px solid var(--line); border-radius:15px; padding:18px 18px 16px; box-shadow:var(--shadow-sm);}
+  .relations .rtitle{font-size:16px; font-weight:800; color:var(--navy); text-align:center; margin-bottom:6px;}
+  .relations .rintro{font-size:14px; color:var(--muted); text-align:center; margin-bottom:14px;}
+  .rsides{display:grid; gap:12px;}
+  @media(min-width:600px){ .rsides{grid-template-columns:repeat(auto-fit,minmax(160px,1fr));} }
+  .rside{border-radius:13px; padding:13px 14px;}
+  .rside.red{background:#FBEAEA; border:1px solid #E8C0C0;}
+  .rside.blue{background:#E9EEF7; border:1px solid #C2D0E6;}
+  .rside.green{background:#E7F1EA; border:1px solid #BFD9C7;}
+  .rside .rslabel{font-size:13px; font-weight:800; margin-bottom:9px; letter-spacing:.02em;}
+  .rside.red .rslabel{color:#B5546A;}
+  .rside.blue .rslabel{color:#33406B;}
+  .rside.green .rslabel{color:#2E7D4F;}
+  .rmember{background:#fff; border:1px solid var(--line); border-radius:9px; padding:8px 10px; margin-bottom:7px; font-size:13.5px;}
+  .rmember b{color:var(--navy); margin-right:6px;}
+  .rmember span{color:var(--muted);}
+  .rmember .rlink{text-decoration:none;}
+  .rtensions{margin-top:14px; display:grid; gap:9px;}
+  .rtension{background:var(--cream); border-left:3px solid var(--gold); border-radius:9px; padding:10px 12px; font-size:13.5px;}
+  .rtension .rvs{font-weight:800; color:var(--accent); margin-bottom:3px;}
+  .marchmap{background:#fff; border:1px solid var(--line); border-radius:15px; padding:16px; box-shadow:var(--shadow-sm);}
+  .marchmap .mm-title{font-weight:800; color:var(--navy); text-align:center; font-size:16px;}
+  .marchmap .mm-intro{font-size:14px; color:var(--muted); text-align:center; margin:6px 0 12px;}
+  .mm-stage{position:relative; max-width:360px; margin:0 auto; aspect-ratio:1866/2891; background:#eef3ee; border-radius:10px; overflow:hidden;}
+  .mm-base{position:absolute; inset:0; width:100%; height:100%; object-fit:contain;}
+  .mm-arrows{position:absolute; inset:0; width:100%; height:100%; overflow:visible;}
+  .mm-arrow{fill:none; stroke-width:1.4; stroke-linecap:round; stroke-dasharray:300; stroke-dashoffset:300; opacity:0; transition:stroke-dashoffset .8s ease, opacity .3s;}
+  .mm-arrow.on{stroke-dashoffset:0; opacity:.95;}
+  .mm-arrow.tone-resist{stroke:#2E7D4F;} .mh.resist{fill:#2E7D4F;}
+  .mm-arrow.tone-invade{stroke:#B5546A;} .mh.invade{fill:#B5546A;}
+  .mm-alab{font-size:3.4px; font-weight:800; opacity:0; transition:opacity .3s;} .mm-alab.on{opacity:.9;}
+  .mm-alab.tone-resist{fill:#2E7D4F;} .mm-alab.tone-invade{fill:#B5546A;}
+  .mm-place{position:absolute; transform:translate(-50%,-50%); opacity:0; transition:opacity .35s; display:flex; flex-direction:column; align-items:center; pointer-events:none; z-index:2;}
+  .mm-place.on{opacity:1;}
+  .mm-dot{width:11px; height:11px; border-radius:50%; background:var(--navy); border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,.35);}
+  .mm-place.k-battle .mm-dot{background:#B5546A;} .mm-place.k-loss .mm-dot{background:#7a2e3f;}
+  .mm-place.k-win .mm-dot{background:#2E7D4F;} .mm-place.k-start .mm-dot{background:var(--gold);}
+  .mm-lbl{font-size:11px; font-weight:700; color:var(--navy); background:rgba(255,255,255,.9); border-radius:5px; padding:0 4px; margin-top:3px; white-space:nowrap;}
+  .mm-step{display:flex; align-items:center; gap:10px; justify-content:center; margin-top:13px;}
+  .mm-step button{background:var(--navy); color:#fff; border:none; border-radius:9px; padding:7px 14px; font-size:13px; font-weight:700; cursor:pointer;}
+  .mm-step button:disabled{opacity:.4; cursor:default;}
+  .mm-plabel{font-size:13.5px; font-weight:800; color:var(--accent); min-width:150px; text-align:center;}
+  .mm-cap{font-size:11px; color:var(--muted); text-align:center; margin-top:9px; line-height:1.5;}
+  .battlemap{background:#fff; border:1px solid var(--line); border-radius:15px; padding:16px; box-shadow:var(--shadow-sm);}
+  .battlemap .bm-intro{font-size:14px; color:var(--muted); text-align:center; margin-bottom:11px;}
+  .bm-map{width:100%; height:380px; border-radius:11px; overflow:hidden; border:1px solid var(--line); background:#eef3ee;}
+  .bm-ic div{font-size:19px; filter:drop-shadow(0 1px 1px rgba(0,0,0,.4));}
+  .bm-tt{background:rgba(255,255,255,.92); border:1px solid var(--line); border-radius:5px; font-size:11px; font-weight:700; color:var(--navy); padding:1px 5px; box-shadow:none;}
+  .bm-tt:before{display:none;}
+  .bm-step{display:flex; align-items:center; gap:10px; justify-content:center; margin-top:12px;}
+  .bm-step button{background:var(--navy); color:#fff; border:none; border-radius:9px; padding:7px 14px; font-size:13px; font-weight:700; cursor:pointer;}
+  .bm-step button:disabled{opacity:.4; cursor:default;}
+  .bm-plabel{font-size:13.5px; font-weight:800; color:var(--accent); min-width:150px; text-align:center;}
+  .bm-legend{display:flex; gap:14px; flex-wrap:wrap; justify-content:center; font-size:12.5px; margin-top:11px;}
+  .bm-legend span{display:inline-flex; align-items:center; gap:5px;}
+  .bm-legend i{width:16px; border-top:3px solid; display:inline-block; border-radius:2px;}
+  .bm-cap{font-size:11px; color:var(--muted); text-align:center; margin-top:9px;}
+  .deepdive{margin:18px 0 6px; border:1px solid var(--line); border-radius:13px; background:linear-gradient(180deg,#fff,#fbf6ef); overflow:hidden;}
+  .deepdive summary{cursor:pointer; padding:14px 18px; font-size:15px; font-weight:800; color:var(--navy); list-style:none; display:flex; align-items:center; gap:8px;}
+  .deepdive summary::-webkit-details-marker{display:none;}
+  .deepdive summary:after{content:"▾"; margin-left:auto; color:var(--accent); transition:transform .2s;}
+  .deepdive[open] summary:after{transform:rotate(180deg);}
+  .deepdive summary:hover{background:rgba(181,84,106,.05);}
+  .links{display:grid; gap:10px; margin:6px 0 4px;}
+  .links .lk{display:block; padding:13px 16px; border:1px solid var(--line); border-radius:12px; background:#fff; text-decoration:none; transition:border-color .15s, transform .15s;}
+  .links .lk:hover{border-color:var(--accent); transform:translateY(-2px);}
+  .links .lk-label{display:block; font-weight:800; color:var(--navy); font-size:15px;}
+  .links .lk-label:after{content:" ↗"; color:var(--accent); font-weight:700;}
+  .links .lk-note{display:block; font-size:13.5px; color:var(--ink); margin-top:3px; line-height:1.6;}
+  .links .lk-src{display:block; font-size:12px; color:var(--muted); margin-top:4px;}
+  .spark{margin:16px 0; padding:16px 18px 18px; border-left:5px solid var(--accent); border-radius:12px; background:linear-gradient(180deg,#fff8f3,#fdeee6); box-shadow:var(--shadow-sm);}
+  .spark-h{font-size:16px; font-weight:800; color:var(--accent); margin-bottom:7px; letter-spacing:-.01em;}
+  .spark-body{font-size:15.5px; line-height:1.85; color:var(--ink);}
+  .spark-mind{margin-top:11px; padding-top:10px; border-top:1px dashed var(--line); font-size:14.5px; color:var(--navy); line-height:1.7;}
+  .dd-body{padding:4px 18px 18px;}
+  .dd-item{border-top:1px solid var(--line); padding:13px 0;}
+  .dd-item:first-child{border-top:none;}
+  .dd-item h3{font-size:15px; color:var(--accent); margin-bottom:6px;}
+  .dd-text{font-size:14.5px; line-height:1.8;}
+  .dd-src{font-size:12.5px; color:var(--muted); background:var(--cream); border-radius:8px; padding:7px 11px; margin-top:8px;}
+  .timeline{position:relative; margin:6px 0 6px 9px; padding-left:26px; border-left:2.5px solid var(--rose-soft);}
+  .tl{position:relative; padding:5px 0 17px;}
+  .tl::before{content:""; position:absolute; left:-33.5px; top:9px; width:13px;height:13px;border-radius:50%;background:var(--rose); border:3px solid var(--cream);}
+  .tl .tl-yr{font-weight:800; color:var(--navy); font-size:13.5px;}
+  .tl .tl-txt{font-size:15px;}
+  .connect{background:#fff; border:1px dashed var(--rose); border-radius:14px; padding:17px 22px; font-size:15.5px; color:var(--navy); display:flex; gap:12px; align-items:flex-start;}
+  .connect .ico{flex:0 0 22px; font-size:18px;}
+  .connect b{color:var(--accent);}
+  .yt{display:flex; gap:14px; align-items:flex-start; text-decoration:none; background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin-bottom:11px; transition:transform .12s, box-shadow .12s;}
+  .yt:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
+  .yt .play{flex:0 0 42px; height:42px; border-radius:11px; background:#FF0000; color:#fff; display:flex;align-items:center;justify-content:center;font-size:16px;}
+  .yt .play.search{background:var(--navy);}
+  .yt .yt-body{flex:1; min-width:0;}
+  .yt .yt-title{font-weight:700; color:var(--navy); font-size:15px; line-height:1.45;}
+  .yt .yt-meta{font-size:12px; color:var(--muted); margin-top:3px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+  .yt .pill{background:var(--cream); border:1px solid var(--line); border-radius:6px; padding:1px 6px; font-weight:700;}
+  .yt .pill.ko{color:#2f7d4f;} .yt .pill.en{color:#3a5bb5;} .yt .pill.find{color:var(--navy);}
+  .yt .yt-desc{font-size:13.5px; margin-top:5px; color:var(--ink);}
+  .reflect{background:#fff; border:2px solid var(--rose-soft); border-radius:var(--radius); padding:20px 22px; box-shadow:var(--shadow-sm);}
+  .reflect .q{font-weight:700; color:var(--navy); margin-bottom:9px; font-size:15.5px;}
+  .reflect textarea{width:100%; min-height:88px; border:1px solid var(--line); border-radius:11px; padding:13px; font-family:inherit; font-size:15px; resize:vertical; background:#fffdfb; color:var(--ink); line-height:1.7;}
+  .reflect textarea:focus{outline:none; border-color:var(--rose); box-shadow:0 0 0 3px rgba(201,139,139,.15);}
+  .reflect textarea + .q{margin-top:18px;}
+  .reflect .saved{font-size:12px; color:var(--gold); margin-top:6px; height:15px; font-weight:600;}
+  /* quiz (R1) */
+  .quizwrap{display:flex;flex-direction:column;gap:14px;}
+  .quizq{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow-sm);}
+  .quizq .qq{font-weight:700;color:var(--navy);font-size:15.5px;margin-bottom:10px;}
+  .qopts{display:flex;flex-direction:column;gap:8px;}
+  .quiz-opt{text-align:left;font-family:inherit;font-size:14.5px;background:var(--cream);border:1px solid var(--line);border-radius:10px;padding:10px 13px;cursor:pointer;color:var(--ink);transition:background .12s;}
+  .quiz-opt:hover:not(:disabled){background:#f3ece4;}
+  .quiz-opt:disabled{cursor:default;}
+  .quiz-opt.correct{background:#e8f5ec;border-color:#8fcea5;color:#1f7a44;font-weight:700;}
+  .quiz-opt.wrong{background:#fbeaec;border-color:#e3a3ad;color:#a83246;}
+  .qexp{font-size:14px;color:var(--ink);margin-top:10px;display:none;line-height:1.7;background:var(--cream);border-radius:9px;padding:10px 12px;}
+  .qexp.show{display:block;}
+  .qexp b{color:var(--accent);}
+  /* notes export (R2) */
+  .nav .notes-link{font-weight:700;color:#fff;background:rgba(196,154,74,.16);}
+  .note-actions{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+  .notes-view{background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px 26px;box-shadow:var(--shadow-sm);}
+  .note-sec{margin-bottom:22px;}
+  .note-sh{font-weight:800;color:var(--accent);font-size:13px;letter-spacing:.04em;border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:10px;}
+  .note-q{font-weight:700;color:var(--navy);font-size:14.5px;margin-top:12px;}
+  .note-a{font-size:14.5px;white-space:pre-wrap;margin-top:3px;}
+  .note-a.empty{color:var(--muted);font-style:italic;}
+  @media print{ .sidebar,.topbar,.scrim,#progress,.noprint{display:none!important;} .content{width:100%;} .home-hero{background:#fff!important;color:#000!important;padding:10px 0 0;} .home-hero h1{color:#000;} .home-hero .hsub{color:#555;} .notes-view{border:none;box-shadow:none;padding:0;} body{background:#fff;} }
+  /* map (R3 — 실제 지도, Leaflet+OSM) */
+  .mapwrap{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow-sm);}
+  .lmap{height:340px;border-radius:12px;overflow:hidden;border:1px solid var(--line);z-index:0;}
+  .mapcap{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.6;}
+  .mapcap .msrc{font-size:11.5px;opacity:.8;}
+  /* image (S1 — PD 역사지도/사진 + 선택적 hotspot) */
+  .figimg{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow-sm);}
+  .figstory{font-size:15.5px;line-height:1.8;margin-bottom:12px;color:var(--ink);}
+  .figstory b{color:var(--accent);}
+  .imgbox{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#f4efe8;}
+  .imgbox img{width:100%;height:auto;display:block;}
+  .hsdot{position:absolute;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;border:2px solid #fff;font-size:12px;font-weight:800;cursor:pointer;box-shadow:0 2px 7px rgba(0,0,0,.32);display:flex;align-items:center;justify-content:center;line-height:1;}
+  .hsdot:hover{background:var(--navy);}
+  .hsinfo{margin-top:10px;font-size:14px;background:var(--cream);border-radius:9px;padding:11px 13px;display:none;line-height:1.7;}
+  .hsinfo.show{display:block;}
+  .hsinfo b{color:var(--accent);}
+  .figcap{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.65;}
+  .figcap .msrc{font-size:11.5px;opacity:.85;}
+  /* oldmap (고지도 — 시대감) */
+  .oldmap{background:linear-gradient(180deg,#f7f0e2,#efe4cf);border:1px solid #d8c7a6;border-radius:16px;padding:16px;box-shadow:var(--shadow-sm);}
+  .oldmap-frame{border-radius:10px;overflow:hidden;border:3px solid #8a6d3b;box-shadow:inset 0 0 40px rgba(94,66,20,.25);background:#e8dcc2;}
+  .oldmap-frame img{width:100%;height:auto;display:block;filter:sepia(.32) contrast(1.04) saturate(.9);}
+  .oldmap .figcap{color:#6b5836;}
+  /* lightbox (이미지 클릭 확대 — image/oldmap 공통) */
+  .imgbox img,.oldmap-frame img{cursor:zoom-in;}
+  .lightbox{position:fixed;inset:0;background:rgba(22,19,16,.93);display:none;align-items:center;justify-content:center;z-index:99;padding:16px;cursor:zoom-out;}
+  .lightbox.show{display:flex;}
+  .lightbox img{max-width:96vw;max-height:90vh;width:auto;height:auto;border-radius:8px;box-shadow:0 12px 44px rgba(0,0,0,.55);}
+  .lightbox .lb-cap{position:fixed;left:0;right:0;bottom:10px;text-align:center;color:#E8C8C5;font-size:12px;padding:0 22px;line-height:1.5;}
+  /* companion (짝 에피소드 배지) */
+  .companion-link{display:block;margin:6px 14px 0;padding:7px 11px;border:1px dashed rgba(255,255,255,.35);border-radius:9px;color:#fff;font-size:12px;text-decoration:none;opacity:.92;}
+  .companion-link:hover{background:rgba(255,255,255,.1);}
+  /* voice (S3 — 일기·편지체 1인칭) */
+  .voice{background:linear-gradient(135deg,#fffdf8,#f6efe3);border:1px solid #e6d9c4;border-left:5px solid var(--gold);border-radius:14px;padding:20px 24px;box-shadow:var(--shadow-sm);}
+  .voice .vbadge{display:inline-block;font-size:11px;font-weight:800;padding:2px 10px;border-radius:8px;margin-bottom:12px;letter-spacing:.02em;}
+  .voice .vbadge.real{background:#e6f0e8;color:#2f6b43;}
+  .voice .vbadge.imag{background:#f3eadb;color:#8a6d2f;}
+  .voice .vbody{font-size:16.5px;font-style:italic;line-height:1.95;color:#3a352f;}
+  .voice .vbody::before{content:"“";font-size:34px;color:var(--gold);line-height:0;vertical-align:-12px;margin-right:3px;}
+  .voice .vspeaker{margin-top:14px;font-size:13px;color:var(--muted);}
+  .voice .vspeaker b{color:var(--navy);}
+  .voice .vsrc{display:block;font-size:11.5px;opacity:.85;margin-top:3px;}
+  /* chart (S4 — 자체 막대 + 체감 비교) */
+  .chart{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow-sm);}
+  .chart .ctitle{font-weight:800;color:var(--navy);font-size:15.5px;}
+  .chart .cunit{font-size:12px;color:var(--muted);margin:3px 0 14px;}
+  .crow{display:flex;align-items:center;gap:10px;margin:9px 0;}
+  .crow .clabel{flex:0 0 72px;font-size:13px;color:var(--ink);text-align:right;}
+  .crow .cbarwrap{flex:1;background:var(--cream);border-radius:7px;overflow:hidden;height:24px;}
+  .crow .cbar{height:100%;background:linear-gradient(90deg,var(--rose),var(--accent));border-radius:7px;min-width:3px;}
+  .crow .cval{flex:0 0 auto;font-size:12.5px;font-weight:700;color:var(--accent);min-width:62px;}
+  .crelate{margin-top:15px;font-size:14.5px;background:#fdf2ef;border:1px solid var(--rose-soft);border-radius:10px;padding:12px 14px;line-height:1.7;}
+  .crelate b{color:var(--accent);}
+  .csrc{font-size:11.5px;color:var(--muted);margin-top:11px;opacity:.85;}
+  /* compare (S5 — 단계 토글 / before·after) */
+  .compare{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow-sm);}
+  .cmpintro{font-size:15px;margin-bottom:13px;color:var(--ink);line-height:1.7;}
+  .cmptabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px;}
+  .cmptab{font-family:inherit;font-size:13px;font-weight:700;background:var(--cream);border:1px solid var(--line);border-radius:20px;padding:7px 14px;cursor:pointer;color:var(--navy);transition:background .12s;}
+  .cmptab:hover{background:#f3ece4;}
+  .cmptab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .cmppanel .cmh{font-weight:800;color:var(--navy);font-size:16.5px;margin-bottom:7px;}
+  .cmppanel .cmb{font-size:15px;line-height:1.85;}
+  .cmppanel img{width:100%;border-radius:10px;margin-top:11px;border:1px solid var(--line);display:block;}
+  .cmpcap{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.6;}
+  /* choice (S7 — 너라면? 도덕적 딜레마) */
+  .choice{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow-sm);}
+  .chprompt{font-weight:700;color:var(--navy);font-size:15.5px;margin-bottom:14px;line-height:1.75;}
+  .chopts{display:flex;flex-direction:column;gap:9px;}
+  .chopt{text-align:left;font-family:inherit;font-size:14.5px;background:var(--cream);border:1px solid var(--line);border-radius:11px;padding:12px 14px;cursor:pointer;color:var(--ink);transition:background .12s;}
+  .chopt:hover{background:#f3ece4;}
+  .chopt.picked{border-color:var(--accent);background:#fdf2ef;font-weight:700;}
+  .chres{font-size:14px;margin-top:8px;background:#f7f3fb;border:1px solid #e0d6ee;border-radius:9px;padding:11px 13px;display:none;line-height:1.75;}
+  .chres.show{display:block;}
+  .chafter{margin-top:15px;font-size:14px;background:var(--cream);border-radius:9px;padding:12px 14px;line-height:1.75;display:none;}
+  .chafter.show{display:block;}
+  .chafter b{color:var(--accent);}
+  .pager{display:flex; justify-content:space-between; gap:12px; margin-top:46px;}
+  .pager a{flex:1; text-decoration:none; background:#fff; border:1px solid var(--line); border-radius:14px; padding:15px 18px; color:var(--navy); box-shadow:var(--shadow-sm); transition:transform .12s, box-shadow .12s; cursor:pointer;}
+  .pager a:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
+  .pager a.next{text-align:right; background:var(--navy); color:#fff; border-color:var(--navy);}
+  .pager .pg-label{font-size:11.5px; color:var(--muted);}
+  .pager a.next .pg-label{color:var(--rose-soft);}
+  .pager .pg-title{font-weight:700; font-size:15px; margin-top:3px;}
+  .home-hero{padding:60px 32px 44px; background:linear-gradient(140deg,var(--navy) 0%, #54608c 100%); color:#fff; text-align:center;}
+  .home-hero h1{font-size:33px; font-weight:800; line-height:1.32;}
+  .home-hero .hsub{font-size:15px; color:var(--rose-soft); margin-top:12px;}
+  .home-hero .hq{margin:26px auto 0; max-width:460px; font-style:italic; font-size:15px; opacity:.92; line-height:1.8;}
+  .home-hero .hq small{display:block; font-style:normal; opacity:.7; font-size:12px; margin-top:8px;}
+  .home-wrap{max-width:760px; margin:0 auto; padding:36px 26px 90px;}
+  .home-intro{font-size:16.5px; background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:24px 26px; box-shadow:var(--shadow-sm); line-height:1.85;}
+  .home-intro b{color:var(--accent);}
+  .start-btns{display:flex; gap:12px; flex-wrap:wrap; margin:24px 0 8px;}
+  .btn{flex:1; min-width:200px; text-decoration:none; text-align:center; padding:16px; border-radius:14px; font-weight:700; font-size:15.5px; box-shadow:var(--shadow-sm); transition:transform .12s; cursor:pointer;}
+  .btn:hover{transform:translateY(-2px);}
+  .btn.primary{background:var(--navy); color:#fff;}
+  .btn.star{background:linear-gradient(135deg,var(--rose),var(--accent)); color:#fff;}
+  .path{list-style:none; margin-top:14px;}
+  .path li{display:flex; gap:16px; align-items:flex-start; cursor:pointer; padding:14px 16px; border-radius:14px; transition:background .12s;}
+  .path li:hover{background:#fff;}
+  .path .pn{flex:0 0 34px; height:34px; border-radius:50%; background:var(--navy); color:#fff; display:flex;align-items:center;justify-content:center; font-weight:800; font-size:14px;}
+  .path li.star .pn{background:var(--accent);}
+  .path .ph{font-weight:700; color:var(--navy); font-size:16px;}
+  .path .ph .star-mark{color:var(--gold);}
+  .path .pp{font-size:14px; color:var(--muted); margin-top:2px;}
+  #tip{position:fixed; z-index:70; max-width:260px; background:var(--navy); color:#fff; font-size:13px; line-height:1.6; padding:11px 14px; border-radius:11px; box-shadow:0 8px 24px rgba(0,0,0,.28); display:none; pointer-events:none;}
+  .leaflet-popup-content{font-family:inherit;font-size:13.5px;line-height:1.6;}
+  .leaflet-popup-content b{color:var(--accent);}
+  @media (max-width:880px){
+    .sidebar{position:fixed; left:0; top:0; z-index:35; transform:translateX(-100%); transition:transform .25s;}
+    .sidebar.open{transform:translateX(0);}
+    .topbar{display:flex;}
+    .scrim.show{display:block;}
+    .hero{padding:34px 22px 26px;} .hero h1{font-size:25px;} .hero .motif{width:120px;height:120px;}
+    .home-hero{padding:40px 20px 32px;} .home-hero h1{font-size:26px;}
+    .wrap,.home-wrap{padding:26px 18px 76px;}
+  }
+  /* ───────── 시각효과 업그레이드 v2 (additive) ───────── */
+  /* 정적 폴리시 (모션 무관) */
+  .imgbox{overflow:hidden;}
+  .imgbox img{transition:transform .5s cubic-bezier(.22,1,.36,1);}
+  .imgbox:hover img{transform:scale(1.045);}
+  .why,.chart,.compare,.choice,.voice,.relations,.connect{transition:box-shadow .22s ease, transform .22s ease;}
+  .why:hover,.chart:hover,.compare:hover,.choice:hover,.voice:hover{box-shadow:var(--shadow);}
+  h2.block::before{box-shadow:0 0 0 4px rgba(181,84,106,.12);}
+  .spark{position:relative; overflow:hidden;}
+  .spark::after{content:""; position:absolute; inset:0; background:radial-gradient(150px 90px at 92% 0%, rgba(196,154,74,.16), transparent 70%); pointer-events:none;}
+  .hero::after{content:""; position:absolute; left:0; right:0; top:0; height:130%; background:radial-gradient(60% 55% at 82% 0%, rgba(255,255,255,.13), transparent 62%); pointer-events:none;}
+  .lk,.yt,.card,.pager a{will-change:transform;}
+  /* 모션 (저모션 사용자 보호: no-preference 일 때만) */
+  @media (prefers-reduced-motion: no-preference){
+    /* 블록 진입 — 순수 CSS 스태거(fill-mode both → 항상 보이게 끝남, JS 의존 0) */
+    .wrap > *, .home-wrap > *{animation:vBlockIn .55s cubic-bezier(.22,1,.36,1) both;}
+    .wrap > *:nth-child(1),.home-wrap > *:nth-child(1){animation-delay:.03s;}
+    .wrap > *:nth-child(2),.home-wrap > *:nth-child(2){animation-delay:.10s;}
+    .wrap > *:nth-child(3),.home-wrap > *:nth-child(3){animation-delay:.17s;}
+    .wrap > *:nth-child(4),.home-wrap > *:nth-child(4){animation-delay:.24s;}
+    .wrap > *:nth-child(5),.home-wrap > *:nth-child(5){animation-delay:.31s;}
+    .wrap > *:nth-child(6),.home-wrap > *:nth-child(6){animation-delay:.37s;}
+    .wrap > *:nth-child(7),.home-wrap > *:nth-child(7){animation-delay:.43s;}
+    .wrap > *:nth-child(n+8),.home-wrap > *:nth-child(n+8){animation-delay:.48s;}
+    @keyframes vBlockIn{from{opacity:0; transform:translateY(15px);} to{opacity:1; transform:none;}}
+    .crow .cbar{transition:width 1.05s cubic-bezier(.22,1,.36,1);}
+    .hero h1{animation:vHeroRise .55s ease both;}
+    .hero .kicker{animation:vHeroRise .55s .06s ease both;}
+    .hero .era{animation:vHeroRise .55s .12s ease both;}
+    @keyframes vHeroRise{from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:none;}}
+    .quiz-opt.correct{animation:vPop .42s ease;}
+    @keyframes vPop{0%{transform:scale(1);} 42%{transform:scale(1.035);} 100%{transform:scale(1);}}
+  }
+</style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-ant-path@1.3.0/dist/leaflet-ant-path.js"></script>
+</head>
+<body>
+<div id="progress"></div>
+<div class="layout">
+  <nav class="sidebar" id="sidebar">
+    <a class="hub-back" id="hubBack" href="../index.html">← 역사 이야기 허브</a>
+    <div class="brand" id="brandHome"><div class="bt" id="brandTitle"></div><span class="sub" id="brandSub"></span></div>
+    <ul class="nav" id="navList"></ul>
+    <div class="side-foot" id="sideFoot"></div>
+  </nav>
+  <div class="scrim" id="scrim"></div>
+  <main class="content">
+    <div class="topbar"><button class="hamb" id="hamb" aria-label="메뉴">☰</button><span class="tb-title" id="tbTitle"></span><a class="tb-hub" id="tbHub" href="../index.html">🏛️ 역사 허브</a></div>
+    <div id="view"></div>
+  </main>
+</div>
+<div id="tip"></div>
+
+<!-- 에피소드 데이터 (build.py가 주입) -->
+<script id="episode-data">window.EPISODE = {"meta": {"lang": "ko", "slug": "korea/east-asia", "title": "동아시아 속의 한국 — 관계사로 다시 읽기", "description": "한국사를 고립된 ‘국사’가 아니라 동아시아 관계사로 다시 읽는 캡스톤. 중국과의 사대·책봉·조공, 일본과의 교린·통신사·양란, 북방 민족과의 천 년, 중화질서 속 작은 나라의 외교 지혜, 그리고 오늘의 역사 갈등까지 — 시대를 가로질러 ‘관계’의 눈으로 통째로 다시 보는 통사.", "brand": {"title": "동아시아 속의 한국", "sub": "관계사로 다시 읽기"}, "hub": {"url": "../index.html", "label": "← 한국사 이야기"}, "foot": "한국사 이야기 · 캡스톤 · <b>동아시아 속의 한국</b><br>관계의 눈으로 시대를 가로질러", "home": {"h1": "동아시아 속의<br>한국", "sub": "중국·일본·북방과의 관계로 다시 읽는 우리 역사 — 캡스톤", "quote": {"text": "큰 나라를 섬기고(事大) 이웃과 사귄다(交隣).", "by": "조선의 외교 원칙 ‘사대교린’ — 작은 나라가 평화를 지키는 지혜"}, "intro": "지금까지 우리는 선사부터 근대까지 한국사를 ‘시간 순서’로 걸어왔어요. 이제 마지막으로, 같은 역사를 <b>‘관계’의 눈</b>으로 다시 봐요. 한반도는 늘 거대한 이웃들 사이에 있었어요 — 서쪽의 <b>중국</b>, 동쪽의 <b>일본</b>, 북쪽의 <b>유목·만주 세력</b>. 우리 역사의 큰 사건들(삼국 통일, 고려의 항쟁, 임진왜란, 국권 피탈)은 모두 이 ‘관계’ 속에서 일어났죠. 사대와 교린, 책봉과 조공, 통신사와 왜구, 그리고 양란 — 이 낱말들을 ‘굴종이냐 자주냐’의 단순한 잣대가 아니라, <b>작은 나라가 거대한 이웃들 사이에서 살아남고 자기 것을 지킨 지혜와 고투</b>로 읽어 봐요. 관계사로 보면, 한국사가 더 입체적으로 보입니다.", "startPrimary": {"label": "처음부터 — 관계라는 무대 →", "to": "frame"}, "startStar": {"label": "★ 중화질서 속 생존의 지혜", "to": "system"}, "pathLabel": "동아시아 관계사"}}, "terms": {"사대교린": "큰 나라(중국)는 사대(事大)로 섬기고, 이웃 나라(일본·여진)와는 교린(交隣)으로 사귄다는 외교 원칙. 굴종이 아니라, 작은 나라가 전쟁을 피하고 평화·교역을 얻으려는 현실적 전략이었어요.", "책봉·조공": "동아시아의 외교 형식. 작은 나라의 왕이 중국 황제에게 예물을 보내면(조공), 황제가 그 왕을 정식 통치자로 인정해 주는(책봉) 체제예요. 형식은 상하 관계였지만, 실제로는 평화 유지와 무역의 통로이기도 했죠.", "중화질서": "중국(중화)을 천하의 중심으로 두고, 주변 나라들이 책봉·조공으로 그와 관계 맺던 동아시아의 국제 질서. 19세기 서구·일본의 등장으로 무너졌어요.", "조선통신사": "조선이 일본(에도 막부)에 보낸 대규모 외교 사절단. 임진왜란 후 200여 년간 12차례 오가며, 외교뿐 아니라 학문·예술·문화를 활발히 교류했어요.", "왜구": "주로 일본을 근거로 한반도·중국 해안을 약탈한 해적 집단. 고려 말~조선 초에 극심했고, 이를 막는 일이 국가의 큰 과제였어요.", "양란": "조선이 겪은 두 큰 전쟁 — 일본의 침입인 임진왜란과 청의 침입인 병자호란을 함께 이르는 말이에요.", "동북공정": "2000년대 초 중국이 추진한 연구 사업으로, 고구려·발해 등 만주의 옛 역사를 ‘중국 지방사’로 편입하려 한 시도예요. 한국 학계는 명백한 역사 왜곡으로 보고 비판해요.", "임나일본부설": "고대에 일본(야마토)이 한반도 남부(가야)를 지배했다는 일본 측 옛 주장. 현재는 사료·고고학적으로 근거가 부족해 학계에서 받아들여지지 않아요."}, "sections": [{"id": "frame", "num": "01", "label": "관계라는 무대 — 반도의 운명", "accent": "#22305c", "kicker": "지정학·관계사로 읽기 · 캡스톤 도입", "era": "시대를 가로질러", "motif": "globe", "title": "관계라는 무대 — 반도의 운명", "hook": "지도를 펼쳐 한반도를 봐요. 서쪽엔 거대한 중국, 동쪽엔 바다 건너 일본, 북쪽엔 드넓은 초원과 만주. 한국은 늘 이 거대한 이웃들 ‘사이’에 있었어요. 그래서 우리 역사의 큰 사건들은 거의 다, 홀로 일어난 게 아니라 이 ‘관계’ 속에서 벌어졌죠. 한국사를 ‘관계의 눈’으로 다시 보면 무엇이 새로 보일까요?", "spark": {"icon": "🤯", "title": "‘국사(國史)’만으로는 절반만 보인다", "body": "삼국 통일도, 고려의 몽골 항쟁도, 임진왜란도, 국권 피탈도 — 한국 ‘안’의 일만으로는 설명되지 않아요. 모두 <b>중국·일본·북방과의 관계</b> 속에서 일어났죠. 한국사는 처음부터 <b>동아시아사의 한 부분</b>이었던 거예요.", "mind": "그렇다고 ‘우리는 주변에 휘둘리기만 했다’는 뜻은 아니에요. 오히려 반대예요 — 거대한 이웃들 사이에서 <b>어떻게 살아남고, 무엇을 받아들이고, 무엇을 지킬지</b>를 끊임없이 ‘선택’해 온 게 우리 역사거든요. 관계사로 읽는다는 건, 그 선택의 무게와 지혜를 함께 보는 일이에요."}, "why": "한국사는 ‘반도(半島)’라는 지리 위에서 펼쳐졌어요. 대륙과 해양을 잇는 다리이자, 거대한 세력들이 만나는 길목이었죠. 이 위치는 축복이자 시련이었어요 — 중국의 선진 문물이 우리를 거쳐 일본으로 전해지는 <b>문명의 통로</b>였지만, 동시에 대륙 세력(거란·몽골)과 해양 세력(왜구·일본)의 <b>압력이 부딪치는 자리</b>이기도 했죠. 그래서 한국사를 제대로 이해하려면, ‘우리 안의 일’만 보는 <b>국사(國史)</b>를 넘어 ‘이웃과의 관계’를 함께 보는 <b>관계사</b>의 눈이 필요해요. 이 캡스톤에서는 지금까지 시간 순서로 본 사건들을, 이번엔 <b>세 방향의 관계</b>로 다시 묶어 봐요 — 서쪽의 <b>중국</b>, 동쪽의 <b>일본</b>, 북쪽의 <b>유목·만주</b>. 그리고 그 모든 관계를 떠받친 ‘중화질서’와, 그 속에서 작은 나라가 발휘한 외교의 지혜까지 들여다보죠.", "connect": "먼저, 우리 역사에 가장 깊은 영향을 준 이웃 — 서쪽의 중국과의 관계부터 봐요. ‘사대’와 ‘조공’이라는 말의 진짜 뜻을, 오해를 걷어 내고 따져 봅니다. →", "reflect": ["‘반도’라는 위치는 우리에게 ‘문명의 통로’이자 ‘압력의 길목’이었어요. 같은 지리가 축복도 시련도 될 수 있다면, 한 나라의 운명을 가르는 것은 ‘위치’ 자체일까요, 아니면 그 위치에서 내리는 ‘선택’일까요?"], "order": ["hook", "spark", "why", "connect", "reflect"]}, {"id": "china", "num": "02", "label": "서쪽 — 중국, 사대의 진짜 뜻", "accent": "#9e2b25", "kicker": "사대·책봉·조공·문화 수용과 독자성", "era": "고조선 ~ 19세기", "motif": "book", "title": "서쪽 — 중국, 사대의 진짜 뜻", "hook": "‘사대(事大)’라는 말을 들으면 어떤 느낌이 드나요? ‘큰 나라를 섬기다니, 자존심도 없나?’ 싶을 수 있어요. 하지만 그건 오늘날의 눈으로 본 오해일 수 있어요. 그 시대에 ‘사대’와 ‘조공’은, 작은 나라가 거대한 중국과 평화롭게 지내고 실리를 얻는 — 일종의 ‘외교 시스템’이었거든요.", "spark": {"icon": "🤯", "title": "조공은 ‘손해 보는 장사’가 아니었다", "body": "조공을 바치면, 중국 황제는 보통 그보다 <b>더 값진 답례품(회사품)</b>을 내렸어요. 게다가 사절단이 오가며 <b>공식 무역</b>이 이뤄졌죠. 그래서 주변 나라들은 오히려 ‘조공할 기회를 더 달라’고 요청하기도 했어요.", "mind": "‘조공=일방적 굴종·수탈’이라는 생각은 사실과 달라요. 그것은 <b>평화 보장 + 무역 + 선진 문물 수입</b>을 한꺼번에 얻는 통로였죠. 물론 형식상으로는 상하 관계였지만, 작은 나라는 그 ‘형식’을 받아들이는 대가로 <b>실질적 이익과 안전</b>을 챙긴 거예요. 외교를 ‘체면’이 아니라 ‘실리’로 읽어야 하는 이유죠."}, "why": "중국은 한국사에 가장 깊은 영향을 준 이웃이었어요. 관계의 기본 틀은 <b>책봉과 조공</b>이었죠 — 우리 왕이 중국 황제에게 예물을 보내면(조공), 황제가 그를 정식 통치자로 인정하는(책봉) 형식이에요. 이를 ‘큰 나라를 섬긴다’ 하여 <b>사대(事大)</b>라 했죠. 하지만 이것은 굴종이 아니라, <b>전쟁을 피하고 무역과 문물을 얻는 현실적 외교</b>였어요. 실제로 조공 무역은 손해가 아니라 이득인 경우가 많았고, 우리는 이 통로로 유교·불교·律令·기술을 받아들여 나라의 틀을 세웠죠. 동시에 우리는 받아들이기만 한 게 아니라 <b>독자적인 것</b>을 만들어 냈어요 — 한자를 쓰면서도 <b>훈민정음</b>을 창제하고, 중국 자기를 배우되 <b>고려청자</b>라는 독보적 아름다움을 빚었으며, 때로는 <b>황제를 자처</b>(고려 광종)하기도 했죠. ‘사대’ 속에서도 ‘자주’를 지킨 — 받아들임과 독자성의 균형이 한국사의 한 핵심이에요.", "image": {"h": "사료로 보기 — 혼일강리역대국도지도 🖼️", "story": "조선 초(1402)에 만든 세계지도 <b>혼일강리역대국도지도</b>예요. 당시 동아시아에서 가장 뛰어난 세계지도로 꼽히죠. 가운데 거대한 <b>중국</b>이 있고 그 동쪽에 <b>조선</b>이 실제보다 크게 그려져 있어요 — 중국 중심의 세계관(중화질서)을 받아들이면서도, 자기 나라를 당당히 큰 비중으로 그린 ‘<b>받아들임과 자부심</b>’이 한 장에 담겨 있죠.", "src": "img/gangnido.jpg", "alt": "1402년 조선에서 만든 세계지도 혼일강리역대국도지도 — 중국과 조선이 크게 그려진 옛 지도", "caption": "혼일강리역대국도지도(1402) — 중화질서와 자부심이 함께 담긴 세계지도.", "source": "Wikimedia Commons", "license": "퍼블릭 도메인"}, "connect": "서쪽 중국과 ‘사대’로 관계 맺은 한국. 그렇다면 동쪽 바다 건너 일본과는 어땠을까요? 문화를 전해 주던 ‘교린’의 시대부터, 왜구와 임진왜란의 충돌, 그리고 근대의 뼈아픈 역전까지 — 한일관계의 빛과 그림자로 가 봐요. →", "reflect": ["우리는 중국의 문물을 받아들이면서도 훈민정음·고려청자처럼 독자적인 것을 만들었어요. ‘남의 좋은 것을 배우는 일’과 ‘나만의 것을 지키는 일’은 서로 충돌할까요, 아니면 함께 갈 수 있을까요? 너의 생각은?"], "order": ["hook", "spark", "why", "image", "connect", "reflect"]}, {"id": "japan", "num": "03", "label": "동쪽 — 일본, 교린과 양란", "accent": "#2f6b58", "kicker": "교린·통신사·왜구·임진왜란·근대의 역전", "era": "고대 ~ 20세기", "motif": "wave", "title": "동쪽 — 일본, 교린과 양란", "hook": "동쪽 바다 건너 일본과의 관계는, 한마디로 ‘<b>주고받음과 충돌</b>’의 이중주였어요. 고대에는 우리가 선진 문물을 전해 주는 ‘스승’이었고, 조선 시대엔 통신사가 오가며 활발히 교류했죠. 하지만 왜구의 약탈과 임진왜란의 참화가 있었고, 끝내 근대에는 식민 지배라는 뼈아픈 역전까지 — 가장 가깝기에 가장 복잡한 이웃이었어요.", "spark": {"icon": "🤯", "title": "한때 일본은 우리에게 ‘배우러 오던’ 나라였다", "body": "삼국시대, 백제는 일본에 <b>한자·불교·유교·기술</b>을 전했어요. 왕인 박사가 《천자문》을 전하고, 백제 장인들이 절과 불상을 만들어 줬죠. 일본 고대 문화(아스카 문화)의 바탕에는 한반도의 영향이 짙게 깔려 있어요.", "mind": "지금의 한일 관계만 보면 상상하기 어렵지만, <b>역사 속 관계는 시대마다 뒤바뀌었어요</b>. 고대엔 우리가 ‘문화를 전하는 쪽’이었고, 근대엔 ‘침략당하는 쪽’이 됐죠. 한 나라 사이의 관계도 영원히 고정된 게 아니라 ‘변한다’는 것 — 그래서 지금의 관계 역시 ‘만들어 갈 수 있다’는 뜻이기도 해요."}, "why": "일본과의 관계는 시대마다 모습을 바꿨어요. <b>고대</b>에는 백제·가야가 일본에 한자·불교·기술을 전해 준 ‘<b>문화 전파</b>’의 시대였죠(다만 ‘<b>임나일본부설</b>’처럼 일본이 한반도 남부를 지배했다는 옛 주장은 근거가 부족해 학계에서 인정받지 못해요). <b>고려 말~조선</b>에는 <b>왜구</b>의 약탈이 큰 골칫거리였지만, 조선은 일본과 ‘<b>교린</b>’ 관계를 맺어 무역을 허용하고(3포 개항) 평화를 관리했어요. 그러다 1592년 <b>임진왜란</b>이라는 대전쟁이 터졌고, 그 상처에도 불구하고 전쟁 후엔 <b>조선통신사</b>가 200여 년간 12차례 오가며 문화·학문을 깊이 교류했죠 — 일본 지식인들이 통신사의 글씨 한 점을 얻으려 줄을 섰을 만큼요. 그러나 <b>근대</b>에 일본이 먼저 서구화에 성공하면서 관계는 역전됐고, 끝내 <b>국권 피탈</b>이라는 비극으로 이어졌어요. 가장 가까운 이웃이기에, 그 관계는 가장 복잡하고 깊은 자국을 남겼습니다.", "legend": {"title": "해와 달이 된 부부 — 연오랑과 세오녀", "body": "신라 때, 동해 바닷가에 <b>연오랑과 세오녀</b> 부부가 살았어요. 어느 날 연오랑이 바위(혹은 물고기)를 타고 <b>일본으로 건너가</b> 그곳의 왕이 되었고, 남편을 찾아 나선 세오녀도 뒤따라 건너가 왕비가 되었죠. 그러자 신라의 <b>해와 달이 빛을 잃었는데</b>, 세오녀가 짠 비단으로 하늘에 제사를 지내자 다시 빛이 돌아왔다고 전해져요.", "moral": "이 신화에는 <b>고대에 한반도 사람들이 일본으로 건너가 문화를 전한</b> 실제 역사가 어렴풋이 비쳐요(‘왕이 되었다’는 건 그만큼 앞선 문물을 가져갔다는 뜻이겠죠). 신화는 사실 그대로는 아니지만, 그 속엔 오래된 ‘교류의 기억’이 담겨 있어요.", "source": "《삼국유사》에 전하는 신라 설화 〈연오랑과 세오녀〉"}, "image": {"h": "사료로 보기 — 조선통신사 행렬 🖼️", "story": "임진왜란 후, 조선이 일본에 보낸 <b>조선통신사</b>의 행렬을 그린 그림이에요. 수백 명의 사절단이 화려한 행렬을 이루며 에도(지금의 도쿄)까지 갔죠. 통신사는 단순한 외교 사절이 아니라, 글씨·그림·학문을 나누는 ‘<b>걸어 다니는 문화 교류단</b>’이었어요. 전쟁의 상처를 딛고 200여 년간 평화롭게 오간, 한일 교류의 상징이죠.", "src": "img/tongsinsa.jpg", "alt": "조선통신사의 행렬을 그린 옛 그림 — 깃발과 가마, 많은 사절단의 모습", "caption": "조선통신사 행렬도 — 전쟁의 상처를 딛고 이어진 평화 교류.", "source": "Wikimedia Commons", "license": "퍼블릭 도메인"}, "connect": "서쪽 중국, 동쪽 일본. 이제 남은 한 방향, 북쪽을 봐요. 거란·여진·몽골·만주족 — 끊임없이 부딪히고 또 섞인 ‘북방’과의 천 년 관계, 그리고 만주라는 잊힌 무대로 가 봐요. →", "reflect": ["한일 관계는 시대마다 ‘문화를 전하는 쪽 ↔ 침략당하는 쪽’으로 뒤바뀌었어요. 관계가 ‘고정된 것이 아니라 변하는 것’이라면, 오늘날 우리가 이웃 나라와 맺을 관계는 무엇이 결정한다고 생각하니?"], "order": ["hook", "spark", "why", "legend", "image", "connect", "reflect"]}, {"id": "north", "num": "04", "label": "북쪽 — 초원과 만주의 천 년", "accent": "#5a4a3a", "kicker": "거란·여진·몽골·만주 · 만주라는 무대", "era": "고대 ~ 조선", "motif": "crowd", "title": "북쪽 — 초원과 만주의 천 년", "hook": "우리는 흔히 한국사를 ‘한반도 안’의 이야기로만 생각해요. 하지만 고구려와 발해는 <b>만주</b>의 드넓은 땅을 호령했고, 그 뒤로도 거란·여진·몽골·만주족 같은 북방 세력은 끊임없이 우리와 부딪히고 또 섞였어요. 남쪽 바다(일본)만큼이나, 북쪽 대륙도 우리 역사의 거대한 한 축이었죠.", "spark": {"icon": "🤯", "title": "우리를 가장 많이 침략한 건 ‘북쪽’이었다", "body": "한국사의 큰 외침을 꼽아 보면 — 수·당(고구려), 거란(고려), 여진/금, 몽골(고려), 그리고 청(병자호란)까지 — <b>대부분이 북쪽 대륙 세력</b>이었어요. 일본의 침입(임진왜란·근대)보다 훨씬 잦고 오래됐죠.", "mind": "그만큼 ‘북방을 어떻게 상대하느냐’가 늘 나라의 사활이 걸린 문제였어요. 그리고 흥미로운 건, 우리가 그들을 <b>막기만 한 게 아니라</b> 발해처럼 함께 어울려 살기도 하고, 그들의 문물을 받아들이기도 했다는 거예요. 북방은 ‘적’이자 ‘이웃’이라는 두 얼굴을 가진, 복잡한 관계였죠."}, "why": "북방과의 관계는 한국사의 가장 오래된 축이에요. <b>고구려</b>는 만주를 무대로 수·당의 대군과 맞섰고(살수대첩·안시성), 그 땅을 이은 <b>발해</b>는 고구려 유민과 말갈족이 함께 세운 ‘<b>해동성국</b>’이었죠. 고려는 <b>거란</b>(서희·강감찬)과 <b>여진</b>(윤관), 그리고 세계 제국 <b>몽골</b>과 40년을 싸웠고, 조선은 여진족이 세운 <b>청</b>에게 병자호란의 굴욕을 겪었어요. 그런데 북방은 ‘막아야 할 적’이기만 한 게 아니었어요 — 발해처럼 <b>함께 어우러진</b> 경우도, 그들의 기마·문물을 받아들인 경우도 있었죠. 한편 만주는 ‘<b>잊힌 무대</b>’이기도 해요. 고구려·발해의 옛 땅이지만 지금은 중국 영토라, <b>간도</b> 문제나 뒤에 볼 <b>동북공정</b>처럼 역사 귀속을 둘러싼 예민한 논쟁이 이어지고 있어요. 북방과의 천 년은, 우리 역사의 무대가 한반도보다 훨씬 넓었음을 일깨워 줍니다.", "connect": "중국·일본·북방, 세 방향의 관계를 봤어요. 그런데 이 모든 관계를 하나로 묶어 굴러가게 한 ‘큰 틀’이 있었어요 — ‘중화질서’라는 국제 시스템이에요. 그 안에서 작은 나라가 어떻게 살아남았는지, 외교의 지혜를 들여다봐요. →", "reflect": ["고구려·발해는 만주를 호령했지만, 지금 그 땅은 우리 영토가 아니에요. ‘옛날 우리 땅이었다’는 사실과 ‘지금은 다른 나라 땅이다’라는 현실 사이에서, 역사는 어떤 태도로 다뤄야 할까요?"], "order": ["hook", "spark", "why", "connect", "reflect"]}, {"id": "system", "num": "05", "label": "중화질서 속, 작은 나라의 지혜", "accent": "#6b2b2b", "star": true, "kicker": "책봉-조공 체제·생존 외교 · 관계사의 핵심", "era": "관계사의 작동 원리", "motif": "book", "title": "중화질서 속, 작은 나라의 지혜", "hook": "지금까지 본 세 방향의 관계는, 사실 하나의 거대한 ‘틀’ 안에서 움직였어요 — 중국을 중심에 둔 국제 질서, ‘중화질서’예요. 작은 나라 한국은 이 틀을 거부할 힘이 없었죠. 그렇다면 그저 끌려다니기만 했을까요? 아니에요. 바로 이 틀 ‘안에서’, 작은 나라는 놀라운 외교의 지혜를 발휘했어요.", "spark": {"icon": "🤯", "title": "말 한마디로 강동 6주를 얻은 나라", "body": "거란이 80만 대군으로 쳐들어왔을 때, 고려의 <b>서희</b>는 싸우는 대신 적장과 마주 앉아 ‘<b>논리</b>’로 협상했어요. 거란이 진짜 원하는 게 무엇인지(고려와 송의 단교)를 꿰뚫어 보고, 오히려 <b>강동 6주라는 땅까지 얻어</b> 냈죠. 칼이 아니라 ‘말’로 거둔 승리였어요.", "mind": "이것이 ‘작은 나라의 외교 지혜’의 정수예요. 힘으로 안 되면 <b>상대가 무엇을 원하는지 읽고</b>, 큰 틀(중화질서)은 받아들이되 그 안에서 <b>실리를 최대로 챙기는</b> 것. 광해군의 ‘중립 외교’도 같은 지혜였죠 — 명분(의리)과 실리(생존) 사이에서 끊임없이 저울질하는 것이, 강대국 사이에 낀 나라의 숙명이자 기술이었어요."}, "why": "<b>중화질서</b>는 중국을 천하의 중심으로 두고, 주변 나라들이 <b>책봉·조공</b>으로 그와 관계 맺던 동아시아의 국제 시스템이에요. 작은 나라 한국은 이 질서를 받아들였지만, 그 안에서 <b>생존과 실리를 위한 정교한 외교</b>를 펼쳤죠. <b>서희</b>는 거란의 침입을 외교 담판으로 돌려 강동 6주를 얻었고(993), 고려는 송·거란·금 사이에서 <b>등거리 외교</b>로 균형을 잡았어요. 조선의 <b>광해군</b>은 기우는 명과 떠오르는 후금 사이에서 <b>중립 외교</b>로 전쟁을 피하려 했죠(비록 인조반정으로 좌절됐지만요). 이처럼 한국의 외교는 ‘<b>명분이냐 실리냐</b>’, ‘<b>사대냐 자주냐</b>’ 사이에서 끊임없이 저울질하는 고난도의 기술이었어요. 그래서 ‘사대’를 ‘비굴함’으로만 깎아내리거나, 반대로 모든 저항을 ‘무모한 자주’로 미화하는 것 — 둘 다 한쪽만 보는 거예요. 거대한 이웃들 사이에서 천 년 넘게 나라를 지켜 낸 그 균형 감각이야말로, 관계사가 우리에게 보여 주는 가장 값진 유산이죠.", "cards": [{"yr": "서희 (993)", "h": "논리로 땅을 얻다", "p": "거란의 침입을 외교 담판으로 돌려세우고 강동 6주를 얻었어요. ‘상대가 원하는 것’을 읽어 협상한, 외교 지혜의 상징이에요."}, {"yr": "고려의 등거리 외교", "h": "균형으로 살아남다", "p": "송·거란·금 사이에서 어느 한쪽에 치우치지 않고 실리를 챙겼어요. 약소국이 강대국들 사이에서 균형을 잡는 기술이었죠."}, {"yr": "광해군 (17세기)", "h": "명분과 실리 사이", "p": "기우는 명과 떠오르는 후금 사이에서 중립 외교로 전쟁을 피하려 했어요. 비록 좌절됐지만, ‘생존을 위한 현실 외교’의 대표적 사례예요."}], "connect": "천 년 넘게 작동하던 중화질서는, 19세기 서구와 일본의 등장으로 끝내 무너졌어요. 그리고 그 무너짐의 끝에 국권 피탈이 있었죠. 그렇다면 오늘의 동아시아는 어떨까요? 과거의 관계가 남긴 갈등과, ‘관계사로 읽기’가 주는 지혜를 짚으며 이 긴 여정을 마무리해요. →", "reflect": ["‘사대’를 무조건 비굴함으로 보거나, 모든 저항을 무조건 영웅적 자주로 미화하는 것 — 둘 다 한쪽만 보는 거예요. 너라면 강대국 사이에 낀 작은 나라의 외교를, 어떤 기준으로 ‘잘했다/못했다’ 평가하겠니?"], "order": ["hook", "spark", "why", "cards", "connect", "reflect"]}, {"id": "today", "num": "06", "label": "오늘의 동아시아, 그리고 우리", "accent": "#2c3a6b", "kicker": "역사 갈등·관계사의 지혜 · 열린 결말", "era": "근현대 ~ 오늘", "motif": "globe", "title": "오늘의 동아시아, 그리고 우리", "hook": "천 년을 이어 온 중화질서는 무너졌고, 한국·중국·일본은 이제 ‘대등한 이웃 나라’가 됐어요. 하지만 과거의 관계가 남긴 그림자는 여전히 길어요 — 역사 교과서, 영토, 옛 역사의 귀속을 둘러싼 갈등이 지금도 계속되죠. 긴 여정의 끝에서, 우리는 이 이웃들과 어떤 관계를 만들어 가야 할까요?", "spark": {"icon": "🤯", "title": "1,500년 전 역사가 ‘오늘의 외교 문제’가 되다", "body": "중국의 <b>동북공정</b>(고구려·발해를 중국사로 편입하려는 시도), 일본의 <b>역사 교과서</b>·과거사 문제, 그리고 영토 갈등 — 이 모두는 <b>먼 옛날의 역사</b>가 오늘날 나라 사이의 ‘<b>현재 진행형 갈등</b>’이 된 사례예요.", "mind": "역사는 ‘지나간 과거’가 아니에요. <b>누가 그 역사를 어떻게 해석하느냐</b>는, 오늘날의 자부심·정체성·국제 관계와 직결되죠. 그래서 ‘사실에 근거해, 균형 있게, 그러나 또렷이’ 역사를 따지는 일이 이토록 중요한 거예요. 이 시리즈 내내 우리가 ‘외우는 역사’가 아니라 ‘<b>따지는 역사</b>’를 연습해 온 까닭이기도 하죠."}, "why": "19세기, 천 년을 이어 온 <b>중화질서</b>가 서구와 일본의 등장으로 무너졌어요. 그 격변 속에서 한국은 국권을 잃었고(앞의 ‘근대’ 편), 광복 후엔 분단을 겪었죠. 오늘날 한·중·일은 형식상 대등한 주권 국가지만, 과거의 관계가 남긴 <b>역사 갈등</b>은 현재진행형이에요 — 중국의 <b>동북공정</b>, 일본의 과거사·교과서 문제와 영토 갈등처럼요. 이런 갈등 앞에서 필요한 건 ‘무조건적인 미움’도 ‘무조건적인 화해’도 아니에요. <b>사실에 근거해 또렷이 따지되, 상대를 악마화하지 않고, 관계의 긴 역사를 함께 보는</b> 균형 잡힌 눈이죠. 관계사로 읽기가 우리에게 주는 가장 큰 선물이 바로 이거예요 — 우리 역사가 늘 ‘이웃과의 관계 속’에 있었음을 알면, 미래의 관계도 ‘운명’이 아니라 ‘우리가 만들어 가는 것’임을 깨닫게 되죠. 자, 선사의 고인돌에서 시작한 긴 이야기가 여기까지 왔어요. 이제 그 끝에서, 다시 너에게 묻습니다 — 너는 이 역사를 어떻게 읽고, 어떤 미래를 만들어 가고 싶니?", "connect": "선사·고조선에서 시작해 삼국·고려·조선·근대를 지나, 동아시아 관계사까지 — 한국사의 긴 여정이 여기서 마무리돼요. 시간 순서로도, 관계의 눈으로도 읽어 본 우리 역사. 이제 전체 흐름을 한 번 더 돌아보며, 너만의 생각을 정리해 봐요. 한국사 이야기 허브로 →", "links": [{"label": "우리역사넷 — 동아시아 속 한국사", "url": "http://contents.history.go.kr/front", "note": "한·중·일 관계사와 역사 갈등(동북공정 등)을 사료와 함께 더 깊이 볼 수 있어요.", "source": "국사편찬위원회"}, {"label": "← 한국사 이야기 허브로 (전체 흐름 다시 보기)", "url": "../index.html", "note": "선사부터 근대까지, 그리고 관계사까지 — 한국사 6부 전체를 돌아봐요.", "source": "한국사 이야기"}], "reflect": ["이 시리즈 내내 우리는 ‘외우는 역사’가 아니라 ‘따지는 역사’를 연습했어요. 동북공정처럼 ‘역사 해석’이 오늘의 갈등이 되는 시대에, ‘역사를 잘 안다’는 것은 너에게 어떤 힘이 되어 줄까요?", "선사의 고인돌에서 동아시아 관계사까지 — 가장 인상 깊었던 한 장면은 무엇이었나요? 그리고 너는 ‘우리 역사’를 한마디로 어떻게 표현하고 싶나요?"], "order": ["hook", "spark", "why", "connect", "links", "reflect"]}]};</script>
+
+<!-- 렌더 엔진 (모든 에피소드 공통) -->
+<script>
+const EP = window.EPISODE;
+const META = EP.meta, TERMS = EP.terms||{}, SECTIONS = EP.sections, PEOPLE = EP.people||null;
+
+function T(text){ let out=text; for(const k of Object.keys(TERMS)){ out=out.split(k).join('<span class="term" data-term="'+k+'">'+k+'</span>'); } return out; }
+function ytURL(v){ return v.type==='search' ? 'https://www.youtube.com/results?search_query='+encodeURIComponent(v.q) : 'https://www.youtube.com/watch?v='+v.id; }
+
+const MOTIF = {
+  flag:'<path d="M40 30v140M40 36h110l-20 28 20 28H40" fill="none" stroke="#fff" stroke-width="7"/>',
+  crowd:'<g fill="#fff"><circle cx="60" cy="70" r="22"/><circle cx="110" cy="60" r="26"/><circle cx="150" cy="78" r="20"/><rect x="38" y="96" width="44" height="70" rx="18"/><rect x="84" y="90" width="52" height="80" rx="20"/><rect x="132" y="100" width="40" height="66" rx="16"/></g>',
+  book:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M105 50c-18-14-44-14-62 0v96c18-14 44-14 62 0M105 50c18-14 44-14 62 0v96c-18-14-44-14-62 0M105 50v96"/></g>',
+  map:'<g fill="none" stroke="#fff" stroke-width="6"><path d="M50 50l38 14 36-14 38 16v100l-38-16-36 14-38-14z"/><path d="M88 64v100M124 50v104"/></g>',
+  wave:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M30 110c20-26 40-26 60 0s40 26 60 0 40-26 40 0"/><path d="M30 150c20-26 40-26 60 0s40 26 60 0 40-26 40 0"/></g>',
+  sun:'<g fill="none" stroke="#fff" stroke-width="7"><circle cx="105" cy="105" r="34"/><path d="M105 40v22M105 148v22M40 105h22M148 105h22M58 58l16 16M152 152l-16-16M152 58l-16 16M58 152l16-16"/></g>',
+  split:'<g fill="none" stroke="#fff" stroke-width="7"><rect x="44" y="50" width="118" height="110" rx="10"/><path d="M103 50v110" stroke-dasharray="10 9"/></g>',
+  dove:'<g fill="#fff"><path d="M60 120c30 6 70-6 96-44-4 30-2 50 18 64-30 10-72 8-96-20z"/><circle cx="150" cy="74" r="6"/></g>',
+  globe:'<g fill="none" stroke="#fff" stroke-width="6"><circle cx="105" cy="105" r="58"/><ellipse cx="105" cy="105" rx="24" ry="58"/><path d="M47 105h116M55 76h100M55 134h100"/></g>',
+  ship:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M48 132h114l-16 30H64z"/><path d="M105 132V46M105 60l44 16-44 16M105 66l-34 12 34 12"/></g>',
+  torch:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M105 40c18 16 18 40 0 52-18-12-18-36 0-52z"/><path d="M88 96h34l-8 64H96z"/></g>',
+  gear:'<g fill="none" stroke="#fff" stroke-width="7"><circle cx="105" cy="105" r="26"/><path d="M105 52v18M105 140v18M52 105h18M140 105h18M68 68l13 13M137 137l-13-13M137 68l-13 13M68 137l13-13"/></g>'
+};
+
+const view=document.getElementById('view'), navList=document.getElementById('navList');
+const sidebar=document.getElementById('sidebar'), scrim=document.getElementById('scrim'), progress=document.getElementById('progress');
+let currentMap=null, bmaps=[];
+function killMap(){ if(currentMap){ try{currentMap.remove();}catch(e){} currentMap=null; }
+  bmaps.forEach(m=>{ try{m.remove();}catch(e){} }); bmaps=[]; }
+
+function visited(id){ return localStorage.getItem(META.slug+'_v_'+id)==='1'; }
+function markVisited(id){ localStorage.setItem(META.slug+'_v_'+id,'1'); }
+
+function head(){
+  if(META.hub){ const hb=document.getElementById('hubBack'); hb.href=META.hub.url; hb.textContent=META.hub.label;
+    const th=document.getElementById('tbHub'); if(th){ th.href=META.hub.url; } }
+  document.getElementById('brandTitle').textContent=META.brand.title;
+  document.getElementById('brandSub').textContent=META.brand.sub;
+  document.getElementById('sideFoot').innerHTML=META.foot||'';
+  document.getElementById('tbTitle').textContent=META.brand.title;
+}
+
+function buildNav(){
+  let html='<li><a class="home-link" data-id="home">🏠 홈 · 이야기 시작</a></li>'
+    +'<li><a class="notes-link" data-id="notes">📝 내 메모 모아보기</a></li>';
+  html+=SECTIONS.map(s=>'<li><a data-id="'+s.id+'" class="'+(s.star?'star':'')+' '+(visited(s.id)?'visited':'')+'">'
+    +'<span class="num">'+s.num+'</span>'+s.label+(s.star?'<span class="tag">★</span>':'')+'</a></li>').join('');
+  navList.innerHTML=html;
+  navList.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{ go(a.dataset.id); closeSide(); }));
+}
+
+function renderHome(){
+  const h=META.home;
+  view.innerHTML=
+  '<div class="home-hero"><h1>'+h.h1+'</h1><div class="hsub">'+h.sub+'</div>'
+  +(h.quote?'<div class="hq">"'+h.quote.text+'"<small>'+h.quote.by+'</small></div>':'')+'</div>'
+  +'<div class="home-wrap"><div class="home-intro">'+h.intro+'</div>'
+  +'<div class="start-btns"><a class="btn primary" data-id="'+h.startPrimary.to+'">'+h.startPrimary.label+'</a>'
+  +(h.startStar?'<a class="btn star" data-id="'+h.startStar.to+'">'+h.startStar.label+'</a>':'')+'</div>'
+  +'<h2 class="block" style="margin-top:34px;">'+(h.pathLabel||'이야기 흐름')+'</h2><ul class="path">'
+  +SECTIONS.map(s=>'<li class="'+(s.star?'star':'')+'" data-id="'+s.id+'"><span class="pn">'+s.num+'</span>'
+    +'<span><span class="ph">'+s.label+(s.star?' <span class="star-mark">★</span>':'')+'</span>'
+    +'<span class="pp">'+s.kicker+' · '+s.era+'</span></span></li>').join('')
+  +'</ul></div>';
+  view.querySelectorAll('[data-id]').forEach(el=>el.addEventListener('click',()=>{ go(el.dataset.id); closeSide(); }));
+  setActive('home'); window.scrollTo(0,0); progress.style.width='0%'; vfx();
+}
+
+function ytBlock(v){
+  const pill = v.type==='search' ? '<span class="pill find">검색</span>' : (v.lang==='en'?'<span class="pill en">영어·자막</span>':'<span class="pill ko">한국어</span>');
+  return '<a class="yt" href="'+ytURL(v)+'" target="_blank" rel="noopener">'
+    +'<span class="play '+(v.type==='search'?'search':'')+'">'+(v.type==='search'?'🔍':'▶')+'</span>'
+    +'<span class="yt-body"><span class="yt-title">'+v.title+'</span>'
+    +'<span class="yt-meta">'+pill+(v.channel?'<span class="pill">'+v.channel+'</span>':'')+(v.length?'<span>'+v.length+'</span>':'')+'</span>'
+    +'<span class="yt-desc">'+v.desc+'</span></span></a>';
+}
+function quoteBlock(q){ return '<div class="quote"><span class="qm">"</span><div class="qt">'+q.qt+'</div><span class="qs">'+q.qs+'</span></div>'; }
+function quizHTML(quiz,sid){
+  return '<h2 class="block">잠깐, 기억나니? 🧠</h2><div class="quizwrap">'
+    + quiz.map((q,qi)=>'<div class="quizq" data-qi="'+qi+'"><div class="qq">'+(qi+1)+'. '+q.q+'</div><div class="qopts">'
+      + q.options.map((o,oi)=>'<button class="quiz-opt" data-oi="'+oi+'">'+o+'</button>').join('')
+      + '</div><div class="qexp" id="qexp_'+sid+'_'+qi+'"></div></div>').join('')
+    + '</div>';
+}
+function mapHTML(m,sid){
+  return '<h2 class="block">지도로 보기 🗺️</h2><div class="mapwrap">'
+    + '<div class="lmap" id="lmap_'+sid+'"></div>'
+    + '<div class="mapcap">'+(m.caption||'')+(m.source?' <span class="msrc">· 지도 ⓒ '+m.source+'</span>':'')+'</div></div>';
+}
+function choiceHTML(c,sid){
+  const opts=c.options.map((o,i)=>'<div><button class="chopt" data-oi="'+i+'">'+o.label+'</button>'
+    +'<div class="chres" id="chres_'+sid+'_'+i+'">'+T(o.result)+'</div></div>').join('');
+  return '<h2 class="block">'+(c.h||'너라면? 🤔')+'</h2><div class="choice" id="ch_'+sid+'">'
+    +'<div class="chprompt">'+T(c.prompt)+'</div><div class="chopts">'+opts+'</div>'
+    +(c.after?'<div class="chafter" id="chafter_'+sid+'">💬 '+T(c.after)+'</div>':'')+'</div>';
+}
+function compareHTML(c,sid){
+  const tabs=c.states.map((st,i)=>'<button class="cmptab'+(i===0?' active':'')+'" data-ci="'+i+'">'+st.label+'</button>').join('');
+  return '<h2 class="block">'+(c.h||'견주어 보기 ⚖️')+'</h2><div class="compare" id="cmp_'+sid+'">'
+    +(c.intro?'<div class="cmpintro">'+T(c.intro)+'</div>':'')
+    +'<div class="cmptabs">'+tabs+'</div><div class="cmppanel" id="cmppanel_'+sid+'"></div></div>';
+}
+function chartHTML(c,sid){
+  const max=Math.max.apply(null, c.data.map(d=>d.value))||1;
+  const rows=c.data.map(d=>'<div class="crow"><div class="clabel">'+d.label+'</div>'
+    +'<div class="cbarwrap"><div class="cbar" style="width:'+(d.value/max*100)+'%"></div></div>'
+    +'<div class="cval">'+(d.disp||d.value)+'</div></div>').join('');
+  return '<h2 class="block">'+(c.h||'숫자로 보기 📊')+'</h2><div class="chart"><div class="ctitle">'+c.title+'</div>'
+    +(c.unit?'<div class="cunit">'+c.unit+'</div>':'')+rows
+    +(c.relatable?'<div class="crelate">💡 '+T(c.relatable)+'</div>':'')
+    +(c.source?'<div class="csrc">출처: '+c.source+'</div>':'')+'</div>';
+}
+function voiceHTML(v){
+  const real = v.imagined===false;
+  return '<h2 class="block">'+(v.h||'그 사람의 목소리 🗣️')+'</h2><div class="voice">'
+    + '<span class="vbadge '+(real?'real':'imag')+'">'+(real?'실제 기록':'✍️ 사실에 기반한 상상')+'</span>'
+    + '<div class="vbody">'+T(v.body)+'”</div>'
+    + '<div class="vspeaker"><b>— '+v.speaker+'</b>'+(v.era?' · '+v.era:'')+(v.source?'<span class="vsrc">'+v.source+'</span>':'')+'</div>'
+    + '</div>';
+}
+function imageHTML(im,sid){
+  const hs=im.hotspots||[];
+  return '<h2 class="block">'+(im.h||'자료로 보기 🖼️')+'</h2><figure class="figimg">'
+    + (im.story?'<div class="figstory">'+T(im.story)+'</div>':'')
+    + '<div class="imgbox" id="imgbox_'+sid+'">'
+    + '<img src="'+im.src+'" alt="'+(im.alt||'')+'" loading="lazy">'
+    + hs.map((h,i)=>'<button class="hsdot" data-hi="'+i+'" style="left:'+h.x+'%;top:'+h.y+'%" aria-label="'+(h.label||'')+'">'+(i+1)+'</button>').join('')
+    + '</div>'
+    + (hs.length?'<div class="hsinfo" id="hsinfo_'+sid+'">점(번호)을 눌러 보세요.</div>':'')
+    + '<figcaption class="figcap">'+(im.caption||'')+(im.source?' <span class="msrc">· 출처: '+im.source+(im.license?' · '+im.license:'')+'</span>':'')+'</figcaption>'
+    + '</figure>';
+}
+function oldmapHTML(o,sid){
+  return '<h2 class="block">'+(o.h||'옛 지도로 보기 🗺️')+'</h2><figure class="oldmap">'
+    + (o.story?'<div class="figstory">'+T(o.story)+'</div>':'')
+    + '<div class="oldmap-frame"><img src="'+o.src+'" alt="'+(o.alt||'')+'" loading="lazy"></div>'
+    + '<figcaption class="figcap">'+(o.caption||'')+(o.source?' <span class="msrc">· 출처: '+o.source+(o.license?' · '+o.license:'')+'</span>':'')+'</figcaption>'
+    + '</figure>';
+}
+function lensBlock(l){ return '<div class="lens"><div class="lh">🕯️ 그때 사람들은 이렇게 생각했어요</div><div>'+T(l)+'</div></div>'; }
+function legendHTML(lg){
+  return '<div class="legendbox"><div class="lgh">📖 전해 오는 이야기'+(lg.title?' — '+lg.title:'')+'</div>'
+    +'<div class="lgbody">'+T(lg.body)+'</div>'
+    +(lg.moral?'<div class="lgmoral">💭 '+T(lg.moral)+'</div>':'')
+    +(lg.source?'<div class="lgsrc">📜 '+lg.source+'</div>':'')+'</div>';
+}
+/* lineage(왕조 계보): 클릭/터치하면 펼쳐지는 왕 목록. 네이티브 <details>라 JS 없이도 동작(모바일 터치 OK). */
+function lineageRow(r){
+  return '<details class="lin-item'+(r.star?' lin-key':'')+'">'
+    +'<summary><span class="lin-n">'+(r.n||'')+'</span>'
+    +'<span class="lin-name">'+r.name+(r.star?' <span class="lin-star">★</span>':'')+'</span>'
+    +'<span class="lin-reign">'+(r.reign||'')+'</span></summary>'
+    +'<div class="lin-note">'+T(r.note||'')+'</div></details>';
+}
+function lineageHTML(lg){
+  let body='';
+  if(lg.dynasties){
+    body=lg.dynasties.map(function(d){
+      return '<div class="lin-dyn"><h3 class="lin-dyn-h">'+d.label+'</h3>'
+        +(d.intro?'<p class="lin-dyn-intro">'+T(d.intro)+'</p>':'')
+        +'<div class="lin-grid">'+d.rulers.map(lineageRow).join('')+'</div></div>';
+    }).join('');
+  } else {
+    body='<div class="lin-grid">'+(lg.rulers||[]).map(lineageRow).join('')+'</div>';
+  }
+  return '<h2 class="block">'+(lg.h||'왕조 계보')+'</h2>'
+    +(lg.intro?'<div class="lin-intro">'+T(lg.intro)+'</div>':'')
+    +'<div class="lineage">'+body+'</div>';
+}
+function personBlock(p){
+  return '<div class="person"><div class="pheader"><div class="pface">'+(p.face||'👤')+'</div>'
+    +'<div><div class="pname">'+p.name+'</div><div class="pwho">'+(p.who||'')+'</div></div></div>'
+    +(p.why?'<div class="pwhy">'+T(p.why)+'</div>':'')
+    +(p.quote?'<div class="pquote">"'+p.quote+'"</div>':'')
+    +(p.shadow?'<div class="pshadow">빛과 그림자 · '+p.shadow+'</div>':'')
+    +(p.slug?'<a class="pmore" href="../people/'+p.slug+'/">📖 인물 도감에서 더 보기 →</a>':'')+'</div>';
+}
+
+const FIT={green:{e:'🟢',t:'전체 관람'},yellow:{e:'🟡',t:'부모와 함께'},red:{e:'🔴',t:'핵심 장면·맥락만'}};
+function movieBlock(m){
+  const f=FIT[m.fit]||FIT.yellow;
+  let s='<div class="movie"><div class="mhead"><div class="mtitle">🎬 '+m.title+'</div>'
+    +'<span class="mfit '+(m.fit||'yellow')+'">'+f.e+' '+f.t+'</span></div>'
+    +'<div class="mmeta">'+[m.year,m.director].filter(Boolean).join(' · ')
+    +(m.basedOn?' · <b>'+m.basedOn+'</b>':'')+'</div>';
+  if(m.why) s+='<div class="mwhy">'+T(m.why)+'</div>';
+  if(m.realVsFiction) s+='<div class="mreal"><span class="lbl">실화 vs 각색</span>'+m.realVsFiction+'</div>';
+  let links=[];
+  if(m.slug) links.push('<a class="mlink slug" href="../people/'+m.slug+'/">📖 인물 도감</a>');
+  (m.links||[]).forEach(l=>links.push('<a class="mlink" href="'+l.url+'" target="_blank" rel="noopener">'+l.label+' ↗</a>'));
+  if(links.length) s+='<div class="mlinks">'+links.join('')+'</div>';
+  return s+'</div>';
+}
+function battlemapHTML(bm,sid,idx){
+  const id='bm_'+sid+'_'+idx;
+  let s='<h2 class="block">'+(bm.title||'전투 지도')+' 🗺️</h2><div class="battlemap" id="'+id+'">';
+  if(bm.intro) s+='<div class="bm-intro">'+T(bm.intro)+'</div>';
+  s+='<div class="bm-map" id="'+id+'_map"></div>'
+    +'<div class="bm-step"><button class="bm-prev" disabled>← 이전</button><div class="bm-plabel" id="'+id+'_lab"></div><button class="bm-next">다음 →</button></div>';
+  if(bm.legend&&bm.legend.length) s+='<div class="bm-legend">'+bm.legend.map(l=>'<span><i style="border-color:'+l.c+'"></i> '+l.label+'</span>').join('')+'</div>';
+  if(bm.caption) s+='<div class="bm-cap">'+bm.caption+'</div>';
+  return s+'</div>';
+}
+function deepdiveHTML(dd){
+  let s='<details class="deepdive"><summary>🔎 더 깊이 — 고등·일반 수준으로 (펼치기)</summary><div class="dd-body">';
+  dd.forEach(it=>{ s+='<div class="dd-item"><h3>'+it.h+'</h3><div class="dd-text">'+T(it.body)+'</div>'
+    +(it.source?'<div class="dd-src">📜 '+it.source+'</div>':'')+'</div>'; });
+  return s+'</div></details>';
+}
+function linksHTML(arr){
+  let s='<h2 class="block">더 깊이 알아보기 🔗</h2><div class="links">';
+  arr.forEach(it=>{ s+='<a class="lk" href="'+it.url+'" target="_blank" rel="noopener">'
+    +'<span class="lk-label">'+it.label+'</span>'
+    +(it.note?'<span class="lk-note">'+T(it.note)+'</span>':'')
+    +(it.source?'<span class="lk-src">'+it.source+'</span>':'')+'</a>'; });
+  return s+'</div>';
+}
+function sparkHTML(sp){
+  let s='<div class="spark"><div class="spark-h">'+(sp.icon||'🤯')+' '+(sp.title||'상상해보기')+'</div>';
+  s+='<div class="spark-body">'+T(sp.body)+'</div>';
+  if(sp.mind) s+='<div class="spark-mind"><b>🌀 상식 뒤집기</b> — '+T(sp.mind)+'</div>';
+  return s+'</div>';
+}
+function marchmapHTML(m,sid){
+  const SY=1.55; // viewBox 0 0 100 155 (베이스맵 종횡비 ≈ 1866/2891)
+  const P={}; (m.places||[]).forEach(p=>P[p.id]=p);
+  const placePhase={};
+  (m.phases||[]).forEach((ph,i)=>(ph.show||[]).forEach(id=>{ if(placePhase[id]===undefined) placePhase[id]=i; }));
+  const KIND={start:'🚩',battle:'⚔️',win:'✔️',loss:'✖️',capital:'🏯',city:'•'};
+  let dots='';
+  (m.places||[]).forEach(p=>{
+    const ph=placePhase[p.id]!==undefined?placePhase[p.id]:0;
+    const emo=KIND[p.kind]||'';
+    dots+='<div class="mm-place k-'+(p.kind||'city')+'" data-ph="'+ph+'" style="left:'+p.x+'%;top:'+p.y+'%">'
+      +'<span class="mm-dot"></span><span class="mm-lbl">'+(emo&&emo!=='•'?emo+' ':'')+p.label+'</span></div>';
+  });
+  let paths='';
+  (m.phases||[]).forEach((ph,i)=>{
+    (ph.arrows||[]).forEach(a=>{
+      const f=P[a.from], t=P[a.to]; if(!f||!t) return;
+      const fx=f.x, fy=f.y*SY, tx=t.x, ty=t.y*SY;
+      const mx=(fx+tx)/2, my=(fy+ty)/2, dx=tx-fx, dy=ty-fy;
+      const cx=(mx-dy*0.16).toFixed(1), cy=(my+dx*0.16).toFixed(1);
+      const tone=a.tone||'resist';
+      paths+='<path class="mm-arrow tone-'+tone+'" data-ph="'+i+'" d="M'+fx+' '+fy.toFixed(1)+' Q'+cx+' '+cy+' '+tx+' '+ty.toFixed(1)+'" marker-end="url(#mmh-'+tone+')"></path>';
+      if(a.label) paths+='<text class="mm-alab tone-'+tone+'" data-ph="'+i+'" x="'+cx+'" y="'+cy+'">'+a.label+'</text>';
+    });
+  });
+  const n=(m.phases||[]).length, first=(m.phases&&m.phases[0]?m.phases[0].label:'');
+  let s='<h2 class="block">진격으로 따라가기 🗺️</h2><div class="marchmap" id="mm_'+sid+'" data-ph="0" data-n="'+n+'">';
+  if(m.title) s+='<div class="mm-title">'+m.title+'</div>';
+  if(m.intro) s+='<div class="mm-intro">'+T(m.intro)+'</div>';
+  s+='<div class="mm-stage"><img class="mm-base" src="'+m.base.src+'" alt="'+(m.title||'지도')+'" loading="lazy">'
+    +'<svg class="mm-arrows" viewBox="0 0 100 155" preserveAspectRatio="xMidYMid meet"><defs>'
+    +'<marker id="mmh-resist" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" class="mh resist"/></marker>'
+    +'<marker id="mmh-invade" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" class="mh invade"/></marker>'
+    +'</defs>'+paths+'</svg>'+dots+'</div>';
+  s+='<div class="mm-step"><button class="mm-prev" disabled>← 이전</button>'
+    +'<div class="mm-plabel" id="mmlab_'+sid+'">'+first+'</div><button class="mm-next">다음 →</button></div>';
+  if(m.caption) s+='<div class="mm-cap">'+m.caption+'</div>';
+  return s+'</div>';
+}
+function relationsHTML(r,sid){
+  let s='<h2 class="block">힘의 관계 한눈에 보기 ⚖️</h2><div class="relations">';
+  if(r.title) s+='<div class="rtitle">'+r.title+'</div>';
+  if(r.intro) s+='<div class="rintro">'+T(r.intro)+'</div>';
+  s+='<div class="rsides">';
+  (r.sides||[]).forEach(side=>{
+    s+='<div class="rside '+(side.color||'')+'"><div class="rslabel">'+side.label+'</div>';
+    (side.members||[]).forEach(m=>{
+      s+='<div class="rmember"><b>'+m.name+'</b><span>'+(m.role||'')+'</span>'
+        +(m.slug?' <a class="rlink" href="../people/'+m.slug+'/">📖</a>':'')+'</div>';
+    });
+    s+='</div>';
+  });
+  s+='</div>';
+  if(r.tensions&&r.tensions.length){
+    s+='<div class="rtensions">';
+    r.tensions.forEach(t=>{ s+='<div class="rtension"><div class="rvs">⚔️ '+t.a+' ↔ '+t.b+'</div><div>'+T(t.label)+'</div></div>'; });
+    s+='</div>';
+  }
+  return s+'</div>';
+}
+// 블록 registry + 섹션별 순서(order) — 데이터로 흐름 제어. order 없으면 DEFAULT(하위호환).
+function renderBlocks(s){
+  const B={
+    hook:()=>'<p class="hook">'+T(s.hook)+'</p>'+(s.quote?quoteBlock(s.quote):''),
+    spark:()=>s.spark?sparkHTML(s.spark):'',
+    why:()=>'<h2 class="block">왜 중요할까</h2><div class="why">'+s.why+'</div>',
+    lens:()=>s.lens?lensBlock(s.lens):'',
+    legend:()=>s.legend?legendHTML(s.legend):'',
+    lineage:()=>s.lineage?lineageHTML(s.lineage):'',
+    voice:()=>s.voice?voiceHTML(s.voice):'',
+    cards:()=>s.cards?('<h2 class="block">핵심 따라가기</h2><div class="cards">'
+      +s.cards.map(c=>'<div class="card"><span class="yr">'+c.yr+'</span><h3>'+c.h+'</h3><p>'+T(c.p)+'</p></div>').join('')+'</div>'
+      +(s.quote2?quoteBlock(s.quote2):'')):'',
+    people:()=>s.people?'<h2 class="block">꼭 알아야 할 인물</h2><div class="people">'+s.people.map(personBlock).join('')+'</div>':'',
+    map:()=>s.map?mapHTML(s.map,s.id):'',
+    image:(i)=>{ const arr=Array.isArray(s.image); const im=arr?s.image[i||0]:s.image; const sid=(arr&&i!=null)?s.id+'_'+i:s.id; return im?imageHTML(im,sid):''; },
+    oldmap:()=>s.oldmap?oldmapHTML(s.oldmap,s.id):'',
+    chart:(i)=>{ const arr=Array.isArray(s.chart); const c=arr?s.chart[i||0]:s.chart; return c?chartHTML(c,(arr&&i!=null)?s.id+'_'+i:s.id):''; },
+    compare:()=>s.compare?compareHTML(s.compare,s.id):'',
+    relations:()=>s.relations?relationsHTML(s.relations,s.id):'',
+    marchmap:()=>s.marchmap?marchmapHTML(s.marchmap,s.id):'',
+    battlemap:(i)=>{ const bm=(s.battlemaps||[])[i]; return bm?battlemapHTML(bm,s.id,i):''; },
+    timeline:()=>s.timeline?('<h2 class="block">한눈에 보는 흐름</h2><div class="timeline">'
+      +s.timeline.map(t=>'<div class="tl"><span class="tl-yr">'+t.yr+'</span> <span class="tl-txt">'+t.t+'</span></div>').join('')+'</div>'):'',
+    connect:()=>s.connect?('<h2 class="block">이야기 연결 고리</h2><div class="connect"><span class="ico">🔗</span><div>'+s.connect+'</div></div>'):'',
+    yt:()=>s.yt?('<h2 class="block">영상으로 보기</h2>'+s.yt.map(ytBlock).join('')):'',
+    movies:()=>s.movies?'<h2 class="block">영화로 만나기 🎬</h2><div class="movies">'+s.movies.map(movieBlock).join('')+'</div>':'',
+    choice:()=>s.choice?choiceHTML(s.choice,s.id):'',
+    quiz:()=>s.quiz?quizHTML(s.quiz,s.id):'',
+    deepdive:()=>s.deepdive?deepdiveHTML(s.deepdive):'',
+    links:()=>s.links?linksHTML(s.links):'',
+    reflect:()=>s.reflect?('<h2 class="block">내 생각 적어보기 ✍️</h2><div class="reflect">'
+      +s.reflect.map((q,i)=>'<div class="q">'+q+'</div><textarea data-key="'+s.id+'_'+i+'" placeholder="여기에 자유롭게 적어보세요. 자동으로 저장돼요."></textarea><div class="saved" id="saved_'+s.id+'_'+i+'"></div>').join('')+'</div>'):''
+  };
+  const DEFAULT=['hook','spark','why','lens','legend','lineage','voice','cards','people','map','image','oldmap','chart','compare','relations','marchmap','battlemap*','timeline','connect','yt','movies','choice','quiz','deepdive','links','reflect'];
+  const order=(s.order&&s.order.length)?s.order:DEFAULT;
+  let html='';
+  order.forEach(tok=>{
+    if(tok.charAt(tok.length-1)==='*'){
+      const name=tok.slice(0,-1);
+      let arr=[];
+      if(name==='battlemap') arr=s.battlemaps||[];
+      else if(Array.isArray(s[name])) arr=s[name];
+      else if(s[name]) arr=[s[name]];
+      arr.forEach((_,i)=>{ if(B[name]) html+=B[name](i); });
+      return;
+    }
+    const p=tok.split(':'), name=p[0], idx=p.length>1?+p[1]:null;
+    if(B[name]) html+=B[name](idx);
+  });
+  return html;
+}
+/* 시각효과: 차트 바 성장만 JS로(0→목표 rAF). 블록 진입은 순수 CSS라 JS 불필요.
+   가시성은 CSS animation(fill-mode both)이 보장 → 이 함수가 실패해도 콘텐츠는 항상 보임. */
+function vfx(){
+  try{
+    if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    view.querySelectorAll('.crow .cbar').forEach(function(b){
+      const w=b.style.width||''; if(!w) return; b.style.width='0%';
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ b.style.width=w; }); });
+    });
+  }catch(e){ /* 시각효과 실패는 콘텐츠에 영향 없음 */ }
+}
+function render(s,idx){
+  const prev=SECTIONS[idx-1], next=SECTIONS[idx+1];
+  view.innerHTML=
+  '<div class="hero" style="background:linear-gradient(135deg,var(--navy) 0%, '+s.accent+' 100%)">'
+  +'<div class="kicker">'+s.kicker+'</div><h1>'+s.title+'</h1><div class="era">⏳ '+s.era+'</div>'
+  +'<svg class="motif" viewBox="0 0 210 210">'+(MOTIF[s.motif]||'')+'</svg></div>'
+  +'<div class="wrap">'
+  +renderBlocks(s)
+  +'<div class="pager">'
+  +(prev?'<a class="prev" data-id="'+prev.id+'"><div class="pg-label">← 이전</div><div class="pg-title">'+prev.label+'</div></a>':'<a class="prev" data-id="home"><div class="pg-label">← 홈</div><div class="pg-title">이야기 시작</div></a>')
+  +(next?'<a class="next" data-id="'+next.id+'"><div class="pg-label">다음 →</div><div class="pg-title">'+next.label+'</div></a>':'<a class="next" data-id="home"><div class="pg-label">이야기 끝 →</div><div class="pg-title">홈으로</div></a>')
+  +'</div></div>';
+  view.querySelectorAll('.pager a[data-id]').forEach(a=>a.addEventListener('click',()=>go(a.dataset.id)));
+  view.querySelectorAll('textarea[data-key]').forEach(ta=>{
+    const k=META.slug+'_m_'+ta.dataset.key; ta.value=localStorage.getItem(k)||''; let timer;
+    ta.addEventListener('input',()=>{ localStorage.setItem(k,ta.value); const tag=document.getElementById('saved_'+ta.dataset.key); tag.textContent='저장됨 ✓'; clearTimeout(timer); timer=setTimeout(()=>tag.textContent='',1300); });
+  });
+  if(s.quiz){ view.querySelectorAll('.quizq').forEach(qd=>{
+    const qi=+qd.dataset.qi, q=s.quiz[qi];
+    qd.querySelectorAll('.quiz-opt').forEach(btn=>btn.addEventListener('click',()=>{
+      if(qd.classList.contains('done')) return; qd.classList.add('done');
+      const oi=+btn.dataset.oi;
+      qd.querySelectorAll('.quiz-opt').forEach((b,i)=>{ if(i===q.answer) b.classList.add('correct'); if(i===oi&&oi!==q.answer) b.classList.add('wrong'); b.disabled=true; });
+      const exp=document.getElementById('qexp_'+s.id+'_'+qi);
+      exp.innerHTML=(oi===q.answer?'<b>맞았어요! ✓</b> ':'<b>아쉬워요, 다시 볼까요?</b> ')+(q.explain||'');
+      exp.classList.add('show');
+    }));
+  }); }
+  if(s.map && window.L){
+    const mel=document.getElementById('lmap_'+s.id);
+    currentMap=L.map(mel,{scrollWheelZoom:false}).setView(s.map.center, s.map.zoom);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(currentMap);
+    if(s.map.line) L.polyline(s.map.line,{color:'#b5546a',weight:3,dashArray:'6 6'}).addTo(currentMap);
+    (s.map.markers||[]).forEach(mk=>L.circleMarker([mk.lat,mk.lng],{radius:9,color:'#fff',weight:2,fillColor:'#B5546A',fillOpacity:1}).addTo(currentMap).bindPopup('<b>'+mk.label+'</b><br>'+mk.desc));
+    setTimeout(()=>{ if(currentMap) currentMap.invalidateSize(); },200);
+  }
+  if(s.image && s.image.hotspots && s.image.hotspots.length){
+    const info=document.getElementById('hsinfo_'+s.id);
+    view.querySelectorAll('#imgbox_'+s.id+' .hsdot').forEach(d=>d.addEventListener('click',()=>{
+      const h=s.image.hotspots[+d.dataset.hi]; info.innerHTML='<b>'+h.label+'</b> '+(h.desc||''); info.classList.add('show');
+    }));
+  }
+  if(s.compare){
+    const c=s.compare, panel=document.getElementById('cmppanel_'+s.id);
+    const tabs=view.querySelectorAll('#cmp_'+s.id+' .cmptab');
+    const fill=(i)=>{ const st=c.states[i]; panel.innerHTML='<div class="cmh">'+st.title+'</div><div class="cmb">'+T(st.body)+'</div>'
+      +(st.img?'<img src="'+st.img+'" alt="'+(st.alt||'')+'" loading="lazy">':'')+(st.caption?'<div class="cmpcap">'+st.caption+'</div>':'');
+      tabs.forEach((b,bi)=>b.classList.toggle('active',bi===i)); };
+    tabs.forEach(b=>b.addEventListener('click',()=>fill(+b.dataset.ci)));
+    fill(0);
+  }
+  if(s.choice){
+    const af=document.getElementById('chafter_'+s.id);
+    view.querySelectorAll('#ch_'+s.id+' .chopt').forEach(b=>b.addEventListener('click',()=>{
+      document.getElementById('chres_'+s.id+'_'+b.dataset.oi).classList.add('show');
+      b.classList.add('picked'); if(af) af.classList.add('show');
+    }));
+  }
+  if(s.marchmap){
+    const mm=document.getElementById('mm_'+s.id), n=+mm.dataset.n, lab=document.getElementById('mmlab_'+s.id);
+    const prev=mm.querySelector('.mm-prev'), next=mm.querySelector('.mm-next'), phases=s.marchmap.phases||[];
+    const upd=()=>{ const cur=+mm.dataset.ph;
+      mm.querySelectorAll('.mm-place,.mm-arrow,.mm-alab').forEach(el=>el.classList.toggle('on',+el.dataset.ph<=cur));
+      lab.textContent=phases[cur]?phases[cur].label:''; prev.disabled=cur<=0; next.disabled=cur>=n-1; };
+    prev.addEventListener('click',()=>{ mm.dataset.ph=Math.max(0,+mm.dataset.ph-1); upd(); });
+    next.addEventListener('click',()=>{ mm.dataset.ph=Math.min(n-1,+mm.dataset.ph+1); upd(); });
+    upd();
+  }
+  (s.battlemaps||[]).forEach((bm,idx)=>{
+    const id='bm_'+s.id+'_'+idx;
+    try{
+      const map=L.map(id+'_map',{scrollWheelZoom:false}).setView(bm.center||[37,127],bm.zoom||6);
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:14,attribution:'© OpenStreetMap'}).addTo(map);
+      bmaps.push(map);
+      const KIND={start:'🚩',battle:'⚔️',win:'✔️',loss:'✖️',capital:'🏯',city:'•',sea:'⚓'};
+      const ic=(e)=>L.divIcon({className:'bm-ic',html:'<div>'+e+'</div>',iconSize:[26,26],iconAnchor:[13,13]});
+      const phases=bm.phases||[], layers=phases.map(()=>[]);
+      phases.forEach((ph,i)=>{
+        (ph.markers||[]).forEach(m=>layers[i].push(L.marker(m.at,{icon:ic(KIND[m.kind]||'•')}).bindTooltip(m.label,{permanent:true,direction:'top',offset:[0,-10],className:'bm-tt'})));
+        (ph.arrows||[]).forEach(a=>layers[i].push(L.polyline.antPath(a.path,{color:a.tone==='invade'?'#B5546A':'#2E7D4F',weight:4,delay:1000,dashArray:[10,22],pulseColor:'#fff'})));
+      });
+      const lab=document.getElementById(id+'_lab'), prev=document.querySelector('#'+id+' .bm-prev'), next=document.querySelector('#'+id+' .bm-next'), n=phases.length;
+      let cur=0;
+      const lowAt=(c)=>{ let r=0; for(let i=1;i<=c;i++){ if(phases[i]&&phases[i].reset) r=i; } return r; };
+      const upd=()=>{ const lo=lowAt(cur);
+        layers.forEach((grp,i)=>grp.forEach(l=> (i>=lo&&i<=cur)?l.addTo(map):map.removeLayer(l)));
+        lab.textContent=phases[cur]?phases[cur].label:''; prev.disabled=cur<=0; next.disabled=cur>=n-1;
+        if(bm.fit){ const pts=[]; for(let i=lo;i<=cur;i++) layers[i].forEach(l=>{ if(l.getLatLng) pts.push(l.getLatLng()); });
+          if(pts.length>=2) map.fitBounds(L.latLngBounds(pts).pad(0.4)); else if(pts.length===1) map.setView(pts[0], map.getZoom()); } };
+      next.onclick=()=>{cur=Math.min(n-1,cur+1);upd();}; prev.onclick=()=>{cur=Math.max(0,cur-1);upd();};
+      upd(); setTimeout(()=>map.invalidateSize(),200);
+    }catch(e){ console.error('battlemap',e); }
+  });
+  markVisited(s.id); setActive(s.id); window.scrollTo(0,0); vfx();
+}
+
+function renderNotes(){
+  const body=SECTIONS.map(s=>{
+    const items=s.reflect.map((q,i)=>{ const v=(localStorage.getItem(META.slug+'_m_'+s.id+'_'+i)||'').trim();
+      return '<div class="note-q">'+q+'</div><div class="note-a'+(v?'':' empty')+'">'+(v?v.replace(/</g,'&lt;'):'(아직 적지 않았어요)')+'</div>'; }).join('');
+    return '<div class="note-sec"><div class="note-sh">'+s.num+' · '+s.label+'</div>'+items+'</div>';
+  }).join('');
+  view.innerHTML='<div class="home-hero"><h1>📝 내 메모 모아보기</h1><div class="hsub">'+META.brand.title+' — 내가 적은 생각들</div></div>'
+    +'<div class="home-wrap"><div class="note-actions noprint">'
+    +'<button class="btn primary" id="notePrint">🖨️ 인쇄 / PDF 저장</button>'
+    +'<button class="btn" id="noteCopy" style="background:#fff;border:1px solid var(--line);color:var(--navy)">📋 전체 복사</button></div>'
+    +'<div class="notes-view" id="notesView">'+body+'</div></div>';
+  document.getElementById('notePrint').addEventListener('click',()=>window.print());
+  document.getElementById('noteCopy').addEventListener('click',()=>{ const t=document.getElementById('notesView').innerText;
+    if(navigator.clipboard){ navigator.clipboard.writeText(t); const b=document.getElementById('noteCopy'); b.textContent='복사됨 ✓'; setTimeout(()=>b.textContent='📋 전체 복사',1500); } });
+  setActive('notes'); window.scrollTo(0,0); progress.style.width='0%'; vfx();
+}
+
+function setActive(id){
+  navList.querySelectorAll('a').forEach(a=>{ a.classList.toggle('active', a.dataset.id===id); if(a.dataset.id && a.dataset.id!=='home' && visited(a.dataset.id)) a.classList.add('visited'); });
+}
+function go(id){ killMap(); if(id==='home'){ renderHome(); location.hash='home'; return; }
+  if(id==='notes'){ renderNotes(); location.hash='notes'; return; } const idx=SECTIONS.findIndex(s=>s.id===id); if(idx<0) return; render(SECTIONS[idx],idx); location.hash=id; }
+function openSide(){ sidebar.classList.add('open'); scrim.classList.add('show'); }
+function closeSide(){ sidebar.classList.remove('open'); scrim.classList.remove('show'); }
+document.getElementById('hamb').addEventListener('click',openSide);
+document.getElementById('brandHome').addEventListener('click',()=>{ go('home'); closeSide(); });
+scrim.addEventListener('click',closeSide);
+
+/* companion 배지 — meta.companion:{slug,label} 이면 사이드바에 짝 에피소드 링크 */
+if(META.companion && META.companion.slug){
+  const cl=document.createElement('a');
+  cl.className='companion-link';
+  cl.href='../'+META.companion.slug+'/index.html';
+  cl.textContent='🔗 짝 에피소드 · '+(META.companion.label||META.companion.slug);
+  const hb=document.getElementById('hubBack');
+  hb.parentNode.insertBefore(cl,hb.nextSibling);
+}
+
+/* lightbox — image/oldmap 이미지 클릭 확대 */
+const lb=document.createElement('div'); lb.className='lightbox';
+lb.innerHTML='<img alt=""><div class="lb-cap"></div>';
+document.body.appendChild(lb);
+document.addEventListener('click',e=>{
+  if(e.target.closest('.lightbox')){ lb.classList.remove('show'); document.body.style.overflow=''; return; }
+  const im=e.target.closest('.imgbox img, .oldmap-frame img');
+  if(im){ lb.querySelector('img').src=im.src; lb.querySelector('.lb-cap').textContent=im.alt||''; lb.classList.add('show'); document.body.style.overflow='hidden'; }
+});
+window.addEventListener('scroll',()=>{ const h=document.documentElement.scrollHeight-window.innerHeight; progress.style.width=(h>0?(window.scrollY/h*100):0)+'%'; });
+const tip=document.getElementById('tip');
+function showTip(e,t){ tip.textContent=TERMS[t.dataset.term]||''; tip.style.display='block'; moveTip(e); }
+document.addEventListener('mouseover',e=>{ const t=e.target.closest('.term'); if(t) showTip(e,t); });
+document.addEventListener('mousemove',e=>{ if(tip.style.display==='block') moveTip(e); });
+document.addEventListener('mouseout',e=>{ if(e.target.closest('.term')) tip.style.display='none'; });
+document.addEventListener('click',e=>{ const t=e.target.closest('.term'); if(t){ showTip(e,t); setTimeout(()=>tip.style.display='none',2800); } });
+function moveTip(e){ tip.style.left=Math.min(e.clientX+14,window.innerWidth-278)+'px'; tip.style.top=Math.min(e.clientY+16,window.innerHeight-92)+'px'; }
+
+head(); buildNav();
+const start=location.hash.replace('#','');
+if(start==='notes') renderNotes();
+else if(start && SECTIONS.some(s=>s.id===start)) go(start);
+else renderHome();
+</script>
+</body>
+</html>
