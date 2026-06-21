@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>문명의 탄생 — 인간은 어떻게 문명이 되었나</title>
+<meta name="description" content="떠돌던 인간이 정착하고, 도시를 세우고, 문자와 법을 발명하기까지. 농업혁명에서 수메르 도시국가, 함무라비 법전, 이집트 파라오, 그리고 길가메시 신화까지 — 메소포타미아와 이집트를 중심으로 ‘문명이 시작된 자리’를 사료와 지도로 깊이 읽는 고등 수준 세계사.">
+<style>
+  :root{
+    --rose:#C98B8B; --rose-soft:#E8C8C5; --navy:#33406B; --navy-2:#46527f; --navy-soft:#6F79A0;
+    --cream:#FBF7F2; --paper:#FFFFFF; --ink:#2E2A28; --muted:#857B74; --line:#EBE0D5;
+    --accent:#B5546A; --gold:#C49A4A;
+    --shadow:0 6px 22px rgba(51,64,107,.09); --shadow-sm:0 2px 10px rgba(51,64,107,.06);
+    --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+    background:var(--cream); color:var(--ink); line-height:1.78;
+    -webkit-font-smoothing:antialiased; word-break:keep-all;
+  }
+  a{color:inherit;}
+  #progress{position:fixed; top:0; left:0; height:3px; width:0%; background:linear-gradient(90deg,var(--rose),var(--accent)); z-index:60; transition:width .1s;}
+  .layout{display:flex; min-height:100vh;}
+  .sidebar{width:276px; flex:0 0 276px; background:linear-gradient(180deg,var(--navy),#2b3559); color:#fff; padding:26px 16px 30px; position:sticky; top:0; height:100vh; overflow-y:auto;}
+  .content{flex:1; min-width:0;}
+  .hub-back{display:inline-block; color:var(--rose-soft); font-size:12px; text-decoration:none; padding:4px 8px; margin:0 0 14px; border:1px solid rgba(255,255,255,.14); border-radius:9px; transition:background .15s,color .15s;}
+  .hub-back:hover{background:rgba(255,255,255,.1); color:#fff;}
+  .brand{cursor:pointer; padding:0 6px; margin-bottom:6px;}
+  .brand .bt{font-size:19px; font-weight:800; line-height:1.35;}
+  .brand .sub{display:block; font-size:11.5px; font-weight:500; color:var(--rose-soft); margin-top:7px; letter-spacing:.01em;}
+  .nav{margin-top:20px; list-style:none;}
+  .nav li{margin:3px 0;}
+  .nav a{display:flex; align-items:center; gap:11px; text-decoration:none; color:#dde0ee; font-size:14px; padding:10px 11px; border-radius:12px; transition:background .15s,color .15s; cursor:pointer; position:relative;}
+  .nav a .num{font-size:10.5px; color:var(--navy-soft); width:18px; font-weight:800; flex:0 0 18px;}
+  .nav a:hover{background:rgba(255,255,255,.09); color:#fff;}
+  .nav a.active{background:var(--rose); color:#fff; font-weight:700;}
+  .nav a.active .num{color:#fff;}
+  .nav a.star{background:rgba(196,154,74,.15);}
+  .nav a.star.active{background:var(--accent);}
+  .nav a.star .num{color:var(--gold);}
+  .nav a.visited:not(.active)::after{content:"✓"; margin-left:auto; font-size:11px; color:#8fd9a8; font-weight:800;}
+  .nav a.star .tag{font-size:9.5px; background:var(--gold); color:#3a2f10; padding:1px 6px; border-radius:8px; margin-left:auto; font-weight:800;}
+  .nav a.star.visited .tag{display:none;}
+  .nav .home-link{font-weight:700; color:#fff; background:rgba(255,255,255,.06); margin-bottom:8px;}
+  .side-foot{margin-top:24px; padding:16px 8px 0; font-size:11px; color:var(--navy-soft); line-height:1.7; border-top:1px solid rgba(255,255,255,.1);}
+  .topbar{display:none; align-items:center; gap:12px; background:var(--navy); color:#fff; padding:12px 16px; position:sticky; top:0; z-index:40;}
+  .topbar .hamb{font-size:22px; background:none;border:none;color:#fff;cursor:pointer;line-height:1;}
+  .topbar .tb-title{font-size:14.5px; font-weight:700;}
+  .topbar .tb-hub{margin-left:auto; color:#fff; font-size:12.5px; font-weight:700; text-decoration:none; border:1px solid rgba(255,255,255,.35); border-radius:9px; padding:5px 10px; white-space:nowrap;}
+  .topbar .tb-hub:active{background:rgba(255,255,255,.15);}
+  .scrim{display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:30;}
+  .hero{padding:54px 40px 36px; color:#fff; position:relative; overflow:hidden;}
+  .hero .kicker{font-size:12.5px; letter-spacing:.14em; font-weight:700; text-transform:uppercase; opacity:.92;}
+  .hero h1{font-size:31px; margin-top:10px; line-height:1.3; font-weight:800; max-width:680px;}
+  .hero .era{display:inline-flex; align-items:center; gap:7px; margin-top:16px; font-size:12.5px; background:rgba(255,255,255,.16); padding:6px 14px; border-radius:20px;}
+  .hero .motif{position:absolute; right:-10px; bottom:-20px; opacity:.16; width:180px; height:180px;}
+  .wrap{max-width:740px; margin:0 auto; padding:36px 28px 90px;}
+  .hook{font-size:18px; line-height:1.92; color:var(--navy); border-left:4px solid var(--rose); padding:4px 0 4px 20px; margin-bottom:30px; font-weight:500;}
+  h2.block{font-size:14px; letter-spacing:.05em; color:var(--accent); font-weight:800; margin:38px 0 15px; display:flex; align-items:center; gap:9px; text-transform:uppercase;}
+  h2.block::before{content:""; width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block; flex:0 0 8px;}
+  .why{background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:22px 24px; box-shadow:var(--shadow-sm); font-size:16px;}
+  .why b{color:var(--accent);}
+  .lens{background:linear-gradient(135deg,#fff,#f3f0fa); border:1px solid #d8cfe8; border-left:5px solid #7a6aa8; border-radius:14px; padding:18px 22px; margin:24px 0; font-size:15.5px;}
+  .lens .lh{font-weight:800; color:#5b4a86; font-size:13.5px; letter-spacing:.03em; margin-bottom:6px; display:flex; gap:7px; align-items:center;}
+  .legendbox{background:linear-gradient(135deg,#fdf8ee,#f6ecd8); border:1px solid #e6d4b0; border-left:5px solid var(--gold,#c49a4a); border-radius:14px; padding:18px 22px; margin:24px 0; font-size:15px; box-shadow:var(--shadow-sm); position:relative;}
+  .legendbox .lgh{font-weight:800; color:#9a6b1e; font-size:14px; letter-spacing:.02em; margin-bottom:8px;}
+  .legendbox .lgbody{color:#4a4036; line-height:1.85;}
+  .legendbox .lgmoral{margin-top:10px; padding-top:10px; border-top:1px dashed #e0cda0; color:#6b5a3a; font-size:14px;}
+  .legendbox .lgsrc{margin-top:8px; font-size:12px; color:#9a8a6a;}
+  .lin-intro{font-size:14.5px; color:#5a534d; background:#fff; border:1px solid var(--line); border-left:5px solid var(--gold,#c49a4a); border-radius:12px; padding:14px 18px; margin:6px 0 18px; box-shadow:var(--shadow-sm);}
+  .lineage{margin:6px 0 8px;}
+  .lin-dyn{margin:0 0 22px;}
+  .lin-dyn-h{font-size:17px; font-weight:800; color:var(--navy); margin:18px 0 4px; padding-bottom:6px; border-bottom:2px solid var(--gold-soft,#e3c486);}
+  .lin-dyn-intro{font-size:13.5px; color:var(--muted); margin:0 0 12px;}
+  .lin-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:8px;}
+  .lin-item{background:#fff; border:1px solid var(--line); border-radius:10px; box-shadow:var(--shadow-sm); overflow:hidden; transition:border-color .15s;}
+  .lin-item[open]{border-color:var(--gold,#c49a4a); box-shadow:var(--shadow);}
+  .lin-item.lin-key{border-left:4px solid var(--red);}
+  .lin-item summary{list-style:none; cursor:pointer; padding:11px 14px; display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;}
+  .lin-item summary::-webkit-details-marker{display:none;}
+  .lin-item summary::after{content:"＋"; margin-left:auto; color:var(--gold,#c49a4a); font-weight:800; font-size:15px;}
+  .lin-item[open] summary::after{content:"－";}
+  .lin-item summary:hover{background:#fbf6ec;}
+  .lin-n{font-size:11px; font-weight:800; color:#fff; background:var(--gold,#c49a4a); border-radius:999px; padding:2px 8px; white-space:nowrap;}
+  .lin-name{font-size:15.5px; font-weight:800; color:var(--navy);}
+  .lin-star{color:var(--red); font-size:12px;}
+  .lin-reign{font-size:12px; color:var(--muted); font-weight:700;}
+  .lin-note{padding:0 14px 13px; font-size:13.5px; color:#4a4036; line-height:1.75; border-top:1px dashed var(--line); margin-top:2px; padding-top:10px;}
+  .quote{margin:30px 0; background:linear-gradient(135deg,#fff,#fdf2ef); border:1px solid var(--rose-soft); border-left:5px solid var(--rose); border-radius:14px; padding:22px 26px; box-shadow:var(--shadow-sm);}
+  .quote .qt{font-size:18.5px; font-style:italic; color:var(--navy); line-height:1.8;}
+  .quote .qs{display:block; margin-top:12px; font-size:13px; color:var(--muted); font-style:normal;}
+  .quote .qm{font-size:40px; color:var(--rose-soft); line-height:0; display:block; height:18px;}
+  .cards{display:grid; gap:14px;}
+  @media(min-width:620px){ .cards{grid-template-columns:1fr 1fr;} }
+  .card{background:var(--paper); border:1px solid var(--line); border-radius:15px; padding:18px 20px; box-shadow:var(--shadow-sm); transition:transform .12s, box-shadow .12s;}
+  .card:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
+  .card .yr{font-size:11.5px; font-weight:800; color:var(--rose); letter-spacing:.04em; text-transform:uppercase;}
+  .card h3{font-size:16.5px; color:var(--navy); margin:5px 0 6px;}
+  .card p{font-size:15px; color:var(--ink);}
+  .term{color:var(--accent); font-weight:700; border-bottom:1.5px dotted var(--rose); cursor:help;}
+  .people{display:grid; gap:14px;}
+  @media(min-width:620px){ .people{grid-template-columns:1fr 1fr;} }
+  .person{background:#fff; border:1px solid var(--line); border-radius:15px; padding:18px 20px; box-shadow:var(--shadow-sm);}
+  .person .pheader{display:flex; gap:13px; align-items:center; margin-bottom:8px;}
+  .person .pface{flex:0 0 46px; height:46px; border-radius:12px; background:linear-gradient(135deg,var(--rose),var(--accent)); display:flex;align-items:center;justify-content:center;font-size:22px; color:#fff;}
+  .person .pname{font-size:16.5px; font-weight:800; color:var(--navy);}
+  .person .pwho{font-size:12px; color:var(--muted);}
+  .person .pwhy{font-size:14.5px; margin-bottom:8px;}
+  .person .pquote{font-size:14px; font-style:italic; color:var(--accent); border-left:3px solid var(--rose-soft); padding-left:10px; margin:8px 0;}
+  .person .pshadow{font-size:13.5px; color:var(--muted); background:var(--cream); border-radius:9px; padding:8px 11px;}
+  .person .pmore{display:inline-block; margin-top:10px; font-size:13px; font-weight:700; text-decoration:none; color:var(--accent); border:1px solid var(--rose-soft); border-radius:9px; padding:6px 12px;}
+  .person .pmore:hover{background:var(--accent); color:#fff; border-color:var(--accent);}
+  .movies{display:grid; gap:14px;}
+  .movie{background:#fff; border:1px solid var(--line); border-radius:15px; padding:16px 18px; box-shadow:var(--shadow-sm);}
+  .movie .mhead{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:4px;}
+  .movie .mtitle{font-size:16.5px; font-weight:800; color:var(--navy);}
+  .movie .mfit{font-size:11.5px; font-weight:700; border-radius:7px; padding:2px 8px; white-space:nowrap;}
+  .movie .mfit.green{background:#E5F3E8; color:#2E7D4F;}
+  .movie .mfit.yellow{background:#FBF1D8; color:#9A7B22;}
+  .movie .mfit.red{background:#F7E0E0; color:#B5546A;}
+  .movie .mmeta{font-size:12.5px; color:var(--muted); margin-bottom:9px;}
+  .movie .mmeta b{color:var(--accent);}
+  .movie .mwhy{font-size:14.5px; margin-bottom:9px;}
+  .movie .mreal{font-size:13px; color:var(--muted); background:var(--cream); border-radius:9px; padding:8px 11px; margin-bottom:10px;}
+  .movie .mreal .lbl{font-weight:800; color:var(--gold); margin-right:6px;}
+  .movie .mlinks{display:flex; gap:8px; flex-wrap:wrap;}
+  .movie .mlink{font-size:12.5px; font-weight:700; text-decoration:none; color:var(--navy); border:1px solid var(--line); border-radius:8px; padding:5px 11px;}
+  .movie .mlink:hover{border-color:var(--accent); color:var(--accent);}
+  .movie .mlink.slug{color:var(--accent); border-color:var(--rose-soft);}
+  .relations{background:#fff; border:1px solid var(--line); border-radius:15px; padding:18px 18px 16px; box-shadow:var(--shadow-sm);}
+  .relations .rtitle{font-size:16px; font-weight:800; color:var(--navy); text-align:center; margin-bottom:6px;}
+  .relations .rintro{font-size:14px; color:var(--muted); text-align:center; margin-bottom:14px;}
+  .rsides{display:grid; gap:12px;}
+  @media(min-width:600px){ .rsides{grid-template-columns:repeat(auto-fit,minmax(160px,1fr));} }
+  .rside{border-radius:13px; padding:13px 14px;}
+  .rside.red{background:#FBEAEA; border:1px solid #E8C0C0;}
+  .rside.blue{background:#E9EEF7; border:1px solid #C2D0E6;}
+  .rside.green{background:#E7F1EA; border:1px solid #BFD9C7;}
+  .rside .rslabel{font-size:13px; font-weight:800; margin-bottom:9px; letter-spacing:.02em;}
+  .rside.red .rslabel{color:#B5546A;}
+  .rside.blue .rslabel{color:#33406B;}
+  .rside.green .rslabel{color:#2E7D4F;}
+  .rmember{background:#fff; border:1px solid var(--line); border-radius:9px; padding:8px 10px; margin-bottom:7px; font-size:13.5px;}
+  .rmember b{color:var(--navy); margin-right:6px;}
+  .rmember span{color:var(--muted);}
+  .rmember .rlink{text-decoration:none;}
+  .rtensions{margin-top:14px; display:grid; gap:9px;}
+  .rtension{background:var(--cream); border-left:3px solid var(--gold); border-radius:9px; padding:10px 12px; font-size:13.5px;}
+  .rtension .rvs{font-weight:800; color:var(--accent); margin-bottom:3px;}
+  .marchmap{background:#fff; border:1px solid var(--line); border-radius:15px; padding:16px; box-shadow:var(--shadow-sm);}
+  .marchmap .mm-title{font-weight:800; color:var(--navy); text-align:center; font-size:16px;}
+  .marchmap .mm-intro{font-size:14px; color:var(--muted); text-align:center; margin:6px 0 12px;}
+  .mm-stage{position:relative; max-width:360px; margin:0 auto; aspect-ratio:1866/2891; background:#eef3ee; border-radius:10px; overflow:hidden;}
+  .mm-base{position:absolute; inset:0; width:100%; height:100%; object-fit:contain;}
+  .mm-arrows{position:absolute; inset:0; width:100%; height:100%; overflow:visible;}
+  .mm-arrow{fill:none; stroke-width:1.4; stroke-linecap:round; stroke-dasharray:300; stroke-dashoffset:300; opacity:0; transition:stroke-dashoffset .8s ease, opacity .3s;}
+  .mm-arrow.on{stroke-dashoffset:0; opacity:.95;}
+  .mm-arrow.tone-resist{stroke:#2E7D4F;} .mh.resist{fill:#2E7D4F;}
+  .mm-arrow.tone-invade{stroke:#B5546A;} .mh.invade{fill:#B5546A;}
+  .mm-alab{font-size:3.4px; font-weight:800; opacity:0; transition:opacity .3s;} .mm-alab.on{opacity:.9;}
+  .mm-alab.tone-resist{fill:#2E7D4F;} .mm-alab.tone-invade{fill:#B5546A;}
+  .mm-place{position:absolute; transform:translate(-50%,-50%); opacity:0; transition:opacity .35s; display:flex; flex-direction:column; align-items:center; pointer-events:none; z-index:2;}
+  .mm-place.on{opacity:1;}
+  .mm-dot{width:11px; height:11px; border-radius:50%; background:var(--navy); border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,.35);}
+  .mm-place.k-battle .mm-dot{background:#B5546A;} .mm-place.k-loss .mm-dot{background:#7a2e3f;}
+  .mm-place.k-win .mm-dot{background:#2E7D4F;} .mm-place.k-start .mm-dot{background:var(--gold);}
+  .mm-lbl{font-size:11px; font-weight:700; color:var(--navy); background:rgba(255,255,255,.9); border-radius:5px; padding:0 4px; margin-top:3px; white-space:nowrap;}
+  .mm-step{display:flex; align-items:center; gap:10px; justify-content:center; margin-top:13px;}
+  .mm-step button{background:var(--navy); color:#fff; border:none; border-radius:9px; padding:7px 14px; font-size:13px; font-weight:700; cursor:pointer;}
+  .mm-step button:disabled{opacity:.4; cursor:default;}
+  .mm-plabel{font-size:13.5px; font-weight:800; color:var(--accent); min-width:150px; text-align:center;}
+  .mm-cap{font-size:11px; color:var(--muted); text-align:center; margin-top:9px; line-height:1.5;}
+  .battlemap{background:#fff; border:1px solid var(--line); border-radius:15px; padding:16px; box-shadow:var(--shadow-sm);}
+  .battlemap .bm-intro{font-size:14px; color:var(--muted); text-align:center; margin-bottom:11px;}
+  .bm-map{width:100%; height:380px; border-radius:11px; overflow:hidden; border:1px solid var(--line); background:#eef3ee;}
+  .bm-ic div{font-size:19px; filter:drop-shadow(0 1px 1px rgba(0,0,0,.4));}
+  .bm-tt{background:rgba(255,255,255,.92); border:1px solid var(--line); border-radius:5px; font-size:11px; font-weight:700; color:var(--navy); padding:1px 5px; box-shadow:none;}
+  .bm-tt:before{display:none;}
+  .bm-step{display:flex; align-items:center; gap:10px; justify-content:center; margin-top:12px;}
+  .bm-step button{background:var(--navy); color:#fff; border:none; border-radius:9px; padding:7px 14px; font-size:13px; font-weight:700; cursor:pointer;}
+  .bm-step button:disabled{opacity:.4; cursor:default;}
+  .bm-plabel{font-size:13.5px; font-weight:800; color:var(--accent); min-width:150px; text-align:center;}
+  .bm-legend{display:flex; gap:14px; flex-wrap:wrap; justify-content:center; font-size:12.5px; margin-top:11px;}
+  .bm-legend span{display:inline-flex; align-items:center; gap:5px;}
+  .bm-legend i{width:16px; border-top:3px solid; display:inline-block; border-radius:2px;}
+  .bm-cap{font-size:11px; color:var(--muted); text-align:center; margin-top:9px;}
+  .deepdive{margin:18px 0 6px; border:1px solid var(--line); border-radius:13px; background:linear-gradient(180deg,#fff,#fbf6ef); overflow:hidden;}
+  .deepdive summary{cursor:pointer; padding:14px 18px; font-size:15px; font-weight:800; color:var(--navy); list-style:none; display:flex; align-items:center; gap:8px;}
+  .deepdive summary::-webkit-details-marker{display:none;}
+  .deepdive summary:after{content:"▾"; margin-left:auto; color:var(--accent); transition:transform .2s;}
+  .deepdive[open] summary:after{transform:rotate(180deg);}
+  .deepdive summary:hover{background:rgba(181,84,106,.05);}
+  .links{display:grid; gap:10px; margin:6px 0 4px;}
+  .links .lk{display:block; padding:13px 16px; border:1px solid var(--line); border-radius:12px; background:#fff; text-decoration:none; transition:border-color .15s, transform .15s;}
+  .links .lk:hover{border-color:var(--accent); transform:translateY(-2px);}
+  .links .lk-label{display:block; font-weight:800; color:var(--navy); font-size:15px;}
+  .links .lk-label:after{content:" ↗"; color:var(--accent); font-weight:700;}
+  .links .lk-note{display:block; font-size:13.5px; color:var(--ink); margin-top:3px; line-height:1.6;}
+  .links .lk-src{display:block; font-size:12px; color:var(--muted); margin-top:4px;}
+  .spark{margin:16px 0; padding:16px 18px 18px; border-left:5px solid var(--accent); border-radius:12px; background:linear-gradient(180deg,#fff8f3,#fdeee6); box-shadow:var(--shadow-sm);}
+  .spark-h{font-size:16px; font-weight:800; color:var(--accent); margin-bottom:7px; letter-spacing:-.01em;}
+  .spark-body{font-size:15.5px; line-height:1.85; color:var(--ink);}
+  .spark-mind{margin-top:11px; padding-top:10px; border-top:1px dashed var(--line); font-size:14.5px; color:var(--navy); line-height:1.7;}
+  .dd-body{padding:4px 18px 18px;}
+  .dd-item{border-top:1px solid var(--line); padding:13px 0;}
+  .dd-item:first-child{border-top:none;}
+  .dd-item h3{font-size:15px; color:var(--accent); margin-bottom:6px;}
+  .dd-text{font-size:14.5px; line-height:1.8;}
+  .dd-src{font-size:12.5px; color:var(--muted); background:var(--cream); border-radius:8px; padding:7px 11px; margin-top:8px;}
+  .timeline{position:relative; margin:6px 0 6px 9px; padding-left:26px; border-left:2.5px solid var(--rose-soft);}
+  .tl{position:relative; padding:5px 0 17px;}
+  .tl::before{content:""; position:absolute; left:-33.5px; top:9px; width:13px;height:13px;border-radius:50%;background:var(--rose); border:3px solid var(--cream);}
+  .tl .tl-yr{font-weight:800; color:var(--navy); font-size:13.5px;}
+  .tl .tl-txt{font-size:15px;}
+  .connect{background:#fff; border:1px dashed var(--rose); border-radius:14px; padding:17px 22px; font-size:15.5px; color:var(--navy); display:flex; gap:12px; align-items:flex-start;}
+  .connect .ico{flex:0 0 22px; font-size:18px;}
+  .connect b{color:var(--accent);}
+  .yt{display:flex; gap:14px; align-items:flex-start; text-decoration:none; background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin-bottom:11px; transition:transform .12s, box-shadow .12s;}
+  .yt:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
+  .yt .play{flex:0 0 42px; height:42px; border-radius:11px; background:#FF0000; color:#fff; display:flex;align-items:center;justify-content:center;font-size:16px;}
+  .yt .play.search{background:var(--navy);}
+  .yt .yt-body{flex:1; min-width:0;}
+  .yt .yt-title{font-weight:700; color:var(--navy); font-size:15px; line-height:1.45;}
+  .yt .yt-meta{font-size:12px; color:var(--muted); margin-top:3px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+  .yt .pill{background:var(--cream); border:1px solid var(--line); border-radius:6px; padding:1px 6px; font-weight:700;}
+  .yt .pill.ko{color:#2f7d4f;} .yt .pill.en{color:#3a5bb5;} .yt .pill.find{color:var(--navy);}
+  .yt .yt-desc{font-size:13.5px; margin-top:5px; color:var(--ink);}
+  .reflect{background:#fff; border:2px solid var(--rose-soft); border-radius:var(--radius); padding:20px 22px; box-shadow:var(--shadow-sm);}
+  .reflect .q{font-weight:700; color:var(--navy); margin-bottom:9px; font-size:15.5px;}
+  .reflect textarea{width:100%; min-height:88px; border:1px solid var(--line); border-radius:11px; padding:13px; font-family:inherit; font-size:15px; resize:vertical; background:#fffdfb; color:var(--ink); line-height:1.7;}
+  .reflect textarea:focus{outline:none; border-color:var(--rose); box-shadow:0 0 0 3px rgba(201,139,139,.15);}
+  .reflect textarea + .q{margin-top:18px;}
+  .reflect .saved{font-size:12px; color:var(--gold); margin-top:6px; height:15px; font-weight:600;}
+  /* quiz (R1) */
+  .quizwrap{display:flex;flex-direction:column;gap:14px;}
+  .quizq{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow-sm);}
+  .quizq .qq{font-weight:700;color:var(--navy);font-size:15.5px;margin-bottom:10px;}
+  .qopts{display:flex;flex-direction:column;gap:8px;}
+  .quiz-opt{text-align:left;font-family:inherit;font-size:14.5px;background:var(--cream);border:1px solid var(--line);border-radius:10px;padding:10px 13px;cursor:pointer;color:var(--ink);transition:background .12s;}
+  .quiz-opt:hover:not(:disabled){background:#f3ece4;}
+  .quiz-opt:disabled{cursor:default;}
+  .quiz-opt.correct{background:#e8f5ec;border-color:#8fcea5;color:#1f7a44;font-weight:700;}
+  .quiz-opt.wrong{background:#fbeaec;border-color:#e3a3ad;color:#a83246;}
+  .qexp{font-size:14px;color:var(--ink);margin-top:10px;display:none;line-height:1.7;background:var(--cream);border-radius:9px;padding:10px 12px;}
+  .qexp.show{display:block;}
+  .qexp b{color:var(--accent);}
+  /* notes export (R2) */
+  .nav .notes-link{font-weight:700;color:#fff;background:rgba(196,154,74,.16);}
+  .nav .lineage-link{font-weight:700;color:#fff;background:rgba(196,154,74,.22);margin-top:8px;}
+  .nav .lineage-link:hover{background:var(--gold,#c49a4a);color:#2a1410;}
+  .note-actions{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+  .notes-view{background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px 26px;box-shadow:var(--shadow-sm);}
+  .note-sec{margin-bottom:22px;}
+  .note-sh{font-weight:800;color:var(--accent);font-size:13px;letter-spacing:.04em;border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:10px;}
+  .note-q{font-weight:700;color:var(--navy);font-size:14.5px;margin-top:12px;}
+  .note-a{font-size:14.5px;white-space:pre-wrap;margin-top:3px;}
+  .note-a.empty{color:var(--muted);font-style:italic;}
+  @media print{ .sidebar,.topbar,.scrim,#progress,.noprint{display:none!important;} .content{width:100%;} .home-hero{background:#fff!important;color:#000!important;padding:10px 0 0;} .home-hero h1{color:#000;} .home-hero .hsub{color:#555;} .notes-view{border:none;box-shadow:none;padding:0;} body{background:#fff;} }
+  /* map (R3 — 실제 지도, Leaflet+OSM) */
+  .mapwrap{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow-sm);}
+  .lmap{height:340px;border-radius:12px;overflow:hidden;border:1px solid var(--line);z-index:0;}
+  .mapcap{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.6;}
+  .mapcap .msrc{font-size:11.5px;opacity:.8;}
+  /* image (S1 — PD 역사지도/사진 + 선택적 hotspot) */
+  .figimg{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow-sm);}
+  .figstory{font-size:15.5px;line-height:1.8;margin-bottom:12px;color:var(--ink);}
+  .figstory b{color:var(--accent);}
+  .imgbox{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#f4efe8;}
+  .imgbox img{width:100%;height:auto;display:block;}
+  .hsdot{position:absolute;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;border:2px solid #fff;font-size:12px;font-weight:800;cursor:pointer;box-shadow:0 2px 7px rgba(0,0,0,.32);display:flex;align-items:center;justify-content:center;line-height:1;}
+  .hsdot:hover{background:var(--navy);}
+  .hsinfo{margin-top:10px;font-size:14px;background:var(--cream);border-radius:9px;padding:11px 13px;display:none;line-height:1.7;}
+  .hsinfo.show{display:block;}
+  .hsinfo b{color:var(--accent);}
+  .figcap{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.65;}
+  .figcap .msrc{font-size:11.5px;opacity:.85;}
+  /* oldmap (고지도 — 시대감) */
+  .oldmap{background:linear-gradient(180deg,#f7f0e2,#efe4cf);border:1px solid #d8c7a6;border-radius:16px;padding:16px;box-shadow:var(--shadow-sm);}
+  .oldmap-frame{border-radius:10px;overflow:hidden;border:3px solid #8a6d3b;box-shadow:inset 0 0 40px rgba(94,66,20,.25);background:#e8dcc2;}
+  .oldmap-frame img{width:100%;height:auto;display:block;filter:sepia(.32) contrast(1.04) saturate(.9);}
+  .oldmap .figcap{color:#6b5836;}
+  /* lightbox (이미지 클릭 확대 — image/oldmap 공통) */
+  .imgbox img,.oldmap-frame img{cursor:zoom-in;}
+  .lightbox{position:fixed;inset:0;background:rgba(22,19,16,.93);display:none;align-items:center;justify-content:center;z-index:99;padding:16px;cursor:zoom-out;}
+  .lightbox.show{display:flex;}
+  .lightbox img{max-width:96vw;max-height:90vh;width:auto;height:auto;border-radius:8px;box-shadow:0 12px 44px rgba(0,0,0,.55);}
+  .lightbox .lb-cap{position:fixed;left:0;right:0;bottom:10px;text-align:center;color:#E8C8C5;font-size:12px;padding:0 22px;line-height:1.5;}
+  /* companion (짝 에피소드 배지) */
+  .companion-link{display:block;margin:6px 14px 0;padding:7px 11px;border:1px dashed rgba(255,255,255,.35);border-radius:9px;color:#fff;font-size:12px;text-decoration:none;opacity:.92;}
+  .companion-link:hover{background:rgba(255,255,255,.1);}
+  /* voice (S3 — 일기·편지체 1인칭) */
+  .voice{background:linear-gradient(135deg,#fffdf8,#f6efe3);border:1px solid #e6d9c4;border-left:5px solid var(--gold);border-radius:14px;padding:20px 24px;box-shadow:var(--shadow-sm);}
+  .voice .vbadge{display:inline-block;font-size:11px;font-weight:800;padding:2px 10px;border-radius:8px;margin-bottom:12px;letter-spacing:.02em;}
+  .voice .vbadge.real{background:#e6f0e8;color:#2f6b43;}
+  .voice .vbadge.imag{background:#f3eadb;color:#8a6d2f;}
+  .voice .vbody{font-size:16.5px;font-style:italic;line-height:1.95;color:#3a352f;}
+  .voice .vbody::before{content:"“";font-size:34px;color:var(--gold);line-height:0;vertical-align:-12px;margin-right:3px;}
+  .voice .vspeaker{margin-top:14px;font-size:13px;color:var(--muted);}
+  .voice .vspeaker b{color:var(--navy);}
+  .voice .vsrc{display:block;font-size:11.5px;opacity:.85;margin-top:3px;}
+  /* chart (S4 — 자체 막대 + 체감 비교) */
+  .chart{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow-sm);}
+  .chart .ctitle{font-weight:800;color:var(--navy);font-size:15.5px;}
+  .chart .cunit{font-size:12px;color:var(--muted);margin:3px 0 14px;}
+  .crow{display:flex;align-items:center;gap:10px;margin:9px 0;}
+  .crow .clabel{flex:0 0 72px;font-size:13px;color:var(--ink);text-align:right;}
+  .crow .cbarwrap{flex:1;background:var(--cream);border-radius:7px;overflow:hidden;height:24px;}
+  .crow .cbar{height:100%;background:linear-gradient(90deg,var(--rose),var(--accent));border-radius:7px;min-width:3px;}
+  .crow .cval{flex:0 0 auto;font-size:12.5px;font-weight:700;color:var(--accent);min-width:62px;}
+  .crelate{margin-top:15px;font-size:14.5px;background:#fdf2ef;border:1px solid var(--rose-soft);border-radius:10px;padding:12px 14px;line-height:1.7;}
+  .crelate b{color:var(--accent);}
+  .csrc{font-size:11.5px;color:var(--muted);margin-top:11px;opacity:.85;}
+  /* compare (S5 — 단계 토글 / before·after) */
+  .compare{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow-sm);}
+  .cmpintro{font-size:15px;margin-bottom:13px;color:var(--ink);line-height:1.7;}
+  .cmptabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px;}
+  .cmptab{font-family:inherit;font-size:13px;font-weight:700;background:var(--cream);border:1px solid var(--line);border-radius:20px;padding:7px 14px;cursor:pointer;color:var(--navy);transition:background .12s;}
+  .cmptab:hover{background:#f3ece4;}
+  .cmptab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .cmppanel .cmh{font-weight:800;color:var(--navy);font-size:16.5px;margin-bottom:7px;}
+  .cmppanel .cmb{font-size:15px;line-height:1.85;}
+  .cmppanel img{width:100%;border-radius:10px;margin-top:11px;border:1px solid var(--line);display:block;}
+  .cmpcap{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.6;}
+  /* choice (S7 — 너라면? 도덕적 딜레마) */
+  .choice{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow-sm);}
+  .chprompt{font-weight:700;color:var(--navy);font-size:15.5px;margin-bottom:14px;line-height:1.75;}
+  .chopts{display:flex;flex-direction:column;gap:9px;}
+  .chopt{text-align:left;font-family:inherit;font-size:14.5px;background:var(--cream);border:1px solid var(--line);border-radius:11px;padding:12px 14px;cursor:pointer;color:var(--ink);transition:background .12s;}
+  .chopt:hover{background:#f3ece4;}
+  .chopt.picked{border-color:var(--accent);background:#fdf2ef;font-weight:700;}
+  .chres{font-size:14px;margin-top:8px;background:#f7f3fb;border:1px solid #e0d6ee;border-radius:9px;padding:11px 13px;display:none;line-height:1.75;}
+  .chres.show{display:block;}
+  .chafter{margin-top:15px;font-size:14px;background:var(--cream);border-radius:9px;padding:12px 14px;line-height:1.75;display:none;}
+  .chafter.show{display:block;}
+  .chafter b{color:var(--accent);}
+  .pager{display:flex; justify-content:space-between; gap:12px; margin-top:46px;}
+  .pager a{flex:1; text-decoration:none; background:#fff; border:1px solid var(--line); border-radius:14px; padding:15px 18px; color:var(--navy); box-shadow:var(--shadow-sm); transition:transform .12s, box-shadow .12s; cursor:pointer;}
+  .pager a:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
+  .pager a.next{text-align:right; background:var(--navy); color:#fff; border-color:var(--navy);}
+  .pager .pg-label{font-size:11.5px; color:var(--muted);}
+  .pager a.next .pg-label{color:var(--rose-soft);}
+  .pager .pg-title{font-weight:700; font-size:15px; margin-top:3px;}
+  .home-hero{padding:60px 32px 44px; background:linear-gradient(140deg,var(--navy) 0%, #54608c 100%); color:#fff; text-align:center;}
+  .home-hero h1{font-size:33px; font-weight:800; line-height:1.32;}
+  .home-hero .hsub{font-size:15px; color:var(--rose-soft); margin-top:12px;}
+  .home-hero .hq{margin:26px auto 0; max-width:460px; font-style:italic; font-size:15px; opacity:.92; line-height:1.8;}
+  .home-hero .hq small{display:block; font-style:normal; opacity:.7; font-size:12px; margin-top:8px;}
+  .home-wrap{max-width:760px; margin:0 auto; padding:36px 26px 90px;}
+  .home-intro{font-size:16.5px; background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:24px 26px; box-shadow:var(--shadow-sm); line-height:1.85;}
+  .home-intro b{color:var(--accent);}
+  .start-btns{display:flex; gap:12px; flex-wrap:wrap; margin:24px 0 8px;}
+  .btn{flex:1; min-width:200px; text-decoration:none; text-align:center; padding:16px; border-radius:14px; font-weight:700; font-size:15.5px; box-shadow:var(--shadow-sm); transition:transform .12s; cursor:pointer;}
+  .btn:hover{transform:translateY(-2px);}
+  .btn.primary{background:var(--navy); color:#fff;}
+  .btn.star{background:linear-gradient(135deg,var(--rose),var(--accent)); color:#fff;}
+  .btn.lineage{background:linear-gradient(135deg,var(--gold,#c49a4a),#a8842f); color:#2a1410;}
+  .path{list-style:none; margin-top:14px;}
+  .path li{display:flex; gap:16px; align-items:flex-start; cursor:pointer; padding:14px 16px; border-radius:14px; transition:background .12s;}
+  .path li:hover{background:#fff;}
+  .path .pn{flex:0 0 34px; height:34px; border-radius:50%; background:var(--navy); color:#fff; display:flex;align-items:center;justify-content:center; font-weight:800; font-size:14px;}
+  .path li.star .pn{background:var(--accent);}
+  .path .ph{font-weight:700; color:var(--navy); font-size:16px;}
+  .path .ph .star-mark{color:var(--gold);}
+  .path .pp{font-size:14px; color:var(--muted); margin-top:2px;}
+  #tip{position:fixed; z-index:70; max-width:260px; background:var(--navy); color:#fff; font-size:13px; line-height:1.6; padding:11px 14px; border-radius:11px; box-shadow:0 8px 24px rgba(0,0,0,.28); display:none; pointer-events:none;}
+  .leaflet-popup-content{font-family:inherit;font-size:13.5px;line-height:1.6;}
+  .leaflet-popup-content b{color:var(--accent);}
+  @media (max-width:880px){
+    .sidebar{position:fixed; left:0; top:0; z-index:35; transform:translateX(-100%); transition:transform .25s;}
+    .sidebar.open{transform:translateX(0);}
+    .topbar{display:flex;}
+    .scrim.show{display:block;}
+    .hero{padding:34px 22px 26px;} .hero h1{font-size:25px;} .hero .motif{width:120px;height:120px;}
+    .home-hero{padding:40px 20px 32px;} .home-hero h1{font-size:26px;}
+    .wrap,.home-wrap{padding:26px 18px 76px;}
+  }
+  /* ───────── 시각효과 업그레이드 v2 (additive) ───────── */
+  /* 정적 폴리시 (모션 무관) */
+  .imgbox{overflow:hidden;}
+  .imgbox img{transition:transform .5s cubic-bezier(.22,1,.36,1);}
+  .imgbox:hover img{transform:scale(1.045);}
+  .why,.chart,.compare,.choice,.voice,.relations,.connect{transition:box-shadow .22s ease, transform .22s ease;}
+  .why:hover,.chart:hover,.compare:hover,.choice:hover,.voice:hover{box-shadow:var(--shadow);}
+  h2.block::before{box-shadow:0 0 0 4px rgba(181,84,106,.12);}
+  .spark{position:relative; overflow:hidden;}
+  .spark::after{content:""; position:absolute; inset:0; background:radial-gradient(150px 90px at 92% 0%, rgba(196,154,74,.16), transparent 70%); pointer-events:none;}
+  .hero::after{content:""; position:absolute; left:0; right:0; top:0; height:130%; background:radial-gradient(60% 55% at 82% 0%, rgba(255,255,255,.13), transparent 62%); pointer-events:none;}
+  .lk,.yt,.card,.pager a{will-change:transform;}
+  /* 모션 (저모션 사용자 보호: no-preference 일 때만) */
+  @media (prefers-reduced-motion: no-preference){
+    /* 블록 진입 — 순수 CSS 스태거(fill-mode both → 항상 보이게 끝남, JS 의존 0) */
+    .wrap > *, .home-wrap > *{animation:vBlockIn .55s cubic-bezier(.22,1,.36,1) both;}
+    .wrap > *:nth-child(1),.home-wrap > *:nth-child(1){animation-delay:.03s;}
+    .wrap > *:nth-child(2),.home-wrap > *:nth-child(2){animation-delay:.10s;}
+    .wrap > *:nth-child(3),.home-wrap > *:nth-child(3){animation-delay:.17s;}
+    .wrap > *:nth-child(4),.home-wrap > *:nth-child(4){animation-delay:.24s;}
+    .wrap > *:nth-child(5),.home-wrap > *:nth-child(5){animation-delay:.31s;}
+    .wrap > *:nth-child(6),.home-wrap > *:nth-child(6){animation-delay:.37s;}
+    .wrap > *:nth-child(7),.home-wrap > *:nth-child(7){animation-delay:.43s;}
+    .wrap > *:nth-child(n+8),.home-wrap > *:nth-child(n+8){animation-delay:.48s;}
+    @keyframes vBlockIn{from{opacity:0; transform:translateY(15px);} to{opacity:1; transform:none;}}
+    .crow .cbar{transition:width 1.05s cubic-bezier(.22,1,.36,1);}
+    .hero h1{animation:vHeroRise .55s ease both;}
+    .hero .kicker{animation:vHeroRise .55s .06s ease both;}
+    .hero .era{animation:vHeroRise .55s .12s ease both;}
+    @keyframes vHeroRise{from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:none;}}
+    .quiz-opt.correct{animation:vPop .42s ease;}
+    @keyframes vPop{0%{transform:scale(1);} 42%{transform:scale(1.035);} 100%{transform:scale(1);}}
+  }
+</style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-ant-path@1.3.0/dist/leaflet-ant-path.js"></script>
+</head>
+<body>
+<div id="progress"></div>
+<div class="layout">
+  <nav class="sidebar" id="sidebar">
+    <a class="hub-back" id="hubBack" href="../index.html">← 역사 이야기 허브</a>
+    <div class="brand" id="brandHome"><div class="bt" id="brandTitle"></div><span class="sub" id="brandSub"></span></div>
+    <ul class="nav" id="navList"></ul>
+    <div class="side-foot" id="sideFoot"></div>
+  </nav>
+  <div class="scrim" id="scrim"></div>
+  <main class="content">
+    <div class="topbar"><button class="hamb" id="hamb" aria-label="메뉴">☰</button><span class="tb-title" id="tbTitle"></span><a class="tb-hub" id="tbHub" href="../index.html">🏛️ 역사 허브</a></div>
+    <div id="view"></div>
+  </main>
+</div>
+<div id="tip"></div>
+
+<!-- 에피소드 데이터 (build.py가 주입) -->
+<script id="episode-data">window.EPISODE = {"meta": {"lang": "ko", "slug": "origins", "title": "문명의 탄생 — 인간은 어떻게 문명이 되었나", "description": "떠돌던 인간이 정착하고, 도시를 세우고, 문자와 법을 발명하기까지. 농업혁명에서 수메르 도시국가, 함무라비 법전, 이집트 파라오, 그리고 길가메시 신화까지 — 메소포타미아와 이집트를 중심으로 ‘문명이 시작된 자리’를 사료와 지도로 깊이 읽는 고등 수준 세계사.", "brand": {"title": "문명의 탄생", "sub": "농업에서 도시·문자·국가로"}, "hub": {"url": "../index.html", "label": "← 역사 이야기"}, "foot": "세계사 이야기 · <b>문명의 탄생</b> (선사 ~ 기원전 3000년경)<br>메소포타미아와 이집트, 모든 것의 출발점", "home": {"h1": "인간은 어떻게<br>‘문명’이 되었나", "sub": "농업혁명에서 도시·문자·국가까지 — 문명의 탄생 (선사 ~ 기원전 3000)", "quote": {"text": "눈에는 눈, 이에는 이.", "by": "함무라비 법전 — 인류가 ‘법’을 돌에 새기기 시작한 자리"}, "intro": "수십만 년 동안 인간은 무리 지어 떠돌며 사냥하고 열매를 땄어요. 그런데 약 1만 년 전, 무언가 결정적인 변화가 일어납니다 — <b>씨를 뿌리고 정착</b>하기 시작한 거예요. 이 한 가지 변화가 도시, 문자, 법, 국가, 계급 — 우리가 ‘<b>문명</b>’이라 부르는 거의 모든 것을 불러왔죠. 두 강이 흐르는 <b>메소포타미아</b>와 나일강의 <b>이집트</b>에서, 인류는 처음으로 도시를 세우고 글자를 새기고 법을 만들었어요. ‘문명은 어떻게 시작되었나’ — 그 출발점을, 점토판과 피라미드라는 사료로 따져 읽어요.", "startPrimary": {"label": "처음부터 — 떠돌이를 멈추다 →", "to": "agriculture"}, "startStar": {"label": "★ 문자와 법의 발명", "to": "writing-law"}, "pathLabel": "문명으로 가는 길"}}, "terms": {"신석기 혁명": "약 1만 년 전, 인간이 농경과 목축을 시작하며 떠돌이 생활을 끝내고 정착한 큰 변화. ‘농업혁명’이라고도 해요. 잉여 식량·인구 증가·계급의 출발점이 됐죠.", "잉여": "먹고 남은 식량. 농경으로 잉여가 생기자, 모두가 농사짓지 않아도 되는 사람들(사제·전사·장인·지배자)이 나타나 분업과 계급이 생겼어요.", "메소포타미아": "‘두 강 사이의 땅’이라는 뜻. 티그리스강과 유프라테스강 사이(지금의 이라크 일대)로, 인류 최초의 도시 문명(수메르)이 일어난 곳이에요.", "수메르": "기원전 3500년경 메소포타미아 남부에 우르·우루크 같은 도시국가를 세운 사람들. 설형문자·바퀴·관개농업 등을 처음 만든, 알려진 가장 오래된 문명이에요.", "지구라트": "수메르 도시 한가운데 세운 거대한 계단식 신전. 신을 모시는 동시에 도시의 권력과 신앙의 중심이었어요.", "설형문자": "쐐기 모양으로 점토판에 새긴 메소포타미아의 문자. 처음엔 창고의 물건을 세는 회계용으로 시작해, 점차 법·문학·기록으로 확장됐어요.", "함무라비 법전": "기원전 18세기 바빌론의 왕 함무라비가 돌기둥에 새긴 법전. ‘눈에는 눈’의 보복 원칙과 신분별 처벌로 유명하며, 국가가 ‘법으로 다스린다’는 생각을 보여 줘요.", "파라오": "고대 이집트의 왕. 단순한 통치자가 아니라 ‘신의 화신’으로 여겨졌고, 그 권위가 피라미드 같은 거대 건축으로 표현됐어요.", "상형문자": "그림에서 출발한 이집트의 문자(히에로글리프). 신전·무덤·파피루스에 새겨졌고, 19세기 로제타석으로 비로소 해독됐어요.", "도시국가": "하나의 도시와 그 주변을 단위로 한 작은 나라. 수메르의 우르·우루크처럼, 초기 문명은 거대 제국이 아니라 여러 도시국가로 출발했어요."}, "sections": [{"id": "agriculture", "num": "01", "label": "떠돌이를 멈추다 — 농업혁명", "accent": "#6b5a2b", "kicker": "신석기 혁명·정착·잉여 · 약 1만 년 전", "era": "약 1만 년 전", "motif": "sun", "title": "떠돌이를 멈추다 — 농업혁명", "hook": "수십만 년 동안 인간은 사냥과 채집으로 살며 먹이를 찾아 끝없이 옮겨 다녔어요. 그런데 약 1만 년 전, 빙하기가 끝나갈 무렵 — 인류는 전에 없던 선택을 합니다. 한곳에 머물러 <b>씨를 뿌리기</b> 시작한 거예요. 작아 보이는 이 변화가, 사실은 인류 역사상 가장 큰 혁명이었어요. 왜일까요?", "spark": {"icon": "🤯", "title": "농사는 사람을 ‘더 고생시켰다’ — 그런데도 왜?", "body": "초기 농민은 채집민보다 <b>더 오래·더 힘들게 일하고</b>, 단조로운 곡물 위주 식사로 영양 상태도 나빠졌다고 해요(키가 줄었다는 뼈 증거도 있죠). 그런데도 농경은 멈추지 않았어요 — 같은 땅에서 <b>훨씬 많은 인구</b>를 먹일 수 있었거든요.", "mind": "여기에 역사의 중요한 통찰이 있어요. 큰 변화가 ‘모두를 더 행복하게’ 해서 일어나는 건 아니라는 것. 농업혁명은 개인의 삶의 질로는 손해였을 수 있지만, <b>집단의 규모와 힘</b>을 키웠기에 되돌릴 수 없는 흐름이 됐죠. ‘무엇이 발전인가’를 따질 때, ‘누구에게·어떤 의미에서’를 함께 물어야 하는 이유예요."}, "why": "약 1만 년 전, 마지막 빙하기가 물러가고 기후가 따뜻해지면서 인류는 <b>농경과 목축</b>을 시작했어요. 이를 <b>신석기 혁명(농업혁명)</b>이라 부르죠. 비옥한 초승달 지대(메소포타미아~지중해 동안)에서 밀·보리를 재배하고 양·염소를 길들이면서, 인간은 처음으로 한곳에 <b>정착</b>했어요. 정착은 연쇄 효과를 낳았죠 — 먹고 남는 <b>잉여</b> 식량이 생기자 인구가 늘었고, 모두가 농사짓지 않아도 되니 <b>사제·전사·장인·지배자</b> 같은 직업이 분화됐으며, 잉여를 ‘누가 더 갖느냐’를 두고 <b>빈부와 계급</b>이 생겨났어요. 토기·간석기·직조 기술도 이때 발달했고요. 떠돌이 무리가 정착 사회로 바뀐 이 변화가, 곧 도시와 국가와 문명을 불러옵니다.", "image": {"h": "자료로 보기 — 신석기의 흔적 🖼️", "story": "터키 남동부의 <b>괴베클리 테페</b> 유적이에요. 약 1만 1천 년 전, 아직 농경이 본격화되기도 전에 사람들이 거대한 돌기둥을 세워 만든 의례 장소로 추정돼요. ‘도시보다 신전이 먼저였을 수 있다’는 놀라운 단서로, 인류가 정착하던 그 전환기의 수수께끼를 보여 주죠.", "src": "img/gobekli.jpg", "alt": "여러 개의 거대한 T자형 돌기둥이 둥글게 배치된 괴베클리 테페 신석기 유적", "caption": "괴베클리 테페(약 BC9000) — 농경 전환기 인류가 세운 거대 의례 유적.", "source": "Wikimedia Commons", "license": "CC BY-SA 3.0"}, "connect": "정착이 만든 잉여와 분업은, 곧 사람들을 한곳에 빽빽이 모이게 했어요. 마을은 점점 커져 인류 최초의 ‘도시’가 됩니다. 두 강 사이 메소포타미아에서 솟아오른 도시들로 가 봐요. →", "reflect": ["농업혁명은 ‘개인은 더 고생했지만 집단은 강해진’ 변화였어요. 오늘날에도 ‘사회 전체에는 이득이지만 개인에게는 부담이 되는’ 변화의 예를 떠올려 볼 수 있을까요? 그런 변화는 어떻게 평가해야 할까요?"], "order": ["hook", "spark", "why", "image", "connect", "reflect"]}, {"id": "cities", "num": "02", "label": "도시의 탄생 — 수메르", "accent": "#8a6a2b", "kicker": "수메르·우르·우루크·지구라트 · BC3500~", "era": "기원전 3500년경", "motif": "map", "title": "도시의 탄생 — 수메르", "hook": "두 강(티그리스·유프라테스) 사이의 땅, 메소포타미아. 이 마른 평야에서 인류는 처음으로 ‘도시’라는 것을 만들어요. 수만 명이 성벽 안에 모여 살고, 한가운데 거대한 신전(지구라트)이 솟고, 시장에선 물건이 오갔죠. 인류 최초의 도시 문명, 수메르의 이야기예요.", "spark": {"icon": "🤯", "title": "‘물을 다스리는 일’이 권력을 만들었다", "body": "메소포타미아는 비가 적어, 강물을 끌어오는 <b>관개(灌漑) 농업</b>이 필수였어요. 그런데 수로를 파고 관리하려면 <b>수많은 사람을 조직</b>해야 했죠. 누군가는 일을 지시하고, 물을 나누고, 분쟁을 조정해야 했어요 — 바로 그 자리에서 <b>지배자와 국가</b>가 자라났어요.", "mind": "‘큰 토목사업(관개)’이 ‘큰 조직(국가)’을 낳았다는 건 깊은 통찰이에요. 자연환경(건조한 강 유역)이 인간에게 협력과 조직을 강제했고, 그 조직화가 권력으로 굳어진 거죠. 문명은 ‘자연을 다스리려는 노력’ 속에서 태어났다고도 볼 수 있어요."}, "why": "기원전 3500년경, 메소포타미아 남부에서 <b>수메르</b> 사람들이 <b>우르·우루크·라가시</b> 같은 <b>도시국가</b>를 세웠어요. 인류가 아는 가장 오래된 도시 문명이죠. 비가 적은 이 땅에서 <b>관개 농업</b>으로 풍부한 잉여를 거두자, 수만 명이 성벽 안에 모여 살게 됐어요. 도시 한가운데엔 거대한 계단식 신전 <b>지구라트</b>가 솟아, 신앙과 권력의 중심이 됐죠. 사람들은 <b>바퀴·수레·쟁기</b>를 만들고, 청동을 다루고, 점토판으로 거래를 기록했어요. 도시는 ‘<b>분업의 결정체</b>’였어요 — 농부·장인·상인·사제·서기·전사가 한곳에서 각자의 일을 맡았죠. 다만 도시국가들은 물과 땅을 두고 서로 자주 싸웠고, 이 경쟁이 더 큰 권력(제국)으로 가는 길을 열게 됩니다.", "image": {"h": "자료로 보기 — 지구라트 🖼️", "story": "이라크에 남아 있는 <b>우르의 지구라트</b>예요. 진흙 벽돌을 계단처럼 쌓아 올린 거대한 신전으로, 꼭대기에 신을 모셨죠. 수메르 도시의 한복판에 우뚝 선 이 구조물은, 초기 문명에서 <b>종교와 권력이 하나로 묶여</b> 있었음을 한눈에 보여 줘요.", "src": "img/ziggurat.jpg", "alt": "진흙 벽돌을 계단식으로 쌓아 올린 거대한 메소포타미아의 신전 우르의 지구라트", "caption": "우르의 지구라트(메소포타미아) — 종교와 권력의 중심.", "source": "Wikimedia Commons", "license": "CC BY-SA 4.0"}, "map": {"caption": "문명이 처음 솟아오른 메소포타미아와 이집트예요. 점을 눌러 보세요. 각 도시가 ‘지금의 어디’인지 적었어요.", "source": "OpenStreetMap", "center": [32.5, 38.0], "zoom": 5, "markers": [{"lat": 30.96, "lng": 46.1, "label": "우르 = 지금의 이라크 남부", "desc": "수메르의 대표 도시국가. 거대한 지구라트가 남아 있어요. 지금의 이라크 남부예요."}, {"lat": 31.32, "lng": 45.64, "label": "우루크 = 지금의 이라크", "desc": "가장 오래된 대도시 중 하나로, 설형문자와 길가메시 전설의 무대. 지금의 이라크 남부예요."}, {"lat": 32.54, "lng": 44.42, "label": "바빌론 = 지금의 이라크 중부", "desc": "함무라비 법전의 도시. 뒷날 메소포타미아의 중심이 됩니다. 지금의 이라크 바그다드 남쪽이에요."}, {"lat": 29.98, "lng": 31.13, "label": "기자 = 지금의 이집트", "desc": "거대 피라미드가 선 곳. 나일강 하류, 지금의 이집트 카이로 인근이에요."}]}, "connect": "도시가 커지고 거래가 복잡해지자, 사람들은 ‘기억’만으로는 모든 걸 감당할 수 없었어요. 누가 무엇을 얼마나 냈는지 적어 둘 방법이 필요했죠. 그렇게 인류는 ‘문자’를 발명합니다 — 문명을 ‘역사’로 만든 결정적 도약으로 가 봐요. →", "reflect": ["메소포타미아에서는 ‘물을 다스리는 일(관개)’이 큰 조직과 권력을 낳았어요. 환경이 인간 사회의 모습을 만든 사례죠. 너가 사는 곳의 ‘자연환경’은 그곳 사람들의 삶의 방식을 어떻게 바꿔 놓았을까요?"], "order": ["hook", "spark", "why", "image", "map", "connect", "reflect"]}, {"id": "writing-law", "num": "03", "label": "문자와 법의 발명", "accent": "#9e2b25", "star": true, "kicker": "설형문자·함무라비 법전 · BC3200 ~ BC1750", "era": "기원전 3200년 ~ 기원전 1750년경", "motif": "book", "title": "문자와 법의 발명", "hook": "지금 너가 이 글을 읽을 수 있는 것도, 5천 년 전 누군가가 진흙판에 쐐기를 누른 덕분이에요. 그런데 인류 최초의 글자는 시(詩)도 기도도 아닌 — ‘보리 몇 자루, 양 몇 마리’ 같은 <b>창고 장부</b>였어요. 회계에서 시작한 문자가 어떻게 법과 문학과 권력의 도구가 됐을까요? 문명을 ‘역사’로 바꾼 발명의 이야기예요.", "spark": {"icon": "🤯", "title": "‘선사시대’와 ‘역사시대’를 가르는 단 하나의 기준", "body": "역사학에서 ‘선사(先史)’와 ‘역사(歷史)’를 가르는 기준은 바로 <b>문자 기록의 유무</b>예요. 글자가 없던 시대는 유물·뼈로 ‘추측’할 수밖에 없지만, 글자가 생긴 순간부터 인간은 자기 생각·법·이야기를 <b>직접 남기기</b> 시작했죠.", "mind": "문자는 단순한 ‘기록 도구’가 아니에요. 그것은 시간을 뛰어넘어 지식을 전하고, 약속(법·계약)을 고정하고, 권력을 정당화하는 <b>가장 강력한 기술</b>이었어요. 우리가 5천 년 전 함무라비의 법을 ‘읽을 수 있다’는 사실 자체가, 문자가 인류에게 준 선물이죠."}, "why": "기원전 3200년경, 수메르에서 <b>설형문자(쐐기문자)</b>가 등장했어요. 처음엔 신전·창고의 물건을 세는 <b>회계용 기호</b>였지만, 점차 추상화되어 법·계약·편지·문학까지 적을 수 있게 됐죠. 비슷한 시기 이집트에서도 <b>상형문자</b>가 발달했어요. 문자가 가진 힘이 가장 또렷이 드러난 것이 <b>법</b>이에요. 기원전 18세기, 바빌론의 왕 <b>함무라비</b>는 282개 조항의 법을 <b>돌기둥에 새겨</b> 온 나라에 세웠어요(<b>함무라비 법전</b>). ‘<b>눈에는 눈, 이에는 이</b>’라는 보복 원칙으로 유명하지만, 더 중요한 건 — 왕의 마음이 아니라 <b>‘성문법(글로 쓴 법)’으로 다스린다</b>는 생각이 처음 돌에 새겨졌다는 점이에요. 다만 그 법은 평등하지 않아, <b>신분(귀족·평민·노예)에 따라 처벌이 달랐죠</b>. 문자와 법은 문명을 더 복잡하고, 더 오래가고, 더 ‘기록되는’ 것으로 만들었습니다.", "image": {"h": "사료로 보기 — 함무라비 법전비 🖼️", "story": "약 2.25m 높이의 검은 돌기둥에 새겨진 <b>함무라비 법전</b>이에요. 꼭대기에는 태양신(샤마시)에게서 왕이 ‘정의의 권한’을 받는 장면이, 아래에는 설형문자로 282개 법조항이 빼곡히 새겨져 있죠. ‘법은 신이 내린 것’이라는 권위와 ‘글로 쓴 법’이라는 혁신이 한 돌에 담겨 있어요. 지금은 프랑스 루브르 박물관에 있어요.", "src": "img/hammurabi.jpg", "alt": "검은 돌기둥 윗부분에 신과 왕이 마주한 부조, 아래에 설형문자가 빼곡히 새겨진 함무라비 법전비", "caption": "함무라비 법전비(BC18세기) — 인류가 ‘법’을 돌에 새긴 자리.", "source": "Wikimedia Commons", "license": "CC BY-SA 3.0"}, "connect": "메소포타미아가 두 강 사이에서 도시와 문자를 키우던 그때, 나일강을 따라 또 하나의 거대 문명이 솟아오르고 있었어요. ‘나일의 선물’이라 불린 — 파라오와 피라미드의 나라, 이집트로 가 봐요. →", "reflect": ["함무라비 법전은 ‘글로 쓴 법’이라는 점에서 혁신이었지만, 신분에 따라 처벌이 달랐다는 한계도 있었어요. ‘법을 글로 정해 두는 것’은 왜 중요할까요? 그리고 ‘법이 모두에게 평등한가’는 또 다른 문제라는 것을, 이 법전은 어떻게 보여 줄까요?"], "order": ["hook", "spark", "why", "image", "connect", "reflect"]}, {"id": "egypt", "num": "04", "label": "나일의 선물 — 이집트", "accent": "#b8860b", "kicker": "파라오·피라미드·사후세계 · BC3100 ~", "era": "기원전 3100년경 ~", "motif": "sun", "title": "나일의 선물 — 이집트", "hook": "사막 한가운데를 가르며 흐르는 거대한 강, 나일. 해마다 정확한 때에 범람해 기름진 흙을 남기는 이 강 덕분에, 이집트인은 풍요와 ‘질서’를 믿었어요. 그들은 죽음을 끝이 아니라 또 다른 삶의 시작으로 여겼고, 왕(파라오)을 위해 산처럼 거대한 무덤 — 피라미드를 쌓았죠. 3천 년을 이어 간 나일 문명의 이야기예요.", "spark": {"icon": "🤯", "title": "피라미드는 ‘노예’가 아니라 ‘월급 받는 농민’이 지었다", "body": "오래도록 피라미드는 채찍 맞는 노예들이 지었다고 여겨졌어요. 하지만 최근 연구는 다른 그림을 보여 줘요 — 나일이 <b>범람해 농사를 못 짓는 시기</b>에, <b>빵과 맥주를 받으며 일한 농민·기술자</b>들이 지었다는 거죠(노동자 마을·무덤도 발견됐어요).", "mind": "이건 ‘사료와 고고학이 옛 통념을 바로잡는’ 좋은 예예요. 피라미드는 단순한 ‘강제 노동의 산물’이 아니라, <b>나일의 리듬에 맞춘 거대한 국가 사업</b>이자 파라오의 권위를 온 백성에게 각인시키는 장치였어요. ‘누가·왜·어떻게 지었나’를 따지면, 거대 건축 하나가 그 사회의 작동 방식을 통째로 보여 줍니다."}, "why": "기원전 3100년경, <b>나일강</b>을 따라 위·아래 이집트가 하나로 통일되며 이집트 문명이 시작됐어요. 그리스 역사가 헤로도토스의 말처럼 이집트는 ‘<b>나일의 선물</b>’이었죠 — 강이 해마다 규칙적으로 범람해 기름진 흙을 남긴 덕에 풍요로운 농경이 가능했고, 그 ‘<b>규칙성</b>’은 이집트인에게 우주의 질서(마아트)에 대한 믿음을 심었어요. 왕인 <b>파라오</b>는 단순한 통치자가 아니라 <b>신의 화신</b>으로 여겨졌고, 그 절대 권위가 <b>피라미드</b>라는 거대 무덤으로 표현됐죠. 이집트인은 <b>사후세계</b>를 굳게 믿어 시신을 미라로 만들고, 《사자의 서》를 함께 묻었어요. <b>상형문자</b>로 신전과 무덤을 채웠고, 천문·측량·의학도 발달시켰죠. 메소포타미아가 잦은 정복과 교체로 불안정했던 것과 달리, 이집트는 사막과 바다에 둘러싸인 덕에 <b>3천 년 가까이 비교적 안정된 문명</b>을 이어 갔어요.", "image": [{"h": "자료로 보기 — 기자의 피라미드 🖼️", "story": "기원전 2500년경 세운 <b>기자의 대피라미드</b>와 스핑크스예요. 평균 2.5톤짜리 돌 230만 개를 쌓아 올린 대피라미드는, 약 4천 년 동안 세계에서 가장 높은 인공 건축물이었어요. 정밀한 측량과 수학, 그리고 거대한 국가 조직이 없었다면 불가능했을 — 파라오 권력의 압도적 상징이죠.", "src": "img/pyramids.jpg", "alt": "사막 위에 우뚝 솟은 기자의 세 피라미드와 스핑크스", "caption": "기자의 피라미드와 스핑크스(BC2500경) — 파라오 권력의 상징.", "source": "Wikimedia Commons", "license": "CC BY-SA 3.0"}, {"h": "사료로 보기 — 상형문자와 사자의 서 🖼️", "story": "이집트인이 무덤과 파피루스에 남긴 <b>상형문자</b>와 사후세계 안내서 《사자의 서》의 한 장면이에요. 죽은 이의 심장을 ‘진실의 깃털’과 저울에 다는 심판 장면이 그려져 있죠. 이 글자들은 오래도록 읽지 못하다, 19세기 <b>로제타석</b> 덕에 비로소 해독됐어요 — 우리가 이집트를 ‘아는’ 것은 이 해독 덕분이에요.", "src": "img/book_of_dead.jpg", "alt": "이집트 파피루스에 그려진 사자의 서 — 심장의 무게를 재는 사후 심판 장면과 상형문자", "caption": "《사자의 서》(이집트) — 사후세계의 믿음과 상형문자.", "source": "Wikimedia Commons", "license": "퍼블릭 도메인"}], "connect": "메소포타미아와 이집트가 도시·문자·국가를 키우는 동안, 청동기 기술과 교역망이 여러 문명을 잇기 시작했어요. 그리고 도시국가들은 점점 더 큰 ‘제국’으로 뭉쳐 가죠. 청동과 제국의 시대로 가 봐요. →", "reflect": ["피라미드를 ‘노예의 강제 노동’으로 보던 통념이, 새 고고학 증거로 ‘나일 리듬에 맞춘 국가 사업’으로 바뀌고 있어요. 우리가 ‘당연하다’고 믿던 역사 상식이 새 증거로 뒤집힐 수 있다면, 역사를 대하는 우리의 태도는 어때야 할까요?"], "order": ["hook", "spark", "why", "image:0", "image:1", "connect", "reflect"]}, {"id": "bronze-empire", "num": "05", "label": "청동과 제국의 시대", "accent": "#5a4a3a", "kicker": "청동기·사르곤·아시리아 · BC2300 ~ BC1200", "era": "기원전 2300년 ~ 기원전 1200년경", "motif": "crowd", "title": "청동과 제국의 시대", "hook": "처음엔 작은 도시국가들이 물과 땅을 두고 다투던 메소포타미아. 그런데 한 정복자가 나타나 여러 도시를 칼 아래 묶어, 인류 최초의 ‘제국’을 세워요. 청동 무기를 든 군대가 점점 더 넓은 땅을 정복하던 시대 — 문명이 ‘도시’에서 ‘제국’으로 커지던 이야기예요.", "spark": {"icon": "🤯", "title": "‘청동’이 누가 강한지를 결정했다", "body": "구리에 주석을 섞은 <b>청동</b>은 돌보다 단단하고 날카로운 무기·도구를 만들 수 있었어요. 그런데 주석은 아무 데서나 안 나서 <b>멀리서 구해 와야</b> 했죠. 그래서 청동기 시대엔 ‘<b>금속과 교역로를 쥔 자</b>’가 강자가 됐어요 — 문명들이 서로 교역하고, 또 그것을 두고 싸운 이유예요.", "mind": "‘어떤 재료를 다루느냐’가 곧 ‘누가 강하냐’를 바꾼다는 건, 기술과 권력의 오랜 관계를 보여 줘요. 청동기→철기, 그리고 먼 훗날의 반도체까지 — ‘핵심 자원과 기술을 누가 쥐느냐’가 힘의 균형을 가르는 패턴은, 사실 청동기 시대부터 시작된 거예요."}, "why": "기원전 2300년경, <b>사르곤</b>이 메소포타미아의 여러 도시국가를 정복해 <b>아카드 제국</b>을 세웠어요 — 알려진 인류 <b>최초의 제국</b>이죠. 이후 메소포타미아는 <b>바빌로니아</b>(함무라비), 그리고 잔혹하고 강력한 군사 국가 <b>아시리아</b>로 이어지며 정복과 교체를 거듭했어요. 이 시대의 바탕에는 <b>청동기</b> 기술이 있었어요. 구리와 주석을 섞은 청동으로 더 나은 무기·농기구를 만들었는데, 주석을 멀리서 구해야 했기에 <b>광범위한 교역망</b>이 발달했죠. 이집트·메소포타미아·지중해·인더스가 이 교역으로 느슨히 연결됐어요. 제국은 ‘<b>여러 민족을 한 권력 아래 묶는</b>’ 새로운 통치 실험이었어요 — 도로·군대·세금·행정이 필요했죠. 하지만 기원전 1200년경, 지중해 동부의 여러 청동기 문명이 한꺼번에 무너지는 ‘<b>청동기 후기 붕괴</b>’가 일어나요(원인은 기후·이주·전쟁 등 여러 설이 있어요). 이 혼란 뒤, 더 흔하고 단단한 ‘철’의 시대가 열립니다.", "image": {"h": "자료로 보기 — 아카드의 청동 두상 🖼️", "story": "아카드 제국 시기의 것으로 보이는 <b>청동 왕 두상</b>이에요(사르곤 또는 그 후계자로 추정). 정교한 수염과 위엄 있는 표정에서, 청동을 다루는 높은 기술과 ‘제국의 왕’이라는 권위가 함께 느껴지죠. 후대에 눈 부분이 훼손됐는데, 이는 정복당한 제국의 상징을 일부러 파괴한 흔적으로 보여요.", "src": "img/akkadian_head.jpg", "alt": "정교한 수염과 머리 장식을 갖춘 아카드 제국 시기의 청동 왕 두상", "caption": "아카드 청동 왕 두상(BC23세기경) — 최초의 제국과 청동 기술.", "source": "Wikimedia Commons", "license": "퍼블릭 도메인"}, "connect": "제국과 전쟁의 시대에도, 사람들은 ‘왜 사는가, 죽으면 어디로 가는가’를 물었어요. 그 물음에 대한 답은 신화로 전해졌죠. 인류 최초의 위대한 이야기, 길가메시 서사시로 가 봐요. →", "reflect": ["청동기 시대엔 ‘금속과 교역로를 쥔 자’가 강자가 됐어요. 오늘날 ‘반도체·에너지·희귀 자원’을 두고 나라들이 경쟁하는 모습과 견주면 어떤가요? ‘핵심 자원을 누가 쥐느냐’가 힘을 가른다는 패턴은 얼마나 오래된 것일까요?"], "order": ["hook", "spark", "why", "image", "connect", "reflect"]}, {"id": "myth", "num": "06", "label": "신화와 믿음 — 길가메시", "accent": "#3f5a6b", "kicker": "다신교·길가메시 서사시·사후세계 · 고대의 마음", "era": "고대인의 세계관", "motif": "book", "title": "신화와 믿음 — 길가메시", "hook": "강이 범람하고 가뭄이 들고 별이 움직이는 이유를, 고대인은 알지 못했어요. 그래서 그들은 세상을 ‘신들의 뜻’으로 설명했죠. 수많은 신을 섬기고, 죽음 너머를 상상하고, 이야기로 두려움과 소망을 달랬어요. 그 가운데 인류가 남긴 가장 오래된 위대한 이야기가 있어요 — 영원한 삶을 찾아 헤맨 왕, 길가메시예요.", "spark": {"icon": "🤯", "title": "성경의 노아 홍수보다 1천 년 앞선 ‘대홍수 이야기’", "body": "《길가메시 서사시》에는 신들이 인간을 벌하려 <b>대홍수</b>를 일으키고, 한 사람이 배를 만들어 가족과 동물을 살린 이야기가 나와요 — 훗날의 ‘노아의 방주’와 놀랍도록 닮았죠. 그런데 이 점토판 이야기가 <b>성경보다 1천 년 넘게 앞서요</b>.", "mind": "이건 신화가 ‘<b>문명 사이를 건너 전해지고 변형된다</b>’는 걸 보여 줘요. 메소포타미아의 홍수 이야기가 서아시아 여러 민족에게 퍼지며 모습을 바꿔 전해진 거죠. 신화는 단순한 옛이야기가 아니라, 인류가 같은 두려움(자연재해)과 같은 소망(영생·구원)을 어떻게 이야기로 풀어 왔는지를 보여 주는 ‘마음의 화석’이에요."}, "why": "고대 메소포타미아와 이집트는 모두 <b>다신교</b>였어요 — 하늘·물·태양·풍요·죽음마다 신이 있었고, 인간은 제사로 신을 달래 재앙을 피하고 풍요를 빌었죠. 신전(지구라트)과 사제가 그만큼 중요했고요. 이 세계관이 가장 빛나게 담긴 것이 《<b>길가메시 서사시</b>》예요. 우루크의 왕 길가메시가 친구 엔키두의 죽음에 충격받아 <b>영원한 삶(불멸)</b>을 찾아 떠나지만 끝내 실패하고, ‘인간은 죽는 존재이니 주어진 삶을 충실히 살라’는 깨달음으로 돌아오는 이야기죠. 인류 최초의 문학으로 꼽혀요. 한편 이집트인은 <b>사후세계</b>를 굳게 믿어, 죽은 이의 삶이 저승에서 이어진다고 여겼어요(미라·《사자의 서》·심판). 두 문명의 신화는 달랐지만, ‘<b>죽음을 어떻게 받아들이는가</b>’라는 인류 공통의 물음에 대한 가장 오래된 답이라는 점에서 같았죠.", "legend": {"title": "영원한 삶을 찾아서 — 길가메시", "body": "우루크의 강한 왕 <b>길가메시</b>는, 둘도 없는 친구 <b>엔키두</b>가 죽자 깊은 슬픔과 죽음에 대한 두려움에 빠졌어요. 그는 ‘영원히 죽지 않는 법’을 찾아 머나먼 길을 떠나, 대홍수에서 살아남아 불멸을 얻은 현자 우트나피슈팀을 만나죠. 마침내 ‘젊음을 되돌리는 풀’을 손에 넣지만 — 잠든 사이 <b>뱀이 그 풀을 먹어 버려요</b>. 빈손으로 우루크에 돌아온 길가메시는, 자기가 쌓은 도시의 성벽을 바라보며 깨닫습니다. ‘영원한 것은 내가 아니라, 내가 남긴 것이로구나.’", "moral": "이 가장 오래된 이야기가 던지는 질문은 오늘도 그대로예요 — <b>인간은 모두 죽는데, 그렇다면 어떻게 살아야 하나.</b> 신화는 사실이 아니지만, 그 속엔 4천 년 전 사람도 우리와 똑같이 죽음을 두려워하고 의미를 찾았다는 ‘진실’이 담겨 있죠.", "source": "《길가메시 서사시》 — 점토판에 설형문자로 전하는 인류 최초의 문학"}, "connect": "농업에서 도시로, 문자와 법으로, 제국과 신화로 — 메소포타미아와 이집트는 ‘문명’의 거의 모든 요소를 발명했어요. 그런데 같은 시기, 저 멀리 동쪽에서도 또 다른 문명이 독자적으로 솟아오르고 있었어요. 인더스와 황하, 동방 문명의 새벽으로 이어집니다. →", "links": [{"label": "다음 — 인더스와 황하, 동방 문명의 새벽", "url": "../ancient-east/", "note": "같은 시기 인도와 중국에서 독자적으로 일어난 또 다른 문명으로 이어집니다.", "source": "세계사 이야기"}, {"label": "견주어 보기 — 한국사 ‘선사·고조선’", "url": "../korea/ancient/", "note": "비슷한 시기 한반도의 청동기와 고조선은 어땠는지 견주어 봐요.", "source": "한국사 이야기"}], "reflect": ["4천 년 전 길가메시도, 오늘의 우리도 ‘죽음’ 앞에서 같은 질문을 던져요. 신화는 사실이 아닌데도 오래 살아남아 사람의 마음을 움직이죠. ‘사실이 아닌 이야기’가 인간에게 꼭 필요한 까닭은 무엇일까요?"], "order": ["hook", "spark", "why", "legend", "connect", "links", "reflect"]}]};</script>
+
+<!-- 렌더 엔진 (모든 에피소드 공통) -->
+<script>
+const EP = window.EPISODE;
+const META = EP.meta, TERMS = EP.terms||{}, SECTIONS = EP.sections, PEOPLE = EP.people||null;
+
+function T(text){ let out=text; for(const k of Object.keys(TERMS)){ out=out.split(k).join('<span class="term" data-term="'+k+'">'+k+'</span>'); } return out; }
+function ytURL(v){ return v.type==='search' ? 'https://www.youtube.com/results?search_query='+encodeURIComponent(v.q) : 'https://www.youtube.com/watch?v='+v.id; }
+
+const MOTIF = {
+  flag:'<path d="M40 30v140M40 36h110l-20 28 20 28H40" fill="none" stroke="#fff" stroke-width="7"/>',
+  crowd:'<g fill="#fff"><circle cx="60" cy="70" r="22"/><circle cx="110" cy="60" r="26"/><circle cx="150" cy="78" r="20"/><rect x="38" y="96" width="44" height="70" rx="18"/><rect x="84" y="90" width="52" height="80" rx="20"/><rect x="132" y="100" width="40" height="66" rx="16"/></g>',
+  book:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M105 50c-18-14-44-14-62 0v96c18-14 44-14 62 0M105 50c18-14 44-14 62 0v96c-18-14-44-14-62 0M105 50v96"/></g>',
+  map:'<g fill="none" stroke="#fff" stroke-width="6"><path d="M50 50l38 14 36-14 38 16v100l-38-16-36 14-38-14z"/><path d="M88 64v100M124 50v104"/></g>',
+  wave:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M30 110c20-26 40-26 60 0s40 26 60 0 40-26 40 0"/><path d="M30 150c20-26 40-26 60 0s40 26 60 0 40-26 40 0"/></g>',
+  sun:'<g fill="none" stroke="#fff" stroke-width="7"><circle cx="105" cy="105" r="34"/><path d="M105 40v22M105 148v22M40 105h22M148 105h22M58 58l16 16M152 152l-16-16M152 58l-16 16M58 152l16-16"/></g>',
+  split:'<g fill="none" stroke="#fff" stroke-width="7"><rect x="44" y="50" width="118" height="110" rx="10"/><path d="M103 50v110" stroke-dasharray="10 9"/></g>',
+  dove:'<g fill="#fff"><path d="M60 120c30 6 70-6 96-44-4 30-2 50 18 64-30 10-72 8-96-20z"/><circle cx="150" cy="74" r="6"/></g>',
+  globe:'<g fill="none" stroke="#fff" stroke-width="6"><circle cx="105" cy="105" r="58"/><ellipse cx="105" cy="105" rx="24" ry="58"/><path d="M47 105h116M55 76h100M55 134h100"/></g>',
+  ship:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M48 132h114l-16 30H64z"/><path d="M105 132V46M105 60l44 16-44 16M105 66l-34 12 34 12"/></g>',
+  torch:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M105 40c18 16 18 40 0 52-18-12-18-36 0-52z"/><path d="M88 96h34l-8 64H96z"/></g>',
+  gear:'<g fill="none" stroke="#fff" stroke-width="7"><circle cx="105" cy="105" r="26"/><path d="M105 52v18M105 140v18M52 105h18M140 105h18M68 68l13 13M137 137l-13-13M137 68l-13 13M68 137l13-13"/></g>'
+};
+
+const view=document.getElementById('view'), navList=document.getElementById('navList');
+const sidebar=document.getElementById('sidebar'), scrim=document.getElementById('scrim'), progress=document.getElementById('progress');
+let currentMap=null, bmaps=[];
+function killMap(){ if(currentMap){ try{currentMap.remove();}catch(e){} currentMap=null; }
+  bmaps.forEach(m=>{ try{m.remove();}catch(e){} }); bmaps=[]; }
+
+function visited(id){ return localStorage.getItem(META.slug+'_v_'+id)==='1'; }
+function markVisited(id){ localStorage.setItem(META.slug+'_v_'+id,'1'); }
+
+function head(){
+  if(META.hub){ const hb=document.getElementById('hubBack'); hb.href=META.hub.url; hb.textContent=META.hub.label;
+    const th=document.getElementById('tbHub'); if(th){ th.href=META.hub.url; } }
+  document.getElementById('brandTitle').textContent=META.brand.title;
+  document.getElementById('brandSub').textContent=META.brand.sub;
+  document.getElementById('sideFoot').innerHTML=META.foot||'';
+  document.getElementById('tbTitle').textContent=META.brand.title;
+}
+
+function buildNav(){
+  let html='<li><a class="home-link" data-id="home">🏠 홈 · 이야기 시작</a></li>'
+    +'<li><a class="notes-link" data-id="notes">📝 내 메모 모아보기</a></li>';
+  html+=SECTIONS.map(s=>'<li><a data-id="'+s.id+'" class="'+(s.star?'star':'')+' '+(visited(s.id)?'visited':'')+'">'
+    +'<span class="num">'+s.num+'</span>'+s.label+(s.star?'<span class="tag">★</span>':'')+'</a></li>').join('');
+  if(META.home&&META.home.lineage){ html+='<li><a class="lineage-link" href="'+META.home.lineage.url+'">📜 '+META.home.lineage.label+'</a></li>'; }
+  navList.innerHTML=html;
+  navList.querySelectorAll('a[data-id]').forEach(a=>a.addEventListener('click',()=>{ go(a.dataset.id); closeSide(); }));
+}
+
+function renderHome(){
+  const h=META.home;
+  view.innerHTML=
+  '<div class="home-hero"><h1>'+h.h1+'</h1><div class="hsub">'+h.sub+'</div>'
+  +(h.quote?'<div class="hq">"'+h.quote.text+'"<small>'+h.quote.by+'</small></div>':'')+'</div>'
+  +'<div class="home-wrap"><div class="home-intro">'+h.intro+'</div>'
+  +'<div class="start-btns"><a class="btn primary" data-id="'+h.startPrimary.to+'">'+h.startPrimary.label+'</a>'
+  +(h.startStar?'<a class="btn star" data-id="'+h.startStar.to+'">'+h.startStar.label+'</a>':'')
+  +(h.lineage?'<a class="btn lineage" href="'+h.lineage.url+'">'+h.lineage.label+'</a>':'')+'</div>'
+  +'<h2 class="block" style="margin-top:34px;">'+(h.pathLabel||'이야기 흐름')+'</h2><ul class="path">'
+  +SECTIONS.map(s=>'<li class="'+(s.star?'star':'')+'" data-id="'+s.id+'"><span class="pn">'+s.num+'</span>'
+    +'<span><span class="ph">'+s.label+(s.star?' <span class="star-mark">★</span>':'')+'</span>'
+    +'<span class="pp">'+s.kicker+' · '+s.era+'</span></span></li>').join('')
+  +'</ul></div>';
+  view.querySelectorAll('[data-id]').forEach(el=>el.addEventListener('click',()=>{ go(el.dataset.id); closeSide(); }));
+  setActive('home'); window.scrollTo(0,0); progress.style.width='0%'; vfx();
+}
+
+function ytBlock(v){
+  const pill = v.type==='search' ? '<span class="pill find">검색</span>' : (v.lang==='en'?'<span class="pill en">영어·자막</span>':'<span class="pill ko">한국어</span>');
+  return '<a class="yt" href="'+ytURL(v)+'" target="_blank" rel="noopener">'
+    +'<span class="play '+(v.type==='search'?'search':'')+'">'+(v.type==='search'?'🔍':'▶')+'</span>'
+    +'<span class="yt-body"><span class="yt-title">'+v.title+'</span>'
+    +'<span class="yt-meta">'+pill+(v.channel?'<span class="pill">'+v.channel+'</span>':'')+(v.length?'<span>'+v.length+'</span>':'')+'</span>'
+    +'<span class="yt-desc">'+v.desc+'</span></span></a>';
+}
+function quoteBlock(q){ return '<div class="quote"><span class="qm">"</span><div class="qt">'+q.qt+'</div><span class="qs">'+q.qs+'</span></div>'; }
+function quizHTML(quiz,sid){
+  return '<h2 class="block">잠깐, 기억나니? 🧠</h2><div class="quizwrap">'
+    + quiz.map((q,qi)=>'<div class="quizq" data-qi="'+qi+'"><div class="qq">'+(qi+1)+'. '+q.q+'</div><div class="qopts">'
+      + q.options.map((o,oi)=>'<button class="quiz-opt" data-oi="'+oi+'">'+o+'</button>').join('')
+      + '</div><div class="qexp" id="qexp_'+sid+'_'+qi+'"></div></div>').join('')
+    + '</div>';
+}
+function mapHTML(m,sid){
+  return '<h2 class="block">지도로 보기 🗺️</h2><div class="mapwrap">'
+    + '<div class="lmap" id="lmap_'+sid+'"></div>'
+    + '<div class="mapcap">'+(m.caption||'')+(m.source?' <span class="msrc">· 지도 ⓒ '+m.source+'</span>':'')+'</div></div>';
+}
+function choiceHTML(c,sid){
+  const opts=c.options.map((o,i)=>'<div><button class="chopt" data-oi="'+i+'">'+o.label+'</button>'
+    +'<div class="chres" id="chres_'+sid+'_'+i+'">'+T(o.result)+'</div></div>').join('');
+  return '<h2 class="block">'+(c.h||'너라면? 🤔')+'</h2><div class="choice" id="ch_'+sid+'">'
+    +'<div class="chprompt">'+T(c.prompt)+'</div><div class="chopts">'+opts+'</div>'
+    +(c.after?'<div class="chafter" id="chafter_'+sid+'">💬 '+T(c.after)+'</div>':'')+'</div>';
+}
+function compareHTML(c,sid){
+  const tabs=c.states.map((st,i)=>'<button class="cmptab'+(i===0?' active':'')+'" data-ci="'+i+'">'+st.label+'</button>').join('');
+  return '<h2 class="block">'+(c.h||'견주어 보기 ⚖️')+'</h2><div class="compare" id="cmp_'+sid+'">'
+    +(c.intro?'<div class="cmpintro">'+T(c.intro)+'</div>':'')
+    +'<div class="cmptabs">'+tabs+'</div><div class="cmppanel" id="cmppanel_'+sid+'"></div></div>';
+}
+function chartHTML(c,sid){
+  const max=Math.max.apply(null, c.data.map(d=>d.value))||1;
+  const rows=c.data.map(d=>'<div class="crow"><div class="clabel">'+d.label+'</div>'
+    +'<div class="cbarwrap"><div class="cbar" style="width:'+(d.value/max*100)+'%"></div></div>'
+    +'<div class="cval">'+(d.disp||d.value)+'</div></div>').join('');
+  return '<h2 class="block">'+(c.h||'숫자로 보기 📊')+'</h2><div class="chart"><div class="ctitle">'+c.title+'</div>'
+    +(c.unit?'<div class="cunit">'+c.unit+'</div>':'')+rows
+    +(c.relatable?'<div class="crelate">💡 '+T(c.relatable)+'</div>':'')
+    +(c.source?'<div class="csrc">출처: '+c.source+'</div>':'')+'</div>';
+}
+function voiceHTML(v){
+  const real = v.imagined===false;
+  return '<h2 class="block">'+(v.h||'그 사람의 목소리 🗣️')+'</h2><div class="voice">'
+    + '<span class="vbadge '+(real?'real':'imag')+'">'+(real?'실제 기록':'✍️ 사실에 기반한 상상')+'</span>'
+    + '<div class="vbody">'+T(v.body)+'”</div>'
+    + '<div class="vspeaker"><b>— '+v.speaker+'</b>'+(v.era?' · '+v.era:'')+(v.source?'<span class="vsrc">'+v.source+'</span>':'')+'</div>'
+    + '</div>';
+}
+function imageHTML(im,sid){
+  const hs=im.hotspots||[];
+  return '<h2 class="block">'+(im.h||'자료로 보기 🖼️')+'</h2><figure class="figimg">'
+    + (im.story?'<div class="figstory">'+T(im.story)+'</div>':'')
+    + '<div class="imgbox" id="imgbox_'+sid+'">'
+    + '<img src="'+im.src+'" alt="'+(im.alt||'')+'" loading="lazy">'
+    + hs.map((h,i)=>'<button class="hsdot" data-hi="'+i+'" style="left:'+h.x+'%;top:'+h.y+'%" aria-label="'+(h.label||'')+'">'+(i+1)+'</button>').join('')
+    + '</div>'
+    + (hs.length?'<div class="hsinfo" id="hsinfo_'+sid+'">점(번호)을 눌러 보세요.</div>':'')
+    + '<figcaption class="figcap">'+(im.caption||'')+(im.source?' <span class="msrc">· 출처: '+im.source+(im.license?' · '+im.license:'')+'</span>':'')+'</figcaption>'
+    + '</figure>';
+}
+function oldmapHTML(o,sid){
+  return '<h2 class="block">'+(o.h||'옛 지도로 보기 🗺️')+'</h2><figure class="oldmap">'
+    + (o.story?'<div class="figstory">'+T(o.story)+'</div>':'')
+    + '<div class="oldmap-frame"><img src="'+o.src+'" alt="'+(o.alt||'')+'" loading="lazy"></div>'
+    + '<figcaption class="figcap">'+(o.caption||'')+(o.source?' <span class="msrc">· 출처: '+o.source+(o.license?' · '+o.license:'')+'</span>':'')+'</figcaption>'
+    + '</figure>';
+}
+function lensBlock(l){ return '<div class="lens"><div class="lh">🕯️ 그때 사람들은 이렇게 생각했어요</div><div>'+T(l)+'</div></div>'; }
+function legendHTML(lg){
+  return '<div class="legendbox"><div class="lgh">📖 전해 오는 이야기'+(lg.title?' — '+lg.title:'')+'</div>'
+    +'<div class="lgbody">'+T(lg.body)+'</div>'
+    +(lg.moral?'<div class="lgmoral">💭 '+T(lg.moral)+'</div>':'')
+    +(lg.source?'<div class="lgsrc">📜 '+lg.source+'</div>':'')+'</div>';
+}
+/* lineage(왕조 계보): 클릭/터치하면 펼쳐지는 왕 목록. 네이티브 <details>라 JS 없이도 동작(모바일 터치 OK). */
+function lineageRow(r){
+  return '<details class="lin-item'+(r.star?' lin-key':'')+'">'
+    +'<summary><span class="lin-n">'+(r.n||'')+'</span>'
+    +'<span class="lin-name">'+r.name+(r.star?' <span class="lin-star">★</span>':'')+'</span>'
+    +'<span class="lin-reign">'+(r.reign||'')+'</span></summary>'
+    +'<div class="lin-note">'+T(r.note||'')+'</div></details>';
+}
+function lineageHTML(lg){
+  let body='';
+  if(lg.dynasties){
+    body=lg.dynasties.map(function(d){
+      return '<div class="lin-dyn"><h3 class="lin-dyn-h">'+d.label+'</h3>'
+        +(d.intro?'<p class="lin-dyn-intro">'+T(d.intro)+'</p>':'')
+        +'<div class="lin-grid">'+d.rulers.map(lineageRow).join('')+'</div></div>';
+    }).join('');
+  } else {
+    body='<div class="lin-grid">'+(lg.rulers||[]).map(lineageRow).join('')+'</div>';
+  }
+  return '<h2 class="block">'+(lg.h||'왕조 계보')+'</h2>'
+    +(lg.intro?'<div class="lin-intro">'+T(lg.intro)+'</div>':'')
+    +'<div class="lineage">'+body+'</div>';
+}
+function personBlock(p){
+  return '<div class="person"><div class="pheader"><div class="pface">'+(p.face||'👤')+'</div>'
+    +'<div><div class="pname">'+p.name+'</div><div class="pwho">'+(p.who||'')+'</div></div></div>'
+    +(p.why?'<div class="pwhy">'+T(p.why)+'</div>':'')
+    +(p.quote?'<div class="pquote">"'+p.quote+'"</div>':'')
+    +(p.shadow?'<div class="pshadow">빛과 그림자 · '+p.shadow+'</div>':'')
+    +(p.slug?'<a class="pmore" href="../people/'+p.slug+'/">📖 인물 도감에서 더 보기 →</a>':'')+'</div>';
+}
+
+const FIT={green:{e:'🟢',t:'전체 관람'},yellow:{e:'🟡',t:'부모와 함께'},red:{e:'🔴',t:'핵심 장면·맥락만'}};
+function movieBlock(m){
+  const f=FIT[m.fit]||FIT.yellow;
+  let s='<div class="movie"><div class="mhead"><div class="mtitle">🎬 '+m.title+'</div>'
+    +'<span class="mfit '+(m.fit||'yellow')+'">'+f.e+' '+f.t+'</span></div>'
+    +'<div class="mmeta">'+[m.year,m.director].filter(Boolean).join(' · ')
+    +(m.basedOn?' · <b>'+m.basedOn+'</b>':'')+'</div>';
+  if(m.why) s+='<div class="mwhy">'+T(m.why)+'</div>';
+  if(m.realVsFiction) s+='<div class="mreal"><span class="lbl">실화 vs 각색</span>'+m.realVsFiction+'</div>';
+  let links=[];
+  if(m.slug) links.push('<a class="mlink slug" href="../people/'+m.slug+'/">📖 인물 도감</a>');
+  (m.links||[]).forEach(l=>links.push('<a class="mlink" href="'+l.url+'" target="_blank" rel="noopener">'+l.label+' ↗</a>'));
+  if(links.length) s+='<div class="mlinks">'+links.join('')+'</div>';
+  return s+'</div>';
+}
+function battlemapHTML(bm,sid,idx){
+  const id='bm_'+sid+'_'+idx;
+  let s='<h2 class="block">'+(bm.title||'전투 지도')+' 🗺️</h2><div class="battlemap" id="'+id+'">';
+  if(bm.intro) s+='<div class="bm-intro">'+T(bm.intro)+'</div>';
+  s+='<div class="bm-map" id="'+id+'_map"></div>'
+    +'<div class="bm-step"><button class="bm-prev" disabled>← 이전</button><div class="bm-plabel" id="'+id+'_lab"></div><button class="bm-next">다음 →</button></div>';
+  if(bm.legend&&bm.legend.length) s+='<div class="bm-legend">'+bm.legend.map(l=>'<span><i style="border-color:'+l.c+'"></i> '+l.label+'</span>').join('')+'</div>';
+  if(bm.caption) s+='<div class="bm-cap">'+bm.caption+'</div>';
+  return s+'</div>';
+}
+function deepdiveHTML(dd){
+  let s='<details class="deepdive"><summary>🔎 더 깊이 — 고등·일반 수준으로 (펼치기)</summary><div class="dd-body">';
+  dd.forEach(it=>{ s+='<div class="dd-item"><h3>'+it.h+'</h3><div class="dd-text">'+T(it.body)+'</div>'
+    +(it.source?'<div class="dd-src">📜 '+it.source+'</div>':'')+'</div>'; });
+  return s+'</div></details>';
+}
+function linksHTML(arr){
+  let s='<h2 class="block">더 깊이 알아보기 🔗</h2><div class="links">';
+  arr.forEach(it=>{ s+='<a class="lk" href="'+it.url+'" target="_blank" rel="noopener">'
+    +'<span class="lk-label">'+it.label+'</span>'
+    +(it.note?'<span class="lk-note">'+T(it.note)+'</span>':'')
+    +(it.source?'<span class="lk-src">'+it.source+'</span>':'')+'</a>'; });
+  return s+'</div>';
+}
+function sparkHTML(sp){
+  let s='<div class="spark"><div class="spark-h">'+(sp.icon||'🤯')+' '+(sp.title||'상상해보기')+'</div>';
+  s+='<div class="spark-body">'+T(sp.body)+'</div>';
+  if(sp.mind) s+='<div class="spark-mind"><b>🌀 상식 뒤집기</b> — '+T(sp.mind)+'</div>';
+  return s+'</div>';
+}
+function marchmapHTML(m,sid){
+  const SY=1.55; // viewBox 0 0 100 155 (베이스맵 종횡비 ≈ 1866/2891)
+  const P={}; (m.places||[]).forEach(p=>P[p.id]=p);
+  const placePhase={};
+  (m.phases||[]).forEach((ph,i)=>(ph.show||[]).forEach(id=>{ if(placePhase[id]===undefined) placePhase[id]=i; }));
+  const KIND={start:'🚩',battle:'⚔️',win:'✔️',loss:'✖️',capital:'🏯',city:'•'};
+  let dots='';
+  (m.places||[]).forEach(p=>{
+    const ph=placePhase[p.id]!==undefined?placePhase[p.id]:0;
+    const emo=KIND[p.kind]||'';
+    dots+='<div class="mm-place k-'+(p.kind||'city')+'" data-ph="'+ph+'" style="left:'+p.x+'%;top:'+p.y+'%">'
+      +'<span class="mm-dot"></span><span class="mm-lbl">'+(emo&&emo!=='•'?emo+' ':'')+p.label+'</span></div>';
+  });
+  let paths='';
+  (m.phases||[]).forEach((ph,i)=>{
+    (ph.arrows||[]).forEach(a=>{
+      const f=P[a.from], t=P[a.to]; if(!f||!t) return;
+      const fx=f.x, fy=f.y*SY, tx=t.x, ty=t.y*SY;
+      const mx=(fx+tx)/2, my=(fy+ty)/2, dx=tx-fx, dy=ty-fy;
+      const cx=(mx-dy*0.16).toFixed(1), cy=(my+dx*0.16).toFixed(1);
+      const tone=a.tone||'resist';
+      paths+='<path class="mm-arrow tone-'+tone+'" data-ph="'+i+'" d="M'+fx+' '+fy.toFixed(1)+' Q'+cx+' '+cy+' '+tx+' '+ty.toFixed(1)+'" marker-end="url(#mmh-'+tone+')"></path>';
+      if(a.label) paths+='<text class="mm-alab tone-'+tone+'" data-ph="'+i+'" x="'+cx+'" y="'+cy+'">'+a.label+'</text>';
+    });
+  });
+  const n=(m.phases||[]).length, first=(m.phases&&m.phases[0]?m.phases[0].label:'');
+  let s='<h2 class="block">진격으로 따라가기 🗺️</h2><div class="marchmap" id="mm_'+sid+'" data-ph="0" data-n="'+n+'">';
+  if(m.title) s+='<div class="mm-title">'+m.title+'</div>';
+  if(m.intro) s+='<div class="mm-intro">'+T(m.intro)+'</div>';
+  s+='<div class="mm-stage"><img class="mm-base" src="'+m.base.src+'" alt="'+(m.title||'지도')+'" loading="lazy">'
+    +'<svg class="mm-arrows" viewBox="0 0 100 155" preserveAspectRatio="xMidYMid meet"><defs>'
+    +'<marker id="mmh-resist" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" class="mh resist"/></marker>'
+    +'<marker id="mmh-invade" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" class="mh invade"/></marker>'
+    +'</defs>'+paths+'</svg>'+dots+'</div>';
+  s+='<div class="mm-step"><button class="mm-prev" disabled>← 이전</button>'
+    +'<div class="mm-plabel" id="mmlab_'+sid+'">'+first+'</div><button class="mm-next">다음 →</button></div>';
+  if(m.caption) s+='<div class="mm-cap">'+m.caption+'</div>';
+  return s+'</div>';
+}
+function relationsHTML(r,sid){
+  let s='<h2 class="block">힘의 관계 한눈에 보기 ⚖️</h2><div class="relations">';
+  if(r.title) s+='<div class="rtitle">'+r.title+'</div>';
+  if(r.intro) s+='<div class="rintro">'+T(r.intro)+'</div>';
+  s+='<div class="rsides">';
+  (r.sides||[]).forEach(side=>{
+    s+='<div class="rside '+(side.color||'')+'"><div class="rslabel">'+side.label+'</div>';
+    (side.members||[]).forEach(m=>{
+      s+='<div class="rmember"><b>'+m.name+'</b><span>'+(m.role||'')+'</span>'
+        +(m.slug?' <a class="rlink" href="../people/'+m.slug+'/">📖</a>':'')+'</div>';
+    });
+    s+='</div>';
+  });
+  s+='</div>';
+  if(r.tensions&&r.tensions.length){
+    s+='<div class="rtensions">';
+    r.tensions.forEach(t=>{ s+='<div class="rtension"><div class="rvs">⚔️ '+t.a+' ↔ '+t.b+'</div><div>'+T(t.label)+'</div></div>'; });
+    s+='</div>';
+  }
+  return s+'</div>';
+}
+// 블록 registry + 섹션별 순서(order) — 데이터로 흐름 제어. order 없으면 DEFAULT(하위호환).
+function renderBlocks(s){
+  const B={
+    hook:()=>'<p class="hook">'+T(s.hook)+'</p>'+(s.quote?quoteBlock(s.quote):''),
+    spark:()=>s.spark?sparkHTML(s.spark):'',
+    why:()=>'<h2 class="block">왜 중요할까</h2><div class="why">'+s.why+'</div>',
+    lens:()=>s.lens?lensBlock(s.lens):'',
+    legend:()=>s.legend?legendHTML(s.legend):'',
+    lineage:()=>s.lineage?lineageHTML(s.lineage):'',
+    voice:()=>s.voice?voiceHTML(s.voice):'',
+    cards:()=>s.cards?('<h2 class="block">핵심 따라가기</h2><div class="cards">'
+      +s.cards.map(c=>'<div class="card"><span class="yr">'+c.yr+'</span><h3>'+c.h+'</h3><p>'+T(c.p)+'</p></div>').join('')+'</div>'
+      +(s.quote2?quoteBlock(s.quote2):'')):'',
+    people:()=>s.people?'<h2 class="block">꼭 알아야 할 인물</h2><div class="people">'+s.people.map(personBlock).join('')+'</div>':'',
+    map:()=>s.map?mapHTML(s.map,s.id):'',
+    image:(i)=>{ const arr=Array.isArray(s.image); const im=arr?s.image[i||0]:s.image; const sid=(arr&&i!=null)?s.id+'_'+i:s.id; return im?imageHTML(im,sid):''; },
+    oldmap:()=>s.oldmap?oldmapHTML(s.oldmap,s.id):'',
+    chart:(i)=>{ const arr=Array.isArray(s.chart); const c=arr?s.chart[i||0]:s.chart; return c?chartHTML(c,(arr&&i!=null)?s.id+'_'+i:s.id):''; },
+    compare:()=>s.compare?compareHTML(s.compare,s.id):'',
+    relations:()=>s.relations?relationsHTML(s.relations,s.id):'',
+    marchmap:()=>s.marchmap?marchmapHTML(s.marchmap,s.id):'',
+    battlemap:(i)=>{ const bm=(s.battlemaps||[])[i]; return bm?battlemapHTML(bm,s.id,i):''; },
+    timeline:()=>s.timeline?('<h2 class="block">한눈에 보는 흐름</h2><div class="timeline">'
+      +s.timeline.map(t=>'<div class="tl"><span class="tl-yr">'+t.yr+'</span> <span class="tl-txt">'+t.t+'</span></div>').join('')+'</div>'):'',
+    connect:()=>s.connect?('<h2 class="block">이야기 연결 고리</h2><div class="connect"><span class="ico">🔗</span><div>'+s.connect+'</div></div>'):'',
+    yt:()=>s.yt?('<h2 class="block">영상으로 보기</h2>'+s.yt.map(ytBlock).join('')):'',
+    movies:()=>s.movies?'<h2 class="block">영화로 만나기 🎬</h2><div class="movies">'+s.movies.map(movieBlock).join('')+'</div>':'',
+    choice:()=>s.choice?choiceHTML(s.choice,s.id):'',
+    quiz:()=>s.quiz?quizHTML(s.quiz,s.id):'',
+    deepdive:()=>s.deepdive?deepdiveHTML(s.deepdive):'',
+    links:()=>s.links?linksHTML(s.links):'',
+    reflect:()=>s.reflect?('<h2 class="block">내 생각 적어보기 ✍️</h2><div class="reflect">'
+      +s.reflect.map((q,i)=>'<div class="q">'+q+'</div><textarea data-key="'+s.id+'_'+i+'" placeholder="여기에 자유롭게 적어보세요. 자동으로 저장돼요."></textarea><div class="saved" id="saved_'+s.id+'_'+i+'"></div>').join('')+'</div>'):''
+  };
+  const DEFAULT=['hook','spark','why','lens','legend','lineage','voice','cards','people','map','image','oldmap','chart','compare','relations','marchmap','battlemap*','timeline','connect','yt','movies','choice','quiz','deepdive','links','reflect'];
+  const order=(s.order&&s.order.length)?s.order:DEFAULT;
+  let html='';
+  order.forEach(tok=>{
+    if(tok.charAt(tok.length-1)==='*'){
+      const name=tok.slice(0,-1);
+      let arr=[];
+      if(name==='battlemap') arr=s.battlemaps||[];
+      else if(Array.isArray(s[name])) arr=s[name];
+      else if(s[name]) arr=[s[name]];
+      arr.forEach((_,i)=>{ if(B[name]) html+=B[name](i); });
+      return;
+    }
+    const p=tok.split(':'), name=p[0], idx=p.length>1?+p[1]:null;
+    if(B[name]) html+=B[name](idx);
+  });
+  return html;
+}
+/* 시각효과: 차트 바 성장만 JS로(0→목표 rAF). 블록 진입은 순수 CSS라 JS 불필요.
+   가시성은 CSS animation(fill-mode both)이 보장 → 이 함수가 실패해도 콘텐츠는 항상 보임. */
+function vfx(){
+  try{
+    if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    view.querySelectorAll('.crow .cbar').forEach(function(b){
+      const w=b.style.width||''; if(!w) return; b.style.width='0%';
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ b.style.width=w; }); });
+    });
+  }catch(e){ /* 시각효과 실패는 콘텐츠에 영향 없음 */ }
+}
+function render(s,idx){
+  const prev=SECTIONS[idx-1], next=SECTIONS[idx+1];
+  view.innerHTML=
+  '<div class="hero" style="background:linear-gradient(135deg,var(--navy) 0%, '+s.accent+' 100%)">'
+  +'<div class="kicker">'+s.kicker+'</div><h1>'+s.title+'</h1><div class="era">⏳ '+s.era+'</div>'
+  +'<svg class="motif" viewBox="0 0 210 210">'+(MOTIF[s.motif]||'')+'</svg></div>'
+  +'<div class="wrap">'
+  +renderBlocks(s)
+  +'<div class="pager">'
+  +(prev?'<a class="prev" data-id="'+prev.id+'"><div class="pg-label">← 이전</div><div class="pg-title">'+prev.label+'</div></a>':'<a class="prev" data-id="home"><div class="pg-label">← 홈</div><div class="pg-title">이야기 시작</div></a>')
+  +(next?'<a class="next" data-id="'+next.id+'"><div class="pg-label">다음 →</div><div class="pg-title">'+next.label+'</div></a>':'<a class="next" data-id="home"><div class="pg-label">이야기 끝 →</div><div class="pg-title">홈으로</div></a>')
+  +'</div></div>';
+  view.querySelectorAll('.pager a[data-id]').forEach(a=>a.addEventListener('click',()=>go(a.dataset.id)));
+  view.querySelectorAll('textarea[data-key]').forEach(ta=>{
+    const k=META.slug+'_m_'+ta.dataset.key; ta.value=localStorage.getItem(k)||''; let timer;
+    ta.addEventListener('input',()=>{ localStorage.setItem(k,ta.value); const tag=document.getElementById('saved_'+ta.dataset.key); tag.textContent='저장됨 ✓'; clearTimeout(timer); timer=setTimeout(()=>tag.textContent='',1300); });
+  });
+  if(s.quiz){ view.querySelectorAll('.quizq').forEach(qd=>{
+    const qi=+qd.dataset.qi, q=s.quiz[qi];
+    qd.querySelectorAll('.quiz-opt').forEach(btn=>btn.addEventListener('click',()=>{
+      if(qd.classList.contains('done')) return; qd.classList.add('done');
+      const oi=+btn.dataset.oi;
+      qd.querySelectorAll('.quiz-opt').forEach((b,i)=>{ if(i===q.answer) b.classList.add('correct'); if(i===oi&&oi!==q.answer) b.classList.add('wrong'); b.disabled=true; });
+      const exp=document.getElementById('qexp_'+s.id+'_'+qi);
+      exp.innerHTML=(oi===q.answer?'<b>맞았어요! ✓</b> ':'<b>아쉬워요, 다시 볼까요?</b> ')+(q.explain||'');
+      exp.classList.add('show');
+    }));
+  }); }
+  if(s.map && window.L){
+    const mel=document.getElementById('lmap_'+s.id);
+    currentMap=L.map(mel,{scrollWheelZoom:false}).setView(s.map.center, s.map.zoom);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(currentMap);
+    if(s.map.line) L.polyline(s.map.line,{color:'#b5546a',weight:3,dashArray:'6 6'}).addTo(currentMap);
+    (s.map.markers||[]).forEach(mk=>L.circleMarker([mk.lat,mk.lng],{radius:9,color:'#fff',weight:2,fillColor:'#B5546A',fillOpacity:1}).addTo(currentMap).bindPopup('<b>'+mk.label+'</b><br>'+mk.desc));
+    setTimeout(()=>{ if(currentMap) currentMap.invalidateSize(); },200);
+  }
+  if(s.image && s.image.hotspots && s.image.hotspots.length){
+    const info=document.getElementById('hsinfo_'+s.id);
+    view.querySelectorAll('#imgbox_'+s.id+' .hsdot').forEach(d=>d.addEventListener('click',()=>{
+      const h=s.image.hotspots[+d.dataset.hi]; info.innerHTML='<b>'+h.label+'</b> '+(h.desc||''); info.classList.add('show');
+    }));
+  }
+  if(s.compare){
+    const c=s.compare, panel=document.getElementById('cmppanel_'+s.id);
+    const tabs=view.querySelectorAll('#cmp_'+s.id+' .cmptab');
+    const fill=(i)=>{ const st=c.states[i]; panel.innerHTML='<div class="cmh">'+st.title+'</div><div class="cmb">'+T(st.body)+'</div>'
+      +(st.img?'<img src="'+st.img+'" alt="'+(st.alt||'')+'" loading="lazy">':'')+(st.caption?'<div class="cmpcap">'+st.caption+'</div>':'');
+      tabs.forEach((b,bi)=>b.classList.toggle('active',bi===i)); };
+    tabs.forEach(b=>b.addEventListener('click',()=>fill(+b.dataset.ci)));
+    fill(0);
+  }
+  if(s.choice){
+    const af=document.getElementById('chafter_'+s.id);
+    view.querySelectorAll('#ch_'+s.id+' .chopt').forEach(b=>b.addEventListener('click',()=>{
+      document.getElementById('chres_'+s.id+'_'+b.dataset.oi).classList.add('show');
+      b.classList.add('picked'); if(af) af.classList.add('show');
+    }));
+  }
+  if(s.marchmap){
+    const mm=document.getElementById('mm_'+s.id), n=+mm.dataset.n, lab=document.getElementById('mmlab_'+s.id);
+    const prev=mm.querySelector('.mm-prev'), next=mm.querySelector('.mm-next'), phases=s.marchmap.phases||[];
+    const upd=()=>{ const cur=+mm.dataset.ph;
+      mm.querySelectorAll('.mm-place,.mm-arrow,.mm-alab').forEach(el=>el.classList.toggle('on',+el.dataset.ph<=cur));
+      lab.textContent=phases[cur]?phases[cur].label:''; prev.disabled=cur<=0; next.disabled=cur>=n-1; };
+    prev.addEventListener('click',()=>{ mm.dataset.ph=Math.max(0,+mm.dataset.ph-1); upd(); });
+    next.addEventListener('click',()=>{ mm.dataset.ph=Math.min(n-1,+mm.dataset.ph+1); upd(); });
+    upd();
+  }
+  (s.battlemaps||[]).forEach((bm,idx)=>{
+    const id='bm_'+s.id+'_'+idx;
+    try{
+      const map=L.map(id+'_map',{scrollWheelZoom:false}).setView(bm.center||[37,127],bm.zoom||6);
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:14,attribution:'© OpenStreetMap'}).addTo(map);
+      bmaps.push(map);
+      const KIND={start:'🚩',battle:'⚔️',win:'✔️',loss:'✖️',capital:'🏯',city:'•',sea:'⚓'};
+      const ic=(e)=>L.divIcon({className:'bm-ic',html:'<div>'+e+'</div>',iconSize:[26,26],iconAnchor:[13,13]});
+      const phases=bm.phases||[], layers=phases.map(()=>[]);
+      phases.forEach((ph,i)=>{
+        (ph.markers||[]).forEach(m=>layers[i].push(L.marker(m.at,{icon:ic(KIND[m.kind]||'•')}).bindTooltip(m.label,{permanent:true,direction:'top',offset:[0,-10],className:'bm-tt'})));
+        (ph.arrows||[]).forEach(a=>layers[i].push(L.polyline.antPath(a.path,{color:a.tone==='invade'?'#B5546A':'#2E7D4F',weight:4,delay:1000,dashArray:[10,22],pulseColor:'#fff'})));
+      });
+      const lab=document.getElementById(id+'_lab'), prev=document.querySelector('#'+id+' .bm-prev'), next=document.querySelector('#'+id+' .bm-next'), n=phases.length;
+      let cur=0;
+      const lowAt=(c)=>{ let r=0; for(let i=1;i<=c;i++){ if(phases[i]&&phases[i].reset) r=i; } return r; };
+      const upd=()=>{ const lo=lowAt(cur);
+        layers.forEach((grp,i)=>grp.forEach(l=> (i>=lo&&i<=cur)?l.addTo(map):map.removeLayer(l)));
+        lab.textContent=phases[cur]?phases[cur].label:''; prev.disabled=cur<=0; next.disabled=cur>=n-1;
+        if(bm.fit){ const pts=[]; for(let i=lo;i<=cur;i++) layers[i].forEach(l=>{ if(l.getLatLng) pts.push(l.getLatLng()); });
+          if(pts.length>=2) map.fitBounds(L.latLngBounds(pts).pad(0.4)); else if(pts.length===1) map.setView(pts[0], map.getZoom()); } };
+      next.onclick=()=>{cur=Math.min(n-1,cur+1);upd();}; prev.onclick=()=>{cur=Math.max(0,cur-1);upd();};
+      upd(); setTimeout(()=>map.invalidateSize(),200);
+    }catch(e){ console.error('battlemap',e); }
+  });
+  markVisited(s.id); setActive(s.id); window.scrollTo(0,0); vfx();
+}
+
+function renderNotes(){
+  const body=SECTIONS.map(s=>{
+    const items=s.reflect.map((q,i)=>{ const v=(localStorage.getItem(META.slug+'_m_'+s.id+'_'+i)||'').trim();
+      return '<div class="note-q">'+q+'</div><div class="note-a'+(v?'':' empty')+'">'+(v?v.replace(/</g,'&lt;'):'(아직 적지 않았어요)')+'</div>'; }).join('');
+    return '<div class="note-sec"><div class="note-sh">'+s.num+' · '+s.label+'</div>'+items+'</div>';
+  }).join('');
+  view.innerHTML='<div class="home-hero"><h1>📝 내 메모 모아보기</h1><div class="hsub">'+META.brand.title+' — 내가 적은 생각들</div></div>'
+    +'<div class="home-wrap"><div class="note-actions noprint">'
+    +'<button class="btn primary" id="notePrint">🖨️ 인쇄 / PDF 저장</button>'
+    +'<button class="btn" id="noteCopy" style="background:#fff;border:1px solid var(--line);color:var(--navy)">📋 전체 복사</button></div>'
+    +'<div class="notes-view" id="notesView">'+body+'</div></div>';
+  document.getElementById('notePrint').addEventListener('click',()=>window.print());
+  document.getElementById('noteCopy').addEventListener('click',()=>{ const t=document.getElementById('notesView').innerText;
+    if(navigator.clipboard){ navigator.clipboard.writeText(t); const b=document.getElementById('noteCopy'); b.textContent='복사됨 ✓'; setTimeout(()=>b.textContent='📋 전체 복사',1500); } });
+  setActive('notes'); window.scrollTo(0,0); progress.style.width='0%'; vfx();
+}
+
+function setActive(id){
+  navList.querySelectorAll('a').forEach(a=>{ a.classList.toggle('active', a.dataset.id===id); if(a.dataset.id && a.dataset.id!=='home' && visited(a.dataset.id)) a.classList.add('visited'); });
+}
+function go(id){ killMap(); if(id==='home'){ renderHome(); location.hash='home'; return; }
+  if(id==='notes'){ renderNotes(); location.hash='notes'; return; } const idx=SECTIONS.findIndex(s=>s.id===id); if(idx<0) return; render(SECTIONS[idx],idx); location.hash=id; }
+function openSide(){ sidebar.classList.add('open'); scrim.classList.add('show'); }
+function closeSide(){ sidebar.classList.remove('open'); scrim.classList.remove('show'); }
+document.getElementById('hamb').addEventListener('click',openSide);
+document.getElementById('brandHome').addEventListener('click',()=>{ go('home'); closeSide(); });
+scrim.addEventListener('click',closeSide);
+
+/* companion 배지 — meta.companion:{slug,label} 이면 사이드바에 짝 에피소드 링크 */
+if(META.companion && META.companion.slug){
+  const cl=document.createElement('a');
+  cl.className='companion-link';
+  cl.href='../'+META.companion.slug+'/index.html';
+  cl.textContent='🔗 짝 에피소드 · '+(META.companion.label||META.companion.slug);
+  const hb=document.getElementById('hubBack');
+  hb.parentNode.insertBefore(cl,hb.nextSibling);
+}
+
+/* lightbox — image/oldmap 이미지 클릭 확대 */
+const lb=document.createElement('div'); lb.className='lightbox';
+lb.innerHTML='<img alt=""><div class="lb-cap"></div>';
+document.body.appendChild(lb);
+document.addEventListener('click',e=>{
+  if(e.target.closest('.lightbox')){ lb.classList.remove('show'); document.body.style.overflow=''; return; }
+  const im=e.target.closest('.imgbox img, .oldmap-frame img');
+  if(im){ lb.querySelector('img').src=im.src; lb.querySelector('.lb-cap').textContent=im.alt||''; lb.classList.add('show'); document.body.style.overflow='hidden'; }
+});
+window.addEventListener('scroll',()=>{ const h=document.documentElement.scrollHeight-window.innerHeight; progress.style.width=(h>0?(window.scrollY/h*100):0)+'%'; });
+const tip=document.getElementById('tip');
+function showTip(e,t){ tip.textContent=TERMS[t.dataset.term]||''; tip.style.display='block'; moveTip(e); }
+document.addEventListener('mouseover',e=>{ const t=e.target.closest('.term'); if(t) showTip(e,t); });
+document.addEventListener('mousemove',e=>{ if(tip.style.display==='block') moveTip(e); });
+document.addEventListener('mouseout',e=>{ if(e.target.closest('.term')) tip.style.display='none'; });
+document.addEventListener('click',e=>{ const t=e.target.closest('.term'); if(t){ showTip(e,t); setTimeout(()=>tip.style.display='none',2800); } });
+function moveTip(e){ tip.style.left=Math.min(e.clientX+14,window.innerWidth-278)+'px'; tip.style.top=Math.min(e.clientY+16,window.innerHeight-92)+'px'; }
+
+head(); buildNav();
+const start=location.hash.replace('#','');
+if(start==='notes') renderNotes();
+else if(start && SECTIONS.some(s=>s.id===start)) go(start);
+else renderHome();
+</script>
+</body>
+</html>
