@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>한국 개신교 — 학교와 병원으로 들어온 복음</title>
+<meta name="description" content="천주교보다 100년 늦게, 그러나 전혀 다른 방식으로 들어온 그리스도교. 1885년 부활절 두 젊은 선교사의 상륙, 배재·이화로 연 근대 교육, 제중원으로 연 근대 의료, 한글 성경과 1907년 대부흥, 3·1운동과 신사참배 거부의 순교, 그리고 폭발적 성장과 그 명암까지 — 한쪽을 미화도 폄훼도 하지 않고 당대 사회와의 관계 속에서 따져 읽는 고등 심화 한국 종교사.">
+<style>
+  :root{
+    --rose:#C98B8B; --rose-soft:#E8C8C5; --navy:#33406B; --navy-2:#46527f; --navy-soft:#6F79A0;
+    --cream:#FBF7F2; --paper:#FFFFFF; --ink:#2E2A28; --muted:#857B74; --line:#EBE0D5;
+    --accent:#B5546A; --gold:#C49A4A;
+    --shadow:0 6px 22px rgba(51,64,107,.09); --shadow-sm:0 2px 10px rgba(51,64,107,.06);
+    --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+    background:var(--cream); color:var(--ink); line-height:1.78;
+    -webkit-font-smoothing:antialiased; word-break:keep-all;
+  }
+  a{color:inherit;}
+  #progress{position:fixed; top:0; left:0; height:3px; width:0%; background:linear-gradient(90deg,var(--rose),var(--accent)); z-index:60; transition:width .1s;}
+  .layout{display:flex; min-height:100vh;}
+  .sidebar{width:276px; flex:0 0 276px; background:linear-gradient(180deg,var(--navy),#2b3559); color:#fff; padding:26px 16px 30px; position:sticky; top:0; height:100vh; overflow-y:auto;}
+  .content{flex:1; min-width:0;}
+  .hub-back{display:inline-block; color:var(--rose-soft); font-size:12px; text-decoration:none; padding:4px 8px; margin:0 0 14px; border:1px solid rgba(255,255,255,.14); border-radius:9px; transition:background .15s,color .15s;}
+  .hub-back:hover{background:rgba(255,255,255,.1); color:#fff;}
+  .brand{cursor:pointer; padding:0 6px; margin-bottom:6px;}
+  .brand .bt{font-size:19px; font-weight:800; line-height:1.35;}
+  .brand .sub{display:block; font-size:11.5px; font-weight:500; color:var(--rose-soft); margin-top:7px; letter-spacing:.01em;}
+  .nav{margin-top:20px; list-style:none;}
+  .nav li{margin:3px 0;}
+  .nav a{display:flex; align-items:center; gap:11px; text-decoration:none; color:#dde0ee; font-size:14px; padding:10px 11px; border-radius:12px; transition:background .15s,color .15s; cursor:pointer; position:relative;}
+  .nav a .num{font-size:10.5px; color:var(--navy-soft); width:18px; font-weight:800; flex:0 0 18px;}
+  .nav a:hover{background:rgba(255,255,255,.09); color:#fff;}
+  .nav a.active{background:var(--rose); color:#fff; font-weight:700;}
+  .nav a.active .num{color:#fff;}
+  .nav a.star{background:rgba(196,154,74,.15);}
+  .nav a.star.active{background:var(--accent);}
+  .nav a.star .num{color:var(--gold);}
+  .nav a.visited:not(.active)::after{content:"✓"; margin-left:auto; font-size:11px; color:#8fd9a8; font-weight:800;}
+  .nav a.star .tag{font-size:9.5px; background:var(--gold); color:#3a2f10; padding:1px 6px; border-radius:8px; margin-left:auto; font-weight:800;}
+  .nav a.star.visited .tag{display:none;}
+  .nav .home-link{font-weight:700; color:#fff; background:rgba(255,255,255,.06); margin-bottom:8px;}
+  .side-foot{margin-top:24px; padding:16px 8px 0; font-size:11px; color:var(--navy-soft); line-height:1.7; border-top:1px solid rgba(255,255,255,.1);}
+  .topbar{display:none; align-items:center; gap:12px; background:var(--navy); color:#fff; padding:12px 16px; position:sticky; top:0; z-index:40;}
+  .topbar .hamb{font-size:22px; background:none;border:none;color:#fff;cursor:pointer;line-height:1;}
+  .topbar .tb-title{font-size:14.5px; font-weight:700;}
+  .topbar .tb-hub{margin-left:auto; color:#fff; font-size:12.5px; font-weight:700; text-decoration:none; border:1px solid rgba(255,255,255,.35); border-radius:9px; padding:5px 10px; white-space:nowrap;}
+  .topbar .tb-hub:active{background:rgba(255,255,255,.15);}
+  .scrim{display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:30;}
+  .hero{padding:54px 40px 36px; color:#fff; position:relative; overflow:hidden;}
+  .hero .kicker{font-size:12.5px; letter-spacing:.14em; font-weight:700; text-transform:uppercase; opacity:.92;}
+  .hero h1{font-size:31px; margin-top:10px; line-height:1.3; font-weight:800; max-width:680px;}
+  .hero .era{display:inline-flex; align-items:center; gap:7px; margin-top:16px; font-size:12.5px; background:rgba(255,255,255,.16); padding:6px 14px; border-radius:20px;}
+  .hero .motif{position:absolute; right:-10px; bottom:-20px; opacity:.16; width:180px; height:180px;}
+  .wrap{max-width:740px; margin:0 auto; padding:36px 28px 90px;}
+  .hook{font-size:18px; line-height:1.92; color:var(--navy); border-left:4px solid var(--rose); padding:4px 0 4px 20px; margin-bottom:30px; font-weight:500;}
+  h2.block{font-size:14px; letter-spacing:.05em; color:var(--accent); font-weight:800; margin:38px 0 15px; display:flex; align-items:center; gap:9px; text-transform:uppercase;}
+  h2.block::before{content:""; width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block; flex:0 0 8px;}
+  .why{background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:22px 24px; box-shadow:var(--shadow-sm); font-size:16px;}
+  .why b{color:var(--accent);}
+  .lens{background:linear-gradient(135deg,#fff,#f3f0fa); border:1px solid #d8cfe8; border-left:5px solid #7a6aa8; border-radius:14px; padding:18px 22px; margin:24px 0; font-size:15.5px;}
+  .lens .lh{font-weight:800; color:#5b4a86; font-size:13.5px; letter-spacing:.03em; margin-bottom:6px; display:flex; gap:7px; align-items:center;}
+  .legendbox{background:linear-gradient(135deg,#fdf8ee,#f6ecd8); border:1px solid #e6d4b0; border-left:5px solid var(--gold,#c49a4a); border-radius:14px; padding:18px 22px; margin:24px 0; font-size:15px; box-shadow:var(--shadow-sm); position:relative;}
+  .legendbox .lgh{font-weight:800; color:#9a6b1e; font-size:14px; letter-spacing:.02em; margin-bottom:8px;}
+  .legendbox .lgbody{color:#4a4036; line-height:1.85;}
+  .legendbox .lgmoral{margin-top:10px; padding-top:10px; border-top:1px dashed #e0cda0; color:#6b5a3a; font-size:14px;}
+  .legendbox .lgsrc{margin-top:8px; font-size:12px; color:#9a8a6a;}
+  .lin-intro{font-size:14.5px; color:#5a534d; background:#fff; border:1px solid var(--line); border-left:5px solid var(--gold,#c49a4a); border-radius:12px; padding:14px 18px; margin:6px 0 18px; box-shadow:var(--shadow-sm);}
+  .lineage{margin:6px 0 8px;}
+  .lin-dyn{margin:0 0 22px;}
+  .lin-dyn-h{font-size:17px; font-weight:800; color:var(--navy); margin:18px 0 4px; padding-bottom:6px; border-bottom:2px solid var(--gold-soft,#e3c486);}
+  .lin-dyn-intro{font-size:13.5px; color:var(--muted); margin:0 0 12px;}
+  .lin-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:8px;}
+  .lin-item{background:#fff; border:1px solid var(--line); border-radius:10px; box-shadow:var(--shadow-sm); overflow:hidden; transition:border-color .15s;}
+  .lin-item[open]{border-color:var(--gold,#c49a4a); box-shadow:var(--shadow);}
+  .lin-item.lin-key{border-left:4px solid var(--red);}
+  .lin-item summary{list-style:none; cursor:pointer; padding:11px 14px; display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;}
+  .lin-item summary::-webkit-details-marker{display:none;}
+  .lin-item summary::after{content:"＋"; margin-left:auto; color:var(--gold,#c49a4a); font-weight:800; font-size:15px;}
+  .lin-item[open] summary::after{content:"－";}
+  .lin-item summary:hover{background:#fbf6ec;}
+  .lin-n{font-size:11px; font-weight:800; color:#fff; background:var(--gold,#c49a4a); border-radius:999px; padding:2px 8px; white-space:nowrap;}
+  .lin-name{font-size:15.5px; font-weight:800; color:var(--navy);}
+  .lin-star{color:var(--red); font-size:12px;}
+  .lin-reign{font-size:12px; color:var(--muted); font-weight:700;}
+  .lin-note{padding:0 14px 13px; font-size:13.5px; color:#4a4036; line-height:1.75; border-top:1px dashed var(--line); margin-top:2px; padding-top:10px;}
+  .quote{margin:30px 0; background:linear-gradient(135deg,#fff,#fdf2ef); border:1px solid var(--rose-soft); border-left:5px solid var(--rose); border-radius:14px; padding:22px 26px; box-shadow:var(--shadow-sm);}
+  .quote .qt{font-size:18.5px; font-style:italic; color:var(--navy); line-height:1.8;}
+  .quote .qs{display:block; margin-top:12px; font-size:13px; color:var(--muted); font-style:normal;}
+  .quote .qm{font-size:40px; color:var(--rose-soft); line-height:0; display:block; height:18px;}
+  .cards{display:grid; gap:14px;}
+  @media(min-width:620px){ .cards{grid-template-columns:1fr 1fr;} }
+  .card{background:var(--paper); border:1px solid var(--line); border-radius:15px; padding:18px 20px; box-shadow:var(--shadow-sm); transition:transform .12s, box-shadow .12s;}
+  .card:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
+  .card .yr{font-size:11.5px; font-weight:800; color:var(--rose); letter-spacing:.04em; text-transform:uppercase;}
+  .card h3{font-size:16.5px; color:var(--navy); margin:5px 0 6px;}
+  .card p{font-size:15px; color:var(--ink);}
+  .term{color:var(--accent); font-weight:700; border-bottom:1.5px dotted var(--rose); cursor:help;}
+  .people{display:grid; gap:14px;}
+  @media(min-width:620px){ .people{grid-template-columns:1fr 1fr;} }
+  .person{background:#fff; border:1px solid var(--line); border-radius:15px; padding:18px 20px; box-shadow:var(--shadow-sm);}
+  .person .pheader{display:flex; gap:13px; align-items:center; margin-bottom:8px;}
+  .person .pface{flex:0 0 46px; height:46px; border-radius:12px; background:linear-gradient(135deg,var(--rose),var(--accent)); display:flex;align-items:center;justify-content:center;font-size:22px; color:#fff;}
+  .person .pname{font-size:16.5px; font-weight:800; color:var(--navy);}
+  .person .pwho{font-size:12px; color:var(--muted);}
+  .person .pwhy{font-size:14.5px; margin-bottom:8px;}
+  .person .pquote{font-size:14px; font-style:italic; color:var(--accent); border-left:3px solid var(--rose-soft); padding-left:10px; margin:8px 0;}
+  .person .pshadow{font-size:13.5px; color:var(--muted); background:var(--cream); border-radius:9px; padding:8px 11px;}
+  .person .pmore{display:inline-block; margin-top:10px; font-size:13px; font-weight:700; text-decoration:none; color:var(--accent); border:1px solid var(--rose-soft); border-radius:9px; padding:6px 12px;}
+  .person .pmore:hover{background:var(--accent); color:#fff; border-color:var(--accent);}
+  .movies{display:grid; gap:14px;}
+  .movie{background:#fff; border:1px solid var(--line); border-radius:15px; padding:16px 18px; box-shadow:var(--shadow-sm);}
+  .movie .mhead{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:4px;}
+  .movie .mtitle{font-size:16.5px; font-weight:800; color:var(--navy);}
+  .movie .mfit{font-size:11.5px; font-weight:700; border-radius:7px; padding:2px 8px; white-space:nowrap;}
+  .movie .mfit.green{background:#E5F3E8; color:#2E7D4F;}
+  .movie .mfit.yellow{background:#FBF1D8; color:#9A7B22;}
+  .movie .mfit.red{background:#F7E0E0; color:#B5546A;}
+  .movie .mmeta{font-size:12.5px; color:var(--muted); margin-bottom:9px;}
+  .movie .mmeta b{color:var(--accent);}
+  .movie .mwhy{font-size:14.5px; margin-bottom:9px;}
+  .movie .mreal{font-size:13px; color:var(--muted); background:var(--cream); border-radius:9px; padding:8px 11px; margin-bottom:10px;}
+  .movie .mreal .lbl{font-weight:800; color:var(--gold); margin-right:6px;}
+  .movie .mlinks{display:flex; gap:8px; flex-wrap:wrap;}
+  .movie .mlink{font-size:12.5px; font-weight:700; text-decoration:none; color:var(--navy); border:1px solid var(--line); border-radius:8px; padding:5px 11px;}
+  .movie .mlink:hover{border-color:var(--accent); color:var(--accent);}
+  .movie .mlink.slug{color:var(--accent); border-color:var(--rose-soft);}
+  .relations{background:#fff; border:1px solid var(--line); border-radius:15px; padding:18px 18px 16px; box-shadow:var(--shadow-sm);}
+  .relations .rtitle{font-size:16px; font-weight:800; color:var(--navy); text-align:center; margin-bottom:6px;}
+  .relations .rintro{font-size:14px; color:var(--muted); text-align:center; margin-bottom:14px;}
+  .rsides{display:grid; gap:12px;}
+  @media(min-width:600px){ .rsides{grid-template-columns:repeat(auto-fit,minmax(160px,1fr));} }
+  .rside{border-radius:13px; padding:13px 14px;}
+  .rside.red{background:#FBEAEA; border:1px solid #E8C0C0;}
+  .rside.blue{background:#E9EEF7; border:1px solid #C2D0E6;}
+  .rside.green{background:#E7F1EA; border:1px solid #BFD9C7;}
+  .rside .rslabel{font-size:13px; font-weight:800; margin-bottom:9px; letter-spacing:.02em;}
+  .rside.red .rslabel{color:#B5546A;}
+  .rside.blue .rslabel{color:#33406B;}
+  .rside.green .rslabel{color:#2E7D4F;}
+  .rmember{background:#fff; border:1px solid var(--line); border-radius:9px; padding:8px 10px; margin-bottom:7px; font-size:13.5px;}
+  .rmember b{color:var(--navy); margin-right:6px;}
+  .rmember span{color:var(--muted);}
+  .rmember .rlink{text-decoration:none;}
+  .rtensions{margin-top:14px; display:grid; gap:9px;}
+  .rtension{background:var(--cream); border-left:3px solid var(--gold); border-radius:9px; padding:10px 12px; font-size:13.5px;}
+  .rtension .rvs{font-weight:800; color:var(--accent); margin-bottom:3px;}
+  .marchmap{background:#fff; border:1px solid var(--line); border-radius:15px; padding:16px; box-shadow:var(--shadow-sm);}
+  .marchmap .mm-title{font-weight:800; color:var(--navy); text-align:center; font-size:16px;}
+  .marchmap .mm-intro{font-size:14px; color:var(--muted); text-align:center; margin:6px 0 12px;}
+  .mm-stage{position:relative; max-width:360px; margin:0 auto; aspect-ratio:1866/2891; background:#eef3ee; border-radius:10px; overflow:hidden;}
+  .mm-base{position:absolute; inset:0; width:100%; height:100%; object-fit:contain;}
+  .mm-arrows{position:absolute; inset:0; width:100%; height:100%; overflow:visible;}
+  .mm-arrow{fill:none; stroke-width:1.4; stroke-linecap:round; stroke-dasharray:300; stroke-dashoffset:300; opacity:0; transition:stroke-dashoffset .8s ease, opacity .3s;}
+  .mm-arrow.on{stroke-dashoffset:0; opacity:.95;}
+  .mm-arrow.tone-resist{stroke:#2E7D4F;} .mh.resist{fill:#2E7D4F;}
+  .mm-arrow.tone-invade{stroke:#B5546A;} .mh.invade{fill:#B5546A;}
+  .mm-alab{font-size:3.4px; font-weight:800; opacity:0; transition:opacity .3s;} .mm-alab.on{opacity:.9;}
+  .mm-alab.tone-resist{fill:#2E7D4F;} .mm-alab.tone-invade{fill:#B5546A;}
+  .mm-place{position:absolute; transform:translate(-50%,-50%); opacity:0; transition:opacity .35s; display:flex; flex-direction:column; align-items:center; pointer-events:none; z-index:2;}
+  .mm-place.on{opacity:1;}
+  .mm-dot{width:11px; height:11px; border-radius:50%; background:var(--navy); border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,.35);}
+  .mm-place.k-battle .mm-dot{background:#B5546A;} .mm-place.k-loss .mm-dot{background:#7a2e3f;}
+  .mm-place.k-win .mm-dot{background:#2E7D4F;} .mm-place.k-start .mm-dot{background:var(--gold);}
+  .mm-lbl{font-size:11px; font-weight:700; color:var(--navy); background:rgba(255,255,255,.9); border-radius:5px; padding:0 4px; margin-top:3px; white-space:nowrap;}
+  .mm-step{display:flex; align-items:center; gap:10px; justify-content:center; margin-top:13px;}
+  .mm-step button{background:var(--navy); color:#fff; border:none; border-radius:9px; padding:7px 14px; font-size:13px; font-weight:700; cursor:pointer;}
+  .mm-step button:disabled{opacity:.4; cursor:default;}
+  .mm-plabel{font-size:13.5px; font-weight:800; color:var(--accent); min-width:150px; text-align:center;}
+  .mm-cap{font-size:11px; color:var(--muted); text-align:center; margin-top:9px; line-height:1.5;}
+  .battlemap{background:#fff; border:1px solid var(--line); border-radius:15px; padding:16px; box-shadow:var(--shadow-sm);}
+  .battlemap .bm-intro{font-size:14px; color:var(--muted); text-align:center; margin-bottom:11px;}
+  .bm-map{width:100%; height:380px; border-radius:11px; overflow:hidden; border:1px solid var(--line); background:#eef3ee;}
+  .bm-ic div{font-size:19px; filter:drop-shadow(0 1px 1px rgba(0,0,0,.4));}
+  .bm-tt{background:rgba(255,255,255,.92); border:1px solid var(--line); border-radius:5px; font-size:11px; font-weight:700; color:var(--navy); padding:1px 5px; box-shadow:none;}
+  .bm-tt:before{display:none;}
+  .bm-step{display:flex; align-items:center; gap:10px; justify-content:center; margin-top:12px;}
+  .bm-step button{background:var(--navy); color:#fff; border:none; border-radius:9px; padding:7px 14px; font-size:13px; font-weight:700; cursor:pointer;}
+  .bm-step button:disabled{opacity:.4; cursor:default;}
+  .bm-plabel{font-size:13.5px; font-weight:800; color:var(--accent); min-width:150px; text-align:center;}
+  .bm-legend{display:flex; gap:14px; flex-wrap:wrap; justify-content:center; font-size:12.5px; margin-top:11px;}
+  .bm-legend span{display:inline-flex; align-items:center; gap:5px;}
+  .bm-legend i{width:16px; border-top:3px solid; display:inline-block; border-radius:2px;}
+  .bm-cap{font-size:11px; color:var(--muted); text-align:center; margin-top:9px;}
+  .deepdive{margin:18px 0 6px; border:1px solid var(--line); border-radius:13px; background:linear-gradient(180deg,#fff,#fbf6ef); overflow:hidden;}
+  .deepdive summary{cursor:pointer; padding:14px 18px; font-size:15px; font-weight:800; color:var(--navy); list-style:none; display:flex; align-items:center; gap:8px;}
+  .deepdive summary::-webkit-details-marker{display:none;}
+  .deepdive summary:after{content:"▾"; margin-left:auto; color:var(--accent); transition:transform .2s;}
+  .deepdive[open] summary:after{transform:rotate(180deg);}
+  .deepdive summary:hover{background:rgba(181,84,106,.05);}
+  .links{display:grid; gap:10px; margin:6px 0 4px;}
+  .links .lk{display:block; padding:13px 16px; border:1px solid var(--line); border-radius:12px; background:#fff; text-decoration:none; transition:border-color .15s, transform .15s;}
+  .links .lk:hover{border-color:var(--accent); transform:translateY(-2px);}
+  .links .lk-label{display:block; font-weight:800; color:var(--navy); font-size:15px;}
+  .links .lk-label:after{content:" ↗"; color:var(--accent); font-weight:700;}
+  .links .lk-note{display:block; font-size:13.5px; color:var(--ink); margin-top:3px; line-height:1.6;}
+  .links .lk-src{display:block; font-size:12px; color:var(--muted); margin-top:4px;}
+  .spark{margin:16px 0; padding:16px 18px 18px; border-left:5px solid var(--accent); border-radius:12px; background:linear-gradient(180deg,#fff8f3,#fdeee6); box-shadow:var(--shadow-sm);}
+  .spark-h{font-size:16px; font-weight:800; color:var(--accent); margin-bottom:7px; letter-spacing:-.01em;}
+  .spark-body{font-size:15.5px; line-height:1.85; color:var(--ink);}
+  .spark-mind{margin-top:11px; padding-top:10px; border-top:1px dashed var(--line); font-size:14.5px; color:var(--navy); line-height:1.7;}
+  .dd-body{padding:4px 18px 18px;}
+  .dd-item{border-top:1px solid var(--line); padding:13px 0;}
+  .dd-item:first-child{border-top:none;}
+  .dd-item h3{font-size:15px; color:var(--accent); margin-bottom:6px;}
+  .dd-text{font-size:14.5px; line-height:1.8;}
+  .dd-src{font-size:12.5px; color:var(--muted); background:var(--cream); border-radius:8px; padding:7px 11px; margin-top:8px;}
+  .timeline{position:relative; margin:6px 0 6px 9px; padding-left:26px; border-left:2.5px solid var(--rose-soft);}
+  .tl{position:relative; padding:5px 0 17px;}
+  .tl::before{content:""; position:absolute; left:-33.5px; top:9px; width:13px;height:13px;border-radius:50%;background:var(--rose); border:3px solid var(--cream);}
+  .tl .tl-yr{font-weight:800; color:var(--navy); font-size:13.5px;}
+  .tl .tl-txt{font-size:15px;}
+  .connect{background:#fff; border:1px dashed var(--rose); border-radius:14px; padding:17px 22px; font-size:15.5px; color:var(--navy); display:flex; gap:12px; align-items:flex-start;}
+  .connect .ico{flex:0 0 22px; font-size:18px;}
+  .connect b{color:var(--accent);}
+  .yt{display:flex; gap:14px; align-items:flex-start; text-decoration:none; background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin-bottom:11px; transition:transform .12s, box-shadow .12s;}
+  .yt:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
+  .yt .play{flex:0 0 42px; height:42px; border-radius:11px; background:#FF0000; color:#fff; display:flex;align-items:center;justify-content:center;font-size:16px;}
+  .yt .play.search{background:var(--navy);}
+  .yt .yt-body{flex:1; min-width:0;}
+  .yt .yt-title{font-weight:700; color:var(--navy); font-size:15px; line-height:1.45;}
+  .yt .yt-meta{font-size:12px; color:var(--muted); margin-top:3px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+  .yt .pill{background:var(--cream); border:1px solid var(--line); border-radius:6px; padding:1px 6px; font-weight:700;}
+  .yt .pill.ko{color:#2f7d4f;} .yt .pill.en{color:#3a5bb5;} .yt .pill.find{color:var(--navy);}
+  .yt .yt-desc{font-size:13.5px; margin-top:5px; color:var(--ink);}
+  .reflect{background:#fff; border:2px solid var(--rose-soft); border-radius:var(--radius); padding:20px 22px; box-shadow:var(--shadow-sm);}
+  .reflect .q{font-weight:700; color:var(--navy); margin-bottom:9px; font-size:15.5px;}
+  .reflect textarea{width:100%; min-height:88px; border:1px solid var(--line); border-radius:11px; padding:13px; font-family:inherit; font-size:15px; resize:vertical; background:#fffdfb; color:var(--ink); line-height:1.7;}
+  .reflect textarea:focus{outline:none; border-color:var(--rose); box-shadow:0 0 0 3px rgba(201,139,139,.15);}
+  .reflect textarea + .q{margin-top:18px;}
+  .reflect .saved{font-size:12px; color:var(--gold); margin-top:6px; height:15px; font-weight:600;}
+  /* quiz (R1) */
+  .quizwrap{display:flex;flex-direction:column;gap:14px;}
+  .quizq{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow-sm);}
+  .quizq .qq{font-weight:700;color:var(--navy);font-size:15.5px;margin-bottom:10px;}
+  .qopts{display:flex;flex-direction:column;gap:8px;}
+  .quiz-opt{text-align:left;font-family:inherit;font-size:14.5px;background:var(--cream);border:1px solid var(--line);border-radius:10px;padding:10px 13px;cursor:pointer;color:var(--ink);transition:background .12s;}
+  .quiz-opt:hover:not(:disabled){background:#f3ece4;}
+  .quiz-opt:disabled{cursor:default;}
+  .quiz-opt.correct{background:#e8f5ec;border-color:#8fcea5;color:#1f7a44;font-weight:700;}
+  .quiz-opt.wrong{background:#fbeaec;border-color:#e3a3ad;color:#a83246;}
+  .qexp{font-size:14px;color:var(--ink);margin-top:10px;display:none;line-height:1.7;background:var(--cream);border-radius:9px;padding:10px 12px;}
+  .qexp.show{display:block;}
+  .qexp b{color:var(--accent);}
+  /* notes export (R2) */
+  .nav .notes-link{font-weight:700;color:#fff;background:rgba(196,154,74,.16);}
+  .nav .lineage-link{font-weight:700;color:#fff;background:rgba(196,154,74,.22);margin-top:8px;}
+  .nav .lineage-link:hover{background:var(--gold,#c49a4a);color:#2a1410;}
+  .note-actions{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+  .notes-view{background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px 26px;box-shadow:var(--shadow-sm);}
+  .note-sec{margin-bottom:22px;}
+  .note-sh{font-weight:800;color:var(--accent);font-size:13px;letter-spacing:.04em;border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:10px;}
+  .note-q{font-weight:700;color:var(--navy);font-size:14.5px;margin-top:12px;}
+  .note-a{font-size:14.5px;white-space:pre-wrap;margin-top:3px;}
+  .note-a.empty{color:var(--muted);font-style:italic;}
+  @media print{ .sidebar,.topbar,.scrim,#progress,.noprint{display:none!important;} .content{width:100%;} .home-hero{background:#fff!important;color:#000!important;padding:10px 0 0;} .home-hero h1{color:#000;} .home-hero .hsub{color:#555;} .notes-view{border:none;box-shadow:none;padding:0;} body{background:#fff;} }
+  /* map (R3 — 실제 지도, Leaflet+OSM) */
+  .mapwrap{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow-sm);}
+  .lmap{height:340px;border-radius:12px;overflow:hidden;border:1px solid var(--line);z-index:0;}
+  .mapcap{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.6;}
+  .mapcap .msrc{font-size:11.5px;opacity:.8;}
+  /* image (S1 — PD 역사지도/사진 + 선택적 hotspot) */
+  .figimg{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow-sm);}
+  .figstory{font-size:15.5px;line-height:1.8;margin-bottom:12px;color:var(--ink);}
+  .figstory b{color:var(--accent);}
+  .imgbox{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#f4efe8;}
+  .imgbox img{width:100%;height:auto;display:block;}
+  .hsdot{position:absolute;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;border:2px solid #fff;font-size:12px;font-weight:800;cursor:pointer;box-shadow:0 2px 7px rgba(0,0,0,.32);display:flex;align-items:center;justify-content:center;line-height:1;}
+  .hsdot:hover{background:var(--navy);}
+  .hsinfo{margin-top:10px;font-size:14px;background:var(--cream);border-radius:9px;padding:11px 13px;display:none;line-height:1.7;}
+  .hsinfo.show{display:block;}
+  .hsinfo b{color:var(--accent);}
+  .figcap{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.65;}
+  .figcap .msrc{font-size:11.5px;opacity:.85;}
+  /* oldmap (고지도 — 시대감) */
+  .oldmap{background:linear-gradient(180deg,#f7f0e2,#efe4cf);border:1px solid #d8c7a6;border-radius:16px;padding:16px;box-shadow:var(--shadow-sm);}
+  .oldmap-frame{border-radius:10px;overflow:hidden;border:3px solid #8a6d3b;box-shadow:inset 0 0 40px rgba(94,66,20,.25);background:#e8dcc2;}
+  .oldmap-frame img{width:100%;height:auto;display:block;filter:sepia(.32) contrast(1.04) saturate(.9);}
+  .oldmap .figcap{color:#6b5836;}
+  /* lightbox (이미지 클릭 확대 — image/oldmap 공통) */
+  .imgbox img,.oldmap-frame img{cursor:zoom-in;}
+  .lightbox{position:fixed;inset:0;background:rgba(22,19,16,.93);display:none;align-items:center;justify-content:center;z-index:99;padding:16px;cursor:zoom-out;}
+  .lightbox.show{display:flex;}
+  .lightbox img{max-width:96vw;max-height:90vh;width:auto;height:auto;border-radius:8px;box-shadow:0 12px 44px rgba(0,0,0,.55);}
+  .lightbox .lb-cap{position:fixed;left:0;right:0;bottom:10px;text-align:center;color:#E8C8C5;font-size:12px;padding:0 22px;line-height:1.5;}
+  /* companion (짝 에피소드 배지) */
+  .companion-link{display:block;margin:6px 14px 0;padding:7px 11px;border:1px dashed rgba(255,255,255,.35);border-radius:9px;color:#fff;font-size:12px;text-decoration:none;opacity:.92;}
+  .companion-link:hover{background:rgba(255,255,255,.1);}
+  /* voice (S3 — 일기·편지체 1인칭) */
+  .voice{background:linear-gradient(135deg,#fffdf8,#f6efe3);border:1px solid #e6d9c4;border-left:5px solid var(--gold);border-radius:14px;padding:20px 24px;box-shadow:var(--shadow-sm);}
+  .voice .vbadge{display:inline-block;font-size:11px;font-weight:800;padding:2px 10px;border-radius:8px;margin-bottom:12px;letter-spacing:.02em;}
+  .voice .vbadge.real{background:#e6f0e8;color:#2f6b43;}
+  .voice .vbadge.imag{background:#f3eadb;color:#8a6d2f;}
+  .voice .vbody{font-size:16.5px;font-style:italic;line-height:1.95;color:#3a352f;}
+  .voice .vbody::before{content:"“";font-size:34px;color:var(--gold);line-height:0;vertical-align:-12px;margin-right:3px;}
+  .voice .vspeaker{margin-top:14px;font-size:13px;color:var(--muted);}
+  .voice .vspeaker b{color:var(--navy);}
+  .voice .vsrc{display:block;font-size:11.5px;opacity:.85;margin-top:3px;}
+  /* chart (S4 — 자체 막대 + 체감 비교) */
+  .chart{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow-sm);}
+  .chart .ctitle{font-weight:800;color:var(--navy);font-size:15.5px;}
+  .chart .cunit{font-size:12px;color:var(--muted);margin:3px 0 14px;}
+  .crow{display:flex;align-items:center;gap:10px;margin:9px 0;}
+  .crow .clabel{flex:0 0 72px;font-size:13px;color:var(--ink);text-align:right;}
+  .crow .cbarwrap{flex:1;background:var(--cream);border-radius:7px;overflow:hidden;height:24px;}
+  .crow .cbar{height:100%;background:linear-gradient(90deg,var(--rose),var(--accent));border-radius:7px;min-width:3px;}
+  .crow .cval{flex:0 0 auto;font-size:12.5px;font-weight:700;color:var(--accent);min-width:62px;}
+  .crelate{margin-top:15px;font-size:14.5px;background:#fdf2ef;border:1px solid var(--rose-soft);border-radius:10px;padding:12px 14px;line-height:1.7;}
+  .crelate b{color:var(--accent);}
+  .csrc{font-size:11.5px;color:var(--muted);margin-top:11px;opacity:.85;}
+  /* compare (S5 — 단계 토글 / before·after) */
+  .compare{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow-sm);}
+  .cmpintro{font-size:15px;margin-bottom:13px;color:var(--ink);line-height:1.7;}
+  .cmptabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px;}
+  .cmptab{font-family:inherit;font-size:13px;font-weight:700;background:var(--cream);border:1px solid var(--line);border-radius:20px;padding:7px 14px;cursor:pointer;color:var(--navy);transition:background .12s;}
+  .cmptab:hover{background:#f3ece4;}
+  .cmptab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .cmppanel .cmh{font-weight:800;color:var(--navy);font-size:16.5px;margin-bottom:7px;}
+  .cmppanel .cmb{font-size:15px;line-height:1.85;}
+  .cmppanel img{width:100%;border-radius:10px;margin-top:11px;border:1px solid var(--line);display:block;}
+  .cmpcap{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.6;}
+  /* choice (S7 — 너라면? 도덕적 딜레마) */
+  .choice{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow-sm);}
+  .chprompt{font-weight:700;color:var(--navy);font-size:15.5px;margin-bottom:14px;line-height:1.75;}
+  .chopts{display:flex;flex-direction:column;gap:9px;}
+  .chopt{text-align:left;font-family:inherit;font-size:14.5px;background:var(--cream);border:1px solid var(--line);border-radius:11px;padding:12px 14px;cursor:pointer;color:var(--ink);transition:background .12s;}
+  .chopt:hover{background:#f3ece4;}
+  .chopt.picked{border-color:var(--accent);background:#fdf2ef;font-weight:700;}
+  .chres{font-size:14px;margin-top:8px;background:#f7f3fb;border:1px solid #e0d6ee;border-radius:9px;padding:11px 13px;display:none;line-height:1.75;}
+  .chres.show{display:block;}
+  .chafter{margin-top:15px;font-size:14px;background:var(--cream);border-radius:9px;padding:12px 14px;line-height:1.75;display:none;}
+  .chafter.show{display:block;}
+  .chafter b{color:var(--accent);}
+  .pager{display:flex; justify-content:space-between; gap:12px; margin-top:46px;}
+  .pager a{flex:1; text-decoration:none; background:#fff; border:1px solid var(--line); border-radius:14px; padding:15px 18px; color:var(--navy); box-shadow:var(--shadow-sm); transition:transform .12s, box-shadow .12s; cursor:pointer;}
+  .pager a:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
+  .pager a.next{text-align:right; background:var(--navy); color:#fff; border-color:var(--navy);}
+  .pager .pg-label{font-size:11.5px; color:var(--muted);}
+  .pager a.next .pg-label{color:var(--rose-soft);}
+  .pager .pg-title{font-weight:700; font-size:15px; margin-top:3px;}
+  .home-hero{padding:60px 32px 44px; background:linear-gradient(140deg,var(--navy) 0%, #54608c 100%); color:#fff; text-align:center;}
+  .home-hero h1{font-size:33px; font-weight:800; line-height:1.32;}
+  .home-hero .hsub{font-size:15px; color:var(--rose-soft); margin-top:12px;}
+  .home-hero .hq{margin:26px auto 0; max-width:460px; font-style:italic; font-size:15px; opacity:.92; line-height:1.8;}
+  .home-hero .hq small{display:block; font-style:normal; opacity:.7; font-size:12px; margin-top:8px;}
+  .home-wrap{max-width:760px; margin:0 auto; padding:36px 26px 90px;}
+  .home-intro{font-size:16.5px; background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:24px 26px; box-shadow:var(--shadow-sm); line-height:1.85;}
+  .home-intro b{color:var(--accent);}
+  .start-btns{display:flex; gap:12px; flex-wrap:wrap; margin:24px 0 8px;}
+  .btn{flex:1; min-width:200px; text-decoration:none; text-align:center; padding:16px; border-radius:14px; font-weight:700; font-size:15.5px; box-shadow:var(--shadow-sm); transition:transform .12s; cursor:pointer;}
+  .btn:hover{transform:translateY(-2px);}
+  .btn.primary{background:var(--navy); color:#fff;}
+  .btn.star{background:linear-gradient(135deg,var(--rose),var(--accent)); color:#fff;}
+  .btn.lineage{background:linear-gradient(135deg,var(--gold,#c49a4a),#a8842f); color:#2a1410;}
+  .path{list-style:none; margin-top:14px;}
+  .path li{display:flex; gap:16px; align-items:flex-start; cursor:pointer; padding:14px 16px; border-radius:14px; transition:background .12s;}
+  .path li:hover{background:#fff;}
+  .path .pn{flex:0 0 34px; height:34px; border-radius:50%; background:var(--navy); color:#fff; display:flex;align-items:center;justify-content:center; font-weight:800; font-size:14px;}
+  .path li.star .pn{background:var(--accent);}
+  .path .ph{font-weight:700; color:var(--navy); font-size:16px;}
+  .path .ph .star-mark{color:var(--gold);}
+  .path .pp{font-size:14px; color:var(--muted); margin-top:2px;}
+  #tip{position:fixed; z-index:70; max-width:260px; background:var(--navy); color:#fff; font-size:13px; line-height:1.6; padding:11px 14px; border-radius:11px; box-shadow:0 8px 24px rgba(0,0,0,.28); display:none; pointer-events:none;}
+  .leaflet-popup-content{font-family:inherit;font-size:13.5px;line-height:1.6;}
+  .leaflet-popup-content b{color:var(--accent);}
+  @media (max-width:880px){
+    .sidebar{position:fixed; left:0; top:0; z-index:35; transform:translateX(-100%); transition:transform .25s;}
+    .sidebar.open{transform:translateX(0);}
+    .topbar{display:flex;}
+    .scrim.show{display:block;}
+    .hero{padding:34px 22px 26px;} .hero h1{font-size:25px;} .hero .motif{width:120px;height:120px;}
+    .home-hero{padding:40px 20px 32px;} .home-hero h1{font-size:26px;}
+    .wrap,.home-wrap{padding:26px 18px 76px;}
+  }
+  /* ───────── 시각효과 업그레이드 v2 (additive) ───────── */
+  /* 정적 폴리시 (모션 무관) */
+  .imgbox{overflow:hidden;}
+  .imgbox img{transition:transform .5s cubic-bezier(.22,1,.36,1);}
+  .imgbox:hover img{transform:scale(1.045);}
+  .why,.chart,.compare,.choice,.voice,.relations,.connect{transition:box-shadow .22s ease, transform .22s ease;}
+  .why:hover,.chart:hover,.compare:hover,.choice:hover,.voice:hover{box-shadow:var(--shadow);}
+  h2.block::before{box-shadow:0 0 0 4px rgba(181,84,106,.12);}
+  .spark{position:relative; overflow:hidden;}
+  .spark::after{content:""; position:absolute; inset:0; background:radial-gradient(150px 90px at 92% 0%, rgba(196,154,74,.16), transparent 70%); pointer-events:none;}
+  .hero::after{content:""; position:absolute; left:0; right:0; top:0; height:130%; background:radial-gradient(60% 55% at 82% 0%, rgba(255,255,255,.13), transparent 62%); pointer-events:none;}
+  .lk,.yt,.card,.pager a{will-change:transform;}
+  /* 모션 (저모션 사용자 보호: no-preference 일 때만) */
+  @media (prefers-reduced-motion: no-preference){
+    /* 블록 진입 — 순수 CSS 스태거(fill-mode both → 항상 보이게 끝남, JS 의존 0) */
+    .wrap > *, .home-wrap > *{animation:vBlockIn .55s cubic-bezier(.22,1,.36,1) both;}
+    .wrap > *:nth-child(1),.home-wrap > *:nth-child(1){animation-delay:.03s;}
+    .wrap > *:nth-child(2),.home-wrap > *:nth-child(2){animation-delay:.10s;}
+    .wrap > *:nth-child(3),.home-wrap > *:nth-child(3){animation-delay:.17s;}
+    .wrap > *:nth-child(4),.home-wrap > *:nth-child(4){animation-delay:.24s;}
+    .wrap > *:nth-child(5),.home-wrap > *:nth-child(5){animation-delay:.31s;}
+    .wrap > *:nth-child(6),.home-wrap > *:nth-child(6){animation-delay:.37s;}
+    .wrap > *:nth-child(7),.home-wrap > *:nth-child(7){animation-delay:.43s;}
+    .wrap > *:nth-child(n+8),.home-wrap > *:nth-child(n+8){animation-delay:.48s;}
+    @keyframes vBlockIn{from{opacity:0; transform:translateY(15px);} to{opacity:1; transform:none;}}
+    .crow .cbar{transition:width 1.05s cubic-bezier(.22,1,.36,1);}
+    .hero h1{animation:vHeroRise .55s ease both;}
+    .hero .kicker{animation:vHeroRise .55s .06s ease both;}
+    .hero .era{animation:vHeroRise .55s .12s ease both;}
+    @keyframes vHeroRise{from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:none;}}
+    .quiz-opt.correct{animation:vPop .42s ease;}
+    @keyframes vPop{0%{transform:scale(1);} 42%{transform:scale(1.035);} 100%{transform:scale(1);}}
+  }
+</style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-ant-path@1.3.0/dist/leaflet-ant-path.js"></script>
+</head>
+<body>
+<div id="progress"></div>
+<div class="layout">
+  <nav class="sidebar" id="sidebar">
+    <a class="hub-back" id="hubBack" href="../index.html">← 역사 이야기 허브</a>
+    <div class="brand" id="brandHome"><div class="bt" id="brandTitle"></div><span class="sub" id="brandSub"></span></div>
+    <ul class="nav" id="navList"></ul>
+    <div class="side-foot" id="sideFoot"></div>
+  </nav>
+  <div class="scrim" id="scrim"></div>
+  <main class="content">
+    <div class="topbar"><button class="hamb" id="hamb" aria-label="메뉴">☰</button><span class="tb-title" id="tbTitle"></span><a class="tb-hub" id="tbHub" href="../index.html">🏛️ 역사 허브</a></div>
+    <div id="view"></div>
+  </main>
+</div>
+<div id="tip"></div>
+
+<!-- 에피소드 데이터 (build.py가 주입) -->
+<script id="episode-data">window.EPISODE = {"meta": {"lang": "ko", "slug": "religion/korea-protestant", "title": "한국 개신교 — 학교와 병원으로 들어온 복음", "description": "천주교보다 100년 늦게, 그러나 전혀 다른 방식으로 들어온 그리스도교. 1885년 부활절 두 젊은 선교사의 상륙, 배재·이화로 연 근대 교육, 제중원으로 연 근대 의료, 한글 성경과 1907년 대부흥, 3·1운동과 신사참배 거부의 순교, 그리고 폭발적 성장과 그 명암까지 — 한쪽을 미화도 폄훼도 하지 않고 당대 사회와의 관계 속에서 따져 읽는 고등 심화 한국 종교사.", "brand": {"title": "한국 개신교", "sub": "학교와 병원으로 들어온 복음"}, "hub": {"url": "../index.html", "label": "← 믿음의 역사"}, "foot": "역사 이야기 · 종교 · <b>한국 개신교</b> (1884 ~ 오늘)<br>학교와 병원으로 들어온 복음 — 한국 종교사", "home": {"h1": "학교와 병원으로<br>들어온 복음", "sub": "박해 대신 교육과 의료로 시작해 격동의 근현대를 함께한 신앙 — 한국 개신교 (1884 ~ 오늘)", "quote": {"text": "그날 무덤의 빗장을 부수신 분께서, 이 백성을 묶은 어둠의 빗장도 부수시기를.", "by": "아펜젤러가 1885년 부활절 제물포에 상륙하며 적은 기도 — 실제 기록이에요"}, "intro": "천주교가 ‘책’으로 들어와 박해 속에 뿌리내렸다면, 개신교는 100년쯤 늦게, 전혀 다른 방식으로 들어왔어요. 조선이 이미 문을 연 <b>개항</b> 뒤였기에 — 개신교 선교사들은 박해 대신, ‘<b>학교</b>’와 ‘<b>병원</b>’을 먼저 세우며 다가갔죠. 그들은 글을 모르던 평민과 여성에게 한글과 배움을, 의술이 닿지 않던 이들에게 치료를 가져왔어요. 그리고 그렇게 자란 신앙은, 일제강점기에 이르러 <b>3·1운동</b>과 <b>신사참배 거부</b>의 한복판에 서며 민족의 운명과 깊이 얽혀요. 이 이야기에서는 개신교가 어떻게 이 땅에 들어와, 근대 교육·의료·한글에 어떤 자취를 남겼고, 어떻게 격동의 근현대를 함께했으며, 또 어떤 빛과 그늘을 함께 지녔는지를 — 어느 한쪽을 미화하거나 깎아내리지 않고 <b>역사로</b> 따라가요.", "startPrimary": {"label": "처음부터 — 부활절의 두 청년 →", "to": "arrival"}, "startStar": {"label": "★ 신앙과 민족 — 3·1운동과 신사참배 거부", "to": "independence"}, "pathLabel": "복음의 자취"}}, "terms": {"개신교": "16세기 유럽의 종교개혁에서 갈라져 나온 그리스도교의 한 흐름(프로테스탄트). 한국에서는 천주교(가톨릭)와 구분해 ‘기독교’라고도 흔히 불러요. 장로교·감리교 등 여러 교파가 있어요.", "선교": "자기 신앙을 다른 곳에 전하는 일. 한국 개신교 선교는 박해가 끝난 개항기에 시작되어, 교육·의료와 함께 이루어진 것이 특징이에요.", "배재학당": "1885년 선교사 아펜젤러가 세운 한국 최초의 근대 사립학교. ‘인재를 기른다’는 뜻으로, 이승만·주시경 등이 거쳐 갔어요.", "이화학당": "1886년 선교사 메리 스크랜턴이 세운 한국 최초의 여성 교육기관. 여성에게 배움의 문을 연 출발점으로, 오늘날 이화여대의 뿌리예요.", "제중원": "1885년 선교사 알렌이 세운 한국 최초의 서양식 국립 병원(처음 이름은 광혜원). 뒷날 세브란스병원으로 이어졌어요.", "대부흥운동": "1907년 평양에서 일어난 대규모 신앙 각성 운동. 한국 개신교가 폭발적으로 성장하는 분수령이 되었고, ‘한국적 개신교’의 한 성격을 빚었어요.", "신사참배": "일제가 강요한, 일본의 신(신사)에 절하는 의식. 1930년대 일제는 이를 강제했고, 이를 ‘우상 숭배’로 여겨 거부한 개신교 신자들이 박해·순교를 당했어요.", "주기철": "신사참배를 끝까지 거부하다 1944년 옥중에서 순교한 목사. ‘죽음을 각오한다(일사각오)’는 그의 신앙은 신사참배 거부 운동의 상징이 됐어요."}, "sections": [{"id": "arrival", "num": "01", "label": "부활절의 두 청년 — 늦게, 그러나", "accent": "#1f5e5e", "kicker": "알렌·언더우드·아펜젤러·개항 후 선교 · 1884~85", "era": "1884~1885", "motif": "sun", "title": "부활절의 두 청년 — 늦게, 그러나", "hook": "1885년 부활절 아침, 제물포(인천) 항구에 두 젊은 미국인이 내려요. 한 사람은 장로교의 언더우드, 한 사람은 감리교의 아펜젤러 — 둘 다 갓 스물여섯, 스물일곱이었죠. 천주교가 100년간 피의 박해를 겪은 그 땅에, 이번엔 ‘부활절’에 맞춰 두 청년이 도착한 거예요. 그런데 그들의 손에 들린 건 칼도, 교리서도 아니었어요 — <b>학교와 병원의 설계도</b>였죠.", "spark": {"icon": "🤯", "title": "개신교는 ‘박해 없이’ 시작됐어요", "body": "천주교가 ‘사학(邪學)’으로 몰려 100년을 박해받은 것과 달리, 개신교는 조선이 이미 서양에 문을 연 <b>개항</b> 뒤에 들어왔어요. 그래서 선교사들은 박해 대신, <b>교육·의료</b>라는 ‘환영받는 통로’로 다가갈 수 있었죠.", "mind": "왜 이 차이가 중요할까요? 천주교는 ‘제사 거부’로 사회와 정면충돌했지만, 개신교는 ‘학교와 병원’으로 먼저 신뢰를 얻었어요. 같은 그리스도교라도 <b>들어온 시기와 방식</b>에 따라, 사회와 맺는 관계가 이렇게 달라진 거예요. 역사의 ‘타이밍’이 종교의 운명을 바꾼 셈이죠."}, "why": "개신교가 조선에 들어온 것은 <b>개항</b> 이후예요. 1882년 조미수호통상조약으로 서양에 문이 열리자, 선교의 길도 열렸죠. 1884년, 의료 선교사 <b>호러스 알렌</b>이 미국 공사관 의사로 들어와 첫 개신교 선교사가 되었어요. 그는 갑신정변 때 칼에 찔린 고관(민영익)을 서양 의술로 살려내 고종의 깊은 신임을 얻었고, 이를 발판으로 1885년 한국 최초의 서양식 병원 <b>광혜원(곧 제중원)</b>을 세웠어요. 그리고 1885년 <b>부활절</b>, 장로교의 <b>언더우드</b>와 감리교의 <b>아펜젤러</b>가 제물포에 상륙해요. 이들은 ‘직접 전도’보다 <b>학교와 병원</b>을 먼저 세우는 길을 택했어요 — 아직 기독교 포교가 조심스러운 때라, 교육·의료로 신뢰를 쌓는 ‘<b>우회로</b>’가 지혜로웠던 거죠. 그 우회로가 뜻밖의 큰 열매를 맺어요. 선교사들이 세운 학교는 글을 모르던 평민과 여성에게 배움을 열었고, 병원은 가난한 이들에게 치료를 베풀었으며, 그들이 보급한 <b>한글 성경</b>은 한글을 ‘업신여겨지던 글자’에서 ‘누구나 읽는 글자’로 끌어올리는 데 한몫했죠. 개신교는 ‘신앙’이자, 조선의 <b>근대</b>를 여는 한 통로가 된 거예요. 물론 이 선교에는 서양 문물·가치를 함께 들여온 측면도 있어, ‘근대화의 빛’과 ‘서구화의 그림자’를 함께 보는 균형이 필요해요.", "image": [{"h": "자료로 보기 — 헨리 아펜젤러 🖼️", "story": "1885년 부활절에 제물포에 내린 감리교 선교사 <b>아펜젤러</b>예요. 그는 한국 최초의 근대 학교 배재학당을 세워, ‘학교로 다가가는 선교’의 길을 열었죠. 도착했을 때 그의 나이 겨우 스물일곱이었어요.", "src": "img/appenzeller.jpg", "alt": "정장을 입은 19세기 말 서양 남성의 흑백 초상 — 선교사 헨리 아펜젤러", "caption": "헨리 아펜젤러 — 배재학당을 세운 감리교 선교사.", "source": "Wikimedia Commons (W. E. Griffis, 《A Modern Pioneer in Korea》)", "license": "퍼블릭 도메인"}, {"h": "자료로 보기 — 호러스 언더우드 🖼️", "story": "아펜젤러와 같은 날 입국한 장로교 선교사 <b>언더우드</b>예요. 새문안교회를 세우고 성경 번역·교육에 힘써, 한국 장로교와 연세(연희전문)의 뿌리를 놓았죠. 사진 뒤로 보이는 한국식 병풍이, 그가 이 땅에 얼마나 깊이 뿌리내렸는지를 말해 주는 듯해요.", "src": "img/underwood.jpg", "alt": "한국식 병풍 앞 의자에 앉은 백발의 서양 남성 — 선교사 호러스 언더우드(1916)", "caption": "호러스 언더우드(1916) — 장로교·연세의 뿌리를 놓은 선교사.", "source": "Wikimedia Commons", "license": "퍼블릭 도메인"}], "voice": {"h": "사료로 보기 — 아펜젤러의 부활절 기도 ✉️", "imagined": false, "body": "우리는 부활절에 이곳에 왔습니다. 그날 죽음의 빗장을 부수고 무덤에서 일어나신 분께서, 이 백성을 묶고 있는 어둠과 속박의 빗장도 부수시고 — 그들에게 빛과 자유를 주시기를 빕니다.", "speaker": "헨리 아펜젤러", "era": "1885년 4월 5일, 제물포 상륙", "source": "실제 기록 — 아펜젤러가 조선에 도착한 부활절에 남긴 글로 전해지는 문장이에요(번역)."}, "connect": "그들이 세운 ‘학교’는 조선을 어떻게 바꾸었을까요? 글을 몰랐던 이들, 특히 ‘배울 기회조차 없던 여성들’에게 열린 문으로 가 봐요. →", "reflect": ["같은 그리스도교인데 천주교는 박해를, 개신교는 환영을 받으며 시작됐어요(들어온 ‘시기와 방식’이 달랐죠). 종교의 운명이 ‘무엇을 믿느냐’만이 아니라 ‘언제, 어떻게 들어왔느냐’에 달릴 수 있다는 것 — 너는 이 사실이 무엇을 말해 준다고 생각하니?"], "order": ["hook", "spark", "why", "image", "voice", "connect", "reflect"]}, {"id": "schools", "num": "02", "label": "학교를 세우다 — 배재와 이화", "accent": "#7a5a1f", "kicker": "배재학당·이화학당·여성 교육 · 1885~86", "era": "1885~1886", "motif": "book", "title": "학교를 세우다 — 배재와 이화", "hook": "조선에서 ‘여자아이’가 학교에 간다는 건, 상상하기 어려운 일이었어요. 그런데 한 선교사가 단 한 명의 여학생으로 학교를 시작해요. 사람들이 딸을 맡기길 꺼려, 첫 학생은 ‘버려질 뻔한 아이’였다고도 하죠. 그 작은 학교가 — 훗날 수많은 여성 지도자를 길러낸 <b>이화학당</b>이에요.", "why": "개신교 선교의 가장 큰 자취는 <b>교육</b>이에요. 1885년 아펜젤러는 <b>배재학당</b>을 세웠어요 — 한국 최초의 근대 사립학교로, ‘유능한 인재를 기른다’는 뜻이었죠. 신학문과 영어를 가르친 이 학교에서 이승만·주시경 같은 인물이 자랐어요. 이듬해 1886년, 메리 스크랜턴은 <b>이화학당</b>을 세웠어요 — 한국 최초의 <b>여성 교육기관</b>이에요. ‘여자는 배울 필요 없다’는 통념이 굳건하던 사회에서, 단 한 명의 여학생으로 시작한 이 학교는 ‘여성도 사람이고, 배울 권리가 있다’는 생각을 심었죠. 이화에서 자란 여성들은 교사·의사·독립운동가가 되어 사회로 나아갔고(3·1운동의 유관순도 이화학당 학생이었어요), ‘이화’라는 이름은 오늘날 이화여대로 이어져요. 선교사들이 세운 학교(경신·정신·숭실 등)는 전국으로 퍼지며 <b>근대 교육</b>의 토대를 놓았어요. 이 학교들은 단지 ‘기독교를 전하는’ 곳이 아니라, 신분과 성별의 벽을 넘어 ‘<b>누구나 배울 수 있다</b>’는 근대적 가치를 가르치는 곳이기도 했죠. 종교가 사회의 가장 약한 자리(여성·평민·고아)에 ‘배움’이라는 사다리를 놓아 준 거예요. 다만 이 교육에는 서양 중심의 가치관도 함께 담겨, 우리 전통과의 사이에서 새로운 고민을 낳기도 했어요.", "deepdive": {"h": "더 깊이 — 학교가 바꾼 것", "items": [{"q": "왜 선교사들은 ‘학교’부터 세웠나요?", "a": "포교가 아직 조심스러운 때라, 직접 ‘예수를 믿으라’ 하기보다 교육·의료로 신뢰를 쌓는 것이 지혜로웠어요. 또 개신교에는 ‘누구나 성경을 직접 읽어야 한다’는 정신이 있어, ‘글을 가르치는 것’이 신앙과도 자연스럽게 이어졌죠. 결과적으로 학교는 신앙의 통로이자, 조선 근대 교육의 출발점이 됐어요."}, {"q": "‘여성 교육’이 왜 그렇게 큰 의미였나요?", "a": "당시 조선에서 여성은 공식 교육에서 거의 배제돼 있었어요. 이화학당이 ‘여성도 배울 수 있다’는 문을 연 것은, 단순한 학교 설립을 넘어 ‘여성의 사회 진출’이라는 거대한 변화의 씨앗이었죠. 여기서 자란 여성들이 교사·의사·독립운동가가 되어 사회를 바꿨어요. 종교가 뜻하지 않게 ‘여성 해방’의 한 통로가 된 셈이에요."}]}, "connect": "배움과 함께 선교사들이 가져온 또 하나의 선물은 ‘치료’였어요. 의술이 닿지 않던 이들에게 병원이 열린 이야기로 가 봐요. →", "reflect": ["선교사들은 신분과 성별의 벽 너머, 가장 배울 기회가 없던 이들(여성·평민·고아)에게 ‘배움’을 열어 줬어요. 한 사회에서 ‘누구에게 배움의 문을 여느냐’가 그 사회의 미래를 어떻게 바꾼다고 생각하니?"], "order": ["hook", "why", "deepdive", "connect", "reflect"]}, {"id": "medicine", "num": "03", "label": "병원을 짓다 — 제중원에서 세브란스로", "accent": "#2e5a7a", "kicker": "알렌·광혜원·제중원·세브란스 · 1885~", "era": "1885 ~ 20세기 초", "motif": "globe", "title": "병원을 짓다 — 제중원에서 세브란스로", "hook": "칼에 찔려 죽어 가던 한 고관을, 서양 의술이 살려냈어요. 침과 탕약만 알던 조선 사람들에게, 꿰매고 소독하는 ‘서양 의학’은 놀라움 그 자체였죠. 이 한 번의 치료가 임금의 마음을 열었고 — 곧 한국 최초의 서양식 병원이 문을 엽니다.", "why": "개신교 선교의 또 다른 큰 자취는 <b>의료</b>예요. 1884년 갑신정변 때, 선교사 <b>알렌</b>은 칼에 찔려 사경을 헤매던 고관 민영익을 서양 의술로 살려냈어요. 이 일로 고종의 신임을 얻은 알렌은, 1885년 한국 최초의 서양식 병원 <b>광혜원</b>(‘널리 은혜를 베푸는 집’, 곧 <b>제중원</b>으로 이름이 바뀜)을 세웠죠. 제중원은 신분을 가리지 않고 가난한 이들까지 치료해, ‘병원’이라는 근대 의료기관을 조선에 처음으로 뿌리내렸어요. 이 병원은 미국인 사업가 세브란스의 후원으로 <b>세브란스병원</b>(1904)으로 발전했고, 의학교를 세워 한국인 의사를 길러냈어요(오늘날 연세대 의대·세브란스병원의 뿌리). 선교 의료는 단지 병을 고치는 데 그치지 않았어요 — 전염병이 돌 때 헌신적으로 환자를 돌보고, 여성 환자를 위한 병원을 따로 세우며(당시 남녀가 유별해 여성이 치료를 못 받던 문제를 풀려고), 한국인 의료 인력을 양성했죠. 가장 약한 자리(병들고 가난한 이)에 ‘치료’라는 손길을 내민 이 의료 선교는, 개신교가 조선 사회의 신뢰를 얻는 데 교육 못지않게 큰 몫을 했어요.", "deepdive": {"h": "더 깊이 — 의료 선교가 남긴 것", "items": [{"q": "‘선교 의료’는 신앙 전파의 수단이었나요?", "a": "양면이 있어요. 분명 선교의 ‘통로’이긴 했지만, 신분·종교를 가리지 않고 환자를 돌본 그 헌신 자체가 당시 사회에 없던 ‘근대적 의료 윤리’를 보여 줬어요. 특히 전염병이 돌 때 도망치지 않고 환자를 돌본 선교사들의 모습은, 신앙의 진정성을 행동으로 증명한 면이 있죠. ‘수단이냐 사랑이냐’를 단순히 가르기 어려운, 복합적인 역사예요."}, {"q": "왜 ‘여성 병원’을 따로 세웠나요?", "a": "당시 조선은 남녀가 유별하여, 여성이 남성 의사에게 진료받기를 꺼려 치료에서 소외됐어요. 선교사들은 여성 의료 선교사를 보내고 여성 전용 병원(보구여관 등)을 세워 이 문제를 풀려 했죠. 이는 여성 교육과 함께, 개신교 선교가 ‘사회의 가장 소외된 자리’를 향했음을 보여 줘요."}]}, "connect": "학교와 병원으로 신뢰를 쌓은 개신교는, 마침내 ‘글자’를 통해 가장 깊이 백성 속으로 들어가요. 한글과 성경, 그리고 1907년의 대부흥으로 가 봐요. →", "reflect": ["선교 의료는 ‘신앙을 전하려는 수단’이면서 동시에 ‘조건 없이 약자를 돌본 사랑’이기도 했어요. 한 행동의 ‘동기’와 ‘결과’가 이렇게 얽혀 있을 때, 우리는 그것을 어떻게 평가해야 할까요?"], "order": ["hook", "why", "deepdive", "connect", "reflect"]}, {"id": "hangeul", "num": "04", "label": "한글과 성경 — 그리고 1907년 평양", "accent": "#5a3b6b", "kicker": "한글 성경·사경회·평양 대부흥 · 1882~1907", "era": "1882~1907", "motif": "book", "title": "한글과 성경 — 그리고 1907년 평양", "hook": "선교사가 들어오기도 전에, 이미 ‘<b>한글로 된 성경</b>’이 있었어요. 만주에서 한 선교사가 조선 청년들과 함께 성경을 한글로 옮긴 거예요. 양반의 한문도, 어려운 라틴어도 아닌 — 누구나 읽을 수 있는 ‘우리 글자’로 된 경전. 이것이 개신교가 조선 깊숙이 퍼진 비밀의 하나였어요.", "why": "개신교는 ‘<b>누구나 성경을 직접 읽어야 한다</b>’는 정신이 강했어요. 그래서 성경을 <b>한글</b>로 옮기는 일에 큰 힘을 쏟았죠. 놀랍게도 한글 성경은 선교사들이 입국하기도 전에 시작됐어요 — 1882년, 스코틀랜드 선교사 존 로스가 만주에서 조선 청년들과 함께 누가복음을 한글로 번역해 펴낸 거예요. 이후 선교사들과 한국인들이 힘을 모아 성경 전체를 한글로 옮겼고, 이 ‘한글 성경’은 양반이 아닌 평민과 여성도 신앙을 ‘스스로 읽는’ 길을 열었어요. 당시 ‘언문’이라 낮춰 보던 한글이, 성경과 찬송가·교회 신문을 통해 ‘<b>누구나 쓰는 글자</b>’로 위상을 높이는 데 개신교가 한몫한 거죠(주시경 같은 한글학자도 이 흐름과 닿아 있어요). 그리고 1907년, <b>평양</b>에서 거대한 신앙 각성이 일어나요(<b>평양 대부흥운동</b>). 수많은 사람이 모여 회개하고 기도하는 이 운동을 분수령으로, 한국 개신교는 폭발적으로 성장했어요. 짧은 시간에 이토록 빠르게 자란 것은 세계 선교 역사에서도 드문 일이라, 평양은 한때 ‘<b>동방의 예루살렘</b>’이라 불릴 만큼 교회가 융성했죠. 이렇게 개신교는 ‘한글’이라는 우리 글자에 올라타, 가장 빠르고 깊게 백성 속으로 퍼졌어요.", "deepdive": {"h": "더 깊이 — 한글과 신앙이 만났을 때", "items": [{"q": "개신교가 ‘한글’을 띄운 게 사실인가요?", "a": "한글을 ‘만든’ 것은 세종이지만, 오랫동안 한글은 ‘언문’이라 낮춰져 양반의 한문에 밀려 있었어요. 개신교는 ‘평민·여성도 직접 성경을 읽어야 한다’며 모든 출판물을 한글로 펴냈고, 이것이 한글의 일상적 쓰임을 크게 넓혔죠. 한글 보급에는 여러 흐름이 있었지만, 개신교가 그 중요한 한 축이었던 것은 분명해요. 종교가 ‘우리 글자’를 살리는 데 이바지한 흥미로운 사례예요."}, {"q": "1907년 평양 대부흥은 왜 중요한가요?", "a": "이 운동을 계기로 한국 개신교는 ‘외국 선교사의 종교’를 넘어 ‘한국인의 신앙 공동체’로 폭발적으로 성장했어요. 동시에 ‘뜨거운 기도·회개·체험’을 강조하는 ‘한국적 개신교’의 성격이 이때 빚어졌죠. 다만 일부 학자는 이 운동이 ‘정치(항일)에서 종교(개인 구원)로’ 관심을 돌리게 한 면도 지적해요 — 빛과 함께 여러 해석이 있는 사건이에요."}]}, "connect": "한글 성경과 대부흥으로 깊이 뿌리내린 개신교는, 곧 나라를 잃는 격동의 한복판에 서게 돼요. 신앙과 민족이 만난 자리 — 3·1운동과 신사참배 거부로 가 봐요. →", "reflect": ["개신교는 ‘누구나 직접 읽어야 한다’는 믿음으로 한글 성경을 펴냈고, 그것이 우리 글자의 위상까지 끌어올렸어요. 한 종교의 원칙(누구나 직접 읽기)이 뜻밖에 ‘우리 글자 살리기’로 이어진 것을 보며 — 너는 ‘뜻하지 않은 좋은 결과’의 또 다른 예를 떠올릴 수 있니?"], "order": ["hook", "why", "deepdive", "connect", "reflect"]}, {"id": "independence", "num": "05", "label": "신앙과 민족 — 3·1운동과 신사참배 거부", "accent": "#6b2e3e", "kicker": "이승훈·3·1운동·주기철·신사참배 거부 · 1910~1945", "era": "1910~1945 (일제강점기)", "motif": "split", "title": "신앙과 민족 — 3·1운동과 신사참배 거부", "hook": "1919년 3월 1일, 독립을 선언한 민족대표 33인 — 그 명단에 기독교인이 16명이나 있었어요. 그리고 1930년대, 일제가 ‘일본 신에게 절하라’ 강요하자, 한 목사는 끝까지 거부하다 감옥에서 숨을 거둬요. 신앙이 가장 ‘세상의 한복판’에 섰던 시대 — 한국 개신교의 가장 무겁고 빛나는 장면이에요.", "why": "일제강점기에 개신교는 ‘<b>신앙</b>’과 ‘<b>민족</b>’이 만나는 자리에 섰어요. 선교사들이 세운 학교에서 자란 이들은 근대 의식과 민족의식을 함께 키웠고, 교회는 사람들이 모일 수 있는 드문 ‘공적 공간’이었죠. 그래서 <b>3·1운동</b>(1919) 때 기독교는 큰 역할을 했어요 — 민족대표 33인 중 16명이 기독교인이었고(천도교 15·불교 2와 함께), 오산학교를 세운 <b>이승훈</b>이 기독교 측을 이끌었죠. 만세 시위는 전국의 교회와 기독교계 학교를 따라 퍼져 나갔어요. 더 혹독한 시험은 1930년대에 왔어요. 일제가 ‘<b>신사참배</b>(일본 신에게 절하기)’를 강요한 거예요. 많은 이가 압력에 굴복했지만, 일부 신자는 이를 ‘<b>우상 숭배</b>’로 여겨 목숨을 걸고 거부했어요. 대표적 인물이 평양 산정현교회의 <b>주기철 목사</b>예요. 그는 ‘죽음을 각오한다(일사각오)’며 끝까지 신사참배를 거부하다, 모진 옥고 끝에 1944년 감옥에서 순교했어요. 신사참배를 거부한 학교(평양 숭실 등)는 스스로 문을 닫는 길을 택하기도 했죠. 물론 개신교 전체가 저항한 것은 아니에요 — 압력에 굴복하거나 일제에 협력한 교회·인물도 있었고, 이는 정직하게 함께 기억해야 할 그늘이에요. 한국 개신교에게 이 시대는 ‘신앙을 지키는 것’과 ‘민족을 지키는 것’이 하나로 만난, 가장 무거운 시간이었어요.", "image": {"h": "사료로 보기 — 기미독립선언서 🖼️", "story": "1919년 3·1운동 때 발표된 <b>기미독립선언서</b>예요. 민족대표 33인 중 16명이 기독교인이었고, 만세 시위는 전국의 교회와 기독교계 학교를 따라 퍼져 나갔죠. 신앙이 ‘민족의 독립’과 한자리에서 만난 순간이에요.", "src": "img/declaration_1919.jpg", "alt": "1919년 3·1운동 때 발표된 기미독립선언서 인쇄본의 모습", "caption": "기미독립선언서(1919) — 민족대표 33인 중 16명이 기독교인이었어요.", "source": "Wikimedia Commons", "license": "퍼블릭 도메인"}, "deepdive": {"h": "더 깊이 — 빛과 그늘을 함께", "items": [{"q": "개신교가 독립운동에 적극적이었던 까닭은?", "a": "몇 가지가 겹쳐요. ① 선교사 학교에서 자란 이들이 근대 의식·민족의식을 키웠고, ② 교회는 사람들이 합법적으로 모일 수 있는 드문 공간이었으며, ③ ‘하느님 앞에 모든 사람이 평등하다’는 가르침이 ‘부당한 지배에 맞서는’ 정신과 닿았어요. 그래서 3·1운동·교육·언론 등에서 기독교인이 두드러진 역할을 했죠."}, {"q": "신사참배 거부는 ‘종교’ 문제인가요, ‘민족’ 문제인가요?", "a": "둘 다예요. 신자들에게 신사참배는 ‘다른 신에게 절하는 우상 숭배’라는 신앙의 문제였고, 동시에 ‘일제의 정신적 지배에 굴복하는’ 민족의 문제이기도 했죠. 주기철 목사의 순교는 그래서 ‘신앙의 절개’이자 ‘민족적 저항’으로 함께 기억돼요. 종교적 신념이 곧 시대의 저항이 된, 드문 사례예요."}, {"q": "개신교는 모두 저항했나요?", "a": "아니에요. 끝까지 신앙과 민족을 지킨 이들도 있었지만, 일제의 거센 압력 속에 신사참배를 받아들이거나 협력한 교회·지도자도 적지 않았어요. 한국 개신교는 이 ‘저항과 굴복이 함께 있던’ 역사를 미화하지 않고 정직하게 기억하려 해요. 빛만 보거나 그늘만 보는 것 모두, 역사를 제대로 보는 길이 아니니까요."}]}, "connect": "격동의 근현대를 민족과 함께 통과한 개신교는, 광복 뒤 세계가 놀랄 만큼 빠르게 성장해요. 그 성장의 빛과 그늘을 함께 보며 마무리해요. →", "reflect": ["주기철 목사는 신앙을 지키려다 순교했고, 같은 시대 어떤 이들은 압력에 굴복했어요. 목숨을 건 절개와 살아남기 위한 타협 사이에서 — 우리는 역사를 ‘심판’하기보다 무엇을 ‘배워야’ 할까요?"], "order": ["hook", "why", "image", "deepdive", "connect", "reflect"]}, {"id": "today", "num": "06", "label": "성장과 명암 — 그리고 오늘", "accent": "#3b4e6b", "kicker": "폭발적 성장·세계 선교·빛과 그늘 · 광복~오늘", "era": "광복 ~ 오늘", "motif": "globe", "title": "성장과 명암 — 그리고 오늘", "hook": "1885년 두 청년이 도착했을 때, 조선에 개신교 신자는 거의 없었어요. 그런데 100여 년 만에 한국은 세계에서 손꼽히는 ‘초대형 교회’들이 있는 나라가 됐죠. 이 놀라운 성장은 어떻게 가능했고, 그 빛 뒤에는 어떤 그늘이 함께 자랐을까요?", "why": "광복 이후 한국 개신교는 세계 선교 역사에서 유례를 찾기 어려울 만큼 빠르게 성장했어요. 한국전쟁의 폐허와 산업화의 격동 속에서, 교회는 위로와 공동체, 그리고 ‘잘살아 보자’는 희망의 자리가 되어 주었죠. 20세기 후반에는 세계에서 가장 큰 규모의 교회들이 한국에 생겨났고, 한국은 이제 많은 선교사를 ‘<b>외국으로 보내는</b>’ 나라가 됐어요(받는 나라에서 보내는 나라로). 교육·복지·민주화 운동에서도 개신교는 꾸준히 한 축을 맡아 왔고요. 하지만 빛이 큰 만큼 그늘도 함께 자랐어요. 빠른 성장은 ‘<b>물질적 축복</b>’을 지나치게 강조하거나, 대형 교회의 <b>세습·재정 문제</b>, 수많은 교파로의 <b>분열</b>, 사회와 부딪치는 일부의 <b>배타성</b> 같은 비판도 낳았죠. 그래서 오늘날 한국 개신교 안에서도 ‘<b>처음의 정신(낮은 곳을 섬기는 신앙)으로 돌아가자</b>’는 성찰의 목소리가 커요. 우리는 이 신앙을 ‘무조건 위대한 것’으로도, ‘낡고 부패한 것’으로도 단정하지 않아요 — 학교와 병원으로 들어와 격동의 근현대를 함께한, <b>빛과 그늘을 함께 지닌 하나의 역사</b>로 봐요. 그리고 그 역사는 천주교와 마찬가지로, ‘바깥에서 온 신앙이 어떻게 우리 사회의 일부가 되는가’라는 큰 물음의 한 답이기도 하죠.", "image": {"h": "자료로 보기 — 초기의 정동제일교회 🖼️", "story": "1900년 무렵의 <b>정동제일교회</b>예요(서울 정동). 한옥 기와지붕들 사이로 솟은 이 작은 고딕 교회가 한국 개신교의 이른 모습이에요. 신자가 거의 없던 이 작은 시작에서 100여 년, 한국은 세계가 놀랄 만큼 교회가 성장한 나라가 됐죠. 그 빛과 그늘을 함께 떠올리게 하는 한 장면이에요.", "src": "img/jeongdong_church.jpg", "alt": "1900년경, 한옥 기와집들 사이로 종탑이 솟은 정동제일교회의 흑백 사진", "caption": "초기 정동제일교회(c.1900) — 작은 시작에서 폭발적 성장으로.", "source": "Wikimedia Commons (Homer Hulbert, 《The Passing of Korea》)", "license": "퍼블릭 도메인"}, "quiz": {"h": "확인 퀴즈", "q": "한국 개신교의 시작이 천주교와 가장 크게 달랐던 점은?", "options": ["개신교는 들어오자마자 100년의 혹독한 박해를 받았다", "개신교는 개항 이후 들어와, 박해 대신 학교·병원 같은 근대 교육·의료를 통해 사회에 다가갔다", "개신교는 선교사 없이 조선 사람들이 스스로 책으로 시작했다", "개신교는 조선 왕실이 국교로 삼아 적극 보호했다"], "answer": 1, "explain": "천주교가 ‘책’으로 자생적으로 시작해 100년의 박해를 겪은 것과 달리, 개신교는 개항(1882) 이후 들어와 박해를 거의 겪지 않고 배재·이화 같은 학교와 제중원 같은 병원을 통해 사회에 다가갔어요. 들어온 ‘시기와 방식’의 차이가 두 종교의 다른 길을 만들었죠."}, "links": {"h": "이어서 읽기 — 개신교가 닿은 자리들", "items": [{"label": "세계 그리스도교 — 종교개혁과 개신교의 탄생", "url": "../christianity/", "note": "개신교가 갈라져 나온 그리스도교의 큰 줄기"}, {"label": "한국 천주교 — 100년 먼저 온 그리스도교", "url": "../korea-catholicism/", "note": "전혀 다른 방식으로 들어온 또 하나의 그리스도교"}, {"label": "위기의 조선 — 개항과 근대의 문", "url": "../../imperialism/korea/", "note": "개신교가 들어온 개항기 조선의 격동"}, {"label": "한국 근현대 — 3·1운동과 독립운동", "url": "../../korea/modern/", "note": "개신교가 함께한 민족 운동의 큰 흐름"}]}, "reflect": ["개신교는 ‘학교와 병원’으로 들어와 빠르게 성장했지만, 그 빛만큼 그늘(물질주의·분열 등)도 함께 자랐어요. 한 공동체가 ‘크게 성공한 뒤에도 처음의 정신을 지키는 것’은 왜 그토록 어려울까요? 너라면 그것을 어떻게 지키겠니?"], "order": ["hook", "why", "image", "quiz", "links", "reflect"]}]};</script>
+
+<!-- 렌더 엔진 (모든 에피소드 공통) -->
+<script>
+const EP = window.EPISODE;
+const META = EP.meta, TERMS = EP.terms||{}, SECTIONS = EP.sections, PEOPLE = EP.people||null;
+
+function T(text){ let out=text; for(const k of Object.keys(TERMS)){ out=out.split(k).join('<span class="term" data-term="'+k+'">'+k+'</span>'); } return out; }
+function ytURL(v){ return v.type==='search' ? 'https://www.youtube.com/results?search_query='+encodeURIComponent(v.q) : 'https://www.youtube.com/watch?v='+v.id; }
+
+const MOTIF = {
+  flag:'<path d="M40 30v140M40 36h110l-20 28 20 28H40" fill="none" stroke="#fff" stroke-width="7"/>',
+  crowd:'<g fill="#fff"><circle cx="60" cy="70" r="22"/><circle cx="110" cy="60" r="26"/><circle cx="150" cy="78" r="20"/><rect x="38" y="96" width="44" height="70" rx="18"/><rect x="84" y="90" width="52" height="80" rx="20"/><rect x="132" y="100" width="40" height="66" rx="16"/></g>',
+  book:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M105 50c-18-14-44-14-62 0v96c18-14 44-14 62 0M105 50c18-14 44-14 62 0v96c-18-14-44-14-62 0M105 50v96"/></g>',
+  map:'<g fill="none" stroke="#fff" stroke-width="6"><path d="M50 50l38 14 36-14 38 16v100l-38-16-36 14-38-14z"/><path d="M88 64v100M124 50v104"/></g>',
+  wave:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M30 110c20-26 40-26 60 0s40 26 60 0 40-26 40 0"/><path d="M30 150c20-26 40-26 60 0s40 26 60 0 40-26 40 0"/></g>',
+  sun:'<g fill="none" stroke="#fff" stroke-width="7"><circle cx="105" cy="105" r="34"/><path d="M105 40v22M105 148v22M40 105h22M148 105h22M58 58l16 16M152 152l-16-16M152 58l-16 16M58 152l16-16"/></g>',
+  split:'<g fill="none" stroke="#fff" stroke-width="7"><rect x="44" y="50" width="118" height="110" rx="10"/><path d="M103 50v110" stroke-dasharray="10 9"/></g>',
+  dove:'<g fill="#fff"><path d="M60 120c30 6 70-6 96-44-4 30-2 50 18 64-30 10-72 8-96-20z"/><circle cx="150" cy="74" r="6"/></g>',
+  globe:'<g fill="none" stroke="#fff" stroke-width="6"><circle cx="105" cy="105" r="58"/><ellipse cx="105" cy="105" rx="24" ry="58"/><path d="M47 105h116M55 76h100M55 134h100"/></g>',
+  ship:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M48 132h114l-16 30H64z"/><path d="M105 132V46M105 60l44 16-44 16M105 66l-34 12 34 12"/></g>',
+  torch:'<g fill="none" stroke="#fff" stroke-width="7"><path d="M105 40c18 16 18 40 0 52-18-12-18-36 0-52z"/><path d="M88 96h34l-8 64H96z"/></g>',
+  gear:'<g fill="none" stroke="#fff" stroke-width="7"><circle cx="105" cy="105" r="26"/><path d="M105 52v18M105 140v18M52 105h18M140 105h18M68 68l13 13M137 137l-13-13M137 68l-13 13M68 137l13-13"/></g>'
+};
+
+const view=document.getElementById('view'), navList=document.getElementById('navList');
+const sidebar=document.getElementById('sidebar'), scrim=document.getElementById('scrim'), progress=document.getElementById('progress');
+let currentMap=null, bmaps=[];
+function killMap(){ if(currentMap){ try{currentMap.remove();}catch(e){} currentMap=null; }
+  bmaps.forEach(m=>{ try{m.remove();}catch(e){} }); bmaps=[]; }
+
+function visited(id){ return localStorage.getItem(META.slug+'_v_'+id)==='1'; }
+function markVisited(id){ localStorage.setItem(META.slug+'_v_'+id,'1'); }
+
+function head(){
+  if(META.hub){ const hb=document.getElementById('hubBack'); hb.href=META.hub.url; hb.textContent=META.hub.label;
+    const th=document.getElementById('tbHub'); if(th){ th.href=META.hub.url; } }
+  document.getElementById('brandTitle').textContent=META.brand.title;
+  document.getElementById('brandSub').textContent=META.brand.sub;
+  document.getElementById('sideFoot').innerHTML=META.foot||'';
+  document.getElementById('tbTitle').textContent=META.brand.title;
+}
+
+function buildNav(){
+  let html='<li><a class="home-link" data-id="home">🏠 홈 · 이야기 시작</a></li>'
+    +'<li><a class="notes-link" data-id="notes">📝 내 메모 모아보기</a></li>';
+  html+=SECTIONS.map(s=>'<li><a data-id="'+s.id+'" class="'+(s.star?'star':'')+' '+(visited(s.id)?'visited':'')+'">'
+    +'<span class="num">'+s.num+'</span>'+s.label+(s.star?'<span class="tag">★</span>':'')+'</a></li>').join('');
+  if(META.home&&META.home.lineage){ html+='<li><a class="lineage-link" href="'+META.home.lineage.url+'">📜 '+META.home.lineage.label+'</a></li>'; }
+  navList.innerHTML=html;
+  navList.querySelectorAll('a[data-id]').forEach(a=>a.addEventListener('click',()=>{ go(a.dataset.id); closeSide(); }));
+}
+
+function renderHome(){
+  const h=META.home;
+  view.innerHTML=
+  '<div class="home-hero"><h1>'+h.h1+'</h1><div class="hsub">'+h.sub+'</div>'
+  +(h.quote?'<div class="hq">"'+h.quote.text+'"<small>'+h.quote.by+'</small></div>':'')+'</div>'
+  +'<div class="home-wrap"><div class="home-intro">'+h.intro+'</div>'
+  +'<div class="start-btns"><a class="btn primary" data-id="'+h.startPrimary.to+'">'+h.startPrimary.label+'</a>'
+  +(h.startStar?'<a class="btn star" data-id="'+h.startStar.to+'">'+h.startStar.label+'</a>':'')
+  +(h.lineage?'<a class="btn lineage" href="'+h.lineage.url+'">'+h.lineage.label+'</a>':'')+'</div>'
+  +'<h2 class="block" style="margin-top:34px;">'+(h.pathLabel||'이야기 흐름')+'</h2><ul class="path">'
+  +SECTIONS.map(s=>'<li class="'+(s.star?'star':'')+'" data-id="'+s.id+'"><span class="pn">'+s.num+'</span>'
+    +'<span><span class="ph">'+s.label+(s.star?' <span class="star-mark">★</span>':'')+'</span>'
+    +'<span class="pp">'+s.kicker+' · '+s.era+'</span></span></li>').join('')
+  +'</ul></div>';
+  view.querySelectorAll('[data-id]').forEach(el=>el.addEventListener('click',()=>{ go(el.dataset.id); closeSide(); }));
+  setActive('home'); window.scrollTo(0,0); progress.style.width='0%'; vfx();
+}
+
+function ytBlock(v){
+  const pill = v.type==='search' ? '<span class="pill find">검색</span>' : (v.lang==='en'?'<span class="pill en">영어·자막</span>':'<span class="pill ko">한국어</span>');
+  return '<a class="yt" href="'+ytURL(v)+'" target="_blank" rel="noopener">'
+    +'<span class="play '+(v.type==='search'?'search':'')+'">'+(v.type==='search'?'🔍':'▶')+'</span>'
+    +'<span class="yt-body"><span class="yt-title">'+v.title+'</span>'
+    +'<span class="yt-meta">'+pill+(v.channel?'<span class="pill">'+v.channel+'</span>':'')+(v.length?'<span>'+v.length+'</span>':'')+'</span>'
+    +'<span class="yt-desc">'+v.desc+'</span></span></a>';
+}
+function quoteBlock(q){ return '<div class="quote"><span class="qm">"</span><div class="qt">'+q.qt+'</div><span class="qs">'+q.qs+'</span></div>'; }
+function quizHTML(quiz,sid){
+  return '<h2 class="block">잠깐, 기억나니? 🧠</h2><div class="quizwrap">'
+    + quiz.map((q,qi)=>'<div class="quizq" data-qi="'+qi+'"><div class="qq">'+(qi+1)+'. '+q.q+'</div><div class="qopts">'
+      + q.options.map((o,oi)=>'<button class="quiz-opt" data-oi="'+oi+'">'+o+'</button>').join('')
+      + '</div><div class="qexp" id="qexp_'+sid+'_'+qi+'"></div></div>').join('')
+    + '</div>';
+}
+function mapHTML(m,sid){
+  return '<h2 class="block">지도로 보기 🗺️</h2><div class="mapwrap">'
+    + '<div class="lmap" id="lmap_'+sid+'"></div>'
+    + '<div class="mapcap">'+(m.caption||'')+(m.source?' <span class="msrc">· 지도 ⓒ '+m.source+'</span>':'')+'</div></div>';
+}
+function choiceHTML(c,sid){
+  const opts=c.options.map((o,i)=>'<div><button class="chopt" data-oi="'+i+'">'+o.label+'</button>'
+    +'<div class="chres" id="chres_'+sid+'_'+i+'">'+T(o.result)+'</div></div>').join('');
+  return '<h2 class="block">'+(c.h||'너라면? 🤔')+'</h2><div class="choice" id="ch_'+sid+'">'
+    +'<div class="chprompt">'+T(c.prompt)+'</div><div class="chopts">'+opts+'</div>'
+    +(c.after?'<div class="chafter" id="chafter_'+sid+'">💬 '+T(c.after)+'</div>':'')+'</div>';
+}
+function compareHTML(c,sid){
+  const tabs=c.states.map((st,i)=>'<button class="cmptab'+(i===0?' active':'')+'" data-ci="'+i+'">'+st.label+'</button>').join('');
+  return '<h2 class="block">'+(c.h||'견주어 보기 ⚖️')+'</h2><div class="compare" id="cmp_'+sid+'">'
+    +(c.intro?'<div class="cmpintro">'+T(c.intro)+'</div>':'')
+    +'<div class="cmptabs">'+tabs+'</div><div class="cmppanel" id="cmppanel_'+sid+'"></div></div>';
+}
+function chartHTML(c,sid){
+  const max=Math.max.apply(null, c.data.map(d=>d.value))||1;
+  const rows=c.data.map(d=>'<div class="crow"><div class="clabel">'+d.label+'</div>'
+    +'<div class="cbarwrap"><div class="cbar" style="width:'+(d.value/max*100)+'%"></div></div>'
+    +'<div class="cval">'+(d.disp||d.value)+'</div></div>').join('');
+  return '<h2 class="block">'+(c.h||'숫자로 보기 📊')+'</h2><div class="chart"><div class="ctitle">'+c.title+'</div>'
+    +(c.unit?'<div class="cunit">'+c.unit+'</div>':'')+rows
+    +(c.relatable?'<div class="crelate">💡 '+T(c.relatable)+'</div>':'')
+    +(c.source?'<div class="csrc">출처: '+c.source+'</div>':'')+'</div>';
+}
+function voiceHTML(v){
+  const real = v.imagined===false;
+  return '<h2 class="block">'+(v.h||'그 사람의 목소리 🗣️')+'</h2><div class="voice">'
+    + '<span class="vbadge '+(real?'real':'imag')+'">'+(real?'실제 기록':'✍️ 사실에 기반한 상상')+'</span>'
+    + '<div class="vbody">'+T(v.body)+'”</div>'
+    + '<div class="vspeaker"><b>— '+v.speaker+'</b>'+(v.era?' · '+v.era:'')+(v.source?'<span class="vsrc">'+v.source+'</span>':'')+'</div>'
+    + '</div>';
+}
+function imageHTML(im,sid){
+  const hs=im.hotspots||[];
+  return '<h2 class="block">'+(im.h||'자료로 보기 🖼️')+'</h2><figure class="figimg">'
+    + (im.story?'<div class="figstory">'+T(im.story)+'</div>':'')
+    + '<div class="imgbox" id="imgbox_'+sid+'">'
+    + '<img src="'+im.src+'" alt="'+(im.alt||'')+'" loading="lazy">'
+    + hs.map((h,i)=>'<button class="hsdot" data-hi="'+i+'" style="left:'+h.x+'%;top:'+h.y+'%" aria-label="'+(h.label||'')+'">'+(i+1)+'</button>').join('')
+    + '</div>'
+    + (hs.length?'<div class="hsinfo" id="hsinfo_'+sid+'">점(번호)을 눌러 보세요.</div>':'')
+    + '<figcaption class="figcap">'+(im.caption||'')+(im.source?' <span class="msrc">· 출처: '+im.source+(im.license?' · '+im.license:'')+'</span>':'')+'</figcaption>'
+    + '</figure>';
+}
+function oldmapHTML(o,sid){
+  return '<h2 class="block">'+(o.h||'옛 지도로 보기 🗺️')+'</h2><figure class="oldmap">'
+    + (o.story?'<div class="figstory">'+T(o.story)+'</div>':'')
+    + '<div class="oldmap-frame"><img src="'+o.src+'" alt="'+(o.alt||'')+'" loading="lazy"></div>'
+    + '<figcaption class="figcap">'+(o.caption||'')+(o.source?' <span class="msrc">· 출처: '+o.source+(o.license?' · '+o.license:'')+'</span>':'')+'</figcaption>'
+    + '</figure>';
+}
+function lensBlock(l){ return '<div class="lens"><div class="lh">🕯️ 그때 사람들은 이렇게 생각했어요</div><div>'+T(l)+'</div></div>'; }
+function legendHTML(lg){
+  return '<div class="legendbox"><div class="lgh">📖 전해 오는 이야기'+(lg.title?' — '+lg.title:'')+'</div>'
+    +'<div class="lgbody">'+T(lg.body)+'</div>'
+    +(lg.moral?'<div class="lgmoral">💭 '+T(lg.moral)+'</div>':'')
+    +(lg.source?'<div class="lgsrc">📜 '+lg.source+'</div>':'')+'</div>';
+}
+/* lineage(왕조 계보): 클릭/터치하면 펼쳐지는 왕 목록. 네이티브 <details>라 JS 없이도 동작(모바일 터치 OK). */
+function lineageRow(r){
+  return '<details class="lin-item'+(r.star?' lin-key':'')+'">'
+    +'<summary><span class="lin-n">'+(r.n||'')+'</span>'
+    +'<span class="lin-name">'+r.name+(r.star?' <span class="lin-star">★</span>':'')+'</span>'
+    +'<span class="lin-reign">'+(r.reign||'')+'</span></summary>'
+    +'<div class="lin-note">'+T(r.note||'')+'</div></details>';
+}
+function lineageHTML(lg){
+  let body='';
+  if(lg.dynasties){
+    body=lg.dynasties.map(function(d){
+      return '<div class="lin-dyn"><h3 class="lin-dyn-h">'+d.label+'</h3>'
+        +(d.intro?'<p class="lin-dyn-intro">'+T(d.intro)+'</p>':'')
+        +'<div class="lin-grid">'+d.rulers.map(lineageRow).join('')+'</div></div>';
+    }).join('');
+  } else {
+    body='<div class="lin-grid">'+(lg.rulers||[]).map(lineageRow).join('')+'</div>';
+  }
+  return '<h2 class="block">'+(lg.h||'왕조 계보')+'</h2>'
+    +(lg.intro?'<div class="lin-intro">'+T(lg.intro)+'</div>':'')
+    +'<div class="lineage">'+body+'</div>';
+}
+function personBlock(p){
+  return '<div class="person"><div class="pheader"><div class="pface">'+(p.face||'👤')+'</div>'
+    +'<div><div class="pname">'+p.name+'</div><div class="pwho">'+(p.who||'')+'</div></div></div>'
+    +(p.why?'<div class="pwhy">'+T(p.why)+'</div>':'')
+    +(p.quote?'<div class="pquote">"'+p.quote+'"</div>':'')
+    +(p.shadow?'<div class="pshadow">빛과 그림자 · '+p.shadow+'</div>':'')
+    +(p.slug?'<a class="pmore" href="../people/'+p.slug+'/">📖 인물 도감에서 더 보기 →</a>':'')+'</div>';
+}
+
+const FIT={green:{e:'🟢',t:'전체 관람'},yellow:{e:'🟡',t:'부모와 함께'},red:{e:'🔴',t:'핵심 장면·맥락만'}};
+function movieBlock(m){
+  const f=FIT[m.fit]||FIT.yellow;
+  let s='<div class="movie"><div class="mhead"><div class="mtitle">🎬 '+m.title+'</div>'
+    +'<span class="mfit '+(m.fit||'yellow')+'">'+f.e+' '+f.t+'</span></div>'
+    +'<div class="mmeta">'+[m.year,m.director].filter(Boolean).join(' · ')
+    +(m.basedOn?' · <b>'+m.basedOn+'</b>':'')+'</div>';
+  if(m.why) s+='<div class="mwhy">'+T(m.why)+'</div>';
+  if(m.realVsFiction) s+='<div class="mreal"><span class="lbl">실화 vs 각색</span>'+m.realVsFiction+'</div>';
+  let links=[];
+  if(m.slug) links.push('<a class="mlink slug" href="../people/'+m.slug+'/">📖 인물 도감</a>');
+  (m.links||[]).forEach(l=>links.push('<a class="mlink" href="'+l.url+'" target="_blank" rel="noopener">'+l.label+' ↗</a>'));
+  if(links.length) s+='<div class="mlinks">'+links.join('')+'</div>';
+  return s+'</div>';
+}
+function battlemapHTML(bm,sid,idx){
+  const id='bm_'+sid+'_'+idx;
+  let s='<h2 class="block">'+(bm.title||'전투 지도')+' 🗺️</h2><div class="battlemap" id="'+id+'">';
+  if(bm.intro) s+='<div class="bm-intro">'+T(bm.intro)+'</div>';
+  s+='<div class="bm-map" id="'+id+'_map"></div>'
+    +'<div class="bm-step"><button class="bm-prev" disabled>← 이전</button><div class="bm-plabel" id="'+id+'_lab"></div><button class="bm-next">다음 →</button></div>';
+  if(bm.legend&&bm.legend.length) s+='<div class="bm-legend">'+bm.legend.map(l=>'<span><i style="border-color:'+l.c+'"></i> '+l.label+'</span>').join('')+'</div>';
+  if(bm.caption) s+='<div class="bm-cap">'+bm.caption+'</div>';
+  return s+'</div>';
+}
+function deepdiveHTML(dd){
+  let s='<details class="deepdive"><summary>🔎 더 깊이 — 고등·일반 수준으로 (펼치기)</summary><div class="dd-body">';
+  dd.forEach(it=>{ s+='<div class="dd-item"><h3>'+it.h+'</h3><div class="dd-text">'+T(it.body)+'</div>'
+    +(it.source?'<div class="dd-src">📜 '+it.source+'</div>':'')+'</div>'; });
+  return s+'</div></details>';
+}
+function linksHTML(arr){
+  let s='<h2 class="block">더 깊이 알아보기 🔗</h2><div class="links">';
+  arr.forEach(it=>{ s+='<a class="lk" href="'+it.url+'" target="_blank" rel="noopener">'
+    +'<span class="lk-label">'+it.label+'</span>'
+    +(it.note?'<span class="lk-note">'+T(it.note)+'</span>':'')
+    +(it.source?'<span class="lk-src">'+it.source+'</span>':'')+'</a>'; });
+  return s+'</div>';
+}
+function sparkHTML(sp){
+  let s='<div class="spark"><div class="spark-h">'+(sp.icon||'🤯')+' '+(sp.title||'상상해보기')+'</div>';
+  s+='<div class="spark-body">'+T(sp.body)+'</div>';
+  if(sp.mind) s+='<div class="spark-mind"><b>🌀 상식 뒤집기</b> — '+T(sp.mind)+'</div>';
+  return s+'</div>';
+}
+function marchmapHTML(m,sid){
+  const SY=1.55; // viewBox 0 0 100 155 (베이스맵 종횡비 ≈ 1866/2891)
+  const P={}; (m.places||[]).forEach(p=>P[p.id]=p);
+  const placePhase={};
+  (m.phases||[]).forEach((ph,i)=>(ph.show||[]).forEach(id=>{ if(placePhase[id]===undefined) placePhase[id]=i; }));
+  const KIND={start:'🚩',battle:'⚔️',win:'✔️',loss:'✖️',capital:'🏯',city:'•'};
+  let dots='';
+  (m.places||[]).forEach(p=>{
+    const ph=placePhase[p.id]!==undefined?placePhase[p.id]:0;
+    const emo=KIND[p.kind]||'';
+    dots+='<div class="mm-place k-'+(p.kind||'city')+'" data-ph="'+ph+'" style="left:'+p.x+'%;top:'+p.y+'%">'
+      +'<span class="mm-dot"></span><span class="mm-lbl">'+(emo&&emo!=='•'?emo+' ':'')+p.label+'</span></div>';
+  });
+  let paths='';
+  (m.phases||[]).forEach((ph,i)=>{
+    (ph.arrows||[]).forEach(a=>{
+      const f=P[a.from], t=P[a.to]; if(!f||!t) return;
+      const fx=f.x, fy=f.y*SY, tx=t.x, ty=t.y*SY;
+      const mx=(fx+tx)/2, my=(fy+ty)/2, dx=tx-fx, dy=ty-fy;
+      const cx=(mx-dy*0.16).toFixed(1), cy=(my+dx*0.16).toFixed(1);
+      const tone=a.tone||'resist';
+      paths+='<path class="mm-arrow tone-'+tone+'" data-ph="'+i+'" d="M'+fx+' '+fy.toFixed(1)+' Q'+cx+' '+cy+' '+tx+' '+ty.toFixed(1)+'" marker-end="url(#mmh-'+tone+')"></path>';
+      if(a.label) paths+='<text class="mm-alab tone-'+tone+'" data-ph="'+i+'" x="'+cx+'" y="'+cy+'">'+a.label+'</text>';
+    });
+  });
+  const n=(m.phases||[]).length, first=(m.phases&&m.phases[0]?m.phases[0].label:'');
+  let s='<h2 class="block">진격으로 따라가기 🗺️</h2><div class="marchmap" id="mm_'+sid+'" data-ph="0" data-n="'+n+'">';
+  if(m.title) s+='<div class="mm-title">'+m.title+'</div>';
+  if(m.intro) s+='<div class="mm-intro">'+T(m.intro)+'</div>';
+  s+='<div class="mm-stage"><img class="mm-base" src="'+m.base.src+'" alt="'+(m.title||'지도')+'" loading="lazy">'
+    +'<svg class="mm-arrows" viewBox="0 0 100 155" preserveAspectRatio="xMidYMid meet"><defs>'
+    +'<marker id="mmh-resist" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" class="mh resist"/></marker>'
+    +'<marker id="mmh-invade" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" class="mh invade"/></marker>'
+    +'</defs>'+paths+'</svg>'+dots+'</div>';
+  s+='<div class="mm-step"><button class="mm-prev" disabled>← 이전</button>'
+    +'<div class="mm-plabel" id="mmlab_'+sid+'">'+first+'</div><button class="mm-next">다음 →</button></div>';
+  if(m.caption) s+='<div class="mm-cap">'+m.caption+'</div>';
+  return s+'</div>';
+}
+function relationsHTML(r,sid){
+  let s='<h2 class="block">힘의 관계 한눈에 보기 ⚖️</h2><div class="relations">';
+  if(r.title) s+='<div class="rtitle">'+r.title+'</div>';
+  if(r.intro) s+='<div class="rintro">'+T(r.intro)+'</div>';
+  s+='<div class="rsides">';
+  (r.sides||[]).forEach(side=>{
+    s+='<div class="rside '+(side.color||'')+'"><div class="rslabel">'+side.label+'</div>';
+    (side.members||[]).forEach(m=>{
+      s+='<div class="rmember"><b>'+m.name+'</b><span>'+(m.role||'')+'</span>'
+        +(m.slug?' <a class="rlink" href="../people/'+m.slug+'/">📖</a>':'')+'</div>';
+    });
+    s+='</div>';
+  });
+  s+='</div>';
+  if(r.tensions&&r.tensions.length){
+    s+='<div class="rtensions">';
+    r.tensions.forEach(t=>{ s+='<div class="rtension"><div class="rvs">⚔️ '+t.a+' ↔ '+t.b+'</div><div>'+T(t.label)+'</div></div>'; });
+    s+='</div>';
+  }
+  return s+'</div>';
+}
+// 블록 registry + 섹션별 순서(order) — 데이터로 흐름 제어. order 없으면 DEFAULT(하위호환).
+function renderBlocks(s){
+  const B={
+    hook:()=>'<p class="hook">'+T(s.hook)+'</p>'+(s.quote?quoteBlock(s.quote):''),
+    spark:()=>s.spark?sparkHTML(s.spark):'',
+    why:()=>'<h2 class="block">왜 중요할까</h2><div class="why">'+s.why+'</div>',
+    lens:()=>s.lens?lensBlock(s.lens):'',
+    legend:()=>s.legend?legendHTML(s.legend):'',
+    lineage:()=>s.lineage?lineageHTML(s.lineage):'',
+    voice:()=>s.voice?voiceHTML(s.voice):'',
+    cards:()=>s.cards?('<h2 class="block">핵심 따라가기</h2><div class="cards">'
+      +s.cards.map(c=>'<div class="card"><span class="yr">'+c.yr+'</span><h3>'+c.h+'</h3><p>'+T(c.p)+'</p></div>').join('')+'</div>'
+      +(s.quote2?quoteBlock(s.quote2):'')):'',
+    people:()=>s.people?'<h2 class="block">꼭 알아야 할 인물</h2><div class="people">'+s.people.map(personBlock).join('')+'</div>':'',
+    map:()=>s.map?mapHTML(s.map,s.id):'',
+    image:(i)=>{ const arr=Array.isArray(s.image); const im=arr?s.image[i||0]:s.image; const sid=(arr&&i!=null)?s.id+'_'+i:s.id; return im?imageHTML(im,sid):''; },
+    oldmap:()=>s.oldmap?oldmapHTML(s.oldmap,s.id):'',
+    chart:(i)=>{ const arr=Array.isArray(s.chart); const c=arr?s.chart[i||0]:s.chart; return c?chartHTML(c,(arr&&i!=null)?s.id+'_'+i:s.id):''; },
+    compare:()=>s.compare?compareHTML(s.compare,s.id):'',
+    relations:()=>s.relations?relationsHTML(s.relations,s.id):'',
+    marchmap:()=>s.marchmap?marchmapHTML(s.marchmap,s.id):'',
+    battlemap:(i)=>{ const bm=(s.battlemaps||[])[i]; return bm?battlemapHTML(bm,s.id,i):''; },
+    timeline:()=>s.timeline?('<h2 class="block">한눈에 보는 흐름</h2><div class="timeline">'
+      +s.timeline.map(t=>'<div class="tl"><span class="tl-yr">'+t.yr+'</span> <span class="tl-txt">'+t.t+'</span></div>').join('')+'</div>'):'',
+    connect:()=>s.connect?('<h2 class="block">이야기 연결 고리</h2><div class="connect"><span class="ico">🔗</span><div>'+s.connect+'</div></div>'):'',
+    yt:()=>s.yt?('<h2 class="block">영상으로 보기</h2>'+s.yt.map(ytBlock).join('')):'',
+    movies:()=>s.movies?'<h2 class="block">영화로 만나기 🎬</h2><div class="movies">'+s.movies.map(movieBlock).join('')+'</div>':'',
+    choice:()=>s.choice?choiceHTML(s.choice,s.id):'',
+    quiz:()=>s.quiz?quizHTML(s.quiz,s.id):'',
+    deepdive:()=>s.deepdive?deepdiveHTML(s.deepdive):'',
+    links:()=>s.links?linksHTML(s.links):'',
+    reflect:()=>s.reflect?('<h2 class="block">내 생각 적어보기 ✍️</h2><div class="reflect">'
+      +s.reflect.map((q,i)=>'<div class="q">'+q+'</div><textarea data-key="'+s.id+'_'+i+'" placeholder="여기에 자유롭게 적어보세요. 자동으로 저장돼요."></textarea><div class="saved" id="saved_'+s.id+'_'+i+'"></div>').join('')+'</div>'):''
+  };
+  const DEFAULT=['hook','spark','why','lens','legend','lineage','voice','cards','people','map','image','oldmap','chart','compare','relations','marchmap','battlemap*','timeline','connect','yt','movies','choice','quiz','deepdive','links','reflect'];
+  const order=(s.order&&s.order.length)?s.order:DEFAULT;
+  let html='';
+  order.forEach(tok=>{
+    if(tok.charAt(tok.length-1)==='*'){
+      const name=tok.slice(0,-1);
+      let arr=[];
+      if(name==='battlemap') arr=s.battlemaps||[];
+      else if(Array.isArray(s[name])) arr=s[name];
+      else if(s[name]) arr=[s[name]];
+      arr.forEach((_,i)=>{ if(B[name]) html+=B[name](i); });
+      return;
+    }
+    const p=tok.split(':'), name=p[0], idx=p.length>1?+p[1]:null;
+    if(B[name]) html+=B[name](idx);
+  });
+  return html;
+}
+/* 시각효과: 차트 바 성장만 JS로(0→목표 rAF). 블록 진입은 순수 CSS라 JS 불필요.
+   가시성은 CSS animation(fill-mode both)이 보장 → 이 함수가 실패해도 콘텐츠는 항상 보임. */
+function vfx(){
+  try{
+    if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    view.querySelectorAll('.crow .cbar').forEach(function(b){
+      const w=b.style.width||''; if(!w) return; b.style.width='0%';
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ b.style.width=w; }); });
+    });
+  }catch(e){ /* 시각효과 실패는 콘텐츠에 영향 없음 */ }
+}
+function render(s,idx){
+  const prev=SECTIONS[idx-1], next=SECTIONS[idx+1];
+  view.innerHTML=
+  '<div class="hero" style="background:linear-gradient(135deg,var(--navy) 0%, '+s.accent+' 100%)">'
+  +'<div class="kicker">'+s.kicker+'</div><h1>'+s.title+'</h1><div class="era">⏳ '+s.era+'</div>'
+  +'<svg class="motif" viewBox="0 0 210 210">'+(MOTIF[s.motif]||'')+'</svg></div>'
+  +'<div class="wrap">'
+  +renderBlocks(s)
+  +'<div class="pager">'
+  +(prev?'<a class="prev" data-id="'+prev.id+'"><div class="pg-label">← 이전</div><div class="pg-title">'+prev.label+'</div></a>':'<a class="prev" data-id="home"><div class="pg-label">← 홈</div><div class="pg-title">이야기 시작</div></a>')
+  +(next?'<a class="next" data-id="'+next.id+'"><div class="pg-label">다음 →</div><div class="pg-title">'+next.label+'</div></a>':'<a class="next" data-id="home"><div class="pg-label">이야기 끝 →</div><div class="pg-title">홈으로</div></a>')
+  +'</div></div>';
+  view.querySelectorAll('.pager a[data-id]').forEach(a=>a.addEventListener('click',()=>go(a.dataset.id)));
+  view.querySelectorAll('textarea[data-key]').forEach(ta=>{
+    const k=META.slug+'_m_'+ta.dataset.key; ta.value=localStorage.getItem(k)||''; let timer;
+    ta.addEventListener('input',()=>{ localStorage.setItem(k,ta.value); const tag=document.getElementById('saved_'+ta.dataset.key); tag.textContent='저장됨 ✓'; clearTimeout(timer); timer=setTimeout(()=>tag.textContent='',1300); });
+  });
+  if(s.quiz){ view.querySelectorAll('.quizq').forEach(qd=>{
+    const qi=+qd.dataset.qi, q=s.quiz[qi];
+    qd.querySelectorAll('.quiz-opt').forEach(btn=>btn.addEventListener('click',()=>{
+      if(qd.classList.contains('done')) return; qd.classList.add('done');
+      const oi=+btn.dataset.oi;
+      qd.querySelectorAll('.quiz-opt').forEach((b,i)=>{ if(i===q.answer) b.classList.add('correct'); if(i===oi&&oi!==q.answer) b.classList.add('wrong'); b.disabled=true; });
+      const exp=document.getElementById('qexp_'+s.id+'_'+qi);
+      exp.innerHTML=(oi===q.answer?'<b>맞았어요! ✓</b> ':'<b>아쉬워요, 다시 볼까요?</b> ')+(q.explain||'');
+      exp.classList.add('show');
+    }));
+  }); }
+  if(s.map && window.L){
+    const mel=document.getElementById('lmap_'+s.id);
+    currentMap=L.map(mel,{scrollWheelZoom:false}).setView(s.map.center, s.map.zoom);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(currentMap);
+    if(s.map.line) L.polyline(s.map.line,{color:'#b5546a',weight:3,dashArray:'6 6'}).addTo(currentMap);
+    (s.map.markers||[]).forEach(mk=>L.circleMarker([mk.lat,mk.lng],{radius:9,color:'#fff',weight:2,fillColor:'#B5546A',fillOpacity:1}).addTo(currentMap).bindPopup('<b>'+mk.label+'</b><br>'+mk.desc));
+    setTimeout(()=>{ if(currentMap) currentMap.invalidateSize(); },200);
+  }
+  if(s.image && s.image.hotspots && s.image.hotspots.length){
+    const info=document.getElementById('hsinfo_'+s.id);
+    view.querySelectorAll('#imgbox_'+s.id+' .hsdot').forEach(d=>d.addEventListener('click',()=>{
+      const h=s.image.hotspots[+d.dataset.hi]; info.innerHTML='<b>'+h.label+'</b> '+(h.desc||''); info.classList.add('show');
+    }));
+  }
+  if(s.compare){
+    const c=s.compare, panel=document.getElementById('cmppanel_'+s.id);
+    const tabs=view.querySelectorAll('#cmp_'+s.id+' .cmptab');
+    const fill=(i)=>{ const st=c.states[i]; panel.innerHTML='<div class="cmh">'+st.title+'</div><div class="cmb">'+T(st.body)+'</div>'
+      +(st.img?'<img src="'+st.img+'" alt="'+(st.alt||'')+'" loading="lazy">':'')+(st.caption?'<div class="cmpcap">'+st.caption+'</div>':'');
+      tabs.forEach((b,bi)=>b.classList.toggle('active',bi===i)); };
+    tabs.forEach(b=>b.addEventListener('click',()=>fill(+b.dataset.ci)));
+    fill(0);
+  }
+  if(s.choice){
+    const af=document.getElementById('chafter_'+s.id);
+    view.querySelectorAll('#ch_'+s.id+' .chopt').forEach(b=>b.addEventListener('click',()=>{
+      document.getElementById('chres_'+s.id+'_'+b.dataset.oi).classList.add('show');
+      b.classList.add('picked'); if(af) af.classList.add('show');
+    }));
+  }
+  if(s.marchmap){
+    const mm=document.getElementById('mm_'+s.id), n=+mm.dataset.n, lab=document.getElementById('mmlab_'+s.id);
+    const prev=mm.querySelector('.mm-prev'), next=mm.querySelector('.mm-next'), phases=s.marchmap.phases||[];
+    const upd=()=>{ const cur=+mm.dataset.ph;
+      mm.querySelectorAll('.mm-place,.mm-arrow,.mm-alab').forEach(el=>el.classList.toggle('on',+el.dataset.ph<=cur));
+      lab.textContent=phases[cur]?phases[cur].label:''; prev.disabled=cur<=0; next.disabled=cur>=n-1; };
+    prev.addEventListener('click',()=>{ mm.dataset.ph=Math.max(0,+mm.dataset.ph-1); upd(); });
+    next.addEventListener('click',()=>{ mm.dataset.ph=Math.min(n-1,+mm.dataset.ph+1); upd(); });
+    upd();
+  }
+  (s.battlemaps||[]).forEach((bm,idx)=>{
+    const id='bm_'+s.id+'_'+idx;
+    try{
+      const map=L.map(id+'_map',{scrollWheelZoom:false}).setView(bm.center||[37,127],bm.zoom||6);
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:14,attribution:'© OpenStreetMap'}).addTo(map);
+      bmaps.push(map);
+      const KIND={start:'🚩',battle:'⚔️',win:'✔️',loss:'✖️',capital:'🏯',city:'•',sea:'⚓'};
+      const ic=(e)=>L.divIcon({className:'bm-ic',html:'<div>'+e+'</div>',iconSize:[26,26],iconAnchor:[13,13]});
+      const phases=bm.phases||[], layers=phases.map(()=>[]);
+      phases.forEach((ph,i)=>{
+        (ph.markers||[]).forEach(m=>layers[i].push(L.marker(m.at,{icon:ic(KIND[m.kind]||'•')}).bindTooltip(m.label,{permanent:true,direction:'top',offset:[0,-10],className:'bm-tt'})));
+        (ph.arrows||[]).forEach(a=>layers[i].push(L.polyline.antPath(a.path,{color:a.tone==='invade'?'#B5546A':'#2E7D4F',weight:4,delay:1000,dashArray:[10,22],pulseColor:'#fff'})));
+      });
+      const lab=document.getElementById(id+'_lab'), prev=document.querySelector('#'+id+' .bm-prev'), next=document.querySelector('#'+id+' .bm-next'), n=phases.length;
+      let cur=0;
+      const lowAt=(c)=>{ let r=0; for(let i=1;i<=c;i++){ if(phases[i]&&phases[i].reset) r=i; } return r; };
+      const upd=()=>{ const lo=lowAt(cur);
+        layers.forEach((grp,i)=>grp.forEach(l=> (i>=lo&&i<=cur)?l.addTo(map):map.removeLayer(l)));
+        lab.textContent=phases[cur]?phases[cur].label:''; prev.disabled=cur<=0; next.disabled=cur>=n-1;
+        if(bm.fit){ const pts=[]; for(let i=lo;i<=cur;i++) layers[i].forEach(l=>{ if(l.getLatLng) pts.push(l.getLatLng()); });
+          if(pts.length>=2) map.fitBounds(L.latLngBounds(pts).pad(0.4)); else if(pts.length===1) map.setView(pts[0], map.getZoom()); } };
+      next.onclick=()=>{cur=Math.min(n-1,cur+1);upd();}; prev.onclick=()=>{cur=Math.max(0,cur-1);upd();};
+      upd(); setTimeout(()=>map.invalidateSize(),200);
+    }catch(e){ console.error('battlemap',e); }
+  });
+  markVisited(s.id); setActive(s.id); window.scrollTo(0,0); vfx();
+}
+
+function renderNotes(){
+  const body=SECTIONS.map(s=>{
+    const items=s.reflect.map((q,i)=>{ const v=(localStorage.getItem(META.slug+'_m_'+s.id+'_'+i)||'').trim();
+      return '<div class="note-q">'+q+'</div><div class="note-a'+(v?'':' empty')+'">'+(v?v.replace(/</g,'&lt;'):'(아직 적지 않았어요)')+'</div>'; }).join('');
+    return '<div class="note-sec"><div class="note-sh">'+s.num+' · '+s.label+'</div>'+items+'</div>';
+  }).join('');
+  view.innerHTML='<div class="home-hero"><h1>📝 내 메모 모아보기</h1><div class="hsub">'+META.brand.title+' — 내가 적은 생각들</div></div>'
+    +'<div class="home-wrap"><div class="note-actions noprint">'
+    +'<button class="btn primary" id="notePrint">🖨️ 인쇄 / PDF 저장</button>'
+    +'<button class="btn" id="noteCopy" style="background:#fff;border:1px solid var(--line);color:var(--navy)">📋 전체 복사</button></div>'
+    +'<div class="notes-view" id="notesView">'+body+'</div></div>';
+  document.getElementById('notePrint').addEventListener('click',()=>window.print());
+  document.getElementById('noteCopy').addEventListener('click',()=>{ const t=document.getElementById('notesView').innerText;
+    if(navigator.clipboard){ navigator.clipboard.writeText(t); const b=document.getElementById('noteCopy'); b.textContent='복사됨 ✓'; setTimeout(()=>b.textContent='📋 전체 복사',1500); } });
+  setActive('notes'); window.scrollTo(0,0); progress.style.width='0%'; vfx();
+}
+
+function setActive(id){
+  navList.querySelectorAll('a').forEach(a=>{ a.classList.toggle('active', a.dataset.id===id); if(a.dataset.id && a.dataset.id!=='home' && visited(a.dataset.id)) a.classList.add('visited'); });
+}
+function go(id){ killMap(); if(id==='home'){ renderHome(); location.hash='home'; return; }
+  if(id==='notes'){ renderNotes(); location.hash='notes'; return; } const idx=SECTIONS.findIndex(s=>s.id===id); if(idx<0) return; render(SECTIONS[idx],idx); location.hash=id; }
+function openSide(){ sidebar.classList.add('open'); scrim.classList.add('show'); }
+function closeSide(){ sidebar.classList.remove('open'); scrim.classList.remove('show'); }
+document.getElementById('hamb').addEventListener('click',openSide);
+document.getElementById('brandHome').addEventListener('click',()=>{ go('home'); closeSide(); });
+scrim.addEventListener('click',closeSide);
+
+/* companion 배지 — meta.companion:{slug,label} 이면 사이드바에 짝 에피소드 링크 */
+if(META.companion && META.companion.slug){
+  const cl=document.createElement('a');
+  cl.className='companion-link';
+  cl.href='../'+META.companion.slug+'/index.html';
+  cl.textContent='🔗 짝 에피소드 · '+(META.companion.label||META.companion.slug);
+  const hb=document.getElementById('hubBack');
+  hb.parentNode.insertBefore(cl,hb.nextSibling);
+}
+
+/* lightbox — image/oldmap 이미지 클릭 확대 */
+const lb=document.createElement('div'); lb.className='lightbox';
+lb.innerHTML='<img alt=""><div class="lb-cap"></div>';
+document.body.appendChild(lb);
+document.addEventListener('click',e=>{
+  if(e.target.closest('.lightbox')){ lb.classList.remove('show'); document.body.style.overflow=''; return; }
+  const im=e.target.closest('.imgbox img, .oldmap-frame img');
+  if(im){ lb.querySelector('img').src=im.src; lb.querySelector('.lb-cap').textContent=im.alt||''; lb.classList.add('show'); document.body.style.overflow='hidden'; }
+});
+window.addEventListener('scroll',()=>{ const h=document.documentElement.scrollHeight-window.innerHeight; progress.style.width=(h>0?(window.scrollY/h*100):0)+'%'; });
+const tip=document.getElementById('tip');
+function showTip(e,t){ tip.textContent=TERMS[t.dataset.term]||''; tip.style.display='block'; moveTip(e); }
+document.addEventListener('mouseover',e=>{ const t=e.target.closest('.term'); if(t) showTip(e,t); });
+document.addEventListener('mousemove',e=>{ if(tip.style.display==='block') moveTip(e); });
+document.addEventListener('mouseout',e=>{ if(e.target.closest('.term')) tip.style.display='none'; });
+document.addEventListener('click',e=>{ const t=e.target.closest('.term'); if(t){ showTip(e,t); setTimeout(()=>tip.style.display='none',2800); } });
+function moveTip(e){ tip.style.left=Math.min(e.clientX+14,window.innerWidth-278)+'px'; tip.style.top=Math.min(e.clientY+16,window.innerHeight-92)+'px'; }
+
+head(); buildNav();
+const start=location.hash.replace('#','');
+if(start==='notes') renderNotes();
+else if(start && SECTIONS.some(s=>s.id===start)) go(start);
+else renderHome();
+</script>
+</body>
+</html>
