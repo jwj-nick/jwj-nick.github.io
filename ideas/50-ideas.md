@@ -11,6 +11,8 @@
 
 ## A. NPU / NVDLA 심화 — RTL 아키텍처 + 검증환경 (Nick 핵심축)
 
+> ★ **이 카테고리 전체를 "NVDLA/NPU Lab" 메가 허브로** — H(통합·커리어) + I(방법론·메타) 적용, private-first. 구체 계획 → **NVDLA Lab 탭** (`2026-06-27_nvdla-npu-lab-plan.md`).
+
 **1. ⭐⟳ NVDLA 살아있는 교과서** — `nvdla_analysis`를 블록별 인터랙티브 학습 사이트로.
 *무엇:* CMAC·CACC·SDP·PDP·RUBIK을 RTL 워크스루 + 데이터플로우 애니메이션으로. *왜:* 정적 노트는 다시 안 열게 됨 — uvm-drill처럼 "클릭으로 따라가는 구조"여야 깊이가 붙음. *형식:* uvm-drill 챕터 엔진 재사용.
 
