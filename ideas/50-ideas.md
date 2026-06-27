@@ -71,6 +71,8 @@
 
 ## C. Codec / Verification 심화 (기존 강점 → 자산화)
 
+> ★ **이 카테고리 전체를 "Codec Lab" 종합 허브로** — 두 기둥: ① 코덱 A-to-Z 지식 척추(20년 커리어, AI elicitation으로 외재화) ② 각 tool HW 설계·검증. private-first(IP/기밀 경계 최우선). 25_VideoCodec·27_PQO·UVM을 우산 아래로. 구체안 → **Codec Lab 탭** (`2026-06-27_codec-lab-plan.md`).
+
 **17. ⟳ PQO 한 테마 끝까지** — 전처리(denoise/MCTF)의 이론→CNN→HW 비용 사다리 1테마 완주.
 *연결:* 27_PQO Phase 1. *왜:* 메트릭 해킹 경계까지 가야 진짜 이해.
 
