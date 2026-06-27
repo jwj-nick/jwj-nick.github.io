@@ -41,6 +41,8 @@
 
 ## B. AI 직접 훈련 → 오픈소스 LLM (Nick "간단 training → 맥락 확장" 축)
 
+> ★ **이 카테고리 전체를 "AI Build Lab" 종합 허브로** — *빌드해서 이해하는 AI* 사다리 + HW lens, H+I 적용, private-first. A와는 microgpt-hw(#10)에서 접속. 구체안 → **AI Build Lab 탭** (`2026-06-27_ai-build-lab-plan.md`).
+
 **9. ⭐ microGPT 풀스택** — Karpathy nanoGPT를 직접 학습→추론, loss·attention 시각화.
 *연결:* 10_AL_Study. *왜:* "내 손으로 학습되는" 걸 봐야 LLM이 마법이 아니게 된다.
 
