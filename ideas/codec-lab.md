@@ -63,7 +63,7 @@ Codec Lab
 - **이쪽은 HW 설계 안 함 — 지식 정리만.** "왜 존재/어디 쓰나/메인스트림과 뭐가 다른가"
 
 ### 1D. Frame Buffer Compression (별도 챕터) ★신규
-- **PVRIC**(Imagination PowerVR Image Compression, ~v3/4) · **AFBC**(Arm Frame Buffer Compression, 무손실 가변율) · **AFRC**(Arm Fixed Rate Compression — "AFBC 다음/관련" 추정, 고정율 손실. ※확인 필요)
+- **PVRIC**(Imagination PowerVR Image Compression, ~v3/4) · **AFBC**(Arm Frame Buffer Compression, 무손실 가변율) · **AFRC**(Arm Fixed Rate Compression — **AFBC 다음 버전 ✓Nick 확인**, 고정율)
 - 정리 축: 무손실 vs 고정율 · 압축률 · 랜덤액세스 · HW 비용 · 대역폭 절감
 - ★ **연결**: FBC는 디코더 **DPB/참조프레임 대역폭** 절감의 핵심 → 기둥 2(디코더 메모리)와 직결 (지식이지만 HW 의미 큼)
 
