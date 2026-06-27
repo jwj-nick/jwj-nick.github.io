@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>원효 — 인물 도감</title>
+<meta name="description" content="어려운 불교를 백성의 삶 속으로 끌어내린 신라 최고의 사상가">
+<style>
+  :root{--rose:#C98B8B;--rose-soft:#E8C8C5;--navy:#33406B;--cream:#FBF7F2;--paper:#FFFFFF;--ink:#2E2A28;--muted:#857B74;--line:#EBE0D5;--accent:#B5546A;--gold:#C49A4A;--shadow-sm:0 2px 10px rgba(51,64,107,.06);--shadow:0 6px 22px rgba(51,64,107,.09);}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:var(--cream);color:var(--ink);line-height:1.78;word-break:keep-all;-webkit-font-smoothing:antialiased;}
+  a{color:inherit;}
+  .hero{padding:50px 28px 38px;background:linear-gradient(140deg,var(--navy) 0%, #6a4a6e 100%);color:#fff;text-align:center;}
+  .hero h1{font-size:29px;font-weight:800;line-height:1.3;}
+  .hero .sub{font-size:14.5px;color:var(--rose-soft);margin-top:11px;}
+  .backrow{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:18px;}
+  .back{display:inline-block;color:#fff;font-size:12.5px;text-decoration:none;border:1px solid rgba(255,255,255,.3);border-radius:9px;padding:6px 13px;}
+  .back:hover{background:rgba(255,255,255,.12);}
+  .wrap{max-width:820px;margin:0 auto;padding:32px 22px 90px;}
+  .intro{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px 22px;box-shadow:var(--shadow-sm);font-size:15.5px;margin-bottom:6px;}
+  .intro b{color:var(--accent);}
+  .eph{font-size:14px;letter-spacing:.04em;color:var(--accent);font-weight:800;margin:34px 0 14px;text-transform:uppercase;display:flex;align-items:center;gap:9px;}
+  .eph::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent);}
+  /* ---- 색인 카드 ---- */
+  .people{display:grid;gap:14px;}
+  @media(min-width:640px){.people{grid-template-columns:1fr 1fr;}}
+  .pcard{display:flex;gap:14px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:15px;padding:14px 16px;box-shadow:var(--shadow-sm);text-decoration:none;color:inherit;transition:transform .12s,box-shadow .12s;}
+  .pcard:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
+  .pcard .ph{flex:0 0 62px;width:62px;height:62px;border-radius:12px;object-fit:cover;object-position:top center;background:linear-gradient(135deg,var(--rose),var(--accent));border:1px solid var(--line);}
+  .pcard .pname{font-size:16.5px;font-weight:800;color:var(--navy);}
+  .pcard .pone{font-size:12.5px;color:var(--muted);margin-top:2px;}
+  .pcard .pmeta{font-size:11.5px;color:var(--accent);margin-top:5px;font-weight:700;}
+  .pcard .parrow{margin-left:auto;color:var(--rose);font-size:18px;align-self:center;}
+  .pcard .pinfo{min-width:0;}
+  /* ---- 색인 도구막대(검색·정렬·보기) ---- */
+  .toolbar{position:sticky;top:0;z-index:5;background:var(--cream);padding:12px 0 14px;margin-bottom:6px;border-bottom:1px solid var(--line);}
+  .search{width:100%;font-size:15px;font-family:inherit;border:1.5px solid var(--line);border-radius:12px;padding:12px 15px;background:#fff;color:var(--ink);}
+  .search:focus{outline:none;border-color:var(--accent);}
+  .ctrls{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:10px;}
+  .ctrls .lbl{font-size:12px;color:var(--muted);font-weight:700;}
+  .ctrls select{font-family:inherit;font-size:13px;border:1px solid var(--line);border-radius:9px;padding:7px 10px;background:#fff;color:var(--navy);font-weight:700;}
+  .ctrls .vbtn{font-family:inherit;font-size:13px;font-weight:700;color:var(--navy);background:#fff;border:1px solid var(--line);border-radius:9px;padding:7px 13px;cursor:pointer;}
+  .ctrls .vbtn:hover{border-color:var(--accent);}
+  .rescount{margin-left:auto;font-size:12.5px;color:var(--accent);font-weight:800;}
+  .nohit{grid-column:1/-1;text-align:center;color:var(--muted);font-size:14px;padding:30px 0;}
+  /* ---- 색인 리스트(카드/목록 보기) ---- */
+  .plist{display:grid;gap:14px;}
+  @media(min-width:640px){.plist{grid-template-columns:1fr 1fr;}}
+  .plist .eph{grid-column:1/-1;}
+  .plist.compact{grid-template-columns:1fr;gap:7px;}
+  .plist.compact .eph{margin:18px 0 7px;}
+  .plist.compact .pcard{padding:8px 13px;gap:11px;}
+  .plist.compact .ph{flex-basis:40px;width:40px;height:40px;border-radius:9px;}
+  .plist.compact .pname{font-size:15px;}
+  .plist.compact .pone{display:none;}
+  .plist.compact .pmeta{margin-top:1px;}
+  /* ---- 패싯(지역·시대) 칩 ---- */
+  .facets{margin-top:10px;display:grid;gap:7px;}
+  .fbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+  .fbar .fl{font-size:11px;color:var(--muted);font-weight:800;flex:0 0 34px;letter-spacing:.02em;}
+  .chip{font-family:inherit;font-size:12.5px;font-weight:700;color:var(--navy);background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer;line-height:1.2;}
+  .chip:hover{border-color:var(--accent);}
+  .chip.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .chip .c{opacity:.55;font-weight:600;margin-left:5px;font-size:10.5px;}
+  .chip.on .c{opacity:.85;}
+  /* ---- 상세 ---- */
+  .portrait{text-align:center;margin:4px 0 20px;}
+  .portrait img{max-width:260px;width:60%;border-radius:14px;border:1px solid var(--line);box-shadow:var(--shadow);}
+  .portrait figcaption{font-size:11.5px;color:var(--muted);margin-top:9px;line-height:1.6;}
+  .portrait .note{display:block;color:var(--accent);margin-top:3px;}
+  .panel{background:#fff;border:1px solid var(--line);border-radius:15px;padding:18px 20px;box-shadow:var(--shadow-sm);margin-bottom:14px;}
+  .panel h2{font-size:14px;color:var(--accent);font-weight:800;margin-bottom:12px;letter-spacing:.02em;}
+  .names{display:grid;gap:7px;}
+  .names .row{display:flex;gap:10px;font-size:14.5px;align-items:baseline;}
+  .names .k{flex:0 0 96px;color:var(--muted);font-size:12.5px;font-weight:700;}
+  .names .v{font-weight:600;color:var(--ink);}
+  .names .v.big{font-size:18px;color:var(--navy);font-weight:800;}
+  .meta{font-size:13.5px;color:var(--muted);margin-bottom:14px;text-align:center;}
+  .meta b{color:var(--navy);}
+  .bio p{font-size:15.5px;margin-bottom:11px;}
+  .bio p:last-child{margin-bottom:0;}
+  .tl{list-style:none;border-left:2px solid var(--rose-soft);margin-left:6px;padding-left:16px;}
+  .tl li{position:relative;margin-bottom:12px;font-size:14.5px;}
+  .tl li::before{content:"";position:absolute;left:-22px;top:7px;width:9px;height:9px;border-radius:50%;background:var(--accent);}
+  .tl .yr{font-weight:800;color:var(--navy);margin-right:7px;}
+  .shadow{background:var(--cream);border-radius:11px;padding:13px 15px;font-size:14.5px;}
+  .shadow .lbl{font-weight:800;color:var(--gold);margin-right:6px;}
+  .rel{display:flex;flex-direction:column;gap:9px;}
+  .rel a{display:flex;align-items:center;gap:9px;background:var(--cream);border:1px solid var(--line);border-radius:10px;padding:11px 14px;text-decoration:none;font-size:14.5px;font-weight:700;color:var(--navy);}
+  .rel a:hover{border-color:var(--accent);}
+  .rel .ep{font-size:11px;color:var(--accent);font-weight:800;}
+  .rel .go{margin-left:auto;color:var(--rose);}
+  .links{display:flex;flex-direction:column;gap:9px;}
+  .links a{display:flex;align-items:center;gap:9px;text-decoration:none;font-size:14px;color:var(--navy);border:1px solid var(--line);border-radius:10px;padding:10px 13px;}
+  .links a:hover{border-color:var(--accent);background:#fff;}
+  .lang{flex:0 0 auto;font-size:10.5px;font-weight:800;letter-spacing:.03em;color:#fff;background:var(--navy);border-radius:6px;padding:2px 7px;}
+  .lang.official,.lang.encyclopedia{background:var(--accent);}
+  .links .ext{margin-left:auto;color:var(--muted);font-size:11px;}
+  /* ---- v3 패널 ---- */
+  .qcard{background:linear-gradient(135deg,#fff,#FBF4EC);border:1.5px solid var(--gold);border-radius:15px;padding:15px 18px;box-shadow:var(--shadow-sm);margin-bottom:14px;}
+  .qcard .qera{font-size:12px;color:var(--gold);font-weight:800;letter-spacing:.04em;}
+  .qcard .qkeys{display:flex;gap:7px;flex-wrap:wrap;margin:9px 0;}
+  .qcard .qkeys span{font-size:12.5px;font-weight:700;color:var(--navy);background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px 11px;}
+  .qcard .qq{font-size:14.5px;margin-top:4px;}
+  .qcard .qq b{color:var(--accent);}
+  .whyhere{border-left:4px solid var(--accent);padding:4px 0 4px 14px;font-size:15px;}
+  .quotes{display:grid;gap:12px;}
+  .quote{background:var(--cream);border-radius:11px;padding:13px 16px;}
+  .quote .qt{font-size:15.5px;font-weight:700;color:var(--navy);line-height:1.7;}
+  .quote .qc{font-size:12.5px;color:var(--muted);margin-top:7px;}
+  .ddv{border:1px solid var(--line);border-radius:11px;margin-bottom:9px;background:var(--cream);overflow:hidden;}
+  .ddv summary{cursor:pointer;padding:12px 15px;font-size:14.5px;font-weight:800;color:var(--navy);list-style:none;}
+  .ddv summary::before{content:"\25B8 ";color:var(--accent);}
+  .ddv[open] summary::before{content:"\25BE ";}
+  .ddv .ddb{padding:0 15px 13px;font-size:14.5px;}
+  .ddv .dds{font-size:11.5px;color:var(--muted);margin-top:7px;}
+  .net{display:flex;gap:9px;flex-wrap:wrap;}
+  .net a{display:inline-flex;align-items:center;gap:7px;background:var(--cream);border:1px solid var(--line);border-radius:999px;padding:7px 14px;text-decoration:none;font-size:13.5px;color:var(--navy);font-weight:700;}
+  .net a:hover{border-color:var(--accent);}
+  .net .rel-l{font-size:11px;color:var(--muted);font-weight:400;}
+  .study .sgrp{margin-bottom:12px;}
+  .study .sgh{font-size:12.5px;font-weight:800;color:var(--gold);margin-bottom:6px;}
+  .study ul{list-style:none;display:grid;gap:6px;}
+  .study li{font-size:14px;background:var(--cream);border-radius:9px;padding:9px 13px;}
+  .study li b{color:var(--navy);}
+  .study li .sn{display:block;font-size:12.5px;color:var(--muted);margin-top:2px;}
+  /* ---- v3.1: 시각자료 갤러리 + 경로 지도 ---- */
+  .gal{display:grid;gap:12px;grid-template-columns:1fr 1fr;}
+  @media(max-width:560px){.gal{grid-template-columns:1fr;}}
+  .gal figure{margin:0;background:var(--cream);border:1px solid var(--line);border-radius:12px;padding:10px;}
+  .gal img{width:100%;height:180px;object-fit:contain;display:block;cursor:zoom-in;background:#fff;border-radius:8px;}
+  .gal figcaption{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.6;}
+  .gal figcaption b{color:var(--navy);display:block;font-size:13px;}
+  .lightbox{position:fixed;inset:0;background:rgba(22,19,16,.93);display:none;align-items:center;justify-content:center;z-index:99;padding:16px;cursor:zoom-out;}
+  .lightbox.show{display:flex;}
+  .lightbox img{max-width:96vw;max-height:90vh;border-radius:8px;box-shadow:0 12px 44px rgba(0,0,0,.55);}
+  .lightbox .lb-cap{position:fixed;left:0;right:0;bottom:10px;text-align:center;color:#E8C8C5;font-size:12px;padding:0 22px;}
+  .jmap{height:380px;border-radius:12px;border:1px solid var(--line);}
+  .jintro{font-size:14.5px;margin-bottom:11px;}
+  .jcap{font-size:12px;color:var(--muted);margin-top:9px;}
+  .reflect label{display:block;font-size:14.5px;margin-bottom:9px;}
+  .reflect textarea{width:100%;min-height:96px;border:1px solid var(--line);border-radius:11px;padding:12px 14px;font-family:inherit;font-size:14.5px;line-height:1.7;resize:vertical;background:var(--cream);}
+  .reflect textarea:focus{outline:none;border-color:var(--accent);background:#fff;}
+  .saved{font-size:11.5px;color:var(--gold);font-weight:700;height:14px;margin-top:5px;}
+</style>
+</head>
+<body>
+  <div class="hero">
+    <h1>🪷 원효</h1>
+    <div class="sub">“원효대사·서당화상” · 어려운 불교를 백성의 삶 속으로 끌어내린 신라 최고의 사상가</div>
+    <div class="backrow">
+      <a class="back" href="../index.html">← 인물 도감</a>
+      <a class="back" href="../../index.html">역사 허브</a>
+    </div>
+  </div>
+  <div class="wrap">
+<figure class="portrait"><img src="../img/wonhyo.jpg" alt="원효대사의 전통 진영 — 의자에 앉은 좌상"><figcaption>출처: Wikimedia Commons · 퍼블릭 도메인<span class="note">생전 실물 초상이 아니라 후대에 그려진 전통 진영(초상화)이에요.</span></figcaption></figure>
+<div class="qcard"><div class="qera">⏱️ 10초 카드 · 통일신라 (617~686)</div><div class="qkeys"><span>일심·화쟁</span><span>《대승기신론소》</span><span>정토 — 대중불교</span></div><div class="qq"><b>여는 질문</b> — 깨달음은 깊은 산속에 있을까, 저잣거리 사람들 속에 있을까?</div></div>
+<div class="panel"><h2>이름</h2><div class="names"><div class="row"><span class="k">한국어</span><span class="v big">원효</span></div><div class="row"><span class="k">원어</span><span class="v">元曉 (원효)</span></div><div class="row"><span class="k">실제 발음</span><span class="v">원효</span></div><div class="row"><span class="k">로마자</span><span class="v">Wonhyo</span></div><div class="row"><span class="k">영어권</span><span class="v">Wonhyo</span></div><div class="row"><span class="k">별칭</span><span class="v">원효대사·서당화상</span></div></div></div>
+<div class="meta"><b>신라 (통일신라)</b> · 617~686</div>
+<div class="panel"><h2>왜 이 사람인가</h2><div class="whyhere">한국 불교가 단순히 ‘수입된 종교’가 아니라 ‘독자적 사상’으로 꽃핀 출발점이에요. 원효의 화쟁과 대중불교는 한국 불교의 성격을 결정했고, 그의 벗이자 사상의 짝인 의상과 나란히 볼 때 더 또렷해지죠.</div></div>
+<div class="panel bio"><h2>생애</h2><p>신라 진평왕 때 태어나, 벗 의상과 함께 불교를 더 배우러 당나라 유학길에 올랐어요. 그런데 도중에 잠결에 마신 물이 다음 날 보니 해골에 고인 물이었음을 알고 — ‘모든 것은 마음이 지어낸다(一切唯心造)’는 큰 깨달음을 얻어, 유학을 그만두고 발길을 돌렸다고 전해져요(깨달음의 핵심을 담아 널리 전하는 이야기).</p><p>그는 종파 사이의 다툼을 더 큰 하나로 아우르는 ‘화쟁(和諍)’ 사상을 폈고, 《대승기신론소》 등 수많은 저술로 동아시아 불교 전체에 큰 영향을 줬어요. 동시에 어려운 교리 대신 ‘나무아미타불’만 외우면 누구나 구원받을 수 있다는 정토 신앙을 백성 사이에 퍼뜨려 — 불교를 귀족의 것에서 ‘모두의 것’으로 넓혔죠. 그는 요석공주와의 사이에서 훗날 이두를 정리한 학자 설총을 낳고, 스스로 승복을 벗어 ‘소성거사’로 저잣거리를 누비기도 했어요.</p></div>
+<div class="panel"><h2>남긴 말</h2><div class="quotes"><div class="quote"><div class="qt">“마음이 일어나면 갖가지 현상이 일어나고, 마음이 사라지면 갖가지 현상이 사라진다.”</div><div class="qc">해골물 일화에 담긴 ‘일체유심조(모든 것은 마음이 짓는다)’의 취지 · 출처: 《대승기신론》 구절을 풀이한 원효 사상의 요지 (전승된 일화와 함께)</div></div></div></div>
+<div class="panel"><h2>연표</h2><ul class="tl"><li><span class="yr">617</span>신라에서 출생</li><li><span class="yr">661경</span>의상과 당 유학길 — 깨달음으로 발길을 돌림</li><li><span class="yr">660~680</span>화쟁 사상·수많은 저술 · 정토로 대중 교화</li><li><span class="yr">686</span>입적</li></ul></div>
+<div class="panel"><div class="shadow"><span class="lbl">빛과 그림자</span>‘가장 높은 학문’과 ‘가장 낮은 백성의 신앙’을 한 몸에 품은 인물이에요. 파격적인 삶(파계·환속)으로 당대에 비판도 받았지만, 바로 그 점이 불교를 사람들의 삶 속으로 끌어내렸죠 — 권위와 파격을 함께 봐야 그가 또렷해져요.</div></div>
+<div class="panel"><h2>더 깊이 (고등·일반)</h2><details class="ddv"><summary>해골물 이야기 — ‘모든 것은 마음이 짓는다’</summary><div class="ddb">당으로 가던 길, 밤중에 시원하게 마신 물이 이튿날 보니 해골에 고였던 더러운 물이었어요. 똑같은 물인데 ‘모르고 마실 땐 달고, 알고 나니 구역질이 났다’ — 그렇다면 좋고 나쁨은 바깥 대상이 아니라 ‘내 마음’이 짓는 것이구나, 하는 깨달음이었죠. 진리는 멀리 당나라에 있는 게 아니라 ‘마음’에 있다고 본 원효는 유학을 그만두고 돌아왔어요. 이 ‘일체유심조’는 한국 불교를 대표하는 한마디가 됐어요. (깨달음의 핵심을 전하기 위해 오래 전해 내려온 이야기예요.)<div class="dds">참고: 원효 깨달음 설화 — 전승</div></div></details><details class="ddv"><summary>화쟁(和諍) — 다툼을 더 큰 하나로</summary><div class="ddb">원효의 시대에는 여러 종파와 학설이 ‘내 것이 옳다’며 다퉜어요. 원효는 서로 다른 주장들이 사실은 진리의 다른 면을 본 것일 뿐이라며, 더 높은 자리에서 그것들을 아우르는 ‘화쟁’을 폈죠. 막힌 대립을 트고 하나로 회통(會通)하려 한 이 정신은, 분열을 넘어 ‘큰 하나’를 보려 한 한국 사상의 한 전통이 됐어요.<div class="dds">참고: 원효 화쟁 사상 일반</div></div></details></div>
+<div class="panel"><h2>사람의 그물 — 함께 읽을 인물</h2><div class="net"><a href="../uisang/index.html">의상 <span class="rel-l">당 유학을 함께 떠난 벗이자 사상의 짝</span></a><a href="../jinul/index.html">지눌 <span class="rel-l">한국 불교 사상의 또 다른 봉우리 (고려)</span></a></div></div>
+<div class="panel"><h2>이 인물이 나오는 이야기</h2><div class="rel"><a href="../../religion/korea-buddhism/index.html#thinkers"><span><span class="ep">한국 불교</span><br>원효와 의상 — 신라 불교의 두 봉우리</span><span class="go">→ 이야기로</span></a></div></div>
+<div class="panel study"><h2>더 공부하기 — 여기서 출발하세요</h2><div class="sgrp"><div class="sgh">📜 1차 사료</div><ul><li><b>《대승기신론소》·《금강삼매경론》</b><span class="sn">원효의 대표 저술 — 동아시아 불교가 두루 인용한 명저예요.</span></li></ul></div><div class="sgrp"><div class="sgh">📍 가 볼 곳</div><ul><li><b>경주 분황사</b><span class="sn">원효가 머물며 저술했다고 전하는 절 — 이 페이지의 실물판.</span></li></ul></div></div>
+<div class="panel"><h2>더 알아보기 (공식·신뢰할 수 있는 링크)</h2><div class="links"><a href="https://ko.wikipedia.org/wiki/원효" target="_blank" rel="noopener"><span class="lang wiki">ko</span>위키백과 (한국어)<span class="ext">↗</span></a><a href="https://en.wikipedia.org/wiki/Wonhyo" target="_blank" rel="noopener"><span class="lang wiki">en</span>Wikipedia (English)<span class="ext">↗</span></a></div></div>
+<div class="panel reflect"><h2>이 인물에게 편지</h2><label>원효는 ‘가장 깊은 깨달음’을 ‘가장 쉬운 말’로 백성에게 전했어요. 어려운 것을 쉽게 풀어 함께 나누는 일은 왜 귀할까요?</label><textarea id="rf" placeholder="여기에 네 생각을 적어 보세요. 자동으로 저장돼요."></textarea><div class="saved" id="rfsaved"></div></div>
+  </div>
+  <script>
+  // '편지' 메모 자동 저장(앱 전체의 '빈칸 남기기' 원칙)
+  (function(){var ta=document.getElementById('rf');if(!ta)return;var k='people_reflect_wonhyo';
+   try{ta.value=localStorage.getItem(k)||'';}catch(e){}
+   var tag=document.getElementById('rfsaved'),t;
+   ta.addEventListener('input',function(){try{localStorage.setItem(k,ta.value);}catch(e){}
+     tag.textContent='저장됨 ✓';clearTimeout(t);t=setTimeout(function(){tag.textContent='';},1300);});})();
+  </script>
+</body>
+</html>

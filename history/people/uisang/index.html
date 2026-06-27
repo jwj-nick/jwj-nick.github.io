@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>의상 — 인물 도감</title>
+<meta name="description" content="‘하나가 곧 모두’라는 화엄의 우주를 신라에 심은 큰 스승">
+<style>
+  :root{--rose:#C98B8B;--rose-soft:#E8C8C5;--navy:#33406B;--cream:#FBF7F2;--paper:#FFFFFF;--ink:#2E2A28;--muted:#857B74;--line:#EBE0D5;--accent:#B5546A;--gold:#C49A4A;--shadow-sm:0 2px 10px rgba(51,64,107,.06);--shadow:0 6px 22px rgba(51,64,107,.09);}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:var(--cream);color:var(--ink);line-height:1.78;word-break:keep-all;-webkit-font-smoothing:antialiased;}
+  a{color:inherit;}
+  .hero{padding:50px 28px 38px;background:linear-gradient(140deg,var(--navy) 0%, #6a4a6e 100%);color:#fff;text-align:center;}
+  .hero h1{font-size:29px;font-weight:800;line-height:1.3;}
+  .hero .sub{font-size:14.5px;color:var(--rose-soft);margin-top:11px;}
+  .backrow{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:18px;}
+  .back{display:inline-block;color:#fff;font-size:12.5px;text-decoration:none;border:1px solid rgba(255,255,255,.3);border-radius:9px;padding:6px 13px;}
+  .back:hover{background:rgba(255,255,255,.12);}
+  .wrap{max-width:820px;margin:0 auto;padding:32px 22px 90px;}
+  .intro{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px 22px;box-shadow:var(--shadow-sm);font-size:15.5px;margin-bottom:6px;}
+  .intro b{color:var(--accent);}
+  .eph{font-size:14px;letter-spacing:.04em;color:var(--accent);font-weight:800;margin:34px 0 14px;text-transform:uppercase;display:flex;align-items:center;gap:9px;}
+  .eph::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent);}
+  /* ---- 색인 카드 ---- */
+  .people{display:grid;gap:14px;}
+  @media(min-width:640px){.people{grid-template-columns:1fr 1fr;}}
+  .pcard{display:flex;gap:14px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:15px;padding:14px 16px;box-shadow:var(--shadow-sm);text-decoration:none;color:inherit;transition:transform .12s,box-shadow .12s;}
+  .pcard:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
+  .pcard .ph{flex:0 0 62px;width:62px;height:62px;border-radius:12px;object-fit:cover;object-position:top center;background:linear-gradient(135deg,var(--rose),var(--accent));border:1px solid var(--line);}
+  .pcard .pname{font-size:16.5px;font-weight:800;color:var(--navy);}
+  .pcard .pone{font-size:12.5px;color:var(--muted);margin-top:2px;}
+  .pcard .pmeta{font-size:11.5px;color:var(--accent);margin-top:5px;font-weight:700;}
+  .pcard .parrow{margin-left:auto;color:var(--rose);font-size:18px;align-self:center;}
+  .pcard .pinfo{min-width:0;}
+  /* ---- 색인 도구막대(검색·정렬·보기) ---- */
+  .toolbar{position:sticky;top:0;z-index:5;background:var(--cream);padding:12px 0 14px;margin-bottom:6px;border-bottom:1px solid var(--line);}
+  .search{width:100%;font-size:15px;font-family:inherit;border:1.5px solid var(--line);border-radius:12px;padding:12px 15px;background:#fff;color:var(--ink);}
+  .search:focus{outline:none;border-color:var(--accent);}
+  .ctrls{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:10px;}
+  .ctrls .lbl{font-size:12px;color:var(--muted);font-weight:700;}
+  .ctrls select{font-family:inherit;font-size:13px;border:1px solid var(--line);border-radius:9px;padding:7px 10px;background:#fff;color:var(--navy);font-weight:700;}
+  .ctrls .vbtn{font-family:inherit;font-size:13px;font-weight:700;color:var(--navy);background:#fff;border:1px solid var(--line);border-radius:9px;padding:7px 13px;cursor:pointer;}
+  .ctrls .vbtn:hover{border-color:var(--accent);}
+  .rescount{margin-left:auto;font-size:12.5px;color:var(--accent);font-weight:800;}
+  .nohit{grid-column:1/-1;text-align:center;color:var(--muted);font-size:14px;padding:30px 0;}
+  /* ---- 색인 리스트(카드/목록 보기) ---- */
+  .plist{display:grid;gap:14px;}
+  @media(min-width:640px){.plist{grid-template-columns:1fr 1fr;}}
+  .plist .eph{grid-column:1/-1;}
+  .plist.compact{grid-template-columns:1fr;gap:7px;}
+  .plist.compact .eph{margin:18px 0 7px;}
+  .plist.compact .pcard{padding:8px 13px;gap:11px;}
+  .plist.compact .ph{flex-basis:40px;width:40px;height:40px;border-radius:9px;}
+  .plist.compact .pname{font-size:15px;}
+  .plist.compact .pone{display:none;}
+  .plist.compact .pmeta{margin-top:1px;}
+  /* ---- 패싯(지역·시대) 칩 ---- */
+  .facets{margin-top:10px;display:grid;gap:7px;}
+  .fbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+  .fbar .fl{font-size:11px;color:var(--muted);font-weight:800;flex:0 0 34px;letter-spacing:.02em;}
+  .chip{font-family:inherit;font-size:12.5px;font-weight:700;color:var(--navy);background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer;line-height:1.2;}
+  .chip:hover{border-color:var(--accent);}
+  .chip.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .chip .c{opacity:.55;font-weight:600;margin-left:5px;font-size:10.5px;}
+  .chip.on .c{opacity:.85;}
+  /* ---- 상세 ---- */
+  .portrait{text-align:center;margin:4px 0 20px;}
+  .portrait img{max-width:260px;width:60%;border-radius:14px;border:1px solid var(--line);box-shadow:var(--shadow);}
+  .portrait figcaption{font-size:11.5px;color:var(--muted);margin-top:9px;line-height:1.6;}
+  .portrait .note{display:block;color:var(--accent);margin-top:3px;}
+  .panel{background:#fff;border:1px solid var(--line);border-radius:15px;padding:18px 20px;box-shadow:var(--shadow-sm);margin-bottom:14px;}
+  .panel h2{font-size:14px;color:var(--accent);font-weight:800;margin-bottom:12px;letter-spacing:.02em;}
+  .names{display:grid;gap:7px;}
+  .names .row{display:flex;gap:10px;font-size:14.5px;align-items:baseline;}
+  .names .k{flex:0 0 96px;color:var(--muted);font-size:12.5px;font-weight:700;}
+  .names .v{font-weight:600;color:var(--ink);}
+  .names .v.big{font-size:18px;color:var(--navy);font-weight:800;}
+  .meta{font-size:13.5px;color:var(--muted);margin-bottom:14px;text-align:center;}
+  .meta b{color:var(--navy);}
+  .bio p{font-size:15.5px;margin-bottom:11px;}
+  .bio p:last-child{margin-bottom:0;}
+  .tl{list-style:none;border-left:2px solid var(--rose-soft);margin-left:6px;padding-left:16px;}
+  .tl li{position:relative;margin-bottom:12px;font-size:14.5px;}
+  .tl li::before{content:"";position:absolute;left:-22px;top:7px;width:9px;height:9px;border-radius:50%;background:var(--accent);}
+  .tl .yr{font-weight:800;color:var(--navy);margin-right:7px;}
+  .shadow{background:var(--cream);border-radius:11px;padding:13px 15px;font-size:14.5px;}
+  .shadow .lbl{font-weight:800;color:var(--gold);margin-right:6px;}
+  .rel{display:flex;flex-direction:column;gap:9px;}
+  .rel a{display:flex;align-items:center;gap:9px;background:var(--cream);border:1px solid var(--line);border-radius:10px;padding:11px 14px;text-decoration:none;font-size:14.5px;font-weight:700;color:var(--navy);}
+  .rel a:hover{border-color:var(--accent);}
+  .rel .ep{font-size:11px;color:var(--accent);font-weight:800;}
+  .rel .go{margin-left:auto;color:var(--rose);}
+  .links{display:flex;flex-direction:column;gap:9px;}
+  .links a{display:flex;align-items:center;gap:9px;text-decoration:none;font-size:14px;color:var(--navy);border:1px solid var(--line);border-radius:10px;padding:10px 13px;}
+  .links a:hover{border-color:var(--accent);background:#fff;}
+  .lang{flex:0 0 auto;font-size:10.5px;font-weight:800;letter-spacing:.03em;color:#fff;background:var(--navy);border-radius:6px;padding:2px 7px;}
+  .lang.official,.lang.encyclopedia{background:var(--accent);}
+  .links .ext{margin-left:auto;color:var(--muted);font-size:11px;}
+  /* ---- v3 패널 ---- */
+  .qcard{background:linear-gradient(135deg,#fff,#FBF4EC);border:1.5px solid var(--gold);border-radius:15px;padding:15px 18px;box-shadow:var(--shadow-sm);margin-bottom:14px;}
+  .qcard .qera{font-size:12px;color:var(--gold);font-weight:800;letter-spacing:.04em;}
+  .qcard .qkeys{display:flex;gap:7px;flex-wrap:wrap;margin:9px 0;}
+  .qcard .qkeys span{font-size:12.5px;font-weight:700;color:var(--navy);background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px 11px;}
+  .qcard .qq{font-size:14.5px;margin-top:4px;}
+  .qcard .qq b{color:var(--accent);}
+  .whyhere{border-left:4px solid var(--accent);padding:4px 0 4px 14px;font-size:15px;}
+  .quotes{display:grid;gap:12px;}
+  .quote{background:var(--cream);border-radius:11px;padding:13px 16px;}
+  .quote .qt{font-size:15.5px;font-weight:700;color:var(--navy);line-height:1.7;}
+  .quote .qc{font-size:12.5px;color:var(--muted);margin-top:7px;}
+  .ddv{border:1px solid var(--line);border-radius:11px;margin-bottom:9px;background:var(--cream);overflow:hidden;}
+  .ddv summary{cursor:pointer;padding:12px 15px;font-size:14.5px;font-weight:800;color:var(--navy);list-style:none;}
+  .ddv summary::before{content:"\25B8 ";color:var(--accent);}
+  .ddv[open] summary::before{content:"\25BE ";}
+  .ddv .ddb{padding:0 15px 13px;font-size:14.5px;}
+  .ddv .dds{font-size:11.5px;color:var(--muted);margin-top:7px;}
+  .net{display:flex;gap:9px;flex-wrap:wrap;}
+  .net a{display:inline-flex;align-items:center;gap:7px;background:var(--cream);border:1px solid var(--line);border-radius:999px;padding:7px 14px;text-decoration:none;font-size:13.5px;color:var(--navy);font-weight:700;}
+  .net a:hover{border-color:var(--accent);}
+  .net .rel-l{font-size:11px;color:var(--muted);font-weight:400;}
+  .study .sgrp{margin-bottom:12px;}
+  .study .sgh{font-size:12.5px;font-weight:800;color:var(--gold);margin-bottom:6px;}
+  .study ul{list-style:none;display:grid;gap:6px;}
+  .study li{font-size:14px;background:var(--cream);border-radius:9px;padding:9px 13px;}
+  .study li b{color:var(--navy);}
+  .study li .sn{display:block;font-size:12.5px;color:var(--muted);margin-top:2px;}
+  /* ---- v3.1: 시각자료 갤러리 + 경로 지도 ---- */
+  .gal{display:grid;gap:12px;grid-template-columns:1fr 1fr;}
+  @media(max-width:560px){.gal{grid-template-columns:1fr;}}
+  .gal figure{margin:0;background:var(--cream);border:1px solid var(--line);border-radius:12px;padding:10px;}
+  .gal img{width:100%;height:180px;object-fit:contain;display:block;cursor:zoom-in;background:#fff;border-radius:8px;}
+  .gal figcaption{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.6;}
+  .gal figcaption b{color:var(--navy);display:block;font-size:13px;}
+  .lightbox{position:fixed;inset:0;background:rgba(22,19,16,.93);display:none;align-items:center;justify-content:center;z-index:99;padding:16px;cursor:zoom-out;}
+  .lightbox.show{display:flex;}
+  .lightbox img{max-width:96vw;max-height:90vh;border-radius:8px;box-shadow:0 12px 44px rgba(0,0,0,.55);}
+  .lightbox .lb-cap{position:fixed;left:0;right:0;bottom:10px;text-align:center;color:#E8C8C5;font-size:12px;padding:0 22px;}
+  .jmap{height:380px;border-radius:12px;border:1px solid var(--line);}
+  .jintro{font-size:14.5px;margin-bottom:11px;}
+  .jcap{font-size:12px;color:var(--muted);margin-top:9px;}
+  .reflect label{display:block;font-size:14.5px;margin-bottom:9px;}
+  .reflect textarea{width:100%;min-height:96px;border:1px solid var(--line);border-radius:11px;padding:12px 14px;font-family:inherit;font-size:14.5px;line-height:1.7;resize:vertical;background:var(--cream);}
+  .reflect textarea:focus{outline:none;border-color:var(--accent);background:#fff;}
+  .saved{font-size:11.5px;color:var(--gold);font-weight:700;height:14px;margin-top:5px;}
+</style>
+</head>
+<body>
+  <div class="hero">
+    <h1>🏔️ 의상</h1>
+    <div class="sub">“의상대사·부석존자” · ‘하나가 곧 모두’라는 화엄의 우주를 신라에 심은 큰 스승</div>
+    <div class="backrow">
+      <a class="back" href="../index.html">← 인물 도감</a>
+      <a class="back" href="../../index.html">역사 허브</a>
+    </div>
+  </div>
+  <div class="wrap">
+<figure class="portrait"><img src="../img/uisang.jpg" alt="의상대사의 전통 진영 — 주장자를 든 좌상"><figcaption>출처: Wikimedia Commons · 퍼블릭 도메인<span class="note">후대에 전하는 전통 진영이에요(저해상이지만 옛 진영 계열).</span></figcaption></figure>
+<div class="qcard"><div class="qera">⏱️ 10초 카드 · 통일신라 (625~702)</div><div class="qkeys"><span>화엄종</span><span>《화엄일승법계도》</span><span>부석사</span></div><div class="qq"><b>여는 질문</b> — ‘하나’와 ‘전체’는 어떻게 서로를 품을 수 있을까?</div></div>
+<div class="panel"><h2>이름</h2><div class="names"><div class="row"><span class="k">한국어</span><span class="v big">의상</span></div><div class="row"><span class="k">원어</span><span class="v">義湘 (의상)</span></div><div class="row"><span class="k">실제 발음</span><span class="v">의상</span></div><div class="row"><span class="k">로마자</span><span class="v">Uisang</span></div><div class="row"><span class="k">영어권</span><span class="v">Uisang</span></div><div class="row"><span class="k">별칭</span><span class="v">의상대사·부석존자</span></div></div></div>
+<div class="meta"><b>신라 (통일신라)</b> · 625~702</div>
+<div class="panel"><h2>왜 이 사람인가</h2><div class="whyhere">신라에 화엄 사상을 뿌리내려 한국 불교의 거대한 한 줄기를 연 인물이에요. 같은 길을 떠났다가 다른 답에 이른 벗 원효와 나란히 보면, 한국 불교가 품은 ‘대중’과 ‘체계’ 두 얼굴이 또렷해지죠.</div></div>
+<div class="panel bio"><h2>생애</h2><p>원효와 함께 당나라 유학길에 올랐고, 원효는 도중에 돌아갔지만 의상은 끝내 당에 건너가 화엄학의 대가 지엄에게 배웠어요. 그는 방대한 화엄 사상의 핵심을 단 210자(7언 30구)의 시 《화엄일승법계도》에 압축해 — ‘하나가 곧 모두요 모두가 곧 하나(一卽一切 多卽一)’라는 장대한 우주관을 표현했죠.</p><p>귀국한 의상은 부석사를 비롯한 화엄 사찰들을 세우고 수많은 제자를 길러 신라 화엄종을 열었어요. 왕의 두터운 신임을 받으면서도 토지와 노비의 보시를 사양하고 검소하게 살았다고 전해지죠. 당에서 그를 사모한 선묘 낭자가 용이 되어 절터를 누르던 바위를 들어 올려(浮石, 뜬 돌) 부석사 창건을 도왔다는 아름다운 설화도 함께 전해 내려와요.</p></div>
+<div class="panel"><h2>남긴 말</h2><div class="quotes"><div class="quote"><div class="qt">“하나 안에 모두가 있고 모두 안에 하나가 있으니, 하나가 곧 모두요 모두가 곧 하나다.”</div><div class="qc">화엄 사상의 핵심을 압축한 《화엄일승법계도》의 취지 · 출처: 의상 《화엄일승법계도》 (一中一切多中一 一卽一切多卽一)의 풀이</div></div></div></div>
+<div class="panel"><h2>연표</h2><ul class="tl"><li><span class="yr">625</span>신라에서 출생</li><li><span class="yr">661</span>당 유학 — 지엄에게 화엄을 배움</li><li><span class="yr">671</span>귀국 — 화엄 사상을 전함</li><li><span class="yr">676</span>부석사 창건</li><li><span class="yr">702</span>입적</li></ul></div>
+<div class="panel"><div class="shadow"><span class="lbl">빛과 그림자</span>원효가 ‘파격과 대중’이라면 의상은 ‘체계와 교단’이에요. 화려한 형이상학은 자칫 백성의 삶과 멀어질 수 있지만, 그는 검소한 삶과 제자 양성으로 그 간극을 메우려 했죠 — 두 벗을 함께 봐야 신라 불교가 입체적으로 보여요.</div></div>
+<div class="panel"><h2>더 깊이 (고등·일반)</h2><details class="ddv"><summary>210자에 담은 우주 — 《화엄일승법계도》</summary><div class="ddb">의상은 스승에게 배운 방대한 화엄 사상을, 단 210자의 글자를 도장처럼 네모지게 돌려 배열한 한 편의 시(法界圖)로 압축했어요. ‘하나와 전체가 서로를 막힘없이 품는다’는 화엄의 세계관을 — 길게 설명하는 대신 한 폭의 그림 같은 시로 보여 준 거죠. 짧지만 깊은 이 글은 지금도 한국 불교에서 외고 새겨요.<div class="dds">참고: 의상 화엄 사상 일반</div></div></details><details class="ddv"><summary>부석사와 선묘 설화 — 사랑이 받친 절</summary><div class="ddb">의상이 당에서 공부할 때 그를 사모한 여인 선묘가, 끝내 마음을 거둔 의상이 신라로 떠나자 바다에 몸을 던져 용이 되었고 — 훗날 의상이 절을 세우려는 터에 도적들이 막아서자 그 용이 거대한 바위를 공중에 들어 올려 물리쳤다고 해요. 그래서 절 이름이 ‘뜬 돌’ 부석사(浮石寺)예요. 사실 그대로의 기록이라기보다, 절의 창건과 의상의 덕을 기리려 전해 내려온 아름다운 설화죠.<div class="dds">참고: 부석사 창건 설화 — 전승</div></div></details></div>
+<div class="panel"><h2>사람의 그물 — 함께 읽을 인물</h2><div class="net"><a href="../wonhyo/index.html">원효 <span class="rel-l">당 유학을 함께 떠난 벗이자 사상의 짝</span></a></div></div>
+<div class="panel"><h2>이 인물이 나오는 이야기</h2><div class="rel"><a href="../../religion/korea-buddhism/index.html#thinkers"><span><span class="ep">한국 불교</span><br>원효와 의상 — 신라 불교의 두 봉우리</span><span class="go">→ 이야기로</span></a></div></div>
+<div class="panel study"><h2>더 공부하기 — 여기서 출발하세요</h2><div class="sgrp"><div class="sgh">📜 1차 사료</div><ul><li><b>《화엄일승법계도(華嚴一乘法界圖)》</b><span class="sn">210자에 화엄의 우주를 담은 의상의 대표작.</span></li></ul></div><div class="sgrp"><div class="sgh">📍 가 볼 곳</div><ul><li><b>영주 부석사</b><span class="sn">의상이 세운 화엄 종찰 — 무량수전(국보)으로도 유명해요.</span></li></ul></div></div>
+<div class="panel"><h2>더 알아보기 (공식·신뢰할 수 있는 링크)</h2><div class="links"><a href="https://ko.wikipedia.org/wiki/의상_(신라)" target="_blank" rel="noopener"><span class="lang wiki">ko</span>위키백과 (한국어)<span class="ext">↗</span></a><a href="https://en.wikipedia.org/wiki/Uisang" target="_blank" rel="noopener"><span class="lang wiki">en</span>Wikipedia (English)<span class="ext">↗</span></a></div></div>
+<div class="panel reflect"><h2>이 인물에게 편지</h2><label>의상은 ‘하나 속에 모두가, 모두 속에 하나가 있다’고 했어요. 나와 세상이 그렇게 이어져 있다면, 나의 작은 행동 하나는 어디까지 닿을까요?</label><textarea id="rf" placeholder="여기에 네 생각을 적어 보세요. 자동으로 저장돼요."></textarea><div class="saved" id="rfsaved"></div></div>
+  </div>
+  <script>
+  // '편지' 메모 자동 저장(앱 전체의 '빈칸 남기기' 원칙)
+  (function(){var ta=document.getElementById('rf');if(!ta)return;var k='people_reflect_uisang';
+   try{ta.value=localStorage.getItem(k)||'';}catch(e){}
+   var tag=document.getElementById('rfsaved'),t;
+   ta.addEventListener('input',function(){try{localStorage.setItem(k,ta.value);}catch(e){}
+     tag.textContent='저장됨 ✓';clearTimeout(t);t=setTimeout(function(){tag.textContent='';},1300);});})();
+  </script>
+</body>
+</html>
