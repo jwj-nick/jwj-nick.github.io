@@ -68,6 +68,33 @@ L4의 바를 "읽었다"가 아니라 **"이 블록을 모델·RTL·검증으로
 - 원칙 SR로 핵심 수식·trade-off 재등장
 - "가르칠 수 있나" 체크포인트가 진짜 깊이의 게이트
 
+### 5-6. ★ 우선 깊이 도메인 — CXL深 · Chiplet深 (플레이어 연결)
+
+> Nick 선택: CXL·Chiplet 먼저. **공통 바닥 = SerDes/SI**(D2D PHY·CXL PHY 둘 다 그 위) → 같이 깊어짐. 각 도메인을 *기술 깊이 + 누가 어떻게 만드나*로.
+
+**CXL深 — 기술 사다리**
+PCIe PHY/link → **CXL.io/.cache/.mem** → 디바이스 **Type 1/2/3** → coherence(2.0 bias / 3.0 back-invalidate) → 버전(1.1 직접→**2.0 스위칭·메모리 풀링**→**3.x fabric·메모리 sharing**) → latency 계층(왜 tiered memory) → 컨트롤러/스위치 마이크로아키.
+*핸즈온(Nick):* CXL 컨트롤러 link/transaction 레이어 **모델·RTL**, latency·풀링 시나리오 모델.
+
+**CXL 플레이어 연결**
+- 스타트업: **Astera Labs**(Leo CXL 메모리컨트롤러·Aries 리타이머) · **Montage**(MXC) · **Panmnesia**(CXL fabric·스위치, 한국 🇰🇷) · **MemVerge**(메모리 티어링 SW)
+- **Marvell**: **Structera**(CXL near-memory/expander) · **Broadcom**: CXL/PCIe 스위치(Atlas) · **NVIDIA**: CXL보다 **NVLink 선호**(스케일업 독자) ← 구도 핵심
+- 호스트/메모리: Intel(CXL 원조)·AMD · 삼성·SK하이닉스·Micron(CMM 모듈)
+
+**Chiplet深 — 기술 사다리**
+왜 chiplet(yield·cost·이종집적·reticle 한계) → **D2D 인터페이스: UCIe vs 독자** → UCIe(adv/std package, bump pitch, **FDI/RDI 어댑터**, protocol layer) → 패키징(**2.5D** CoWoS·EMIB / **fan-out** InFO / **3D** SoIC·Foveros·hybrid bonding) → 설계 과제(링크 버짓·SI·전력·열·**KGD**·분할 전략) → D2D PHY 마이크로아키.
+*핸즈온(Nick):* D2D 링크·PHY/adapter **모델·RTL**, 분할 trade-off, 링크 버짓 계산.
+
+**Chiplet 플레이어 연결**
+- **AMD**(Zen+IO die·MI300 3D) · **Intel**(EMIB·Foveros·Ponte Vecchio, UCIe 주도) · **NVIDIA**(Blackwell 2-die **NV-HBI 10TB/s** · Grace-Hopper **NVLink-C2C** · **NVLink Fusion**으로 커스텀에 개방)
+- **Marvell**: 커스텀 실리콘·chiplet 플랫폼 + **톱티어 SerDes** · **Broadcom**: 하이퍼스케일러 커스텀 XPU·**3.5D 패키징(XDSiP)**
+- 인에이블러: **TSMC**(CoWoS·InFO·SoIC·3DFabric) / IP: Synopsys·Cadence(UCIe PHY)·Alchip·GUC·Alphawave
+- 스타트업: **Eliyan**(NuLink — 인터포저 없이 유기기판 D2D) · **Baya Systems**(chiplet NoC) · **Ayar Labs**(광 chiplet I/O)
+
+**핵심 인사이트 (업계 상식의 정수) ★**
+- **개방 표준(UCIe·CXL) vs 독자(NVIDIA NVLink)** 전쟁: NVIDIA는 스케일업 독자로 해자, **Marvell·Broadcom·스타트업은 하이퍼스케일러 커스텀 실리콘을 개방 표준으로 무장**시켜 대항. → 누가 이 구도에서 이기나 = **J↔K(투자) 직결.**
+- 두 도메인 모두 **SerDes/SI 깊이가 바닥** — 거기를 파면 CXL·Chiplet·광까지 전이.
+
 ---
 
 ## 6. 창의적 확장 (내 제안)
