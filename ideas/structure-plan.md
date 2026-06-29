@@ -28,9 +28,12 @@ C:\idea\                     ★ 그대로 유지 — 계획·아이디어 대�
 C:\Nick\                     내 스터디·업무·기존 자산 (각 랩이 흡수/참조)
 └── 10_Study\ 20_UVM_Study\ 25_VideoCodec\ 27_PQO\ 30_Apps\ 70_Invest\ 90_Archive\ …
 
-C:\Kids\                     아이 허브 (사적, 아이 소유 — 같은 워크스페이스 패턴)
-├── 00_LearningSystem\       (생성 엔진)
-├── son-hub\                 ★ E (아들)
+C:\Kids\                     아이 허브 (사적, 아이 소유) — ⚠️ 이미 존재하는 brownfield (git X)
+├── 00_LearningSystem\       (생성 엔진 — 기존, 재사용. PATTERNS·PRINCIPLES·앱)
+├── 70_HighSchool\ 02_App_Eng\ 75_Football\ 01_App_StudyDiary\
+│   10_EBS_utilization\ math-story-telling\ 80_Activity\   (기존 아들 자산 → 재해석 흡수)
+├── 31_SeEunCareer\ 30_MiddleSchool\         (기존 딸 자산 → fork 단계 reconcile)
+├── son-hub\                 ★ E (아들) — 2026-06-29 빈 스캐폴드 생성됨
 └── daughter-hub\            ★ F (son-hub fork, 나중)
 ```
 > 확정: **C:\idea 유지** · 랩은 **C:\01_Labs\ 서브디렉토리**에서 실제 작업 · 기존 C:\Nick 자산은 각 랩이 흡수. (아이 허브는 별 생태계라 C:\Kids 유지.)
@@ -93,7 +96,7 @@ C:\Kids\                     아이 허브 (사적, 아이 소유 — 같은 워
 | 반도체(J) | C:\01_Labs\semi-lab | semi-lab | — |
 | AI Build(B) | C:\01_Labs\ai-build-lab | ai-build-lab | 30_HW_Study\microgpt-hw |
 | 투자(K) | C:\01_Labs\invest-hub | invest-hub | 70_Invest·invest_companies·ParkJongHoon(재해석)·history/finance |
-| 아들(E) | C:\Kids\son-hub | son-hub(아들 계정) | high1·02_App_Eng·축구·역사(재해석) |
+| 아들(E) | C:\Kids\son-hub | son-hub(아들 계정) | 70_HighSchool·02_App_Eng·75_Football·01_App_StudyDiary·00_LearningSystem(재사용)·math-story-telling 등 (재해석, brownfield 감사 후) |
 | 딸(F) | C:\Kids\daughter-hub | daughter-hub(딸 계정) | son-hub fork |
 | 대시보드 | C:\idea (유지) | jwj-nick.github.io/ideas | — |
 
@@ -120,6 +123,10 @@ C:\Kids\                     아이 허브 (사적, 아이 소유 — 같은 워
 - 랩 작업 = **C:\01_Labs\ 서브디렉토리**
 - **hub별 1 repo** (app + 콘텐츠 md 한 공간)
 - **초기 전부 private** → 나중 선별 공개
+
+**✓ 부트스트랩 스캐폴드 생성됨 (2026-06-29):**
+- `C:\01_Labs\` 컨테이너 + **6 hub**(hub-template·nvdla·codec·semi·ai-build·invest) 표준 골격 + 부트 포인터 `CLAUDE.md`(→ `C:\idea\migration\<hub>.md`) + README·manifest·`.claude/skills`. (실제 스킬·app·git·Supabase = 전용 세션)
+- `C:\Kids\son-hub` 빈 스캐폴드. ⚠️ **C:\Kids는 brownfield**(기존 LearningSystem·앱·딸 자산) — son-hub는 **Phase 0 감사 후** 재해석 흡수. 마이그레이션 가이드 = `C:\idea\migration\` (인덱스 `_INDEX.md`, 공통 `_COMMON.md`).
 
 **남은 결정:**
 - **플랫폼 스킬: 글로벌 단일소스 vs 인스턴스 복제?** (★제안: 글로벌 단일 + 도메인만 로컬 — 동기화 부담↓)
