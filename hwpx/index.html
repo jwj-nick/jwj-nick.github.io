@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HWPX Tool — 한글 문서 뷰어</title>
+<meta name="theme-color" content="#2563eb">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="HWPX Tool">
+<meta name="mobile-web-app-capable" content="yes">
+<style>
+  :root {
+    --bg: #f6f7f9; --panel: #ffffff; --ink: #1a1f27; --muted: #667085;
+    --line: #e4e7ec; --accent: #2563eb; --accent-soft: #eff4ff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #101418; --panel: #171c22; --ink: #e6e9ee; --muted: #8b94a3;
+      --line: #2a313b; --accent: #6ea8ff; --accent-soft: #1a2334;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.6 system-ui, 'Segoe UI', 'Malgun Gothic', sans-serif;
+  }
+  header {
+    padding: 14px 20px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: baseline; gap: 10px;
+  }
+  header h1 { margin: 0; font-size: 17px; }
+  header span { color: var(--muted); font-size: 13px; }
+  main { max-width: 880px; margin: 0 auto; padding: 20px; }
+  #drop {
+    border: 2px dashed var(--line); border-radius: 12px; padding: 40px 20px;
+    text-align: center; color: var(--muted); background: var(--panel);
+    cursor: pointer; transition: border-color .15s, background .15s;
+  }
+  #drop.over { border-color: var(--accent); background: var(--accent-soft); }
+  #drop strong { color: var(--ink); }
+  #error {
+    display: none; margin-top: 14px; padding: 12px 14px; border-radius: 8px;
+    background: #fee2e2; color: #991b1b; white-space: pre-wrap;
+  }
+  section.card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    padding: 18px 20px; margin-top: 16px;
+  }
+  section.card h2 { margin: 0 0 10px; font-size: 13px; letter-spacing: .04em;
+    text-transform: uppercase; color: var(--muted); }
+  #doc-title { font-size: 20px; font-weight: 700; margin: 0 0 4px; }
+  dl { display: grid; grid-template-columns: max-content 1fr; gap: 2px 16px; margin: 0; font-size: 13px; }
+  dt { color: var(--muted); }
+  dd { margin: 0; overflow-wrap: anywhere; }
+  #paragraphs p { margin: 0 0 .35em; white-space: pre-wrap; overflow-wrap: anywhere; }
+  #paragraphs p:empty { min-height: 1em; }
+  #preview-img { max-width: 100%; border: 1px solid var(--line); border-radius: 8px; }
+  #bindata { display: flex; flex-wrap: wrap; gap: 10px; }
+  #bindata figure { margin: 0; font-size: 12px; color: var(--muted); text-align: center; }
+  #bindata img { max-height: 110px; max-width: 160px; display: block;
+    border: 1px solid var(--line); border-radius: 6px; margin-bottom: 4px; }
+  #modebar { margin-top: 16px; display: flex; gap: 8px; }
+  #modebar button {
+    padding: 6px 14px; border: 1px solid var(--line); border-radius: 8px;
+    background: var(--panel); color: var(--muted); font: inherit; font-size: 13px;
+    cursor: pointer;
+  }
+  #modebar button.active { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+  #styled-view { margin-top: 4px; overflow-x: auto; }
+  #edit-toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  #edit-toolbar button {
+    padding: 7px 14px; border: 1px solid var(--line); border-radius: 8px;
+    background: var(--panel); color: var(--ink); font: inherit; font-size: 14px; cursor: pointer;
+  }
+  #edit-toolbar #save-btn { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+  #edit-toolbar #save-btn.attention { background: var(--accent); color: #fff; }
+  #styled-view.editing p[data-hxp] { cursor: text; border-radius: 3px; }
+  #styled-view.editing p[data-hxp]:hover { outline: 1px dashed #7aa7e8; }
+  #styled-view.editing p[data-hxp]:focus {
+    outline: 2px solid #2563eb; outline-offset: 1px; background: rgba(37,99,235,.06);
+  }
+  #styled-view.editing p[data-hxp]:empty::before { content: "✎"; color: #b6bcc7; font-size: 11px; }
+  kbd {
+    font-size: 11.5px; border: 1px solid var(--line); border-bottom-width: 2px;
+    border-radius: 4px; padding: 0 5px; background: var(--bg);
+  }
+  #edit-form { display: flex; gap: 8px; flex-wrap: wrap; }
+  #edit-form input {
+    flex: 1 1 180px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px;
+    background: var(--bg); color: var(--ink); font: inherit; font-size: 14px;
+  }
+  #edit-form button {
+    padding: 7px 14px; border: 1px solid var(--accent); border-radius: 8px;
+    background: var(--accent-soft); color: var(--accent); font: inherit; font-size: 14px; cursor: pointer;
+  }
+  #edit-status { margin: 10px 0 0; font-size: 13px; }
+  .edit-note { margin: 6px 0 0; font-size: 12px; color: var(--muted); }
+  .hidden { display: none !important; }
+  #styled-view.fit .hwpx-page { margin-left: 0; margin-right: 0; }
+  @media print {
+    header, footer, #drop, #error, #modebar, #card-meta, #card-text { display: none !important; }
+    body { background: #fff; }
+    main { max-width: none; padding: 0; }
+    #styled-view { overflow: visible; }
+    #styled-view.fit .hwpx-page { zoom: 1 !important; }
+    .hwpx-page { box-shadow: none !important; margin: 0 !important; }
+  }
+  /* --- mobile / touch --- */
+  @media (max-width: 640px) {
+    header { padding: 12px 16px; }
+    main { padding: 14px 12px 64px; }
+    #drop { padding: 30px 16px; }
+    #modebar { position: sticky; top: 0; z-index: 5; background: var(--bg);
+      padding: 8px 0; margin: 0 0 4px; }
+    #modebar button, #edit-toolbar button, #edit-form button {
+      padding: 9px 12px; font-size: 14px; min-height: 40px;
+    }
+    #modebar #print-btn { margin-left: 0; }
+    #edit-form input { min-height: 40px; font-size: 16px; } /* 16px stops iOS zoom-on-focus */
+  }
+  footer { text-align: center; color: var(--muted); font-size: 12px; padding: 24px 0 32px; }
+</style>
+</head>
+<body>
+<header><h1>HWPX Tool</h1><span>한글 문서 뷰어·에디터 — 광고 없음</span></header>
+<main>
+  <div id="drop" tabindex="0">
+    <strong>.hwpx 파일 열기</strong> — 탭하여 선택하거나 여기로 드래그<br>
+    <span style="font-size:12px">파일은 기기 밖으로 나가지 않습니다 (전부 로컬 처리)</span>
+    <input type="file" id="file-input" accept=".hwpx,application/hwp+zip" hidden>
+  </div>
+  <div id="error"></div>
+
+  <section class="card hidden" id="card-meta">
+    <p id="doc-title"></p>
+    <dl id="meta"></dl>
+  </section>
+
+  <div id="modebar" class="hidden">
+    <button id="mode-styled" class="active">서식 보기</button>
+    <button id="mode-text">텍스트만</button>
+    <button id="mode-edit">찾기·바꾸기</button>
+    <button id="fit-btn" title="문서를 화면 폭에 맞춰 축소" aria-pressed="false">화면 맞춤</button>
+    <button id="print-btn" style="margin-left:auto">인쇄 / PDF 저장</button>
+  </div>
+
+  <section class="card hidden" id="card-edit">
+    <h2>편집 모드</h2>
+    <p class="edit-note" style="margin:0 0 12px">
+      아래 문서에서 <strong>고치고 싶은 문단·표 칸을 바로 클릭해서 타이핑</strong>하세요 (빈칸 포함).
+      Enter = 줄바꿈, 칸 밖 클릭 = 반영. <kbd>Ctrl+Z</kbd> 실행취소 · <kbd>Ctrl+S</kbd> 저장.</p>
+    <div id="edit-toolbar">
+      <button id="save-btn">💾 수정본 저장 (.hwpx)</button>
+      <button id="undo-btn">↶ 실행취소</button>
+      <button id="redo-btn">↷ 다시실행</button>
+    </div>
+    <div id="edit-form">
+      <input id="edit-search" type="text" placeholder="찾을 텍스트">
+      <input id="edit-replace" type="text" placeholder="바꿀 텍스트">
+      <button id="edit-apply">모두 바꾸기</button>
+    </div>
+    <p id="edit-status"></p>
+    <p class="edit-note">저장하면 새 .hwpx 파일로 다운로드됩니다 — <strong>원본 파일은 절대 바뀌지 않습니다.</strong>
+      수정된 문단의 줄배치 캐시는 규격에 맞게 제거되고 한글이 다시 계산합니다.</p>
+  </section>
+
+  <div id="styled-view" class="hidden"></div>
+
+  <section class="card hidden" id="card-text">
+    <h2>본문 텍스트</h2>
+    <div id="paragraphs"></div>
+  </section>
+</main>
+<footer>hwpx-tool · 제로 의존성 · 광고 없음</footer>
+<!-- desktop(Neutralino) 전용: NL_* 전역 주입. 웹 모드에선 404 → 무해 -->
+<script type="module" src="./viewer.js"></script>
+</body>
+</html>
