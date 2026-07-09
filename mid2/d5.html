@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>단원 5 · 심화 탐구 · 일차함수 실험실 · 중2-1</title>
+<link rel="stylesheet" href="concept.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중2-1</a><span class="dot"></span><a href="u5.html">단원 5</a><span class="dot"></span><span>심화 탐구</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+  <h1>기울기와 절편, 손으로 만져보는 실험실</h1>
+  <p class="lede">기울기(<span class="en">slope</span>)는 "가로 1칸에 세로 몇 칸". 삼각형으로 그 뜻을 눈으로 보고, 두 절편(<span class="en">intercepts</span>)까지 한눈에 담아보자.</p>
+  <p class="intro">여긴 답을 맞히는 문제가 없어. 슬라이더를 굴리면 <b>기울기 삼각형과 절편</b>이 실시간으로 따라 움직이는 실험실이야.</p>
+
+  <section class="reveal">
+    <div class="eyebrow"><span class="n">1</span>큰 그림</div>
+    <h2>기울기 = 변화의 속도</h2>
+    <p><span class="eq">a</span>가 크면 가파르고, 작으면 완만해. 음수면 내리막이지. <span class="eq">a</span>는 그냥 숫자가 아니라 <b class="hl">변화율</b> — 택시요금이면 "km당 오르는 돈", 양초면 "시간당 줄어드는 길이"야.</p>
+    <p><span class="eq">b</span>는 <b class="gold">출발 높이</b> — 그래프가 세로축과 만나는 곳(y절편). 그리고 그래프가 <b class="hl">가로축</b>과 만나는 곳이 x절편이고.</p>
+  </section>
+
+  <section class="reveal">
+    <div class="sim-tag">일차함수 실험실 · 직접 굴려봐</div>
+    <div class="sim">
+      <div class="form" id="eq" style="font-size:24px">y = x + 2</div>
+      <svg class="plane" id="plane" viewBox="0 0 340 300" role="img" aria-label="일차함수와 기울기 삼각형"></svg>
+      <div class="sim-read" id="read"></div>
+      <div class="controls">
+        <div class="ctrl"><label><span>a — 기울기</span><span id="va">1</span></label><input type="range" id="ra" min="-4" max="4" step="1" value="1"></div>
+        <div class="ctrl"><label><span>b — y절편</span><span id="vb">2</span></label><input type="range" id="rb" min="-6" max="6" step="1" value="2"></div>
+      </div>
+      <div class="pill-row"><button class="pill" id="parBtn">평행선 보기 ↔️</button></div>
+    </div>
+    <p class="muted" style="margin-top:6px">주황 삼각형이 <b class="gold">기울기</b>야 — 오른쪽으로 <b>1칸</b> 갈 때 위로 <b><span id="riseTxt">1</span>칸</b>. "평행선 보기"를 켜면 기울기가 같은 다른 직선(초록)이 나란히 떠. <b class="hl">기울기가 같으면 평행</b>이라는 걸 눈으로 확인해봐.</p>
+  </section>
+
+  <section class="reveal">
+    <div class="eyebrow"><span class="n">2</span>패턴 발견</div>
+    <h2>절편은 어떻게 구할까</h2>
+    <div class="card">
+      <p style="margin:0"><b class="hl">y절편</b> — x=0을 넣으면 <span class="eq">y = b</span>. 그래서 항상 <span class="eq">(0, b)</span>.</p>
+      <p style="margin:8px 0 0"><b class="gold">x절편</b> — y=0을 넣으면 <span class="eq">0 = ax + b</span> → <span class="eq">x = −b/a</span>. 그래서 <span class="eq">(−b/a, 0)</span>.</p>
+    </div>
+    <p class="muted" style="margin-top:10px">이 x절편이 바로 다음 단원의 핵심 — <b class="hl">방정식 <span class="eq">ax+b=0</span> 의 해</b>와 똑같아!</p>
+    <div class="nextlink"><a class="golink" href="d5p.html">심화 문제로 도전 →</a></div>
+  </section>
+
+  <div class="foot">중2-1 · 단원 5 · 심화 탐구 · 위 탭에서 개념·연습·심화 문제로 이동</div>
+</div>
+
+<script src="concept.js"></script>
+<script>
+MJ.boot();
+(function(){
+  var svg=document.getElementById('plane');
+  var P=MJ.makePlane(svg);
+  var ns='http://www.w3.org/2000/svg';
+  function mk(t,a){var e=document.createElementNS(ns,t);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  // 기울기 삼각형 요소 (run/rise) — 한 번만 생성
+  var run=mk('line',{stroke:'var(--accent)','stroke-width':3,'stroke-dasharray':'2 3','stroke-linecap':'round'});
+  var rise=mk('line',{stroke:'var(--accent)','stroke-width':3,'stroke-dasharray':'2 3','stroke-linecap':'round'});
+  var runL=mk('text',{'font-size':11,fill:'var(--accent)','text-anchor':'middle','font-weight':'700'}); runL.textContent='1';
+  var riseL=mk('text',{'font-size':11,fill:'var(--accent)','text-anchor':'start','font-weight':'700'});
+  svg.appendChild(run); svg.appendChild(rise); svg.appendChild(runL); svg.appendChild(riseL);
+
+  var ra=document.getElementById('ra'), rb=document.getElementById('rb'), par=false;
+  document.getElementById('parBtn').onclick=function(){ par=!par; this.classList.toggle('sel',par); render(); };
+
+  function frac(num,den){ if(den<0){num=-num;den=-den;} var g=MJ.gcd(num,den)||1; var n=num/g,d=den/g; return d===1?(''+MJ.sgn(n)):(MJ.sgn(n)+'/'+d); }
+  function eqStr(a,b){ var ax=a===0?'':a===1?'x':a===-1?'−x':(MJ.sgn(a)+'x'); var bp=b===0?(ax===''?'0':''):(ax===''?MJ.sgn(b):(b>0?(' + '+b):(' − '+Math.abs(b)))); return ax+bp; }
+
+  function render(){
+    var a=+ra.value, b=+rb.value;
+    document.getElementById('va').textContent=MJ.sgn(a);
+    document.getElementById('vb').textContent=MJ.sgn(b);
+    document.getElementById('eq').innerHTML='y = '+eqStr(a,b);
+    document.getElementById('riseTxt').textContent=MJ.sgn(a);
+    P.line('m',a,b,'var(--line)');
+    P.dot('y',0,b,'var(--accent)');
+    if(a!==0){ P.dot('x',-b/a,0,'var(--sage)'); } else { P.dot('x',0,b,'transparent'); }
+    // 기울기 삼각형: (0,b) → (1,b) → (1,b+a)
+    run.setAttribute('x1',P.X(0)); run.setAttribute('y1',P.Y(b)); run.setAttribute('x2',P.X(1)); run.setAttribute('y2',P.Y(b));
+    rise.setAttribute('x1',P.X(1)); rise.setAttribute('y1',P.Y(b)); rise.setAttribute('x2',P.X(1)); rise.setAttribute('y2',P.Y(b+a));
+    runL.setAttribute('x',P.X(0.5)); runL.setAttribute('y',P.Y(b)+14);
+    riseL.setAttribute('x',P.X(1)+5); riseL.setAttribute('y',P.Y(b+a/2)); riseL.textContent=MJ.sgn(a);
+    // 평행선
+    if(par){ P.line('par',a,b-4,'var(--sage)'); } else { P.line('par',a,b-4,'transparent'); }
+    var xInt=(a===0)?'없음(가로선)':frac(-b,a);
+    document.getElementById('read').innerHTML='y절편 <b class="gold">'+MJ.sgn(b)+'</b>　·　x절편 <b class="gold">'+xInt+'</b>'+(a===0?'':'')+(par?'　·　<span style="color:var(--sage)">초록선과 평행!</span>':'');
+  }
+  ra.oninput=render; rb.oninput=render; render();
+})();
+</script>
+</body>
+</html>

@@ -15,10 +15,17 @@
     {id:'u5',no:5,t:'일차함수와 그래프',u:'#4f92d6',u2:'#77b2ea'},
     {id:'u6',no:6,t:'일차함수와 일차방정식',u:'#e2698a',u2:'#f0929f'}
   ];
-  function pageId(){var f=(location.pathname.split('/').pop()||'index.html').toLowerCase();
-    if(/^u[1-6]\.html/.test(f))return f.slice(0,2);
-    if(/drill/.test(f))return 'drill';
-    return 'home';}
+  // 파일명 → 단원 번호 + 종류 (u=개념 p=연습 d=심화탐구 dNp=심화문제)
+  function pageInfo(){
+    var f=(location.pathname.split('/').pop()||'index.html').toLowerCase().replace(/\?.*$/,'').replace(/\.html$/,'');
+    var m;
+    if(m=f.match(/^u([1-6])$/))  return {no:+m[1],kind:'concept'};
+    if(m=f.match(/^p([1-6])$/))  return {no:+m[1],kind:'practice'};
+    if(m=f.match(/^d([1-6])p$/)) return {no:+m[1],kind:'deepq'};
+    if(m=f.match(/^d([1-6])$/))  return {no:+m[1],kind:'deep'};
+    if(/drill/.test(f))          return {kind:'drill'};
+    return {kind:'home'};
+  }
   function hexA(hex,a){var n=parseInt(hex.slice(1),16);return 'rgba('+(n>>16&255)+','+(n>>8&255)+','+(n&255)+','+a+')';}
 
   /* ── 테마 ── */
@@ -45,10 +52,11 @@
     for(var i=0;i<total;i++)bar.appendChild(document.createElement('i'));var done=0;
     return function(){if(done<total){bar.children[done].classList.add('on');done++;}};}
 
-  /* ── 사이드바 + 히어로 + 색 ── */
+  /* ── 사이드바 + 히어로 + 탭바 + 색 ── */
   function initChrome(){
-    var pid=pageId();
-    var unit=null; UNITS.forEach(function(x){if(x.id===pid)unit=x;});
+    var info=pageInfo();
+    var unit=info.no?UNITS[info.no-1]:null;
+    var activeId=unit?unit.id:info.kind;               // 사이드바 활성: 단원 하위 페이지는 그 단원
     var root=document.documentElement.style;
     var uc=unit?unit.u:'#d76a9c', uc2=unit?unit.u2:'#e59a3c';
     root.setProperty('--u',uc); root.setProperty('--u-2',uc2); root.setProperty('--u-soft',hexA(uc,0.14));
@@ -56,14 +64,14 @@
     // 사이드바
     var s=store();
     var links='<div class="sb-brand">중2-1 수학<small>기초 과정</small></div>'+
-      '<a class="sb-link'+(pid==='home'?' active':'')+'" href="index.html"><span class="sb-no">🏠</span>홈</a>'+
+      '<a class="sb-link'+(activeId==='home'?' active':'')+'" href="index.html"><span class="sb-no">🏠</span>홈</a>'+
       '<div class="sb-sep"></div>';
     UNITS.forEach(function(x){
-      links+='<a class="sb-link'+(pid===x.id?' active':'')+(s[x.id]?' done':'')+'" data-id="'+x.id+'" href="'+x.id+'.html">'+
+      links+='<a class="sb-link'+(activeId===x.id?' active':'')+(s[x.id]?' done':'')+'" data-id="'+x.id+'" href="'+x.id+'.html">'+
         '<span class="sb-no">'+x.no+'</span>'+x.t+'<span class="sb-chk">✓</span></a>';
     });
     links+='<div class="sb-sep"></div>'+
-      '<a class="sb-link tool'+(pid==='drill'?' active':'')+'" href="drill.html"><span class="sb-no">✏️</span>계산 연습</a>';
+      '<a class="sb-link tool'+(activeId==='drill'?' active':'')+'" href="drill.html"><span class="sb-no">✏️</span>계산 연습<small style="margin-left:6px;opacity:.6;font-size:10px">preview</small></a>';
     var sb=document.createElement('nav'); sb.className='sidebar'; sb.innerHTML=links;
     var scrim=document.createElement('div'); scrim.className='sb-scrim';
     var hamb=document.createElement('button'); hamb.className='hamb'; hamb.setAttribute('aria-label','메뉴'); hamb.textContent='☰';
@@ -72,10 +80,10 @@
     hamb.onclick=function(){sb.classList.toggle('open');scrim.classList.toggle('open');};
     scrim.onclick=close; sb.addEventListener('click',function(e){if(e.target.closest('a'))close();});
 
-    // 테마 토글 (기존 버튼 있으면 bind, 없으면 bar에 추가 안 함)
+    // 테마 토글 (기존 버튼 있으면 bind)
     bindToggle(document.getElementById('ttoggle'));
 
-    // 단원 페이지: h1 + .lede 를 그라데이션 히어로로 감싸기
+    // 단원 페이지: h1 + .lede → 그라데이션 히어로로 감싸고, 바로 뒤에 단원 내 탭바 주입
     if(unit){
       var wrap=document.querySelector('.wrap'); var h1=wrap&&wrap.querySelector('h1');
       if(h1){
@@ -83,6 +91,18 @@
         var hero=document.createElement('div'); hero.className='hero';
         var no=document.createElement('div'); no.className='h-no'; no.textContent='단원 '+unit.no;
         h1.parentNode.insertBefore(hero,h1); hero.appendChild(no); hero.appendChild(h1); if(lede)hero.appendChild(lede);
+
+        var tabs=[
+          {k:'concept', href:'u'+unit.no+'.html',  i:'📖', t:'개념'},
+          {k:'practice',href:'p'+unit.no+'.html',  i:'✏️', t:'연습'},
+          {k:'deep',    href:'d'+unit.no+'.html',  i:'⚗️', t:'심화 탐구'},
+          {k:'deepq',   href:'d'+unit.no+'p.html', i:'🎯', t:'심화 문제'}
+        ];
+        var nav=document.createElement('nav'); nav.className='utabs'; nav.setAttribute('aria-label','단원 내 이동');
+        nav.innerHTML=tabs.map(function(tb){
+          return '<a class="ut'+(info.kind===tb.k?' active':'')+'" href="'+tb.href+'"><span class="ut-i">'+tb.i+'</span>'+tb.t+'</a>';
+        }).join('');
+        hero.parentNode.insertBefore(nav,hero.nextSibling);
       }
     }
   }
@@ -161,9 +181,36 @@
   function reveal(btnId,boxId,onShow){var b=document.getElementById(btnId);if(!b)return;
     b.onclick=function(){document.getElementById(boxId).classList.add('show');b.style.display='none';if(onShow)onShow();};}
 
+  /* ── 유연한 정답 확인: correct=숫자(허용오차) 또는 함수(값→bool) ── */
+  function check(id,test,outId,opt){opt=opt||{};
+    var el=document.getElementById(id),out=document.getElementById(outId);if(!el||!out)return;
+    var raw=(el.value||'').trim().replace(/[−–—]/g,'-').replace(/\s+/g,'');
+    if(raw===''){out.innerHTML='답을 넣어봐 🙂';return false;}
+    var v=parseFloat(raw), ok;
+    if(typeof test==='function') ok=!!test(isNaN(v)?raw:v, raw);
+    else ok=(!isNaN(v)&&Math.abs(v-test)<1e-9);
+    if(ok){out.innerHTML='<span class="good">'+(opt.okMsg||'맞아! ✓')+'</span>'+(opt.okMore?(' '+opt.okMore):'');
+      if(opt.onOk)opt.onOk();return true;}
+    out.innerHTML=(opt.retry||'다시 볼까?')+(opt.correct!=null?(' 정답은 <b class="gold">'+opt.correct+'</b>.'):'');
+    return false;}
+
+  /* ── 단계별 힌트: 버튼 누를 때마다 다음 힌트 박스 공개 ── */
+  function hintSteps(btnId,boxIds){var b=document.getElementById(btnId);if(!b)return;var i=0;
+    function paint(){b.textContent=(i>=boxIds.length)?'힌트 끝 — 스스로 풀어봐':'💡 힌트 보기 ('+i+'/'+boxIds.length+')';}
+    paint();
+    b.onclick=function(){ if(i<boxIds.length){var el=document.getElementById(boxIds[i]);if(el)el.classList.add('show');i++;}
+      if(i>=boxIds.length){b.disabled=true;b.classList.add('ghost');b.style.opacity=.55;} paint(); };}
+
+  /* ── 숫자 카운트업 애니메이션 ("와" 모먼트) ── */
+  function animateCount(el,from,to,ms,fmt){if(!el)return;fmt=fmt||function(v){return Math.round(v).toLocaleString();};ms=ms||700;
+    var t0=null;function step(ts){if(t0===null)t0=ts;var p=Math.min(1,(ts-t0)/ms),e=1-Math.pow(1-p,3);
+      el.textContent=fmt(from+(to-from)*e);if(p<1)requestAnimationFrame(step);}
+    requestAnimationFrame(step);}
+
   window.MJ={UNITS:UNITS,initTheme:initTheme,initReveal:initReveal,initChrome:initChrome,
     completeUnit:completeUnit,isDone:isDone,makeProgress:makeProgress,fmtEq:fmtEq,sgn:sgn,
     makePlane:makePlane,makeNumberLine:makeNumberLine,renderBlocks:renderBlocks,
-    decimalOf:decimalOf,factorNote:factorNote,gcd:gcd,checkNum:checkNum,reveal:reveal,
+    decimalOf:decimalOf,factorNote:factorNote,gcd:gcd,checkNum:checkNum,check:check,
+    reveal:reveal,hintSteps:hintSteps,animateCount:animateCount,
     boot:function(){initTheme();initChrome();initReveal();}};
 })();

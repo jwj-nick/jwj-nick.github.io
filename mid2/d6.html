@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>단원 6 · 심화 탐구 · 식과 그래프 · 중2-1</title>
+<link rel="stylesheet" href="concept.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중2-1</a><span class="dot"></span><a href="u6.html">단원 6</a><span class="dot"></span><span>심화 탐구</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+  <h1>식과 그래프는, 사실 한 이야기</h1>
+  <p class="lede">방정식의 해는 그래프의 <b>x절편</b>, 연립방정식의 해는 두 직선의 <b>교점</b>. 같은 답을 두 얼굴로 보는 실험실이야.</p>
+  <p class="intro">여긴 답을 맞히는 문제가 없어. 슬라이더를 굴려 <b>그래프와 방정식이 같은 답</b>을 가리키는 걸 눈으로 확인해봐.</p>
+
+  <section class="reveal">
+    <div class="eyebrow"><span class="n">1</span>큰 그림</div>
+    <h2>따로 배운 둘이 사실 하나였어</h2>
+    <p>작년엔 <span class="eq">ax + b = 0</span> 같은 <b class="hl">방정식</b>의 답을 구했고, 올해는 <span class="eq">y = ax + b</span> 의 <b class="hl">그래프</b>를 그렸지. 그런데 —</p>
+    <p>그래프가 <b class="gold">x축과 만나는 곳</b>은 <span class="eq">y = 0</span> 인 지점. 거기 x값이 바로 <span class="eq">ax + b = 0</span> 의 답이야. 즉 <b class="hl">x절편 = 방정식의 해</b>. 두 직선이면, 그 <b class="gold">교점</b>이 연립방정식의 해가 되고.</p>
+  </section>
+
+  <section class="reveal">
+    <div class="sim-tag">식↔그래프 실험실 · 직접 굴려봐</div>
+    <div class="sim">
+      <p class="reading" style="margin:14px 0 2px"><span style="color:var(--line)">① y = <span id="e1"></span></span> <span id="e2wrap" style="display:none">　<span style="color:var(--sage)">② y = <span id="e2"></span></span></span></p>
+      <svg class="plane" id="plane" viewBox="0 0 340 300" role="img" aria-label="직선과 절편·교점"></svg>
+      <div class="sim-stage">
+        <div class="derive" id="derive"></div>
+        <div class="sim-read" id="read"></div>
+      </div>
+      <div class="controls">
+        <div class="ctrl"><label><span>① 기울기 a</span><span id="va">1</span></label><input type="range" id="ra" min="-3" max="3" step="1" value="1"></div>
+        <div class="ctrl"><label><span>① y절편 b</span><span id="vb">−2</span></label><input type="range" id="rb" min="-6" max="6" step="1" value="-2"></div>
+        <div id="ctrl2" style="display:none">
+          <div class="ctrl"><label><span>② 기울기 a₂</span><span id="va2">−1</span></label><input type="range" id="ra2" min="-3" max="3" step="1" value="-1"></div>
+          <div class="ctrl"><label><span>② y절편 b₂</span><span id="vb2">4</span></label><input type="range" id="rb2" min="-6" max="6" step="1" value="4"></div>
+        </div>
+      </div>
+      <div class="pill-row"><button class="pill" id="twoBtn">두 번째 직선 추가 ✖️</button></div>
+    </div>
+    <p class="muted" style="margin-top:6px">주황 점(<b class="gold">x절편</b>)이 방정식 <span class="eq">ax+b=0</span> 의 답이야. "두 번째 직선"을 켜면 두 선의 <b class="hl">교점</b>이 연립방정식의 답이 되는 걸 볼 수 있어.</p>
+  </section>
+
+  <section class="reveal">
+    <div class="eyebrow"><span class="n">2</span>패턴 발견</div>
+    <h2>세 가지를 한 문장으로</h2>
+    <div class="card">
+      <p style="margin:0"><b class="hl">일차방정식</b> <span class="eq">ax+b=0</span> 의 해 = 그래프의 <b class="gold">x절편</b> (한 개)</p>
+      <p style="margin:8px 0 0"><b class="hl">연립방정식</b> 의 해 = 두 그래프의 <b class="gold">교점</b> (평행이면 해 없음)</p>
+    </div>
+    <p class="muted" style="margin-top:10px">계산으로 풀든 그래프로 찾든 답은 똑같아. 그래서 어려운 문제는 <b class="hl">그림을 그려보면</b> 길이 보여.</p>
+    <div class="nextlink"><a class="golink" href="d6p.html">심화 문제로 도전 →</a></div>
+  </section>
+
+  <div class="foot">중2-1 · 단원 6 · 심화 탐구 · 위 탭에서 개념·연습·심화 문제로 이동</div>
+</div>
+
+<script src="concept.js"></script>
+<script>
+MJ.boot();
+(function(){
+  var P=MJ.makePlane(document.getElementById('plane'));
+  var ra=document.getElementById('ra'), rb=document.getElementById('rb'), ra2=document.getElementById('ra2'), rb2=document.getElementById('rb2');
+  var two=false;
+  var timers=[]; function clearT(){ timers.forEach(clearTimeout); timers=[]; }
+  function eqStr(a,b){ var ax=a===0?'':a===1?'x':a===-1?'−x':(MJ.sgn(a)+'x'); var bp=b===0?(ax===''?'0':''):(ax===''?MJ.sgn(b):(b>0?(' + '+b):(' − '+Math.abs(b)))); return ax+bp; }
+  function frac(num,den){ if(den<0){num=-num;den=-den;} var g=MJ.gcd(num,den)||1; var n=num/g,d=den/g; return d===1?(''+MJ.sgn(n)):(MJ.sgn(n)+'/'+d); }
+
+  document.getElementById('twoBtn').onclick=function(){
+    two=!two; this.classList.toggle('sel',two);
+    document.getElementById('ctrl2').style.display=two?'block':'none';
+    document.getElementById('e2wrap').style.display=two?'inline':'none';
+    render();
+  };
+
+  function render(){
+    clearT();
+    var a=+ra.value,b=+rb.value;
+    document.getElementById('va').textContent=MJ.sgn(a);
+    document.getElementById('vb').textContent=MJ.sgn(b);
+    document.getElementById('e1').textContent=eqStr(a,b);
+    P.line('l1',a,b,'var(--line)');
+    var lines=[], read='';
+    if(a!==0){ P.dot('x1',-b/a,0,'var(--accent)'); lines.push('방정식 '+eqStr(a,b)+' = 0'); lines.push('<b>x = '+frac(-b,a)+'</b>　(그래프의 x절편)'); read='① 방정식의 해  x = <b class="gold">'+frac(-b,a)+'</b>'; }
+    else { P.dot('x1',0,b,'transparent'); lines.push('a=0 이면 가로선 — x절편이 없어'); read='①은 가로선 (해 없음/전체)'; }
+
+    if(two){
+      var a2=+ra2.value,b2=+rb2.value;
+      document.getElementById('va2').textContent=MJ.sgn(a2);
+      document.getElementById('vb2').textContent=MJ.sgn(b2);
+      document.getElementById('e2').textContent=eqStr(a2,b2);
+      P.line('l2',a2,b2,'var(--sage)');
+      if(a===a2){ P.dot('int',0,0,'transparent'); lines.push('두 직선 기울기 같음 → '+(b===b2?'포개짐(무수)':'평행(해 없음)')); read+='　·　연립: '+(b===b2?'무수히':'없음'); }
+      else{ var xn=b2-b,xd=a-a2,yn=a*b2-a2*b; var xv=xn/xd,yv=yn/xd; P.dot('int',xv,yv,'var(--u)');
+        lines.push('교점: ( '+frac(xn,xd)+' , '+frac(yn,xd)+' ) = 연립방정식의 해'); read+='　·　연립 해 <b style="color:var(--u)">( '+frac(xn,xd)+' , '+frac(yn,xd)+' )</b>'; }
+    } else { P.line('l2',0,0,'transparent'); P.dot('int',0,0,'transparent'); }
+
+    var box=document.getElementById('derive'); box.innerHTML='';
+    var els=lines.map(function(t){var d=document.createElement('div');d.className='step';d.innerHTML=t;box.appendChild(d);return d;});
+    els.forEach(function(el,i){ timers.push(setTimeout(function(){el.classList.add('on');}, 220*i)); });
+    document.getElementById('read').innerHTML=read;
+  }
+  ra.oninput=render; rb.oninput=render; ra2.oninput=render; rb2.oninput=render; render();
+})();
+</script>
+</body>
+</html>
