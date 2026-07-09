@@ -71,7 +71,7 @@
         '<span class="sb-no">'+x.no+'</span>'+x.t+'<span class="sb-chk">✓</span></a>';
     });
     links+='<div class="sb-sep"></div>'+
-      '<a class="sb-link tool'+(activeId==='drill'?' active':'')+'" href="drill.html"><span class="sb-no">✏️</span>계산 연습<small style="margin-left:6px;opacity:.6;font-size:10px">preview</small></a>';
+      '<a class="sb-link tool'+(activeId==='drill'?' active':'')+'" href="drill.html"><span class="sb-no">✏️</span>계산 연습</a>';
     var sb=document.createElement('nav'); sb.className='sidebar'; sb.innerHTML=links;
     var scrim=document.createElement('div'); scrim.className='sb-scrim';
     var hamb=document.createElement('button'); hamb.className='hamb'; hamb.setAttribute('aria-label','메뉴'); hamb.textContent='☰';
@@ -175,9 +175,9 @@
   /* ── 확인 ── */
   function checkNum(inputId,correct,outId,onOk){var el=document.getElementById(inputId),out=document.getElementById(outId);
     var v=parseInt(el.value,10);
-    if(isNaN(v)){out.innerHTML='숫자를 넣어봐.';return;}
-    if(v===correct){out.innerHTML='<span class="good">맞아! ✓</span>';if(onOk)onOk();}
-    else out.innerHTML='다시 볼까? 정답은 <b class="gold">'+correct+'</b>.';}
+    if(isNaN(v)){out.innerHTML='숫자를 넣어줘.';return;}
+    if(v===correct){out.innerHTML='<span class="good">정답</span>';if(onOk)onOk();}
+    else out.innerHTML='아니야. 답은 <b class="gold">'+correct+'</b>';}
   function reveal(btnId,boxId,onShow){var b=document.getElementById(btnId);if(!b)return;
     b.onclick=function(){document.getElementById(boxId).classList.add('show');b.style.display='none';if(onShow)onShow();};}
 
@@ -189,14 +189,14 @@
     var v=parseFloat(raw), ok;
     if(typeof test==='function') ok=!!test(isNaN(v)?raw:v, raw);
     else ok=(!isNaN(v)&&Math.abs(v-test)<1e-9);
-    if(ok){out.innerHTML='<span class="good">'+(opt.okMsg||'맞아! ✓')+'</span>'+(opt.okMore?(' '+opt.okMore):'');
+    if(ok){out.innerHTML='<span class="good">'+(opt.okMsg||'정답')+'</span>'+(opt.okMore?(' '+opt.okMore):'');
       if(opt.onOk)opt.onOk();return true;}
-    out.innerHTML=(opt.retry||'다시 볼까?')+(opt.correct!=null?(' 정답은 <b class="gold">'+opt.correct+'</b>.'):'');
+    out.innerHTML=(opt.retry||'아니야')+(opt.correct!=null?('. 답은 <b class="gold">'+opt.correct+'</b>'):'');
     return false;}
 
   /* ── 단계별 힌트: 버튼 누를 때마다 다음 힌트 박스 공개 ── */
   function hintSteps(btnId,boxIds){var b=document.getElementById(btnId);if(!b)return;var i=0;
-    function paint(){b.textContent=(i>=boxIds.length)?'힌트 끝 — 스스로 풀어봐':'💡 힌트 보기 ('+i+'/'+boxIds.length+')';}
+    function paint(){b.textContent=(i>=boxIds.length)?'힌트 끝':'힌트 ('+i+'/'+boxIds.length+')';}
     paint();
     b.onclick=function(){ if(i<boxIds.length){var el=document.getElementById(boxIds[i]);if(el)el.classList.add('show');i++;}
       if(i>=boxIds.length){b.disabled=true;b.classList.add('ghost');b.style.opacity=.55;} paint(); };}
