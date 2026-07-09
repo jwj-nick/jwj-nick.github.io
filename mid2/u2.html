@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>단원 2 · 식의 계산 · 중2-1</title>
 <link rel="stylesheet" href="concept.css">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -13,20 +14,20 @@
     <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
   </div>
   <h1>식의 계산</h1>
-  <p class="lede">문자가 든 식도 숫자처럼 — 특히 '거듭제곱'엔 규칙이 있어.</p>
+  <p class="lede">문자가 든 식도 숫자처럼 — 특히 '거듭제곱(<span class="en">power</span>)'엔 규칙이 있어.</p>
   <div class="progress" id="prog"></div>
 
   <!-- 1 이어서 -->
   <section class="reveal">
     <div class="eyebrow"><span class="n">1</span>이어서</div>
     <h2>작년에 이미 절반은 했어</h2>
-    <p>작년에 <b class="hl">동류항</b>을 모으는 걸 배웠지. <span class="eq">2x + 3x = 5x</span> — 같은 문자 <span class="eq">x</span>끼리, 앞의 수(<b class="gold">계수</b>)만 <b class="hl">더한</b> 거야. <span class="eq">x</span>가 몇 개 있느냐를 센 거지.</p>
+    <p>작년에 <b class="hl">동류항</b>(<span class="en">like terms</span>)을 모으는 걸 배웠지. <span class="eq">2x + 3x = 5x</span> — 같은 문자 <span class="eq">x</span>끼리, 앞의 수(<b class="gold">계수</b>, <span class="en">coefficient</span>)만 <b class="hl">더한</b> 거야. <span class="eq">x</span>가 몇 개 있느냐를 센 거지.</p>
     <div class="check">
       <div class="row"><span><span class="eq">4a + 2a</span>는 <span class="eq">□a</span> — □에 들어갈 수는?</span>
         <input class="num" id="c1" inputmode="numeric" aria-label="답"><button id="c1b">확인</button></div>
       <div class="out" id="c1o"></div>
     </div>
-    <p style="margin-top:16px">올해는 여기서 한 걸음 더 — <span class="eq">x</span>를 여러 번 <b class="hl">곱한 것</b>, 즉 <b class="gold">지수</b>를 다뤄. 더하기가 아니라 곱하기 이야기야.</p>
+    <p style="margin-top:16px">올해는 여기서 한 걸음 더 — <span class="eq">x</span>를 여러 번 <b class="hl">곱한 것</b>, 즉 <b class="gold">지수</b>(<span class="en">exponent</span>)를 다뤄. 더하기가 아니라 곱하기 이야기야.</p>
   </section>
 
   <!-- 2 왜 -->
@@ -35,6 +36,15 @@
     <h2>종이를 42번 접으면 달에 닿는다</h2>
     <p>종이 한 장을 반으로 접으면 <b class="hl">2겹</b>. 또 접으면 4겹, 8겹, 16겹… 접을 때마다 <b class="hl">2배</b>가 돼.</p>
     <p>믿기 어렵지만, 이렇게 <b class="gold">42번</b>만 접으면 그 두께가 <b class="hl">달까지</b> 닿아. <span class="eq">2</span>를 42번 곱한 수(<span class="eq">2<sup>42</sup></span>)가 그만큼 어마어마하거든.</p>
+    <div class="card" style="margin-top:12px">
+      <div class="row" style="justify-content:center;gap:10px;margin-bottom:4px">
+        <span>접은 횟수</span>
+        <input type="range" id="folds" min="0" max="25" value="10" style="max-width:200px" aria-label="접은 횟수">
+        <b class="gold"><span id="foldn">10</span>번</b>
+      </div>
+      <div id="foldchart" style="width:100%;height:220px"></div>
+      <div class="reading" id="foldcap"></div>
+    </div>
     <p class="muted">같은 수를 여러 번 곱한 걸 짧게 쓴 게 바로 <b class="gold">지수</b>야. 그럼 <span class="eq">a<sup>3</sup> × a<sup>2</sup></span>는 어떻게 될까? 직접 움직여 보자.</p>
   </section>
 
@@ -88,8 +98,8 @@
   <section class="reveal">
     <div class="eyebrow"><span class="n">6</span>다음</div>
     <h2>이해했으면, 손에 익힐 차례</h2>
-    <p class="muted">개념은 잡았어. 지수법칙·동류항·괄호 풀기를 빠르게 여러 번 — 계산 스프린트에서 연습하면 시험장에서도 손이 먼저 움직여.</p>
-    <div class="bridge"><a class="golink" href="drill.html">계산 스프린트 열기 →</a></div>
+    <p class="muted">개념은 잡았어. 지수법칙(<span class="en">laws of exponents</span>)·동류항·괄호 풀기를 빠르게 여러 번 — 계산 연습에서 연습하면 시험장에서도 손이 먼저 움직여.</p>
+    <div class="bridge"><a class="golink" href="drill.html">계산 연습 열기 →</a></div>
   </section>
 
   <div class="done-note" id="done-note">🌸 이 단원을 끝까지 해냈어. 잘했어!</div>
@@ -138,6 +148,30 @@ MJ.boot();
     if(isNaN(m)||isNaN(e))return;
     MJ.checkNum('pans2', m+e, 'pout', function(){did('pose');});
   };
+})();
+</script>
+<script>
+(function(){
+  if(typeof echarts==='undefined')return;
+  var box=document.getElementById('foldchart'); if(!box)return;
+  var chart=echarts.init(box);
+  var data=[]; for(var i=0;i<=25;i++) data.push([i, 0.1*Math.pow(2,i)]);
+  function fmtThick(n){var mm=0.1*Math.pow(2,n);
+    if(mm<10)return mm.toFixed(1)+' mm'; if(mm<1000)return (mm/10).toFixed(1)+' cm';
+    if(mm<1e6)return (mm/1000).toFixed(1)+' m'; return (mm/1e6).toFixed(1)+' km';}
+  function opt(n){return {animationDuration:500,grid:{left:6,right:16,top:14,bottom:30,containLabel:true},tooltip:{show:false},
+    xAxis:{type:'value',min:0,max:25,name:'접은 횟수',nameLocation:'middle',nameGap:24,
+      axisLabel:{color:'#8b8092'},nameTextStyle:{color:'#8b8092'},axisLine:{lineStyle:{color:'rgba(150,140,160,.4)'}},splitLine:{show:false}},
+    yAxis:{type:'value',axisLabel:{show:false},axisLine:{show:false},splitLine:{lineStyle:{color:'rgba(150,140,160,.16)'}}},
+    series:[{type:'line',smooth:true,showSymbol:false,data:data,lineStyle:{width:3,color:'#e0973a'},
+      areaStyle:{color:'rgba(224,151,58,.2)'},
+      markPoint:{symbol:'circle',symbolSize:15,data:[{coord:[n,0.1*Math.pow(2,n)]}],itemStyle:{color:'#d76a9c'},label:{show:false}}}]};}
+  var sl=document.getElementById('folds'),fn=document.getElementById('foldn'),cap=document.getElementById('foldcap');
+  function render(){var n=+sl.value;fn.textContent=n;
+    cap.innerHTML=n+'번 접으면 <b class="gold">'+Math.pow(2,n).toLocaleString()+'겹</b> · 두께 약 <b class="hl">'+fmtThick(n)+'</b>';
+    chart.setOption(opt(n));}
+  sl.oninput=render; render();
+  window.addEventListener('resize',function(){chart.resize();});
 })();
 </script>
 </body>
