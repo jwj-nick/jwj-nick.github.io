@@ -175,9 +175,9 @@
   /* ── 확인 ── */
   function checkNum(inputId,correct,outId,onOk){var el=document.getElementById(inputId),out=document.getElementById(outId);
     var v=parseInt(el.value,10);
-    if(isNaN(v)){out.innerHTML='숫자를 넣어줘.';return;}
-    if(v===correct){out.innerHTML='<span class="good">정답</span>';if(onOk)onOk();}
-    else out.innerHTML='아니야. 답은 <b class="gold">'+correct+'</b>';}
+    if(isNaN(v)){out.innerHTML='숫자를 넣어 주세요.';return;}
+    if(v===correct){out.innerHTML='<span class="good">정답이에요</span>';if(onOk)onOk();}
+    else out.innerHTML='아니에요. 답은 <b class="gold">'+correct+'</b>이에요';}
   function reveal(btnId,boxId,onShow){var b=document.getElementById(btnId);if(!b)return;
     b.onclick=function(){document.getElementById(boxId).classList.add('show');b.style.display='none';if(onShow)onShow();};}
 
@@ -185,13 +185,13 @@
   function check(id,test,outId,opt){opt=opt||{};
     var el=document.getElementById(id),out=document.getElementById(outId);if(!el||!out)return;
     var raw=(el.value||'').trim().replace(/[−–—]/g,'-').replace(/\s+/g,'');
-    if(raw===''){out.innerHTML='답을 넣어봐 🙂';return false;}
+    if(raw===''){out.innerHTML='답을 넣어 주세요 🙂';return false;}
     var v=parseFloat(raw), ok;
     if(typeof test==='function') ok=!!test(isNaN(v)?raw:v, raw);
     else ok=(!isNaN(v)&&Math.abs(v-test)<1e-9);
-    if(ok){out.innerHTML='<span class="good">'+(opt.okMsg||'정답')+'</span>'+(opt.okMore?(' '+opt.okMore):'');
+    if(ok){out.innerHTML='<span class="good">'+(opt.okMsg||'정답이에요')+'</span>'+(opt.okMore?(' '+opt.okMore):'');
       if(opt.onOk)opt.onOk();return true;}
-    out.innerHTML=(opt.retry||'아니야')+(opt.correct!=null?('. 답은 <b class="gold">'+opt.correct+'</b>'):'');
+    out.innerHTML=(opt.retry||'아니에요')+(opt.correct!=null?('. 답은 <b class="gold">'+opt.correct+'</b>이에요'):'');
     return false;}
 
   /* ── 단계별 힌트: 버튼 누를 때마다 다음 힌트 박스 공개 ── */
