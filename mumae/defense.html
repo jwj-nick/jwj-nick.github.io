@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>무한매수 · 폭락 방어 & 분산 설계 (v2)</title>
+<style>
+  :root{
+    --bg:#F6F5F1; --surface:#FFFFFF; --surface2:#EFEDE4; --surface3:#E7E4DA;
+    --ink:#201D17; --ink2:#57524A; --muted:#8B8578;
+    --line:#E3E0D6; --line2:#CFCBBB;
+    --accent:#8F6420; --accent-soft:#F0E7D2;
+    --danger:#B23B2E; --danger-soft:#F6E3E0;
+    --safe:#2E5FA3; --safe-soft:#E2EAF6;
+    --grow:#1F7D4F; --grow-soft:#DDEFE4;
+    --warn-bg:#F9EFE0; --warn-bd:#D9B36A;
+    --code-bg:#F0EEE6; --kbd:#E8E5DA;
+    --sl-core:#9A6B1F; --sl-sat:#2E5FA3; --sl-cash:#A8A090;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#161511; --surface:#1E1C16; --surface2:#26231A; --surface3:#2E2A20;
+      --ink:#EAE7DF; --ink2:#B3AC9C; --muted:#847D6E;
+      --line:#332F26; --line2:#4A4436;
+      --accent:#D9A85A; --accent-soft:#2E2716;
+      --danger:#E58B7C; --danger-soft:#3A231E;
+      --safe:#8FB0E3; --safe-soft:#1F2A3C;
+      --grow:#5DBE8C; --grow-soft:#16271E;
+      --warn-bg:#2E2513; --warn-bd:#8A6A2C;
+      --code-bg:#211E16; --kbd:#2C291F;
+      --sl-core:#B77E2C; --sl-sat:#4E82D0; --sl-cash:#6E6858;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#161511; --surface:#1E1C16; --surface2:#26231A; --surface3:#2E2A20;
+    --ink:#EAE7DF; --ink2:#B3AC9C; --muted:#847D6E;
+    --line:#332F26; --line2:#4A4436;
+    --accent:#D9A85A; --accent-soft:#2E2716;
+    --danger:#E58B7C; --danger-soft:#3A231E;
+    --safe:#8FB0E3; --safe-soft:#1F2A3C;
+    --grow:#5DBE8C; --grow-soft:#16271E;
+    --warn-bg:#2E2513; --warn-bd:#8A6A2C;
+    --code-bg:#211E16; --kbd:#2C291F;
+    --sl-core:#B77E2C; --sl-sat:#4E82D0; --sl-cash:#6E6858;
+  }
+  :root[data-theme="light"]{
+    --bg:#F6F5F1; --surface:#FFFFFF; --surface2:#EFEDE4; --surface3:#E7E4DA;
+    --ink:#201D17; --ink2:#57524A; --muted:#8B8578;
+    --line:#E3E0D6; --line2:#CFCBBB;
+    --accent:#8F6420; --accent-soft:#F0E7D2;
+    --danger:#B23B2E; --danger-soft:#F6E3E0;
+    --safe:#2E5FA3; --safe-soft:#E2EAF6;
+    --grow:#1F7D4F; --grow-soft:#DDEFE4;
+    --warn-bg:#F9EFE0; --warn-bd:#D9B36A;
+    --code-bg:#F0EEE6; --kbd:#E8E5DA;
+    --sl-core:#9A6B1F; --sl-sat:#2E5FA3; --sl-cash:#A8A090;
+  }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth; -webkit-text-size-adjust:100%}
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} }
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Pretendard Variable",Pretendard,"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+    font-size:16.5px; line-height:1.76; -webkit-font-smoothing:antialiased;}
+  .mono{font-family:"Cascadia Code","JetBrains Mono",Consolas,"D2Coding",monospace}
+  a{color:var(--accent); text-underline-offset:3px}
+
+  nav{position:sticky; top:0; z-index:30; display:flex; gap:10px; align-items:center;
+    background:color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line); padding:9px 16px;}
+  nav .brand{font-weight:800; font-size:13.5px; white-space:nowrap; display:flex; gap:6px; align-items:center}
+  nav select{flex:1; min-width:0; padding:8px 10px; border:1px solid var(--line2); border-radius:8px;
+    background:var(--surface); color:var(--ink); font-family:inherit; font-size:13.5px;}
+
+  main{max-width:760px; margin:0 auto; padding:26px 18px 100px}
+  section{margin:0 0 46px; scroll-margin-top:60px}
+  p{margin:12px 0; max-width:70ch}
+  .eyebrow{font-family:"Cascadia Code",Consolas,monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); margin:0 0 8px}
+  h2{font-size:22px; font-weight:800; letter-spacing:-.015em; line-height:1.28; margin:0 0 6px; text-wrap:balance}
+  h3{font-size:16px; font-weight:750; margin:24px 0 8px}
+  strong,b{font-weight:700}
+  ul,ol{padding-left:20px; margin:12px 0} li{margin:5px 0}
+
+  .hero{border:1px solid var(--line2); border-radius:14px; background:var(--surface); padding:26px 22px 20px; margin-bottom:30px}
+  .hero h1{font-size:clamp(25px,7vw,33px); font-weight:800; letter-spacing:-.025em; line-height:1.16; margin:6px 0 10px; text-wrap:balance}
+  .hero .lede{color:var(--ink2); font-size:15.5px; margin:0} .hero .lede b{color:var(--ink)}
+  .hero .spec{display:flex; flex-wrap:wrap; gap:8px; margin-top:16px}
+  .hero .pill{background:var(--surface2); border:1px solid var(--line); border-radius:99px; padding:5px 12px; font-size:12.5px; font-variant-numeric:tabular-nums}
+  .hero .pill b{color:var(--accent)}
+
+  .box{border-radius:11px; padding:15px 17px; margin:16px 0; font-size:15px; line-height:1.68}
+  .box.key{background:var(--accent-soft); border-left:3px solid var(--accent)}
+  .box.warn{background:var(--warn-bg); border-left:3px solid var(--warn-bd)}
+  .box.danger{background:var(--danger-soft); border-left:3px solid var(--danger)}
+  .box .tag{font-family:"Cascadia Code",Consolas,monospace; font-size:10.5px; letter-spacing:.13em; text-transform:uppercase; display:block; margin-bottom:5px; color:var(--accent); font-weight:700}
+  .box.warn .tag{color:var(--warn-bd)} .box.danger .tag{color:var(--danger)}
+
+  /* dials — the centerpiece */
+  .dials{display:flex; flex-direction:column; gap:12px; margin:18px 0}
+  .dial{border:1px solid var(--line2); border-radius:13px; background:var(--surface); padding:16px 17px; border-left-width:5px; border-left-style:solid}
+  .dial.d1{border-left-color:var(--accent)} .dial.d2{border-left-color:var(--safe)}
+  .dial.d3{border-left-color:var(--grow)} .dial.d4{border-left-color:var(--sl-cash)}
+  .dial > .h{display:flex; align-items:baseline; gap:9px; flex-wrap:wrap; margin-bottom:4px}
+  .dial .kn{font-family:"Cascadia Code",Consolas,monospace; font-weight:800; font-size:12px; color:var(--muted)}
+  .dial h4{margin:0; font-size:16.5px; font-weight:800}
+  .dial .tag{font-size:11px; font-weight:700; padding:2px 9px; border-radius:99px; margin-left:auto; white-space:nowrap}
+  .dial .tag.done{background:var(--grow-soft); color:var(--grow)}
+  .dial .tag.prio{background:var(--accent-soft); color:var(--accent)}
+  .dial .rule{font-size:14.5px; margin:6px 0 0; color:var(--ink2)}
+  .dial .rule b{color:var(--ink)}
+  .dial .ev{font-size:13px; color:var(--ink2); background:var(--surface2); border-radius:8px; padding:9px 12px; margin-top:10px; font-variant-numeric:tabular-nums}
+  .dial .ev b{color:var(--accent)}
+  .floor{border:1px dashed var(--danger); border-radius:13px; background:var(--danger-soft); padding:16px 17px; margin:14px 0}
+  .floor h4{margin:0 0 5px; font-size:16px; color:var(--danger)}
+  .floor p{margin:0; font-size:14.5px; color:var(--ink2)}
+
+  .stack{display:flex; flex-direction:column; gap:10px; margin:14px 0}
+  .tcard{border:1px solid var(--line); border-radius:11px; background:var(--surface); padding:13px 15px}
+  .tcard b.hl{color:var(--danger)}
+  .tcard p{margin:0; font-size:14.5px; color:var(--ink2)}
+
+  /* sleeves + tiers */
+  .sleeves{display:flex; flex-direction:column; gap:10px; margin:14px 0}
+  .scard{border:1px solid var(--line); border-radius:11px; background:var(--surface); padding:13px 15px; border-left-width:5px; border-left-style:solid}
+  .scard.core{border-left-color:var(--sl-core)} .scard.sat{border-left-color:var(--sl-sat)} .scard.cash{border-left-color:var(--sl-cash)}
+  .scard .top{display:flex; align-items:baseline; gap:9px; flex-wrap:wrap; margin-bottom:3px}
+  .scard .code{font-family:"Cascadia Code",Consolas,monospace; font-weight:800; font-size:14px}
+  .scard .role{font-size:12px; color:var(--muted); margin-left:auto}
+  .scard .desc{font-size:14px; color:var(--ink2); margin:0}
+
+  .tier{border:1px solid var(--line2); border-radius:12px; background:var(--surface); padding:15px 16px; margin:12px 0}
+  .tier .th{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:3px}
+  .tier .tname{font-weight:800; font-size:15.5px}
+  .tier .tcap{font-family:"Cascadia Code",Consolas,monospace; font-size:12px; color:var(--accent); margin-left:auto}
+  .tier .tsub{font-size:13.5px; color:var(--ink2); margin:0 0 11px}
+  .bar{display:flex; height:24px; border-radius:7px; overflow:hidden; border:1px solid var(--line)}
+  .bar .seg{height:100%}
+  .seg.core{background:var(--sl-core)} .seg.sat{background:var(--sl-sat)}
+  .seg.cash{background:var(--sl-cash); background-image:repeating-linear-gradient(45deg,transparent,transparent 5px,color-mix(in srgb,var(--sl-cash) 70%,#000) 5px,color-mix(in srgb,var(--sl-cash) 70%,#000) 6px)}
+  .blegend{display:flex; flex-wrap:wrap; gap:6px 12px; margin-top:9px}
+  .blegend span{font-size:12.5px; color:var(--ink2); display:flex; align-items:center; gap:5px}
+  .blegend .dot{width:11px; height:11px; border-radius:3px; flex:none}
+  .blegend .dot.core{background:var(--sl-core)} .blegend .dot.sat{background:var(--sl-sat)} .blegend .dot.cash{background:var(--sl-cash)}
+  .tgates{font-size:12.5px; color:var(--muted); margin-top:10px; padding-top:9px; border-top:1px dashed var(--line2)} .tgates b{color:var(--ink2)}
+
+  .tbl-wrap{overflow-x:auto; margin:14px 0; border:1px solid var(--line); border-radius:10px; background:var(--surface); -webkit-overflow-scrolling:touch}
+  table{border-collapse:collapse; width:100%; font-size:13.5px; min-width:520px}
+  th{text-align:left; font-family:"Cascadia Code",Consolas,monospace; font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); font-weight:600; padding:9px 12px; border-bottom:1px solid var(--line2); background:var(--surface2)}
+  td{padding:9px 12px; border-bottom:1px solid var(--line); vertical-align:top}
+  tr:last-child td{border-bottom:0}
+  td .cut{color:var(--danger); font-weight:600}
+
+  .decide{list-style:none; padding:0; margin:14px 0; display:flex; flex-direction:column; gap:10px}
+  .decide li{display:flex; gap:12px; align-items:flex-start; background:var(--surface); border:1px solid var(--line); border-radius:11px; padding:13px 15px}
+  .decide .num{font-family:"Cascadia Code",Consolas,monospace; font-weight:800; color:var(--accent); font-size:15px; flex:none; width:22px; text-align:center}
+  .decide .q b{display:block; margin-bottom:2px; font-size:14.5px} .decide .q span{color:var(--ink2); font-size:13.5px}
+
+  .links{display:flex; flex-wrap:wrap; gap:8px; margin:16px 0 2px}
+  .links a{font-size:13px; text-decoration:none; background:var(--surface2); border:1px solid var(--line2); border-radius:99px; padding:7px 13px; color:var(--ink2)}
+  .links a:hover{border-color:var(--accent); color:var(--ink)}
+  footer{border-top:1px solid var(--line); padding-top:20px; margin-top:8px; font-size:12.5px; color:var(--muted); line-height:1.8}
+  code{background:var(--kbd); border-radius:4px; padding:1px 5px; font-size:.86em; font-family:"Cascadia Code",Consolas,monospace}
+</style>
+</head>
+<body>
+
+
+<nav>
+  <span class="brand">🛡️ 폭락 방어 v2</span>
+  <select id="jump" aria-label="섹션 이동"></select>
+</nav>
+
+<main>
+
+<header class="hero">
+  <p class="eyebrow">Playbook · Private · v2 (슬림판)</p>
+  <h1>폭락 방어 &amp; 분산<br>— 4개의 손잡이 + 1개의 바닥</h1>
+  <p class="lede">방어장치를 12개 나열하던 v1을 <b>실효성 있는 소수로 압축</b>했다. 복잡하거나 효과가 불확실한 것(RSI·VIX·변동성 타게팅·환율 버짓·역마틴게일)은 뺐다. 핵심은 <b>돌릴 손잡이 4개와, 무너지지 않기 위한 바닥 1개</b>다.</p>
+  <div class="spec">
+    <span class="pill">기준 <b>TQQQ 복리</b></span>
+    <span class="pill">CAGR <b>10.9%</b></span>
+    <span class="pill">MDD <b>−34%</b></span>
+    <span class="pill">복리는 유지, 몰빵은 안 함</span>
+  </div>
+</header>
+
+<!-- 1 -->
+<section id="s1">
+  <p class="eyebrow">01 · 문제</p>
+  <h2>왜 방어가 필요한가 — 한 문단</h2>
+  <p>복리는 수익만 키우는 게 아니라 <b>위험 노출을 자본과 같은 속도로 키운다.</b> 그래서 자본이 커진 말년에 최악 구간(2022류)을 만나면 그동안 불린 돈 <b>전체</b>가 소진 연쇄에 노출된다. 게다가 종목을 나눠도(TQQQ·SOXL 상관 ≈0.9) 폭락장엔 <b>같은 주에 동시 소진</b>된다 — 종목 분산은 분산이 아니다.</p>
+  <div class="box key">
+    <span class="tag">목표</span><b>"CAGR 최대화"가 아니라 "살아남는 것을 전제로 한 복리".</b> 최악 구간의 낙폭과 소진 연쇄를 구조적으로 누르면서 복리 엔진은 계속 돌린다.
+  </div>
+  <div class="box danger">
+    <span class="tag">진짜 분산</span>종목 축이 아니라 <b>시간(사이클 위상) · 현금 · 룰</b> 축에서 나온다. 같은 3배 미국 ETF를 몇 개 담는 건 분산이 아니라 레버리지 증폭이다.
+  </div>
+</section>
+
+<!-- 2 -->
+<section id="s2">
+  <p class="eyebrow">02 · 종합</p>
+  <h2>4개의 손잡이 + 1개의 바닥</h2>
+  <p>수많은 규칙 대신 이렇게 본다. <b>손잡이는 평소에 돌려 성격을 정하는 것</b>, <b>바닥은 최악에 자동으로 걸리는 것</b>이다.</p>
+
+  <div class="dials">
+    <div class="dial d1">
+      <div class="h"><span class="kn">손잡이 1</span><h4>위험 스케일 — 수익 스키밍</h4><span class="tag prio">우선</span></div>
+      <p class="rule">사이클 익절 시 <b>수익의 p%만 재투자</b>하고 나머지는 현금으로 뺀다 (p = 100 / 70 / 50). p가 낮을수록 복리가 완만해지고 폭락 노출이 준다.</p>
+      <div class="ev">복리 ON/OFF 실측 = 10.9%/−34% vs 6.5%/−16%. 스키밍은 그 <b>사이의 다이얼</b> — 수익을 얼마나 위험에 재노출할지 직접 정한다. 부수효과: 뺀 현금이 손잡이 4를 자동으로 채운다.</div>
+    </div>
+    <div class="dial d2">
+      <div class="h"><span class="kn">손잡이 2</span><h4>진입 통제 — 200일선 게이트</h4><span class="tag done">실측 검증</span></div>
+      <p class="rule">종가 &lt; 200일 이동평균이면 <b>새 사이클의 첫 매수만</b> 보류(진행 중 사이클은 규칙대로). 하락추세 초입에 새 탄약을 아낀다. <i>변형:</i> 소진을 겪으면 회복까지 그 주머니 재진입 금지(쿨다운).</p>
+      <div class="ev">TQQQ v2.2 실측: CAGR 유지(<b>10.9→11.0%</b>) · MDD <b>−34→−29.7%</b> · 소진 10→8. ⚠️ 단 v3.0 근사(빠른 회전)에선 CAGR 11.0→7.7%로 붕괴 — <b>느린 회전 전략에서만 켠다.</b></div>
+    </div>
+    <div class="dial d3">
+      <div class="h"><span class="kn">손잡이 3</span><h4>동시소진 완화 — 시차 &amp; 룰 다양화</h4><span class="tag prio">우선</span></div>
+      <p class="rule">주력을 2~3개 서브 주머니로 쪼개 <b>사이클 시작 시점을 어긋나게</b> 하거나, 한 주머니는 <b>다른 룰</b>(예: v3.0)로 돌린다. 폭락장에 소진이 한꺼번에 몰리는 것을 흩는다.</p>
+      <div class="ev">종목을 나누는 것(상관 0.9)보다 <b>위상·룰을 나누는 것</b>이 동시소진에 더 효과적일 가능성. 검증 지표 = "동시 소진 이벤트 수".</div>
+    </div>
+    <div class="dial d4">
+      <div class="h"><span class="kn">손잡이 4</span><h4>쉬는 돈 — 현금 예비</h4><span class="tag prio">우선</span></div>
+      <p class="rule">일부는 아예 투자를 쉰다(달러 예수금/RP). 비율은 손잡이 1(스키밍)이 자동으로 채운다. <b>역할 셋:</b> ①폭락 후 새 사이클 탄약 ②서킷 발동 시 피난처 ③규칙을 지키게 하는 심리 안전판.</p>
+      <div class="ev">"노는 돈"이 아니라 방어 자산. 폭락의 공포를 견디게 해주는 것이 사실상 이 현금이다.</div>
+    </div>
+  </div>
+
+  <div class="floor">
+    <h4>🧯 바닥 — 계좌 서킷브레이커</h4>
+    <p>총자산 MDD <b>−25%</b>에 닿으면 신규 진입 전면 중지 + <b>한 티어 아래 구성으로 축소</b> 후 수동 재개. 손잡이가 다 실패했을 때의 마지막 방어선이자, 규칙을 던지지 않게 하는 장치.</p>
+  </div>
+</section>
+
+<!-- 3 -->
+<section id="s3">
+  <p class="eyebrow">03 · 주머니</p>
+  <h2>주머니는 3개면 충분</h2>
+  <p>v1의 6개 sleeve를 3개로 줄였다. 통화 분산(원화 자산)은 필요할 때 <b>위성</b> 안의 한 선택지로만 둔다 — 별도 손잡이로 만들지 않는다.</p>
+  <div class="sleeves">
+    <div class="scard core">
+      <div class="top"><span class="code" style="color:var(--sl-core)">주력 (Core)</span><span class="role">기준 수익 엔진</span></div>
+      <p class="desc">TQQQ v2.2 커스텀(40분할). 검증이 가장 많이 된 중심.</p>
+    </div>
+    <div class="scard sat">
+      <div class="top"><span class="code" style="color:var(--sl-sat)">위성 (Satellite)</span><span class="role">룰·종목 다양화</span></div>
+      <p class="desc">다른 룰(v3.0) 또는 다른 종목/통화(SOXL·QLD·원화 자산). 손잡이 3의 재료. 고상관군 합산 상한만 지킨다.</p>
+    </div>
+    <div class="scard cash">
+      <div class="top"><span class="code" style="color:var(--sl-cash)">현금 (Cash)</span><span class="role">쉬는 돈 · 손잡이 4</span></div>
+      <p class="desc">달러 예수금/RP. 스키밍이 채우고, 폭락 후 탄약·서킷 피난처로 쓴다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 4 -->
+<section id="s4">
+  <p class="eyebrow">04 · 자본 티어</p>
+  <h2>자본이 자랄 때의 구성 (3단계)</h2>
+  <p>전환 기준은 금액보다 <b>주머니 최소 유효 시드</b>(unit으로 1주 살 수 있어야 사이클이 돈다). 빗금 = 쉬는 돈.</p>
+
+  <div class="tier">
+    <div class="th"><span class="tname">T0 · 단련</span><span class="tcap">~1×</span></div>
+    <p class="tsub">주력 하나 + 손잡이 2(200일선). 파이프라인·심리 단련.</p>
+    <div class="bar"><span class="seg core" style="width:100%"></span></div>
+    <div class="blegend"><span><span class="dot core"></span>주력 100%</span></div>
+    <div class="tgates"><b>졸업:</b> 자동화 검증 + 소진 1회 이상 무사 경험.</div>
+  </div>
+  <div class="tier">
+    <div class="th"><span class="tname">T1 · 현금 주머니</span><span class="tcap">~1.5×</span></div>
+    <p class="tsub"><b>첫 분산은 종목이 아니라 현금.</b> + 손잡이 1(스키밍 p=70%)이 현금을 자동으로 채운다.</p>
+    <div class="bar"><span class="seg core" style="width:70%"></span><span class="seg cash" style="width:30%"></span></div>
+    <div class="blegend"><span><span class="dot core"></span>주력 70%</span><span><span class="dot cash"></span>현금 30%</span></div>
+    <div class="tgates"><b>졸업:</b> 뺀 현금이 실제로 폭락 후 재투자로 이어지는 것을 관측.</div>
+  </div>
+  <div class="tier">
+    <div class="th"><span class="tname">T2 · 다양화</span><span class="tcap">~2.5×↑</span></div>
+    <p class="tsub">위성 추가 + 손잡이 3(시차·다른 룰). 서킷브레이커는 항상 바닥에.</p>
+    <div class="bar"><span class="seg core" style="width:50%"></span><span class="seg sat" style="width:20%"></span><span class="seg cash" style="width:30%"></span></div>
+    <div class="blegend"><span><span class="dot core"></span>주력 50%</span><span><span class="dot sat"></span>위성 20%</span><span><span class="dot cash"></span>현금 30%</span></div>
+    <div class="tgates"><b>강등:</b> 계좌 MDD −25%(바닥) → 한 티어 아래로 축소 후 재시작. 고상관군 합산 ≤60%.</div>
+  </div>
+  <div class="box key"><span class="tag">읽는 법</span>비율은 <b>검증할 출발 가설</b>이다. 스키밍 p와 현금 30%가 적정한지가 바로 실험(06장)의 질문.</div>
+</section>
+
+<!-- 5 -->
+<section id="s5">
+  <p class="eyebrow">05 · 정리</p>
+  <h2>검토했으나 뺀 것</h2>
+  <p>"선택지가 너무 많다"는 문제를 정면으로 해결한다. 아래는 v1에 있었지만 <b>복잡하거나 효과가 불확실해 뺀</b> 것들 — 이유를 남겨 나중에 다시 꺼낼 수 있게 한다.</p>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>뺀 것</th><th>이유</th></tr></thead>
+    <tbody>
+      <tr><td>환율 연동 증액 (FX 버짓)</td><td class="cut">불필요 (요청). 환전은 별개 문제로 분리 — 전략 손잡이 아님.</td></tr>
+      <tr><td>RSI 진입 필터</td><td>손잡이 2(200일선)와 역할 중복. 파라미터만 늘고 효과 불확실.</td></tr>
+      <tr><td>VIX 변동성 서킷</td><td>외부 데이터 의존 + 복잡. 바닥(서킷브레이커)이 사실상 대체.</td></tr>
+      <tr><td>변동성 타게팅(회차 축소)</td><td>파라미터 과최적화 위험 대비 이득 불명확.</td></tr>
+      <tr><td>소진 조기화(soldout_T 하향)</td><td>손잡이 2·쿨다운과 중복.</td></tr>
+      <tr><td>DD 역가중 시드 사다리</td><td>손잡이 1(스키밍)·바닥과 목적 겹침. 별도 규칙 불필요.</td></tr>
+      <tr><td class="cut">역방향 증원(물타기 스케일업)</td><td class="cut">깊은 하락에 베팅을 키우는 파산 경로 — 채택 안 함.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="box warn"><span class="tag">원칙</span>손잡이는 서로 <b>직교</b>(중복 없음)해야 한다. 같은 일을 하는 두 규칙은 하나로 합치거나 뺀다. 규칙 수가 적을수록 과최적화·심리 혼선이 준다.</div>
+</section>
+
+<!-- 6 -->
+<section id="s6">
+  <p class="eyebrow">06 · 실험</p>
+  <h2>검증 우선순위 (3개면 충분)</h2>
+  <p>손잡이가 줄었으니 실험도 줄었다. 전부 엔진(<code>decide_orders</code>) 바깥 훅이라 두뇌는 안 건드린다.</p>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>실험</th><th>내용</th><th>측정</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">EXP-1</td><td>손잡이 1 — 스키밍 p 스윕 (100/70/50)</td><td>CAGR·MDD 프런티어</td></tr>
+      <tr><td class="mono">EXP-2</td><td>손잡이 3 — TQQQ 2-주머니 시차 유/무</td><td>동시 소진 이벤트 수</td></tr>
+      <tr><td class="mono">EXP-3</td><td>전체 구성 vs 단순 지수 적립 벤치마크</td><td>같은 기간 CAGR·MDD·2022 구간</td></tr>
+    </tbody>
+  </table></div>
+  <div class="box warn"><span class="tag">과최적화 가드</span>평가 기준 고정 — <b>① 2022 최악 구간 낙폭 ② 소진 연쇄 길이 ③ MDD, 그 다음이 CAGR.</b> 기간 분할(2010–17 설계 / 2018–26 검증). "전 구간 최고"를 찾지 않는다.</div>
+</section>
+
+<!-- 7 -->
+<section id="s7">
+  <p class="eyebrow">07 · 결정</p>
+  <h2>Nick 결정 대기 (3개)</h2>
+  <ol class="decide">
+    <li><span class="num">1</span><span class="q"><b>스키밍 비율 p</b><span>제안: 100/70/50 스윕 후 데이터로 결정. (손잡이 1)</span></span></li>
+    <li><span class="num">2</span><span class="q"><b>위성의 축</b><span>다른 룰(v3.0) vs 다른 종목(SOXL) vs 통화(원화). 우선순위 하나.</span></span></li>
+    <li><span class="num">3</span><span class="q"><b>티어 전환 기준</b><span>금액 vs 조건(소진 경험·모의 개월) vs 혼합. 제안: 혼합.</span></span></li>
+  </ol>
+  <p style="font-size:13.5px; color:var(--ink2)">정해지면 EXP-1(스키밍)부터 엔진 훅 구현 → Lab에 반영 → 실측.</p>
+</section>
+
+<!-- 8 -->
+<section id="s8">
+  <p class="eyebrow">08 · 부록</p>
+  <h2>근거 &amp; 연결</h2>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>사실</th><th>값</th></tr></thead>
+    <tbody>
+      <tr><td>TQQQ 복리 (16.4년)</td><td>CAGR 10.9% · MDD −34% · 소진 10회</td></tr>
+      <tr><td>복리 OFF 대비</td><td>6.5% / −16% (위험 스케일 다이얼의 양끝)</td></tr>
+      <tr><td>200일선 게이트 효과</td><td>MDD −34→−29.7%, 소진 10→8, CAGR 유지</td></tr>
+      <tr><td>TQQQ·SOXL 상관</td><td>≈ 0.9 (종목 분산 무력)</td></tr>
+      <tr><td>단순 QLD 적립 (벤치마크)</td><td>IRR 30% · MDD −71% — 무한매수가 못 이기는 수익, 대신 낙폭 2배</td></tr>
+    </tbody>
+  </table></div>
+  <div class="links">
+    <a href="./sim.html" rel="noopener">🧪 무한매수 Lab</a>
+    <a href="./bench.html" rel="noopener">📈 지수 벤치마크</a>
+  </div>
+  <p style="font-size:13px; color:var(--ink2)">소스: <span class="mono">docs/research/scenarios.md</span> (SSOT) · <span class="mono">lab_plan.md</span> · <span class="mono">core/engine.py</span>. 폰: <span class="mono">tools\serve_lan.ps1</span> → Tailscale <span class="mono">100.94.205.30:8011</span>.</p>
+</section>
+
+<footer>
+  🛡️ 무한매수 폭락 방어 &amp; 분산 · v2 슬림판 (2026-07-10) · 비공개 연구 문서 — 투자 권유 아님.<br>
+  손잡이 4 + 바닥 1. 비율·임계는 검증할 가설. 시뮬레이션은 07장 결정 확정 후 EXP-1부터.
+</footer>
+
+</main>
+
+<script>
+(function(){
+  "use strict";
+  var items = [["s1","01 · 문제"],["s2","02 · 4손잡이+1바닥"],["s3","03 · 주머니 3개"],
+    ["s4","04 · 자본 티어"],["s5","05 · 뺀 것"],["s6","06 · 실험"],["s7","07 · 결정"],["s8","08 · 부록"]];
+  var sel = document.getElementById("jump");
+  var o0 = document.createElement("option"); o0.value=""; o0.textContent="섹션으로 이동…"; sel.appendChild(o0);
+  items.forEach(function(it){ var o=document.createElement("option"); o.value=it[0]; o.textContent=it[1]; sel.appendChild(o); });
+  sel.addEventListener("change", function(){ if(sel.value){ location.hash="#"+sel.value; sel.selectedIndex=0; } });
+})();
+</script>
+
+</body>
+</html>
