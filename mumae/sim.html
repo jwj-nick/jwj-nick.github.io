@@ -927,15 +927,28 @@ python docs/research/simulator/build.py
     var cycles = [], cycleStart = 0;
     var eqs = [], dds = [], liqIdx = [], winIdx = [];
     var peak = cfg.seed;
+    // 거래비용 (0 이면 세전과 동일)
+    var feePct = cfg.feePct || 0, taxRate = cfg.taxRate || 0, taxDeduct = cfg.taxDeduct || 0;
+    var feesPaid = 0, taxPaid = 0, trades = 0, realizedYear = 0, curYear = null;
 
     for (var i = 0; i < px.length; i++) {
       var close = px[i];
       pos.ref = close;
+      var dt = (monthlyAdd > 0 || taxRate > 0) ? new Date(days[i] * 86400000) : null;
+
+      // 양도세: 역년 경계에서 전년도 실현이익 정산
+      if (taxRate > 0) {
+        var yr = dt.getUTCFullYear();
+        if (curYear === null) curYear = yr;
+        else if (yr !== curYear) {
+          var tx = Math.max(0, realizedYear - taxDeduct) * taxRate / 100;
+          cash -= tx; taxPaid += tx; realizedYear = 0; curYear = yr;
+        }
+      }
 
       // 월 적립(DCA): 달이 바뀌는 첫 거래일에 적립액 투입
       if (monthlyAdd > 0) {
-        var t = new Date(days[i] * 86400000);
-        var mk = t.getUTCFullYear() * 12 + t.getUTCMonth();
+        var mk = dt.getUTCFullYear() * 12 + dt.getUTCMonth();
         if (mk !== lastMk) {
           if (lastMk !== null) { cash += monthlyAdd; invested += monthlyAdd; contribIdx.push(i); }
           lastMk = mk;
@@ -945,7 +958,9 @@ python docs/research/simulator/build.py
       if (pos.qty > 0) { // 소진 청산 (사이클 시작 시점의 시드 기준)
         var T = Math.min(computeT(pos.cum, cycleSeed / cfg.splits), cfg.splits);
         if (T >= cfg.soldoutT) {
-          cash += pos.qty * close;
+          var pr = pos.qty * close, fe = pr * feePct / 100;
+          cash += pr - fe; feesPaid += fe; trades++;
+          realizedYear += pos.qty * (close - pos.avg);
           cycles.push({ ret: (close - pos.avg) / pos.avg, days: i - cycleStart, soldout: true });
           liqIdx.push(i);
           pos = { qty: 0, avg: 0, cum: 0, ref: close };
@@ -968,14 +983,16 @@ python docs/research/simulator/build.py
         var o = orders[j];
         if (!fill(o, close)) continue;
         if (o.side === "BUY") {
+          var notion = o.qty * close, fb = notion * feePct / 100;
           var nq = pos.qty + o.qty;
           pos.avg = (pos.avg * pos.qty + o.qty * close) / nq;
           pos.qty = nq;
-          pos.cum += o.qty * close;
-          cash -= o.qty * close;
+          pos.cum += notion;
+          cash -= notion + fb; feesPaid += fb; trades++;
         } else {
-          var sq = Math.min(o.qty, pos.qty);
-          cash += sq * close;
+          var sq = Math.min(o.qty, pos.qty), ns = sq * close, fs = ns * feePct / 100;
+          cash += ns - fs; feesPaid += fs; trades++;
+          realizedYear += sq * (close - pos.avg);
           pos.qty -= sq;
         }
       }
@@ -991,6 +1008,17 @@ python docs/research/simulator/build.py
       peak = Math.max(peak, eq);
       eqs.push(eq);
       dds.push((eq - peak) / peak * 100);
+    }
+
+    // 종료 정산(양도세): 최종연도 실현이익 + 잔여 포지션 청산 가정 → 세후 최종자산
+    if (taxRate > 0) {
+      var fc = px[px.length - 1];
+      if (pos.qty > 0) realizedYear += pos.qty * (fc - pos.avg);
+      var tt = Math.max(0, realizedYear - taxDeduct) * taxRate / 100;
+      taxPaid += tt;
+      var li = eqs.length - 1;
+      eqs[li] -= tt;
+      dds[li] = (eqs[li] - peak) / peak * 100;
     }
 
     var years = Math.max((days[days.length - 1] - days[0]) / 365.25, 1 / 365);
@@ -1033,7 +1061,10 @@ python docs/research/simulator/build.py
         years: years,
         finalEq: finalEq,
         invested: invested,
-        soldouts: soldouts
+        soldouts: soldouts,
+        feesPaid: feesPaid,
+        taxPaid: taxPaid,
+        trades: trades
       }
     };
   }

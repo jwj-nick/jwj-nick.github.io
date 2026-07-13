@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>무한매수보다 나은 방어가 있나 — 200일선 스위치 & Value Averaging</title>
+<style>
+  :root{
+    --bg:#F6F5F1; --surface:#FFFFFF; --surface2:#EFEDE4; --surface3:#E7E4DA;
+    --ink:#201D17; --ink2:#57524A; --muted:#8B8578;
+    --line:#E3E0D6; --line2:#CFCBBB;
+    --accent:#8F6420; --accent-soft:#F0E7D2;
+    --danger:#B23B2E; --danger-soft:#F6E3E0;
+    --safe:#2E5FA3; --safe-soft:#E2EAF6;
+    --grow:#1F7D4F; --grow-soft:#DDEFE4;
+    --warn-bg:#F9EFE0; --warn-bd:#D9B36A;
+    --code-bg:#F0EEE6;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#161511; --surface:#1E1C16; --surface2:#26231A; --surface3:#2E2A20;
+      --ink:#EAE7DF; --ink2:#B3AC9C; --muted:#847D6E;
+      --line:#332F26; --line2:#4A4436;
+      --accent:#D9A85A; --accent-soft:#2E2716;
+      --danger:#E58B7C; --danger-soft:#3A231E;
+      --safe:#8FB0E3; --safe-soft:#1F2A3C;
+      --grow:#5DBE8C; --grow-soft:#16271E;
+      --warn-bg:#2E2513; --warn-bd:#8A6A2C;
+      --code-bg:#211E16;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#161511; --surface:#1E1C16; --surface2:#26231A; --surface3:#2E2A20;
+    --ink:#EAE7DF; --ink2:#B3AC9C; --muted:#847D6E;
+    --line:#332F26; --line2:#4A4436;
+    --accent:#D9A85A; --accent-soft:#2E2716;
+    --danger:#E58B7C; --danger-soft:#3A231E;
+    --safe:#8FB0E3; --safe-soft:#1F2A3C;
+    --grow:#5DBE8C; --grow-soft:#16271E;
+    --warn-bg:#2E2513; --warn-bd:#8A6A2C;
+    --code-bg:#211E16;
+  }
+  :root[data-theme="light"]{
+    --bg:#F6F5F1; --surface:#FFFFFF; --surface2:#EFEDE4; --surface3:#E7E4DA;
+    --ink:#201D17; --ink2:#57524A; --muted:#8B8578;
+    --line:#E3E0D6; --line2:#CFCBBB;
+    --accent:#8F6420; --accent-soft:#F0E7D2;
+    --danger:#B23B2E; --danger-soft:#F6E3E0;
+    --safe:#2E5FA3; --safe-soft:#E2EAF6;
+    --grow:#1F7D4F; --grow-soft:#DDEFE4;
+    --warn-bg:#F9EFE0; --warn-bd:#D9B36A;
+    --code-bg:#F0EEE6;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Pretendard Variable",Pretendard,"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+    font-size:16.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+  .mono{font-family:"Cascadia Code","JetBrains Mono",Consolas,"D2Coding",monospace}
+  a{color:var(--accent);text-underline-offset:3px}
+
+  nav{position:sticky;top:0;z-index:30;display:flex;gap:10px;align-items:center;
+    background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);padding:9px 16px}
+  nav .brand{font-weight:800;font-size:13.5px;white-space:nowrap;display:flex;gap:6px;align-items:center}
+  nav select{flex:1;min-width:0;padding:8px 10px;border:1px solid var(--line2);border-radius:8px;
+    background:var(--surface);color:var(--ink);font-family:inherit;font-size:13.5px}
+
+  main{max-width:780px;margin:0 auto;padding:24px 18px 100px}
+  section{margin:0 0 44px;scroll-margin-top:60px}
+  p{margin:12px 0;max-width:72ch}
+  .eyebrow{font-family:"Cascadia Code",Consolas,monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin:0 0 8px}
+  h2{font-size:22px;font-weight:800;letter-spacing:-.015em;line-height:1.28;margin:0 0 6px;text-wrap:balance}
+  h3{font-size:16.5px;font-weight:750;margin:24px 0 8px}
+  strong,b{font-weight:700}
+  ul,ol{padding-left:20px;margin:12px 0} li{margin:6px 0}
+
+  .hero{border:1px solid var(--line2);border-radius:14px;background:var(--surface);padding:26px 22px 20px;margin-bottom:28px}
+  .hero h1{font-size:clamp(24px,6.4vw,32px);font-weight:800;letter-spacing:-.025em;line-height:1.17;margin:6px 0 10px;text-wrap:balance}
+  .hero .lede{color:var(--ink2);font-size:15.5px;margin:0} .hero .lede b{color:var(--ink)}
+  .hero .spec{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+  .hero .pill{background:var(--surface2);border:1px solid var(--line);border-radius:99px;padding:5px 12px;font-size:12.5px;font-variant-numeric:tabular-nums}
+  .hero .pill b{color:var(--accent)}
+
+  .box{border-radius:11px;padding:15px 17px;margin:16px 0;font-size:15px;line-height:1.68}
+  .box.key{background:var(--accent-soft);border-left:3px solid var(--accent)}
+  .box.warn{background:var(--warn-bg);border-left:3px solid var(--warn-bd)}
+  .box.danger{background:var(--danger-soft);border-left:3px solid var(--danger)}
+  .box .tag{font-family:"Cascadia Code",Consolas,monospace;font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;display:block;margin-bottom:5px;color:var(--accent);font-weight:700}
+  .box.warn .tag{color:var(--warn-bd)} .box.danger .tag{color:var(--danger)}
+
+  /* comparison table with inline bars */
+  .cmp{overflow-x:auto;margin:16px 0;border:1px solid var(--line);border-radius:12px}
+  table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+  thead th{background:var(--surface2);font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  tbody tr:last-child td{border-bottom:none}
+  td.name{font-weight:750}
+  tr.win td{background:var(--accent-soft)}
+  tr.bad td.mdd b{color:var(--danger)}
+  .bar{display:inline-block;height:9px;border-radius:3px;vertical-align:middle;margin-left:7px}
+  .bar.irr{background:var(--grow)} .bar.mdd{background:var(--danger)}
+  .num{font-weight:750}
+
+  .dials{display:flex;flex-direction:column;gap:12px;margin:18px 0}
+  .dial{border:1px solid var(--line2);border-radius:13px;background:var(--surface);padding:15px 17px;border-left-width:5px;border-left-style:solid}
+  .dial.d1{border-left-color:var(--accent)} .dial.d2{border-left-color:var(--safe)}
+  .dial.d3{border-left-color:var(--grow)} .dial.d4{border-left-color:var(--muted)} .dial.d5{border-left-color:var(--danger)}
+  .dial > .h{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-bottom:4px}
+  .dial .kn{font-family:"Cascadia Code",Consolas,monospace;font-weight:800;font-size:12px;color:var(--muted)}
+  .dial h4{margin:0;font-size:16px;font-weight:800}
+  .dial .cost{font-size:11px;font-weight:700;padding:2px 9px;border-radius:99px;margin-left:auto;white-space:nowrap;background:var(--warn-bg);color:var(--warn-bd)}
+  .dial .rule{font-size:14.5px;margin:6px 0 0;color:var(--ink2)} .dial .rule b{color:var(--ink)}
+
+  .foot{margin-top:20px;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:16px;line-height:1.8}
+  .xlinks{display:flex;flex-wrap:wrap;gap:9px;margin:18px 0 0}
+  .xlinks a{display:inline-block;text-decoration:none;background:var(--surface2);border:1px solid var(--line);border-radius:99px;padding:7px 14px;font-size:13px;color:var(--ink)}
+</style>
+</head>
+<body>
+
+
+<nav>
+  <span class="brand">🧭 대안 알고리즘</span>
+  <select onchange="if(this.value)location.hash=this.value">
+    <option value="">바로가기…</option>
+    <option value="#verdict">① 한 장 결론</option>
+    <option value="#trend">② 200일선 스위치</option>
+    <option value="#tune">③ 지각 출구 튜닝</option>
+    <option value="#va">④ Value Averaging</option>
+    <option value="#use">⑤ 무엇을 신호로</option>
+  </select>
+</nav>
+
+<main>
+  <div class="hero">
+    <p class="eyebrow">Backtest · 세후 · 다기간</p>
+    <h1>무한매수보다 폭락장서 나은 방어가 있나?</h1>
+    <p class="lede">적립식이 전제라면 질문은 하나다 — <b>3배 레버리지를 들고 가되 안 죽는</b> 알고리즘. 무한매수·1배 적립·<b>200일선 스위치</b>·Value Averaging을 <b>같은 세금·수수료 기준</b>으로 실측했다. 결론부터: <b>200일선 스위치가 무한매수를 압도한다.</b></p>
+    <div class="spec">
+      <span class="pill">월 <b>$1,000</b> 적립</span>
+      <span class="pill">3배 상장~<b>2026</b></span>
+      <span class="pill">세후 <b>수수료0.1%+양도세22%</b></span>
+      <span class="pill">나스닥·S&P·다우</span>
+    </div>
+  </div>
+
+  <section id="verdict">
+    <p class="eyebrow">① 한 장 결론</p>
+    <h2>나스닥100 · 세후 · 2010~ (16년 적립)</h2>
+    <div class="cmp"><table>
+      <thead><tr><th>전략</th><th>IRR(연)</th><th>MDD</th><th>최종 · $198k 투입</th></tr></thead>
+      <tbody>
+        <tr><td class="name">1배 적립</td><td><span class="num">16.9%</span><span class="bar irr" style="width:34px"></span></td><td class="mdd">−34%<span class="bar mdd" style="width:34px"></span></td><td>$928k</td></tr>
+        <tr class="bad"><td class="name">3배 적립 (raw)</td><td><span class="num">39.2%</span><span class="bar irr" style="width:78px"></span></td><td class="mdd"><b>−82%</b><span class="bar mdd" style="width:82px"></span></td><td>$8.43M</td></tr>
+        <tr class="win"><td class="name">⭐ 3배·200일선</td><td><span class="num">30.2%</span><span class="bar irr" style="width:60px"></span></td><td class="mdd">−61%<span class="bar mdd" style="width:61px"></span></td><td>$3.47M</td></tr>
+        <tr><td class="name">3배·계단100/200</td><td><span class="num">30.3%</span><span class="bar irr" style="width:60px"></span></td><td class="mdd">−64%<span class="bar mdd" style="width:64px"></span></td><td>$3.49M</td></tr>
+        <tr><td class="name">3배·VA</td><td><span class="num">25.9%</span><span class="bar irr" style="width:52px"></span></td><td class="mdd">−42%<span class="bar mdd" style="width:42px"></span></td><td>$699k*</td></tr>
+        <tr><td class="name">무한매수(3x)</td><td><span class="num">7.3%</span><span class="bar irr" style="width:15px"></span></td><td class="mdd">−34%<span class="bar mdd" style="width:34px"></span></td><td>$372k</td></tr>
+      </tbody>
+    </table></div>
+    <p class="mono" style="font-size:12px;color:var(--muted)">* VA 최종은 순투입 $19.8k 기준 — 강세장서 팔아치워 자본을 못 실음(④ 참조).</p>
+
+    <div class="box danger"><span class="tag">불편한 사실</span>
+      <b>무한매수는 세후 모든 시나리오에서 수익 꼴찌.</b> 나스닥 7.3%, S&P 2.7%, 다우 4.7%. 심지어 <b>1배 단순 적립에도 위험조정으로 진다</b> — 1배(16.9%/−34%)와 무한(7.3%/−34%)은 <b>MDD가 같은데 수익은 절반 이하.</b> 강세장에선 무한매수의 잦은 매도(5,000회+)가 변동성 수확이 아니라 현금 드래그·상단 절단으로 작용한다.
+    </div>
+    <div class="box key"><span class="tag">핵심</span>
+      무한매수는 <b>수익 도구가 아니다.</b> 횡보·폭락 레짐 한정 방어 도구로만 정당화된다. 그리고 "3배 방어"라는 그 목적조차 <b>200일선 스위치가 4배 높은 수익(7.3%→30.2%)으로 더 잘 해낸다.</b>
+    </div>
+  </section>
+
+  <section id="trend">
+    <p class="eyebrow">② 200일선 스위치</p>
+    <h2>추세가 살아있을 때만 3배를 든다</h2>
+    <p>규칙은 한 줄이다: <b>기초지수(나스닥100)가 200일 이동평균 위 → 3배 ETF 풀보유. 아래로 이탈 → 현금.</b> 상승 추세 동안엔 현금 드래그 없이 3배를 다 먹고, 하락 초입에 통째로 빠진다.</p>
+    <div class="box key"><span class="tag">기술 포인트</span>
+      <b>신호는 반드시 "기초지수(NDX)"에 걸고, 매매만 3배 ETF로.</b> TQQQ 자신의 200일선은 레버리지 붕괴(decay)로 왜곡돼 쓰레기 신호가 된다. — 이 백테스트는 이 방식을 적용했다.
+    </div>
+    <p>보험료는 <b>휩쏘(속임수 신호)</b>. 무한매수가 <em>현금 보유+물타기</em>로 방어하며 현금 드래그를 치르는 것과 달리, 200일선은 <em>이진 탈출</em>로 방어하며 휩쏘를 치른다. 강한 추세장에선 드래그가 없는 200일선이 이긴다.</p>
+  </section>
+
+  <section id="tune">
+    <p class="eyebrow">③ 지각 출구</p>
+    <h2>"3배는 200일선 뚫으면 이미 많이 빠진 상태 아닌가?" — 맞다</h2>
+    <p>기초지수가 200일선을 깰 때쯤이면 지수는 고점 대비 −10~15%, 그런데 <b>3배 ETF는 −30~45%</b> 빠진 뒤다. 그래서 200일선 스위치의 MDD도 <b>−55~64%</b>로 여전히 크다. <b>2020 코로나 V자 폭락</b>은 3배가 4주 만에 −70% 빠져 신호가 뜨기도 전에 당한다. 추세추종은 절대 바닥을 못 잡는다.</p>
+    <div class="box warn"><span class="tag">그래도</span>
+      크래시를 <b>포함·통과</b>하는 구간일수록 200일선이 raw 3배를 잡거나 앞선다:
+    </div>
+    <div class="cmp"><table>
+      <thead><tr><th>나스닥·세후</th><th>3배 raw</th><th>3배·200일선</th></tr></thead>
+      <tbody>
+        <tr><td class="name">2018~</td><td>33.5% / −79%</td><td class="mdd" style="color:var(--grow)"><b>36.2% / −54%</b> ✓둘 다 우위</td></tr>
+        <tr><td class="name">2021~</td><td>36.0% / −62%</td><td>36.7% / <b>−37%</b></td></tr>
+        <tr><td class="name">2022~</td><td>46.9% / −56%</td><td>43.1% / <b>−36%</b></td></tr>
+      </tbody>
+    </table></div>
+    <p>낙폭이 −37%대로 내려오면 "실제로 들고 버틸 수 있는" 3배가 된다. 지각 출구를 더 줄이는 손잡이들(⚠️ 늘릴수록 과최적화 위험):</p>
+    <div class="dials">
+      <div class="dial d1"><div class="h"><span class="kn">MA</span><h4>이동평균 길이</h4><span class="cost">보험료: 휩쏘</span></div>
+        <p class="rule">200(느림·휩쏘 적음·늦음) ↔ <b>100(빠름·일찍 탈출·휩쏘 많음)</b>. 3배엔 100이 유리할 수 있다.</p></div>
+      <div class="dial d2"><div class="h"><span class="kn">STEP</span><h4>계단식 (절반 팔기)</h4><span class="cost">이번 구현: 이득 미미</span></div>
+        <p class="rule">지수 200선 위 <b>100%</b> / 100~200 사이 <b>50%</b> / 100선 아래 <b>0%</b>. 늦은 출구·휩쏘를 동시에 완화하는 아이디어지만, 단순 구현에선 MDD 개선이 −64%로 미미 — 임계·비중 재튜닝 여지.</p></div>
+      <div class="dial d3"><div class="h"><span class="kn">BUF</span><h4>버퍼 (히스테리시스)</h4><span class="cost">지연</span></div>
+        <p class="rule">이탈은 MA×(1−2%), 재진입은 MA×(1+2%). 경계선 왔다갔다(휩쏘)를 직접 죽인다.</p></div>
+      <div class="dial d4"><div class="h"><span class="kn">RE</span><h4>비대칭 재진입</h4><span class="cost">기회비용</span></div>
+        <p class="rule">재매수는 "지수>MA <b>AND</b> MA 상승중"일 때만 → 죽은 고양이 반등에 안 낚인다. + 분할 재진입(N주 나눠 태우기)으로 타이밍 리스크 분산.</p></div>
+      <div class="dial d5"><div class="h"><span class="kn">VOL</span><h4>변동성 오버레이</h4><span class="cost">복잡</span></div>
+        <p class="rule">3배 폭락은 변동성 급등이 선행 → MA 깨지기 전 조기 축소 가능. 강력하지만 휩쏘·복잡도 증가.</p></div>
+    </div>
+    <div class="box warn"><span class="tag">규율</span>
+      손잡이(MA길이·버퍼·계단·재진입)를 늘릴수록 2010~2026에 커브핏하기 쉽다. <b>최적화보다 강건성</b> — 몇 개의 상식적 변종만 비교하지, "제일 좋은 조합 찾기"는 함정.
+    </div>
+  </section>
+
+  <section id="va">
+    <p class="eyebrow">④ Value Averaging</p>
+    <h2>목표 가치 경로를 추종 — 밑돌면 더 사고, 넘치면 판다</h2>
+    <p>Edleson의 VA는 무한매수의 깔끔한 학술판이다. 매달 <b>목표 자산가치</b>를 정하고(예: 매월 +$1,000씩 성장), 실제 평가액이 밑돌면 그만큼 더 사고, 넘치면 팔아 목표에 맞춘다. 변동성 수확이 규칙에 내장돼 있다.</p>
+    <div class="box danger"><span class="tag">3배에서의 함정</span>
+      순수 VA(선형 목표)를 3배에 걸면 <b>강세장에서 과소투자</b>한다. 목표경로가 선형($1,000/월)인데 3배가 폭발 성장하니, VA는 계속 <b>팔아치워</b> 자본을 못 싣는다 — 나스닥 16년에 순투입이 $19.8k뿐. 위험조정(25.9%/−42%)은 좋아 보이지만 <b>승자를 조기 절단</b>한 결과다.
+    </div>
+    <p>→ 3배엔 <b>성장 반영 목표경로</b>(목표가 예상 수익률만큼 함께 성장)로 튜닝해야 실용적이다. 이건 다음 백테스트 백로그.</p>
+  </section>
+
+  <section id="use">
+    <p class="eyebrow">⑤ 무엇을 신호로</p>
+    <h2>이 연구가 신호 조언자로 이어지는 지점</h2>
+    <ul>
+      <li><b>채택 — 200일선 방어 모드 신호:</b> 기초지수 200일선 상태로 "3배 보유 / 현금 대피"를 매일 제안. (데일리 뉴스레터에 연결)</li>
+      <li><b>튜닝 후 검토:</b> 계단·버퍼·비대칭 재진입, 성장반영 VA, 변동성 오버레이 — 추가 백테스트로 검증한 뒤에만 신호화.</li>
+      <li><b>무한매수의 자리:</b> 수익 극대화가 아니라, 규칙으로 감정을 배제한 <b>보조 방어</b>. 단독 주력으로는 근거가 약하다는 게 이 실측의 결론.</li>
+    </ul>
+    <div class="box key"><span class="tag">정직한 한계</span>
+      미국 강세장(2010~) 표본 편향 — "잃어버린 10년"이면 순위가 무한·VA 쪽으로 바뀔 수 있다. 정수주·슬리피지·배당·실제 체결가는 미세 오차로 미반영(상대 비교엔 충분, 절대치는 근사). <b>투자 권유 아님.</b>
+    </div>
+
+    <div class="xlinks">
+      <a href="./sim.html">🧪 무한매수 Lab</a>
+      <a href="./bench.html">📈 지수 벤치마크</a>
+      <a href="./defense.html">🛡️ 폭락 방어</a>
+      <a href="./">← 허브</a>
+    </div>
+    <p class="foot">재현: <span class="mono">python -m backtest.altbench full</span> · SSOT <span class="mono">docs/research/algo_findings.md</span><br>개인 스터디 · 지속 업데이트 · 계좌/API/보유내역 등 민감정보 미포함.</p>
+  </section>
+</main>
+
+</body>
+</html>
