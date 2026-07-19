@@ -16,7 +16,7 @@
     {id:'u6',no:6,t:'일차함수와 일차방정식',u:'#e2698a',u2:'#f0929f'}
   ];
   // 탐험(PhET) 탭이 준비된 단원만 노출 → 미준비 단원에서 404 방지
-  var EXPLORE_READY={5:1};
+  var EXPLORE_READY={1:1,2:1,3:1,4:1,5:1,6:1};
   // 파일명 → 단원 번호 + 종류 (u=개념 p=연습 d=심화탐구 dNp=심화문제)
   function pageInfo(){
     var f=(location.pathname.split('/').pop()||'index.html').toLowerCase().replace(/\?.*$/,'').replace(/\.html$/,'');
