@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>생명 시스템 — 통합과학1</title>
+<style>
+  :root{
+    --panel:#fff; --ink:#1e293b; --sub:#64748b; --line:#e2e8f0;
+    --blue:#2563eb; --blue-d:#1e40af; --green:#16a34a; --green-bg:#f0fdf4;
+    --amber:#d97706; --amber-bg:#fffbeb; --red:#dc2626; --red-bg:#fef2f2;
+    --purple:#7c3aed; --purple-bg:#f5f3ff; --indigo:#4f46e5; --accent:#db2777; --accent-bg:#fdf2f8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',sans-serif;background:#f1f5f9;color:var(--ink);line-height:1.7;-webkit-text-size-adjust:100%}
+  a{color:var(--blue)} sup,sub{font-size:.72em}
+  .crumb{background:#f8fafc;border-bottom:1px solid var(--line);padding:7px 16px;font-size:12px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+  .crumb a{color:var(--sub);text-decoration:none} .crumb a.cur{color:var(--blue);font-weight:600} .crumb span{color:#cbd5e1}
+  .hero{background:linear-gradient(135deg,#831843,#db2777 65%,#f472b6);color:#fff;padding:26px 18px 22px;text-align:center}
+  .hero .badge{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:3px 13px;font-size:12px;margin-bottom:10px}
+  .hero h1{font-size:21px;font-weight:800;letter-spacing:-.3px} .hero p{font-size:13px;opacity:.93;margin-top:6px}
+  .tabs{position:sticky;top:0;z-index:50;display:flex;background:#500724;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;padding:13px 15px;min-height:44px;color:#fbcfe8;font-size:13.5px;font-weight:600;cursor:pointer;border:none;background:none;border-bottom:3px solid transparent;white-space:nowrap;transition:.15s}
+  .tab.active{color:#fff;border-bottom-color:#f472b6} .tab:hover{color:#fce7f3}
+  .wrap{max-width:860px;margin:0 auto;padding:22px 16px 70px}
+  .page{display:none} .page.active{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .card h2{font-size:18px;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .card h3{font-size:15px;font-weight:700;margin:16px 0 8px;color:var(--blue-d)} .card p{font-size:14px;margin-bottom:8px} .lead{color:var(--sub);font-size:13px;margin-bottom:14px}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0} th,td{border:1px solid var(--line);padding:8px 9px;text-align:center} th{background:#f8fafc;font-weight:700} td.l,th.l{text-align:left}
+  .box{border-radius:10px;padding:13px 15px;margin:10px 0;font-size:13.5px}
+  .box.g{background:var(--green-bg);border:1px solid #bbf7d0} .box.a{background:var(--amber-bg);border:1px solid #fde68a} .box.b{background:#eff6ff;border:1px solid #bfdbfe} .box.k{background:var(--accent-bg);border:1px solid #fbcfe8}
+  .box .t{font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+  .box.g .t{color:var(--green)} .box.a .t{color:var(--amber)} .box.b .t{color:var(--blue-d)} .box.k .t{color:var(--accent)}
+  .hook{background:linear-gradient(135deg,#fdf2f8,#fce7f3);border:1px solid #fbcfe8;border-radius:12px;padding:16px 18px;margin:12px 0;font-size:14px}
+  .hook .ht{color:var(--accent);font-weight:800;font-size:15px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  .keeper{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fcd34d;border-radius:12px;padding:15px 17px;margin:12px 0}
+  .keeper .kt{color:#b45309;font-weight:800;font-size:14.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .keeper ol{margin:0;list-style:none} .keeper li{position:relative;padding:8px 0 8px 34px;font-size:13.5px;border-bottom:1px dashed #fde68a}
+  .keeper li:last-child{border-bottom:none} .keeper li::before{content:"📌";position:absolute;left:4px;top:8px}
+  .insight{background:var(--purple-bg);border:1px solid #ddd6fe;border-radius:12px;padding:14px 16px;margin:12px 0;font-size:13.5px}
+  .insight .it{color:var(--purple);font-weight:800;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+  .reallife{background:var(--green-bg);border:1px solid #bbf7d0;border-radius:12px;padding:14px 16px;margin:12px 0}
+  .reallife .rt{color:var(--green);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:9px}
+  .rcell{background:#fff;border:1px solid #bbf7d0;border-radius:9px;padding:10px} .rcell .ri{font-size:22px} .rcell .rn{font-weight:800;font-size:13px;margin:3px 0} .rcell .rd{font-size:11.5px;color:#475569;line-height:1.5}
+  .industry{background:#eef2ff;border:1px solid #c7d2fe;border-radius:12px;padding:14px 16px;margin:12px 0}
+  .industry .indt{color:var(--indigo);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .indrow{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #e0e7ff} .indrow:last-child{border-bottom:none}
+  .indrow .ii{font-size:24px;flex-shrink:0} .indrow .id2{font-size:13px} .indrow .id2 b{color:#312e81}
+  .major{display:inline-block;background:#312e81;color:#c7d2fe;border-radius:6px;padding:2px 8px;font-size:10.5px;font-weight:700;margin-top:4px}
+  .sci{display:flex;gap:13px;align-items:flex-start;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fde68a;border-radius:12px;padding:15px;margin:12px 0}
+  .sci .ava{font-size:34px;line-height:1;flex-shrink:0} .sci .st{font-weight:800;color:#92400e;font-size:14px;margin-bottom:3px} .sci .sd{font-size:13px;color:#78350f}
+  .toc{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:8px}
+  .toc button{text-align:left;background:var(--accent-bg);border:1px solid #fbcfe8;border-radius:10px;padding:12px;cursor:pointer;font:inherit;transition:.15s;min-height:44px}
+  .toc button:hover{border-color:var(--accent);box-shadow:0 2px 8px rgba(219,39,119,.13)}
+  .toc .ti{font-size:20px}.toc .tn{font-weight:800;font-size:13.5px;margin-top:4px}.toc .td{font-size:11.5px;color:var(--sub)}
+  /* cell */
+  .cellwrap{display:flex;gap:14px;flex-wrap:wrap}
+  .cellsvg{width:100%;max-width:320px;background:#fdf2f8;border:1px solid #fbcfe8;border-radius:14px;display:block}
+  .cellside{flex:1;min-width:200px} .cellbtns{display:flex;flex-direction:column;gap:6px}
+  .cellbtn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 12px;cursor:pointer;font:inherit;min-height:46px;text-align:left;transition:.12s;font-weight:700;font-size:13.5px}
+  .cellbtn:hover{background:var(--accent-bg)} .cellbtn.on{border-color:var(--accent);background:var(--accent-bg)}
+  .celldetail{background:var(--accent-bg);border:1px solid #fbcfe8;border-radius:10px;padding:13px 15px;margin-top:12px;font-size:13px;min-height:64px}
+  .celldetail .cdt{font-weight:800;color:var(--accent);margin-bottom:4px}
+  /* enzyme */
+  .enztoggle{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap}
+  .enztoggle button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 14px;font:inherit;font-weight:700;font-size:13px;cursor:pointer;min-height:46px}
+  .enztoggle button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .enzsvg{width:100%;max-width:460px;display:block;margin:8px auto;background:#fff;border:1px solid var(--line);border-radius:12px}
+  .enzdesc{font-size:12.5px;color:#475569;text-align:center;margin-top:6px}
+  /* dogma */
+  .dogma{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+  .dstep{display:flex;align-items:center;gap:11px;border:1px solid var(--line);border-radius:10px;padding:11px 13px;cursor:pointer;background:#fff;min-height:48px;transition:.12s}
+  .dstep:hover{border-color:var(--accent);background:var(--accent-bg)} .dstep.on{border-color:var(--accent);background:var(--accent-bg)}
+  .dstep .db{width:52px;height:34px;flex-shrink:0;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:13px}
+  .dstep .dm{font-weight:800;font-size:13.5px} .dstep .ds2{font-size:11.5px;color:var(--sub)}
+  .dogdetail{background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:13px 15px;margin-top:8px;font-size:13px;min-height:56px}
+  .dogdetail .ddt{font-weight:800;color:var(--accent);margin-bottom:4px}
+  /* quiz */
+  .quizhud{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:12px 16px;margin-bottom:14px}
+  .quizhud .qn{font-weight:800;font-size:14px} .quizhud .sc{margin-left:auto;font-size:13px} .quizhud .sc b{color:#f472b6;font-size:16px}
+  .qbar{flex-basis:100%;height:8px;background:#334155;border-radius:20px;overflow:hidden;margin-top:2px} .qbar > i{display:block;height:100%;background:linear-gradient(90deg,#f472b6,#db2777)}
+  .qq{font-size:16px;font-weight:700;text-align:center;margin:10px 0 16px}
+  .qopts{display:grid;gap:10px}
+  .qopt{border:2px solid var(--line);background:#fff;border-radius:12px;padding:14px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:.12s;min-height:52px} .qopt:hover{border-color:var(--accent)}
+  .qopt.correct{background:var(--green-bg);border-color:#6ee7b7;color:#065f46} .qopt.wrong{background:var(--red-bg);border-color:#fecaca;color:#991b1b} .qopt.dim{opacity:.5}
+  .qexp{display:none;margin-top:14px;background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:13px 15px;font-size:13.5px} .qexp.show{display:block;animation:fade .2s ease}.qexp .et{font-weight:800;margin-bottom:4px}
+  .qnext{display:none;margin-top:14px;width:100%;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:13px;font:inherit;font-weight:800;font-size:14px;cursor:pointer;min-height:48px} .qnext.show{display:block}
+  .qdone{text-align:center;padding:10px 0}.qdone .big{font-size:40px;font-weight:800;color:var(--accent)}
+  .btn{display:inline-block;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px 18px;font:inherit;font-weight:700;font-size:13.5px;cursor:pointer;text-decoration:none;min-height:44px}
+  .chk{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px} .chk:last-child{border-bottom:none} .chk input{margin-top:4px;width:17px;height:17px;flex-shrink:0;accent-color:var(--accent)}
+  .tag{display:inline-block;background:var(--accent-bg);color:var(--accent);border:1px solid #fbcfe8;border-radius:6px;padding:2px 9px;font-size:11.5px;font-weight:700;margin:3px 4px 0 0}
+  @media (max-width:640px){ .hero h1{font-size:19px} .card{padding:16px} }
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Science_1_1</a><span>&rsaquo;</span><a href="sci1_hub.html">통합과학1</a><span>&rsaquo;</span><a class="cur" href="#">생명 시스템</a></nav>
+<div class="hero">
+  <span class="badge">Ⅲ. 시스템과 상호작용 · 생명 시스템</span>
+  <h1>🧬 생명 시스템</h1>
+  <p>세포 · 물질대사와 효소 · 유전자에서 단백질까지</p>
+</div>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="intro">📋 개요</button>
+  <button class="tab" data-t="cell">🔬 세포</button>
+  <button class="tab" data-t="enz">⚗️ 물질대사·효소</button>
+  <button class="tab" data-t="dna">🧬 유전자→단백질</button>
+  <button class="tab" data-t="world">🌐 세상 속으로</button>
+  <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="sum">✅ 정리</button>
+</div>
+<div class="wrap">
+
+  <div class="page active" data-p="intro">
+    <div class="card">
+      <h2>📋 너는 37조 개의 작은 공장이다</h2>
+      <div class="hook">
+        <div class="ht">💥 놀라운 사실</div>
+        네 몸은 약 <b>37조 개</b>의 세포로 되어 있고, 각 세포는 <b>DNA라는 설계도</b>를 보고 <b>단백질</b>을 찍어내는 초소형 화학 공장이다. 지금 이 글을 읽는 순간에도 네 세포 안에서 수백만 개의 화학 반응이 일어나고 있다.
+      </div>
+      <div class="sci">
+        <div class="ava">🧬</div>
+        <div>
+          <div class="st">왓슨 · 크릭 · 프랭클린 (1953) — DNA 이중나선</div>
+          <div class="sd">왓슨과 크릭은 DNA가 <b>이중나선</b> 구조임을 밝혀 유전의 비밀을 열었다. 이때 <b>로절린드 프랭클린</b>의 X선 사진이 결정적 단서였다는 사실도 함께 기억하자.</div>
+        </div>
+      </div>
+      <div class="toc">
+        <button onclick="go('cell')"><div class="ti">🔬</div><div class="tn">세포</div><div class="td">소기관 클릭 탐색</div></button>
+        <button onclick="go('enz')"><div class="ti">⚗️</div><div class="tn">물질대사·효소</div><div class="td">효소 작용 비교</div></button>
+        <button onclick="go('dna')"><div class="ti">🧬</div><div class="tn">유전자→단백질</div><div class="td">정보 흐름</div></button>
+        <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">바이오·제약</div></button>
+        <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+        <button onclick="go('sum')"><div class="ti">✅</div><div class="tn">정리</div><div class="td">요약·자가점검</div></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="cell">
+    <div class="card">
+      <h2>🔬 세포 — 생명의 기본 단위</h2>
+      <p class="lead">모든 생물은 <b>세포</b>로 이루어진다. 세포 안 여러 <b>소기관</b>이 각자 역할을 나눠 하나의 시스템처럼 작동한다. 버튼을 눌러 소기관의 기능을 보자. (동물 세포 기준)</p>
+      <div class="cellwrap">
+        <svg class="cellsvg" id="cellsvg" viewBox="0 0 320 260" role="img" aria-label="동물 세포"></svg>
+        <div class="cellside"><div class="cellbtns" id="cellbtns"></div></div>
+      </div>
+      <div class="celldetail" id="celldetail"></div>
+      <div class="box b">
+        <div class="t">🔑 세포도 하나의 '시스템'</div>
+        소기관들은 따로 노는 게 아니라 <b>서로 물질과 정보를 주고받으며</b> 생명을 유지한다. 핵의 설계도(DNA)로 리보솜이 단백질을 만들고, 미토콘드리아가 에너지를 대는 식으로.
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="enz">
+    <div class="card">
+      <h2>⚗️ 물질대사와 효소</h2>
+      <p class="lead"><b>물질대사</b> = 생명체 안에서 일어나는 모든 화학 반응. 작은 것을 큰 것으로 만드는 <b>동화작용</b>(예: 광합성)과, 큰 것을 분해해 에너지를 얻는 <b>이화작용</b>(예: 세포 호흡)으로 나뉜다. 이 반응을 빠르게 돕는 것이 <b>효소</b>다.</p>
+      <h3>효소가 있을 때 vs 없을 때</h3>
+      <div class="enztoggle" id="enzToggle">
+        <button class="on" data-e="off">효소 없음</button>
+        <button data-e="on">효소 있음</button>
+      </div>
+      <svg class="enzsvg" id="enzsvg" viewBox="0 0 460 210" role="img" aria-label="활성화 에너지"></svg>
+      <div class="enzdesc" id="enzdesc"></div>
+      <div class="box g">
+        <div class="t">✅ 효소의 두 가지 핵심</div>
+        • <b>생체 촉매</b>: 반응에 필요한 <b>활성화 에너지를 낮춰</b> 체온(37℃)에서도 반응이 빠르게 일어나게 한다. 자신은 소모되지 않아 재사용된다.<br>
+        • <b>기질 특이성</b>: 효소는 자물쇠-열쇠처럼 <b>정해진 물질(기질)</b>하고만 반응한다. 그래서 소화 효소도 종류별로 다르다.
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="dna">
+    <div class="card">
+      <h2>🧬 유전자 → 단백질 (생명의 정보 흐름)</h2>
+      <p class="lead">생명의 설계도는 <b>DNA</b>에 저장되어 있다. 이 정보가 <b>RNA</b>를 거쳐 <b>단백질</b>로 만들어지고, 그 단백질이 몸을 이루고 기능한다. 단계를 눌러 보자.</p>
+      <div class="dogma" id="dogma"></div>
+      <div class="dogdetail" id="dogdetail"></div>
+      <div class="box a">
+        <div class="t">🔑 왜 단백질이 중요한가</div>
+        효소·근육·머리카락·항체 — 몸의 기능 대부분이 <b>단백질</b>이다. DNA는 "어떤 단백질을 만들지"를 정하는 정보다. 그래서 <b>DNA가 다르면 만들어지는 단백질이 달라지고</b>, 그게 생물의 다양성·유전으로 이어진다.
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="world">
+    <div class="card">
+      <h2>🌐 세상 속으로</h2>
+      <div class="keeper">
+        <div class="kt">📌 어른이 되어도 기억할 것</div>
+        <ol>
+          <li><b>세포</b>는 모든 생물의 기본 단위이고, 그 자체가 하나의 시스템이다.</li>
+          <li><b>효소</b>는 생체 촉매다 — 활성화 에너지를 낮춰 반응을 돕고, 정해진 기질하고만 작용한다(특이성).</li>
+          <li>생명의 정보는 <b>DNA → RNA → 단백질</b> 순으로 흐른다. DNA는 설계도, 단백질은 실제 일꾼.</li>
+        </ol>
+      </div>
+      <div class="insight">
+        <div class="it">💡 인사이트 — 화학이 곧 생명</div>
+        생명은 신비한 별개의 힘이 아니라, <b>정교하게 조절된 화학 반응들의 시스템</b>이다. 앞 단원의 <b>탄소 화합물</b>이 생명의 재료였다면, 이 단원은 그 재료가 <b>어떻게 살아 움직이는가</b>를 보여준다. 물리·화학·생물이 하나로 이어진다.
+      </div>
+      <div class="reallife">
+        <div class="rt">🏠 우리 곁의 생명 시스템</div>
+        <div class="rgrid">
+          <div class="rcell"><div class="ri">🍞</div><div class="rn">발효 빵·김치</div><div class="rd">미생물의 효소 작용</div></div>
+          <div class="rcell"><div class="ri">🍽️</div><div class="rn">소화</div><div class="rd">소화 효소가 음식 분해</div></div>
+          <div class="rcell"><div class="ri">🧺</div><div class="rn">효소 세제</div><div class="rd">단백질·기름때 분해 효소</div></div>
+          <div class="rcell"><div class="ri">👨‍👩‍👧</div><div class="rn">부모 닮음</div><div class="rd">DNA로 전해지는 유전</div></div>
+        </div>
+      </div>
+      <div class="industry">
+        <div class="indt">🏭 산업과 직업 — 생명을 다루는 기술</div>
+        <div class="indrow"><div class="ii">💊</div><div class="id2"><b>바이오·제약</b><br>효소·항체·백신·신약 개발. 코로나 mRNA 백신도 이 정보 흐름을 응용.<br><span class="major">🎓 생명공학 · 약학 · 의학</span></div></div>
+        <div class="indrow"><div class="ii">✂️</div><div class="id2"><b>유전공학 — CRISPR</b><br>DNA를 정밀하게 편집해 질병 치료·품종 개량에 도전.<br><span class="major">🎓 유전학 · 분자생물학</span></div></div>
+        <div class="indrow"><div class="ii">💻</div><div class="id2"><b>바이오인포매틱스</b><br>방대한 유전체(DNA) 데이터를 <b>AI·데이터</b>로 분석해 신약·진단에 활용.<br><span class="major">🎓 데이터사이언스 · 생물정보학</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="quiz">
+    <div class="card">
+      <h2>🔥 생명 시스템 퀴즈</h2>
+      <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
+      <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="sum">
+    <div class="card">
+      <h2>✅ 정리</h2>
+      <table>
+        <tr><th>주제</th><th class="l">핵심</th></tr>
+        <tr><td>세포</td><td class="l">생명의 기본 단위. 소기관이 역할 분담(핵·미토콘드리아·리보솜 등)</td></tr>
+        <tr><td>물질대사</td><td class="l">동화작용(합성)·이화작용(분해). 생명 유지 화학반응</td></tr>
+        <tr><td>효소</td><td class="l">생체 촉매 = 활성화 에너지 낮춤 + 기질 특이성</td></tr>
+        <tr><td>정보 흐름</td><td class="l">DNA → RNA → 단백질</td></tr>
+      </table>
+      <div class="box k">
+        <div class="t">🔑 한 줄 요약</div>
+        <b>생명은 세포라는 시스템 안에서, 효소가 조절하는 물질대사와 DNA→단백질 정보 흐름으로 유지된다.</b>
+      </div>
+      <h3>자가 점검</h3>
+      <div class="chk"><input type="checkbox" id="c1"><label for="c1">세포가 생명의 기본 단위이며 소기관이 역할을 나눔을 안다</label></div>
+      <div class="chk"><input type="checkbox" id="c2"><label for="c2">물질대사의 동화·이화작용을 구분할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c3"><label for="c3">효소가 활성화 에너지를 낮추고 기질 특이성을 가짐을 안다</label></div>
+      <div class="chk"><input type="checkbox" id="c4"><label for="c4">DNA→RNA→단백질 정보 흐름을 설명할 수 있다</label></div>
+      <h3>약점 태그</h3>
+      <div><span class="tag">과학:생명시스템</span><span class="tag">과학:세포</span><span class="tag">과학:효소</span><span class="tag">과학:물질대사</span><span class="tag">과학:유전자단백질</span></div>
+      <div class="box g" style="margin-top:16px">
+        <div class="t">➡️ 관련 단원</div>
+        생명을 이루는 <b>탄소 화합물</b>이 궁금하면 <a href="sci1_materials.html">지각과 생명체를 이루는 물질</a>로. <a href="sci1_hub.html">통합과학1 허브</a>로 돌아가기.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function go(t){var tab=document.querySelector('.tab[data-t="'+t+'"]');if(tab)tab.click();}
+document.getElementById('tabs').addEventListener('click',function(e){
+  var b=e.target.closest('.tab'); if(!b)return;
+  document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active')});
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
+  b.classList.add('active'); var pg=document.querySelector('.page[data-p="'+b.dataset.t+'"]'); if(pg)pg.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+/* 세포 */
+var CELL=[
+ {k:'핵',col:'#db2777',cx:160,cy:120,r:42,d:'세포의 사령탑. 유전 정보(DNA)를 담고 있으며, 어떤 단백질을 만들지 지시한다.'},
+ {k:'미토콘드리아',col:'#ef4444',cx:90,cy:70,r:20,d:'세포의 발전소. 이화작용(세포 호흡)으로 영양소를 분해해 에너지(ATP)를 만든다.'},
+ {k:'리보솜',col:'#f59e0b',cx:235,cy:75,r:11,d:'단백질 공장. 핵에서 전사된 RNA에 담긴 정보를 읽어 실제 단백질을 조립한다.'},
+ {k:'세포막',col:'#8b5cf6',cx:160,cy:120,r:0,d:'세포의 경계. 무엇이 드나들지 선택적으로 조절한다(선택적 투과).'},
+ {k:'세포질',col:'#f9a8d4',cx:230,cy:180,r:16,d:'세포 안을 채운 액체 공간. 소기관들이 떠 있고 많은 화학 반응이 여기서 일어난다.'}
+];
+function buildCell(){
+  var svg=document.getElementById('cellsvg'); var s='';
+  s+='<ellipse cx="160" cy="130" rx="150" ry="115" fill="#fce7f3" stroke="#8b5cf6" stroke-width="4" id="cellmem"/>';
+  s+='<circle cx="160" cy="120" r="42" fill="#f9a8d4" id="cell0"/>';
+  s+='<circle cx="160" cy="120" r="20" fill="#db2777"/>';
+  s+='<ellipse cx="90" cy="70" rx="26" ry="15" fill="#ef4444" id="cell1"/>';
+  s+='<circle cx="235" cy="75" r="7" fill="#f59e0b" id="cell2"/><circle cx="255" cy="95" r="6" fill="#f59e0b"/><circle cx="215" cy="60" r="6" fill="#f59e0b"/>';
+  s+='<circle cx="230" cy="180" r="16" fill="#f9a8d4" opacity="0.6" id="cell4"/>';
+  svg.innerHTML=s;
+  var bt=document.getElementById('cellbtns'); bt.innerHTML='';
+  CELL.forEach(function(p,i){var b=document.createElement('button'); b.className='cellbtn'+(i===0?' on':''); b.dataset.i=i; b.textContent=p.k; b.addEventListener('click',function(){selCell(i);}); bt.appendChild(b);});
+  selCell(0);
+}
+function selCell(i){
+  document.querySelectorAll('.cellbtn').forEach(function(b){b.classList.toggle('on',parseInt(b.dataset.i,10)===i);});
+  // 선택한 소기관을 SVG에서 강조 (원칙③ 직접 보게)
+  var ids=['cell0','cell1','cell2','cellmem','cell4'];
+  ids.forEach(function(id,j){
+    var el=document.getElementById(id); if(!el)return;
+    if(id==='cellmem'){ el.setAttribute('stroke', j===i?'#0f172a':'#8b5cf6'); el.setAttribute('stroke-width','4'); }
+    else { el.setAttribute('stroke', j===i?'#0f172a':'none'); el.setAttribute('stroke-width', j===i?'3.5':'0'); }
+  });
+  var p=CELL[i];
+  document.getElementById('celldetail').innerHTML='<div class="cdt">'+p.k+'</div>'+p.d;
+}
+
+/* 효소 활성화에너지 */
+function drawEnz(on){
+  var svg=document.getElementById('enzsvg');
+  var peak= on? 90 : 30;   // y of hump top (작을수록 높음)
+  var s='<line x1="40" y1="180" x2="440" y2="180" stroke="#94a3b8" stroke-width="2"/>'+
+    '<line x1="40" y1="20" x2="40" y2="180" stroke="#94a3b8" stroke-width="2"/>'+
+    '<text x="20" y="100" font-size="11" fill="#64748b" transform="rotate(-90 20 100)">에너지</text>'+
+    '<text x="240" y="198" text-anchor="middle" font-size="11" fill="#64748b">반응 진행 →</text>'+
+    // 반응물(왼쪽 높음) → 산 넘기 → 생성물(오른쪽 낮음)
+    '<path d="M60 130 Q170 '+peak+' 260 130 T430 155" fill="none" stroke="'+(on?'#db2777':'#64748b')+'" stroke-width="3.5"/>'+
+    '<text x="60" y="150" font-size="11" fill="#334155">반응물</text>'+
+    '<text x="400" y="175" font-size="11" fill="#334155">생성물</text>'+
+    // 활성화에너지 표시
+    '<line x1="170" y1="130" x2="170" y2="'+peak+'" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4 3"/>'+
+    '<text x="178" y="'+((130+peak)/2)+'" font-size="10.5" fill="#dc2626">활성화E</text>';
+  svg.innerHTML=s;
+  document.getElementById('enzdesc').textContent = on
+    ? '효소가 활성화 에너지(넘어야 할 산)를 낮춰 준다 → 체온에서도 반응이 쉽고 빠르게 진행.'
+    : '효소가 없으면 넘어야 할 산(활성화 에너지)이 높아 반응이 느리거나 잘 일어나지 않는다.';
+}
+document.getElementById('enzToggle').addEventListener('click',function(e){
+  var b=e.target.closest('button'); if(!b)return;
+  this.querySelectorAll('button').forEach(function(x){x.classList.remove('on')}); b.classList.add('on');
+  drawEnz(b.dataset.e==='on');
+});
+
+/* DNA→RNA→단백질 */
+var DOG=[
+ {b:'DNA',col:'#db2777',m:'DNA (유전 정보 저장)',s2:'핵 속의 설계도',d:'DNA는 A·T·G·C 네 글자로 된 생명의 설계도. 핵 안에 안전하게 보관된다. 이 중 단백질 정보를 담은 구간이 유전자.'},
+ {b:'RNA',col:'#8b5cf6',m:'RNA (정보 전달·복사)',s2:'전사 (transcription)',d:'DNA의 필요한 부분만 RNA로 복사(전사)해 핵 밖으로 내보낸다. 설계도 원본은 두고 사본을 쓰는 셈.'},
+ {b:'단백질',col:'#16a34a',m:'단백질 (실제 일꾼)',s2:'번역 (translation)',d:'리보솜이 RNA의 정보를 읽어(번역) 아미노산을 순서대로 이어 단백질을 만든다. 이 단백질이 몸을 이루고 기능한다.'}
+];
+function buildDogma(){
+  var el=document.getElementById('dogma'); var s='';
+  DOG.forEach(function(d,i){
+    s+='<div class="dstep'+(i===0?' on':'')+'" data-i="'+i+'"><div class="db" style="background:'+d.col+'">'+d.b+'</div>'
+      +'<div><div class="dm">'+d.m+'</div><div class="ds2">'+(i>0?'↑ '+d.s2:d.s2)+'</div></div></div>';
+  });
+  el.innerHTML=s;
+  el.addEventListener('click',function(e){var d=e.target.closest('.dstep'); if(!d)return; selDog(parseInt(d.dataset.i,10));});
+  selDog(0);
+}
+function selDog(i){
+  document.querySelectorAll('.dstep').forEach(function(d){d.classList.toggle('on',parseInt(d.dataset.i,10)===i);});
+  var d=DOG[i];
+  document.getElementById('dogdetail').innerHTML='<div class="ddt">'+d.m+'</div>'+d.d;
+}
+
+/* 퀴즈 */
+var QUIZ=[
+ {q:'모든 생물을 이루는 생명의 기본 단위는?',o:['세포','원자','분자','장기'],a:0,e:'세포가 생명의 구조·기능의 기본 단위. 세포가 모여 조직·기관·개체가 된다.'},
+ {q:'세포에서 에너지(ATP)를 만드는 소기관은?',o:['미토콘드리아','리보솜','핵','세포막'],a:0,e:'미토콘드리아 = 세포의 발전소. 세포 호흡으로 에너지를 만든다.'},
+ {q:'유전 정보(DNA)를 담고 있는 소기관은?',o:['핵','미토콘드리아','리보솜','세포질'],a:0,e:'핵은 DNA를 보관하며 어떤 단백질을 만들지 지시하는 사령탑.'},
+ {q:'효소의 역할을 가장 잘 설명한 것은?',o:['활성화 에너지를 낮추는 생체 촉매','에너지를 직접 공급','세포막을 만듦','DNA를 저장'],a:0,e:'효소는 생체 촉매로 활성화 에너지를 낮춰 체온에서도 반응이 빠르게 일어나게 한다.'},
+ {q:'효소가 정해진 물질하고만 반응하는 성질을 무엇이라 하나?',o:['기질 특이성','촉매성','가역성','용해성'],a:0,e:'기질 특이성 — 자물쇠-열쇠처럼 특정 기질에만 작용.'},
+ {q:'생명체의 유전 정보가 흐르는 순서는?',o:['DNA → RNA → 단백질','단백질 → RNA → DNA','RNA → DNA → 단백질','DNA → 단백질 → RNA'],a:0,e:'DNA(설계도) → RNA(사본, 전사) → 단백질(번역). 생명의 중심 원리.'},
+ {q:'큰 분자를 분해해 에너지를 얻는 물질대사는?',o:['이화작용','동화작용','광합성','전사'],a:0,e:'이화작용(예: 세포 호흡) = 분해해 에너지 획득. 반대로 동화작용은 합성.'},
+ {q:'DNA 정보를 읽어 실제로 단백질을 조립하는 소기관은?',o:['리보솜','핵','미토콘드리아','세포벽'],a:0,e:'리보솜 = 단백질 공장. RNA를 읽어 아미노산을 이어 단백질을 만든다.'},
+ {q:'효소 세제가 기름·단백질 때를 잘 지우는 이유는?',o:['때를 분해하는 효소가 들어 있어서','물 온도가 높아서','거품이 많아서','향이 강해서'],a:0,e:'단백질·지방을 분해하는 효소가 때를 잘게 분해한다. 효소의 실생활 응용.'},
+ {q:'DNA 이중나선 구조를 밝히는 데 결정적 X선 회절 사진을 남긴 과학자는?',o:['로절린드 프랭클린','뉴턴','멘델레예프','베게너'],a:0,e:'프랭클린의 X선 회절 사진(Photo 51)이 왓슨·크릭의 이중나선 규명에 결정적이었다.'}
+];
+var qi=0,qscore=0,qans=false;
+function renderQ(){
+  qans=false; var q=QUIZ[qi];
+  document.getElementById('qNum').textContent='문제 '+(qi+1)+' / '+QUIZ.length;
+  document.getElementById('qScore').textContent=qscore;
+  document.getElementById('qBar').style.width=(qi/QUIZ.length*100)+'%';
+  document.getElementById('qQ').textContent=q.q;
+  var opts=document.getElementById('qOpts'); opts.innerHTML='';
+  q.o.forEach(function(txt,idx){var b=document.createElement('button'); b.className='qopt'; b.textContent=txt; b.addEventListener('click',function(){pick(idx,b);}); opts.appendChild(b);});
+  document.getElementById('qExp').className='qexp'; document.getElementById('qExp').innerHTML=''; document.getElementById('qNext').className='qnext';
+}
+function pick(idx,btn){
+  if(qans)return; qans=true; var q=QUIZ[qi];
+  document.querySelectorAll('#qOpts .qopt').forEach(function(b,i){if(i===q.a)b.classList.add('correct');else if(b===btn)b.classList.add('wrong');else b.classList.add('dim');});
+  var ok=(idx===q.a); if(ok)qscore++; document.getElementById('qScore').textContent=qscore;
+  var ex=document.getElementById('qExp'); ex.innerHTML='<div class="et">'+(ok?'⭕ 정답!':'❌ 오답')+'</div>'+q.e; ex.className='qexp show';
+  document.getElementById('qNext').className='qnext show';
+}
+document.getElementById('qNext').addEventListener('click',function(){qi++; if(qi>=QUIZ.length){finishQuiz();return;} renderQ();});
+function finishQuiz(){
+  document.getElementById('qBar').style.width='100%'; document.getElementById('qNum').textContent='완료 ✓';
+  var pct=Math.round(qscore/QUIZ.length*100);
+  var msg=pct>=90?'완벽해요! 생명을 시스템으로 이해했어요.':pct>=70?'잘했어요! 틀린 것만 다시 보면 완성.':'개념 탭을 한 번 더 보고 재도전해요.';
+  document.getElementById('qArea').innerHTML='<div class="qdone"><div class="big">'+qscore+' / '+QUIZ.length+'</div><p style="margin:8px 0 4px;font-size:15px">정답률 '+pct+'%</p><p style="color:#64748b;font-size:13px;margin-bottom:16px">'+msg+'</p><button class="btn" onclick="restartQuiz()">↺ 다시 풀기</button></div>';
+}
+function restartQuiz(){
+  qi=0;qscore=0;
+  document.getElementById('qArea').innerHTML='<div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button>';
+  document.getElementById('qNext').addEventListener('click',function(){qi++;if(qi>=QUIZ.length){finishQuiz();return;}renderQ();});
+  renderQ();
+}
+
+/* init */
+QUIZ.forEach(function(q){var correct=q.o[q.a];for(var i=q.o.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=q.o[i];q.o[i]=q.o[j];q.o[j]=t;}q.a=q.o.indexOf(correct);});
+buildCell();
+drawEnz(false);
+buildDogma();
+renderQ();
+</script>
+</body>
+</html>

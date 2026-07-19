@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>원소의 주기성 · 주기율표 랩 — 통합과학1</title>
+<style>
+  :root{
+    --panel:#fff; --ink:#1e293b; --sub:#64748b; --line:#e2e8f0;
+    --blue:#2563eb; --blue-d:#1e40af; --green:#16a34a; --green-bg:#f0fdf4;
+    --amber:#d97706; --amber-bg:#fffbeb; --red:#dc2626; --red-bg:#fef2f2;
+    --purple:#7c3aed; --purple-bg:#f5f3ff; --indigo:#4f46e5;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',sans-serif;
+    background:#f1f5f9;color:var(--ink);line-height:1.7;-webkit-text-size-adjust:100%}
+  a{color:var(--blue)}
+  sup,sub{font-size:.72em}
+
+  .crumb{background:#f8fafc;border-bottom:1px solid var(--line);padding:7px 16px;font-size:12px;
+    display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+  .crumb a{color:var(--sub);text-decoration:none}
+  .crumb a.cur{color:var(--blue);font-weight:600}
+  .crumb span{color:#cbd5e1}
+
+  .hero{background:linear-gradient(135deg,#312e81,#4f46e5);color:#fff;padding:26px 18px 22px;text-align:center}
+  .hero .badge{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);
+    border-radius:20px;padding:3px 13px;font-size:12px;margin-bottom:10px}
+  .hero h1{font-size:21px;font-weight:800;letter-spacing:-.3px}
+  .hero p{font-size:13px;opacity:.92;margin-top:6px}
+
+  .tabs{position:sticky;top:0;z-index:50;display:flex;background:#1e1b4b;overflow-x:auto;
+    scrollbar-width:none;-ms-overflow-style:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;padding:13px 15px;min-height:44px;color:#c7d2fe;font-size:13.5px;font-weight:600;cursor:pointer;
+    border:none;background:none;border-bottom:3px solid transparent;white-space:nowrap;transition:.15s}
+  .tab.active{color:#fff;border-bottom-color:#818cf8}
+  .tab:hover{color:#e0e7ff}
+
+  .wrap{max-width:860px;margin:0 auto;padding:22px 16px 70px}
+  .page{display:none}
+  .page.active{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;
+    box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .card h2{font-size:18px;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .card h3{font-size:15px;font-weight:700;margin:16px 0 8px;color:var(--blue-d)}
+  .card p{font-size:14px;margin-bottom:8px}
+  .lead{color:var(--sub);font-size:13px;margin-bottom:14px}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:8px 9px;text-align:center}
+  th{background:#f8fafc;font-weight:700}
+  td.l,th.l{text-align:left}
+
+  .box{border-radius:10px;padding:13px 15px;margin:10px 0;font-size:13.5px}
+  .box.g{background:var(--green-bg);border:1px solid #bbf7d0}
+  .box.a{background:var(--amber-bg);border:1px solid #fde68a}
+  .box.r{background:var(--red-bg);border:1px solid #fecaca}
+  .box.b{background:#eff6ff;border:1px solid #bfdbfe}
+  .box .t{font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+  .box.g .t{color:var(--green)} .box.a .t{color:var(--amber)} .box.r .t{color:var(--red)} .box.b .t{color:var(--blue-d)}
+
+  /* ===== signature content blocks (CONTENT_PRINCIPLES) ===== */
+  .hook{background:linear-gradient(135deg,#faf5ff,#eef2ff);border:1px solid #ddd6fe;border-radius:12px;
+    padding:16px 18px;margin:12px 0;font-size:14px}
+  .hook .ht{color:var(--indigo);font-weight:800;font-size:15px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  .keeper{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fcd34d;border-radius:12px;
+    padding:15px 17px;margin:12px 0}
+  .keeper .kt{color:#b45309;font-weight:800;font-size:14.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .keeper ol{margin:0 0 0 4px;list-style:none;counter-reset:k}
+  .keeper li{position:relative;padding:8px 0 8px 34px;font-size:13.5px;border-bottom:1px dashed #fde68a;counter-increment:k}
+  .keeper li:last-child{border-bottom:none}
+  .keeper li::before{content:"📌";position:absolute;left:4px;top:8px}
+  .insight{background:var(--purple-bg);border:1px solid #ddd6fe;border-radius:12px;padding:14px 16px;margin:12px 0;font-size:13.5px}
+  .insight .it{color:var(--purple);font-weight:800;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+  .reallife{background:var(--green-bg);border:1px solid #bbf7d0;border-radius:12px;padding:14px 16px;margin:12px 0}
+  .reallife .rt{color:var(--green);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:9px}
+  .rcell{background:#fff;border:1px solid #bbf7d0;border-radius:9px;padding:10px}
+  .rcell .ri{font-size:22px}
+  .rcell .rn{font-weight:800;font-size:13px;margin:3px 0}
+  .rcell .rd{font-size:11.5px;color:#475569;line-height:1.5}
+  .industry{background:#eef2ff;border:1px solid #c7d2fe;border-radius:12px;padding:14px 16px;margin:12px 0}
+  .industry .indt{color:var(--indigo);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .indrow{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #e0e7ff}
+  .indrow:last-child{border-bottom:none}
+  .indrow .ii{font-size:24px;flex-shrink:0}
+  .indrow .id2{font-size:13px}
+  .indrow .id2 b{color:#312e81}
+  .major{display:inline-block;background:#312e81;color:#c7d2fe;border-radius:6px;padding:2px 8px;font-size:10.5px;
+    font-weight:700;margin-top:4px}
+  .sci{display:flex;gap:13px;align-items:flex-start;background:linear-gradient(135deg,#fffbeb,#fef3c7);
+    border:1px solid #fde68a;border-radius:12px;padding:15px;margin:12px 0}
+  .sci .ava{font-size:34px;line-height:1;flex-shrink:0}
+  .sci .st{font-weight:800;color:#92400e;font-size:14px;margin-bottom:3px}
+  .sci .sd{font-size:13px;color:#78350f}
+
+  .toc{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:8px}
+  .toc button{text-align:left;background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;padding:12px;
+    cursor:pointer;font:inherit;transition:.15s;min-height:44px}
+  .toc button:hover{border-color:var(--indigo);box-shadow:0 2px 8px rgba(79,70,229,.12)}
+  .toc .ti{font-size:20px}.toc .tn{font-weight:800;font-size:13.5px;margin-top:4px}.toc .td{font-size:11.5px;color:var(--sub)}
+
+  /* ===== Bohr renderer ===== */
+  .bohrwrap{display:flex;gap:16px;flex-wrap:wrap;align-items:center;justify-content:center}
+  .bohrsvg{width:100%;max-width:300px;background:#0f172a;border-radius:14px}
+  .bohrinfo{flex:1;min-width:210px}
+  .bohrinfo .bsym{font-size:34px;font-weight:800;line-height:1}
+  .bohrinfo .bname{font-size:14px;color:var(--sub);margin-bottom:8px}
+  .binfo-row{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--line)}
+  .binfo-row b{color:var(--indigo)}
+  .rng{width:100%;accent-color:var(--indigo);margin:6px 0;height:28px}
+  .rnglab{display:flex;justify-content:space-between;font-size:11.5px;color:var(--sub)}
+
+  /* ===== periodic table ===== */
+  .ptcontrols{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}
+  .ptbtn{border:1px solid var(--line);background:#fff;border-radius:20px;padding:8px 13px;font:inherit;font-size:12px;
+    font-weight:700;cursor:pointer;min-height:44px}
+  .ptbtn.on{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+  .ptscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:6px}
+  .ptable{display:grid;grid-template-columns:repeat(18,1fr);gap:3px;min-width:560px}
+  .pt{aspect-ratio:1/1.08;border-radius:5px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    cursor:pointer;border:1.5px solid transparent;transition:.12s;padding:1px;line-height:1.05}
+  .pt .pz{font-size:8px;opacity:.8}
+  .pt .ps{font-size:13px;font-weight:800}
+  .pt:hover{transform:scale(1.12);z-index:5;box-shadow:0 3px 10px rgba(0,0,0,.2)}
+  .pt.dim{opacity:.22;filter:grayscale(.6)}
+  .pt.sel{border-color:#111827;box-shadow:0 0 0 2px #111827}
+  .ptlegend{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0;font-size:11px}
+  .ptlegend span{display:inline-flex;align-items:center;gap:4px}
+  .ptlegend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+  .eldetail{background:#0f172a;color:#e2e8f0;border-radius:12px;padding:14px 16px;margin-top:12px;min-height:96px}
+  .eldetail .eh{display:flex;align-items:baseline;gap:10px}
+  .eldetail .es{font-size:30px;font-weight:800}
+  .eldetail .en{font-size:14px;color:#94a3b8}
+  .eldetail .ez{margin-left:auto;font-size:12px;color:#818cf8;font-weight:700}
+  .eldetail .em{font-size:12.5px;color:#cbd5e1;margin-top:8px;line-height:1.6}
+  .eltags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .eltag{background:#1e293b;border:1px solid #334155;border-radius:6px;padding:2px 9px;font-size:11px}
+
+  /* PhET */
+  .phetguide{background:#eef2ff;border:1px solid #c7d2fe;border-radius:12px;padding:14px 16px;margin-bottom:10px;font-size:13px}
+  .phetguide .pt2{color:var(--indigo);font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  .phetguide ol{margin:6px 0 4px 20px}.phetguide li{margin:4px 0}
+  .missions{margin:8px 0 2px 0;list-style:none;padding:0}
+  .missions li{background:#fff;border:1px solid #c7d2fe;border-radius:8px;padding:8px 11px;margin:6px 0;font-size:12.5px;
+    display:flex;gap:8px;align-items:flex-start}
+  .missions li::before{content:"🔍";flex-shrink:0}
+  .frameholder{position:relative;width:100%;aspect-ratio:834/504;border:1px solid var(--line);border-radius:12px;
+    overflow:hidden;background:#0b1020}
+  .frameholder iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .frameload{position:absolute;inset:0;display:flex;flex-direction:column;gap:10px;align-items:center;justify-content:center;
+    color:#cbd5e1;font-size:13px;text-align:center;padding:20px;cursor:pointer}
+  .frameload .pl{font-size:34px}
+  .frameload .go{background:var(--indigo);color:#fff;border:none;border-radius:9px;padding:11px 18px;font-weight:800;font-size:13.5px;cursor:pointer;min-height:44px}
+  .openext{display:inline-flex;align-items:center;gap:5px;margin-top:9px;font-size:12.5px;font-weight:700;color:var(--indigo);text-decoration:none}
+  .fallnote{font-size:11.5px;color:var(--sub);margin-top:6px}
+
+  /* quiz */
+  .quizhud{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:12px 16px;margin-bottom:14px}
+  .quizhud .qn{font-weight:800;font-size:14px}
+  .quizhud .sc{margin-left:auto;font-size:13px}.quizhud .sc b{color:#818cf8;font-size:16px}
+  .qbar{flex-basis:100%;height:8px;background:#334155;border-radius:20px;overflow:hidden;margin-top:2px}
+  .qbar > i{display:block;height:100%;background:linear-gradient(90deg,#818cf8,#4f46e5)}
+  .qq{font-size:16px;font-weight:700;text-align:center;margin:10px 0 16px}
+  .qopts{display:grid;gap:10px}
+  .qopt{border:2px solid var(--line);background:#fff;border-radius:12px;padding:14px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:.12s;min-height:52px}
+  .qopt:hover{border-color:var(--indigo)}
+  .qopt.correct{background:var(--green-bg);border-color:#6ee7b7;color:#065f46}
+  .qopt.wrong{background:var(--red-bg);border-color:#fecaca;color:#991b1b}
+  .qopt.dim{opacity:.5}
+  .qexp{display:none;margin-top:14px;background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:13px 15px;font-size:13.5px}
+  .qexp.show{display:block;animation:fade .2s ease}.qexp .et{font-weight:800;margin-bottom:4px}
+  .qnext{display:none;margin-top:14px;width:100%;background:var(--indigo);color:#fff;border:none;border-radius:10px;padding:13px;font:inherit;font-weight:800;font-size:14px;cursor:pointer;min-height:48px}
+  .qnext.show{display:block}
+  .qdone{text-align:center;padding:10px 0}.qdone .big{font-size:40px;font-weight:800;color:var(--indigo)}
+
+  .btn{display:inline-block;background:var(--indigo);color:#fff;border:none;border-radius:10px;padding:11px 18px;font:inherit;font-weight:700;font-size:13.5px;cursor:pointer;text-decoration:none;min-height:44px}
+  .chk{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+  .chk:last-child{border-bottom:none}
+  .chk input{margin-top:4px;width:17px;height:17px;flex-shrink:0;accent-color:var(--indigo)}
+  .tag{display:inline-block;background:#eef2ff;color:var(--indigo);border:1px solid #c7d2fe;border-radius:6px;padding:2px 9px;font-size:11.5px;font-weight:700;margin:3px 4px 0 0}
+
+  @media (max-width:640px){ .hero h1{font-size:19px} .card{padding:16px} }
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Science_1_1</a><span>&rsaquo;</span><a href="sci1_hub.html">통합과학1</a><span>&rsaquo;</span><a class="cur" href="#">주기율표 랩</a></nav>
+
+<div class="hero">
+  <span class="badge">Ⅱ. 물질과 규칙성 · 원소의 주기성</span>
+  <h1>🧮 원소의 주기성 · 주기율표 랩</h1>
+  <p>세상의 모든 물질을 이루는 원소들의 숨은 규칙</p>
+</div>
+
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="intro">📋 개요</button>
+  <button class="tab" data-t="atom">⚛️ 원자와 전자 배치</button>
+  <button class="tab" data-t="table">📊 주기율표</button>
+  <button class="tab" data-t="phet">🧊 PhET 원자 만들기</button>
+  <button class="tab" data-t="world">🌐 세상 속으로</button>
+  <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="sum">✅ 정리</button>
+</div>
+
+<div class="wrap">
+
+  <!-- 개요 -->
+  <div class="page active" data-p="intro">
+    <div class="card">
+      <h2>📋 원소, 세상의 알파벳</h2>
+      <div class="hook">
+        <div class="ht">💥 놀라운 사실</div>
+        너의 몸, 저 바다, 밤하늘의 별, 손 안의 스마트폰 — 이 모든 것이 <b>단 90여 종</b>의 자연 원소를 조합해 만들어졌다.
+        그리고 그 원소들은 아무렇게나가 아니라 <b>표 하나에 딱 떨어지는 규칙</b>으로 줄 서 있다. 마치 알파벳 26자로 모든 단어를 만들듯.
+      </div>
+
+      <div class="sci">
+        <div class="ava">🧔🏻‍🔬</div>
+        <div>
+          <div class="st">멘델레예프 (Mendeleev, 1869)</div>
+          <div class="sd">원소들을 무게 순으로 늘어놓다가 <b>성질이 주기적으로 반복</b>되는 걸 발견했다. 놀라운 건 — 그는 표에 <b>빈칸</b>을 남기고 "여기에 아직 발견 안 된 원소가 있고, 그 성질은 이럴 것"이라 예언했다. 몇 년 뒤 갈륨·저마늄이 <b>예언 그대로</b> 발견됐다.</div>
+        </div>
+      </div>
+
+      <p>이 앱에서 우리는 <b>원자 속 전자가 어떻게 배치되는지</b> → <b>그 배치가 왜 주기율표의 규칙을 만드는지</b> → <b>그 규칙이 세상을 어떻게 움직이는지</b>를 직접 만져보며 알아본다.</p>
+      <div class="toc">
+        <button onclick="go('atom')"><div class="ti">⚛️</div><div class="tn">원자와 전자 배치</div><div class="td">번호 슬라이더로 직접</div></button>
+        <button onclick="go('table')"><div class="ti">📊</div><div class="tn">주기율표</div><div class="td">클릭·족 하이라이트</div></button>
+        <button onclick="go('phet')"><div class="ti">🧊</div><div class="tn">PhET 원자 만들기</div><div class="td">양성자로 원소 조립</div></button>
+        <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">평생상식·실생활·산업</div></button>
+        <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+        <button onclick="go('sum')"><div class="ti">✅</div><div class="tn">정리</div><div class="td">비교표·자가점검</div></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 원자와 전자 배치 -->
+  <div class="page" data-p="atom">
+    <div class="card">
+      <h2>⚛️ 원자와 전자 배치</h2>
+      <p class="lead">원자 = 가운데 <b>원자핵</b>(양성자 + 중성자) + 그 주위를 도는 <b>전자</b>. <b>원자번호 = 양성자 수 = (중성 원자의) 전자 수</b>. 아래 슬라이더로 원자번호를 바꿔 전자가 껍질에 어떻게 채워지는지 보자.</p>
+
+      <div class="bohrwrap">
+        <svg class="bohrsvg" id="bohr" viewBox="0 0 300 300" role="img" aria-label="보어 원자 모형"></svg>
+        <div class="bohrinfo">
+          <div class="bsym" id="bSym">H</div>
+          <div class="bname" id="bName">수소</div>
+          <div class="binfo-row"><span>원자번호 (양성자)</span><b id="bZ">1</b></div>
+          <div class="binfo-row"><span>전자 배치 (K·L·M·N)</span><b id="bConf">1</b></div>
+          <div class="binfo-row"><span>주기 (전자껍질 수)</span><b id="bPeriod">1</b></div>
+          <div class="binfo-row"><span>족</span><b id="bGroup">1족</b></div>
+          <div class="binfo-row"><span>원자가 전자 (맨 바깥)</span><b id="bVal">1</b></div>
+        </div>
+      </div>
+      <input class="rng" type="range" id="zRange" min="1" max="20" value="1">
+      <div class="rnglab"><span>1 (H)</span><span>← 원자번호 →</span><span>20 (Ca)</span></div>
+
+      <h3>핵심 규칙 — 껍질은 안쪽부터 채운다</h3>
+      <table>
+        <tr><th>껍질</th><th>K (1번째)</th><th>L (2번째)</th><th>M (3번째)</th></tr>
+        <tr><td>최대 전자 수</td><td>2</td><td>8</td><td>8*</td></tr>
+      </table>
+      <p style="font-size:12px;color:var(--sub)">* 통합과학1 범위(1~20번)에서 다루는 단순 모형. 예: 나트륨(11) = <b>2, 8, 1</b> → 원자가 전자 <b>1</b>개.</p>
+
+      <div class="box b">
+        <div class="t">🔑 왜 '원자가 전자'가 중요한가</div>
+        맨 바깥 껍질의 전자(= 원자가 전자)가 그 원소의 <b>성격</b>과 <b>결합 방식</b>을 결정한다. 이온이 될지, 어떤 원소와 붙을지가 여기서 정해진다. → 다음 규칙(주기율표)의 핵심 열쇠.
+      </div>
+      <div class="box a">
+        <div class="t">⚠️ 흔한 오해</div>
+        "원자번호 = 원자의 무게" → <b>아니다.</b> 원자번호는 <b>양성자 개수</b>다. 무게(질량수)는 양성자 + 중성자.
+      </div>
+    </div>
+  </div>
+
+  <!-- 주기율표 -->
+  <div class="page" data-p="table">
+    <div class="card">
+      <h2>📊 인터랙티브 주기율표 (1~36번)</h2>
+      <p class="lead"><b>가로줄 = 주기</b>(전자껍질 수). <b>세로줄 = 족</b>(원자가 전자 수가 비슷 → 성질이 닮음). 원소를 <b>눌러</b> 정보를 보고, 아래 버튼으로 <b>같은 성질 그룹</b>을 하이라이트해 보자.</p>
+
+      <div class="ptcontrols" id="ptControls">
+        <button class="ptbtn on" data-grp="all">전체</button>
+        <button class="ptbtn" data-grp="alkali">1족 알칼리 금속</button>
+        <button class="ptbtn" data-grp="alkaline">2족 알칼리 토금속</button>
+        <button class="ptbtn" data-grp="halogen">17족 할로젠</button>
+        <button class="ptbtn" data-grp="noble">18족 비활성 기체</button>
+      </div>
+
+      <div class="ptscroll">
+        <div class="ptable" id="ptable"></div>
+      </div>
+      <div class="ptlegend" id="ptlegend"></div>
+
+      <div class="eldetail" id="elDetail">
+        <div class="em">원소를 누르면 여기에 정보가 표시됩니다. 👆</div>
+      </div>
+
+      <div class="box g">
+        <div class="t">✅ 표에서 바로 보이는 규칙</div>
+        • <b>같은 족(세로줄)</b> = 원자가 전자 수 같음 = 화학적 성질 닮음 (예: Li·Na·K 모두 1족, 물에 넣으면 격렬 반응)<br>
+        • <b>같은 주기(가로줄)</b> = 전자껍질 수 같음<br>
+        • <b>왼쪽·가운데 = 금속</b>, <b>오른쪽 위 = 비금속</b>, 그 경계에 <b>준금속</b>(반도체 재료!)
+      </div>
+    </div>
+  </div>
+
+  <!-- PhET -->
+  <div class="page" data-p="phet">
+    <div class="card">
+      <h2>🧊 PhET · 원자 만들기 (Build an Atom)</h2>
+      <p class="lead">양성자·중성자·전자를 직접 끌어다 원자를 조립해 보자. <b>양성자 수를 바꾸면 원소가 바뀌고</b>, 전자 수를 바꾸면 이온이 된다.</p>
+
+      <div class="phetguide">
+        <div class="pt2">🧭 사용 가이드</div>
+        <ol>
+          <li>왼쪽 상자에서 <b>양성자(빨강)</b>를 원자핵으로 드래그 → 오른쪽에 원소 이름이 뜬다</li>
+          <li><b>전자</b>를 바깥 껍질로 드래그 → K(2), L(8) 채워지는 걸 확인</li>
+          <li>순서대로 만들기: H(1) → He(2) → C(6) → O(8) → <b>Na(11) → Cl(17)</b></li>
+          <li>위쪽 <b>"게임"</b> 탭 → 퀴즈 모드로 도전</li>
+        </ol>
+        <ul class="missions">
+          <li>양성자를 11개로 만들면 무슨 원소? (→ 나트륨) 원자가 전자는 몇 개?</li>
+          <li>전자 1개를 빼보자 — 전체 전하가 어떻게 되나? (→ +1, 양이온 Na<sup>+</sup>)</li>
+          <li>중성자 수만 바꾸면 원소 이름이 바뀌나? (→ 안 바뀜. 질량만 변함 = 동위원소)</li>
+        </ul>
+      </div>
+
+      <div class="frameholder" id="fhAtom" data-src="https://phet.colorado.edu/sims/html/build-an-atom/latest/build-an-atom_all.html?locale=ko">
+        <div class="frameload" onclick="loadFrame('fhAtom')">
+          <div class="pl">🧊</div>
+          <div>PhET 원자 만들기 시뮬레이션</div>
+          <button class="go">▶ 시뮬레이션 불러오기</button>
+          <div class="fallnote">클릭하면 이 자리에서 실행됩니다 (외부: phet.colorado.edu)</div>
+        </div>
+      </div>
+      <a class="openext" href="https://phet.colorado.edu/sims/html/build-an-atom/latest/build-an-atom_all.html?locale=ko" target="_blank" rel="noopener">새 탭에서 크게 열기 ↗</a>
+    </div>
+  </div>
+
+  <!-- 세상 속으로 -->
+  <div class="page" data-p="world">
+    <div class="card">
+      <h2>🌐 세상 속으로</h2>
+
+      <div class="keeper">
+        <div class="kt">📌 어른이 되어도 기억할 것</div>
+        <ol>
+          <li><b>세로줄(족)이 같으면 성질이 닮는다.</b> 주기율표의 핵심 한 문장.</li>
+          <li><b>맨 바깥 전자(원자가 전자)가 그 원소의 성격을 결정한다.</b> 몇 개 주고/받고 싶은지가 곧 화학.</li>
+          <li><b>18족 비활성 기체는 바깥 껍질이 꽉 차 있어 거의 반응하지 않는다.</b> 그래서 헬륨 풍선은 안전하고, 네온사인은 안정하게 빛난다.</li>
+        </ol>
+      </div>
+
+      <div class="insight">
+        <div class="it">💡 인사이트 — 주기율표는 '결합'을 예언한다</div>
+        소금(NaCl)에서 왜 Na와 Cl이 딱 1:1로 붙을까? <b>Na는 1족</b>이라 전자 1개를 주고 싶고, <b>Cl은 17족</b>이라 전자 1개를 받아 8개(옥텟)를 채우고 싶다. 주고 싶은 1개 ↔ 받고 싶은 1개가 딱 맞는다.
+        → 주기율표에서의 <b>위치</b>가 곧 <b>화학 결합</b>을 결정한다. <a href="sci1_bond_lab.html">화학 결합 랩</a>에서 이어 확인해 보자.
+      </div>
+
+      <div class="reallife">
+        <div class="rt">🏠 실생활 속 원소</div>
+        <div class="rgrid">
+          <div class="rcell"><div class="ri">🧂</div><div class="rn">소금 · Na + Cl</div><div class="rd">1족 + 17족의 완벽한 짝</div></div>
+          <div class="rcell"><div class="ri">🎈</div><div class="rn">헬륨 풍선 · He</div><div class="rd">18족, 안 타고 안 반응</div></div>
+          <div class="rcell"><div class="ri">💡</div><div class="rn">네온사인 · Ne·Ar</div><div class="rd">18족, 전기 걸면 발광</div></div>
+          <div class="rcell"><div class="ri">🔋</div><div class="rn">배터리 · Li</div><div class="rd">1족, 전자 잘 내줌</div></div>
+          <div class="rcell"><div class="ri">🏗️</div><div class="rn">철근·못 · Fe</div><div class="rd">전이금속, 강하고 흔함</div></div>
+          <div class="rcell"><div class="ri">🪟</div><div class="rn">유리·모래 · Si</div><div class="rd">준금속, 반도체 재료</div></div>
+        </div>
+      </div>
+
+      <div class="industry">
+        <div class="indt">🏭 산업과 직업 — 원소가 먹여 살리는 세상</div>
+        <div class="indrow"><div class="ii">💻</div><div class="id2"><b>반도체 — 규소(Si, 14족 준금속)</b><br>전 세계 반도체 칩이 <b>모래(SiO₂)</b>에서 나온다. 한국 경제의 핵심 산업.<br><span class="major">🎓 전자공학 · 재료공학 · 반도체공학</span></div></div>
+          <div class="indrow"><div class="ii">🔋</div><div class="id2"><b>배터리 — 리튬(Li, 1족)</b><br>전기차·스마트폰 배터리. "하얀 석유"라 불리며 자원 경쟁이 치열.<br><span class="major">🎓 화학공학 · 에너지공학</span></div></div>
+        <div class="indrow"><div class="ii">🚀</div><div class="id2"><b>항공·우주 — 타이타늄(Ti)</b><br>가볍고 강해 항공기·우주선·임플란트에.<br><span class="major">🎓 재료공학 · 항공우주공학</span></div></div>
+        <div class="indrow"><div class="ii">📊</div><div class="id2"><b>신소재 탐색 — 데이터로</b><br>수많은 원소 조합 중 최적 신소재를 <b>AI·데이터</b>로 예측하는 시대.<br><span class="major">🎓 데이터사이언스 · 계산재료과학</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 퀴즈 -->
+  <div class="page" data-p="quiz">
+    <div class="card">
+      <h2>🔥 주기율표 퀴즈</h2>
+      <p class="lead">배운 규칙으로 풀어보자. 힌트: <b>원자번호로 전자 배치를 그려보면</b> 주기·족·원자가 전자가 다 나온다.</p>
+      <div class="quizhud">
+        <span class="qn" id="qNum">문제 1 / 10</span>
+        <span class="sc">점수 <b id="qScore">0</b> / 10</span>
+        <div class="qbar"><i id="qBar" style="width:0%"></i></div>
+      </div>
+      <div id="qArea">
+        <div class="qq" id="qQ"></div>
+        <div class="qopts" id="qOpts"></div>
+        <div class="qexp" id="qExp"></div>
+        <button class="qnext" id="qNext">다음 문제 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 정리 -->
+  <div class="page" data-p="sum">
+    <div class="card">
+      <h2>✅ 정리</h2>
+      <table>
+        <tr><th>구분</th><th>주기 (가로줄)</th><th>족 (세로줄)</th></tr>
+        <tr><td class="l"><b>무엇</b></td><td>전자껍질 수</td><td>원자가 전자 수(대략)</td></tr>
+        <tr><td class="l"><b>의미</b></td><td>1·2·3·4주기 …</td><td>같은 족 = 성질 닮음</td></tr>
+      </table>
+      <h3>꼭 아는 대표 족</h3>
+      <table>
+        <tr><th>족</th><th>이름</th><th>특징</th></tr>
+        <tr><td>1족</td><td>알칼리 금속</td><td>전자 1개 잘 내줌, 반응성 큼, 무름 (Li·Na·K)</td></tr>
+        <tr><td>2족</td><td>알칼리 토금속</td><td>전자 2개 내줌 (Mg·Ca)</td></tr>
+        <tr><td>17족</td><td>할로젠</td><td>전자 1개 잘 받음, 반응성 큼 (F·Cl·Br)</td></tr>
+        <tr><td>18족</td><td>비활성 기체</td><td>바깥 껍질 꽉 참 → 거의 반응 안 함 (He·Ne·Ar)</td></tr>
+      </table>
+
+      <div class="box b">
+        <div class="t">🔑 한 줄 요약</div>
+        <b>원자번호 → 전자 배치 → 원자가 전자 → 주기율표 속 위치 → 원소의 성질과 결합.</b> 하나로 이어지는 사슬이다.
+      </div>
+
+      <h3>자가 점검</h3>
+      <div class="chk"><input type="checkbox" id="c1"><label for="c1">원자번호로 전자 배치(예: 11 → 2,8,1)를 쓸 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c2"><label for="c2">전자 배치로 주기·족·원자가 전자를 구할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c3"><label for="c3">같은 족이 왜 성질이 닮는지 설명할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c4"><label for="c4">1족·17족·18족의 특징을 각각 말할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c5"><label for="c5">주기율표 위치가 화학 결합과 연결됨을 안다</label></div>
+
+      <h3>약점 태그</h3>
+      <div>
+        <span class="tag">과학:주기율표</span><span class="tag">과학:전자배치</span><span class="tag">과학:원자가전자</span><span class="tag">과학:주기성</span>
+      </div>
+
+      <div class="box g" style="margin-top:16px">
+        <div class="t">➡️ 다음 단원</div>
+        원자가 전자가 결합을 결정한다 → <a href="sci1_bond_lab.html">화학 결합 랩</a>으로. 또는 <a href="sci1_hub.html">통합과학1 허브</a>로 돌아가기.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ===== 원소 데이터 (1~36) ===== */
+var EL=[
+ {z:1,s:'H',n:'수소',g:1,p:1,c:'nonmetal',v:1,note:'우주에서 가장 흔한 원소. 별과 물(H₂O)의 재료.'},
+ {z:2,s:'He',n:'헬륨',g:18,p:1,c:'noble',v:2,note:'비활성 기체. 풍선·초저온 냉각. 바깥 껍질(2개)이 꽉 차 반응 안 함.'},
+ {z:3,s:'Li',n:'리튬',g:1,p:2,c:'alkali',v:1,note:'1족 알칼리 금속. 리튬 배터리의 주인공.'},
+ {z:4,s:'Be',n:'베릴륨',g:2,p:2,c:'alkaline',v:2,note:'2족. 가볍고 단단, 항공우주 합금.'},
+ {z:5,s:'B',n:'붕소',g:13,p:2,c:'metalloid',v:3,note:'준금속. 내열 유리(파이렉스).'},
+ {z:6,s:'C',n:'탄소',g:14,p:2,c:'nonmetal',v:4,note:'생명의 뼈대. 다이아몬드·흑연·유기물 전부 탄소.'},
+ {z:7,s:'N',n:'질소',g:15,p:2,c:'nonmetal',v:5,note:'공기의 78%. N≡N 삼중결합으로 매우 안정.'},
+ {z:8,s:'O',n:'산소',g:16,p:2,c:'nonmetal',v:6,note:'호흡·연소의 핵심. 물·공기의 필수.'},
+ {z:9,s:'F',n:'플루오린',g:17,p:2,c:'halogen',v:7,note:'17족 할로젠. 반응성 최강. 치약(불소).'},
+ {z:10,s:'Ne',n:'네온',g:18,p:2,c:'noble',v:8,note:'18족. 네온사인의 붉은빛.'},
+ {z:11,s:'Na',n:'나트륨',g:1,p:3,c:'alkali',v:1,note:'1족. 소금(NaCl)의 절반. 물에 넣으면 격렬 반응.'},
+ {z:12,s:'Mg',n:'마그네슘',g:2,p:3,c:'alkaline',v:2,note:'2족. 가벼운 합금·불꽃(밝은 백색).'},
+ {z:13,s:'Al',n:'알루미늄',g:13,p:3,c:'post',v:3,note:'가볍고 안 녹슬어 캔·창틀·비행기.'},
+ {z:14,s:'Si',n:'규소',g:14,p:3,c:'metalloid',v:4,note:'준금속. 반도체·유리의 핵심. 모래가 원료.'},
+ {z:15,s:'P',n:'인',g:15,p:3,c:'nonmetal',v:5,note:'생명(DNA·뼈)·성냥·비료.'},
+ {z:16,s:'S',n:'황',g:16,p:3,c:'nonmetal',v:6,note:'화약·고무 가공. 특유의 냄새.'},
+ {z:17,s:'Cl',n:'염소',g:17,p:3,c:'halogen',v:7,note:'17족. 소금의 절반. 수돗물 소독.'},
+ {z:18,s:'Ar',n:'아르곤',g:18,p:3,c:'noble',v:8,note:'18족. 공기의 약 1%. 형광등·용접 보호가스.'},
+ {z:19,s:'K',n:'칼륨',g:1,p:4,c:'alkali',v:1,note:'1족. 바나나·근육 신호. Na와 같은 족이라 성질 닮음.'},
+ {z:20,s:'Ca',n:'칼슘',g:2,p:4,c:'alkaline',v:2,note:'2족. 뼈·치아·우유.'},
+ {z:21,s:'Sc',n:'스칸듐',g:3,p:4,c:'transition',v:null,note:'전이 금속. 가벼운 고급 합금.'},
+ {z:22,s:'Ti',n:'타이타늄',g:4,p:4,c:'transition',v:null,note:'전이 금속. 가볍고 강해 항공·임플란트.'},
+ {z:23,s:'V',n:'바나듐',g:5,p:4,c:'transition',v:null,note:'전이 금속. 강철 강화.'},
+ {z:24,s:'Cr',n:'크로뮴',g:6,p:4,c:'transition',v:null,note:'전이 금속. 스테인리스·도금(반짝임).'},
+ {z:25,s:'Mn',n:'망가니즈',g:7,p:4,c:'transition',v:null,note:'전이 금속. 강철·건전지.'},
+ {z:26,s:'Fe',n:'철',g:8,p:4,c:'transition',v:null,note:'전이 금속. 문명의 금속. 철근·자동차·혈액.'},
+ {z:27,s:'Co',n:'코발트',g:9,p:4,c:'transition',v:null,note:'전이 금속. 배터리 양극재·파란 안료.'},
+ {z:28,s:'Ni',n:'니켈',g:10,p:4,c:'transition',v:null,note:'전이 금속. 동전·배터리·스테인리스.'},
+ {z:29,s:'Cu',n:'구리',g:11,p:4,c:'transition',v:null,note:'전이 금속. 전선(전기 잘 통함)·전자기기.'},
+ {z:30,s:'Zn',n:'아연',g:12,p:4,c:'transition',v:null,note:'전이 금속. 철 도금(부식 방지)·건전지.'},
+ {z:31,s:'Ga',n:'갈륨',g:13,p:4,c:'post',v:3,note:'멘델레예프가 예언한 원소! 손 위에서 녹음. LED·반도체.'},
+ {z:32,s:'Ge',n:'저마늄',g:14,p:4,c:'metalloid',v:4,note:'멘델레예프가 예언한 원소! 준금속, 광섬유·반도체.'},
+ {z:33,s:'As',n:'비소',g:15,p:4,c:'metalloid',v:5,note:'준금속. 독성으로 유명, 반도체 도핑.'},
+ {z:34,s:'Se',n:'셀레늄',g:16,p:4,c:'nonmetal',v:6,note:'복사기·유리 착색·미량 영양소.'},
+ {z:35,s:'Br',n:'브로민',g:17,p:4,c:'halogen',v:7,note:'17족. 상온에서 액체인 드문 원소.'},
+ {z:36,s:'Kr',n:'크립톤',g:18,p:4,c:'noble',v:8,note:'18족. 고성능 조명·과거 길이 표준.'}
+];
+var CATCOLOR={alkali:'#f87171',alkaline:'#fb923c',transition:'#fbbf24',post:'#2dd4bf',metalloid:'#34d399',nonmetal:'#60a5fa',halogen:'#a78bfa',noble:'#94a3b8'};
+var CATNAME={alkali:'알칼리 금속',alkaline:'알칼리 토금속',transition:'전이 금속',post:'전이후 금속',metalloid:'준금속',nonmetal:'비금속',halogen:'할로젠',noble:'비활성 기체'};
+var ELMAP={}; EL.forEach(function(e){ELMAP[e.z]=e;});
+
+/* ===== 탭 전환 + lazy ===== */
+function go(t){var tab=document.querySelector('.tab[data-t="'+t+'"]');if(tab)tab.click();}
+document.getElementById('tabs').addEventListener('click',function(e){
+  var b=e.target.closest('.tab'); if(!b)return;
+  document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active')});
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
+  b.classList.add('active');
+  var pg=document.querySelector('.page[data-p="'+b.dataset.t+'"]'); if(pg)pg.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+/* ===== 보어 모형 렌더러 ===== */
+function config(z){var caps=[2,8,8,2],sh=[],r=z;for(var i=0;i<caps.length&&r>0;i++){var e=Math.min(caps[i],r);sh.push(e);r-=e;}return sh;}
+function groupOf(e){ if(e.c==='transition') return (e.g)+'족(전이)'; if(e.s==='He') return '18족'; return e.g+'족'; }
+function drawBohr(z){
+  var e=ELMAP[z]; var sh=config(z); var svg=document.getElementById('bohr');
+  var cx=150,cy=150; var radii=[46,80,114,140]; var s='';
+  // 껍질 궤도
+  for(var i=0;i<sh.length;i++){
+    s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+radii[i]+'" fill="none" stroke="#334155" stroke-width="1"/>';
+  }
+  // 핵
+  s+='<circle cx="'+cx+'" cy="'+cy+'" r="30" fill="'+(CATCOLOR[e.c]||'#818cf8')+'"/>';
+  s+='<text x="'+cx+'" y="'+(cy-2)+'" text-anchor="middle" font-size="17" font-weight="800" fill="#0f172a" font-family="sans-serif">'+e.s+'</text>';
+  s+='<text x="'+cx+'" y="'+(cy+13)+'" text-anchor="middle" font-size="9" fill="#0f172a" font-family="sans-serif">'+z+'</text>';
+  // 전자
+  for(var i=0;i<sh.length;i++){
+    var n=sh[i], R=radii[i];
+    for(var k=0;k<n;k++){
+      var ang=(-90 + k*360/n)*Math.PI/180;
+      var ex=cx+R*Math.cos(ang), ey=cy+R*Math.sin(ang);
+      s+='<circle cx="'+ex.toFixed(1)+'" cy="'+ey.toFixed(1)+'" r="5" fill="#e0e7ff" stroke="#818cf8" stroke-width="1.5"/>';
+    }
+  }
+  svg.innerHTML=s;
+  document.getElementById('bSym').textContent=e.s;
+  document.getElementById('bSym').style.color=CATCOLOR[e.c]||'#4f46e5';
+  document.getElementById('bName').textContent=e.n+' · '+CATNAME[e.c];
+  document.getElementById('bZ').textContent=z;
+  document.getElementById('bConf').textContent=sh.join(', ');
+  document.getElementById('bPeriod').textContent=sh.length+'주기';
+  document.getElementById('bGroup').textContent=groupOf(e);
+  document.getElementById('bVal').textContent=(e.s==='He'?'2 (안정)':sh[sh.length-1])+'개';
+}
+document.getElementById('zRange').addEventListener('input',function(){drawBohr(parseInt(this.value,10));});
+
+/* ===== 주기율표 렌더 ===== */
+function buildTable(){
+  var tb=document.getElementById('ptable'); var s='';
+  EL.forEach(function(e){
+    var col=e.g, row=e.p; // 족 = 1~18열, 주기 = 행
+    s+='<div class="pt" data-z="'+e.z+'" data-c="'+e.c+'" style="grid-column:'+col+';grid-row:'+row+';background:'+CATCOLOR[e.c]+'">'
+      +'<span class="pz">'+e.z+'</span><span class="ps">'+e.s+'</span></div>';
+  });
+  tb.innerHTML=s;
+  // legend
+  var seen={}, lg='';
+  EL.forEach(function(e){ if(!seen[e.c]){seen[e.c]=1; lg+='<span><i style="background:'+CATCOLOR[e.c]+'"></i>'+CATNAME[e.c]+'</span>';} });
+  document.getElementById('ptlegend').innerHTML=lg;
+}
+function showEl(z){
+  var e=ELMAP[z]; var sh=config(z);
+  document.querySelectorAll('.pt').forEach(function(t){t.classList.toggle('sel',parseInt(t.dataset.z,10)===z);});
+  var val=(e.v==null)?'전이금속(규칙 복잡)':(e.s==='He'?'2 (안정)':e.v+'개');
+  // 단순 보어 모형(K2·L8·M8)은 1~20번만 정확 → 4주기 이상은 배치 태그를 숨김
+  var confTag=(z<=20)?'<span class="eltag">배치 '+sh.join(',')+'</span>':'<span class="eltag">배치: 4주기~ 단순 모형 밖</span>';
+  document.getElementById('elDetail').innerHTML=
+    '<div class="eh"><span class="es" style="color:'+CATCOLOR[e.c]+'">'+e.s+'</span>'+
+    '<span class="en">'+e.n+'</span><span class="ez">원자번호 '+e.z+'</span></div>'+
+    '<div class="eltags"><span class="eltag">'+CATNAME[e.c]+'</span><span class="eltag">'+e.p+'주기</span>'+
+    '<span class="eltag">'+groupOf(e)+'</span>'+confTag+
+    '<span class="eltag">원자가 전자 '+val+'</span></div>'+
+    '<div class="em">'+e.note+'</div>';
+}
+document.getElementById('ptable').addEventListener('click',function(e){
+  var t=e.target.closest('.pt'); if(!t)return; showEl(parseInt(t.dataset.z,10));
+});
+document.getElementById('ptControls').addEventListener('click',function(e){
+  var b=e.target.closest('.ptbtn'); if(!b)return;
+  this.querySelectorAll('.ptbtn').forEach(function(x){x.classList.remove('on')}); b.classList.add('on');
+  var grp=b.dataset.grp;
+  document.querySelectorAll('.pt').forEach(function(t){
+    if(grp==='all'){t.classList.remove('dim');return;}
+    t.classList.toggle('dim', t.dataset.c!==grp);
+  });
+});
+
+/* ===== PhET lazy ===== */
+function loadFrame(id){
+  var h=document.getElementById(id); if(!h||h.dataset.loaded)return;
+  var f=document.createElement('iframe');
+  f.setAttribute('src',h.getAttribute('data-src'));
+  f.setAttribute('allowfullscreen',''); f.setAttribute('loading','lazy'); f.setAttribute('title','PhET 시뮬레이션');
+  h.innerHTML=''; h.appendChild(f); h.dataset.loaded='1';
+}
+
+/* ===== 퀴즈 ===== */
+var QUIZ=[
+ {q:'원자번호 11번(나트륨)의 전자 배치는?',o:['2, 8, 1','2, 9','8, 3','2, 8, 8'],a:0,e:'K(2)→L(8)→M(1) = 2,8,1. 원자가 전자는 1개.'},
+ {q:'나트륨(Na)과 화학적 성질이 가장 닮은 원소는?',o:['칼륨(K)','염소(Cl)','네온(Ne)','마그네슘(Mg)'],a:0,e:'K는 Na와 같은 1족(원자가 전자 1개). 같은 족은 성질이 닮는다.'},
+ {q:'주기율표에서 "같은 족(세로줄)"이 의미하는 것은?',o:['원자가 전자 수가 같다','원자량이 같다','전자껍질 수가 같다','색이 같다'],a:0,e:'같은 족 = 원자가 전자 수 같음 → 화학적 성질이 닮음.'},
+ {q:'거의 반응하지 않는 "비활성 기체"는 몇 족인가?',o:['18족','1족','17족','8족'],a:0,e:'18족(He·Ne·Ar). 바깥 껍질이 꽉 차 안정.'},
+ {q:'원자번호가 뜻하는 것은?',o:['양성자 수','중성자 수','원자의 무게','전자껍질 수'],a:0,e:'원자번호 = 양성자 수 = (중성 원자의) 전자 수.'},
+ {q:'염소(Cl, 17족)가 반응할 때 전자를 어떻게 하려는 경향이 큰가?',o:['1개 받아서 8개를 채우려 함','1개 내주려 함','아무것도 안 함','2개 내주려 함'],a:0,e:'17족은 원자가 전자 7개 → 1개만 받으면 옥텟(8) 완성. 그래서 반응성이 크다.'},
+ {q:'"주기(가로줄)"가 늘어난다는 것은?',o:['전자껍질이 하나 더 생긴다','원자가 전자가 준다','금속이 된다','색이 변한다'],a:0,e:'주기 = 전자껍질 수. 아래로 갈수록 껍질이 하나씩 늘어난다.'},
+ {q:'반도체의 핵심 재료로, 모래에서 얻는 준금속 원소는?',o:['규소(Si)','철(Fe)','헬륨(He)','나트륨(Na)'],a:0,e:'규소(Si, 14족 준금속). 금속과 비금속의 경계에 있어 반도체에 딱.'},
+ {q:'멘델레예프가 표의 빈칸으로 "성질을 미리 예언"한 원소의 예는?',o:['저마늄(Ge)·갈륨(Ga)','헬륨(He)','철(Fe)','수소(H)'],a:0,e:'빈칸을 남겨 예언 → 갈륨·저마늄이 예언대로 발견되며 주기율표의 위력을 증명.'},
+ {q:'칼슘(원자번호 20)의 원자가 전자 수는?',o:['2개','8개','20개','0개'],a:0,e:'20 → 2,8,8,2. 맨 바깥 껍질 전자 2개 = 원자가 전자 2개(2족).'}
+];
+var qi=0,qscore=0,qans=false;
+function renderQ(){
+  qans=false; var q=QUIZ[qi];
+  document.getElementById('qNum').textContent='문제 '+(qi+1)+' / '+QUIZ.length;
+  document.getElementById('qScore').textContent=qscore;
+  document.getElementById('qBar').style.width=(qi/QUIZ.length*100)+'%';
+  document.getElementById('qQ').textContent=q.q;
+  var opts=document.getElementById('qOpts'); opts.innerHTML='';
+  q.o.forEach(function(txt,idx){
+    var b=document.createElement('button'); b.className='qopt'; b.textContent=txt;
+    b.addEventListener('click',function(){pick(idx,b);});
+    opts.appendChild(b);
+  });
+  document.getElementById('qExp').className='qexp';
+  document.getElementById('qExp').innerHTML='';
+  document.getElementById('qNext').className='qnext';
+}
+function pick(idx,btn){
+  if(qans)return; qans=true; var q=QUIZ[qi];
+  var all=document.querySelectorAll('#qOpts .qopt');
+  all.forEach(function(b,i){ if(i===q.a)b.classList.add('correct'); else if(b===btn)b.classList.add('wrong'); else b.classList.add('dim'); });
+  var ok=(idx===q.a); if(ok)qscore++;
+  document.getElementById('qScore').textContent=qscore;
+  var ex=document.getElementById('qExp');
+  ex.innerHTML='<div class="et">'+(ok?'⭕ 정답!':'❌ 오답')+'</div>'+q.e; ex.className='qexp show';
+  document.getElementById('qNext').className='qnext show';
+}
+document.getElementById('qNext').addEventListener('click',function(){ qi++; if(qi>=QUIZ.length){finishQuiz();return;} renderQ(); });
+function finishQuiz(){
+  document.getElementById('qBar').style.width='100%';
+  document.getElementById('qNum').textContent='완료 ✓';
+  var pct=Math.round(qscore/QUIZ.length*100);
+  var msg=pct>=90?'완벽해요! 주기율표의 규칙을 확실히 잡았어요.':pct>=70?'잘했어요! 틀린 것만 다시 보면 완성.':'개념·주기율표 탭을 한 번 더 보고 재도전해요.';
+  document.getElementById('qArea').innerHTML='<div class="qdone"><div class="big">'+qscore+' / '+QUIZ.length+'</div>'+
+    '<p style="margin:8px 0 4px;font-size:15px">정답률 '+pct+'%</p>'+
+    '<p style="color:#64748b;font-size:13px;margin-bottom:16px">'+msg+'</p>'+
+    '<button class="btn" onclick="restartQuiz()">↺ 다시 풀기</button></div>';
+}
+function restartQuiz(){
+  qi=0;qscore=0;
+  document.getElementById('qArea').innerHTML='<div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div>'+
+    '<div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button>';
+  document.getElementById('qNext').addEventListener('click',function(){qi++;if(qi>=QUIZ.length){finishQuiz();return;}renderQ();});
+  renderQ();
+}
+
+/* ===== init ===== */
+// 퀴즈 보기 셔플 (원본은 정답이 모두 첫 보기 → 위치로 유추 방지)
+QUIZ.forEach(function(q){
+  var correct=q.o[q.a];
+  for(var i=q.o.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=q.o[i];q.o[i]=q.o[j];q.o[j]=t;}
+  q.a=q.o.indexOf(correct);
+});
+drawBohr(1);
+buildTable();
+showEl(11); // 나트륨 예시로 시작
+renderQ();
+</script>
+</body>
+</html>

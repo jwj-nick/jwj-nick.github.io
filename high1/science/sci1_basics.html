@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>과학의 기초 — 통합과학1</title>
+<style>
+  :root{
+    --panel:#fff; --ink:#1e293b; --sub:#64748b; --line:#e2e8f0;
+    --blue:#2563eb; --blue-d:#1e40af; --green:#16a34a; --green-bg:#f0fdf4;
+    --amber:#d97706; --amber-bg:#fffbeb; --red:#dc2626; --red-bg:#fef2f2;
+    --purple:#7c3aed; --purple-bg:#f5f3ff; --indigo:#4f46e5; --accent:#475569; --accent-bg:#f8fafc;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',sans-serif;background:#f1f5f9;color:var(--ink);line-height:1.7;-webkit-text-size-adjust:100%}
+  a{color:var(--blue)} sup,sub{font-size:.72em}
+  .crumb{background:#f8fafc;border-bottom:1px solid var(--line);padding:7px 16px;font-size:12px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+  .crumb a{color:var(--sub);text-decoration:none} .crumb a.cur{color:var(--blue);font-weight:600} .crumb span{color:#cbd5e1}
+  .hero{background:linear-gradient(135deg,#1e293b,#475569 60%,#64748b);color:#fff;padding:26px 18px 22px;text-align:center}
+  .hero .badge{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:3px 13px;font-size:12px;margin-bottom:10px}
+  .hero h1{font-size:21px;font-weight:800;letter-spacing:-.3px} .hero p{font-size:13px;opacity:.93;margin-top:6px}
+  .tabs{position:sticky;top:0;z-index:50;display:flex;background:#0f172a;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;padding:13px 15px;min-height:44px;color:#cbd5e1;font-size:13.5px;font-weight:600;cursor:pointer;border:none;background:none;border-bottom:3px solid transparent;white-space:nowrap;transition:.15s}
+  .tab.active{color:#fff;border-bottom-color:#94a3b8} .tab:hover{color:#e2e8f0}
+  .wrap{max-width:860px;margin:0 auto;padding:22px 16px 70px}
+  .page{display:none} .page.active{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .card h2{font-size:18px;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .card h3{font-size:15px;font-weight:700;margin:16px 0 8px;color:var(--blue-d)} .card p{font-size:14px;margin-bottom:8px} .lead{color:var(--sub);font-size:13px;margin-bottom:14px}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0} th,td{border:1px solid var(--line);padding:8px 9px;text-align:center} th{background:#f8fafc;font-weight:700} td.l,th.l{text-align:left}
+  .box{border-radius:10px;padding:13px 15px;margin:10px 0;font-size:13.5px}
+  .box.g{background:var(--green-bg);border:1px solid #bbf7d0} .box.a{background:var(--amber-bg);border:1px solid #fde68a} .box.b{background:#eff6ff;border:1px solid #bfdbfe}
+  .box .t{font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:6px} .box.g .t{color:var(--green)} .box.a .t{color:var(--amber)} .box.b .t{color:var(--blue-d)}
+  .hook{background:linear-gradient(135deg,#f8fafc,#eef2f6);border:1px solid #cbd5e1;border-radius:12px;padding:16px 18px;margin:12px 0;font-size:14px}
+  .hook .ht{color:var(--accent);font-weight:800;font-size:15px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  .keeper{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fcd34d;border-radius:12px;padding:15px 17px;margin:12px 0}
+  .keeper .kt{color:#b45309;font-weight:800;font-size:14.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .keeper ol{margin:0;list-style:none} .keeper li{position:relative;padding:8px 0 8px 34px;font-size:13.5px;border-bottom:1px dashed #fde68a} .keeper li:last-child{border-bottom:none} .keeper li::before{content:"📌";position:absolute;left:4px;top:8px}
+  .insight{background:var(--purple-bg);border:1px solid #ddd6fe;border-radius:12px;padding:14px 16px;margin:12px 0;font-size:13.5px} .insight .it{color:var(--purple);font-weight:800;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+  .reallife{background:var(--green-bg);border:1px solid #bbf7d0;border-radius:12px;padding:14px 16px;margin:12px 0} .reallife .rt{color:var(--green);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:9px} .rcell{background:#fff;border:1px solid #bbf7d0;border-radius:9px;padding:10px} .rcell .ri{font-size:22px} .rcell .rn{font-weight:800;font-size:13px;margin:3px 0} .rcell .rd{font-size:11.5px;color:#475569;line-height:1.5}
+  .industry{background:#eef2ff;border:1px solid #c7d2fe;border-radius:12px;padding:14px 16px;margin:12px 0} .industry .indt{color:var(--indigo);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .indrow{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #e0e7ff} .indrow:last-child{border-bottom:none} .indrow .ii{font-size:24px;flex-shrink:0} .indrow .id2{font-size:13px} .indrow .id2 b{color:#312e81}
+  .major{display:inline-block;background:#312e81;color:#c7d2fe;border-radius:6px;padding:2px 8px;font-size:10.5px;font-weight:700;margin-top:4px}
+  .sci{display:flex;gap:13px;align-items:flex-start;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fde68a;border-radius:12px;padding:15px;margin:12px 0} .sci .ava{font-size:34px;line-height:1;flex-shrink:0} .sci .st{font-weight:800;color:#92400e;font-size:14px;margin-bottom:3px} .sci .sd{font-size:13px;color:#78350f}
+  .toc{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:8px}
+  .toc button{text-align:left;background:var(--accent-bg);border:1px solid #cbd5e1;border-radius:10px;padding:12px;cursor:pointer;font:inherit;transition:.15s;min-height:44px} .toc button:hover{border-color:var(--accent);box-shadow:0 2px 8px rgba(71,85,105,.13)}
+  .toc .ti{font-size:20px}.toc .tn{font-weight:800;font-size:13.5px;margin-top:4px}.toc .td{font-size:11.5px;color:var(--sub)}
+  .qcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:10px 0}
+  .qcell{border:1px solid var(--line);border-radius:12px;padding:13px;background:#fff;cursor:pointer;transition:.12s;min-height:44px;text-align:center}
+  .qcell:hover{border-color:var(--accent);box-shadow:0 2px 8px rgba(71,85,105,.1)} .qcell .qi{font-size:24px} .qcell .qn2{font-weight:800;font-size:13.5px;margin:5px 0 2px} .qcell .qu{font-size:12px;color:var(--accent);font-weight:700} .qcell .qd{font-size:11px;color:#475569;line-height:1.5;display:none;margin-top:4px} .qcell.show .qd{display:block}
+  .fig{width:100%;max-width:420px;display:block;margin:10px auto;background:#fff;border:1px solid var(--line);border-radius:12px} .fig text{font-family:-apple-system,'Malgun Gothic',sans-serif}
+  .toggle{display:flex;gap:7px;margin:10px 0;flex-wrap:wrap}
+  .toggle button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 13px;font:inherit;font-weight:700;font-size:12.5px;cursor:pointer;min-height:46px}
+  .toggle button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .tdesc{font-size:12.5px;color:#475569;text-align:center;margin-top:6px;min-height:20px}
+  .quizhud{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:12px 16px;margin-bottom:14px} .quizhud .qn{font-weight:800;font-size:14px} .quizhud .sc{margin-left:auto;font-size:13px} .quizhud .sc b{color:#94a3b8;font-size:16px}
+  .qbar{flex-basis:100%;height:8px;background:#334155;border-radius:20px;overflow:hidden;margin-top:2px} .qbar > i{display:block;height:100%;background:linear-gradient(90deg,#94a3b8,#475569)}
+  .qq{font-size:16px;font-weight:700;text-align:center;margin:10px 0 16px} .qopts{display:grid;gap:10px}
+  .qopt{border:2px solid var(--line);background:#fff;border-radius:12px;padding:14px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:.12s;min-height:52px} .qopt:hover{border-color:var(--accent)} .qopt.correct{background:var(--green-bg);border-color:#6ee7b7;color:#065f46} .qopt.wrong{background:var(--red-bg);border-color:#fecaca;color:#991b1b} .qopt.dim{opacity:.5}
+  .qexp{display:none;margin-top:14px;background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:13px 15px;font-size:13.5px} .qexp.show{display:block;animation:fade .2s ease}.qexp .et{font-weight:800;margin-bottom:4px}
+  .qnext{display:none;margin-top:14px;width:100%;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:13px;font:inherit;font-weight:800;font-size:14px;cursor:pointer;min-height:48px} .qnext.show{display:block}
+  .qdone{text-align:center;padding:10px 0}.qdone .big{font-size:40px;font-weight:800;color:var(--accent)}
+  .btn{display:inline-block;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px 18px;font:inherit;font-weight:700;font-size:13.5px;cursor:pointer;text-decoration:none;min-height:44px}
+  .chk{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px} .chk:last-child{border-bottom:none} .chk input{margin-top:4px;width:17px;height:17px;flex-shrink:0;accent-color:var(--accent)}
+  .tag{display:inline-block;background:var(--accent-bg);color:var(--accent);border:1px solid #cbd5e1;border-radius:6px;padding:2px 9px;font-size:11.5px;font-weight:700;margin:3px 4px 0 0}
+  @media (max-width:640px){ .hero h1{font-size:19px} .card{padding:16px} }
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Science_1_1</a><span>&rsaquo;</span><a href="sci1_hub.html">통합과학1</a><span>&rsaquo;</span><a class="cur" href="#">과학의 기초</a></nav>
+<div class="hero">
+  <span class="badge">Ⅰ. 과학의 기초</span>
+  <h1>📏 과학의 기초 — 재고, 다루는 법</h1>
+  <p>기본량과 단위 · 측정의 정확도 · 정보와 디지털</p>
+</div>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="intro">📋 개요</button>
+  <button class="tab" data-t="unit">📏 기본량과 단위</button>
+  <button class="tab" data-t="meas">🎯 측정</button>
+  <button class="tab" data-t="digital">💾 정보와 디지털</button>
+  <button class="tab" data-t="world">🌐 세상 속으로</button>
+  <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="sum">✅ 정리</button>
+</div>
+<div class="wrap">
+
+  <div class="page active" data-p="intro">
+    <div class="card">
+      <h2>📋 과학은 '재는' 것에서 시작한다</h2>
+      <div class="hook">
+        <div class="ht">💥 놀라운 사실</div>
+        키·몸무게·시간·온도… 세상 모든 측정은 놀랍게도 <b>단 7개의 기본량</b>으로 표현된다. 그리고 오늘날 이 기본량들은 자·저울 같은 물건이 아니라 <b>변하지 않는 자연 상수</b>로 정의된다. 과학의 힘은 "정확히 재고, 그 값을 다루는" 데서 나온다.
+      </div>
+      <div class="sci">
+        <div class="ava">⚖️</div>
+        <div>
+          <div class="st">1kg의 정의가 바뀐 날 (2019)</div>
+          <div class="sd">130년간 "1kg"은 프랑스 금고 속 <b>백금-이리듐 합금 원기</b>였다. 하지만 이 금속 덩어리도 아주 미세하게 변했다. 그래서 2019년, 과학자들은 1kg을 <b>변하지 않는 자연 상수(플랑크 상수)</b>로 다시 정의했다. 이제 우주 어디서든 똑같은 1kg을 잴 수 있다.</div>
+        </div>
+      </div>
+      <div class="toc">
+        <button onclick="go('unit')"><div class="ti">📏</div><div class="tn">기본량과 단위</div><div class="td">7가지 기본량</div></button>
+        <button onclick="go('meas')"><div class="ti">🎯</div><div class="tn">측정</div><div class="td">정확도·정밀도·어림</div></button>
+        <button onclick="go('digital')"><div class="ti">💾</div><div class="tn">정보와 디지털</div><div class="td">아날로그 vs 디지털</div></button>
+        <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">표준·센서 산업</div></button>
+        <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+        <button onclick="go('sum')"><div class="ti">✅</div><div class="tn">정리</div><div class="td">요약·자가점검</div></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="unit">
+    <div class="card">
+      <h2>📏 기본량과 단위</h2>
+      <p class="lead">더 이상 쪼갤 수 없는 <b>7개의 기본량</b>이 있고, 나머지 모든 양(속력·넓이·밀도 등)은 이들의 조합인 <b>유도량</b>이다. 눌러서 단위를 확인하자.</p>
+      <div class="qcards" id="baseCards"></div>
+      <div class="box b">
+        <div class="t">🔑 유도량 = 기본량의 조합</div>
+        예: <b>속력 = 길이 ÷ 시간</b> → 단위 m/s. <b>넓이 = 길이 × 길이</b> → m². <b>밀도 = 질량 ÷ 부피</b> → kg/m³. 복잡해 보여도 결국 기본량 몇 개의 곱셈·나눗셈이다.
+      </div>
+      <div class="box a">
+        <div class="t">⚠️ 왜 단위가 중요한가</div>
+        1999년 NASA의 화성 탐사선이 <b>단위 혼동(m vs 피트)</b>으로 실패했다. 숫자만큼 <b>단위</b>가 중요하다는 걸 보여준 유명한 사고.
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="meas">
+    <div class="card">
+      <h2>🎯 측정 — 정확도와 정밀도</h2>
+      <p class="lead">측정에는 늘 <b>오차</b>가 따른다. 좋은 측정은 <b>정확</b>하면서 <b>정밀</b>해야 한다. 둘은 다른 개념이다! 과녁으로 비교해 보자.</p>
+      <div class="toggle" id="targetToggle">
+        <button class="on" data-t2="hh">정확 ⭕ + 정밀 ⭕</button>
+        <button data-t2="lh">부정확 + 정밀</button>
+        <button data-t2="hl">정확 + 부정밀</button>
+        <button data-t2="ll">부정확 + 부정밀</button>
+      </div>
+      <svg class="fig" id="targetfig" viewBox="0 0 260 260" role="img" aria-label="정확도 정밀도 과녁"></svg>
+      <div class="tdesc" id="targetdesc"></div>
+      <table>
+        <tr><th>개념</th><th class="l">뜻</th></tr>
+        <tr><td>정확도</td><td class="l">참값에 얼마나 <b>가까운가</b> (과녁 중심에 가까움)</td></tr>
+        <tr><td>정밀도</td><td class="l">여러 번 쟀을 때 얼마나 <b>모여 있는가</b> (일관성)</td></tr>
+      </table>
+      <div class="box g">
+        <div class="t">🧮 어림(estimation) — 재기 전에 감 잡기</div>
+        정밀하게 재기 전, <b>대략의 값을 빠르게 추정</b>하는 것도 과학의 중요한 능력이다. "이 방에 사람이 몇 명 들어갈까?"처럼 <b>자릿수만이라도</b> 먼저 가늠하면 큰 실수를 막는다.
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="digital">
+    <div class="card">
+      <h2>💾 정보와 디지털</h2>
+      <p class="lead">우리가 재고 다루는 정보는 <b>아날로그</b>(연속)와 <b>디지털</b>(0과 1의 불연속)로 나뉜다. 오늘날 대부분의 정보는 디지털로 처리된다. 신호를 비교해 보자.</p>
+      <div class="toggle" id="sigToggle">
+        <button class="on" data-s="ana">아날로그 (연속)</button>
+        <button data-s="dig">디지털 (0과 1)</button>
+      </div>
+      <svg class="fig" id="sigfig" viewBox="0 0 420 160" role="img" aria-label="신호"></svg>
+      <div class="tdesc" id="sigdesc"></div>
+      <div class="box b">
+        <div class="t">🔑 디지털이 이긴 이유</div>
+        디지털(0과 1)은 <b>잡음에 강하고, 복제·전송·저장·계산이 쉽다.</b> 그래서 음악(LP→MP3)·사진(필름→디지털)·통신이 전부 디지털로 바뀌었다. 컴퓨터·AI가 다루는 모든 정보가 0과 1이다.
+      </div>
+      <div class="box a">
+        <div class="t">📡 센서 — 세상을 디지털로</div>
+        온도·빛·소리 같은 <b>아날로그 세상</b>을 <b>센서</b>가 숫자(디지털)로 바꿔 준다. 스마트폰·자율주행차·IoT가 다 센서 덩어리다.
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="world">
+    <div class="card">
+      <h2>🌐 세상 속으로</h2>
+      <div class="keeper">
+        <div class="kt">📌 어른이 되어도 기억할 것</div>
+        <ol>
+          <li>세상의 모든 측정은 <b>7개의 기본량</b>(길이·질량·시간·전류·온도·물질량·광도)으로 표현된다.</li>
+          <li><b>정확도 ≠ 정밀도.</b> 참값에 가까운 것(정확)과, 값이 모여 있는 것(정밀)은 다르다.</li>
+          <li>오늘날 정보는 <b>0과 1의 디지털</b>로 처리된다 — 잡음에 강하고 다루기 쉽기 때문.</li>
+        </ol>
+      </div>
+      <div class="insight">
+        <div class="it">💡 인사이트 — 잴 수 없으면 다룰 수 없다</div>
+        과학·공학·경제·AI, 무엇이든 <b>정확히 측정</b>하는 데서 발전이 시작된다. "측정할 수 없으면 개선할 수 없다"는 말처럼, <b>데이터(측정값)</b>가 현대 세계를 움직인다. 이 단원이 통합과학 전체의 <b>토대</b>인 이유다.
+      </div>
+      <div class="reallife">
+        <div class="rt">🏠 우리 곁의 측정과 디지털</div>
+        <div class="rgrid">
+          <div class="rcell"><div class="ri">🍳</div><div class="rn">요리 계량</div><div class="rd">질량·부피·시간 측정</div></div>
+          <div class="rcell"><div class="ri">⌚</div><div class="rn">스마트워치</div><div class="rd">센서로 심박·걸음 측정</div></div>
+          <div class="rcell"><div class="ri">📷</div><div class="rn">디지털 사진</div><div class="rd">빛을 0·1로 저장</div></div>
+          <div class="rcell"><div class="ri">🎵</div><div class="rn">스트리밍 음악</div><div class="rd">디지털 신호</div></div>
+        </div>
+      </div>
+      <div class="industry">
+        <div class="indt">🏭 산업과 직업 — 측정이 만드는 신뢰</div>
+        <div class="indrow"><div class="ii">📐</div><div class="id2"><b>표준·계측 — KRISS</b><br>한국표준과학연구원 등이 국가 표준(정확한 1kg·1초)을 관리해 산업 전체의 신뢰를 떠받친다.<br><span class="major">🎓 물리학 · 계측공학</span></div></div>
+        <div class="indrow"><div class="ii">📡</div><div class="id2"><b>센서·IoT</b><br>세상을 디지털로 바꾸는 센서가 자율주행·스마트공장·헬스케어의 눈과 귀.<br><span class="major">🎓 전자공학 · 제어계측</span></div></div>
+        <div class="indrow"><div class="ii">📊</div><div class="id2"><b>데이터·AI</b><br>측정된 데이터를 분석해 예측·판단하는 데이터사이언스가 모든 분야로 확산 중.<br><span class="major">🎓 데이터사이언스 · 통계학</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="quiz">
+    <div class="card">
+      <h2>🔥 과학의 기초 퀴즈</h2>
+      <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
+      <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="sum">
+    <div class="card">
+      <h2>✅ 정리</h2>
+      <h3>7개 기본량과 단위</h3>
+      <table>
+        <tr><th>기본량</th><th>단위</th><th>기호</th></tr>
+        <tr><td>길이</td><td>미터</td><td>m</td></tr>
+        <tr><td>질량</td><td>킬로그램</td><td>kg</td></tr>
+        <tr><td>시간</td><td>초</td><td>s</td></tr>
+        <tr><td>전류</td><td>암페어</td><td>A</td></tr>
+        <tr><td>온도</td><td>켈빈</td><td>K</td></tr>
+        <tr><td>물질량</td><td>몰</td><td>mol</td></tr>
+        <tr><td>광도</td><td>칸델라</td><td>cd</td></tr>
+      </table>
+      <div class="box b">
+        <div class="t">🔑 한 줄 요약</div>
+        <b>과학은 7개 기본량으로 정확·정밀하게 측정하고, 그 정보를 디지털(0·1)로 다루는 데서 시작한다.</b>
+      </div>
+      <h3>자가 점검</h3>
+      <div class="chk"><input type="checkbox" id="c1"><label for="c1">7개 기본량과 단위를 말할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c2"><label for="c2">유도량이 기본량의 조합임을 안다(예: 속력=길이/시간)</label></div>
+      <div class="chk"><input type="checkbox" id="c3"><label for="c3">정확도와 정밀도의 차이를 과녁으로 설명할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c4"><label for="c4">아날로그와 디지털의 차이와 디지털의 장점을 안다</label></div>
+      <h3>약점 태그</h3>
+      <div><span class="tag">과학:기본량</span><span class="tag">과학:단위</span><span class="tag">과학:측정오차</span><span class="tag">과학:정확도정밀도</span><span class="tag">과학:디지털</span></div>
+      <div class="box g" style="margin-top:16px">
+        <div class="t">➡️ 다음 단원</div>
+        측정과 단위는 모든 단원의 토대다 → <a href="sci1_hub.html">통합과학1 허브</a>에서 다음 주제를 골라 보자.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function go(t){var tab=document.querySelector('.tab[data-t="'+t+'"]');if(tab)tab.click();}
+document.getElementById('tabs').addEventListener('click',function(e){
+  var b=e.target.closest('.tab'); if(!b)return;
+  document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active')});
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
+  b.classList.add('active'); var pg=document.querySelector('.page[data-p="'+b.dataset.t+'"]'); if(pg)pg.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+/* 기본량 카드 */
+var BASE=[
+ {i:'📏',n:'길이',u:'미터 (m)',d:'공간의 거리. 예: 키 170cm, 100m 달리기.'},
+ {i:'⚖️',n:'질량',u:'킬로그램 (kg)',d:'물질의 양. 예: 몸무게 60kg. (무게와는 다른 개념)'},
+ {i:'⏱️',n:'시간',u:'초 (s)',d:'사건의 지속. 예: 100m를 12초에.'},
+ {i:'🔌',n:'전류',u:'암페어 (A)',d:'전하의 흐름 세기. 예: 가전제품 전류.'},
+ {i:'🌡️',n:'온도',u:'켈빈 (K)',d:'뜨겁고 찬 정도. 0K=절대영도(약 -273℃, 정확히 -273.15℃).'},
+ {i:'⚗️',n:'물질량',u:'몰 (mol)',d:'입자의 개수 묶음. 1몰 ≈ 6.02×10²³개.'},
+ {i:'💡',n:'광도',u:'칸델라 (cd)',d:'빛의 밝기(세기). 예: 촛불 ≈ 1cd.'}
+];
+(function buildBase(){
+  var el=document.getElementById('baseCards'); var s='';
+  BASE.forEach(function(b){s+='<div class="qcell"><div class="qi">'+b.i+'</div><div class="qn2">'+b.n+'</div><div class="qu">'+b.u+'</div><div class="qd">'+b.d+'</div></div>';});
+  el.innerHTML=s;
+  el.addEventListener('click',function(e){var c=e.target.closest('.qcell'); if(!c)return; c.classList.toggle('show');});
+})();
+
+/* 정확도/정밀도 과녁 */
+var TGT={
+ hh:{dots:[[130,130],[138,124],[124,136],[133,120],[120,133]],d:'정확 + 정밀: 참값(중심)에 가깝고, 값들이 모여 있다. 가장 이상적.'},
+ lh:{dots:[[185,80],[192,74],[178,86],[188,68],[176,78]],d:'부정확 + 정밀: 값들이 모여 있지만(정밀) 중심에서 벗어남(부정확). 계통 오차 가능.'},
+ hl:{dots:[[130,130],[95,105],[165,110],[110,170],[160,165]],d:'정확 + 부정밀: 평균은 중심 근처지만 흩어져 있다(부정밀).'},
+ ll:{dots:[[190,80],[95,100],[175,175],[100,175],[205,150]],d:'부정확 + 부정밀: 중심에서 벗어나고 흩어져 있다. 가장 나쁨.'}
+};
+function drawTarget(kind){
+  var svg=document.getElementById('targetfig'); var cx=130,cy=130;
+  var s='';
+  [60,40,20].forEach(function(r,i){s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+(i%2?'#fff':'#e2e8f0')+'" stroke="#94a3b8" stroke-width="1.5"/>';});
+  s+='<circle cx="'+cx+'" cy="'+cy+'" r="80" fill="none" stroke="#cbd5e1" stroke-width="1.5"/>';
+  // 측정값(파랑) 먼저, 참값(빨강)을 위에 그려 항상 보이게
+  TGT[kind].dots.forEach(function(d){s+='<circle cx="'+d[0]+'" cy="'+d[1]+'" r="6" fill="#2563eb" opacity="0.8"/>';});
+  s+='<circle cx="'+cx+'" cy="'+cy+'" r="5.5" fill="#ef4444" stroke="#fff" stroke-width="1.5"/>'; // 참값(중심)
+  s+='<text x="130" y="250" text-anchor="middle" font-size="11" fill="#64748b">🔴 참값(중심) · 🔵 측정값</text>';
+  svg.innerHTML=s;
+  document.getElementById('targetdesc').textContent=TGT[kind].d;
+}
+document.getElementById('targetToggle').addEventListener('click',function(e){
+  var b=e.target.closest('button'); if(!b)return;
+  this.querySelectorAll('button').forEach(function(x){x.classList.remove('on')}); b.classList.add('on'); drawTarget(b.dataset.t2);
+});
+
+/* 신호 */
+function drawSig(kind){
+  var svg=document.getElementById('sigfig'); var s='<line x1="20" y1="80" x2="410" y2="80" stroke="#e2e8f0" stroke-width="1"/>';
+  if(kind==='ana'){
+    var path='M20 80'; for(var x=20;x<=400;x+=4){var y=80-45*Math.sin((x-20)/38);path+=' L'+x+' '+y.toFixed(1);}
+    s+='<path d="'+path+'" fill="none" stroke="#475569" stroke-width="3"/>';
+    s+='<text x="210" y="150" text-anchor="middle" font-size="12" fill="#475569">연속적으로 매끄럽게 변함</text>';
+  } else {
+    var d='M20 110'; var lv=[110,35,110,35,110,35,110]; var seg=55; var cx=20;
+    for(var i=0;i<lv.length;i++){ d+=' L'+(cx)+' '+lv[i]+' L'+(cx+seg)+' '+lv[i]; cx+=seg; }
+    s+='<path d="'+d+'" fill="none" stroke="#2563eb" stroke-width="3"/>';
+    s+='<text x="30" y="128" font-size="11" fill="#2563eb">0</text><text x="85" y="30" font-size="11" fill="#2563eb">1</text>';
+    s+='<text x="210" y="150" text-anchor="middle" font-size="12" fill="#2563eb">0과 1, 계단처럼 불연속</text>';
+  }
+  svg.innerHTML=s;
+  document.getElementById('sigdesc').textContent = kind==='ana'
+    ? '아날로그: 값이 끊김 없이 연속적으로 변한다 (LP판·아날로그 시계 바늘).'
+    : '디지털: 0과 1 두 값으로만 표현 — 잡음에 강하고 복제·전송·저장이 쉽다.';
+}
+document.getElementById('sigToggle').addEventListener('click',function(e){
+  var b=e.target.closest('button'); if(!b)return;
+  this.querySelectorAll('button').forEach(function(x){x.classList.remove('on')}); b.classList.add('on'); drawSig(b.dataset.s);
+});
+
+/* 퀴즈 */
+var QUIZ=[
+ {q:'다음 중 SI 7개 기본량이 아닌 것은?',o:['속력','길이','질량','시간'],a:0,e:'속력은 길이÷시간의 유도량. 기본량은 길이·질량·시간·전류·온도·물질량·광도.'},
+ {q:'질량의 SI 단위는?',o:['킬로그램(kg)','뉴턴(N)','그램(g)','파운드'],a:0,e:'질량의 기본 단위는 킬로그램(kg).'},
+ {q:'시간의 SI 기본 단위는?',o:['초(s)','분','시간','헤르츠'],a:0,e:'시간의 기본 단위는 초(s).'},
+ {q:'"속력 = 길이 ÷ 시간"처럼 기본량을 조합해 만든 양을 무엇이라 하나?',o:['유도량','기본량','상수','오차'],a:0,e:'유도량 — 기본량들의 곱·나눗셈으로 정의(속력·넓이·밀도 등).'},
+ {q:'측정값이 참값에 얼마나 가까운가를 나타내는 것은?',o:['정확도','정밀도','유효숫자','단위'],a:0,e:'정확도 = 참값에 가까운 정도. 정밀도는 값들이 모여 있는 정도.'},
+ {q:'여러 번 측정한 값이 서로 얼마나 모여 있는가(일관성)를 뜻하는 것은?',o:['정밀도','정확도','평균','오차'],a:0,e:'정밀도 = 반복 측정값의 흩어짐이 적은 정도.'},
+ {q:'과녁에 비유할 때 "가운데에서 벗어났지만 한곳에 모여 박힌" 경우는?',o:['부정확하지만 정밀','정확하고 정밀','정확하지만 부정밀','부정확하고 부정밀'],a:0,e:'모여 있으니 정밀, 중심에서 벗어났으니 부정확.'},
+ {q:'0과 1처럼 값이 불연속인 신호는?',o:['디지털 신호','아날로그 신호','연속 신호','전파'],a:0,e:'디지털 = 0·1의 불연속 값. 아날로그는 연속적으로 변함.'},
+ {q:'디지털 정보가 아날로그보다 널리 쓰이는 이유로 옳은 것은?',o:['잡음에 강하고 복제·전송·저장이 쉬움','더 예뻐서','더 느려서','아날로그가 없어서'],a:0,e:'디지털은 잡음에 강하고 복제·전송·저장·계산이 쉬워 정보화의 기반이 됐다.'},
+ {q:'온도·빛·소리 같은 아날로그 세상을 숫자(디지털)로 바꿔주는 장치는?',o:['센서','모터','전구','스피커'],a:0,e:'센서가 물리량을 측정해 디지털 신호로 바꾼다. 스마트폰·자율주행의 핵심.'}
+];
+var qi=0,qscore=0,qans=false;
+function renderQ(){
+  qans=false; var q=QUIZ[qi];
+  document.getElementById('qNum').textContent='문제 '+(qi+1)+' / '+QUIZ.length;
+  document.getElementById('qScore').textContent=qscore; document.getElementById('qBar').style.width=(qi/QUIZ.length*100)+'%';
+  document.getElementById('qQ').textContent=q.q;
+  var opts=document.getElementById('qOpts'); opts.innerHTML='';
+  q.o.forEach(function(txt,idx){var b=document.createElement('button'); b.className='qopt'; b.textContent=txt; b.addEventListener('click',function(){pick(idx,b);}); opts.appendChild(b);});
+  document.getElementById('qExp').className='qexp'; document.getElementById('qExp').innerHTML=''; document.getElementById('qNext').className='qnext';
+}
+function pick(idx,btn){
+  if(qans)return; qans=true; var q=QUIZ[qi];
+  document.querySelectorAll('#qOpts .qopt').forEach(function(b,i){if(i===q.a)b.classList.add('correct');else if(b===btn)b.classList.add('wrong');else b.classList.add('dim');});
+  var ok=(idx===q.a); if(ok)qscore++; document.getElementById('qScore').textContent=qscore;
+  var ex=document.getElementById('qExp'); ex.innerHTML='<div class="et">'+(ok?'⭕ 정답!':'❌ 오답')+'</div>'+q.e; ex.className='qexp show';
+  document.getElementById('qNext').className='qnext show';
+}
+document.getElementById('qNext').addEventListener('click',function(){qi++; if(qi>=QUIZ.length){finishQuiz();return;} renderQ();});
+function finishQuiz(){
+  document.getElementById('qBar').style.width='100%'; document.getElementById('qNum').textContent='완료 ✓';
+  var pct=Math.round(qscore/QUIZ.length*100);
+  var msg=pct>=90?'완벽해요! 과학의 토대를 튼튼히 잡았어요.':pct>=70?'잘했어요! 틀린 것만 다시 보면 완성.':'개념 탭을 한 번 더 보고 재도전해요.';
+  document.getElementById('qArea').innerHTML='<div class="qdone"><div class="big">'+qscore+' / '+QUIZ.length+'</div><p style="margin:8px 0 4px;font-size:15px">정답률 '+pct+'%</p><p style="color:#64748b;font-size:13px;margin-bottom:16px">'+msg+'</p><button class="btn" onclick="restartQuiz()">↺ 다시 풀기</button></div>';
+}
+function restartQuiz(){
+  qi=0;qscore=0;
+  document.getElementById('qArea').innerHTML='<div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button>';
+  document.getElementById('qNext').addEventListener('click',function(){qi++;if(qi>=QUIZ.length){finishQuiz();return;}renderQ();});
+  renderQ();
+}
+
+/* init */
+QUIZ.forEach(function(q){var correct=q.o[q.a];for(var i=q.o.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=q.o[i];q.o[i]=q.o[j];q.o[j]=t;}q.a=q.o.indexOf(correct);});
+drawTarget('hh');
+drawSig('ana');
+renderQ();
+</script>
+</body>
+</html>

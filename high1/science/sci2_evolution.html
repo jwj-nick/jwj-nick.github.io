@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>진화와 생물 다양성 — 통합과학2</title>
+<style>
+  :root{
+    --panel:#fff; --ink:#1e293b; --sub:#64748b; --line:#e2e8f0;
+    --blue:#2563eb; --blue-d:#1e40af; --green:#16a34a; --green-bg:#f0fdf4;
+    --amber:#d97706; --amber-bg:#fffbeb; --red:#dc2626; --red-bg:#fef2f2;
+    --purple:#7c3aed; --purple-bg:#f5f3ff; --indigo:#4f46e5; --accent:#15803d; --accent-bg:#f0fdf4;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',sans-serif;background:#f1f5f9;color:var(--ink);line-height:1.7;-webkit-text-size-adjust:100%}
+  a{color:var(--blue)} sup,sub{font-size:.72em}
+  .crumb{background:#f8fafc;border-bottom:1px solid var(--line);padding:7px 16px;font-size:12px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+  .crumb a{color:var(--sub);text-decoration:none} .crumb a.cur{color:var(--blue);font-weight:600} .crumb span{color:#cbd5e1}
+  .hero{background:linear-gradient(135deg,#14532d,#16a34a 62%,#4ade80);color:#fff;padding:26px 18px 22px;text-align:center}
+  .hero .badge{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:3px 13px;font-size:12px;margin-bottom:10px}
+  .hero h1{font-size:21px;font-weight:800;letter-spacing:-.3px} .hero p{font-size:13px;opacity:.93;margin-top:6px}
+  .tabs{position:sticky;top:0;z-index:50;display:flex;background:#052e16;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;padding:13px 15px;min-height:44px;color:#bbf7d0;font-size:13.5px;font-weight:600;cursor:pointer;border:none;background:none;border-bottom:3px solid transparent;white-space:nowrap;transition:.15s}
+  .tab.active{color:#fff;border-bottom-color:#4ade80} .tab:hover{color:#dcfce7}
+  .wrap{max-width:820px;margin:0 auto;padding:22px 16px 70px}
+  .page{display:none} .page.active{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .card h2{font-size:18px;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .card h3{font-size:15px;font-weight:700;margin:16px 0 8px;color:var(--blue-d)} .card p{font-size:14px;margin-bottom:8px} .lead{color:var(--sub);font-size:13px;margin-bottom:14px}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0} th,td{border:1px solid var(--line);padding:8px 9px;text-align:center} th{background:#f8fafc;font-weight:700} td.l,th.l{text-align:left}
+  .box{border-radius:10px;padding:13px 15px;margin:10px 0;font-size:13.5px}
+  .box.g{background:var(--green-bg);border:1px solid #bbf7d0} .box.a{background:var(--amber-bg);border:1px solid #fde68a} .box.b{background:#eff6ff;border:1px solid #bfdbfe}
+  .box .t{font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:6px} .box.g .t{color:var(--green)} .box.a .t{color:var(--amber)} .box.b .t{color:var(--blue-d)}
+  .hook{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #bbf7d0;border-radius:12px;padding:16px 18px;margin:12px 0;font-size:14px}
+  .hook .ht{color:var(--accent);font-weight:800;font-size:15px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  .keeper{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fcd34d;border-radius:12px;padding:15px 17px;margin:12px 0}
+  .keeper .kt{color:#b45309;font-weight:800;font-size:14.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .keeper ol{margin:0;list-style:none} .keeper li{position:relative;padding:8px 0 8px 34px;font-size:13.5px;border-bottom:1px dashed #fde68a} .keeper li:last-child{border-bottom:none} .keeper li::before{content:"📌";position:absolute;left:4px;top:8px}
+  .insight{background:var(--purple-bg);border:1px solid #ddd6fe;border-radius:12px;padding:14px 16px;margin:12px 0;font-size:13.5px} .insight .it{color:var(--purple);font-weight:800;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+  .reallife{background:var(--green-bg);border:1px solid #bbf7d0;border-radius:12px;padding:14px 16px;margin:12px 0} .reallife .rt{color:var(--green);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:9px} .rcell{background:#fff;border:1px solid #bbf7d0;border-radius:9px;padding:10px} .rcell .ri{font-size:22px} .rcell .rn{font-weight:800;font-size:13px;margin:3px 0} .rcell .rd{font-size:11.5px;color:#475569;line-height:1.5}
+  .industry{background:#eef2ff;border:1px solid #c7d2fe;border-radius:12px;padding:14px 16px;margin:12px 0} .industry .indt{color:var(--indigo);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .indrow{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #e0e7ff} .indrow:last-child{border-bottom:none} .indrow .ii{font-size:24px;flex-shrink:0} .indrow .id2{font-size:13px} .indrow .id2 b{color:#312e81}
+  .major{display:inline-block;background:#312e81;color:#c7d2fe;border-radius:6px;padding:2px 8px;font-size:10.5px;font-weight:700;margin-top:4px}
+  .sci{display:flex;gap:13px;align-items:flex-start;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fde68a;border-radius:12px;padding:15px;margin:12px 0} .sci .ava{font-size:34px;line-height:1;flex-shrink:0} .sci .st{font-weight:800;color:#92400e;font-size:14px;margin-bottom:3px} .sci .sd{font-size:13px;color:#78350f}
+  .toc{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:8px}
+  .toc button{text-align:left;background:var(--accent-bg);border:1px solid #bbf7d0;border-radius:10px;padding:12px;cursor:pointer;font:inherit;transition:.15s;min-height:44px} .toc button:hover{border-color:var(--accent);box-shadow:0 2px 8px rgba(21,128,61,.14)}
+  .toc .ti{font-size:20px}.toc .tn{font-weight:800;font-size:13.5px;margin-top:4px}.toc .td{font-size:11.5px;color:var(--sub)}
+  /* moth sim */
+  .evohud{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:12px 15px;margin:10px 0}
+  .evohud .gen{font-weight:800;font-size:15px} .evohud .envbadge{margin-left:auto;font-size:12px;font-weight:800;padding:3px 11px;border-radius:20px}
+  .evotrees{height:70px;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:26px;margin:8px 0;transition:background .3s}
+  .evobar{display:flex;height:26px;border-radius:8px;overflow:hidden;border:1px solid var(--line);font-size:11.5px;font-weight:800;color:#fff}
+  .evobar .dk{background:#334155;display:flex;align-items:center;justify-content:center;transition:width .4s}
+  .evobar .lt{background:#e2e8f0;color:#334155;display:flex;align-items:center;justify-content:center;transition:width .4s}
+  .evobtns{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+  .evobtn{background:var(--accent);color:#fff;border:none;border-radius:9px;padding:11px 15px;font:inherit;font-weight:700;font-size:13px;cursor:pointer;min-height:46px}
+  .evobtn.ghost{background:#64748b} .evobtn.env{background:#0f172a}
+  .evonote{font-size:12.5px;color:#475569;margin-top:4px}
+  /* PhET */
+  .phetguide{background:var(--accent-bg);border:1px solid #bbf7d0;border-radius:12px;padding:14px 16px;margin-bottom:10px;font-size:13px}
+  .phetguide .pt2{color:var(--accent);font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  .phetguide ol{margin:6px 0 4px 20px}.phetguide li{margin:4px 0}
+  .missions{margin:8px 0 2px 0;list-style:none;padding:0}
+  .missions li{background:#fff;border:1px solid #bbf7d0;border-radius:8px;padding:8px 11px;margin:6px 0;font-size:12.5px;display:flex;gap:8px;align-items:flex-start}
+  .missions li::before{content:"🔍";flex-shrink:0}
+  .frameholder{position:relative;width:100%;aspect-ratio:834/504;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#0b1020}
+  .frameholder iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .frameload{position:absolute;inset:0;display:flex;flex-direction:column;gap:10px;align-items:center;justify-content:center;color:#cbd5e1;font-size:13px;text-align:center;padding:20px;cursor:pointer}
+  .frameload .pl{font-size:34px} .frameload .go{background:var(--accent);color:#fff;border:none;border-radius:9px;padding:11px 18px;font-weight:800;font-size:13.5px;cursor:pointer;min-height:44px}
+  .openext{display:inline-flex;align-items:center;gap:5px;margin-top:9px;font-size:12.5px;font-weight:700;color:var(--accent);text-decoration:none} .fallnote{font-size:11.5px;color:var(--sub);margin-top:6px}
+  /* quiz */
+  .quizhud{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:12px 16px;margin-bottom:14px} .quizhud .qn{font-weight:800;font-size:14px} .quizhud .sc{margin-left:auto;font-size:13px} .quizhud .sc b{color:#4ade80;font-size:16px}
+  .qbar{flex-basis:100%;height:8px;background:#334155;border-radius:20px;overflow:hidden;margin-top:2px} .qbar > i{display:block;height:100%;background:linear-gradient(90deg,#4ade80,#15803d)}
+  .qq{font-size:16px;font-weight:700;text-align:center;margin:10px 0 16px} .qopts{display:grid;gap:10px}
+  .qopt{border:2px solid var(--line);background:#fff;border-radius:12px;padding:14px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:.12s;min-height:52px} .qopt:hover{border-color:var(--accent)} .qopt.correct{background:var(--green-bg);border-color:#6ee7b7;color:#065f46} .qopt.wrong{background:var(--red-bg);border-color:#fecaca;color:#991b1b} .qopt.dim{opacity:.5}
+  .qexp{display:none;margin-top:14px;background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:13px 15px;font-size:13.5px} .qexp.show{display:block;animation:fade .2s ease}.qexp .et{font-weight:800;margin-bottom:4px}
+  .qnext{display:none;margin-top:14px;width:100%;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:13px;font:inherit;font-weight:800;font-size:14px;cursor:pointer;min-height:48px} .qnext.show{display:block}
+  .qdone{text-align:center;padding:10px 0}.qdone .big{font-size:40px;font-weight:800;color:var(--accent)}
+  .btn{display:inline-block;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px 18px;font:inherit;font-weight:700;font-size:13.5px;cursor:pointer;text-decoration:none;min-height:44px}
+  .chk{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px} .chk:last-child{border-bottom:none} .chk input{margin-top:4px;width:17px;height:17px;flex-shrink:0;accent-color:var(--accent)}
+  .tag{display:inline-block;background:var(--accent-bg);color:var(--accent);border:1px solid #bbf7d0;border-radius:6px;padding:2px 9px;font-size:11.5px;font-weight:700;margin:3px 4px 0 0}
+  @media (max-width:640px){ .hero h1{font-size:19px} .card{padding:16px} }
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Science_1_2</a><span>&rsaquo;</span><a href="sci2_hub.html">통합과학2</a><span>&rsaquo;</span><a class="cur" href="#">진화·생물다양성</a></nav>
+<div class="hero">
+  <span class="badge">Ⅳ. 변화와 다양성 · 진화와 생물 다양성</span>
+  <h1>🧬 진화와 생물 다양성</h1>
+  <p>지금 이 순간에도 일어나는 변화 — 자연선택</p>
+</div>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="intro">📋 개요</button>
+  <button class="tab" data-t="ns">🔀 변이와 자연선택</button>
+  <button class="tab" data-t="sim">🦋 자연선택 실험</button>
+  <button class="tab" data-t="div">🌍 진화와 생물다양성</button>
+  <button class="tab" data-t="phet">🐰 PhET 자연선택</button>
+  <button class="tab" data-t="world">🌐 세상 속으로</button>
+  <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="sum">✅ 정리</button>
+</div>
+<div class="wrap">
+
+  <div class="page active" data-p="intro">
+    <div class="card">
+      <h2>📋 진화는 지금도 일어난다</h2>
+      <div class="hook">
+        <div class="ht">💥 놀라운 사실</div>
+        왜 <b>항생제를 함부로 쓰면 안 될</b>까? 왜 영국의 나방 <b>집단이 100년 만에 검게</b> 변했을까? 답은 <b>진화</b>다. 진화는 먼 옛날 이야기가 아니라, <b>세균·해충·바이러스에서 지금 이 순간에도</b> 일어나고 있다.
+      </div>
+      <div class="sci">
+        <div class="ava">🧔🏻</div>
+        <div>
+          <div class="st">찰스 다윈 (Darwin, 1859) — 자연선택</div>
+          <div class="sd">비글호를 타고 <b>갈라파고스</b>에서 섬마다 <b>부리 모양이 다른 핀치새</b>를 관찰했다. 그는 "환경에 유리한 형질을 가진 개체가 더 잘 살아남아 자손을 남긴다"는 <b>자연선택</b>으로 생물의 다양성과 진화를 설명했다.</div>
+        </div>
+      </div>
+      <div class="toc">
+        <button onclick="go('ns')"><div class="ti">🔀</div><div class="tn">변이와 자연선택</div><div class="td">진화의 원리</div></button>
+        <button onclick="go('sim')"><div class="ti">🦋</div><div class="tn">자연선택 실험</div><div class="td">나방 세대 시뮬</div></button>
+        <button onclick="go('div')"><div class="ti">🌍</div><div class="tn">진화와 생물다양성</div><div class="td">종분화·3수준</div></button>
+        <button onclick="go('phet')"><div class="ti">🐰</div><div class="tn">PhET 자연선택</div><div class="td">토끼 시뮬</div></button>
+        <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">항생제·백신</div></button>
+        <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="ns">
+    <div class="card">
+      <h2>🔀 변이와 자연선택 — 진화의 원리</h2>
+      <p class="lead">진화는 <b>세 가지</b>가 맞물려 일어난다: 변이 → 자연선택 → (세대 반복) → 진화.</p>
+      <table>
+        <tr><th>단계</th><th class="l">내용</th></tr>
+        <tr><td>① 변이</td><td class="l">같은 종 안에서도 개체마다 형질이 <b>조금씩 다름</b> (예: 나방의 색, 부리 크기). <b>돌연변이·유성생식(유전자 재조합)</b>으로 <b>무작위</b>로 생기며, 진화의 <b>재료</b>가 된다.</td></tr>
+        <tr><td>② 자연선택</td><td class="l">환경에 <b>유리한 변이</b>를 가진 개체가 더 잘 <b>살아남아 자손</b>을 남김.</td></tr>
+        <tr><td>③ 진화</td><td class="l">유리한 형질이 <b>세대를 거쳐 집단에 퍼짐</b> → 생물이 변화.</td></tr>
+      </table>
+      <div class="box a">
+        <div class="t">⚠️ 가장 흔한 오해</div>
+        "필요해서 노력하면 그 형질이 생겨 자손에게 전해진다"(용불용설) → <b>아니다.</b> 변이는 <b>미리 다양하게</b> 존재하고, 환경이 그중 유리한 것을 <b>선택</b>할 뿐이다. 또한 진화는 <b>개체가 변하는 게 아니라 집단의 구성 비율이 세대에 걸쳐 바뀌는</b> 것.
+      </div>
+      <div class="box b">
+        <div class="t">🦋 대표 사례 — 후추나방 (공업 암화)</div>
+        산업혁명 전 영국엔 <b>밝은색 나방</b>이 많았다. 매연으로 나무가 검어지자, <b>어두운 나방</b>이 새 눈에 덜 띄어 살아남아 급증했다. 환경(나무 색) → 자연선택 → 집단 색 변화. 실제로 <b>대기청정법(1956)</b> 이후 매연이 줄자 다시 밝은 나방이 늘었다. 다음 탭에서 직접 돌려보자.
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="sim">
+    <div class="card">
+      <h2>🦋 자연선택 실험 — 나방 집단</h2>
+      <p class="lead">밝은 나방과 어두운 나방이 반반 섞인 집단. <b>환경(나무 색)</b>을 정하고 <b>세대</b>를 넘겨 보자. 눈에 덜 띄는 색이 새(포식자)를 피해 살아남아 자손을 남긴다.</p>
+      <div class="evohud">
+        <span class="gen" id="evoGen">0 세대</span>
+        <span class="envbadge" id="evoEnv"></span>
+      </div>
+      <div class="evotrees" id="evoTrees"></div>
+      <div class="evobar"><div class="dk" id="evoDk"></div><div class="lt" id="evoLt"></div></div>
+      <div class="evonote" id="evoNote"></div>
+      <div class="evobtns">
+        <button class="evobtn" id="evoStep">▶ 다음 세대</button>
+        <button class="evobtn env" id="evoToggle">🌲 환경 바꾸기</button>
+        <button class="evobtn ghost" id="evoReset">↺ 처음으로</button>
+      </div>
+      <div class="box g">
+        <div class="t">✅ 관찰 포인트</div>
+        오염된(어두운) 숲에서는 <b>어두운 나방</b>이, 깨끗한(밝은) 숲에서는 <b>밝은 나방</b>이 세대를 거듭할수록 우세해진다. <b>환경이 선택의 방향을 정한다</b>는 것 — 이것이 자연선택의 핵심.
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="div">
+    <div class="card">
+      <h2>🌍 진화와 생물 다양성</h2>
+      <h3>종분화 — 새로운 종의 탄생</h3>
+      <p>한 집단이 <b>지리적으로 갈라지거나</b> 서로 다른 환경에 적응하면, 오랜 세대에 걸쳐 서로 <b>번식이 안 될 만큼 달라져</b> 새로운 <b>종</b>이 된다(종분화). 갈라파고스 핀치들이 대표적 예.</p>
+      <h3>생물 다양성의 3가지 수준</h3>
+      <table>
+        <tr><th>수준</th><th class="l">의미</th></tr>
+        <tr><td>유전 다양성</td><td class="l">같은 종 안 개체들의 <b>유전자 차이</b> (변이). 클수록 환경 변화에 강함.</td></tr>
+        <tr><td>종 다양성</td><td class="l">한 지역에 사는 <b>생물 종의 수</b>와 고른 정도.</td></tr>
+        <tr><td>생태계 다양성</td><td class="l">숲·강·바다·사막 등 <b>생태계의 다양함</b>.</td></tr>
+      </table>
+      <div class="box b">
+        <div class="t">🔑 왜 생물 다양성을 지켜야 하나</div>
+        다양성이 높을수록 생태계가 <b>안정</b>하고 환경 변화·질병에 잘 견딘다. 또 우리는 생물에서 <b>식량·의약품·자원</b>을 얻는다. 한 종이 사라지면 되돌릴 수 없다.
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="phet">
+    <div class="card">
+      <h2>🐰 PhET · 자연선택 (Natural Selection)</h2>
+      <p class="lead">토끼 집단에 <b>돌연변이(털색·귀·이빨)</b>를 주고, <b>환경·포식자·먹이</b>를 바꿔가며 자연선택이 실제로 일어나는 과정을 세대별로 관찰해 보자.</p>
+      <div class="phetguide">
+        <div class="pt2">🧭 사용 가이드</div>
+        <ol>
+          <li>토끼를 추가하고 <b>돌연변이(예: 갈색 털)</b>를 켠다</li>
+          <li>환경을 <b>눈밭/숲</b>으로, 선택 요인을 <b>늑대(포식자)</b> 또는 <b>먹이 부족</b>으로 설정</li>
+          <li>세대가 지나며 <b>어떤 털색이 우세</b>해지는지 그래프로 관찰</li>
+        </ol>
+        <ul class="missions">
+          <li>눈밭에서는 흰 토끼와 갈색 토끼 중 어느 쪽이 늘어나나? 그 이유는?</li>
+          <li>같은 돌연변이라도 <b>환경을 바꾸면</b> 선택 결과가 어떻게 달라지나?</li>
+          <li>선택 요인을 <b>늑대(포식자)</b>와 <b>먹이 부족</b>으로 각각 바꾸면 우세해지는 형질이 달라지나?</li>
+        </ul>
+      </div>
+      <div class="frameholder" id="fhNs" data-src="https://phet.colorado.edu/sims/html/natural-selection/latest/natural-selection_all.html?locale=ko">
+        <div class="frameload" onclick="loadFrame('fhNs')"><div class="pl">🐰</div><div>PhET 자연선택 시뮬레이션</div><button class="go">▶ 불러오기</button><div class="fallnote">외부: phet.colorado.edu</div></div>
+      </div>
+      <a class="openext" href="https://phet.colorado.edu/sims/html/natural-selection/latest/natural-selection_all.html?locale=ko" target="_blank" rel="noopener">새 탭에서 크게 열기 ↗</a>
+    </div>
+  </div>
+
+  <div class="page" data-p="world">
+    <div class="card">
+      <h2>🌐 세상 속으로</h2>
+      <div class="keeper">
+        <div class="kt">📌 어른이 되어도 기억할 것</div>
+        <ol>
+          <li>진화 = <b>변이 + 자연선택</b>이 세대를 거쳐 쌓인 것. 환경이 유리한 형질을 고른다.</li>
+          <li>진화는 <b>개체가 아니라 집단</b>이, <b>세대에 걸쳐</b> 일어난다. 개체가 노력해 변하는 게 아니다.</li>
+          <li><b>생물 다양성</b>(유전·종·생태계)은 생태계를 안정시키고 인류에게 자원을 주는, 지켜야 할 자산이다.</li>
+        </ol>
+      </div>
+      <div class="insight">
+        <div class="it">💡 인사이트 — 진화는 매일 우리 곁에서</div>
+        <b>항생제 내성균</b>, <b>농약 저항 해충</b>, <b>코로나 변이</b> 모두 자연선택의 결과다. 항생제를 함부로 쓰면 내성균만 살아남아 퍼진다 — 그래서 "처방대로 끝까지" 먹는 게 중요하다. 진화를 이해하면 <b>의학·농업·방역</b>의 원리가 보인다.
+      </div>
+      <div class="reallife">
+        <div class="rt">🏠 우리 곁의 진화</div>
+        <div class="rgrid">
+          <div class="rcell"><div class="ri">💊</div><div class="rn">항생제 내성</div><div class="rd">내성균이 선택되어 증가</div></div>
+          <div class="rcell"><div class="ri">🦟</div><div class="rn">농약 저항 해충</div><div class="rd">저항성 개체 생존</div></div>
+          <div class="rcell"><div class="ri">🐕</div><div class="rn">품종 개량</div><div class="rd">사람이 고르는 인공선택</div></div>
+          <div class="rcell"><div class="ri">🦠</div><div class="rn">바이러스 변이</div><div class="rd">코로나 변이주 출현</div></div>
+        </div>
+      </div>
+      <div class="industry">
+        <div class="indt">🏭 산업과 직업 — 진화를 다루는 일</div>
+        <div class="indrow"><div class="ii">💉</div><div class="id2"><b>신약·백신</b><br>바이러스·세균의 진화를 <b>예측</b>해 백신·항생제를 설계(독감 백신 매년 갱신).<br><span class="major">🎓 의학 · 약학 · 미생물학</span></div></div>
+        <div class="indrow"><div class="ii">🌾</div><div class="id2"><b>농업·품종</b><br>병충해에 강하고 수확 많은 품종을 육종·유전 개량.<br><span class="major">🎓 농생명 · 유전학</span></div></div>
+        <div class="indrow"><div class="ii">💻</div><div class="id2"><b>생물정보·보전</b><br>유전체 데이터로 <b>진화 계통</b>을 분석하고 멸종위기종을 보전.<br><span class="major">🎓 데이터사이언스 · 생물정보학 · 생태학</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="quiz">
+    <div class="card">
+      <h2>🔥 진화·생물다양성 퀴즈</h2>
+      <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
+      <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="sum">
+    <div class="card">
+      <h2>✅ 정리</h2>
+      <table>
+        <tr><th>개념</th><th class="l">핵심</th></tr>
+        <tr><td>변이</td><td class="l">같은 종 개체 간 형질 차이 = 진화의 재료</td></tr>
+        <tr><td>자연선택</td><td class="l">환경에 유리한 변이가 더 잘 생존·번식</td></tr>
+        <tr><td>진화</td><td class="l">유리한 형질이 세대를 거쳐 집단에 퍼짐 → 종분화</td></tr>
+        <tr><td>생물다양성</td><td class="l">유전·종·생태계 다양성 (지켜야 할 자산)</td></tr>
+      </table>
+      <div class="box g">
+        <div class="t">🔑 한 줄 요약</div>
+        <b>미리 존재하는 변이 중 환경에 유리한 것이 자연선택되어 세대에 걸쳐 쌓이면 진화가 일어나고, 그 결과가 생물 다양성이다.</b>
+      </div>
+      <h3>자가 점검</h3>
+      <div class="chk"><input type="checkbox" id="c1"><label for="c1">변이·자연선택·진화의 관계를 설명할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c2"><label for="c2">후추나방·항생제 내성으로 자연선택을 설명한다</label></div>
+      <div class="chk"><input type="checkbox" id="c3"><label for="c3">진화가 집단에서 세대에 걸쳐 일어남을 안다(용불용설과 구분)</label></div>
+      <div class="chk"><input type="checkbox" id="c4"><label for="c4">생물 다양성 3수준(유전·종·생태계)을 말할 수 있다</label></div>
+      <h3>약점 태그</h3>
+      <div><span class="tag">과학:진화</span><span class="tag">과학:자연선택</span><span class="tag">과학:변이</span><span class="tag">과학:생물다양성</span></div>
+      <div class="box b" style="margin-top:16px">
+        <div class="t">➡️ 관련 단원</div>
+        생명의 정보(DNA)는 <a href="sci1_life.html">생명 시스템</a>에서, 지질시대·화석은 다음 단원에서. <a href="sci2_hub.html">통합과학2 허브</a>로.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function go(t){var tab=document.querySelector('.tab[data-t="'+t+'"]');if(tab)tab.click();}
+document.getElementById('tabs').addEventListener('click',function(e){
+  var b=e.target.closest('.tab'); if(!b)return;
+  document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active')});
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
+  b.classList.add('active'); var pg=document.querySelector('.page[data-p="'+b.dataset.t+'"]'); if(pg)pg.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+/* 자연선택 나방 시뮬 */
+var evo={gen:0,dark:0.5,env:'polluted'};
+function evoRender(){
+  var pD=Math.round(evo.dark*100), pL=100-pD;
+  document.getElementById('evoGen').textContent=evo.gen+' 세대';
+  var eb=document.getElementById('evoEnv');
+  var polluted=(evo.env==='polluted');
+  eb.textContent = polluted?'🌲 오염된 숲(어두움)':'🌳 깨끗한 숲(밝음)';
+  eb.style.background = polluted?'#334155':'#bbf7d0'; eb.style.color = polluted?'#fff':'#166534';
+  var trees=document.getElementById('evoTrees');
+  trees.style.background = polluted?'#334155':'#dcfce7';
+  // 나방 아이콘 (색으로 표현) — 다수 색을 더 많이
+  var n=10, ndk=Math.round(evo.dark*n); var s='';
+  for(var i=0;i<n;i++){ s += '<span style="color:'+(i<ndk?'#1e293b':'#e2e8f0')+';text-shadow:0 0 1px #64748b">🦋</span>'; }
+  trees.innerHTML=s;
+  var dk=document.getElementById('evoDk'), lt=document.getElementById('evoLt');
+  dk.style.width=pD+'%'; dk.textContent=pD>=12?('어두운 '+pD+'%'):'';
+  lt.style.width=pL+'%'; lt.textContent=pL>=12?('밝은 '+pL+'%'):'';
+  var win = polluted?'어두운':'밝은';
+  document.getElementById('evoNote').innerHTML = evo.gen===0
+    ? '시작: 어두운 나방 50% · 밝은 나방 50%. [다음 세대]를 눌러 보세요.'
+    : '이 환경에서는 <b>'+win+' 나방</b>이 눈에 덜 띄어 살아남기 유리 → 세대가 지날수록 우세해집니다.';
+}
+function evoStep(){
+  var polluted=(evo.env==='polluted');
+  var sDark = polluted?0.85:0.35;   // 어두운 나방 생존율
+  var sLight = polluted?0.35:0.85;  // 밝은 나방 생존율
+  var d=evo.dark*sDark, l=(1-evo.dark)*sLight;
+  evo.dark = d/(d+l);
+  evo.gen++; evoRender();
+}
+document.getElementById('evoStep').addEventListener('click',evoStep);
+document.getElementById('evoToggle').addEventListener('click',function(){ evo.env = (evo.env==='polluted')?'clean':'polluted'; evoRender(); });
+document.getElementById('evoReset').addEventListener('click',function(){ evo.gen=0; evo.dark=0.5; evo.env='polluted'; evoRender(); });
+
+/* PhET lazy */
+function loadFrame(id){
+  var h=document.getElementById(id); if(!h||h.dataset.loaded)return;
+  var f=document.createElement('iframe'); f.setAttribute('src',h.getAttribute('data-src'));
+  f.setAttribute('allowfullscreen',''); f.setAttribute('loading','lazy'); f.setAttribute('title','PhET 시뮬레이션');
+  h.innerHTML=''; h.appendChild(f); h.dataset.loaded='1';
+}
+
+/* 퀴즈 */
+var QUIZ=[
+ {q:'진화의 "재료"가 되는, 같은 종 안 개체 간 형질 차이를 무엇이라 하나?',o:['변이','선택','적응','멸종'],a:0,e:'변이(주로 유전적 변이)가 있어야 자연선택이 작용할 수 있다. 진화의 재료.'},
+ {q:'환경에 유리한 형질을 가진 개체가 더 잘 살아남아 자손을 남기는 것은?',o:['자연선택','용불용설','돌연변이','종분화'],a:0,e:'자연선택(다윈). 환경이 유리한 변이를 "선택"한다.'},
+ {q:'자연선택을 제안한 과학자는?',o:['다윈','뉴턴','멘델레예프','아레니우스'],a:0,e:'찰스 다윈(1859, 종의 기원). 갈라파고스 핀치 관찰이 유명.'},
+ {q:'후추나방이 산업혁명 후 어두운색이 많아진 까닭은?',o:['매연으로 나무가 검어져 어두운 나방이 덜 잡혀서','나방이 노력해서','색을 칠해서','기온 때문'],a:0,e:'환경(나무 색) 변화 → 어두운 나방이 새에게 덜 띄어 생존·번식 유리 → 집단 색 변화(공업 암화).'},
+ {q:'진화에 대한 설명으로 옳은 것은?',o:['집단의 형질 비율이 세대에 걸쳐 변하는 것','한 개체가 살아가며 변하는 것','필요한 형질이 저절로 생기는 것','환경과 무관한 변화'],a:0,e:'진화는 개체가 아니라 집단에서, 여러 세대에 걸쳐 형질 비율이 바뀌는 것.'},
+ {q:'항생제를 함부로(중간에 끊는 등) 쓰면 위험한 이유는?',o:['내성을 가진 세균만 살아남아 퍼진다','세균이 즉시 죽는다','항생제가 강해진다','아무 일 없다'],a:0,e:'항생제 환경에서 내성 변이균이 자연선택되어 증가. 진화의 실제 사례.'},
+ {q:'한 집단이 오래 갈라져 서로 번식이 안 될 만큼 달라져 새로운 종이 되는 것은?',o:['종분화','변이','중화','대멸종'],a:0,e:'종분화 — 진화가 쌓여 새로운 종이 생기는 것. 갈라파고스 핀치가 예.'},
+ {q:'생물 다양성의 3가지 수준이 아닌 것은?',o:['원소 다양성','유전 다양성','종 다양성','생태계 다양성'],a:0,e:'생물 다양성 = 유전·종·생태계 다양성. "원소 다양성"은 없다.'},
+ {q:'생물 다양성이 높을 때의 이점으로 옳은 것은?',o:['생태계가 더 안정하고 환경 변화에 강함','생태계가 불안정해짐','자원이 줄어듦','질병에 약해짐'],a:0,e:'다양성이 높으면 생태계가 안정하고 환경 변화·질병에 잘 견딘다.'},
+ {q:'"필요해서 자주 쓰는 기관이 발달해 자손에게 전해진다"는 (틀린) 주장은?',o:['용불용설','자연선택설','돌연변이설','종분화'],a:0,e:'용불용설(라마르크)은 현대적으로 틀린 설명. 변이는 미리 존재하고 환경이 선택한다.'}
+];
+var qi=0,qscore=0,qans=false;
+function renderQ(){
+  qans=false; var q=QUIZ[qi];
+  document.getElementById('qNum').textContent='문제 '+(qi+1)+' / '+QUIZ.length;
+  document.getElementById('qScore').textContent=qscore; document.getElementById('qBar').style.width=(qi/QUIZ.length*100)+'%';
+  document.getElementById('qQ').textContent=q.q;
+  var opts=document.getElementById('qOpts'); opts.innerHTML='';
+  q.o.forEach(function(txt,idx){var b=document.createElement('button'); b.className='qopt'; b.textContent=txt; b.addEventListener('click',function(){pick(idx,b);}); opts.appendChild(b);});
+  document.getElementById('qExp').className='qexp'; document.getElementById('qExp').innerHTML=''; document.getElementById('qNext').className='qnext';
+}
+function pick(idx,btn){
+  if(qans)return; qans=true; var q=QUIZ[qi];
+  document.querySelectorAll('#qOpts .qopt').forEach(function(b,i){if(i===q.a)b.classList.add('correct');else if(b===btn)b.classList.add('wrong');else b.classList.add('dim');});
+  var ok=(idx===q.a); if(ok)qscore++; document.getElementById('qScore').textContent=qscore;
+  var ex=document.getElementById('qExp'); ex.innerHTML='<div class="et">'+(ok?'⭕ 정답!':'❌ 오답')+'</div>'+q.e; ex.className='qexp show';
+  document.getElementById('qNext').className='qnext show';
+}
+document.getElementById('qNext').addEventListener('click',function(){qi++; if(qi>=QUIZ.length){finishQuiz();return;} renderQ();});
+function finishQuiz(){
+  document.getElementById('qBar').style.width='100%'; document.getElementById('qNum').textContent='완료 ✓';
+  var pct=Math.round(qscore/QUIZ.length*100);
+  var msg=pct>=90?'완벽해요! 진화를 제대로 이해했어요.':pct>=70?'잘했어요! 틀린 것만 다시 보면 완성.':'개념 탭을 한 번 더 보고 재도전해요.';
+  document.getElementById('qArea').innerHTML='<div class="qdone"><div class="big">'+qscore+' / '+QUIZ.length+'</div><p style="margin:8px 0 4px;font-size:15px">정답률 '+pct+'%</p><p style="color:#64748b;font-size:13px;margin-bottom:16px">'+msg+'</p><button class="btn" onclick="restartQuiz()">↺ 다시 풀기</button></div>';
+}
+function restartQuiz(){
+  qi=0;qscore=0;
+  document.getElementById('qArea').innerHTML='<div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button>';
+  document.getElementById('qNext').addEventListener('click',function(){qi++;if(qi>=QUIZ.length){finishQuiz();return;}renderQ();});
+  renderQ();
+}
+
+/* init */
+QUIZ.forEach(function(q){var correct=q.o[q.a];for(var i=q.o.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=q.o[i];q.o[i]=q.o[j];q.o[j]=t;}q.a=q.o.indexOf(correct);});
+evoRender();
+renderQ();
+</script>
+</body>
+</html>

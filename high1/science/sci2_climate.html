@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>기후 변화와 탄소중립 — 통합과학2</title>
+<style>
+  :root{
+    --panel:#fff; --ink:#1e293b; --sub:#64748b; --line:#e2e8f0;
+    --blue:#2563eb; --blue-d:#1e40af; --green:#16a34a; --green-bg:#f0fdf4;
+    --amber:#d97706; --amber-bg:#fffbeb; --red:#dc2626; --red-bg:#fef2f2;
+    --purple:#7c3aed; --purple-bg:#f5f3ff; --indigo:#4f46e5; --accent:#b91c1c; --accent-bg:#fef2f2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',sans-serif;background:#f1f5f9;color:var(--ink);line-height:1.7;-webkit-text-size-adjust:100%}
+  a{color:var(--blue)} sup,sub{font-size:.72em}
+  .crumb{background:#f8fafc;border-bottom:1px solid var(--line);padding:7px 16px;font-size:12px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+  .crumb a{color:var(--sub);text-decoration:none} .crumb a.cur{color:var(--blue);font-weight:600} .crumb span{color:#cbd5e1}
+  .hero{background:linear-gradient(135deg,#7f1d1d,#dc2626 60%,#f97316);color:#fff;padding:26px 18px 22px;text-align:center}
+  .hero .badge{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:3px 13px;font-size:12px;margin-bottom:10px}
+  .hero h1{font-size:21px;font-weight:800;letter-spacing:-.3px} .hero p{font-size:13px;opacity:.93;margin-top:6px}
+  .tabs{position:sticky;top:0;z-index:50;display:flex;background:#450a0a;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;padding:13px 15px;min-height:44px;color:#fecaca;font-size:13.5px;font-weight:600;cursor:pointer;border:none;background:none;border-bottom:3px solid transparent;white-space:nowrap;transition:.15s}
+  .tab.active{color:#fff;border-bottom-color:#f87171} .tab:hover{color:#fee2e2}
+  .wrap{max-width:820px;margin:0 auto;padding:22px 16px 70px}
+  .page{display:none} .page.active{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .card h2{font-size:18px;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .card h3{font-size:15px;font-weight:700;margin:16px 0 8px;color:var(--blue-d)} .card p{font-size:14px;margin-bottom:8px} .lead{color:var(--sub);font-size:13px;margin-bottom:14px}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0} th,td{border:1px solid var(--line);padding:8px 9px;text-align:center} th{background:#f8fafc;font-weight:700} td.l,th.l{text-align:left}
+  .box{border-radius:10px;padding:13px 15px;margin:10px 0;font-size:13.5px}
+  .box.g{background:var(--green-bg);border:1px solid #bbf7d0} .box.a{background:var(--amber-bg);border:1px solid #fde68a} .box.r{background:var(--red-bg);border:1px solid #fecaca} .box.b{background:#eff6ff;border:1px solid #bfdbfe}
+  .box .t{font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:6px} .box.g .t{color:var(--green)} .box.a .t{color:var(--amber)} .box.r .t{color:var(--red)} .box.b .t{color:var(--blue-d)}
+  .hook{background:linear-gradient(135deg,#fef2f2,#fee2e2);border:1px solid #fecaca;border-radius:12px;padding:16px 18px;margin:12px 0;font-size:14px}
+  .hook .ht{color:var(--accent);font-weight:800;font-size:15px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  .keeper{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fcd34d;border-radius:12px;padding:15px 17px;margin:12px 0}
+  .keeper .kt{color:#b45309;font-weight:800;font-size:14.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .keeper ol{margin:0;list-style:none} .keeper li{position:relative;padding:8px 0 8px 34px;font-size:13.5px;border-bottom:1px dashed #fde68a} .keeper li:last-child{border-bottom:none} .keeper li::before{content:"📌";position:absolute;left:4px;top:8px}
+  .insight{background:var(--purple-bg);border:1px solid #ddd6fe;border-radius:12px;padding:14px 16px;margin:12px 0;font-size:13.5px} .insight .it{color:var(--purple);font-weight:800;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+  .reallife{background:var(--green-bg);border:1px solid #bbf7d0;border-radius:12px;padding:14px 16px;margin:12px 0} .reallife .rt{color:var(--green);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:9px} .rcell{background:#fff;border:1px solid #bbf7d0;border-radius:9px;padding:10px} .rcell .ri{font-size:22px} .rcell .rn{font-weight:800;font-size:13px;margin:3px 0} .rcell .rd{font-size:11.5px;color:#475569;line-height:1.5}
+  .industry{background:#eef2ff;border:1px solid #c7d2fe;border-radius:12px;padding:14px 16px;margin:12px 0} .industry .indt{color:var(--indigo);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .indrow{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #e0e7ff} .indrow:last-child{border-bottom:none} .indrow .ii{font-size:24px;flex-shrink:0} .indrow .id2{font-size:13px} .indrow .id2 b{color:#312e81}
+  .major{display:inline-block;background:#312e81;color:#c7d2fe;border-radius:6px;padding:2px 8px;font-size:10.5px;font-weight:700;margin-top:4px}
+  .sci{display:flex;gap:13px;align-items:flex-start;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fde68a;border-radius:12px;padding:15px;margin:12px 0} .sci .ava{font-size:34px;line-height:1;flex-shrink:0} .sci .st{font-weight:800;color:#92400e;font-size:14px;margin-bottom:3px} .sci .sd{font-size:13px;color:#78350f}
+  .toc{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:8px}
+  .toc button{text-align:left;background:var(--accent-bg);border:1px solid #fecaca;border-radius:10px;padding:12px;cursor:pointer;font:inherit;transition:.15s;min-height:44px} .toc button:hover{border-color:var(--accent);box-shadow:0 2px 8px rgba(185,28,28,.14)}
+  .toc .ti{font-size:20px}.toc .tn{font-weight:800;font-size:13.5px;margin-top:4px}.toc .td{font-size:11.5px;color:var(--sub)}
+  /* greenhouse sim */
+  .ghsvg{width:100%;max-width:420px;display:block;margin:10px auto;border-radius:14px}
+  .ghrng{width:100%;accent-color:var(--accent);height:30px;margin:8px 0}
+  .ghread{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:14px 16px;margin:6px 0}
+  .ghppm{font-size:22px;font-weight:800;font-family:ui-monospace,Menlo,Consolas,monospace} .ghtemp{margin-left:auto;font-size:15px;font-weight:800}
+  .ghtag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:800;color:#fff}
+  /* PhET */
+  .phetguide{background:var(--accent-bg);border:1px solid #fecaca;border-radius:12px;padding:14px 16px;margin-bottom:10px;font-size:13px}
+  .phetguide .pt2{color:var(--accent);font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  .phetguide ol{margin:6px 0 4px 20px}.phetguide li{margin:4px 0}
+  .missions{margin:8px 0 2px 0;list-style:none;padding:0}
+  .missions li{background:#fff;border:1px solid #fecaca;border-radius:8px;padding:8px 11px;margin:6px 0;font-size:12.5px;display:flex;gap:8px;align-items:flex-start}
+  .missions li::before{content:"🔍";flex-shrink:0}
+  .frameholder{position:relative;width:100%;aspect-ratio:834/504;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#0b1020;margin-top:12px}
+  .frameholder iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .frameload{position:absolute;inset:0;display:flex;flex-direction:column;gap:10px;align-items:center;justify-content:center;color:#cbd5e1;font-size:13px;text-align:center;padding:20px;cursor:pointer}
+  .frameload .pl{font-size:34px} .frameload .go{background:var(--accent);color:#fff;border:none;border-radius:9px;padding:11px 18px;font-weight:800;font-size:13.5px;cursor:pointer;min-height:44px}
+  .openext{display:inline-flex;align-items:center;gap:5px;margin-top:9px;font-size:12.5px;font-weight:700;color:var(--accent);text-decoration:none} .fallnote{font-size:11.5px;color:var(--sub);margin-top:6px}
+  /* quiz */
+  .quizhud{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:12px 16px;margin-bottom:14px} .quizhud .qn{font-weight:800;font-size:14px} .quizhud .sc{margin-left:auto;font-size:13px} .quizhud .sc b{color:#f87171;font-size:16px}
+  .qbar{flex-basis:100%;height:8px;background:#334155;border-radius:20px;overflow:hidden;margin-top:2px} .qbar > i{display:block;height:100%;background:linear-gradient(90deg,#f87171,#b91c1c)}
+  .qq{font-size:16px;font-weight:700;text-align:center;margin:10px 0 16px} .qopts{display:grid;gap:10px}
+  .qopt{border:2px solid var(--line);background:#fff;border-radius:12px;padding:14px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:.12s;min-height:52px} .qopt:hover{border-color:var(--accent)} .qopt.correct{background:var(--green-bg);border-color:#6ee7b7;color:#065f46} .qopt.wrong{background:var(--red-bg);border-color:#fecaca;color:#991b1b} .qopt.dim{opacity:.5}
+  .qexp{display:none;margin-top:14px;background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:13px 15px;font-size:13.5px} .qexp.show{display:block;animation:fade .2s ease}.qexp .et{font-weight:800;margin-bottom:4px}
+  .qnext{display:none;margin-top:14px;width:100%;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:13px;font:inherit;font-weight:800;font-size:14px;cursor:pointer;min-height:48px} .qnext.show{display:block}
+  .qdone{text-align:center;padding:10px 0}.qdone .big{font-size:40px;font-weight:800;color:var(--accent)}
+  .btn{display:inline-block;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px 18px;font:inherit;font-weight:700;font-size:13.5px;cursor:pointer;text-decoration:none;min-height:44px}
+  .chk{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px} .chk:last-child{border-bottom:none} .chk input{margin-top:4px;width:17px;height:17px;flex-shrink:0;accent-color:var(--accent)}
+  .tag{display:inline-block;background:var(--accent-bg);color:var(--accent);border:1px solid #fecaca;border-radius:6px;padding:2px 9px;font-size:11.5px;font-weight:700;margin:3px 4px 0 0}
+  @media (max-width:640px){ .hero h1{font-size:19px} .card{padding:16px} }
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Science_1_2</a><span>&rsaquo;</span><a href="sci2_hub.html">통합과학2</a><span>&rsaquo;</span><a class="cur" href="#">기후 변화</a></nav>
+<div class="hero">
+  <span class="badge">Ⅴ. 환경과 에너지 · 기후 변화와 탄소중립</span>
+  <h1>🌡️ 기후 변화와 탄소중립</h1>
+  <p>지구의 온도를 지키는 균형, 그리고 우리가 깨고 있는 것</p>
+</div>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="intro">📋 개요</button>
+  <button class="tab" data-t="gh">🌡️ 온실효과</button>
+  <button class="tab" data-t="warm">🔥 지구 온난화</button>
+  <button class="tab" data-t="net">♻️ 탄소중립</button>
+  <button class="tab" data-t="phet">🌍 PhET 실험</button>
+  <button class="tab" data-t="world">🌐 세상 속으로</button>
+  <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="sum">✅ 정리</button>
+</div>
+<div class="wrap">
+
+  <div class="page active" data-p="intro">
+    <div class="card">
+      <h2>📋 지구의 온도 조절 장치</h2>
+      <div class="hook">
+        <div class="ht">💥 놀라운 사실</div>
+        지구에 <b>온실효과가 전혀 없다면</b> 평균 기온은 약 <b>−18℃</b> — 생명이 살기 힘든 얼음 행성이 된다. 온실효과는 <b>원래 생명에 꼭 필요한</b> 것이다. 문제는 인간이 그 효과를 <b>너무 강하게</b> 만들어 균형을 깨고 있다는 것.
+      </div>
+      <div class="sci">
+        <div class="ava">📈</div>
+        <div>
+          <div class="st">킬링 곡선 (Keeling Curve, 1958~)</div>
+          <div class="sd">과학자 킬링은 하와이 <b>마우나로아</b>에서 대기 중 CO₂를 수십 년간 측정했다. 계절에 따라 오르내리면서도 <b>해마다 꾸준히 상승</b>하는 이 곡선이, 인간이 대기를 바꾸고 있다는 <b>가장 확실한 증거</b>가 되었다.</div>
+        </div>
+      </div>
+      <div class="toc">
+        <button onclick="go('gh')"><div class="ti">🌡️</div><div class="tn">온실효과</div><div class="td">원리·슬라이더</div></button>
+        <button onclick="go('warm')"><div class="ti">🔥</div><div class="tn">지구 온난화</div><div class="td">원인·영향</div></button>
+        <button onclick="go('net')"><div class="ti">♻️</div><div class="tn">탄소중립</div><div class="td">넷제로</div></button>
+        <button onclick="go('phet')"><div class="ti">🌍</div><div class="tn">PhET 실험</div><div class="td">온실효과</div></button>
+        <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">기후 산업</div></button>
+        <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="gh">
+    <div class="card">
+      <h2>🌡️ 온실효과 — 지구가 따뜻한 이유</h2>
+      <p class="lead"><b>태양의 가시광선은 대기를 통과</b>해 지표를 데우고, 지표는 <b>적외선(열)</b>을 내보낸다. <b>온실기체</b>(CO₂·메테인·수증기)는 <b>이 적외선만 붙잡아</b> 일부를 지표로 되돌려 지구를 따뜻하게 한다 (가시광은 통과, 적외선은 갇힘).</p>
+      <svg class="ghsvg" id="ghsvg" viewBox="0 0 420 240" role="img" aria-label="온실효과"></svg>
+      <p style="font-size:12.5px;color:var(--sub);text-align:center;margin-top:2px">CO₂ 농도를 바꿔 보세요 (산업화 전 280 → 현재 약 420 → 미래 예측)</p>
+      <input class="ghrng" type="range" id="ghRange" min="280" max="560" step="20" value="420">
+      <div class="ghread">
+        <span class="ghppm" id="ghPpm">420 ppm</span>
+        <span class="ghtag" id="ghTag"></span>
+        <span class="ghtemp" id="ghTemp"></span>
+      </div>
+      <p style="font-size:11.5px;color:var(--sub);text-align:center;margin-top:2px">※ 280ppm(산업화 전)에서도 자연 온실효과는 강하게 작동합니다. 위 수치는 그 기준 대비 <b>추가 상승</b>(대략치)입니다.</p>
+      <div class="box g">
+        <div class="t">✅ 온실효과의 두 얼굴</div>
+        • <b>자연 온실효과</b>: 없으면 −18℃. 생명에 <b>필수</b>.<br>
+        • <b>강화된 온실효과</b>: 인간이 온실기체를 늘려 효과가 너무 세짐 → <b>지구 온난화</b>.
+      </div>
+      <div class="box a">
+        <div class="t">⚠️ 흔한 오해</div>
+        "온실효과 = 무조건 나쁜 것" → <b>아니다.</b> 온실효과 자체는 지구를 살 만하게 하는 <b>고마운</b> 현상이다. 나쁜 것은 인간이 만든 <b>과도한 강화</b>(온난화).
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="warm">
+    <div class="card">
+      <h2>🔥 지구 온난화 — 균형이 깨질 때</h2>
+      <p class="lead">산업화 이후 <b>화석 연료</b>(석탄·석유·가스)를 태우며 <b>이산화탄소</b>가 급증했다. 온실효과가 강해져 지구 평균 기온이 오르고 있다(산업화 전보다 이미 <b>약 1℃ 이상</b> 상승).</p>
+      <h3>주요 온실기체</h3>
+      <table>
+        <tr><th>기체</th><th>주요 배출원</th></tr>
+        <tr><td>이산화탄소 (CO₂)</td><td>화석 연료 연소, 삼림 파괴</td></tr>
+        <tr><td>메테인 (CH₄)</td><td>가축·논·쓰레기 매립</td></tr>
+        <tr><td>수증기 (H₂O)</td><td>자연(기온 상승 시 증가 — 되먹임)</td></tr>
+      </table>
+      <p style="font-size:12px;color:var(--sub)">그 외 아산화질소(N₂O)·프레온(CFCs) 등도 온실기체다.</p>
+      <div class="box r">
+        <div class="t">🌊 온난화가 부르는 변화</div>
+        • <b>빙하가 녹고 해수면 상승</b> → 저지대·섬 침수<br>
+        • <b>폭염·가뭄·폭우·태풍</b> 등 이상 기후 증가<br>
+        • 생태계 교란(서식지 이동·멸종), 농업·식량 위기
+      </div>
+      <div class="box b">
+        <div class="t">🔗 지구 시스템과 연결</div>
+        기온이 오르면 얼음이 녹아 햇빛 반사가 줄고(더 더워짐), 수증기가 늘어 온실효과가 더 강해진다 — 이런 <b>되먹임(피드백)</b>이 변화를 가속한다. (1학기 <a href="sci1_earth.html">지구 시스템</a>의 상호작용.)
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="net">
+    <div class="card">
+      <h2>♻️ 탄소중립 — 배출과 흡수의 균형</h2>
+      <div class="box g">
+        <div class="t">✅ 탄소중립(넷제로)이란</div>
+        <b>배출하는 온실기체 양</b>과 <b>흡수·제거하는 양</b>을 같게 만들어, 대기 중 순증가를 <b>0</b>으로 만드는 것. 많은 나라가 <b>2050년 탄소중립</b>을 목표로 한다.
+      </div>
+      <h3>어떻게 이루나</h3>
+      <table>
+        <tr><th>방향</th><th class="l">방법</th></tr>
+        <tr><td>배출 ↓</td><td class="l">신재생 에너지, 전기차, 에너지 효율 향상, 절약</td></tr>
+        <tr><td>흡수 ↑</td><td class="l">숲 가꾸기(식물의 광합성), 탄소 포집·저장(CCS)</td></tr>
+      </table>
+      <div class="box b">
+        <div class="t">🔗 앞 단원과 연결</div>
+        배출을 줄이려면 <a href="sci2_energy.html">에너지</a>를 화석연료에서 <b>신재생</b>으로 바꿔야 하고, 흡수는 식물의 <b>광합성</b>(탄소 순환)을 활용한다. 여러 단원이 하나로 이어진다.
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="phet">
+    <div class="card">
+      <h2>🌍 PhET · 온실효과 (The Greenhouse Effect)</h2>
+      <p class="lead">대기 중 <b>온실기체 농도</b>를 직접 바꾸며 지표 온도가 어떻게 변하는지, 적외선이 어떻게 갇히는지 관찰해 보자.</p>
+      <div class="phetguide">
+        <div class="pt2">🧭 사용 가이드</div>
+        <ol>
+          <li>시대(빙하기·1750·1950·2020 등)나 온실기체 농도를 바꿔 <b>지표 온도</b> 변화를 본다</li>
+          <li><b>적외선 광자</b>가 온실기체에 부딪혀 되돌아가는 모습을 관찰</li>
+          <li>온실기체를 <b>0으로</b> 하면 온도가 어떻게 되는지 확인</li>
+        </ol>
+        <ul class="missions">
+          <li>온실기체를 늘리면 지표 온도는 어느 쪽으로 변하나?</li>
+          <li>온실기체가 없으면 지구는 따뜻할까 추울까?</li>
+          <li>적외선(열)과 가시광선은 온실기체에서 다르게 행동하나?</li>
+        </ul>
+      </div>
+      <div class="frameholder" id="fhGh" data-src="https://phet.colorado.edu/sims/html/greenhouse-effect/latest/greenhouse-effect_all.html?locale=ko">
+        <div class="frameload" onclick="loadFrame('fhGh')"><div class="pl">🌍</div><div>PhET 온실효과 시뮬레이션</div><button class="go">▶ 불러오기</button><div class="fallnote">외부: phet.colorado.edu</div></div>
+      </div>
+      <a class="openext" href="https://phet.colorado.edu/sims/html/greenhouse-effect/latest/greenhouse-effect_all.html?locale=ko" target="_blank" rel="noopener">새 탭에서 크게 열기 ↗</a>
+    </div>
+  </div>
+
+  <div class="page" data-p="world">
+    <div class="card">
+      <h2>🌐 세상 속으로</h2>
+      <div class="keeper">
+        <div class="kt">📌 어른이 되어도 기억할 것</div>
+        <ol>
+          <li><b>온실효과 자체는 생명에 필수</b>(없으면 −18℃). 문제는 인간이 만든 <b>과도한 강화</b>다.</li>
+          <li>온난화의 주범은 <b>화석 연료 연소로 늘어난 이산화탄소(CO₂)</b>.</li>
+          <li><b>탄소중립</b> = 배출과 흡수를 같게(넷제로). 신재생 전환 + 숲·탄소 포집.</li>
+        </ol>
+      </div>
+      <div class="insight">
+        <div class="it">💡 인사이트 — 모든 단원이 여기서 만난다</div>
+        기후 변화는 <b>화학(연소·CO₂)</b> · <b>에너지(발전·신재생)</b> · <b>지구 시스템(대기·해수 순환)</b> · <b>생태계</b>가 한데 얽힌 문제다. 통합과학이 여러 과목을 합친 이유가 바로 이런 <b>실제 문제를 통합적으로</b> 보기 위해서다.
+      </div>
+      <div class="reallife">
+        <div class="rt">🏠 우리 곁의 기후 변화</div>
+        <div class="rgrid">
+          <div class="rcell"><div class="ri">🥵</div><div class="rn">폭염·이상기후</div><div class="rd">온난화의 직접 영향</div></div>
+          <div class="rcell"><div class="ri">🌊</div><div class="rn">해수면 상승</div><div class="rd">빙하가 녹아서</div></div>
+          <div class="rcell"><div class="ri">🚌</div><div class="rn">대중교통·자전거</div><div class="rd">탄소 배출 줄이기</div></div>
+          <div class="rcell"><div class="ri">🌳</div><div class="rn">나무 심기</div><div class="rd">광합성으로 CO₂ 흡수</div></div>
+        </div>
+      </div>
+      <div class="industry">
+        <div class="indt">🏭 산업과 직업 — 기후를 지키는 일</div>
+        <div class="indrow"><div class="ii">🔋</div><div class="id2"><b>신재생·수소 에너지</b><br>탄소중립의 핵심 성장 산업(태양광·풍력·수소·배터리).<br><span class="major">🎓 에너지공학 · 화학공학 · 전기</span></div></div>
+        <div class="indrow"><div class="ii">🏭</div><div class="id2"><b>탄소 포집·저장(CCS)·탄소배출권</b><br>배출된 CO₂를 잡아 저장하고, 배출권을 거래하는 새 시장.<br><span class="major">🎓 환경공학 · 화학공학 · 경제</span></div></div>
+        <div class="indrow"><div class="ii">🛰️</div><div class="id2"><b>기후·환경 데이터</b><br>위성·슈퍼컴으로 기후를 예측·감시하고 정책을 설계.<br><span class="major">🎓 대기과학 · 데이터사이언스 · 정책</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="quiz">
+    <div class="card">
+      <h2>🔥 기후 변화 퀴즈</h2>
+      <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
+      <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="sum">
+    <div class="card">
+      <h2>✅ 정리</h2>
+      <table>
+        <tr><th>개념</th><th class="l">핵심</th></tr>
+        <tr><td>온실효과</td><td class="l">온실기체가 지표 적외선을 붙잡아 지구를 데움 (자연=필수)</td></tr>
+        <tr><td>지구 온난화</td><td class="l">화석연료 CO₂ 증가 → 온실효과 강화 → 기온 상승</td></tr>
+        <tr><td>영향</td><td class="l">해수면 상승·이상기후·생태계 교란</td></tr>
+        <tr><td>탄소중립</td><td class="l">배출 = 흡수 (넷제로). 신재생 + 숲·CCS</td></tr>
+      </table>
+      <div class="box r">
+        <div class="t">🔑 한 줄 요약</div>
+        <b>온실효과는 생명에 필수지만, 화석연료로 늘어난 CO₂가 이를 과도하게 강화해 지구 온난화를 일으키며, 해법은 탄소중립이다.</b>
+      </div>
+      <h3>자가 점검</h3>
+      <div class="chk"><input type="checkbox" id="c1"><label for="c1">온실효과의 원리(적외선·온실기체)를 설명할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c2"><label for="c2">자연 온실효과와 강화된 온실효과를 구분한다</label></div>
+      <div class="chk"><input type="checkbox" id="c3"><label for="c3">온난화의 주원인(화석연료 CO₂)을 안다</label></div>
+      <div class="chk"><input type="checkbox" id="c4"><label for="c4">탄소중립의 뜻과 방법(배출↓·흡수↑)을 안다</label></div>
+      <h3>약점 태그</h3>
+      <div><span class="tag">과학:온실효과</span><span class="tag">과학:지구온난화</span><span class="tag">과학:기후변화</span><span class="tag">과학:탄소중립</span></div>
+      <div class="box g" style="margin-top:16px">
+        <div class="t">➡️ 관련 단원</div>
+        원인인 에너지는 <a href="sci2_energy.html">에너지 전환·발전</a>, 지구 순환은 <a href="sci1_earth.html">지구 시스템</a>. <a href="sci2_hub.html">통합과학2 허브</a>로.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function go(t){var tab=document.querySelector('.tab[data-t="'+t+'"]');if(tab)tab.click();}
+document.getElementById('tabs').addEventListener('click',function(e){
+  var b=e.target.closest('.tab'); if(!b)return;
+  document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active')});
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
+  b.classList.add('active'); var pg=document.querySelector('.page[data-p="'+b.dataset.t+'"]'); if(pg)pg.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+/* 온실효과 슬라이더 */
+function ghTemp(ppm){ return (ppm-280)/120; } // 산업화 전(280) 대비 상승(대략). 420ppm≈+1.2℃로 관측 승온과 정합
+function skyColor(anom){
+  if(anom<0.6) return ['#7dd3fc','#0ea5e9']; if(anom<1.6) return ['#fbbf24','#f59e0b']; if(anom<2.6) return ['#fb923c','#ea580c']; return ['#f87171','#dc2626'];
+}
+function drawGh(ppm){
+  var anom=ghTemp(ppm); var sc=skyColor(anom);
+  var svg=document.getElementById('ghsvg');
+  // 하늘 + 온실기체 층
+  var s='<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+sc[0]+'"/><stop offset="1" stop-color="'+sc[1]+'"/></linearGradient></defs>';
+  s+='<rect x="0" y="0" width="420" height="190" fill="url(#sky)"/>';
+  s+='<rect x="0" y="190" width="420" height="50" fill="#4d7c0f"/>'; // 지표
+  s+='<circle cx="60" cy="45" r="24" fill="#fde047"/><text x="60" y="50" text-anchor="middle" font-size="10" font-weight="800" fill="#a16207">태양</text>';
+  // 태양빛 (들어옴)
+  s+='<line x1="78" y1="60" x2="150" y2="185" stroke="#fef08a" stroke-width="3"/><text x="95" y="120" font-size="10" fill="#fff">햇빛</text>';
+  // 지표 적외선 (나감) + 온실기체가 되돌림 (ppm 많을수록 화살표 많이)
+  var nBack = Math.round((ppm-280)/40)+1;
+  s+='<line x1="230" y1="188" x2="260" y2="90" stroke="#fca5a5" stroke-width="3" marker-end="url(#up)"/>';
+  s+='<text x="238" y="130" font-size="10" fill="#fff">적외선(열)</text>';
+  for(var i=0;i<nBack;i++){ var bx=280+i*16; s+='<line x1="'+bx+'" y1="95" x2="'+(bx-10)+'" y2="180" stroke="#fecaca" stroke-width="2" marker-end="url(#dn)"/>'; }
+  // 온실기체 표시
+  s+='<text x="330" y="70" font-size="11" font-weight="800" fill="#fff">온실기체</text>';
+  s+='<text x="330" y="84" font-size="10" fill="#fff">('+ppm+' ppm)</text>';
+  s+='<defs><marker id="up" markerWidth="8" markerHeight="8" refX="4" refY="6" orient="auto"><path d="M4,0 L0,6 L8,6 Z" fill="#fca5a5"/></marker>'
+    +'<marker id="dn" markerWidth="8" markerHeight="8" refX="4" refY="6" orient="auto"><path d="M0,0 L8,0 L4,6 Z" fill="#fecaca"/></marker></defs>';
+  svg.innerHTML=s;
+  document.getElementById('ghPpm').textContent=ppm+' ppm';
+  var tag=document.getElementById('ghTag');
+  var era = ppm<=300?'산업화 이전':(ppm<=430?'현재 수준':'미래 예측(고배출)');
+  tag.textContent=era; tag.style.background= anom<0.6?'#0ea5e9':(anom<1.6?'#f59e0b':(anom<2.6?'#ea580c':'#dc2626'));
+  document.getElementById('ghTemp').innerHTML='산업화 전 대비 <b>+'+anom.toFixed(1)+'℃</b>';
+}
+document.getElementById('ghRange').addEventListener('input',function(){drawGh(parseInt(this.value,10));});
+
+/* PhET lazy */
+function loadFrame(id){
+  var h=document.getElementById(id); if(!h||h.dataset.loaded)return;
+  var f=document.createElement('iframe'); f.setAttribute('src',h.getAttribute('data-src'));
+  f.setAttribute('allowfullscreen',''); f.setAttribute('loading','lazy'); f.setAttribute('title','PhET 시뮬레이션');
+  h.innerHTML=''; h.appendChild(f); h.dataset.loaded='1';
+}
+
+/* 퀴즈 */
+var QUIZ=[
+ {q:'지구를 따뜻하게 유지해, 없으면 평균 −18℃가 되게 하는 자연 현상은?',o:['온실효과','오존층 파괴','산성비','엘니뇨'],a:0,e:'온실효과는 온실기체가 지표 적외선을 붙잡아 지구를 데운다. 자연 온실효과는 생명에 필수.'},
+ {q:'지구 온난화의 주된 원인 기체는?',o:['이산화탄소(CO₂)','산소(O₂)','질소(N₂)','헬륨(He)'],a:0,e:'화석연료 연소로 늘어난 CO₂가 온실효과를 강화한다.'},
+ {q:'온실기체가 주로 붙잡는(흡수하는) 것은?',o:['지표가 내보내는 적외선(열)','태양의 가시광선','소리','전기'],a:0,e:'온실기체는 지표에서 나가는 적외선(장파복사)을 흡수해 일부를 되돌린다.'},
+ {q:'"온실효과는 무조건 나쁘다"는 설명은?',o:['틀림 — 자연 온실효과는 생명에 필수','맞음','온실효과는 없다','태양 때문'],a:0,e:'온실효과 자체는 지구를 살 만하게 하는 고마운 현상. 문제는 과도한 강화(온난화).'},
+ {q:'지구 온난화가 일으키는 변화로 옳은 것은?',o:['빙하가 녹아 해수면 상승','기온이 거의 변하지 않음','바다가 얼어붙음','대기가 사라짐'],a:0,e:'빙하가 녹아 해수면 상승, 이상기후, 생태계 교란 등.'},
+ {q:'배출하는 온실기체와 흡수·제거하는 양을 같게 만드는 것은?',o:['탄소중립(넷제로)','온실효과','산화·환원','중화'],a:0,e:'탄소중립 = 순배출 0. 많은 나라가 2050년 목표.'},
+ {q:'탄소 배출을 줄이는 방법으로 옳은 것은?',o:['신재생 에너지·전기차·에너지 절약','화석연료 더 쓰기','삼림 파괴','냉방만 늘리기'],a:0,e:'배출↓은 신재생 전환·효율 향상·절약으로. 흡수↑는 숲·탄소포집.'},
+ {q:'대기 중 CO₂를 흡수해 탄소중립에 기여하는 자연 과정은?',o:['식물의 광합성','화석연료 연소','호흡','화산 폭발'],a:0,e:'광합성이 대기 CO₂를 흡수한다. 그래서 숲 가꾸기가 중요.'},
+ {q:'메테인(CH₄)의 주요 배출원으로 옳은 것은?',o:['가축·논·쓰레기 매립','태양','바다의 소금','번개'],a:0,e:'메테인은 강력한 온실기체로 축산·벼농사·매립지 등에서 나온다.'},
+ {q:'CO₂ 농도가 해마다 꾸준히 오르는 것을 보여준, 인간 영향의 증거가 된 그래프는?',o:['킬링 곡선','정규분포','수요곡선','pH 곡선'],a:0,e:'킬링 곡선 — 하와이 마우나로아에서 수십 년 측정한 CO₂ 상승 곡선.'}
+];
+var qi=0,qscore=0,qans=false;
+function renderQ(){
+  qans=false; var q=QUIZ[qi];
+  document.getElementById('qNum').textContent='문제 '+(qi+1)+' / '+QUIZ.length;
+  document.getElementById('qScore').textContent=qscore; document.getElementById('qBar').style.width=(qi/QUIZ.length*100)+'%';
+  document.getElementById('qQ').textContent=q.q;
+  var opts=document.getElementById('qOpts'); opts.innerHTML='';
+  q.o.forEach(function(txt,idx){var b=document.createElement('button'); b.className='qopt'; b.textContent=txt; b.addEventListener('click',function(){pick(idx,b);}); opts.appendChild(b);});
+  document.getElementById('qExp').className='qexp'; document.getElementById('qExp').innerHTML=''; document.getElementById('qNext').className='qnext';
+}
+function pick(idx,btn){
+  if(qans)return; qans=true; var q=QUIZ[qi];
+  document.querySelectorAll('#qOpts .qopt').forEach(function(b,i){if(i===q.a)b.classList.add('correct');else if(b===btn)b.classList.add('wrong');else b.classList.add('dim');});
+  var ok=(idx===q.a); if(ok)qscore++; document.getElementById('qScore').textContent=qscore;
+  var ex=document.getElementById('qExp'); ex.innerHTML='<div class="et">'+(ok?'⭕ 정답!':'❌ 오답')+'</div>'+q.e; ex.className='qexp show';
+  document.getElementById('qNext').className='qnext show';
+}
+document.getElementById('qNext').addEventListener('click',function(){qi++; if(qi>=QUIZ.length){finishQuiz();return;} renderQ();});
+function finishQuiz(){
+  document.getElementById('qBar').style.width='100%'; document.getElementById('qNum').textContent='완료 ✓';
+  var pct=Math.round(qscore/QUIZ.length*100);
+  var msg=pct>=90?'완벽해요! 기후 변화를 제대로 이해했어요.':pct>=70?'잘했어요! 틀린 것만 다시 보면 완성.':'개념 탭을 한 번 더 보고 재도전해요.';
+  document.getElementById('qArea').innerHTML='<div class="qdone"><div class="big">'+qscore+' / '+QUIZ.length+'</div><p style="margin:8px 0 4px;font-size:15px">정답률 '+pct+'%</p><p style="color:#64748b;font-size:13px;margin-bottom:16px">'+msg+'</p><button class="btn" onclick="restartQuiz()">↺ 다시 풀기</button></div>';
+}
+function restartQuiz(){
+  qi=0;qscore=0;
+  document.getElementById('qArea').innerHTML='<div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button>';
+  document.getElementById('qNext').addEventListener('click',function(){qi++;if(qi>=QUIZ.length){finishQuiz();return;}renderQ();});
+  renderQ();
+}
+
+/* init */
+QUIZ.forEach(function(q){var correct=q.o[q.a];for(var i=q.o.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=q.o[i];q.o[i]=q.o[j];q.o[j]=t;}q.a=q.o.indexOf(correct);});
+drawGh(420);
+renderQ();
+</script>
+</body>
+</html>
