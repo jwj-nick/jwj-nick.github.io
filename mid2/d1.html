@@ -39,6 +39,21 @@
   </section>
 
   <section class="reveal">
+    <div class="sim-tag">긴 나눗셈 실험실 · 반대로도 볼까요?</div>
+    <div class="sim">
+      <div class="sim-tag" style="margin-top:14px">분수 → 순환소수</div>
+      <p class="muted" style="margin:2px 0 0">분수를 하나 골라 <b class="hl">직접 나눠</b> 볼까요? <b class="gold">나머지</b>가 다시 나타나는 순간, 순환마디가 태어나요.</p>
+      <div class="pill-row" id="ldpills"></div>
+      <div class="sim-stage">
+        <div class="sim-read" style="margin-bottom:8px">결과: <span class="big" id="ldres">—</span></div>
+        <div class="derive" id="ldsteps"></div>
+        <div class="derive" id="ldwhy" style="margin-top:2px"></div>
+      </div>
+    </div>
+    <p class="muted" style="margin-top:6px">나눗셈의 열쇠는 <b class="gold">나머지</b>예요. 나머지는 항상 분모보다 작으니 종류가 <b>유한</b> — 그래서 언젠가 <b class="hl">반드시 다시 나타나고</b>, 그 순간부터 몫이 똑같이 반복돼요. 나머지가 <b>0</b>이 되면 딱 떨어지는 유한소수죠.</p>
+  </section>
+
+  <section class="reveal">
     <div class="eyebrow"><span class="n">2</span>패턴 발견</div>
     <h2>분모에 자꾸 9가 나오는 이유</h2>
     <p>여러 개 굴려 봤어요? 순환마디가 <b>1자리</b>면 분모에 <b class="gold">9</b>, <b>2자리</b>면 <b class="gold">99</b>가 나왔죠. 비순환 부분이 있으면 뒤에 <b class="gold">0</b>도 붙어요(90, 990…).</p>
@@ -147,6 +162,53 @@ MJ.boot();
   }
 
   run(CASES[0]);
+
+  // ── 긴 나눗셈 실험실 (분수 → 순환소수) ──
+  var LD=[{n:1,d:3},{n:2,d:7},{n:1,d:6},{n:5,d:11},{n:1,d:4},{n:3,d:8}];
+  function longDiv(n,d){
+    var rem=n%d, steps=[], seen={}, repAt=-1, i=0;
+    while(rem!==0){
+      if(seen[rem]!==undefined){ repAt=seen[rem]; break; }
+      seen[rem]=i; var cur=rem*10, dig=Math.floor(cur/d), nr=cur%d;
+      steps.push({inr:rem,dig:dig,onr:nr}); rem=nr; i++; if(i>30)break;
+    }
+    return {steps:steps, repAt:repAt, finite:(rem===0), backRem:rem};
+  }
+  function ldResult(n,d){
+    var r=longDiv(n,d), digs=r.steps.map(function(s){return s.dig;});
+    if(r.finite) return '0.'+digs.join('');
+    var pre=digs.slice(0,r.repAt).join(''), rep=digs.slice(r.repAt).join('');
+    return '0.'+pre+bar(rep);
+  }
+  var ldTimers=[]; function clearLD(){ ldTimers.forEach(clearTimeout); ldTimers=[]; }
+  function runLD(item){
+    clearLD();
+    var n=item.n, d=item.d, r=longDiv(n,d);
+    document.getElementById('ldres').innerHTML=n+'/'+d+' = <b>'+ldResult(n,d)+'</b>';
+    var box=document.getElementById('ldsteps'); box.innerHTML='';
+    var why=document.getElementById('ldwhy'); why.innerHTML=''; why.classList.remove('on');
+    var lines=r.steps.map(function(s,idx){
+      var start=(!r.finite && idx===r.repAt);
+      return (start?'<b style="color:var(--u)">':'')+
+        '나머지 '+s.inr+' → '+(s.inr*10)+' ÷ '+d+' = 몫 <b>'+s.dig+'</b>, 나머지 '+s.onr+
+        (start?'　◀ 여기 나머지 '+s.inr+' 기억!</b>':'');
+    });
+    var els=lines.map(function(t){var e=document.createElement('div');e.className='step';e.innerHTML=t;box.appendChild(e);return e;});
+    els.forEach(function(el,i){ ldTimers.push(setTimeout(function(){el.classList.add('on');}, 240*i)); });
+    ldTimers.push(setTimeout(function(){
+      if(r.finite){ why.innerHTML='나머지가 <b class="hl">0</b>이 됐어요 → 여기서 끝! <b class="gold">유한소수</b>예요.'; }
+      else { var rep=r.steps.slice(r.repAt).map(function(s){return s.dig;}).join('');
+        why.innerHTML='나머지가 <b class="hl">'+r.backRem+'</b> 로 <b>되돌아왔어요</b> → 몫 <b class="gold">'+rep+'</b> 가 끝없이 반복 → <b>'+ldResult(n,d)+'</b>'; }
+      why.classList.add('on');
+    }, 240*els.length+120));
+  }
+  var ldpills=document.getElementById('ldpills');
+  LD.forEach(function(item,i){
+    var b=document.createElement('button'); b.className='pill'+(i===0?' sel':''); b.innerHTML=item.n+'/'+item.d;
+    b.onclick=function(){ Array.prototype.forEach.call(ldpills.children,function(x){x.classList.remove('sel');}); b.classList.add('sel'); runLD(item); };
+    ldpills.appendChild(b);
+  });
+  runLD(LD[0]);
 
   // 사칙연산 / 대소 비교 reveal
   MJ.reveal('showadd','addbox');

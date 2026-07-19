@@ -56,6 +56,20 @@
   </section>
 
   <section class="reveal">
+    <div class="sim-tag">뒤집힘 실험실 · 왜 뒤집힐까요?</div>
+    <div class="sim">
+      <div class="sim-tag" style="margin-top:14px">양변에 같은 수 곱하기</div>
+      <p class="muted" style="margin:2px 0 0"><span class="eq">2 &lt; 5</span> 는 참이에요. 양변에 <b class="hl">k</b>를 곱하면 이 관계가 유지될까요? <b class="gold">k를 음수로</b> 내려 볼까요?</p>
+      <svg class="numline" id="rnl" viewBox="0 0 420 88" role="img" aria-label="양변에 k를 곱한 수직선"></svg>
+      <div class="sim-read" id="rrd">—</div>
+      <div class="controls">
+        <div class="ctrl"><label><span>k — 곱하는 수</span><span id="vk">1</span></label><input type="range" id="rk" min="-3" max="3" step="1" value="1"></div>
+      </div>
+    </div>
+    <p class="muted" style="margin-top:6px"><b class="hl">k가 양수</b>면 두 점이 같은 쪽으로 늘어나 순서 그대로. <b class="gold">k가 음수</b>면 0을 기준으로 <b>반대편으로 튕겨</b> 순서가 뒤바뀌어요 — 그래서 부등호도 뒤집혀요. <b>k=0</b>이면 둘 다 0(등호).</p>
+  </section>
+
+  <section class="reveal">
     <div class="eyebrow"><span class="n">3</span>해를 세어보기</div>
     <h2>범위 안에 정수는 몇 개 들어 있을까요?</h2>
     <p>부등식의 해는 <b class="hl">수많은 수</b>예요. 그중 <b class="gold">정수</b>만 세는 문제가 시험에 자주 나와요. 핵심은 <b class="hl">경계값을 포함하는지</b>(등호 유무) 확인하는 거예요.</p>
@@ -130,6 +144,34 @@ MJ.boot();
     }, 240*els.length));
   }
   ra.oninput=render; rb.oninput=render; rc.oninput=render; render();
+
+  // ── 뒤집힘 실험실 (양변 ×k 반사) ──
+  (function reflectSim(){
+    var svg=document.getElementById('rnl'); if(!svg)return;
+    var ns='http://www.w3.org/2000/svg', W=420, pad=26, cy=40, R=16, U=(W-2*pad)/(2*R);
+    function X(x){ return pad+(x+R)*U; }
+    function el(t,a){var e=document.createElementNS(ns,t);for(var k in a)e.setAttribute(k,a[k]);return e;}
+    svg.appendChild(el('line',{x1:pad,y1:cy,x2:W-pad,y2:cy,stroke:'var(--axis)','stroke-width':1.6}));
+    for(var i=-R;i<=R;i+=4){ svg.appendChild(el('line',{x1:X(i),y1:cy-4,x2:X(i),y2:cy+4,stroke:'var(--axis)','stroke-width':1}));
+      var tx=el('text',{x:X(i),y:cy+16,'text-anchor':'middle','font-size':9,fill:'var(--muted)'});tx.textContent=i;svg.appendChild(tx);}
+    function mkDot(color){ var ring=el('circle',{r:10,opacity:.2,fill:color}); var c=el('circle',{r:6,fill:color,stroke:'var(--panel)','stroke-width':2});
+      var t=el('text',{'font-size':11,fill:color,'text-anchor':'middle','font-weight':'700'}); svg.appendChild(ring);svg.appendChild(c);svg.appendChild(t); return {ring:ring,c:c,t:t}; }
+    var dA=mkDot('var(--u)'), dB=mkDot('var(--accent)');
+    function place(dot,val,lab){ var x=X(Math.max(-R,Math.min(R,val)));
+      dot.ring.setAttribute('cx',x);dot.ring.setAttribute('cy',cy);dot.c.setAttribute('cx',x);dot.c.setAttribute('cy',cy);
+      dot.t.setAttribute('x',x);dot.t.setAttribute('y',cy-13);dot.t.textContent=lab; }
+    var rk=document.getElementById('rk');
+    function reflect(){
+      var k=+rk.value; document.getElementById('vk').textContent=MJ.sgn(k);
+      var pa=2*k, pb=5*k;
+      place(dA,pa,MJ.sgn(pa)); place(dB,pb,MJ.sgn(pb));
+      var rel=(pa<pb?'&lt;':(pa>pb?'&gt;':'=')), flip=(k<0);
+      document.getElementById('rrd').innerHTML='2×'+MJ.sgn(k)+' = <b>'+MJ.sgn(pa)+'</b>　'
+        +(flip?'<b style="color:var(--line)">':'<b>')+rel+'</b>'+'　<b>'+MJ.sgn(pb)+'</b> = 5×'+MJ.sgn(k)
+        +(flip?'　<b class="gold">⚠ 뒤집혔어요!</b>':(k===0?'　(둘 다 0 · 등호)':'　(순서 그대로)'));
+    }
+    rk.oninput=reflect; reflect();
+  })();
 
   // 정수해 세기 reveal
   MJ.reveal('showint','intbox');
