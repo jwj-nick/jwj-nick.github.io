@@ -15,6 +15,8 @@
     {id:'u5',no:5,t:'일차함수와 그래프',u:'#4f92d6',u2:'#77b2ea'},
     {id:'u6',no:6,t:'일차함수와 일차방정식',u:'#e2698a',u2:'#f0929f'}
   ];
+  // 탐험(PhET) 탭이 준비된 단원만 노출 → 미준비 단원에서 404 방지
+  var EXPLORE_READY={5:1};
   // 파일명 → 단원 번호 + 종류 (u=개념 p=연습 d=심화탐구 dNp=심화문제)
   function pageInfo(){
     var f=(location.pathname.split('/').pop()||'index.html').toLowerCase().replace(/\?.*$/,'').replace(/\.html$/,'');
@@ -23,6 +25,7 @@
     if(m=f.match(/^p([1-6])$/))  return {no:+m[1],kind:'practice'};
     if(m=f.match(/^d([1-6])p$/)) return {no:+m[1],kind:'deepq'};
     if(m=f.match(/^d([1-6])$/))  return {no:+m[1],kind:'deep'};
+    if(m=f.match(/^x([1-6])$/))  return {no:+m[1],kind:'explore'};
     if(/drill/.test(f))          return {kind:'drill'};
     return {kind:'home'};
   }
@@ -98,6 +101,7 @@
           {k:'deep',    href:'d'+unit.no+'.html',  i:'⚗️', t:'심화 탐구'},
           {k:'deepq',   href:'d'+unit.no+'p.html', i:'🎯', t:'심화 문제'}
         ];
+        if(EXPLORE_READY[unit.no]) tabs.push({k:'explore',href:'x'+unit.no+'.html',i:'🧭',t:'탐험'});
         var nav=document.createElement('nav'); nav.className='utabs'; nav.setAttribute('aria-label','단원 내 이동');
         nav.innerHTML=tabs.map(function(tb){
           return '<a class="ut'+(info.kind===tb.k?' active':'')+'" href="'+tb.href+'"><span class="ut-i">'+tb.i+'</span>'+tb.t+'</a>';
