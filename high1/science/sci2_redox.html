@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>산화와 환원 — 통합과학2</title>
+<style>
+  :root{
+    --panel:#fff; --ink:#1e293b; --sub:#64748b; --line:#e2e8f0;
+    --blue:#2563eb; --blue-d:#1e40af; --green:#16a34a; --green-bg:#f0fdf4;
+    --amber:#d97706; --amber-bg:#fffbeb; --red:#dc2626; --red-bg:#fef2f2;
+    --purple:#7c3aed; --purple-bg:#f5f3ff; --indigo:#4f46e5; --accent:#0369a1; --accent-bg:#f0f9ff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',sans-serif;background:#f1f5f9;color:var(--ink);line-height:1.7;-webkit-text-size-adjust:100%}
+  a{color:var(--blue)} sup,sub{font-size:.72em}
+  .crumb{background:#f8fafc;border-bottom:1px solid var(--line);padding:7px 16px;font-size:12px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+  .crumb a{color:var(--sub);text-decoration:none} .crumb a.cur{color:var(--blue);font-weight:600} .crumb span{color:#cbd5e1}
+  .hero{background:linear-gradient(135deg,#0c4a6e,#0369a1 60%,#0ea5e9);color:#fff;padding:26px 18px 22px;text-align:center}
+  .hero .badge{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:3px 13px;font-size:12px;margin-bottom:10px}
+  .hero h1{font-size:21px;font-weight:800;letter-spacing:-.3px} .hero p{font-size:13px;opacity:.93;margin-top:6px}
+  .tabs{position:sticky;top:0;z-index:50;display:flex;background:#082f49;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;padding:13px 15px;min-height:44px;color:#bae6fd;font-size:13.5px;font-weight:600;cursor:pointer;border:none;background:none;border-bottom:3px solid transparent;white-space:nowrap;transition:.15s}
+  .tab.active{color:#fff;border-bottom-color:#38bdf8} .tab:hover{color:#e0f2fe}
+  .wrap{max-width:820px;margin:0 auto;padding:22px 16px 70px}
+  .page{display:none} .page.active{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .card h2{font-size:18px;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .card h3{font-size:15px;font-weight:700;margin:16px 0 8px;color:var(--blue-d)} .card p{font-size:14px;margin-bottom:8px} .lead{color:var(--sub);font-size:13px;margin-bottom:14px}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0} th,td{border:1px solid var(--line);padding:8px 9px;text-align:center} th{background:#f8fafc;font-weight:700} td.l,th.l{text-align:left}
+  .box{border-radius:10px;padding:13px 15px;margin:10px 0;font-size:13.5px}
+  .box.g{background:var(--green-bg);border:1px solid #bbf7d0} .box.a{background:var(--amber-bg);border:1px solid #fde68a} .box.b{background:var(--accent-bg);border:1px solid #bae6fd}
+  .box .t{font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:6px} .box.g .t{color:var(--green)} .box.a .t{color:var(--amber)} .box.b .t{color:var(--accent)}
+  .hook{background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border:1px solid #bae6fd;border-radius:12px;padding:16px 18px;margin:12px 0;font-size:14px}
+  .hook .ht{color:var(--accent);font-weight:800;font-size:15px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  .keeper{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fcd34d;border-radius:12px;padding:15px 17px;margin:12px 0}
+  .keeper .kt{color:#b45309;font-weight:800;font-size:14.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .keeper ol{margin:0;list-style:none} .keeper li{position:relative;padding:8px 0 8px 34px;font-size:13.5px;border-bottom:1px dashed #fde68a} .keeper li:last-child{border-bottom:none} .keeper li::before{content:"📌";position:absolute;left:4px;top:8px}
+  .insight{background:var(--purple-bg);border:1px solid #ddd6fe;border-radius:12px;padding:14px 16px;margin:12px 0;font-size:13.5px} .insight .it{color:var(--purple);font-weight:800;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+  .reallife{background:var(--green-bg);border:1px solid #bbf7d0;border-radius:12px;padding:14px 16px;margin:12px 0} .reallife .rt{color:var(--green);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:9px} .rcell{background:#fff;border:1px solid #bbf7d0;border-radius:9px;padding:10px} .rcell .ri{font-size:22px} .rcell .rn{font-weight:800;font-size:13px;margin:3px 0} .rcell .rd{font-size:11.5px;color:#475569;line-height:1.5}
+  .industry{background:#eef2ff;border:1px solid #c7d2fe;border-radius:12px;padding:14px 16px;margin:12px 0} .industry .indt{color:var(--indigo);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .indrow{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #e0e7ff} .indrow:last-child{border-bottom:none} .indrow .ii{font-size:24px;flex-shrink:0} .indrow .id2{font-size:13px} .indrow .id2 b{color:#312e81}
+  .major{display:inline-block;background:#312e81;color:#c7d2fe;border-radius:6px;padding:2px 8px;font-size:10.5px;font-weight:700;margin-top:4px}
+  .sci{display:flex;gap:13px;align-items:flex-start;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fde68a;border-radius:12px;padding:15px;margin:12px 0} .sci .ava{font-size:34px;line-height:1;flex-shrink:0} .sci .st{font-weight:800;color:#92400e;font-size:14px;margin-bottom:3px} .sci .sd{font-size:13px;color:#78350f}
+  .toc{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:8px}
+  .toc button{text-align:left;background:var(--accent-bg);border:1px solid #bae6fd;border-radius:10px;padding:12px;cursor:pointer;font:inherit;transition:.15s;min-height:44px} .toc button:hover{border-color:var(--accent);box-shadow:0 2px 8px rgba(3,105,161,.14)}
+  .toc .ti{font-size:20px}.toc .tn{font-weight:800;font-size:13.5px;margin-top:4px}.toc .td{font-size:11.5px;color:var(--sub)}
+  /* redox example */
+  .rxtoggle{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}
+  .rxtoggle button{border:1px solid var(--line);background:#fff;border-radius:20px;padding:8px 13px;font:inherit;font-weight:700;font-size:12.5px;cursor:pointer;min-height:44px}
+  .rxtoggle button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .rxpanel{background:var(--accent-bg);border:1px solid #bae6fd;border-radius:12px;padding:15px;margin:8px 0}
+  .rxeq{font-size:15px;font-weight:800;text-align:center;margin-bottom:8px}
+  .rxrow{display:flex;gap:10px;flex-wrap:wrap}
+  .rxhalf{flex:1;min-width:150px;background:#fff;border-radius:10px;padding:11px 13px;font-size:12.5px}
+  .rxhalf.ox{border:2px solid #fca5a5} .rxhalf.re{border:2px solid #93c5fd}
+  .rxhalf .hh{font-weight:800;margin-bottom:3px} .rxhalf.ox .hh{color:var(--red)} .rxhalf.re .hh{color:var(--blue)}
+  .rxdesc{font-size:12.5px;color:#475569;margin-top:8px}
+  /* electron svg */
+  .esvg{width:100%;max-width:400px;display:block;margin:10px auto;background:#0f172a;border-radius:12px}
+  /* reactivity */
+  .react{display:flex;gap:3px;overflow-x:auto;padding:8px 0;margin:6px 0}
+  .react .m{flex:0 0 auto;min-width:38px;text-align:center;padding:8px 4px;border-radius:8px;font-weight:800;font-size:13px;color:#fff}
+  .reactlab{display:flex;justify-content:space-between;font-size:11px;color:var(--sub);padding:0 2px}
+  /* quiz */
+  .quizhud{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:12px 16px;margin-bottom:14px} .quizhud .qn{font-weight:800;font-size:14px} .quizhud .sc{margin-left:auto;font-size:13px} .quizhud .sc b{color:#38bdf8;font-size:16px}
+  .qbar{flex-basis:100%;height:8px;background:#334155;border-radius:20px;overflow:hidden;margin-top:2px} .qbar > i{display:block;height:100%;background:linear-gradient(90deg,#38bdf8,#0369a1)}
+  .qq{font-size:16px;font-weight:700;text-align:center;margin:10px 0 16px} .qopts{display:grid;gap:10px}
+  .qopt{border:2px solid var(--line);background:#fff;border-radius:12px;padding:14px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:.12s;min-height:52px} .qopt:hover{border-color:var(--accent)} .qopt.correct{background:var(--green-bg);border-color:#6ee7b7;color:#065f46} .qopt.wrong{background:var(--red-bg);border-color:#fecaca;color:#991b1b} .qopt.dim{opacity:.5}
+  .qexp{display:none;margin-top:14px;background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:13px 15px;font-size:13.5px} .qexp.show{display:block;animation:fade .2s ease}.qexp .et{font-weight:800;margin-bottom:4px}
+  .qnext{display:none;margin-top:14px;width:100%;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:13px;font:inherit;font-weight:800;font-size:14px;cursor:pointer;min-height:48px} .qnext.show{display:block}
+  .qdone{text-align:center;padding:10px 0}.qdone .big{font-size:40px;font-weight:800;color:var(--accent)}
+  .btn{display:inline-block;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px 18px;font:inherit;font-weight:700;font-size:13.5px;cursor:pointer;text-decoration:none;min-height:44px}
+  .chk{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px} .chk:last-child{border-bottom:none} .chk input{margin-top:4px;width:17px;height:17px;flex-shrink:0;accent-color:var(--accent)}
+  .tag{display:inline-block;background:var(--accent-bg);color:var(--accent);border:1px solid #bae6fd;border-radius:6px;padding:2px 9px;font-size:11.5px;font-weight:700;margin:3px 4px 0 0}
+  @media (max-width:640px){ .hero h1{font-size:19px} .card{padding:16px} }
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Science_1_2</a><span>&rsaquo;</span><a href="sci2_hub.html">통합과학2</a><span>&rsaquo;</span><a class="cur" href="#">산화·환원</a></nav>
+<div class="hero">
+  <span class="badge">Ⅳ. 변화와 다양성 · 화학 변화 (산화·환원)</span>
+  <h1>🔀 산화와 환원</h1>
+  <p>전자를 주고받는 세상의 화학 변화</p>
+</div>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="intro">📋 개요</button>
+  <button class="tab" data-t="def">🔀 산화와 환원</button>
+  <button class="tab" data-t="ex">🧪 실제 반응</button>
+  <button class="tab" data-t="react">🔩 금속의 반응성</button>
+  <button class="tab" data-t="world">🌐 세상 속으로</button>
+  <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="sum">✅ 정리</button>
+</div>
+<div class="wrap">
+
+  <div class="page active" data-p="intro">
+    <div class="card">
+      <h2>📋 녹, 갈변, 불 — 전부 같은 반응</h2>
+      <div class="hook">
+        <div class="ht">💥 놀라운 사실</div>
+        쇠가 <b>녹슬고</b>, 깎아둔 사과가 <b>갈변</b>하고, 장작이 <b>불타고</b>, 우리가 <b>숨 쉬는</b> 것 — 겉보기엔 다르지만 <b>본질은 하나</b>다. 모두 물질이 <b>전자를 주고받는</b> 산화·환원 반응이다.
+      </div>
+      <div class="sci">
+        <div class="ava">⚗️</div>
+        <div>
+          <div class="st">라부아지에 (Lavoisier, 1770년대) — 연소의 정체</div>
+          <div class="sd">사람들은 물질이 탈 때 "플로지스톤"이 빠져나간다고 믿었다. 라부아지에는 정밀한 측정으로 연소가 사실은 물질이 <b>산소와 결합</b>하는 것(산화)임을 밝혔다. <b>측정과 실험</b>이 오개념을 뒤집은 사례.</div>
+        </div>
+      </div>
+      <div class="toc">
+        <button onclick="go('def')"><div class="ti">🔀</div><div class="tn">산화와 환원</div><div class="td">전자 이동</div></button>
+        <button onclick="go('ex')"><div class="ti">🧪</div><div class="tn">실제 반응</div><div class="td">연소·부식·호흡</div></button>
+        <button onclick="go('react')"><div class="ti">🔩</div><div class="tn">금속의 반응성</div><div class="td">이온화 경향</div></button>
+        <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">배터리·제련</div></button>
+        <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+        <button onclick="go('sum')"><div class="ti">✅</div><div class="tn">정리</div><div class="td">요약·자가점검</div></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="def">
+    <div class="card">
+      <h2>🔀 산화와 환원 — 전자의 이동</h2>
+      <p class="lead">산화와 환원은 <b>전자를 주고받는</b> 반응이다. 한 물질이 전자를 <b>잃으면(산화)</b>, 다른 물질이 그 전자를 <b>얻는다(환원)</b>. 그래서 산화와 환원은 <b>항상 동시에</b> 일어난다.</p>
+      <svg class="esvg" id="esvg" viewBox="0 0 400 160" role="img" aria-label="전자 이동"></svg>
+      <table>
+        <tr><th></th><th>산화 (Oxidation)</th><th>환원 (Reduction)</th></tr>
+        <tr><td class="l"><b>전자</b></td><td>잃는다</td><td>얻는다</td></tr>
+        <tr><td class="l"><b>산소</b></td><td>얻는다</td><td>잃는다</td></tr>
+        <tr><td class="l"><b>수소</b></td><td>잃는다</td><td>얻는다</td></tr>
+      </table>
+      <div class="box b">
+        <div class="t">🔑 외우는 법 — "전자를 잃으면 산화"</div>
+        가장 넓고 중요한 정의는 <b>전자</b> 기준이다. <b>산화 = 전자 잃음</b>, <b>환원 = 전자 얻음</b>. (산소·수소 기준은 그 특별한 경우.)
+      </div>
+      <div class="box a">
+        <div class="t">⚠️ 산화제 vs 환원제</div>
+        <b>산화제</b>: 남을 산화시키는 물질(자신은 <b>환원</b>됨). <b>환원제</b>: 남을 환원시키는 물질(자신은 <b>산화</b>됨). 헷갈리면 "~제는 상대에게 그 일을 시키고 자신은 반대로 된다"로 기억.
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="ex">
+    <div class="card">
+      <h2>🧪 실제 반응 — 눌러서 확인</h2>
+      <p class="lead">우리 주변의 반응에서 <b>무엇이 산화되고 무엇이 환원되는지</b> 보자.</p>
+      <div class="rxtoggle" id="rxToggle"></div>
+      <div class="rxpanel" id="rxPanel"></div>
+      <div class="box g">
+        <div class="t">✅ 빠른 산화 vs 느린 산화</div>
+        <b>연소</b>(불)는 열·빛을 내는 <b>빠른 산화</b>, <b>부식</b>(녹)은 오래 걸리는 <b>느린 산화</b>다. 둘 다 산소와 결합하는 산화 반응이라는 점은 같다.
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="react">
+    <div class="card">
+      <h2>🔩 금속의 반응성 (이온화 경향)</h2>
+      <p class="lead">금속마다 <b>전자를 내주고 이온이 되려는 정도</b>가 다르다. 이 순서를 <b>금속의 반응성(이온화 경향)</b>이라 한다. 왼쪽일수록 반응성이 커서 <b>전자를 잘 내준다(산화되기 쉽다)</b>.</p>
+      <div class="react" id="reactRow"></div>
+      <div class="reactlab"><span>◀ 반응성 큼 (전자 잘 냄)</span><span>반응성 작음 ▶</span></div>
+      <div class="box b">
+        <div class="t">🔑 반응성 큰 금속이 이긴다</div>
+        반응성이 큰 금속을 반응성이 작은 금속의 이온이 든 용액에 넣으면, <b>큰 금속이 전자를 내주고(산화)</b> 작은 금속 이온이 <b>전자를 받아(환원) 금속으로 석출</b>된다. (예: 철 못을 황산구리 용액에 넣으면 구리가 달라붙음.)
+      </div>
+      <div class="box a">
+        <div class="t">💡 왜 금·백금은 안 녹슬까</div>
+        금(Au)·백금(Pt)은 반응성이 매우 작아 전자를 잘 안 내준다 → 산화가 잘 안 됨 → <b>녹슬지 않고 오래 빛난다</b>. 그래서 귀금속으로 쓰인다.
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="world">
+    <div class="card">
+      <h2>🌐 세상 속으로</h2>
+      <div class="keeper">
+        <div class="kt">📌 어른이 되어도 기억할 것</div>
+        <ol>
+          <li><b>산화 = 전자 잃음, 환원 = 전자 얻음.</b> 둘은 <b>항상 동시</b>에 일어난다.</li>
+          <li>연소(불)·부식(녹)·호흡·광합성이 모두 <b>산화·환원</b> 반응이다.</li>
+          <li>금속마다 <b>반응성(전자를 내주는 정도)</b>이 다르다 — 그래서 어떤 금속은 잘 녹슬고 금·백금은 안 녹슨다.</li>
+        </ol>
+      </div>
+      <div class="insight">
+        <div class="it">💡 인사이트 — 전자의 이동이 곧 에너지</div>
+        <b>배터리</b>는 산화·환원으로 전자가 이동하는 힘을 전기로 뽑아 쓰는 장치다. <b>호흡</b>도 포도당을 산화해 에너지를 얻는다. 전자를 주고받는 이 반응이 <b>생명과 기술의 에너지원</b>이다. → <a href="sci2_energy.html">에너지</a>와 이어진다.
+      </div>
+      <div class="reallife">
+        <div class="rt">🏠 우리 곁의 산화·환원</div>
+        <div class="rgrid">
+          <div class="rcell"><div class="ri">🍎</div><div class="rn">사과 갈변</div><div class="rd">공기 중 산화</div></div>
+          <div class="rcell"><div class="ri">🔩</div><div class="rn">쇠 녹</div><div class="rd">느린 산화(부식)</div></div>
+          <div class="rcell"><div class="ri">🔋</div><div class="rn">배터리</div><div class="rd">산화·환원으로 전기</div></div>
+          <div class="rcell"><div class="ri">🧺</div><div class="rn">표백</div><div class="rd">산화로 색소 분해</div></div>
+        </div>
+      </div>
+      <div class="industry">
+        <div class="indt">🏭 산업과 직업 — 전자를 다루는 일</div>
+        <div class="indrow"><div class="ii">🔋</div><div class="id2"><b>배터리·연료전지</b><br>산화·환원 반응을 설계해 전기차·에너지저장 배터리를 만든다.<br><span class="major">🎓 화학공학 · 전기화학 · 재료</span></div></div>
+        <div class="indrow"><div class="ii">⛏️</div><div class="id2"><b>금속 제련</b><br>광석(금속 산화물)에서 <b>환원</b>으로 순수 금속을 뽑아낸다(제철=철광석 환원).<br><span class="major">🎓 재료공학 · 금속공학</span></div></div>
+        <div class="indrow"><div class="ii">🛡️</div><div class="id2"><b>부식 방지</b><br>도금·방청으로 금속의 산화(녹)를 막아 다리·선박·배관을 지킨다.<br><span class="major">🎓 재료공학 · 토목</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="quiz">
+    <div class="card">
+      <h2>🔥 산화·환원 퀴즈</h2>
+      <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
+      <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="sum">
+    <div class="card">
+      <h2>✅ 정리</h2>
+      <table>
+        <tr><th></th><th>산화</th><th>환원</th></tr>
+        <tr><td class="l"><b>전자</b></td><td>잃음</td><td>얻음</td></tr>
+        <tr><td class="l"><b>산소</b></td><td>얻음</td><td>잃음</td></tr>
+        <tr><td class="l"><b>예</b></td><td>연소·부식·호흡</td><td>광합성·금속 제련</td></tr>
+      </table>
+      <div class="box b">
+        <div class="t">🔑 한 줄 요약</div>
+        <b>산화(전자 잃음)와 환원(전자 얻음)은 항상 함께 일어나며, 연소·부식·호흡·배터리·제련이 모두 이 반응이다.</b>
+      </div>
+      <h3>자가 점검</h3>
+      <div class="chk"><input type="checkbox" id="c1"><label for="c1">산화·환원을 전자 이동으로 정의할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c2"><label for="c2">산화와 환원이 동시에 일어남을 안다</label></div>
+      <div class="chk"><input type="checkbox" id="c3"><label for="c3">연소·부식·호흡·광합성을 산화·환원으로 설명한다</label></div>
+      <div class="chk"><input type="checkbox" id="c4"><label for="c4">금속의 반응성 순서와 의미(전자 내주기)를 안다</label></div>
+      <h3>약점 태그</h3>
+      <div><span class="tag">과학:산화환원</span><span class="tag">과학:전자이동</span><span class="tag">과학:금속반응성</span><span class="tag">과학:연소부식</span></div>
+      <div class="box g" style="margin-top:16px">
+        <div class="t">➡️ 관련 단원</div>
+        전자를 뽑아 쓰는 <a href="sci2_energy.html">에너지·배터리</a>, 산을 다루는 <a href="sci2_acidbase.html">산·염기·중화</a>와 이어짐. <a href="sci2_hub.html">통합과학2 허브</a>로.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function go(t){var tab=document.querySelector('.tab[data-t="'+t+'"]');if(tab)tab.click();}
+document.getElementById('tabs').addEventListener('click',function(e){
+  var b=e.target.closest('.tab'); if(!b)return;
+  document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active')});
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
+  b.classList.add('active'); var pg=document.querySelector('.page[data-p="'+b.dataset.t+'"]'); if(pg)pg.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+/* 전자 이동 SVG */
+(function drawE(){
+  var svg=document.getElementById('esvg'); if(!svg)return;
+  var s='';
+  s+='<circle cx="95" cy="80" r="34" fill="#f59e0b"/><text x="95" y="78" text-anchor="middle" font-size="15" font-weight="800" fill="#0f172a">A</text><text x="95" y="94" text-anchor="middle" font-size="9" fill="#0f172a">전자 줌</text>';
+  s+='<circle cx="305" cy="80" r="34" fill="#38bdf8"/><text x="305" y="78" text-anchor="middle" font-size="15" font-weight="800" fill="#0f172a">B</text><text x="305" y="94" text-anchor="middle" font-size="9" fill="#0f172a">전자 받음</text>';
+  s+='<line x1="135" y1="70" x2="265" y2="70" stroke="#a78bfa" stroke-width="3" marker-end="url(#ae)"/>';
+  s+='<circle cx="200" cy="70" r="8" fill="#c4b5fd"/><text x="200" y="74" text-anchor="middle" font-size="9" fill="#1e293b">e⁻</text>';
+  s+='<text x="200" y="50" text-anchor="middle" font-size="11" fill="#c4b5fd" font-weight="700">전자 이동</text>';
+  s+='<text x="95" y="140" text-anchor="middle" font-size="12" font-weight="800" fill="#fca5a5">산화 (전자 잃음)</text>';
+  s+='<text x="305" y="140" text-anchor="middle" font-size="12" font-weight="800" fill="#93c5fd">환원 (전자 얻음)</text>';
+  s+='<defs><marker id="ae" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#a78bfa"/></marker></defs>';
+  svg.innerHTML=s;
+})();
+
+/* 실제 반응 */
+var RX=[
+ {k:'연소',eq:'C + O₂ → CO₂',ox:'탄소(C)가 산소와 결합 → 산화',re:'산소(O₂)가 전자를 받음 → 환원',d:'장작·연료가 타는 것. 열과 빛을 내는 빠른 산화.'},
+ {k:'부식(녹)',eq:'4Fe + 3O₂ → 2Fe₂O₃',ox:'철(Fe)이 산소와 결합 → 산화',re:'산소(O₂)가 환원',d:'쇠가 녹스는 것. 물·산소가 있으면 천천히 진행되는 느린 산화.'},
+ {k:'호흡',eq:'포도당 + O₂ → CO₂ + H₂O',ox:'포도당이 산화(에너지 방출)',re:'산소가 환원',d:'세포가 포도당을 산화해 에너지를 얻는 과정. 우리 몸속 산화 반응.'},
+ {k:'광합성',eq:'CO₂ + H₂O → 포도당 + O₂',ox:'물(H₂O)이 산화되어 O₂ 방출',re:'이산화탄소(CO₂)가 환원되어 포도당',d:'식물이 빛으로 CO₂를 환원해 양분을 만듦. 호흡의 반대 방향.'},
+ {k:'배터리',eq:'금속 → 금속이온 + e⁻',ox:'(−)극 금속이 전자를 잃음 → 산화',re:'(+)극에서 전자를 받음 → 환원',d:'산화·환원으로 생긴 전자의 흐름을 전기로 사용.'}
+];
+function buildRx(){
+  var el=document.getElementById('rxToggle'); var s='';
+  RX.forEach(function(r,i){ s+='<button class="'+(i===0?'on':'')+'" data-i="'+i+'">'+r.k+'</button>'; });
+  el.innerHTML=s;
+  el.addEventListener('click',function(e){var b=e.target.closest('button'); if(!b)return; this.querySelectorAll('button').forEach(function(x){x.classList.remove('on')}); b.classList.add('on'); selRx(parseInt(b.dataset.i,10));});
+  selRx(0);
+}
+function selRx(i){
+  var r=RX[i];
+  document.getElementById('rxPanel').innerHTML='<div class="rxeq">'+r.eq+'</div>'+
+    '<div class="rxrow"><div class="rxhalf ox"><div class="hh">🔺 산화</div>'+r.ox+'</div>'+
+    '<div class="rxhalf re"><div class="hh">🔻 환원</div>'+r.re+'</div></div>'+
+    '<div class="rxdesc">'+r.d+'</div>';
+}
+
+/* 금속 반응성 */
+var METALS=[['K','#dc2626'],['Ca','#ea580c'],['Na','#f59e0b'],['Mg','#eab308'],['Al','#84cc16'],['Zn','#22c55e'],['Fe','#14b8a6'],['Cu','#0ea5e9'],['Ag','#6366f1'],['Au','#a855f7']];
+(function buildReact(){
+  var el=document.getElementById('reactRow'); var s='';
+  METALS.forEach(function(m){ s+='<div class="m" style="background:'+m[1]+'">'+m[0]+'</div>'; });
+  el.innerHTML=s;
+})();
+
+/* 퀴즈 */
+var QUIZ=[
+ {q:'"산화"를 전자 기준으로 정의하면?',o:['전자를 잃는 것','전자를 얻는 것','산소를 잃는 것','수소를 얻는 것'],a:0,e:'산화 = 전자를 잃음. (환원 = 전자를 얻음.)'},
+ {q:'"환원"에 해당하는 것은?',o:['전자를 얻는 것','전자를 잃는 것','산소를 얻는 것','타는 것'],a:0,e:'환원 = 전자를 얻음(또는 산소를 잃음).'},
+ {q:'산화와 환원의 관계로 옳은 것은?',o:['항상 동시에 일어난다','산화만 따로 일어난다','환원만 따로 일어난다','무관하다'],a:0,e:'한쪽이 전자를 잃으면 다른 쪽이 얻으므로 산화·환원은 항상 함께 일어난다.'},
+ {q:'철이 녹스는 것(부식)은 무엇인가?',o:['느린 산화','환원','중화','융해'],a:0,e:'부식(녹)은 철이 산소와 결합하는 느린 산화 반응.'},
+ {q:'다음 중 "빠른 산화"에 해당하는 것은?',o:['연소(불)','녹','갈변','부식'],a:0,e:'연소는 열·빛을 내는 빠른 산화. 녹·갈변은 느린 산화.'},
+ {q:'광합성에서 이산화탄소(CO₂)는 어떻게 되나?',o:['환원되어 포도당이 된다','산화된다','그대로 있다','증발한다'],a:0,e:'광합성은 CO₂를 환원해 포도당을 만든다(호흡의 반대).'},
+ {q:'"남을 산화시키고 자신은 환원되는" 물질은?',o:['산화제','환원제','촉매','지시약'],a:0,e:'산화제는 상대를 산화시키고 자신은 환원된다. (환원제는 반대.)'},
+ {q:'금속의 반응성(이온화 경향)이 크다는 것은?',o:['전자를 잘 내준다(산화되기 쉽다)','전자를 잘 받는다','무겁다','색이 진하다'],a:0,e:'반응성이 큰 금속일수록 전자를 잘 내주어 산화(이온화)되기 쉽다.'},
+ {q:'금(Au)·백금(Pt)이 잘 녹슬지 않는 이유는?',o:['반응성이 작아 산화가 잘 안 됨','반응성이 커서','무거워서','비싸서'],a:0,e:'반응성이 매우 작아 전자를 잘 안 내주므로 산화(녹)가 잘 일어나지 않는다.'},
+ {q:'광석(금속 산화물)에서 순수한 금속을 얻는 제련은 어떤 반응인가?',o:['환원','산화','중화','연소'],a:0,e:'금속 산화물에서 산소를 떼어내(환원) 금속을 얻는다. 제철=철광석 환원.'}
+];
+var qi=0,qscore=0,qans=false;
+function renderQ(){
+  qans=false; var q=QUIZ[qi];
+  document.getElementById('qNum').textContent='문제 '+(qi+1)+' / '+QUIZ.length;
+  document.getElementById('qScore').textContent=qscore; document.getElementById('qBar').style.width=(qi/QUIZ.length*100)+'%';
+  document.getElementById('qQ').textContent=q.q;
+  var opts=document.getElementById('qOpts'); opts.innerHTML='';
+  q.o.forEach(function(txt,idx){var b=document.createElement('button'); b.className='qopt'; b.textContent=txt; b.addEventListener('click',function(){pick(idx,b);}); opts.appendChild(b);});
+  document.getElementById('qExp').className='qexp'; document.getElementById('qExp').innerHTML=''; document.getElementById('qNext').className='qnext';
+}
+function pick(idx,btn){
+  if(qans)return; qans=true; var q=QUIZ[qi];
+  document.querySelectorAll('#qOpts .qopt').forEach(function(b,i){if(i===q.a)b.classList.add('correct');else if(b===btn)b.classList.add('wrong');else b.classList.add('dim');});
+  var ok=(idx===q.a); if(ok)qscore++; document.getElementById('qScore').textContent=qscore;
+  var ex=document.getElementById('qExp'); ex.innerHTML='<div class="et">'+(ok?'⭕ 정답!':'❌ 오답')+'</div>'+q.e; ex.className='qexp show';
+  document.getElementById('qNext').className='qnext show';
+}
+document.getElementById('qNext').addEventListener('click',function(){qi++; if(qi>=QUIZ.length){finishQuiz();return;} renderQ();});
+function finishQuiz(){
+  document.getElementById('qBar').style.width='100%'; document.getElementById('qNum').textContent='완료 ✓';
+  var pct=Math.round(qscore/QUIZ.length*100);
+  var msg=pct>=90?'완벽해요! 산화·환원을 꿰뚫었어요.':pct>=70?'잘했어요! 틀린 것만 다시 보면 완성.':'개념 탭을 한 번 더 보고 재도전해요.';
+  document.getElementById('qArea').innerHTML='<div class="qdone"><div class="big">'+qscore+' / '+QUIZ.length+'</div><p style="margin:8px 0 4px;font-size:15px">정답률 '+pct+'%</p><p style="color:#64748b;font-size:13px;margin-bottom:16px">'+msg+'</p><button class="btn" onclick="restartQuiz()">↺ 다시 풀기</button></div>';
+}
+function restartQuiz(){
+  qi=0;qscore=0;
+  document.getElementById('qArea').innerHTML='<div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button>';
+  document.getElementById('qNext').addEventListener('click',function(){qi++;if(qi>=QUIZ.length){finishQuiz();return;}renderQ();});
+  renderQ();
+}
+
+/* init */
+QUIZ.forEach(function(q){var correct=q.o[q.a];for(var i=q.o.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=q.o[i];q.o[i]=q.o[j];q.o[j]=t;}q.a=q.o.indexOf(correct);});
+buildRx();
+buildReact();
+renderQ();
+</script>
+</body>
+</html>
