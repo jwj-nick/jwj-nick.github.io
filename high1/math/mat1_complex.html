@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>복소수와 이차방정식 — 공통수학1</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
+<style>
+  :root{
+    --panel:#fff; --ink:#1e293b; --sub:#64748b; --line:#e2e8f0;
+    --blue:#2563eb; --blue-d:#1e40af; --green:#16a34a; --green-bg:#f0fdf4;
+    --amber:#d97706; --amber-bg:#fffbeb; --red:#dc2626; --red-bg:#fef2f2;
+    --purple:#7c3aed; --purple-bg:#f5f3ff; --indigo:#4f46e5; --accent:#6d28d9; --accent-bg:#f5f3ff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',sans-serif;background:#f1f5f9;color:var(--ink);line-height:1.7;-webkit-text-size-adjust:100%}
+  a{color:var(--blue)}
+  .crumb{background:#f8fafc;border-bottom:1px solid var(--line);padding:7px 16px;font-size:12px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+  .crumb a{color:var(--sub);text-decoration:none} .crumb a.cur{color:var(--blue);font-weight:600} .crumb span{color:#cbd5e1}
+  .hero{background:linear-gradient(135deg,#4c1d95,#6d28d9 60%,#8b5cf6);color:#fff;padding:26px 18px 22px;text-align:center}
+  .hero .badge{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:3px 13px;font-size:12px;margin-bottom:10px}
+  .hero h1{font-size:21px;font-weight:800;letter-spacing:-.3px} .hero p{font-size:13px;opacity:.92;margin-top:6px}
+  .tabs{position:sticky;top:0;z-index:50;display:flex;background:#2e1065;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;padding:13px 15px;min-height:44px;color:#ddd6fe;font-size:13.5px;font-weight:600;cursor:pointer;border:none;background:none;border-bottom:3px solid transparent;white-space:nowrap;transition:.15s}
+  .tab.active{color:#fff;border-bottom-color:#a78bfa} .tab:hover{color:#ede9fe}
+  .wrap{max-width:820px;margin:0 auto;padding:22px 16px 70px}
+  .page{display:none} .page.active{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .card h2{font-size:18px;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .card h3{font-size:15px;font-weight:700;margin:16px 0 8px;color:var(--blue-d)} .card p{font-size:14px;margin-bottom:8px} .lead{color:var(--sub);font-size:13px;margin-bottom:14px}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0} th,td{border:1px solid var(--line);padding:8px 9px;text-align:center} th{background:#f8fafc;font-weight:700} td.l,th.l{text-align:left}
+  .box{border-radius:10px;padding:13px 15px;margin:10px 0;font-size:13.5px}
+  .box.g{background:var(--green-bg);border:1px solid #bbf7d0} .box.a{background:var(--amber-bg);border:1px solid #fde68a} .box.b{background:var(--accent-bg);border:1px solid #ddd6fe}
+  .box .t{font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:6px} .box.g .t{color:var(--green)} .box.a .t{color:var(--amber)} .box.b .t{color:var(--accent)}
+  .hook{background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #ddd6fe;border-radius:12px;padding:16px 18px;margin:12px 0;font-size:14px}
+  .hook .ht{color:var(--accent);font-weight:800;font-size:15px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  .keeper{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fcd34d;border-radius:12px;padding:15px 17px;margin:12px 0}
+  .keeper .kt{color:#b45309;font-weight:800;font-size:14.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .keeper ol{margin:0;list-style:none} .keeper li{position:relative;padding:8px 0 8px 34px;font-size:13.5px;border-bottom:1px dashed #fde68a} .keeper li:last-child{border-bottom:none} .keeper li::before{content:"📌";position:absolute;left:4px;top:8px}
+  .insight{background:var(--purple-bg);border:1px solid #ddd6fe;border-radius:12px;padding:14px 16px;margin:12px 0;font-size:13.5px} .insight .it{color:var(--purple);font-weight:800;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+  .reallife{background:var(--green-bg);border:1px solid #bbf7d0;border-radius:12px;padding:14px 16px;margin:12px 0} .reallife .rt{color:var(--green);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:9px} .rcell{background:#fff;border:1px solid #bbf7d0;border-radius:9px;padding:10px} .rcell .ri{font-size:22px} .rcell .rn{font-weight:800;font-size:13px;margin:3px 0} .rcell .rd{font-size:11.5px;color:#475569;line-height:1.5}
+  .industry{background:#eef2ff;border:1px solid #c7d2fe;border-radius:12px;padding:14px 16px;margin:12px 0} .industry .indt{color:var(--indigo);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .indrow{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #e0e7ff} .indrow:last-child{border-bottom:none} .indrow .ii{font-size:24px;flex-shrink:0} .indrow .id2{font-size:13px} .indrow .id2 b{color:#312e81}
+  .major{display:inline-block;background:#312e81;color:#c7d2fe;border-radius:6px;padding:2px 8px;font-size:10.5px;font-weight:700;margin-top:4px}
+  .sci{display:flex;gap:13px;align-items:flex-start;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fde68a;border-radius:12px;padding:15px;margin:12px 0} .sci .ava{font-size:34px;line-height:1;flex-shrink:0} .sci .st{font-weight:800;color:#92400e;font-size:14px;margin-bottom:3px} .sci .sd{font-size:13px;color:#78350f}
+  .toc{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:8px}
+  .toc button{text-align:left;background:var(--accent-bg);border:1px solid #ddd6fe;border-radius:10px;padding:12px;cursor:pointer;font:inherit;transition:.15s;min-height:44px} .toc button:hover{border-color:var(--accent);box-shadow:0 2px 8px rgba(109,40,217,.14)}
+  .toc .ti{font-size:20px}.toc .tn{font-weight:800;font-size:13.5px;margin-top:4px}.toc .td{font-size:11.5px;color:var(--sub)}
+  /* discriminant toggle */
+  .dtog{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}
+  .dtog button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 13px;font:inherit;font-weight:700;font-size:12.5px;cursor:pointer;min-height:46px}
+  .dtog button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .dpanel{background:var(--accent-bg);border:1px solid #ddd6fe;border-radius:12px;padding:15px;margin:8px 0}
+  .dpanel .deq{text-align:center;font-size:16px;margin-bottom:8px} .dpanel .drow{font-size:13.5px;margin:4px 0} .dpanel .drow b{color:var(--accent)}
+  /* complex plane */
+  .cplane{width:100%;max-width:320px;display:block;margin:10px auto;background:#faf5ff;border:1px solid #ddd6fe;border-radius:12px}
+  .ccalc{display:grid;grid-template-columns:1fr;gap:9px;margin:10px 0}
+  .cop{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:#fff;cursor:pointer;font-size:14.5px}
+  .cop:hover{border-color:var(--accent);background:var(--accent-bg)} .cop .crhs{display:none;margin-top:6px;padding-top:6px;border-top:1px dashed var(--line);color:var(--blue-d)} .cop.show .crhs{display:block} .cop .ctap{font-size:11px;color:var(--sub);float:right}
+  /* quiz */
+  .quizhud{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:12px 16px;margin-bottom:14px} .quizhud .qn{font-weight:800;font-size:14px} .quizhud .sc{margin-left:auto;font-size:13px} .quizhud .sc b{color:#a78bfa;font-size:16px}
+  .qbar{flex-basis:100%;height:8px;background:#334155;border-radius:20px;overflow:hidden;margin-top:2px} .qbar > i{display:block;height:100%;background:linear-gradient(90deg,#a78bfa,#6d28d9)}
+  .qq{font-size:16px;font-weight:700;text-align:center;margin:10px 0 16px} .qopts{display:grid;gap:10px}
+  .qopt{border:2px solid var(--line);background:#fff;border-radius:12px;padding:14px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:.12s;min-height:52px} .qopt:hover{border-color:var(--accent)} .qopt.correct{background:var(--green-bg);border-color:#6ee7b7;color:#065f46} .qopt.wrong{background:var(--red-bg);border-color:#fecaca;color:#991b1b} .qopt.dim{opacity:.5}
+  .qexp{display:none;margin-top:14px;background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:13px 15px;font-size:13.5px} .qexp.show{display:block;animation:fade .2s ease}.qexp .et{font-weight:800;margin-bottom:4px}
+  .qnext{display:none;margin-top:14px;width:100%;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:13px;font:inherit;font-weight:800;font-size:14px;cursor:pointer;min-height:48px} .qnext.show{display:block}
+  .qdone{text-align:center;padding:10px 0}.qdone .big{font-size:40px;font-weight:800;color:var(--accent)}
+  .btn{display:inline-block;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px 18px;font:inherit;font-weight:700;font-size:13.5px;cursor:pointer;text-decoration:none;min-height:44px}
+  .chk{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px} .chk:last-child{border-bottom:none} .chk input{margin-top:4px;width:17px;height:17px;flex-shrink:0;accent-color:var(--accent)}
+  .tag{display:inline-block;background:var(--accent-bg);color:var(--accent);border:1px solid #ddd6fe;border-radius:6px;padding:2px 9px;font-size:11.5px;font-weight:700;margin:3px 4px 0 0}
+  @media (max-width:640px){ .hero h1{font-size:19px} .card{padding:16px} }
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Math_1_1</a><span>&rsaquo;</span><a href="mat1_hub.html">공통수학1</a><span>&rsaquo;</span><a class="cur" href="#">복소수·이차방정식</a></nav>
+<div class="hero">
+  <span class="badge">Ⅱ. 방정식과 부등식 · 복소수와 이차방정식</span>
+  <h1>🔢 복소수와 이차방정식</h1>
+  <p>"상상의 수"가 여는 수의 완성</p>
+</div>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="intro">📋 개요</button>
+  <button class="tab" data-t="cx">🔢 복소수</button>
+  <button class="tab" data-t="quad">📐 이차방정식·판별식</button>
+  <button class="tab" data-t="vieta">🔗 근과 계수</button>
+  <button class="tab" data-t="world">🌐 세상 속으로</button>
+  <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="sum">✅ 정리</button>
+</div>
+<div class="wrap">
+
+  <div class="page active" data-p="intro">
+    <div class="card">
+      <h2>📋 없는 수를 만들다</h2>
+      <div class="hook">
+        <div class="ht">💥 왜 배우나</div>
+        $x^2 = -1$ 을 만족하는 실수는 없다. 그래서 수학자들은 $i^2 = -1$ 인 <b>상상의 수(허수)</b> $i$ 를 발명했다. 황당해 보이는 이 수가 <b>전기·신호처리·양자역학</b>의 필수 언어가 됐다 — 상상이 현실을 움직인다.
+      </div>
+      <div class="sci">
+        <div class="ava">🃏</div>
+        <div>
+          <div class="st">카르다노 · 봄벨리 (16세기) — 허수의 등장</div>
+          <div class="sd">삼차방정식을 풀던 카르다노는 계산 도중 <b>음수의 제곱근</b>을 마주쳤다. 처음엔 "쓸모없다"며 꺼렸지만, 봄벨리가 그 계산 규칙을 정리하면서 <b>복소수</b>가 수학의 정식 구성원이 되었다.</div>
+        </div>
+      </div>
+      <div class="toc">
+        <button onclick="go('cx')"><div class="ti">🔢</div><div class="tn">복소수</div><div class="td">i·연산·켤레</div></button>
+        <button onclick="go('quad')"><div class="ti">📐</div><div class="tn">이차방정식·판별식</div><div class="td">근의 공식·D</div></button>
+        <button onclick="go('vieta')"><div class="ti">🔗</div><div class="tn">근과 계수</div><div class="td">합·곱</div></button>
+        <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">전기·양자</div></button>
+        <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+        <button onclick="go('sum')"><div class="ti">✅</div><div class="tn">정리</div><div class="td">공식·자가점검</div></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="cx">
+    <div class="card">
+      <h2>🔢 복소수</h2>
+      <div class="box g">
+        <div class="t">✅ 허수단위와 복소수</div>
+        <b>허수단위</b>: $i = \sqrt{-1}$, 즉 $i^2 = -1$. <br>
+        <b>복소수</b>: $a + bi$ ($a, b$ 는 실수). $a$ = 실수부, $b$ = 허수부. ($b=0$ 이면 실수, $a=0, b\ne 0$ 이면 순허수.)
+      </div>
+      <p style="font-size:12.5px;color:var(--sub)">복소수는 좌표평면처럼 <b>복소평면</b>에 점으로 나타낼 수 있다(가로=실수부, 세로=허수부).</p>
+      <svg class="cplane" id="cplane" viewBox="0 0 240 240" role="img" aria-label="복소평면"></svg>
+      <h3>복소수의 연산 (눌러서 계산)</h3>
+      <div class="ccalc" id="ccalc"></div>
+      <div class="box b">
+        <div class="t">🔑 켤레복소수</div>
+        $a+bi$ 의 <b>켤레</b>는 $a-bi$ (허수부 부호만 바꿈). 켤레끼리 곱하면 실수: $(a+bi)(a-bi) = a^2 + b^2$. 분모의 허수를 없앨 때 쓴다.
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="quad">
+    <div class="card">
+      <h2>📐 이차방정식과 판별식</h2>
+      <div class="box g">
+        <div class="t">✅ 근의 공식</div>
+        $ax^2 + bx + c = 0$ ($a \ne 0$) 의 근: $$x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$$
+      </div>
+      <h3>판별식 $D = b^2 - 4ac$ 로 근을 판별</h3>
+      <p class="lead">근의 공식 속 $\sqrt{\ }$ 안의 값 $D = b^2 - 4ac$ 만 봐도 근의 개수·종류를 알 수 있다. 버튼을 눌러 비교하자.</p>
+      <div class="dtog" id="dtog">
+        <button class="on" data-d="pos">D &gt; 0</button>
+        <button data-d="zero">D = 0</button>
+        <button data-d="neg">D &lt; 0</button>
+      </div>
+      <div class="dpanel" id="dpanel"></div>
+      <table>
+        <tr><th>판별식</th><th>근</th></tr>
+        <tr><td>$D &gt; 0$</td><td>서로 다른 두 실근</td></tr>
+        <tr><td>$D = 0$</td><td>중근(서로 같은 두 실근)</td></tr>
+        <tr><td>$D &lt; 0$</td><td>서로 다른 두 허근</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="page" data-p="vieta">
+    <div class="card">
+      <h2>🔗 근과 계수의 관계</h2>
+      <div class="box g">
+        <div class="t">✅ 두 근의 합과 곱</div>
+        $ax^2 + bx + c = 0$ 의 두 근을 $\alpha, \beta$ 라 하면
+        $$\alpha + \beta = -\frac{b}{a}, \qquad \alpha\beta = \frac{c}{a}$$
+        근을 직접 구하지 않고도 <b>합과 곱</b>을 바로 안다.
+      </div>
+      <div class="box b">
+        <div class="t">🔎 예: $x^2 - 5x + 6 = 0$</div>
+        $a=1, b=-5, c=6$ → 합 $\alpha+\beta = -\frac{-5}{1} = 5$, 곱 $\alpha\beta = \frac{6}{1} = 6$.<br>
+        실제 근은 $x=2, 3$ → 합 $2+3=5$ ✓, 곱 $2\times 3 = 6$ ✓.
+      </div>
+      <div class="box a">
+        <div class="t">💡 활용</div>
+        두 근을 알면 방정식을 <b>거꾸로</b> 만들 수도 있다: 합이 $s$, 곱이 $p$ 인 두 근을 갖는 이차방정식은 $x^2 - sx + p = 0$.
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="world">
+    <div class="card">
+      <h2>🌐 세상 속으로</h2>
+      <div class="keeper">
+        <div class="kt">📌 어른이 되어도 기억할 것</div>
+        <ol>
+          <li><b>$i^2 = -1$.</b> 허수 $i$ 로 모든 이차방정식이 (복소수 범위에서) 풀린다.</li>
+          <li><b>판별식 $D = b^2 - 4ac$</b>: $D&gt;0$ 두 실근, $D=0$ 중근, $D&lt;0$ 두 허근.</li>
+          <li><b>근과 계수</b>: 두 근의 합 $=-\frac{b}{a}$, 곱 $=\frac{c}{a}$. 근을 안 구하고도 안다.</li>
+        </ol>
+      </div>
+      <div class="insight">
+        <div class="it">💡 인사이트 — 판별식은 그래프로 보인다</div>
+        판별식 $D$ 는 이차함수 $y = ax^2+bx+c$ 의 그래프가 <b>x축과 몇 번 만나는지</b>를 알려준다: $D&gt;0$ 두 번, $D=0$ 한 번(접함), $D&lt;0$ 안 만남. 그래서 다음 단원 <b>이차함수</b>와 곧바로 이어진다.
+      </div>
+      <div class="reallife">
+        <div class="rt">🏠 복소수가 일하는 곳</div>
+        <div class="rgrid">
+          <div class="rcell"><div class="ri">⚡</div><div class="rn">전기(교류)</div><div class="rd">임피던스 = 복소수</div></div>
+          <div class="rcell"><div class="ri">📶</div><div class="rn">신호처리</div><div class="rd">푸리에 변환</div></div>
+          <div class="rcell"><div class="ri">⚛️</div><div class="rn">양자역학</div><div class="rd">파동함수(복소수)</div></div>
+          <div class="rcell"><div class="ri">🎛️</div><div class="rn">제어·진동</div><div class="rd">안정성 판별</div></div>
+        </div>
+      </div>
+      <div class="industry">
+        <div class="indt">🏭 산업과 직업</div>
+        <div class="indrow"><div class="ii">⚡</div><div class="id2"><b>전기·전자공학</b><br>교류 회로·신호를 복소수로 계산(임피던스·위상).<br><span class="major">🎓 전기전자 · 통신</span></div></div>
+        <div class="indrow"><div class="ii">📡</div><div class="id2"><b>신호·영상 처리</b><br>소리·영상·통신을 주파수(복소수)로 분석.<br><span class="major">🎓 정보통신 · 데이터 · 수학</span></div></div>
+        <div class="indrow"><div class="ii">⚛️</div><div class="id2"><b>물리·양자</b><br>양자역학의 상태가 복소수로 기술된다.<br><span class="major">🎓 물리학 · 응용수학</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="quiz">
+    <div class="card">
+      <h2>🔥 복소수·이차방정식 퀴즈</h2>
+      <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
+      <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="sum">
+    <div class="card">
+      <h2>✅ 정리</h2>
+      <table>
+        <tr><th class="l">핵심</th></tr>
+        <tr><td class="l">$i^2 = -1$, 복소수 $a+bi$, 켤레 $a-bi$</td></tr>
+        <tr><td class="l">근의 공식 $x = \dfrac{-b \pm \sqrt{b^2-4ac}}{2a}$</td></tr>
+        <tr><td class="l">판별식 $D=b^2-4ac$: $+$ 두 실근 / $0$ 중근 / $-$ 두 허근</td></tr>
+        <tr><td class="l">근과 계수: $\alpha+\beta=-\dfrac{b}{a}$, $\alpha\beta=\dfrac{c}{a}$</td></tr>
+      </table>
+      <div class="box b">
+        <div class="t">🔑 한 줄 요약</div>
+        허수 $i$ 로 수를 완성하고, <b>판별식</b>으로 근의 종류를, <b>근과 계수의 관계</b>로 합·곱을 파악한다.
+      </div>
+      <h3>자가 점검</h3>
+      <div class="chk"><input type="checkbox" id="c1"><label for="c1">i²=−1과 복소수의 사칙연산을 할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c2"><label for="c2">근의 공식으로 이차방정식을 풀 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c3"><label for="c3">판별식으로 근의 개수·종류를 판별한다</label></div>
+      <div class="chk"><input type="checkbox" id="c4"><label for="c4">근과 계수의 관계(합·곱)를 활용한다</label></div>
+      <h3>약점 태그</h3>
+      <div><span class="tag">수학:복소수</span><span class="tag">수학:이차방정식</span><span class="tag">수학:판별식</span><span class="tag">수학:근과계수</span></div>
+      <div class="box g" style="margin-top:16px">
+        <div class="t">➡️ 다음 단원</div>
+        판별식은 그래프로 보인다 → <b>이차함수와 이차방정식·부등식</b>(제작 예정)으로. <a href="mat1_hub.html">공통수학1 허브</a>로.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function go(t){var tab=document.querySelector('.tab[data-t="'+t+'"]');if(tab)tab.click();}
+document.getElementById('tabs').addEventListener('click',function(e){
+  var b=e.target.closest('.tab'); if(!b)return;
+  document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active')});
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
+  b.classList.add('active'); var pg=document.querySelector('.page[data-p="'+b.dataset.t+'"]'); if(pg)pg.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+/* 복소평면 SVG (2+3i, 3-2i, -2+i 예시) */
+(function drawCplane(){
+  var svg=document.getElementById('cplane'); if(!svg)return; var c=120, u=24;
+  var s='<line x1="10" y1="120" x2="230" y2="120" stroke="#a78bfa" stroke-width="1.5"/><line x1="120" y1="10" x2="120" y2="230" stroke="#a78bfa" stroke-width="1.5"/>';
+  s+='<text x="224" y="134" font-size="10" fill="#7c3aed">실수부</text><text x="126" y="18" font-size="10" fill="#7c3aed">허수부</text>';
+  var pts=[[2,3,'2+3i','#6d28d9'],[3,-2,'3−2i','#2563eb'],[-2,1,'−2+i','#16a34a']];
+  pts.forEach(function(p){var x=c+p[0]*u, y=c-p[1]*u; s+='<circle cx="'+x+'" cy="'+y+'" r="5" fill="'+p[3]+'"/><text x="'+(x+7)+'" y="'+(y-5)+'" font-size="11" font-weight="700" fill="'+p[3]+'">'+p[2]+'</text>';});
+  svg.innerHTML=s;
+})();
+
+/* 복소수 연산 카드 (KaTeX auto-render가 처리) */
+var COPS=[
+ ['$(2+3i) + (1-i)$','$= (2+1) + (3-1)i = 3 + 2i$'],
+ ['$(2+3i) - (1-i)$','$= (2-1) + (3+1)i = 1 + 4i$'],
+ ['$(2+3i)(1-i)$','$= 2 -2i +3i -3i^2 = 2 + i - 3(-1) = 5 + i$'],
+ ['$(2+3i)(2-3i)$','$= 2^2 + 3^2 = 13$ (켤레의 곱 = 실수)']
+];
+(function buildC(){
+  var el=document.getElementById('ccalc'); var s='';
+  COPS.forEach(function(o){ s+='<div class="cop"><span class="ctap">눌러서 계산 ▾</span><div>'+o[0]+'</div><div class="crhs">'+o[1]+'</div></div>'; });
+  el.innerHTML=s;
+  el.addEventListener('click',function(e){var c=e.target.closest('.cop'); if(!c)return; c.classList.toggle('show');});
+})();
+
+/* 판별식 토글 */
+var DISC={
+ pos:{eq:'x² − 5x + 6 = 0',d:'D = (−5)² − 4·1·6 = 25 − 24 = 1',dv:'D = 1 &gt; 0',res:'서로 다른 두 실근',root:'x = 2, 3'},
+ zero:{eq:'x² − 4x + 4 = 0',d:'D = (−4)² − 4·1·4 = 16 − 16 = 0',dv:'D = 0',res:'중근(두 근이 같음)',root:'x = 2 (중근)'},
+ neg:{eq:'x² + x + 1 = 0',d:'D = 1² − 4·1·1 = 1 − 4 = −3',dv:'D = −3 &lt; 0',res:'서로 다른 두 허근',root:'x = (−1 ± √3·i) / 2'}
+};
+function selD(k){
+  var d=DISC[k];
+  document.getElementById('dpanel').innerHTML='<div class="deq">'+d.eq+'</div>'+
+    '<div class="drow">판별식: '+d.d+' → <b>'+d.dv+'</b></div>'+
+    '<div class="drow">근의 종류: <b>'+d.res+'</b></div>'+
+    '<div class="drow">근: '+d.root+'</div>';
+}
+document.getElementById('dtog').addEventListener('click',function(e){
+  var b=e.target.closest('button'); if(!b)return; this.querySelectorAll('button').forEach(function(x){x.classList.remove('on')}); b.classList.add('on'); selD(b.dataset.d);
+});
+
+/* 퀴즈 (유니코드 수식) */
+var QUIZ=[
+ {q:'허수단위 i에 대해 i² 의 값은?',o:['−1','1','0','i'],a:0,e:'i = √(−1) 이므로 i² = −1.'},
+ {q:'복소수 3+2i 에서 허수부는?',o:['2','3','2i','5'],a:0,e:'a+bi 에서 허수부는 b. 3+2i 의 허수부 = 2.'},
+ {q:'(2+3i) + (1−i) 를 계산하면?',o:['3+2i','3+4i','1+2i','2+3i'],a:0,e:'실수부 2+1=3, 허수부 3−1=2 → 3+2i.'},
+ {q:'2+3i 의 켤레복소수는?',o:['2−3i','−2+3i','2+3i','3+2i'],a:0,e:'켤레는 허수부 부호만 바꿈 → 2−3i.'},
+ {q:'이차방정식 판별식 D = b²−4ac 이 D>0 이면 근은?',o:['서로 다른 두 실근','중근','두 허근','근 없음'],a:0,e:'D>0: 서로 다른 두 실근. D=0 중근, D<0 두 허근.'},
+ {q:'x²−4x+4=0 의 판별식 D는? (근의 종류는?)',o:['0, 중근','1, 두 실근','−4, 두 허근','16, 두 실근'],a:0,e:'D=16−16=0 → 중근(x=2).'},
+ {q:'x²+x+1=0 의 근은 어떤 종류인가? (D 계산)',o:['서로 다른 두 허근','두 실근','중근','근 없음'],a:0,e:'D=1−4=−3<0 → 서로 다른 두 허근.'},
+ {q:'x²−5x+6=0 의 두 근의 합은? (근과 계수)',o:['5','−5','6','1'],a:0,e:'합 = −b/a = −(−5)/1 = 5. (근 2,3의 합 5)'},
+ {q:'x²−5x+6=0 의 두 근의 곱은?',o:['6','−6','5','1'],a:0,e:'곱 = c/a = 6/1 = 6. (근 2,3의 곱 6)'},
+ {q:'합이 7, 곱이 12인 두 근을 갖는 이차방정식은?',o:['x²−7x+12=0','x²+7x+12=0','x²−12x+7=0','x²+7x−12=0'],a:0,e:'x²−(합)x+(곱)=0 → x²−7x+12=0. (근 3,4)'}
+];
+var qi=0,qscore=0,qans=false;
+function renderQ(){
+  qans=false; var q=QUIZ[qi];
+  document.getElementById('qNum').textContent='문제 '+(qi+1)+' / '+QUIZ.length;
+  document.getElementById('qScore').textContent=qscore; document.getElementById('qBar').style.width=(qi/QUIZ.length*100)+'%';
+  document.getElementById('qQ').textContent=q.q;
+  var opts=document.getElementById('qOpts'); opts.innerHTML='';
+  q.o.forEach(function(txt,idx){var b=document.createElement('button'); b.className='qopt'; b.textContent=txt; b.addEventListener('click',function(){pick(idx,b);}); opts.appendChild(b);});
+  document.getElementById('qExp').className='qexp'; document.getElementById('qExp').innerHTML=''; document.getElementById('qNext').className='qnext';
+}
+function pick(idx,btn){
+  if(qans)return; qans=true; var q=QUIZ[qi];
+  document.querySelectorAll('#qOpts .qopt').forEach(function(b,i){if(i===q.a)b.classList.add('correct');else if(b===btn)b.classList.add('wrong');else b.classList.add('dim');});
+  var ok=(idx===q.a); if(ok)qscore++; document.getElementById('qScore').textContent=qscore;
+  var ex=document.getElementById('qExp'); ex.innerHTML='<div class="et">'+(ok?'⭕ 정답!':'❌ 오답')+'</div>'+q.e; ex.className='qexp show';
+  document.getElementById('qNext').className='qnext show';
+}
+document.getElementById('qNext').addEventListener('click',function(){qi++; if(qi>=QUIZ.length){finishQuiz();return;} renderQ();});
+function finishQuiz(){
+  document.getElementById('qBar').style.width='100%'; document.getElementById('qNum').textContent='완료 ✓';
+  var pct=Math.round(qscore/QUIZ.length*100);
+  var msg=pct>=90?'완벽해요! 복소수·판별식을 잡았어요.':pct>=70?'잘했어요! 틀린 것만 다시 보면 완성.':'개념 탭을 한 번 더 보고 재도전해요.';
+  document.getElementById('qArea').innerHTML='<div class="qdone"><div class="big">'+qscore+' / '+QUIZ.length+'</div><p style="margin:8px 0 4px;font-size:15px">정답률 '+pct+'%</p><p style="color:#64748b;font-size:13px;margin-bottom:16px">'+msg+'</p><button class="btn" onclick="restartQuiz()">↺ 다시 풀기</button></div>';
+}
+function restartQuiz(){
+  qi=0;qscore=0;
+  document.getElementById('qArea').innerHTML='<div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button>';
+  document.getElementById('qNext').addEventListener('click',function(){qi++;if(qi>=QUIZ.length){finishQuiz();return;}renderQ();});
+  renderQ();
+}
+
+/* init */
+QUIZ.forEach(function(q){var correct=q.o[q.a];for(var i=q.o.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=q.o[i];q.o[i]=q.o[j];q.o[j]=t;}q.a=q.o.indexOf(correct);});
+selD('pos');
+renderQ();
+</script>
+</body>
+</html>

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>행렬의 뜻과 연산 — 공통수학1</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
+<style>
+  :root{
+    --panel:#fff; --ink:#1e293b; --sub:#64748b; --line:#e2e8f0;
+    --blue:#2563eb; --blue-d:#1e40af; --green:#16a34a; --green-bg:#f0fdf4;
+    --amber:#d97706; --amber-bg:#fffbeb; --red:#dc2626; --red-bg:#fef2f2;
+    --purple:#7c3aed; --purple-bg:#f5f3ff; --indigo:#4f46e5; --accent:#b45309; --accent-bg:#fffbeb;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',sans-serif;background:#f1f5f9;color:var(--ink);line-height:1.7;-webkit-text-size-adjust:100%}
+  a{color:var(--blue)}
+  .crumb{background:#f8fafc;border-bottom:1px solid var(--line);padding:7px 16px;font-size:12px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+  .crumb a{color:var(--sub);text-decoration:none} .crumb a.cur{color:var(--blue);font-weight:600} .crumb span{color:#cbd5e1}
+  .hero{background:linear-gradient(135deg,#451a03,#b45309 60%,#f59e0b);color:#fff;padding:26px 18px 22px;text-align:center}
+  .hero .badge{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:3px 13px;font-size:12px;margin-bottom:10px}
+  .hero h1{font-size:21px;font-weight:800;letter-spacing:-.3px} .hero p{font-size:13px;opacity:.92;margin-top:6px}
+  .tabs{position:sticky;top:0;z-index:50;display:flex;background:#451a03;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;padding:13px 15px;min-height:44px;color:#fed7aa;font-size:13.5px;font-weight:600;cursor:pointer;border:none;background:none;border-bottom:3px solid transparent;white-space:nowrap;transition:.15s}
+  .tab.active{color:#fff;border-bottom-color:#fbbf24} .tab:hover{color:#ffedd5}
+  .wrap{max-width:820px;margin:0 auto;padding:22px 16px 70px}
+  .page{display:none} .page.active{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .card h2{font-size:18px;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .card h3{font-size:15px;font-weight:700;margin:16px 0 8px;color:var(--blue-d)} .card p{font-size:14px;margin-bottom:8px} .lead{color:var(--sub);font-size:13px;margin-bottom:14px}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0} th,td{border:1px solid var(--line);padding:8px 9px;text-align:center} th{background:#f8fafc;font-weight:700} td.l,th.l{text-align:left}
+  .box{border-radius:10px;padding:13px 15px;margin:10px 0;font-size:13.5px}
+  .box.g{background:var(--green-bg);border:1px solid #bbf7d0} .box.a{background:var(--amber-bg);border:1px solid #fde68a} .box.b{background:#eff6ff;border:1px solid #bfdbfe}
+  .box .t{font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:6px} .box.g .t{color:var(--green)} .box.a .t{color:var(--amber)} .box.b .t{color:var(--blue-d)}
+  .hook{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fde68a;border-radius:12px;padding:16px 18px;margin:12px 0;font-size:14px}
+  .hook .ht{color:var(--accent);font-weight:800;font-size:15px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  .keeper{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fcd34d;border-radius:12px;padding:15px 17px;margin:12px 0}
+  .keeper .kt{color:#b45309;font-weight:800;font-size:14.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .keeper ol{margin:0;list-style:none} .keeper li{position:relative;padding:8px 0 8px 34px;font-size:13.5px;border-bottom:1px dashed #fde68a} .keeper li:last-child{border-bottom:none} .keeper li::before{content:"📌";position:absolute;left:4px;top:8px}
+  .insight{background:var(--purple-bg);border:1px solid #ddd6fe;border-radius:12px;padding:14px 16px;margin:12px 0;font-size:13.5px} .insight .it{color:var(--purple);font-weight:800;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+  .reallife{background:var(--green-bg);border:1px solid #bbf7d0;border-radius:12px;padding:14px 16px;margin:12px 0} .reallife .rt{color:var(--green);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:9px} .rcell{background:#fff;border:1px solid #bbf7d0;border-radius:9px;padding:10px} .rcell .ri{font-size:22px} .rcell .rn{font-weight:800;font-size:13px;margin:3px 0} .rcell .rd{font-size:11.5px;color:#475569;line-height:1.5}
+  .industry{background:#eef2ff;border:1px solid #c7d2fe;border-radius:12px;padding:14px 16px;margin:12px 0} .industry .indt{color:var(--indigo);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .indrow{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #e0e7ff} .indrow:last-child{border-bottom:none} .indrow .ii{font-size:24px;flex-shrink:0} .indrow .id2{font-size:13px} .indrow .id2 b{color:#312e81}
+  .major{display:inline-block;background:#312e81;color:#c7d2fe;border-radius:6px;padding:2px 8px;font-size:10.5px;font-weight:700;margin-top:4px}
+  .sci{display:flex;gap:13px;align-items:flex-start;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fde68a;border-radius:12px;padding:15px;margin:12px 0} .sci .ava{font-size:34px;line-height:1;flex-shrink:0} .sci .st{font-weight:800;color:#92400e;font-size:14px;margin-bottom:3px} .sci .sd{font-size:13px;color:#78350f}
+  .toc{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:8px}
+  .toc button{text-align:left;background:var(--accent-bg);border:1px solid #fde68a;border-radius:10px;padding:12px;cursor:pointer;font:inherit;transition:.15s;min-height:44px} .toc button:hover{border-color:var(--accent);box-shadow:0 2px 8px rgba(180,83,9,.14)}
+  .toc .ti{font-size:20px}.toc .tn{font-weight:800;font-size:13.5px;margin-top:4px}.toc .td{font-size:11.5px;color:var(--sub)}
+  /* matrices */
+  .mrow{display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;margin:12px 0}
+  .mat{display:inline-grid;grid-template-columns:repeat(2,minmax(34px,1fr));gap:4px;padding:8px 6px;border-left:3px solid #334155;border-right:3px solid #334155;border-radius:4px;background:#fff}
+  .mat .cell{width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;font-family:ui-monospace,Menlo,Consolas,monospace;background:#f8fafc;border-radius:6px;transition:.12s}
+  .mat.res .cell{cursor:pointer;background:#fffbeb;border:1px solid #fde68a}
+  .mat.res .cell:hover{border-color:var(--accent)} .mat.res .cell.sel{background:var(--accent);color:#fff}
+  .cell.rowhi{background:#dbeafe} .cell.colhi{background:#dcfce7}
+  .mlab{font-size:20px;font-weight:800;color:var(--accent)}
+  .mtoggle{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:8px 0}
+  .mtoggle button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 14px;font:inherit;font-weight:700;font-size:13px;cursor:pointer;min-height:46px}
+  .mtoggle button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .mcompute{text-align:center;font-size:13.5px;color:#475569;margin-top:8px;min-height:24px}
+  /* quiz */
+  .quizhud{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:12px 16px;margin-bottom:14px} .quizhud .qn{font-weight:800;font-size:14px} .quizhud .sc{margin-left:auto;font-size:13px} .quizhud .sc b{color:#fbbf24;font-size:16px}
+  .qbar{flex-basis:100%;height:8px;background:#334155;border-radius:20px;overflow:hidden;margin-top:2px} .qbar > i{display:block;height:100%;background:linear-gradient(90deg,#fbbf24,#b45309)}
+  .qq{font-size:16px;font-weight:700;text-align:center;margin:10px 0 16px} .qopts{display:grid;gap:10px}
+  .qopt{border:2px solid var(--line);background:#fff;border-radius:12px;padding:14px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:.12s;min-height:52px} .qopt:hover{border-color:var(--accent)} .qopt.correct{background:var(--green-bg);border-color:#6ee7b7;color:#065f46} .qopt.wrong{background:var(--red-bg);border-color:#fecaca;color:#991b1b} .qopt.dim{opacity:.5}
+  .qexp{display:none;margin-top:14px;background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:13px 15px;font-size:13.5px} .qexp.show{display:block;animation:fade .2s ease}.qexp .et{font-weight:800;margin-bottom:4px}
+  .qnext{display:none;margin-top:14px;width:100%;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:13px;font:inherit;font-weight:800;font-size:14px;cursor:pointer;min-height:48px} .qnext.show{display:block}
+  .qdone{text-align:center;padding:10px 0}.qdone .big{font-size:40px;font-weight:800;color:var(--accent)}
+  .btn{display:inline-block;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px 18px;font:inherit;font-weight:700;font-size:13.5px;cursor:pointer;text-decoration:none;min-height:44px}
+  .chk{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px} .chk:last-child{border-bottom:none} .chk input{margin-top:4px;width:17px;height:17px;flex-shrink:0;accent-color:var(--accent)}
+  .tag{display:inline-block;background:var(--accent-bg);color:var(--accent);border:1px solid #fde68a;border-radius:6px;padding:2px 9px;font-size:11.5px;font-weight:700;margin:3px 4px 0 0}
+  @media (max-width:640px){ .hero h1{font-size:19px} .card{padding:16px} }
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Math_1_1</a><span>&rsaquo;</span><a href="mat1_hub.html">공통수학1</a><span>&rsaquo;</span><a class="cur" href="#">행렬</a></nav>
+<div class="hero">
+  <span class="badge">Ⅳ. 행렬 · 행렬의 뜻과 연산 (2022 개정 신설)</span>
+  <h1>🔲 행렬의 뜻과 연산</h1>
+  <p>수를 네모로 배열해 세상을 계산한다</p>
+</div>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="intro">📋 개요</button>
+  <button class="tab" data-t="what">🔲 행렬이란</button>
+  <button class="tab" data-t="add">➕ 덧셈·실수배</button>
+  <button class="tab" data-t="mul">✖️ 곱셈</button>
+  <button class="tab" data-t="world">🌐 세상 속으로</button>
+  <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="sum">✅ 정리</button>
+</div>
+<div class="wrap">
+
+  <div class="page active" data-p="intro">
+    <div class="card">
+      <h2>📋 네모 속 숫자의 힘</h2>
+      <div class="hook">
+        <div class="ht">💥 왜 배우나</div>
+        스프레드시트, 컴퓨터 그래픽, 검색엔진, <b>AI(딥러닝)</b> — 이 모든 것이 <b>행렬</b>로 계산된다. 수를 직사각형으로 배열했을 뿐인데, 여러 데이터를 <b>한꺼번에</b> 다루는 강력한 도구가 된다.
+      </div>
+      <div class="sci">
+        <div class="ava">🔢</div>
+        <div>
+          <div class="st">케일리 (Cayley, 19세기) — 행렬 대수</div>
+          <div class="sd">아서 케일리는 행렬의 덧셈·곱셈 같은 <b>연산 규칙</b>을 세워 행렬을 하나의 "수처럼" 다루는 <b>행렬 대수</b>를 만들었다. 당시엔 순수 이론이었지만, 오늘날 <b>AI·그래픽·데이터</b>의 심장이 되었다.</div>
+        </div>
+      </div>
+      <div class="toc">
+        <button onclick="go('what')"><div class="ti">🔲</div><div class="tn">행렬이란</div><div class="td">행·열·성분</div></button>
+        <button onclick="go('add')"><div class="ti">➕</div><div class="tn">덧셈·실수배</div><div class="td">대응 성분</div></button>
+        <button onclick="go('mul')"><div class="ti">✖️</div><div class="tn">곱셈</div><div class="td">행×열 하이라이트</div></button>
+        <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">AI·그래픽</div></button>
+        <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+        <button onclick="go('sum')"><div class="ti">✅</div><div class="tn">정리</div><div class="td">자가점검</div></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="what">
+    <div class="card">
+      <h2>🔲 행렬이란</h2>
+      <div class="box g">
+        <div class="t">✅ 행렬의 뜻</div>
+        수를 직사각형 모양으로 배열한 것. 가로줄이 <b>행</b>, 세로줄이 <b>열</b>. $m$ 개의 행과 $n$ 개의 열이면 <b>$m \times n$ 행렬</b>이라 한다.<br>
+        $i$ 행 $j$ 열의 수를 <b>$(i,\,j)$ 성분</b> $a_{ij}$ 라 한다.
+      </div>
+      <div class="mrow">
+        <div class="mat"><div class="cell">1</div><div class="cell">2</div><div class="cell">3</div><div class="cell">4</div></div>
+      </div>
+      <p style="text-align:center;font-size:12.5px;color:var(--sub)">이것은 $2 \times 2$ 행렬. $(1,1)$ 성분 = 1, $(2,1)$ 성분 = 3.</p>
+      <div class="box b">
+        <div class="t">🔑 행렬이 같다는 것</div>
+        두 행렬이 <b>같다</b> = ① 행과 열의 개수(꼴)가 같고 ② <b>대응하는 성분이 모두 같다</b>. 하나라도 다르면 다른 행렬.
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="add">
+    <div class="card">
+      <h2>➕ 덧셈·뺄셈·실수배</h2>
+      <p class="lead"><b>같은 꼴</b>의 행렬끼리 <b>대응하는 성분끼리</b> 더하거나 뺀다. 실수배는 모든 성분에 그 수를 곱한다. 연산을 골라 결과를 보자.</p>
+      <div class="mrow">
+        <div class="mat" id="matA"></div>
+        <span class="mlab" id="opLab">+</span>
+        <div class="mat" id="matB2"></div>
+        <span class="mlab">=</span>
+        <div class="mat" id="matAdd"></div>
+      </div>
+      <div class="mtoggle" id="addTog">
+        <button class="on" data-o="add">A + B</button>
+        <button data-o="sub">A − B</button>
+        <button data-o="scal">2A</button>
+      </div>
+      <div class="box a">
+        <div class="t">⚠️ 조건</div>
+        덧셈·뺄셈은 <b>꼴이 같아야만</b> 가능하다($2\times2$ 와 $2\times2$). 꼴이 다르면 더할 수 없다.
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="mul">
+    <div class="card">
+      <h2>✖️ 행렬의 곱셈</h2>
+      <div class="box g">
+        <div class="t">✅ 곱셈 = 행 × 열</div>
+        $AB$ 의 $(i,j)$ 성분 = $A$ 의 <b>$i$ 행</b>과 $B$ 의 <b>$j$ 열</b>을 <b>대응끼리 곱해 더한</b> 값.<br>
+        곱셈이 되려면 <b>앞 행렬의 열 수 = 뒤 행렬의 행 수</b> 여야 한다.
+      </div>
+      <p class="lead">아래 결과 행렬의 <b>칸을 눌러</b> 그 값이 어떤 행 × 어떤 열로 나오는지 확인하자.</p>
+      <div class="mrow">
+        <div class="mat" id="mulA"></div>
+        <span class="mlab">×</span>
+        <div class="mat" id="mulB"></div>
+        <span class="mlab">=</span>
+        <div class="mat res" id="mulRes"></div>
+      </div>
+      <div class="mcompute" id="mulComp">결과 칸을 눌러 보세요 👆</div>
+      <div class="box a">
+        <div class="t">⚠️ AB ≠ BA</div>
+        행렬 곱셈은 <b>교환법칙이 성립하지 않는다</b>. 즉 $AB$ 와 $BA$ 는 일반적으로 <b>다르다</b> (순서를 바꾸면 결과가 달라짐). 이것이 보통 수의 곱셈과 크게 다른 점.
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="world">
+    <div class="card">
+      <h2>🌐 세상 속으로</h2>
+      <div class="keeper">
+        <div class="kt">📌 어른이 되어도 기억할 것</div>
+        <ol>
+          <li>행렬은 수를 직사각형으로 배열한 것 — <b>$m$ 행 $n$ 열 = $m \times n$ 행렬</b>.</li>
+          <li>덧셈·뺄셈은 <b>같은 꼴끼리 대응 성분</b>으로, 곱셈은 <b>행 × 열</b>로.</li>
+          <li>행렬 곱셈은 <b>$AB \ne BA$</b> — 순서가 중요하다.</li>
+        </ol>
+      </div>
+      <div class="insight">
+        <div class="it">💡 인사이트 — AI의 심장은 행렬 곱</div>
+        <b>딥러닝(신경망)</b>의 핵심 계산이 바로 <b>거대한 행렬의 곱</b>이다. 이미지·언어·추천이 전부 행렬 연산으로 처리된다. GPU가 AI에 강한 이유도 <b>행렬 곱을 엄청 빠르게</b> 하기 때문. 데이터·AI로 가려면 행렬은 <b>필수 언어</b>다.
+      </div>
+      <div class="reallife">
+        <div class="rt">🏠 행렬이 일하는 곳</div>
+        <div class="rgrid">
+          <div class="rcell"><div class="ri">📊</div><div class="rn">스프레드시트</div><div class="rd">표=행렬</div></div>
+          <div class="rcell"><div class="ri">🎮</div><div class="rn">게임 그래픽</div><div class="rd">회전·이동 변환</div></div>
+          <div class="rcell"><div class="ri">🔎</div><div class="rn">검색엔진</div><div class="rd">페이지랭크(행렬)</div></div>
+          <div class="rcell"><div class="ri">🧠</div><div class="rn">AI·딥러닝</div><div class="rd">신경망=행렬 곱</div></div>
+        </div>
+      </div>
+      <div class="industry">
+        <div class="indt">🏭 산업과 직업 — 데이터의 언어</div>
+        <div class="indrow"><div class="ii">🧠</div><div class="id2"><b>AI·데이터사이언스</b><br>딥러닝·데이터 처리의 기본 연산이 행렬. 스포츠 데이터 분석에도 행렬 계산이 쓰인다.<br><span class="major">🎓 데이터사이언스 · AI · 통계</span></div></div>
+        <div class="indrow"><div class="ii">🎮</div><div class="id2"><b>그래픽·게임</b><br>3D 회전·이동·투영이 모두 행렬 변환.<br><span class="major">🎓 컴퓨터공학 · 그래픽스</span></div></div>
+        <div class="indrow"><div class="ii">🛰️</div><div class="id2"><b>공학·제어</b><br>여러 변수를 동시에 다루는 시스템을 행렬로 표현.<br><span class="major">🎓 전자 · 기계 · 항공우주</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="quiz">
+    <div class="card">
+      <h2>🔥 행렬 퀴즈</h2>
+      <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
+      <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="sum">
+    <div class="card">
+      <h2>✅ 정리</h2>
+      <table>
+        <tr><th class="l">핵심</th></tr>
+        <tr><td class="l">$m$ 행 $n$ 열 = $m \times n$ 행렬, $(i,j)$ 성분 $a_{ij}$</td></tr>
+        <tr><td class="l">같음: 꼴이 같고 대응 성분이 모두 같음</td></tr>
+        <tr><td class="l">덧셈·뺄셈: 같은 꼴끼리 대응 성분 · 실수배: 모든 성분에 곱</td></tr>
+        <tr><td class="l">곱셈: 행 × 열 (앞 열 수 = 뒤 행 수), $AB \ne BA$</td></tr>
+      </table>
+      <div class="box b">
+        <div class="t">🔑 한 줄 요약</div>
+        행렬은 수의 직사각형 배열이며, 덧셈은 <b>대응 성분끼리</b>, 곱셈은 <b>행 × 열</b>로 하고 <b>순서(AB≠BA)</b>가 중요하다.
+      </div>
+      <h3>자가 점검</h3>
+      <div class="chk"><input type="checkbox" id="c1"><label for="c1">행렬의 꼴(m×n)과 성분을 안다</label></div>
+      <div class="chk"><input type="checkbox" id="c2"><label for="c2">행렬의 덧셈·뺄셈·실수배를 할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c3"><label for="c3">행렬의 곱셈(행×열)을 계산할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c4"><label for="c4">AB≠BA(교환법칙 불성립)를 안다</label></div>
+      <h3>약점 태그</h3>
+      <div><span class="tag">수학:행렬</span><span class="tag">수학:행렬연산</span><span class="tag">수학:행렬곱셈</span><span class="tag">수학:교환법칙</span></div>
+      <div class="box g" style="margin-top:16px">
+        <div class="t">🎉 공통수학1 완주!</div>
+        다항식부터 행렬까지 — 공통수학1의 큰 그림을 다 봤습니다. <a href="mat1_hub.html">공통수학1 허브</a>로 돌아가 복습하기.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function go(t){var tab=document.querySelector('.tab[data-t="'+t+'"]');if(tab)tab.click();}
+document.getElementById('tabs').addEventListener('click',function(e){
+  var b=e.target.closest('.tab'); if(!b)return;
+  document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active')});
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
+  b.classList.add('active'); var pg=document.querySelector('.page[data-p="'+b.dataset.t+'"]'); if(pg)pg.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+/* 행렬 데이터 (2x2, 행 우선) */
+var A=[[1,2],[3,4]], B=[[5,6],[7,8]];
+function renderMat(el, m, cls){
+  var s=''; for(var i=0;i<2;i++)for(var j=0;j<2;j++){ s+='<div class="cell" data-i="'+i+'" data-j="'+j+'">'+m[i][j]+'</div>'; }
+  el.className='mat'+(cls?' '+cls:''); el.innerHTML=s;
+}
+/* 덧셈·실수배 */
+function opMat(op){
+  var R=[[0,0],[0,0]];
+  for(var i=0;i<2;i++)for(var j=0;j<2;j++){
+    R[i][j] = op==='add'? A[i][j]+B[i][j] : op==='sub'? A[i][j]-B[i][j] : 2*A[i][j];
+  }
+  renderMat(document.getElementById('matAdd'), R, '');
+  document.getElementById('opLab').textContent = op==='scal'?'·(2)':(op==='sub'?'−':'+');
+  document.getElementById('matB2').style.display = op==='scal'?'none':'';
+}
+renderMat(document.getElementById('matA'), A);
+renderMat(document.getElementById('matB2'), B);
+opMat('add');
+document.getElementById('addTog').addEventListener('click',function(e){
+  var b=e.target.closest('button'); if(!b)return; this.querySelectorAll('button').forEach(function(x){x.classList.remove('on')}); b.classList.add('on'); opMat(b.dataset.o);
+});
+/* 곱셈 */
+function matMul(A,B){ var R=[[0,0],[0,0]]; for(var i=0;i<2;i++)for(var j=0;j<2;j++){ R[i][j]=A[i][0]*B[0][j]+A[i][1]*B[1][j]; } return R; }
+var AB=matMul(A,B);
+renderMat(document.getElementById('mulA'), A);
+renderMat(document.getElementById('mulB'), B);
+renderMat(document.getElementById('mulRes'), AB, 'res');
+document.getElementById('mulRes').addEventListener('click',function(e){
+  var c=e.target.closest('.cell'); if(!c)return;
+  var i=parseInt(c.dataset.i,10), j=parseInt(c.dataset.j,10);
+  document.querySelectorAll('#mulRes .cell').forEach(function(x){x.classList.remove('sel')}); c.classList.add('sel');
+  // 하이라이트: A의 i행, B의 j열
+  document.querySelectorAll('#mulA .cell').forEach(function(x){ x.classList.toggle('rowhi', parseInt(x.dataset.i,10)===i); });
+  document.querySelectorAll('#mulB .cell').forEach(function(x){ x.classList.toggle('colhi', parseInt(x.dataset.j,10)===j); });
+  var comp = A[i][0]+'×'+B[0][j]+' + '+A[i][1]+'×'+B[1][j]+' = '+AB[i][j];
+  document.getElementById('mulComp').innerHTML='('+(i+1)+','+(j+1)+') 성분 = A의 '+(i+1)+'행 × B의 '+(j+1)+'열 = <b style="color:#b45309">'+comp+'</b>';
+});
+
+/* 퀴즈 (유니코드) */
+var QUIZ=[
+ {q:'3개의 행과 2개의 열로 이루어진 행렬을 무엇이라 하나?',o:['3×2 행렬','2×3 행렬','6행렬','정사각행렬'],a:0,e:'(행)×(열) = 3×2 행렬.'},
+ {q:'두 행렬이 "같다"는 조건으로 옳은 것은?',o:['꼴이 같고 대응 성분이 모두 같다','합이 같다','곱이 같다','크기만 같다'],a:0,e:'꼴(행·열 수)이 같고 대응 성분이 전부 같아야 같은 행렬.'},
+ {q:'행렬의 덧셈·뺄셈이 가능한 조건은?',o:['두 행렬의 꼴이 같아야','정사각행렬이어야','성분이 양수여야','2×2여야'],a:0,e:'같은 꼴끼리만 대응 성분끼리 더하거나 뺄 수 있다.'},
+ {q:'행렬 A=[[1,2],[3,4]] 의 2A 에서 (1,1) 성분은?',o:['2','1','4','6'],a:0,e:'실수배는 모든 성분에 곱: 2×1 = 2.'},
+ {q:'행렬 곱 AB의 (i,j) 성분을 구하는 방법은?',o:['A의 i행과 B의 j열을 대응끼리 곱해 더함','A의 i열과 B의 j행','성분끼리 곱','더하기'],a:0,e:'행렬 곱: A의 i행 × B의 j열(대응 곱의 합).'},
+ {q:'행렬 곱셈이 가능하려면?',o:['앞 행렬의 열 수 = 뒤 행렬의 행 수','두 행렬이 같은 꼴','정사각형','성분이 정수'],a:0,e:'A(m×n)·B(n×p): A의 열 수 = B의 행 수 여야 곱셈 가능.'},
+ {q:'행렬 곱셈에 대해 옳은 것은?',o:['AB ≠ BA 인 경우가 많다','항상 AB = BA','곱셈이 안 된다','교환법칙 성립'],a:0,e:'행렬 곱은 교환법칙이 성립하지 않음(AB≠BA).'},
+ {q:'[[1,2],[3,4]]×[[1,0],[0,1]] 의 결과는? (단위행렬을 곱함)',o:['[[1,2],[3,4]] 그대로','[[0,0],[0,0]]','[[2,2],[6,4]]','단위행렬'],a:0,e:'단위행렬 E를 곱하면 원래 행렬 그대로(AE=A).'},
+ {q:'딥러닝(신경망)의 핵심 계산에 해당하는 것은?',o:['거대한 행렬의 곱','단순 덧셈','정렬','검색'],a:0,e:'신경망 계산의 핵심이 대규모 행렬 곱. GPU가 이를 빠르게 처리.'},
+ {q:'2×2 행렬 A와 B를 곱한 AB의 꼴은?',o:['2×2','2×4','4×4','1×1'],a:0,e:'(2×2)·(2×2) = 2×2 행렬.'}
+];
+var qi=0,qscore=0,qans=false;
+function renderQ(){
+  qans=false; var q=QUIZ[qi];
+  document.getElementById('qNum').textContent='문제 '+(qi+1)+' / '+QUIZ.length;
+  document.getElementById('qScore').textContent=qscore; document.getElementById('qBar').style.width=(qi/QUIZ.length*100)+'%';
+  document.getElementById('qQ').textContent=q.q;
+  var opts=document.getElementById('qOpts'); opts.innerHTML='';
+  q.o.forEach(function(txt,idx){var b=document.createElement('button'); b.className='qopt'; b.textContent=txt; b.addEventListener('click',function(){pick(idx,b);}); opts.appendChild(b);});
+  document.getElementById('qExp').className='qexp'; document.getElementById('qExp').innerHTML=''; document.getElementById('qNext').className='qnext';
+}
+function pick(idx,btn){
+  if(qans)return; qans=true; var q=QUIZ[qi];
+  document.querySelectorAll('#qOpts .qopt').forEach(function(b,i){if(i===q.a)b.classList.add('correct');else if(b===btn)b.classList.add('wrong');else b.classList.add('dim');});
+  var ok=(idx===q.a); if(ok)qscore++; document.getElementById('qScore').textContent=qscore;
+  var ex=document.getElementById('qExp'); ex.innerHTML='<div class="et">'+(ok?'⭕ 정답!':'❌ 오답')+'</div>'+q.e; ex.className='qexp show';
+  document.getElementById('qNext').className='qnext show';
+}
+document.getElementById('qNext').addEventListener('click',function(){qi++; if(qi>=QUIZ.length){finishQuiz();return;} renderQ();});
+function finishQuiz(){
+  document.getElementById('qBar').style.width='100%'; document.getElementById('qNum').textContent='완료 ✓';
+  var pct=Math.round(qscore/QUIZ.length*100);
+  var msg=pct>=90?'완벽해요! 행렬까지 정복 — 공통수학1 완주!':pct>=70?'잘했어요! 틀린 것만 다시 보면 완성.':'개념 탭을 한 번 더 보고 재도전해요.';
+  document.getElementById('qArea').innerHTML='<div class="qdone"><div class="big">'+qscore+' / '+QUIZ.length+'</div><p style="margin:8px 0 4px;font-size:15px">정답률 '+pct+'%</p><p style="color:#64748b;font-size:13px;margin-bottom:16px">'+msg+'</p><button class="btn" onclick="restartQuiz()">↺ 다시 풀기</button></div>';
+}
+function restartQuiz(){
+  qi=0;qscore=0;
+  document.getElementById('qArea').innerHTML='<div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button>';
+  document.getElementById('qNext').addEventListener('click',function(){qi++;if(qi>=QUIZ.length){finishQuiz();return;}renderQ();});
+  renderQ();
+}
+
+/* init */
+QUIZ.forEach(function(q){var correct=q.o[q.a];for(var i=q.o.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=q.o[i];q.o[i]=q.o[j];q.o[j]=t;}q.a=q.o.indexOf(correct);});
+renderQ();
+</script>
+</body>
+</html>

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>다항식의 연산과 인수분해 — 공통수학1</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
+<style>
+  :root{
+    --panel:#fff; --ink:#1e293b; --sub:#64748b; --line:#e2e8f0;
+    --blue:#2563eb; --blue-d:#1e40af; --green:#16a34a; --green-bg:#f0fdf4;
+    --amber:#d97706; --amber-bg:#fffbeb; --red:#dc2626; --red-bg:#fef2f2;
+    --purple:#7c3aed; --purple-bg:#f5f3ff; --indigo:#4f46e5; --accent:#2563eb; --accent-bg:#eff6ff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',sans-serif;background:#f1f5f9;color:var(--ink);line-height:1.7;-webkit-text-size-adjust:100%}
+  a{color:var(--blue)}
+  .crumb{background:#f8fafc;border-bottom:1px solid var(--line);padding:7px 16px;font-size:12px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+  .crumb a{color:var(--sub);text-decoration:none} .crumb a.cur{color:var(--blue);font-weight:600} .crumb span{color:#cbd5e1}
+  .hero{background:linear-gradient(135deg,#1e3a8a,#2563eb 60%,#3b82f6);color:#fff;padding:26px 18px 22px;text-align:center}
+  .hero .badge{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:3px 13px;font-size:12px;margin-bottom:10px}
+  .hero h1{font-size:21px;font-weight:800;letter-spacing:-.3px} .hero p{font-size:13px;opacity:.92;margin-top:6px}
+  .tabs{position:sticky;top:0;z-index:50;display:flex;background:#172554;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;padding:13px 15px;min-height:44px;color:#bfdbfe;font-size:13.5px;font-weight:600;cursor:pointer;border:none;background:none;border-bottom:3px solid transparent;white-space:nowrap;transition:.15s}
+  .tab.active{color:#fff;border-bottom-color:#60a5fa} .tab:hover{color:#dbeafe}
+  .wrap{max-width:820px;margin:0 auto;padding:22px 16px 70px}
+  .page{display:none} .page.active{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .card h2{font-size:18px;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .card h3{font-size:15px;font-weight:700;margin:16px 0 8px;color:var(--blue-d)} .card p{font-size:14px;margin-bottom:8px} .lead{color:var(--sub);font-size:13px;margin-bottom:14px}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0} th,td{border:1px solid var(--line);padding:8px 9px;text-align:center} th{background:#f8fafc;font-weight:700} td.l,th.l{text-align:left}
+  .box{border-radius:10px;padding:13px 15px;margin:10px 0;font-size:13.5px}
+  .box.g{background:var(--green-bg);border:1px solid #bbf7d0} .box.a{background:var(--amber-bg);border:1px solid #fde68a} .box.b{background:var(--accent-bg);border:1px solid #bfdbfe}
+  .box .t{font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:6px} .box.g .t{color:var(--green)} .box.a .t{color:var(--amber)} .box.b .t{color:var(--blue-d)}
+  .hook{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:1px solid #bfdbfe;border-radius:12px;padding:16px 18px;margin:12px 0;font-size:14px}
+  .hook .ht{color:var(--accent);font-weight:800;font-size:15px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  .keeper{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fcd34d;border-radius:12px;padding:15px 17px;margin:12px 0}
+  .keeper .kt{color:#b45309;font-weight:800;font-size:14.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .keeper ol{margin:0;list-style:none} .keeper li{position:relative;padding:8px 0 8px 34px;font-size:13.5px;border-bottom:1px dashed #fde68a} .keeper li:last-child{border-bottom:none} .keeper li::before{content:"📌";position:absolute;left:4px;top:8px}
+  .insight{background:var(--purple-bg);border:1px solid #ddd6fe;border-radius:12px;padding:14px 16px;margin:12px 0;font-size:13.5px} .insight .it{color:var(--purple);font-weight:800;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+  .reallife{background:var(--green-bg);border:1px solid #bbf7d0;border-radius:12px;padding:14px 16px;margin:12px 0} .reallife .rt{color:var(--green);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:9px} .rcell{background:#fff;border:1px solid #bbf7d0;border-radius:9px;padding:10px} .rcell .ri{font-size:22px} .rcell .rn{font-weight:800;font-size:13px;margin:3px 0} .rcell .rd{font-size:11.5px;color:#475569;line-height:1.5}
+  .industry{background:#eef2ff;border:1px solid #c7d2fe;border-radius:12px;padding:14px 16px;margin:12px 0} .industry .indt{color:var(--indigo);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .indrow{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #e0e7ff} .indrow:last-child{border-bottom:none} .indrow .ii{font-size:24px;flex-shrink:0} .indrow .id2{font-size:13px} .indrow .id2 b{color:#312e81}
+  .major{display:inline-block;background:#312e81;color:#c7d2fe;border-radius:6px;padding:2px 8px;font-size:10.5px;font-weight:700;margin-top:4px}
+  .sci{display:flex;gap:13px;align-items:flex-start;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fde68a;border-radius:12px;padding:15px;margin:12px 0} .sci .ava{font-size:34px;line-height:1;flex-shrink:0} .sci .st{font-weight:800;color:#92400e;font-size:14px;margin-bottom:3px} .sci .sd{font-size:13px;color:#78350f}
+  .toc{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:8px}
+  .toc button{text-align:left;background:var(--accent-bg);border:1px solid #bfdbfe;border-radius:10px;padding:12px;cursor:pointer;font:inherit;transition:.15s;min-height:44px} .toc button:hover{border-color:var(--accent);box-shadow:0 2px 8px rgba(37,99,235,.14)}
+  .toc .ti{font-size:20px}.toc .tn{font-weight:800;font-size:13.5px;margin-top:4px}.toc .td{font-size:11.5px;color:var(--sub)}
+  /* formula cards */
+  .fcards{display:grid;grid-template-columns:1fr;gap:9px;margin:10px 0}
+  .fcell{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:#fff;cursor:pointer;transition:.12s}
+  .fcell:hover{border-color:var(--accent);background:var(--accent-bg)}
+  .fcell .flhs{font-size:15px} .fcell .frhs{display:none;margin-top:6px;padding-top:6px;border-top:1px dashed var(--line);color:var(--blue-d);font-size:15px}
+  .fcell.show .frhs{display:block} .fcell .ftap{font-size:11px;color:var(--sub);float:right}
+  /* remainder calc */
+  .rcalc{background:#0f172a;color:#e2e8f0;border-radius:12px;padding:15px 16px;margin:10px 0}
+  .rcalc .rpoly{text-align:center;font-size:16px;margin-bottom:10px}
+  .rbtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:8px 0}
+  .rbtn{background:#1e293b;border:1px solid #334155;color:#e2e8f0;border-radius:8px;padding:9px 15px;font:inherit;font-weight:700;cursor:pointer;min-height:44px}
+  .rbtn.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .rout{text-align:center;font-size:15px;margin-top:8px;min-height:26px} .rout b{color:#60a5fa}
+  /* step reveal */
+  .steps{margin:10px 0}
+  .stepbtn{background:var(--accent);color:#fff;border:none;border-radius:9px;padding:11px 16px;font:inherit;font-weight:700;font-size:13.5px;cursor:pointer;min-height:44px}
+  .stepwrap{display:none;margin-top:10px} .stepwrap.open{display:block}
+  .step{border:1px solid var(--line);border-radius:10px;padding:11px 14px;margin:8px 0;background:#fff;font-size:14px}
+  .step .sn{display:inline-block;background:var(--accent);color:#fff;border-radius:6px;padding:1px 8px;font-size:12px;font-weight:800;margin-right:6px}
+  .step .why{font-size:12px;color:var(--sub);margin-top:4px}
+  .ans{background:#ecfdf5;border:2px solid #6ee7b7;border-radius:10px;padding:12px 15px;text-align:center;font-size:16px;font-weight:800;color:#065f46;margin:10px 0}
+  /* quiz */
+  .quizhud{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:12px 16px;margin-bottom:14px} .quizhud .qn{font-weight:800;font-size:14px} .quizhud .sc{margin-left:auto;font-size:13px} .quizhud .sc b{color:#60a5fa;font-size:16px}
+  .qbar{flex-basis:100%;height:8px;background:#334155;border-radius:20px;overflow:hidden;margin-top:2px} .qbar > i{display:block;height:100%;background:linear-gradient(90deg,#60a5fa,#2563eb)}
+  .qq{font-size:16px;font-weight:700;text-align:center;margin:10px 0 16px} .qopts{display:grid;gap:10px}
+  .qopt{border:2px solid var(--line);background:#fff;border-radius:12px;padding:14px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:.12s;min-height:52px} .qopt:hover{border-color:var(--accent)} .qopt.correct{background:var(--green-bg);border-color:#6ee7b7;color:#065f46} .qopt.wrong{background:var(--red-bg);border-color:#fecaca;color:#991b1b} .qopt.dim{opacity:.5}
+  .qexp{display:none;margin-top:14px;background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:13px 15px;font-size:13.5px} .qexp.show{display:block;animation:fade .2s ease}.qexp .et{font-weight:800;margin-bottom:4px}
+  .qnext{display:none;margin-top:14px;width:100%;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:13px;font:inherit;font-weight:800;font-size:14px;cursor:pointer;min-height:48px} .qnext.show{display:block}
+  .qdone{text-align:center;padding:10px 0}.qdone .big{font-size:40px;font-weight:800;color:var(--accent)}
+  .btn{display:inline-block;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px 18px;font:inherit;font-weight:700;font-size:13.5px;cursor:pointer;text-decoration:none;min-height:44px}
+  .chk{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px} .chk:last-child{border-bottom:none} .chk input{margin-top:4px;width:17px;height:17px;flex-shrink:0;accent-color:var(--accent)}
+  .tag{display:inline-block;background:var(--accent-bg);color:var(--accent);border:1px solid #bfdbfe;border-radius:6px;padding:2px 9px;font-size:11.5px;font-weight:700;margin:3px 4px 0 0}
+  @media (max-width:640px){ .hero h1{font-size:19px} .card{padding:16px} }
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Math_1_1</a><span>&rsaquo;</span><a href="mat1_hub.html">공통수학1</a><span>&rsaquo;</span><a class="cur" href="#">다항식</a></nav>
+<div class="hero">
+  <span class="badge">Ⅰ. 다항식</span>
+  <h1>🧩 다항식의 연산과 인수분해</h1>
+  <p>식을 다루고 쪼개는 — 수학의 기본 문법</p>
+</div>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="intro">📋 개요</button>
+  <button class="tab" data-t="mul">🧮 연산·곱셈공식</button>
+  <button class="tab" data-t="rem">➗ 나머지·인수정리</button>
+  <button class="tab" data-t="fac">🧩 인수분해</button>
+  <button class="tab" data-t="world">🌐 세상 속으로</button>
+  <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="sum">✅ 정리</button>
+</div>
+<div class="wrap">
+
+  <div class="page active" data-p="intro">
+    <div class="card">
+      <h2>📋 식을 다루는 힘</h2>
+      <div class="hook">
+        <div class="ht">💥 왜 배우나</div>
+        복잡한 식도 <b>곱셈 공식</b>으로 펼치고, <b>인수분해</b>로 조각내면 다룰 수 있다. 인수분해는 방정식을 푸는 <b>만능 열쇠</b>다. 놀랍게도 "큰 수를 소인수로 <b>쪼개기 어렵다</b>"는 성질은 인터넷을 지키는 <b>암호(RSA)</b>의 토대가 된다.
+      </div>
+      <div class="sci">
+        <div class="ava">🔺</div>
+        <div>
+          <div class="st">파스칼의 삼각형</div>
+          <div class="sd">$(a+b)^n$ 을 전개하면 각 항의 계수가 <b>파스칼의 삼각형</b>(1, 1 1, 1 2 1, 1 3 3 1 …)과 정확히 일치한다. 예: $(a+b)^2 = a^2 + 2ab + b^2$ 의 계수 <b>1, 2, 1</b>. 규칙을 알면 외울 필요가 줄어든다.</div>
+        </div>
+      </div>
+      <div class="toc">
+        <button onclick="go('mul')"><div class="ti">🧮</div><div class="tn">연산·곱셈공식</div><div class="td">전개 카드</div></button>
+        <button onclick="go('rem')"><div class="ti">➗</div><div class="tn">나머지·인수정리</div><div class="td">P(a) 계산기</div></button>
+        <button onclick="go('fac')"><div class="ti">🧩</div><div class="tn">인수분해</div><div class="td">단계별 풀이</div></button>
+        <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">암호·컴퓨터</div></button>
+        <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+        <button onclick="go('sum')"><div class="ti">✅</div><div class="tn">정리</div><div class="td">공식·자가점검</div></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="mul">
+    <div class="card">
+      <h2>🧮 다항식의 연산과 곱셈 공식</h2>
+      <p class="lead">다항식의 덧셈·뺄셈은 <b>동류항끼리</b>, 곱셈은 <b>분배법칙</b>으로 한다. 자주 쓰는 곱셈 공식은 외워 두면 빠르다. 카드를 눌러 전개 결과를 확인하자.</p>
+      <div class="fcards" id="fcards"></div>
+      <div class="box b">
+        <div class="t">🔑 곱셈 공식은 "인수분해의 반대"</div>
+        곱셈 공식은 <b>펼치기</b>($ (a+b)^2 \to a^2+2ab+b^2 $), 인수분해는 그 <b>거꾸로</b>($ a^2+2ab+b^2 \to (a+b)^2 $)다. 같은 공식을 양방향으로 쓴다.
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="rem">
+    <div class="card">
+      <h2>➗ 나머지정리와 인수정리</h2>
+      <div class="box g">
+        <div class="t">✅ 나머지정리</div>
+        다항식 $P(x)$ 를 $(x-a)$ 로 나눈 <b>나머지</b>는 $P(a)$ 와 같다. 즉, 직접 나눌 필요 없이 <b>$x=a$ 를 대입</b>하면 나머지를 안다.
+      </div>
+      <p style="font-size:12.5px;color:var(--sub)">아래 $P(x)$ 에 대해 $a$ 를 골라 $P(a)$(=나눈 나머지)를 계산해 보자.</p>
+      <div class="rcalc">
+        <div class="rpoly">$P(x) = x^3 - 2x^2 - x + 2$</div>
+        <div class="rbtns" id="rbtns"></div>
+        <div class="rout" id="rout"></div>
+      </div>
+      <div class="box g">
+        <div class="t">✅ 인수정리</div>
+        $P(a) = 0$ 이면 $(x-a)$ 는 $P(x)$ 의 <b>인수</b>다 (그 반대도 성립). 즉 <b>대입해서 0이 되는 값</b>을 찾으면 인수를 하나 찾은 것 — 이것이 고차식 인수분해의 열쇠.
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="fac">
+    <div class="card">
+      <h2>🧩 인수분해 — 단계별</h2>
+      <p class="lead">인수분해는 곱셈 공식을 거꾸로 쓰거나, <b>인수정리</b>로 인수를 찾아 낮춰 간다. 예제를 단계별로 풀어 보자.</p>
+      <div class="box b" style="text-align:center;font-size:15px">문제: $x^3 - 7x - 6$ 을 인수분해하시오.</div>
+      <div class="steps">
+        <button class="stepbtn" id="stepBtn">▶ 풀이 단계별로 보기</button>
+        <div class="stepwrap" id="stepWrap">
+          <div class="step"><span class="sn">1</span>대입해서 0이 되는 값 찾기: $x=-1$ 이면 $(-1)^3-7(-1)-6 = -1+7-6 = 0$.<div class="why">→ 인수정리로 $(x+1)$ 이 인수임을 알았다.</div></div>
+          <div class="step"><span class="sn">2</span>$(x+1)$ 로 나눠(조립제법) 몫을 구하면 $x^2 - x - 6$.<div class="why">→ 차수가 3에서 2로 낮아졌다.</div></div>
+          <div class="step"><span class="sn">3</span>남은 이차식 인수분해: $x^2 - x - 6 = (x-3)(x+2)$.<div class="why">→ 곱이 $-6$, 합이 $-1$ 인 두 수 $-3, +2$.</div></div>
+          <div class="ans">$x^3 - 7x - 6 = (x+1)(x+2)(x-3)$</div>
+        </div>
+      </div>
+      <div class="box a">
+        <div class="t">⚠️ 흔한 실수</div>
+        인수분해를 <b>다 끝냈는지</b> 확인하기. 이차식이 또 인수분해될 수 있는데 멈추면 안 된다. 각 인수가 <b>더 쪼갤 수 없을 때까지</b> 진행.
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="world">
+    <div class="card">
+      <h2>🌐 세상 속으로</h2>
+      <div class="keeper">
+        <div class="kt">📌 어른이 되어도 기억할 것</div>
+        <ol>
+          <li>대표 곱셈 공식: $(a\pm b)^2 = a^2 \pm 2ab + b^2$, $(a+b)(a-b) = a^2 - b^2$.</li>
+          <li><b>나머지정리</b>: $P(x)$ 를 $(x-a)$ 로 나눈 나머지 $= P(a)$. 대입 한 번으로 끝.</li>
+          <li><b>인수분해는 방정식을 푸는 열쇠</b> — 곱이 0이면 각 인수가 0(예: $(x-3)(x+2)=0 \Rightarrow x=3$ 또는 $x=-2$).</li>
+        </ol>
+      </div>
+      <div class="insight">
+        <div class="it">💡 인사이트 — 다음 단원의 무기</div>
+        인수분해는 <b>이차·고차 방정식</b>을 푸는 핵심 도구다. $ (x-3)(x+2)=0 $ 처럼 인수의 곱이 0이면 해가 바로 보인다. 그래서 다항식은 <b>방정식과 부등식</b> 단원의 토대가 된다.
+      </div>
+      <div class="reallife">
+        <div class="rt">🏠 다항식이 숨어 있는 곳</div>
+        <div class="rgrid">
+          <div class="rcell"><div class="ri">🔐</div><div class="rn">인터넷 암호</div><div class="rd">소인수분해의 어려움(RSA)</div></div>
+          <div class="rcell"><div class="ri">📡</div><div class="rn">오류 정정</div><div class="rd">다항식으로 데이터 복원</div></div>
+          <div class="rcell"><div class="ri">🎮</div><div class="rn">그래픽·곡선</div><div class="rd">다항식 곡선(베지어)</div></div>
+          <div class="rcell"><div class="ri">📈</div><div class="rn">데이터 근사</div><div class="rd">다항식으로 추세 근사</div></div>
+        </div>
+      </div>
+      <div class="industry">
+        <div class="indt">🏭 산업과 직업 — 식을 다루는 힘</div>
+        <div class="indrow"><div class="ii">🔐</div><div class="id2"><b>암호·보안</b><br>소인수분해·다항식의 성질이 정보 보안의 수학적 뼈대.<br><span class="major">🎓 수학 · 정보보안 · 컴퓨터공학</span></div></div>
+        <div class="indrow"><div class="ii">📊</div><div class="id2"><b>데이터·AI</b><br>다항식 모델·근사로 데이터의 관계를 표현·예측.<br><span class="major">🎓 데이터사이언스 · 통계 · 수학</span></div></div>
+        <div class="indrow"><div class="ii">🛠️</div><div class="id2"><b>공학 설계</b><br>구조·신호·제어를 다항식(전달함수 등)으로 다룬다.<br><span class="major">🎓 전자 · 기계 · 제어공학</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="quiz">
+    <div class="card">
+      <h2>🔥 다항식 퀴즈</h2>
+      <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
+      <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="sum">
+    <div class="card">
+      <h2>✅ 정리 — 핵심 공식</h2>
+      <table>
+        <tr><th class="l">곱셈 공식</th></tr>
+        <tr><td class="l">$(a+b)^2 = a^2 + 2ab + b^2$</td></tr>
+        <tr><td class="l">$(a-b)^2 = a^2 - 2ab + b^2$</td></tr>
+        <tr><td class="l">$(a+b)(a-b) = a^2 - b^2$</td></tr>
+        <tr><td class="l">$(x+a)(x+b) = x^2 + (a+b)x + ab$</td></tr>
+        <tr><td class="l">$(a+b)^3 = a^3 + 3a^2 b + 3ab^2 + b^3$</td></tr>
+        <tr><td class="l">$(a+b)(a^2 - ab + b^2) = a^3 + b^3$</td></tr>
+      </table>
+      <div class="box b">
+        <div class="t">🔑 한 줄 요약</div>
+        곱셈 공식으로 펼치고 인수분해로 쪼갠다. <b>나머지정리 $P(a)$</b> 와 <b>인수정리</b>로 고차식을 낮춰 인수분해하면, 방정식이 풀린다.
+      </div>
+      <h3>자가 점검</h3>
+      <div class="chk"><input type="checkbox" id="c1"><label for="c1">주요 곱셈 공식을 쓰고 전개할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c2"><label for="c2">나머지정리로 P(a)=나머지를 구할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c3"><label for="c3">인수정리로 인수를 찾아 고차식을 인수분해한다</label></div>
+      <div class="chk"><input type="checkbox" id="c4"><label for="c4">인수분해로 방정식의 해를 구할 수 있다</label></div>
+      <h3>약점 태그</h3>
+      <div><span class="tag">수학:다항식</span><span class="tag">수학:곱셈공식</span><span class="tag">수학:나머지정리</span><span class="tag">수학:인수분해</span></div>
+      <div class="box g" style="margin-top:16px">
+        <div class="t">➡️ 다음 단원</div>
+        인수분해는 방정식을 푸는 열쇠 → <b>방정식과 부등식</b>(제작 예정)으로. <a href="mat1_hub.html">공통수학1 허브</a>로.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function go(t){var tab=document.querySelector('.tab[data-t="'+t+'"]');if(tab)tab.click();}
+document.getElementById('tabs').addEventListener('click',function(e){
+  var b=e.target.closest('.tab'); if(!b)return;
+  document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active')});
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
+  b.classList.add('active'); var pg=document.querySelector('.page[data-p="'+b.dataset.t+'"]'); if(pg)pg.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+/* 곱셈 공식 카드 (KaTeX는 로드 시 auto-render가 처리) */
+var FORM=[
+ ['$(a+b)^2$','$= a^2 + 2ab + b^2$'],
+ ['$(a-b)^2$','$= a^2 - 2ab + b^2$'],
+ ['$(a+b)(a-b)$','$= a^2 - b^2$'],
+ ['$(x+a)(x+b)$','$= x^2 + (a+b)x + ab$'],
+ ['$(a+b)^3$','$= a^3 + 3a^2 b + 3ab^2 + b^3$'],
+ ['$(a+b)(a^2-ab+b^2)$','$= a^3 + b^3$']
+];
+(function buildForm(){
+  var el=document.getElementById('fcards'); var s='';
+  FORM.forEach(function(f){ s+='<div class="fcell"><span class="ftap">눌러서 전개 ▾</span><div class="flhs">'+f[0]+'</div><div class="frhs">'+f[1]+'</div></div>'; });
+  el.innerHTML=s;
+  el.addEventListener('click',function(e){var c=e.target.closest('.fcell'); if(!c)return; c.classList.toggle('show');});
+})();
+
+/* 나머지정리 계산기: P(x)=x^3-2x^2-x+2 = (x-1)(x+1)(x-2) */
+function P(x){ return x*x*x - 2*x*x - x + 2; }
+function divLbl(a){ if(a===0) return 'x'; return a>0 ? '(x−'+a+')' : '(x+'+(-a)+')'; }
+(function buildR(){
+  var el=document.getElementById('rbtns'); var s='';
+  [-1,0,1,2,3].forEach(function(a){ s+='<button class="rbtn" data-a="'+a+'">a = '+a+'</button>'; });
+  el.innerHTML=s;
+  el.addEventListener('click',function(e){var b=e.target.closest('.rbtn'); if(!b)return; this.querySelectorAll('.rbtn').forEach(function(x){x.classList.remove('on')}); b.classList.add('on'); selR(parseInt(b.dataset.a,10));});
+})();
+function selR(a){
+  var v=P(a); var dl=divLbl(a);
+  document.getElementById('rout').innerHTML='P('+a+') = <b>'+v+'</b> &nbsp;<span style="font-size:12.5px;color:#94a3b8">→ '+(v===0? dl+' 는 P(x)의 <b style="color:#6ee7b7">인수</b>! (나머지 0)' : dl+' 로 나눈 나머지는 '+v)+'</span>';
+}
+
+/* 인수분해 단계 공개 */
+document.getElementById('stepBtn').addEventListener('click',function(){
+  var w=document.getElementById('stepWrap'); w.classList.toggle('open');
+  this.textContent = w.classList.contains('open') ? '▲ 풀이 접기' : '▶ 풀이 단계별로 보기';
+});
+
+/* 퀴즈 */
+var QUIZ=[
+ {q:'(a+b)² 을 바르게 전개한 것은?',o:['a² + 2ab + b²','a² + b²','a² − 2ab + b²','2a + 2b'],a:0,e:'(a+b)² = a² + 2ab + b². 중간의 2ab를 빠뜨리는 실수가 잦다.'},
+ {q:'(a+b)(a−b) 는?',o:['a² − b²','a² + b²','a² − 2ab + b²','a² − ab'],a:0,e:'합·차의 곱 = a² − b² (제곱의 차).'},
+ {q:'나머지정리: P(x)를 (x−a)로 나눈 나머지는?',o:['P(a)','P(0)','a','0'],a:0,e:'나머지정리 — 나머지는 x=a를 대입한 값 P(a).'},
+ {q:'P(x)=x²−5x+6 을 (x−2)로 나눈 나머지는? (P(2) 계산)',o:['0','2','6','−4'],a:0,e:'P(2)=4−10+6=0. 나머지 0이므로 (x−2)는 인수.'},
+ {q:'인수정리: P(a)=0 이면 다음 중 옳은 것은?',o:['(x−a)가 P(x)의 인수','(x+a)가 인수','P(x)=0','a=0'],a:0,e:'P(a)=0 이면 (x−a)가 P(x)의 인수(그 반대도 성립).'},
+ {q:'x²−9 를 인수분해하면?',o:['(x−3)(x+3)','(x−9)(x+1)','(x−3)²','(x+3)²'],a:0,e:'제곱의 차: x²−9 = x²−3² = (x−3)(x+3).'},
+ {q:'x²+5x+6 을 인수분해하면?',o:['(x+2)(x+3)','(x+1)(x+6)','(x−2)(x−3)','(x+5)(x+1)'],a:0,e:'곱이 6, 합이 5인 두 수 2, 3 → (x+2)(x+3).'},
+ {q:'방정식 (x−3)(x+2)=0 의 해는?',o:['x=3 또는 x=−2','x=3, x=2','x=−3, x=2','x=6'],a:0,e:'곱이 0이면 각 인수가 0 → x−3=0 또는 x+2=0.'},
+ {q:'(a−b)² 을 전개하면?',o:['a² − 2ab + b²','a² + 2ab + b²','a² − b²','a² − ab + b²'],a:0,e:'(a−b)² = a² − 2ab + b². 부호에 주의.'},
+ {q:'인수분해가 곧바로 도움이 되는 것은?',o:['방정식의 해 구하기','넓이 재기','시간 재기','무게 재기'],a:0,e:'인수의 곱이 0이면 해가 바로 보인다 → 방정식 풀이의 핵심 도구.'}
+];
+var qi=0,qscore=0,qans=false;
+function renderQ(){
+  qans=false; var q=QUIZ[qi];
+  document.getElementById('qNum').textContent='문제 '+(qi+1)+' / '+QUIZ.length;
+  document.getElementById('qScore').textContent=qscore; document.getElementById('qBar').style.width=(qi/QUIZ.length*100)+'%';
+  document.getElementById('qQ').textContent=q.q;
+  var opts=document.getElementById('qOpts'); opts.innerHTML='';
+  q.o.forEach(function(txt,idx){var b=document.createElement('button'); b.className='qopt'; b.textContent=txt; b.addEventListener('click',function(){pick(idx,b);}); opts.appendChild(b);});
+  document.getElementById('qExp').className='qexp'; document.getElementById('qExp').innerHTML=''; document.getElementById('qNext').className='qnext';
+}
+function pick(idx,btn){
+  if(qans)return; qans=true; var q=QUIZ[qi];
+  document.querySelectorAll('#qOpts .qopt').forEach(function(b,i){if(i===q.a)b.classList.add('correct');else if(b===btn)b.classList.add('wrong');else b.classList.add('dim');});
+  var ok=(idx===q.a); if(ok)qscore++; document.getElementById('qScore').textContent=qscore;
+  var ex=document.getElementById('qExp'); ex.innerHTML='<div class="et">'+(ok?'⭕ 정답!':'❌ 오답')+'</div>'+q.e; ex.className='qexp show';
+  document.getElementById('qNext').className='qnext show';
+}
+document.getElementById('qNext').addEventListener('click',function(){qi++; if(qi>=QUIZ.length){finishQuiz();return;} renderQ();});
+function finishQuiz(){
+  document.getElementById('qBar').style.width='100%'; document.getElementById('qNum').textContent='완료 ✓';
+  var pct=Math.round(qscore/QUIZ.length*100);
+  var msg=pct>=90?'완벽해요! 다항식의 기본기를 잡았어요.':pct>=70?'잘했어요! 틀린 것만 다시 보면 완성.':'개념 탭을 한 번 더 보고 재도전해요.';
+  document.getElementById('qArea').innerHTML='<div class="qdone"><div class="big">'+qscore+' / '+QUIZ.length+'</div><p style="margin:8px 0 4px;font-size:15px">정답률 '+pct+'%</p><p style="color:#64748b;font-size:13px;margin-bottom:16px">'+msg+'</p><button class="btn" onclick="restartQuiz()">↺ 다시 풀기</button></div>';
+}
+function restartQuiz(){
+  qi=0;qscore=0;
+  document.getElementById('qArea').innerHTML='<div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button>';
+  document.getElementById('qNext').addEventListener('click',function(){qi++;if(qi>=QUIZ.length){finishQuiz();return;}renderQ();});
+  renderQ();
+}
+
+/* init */
+QUIZ.forEach(function(q){var correct=q.o[q.a];for(var i=q.o.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=q.o[i];q.o[i]=q.o[j];q.o[j]=t;}q.a=q.o.indexOf(correct);});
+renderQ();
+</script>
+</body>
+</html>
