@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>함수 (합성·역함수) — 공통수학2</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
+<style>
+  :root{
+    --panel:#fff; --ink:#1e293b; --sub:#64748b; --line:#e2e8f0;
+    --blue:#2563eb; --green:#16a34a; --green-bg:#f0fdf4;
+    --amber:#d97706; --amber-bg:#fffbeb; --red:#dc2626; --red-bg:#fef2f2;
+    --purple:#7c3aed; --purple-bg:#f5f3ff; --indigo:#4f46e5; --accent:#d97706; --accent-bg:#fffbeb;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',sans-serif;background:#f1f5f9;color:var(--ink);line-height:1.7;-webkit-text-size-adjust:100%}
+  a{color:var(--blue)}
+  .crumb{background:#f8fafc;border-bottom:1px solid var(--line);padding:7px 16px;font-size:12px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+  .crumb a{color:var(--sub);text-decoration:none} .crumb a.cur{color:var(--accent);font-weight:600} .crumb span{color:#cbd5e1}
+  .hero{background:linear-gradient(135deg,#92400e,#d97706 60%,#f59e0b);color:#fff;padding:26px 18px 22px;text-align:center}
+  .hero .badge{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:3px 13px;font-size:12px;margin-bottom:10px}
+  .hero h1{font-size:21px;font-weight:800;letter-spacing:-.3px} .hero p{font-size:13px;opacity:.92;margin-top:6px}
+  .tabs{position:sticky;top:0;z-index:50;display:flex;background:#78350f;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;padding:13px 15px;min-height:44px;color:#fde68a;font-size:13.5px;font-weight:600;cursor:pointer;border:none;background:none;border-bottom:3px solid transparent;white-space:nowrap;transition:.15s}
+  .tab.active{color:#fff;border-bottom-color:#fbbf24} .tab:hover{color:#fef3c7}
+  .wrap{max-width:820px;margin:0 auto;padding:22px 16px 70px}
+  .page{display:none} .page.active{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .card h2{font-size:18px;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .card h3{font-size:15px;font-weight:700;margin:16px 0 8px;color:var(--accent)} .card p{font-size:14px;margin-bottom:8px} .lead{color:var(--sub);font-size:13px;margin-bottom:14px}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0} th,td{border:1px solid var(--line);padding:8px 9px;text-align:center} th{background:#f8fafc;font-weight:700} td.l,th.l{text-align:left}
+  .box{border-radius:10px;padding:13px 15px;margin:10px 0;font-size:13.5px}
+  .box.g{background:var(--green-bg);border:1px solid #bbf7d0} .box.a{background:var(--amber-bg);border:1px solid #fde68a} .box.b{background:#eff6ff;border:1px solid #bfdbfe}
+  .box .t{font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:6px} .box.g .t{color:var(--green)} .box.a .t{color:var(--amber)} .box.b .t{color:var(--blue)}
+  .hook{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fde68a;border-radius:12px;padding:16px 18px;margin:12px 0;font-size:14px}
+  .hook .ht{color:var(--accent);font-weight:800;font-size:15px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  .keeper{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fcd34d;border-radius:12px;padding:15px 17px;margin:12px 0}
+  .keeper .kt{color:#b45309;font-weight:800;font-size:14.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .keeper ol{margin:0;list-style:none} .keeper li{position:relative;padding:8px 0 8px 34px;font-size:13.5px;border-bottom:1px dashed #fde68a} .keeper li:last-child{border-bottom:none} .keeper li::before{content:"📌";position:absolute;left:4px;top:8px}
+  .insight{background:var(--purple-bg);border:1px solid #ddd6fe;border-radius:12px;padding:14px 16px;margin:12px 0;font-size:13.5px} .insight .it{color:var(--purple);font-weight:800;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+  .reallife{background:var(--green-bg);border:1px solid #bbf7d0;border-radius:12px;padding:14px 16px;margin:12px 0} .reallife .rt{color:var(--green);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:9px} .rcell{background:#fff;border:1px solid #bbf7d0;border-radius:9px;padding:10px} .rcell .ri{font-size:22px} .rcell .rn{font-weight:800;font-size:13px;margin:3px 0} .rcell .rd{font-size:11.5px;color:#475569;line-height:1.5}
+  .industry{background:#eef2ff;border:1px solid #c7d2fe;border-radius:12px;padding:14px 16px;margin:12px 0} .industry .indt{color:var(--indigo);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .indrow{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #e0e7ff} .indrow:last-child{border-bottom:none} .indrow .ii{font-size:24px;flex-shrink:0} .indrow .id2{font-size:13px} .indrow .id2 b{color:#312e81}
+  .major{display:inline-block;background:#312e81;color:#c7d2fe;border-radius:6px;padding:2px 8px;font-size:10.5px;font-weight:700;margin-top:4px}
+  .sci{display:flex;gap:13px;align-items:flex-start;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fde68a;border-radius:12px;padding:15px;margin:12px 0} .sci .ava{font-size:34px;line-height:1;flex-shrink:0} .sci .st{font-weight:800;color:#92400e;font-size:14px;margin-bottom:3px} .sci .sd{font-size:13px;color:#78350f}
+  .toc{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:8px}
+  .toc button{text-align:left;background:var(--accent-bg);border:1px solid #fde68a;border-radius:10px;padding:12px;cursor:pointer;font:inherit;transition:.15s;min-height:44px} .toc button:hover{border-color:var(--accent);box-shadow:0 2px 8px rgba(217,119,6,.14)}
+  .toc .ti{font-size:20px}.toc .tn{font-weight:800;font-size:13.5px;margin-top:4px}.toc .td{font-size:11.5px;color:var(--sub)}
+  /* function machine chain */
+  .chain{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;margin:14px 0}
+  .cnode{background:#0f172a;color:#fde68a;border-radius:10px;padding:12px 14px;font-weight:800;font-size:15px;min-width:58px;text-align:center}
+  .cnode.val{background:#fffbeb;color:#92400e;border:1.5px solid #fde68a}
+  .cbox{background:var(--accent);color:#fff;border-radius:10px;padding:10px 12px;font-weight:800;font-size:13px;text-align:center}
+  .carrow{color:#94a3b8;font-size:20px;font-weight:800}
+  .cv-wrap{text-align:center;margin:10px 0}
+  canvas{background:#fff;border:1px solid var(--line);border-radius:12px;max-width:100%;touch-action:none}
+  .readout{background:#0f172a;color:#e2e8f0;border-radius:10px;padding:12px 14px;margin:8px 0;font-size:14px;text-align:center;line-height:1.8} .readout b{color:#fbbf24}
+  .slider{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:13px;font-weight:700}
+  .slider input[type=range]{flex:1;accent-color:var(--accent);height:28px}
+  .quizhud{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:12px 16px;margin-bottom:14px} .quizhud .qn{font-weight:800;font-size:14px} .quizhud .sc{margin-left:auto;font-size:13px} .quizhud .sc b{color:#fbbf24;font-size:16px}
+  .qbar{flex-basis:100%;height:8px;background:#334155;border-radius:20px;overflow:hidden;margin-top:2px} .qbar > i{display:block;height:100%;background:linear-gradient(90deg,#fbbf24,#d97706)}
+  .qq{font-size:16px;font-weight:700;text-align:center;margin:10px 0 16px} .qopts{display:grid;gap:10px}
+  .qopt{border:2px solid var(--line);background:#fff;border-radius:12px;padding:14px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:.12s;min-height:52px} .qopt:hover{border-color:var(--accent)} .qopt.correct{background:var(--green-bg);border-color:#6ee7b7;color:#065f46} .qopt.wrong{background:var(--red-bg);border-color:#fecaca;color:#991b1b} .qopt.dim{opacity:.5}
+  .qexp{display:none;margin-top:14px;background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:13px 15px;font-size:13.5px} .qexp.show{display:block;animation:fade .2s ease}.qexp .et{font-weight:800;margin-bottom:4px}
+  .qnext{display:none;margin-top:14px;width:100%;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:13px;font:inherit;font-weight:800;font-size:14px;cursor:pointer;min-height:48px} .qnext.show{display:block}
+  .qdone{text-align:center;padding:10px 0}.qdone .big{font-size:40px;font-weight:800;color:var(--accent)}
+  .btn{display:inline-block;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px 18px;font:inherit;font-weight:700;font-size:13.5px;cursor:pointer;text-decoration:none;min-height:44px}
+  .chk{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px} .chk:last-child{border-bottom:none} .chk input{margin-top:4px;width:17px;height:17px;flex-shrink:0;accent-color:var(--accent)}
+  .tag{display:inline-block;background:var(--accent-bg);color:var(--accent);border:1px solid #fde68a;border-radius:6px;padding:2px 9px;font-size:11.5px;font-weight:700;margin:3px 4px 0 0}
+  @media (max-width:640px){ .hero h1{font-size:19px} .card{padding:16px} }
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Math_1_1</a><span>&rsaquo;</span><a href="mat2_hub.html">공통수학2</a><span>&rsaquo;</span><a class="cur" href="#">함수</a></nav>
+<div class="hero">
+  <span class="badge">Ⅲ. 함수와 그래프</span>
+  <h1>⛓️ 함수 — 합성과 역함수</h1>
+  <p>입력을 출력으로 바꾸는 기계 — 그리고 되돌리기</p>
+</div>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="intro">📋 개요</button>
+  <button class="tab" data-t="fn">🔗 함수와 대응</button>
+  <button class="tab" data-t="comp">⛓️ 합성함수</button>
+  <button class="tab" data-t="inv">🔄 역함수</button>
+  <button class="tab" data-t="world">🌐 세상 속으로</button>
+  <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="sum">✅ 정리</button>
+</div>
+<div class="wrap">
+
+  <div class="page active" data-p="intro">
+    <div class="card">
+      <h2>📋 입력을 출력으로</h2>
+      <div class="hook">
+        <div class="ht">💥 왜 배우나</div>
+        <b>함수</b>는 "입력 하나에 출력 하나"를 대응시키는 규칙 — 세상의 인과관계를 담는 그릇이다. 함수를 <b>이어 붙이고(합성)</b> <b>되돌리는(역함수)</b> 법을 배우면, 복잡한 변환을 조립하고 암호를 풀 듯 거꾸로 추적할 수 있다.
+      </div>
+      <div class="sci">
+        <div class="ava">⚙️</div>
+        <div>
+          <div class="st">함수 = 기계 (input → output)</div>
+          <div class="sd">함수를 "입력을 넣으면 출력이 나오는 기계"로 상상하자. 여러 기계를 <b>직렬로 연결</b>하면 합성함수, 기계를 <b>거꾸로 돌리면</b> 역함수. 프로그래밍의 함수도 정확히 이 개념이다.</div>
+        </div>
+      </div>
+      <div class="toc">
+        <button onclick="go('fn')"><div class="ti">🔗</div><div class="tn">함수와 대응</div><div class="td">정의·일대일대응</div></button>
+        <button onclick="go('comp')"><div class="ti">⛓️</div><div class="tn">합성함수</div><div class="td">기계 연결 계산기</div></button>
+        <button onclick="go('inv')"><div class="ti">🔄</div><div class="tn">역함수</div><div class="td">y=x 대칭</div></button>
+        <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+        <button onclick="go('sum')"><div class="ti">✅</div><div class="tn">정리</div><div class="td">개념·자가점검</div></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="fn">
+    <div class="card">
+      <h2>🔗 함수와 대응</h2>
+      <div class="box g">
+        <div class="t">✅ 함수의 정의</div>
+        집합 $X$ 의 각 원소에 집합 $Y$ 의 원소가 <b>오직 하나씩</b> 대응할 때, 이 대응을 $X$ 에서 $Y$ 로의 <b>함수</b> $f: X \to Y$ 라 한다. $X$ = 정의역, $Y$ = 공역, 함숫값 전체 = <b>치역</b>(공역의 부분집합).
+      </div>
+      <div class="box a">
+        <div class="t">⚠️ 함수가 되려면</div>
+        정의역의 <b>모든</b> 원소가 대응되어야 하고, 한 원소가 <b>두 개 이상</b>에 대응하면 함수가 아니다. (하나의 입력 → 하나의 출력)
+      </div>
+      <div class="box b">
+        <div class="t">✅ 일대일함수 · 일대일대응</div>
+        서로 다른 입력이 서로 다른 출력을 가지면 <b>일대일함수</b>. 여기에 <b>치역 = 공역</b>까지 되면 <b>일대일대응</b>. 일대일대응일 때만 <b>역함수가 존재</b>한다 (되돌릴 수 있음).
+      </div>
+      <div class="box b">
+        <div class="t">🧭 그래프로 판별</div>
+        어떤 그래프가 함수인지 보려면 <b>세로선 판정</b>(수직선이 그래프와 두 번 이상 만나면 함수 아님). 일대일함수는 <b>가로선 판정</b>(수평선이 두 번 이상 만나지 않음).
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="comp">
+    <div class="card">
+      <h2>⛓️ 합성함수 — 기계 연결</h2>
+      <p class="lead">$f(x) = 2x + 1$ 과 $g(x) = x^2$ 를 직렬로 연결했다. 입력 $x$ 를 바꾸며 $(g \circ f)(x) = g(f(x))$ 가 어떻게 계산되는지 보자.</p>
+      <div class="slider">입력 x<input type="range" id="xSl" min="0" max="5" step="1" value="2"><span id="xVal" style="min-width:30px;text-align:right;color:var(--accent)">2</span></div>
+      <div class="chain" id="chain"></div>
+      <div class="readout" id="ro"></div>
+      <div class="box g">
+        <div class="t">✅ 합성함수의 정의</div>
+        $(g \circ f)(x) = g(f(x))$ — <b>$f$ 를 먼저</b> 적용하고 그 결과에 $g$ 를 적용. 순서 주의! 오른쪽 함수부터 작동한다.
+      </div>
+      <div class="box a">
+        <div class="t">⚠️ 교환법칙 성립 안 함</div>
+        일반적으로 $g \circ f \ne f \circ g$. 예: $f(x)=2x+1, g(x)=x^2$ 이면 $(g \circ f)(x)=(2x+1)^2$ 이지만 $(f \circ g)(x)=2x^2+1$. 서로 다르다.
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="inv">
+    <div class="card">
+      <h2>🔄 역함수 — 되돌리기</h2>
+      <p class="lead">$f(x) = 2x - 1$ (파랑)과 그 역함수 $f^{-1}(x) = \dfrac{x+1}{2}$ (초록). 두 그래프는 직선 $y = x$ (주황 점선)에 대해 <b>대칭</b>이다.</p>
+      <div class="cv-wrap"><canvas id="cv"></canvas></div>
+      <div class="readout" id="roInv">점 (3, 5)는 f 위의 점 → 역함수에서는 (5, 3). x와 y가 바뀐다.</div>
+      <div class="box g">
+        <div class="t">✅ 역함수 구하는 법</div>
+        ① $y = f(x)$ 에서 $x$ 와 $y$ 를 <b>교환</b>, ② $y$ 에 대해 정리. 예: $y = 2x - 1$ → $x = 2y - 1$ → $y = \dfrac{x+1}{2}$. 즉 $f^{-1}(x) = \dfrac{x+1}{2}$.
+      </div>
+      <div class="box b">
+        <div class="t">✅ 핵심 성질</div>
+        역함수는 <b>일대일대응일 때만</b> 존재. $y = f(x)$ 와 $y = f^{-1}(x)$ 의 그래프는 직선 $y = x$ 에 대해 대칭. 또 $f^{-1}(f(x)) = x$, $f(f^{-1}(x)) = x$ (서로 상쇄).
+      </div>
+      <div class="box a">
+        <div class="t">⚠️ 표기 주의</div>
+        $f^{-1}$ 은 "역함수"이지 <b>$\dfrac{1}{f}$ 가 아니다</b>. 지수 $-1$ 처럼 생겼지만 역수와 무관.
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="world">
+    <div class="card">
+      <h2>🌐 세상 속으로</h2>
+      <div class="keeper">
+        <div class="kt">📌 어른이 되어도 기억할 것</div>
+        <ol>
+          <li>함수 = 입력 하나 → 출력 하나. 합성 $g \circ f$ 는 <b>오른쪽(f)부터</b>.</li>
+          <li>역함수는 <b>x·y 교환</b>, 그래프는 $y = x$ 대칭, <b>일대일대응</b>일 때만 존재.</li>
+          <li>$f^{-1}$ 은 역함수이지 역수 $\frac{1}{f}$ 가 아니다.</li>
+        </ol>
+      </div>
+      <div class="insight">
+        <div class="it">💡 인사이트 — 암호와 되돌리기</div>
+        암호화는 함수 $f$, 복호화는 그 <b>역함수</b> $f^{-1}$. 역함수를 쉽게 못 구하게 만든 것이 <b>공개키 암호</b>. 또 합성함수는 딥러닝의 층(layer)을 <b>겹겹이 쌓는</b> 바로 그 구조다.
+      </div>
+      <div class="reallife">
+        <div class="rt">🏠 함수가 숨어 있는 곳</div>
+        <div class="rgrid">
+          <div class="rcell"><div class="ri">💻</div><div class="rn">프로그래밍</div><div class="rd">함수·함수 합성</div></div>
+          <div class="rcell"><div class="ri">🔐</div><div class="rn">암호</div><div class="rd">암호화 f / 복호화 f⁻¹</div></div>
+          <div class="rcell"><div class="ri">🌡️</div><div class="rn">단위 변환</div><div class="rd">℃↔℉ 서로 역함수</div></div>
+          <div class="rcell"><div class="ri">🧠</div><div class="rn">딥러닝</div><div class="rd">층의 합성함수</div></div>
+        </div>
+      </div>
+      <div class="industry">
+        <div class="indt">🏭 산업과 직업 — 변환을 설계하다</div>
+        <div class="indrow"><div class="ii">🔐</div><div class="id2"><b>암호·보안 엔지니어</b><br>암호화/복호화를 함수와 역함수로 설계.<br><span class="major">🎓 정보보안 · 수학 · 컴퓨터공학</span></div></div>
+        <div class="indrow"><div class="ii">🧠</div><div class="id2"><b>AI·머신러닝</b><br>여러 층(함수)을 합성해 복잡한 변환을 학습.<br><span class="major">🎓 인공지능 · 데이터 · 수학</span></div></div>
+        <div class="indrow"><div class="ii">💻</div><div class="id2"><b>소프트웨어 개발</b><br>함수 합성·순수함수로 프로그램을 조립.<br><span class="major">🎓 컴퓨터공학 · 소프트웨어</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="quiz">
+    <div class="card">
+      <h2>🔥 함수 퀴즈</h2>
+      <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
+      <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="sum">
+    <div class="card">
+      <h2>✅ 정리 — 함수의 핵심</h2>
+      <table>
+        <tr><th class="l">개념</th><th class="l">내용</th></tr>
+        <tr><td class="l">함수</td><td class="l">입력 1개 → 출력 1개 ($f: X \to Y$)</td></tr>
+        <tr><td class="l">일대일대응</td><td class="l">일대일 + 치역=공역 → 역함수 존재</td></tr>
+        <tr><td class="l">합성함수</td><td class="l">$(g \circ f)(x) = g(f(x))$ (f 먼저)</td></tr>
+        <tr><td class="l">역함수 구하기</td><td class="l">$x, y$ 교환 후 $y$ 로 정리</td></tr>
+        <tr><td class="l">역함수 그래프</td><td class="l">$y = x$ 에 대해 대칭</td></tr>
+      </table>
+      <div class="box b">
+        <div class="t">🔑 한 줄 요약</div>
+        함수는 입력→출력 기계. <b>합성은 오른쪽부터</b>, <b>역함수는 x·y 교환</b>이며 $y=x$ 대칭, 일대일대응일 때만 존재. $g \circ f \ne f \circ g$.
+      </div>
+      <h3>자가 점검</h3>
+      <div class="chk"><input type="checkbox" id="c1"><label for="c1">함수·정의역·치역·일대일대응을 안다</label></div>
+      <div class="chk"><input type="checkbox" id="c2"><label for="c2">합성함수 (g∘f)(x)를 계산한다 (순서 주의)</label></div>
+      <div class="chk"><input type="checkbox" id="c3"><label for="c3">역함수를 x,y 교환으로 구할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c4"><label for="c4">역함수 그래프가 y=x 대칭임을 안다</label></div>
+      <h3>약점 태그</h3>
+      <div><span class="tag">수학:함수</span><span class="tag">수학:합성함수</span><span class="tag">수학:역함수</span><span class="tag">수학:일대일대응</span></div>
+      <div class="box g" style="margin-top:16px">
+        <div class="t">➡️ 다음 단원</div>
+        분수·근호가 들어간 함수 → <b>유리함수와 무리함수</b>로. <a href="mat2_hub.html">공통수학2 허브</a>로.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function go(t){var tab=document.querySelector('.tab[data-t="'+t+'"]');if(tab)tab.click();}
+document.getElementById('tabs').addEventListener('click',function(e){
+  var b=e.target.closest('.tab'); if(!b)return;
+  document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active')});
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
+  b.classList.add('active'); var t=b.dataset.t; var pg=document.querySelector('.page[data-p="'+t+'"]'); if(pg)pg.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(t==='comp'){ updChain(); } if(t==='inv'){ initCv(); }
+});
+/* 합성함수 체인 */
+function updChain(){
+  var x=parseInt(document.getElementById('xSl').value,10);
+  var fa=2*x+1, gfa=fa*fa;
+  document.getElementById('xVal').textContent=x;
+  document.getElementById('chain').innerHTML=
+    '<div class="cnode val">x = '+x+'</div><span class="carrow">→</span>'+
+    '<div class="cbox">f<br><span style="font-size:11px;font-weight:600">2x+1</span></div><span class="carrow">→</span>'+
+    '<div class="cnode val">'+fa+'</div><span class="carrow">→</span>'+
+    '<div class="cbox">g<br><span style="font-size:11px;font-weight:600">x²</span></div><span class="carrow">→</span>'+
+    '<div class="cnode">'+gfa+'</div>';
+  var fg=2*x*x+1;
+  var cmp = (gfa===fg) ? '이 입력에선 값이 우연히 같지만, 함수 g∘f 와 f∘g 는 서로 다름' : '서로 다름!';
+  document.getElementById('ro').innerHTML='(g∘f)('+x+') = g(f('+x+')) = g('+fa+') = <b>'+gfa+'</b>'+
+    '<br><span style="font-size:12.5px;color:#94a3b8">참고 (f∘g)('+x+') = 2·'+x+'²+1 = '+fg+' &nbsp;→ '+cmp+'</span>';
+}
+document.getElementById('xSl').addEventListener('input',updChain);
+/* 역함수 canvas */
+function setupCanvas(cv,w,h){var dpr=window.devicePixelRatio||1;cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);cv.style.width=w+'px';cv.style.height=h+'px';var ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);return ctx;}
+function planeTf(w,h,pad,mn,mx){var s=(w-2*pad)/(mx-mn);return {X:function(x){return pad+(x-mn)*s;}, Y:function(y){return h-pad-(y-mn)*s;}, s:s};}
+function initCv(){
+  var cv=document.getElementById('cv'); var w=Math.min(cv.parentNode.clientWidth,360); if(w<200)w=320; var h=w;
+  var ctx=setupCanvas(cv,w,h); var mn=-6,mx=6; var tf=planeTf(w,h,20,mn,mx);
+  ctx.clearRect(0,0,w,h);ctx.lineWidth=1;ctx.strokeStyle='#eef2f7';
+  for(var i=mn;i<=mx;i++){ctx.beginPath();ctx.moveTo(tf.X(i),tf.Y(mn));ctx.lineTo(tf.X(i),tf.Y(mx));ctx.stroke();ctx.beginPath();ctx.moveTo(tf.X(mn),tf.Y(i));ctx.lineTo(tf.X(mx),tf.Y(i));ctx.stroke();}
+  ctx.strokeStyle='#94a3b8';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(tf.X(mn),tf.Y(0));ctx.lineTo(tf.X(mx),tf.Y(0));ctx.stroke();ctx.beginPath();ctx.moveTo(tf.X(0),tf.Y(mn));ctx.lineTo(tf.X(0),tf.Y(mx));ctx.stroke();
+  // y=x dashed
+  ctx.setLineDash([6,4]);ctx.strokeStyle='#f59e0b';ctx.lineWidth=1.8;ctx.beginPath();ctx.moveTo(tf.X(mn),tf.Y(mn));ctx.lineTo(tf.X(mx),tf.Y(mx));ctx.stroke();ctx.setLineDash([]);
+  // f: y=2x-1
+  ctx.strokeStyle='#2563eb';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(tf.X(-2.5),tf.Y(2*(-2.5)-1));ctx.lineTo(tf.X(3.5),tf.Y(2*3.5-1));ctx.stroke();
+  // f^-1: y=(x+1)/2
+  ctx.strokeStyle='#16a34a';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(tf.X(-6),tf.Y((-6+1)/2));ctx.lineTo(tf.X(6),tf.Y((6+1)/2));ctx.stroke();
+  // points (3,5) and (5,3)
+  function pt(x,y,c,lb){ctx.beginPath();ctx.arc(tf.X(x),tf.Y(y),5,0,7);ctx.fillStyle=c;ctx.fill();ctx.fillStyle='#0f172a';ctx.font='bold 11px sans-serif';ctx.textAlign='left';ctx.fillText(lb,tf.X(x)+7,tf.Y(y)-6);}
+  pt(3,5,'#2563eb','(3,5)'); pt(5,3,'#16a34a','(5,3)');
+  ctx.fillStyle='#2563eb';ctx.font='bold 12px sans-serif';ctx.textAlign='left';ctx.fillText('f',tf.X(2.6),tf.Y(2*2.6-1)-2);
+  ctx.fillStyle='#16a34a';ctx.fillText('f⁻¹',tf.X(4.4),tf.Y((4.4+1)/2)+16);
+}
+window.addEventListener('resize',function(){ if(document.querySelector('.page[data-p=inv]').classList.contains('active'))initCv(); });
+
+var QUIZ=[
+ {q:'f(x)=3x+2 일 때 f(2) 의 값은?',o:['8','6','5','11'],a:0,e:'f(2)=3·2+2=8.'},
+ {q:'f(x)=2x+1, g(x)=x² 일 때 (g∘f)(1) 은?',o:['9','5','3','7'],a:0,e:'(g∘f)(1)=g(f(1))=g(3)=3²=9. f를 먼저!'},
+ {q:'합성함수 (g∘f)(x) 의 뜻으로 옳은 것은?',o:['g(f(x)) — f를 먼저','f(g(x)) — g를 먼저','g(x)·f(x)','g(x)+f(x)'],a:0,e:'(g∘f)(x)=g(f(x)). 오른쪽 f부터 적용한다.'},
+ {q:'f(x)=x+3 의 역함수 f⁻¹(x) 는?',o:['x−3','x+3','3−x','1/(x+3)'],a:0,e:'y=x+3에서 x·y 교환 → x=y+3 → y=x−3.'},
+ {q:'y=2x−1 의 역함수는?',o:['y=(x+1)/2','y=2x+1','y=(x−1)/2','y=1/(2x−1)'],a:0,e:'x,y 교환: x=2y−1 → y=(x+1)/2.'},
+ {q:'함수 y=f(x)와 그 역함수 y=f⁻¹(x)의 그래프는 무엇에 대해 대칭?',o:['직선 y=x','x축','y축','원점'],a:0,e:'역함수의 그래프는 원래 그래프를 y=x에 대해 대칭이동한 것.'},
+ {q:'역함수가 존재하기 위한 조건은?',o:['일대일대응','치역이 공역보다 작다','상수함수','정의역이 무한'],a:0,e:'일대일대응(일대일 + 치역=공역)일 때만 역함수가 존재한다.'},
+ {q:'f⁻¹ 표기에 대한 설명으로 옳은 것은?',o:['역함수 (1/f 가 아님)','f의 역수 1/f','f의 제곱','f를 −1번 적용'],a:0,e:'f⁻¹은 역함수. 역수 1/f 와는 전혀 다르다.'},
+ {q:'일반적으로 g∘f 와 f∘g 의 관계는?',o:['서로 다를 수 있다 (교환법칙 X)','항상 같다','항상 0','항상 1'],a:0,e:'합성은 교환법칙이 성립하지 않는다. 순서가 중요.'},
+ {q:'암호화를 함수 f로 볼 때, 복호화에 해당하는 것은?',o:['역함수 f⁻¹','합성 f∘f','f의 제곱','상수함수'],a:0,e:'암호화 f를 되돌리는 것이 복호화 = 역함수 f⁻¹.'}
+];
+var qi=0,qscore=0,qans=false;
+function renderQ(){
+  qans=false; var q=QUIZ[qi];
+  document.getElementById('qNum').textContent='문제 '+(qi+1)+' / '+QUIZ.length;
+  document.getElementById('qScore').textContent=qscore; document.getElementById('qBar').style.width=(qi/QUIZ.length*100)+'%';
+  document.getElementById('qQ').textContent=q.q;
+  var opts=document.getElementById('qOpts'); opts.innerHTML='';
+  q.o.forEach(function(txt,idx){var b=document.createElement('button'); b.className='qopt'; b.textContent=txt; b.addEventListener('click',function(){pick(idx,b);}); opts.appendChild(b);});
+  document.getElementById('qExp').className='qexp'; document.getElementById('qExp').innerHTML=''; document.getElementById('qNext').className='qnext';
+}
+function pick(idx,btn){
+  if(qans)return; qans=true; var q=QUIZ[qi];
+  document.querySelectorAll('#qOpts .qopt').forEach(function(b,i){if(i===q.a)b.classList.add('correct');else if(b===btn)b.classList.add('wrong');else b.classList.add('dim');});
+  var ok=(idx===q.a); if(ok)qscore++; document.getElementById('qScore').textContent=qscore;
+  var ex=document.getElementById('qExp'); ex.innerHTML='<div class="et">'+(ok?'⭕ 정답!':'❌ 오답')+'</div>'+q.e; ex.className='qexp show';
+  document.getElementById('qNext').className='qnext show';
+}
+document.getElementById('qNext').addEventListener('click',function(){qi++; if(qi>=QUIZ.length){finishQuiz();return;} renderQ();});
+function finishQuiz(){
+  document.getElementById('qBar').style.width='100%'; document.getElementById('qNum').textContent='완료 ✓';
+  var pct=Math.round(qscore/QUIZ.length*100);
+  var msg=pct>=90?'완벽해요! 함수·합성·역함수를 정복했어요.':pct>=70?'잘했어요! 틀린 것만 다시 보면 완성.':'개념 탭을 한 번 더 보고 재도전해요.';
+  document.getElementById('qArea').innerHTML='<div class="qdone"><div class="big">'+qscore+' / '+QUIZ.length+'</div><p style="margin:8px 0 4px;font-size:15px">정답률 '+pct+'%</p><p style="color:#64748b;font-size:13px;margin-bottom:16px">'+msg+'</p><button class="btn" onclick="restartQuiz()">↺ 다시 풀기</button></div>';
+}
+function restartQuiz(){
+  qi=0;qscore=0;
+  document.getElementById('qArea').innerHTML='<div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button>';
+  document.getElementById('qNext').addEventListener('click',function(){qi++;if(qi>=QUIZ.length){finishQuiz();return;}renderQ();});
+  renderQ();
+}
+QUIZ.forEach(function(q){var correct=q.o[q.a];for(var i=q.o.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=q.o[i];q.o[i]=q.o[j];q.o[j]=t;}q.a=q.o.indexOf(correct);});
+renderQ();
+</script>
+</body>
+</html>

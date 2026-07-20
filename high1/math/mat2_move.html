@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>도형의 이동 — 공통수학2</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
+<style>
+  :root{
+    --panel:#fff; --ink:#1e293b; --sub:#64748b; --line:#e2e8f0;
+    --blue:#2563eb; --green:#16a34a; --green-bg:#f0fdf4;
+    --amber:#d97706; --amber-bg:#fffbeb; --red:#dc2626; --red-bg:#fef2f2;
+    --purple:#7c3aed; --purple-bg:#f5f3ff; --indigo:#4f46e5; --accent:#7c3aed; --accent-bg:#f5f3ff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',sans-serif;background:#f1f5f9;color:var(--ink);line-height:1.7;-webkit-text-size-adjust:100%}
+  a{color:var(--blue)}
+  .crumb{background:#f8fafc;border-bottom:1px solid var(--line);padding:7px 16px;font-size:12px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+  .crumb a{color:var(--sub);text-decoration:none} .crumb a.cur{color:var(--accent);font-weight:600} .crumb span{color:#cbd5e1}
+  .hero{background:linear-gradient(135deg,#5b21b6,#7c3aed 60%,#a78bfa);color:#fff;padding:26px 18px 22px;text-align:center}
+  .hero .badge{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:3px 13px;font-size:12px;margin-bottom:10px}
+  .hero h1{font-size:21px;font-weight:800;letter-spacing:-.3px} .hero p{font-size:13px;opacity:.92;margin-top:6px}
+  .tabs{position:sticky;top:0;z-index:50;display:flex;background:#4c1d95;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;padding:13px 15px;min-height:44px;color:#ddd6fe;font-size:13.5px;font-weight:600;cursor:pointer;border:none;background:none;border-bottom:3px solid transparent;white-space:nowrap;transition:.15s}
+  .tab.active{color:#fff;border-bottom-color:#a78bfa} .tab:hover{color:#ede9fe}
+  .wrap{max-width:820px;margin:0 auto;padding:22px 16px 70px}
+  .page{display:none} .page.active{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .card h2{font-size:18px;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .card h3{font-size:15px;font-weight:700;margin:16px 0 8px;color:var(--accent)} .card p{font-size:14px;margin-bottom:8px} .lead{color:var(--sub);font-size:13px;margin-bottom:14px}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0} th,td{border:1px solid var(--line);padding:8px 9px;text-align:center} th{background:#f8fafc;font-weight:700} td.l,th.l{text-align:left}
+  .box{border-radius:10px;padding:13px 15px;margin:10px 0;font-size:13.5px}
+  .box.g{background:var(--green-bg);border:1px solid #bbf7d0} .box.a{background:var(--amber-bg);border:1px solid #fde68a} .box.b{background:var(--accent-bg);border:1px solid #ddd6fe}
+  .box .t{font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:6px} .box.g .t{color:var(--green)} .box.a .t{color:var(--amber)} .box.b .t{color:var(--accent)}
+  .hook{background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #ddd6fe;border-radius:12px;padding:16px 18px;margin:12px 0;font-size:14px}
+  .hook .ht{color:var(--accent);font-weight:800;font-size:15px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  .keeper{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fcd34d;border-radius:12px;padding:15px 17px;margin:12px 0}
+  .keeper .kt{color:#b45309;font-weight:800;font-size:14.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .keeper ol{margin:0;list-style:none} .keeper li{position:relative;padding:8px 0 8px 34px;font-size:13.5px;border-bottom:1px dashed #fde68a} .keeper li:last-child{border-bottom:none} .keeper li::before{content:"📌";position:absolute;left:4px;top:8px}
+  .insight{background:var(--purple-bg);border:1px solid #ddd6fe;border-radius:12px;padding:14px 16px;margin:12px 0;font-size:13.5px} .insight .it{color:var(--purple);font-weight:800;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+  .reallife{background:var(--green-bg);border:1px solid #bbf7d0;border-radius:12px;padding:14px 16px;margin:12px 0} .reallife .rt{color:var(--green);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:9px} .rcell{background:#fff;border:1px solid #bbf7d0;border-radius:9px;padding:10px} .rcell .ri{font-size:22px} .rcell .rn{font-weight:800;font-size:13px;margin:3px 0} .rcell .rd{font-size:11.5px;color:#475569;line-height:1.5}
+  .industry{background:#eef2ff;border:1px solid #c7d2fe;border-radius:12px;padding:14px 16px;margin:12px 0} .industry .indt{color:var(--indigo);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .indrow{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #e0e7ff} .indrow:last-child{border-bottom:none} .indrow .ii{font-size:24px;flex-shrink:0} .indrow .id2{font-size:13px} .indrow .id2 b{color:#312e81}
+  .major{display:inline-block;background:#312e81;color:#c7d2fe;border-radius:6px;padding:2px 8px;font-size:10.5px;font-weight:700;margin-top:4px}
+  .sci{display:flex;gap:13px;align-items:flex-start;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fde68a;border-radius:12px;padding:15px;margin:12px 0} .sci .ava{font-size:34px;line-height:1;flex-shrink:0} .sci .st{font-weight:800;color:#92400e;font-size:14px;margin-bottom:3px} .sci .sd{font-size:13px;color:#78350f}
+  .toc{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:8px}
+  .toc button{text-align:left;background:var(--accent-bg);border:1px solid #ddd6fe;border-radius:10px;padding:12px;cursor:pointer;font:inherit;transition:.15s;min-height:44px} .toc button:hover{border-color:var(--accent);box-shadow:0 2px 8px rgba(124,58,237,.14)}
+  .toc .ti{font-size:20px}.toc .tn{font-weight:800;font-size:13.5px;margin-top:4px}.toc .td{font-size:11.5px;color:var(--sub)}
+  .cv-wrap{text-align:center;margin:10px 0}
+  canvas{background:#fff;border:1px solid var(--line);border-radius:12px;max-width:100%;touch-action:none}
+  .ctrl{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+  .cbtn{background:#f1f5f9;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:9px 13px;font:inherit;font-weight:700;font-size:13px;cursor:pointer;min-height:44px}
+  .cbtn.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .readout{background:#0f172a;color:#e2e8f0;border-radius:10px;padding:12px 14px;margin:8px 0;font-size:14px;text-align:center;line-height:1.8} .readout b{color:#a78bfa}
+  .slider{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:13px;font-weight:700}
+  .slider input[type=range]{flex:1;accent-color:var(--accent);height:28px}
+  .quizhud{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:12px 16px;margin-bottom:14px} .quizhud .qn{font-weight:800;font-size:14px} .quizhud .sc{margin-left:auto;font-size:13px} .quizhud .sc b{color:#a78bfa;font-size:16px}
+  .qbar{flex-basis:100%;height:8px;background:#334155;border-radius:20px;overflow:hidden;margin-top:2px} .qbar > i{display:block;height:100%;background:linear-gradient(90deg,#a78bfa,#7c3aed)}
+  .qq{font-size:16px;font-weight:700;text-align:center;margin:10px 0 16px} .qopts{display:grid;gap:10px}
+  .qopt{border:2px solid var(--line);background:#fff;border-radius:12px;padding:14px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:.12s;min-height:52px} .qopt:hover{border-color:var(--accent)} .qopt.correct{background:var(--green-bg);border-color:#6ee7b7;color:#065f46} .qopt.wrong{background:var(--red-bg);border-color:#fecaca;color:#991b1b} .qopt.dim{opacity:.5}
+  .qexp{display:none;margin-top:14px;background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:13px 15px;font-size:13.5px} .qexp.show{display:block;animation:fade .2s ease}.qexp .et{font-weight:800;margin-bottom:4px}
+  .qnext{display:none;margin-top:14px;width:100%;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:13px;font:inherit;font-weight:800;font-size:14px;cursor:pointer;min-height:48px} .qnext.show{display:block}
+  .qdone{text-align:center;padding:10px 0}.qdone .big{font-size:40px;font-weight:800;color:var(--accent)}
+  .btn{display:inline-block;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px 18px;font:inherit;font-weight:700;font-size:13.5px;cursor:pointer;text-decoration:none;min-height:44px}
+  .chk{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px} .chk:last-child{border-bottom:none} .chk input{margin-top:4px;width:17px;height:17px;flex-shrink:0;accent-color:var(--accent)}
+  .tag{display:inline-block;background:var(--accent-bg);color:var(--accent);border:1px solid #ddd6fe;border-radius:6px;padding:2px 9px;font-size:11.5px;font-weight:700;margin:3px 4px 0 0}
+  @media (max-width:640px){ .hero h1{font-size:19px} .card{padding:16px} }
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Math_1_1</a><span>&rsaquo;</span><a href="mat2_hub.html">공통수학2</a><span>&rsaquo;</span><a class="cur" href="#">도형의 이동</a></nav>
+<div class="hero">
+  <span class="badge">Ⅰ. 도형의 방정식</span>
+  <h1>🔄 도형의 이동</h1>
+  <p>옮기고 뒤집기 — 좌표로 도형을 조종하다</p>
+</div>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="intro">📋 개요</button>
+  <button class="tab" data-t="lab">🧪 이동 실험실</button>
+  <button class="tab" data-t="rule">📐 이동 규칙</button>
+  <button class="tab" data-t="world">🌐 세상 속으로</button>
+  <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="sum">✅ 정리</button>
+</div>
+<div class="wrap">
+
+  <div class="page active" data-p="intro">
+    <div class="card">
+      <h2>📋 도형을 움직이는 법칙</h2>
+      <div class="hook">
+        <div class="ht">💥 왜 배우나</div>
+        도형을 <b>옮기고(평행이동)</b> <b>뒤집는(대칭이동)</b> 일은 좌표에서 아주 단순한 규칙이 된다. 게임 캐릭터의 이동, 사진 좌우 반전, 애니메이션, 로봇 팔의 동작이 전부 이 <b>변환</b>의 조합이다.
+      </div>
+      <div class="sci">
+        <div class="ava">🎞️</div>
+        <div>
+          <div class="st">변환(transformation) — 컴퓨터 그래픽의 언어</div>
+          <div class="sd">평행이동·대칭·회전·확대를 <b>좌표 변환</b>으로 표현하면, 컴퓨터가 도형을 자유롭게 조종할 수 있다. 이 아이디어가 <b>행렬</b>과 만나면 3D 게임·CG의 핵심 엔진이 된다.</div>
+        </div>
+      </div>
+      <div class="toc">
+        <button onclick="go('lab')"><div class="ti">🧪</div><div class="tn">이동 실험실</div><div class="td">평행·대칭 관찰</div></button>
+        <button onclick="go('rule')"><div class="ti">📐</div><div class="tn">이동 규칙</div><div class="td">점·식의 변화</div></button>
+        <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">게임·CG·로봇</div></button>
+        <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+        <button onclick="go('sum')"><div class="ti">✅</div><div class="tn">정리</div><div class="td">규칙·자가점검</div></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="lab">
+    <div class="card">
+      <h2>🧪 이동 실험실</h2>
+      <p class="lead">보라색 삼각형(원본)을 여러 방법으로 이동시켜 보자. 초록색이 <b>이동한 도형</b>(상). 대칭이동은 점선(대칭축)을 기준으로 뒤집힌다.</p>
+      <div class="cv-wrap"><canvas id="cv"></canvas></div>
+      <div class="ctrl" id="modeBtns">
+        <button class="cbtn on" data-m="trans">평행이동</button>
+        <button class="cbtn" data-m="x">x축 대칭</button>
+        <button class="cbtn" data-m="y">y축 대칭</button>
+        <button class="cbtn" data-m="o">원점 대칭</button>
+        <button class="cbtn" data-m="yx">y = x 대칭</button>
+      </div>
+      <div id="transSliders">
+        <div class="slider">x로 a<input type="range" id="aSl" min="-2" max="2" step="1" value="2"><span id="aVal" style="min-width:36px;text-align:right;color:var(--accent)">2</span></div>
+        <div class="slider">y로 b<input type="range" id="bSl" min="-3" max="3" step="1" value="1"><span id="bVal" style="min-width:36px;text-align:right;color:var(--accent)">1</span></div>
+      </div>
+      <div class="readout" id="ro"></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="rule">
+    <div class="card">
+      <h2>📐 이동 규칙 — 점과 식</h2>
+      <div class="box g">
+        <div class="t">✅ 평행이동</div>
+        점 $(x, y)$ 를 $x$ 축으로 $a$, $y$ 축으로 $b$ 만큼 옮기면 $(x+a,\ y+b)$. 곡선 $y = f(x)$ 는 $y - b = f(x - a)$, 즉 $y = f(x-a) + b$ 로 바뀐다. <b>(식에서는 반대 부호로 대입!)</b>
+      </div>
+      <div class="box b">
+        <div class="t">✅ 대칭이동 — 점의 변화</div>
+        <table>
+          <tr><th>대칭축</th><th>점 $(x,y)$ → 상</th><th>식의 변화</th></tr>
+          <tr><td>$x$ 축</td><td>$(x,\ -y)$</td><td>$y$ 자리에 $-y$</td></tr>
+          <tr><td>$y$ 축</td><td>$(-x,\ y)$</td><td>$x$ 자리에 $-x$</td></tr>
+          <tr><td>원점</td><td>$(-x,\ -y)$</td><td>$x,y$ 자리에 $-x,-y$</td></tr>
+          <tr><td>$y = x$</td><td>$(y,\ x)$</td><td>$x$ 와 $y$ 를 교환</td></tr>
+        </table>
+      </div>
+      <div class="box a">
+        <div class="t">⚠️ 헷갈림 주의</div>
+        <b>점</b>을 옮길 땐 <b>더하는</b> 방향, <b>식</b>을 바꿀 땐 <b>빼는</b> 방향. 예: 점을 오른쪽 $a$ 만큼 → $(x+a,y)$ 지만, 그래프 식은 $y=f(x-a)$. 이 "반대 부호"가 최고 빈출 실수.
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="world">
+    <div class="card">
+      <h2>🌐 세상 속으로</h2>
+      <div class="keeper">
+        <div class="kt">📌 어른이 되어도 기억할 것</div>
+        <ol>
+          <li>평행이동: 점은 $(x+a, y+b)$, 그래프 식은 $y = f(x-a) + b$ (<b>반대 부호</b>).</li>
+          <li>$x$ 축 대칭 = 위아래 뒤집기 $(x,-y)$, $y$ 축 대칭 = 좌우 뒤집기 $(-x,y)$.</li>
+          <li>$y = x$ 대칭 = $x$ 와 $y$ <b>교환</b> — 역함수의 그래프가 바로 이것!</li>
+        </ol>
+      </div>
+      <div class="insight">
+        <div class="it">💡 인사이트 — 역함수는 y=x 대칭</div>
+        어떤 함수의 <b>역함수</b> 그래프는 원래 그래프를 <b>직선 $y = x$ 에 대해 대칭</b>이동한 것이다. 함수 단원에서 다시 만날 이 사실이, 사실은 "도형의 이동"에서 이미 준비되고 있다.
+      </div>
+      <div class="reallife">
+        <div class="rt">🏠 이동·대칭이 숨어 있는 곳</div>
+        <div class="rgrid">
+          <div class="rcell"><div class="ri">🎮</div><div class="rn">게임·애니메이션</div><div class="rd">캐릭터 이동·좌우반전</div></div>
+          <div class="rcell"><div class="ri">🪞</div><div class="rn">사진 편집</div><div class="rd">대칭(미러)·뒤집기</div></div>
+          <div class="rcell"><div class="ri">🤖</div><div class="rn">로봇·CNC</div><div class="rd">좌표 변환으로 동작</div></div>
+          <div class="rcell"><div class="ri">🧬</div><div class="rn">결정·분자 대칭</div><div class="rd">대칭성으로 성질 파악</div></div>
+        </div>
+      </div>
+      <div class="industry">
+        <div class="indt">🏭 산업과 직업 — 변환을 다루다</div>
+        <div class="indrow"><div class="ii">🎨</div><div class="id2"><b>3D·CG 아티스트/엔지니어</b><br>평행·대칭·회전·확대를 좌표(행렬) 변환으로 조합.<br><span class="major">🎓 컴퓨터그래픽 · 게임 · 시각디자인</span></div></div>
+        <div class="indrow"><div class="ii">🦾</div><div class="id2"><b>로보틱스·자동화</b><br>도구·팔의 위치를 좌표 변환으로 정밀 제어.<br><span class="major">🎓 기계 · 전자 · 제어공학</span></div></div>
+        <div class="indrow"><div class="ii">🔬</div><div class="id2"><b>재료·화학(대칭성)</b><br>결정·분자의 대칭으로 물성을 예측·분류.<br><span class="major">🎓 화학 · 재료 · 물리</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="quiz">
+    <div class="card">
+      <h2>🔥 도형의 이동 퀴즈</h2>
+      <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
+      <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="sum">
+    <div class="card">
+      <h2>✅ 정리 — 이동 규칙</h2>
+      <table>
+        <tr><th class="l">이동</th><th class="l">점 $(x,y)$ →</th></tr>
+        <tr><td class="l">평행이동 $(a,b)$</td><td class="l">$(x+a,\ y+b)$</td></tr>
+        <tr><td class="l">$x$ 축 대칭</td><td class="l">$(x,\ -y)$</td></tr>
+        <tr><td class="l">$y$ 축 대칭</td><td class="l">$(-x,\ y)$</td></tr>
+        <tr><td class="l">원점 대칭</td><td class="l">$(-x,\ -y)$</td></tr>
+        <tr><td class="l">$y=x$ 대칭</td><td class="l">$(y,\ x)$</td></tr>
+      </table>
+      <div class="box b">
+        <div class="t">🔑 한 줄 요약</div>
+        <b>점은 더하고, 식은 반대로 대입.</b> 대칭은 부호를 바꾸거나($x$축·$y$축·원점) 좌표를 교환($y=x$). $y=x$ 대칭은 역함수의 그래프.
+      </div>
+      <h3>자가 점검</h3>
+      <div class="chk"><input type="checkbox" id="c1"><label for="c1">점·그래프의 평행이동을 구할 수 있다 (반대 부호 주의)</label></div>
+      <div class="chk"><input type="checkbox" id="c2"><label for="c2">x축·y축·원점 대칭이동을 안다</label></div>
+      <div class="chk"><input type="checkbox" id="c3"><label for="c3">y=x 대칭은 좌표 교환임을 안다</label></div>
+      <div class="chk"><input type="checkbox" id="c4"><label for="c4">y=x 대칭과 역함수의 관계를 안다</label></div>
+      <h3>약점 태그</h3>
+      <div><span class="tag">수학:평행이동</span><span class="tag">수학:대칭이동</span><span class="tag">수학:그래프이동</span></div>
+      <div class="box g" style="margin-top:16px">
+        <div class="t">➡️ 다음 단원</div>
+        도형의 방정식을 마쳤다 → <b>집합과 명제</b>로. <a href="mat2_hub.html">공통수학2 허브</a>로.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function go(t){var tab=document.querySelector('.tab[data-t="'+t+'"]');if(tab)tab.click();}
+document.getElementById('tabs').addEventListener('click',function(e){
+  var b=e.target.closest('.tab'); if(!b)return;
+  document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active')});
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
+  b.classList.add('active'); var t=b.dataset.t; var pg=document.querySelector('.page[data-p="'+t+'"]'); if(pg)pg.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(t==='lab'){ initCv(); }
+});
+function setupCanvas(cv,w,h){var dpr=window.devicePixelRatio||1;cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);cv.style.width=w+'px';cv.style.height=h+'px';var ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);return ctx;}
+function planeTf(w,h,pad,xmin,xmax,ymin,ymax){var sx=(w-2*pad)/(xmax-xmin), sy=(h-2*pad)/(ymax-ymin);return {X:function(x){return pad+(x-xmin)*sx;}, Y:function(y){return h-pad-(y-ymin)*sy;}, sx:sx, sy:sy};}
+function drawGrid(ctx,tf,w,h,xmin,xmax,ymin,ymax){
+  ctx.clearRect(0,0,w,h);ctx.lineWidth=1;ctx.strokeStyle='#eef2f7';
+  for(var x=Math.ceil(xmin);x<=xmax;x++){ctx.beginPath();ctx.moveTo(tf.X(x),tf.Y(ymin));ctx.lineTo(tf.X(x),tf.Y(ymax));ctx.stroke();}
+  for(var y=Math.ceil(ymin);y<=ymax;y++){ctx.beginPath();ctx.moveTo(tf.X(xmin),tf.Y(y));ctx.lineTo(tf.X(xmax),tf.Y(y));ctx.stroke();}
+  ctx.strokeStyle='#94a3b8';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(tf.X(xmin),tf.Y(0));ctx.lineTo(tf.X(xmax),tf.Y(0));ctx.stroke();
+  ctx.beginPath();ctx.moveTo(tf.X(0),tf.Y(ymin));ctx.lineTo(tf.X(0),tf.Y(ymax));ctx.stroke();
+}
+var TRI=[[1,1],[4,1],[1,3]];
+var mode='trans';
+function xform(p){
+  var a=parseFloat(document.getElementById('aSl').value), b=parseFloat(document.getElementById('bSl').value);
+  var x=p[0],y=p[1];
+  if(mode==='trans')return [x+a,y+b];
+  if(mode==='x')return [x,-y];
+  if(mode==='y')return [-x,y];
+  if(mode==='o')return [-x,-y];
+  if(mode==='yx')return [y,x];
+  return [x,y];
+}
+function poly(ctx,tf,pts,stroke,fill){
+  ctx.beginPath();
+  pts.forEach(function(p,i){ var X=tf.X(p[0]),Y=tf.Y(p[1]); if(i===0)ctx.moveTo(X,Y);else ctx.lineTo(X,Y); });
+  ctx.closePath(); if(fill){ctx.fillStyle=fill;ctx.fill();} ctx.strokeStyle=stroke;ctx.lineWidth=2.2;ctx.stroke();
+}
+function initCv(){
+  var cv=document.getElementById('cv'); var w=Math.min(cv.parentNode.clientWidth,360); if(w<200)w=320; var h=Math.round(w*0.95);
+  var ctx=setupCanvas(cv,w,h); var tf=planeTf(w,h,22,-6,6,-6,6); drawGrid(ctx,tf,w,h,-6,6,-6,6);
+  // symmetry axis (dashed)
+  ctx.setLineDash([6,4]);ctx.strokeStyle='#f59e0b';ctx.lineWidth=1.8;ctx.beginPath();
+  if(mode==='x'){ctx.moveTo(tf.X(-6),tf.Y(0));ctx.lineTo(tf.X(6),tf.Y(0));ctx.stroke();}
+  else if(mode==='y'){ctx.moveTo(tf.X(0),tf.Y(-6));ctx.lineTo(tf.X(0),tf.Y(6));ctx.stroke();}
+  else if(mode==='yx'){ctx.moveTo(tf.X(-6),tf.Y(-6));ctx.lineTo(tf.X(6),tf.Y(6));ctx.stroke();}
+  else if(mode==='o'){ctx.beginPath();ctx.arc(tf.X(0),tf.Y(0),4,0,7);ctx.fillStyle='#f59e0b';ctx.fill();}
+  ctx.setLineDash([]);
+  var img=TRI.map(xform);
+  poly(ctx,tf,TRI,'#7c3aed','rgba(124,58,237,0.16)');
+  poly(ctx,tf,img,'#16a34a','rgba(22,163,74,0.18)');
+  // labels for A
+  ctx.fillStyle='#5b21b6';ctx.font='bold 12px sans-serif';ctx.textAlign='left';ctx.fillText('원본',tf.X(TRI[0][0])+6,tf.Y(TRI[0][1])+16);
+  ctx.fillStyle='#166534';ctx.fillText('상',tf.X(img[0][0])+6,tf.Y(img[0][1])+16);
+  var names={trans:'평행이동',x:'x축 대칭',y:'y축 대칭',o:'원점 대칭',yx:'y = x 대칭'};
+  var an=parseFloat(document.getElementById('aSl').value), bn=parseFloat(document.getElementById('bSl').value);
+  var pt=function(p){return '('+p[0]+', '+p[1]+')';};
+  var term=function(v,n){return v>0?n+' + '+v:(v<0?n+' − '+(-v):n);};
+  var detail = mode==='trans' ? ('(x, y) → ('+term(an,'x')+', '+term(bn,'y')+') · 꼭짓점 '+pt(TRI[0])+' → '+pt(img[0])) : ('꼭짓점 '+pt(TRI[0])+' → '+pt(img[0])+', '+pt(TRI[1])+' → '+pt(img[1]));
+  document.getElementById('ro').innerHTML='<b>'+names[mode]+'</b><br><span style="font-size:12.5px;color:#94a3b8">'+detail+'</span>';
+}
+document.getElementById('modeBtns').addEventListener('click',function(e){
+  var b=e.target.closest('.cbtn'); if(!b)return;
+  this.querySelectorAll('.cbtn').forEach(function(x){x.classList.remove('on')}); b.classList.add('on');
+  mode=b.dataset.m; document.getElementById('transSliders').style.display=(mode==='trans')?'block':'none'; initCv();
+});
+['aSl','bSl'].forEach(function(id){document.getElementById(id).addEventListener('input',function(){document.getElementById('aVal').textContent=document.getElementById('aSl').value;document.getElementById('bVal').textContent=document.getElementById('bSl').value;initCv();});});
+window.addEventListener('resize',function(){ if(document.querySelector('.page[data-p=lab]').classList.contains('active'))initCv(); });
+
+var QUIZ=[
+ {q:'점 (2,3)을 x축으로 3, y축으로 −1만큼 평행이동한 점은?',o:['(5,2)','(−1,4)','(5,4)','(2,2)'],a:0,e:'(x+3, y−1)=(2+3, 3−1)=(5,2).'},
+ {q:'점 (4,−2)를 x축에 대하여 대칭이동한 점은?',o:['(4,2)','(−4,−2)','(−4,2)','(2,4)'],a:0,e:'x축 대칭은 (x,−y) → (4, 2). y의 부호만 바뀐다.'},
+ {q:'점 (3,5)를 y축에 대하여 대칭이동한 점은?',o:['(−3,5)','(3,−5)','(−3,−5)','(5,3)'],a:0,e:'y축 대칭은 (−x, y) → (−3, 5). x의 부호만 바뀐다.'},
+ {q:'점 (2,−7)을 원점에 대하여 대칭이동한 점은?',o:['(−2,7)','(2,7)','(−2,−7)','(7,2)'],a:0,e:'원점 대칭은 (−x,−y) → (−2, 7). 두 부호 모두 바뀐다.'},
+ {q:'점 (1,6)을 직선 y=x에 대하여 대칭이동한 점은?',o:['(6,1)','(−1,−6)','(1,−6)','(−6,−1)'],a:0,e:'y=x 대칭은 좌표를 교환 (y,x) → (6, 1).'},
+ {q:'그래프 y=f(x)를 x축으로 2만큼 평행이동한 식은?',o:['y=f(x−2)','y=f(x+2)','y=f(x)−2','y=f(x)+2'],a:0,e:'점은 +2지만 식은 반대 부호로 대입 → y=f(x−2). 최고 빈출 실수!'},
+ {q:'y=x² 을 y축으로 3만큼 평행이동하면?',o:['y=x²+3','y=x²−3','y=(x−3)²','y=(x+3)²'],a:0,e:'y축(위)으로 3 → y=f(x)+3=x²+3.'},
+ {q:'곡선 y=f(x)를 x축에 대하여 대칭이동한 식은?',o:['−y=f(x)','y=f(−x)','y=−f(−x)','x=f(y)'],a:0,e:'x축 대칭은 y 자리에 −y → −y=f(x), 즉 y=−f(x).'},
+ {q:'어떤 함수의 역함수의 그래프는 원래 그래프를 무엇에 대해 대칭한 것?',o:['직선 y=x','x축','y축','원점'],a:0,e:'역함수의 그래프는 y=x 대칭. 함수 단원에서 다시 만난다.'},
+ {q:'점을 옮길 때와 그래프 식을 바꿀 때의 부호 관계로 옳은 것은?',o:['서로 반대 부호','항상 같은 부호','둘 다 부호 없음','알 수 없다'],a:0,e:'점은 (x+a), 그래프 식은 f(x−a). 반대 부호가 핵심.'}
+];
+var qi=0,qscore=0,qans=false;
+function renderQ(){
+  qans=false; var q=QUIZ[qi];
+  document.getElementById('qNum').textContent='문제 '+(qi+1)+' / '+QUIZ.length;
+  document.getElementById('qScore').textContent=qscore; document.getElementById('qBar').style.width=(qi/QUIZ.length*100)+'%';
+  document.getElementById('qQ').textContent=q.q;
+  var opts=document.getElementById('qOpts'); opts.innerHTML='';
+  q.o.forEach(function(txt,idx){var b=document.createElement('button'); b.className='qopt'; b.textContent=txt; b.addEventListener('click',function(){pick(idx,b);}); opts.appendChild(b);});
+  document.getElementById('qExp').className='qexp'; document.getElementById('qExp').innerHTML=''; document.getElementById('qNext').className='qnext';
+}
+function pick(idx,btn){
+  if(qans)return; qans=true; var q=QUIZ[qi];
+  document.querySelectorAll('#qOpts .qopt').forEach(function(b,i){if(i===q.a)b.classList.add('correct');else if(b===btn)b.classList.add('wrong');else b.classList.add('dim');});
+  var ok=(idx===q.a); if(ok)qscore++; document.getElementById('qScore').textContent=qscore;
+  var ex=document.getElementById('qExp'); ex.innerHTML='<div class="et">'+(ok?'⭕ 정답!':'❌ 오답')+'</div>'+q.e; ex.className='qexp show';
+  document.getElementById('qNext').className='qnext show';
+}
+document.getElementById('qNext').addEventListener('click',function(){qi++; if(qi>=QUIZ.length){finishQuiz();return;} renderQ();});
+function finishQuiz(){
+  document.getElementById('qBar').style.width='100%'; document.getElementById('qNum').textContent='완료 ✓';
+  var pct=Math.round(qscore/QUIZ.length*100);
+  var msg=pct>=90?'완벽해요! 이동·대칭을 정복했어요.':pct>=70?'잘했어요! 부호 규칙만 다시 보면 완성.':'개념 탭을 한 번 더 보고 재도전해요.';
+  document.getElementById('qArea').innerHTML='<div class="qdone"><div class="big">'+qscore+' / '+QUIZ.length+'</div><p style="margin:8px 0 4px;font-size:15px">정답률 '+pct+'%</p><p style="color:#64748b;font-size:13px;margin-bottom:16px">'+msg+'</p><button class="btn" onclick="restartQuiz()">↺ 다시 풀기</button></div>';
+}
+function restartQuiz(){
+  qi=0;qscore=0;
+  document.getElementById('qArea').innerHTML='<div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button>';
+  document.getElementById('qNext').addEventListener('click',function(){qi++;if(qi>=QUIZ.length){finishQuiz();return;}renderQ();});
+  renderQ();
+}
+QUIZ.forEach(function(q){var correct=q.o[q.a];for(var i=q.o.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=q.o[i];q.o[i]=q.o[j];q.o[j]=t;}q.a=q.o.indexOf(correct);});
+renderQ();
+</script>
+</body>
+</html>

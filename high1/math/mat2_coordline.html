@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>평면좌표와 직선의 방정식 — 공통수학2</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
+<style>
+  :root{
+    --panel:#fff; --ink:#1e293b; --sub:#64748b; --line:#e2e8f0;
+    --blue:#2563eb; --blue-d:#1e40af; --green:#16a34a; --green-bg:#f0fdf4;
+    --amber:#d97706; --amber-bg:#fffbeb; --red:#dc2626; --red-bg:#fef2f2;
+    --purple:#7c3aed; --purple-bg:#f5f3ff; --indigo:#4f46e5; --accent:#0e7490; --accent-bg:#ecfeff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',sans-serif;background:#f1f5f9;color:var(--ink);line-height:1.7;-webkit-text-size-adjust:100%}
+  a{color:var(--blue)}
+  .crumb{background:#f8fafc;border-bottom:1px solid var(--line);padding:7px 16px;font-size:12px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+  .crumb a{color:var(--sub);text-decoration:none} .crumb a.cur{color:var(--accent);font-weight:600} .crumb span{color:#cbd5e1}
+  .hero{background:linear-gradient(135deg,#155e75,#0e7490 60%,#06b6d4);color:#fff;padding:26px 18px 22px;text-align:center}
+  .hero .badge{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:3px 13px;font-size:12px;margin-bottom:10px}
+  .hero h1{font-size:21px;font-weight:800;letter-spacing:-.3px} .hero p{font-size:13px;opacity:.92;margin-top:6px}
+  .tabs{position:sticky;top:0;z-index:50;display:flex;background:#0c4a5e;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;padding:13px 15px;min-height:44px;color:#a5f3fc;font-size:13.5px;font-weight:600;cursor:pointer;border:none;background:none;border-bottom:3px solid transparent;white-space:nowrap;transition:.15s}
+  .tab.active{color:#fff;border-bottom-color:#22d3ee} .tab:hover{color:#cffafe}
+  .wrap{max-width:820px;margin:0 auto;padding:22px 16px 70px}
+  .page{display:none} .page.active{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .card h2{font-size:18px;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .card h3{font-size:15px;font-weight:700;margin:16px 0 8px;color:var(--accent)} .card p{font-size:14px;margin-bottom:8px} .lead{color:var(--sub);font-size:13px;margin-bottom:14px}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0} th,td{border:1px solid var(--line);padding:8px 9px;text-align:center} th{background:#f8fafc;font-weight:700} td.l,th.l{text-align:left}
+  .box{border-radius:10px;padding:13px 15px;margin:10px 0;font-size:13.5px}
+  .box.g{background:var(--green-bg);border:1px solid #bbf7d0} .box.a{background:var(--amber-bg);border:1px solid #fde68a} .box.b{background:var(--accent-bg);border:1px solid #a5f3fc}
+  .box .t{font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:6px} .box.g .t{color:var(--green)} .box.a .t{color:var(--amber)} .box.b .t{color:var(--accent)}
+  .hook{background:linear-gradient(135deg,#ecfeff,#cffafe);border:1px solid #a5f3fc;border-radius:12px;padding:16px 18px;margin:12px 0;font-size:14px}
+  .hook .ht{color:var(--accent);font-weight:800;font-size:15px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  .keeper{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fcd34d;border-radius:12px;padding:15px 17px;margin:12px 0}
+  .keeper .kt{color:#b45309;font-weight:800;font-size:14.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .keeper ol{margin:0;list-style:none} .keeper li{position:relative;padding:8px 0 8px 34px;font-size:13.5px;border-bottom:1px dashed #fde68a} .keeper li:last-child{border-bottom:none} .keeper li::before{content:"📌";position:absolute;left:4px;top:8px}
+  .insight{background:var(--purple-bg);border:1px solid #ddd6fe;border-radius:12px;padding:14px 16px;margin:12px 0;font-size:13.5px} .insight .it{color:var(--purple);font-weight:800;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+  .reallife{background:var(--green-bg);border:1px solid #bbf7d0;border-radius:12px;padding:14px 16px;margin:12px 0} .reallife .rt{color:var(--green);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:9px} .rcell{background:#fff;border:1px solid #bbf7d0;border-radius:9px;padding:10px} .rcell .ri{font-size:22px} .rcell .rn{font-weight:800;font-size:13px;margin:3px 0} .rcell .rd{font-size:11.5px;color:#475569;line-height:1.5}
+  .industry{background:#eef2ff;border:1px solid #c7d2fe;border-radius:12px;padding:14px 16px;margin:12px 0} .industry .indt{color:var(--indigo);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .indrow{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #e0e7ff} .indrow:last-child{border-bottom:none} .indrow .ii{font-size:24px;flex-shrink:0} .indrow .id2{font-size:13px} .indrow .id2 b{color:#312e81}
+  .major{display:inline-block;background:#312e81;color:#c7d2fe;border-radius:6px;padding:2px 8px;font-size:10.5px;font-weight:700;margin-top:4px}
+  .sci{display:flex;gap:13px;align-items:flex-start;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fde68a;border-radius:12px;padding:15px;margin:12px 0} .sci .ava{font-size:34px;line-height:1;flex-shrink:0} .sci .st{font-weight:800;color:#92400e;font-size:14px;margin-bottom:3px} .sci .sd{font-size:13px;color:#78350f}
+  .toc{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:8px}
+  .toc button{text-align:left;background:var(--accent-bg);border:1px solid #a5f3fc;border-radius:10px;padding:12px;cursor:pointer;font:inherit;transition:.15s;min-height:44px} .toc button:hover{border-color:var(--accent);box-shadow:0 2px 8px rgba(14,116,144,.14)}
+  .toc .ti{font-size:20px}.toc .tn{font-weight:800;font-size:13.5px;margin-top:4px}.toc .td{font-size:11.5px;color:var(--sub)}
+  /* canvas */
+  .cv-wrap{text-align:center;margin:10px 0}
+  canvas{background:#fff;border:1px solid var(--line);border-radius:12px;max-width:100%;touch-action:none}
+  .ctrl{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+  .cbtn{background:#f1f5f9;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:9px 14px;font:inherit;font-weight:700;font-size:13px;cursor:pointer;min-height:44px}
+  .cbtn.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .readout{background:#0f172a;color:#e2e8f0;border-radius:10px;padding:12px 14px;margin:8px 0;font-size:14px;text-align:center;line-height:1.8} .readout b{color:#22d3ee}
+  .slider{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:13px;font-weight:700}
+  .slider input[type=range]{flex:1;accent-color:var(--accent);height:28px}
+  .ans{background:#ecfdf5;border:2px solid #6ee7b7;border-radius:10px;padding:12px 15px;text-align:center;font-size:16px;font-weight:800;color:#065f46;margin:10px 0}
+  /* quiz */
+  .quizhud{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:12px 16px;margin-bottom:14px} .quizhud .qn{font-weight:800;font-size:14px} .quizhud .sc{margin-left:auto;font-size:13px} .quizhud .sc b{color:#22d3ee;font-size:16px}
+  .qbar{flex-basis:100%;height:8px;background:#334155;border-radius:20px;overflow:hidden;margin-top:2px} .qbar > i{display:block;height:100%;background:linear-gradient(90deg,#22d3ee,#0e7490)}
+  .qq{font-size:16px;font-weight:700;text-align:center;margin:10px 0 16px} .qopts{display:grid;gap:10px}
+  .qopt{border:2px solid var(--line);background:#fff;border-radius:12px;padding:14px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:.12s;min-height:52px} .qopt:hover{border-color:var(--accent)} .qopt.correct{background:var(--green-bg);border-color:#6ee7b7;color:#065f46} .qopt.wrong{background:var(--red-bg);border-color:#fecaca;color:#991b1b} .qopt.dim{opacity:.5}
+  .qexp{display:none;margin-top:14px;background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:13px 15px;font-size:13.5px} .qexp.show{display:block;animation:fade .2s ease}.qexp .et{font-weight:800;margin-bottom:4px}
+  .qnext{display:none;margin-top:14px;width:100%;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:13px;font:inherit;font-weight:800;font-size:14px;cursor:pointer;min-height:48px} .qnext.show{display:block}
+  .qdone{text-align:center;padding:10px 0}.qdone .big{font-size:40px;font-weight:800;color:var(--accent)}
+  .btn{display:inline-block;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px 18px;font:inherit;font-weight:700;font-size:13.5px;cursor:pointer;text-decoration:none;min-height:44px}
+  .chk{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px} .chk:last-child{border-bottom:none} .chk input{margin-top:4px;width:17px;height:17px;flex-shrink:0;accent-color:var(--accent)}
+  .tag{display:inline-block;background:var(--accent-bg);color:var(--accent);border:1px solid #a5f3fc;border-radius:6px;padding:2px 9px;font-size:11.5px;font-weight:700;margin:3px 4px 0 0}
+  @media (max-width:640px){ .hero h1{font-size:19px} .card{padding:16px} }
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Math_1_1</a><span>&rsaquo;</span><a href="mat2_hub.html">공통수학2</a><span>&rsaquo;</span><a class="cur" href="#">평면좌표·직선</a></nav>
+<div class="hero">
+  <span class="badge">Ⅰ. 도형의 방정식</span>
+  <h1>📍 평면좌표와 직선의 방정식</h1>
+  <p>점과 선을 숫자로 — 도형을 계산하는 언어</p>
+</div>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="intro">📋 개요</button>
+  <button class="tab" data-t="dist">📍 거리·내분점</button>
+  <button class="tab" data-t="line">📏 직선의 방정식</button>
+  <button class="tab" data-t="world">🌐 세상 속으로</button>
+  <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="sum">✅ 정리</button>
+</div>
+<div class="wrap">
+
+  <div class="page active" data-p="intro">
+    <div class="card">
+      <h2>📋 도형을 숫자로 다루다</h2>
+      <div class="hook">
+        <div class="ht">💥 왜 배우나</div>
+        옛날 기하학은 자와 컴퍼스로 도형을 그렸다. 데카르트는 여기에 <b>좌표</b>를 붙여, 점을 $(x, y)$ 숫자쌍으로, 선을 <b>방정식</b>으로 바꿨다. 그 순간 도형 문제가 <b>계산</b>이 되었다 — GPS·게임·CAD가 모두 이 아이디어 위에서 돈다.
+      </div>
+      <div class="sci">
+        <div class="ava">🧭</div>
+        <div>
+          <div class="st">르네 데카르트 — 좌표평면의 창시자</div>
+          <div class="sd">17세기, 천장의 파리를 보며 "위치를 두 수로 나타낼 수 있다"고 생각했다는 일화. <b>해석기하학</b>(대수 + 기하)을 열어, 도형과 방정식을 하나로 묶었다. 좌표평면을 <b>데카르트 평면</b>이라 부르는 이유.</div>
+        </div>
+      </div>
+      <div class="toc">
+        <button onclick="go('dist')"><div class="ti">📍</div><div class="tn">거리·내분점</div><div class="td">좌표평면 탐구</div></button>
+        <button onclick="go('line')"><div class="ti">📏</div><div class="tn">직선의 방정식</div><div class="td">기울기·평행·수직</div></button>
+        <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">GPS·게임·건축</div></button>
+        <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+        <button onclick="go('sum')"><div class="ti">✅</div><div class="tn">정리</div><div class="td">공식·자가점검</div></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="dist">
+    <div class="card">
+      <h2>📍 두 점 사이 거리와 내분점</h2>
+      <p class="lead">두 점 $A(-4,\,-2)$, $B(4,\,4)$ 를 좌표평면에 놓았다. 비율 버튼을 눌러 선분 $AB$ 를 나누는 <b>내분점</b>이 어디에 찍히는지 관찰하자.</p>
+      <div class="cv-wrap"><canvas id="cv1"></canvas></div>
+      <div class="ctrl" id="ratioBtns">
+        <button class="cbtn on" data-m="1" data-n="1">중점 (1:1)</button>
+        <button class="cbtn" data-m="1" data-n="2">1 : 2</button>
+        <button class="cbtn" data-m="2" data-n="1">2 : 1</button>
+        <button class="cbtn" data-m="1" data-n="3">1 : 3</button>
+        <button class="cbtn" data-m="3" data-n="1">3 : 1</button>
+      </div>
+      <div class="readout" id="ro1"></div>
+      <div class="box g">
+        <div class="t">✅ 두 점 사이 거리</div>
+        $A(x_1,y_1)$, $B(x_2,y_2)$ 사이 거리 $\overline{AB} = \sqrt{(x_2-x_1)^2 + (y_2-y_1)^2}$. (피타고라스 정리의 좌표판) 여기서 $\overline{AB} = \sqrt{8^2 + 6^2} = \sqrt{100} = 10$.
+      </div>
+      <div class="box b">
+        <div class="t">✅ 내분점·중점</div>
+        선분 $AB$ 를 $m:n$ 으로 <b>내분</b>하는 점 $P = \left(\dfrac{m x_2 + n x_1}{m+n},\ \dfrac{m y_2 + n y_1}{m+n}\right)$. 특히 <b>중점</b>($1:1$)은 $\left(\dfrac{x_1+x_2}{2},\ \dfrac{y_1+y_2}{2}\right)$.
+      </div>
+      <div class="box a">
+        <div class="t">⚠️ 외분점은 부호가 바뀐다</div>
+        $m:n$ 으로 <b>외분</b>하면 $P = \left(\dfrac{m x_2 - n x_1}{m-n},\ \dfrac{m y_2 - n y_1}{m-n}\right)$ — 분모·분자의 $n$ 항 부호가 $-$. 예로 $A(-4,-2),B(4,4)$ 를 $3:1$ 외분하면 $(8,\,7)$ 로 선분 <b>바깥</b>(B 너머)에 찍힌다.
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="line">
+    <div class="card">
+      <h2>📏 직선의 방정식</h2>
+      <p class="lead">기울기 $m$ 을 바꿔 직선 $y = mx + n$ 을 움직여 보자. 초록 직선은 이 직선에 <b>수직</b>이다 ($m \ne 0$ 이면 기울기 $-1/m$, $m = 0$ 이면 세로선 $x = 0$).</p>
+      <div class="cv-wrap"><canvas id="cv2"></canvas></div>
+      <div class="slider">기울기 m<input type="range" id="mSl" min="-3" max="3" step="0.25" value="0.75"><span id="mVal" style="min-width:52px;text-align:right;color:var(--accent)">0.75</span></div>
+      <div class="slider">y절편 n<input type="range" id="nSl" min="-4" max="4" step="0.5" value="1"><span id="nVal" style="min-width:52px;text-align:right;color:var(--accent)">1</span></div>
+      <div class="readout" id="ro2"></div>
+      <h3>핵심 공식</h3>
+      <div class="box g">
+        <div class="t">✅ 기울기와 직선</div>
+        두 점 $(x_1,y_1),(x_2,y_2)$ 를 지나는 직선의 기울기 $m = \dfrac{y_2 - y_1}{x_2 - x_1}$. 기울기 $m$ 이고 점 $(x_1,y_1)$ 지나는 직선: $y - y_1 = m(x - x_1)$.
+      </div>
+      <div class="box b">
+        <div class="t">✅ 평행·수직 조건</div>
+        두 직선의 기울기 $m_1, m_2$ 에 대해 — <b>평행</b>이면 $m_1 = m_2$ (절편은 다름), <b>수직</b>이면 $m_1 \cdot m_2 = -1$.
+      </div>
+      <div class="box a">
+        <div class="t">✅ 점과 직선 사이 거리</div>
+        점 $(x_0, y_0)$ 와 직선 $ax + by + c = 0$ 사이 거리 $d = \dfrac{|a x_0 + b y_0 + c|}{\sqrt{a^2 + b^2}}$. <br>예: 점 $(2,3)$ 과 $3x - 4y + 1 = 0$ → $d = \dfrac{|6 - 12 + 1|}{\sqrt{9+16}} = \dfrac{5}{5} = 1$.
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="world">
+    <div class="card">
+      <h2>🌐 세상 속으로</h2>
+      <div class="keeper">
+        <div class="kt">📌 어른이 되어도 기억할 것</div>
+        <ol>
+          <li>두 점 사이 거리 $= \sqrt{(\Delta x)^2 + (\Delta y)^2}$ — <b>피타고라스</b>의 좌표판.</li>
+          <li>중점 $=$ 두 점의 <b>좌표를 각각 평균</b>. ($x$ 끼리, $y$ 끼리)</li>
+          <li>두 직선 <b>수직 ⟺ 기울기의 곱 $=-1$</b> (예: 기울기 $2$ 와 $-\tfrac12$).</li>
+        </ol>
+      </div>
+      <div class="insight">
+        <div class="it">💡 인사이트 — 도형과 대수의 다리</div>
+        "거리가 일정한 점들의 모임"이라는 <b>기하 조건</b>을 좌표로 쓰면 곧바로 <b>원의 방정식</b>이 된다(다음 단원). 도형을 방정식으로 바꾸면, 그리지 않고 <b>계산</b>으로 교점·접선을 구할 수 있다 — 이것이 해석기하학의 힘.
+      </div>
+      <div class="reallife">
+        <div class="rt">🏠 좌표가 숨어 있는 곳</div>
+        <div class="rgrid">
+          <div class="rcell"><div class="ri">🛰️</div><div class="rn">GPS·지도</div><div class="rd">위경도 = 좌표, 거리 계산</div></div>
+          <div class="rcell"><div class="ri">🎮</div><div class="rn">게임 엔진</div><div class="rd">캐릭터 위치·충돌 판정</div></div>
+          <div class="rcell"><div class="ri">📐</div><div class="rn">CAD·건축</div><div class="rd">도면의 점·선 좌표</div></div>
+          <div class="rcell"><div class="ri">🤖</div><div class="rn">로봇·자율주행</div><div class="rd">경로를 좌표·직선으로</div></div>
+        </div>
+      </div>
+      <div class="industry">
+        <div class="indt">🏭 산업과 직업 — 공간을 계산하다</div>
+        <div class="indrow"><div class="ii">🎮</div><div class="id2"><b>게임·그래픽 엔지니어</b><br>좌표·벡터·직선 교차로 물체를 배치하고 충돌을 판정.<br><span class="major">🎓 컴퓨터공학 · 게임공학 · 수학</span></div></div>
+        <div class="indrow"><div class="ii">🛰️</div><div class="id2"><b>측위·지리정보(GIS)</b><br>위치를 좌표로 표현하고 거리·경로를 계산.<br><span class="major">🎓 지리정보 · 측지 · 항공우주</span></div></div>
+        <div class="indrow"><div class="ii">🚗</div><div class="id2"><b>자율주행·로보틱스</b><br>차선(직선)·거리·경로를 좌표기하로 실시간 계산.<br><span class="major">🎓 전자 · 기계 · 로봇공학</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="quiz">
+    <div class="card">
+      <h2>🔥 평면좌표·직선 퀴즈</h2>
+      <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
+      <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="sum">
+    <div class="card">
+      <h2>✅ 정리 — 핵심 공식</h2>
+      <table>
+        <tr><th class="l">개념</th><th class="l">공식</th></tr>
+        <tr><td class="l">두 점 사이 거리</td><td class="l">$\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}$</td></tr>
+        <tr><td class="l">중점</td><td class="l">$\left(\frac{x_1+x_2}{2},\frac{y_1+y_2}{2}\right)$</td></tr>
+        <tr><td class="l">내분점 ($m:n$)</td><td class="l">$\left(\frac{mx_2+nx_1}{m+n},\frac{my_2+ny_1}{m+n}\right)$</td></tr>
+        <tr><td class="l">직선 (기울기·한 점)</td><td class="l">$y-y_1=m(x-x_1)$</td></tr>
+        <tr><td class="l">평행 / 수직</td><td class="l">$m_1=m_2$ / $m_1 m_2=-1$</td></tr>
+        <tr><td class="l">점과 직선 거리</td><td class="l">$\frac{|ax_0+by_0+c|}{\sqrt{a^2+b^2}}$</td></tr>
+      </table>
+      <div class="box b">
+        <div class="t">🔑 한 줄 요약</div>
+        점은 좌표, 선은 방정식. <b>거리·중점·내분</b>으로 위치를 계산하고, <b>기울기</b>로 직선을 세운다. 수직이면 기울기 곱이 $-1$.
+      </div>
+      <h3>자가 점검</h3>
+      <div class="chk"><input type="checkbox" id="c1"><label for="c1">두 점 사이 거리를 공식으로 구할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c2"><label for="c2">내분점·중점의 좌표를 계산할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c3"><label for="c3">기울기로 직선의 방정식을 세울 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c4"><label for="c4">평행·수직 조건과 점-직선 거리를 안다</label></div>
+      <h3>약점 태그</h3>
+      <div><span class="tag">수학:평면좌표</span><span class="tag">수학:내분외분</span><span class="tag">수학:직선의방정식</span><span class="tag">수학:평행수직</span></div>
+      <div class="box g" style="margin-top:16px">
+        <div class="t">➡️ 다음 단원</div>
+        "거리가 일정한 점들" → <b>원의 방정식</b>으로. <a href="mat2_hub.html">공통수학2 허브</a>로.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function go(t){var tab=document.querySelector('.tab[data-t="'+t+'"]');if(tab)tab.click();}
+var shown={};
+document.getElementById('tabs').addEventListener('click',function(e){
+  var b=e.target.closest('.tab'); if(!b)return;
+  document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active')});
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
+  b.classList.add('active'); var t=b.dataset.t; var pg=document.querySelector('.page[data-p="'+t+'"]'); if(pg)pg.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(t==='dist'){ initCv1(); }
+  if(t==='line'){ initCv2(); }
+});
+
+/* ---------- canvas helpers ---------- */
+function setupCanvas(cv,w,h){var dpr=window.devicePixelRatio||1;cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);cv.style.width=w+'px';cv.style.height=h+'px';var ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);return ctx;}
+function planeTf(w,h,pad,xmin,xmax,ymin,ymax){
+  var sx=(w-2*pad)/(xmax-xmin), sy=(h-2*pad)/(ymax-ymin);
+  return {X:function(x){return pad+(x-xmin)*sx;}, Y:function(y){return h-pad-(y-ymin)*sy;}, sx:sx, sy:sy};
+}
+function drawGrid(ctx,tf,w,h,xmin,xmax,ymin,ymax){
+  ctx.clearRect(0,0,w,h);
+  ctx.lineWidth=1; ctx.strokeStyle='#eef2f7';
+  for(var x=Math.ceil(xmin);x<=xmax;x++){ctx.beginPath();ctx.moveTo(tf.X(x),tf.Y(ymin));ctx.lineTo(tf.X(x),tf.Y(ymax));ctx.stroke();}
+  for(var y=Math.ceil(ymin);y<=ymax;y++){ctx.beginPath();ctx.moveTo(tf.X(xmin),tf.Y(y));ctx.lineTo(tf.X(xmax),tf.Y(y));ctx.stroke();}
+  ctx.strokeStyle='#94a3b8';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(tf.X(xmin),tf.Y(0));ctx.lineTo(tf.X(xmax),tf.Y(0));ctx.stroke();
+  ctx.beginPath();ctx.moveTo(tf.X(0),tf.Y(ymin));ctx.lineTo(tf.X(0),tf.Y(ymax));ctx.stroke();
+  ctx.fillStyle='#94a3b8';ctx.font='11px sans-serif';ctx.textAlign='center';
+  ctx.fillText('x',tf.X(xmax)-6,tf.Y(0)-6); ctx.fillText('y',tf.X(0)+10,tf.Y(ymax)+8);
+}
+function dot(ctx,tf,x,y,color,label){
+  ctx.beginPath();ctx.arc(tf.X(x),tf.Y(y),5,0,7);ctx.fillStyle=color;ctx.fill();
+  if(label){ctx.fillStyle='#0f172a';ctx.font='bold 12px sans-serif';ctx.textAlign='left';ctx.fillText(label,tf.X(x)+8,tf.Y(y)-6);}
+}
+
+/* ---------- cv1: distance + internal division ---------- */
+var Ax=-4,Ay=-2,Bx=4,By=4, ratM=1, ratN=1;
+function initCv1(){
+  var cv=document.getElementById('cv1'); var w=Math.min(cv.parentNode.clientWidth,360); if(w<200)w=320; var h=Math.round(w*0.86);
+  var ctx=setupCanvas(cv,w,h); var tf=planeTf(w,h,26,-6,6,-5,5);
+  drawGrid(ctx,tf,w,h,-6,6,-5,5);
+  ctx.strokeStyle='#0e7490';ctx.lineWidth=2.5;
+  ctx.beginPath();ctx.moveTo(tf.X(Ax),tf.Y(Ay));ctx.lineTo(tf.X(Bx),tf.Y(By));ctx.stroke();
+  var Px=(ratM*Bx+ratN*Ax)/(ratM+ratN), Py=(ratM*By+ratN*Ay)/(ratM+ratN);
+  dot(ctx,tf,Ax,Ay,'#2563eb','A(-4,-2)');
+  dot(ctx,tf,Bx,By,'#16a34a','B(4,4)');
+  ctx.beginPath();ctx.arc(tf.X(Px),tf.Y(Py),6,0,7);ctx.fillStyle='#dc2626';ctx.fill();
+  ctx.fillStyle='#dc2626';ctx.font='bold 12px sans-serif';ctx.textAlign='left';ctx.fillText('P',tf.X(Px)+8,tf.Y(Py)+16);
+  var fx=function(v){return (Math.round(v*100)/100).toString();};
+  document.getElementById('ro1').innerHTML='내분비 '+ratM+' : '+ratN+' → P = ( <b>'+fx(Px)+'</b>, <b>'+fx(Py)+'</b> )'+(ratM===ratN?' &nbsp;<span style="font-size:12px;color:#94a3b8">= 중점</span>':'')+'<br><span style="font-size:12.5px;color:#94a3b8">거리 AB = √(8²+6²) = <b>10</b></span>';
+}
+document.getElementById('ratioBtns').addEventListener('click',function(e){
+  var b=e.target.closest('.cbtn'); if(!b)return;
+  this.querySelectorAll('.cbtn').forEach(function(x){x.classList.remove('on')}); b.classList.add('on');
+  ratM=parseInt(b.dataset.m,10); ratN=parseInt(b.dataset.n,10); initCv1();
+});
+
+/* ---------- cv2: line + perpendicular ---------- */
+function initCv2(){
+  var cv=document.getElementById('cv2'); var w=Math.min(cv.parentNode.clientWidth,360); if(w<200)w=320; var h=Math.round(w*0.86);
+  var ctx=setupCanvas(cv,w,h); var tf=planeTf(w,h,26,-6,6,-5,5);
+  drawGrid(ctx,tf,w,h,-6,6,-5,5);
+  var m=parseFloat(document.getElementById('mSl').value), n=parseFloat(document.getElementById('nSl').value);
+  // main line y=mx+n
+  ctx.strokeStyle='#0e7490';ctx.lineWidth=2.5;
+  ctx.beginPath();ctx.moveTo(tf.X(-6),tf.Y(m*(-6)+n));ctx.lineTo(tf.X(6),tf.Y(m*6+n));ctx.stroke();
+  // perpendicular line through (0,n): slope -1/m (if m!=0)
+  ctx.strokeStyle='#16a34a';ctx.lineWidth=2;ctx.setLineDash([6,4]);
+  ctx.beginPath();
+  if(Math.abs(m)<1e-6){ ctx.moveTo(tf.X(0),tf.Y(-5));ctx.lineTo(tf.X(0),tf.Y(5)); }
+  else { var pm=-1/m; ctx.moveTo(tf.X(-6),tf.Y(pm*(-6)+n));ctx.lineTo(tf.X(6),tf.Y(pm*6+n)); }
+  ctx.stroke(); ctx.setLineDash([]);
+  dot(ctx,tf,0,n,'#0e7490','');
+  var fx=function(v){return (Math.round(v*100)/100).toString();};
+  var perpTxt=Math.abs(m)<1e-6?'x = 0 (수직선)':'기울기 '+fx(-1/m);
+  document.getElementById('mVal').textContent=fx(m);
+  document.getElementById('nVal').textContent=fx(n);
+  document.getElementById('ro2').innerHTML='직선 <b>y = '+fx(m)+'x '+(n>=0?'+ '+fx(n):'− '+fx(-n))+'</b><br><span style="font-size:12.5px;color:#94a3b8">수직인 직선(초록): '+perpTxt+' &nbsp;→ 기울기 곱 = −1</span>';
+}
+document.getElementById('mSl').addEventListener('input',initCv2);
+document.getElementById('nSl').addEventListener('input',initCv2);
+window.addEventListener('resize',function(){ if(document.querySelector('.page[data-p=dist]').classList.contains('active'))initCv1(); if(document.querySelector('.page[data-p=line]').classList.contains('active'))initCv2(); });
+
+/* ---------- quiz ---------- */
+var QUIZ=[
+ {q:'두 점 (1,2), (4,6) 사이의 거리는?',o:['5','7','√7','25'],a:0,e:'√((4−1)²+(6−2)²)=√(9+16)=√25=5.'},
+ {q:'두 점 (−2,3), (4,−1)의 중점은?',o:['(1,1)','(2,2)','(1,2)','(3,−2)'],a:0,e:'중점=((−2+4)/2,(3+(−1))/2)=(1,1). x끼리·y끼리 평균.'},
+ {q:'A(0,0), B(6,3)을 1:2로 내분하는 점은?',o:['(2,1)','(4,2)','(3,1.5)','(1,2)'],a:0,e:'P=((1·6+2·0)/3,(1·3+2·0)/3)=(2,1). A에 가까운 쪽.'},
+ {q:'기울기가 2이고 점 (1,3)을 지나는 직선의 방정식은?',o:['y=2x+1','y=2x−1','y=2x+3','y=x+2'],a:0,e:'y−3=2(x−1) → y=2x−2+3=2x+1.'},
+ {q:'두 점 (1,1), (3,5)를 지나는 직선의 기울기는?',o:['2','1','3','1/2'],a:0,e:'기울기=(5−1)/(3−1)=4/2=2.'},
+ {q:'직선 y=3x+1 에 수직인 직선의 기울기는?',o:['−1/3','3','1/3','−3'],a:0,e:'수직이면 기울기의 곱이 −1 → 3×m=−1 → m=−1/3.'},
+ {q:'두 직선이 평행할 조건으로 옳은 것은?',o:['기울기가 같다','기울기의 곱이 −1','y절편이 같다','기울기의 합이 0'],a:0,e:'평행 ⟺ 기울기가 같고 y절편은 다르다.'},
+ {q:'점 (0,0)과 직선 3x+4y−10=0 사이의 거리는?',o:['2','10','5','1'],a:0,e:'d=|3·0+4·0−10|/√(9+16)=10/5=2.'},
+ {q:'A(2,1), B(2,7)을 2:1로 내분하는 점의 y좌표는?',o:['5','4','6','3'],a:0,e:'y=(2·7+1·1)/3=(14+1)/3=15/3=5. (x는 둘 다 2)'},
+ {q:'다음 중 좌표평면을 처음 도입한 수학자는?',o:['데카르트','피타고라스','유클리드','뉴턴'],a:0,e:'데카르트가 해석기하학(좌표 + 대수)을 열었다. 그래서 데카르트 평면.'}
+];
+var qi=0,qscore=0,qans=false;
+function renderQ(){
+  qans=false; var q=QUIZ[qi];
+  document.getElementById('qNum').textContent='문제 '+(qi+1)+' / '+QUIZ.length;
+  document.getElementById('qScore').textContent=qscore; document.getElementById('qBar').style.width=(qi/QUIZ.length*100)+'%';
+  document.getElementById('qQ').textContent=q.q;
+  var opts=document.getElementById('qOpts'); opts.innerHTML='';
+  q.o.forEach(function(txt,idx){var b=document.createElement('button'); b.className='qopt'; b.textContent=txt; b.addEventListener('click',function(){pick(idx,b);}); opts.appendChild(b);});
+  document.getElementById('qExp').className='qexp'; document.getElementById('qExp').innerHTML=''; document.getElementById('qNext').className='qnext';
+}
+function pick(idx,btn){
+  if(qans)return; qans=true; var q=QUIZ[qi];
+  document.querySelectorAll('#qOpts .qopt').forEach(function(b,i){if(i===q.a)b.classList.add('correct');else if(b===btn)b.classList.add('wrong');else b.classList.add('dim');});
+  var ok=(idx===q.a); if(ok)qscore++; document.getElementById('qScore').textContent=qscore;
+  var ex=document.getElementById('qExp'); ex.innerHTML='<div class="et">'+(ok?'⭕ 정답!':'❌ 오답')+'</div>'+q.e; ex.className='qexp show';
+  document.getElementById('qNext').className='qnext show';
+}
+document.getElementById('qNext').addEventListener('click',function(){qi++; if(qi>=QUIZ.length){finishQuiz();return;} renderQ();});
+function finishQuiz(){
+  document.getElementById('qBar').style.width='100%'; document.getElementById('qNum').textContent='완료 ✓';
+  var pct=Math.round(qscore/QUIZ.length*100);
+  var msg=pct>=90?'완벽해요! 좌표기하의 기본기를 잡았어요.':pct>=70?'잘했어요! 틀린 것만 다시 보면 완성.':'개념 탭을 한 번 더 보고 재도전해요.';
+  document.getElementById('qArea').innerHTML='<div class="qdone"><div class="big">'+qscore+' / '+QUIZ.length+'</div><p style="margin:8px 0 4px;font-size:15px">정답률 '+pct+'%</p><p style="color:#64748b;font-size:13px;margin-bottom:16px">'+msg+'</p><button class="btn" onclick="restartQuiz()">↺ 다시 풀기</button></div>';
+}
+function restartQuiz(){
+  qi=0;qscore=0;
+  document.getElementById('qArea').innerHTML='<div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button>';
+  document.getElementById('qNext').addEventListener('click',function(){qi++;if(qi>=QUIZ.length){finishQuiz();return;}renderQ();});
+  renderQ();
+}
+QUIZ.forEach(function(q){var correct=q.o[q.a];for(var i=q.o.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=q.o[i];q.o[i]=q.o[j];q.o[j]=t;}q.a=q.o.indexOf(correct);});
+renderQ();
+</script>
+</body>
+</html>
