@@ -16,10 +16,11 @@
     {id:'u6',no:6,t:'일차함수와 일차방정식',u:'#e2698a',u2:'#f0929f'},
     {id:'u7',no:7,t:'삼각형의 성질',u:'#4a9a5f',u2:'#6fbf82',sem:2},
     {id:'u8',no:8,t:'사각형의 성질',u:'#c77d9e',u2:'#e0a0bd',sem:2},
-    {id:'u9',no:9,t:'도형의 닮음',u:'#4f9bb5',u2:'#75bcd0',sem:2}
+    {id:'u9',no:9,t:'도형의 닮음',u:'#4f9bb5',u2:'#75bcd0',sem:2},
+    {id:'u10',no:10,t:'피타고라스 정리',u:'#d68a4a',u2:'#eaad70',sem:2}
   ];
   // 탐험(PhET/GeoGebra) 탭이 준비된 단원만 노출 → 미준비 단원에서 404 방지
-  var EXPLORE_READY={1:1,2:1,3:1,4:1,5:1,6:1,7:1,8:1,9:1};
+  var EXPLORE_READY={1:1,2:1,3:1,4:1,5:1,6:1,7:1,8:1,9:1,10:1};
   // 파일명 → 단원 번호 + 종류 (u=개념 p=연습 d=심화탐구 dNp=심화문제)
   function pageInfo(){
     var f=(location.pathname.split('/').pop()||'index.html').toLowerCase().replace(/\?.*$/,'').replace(/\.html$/,'');
