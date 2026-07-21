@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>단원 11 · 심화 탐구 · 주사위 합의 분포 · 중2-2</title>
+<link rel="stylesheet" href="concept.css?v=20260722e">
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중2</a><span class="dot"></span><a href="u11.html">단원 11</a><span class="dot"></span><span>심화 탐구</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+  <h1>두 주사위의 합은 왜 7이 가장 많을까요</h1>
+  <p class="lede">합이 2나 12는 드물고, 7은 잘 나와요. 직접 굴려 보며 분포를 확인해 볼까요?</p>
+  <p class="intro">이 페이지엔 채점 문제가 없어요. 굴리기 버튼을 눌러 실제 분포를 쌓아 보세요.</p>
+
+  <section class="reveal">
+    <div class="eyebrow"><span class="n">1</span>큰 그림</div>
+    <h2>합마다 경우의 수가 달라요</h2>
+    <p>두 주사위의 눈의 합은 <span class="eq">2 ~ 12</span>. 합이 <span class="eq">2</span>는 <span class="eq">(1,1)</span> 하나뿐이지만, 합이 <span class="eq">7</span>은 <span class="eq">(1,6)(2,5)(3,4)(4,3)(5,2)(6,1)</span> 여섯 가지예요. 그래서 <b class="hl">7이 가장 잘 나와요</b>.</p>
+  </section>
+
+  <section class="reveal">
+    <div class="sim-tag">주사위 합 실험실 · 많이 굴려 볼까요?</div>
+    <div class="sim">
+      <svg class="geo" id="gbar" viewBox="0 0 300 180" role="img" aria-label="두 주사위 합의 분포" style="max-width:340px"></svg>
+      <div class="sim-read" id="read">회색 = 이론(경우의 수), 보라 = 실제로 굴린 결과</div>
+      <div class="pill-row"><button class="pill" id="roll">200번 굴리기 🎲🎲</button><button class="pill" id="reset">처음부터</button></div>
+    </div>
+    <p class="muted" style="margin-top:6px">많이 굴릴수록 보라 막대가 회색(이론) 모양에 가까워져요. 가운데(7)가 가장 높고 양끝(2, 12)이 가장 낮은 <b class="hl">산 모양</b>이 되죠.</p>
+  </section>
+
+  <section class="reveal">
+    <div class="eyebrow"><span class="n">2</span>정리</div>
+    <h2>합이 7일 확률</h2>
+    <div class="card">
+      <p style="margin:0">전체 경우의 수는 <span class="eq">6 × 6 = 36</span>. 합이 7인 경우는 6가지이므로 확률은 <span class="eq">6/36 = 1/6</span>이에요.</p>
+    </div>
+    <div class="nextlink"><a class="golink" href="d11p.html">심화 문제로 도전 →</a></div>
+  </section>
+
+  <div class="foot">중2 · 단원 11 · 심화 탐구 · 위 탭에서 개념·연습·탐험으로 이동</div>
+</div>
+
+<script src="concept.js?v=20260722e"></script>
+<script>
+MJ.boot();
+(function(){
+  var THEO=[1,2,3,4,5,6,5,4,3,2,1]; // 합 2~12
+  var emp=[0,0,0,0,0,0,0,0,0,0,0], total=0;
+  var ns='http://www.w3.org/2000/svg', svg=document.getElementById('gbar'), read=document.getElementById('read');
+  function el(t,a){var e=document.createElementNS(ns,t);for(var k in a)e.setAttribute(k,a[k]);svg.appendChild(e);return e;}
+  function draw(){
+    while(svg.firstChild)svg.removeChild(svg.firstChild);
+    var x0=14, base=150, bw=24, maxTheo=6;
+    // 이론(회색) 정규화: 최대 6 → 높이 110
+    var empMax=1; for(var i=0;i<11;i++) empMax=Math.max(empMax,emp[i]);
+    for(var s=0;s<11;s++){
+      var xx=x0+s*bw;
+      var ht=THEO[s]/maxTheo*110;
+      el('rect',{x:xx,y:base-ht,width:bw-6,height:ht,fill:'var(--border)',rx:2});
+      if(total>0){ var he=emp[s]/empMax*110; el('rect',{x:xx+3,y:base-he,width:bw-12,height:he,fill:'var(--u)',rx:2}); }
+      var t=el('text',{x:xx+(bw-6)/2,y:base+14,'text-anchor':'middle','font-size':9,fill:'var(--muted)'});t.textContent=(s+2);svg.appendChild(t);
+    }
+  }
+  function upd(){
+    if(total>0){ var lead=0; for(var i=1;i<11;i++) if(emp[i]>emp[lead])lead=i;
+      read.innerHTML='굴린 횟수 <b>'+total+'</b>　·　가장 많이 나온 합 <b class="hl">'+(lead+2)+'</b> <span class="muted">(이론상 7이 최다)</span>'; }
+    else read.innerHTML='회색 = 이론(경우의 수), 보라 = 실제로 굴린 결과';
+    draw();
+  }
+  document.getElementById('roll').onclick=function(){
+    for(var i=0;i<200;i++){ var s=(Math.floor(Math.random()*6)+1)+(Math.floor(Math.random()*6)+1); emp[s-2]++; total++; }
+    upd();
+  };
+  document.getElementById('reset').onclick=function(){ emp=[0,0,0,0,0,0,0,0,0,0,0]; total=0; upd(); };
+  upd();
+})();
+</script>
+</body>
+</html>
