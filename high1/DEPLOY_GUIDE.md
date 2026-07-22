@@ -47,7 +47,7 @@ jwj-nick.github.io repo
 
 **Step 1.** HTML 파일을 Kids 폴더에서 high1 폴더로 복사
 ```
-원본:  C:/Kids/70_HighSchool/2604_고1_중간고사/수행평가-수학/1sem_perf_viete.html
+원본:  C:/Kids/70_HighSchool/26_High_1-1/수행평가-수학/1sem_perf_viete.html
 목적:  C:/Nick/30_Apps/jwj-nick.github.io/high1/math/1sem_perf_viete.html
 ```
 
