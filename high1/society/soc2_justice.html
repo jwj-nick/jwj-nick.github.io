@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>사회 정의와 불평등 — 통합사회2</title>
+<style>
+  :root{
+    --panel:#fff; --ink:#1e293b; --sub:#64748b; --line:#e2e8f0;
+    --blue:#2563eb; --blue-d:#1e40af; --green:#16a34a; --green-bg:#f0fdf4;
+    --amber:#d97706; --amber-bg:#fffbeb; --red:#dc2626; --red-bg:#fef2f2;
+    --purple:#7c3aed; --purple-bg:#f5f3ff; --indigo:#4f46e5;
+    --accent:#0d9488; --accent-bg:#f0fdfa; --accent-d:#134e4a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',sans-serif;background:#f1f5f9;color:var(--ink);line-height:1.7;-webkit-text-size-adjust:100%}
+  a{color:var(--blue)} sup,sub{font-size:.72em}
+  .crumb{background:#f8fafc;border-bottom:1px solid var(--line);padding:7px 16px;font-size:12px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+  .crumb a{color:var(--sub);text-decoration:none} .crumb a.cur{color:var(--accent);font-weight:600} .crumb span{color:#cbd5e1}
+  .hero{background:linear-gradient(135deg,#134e4a,#0d9488 60%,#14b8a6);color:#fff;padding:26px 18px 22px;text-align:center}
+  .hero .badge{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:3px 13px;font-size:12px;margin-bottom:10px}
+  .hero h1{font-size:21px;font-weight:800;letter-spacing:-.3px} .hero p{font-size:13px;opacity:.93;margin-top:6px}
+  .tabs{position:sticky;top:0;z-index:50;display:flex;background:#042f2e;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;padding:13px 15px;min-height:44px;color:#99f6e4;font-size:13.5px;font-weight:600;cursor:pointer;border:none;background:none;border-bottom:3px solid transparent;white-space:nowrap;transition:.15s}
+  .tab.active{color:#fff;border-bottom-color:#2dd4bf} .tab:hover{color:#ccfbf1}
+  .wrap{max-width:860px;margin:0 auto;padding:22px 16px 70px}
+  .page{display:none} .page.active{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .card h2{font-size:18px;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .card h3{font-size:15px;font-weight:700;margin:16px 0 8px;color:var(--accent-d)} .card p{font-size:14px;margin-bottom:8px} .lead{color:var(--sub);font-size:13px;margin-bottom:14px}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0} th,td{border:1px solid var(--line);padding:8px 9px;text-align:center} th{background:#f8fafc;font-weight:700} td.l,th.l{text-align:left}
+  .box{border-radius:10px;padding:13px 15px;margin:10px 0;font-size:13.5px}
+  .box.g{background:var(--green-bg);border:1px solid #bbf7d0} .box.a{background:var(--amber-bg);border:1px solid #fde68a} .box.r{background:var(--red-bg);border:1px solid #fecaca} .box.b{background:#eff6ff;border:1px solid #bfdbfe}
+  .box .t{font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:6px} .box.g .t{color:var(--green)} .box.a .t{color:var(--amber)} .box.r .t{color:var(--red)} .box.b .t{color:var(--blue-d)}
+  .hook{background:linear-gradient(135deg,#f0fdfa,#ccfbf1);border:1px solid #5eead4;border-radius:12px;padding:16px 18px;margin:12px 0;font-size:14px}
+  .hook .ht{color:var(--accent-d);font-weight:800;font-size:15px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  .keeper{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fcd34d;border-radius:12px;padding:15px 17px;margin:12px 0}
+  .keeper .kt{color:#b45309;font-weight:800;font-size:14.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .keeper ol{margin:0;list-style:none} .keeper li{position:relative;padding:8px 0 8px 34px;font-size:13.5px;border-bottom:1px dashed #fde68a} .keeper li:last-child{border-bottom:none} .keeper li::before{content:"📌";position:absolute;left:4px;top:8px}
+  .insight{background:var(--purple-bg);border:1px solid #ddd6fe;border-radius:12px;padding:14px 16px;margin:12px 0;font-size:13.5px} .insight .it{color:var(--purple);font-weight:800;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+  .reallife{background:var(--green-bg);border:1px solid #bbf7d0;border-radius:12px;padding:14px 16px;margin:12px 0} .reallife .rt{color:var(--green);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:9px} .rcell{background:#fff;border:1px solid #bbf7d0;border-radius:9px;padding:10px} .rcell .ri{font-size:22px} .rcell .rn{font-weight:800;font-size:13px;margin:3px 0} .rcell .rd{font-size:11.5px;color:#475569;line-height:1.5}
+  .industry{background:#eef2ff;border:1px solid #c7d2fe;border-radius:12px;padding:14px 16px;margin:12px 0} .industry .indt{color:var(--indigo);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .indrow{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #e0e7ff} .indrow:last-child{border-bottom:none} .indrow .ii{font-size:24px;flex-shrink:0} .indrow .id2{font-size:13px} .indrow .id2 b{color:#312e81}
+  .major{display:inline-block;background:#312e81;color:#c7d2fe;border-radius:6px;padding:2px 8px;font-size:10.5px;font-weight:700;margin-top:4px}
+  .sci{display:flex;gap:13px;align-items:flex-start;background:linear-gradient(135deg,#f0fdfa,#ccfbf1);border:1px solid #5eead4;border-radius:12px;padding:15px;margin:12px 0} .sci .ava{font-size:34px;line-height:1;flex-shrink:0} .sci .st{font-weight:800;color:#115e59;font-size:14px;margin-bottom:3px} .sci .sd{font-size:13px;color:#134e4a}
+  .toc{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:8px}
+  .toc button{text-align:left;background:var(--accent-bg);border:1px solid #99f6e4;border-radius:10px;padding:12px;cursor:pointer;font:inherit;transition:.15s;min-height:44px} .toc button:hover{border-color:var(--accent);box-shadow:0 2px 8px rgba(13,148,136,.14)}
+  .toc .ti{font-size:20px}.toc .tn{font-weight:800;font-size:13.5px;margin-top:4px}.toc .td{font-size:11.5px;color:var(--sub)}
+  /* 비교 인터랙션 */
+  .kpick{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap}
+  .kpick button{flex:1 1 90px;min-height:46px;border:2px solid var(--line);background:#fff;border-radius:10px;font:inherit;font-weight:800;font-size:13px;cursor:pointer;transition:.12s;padding:8px}
+  .kpick button.on{color:#fff}
+  .kpick button[data-k="time"].on{background:#2563eb;border-color:#2563eb}
+  .kpick button[data-k="space"].on{background:#d97706;border-color:#d97706}
+  .kpick button[data-k="social"].on{background:#0d9488;border-color:#0d9488}
+  .kpanel{border:1px solid var(--line);border-radius:12px;padding:15px 16px;background:#f8fafc;font-size:13.5px;min-height:130px}
+  .kpanel .knm{font-weight:800;font-size:16px;margin-bottom:6px}
+  .kpanel .krow{display:flex;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line)} .kpanel .krow:last-child{border-bottom:none}
+  .kpanel .kk{flex:0 0 74px;color:var(--sub);font-weight:700} .kpanel .kv{flex:1}
+  /* quiz */
+  .quizhud{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:12px 16px;margin-bottom:14px} .quizhud .qn{font-weight:800;font-size:14px} .quizhud .sc{margin-left:auto;font-size:13px} .quizhud .sc b{color:#2dd4bf;font-size:16px}
+  .qbar{flex-basis:100%;height:8px;background:#334155;border-radius:20px;overflow:hidden;margin-top:2px} .qbar > i{display:block;height:100%;background:linear-gradient(90deg,#2dd4bf,#0d9488)}
+  .qq{font-size:16px;font-weight:700;text-align:center;margin:10px 0 16px} .qopts{display:grid;gap:10px}
+  .qopt{border:2px solid var(--line);background:#fff;border-radius:12px;padding:14px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:.12s;min-height:52px} .qopt:hover{border-color:var(--accent)} .qopt.correct{background:var(--green-bg);border-color:#6ee7b7;color:#065f46} .qopt.wrong{background:var(--red-bg);border-color:#fecaca;color:#991b1b} .qopt.dim{opacity:.5}
+  .qexp{display:none;margin-top:14px;background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:13px 15px;font-size:13.5px} .qexp.show{display:block;animation:fade .2s ease}.qexp .et{font-weight:800;margin-bottom:4px}
+  .qnext{display:none;margin-top:14px;width:100%;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:13px;font:inherit;font-weight:800;font-size:14px;cursor:pointer;min-height:48px} .qnext.show{display:block}
+  .qdone{text-align:center;padding:10px 0}.qdone .big{font-size:40px;font-weight:800;color:var(--accent)}
+  .btn{display:inline-block;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px 18px;font:inherit;font-weight:700;font-size:13.5px;cursor:pointer;text-decoration:none;min-height:44px}
+  .chk{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px} .chk:last-child{border-bottom:none} .chk input{margin-top:4px;width:17px;height:17px;flex-shrink:0;accent-color:var(--accent)}
+  .tag{display:inline-block;background:var(--accent-bg);color:var(--accent);border:1px solid #99f6e4;border-radius:6px;padding:2px 9px;font-size:11.5px;font-weight:700;margin:3px 4px 0 0}
+  @media (max-width:640px){ .hero h1{font-size:19px} .card{padding:16px} }
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Society_1_2</a><span>&rsaquo;</span><a href="soc2_hub.html">통합사회2</a><span>&rsaquo;</span><a class="cur" href="#">사회 정의</a></nav>
+<div class="hero">
+  <span class="badge">Ⅵ. 사회 정의와 불평등</span>
+  <h1>⚖️ 무엇이 공정한 몫인가</h1>
+  <p>정의로운 분배의 기준, 정의를 보는 두 시선, 그리고 불평등을 줄이는 길</p>
+</div>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="intro">📋 개요</button>
+  <button class="tab" data-t="dist">⚖️ 분배의 기준</button>
+  <button class="tab" data-t="view">🤝 정의를 보는 시선</button>
+  <button class="tab" data-t="ineq">📊 불평등과 해결</button>
+  <button class="tab" data-t="world">🌐 세상 속으로</button>
+  <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="sum">✅ 정리</button>
+</div>
+<div class="wrap">
+
+  <div class="page active" data-p="intro">
+    <div class="card">
+      <h2>📋 똑같이 나누는 게 공정할까?</h2>
+      <div class="hook">
+        <div class="ht">💥 생각해 보기</div>
+        피자 한 판을 셋이 나눈다. <b>똑같이 3등분</b>이 공정할까? 그런데 한 명이 재료값을 다 냈다면? 한 명이 며칠 굶었다면? 한 명이 반죽을 다 만들었다면? <b>'공정한 몫'은 하나의 답이 없다</b>. 무엇을 기준으로 나눌지에 따라 정의의 모습이 달라진다.
+      </div>
+      <p>이 단원은 <b>정의(분배)의 기준</b>(능력·업적·필요), <b>정의를 보는 두 시선</b>(자유주의 ↔ 공동체주의), 그리고 <b>사회 불평등과 그 해결</b>을 배운다.</p>
+      <div class="box b">
+        <div class="t">🧭 이 단원 한눈에</div>
+        분배 기준(능력·업적·필요) → 정의관(자유주의 ↔ 공동체주의, 롤스의 절충) → 불평등(소득·계층·공간) → 해결(사회 복지·적극적 우대 조치).
+      </div>
+      <div class="toc">
+        <button onclick="go('dist')"><div class="ti">⚖️</div><div class="tn">분배의 기준</div><div class="td">능력·업적·필요</div></button>
+        <button onclick="go('view')"><div class="ti">🤝</div><div class="tn">정의를 보는 시선</div><div class="td">자유주의↔공동체</div></button>
+        <button onclick="go('ineq')"><div class="ti">📊</div><div class="tn">불평등과 해결</div><div class="td">복지·우대 조치</div></button>
+        <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="dist">
+    <div class="card">
+      <h2>⚖️ 분배의 기준 — 눌러서 보기</h2>
+      <p class="lead">한정된 자원·기회를 <b>무엇을 기준으로</b> 나눌 것인가? 세 기준을 비교해 보자. 각 기준은 장점과 단점을 함께 지닌다.</p>
+      <div class="kpick" id="kpick">
+        <button data-k="time" class="on">💪 능력</button>
+        <button data-k="space">🏆 업적</button>
+        <button data-k="social">🤲 필요</button>
+      </div>
+      <div class="kpanel" id="kpanel"></div>
+      <div class="box b" style="margin-top:14px">
+        <div class="t">🔗 정답은 '조합'</div>
+        현실의 제도는 대개 세 기준을 <b>섞어</b> 쓴다. 예를 들어 임금은 <b>업적·능력</b>을, 복지는 <b>필요</b>를 기준으로 삼는다. 어떤 상황에 어떤 기준이 더 정의로운지 <b>판단</b>하는 힘이 중요하다.
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="view">
+    <div class="card">
+      <h2>🤝 정의를 보는 두 시선</h2>
+      <table>
+        <tr><th>구분</th><th class="l">자유주의적 정의관</th><th class="l">공동체주의적 정의관</th></tr>
+        <tr><td>우선</td><td class="l">개인의 <b>자유·권리</b></td><td class="l">공동체의 <b>공동선·연대</b></td></tr>
+        <tr><td>국가 역할</td><td class="l">개인 자유 보장(최소한)</td><td class="l">공동체적 가치·덕성 장려</td></tr>
+        <tr><td>대표</td><td class="l">노직(개인 소유권 강조)</td><td class="l">매킨타이어·샌델</td></tr>
+      </table>
+      <div class="sci">
+        <div class="ava">📗</div>
+        <div>
+          <div class="st">롤스의 정의론 — 절충의 지혜</div>
+          <div class="sd">롤스는 자유주의를 바탕으로 하되, "내가 어떤 처지로 태어날지 모른다면(<b>무지의 베일</b>)" 사람들은 <b>가장 어려운 사람(최소 수혜자)에게 이익이 되는 한에서만</b> 불평등을 허용할 것이라 보았다(<b>차등의 원칙</b>). 자유와 평등을 함께 담으려 한 시도.</div>
+        </div>
+      </div>
+      <div class="box a">
+        <div class="t">⚖️ 개인 vs 공동체</div>
+        자유주의는 개인의 자유를 지키지만 <b>불평등·공동체 약화</b>가 우려되고, 공동체주의는 연대를 강조하지만 <b>개인 자유 억압</b>이 우려된다. 둘의 <b>균형</b>을 찾는 것이 과제다.
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="ineq">
+    <div class="card">
+      <h2>📊 사회 불평등과 해결 노력</h2>
+      <div class="box r">
+        <div class="t">📉 불평등의 여러 모습</div>
+        • <b>소득·자산 불평등</b>: 빈부 격차(지니 계수 등으로 측정).<br>
+        • <b>사회 계층 양극화</b>: 중산층 약화, 계층 이동 어려움.<br>
+        • <b>공간 불평등</b>: 수도권·비수도권, 도시·농촌 격차.<br>
+        • <b>사회적 약자 차별</b>: 장애인·이주민·여성·노인 등.
+      </div>
+      <h3>해결 — 사회 복지 제도</h3>
+      <table>
+        <tr><th>제도</th><th class="l">내용</th></tr>
+        <tr><td>사회 보험</td><td class="l">보험료를 미리 내 위험 대비(국민연금·건강보험·고용·산재)</td></tr>
+        <tr><td>공공 부조</td><td class="l">생활이 어려운 사람을 국가가 지원(<b>국민기초생활보장</b>)</td></tr>
+        <tr><td>사회 서비스</td><td class="l">돌봄·재활 등 서비스 제공(취약 계층 지원)</td></tr>
+      </table>
+      <div class="box b">
+        <div class="t">➕ 적극적 우대 조치</div>
+        사회적 약자에게 <b>기회를 더 주는</b> 정책(장애인 의무 고용·지역 균형 선발 등). 실질적 평등에 기여하지만, 다른 집단이 <b>역차별</b>이라 반발할 수 있어 정교한 설계가 필요하다.
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="world">
+    <div class="card">
+      <h2>🌐 세상 속으로</h2>
+      <div class="keeper">
+        <div class="kt">📌 어른이 되어도 기억할 것</div>
+        <ol>
+          <li>분배의 세 기준: <b>능력·업적·필요</b> — 각각 장단점이 있어 상황에 맞게 섞어 쓴다.</li>
+          <li>정의관은 <b>자유주의(개인)</b> ↔ <b>공동체주의(공동선)</b>, 롤스는 <b>차등의 원칙</b>으로 절충.</li>
+          <li>불평등 해결: <b>사회 보험·공공 부조·사회 서비스</b> + 적극적 우대 조치(역차별 주의).</li>
+        </ol>
+      </div>
+      <div class="insight">
+        <div class="it">💡 인사이트 — 효율과 형평의 줄다리기</div>
+        사회는 늘 <b>효율(파이를 키우기)</b>과 <b>형평(고르게 나누기)</b> 사이에서 줄다리기를 한다. 지나친 평등은 일할 의욕을 꺾고, 지나친 불평등은 사회를 병들게 한다. 정의란 결국 이 <b>둘의 균형점</b>을 사회가 함께 찾아가는 과정이다.
+      </div>
+      <div class="reallife">
+        <div class="rt">🏠 우리 곁에서</div>
+        <div class="rgrid">
+          <div class="rcell"><div class="ri">🏥</div><div class="rn">건강보험</div><div class="rd">사회 보험</div></div>
+          <div class="rcell"><div class="ri">🍚</div><div class="rn">기초생활보장</div><div class="rd">공공 부조</div></div>
+          <div class="rcell"><div class="ri">♿</div><div class="rn">장애인 고용</div><div class="rd">적극적 우대</div></div>
+          <div class="rcell"><div class="ri">🏙️</div><div class="rn">지역 균형</div><div class="rd">공간 불평등 완화</div></div>
+        </div>
+      </div>
+      <div class="industry">
+        <div class="indt">🏭 정의·복지와 이어지는 일 · 🎓 전공</div>
+        <div class="indrow"><div class="ii">🤲</div><div class="id2"><b>사회 복지</b><br>취약 계층 지원·복지 정책 설계·현장 실천.<br><span class="major">🎓 사회복지 · 사회학 · 행정</span></div></div>
+        <div class="indrow"><div class="ii">📊</div><div class="id2"><b>노동·경제 정책</b><br>임금·분배·불평등 연구와 정책.<br><span class="major">🎓 경제 · 노동 · 통계</span></div></div>
+        <div class="indrow"><div class="ii">⚖️</div><div class="id2"><b>법·공익</b><br>차별 시정·공익 소송·인권.<br><span class="major">🎓 법학 · 정치 · 철학</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="quiz">
+    <div class="card">
+      <h2>🔥 사회 정의 퀴즈</h2>
+      <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
+      <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="sum">
+    <div class="card">
+      <h2>✅ 정리</h2>
+      <table>
+        <tr><th>주제</th><th class="l">핵심</th></tr>
+        <tr><td>분배 기준</td><td class="l">능력·업적·필요(각 장단점, 현실은 조합)</td></tr>
+        <tr><td>정의관</td><td class="l">자유주의(개인 자유)↔공동체주의(공동선), 롤스=차등의 원칙</td></tr>
+        <tr><td>불평등</td><td class="l">소득·계층·공간 불평등, 사회적 약자 차별</td></tr>
+        <tr><td>해결</td><td class="l">사회보험·공공부조·사회서비스 + 적극적 우대 조치</td></tr>
+      </table>
+      <div class="box b">
+        <div class="t">🔑 한 줄 요약</div>
+        <b>정의로운 분배의 기준(능력·업적·필요)과 정의관(자유주의·공동체주의)을 바탕으로, 사회는 복지 제도와 적극적 우대 조치로 불평등을 줄이며 효율과 형평의 균형을 찾는다.</b>
+      </div>
+      <h3>자가 점검</h3>
+      <div class="chk"><input type="checkbox" id="c1"><label for="c1">분배의 세 기준과 장단점을 안다</label></div>
+      <div class="chk"><input type="checkbox" id="c2"><label for="c2">자유주의·공동체주의 정의관과 롤스를 구분한다</label></div>
+      <div class="chk"><input type="checkbox" id="c3"><label for="c3">사회 불평등의 양상을 안다</label></div>
+      <div class="chk"><input type="checkbox" id="c4"><label for="c4">사회 복지 제도(보험·부조·서비스)를 구분한다</label></div>
+      <h3>약점 태그</h3>
+      <div><span class="tag">사회:분배기준</span><span class="tag">사회:정의관</span><span class="tag">사회:불평등</span><span class="tag">사회:사회복지</span></div>
+      <div class="box g" style="margin-top:16px">
+        <div class="t">➡️ 다음 단원</div>
+        정의로운 경제, <b>시장경제</b>로. <a href="soc2_market.html">시장경제와 지속가능발전</a> · <a href="soc2_hub.html">통합사회2 허브</a>로.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function go(t){var tab=document.querySelector('.tab[data-t="'+t+'"]');if(tab)tab.click();}
+document.getElementById('tabs').addEventListener('click',function(e){
+  var b=e.target.closest('.tab'); if(!b)return;
+  document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active')});
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
+  b.classList.add('active'); var pg=document.querySelector('.page[data-p="'+b.dataset.t+'"]'); if(pg)pg.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+/* ===== 분배 기준 비교 인터랙션 ===== */
+var THREE={
+ time:{nm:'💪 능력에 따른 분배',rows:[['기준','타고난 재능·자질·능력'],['장점','능력 발휘를 북돋움'],['단점','능력은 타고난 운·환경 영향 → 불평등 심화 우려'],['예','전문직 자격, 특기자 선발']]},
+ space:{nm:'🏆 업적에 따른 분배',rows:[['기준','실제 이룬 성과·기여'],['장점','객관적·공정, 동기 부여'],['단점','과열 경쟁, 사회적 약자에 불리'],['예','성과급, 실적 평가']]},
+ social:{nm:'🤲 필요에 따른 분배',rows:[['기준','기본적 필요·어려운 처지'],['장점','인간다운 삶 보장, 약자 배려'],['단점','재원 한계, 근로 의욕 저하 우려'],['예','기초생활보장, 복지']]}
+};
+function pickThree(k){
+ document.querySelectorAll('#kpick button').forEach(function(b){b.classList.toggle('on',b.dataset.k===k);});
+ var d=THREE[k]; var p=document.getElementById('kpanel');
+ var h='<div class="knm">'+d.nm+'</div>';
+ d.rows.forEach(function(r){h+='<div class="krow"><span class="kk">'+r[0]+'</span><span class="kv">'+r[1]+'</span></div>';});
+ p.innerHTML=h;
+}
+document.getElementById('kpick').addEventListener('click',function(e){var b=e.target.closest('button');if(b)pickThree(b.dataset.k);});
+
+/* ===== 퀴즈 ===== */
+var QUIZ=[
+ {q:'각자에게 정당한 몫을 주는 것과 관련된, 특히 자원 분배의 정의는?',o:['분배적 정의','절차적 정의','교정적 정의','응보적 정의'],a:0,e:'분배적 정의 — 한정된 자원·기회를 어떻게 나눌지의 문제.'},
+ {q:'실제로 이룬 성과에 따라 나누는 분배 기준은?',o:['업적','능력','필요','평등'],a:0,e:'업적 — 객관적이고 동기를 부여하지만 약자에 불리할 수 있다.'},
+ {q:'타고난 재능·자질에 따라 나누는 분배 기준은?',o:['능력','업적','필요','추첨'],a:0,e:'능력 — 능력 발휘를 북돋지만 타고난 운의 영향이 크다.'},
+ {q:'기본적 필요나 어려운 처지를 기준으로 나누는 분배 기준은?',o:['필요','능력','업적','성별'],a:0,e:'필요 — 약자를 배려하지만 재원 한계·의욕 저하가 단점.'},
+ {q:'개인의 자유와 권리를 최우선으로 여기는 정의관은?',o:['자유주의적 정의관','공동체주의적 정의관','전체주의','평등주의'],a:0,e:'자유주의적 정의관 — 노직 등, 개인 소유권을 강조.'},
+ {q:'공동체의 공동선과 연대를 강조하는 정의관은?',o:['공동체주의적 정의관','자유주의적 정의관','개인주의','시장주의'],a:0,e:'공동체주의적 정의관 — 매킨타이어·샌델 등.'},
+ {q:'최소 수혜자에게 이익이 될 때에만 불평등을 허용한다는 롤스의 원칙은?',o:['차등의 원칙','최대 다수의 원칙','응보의 원칙','비례의 원칙'],a:0,e:'롤스의 차등의 원칙 — 무지의 베일에서 도출한 정의의 원칙.'},
+ {q:'국민이 보험료를 미리 내 미래의 위험에 대비하는 사회 복지는?',o:['사회 보험','공공 부조','사회 서비스','민간 보험'],a:0,e:'사회 보험(국민연금·건강보험·고용·산재).'},
+ {q:'생활이 어려운 사람에게 국가가 비용을 부담해 지원하는 복지는?',o:['공공 부조','사회 보험','적금','기부'],a:0,e:'공공 부조 — 국민기초생활보장 등, 국가가 재원을 부담.'},
+ {q:'사회적 약자를 우대하는 정책이 다른 집단에서 받는 비판은?',o:['역차별','이중과세','도덕적 해이','님비'],a:0,e:'적극적 우대 조치는 실질적 평등에 기여하나 역차별 논란이 있다.'}
+];
+var qi=0,qscore=0,qans=false;
+function renderQ(){
+  qans=false; var q=QUIZ[qi];
+  document.getElementById('qNum').textContent='문제 '+(qi+1)+' / '+QUIZ.length;
+  document.getElementById('qScore').textContent=qscore; document.getElementById('qBar').style.width=(qi/QUIZ.length*100)+'%';
+  document.getElementById('qQ').textContent=q.q;
+  var opts=document.getElementById('qOpts'); opts.innerHTML='';
+  q.o.forEach(function(txt,idx){var b=document.createElement('button'); b.className='qopt'; b.textContent=txt; b.addEventListener('click',function(){pick(idx,b);}); opts.appendChild(b);});
+  document.getElementById('qExp').className='qexp'; document.getElementById('qExp').innerHTML=''; document.getElementById('qNext').className='qnext';
+}
+function pick(idx,btn){
+  if(qans)return; qans=true; var q=QUIZ[qi];
+  document.querySelectorAll('#qOpts .qopt').forEach(function(b,i){if(i===q.a)b.classList.add('correct');else if(b===btn)b.classList.add('wrong');else b.classList.add('dim');});
+  var ok=(idx===q.a); if(ok)qscore++; document.getElementById('qScore').textContent=qscore;
+  var ex=document.getElementById('qExp'); ex.innerHTML='<div class="et">'+(ok?'⭕ 정답!':'❌ 오답')+'</div>'+q.e; ex.className='qexp show';
+  document.getElementById('qNext').className='qnext show';
+}
+document.getElementById('qNext').addEventListener('click',function(){qi++; if(qi>=QUIZ.length){finishQuiz();return;} renderQ();});
+function finishQuiz(){
+  document.getElementById('qBar').style.width='100%'; document.getElementById('qNum').textContent='완료 ✓';
+  var pct=Math.round(qscore/QUIZ.length*100);
+  var msg=pct>=90?'완벽해요! 정의와 불평등을 제대로 이해했어요.':pct>=70?'잘했어요! 틀린 것만 다시 보면 완성.':'개념 탭을 한 번 더 보고 재도전해요.';
+  document.getElementById('qArea').innerHTML='<div class="qdone"><div class="big">'+qscore+' / '+QUIZ.length+'</div><p style="margin:8px 0 4px;font-size:15px">정답률 '+pct+'%</p><p style="color:#64748b;font-size:13px;margin-bottom:16px">'+msg+'</p><button class="btn" onclick="restartQuiz()">↺ 다시 풀기</button></div>';
+}
+function restartQuiz(){
+  qi=0;qscore=0;
+  document.getElementById('qArea').innerHTML='<div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button>';
+  document.getElementById('qNext').addEventListener('click',function(){qi++;if(qi>=QUIZ.length){finishQuiz();return;}renderQ();});
+  renderQ();
+}
+
+/* init */
+QUIZ.forEach(function(q){var correct=q.o[q.a];for(var i=q.o.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=q.o[i];q.o[i]=q.o[j];q.o[j]=t;}q.a=q.o.indexOf(correct);});
+pickThree('time');
+renderQ();
+</script>
+</body>
+</html>
