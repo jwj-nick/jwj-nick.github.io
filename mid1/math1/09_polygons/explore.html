@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>탐험 — 단원 9 다각형</title>
+<style>
+  :root{ --u:#4361EE; --u-2:#3a0ca3; --u-soft:#e6ecff; --accent:#e8590c; --accent-soft:rgba(232,89,12,.14);
+    --sage:#2a9d8f; --sage-soft:rgba(42,157,143,.14); --panel:#fff; --panel-2:#f5f7ff; --ink:#333; --muted:#8896b3; --border:#dbe2ff; --gold:#c9972b; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family:'Malgun Gothic',sans-serif; background:#eef2ff; min-height:100vh; color:var(--ink); }
+  .hero { background:linear-gradient(135deg,#4361EE,#3a0ca3); color:#fff; padding:38px 20px 32px; text-align:center; }
+  .hero .unit-label{ font-size:13px; opacity:.8; margin-bottom:8px; letter-spacing:2px; text-transform:uppercase; }
+  .hero h1{ font-size:25px; margin-bottom:10px; }
+  .hero p{ font-size:15px; opacity:.92; max-width:560px; margin:0 auto; line-height:1.6; }
+  .container{ max-width:720px; margin:0 auto; padding:22px 16px 48px; }
+  .exp{ background:#fff; border-radius:16px; padding:20px; box-shadow:0 2px 12px rgba(67,97,238,.08); margin-bottom:18px; border-left:4px solid var(--u); }
+  .exp h3{ font-size:18px; color:var(--u); }
+  .exp .aim{ margin:9px 0 0; font-size:14.5px; line-height:1.6; }
+  .geo{ width:100%; max-width:340px; margin:12px auto; display:block; background:var(--panel-2); border:1px solid var(--border); border-radius:14px; }
+  .geo polygon,.geo line,.geo circle,.geo path{ transition:all .25s cubic-bezier(.4,0,.2,1); }
+  .read{ text-align:center; font-size:14.5px; color:var(--ink); margin-top:4px; min-height:22px; }
+  .ctrl{ margin-top:10px; }
+  .ctrl label{ display:flex; justify-content:space-between; font-size:13px; font-weight:700; color:var(--muted); margin-bottom:6px; }
+  .ctrl input[type=range]{ width:100%; accent-color:var(--u); }
+  .note{ font-size:13px; color:#667; line-height:1.6; margin-top:12px; }
+  .note b{ color:var(--u); }
+  .back{ display:block; background:#312e81; color:#e0e7ff; font-size:13px; padding:10px 16px; text-decoration:none; text-align:center; }
+  .backlink{ display:inline-block; margin-top:8px; color:var(--u); text-decoration:none; font-size:14px; font-weight:600; }
+  .pill{ display:inline-block; font-size:11px; font-weight:700; color:var(--u); background:var(--u-soft); border-radius:999px; padding:3px 10px; margin-left:6px; vertical-align:middle; }
+</style>
+</head>
+<body>
+<a href="index.html" class="back">← 단원 9 다각형</a>
+<div class="hero">
+  <div class="unit-label">Unit 09 · 탐험</div>
+  <h1>🧭 다각형을 삼각형으로 쪼개기</h1>
+  <p>변의 개수를 바꾸면 내각의 합이 어떻게 변할까요? 삼각형으로 쪼개며 규칙을 직접 발견해요.</p>
+</div>
+<div class="container">
+
+  <div class="exp">
+    <h3>내각의 합 = (n−2) × 180° <span class="pill">직접 조작</span></h3>
+    <p class="aim">다각형은 한 꼭짓점에서 대각선을 그으면 <b>삼각형 여러 개</b>로 쪼개져요. n각형은 <b>(n−2)개</b>의 삼각형으로 나뉘니, 내각의 합은 <b>(n−2)×180°</b>예요. 변의 개수를 바꿔 보세요.</p>
+    <svg class="geo" id="g1" viewBox="0 0 300 240" role="img" aria-label="다각형 삼각분할"></svg>
+    <div class="read" id="r1"></div>
+    <div class="ctrl"><label><span>변의 개수 n</span><span id="v1"></span></label><input type="range" id="s1" min="3" max="9" step="1" value="5"></div>
+    <p class="note">삼각형(3각형)은 <b>1개</b>라 180°, 사각형은 <b>2개</b>라 360°, 오각형은 <b>3개</b>라 540°… 노란 대각선이 삼각형으로 쪼개는 선이에요.</p>
+  </div>
+
+  <div class="exp">
+    <h3>외각의 합은 언제나 360° <span class="pill">직접 조작</span></h3>
+    <p class="aim">신기하게도 다각형의 <b>외각의 합</b>은 변의 개수와 상관없이 <b>항상 360°</b>예요. 한 바퀴 도는 것과 같거든요. 위 슬라이더로 n을 바꿔도 외각의 합은 그대로 360°.</p>
+    <div class="read" id="r2" style="font-size:16px;margin-top:8px"></div>
+    <p class="note">다각형을 따라 걸으며 각 꼭짓점에서 <b>바깥으로 꺾는 각(외각)</b>을 모두 더하면 제자리로 돌아와 <b>정확히 한 바퀴(360°)</b>가 돼요.</p>
+  </div>
+
+  <a href="concepts.html" class="backlink">← 개념 탐구로 돌아가기</a>
+</div>
+
+<script src="../geo.js"></script>
+<script>
+(function(){
+  var P=MG.P;
+  var G=MG.makeGeo(document.getElementById('g1')), s=document.getElementById('s1');
+  var cx=150, cy=120, R=88;
+  function draw(){
+    var n=+s.value, pts=[];
+    for(var i=0;i<n;i++){ var a=(-90+i*360/n)*Math.PI/180; pts.push(P(cx+R*Math.cos(a), cy+R*Math.sin(a))); }
+    G.clear();
+    G.poly(pts);
+    for(var k=2;k<n-1;k++){ G.seg(pts[0],pts[k],{stroke:'var(--gold,#c9972b)',sw:1.5,dash:'3 3'}); }
+    pts.forEach(function(p){ G.dot(p,{r:3.5}); });
+    var sum=(n-2)*180;
+    document.getElementById('v1').textContent=n+'각형';
+    document.getElementById('r1').innerHTML='n='+n+' → 삼각형 <b>'+(n-2)+'개</b> → 내각의 합 = ('+n+'−2)×180 = <b style="color:var(--accent)">'+sum+'°</b>';
+    document.getElementById('r2').innerHTML=n+'각형의 외각의 합 = <b style="color:var(--sage)">360°</b>';
+  }
+  s.oninput=draw; draw();
+})();
+</script>
+</body>
+</html>
