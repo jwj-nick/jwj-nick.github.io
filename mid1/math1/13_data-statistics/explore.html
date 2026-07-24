@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>탐험 — 단원 13 자료의 정리와 해석</title>
+<style>
+  :root{ --u:#4361EE; --u-2:#3a0ca3; --u-soft:#e6ecff; --accent:#e8590c; --accent-soft:rgba(232,89,12,.14);
+    --sage:#2a9d8f; --sage-soft:rgba(42,157,143,.14); --panel:#fff; --panel-2:#f5f7ff; --ink:#333; --muted:#8896b3; --border:#dbe2ff; --gold:#c9972b; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family:'Malgun Gothic',sans-serif; background:#eef2ff; min-height:100vh; color:var(--ink); }
+  .hero { background:linear-gradient(135deg,#4361EE,#3a0ca3); color:#fff; padding:38px 20px 32px; text-align:center; }
+  .hero .unit-label{ font-size:13px; opacity:.8; margin-bottom:8px; letter-spacing:2px; text-transform:uppercase; }
+  .hero h1{ font-size:24px; margin-bottom:10px; }
+  .hero p{ font-size:15px; opacity:.92; max-width:560px; margin:0 auto; line-height:1.6; }
+  .container{ max-width:720px; margin:0 auto; padding:22px 16px 48px; }
+  .exp{ background:#fff; border-radius:16px; padding:20px; box-shadow:0 2px 12px rgba(67,97,238,.08); margin-bottom:18px; border-left:4px solid var(--u); }
+  .exp h3{ font-size:18px; color:var(--u); }
+  .exp .aim{ margin:9px 0 0; font-size:14.5px; line-height:1.6; }
+  .geo{ width:100%; max-width:340px; margin:12px auto; display:block; background:var(--panel-2); border:1px solid var(--border); border-radius:14px; }
+  .read{ text-align:center; font-size:14.5px; color:var(--ink); margin-top:6px; min-height:22px; }
+  .ctrl{ margin-top:8px; }
+  .ctrl label{ display:flex; justify-content:space-between; font-size:13px; font-weight:700; color:var(--muted); margin-bottom:4px; }
+  .ctrl input[type=range]{ width:100%; accent-color:var(--u); }
+  .note{ font-size:13px; color:#667; line-height:1.6; margin-top:12px; }
+  .note b{ color:var(--u); }
+  .back{ display:block; background:#312e81; color:#e0e7ff; font-size:13px; padding:10px 16px; text-decoration:none; text-align:center; }
+  .backlink{ display:inline-block; margin-top:8px; color:var(--u); text-decoration:none; font-size:14px; font-weight:600; }
+  .pill{ display:inline-block; font-size:11px; font-weight:700; color:var(--u); background:var(--u-soft); border-radius:999px; padding:3px 10px; margin-left:6px; vertical-align:middle; }
+</style>
+</head>
+<body>
+<a href="index.html" class="back">← 단원 13 자료의 정리와 해석</a>
+<div class="hero">
+  <div class="unit-label">Unit 13 · 탐험</div>
+  <h1>🧭 자료를 그림으로, 한 값으로</h1>
+  <p>계급별 도수를 바꾸면 히스토그램이 실시간으로 그려져요. 상대도수와 평균도 직접 확인해요.</p>
+</div>
+<div class="container">
+
+  <div class="exp">
+    <h3>히스토그램 만들기 <span class="pill">직접 조작</span></h3>
+    <p class="aim">5개 계급의 <b>도수</b>(각 구간에 속한 자료 수)를 슬라이더로 바꿔 보세요. 막대가 붙어 있는 그래프가 <b>히스토그램</b>이에요.</p>
+    <svg class="geo" id="g1" viewBox="0 0 300 180" role="img" aria-label="히스토그램"></svg>
+    <div class="read" id="r1"></div>
+    <div id="sliders"></div>
+    <p class="note">막대의 <b>넓이</b>가 도수에 비례해요. <b>상대도수</b> = (그 계급의 도수) ÷ (전체 도수)이고, 상대도수를 모두 더하면 <b>1</b>이 돼요.</p>
+  </div>
+
+  <div class="exp">
+    <h3>평균 — 자료를 대표하는 한 값 <span class="pill">직접 조작</span></h3>
+    <p class="aim">네 사람의 점수를 바꿔 보세요. <b>평균 = (모든 값의 합) ÷ (자료 수)</b>. 평균이 자료의 "가운데 무게중심"처럼 움직여요.</p>
+    <svg class="geo" id="g2" viewBox="0 0 300 130" role="img" aria-label="평균"></svg>
+    <div class="read" id="r2"></div>
+    <div class="ctrl"><label><span>값 1</span><span id="w0"></span></label><input type="range" class="mv" min="0" max="10" step="1" value="6"></div>
+    <div class="ctrl"><label><span>값 2</span><span id="w1"></span></label><input type="range" class="mv" min="0" max="10" step="1" value="8"></div>
+    <div class="ctrl"><label><span>값 3</span><span id="w2"></span></label><input type="range" class="mv" min="0" max="10" step="1" value="4"></div>
+    <div class="ctrl"><label><span>값 4</span><span id="w3"></span></label><input type="range" class="mv" min="0" max="10" step="1" value="6"></div>
+  </div>
+
+  <a href="concepts.html" class="backlink">← 개념 탐구로 돌아가기</a>
+</div>
+
+<script src="../geo.js"></script>
+<script>
+(function(){
+  var P=MG.P;
+  // 히스토그램
+  (function(){
+    var G=MG.makeGeo(document.getElementById('g1'));
+    var freqs=[3,5,8,4,2], wrap=document.getElementById('sliders');
+    var labels=['0~2','2~4','4~6','6~8','8~10'];
+    function draw(){
+      G.clear();
+      var x0=24, base=150, bw=48, maxf=10;
+      G.seg(P(x0,base),P(x0+bw*5,base),{stroke:'var(--muted)',sw:1.2});
+      var N=freqs.reduce(function(a,b){return a+b;},0), mx=0, mi=0;
+      freqs.forEach(function(f,i){ if(f>mx){mx=f;mi=i;} var h=f/maxf*115;
+        G.el('rect',{x:x0+i*bw,y:base-h,width:bw,height:h,fill:'var(--u-soft)',stroke:'var(--u)','stroke-width':1.5});
+        G.label(P(x0+i*bw+bw/2,base-h-5),''+f,{size:11,fill:'var(--u)'});
+        G.label(P(x0+i*bw+bw/2,base+13),labels[i],{size:8.5,fill:'var(--muted)'});
+      });
+      var rel = N? (mx/N) : 0;
+      document.getElementById('r1').innerHTML='전체 도수 N = <b>'+N+'</b>　·　가장 많은 계급 '+labels[mi]+'의 상대도수 = <b style="color:var(--accent)">'+rel.toFixed(2)+'</b>';
+    }
+    freqs.forEach(function(f,i){
+      var d=document.createElement('div'); d.className='ctrl';
+      d.innerHTML='<label><span>'+labels[i]+' 계급 도수</span><span id="fq'+i+'">'+f+'</span></label>';
+      var inp=document.createElement('input'); inp.type='range'; inp.min=0; inp.max=10; inp.step=1; inp.value=f;
+      inp.oninput=function(){ freqs[i]=+inp.value; document.getElementById('fq'+i).textContent=inp.value; draw(); };
+      d.appendChild(inp); wrap.appendChild(d);
+    });
+    draw();
+  })();
+  // 평균
+  (function(){
+    var G=MG.makeGeo(document.getElementById('g2'));
+    var mv=document.querySelectorAll('.mv');
+    function draw(){
+      var vals=[], sum=0;
+      mv.forEach(function(s,i){ var v=+s.value; vals.push(v); sum+=v; document.getElementById('w'+i).textContent=v; });
+      var mean=sum/vals.length;
+      G.clear();
+      var x0=30, base=95, w=(240)/10;
+      G.seg(P(x0,base),P(x0+240,base),{stroke:'var(--muted)',sw:1.2});
+      for(var t=0;t<=10;t+=2){ G.label(P(x0+t*w,base+14),''+t,{size:9,fill:'var(--muted)'}); }
+      vals.forEach(function(v){ G.dot(P(x0+v*w,base-8),{r:6,fill:'var(--u)'}); });
+      var mx=x0+mean*w;
+      G.seg(P(mx,30),P(mx,base+4),{stroke:'var(--accent)',sw:2,dash:'4 3'});
+      G.label(P(mx,24),'평균',{size:11,fill:'var(--accent)'});
+      document.getElementById('r2').innerHTML='합 '+sum+' ÷ 4 = 평균 <b style="color:var(--accent)">'+mean.toFixed(1)+'</b>';
+    }
+    mv.forEach(function(s){ s.oninput=draw; }); draw();
+  })();
+})();
+</script>
+</body>
+</html>

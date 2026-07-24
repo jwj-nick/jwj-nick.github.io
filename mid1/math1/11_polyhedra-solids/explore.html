@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>탐험 — 단원 11 다면체와 회전체</title>
+<style>
+  :root{ --u:#4361EE; --u-2:#3a0ca3; --u-soft:#e6ecff; --accent:#e8590c; --accent-soft:rgba(232,89,12,.14);
+    --sage:#2a9d8f; --sage-soft:rgba(42,157,143,.14); --panel:#fff; --panel-2:#f5f7ff; --ink:#333; --muted:#8896b3; --border:#dbe2ff; --gold:#c9972b; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family:'Malgun Gothic',sans-serif; background:#eef2ff; min-height:100vh; color:var(--ink); }
+  .hero { background:linear-gradient(135deg,#4361EE,#3a0ca3); color:#fff; padding:38px 20px 32px; text-align:center; }
+  .hero .unit-label{ font-size:13px; opacity:.8; margin-bottom:8px; letter-spacing:2px; text-transform:uppercase; }
+  .hero h1{ font-size:24px; margin-bottom:10px; }
+  .hero p{ font-size:15px; opacity:.92; max-width:560px; margin:0 auto; line-height:1.6; }
+  .container{ max-width:720px; margin:0 auto; padding:22px 16px 48px; }
+  .exp{ background:#fff; border-radius:16px; padding:20px; box-shadow:0 2px 12px rgba(67,97,238,.08); margin-bottom:18px; border-left:4px solid var(--u); }
+  .exp h3{ font-size:18px; color:var(--u); }
+  .exp .aim{ margin:9px 0 0; font-size:14.5px; line-height:1.6; }
+  .geo{ width:100%; max-width:340px; margin:12px auto; display:block; background:var(--panel-2); border:1px solid var(--border); border-radius:14px; }
+  .read{ text-align:center; font-size:14.5px; color:var(--ink); margin-top:6px; min-height:22px; }
+  .btns{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:12px; }
+  .pb{ cursor:pointer; font-family:inherit; font-weight:700; font-size:13px; padding:8px 13px; border-radius:999px; border:1.5px solid var(--border); background:#fff; color:var(--u); }
+  .pb.on{ background:linear-gradient(135deg,var(--u),var(--u-2)); color:#fff; border-color:transparent; }
+  .note{ font-size:13px; color:#667; line-height:1.6; margin-top:12px; }
+  .note b{ color:var(--u); }
+  .back{ display:block; background:#312e81; color:#e0e7ff; font-size:13px; padding:10px 16px; text-decoration:none; text-align:center; }
+  .backlink{ display:inline-block; margin-top:8px; color:var(--u); text-decoration:none; font-size:14px; font-weight:600; }
+  .pill{ display:inline-block; font-size:11px; font-weight:700; color:var(--u); background:var(--u-soft); border-radius:999px; padding:3px 10px; margin-left:6px; vertical-align:middle; }
+</style>
+</head>
+<body>
+<a href="index.html" class="back">← 단원 11 다면체와 회전체</a>
+<div class="hero">
+  <div class="unit-label">Unit 11 · 탐험</div>
+  <h1>🧭 입체를 세어보고, 돌려서 만들기</h1>
+  <p>정다면체의 꼭짓점·모서리·면을 세면 신기한 규칙이 있어요. 평면도형을 돌리면 어떤 입체가 될까요?</p>
+</div>
+<div class="container">
+
+  <div class="exp">
+    <h3>오일러의 공식: 꼭짓점 − 모서리 + 면 = 2 <span class="pill">눌러보기</span></h3>
+    <p class="aim">정다면체를 골라 꼭짓점(v)·모서리(e)·면(f)의 수를 보세요. 어떤 다면체든 <b>v − e + f 는 항상 2</b>가 돼요.</p>
+    <div class="btns" id="ebtns"></div>
+    <div class="read" id="r1" style="font-size:16px;margin-top:12px"></div>
+    <p class="note">정다면체는 딱 <b>5가지</b> — 정사면체·정육면체·정팔면체·정십이면체·정이십면체. 무엇을 골라도 <b>v − e + f = 2</b> 예요.</p>
+  </div>
+
+  <div class="exp">
+    <h3>회전체 — 평면도형을 돌리면 입체 <span class="pill">눌러보기</span></h3>
+    <p class="aim">평면도형을 한 직선(축) 둘레로 <b>한 바퀴 돌리면</b> 입체가 생겨요. 어떤 도형이 어떤 입체가 되는지 골라 보세요.</p>
+    <svg class="geo" id="g2" viewBox="0 0 300 200" role="img" aria-label="회전체"></svg>
+    <div class="read" id="r2"></div>
+    <div class="btns" id="rbtns"></div>
+    <p class="note">직사각형 → <b>원기둥</b>, 직각삼각형 → <b>원뿔</b>, 반원 → <b>구</b>. 돌리는 축과 도형의 모양이 입체를 정해요.</p>
+  </div>
+
+  <a href="concepts.html" class="backlink">← 개념 탐구로 돌아가기</a>
+</div>
+
+<script src="../geo.js"></script>
+<script>
+(function(){
+  var P=MG.P;
+  // 오일러
+  var SOL=[['정사면체',4,6,4],['정육면체',8,12,6],['정팔면체',6,12,8],['정십이면체',20,30,12],['정이십면체',12,30,20]];
+  var eb=document.getElementById('ebtns');
+  function showE(i){ var d=SOL[i]; Array.prototype.forEach.call(eb.children,function(b,k){b.classList.toggle('on',k===i);});
+    document.getElementById('r1').innerHTML=d[0]+' : v='+d[1]+', e='+d[2]+', f='+d[3]+' → <b style="color:var(--accent)">'+d[1]+' − '+d[2]+' + '+d[3]+' = 2</b>'; }
+  SOL.forEach(function(d,i){ var b=document.createElement('button'); b.className='pb'; b.textContent=d[0]; b.onclick=function(){showE(i);}; eb.appendChild(b); });
+  showE(1);
+
+  // 회전체
+  var G=MG.makeGeo(document.getElementById('g2'));
+  function drawSolid(kind){
+    G.clear();
+    var ax=150; // 회전축
+    G.seg(P(ax,20),P(ax,180),{stroke:'var(--muted)',sw:1.2,dash:'4 4'}); // 축
+    var name='';
+    if(kind===0){ // 직사각형 → 원기둥
+      G.el('ellipse',{cx:ax,cy:45,rx:55,ry:16,fill:'var(--u-soft)',stroke:'var(--u)','stroke-width':2});
+      G.seg(P(ax-55,45),P(ax-55,155),{stroke:'var(--u)',sw:2}); G.seg(P(ax+55,45),P(ax+55,155),{stroke:'var(--u)',sw:2});
+      G.el('path',{d:'M'+(ax-55)+',155 A55,16 0 0 0 '+(ax+55)+',155',fill:'none',stroke:'var(--u)','stroke-width':2});
+      G.el('ellipse',{cx:ax,cy:155,rx:55,ry:16,fill:'none',stroke:'var(--u)','stroke-width':1,'stroke-dasharray':'3 3'});
+      name='원기둥';
+    } else if(kind===1){ // 직각삼각형 → 원뿔
+      G.el('ellipse',{cx:ax,cy:155,rx:55,ry:16,fill:'var(--u-soft)',stroke:'var(--u)','stroke-width':2});
+      G.seg(P(ax-55,155),P(ax,40),{stroke:'var(--u)',sw:2}); G.seg(P(ax+55,155),P(ax,40),{stroke:'var(--u)',sw:2});
+      G.dot(P(ax,40),{r:3}); name='원뿔';
+    } else { // 반원 → 구
+      G.el('circle',{cx:ax,cy:100,r:60,fill:'var(--u-soft)',stroke:'var(--u)','stroke-width':2});
+      G.el('ellipse',{cx:ax,cy:100,rx:60,ry:18,fill:'none',stroke:'var(--u)','stroke-width':1,'stroke-dasharray':'3 3'});
+      name='구'; }
+    document.getElementById('r2').innerHTML='→ <b style="color:var(--accent)">'+name+'</b>';
+    Array.prototype.forEach.call(document.getElementById('rbtns').children,function(b,k){b.classList.toggle('on',k===kind);});
+  }
+  var rb=document.getElementById('rbtns');
+  [['직사각형',0],['직각삼각형',1],['반원',2]].forEach(function(d){ var b=document.createElement('button'); b.className='pb'; b.textContent=d[0]; b.onclick=function(){drawSolid(d[1]);}; rb.appendChild(b); });
+  drawSolid(0);
+})();
+</script>
+</body>
+</html>
