@@ -56,6 +56,15 @@
       color: #b45309; background: #fef3c7; border-radius: 6px;
       padding: 2px 8px; margin-bottom: 6px;
     }
+    /* grid cell that holds a card plus its side links */
+    .cell { display: flex; flex-direction: column; gap: 8px; }
+    .cell .card { flex: 1; }
+    .cell-links { display: flex; gap: 14px; padding: 0 4px; }
+    .cell-links a {
+      font-size: 12px; color: #6b7280; text-decoration: none;
+      border-bottom: 1px solid transparent;
+    }
+    .cell-links a:hover { color: #2563eb; border-bottom-color: #2563eb; }
     .error { color: #dc2626; }
     .tip {
       text-align: center;
@@ -109,6 +118,17 @@
 
     // Sub-path apps not discoverable via GitHub API — listed manually
     const EXTRA_APPS = [
+      {
+        name: '🗂️ Raw File Viewer — Chrome 확장',
+        description: 'Chrome에서 raw 파일을 제대로 보는 확장. Markdown(mermaid·wavedrom)·Verilog/SystemVerilog·JSON/YAML·C/C++ 문법강조에 더해 HWPX·Word·Excel·PDF·CSV·시뮬레이터 로그(ANSI 컬러)·Jupyter·Graphviz·draw.io까지. 왼쪽 폴더 탐색기가 붙어 파일을 오가며 읽는다. 읽기 전용, 라이브러리는 전부 로컬 번들(외부 전송 없음).',
+        url: 'https://github.com/jwj-nick/render-ext/releases/latest/download/render-ext-latest.zip',
+        urlLabel: '⬇ 최신 zip 다운로드 (설치 안내 동봉)',
+        actions: [
+          { label: 'GitHub repo →', href: 'https://github.com/jwj-nick/render-ext' },
+          { label: '설치 방법', href: 'https://github.com/jwj-nick/render-ext/blob/main/INSTALL.md' },
+        ],
+        updated: '2026-07-25T21:00:00Z',
+      },
       {
         name: '🔬 중학 과학 · 만져보는 실험실',
         description: '중1·2·3 과학 핵심 개념을 손으로 — PhET 시뮬 임베드 + 직접 만드는 실험(자유물체도·원자모형·이온) + 예측→확인→문제 착지. 학년 탭, 라이트/다크. (세은, 지속 업데이트)',
@@ -251,14 +271,23 @@
           return;
         }
 
-        grid.innerHTML = apps.map(app => `
+        // A card is one <a>. Cards that also need side links (repo, docs) are
+        // wrapped in a .cell so those anchors sit outside the main one —
+        // nesting <a> inside <a> is invalid HTML.
+        grid.innerHTML = apps.map(app => {
+          const card = `
           <a class="card${app.private ? ' private' : ''}" href="${app.url}" target="_blank" rel="noopener">
             ${app.badge ? `<div class="badge">${app.badge}</div>` : ''}
             <div class="name">${app.name}</div>
             ${app.description ? `<div class="desc">${app.description}</div>` : ''}
-            <div class="url">${app.url}</div>
-          </a>
-        `).join('');
+            <div class="url">${app.urlLabel || app.url}</div>
+          </a>`;
+          if (!app.actions || !app.actions.length) return card;
+          const links = app.actions
+            .map(a => `<a href="${a.href}" target="_blank" rel="noopener">${a.label}</a>`)
+            .join('');
+          return `<div class="cell">${card}<div class="cell-links">${links}</div></div>`;
+        }).join('');
 
         tip.textContent = `${apps.length}개 앱 · 새 repo에 Pages 활성화하면 자동 표시`;
       } catch (e) {
