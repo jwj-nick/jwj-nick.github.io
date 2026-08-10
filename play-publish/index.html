@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<title>Google Play 배포 가이드 — 개인 개발자 기준</title>
+<meta name="description" content="개인 개발자가 안드로이드 앱을 Google Play에 올리기까지 — 단계마다 무엇을, 왜 해야 하는지. render-ext Android 앱을 사례로.">
+<style>
+  :root{
+    --bg:#ffffff; --bg2:#f6f8fa; --card:#ffffff; --line:#d0d7de;
+    --fg:#1f2328; --mut:#59636e; --acc:#0969da; --acc2:#8250df;
+    --ok:#1a7f37; --warn:#9a6700; --bad:#cf222e;
+    --okbg:rgba(26,127,55,.10); --warnbg:rgba(154,103,0,.10); --badbg:rgba(207,34,46,.10);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0f172a; --bg2:#1e293b; --card:#1e293b; --line:#334155;
+      --fg:#e2e8f0; --mut:#94a3b8; --acc:#38bdf8; --acc2:#818cf8;
+      --ok:#34d399; --warn:#fbbf24; --bad:#f87171;
+      --okbg:rgba(52,211,153,.14); --warnbg:rgba(251,191,36,.14); --badbg:rgba(248,113,113,.14);
+    }
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Apple SD Gothic Neo',sans-serif;
+    background:var(--bg);color:var(--fg);line-height:1.65;font-size:14px}
+  header{position:sticky;top:0;z-index:10;background:color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter:blur(8px);border-bottom:1px solid var(--line);
+    padding:max(13px,env(safe-area-inset-top,0)) 16px 12px}
+  header h1{font-size:16.5px;letter-spacing:.2px}
+  header .sub{font-size:11.5px;color:var(--mut);margin-top:3px}
+  header a.back{font-size:11.5px;color:var(--acc);text-decoration:none}
+  .wrap{max-width:820px;margin:0 auto;padding:18px 16px 70px}
+
+  .lede{background:var(--bg2);border:1px solid var(--line);border-left:3px solid var(--acc);
+    border-radius:10px;padding:14px 15px;margin-bottom:20px}
+  .lede p{font-size:13.5px}
+  .lede p + p{margin-top:8px}
+
+  .toc{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:13px 15px;margin-bottom:24px}
+  .toc h2{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
+  .toc ol{margin-left:18px;font-size:13px}
+  .toc li{margin:3px 0}
+  .toc a{color:var(--acc);text-decoration:none}
+  .toc a:hover{text-decoration:underline}
+
+  section{margin-bottom:30px;scroll-margin-top:70px}
+  section > h2{font-size:16px;margin-bottom:5px;display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+  section > h2 .st{font-size:10.5px;font-weight:700;color:var(--acc);background:var(--bg2);
+    border:1px solid var(--line);border-radius:20px;padding:2px 9px;white-space:nowrap}
+  section > .why{font-size:12.5px;color:var(--mut);margin-bottom:12px}
+  h3{font-size:13.5px;margin:16px 0 6px;color:var(--fg)}
+  p{margin-bottom:9px}
+  ul{margin:0 0 10px 18px}
+  li{margin:4px 0}
+  a{color:var(--acc)}
+  code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.9em;
+    background:var(--bg2);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+  strong{font-weight:700}
+
+  .tw{overflow-x:auto;margin:10px 0 14px;border:1px solid var(--line);border-radius:10px}
+  table{border-collapse:collapse;width:100%;font-size:12.5px;min-width:460px}
+  th,td{padding:8px 11px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:var(--bg2);font-weight:700;font-size:11.5px;color:var(--mut);
+    text-transform:uppercase;letter-spacing:.4px;white-space:nowrap}
+  tr:last-child td{border-bottom:none}
+
+  .note{border-radius:9px;padding:11px 13px;margin:11px 0;font-size:12.5px;border:1px solid}
+  .note b{display:block;margin-bottom:3px;font-size:11.5px;letter-spacing:.3px}
+  .n-key{background:var(--okbg);border-color:transparent;}
+  .n-key b{color:var(--ok)}
+  .n-warn{background:var(--warnbg);border-color:transparent}
+  .n-warn b{color:var(--warn)}
+  .n-stop{background:var(--badbg);border-color:transparent}
+  .n-stop b{color:var(--bad)}
+
+  .pill{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap}
+  .p-ok{background:var(--okbg);color:var(--ok)}
+  .p-todo{background:var(--badbg);color:var(--bad)}
+  .p-na{background:var(--bg2);color:var(--mut);border:1px solid var(--line)}
+
+  footer{border-top:1px solid var(--line);margin-top:30px;padding-top:16px;font-size:12px;color:var(--mut)}
+  footer ul{margin-left:16px}
+  footer a{word-break:break-all}
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="/index.html">← 앱 목록</a>
+  <h1>Google Play 배포 가이드</h1>
+  <div class="sub">개인 개발자 기준 · 단계마다 무엇을 왜 · 기준일 2026-08-10</div>
+</header>
+
+<div class="wrap">
+
+  <div class="lede">
+    <p><strong>이 문서의 목적:</strong> 개인이 만든 안드로이드 앱을 Google Play에 올리기까지
+    실제로 무엇을 해야 하고 <em>왜</em> 그것이 필요한지를 순서대로 정리한다. 사례는
+    <a href="https://github.com/jwj-nick/render-ext">render-ext</a>의 Android 뷰어(현재는
+    GitHub Releases로 APK 직접 배포).</p>
+    <p><strong>먼저 알아야 할 것 하나.</strong> 목적이 "설치할 때 뜨는 보안 경고와 '출처를 알 수 없는 앱
+    허용'을 없애는 것"이라면, 그건 <em>공개 배포와 무관</em>하다. 그 프롬프트는 사이드로딩(브라우저·파일
+    관리자로 APK 설치)이라는 <em>경로</em>에 붙는 것이라, Play가 설치를 대행하기만 하면 사라진다.
+    아래 <a href="#tracks">Stage 5</a>의 <strong>내부 테스트</strong>만으로 충분하고, 공개 배포의
+    관문들은 통과할 필요가 없다.</p>
+    <p class="small" style="color:var(--mut);font-size:12px">정책은 자주 바뀐다. 각 항목의 근거는
+    <a href="#src">맨 아래 출처</a>의 공식 문서 링크로 확인할 것.</p>
+  </div>
+
+  <div class="toc">
+    <h2>단계</h2>
+    <ol>
+      <li><a href="#goal">목적지 정하기 — 어디까지 갈 것인가</a></li>
+      <li><a href="#stage0">Stage 0 · 되돌릴 수 없는 결정</a></li>
+      <li><a href="#stage1">Stage 1 · 개발자 계정과 신원 확인</a></li>
+      <li><a href="#stage2">Stage 2 · 빌드 산출물 (AAB·서명·target API)</a></li>
+      <li><a href="#stage3">Stage 3 · 앱 콘텐츠 신고 — 반려가 가장 많은 곳</a></li>
+      <li><a href="#stage4">Stage 4 · 스토어 등록정보 (공개 배포만)</a></li>
+      <li><a href="#tracks">Stage 5 · 트랙과 관문 — 12명 × 14일</a></li>
+      <li><a href="#stage6">Stage 6 · 심사와 출시</a></li>
+      <li><a href="#stage7">Stage 7 · 출시 후 계속 지는 의무</a></li>
+      <li><a href="#status">사례: render-ext는 지금 어디까지 됐나</a></li>
+      <li><a href="#sideload">사이드로딩의 미래 — 안 올려도 영향받는 부분</a></li>
+    </ol>
+  </div>
+
+  <!-- ─────────────────────────────────────────── -->
+  <section id="goal">
+    <h2>목적지 정하기 <span class="st">먼저 결정</span></h2>
+    <p class="why">이 선택 하나가 뒤따르는 작업량을 몇 배로 갈라놓는다. Play에 "올린다"는 말은 실제로 네 가지 서로 다른 상태를 뜻한다.</p>
+
+    <div class="tw"><table>
+      <tr>
+        <th>목적지</th><th>누가 설치 가능</th><th>보안 경고</th><th>추가 관문</th>
+      </tr>
+      <tr>
+        <td><strong>내부 테스트</strong></td>
+        <td>내가 이메일로 초대한 최대 100명</td>
+        <td>없음 (Play가 설치)</td>
+        <td>없음 — 심사 대기도 사실상 없음</td>
+      </tr>
+      <tr>
+        <td><strong>비공개 테스트</strong></td>
+        <td>초대한 그룹</td>
+        <td>없음</td>
+        <td>프로덕션으로 가려면 <strong>12명 × 14일</strong>의 근거가 된다</td>
+      </tr>
+      <tr>
+        <td><strong>공개 테스트</strong></td>
+        <td>누구나 (테스터로 참여)</td>
+        <td>없음</td>
+        <td>스토어 등록정보 필요</td>
+      </tr>
+      <tr>
+        <td><strong>프로덕션</strong></td>
+        <td>누구나 (정식 검색·설치)</td>
+        <td>없음</td>
+        <td>12명 × 14일 + 등록정보 + 심사 전부</td>
+      </tr>
+    </table></div>
+
+    <div class="note n-key">
+      <b>핵심</b>
+      개인이 자기 폰에서 경고 없이 쓰는 것이 목적이면 <strong>내부 테스트에서 끝난다.</strong>
+      $25 계정과 신원 확인, AAB 빌드까지만 하면 되고, 12명 테스터·스크린샷·피처 그래픽·심사는
+      전부 건너뛴다. 나중에 마음이 바뀌면 같은 계정에서 위 단계로 올라가면 된다.
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────── -->
+  <section id="stage0">
+    <h2>Stage 0 · 되돌릴 수 없는 결정 <span class="st">시작 전</span></h2>
+    <p class="why">아래 세 가지는 한 번 정하면 사실상 못 바꾼다. 계정을 만들기 <em>전에</em> 정해야 하는 이유가 여기 있다.</p>
+
+    <h3>① 계정 유형: 개인 vs 조직</h3>
+    <p><strong>왜 중요한가:</strong> 2023년 11월 13일 이후에 만든 <em>개인</em> 계정에만
+    "12명 테스터 × 14일" 요건이 붙는다. <strong>조직 계정은 면제된다.</strong> 계정 유형은 나중에
+    바꾸기가 매우 번거롭다.</p>
+    <p>조직 계정은 D-U-N-S 번호(무료로 발급 가능하나 사업자 실체가 필요)와 회사 웹사이트 확인을
+    요구한다. 개인이 이걸 우회하려고 없는 조직을 만드는 건 정책 위반이다.</p>
+
+    <h3>② 패키지명 (<code>applicationId</code>)</h3>
+    <p><strong>왜 중요한가:</strong> Play에서 앱의 영구 식별자다. 한 번 업로드하면
+    <strong>영원히 못 바꾼다.</strong> 바꾸려면 완전히 다른 앱으로 새로 출시해야 하고, 기존 설치
+    사용자는 따라오지 않는다. 삭제한 앱의 패키지명도 재사용할 수 없다.</p>
+    <p>역방향 도메인 형식으로, 소유한 도메인이나 GitHub 계정 기반으로 짓는다.
+    예: <code>dev.jwjnick.renderext</code></p>
+
+    <h3>③ 앱 서명 키</h3>
+    <p><strong>왜 중요한가:</strong> 안드로이드는 "같은 키로 서명된 것"만 같은 앱의 업데이트로
+    인정한다. 키를 잃으면 <strong>그 앱은 영원히 업데이트할 수 없다.</strong></p>
+    <p>그래서 신규 앱은 <strong>Play 앱 서명(Play App Signing)</strong>이 필수다. 구조는 이렇다:</p>
+    <ul>
+      <li><strong>업로드 키</strong> — 내가 만들어 보관. AAB에 서명해 Play Console에 올릴 때 쓴다.
+        분실해도 Google에 재설정을 요청할 수 있다.</li>
+      <li><strong>앱 서명 키</strong> — Google이 보관. 실제 사용자 기기에 배포되는 최종 서명.
+        내가 잃어버릴 일이 없다.</li>
+    </ul>
+    <div class="note n-warn">
+      <b>주의</b>
+      업로드 키스토어와 비밀번호는 별도로 백업할 것. CI에서 서명한다면 키스토어를 base64로 인코딩해
+      GitHub Secrets 같은 비밀 저장소에 넣고, <em>절대 저장소에 커밋하지 않는다.</em>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────── -->
+  <section id="stage1">
+    <h2>Stage 1 · 개발자 계정과 신원 확인 <span class="st">1~수일</span></h2>
+    <p class="why">Play에 무엇이든 올리려면 반드시 통과해야 하는 관문. 돈과 신분증이 필요한 유일한 단계다.</p>
+    <ul>
+      <li><strong>등록비 $25</strong> — 1회, 평생. 앱 개수 제한 없음.</li>
+      <li><strong>신원 확인</strong> — 개인은 법적 이름·주소·이메일·전화번호, 필요 시 정부 발급 신분증.
+        조직은 D-U-N-S 번호와 웹사이트 확인.</li>
+      <li><strong>개발자 인증(Android developer verification)</strong> — 2026년부터 Play Console과
+        Android Developer Console의 전 개발자로 확대된 별도 절차. 신원 확인에 더해
+        <em>패키지명 등록</em>(내 키로 서명한 APK를 제출해 소유권 증명)이 포함된다.</li>
+    </ul>
+    <p><strong>왜 이렇게 됐나:</strong> 악성 앱과 사칭을 줄이기 위해 "앱마다 책임질 실명 주체"를
+    두겠다는 방향이다. 뒤의 <a href="#sideload">사이드로딩 변화</a>도 같은 정책의 일부다.</p>
+  </section>
+
+  <!-- ─────────────────────────────────────────── -->
+  <section id="stage2">
+    <h2>Stage 2 · 빌드 산출물 <span class="st">개발 작업</span></h2>
+    <p class="why">개인 배포용 APK와 Play용 산출물은 형식부터 다르다. 여기가 코드/빌드 설정을 실제로 고쳐야 하는 유일한 단계다.</p>
+
+    <h3>AAB (Android App Bundle) — APK 아님</h3>
+    <p>신규 앱은 <strong>APK를 업로드할 수 없고 AAB만 받는다.</strong>
+    (<code>./gradlew bundleRelease</code>)</p>
+    <p><strong>왜:</strong> AAB는 완성된 설치 파일이 아니라 "재료 묶음"이다. Play가 이걸 받아
+    각 기기의 화면 밀도·CPU·언어에 맞는 최소한의 APK를 <em>서버에서 생성</em>해 내려보낸다.
+    사용자 다운로드 용량이 줄어드는 대신, 최종 서명을 Google이 하게 되므로
+    <a href="#stage0">Play 앱 서명</a>이 강제된다.</p>
+
+    <h3>target API level</h3>
+    <p>매년 상향된다. 기준일 현재:</p>
+    <ul>
+      <li><strong>2026-08-31부터</strong> — 신규 앱과 <em>모든 업데이트</em>는
+        <strong>Android 16 (API 36)</strong> 이상을 타겟해야 제출 가능. 연장 신청 시 2026-11-01까지.</li>
+      <li><strong>기존 앱</strong> — API 35 이상을 유지하지 않으면, 앱이 타겟하는 버전보다 높은
+        Android를 쓰는 <em>신규 사용자</em>에게 노출되지 않는다. 이미 설치한 사람은 계속 쓸 수 있다.</li>
+    </ul>
+    <p><strong>왜:</strong> 최신 권한 모델·보안 제약을 앱이 실제로 준수하게 만들기 위해서다.
+    <code>targetSdk</code>를 올리면 동작이 바뀌는 API가 생기므로 <em>단순 숫자 변경이 아니라 회귀 테스트가 필요</em>하다.
+    <code>compileSdk</code>도 함께 올려야 하고, 그러면 Android Gradle Plugin 버전도 따라 올려야 하는 경우가 많다.</p>
+
+    <h3>versionCode</h3>
+    <p>업로드할 때마다 <strong>단조 증가</strong>해야 한다. 같은 값은 재업로드 불가.
+    CI에서 빌드한다면 빌드 번호를 그대로 쓰는 방식이 안전하다.</p>
+  </section>
+
+  <!-- ─────────────────────────────────────────── -->
+  <section id="stage3">
+    <h2>Stage 3 · 앱 콘텐츠 신고 <span class="st">Play Console</span></h2>
+    <p class="why">코드가 아니라 <em>선언</em>이다. 그런데 반려와 앱 삭제가 가장 많이 발생하는 곳이 바로 여기다 — 잘못 신고하면 정책 위반이 된다.</p>
+
+    <div class="tw"><table>
+      <tr><th>항목</th><th>필수 여부</th><th>왜 / 주의</th></tr>
+      <tr>
+        <td><strong>데이터 보안</strong><br>(Data safety)</td>
+        <td>전 앱 필수</td>
+        <td>수집·공유하는 데이터를 스토어에 공개 표시한다. 실제 동작과 다르면 정책 위반.
+          <em>아무것도 수집하지 않는 앱은 "수집 없음"으로 신고하면 되고, 이게 가장 통과가 쉽다.</em></td>
+      </tr>
+      <tr>
+        <td><strong>개인정보처리방침</strong></td>
+        <td>조건부</td>
+        <td>민감한 권한·데이터를 다루거나 아동을 대상으로 하면 필수이며, 활성 URL이어야 한다.
+          해당 없어도 한 장 만들어 두는 편이 심사에서 마찰이 적다 (GitHub Pages로 충분).</td>
+      </tr>
+      <tr>
+        <td><strong>콘텐츠 등급</strong></td>
+        <td>필수</td>
+        <td>설문에 답하면 등급이 산정된다. <strong>작성하지 않으면 'Unrated'가 되고 삭제될 수 있다.</strong></td>
+      </tr>
+      <tr>
+        <td><strong>타겟 연령층</strong></td>
+        <td>필수</td>
+        <td>아동을 포함하면 Families 정책이 추가로 적용된다 — 광고·SDK 제약이 크게 늘어난다.</td>
+      </tr>
+      <tr>
+        <td><strong>광고 포함 여부</strong></td>
+        <td>필수</td>
+        <td>서드파티 광고 SDK를 통한 것도 포함. 있다고 신고하면 스토어에 "광고 포함" 라벨이 붙는다.</td>
+      </tr>
+      <tr>
+        <td>정부·금융·뉴스·건강 등</td>
+        <td>해당 시</td>
+        <td>카테고리별 추가 신고와 증빙이 요구된다.</td>
+      </tr>
+    </table></div>
+
+    <div class="note n-key">
+      <b>권한이 적을수록 유리하다</b>
+      선언할 게 없는 앱이 가장 빨리 통과한다. 필요 없는 권한(특히 <code>INTERNET</code>,
+      저장소, 위치)을 매니페스트에서 빼는 것만으로 이 단계 전체가 단순해진다.
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────── -->
+  <section id="stage4">
+    <h2>Stage 4 · 스토어 등록정보 <span class="st">공개 배포만</span></h2>
+    <p class="why">내부 테스트만 할 거면 <strong>이 단계는 통째로 건너뛴다.</strong> 공개(공개 테스트·프로덕션)에서만 필요하다.</p>
+
+    <div class="tw"><table>
+      <tr><th>자산</th><th>규격</th></tr>
+      <tr><td>앱 아이콘</td><td>512 × 512 px · 32비트 PNG(알파 포함) · 최대 1024 KB</td></tr>
+      <tr><td>피처 그래픽</td><td>1024 × 500 px · JPEG 또는 24비트 PNG(<strong>알파 없음</strong>)</td></tr>
+      <tr><td>폰 스크린샷</td>
+          <td>최소 2장, 기기 유형당 최대 8장 · 각 변 320~3840 px ·
+              <strong>긴 변이 짧은 변의 2배를 넘을 수 없음</strong> · 세로 9:16 / 가로 16:9 ·
+              JPEG 또는 24비트 PNG(알파 없음)</td></tr>
+      <tr><td>앱 이름</td><td>30자</td></tr>
+      <tr><td>간단한 설명</td><td>80자</td></tr>
+      <tr><td>자세한 설명</td><td>4,000자</td></tr>
+    </table></div>
+    <p>Google의 추천·홍보 대상이 되려면 <strong>1080 px 이상 스크린샷 4장 이상</strong>이 권장된다.</p>
+  </section>
+
+  <!-- ─────────────────────────────────────────── -->
+  <section id="tracks">
+    <h2>Stage 5 · 트랙과 관문 <span class="st">여기가 진짜 벽</span></h2>
+    <p class="why">개인 개발자가 공개 배포에서 실제로 막히는 지점은 심사가 아니라 <strong>테스터 모집</strong>이다.</p>
+
+    <div class="tw"><table>
+      <tr><th>트랙</th><th>규모</th><th>속도</th><th>프로덕션 요건 기여</th></tr>
+      <tr>
+        <td><strong>내부 테스트</strong></td>
+        <td>최대 100명 (이메일로 지정, 최소 인원 없음)</td>
+        <td>심사 대기 없이 수 분 내 반영</td>
+        <td><strong>기여하지 않음</strong> — 몇 명을 며칠 넣든 무관</td>
+      </tr>
+      <tr>
+        <td><strong>비공개 테스트</strong></td>
+        <td>이메일 목록 또는 Google 그룹</td>
+        <td>검토 있음</td>
+        <td><strong>여기서만 카운트된다</strong></td>
+      </tr>
+      <tr>
+        <td><strong>공개 테스트</strong></td>
+        <td>제한 없음</td>
+        <td>검토 있음</td>
+        <td>스토어 등록정보 필요</td>
+      </tr>
+    </table></div>
+
+    <div class="note n-stop">
+      <b>12명 × 14일 규칙</b>
+      <strong>2023년 11월 13일 이후 만든 개인 계정</strong>은, 프로덕션 접근을 신청하려면
+      비공개 테스트에 <strong>최소 12명이 옵트인한 상태로 연속 14일</strong>을 채워야 한다.
+      <br><br>
+      · 14일 카운트는 <em>12번째 테스터가 참여한 시점부터</em> 시작한다. 중간에 인원이 12명 아래로
+      떨어지면 곤란해진다.<br>
+      · 원래 <strong>20명</strong>이었으나 2024년 12월 11일 <strong>12명</strong>으로 완화됐다.<br>
+      · <strong>조직 계정, 또는 2023-11-13 이전에 만든 개인 계정은 면제된다.</strong><br>
+      · 내부 테스트로는 절대 이 요건을 채울 수 없다.
+    </div>
+    <p><strong>왜 이런 규칙이 생겼나:</strong> 심사만 통과하고 버려지는 저품질·사기성 앱이 개인 계정에서
+    쏟아지자, "최소한 실제 사용자 손에서 2주는 돌려본 앱"만 공개하도록 만든 장치다. 그래서
+    테스터는 <em>실제로 앱을 설치한 서로 다른 계정</em>이어야 한다.</p>
+  </section>
+
+  <!-- ─────────────────────────────────────────── -->
+  <section id="stage6">
+    <h2>Stage 6 · 심사와 출시 <span class="st">대기</span></h2>
+    <ul>
+      <li>모든 신고와 등록정보를 채운 뒤 검토를 제출한다.</li>
+      <li><strong>신규 개인 계정은 첫 심사가 특히 오래 걸릴 수 있다</strong>(수일 단위). 이후 업데이트는 짧아진다.</li>
+      <li>거절되면 사유가 통보된다. 대부분 <a href="#stage3">Stage 3의 신고 내용</a>과 실제 앱 동작의 불일치다.</li>
+      <li><strong>단계적 출시</strong>로 일부 사용자에게 먼저 배포해 문제를 확인한 뒤 100%로 올릴 수 있다.</li>
+    </ul>
+  </section>
+
+  <!-- ─────────────────────────────────────────── -->
+  <section id="stage7">
+    <h2>Stage 7 · 출시 후 계속 지는 의무 <span class="st">매년</span></h2>
+    <p class="why">Play는 "한 번 올리면 끝"이 아니다. 방치하면 스스로 내려간다.</p>
+    <ul>
+      <li><strong>매년 target API 상향</strong> — 따라가지 않으면 신규 사용자에게 노출이 중단되고,
+        더 지나면 업데이트 제출 자체가 막힌다. 앱을 안 고칠 생각이어도 <em>1년에 한 번은 빌드해서 올려야 한다.</em></li>
+      <li><strong>정책 변경 대응</strong> — 새 신고 항목이 생기면 기한 내 채워야 한다.</li>
+      <li><strong>장기 미업데이트 앱</strong>은 검색 노출이 제한되거나 제거될 수 있다.</li>
+    </ul>
+    <div class="note n-warn">
+      <b>개인 프로젝트라면 이 비용을 먼저 계산할 것</b>
+      공개 배포는 "무료로 남에게 주는 것"이 아니라 <strong>매년 유지보수를 약속하는 것</strong>이다.
+      그럴 생각이 없다면 GitHub Releases + 내부 테스트 조합이 오히려 정직한 선택이다.
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────── -->
+  <section id="status">
+    <h2>사례 · render-ext는 지금 어디까지 됐나 <span class="st">2026-08</span></h2>
+    <p class="why">실제 앱에 위 단계를 대입하면 남은 작업이 구체적으로 드러난다.</p>
+
+    <div class="tw"><table>
+      <tr><th>항목</th><th>현재</th><th>Play 요건</th><th>상태</th></tr>
+      <tr><td>패키지명</td><td><code>dev.jwjnick.renderext</code></td><td>영구 고정</td>
+          <td><span class="pill p-ok">확정됨</span></td></tr>
+      <tr><td>권한</td><td>선언 0개 (<code>INTERNET</code>조차 없음)</td>
+          <td>데이터 보안 "수집 없음" 신고 가능</td><td><span class="pill p-ok">유리</span></td></tr>
+      <tr><td>네트워크</td><td>전부 기기 내 처리, 외부 전송 없음</td><td>개인정보처리방침 부담 최소</td>
+          <td><span class="pill p-ok">유리</span></td></tr>
+      <tr><td>라이브러리 고지</td><td>THIRD-PARTY.md</td><td>번들 오픈소스 라이선스 준수</td>
+          <td><span class="pill p-ok">완료</span></td></tr>
+      <tr><td>산출물</td><td>APK · <strong>디버그 키 서명</strong></td><td>AAB + 업로드 키 릴리스 서명</td>
+          <td><span class="pill p-todo">해야 함</span></td></tr>
+      <tr><td>targetSdk</td><td>35</td><td>2026-08-31부터 36</td>
+          <td><span class="pill p-todo">해야 함</span><br><span style="font-size:11px;color:var(--mut)">compileSdk 36 + AGP 업그레이드 동반</span></td></tr>
+      <tr><td>versionCode</td><td>1 고정</td><td>업로드마다 증가</td>
+          <td><span class="pill p-todo">해야 함</span></td></tr>
+      <tr><td>스토어 자산</td><td>없음</td><td>공개 배포 시에만</td>
+          <td><span class="pill p-na">내부 테스트면 불필요</span></td></tr>
+    </table></div>
+
+    <p>즉 <strong>내부 테스트까지는 빌드 설정 세 줄기(AAB·서명·targetSdk)만 손보면 된다.</strong>
+    공개 배포로 가려면 여기에 Stage 3·4·5가 전부 붙는다.</p>
+  </section>
+
+  <!-- ─────────────────────────────────────────── -->
+  <section id="sideload">
+    <h2>사이드로딩의 미래 <span class="st">Play에 안 올려도 영향</span></h2>
+    <p class="why">"그냥 APK로 계속 쓰면 된다"가 언제까지 유효한지 알아야 판단할 수 있다.</p>
+    <ul>
+      <li><strong>2026년 8월</strong> — 미인증 앱 설치 시 <strong>24시간 대기</strong>가 포함된 "고급 설치 흐름"이
+        전 세계로 확대. 동시에 학생·취미 개발자용 <strong>무료 계정</strong>이 정식 출시됐다.</li>
+      <li><strong>2026-09-30</strong> — 브라질·인도네시아·싱가포르·태국에서, 인증된 개발자가 등록하지 않은 앱은
+        인증 기기(Play Protect 탑재)에 <strong>설치·업데이트가 차단</strong>된다.</li>
+      <li><strong>2027년</strong> — 전 세계로 확대 예정.</li>
+      <li><strong>ADB를 통한 설치는 계속 예외</strong>로 남는다.</li>
+    </ul>
+
+    <h3>무료 Limited Distribution 계정</h3>
+    <p>비용도 정부 발급 신분증도 없이 이메일만으로 만들 수 있고, 앱 개수 제한 없이
+    <strong>최대 20대 기기</strong>에 배포할 수 있다. 공개 스토어 출시용은 아니다.</p>
+    <div class="note n-warn">
+      <b>오해하기 쉬운 점</b>
+      이 계정은 <em>사이드로딩을 계속 허용받는</em> 수단이지, 설치할 때 뜨는
+      "출처를 알 수 없는 앱 허용" 프롬프트를 없애 주지 않는다. 그 프롬프트가 사라지는 건
+      Play가 설치를 대행할 때뿐이다.
+    </div>
+    <p><strong>판단 기준:</strong> 본인과 소수만 쓸 앱이면 무료 계정으로 인증만 받아 두면 2027년 이후에도
+    안전하다. 경고 없는 설치 경험까지 원하면 $25 계정 + 내부 테스트. 남들이 검색해서 받게 하려면
+    그때 비로소 프로덕션까지 간다.</p>
+  </section>
+
+  <!-- ─────────────────────────────────────────── -->
+  <footer id="src">
+    <p><strong>출처 (공식 문서 — 정책 변동 시 여기서 확인)</strong></p>
+    <ul>
+      <li><a href="https://support.google.com/googleplay/android-developer/answer/9859455">Play Console — 앱 출시 체크리스트</a></li>
+      <li><a href="https://support.google.com/googleplay/android-developer/answer/14151465">Play Console — 신규 개인 개발자 계정의 앱 테스트 요건 (12명 × 14일)</a></li>
+      <li><a href="https://support.google.com/googleplay/android-developer/answer/11926878">Play Console — target API level 요건</a></li>
+      <li><a href="https://support.google.com/googleplay/android-developer/answer/9866151">Play Console — 스토어 등록정보 그래픽 자산 규격</a></li>
+      <li><a href="https://support.google.com/googleplay/android-developer/answer/9845334">Play Console — 내부·비공개·공개 테스트 설정</a></li>
+      <li><a href="https://developer.android.com/developer-verification">Android — 개발자 인증 (Limited / Full Distribution)</a></li>
+      <li><a href="https://developer.android.com/developer-verification/guides/faq">Android — 개발자 인증 FAQ</a></li>
+    </ul>
+    <p style="margin-top:12px">사례 앱 저장소: <a href="https://github.com/jwj-nick/render-ext">github.com/jwj-nick/render-ext</a>
+      · 이 문서는 2026-08-10 기준으로 작성됐다.</p>
+  </footer>
+
+</div>
+</body>
+</html>
