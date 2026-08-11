@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>놀이터 · 식의 계산 · 중2-1</title>
+<link rel="stylesheet" href="concept.css?v=20260812a">
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중2-1</a><span class="dot"></span><a href="u2.html">단원 2</a><span class="dot"></span><span>놀이터</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+  <div class="pg-badge"><span class="i">🎨</span>놀이터 — 점수는 안 매겨요, 그냥 놀아 봐요</div>
+  <h1>지수의 계산 놀이터</h1>
+  <p class="lede">작은 숫자 하나가 지수로 올라가면 얼마나 커질까요? 직접 밀어 보고, 번개처럼 계산해 봐요.</p>
+
+  <div class="pg-score" id="score"><span class="dot">🏅</span>해결한 사건 <b id="scoreN">0</b> / <span id="scoreT">4</span></div>
+
+  <!-- 게임 1 · 디지털 용량 재기 -->
+  <div class="pg-game reveal" id="g-byte">
+    <div class="pg-title"><span class="pg-emoji">💾</span>디지털 용량 재기</div>
+    <div class="pg-desc">컴퓨터 용량은 전부 <b>2의 거듭제곱</b>이에요. 지수를 밀어 보면 2가 얼마나 무섭게 커지는지 보여요.</div>
+    <div class="controls">
+      <div class="ctrl">
+        <label><span>지수 n</span><span id="by-n">10</span></label>
+        <input type="range" id="by-slider" min="0" max="40" value="10">
+      </div>
+    </div>
+    <div class="sim-stage">
+      <div class="bigcount" id="by-val">1,024</div>
+      <div class="sim-read"><span id="by-unit">약 1 KB</span></div>
+      <div class="sim-read muted" id="by-law" style="font-size:13px;margin-top:6px"></div>
+    </div>
+    <div class="pg-case" style="margin-top:12px">
+      <div class="case-stmt">네 폰이 <b>128 GB</b> 라면, 대략 2의 몇 제곱 바이트에 가까울까요? <span class="muted" style="font-size:12.5px">(힌트: 1 GB ≈ 2<sup>30</sup>, 128 = 2<sup>7</sup>)</span></div>
+      <div class="row" style="margin-top:10px"><input class="num" id="by-in" inputmode="numeric" placeholder="?"><button id="by-check">확인</button></div>
+      <div class="out" id="by-out"></div>
+    </div>
+  </div>
+
+  <!-- 게임 2 · 지수 번개 -->
+  <div class="pg-game reveal" id="g-bolt">
+    <div class="pg-title"><span class="pg-emoji">⚡</span>지수 번개 계산</div>
+    <div class="pg-desc">지수법칙만 알면 순식간이에요. 지수 자리에 들어갈 수를 빠르게 맞혀 봐요. <b>3개 연속</b> 맞히면 클리어!</div>
+    <div class="pg-num" id="bolt-q">a<sup>3</sup> × a<sup>4</sup> = a<sup>?</sup></div>
+    <div class="row" style="justify-content:center"><input class="num" id="bolt-in" inputmode="numeric" placeholder="?"><button id="bolt-check">확인</button></div>
+    <div class="out" id="bolt-out"></div>
+    <div class="sim-read muted" style="font-size:13px;margin-top:8px">연속 정답 <b id="bolt-streak" style="color:var(--u)">0</b> / 3</div>
+  </div>
+
+  <!-- 게임 3 · 동류항 짝찾기 -->
+  <div class="pg-game reveal" id="g-like">
+    <div class="pg-title"><span class="pg-emoji">🧲</span>동류항 짝찾기</div>
+    <div class="pg-desc">두 항이 <b>동류항</b>인지 아닌지 맞혀 봐요. 동류항은 <b>문자도 같고 차수도 같은</b> 항이에요.</div>
+    <div class="pg-num" id="like-pair"></div>
+    <div class="pg-predict">
+      <button class="pg-pbtn" id="like-yes"><span class="e">⭕</span>동류항이에요<br><span style="font-weight:600;font-size:12px;color:var(--muted)">합칠 수 있어요</span></button>
+      <button class="pg-pbtn" id="like-no"><span class="e">❌</span>아니에요<br><span style="font-weight:600;font-size:12px;color:var(--muted)">못 합쳐요</span></button>
+    </div>
+    <div class="out" id="like-out"></div>
+    <div class="sim-read muted" style="font-size:13px;margin-top:8px"><b id="like-done" style="color:var(--u)">0</b> / <span id="like-total">6</span></div>
+  </div>
+
+  <!-- 게임 4 · 오류 탐정 -->
+  <div class="pg-game reveal" id="g-detective">
+    <div class="pg-title"><span class="pg-emoji">🔍</span>오류 탐정</div>
+    <div class="pg-desc">누군가 이렇게 계산했어요. 어디가 이상한지 찾아볼까요? (정답은 안 알려줘요 — 스스로 짚어 봐요)</div>
+    <div class="pg-case">
+      <div class="case-no" id="det-no">사건 1 / 6</div>
+      <div class="case-stmt" id="det-stmt"></div>
+    </div>
+    <div style="text-align:center"><button id="det-think">다르게 생각해 볼까요?</button></div>
+    <div class="hint" id="det-counter" style="display:none;margin-top:10px"></div>
+    <div class="ask" id="det-ask" style="display:none;margin-top:10px"></div>
+    <div class="pg-case" id="det-checkbox" style="display:none;margin-top:14px">
+      <div class="case-stmt" id="det-checkq"></div>
+      <div class="row" style="margin-top:10px"><input class="blank" id="det-in" placeholder="답"><button id="det-check">확인</button></div>
+      <div class="out" id="det-out"></div>
+    </div>
+    <div style="text-align:center;margin-top:12px"><button class="ghost" id="det-next" style="display:none">다음 사건 -></button></div>
+  </div>
+
+  <div class="stamp" id="stamp">
+    <div class="seal">🎉</div>
+    <div class="seal-t">놀이터 클리어!</div>
+    <div class="seal-d">지수법칙, 이제 번개처럼 쓸 수 있어요.</div>
+  </div>
+  <div class="bridge" style="margin-top:18px"><a class="golink" href="p2.html">연습 문제로 -></a></div>
+
+  <div class="foot">중2 수학 · 놀이터 · 단원 02</div>
+</div>
+
+<div class="pg-confetti" id="confetti"></div>
+
+<script src="concept.js?v=20260812a"></script>
+<script>
+MJ.boot();
+(function(){
+  var solved=0, TOTAL=4;
+  function bump(){
+    var el=document.getElementById('scoreN'); solved++; el.textContent=solved;
+    var badge=document.getElementById('score'); badge.classList.remove('bump'); void badge.offsetWidth; badge.classList.add('bump');
+    if(solved>=TOTAL){ confetti(); document.getElementById('stamp').classList.add('show'); }
+  }
+  function confetti(){
+    var host=document.getElementById('confetti'); host.innerHTML='';
+    var colors=['#d76a9c','#e59a3c','#4fa892','#f2be6b','#c85e8f'];
+    for(var i=0;i<46;i++){
+      var s=document.createElement('i');
+      s.style.left=(Math.random()*100)+'vw';
+      s.style.background=colors[i%colors.length];
+      s.style.animationDelay=(Math.random()*0.4)+'s';
+      s.style.animationDuration=(1.1+Math.random()*0.9)+'s';
+      s.style.transform='rotate('+(Math.random()*360)+'deg)';
+      host.appendChild(s);
+    }
+    host.classList.add('on');
+    setTimeout(function(){host.classList.remove('on');},2200);
+  }
+
+  /* 게임 1: 디지털 용량 재기 */
+  (function(){
+    var bumped=false;
+    function fmt(v){ return Math.round(v).toLocaleString(); }
+    function update(n){
+      document.getElementById('by-n').textContent=n;
+      var bytes=Math.pow(2,n);
+      var el=document.getElementById('by-val');
+      MJ.animateCount(el, 0, bytes, 500, fmt);
+      var unit, law='';
+      if(n<10){ unit=fmt(bytes)+' 바이트'; }
+      else if(n<20){ unit='약 '+(Math.pow(2,n-10)).toFixed(0)+' KB'; }
+      else if(n<30){ unit='약 '+(Math.pow(2,n-20)).toFixed(0)+' MB'; }
+      else if(n<40){ unit='약 '+(Math.pow(2,n-30)).toFixed(0)+' GB'; }
+      else { unit='약 1 TB'; }
+      document.getElementById('by-unit').textContent=unit;
+      if(n>=20 && n%10===0){
+        law='2<sup>'+n+'</sup> = 2<sup>10</sup> × 2<sup>'+(n-10)+'</sup> — 지수를 더하면 '+n+'!';
+      } else if(n>=10){
+        law='10이 커질 때마다 약 1000배 (2<sup>10</sup> ≈ 1000)';
+      }
+      document.getElementById('by-law').innerHTML=law;
+    }
+    document.getElementById('by-slider').addEventListener('input',function(){ update(+this.value); });
+    document.getElementById('by-check').onclick=function(){
+      var v=parseInt(document.getElementById('by-in').value,10);
+      var ok=(v===37);
+      document.getElementById('by-out').innerHTML= ok
+        ? '<span class="good">정답! 128 GB = 2<sup>7</sup> × 2<sup>30</sup> = 2<sup>37</sup> 바이트예요. 지수를 더한 거죠!</span>'
+        : (isNaN(v) ? '숫자를 넣어 줘요.' : '아쉬워요. 128 = 2<sup>7</sup>, 1 GB = 2<sup>30</sup> 이니 지수를 더해 보세요.');
+      if(ok && !bumped){ bumped=true; bump(); }
+    };
+    update(10);
+  })();
+
+  /* 게임 2: 지수 번개 계산 */
+  (function(){
+    var PROBS=[
+      {q:'a<sup>3</sup> × a<sup>4</sup> = a<sup>?</sup>', a:7},
+      {q:'(a<sup>2</sup>)<sup>3</sup> = a<sup>?</sup>', a:6},
+      {q:'a<sup>8</sup> ÷ a<sup>3</sup> = a<sup>?</sup>', a:5},
+      {q:'a<sup>3</sup> × a<sup>4</sup> ÷ a<sup>2</sup> = a<sup>?</sup>', a:5},
+      {q:'(a<sup>3</sup>)<sup>2</sup> × a = a<sup>?</sup>', a:7},
+      {q:'x<sup>10</sup> ÷ x<sup>4</sup> ÷ x = x<sup>?</sup>', a:5}
+    ];
+    var streak=0, cur=null, bumped=false, order=[];
+    function next(){
+      if(order.length===0){ order=[0,1,2,3,4,5].sort(function(){return Math.random()-0.5;}); }
+      cur=PROBS[order.pop()];
+      document.getElementById('bolt-q').innerHTML=cur.q;
+      document.getElementById('bolt-in').value='';
+      document.getElementById('bolt-out').innerHTML='';
+    }
+    document.getElementById('bolt-check').onclick=function(){
+      if(bumped) return;
+      var v=parseInt(document.getElementById('bolt-in').value,10);
+      if(isNaN(v)){ document.getElementById('bolt-out').innerHTML='지수(숫자)를 넣어 줘요.'; return; }
+      if(v===cur.a){
+        streak++; document.getElementById('bolt-streak').textContent=streak;
+        if(streak>=3){ document.getElementById('bolt-out').innerHTML='<span class="good">⚡ 3연속! 번개 계산 마스터예요.</span>'; bumped=true; bump(); return; }
+        document.getElementById('bolt-out').innerHTML='<span class="good">정답! 다음 문제 →</span>';
+        setTimeout(next,700);
+      } else {
+        streak=0; document.getElementById('bolt-streak').textContent=streak;
+        document.getElementById('bolt-out').innerHTML='아쉬워요. 곱셈은 더하기, 나눗셈은 빼기, 괄호의 거듭제곱은 곱하기예요. (연속 0으로)';
+      }
+    };
+    next();
+  })();
+
+  /* 게임 3: 동류항 짝찾기 */
+  (function(){
+    var PAIRS=[
+      {t:'3x<sup>2</sup> 과 5x<sup>2</sup>', like:true,  why:'문자 x, 차수 2 로 같아요. 합치면 8x<sup>2</sup>.'},
+      {t:'2x 와 2x<sup>2</sup>',           like:false, why:'문자는 같지만 차수(1 vs 2)가 달라요.'},
+      {t:'4a 와 7a',                       like:true,  why:'문자 a, 차수 1 로 같아요. 합치면 11a.'},
+      {t:'5 와 −3',                        like:true,  why:'둘 다 상수항이에요. 합치면 2.'},
+      {t:'2x<sup>2</sup>y 와 3xy<sup>2</sup>', like:false, why:'x, y 의 차수가 서로 달라요.'},
+      {t:'6ab 와 6a',                      like:false, why:'한쪽엔 b 가 있고 한쪽엔 없어요.'}
+    ];
+    var order=[0,1,2,3,4,5].sort(function(){return Math.random()-0.5;});
+    var pos=0, done=0, answered=false, bumped=false;
+    document.getElementById('like-total').textContent=PAIRS.length;
+    function render(){
+      answered=false;
+      var p=PAIRS[order[pos]];
+      document.getElementById('like-pair').innerHTML=p.t;
+      document.getElementById('like-out').innerHTML='';
+      document.getElementById('like-yes').className='pg-pbtn';
+      document.getElementById('like-no').className='pg-pbtn';
+    }
+    function guess(saysLike){
+      if(answered) return; answered=true;
+      var p=PAIRS[order[pos]];
+      var correct=(saysLike===p.like);
+      document.getElementById('like-yes').classList.add(p.like?'right':(saysLike?'wrong':''));
+      document.getElementById('like-no').classList.add(!p.like?'right':(!saysLike?'wrong':''));
+      document.getElementById('like-out').innerHTML=(correct?'<span class="good">맞았어요! </span>':'<span>아쉬워요 - </span>')+p.why;
+      done++; document.getElementById('like-done').textContent=done;
+      if(done>=PAIRS.length){
+        if(!bumped){ bumped=true; setTimeout(function(){ document.getElementById('like-out').innerHTML+='<br><span class="good">전부 확인 완료!</span>'; bump(); },300); }
+      } else {
+        setTimeout(function(){ pos++; render(); }, 1100);
+      }
+    }
+    document.getElementById('like-yes').onclick=function(){guess(true);};
+    document.getElementById('like-no').onclick=function(){guess(false);};
+    render();
+  })();
+
+  /* 게임 4: 오류 탐정 (misconceptions/math2_u02.json 기반, 6개 큐레이션) */
+  (function(){
+    var CASES=[
+      {stmt:'a<sup>3</sup> × a<sup>4</sup> 을 계산하는데, 지수까지 곱해서 <b>a<sup>12</sup></b> 이라고 했어요.',
+       counter:'a<sup>2</sup> × a<sup>3</sup> 을 풀어서 써 볼까요? (a·a) × (a·a·a) — a 가 모두 몇 개인가요?',
+       ask:'그러면 지수는 더해야 할까요, 곱해야 할까요?',
+       q:'x<sup>4</sup> × x<sup>3</sup> 을 간단히 하면? (지수만)', a:'7'},
+      {stmt:'(a<sup>2</sup>)<sup>3</sup> 을 계산하는데, 지수를 더해서 <b>a<sup>5</sup></b> 라고 했어요.',
+       counter:'(a<sup>2</sup>)<sup>3</sup> 은 a<sup>2</sup> 을 3번 곱한 거예요. a<sup>2</sup> × a<sup>2</sup> × a<sup>2</sup> 에서 a 는 몇 개인가요?',
+       ask:'곱셈일 때와 괄호의 거듭제곱일 때, 지수에 하는 일이 어떻게 다를까요?',
+       q:'(x<sup>3</sup>)<sup>2</sup> 을 간단히 하면? (지수만)', a:'6'},
+      {stmt:'(2a)<sup>3</sup> 을 계산하는데, 2 는 그대로 두고 <b>2a<sup>3</sup></b> 이라고 했어요.',
+       counter:'(2a)<sup>3</sup> 은 (2a) × (2a) × (2a) 예요. 2 는 몇 번 곱해졌나요?',
+       ask:'괄호 안에 있는 것 중에서, 제곱을 피해 가는 것이 있을까요?',
+       q:'(3x)<sup>2</sup> 을 간단히 하면?', a:'9x'},
+      {stmt:'(4a − 3b) − (a − 5b) 에서, 뒤 괄호의 −5b 를 <b>그대로</b> 두었어요.',
+       counter:'−(a − 5b) 는 −1 을 괄호 안 모든 항에 곱한 거예요. −1 × (−5b) 는 무엇인가요?',
+       ask:'괄호 앞의 − 는 괄호 안 몇 개의 항에 영향을 줄까요?',
+       q:'(5x + 2) − (2x − 3) 을 간단히 하면?', a:'3x + 5'},
+      {stmt:'3a(2a − 5) 를 계산하는데, 앞 항만 곱해서 <b>6a<sup>2</sup> − 5</b> 라고 했어요.',
+       counter:'괄호 안에 항이 2개 있어요. 밖의 3a 는 그중 몇 개와 만나야 할까요?',
+       ask:'화살표를 그려 본다면 몇 개를 그리게 될까요?',
+       q:'2x(3x + 4) 의 괄호를 풀면?', a:'6x² + 8x'},
+      {stmt:'x = −1 을 x<sup>2</sup> + 3x 에 넣는데, x<sup>2</sup> 을 <b>−1</b> 로 봤어요.',
+       counter:'(−1)<sup>2</sup> 과 −1<sup>2</sup> 을 각각 풀어서 써 볼까요? 무엇이 다른가요?',
+       ask:'음수를 대입할 때 괄호를 씌우면 무엇이 달라질까요?',
+       q:'x = −2 일 때 x<sup>2</sup> 의 값은?', a:'4'}
+    ];
+    var order=[0,1,2,3,4,5].sort(function(){return Math.random()-0.5;});
+    var pos=0, bumped=false;
+    function render(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-no').textContent='사건 '+(pos+1)+' / '+order.length;
+      document.getElementById('det-stmt').innerHTML=c.stmt;
+      document.getElementById('det-counter').style.display='none';
+      document.getElementById('det-ask').style.display='none';
+      document.getElementById('det-checkbox').style.display='none';
+      document.getElementById('det-in').value='';
+      document.getElementById('det-out').innerHTML='';
+      document.getElementById('det-think').style.display='inline-block';
+      document.getElementById('det-next').style.display='none';
+    }
+    document.getElementById('det-think').onclick=function(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-counter').innerHTML='<b>다르게 볼까요?</b> '+c.counter;
+      document.getElementById('det-counter').style.display='block';
+      document.getElementById('det-ask').innerHTML='생각해보기: '+c.ask;
+      document.getElementById('det-ask').style.display='block';
+      document.getElementById('det-checkq').innerHTML=c.q;
+      document.getElementById('det-checkbox').style.display='block';
+      document.getElementById('det-think').style.display='none';
+    };
+    document.getElementById('det-check').onclick=function(){
+      var c=CASES[order[pos]];
+      var v=(document.getElementById('det-in').value||'');
+      var norm=function(s){return s.replace(/[^0-9a-zA-Z가-힣]/g,'').toLowerCase();};
+      var ok=v.length>0 && norm(c.a).indexOf(norm(v))>=0 && norm(v).length>0;
+      document.getElementById('det-out').innerHTML=ok
+        ? '<span class="good">정답이에요 - '+c.a+'</span>'
+        : '정답: <b>'+c.a+'</b> (직접 써보면서 확인해봐요)';
+      document.getElementById('det-next').style.display='inline-block';
+      if(!bumped){ bumped=true; bump(); }
+    };
+    document.getElementById('det-next').onclick=function(){
+      pos++; if(pos>=order.length) pos=0; render();
+    };
+    render();
+  })();
+})();
+</script>
+</body>
+</html>
