@@ -22,7 +22,8 @@
   ];
   // 탐험(PhET/GeoGebra) 탭이 준비된 단원만 노출 → 미준비 단원에서 404 방지
   var EXPLORE_READY={1:1,2:1,3:1,4:1,5:1,6:1,7:1,8:1,9:1,10:1,11:1};
-  // 파일명 → 단원 번호 + 종류 (u=개념 p=연습 d=심화탐구 dNp=심화문제)
+  var PLAY_READY={1:1};   // 놀이터(g*.html) 완성된 단원만. 2~11 완성 시 여기 추가
+  // 파일명 → 단원 번호 + 종류 (u=개념 p=연습 d=심화탐구 dNp=심화문제 g=놀이터)
   function pageInfo(){
     var f=(location.pathname.split('/').pop()||'index.html').toLowerCase().replace(/\?.*$/,'').replace(/\.html$/,'');
     var m;
@@ -31,6 +32,7 @@
     if(m=f.match(/^d([1-9]|1[01])p$/)) return {no:+m[1],kind:'deepq'};
     if(m=f.match(/^d([1-9]|1[01])$/))  return {no:+m[1],kind:'deep'};
     if(m=f.match(/^x([1-9]|1[01])$/))  return {no:+m[1],kind:'explore'};
+    if(m=f.match(/^g([1-9]|1[01])$/))  return {no:+m[1],kind:'play'};
     if(/drill/.test(f))          return {kind:'drill'};
     return {kind:'home'};
   }
@@ -107,6 +109,7 @@
           {k:'deep',    href:'d'+unit.no+'.html',  i:'⚗️', t:'심화 탐구'},
           {k:'deepq',   href:'d'+unit.no+'p.html', i:'🎯', t:'심화 문제'}
         ];
+        if(PLAY_READY[unit.no]) tabs.splice(1,0,{k:'play',href:'g'+unit.no+'.html',i:'🎨',t:'놀이터'});
         if(EXPLORE_READY[unit.no]) tabs.push({k:'explore',href:'x'+unit.no+'.html',i:'🧭',t:'탐험'});
         var nav=document.createElement('nav'); nav.className='utabs'; nav.setAttribute('aria-label','단원 내 이동');
         nav.innerHTML=tabs.map(function(tb){
