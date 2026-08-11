@@ -58,6 +58,7 @@
   .kpick button[data-k="time"].on{background:#dc2626;border-color:#dc2626}
   .kpick button[data-k="space"].on{background:#d97706;border-color:#d97706}
   .kpick button[data-k="social"].on{background:#2563eb;border-color:#2563eb}
+  .kpick button[data-k="info"].on{background:#7c3aed;border-color:#7c3aed}
   .kpanel{border:1px solid var(--line);border-radius:12px;padding:15px 16px;background:#f8fafc;font-size:13.5px;min-height:130px}
   .kpanel .knm{font-weight:800;font-size:16px;margin-bottom:6px}
   .kpanel .krow{display:flex;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line)} .kpanel .krow:last-child{border-bottom:none}
@@ -90,6 +91,7 @@
   <button class="tab" data-t="global">🌐 무역·금융·지속가능</button>
   <button class="tab" data-t="world">🌏 세상 속으로</button>
   <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="drill">⚡ 실전</button>
   <button class="tab" data-t="sum">✅ 정리</button>
 </div>
 <div class="wrap">
@@ -111,6 +113,7 @@
         <button onclick="go('fail')"><div class="ti">⚠️</div><div class="tn">시장 실패</div><div class="td">정부의 역할</div></button>
         <button onclick="go('global')"><div class="ti">🌐</div><div class="tn">무역·금융</div><div class="td">지속가능</div></button>
         <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+        <button onclick="go('drill')"><div class="ti">⚡</div><div class="tn">실전</div><div class="td">심화 12문제</div></button>
       </div>
     </div>
   </div>
@@ -122,7 +125,9 @@
         <div class="t">✅ 수요·공급의 법칙</div>
         • <b>수요 법칙</b>: 가격이 <b>오르면</b> 사려는 양(수요)은 <b>줄어든다</b>.<br>
         • <b>공급 법칙</b>: 가격이 <b>오르면</b> 팔려는 양(공급)은 <b>늘어난다</b>.<br>
-        • 둘이 만나는 곳에서 <b>균형 가격</b>과 <b>균형 거래량</b>이 정해진다.
+        • 둘이 만나는 곳에서 <b>균형 가격</b>과 <b>균형 거래량</b>이 정해진다.<br>
+        • 값이 균형보다 <b>높으면</b> 물건이 남는다(<b>초과 공급</b>) → 값이 내려간다.<br>
+        • 값이 균형보다 <b>낮으면</b> 물건이 모자란다(<b>초과 수요</b>) → 값이 올라간다.
       </div>
       <svg class="sdsvg" viewBox="0 0 320 240" role="img" aria-label="수요 공급 곡선">
         <line x1="45" y1="20" x2="45" y2="205" stroke="#94a3b8" stroke-width="1.5"/>
@@ -153,6 +158,7 @@
         <button data-k="time" class="on">🏭 독과점</button>
         <button data-k="space">💨 외부 효과</button>
         <button data-k="social">🏞️ 공공재</button>
+        <button data-k="info">💳 정보 비대칭</button>
       </div>
       <div class="kpanel" id="kpanel"></div>
       <div class="box a" style="margin-top:14px">
@@ -172,7 +178,7 @@
       <h3>② 합리적 금융 생활</h3>
       <div class="box b">
         <div class="t">💰 자산 관리의 기본</div>
-        소득의 일부를 <b>저축·투자</b>하고, 위험을 <b>분산</b>하며, <b>신용</b>을 관리한다. 자산은 <b>안전성·수익성·유동성</b>을 함께 따져야 하며, 생애 주기(청년→노년)에 맞춘 계획이 필요하다.
+        소득의 일부를 <b>저축·투자</b>하고, 위험을 <b>분산</b>하며, <b>신용</b>을 관리한다. 자산은 <b>안전성</b>(잃지 않는가)·<b>수익성</b>(얼마나 버는가)·<b>유동성</b>(필요할 때 쉽게 현금으로 바꿀 수 있는가)을 함께 따져야 한다. 셋은 <b>동시에 다 좋을 수 없다</b> — 특히 수익성이 높으면 대체로 안전성이 낮다. 생애 주기(청년→노년)에 맞춘 계획도 필요하다.
       </div>
       <h3>③ 지속가능한 경제</h3>
       <div class="sci">
@@ -226,6 +232,10 @@
     </div>
   </div>
 
+  <div class="page" data-p="drill">
+    <div id="drill"></div>
+  </div>
+
   <div class="page" data-p="sum">
     <div class="card">
       <h2>✅ 정리</h2>
@@ -270,7 +280,8 @@ document.getElementById('tabs').addEventListener('click',function(e){
 var THREE={
  time:{nm:'🏭 독과점',rows:[['뜻','소수 기업이 시장을 지배'],['문제','가격을 마음대로 올림, 경쟁·효율 저하'],['정부 대응','공정거래법·독과점 규제'],['예','담합 과징금']]},
  space:{nm:'💨 외부 효과',rows:[['뜻','시장 밖 제3자에게 영향(대가·보상 없이)'],['종류','외부 불경제(공해)·외부 경제(교육·백신)'],['정부 대응','세금(오염)·보조금(이로운 것)'],['예','탄소세, 교육 지원']]},
- social:{nm:'🏞️ 공공재',rows:[['뜻','대가를 안 내도 함께 쓰는 재화'],['문제','무임승차 → 시장이 충분히 공급 못 함'],['정부 대응','정부가 직접 공급'],['예','국방·치안·도로·가로등']]}
+ social:{nm:'🏞️ 공공재',rows:[['뜻','대가를 안 내도 함께 쓰는 재화'],['문제','무임승차 → 시장이 충분히 공급 못 함'],['정부 대응','정부가 직접 공급'],['예','국방·치안·도로·가로등']]},
+ info:{nm:'💳 정보 비대칭',rows:[['뜻','거래하는 두 사람이 아는 정보의 양이 다름'],['문제','좋은 물건이 밀려나고 나쁜 물건이 남음 → 거래 자체가 위축'],['정부 대응','정보 공개 의무화·품질 보증·자격 제도'],['예','중고차 결함, 식품 원산지 표시']]}
 };
 function pickThree(k){
  document.querySelectorAll('#kpick button').forEach(function(b){b.classList.toggle('on',b.dataset.k===k);});
@@ -330,5 +341,11 @@ QUIZ.forEach(function(q){var correct=q.o[q.a];for(var i=q.o.length-1;i>0;i--){va
 pickThree('time');
 renderQ();
 </script>
+<!-- ⚡ 실전 — 심화 문항 드릴.
+     drill.js = 공용 엔진(subject_hub/_shared/drill.js)
+     drill_soc2_03.js = 문항 데이터. 정본은 exam_track/problem_bank/data/soc2_03.js
+     둘 다 `python exam_track/tools/sync_drill.py --write`가 만든 복사본 — 직접 고치지 말 것. -->
+<script src="drill.js"></script>
+<script src="drill_soc2_03.js"></script>
 </body>
 </html>
