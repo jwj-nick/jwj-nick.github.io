@@ -85,6 +85,7 @@
   <button class="tab" data-t="sdg">♻️ 지속가능 발전</button>
   <button class="tab" data-t="world">🌐 세상 속으로</button>
   <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="drill">⚡ 실전</button>
   <button class="tab" data-t="sum">✅ 정리</button>
 </div>
 <div class="wrap">
@@ -109,6 +110,7 @@
         <button onclick="go('sdg')"><div class="ti">♻️</div><div class="tn">지속가능 발전</div><div class="td">환경·경제·사회</div></button>
         <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">미래 진로</div></button>
         <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+        <button onclick="go('drill')"><div class="ti">⚡</div><div class="tn">실전</div><div class="td">심화 12문제</div></button>
         <button onclick="go('sum')"><div class="ti">✅</div><div class="tn">정리</div><div class="td">요약·자가점검</div></button>
       </div>
     </div>
@@ -143,6 +145,11 @@
         • 내 데이터로 만든 편리한 서비스, 어디까지가 괜찮을까?<br>
         <span style="color:var(--sub)">→ 정답이 없는 문제들. 하지만 <b>함께 고민하고 규칙을 만드는 것</b>이 미래를 지킨다.</span>
       </div>
+      <div class="box b">
+        <div class="t">🔍 AI의 편향은 어디서 오나</div>
+        AI는 스스로 판단 기준을 만들지 않는다 — <b>학습한 데이터</b>에서 기준을 뽑아낸다. 그 데이터에 과거의 차별적인 패턴(예: 특정 성별을 적게 뽑아 온 채용 기록)이 있으면, AI는 그 패턴을 <b>그대로 배워서 따라 한다.</b><br>
+        <b>확인하는 법</b> — 나머지 조건(경력·학력 등)은 <b>모두 같게</b> 두고, 의심되는 조건(예: 성별) <b>하나만 바꿔</b> AI에 넣어 결과가 달라지는지 비교한다. 다른 조건을 통제하지 않으면 무엇 때문에 결과가 바뀌었는지 알 수 없다.
+      </div>
     </div>
   </div>
 
@@ -155,12 +162,16 @@
       </div>
       <div class="sdg">
         <div class="sdgcol" style="background:#16a34a"><div class="si">🌍</div><div class="sn">환경</div><div class="sd2">기후·자원·생태계 보전</div></div>
-        <div class="sdgcol" style="background:#2563eb"><div class="si">💰</div><div class="sn">경제</div><div class="sd2">지속가능한 성장·일자리</div></div>
+        <div class="sdgcol" style="background:#2563eb"><div class="si">💰</div><div class="sn">경제</div><div class="sd2">지속가능한 성장·일자리·친환경 산업 투자(녹색금융)</div></div>
         <div class="sdgcol" style="background:#d97706"><div class="si">🤝</div><div class="sn">사회</div><div class="sd2">공정·건강·교육·평등</div></div>
       </div>
       <div class="box b">
         <div class="t">🔗 과학기술의 역할</div>
         미래 기술은 <b>기후 변화·에너지·질병·식량</b> 같은 인류의 큰 문제를 푸는 열쇠다. <b>신재생 에너지·탄소 포집·정밀 의료·스마트 농업</b> 등이 지속가능한 미래를 만든다. → <a href="sci2_climate.html">기후 변화</a>·<a href="sci2_energy.html">에너지</a>와 이어진다.
+      </div>
+      <div class="box a">
+        <div class="t">⚠️ 세 축은 겹칠 수 있다</div>
+        "친환경 기업에 낮은 이자로 대출"처럼, <b>수단은 경제</b>(대출·금리)여도 <b>목적은 환경</b>(친환경 산업 육성)인 정책이 많다. 이런 경우 <b>돈이 오간다고 무조건 경제로 분류하지 말고</b>, 그 정책이 궁극적으로 무엇을 지키려는지로 가른다.
       </div>
     </div>
   </div>
@@ -205,6 +216,10 @@
       <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
       <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
     </div>
+  </div>
+
+  <div class="page" data-p="drill">
+    <div id="drill"></div>
   </div>
 
   <div class="page" data-p="sum">
@@ -310,5 +325,11 @@ function restartQuiz(){
 QUIZ.forEach(function(q){var correct=q.o[q.a];for(var i=q.o.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=q.o[i];q.o[i]=q.o[j];q.o[j]=t;}q.a=q.o.indexOf(correct);});
 renderQ();
 </script>
+<!-- ⚡ 실전 — 심화 문항 드릴.
+     drill.js = 공용 엔진(subject_hub/_shared/drill.js)
+     drill_sci2_09.js = 문항 데이터. 정본은 exam_track/problem_bank/data/sci2_09.js
+     둘 다 `python exam_track/tools/sync_drill.py --write`가 만든 복사본 — 직접 고치지 말 것. -->
+<script src="drill.js"></script>
+<script src="drill_sci2_09.js"></script>
 </body>
 </html>
