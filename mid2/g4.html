@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>놀이터 · 연립일차방정식 · 중2-1</title>
+<link rel="stylesheet" href="concept.css?v=20260815a">
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중2-1</a><span class="dot"></span><a href="u4.html">단원 4</a><span class="dot"></span><span>놀이터</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+  <div class="pg-badge"><span class="i">🎨</span>놀이터 — 점수는 안 매겨요, 그냥 놀아 봐요</div>
+  <h1>연립일차방정식 놀이터</h1>
+  <p class="lede">미지수가 둘이면 단서도 둘. 단서 하나로는 못 좁히고, 둘을 같이 써야 범인 한 명이 남아요.</p>
+
+  <div class="pg-score" id="score"><span class="dot">🏅</span>해결한 사건 <b id="scoreN">0</b> / <span id="scoreT">4</span></div>
+
+  <!-- 게임 1 · 탐정 사건 파일 -->
+  <div class="pg-game reveal" id="g-case">
+    <div class="pg-title"><span class="pg-emoji">🕵️</span>탐정 사건 파일</div>
+    <div class="pg-desc">범인은 (x, y) 한 쌍이에요. 단서가 하나뿐이면 용의자가 여러 명 — 단서를 하나 더 확보해서 좁혀 봐요.</div>
+    <div class="pg-case">
+      <div class="case-no">사건 파일 #04</div>
+      <div class="case-stmt">단서 1: <b>x + y = 6</b> — 이 조건을 만족하는 용의자가 아래에 여러 명 있어요. 이것만으로는 누가 범인인지 알 수 없어요.</div>
+    </div>
+    <div class="pill-row" id="cs-suspects">
+      <button class="pill" data-x="1" data-y="5">x=1, y=5</button>
+      <button class="pill" data-x="2" data-y="4">x=2, y=4</button>
+      <button class="pill" data-x="3" data-y="3">x=3, y=3</button>
+      <button class="pill" data-x="4" data-y="2">x=4, y=2</button>
+      <button class="pill" data-x="5" data-y="1">x=5, y=1</button>
+    </div>
+    <div style="text-align:center;margin-top:6px" id="cs-lock">
+      <button id="cs-reveal">단서 2 공개</button>
+    </div>
+    <div class="pg-case" id="cs-clue2" style="display:none;margin-top:12px">
+      <div class="case-stmt">단서 2: <b>x − y = 2</b> — 이제 위 용의자 중 <b>진범 한 명</b>을 클릭해봐요.</div>
+    </div>
+    <div class="out" id="cs-out"></div>
+  </div>
+
+  <!-- 게임 2 · 저울 맞추기 -->
+  <div class="pg-game reveal" id="g-scale">
+    <div class="pg-title"><span class="pg-emoji">⚖️</span>저울 맞추기</div>
+    <div class="pg-desc">두 식을 더하거나 빼면 문자 하나가 사라져요. y의 부호를 보고 더할지 뺄지 골라봐요.</div>
+    <div class="pg-num" id="sc-eqs">x + y = 7　·　x − y = 1</div>
+    <div class="pill-row">
+      <button class="pill" id="sc-add">더하기 (+)</button>
+      <button class="pill" id="sc-sub">빼기 (−)</button>
+    </div>
+    <div class="out" id="sc-out"></div>
+    <div class="pg-case" id="sc-solve" style="display:none;margin-top:12px">
+      <div class="case-stmt" id="sc-result"></div>
+      <div class="row" style="margin-top:10px"><input class="num" id="sc-in" inputmode="numeric" placeholder="?"><button id="sc-check">확인</button></div>
+      <div class="out" id="sc-out2"></div>
+    </div>
+  </div>
+
+  <!-- 게임 3 · 교점 사냥꾼 -->
+  <div class="pg-game reveal" id="g-hunt">
+    <div class="pg-title"><span class="pg-emoji">🎯</span>교점 사냥꾼</div>
+    <div class="pg-desc">두 직선이 만나는 곳이 바로 연립방정식의 해예요. 그래프에서 교점이라 생각하는 곳을 클릭해봐요.</div>
+    <p class="reading" style="font-size:14.5px;margin-bottom:6px"><span style="color:var(--line)">① y = <span id="hu-e1"></span></span>　　<span style="color:var(--sage)">② y = <span id="hu-e2"></span></span></p>
+    <svg class="plane" id="hu-plane" viewBox="0 0 340 300" role="img" aria-label="두 직선과 교점"></svg>
+    <div style="text-align:center;margin-top:8px"><button class="ghost" id="hu-reveal">정답 교점 힌트</button></div>
+    <div class="out" id="hu-out"></div>
+    <div class="sim-read muted" style="font-size:13px;margin-top:4px"><b id="hu-done" style="color:var(--u)">0</b> / <span id="hu-total">3</span></div>
+  </div>
+
+  <!-- 게임 4 · 오류 탐정 -->
+  <div class="pg-game reveal" id="g-detective">
+    <div class="pg-title"><span class="pg-emoji">🔍</span>오류 탐정</div>
+    <div class="pg-desc">누군가 이렇게 풀었어요. 어디가 이상한지 찾아볼까요? (정답은 안 알려줘요 — 스스로 짚어 봐요)</div>
+    <div class="pg-case">
+      <div class="case-no" id="det-no">사건 1 / 6</div>
+      <div class="case-stmt" id="det-stmt"></div>
+    </div>
+    <div style="text-align:center"><button id="det-think">다르게 생각해 볼까요?</button></div>
+    <div class="hint" id="det-counter" style="display:none;margin-top:10px"></div>
+    <div class="ask" id="det-ask" style="display:none;margin-top:10px"></div>
+    <div class="pg-case" id="det-checkbox" style="display:none;margin-top:14px">
+      <div class="case-stmt" id="det-checkq"></div>
+      <div class="row" style="margin-top:10px"><input class="blank" id="det-in" placeholder="답"><button id="det-check">확인</button></div>
+      <div class="out" id="det-out"></div>
+    </div>
+    <div style="text-align:center;margin-top:12px"><button class="ghost" id="det-next" style="display:none">다음 사건 -></button></div>
+  </div>
+
+  <div class="stamp" id="stamp">
+    <div class="seal">🎉</div>
+    <div class="seal-t">놀이터 클리어!</div>
+    <div class="seal-d">단서 두 개를 같이 쓰면 범인 한 명이 남는다는 것, 이제 확실히 알아요.</div>
+  </div>
+  <div class="bridge" style="margin-top:18px"><a class="golink" href="p4.html">연습 문제로 -></a></div>
+
+  <div class="foot">중2 수학 · 놀이터 · 단원 04</div>
+</div>
+
+<div class="pg-confetti" id="confetti"></div>
+
+<script src="concept.js?v=20260815a"></script>
+<script>
+MJ.boot();
+(function(){
+  var solved=0, TOTAL=4;
+  function bump(){
+    var el=document.getElementById('scoreN'); solved++; el.textContent=solved;
+    var badge=document.getElementById('score'); badge.classList.remove('bump'); void badge.offsetWidth; badge.classList.add('bump');
+    if(solved>=TOTAL){ confetti(); document.getElementById('stamp').classList.add('show'); }
+  }
+  function confetti(){
+    var host=document.getElementById('confetti'); host.innerHTML='';
+    var colors=['#3fa89a','#63c6b1','#e59a3c','#f2be6b','#4fa892'];
+    for(var i=0;i<46;i++){
+      var s=document.createElement('i');
+      s.style.left=(Math.random()*100)+'vw';
+      s.style.background=colors[i%colors.length];
+      s.style.animationDelay=(Math.random()*0.4)+'s';
+      s.style.animationDuration=(1.1+Math.random()*0.9)+'s';
+      s.style.transform='rotate('+(Math.random()*360)+'deg)';
+      host.appendChild(s);
+    }
+    host.classList.add('on');
+    setTimeout(function(){host.classList.remove('on');},2200);
+  }
+
+  /* 게임 1: 탐정 사건 파일 */
+  (function(){
+    var revealed=false, bumped=false;
+    document.getElementById('cs-reveal').onclick=function(){
+      revealed=true;
+      document.getElementById('cs-clue2').style.display='block';
+      document.getElementById('cs-lock').style.display='none';
+      document.getElementById('cs-out').innerHTML='이제 용의자 중 한 명을 클릭해봐요.';
+    };
+    document.querySelectorAll('#cs-suspects .pill').forEach(function(p){
+      p.onclick=function(){
+        if(!revealed){ document.getElementById('cs-out').innerHTML='먼저 "단서 2 공개"를 눌러봐요.'; return; }
+        var x=+p.dataset.x, y=+p.dataset.y;
+        var ok=(x-y===2);
+        if(ok){
+          p.style.borderColor='var(--ok)'; p.style.background='var(--ok-soft)';
+          document.getElementById('cs-out').innerHTML='<span class="good">범인 확보! x='+x+', y='+y+' — 두 단서를 모두 만족해요.</span>';
+          if(!bumped){ bumped=true; bump(); }
+        } else {
+          p.style.borderColor='#d9605f'; p.style.background='rgba(217,96,95,.12)';
+          document.getElementById('cs-out').innerHTML='이 용의자는 단서2에서 걸려요: '+x+' − '+y+' = '+(x-y)+' (2가 아니에요). 다른 용의자를 눌러봐요.';
+        }
+      };
+    });
+  })();
+
+  /* 게임 2: 저울 맞추기 */
+  (function(){
+    var ROUNDS=[
+      {t1:'x + y = 7', t2:'x − y = 1', op:'add', result:'2x = 8', ansVar:'x', ans:4},
+      {t1:'3x + y = 13', t2:'x + y = 7', op:'sub', result:'2x = 6', ansVar:'x', ans:3}
+    ];
+    var pos=0, bumped=false;
+    function reset(){
+      document.getElementById('sc-add').style.borderColor='';document.getElementById('sc-add').style.background='';
+      document.getElementById('sc-sub').style.borderColor='';document.getElementById('sc-sub').style.background='';
+    }
+    function render(){
+      var r=ROUNDS[pos];
+      document.getElementById('sc-eqs').innerHTML=r.t1+'　·　'+r.t2;
+      document.getElementById('sc-solve').style.display='none';
+      document.getElementById('sc-out').innerHTML='';
+      document.getElementById('sc-out2').innerHTML='';
+      document.getElementById('sc-in').value='';
+      reset();
+    }
+    function pick(op){
+      var r=ROUNDS[pos];
+      var ok=(op===r.op);
+      var btn=document.getElementById(op==='add'?'sc-add':'sc-sub');
+      if(ok){
+        btn.style.borderColor='var(--ok)'; btn.style.background='var(--ok-soft)';
+        document.getElementById('sc-out').innerHTML='<span class="good">맞았어요! y가 사라져요.</span>';
+        document.getElementById('sc-result').innerHTML='결과: <b>'+r.result+'</b> — '+r.ansVar+' 는 얼마인가요?';
+        document.getElementById('sc-solve').style.display='block';
+      } else {
+        btn.style.borderColor='#d9605f'; btn.style.background='rgba(217,96,95,.12)';
+        document.getElementById('sc-out').innerHTML='y의 부호를 다시 봐요 — 두 식에서 y의 부호가 같은가요, 반대인가요?';
+      }
+    }
+    document.getElementById('sc-add').onclick=function(){pick('add');};
+    document.getElementById('sc-sub').onclick=function(){pick('sub');};
+    document.getElementById('sc-check').onclick=function(){
+      var r=ROUNDS[pos];
+      var v=parseFloat(document.getElementById('sc-in').value);
+      var ok=(v===r.ans);
+      document.getElementById('sc-out2').innerHTML=ok?'<span class="good">정답!</span>':'다시 계산해봐요.';
+      if(ok){
+        pos++;
+        if(pos>=ROUNDS.length){ if(!bumped){bumped=true; bump();} document.getElementById('sc-out2').innerHTML='<span class="good">정답! 두 라운드 모두 완료!</span>'; }
+        else { setTimeout(render,1200); }
+      }
+    };
+    render();
+  })();
+
+  /* 게임 3: 교점 사냥꾼 */
+  (function(){
+    var ROUNDS=[
+      {a1:1,b1:1,a2:-1,b2:5,ix:2,iy:3},
+      {a1:2,b1:4,a2:-1,b2:1,ix:-1,iy:2},
+      {a1:-2,b1:5,a2:1,b2:-4,ix:3,iy:-1}
+    ];
+    var svg=document.getElementById('hu-plane');
+    var P=MJ.makePlane(svg);
+    var pos=0, done=0, bumped=false;
+    document.getElementById('hu-total').textContent=ROUNDS.length;
+    function fmtLine(a,b){
+      var s=(a===1?'x':a===-1?'−x':a+'x');
+      if(b>0) s+=' + '+b; else if(b<0) s+=' − '+Math.abs(b);
+      return s;
+    }
+    function render(){
+      var r=ROUNDS[pos];
+      document.getElementById('hu-e1').textContent=fmtLine(r.a1,r.b1);
+      document.getElementById('hu-e2').textContent=fmtLine(r.a2,r.b2);
+      P.line('l1',r.a1,r.b1,'var(--line)');
+      P.line('l2',r.a2,r.b2,'var(--sage)');
+      P.dot('guess',999,999,'transparent');
+      document.getElementById('hu-out').innerHTML='그래프 위, 두 선이 만나는 곳을 클릭해봐요.';
+    }
+    svg.addEventListener('click',function(e){
+      var rect=svg.getBoundingClientRect();
+      var sx=(e.clientX-rect.left)/rect.width*340;
+      var sy=(e.clientY-rect.top)/rect.height*300;
+      var mx=(sx-170)/24, my=(150-sy)/24;
+      var r=ROUNDS[pos];
+      var dist=Math.hypot(mx-r.ix,my-r.iy);
+      if(dist<=0.9){
+        P.dot('guess',r.ix,r.iy,'var(--accent)');
+        document.getElementById('hu-out').innerHTML='<span class="good">정확해요! ('+r.ix+', '+r.iy+')</span>';
+        done++; document.getElementById('hu-done').textContent=done;
+        if(done>=ROUNDS.length){ if(!bumped){bumped=true; bump();} }
+        else { pos++; setTimeout(render,1200); }
+      } else {
+        P.dot('guess',mx,my,'var(--muted)');
+        document.getElementById('hu-out').innerHTML='아직이에요. 두 선이 겹치는 지점을 더 가까이 짚어봐요.';
+      }
+    });
+    document.getElementById('hu-reveal').onclick=function(){
+      var r=ROUNDS[pos];
+      P.dot('guess',r.ix,r.iy,'var(--accent)');
+      document.getElementById('hu-out').innerHTML='정답 교점: ('+r.ix+', '+r.iy+') — 이제 그 자리를 직접 클릭해서 확인해봐요.';
+    };
+    render();
+  })();
+
+  /* 게임 4: 오류 탐정 (misconceptions/math2_u04.json 기반, 6개 큐레이션) */
+  (function(){
+    var CASES=[
+      {stmt:'4x + y = 15 에서 x + y = 6 을 빼는데, <b>4x + y − x + y = 15 − 6</b> 이라고 썼어요.',
+       counter:'(2x + 3y) − (x + y) 를 괄호를 풀어 써 볼까요? 괄호 앞의 − 는 괄호 안 몇 개의 항에 닿나요?',
+       ask:'식에서 식을 뺄 때, 뒤 식의 y항 부호도 바뀌어야 할까요?',
+       q:'4x + y = 15 에서 x + y = 6 을 빼면 어떤 식이 되나요?', a:'3x = 9'},
+      {stmt:'x − y = 4 에 y = 2x − 1 을 대입하는데, 괄호 없이 <b>x − 2x − 1 = 4</b> 라고 썼어요.',
+       counter:'x − y = 4 의 y 자리에 2x − 1 을 넣을 때, 괄호 없이 x − 2x − 1 로 쓸 때와 괄호를 살려 x − (2x − 1) 로 쓸 때, 뒤쪽 1 의 부호가 같나요?',
+       ask:'괄호를 씌우면 대입한 식의 어느 항의 부호가 달라지나요?',
+       q:'x − y = 4 에 y = 2x − 1 을 대입하면 어떤 식이 되나요?', a:'x − (2x − 1) = 4'},
+      {stmt:'연립방정식을 풀어서 x = 5 를 구하고는, 답을 <b>x = 5</b> 라고만 적고 끝냈어요.',
+       counter:'연립방정식의 해는 두 값이 짝을 이룬 순서쌍이에요. 한 값만 적으면 순서쌍이 될까요?',
+       ask:'먼저 구한 값을 어느 식에 다시 넣으면 나머지 값을 찾을 수 있을까요?',
+       q:'x + y = 12 에서 x 가 5 임을 알았어요. y 는 얼마인가요?', a:'7'},
+      {stmt:'2x − y = 3 의 양변에 2 를 곱하는데, <b>4x − y = 6</b> 이라고 했어요.',
+       counter:'x + 2y = 5 의 양변에 3 을 곱하면 왼쪽은 3x + 6y 예요. 그러면 오른쪽 5 는 그대로 두어도 될까요?',
+       ask:'양변에 곱한다는 것은 식의 몇 개 항에 곱한다는 뜻인가요?',
+       q:'2x − y = 3 의 양변에 2 를 곱하면 어떤 식이 되나요?', a:'4x − 2y = 6'},
+      {stmt:'순서쌍 (2, 5) 를 보고, <b>x = 5, y = 2</b> 라고 읽었어요.',
+       counter:'순서쌍 (5, 2) 에서 앞의 5 는 무엇의 값이고, 뒤의 2 는 무엇의 값인가요?',
+       ask:'앞의 수와 뒤의 수를 바꿔 넣어도 결과가 같을까요?',
+       q:'순서쌍 (2, 5) 에서 x 의 값과 y 의 값은 각각 얼마인가요?', a:'x는 2, y는 5'},
+      {stmt:'두 수의 합이 10, 차가 4 라는 문제에서 계산 끝에 순서쌍 (6, 4) 를 구하고, 확인 없이 답으로 냈어요.',
+       counter:'6 + 4 는 10 이 맞아요. 그럼 6 − 4 도 4 가 되는지 확인해봤나요?',
+       ask:'두 조건 중 하나만 맞는다면, 그 답을 정답이라고 할 수 있을까요?',
+       q:'두 수의 합이 10, 차가 4 예요. 순서쌍 (6, 4) 는 두 조건을 모두 만족하나요?', a:'아니에요 (차가 2예요)'}
+    ];
+    var order=[0,1,2,3,4,5].sort(function(){return Math.random()-0.5;});
+    var pos=0, bumped=false;
+    function render(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-no').textContent='사건 '+(pos+1)+' / '+order.length;
+      document.getElementById('det-stmt').innerHTML=c.stmt;
+      document.getElementById('det-counter').style.display='none';
+      document.getElementById('det-ask').style.display='none';
+      document.getElementById('det-checkbox').style.display='none';
+      document.getElementById('det-in').value='';
+      document.getElementById('det-out').innerHTML='';
+      document.getElementById('det-think').style.display='inline-block';
+      document.getElementById('det-next').style.display='none';
+    }
+    document.getElementById('det-think').onclick=function(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-counter').innerHTML='<b>다르게 볼까요?</b> '+c.counter;
+      document.getElementById('det-counter').style.display='block';
+      document.getElementById('det-ask').innerHTML='생각해보기: '+c.ask;
+      document.getElementById('det-ask').style.display='block';
+      document.getElementById('det-checkq').innerHTML=c.q;
+      document.getElementById('det-checkbox').style.display='block';
+      document.getElementById('det-think').style.display='none';
+    };
+    document.getElementById('det-check').onclick=function(){
+      var c=CASES[order[pos]];
+      var v=(document.getElementById('det-in').value||'');
+      var norm=function(s){return s.replace(/[^0-9a-zA-Z가-힣<>]/g,'').toLowerCase();};
+      var ok=v.length>0 && norm(c.a).indexOf(norm(v))>=0;
+      document.getElementById('det-out').innerHTML=ok
+        ? '<span class="good">정답이에요 - '+c.a+'</span>'
+        : '정답: <b>'+c.a+'</b> (직접 써보면서 확인해봐요)';
+      document.getElementById('det-next').style.display='inline-block';
+      if(!bumped){ bumped=true; bump(); }
+    };
+    document.getElementById('det-next').onclick=function(){
+      pos++; if(pos>=order.length) pos=0; render();
+    };
+    render();
+  })();
+})();
+</script>
+</body>
+</html>
