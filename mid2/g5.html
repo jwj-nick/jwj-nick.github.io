@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>놀이터 · 일차함수와 그래프 · 중2-1</title>
+<link rel="stylesheet" href="concept.css?v=20260815b">
+<style>
+@media print{
+  .no-print{display:none !important}
+  body{background:#fff}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="bar no-print">
+    <div class="crumbs"><a href="index.html">중2-1</a><span class="dot"></span><a href="u5.html">단원 5</a><span class="dot"></span><span>놀이터</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+  <div class="pg-badge no-print"><span class="i">🎨</span>놀이터 — 점수는 안 매겨요, 그냥 놀아 봐요</div>
+  <h1 class="no-print">일차함수와 그래프 놀이터</h1>
+  <p class="lede no-print">규칙 하나 y = ax + b 가 그래프를 통째로 바꿔요. 암호로 숨기고, 슬라이더로 직접 만들고, 실제 상황과 짝지어봐요.</p>
+
+  <div class="pg-score no-print" id="score"><span class="dot">🏅</span>해결한 사건 <b id="scoreN">0</b> / <span id="scoreT">4</span></div>
+
+  <!-- 게임 1 · 암호 편지 만들기 -->
+  <div class="pg-game reveal" id="g-cipher">
+    <div class="pg-title no-print"><span class="pg-emoji">🔐</span>암호 편지 만들기</div>
+    <div class="pg-desc no-print">y = ax + b 규칙으로 나만의 암호문을 만들어요. 규칙은 비밀! 암호문만 인쇄해서 친구에게 건네고 맞혀보라고 해요.</div>
+
+    <p class="reading no-print" style="font-size:13px;margin-bottom:4px">기울기 a 고르기</p>
+    <div class="pill-row no-print" id="ci-a">
+      <button class="pill" data-v="-3">−3</button>
+      <button class="pill" data-v="-2">−2</button>
+      <button class="pill" data-v="-1">−1</button>
+      <button class="pill sel" data-v="2">2</button>
+      <button class="pill" data-v="1">1</button>
+      <button class="pill" data-v="3">3</button>
+    </div>
+    <p class="reading no-print" style="font-size:13px;margin:10px 0 4px">y절편 b 고르기</p>
+    <div class="pill-row no-print" id="ci-b">
+      <button class="pill" data-v="-5">−5</button>
+      <button class="pill" data-v="-2">−2</button>
+      <button class="pill" data-v="0">0</button>
+      <button class="pill sel" data-v="3">3</button>
+      <button class="pill" data-v="5">5</button>
+    </div>
+    <div class="pg-num no-print" id="ci-rule">오늘의 규칙: y = 2x + 3 (친구에게는 비밀!)</div>
+
+    <div class="pg-case" id="ci-print-card">
+      <div class="case-no">🔐 암호 편지</div>
+      <div class="case-stmt">아래 암호문(자리 1~5번의 값)에 숨겨진 규칙 <b>y = ax + b</b> 를 맞혀보세요!</div>
+      <div class="pg-num" id="ci-code" style="margin-top:8px"></div>
+    </div>
+    <div style="text-align:center" class="no-print"><button id="ci-print">🖨️ 암호 편지 인쇄하기</button></div>
+
+    <div class="pg-case no-print" style="margin-top:16px">
+      <div class="case-stmt">🔓 이번엔 반대로! 친구가 보낸 암호문 <b id="ci-dec-code"></b> (자리 1~5번) 을 보고 규칙을 맞혀보세요.</div>
+      <div class="row" style="margin-top:10px">
+        <span>y =</span><input class="num" id="ci-dec-a" inputmode="numeric" placeholder="a"><span>x +</span><input class="num" id="ci-dec-b" inputmode="numeric" placeholder="b"><button id="ci-dec-check">확인</button>
+      </div>
+      <div class="out" id="ci-dec-out"></div>
+    </div>
+  </div>
+
+  <!-- 게임 2 · 기울기 미끄럼틀 -->
+  <div class="pg-game reveal no-print" id="g-slope">
+    <div class="pg-title"><span class="pg-emoji">🛝</span>기울기 미끄럼틀</div>
+    <div class="pg-desc">a, b 를 슬라이더로 움직이면서 그래프가 어떻게 변하는지 직접 봐요.</div>
+    <div class="controls">
+      <div class="ctrl">
+        <label><span>기울기 a</span><span id="sl-a-v">2</span></label>
+        <input type="range" id="sl-a" min="-3" max="3" step="1" value="2">
+      </div>
+      <div class="ctrl">
+        <label><span>y절편 b</span><span id="sl-b-v">1</span></label>
+        <input type="range" id="sl-b" min="-5" max="5" step="1" value="1">
+      </div>
+    </div>
+    <p class="reading" id="sl-eq" style="font-size:16px;font-weight:700">y = 2x + 1</p>
+    <svg class="plane" id="sl-plane" viewBox="0 0 340 300" role="img" aria-label="일차함수 그래프"></svg>
+    <p class="reading" id="sl-desc" style="font-size:13.5px"></p>
+    <div class="pg-case" style="margin-top:12px">
+      <div class="case-stmt">미션: 슬라이더로 <b>a = −2, b = 4</b> 인 그래프를 만들어보세요.</div>
+      <div class="out" id="sl-out"></div>
+    </div>
+  </div>
+
+  <!-- 게임 3 · 실생활 그래프 맞히기 -->
+  <div class="pg-game reveal no-print" id="g-match">
+    <div class="pg-title"><span class="pg-emoji">🚕</span>실생활 그래프 맞히기</div>
+    <div class="pg-desc">상황을 읽고, 어떤 그래프 모양이 어울릴지 골라봐요.</div>
+    <div class="pg-case">
+      <div class="case-no" id="mt-no">상황 1 / 3</div>
+      <div class="case-stmt" id="mt-scn"></div>
+    </div>
+    <div class="pg-predict" id="mt-choices"></div>
+    <div class="out" id="mt-out"></div>
+    <div class="sim-read muted" style="font-size:13px;margin-top:4px"><b id="mt-done" style="color:var(--u)">0</b> / <span id="mt-total">3</span></div>
+  </div>
+
+  <!-- 게임 4 · 오류 탐정 -->
+  <div class="pg-game reveal no-print" id="g-detective">
+    <div class="pg-title"><span class="pg-emoji">🔍</span>오류 탐정</div>
+    <div class="pg-desc">누군가 이렇게 풀었어요. 어디가 이상한지 찾아볼까요? (정답은 안 알려줘요 — 스스로 짚어 봐요)</div>
+    <div class="pg-case">
+      <div class="case-no" id="det-no">사건 1 / 6</div>
+      <div class="case-stmt" id="det-stmt"></div>
+    </div>
+    <div style="text-align:center"><button id="det-think">다르게 생각해 볼까요?</button></div>
+    <div class="hint" id="det-counter" style="display:none;margin-top:10px"></div>
+    <div class="ask" id="det-ask" style="display:none;margin-top:10px"></div>
+    <div class="pg-case" id="det-checkbox" style="display:none;margin-top:14px">
+      <div class="case-stmt" id="det-checkq"></div>
+      <div class="row" style="margin-top:10px"><input class="blank" id="det-in" placeholder="답"><button id="det-check">확인</button></div>
+      <div class="out" id="det-out"></div>
+    </div>
+    <div style="text-align:center;margin-top:12px"><button class="ghost" id="det-next" style="display:none">다음 사건 -></button></div>
+  </div>
+
+  <div class="stamp no-print" id="stamp">
+    <div class="seal">🎉</div>
+    <div class="seal-t">놀이터 클리어!</div>
+    <div class="seal-d">y = ax + b 하나로 암호도 만들고 그래프도 그릴 수 있다는 것, 이제 알아요.</div>
+  </div>
+  <div class="bridge no-print" style="margin-top:18px"><a class="golink" href="p5.html">연습 문제로 -></a></div>
+
+  <div class="foot no-print">중2 수학 · 놀이터 · 단원 05</div>
+</div>
+
+<div class="pg-confetti no-print" id="confetti"></div>
+
+<script src="concept.js?v=20260815b"></script>
+<script>
+MJ.boot();
+(function(){
+  var solved=0, TOTAL=4;
+  function bump(){
+    var el=document.getElementById('scoreN'); solved++; el.textContent=solved;
+    var badge=document.getElementById('score'); badge.classList.remove('bump'); void badge.offsetWidth; badge.classList.add('bump');
+    if(solved>=TOTAL){ confetti(); document.getElementById('stamp').classList.add('show'); }
+  }
+  function confetti(){
+    var host=document.getElementById('confetti'); host.innerHTML='';
+    var colors=['#3fa89a','#63c6b1','#e59a3c','#f2be6b','#4fa892'];
+    for(var i=0;i<46;i++){
+      var s=document.createElement('i');
+      s.style.left=(Math.random()*100)+'vw';
+      s.style.background=colors[i%colors.length];
+      s.style.animationDelay=(Math.random()*0.4)+'s';
+      s.style.animationDuration=(1.1+Math.random()*0.9)+'s';
+      s.style.transform='rotate('+(Math.random()*360)+'deg)';
+      host.appendChild(s);
+    }
+    host.classList.add('on');
+    setTimeout(function(){host.classList.remove('on');},2200);
+  }
+
+  /* 게임 1: 암호 편지 만들기 */
+  (function(){
+    var a=2, b=3, bumped=false;
+    var X=[1,2,3,4,5];
+    function encode(a,b){ return X.map(function(x){return a*x+b;}); }
+    function fmtRule(a,b){
+      var s=(a===1?'':a===-1?'−':a)+'x';
+      s+= (b>=0?' + '+b:' − '+Math.abs(b));
+      return 'y = '+s;
+    }
+    function renderRule(){
+      document.getElementById('ci-rule').textContent='오늘의 규칙: '+fmtRule(a,b)+' (친구에게는 비밀!)';
+      document.getElementById('ci-code').textContent=encode(a,b).join(', ');
+    }
+    document.querySelectorAll('#ci-a .pill').forEach(function(p){
+      p.onclick=function(){
+        document.querySelectorAll('#ci-a .pill').forEach(function(q){q.classList.remove('sel');});
+        p.classList.add('sel'); a=+p.dataset.v; renderRule();
+      };
+    });
+    document.querySelectorAll('#ci-b .pill').forEach(function(p){
+      p.onclick=function(){
+        document.querySelectorAll('#ci-b .pill').forEach(function(q){q.classList.remove('sel');});
+        p.classList.add('sel'); b=+p.dataset.v; renderRule();
+      };
+    });
+    document.getElementById('ci-print').onclick=function(){ window.print(); };
+
+    var DA=2, DB=5;
+    document.getElementById('ci-dec-code').textContent=X.map(function(x){return DA*x+DB;}).join(', ');
+    document.getElementById('ci-dec-check').onclick=function(){
+      var va=parseFloat(document.getElementById('ci-dec-a').value);
+      var vb=parseFloat(document.getElementById('ci-dec-b').value);
+      var ok=(va===DA && vb===DB);
+      document.getElementById('ci-dec-out').innerHTML=ok
+        ? '<span class="good">정답! y = 2x + 5 예요.</span>'
+        : '다시 확인해봐요 — 자리 1일 때 값과 자리 2일 때 값의 차이가 기울기예요.';
+      if(ok && !bumped){ bumped=true; bump(); }
+    };
+    renderRule();
+  })();
+
+  /* 게임 2: 기울기 미끄럼틀 */
+  (function(){
+    var svg=document.getElementById('sl-plane');
+    var P=MJ.makePlane(svg);
+    var bumped=false, TA=-2, TB=4;
+    function fmtEq(a,b){
+      var s;
+      if(a===0){ s='y = '+b; }
+      else{ s='y = '+(a===1?'x':a===-1?'−x':a+'x'); if(b>0)s+=' + '+b; else if(b<0)s+=' − '+Math.abs(b); }
+      return s;
+    }
+    function update(){
+      var a=+document.getElementById('sl-a').value, b=+document.getElementById('sl-b').value;
+      document.getElementById('sl-a-v').textContent=a;
+      document.getElementById('sl-b-v').textContent=b;
+      document.getElementById('sl-eq').textContent=fmtEq(a,b);
+      P.line('m',a,b,'var(--u)');
+      var desc;
+      if(a===0) desc='기울기가 0이면 평평한 선이 돼요 — 사실 이건 일차함수가 아니에요!';
+      else if(a>0) desc='오른쪽으로 갈수록 올라가요 (a>0)';
+      else desc='오른쪽으로 갈수록 내려가요 (a<0)';
+      document.getElementById('sl-desc').textContent=desc+'　·　y절편 = '+b;
+      if(!bumped && a===TA && b===TB){
+        bumped=true;
+        document.getElementById('sl-out').innerHTML='<span class="good">미션 성공! a=−2, b=4 그래프를 만들었어요.</span>';
+        bump();
+      }
+    }
+    document.getElementById('sl-a').addEventListener('input',update);
+    document.getElementById('sl-b').addEventListener('input',update);
+    update();
+  })();
+
+  /* 게임 3: 실생활 그래프 맞히기 */
+  (function(){
+    var ROUNDS=[
+      {scn:'택시를 타면 기본요금에서 출발해서, 달릴수록 요금이 계속 올라가요.', choices:['up','down']},
+      {scn:'물탱크에 물이 가득 차 있다가, 마개를 열어 일정한 속도로 계속 빠져나가요.', choices:['down','flat']},
+      {scn:'멈춰 있는 자동차의 속도는 시간이 지나도 항상 0이에요.', choices:['flat','up']}
+    ];
+    var CORRECT=['up','down','flat'];
+    var LABELS=['A','B'];
+    var pos=0, done=0, bumped=false;
+    document.getElementById('mt-total').textContent=ROUNDS.length;
+    function sketch(kind){
+      var pts = kind==='up' ? '10,44 80,10' : kind==='down' ? '10,10 80,44' : '10,27 80,27';
+      return '<svg viewBox="0 0 90 54" style="width:100%;max-width:110px;display:block;margin:0 auto 6px" aria-hidden="true">'+
+        '<line x1="8" y1="47" x2="86" y2="47" stroke="var(--axis)" stroke-width="1.2"/>'+
+        '<line x1="8" y1="6" x2="8" y2="47" stroke="var(--axis)" stroke-width="1.2"/>'+
+        '<polyline points="'+pts+'" fill="none" stroke="var(--u)" stroke-width="3.5" stroke-linecap="round"/></svg>';
+    }
+    function render(){
+      var r=ROUNDS[pos];
+      document.getElementById('mt-no').textContent='상황 '+(pos+1)+' / '+ROUNDS.length;
+      document.getElementById('mt-scn').textContent=r.scn;
+      var host=document.getElementById('mt-choices'); host.innerHTML='';
+      r.choices.forEach(function(kind,i){
+        var btn=document.createElement('button');
+        btn.className='pg-pbtn';
+        btn.innerHTML=sketch(kind)+'<div>그래프 '+LABELS[i]+'</div>';
+        btn.onclick=function(){ check(kind,btn,host); };
+        host.appendChild(btn);
+      });
+      document.getElementById('mt-out').innerHTML='';
+    }
+    function check(kind,btn,host){
+      var correct=CORRECT[pos];
+      var ok=(kind===correct);
+      Array.prototype.forEach.call(host.children,function(c){ c.onclick=null; });
+      if(ok){
+        btn.classList.add('right');
+        document.getElementById('mt-out').innerHTML='<span class="good">맞았어요!</span>';
+        done++; document.getElementById('mt-done').textContent=done;
+        if(done>=ROUNDS.length){ if(!bumped){bumped=true;bump();} }
+        else { pos++; setTimeout(render,1100); }
+      } else {
+        btn.classList.add('wrong');
+        document.getElementById('mt-out').innerHTML='다시 생각해봐요 — 시간이 지나면서 값이 어떻게 변하는 상황인가요?';
+        setTimeout(function(){ render(); },1400);
+      }
+    }
+    render();
+  })();
+
+  /* 게임 4: 오류 탐정 (misconceptions/math2_u05.json 기반, 6개 큐레이션) */
+  (function(){
+    var CASES=[
+      {stmt:'두 점 (0, 6), (2, 0) 을 지나는 직선의 기울기를 구하는데, 크기만 보고 <b>기울기 = 3</b> 이라고 했어요.',
+       counter:'미끄럼틀처럼 오른쪽으로 갈수록 내려가는 직선에서 y는 늘어나나요, 줄어드나요? 줄어드는 양은 어떤 부호로 쓸까요?',
+       ask:'y의 변화량이 음수이면 기울기의 부호는 어떻게 될까요?',
+       q:'두 점 (0, 6), (2, 0) 을 지나는 직선의 기울기는?', a:'−3'},
+      {stmt:'두 점 (0, 0), (2, 6) 을 지나는 직선의 기울기를, x변화량을 분자로 놓고 <b>2/6</b> 이라고 계산했어요.',
+       counter:'가파른 계단일수록 기울기는 커져야 해요. 세로로 많이 올라갈 때 값이 커지려면 세로가 분자여야 할까요, 분모여야 할까요?',
+       ask:"기울기는 '가로로 1만큼 갈 때 세로로 얼마나' 인가요, 아니면 그 반대인가요?",
+       q:'두 점 (0, 0), (2, 6) 을 지나는 직선의 기울기는?', a:'3'},
+      {stmt:'y = 5x − 8 의 y절편을 구하는데, 부호를 떼고 <b>y절편 = 8</b> 이라고 했어요.',
+       counter:'y = x − 4 에 x = 0 을 넣으면 y는 4인가요, 아니면 4보다 작은 수인가요? 직접 계산해볼까요?',
+       ask:'y절편은 크기만 말하는 값인가요, 부호까지 포함한 값인가요?',
+       q:'y = 5x − 8 의 y절편은?', a:'−8'},
+      {stmt:'기울기가 2이고 점 (1, 5) 를 지나는 직선의 y절편을, 점의 y좌표를 그대로 써서 <b>y절편 = 5</b> 라고 했어요.',
+       counter:'y절편은 x가 얼마일 때의 y값인가요? 그렇다면 점 (1, 5) 는 y절편을 바로 알려주는 점이 맞나요?',
+       ask:'지나는 점이 곧 y절편이 되려면 그 점의 x좌표가 무엇이어야 할까요?',
+       q:'기울기가 2이고 점 (1, 5) 를 지나는 직선의 y절편은?', a:'3'},
+      {stmt:'y = 4x 를 아래로 3만큼 평행이동하는데, <b>y = 4x + 3</b> 이라고 했어요.',
+       counter:'y = x 위의 점 (0, 0) 을 아래로 3만큼 내리면 어떤 점이 되나요? 그 점의 y좌표는 0보다 큰가요, 작은가요?',
+       ask:'아래로 내렸는데 y절편이 더 커진다면 이상하지 않을까요?',
+       q:'y = 4x 를 아래로 3만큼 평행이동한 식의 y절편은?', a:'−3'},
+      {stmt:'처음 30L 에서 1분에 3L씩 빠져나가는 물탱크를 식으로 세우는데, <b>y = 30 + 3x</b> 라고 했어요.',
+       counter:"'처음에 12개 있고 하루에 2개씩 없어져요' 를 y = 2x + 12 로 쓰면 날이 갈수록 개수가 늘어나요. 실제 상황과 맞나요?",
+       ask:'줄어드는 양은 어떤 부호로 써야 할까요?',
+       q:'처음 30L 에서 1분에 3L씩 빠져나갈 때 x분 뒤의 양 y를 식으로 쓰면?', a:'y = 30 − 3x'}
+    ];
+    var order=[0,1,2,3,4,5].sort(function(){return Math.random()-0.5;});
+    var pos=0, bumped=false;
+    function render(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-no').textContent='사건 '+(pos+1)+' / '+order.length;
+      document.getElementById('det-stmt').innerHTML=c.stmt;
+      document.getElementById('det-counter').style.display='none';
+      document.getElementById('det-ask').style.display='none';
+      document.getElementById('det-checkbox').style.display='none';
+      document.getElementById('det-in').value='';
+      document.getElementById('det-out').innerHTML='';
+      document.getElementById('det-think').style.display='inline-block';
+      document.getElementById('det-next').style.display='none';
+    }
+    document.getElementById('det-think').onclick=function(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-counter').innerHTML='<b>다르게 볼까요?</b> '+c.counter;
+      document.getElementById('det-counter').style.display='block';
+      document.getElementById('det-ask').innerHTML='생각해보기: '+c.ask;
+      document.getElementById('det-ask').style.display='block';
+      document.getElementById('det-checkq').innerHTML=c.q;
+      document.getElementById('det-checkbox').style.display='block';
+      document.getElementById('det-think').style.display='none';
+    };
+    document.getElementById('det-check').onclick=function(){
+      var c=CASES[order[pos]];
+      var v=(document.getElementById('det-in').value||'');
+      var norm=function(s){return s.replace(/[^0-9a-zA-Z가-힣<>]/g,'').toLowerCase();};
+      var ok=v.length>0 && norm(c.a).indexOf(norm(v))>=0;
+      document.getElementById('det-out').innerHTML=ok
+        ? '<span class="good">정답이에요 - '+c.a+'</span>'
+        : '정답: <b>'+c.a+'</b> (직접 써보면서 확인해봐요)';
+      document.getElementById('det-next').style.display='inline-block';
+      if(!bumped){ bumped=true; bump(); }
+    };
+    document.getElementById('det-next').onclick=function(){
+      pos++; if(pos>=order.length) pos=0; render();
+    };
+    render();
+  })();
+})();
+</script>
+</body>
+</html>
