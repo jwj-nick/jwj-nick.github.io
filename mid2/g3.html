@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>놀이터 · 일차부등식 · 중2-1</title>
+<link rel="stylesheet" href="concept.css?v=20260812b">
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중2-1</a><span class="dot"></span><a href="u3.html">단원 3</a><span class="dot"></span><span>놀이터</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+  <div class="pg-badge"><span class="i">🎨</span>놀이터 — 점수는 안 매겨요, 그냥 놀아 봐요</div>
+  <h1>일차부등식 놀이터</h1>
+  <p class="lede">'같다'가 아니라 크다·작다. 그리고 딱 한 곳에서 방향이 뒤집혀요 — 직접 실험해서 찾아봐요.</p>
+
+  <div class="pg-score" id="score"><span class="dot">🏅</span>해결한 사건 <b id="scoreN">0</b> / <span id="scoreT">4</span></div>
+
+  <!-- 게임 1 · 용돈 시뮬레이터 -->
+  <div class="pg-game reveal" id="g-budget">
+    <div class="pg-title"><span class="pg-emoji">💰</span>용돈 시뮬레이터</div>
+    <div class="pg-desc">사탕 한 개 <b>700원</b>, 가진 돈은 <b>5000원</b>. 개수를 밀어 보면서 예산 안에 있는지 확인해요.</div>
+    <div class="controls">
+      <div class="ctrl">
+        <label><span>사탕 개수</span><span id="bu-x">0</span>개</label>
+        <input type="range" id="bu-slider" min="0" max="10" value="0">
+      </div>
+    </div>
+    <div class="sim-stage">
+      <div class="sim-read">700 × <span id="bu-x2">0</span> = <span class="big" id="bu-cost">0</span>원</div>
+      <div style="height:14px;border-radius:8px;background:var(--panel);border:1px solid var(--border);overflow:hidden;margin-top:10px">
+        <div id="bu-bar" style="height:100%;width:0%;background:var(--ok);transition:width .25s,background .25s"></div>
+      </div>
+      <div class="reading" id="bu-status">예산 안에 있어요</div>
+    </div>
+    <div class="pg-case" style="margin-top:12px">
+      <div class="case-stmt">700x ≤ 5000 — 사탕을 <b>최대 몇 개</b>까지 살 수 있을까요?</div>
+      <div class="row" style="margin-top:10px"><input class="num" id="bu-in" inputmode="numeric" placeholder="?"><button id="bu-check">확인</button></div>
+      <div class="out" id="bu-out"></div>
+    </div>
+  </div>
+
+  <!-- 게임 2 · 부호 뒤집기 실험실 -->
+  <div class="pg-game reveal" id="g-flip">
+    <div class="pg-title"><span class="pg-emoji">🔄</span>부호 뒤집기 실험실</div>
+    <div class="pg-desc"><span class="eq">2 &lt; 5</span> 는 참이에요. 양변에 뭔가를 해도 계속 참일까요? 버튼을 눌러 직접 실험해요.</div>
+    <div class="pg-num" id="fl-eq">2 &lt; 5</div>
+    <div class="pill-row" id="fl-btns">
+      <span class="pill" data-op="mul" data-k="2">× 2</span>
+      <span class="pill" data-op="add" data-k="4">+ 4</span>
+      <span class="pill" data-op="mul" data-k="-1">× (−1)</span>
+      <span class="pill" data-op="mul" data-k="-3">× (−3)</span>
+      <span class="pill" data-op="sub" data-k="5">− 5</span>
+    </div>
+    <div class="out" id="fl-out"></div>
+    <div class="pg-case" id="fl-quiz" style="display:none;margin-top:14px">
+      <div class="case-stmt">그럼 <b>a &lt; b</b> 일 때, <b>−4a</b> 와 <b>−4b</b> 사이의 부등호는?</div>
+      <div class="pg-predict">
+        <button class="pg-pbtn" id="fl-q1">−4a &lt; −4b</button>
+        <button class="pg-pbtn" id="fl-q2">−4a &gt; −4b</button>
+      </div>
+      <div class="out" id="fl-qout"></div>
+    </div>
+  </div>
+
+  <!-- 게임 3 · 수직선 색칠 게임 -->
+  <div class="pg-game reveal" id="g-line">
+    <div class="pg-title"><span class="pg-emoji">🖍️</span>수직선 색칠 게임</div>
+    <div class="pg-desc">부등식을 보고 <b>방향</b>과 <b>경계</b>를 직접 골라서 수직선을 완성해요.</div>
+    <div class="pg-num" id="ln-eq">x &gt; 3</div>
+    <svg class="numline" id="ln-svg" viewBox="0 0 420 70" role="img" aria-label="수직선"></svg>
+    <div class="pg-predict">
+      <button class="pg-pbtn" id="ln-left"><span class="e">←</span>왼쪽</button>
+      <button class="pg-pbtn" id="ln-right"><span class="e">→</span>오른쪽</button>
+    </div>
+    <div class="pg-predict">
+      <button class="pg-pbtn" id="ln-open"><span class="e">○</span>미포함<br><span style="font-weight:600;font-size:12px;color:var(--muted)">빈 점</span></button>
+      <button class="pg-pbtn" id="ln-closed"><span class="e">●</span>포함<br><span style="font-weight:600;font-size:12px;color:var(--muted)">채운 점</span></button>
+    </div>
+    <div style="text-align:center;margin-top:10px"><button id="ln-check">이 그림 확인!</button></div>
+    <div class="out" id="ln-out"></div>
+    <div class="sim-read muted" style="font-size:13px;margin-top:6px"><b id="ln-done" style="color:var(--u)">0</b> / <span id="ln-total">4</span></div>
+  </div>
+
+  <!-- 게임 4 · 오류 탐정 -->
+  <div class="pg-game reveal" id="g-detective">
+    <div class="pg-title"><span class="pg-emoji">🔍</span>오류 탐정</div>
+    <div class="pg-desc">누군가 이렇게 생각했어요. 어디가 이상한지 찾아볼까요? (정답은 안 알려줘요 — 스스로 짚어 봐요)</div>
+    <div class="pg-case">
+      <div class="case-no" id="det-no">사건 1 / 6</div>
+      <div class="case-stmt" id="det-stmt"></div>
+    </div>
+    <div style="text-align:center"><button id="det-think">다르게 생각해 볼까요?</button></div>
+    <div class="hint" id="det-counter" style="display:none;margin-top:10px"></div>
+    <div class="ask" id="det-ask" style="display:none;margin-top:10px"></div>
+    <div class="pg-case" id="det-checkbox" style="display:none;margin-top:14px">
+      <div class="case-stmt" id="det-checkq"></div>
+      <div class="row" style="margin-top:10px"><input class="blank" id="det-in" placeholder="답"><button id="det-check">확인</button></div>
+      <div class="out" id="det-out"></div>
+    </div>
+    <div style="text-align:center;margin-top:12px"><button class="ghost" id="det-next" style="display:none">다음 사건 -></button></div>
+  </div>
+
+  <div class="stamp" id="stamp">
+    <div class="seal">🎉</div>
+    <div class="seal-t">놀이터 클리어!</div>
+    <div class="seal-d">부등식, 어디서 뒤집히는지 이제 확실히 알아요.</div>
+  </div>
+  <div class="bridge" style="margin-top:18px"><a class="golink" href="p3.html">연습 문제로 -></a></div>
+
+  <div class="foot">중2 수학 · 놀이터 · 단원 03</div>
+</div>
+
+<div class="pg-confetti" id="confetti"></div>
+
+<script src="concept.js?v=20260812b"></script>
+<script>
+MJ.boot();
+(function(){
+  var solved=0, TOTAL=4;
+  function bump(){
+    var el=document.getElementById('scoreN'); solved++; el.textContent=solved;
+    var badge=document.getElementById('score'); badge.classList.remove('bump'); void badge.offsetWidth; badge.classList.add('bump');
+    if(solved>=TOTAL){ confetti(); document.getElementById('stamp').classList.add('show'); }
+  }
+  function confetti(){
+    var host=document.getElementById('confetti'); host.innerHTML='';
+    var colors=['#3fa89a','#63c6b1','#e59a3c','#f2be6b','#4fa892'];
+    for(var i=0;i<46;i++){
+      var s=document.createElement('i');
+      s.style.left=(Math.random()*100)+'vw';
+      s.style.background=colors[i%colors.length];
+      s.style.animationDelay=(Math.random()*0.4)+'s';
+      s.style.animationDuration=(1.1+Math.random()*0.9)+'s';
+      s.style.transform='rotate('+(Math.random()*360)+'deg)';
+      host.appendChild(s);
+    }
+    host.classList.add('on');
+    setTimeout(function(){host.classList.remove('on');},2200);
+  }
+
+  /* 게임 1: 용돈 시뮬레이터 */
+  (function(){
+    var PRICE=700, BUDGET=5000, bumped=false;
+    function update(x){
+      var cost=PRICE*x;
+      document.getElementById('bu-x').textContent=x;
+      document.getElementById('bu-x2').textContent=x;
+      document.getElementById('bu-cost').textContent=cost.toLocaleString();
+      var pct=Math.min(100, cost/BUDGET*100);
+      var bar=document.getElementById('bu-bar');
+      bar.style.width=pct+'%';
+      var over=cost>BUDGET;
+      bar.style.background=over?'#d9605f':'var(--ok)';
+      document.getElementById('bu-status').textContent=over?'예산을 넘었어요!':'예산 안에 있어요';
+      document.getElementById('bu-status').style.color=over?'#d9605f':'var(--ok)';
+    }
+    document.getElementById('bu-slider').addEventListener('input',function(){ update(+this.value); });
+    document.getElementById('bu-check').onclick=function(){
+      var v=parseInt(document.getElementById('bu-in').value,10);
+      var ok=(v===7);
+      document.getElementById('bu-out').innerHTML=ok
+        ? '<span class="good">정답! 700×7=4900(이내), 700×8=5600(초과) — 최대 7개예요.</span>'
+        : (isNaN(v)?'개수를 넣어 줘요.':'아쉬워요. 슬라이더를 8까지 밀어서 예산을 넘는 지점을 찾아봐요.');
+      if(ok && !bumped){ bumped=true; bump(); }
+    };
+    update(0);
+  })();
+
+  /* 게임 2: 부호 뒤집기 실험실 */
+  (function(){
+    var seenFlip=false, bumped=false;
+    document.querySelectorAll('#fl-btns .pill').forEach(function(p){
+      p.onclick=function(){
+        var op=p.dataset.op, k=parseFloat(p.dataset.k);
+        var L=2, R=5, nl, nr, flip=false, opTxt;
+        if(op==='mul'){ nl=L*k; nr=R*k; flip=(k<0); opTxt='양변에 × ('+k+')'; }
+        else if(op==='add'){ nl=L+k; nr=R+k; flip=false; opTxt='양변에 + '+k; }
+        else { nl=L-k; nr=R-k; flip=false; opTxt='양변에 − '+k; }
+        var sign = flip ? '&gt;' : '&lt;';
+        document.getElementById('fl-eq').innerHTML = nl+' '+sign+' '+nr;
+        document.getElementById('fl-out').innerHTML = opTxt+' 했더니: '+nl+' '+sign+' '+nr +
+          (flip ? '  <b style="color:var(--line)">— 부등호가 뒤집혔어요!</b>' : '  (그대로예요)');
+        if(op==='mul' && k<0){ seenFlip=true; document.getElementById('fl-quiz').style.display='block'; }
+      };
+    });
+    function pickQuiz(sign){
+      if(bumped) return;
+      var correct=(sign==='>');
+      document.getElementById('fl-q1').classList.add(!correct?'right':'wrong');
+      document.getElementById('fl-q2').classList.add(correct?'right':'wrong');
+      document.getElementById('fl-qout').innerHTML = correct
+        ? '<span class="good">맞았어요! 음수를 곱하면 항상 뒤집혀요.</span>'
+        : '아쉬워요 — 방금 실험한 × (−) 결과를 다시 떠올려 봐요.';
+      if(correct){ bumped=true; bump(); }
+    }
+    document.getElementById('fl-q1').onclick=function(){pickQuiz('<');};
+    document.getElementById('fl-q2').onclick=function(){pickQuiz('>');};
+  })();
+
+  /* 게임 3: 수직선 색칠 게임 */
+  (function(){
+    var ROUNDS=[
+      {txt:'x &gt; 3', val:3, type:'gt'},
+      {txt:'x ≤ −2', val:-2, type:'le'},
+      {txt:'x &lt; 0', val:0, type:'lt'},
+      {txt:'x ≥ 5', val:5, type:'ge'}
+    ];
+    var order=[0,1,2,3].sort(function(){return Math.random()-0.5;});
+    var pos=0, dir=null, closed=null, done=0, bumped=false;
+    var paint=MJ.makeNumberLine(document.getElementById('ln-svg'));
+    document.getElementById('ln-total').textContent=ROUNDS.length;
+    function curType(){
+      if(dir===null||closed===null) return null;
+      if(dir==='right') return closed?'ge':'gt';
+      return closed?'le':'lt';
+    }
+    function redraw(){
+      var r=ROUNDS[order[pos]];
+      var t=curType();
+      paint(r.val, t||'gt');
+    }
+    function render(){
+      var r=ROUNDS[order[pos]];
+      document.getElementById('ln-eq').innerHTML=r.txt;
+      dir=null; closed=null;
+      document.getElementById('ln-left').className='pg-pbtn';
+      document.getElementById('ln-right').className='pg-pbtn';
+      document.getElementById('ln-open').className='pg-pbtn';
+      document.getElementById('ln-closed').className='pg-pbtn';
+      document.getElementById('ln-out').innerHTML='';
+      paint(r.val,'gt');
+    }
+    document.getElementById('ln-left').onclick=function(){ dir='left';
+      document.getElementById('ln-left').classList.add('chosen'); document.getElementById('ln-right').classList.remove('chosen'); redraw(); };
+    document.getElementById('ln-right').onclick=function(){ dir='right';
+      document.getElementById('ln-right').classList.add('chosen'); document.getElementById('ln-left').classList.remove('chosen'); redraw(); };
+    document.getElementById('ln-open').onclick=function(){ closed=false;
+      document.getElementById('ln-open').classList.add('chosen'); document.getElementById('ln-closed').classList.remove('chosen'); redraw(); };
+    document.getElementById('ln-closed').onclick=function(){ closed=true;
+      document.getElementById('ln-closed').classList.add('chosen'); document.getElementById('ln-open').classList.remove('chosen'); redraw(); };
+    document.getElementById('ln-check').onclick=function(){
+      var r=ROUNDS[order[pos]];
+      if(dir===null||closed===null){ document.getElementById('ln-out').innerHTML='방향과 경계를 둘 다 골라 줘요.'; return; }
+      var t=curType(), ok=(t===r.type);
+      document.getElementById('ln-out').innerHTML=ok?'<span class="good">정확해요!</span>':'다시 생각해봐요 - 방향은 부등호가 향하는 쪽, 경계는 등호(=) 포함 여부예요.';
+      if(ok){
+        done++; document.getElementById('ln-done').textContent=done;
+        if(done>=ROUNDS.length){ if(!bumped){ bumped=true; bump(); } }
+        else { setTimeout(function(){ pos++; render(); },1000); }
+      }
+    };
+    render();
+  })();
+
+  /* 게임 4: 오류 탐정 (misconceptions/math2_u03.json 기반, 6개 큐레이션) */
+  (function(){
+    var CASES=[
+      {stmt:'2 &lt; 5 의 양변에 −2 를 곱하는데, 부등호를 그대로 두고 <b>−4 &lt; −10</b> 이라고 했어요.',
+       counter:'2 &lt; 5 는 참이에요. 양변에 −2 를 곱하면 −4 와 −10 이 되는데, 이 두 수 중 어느 쪽이 더 큰가요?',
+       ask:'음수를 곱한 뒤에도 부등호를 그대로 두면, 방금 확인한 대소와 맞을까요?',
+       q:'a &lt; b 일 때 −3a 와 −3b 사이의 부등호는?', a:'−3a > −3b'},
+      {stmt:'"용돈이 5000원 이하" 를 부등식으로 세우는데, <b>x ≥ 5000</b> 이라고 썼어요.',
+       counter:'부등호는 열린 쪽이 큰 수를 향해요. "이하"는 그 수와 같거나 작다는 뜻인데, 지금 쓴 식은 어느 쪽을 가리키나요?',
+       ask:'지금 쓴 식에서, 부등호의 열린 쪽에 있는 값이 정말 더 큰 값일까요?',
+       q:"'a 는 b 보다 작다'를 부등호로 쓰면?", a:'a < b'},
+      {stmt:'3x ≥ 15 에 x = 5 를 넣지 않고, 눈대중으로 "해가 맞을 것 같다"고 답했어요.',
+       counter:'3x ≥ 15 에 x = 5 를 실제로 넣으면 15 ≥ 15 예요. 이 식은 참인가요, 거짓인가요?',
+       ask:'해인지 아닌지 정하려면, 대입한 다음에 무엇을 확인해야 할까요?',
+       q:'x = 1 은 2x + 3 &lt; 6 의 해인가요?', a:'해예요 (2+3=5, 5<6)'},
+      {stmt:'2x + 1 &lt; 7 을 푸는데, 1 을 넘기면서 부호를 안 바꿔 <b>2x &lt; 8</b> 이라고 했어요.',
+       counter:'이항은 사실 양변에서 같은 수를 빼는 일이에요. 양변에서 1 을 빼면 오른쪽의 7 은 얼마가 될까요?',
+       ask:'한쪽에서 반대쪽으로 넘어간 항의 부호는 그대로일까요, 반대로 바뀔까요?',
+       q:'x + 2 &lt; 9 를 풀면?', a:'x < 7'},
+      {stmt:'x &lt; 5 를 수직선에 나타내는데, 5 에 <b>채운 점(●)</b> 을 찍었어요.',
+       counter:'≥ 는 그 수 자신도 해에 들어간다는 뜻이에요. x &lt; 5 에서 5 자신은 해에 들어갈까요?',
+       ask:'부등호에 등호가 붙어 있는지를 먼저 보면, 점 모양은 저절로 정해지지 않을까요?',
+       q:'x < 5 를 수직선에 나타낼 때 5 에 찍는 점은?', a:'빈 점 (○)'},
+      {stmt:'0 &lt; x ≤ 3 을 만족하는 정수의 개수를 세는데, <b>2개</b> 라고 했어요.',
+       counter:'0 &lt; x ≤ 3 을 만족하는 정수를 직접 하나씩 적어 볼까요? (0은 포함 안 됨, 3은 포함됨)',
+       ask:'세기 전에 양쪽 끝의 등호를 먼저 확인하면 무엇이 달라질까요?',
+       q:'0 < x ≤ 3 을 만족하는 정수 x 는 몇 개인가요?', a:'3개 (1,2,3)'}
+    ];
+    var order=[0,1,2,3,4,5].sort(function(){return Math.random()-0.5;});
+    var pos=0, bumped=false;
+    function render(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-no').textContent='사건 '+(pos+1)+' / '+order.length;
+      document.getElementById('det-stmt').innerHTML=c.stmt;
+      document.getElementById('det-counter').style.display='none';
+      document.getElementById('det-ask').style.display='none';
+      document.getElementById('det-checkbox').style.display='none';
+      document.getElementById('det-in').value='';
+      document.getElementById('det-out').innerHTML='';
+      document.getElementById('det-think').style.display='inline-block';
+      document.getElementById('det-next').style.display='none';
+    }
+    document.getElementById('det-think').onclick=function(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-counter').innerHTML='<b>다르게 볼까요?</b> '+c.counter;
+      document.getElementById('det-counter').style.display='block';
+      document.getElementById('det-ask').innerHTML='생각해보기: '+c.ask;
+      document.getElementById('det-ask').style.display='block';
+      document.getElementById('det-checkq').innerHTML=c.q;
+      document.getElementById('det-checkbox').style.display='block';
+      document.getElementById('det-think').style.display='none';
+    };
+    document.getElementById('det-check').onclick=function(){
+      var c=CASES[order[pos]];
+      var v=(document.getElementById('det-in').value||'');
+      var norm=function(s){return s.replace(/[^0-9a-zA-Z가-힣<>]/g,'').toLowerCase();};
+      var ok=v.length>0 && norm(c.a).indexOf(norm(v))>=0;
+      document.getElementById('det-out').innerHTML=ok
+        ? '<span class="good">정답이에요 - '+c.a+'</span>'
+        : '정답: <b>'+c.a+'</b> (직접 써보면서 확인해봐요)';
+      document.getElementById('det-next').style.display='inline-block';
+      if(!bumped){ bumped=true; bump(); }
+    };
+    document.getElementById('det-next').onclick=function(){
+      pos++; if(pos>=order.length) pos=0; render();
+    };
+    render();
+  })();
+})();
+</script>
+</body>
+</html>
