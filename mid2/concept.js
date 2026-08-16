@@ -22,7 +22,7 @@
   ];
   // 탐험(PhET/GeoGebra) 탭이 준비된 단원만 노출 → 미준비 단원에서 404 방지
   var EXPLORE_READY={1:1,2:1,3:1,4:1,5:1,6:1,7:1,8:1,9:1,10:1,11:1};
-  var PLAY_READY={1:1,2:1,3:1,4:1,5:1,6:1,7:1,8:1};   // 놀이터(g*.html) 완성된 단원만. 9~11 완성 시 여기 추가 (트랙B: math2 07~10)
+  var PLAY_READY={1:1,2:1,3:1,4:1,5:1,6:1,7:1,8:1,9:1};   // 놀이터(g*.html) 완성된 단원만. 10~11 완성 시 여기 추가 (트랙B: math2 07~10)
   // 파일명 → 단원 번호 + 종류 (u=개념 p=연습 d=심화탐구 dNp=심화문제 g=놀이터)
   function pageInfo(){
     var f=(location.pathname.split('/').pop()||'index.html').toLowerCase().replace(/\?.*$/,'').replace(/\.html$/,'');
