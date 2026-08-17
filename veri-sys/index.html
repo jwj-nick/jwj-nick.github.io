@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<title>Veri-Sys · Verification System</title>
+<style>
+  :root{
+    --bg:#0f172a; --bg2:#1e293b; --card:#1e293b; --line:#334155;
+    --fg:#e2e8f0; --mut:#94a3b8; --acc:#34d399; --acc2:#22d3ee;
+    --ok:#34d399; --warn:#fbbf24; --bad:#f87171;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Apple SD Gothic Neo',sans-serif;
+    background:var(--bg);color:var(--fg);line-height:1.6;padding-bottom:74px}
+  header{position:sticky;top:0;z-index:10;background:rgba(15,23,42,.92);backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);padding:max(13px,env(safe-area-inset-top,0)) 16px 13px}
+  header h1{font-size:16.5px;letter-spacing:.2px}
+  header .sub{font-size:11.5px;color:var(--mut);margin-top:2px}
+  header .upd{font-size:10.5px;color:var(--acc);margin-top:3px}
+  .wrap{max-width:760px;margin:0 auto;padding:16px}
+  nav{position:fixed;bottom:0;left:0;right:0;z-index:20;display:flex;background:var(--bg2);
+    border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0)}
+  nav button{flex:1;background:none;border:none;color:var(--mut);font-size:11px;
+    padding:10px 4px;cursor:pointer;font-weight:600;border-top:2px solid transparent}
+  nav button.on{color:var(--acc);border-top-color:var(--acc)}
+  nav button .ic{display:block;font-size:17px;margin-bottom:1px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px;margin-bottom:13px}
+  .card h2{font-size:15px;margin-bottom:8px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .card h3{font-size:13px;color:var(--acc);margin:14px 0 5px;font-weight:700}
+  .card p{font-size:13px;margin-bottom:7px}
+  .mut{color:var(--mut)!important}.small{font-size:11.5px}
+  .badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap}
+  .b-done{background:rgba(52,211,153,.16);color:var(--ok)}
+  .b-next{background:rgba(34,211,238,.16);color:var(--acc2)}
+  .b-wait{background:rgba(148,163,184,.16);color:var(--mut)}
+  .b-tag{background:rgba(148,163,184,.16);color:var(--mut)}
+  .b-syl{background:rgba(34,211,238,.14);color:var(--acc2)}
+  .b-std{background:rgba(129,140,248,.16);color:#818cf8}
+  .b-book{background:rgba(251,191,36,.16);color:var(--warn)}
+  .b-free{background:rgba(52,211,153,.16);color:var(--ok)}
+  /* two-question frame */
+  .qq{display:flex;flex-direction:column;gap:8px;margin:6px 0}
+  .qq .q{background:var(--bg);border:1px solid var(--line);border-left:3px solid var(--acc);
+    border-radius:0 10px 10px 0;padding:10px 12px}
+  .qq .q b{color:var(--acc);font-size:12.5px;display:block;margin-bottom:2px}
+  .qq .q.q2{border-left-color:var(--acc2)}
+  .qq .q.q2 b{color:var(--acc2)}
+  .qq .q span{font-size:12.5px;line-height:1.55;display:block}
+  /* object spectrum */
+  .obj{display:flex;flex-direction:column;gap:6px;margin:6px 0}
+  .obj .o{display:flex;gap:10px;align-items:baseline;background:var(--bg);border:1px solid var(--line);
+    border-radius:8px;padding:8px 11px}
+  .obj .o b{color:var(--acc2);font-size:12.5px;white-space:nowrap}
+  .obj .o span{font-size:11.5px;color:var(--mut);line-height:1.5}
+  /* mapping rows */
+  .map{border-top:1px solid var(--line);padding:9px 0}
+  .map:first-of-type{border-top:none}
+  .map b{font-size:12.5px;display:block}
+  .map .m{display:flex;gap:6px;font-size:11.5px;margin-top:3px;line-height:1.5}
+  .map .m i{font-style:normal;font-weight:700;flex:none;width:26px;color:var(--mut)}
+  .map .m.sw i{color:var(--acc2)} .map .m.ai i{color:var(--acc)}
+  /* layer cards */
+  .lyr h2 .lid{color:var(--acc);font-family:ui-monospace,monospace;font-size:13px}
+  .lyr .q{font-size:12px;color:var(--acc2);margin-bottom:6px}
+  ul.q{list-style:none;margin:4px 0}
+  ul.q li{font-size:12.5px;padding:6px 0 6px 16px;position:relative;border-top:1px solid var(--line)}
+  ul.q li:first-child{border-top:none}
+  ul.q li::before{content:"›";position:absolute;left:2px;color:var(--acc)}
+  .srcline{font-size:11px;color:var(--mut);margin-top:8px}
+  /* checklist rows */
+  .row{display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:none;
+    color:inherit;cursor:pointer;padding:9px 0;border-top:1px solid var(--line);font-size:13px}
+  .row:first-of-type{border-top:none}
+  .dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--line);flex:none;position:relative}
+  .dot.on{background:var(--ok);border-color:var(--ok)}
+  .dot.on::after{content:"✓";position:absolute;top:-3px;left:2px;font-size:13px;color:#06281d;font-weight:900}
+  .row .rt{flex:1;line-height:1.45}
+  .row.read .rt{color:var(--mut)}
+  a.srow{text-decoration:none}
+  .srow .rt .w{display:block;font-size:11px;color:var(--mut);margin-top:1px}
+  .srow .chev{color:var(--mut);font-size:18px}
+  .prog{height:6px;background:var(--bg);border-radius:6px;overflow:hidden;margin:8px 0 2px}
+  .prog>i{display:block;height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));width:0;transition:width .3s}
+  .ptxt{font-size:11px;color:var(--mut)}
+  .cp{font-size:12px;background:rgba(52,211,153,.08);border-left:3px solid var(--acc);
+    border-radius:0 8px 8px 0;padding:8px 10px;margin-top:10px}
+  .cp b{color:var(--acc)}
+  .foot{text-align:center;font-size:11px;color:var(--mut);padding:16px 0 4px;line-height:1.6}
+</style>
+</head>
+<body>
+<header>
+  <h1 id="h-title">Veri-Sys</h1>
+  <div class="sub" id="h-sub"></div>
+  <div class="upd" id="h-upd"></div>
+</header>
+<main class="wrap" id="view"></main>
+<nav id="nav">
+  <button data-tab="overview" class="on"><span class="ic">🎯</span>개요</button>
+  <button data-tab="terrain"><span class="ic">🗺️</span>지형</button>
+  <button data-tab="phases"><span class="ic">📈</span>페이즈</button>
+  <button data-tab="refs"><span class="ic">📚</span>자료</button>
+</nav>
+
+<script src="content.js"></script>
+<script>
+const D = window.VS;
+const $ = (id)=>document.getElementById(id);
+const esc = (s)=>String(s==null?"":s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+const CK = "vs_chk_v1";
+const chk = JSON.parse(localStorage.getItem(CK)||"{}");
+const saveChk = ()=>localStorage.setItem(CK,JSON.stringify(chk));
+
+$("h-title").textContent = D.title;
+$("h-sub").textContent = D.subtitle;
+$("h-upd").textContent = "업데이트 "+D.updated+" · 페이즈 탭에서 진도 체크";
+
+const ST = {done:["b-done","완료"], next:["b-next","다음"], active:["b-next","진행"], wait:["b-wait","대기"]};
+const stB = (s)=>{const x=ST[s]||ST.wait; return `<span class="badge ${x[0]}">${x[1]}</span>`;};
+const allItems = ()=>D.phases.flatMap(p=>p.items);
+const totProg = ()=>{const a=allItems(); const d=a.filter(i=>chk[i.id]).length; return {d,t:a.length,pct:a.length?Math.round(d/a.length*100):0};};
+
+function renderOverview(){
+  const o=D.overview, tp=totProg();
+  const objs=o.objects.map(x=>`<div class="o"><b>${esc(x.k)}</b><span>${esc(x.v)}</span></div>`).join("");
+  const maps=o.mapping.map(m=>`<div class="map"><b>${esc(m.dv)}</b>
+    <div class="m sw"><i>SW</i><span>${esc(m.sw)}</span></div>
+    <div class="m ai"><i>AI</i><span>${esc(m.ai)}</span></div></div>`).join("");
+  return `
+  <div class="card"><h2>이게 뭔가</h2><p>${esc(o.what)}</p>
+    <div class="prog"><i style="width:${tp.pct}%"></i></div>
+    <div class="ptxt">전체 진도 ${tp.d}/${tp.t} 항목 · ${tp.pct}%</div></div>
+  <div class="card"><h2>${esc(o.frame.title)}</h2>
+    <div class="qq">
+      <div class="q"><b>${esc(o.frame.qa.k)}</b><span>${esc(o.frame.qa.v)}</span></div>
+      <div class="q q2"><b>${esc(o.frame.qb.k)}</b><span>${esc(o.frame.qb.v)}</span></div>
+    </div><p class="small mut">${esc(o.frame.note)}</p></div>
+  <div class="card"><h2>검증 객체 스펙트럼</h2><div class="obj">${objs}</div>
+    <p class="small mut">${esc(o.objectsNote)}</p></div>
+  <div class="card"><h2>매핑 표 — DV ↔ SW ↔ AI 작업 검증</h2>
+    <p class="small mut">배우며 채우는 살아있는 표. 같은 개념이 세 세계에서 어떤 이름을 갖는가.</p>${maps}
+    <div class="cp"><b>미해결 축</b> · ${esc(o.open)}</div></div>`;
+}
+
+function renderTerrain(){
+  const lyrs=D.layers.map(l=>`<div class="card lyr"><h2><span class="lid">${l.id}</span> ${esc(l.name)} <span class="badge b-tag">${esc(l.phase)}</span></h2>
+    <div class="q">${esc(l.q)}</div>
+    <ul class="q">${l.items.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
+    <div class="srcline">소스 · ${esc(l.src)}</div></div>`).join("");
+  const certs=D.certMap.tree.map(c=>`<div class="map"><b>${esc(c.k)} <span class="badge b-tag">${esc(c.tag)}</span></b>
+    <div class="m"><i></i><span>${esc(c.v)}</span></div></div>`).join("");
+  return `<div class="card"><h2>지식 지형 — 여섯 층</h2>
+    <p class="small mut">검증 프로세스 리드가 서야 할 층위. 각 층이 하나의 페이즈에 대응한다.</p></div>
+  ${lyrs}
+  <div class="card"><h2>자격 체계 지도 (ISTQB)</h2>${certs}
+    <p class="small mut" style="margin-top:8px">${esc(D.certMap.note)}</p></div>`;
+}
+
+function renderPhases(){
+  const tp=totProg();
+  const cards=D.phases.map(p=>{
+    const rows=p.items.map(i=>`<button class="row ${chk[i.id]?'read':''}" data-cid="${i.id}">
+      <span class="dot ${chk[i.id]?'on':''}"></span><span class="rt">${esc(i.t)}</span></button>`).join("");
+    const d=p.items.filter(i=>chk[i.id]).length, t=p.items.length;
+    const prog=t?`<div class="prog"><i style="width:${Math.round(d/t*100)}%"></i></div><div class="ptxt">${d}/${t}</div>`:"";
+    const note=p.note?`<p class="small mut">${esc(p.note)}</p>`:"";
+    return `<div class="card"><h2>${p.id} · ${esc(p.title)} ${stB(p.status)}</h2>
+      <p class="small mut">${esc(p.goal)}</p>${note}${prog}${rows}</div>`;
+  }).join("");
+  return `<div class="card"><h2>페이즈 진행</h2>
+    <div class="prog"><i style="width:${tp.pct}%"></i></div>
+    <div class="ptxt">전체 ${tp.d}/${tp.t} 항목 · ${tp.pct}%</div>
+    <p class="small mut" style="margin-top:6px">학습 루프: 원문 정독 → 경험에 이름 붙이기 → 리드 시뮬레이션("이 개념으로 rule을 세운다면?") → 이해·동의한 것만 승격.</p></div>${cards}`;
+}
+
+function renderRefs(){
+  const tB=(t)=>({syllabus:'<span class="badge b-syl">syllabus</span>',standard:'<span class="badge b-std">표준</span>',
+    book:'<span class="badge b-book">책</span>',"book-free":'<span class="badge b-free">무료 책</span>',
+    course:'<span class="badge b-free">무료 코스</span>',tool:'<span class="badge b-tag">도구</span>'}[t]||"");
+  const rows=D.sources.map(s=>`<a class="row srow" href="${s.url}" target="_blank" rel="noopener">
+    <span class="rt">${esc(s.title)} ${tB(s.tag)}<span class="w">${esc(s.note)}</span></span>
+    <span class="chev">↗</span></a>`).join("");
+  return `<div class="card"><h2>공식 소스</h2>
+    <p class="small mut">전부 공개 자료 — syllabus는 응시와 무관하게 "준 spec"으로 정독한다.</p>${rows}</div>
+  <div class="foot">개인 learn-in-public 스터디 · 조직 내부 사항 없음, 전부 일반화된 방법론<br>(지속 업데이트 — 페이즈 진척 시 이 앱에 반영)</div>`;
+}
+
+let cur=localStorage.getItem("vs_tab")||"overview";
+function paint(){
+  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.tab===cur));
+  const v=$("view");
+  if(cur==="overview") v.innerHTML=renderOverview();
+  else if(cur==="terrain") v.innerHTML=renderTerrain();
+  else if(cur==="phases") v.innerHTML=renderPhases();
+  else v.innerHTML=renderRefs();
+  window.scrollTo(0,0);
+}
+$("nav").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;cur=b.dataset.tab;localStorage.setItem("vs_tab",cur);paint();});
+$("view").addEventListener("click",e=>{
+  const r=e.target.closest(".row[data-cid]"); if(!r)return;
+  const id=r.dataset.cid; chk[id]=!chk[id]; if(!chk[id])delete chk[id]; saveChk();
+  const sy=window.scrollY; paint(); window.scrollTo(0,sy);
+});
+paint();
+</script>
+</body>
+</html>
