@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>놀이터 · 피타고라스 정리 · 중2-2</title>
+<link rel="stylesheet" href="concept.css?v=20260817b">
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중2</a><span class="dot"></span><a href="u10.html">단원 10</a><span class="dot"></span><span>놀이터</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+  <div class="pg-badge"><span class="i">🎨</span>놀이터 — 점수는 안 매겨요, 그냥 놀아 봐요</div>
+  <h1>피타고라스 정리 놀이터</h1>
+  <p class="lede">a² + b² = c² — 제곱은 "두 배"가 아니에요. 칸을 세어보고, 판별하고, 거리를 재봐요.</p>
+
+  <div class="pg-score" id="score"><span class="dot">🏅</span>해결한 사건 <b id="scoreN">0</b> / <span id="scoreT">4</span></div>
+
+  <!-- 게임 1 · 제곱 계산기 오류 잡기 -->
+  <div class="pg-game reveal" id="g-square">
+    <div class="pg-title"><span class="pg-emoji">🔲</span>제곱 계산기 오류 잡기</div>
+    <div class="pg-desc">a²은 "2를 곱하는 것"이 아니에요. 정사각형 칸을 직접 세어보면서 확인해요.</div>
+    <div class="ctrl">
+      <label><span>한 변의 길이 n</span><span id="sq-n-v">7</span></label>
+      <input type="range" id="sq-n" min="3" max="9" step="1" value="7">
+    </div>
+    <div id="sq-grid" style="display:grid;gap:2px;width:180px;margin:12px auto"></div>
+    <div class="row" style="justify-content:center"><span id="sq-n2">7</span> × <span id="sq-n2b">7</span> = <input class="num" id="sq-in" inputmode="numeric" placeholder="?"><button id="sq-check">확인</button></div>
+    <div class="out" id="sq-out"></div>
+  </div>
+
+  <!-- 게임 2 · 세 변 판별사 -->
+  <div class="pg-game reveal" id="g-judge">
+    <div class="pg-title"><span class="pg-emoji">⚖️</span>세 변 판별사</div>
+    <div class="pg-desc">세 변의 길이만 보고, 직각삼각형인지 판정해봐요. 가장 긴 변을 먼저 찾는 게 핵심이에요.</div>
+    <div class="pg-case">
+      <div class="case-no" id="jg-no">문제 1 / 4</div>
+      <div class="case-stmt" id="jg-stmt" style="font-size:16px;font-weight:700;text-align:center"></div>
+    </div>
+    <div class="pg-predict">
+      <button class="pg-pbtn" id="jg-true">직각삼각형이다</button>
+      <button class="pg-pbtn" id="jg-false">아니다</button>
+    </div>
+    <div class="out" id="jg-out"></div>
+    <div class="sim-read muted" style="font-size:13px;margin-top:4px"><b id="jg-done" style="color:var(--u)">0</b> / <span id="jg-total">4</span></div>
+  </div>
+
+  <!-- 게임 3 · 두 점 사이의 거리 사냥꾼 -->
+  <div class="pg-game reveal" id="g-distance">
+    <div class="pg-title"><span class="pg-emoji">📍</span>두 점 사이의 거리 사냥꾼</div>
+    <div class="pg-desc">좌표평면 위 두 점 사이의 거리를, 가로·세로 칸 수로 만든 직각삼각형의 빗변으로 구해요.</div>
+    <p class="reading" id="ds-pts" style="font-size:14.5px"></p>
+    <svg class="plane" id="ds-plane" viewBox="0 0 340 300" role="img" aria-label="좌표평면 위 두 점"></svg>
+    <div class="row" style="justify-content:center"><span>거리 =</span><input class="num" id="ds-in" inputmode="numeric" placeholder="?"><button id="ds-check">확인</button></div>
+    <div class="out" id="ds-out"></div>
+    <div class="sim-read muted" style="font-size:13px;margin-top:4px"><b id="ds-done" style="color:var(--u)">0</b> / <span id="ds-total">3</span></div>
+  </div>
+
+  <!-- 게임 4 · 오류 탐정 -->
+  <div class="pg-game reveal" id="g-detective">
+    <div class="pg-title"><span class="pg-emoji">🔍</span>오류 탐정</div>
+    <div class="pg-desc">누군가 이렇게 풀었어요. 어디가 이상한지 찾아볼까요? (정답은 안 알려줘요 — 스스로 짚어 봐요)</div>
+    <div class="pg-case">
+      <div class="case-no" id="det-no">사건 1 / 6</div>
+      <div class="case-stmt" id="det-stmt"></div>
+    </div>
+    <div style="text-align:center"><button id="det-think">다르게 생각해 볼까요?</button></div>
+    <div class="hint" id="det-counter" style="display:none;margin-top:10px"></div>
+    <div class="ask" id="det-ask" style="display:none;margin-top:10px"></div>
+    <div class="pg-case" id="det-checkbox" style="display:none;margin-top:14px">
+      <div class="case-stmt" id="det-checkq"></div>
+      <div class="row" style="margin-top:10px"><input class="blank" id="det-in" placeholder="답"><button id="det-check">확인</button></div>
+      <div class="out" id="det-out"></div>
+    </div>
+    <div style="text-align:center;margin-top:12px"><button class="ghost" id="det-next" style="display:none">다음 사건 -></button></div>
+  </div>
+
+  <div class="stamp" id="stamp">
+    <div class="seal">🎉</div>
+    <div class="seal-t">놀이터 클리어!</div>
+    <div class="seal-d">제곱과 거리, 이제 흔들리지 않고 계산할 수 있어요.</div>
+  </div>
+  <div class="bridge" style="margin-top:18px"><a class="golink" href="p10.html">연습 문제로 -></a></div>
+
+  <div class="foot">중2 수학 · 놀이터 · 단원 10</div>
+</div>
+
+<div class="pg-confetti" id="confetti"></div>
+
+<script src="concept.js?v=20260817b"></script>
+<script>
+MJ.boot();
+(function(){
+  var solved=0, TOTAL=4;
+  function bump(){
+    var el=document.getElementById('scoreN'); solved++; el.textContent=solved;
+    var badge=document.getElementById('score'); badge.classList.remove('bump'); void badge.offsetWidth; badge.classList.add('bump');
+    if(solved>=TOTAL){ confetti(); document.getElementById('stamp').classList.add('show'); }
+  }
+  function confetti(){
+    var host=document.getElementById('confetti'); host.innerHTML='';
+    var colors=['#3fa89a','#63c6b1','#e59a3c','#f2be6b','#4fa892'];
+    for(var i=0;i<46;i++){
+      var s=document.createElement('i');
+      s.style.left=(Math.random()*100)+'vw';
+      s.style.background=colors[i%colors.length];
+      s.style.animationDelay=(Math.random()*0.4)+'s';
+      s.style.animationDuration=(1.1+Math.random()*0.9)+'s';
+      s.style.transform='rotate('+(Math.random()*360)+'deg)';
+      host.appendChild(s);
+    }
+    host.classList.add('on');
+    setTimeout(function(){host.classList.remove('on');},2200);
+  }
+
+  /* 게임 1: 제곱 계산기 오류 잡기 */
+  (function(){
+    var bumped=false;
+    function renderGrid(n){
+      var host=document.getElementById('sq-grid');
+      host.style.gridTemplateColumns='repeat('+n+',1fr)';
+      host.innerHTML='';
+      for(var i=0;i<n*n;i++){
+        var c=document.createElement('div');
+        c.style.aspectRatio='1';
+        c.style.background='var(--u)';
+        c.style.borderRadius='2px';
+        c.style.opacity='.85';
+        host.appendChild(c);
+      }
+    }
+    function update(){
+      var n=+document.getElementById('sq-n').value;
+      document.getElementById('sq-n-v').textContent=n;
+      document.getElementById('sq-n2').textContent=n;
+      document.getElementById('sq-n2b').textContent=n;
+      document.getElementById('sq-in').value='';
+      document.getElementById('sq-out').innerHTML='';
+      renderGrid(n);
+    }
+    document.getElementById('sq-n').addEventListener('input',update);
+    document.getElementById('sq-check').onclick=function(){
+      var n=+document.getElementById('sq-n').value;
+      var v=parseFloat(document.getElementById('sq-in').value);
+      var ok=(v===n*n);
+      document.getElementById('sq-out').innerHTML=ok
+        ? '<span class="good">정답! 위 칸을 세어보면 정확히 '+(n*n)+'칸이에요.</span>'
+        : '위 그림의 칸을 직접 세어봐요 — '+n+' × '+n+' 칸이에요. ('+(2*n)+'이 아니에요!)';
+      if(ok && !bumped){ bumped=true; bump(); }
+    };
+    update();
+  })();
+
+  /* 게임 2: 세 변 판별사 */
+  (function(){
+    var ROUNDS=[
+      {stmt:'7 cm, 24 cm, 25 cm', ans:true, note:'7² + 24² = 49 + 576 = 625 = 25² — 맞아요.'},
+      {stmt:'6 cm, 7 cm, 9 cm', ans:false, note:'6² + 7² = 85, 9² = 81 — 서로 달라요.'},
+      {stmt:'9 cm, 40 cm, 41 cm', ans:true, note:'9² + 40² = 81 + 1600 = 1681 = 41² — 맞아요.'},
+      {stmt:'4 cm, 4 cm, 4 cm', ans:false, note:'4² + 4² = 32, 4² = 16 — 서로 달라요. (정삼각형이에요)'}
+    ];
+    var pos=0, done=0, bumped=false;
+    document.getElementById('jg-total').textContent=ROUNDS.length;
+    function render(){
+      var r=ROUNDS[pos];
+      document.getElementById('jg-no').textContent='문제 '+(pos+1)+' / '+ROUNDS.length;
+      document.getElementById('jg-stmt').textContent=r.stmt;
+      document.getElementById('jg-true').className='pg-pbtn';
+      document.getElementById('jg-false').className='pg-pbtn';
+      document.getElementById('jg-out').innerHTML='';
+    }
+    function pick(val,btn){
+      var r=ROUNDS[pos];
+      var ok=(val===r.ans);
+      btn.classList.add(ok?'right':'wrong');
+      document.getElementById('jg-out').innerHTML=(ok?'<span class="good">맞았어요!</span> ':'다시 계산해봐요. ')+r.note;
+      if(ok){
+        done++; document.getElementById('jg-done').textContent=done;
+        if(done>=ROUNDS.length){ if(!bumped){bumped=true;bump();} }
+        else { pos++; setTimeout(render,1600); }
+      }
+    }
+    document.getElementById('jg-true').onclick=function(){ pick(true,this); };
+    document.getElementById('jg-false').onclick=function(){ pick(false,this); };
+    render();
+  })();
+
+  /* 게임 3: 두 점 사이의 거리 사냥꾼 */
+  (function(){
+    var ROUNDS=[
+      {p1:{x:2,y:1},p2:{x:5,y:5},dist:5},
+      {p1:{x:6,y:2},p2:{x:2,y:5},dist:5},
+      {p1:{x:-3,y:-4},p2:{x:3,y:4},dist:10}
+    ];
+    var svg=document.getElementById('ds-plane');
+    var P=MJ.makePlane(svg);
+    var pos=0, done=0, bumped=false;
+    document.getElementById('ds-total').textContent=ROUNDS.length;
+    function render(){
+      var r=ROUNDS[pos];
+      document.getElementById('ds-pts').innerHTML='A('+r.p1.x+', '+r.p1.y+')　·　B('+r.p2.x+', '+r.p2.y+')';
+      P.dot('a',r.p1.x,r.p1.y,'var(--line)');
+      P.dot('b',r.p2.x,r.p2.y,'var(--sage)');
+      document.getElementById('ds-in').value='';
+      document.getElementById('ds-out').innerHTML='';
+    }
+    document.getElementById('ds-check').onclick=function(){
+      var r=ROUNDS[pos];
+      var v=parseFloat(document.getElementById('ds-in').value);
+      var ok=(v===r.dist);
+      if(ok){
+        document.getElementById('ds-out').innerHTML='<span class="good">정답! 가로 '+Math.abs(r.p2.x-r.p1.x)+'칸, 세로 '+Math.abs(r.p2.y-r.p1.y)+'칸인 직각삼각형의 빗변이에요.</span>';
+        done++; document.getElementById('ds-done').textContent=done;
+        if(done>=ROUNDS.length){ if(!bumped){bumped=true;bump();} }
+        else { pos++; setTimeout(render,1700); }
+      } else {
+        document.getElementById('ds-out').innerHTML='가로 칸 수와 세로 칸 수를 각각 세고, 피타고라스 정리를 써봐요.';
+      }
+    };
+    render();
+  })();
+
+  /* 게임 4: 오류 탐정 (misconceptions/math2_u10.json 기반, 6개 큐레이션) */
+  (function(){
+    var CASES=[
+      {stmt:'빗변이 25cm, 직각을 낀 한 변이 7cm인 직각삼각형에서 나머지 변을 구하는데, <b>25² + 7² = 674, √674</b> 라고 했어요.',
+       counter:'가장 긴 변이 5인 직각삼각형에서 5를 c 자리가 아닌 a 자리에 넣어 볼까요? 5² + 3² = 34가 되어 가장 긴 변보다 더 긴 변이 하나 더 생겨요.',
+       ask:'직각삼각형에서 가장 긴 변은 어느 변이고, 그 변이 들어갈 자리는 어디일까요?',
+       q:'빗변이 25cm, 직각을 낀 한 변이 7cm인 직각삼각형에서 직각을 낀 나머지 한 변의 길이는?', a:'24 cm'},
+      {stmt:'빗변이 25cm, 직각을 낀 한 변이 24cm인 직각삼각형에서 나머지 변을 구하는데, <b>25² + 24²</b> 를 계산했어요.',
+       counter:'빗변이 5, 직각을 낀 한 변이 3인 직각삼각형에서 5² + 3²을 하면 34가 나와요. 빗변보다 긴 변이 새로 생긴 셈이에요.',
+       ask:'지금 구하려는 변이 가장 긴 변인가요, 아닌가요?',
+       q:'빗변이 25cm, 직각을 낀 한 변이 24cm인 직각삼각형에서 나머지 한 변의 길이는?', a:'7 cm'},
+      {stmt:'직각을 낀 두 변이 9cm, 40cm인 직각삼각형의 빗변을 구하는데, 9²+40²=1681을 계산해놓고 <b>빗변 = 1681cm</b> 라고 답했어요.',
+       counter:'직각을 낀 두 변이 9와 40이면 제곱의 합은 1681이에요. 이 삼각형의 변 하나가 정말 1681만큼 길까요?',
+       ask:'제곱의 합으로 나온 값은 변의 길이인가요, 변의 길이를 제곱한 값인가요?',
+       q:'직각을 낀 두 변이 9cm, 40cm인 직각삼각형의 빗변의 길이는?', a:'41 cm'},
+      {stmt:'√(7² + 24²) 을 계산하는데, <b>7 + 24 = 31</b> 이라고 했어요.',
+       counter:'9와 40을 넣어 보세요. 두 수를 그냥 더하면 49이지만, 제곱의 합에 근호를 씌우면 41이에요.',
+       ask:'근호는 안에 있는 값 전체에 씌워진 것인가요, 각 항에 따로 씌워진 것인가요?',
+       q:'√(7² + 24²) 의 값은?', a:'25'},
+      {stmt:'가로 9cm, 세로 40cm인 직사각형의 대각선을 구하는데, <b>9 + 40 = 49cm</b> 라고 했어요.',
+       counter:'종이 한 장의 가로를 손가락으로 짚고 이어서 세로를 짚어 보세요. 모서리를 돌아가는 그 길과 곧장 가로지르는 대각선 중 어느 쪽이 더 긴가요?',
+       ask:'두 지점을 잇는 가장 짧은 길은 꺾인 길인가요, 곧은 길인가요?',
+       q:'가로 9cm, 세로 40cm인 직사각형의 대각선의 길이는?', a:'41 cm'},
+      {stmt:'벽에서 7m 떨어진 바닥에 사다리를 놓아 벽에 기댔을 때, <b>바닥(7m)이 빗변</b> 이라고 했어요.',
+       counter:'벽에 비스듬히 기대 세운 막대를 떠올려 보세요. 막대와 벽과 바닥 가운데 가장 긴 것은 어느 것일까요?',
+       ask:'직각을 이루는 곳은 어디이고, 그 직각을 마주 보는 변은 어느 것인가요?',
+       q:'벽에서 7m 떨어진 바닥에 25m 사다리를 놓아 벽에 기댔을 때, 빗변에 해당하는 것은?', a:'사다리 (직각을 마주 보는 변)'}
+    ];
+    var order=[0,1,2,3,4,5].sort(function(){return Math.random()-0.5;});
+    var pos=0, bumped=false;
+    function render(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-no').textContent='사건 '+(pos+1)+' / '+order.length;
+      document.getElementById('det-stmt').innerHTML=c.stmt;
+      document.getElementById('det-counter').style.display='none';
+      document.getElementById('det-ask').style.display='none';
+      document.getElementById('det-checkbox').style.display='none';
+      document.getElementById('det-in').value='';
+      document.getElementById('det-out').innerHTML='';
+      document.getElementById('det-think').style.display='inline-block';
+      document.getElementById('det-next').style.display='none';
+    }
+    document.getElementById('det-think').onclick=function(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-counter').innerHTML='<b>다르게 볼까요?</b> '+c.counter;
+      document.getElementById('det-counter').style.display='block';
+      document.getElementById('det-ask').innerHTML='생각해보기: '+c.ask;
+      document.getElementById('det-ask').style.display='block';
+      document.getElementById('det-checkq').innerHTML=c.q;
+      document.getElementById('det-checkbox').style.display='block';
+      document.getElementById('det-think').style.display='none';
+    };
+    document.getElementById('det-check').onclick=function(){
+      var c=CASES[order[pos]];
+      var v=(document.getElementById('det-in').value||'');
+      var norm=function(s){return s.replace(/[^0-9a-zA-Z가-힣<>]/g,'').toLowerCase();};
+      var ok=v.length>0 && norm(c.a).indexOf(norm(v))>=0;
+      document.getElementById('det-out').innerHTML=ok
+        ? '<span class="good">정답이에요 - '+c.a+'</span>'
+        : '정답: <b>'+c.a+'</b> (직접 써보면서 확인해봐요)';
+      document.getElementById('det-next').style.display='inline-block';
+      if(!bumped){ bumped=true; bump(); }
+    };
+    document.getElementById('det-next').onclick=function(){
+      pos++; if(pos>=order.length) pos=0; render();
+    };
+    render();
+  })();
+})();
+</script>
+</body>
+</html>
