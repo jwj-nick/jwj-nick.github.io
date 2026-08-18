@@ -2,11 +2,24 @@
    지속 업데이트: 이 파일만 고치면 앱이 갱신 (페이즈 진척·승격 지식 반영).
    원칙: 조직 내부 세부 사항 없음 — 전부 일반화된 방법론 수준. 특별한 아이디어는 공개 전 별도 판단.
    스타일: 영어 technical term 보존 + 한글 연결어.
-   v0.2 (2026-08-18): P1 정독 가이드 탭 추가 — CTFL v4.0.1 실물 PDF에서 추출한 구조 기반. */
+   v0.2 (2026-08-18): P1 정독 가이드 탭 추가 — CTFL v4.0.1 실물 PDF에서 추출한 구조 기반.
+   v0.3 (2026-08-19): "지금 여기" 상태 카드 + P2 예습 챕터(TDD by Example) + 동료 참조용 공개 톤 정비. */
 window.VS = {
-  updated: "2026-08-18",
+  updated: "2026-08-19",
   title: "Veri-Sys · Verification System",
   subtitle: "SW+HW 검증을 하나의 체계로 — AI-driven 시대의 verification process 스터디",
+
+  /* 매 라운드 갱신: 지금 어디에 있고, 다음 작업이 무엇인지. */
+  status: {
+    round: "R3 · 2026-08-19",
+    headline: "P1 진행 중 — CTFL 정독(self-paced) · P2 예습 챕터(TDD) 공개됨",
+    next: [
+      { who: "Nick", t: "정독 탭에서 CTFL Ch.0 → Ch.1 — 읽고 '정독 완료' 체크, Ch.1 리드 시뮬레이션 질문에 답 만들어 오기" },
+      { who: "Nick", t: "(가벼운 예습) 정독 탭 하단 P2 그룹의 TDD 소개 챕터 — 책 재독 전 감각 복원" },
+      { who: "다음 세션", t: "Ch.1 답 토론 → 워크스페이스 10_Knowledge/L0_istqb/에 용어 사전 v1 첫 승격" },
+      { who: "이후", t: "Ch.2~6 동일 리듬 → Sample Exam A 모의(40문항·60분) → P1 증류 완료 → P2(TDD 실습) 진입" },
+    ],
+  },
 
   overview: {
     what:
@@ -200,6 +213,86 @@ window.VS = {
     ],
   },
 
+  /* ───────────────────────── P2 예습 — TDD by Example 소개 챕터 ─────────────────────────
+     Kent Beck 《Test-Driven Development: By Example》(2002)의 핵심을 한 페이지로.
+     관점: 장난감 예제가 아니라 "수백 개 소스 파일 프로젝트"에서 TDD가 어떻게 동작하는가. */
+  tdd: {
+    id: "p2-tdd",
+    no: "P2 예습",
+    title: "TDD by Example — 소개와 실전 감각",
+    intro:
+      "Kent Beck의 원전은 기법서라기보다 '리듬'을 몸에 넣는 책이다. 규칙은 단 두 줄 — " +
+      "① 실패하는 자동 테스트 없이는 새 코드를 쓰지 않는다 ② 중복을 제거한다. " +
+      "이 두 줄에서 red(실패하는 테스트 먼저) → green(통과할 만큼만 구현) → refactor(테스트를 안전망 삼아 구조 정리)의 " +
+      "분 단위 사이클이 나온다. 아래는 책의 뼈대와, 그것이 큰 코드베이스에서 어떤 모습이 되는가.",
+    secs: [
+      { h: "한 사이클을 codec 예제로 — exp-Golomb ue(v) 디코더", body:
+        "TDD의 최소 단위를 우리 도메인 함수로 보면 이렇다. 주목할 것은 순서다 — 구현이 아니라 테스트가 먼저 태어난다.",
+        code:
+"// [RED] 실패하는 테스트를 먼저 쓴다 — decode_ue는 아직 없다\n" +
+"TEST(UeDecoder, CodeZero) {            // bitstring '1' → 0\n" +
+"  BitReader br({0b10000000});\n" +
+"  EXPECT_EQ(decode_ue(br), 0u);        // 컴파일조차 안 됨 = RED\n" +
+"}\n" +
+"// [GREEN] 통과할 만큼만 — 가짜여도 된다 (Fake It)\n" +
+"uint32_t decode_ue(BitReader& br) { return 0; }\n" +
+"\n" +
+"// [RED] 두 번째 예제가 가짜를 무너뜨린다 (Triangulation)\n" +
+"TEST(UeDecoder, CodeOne) {             // bitstring '010' → 1\n" +
+"  BitReader br({0b01000000});\n" +
+"  EXPECT_EQ(decode_ue(br), 1u);\n" +
+"}\n" +
+"// [GREEN] 이제 일반 구현 (Obvious Implementation)\n" +
+"uint32_t decode_ue(BitReader& br) {\n" +
+"  int zeros = 0;\n" +
+"  while (br.read_bit() == 0) zeros++;\n" +
+"  return (1u << zeros) - 1 + br.read_bits(zeros);\n" +
+"}\n" +
+"// [REFACTOR] 이름·중복 정리 — 테스트가 안전망\n" +
+"// 다음 테스트 목록(test list): 경계 32-zero(BVA!) · 비트 고갈 에러 ·\n" +
+"//                             conformance 벡터 대조" },
+      { h: "Beck의 진행 전략 3종", body:
+        "green으로 가는 길은 셋이다. Fake It(상수를 반환하고 다음 테스트가 일반화를 강제하게), " +
+        "Triangulation(예제 2개 이상으로 일반화 방향을 좁히기), Obvious Implementation(뻔하면 바로 구현). " +
+        "불안하면 작게(fake→triangulate), 자신 있으면 크게(obvious) — 보폭을 상황에 맞게 조절하는 것이 숙련이다. " +
+        "여기에 test list(떠오른 테스트를 목록에 적고 하나씩)와 assert first(단언문부터 거꾸로 쓰기)를 더하면 책의 패턴 대부분이다.",
+        code: null },
+      { h: "책의 구성 (재독 지도)", body:
+        "Part 1 Money 예제(Java): 다중 통화 산술 $5 + 10CHF를 30여 개의 미세 사이클로 — 리듬 체득용. " +
+        "Part 2 xUnit(Python): 테스트 프레임워크 자체를 TDD로 만든다 — 자기가 자기를 검증하는 부트스트랩. " +
+        "Part 3 패턴 카탈로그: 위 전략들 + 픽스처·격리·리팩토링 패턴 사전. " +
+        "재독이라면 Part 1을 실제로 타이핑하며 따라가는 것이 핵심이고(눈으로 읽으면 리듬이 안 남는다), Part 3은 사전처럼 필요할 때.",
+        code: null },
+      { h: "수백 개 소스 파일 프로젝트에서는 어떤 모습인가", body:
+        "TDD는 분 단위 리듬이라 파일 수와 무관하다 — 스케일은 리듬이 아니라 구조가 담당한다. " +
+        "구조 관례: src/module.cpp ↔ test/module_test.cpp 1:1 대응, 수백 모듈이면 수천 개의 작은 테스트가 초 단위로 돈다(test pyramid의 아래층). " +
+        "의존성 규율: 느린 것(파일 I/O·전체 파이프라인·외부 툴 호출)은 test double(fake/stub)로 끊어 단위 테스트를 ms로 유지한다. " +
+        "계층 운용: 커밋마다 unit 층(수 분) → nightly 통합·conformance 회귀(기존 스트림 회귀는 이 위층에 그대로 산다). " +
+        "c-model에 대입하면: transform·quant·CABAC bin·deblock 같은 bit-exact 함수는 표준 문서의 수식이 test basis라 TDD 최적 지형이다. " +
+        "'스트림 돌려 diff'만 하던 검증을 함수 레벨로 내리면 디버깅 반경이 파일 단위에서 함수 단위로 줄어든다.",
+        code: null },
+      { h: "레거시 코드에는 TDD를 바로 못 쓴다 — characterization test", body:
+        "테스트 없는 기존 코드베이스(우리의 현실)에는 순서가 하나 앞에 붙는다. " +
+        "① characterization test: 현재 동작을 그대로 스냅샷으로 고정하는 테스트를 먼저 만든다 — '옳은가'가 아니라 '지금 이렇다'를 못박는 것. " +
+        "② seam 확보: 의존성을 끊을 수 있는 지점을 만들어 함수를 격리 가능하게. " +
+        "③ 그 다음에야 수정 부위만 TDD. (이 주제의 원전 = Michael Feathers 《Working Effectively with Legacy Code》.) " +
+        "AI-driven과의 접점: characterization test 생성은 AI에게 시키기 좋은 전형적 작업이고, 그 테스트가 AI 수정 작업의 안전망이 된다.",
+        code: null },
+      { h: "TDD가 못 하는 것 (두 질문 프레임으로)", body:
+        "TDD는 Q-A(oracle)에 강하다 — 정답을 예제 형태로 코드보다 먼저 고정한다. " +
+        "그러나 Q-B(coverage)는 거의 못 다룬다 — 내가 생각해낸 예제 밖의 입력, 그리고 요구사항 자체의 오류는 못 잡는다. " +
+        "그래서 property-based·fuzzing·coverage 측정이 보완재이고(P2 후반 실습), conformance/CRV 같은 위층 검증은 TDD가 대체하는 게 아니라 그 위에 얹힌다.",
+        code: null },
+    ],
+    nick: "책은 예전에 본 적이 있다 — 이번 재독의 목적은 '기법 지식'이 아니라 '리듬 복원'이다. 스트림 diff 디버깅 20년의 감각으로 읽으면, TDD는 새 이론이 아니라 디버깅 반경을 함수 단위로 줄이는 도구이고, self-checking TB를 RTL보다 먼저 쓰는 관행의 SW판이다.",
+    lead: "우리 c-model 코드베이스에 TDD를 '신규 코드부터' 도입한다면 rule 첫 한 줄은 무엇이어야 하고, 레거시 부분에는 어떤 별도 규칙(characterization 우선 등)이 필요한가?",
+    apply: [
+      "신규 코드 rule: 테스트 없는 신규 함수 체크인 금지 — 단, 레거시 수정은 characterization test 우선이라는 별도 트랙으로.",
+      "AI 작업 지시의 기본형을 TDD 리듬으로: 지시 = 테스트 목록(acceptance) → AI가 red→green 순서로 구현 → 테스트가 곧 완료 판정 기준.",
+      "c-model 수정 워크플로우: 수정 전 해당 함수 characterization test 생성(AI 활용) → 수정 → 단위 테스트 + conformance 회귀 통과를 exit criteria로.",
+    ],
+  },
+
   layers: [
     { id: "L0", name: "표준 · 어휘", q: "무슨 말로 말하고, 무엇이 이미 표준화되어 있는가",
       items: ["ISTQB CTFL v4.0.1 — 공용 어휘의 준 spec (7원칙, test level/type, entry/exit criteria)",
@@ -257,8 +350,9 @@ window.VS = {
         { id: "p1-exam", t: "Sample Exam Set A 모의 (40문항·60분)" },
         { id: "p1-dist", t: "용어 사전 v1 승격 + ISTQB↔ISO 29119 관계 정리" },
       ] },
-    { id: "P2", title: "TDD 원류", status: "wait", goal: "《TDD by Example》 실습 — red-green-refactor를 손으로",
+    { id: "P2", title: "TDD 원류", status: "wait", goal: "《TDD by Example》 실습 — red-green-refactor를 손으로. 소개 챕터가 정독 탭에 공개됨(예습 가능)",
       items: [
+        { id: "p2-tdd", t: "TDD 소개 챕터(정독 탭 P2 그룹) — 재독 전 감각 복원" },
         { id: "p2a", t: "oracle 유형 카탈로그 · TDD family 문서 정독" },
         { id: "p2b", t: "TDD by Example Part 1 실습 (Python으로 따라 하기)" },
         { id: "p2c", t: "test double · test pyramid 정리" },
@@ -298,7 +392,8 @@ window.VS = {
     { title: "ISTQB CTAL-TM Syllabus v3.0", note: "Advanced Test Management — 프로세스 리드 직결. P3 참고 spec", url: "https://istqb.org/sdm_downloads/istqb_ctal-tm_syllabus_v3-0/", tag: "syllabus", local: "refs/istqb/" },
     { title: "Software Engineering at Google", note: "무료 웹 공개 — Ch.11~14 테스팅 파트가 P3 교재", url: "https://abseil.io/resources/swe-book", tag: "book-free", local: "refs/google_sw/ (ch11~14 html)" },
     { title: "TMMi Framework R1.2", note: "검증 프로세스 성숙도 모델 226p — '체계화 기준'의 기성 답안, P3 참고", url: "https://www.tmmi.org/tmmi-documents/", tag: "standard", local: "refs/tmmi/" },
-    { title: "Kent Beck — TDD by Example", note: "TDD 원전, P2 교재 — 도서 확보 필요 (P2 진입 전)", url: "https://www.oreilly.com/library/view/test-driven-development/0321146530/", tag: "book" },
+    { title: "Kent Beck — TDD by Example", note: "TDD 원전, P2 교재 — 소개 챕터가 정독 탭에 있음. 재독용 도서 확보는 P2 진입 전", url: "https://www.oreilly.com/library/view/test-driven-development/0321146530/", tag: "book" },
+    { title: "Feathers — Working Effectively with Legacy Code", note: "레거시 코드 × TDD의 원전 (characterization test·seam) — P2 참고 도서", url: "https://www.oreilly.com/library/view/working-effectively-with/0131177052/", tag: "book" },
     { title: "ISO/IEC/IEEE 29119-1:2022", note: "국제 표준 본체 (유료) — CTFL이 요약을 제공하므로 원문 구매는 보류", url: "https://www.iso.org/standard/81291.html", tag: "standard" },
     { title: "Siemens Verification Academy", note: "무료 코스 — verification planning / coverage (HW 쪽 보완, 로그인 필요)", url: "https://verificationacademy.com/", tag: "course" },
     { title: "Hypothesis (Python)", note: "property-based testing 체험 도구 — P2 실습 후보", url: "https://hypothesis.readthedocs.io/", tag: "tool" },

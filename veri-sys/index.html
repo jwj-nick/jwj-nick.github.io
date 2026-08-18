@@ -117,6 +117,22 @@
   .cap-note{background:rgba(129,140,248,.12);border-left:3px solid #818cf8;border-radius:0 8px 8px 0;
     padding:9px 11px;font-size:12.5px;line-height:1.6}
   code{background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+  /* 상태 카드 · 코드 블록 · 그룹 라벨 */
+  .pills{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0 4px}
+  .pills span{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;background:var(--bg);
+    border:1px solid var(--line);color:var(--mut)}
+  .pills span.s-done{border-color:var(--ok);color:var(--ok)}
+  .pills span.s-active{background:rgba(34,211,238,.14);border-color:var(--acc2);color:var(--acc2)}
+  .nx{display:flex;gap:8px;padding:7px 0;border-top:1px solid var(--line);font-size:12.5px;line-height:1.55}
+  .nx:first-of-type{border-top:none}
+  .nx .who{flex:none;font-size:10px;font-weight:800;padding:2px 7px;border-radius:20px;height:fit-content;
+    margin-top:2px;background:rgba(34,211,238,.14);color:var(--acc2);white-space:nowrap}
+  .nx .who.w-nick{background:rgba(52,211,153,.16);color:var(--ok)}
+  pre.codeblk{background:#0b1120;border:1px solid var(--line);border-radius:10px;padding:11px 12px;
+    margin:7px 0;overflow-x:auto;font-size:11px;line-height:1.55;color:#c9d6e8;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .grp{font-size:12px;font-weight:800;color:var(--mut);letter-spacing:.4px;margin:18px 2px 8px;
+    text-transform:uppercase}
   ul.ap{list-style:none;margin:4px 0}
   ul.ap li{font-size:12.5px;padding:5px 0 5px 18px;position:relative;line-height:1.55}
   ul.ap li::before{content:"⚙";position:absolute;left:0;color:var(--warn);font-size:11px}
@@ -134,7 +150,7 @@
 <main class="wrap" id="view"></main>
 <nav id="nav">
   <button data-tab="overview" class="on"><span class="ic">🎯</span>개요</button>
-  <button data-tab="p1"><span class="ic">📖</span>P1 정독</button>
+  <button data-tab="p1"><span class="ic">📖</span>정독</button>
   <button data-tab="terrain"><span class="ic">🗺️</span>지형</button>
   <button data-tab="phases"><span class="ic">📈</span>페이즈</button>
   <button data-tab="refs"><span class="ic">📚</span>자료</button>
@@ -161,6 +177,16 @@ const stB = (s)=>{const x=ST[s]||ST.wait; return `<span class="badge ${x[0]}">${
 const allItems = ()=>D.phases.flatMap(p=>p.items);
 const totProg = ()=>{const a=allItems(); const d=a.filter(i=>chk[i.id]).length; return {d,t:a.length,pct:a.length?Math.round(d/a.length*100):0};};
 
+function statusCard(){
+  const st=D.status; if(!st) return "";
+  const pills=D.phases.map(p=>`<span class="${p.status==='done'?'s-done':p.status==='active'||p.status==='next'?'s-active':''}">${p.id}${p.status==='done'?' ✓':p.status==='active'||p.status==='next'?' ▶':''}</span>`).join("");
+  const nx=st.next.map(n=>`<div class="nx"><span class="who ${n.who==='Nick'?'w-nick':''}">${esc(n.who)}</span><span>${esc(n.t)}</span></div>`).join("");
+  return `<div class="card" style="border-color:var(--acc2)"><h2>📍 지금 여기 <span class="badge b-tag">${esc(st.round)}</span></h2>
+    <div class="pills">${pills}</div>
+    <p class="small">${esc(st.headline)}</p>
+    <h3>다음 작업</h3>${nx}</div>`;
+}
+
 function renderOverview(){
   const o=D.overview, tp=totProg();
   const objs=o.objects.map(x=>`<div class="o"><b>${esc(x.k)}</b><span>${esc(x.v)}</span></div>`).join("");
@@ -168,6 +194,7 @@ function renderOverview(){
     <div class="m sw"><i>SW</i><span>${esc(m.sw)}</span></div>
     <div class="m ai"><i>AI</i><span>${esc(m.ai)}</span></div></div>`).join("");
   return `
+  ${statusCard()}
   <div class="card"><h2>이게 뭔가</h2><p>${esc(o.what)}</p>
     <div class="prog"><i style="width:${tp.pct}%"></i></div>
     <div class="ptxt">전체 진도 ${tp.d}/${tp.t} 항목 · ${tp.pct}%</div></div>
@@ -208,7 +235,23 @@ function renderP1(){
   }).join("");
   const extra=g.extra.map(x=>`<button class="row ${chk[x.id]?'read':''}" data-cid="${x.id}">
     <span class="dot ${chk[x.id]?'on':''}"></span><span class="rt">${esc(x.t)}</span></button>`).join("");
+  const t=D.tdd, tOn=!!chk[t.id];
+  const tSecs=t.secs.map(s=>`<h3>${esc(s.h)}</h3><p style="font-size:12.5px;line-height:1.65">${esc(s.body)}</p>`+
+    (s.code?`<pre class="codeblk">${esc(s.code)}</pre>`:"")).join("");
+  const tddCard=`<div class="card chp ${exp.has(t.id)?'open':''}" data-ch="${t.id}">
+    <button class="chd"><span class="dot ${tOn?'on':''}"></span>
+      <span style="flex:1">${esc(t.title)} <span class="badge b-tag">예습</span></span><span class="arrow">▼</span></button>
+    <div class="chb">
+      <p style="font-size:12.5px;line-height:1.65;margin-top:12px">${esc(t.intro)}</p>
+      ${tSecs}
+      <h3>Nick 렌즈 — 이름 붙이기</h3><div class="cap-note">${esc(t.nick)}</div>
+      <div class="lead-q"><b>리드 시뮬레이션</b> · ${esc(t.lead)}</div>
+      <h3>회사로 가져갈 아이디어 (일반화)</h3><ul class="ap">${t.apply.map(a=>`<li>${esc(a)}</li>`).join("")}</ul>
+      <button class="done ${tOn?'on':''}" data-done="${t.id}">${tOn?'✓ 정독 완료':'정독 완료로 표시'}</button>
+    </div></div>`;
   return `
+  ${statusCard()}
+  <div class="grp">P1 · ISTQB CTFL — 공용 어휘의 준 spec</div>
   <div class="card"><h2>${esc(g.doc.name)}</h2>
     <p class="small mut">${esc(g.doc.meta)} · 로컬: <code style="font-size:10.5px">${esc(g.doc.local)}</code></p>
     <p class="small">${esc(g.doc.exam)}</p>
@@ -219,7 +262,9 @@ function renderP1(){
   <div class="card"><h2>테스팅 7원칙 × codec 경험</h2>
     <p class="small mut">Ch.1의 심장. 오른쪽 줄 = 20년 실무에서 이미 겪은 그 현상.</p>${prin}</div>
   ${chs}
-  <div class="card"><h2>마무리 유닛</h2>${extra}</div>`;
+  <div class="card"><h2>마무리 유닛</h2>${extra}</div>
+  <div class="grp">P2 · TDD — 설계 리듬 (예습 챕터)</div>
+  ${tddCard}`;
 }
 
 function renderTerrain(){
@@ -263,7 +308,7 @@ function renderRefs(){
   const got=D.sources.filter(s=>s.local).length;
   return `<div class="card"><h2>공식 소스</h2>
     <p class="small mut">전부 공개 자료 — syllabus는 응시와 무관하게 "준 spec"으로 정독한다. ${got}/${D.sources.length}종 원문 로컬 확보(워크스페이스 refs/).</p>${rows}</div>
-  <div class="foot">개인 learn-in-public 스터디 · 조직 내부 사항 없음, 전부 일반화된 방법론<br>(지속 업데이트 — 페이즈 진척 시 이 앱에 반영)</div>`;
+  <div class="foot">learn-in-public 스터디 — 동료·지인 참조 공유 환영 · 조직 내부 사항 없음, 전부 일반화된 방법론<br>(지속 업데이트 — 페이즈 진척 시 이 앱에 반영)</div>`;
 }
 
 let cur=localStorage.getItem("vs_tab")||"overview";
