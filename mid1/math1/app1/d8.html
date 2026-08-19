@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>단원 8 · 심화 탐구 · 삼등분은 왜 안 될까 · 중1-2</title>
+<link rel="stylesheet" href="concept.css?v=20260820a">
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중1</a><span class="dot"></span><a href="u8.html">단원 8</a><span class="dot"></span><span>심화 탐구</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+  <h1>각의 이등분은 되는데, 삼등분은 왜 안 될까요</h1>
+  <p class="lede">자와 컴퍼스로는 어떤 각이든 계속 반으로 나눌 수 있어요. 그런데 셋으로 나누는 건 왜 안 될까요?</p>
+  <p class="intro">이 페이지엔 채점 문제가 없어요. 슬라이더를 움직이면 이등분 결과가 함께 바뀌어요.</p>
+
+  <section class="reveal">
+    <div class="eyebrow"><span class="n">1</span>큰 그림</div>
+    <h2>이등분을 반복하면 만들 수 있는 각도만 있어요</h2>
+    <p>각을 <b class="hl">이등분</b>하면 처음 각의 <span class="eq">½</span>이 돼요. 그걸 또 이등분하면 <span class="eq">¼</span>, 또 하면 <span class="eq">⅛</span> ... 이렇게 <b class="gold">2로 계속 나눈 분수</b>만 만들 수 있어요.</p>
+  </section>
+
+  <section class="reveal">
+    <div class="sim-tag">이등분 반복 실험실 · 몇 번 반으로 나눠 볼까요?</div>
+    <div class="sim">
+      <svg class="geo" id="gsim" viewBox="0 0 260 200" role="img" aria-label="이등분 반복" style="max-width:260px"></svg>
+      <div class="sim-read" id="read"></div>
+      <div class="controls">
+        <div class="ctrl"><label><span>이등분 횟수</span><span id="nv">0</span>번</label><input type="range" id="rn" min="0" max="5" step="1" value="0"></div>
+      </div>
+    </div>
+    <p class="muted" style="margin-top:6px">시작 각 90°를 <b class="hl">n번 이등분</b>하면 <span class="eq">90° ÷ 2ⁿ</span>이 돼요. 몇 번을 반복해도 결과는 언제나 "2로 나눈 분수"예요.</p>
+  </section>
+
+  <section class="reveal">
+    <div class="eyebrow"><span class="n">2</span>한 걸음 더</div>
+    <h2>60°를 셋으로 나눈 20°는 이 방법으로 안 나와요</h2>
+    <p>60°를 이등분·또 이등분해서 나올 수 있는 각은 30°, 15°, 7.5° ... 뿐이에요. <b class="gold">20°(60°의 삼등분)는 2로 아무리 나눠도 나오지 않아요</b> — "2의 거듭제곱분의 1" 꼴이 아니거든요.</p>
+    <div class="card">
+      <p style="margin:0">"자와 컴퍼스로는 안 돼요"는 <b class="hl">어떤 방법으로도 안 된다는 뜻이 아니에요</b>. 실제로 각의 삼등분은 종이접기 같은 다른 방법으로는 가능해요. 다만 <b class="gold">이 단원에서 배운 두 도구(자·컴퍼스)만으로는</b> 정확한 삼등분을 만들 수 없다는 것이, 2000년 넘게 수학자들이 증명해 온 사실이에요.</p>
+    </div>
+  </section>
+
+  <div class="foot">중1 · 단원 8 · 심화 탐구 · 위 탭에서 개념·놀이터·연습으로 이동</div>
+</div>
+
+<script src="concept.js?v=20260820a"></script>
+<script>
+MJ1.boot();
+(function(){
+  function P(x,y){return {x:x,y:y};}
+  var G=MJ1.makeGeo(document.getElementById('gsim'));
+  var rn=document.getElementById('rn'), read=document.getElementById('read');
+  var O=P(30,180);
+  function draw(){
+    var n=+rn.value;
+    document.getElementById('nv').textContent=n;
+    var deg=90/Math.pow(2,n);
+    var rad=deg*Math.PI/180;
+    var X=P(O.x+220,O.y);
+    var Y=P(O.x+220*Math.cos(rad),O.y-220*Math.sin(rad));
+    G.clear();
+    G.seg(O,X,{stroke:'var(--u)',sw:2});
+    G.seg(O,Y,{stroke:'var(--accent)',sw:2});
+    G.angle(O,X,Y,{r:28,stroke:'var(--line)'});
+    G.dot(O,{r:4});
+    var frac = n===0?'1':('1/'+Math.pow(2,n));
+    read.innerHTML='90° 를 '+n+'번 이등분 → 90° × '+frac+' = <b class="gold">'+(Math.round(deg*100)/100)+'°</b>';
+  }
+  rn.oninput=draw; draw();
+})();
+</script>
+</body>
+</html>
