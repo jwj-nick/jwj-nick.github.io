@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>단원 7 · 심화 탐구 · 꺾인 각 · 중1-2</title>
+<link rel="stylesheet" href="concept.css?v=20260819a">
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중1</a><span class="dot"></span><a href="u7.html">단원 7</a><span class="dot"></span><span>심화 탐구</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+  <h1>꺾인 선 사이의 각 — 보조선 하나면 풀려요</h1>
+  <p class="lede">평행선 사이에서 길이 꺾이면, 그 꺾인 각은 어떻게 구할까요? 눈에 없는 선을 하나 그어 볼까요.</p>
+  <p class="intro">이 페이지엔 채점 문제가 없어요. 슬라이더를 움직이면 꺾인 각이 함께 바뀌어요.</p>
+
+  <section class="reveal">
+    <div class="eyebrow"><span class="n">1</span>큰 그림</div>
+    <h2>보이지 않는 선도 그어도 괜찮아요</h2>
+    <p>두 평행선 <span class="eq">l ∥ m</span> 사이에 꺾인 점 P가 있어요. 그림에는 없지만, <b class="hl">P를 지나 l, m과 평행한 보조선</b>을 하나 그으면 꺾인 각이 두 조각으로 갈라져요. 각 조각은 엇각으로 위·아래 각과 짝을 이뤄요.</p>
+  </section>
+
+  <section class="reveal">
+    <div class="sim-tag">꺾인 각 실험실 · 위·아래 각을 각각 움직여 볼까요?</div>
+    <div class="sim">
+      <svg class="geo" id="gsim" viewBox="0 0 300 260" role="img" aria-label="꺾인 각과 보조선" style="max-width:320px"></svg>
+      <div class="sim-read" id="read"></div>
+      <div class="controls">
+        <div class="ctrl"><label><span>위쪽 각</span><span id="v1">40</span>°</label><input type="range" id="r1" min="30" max="75" step="5" value="40"></div>
+        <div class="ctrl"><label><span>아래쪽 각</span><span id="v2">30</span>°</label><input type="range" id="r2" min="30" max="75" step="5" value="30"></div>
+      </div>
+    </div>
+    <p class="muted" style="margin-top:6px">점선이 <b class="hl">보조선</b>이에요. 보조선과 l이 이루는 각(엇각)은 위쪽 각과 같고, 보조선과 m이 이루는 각(엇각)은 아래쪽 각과 같아요. 그래서 <b class="gold">꺾인 각 = 위쪽 각 + 아래쪽 각</b>이에요.</p>
+  </section>
+
+  <section class="reveal">
+    <div class="eyebrow"><span class="n">2</span>한 걸음 더</div>
+    <h2>여러 번 꺾여도 똑같이 풀려요</h2>
+    <p>길이 두 번, 세 번 꺾여도 원리는 같아요. <b class="hl">꺾인 점마다 보조선을 하나씩</b> 그으면, 복잡해 보이는 그림도 엇각들의 합으로 차근차근 풀 수 있어요.</p>
+    <div class="card">
+      <p style="margin:0">보조선은 원래 그림에 없던 선이라 "그어도 되나?" 싶을 수 있어요. <b class="gold">문제 풀이에서 보조선은 얼마든지 그어도 괜찮아요</b> — 답을 바꾸지 않고, 관계만 보여줄 뿐이에요.</p>
+    </div>
+  </section>
+
+  <div class="foot">중1 · 단원 7 · 심화 탐구 · 위 탭에서 개념·놀이터·연습으로 이동</div>
+</div>
+
+<script src="concept.js?v=20260819a"></script>
+<script>
+MJ1.boot();
+(function(){
+  function Pp(x,y){return {x:x,y:y};}
+  var G=MJ1.makeGeo(document.getElementById('gsim'));
+  var r1=document.getElementById('r1'), r2=document.getElementById('r2'), read=document.getElementById('read');
+  var P=Pp(120,130), ly=70, my=190;
+  function draw(){
+    var t1=+r1.value, t2=+r2.value;
+    document.getElementById('v1').textContent=t1;
+    document.getElementById('v2').textContent=t2;
+    var dx1=60/Math.tan(t1*Math.PI/180), dx2=60/Math.tan(t2*Math.PI/180);
+    var Pl=Pp(P.x+dx1,ly), Pm=Pp(P.x+dx2,my);
+    G.clear();
+    G.seg(Pp(20,ly),Pp(280,ly),{stroke:'var(--u)',sw:2});
+    G.seg(Pp(20,my),Pp(280,my),{stroke:'var(--u)',sw:2});
+    G.label(Pp(10,ly+4),'l',{size:13,fill:'var(--u)'});
+    G.label(Pp(10,my+4),'m',{size:13,fill:'var(--u)'});
+    G.seg(Pp(P.x-80,P.y),Pp(P.x+140,P.y),{stroke:'var(--muted)',sw:1.3,dash:'3 3'});
+    G.seg(P,Pl,{stroke:'var(--accent)',sw:2.5});
+    G.seg(P,Pm,{stroke:'var(--accent)',sw:2.5});
+    G.angle(P,Pl,Pm,{r:32,stroke:'var(--line)'});
+    G.dot(P,{r:4});
+    G.dot(Pl,{r:3}); G.dot(Pm,{r:3});
+    G.label(P,'P',{dx:-14,dy:2});
+    read.innerHTML='꺾인 각 = <b class="gold">'+t1+'°</b> + <b class="gold">'+t2+'°</b> = <b class="hl">'+(t1+t2)+'°</b>';
+  }
+  r1.oninput=draw; r2.oninput=draw; draw();
+})();
+</script>
+</body>
+</html>

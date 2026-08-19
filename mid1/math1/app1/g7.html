@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>놀이터 · 기본도형 · 중1-2</title>
+<link rel="stylesheet" href="concept.css?v=20260819a">
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중1</a><span class="dot"></span><a href="u7.html">단원 7</a><span class="dot"></span><span>놀이터</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+  <div class="pg-badge"><span class="i">🎨</span>놀이터 — 점수는 안 매겨요, 그냥 놀아 봐요</div>
+  <h1>기본도형 놀이터</h1>
+  <p class="lede">점·선·면부터 꼬인 위치까지 — 눈으로 보고 직접 짚어가며 확인해요.</p>
+
+  <div class="pg-score" id="score"><span class="dot">🏅</span>해결한 사건 <b id="scoreN">0</b> / <span id="scoreT">4</span></div>
+
+  <!-- 게임 1 · 위치관계 판별사 -->
+  <div class="pg-game reveal" id="g-position">
+    <div class="pg-title"><span class="pg-emoji">📦</span>위치관계 판별사</div>
+    <div class="pg-desc">직육면체에서 분홍·초록으로 표시된 두 모서리, 서로 어떤 관계일까요?</div>
+    <svg class="geo" id="pos-svg" viewBox="0 0 260 210" role="img" aria-label="직육면체와 두 모서리" style="max-width:260px"></svg>
+    <div class="pg-case">
+      <div class="case-no" id="pos-no">문제 1 / 4</div>
+    </div>
+    <div class="pill-row" id="pos-choices">
+      <button class="pill" data-v="parallel">평행</button>
+      <button class="pill" data-v="meet">한 점에서 만남</button>
+      <button class="pill" data-v="skew">꼬인 위치</button>
+    </div>
+    <div class="out" id="pos-out"></div>
+    <div class="sim-read muted" style="font-size:13px;margin-top:4px"><b id="pos-done" style="color:var(--u)">0</b> / <span id="pos-total">4</span></div>
+  </div>
+
+  <!-- 게임 2 · 각 짝꿍 찾기 -->
+  <div class="pg-game reveal" id="g-angle-pair">
+    <div class="pg-title"><span class="pg-emoji">🔗</span>각 짝꿍 찾기</div>
+    <div class="pg-desc">두 평행선을 가로지르는 선이 만든 8개의 각. 동위각·엇각 짝을 찾아봐요.</div>
+    <svg class="geo" id="ap-svg" viewBox="0 0 300 260" role="img" aria-label="평행선과 가로지르는 선" style="max-width:280px"></svg>
+    <div class="pg-case">
+      <div class="case-no" id="ap-no">문제 1 / 4</div>
+      <div class="case-stmt" id="ap-q" style="font-size:16px;font-weight:700;text-align:center"></div>
+    </div>
+    <div class="pill-row" id="ap-choices"></div>
+    <div class="out" id="ap-out"></div>
+    <div class="sim-read muted" style="font-size:13px;margin-top:4px"><b id="ap-done" style="color:var(--u)">0</b> / <span id="ap-total">4</span></div>
+  </div>
+
+  <!-- 게임 3 · 맞꼭지각 vs 이웃각 감별사 -->
+  <div class="pg-game reveal" id="g-vertical">
+    <div class="pg-title"><span class="pg-emoji">✂️</span>맞꼭지각 vs 이웃각 감별사</div>
+    <div class="pg-desc">두 직선이 만나면 각이 4개 생겨요. 마주보는 사이일까요, 붙어있는 사이일까요?</div>
+    <svg class="geo" id="vt-svg" viewBox="0 0 300 240" role="img" aria-label="두 직선이 만든 네 각" style="max-width:260px"></svg>
+    <div class="pg-case">
+      <div class="case-no" id="vt-no">문제 1 / 4</div>
+      <div class="case-stmt" id="vt-q" style="font-size:16px;font-weight:700;text-align:center"></div>
+    </div>
+    <div class="pg-predict">
+      <button class="pg-pbtn" id="vt-v">맞꼭지각</button>
+      <button class="pg-pbtn" id="vt-a">이웃한 각</button>
+    </div>
+    <div class="out" id="vt-out"></div>
+    <div class="sim-read muted" style="font-size:13px;margin-top:4px"><b id="vt-done" style="color:var(--u)">0</b> / <span id="vt-total">4</span></div>
+  </div>
+
+  <!-- 게임 4 · 오류 탐정 -->
+  <div class="pg-game reveal" id="g-detective">
+    <div class="pg-title"><span class="pg-emoji">🔍</span>오류 탐정</div>
+    <div class="pg-desc">누군가 이렇게 풀었어요. 어디가 이상한지 찾아볼까요? (정답은 안 알려줘요 — 스스로 짚어 봐요)</div>
+    <div class="pg-case">
+      <div class="case-no" id="det-no">사건 1 / 6</div>
+      <div class="case-stmt" id="det-stmt"></div>
+    </div>
+    <div style="text-align:center"><button id="det-think">다르게 생각해 볼까요?</button></div>
+    <div class="hint" id="det-counter" style="display:none;margin-top:10px"></div>
+    <div class="ask" id="det-ask" style="display:none;margin-top:10px"></div>
+    <div class="pg-case" id="det-checkbox" style="display:none;margin-top:14px">
+      <div class="case-stmt" id="det-checkq"></div>
+      <div class="row" style="margin-top:10px"><input class="blank" id="det-in" placeholder="답"><button id="det-check">확인</button></div>
+      <div class="out" id="det-out"></div>
+    </div>
+    <div style="text-align:center;margin-top:12px"><button class="ghost" id="det-next" style="display:none">다음 사건 -></button></div>
+  </div>
+
+  <div class="stamp" id="stamp">
+    <div class="seal">🎉</div>
+    <div class="seal-t">놀이터 클리어!</div>
+    <div class="seal-d">점·선·면부터 꼬인 위치까지, 이제 헷갈리지 않아요.</div>
+  </div>
+  <div class="bridge" style="margin-top:18px"><a class="golink" href="p7.html">연습 문제로 -></a></div>
+
+  <div class="foot">중1 수학 · 놀이터 · 단원 07</div>
+</div>
+
+<div class="pg-confetti" id="confetti"></div>
+
+<script src="concept.js?v=20260819a"></script>
+<script>
+MJ1.boot();
+(function(){
+  var solved=0, TOTAL=4;
+  function bump(){
+    var el=document.getElementById('scoreN'); solved++; el.textContent=solved;
+    var badge=document.getElementById('score'); badge.classList.remove('bump'); void badge.offsetWidth; badge.classList.add('bump');
+    if(solved>=TOTAL){ confetti(); document.getElementById('stamp').classList.add('show'); }
+  }
+  function confetti(){
+    var host=document.getElementById('confetti'); host.innerHTML='';
+    var colors=['#3fa89a','#63c6b1','#e59a3c','#f2be6b','#4fa892'];
+    for(var i=0;i<46;i++){
+      var s=document.createElement('i');
+      s.style.left=(Math.random()*100)+'vw';
+      s.style.background=colors[i%colors.length];
+      s.style.animationDelay=(Math.random()*0.4)+'s';
+      s.style.animationDuration=(1.1+Math.random()*0.9)+'s';
+      s.style.transform='rotate('+(Math.random()*360)+'deg)';
+      host.appendChild(s);
+    }
+    host.classList.add('on');
+    setTimeout(function(){host.classList.remove('on');},2200);
+  }
+
+  /* 게임 1: 위치관계 판별사 (직육면체 모서리) */
+  (function(){
+    var svg=document.getElementById('pos-svg');
+    var G=MJ1.makeGeo(svg);
+    var P={
+      A:{x:60,y:180}, B:{x:200,y:180}, C:{x:200,y:90}, D:{x:60,y:90},
+      E:{x:90,y:140}, F:{x:230,y:140}, G:{x:230,y:50}, H:{x:90,y:50}
+    };
+    var EDGES=[['A','B'],['B','C'],['C','D'],['D','A'],['E','F'],['F','G'],['G','H'],['H','E'],['A','E'],['B','F'],['C','G'],['D','H']];
+    var ROUNDS=[
+      {e1:['A','B'],e2:['E','F'],ans:'parallel'},
+      {e1:['A','B'],e2:['B','F'],ans:'meet'},
+      {e1:['A','B'],e2:['C','G'],ans:'skew'},
+      {e1:['D','C'],e2:['B','F'],ans:'skew'}
+    ];
+    var pos=0, done=0, bumped=false;
+    document.getElementById('pos-total').textContent=ROUNDS.length;
+    function drawBox(hi1,hi2){
+      G.clear();
+      EDGES.forEach(function(e){ G.seg(P[e[0]],P[e[1]],{stroke:'var(--muted)',sw:1.3,dash:'3 3'}); });
+      G.seg(P[hi1[0]],P[hi1[1]],{stroke:'var(--line)',sw:4});
+      G.seg(P[hi2[0]],P[hi2[1]],{stroke:'var(--sage)',sw:4});
+    }
+    function render(){
+      var r=ROUNDS[pos];
+      document.getElementById('pos-no').textContent='문제 '+(pos+1)+' / '+ROUNDS.length;
+      drawBox(r.e1,r.e2);
+      document.querySelectorAll('#pos-choices .pill').forEach(function(p){p.classList.remove('sel');p.style.borderColor='';p.style.background='';});
+      document.getElementById('pos-out').innerHTML='';
+    }
+    document.querySelectorAll('#pos-choices .pill').forEach(function(p){
+      p.onclick=function(){
+        var r=ROUNDS[pos];
+        var ok=(p.dataset.v===r.ans);
+        p.style.borderColor=ok?'var(--ok)':'#d9605f';
+        p.style.background=ok?'var(--ok-soft)':'rgba(217,96,95,.12)';
+        document.getElementById('pos-out').innerHTML=ok?'<span class="good">맞았어요!</span>':'다시 그림을 살펴봐요.';
+        if(ok){
+          done++; document.getElementById('pos-done').textContent=done;
+          if(done>=ROUNDS.length){ if(!bumped){bumped=true;bump();} }
+          else { pos++; setTimeout(render,1300); }
+        }
+      };
+    });
+    render();
+  })();
+
+  /* 게임 2: 각 짝꿍 찾기 (동위각·엇각) */
+  (function(){
+    var svg=document.getElementById('ap-svg');
+    var G=MJ1.makeGeo(svg);
+    G.seg({x:30,y:70},{x:270,y:70},{stroke:'var(--u)',sw:2});
+    G.seg({x:30,y:190},{x:270,y:190},{stroke:'var(--u)',sw:2});
+    G.seg({x:60,y:20},{x:240,y:240},{stroke:'var(--ink)',sw:2});
+    G.label({x:18,y:74},'l',{size:14,fill:'var(--u)'});
+    G.label({x:18,y:194},'m',{size:14,fill:'var(--u)'});
+    G.dot({x:101,y:70},{r:3,fill:'var(--ink)'});
+    G.dot({x:199,y:190},{r:3,fill:'var(--ink)'});
+    var LBL={a:{x:79,y:56},b:{x:123,y:56},c:{x:79,y:88},d:{x:123,y:88},
+             e:{x:177,y:176},f:{x:221,y:176},g:{x:177,y:208},h:{x:221,y:208}};
+    Object.keys(LBL).forEach(function(k){ G.label(LBL[k],k,{size:15,fill:'var(--accent)'}); });
+
+    var ROUNDS=[
+      {q:'각 a의 동위각은?', choices:['e','f','h'], correct:'e'},
+      {q:'각 c의 엇각은?', choices:['f','g','h'], correct:'f'},
+      {q:'각 d의 엇각은?', choices:['e','f','g'], correct:'e'},
+      {q:'각 b의 동위각은?', choices:['f','e','g'], correct:'f'}
+    ];
+    var pos=0, done=0, bumped=false;
+    document.getElementById('ap-total').textContent=ROUNDS.length;
+    function render(){
+      var r=ROUNDS[pos];
+      document.getElementById('ap-no').textContent='문제 '+(pos+1)+' / '+ROUNDS.length;
+      document.getElementById('ap-q').textContent=r.q;
+      var host=document.getElementById('ap-choices'); host.innerHTML='';
+      r.choices.forEach(function(c){
+        var b=document.createElement('button');
+        b.className='pill'; b.textContent='각 '+c;
+        b.onclick=function(){ pick(c,r.correct,b); };
+        host.appendChild(b);
+      });
+      document.getElementById('ap-out').innerHTML='';
+    }
+    function pick(c,correct,btn){
+      var ok=(c===correct);
+      document.querySelectorAll('#ap-choices .pill').forEach(function(p){p.onclick=null;});
+      btn.style.borderColor=ok?'var(--ok)':'#d9605f';
+      btn.style.background=ok?'var(--ok-soft)':'rgba(217,96,95,.12)';
+      document.getElementById('ap-out').innerHTML=ok?'<span class="good">맞았어요!</span>':'정답은 각 '+correct+'예요.';
+      if(ok){
+        done++; document.getElementById('ap-done').textContent=done;
+        if(done>=ROUNDS.length){ if(!bumped){bumped=true;bump();} }
+        else { pos++; setTimeout(render,1400); }
+      } else {
+        setTimeout(function(){ pos++; if(pos>=ROUNDS.length)pos=0; render(); },1700);
+      }
+    }
+    render();
+  })();
+
+  /* 게임 3: 맞꼭지각 vs 이웃각 감별사 */
+  (function(){
+    var svg=document.getElementById('vt-svg');
+    var G=MJ1.makeGeo(svg);
+    G.seg({x:50,y:70},{x:250,y:170},{stroke:'var(--u)',sw:2});
+    G.seg({x:50,y:170},{x:250,y:70},{stroke:'var(--sage)',sw:2});
+    G.dot({x:150,y:120},{r:3,fill:'var(--ink)'});
+    var LBL={1:{x:150,y:92},2:{x:190,y:120},3:{x:150,y:150},4:{x:110,y:120}};
+    Object.keys(LBL).forEach(function(k){ G.label(LBL[k],k,{size:16,fill:'var(--accent)'}); });
+
+    var ROUNDS=[
+      {q:'각 1과 각 3', ans:'v'},
+      {q:'각 1과 각 2', ans:'a'},
+      {q:'각 2와 각 4', ans:'v'},
+      {q:'각 3과 각 4', ans:'a'}
+    ];
+    var pos=0, done=0, bumped=false;
+    document.getElementById('vt-total').textContent=ROUNDS.length;
+    function render(){
+      var r=ROUNDS[pos];
+      document.getElementById('vt-no').textContent='문제 '+(pos+1)+' / '+ROUNDS.length;
+      document.getElementById('vt-q').textContent=r.q+' 은(는) 어떤 관계일까요?';
+      document.getElementById('vt-v').className='pg-pbtn';
+      document.getElementById('vt-a').className='pg-pbtn';
+      document.getElementById('vt-out').innerHTML='';
+    }
+    function pick(v,btn){
+      var r=ROUNDS[pos];
+      var ok=(v===r.ans);
+      btn.classList.add(ok?'right':'wrong');
+      document.getElementById('vt-out').innerHTML=ok?'<span class="good">맞았어요!</span>':'그림을 다시 살펴봐요 — 마주보는 사이인가요, 붙어있는 사이인가요?';
+      if(ok){
+        done++; document.getElementById('vt-done').textContent=done;
+        if(done>=ROUNDS.length){ if(!bumped){bumped=true;bump();} }
+        else { pos++; setTimeout(render,1400); }
+      }
+    }
+    document.getElementById('vt-v').onclick=function(){ pick('v',this); };
+    document.getElementById('vt-a').onclick=function(){ pick('a',this); };
+    render();
+  })();
+
+  /* 게임 4: 오류 탐정 (misconceptions/math1_u07.json 기반, 6개 큐레이션) */
+  (function(){
+    var CASES=[
+      {stmt:'반직선 PQ와 반직선 QP를 보고, <b>같은 도형</b>이라고 했어요.',
+       counter:'선분 PQ와 선분 QP를 각각 그려 볼까요? 그다음 반직선 PQ와 반직선 QP도 그려 봐요. 어느 쪽이 두 그림이 겹치나요?',
+       ask:'반직선을 쓸 때 앞 글자는 무엇을 정해 주나요?',
+       q:'반직선 PQ와 반직선 QP는 같은 도형일까요?', a:'아니에요 (출발점과 방향이 달라요)'},
+      {stmt:'점 M이 선분 PQ의 중점이고 선분 PM이 5cm일 때, 선분 PQ를 <b>2.5cm</b>라고 했어요.',
+       counter:'선분을 하나 그리고 가운데 점을 찍어 볼까요? 전체가 주어졌을 때와 반쪽이 주어졌을 때, 어느 쪽에서 곱하기를 하나요?',
+       ask:'중점이 만드는 두 조각은 서로 어떤 관계인가요?',
+       q:'점 M이 선분 PQ의 중점이고 선분 PM이 5cm일 때 선분 PQ의 길이는?', a:'10 cm'},
+      {stmt:'한 직선 위에서 선분 PQ가 7cm, 선분 QR이 3cm일 때, 선분 PR을 <b>10cm 하나만</b> 답했어요.',
+       counter:'점 P, Q, R을 순서를 바꿔 두 가지로 그려 볼까요? 두 그림에서 선분 PR의 길이가 같나요?',
+       ask:'문제에 순서가 정해져 있지 않다면 답은 몇 가지가 될 수 있을까요?',
+       q:'한 직선 위에서 선분 PQ가 7cm, 선분 QR이 3cm일 때 선분 PR로 가능한 길이를 모두 쓰면?', a:'10 cm 또는 4 cm'},
+      {stmt:'180°인 각을 보고, <b>둔각</b>이라고 분류했어요.',
+       counter:'각을 조금씩 크게 벌리면서 예각에서 직각으로, 직각에서 둔각으로, 둔각에서 평각으로 넘어가는 순간을 손으로 짚어 볼까요?',
+       ask:'직각과 평각 자신은 둔각에 들어갈까요, 들어가지 않을까요?',
+       q:'다음 중 둔각을 모두 고르면? 45°, 90°, 135°, 180°', a:'135°'},
+      {stmt:'평각을 이등분한 뒤 그 절반을 다시 이등분하는데, 작은 조각을 <b>평각 ÷ 4를 한 번만</b> 계산해서 구했어요.',
+       counter:'큰 각 안에 반직선을 그어 조각으로 나눠 볼까요? 조각을 모두 더하면 무엇이 되나요?',
+       ask:'이등분선이 또 한 번 나오면 그 조각은 원래 각의 몇 분의 몇이 될까요?',
+       q:'평각을 이등분한 뒤 그 절반을 다시 이등분하면 작은 조각 하나의 크기는?', a:'45°'},
+      {stmt:'평행한 두 직선에서 한 동측내각이 110°일 때, 다른 동측내각도 <b>110°</b>라고 했어요.',
+       counter:'두 나란한 직선 사이에서 같은 쪽에 있는 두 각을 표시해 볼까요? 그중 하나와 붙어 있는 각을 함께 보면 무엇이 보이나요?',
+       ask:'같은 쪽에 있는 두 각은 서로 같아질까요, 아니면 더해서 평각이 될까요?',
+       q:'평행한 두 직선에서 한 동측내각이 110°이면 다른 동측내각은?', a:'70°'}
+    ];
+    var order=[0,1,2,3,4,5].sort(function(){return Math.random()-0.5;});
+    var pos=0, bumped=false;
+    function render(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-no').textContent='사건 '+(pos+1)+' / '+order.length;
+      document.getElementById('det-stmt').innerHTML=c.stmt;
+      document.getElementById('det-counter').style.display='none';
+      document.getElementById('det-ask').style.display='none';
+      document.getElementById('det-checkbox').style.display='none';
+      document.getElementById('det-in').value='';
+      document.getElementById('det-out').innerHTML='';
+      document.getElementById('det-think').style.display='inline-block';
+      document.getElementById('det-next').style.display='none';
+    }
+    document.getElementById('det-think').onclick=function(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-counter').innerHTML='<b>다르게 볼까요?</b> '+c.counter;
+      document.getElementById('det-counter').style.display='block';
+      document.getElementById('det-ask').innerHTML='생각해보기: '+c.ask;
+      document.getElementById('det-ask').style.display='block';
+      document.getElementById('det-checkq').innerHTML=c.q;
+      document.getElementById('det-checkbox').style.display='block';
+      document.getElementById('det-think').style.display='none';
+    };
+    document.getElementById('det-check').onclick=function(){
+      var c=CASES[order[pos]];
+      var v=(document.getElementById('det-in').value||'');
+      var norm=function(s){return s.replace(/[^0-9a-zA-Z가-힣<>]/g,'').toLowerCase();};
+      var ok=v.length>0 && norm(c.a).indexOf(norm(v))>=0;
+      document.getElementById('det-out').innerHTML=ok
+        ? '<span class="good">정답이에요 - '+c.a+'</span>'
+        : '정답: <b>'+c.a+'</b> (직접 써보면서 확인해봐요)';
+      document.getElementById('det-next').style.display='inline-block';
+      if(!bumped){ bumped=true; bump(); }
+    };
+    document.getElementById('det-next').onclick=function(){
+      pos++; if(pos>=order.length) pos=0; render();
+    };
+    render();
+  })();
+})();
+</script>
+</body>
+</html>
