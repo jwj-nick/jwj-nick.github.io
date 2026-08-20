@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>단원 10 · 심화 탐구 · 아르키메데스의 π · 중1-2</title>
+<link rel="stylesheet" href="concept.css?v=20260821a">
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중1</a><span class="dot"></span><a href="u10.html">단원 10</a><span class="dot"></span><span>심화 탐구</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+  <h1>π는 어떻게 처음 계산되었을까요</h1>
+  <p class="lede">원의 넓이를 자로 잴 수는 없어요. 아르키메데스는 원을 다각형으로 가두어 π를 좁혀 갔어요.</p>
+  <p class="intro">이 페이지엔 채점 문제가 없어요. 슬라이더를 움직이면 다각형이 원에 가까워지는 걸 함께 볼 수 있어요.</p>
+
+  <section class="reveal">
+    <div class="eyebrow"><span class="n">1</span>큰 그림</div>
+    <h2>원을 정다각형 두 개로 가두기</h2>
+    <p>아르키메데스(BC 3세기)는 원 <b class="hl">안쪽</b>에 내접하는 정다각형과 <b class="hl">바깥쪽</b>에 외접하는 정다각형을 그렸어요. 두 다각형의 둘레는 각각 원의 둘레보다 <b class="gold">작고, 큽니다</b> — 그래서 원주율 π는 그 둘 사이에 있을 수밖에 없어요.</p>
+  </section>
+
+  <section class="reveal">
+    <div class="sim-tag">정다각형 실험실 · 변의 수 n을 늘려가며 확인해 볼까요?</div>
+    <div class="sim">
+      <svg class="geo" id="gsim" viewBox="0 0 300 260" role="img" aria-label="원에 내접하는 정다각형" style="max-width:300px"></svg>
+      <div class="sim-read" id="read"></div>
+      <div class="controls">
+        <div class="ctrl"><label><span>내접 정다각형 변의 수 n</span><span id="nv">6</span></label><input type="range" id="rn" min="3" max="60" step="1" value="6"></div>
+      </div>
+    </div>
+    <p class="muted" style="margin-top:6px">n이 커질수록 정다각형은 원에 점점 더 가까워지고, 다각형의 둘레를 지름으로 나눈 값도 <b class="hl">π에 점점 가까워져요</b>.</p>
+  </section>
+
+  <section class="reveal">
+    <div class="eyebrow"><span class="n">2</span>한 걸음 더</div>
+    <h2>96각형으로 3.1408 &lt; π &lt; 3.1429</h2>
+    <div class="card">
+      <p style="margin:0">아르키메데스는 정<b class="gold">96</b>각형까지 나아가 <span class="eq">223／71 &lt; π &lt; 22／7</span>, 즉 <b class="hl">3.1408 &lt; π &lt; 3.1429</b>까지 좁혀냈어요. 계산기도 없이 손으로! 약 500년 뒤 중국의 유휘는 3072각형으로 <b class="gold">π ≈ 3.14159</b>까지 더 좁혔어요.</p>
+    </div>
+    <p class="muted">다각형의 변의 수를 무한히 늘리면 결국 원이 돼요 — 이 발상은 나중에 <b class="hl">적분</b>이라는 더 큰 수학으로 이어져요.</p>
+  </section>
+
+  <div class="foot">중1 · 단원 10 · 심화 탐구 · 위 탭에서 개념·놀이터·연습으로 이동</div>
+</div>
+
+<script src="concept.js?v=20260821a"></script>
+<script>
+MJ1.boot();
+(function(){
+  function P(x,y){return {x:x,y:y};}
+  var G=MJ1.makeGeo(document.getElementById('gsim'));
+  var rn=document.getElementById('rn'), read=document.getElementById('read');
+  var center=P(150,140), R=95;
+  function verts(n){
+    var out=[];
+    for(var i=0;i<n;i++){
+      var deg=-90+i*(360/n);
+      var rad=deg*Math.PI/180;
+      out.push(P(center.x+R*Math.cos(rad),center.y+R*Math.sin(rad)));
+    }
+    return out;
+  }
+  function draw(){
+    var n=+rn.value;
+    document.getElementById('nv').textContent=n;
+    G.clear();
+    G.el('circle',{cx:center.x,cy:center.y,r:R,fill:'none',stroke:'var(--border)','stroke-width':1.5,'stroke-dasharray':'3 3'});
+    var V=verts(n);
+    G.poly(V,{fill:'var(--u-soft)',stroke:'var(--u)',sw:1.5});
+    if(n<=20){ V.forEach(function(p){ G.dot(p,{r:2}); }); }
+    // 다각형 둘레 ÷ 지름 ≈ π (변의 수가 늘수록 π에 근접)
+    var side=2*R*Math.sin(Math.PI/n);
+    var perim=n*side;
+    var ratio=perim/(2*R);
+    read.innerHTML='정'+n+'각형의 둘레 ÷ 지름 = <b class="hl">'+(Math.round(ratio*100000)/100000)+'</b>　(π ≈ 3.14159265…)';
+  }
+  rn.oninput=draw; draw();
+})();
+</script>
+</body>
+</html>

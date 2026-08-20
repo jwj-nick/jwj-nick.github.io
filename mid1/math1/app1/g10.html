@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>놀이터 · 원과 부채꼴 · 중1-2</title>
+<link rel="stylesheet" href="concept.css?v=20260821a">
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중1</a><span class="dot"></span><a href="u10.html">단원 10</a><span class="dot"></span><span>놀이터</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+  <div class="pg-badge"><span class="i">🎨</span>놀이터 — 점수는 안 매겨요, 그냥 놀아 봐요</div>
+  <h1>원과 부채꼴 놀이터</h1>
+  <p class="lede">반지름이 커지면 둘레·넓이는 각각 어떻게 커질까요? 부채꼴의 호는 정말 중심각에 비례할까요?</p>
+
+  <div class="pg-score" id="score"><span class="dot">🏅</span>해결한 사건 <b id="scoreN">0</b> / <span id="scoreT">4</span></div>
+
+  <!-- 게임 1 · 원 둘레·넓이 계산기 -->
+  <div class="pg-game reveal" id="g-circle">
+    <div class="pg-title"><span class="pg-emoji">🎡</span>원 둘레·넓이 계산기</div>
+    <div class="pg-desc">반지름을 움직이면 둘레와 넓이가 어떻게 달라질까요?</div>
+    <div class="ctrl">
+      <label><span>반지름 r</span><span id="ci-r-v">4</span></label>
+      <input type="range" id="ci-r" min="1" max="10" step="1" value="4">
+    </div>
+    <svg class="geo" id="ci-svg" viewBox="0 0 220 200" role="img" aria-label="원" style="max-width:200px"></svg>
+    <div class="sim-read" id="ci-read"></div>
+    <div class="pg-case" style="margin-top:10px">
+      <div class="case-stmt">반지름이 9cm인 원의 넓이는? (계수만 입력, 예: 4π는 4)</div>
+      <div class="row" style="margin-top:10px;justify-content:center"><input class="num" id="ci-in" inputmode="numeric" placeholder="?"><span>π cm²</span><button id="ci-check">확인</button></div>
+      <div class="out" id="ci-out"></div>
+    </div>
+  </div>
+
+  <!-- 게임 2 · 부채꼴 각도 스캐너 -->
+  <div class="pg-game reveal" id="g-sector">
+    <div class="pg-title"><span class="pg-emoji">🍕</span>부채꼴 각도 스캐너</div>
+    <div class="pg-desc">중심각을 돌리면 호의 길이와 넓이가 실시간으로 바뀌어요.</div>
+    <div class="ctrl">
+      <label><span>중심각 θ</span><span id="se-t-v">90</span>°</label>
+      <input type="range" id="se-t" min="10" max="350" step="10" value="90">
+    </div>
+    <svg class="geo" id="se-svg" viewBox="0 0 220 200" role="img" aria-label="부채꼴" style="max-width:200px"></svg>
+    <div class="sim-read" id="se-read"></div>
+    <div class="pg-case" style="margin-top:10px">
+      <div class="case-stmt">반지름 6cm, 중심각 180°인 부채꼴의 호의 길이는? (계수만 입력)</div>
+      <div class="row" style="margin-top:10px;justify-content:center"><input class="num" id="se-in" inputmode="numeric" placeholder="?"><span>π cm</span><button id="se-check">확인</button></div>
+      <div class="out" id="se-out"></div>
+    </div>
+  </div>
+
+  <!-- 게임 3 · 호 vs 현 경주 -->
+  <div class="pg-game reveal" id="g-race">
+    <div class="pg-title"><span class="pg-emoji">🏃</span>호 vs 현 경주</div>
+    <div class="pg-desc">중심각을 2배로 늘리면, 호와 현 중 누가 정확히 2배가 될까요?</div>
+    <svg class="geo" id="ra-svg" viewBox="0 0 260 200" role="img" aria-label="호와 현 비교" style="max-width:260px"></svg>
+    <div class="sim-read" id="ra-read"></div>
+    <div class="pg-case" style="margin-top:10px">
+      <div class="case-stmt">중심각이 2배가 되면 호의 길이도 2배가 될까요?</div>
+      <div class="pg-predict">
+        <button class="pg-pbtn" id="ra-arc-y">네, 2배예요</button>
+        <button class="pg-pbtn" id="ra-arc-n">아니요</button>
+      </div>
+      <div class="out" id="ra-out1"></div>
+    </div>
+    <div class="pg-case" id="ra-case2" style="margin-top:10px;display:none">
+      <div class="case-stmt">그러면 현의 길이는 2배가 될까요?</div>
+      <div class="pg-predict">
+        <button class="pg-pbtn" id="ra-chord-y">네, 2배예요</button>
+        <button class="pg-pbtn" id="ra-chord-n">아니요</button>
+      </div>
+      <div class="out" id="ra-out2"></div>
+    </div>
+  </div>
+
+  <!-- 게임 4 · 오류 탐정 -->
+  <div class="pg-game reveal" id="g-detective">
+    <div class="pg-title"><span class="pg-emoji">🔍</span>오류 탐정</div>
+    <div class="pg-desc">누군가 이렇게 풀었어요. 어디가 이상한지 찾아볼까요? (정답은 안 알려줘요 — 스스로 짚어 봐요)</div>
+    <div class="pg-case">
+      <div class="case-no" id="det-no">사건 1 / 6</div>
+      <div class="case-stmt" id="det-stmt"></div>
+    </div>
+    <div style="text-align:center"><button id="det-think">다르게 생각해 볼까요?</button></div>
+    <div class="hint" id="det-counter" style="display:none;margin-top:10px"></div>
+    <div class="ask" id="det-ask" style="display:none;margin-top:10px"></div>
+    <div class="pg-case" id="det-checkbox" style="display:none;margin-top:14px">
+      <div class="case-stmt" id="det-checkq"></div>
+      <div class="row" style="margin-top:10px"><input class="blank" id="det-in" placeholder="답"><button id="det-check">확인</button></div>
+      <div class="out" id="det-out"></div>
+    </div>
+    <div style="text-align:center;margin-top:12px"><button class="ghost" id="det-next" style="display:none">다음 사건 -></button></div>
+  </div>
+
+  <div class="stamp" id="stamp">
+    <div class="seal">🎉</div>
+    <div class="seal-t">놀이터 클리어!</div>
+    <div class="seal-d">원의 둘레·넓이부터 호·현의 함정까지, 이제 왜 그런지 알아요.</div>
+  </div>
+  <div class="bridge" style="margin-top:18px"><a class="golink" href="p10.html">연습 문제로 -></a></div>
+
+  <div class="foot">중1 수학 · 놀이터 · 단원 10</div>
+</div>
+
+<div class="pg-confetti" id="confetti"></div>
+
+<script src="concept.js?v=20260821a"></script>
+<script>
+MJ1.boot();
+(function(){
+  var solved=0, TOTAL=4;
+  function bump(){
+    var el=document.getElementById('scoreN'); solved++; el.textContent=solved;
+    var badge=document.getElementById('score'); badge.classList.remove('bump'); void badge.offsetWidth; badge.classList.add('bump');
+    if(solved>=TOTAL){ confetti(); document.getElementById('stamp').classList.add('show'); }
+  }
+  function confetti(){
+    var host=document.getElementById('confetti'); host.innerHTML='';
+    var colors=['#3fa89a','#63c6b1','#e59a3c','#f2be6b','#4fa892'];
+    for(var i=0;i<46;i++){
+      var s=document.createElement('i');
+      s.style.left=(Math.random()*100)+'vw';
+      s.style.background=colors[i%colors.length];
+      s.style.animationDelay=(Math.random()*0.4)+'s';
+      s.style.animationDuration=(1.1+Math.random()*0.9)+'s';
+      s.style.transform='rotate('+(Math.random()*360)+'deg)';
+      host.appendChild(s);
+    }
+    host.classList.add('on');
+    setTimeout(function(){host.classList.remove('on');},2200);
+  }
+
+  /* 게임 1: 원 둘레·넓이 계산기 */
+  (function(){
+    var G=MJ1.makeGeo(document.getElementById('ci-svg'));
+    var rEl=document.getElementById('ci-r'), read=document.getElementById('ci-read');
+    var cx=90, cy=100;
+    function draw(){
+      var r=+rEl.value;
+      document.getElementById('ci-r-v').textContent=r;
+      var R=8*r;
+      G.clear();
+      G.el('circle',{cx:cx,cy:cy,r:R,fill:'var(--u-soft)',stroke:'var(--u)','stroke-width':2});
+      G.dot({x:cx,y:cy},{r:3});
+      var c=2*r, a=r*r;
+      read.innerHTML='둘레 = <b class="hl">'+c+'π</b> cm　·　넓이 = <b class="gold">'+a+'π</b> cm²';
+    }
+    rEl.oninput=draw; draw();
+    var bumped=false;
+    document.getElementById('ci-check').onclick=function(){
+      var v=parseFloat(document.getElementById('ci-in').value);
+      var ok=(v===81);
+      document.getElementById('ci-out').innerHTML=ok?'<span class="good">정답! π×9²=81π cm²예요.</span>':'넓이는 πr² — r을 두 번 곱해봐요.';
+      if(ok && !bumped){ bumped=true; bump(); }
+    };
+  })();
+
+  /* 게임 2: 부채꼴 각도 스캐너 */
+  (function(){
+    var G=MJ1.makeGeo(document.getElementById('se-svg'));
+    var tEl=document.getElementById('se-t'), read=document.getElementById('se-read');
+    var cx=90, cy=100, R=75;
+    function draw(){
+      var t=+tEl.value;
+      document.getElementById('se-t-v').textContent=t;
+      G.clear();
+      G.el('circle',{cx:cx,cy:cy,r:R,fill:'none',stroke:'var(--border)','stroke-width':1.5,'stroke-dasharray':'3 3'});
+      var a0=-90*Math.PI/180, a1=(-90+t)*Math.PI/180;
+      var p0={x:cx+R*Math.cos(a0),y:cy+R*Math.sin(a0)}, p1={x:cx+R*Math.cos(a1),y:cy+R*Math.sin(a1)};
+      var large=(t>180)?1:0;
+      G.el('path',{d:'M'+cx+','+cy+' L'+p0.x+','+p0.y+' A'+R+','+R+' 0 '+large+' 1 '+p1.x+','+p1.y+' Z',
+        fill:'var(--accent)',opacity:.35,stroke:'var(--accent)','stroke-width':2});
+      G.dot({x:cx,y:cy},{r:3});
+      var l=Math.round((2*6*(t/360))*100)/100, s=Math.round((36*(t/360))*100)/100;
+      read.innerHTML='r=6cm 기준　·　호의 길이 = '+l+'π cm　·　넓이 = '+s+'π cm²';
+    }
+    tEl.oninput=draw; draw();
+    var bumped=false;
+    document.getElementById('se-check').onclick=function(){
+      var v=parseFloat(document.getElementById('se-in').value);
+      var ok=(v===6);
+      document.getElementById('se-out').innerHTML=ok?'<span class="good">정답! 2π×6×(180/360)=6π cm예요.</span>':'슬라이더를 180으로 맞추고 위 식을 참고해봐요.';
+      if(ok && !bumped){ bumped=true; bump(); }
+    };
+  })();
+
+  /* 게임 3: 호 vs 현 경주 */
+  (function(){
+    var G=MJ1.makeGeo(document.getElementById('ra-svg'));
+    var cx1=65, cx2=195, cy=100, R=60;
+    function drawPair(t1,t2){
+      G.clear();
+      [[cx1,t1],[cx2,t2]].forEach(function(pair){
+        var cx=pair[0], t=pair[1];
+        G.el('circle',{cx:cx,cy:cy,r:R,fill:'none',stroke:'var(--border)','stroke-width':1.5,'stroke-dasharray':'3 3'});
+        var a0=(-90-t/2)*Math.PI/180, a1=(-90+t/2)*Math.PI/180;
+        var p0={x:cx+R*Math.cos(a0),y:cy+R*Math.sin(a0)}, p1={x:cx+R*Math.cos(a1),y:cy+R*Math.sin(a1)};
+        var large=(t>180)?1:0;
+        G.el('path',{d:'M'+p0.x+','+p0.y+' A'+R+','+R+' 0 '+large+' 1 '+p1.x+','+p1.y,fill:'none',stroke:'var(--accent)','stroke-width':3});
+        G.seg(p0,p1,{stroke:'var(--gold,#c9972b)',sw:2});
+        G.dot({x:cx,y:cy},{r:2.5});
+      });
+    }
+    drawPair(60,120);
+    document.getElementById('ra-read').innerHTML='왼쪽 중심각 60°　·　오른쪽 중심각 120°(2배)　·　주황=호, 노랑=현';
+    document.getElementById('ra-arc-y').onclick=function(){ document.getElementById('ra-out1').innerHTML='<span class="good">맞았어요! 호는 중심각에 정비례해요.</span>'; document.getElementById('ra-case2').style.display='block'; };
+    document.getElementById('ra-arc-n').onclick=function(){ document.getElementById('ra-out1').innerHTML='호는 중심각에 정확히 정비례해요 — 다시 봐요.'; document.getElementById('ra-case2').style.display='block'; };
+    var bumped=false;
+    document.getElementById('ra-chord-y').onclick=function(){
+      document.getElementById('ra-out2').innerHTML='그림의 노란 선(현)을 비교해봐요 — 오른쪽이 왼쪽의 딱 2배는 아니에요. 현은 정비례하지 않아요.';
+      if(!bumped){ bumped=true; bump(); }
+    };
+    document.getElementById('ra-chord-n').onclick=function(){
+      document.getElementById('ra-out2').innerHTML='<span class="good">맞았어요! 현은 중심각에 정비례하지 않아요 — 시험 단골 함정이에요.</span>';
+      if(!bumped){ bumped=true; bump(); }
+    };
+  })();
+
+  /* 게임 4: 오류 탐정 (misconceptions/math1_u10.json 기반, 6개 큐레이션) */
+  (function(){
+    var CASES=[
+      {stmt:'지름이 18cm인 원인데, 반지름도 <b>18cm</b>라고 그대로 썼어요.',
+       counter:'지름이 12cm인 원의 반지름은 몇 cm일까요? 반대로 반지름이 12cm라면 지름은 몇 cm일까요?',
+       ask:'문제에 주어진 길이가 중심에서 원까지의 길이인가요, 원을 가로질러 지나가는 길이인가요?',
+       q:'지름이 18cm인 원의 반지름은?', a:'9cm'},
+      {stmt:'"원 위의 두 점을 곧게 이은 선분"을 <b>호</b>라고 불렀어요.',
+       counter:'점 A에서 점 B까지 원을 따라 휘어 가는 길과 곧게 질러가는 길을 각각 그려 볼까요? 두 길의 모양이 같을까요?',
+       ask:'휜 쪽과 곧은 쪽 중에서 어느 것을 호라고 부를까요?',
+       q:'원 위의 두 점을 곧게 이은 선분의 이름은?', a:'현'},
+      {stmt:'반지름이 5cm인 원의 넓이를 구하는데, <b>π×5=5π cm²</b>라고 했어요(제곱을 안 함).',
+       counter:'반지름이 r인 원에서 테두리의 길이에는 cm가, 안쪽의 넓이에는 cm²가 붙어요. r을 두 번 곱한 쪽은 어느 쪽일까요?',
+       ask:'지금 구하려는 것이 테두리의 길이인가요, 안쪽을 덮은 넓이인가요?',
+       q:'반지름이 5cm인 원의 넓이는? (π를 남긴 꼴로)', a:'25π cm²'},
+      {stmt:'반지름이 3cm인 원의 둘레를 구하는데, <b>3.14×3×2=18.84cm</b>라고 계산했어요.',
+       counter:'π는 3.14로 딱 떨어지지 않는 수예요. 문제에 "3.14를 이용하라"는 말이 있었나요?',
+       ask:'이 문제가 원하는 답은 π를 남긴 꼴인가요, 소수로 계산한 값인가요?',
+       q:'반지름이 3cm인 원의 둘레는? (π를 남긴 꼴로)', a:'6π cm'},
+      {stmt:'반지름이 5cm, 호의 길이가 3π cm인 부채꼴의 둘레를 구하는데, <b>호의 길이 3π cm</b>만 답했어요(반지름 두 개를 안 더함).',
+       counter:'부채 모양 종이의 가장자리에 실을 감아 볼까요? 곧은 두 변에도 실이 지나가나요?',
+       ask:'부채꼴의 둘레에는 호 말고 무엇이 몇 개 더 들어갈까요?',
+       q:'반지름이 5cm, 호의 길이가 3π cm인 부채꼴의 둘레는?', a:'3π + 10 cm'},
+      {stmt:'"한 원에서 중심각이 2배가 될 때 2배가 되는 것"을 묻는 문제에 <b>현의 길이</b>도 포함해서 답했어요.',
+       counter:'중심각을 점점 벌려서 거의 한 바퀴에 가깝게 만들어 볼까요? 호는 계속 길어지는데, 현의 두 끝점은 오히려 다시 가까워지지 않나요?',
+       ask:'중심각이 커지는 동안 현의 길이도 끝없이 함께 커질 수 있을까요?',
+       q:'한 원에서 중심각이 2배가 될 때 2배가 되는 것은?', a:'호의 길이, 부채꼴의 넓이'}
+    ];
+    var order=[0,1,2,3,4,5].sort(function(){return Math.random()-0.5;});
+    var pos=0, bumped=false;
+    function render(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-no').textContent='사건 '+(pos+1)+' / '+order.length;
+      document.getElementById('det-stmt').innerHTML=c.stmt;
+      document.getElementById('det-counter').style.display='none';
+      document.getElementById('det-ask').style.display='none';
+      document.getElementById('det-checkbox').style.display='none';
+      document.getElementById('det-in').value='';
+      document.getElementById('det-out').innerHTML='';
+      document.getElementById('det-think').style.display='inline-block';
+      document.getElementById('det-next').style.display='none';
+    }
+    document.getElementById('det-think').onclick=function(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-counter').innerHTML='<b>다르게 볼까요?</b> '+c.counter;
+      document.getElementById('det-counter').style.display='block';
+      document.getElementById('det-ask').innerHTML='생각해보기: '+c.ask;
+      document.getElementById('det-ask').style.display='block';
+      document.getElementById('det-checkq').innerHTML=c.q;
+      document.getElementById('det-checkbox').style.display='block';
+      document.getElementById('det-think').style.display='none';
+    };
+    document.getElementById('det-check').onclick=function(){
+      var c=CASES[order[pos]];
+      var v=(document.getElementById('det-in').value||'');
+      var norm=function(s){return s.replace(/[^0-9a-zA-Z가-힣<>]/g,'').toLowerCase();};
+      var ok=v.length>0 && norm(c.a).indexOf(norm(v))>=0;
+      document.getElementById('det-out').innerHTML=ok
+        ? '<span class="good">정답이에요 - '+c.a+'</span>'
+        : '정답: <b>'+c.a+'</b> (직접 써보면서 확인해봐요)';
+      document.getElementById('det-next').style.display='inline-block';
+      if(!bumped){ bumped=true; bump(); }
+    };
+    document.getElementById('det-next').onclick=function(){
+      pos++; if(pos>=order.length) pos=0; render();
+    };
+    render();
+  })();
+})();
+</script>
+</body>
+</html>
