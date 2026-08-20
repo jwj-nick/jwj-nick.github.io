@@ -101,6 +101,16 @@
   .chk{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px} .chk:last-child{border-bottom:none} .chk input{margin-top:4px;width:17px;height:17px;flex-shrink:0;accent-color:var(--accent)}
   .tag{display:inline-block;background:var(--accent-bg);color:var(--accent);border:1px solid #fde68a;border-radius:6px;padding:2px 9px;font-size:11.5px;font-weight:700;margin:3px 4px 0 0}
   @media (max-width:640px){ .hero h1{font-size:19px} .card{padding:16px} .tl-card{width:104px} .tl-track{height:290px} }
+
+.pairgrid{display:grid;grid-template-columns:1fr;gap:10px}
+.paircard{border:1px solid #e2e8f0;border-radius:11px;padding:12px 14px;background:#fff}
+.paircard .pt{font-weight:800;font-size:13.5px;margin-bottom:8px}
+.paircols{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.paircols.three{grid-template-columns:1fr}
+@media(min-width:560px){.paircols.three{grid-template-columns:1fr 1fr 1fr}}
+.paircols .pc{background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;padding:9px 10px;font-size:12.5px;line-height:1.55}
+.paircols .pc b{display:block;font-size:12.5px;margin-bottom:3px}
+.pairkey{margin-top:8px;font-size:12.5px;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:7px 10px}
 </style>
 </head>
 <body>
@@ -114,6 +124,7 @@
   <button class="tab active" data-t="intro">📋 개요</button>
   <button class="tab" data-t="time">🕰️ 연표</button>
   <button class="tab" data-t="era">⏱️ 시기 훈련</button>
+  <button class="tab" data-t="pair">🪞 혼동쌍</button>
   <button class="tab" data-t="rule">⛓️ 식민 통치</button>
   <button class="tab" data-t="move">✊ 민족 운동</button>
   <button class="tab" data-t="world">🌐 세상 속으로</button>
@@ -139,6 +150,7 @@
       <div class="toc">
         <button onclick="go('time')"><div class="ti">🕰️</div><div class="tn">연표</div><div class="td">1910~1945</div></button>
         <button onclick="go('era')"><div class="ti">⏱️</div><div class="tn">시기 훈련</div><div class="td">사건→시기 배치</div></button>
+        <button onclick="go('pair')"><div class="ti">🪞</div><div class="tn">혼동쌍</div><div class="td">헷갈리는 짝 가르기</div></button>
         <button onclick="go('rule')"><div class="ti">⛓️</div><div class="tn">식민 통치</div><div class="td">3기 비교</div></button>
         <button onclick="go('move')"><div class="ti">✊</div><div class="tn">민족 운동</div><div class="td">3·1·임정·투쟁</div></button>
         <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">지금과 연결</div></button>
@@ -174,6 +186,25 @@
         <div class="qopts" id="eOpts" style="grid-template-columns:repeat(3,1fr)"></div>
         <div class="qexp" id="eExp"></div>
         <button class="qnext" id="eNext">다음 사건 →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="pair">
+    <div class="card">
+      <h2>🪞 혼동쌍 — 시험이 노리는 짝 13</h2>
+      <p class="lead">오답의 단골 원인은 <b>비슷한 둘을 맞바꿔 기억하는 것</b>이다. 실전 문제의 오답 보기들이 실제로 노린 짝만 모았다. 카드에서 <b>가르는 기준 한 줄</b>을 세우고, 아래 판별 훈련으로 굳히자.</p>
+      <div class="pairgrid" id="pairCards"></div>
+    </div>
+    <div class="card">
+      <h2>⚔️ 판별 훈련 — 이 설명, 누구 것?</h2>
+      <p class="lead">설명 한 문장을 읽고 <b>어느 쪽 이야기인지</b> 고른다. 전부 위 카드에서 나온다.</p>
+      <div class="quizhud"><span class="qn" id="pNum">문장 1 / 31</span><span class="sc">맞음 <b id="pScore">0</b></span><div class="qbar"><i id="pBar" style="width:0%"></i></div></div>
+      <div id="pArea">
+        <div class="qq" id="pQ"></div>
+        <div class="qopts" id="pOpts"></div>
+        <div class="qexp" id="pExp"></div>
+        <button class="qnext" id="pNext">다음 문장 →</button>
       </div>
     </div>
   </div>
@@ -288,6 +319,16 @@
         <a id="dkBasic" class="btn" href="?drill=kh2_04#drill" style="padding:8px 14px;font-size:12.5px">🌱 기본기 12</a>
         <a id="dkHard" class="btn" href="?drill=kh2_02#drill" style="padding:8px 14px;font-size:12.5px;background:#94a3b8">🔥 심화 12</a>
         <span style="color:var(--sub);font-size:12px">기본기로 워밍업하고 심화로 올라가자.</span>
+      </div>
+    </div>
+    <div class="card" style="padding:14px 16px">
+      <div class="box b" style="margin:0">
+        <div class="t">📮 결과에 따라 다음 걸음</div>
+        🌱 기본기를 풀고 <b>결과 복사</b>를 아빠에게 보내면 <b>틀린 것만 다시 묻는 일정</b>(1·3·7·16·35일)이 잡힌다. 점수별로 —<br>
+        • <b>10~12개</b>: 🔥 심화 12로 바로 올라간다.<br>
+        • <b>6~9개</b>: 틀린 이유 코드를 본다 — 시기가 뒤섞였으면(C8) <a href="#" onclick="go('era');return false">⏱️ 시기 훈련</a>, 비슷한 것과 헷갈렸으면(C3) <a href="#" onclick="go('pair');return false">🪞 혼동쌍</a>, 개념 구멍이면(C2) ⛓️ 식민 통치·✊ 민족 운동 탭을 다시 본 뒤 재시험.<br>
+        • <b>0~5개</b>: <a href="#" onclick="go('time');return false">🕰️ 연표</a> → <a href="#" onclick="go('rule');return false">⛓️ 식민 통치</a> → <a href="#" onclick="go('move');return false">✊ 민족 운동</a>을 차례로 정독하고, 며칠 뒤 기본기를 그대로 다시 푼다.<br>
+        그 밖의 코드가 뜨면 — <b>C7</b>(자료 해석)·<b>C4</b>(적용 실패)는 그 문제로 돌아가 자료에서 근거 문장을 짚어 보고 다시 고른다. 🔥 심화도 같은 방식이다 — 다만 <b>C1</b>(발문을 흘려 읽음)이 뜨면 개념이 아니라 읽는 습관을 고칠 차례다.
       </div>
     </div>
     <div id="drill"></div>
@@ -571,8 +612,166 @@ document.querySelector('.tab[data-t="time"]').addEventListener('click',initTL);
     var b=document.getElementById('dkBasic'), h=document.getElementById('dkHard');
     if(b&&h){ if(hard){ b.style.background='#94a3b8'; h.style.background=''; } }
     if(location.hash==='#drill'){ var t=document.querySelector('.tab[data-t="drill"]'); if(t)t.click(); }
+    if(location.hash==='#pair'){ var t2=document.querySelector('.tab[data-t="pair"]'); if(t2)t2.click(); }
   });
 })();
+</script>
+
+<script>
+/* ===== 혼동쌍 카드 + 판별 훈련 ===== */
+var PAIRS=[
+ {n:'① 토지 조사 사업 vs 산미 증식 계획',cols:[
+  {h:'토지 조사 사업 (1910~18)',d:'누구 땅인지 기한부 신고로 <b>소유권 확정</b>. 총독부 지세 수입 급증, 신고되지 않은 땅은 총독부가 차지해 동양 척식 주식회사 등에 넘겼다.'},
+  {h:'산미 증식 계획 (1920년대)',d:'일본의 식량 부족을 메우려 <b>쌀 증산·반출</b>. 늘린 것보다 더 가져가 조선의 식량 사정 악화.'}],
+  key:'땅이냐 쌀이냐 — 무단기는 땅(소유권), 문화기는 쌀(증산·반출).'},
+ {n:'② 회사령 제정 vs 회사령 폐지',cols:[
+  {h:'제정 (1910, 허가제)',d:'회사 설립에 <b>총독의 허가</b> 필요 — 한국인의 회사 설립(민족 자본)을 억누름.'},
+  {h:'폐지 (1920, 신고제)',d:'허가제를 없애 <b>신고만으로</b> 설립 — 일본 자본이 조선에 들어오기 쉽게.'}],
+  key:'같은 이름, 방향은 반대 — 1910 묶기, 1920 풀기(단 일본 자본을 위해).'},
+ {n:'③ 무단 통치 vs 문화 통치',cols:[
+  {h:'무단 통치 (1910년대)',d:'헌병 경찰·조선 태형령, 관리·교사까지 제복과 칼. 언론·집회의 자유 자체가 없음.'},
+  {h:'문화 통치 (1920년대)',d:'보통 경찰로 바꿨지만 경찰 수는 <b>오히려 증가</b>. 한글 신문 허용하되 검열·정간. 치안 유지법(1925) <b>신설</b>.'}],
+  key:'부드러워진 게 아니라 교묘해졌다 — "허용"마다 족쇄가 붙어 있다.'},
+ {n:'④ 3·1 운동 vs 6·10 만세 운동',cols:[
+  {h:'3·1 운동 (1919)',d:'<b>고종</b>의 인산일 즈음, 전 민족적 만세 시위. 무단→문화 통치 전환의 계기.'},
+  {h:'6·10 만세 (1926)',d:'<b>순종</b>의 인산일 계기, 학생 중심. 민족주의·사회주의가 함께 준비 → 신간회로 이어지는 연대의 계기.'}],
+  key:'어느 임금의 인산일인가 — 고종이면 3·1, 순종이면 6·10.'},
+ {n:'⑤ 6·10 만세 vs 광주 학생 항일 운동',cols:[
+  {h:'6·10 만세 (1926)',d:'인산일이라는 <b>안의 계기</b>. 신간회(1927)보다 앞 — 연대의 씨앗.'},
+  {h:'광주 학생 항일 (1929)',d:'나주역 한·일 학생 충돌이라는 <b>밖의 계기</b>. 신간회가 지원 — 3·1 이후 최대 규모.'}],
+  key:'신간회보다 앞이냐 뒤냐 — 앞(씨앗)은 6·10, 뒤(지원받음)는 광주.'},
+ {n:'⑥ 물산 장려 vs 민립 대학 설립 vs 브나로드',three:1,cols:[
+  {h:'물산 장려 (1920~)',d:'"내 살림 내 것으로" — <b>국산품 애용</b>. 평양에서 조만식 등이 시작.'},
+  {h:'민립 대학 설립 (1920s)',d:'"한민족 1천만이 한 사람이 1원씩" — 우리 손으로 <b>대학</b>을 세우자는 모금.'},
+  {h:'브나로드 (1930s)',d:'"민중 속으로" — 학생들이 농촌에 가 <b>한글</b>을 가르친 문맹 퇴치(동아일보 주도).'}],
+  key:'산업·교육·한글 — 파는 것(국산품)·세우는 것(대학)·가르치는 것(한글).'},
+ {n:'⑦ 형평 운동 vs 소년 운동 vs 근우회',three:1,cols:[
+  {h:'형평 운동 (1923)',d:'진주에서 시작 — <b>백정</b>에 대한 신분 차별 철폐.'},
+  {h:'소년 운동 (1920s)',d:'방정환 등 — <b>어린이</b>를 인격체로 존중하자, 어린이날 제정.'},
+  {h:'근우회 (1927)',d:'<b>여성</b> 차별 철폐 — 신간회의 자매단체.'}],
+  key:'누구의 차별인가 — 백정·어린이·여성으로 즉시 가른다.'},
+ {n:'⑧ 1920 만주 독립군 vs 한국광복군',cols:[
+  {h:'봉오동·청산리 (1920)',d:'홍범도의 대한 독립군, 김좌진의 북로 군정서 등 <b>만주</b>의 독립군 연합이 일본군 격파.'},
+  {h:'한국광복군 (1940)',d:'<b>충칭</b>에서 창설된 대한민국 임시 정부의 정규군. 연합군과 함께 대일 항전.'}],
+  key:'누가 만들었나 — 스스로 모인 독립군 연합이냐, 임시 정부가 세운 정규군이냐. 소속이 시기(1920/1940)를 끌어온다.'},
+ {n:'⑨ 의열단 vs 한인 애국단',cols:[
+  {h:'의열단 (1919)',d:'<b>김원봉</b>이 조직. 김상옥(종로 경찰서)·나석주(동양 척식 주식회사) 등의 의거.'},
+  {h:'한인 애국단 (1931)',d:'<b>김구</b>가 조직. 이봉창(도쿄)·윤봉길(상하이 훙커우 공원) 의거.'}],
+  key:'김원봉이냐 김구냐 — 조직자와 12년의 시차로 가른다.'},
+ {n:'⑩ 공화주의 vs 복벽주의',cols:[
+  {h:'공화주의 (임시 정부)',d:'국민이 주인 — 대한<b>민국</b> 임시 정부(1919)는 처음부터 공화제를 채택.'},
+  {h:'복벽주의',d:'옛 <b>왕조 회복</b> — 고종(황제)을 다시 세우자는 일부 의병 계열의 노선.'}],
+  key:'"민국"이라는 이름 자체가 답 — 황제의 나라로 돌아가자는 게 아니다.'},
+ {n:'⑪ 신민회 vs 신간회',cols:[
+  {h:'신민회 (1907)',d:'<b>비밀 결사</b>. 국외 독립운동 기지 건설(남만주 삼원보 등). 105인 사건으로 와해.'},
+  {h:'신간회 (1927)',d:'<b>합법 단체</b>. 민족주의·사회주의 연합, 전국에 지회. 광주 학생 항일 운동 지원.'}],
+  key:'글자 하나, 20년 차이 — 몰래(신민회) vs 공개(신간회).'},
+ {n:'⑫ 국채 보상 운동 vs 물산 장려 운동',cols:[
+  {h:'국채 보상 (1907)',d:'일본에 진 <b>나라 빚</b>을 갚자 — 대구에서 시작, <b>국권 피탈 이전</b>.'},
+  {h:'물산 장려 (1920s)',d:'<b>국산품 애용</b>으로 민족 산업을 키우자 — 일제 강점기의 실력 양성 운동.'}],
+  key:'국권 피탈(1910) 전이냐 후냐 — "경제로 지키자"는 결이 같아 자주 뒤바뀐다.'},
+ {n:'⑬ 신채호 vs 조선어학회',cols:[
+  {h:'신채호',d:'『<b>조선상고사</b>』 — 역사를 "아(我)와 비아(非我)의 투쟁"으로 본 민족주의 사학.'},
+  {h:'조선어학회',d:'한글 맞춤법 통일안, 『<b>우리말큰사전</b>』 편찬 추진 — 1942년 조선어학회 사건으로 중단.'}],
+  key:'역사(조선상고사)냐 말(우리말큰사전)이냐 — 지킨 대상이 다르다.'}
+];
+(function(){
+  var h='';
+  PAIRS.forEach(function(p){
+    h+='<div class="paircard"><div class="pt">'+p.n+'</div><div class="paircols'+(p.three?' three':'')+'">';
+    p.cols.forEach(function(c){h+='<div class="pc"><b>'+c.h+'</b>'+c.d+'</div>';});
+    h+='</div><div class="pairkey">🔑 '+p.key+'</div></div>';
+  });
+  document.getElementById('pairCards').innerHTML=h;
+})();
+var PQ=[
+ {q:'농민이 기한 안에 신고하지 않은 땅을 총독부가 차지해 동양 척식 주식회사 등에 넘겼다.',o:['토지 조사 사업','산미 증식 계획'],a:0,w:'토지 조사 사업(1910~18)의 결과다. 산미 증식 계획은 쌀 증산·반출이지 소유권 조사가 아니다.'},
+ {q:'늘린 쌀보다 더 많이 일본으로 가져가 조선의 식량 사정이 나빠졌다.',o:['토지 조사 사업','산미 증식 계획'],a:1,w:'산미 증식 계획(1920년대)이다. "증산했는데 더 굶는다"가 이 정책의 핵심 모순이다. 토지 조사 사업은 쌀이 아니라 땅(소유권 확정)이 대상이었다.'},
+ {q:'이 조치로 일본 자본이 조선에 들어오기 쉬워졌다.',o:['회사령 제정 (1910)','회사령 폐지 (1920)'],a:1,w:'1920년 회사령 폐지(신고제 전환)다. 제정(허가제)은 반대로 민족 자본을 억누르는 조치였다.'},
+ {q:'회사를 세우려면 조선 총독의 허가를 받아야 했다.',o:['회사령 제정 (1910)','회사령 폐지 (1920)'],a:0,w:'1910년 제정된 회사령의 허가제다. 1920년에 신고제로 바뀐다 — 방향을 뒤집어 기억하면 오답.'},
+ {q:'헌병이 경찰을 겸하고, 관리와 교사까지 제복을 입고 칼을 찼다.',o:['무단 통치','문화 통치'],a:0,w:'1910년대 무단 통치의 풍경이다. 문화 통치기에는 보통 경찰로 바뀌고 관리·교사의 칼도 사라진다 — 대신 족쇄가 교묘해질 뿐이다.'},
+ {q:'한글 신문 발행이 허용되었지만 검열과 정간이 뒤따랐다.',o:['무단 통치','문화 통치'],a:1,w:'문화 통치(1920년대)다. "허용"에 항상 족쇄가 붙는 것이 문화 통치의 기만성이다.'},
+ {q:'치안 유지법이 새로 만들어졌다.',o:['무단 통치기','문화 통치기','민족 말살기'],a:1,w:'1925년, 문화 통치기다. "유화적 시기"라는 인상 때문에 탄압 법령이 사라졌다고 착각하기 쉽지만 오히려 신설됐다.'},
+ {q:'조선 태형령으로 한국인에게만 매질 형벌을 적용하였다.',o:['무단 통치기','문화 통치기','민족 말살기'],a:0,w:'무단 통치기(1912 제정)다. 태형령은 문화 통치로 바뀌면서 1920년에 폐지된다 — 시기의 표지 유물이다.'},
+ {q:'국가 총동원법으로 인력(징병·징용)과 물자(공출)를 강제 동원하였다.',o:['무단 통치기','문화 통치기','민족 말살기'],a:2,w:'민족 말살기(국가 총동원법 1938)다. 전쟁이 커질수록 수탈은 사람과 물자 전부로 확대됐다.'},
+ {q:'고종의 인산일을 즈음해 전국으로 퍼진 만세 시위였다.',o:['3·1 운동','6·10 만세 운동'],a:0,w:'3·1 운동(1919)이다. 순종의 인산일이면 6·10(1926) — 임금 이름으로 가른다.'},
+ {q:'순종의 인산일을 계기로 학생들이 중심이 되어 일어났다.',o:['3·1 운동','6·10 만세 운동'],a:1,w:'6·10 만세 운동(1926)이다. 고종이면 3·1, 순종이면 6·10.'},
+ {q:'나주역에서 비롯된 한·일 학생 충돌이 도화선이 되었다.',o:['6·10 만세 운동','광주 학생 항일 운동'],a:1,w:'광주 학생 항일 운동(1929)이다. 6·10은 인산일이라는 안의 계기, 광주는 충돌이라는 밖의 계기.'},
+ {q:'민족주의와 사회주의 세력이 함께 준비하며 연대의 계기가 되었고, 그 흐름이 신간회로 이어졌다.',o:['6·10 만세 운동','광주 학생 항일 운동'],a:0,w:'6·10 만세 운동(1926)이다. 이듬해 신간회(1927)가 창립된다. 광주(1929)는 거꾸로 신간회의 지원을 받았다.'},
+ {q:'"내 살림 내 것으로" — 국산품을 즐겨 쓰자고 외쳤다.',o:['물산 장려 운동','민립 대학 설립 운동','브나로드 운동'],a:0,w:'물산 장려 운동이다(평양, 조만식). 민립 대학 설립은 물건이 아니라 대학, 브나로드는 물건이 아니라 한글이 목표다.'},
+ {q:'우리 손으로 대학을 세우자며 "한 사람이 1원씩" 모금을 벌였다.',o:['물산 장려 운동','민립 대학 설립 운동','브나로드 운동'],a:1,w:'민립 대학 설립 운동이다. 산업이 아니라 고등 교육이 목표다.'},
+ {q:'학생들이 방학에 농촌으로 가 한글을 가르쳤다.',o:['물산 장려 운동','민립 대학 설립 운동','브나로드 운동'],a:2,w:'브나로드 운동(1930년대, 동아일보 주도)이다. "민중 속으로"라는 뜻이다.'},
+ {q:'진주에서 시작된, 백정에 대한 신분 차별 철폐 운동이다.',o:['형평 운동','소년 운동','근우회'],a:0,w:'형평 운동(1923)이다. 저울(형)처럼 평등하게 — 이름에 목표가 들어 있다.'},
+ {q:'어린이를 인격체로 존중하자며 어린이날 제정으로 이어졌다.',o:['형평 운동','소년 운동','근우회'],a:1,w:'방정환 등의 소년 운동이다. 형평 운동은 백정, 근우회는 여성 — 대상이 다르다.'},
+ {q:'여성 차별 철폐를 내걸었고 신간회의 자매단체였다.',o:['형평 운동','소년 운동','근우회'],a:2,w:'근우회(1927)다. 백정·어린이·여성 — 대상을 먼저 확인한다.'},
+ {q:'홍범도의 대한 독립군 등 만주의 독립군 연합이 일본군을 크게 무찔렀다.',o:['봉오동·청산리의 독립군','한국광복군'],a:0,w:'1920년 봉오동 전투·청산리 대첩이다. 한국광복군은 20년 뒤 충칭에서 창설된 임시 정부의 정규군이다.'},
+ {q:'충칭에서 창설된 대한민국 임시 정부의 정규군이다.',o:['봉오동·청산리의 독립군','한국광복군'],a:1,w:'한국광복군(1940)이다. 1920년 만주의 독립군 연합과 헷갈리면 20년이 어긋난다.'},
+ {q:'김원봉이 조직했고, 김상옥·나석주 등이 식민 통치 기관에 의거를 벌였다.',o:['의열단','한인 애국단'],a:0,w:'의열단(1919)이다. 한인 애국단(1931, 김구)은 이봉창·윤봉길 의거다.'},
+ {q:'이봉창과 윤봉길의 의거를 이끈 김구의 조직이다.',o:['의열단','한인 애국단'],a:1,w:'한인 애국단(1931)이다. 김원봉이냐 김구냐로 가른다.'},
+ {q:'"대한민국"이라는 이름에 담긴 임시 정부의 정치 체제다.',o:['공화주의','복벽주의'],a:0,w:'공화주의 — 국민이 주인이다. 복벽주의는 황제를 다시 세우자는 노선으로, 임시 정부의 방향이 아니다.'},
+ {q:'1907년 결성된 비밀 결사로, 국외에 독립운동 기지를 세웠다.',o:['신민회','신간회'],a:0,w:'신민회다. 신간회(1927)는 전국에 지회를 둔 합법 단체 — 글자 하나에 20년 차이.'},
+ {q:'민족주의·사회주의 연합으로 창립된 합법 단체로, 전국에 지회를 두었다.',o:['신민회','신간회'],a:1,w:'신간회(1927)다. 비밀 결사면 신민회(1907)다.'},
+ {q:'일본에 진 나라 빚을 갚자며 대구에서 시작된 모금 운동이다.',o:['국채 보상 운동','물산 장려 운동'],a:0,w:'국채 보상 운동(1907)이다. 국권 피탈 이전의 일 — 일제 강점기의 물산 장려 운동과 시대가 다르다.'},
+ {q:'『우리말큰사전』 편찬을 준비하다 1942년 일제의 탄압으로 중단되었다.',o:['신채호','조선어학회'],a:1,w:'조선어학회다. 신채호는 『조선상고사』로 민족주의 사학을 이끌었다 — 말을 지킨 쪽과 역사를 지킨 쪽.'},
+ {q:'고종을 다시 황제 자리에 세우자던 일부 의병 계열의 노선이다.',o:['공화주의','복벽주의'],a:1,w:'복벽주의다. 임시 정부는 반대로 \'대한민국\'이라는 이름 그대로 공화제를 택했다.'},
+ {q:'국산품을 써서 민족 산업을 키우자던, 국권 피탈 이후의 실력 양성 운동이다.',o:['국채 보상 운동','물산 장려 운동'],a:1,w:'물산 장려 운동(1920년대)이다. 국채 보상 운동(1907)은 국권 피탈 이전, 나라 빚 갚기가 목표였다.'},
+ {q:'『조선상고사』에서 역사를 \'아(我)와 비아(非我)의 투쟁\'으로 규정했다.',o:['신채호','조선어학회'],a:0,w:'신채호다. 조선어학회는 말을 지켰다 — 『우리말큰사전』 편찬을 준비하다 1942년 사건으로 중단됐다.'}
+];
+var pIdx=0,pScore=0,pWrong=[],pAns=false,pOrder=[];
+function pairShuffle(){pOrder=PQ.slice();for(var i=pOrder.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=pOrder[i];pOrder[i]=pOrder[j];pOrder[j]=t;}}
+function pairRender(){
+  if(pIdx>=pOrder.length){pairFinish();return;}
+  pAns=false;var it=pOrder[pIdx];
+  document.getElementById('pNum').textContent='문장 '+(pIdx+1)+' / '+pOrder.length;
+  document.getElementById('pScore').textContent=pScore;
+  document.getElementById('pBar').style.width=(pIdx/pOrder.length*100)+'%';
+  document.getElementById('pQ').textContent=it.q;
+  var opts=document.getElementById('pOpts');opts.innerHTML='';
+  opts.style.gridTemplateColumns=(it.o.length===2)?'repeat(2,1fr)':'1fr';
+  it.o.forEach(function(lb,k){
+    var b=document.createElement('button');b.className='qopt';b.textContent=lb;
+    b.addEventListener('click',function(){pairPick(k,b);});opts.appendChild(b);
+  });
+  document.getElementById('pExp').className='qexp';document.getElementById('pExp').innerHTML='';
+  document.getElementById('pNext').className='qnext';
+}
+function pairPick(k,btn){
+  if(pAns)return;pAns=true;var it=pOrder[pIdx];
+  document.querySelectorAll('#pOpts .qopt').forEach(function(b,i){
+    if(i===it.a)b.classList.add('correct');else if(b===btn)b.classList.add('wrong');else b.classList.add('dim');
+  });
+  var ok=(k===it.a);if(ok)pScore++;else pWrong.push(it);
+  document.getElementById('pScore').textContent=pScore;
+  var ex=document.getElementById('pExp');
+  ex.innerHTML='<div class="et">'+(ok?'⭕ 정확':'❌ '+it.o[it.a])+'</div>'+it.w;
+  ex.className='qexp show';
+  document.getElementById('pNext').className='qnext show';
+  document.getElementById('pNext').textContent=(pIdx+1<pOrder.length)?'다음 문장 →':'결과 보기';
+}
+function pairFinish(){
+  document.getElementById('pBar').style.width='100%';
+  document.getElementById('pNum').textContent='완료 ✓';
+  var pct=Math.round(pScore/pOrder.length*100);
+  var h='<div class="qdone"><div class="big">'+pScore+' / '+pOrder.length+'</div><p style="margin:8px 0 4px;font-size:15px">판별 정확도 '+pct+'%</p></div>';
+  if(pWrong.length){
+    h+='<div class="box r"><div class="t">🔎 아직 갈리지 않은 짝</div>';
+    pWrong.forEach(function(it){h+='• <b>'+it.o[it.a]+'</b> — '+it.q+'<br>';});
+    h+='<span style="font-size:12.5px">위 카드에서 이 짝의 🔑 가르는 기준만 다시 읽자.</span></div>';
+  } else {
+    h+='<div class="box g"><div class="t">🎉 전부 정확!</div>혼동쌍이 다 갈라졌다 — 오답 보기가 노리는 자리를 이제 안다.</div>';
+  }
+  h+='<button class="btn" id="pRestart" style="width:100%;margin-top:8px">↺ 다시 훈련</button>';
+  document.getElementById('pArea').innerHTML=h;
+  document.getElementById('pRestart').addEventListener('click',function(){
+    pIdx=0;pScore=0;pWrong=[];pairShuffle();
+    document.getElementById('pArea').innerHTML='<div class="qq" id="pQ"></div><div class="qopts" id="pOpts"></div><div class="qexp" id="pExp"></div><button class="qnext" id="pNext">다음 문장 →</button>';
+    document.getElementById('pNext').addEventListener('click',pairNext);
+    pairRender();
+  });
+}
+function pairNext(){if(!pAns)return;pIdx++;pairRender();}
+document.getElementById('pNext').addEventListener('click',pairNext);
+pairShuffle();pairRender();
 </script>
 </body>
 </html>
