@@ -101,6 +101,16 @@
   .chk{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px} .chk:last-child{border-bottom:none} .chk input{margin-top:4px;width:17px;height:17px;flex-shrink:0;accent-color:var(--accent)}
   .tag{display:inline-block;background:var(--accent-bg);color:var(--accent);border:1px solid #fde68a;border-radius:6px;padding:2px 9px;font-size:11.5px;font-weight:700;margin:3px 4px 0 0}
   @media (max-width:640px){ .hero h1{font-size:19px} .card{padding:16px} .tl-card{width:104px} .tl-track{height:290px} }
+
+.pairgrid{display:grid;grid-template-columns:1fr;gap:10px}
+.paircard{border:1px solid #e2e8f0;border-radius:11px;padding:12px 14px;background:#fff}
+.paircard .pt{font-weight:800;font-size:13.5px;margin-bottom:8px}
+.paircols{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.paircols.three{grid-template-columns:1fr}
+@media(min-width:560px){.paircols.three{grid-template-columns:1fr 1fr 1fr}}
+.paircols .pc{background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;padding:9px 10px;font-size:12.5px;line-height:1.55}
+.paircols .pc b{display:block;font-size:12.5px;margin-bottom:3px}
+.pairkey{margin-top:8px;font-size:12.5px;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:7px 10px}
 </style>
 </head>
 <body>
@@ -113,6 +123,8 @@
 <div class="tabs" id="tabs">
   <button class="tab active" data-t="intro">📋 개요</button>
   <button class="tab" data-t="time">🕰️ 연표</button>
+  <button class="tab" data-t="era">⏱️ 시기 훈련</button>
+  <button class="tab" data-t="pair">🪞 혼동쌍</button>
   <button class="tab" data-t="found">🏛️ 정부수립·전쟁</button>
   <button class="tab" data-t="demo">✊ 민주화</button>
   <button class="tab" data-t="dev">📈 발전·통일</button>
@@ -138,6 +150,8 @@
       </div>
       <div class="toc">
         <button onclick="go('time')"><div class="ti">🕰️</div><div class="tn">연표</div><div class="td">1945~현재</div></button>
+        <button onclick="go('era')"><div class="ti">⏱️</div><div class="tn">시기 훈련</div><div class="td">사건→시기 배치</div></button>
+        <button onclick="go('pair')"><div class="ti">🪞</div><div class="tn">혼동쌍</div><div class="td">헷갈리는 짝 가르기</div></button>
         <button onclick="go('found')"><div class="ti">🏛️</div><div class="tn">정부수립·전쟁</div><div class="td">분단·6·25</div></button>
         <button onclick="go('demo')"><div class="ti">✊</div><div class="tn">민주화</div><div class="td">4·19~6월항쟁</div></button>
         <button onclick="go('dev')"><div class="ti">📈</div><div class="tn">발전·통일</div><div class="td">경제·남북</div></button>
@@ -155,6 +169,43 @@
       <div class="box a" style="margin-top:14px">
         <div class="t">🧩 연표에서 꼭 잡을 순서</div>
         광복(1945)→<b>정부 수립(1948)</b>→<b>6·25(1950)</b>→<b>4·19(1960)</b>→5·16→유신(1972)→<b>5·18(1980)</b>→<b>6월 항쟁(1987)</b>→외환위기(1997)→<b>6·15 남북공동선언(2000)</b>.
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="era">
+    <div class="card">
+      <h2>⏱️ 시기 훈련 — 이 사건, 언제 일이야?</h2>
+      <p class="lead">현대사 문제의 절반은 <b>"언제"</b>에서 갈린다. 사건을 보고 어느 시기인지 고르면 <b>바로 채점</b>돼. 연도 암기가 아니라 <b>세 시기의 띠</b>에 얹는 감각을 기르는 훈련이야.</p>
+      <div class="box b">
+        <div class="t">🗺️ 3개의 띠</div>
+        <b>광복·전쟁 1945~53</b> 광복에서 정전까지 · <b>독재와 저항 1954~79</b> 사사오입에서 부마 항쟁까지 · <b>민주화·현대 1980~</b> 5·18에서 오늘까지<br><span style="font-size:12px;color:var(--sub)">※ 경계가 함정이다 — 발췌 개헌(1952)과 사사오입 개헌(1954)이 띠가 갈리고, 부마 항쟁(1979)과 5·18(1980)도 갈린다. 해설을 꼭 읽자.</span>
+      </div>
+      <div class="quizhud"><span class="qn" id="eNum">사건 1 / 20</span><span class="sc">맞음 <b id="eScore">0</b></span><div class="qbar"><i id="eBar" style="width:0%"></i></div></div>
+      <div id="eArea">
+        <div class="qq" id="eQ"></div>
+        <div class="qopts" id="eOpts" style="grid-template-columns:repeat(3,1fr)"></div>
+        <div class="qexp" id="eExp"></div>
+        <button class="qnext" id="eNext">다음 사건 →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="pair">
+    <div class="card">
+      <h2>🪞 혼동쌍 — 시험이 노리는 짝 10</h2>
+      <p class="lead">오답의 단골 원인은 <b>비슷한 둘을 맞바꿔 기억하는 것</b>이다. 실전 문제의 오답 보기들이 실제로 노린 짝만 모았다. 카드에서 <b>가르는 기준 한 줄</b>을 세우고, 아래 판별 훈련으로 굳히자.</p>
+      <div class="pairgrid" id="pairCards"></div>
+    </div>
+    <div class="card">
+      <h2>⚔️ 판별 훈련 — 이 설명, 누구 것?</h2>
+      <p class="lead">설명 한 문장을 읽고 <b>어느 쪽 이야기인지</b> 고른다. 전부 위 카드에서 나온다.</p>
+      <div class="quizhud"><span class="qn" id="pNum">문장 1 / 22</span><span class="sc">맞음 <b id="pScore">0</b></span><div class="qbar"><i id="pBar" style="width:0%"></i></div></div>
+      <div id="pArea">
+        <div class="qq" id="pQ"></div>
+        <div class="qopts" id="pOpts"></div>
+        <div class="qexp" id="pExp"></div>
+        <button class="qnext" id="pNext">다음 문장 →</button>
       </div>
     </div>
   </div>
@@ -280,6 +331,16 @@
   </div>
 
   <div class="page" data-p="drill">
+    <div class="card" style="padding:14px 16px">
+      <div class="box b" style="margin:0">
+        <div class="t">🔄 이 탭은 알아서 굴러간다</div>
+        문제를 풀면 그 자리에서 채점되고 <b>왜 틀렸는지</b>까지 진단된다. 그다음은 앱이 알아서 —<br>
+        • <b>그 자리에서</b>: 해설 밑의 🩹 <b>지금 바로 고치기</b> 버튼이 그 원인을 고치는 탭(⏱️ 시기 훈련 · 🪞 혼동쌍 · 개념)으로 데려간다.<br>
+        • <b>라운드 끝</b>: 틀린 것과 찍어서 맞힌 것을 <b>🔁 되풀이</b>로 다시 묻는다 — 최대 3회전.<br>
+        • <b>다음에 열 때</b>: 📬 <b>복습함</b>이 1·3·7일 간격으로 알아서 다시 물어본다. 3연속 정답이면 🏅 <b>정복</b>.<br>
+        점수 감각(전체를 다 풀었을 때) — <b>10개 이상</b>이면 이 단원은 잡혔다. <b>5개 이하</b>면 <a href="#" onclick="go('time');return false">🕰️ 연표</a> → <a href="#" onclick="go('found');return false">🏛️ 정부수립·전쟁</a> → <a href="#" onclick="go('demo');return false">✊ 민주화</a> → <a href="#" onclick="go('dev');return false">📈 발전·통일</a>을 정독한 뒤 다시 풀자.
+      </div>
+    </div>
     <div id="drill"></div>
   </div>
 
@@ -465,7 +526,223 @@ document.querySelector('.tab[data-t="time"]').addEventListener('click',initTL);
      drill.js = 공용 엔진(subject_hub/_shared/drill.js)
      drill_kh2_03.js = 문항 데이터. 정본은 exam_track/problem_bank/data/kh2_03.js
      둘 다 `python exam_track/tools/sync_drill.py --write`가 만든 복사본 — 직접 고치지 말 것. -->
+<script>window.DRILL_FIX={C3:['pair','🪞 혼동쌍 — 헷갈린 짝 가르기'],C8:['era','⏱️ 시기 훈련 — 띠에 다시 얹기'],C2:['found','🏛️ 개념 탭(정부수립·전쟁)부터 다시 보기'],C7:['time','🕰️ 연표 — 사료의 시기·주체 특정하기'],C4:['dev','📈 발전·통일 — 개념을 새 사례에 얹어보기']};</script>
 <script src="drill.js"></script>
 <script src="drill_kh2_03.js"></script>
+
+<script>
+/* ===== 시기 훈련 ===== */
+var ERA_LABELS=['광복·전쟁 1945~53','독재와 저항 1954~79','민주화·현대 1980~'];
+var ERA_EVENTS=[
+ {t:'8·15 광복',p:0,y:'1945',w:'일제 패망으로 광복 — 동시에 미·소가 38도선을 경계로 들어온다.'},
+ {t:'모스크바 3국 외상 회의',p:0,y:'1945.12',w:'임시 민주 정부 수립과 신탁 통치 방침 결정 — 좌우 대립이 폭발했다.'},
+ {t:'5·10 총선거',p:0,y:'1948',w:'우리 역사 최초의 보통 선거로 제헌 국회를 구성했다.'},
+ {t:'대한민국 정부 수립',p:0,y:'1948.8.15',w:'제헌 헌법(대통령 국회 간선)에 따라 이승만 정부 출범.'},
+ {t:'6·25 전쟁 발발',p:0,y:'1950',w:'북한의 남침 — 낙동강 방어선, 인천 상륙 작전, 중국군 개입으로 이어진다.'},
+ {t:'발췌 개헌',p:0,y:'1952',w:'전쟁 중 임시 수도 부산에서 대통령 직선제로 — 아직 앞 띠(전쟁기)다.'},
+ {t:'정전 협정',p:0,y:'1953',w:'전쟁을 멈춘 군사 문서 — 평화 협정이 아니라는 게 포인트.'},
+ {t:'사사오입 개헌',p:1,y:'1954',w:'초대 대통령 중임 제한 철폐 — 발췌(1952)와 2년 차이인데 띠가 갈린다.'},
+ {t:'4·19 혁명',p:1,y:'1960',w:'3·15 부정 선거에 항의 — 이승만 하야, 내각 책임제의 장면 내각으로.'},
+ {t:'5·16 군사 정변',p:1,y:'1961',w:'박정희 등 군인들이 정권 장악 — 군정을 거쳐 대통령제로 복귀.'},
+ {t:'한일 협정(국교 정상화)',p:1,y:'1965',w:'6·3 시위(1964) 등 격렬한 반대를 누르고 1965년 체결됐다.'},
+ {t:'7·4 남북 공동 성명',p:1,y:'1972',w:'자주·평화·민족 대단결 3대 원칙 — 그런데 같은 해 남북 모두 독재가 강화된다.'},
+ {t:'유신 헌법',p:1,y:'1972',w:'통일주체국민회의 간선·긴급 조치 — 7·4 성명과 같은 해라는 게 함정 포인트.'},
+ {t:'부마 민주 항쟁',p:1,y:'1979.10',w:'부산·마산의 유신 반대 시위 — 10·26(유신 붕괴) 직전. 5·18과 7개월 차이지만 띠가 갈린다.'},
+ {t:'5·18 민주화 운동',p:2,y:'1980',w:'신군부의 계엄 확대에 맞선 광주의 항쟁 — 민주화·현대 띠의 시작.'},
+ {t:'6월 민주 항쟁',p:2,y:'1987',w:'박종철 고문치사가 도화선 — 4·13 호헌에 맞서 전국에서 일어나 6·29 선언, 대통령 직선제 개헌을 얻어냈다.'},
+ {t:'서울 올림픽',p:2,y:'1988',w:'직선제 개헌 이듬해 — 냉전 양 진영이 함께 참가했다.'},
+ {t:'남북 기본 합의서',p:2,y:'1991',w:'화해·상호 불가침·교류 협력을 문서로 합의했다.'},
+ {t:'외환 위기',p:2,y:'1997',w:'IMF 구제 금융 — 이듬해 초 금 모으기 운동으로 이어진다.'},
+ {t:'6·15 남북 공동 선언',p:2,y:'2000',w:'최초의 남북 정상 회담(평양)에서 발표됐다.'}
+];
+var eOrder=[],eIdx=0,eScore=0,eAns=false,eWrong=[];
+function eraShuffle(){eOrder=ERA_EVENTS.slice();for(var i=eOrder.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=eOrder[i];eOrder[i]=eOrder[j];eOrder[j]=t;}}
+function eraRender(){
+  eAns=false; var ev=eOrder[eIdx];
+  document.getElementById('eNum').textContent='사건 '+(eIdx+1)+' / '+eOrder.length;
+  document.getElementById('eScore').textContent=eScore;
+  document.getElementById('eBar').style.width=(eIdx/eOrder.length*100)+'%';
+  document.getElementById('eQ').textContent=ev.t;
+  var opts=document.getElementById('eOpts'); opts.innerHTML='';
+  ERA_LABELS.forEach(function(lb,k){
+    var b=document.createElement('button'); b.className='qopt'; b.textContent=lb;
+    b.addEventListener('click',function(){eraPick(k,b);}); opts.appendChild(b);
+  });
+  document.getElementById('eExp').className='qexp'; document.getElementById('eExp').innerHTML='';
+  document.getElementById('eNext').className='qnext';
+}
+function eraPick(k,btn){
+  if(eAns)return; eAns=true; var ev=eOrder[eIdx];
+  document.querySelectorAll('#eOpts .qopt').forEach(function(b,i){
+    if(i===ev.p)b.classList.add('correct'); else if(b===btn)b.classList.add('wrong'); else b.classList.add('dim');
+  });
+  var ok=(k===ev.p); if(ok)eScore++; else eWrong.push(ev);
+  document.getElementById('eScore').textContent=eScore;
+  var ex=document.getElementById('eExp');
+  ex.innerHTML='<div class="et">'+(ok?'⭕ '+ev.y:'❌ '+ERA_LABELS[ev.p]+' ('+ev.y+')')+'</div>'+ev.w;
+  ex.className='qexp show';
+  document.getElementById('eNext').className='qnext show';
+  document.getElementById('eNext').textContent=(eIdx+1<eOrder.length)?'다음 사건 →':'결과 보기';
+}
+function eraFinish(){
+  document.getElementById('eBar').style.width='100%';
+  document.getElementById('eNum').textContent='완료 ✓';
+  var pct=Math.round(eScore/eOrder.length*100);
+  var h='<div class="qdone"><div class="big">'+eScore+' / '+eOrder.length+'</div><p style="margin:8px 0 4px;font-size:15px">시기 정확도 '+pct+'%</p></div>';
+  if(eWrong.length){
+    h+='<div class="box r"><div class="t">🔎 띠에서 어긋난 사건들</div>';
+    eWrong.forEach(function(ev){h+='• <b>'+ev.t+'</b> → '+ERA_LABELS[ev.p]+' ('+ev.y+')<br>';});
+    h+='<span style="font-size:12.5px">이 사건들만 연표 탭에서 다시 짚어 보자.</span></div>';
+  } else {
+    h+='<div class="box g"><div class="t">🎉 전부 정확!</div>시기의 띠가 머리에 섰다 — 순서 문제는 이제 두렵지 않다.</div>';
+  }
+  h+='<button class="btn" id="eRestart" style="width:100%;margin-top:8px">↺ 다시 훈련</button>';
+  document.getElementById('eArea').innerHTML=h;
+  document.getElementById('eRestart').addEventListener('click',function(){
+    eIdx=0;eScore=0;eWrong=[];eraShuffle();
+    document.getElementById('eArea').innerHTML='<div class="qq" id="eQ"></div><div class="qopts" id="eOpts" style="grid-template-columns:repeat(3,1fr)"></div><div class="qexp" id="eExp"></div><button class="qnext" id="eNext">다음 사건 →</button>';
+    document.getElementById('eNext').addEventListener('click',eraNext);
+    eraRender();
+  });
+}
+function eraNext(){eIdx++; if(eIdx>=eOrder.length){eraFinish();return;} eraRender();}
+document.getElementById('eNext').addEventListener('click',eraNext);
+eraShuffle(); eraRender();
+
+/* ===== 혼동쌍 카드 + 판별 훈련 ===== */
+var PAIRS=[
+ {n:'① 발췌 개헌 vs 사사오입 개헌',cols:[
+  {h:'발췌 개헌 (1952)',d:'전쟁 중 임시 수도 부산에서. <b>대통령 직선제</b>로 — 뽑는 방법을 바꿨다.'},
+  {h:'사사오입 개헌 (1954)',d:'<b>초대 대통령 중임 제한 철폐</b> — 반올림 억지 논리. 몇 번 하느냐를 바꿨다.'}],
+  key:'첫 번째는 뽑는 방법(직선), 두 번째는 몇 번 하느냐(중임 철폐).'},
+ {n:'② 4·19 혁명 vs 6월 민주 항쟁',cols:[
+  {h:'4·19 혁명 (1960)',d:'맞선 대상 = <b>이승만·3·15 부정 선거</b>. 얻은 것 = 대통령 하야, <b>내각 책임제</b> 개헌(장면 내각).'},
+  {h:'6월 민주 항쟁 (1987)',d:'맞선 대상 = <b>전두환·4·13 호헌</b>. 얻은 것 = 6·29 선언, <b>대통령 직선제</b> 개헌.'}],
+  key:'맞선 대상과 얻어낸 개헌으로 가른다 — 하야+내각제(4·19) vs 직선제(6월).'},
+ {n:'③ 부마 항쟁 vs 5·18 민주화 운동',cols:[
+  {h:'부마 항쟁 (1979.10)',d:'<b>부산·마산</b>, 맞선 대상 = <b>유신 체제</b>. 직후 10·26으로 유신 붕괴.'},
+  {h:'5·18 (1980.5)',d:'<b>광주</b>, 맞선 대상 = <b>신군부</b>의 계엄 확대.'}],
+  key:'7개월 차이의 별개 사건 — 유신에 맞섰나(부마), 신군부에 맞섰나(5·18).'},
+ {n:'④ 대통령을 누가 뽑았나',three:1,cols:[
+  {h:'제헌 헌법 (1948)',d:'<b>국회</b>에서 간접 선거.'},
+  {h:'발췌 개헌 (1952)',d:'<b>국민</b>이 직접 선거 — 최초의 직선제.'},
+  {h:'유신 헌법 (1972)',d:'<b>통일주체국민회의</b>에서 간접 선거 + 긴급 조치권.'}],
+  key:'국회 → 국민 → 대의 기구 — "누가 뽑나"의 왕복이 헌정사의 뼈대다.'},
+ {n:'⑤ 남북 합의 3형제',three:1,cols:[
+  {h:'7·4 공동 성명 (1972)',d:'<b>자주·평화·민족 대단결</b> 3대 원칙 — 첫 원칙 선언.'},
+  {h:'남북 기본 합의서 (1991)',d:'<b>화해·상호 불가침·교류 협력</b> — 문서 합의.'},
+  {h:'6·15 공동 선언 (2000)',d:'<b>최초의 남북 정상 회담</b>에서 발표.'}],
+  key:'원칙 선언(72) → 문서 합의(91) → 정상 만남(2000) — 단계가 올라간다.'},
+ {n:'⑥ 정전 협정 vs 6·15 공동 선언',cols:[
+  {h:'정전 협정 (1953)',d:'<b>전쟁을 멈춘</b> 군사 문서. 평화 협정이 아니다.'},
+  {h:'6·15 공동 선언 (2000)',d:'남북 정상이 <b>화해·협력</b>을 선언한 문서.'}],
+  key:'총을 멈춘 문서(53)와 손을 잡은 문서(2000).'},
+ {n:'⑦ 금 모으기 vs 국채 보상 운동',cols:[
+  {h:'금 모으기 (1997~98)',d:'<b>외환 위기</b> — IMF 빚을 갚자며 장롱 속 금을 내놓았다.'},
+  {h:'국채 보상 운동 (1907)',d:'<b>일본에 진 나라 빚</b>을 갚자 — 대구에서 시작. 국권 피탈 이전.'}],
+  key:'90년 차이 — 갚을 대상이 IMF냐 일본이냐.'},
+ {n:'⑧ 4·19 다음 vs 5·16 다음',cols:[
+  {h:'4·19 혁명 다음',d:'<b>내각 책임제</b> 개헌 — 장면 내각(제2공화국). 대통령은 상징적 지위.'},
+  {h:'5·16 정변 다음',d:'군정 → <b>대통령제 복귀</b>(제3공화국, 박정희).'}],
+  key:'혁명 다음은 내각제, 정변 다음은 다시 대통령제 — 권력 구조가 한 번 접혔다 펴진다.'},
+ {n:'⑨ 모스크바 3국 외상 회의 vs 미소 공동 위원회',cols:[
+  {h:'모스크바 3상 회의 (1945.12)',d:'임시 민주 정부 수립 + <b>신탁 통치 방침 결정</b> — 좌우 대립 폭발.'},
+  {h:'미소 공동 위원회 (1946·47)',d:'그 <b>실행을 논의</b>하다 두 차례 결렬 — 한반도 문제가 유엔으로.'}],
+  key:'결정한 회의(모스크바)와 굴리다 멈춘 위원회(미소공위).'},
+ {n:'⑩ 6·25의 개입 — 중국군 vs 소련',cols:[
+  {h:'중국군(중공군)',d:'1950년 10월 <b>압록강을 건너 직접 참전</b> — 전선을 다시 남쪽으로.'},
+  {h:'소련',d:'<b>직접 참전하지 않고</b> 배후에서 지원.'}],
+  key:'압록강을 건넌 것은 중국군이다 — 소련 참전으로 쓰면 오답.'}
+];
+(function(){
+  var h='';
+  PAIRS.forEach(function(p){
+    h+='<div class="paircard"><div class="pt">'+p.n+'</div><div class="paircols'+(p.three?' three':'')+'">';
+    p.cols.forEach(function(c){h+='<div class="pc"><b>'+c.h+'</b>'+c.d+'</div>';});
+    h+='</div><div class="pairkey">🔑 '+p.key+'</div></div>';
+  });
+  document.getElementById('pairCards').innerHTML=h;
+})();
+var PQ=[
+ {q:'전쟁 중 임시 수도 부산에서 대통령 직선제로 바꾼 개헌이다.',o:['발췌 개헌','사사오입 개헌'],a:0,w:'발췌 개헌(1952)이다. 사사오입(1954)은 초대 대통령의 중임 제한을 없앤 개헌이다.'},
+ {q:'초대 대통령에 한해 중임 제한을 없앤, 반올림 논리의 개헌이다.',o:['발췌 개헌','사사오입 개헌'],a:1,w:'사사오입 개헌(1954)이다. 뽑는 방법을 바꾼 건 발췌(직선제), 횟수를 바꾼 건 사사오입.'},
+ {q:'3·15 부정 선거에 항의해 일어나 대통령이 물러났다.',o:['4·19 혁명','6월 민주 항쟁'],a:0,w:'4·19 혁명(1960)이다. 이승만 하야 후 내각 책임제로 개헌됐다.'},
+ {q:'4·13 호헌 조치에 맞서 일어나 대통령 직선제 개헌을 얻어냈다.',o:['4·19 혁명','6월 민주 항쟁'],a:1,w:'6월 민주 항쟁(1987)이다. 6·29 선언으로 직선제를 얻어냈다 — 4·19의 성과는 내각제였다.'},
+ {q:'유신 체제에 반대해 부산과 마산에서 일어났다.',o:['부마 항쟁','5·18 민주화 운동'],a:0,w:'부마 항쟁(1979.10)이다. 직후 10·26으로 유신이 무너진다. 이듬해 광주에서 신군부에 맞선 것이 5·18이다.'},
+ {q:'신군부의 계엄 확대에 맞서 광주에서 일어났다.',o:['부마 항쟁','5·18 민주화 운동'],a:1,w:'5·18 민주화 운동(1980.5)이다. 부마와 7개월 차이지만 맞선 대상이 다르다 — 유신 vs 신군부.'},
+ {q:'대통령을 국회에서 뽑도록 한 헌법이다.',o:['제헌 헌법','발췌 개헌','유신 헌법'],a:0,w:'제헌 헌법(1948)이다. 직선제는 발췌(1952), 통일주체국민회의 간선은 유신(1972).'},
+ {q:'국민이 대통령을 직접 뽑도록 처음 바꾼 개헌이다.',o:['제헌 헌법','발췌 개헌','유신 헌법'],a:1,w:'발췌 개헌(1952)이다. 전쟁 중 부산에서 이뤄졌다. 국회 간선이면 제헌(1948), 통일주체국민회의면 유신(1972)이다.'},
+ {q:'대통령을 통일주체국민회의에서 뽑고 긴급 조치권을 두었다.',o:['제헌 헌법','발췌 개헌','유신 헌법'],a:2,w:'유신 헌법(1972)이다. 직선제를 되돌리고 대통령에게 초헌법적 권한을 줬다.'},
+ {q:'자주·평화·민족 대단결의 통일 3대 원칙을 처음 합의했다.',o:['7·4 남북 공동 성명','남북 기본 합의서','6·15 공동 선언'],a:0,w:'7·4 남북 공동 성명(1972)이다. 그런데 같은 해 남북 모두 독재 체제가 강화된다. 불가침 문서화는 기본 합의서(1991), 정상 회담은 6·15(2000)다.'},
+ {q:'남북이 화해와 상호 불가침, 교류 협력을 문서로 합의했다.',o:['7·4 남북 공동 성명','남북 기본 합의서','6·15 공동 선언'],a:1,w:'남북 기본 합의서(1991)다. 원칙 선언(72)→문서 합의(91)→정상 만남(2000)의 가운데 단계.'},
+ {q:'최초의 남북 정상 회담에서 발표되었다.',o:['7·4 남북 공동 성명','남북 기본 합의서','6·15 공동 선언'],a:2,w:'6·15 공동 선언(2000)이다. 평양에서 열린 첫 정상 회담의 산물이다. 원칙 선언이면 7·4(1972), 불가침 문서면 기본 합의서(1991)다.'},
+ {q:'전쟁을 멈추기로 한 군사 문서로, 평화 협정은 아니다.',o:['정전 협정','6·15 공동 선언'],a:0,w:'정전 협정(1953)이다. 전쟁이 끝난 게 아니라 멈춘 상태라는 게 핵심이다.'},
+ {q:'남북 정상이 화해와 협력의 방향을 함께 선언한 문서다.',o:['정전 협정','6·15 공동 선언'],a:1,w:'6·15 공동 선언(2000)이다. 총을 멈춘 문서(정전)와 손을 잡은 문서(6·15).'},
+ {q:'외환 위기 때 국민들이 장롱 속 금을 내놓았다.',o:['금 모으기 운동','국채 보상 운동'],a:0,w:'금 모으기 운동(1997~98)이다. IMF 구제 금융의 빚을 갚자는 운동이었다.'},
+ {q:'일본에 진 나라 빚을 갚자며 대구에서 시작됐다.',o:['금 모으기 운동','국채 보상 운동'],a:1,w:'국채 보상 운동(1907)이다. 결이 닮아 자주 뒤바뀐다 — 90년 차이, 갚을 대상이 다르다.'},
+ {q:'이 사건 뒤 내각 책임제의 장면 내각이 들어섰다.',o:['4·19 혁명','5·16 군사 정변'],a:0,w:'4·19 혁명(1960)이다. 제2공화국은 내각이 중심이 되는 체제였다.'},
+ {q:'군인들이 정권을 잡아 군정을 거쳐 대통령제로 돌아갔다.',o:['4·19 혁명','5·16 군사 정변'],a:1,w:'5·16 군사 정변(1961)이다. 혁명 다음은 내각제, 정변 다음은 다시 대통령제.'},
+ {q:'임시 민주 정부 수립과 신탁 통치 방침이 결정돼 좌우 대립이 격화됐다.',o:['모스크바 3국 외상 회의','미소 공동 위원회'],a:0,w:'모스크바 3국 외상 회의(1945.12)다. 신탁 통치를 둘러싸고 찬탁·반탁으로 갈라졌다.'},
+ {q:'임시 정부 수립을 논의했으나 결렬돼 한반도 문제가 유엔으로 넘어갔다.',o:['모스크바 3국 외상 회의','미소 공동 위원회'],a:1,w:'미소 공동 위원회(1946·47)다. 결정한 회의와 굴리다 멈춘 위원회를 가른다.'},
+ {q:'압록강을 건너 참전해 전선을 다시 남쪽으로 밀어냈다.',o:['중국군(중공군)','소련군'],a:0,w:'중국군이다(1950.10). 소련은 직접 참전하지 않고 배후에서 지원했다.'},
+ {q:'6·25 전쟁에 직접 참전하지 않고 배후에서 지원했다.',o:['중국군(중공군)','소련군'],a:1,w:'소련이다. "소련군 참전"으로 쓰면 오답 — 압록강을 건넌 것은 중국군이다.'}
+];
+var pIdx=0,pScore=0,pWrong=[],pAns=false,pOrder=[];
+function pairShuffle(){pOrder=PQ.slice();for(var i=pOrder.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=pOrder[i];pOrder[i]=pOrder[j];pOrder[j]=t;}}
+function pairRender(){
+  if(pIdx>=pOrder.length){pairFinish();return;}
+  pAns=false;var it=pOrder[pIdx];
+  document.getElementById('pNum').textContent='문장 '+(pIdx+1)+' / '+pOrder.length;
+  document.getElementById('pScore').textContent=pScore;
+  document.getElementById('pBar').style.width=(pIdx/pOrder.length*100)+'%';
+  document.getElementById('pQ').textContent=it.q;
+  var opts=document.getElementById('pOpts');opts.innerHTML='';
+  opts.style.gridTemplateColumns=(it.o.length===2)?'repeat(2,1fr)':'1fr';
+  it.o.forEach(function(lb,k){
+    var b=document.createElement('button');b.className='qopt';b.textContent=lb;
+    b.addEventListener('click',function(){pairPick(k,b);});opts.appendChild(b);
+  });
+  document.getElementById('pExp').className='qexp';document.getElementById('pExp').innerHTML='';
+  document.getElementById('pNext').className='qnext';
+}
+function pairPick(k,btn){
+  if(pAns)return;pAns=true;var it=pOrder[pIdx];
+  document.querySelectorAll('#pOpts .qopt').forEach(function(b,i){
+    if(i===it.a)b.classList.add('correct');else if(b===btn)b.classList.add('wrong');else b.classList.add('dim');
+  });
+  var ok=(k===it.a);if(ok)pScore++;else pWrong.push(it);
+  document.getElementById('pScore').textContent=pScore;
+  var ex=document.getElementById('pExp');
+  ex.innerHTML='<div class="et">'+(ok?'⭕ 정확':'❌ '+it.o[it.a])+'</div>'+it.w;
+  ex.className='qexp show';
+  document.getElementById('pNext').className='qnext show';
+  document.getElementById('pNext').textContent=(pIdx+1<pOrder.length)?'다음 문장 →':'결과 보기';
+}
+function pairFinish(){
+  document.getElementById('pBar').style.width='100%';
+  document.getElementById('pNum').textContent='완료 ✓';
+  var pct=Math.round(pScore/pOrder.length*100);
+  var h='<div class="qdone"><div class="big">'+pScore+' / '+pOrder.length+'</div><p style="margin:8px 0 4px;font-size:15px">판별 정확도 '+pct+'%</p></div>';
+  if(pWrong.length){
+    h+='<div class="box r"><div class="t">🔎 아직 갈리지 않은 짝</div>';
+    pWrong.forEach(function(it){h+='• <b>'+it.o[it.a]+'</b> — '+it.q+'<br>';});
+    h+='<span style="font-size:12.5px">위 카드에서 이 짝의 🔑 가르는 기준만 다시 읽자.</span></div>';
+  } else {
+    h+='<div class="box g"><div class="t">🎉 전부 정확!</div>혼동쌍이 다 갈라졌다 — 오답 보기가 노리는 자리를 이제 안다.</div>';
+  }
+  h+='<button class="btn" id="pRestart" style="width:100%;margin-top:8px">↺ 다시 훈련</button>';
+  document.getElementById('pArea').innerHTML=h;
+  document.getElementById('pRestart').addEventListener('click',function(){
+    pIdx=0;pScore=0;pWrong=[];pairShuffle();
+    document.getElementById('pArea').innerHTML='<div class="qq" id="pQ"></div><div class="qopts" id="pOpts"></div><div class="qexp" id="pExp"></div><button class="qnext" id="pNext">다음 문장 →</button>';
+    document.getElementById('pNext').addEventListener('click',pairNext);
+    pairRender();
+  });
+}
+function pairNext(){if(!pAns)return;pIdx++;pairRender();}
+document.getElementById('pNext').addEventListener('click',pairNext);
+pairShuffle();pairRender();
+if(location.hash==='#era'||location.hash==='#pair'){var _t=document.querySelector('.tab[data-t="'+location.hash.slice(1)+'"]');if(_t)_t.click();}
+</script>
 </body>
 </html>
