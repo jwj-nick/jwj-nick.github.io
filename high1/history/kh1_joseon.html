@@ -102,6 +102,16 @@
   .chk{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px} .chk:last-child{border-bottom:none} .chk input{margin-top:4px;width:17px;height:17px;flex-shrink:0;accent-color:var(--accent)}
   .tag{display:inline-block;background:var(--accent-bg);color:var(--accent);border:1px solid #fde68a;border-radius:6px;padding:2px 9px;font-size:11.5px;font-weight:700;margin:3px 4px 0 0}
   @media (max-width:640px){ .hero h1{font-size:19px} .card{padding:16px} .tl-card{width:104px} .tl-track{height:290px} }
+
+.pairgrid{display:grid;grid-template-columns:1fr;gap:10px}
+.paircard{border:1px solid #e2e8f0;border-radius:11px;padding:12px 14px;background:#fff}
+.paircard .pt{font-weight:800;font-size:13.5px;margin-bottom:8px}
+.paircols{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.paircols.three{grid-template-columns:1fr}
+@media(min-width:560px){.paircols.three{grid-template-columns:1fr 1fr 1fr}}
+.paircols .pc{background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;padding:9px 10px;font-size:12.5px;line-height:1.55}
+.paircols .pc b{display:block;font-size:12.5px;margin-bottom:3px}
+.pairkey{margin-top:8px;font-size:12.5px;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:7px 10px}
 </style>
 </head>
 <body>
@@ -114,11 +124,14 @@
 <div class="tabs" id="tabs">
   <button class="tab active" data-t="intro">📋 개요</button>
   <button class="tab" data-t="time">🕰️ 연표</button>
+  <button class="tab" data-t="era">⏱️ 시기 훈련</button>
+  <button class="tab" data-t="pair">🪞 혼동쌍</button>
   <button class="tab" data-t="found">🏛️ 건국·통치</button>
   <button class="tab" data-t="sarim">📚 사림·사화</button>
   <button class="tab" data-t="war">⚔️ 양난</button>
   <button class="tab" data-t="world">🌐 세상 속으로</button>
   <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="drill">⚡ 실전</button>
   <button class="tab" data-t="sum">✅ 정리</button>
 </div>
 <div class="wrap">
@@ -138,10 +151,13 @@
       </div>
       <div class="toc">
         <button onclick="go('time')"><div class="ti">🕰️</div><div class="tn">연표</div><div class="td">1392~1636</div></button>
+        <button onclick="go('era')"><div class="ti">⏱️</div><div class="tn">시기 훈련</div><div class="td">사건→시기 배치</div></button>
+        <button onclick="go('pair')"><div class="ti">🪞</div><div class="tn">혼동쌍</div><div class="td">헷갈리는 짝 가르기</div></button>
         <button onclick="go('found')"><div class="ti">🏛️</div><div class="tn">건국·통치</div><div class="td">정도전·세종·제도</div></button>
         <button onclick="go('sarim')"><div class="ti">📚</div><div class="tn">사림·사화</div><div class="td">사화·붕당</div></button>
         <button onclick="go('war')"><div class="ti">⚔️</div><div class="tn">양난</div><div class="td">왜란·호란</div></button>
         <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+        <button onclick="go('drill')"><div class="ti">⚡</div><div class="tn">실전</div><div class="td">심화 12문제</div></button>
       </div>
     </div>
   </div>
@@ -154,6 +170,43 @@
       <div class="box a" style="margin-top:14px">
         <div class="t">🧩 연표에서 꼭 잡을 흐름</div>
         건국(1392)→한양 천도→세종 <b>훈민정음(1443)</b>→<b>경국대전(1485)</b>→사화 4대(무오1498·갑자1504·기묘1519·을사1545)→붕당→<b>임진왜란(1592)</b>→<b>병자호란(1636)</b>.
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="era">
+    <div class="card">
+      <h2>⏱️ 시기 훈련 — 이 사건, 언제 일이야?</h2>
+      <p class="lead">조선 전기 문제의 절반은 <b>"언제"</b>에서 갈린다. 사건을 보고 어느 시기인지 고르면 <b>바로 채점</b>돼. 250년을 <b>세 개의 띠</b>로 접어 두는 훈련이야.</p>
+      <div class="box b">
+        <div class="t">🗺️ 3개의 띠</div>
+        <b>건국·정비 1392~1485</b> 태조에서 성종(경국대전)까지 · <b>사림과 사화 1498~1591</b> 무오사화에서 붕당까지 · <b>양 난 1592~1637</b> 왜란에서 삼전도까지<br><span style="font-size:12px;color:var(--sub)">※ 경계가 함정이다 — 경국대전 반포(1485)는 15세기의 끝, 무오사화(1498)는 16세기 띠의 첫머리다. 해설을 꼭 읽자.</span>
+      </div>
+      <div class="quizhud"><span class="qn" id="eNum">사건 1 / 14</span><span class="sc">맞음 <b id="eScore">0</b></span><div class="qbar"><i id="eBar" style="width:0%"></i></div></div>
+      <div id="eArea">
+        <div class="qq" id="eQ"></div>
+        <div class="qopts" id="eOpts" style="grid-template-columns:repeat(3,1fr)"></div>
+        <div class="qexp" id="eExp"></div>
+        <button class="qnext" id="eNext">다음 사건 →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="pair">
+    <div class="card">
+      <h2>🪞 혼동쌍 — 시험이 노리는 짝 8</h2>
+      <p class="lead">오답의 단골 원인은 <b>비슷한 둘을 맞바꿔 기억하는 것</b>이다. 실전 문제의 오답 보기들이 실제로 노린 짝만 모았다. 카드에서 <b>가르는 기준 한 줄</b>을 세우고, 아래 판별 훈련으로 굳히자.</p>
+      <div class="pairgrid" id="pairCards"></div>
+    </div>
+    <div class="card">
+      <h2>⚔️ 판별 훈련 — 이 설명, 누구 것?</h2>
+      <p class="lead">설명 한 문장을 읽고 <b>어느 쪽 이야기인지</b> 고른다. 전부 위 카드에서 나온다.</p>
+      <div class="quizhud"><span class="qn" id="pNum">문장 1 / 19</span><span class="sc">맞음 <b id="pScore">0</b></span><div class="qbar"><i id="pBar" style="width:0%"></i></div></div>
+      <div id="pArea">
+        <div class="qq" id="pQ"></div>
+        <div class="qopts" id="pOpts"></div>
+        <div class="qexp" id="pExp"></div>
+        <button class="qnext" id="pNext">다음 문장 →</button>
       </div>
     </div>
   </div>
@@ -184,7 +237,7 @@
         <div class="ava">📜</div>
         <div>
           <div class="st">세종 (재위 1418~1450)</div>
-          <div class="sd"><b>집현전</b>을 두어 학문을 진흥하고 <b>훈민정음을 창제(1443)·반포(1446)</b>했다. 측우기·앙부일구·자격루 등 과학 기구, 공법(전분6등·연분9등)의 조세 개혁, <b>4군 6진</b>(최윤덕·김종서)으로 북방 개척, 쓰시마(대마도) 정벌(1419, 이종무)까지. 백성을 위한 정치의 표본.</div>
+          <div class="sd"><b>집현전</b>을 두어 학문을 진흥하고 <b>훈민정음을 창제(1443)·반포(1446)</b>했다. 측우기·앙부일구·자격루 등 과학 기구, <b>농사직설</b>(1429, 우리 풍토의 농법)·칠정산(우리 하늘의 달력), 공법(전분6등·연분9등)의 조세 개혁, <b>4군 6진</b>(최윤덕·김종서)으로 북방 개척, 쓰시마(대마도) 정벌(1419, 이종무)까지. 백성을 위한 정치의 표본.</div>
         </div>
       </div>
 
@@ -198,6 +251,7 @@
         <tr><td>지방</td><td class="l">8도-부·목·군·현, 모든 군현에 <b>수령</b> 파견, 향리 보좌, 유향소(향촌 자치)</td></tr>
       </table>
       <p style="font-size:12.5px;color:var(--sub)">관리 선발: 과거(문과·무과·잡과)·음서·천거. 문반+무반=양반.</p>
+      <div class="box b" style="margin-top:10px"><div class="t">📚 교육과 과거의 사다리</div>서당(기초) → 향교(각 군현)·4부 학당(한양) → <b>성균관</b>(한양 하나뿐인 최고 학부) → 문과(대과). 법제상 <b>양인 이상이면 응시</b>할 수 있었지만, <b>서얼은 문과가 막혔고</b>(서얼금고) 농민에게는 공부할 여유가 없었다 — "법적 가능"과 "현실 제약"을 함께 보는 것이 조선 신분제의 핵심이다.</div>
     </div>
   </div>
 
@@ -299,6 +353,20 @@
       <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
       <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
     </div>
+  </div>
+
+  <div class="page" data-p="drill">
+    <div class="card" style="padding:14px 16px">
+      <div class="box b" style="margin:0">
+        <div class="t">🔄 이 탭은 알아서 굴러간다</div>
+        문제를 풀면 그 자리에서 채점되고 <b>왜 틀렸는지</b>까지 진단된다. 그다음은 앱이 알아서 —<br>
+        • <b>그 자리에서</b>: 해설 밑의 🩹 <b>지금 바로 고치기</b> 버튼이 그 원인을 고치는 탭(⏱️ 시기 훈련 · 🪞 혼동쌍 · 개념)으로 데려간다.<br>
+        • <b>라운드 끝</b>: 틀린 것과 찍어서 맞힌 것을 <b>🔁 되풀이</b>로 다시 묻는다 — 최대 3회전.<br>
+        • <b>다음에 열 때</b>: 📬 <b>복습함</b>이 1·3·7일 간격으로 알아서 다시 물어본다. 3연속 정답이면 🏅 <b>정복</b>.<br>
+        점수 감각(전체를 다 풀었을 때) — <b>10개 이상</b>이면 이 단원은 잡혔다. <b>5개 이하</b>면 <a href="#" onclick="go('time');return false">🕰️ 연표</a> → <a href="#" onclick="go('found');return false">🏛️ 건국·정비</a> → <a href="#" onclick="go('sarim');return false">🌱 사림</a> → <a href="#" onclick="go('war');return false">⚔️ 양 난</a>을 정독한 뒤 다시 풀자.
+      </div>
+    </div>
+    <div id="drill"></div>
   </div>
 
   <div class="page" data-p="sum">
@@ -482,6 +550,211 @@ QUIZ.forEach(function(q){var correct=q.o[q.a];for(var i=q.o.length-1;i>0;i--){va
 pickThree('go');
 renderQ();
 document.querySelector('.tab[data-t="time"]').addEventListener('click',initTL);
+</script>
+<!-- ⚡ 실전 — 심화 문항 드릴.
+     drill.js = 공용 엔진(subject_hub/_shared/drill.js)
+     drill_kh1_03.js = 문항 데이터. 정본은 exam_track/problem_bank/data/kh1_03.js
+     둘 다 `python exam_track/tools/sync_drill.py --write`가 만든 복사본 — 직접 고치지 말 것. -->
+<script>window.DRILL_FIX={C3:['pair','🪞 혼동쌍 — 헷갈린 짝 가르기'],C8:['era','⏱️ 시기 훈련 — 띠에 다시 얹기'],C2:['found','🏛️ 개념 탭(건국·정비)부터 다시 보기'],C7:['time','🕰️ 연표 — 사료의 시기·주체 특정하기'],C4:['war','⚔️ 양 난 탭 — 개념을 사례에 얹어보기']};</script>
+<script src="drill.js"></script>
+<script src="drill_kh1_03.js"></script>
+
+<script>
+/* ===== 시기 훈련 ===== */
+var ERA_LABELS=['건국·정비 1392~1485','사림과 사화 1498~1591','양 난 1592~1637'];
+var ERA_EVENTS=[
+ {t:'도읍을 한양으로 옮겼다',p:0,y:'1394',w:'건국(1392) 2년 뒤 — 새 왕조의 새 수도.'},
+ {t:'태종이 호패법을 실시했다',p:0,y:'1413',w:'인구 파악 — 사병 혁파·6조 직계제와 함께 태종의 왕권 강화 세트.'},
+ {t:'세종이 4군 6진을 개척했다',p:0,y:'15세기 전반',w:'최윤덕·김종서 — 압록강~두만강 국경이 이때 만들어졌다.'},
+ {t:'훈민정음을 반포했다',p:0,y:'1446',w:'창제(1443) 후 반포 — 자주·애민·실용의 세종 프로젝트.'},
+ {t:'수양대군이 계유정난을 일으켰다',p:0,y:'1453',w:'조카 단종을 몰아낸 세조의 집권 — 훈구 세력의 출발점.'},
+ {t:'경국대전을 완성해 반포했다',p:0,y:'1485',w:'세조가 시작, 성종이 완성 — 법치 조선의 완성이자 15세기의 마무리.'},
+ {t:'무오사화가 일어났다',p:1,y:'1498',w:'첫 사화 — 연산군 대, 김종직의 조의제문이 빌미. 16세기 사화 시대의 개막.'},
+ {t:'조광조가 개혁을 펴다 기묘사화로 몰락했다',p:1,y:'1519',w:'중종 대 — 현량과·소격서 폐지 등 급진 개혁의 좌절.'},
+ {t:'을사사화가 일어났다',p:1,y:'1545',w:'명종 즉위 무렵 외척 다툼 — 네 번째이자 마지막 사화.'},
+ {t:'사림이 동인과 서인으로 나뉘었다',p:1,y:'1575',w:'이조 전랑 자리다툼 — 사화를 견뎌 낸 사림이 집권 후 안에서 갈라졌다.'},
+ {t:'임진왜란이 일어나고 한산도 대첩이 벌어졌다',p:2,y:'1592',w:'이순신의 학익진 — 바다를 지켜 전세를 바꿨다.'},
+ {t:'훈련도감을 설치했다',p:2,y:'1593',w:'왜란 중 만든 직업 군인 부대(포수·사수·살수).'},
+ {t:'정묘호란이 일어났다',p:2,y:'1627',w:'후금의 침입 — 형제 관계를 맺고 물러갔다.'},
+ {t:'병자호란 끝에 삼전도에서 항복했다',p:2,y:'1636~37',w:'청의 군신 요구 → 남한산성 → 삼전도 — 소현세자·봉림대군 인질.'}
+];
+var eOrder=[],eIdx=0,eScore=0,eAns=false,eWrong=[];
+function eraShuffle(){eOrder=ERA_EVENTS.slice();for(var i=eOrder.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=eOrder[i];eOrder[i]=eOrder[j];eOrder[j]=t;}}
+function eraRender(){
+  eAns=false; var ev=eOrder[eIdx];
+  document.getElementById('eNum').textContent='사건 '+(eIdx+1)+' / '+eOrder.length;
+  document.getElementById('eScore').textContent=eScore;
+  document.getElementById('eBar').style.width=(eIdx/eOrder.length*100)+'%';
+  document.getElementById('eQ').textContent=ev.t;
+  var opts=document.getElementById('eOpts'); opts.innerHTML='';
+  ERA_LABELS.forEach(function(lb,k){
+    var b=document.createElement('button'); b.className='qopt'; b.textContent=lb;
+    b.addEventListener('click',function(){eraPick(k,b);}); opts.appendChild(b);
+  });
+  document.getElementById('eExp').className='qexp'; document.getElementById('eExp').innerHTML='';
+  document.getElementById('eNext').className='qnext';
+}
+function eraPick(k,btn){
+  if(eAns)return; eAns=true; var ev=eOrder[eIdx];
+  document.querySelectorAll('#eOpts .qopt').forEach(function(b,i){
+    if(i===ev.p)b.classList.add('correct'); else if(b===btn)b.classList.add('wrong'); else b.classList.add('dim');
+  });
+  var ok=(k===ev.p); if(ok)eScore++; else eWrong.push(ev);
+  document.getElementById('eScore').textContent=eScore;
+  var ex=document.getElementById('eExp');
+  ex.innerHTML='<div class="et">'+(ok?'⭕ '+ev.y:'❌ '+ERA_LABELS[ev.p]+' ('+ev.y+')')+'</div>'+ev.w;
+  ex.className='qexp show';
+  document.getElementById('eNext').className='qnext show';
+  document.getElementById('eNext').textContent=(eIdx+1<eOrder.length)?'다음 사건 →':'결과 보기';
+}
+function eraFinish(){
+  document.getElementById('eBar').style.width='100%';
+  document.getElementById('eNum').textContent='완료 ✓';
+  var pct=Math.round(eScore/eOrder.length*100);
+  var h='<div class="qdone"><div class="big">'+eScore+' / '+eOrder.length+'</div><p style="margin:8px 0 4px;font-size:15px">시기 정확도 '+pct+'%</p></div>';
+  if(eWrong.length){
+    h+='<div class="box r"><div class="t">🔎 띠에서 어긋난 사건들</div>';
+    eWrong.forEach(function(ev){h+='• <b>'+ev.t+'</b> → '+ERA_LABELS[ev.p]+' ('+ev.y+')<br>';});
+    h+='<span style="font-size:12.5px">이 사건들만 연표 탭에서 다시 짚어 보자.</span></div>';
+  } else {
+    h+='<div class="box g"><div class="t">🎉 전부 정확!</div>시기의 띠가 머리에 섰다 — 순서 문제는 이제 두렵지 않다.</div>';
+  }
+  h+='<button class="btn" id="eRestart" style="width:100%;margin-top:8px">↺ 다시 훈련</button>';
+  document.getElementById('eArea').innerHTML=h;
+  document.getElementById('eRestart').addEventListener('click',function(){
+    eIdx=0;eScore=0;eWrong=[];eraShuffle();
+    document.getElementById('eArea').innerHTML='<div class="qq" id="eQ"></div><div class="qopts" id="eOpts" style="grid-template-columns:repeat(3,1fr)"></div><div class="qexp" id="eExp"></div><button class="qnext" id="eNext">다음 사건 →</button>';
+    document.getElementById('eNext').addEventListener('click',eraNext);
+    eraRender();
+  });
+}
+function eraNext(){eIdx++; if(eIdx>=eOrder.length){eraFinish();return;} eraRender();}
+document.getElementById('eNext').addEventListener('click',eraNext);
+eraShuffle(); eraRender();
+
+/* ===== 혼동쌍 카드 + 판별 훈련 ===== */
+var PAIRS=[
+ {n:'① 태종 vs 세종 vs 세조',three:1,cols:[
+  {h:'태종 (칼)',d:'사병 혁파·<b>6조 직계제</b>·호패법 — 왕권의 기틀.'},
+  {h:'세종 (붓)',d:'집현전·훈민정음·4군 6진·<b>의정부 서사제</b>.'},
+  {h:'세조 (다시 칼)',d:'계유정난·<b>6조 직계 부활</b>·직전법·경국대전 착수.'}],
+  key:'6조 직계(태종·세조) vs 의정부 서사(세종) — 왕권파와 균형파의 왕복이다.'},
+ {n:'② 집현전 vs 홍문관',cols:[
+  {h:'집현전 (세종)',d:'학문 연구·훈민정음의 산실 — <b>세조가 폐지</b>.'},
+  {h:'홍문관 (성종)',d:'집현전의 기능을 이어 <b>성종이 설치</b> — 3사의 하나.'}],
+  key:'만든 왕과 이은 왕 — 세종의 집현전이 죽고 성종의 홍문관으로 부활했다.'},
+ {n:'③ 3사 vs 승정원 vs 의금부',three:1,cols:[
+  {h:'3사 (비판)',d:'사헌부·사간원·홍문관 — <b>언론</b>, 권력 독주 견제.'},
+  {h:'승정원 (비서)',d:'<b>왕명 출납</b> — 왕의 비서실.'},
+  {h:'의금부 (사법)',d:'왕 직속 — <b>반역 등 큰 죄</b> 심문.'}],
+  key:'기구를 기능 한 단어로 — 비판·비서·사법. 누구를 향한 기구인지 물으면 갈린다.'},
+ {n:'④ 훈구 vs 사림',cols:[
+  {h:'훈구',d:'<b>세조의 공신</b> — 중앙 권력·대토지.'},
+  {h:'사림',d:'지방 <b>서원·향약</b> 기반 — 성종 때 등용, 사화로 화를 입고도 선조 때 집권.'}],
+  key:'공신(훈구)이냐 서원(사림)이냐 — 사화는 사림이 "당한" 사건이라는 방향까지.'},
+ {n:'⑤ 사화 vs 붕당',cols:[
+  {h:'사화 (1498~1545)',d:'훈구·외척이 <b>사림을 침</b> — 무오·갑자·기묘·을사.'},
+  {h:'붕당 (1575~)',d:'집권한 <b>사림 안에서</b> 갈라짐 — 이조 전랑 다툼, 동인·서인.'}],
+  key:'밖에서 맞은 것(사화)과 안에서 갈라진 것(붕당) — 주어가 다르다.'},
+ {n:'⑥ 임진왜란 vs 병자호란',cols:[
+  {h:'임진왜란 (1592, 일본)',d:'이순신 <b>한산도</b>·의병(곽재우)·명 참전 — 7년을 버텨 냈다.'},
+  {h:'병자호란 (1636, 청)',d:'<b>남한산성</b> 47일 농성 → 삼전도 항복 — 50여 일의 전쟁.'}],
+  key:'바다에서 버틴 전쟁(왜란)과 산성에서 꺾인 전쟁(호란) — 장면을 통째로 가른다.'},
+ {n:'⑦ 정묘호란 vs 병자호란',cols:[
+  {h:'정묘호란 (1627)',d:'<b>후금</b> — <b>형제</b> 관계를 맺고 물러감.'},
+  {h:'병자호란 (1636)',d:'<b>청</b>(국호 변경 후) — <b>군신</b> 관계 요구, 삼전도.'}],
+  key:'형제(정묘)에서 군신(병자)으로 — 요구 수위와 나라 이름이 함께 올라갔다.'},
+ {n:'⑧ 광해군 vs 인조 정권',cols:[
+  {h:'광해군',d:'명·후금 사이 <b>중립 외교</b>(강홍립) — 인조반정으로 폐위.'},
+  {h:'인조 정권',d:'<b>친명배금</b> — 명분을 앞세우다 두 차례 호란을 맞음.'}],
+  key:'실리(중립)냐 명분(친명배금)이냐 — 노선이 바뀌자 전쟁이 왔다는 인과가 뼈대다.'}
+];
+(function(){
+  var h='';
+  PAIRS.forEach(function(p){
+    h+='<div class="paircard"><div class="pt">'+p.n+'</div><div class="paircols'+(p.three?' three':'')+'">';
+    p.cols.forEach(function(c){h+='<div class="pc"><b>'+c.h+'</b>'+c.d+'</div>';});
+    h+='</div><div class="pairkey">🔑 '+p.key+'</div></div>';
+  });
+  document.getElementById('pairCards').innerHTML=h;
+})();
+var PQ=[
+ {q:'사병을 혁파하고 6조 직계제를 처음 시행했다.',o:['태종','세종','세조'],a:0,w:'태종이다. 세조는 6조 직계를 "부활"시킨 왕 — 처음과 부활을 가른다.'},
+ {q:'의정부 서사제로 재상의 의견을 존중했다.',o:['태종','세종','세조'],a:1,w:'세종이다. 태종·세조는 6조 직계로 왕이 직접 챙겼다.'},
+ {q:'계유정난으로 집권하고 직전법을 실시했다.',o:['태종','세종','세조'],a:2,w:'세조다. 이때의 공신들이 훈구 세력이 된다.'},
+ {q:'훈민정음이 태어난 학문 기관으로 세조 때 폐지됐다.',o:['집현전','홍문관'],a:0,w:'집현전(세종)이다. 그 기능을 성종이 홍문관으로 되살렸다.'},
+ {q:'성종이 설치해 3사의 하나가 된 학문·자문 기구다.',o:['집현전','홍문관'],a:1,w:'홍문관이다. 집현전의 후신 — 만든 왕이 다르다.'},
+ {q:'관리를 감찰하고 왕에게 바른말을 하는 언론 기구다.',o:['3사','승정원','의금부'],a:0,w:'3사(사헌부·사간원·홍문관)다. 승정원은 비서, 의금부는 사법이다.'},
+ {q:'왕의 명령을 신하들에게 전달하는 비서 기구다.',o:['3사','승정원','의금부'],a:1,w:'승정원이다. 3사는 반대로 왕을 비판하는 기구다.'},
+ {q:'반역 같은 큰 죄를 왕의 명으로 심문하는 기구다.',o:['3사','승정원','의금부'],a:2,w:'의금부다. 기능 한 단어씩 — 비판·비서·사법.'},
+ {q:'세조 즉위를 도운 공으로 권력과 토지를 쥔 세력이다.',o:['훈구','사림'],a:0,w:'훈구다. 사림은 지방 서원·향약에서 힘을 기른 세력이다.'},
+ {q:'서원과 향약을 기반으로 성장해 선조 때 집권했다.',o:['훈구','사림'],a:1,w:'사림이다. 네 차례 사화로 화를 입고도 살아남았다.'},
+ {q:'훈구·외척 세력이 사림을 몰아친 사건이다.',o:['사화','붕당'],a:0,w:'사화(무오·갑자·기묘·을사)다. 사림이 "당한" 사건이라는 방향이 핵심이다.'},
+ {q:'집권한 사림이 이조 전랑 자리를 두고 갈라진 것이다.',o:['사화','붕당'],a:1,w:'붕당(동인·서인, 1575)이다. 밖에서 맞은 사화와 안에서 갈라진 붕당.'},
+ {q:'이순신의 수군과 의병의 활약으로 7년을 버텨 냈다.',o:['임진왜란','병자호란'],a:0,w:'임진왜란이다. 병자호란은 남한산성 50여 일 만에 항복한 전쟁 — 전개가 반대다.'},
+ {q:'남한산성 농성 끝에 삼전도에서 항복했다.',o:['임진왜란','병자호란'],a:1,w:'병자호란(1636~37)이다. 소현세자·봉림대군이 인질로 끌려갔다.'},
+ {q:'후금과 형제 관계를 맺는 것으로 끝났다.',o:['정묘호란','병자호란'],a:0,w:'정묘호란(1627)이다. 병자호란은 청의 군신 요구 — 수위가 다르다.'},
+ {q:'명과 후금 사이에서 형세를 보아 처신하게 했다.',o:['광해군','인조 정권'],a:0,w:'광해군의 중립 외교(강홍립)다. 인조 정권의 친명배금이 그 반대 노선이다.'},
+ {q:'명에 대한 의리를 앞세워 후금을 배척했다.',o:['광해군','인조 정권'],a:1,w:'인조 정권의 친명배금이다. 이 노선이 정묘·병자호란으로 이어졌다.'},
+ {q:'첫 사화의 빌미가 된 글은 김종직의 조의제문이었다 — 이 사화는?',o:['무오사화','기묘사화'],a:0,w:'무오사화(1498, 연산군)다. 기묘사화(1519)는 조광조의 개혁이 꺾인 사건이다.'},
+ {q:'현량과 실시 등 조광조의 급진 개혁이 꺾인 사화다.',o:['무오사화','기묘사화'],a:1,w:'기묘사화(1519, 중종)다. 첫 사화(무오, 1498)는 조의제문이 빌미였다.'}
+];
+var pIdx=0,pScore=0,pWrong=[],pAns=false,pOrder=[];
+function pairShuffle(){pOrder=PQ.slice();for(var i=pOrder.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=pOrder[i];pOrder[i]=pOrder[j];pOrder[j]=t;}}
+function pairRender(){
+  if(pIdx>=pOrder.length){pairFinish();return;}
+  pAns=false;var it=pOrder[pIdx];
+  document.getElementById('pNum').textContent='문장 '+(pIdx+1)+' / '+pOrder.length;
+  document.getElementById('pScore').textContent=pScore;
+  document.getElementById('pBar').style.width=(pIdx/pOrder.length*100)+'%';
+  document.getElementById('pQ').textContent=it.q;
+  var opts=document.getElementById('pOpts');opts.innerHTML='';
+  opts.style.gridTemplateColumns=(it.o.length===2)?'repeat(2,1fr)':'1fr';
+  it.o.forEach(function(lb,k){
+    var b=document.createElement('button');b.className='qopt';b.textContent=lb;
+    b.addEventListener('click',function(){pairPick(k,b);});opts.appendChild(b);
+  });
+  document.getElementById('pExp').className='qexp';document.getElementById('pExp').innerHTML='';
+  document.getElementById('pNext').className='qnext';
+}
+function pairPick(k,btn){
+  if(pAns)return;pAns=true;var it=pOrder[pIdx];
+  document.querySelectorAll('#pOpts .qopt').forEach(function(b,i){
+    if(i===it.a)b.classList.add('correct');else if(b===btn)b.classList.add('wrong');else b.classList.add('dim');
+  });
+  var ok=(k===it.a);if(ok)pScore++;else pWrong.push(it);
+  document.getElementById('pScore').textContent=pScore;
+  var ex=document.getElementById('pExp');
+  ex.innerHTML='<div class="et">'+(ok?'⭕ 정확':'❌ '+it.o[it.a])+'</div>'+it.w;
+  ex.className='qexp show';
+  document.getElementById('pNext').className='qnext show';
+  document.getElementById('pNext').textContent=(pIdx+1<pOrder.length)?'다음 문장 →':'결과 보기';
+}
+function pairFinish(){
+  document.getElementById('pBar').style.width='100%';
+  document.getElementById('pNum').textContent='완료 ✓';
+  var pct=Math.round(pScore/pOrder.length*100);
+  var h='<div class="qdone"><div class="big">'+pScore+' / '+pOrder.length+'</div><p style="margin:8px 0 4px;font-size:15px">판별 정확도 '+pct+'%</p></div>';
+  if(pWrong.length){
+    h+='<div class="box r"><div class="t">🔎 아직 갈리지 않은 짝</div>';
+    pWrong.forEach(function(it){h+='• <b>'+it.o[it.a]+'</b> — '+it.q+'<br>';});
+    h+='<span style="font-size:12.5px">위 카드에서 이 짝의 🔑 가르는 기준만 다시 읽자.</span></div>';
+  } else {
+    h+='<div class="box g"><div class="t">🎉 전부 정확!</div>혼동쌍이 다 갈라졌다 — 오답 보기가 노리는 자리를 이제 안다.</div>';
+  }
+  h+='<button class="btn" id="pRestart" style="width:100%;margin-top:8px">↺ 다시 훈련</button>';
+  document.getElementById('pArea').innerHTML=h;
+  document.getElementById('pRestart').addEventListener('click',function(){
+    pIdx=0;pScore=0;pWrong=[];pairShuffle();
+    document.getElementById('pArea').innerHTML='<div class="qq" id="pQ"></div><div class="qopts" id="pOpts"></div><div class="qexp" id="pExp"></div><button class="qnext" id="pNext">다음 문장 →</button>';
+    document.getElementById('pNext').addEventListener('click',pairNext);
+    pairRender();
+  });
+}
+function pairNext(){if(!pAns)return;pIdx++;pairRender();}
+document.getElementById('pNext').addEventListener('click',pairNext);
+pairShuffle();pairRender();
+if(location.hash==='#era'||location.hash==='#pair'||location.hash==='#drill'){var _t=document.querySelector('.tab[data-t="'+location.hash.slice(1)+'"]');if(_t)_t.click();}
 </script>
 </body>
 </html>
