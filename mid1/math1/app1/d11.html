@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>단원 11 · 심화 탐구 · 케플러와 정다면체 · 중1-2</title>
+<link rel="stylesheet" href="concept.css?v=20260821b">
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중1</a><span class="dot"></span><a href="u11.html">단원 11</a><span class="dot"></span><span>심화 탐구</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+  <h1>왜 정다면체는 딱 5종뿐일까요</h1>
+  <p class="lede">400년 전 케플러는 이 5종으로 우주의 비밀을 풀려 했어요 — 틀렸지만, 그 시도가 새로운 과학을 열었어요.</p>
+  <p class="intro">이 페이지엔 채점 문제가 없어요. 정다각형과 개수를 골라보면 접히는지 바로 보여줘요.</p>
+
+  <section class="reveal">
+    <div class="eyebrow"><span class="n">1</span>큰 그림</div>
+    <h2>한 꼭짓점에 모인 각의 합이 360°보다 작아야 해요</h2>
+    <p>평평한 종이가 입체로 접히려면, 한 꼭짓점에 모인 정다각형들의 <b class="hl">내각의 합이 360°보다 작아야</b> 해요. 딱 360°면 평평하게 깔리고, 넘으면 겹쳐서 접을 수 없어요.</p>
+  </section>
+
+  <section class="reveal">
+    <div class="sim-tag">정다면체 조합 실험실 · 정다각형과 개수를 골라 볼까요?</div>
+    <div class="sim">
+      <svg class="geo" id="gsim" viewBox="0 0 260 220" role="img" aria-label="한 꼭짓점에 모인 정다각형" style="max-width:220px"></svg>
+      <div class="sim-read" id="read"></div>
+      <div class="controls">
+        <div class="ctrl"><label><span>정다각형</span><span id="shv">정삼각형</span></label>
+          <input type="range" id="rs" min="0" max="3" step="1" value="0"></div>
+        <div class="ctrl"><label><span>한 꼭짓점에 모은 개수</span><span id="nv">3</span></label>
+          <input type="range" id="rn" min="3" max="6" step="1" value="3"></div>
+      </div>
+    </div>
+    <p class="muted" style="margin-top:6px">가능한 다섯 조합만 정다면체가 돼요 — <b class="hl">정삼각형 3·4·5개, 정사각형 3개, 정오각형 3개</b>. 그 외는 평면이 되거나(딱 360°) 겹쳐서 접을 수 없어요.</p>
+  </section>
+
+  <section class="reveal">
+    <div class="eyebrow"><span class="n">2</span>한 걸음 더</div>
+    <h2>케플러의 우주 모형 — 틀렸지만 위대했던 시도</h2>
+    <div class="card">
+      <p style="margin:0">1596년, <b class="gold">요하네스 케플러</b>는 「우주의 신비」에서 5개의 정다면체를 차례로 겹쳐 놓으면 그 사이 틈이 당시 알려진 6개 행성의 궤도 간격과 같을 거라 믿었어요. 정육면체·정사면체·정십이면체·정이십면체·정팔면체 순서로요.</p>
+    </div>
+    <p class="muted">결과는 <b class="hl">틀렸어요</b> — 행성 궤도는 정다면체 비례로 정렬되지 않아요. 하지만 이 틀린 가설을 검증하려던 노력이 훗날 <b class="gold">케플러의 3법칙</b>(행성 운동 법칙)으로 이어졌고, 그것이 다시 뉴턴의 만유인력으로 이어졌어요. <b class="hl">틀린 가설도 위대한 발견의 출발점이 될 수 있어요.</b></p>
+  </section>
+
+  <div class="foot">중1 · 단원 11 · 심화 탐구 · 위 탭에서 개념·놀이터·연습으로 이동</div>
+</div>
+
+<script src="concept.js?v=20260821b"></script>
+<script>
+MJ1.boot();
+(function(){
+  var G=MJ1.makeGeo(document.getElementById('gsim'));
+  var rs=document.getElementById('rs'), rn=document.getElementById('rn'), read=document.getElementById('read');
+  var SHAPES=[
+    {name:'정삼각형', interior:60},
+    {name:'정사각형', interior:90},
+    {name:'정오각형', interior:108},
+    {name:'정육각형', interior:120}
+  ];
+  var center={x:130,y:110}, R=80;
+  function draw(){
+    var sh=SHAPES[+rs.value], k=+rn.value;
+    document.getElementById('shv').textContent=sh.name;
+    document.getElementById('nv').textContent=k;
+    var sum=sh.interior*k;
+    var solid=sum<360;
+    G.clear();
+    var rot0=-90;
+    var COLORS=['var(--u-soft)','var(--accent)'];
+    for(var i=0;i<k && i<8;i++){
+      var a1=(rot0+i*(360/8))*Math.PI/180, a2=(rot0+(i+1)*(360/8))*Math.PI/180;
+      var p1={x:center.x+R*Math.cos(a1),y:center.y+R*Math.sin(a1)};
+      var p2={x:center.x+R*Math.cos(a2),y:center.y+R*Math.sin(a2)};
+      G.poly([center,p1,p2],{fill:COLORS[i%2],stroke:'var(--panel)',sw:1.5});
+    }
+    G.dot(center,{r:3});
+    read.innerHTML=sh.name+'(내각 '+sh.interior+'°) '+k+'개 × '+sh.interior+'° = <b class="gold">'+sum+'°</b>　'+
+      (sum<360?'→ <b class="hl">접혀요! 정다면체가 돼요.</b>':(sum===360?'→ <b class="gold">딱 360° — 평면이 돼요.</b>':'→ <b class="gold">360°를 넘어요 — 접을 수 없어요.</b>'));
+  }
+  rs.oninput=draw; rn.oninput=draw; draw();
+})();
+</script>
+</body>
+</html>

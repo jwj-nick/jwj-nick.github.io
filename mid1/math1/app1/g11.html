@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>놀이터 · 다면체와 회전체 · 중1-2</title>
+<link rel="stylesheet" href="concept.css?v=20260821b">
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중1</a><span class="dot"></span><a href="u11.html">단원 11</a><span class="dot"></span><span>놀이터</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+  <div class="pg-badge"><span class="i">🎨</span>놀이터 — 점수는 안 매겨요, 그냥 놀아 봐요</div>
+  <h1>다면체와 회전체 놀이터</h1>
+  <p class="lede">곡면이 있으면 다면체가 아니에요. 정삼각형을 한 점에 몇 개까지 모을 수 있을까요?</p>
+
+  <div class="pg-score" id="score"><span class="dot">🏅</span>해결한 사건 <b id="scoreN">0</b> / <span id="scoreT">4</span></div>
+
+  <!-- 게임 1 · 다면체 탐지기 -->
+  <div class="pg-game reveal" id="g-detect">
+    <div class="pg-title"><span class="pg-emoji">🔎</span>다면체 탐지기</div>
+    <div class="pg-desc">이 입체, 다면체일까요 회전체일까요?</div>
+    <div class="pg-case">
+      <div class="case-no" id="dt-no">문제 1 / 6</div>
+      <div class="case-stmt" id="dt-stmt" style="font-size:20px;font-weight:800"></div>
+    </div>
+    <div class="pg-predict">
+      <button class="pg-pbtn" id="dt-poly">다면체</button>
+      <button class="pg-pbtn" id="dt-rot">회전체</button>
+    </div>
+    <div class="out" id="dt-out"></div>
+  </div>
+
+  <!-- 게임 2 · 정다면체 각도 실험실 -->
+  <div class="pg-game reveal" id="g-platonic">
+    <div class="pg-title"><span class="pg-emoji">💎</span>정다면체 각도 실험실</div>
+    <div class="pg-desc">정삼각형을 한 점에 몇 개까지 모아야 입체가 접힐까요?</div>
+    <div class="ctrl">
+      <label><span>한 꼭짓점에 모은 정삼각형 수</span><span id="pl-n-v">3</span>개</label>
+      <input type="range" id="pl-n" min="2" max="7" step="1" value="3">
+    </div>
+    <svg class="geo" id="pl-svg" viewBox="0 0 220 200" role="img" aria-label="한 꼭짓점에 모인 정삼각형" style="max-width:220px"></svg>
+    <div class="sim-read" id="pl-read"></div>
+    <div class="pg-case" style="margin-top:10px">
+      <div class="case-stmt">정오각형(내각 108°)을 한 꼭짓점에 3개 모으면 정다면체가 될까요?</div>
+      <div class="pg-predict">
+        <button class="pg-pbtn" id="pl-yes">돼요</button>
+        <button class="pg-pbtn" id="pl-no">안 돼요</button>
+      </div>
+      <div class="out" id="pl-out"></div>
+    </div>
+  </div>
+
+  <!-- 게임 3 · 회전체 재구성기 -->
+  <div class="pg-game reveal" id="g-rotate">
+    <div class="pg-title"><span class="pg-emoji">🌀</span>회전체 재구성기</div>
+    <div class="pg-desc">평면도형을 고르면 회전축을 중심으로 어떤 입체가 되는지 보여줘요.</div>
+    <div class="row" style="justify-content:center;gap:8px;flex-wrap:wrap">
+      <button class="pg-pbtn" id="rt-rect">직사각형</button>
+      <button class="pg-pbtn" id="rt-tri">직각삼각형</button>
+      <button class="pg-pbtn" id="rt-trap">사다리꼴</button>
+      <button class="pg-pbtn" id="rt-semi">반원</button>
+    </div>
+    <svg class="geo" id="rt-svg" viewBox="0 0 260 160" role="img" aria-label="회전체 재구성" style="max-width:260px"></svg>
+    <div class="sim-read" id="rt-read"></div>
+    <div class="pg-case" style="margin-top:10px">
+      <div class="case-stmt">사다리꼴(직각 2개)을 평행하지 않은 변으로 돌리면 생기는 회전체는?</div>
+      <div class="row" style="margin-top:10px;justify-content:center"><input class="blank" id="rt-in" placeholder="답"><button id="rt-check">확인</button></div>
+      <div class="out" id="rt-out"></div>
+    </div>
+  </div>
+
+  <!-- 게임 4 · 오류 탐정 -->
+  <div class="pg-game reveal" id="g-detective">
+    <div class="pg-title"><span class="pg-emoji">🔍</span>오류 탐정</div>
+    <div class="pg-desc">누군가 이렇게 풀었어요. 어디가 이상한지 찾아볼까요? (정답은 안 알려줘요 — 스스로 짚어 봐요)</div>
+    <div class="pg-case">
+      <div class="case-no" id="det-no">사건 1 / 6</div>
+      <div class="case-stmt" id="det-stmt"></div>
+    </div>
+    <div style="text-align:center"><button id="det-think">다르게 생각해 볼까요?</button></div>
+    <div class="hint" id="det-counter" style="display:none;margin-top:10px"></div>
+    <div class="ask" id="det-ask" style="display:none;margin-top:10px"></div>
+    <div class="pg-case" id="det-checkbox" style="display:none;margin-top:14px">
+      <div class="case-stmt" id="det-checkq"></div>
+      <div class="row" style="margin-top:10px"><input class="blank" id="det-in" placeholder="답"><button id="det-check">확인</button></div>
+      <div class="out" id="det-out"></div>
+    </div>
+    <div style="text-align:center;margin-top:12px"><button class="ghost" id="det-next" style="display:none">다음 사건 -></button></div>
+  </div>
+
+  <div class="stamp" id="stamp">
+    <div class="seal">🎉</div>
+    <div class="seal-t">놀이터 클리어!</div>
+    <div class="seal-d">다면체와 회전체, 이제 곡면 유무로 한눈에 구분할 수 있어요.</div>
+  </div>
+  <div class="bridge" style="margin-top:18px"><a class="golink" href="p11.html">연습 문제로 -></a></div>
+
+  <div class="foot">중1 수학 · 놀이터 · 단원 11</div>
+</div>
+
+<div class="pg-confetti" id="confetti"></div>
+
+<script src="concept.js?v=20260821b"></script>
+<script>
+MJ1.boot();
+(function(){
+  var solved=0, TOTAL=4;
+  function bump(){
+    var el=document.getElementById('scoreN'); solved++; el.textContent=solved;
+    var badge=document.getElementById('score'); badge.classList.remove('bump'); void badge.offsetWidth; badge.classList.add('bump');
+    if(solved>=TOTAL){ confetti(); document.getElementById('stamp').classList.add('show'); }
+  }
+  function confetti(){
+    var host=document.getElementById('confetti'); host.innerHTML='';
+    var colors=['#3fa89a','#63c6b1','#e59a3c','#f2be6b','#4fa892'];
+    for(var i=0;i<46;i++){
+      var s=document.createElement('i');
+      s.style.left=(Math.random()*100)+'vw';
+      s.style.background=colors[i%colors.length];
+      s.style.animationDelay=(Math.random()*0.4)+'s';
+      s.style.animationDuration=(1.1+Math.random()*0.9)+'s';
+      s.style.transform='rotate('+(Math.random()*360)+'deg)';
+      host.appendChild(s);
+    }
+    host.classList.add('on');
+    setTimeout(function(){host.classList.remove('on');},2200);
+  }
+
+  /* 게임 1: 다면체 탐지기 */
+  (function(){
+    var ITEMS=[
+      {name:'삼각기둥', ans:'poly'},
+      {name:'원기둥', ans:'rot'},
+      {name:'구', ans:'rot'},
+      {name:'정육면체', ans:'poly'},
+      {name:'원뿔', ans:'rot'},
+      {name:'오각뿔', ans:'poly'}
+    ];
+    var pos=0, bumped=false;
+    function render(){
+      document.getElementById('dt-no').textContent='문제 '+(pos+1)+' / '+ITEMS.length;
+      document.getElementById('dt-stmt').textContent=ITEMS[pos].name;
+      document.getElementById('dt-out').innerHTML='';
+    }
+    function pick(v){
+      var ok=(v===ITEMS[pos].ans);
+      document.getElementById('dt-out').innerHTML=ok?'<span class="good">맞았어요!</span>':'곡면이 있는지 다시 떠올려봐요.';
+      if(ok){
+        pos++;
+        if(pos>=ITEMS.length){ if(!bumped){bumped=true; bump();} pos=0; setTimeout(render,1200); }
+        else setTimeout(render,900);
+      }
+    }
+    document.getElementById('dt-poly').onclick=function(){ pick('poly'); };
+    document.getElementById('dt-rot').onclick=function(){ pick('rot'); };
+    render();
+  })();
+
+  /* 게임 2: 정다면체 각도 실험실 */
+  (function(){
+    var G=MJ1.makeGeo(document.getElementById('pl-svg'));
+    var rn=document.getElementById('pl-n'), read=document.getElementById('pl-read');
+    var center={x:110,y:100}, R=70;
+    function draw(){
+      var k=+rn.value;
+      document.getElementById('pl-n-v').textContent=k;
+      var interior=60, sum=interior*k;
+      var whole=sum<360;
+      G.clear();
+      var rot0=-90;
+      for(var i=0;i<k && i<8;i++){
+        var a1=(rot0+i*interior)*Math.PI/180, a2=(rot0+(i+1)*interior)*Math.PI/180;
+        var p1={x:center.x+R*Math.cos(a1),y:center.y+R*Math.sin(a1)};
+        var p2={x:center.x+R*Math.cos(a2),y:center.y+R*Math.sin(a2)};
+        G.poly([center,p1,p2],{fill:(i%2?'var(--accent)':'var(--u-soft)'),stroke:'var(--panel)',sw:1.5});
+      }
+      G.dot(center,{r:3});
+      read.innerHTML='정삼각형 '+k+'개 × 60° = <b class="gold">'+sum+'°</b>　'+
+        (sum<360?'→ <b class="hl">360°보다 작아요 — 입체가 접혀요!</b>':(sum===360?'→ <b class="gold">딱 360° — 평면이 돼요 (입체 불가)</b>':'→ <b class="gold">360°를 넘어요 — 겹쳐서 입체 불가</b>'));
+    }
+    rn.oninput=draw; draw();
+  })();
+  var plBumped=false;
+  document.getElementById('pl-no').onclick=function(){
+    document.getElementById('pl-out').innerHTML='아니에요. 108°×3=324°로 360°보다 작아서 접혀요 — 그렇게 만들어지는 입체가 정십이면체예요.';
+  };
+  document.getElementById('pl-yes').onclick=function(){
+    document.getElementById('pl-out').innerHTML='<span class="good">맞았어요! 정오각형 3개(324°)를 한 꼭짓점에 모으면 정십이면체가 만들어져요.</span>';
+    if(!plBumped){ plBumped=true; bump(); }
+  };
+
+  /* 게임 3: 회전체 재구성기 */
+  (function(){
+    var G=MJ1.makeGeo(document.getElementById('rt-svg'));
+    var read=document.getElementById('rt-read');
+    function show(kind){
+      G.clear();
+      var cx=130, cy=80;
+      if(kind==='rect'){
+        G.poly([{x:cx-30,y:cy-40},{x:cx+30,y:cy-40},{x:cx+30,y:cy+40},{x:cx-30,y:cy+40}],{fill:'var(--u-soft)',stroke:'var(--u)'});
+        G.el('ellipse',{cx:cx,cy:cy-40,rx:30,ry:8,fill:'none',stroke:'var(--u)','stroke-width':1.5,'stroke-dasharray':'3 3'});
+        G.el('ellipse',{cx:cx,cy:cy+40,rx:30,ry:8,fill:'none',stroke:'var(--u)','stroke-width':1.5});
+        read.innerHTML='직사각형을 한 변으로 돌리면 → <b class="hl">원기둥</b>';
+      } else if(kind==='tri'){
+        G.poly([{x:cx-30,y:cy+40},{x:cx-30,y:cy-40},{x:cx+30,y:cy+40}],{fill:'var(--u-soft)',stroke:'var(--u)'});
+        G.el('ellipse',{cx:cx-30,cy:cy+40,rx:30,ry:8,fill:'none',stroke:'var(--u)','stroke-width':1.5});
+        read.innerHTML='직각삼각형을 직각 낀 변으로 돌리면 → <b class="hl">원뿔</b>';
+      } else if(kind==='trap'){
+        G.poly([{x:cx-15,y:cy-40},{x:cx+30,y:cy-40},{x:cx+30,y:cy+40},{x:cx-30,y:cy+40}],{fill:'var(--u-soft)',stroke:'var(--u)'});
+        G.el('ellipse',{cx:cx+7.5,cy:cy-40,rx:22.5,ry:6,fill:'none',stroke:'var(--u)','stroke-width':1.5,'stroke-dasharray':'3 3'});
+        G.el('ellipse',{cx:cx,cy:cy+40,rx:30,ry:8,fill:'none',stroke:'var(--u)','stroke-width':1.5});
+        read.innerHTML='사다리꼴(직각 2개)을 평행하지 않은 변으로 돌리면 → <b class="hl">원뿔대</b>';
+      } else {
+        G.el('circle',{cx:cx,cy:cy,r:38,fill:'var(--u-soft)',stroke:'var(--u)','stroke-width':2});
+        G.el('ellipse',{cx:cx,cy:cy,rx:38,ry:10,fill:'none',stroke:'var(--u)','stroke-width':1.5,'stroke-dasharray':'3 3'});
+        read.innerHTML='반원을 지름으로 돌리면 → <b class="hl">구</b>';
+      }
+    }
+    document.getElementById('rt-rect').onclick=function(){ show('rect'); };
+    document.getElementById('rt-tri').onclick=function(){ show('tri'); };
+    document.getElementById('rt-trap').onclick=function(){ show('trap'); };
+    document.getElementById('rt-semi').onclick=function(){ show('semi'); };
+    show('rect');
+    var bumped=false;
+    document.getElementById('rt-check').onclick=function(){
+      var v=(document.getElementById('rt-in').value||'');
+      var ok=/원뿔대/.test(v);
+      document.getElementById('rt-out').innerHTML=ok?'<span class="good">정답이에요! 원뿔대예요.</span>':'정답: <b>원뿔대</b> — 위 버튼에서 사다리꼴을 눌러 모양을 다시 봐요.';
+      if(!bumped){ bumped=true; bump(); }
+    };
+  })();
+
+  /* 게임 4: 오류 탐정 (misconceptions/math1_u11.json 기반, 6개 큐레이션) */
+  (function(){
+    var CASES=[
+      {stmt:'"원뿔은 옆면도 있고 밑면도 있으니 <b>다면체</b>다"라고 했어요.',
+       counter:'통조림 캔의 옆면을 손으로 쭉 쓸어 보세요. 도중에 꺾이는 모서리가 있나요, 아니면 매끄럽게 이어지나요?',
+       ask:'면이 하나라도 평평하지 않다면, 그 입체를 다면체라고 부를 수 있을까요?',
+       q:'원뿔은 다면체일까요, 회전체일까요?', a:'회전체'},
+      {stmt:'정육면체는 v=8, e=12, f=6인데, 오일러 공식을 <b>v+e−f</b>로 계산해서 검산했어요.',
+       counter:'8−12+6과 8+12−6을 각각 계산해 보세요. 어느 쪽이 2가 되나요?',
+       ask:'빼기가 붙는 자리는 셋 중 어느 것인가요? 왜 하필 그것일까요?',
+       q:'v=6, e=12인 다면체의 면의 수는?', a:'8개'},
+      {stmt:'칠각뿔의 면의 수를 밑면 변의 수와 같은 <b>7개</b>라고 답했어요(옆면만 셈, 밑면 안 더함).',
+       counter:'삼각뿔을 그려 놓고 면을 하나하나 색칠해 보세요. 밑면 1개 말고 옆면은 몇 개인가요?',
+       ask:'각뿔에는 밑면이 몇 개 있나요? 옆면 개수에 그것도 더해야 할까요?',
+       q:'칠각뿔의 면의 수는?', a:'8개'},
+      {stmt:'"면이 모두 정삼각형이면 무조건 정다면체"라고 했어요(정사면체·정팔면체·정이십면체를 구분 안 함).',
+       counter:'바닥이 정사각형이고 옆이 정삼각형인 뿔을 떠올려 보세요. 면의 모양이 몇 종류인가요?',
+       ask:'정다면체가 되려면 면에 대한 조건과 꼭짓점에 대한 조건 중 몇 개를 만족해야 할까요?',
+       q:'면이 모두 정삼각형이면 무조건 정다면체일까요?', a:'아니에요(꼭짓점 조건도 필요해요)'},
+      {stmt:'반원을 지름 둘레로 돌리면 <b>반쪽만</b> 채워진다고 답했어요.',
+       counter:'종이에 반원을 그려 오려 내고, 지름에 연필을 대고 빠르게 돌려 보세요. 손에 잡히는 모양이 무엇처럼 보이나요?',
+       ask:'반원을 지름 둘레로 한 바퀴 돌리면 반쪽만 채워질까요, 전체가 채워질까요?',
+       q:'반원을 지름을 축으로 1회전 시키면 생기는 회전체는?', a:'구'},
+      {stmt:'"원뿔의 회전축에 수직인 단면"을 <b>이등변삼각형</b>이라고 답했어요(축단면과 혼동).',
+       counter:'당근을 도마에 세워 두고 칼을 눕혀 가로로 잘라 보고, 이번엔 칼을 세워 한가운데를 위아래로 갈라 보세요. 잘린 면의 모양이 같았나요?',
+       ask:'칼의 방향이 회전축과 수직일 때와 나란할 때, 어느 쪽이 늘 둥근 면이 나올까요?',
+       q:'원기둥을 회전축에 수직으로 자른 단면의 모양은?', a:'원'}
+    ];
+    var order=[0,1,2,3,4,5].sort(function(){return Math.random()-0.5;});
+    var pos=0, bumped=false;
+    function render(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-no').textContent='사건 '+(pos+1)+' / '+order.length;
+      document.getElementById('det-stmt').innerHTML=c.stmt;
+      document.getElementById('det-counter').style.display='none';
+      document.getElementById('det-ask').style.display='none';
+      document.getElementById('det-checkbox').style.display='none';
+      document.getElementById('det-in').value='';
+      document.getElementById('det-out').innerHTML='';
+      document.getElementById('det-think').style.display='inline-block';
+      document.getElementById('det-next').style.display='none';
+    }
+    document.getElementById('det-think').onclick=function(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-counter').innerHTML='<b>다르게 볼까요?</b> '+c.counter;
+      document.getElementById('det-counter').style.display='block';
+      document.getElementById('det-ask').innerHTML='생각해보기: '+c.ask;
+      document.getElementById('det-ask').style.display='block';
+      document.getElementById('det-checkq').innerHTML=c.q;
+      document.getElementById('det-checkbox').style.display='block';
+      document.getElementById('det-think').style.display='none';
+    };
+    document.getElementById('det-check').onclick=function(){
+      var c=CASES[order[pos]];
+      var v=(document.getElementById('det-in').value||'');
+      var norm=function(s){return s.replace(/[^0-9a-zA-Z가-힣<>]/g,'').toLowerCase();};
+      var ok=v.length>0 && norm(c.a).indexOf(norm(v))>=0;
+      document.getElementById('det-out').innerHTML=ok
+        ? '<span class="good">정답이에요 - '+c.a+'</span>'
+        : '정답: <b>'+c.a+'</b> (직접 써보면서 확인해봐요)';
+      document.getElementById('det-next').style.display='inline-block';
+      if(!bumped){ bumped=true; bump(); }
+    };
+    document.getElementById('det-next').onclick=function(){
+      pos++; if(pos>=order.length) pos=0; render();
+    };
+    render();
+  })();
+})();
+</script>
+</body>
+</html>

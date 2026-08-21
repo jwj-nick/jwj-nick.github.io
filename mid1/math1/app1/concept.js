@@ -24,7 +24,7 @@
   ];
   // 탐험(PhET) 탭은 math1에 아직 자산 없음 — 전부 미노출
   var EXPLORE_READY={};
-  var PLAY_READY={7:1,8:1,9:1,10:1};   // 놀이터(g*.html) 완성된 단원만. 재설계 진행에 맞춰 추가
+  var PLAY_READY={7:1,8:1,9:1,10:1,11:1};   // 놀이터(g*.html) 완성된 단원만. 재설계 진행에 맞춰 추가
   // 파일명 → 단원 번호 + 종류 (u=개념 p=연습 d=심화탐구 dNp=심화문제 g=놀이터)
   function pageInfo(){
     var f=(location.pathname.split('/').pop()||'index.html').toLowerCase().replace(/\?.*$/,'').replace(/\.html$/,'');
