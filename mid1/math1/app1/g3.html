@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>놀이터 · 문자와 식 · 중1-1</title>
+<link rel="stylesheet" href="concept.css?v=20260822a">
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중1</a><span class="dot"></span><a href="u3.html">단원 3</a><span class="dot"></span><span>놀이터</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+  <div class="pg-badge"><span class="i">🎨</span>놀이터 — 점수는 안 매겨요, 그냥 놀아 봐요</div>
+  <h1>문자와 식 놀이터</h1>
+  <p class="lede">상황을 식으로 세우고, 값을 대입하고, 동류항을 모아봐요.</p>
+
+  <div class="pg-score" id="score"><span class="dot">🏅</span>해결한 사건 <b id="scoreN">0</b> / <span id="scoreT">4</span></div>
+
+  <!-- 게임 1 · 식 세우기 저격수 -->
+  <div class="pg-game reveal" id="g-expr">
+    <div class="pg-title"><span class="pg-emoji">🎯</span>식 세우기 저격수</div>
+    <div class="pg-desc">상황에 맞는 식을 골라봐요.</div>
+    <div class="pg-case">
+      <div class="case-no" id="ex-no">문제 1 / 6</div>
+      <div class="case-stmt" id="ex-stmt" style="font-size:18px;font-weight:800"></div>
+    </div>
+    <div class="pg-predict">
+      <button class="pg-pbtn" id="ex-a"></button>
+      <button class="pg-pbtn" id="ex-b"></button>
+    </div>
+    <div class="out" id="ex-out"></div>
+  </div>
+
+  <!-- 게임 2 · 대입 계산기 -->
+  <div class="pg-game reveal" id="g-sub">
+    <div class="pg-title"><span class="pg-emoji">🔢</span>대입 계산기</div>
+    <div class="pg-desc">x, y를 슬라이더로 바꾸면서 식의 값이 어떻게 변하는지 봐요.</div>
+    <div class="ctrl">
+      <label><span>x</span><span id="sb-x-v">3</span></label>
+      <input type="range" id="sb-x" min="-5" max="5" step="1" value="3">
+    </div>
+    <div class="ctrl">
+      <label><span>y</span><span id="sb-y-v">-2</span></label>
+      <input type="range" id="sb-y" min="-5" max="5" step="1" value="-2">
+    </div>
+    <div class="sim-read" id="sb-read"></div>
+    <div class="pg-case" style="margin-top:10px">
+      <div class="case-stmt">x=3, y=−2일 때 x − 2y는?</div>
+      <div class="row" style="margin-top:10px;justify-content:center"><input class="num" id="sb-in" inputmode="numeric" placeholder="?"><button id="sb-check">확인</button></div>
+      <div class="out" id="sb-out"></div>
+    </div>
+  </div>
+
+  <!-- 게임 3 · 동류항 모으기 -->
+  <div class="pg-game reveal" id="g-like">
+    <div class="pg-title"><span class="pg-emoji">🧲</span>동류항 모으기</div>
+    <div class="pg-desc">계수를 슬라이더로 바꿔가며 ax + bx가 어떻게 합쳐지는지 봐요.</div>
+    <div class="ctrl">
+      <label><span>a (x의 계수)</span><span id="lk-a-v">5</span></label>
+      <input type="range" id="lk-a" min="-6" max="6" step="1" value="5">
+    </div>
+    <div class="ctrl">
+      <label><span>b (x의 계수)</span><span id="lk-b-v">3</span></label>
+      <input type="range" id="lk-b" min="-6" max="6" step="1" value="3">
+    </div>
+    <div class="sim-read" id="lk-read"></div>
+    <div class="pg-case" style="margin-top:10px">
+      <div class="case-stmt">5x + 3x − 2x는?</div>
+      <div class="row" style="margin-top:10px;justify-content:center"><input class="blank" id="lk-in" placeholder="답"><button id="lk-check">확인</button></div>
+      <div class="out" id="lk-out"></div>
+    </div>
+  </div>
+
+  <!-- 게임 4 · 오류 탐정 -->
+  <div class="pg-game reveal" id="g-detective">
+    <div class="pg-title"><span class="pg-emoji">🔍</span>오류 탐정</div>
+    <div class="pg-desc">누군가 이렇게 풀었어요. 어디가 이상한지 찾아볼까요? (정답은 안 알려줘요 — 스스로 짚어 봐요)</div>
+    <div class="pg-case">
+      <div class="case-no" id="det-no">사건 1 / 6</div>
+      <div class="case-stmt" id="det-stmt"></div>
+    </div>
+    <div style="text-align:center"><button id="det-think">다르게 생각해 볼까요?</button></div>
+    <div class="hint" id="det-counter" style="display:none;margin-top:10px"></div>
+    <div class="ask" id="det-ask" style="display:none;margin-top:10px"></div>
+    <div class="pg-case" id="det-checkbox" style="display:none;margin-top:14px">
+      <div class="case-stmt" id="det-checkq"></div>
+      <div class="row" style="margin-top:10px"><input class="blank" id="det-in" placeholder="답"><button id="det-check">확인</button></div>
+      <div class="out" id="det-out"></div>
+    </div>
+    <div style="text-align:center;margin-top:12px"><button class="ghost" id="det-next" style="display:none">다음 사건 -></button></div>
+  </div>
+
+  <div class="stamp" id="stamp">
+    <div class="seal">🎉</div>
+    <div class="seal-t">놀이터 클리어!</div>
+    <div class="seal-d">식 세우기부터 동류항까지, 문자식이 익숙해졌어요.</div>
+  </div>
+  <div class="bridge" style="margin-top:18px"><a class="golink" href="p3.html">연습 문제로 -></a></div>
+
+  <div class="foot">중1 수학 · 놀이터 · 단원 3</div>
+</div>
+
+<div class="pg-confetti" id="confetti"></div>
+
+<script src="concept.js?v=20260822a"></script>
+<script>
+MJ1.boot();
+(function(){
+  var solved=0, TOTAL=4;
+  function bump(){
+    var el=document.getElementById('scoreN'); solved++; el.textContent=solved;
+    var badge=document.getElementById('score'); badge.classList.remove('bump'); void badge.offsetWidth; badge.classList.add('bump');
+    if(solved>=TOTAL){ confetti(); document.getElementById('stamp').classList.add('show'); }
+  }
+  function confetti(){
+    var host=document.getElementById('confetti'); host.innerHTML='';
+    var colors=['#3fa89a','#63c6b1','#e59a3c','#f2be6b','#4fa892'];
+    for(var i=0;i<46;i++){
+      var s=document.createElement('i');
+      s.style.left=(Math.random()*100)+'vw';
+      s.style.background=colors[i%colors.length];
+      s.style.animationDelay=(Math.random()*0.4)+'s';
+      s.style.animationDuration=(1.1+Math.random()*0.9)+'s';
+      s.style.transform='rotate('+(Math.random()*360)+'deg)';
+      host.appendChild(s);
+    }
+    host.classList.add('on');
+    setTimeout(function(){host.classList.remove('on');},2200);
+  }
+
+  /* 게임 1: 식 세우기 저격수 */
+  (function(){
+    var CASES=[
+      {stmt:'한 개에 a원인 물건 4개의 값', A:'4a', B:'a + 4'},
+      {stmt:'가로 x, 세로 5인 직사각형의 넓이', A:'5x', B:'x + 5'},
+      {stmt:'시속 v km로 2시간 이동한 거리', A:'2v', B:'v ÷ 2'},
+      {stmt:'전체 20개 중 x개를 먹고 남은 개수', A:'20 − x', B:'x − 20'},
+      {stmt:'한 자루에 b원인 연필 3자루 값에서 1000원을 뺀 거스름돈', A:'3b − 1000', B:'1000 − 3b'},
+      {stmt:'x를 5로 나눈 몫', A:'x / 5', B:'5 / x'}
+    ];
+    var pos=0, bumped=false;
+    function render(){
+      var c=CASES[pos];
+      document.getElementById('ex-no').textContent='문제 '+(pos+1)+' / '+CASES.length;
+      document.getElementById('ex-stmt').textContent=c.stmt;
+      document.getElementById('ex-a').textContent=c.A;
+      document.getElementById('ex-b').textContent=c.B;
+      document.getElementById('ex-out').innerHTML='';
+    }
+    function pick(side){
+      var ok = side==='A';
+      document.getElementById('ex-out').innerHTML=ok?'<span class="good">맞았어요!</span>':'다시 상황을 문장 그대로 순서대로 옮겨봐요.';
+      if(ok){
+        pos++;
+        if(pos>=CASES.length){ if(!bumped){bumped=true; bump();} pos=0; setTimeout(render,1200); }
+        else setTimeout(render,900);
+      }
+    }
+    document.getElementById('ex-a').onclick=function(){ pick('A'); };
+    document.getElementById('ex-b').onclick=function(){ pick('B'); };
+    render();
+  })();
+
+  /* 게임 2: 대입 계산기 */
+  (function(){
+    var rx=document.getElementById('sb-x'), ry=document.getElementById('sb-y'), read=document.getElementById('sb-read');
+    function draw(){
+      var x=+rx.value, y=+ry.value;
+      document.getElementById('sb-x-v').textContent=x;
+      document.getElementById('sb-y-v').textContent=y;
+      var val=x-2*y;
+      read.innerHTML='x − 2y = '+x+' − 2×('+y+') = <b class="hl">'+val+'</b>';
+    }
+    rx.oninput=draw; ry.oninput=draw; draw();
+    var bumped=false;
+    document.getElementById('sb-check').onclick=function(){
+      var v=parseFloat(document.getElementById('sb-in').value);
+      var ok=(v===7);
+      document.getElementById('sb-out').innerHTML=ok?'<span class="good">정답! x−2y=3−2×(−2)=3+4=7이에요.</span>':'음수를 대입할 땐 괄호를 잊지 마요.';
+      if(ok && !bumped){ bumped=true; bump(); }
+    };
+  })();
+
+  /* 게임 3: 동류항 모으기 */
+  (function(){
+    var ra=document.getElementById('lk-a'), rb=document.getElementById('lk-b'), read=document.getElementById('lk-read');
+    function draw(){
+      var a=+ra.value, b=+rb.value;
+      document.getElementById('lk-a-v').textContent=a;
+      document.getElementById('lk-b-v').textContent=b;
+      var sum=a+b;
+      read.innerHTML=a+'x + '+b+'x　=　('+a+'+'+b+')x　=　<b class="hl">'+sum+'x</b>';
+    }
+    ra.oninput=draw; rb.oninput=draw; draw();
+    var bumped=false;
+    document.getElementById('lk-check').onclick=function(){
+      var v=(document.getElementById('lk-in').value||'').trim().replace(/\s+/g,'');
+      var ok=/^6x$/.test(v);
+      document.getElementById('lk-out').innerHTML=ok?'<span class="good">정답! 5+3−2=6, 답은 6x예요.</span>':'x끼리 계수만 더하고 빼봐요.';
+      if(ok && !bumped){ bumped=true; bump(); }
+    };
+  })();
+
+  /* 게임 4: 오류 탐정 (misconceptions/math1_u03.json 기반, 6개 큐레이션) */
+  (function(){
+    var CASES=[
+      {stmt:'p × 3을 <b>p3</b>이라고 썼어요(숫자를 문자 뒤에 씀).',
+       counter:'q × 5 와 5 × q 에 q 대신 같은 수를 넣어 각각 계산해 보세요. 두 값이 다르게 나오나요?',
+       ask:'곱셈은 순서를 바꿔도 값이 같아요. 그렇다면 우리가 쓰는 순서로 정한 약속은 숫자와 문자 중 어느 쪽이 먼저였나요?',
+       q:'m × 7을 곱셈 기호 없이 쓰면 어떻게 될까요?', a:'7m — 숫자를 문자 앞에 써요'},
+      {stmt:'−1 × m을 <b>−1m</b>이라고 썼어요(계수 1을 안 지움).',
+       counter:'문자 q 하나만 덩그러니 있는 항을 보세요. 여기에 곱해진 수가 정말 없는 걸까요, 아니면 안 보이게 숨어 있는 걸까요?',
+       ask:'숫자를 쓰지 않기로 약속한 계수는 딱 두 가지예요. 그 두 가지는 무엇이었나요?',
+       q:'−m에서 m의 계수는 무엇일까요?', a:'−1이에요. 부호까지 계수에 포함돼요'},
+      {stmt:'p ÷ q를 분수로 바꾸는데 <b>q/p</b>라고 썼어요(분자·분모를 뒤바꿈).',
+       counter:'p ÷ q와 q ÷ p를 각각 분수로 써 보세요. 두 분수가 같은 수인가요?',
+       ask:"나눗셈에서 '나뉘는 수'는 기호의 앞에 있었나요, 뒤에 있었나요? 그 수는 분수에서 어디로 가야 할까요?",
+       q:'m ÷ 9를 분수 꼴로 쓰면 어떻게 될까요?', a:'분자가 m, 분모가 9인 분수예요'},
+      {stmt:'−(t − 4)를 괄호 없이 쓰는데 <b>−t − 4</b>라고 썼어요(첫 항만 부호를 바꿈).',
+       counter:'괄호 안에 항이 두 개인 뺄셈을 골라, 괄호를 풀기 전과 푼 뒤에 t에 같은 수를 넣어 값을 비교해 보세요. 값이 달라졌다면 어딘가에서 부호를 놓친 거예요.',
+       ask:'괄호 앞의 −는 괄호 전체에 붙은 것이었나요, 아니면 첫 항에만 붙은 것이었나요?',
+       q:'−(t − 4)를 괄호 없이 쓰면 어떻게 될까요?', a:'−t + 4예요. 두 항의 부호가 모두 바뀌어요'},
+      {stmt:'3(t + 2)를 괄호 없이 쓰는데 <b>3t + 2</b>라고 썼어요(첫 항에만 곱함).',
+       counter:'가로가 두 부분으로 나뉜 직사각형을 그려 보세요. 전체 넓이를 구할 때 높이를 한쪽 부분에만 곱해도 될까요?',
+       ask:'괄호 밖의 수는 괄호 안의 항 중 몇 개와 짝을 지어야 하나요?',
+       q:'3(t + 2)를 괄호 없이 쓰면 어떻게 될까요?', a:'3t + 6이에요. 두 항 모두에 곱해요'},
+      {stmt:'4t와 4t²을 더해서 <b>8t²</b>이라고 썼어요(차수가 다른데 합침).',
+       counter:'사과 두 개와 연필 세 개를 한데 넣는다고 생각해 보세요. 합쳐서 다섯 개라고 한 이름으로 부를 수 있나요?',
+       ask:'묶을 수 있으려면 문자만 같으면 될까요, 차수까지 같아야 할까요?',
+       q:'4t와, 4t의 t를 제곱한 항은 서로 묶을 수 있을까요?', a:'묶을 수 없어요. 문자는 같지만 차수가 달라요'}
+    ];
+    var order=[0,1,2,3,4,5].sort(function(){return Math.random()-0.5;});
+    var pos=0, bumped=false;
+    function render(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-no').textContent='사건 '+(pos+1)+' / '+order.length;
+      document.getElementById('det-stmt').innerHTML=c.stmt;
+      document.getElementById('det-counter').style.display='none';
+      document.getElementById('det-ask').style.display='none';
+      document.getElementById('det-checkbox').style.display='none';
+      document.getElementById('det-in').value='';
+      document.getElementById('det-out').innerHTML='';
+      document.getElementById('det-think').style.display='inline-block';
+      document.getElementById('det-next').style.display='none';
+    }
+    document.getElementById('det-think').onclick=function(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-counter').innerHTML='<b>다르게 볼까요?</b> '+c.counter;
+      document.getElementById('det-counter').style.display='block';
+      document.getElementById('det-ask').innerHTML='생각해보기: '+c.ask;
+      document.getElementById('det-ask').style.display='block';
+      document.getElementById('det-checkq').innerHTML=c.q;
+      document.getElementById('det-checkbox').style.display='block';
+      document.getElementById('det-think').style.display='none';
+    };
+    document.getElementById('det-check').onclick=function(){
+      var c=CASES[order[pos]];
+      var v=(document.getElementById('det-in').value||'');
+      var norm=function(s){return s.replace(/[^0-9a-zA-Z가-힣<>]/g,'').toLowerCase();};
+      var ok=v.length>0 && norm(c.a).indexOf(norm(v))>=0;
+      document.getElementById('det-out').innerHTML=ok
+        ? '<span class="good">정답이에요 - '+c.a+'</span>'
+        : '정답: <b>'+c.a+'</b> (직접 써보면서 확인해봐요)';
+      document.getElementById('det-next').style.display='inline-block';
+      if(!bumped){ bumped=true; bump(); }
+    };
+    document.getElementById('det-next').onclick=function(){
+      pos++; if(pos>=order.length) pos=0; render();
+    };
+    render();
+  })();
+})();
+</script>
+</body>
+</html>
