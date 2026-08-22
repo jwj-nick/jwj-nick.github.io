@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>단원 12 · 심화 탐구 · 아르키메데스의 묘비 · 중1-2</title>
+<link rel="stylesheet" href="concept.css?v=20260821c">
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중1</a><span class="dot"></span><a href="u12.html">단원 12</a><span class="dot"></span><span>심화 탐구</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+  <h1>아르키메데스가 묘비에 새겨 달라던 도형</h1>
+  <p class="lede">원기둥 안에 구를 꼭 맞게 넣으면, 원기둥 = 구 + 원뿔 2개. 아르키메데스가 가장 자랑스러워한 발견이에요.</p>
+  <p class="intro">이 페이지엔 채점 문제가 없어요. 반지름을 움직이면 세 부피가 항상 같은 비율로 커지는 걸 볼 수 있어요.</p>
+
+  <section class="reveal">
+    <div class="eyebrow"><span class="n">1</span>큰 그림</div>
+    <h2>원기둥 안에 구를 꼭 맞게 넣으면</h2>
+    <p>반지름 r인 구가 <b class="gold">꼭 맞게</b> 들어가는 원기둥은 반지름도 r, 높이도 2r이에요(구의 지름만큼). 이때 <b class="hl">원뿔 : 구 : 원기둥의 부피는 항상 1 : 2 : 3</b>이에요 — 반지름이 몇이든 상관없이요.</p>
+  </section>
+
+  <section class="reveal">
+    <div class="sim-tag">1:2:3 비율 실험실 · 반지름을 움직여 볼까요?</div>
+    <div class="sim">
+      <svg class="geo" id="gsim" viewBox="0 0 300 200" role="img" aria-label="원뿔 구 원기둥의 부피 비교" style="max-width:300px"></svg>
+      <div class="sim-read" id="read"></div>
+      <div class="controls">
+        <div class="ctrl"><label><span>반지름 r</span><span id="nv">3</span></label><input type="range" id="rn" min="1" max="6" step="1" value="3"></div>
+      </div>
+    </div>
+    <p class="muted" style="margin-top:6px">막대 길이는 부피의 크기를 나타내요. 반지름이 바뀌어도 <b class="hl">막대 길이의 비는 항상 1:2:3</b>으로 그대로예요.</p>
+  </section>
+
+  <section class="reveal">
+    <div class="eyebrow"><span class="n">2</span>한 걸음 더</div>
+    <h2>원기둥 = 구 + 원뿔 2개</h2>
+    <div class="card">
+      <p style="margin:0">1:2:3 비율에서 <b class="gold">원뿔이 1, 원기둥이 3</b>이니, 원뿔 2개를 합치면 정확히 2가 돼요. 그런데 구도 2예요! 그래서 <b class="hl">원기둥의 부피는 구 하나와 원뿔 두 개의 부피의 합과 똑같아요</b> — 오차 없이 정확히.</p>
+    </div>
+    <p class="muted">아르키메데스(BC 3세기)는 이 관계를 증명한 뒤 너무 자랑스러워서, 자신이 죽으면 묘비에 <b class="gold">원기둥 안에 구가 들어있는 그림</b>을 새겨 달라고 부탁했어요. 훗날 로마 장군 키케로가 시칠리아에서 잡초에 덮인 그 묘비를 실제로 찾아냈다는 기록이 남아 있어요.</p>
+  </section>
+
+  <div class="foot">중1 · 단원 12 · 심화 탐구 · 위 탭에서 개념·놀이터·연습으로 이동</div>
+</div>
+
+<script src="concept.js?v=20260821c"></script>
+<script>
+MJ1.boot();
+(function(){
+  var G=MJ1.makeGeo(document.getElementById('gsim'));
+  var rn=document.getElementById('rn'), read=document.getElementById('read');
+  function draw(){
+    var r=+rn.value;
+    document.getElementById('nv').textContent=r;
+    var coneV=Math.round((1/3)*r*r*(2*r)*100)/100;
+    var sphereV=Math.round((4/3)*r*r*r*100)/100;
+    var cylV=Math.round(r*r*(2*r)*100)/100;
+    G.clear();
+    var maxV=cylV, scale=200/maxV, y0=170, barW=50;
+    var items=[
+      {x:30, v:coneV, label:'원뿔', color:'var(--u-soft)'},
+      {x:120, v:sphereV, label:'구', color:'var(--accent)'},
+      {x:210, v:cylV, label:'원기둥', color:'var(--gold,#c9972b)'}
+    ];
+    items.forEach(function(it){
+      var h=it.v*scale;
+      G.poly([{x:it.x,y:y0},{x:it.x+barW,y:y0},{x:it.x+barW,y:y0-h},{x:it.x,y:y0-h}],{fill:it.color,stroke:'var(--panel)',sw:1.5});
+      G.label({x:it.x+barW/2,y:y0+16},it.label,{size:12});
+      G.label({x:it.x+barW/2,y:y0-h-8},it.v+'π',{size:11,weight:'700'});
+    });
+    read.innerHTML='원뿔 '+coneV+'π　:　구 '+sphereV+'π　:　원기둥 '+cylV+'π　→　<b class="hl">항상 1 : 2 : 3</b>';
+  }
+  rn.oninput=draw; draw();
+})();
+</script>
+</body>
+</html>
