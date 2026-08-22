@@ -415,10 +415,13 @@
     return '<span class="chip"><span class="g">' + c.ch + "</span>" + huneumOf(c) + "</span>";
   }
 
-  function renderTable() {
-    var lvl = LEVELS[curIdx] || LEVELS[LEVELS.length - 1];
+  // lvl을 안 주면 현재 진행 중인 급수. 아직 도달 전인 급수도 표는 항상 볼 수 있다(전부 ⬜로 표시) —
+  // 잠기는 건 "그 급수의 학습·시험 진행"뿐, 한자 목록 구경(미리보기)까지 막지 않는다.
+  function renderTable(lvl) {
+    lvl = lvl || LEVELS[curIdx] || LEVELS[LEVELS.length - 1];
     var ls = levelState(lvl.name);
-    $("table-title").textContent = lvl.name + " 한자표";
+    var isFuture = LEVELS.indexOf(lvl) > curIdx && curIdx >= 0;
+    $("table-title").textContent = lvl.name + " 한자표" + (isFuture ? " (미리보기)" : "");
     $("table-grid").innerHTML = lvl.chars.map(function (c) {
       var rec = ls.p[c.ch], s = !rec ? "⬜" : (rec.g ? "🎓" : "🔁");
       return '<div class="tcell"><div class="g">' + c.ch + '</div><div class="h">' + huneumOf(c) + '</div><div class="s">' + s + "</div></div>";
@@ -427,19 +430,26 @@
   }
 
   function renderLadder() {
-    $("ladder-list").innerHTML = MANIFEST_ALL.map(function (m, idx) {
+    var box = $("ladder-list");
+    box.innerHTML = "";
+    MANIFEST_ALL.forEach(function (m) {
       var lvlObj = LEVELS.filter(function (l) { return l.slug === m.slug; })[0];
-      var icon, sub;
+      var icon, sub, clickable = false;
       if (m.status !== "ready") { icon = "🚧"; sub = "데이터 준비 중"; }
-      else if (levelComplete(lvlObj)) { icon = "🎓"; sub = lvlObj.chars.length + "자 · 통과"; }
+      else if (levelComplete(lvlObj)) { icon = "🎓"; sub = lvlObj.chars.length + "자 · 통과 · 눌러서 표 보기"; clickable = true; }
       else {
         var readyIdx = LEVELS.indexOf(lvlObj);
         icon = readyIdx === curIdx ? "🔄" : "🔒";
-        sub = lvlObj.chars.length + "자" + (readyIdx === curIdx ? " · 진행 중" : " · 대기");
+        sub = lvlObj.chars.length + "자" + (readyIdx === curIdx ? " · 진행 중 · 눌러서 표 보기" : " · 아직 학습 전 · 눌러서 미리보기");
+        clickable = true; // 잠긴 급수도 표(미리보기)는 항상 열람 가능 — 막는 건 학습·시험 진행뿐
       }
-      return '<div class="lrow' + (icon === "🔄" ? " current" : "") + '"><div class="licon">' + icon +
-        '</div><div><div class="lname">' + m.name + '</div><div class="lsub">' + sub + "</div></div></div>";
-    }).join("");
+      var row = document.createElement("div");
+      row.className = "lrow" + (icon === "🔄" ? " current" : "");
+      row.innerHTML = '<div class="licon">' + icon + '</div><div><div class="lname">' + m.name +
+        '</div><div class="lsub">' + sub + "</div></div>";
+      if (clickable) row.addEventListener("click", function () { renderTable(lvlObj); });
+      box.appendChild(row);
+    });
     show("view-ladder");
   }
 
@@ -456,7 +466,7 @@
       if (levelFullyGraduated(lvl)) { startExam(); return; }
       if (S.days[t] && S.days[t].done) startBonus(); else startDaily();
     });
-    $("btn-table").addEventListener("click", renderTable);
+    $("btn-table").addEventListener("click", function () { renderTable(); });
     $("btn-table-back").addEventListener("click", function (e) { e.preventDefault(); renderHome(); });
     $("btn-ladder").addEventListener("click", renderLadder);
     $("btn-ladder-back").addEventListener("click", function (e) { e.preventDefault(); renderHome(); });
