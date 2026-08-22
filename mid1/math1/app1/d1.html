@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>단원 1 · 심화 탐구 · 에라토스테네스의 체 · 중1-1</title>
+<link rel="stylesheet" href="concept.css?v=20260821e">
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중1</a><span class="dot"></span><a href="u1.html">단원 1</a><span class="dot"></span><span>심화 탐구</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+  <h1>2200년 전 소수를 골라내는 체</h1>
+  <p class="lede">에라토스테네스는 배수를 지우는 것만으로 소수를 모두 찾아내는 방법을 고안했어요.</p>
+  <p class="intro">아래 버튼을 눌러 배수를 하나씩 지워가며, 남는 수가 정말 소수인지 확인해봐요.</p>
+
+  <section class="reveal">
+    <div class="eyebrow"><span class="n">1</span>큰 그림</div>
+    <h2>지우고 나면 남는 게 소수</h2>
+    <p><b class="gold">에라토스테네스</b>(BC 276~194)는 이집트 알렉산드리아 도서관의 사서였어요. 그는 2부터 어떤 수까지의 소수를 찾을 때, <b class="hl">소수를 직접 찾는 대신 소수가 아닌 수를 지워나가는</b> 기발한 방법을 생각해냈어요 — 그래서 이름이 "체"(<span class="en">sieve</span>, 거르는 도구)예요.</p>
+  </section>
+
+  <section class="reveal">
+    <div class="sim-tag">에라토스테네스의 체 · 2부터 100까지</div>
+    <div class="sim">
+      <div id="grid" style="display:grid;grid-template-columns:repeat(10,1fr);gap:4px;max-width:340px;margin:0 auto;font-family:monospace"></div>
+      <div class="sim-read" id="read" style="margin-top:10px"></div>
+      <div class="controls">
+        <div class="row" style="justify-content:center;gap:8px"><button class="ghost" id="step">다음 소수의 배수 지우기 →</button><button class="ghost" id="reset">처음부터</button></div>
+      </div>
+    </div>
+    <p class="muted" style="margin-top:6px">2의 배수를 지우고, 남은 것 중 가장 작은 수(3)의 배수를 지우고… 이렇게 반복하면 <b class="hl">끝까지 안 지워진 수가 전부 소수</b>예요.</p>
+  </section>
+
+  <section class="reveal">
+    <div class="eyebrow"><span class="n">2</span>한 걸음 더</div>
+    <h2>왜 √n까지만 확인해도 될까</h2>
+    <div class="card">
+      <p style="margin:0">100까지의 소수를 찾는데 <b class="gold">2, 3, 5, 7의 배수만 지우면</b> 충분해요. 왜냐하면 100보다 작은 합성수는 반드시 10(=√100) 이하의 소인수를 가지거든요 — 두 인수가 모두 10보다 크면 곱이 100을 넘어버려요.</p>
+    </div>
+    <p class="muted">이 알고리즘은 2200년이 지난 지금도 컴퓨터가 소수를 빠르게 찾을 때 그대로 쓰여요. <b class="hl">오래된 아이디어가 여전히 최신 기술의 재료가 되는</b> 좋은 예예요.</p>
+  </section>
+
+  <div class="foot">중1 · 단원 1 · 심화 탐구 · 위 탭에서 개념·놀이터·연습으로 이동</div>
+</div>
+
+<script src="concept.js?v=20260821e"></script>
+<script>
+MJ1.boot();
+(function(){
+  var N=100;
+  var alive=[], sieveDone=[false]; // index0 dummy
+  for(var i=0;i<=N;i++){ alive.push(i>=2); }
+  var primesSoFar=[], nextCandidate=2;
+
+  function render(){
+    var grid=document.getElementById('grid');
+    grid.innerHTML='';
+    for(var i=2;i<=N;i++){
+      var cell=document.createElement('div');
+      cell.textContent=i;
+      cell.style.textAlign='center';
+      cell.style.padding='3px 0';
+      cell.style.borderRadius='4px';
+      cell.style.fontSize='11px';
+      if(!alive[i]){ cell.style.background='var(--panel)'; cell.style.color='var(--muted)'; cell.style.textDecoration='line-through'; }
+      else { cell.style.background='var(--u-soft)'; cell.style.fontWeight='700'; }
+      grid.appendChild(cell);
+    }
+  }
+  function updateRead(){
+    var primes=[]; for(var i=2;i<=N;i++){ if(alive[i]) primes.push(i); }
+    document.getElementById('read').innerHTML = nextCandidate>Math.sqrt(N)
+      ? '<b class="hl">완료!</b> 남은 '+primes.length+'개가 모두 소수예요: '+primes.join(', ')
+      : '다음에 지울 배수의 기준: <b class="gold">'+nextCandidate+'</b>　·　지금까지 남은 수 '+primes.length+'개';
+  }
+  document.getElementById('step').onclick=function(){
+    if(nextCandidate>Math.sqrt(N)) return;
+    var p=nextCandidate;
+    for(var m=p*p;m<=N;m+=p){ alive[m]=false; }
+    // 다음 후보: 아직 안 지워진 다음 수
+    var c=p+1;
+    while(c<=N && !alive[c]) c++;
+    nextCandidate=c;
+    render(); updateRead();
+  };
+  document.getElementById('reset').onclick=function(){
+    for(var i=0;i<=N;i++){ alive[i]=(i>=2); }
+    nextCandidate=2;
+    render(); updateRead();
+  };
+  render(); updateRead();
+})();
+</script>
+</body>
+</html>

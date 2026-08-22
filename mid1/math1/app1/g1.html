@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>놀이터 · 소인수분해 · 중1-1</title>
+<link rel="stylesheet" href="concept.css?v=20260821e">
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중1</a><span class="dot"></span><a href="u1.html">단원 1</a><span class="dot"></span><span>놀이터</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+  <div class="pg-badge"><span class="i">🎨</span>놀이터 — 점수는 안 매겨요, 그냥 놀아 봐요</div>
+  <h1>소인수분해 놀이터</h1>
+  <p class="lede">수를 소수까지 쪼개고, 공통 소인수로 최대공약수·최소공배수를 찾아봐요.</p>
+
+  <div class="pg-score" id="score"><span class="dot">🏅</span>해결한 사건 <b id="scoreN">0</b> / <span id="scoreT">4</span></div>
+
+  <!-- 게임 1 · 소수 사냥꾼 -->
+  <div class="pg-game reveal" id="g-prime">
+    <div class="pg-title"><span class="pg-emoji">🎯</span>소수 사냥꾼</div>
+    <div class="pg-desc">이 수, 소수일까요 합성수일까요?</div>
+    <div class="pg-case">
+      <div class="case-no" id="pr-no">문제 1 / 6</div>
+      <div class="case-stmt" id="pr-stmt" style="font-size:22px;font-weight:800"></div>
+    </div>
+    <div class="pg-predict">
+      <button class="pg-pbtn" id="pr-prime">소수</button>
+      <button class="pg-pbtn" id="pr-comp">합성수</button>
+    </div>
+    <div class="out" id="pr-out"></div>
+  </div>
+
+  <!-- 게임 2 · 소인수분해 나무 -->
+  <div class="pg-game reveal" id="g-tree">
+    <div class="pg-title"><span class="pg-emoji">🌳</span>소인수분해 나무</div>
+    <div class="pg-desc">슬라이더로 수를 골라, 어떤 소수로 쪼개지는지 실시간으로 봐요.</div>
+    <div class="ctrl">
+      <label><span>수 n</span><span id="tr-n-v">84</span></label>
+      <input type="range" id="tr-n" min="4" max="200" step="1" value="84">
+    </div>
+    <div class="sim-read" id="tr-read"></div>
+    <div class="pg-case" style="margin-top:10px">
+      <div class="case-stmt">90을 소인수분해하면? (예: 2×3²×5 꼴로)</div>
+      <div class="row" style="margin-top:10px;justify-content:center"><input class="blank" id="tr-in" placeholder="답"><button id="tr-check">확인</button></div>
+      <div class="out" id="tr-out"></div>
+    </div>
+  </div>
+
+  <!-- 게임 3 · GCD·LCM 저울 -->
+  <div class="pg-game reveal" id="g-gcdlcm">
+    <div class="pg-title"><span class="pg-emoji">⚖️</span>GCD·LCM 저울</div>
+    <div class="pg-desc">두 수를 골라 최대공약수·최소공배수를 실시간으로 비교해요.</div>
+    <div class="ctrl">
+      <label><span>수 A</span><span id="gl-a-v">18</span></label>
+      <input type="range" id="gl-a" min="2" max="60" step="1" value="18">
+    </div>
+    <div class="ctrl">
+      <label><span>수 B</span><span id="gl-b-v">24</span></label>
+      <input type="range" id="gl-b" min="2" max="60" step="1" value="24">
+    </div>
+    <div class="sim-read" id="gl-read"></div>
+    <div class="pg-case" style="margin-top:10px">
+      <div class="case-stmt">15와 28은 서로소인가요?</div>
+      <div class="pg-predict">
+        <button class="pg-pbtn" id="gl-yes">서로소예요</button>
+        <button class="pg-pbtn" id="gl-no">아니에요</button>
+      </div>
+      <div class="out" id="gl-out"></div>
+    </div>
+  </div>
+
+  <!-- 게임 4 · 오류 탐정 -->
+  <div class="pg-game reveal" id="g-detective">
+    <div class="pg-title"><span class="pg-emoji">🔍</span>오류 탐정</div>
+    <div class="pg-desc">누군가 이렇게 풀었어요. 어디가 이상한지 찾아볼까요? (정답은 안 알려줘요 — 스스로 짚어 봐요)</div>
+    <div class="pg-case">
+      <div class="case-no" id="det-no">사건 1 / 6</div>
+      <div class="case-stmt" id="det-stmt"></div>
+    </div>
+    <div style="text-align:center"><button id="det-think">다르게 생각해 볼까요?</button></div>
+    <div class="hint" id="det-counter" style="display:none;margin-top:10px"></div>
+    <div class="ask" id="det-ask" style="display:none;margin-top:10px"></div>
+    <div class="pg-case" id="det-checkbox" style="display:none;margin-top:14px">
+      <div class="case-stmt" id="det-checkq"></div>
+      <div class="row" style="margin-top:10px"><input class="blank" id="det-in" placeholder="답"><button id="det-check">확인</button></div>
+      <div class="out" id="det-out"></div>
+    </div>
+    <div style="text-align:center;margin-top:12px"><button class="ghost" id="det-next" style="display:none">다음 사건 -></button></div>
+  </div>
+
+  <div class="stamp" id="stamp">
+    <div class="seal">🎉</div>
+    <div class="seal-t">놀이터 클리어!</div>
+    <div class="seal-d">소수·합성수부터 최대공약수·최소공배수까지, 수를 뜯어보는 눈이 생겼어요.</div>
+  </div>
+  <div class="bridge" style="margin-top:18px"><a class="golink" href="p1.html">연습 문제로 -></a></div>
+
+  <div class="foot">중1 수학 · 놀이터 · 단원 1</div>
+</div>
+
+<div class="pg-confetti" id="confetti"></div>
+
+<script src="concept.js?v=20260821e"></script>
+<script>
+MJ1.boot();
+(function(){
+  var solved=0, TOTAL=4;
+  function bump(){
+    var el=document.getElementById('scoreN'); solved++; el.textContent=solved;
+    var badge=document.getElementById('score'); badge.classList.remove('bump'); void badge.offsetWidth; badge.classList.add('bump');
+    if(solved>=TOTAL){ confetti(); document.getElementById('stamp').classList.add('show'); }
+  }
+  function confetti(){
+    var host=document.getElementById('confetti'); host.innerHTML='';
+    var colors=['#3fa89a','#63c6b1','#e59a3c','#f2be6b','#4fa892'];
+    for(var i=0;i<46;i++){
+      var s=document.createElement('i');
+      s.style.left=(Math.random()*100)+'vw';
+      s.style.background=colors[i%colors.length];
+      s.style.animationDelay=(Math.random()*0.4)+'s';
+      s.style.animationDuration=(1.1+Math.random()*0.9)+'s';
+      s.style.transform='rotate('+(Math.random()*360)+'deg)';
+      host.appendChild(s);
+    }
+    host.classList.add('on');
+    setTimeout(function(){host.classList.remove('on');},2200);
+  }
+  function isPrime(k){
+    if(k<2) return false;
+    for(var i=2;i*i<=k;i++){ if(k%i===0) return false; }
+    return true;
+  }
+  function factorize(k){
+    var out=[], d=2;
+    while(d*d<=k){
+      while(k%d===0){ out.push(d); k/=d; }
+      d++;
+    }
+    if(k>1) out.push(k);
+    return out;
+  }
+  function factorStr(k){
+    var fs=factorize(k), counts={}, order=[];
+    fs.forEach(function(p){ if(!counts[p]){counts[p]=0;order.push(p);} counts[p]++; });
+    return order.map(function(p){ return counts[p]===1?(''+p):(p+'^'+counts[p]); }).join('×');
+  }
+  function gcd(a,b){ while(b){var t=b;b=a%b;a=t;} return a; }
+  function lcm(a,b){ return a/gcd(a,b)*b; }
+
+  /* 게임 1: 소수 사냥꾼 */
+  (function(){
+    var ITEMS=[17,21,29,33,41,49];
+    var pos=0, bumped=false;
+    function render(){
+      document.getElementById('pr-no').textContent='문제 '+(pos+1)+' / '+ITEMS.length;
+      document.getElementById('pr-stmt').textContent=ITEMS[pos];
+      document.getElementById('pr-out').innerHTML='';
+    }
+    function pick(v){
+      var ans=isPrime(ITEMS[pos])?'prime':'comp';
+      var ok=(v===ans);
+      document.getElementById('pr-out').innerHTML=ok?'<span class="good">맞았어요!</span>':'약수를 직접 세어봐요.';
+      if(ok){
+        pos++;
+        if(pos>=ITEMS.length){ if(!bumped){bumped=true; bump();} pos=0; setTimeout(render,1200); }
+        else setTimeout(render,900);
+      }
+    }
+    document.getElementById('pr-prime').onclick=function(){ pick('prime'); };
+    document.getElementById('pr-comp').onclick=function(){ pick('comp'); };
+    render();
+  })();
+
+  /* 게임 2: 소인수분해 나무 */
+  (function(){
+    var rn=document.getElementById('tr-n'), read=document.getElementById('tr-read');
+    function draw(){
+      var k=+rn.value;
+      document.getElementById('tr-n-v').textContent=k;
+      read.innerHTML=k+' = <b class="hl">'+factorStr(k).replace(/\^(\d+)/g,function(m,d){
+        var sup={0:'⁰',1:'¹',2:'²',3:'³',4:'⁴',5:'⁵',6:'⁶',7:'⁷',8:'⁸',9:'⁹'};
+        return d.split('').map(function(c){return sup[c];}).join('');
+      })+'</b>';
+    }
+    rn.oninput=draw; draw();
+    var bumped=false;
+    document.getElementById('tr-check').onclick=function(){
+      var v=(document.getElementById('tr-in').value||'');
+      var ok=/2/.test(v)&&/3/.test(v)&&/5/.test(v);
+      document.getElementById('tr-out').innerHTML=ok?'<span class="good">정답! 90=2×3²×5예요.</span>':'슬라이더를 90으로 맞추고 결과를 참고해봐요.';
+      if(ok && !bumped){ bumped=true; bump(); }
+    };
+  })();
+
+  /* 게임 3: GCD·LCM 저울 */
+  (function(){
+    var ra=document.getElementById('gl-a'), rb=document.getElementById('gl-b'), read=document.getElementById('gl-read');
+    function draw(){
+      var a=+ra.value, b=+rb.value;
+      document.getElementById('gl-a-v').textContent=a;
+      document.getElementById('gl-b-v').textContent=b;
+      var g=gcd(a,b), l=lcm(a,b);
+      read.innerHTML=a+'와 '+b+'　→　최대공약수 <b class="gold">'+g+'</b>　·　최소공배수 <b class="hl">'+l+'</b>'+
+        (g===1?'　·　<b class="hl">서로소예요!</b>':'');
+    }
+    ra.oninput=draw; rb.oninput=draw; draw();
+    var bumped=false;
+    document.getElementById('gl-yes').onclick=function(){
+      document.getElementById('gl-out').innerHTML='<span class="good">맞았어요! 최대공약수가 1이라 서로소예요.</span>';
+      if(!bumped){ bumped=true; bump(); }
+    };
+    document.getElementById('gl-no').onclick=function(){
+      document.getElementById('gl-out').innerHTML='다시 생각해봐요 — 두 수의 공약수를 찾아보면 1뿐이에요.';
+    };
+  })();
+
+  /* 게임 4: 오류 탐정 (misconceptions/math1_u01.json 기반, 6개 큐레이션) */
+  (function(){
+    var CASES=[
+      {stmt:'1을 <b>소수</b>라고 답했어요(자기 자신 말고는 안 나누어지니까).',
+       counter:'소수는 약수가 두 개인 수예요. 그런데 1의 약수를 손가락으로 세어 보면 몇 개인가요?',
+       ask:"'1과 자기 자신'이 서로 다른 수여야 약수가 두 개가 돼요. 1에서는 그 둘이 어떤가요?",
+       q:'1, 2, 3 중에서 소수가 아닌 것은 무엇인가요?', a:'1'},
+      {stmt:'2를 <b>합성수</b>라고 답했어요(짝수는 다 소수가 아니라고 생각).',
+       counter:'짝수 중에서 가장 작은 수의 약수를 모두 써 볼까요? 하나와 자기 자신 말고 또 있나요?',
+       ask:"소수의 조건은 '짝수가 아닐 것'일까요, 아니면 '약수가 두 개일 것'일까요?",
+       q:'2는 소수인가요, 합성수인가요?', a:'소수'},
+      {stmt:'2³을 <b>6</b>이라고 계산했어요(밑과 지수를 곱함).',
+       counter:'밑을 지수만큼 늘어놓고 곱셈 기호로 이어 써 볼까요? 곱셈 기호가 몇 개 나오나요?',
+       ask:"위에 작게 쓴 수는 '곱하는 수'일까요, '곱하는 횟수'일까요?",
+       q:'2³은 얼마인가요?', a:'8'},
+      {stmt:'36 = 4 × 9를 <b>소인수분해</b>라고 답했어요(더 갈라지는 수가 남아 있음).',
+       counter:"쓴 답에 들어 있는 수를 하나씩 짚으며 '이 수의 약수가 두 개인가?' 물어봐요. 더 갈라지는 수가 있나요?",
+       ask:'소인수분해가 끝났다는 것은 답에 어떤 수만 남았다는 뜻일까요?',
+       q:'36 = 4 × 9는 소인수분해인가요? 아니라면 바르게 고쳐 보세요.', a:'아니에요. 36 = 2² × 3²'},
+      {stmt:'2³ × 3과 2 × 3²의 최대공약수를 <b>2³ × 3²</b>(큰 지수)로 계산했어요.',
+       counter:'공통 소인수의 지수를 큰 쪽으로 골라 만든 수로 두 수를 각각 나누어 볼까요? 둘 다 나누어떨어지나요?',
+       ask:'약수는 원래 수보다 클 수 없어요. 그러면 공통 소인수의 지수는 어느 쪽을 따라가야 할까요?',
+       q:'2³ × 3과 2 × 3²의 최대공약수는 얼마인가요?', a:'6'},
+      {stmt:'2² × 3과 5의 최소공배수를 <b>공통 소인수가 없어서 구할 수 없다</b>고 답했어요.',
+       counter:'구한 답을 두 수로 각각 나누어 볼까요? 한쪽이 나누어떨어지지 않는다면 무엇이 빠진 걸까요?',
+       ask:'공배수는 두 수 모두의 배수여야 해요. 그러려면 한쪽에만 있는 소인수도 넣어야 할까요?',
+       q:'2² × 3과 5의 최소공배수는 얼마인가요?', a:'60'}
+    ];
+    var order=[0,1,2,3,4,5].sort(function(){return Math.random()-0.5;});
+    var pos=0, bumped=false;
+    function render(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-no').textContent='사건 '+(pos+1)+' / '+order.length;
+      document.getElementById('det-stmt').innerHTML=c.stmt;
+      document.getElementById('det-counter').style.display='none';
+      document.getElementById('det-ask').style.display='none';
+      document.getElementById('det-checkbox').style.display='none';
+      document.getElementById('det-in').value='';
+      document.getElementById('det-out').innerHTML='';
+      document.getElementById('det-think').style.display='inline-block';
+      document.getElementById('det-next').style.display='none';
+    }
+    document.getElementById('det-think').onclick=function(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-counter').innerHTML='<b>다르게 볼까요?</b> '+c.counter;
+      document.getElementById('det-counter').style.display='block';
+      document.getElementById('det-ask').innerHTML='생각해보기: '+c.ask;
+      document.getElementById('det-ask').style.display='block';
+      document.getElementById('det-checkq').innerHTML=c.q;
+      document.getElementById('det-checkbox').style.display='block';
+      document.getElementById('det-think').style.display='none';
+    };
+    document.getElementById('det-check').onclick=function(){
+      var c=CASES[order[pos]];
+      var v=(document.getElementById('det-in').value||'');
+      var norm=function(s){return s.replace(/[^0-9a-zA-Z가-힣<>]/g,'').toLowerCase();};
+      var ok=v.length>0 && norm(c.a).indexOf(norm(v))>=0;
+      document.getElementById('det-out').innerHTML=ok
+        ? '<span class="good">정답이에요 - '+c.a+'</span>'
+        : '정답: <b>'+c.a+'</b> (직접 써보면서 확인해봐요)';
+      document.getElementById('det-next').style.display='inline-block';
+      if(!bumped){ bumped=true; bump(); }
+    };
+    document.getElementById('det-next').onclick=function(){
+      pos++; if(pos>=order.length) pos=0; render();
+    };
+    render();
+  })();
+})();
+</script>
+</body>
+</html>
