@@ -1,39 +1,74 @@
-// 한자 앱 엔진 — 규칙의 정본은 00_META/design_hanja_v1.md
+// 한자 앱 엔진 v2 — 급수 사다리. 규칙의 정본은 00_META/design_hanja_v2.md (v1 규칙 계승: design_hanja_v1.md)
 (function () {
   "use strict";
   var CFG = window.APP_CONFIG;
-  var DATA = window.HANJA_DATA;
-  var KEY = CFG.ns + ".v1";
-  var TOTAL = DATA.chars.length;
+  var KEY = CFG.ns + ".v2";
+  var V1_KEY = (CFG.v1ns || CFG.ns) + ".v1";
   var DAILY_MAX = 10;
   var NEW_MAX = 5;
 
-  var byCh = {};
-  DATA.chars.forEach(function (c) { byCh[c.ch] = c; });
-  var wordByW = {};
-  DATA.words.forEach(function (w) { wordByW[w.w] = w; });
+  var LEVELS = [];        // ready 급수만, order순
+  var MANIFEST_ALL = [];  // 전체 15급수(표시용, planned 포함)
+
+  // ---------- 데이터 로드 ----------
+  function loadJSON(url) {
+    return fetch(url).then(function (r) {
+      if (!r.ok) throw new Error("fetch fail: " + url);
+      return r.json();
+    });
+  }
+  function loadAllData() {
+    return loadJSON("data/manifest.json").then(function (manifest) {
+      MANIFEST_ALL = manifest.levels;
+      var ready = manifest.levels.filter(function (l) { return l.status === "ready"; });
+      return Promise.all(ready.map(function (l) {
+        return loadJSON("data/levels/" + l.slug + ".json").then(function (d) {
+          var byCh = {}, wordByW = {};
+          d.chars.forEach(function (c) { byCh[c.ch] = c; });
+          d.words.forEach(function (w) { wordByW[w.w] = w; });
+          return Object.assign({}, l, { chars: d.chars, words: d.words, byCh: byCh, wordByW: wordByW });
+        });
+      }));
+    }).then(function (levels) {
+      LEVELS = levels;
+    });
+  }
 
   // ---------- 상태 ----------
   function freshState() {
-    return { v: 1, p: {}, newIdx: 0, days: {}, lastDone: null, streakDays: 0 };
+    return { v: 2, levels: {}, days: {}, lastDone: null, streakDays: 0 };
   }
   function load() {
     try {
       var s = JSON.parse(localStorage.getItem(KEY));
-      if (s && s.v === 1) return s;
+      if (s && s.v === 2) return s;
     } catch (e) {}
     return freshState();
   }
   function save() {
     try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
   }
+  function levelState(name) {
+    if (!S.levels[name]) S.levels[name] = { p: {}, newIdx: 0, examPassed: false, lastExamAttempt: null };
+    return S.levels[name];
+  }
+  function migrateV1() {
+    if (Object.keys(S.levels).length > 0) return; // 이미 v2 데이터 있음 — 마이그레이션 스킵
+    try {
+      var v1 = JSON.parse(localStorage.getItem(V1_KEY));
+      if (!v1 || !v1.p) return;
+      var ls = levelState("8급");
+      ls.p = v1.p; ls.newIdx = v1.newIdx || 0;
+      S.days = v1.days || {}; S.lastDone = v1.lastDone || null; S.streakDays = v1.streakDays || 0;
+      save();
+    } catch (e) {}
+  }
+
   var S = load();
 
   // ---------- 날짜 ----------
   function fmt(d) {
-    return d.getFullYear() + "-" +
-      String(d.getMonth() + 1).padStart(2, "0") + "-" +
-      String(d.getDate()).padStart(2, "0");
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
   }
   function todayStr() { return fmt(new Date()); }
   function addDays(dateStr, n) {
@@ -44,44 +79,59 @@
   // ---------- 유틸 ----------
   function shuffle(arr) {
     var a = arr.slice();
-    for (var i = a.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var t = a[i]; a[i] = a[j]; a[j] = t;
-    }
+    for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
     return a;
   }
   function $(id) { return document.getElementById(id); }
+  var VIEWS = ["view-home", "view-intro", "view-quiz", "view-result", "view-table", "view-ladder"];
   function show(viewId) {
-    ["view-home", "view-intro", "view-quiz", "view-result", "view-table"].forEach(function (v) {
-      $(v).classList.toggle("hidden", v !== viewId);
-    });
+    VIEWS.forEach(function (v) { $(v).classList.toggle("hidden", v !== viewId); });
     window.scrollTo(0, 0);
   }
   function huneumOf(c) { return c.hun + " " + c.eum; }
 
+  // ---------- 급수 진행 판정 ----------
+  function levelComplete(lvl) {
+    var ls = levelState(lvl.name);
+    if (ls.newIdx < lvl.chars.length) return false;
+    for (var i = 0; i < lvl.chars.length; i++) {
+      var rec = ls.p[lvl.chars[i].ch];
+      if (!rec || !rec.g) return false;
+    }
+    return !!ls.examPassed;
+  }
+  function levelFullyGraduated(lvl) { // 전원 졸업했지만 시험 전일 수 있음
+    var ls = levelState(lvl.name);
+    if (ls.newIdx < lvl.chars.length) return false;
+    for (var i = 0; i < lvl.chars.length; i++) {
+      var rec = ls.p[lvl.chars[i].ch];
+      if (!rec || !rec.g) return false;
+    }
+    return true;
+  }
+  function currentLevelIdx() {
+    for (var i = 0; i < LEVELS.length; i++) if (!levelComplete(LEVELS[i])) return i;
+    return -1; // 로드된 급수 전부 완료
+  }
+
   // ---------- 통계 ----------
-  function counts() {
-    var grad = 0, learn = 0;
-    Object.keys(S.p).forEach(function (ch) {
-      if (S.p[ch].g) grad++; else learn++;
-    });
+  function counts(lvl) {
+    var ls = levelState(lvl.name), grad = 0, learn = 0;
+    Object.keys(ls.p).forEach(function (ch) { if (ls.p[ch].g) grad++; else learn++; });
     return { grad: grad, learn: learn };
   }
-  function dueList(t) {
-    return Object.keys(S.p).filter(function (ch) {
-      return !S.p[ch].g && S.p[ch].due <= t;
-    }).sort(function (a, b) { return S.p[a].due < S.p[b].due ? -1 : 1; });
+  function dueList(lvl, t) {
+    var ls = levelState(lvl.name);
+    return Object.keys(ls.p).filter(function (ch) { return !ls.p[ch].g && ls.p[ch].due <= t; })
+      .sort(function (a, b) { return ls.p[a].due < ls.p[b].due ? -1 : 1; });
   }
 
   // ---------- 문제 생성 ----------
-  function optsType1(c) {
+  function optsType1(lvl, c) {
     var answer = huneumOf(c);
-    var others = DATA.chars.filter(function (x) {
-      return x.ch !== c.ch && huneumOf(x) !== answer;
-    });
+    var others = lvl.chars.filter(function (x) { return x.ch !== c.ch && huneumOf(x) !== answer; });
     var sameEum = shuffle(others.filter(function (x) { return x.eum === c.eum; }));
-    var rest = shuffle(others);
-    var picked = [];
+    var rest = shuffle(others), picked = [];
     if (sameEum.length > 0) picked.push(huneumOf(sameEum[0]));
     for (var i = 0; i < rest.length && picked.length < 3; i++) {
       var h = huneumOf(rest[i]);
@@ -89,14 +139,11 @@
     }
     return shuffle(picked.concat([answer]));
   }
-  function optsType2(w) {
-    var answer = w.r;
-    var picked = [];
-    (w.d || []).forEach(function (d) {
-      if (d !== answer && picked.indexOf(d) < 0 && picked.length < 3) picked.push(d);
-    });
+  function optsType2(lvl, w) {
+    var answer = w.r, picked = [];
+    (w.d || []).forEach(function (d) { if (d !== answer && picked.indexOf(d) < 0 && picked.length < 3) picked.push(d); });
     var sameLen = [], diffLen = [];
-    DATA.words.forEach(function (x) {
+    lvl.words.forEach(function (x) {
       if (x.w === w.w || x.r === answer) return;
       (x.r.length === answer.length ? sameLen : diffLen).push(x.r);
     });
@@ -105,85 +152,113 @@
     });
     return shuffle(picked.concat([answer]));
   }
-  function eligibleWords(c, knownSet) {
+  function optsType3(lvl, c) {
+    var answer = c.ch;
+    var others = lvl.chars.filter(function (x) { return x.ch !== c.ch; });
+    var sameEum = shuffle(others.filter(function (x) { return x.eum === c.eum; }));
+    var rest = shuffle(others), picked = [];
+    if (sameEum.length > 0) picked.push(sameEum[0].ch);
+    for (var i = 0; i < rest.length && picked.length < 3; i++) {
+      if (picked.indexOf(rest[i].ch) < 0) picked.push(rest[i].ch);
+    }
+    return shuffle(picked.concat([answer]));
+  }
+  function eligibleWords(lvl, c, knownSet) {
     return (c.words || []).filter(function (wStr) {
-      if (!wordByW[wStr]) return false;
+      if (!lvl.wordByW[wStr]) return false;
       return wStr.split("").every(function (ch) { return knownSet[ch]; });
     });
   }
-  function buildQuestion(ch, isNew, knownSet) {
-    var c = byCh[ch];
-    if (!isNew && Math.random() < 0.5) {
-      var elig = eligibleWords(c, knownSet);
+  function buildQuestion(lvl, ch, isNew, knownSet) {
+    var c = lvl.byCh[ch];
+    if (isNew) return { ch: ch, type: 1, prompt: c.ch, answer: huneumOf(c), opts: optsType1(lvl, c) };
+    var roll = Math.random();
+    if (roll < 0.45) {
+      var elig = eligibleWords(lvl, c, knownSet);
       if (elig.length > 0) {
-        var w = wordByW[elig[Math.floor(Math.random() * elig.length)]];
-        return { ch: ch, type: 2, prompt: w.w, answer: w.r, opts: optsType2(w) };
+        var w = lvl.wordByW[elig[Math.floor(Math.random() * elig.length)]];
+        return { ch: ch, type: 2, prompt: w.w, answer: w.r, opts: optsType2(lvl, w) };
       }
+    } else if (roll < 0.60) {
+      return { ch: ch, type: 3, prompt: huneumOf(c), answer: c.ch, opts: optsType3(lvl, c) };
     }
-    return { ch: ch, type: 1, prompt: c.ch, answer: huneumOf(c), opts: optsType1(c) };
+    return { ch: ch, type: 1, prompt: c.ch, answer: huneumOf(c), opts: optsType1(lvl, c) };
   }
 
   // ---------- 세션 ----------
-  var sess = null; // { mode, introQueue, introIdx, queue, idx, ok, wrongList, gradList }
+  var sess = null;
 
   function startDaily() {
-    var t = todayStr();
-    var due = dueList(t).slice(0, DAILY_MAX);
+    var lvl = LEVELS[curIdx], t = todayStr();
+    var due = dueList(lvl, t).slice(0, DAILY_MAX);
     var room = DAILY_MAX - due.length;
     var newChars = [];
-    var n = Math.min(NEW_MAX, room, TOTAL - S.newIdx);
-    for (var i = 0; i < n; i++) newChars.push(DATA.chars[S.newIdx + i].ch);
+    var ls = levelState(lvl.name);
+    var n = Math.min(NEW_MAX, room, lvl.chars.length - ls.newIdx);
+    for (var i = 0; i < n; i++) newChars.push(lvl.chars[ls.newIdx + i].ch);
 
-    if (due.length === 0 && newChars.length === 0) {
-      finishDay(t, 0, 0); // 출제할 것이 없으면 오늘 완료 처리
-      renderHome();
-      return;
-    }
+    if (due.length === 0 && newChars.length === 0) { finishDay(t); renderHome(); return; }
     sess = {
-      mode: "daily", t: t,
+      mode: "daily", t: t, lvl: lvl,
       introQueue: newChars, introIdx: 0,
       pending: { due: due, newChars: newChars },
       queue: null, idx: 0, ok: 0, wrongList: [], gradList: []
     };
-    if (newChars.length > 0) renderIntro();
-    else { buildQueue(); renderQuestion(); }
+    if (newChars.length > 0) renderIntro(); else { buildQueue(); renderQuestion(); }
   }
 
   function startBonus() {
-    var t = todayStr();
-    var introduced = Object.keys(S.p);
+    var lvl = LEVELS[curIdx], t = todayStr();
+    var ls = levelState(lvl.name), introduced = Object.keys(ls.p);
     if (introduced.length === 0) { startDaily(); return; }
     sess = {
-      mode: "bonus", t: t,
+      mode: "bonus", t: t, lvl: lvl,
       introQueue: [], introIdx: 0,
       pending: { due: shuffle(introduced).slice(0, DAILY_MAX), newChars: [] },
       queue: null, idx: 0, ok: 0, wrongList: [], gradList: []
     };
-    buildQueue();
+    buildQueue(); renderQuestion();
+  }
+
+  function examSessionSize(lvl) {
+    if (lvl.slug === "8gup") return Math.min(lvl.examQuestions, lvl.chars.length);
+    return Math.max(20, Math.round(lvl.examQuestions / 3));
+  }
+  function startExam() {
+    var lvl = LEVELS[curIdx], t = todayStr();
+    var ls = levelState(lvl.name);
+    if (ls.lastExamAttempt === t && !ls.examPassed) { renderHome(); return; }
+    var n = Math.min(examSessionSize(lvl), lvl.chars.length);
+    var pickChars = shuffle(lvl.chars.map(function (c) { return c.ch; })).slice(0, n);
+    var knownSet = {}; lvl.chars.forEach(function (c) { knownSet[c.ch] = true; });
+    sess = {
+      mode: "exam", t: t, lvl: lvl,
+      introQueue: [], introIdx: 0,
+      queue: pickChars.map(function (ch) { return buildQuestion(lvl, ch, false, knownSet); }),
+      idx: 0, ok: 0, wrongList: [], gradList: [],
+      passNeed: Math.ceil(n * lvl.passRate)
+    };
     renderQuestion();
   }
 
   function buildQueue() {
-    var knownSet = {};
-    Object.keys(S.p).forEach(function (ch) { knownSet[ch] = true; });
+    var lvl = sess.lvl, ls = levelState(lvl.name), knownSet = {};
+    Object.keys(ls.p).forEach(function (ch) { knownSet[ch] = true; });
     var items = sess.pending.due.map(function (ch) { return { ch: ch, isNew: false }; })
       .concat(sess.pending.newChars.map(function (ch) { return { ch: ch, isNew: true }; }));
-    sess.queue = shuffle(items).map(function (it) {
-      return buildQuestion(it.ch, it.isNew, knownSet);
-    });
+    sess.queue = shuffle(items).map(function (it) { return buildQuestion(lvl, it.ch, it.isNew, knownSet); });
   }
 
   // ---------- 채점 ----------
   function grade(ch, correct) {
-    var t = sess.t;
-    var rec = S.p[ch] || (S.p[ch] = { s: 0, due: t, g: false });
+    if (sess.mode === "exam") return correct ? "정답!" : "오답";
+    var lvl = sess.lvl, ls = levelState(lvl.name), t = sess.t;
+    var rec = ls.p[ch] || (ls.p[ch] = { s: 0, due: t, g: false });
     var fb;
-    if (sess.mode === "bonus" && correct) {
-      return "정답!"; // 보너스 정답은 상태 무변화
-    }
+    if (sess.mode === "bonus" && correct) return "정답!";
     if (correct) {
       rec.s = (rec.s || 0) + 1;
-      if (rec.s >= 2) { rec.g = true; sess.gradList.push(ch); fb = "🎓 졸업!"; }
+      if (rec.s >= 2) { rec.g = true; sess.gradList.push(ch); fb = '<span class="stamp">🎓 졸업</span>'; }
       else { rec.due = addDays(t, 3); fb = "정답! 3일 뒤 한 번 더 맞히면 졸업"; }
     } else {
       var wasGrad = rec.g;
@@ -194,73 +269,89 @@
     save();
     return fb;
   }
-
-  function finishDay(t, q, ok) {
+  function finishDay(t) {
     if (S.days[t] && S.days[t].done) return;
-    S.days[t] = { q: q, ok: ok, done: true };
-    if (S.lastDone === addDays(t, -1)) S.streakDays++;
-    else if (S.lastDone !== t) S.streakDays = 1;
-    S.lastDone = t;
-    save();
+    S.days[t] = { done: true };
+    if (S.lastDone === addDays(t, -1)) S.streakDays++; else if (S.lastDone !== t) S.streakDays = 1;
+    S.lastDone = t; save();
   }
 
   // ---------- 렌더 ----------
+  var curIdx = -1;
+
   function renderHome() {
-    var t = todayStr();
-    var c = counts();
-    $("st-grad").textContent = c.grad + "/" + TOTAL;
+    curIdx = currentLevelIdx();
+    if (curIdx < 0) { renderAllDone(); return; }
+    var lvl = LEVELS[curIdx], t = todayStr(), c = counts(lvl), ls = levelState(lvl.name);
+    $("level-badge").innerHTML = lvl.name + " 도전 중" + '<div class="sub">' + (curIdx + 1) + " / " + LEVELS.length + " (로드된 급수)</div>";
+    $("st-grad").textContent = c.grad + "/" + lvl.chars.length;
     $("st-learn").textContent = c.learn;
     $("st-streak").textContent = S.streakDays;
 
-    var done = S.days[t] && S.days[t].done;
-    var due = dueList(t).length;
-    var newAvail = Math.min(NEW_MAX, Math.max(0, DAILY_MAX - due), TOTAL - S.newIdx);
-    var line;
-    if (c.grad === TOTAL) line = "8급 전체 졸업! 🎉 다음 급수 준비 중";
-    else if (done) line = "오늘 학습 완료 ✅ 내일 또 만나요";
-    else line = "오늘: 복습 " + Math.min(due, DAILY_MAX) + " + 새 한자 " + newAvail;
+    var fullyGrad = levelFullyGraduated(lvl);
+    var examBlockedToday = ls.lastExamAttempt === t && !ls.examPassed;
+    var line, btnLabel = "오늘 학습 시작";
+    if (fullyGrad && !examBlockedToday) {
+      line = lvl.name + " 전원 졸업! 승급 모의시험(" + examSessionSize(lvl) + "문제, " + Math.round(lvl.passRate * 100) + "% 합격)에 도전하세요.";
+      btnLabel = "🈹 승급 모의시험";
+    } else if (fullyGrad && examBlockedToday) {
+      line = "오늘 시험에 도전했어요. 내일 다시 도전할 수 있어요.";
+      btnLabel = "오늘 완료 ✅";
+    } else {
+      var done = S.days[t] && S.days[t].done;
+      var due = dueList(lvl, t).length;
+      var newAvail = Math.min(NEW_MAX, Math.max(0, DAILY_MAX - due), lvl.chars.length - ls.newIdx);
+      line = done ? "오늘 학습 완료 ✅ 내일 또 만나요" : "오늘: 복습 " + Math.min(due, DAILY_MAX) + " + 새 한자 " + newAvail;
+      btnLabel = done ? "보너스 연습" : "오늘 학습 시작";
+    }
     $("today-line").textContent = line;
-    $("btn-start").textContent = done ? "보너스 연습" : "오늘 학습 시작";
+    $("btn-start").textContent = btnLabel;
+    $("btn-start").disabled = fullyGrad && examBlockedToday;
+    show("view-home");
+  }
+
+  function renderAllDone() {
+    $("level-badge").innerHTML = "🎉 로드된 급수 전부 완료!";
+    $("st-grad").textContent = "-"; $("st-learn").textContent = "-"; $("st-streak").textContent = S.streakDays;
+    $("today-line").textContent = "다음 급수 데이터 준비 중이에요. 완료된 급수를 자유롭게 복습해보세요.";
+    $("btn-start").textContent = "복습하기";
+    $("btn-start").disabled = false;
+    curIdx = LEVELS.length - 1; // 마지막 급수로 보너스 복습
     show("view-home");
   }
 
   function renderIntro() {
-    var i = sess.introIdx;
-    var ch = sess.introQueue[i];
-    var c = byCh[ch];
-    // 카드를 본 순간 introduced로 커밋
-    if (!S.p[ch]) { S.p[ch] = { s: 0, due: sess.t, g: false }; }
-    if (S.newIdx < TOTAL && DATA.chars[S.newIdx].ch === ch) S.newIdx++;
+    var lvl = sess.lvl, i = sess.introIdx, ch = sess.introQueue[i], c = lvl.byCh[ch];
+    var ls = levelState(lvl.name);
+    if (!ls.p[ch]) ls.p[ch] = { s: 0, due: sess.t, g: false };
+    if (ls.newIdx < lvl.chars.length && lvl.chars[ls.newIdx].ch === ch) ls.newIdx++;
     save();
-
     $("intro-label").textContent = "오늘의 새 한자 " + (i + 1) + "/" + sess.introQueue.length;
     $("intro-glyph").textContent = c.ch;
     $("intro-huneum").textContent = huneumOf(c);
     $("intro-words").innerHTML = (c.words || []).map(function (wStr) {
-      var w = wordByW[wStr];
-      return w ? w.w + " (" + w.r + ")" : wStr;
+      var w = lvl.wordByW[wStr]; return w ? w.w + " (" + w.r + ")" : wStr;
     }).join("<br>");
-    $("btn-intro-next").textContent =
-      (i === sess.introQueue.length - 1) ? "퀴즈 시작" : "다음";
+    $("btn-intro-next").textContent = (i === sess.introQueue.length - 1) ? "퀴즈 시작" : "다음";
     show("view-intro");
   }
 
   function renderQuestion() {
     var q = sess.queue[sess.idx];
-    $("quiz-label").textContent = (sess.idx + 1) + "/" + sess.queue.length +
-      (sess.mode === "bonus" ? " · 보너스" : "");
+    var suffix = sess.mode === "bonus" ? " · 보너스" : sess.mode === "exam" ? " · 모의시험" : "";
+    $("quiz-label").textContent = (sess.idx + 1) + "/" + sess.queue.length + suffix;
     $("prog-fill").style.width = Math.round(sess.idx / sess.queue.length * 100) + "%";
-    $("q-type").textContent = q.type === 1 ? "훈(뜻)과 음(소리)을 고르세요" : "읽는 소리를 고르세요";
+    $("q-type").textContent = q.type === 1 ? "훈(뜻)과 음(소리)을 고르세요" : q.type === 2 ? "읽는 소리를 고르세요" : "이 훈음에 맞는 한자를 고르세요";
     var g = $("q-glyph");
-    g.textContent = q.prompt;
-    g.classList.toggle("word", q.type === 2);
+    g.classList.remove("word");
+    if (q.type === 3) { g.textContent = q.prompt; g.style.fontSize = "34px"; }
+    else { g.textContent = q.prompt; g.style.fontSize = ""; g.classList.toggle("word", q.type === 2); }
     $("feedback").textContent = "";
     $("btn-next").classList.add("hidden");
-    var box = $("opts");
-    box.innerHTML = "";
+    var box = $("opts"); box.innerHTML = "";
     q.opts.forEach(function (opt) {
       var b = document.createElement("button");
-      b.className = "opt";
+      b.className = "opt" + (q.type === 3 ? " glyph opt" : "");
       b.textContent = opt;
       b.addEventListener("click", function () { answer(q, opt, b); });
       box.appendChild(b);
@@ -271,54 +362,85 @@
   function answer(q, opt, btn) {
     var buttons = Array.prototype.slice.call(document.querySelectorAll("#opts .opt"));
     if (buttons.some(function (b) { return b.disabled; })) return;
-    buttons.forEach(function (b) {
-      b.disabled = true;
-      if (b.textContent === q.answer) b.classList.add("correct");
-    });
+    buttons.forEach(function (b) { b.disabled = true; if (b.textContent === q.answer) b.classList.add("correct"); });
     var correct = (opt === q.answer);
     if (!correct) btn.classList.add("wrong");
     if (correct) sess.ok++;
-    $("feedback").textContent = grade(q.ch, correct);
+    $("feedback").innerHTML = grade(q.ch, correct);
     $("prog-fill").style.width = Math.round((sess.idx + 1) / sess.queue.length * 100) + "%";
-    if (correct) {
-      setTimeout(next, 800);
-    } else {
-      $("btn-next").classList.remove("hidden"); // 오답은 정답 확인 후 직접 넘김
-    }
+    if (correct) setTimeout(next, 800);
+    else $("btn-next").classList.remove("hidden");
   }
 
   function next() {
     if (!sess) return;
     sess.idx++;
-    if (sess.idx < sess.queue.length) renderQuestion();
-    else renderResult();
+    if (sess.idx < sess.queue.length) renderQuestion(); else renderResult();
   }
 
   function renderResult() {
-    if (sess.mode === "daily") finishDay(sess.t, sess.queue.length, sess.ok);
-    $("result-title").textContent = sess.mode === "bonus" ? "보너스 결과" : "오늘 결과";
+    var m = sess.mode;
+    if (m === "daily") finishDay(sess.t);
+    $("result-title").textContent = m === "exam" ? sess.lvl.name + " 승급 모의시험 결과" : m === "bonus" ? "보너스 결과" : "오늘 결과";
     $("score").textContent = sess.ok + "/" + sess.queue.length;
+    var pb = $("result-pass");
+    if (m === "exam") {
+      var ls = levelState(sess.lvl.name), pass = sess.ok >= sess.passNeed;
+      pb.classList.remove("hidden");
+      if (pass) {
+        ls.examPassed = true;
+        pb.className = "result-block pass-yes";
+        pb.innerHTML = '<span class="stamp">🎓 ' + sess.lvl.name + ' 합격</span><div style="margin-top:10px;">다음 급수가 열렸어요.</div>';
+      } else {
+        ls.lastExamAttempt = sess.t;
+        pb.className = "result-block pass-no";
+        pb.textContent = "아쉬워요 — 합격선 " + sess.passNeed + "문제. 내일 다시 도전할 수 있어요.";
+      }
+      save();
+    } else {
+      pb.classList.add("hidden");
+    }
     var gb = $("result-grad"), wb = $("result-wrong");
-    gb.classList.toggle("hidden", sess.gradList.length === 0);
-    wb.classList.toggle("hidden", sess.wrongList.length === 0);
-    $("grad-chips").innerHTML = sess.gradList.map(chipHtml).join("");
-    $("wrong-chips").innerHTML = sess.wrongList.map(chipHtml).join("");
+    gb.classList.toggle("hidden", sess.gradList.length === 0 || m === "exam");
+    wb.classList.toggle("hidden", sess.wrongList.length === 0 || m === "exam");
+    if (m !== "exam") {
+      $("grad-chips").innerHTML = sess.gradList.map(function (ch) { return chipHtml(sess.lvl, ch); }).join("");
+      $("wrong-chips").innerHTML = sess.wrongList.map(function (ch) { return chipHtml(sess.lvl, ch); }).join("");
+    }
     sess = null;
     show("view-result");
   }
-  function chipHtml(ch) {
-    var c = byCh[ch];
+  function chipHtml(lvl, ch) {
+    var c = lvl.byCh[ch];
     return '<span class="chip"><span class="g">' + c.ch + "</span>" + huneumOf(c) + "</span>";
   }
 
   function renderTable() {
-    $("table-grid").innerHTML = DATA.chars.map(function (c) {
-      var rec = S.p[c.ch];
-      var s = !rec ? "⬜" : (rec.g ? "🎓" : "🔁");
-      return '<div class="tcell"><div class="g">' + c.ch + '</div>' +
-        '<div class="h">' + huneumOf(c) + '</div><div class="s">' + s + "</div></div>";
+    var lvl = LEVELS[curIdx] || LEVELS[LEVELS.length - 1];
+    var ls = levelState(lvl.name);
+    $("table-title").textContent = lvl.name + " 한자표";
+    $("table-grid").innerHTML = lvl.chars.map(function (c) {
+      var rec = ls.p[c.ch], s = !rec ? "⬜" : (rec.g ? "🎓" : "🔁");
+      return '<div class="tcell"><div class="g">' + c.ch + '</div><div class="h">' + huneumOf(c) + '</div><div class="s">' + s + "</div></div>";
     }).join("");
     show("view-table");
+  }
+
+  function renderLadder() {
+    $("ladder-list").innerHTML = MANIFEST_ALL.map(function (m, idx) {
+      var lvlObj = LEVELS.filter(function (l) { return l.slug === m.slug; })[0];
+      var icon, sub;
+      if (m.status !== "ready") { icon = "🚧"; sub = "데이터 준비 중"; }
+      else if (levelComplete(lvlObj)) { icon = "🎓"; sub = lvlObj.chars.length + "자 · 통과"; }
+      else {
+        var readyIdx = LEVELS.indexOf(lvlObj);
+        icon = readyIdx === curIdx ? "🔄" : "🔒";
+        sub = lvlObj.chars.length + "자" + (readyIdx === curIdx ? " · 진행 중" : " · 대기");
+      }
+      return '<div class="lrow' + (icon === "🔄" ? " current" : "") + '"><div class="licon">' + icon +
+        '</div><div><div class="lname">' + m.name + '</div><div class="lsub">' + sub + "</div></div></div>";
+    }).join("");
+    show("view-ladder");
   }
 
   // ---------- 초기화 ----------
@@ -326,24 +448,29 @@
     document.title = CFG.title;
     $("app-title").textContent = CFG.title;
     $("app-subtitle").textContent = CFG.subtitle;
-    var back = $("back-link");
-    back.href = CFG.back;
-    back.textContent = CFG.backLabel;
+    var back = $("back-link"); back.href = CFG.back; back.textContent = CFG.backLabel;
 
     $("btn-start").addEventListener("click", function () {
-      var t = todayStr();
+      var lvl = LEVELS[curIdx]; if (!lvl) { startBonus(); return; }
+      var t = todayStr(), ls = levelState(lvl.name);
+      if (levelFullyGraduated(lvl)) { startExam(); return; }
       if (S.days[t] && S.days[t].done) startBonus(); else startDaily();
     });
     $("btn-table").addEventListener("click", renderTable);
     $("btn-table-back").addEventListener("click", function (e) { e.preventDefault(); renderHome(); });
+    $("btn-ladder").addEventListener("click", renderLadder);
+    $("btn-ladder-back").addEventListener("click", function (e) { e.preventDefault(); renderHome(); });
     $("btn-intro-next").addEventListener("click", function () {
       sess.introIdx++;
-      if (sess.introIdx < sess.introQueue.length) renderIntro();
-      else { buildQueue(); renderQuestion(); }
+      if (sess.introIdx < sess.introQueue.length) renderIntro(); else { buildQueue(); renderQuestion(); }
     });
     $("btn-next").addEventListener("click", next);
     $("btn-home").addEventListener("click", renderHome);
-    renderHome();
+
+    migrateV1();
+    loadAllData().then(renderHome).catch(function (e) {
+      $("today-line").textContent = "데이터 로드 실패: " + e.message;
+    });
   }
   init();
 })();
