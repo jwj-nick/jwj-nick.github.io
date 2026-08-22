@@ -83,7 +83,7 @@
     return a;
   }
   function $(id) { return document.getElementById(id); }
-  var VIEWS = ["view-home", "view-intro", "view-quiz", "view-result", "view-table", "view-ladder"];
+  var VIEWS = ["view-home", "view-intro", "view-quiz", "view-result", "view-table"];
   function show(viewId) {
     VIEWS.forEach(function (v) { $(v).classList.toggle("hidden", v !== viewId); });
     window.scrollTo(0, 0);
@@ -278,6 +278,7 @@
 
   // ---------- 렌더 ----------
   var curIdx = -1;
+  var tablePrevTarget = null, tableNextTarget = null;
 
   function renderHome() {
     curIdx = currentLevelIdx();
@@ -307,6 +308,7 @@
     $("today-line").textContent = line;
     $("btn-start").textContent = btnLabel;
     $("btn-start").disabled = fullyGrad && examBlockedToday;
+    renderLadderRows($("mini-ladder"));
     show("view-home");
   }
 
@@ -317,6 +319,7 @@
     $("btn-start").textContent = "복습하기";
     $("btn-start").disabled = false;
     curIdx = LEVELS.length - 1; // 마지막 급수로 보너스 복습
+    renderLadderRows($("mini-ladder"));
     show("view-home");
   }
 
@@ -415,22 +418,10 @@
     return '<span class="chip"><span class="g">' + c.ch + "</span>" + huneumOf(c) + "</span>";
   }
 
-  // lvl을 안 주면 현재 진행 중인 급수. 아직 도달 전인 급수도 표는 항상 볼 수 있다(전부 ⬜로 표시) —
-  // 잠기는 건 "그 급수의 학습·시험 진행"뿐, 한자 목록 구경(미리보기)까지 막지 않는다.
-  function renderTable(lvl) {
-    lvl = lvl || LEVELS[curIdx] || LEVELS[LEVELS.length - 1];
-    var ls = levelState(lvl.name);
-    var isFuture = LEVELS.indexOf(lvl) > curIdx && curIdx >= 0;
-    $("table-title").textContent = lvl.name + " 한자표" + (isFuture ? " (미리보기)" : "");
-    $("table-grid").innerHTML = lvl.chars.map(function (c) {
-      var rec = ls.p[c.ch], s = !rec ? "⬜" : (rec.g ? "🎓" : "🔁");
-      return '<div class="tcell"><div class="g">' + c.ch + '</div><div class="h">' + huneumOf(c) + '</div><div class="s">' + s + "</div></div>";
-    }).join("");
-    show("view-table");
-  }
-
-  function renderLadder() {
-    var box = $("ladder-list");
+  // 급수 목록(사다리) 렌더 — 홈 화면에 항상 인라인으로 보여준다("전체 앱 내용이 내려다 보이도록").
+  // 미도달·완료 급수 모두 표는 항상 볼 수 있다(전부 ⬜로 표시될 뿐) — 잠기는 건 "그 급수의 학습·시험 진행"뿐,
+  // 한자 목록 구경(미리보기)까지 막지 않는다.
+  function renderLadderRows(box) {
     box.innerHTML = "";
     MANIFEST_ALL.forEach(function (m) {
       var lvlObj = LEVELS.filter(function (l) { return l.slug === m.slug; })[0];
@@ -441,7 +432,7 @@
         var readyIdx = LEVELS.indexOf(lvlObj);
         icon = readyIdx === curIdx ? "🔄" : "🔒";
         sub = lvlObj.chars.length + "자" + (readyIdx === curIdx ? " · 진행 중 · 눌러서 표 보기" : " · 아직 학습 전 · 눌러서 미리보기");
-        clickable = true; // 잠긴 급수도 표(미리보기)는 항상 열람 가능 — 막는 건 학습·시험 진행뿐
+        clickable = true; // 잠긴 급수도 표(미리보기)는 항상 열람 가능
       }
       var row = document.createElement("div");
       row.className = "lrow" + (icon === "🔄" ? " current" : "");
@@ -450,7 +441,29 @@
       if (clickable) row.addEventListener("click", function () { renderTable(lvlObj); });
       box.appendChild(row);
     });
-    show("view-ladder");
+  }
+
+  // lvl을 안 주면 현재 진행 중인 급수. 표 화면 안에서 이전/다음 급수로 바로 넘나들 수 있다(급수 사다리로
+  // 매번 돌아가지 않아도 되도록) — MANIFEST_ALL 순서를 따라가되 데이터 없는(🚧) 급수는 건너뛴다.
+  function renderTable(lvl) {
+    lvl = lvl || LEVELS[curIdx] || LEVELS[LEVELS.length - 1];
+    var ls = levelState(lvl.name);
+    var isFuture = LEVELS.indexOf(lvl) > curIdx && curIdx >= 0;
+    $("table-title").textContent = lvl.name + " 한자표" + (isFuture ? " (미리보기)" : "");
+    $("table-grid").innerHTML = lvl.chars.map(function (c) {
+      var rec = ls.p[c.ch], s = !rec ? "⬜" : (rec.g ? "🎓" : "🔁");
+      return '<div class="tcell"><div class="g">' + c.ch + '</div><div class="h">' + huneumOf(c) + '</div><div class="s">' + s + "</div></div>";
+    }).join("");
+
+    var mi = MANIFEST_ALL.findIndex(function (m) { return m.slug === lvl.slug; });
+    tablePrevTarget = null; tableNextTarget = null;
+    for (var i = mi - 1; i >= 0; i--) { var pl = LEVELS.filter(function (l) { return l.slug === MANIFEST_ALL[i].slug; })[0]; if (pl) { tablePrevTarget = pl; break; } }
+    for (var j = mi + 1; j < MANIFEST_ALL.length; j++) { var nl = LEVELS.filter(function (l) { return l.slug === MANIFEST_ALL[j].slug; })[0]; if (nl) { tableNextTarget = nl; break; } }
+    var pb = $("btn-table-prev"), nb = $("btn-table-next");
+    pb.disabled = !tablePrevTarget; pb.textContent = tablePrevTarget ? "◀ " + tablePrevTarget.name : "◀ 이전 급수";
+    nb.disabled = !tableNextTarget; nb.textContent = tableNextTarget ? tableNextTarget.name + " ▶" : "다음 급수 ▶";
+
+    show("view-table");
   }
 
   // ---------- 초기화 ----------
@@ -466,10 +479,9 @@
       if (levelFullyGraduated(lvl)) { startExam(); return; }
       if (S.days[t] && S.days[t].done) startBonus(); else startDaily();
     });
-    $("btn-table").addEventListener("click", function () { renderTable(); });
     $("btn-table-back").addEventListener("click", function (e) { e.preventDefault(); renderHome(); });
-    $("btn-ladder").addEventListener("click", renderLadder);
-    $("btn-ladder-back").addEventListener("click", function (e) { e.preventDefault(); renderHome(); });
+    $("btn-table-prev").addEventListener("click", function () { if (tablePrevTarget) renderTable(tablePrevTarget); });
+    $("btn-table-next").addEventListener("click", function () { if (tableNextTarget) renderTable(tableNextTarget); });
     $("btn-intro-next").addEventListener("click", function () {
       sess.introIdx++;
       if (sess.introIdx < sess.introQueue.length) renderIntro(); else { buildQueue(); renderQuestion(); }
