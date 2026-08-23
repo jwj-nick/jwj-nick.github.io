@@ -88,6 +88,15 @@
     VIEWS.forEach(function (v) { $(v).classList.toggle("hidden", v !== viewId); });
     window.scrollTo(0, 0);
   }
+  // 브라우저 뒤로가기 대응 — SPA인데 history API가 없어서 앱 안에서 화면을 아무리 옮겨도
+  // 히스토리엔 최초 진입 1건만 쌓여, 뒤로가기를 누르면 앱을 벗어나 버렸다(2026-08-23 Nick 신고).
+  // 고침: "화면 이동"으로 볼 만한 지점(홈↔표, 학습/시험 시작)마다 히스토리를 쌓고, popstate에서
+  // 그 지점을 재구성해서 보여준다. 표 안의 문제 하나하나·소개 카드 한 장 한 장까지는 안 쌓는다
+  // (그렇게 하면 뒤로가기를 문제 수만큼 눌러야 앱을 벗어나게 되어 오히려 불편해진다) — 세션(학습/시험)
+  // 도중 뒤로가기는 "세션 중단하고 홈으로"로 처리한다.
+  function pushView(kind, extra) {
+    history.pushState(Object.assign({ kind: kind }, extra || {}), "", location.href);
+  }
   function huneumOf(c) { return c.hun + " " + c.eum; }
 
   // ---------- 급수 진행 판정 ----------
@@ -204,6 +213,7 @@
       pending: { due: due, newChars: newChars },
       queue: null, idx: 0, ok: 0, wrongList: [], gradList: []
     };
+    pushView("session");
     if (newChars.length > 0) renderIntro(); else { buildQueue(); renderQuestion(); }
   }
 
@@ -217,6 +227,7 @@
       pending: { due: shuffle(introduced).slice(0, DAILY_MAX), newChars: [] },
       queue: null, idx: 0, ok: 0, wrongList: [], gradList: []
     };
+    pushView("session");
     buildQueue(); renderQuestion();
   }
 
@@ -238,6 +249,7 @@
       idx: 0, ok: 0, wrongList: [], gradList: [],
       passNeed: Math.ceil(n * lvl.passRate)
     };
+    pushView("session");
     renderQuestion();
   }
 
@@ -438,7 +450,7 @@
       row.className = "lrow" + (icon === "🔄" ? " current" : "");
       row.innerHTML = '<div class="licon">' + icon + '</div><div><div class="lname">' + m.name +
         '</div><div class="lsub">' + sub + "</div></div>";
-      if (clickable) row.addEventListener("click", function () { renderTable(lvlObj); });
+      if (clickable) row.addEventListener("click", function () { pushView("table", { slug: lvlObj.slug }); renderTable(lvlObj); });
       box.appendChild(row);
     });
   }
@@ -479,17 +491,30 @@
       if (levelFullyGraduated(lvl)) { startExam(); return; }
       if (S.days[t] && S.days[t].done) startBonus(); else startDaily();
     });
-    $("btn-table-back").addEventListener("click", function (e) { e.preventDefault(); renderHome(); });
-    $("btn-table-prev").addEventListener("click", function () { if (tablePrevTarget) renderTable(tablePrevTarget); });
-    $("btn-table-next").addEventListener("click", function () { if (tableNextTarget) renderTable(tableNextTarget); });
+    $("btn-table-back").addEventListener("click", function (e) { e.preventDefault(); pushView("home"); renderHome(); });
+    $("btn-table-prev").addEventListener("click", function () { if (tablePrevTarget) { pushView("table", { slug: tablePrevTarget.slug }); renderTable(tablePrevTarget); } });
+    $("btn-table-next").addEventListener("click", function () { if (tableNextTarget) { pushView("table", { slug: tableNextTarget.slug }); renderTable(tableNextTarget); } });
     $("btn-intro-next").addEventListener("click", function () {
       sess.introIdx++;
       if (sess.introIdx < sess.introQueue.length) renderIntro(); else { buildQueue(); renderQuestion(); }
     });
     $("btn-next").addEventListener("click", next);
-    $("btn-home").addEventListener("click", renderHome);
+    $("btn-home").addEventListener("click", function () { pushView("home"); renderHome(); });
+
+    // 뒤로가기(popstate)로 도착한 지점을 재구성. 표 화면이면 그 급수 표를, 그 외(홈·세션 도중)는
+    // 전부 홈으로 — 세션 중이었다면 중단(sess=null)하고 홈에서 다시 시작하면 된다.
+    window.addEventListener("popstate", function (e) {
+      sess = null;
+      var st = e.state;
+      if (st && st.kind === "table" && st.slug) {
+        var lvl = LEVELS.filter(function (l) { return l.slug === st.slug; })[0];
+        if (lvl) { renderTable(lvl); return; }
+      }
+      renderHome();
+    });
 
     migrateV1();
+    history.replaceState({ kind: "home" }, "", location.href);
     loadAllData().then(renderHome).catch(function (e) {
       $("today-line").textContent = "데이터 로드 실패: " + e.message;
     });
