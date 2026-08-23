@@ -13,32 +13,59 @@
 <body>
 <div class="wrap">
 
-  <!-- 홈 -->
+  <!-- 홈 — 4모듈 동격 대시보드 (결정 #23: 급수는 모듈 중 하나일 뿐) -->
   <section id="view-home" class="view">
     <header>
       <a class="back" id="back-link" href="../index.html">← 학습 앱</a>
-      <h1 id="app-title">한자 급수 도장</h1>
-      <p id="app-subtitle">한자능력검정 급수 사다리</p>
+      <h1 id="app-title">한자 나라</h1>
+      <p id="app-subtitle">찾고 · 모으고 · 익히는 나의 한자장</p>
     </header>
-    <div class="level-badge" id="level-badge"></div>
-    <div class="stats">
-      <div class="stat"><div class="num" id="st-grad">0</div><div class="lbl">🎓 이 급수 졸업</div></div>
-      <div class="stat"><div class="num" id="st-learn">0</div><div class="lbl">🔁 학습 중</div></div>
-      <div class="stat"><div class="num" id="st-streak">0</div><div class="lbl">🔥 연속일</div></div>
-    </div>
+    <button class="searchbar" id="home-search">🔍 한자 · 훈 · 음 · 단어 검색</button>
+    <button class="btn primary big" id="btn-start-all">오늘의 학습</button>
     <div class="today-line" id="today-line"></div>
-    <button class="btn primary big" id="btn-start">오늘 학습 시작</button>
-    <button class="btn ghost" id="btn-ctx">📖 문맥 한자 — 글 속 한자어</button>
-    <button class="btn ghost hidden" id="btn-idiom">📜 한자 표현(성어)</button>
-    <button class="btn ghost" id="btn-search">🔍 한자·단어 찾아보기</button>
-    <button class="btn ghost hidden" id="btn-saved-review">📦 보관함 복습</button>
-
-    <div class="overview-head">
-      <h2>전체 급수 한눈에 보기</h2>
-      <p>어느 급수든 눌러서 한자표를 바로 볼 수 있어요 · 🎓 통과 · 🔄 진행 중 · 🔒 학습 전(표는 미리보기 가능) · 🚧 준비 중</p>
+    <div class="modules">
+      <div class="mcard" id="card-ctx"><div class="mname">📖 문맥 한자</div><div class="msub" id="mcard-ctx-sub"></div></div>
+      <div class="mcard" id="card-idiom"><div class="mname">📜 한자 표현</div><div class="msub" id="mcard-idiom-sub"></div></div>
+      <div class="mcard" id="card-ladder"><div class="mname">🈯 급수 도장</div><div class="msub" id="mcard-ladder-sub"></div></div>
+      <div class="mcard" id="card-saved"><div class="mname">📦 보관함</div><div class="msub" id="mcard-saved-sub"></div></div>
     </div>
-    <div class="ladder-list" id="mini-ladder"></div>
+    <div class="today-line" id="summary-line"></div>
+    <button class="btn ghost" id="btn-backup">💾 진도 백업 / 복원</button>
     <p class="tip">📌 이 페이지를 홈 화면에 추가하면 앱처럼 쓸 수 있어요.</p>
+  </section>
+
+  <!-- 급수 사다리 (모듈 화면 — 잠금 없음, 어느 급수든 열람·학습·시험) -->
+  <section id="view-ladder" class="view hidden">
+    <header>
+      <a class="back" href="#" id="btn-ladder-back">← 홈</a>
+      <h1>급수 도장</h1>
+      <p id="ladder-sub">어느 급수든 눌러서 보고, 바로 학습할 수 있어요 · 🎓 합격 · 🔄 학습 중 · ⬜ 아직</p>
+    </header>
+    <div class="ladder-list" id="ladder-rows"></div>
+  </section>
+
+  <!-- 목록 (문맥 카테고리 / 카테고리 단어 / 성어 / 보관함 공용 템플릿) -->
+  <section id="view-list" class="view hidden">
+    <header>
+      <a class="back" href="#" id="btn-list-back">← 홈</a>
+      <h1 id="list-title"></h1>
+      <p id="list-sub"></p>
+    </header>
+    <button class="btn primary" id="btn-list-action"></button>
+    <div class="ladder-list" id="list-rows"></div>
+  </section>
+
+  <!-- 진도 백업 -->
+  <section id="view-backup" class="view hidden">
+    <header>
+      <a class="back" href="#" id="btn-backup-back">← 홈</a>
+      <h1>진도 백업</h1>
+      <p>기록을 다른 기기로 옮기거나 안전하게 보관해요</p>
+    </header>
+    <button class="btn ghost" id="btn-export">📤 내보내기 — 백업 코드 만들기</button>
+    <textarea id="backup-box" class="backup-box" rows="7" placeholder="내보내기를 누르면 여기에 백업 코드가 나타나요. 다른 기기로 가져올 땐 코드를 붙여넣고 아래 버튼을 누르세요."></textarea>
+    <button class="btn primary" id="btn-import">📥 가져오기 — 붙여넣은 코드로 복원</button>
+    <p class="tip" id="backup-msg">아이폰 사파리는 오래 안 쓰면 기록이 지워질 수 있어요 — 가끔 백업해 두면 안전해요.</p>
   </section>
 
   <!-- 새 한자 소개 -->
@@ -108,13 +135,15 @@
     <div class="ladder-list" id="detail-rel"></div>
   </section>
 
-  <!-- 한자표 -->
+  <!-- 한자표 — 어느 급수든 여기서 바로 학습·시험 (잠금 없음) -->
   <section id="view-table" class="view hidden">
     <header>
-      <a class="back" href="#" id="btn-table-back">← 홈(전체 급수)</a>
+      <a class="back" href="#" id="btn-table-back">← 급수 사다리</a>
       <h1 id="table-title">한자표</h1>
       <p>🎓 졸업 · 🔁 학습 중 · ⬜ 아직</p>
     </header>
+    <button class="btn primary" id="btn-table-study">이 급수 학습</button>
+    <button class="btn ghost" id="btn-table-exam">승급 모의시험</button>
     <div class="table-nav">
       <button class="navbtn" id="btn-table-prev">◀ 이전 급수</button>
       <button class="navbtn" id="btn-table-next">다음 급수 ▶</button>
