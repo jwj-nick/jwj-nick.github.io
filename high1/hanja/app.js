@@ -1,14 +1,20 @@
-// 한자 앱 엔진 v2 — 급수 사다리. 규칙의 정본은 00_META/design_hanja_v2.md (v1 규칙 계승: design_hanja_v1.md)
+// 한자 앱 엔진 v3 — 단어 중심 플랫폼(결정 #20). 규칙의 정본은 00_META/design_hanja_v3.md (v2/v1 규칙 계승)
 (function () {
   "use strict";
   var CFG = window.APP_CONFIG;
-  var KEY = CFG.ns + ".v2";
+  var KEY = CFG.ns + ".v3";
+  var V2_KEY = CFG.ns + ".v2";
   var V1_KEY = (CFG.v1ns || CFG.ns) + ".v1";
   var DAILY_MAX = 10;
   var NEW_MAX = 5;
 
   var LEVELS = [];        // ready 급수만, order순
-  var MANIFEST_ALL = [];  // 전체 15급수(표시용, planned 포함)
+  var MANIFEST_ALL = [];  // 전체 급수(표시용)
+  var WORDS = [];         // 단어 정본 (data/words.json) — 급수 파일과 분리된 단일 원천
+  var IDIOMS = [];        // 성어 정본 (data/idioms.json)
+  var byW = {};           // w → 단어 객체
+  var wordsByChar = {};   // ch → 그 글자가 든 단어 객체 배열 (런타임 계산 — 글자별 예시어의 원천)
+  var lvOrder = {};       // 급수 이름 → order
 
   // ---------- 데이터 로드 ----------
   function loadJSON(url) {
@@ -20,28 +26,49 @@
   function loadAllData() {
     return loadJSON("data/manifest.json").then(function (manifest) {
       MANIFEST_ALL = manifest.levels;
-      var ready = manifest.levels.filter(function (l) { return l.status === "ready"; });
+      manifest.levels.forEach(function (l) { lvOrder[l.name] = l.order; });
+      var ready = manifest.levels.filter(function (l) { return l.status !== "planned"; });
       return Promise.all(ready.map(function (l) {
         return loadJSON("data/levels/" + l.slug + ".json").then(function (d) {
-          var byCh = {}, wordByW = {};
+          var byCh = {};
           d.chars.forEach(function (c) { byCh[c.ch] = c; });
-          d.words.forEach(function (w) { wordByW[w.w] = w; });
-          return Object.assign({}, l, { chars: d.chars, words: d.words, byCh: byCh, wordByW: wordByW });
+          return Object.assign({}, l, { chars: d.chars, byCh: byCh });
         });
-      }));
-    }).then(function (levels) {
-      LEVELS = levels;
+      }).concat([loadJSON("data/words.json"), loadJSON("data/idioms.json")]));
+    }).then(function (loaded) {
+      IDIOMS = loaded.pop().idioms;
+      WORDS = loaded.pop().words;
+      LEVELS = loaded;
+      WORDS.forEach(function (w) {
+        byW[w.w] = w;
+        for (var i = 0; i < w.w.length; i++) {
+          var ch = w.w[i];
+          (wordsByChar[ch] = wordsByChar[ch] || []).push(w);
+        }
+      });
+      CHARS = []; byChGlobal = {};
+      LEVELS.forEach(function (lvl) {
+        lvl.chars.forEach(function (c) {
+          var info = { c: c, lvl: lvl };
+          CHARS.push(info); byChGlobal[c.ch] = info;
+        });
+      });
     });
   }
+  var CHARS = [];       // 전 급수 글자 (검색용)
+  var byChGlobal = {};  // ch → {c, lvl}
 
   // ---------- 상태 ----------
   function freshState() {
-    return { v: 2, levels: {}, days: {}, lastDone: null, streakDays: 0 };
+    return { v: 3, levels: {}, words: { p: {} }, idioms: { p: {} }, saved: [], days: {}, lastDone: null, streakDays: 0 };
   }
   function load() {
     try {
       var s = JSON.parse(localStorage.getItem(KEY));
-      if (s && s.v === 2) return s;
+      if (s && s.v === 3) {
+        s.words = s.words || { p: {} }; s.idioms = s.idioms || { p: {} }; s.saved = s.saved || [];
+        return s;
+      }
     } catch (e) {}
     return freshState();
   }
@@ -52,8 +79,19 @@
     if (!S.levels[name]) S.levels[name] = { p: {}, newIdx: 0, examPassed: false, lastExamAttempt: null };
     return S.levels[name];
   }
-  function migrateV1() {
-    if (Object.keys(S.levels).length > 0) return; // 이미 v2 데이터 있음 — 마이그레이션 스킵
+  // v2 → v3: 급수 진도(levels)·연속일을 통째로 복사. v2 키는 보존(롤백 대비 — v1 때와 동일 패턴).
+  // v2 키가 없으면 v1 → 8급 폴백(기존 마이그레이션 사슬 유지).
+  function migrate() {
+    if (Object.keys(S.levels).length > 0) return; // 이미 v3 데이터 있음 — 스킵
+    try {
+      var v2 = JSON.parse(localStorage.getItem(V2_KEY));
+      if (v2 && v2.levels && Object.keys(v2.levels).length > 0) {
+        S.levels = v2.levels;
+        S.days = v2.days || {}; S.lastDone = v2.lastDone || null; S.streakDays = v2.streakDays || 0;
+        save();
+        return;
+      }
+    } catch (e) {}
     try {
       var v1 = JSON.parse(localStorage.getItem(V1_KEY));
       if (!v1 || !v1.p) return;
@@ -83,7 +121,7 @@
     return a;
   }
   function $(id) { return document.getElementById(id); }
-  var VIEWS = ["view-home", "view-intro", "view-quiz", "view-result", "view-table"];
+  var VIEWS = ["view-home", "view-intro", "view-quiz", "view-result", "view-table", "view-search", "view-detail"];
   function show(viewId) {
     VIEWS.forEach(function (v) { $(v).classList.toggle("hidden", v !== viewId); });
     window.scrollTo(0, 0);
@@ -148,11 +186,14 @@
     }
     return shuffle(picked.concat([answer]));
   }
+  function wordPool(maxOrder) { // 해당 급수 이하 글자로만 이루어진 단어들 (v3: words.json 단일 원천)
+    return WORDS.filter(function (x) { return lvOrder[x.lv] <= maxOrder; });
+  }
   function optsType2(lvl, w) {
     var answer = w.r, picked = [];
     (w.d || []).forEach(function (d) { if (d !== answer && picked.indexOf(d) < 0 && picked.length < 3) picked.push(d); });
     var sameLen = [], diffLen = [];
-    lvl.words.forEach(function (x) {
+    wordPool(lvl.order).forEach(function (x) {
       if (x.w === w.w || x.r === answer) return;
       (x.r.length === answer.length ? sameLen : diffLen).push(x.r);
     });
@@ -173,9 +214,10 @@
     return shuffle(picked.concat([answer]));
   }
   function eligibleWords(lvl, c, knownSet) {
-    return (c.words || []).filter(function (wStr) {
-      if (!lvl.wordByW[wStr]) return false;
-      return wStr.split("").every(function (ch) { return knownSet[ch]; });
+    // v3: 글자별 예시어는 계산형 — words.json에서 이 글자가 든 단어 중, 급수 이하 + 구성 글자 전부 학습된 것
+    return (wordsByChar[c.ch] || []).filter(function (w) {
+      if (lvOrder[w.lv] > lvl.order) return false;
+      return w.w.split("").every(function (ch) { return knownSet[ch]; });
     });
   }
   function buildQuestion(lvl, ch, isNew, knownSet) {
@@ -185,7 +227,7 @@
     if (roll < 0.45) {
       var elig = eligibleWords(lvl, c, knownSet);
       if (elig.length > 0) {
-        var w = lvl.wordByW[elig[Math.floor(Math.random() * elig.length)]];
+        var w = elig[Math.floor(Math.random() * elig.length)];
         return { ch: ch, type: 2, prompt: w.w, answer: w.r, opts: optsType2(lvl, w) };
       }
     } else if (roll < 0.60) {
@@ -262,20 +304,32 @@
   }
 
   // ---------- 채점 ----------
-  function grade(ch, correct) {
+  // v3: 채점은 문항(q) 단위 — 급수 세션은 q.ch(글자), 보관함 세션은 q.sk(저장 키)로 SR 레코드를 찾는다.
+  // SR 규칙 자체(다른 날 연속 2회 정답 졸업, 오답 시 리셋+내일)는 v1부터 불변.
+  function grade(q, correct) {
     if (sess.mode === "exam") return correct ? "정답!" : "오답";
-    var lvl = sess.lvl, ls = levelState(lvl.name), t = sess.t;
-    var rec = ls.p[ch] || (ls.p[ch] = { s: 0, due: t, g: false });
+    var t = sess.t, rec, chipRef;
+    if (sess.mode === "saved") {
+      rec = savedRec(q.sk); chipRef = savedChip(q.sk);
+    } else {
+      var ls = levelState(sess.lvl.name);
+      rec = ls.p[q.ch] || (ls.p[q.ch] = { s: 0, due: t, g: false });
+      chipRef = q.ch;
+    }
     var fb;
     if (sess.mode === "bonus" && correct) return "정답!";
     if (correct) {
       rec.s = (rec.s || 0) + 1;
-      if (rec.s >= 2) { rec.g = true; sess.gradList.push(ch); fb = '<span class="stamp">🎓 졸업</span>'; }
-      else { rec.due = addDays(t, 3); fb = "정답! 3일 뒤 한 번 더 맞히면 졸업"; }
+      if (rec.s >= 2) {
+        rec.g = true;
+        if (sess.mode === "saved") removeSaved(q.sk);
+        sess.gradList.push(chipRef); fb = '<span class="stamp">🎓 졸업</span>';
+      } else { rec.due = addDays(t, 3); fb = "정답! 3일 뒤 한 번 더 맞히면 졸업"; }
     } else {
       var wasGrad = rec.g;
       rec.s = 0; rec.g = false; rec.due = addDays(t, 1);
-      if (sess.wrongList.indexOf(ch) < 0) sess.wrongList.push(ch);
+      var key = chipRef.k || chipRef;
+      if (!sess.wrongList.some(function (x) { return (x.k || x) === key; })) sess.wrongList.push(chipRef);
       fb = wasGrad ? "졸업 취소 — 보관함으로" : "보관함으로 — 내일 다시";
     }
     save();
@@ -320,8 +374,15 @@
     $("today-line").textContent = line;
     $("btn-start").textContent = btnLabel;
     $("btn-start").disabled = fullyGrad && examBlockedToday;
+    updateSavedButton(t);
     renderLadderRows($("mini-ladder"));
     show("view-home");
+  }
+
+  function updateSavedButton(t) {
+    var n = savedDueKeys(t).length, b = $("btn-saved-review");
+    b.classList.toggle("hidden", n === 0);
+    b.textContent = "📦 보관함 복습 (" + n + ")";
   }
 
   function renderAllDone() {
@@ -331,6 +392,7 @@
     $("btn-start").textContent = "복습하기";
     $("btn-start").disabled = false;
     curIdx = LEVELS.length - 1; // 마지막 급수로 보너스 복습
+    updateSavedButton(todayStr());
     renderLadderRows($("mini-ladder"));
     show("view-home");
   }
@@ -344,9 +406,9 @@
     $("intro-label").textContent = "오늘의 새 한자 " + (i + 1) + "/" + sess.introQueue.length;
     $("intro-glyph").textContent = c.ch;
     $("intro-huneum").textContent = huneumOf(c);
-    $("intro-words").innerHTML = (c.words || []).map(function (wStr) {
-      var w = lvl.wordByW[wStr]; return w ? w.w + " (" + w.r + ")" : wStr;
-    }).join("<br>");
+    $("intro-words").innerHTML = (wordsByChar[ch] || []).filter(function (w) {
+      return lvOrder[w.lv] <= lvl.order;
+    }).slice(0, 3).map(function (w) { return w.w + " (" + w.r + ")"; }).join("<br>");
     $("btn-intro-next").textContent = (i === sess.introQueue.length - 1) ? "퀴즈 시작" : "다음";
     show("view-intro");
   }
@@ -381,7 +443,7 @@
     var correct = (opt === q.answer);
     if (!correct) btn.classList.add("wrong");
     if (correct) sess.ok++;
-    $("feedback").innerHTML = grade(q.ch, correct);
+    $("feedback").innerHTML = grade(q, correct);
     $("prog-fill").style.width = Math.round((sess.idx + 1) / sess.queue.length * 100) + "%";
     if (correct) setTimeout(next, 800);
     else $("btn-next").classList.remove("hidden");
@@ -396,7 +458,7 @@
   function renderResult() {
     var m = sess.mode;
     if (m === "daily") finishDay(sess.t);
-    $("result-title").textContent = m === "exam" ? sess.lvl.name + " 승급 모의시험 결과" : m === "bonus" ? "보너스 결과" : "오늘 결과";
+    $("result-title").textContent = m === "exam" ? sess.lvl.name + " 승급 모의시험 결과" : m === "bonus" ? "보너스 결과" : m === "saved" ? "보관함 복습 결과" : "오늘 결과";
     $("score").textContent = sess.ok + "/" + sess.queue.length;
     var pb = $("result-pass");
     if (m === "exam") {
@@ -418,7 +480,10 @@
     var gb = $("result-grad"), wb = $("result-wrong");
     gb.classList.toggle("hidden", sess.gradList.length === 0 || m === "exam");
     wb.classList.toggle("hidden", sess.wrongList.length === 0 || m === "exam");
-    if (m !== "exam") {
+    if (m === "saved") {
+      $("grad-chips").innerHTML = sess.gradList.map(chipObjHtml).join("");
+      $("wrong-chips").innerHTML = sess.wrongList.map(chipObjHtml).join("");
+    } else if (m !== "exam") {
       $("grad-chips").innerHTML = sess.gradList.map(function (ch) { return chipHtml(sess.lvl, ch); }).join("");
       $("wrong-chips").innerHTML = sess.wrongList.map(function (ch) { return chipHtml(sess.lvl, ch); }).join("");
     }
@@ -428,6 +493,9 @@
   function chipHtml(lvl, ch) {
     var c = lvl.byCh[ch];
     return '<span class="chip"><span class="g">' + c.ch + "</span>" + huneumOf(c) + "</span>";
+  }
+  function chipObjHtml(o) {
+    return '<span class="chip"><span class="g">' + o.g + "</span>" + o.h + "</span>";
   }
 
   // 급수 목록(사다리) 렌더 — 홈 화면에 항상 인라인으로 보여준다("전체 앱 내용이 내려다 보이도록").
@@ -478,6 +546,243 @@
     show("view-table");
   }
 
+  // ---------- 보관함(수집) — 검색에서 저장한 항목의 SR 루프 (결정 #20: 검색 = 수집 입구) ----------
+  // 저장 키(sk) = "c:歌" | "w:延期" | "i:溫故知新". 글자는 소속 급수의 p에, 단어/성어는 S.words/S.idioms.p에
+  // 레코드를 만든다 — 급수 학습과 같은 SR 규칙을 타므로, 글자는 급수 진도에도 그대로 반영된다.
+  function savedRec(sk) {
+    var k = sk.slice(2), t = todayStr();
+    if (sk[0] === "c") {
+      var info = byChGlobal[k]; if (!info) return null;
+      var ls = levelState(info.lvl.name);
+      return ls.p[k] || (ls.p[k] = { s: 0, due: t, g: false });
+    }
+    if (sk[0] === "w") return S.words.p[k] || (S.words.p[k] = { s: 0, due: t, g: false });
+    return S.idioms.p[k] || (S.idioms.p[k] = { s: 0, due: t, g: false });
+  }
+  function savedRecPeek(sk) {
+    var k = sk.slice(2);
+    if (sk[0] === "c") { var info = byChGlobal[k]; if (!info) return null; return levelState(info.lvl.name).p[k] || null; }
+    if (sk[0] === "w") return S.words.p[k] || null;
+    return S.idioms.p[k] || null;
+  }
+  function removeSaved(sk) { var i = S.saved.indexOf(sk); if (i >= 0) S.saved.splice(i, 1); }
+  function savedChip(sk) {
+    var k = sk.slice(2);
+    if (sk[0] === "c") { var info = byChGlobal[k]; return { k: sk, g: k, h: info ? huneumOf(info.c) : "" }; }
+    if (sk[0] === "w") { var w = byW[k]; return { k: sk, g: k, h: w ? w.r : "" }; }
+    return { k: sk, g: k, h: "" };
+  }
+  function savedDueKeys(t) {
+    return S.saved.filter(function (sk) {
+      if (sk[0] === "i") return false; // 성어 문제 유형은 M4에서 — 그 전까지 복습 큐에서 제외
+      if (sk[0] === "c" && !byChGlobal[sk.slice(2)]) return false;
+      if (sk[0] === "w" && !byW[sk.slice(2)]) return false;
+      var rec = savedRecPeek(sk);
+      return !!rec && !rec.g && rec.due <= t;
+    });
+  }
+  function savedQuestion(sk) {
+    if (sk[0] === "c") {
+      var ch = sk.slice(2), lvl = byChGlobal[ch].lvl;
+      var knownSet = {};
+      lvl.chars.forEach(function (c) { knownSet[c.ch] = true; });
+      var q = buildQuestion(lvl, ch, false, knownSet);
+      q.sk = sk;
+      return q;
+    }
+    var w = byW[sk.slice(2)];
+    return { sk: sk, type: 2, prompt: w.w, answer: w.r, opts: optsType2({ order: lvOrder[w.lv] }, w) };
+  }
+  function startSavedReview() {
+    var t = todayStr();
+    var keys = shuffle(savedDueKeys(t)).slice(0, DAILY_MAX);
+    if (keys.length === 0) { renderHome(); return; }
+    sess = {
+      mode: "saved", t: t, lvl: null,
+      introQueue: [], introIdx: 0,
+      queue: keys.map(savedQuestion), idx: 0, ok: 0, wrongList: [], gradList: []
+    };
+    pushView("session");
+    renderQuestion();
+  }
+
+  // ---------- 검색 — 사전이 아니라 수집 입구 ----------
+  var lastQuery = "";
+  function parseEumsJs(eumStr) { return eumStr.split(/[^가-힣]+/).filter(Boolean); }
+  var CJK_TEST = /[㐀-鿿豈-﫿]/;
+  function searchAll(q) {
+    var res = { chars: [], words: [], idioms: [] };
+    q = (q || "").trim();
+    if (!q) return res;
+    if (CJK_TEST.test(q)) {
+      for (var i = 0; i < q.length && res.chars.length < 20; i++) {
+        var info = byChGlobal[q[i]];
+        if (info && res.chars.indexOf(info) < 0) res.chars.push(info);
+      }
+      WORDS.forEach(function (w) { if (res.words.length < 20 && w.w.indexOf(q) >= 0) res.words.push(w); });
+      IDIOMS.forEach(function (it) { if (res.idioms.length < 20 && it.expr.indexOf(q) >= 0) res.idioms.push(it); });
+    } else {
+      var exact = [], partial = [];
+      CHARS.forEach(function (info) {
+        if (parseEumsJs(info.c.eum).indexOf(q) >= 0) exact.push(info);
+        else if (info.c.hun.indexOf(q) >= 0) partial.push(info);
+      });
+      res.chars = exact.concat(partial).slice(0, 20);
+      var wpre = [], wsub = [];
+      WORDS.forEach(function (w) {
+        if (w.r === q || w.r.indexOf(q) === 0) wpre.push(w);
+        else if (w.r.indexOf(q) > 0 || (w.gloss || "").indexOf(q) >= 0) wsub.push(w);
+      });
+      res.words = wpre.concat(wsub).slice(0, 20);
+      IDIOMS.forEach(function (it) {
+        if (res.idioms.length < 20 && (it.r.indexOf(q) >= 0 || (it.meaning || "").indexOf(q) >= 0)) res.idioms.push(it);
+      });
+    }
+    return res;
+  }
+  function listRow(glyph, name, sub, onClick) {
+    var row = document.createElement("div");
+    row.className = "lrow";
+    row.innerHTML = '<div class="lglyph">' + glyph + '</div><div><div class="lname">' + name +
+      '</div><div class="lsub">' + sub + "</div></div>";
+    row.addEventListener("click", onClick);
+    return row;
+  }
+  function renderSearch() {
+    $("search-input").value = lastQuery;
+    renderSearchResults();
+    show("view-search");
+  }
+  function renderSearchResults() {
+    var box = $("search-results");
+    box.innerHTML = "";
+    var r = searchAll(lastQuery);
+    function head(txt) { var h = document.createElement("div"); h.className = "group-head"; h.textContent = txt; box.appendChild(h); }
+    if (lastQuery.trim() && !r.chars.length && !r.words.length && !r.idioms.length) { head("결과 없음 — 아직 수록되지 않은 항목이에요"); return; }
+    if (r.chars.length) {
+      head("글자");
+      r.chars.forEach(function (info) {
+        box.appendChild(listRow(info.c.ch, huneumOf(info.c), info.lvl.name + statusSuffix(trackedRec("c", info.c.ch)), function () {
+          pushView("detail", { dt: "c", k: info.c.ch }); renderDetailChar(info);
+        }));
+      });
+    }
+    if (r.words.length) {
+      head("단어");
+      r.words.forEach(function (w) {
+        box.appendChild(listRow(w.w, w.r, (w.gloss ? w.gloss + " · " : "") + w.lv + statusSuffix(trackedRec("w", w.w)), function () {
+          pushView("detail", { dt: "w", k: w.w }); renderDetailWord(w);
+        }));
+      });
+    }
+    if (r.idioms.length) {
+      head("성어");
+      r.idioms.forEach(function (it) {
+        box.appendChild(listRow(it.expr, it.r, (it.meaning || "") + " · " + it.lv, function () {
+          pushView("detail", { dt: "i", k: it.expr }); renderDetailIdiom(it);
+        }));
+      });
+    }
+  }
+
+  // ---------- 상세뷰 (글자/단어/성어 공용 — 상호 링크로 미니 옥편) ----------
+  var detailTarget = null; // { dt: "c"|"w"|"i", k }
+  function trackedRec(dt, k) {
+    if (dt === "c") { var info = byChGlobal[k]; if (!info) return null; return levelState(info.lvl.name).p[k] || null; }
+    if (dt === "w") return S.words.p[k] || null;
+    return S.idioms.p[k] || null;
+  }
+  function statusSuffix(rec) { return !rec ? "" : rec.g ? " · 🎓 졸업" : " · 🔁 학습 중"; }
+  function updateSaveBtn(dt, k) {
+    var b = $("btn-detail-save"), rec = trackedRec(dt, k);
+    if (rec && rec.g) { b.textContent = "🎓 이미 졸업한 항목이에요"; b.disabled = true; }
+    else if (rec) { b.textContent = "🔁 보관함에 있어요 — 복습에 나와요"; b.disabled = true; }
+    else { b.textContent = "📦 보관함에 저장 (복습에 나와요)"; b.disabled = false; }
+  }
+  function renderDetailByKey(dt, k) {
+    if (dt === "c" && byChGlobal[k]) { renderDetailChar(byChGlobal[k]); return true; }
+    if (dt === "w" && byW[k]) { renderDetailWord(byW[k]); return true; }
+    if (dt === "i") {
+      var it = IDIOMS.filter(function (x) { return x.expr === k; })[0];
+      if (it) { renderDetailIdiom(it); return true; }
+    }
+    return false;
+  }
+  function renderDetailChar(info) {
+    var c = info.c, ch = c.ch;
+    detailTarget = { dt: "c", k: ch };
+    $("detail-title").textContent = "글자";
+    $("detail-sub").textContent = info.lvl.name + " 배정한자";
+    $("detail-glyph").classList.remove("word");
+    $("detail-glyph").textContent = ch;
+    $("detail-huneum").textContent = huneumOf(c);
+    var rec = trackedRec("c", ch);
+    $("detail-info").innerHTML = rec ? (rec.g ? "🎓 졸업" : "🔁 학습 중") : "아직 학습 전";
+    updateSaveBtn("c", ch);
+    var rel = wordsByChar[ch] || [];
+    $("detail-rel-head").textContent = rel.length ? "이 글자가 든 단어 (" + rel.length + ")" : "이 글자가 든 단어가 아직 없어요";
+    var box = $("detail-rel");
+    box.innerHTML = "";
+    rel.slice(0, 20).forEach(function (w) {
+      box.appendChild(listRow(w.w, w.r, (w.gloss ? w.gloss + " · " : "") + w.lv, function () {
+        pushView("detail", { dt: "w", k: w.w }); renderDetailWord(w);
+      }));
+    });
+    show("view-detail");
+  }
+  function renderDetailWord(w) {
+    detailTarget = { dt: "w", k: w.w };
+    $("detail-title").textContent = "단어";
+    $("detail-sub").textContent = w.lv + " 수준 한자어";
+    $("detail-glyph").classList.add("word");
+    $("detail-glyph").textContent = w.w;
+    $("detail-huneum").textContent = w.r;
+    var parts = [];
+    if (w.gloss) parts.push(w.gloss);
+    if (w.sent) parts.push("“" + w.sent + "”");
+    var rec = trackedRec("w", w.w);
+    if (rec) parts.push(rec.g ? "🎓 졸업" : "🔁 학습 중");
+    $("detail-info").innerHTML = parts.join("<br>");
+    updateSaveBtn("w", w.w);
+    $("detail-rel-head").textContent = "글자 분해";
+    var box = $("detail-rel");
+    box.innerHTML = "";
+    w.w.split("").forEach(function (ch) {
+      var info = byChGlobal[ch];
+      if (!info) return;
+      box.appendChild(listRow(ch, huneumOf(info.c), info.lvl.name, function () {
+        pushView("detail", { dt: "c", k: ch }); renderDetailChar(info);
+      }));
+    });
+    show("view-detail");
+  }
+  function renderDetailIdiom(it) {
+    detailTarget = { dt: "i", k: it.expr };
+    $("detail-title").textContent = "성어";
+    $("detail-sub").textContent = it.lv + " 수준";
+    $("detail-glyph").classList.add("word");
+    $("detail-glyph").textContent = it.expr;
+    $("detail-huneum").textContent = it.r;
+    var parts = [];
+    if (it.literal) parts.push("직역: " + it.literal);
+    if (it.meaning) parts.push(it.meaning);
+    if (it.origin) parts.push("출전: " + it.origin);
+    if (it.sent) parts.push("“" + it.sent + "”");
+    $("detail-info").innerHTML = parts.join("<br>");
+    updateSaveBtn("i", it.expr);
+    $("detail-rel-head").textContent = "글자 분해";
+    var box = $("detail-rel");
+    box.innerHTML = "";
+    it.expr.split("").forEach(function (ch) {
+      var info = byChGlobal[ch];
+      if (!info) return;
+      box.appendChild(listRow(ch, huneumOf(info.c), info.lvl.name, function () {
+        pushView("detail", { dt: "c", k: ch }); renderDetailChar(info);
+      }));
+    });
+    show("view-detail");
+  }
+
   // ---------- 초기화 ----------
   function init() {
     document.title = CFG.title;
@@ -500,8 +805,24 @@
     });
     $("btn-next").addEventListener("click", next);
     $("btn-home").addEventListener("click", function () { pushView("home"); renderHome(); });
+    $("btn-search").addEventListener("click", function () { lastQuery = ""; pushView("search"); renderSearch(); });
+    $("btn-search-back").addEventListener("click", function (e) { e.preventDefault(); pushView("home"); renderHome(); });
+    $("btn-detail-back").addEventListener("click", function (e) { e.preventDefault(); pushView("search"); renderSearch(); });
+    $("search-input").addEventListener("input", function () { lastQuery = $("search-input").value || ""; renderSearchResults(); });
+    $("btn-saved-review").addEventListener("click", startSavedReview);
+    $("btn-detail-save").addEventListener("click", function () {
+      if (!detailTarget) return;
+      var dt = detailTarget.dt, k = detailTarget.k;
+      if (trackedRec(dt, k)) return;
+      savedRec(dt + ":" + k); // 레코드 생성 (due=오늘 → 다음 복습부터 등장)
+      var sk = dt + ":" + k;
+      if (S.saved.indexOf(sk) < 0) S.saved.push(sk);
+      save();
+      updateSaveBtn(dt, k);
+      $("detail-info").innerHTML = "🔁 보관함에 담았어요 — 복습에 나와요";
+    });
 
-    // 뒤로가기(popstate)로 도착한 지점을 재구성. 표 화면이면 그 급수 표를, 그 외(홈·세션 도중)는
+    // 뒤로가기(popstate)로 도착한 지점을 재구성. 표/검색/상세 화면이면 그 지점을, 그 외(홈·세션 도중)는
     // 전부 홈으로 — 세션 중이었다면 중단(sess=null)하고 홈에서 다시 시작하면 된다.
     window.addEventListener("popstate", function (e) {
       sess = null;
@@ -510,10 +831,12 @@
         var lvl = LEVELS.filter(function (l) { return l.slug === st.slug; })[0];
         if (lvl) { renderTable(lvl); return; }
       }
+      if (st && st.kind === "search") { renderSearch(); return; }
+      if (st && st.kind === "detail" && st.dt && st.k && renderDetailByKey(st.dt, st.k)) return;
       renderHome();
     });
 
-    migrateV1();
+    migrate();
     history.replaceState({ kind: "home" }, "", location.href);
     loadAllData().then(renderHome).catch(function (e) {
       $("today-line").textContent = "데이터 로드 실패: " + e.message;
