@@ -388,7 +388,7 @@
   // v3: 채점은 문항(q) 단위 — 급수 세션은 q.ch(글자), 보관함 세션은 q.sk(저장 키)로 SR 레코드를 찾는다.
   // SR 규칙 자체(다른 날 연속 2회 정답 졸업, 오답 시 리셋+내일)는 v1부터 불변.
   function grade(q, correct) {
-    if (sess.mode === "exam") return correct ? "정답!" : "오답";
+    if (sess.mode === "exam" || sess.mode === "test") return correct ? "정답!" : "오답"; // 시험류는 SR 기록 무변경
     var t = sess.t, rec, chipRef;
     if (q.sk) { // 보관함·문맥·표현·통합 데일리 — 저장 키로 SR 레코드를 찾는다
       rec = savedRec(q.sk); chipRef = savedChip(q.sk);
@@ -421,6 +421,105 @@
     S.days[t] = { done: true };
     if (S.lastDone === addDays(t, -1)) S.streakDays++; else if (S.lastDone !== t) S.streakDays = 1;
     S.lastDone = t; save();
+  }
+
+  // ---------- 실전 시험 (프로토타입, 2026-08-26 Nick 지시) ----------
+  // [오늘의 학습]과 별개의 종합 시험 판 — 급수·문맥·표현 혼합 20문제, 객관식+단답형,
+  // 문항별 즉시 정답 확인. SR·진도에는 일절 반영하지 않는다 (유형·난이도 평가용).
+  // 단답형 유형: 10 한자어 독음 쓰기 · 11 한자 훈음 쓰기 · 12 성어 독음 쓰기 / 신규 객관식: 13 성어 빈칸 한자(동음 오답)
+  function normAns(s, stripAll) {
+    s = (s || "").trim().replace(/\s+/g, " ");
+    return stripAll ? s.replace(/ /g, "") : s;
+  }
+  function explainSk(sk) {
+    var k = sk.slice(2);
+    if (sk[0] === "c") {
+      var info = byChGlobal[k];
+      if (!info) return k;
+      var ws = (wordsByChar[k] || []).slice(0, 2).map(function (w) { return w.w + "(" + w.r + ")"; }).join(" · ");
+      return k + " = " + huneumOf(info.c) + " · " + info.lvl.name + (ws ? "<br>" + ws : "");
+    }
+    if (sk[0] === "w") return wordExp(k);
+    return idiomExp(k);
+  }
+  function blankIdiomQ(it) {
+    var pos = Math.floor(Math.random() * it.expr.length);
+    var ans = it.expr[pos];
+    var masked = it.expr.slice(0, pos) + "□" + it.expr.slice(pos + 1);
+    var info = byChGlobal[ans];
+    var eum = info ? parseEumsJs(info.c.eum)[0] : it.r[pos];
+    var same = shuffle(CHARS.filter(function (x) {
+      return x.c.ch !== ans && it.expr.indexOf(x.c.ch) < 0 && parseEumsJs(x.c.eum).indexOf(eum) >= 0;
+    }));
+    var picked = same.slice(0, 3).map(function (x) { return x.c.ch; });
+    var guard = 0;
+    while (picked.length < 3 && guard++ < 200) {
+      var r = CHARS[Math.floor(Math.random() * CHARS.length)].c.ch;
+      if (r !== ans && picked.indexOf(r) < 0 && it.expr.indexOf(r) < 0) picked.push(r);
+    }
+    return { sk: "i:" + it.expr, type: 13, prompt: masked, answer: ans, opts: shuffle(picked.concat([ans])), qlabel: "□에 들어갈 한자는? — " + it.r, tag: "성어 · " + it.lv };
+  }
+  function startTest() {
+    var qs = [], li = LEVELS.length;
+    // ① 급수 글자 7자 — 하·중·상 급수를 섞어 난이도 스펙트럼 표본 (훈음 4 + 역방향 2 + 훈음 쓰기 1)
+    var lvlPicks = [0, 1, 2, 4, Math.min(6, li - 1), Math.min(9, li - 1), li - 1];
+    var chosen = {}, charQs = [], guard = 0;
+    lvlPicks.forEach(function (idx) {
+      var lvl = LEVELS[idx], c = lvl.chars[Math.floor(Math.random() * lvl.chars.length)];
+      if (chosen[c.ch]) return;
+      chosen[c.ch] = true; charQs.push({ lvl: lvl, c: c });
+    });
+    while (charQs.length < 7 && guard++ < 100) {
+      var rl = LEVELS[Math.floor(Math.random() * li)], rc = rl.chars[Math.floor(Math.random() * rl.chars.length)];
+      if (!chosen[rc.ch]) { chosen[rc.ch] = true; charQs.push({ lvl: rl, c: rc }); }
+    }
+    charQs.slice(0, 4).forEach(function (p) { qs.push({ sk: "c:" + p.c.ch, type: 1, prompt: p.c.ch, answer: huneumOf(p.c), opts: optsType1(p.lvl, p.c), tag: p.lvl.name }); });
+    charQs.slice(4, 6).forEach(function (p) { qs.push({ sk: "c:" + p.c.ch, type: 3, prompt: huneumOf(p.c), answer: p.c.ch, opts: optsType3(p.lvl, p.c), tag: p.lvl.name }); });
+    qs.push({ sk: "c:" + charQs[6].c.ch, type: 11, input: true, prompt: charQs[6].c.ch, answer: huneumOf(charQs[6].c), qlabel: "이 한자의 훈과 음을 쓰세요 (예: 배울 학)", tag: charQs[6].lvl.name });
+    // ② 한자어 6개 — 급수 스펙트럼에서 표집 (독음 객관식 3 + 독음 쓰기 3)
+    var wpool = shuffle(WORDS.filter(function (w) { return w.w.length >= 2; }));
+    wpool.sort(function (a, b) { return lvOrder[a.lv] - lvOrder[b.lv]; });
+    var wsel = [], used = {};
+    for (var i = 0; i < 6; i++) {
+      var w = wpool[Math.floor(i * (wpool.length - 1) / 5)];
+      if (!used[w.w]) { used[w.w] = true; wsel.push(w); }
+    }
+    guard = 0;
+    while (wsel.length < 6 && guard++ < 100) {
+      var w2 = wpool[Math.floor(Math.random() * wpool.length)];
+      if (!used[w2.w]) { used[w2.w] = true; wsel.push(w2); }
+    }
+    wsel.slice(0, 3).forEach(function (w) { qs.push({ sk: "w:" + w.w, type: 2, prompt: w.w, answer: w.r, opts: optsType2({ order: lvOrder[w.lv] }, w), tag: w.lv }); });
+    wsel.slice(3, 6).forEach(function (w) { qs.push({ sk: "w:" + w.w, type: 10, input: true, prompt: w.w, answer: w.r, qlabel: "이 한자어의 독음을 쓰세요 (한글)", tag: w.lv }); });
+    // ③ 문맥 2문 (유형 6/7 — 문장 기반)
+    shuffle(ctxCorpus()).slice(0, 2).forEach(function (w) { var q = ctxQuestion(w); q.tag = "문맥 · " + w.lv; qs.push(q); });
+    // ④ 성어 5개 — 객관식 2(뜻↔성어) + 독음 쓰기 1 + 빈칸 한자 2
+    var isel = shuffle(IDIOMS).slice(0, 5);
+    isel.slice(0, 2).forEach(function (it) { var q = idiomQuestion(it); q.tag = "성어 · " + it.lv; qs.push(q); });
+    qs.push({ sk: "i:" + isel[2].expr, type: 12, input: true, prompt: isel[2].expr, answer: isel[2].r, qlabel: "이 성어의 독음을 쓰세요 (한글)", tag: "성어 · " + isel[2].lv });
+    isel.slice(3, 5).forEach(function (it) { qs.push(blankIdiomQ(it)); });
+    sess = {
+      mode: "test", t: todayStr(), lvl: null,
+      introQueue: [], introIdx: 0,
+      queue: shuffle(qs).slice(0, 20), idx: 0, ok: 0, wrongList: [], gradList: [],
+      stat: { mcOk: 0, mcN: 0, inOk: 0, inN: 0 }
+    };
+    pushView("session");
+    renderQuestion();
+  }
+  function checkInput() {
+    var q = sess.queue[sess.idx];
+    var v = $("answer-input").value;
+    if (!normAns(v)) return;
+    var correct = q.type === 11 ? normAns(v, true) === normAns(q.answer, true) : normAns(v) === normAns(q.answer);
+    if (correct) sess.ok++;
+    sess.stat.inN++; if (correct) sess.stat.inOk++;
+    if (!correct) sess.wrongList.push({ k: q.sk, g: q.sk.slice(2), h: q.answer });
+    $("answer-input").disabled = true; $("btn-check").disabled = true;
+    $("feedback").innerHTML = (correct ? '<b class="fb-ok">정답!</b>' : '<b class="fb-no">오답</b> — 정답: ' + q.answer) +
+      '<div class="exp">' + explainSk(q.sk) + "</div>";
+    $("prog-fill").style.width = Math.round((sess.idx + 1) / sess.queue.length * 100) + "%";
+    $("btn-next").classList.remove("hidden");
   }
 
   // ---------- 렌더 ----------
@@ -499,28 +598,37 @@
 
   function renderQuestion() {
     var q = sess.queue[sess.idx];
-    var suffix = sess.mode === "bonus" ? " · 보너스" : sess.mode === "exam" ? " · 모의시험" : sess.mode === "ctx" ? " · 문맥" : sess.mode === "saved" ? " · 보관함" : sess.mode === "idiom" ? " · 성어" : sess.mode === "daily" ? " · " + sess.lvl.name : "";
+    var suffix = sess.mode === "bonus" ? " · 보너스" : sess.mode === "exam" ? " · 모의시험" : sess.mode === "test" ? " · 실전 시험" : sess.mode === "ctx" ? " · 문맥" : sess.mode === "saved" ? " · 보관함" : sess.mode === "idiom" ? " · 성어" : sess.mode === "daily" ? " · " + sess.lvl.name : "";
     $("quiz-label").textContent = (sess.idx + 1) + "/" + sess.queue.length + suffix;
     $("prog-fill").style.width = Math.round(sess.idx / sess.queue.length * 100) + "%";
-    $("q-type").textContent = q.qlabel ? q.qlabel :
+    var qt = q.qlabel ? q.qlabel :
       q.type === 1 ? "훈(뜻)과 음(소리)을 고르세요" : q.type === 2 ? "읽는 소리를 고르세요" : "이 훈음에 맞는 한자를 고르세요";
+    $("q-type").textContent = qt + (q.tag ? "  ·  " + q.tag : "");
     var g = $("q-glyph");
     g.classList.remove("word"); g.classList.remove("sent");
     if (q.type === 6 || q.type === 7 || q.type === 8) { g.textContent = q.prompt; g.style.fontSize = ""; g.classList.add("sent"); }
-    else if (q.type === 9) { g.textContent = q.prompt; g.style.fontSize = ""; g.classList.add("word"); }
+    else if (q.type === 9 || q.type === 10 || q.type === 12 || q.type === 13) { g.textContent = q.prompt; g.style.fontSize = ""; g.classList.add("word"); }
     else if (q.type === 3) { g.textContent = q.prompt; g.style.fontSize = "34px"; }
     else { g.textContent = q.prompt; g.style.fontSize = ""; g.classList.toggle("word", q.type === 2); }
     $("feedback").textContent = "";
     $("btn-next").classList.add("hidden");
     var box = $("opts"); box.innerHTML = "";
-    if (q.type === 9) box.classList.add("single"); else box.classList.remove("single");
-    q.opts.forEach(function (opt) {
-      var b = document.createElement("button");
-      b.className = "opt" + ((q.type === 3 || q.type === 6 || q.type === 8) ? " glyph" : "");
-      b.textContent = opt;
-      b.addEventListener("click", function () { answer(q, opt, b); });
-      box.appendChild(b);
-    });
+    var isInput = !!q.input;
+    $("answer-box").classList.toggle("hidden", !isInput);
+    if (isInput) {
+      $("answer-input").value = "";
+      $("answer-input").disabled = false;
+      $("btn-check").disabled = false;
+    } else {
+      if (q.type === 9) box.classList.add("single"); else box.classList.remove("single");
+      q.opts.forEach(function (opt) {
+        var b = document.createElement("button");
+        b.className = "opt" + ((q.type === 3 || q.type === 6 || q.type === 8 || q.type === 13) ? " glyph" : "");
+        b.textContent = opt;
+        b.addEventListener("click", function () { answer(q, opt, b); });
+        box.appendChild(b);
+      });
+    }
     show("view-quiz");
   }
 
@@ -531,18 +639,27 @@
     var correct = (opt === q.answer);
     if (!correct) btn.classList.add("wrong");
     if (correct) sess.ok++;
-    var fb = grade(q, correct);
-    // 문맥·성어 문제(6~9)는 정오답 모두 해설(글자 분해+뜻)을 붙이고, 읽을 시간을 주기 위해 자동 진행하지 않는다.
-    if (q.type >= 6 && q.type <= 9) {
-      var target = q.sk.slice(2);
-      fb += '<div class="exp">' + (q.sk[0] === "i" ? idiomExp(target) : wordExp(target));
-      if (!correct && q.type === 6 && byW[opt]) fb += "<br>고른 답: " + wordExp(opt);
-      if (!correct && q.type === 8 && byI[opt]) fb += "<br>고른 답: " + idiomExp(opt);
-      fb += "</div>";
+    var fb;
+    if (sess.mode === "test") {
+      // 실전 시험: 모든 문항에 해설 + 자동 진행 없음 (평가 페이스), SR 무변경
+      sess.stat.mcN++; if (correct) sess.stat.mcOk++;
+      if (!correct) sess.wrongList.push({ k: q.sk, g: q.sk.slice(2), h: q.answer });
+      fb = (correct ? '<b class="fb-ok">정답!</b>' : '<b class="fb-no">오답</b> — 정답: ' + q.answer) +
+        '<div class="exp">' + explainSk(q.sk) + "</div>";
+    } else {
+      fb = grade(q, correct);
+      // 문맥·성어 문제(6~9)는 정오답 모두 해설(글자 분해+뜻)을 붙이고, 읽을 시간을 주기 위해 자동 진행하지 않는다.
+      if (q.type >= 6 && q.type <= 9) {
+        var target = q.sk.slice(2);
+        fb += '<div class="exp">' + (q.sk[0] === "i" ? idiomExp(target) : wordExp(target));
+        if (!correct && q.type === 6 && byW[opt]) fb += "<br>고른 답: " + wordExp(opt);
+        if (!correct && q.type === 8 && byI[opt]) fb += "<br>고른 답: " + idiomExp(opt);
+        fb += "</div>";
+      }
     }
     $("feedback").innerHTML = fb;
     $("prog-fill").style.width = Math.round((sess.idx + 1) / sess.queue.length * 100) + "%";
-    if (correct && !(q.type >= 6 && q.type <= 9)) setTimeout(next, 800);
+    if (sess.mode !== "test" && correct && !(q.type >= 6 && q.type <= 9)) setTimeout(next, 800);
     else $("btn-next").classList.remove("hidden");
   }
 
@@ -555,10 +672,16 @@
   function renderResult() {
     var m = sess.mode;
     if (m === "daily" || m === "all") finishDay(sess.t);
-    $("result-title").textContent = m === "exam" ? sess.lvl.name + " 승급 모의시험 결과" : m === "bonus" ? "보너스 결과" : m === "saved" ? "보관함 복습 결과" : m === "ctx" ? "문맥 한자 결과" : m === "idiom" ? "한자 표현 결과" : "오늘의 학습 결과";
+    $("result-title").textContent = m === "exam" ? sess.lvl.name + " 승급 모의시험 결과" : m === "test" ? "실전 시험 결과" : m === "bonus" ? "보너스 결과" : m === "saved" ? "보관함 복습 결과" : m === "ctx" ? "문맥 한자 결과" : m === "idiom" ? "한자 표현 결과" : "오늘의 학습 결과";
     $("score").textContent = sess.ok + "/" + sess.queue.length;
+    $("wrong-head").textContent = m === "test" ? "틀린 문제 — 정답 확인" : "보관함 — 내일 다시 나와요";
     var pb = $("result-pass");
-    if (m === "exam") {
+    if (m === "test") {
+      pb.classList.remove("hidden");
+      pb.className = "result-block";
+      pb.innerHTML = "객관식 " + sess.stat.mcOk + "/" + sess.stat.mcN + " · 단답형 " + sess.stat.inOk + "/" + sess.stat.inN +
+        '<div style="margin-top:6px;font-size:12px;color:var(--tx2);">연습 시험 — 학습 기록(보관함·진도)에는 반영되지 않아요.</div>';
+    } else if (m === "exam") {
       var ls = levelState(sess.lvl.name), pass = sess.ok >= sess.passNeed;
       pb.classList.remove("hidden");
       if (pass) {
@@ -575,9 +698,9 @@
       pb.classList.add("hidden");
     }
     var gb = $("result-grad"), wb = $("result-wrong");
-    gb.classList.toggle("hidden", sess.gradList.length === 0 || m === "exam");
+    gb.classList.toggle("hidden", sess.gradList.length === 0 || m === "exam" || m === "test");
     wb.classList.toggle("hidden", sess.wrongList.length === 0 || m === "exam");
-    if (m === "saved" || m === "ctx" || m === "idiom" || m === "all") {
+    if (m === "saved" || m === "ctx" || m === "idiom" || m === "all" || m === "test") {
       $("grad-chips").innerHTML = sess.gradList.map(chipObjHtml).join("");
       $("wrong-chips").innerHTML = sess.wrongList.map(chipObjHtml).join("");
     } else if (m !== "exam") {
@@ -1142,6 +1265,15 @@
 
     // 홈 (대시보드)
     $("btn-start-all").addEventListener("click", startUnified);
+    $("btn-test").addEventListener("click", startTest);
+    // 단답형 입력 (실전 시험)
+    $("btn-check").addEventListener("click", checkInput);
+    $("answer-input").addEventListener("keydown", function (e) {
+      if (e.key !== "Enter") return;
+      e.preventDefault();
+      if (!$("btn-check").disabled) checkInput();
+      else if (!$("btn-next").classList.contains("hidden")) next();
+    });
     $("home-search").addEventListener("click", function () { lastQuery = ""; pushView("search"); renderSearch(); });
     $("card-ctx").addEventListener("click", function () { pushView("list", { list: "cats" }); renderList("cats"); });
     $("card-idiom").addEventListener("click", function () { pushView("list", { list: "idioms" }); renderList("idioms"); });
