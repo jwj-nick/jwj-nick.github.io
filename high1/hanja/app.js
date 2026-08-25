@@ -404,7 +404,7 @@
       if (rec.s >= 2) {
         rec.g = true;
         if (sess.mode !== "daily" && sess.mode !== "bonus") removeSaved(q.sk);
-        sess.gradList.push(chipRef); fb = '<span class="stamp">🎓 졸업</span>';
+        sess.gradList.push(chipRef); fb = '<span class="stamp">졸업</span>';
       } else { rec.due = addDays(t, 3); fb = "정답! 3일 뒤 한 번 더 맞히면 졸업"; }
     } else {
       var wasGrad = rec.g;
@@ -441,17 +441,33 @@
       $("today-line").textContent = "복습 " + plan.due + " · 새 항목: 급수 " + plan.newChars + " · 문맥 " + plan.newWords + " · 표현 " + plan.newIdioms;
     } else {
       b.disabled = true;
-      b.textContent = "오늘의 학습 — 완료 ✅";
+      b.textContent = "오늘의 학습 — 완료";
       $("today-line").textContent = "오늘 몫을 다 했어요. 모듈에서 자유 학습은 언제든!";
     }
     var stamps = LEVELS.filter(levelComplete).length;
     $("mcard-ctx-sub").textContent = "단어 " + ctxCorpus().length + " · 카테고리 " + catNames().length + "개";
     $("mcard-idiom-sub").textContent = "성어 " + IDIOMS.length + "개";
-    $("mcard-ladder-sub").textContent = LEVELS.length + "급수 · 도장 " + stamps + (curIdx >= 0 ? " · 이어서: " + LEVELS[curIdx].name : " · 전체 합격! 🎉");
+    $("mcard-ladder-sub").textContent = LEVELS.length + "급수 · 도장 " + stamps + (curIdx >= 0 ? " · 이어서: " + LEVELS[curIdx].name : " · 전체 합격!");
     var arch = archiveKeys();
     $("mcard-saved-sub").textContent = "학습 중 " + arch.length + " · 오늘 복습 " + archiveDue(t).length;
-    $("summary-line").textContent = "🔥 연속 " + S.streakDays + "일 · 🎓 도장 " + stamps + "개";
+    $("streak-num").textContent = S.streakDays;
+    $("stamp-num").textContent = stamps;
+    $("summary-line").textContent = "연속 " + S.streakDays + "일";
+    renderBadgeRow(stamps);
     show("view-home");
+  }
+  // 도장판 — 13급수를 배지 슬롯으로. 합격 = 인주 도장, 이어서(추천) = 볼트 링, 나머지 = 빈 슬롯.
+  function renderBadgeRow(stamps) {
+    var html = "";
+    MANIFEST_ALL.forEach(function (m) {
+      var lvl = LEVELS.filter(function (l) { return l.slug === m.slug; })[0];
+      var cls = "bdg";
+      if (lvl && levelComplete(lvl)) cls += " on";
+      else if (lvl && LEVELS.indexOf(lvl) === curIdx) cls += " now";
+      html += '<span class="' + cls + '">' + m.name.replace("급", "") + "</span>";
+    });
+    $("badge-row").innerHTML = html;
+    $("badge-count").textContent = "급수 도장판 · " + stamps + " / " + MANIFEST_ALL.length;
   }
   function catNames() {
     var cats = {};
@@ -548,7 +564,7 @@
       if (pass) {
         ls.examPassed = true;
         pb.className = "result-block pass-yes";
-        pb.innerHTML = '<span class="stamp">🎓 ' + sess.lvl.name + ' 합격</span><div style="margin-top:10px;">다음 급수가 열렸어요.</div>';
+        pb.innerHTML = '<span class="stamp">' + sess.lvl.name + ' 합격</span><div style="margin-top:12px;">다음 급수가 열렸어요.</div>';
       } else {
         ls.lastExamAttempt = sess.t;
         pb.className = "result-block pass-no";
@@ -589,10 +605,10 @@
       var c = counts(lvlObj);
       var readyIdx = LEVELS.indexOf(lvlObj);
       var icon, sub;
-      if (levelComplete(lvlObj)) { icon = "🎓"; sub = lvlObj.chars.length + "자 · 합격 도장!"; }
-      else if (readyIdx === curIdx) { icon = "🔄"; sub = lvlObj.chars.length + "자 · 이어서 하기 (졸업 " + c.grad + ")"; }
-      else if (c.grad + c.learn > 0) { icon = "🔄"; sub = lvlObj.chars.length + "자 · 학습 중 (졸업 " + c.grad + ")"; }
-      else { icon = "⬜"; sub = lvlObj.chars.length + "자 · 눌러서 보고 바로 학습 가능"; }
+      if (levelComplete(lvlObj)) { icon = '<span class="sicon done">合</span>'; sub = lvlObj.chars.length + "자 · 합격 도장!"; }
+      else if (readyIdx === curIdx) { icon = '<span class="sicon doing">中</span>'; sub = lvlObj.chars.length + "자 · 이어서 하기 (졸업 " + c.grad + ")"; }
+      else if (c.grad + c.learn > 0) { icon = '<span class="sicon doing">中</span>'; sub = lvlObj.chars.length + "자 · 학습 중 (졸업 " + c.grad + ")"; }
+      else { icon = '<span class="sicon todo"></span>'; sub = lvlObj.chars.length + "자 · 눌러서 보고 바로 학습 가능"; }
       var row = document.createElement("div");
       row.className = "lrow" + (readyIdx === curIdx ? " current" : "");
       row.innerHTML = '<div class="licon">' + icon + '</div><div><div class="lname">' + m.name +
@@ -617,17 +633,17 @@
       ? "이 급수 학습 (복습 " + Math.min(due, DAILY_MAX) + " · 새 한자 " + Math.min(NEW_MAX, Math.max(0, DAILY_MAX - Math.min(due, DAILY_MAX)), newAvail) + ")"
       : "이 급수 복습 (보너스)";
     var eb = $("btn-table-exam");
-    if (levelComplete(lvl)) { eb.disabled = true; eb.textContent = "🎓 " + lvl.name + " 합격 완료"; }
+    if (levelComplete(lvl)) { eb.disabled = true; eb.textContent = lvl.name + " 합격 완료"; }
     else if (levelFullyGraduated(lvl)) {
       var blocked = ls.lastExamAttempt === t;
       eb.disabled = blocked;
-      eb.textContent = blocked ? "오늘 응시함 — 내일 다시 도전" : "🈹 승급 모의시험 (" + examSessionSize(lvl) + "문제 · " + Math.round(lvl.passRate * 100) + "% 합격)";
+      eb.textContent = blocked ? "오늘 응시함 — 내일 다시 도전" : "승급 모의시험 (" + examSessionSize(lvl) + "문제 · " + Math.round(lvl.passRate * 100) + "% 합격)";
     } else {
       eb.disabled = true;
       eb.textContent = "모의시험 — 전원 졸업하면 열려요 (졸업 " + c.grad + "/" + lvl.chars.length + ")";
     }
     $("table-grid").innerHTML = lvl.chars.map(function (c) {
-      var rec = ls.p[c.ch], s = !rec ? "⬜" : (rec.g ? "🎓" : "🔁");
+      var rec = ls.p[c.ch], s = !rec ? '<span class="sicon todo mini"></span>' : (rec.g ? '<span class="sicon done mini">合</span>' : '<span class="sicon doing mini">中</span>');
       return '<div class="tcell"><div class="g">' + c.ch + '</div><div class="h">' + huneumOf(c) + '</div><div class="s">' + s + "</div></div>";
     }).join("");
 
@@ -932,12 +948,12 @@
     if (dt === "w") return S.words.p[k] || null;
     return S.idioms.p[k] || null;
   }
-  function statusSuffix(rec) { return !rec ? "" : rec.g ? " · 🎓 졸업" : " · 🔁 학습 중"; }
+  function statusSuffix(rec) { return !rec ? "" : rec.g ? " · 졸업" : " · 학습 중"; }
   function updateSaveBtn(dt, k) {
     var b = $("btn-detail-save"), rec = trackedRec(dt, k);
-    if (rec && rec.g) { b.textContent = "🎓 이미 졸업한 항목이에요"; b.disabled = true; }
-    else if (rec) { b.textContent = "🔁 보관함에 있어요 — 복습에 나와요"; b.disabled = true; }
-    else { b.textContent = "📦 보관함에 저장 (복습에 나와요)"; b.disabled = false; }
+    if (rec && rec.g) { b.textContent = "이미 졸업한 항목이에요"; b.disabled = true; }
+    else if (rec) { b.textContent = "보관함에 있어요 — 복습에 나와요"; b.disabled = true; }
+    else { b.textContent = "보관함에 저장 (복습에 나와요)"; b.disabled = false; }
   }
   function renderDetailByKey(dt, k) {
     if (dt === "c" && byChGlobal[k]) { renderDetailChar(byChGlobal[k]); return true; }
@@ -957,7 +973,7 @@
     $("detail-glyph").textContent = ch;
     $("detail-huneum").textContent = huneumOf(c);
     var rec = trackedRec("c", ch);
-    $("detail-info").innerHTML = rec ? (rec.g ? "🎓 졸업" : "🔁 학습 중") : "아직 학습 전";
+    $("detail-info").innerHTML = rec ? (rec.g ? "졸업" : "학습 중") : "아직 학습 전";
     updateSaveBtn("c", ch);
     var rel = wordsByChar[ch] || [];
     $("detail-rel-head").textContent = rel.length ? "이 글자가 든 단어 (" + rel.length + ")" : "이 글자가 든 단어가 아직 없어요";
@@ -981,7 +997,7 @@
     if (w.gloss) parts.push(w.gloss);
     if (w.sent) parts.push("“" + w.sent + "”");
     var rec = trackedRec("w", w.w);
-    if (rec) parts.push(rec.g ? "🎓 졸업" : "🔁 학습 중");
+    if (rec) parts.push(rec.g ? "졸업" : "학습 중");
     $("detail-info").innerHTML = parts.join("<br>");
     updateSaveBtn("w", w.w);
     $("detail-rel-head").textContent = "글자 분해";
@@ -1039,9 +1055,9 @@
       var newTake = Math.min(NEW_MAX, Math.max(0, DAILY_MAX - cc.due), cc.news);
       act.classList.remove("hidden");
       act.disabled = cc.due + newTake === 0;
-      act.textContent = act.disabled ? "📖 문맥 학습 — 오늘 완료 ✅" : "📖 문맥 학습 (복습 " + cc.due + " · 새 단어 " + newTake + ")";
+      act.textContent = act.disabled ? "문맥 학습 — 오늘 완료" : "문맥 학습 (복습 " + cc.due + " · 새 단어 " + newTake + ")";
       catNames().forEach(function (c) {
-        rows.appendChild(listRow("📂", c.name, "단어 " + c.n + "개", function () {
+        rows.appendChild(listRow('<span class="cat-ic">' + c.name.charAt(0) + '</span>', c.name, "단어 " + c.n + "개", function () {
           pushView("list", { list: "cat", cat: c.name }); renderList("cat", c.name);
         }));
       });
@@ -1057,7 +1073,7 @@
       var iNew = Math.min(NEW_MAX, Math.max(0, DAILY_MAX - ic.due), ic.news);
       act.classList.remove("hidden");
       act.disabled = ic.due + iNew === 0;
-      act.textContent = act.disabled ? "📜 표현 학습 — 오늘 완료 ✅" : "📜 표현 학습 (복습 " + ic.due + " · 새 표현 " + iNew + ")";
+      act.textContent = act.disabled ? "표현 학습 — 오늘 완료" : "표현 학습 (복습 " + ic.due + " · 새 표현 " + iNew + ")";
       IDIOMS.forEach(function (it) {
         rows.appendChild(listRow(it.expr, it.r, (it.meaning || "") + " · " + it.lv + statusSuffix(trackedRec("i", it.expr)), function () {
           pushView("detail", { dt: "i", k: it.expr }); renderDetailIdiom(it);
@@ -1069,7 +1085,7 @@
       var dueN = archiveDue(t).length;
       act.classList.remove("hidden");
       act.disabled = dueN === 0;
-      act.textContent = dueN > 0 ? "📦 보관함 복습 (" + dueN + ")" : "📦 오늘 복습할 항목 없음";
+      act.textContent = dueN > 0 ? "보관함 복습 (" + dueN + ")" : "오늘 복습할 항목 없음";
       var keys = archiveKeys();
       var dueSet = {};
       archiveDue(t).forEach(function (sk) { dueSet[sk] = true; });
@@ -1179,7 +1195,7 @@
       if (S.saved.indexOf(sk) < 0) S.saved.push(sk);
       save();
       updateSaveBtn(dt, k);
-      $("detail-info").innerHTML = "🔁 보관함에 담았어요 — 복습에 나와요";
+      $("detail-info").innerHTML = "보관함에 담았어요 — 복습에 나와요";
     });
 
     // 뒤로가기(popstate)로 도착한 지점을 재구성. 표/검색/상세 화면이면 그 지점을, 그 외(홈·세션 도중)는
