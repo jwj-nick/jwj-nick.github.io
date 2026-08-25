@@ -1056,8 +1056,8 @@
       act.classList.remove("hidden");
       act.disabled = cc.due + newTake === 0;
       act.textContent = act.disabled ? "문맥 학습 — 오늘 완료" : "문맥 학습 (복습 " + cc.due + " · 새 단어 " + newTake + ")";
-      catNames().forEach(function (c) {
-        rows.appendChild(listRow('<span class="cat-ic">' + c.name.charAt(0) + '</span>', c.name, "단어 " + c.n + "개", function () {
+      catNames().forEach(function (c, ci) {
+        rows.appendChild(listRow('<span class="cat-ic cc' + (ci % 6) + '">' + c.name.charAt(0) + '</span>', c.name, "단어 " + c.n + "개", function () {
           pushView("list", { list: "cat", cat: c.name }); renderList("cat", c.name);
         }));
       });
