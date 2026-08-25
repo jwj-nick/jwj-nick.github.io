@@ -2,7 +2,7 @@
 // 전략 = 네트워크 우선, 실패 시(오프라인) 캐시로 대체. 앱이 활발히 개발 중이라 캐시 우선 전략은
 // "낡은 버전이 영원히 서빙되는" 사고를 낳았음(2026-08-23) — 재발 방지를 위해 네트워크 우선으로 전환.
 // 예외: 웹폰트(Google Fonts)는 불변 리소스라 캐시 우선 — 한번 받은 서체는 오프라인에서도 유지된다.
-const CACHE = "hanja-v2-cache-v9"; // 배포 라운드마다 이 버전을 올려 즉시 갱신을 강제한다(v3 런북 규약).
+const CACHE = "hanja-v2-cache-v10"; // 배포 라운드마다 이 버전을 올려 즉시 갱신을 강제한다(v3 런북 규약).
 const SHELL = ["./", "./index.html", "./style.css", "./app.js", "./config.js", "./site.webmanifest", "./icon.svg", "./data/manifest.json", "./data/words.json", "./data/idioms.json"];
 const FONT_HOSTS = ["fonts.googleapis.com", "fonts.gstatic.com"];
 
