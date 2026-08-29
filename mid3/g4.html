@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>놀이터 · 이차방정식 · 중3-1</title>
+<link rel="stylesheet" href="concept.css?v=20260830e">
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중3</a><span class="dot"></span><a href="u4.html">단원 4</a><span class="dot"></span><span>놀이터</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+  <div class="pg-badge"><span class="i">🎨</span>놀이터 — 점수는 안 매겨요, 그냥 놀아 봐요</div>
+  <h1>이차방정식 놀이터</h1>
+  <p class="lede">근을 스피드로 찾고, 근의 개수를 감별하고, 근의 공식을 조립해요.</p>
+
+  <div class="pg-score" id="score"><span class="dot">🏅</span>해결한 사건 <b id="scoreN">0</b> / <span id="scoreT">4</span></div>
+
+  <!-- 게임 1 · 근 찾기 스피드 -->
+  <div class="pg-game reveal" id="g-root">
+    <div class="pg-title"><span class="pg-emoji">⚡</span>근 찾기 스피드</div>
+    <div class="pg-desc">해를 골라요. 부호와 개수를 조심해요.</div>
+    <div class="pg-case">
+      <div class="case-no" id="rt-no">문제 1 / 6</div>
+      <div class="case-stmt" id="rt-stmt" style="font-size:22px;font-weight:800;text-align:center"></div>
+    </div>
+    <div class="pg-predict" style="grid-template-columns:repeat(3,1fr)">
+      <button class="pg-pbtn" id="rt-a" style="font-size:14px"></button>
+      <button class="pg-pbtn" id="rt-b" style="font-size:14px"></button>
+      <button class="pg-pbtn" id="rt-c" style="font-size:14px"></button>
+    </div>
+    <div class="out" id="rt-out"></div>
+    <div class="sim-read muted" style="font-size:13px;margin-top:4px"><b id="rt-done" style="color:var(--u)">0</b> / <span id="rt-total">6</span></div>
+  </div>
+
+  <!-- 게임 2 · 근의 개수 감별사 -->
+  <div class="pg-game reveal" id="g-count">
+    <div class="pg-title"><span class="pg-emoji">🔢</span>근의 개수 감별사</div>
+    <div class="pg-desc">풀지 말고 b² − 4ac 의 부호만 봐요. 양수 → 2개, 0 → 1개, 음수 → 0개.</div>
+    <div class="pg-case">
+      <div class="case-no" id="ct-no">문제 1 / 6</div>
+      <div class="case-stmt" id="ct-stmt" style="font-size:22px;font-weight:800;text-align:center"></div>
+    </div>
+    <div class="pg-predict" style="grid-template-columns:repeat(3,1fr)">
+      <button class="pg-pbtn" id="ct-a"></button>
+      <button class="pg-pbtn" id="ct-b"></button>
+      <button class="pg-pbtn" id="ct-c"></button>
+    </div>
+    <div class="out" id="ct-out"></div>
+    <div class="sim-read muted" style="font-size:13px;margin-top:4px"><b id="ct-done" style="color:var(--u)">0</b> / <span id="ct-total">6</span></div>
+  </div>
+
+  <!-- 게임 3 · 근의 공식 조립 -->
+  <div class="pg-game reveal" id="g-formula">
+    <div class="pg-title"><span class="pg-emoji">🔧</span>근의 공식 조립</div>
+    <div class="pg-desc">근의 공식에서 제일 먼저 계산하는 건 근호 안 b² − 4ac 예요. 그 값을 구해요.</div>
+    <p class="reading" id="fm-q" style="font-size:20px;font-weight:800"></p>
+    <div class="row" style="justify-content:center"><span>b² − 4ac =</span><input class="num" id="fm-in" inputmode="numeric" placeholder="?" style="width:90px"><button id="fm-check">확인</button></div>
+    <div class="out" id="fm-out"></div>
+    <div class="sim-read muted" style="font-size:13px;margin-top:4px"><b id="fm-done" style="color:var(--u)">0</b> / <span id="fm-total">4</span></div>
+  </div>
+
+  <!-- 게임 4 · 오류 탐정 -->
+  <div class="pg-game reveal" id="g-detective">
+    <div class="pg-title"><span class="pg-emoji">🔍</span>오류 탐정</div>
+    <div class="pg-desc">누군가 이렇게 풀었어요. 어디가 이상한지 찾아볼까요? (정답은 안 알려줘요 — 스스로 짚어 봐요)</div>
+    <div class="pg-case">
+      <div class="case-no" id="det-no">사건 1 / 6</div>
+      <div class="case-stmt" id="det-stmt"></div>
+    </div>
+    <div style="text-align:center"><button id="det-think">다르게 생각해 볼까요?</button></div>
+    <div class="hint" id="det-counter" style="display:none;margin-top:10px"></div>
+    <div class="ask" id="det-ask" style="display:none;margin-top:10px"></div>
+    <div class="pg-case" id="det-checkbox" style="display:none;margin-top:14px">
+      <div class="case-stmt" id="det-checkq"></div>
+      <div class="row" style="margin-top:10px"><input class="blank" id="det-in" placeholder="답"><button id="det-check">확인</button></div>
+      <div class="out" id="det-out"></div>
+    </div>
+    <div style="text-align:center;margin-top:12px"><button class="ghost" id="det-next" style="display:none">다음 사건 -></button></div>
+  </div>
+
+  <div class="stamp" id="stamp">
+    <div class="seal">🎉</div>
+    <div class="seal-t">놀이터 클리어!</div>
+    <div class="seal-d">세 가지 열쇠가 모두 손에 들어왔어요.</div>
+  </div>
+  <div class="bridge" style="margin-top:18px"><a class="golink" href="p4.html">연습 문제로 -></a></div>
+
+  <div class="foot">중3 수학 · 놀이터 · 단원 4</div>
+</div>
+
+<div class="pg-confetti" id="confetti"></div>
+
+<script src="concept.js?v=20260830e"></script>
+<script>
+MJ3.boot();
+(function(){
+  var solved=0, TOTAL=4;
+  function bump(){
+    var el=document.getElementById('scoreN'); solved++; el.textContent=solved;
+    var badge=document.getElementById('score'); badge.classList.remove('bump'); void badge.offsetWidth; badge.classList.add('bump');
+    if(solved>=TOTAL){ MJ3.confetti(document.getElementById('confetti')); document.getElementById('stamp').classList.add('show'); }
+  }
+  function triGame(ids, ROUNDS, noId, stmtId, outId, doneId, totalId, wrongMsg){
+    var pos=0, done=0, bumped=false, B=ids.map(function(i){return document.getElementById(i);});
+    document.getElementById(totalId).textContent=ROUNDS.length;
+    function render(){ var r=ROUNDS[pos];
+      document.getElementById(noId).textContent='문제 '+(pos+1)+' / '+ROUNDS.length;
+      document.getElementById(stmtId).innerHTML=r.stmt;
+      B.forEach(function(b,i){ b.textContent=r.opts[i]; b.className='pg-pbtn'; });
+      document.getElementById(outId).innerHTML=''; }
+    B.forEach(function(b,i){ b.onclick=function(){ var r=ROUNDS[pos], ok=(i===r.ans);
+      b.classList.add(ok?'right':'wrong');
+      document.getElementById(outId).innerHTML=ok?('<span class="good">맞았어요!</span> '+r.note):(typeof wrongMsg==='function'?wrongMsg(r):wrongMsg);
+      if(ok){ done++; document.getElementById(doneId).textContent=done;
+        if(done>=ROUNDS.length){ if(!bumped){bumped=true;bump();} } else { pos++; setTimeout(render,1500); } } }; });
+    render();
+  }
+
+  /* 게임 1: 근 찾기 스피드 */
+  triGame(['rt-a','rt-b','rt-c'],[
+    {stmt:'(x − 1)(x + 4) = 0', opts:['x = 1 또는 x = −4','x = −1 또는 x = 4','x = 1 또는 x = 4'], ans:0, note:'각 인수를 0으로: x − 1 = 0, x + 4 = 0.'},
+    {stmt:'x² − 9 = 0', opts:['x = 3','x = ±3','x = 9'], ans:1, note:'제곱해서 9가 되는 수는 3과 −3, 둘이에요.'},
+    {stmt:'x(x − 5) = 0', opts:['x = 5','x = 0 또는 x = 5','x = −5'], ans:1, note:'x 자체가 인수예요. x = 0 도 해예요.'},
+    {stmt:'(x + 2)² = 0', opts:['x = −2 (중근)','x = ±2','x = 2'], ans:0, note:'같은 인수가 두 번 — 근은 −2 하나(중근).'},
+    {stmt:'x² + x − 6 = 0', opts:['x = 2 또는 x = −3','x = −2 또는 x = 3','x = 1 또는 x = −6'], ans:0, note:'(x − 2)(x + 3) = 0.'},
+    {stmt:'x² = 8', opts:['x = ±2√2','x = 4','x = ±4'], ans:0, note:'x = ±√8 = ±2√2.'}
+  ],'rt-no','rt-stmt','rt-out','rt-done','rt-total','인수를 0으로 놓았을 때 x가 얼마인지, 근이 몇 개인지 다시 봐요.');
+
+  /* 게임 2: 근의 개수 감별사 */
+  triGame(['ct-a','ct-b','ct-c'],[
+    {stmt:'x² − 4x + 4 = 0', opts:['2개','1개','0개'], ans:1, note:'16 − 16 = 0 → 중근 하나.'},
+    {stmt:'x² + x + 1 = 0', opts:['2개','1개','0개'], ans:2, note:'1 − 4 = −3 < 0 → 근이 없어요.'},
+    {stmt:'x² − 5x + 6 = 0', opts:['2개','1개','0개'], ans:0, note:'25 − 24 = 1 > 0 → 두 개.'},
+    {stmt:'2x² + 3x − 1 = 0', opts:['2개','1개','0개'], ans:0, note:'9 − 4·2·(−1) = 9 + 8 = 17 > 0.'},
+    {stmt:'x² + 6x + 9 = 0', opts:['2개','1개','0개'], ans:1, note:'36 − 36 = 0 → (x + 3)² = 0, 중근.'},
+    {stmt:'x² + 2x + 3 = 0', opts:['2개','1개','0개'], ans:2, note:'4 − 12 = −8 < 0.'}
+  ],'ct-no','ct-stmt','ct-out','ct-done','ct-total',function(r){ return 'b² − 4ac 를 계산해 봐요. '+r.note; });
+
+  /* 게임 3: 근의 공식 조립 */
+  (function(){
+    var ROUNDS=[
+      {q:'x² + 3x + 1 = 0', a:1,b:3,c:1},
+      {q:'2x² + 5x + 1 = 0', a:2,b:5,c:1},
+      {q:'x² − 2x − 4 = 0', a:1,b:-2,c:-4},
+      {q:'3x² + x − 1 = 0', a:3,b:1,c:-1}
+    ];
+    var pos=0, done=0, bumped=false;
+    document.getElementById('fm-total').textContent=ROUNDS.length;
+    function D(r){ return r.b*r.b-4*r.a*r.c; }
+    function render(){ document.getElementById('fm-q').textContent=ROUNDS[pos].q; document.getElementById('fm-in').value=''; document.getElementById('fm-out').innerHTML=''; }
+    document.getElementById('fm-check').onclick=function(){
+      var r=ROUNDS[pos], v=parseInt(document.getElementById('fm-in').value,10), d=D(r);
+      if(v===d){
+        var s=MJ3.simp(d);
+        document.getElementById('fm-out').innerHTML='<span class="good">정답! '+r.b+'² − 4·'+r.a+'·('+r.c+') = '+d+' → 근은 x = (' +(-r.b)+' ± '+MJ3.sqrtStr(s.a,s.b)+') / '+(2*r.a)+'</span>';
+        done++; document.getElementById('fm-done').textContent=done;
+        if(done>=ROUNDS.length){ if(!bumped){bumped=true;bump();} } else { pos++; setTimeout(render,2000); }
+      } else {
+        document.getElementById('fm-out').innerHTML='a = '+r.a+', b = '+r.b+', c = '+r.c+'. b² 에서 4ac 를 빼요 — c가 음수면 빼기가 더하기가 돼요.';
+      }
+    };
+    render();
+  })();
+
+  /* 게임 4: 오류 탐정 (misconceptions/math3_u04.json 기반, 6개 큐레이션) */
+  (function(){
+    var CASES=[
+      {stmt:'(x − 2)(x − 3) = 0 의 해를 <b>x = −2 또는 x = −3</b> 이라고 했어요.',
+       counter:'x = −2 를 넣어 볼까요? (−4)(−5) = 20 이지 0이 아니에요. 0이 되려면 x − 2 = 0 이어야 해요.',
+       ask:'인수 x − 2 가 0이 되는 x는 얼마인가요?',
+       q:'(x + 1)(x − 5) = 0 의 해는?', a:'x = −1 또는 x = 5'},
+      {stmt:'x² = 9 의 해를 <b>x = 3</b> 이라고만 했어요.',
+       counter:'(−3)² 도 9예요. 제곱해서 9가 되는 수는 두 개예요.',
+       ask:'x² = 9 를 x² − 9 = 0 으로 놓고 인수분해하면 인수가 몇 개인가요?',
+       q:'x² = 25 의 해는?', a:'x = ±5'},
+      {stmt:'x² − 5x = 0 을 양변 x로 나눠 <b>x = 5</b> 라고 했어요.',
+       counter:'x = 0 을 넣으면 0 − 0 = 0 이라 해예요. 양변을 x로 나누는 순간 이 해가 사라져요. x(x − 5) = 0 으로 묶어야 해요.',
+       ask:'0으로 나누어도 되나요? x가 0일 수도 있는데 x로 나눠도 될까요?',
+       q:'x² + 4x = 0 의 해는?', a:'x = 0 또는 x = −4'},
+      {stmt:'(x − 1)(x + 2) = 4 를 보고 <b>x − 1 = 4 또는 x + 2 = 4</b> 라고 했어요.',
+       counter:'AB = 0 일 때만 A = 0 또는 B = 0 이에요. 곱이 4이면 (1, 4), (2, 2), (−1, −4)… 경우가 많아요. 전개해서 = 0 꼴로 만들어야 해요.',
+       ask:'"곱이 0"과 "곱이 4", 어느 쪽에서만 "하나가 0"이라고 말할 수 있나요?',
+       q:'x(x + 1) = 6 을 = 0 꼴로 정리하면?', a:'x² + x − 6 = 0'},
+      {stmt:'(x − 1)² = 5 를 <b>x − 1 = 5</b> 로 풀었어요.',
+       counter:'제곱이 5라면 x − 1 은 ±√5 예요. 5가 아니에요. (x − 1 = 5 이면 제곱은 25 가 되죠.)',
+       ask:'제곱해서 5가 되는 수는 무엇인가요?',
+       q:'(x + 2)² = 3 의 해는?', a:'x = −2 ± √3'},
+      {stmt:'"연속한 두 자연수의 곱이 12" 문제에서 x = 3 또는 x = −4 를 구하고 <b>둘 다 답</b>이라고 했어요.',
+       counter:'−4는 자연수가 아니에요. 방정식의 근이 다 문제의 답은 아니에요. 조건에 맞는 근만 골라요.',
+       ask:'구한 근이 문제에서 말한 수(자연수·길이·사람 수)가 될 수 있나요?',
+       q:'연속한 두 자연수의 곱이 30일 때 작은 수는?', a:'5'}
+    ];
+    var order=[0,1,2,3,4,5].sort(function(){return Math.random()-0.5;});
+    var pos=0, bumped=false;
+    function render(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-no').textContent='사건 '+(pos+1)+' / '+order.length;
+      document.getElementById('det-stmt').innerHTML=c.stmt;
+      document.getElementById('det-counter').style.display='none';
+      document.getElementById('det-ask').style.display='none';
+      document.getElementById('det-checkbox').style.display='none';
+      document.getElementById('det-in').value='';
+      document.getElementById('det-out').innerHTML='';
+      document.getElementById('det-think').style.display='inline-block';
+      document.getElementById('det-next').style.display='none';
+    }
+    document.getElementById('det-think').onclick=function(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-counter').innerHTML='<b>다르게 볼까요?</b> '+c.counter;
+      document.getElementById('det-counter').style.display='block';
+      document.getElementById('det-ask').innerHTML='생각해보기: '+c.ask;
+      document.getElementById('det-ask').style.display='block';
+      document.getElementById('det-checkq').innerHTML=c.q;
+      document.getElementById('det-checkbox').style.display='block';
+      document.getElementById('det-think').style.display='none';
+    };
+    document.getElementById('det-check').onclick=function(){
+      var c=CASES[order[pos]];
+      var v=(document.getElementById('det-in').value||'');
+      var norm=function(s){return s.replace(/[−–]/g,'-').replace(/\^2/g,'²').replace(/[^0-9a-zA-Z가-힣<>()/.\-+²±√=]/g,'').toLowerCase();};
+      var ok=v.length>0 && norm(c.a).indexOf(norm(v))>=0;
+      document.getElementById('det-out').innerHTML=ok
+        ? '<span class="good">정답이에요 - '+c.a+'</span>'
+        : '정답: <b>'+c.a+'</b> (직접 써보면서 확인해봐요)';
+      document.getElementById('det-next').style.display='inline-block';
+      if(!bumped){ bumped=true; bump(); }
+    };
+    document.getElementById('det-next').onclick=function(){
+      pos++; if(pos>=order.length) pos=0; render();
+    };
+    render();
+  })();
+})();
+</script>
+</body>
+</html>
