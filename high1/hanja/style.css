@@ -212,7 +212,7 @@ header p { color: var(--tx2); font-size: 13px; margin-top: 4px; line-height: 1.6
 
 /* ── 퀴즈 ── */
 .prog-bar { height: 7px; background: var(--sur2); border: 1px solid var(--line); border-radius: 99px; overflow: hidden; }
-#prog-fill { height: 100%; width: 0; background: var(--volt); background-image: linear-gradient(90deg, var(--teal), var(--volt)); border-radius: 99px; transition: width .25s; }
+#prog-fill { height: 100%; width: 0; background: var(--volt); background-image: linear-gradient(90deg, var(--teal), var(--volt)); border-radius: 99px; transition: width .45s cubic-bezier(.22, 1.2, .36, 1); }
 .prog-label { font-size: 12px; color: var(--tx2); margin-top: 8px; }
 .q-type { font-size: 12.5px; color: var(--tx2); margin-bottom: 6px; }
 
@@ -234,7 +234,8 @@ header p { color: var(--tx2); font-size: 13px; margin-top: 4px; line-height: 1.6
   font-family: var(--serif); font-size: 11px; font-weight: 900;
   display: flex; align-items: center; justify-content: center; transform: rotate(8deg);
 }
-.opt.wrong { background: var(--bad-bg); border-color: var(--red); box-shadow: 0 3px 0 var(--red-deep); color: var(--red-tx); }
+.opt.wrong { background: var(--bad-bg); border-color: var(--red); box-shadow: 0 3px 0 var(--red-deep); color: var(--red-tx); animation: shake .3s ease; }
+@keyframes shake { 25% { transform: translateX(-4px); } 50% { transform: translateX(4px); } 75% { transform: translateX(-3px); } }
 .feedback { text-align: center; font-size: 14px; margin-top: 12px; min-height: 20px; font-weight: 600; color: var(--tx2); }
 .feedback .exp { font-size: 13px; font-weight: 500; color: var(--tx2); margin-top: 8px; line-height: 1.6; }
 .feedback .fb-ok { color: var(--volt-tx); }
@@ -335,3 +336,55 @@ header p { color: var(--tx2); font-size: 13px; margin-top: 4px; line-height: 1.6
   border: 1px solid var(--line); border-radius: 12px; background: var(--sur);
   font-family: ui-monospace, Consolas, monospace; color: var(--tx);
 }
+
+/* ── v3.2 동적 레이어 ─────────────────────── */
+/* 화면 전환 (View Transitions — 미지원 브라우저는 즉시 전환) */
+::view-transition-old(root) { animation: vt-out .18s ease both; }
+::view-transition-new(root) { animation: vt-in .26s ease both; }
+@keyframes vt-out { to { opacity: 0; } }
+@keyframes vt-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* 홈 진입 시 카드 순차 등장 */
+#view-home:not(.hidden) .hero { animation: rise .3s ease both; }
+#view-home:not(.hidden) .mcard { animation: rise .35s ease both; }
+#view-home:not(.hidden) .mcard:nth-child(1) { animation-delay: .04s; }
+#view-home:not(.hidden) .mcard:nth-child(2) { animation-delay: .08s; }
+#view-home:not(.hidden) .mcard:nth-child(3) { animation-delay: .12s; }
+#view-home:not(.hidden) .mcard:nth-child(4) { animation-delay: .16s; }
+#view-home:not(.hidden) .board { animation: rise .35s ease both; animation-delay: .2s; }
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } }
+
+/* 콤보 배지 — 연속 정답 시 우상단에 뜬다 */
+.combo {
+  position: fixed; top: 14px; right: 14px; z-index: 55;
+  background: var(--volt); color: var(--on-volt);
+  font-size: 13px; font-weight: 900; border-radius: 99px; padding: 6px 13px;
+  box-shadow: 0 3px 0 var(--volt-deep), 0 6px 16px rgba(0, 0, 0, .3);
+}
+.combo.pop { animation: pop .25s ease; }
+@keyframes pop { 0% { transform: scale(.6); } 60% { transform: scale(1.18); } 100% { transform: scale(1); } }
+
+/* 합격 풀스크린 시퀀스 */
+.pass-overlay {
+  position: fixed; inset: 0; z-index: 50;
+  background: rgba(10, 10, 14, .8);
+  display: flex; align-items: center; justify-content: center;
+}
+.pass-overlay.play { animation: po-fade 1.95s ease both; }
+@keyframes po-fade { 0% { opacity: 0; } 12% { opacity: 1; } 82% { opacity: 1; } 100% { opacity: 0; } }
+.po-stamp {
+  width: 170px; height: 170px; border-radius: 50%; padding: 12px;
+  background: var(--red); color: var(--on-red);
+  background-image: linear-gradient(160deg, color-mix(in srgb, var(--red) 76%, white), var(--red) 70%);
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  font-family: var(--serif); font-weight: 900; font-size: 28px; line-height: 1.35;
+  letter-spacing: .05em; word-break: keep-all;
+  box-shadow: 0 0 0 5px rgba(255, 246, 242, .25), 0 0 0 9px var(--red-deep), 0 24px 60px rgba(0, 0, 0, .55);
+  transform: rotate(-7deg) scale(0);
+  animation: po-stamp .5s cubic-bezier(.2, 1.5, .4, 1) both; animation-delay: .4s;
+}
+@keyframes po-stamp { from { transform: rotate(-7deg) scale(2.6); opacity: 0; } to { transform: rotate(-7deg) scale(1); opacity: 1; } }
+
+/* 획순 애니메이션 박스 (Hanzi Writer — 탭하면 재생) */
+.writer-box { display: flex; justify-content: center; cursor: pointer; }
+.writer-box svg { border-radius: 12px; }

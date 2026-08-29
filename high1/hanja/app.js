@@ -124,9 +124,18 @@
   }
   function $(id) { return document.getElementById(id); }
   var VIEWS = ["view-home", "view-intro", "view-quiz", "view-result", "view-table", "view-search", "view-detail", "view-ladder", "view-list", "view-backup"];
+  var shownView = null;
   function show(viewId) {
-    VIEWS.forEach(function (v) { $(v).classList.toggle("hidden", v !== viewId); });
-    window.scrollTo(0, 0);
+    if (viewId !== "view-quiz") $("combo-badge").classList.add("hidden");
+    var apply = function () {
+      VIEWS.forEach(function (v) { $(v).classList.toggle("hidden", v !== viewId); });
+      window.scrollTo(0, 0);
+    };
+    // View Transitions — 화면이 바뀔 때만(같은 화면 재렌더는 제외), 미지원·모션 축소 시 즉시 전환
+    if (viewId !== shownView && document.startViewTransition && !reducedMotion()) {
+      shownView = viewId;
+      document.startViewTransition(apply);
+    } else { shownView = viewId; apply(); }
   }
   // 브라우저 뒤로가기 대응 — SPA인데 history API가 없어서 앱 안에서 화면을 아무리 옮겨도
   // 히스토리엔 최초 진입 1건만 쌓여, 뒤로가기를 누르면 앱을 벗어나 버렸다(2026-08-23 Nick 신고).
@@ -138,6 +147,149 @@
     history.pushState(Object.assign({ kind: kind }, extra || {}), "", location.href);
   }
   function huneumOf(c) { return c.hun + " " + c.eum; }
+
+  // ---------- v3.2 동적 레이어 — 모션·사운드·햅틱·파티클 (Nick 승인 2026-08-29) ----------
+  // 원칙: 모션 예산은 보상 순간(정답·콤보·합격)과 화면 전환에 집중, 대기 화면은 조용하게.
+  // 전부 환경 가드 — 헤드리스 스모크(raf/AudioContext/body 없음)와 prefers-reduced-motion에선 자동 무효.
+  function reducedMotion() {
+    try { return !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches); } catch (e) { return false; }
+  }
+  var canFx = !!(window.requestAnimationFrame && document.body);
+  function buzz(pattern) {
+    try { if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(pattern); } catch (e) {}
+  }
+  function themeColor(name, fallback) {
+    try { var v = getComputedStyle(document.documentElement).getPropertyValue(name).trim(); return v || fallback; } catch (e) { return fallback; }
+  }
+  // 사운드 — WebAudio 신디사이즈(오디오 파일 없음), 탑바 토글, localStorage 기억
+  var SOUND_KEY = "hanja.sound";
+  var soundOn = true;
+  try { soundOn = localStorage.getItem(SOUND_KEY) !== "off"; } catch (e) {}
+  var audioCtx = null;
+  function ac() {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    if (!audioCtx) { try { audioCtx = new AC(); } catch (e) { return null; } }
+    if (audioCtx.state === "suspended") { try { audioCtx.resume(); } catch (e) {} }
+    return audioCtx;
+  }
+  function tone(freq, dur, type, gain, delay) {
+    if (!soundOn) return;
+    var ctx = ac(); if (!ctx) return;
+    try {
+      var t0 = ctx.currentTime + (delay || 0);
+      var o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = type || "triangle"; o.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(gain || 0.12, t0 + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(t0); o.stop(t0 + dur + 0.05);
+    } catch (e) {}
+  }
+  function sfxCorrect(combo) {
+    var m = 1 + Math.min(combo || 0, 8) * 0.06; // 콤보가 오를수록 음이 올라간다
+    tone(660 * m, 0.09, "triangle", 0.10);
+    tone(880 * m, 0.12, "triangle", 0.10, 0.07);
+  }
+  function sfxWrong() { tone(170, 0.18, "square", 0.05); }
+  function sfxStamp() { tone(90, 0.25, "sine", 0.22); tone(55, 0.3, "sine", 0.18, 0.02); }
+  function sfxFanfare() { [523, 659, 784, 1047].forEach(function (f, i) { tone(f, 0.16, "triangle", 0.1, i * 0.09); }); }
+  function syncSoundIcon() {
+    $("snd-on").style.display = soundOn ? "" : "none";
+    $("snd-off").style.display = soundOn ? "none" : "";
+  }
+  // 잉크 파티클 — 전역 고정 canvas 1장, 보상 순간에만 그린다
+  var fxCanvas = null, fxCtx2d = null, fxParts = [], fxRunning = false;
+  function fxEnsure() {
+    if (fxCanvas) return true;
+    if (!canFx || reducedMotion()) return false;
+    fxCanvas = document.createElement("canvas");
+    fxCanvas.style.cssText = "position:fixed;inset:0;pointer-events:none;z-index:60;";
+    document.body.appendChild(fxCanvas);
+    fxCtx2d = fxCanvas.getContext("2d");
+    return !!fxCtx2d;
+  }
+  function fxTick() {
+    fxCtx2d.clearRect(0, 0, fxCanvas.width, fxCanvas.height);
+    fxParts = fxParts.filter(function (p) { return p.life > 0; });
+    if (fxParts.length === 0) { fxRunning = false; return; }
+    fxParts.forEach(function (p) {
+      p.x += p.vx; p.y += p.vy; p.vy += 0.28; p.life -= 0.022;
+      fxCtx2d.globalAlpha = Math.max(p.life, 0);
+      fxCtx2d.fillStyle = p.c;
+      fxCtx2d.beginPath(); fxCtx2d.arc(p.x, p.y, Math.max(p.r * p.life, 0.1), 0, Math.PI * 2); fxCtx2d.fill();
+    });
+    fxCtx2d.globalAlpha = 1;
+    window.requestAnimationFrame(fxTick);
+  }
+  function fxAt(el, colors, n, power) {
+    if (!el || !el.getBoundingClientRect || !fxEnsure()) return;
+    fxCanvas.width = window.innerWidth; fxCanvas.height = window.innerHeight;
+    var r = el.getBoundingClientRect();
+    var x = r.left + r.width / 2, y = r.top + r.height / 2;
+    for (var i = 0; i < n; i++) {
+      var a = Math.random() * Math.PI * 2, v = (0.5 + Math.random()) * (power || 5);
+      fxParts.push({ x: x, y: y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 2.2, r: 2 + Math.random() * 3.5, c: colors[i % colors.length], life: 1 });
+    }
+    if (!fxRunning) { fxRunning = true; window.requestAnimationFrame(fxTick); }
+  }
+  function fxColors() {
+    return [themeColor("--red", "#CE5B4B"), themeColor("--volt", "#BFE356"), themeColor("--gold", "#E4B458")];
+  }
+  function updateCombo() {
+    var el = $("combo-badge"), c = (sess && sess.combo) || 0;
+    if (c >= 2) {
+      el.textContent = "콤보 ×" + c;
+      el.classList.remove("hidden");
+      el.classList.remove("pop"); void (el.offsetWidth); el.classList.add("pop");
+    } else el.classList.add("hidden");
+  }
+  function animateScore(el, ok, total) {
+    if (!window.requestAnimationFrame || reducedMotion()) { el.textContent = ok + "/" + total; return; }
+    var t0 = null;
+    function step(ts) {
+      if (!t0) t0 = ts;
+      var p = Math.min((ts - t0) / 600, 1);
+      el.textContent = Math.round(ok * (p * (2 - p))) + "/" + total;
+      if (p < 1) window.requestAnimationFrame(step);
+    }
+    window.requestAnimationFrame(step);
+  }
+  function playPassSequence(name) {
+    sfxFanfare(); buzz([30, 50, 120]);
+    if (!canFx || reducedMotion()) return;
+    var ov = $("pass-overlay");
+    $("po-stamp").textContent = name + " 합격";
+    ov.classList.remove("hidden");
+    ov.classList.remove("play"); void (ov.offsetWidth); ov.classList.add("play");
+    setTimeout(function () { fxAt($("po-stamp"), fxColors().concat(["#FFF6F2"]), 34, 8); sfxStamp(); buzz(80); }, 500);
+    setTimeout(function () { ov.classList.add("hidden"); }, 1950);
+  }
+  // 획순 애니메이션 — Hanzi Writer(CDN). 스크립트 미로드·데이터 없음·모션 축소 환경에선 정적 글리프 그대로.
+  // 주의: 자형 데이터가 중국 자형 기반이라 일부 한국 표준 자형(敎 등)은 없음 → 자동 폴백.
+  function mountWriter(box, glyphEl, ch, size) {
+    box.innerHTML = ""; box._hw = null;
+    box.classList.add("hidden"); glyphEl.classList.remove("hidden");
+    if (typeof HanziWriter === "undefined" || !canFx || reducedMotion()) return;
+    try {
+      var w = HanziWriter.create(box, ch, {
+        width: size, height: size, padding: 6,
+        strokeColor: themeColor("--tx", "#EFEDE7"),
+        outlineColor: themeColor("--line", "#3E4450"),
+        delayBetweenStrokes: 110,
+        strokeAnimationSpeed: 1.6,
+        onLoadCharDataSuccess: function () {
+          box.classList.remove("hidden"); glyphEl.classList.add("hidden");
+          box._hw = w;
+          w.animateCharacter();
+        },
+        onLoadCharDataError: function () {
+          box.classList.add("hidden"); glyphEl.classList.remove("hidden");
+        }
+      });
+    } catch (e) {}
+  }
 
   // ---------- 급수 진행 판정 ----------
   function levelComplete(lvl) {
@@ -405,6 +557,7 @@
         rec.g = true;
         if (sess.mode !== "daily" && sess.mode !== "bonus") removeSaved(q.sk);
         sess.gradList.push(chipRef); fb = '<span class="stamp">졸업</span>';
+        sfxStamp(); buzz(60);
       } else { rec.due = addDays(t, 3); fb = "정답! 3일 뒤 한 번 더 맞히면 졸업"; }
     } else {
       var wasGrad = rec.g;
@@ -513,6 +666,10 @@
     if (!normAns(v)) return;
     var correct = q.type === 11 ? normAns(v, true) === normAns(q.answer, true) : normAns(v) === normAns(q.answer);
     if (correct) sess.ok++;
+    sess.combo = correct ? (sess.combo || 0) + 1 : 0;
+    if (correct) { sfxCorrect(sess.combo); buzz(15); fxAt($("btn-check"), fxColors(), Math.min(10 + sess.combo * 3, 26), 5 + Math.min(sess.combo, 6)); }
+    else { sfxWrong(); buzz([40, 60, 40]); }
+    updateCombo();
     sess.stat.inN++; if (correct) sess.stat.inOk++;
     if (!correct) sess.wrongList.push({ k: q.sk, g: q.sk.slice(2), h: q.answer });
     $("answer-input").disabled = true; $("btn-check").disabled = true;
@@ -588,6 +745,7 @@
     save();
     $("intro-label").textContent = "오늘의 새 한자 " + (i + 1) + "/" + sess.introQueue.length;
     $("intro-glyph").textContent = c.ch;
+    mountWriter($("intro-writer"), $("intro-glyph"), c.ch, 150); // 획순 애니메이션 (실패 시 정적 글리프)
     $("intro-huneum").textContent = huneumOf(c);
     $("intro-words").innerHTML = (wordsByChar[ch] || []).filter(function (w) {
       return lvOrder[w.lv] <= lvl.order;
@@ -639,6 +797,10 @@
     var correct = (opt === q.answer);
     if (!correct) btn.classList.add("wrong");
     if (correct) sess.ok++;
+    sess.combo = correct ? (sess.combo || 0) + 1 : 0;
+    if (correct) { sfxCorrect(sess.combo); buzz(15); fxAt(btn, fxColors(), Math.min(10 + sess.combo * 3, 26), 5 + Math.min(sess.combo, 6)); }
+    else { sfxWrong(); buzz([40, 60, 40]); }
+    updateCombo();
     var fb;
     if (sess.mode === "test") {
       // 실전 시험: 모든 문항에 해설 + 자동 진행 없음 (평가 페이스), SR 무변경
@@ -673,7 +835,7 @@
     var m = sess.mode;
     if (m === "daily" || m === "all") finishDay(sess.t);
     $("result-title").textContent = m === "exam" ? sess.lvl.name + " 승급 모의시험 결과" : m === "test" ? "실전 시험 결과" : m === "bonus" ? "보너스 결과" : m === "saved" ? "보관함 복습 결과" : m === "ctx" ? "문맥 한자 결과" : m === "idiom" ? "한자 표현 결과" : "오늘의 학습 결과";
-    $("score").textContent = sess.ok + "/" + sess.queue.length;
+    animateScore($("score"), sess.ok, sess.queue.length);
     $("wrong-head").textContent = m === "test" ? "틀린 문제 — 정답 확인" : "보관함 — 내일 다시 나와요";
     var pb = $("result-pass");
     if (m === "test") {
@@ -688,6 +850,7 @@
         ls.examPassed = true;
         pb.className = "result-block pass-yes";
         pb.innerHTML = '<span class="stamp">' + sess.lvl.name + ' 합격</span><div style="margin-top:12px;">다음 급수가 열렸어요.</div>';
+        playPassSequence(sess.lvl.name);
       } else {
         ls.lastExamAttempt = sess.t;
         pb.className = "result-block pass-no";
@@ -1094,6 +1257,7 @@
     $("detail-sub").textContent = info.lvl.name + " 배정한자";
     $("detail-glyph").classList.remove("word");
     $("detail-glyph").textContent = ch;
+    mountWriter($("detail-writer"), $("detail-glyph"), ch, 130); // 획순 애니메이션 (글자 상세 전용)
     $("detail-huneum").textContent = huneumOf(c);
     var rec = trackedRec("c", ch);
     $("detail-info").innerHTML = rec ? (rec.g ? "졸업" : "학습 중") : "아직 학습 전";
@@ -1114,6 +1278,8 @@
     $("detail-title").textContent = "단어";
     $("detail-sub").textContent = w.lv + " 수준 한자어" + (w.cat ? " · " + w.cat : "");
     $("detail-glyph").classList.add("word");
+    $("detail-glyph").classList.remove("hidden");
+    $("detail-writer").classList.add("hidden"); $("detail-writer").innerHTML = "";
     $("detail-glyph").textContent = w.w;
     $("detail-huneum").textContent = w.r;
     var parts = [];
@@ -1140,6 +1306,8 @@
     $("detail-title").textContent = "성어";
     $("detail-sub").textContent = it.lv + " 수준";
     $("detail-glyph").classList.add("word");
+    $("detail-glyph").classList.remove("hidden");
+    $("detail-writer").classList.add("hidden"); $("detail-writer").innerHTML = "";
     $("detail-glyph").textContent = it.expr;
     $("detail-huneum").textContent = it.r;
     var parts = [];
@@ -1266,6 +1434,17 @@
     // 홈 (대시보드)
     $("btn-start-all").addEventListener("click", startUnified);
     $("btn-test").addEventListener("click", startTest);
+    // 사운드 토글 + 획순 다시보기(획순 그림을 탭하면 재생)
+    $("sound-toggle").addEventListener("click", function () {
+      soundOn = !soundOn;
+      try { localStorage.setItem(SOUND_KEY, soundOn ? "on" : "off"); } catch (e) {}
+      syncSoundIcon();
+      if (soundOn) sfxCorrect(0);
+    });
+    syncSoundIcon();
+    ["intro-writer", "detail-writer"].forEach(function (id) {
+      $(id).addEventListener("click", function () { if ($(id)._hw) $(id)._hw.animateCharacter(); });
+    });
     // 단답형 입력 (실전 시험)
     $("btn-check").addEventListener("click", checkInput);
     $("answer-input").addEventListener("keydown", function (e) {
