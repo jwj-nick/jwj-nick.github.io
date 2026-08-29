@@ -34,8 +34,13 @@
           d.chars.forEach(function (c) { byCh[c.ch] = c; });
           return Object.assign({}, l, { chars: d.chars, byCh: byCh });
         });
-      }).concat([loadJSON("data/words.json"), loadJSON("data/idioms.json")]));
+      }).concat([
+        loadJSON("data/words.json"),
+        loadJSON("data/idioms.json"),
+        loadJSON("data/readings.json").catch(function () { return { readings: [] }; }) // 리더 모드 (v3.5) — 없으면 조용히 비활성
+      ]));
     }).then(function (loaded) {
+      READINGS = loaded.pop().readings;
       IDIOMS = loaded.pop().idioms;
       WORDS = loaded.pop().words;
       LEVELS = loaded;
@@ -59,6 +64,7 @@
   var CHARS = [];       // 전 급수 글자 (검색용)
   var byChGlobal = {};  // ch → {c, lvl}
   var byI = {};         // expr → 성어 객체
+  var READINGS = [];    // 리더 모드 자작 단락 (data/readings.json)
 
   // ---------- 상태 ----------
   function freshState() {
@@ -123,7 +129,7 @@
     return a;
   }
   function $(id) { return document.getElementById(id); }
-  var VIEWS = ["view-home", "view-intro", "view-quiz", "view-result", "view-table", "view-search", "view-detail", "view-ladder", "view-list", "view-backup"];
+  var VIEWS = ["view-home", "view-intro", "view-quiz", "view-result", "view-table", "view-search", "view-detail", "view-ladder", "view-list", "view-backup", "view-write", "view-read"];
   var shownView = null;
   function show(viewId) {
     if (viewId !== "view-quiz") $("combo-badge").classList.add("hidden");
@@ -609,10 +615,18 @@
     return fb;
   }
   function finishDay(t) {
-    if (S.days[t] && S.days[t].done) return;
-    S.days[t] = { done: true };
+    var d = S.days[t] = S.days[t] || {}; // v3.5: q(문항 수) 카운트 보존 — 히트맵용
+    if (d.done) return;
+    d.done = true;
     if (S.lastDone === addDays(t, -1)) S.streakDays++; else if (S.lastDone !== t) S.streakDays = 1;
     S.lastDone = t; save();
+  }
+  // 히트맵 데이터 — 모드 불문 풀었던 문항 수를 날짜별로 누적 (v3.5 E)
+  function bumpHeat() {
+    var t = todayStr();
+    var d = S.days[t] = S.days[t] || {};
+    d.q = (d.q || 0) + 1;
+    save();
   }
 
   // ---------- 실전 시험 (프로토타입, 2026-08-26 Nick 지시) ----------
@@ -651,45 +665,67 @@
     }
     return { sk: "i:" + it.expr, type: 13, prompt: masked, answer: ans, opts: shuffle(picked.concat([ans])), qlabel: "□에 들어갈 한자는? — " + it.r, tag: "성어 · " + it.lv };
   }
-  function startTest() {
-    var qs = [], li = LEVELS.length;
-    // ① 급수 글자 7자 — 하·중·상 급수를 섞어 난이도 스펙트럼 표본 (훈음 4 + 역방향 2 + 훈음 쓰기 1)
-    var lvlPicks = [0, 1, 2, 4, Math.min(6, li - 1), Math.min(9, li - 1), li - 1];
+  // maxIdx = MANIFEST_ALL 인덱스 상한 (v3.5 D — "이 급수까지"). 미지정 = 전체.
+  function startTest(maxIdx) {
+    if (maxIdx == null || isNaN(maxIdx)) maxIdx = MANIFEST_ALL.length - 1;
+    var maxOrder = MANIFEST_ALL[Math.min(maxIdx, MANIFEST_ALL.length - 1)].order;
+    var pool = LEVELS.filter(function (l) { return l.order <= maxOrder; });
+    if (pool.length === 0) pool = LEVELS.slice(0, 1);
+    var qs = [], li = pool.length;
+    // ① 급수 글자 7자 — 범위 안에서 하·중·상 스펙트럼 표본 (훈음 4 + 역방향 2 + 훈음 쓰기 1)
+    var lvlPicks = [0, 1, 2, 4, 6, 9, li - 1].map(function (ii) { return Math.min(ii, li - 1); });
     var chosen = {}, charQs = [], guard = 0;
     lvlPicks.forEach(function (idx) {
-      var lvl = LEVELS[idx], c = lvl.chars[Math.floor(Math.random() * lvl.chars.length)];
+      var lvl = pool[idx], c = lvl.chars[Math.floor(Math.random() * lvl.chars.length)];
       if (chosen[c.ch]) return;
       chosen[c.ch] = true; charQs.push({ lvl: lvl, c: c });
     });
-    while (charQs.length < 7 && guard++ < 100) {
-      var rl = LEVELS[Math.floor(Math.random() * li)], rc = rl.chars[Math.floor(Math.random() * rl.chars.length)];
+    while (charQs.length < 7 && guard++ < 200) {
+      var rl = pool[Math.floor(Math.random() * li)], rc = rl.chars[Math.floor(Math.random() * rl.chars.length)];
       if (!chosen[rc.ch]) { chosen[rc.ch] = true; charQs.push({ lvl: rl, c: rc }); }
     }
     charQs.slice(0, 4).forEach(function (p) { qs.push({ sk: "c:" + p.c.ch, type: 1, prompt: p.c.ch, answer: huneumOf(p.c), opts: optsType1(p.lvl, p.c), tag: p.lvl.name }); });
     charQs.slice(4, 6).forEach(function (p) { qs.push({ sk: "c:" + p.c.ch, type: 3, prompt: huneumOf(p.c), answer: p.c.ch, opts: optsType3(p.lvl, p.c), tag: p.lvl.name }); });
-    qs.push({ sk: "c:" + charQs[6].c.ch, type: 11, input: true, prompt: charQs[6].c.ch, answer: huneumOf(charQs[6].c), qlabel: "이 한자의 훈과 음을 쓰세요 (예: 배울 학)", tag: charQs[6].lvl.name });
-    // ② 한자어 6개 — 급수 스펙트럼에서 표집 (독음 객관식 3 + 독음 쓰기 3)
-    var wpool = shuffle(WORDS.filter(function (w) { return w.w.length >= 2; }));
+    if (charQs.length >= 7) qs.push({ sk: "c:" + charQs[6].c.ch, type: 11, input: true, prompt: charQs[6].c.ch, answer: huneumOf(charQs[6].c), qlabel: "이 한자의 훈과 음을 쓰세요 (예: 배울 학)", tag: charQs[6].lvl.name });
+    // ② 한자어 6문 — 독음 객관식 2 + 독음 쓰기 2 + 뜻→한자어 2(유형 14, v3.5 신설)
+    var wpool = shuffle(WORDS.filter(function (w) { return w.w.length >= 2 && lvOrder[w.lv] <= maxOrder; }));
     wpool.sort(function (a, b) { return lvOrder[a.lv] - lvOrder[b.lv]; });
     var wsel = [], used = {};
-    for (var i = 0; i < 6; i++) {
-      var w = wpool[Math.floor(i * (wpool.length - 1) / 5)];
+    for (var i = 0; i < 4 && wpool.length; i++) {
+      var w = wpool[Math.floor(i * (wpool.length - 1) / 3)];
       if (!used[w.w]) { used[w.w] = true; wsel.push(w); }
     }
     guard = 0;
-    while (wsel.length < 6 && guard++ < 100) {
+    while (wsel.length < 4 && wpool.length >= 4 && guard++ < 100) {
       var w2 = wpool[Math.floor(Math.random() * wpool.length)];
       if (!used[w2.w]) { used[w2.w] = true; wsel.push(w2); }
     }
-    wsel.slice(0, 3).forEach(function (w) { qs.push({ sk: "w:" + w.w, type: 2, prompt: w.w, answer: w.r, opts: optsType2({ order: lvOrder[w.lv] }, w), tag: w.lv }); });
-    wsel.slice(3, 6).forEach(function (w) { qs.push({ sk: "w:" + w.w, type: 10, input: true, prompt: w.w, answer: w.r, qlabel: "이 한자어의 독음을 쓰세요 (한글)", tag: w.lv }); });
-    // ③ 문맥 2문 (유형 6/7 — 문장 기반)
-    shuffle(ctxCorpus()).slice(0, 2).forEach(function (w) { var q = ctxQuestion(w); q.tag = "문맥 · " + w.lv; qs.push(q); });
-    // ④ 성어 5개 — 객관식 2(뜻↔성어) + 독음 쓰기 1 + 빈칸 한자 2
-    var isel = shuffle(IDIOMS).slice(0, 5);
+    wsel.slice(0, 2).forEach(function (w) { qs.push({ sk: "w:" + w.w, type: 2, prompt: w.w, answer: w.r, opts: optsType2({ order: lvOrder[w.lv] }, w), tag: w.lv }); });
+    wsel.slice(2, 4).forEach(function (w) { qs.push({ sk: "w:" + w.w, type: 10, input: true, prompt: w.w, answer: w.r, qlabel: "이 한자어의 독음을 쓰세요 (한글)", tag: w.lv }); });
+    var gpool = wpool.filter(function (w) { return w.gloss && !used[w.w]; });
+    shuffle(gpool).slice(0, 2).forEach(function (w) {
+      var others = shuffle(gpool.filter(function (x) { return x.w !== w.w && x.r !== w.r; })).slice(0, 3).map(function (x) { return x.w; });
+      if (others.length < 3) return;
+      used[w.w] = true;
+      qs.push({ sk: "w:" + w.w, type: 14, prompt: w.gloss, answer: w.w, opts: shuffle(others.concat([w.w])), qlabel: "이 뜻에 맞는 한자어는?", tag: w.lv });
+    });
+    // ③ 문맥 ≤2문 — 범위 안 예문 단어만
+    shuffle(ctxCorpus().filter(function (w) { return lvOrder[w.lv] <= maxOrder; })).slice(0, 2).forEach(function (w) {
+      var q = ctxQuestion(w); q.tag = "문맥 · " + w.lv; qs.push(q);
+    });
+    // ④ 성어 ≤5문 — 객관식 2(뜻↔성어) + 독음 쓰기 1 + 빈칸 한자 2 (범위 안 성어만)
+    var isel = shuffle(IDIOMS.filter(function (it) { return lvOrder[it.lv] <= maxOrder; })).slice(0, 5);
     isel.slice(0, 2).forEach(function (it) { var q = idiomQuestion(it); q.tag = "성어 · " + it.lv; qs.push(q); });
-    qs.push({ sk: "i:" + isel[2].expr, type: 12, input: true, prompt: isel[2].expr, answer: isel[2].r, qlabel: "이 성어의 독음을 쓰세요 (한글)", tag: "성어 · " + isel[2].lv });
+    if (isel.length >= 3) qs.push({ sk: "i:" + isel[2].expr, type: 12, input: true, prompt: isel[2].expr, answer: isel[2].r, qlabel: "이 성어의 독음을 쓰세요 (한글)", tag: "성어 · " + isel[2].lv });
     isel.slice(3, 5).forEach(function (it) { qs.push(blankIdiomQ(it)); });
+    // ⑤ 상한이 낮아 문맥·성어·단어가 모자라면 글자 문제로 20문을 채운다
+    guard = 0;
+    while (qs.length < 20 && guard++ < 300) {
+      var fl = pool[Math.floor(Math.random() * li)], fc = fl.chars[Math.floor(Math.random() * fl.chars.length)];
+      if (chosen[fc.ch]) continue;
+      chosen[fc.ch] = true;
+      qs.push({ sk: "c:" + fc.ch, type: 1, prompt: fc.ch, answer: huneumOf(fc), opts: optsType1(fl, fc), tag: fl.name });
+    }
     sess = {
       mode: "test", t: todayStr(), lvl: null,
       introQueue: [], introIdx: 0,
@@ -699,12 +735,96 @@
     pushView("session");
     renderQuestion();
   }
+  // ---------- 쓰기 연습 (v3.5 A — Hanzi Writer quiz: 손가락으로 획순 따라 쓰기, SR 무변경) ----------
+  var writeSess = null;
+  function startWrite(lvl) {
+    writeSess = { lvl: lvl, queue: shuffle(lvl.chars).slice(0, 10), idx: 0, done: 0, mistakes: 0 };
+    pushView("write", { slug: lvl.slug });
+    renderWrite();
+  }
+  function renderWrite() {
+    var c = writeSess.queue[writeSess.idx];
+    $("write-title").textContent = writeSess.lvl.name + " 쓰기 연습";
+    $("write-label").textContent = (writeSess.idx + 1) + "/" + writeSess.queue.length;
+    $("write-fill").style.width = Math.round(writeSess.idx / writeSess.queue.length * 100) + "%";
+    $("write-huneum").textContent = huneumOf(c);
+    $("write-fb").textContent = "";
+    $("btn-write-next").textContent = writeSess.idx === writeSess.queue.length - 1 ? "끝내기" : "다음";
+    var box = $("write-box"); box.innerHTML = ""; box._hw = null;
+    if (typeof HanziWriter === "undefined" || !canFx) {
+      $("write-fb").textContent = "획순 데이터를 불러올 수 없어요 — 인터넷 연결 후 다시 열어 주세요.";
+    } else {
+      try {
+        var w = HanziWriter.create(box, c.ch, {
+          width: 230, height: 230, padding: 10,
+          showCharacter: false, showOutline: true,
+          strokeColor: themeColor("--tx", "#EFEDE7"),
+          outlineColor: themeColor("--line", "#3E4450"),
+          drawingColor: themeColor("--red", "#CE5B4B"),
+          drawingWidth: 22,
+          showHintAfterMisses: 2,
+          onLoadCharDataError: function () { $("write-fb").textContent = "이 글자는 쓰기 데이터가 없어요 — [다음]으로 넘어가요."; }
+        });
+        box._hw = w;
+        w.quiz({
+          onComplete: function (s) {
+            writeSess.done++;
+            var mk = (s && s.totalMistakes) || 0;
+            writeSess.mistakes += mk;
+            $("write-fb").innerHTML = mk === 0 ? '<b class="fb-ok">완벽!</b> 실수 없이 다 썼어요' : '<b class="fb-ok">완성!</b> 실수 ' + mk + "번 — 획순을 눈에 익혀요";
+            sfxCorrect(0); buzz(20); fxAt(box, fxColors(), 14, 5);
+          }
+        });
+      } catch (e) {}
+    }
+    show("view-write");
+  }
+  function nextWrite() {
+    writeSess.idx++;
+    if (writeSess.idx < writeSess.queue.length) { renderWrite(); return; }
+    var lvl = writeSess.lvl;
+    writeSess = null;
+    pushView("table", { slug: lvl.slug });
+    renderTable(lvl);
+  }
+
+  // ---------- 리더 모드 (v3.5 B — 자작 단락을 읽다가 한자어를 탭해 보관함에 수집) ----------
+  var readTarget = null, readPopW = null;
+  function countRw(r) { return (r.text.match(/\{[^}]+\}/g) || []).length; }
+  function renderRead(r) {
+    readTarget = r;
+    $("read-title").textContent = r.title;
+    $("read-sub").textContent = r.lv + " 수준 · 파란 단어를 탭하면 한자와 뜻이 보여요";
+    var html = "";
+    r.text.split("\n").forEach(function (para) {
+      if (!para.trim()) return;
+      html += "<p>" + para.replace(/\{([^}]+)\}/g, function (mm, wd) {
+        var w = byW[wd];
+        return w ? '<span class="rw" data-w="' + wd + '">' + w.r + "</span>" : wd;
+      }) + "</p>";
+    });
+    $("read-body").innerHTML = html;
+    $("read-pop").classList.add("hidden");
+    show("view-read");
+  }
+  function showReadPop(w) {
+    readPopW = w;
+    $("read-pop-glyph").textContent = w.w;
+    $("read-pop-info").textContent = w.r + (w.gloss ? " — " + w.gloss : "");
+    var rec = trackedRec("w", w.w), b = $("btn-read-save");
+    if (rec && rec.g) { b.disabled = true; b.textContent = "졸업한 단어예요"; }
+    else if (rec) { b.disabled = true; b.textContent = "보관함에 있어요"; }
+    else { b.disabled = false; b.textContent = "보관함에 저장"; }
+    $("read-pop").classList.remove("hidden");
+  }
+
   function checkInput() {
     var q = sess.queue[sess.idx];
     var v = $("answer-input").value;
     if (!normAns(v)) return;
     var correct = q.type === 11 ? normAns(v, true) === normAns(q.answer, true) : normAns(v) === normAns(q.answer);
     if (correct) sess.ok++;
+    bumpHeat();
     sess.combo = correct ? (sess.combo || 0) + 1 : 0;
     if (correct) { sfxCorrect(sess.combo); buzz(15); fxAt($("btn-check"), fxColors(), Math.min(10 + sess.combo * 3, 26), 5 + Math.min(sess.combo, 6)); }
     else { sfxWrong(); buzz([40, 60, 40]); }
@@ -761,6 +881,7 @@
     // 시간대별 히어로 워터마크 (v3.4): 아침 朝 · 낮 習 · 저녁 夕 · 밤 夜
     var hh = new Date().getHours();
     $("hero-wm").textContent = hh >= 5 && hh < 11 ? "朝" : hh >= 11 && hh < 18 ? "習" : hh >= 18 && hh < 22 ? "夕" : "夜";
+    renderHeat(t);
     show("view-home");
   }
   // 도장판 — 13급수를 배지 슬롯으로. 합격 = 인주 도장, 이어서(추천) = 볼트 링, 나머지 = 빈 슬롯.
@@ -775,6 +896,23 @@
     });
     $("badge-row").innerHTML = html;
     $("badge-count").textContent = "급수 도장판 · " + stamps + " / " + MANIFEST_ALL.length;
+  }
+  // 학습 히트맵 (v3.5 E) — 최근 10주, 일요일 시작 열 정렬. 문항 수가 많을수록 진한 볼트색.
+  function renderHeat(t) {
+    var total = 0, cells = "", days = [];
+    for (var i = 69; i >= 0; i--) days.push(addDays(t, -i));
+    var p0 = days[0].split("-");
+    var pad = new Date(+p0[0], +p0[1] - 1, +p0[2]).getDay();
+    for (var j = 0; j < pad; j++) cells += '<span class="hcell pad"></span>';
+    days.forEach(function (d) {
+      var rec = S.days[d];
+      var q = (rec && rec.q) || (rec && rec.done ? 10 : 0); // q 카운트 도입 전(v3.4 이하) 기록은 완료일=10문 취급
+      total += q;
+      var lv = q === 0 ? 0 : q < 10 ? 1 : q < 25 ? 2 : 3;
+      cells += '<span class="hcell h' + lv + '"></span>';
+    });
+    $("heat-row").innerHTML = cells;
+    $("heat-sub").textContent = "최근 10주 · " + total + "문제";
   }
   function catNames() {
     var cats = {};
@@ -815,7 +953,7 @@
     $("q-type").textContent = qt + (q.tag ? "  ·  " + q.tag : "");
     var g = $("q-glyph");
     g.classList.remove("word"); g.classList.remove("sent");
-    if (q.type === 6 || q.type === 7 || q.type === 8) { g.textContent = q.prompt; g.style.fontSize = ""; g.classList.add("sent"); }
+    if (q.type === 6 || q.type === 7 || q.type === 8 || q.type === 14) { g.textContent = q.prompt; g.style.fontSize = ""; g.classList.add("sent"); }
     else if (q.type === 9 || q.type === 10 || q.type === 12 || q.type === 13) { g.textContent = q.prompt; g.style.fontSize = ""; g.classList.add("word"); }
     else if (q.type === 3) { g.textContent = q.prompt; g.style.fontSize = "34px"; }
     else { g.textContent = q.prompt; g.style.fontSize = ""; g.classList.toggle("word", q.type === 2); }
@@ -833,7 +971,7 @@
       if (q.type === 9) box.classList.add("single"); else box.classList.remove("single");
       q.opts.forEach(function (opt) {
         var b = document.createElement("button");
-        b.className = "opt" + ((q.type === 3 || q.type === 6 || q.type === 8 || q.type === 13) ? " glyph" : "");
+        b.className = "opt" + ((q.type === 3 || q.type === 6 || q.type === 8 || q.type === 13 || q.type === 14) ? " glyph" : "");
         b.textContent = opt;
         b.addEventListener("click", function () { answer(q, opt, b); });
         box.appendChild(b);
@@ -849,6 +987,7 @@
     var correct = (opt === q.answer);
     if (!correct) btn.classList.add("wrong");
     if (correct) sess.ok++;
+    bumpHeat();
     sess.combo = correct ? (sess.combo || 0) + 1 : 0;
     if (correct) { sfxCorrect(sess.combo); buzz(15); fxAt(btn, fxColors(), Math.min(10 + sess.combo * 3, 26), 5 + Math.min(sess.combo, 6)); }
     else { sfxWrong(); buzz([40, 60, 40]); }
@@ -1405,7 +1544,7 @@
     var rows = $("list-rows");
     rows.innerHTML = "";
     var act = $("btn-list-action");
-    $("btn-list-back").textContent = kind === "cat" ? "← 카테고리" : "← 홈";
+    $("btn-list-back").textContent = kind === "cat" ? "← 카테고리" : kind === "readings" ? "← 문맥 한자" : kind === "resetlv" ? "← 진도 백업" : "← 홈";
     if (kind === "cats") {
       $("list-title").textContent = "문맥 한자";
       $("list-sub").textContent = "카테고리를 눌러 단어를 둘러보고, 저장하면 복습에 나와요";
@@ -1414,6 +1553,11 @@
       act.classList.remove("hidden");
       act.disabled = cc.due + newTake === 0;
       act.textContent = act.disabled ? "문맥 학습 — 오늘 완료" : "문맥 학습 (복습 " + cc.due + " · 새 단어 " + newTake + ")";
+      if (READINGS.length) {
+        rows.appendChild(listRow('<span class="cat-ic" style="color:var(--blue)">冊</span>', "글 속에서 — 읽기", "짧은 글 " + READINGS.length + "편 · 파란 단어를 탭해 모아요", function () {
+          pushView("list", { list: "readings" }); renderList("readings");
+        }));
+      }
       catNames().forEach(function (c, ci) {
         rows.appendChild(listRow('<span class="cat-ic cc' + (ci % 6) + '">' + c.name.charAt(0) + '</span>', c.name, "단어 " + c.n + "개", function () {
           pushView("list", { list: "cat", cat: c.name }); renderList("cat", c.name);
@@ -1436,6 +1580,59 @@
         rows.appendChild(listRow(it.expr, it.r, (it.meaning || "") + " · " + it.lv + statusSuffix(trackedRec("i", it.expr)), function () {
           pushView("detail", { dt: "i", k: it.expr }); renderDetailIdiom(it);
         }));
+      });
+    } else if (kind === "readings") { // 리더 모드 목록 (v3.5 B)
+      $("list-title").textContent = "글 속에서";
+      $("list-sub").textContent = "짧은 글을 읽다가 모르는 한자어를 탭해서 보관함에 모아요";
+      act.classList.add("hidden");
+      READINGS.forEach(function (r) {
+        rows.appendChild(listRow('<span class="cat-ic" style="color:var(--blue)">' + r.title.charAt(0) + '</span>', r.title, r.lv + " 수준 · 한자어 " + countRw(r) + "개", function () {
+          pushView("read", { id: r.id }); renderRead(r);
+        }));
+      });
+    } else if (kind === "resetlv") { // 진도 리셋 (v3.5 — 두 번 탭 확정, 급수 지정 가능)
+      $("list-title").textContent = "진도 리셋";
+      $("list-sub").textContent = "한 번 탭하면 확인, 한 번 더 탭하면 삭제돼요 — 리셋 전에 백업을 권해요";
+      act.classList.add("hidden");
+      var mkReset = function (icon, name, sub, fn) {
+        var row = document.createElement("div");
+        row.className = "lrow";
+        var armed = false;
+        row.innerHTML = '<div class="licon">' + icon + '</div><div><div class="lname">' + name + '</div><div class="lsub">' + sub + "</div></div>";
+        row.addEventListener("click", function () {
+          if (!armed) {
+            armed = true;
+            row.classList.add("armed");
+            row.innerHTML = '<div class="licon">' + icon + '</div><div><div class="lname">' + name + ' — 정말요?</div><div class="lsub">한 번 더 탭하면 되돌릴 수 없어요</div></div>';
+            return;
+          }
+          fn();
+          pushView("home"); renderHome();
+        });
+        rows.appendChild(row);
+      };
+      mkReset('<span class="cat-ic" style="color:var(--red-tx)">全</span>', "전체 리셋", "모든 학습 기록 삭제 — 급수·단어·성어·보관함·연속일·히트맵", function () {
+        S = freshState(); save();
+      });
+      MANIFEST_ALL.forEach(function (m, mi) {
+        if (!LEVELS.some(function (l) { return l.slug === m.slug; })) return;
+        mkReset('<span class="cat-ic" style="color:' + BELT[mi % BELT.length] + '">' + m.name.replace("급", "") + '</span>', m.name + " 리셋", "이 급수의 글자 진도·합격 도장만 삭제", function () {
+          delete S.levels[m.name];
+          S.saved = S.saved.filter(function (sk) {
+            return !(sk[0] === "c" && byChGlobal[sk.slice(2)] && byChGlobal[sk.slice(2)].lvl.name === m.name);
+          });
+          save();
+        });
+      });
+    } else if (kind === "testlv") { // 실전 시험 급수 상한 선택 (v3.5 D)
+      $("list-title").textContent = "실전 시험";
+      $("list-sub").textContent = "어느 급수까지 출제할까요? — 20문제 · 객관식+단답 · 기록에 반영 안 돼요";
+      act.classList.add("hidden");
+      rows.appendChild(listRow('<span class="cat-ic">全</span>', "전체 (1급까지)", "하 · 중 · 상 급수 골고루 — 기본", function () { startTest(MANIFEST_ALL.length - 1); }));
+      MANIFEST_ALL.forEach(function (m, mi) {
+        if (mi === MANIFEST_ALL.length - 1) return; // 마지막 급수 상한 = 전체와 동일
+        if (!LEVELS.some(function (l) { return l.slug === m.slug; })) return;
+        rows.appendChild(listRow('<span class="cat-ic" style="color:' + BELT[mi % BELT.length] + '">' + m.name.replace("급", "") + '</span>', m.name + "까지", "8급~" + m.name + " 범위에서만 출제", function () { startTest(mi); }));
       });
     } else { // saved — 보관함 = 학습 중(미졸업) 전체
       $("list-title").textContent = "보관함";
@@ -1476,6 +1673,21 @@
     $("backup-box").value = JSON.stringify(S);
     $("backup-msg").textContent = "백업 코드를 만들었어요. 전체 선택해 복사한 뒤 메모장 등에 보관하세요.";
   }
+  // v3.5: 파일로 바로 저장 — 폰·PC 모두 브라우저 기본 다운로드 폴더에 떨어진다.
+  function doExportFile() {
+    try {
+      var name = "hanja-" + CFG.ns + "-" + todayStr().replace(/-/g, "") + ".json";
+      var blob = new Blob([JSON.stringify(S)], { type: "application/json" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url; a.download = name;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 3000);
+      $("backup-msg").textContent = "저장했어요 — 다운로드 폴더에서 " + name + " 파일을 찾을 수 있어요.";
+    } catch (e) {
+      $("backup-msg").textContent = "이 브라우저는 파일 저장이 안 돼요 — [내보내기] 코드 복사로 백업해 주세요.";
+    }
+  }
   function doImport() {
     try {
       var parsed = JSON.parse($("backup-box").value);
@@ -1500,7 +1712,7 @@
 
     // 홈 (대시보드)
     $("btn-start-all").addEventListener("click", startUnified);
-    $("btn-test").addEventListener("click", startTest);
+    $("btn-test").addEventListener("click", function () { pushView("list", { list: "testlv" }); renderList("testlv"); }); // v3.5 D: 급수 상한 선택 후 출제
     // 사운드 토글 + 획순 다시보기(획순 그림을 탭하면 재생)
     $("sound-toggle").addEventListener("click", function () {
       soundOn = !soundOn;
@@ -1544,10 +1756,41 @@
     });
     $("btn-table-exam").addEventListener("click", function () { if (tableLvl) startExam(tableLvl); });
     $("btn-table-quick").addEventListener("click", function () { if (tableLvl) startExam(tableLvl, true); }); // 결정 #27
+    $("btn-table-write").addEventListener("click", function () { if (tableLvl) startWrite(tableLvl); }); // v3.5 A
+    $("btn-write-next").addEventListener("click", function () { if (writeSess) nextWrite(); });
+    $("btn-write-back").addEventListener("click", function (e) {
+      e.preventDefault();
+      var lvl = writeSess && writeSess.lvl;
+      writeSess = null;
+      if (lvl) { pushView("table", { slug: lvl.slug }); renderTable(lvl); }
+      else { pushView("home"); renderHome(); }
+    });
+    // 리더 모드 (v3.5 B)
+    $("btn-read-back").addEventListener("click", function (e) { e.preventDefault(); pushView("list", { list: "readings" }); renderList("readings"); });
+    $("read-body").addEventListener("click", function (e) {
+      var el = e && e.target;
+      if (!el || !el.getAttribute || !el.className || String(el.className).indexOf("rw") < 0) return;
+      var wd = el.getAttribute("data-w");
+      if (wd && byW[wd]) showReadPop(byW[wd]);
+    });
+    $("btn-read-save").addEventListener("click", function () {
+      if (!readPopW || trackedRec("w", readPopW.w)) return;
+      savedRec("w:" + readPopW.w);
+      if (S.saved.indexOf("w:" + readPopW.w) < 0) S.saved.push("w:" + readPopW.w);
+      save();
+      sfxCorrect(0); buzz(15);
+      showReadPop(readPopW);
+    });
+    $("btn-read-detail").addEventListener("click", function () {
+      if (!readPopW) return;
+      pushView("detail", { dt: "w", k: readPopW.w });
+      renderDetailWord(readPopW);
+    });
     // 목록
     $("btn-list-back").addEventListener("click", function (e) {
       e.preventDefault();
-      if (listState.kind === "cat") { pushView("list", { list: "cats" }); renderList("cats"); }
+      if (listState.kind === "cat" || listState.kind === "readings") { pushView("list", { list: "cats" }); renderList("cats"); }
+      else if (listState.kind === "resetlv") { pushView("backup"); renderBackup(); }
       else { pushView("home"); renderHome(); }
     });
     $("btn-list-action").addEventListener("click", function () {
@@ -1570,6 +1813,18 @@
     $("btn-backup-back").addEventListener("click", function (e) { e.preventDefault(); pushView("home"); renderHome(); });
     $("btn-export").addEventListener("click", doExport);
     $("btn-import").addEventListener("click", doImport);
+    // v3.5: 파일 저장/복원 + 진도 리셋
+    $("btn-export-file").addEventListener("click", doExportFile);
+    $("btn-import-file").addEventListener("click", function () { if ($("backup-file").click) $("backup-file").click(); });
+    $("backup-file").addEventListener("change", function (e) {
+      var f = e && e.target && e.target.files && e.target.files[0];
+      if (!f || typeof FileReader === "undefined") return;
+      var rd = new FileReader();
+      rd.onload = function () { $("backup-box").value = String(rd.result || ""); doImport(); };
+      rd.readAsText(f);
+      e.target.value = "";
+    });
+    $("btn-reset-open").addEventListener("click", function () { pushView("list", { list: "resetlv" }); renderList("resetlv"); });
     $("btn-detail-save").addEventListener("click", function () {
       if (!detailTarget) return;
       var dt = detailTarget.dt, k = detailTarget.k;
@@ -1585,8 +1840,16 @@
     // 뒤로가기(popstate)로 도착한 지점을 재구성. 표/검색/상세 화면이면 그 지점을, 그 외(홈·세션 도중)는
     // 전부 홈으로 — 세션 중이었다면 중단(sess=null)하고 홈에서 다시 시작하면 된다.
     window.addEventListener("popstate", function (e) {
-      sess = null;
+      sess = null; writeSess = null;
       var st = e.state;
+      if (st && st.kind === "read" && st.id) {
+        var rr = READINGS.filter(function (x) { return x.id === st.id; })[0];
+        if (rr) { renderRead(rr); return; }
+      }
+      if (st && st.kind === "write" && st.slug) {
+        var wl = LEVELS.filter(function (l) { return l.slug === st.slug; })[0];
+        if (wl) { renderTable(wl); return; } // 쓰기 세션은 복원하지 않고 그 급수 표로
+      }
       if (st && st.kind === "table" && st.slug) {
         var lvl = LEVELS.filter(function (l) { return l.slug === st.slug; })[0];
         if (lvl) { renderTable(lvl); return; }
