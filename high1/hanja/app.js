@@ -131,11 +131,23 @@
       VIEWS.forEach(function (v) { $(v).classList.toggle("hidden", v !== viewId); });
       window.scrollTo(0, 0);
     };
-    // View Transitions — 화면이 바뀔 때만(같은 화면 재렌더는 제외), 미지원·모션 축소 시 즉시 전환
-    if (viewId !== shownView && document.startViewTransition && !reducedMotion()) {
-      shownView = viewId;
-      document.startViewTransition(apply);
-    } else { shownView = viewId; apply(); }
+    var changed = viewId !== shownView;
+    shownView = viewId;
+    if (viewId === "view-home") {
+      // 홈은 자체 입장 연출(스태거)이 전환을 대신한다 — View Transition 크로스페이드와 겹치면
+      // 스냅샷에 묻혀 안 보였음(2026-08-29 Nick 신고). .enter 클래스 재부여로 확정 재생.
+      apply();
+      if (changed && canFx && !reducedMotion()) {
+        var hv = $("view-home");
+        hv.classList.remove("enter");
+        void (hv.offsetWidth);
+        hv.classList.add("enter");
+      }
+      return;
+    }
+    // 그 외 화면 — View Transitions 크로스페이드 (미지원·모션 축소 시 즉시 전환)
+    if (changed && document.startViewTransition && !reducedMotion()) document.startViewTransition(apply);
+    else apply();
   }
   // 브라우저 뒤로가기 대응 — SPA인데 history API가 없어서 앱 안에서 화면을 아무리 옮겨도
   // 히스토리엔 최초 진입 1건만 쌓여, 뒤로가기를 누르면 앱을 벗어나 버렸다(2026-08-23 Nick 신고).
@@ -292,23 +304,11 @@
   }
 
   // ---------- 급수 진행 판정 ----------
+  // v3.3 (결정 #26): 승급 = 모의시험 합격만으로 판정. 전원 졸업 전제 폐지 — 어느 급수든 시험 즉시 응시 가능,
+  // 실전 형식(문항수·합격선)을 통과하면 그 급수를 인정한다(배치고사식 스피드런 지원 — 성인 학습자 포함).
+  // 글자별 SR 진도는 별개로 계속 굴러가고, 시험으로 건너뛴 급수의 글자는 자유 학습으로 언제든 접근 가능.
   function levelComplete(lvl) {
-    var ls = levelState(lvl.name);
-    if (ls.newIdx < lvl.chars.length) return false;
-    for (var i = 0; i < lvl.chars.length; i++) {
-      var rec = ls.p[lvl.chars[i].ch];
-      if (!rec || !rec.g) return false;
-    }
-    return !!ls.examPassed;
-  }
-  function levelFullyGraduated(lvl) { // 전원 졸업했지만 시험 전일 수 있음
-    var ls = levelState(lvl.name);
-    if (ls.newIdx < lvl.chars.length) return false;
-    for (var i = 0; i < lvl.chars.length; i++) {
-      var rec = ls.p[lvl.chars[i].ch];
-      if (!rec || !rec.g) return false;
-    }
-    return true;
+    return !!levelState(lvl.name).examPassed;
   }
   function currentLevelIdx() {
     for (var i = 0; i < LEVELS.length; i++) if (!levelComplete(LEVELS[i])) return i;
@@ -920,13 +920,11 @@
       : "이 급수 복습 (보너스)";
     var eb = $("btn-table-exam");
     if (levelComplete(lvl)) { eb.disabled = true; eb.textContent = lvl.name + " 합격 완료"; }
-    else if (levelFullyGraduated(lvl)) {
+    else {
+      // 결정 #26: 진도와 무관하게 언제든 응시 가능. 재응시만 하루 1회 제한(시험 남발 방지, v2부터 유지).
       var blocked = ls.lastExamAttempt === t;
       eb.disabled = blocked;
       eb.textContent = blocked ? "오늘 응시함 — 내일 다시 도전" : "승급 모의시험 (" + examSessionSize(lvl) + "문제 · " + Math.round(lvl.passRate * 100) + "% 합격)";
-    } else {
-      eb.disabled = true;
-      eb.textContent = "모의시험 — 전원 졸업하면 열려요 (졸업 " + c.grad + "/" + lvl.chars.length + ")";
     }
     $("table-grid").innerHTML = lvl.chars.map(function (c) {
       var rec = ls.p[c.ch], s = !rec ? '<span class="sicon todo mini"></span>' : (rec.g ? '<span class="sicon done mini">合</span>' : '<span class="sicon doing mini">中</span>');
