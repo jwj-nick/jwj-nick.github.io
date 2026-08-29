@@ -75,14 +75,19 @@
     var s=store();
     var links='<div class="sb-brand">중2 수학<small>1·2학기</small></div>'+
       '<a class="sb-link'+(activeId==='home'?' active':'')+'" href="index.html"><span class="sb-no">🏠</span>홈</a>'+
-      '<div class="sb-sep"></div>';
+      '<div class="sb-sep"></div>'+
+      '<a class="sb-link tool" href="print/index.html"><span class="sb-no">🖨️</span>중2 프린트</a>'+
+      '<a class="sb-link tool'+(activeId==='play'?' active':'')+'" href="g1.html"><span class="sb-no">🎨</span>놀이터</a>'+
+      '<a class="sb-link tool'+(activeId==='explore'?' active':'')+'" href="x5.html"><span class="sb-no">🧭</span>탐험</a>'+
+      '<a class="sb-link tool'+(activeId==='drill'?' active':'')+'" href="drill.html"><span class="sb-no">✏️</span>계산 연습</a>'+
+      '<div class="sb-sep"></div>'+
+      '<details class="sb-sem" open><summary class="sb-group">1학기</summary>';
     UNITS.forEach(function(x,i){
-      if(x.sem===2 && (i===0||UNITS[i-1].sem!==2)) links+='<div class="sb-sep"></div><div class="sb-group">2학기</div>';
+      if(x.sem===2 && (i===0||UNITS[i-1].sem!==2)) links+='</details><div class="sb-sep"></div><details class="sb-sem" open><summary class="sb-group">2학기</summary>';
       links+='<a class="sb-link'+(activeId===x.id?' active':'')+(s[x.id]?' done':'')+'" data-id="'+x.id+'" href="'+x.id+'.html">'+
         '<span class="sb-no">'+x.no+'</span>'+x.t+'<span class="sb-chk">✓</span></a>';
     });
-    links+='<div class="sb-sep"></div>'+
-      '<a class="sb-link tool'+(activeId==='drill'?' active':'')+'" href="drill.html"><span class="sb-no">✏️</span>계산 연습</a>';
+    links+='</details>';
     var sb=document.createElement('nav'); sb.className='sidebar'; sb.innerHTML=links;
     var scrim=document.createElement('div'); scrim.className='sb-scrim';
     var hamb=document.createElement('button'); hamb.className='hamb'; hamb.setAttribute('aria-label','메뉴'); hamb.textContent='☰';
