@@ -256,6 +256,44 @@
       el.classList.remove("hidden");
       el.classList.remove("pop"); void (el.offsetWidth); el.classList.add("pop");
     } else el.classList.add("hidden");
+    $("prog-fill").classList.toggle("fire", c >= 5); // 콤보 5+ = 진행바가 불붙는다 (v3.4)
+  }
+  // 테마 시스템 (v3.4) — 기본 2종(다크·청자 라이트) + 도장 개수로 해금: 3개=먹빛 수묵, 6개=금장.
+  // 달/해 버튼이 해금된 테마를 순환한다. 초기 적용(FOUC 방지)은 index.html 헤드 스크립트.
+  var THEME_META = { dark: "#20232B", light: "#E6EEE7", sumuk: "#14161A", gold: "#17140D" };
+  var rootEl = document.documentElement || null;
+  function currentTheme() { return rootEl ? (rootEl.getAttribute("data-theme") || "dark") : "dark"; }
+  function applyTheme(mode, persist) {
+    if (!rootEl) return;
+    rootEl.setAttribute("data-theme", mode);
+    var meta = $("meta-theme-color");
+    if (meta && meta.setAttribute) meta.setAttribute("content", THEME_META[mode] || "#20232B");
+    $("tt-sun").style.display = mode === "light" ? "none" : "";
+    $("tt-moon").style.display = mode === "light" ? "" : "none";
+    if (persist) { try { localStorage.setItem("hanja.theme", mode); } catch (e) {} }
+  }
+  function cycleTheme() {
+    var order = ["dark", "light"];
+    var stamps = LEVELS.filter(levelComplete).length;
+    if (stamps >= 3) order.push("sumuk");
+    if (stamps >= 6) order.push("gold");
+    var i = order.indexOf(currentTheme());
+    applyTheme(order[(i + 1) % order.length], true);
+  }
+  // 카드 3D 틸트 (v3.4) — 터치/포인터 위치를 따라 살짝 기운다. 자이로 권한 불필요.
+  function bindTilt(id) {
+    var el = $(id);
+    function move(x, y) {
+      if (!el.getBoundingClientRect) return;
+      var r = el.getBoundingClientRect();
+      var dx = (x - r.left) / r.width - 0.5, dy = (y - r.top) / r.height - 0.5;
+      el.style.transform = "perspective(700px) rotateX(" + (-dy * 8).toFixed(2) + "deg) rotateY(" + (dx * 8).toFixed(2) + "deg)";
+    }
+    function reset() { el.style.transform = ""; }
+    el.addEventListener("touchmove", function (e) { if (!canFx || reducedMotion()) return; var p = e.touches && e.touches[0]; if (p) move(p.clientX, p.clientY); }, { passive: true });
+    el.addEventListener("touchend", reset);
+    el.addEventListener("mousemove", function (e) { if (!canFx || reducedMotion()) return; move(e.clientX, e.clientY); });
+    el.addEventListener("mouseleave", reset);
   }
   function animateScore(el, ok, total) {
     if (!window.requestAnimationFrame || reducedMotion()) { el.textContent = ok + "/" + total; return; }
@@ -433,20 +471,21 @@
     if (lvl.slug === "8gup") return Math.min(lvl.examQuestions, lvl.chars.length);
     return Math.max(20, Math.round(lvl.examQuestions / 3));
   }
-  function startExam(lvl) {
+  // quick=true → 빠른 스킵 (결정 #27): 10문제 중 9개 이상이면 승급. 재응시 제한(하루 1회)은 정규 시험과 공유.
+  function startExam(lvl, quick) {
     lvl = lvl || LEVELS[curIdx];
     var t = todayStr();
     var ls = levelState(lvl.name);
     if (ls.lastExamAttempt === t && !ls.examPassed) { renderHome(); return; }
-    var n = Math.min(examSessionSize(lvl), lvl.chars.length);
+    var n = quick ? Math.min(10, lvl.chars.length) : Math.min(examSessionSize(lvl), lvl.chars.length);
     var pickChars = shuffle(lvl.chars.map(function (c) { return c.ch; })).slice(0, n);
     var knownSet = {}; lvl.chars.forEach(function (c) { knownSet[c.ch] = true; });
     sess = {
-      mode: "exam", t: t, lvl: lvl,
+      mode: "exam", t: t, lvl: lvl, quick: !!quick,
       introQueue: [], introIdx: 0,
       queue: pickChars.map(function (ch) { return buildQuestion(lvl, ch, false, knownSet); }),
       idx: 0, ok: 0, wrongList: [], gradList: [],
-      passNeed: Math.ceil(n * lvl.passRate)
+      passNeed: quick ? Math.min(9, n) : Math.ceil(n * lvl.passRate)
     };
     pushView("session");
     renderQuestion();
@@ -683,6 +722,15 @@
   var curIdx = -1;
   var tablePrevTarget = null, tableNextTarget = null;
 
+  // 급수별 벨트 컬러 (v3.4 — 태권도 띠처럼 13급수 각각의 시그니처 색, MANIFEST_ALL 순서)
+  var BELT = ["#8E979E", "#C2A032", "#CF7F2E", "#C75E35", "#C04936", "#B84A6B", "#8F56B8", "#6A5BCB", "#4A6FD4", "#3B8FA8", "#3D9E6B", "#8A6F45", "#2A2D33"];
+  var SHEEN = "linear-gradient(160deg, rgba(255,255,255,.25), rgba(0,0,0,0) 70%)"; // 어떤 벨트색 위에도 얹는 범용 광택
+  function beltIdx(slug) {
+    for (var i = 0; i < MANIFEST_ALL.length; i++) if (MANIFEST_ALL[i].slug === slug) return i;
+    return 0;
+  }
+  function beltOf(slug) { return BELT[beltIdx(slug) % BELT.length]; }
+
   // 홈 = 4모듈 동격 대시보드 (결정 #23). 급수 중심 요소(도전 배지·통계·인라인 사다리)는 홈에서 제거 —
   // 급수는 모듈 카드 하나로 내려가고, 학습 진입은 [오늘의 학습](통합 데일리) 하나로 모인다.
   function renderHome() {
@@ -710,17 +758,20 @@
     $("stamp-num").textContent = stamps;
     $("summary-line").textContent = "연속 " + S.streakDays + "일";
     renderBadgeRow(stamps);
+    // 시간대별 히어로 워터마크 (v3.4): 아침 朝 · 낮 習 · 저녁 夕 · 밤 夜
+    var hh = new Date().getHours();
+    $("hero-wm").textContent = hh >= 5 && hh < 11 ? "朝" : hh >= 11 && hh < 18 ? "習" : hh >= 18 && hh < 22 ? "夕" : "夜";
     show("view-home");
   }
   // 도장판 — 13급수를 배지 슬롯으로. 합격 = 인주 도장, 이어서(추천) = 볼트 링, 나머지 = 빈 슬롯.
   function renderBadgeRow(stamps) {
     var html = "";
-    MANIFEST_ALL.forEach(function (m) {
+    MANIFEST_ALL.forEach(function (m, mi) {
       var lvl = LEVELS.filter(function (l) { return l.slug === m.slug; })[0];
-      var cls = "bdg";
-      if (lvl && levelComplete(lvl)) cls += " on";
+      var cls = "bdg", style = "";
+      if (lvl && levelComplete(lvl)) { cls += " on"; style = ' style="background:' + BELT[mi % BELT.length] + ";background-image:" + SHEEN + '"'; }
       else if (lvl && LEVELS.indexOf(lvl) === curIdx) cls += " now";
-      html += '<span class="' + cls + '">' + m.name.replace("급", "") + "</span>";
+      html += '<span class="' + cls + '"' + style + ">" + m.name.replace("급", "") + "</span>";
     });
     $("badge-row").innerHTML = html;
     $("badge-count").textContent = "급수 도장판 · " + stamps + " / " + MANIFEST_ALL.length;
@@ -770,6 +821,7 @@
     else { g.textContent = q.prompt; g.style.fontSize = ""; g.classList.toggle("word", q.type === 2); }
     $("feedback").textContent = "";
     $("btn-next").classList.add("hidden");
+    updateCombo();
     var box = $("opts"); box.innerHTML = "";
     var isInput = !!q.input;
     $("answer-box").classList.toggle("hidden", !isInput);
@@ -834,7 +886,7 @@
   function renderResult() {
     var m = sess.mode;
     if (m === "daily" || m === "all") finishDay(sess.t);
-    $("result-title").textContent = m === "exam" ? sess.lvl.name + " 승급 모의시험 결과" : m === "test" ? "실전 시험 결과" : m === "bonus" ? "보너스 결과" : m === "saved" ? "보관함 복습 결과" : m === "ctx" ? "문맥 한자 결과" : m === "idiom" ? "한자 표현 결과" : "오늘의 학습 결과";
+    $("result-title").textContent = m === "exam" ? sess.lvl.name + (sess.quick ? " 빠른 스킵 결과" : " 승급 모의시험 결과") : m === "test" ? "실전 시험 결과" : m === "bonus" ? "보너스 결과" : m === "saved" ? "보관함 복습 결과" : m === "ctx" ? "문맥 한자 결과" : m === "idiom" ? "한자 표현 결과" : "오늘의 학습 결과";
     animateScore($("score"), sess.ok, sess.queue.length);
     $("wrong-head").textContent = m === "test" ? "틀린 문제 — 정답 확인" : "보관함 — 내일 다시 나와요";
     var pb = $("result-pass");
@@ -848,8 +900,20 @@
       pb.classList.remove("hidden");
       if (pass) {
         ls.examPassed = true;
-        pb.className = "result-block pass-yes";
-        pb.innerHTML = '<span class="stamp">' + sess.lvl.name + ' 합격</span><div style="margin-top:12px;">다음 급수가 열렸어요.</div>';
+        // v3.4: 합격 결과 = 상장(賞狀) 카드 — 캡처해서 자랑하고 싶은 비주얼이 목표
+        pb.className = "result-block cert-wrap";
+        var dd = sess.t.split("-");
+        var stampsNow = LEVELS.filter(levelComplete).length;
+        var unlock = stampsNow === 3 ? "먹빛 수묵" : stampsNow === 6 ? "금장" : null; // 테마 해금 (v3.4)
+        pb.innerHTML =
+          '<div class="cert">' +
+            '<div class="cert-head">合格證</div>' +
+            '<div class="cert-level" style="color:' + beltOf(sess.lvl.slug) + '">' + sess.lvl.name + "</div>" +
+            '<div class="cert-sub">' + (sess.quick ? "빠른 스킵 승급 · " : "승급 모의시험 · ") + sess.ok + "/" + sess.queue.length + "</div>" +
+            '<div class="cert-date">' + dd[0] + "년 " + (+dd[1]) + "월 " + (+dd[2]) + "일 · 한자 나라</div>" +
+            '<span class="cert-stamp">合格</span>' +
+          "</div>" +
+          '<div class="cert-note">다음 급수가 열렸어요.' + (unlock ? ' 새 테마 해금: <b>' + unlock + "</b> — 달 버튼으로 전환!" : "") + "</div>";
         playPassSequence(sess.lvl.name);
       } else {
         ls.lastExamAttempt = sess.t;
@@ -891,7 +955,7 @@
       var c = counts(lvlObj);
       var readyIdx = LEVELS.indexOf(lvlObj);
       var icon, sub;
-      if (levelComplete(lvlObj)) { icon = '<span class="sicon done">合</span>'; sub = lvlObj.chars.length + "자 · 합격 도장!"; }
+      if (levelComplete(lvlObj)) { icon = '<span class="sicon done" style="background:' + beltOf(m.slug) + ';background-image:' + SHEEN + '">合</span>'; sub = lvlObj.chars.length + "자 · 합격 도장!"; }
       else if (readyIdx === curIdx) { icon = '<span class="sicon doing">中</span>'; sub = lvlObj.chars.length + "자 · 이어서 하기 (졸업 " + c.grad + ")"; }
       else if (c.grad + c.learn > 0) { icon = '<span class="sicon doing">中</span>'; sub = lvlObj.chars.length + "자 · 학습 중 (졸업 " + c.grad + ")"; }
       else { icon = '<span class="sicon todo"></span>'; sub = lvlObj.chars.length + "자 · 눌러서 보고 바로 학습 가능"; }
@@ -918,13 +982,18 @@
     sb.textContent = (due + newAvail > 0)
       ? "이 급수 학습 (복습 " + Math.min(due, DAILY_MAX) + " · 새 한자 " + Math.min(NEW_MAX, Math.max(0, DAILY_MAX - Math.min(due, DAILY_MAX)), newAvail) + ")"
       : "이 급수 복습 (보너스)";
-    var eb = $("btn-table-exam");
-    if (levelComplete(lvl)) { eb.disabled = true; eb.textContent = lvl.name + " 합격 완료"; }
-    else {
-      // 결정 #26: 진도와 무관하게 언제든 응시 가능. 재응시만 하루 1회 제한(시험 남발 방지, v2부터 유지).
+    var eb = $("btn-table-exam"), qb = $("btn-table-quick");
+    if (levelComplete(lvl)) {
+      eb.disabled = true; eb.textContent = lvl.name + " 합격 완료";
+      qb.classList.add("hidden");
+    } else {
+      // 결정 #26: 진도와 무관하게 언제든 응시 가능. 재응시만 하루 1회 제한(정규·빠른 스킵 공유).
       var blocked = ls.lastExamAttempt === t;
       eb.disabled = blocked;
       eb.textContent = blocked ? "오늘 응시함 — 내일 다시 도전" : "승급 모의시험 (" + examSessionSize(lvl) + "문제 · " + Math.round(lvl.passRate * 100) + "% 합격)";
+      qb.classList.remove("hidden");
+      qb.disabled = blocked;
+      qb.textContent = blocked ? "빠른 스킵 — 내일 다시" : "빠른 스킵 (10문제 · 9개 이상 합격)"; // 결정 #27
     }
     $("table-grid").innerHTML = lvl.chars.map(function (c) {
       var rec = ls.p[c.ch], s = !rec ? '<span class="sicon todo mini"></span>' : (rec.g ? '<span class="sicon done mini">合</span>' : '<span class="sicon doing mini">中</span>');
@@ -1443,6 +1512,11 @@
     ["intro-writer", "detail-writer"].forEach(function (id) {
       $(id).addEventListener("click", function () { if ($(id)._hw) $(id)._hw.animateCharacter(); });
     });
+    // 테마 순환(해금 반영) + 카드 틸트
+    $("theme-toggle").addEventListener("click", cycleTheme);
+    applyTheme(currentTheme(), false);
+    bindTilt("intro-card");
+    bindTilt("detail-card");
     // 단답형 입력 (실전 시험)
     $("btn-check").addEventListener("click", checkInput);
     $("answer-input").addEventListener("keydown", function (e) {
@@ -1469,6 +1543,7 @@
       else startBonus(tableLvl);
     });
     $("btn-table-exam").addEventListener("click", function () { if (tableLvl) startExam(tableLvl); });
+    $("btn-table-quick").addEventListener("click", function () { if (tableLvl) startExam(tableLvl, true); }); // 결정 #27
     // 목록
     $("btn-list-back").addEventListener("click", function (e) {
       e.preventDefault();

@@ -9,14 +9,16 @@
 (function () {
   var saved = null;
   try { saved = localStorage.getItem("hanja.theme"); } catch (e) {}
-  var light = saved ? saved === "light" : (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches);
-  document.documentElement.setAttribute("data-theme", light ? "light" : "dark");
+  var valid = { dark: 1, light: 1, sumuk: 1, gold: 1 }; // sumuk·gold = 도장 해금 테마 (app.js가 순환 관리)
+  var t = valid[saved] ? saved
+    : (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", t);
 })();
 </script>
 <link rel="manifest" href="site.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon.svg">
-<meta name="theme-color" content="#20232B">
+<meta name="theme-color" content="#20232B" id="meta-theme-color">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;800&family=Noto+Serif+KR:wght@600;900&display=swap">
@@ -57,7 +59,7 @@
       한자 · 훈 · 음 · 단어 검색
     </button>
     <div class="hero">
-      <div class="wm" aria-hidden="true">習</div>
+      <div class="wm" id="hero-wm" aria-hidden="true">習</div>
       <div class="hero-sub" id="today-line"></div>
       <button class="btn primary big" id="btn-start-all"></button>
       <button class="btn ghost" id="btn-test">실전 시험 — 20문제 (급수 · 문맥 · 표현 종합)</button>
@@ -113,7 +115,7 @@
   <!-- 새 한자 소개 -->
   <section id="view-intro" class="view hidden">
     <div class="prog-label" id="intro-label">오늘의 새 한자 1/5</div>
-    <div class="card">
+    <div class="card tilt" id="intro-card">
       <div class="writer-box hidden" id="intro-writer" title="탭하면 획순을 다시 볼 수 있어요"></div>
       <div class="glyph" id="intro-glyph"></div>
       <div class="huneum" id="intro-huneum"></div>
@@ -172,7 +174,7 @@
       <h1 id="detail-title"></h1>
       <p id="detail-sub"></p>
     </header>
-    <div class="card">
+    <div class="card tilt" id="detail-card">
       <div class="writer-box hidden" id="detail-writer" title="탭하면 획순을 다시 볼 수 있어요"></div>
       <div class="glyph" id="detail-glyph"></div>
       <div class="huneum" id="detail-huneum"></div>
@@ -192,6 +194,7 @@
     </header>
     <button class="btn primary" id="btn-table-study">이 급수 학습</button>
     <button class="btn ghost" id="btn-table-exam">승급 모의시험</button>
+    <button class="btn ghost" id="btn-table-quick">빠른 스킵 (10문제 · 9개 이상 합격)</button>
     <div class="table-nav">
       <button class="navbtn" id="btn-table-prev">◀ 이전 급수</button>
       <button class="navbtn" id="btn-table-next">다음 급수 ▶</button>
@@ -200,6 +203,7 @@
   </section>
 
 </div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="ink-bleed"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.6"/></filter></svg>
 <div class="combo hidden" id="combo-badge" aria-hidden="true"></div>
 <div class="pass-overlay hidden" id="pass-overlay" aria-hidden="true"><div class="po-stamp" id="po-stamp">合格</div></div>
 <script src="config.js"></script>
@@ -210,22 +214,7 @@
       navigator.serviceWorker.register("sw.js").catch(function () {});
     });
   }
-  // 테마 토글 — 앱 로직(app.js)과 분리 (헤드리스 스모크는 app.js만 로드한다).
-  (function () {
-    var btn = document.getElementById("theme-toggle");
-    var meta = document.querySelector('meta[name="theme-color"]');
-    function apply(mode, persist) {
-      document.documentElement.setAttribute("data-theme", mode);
-      if (meta) meta.setAttribute("content", mode === "dark" ? "#20232B" : "#E6EEE7");
-      document.getElementById("tt-sun").style.display = mode === "dark" ? "" : "none";
-      document.getElementById("tt-moon").style.display = mode === "dark" ? "none" : "";
-      if (persist) { try { localStorage.setItem("hanja.theme", mode); } catch (e) {} }
-    }
-    apply(document.documentElement.getAttribute("data-theme") || "dark", false);
-    btn.addEventListener("click", function () {
-      apply(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark", true);
-    });
-  })();
+  // 테마 토글·순환은 v3.4부터 app.js가 관리 (도장 해금 테마 포함). 초기 적용은 헤드 스크립트.
 </script>
 </body>
 </html>
