@@ -25,6 +25,9 @@
   // 탐험(PhET) 탭은 math1에 아직 자산 없음 — 전부 미노출
   var EXPLORE_READY={};
   var PLAY_READY={1:1,2:1,3:1,4:1,5:1,6:1,7:1,8:1,9:1,10:1,11:1,12:1,13:1};   // 놀이터(g*.html) 완성된 단원만. 전 단원 완성!
+  // 현재 페이지 상태(initChrome이 채움) — 이어하기(B6)·완주 도장(A1)이 참조
+  var curInfo={kind:'home'}, curUnit=null, restoredN=0;
+  function reducedMotion(){try{return !!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);}catch(e){return false;}}
   // 파일명 → 단원 번호 + 종류 (u=개념 p=연습 d=심화탐구 dNp=심화문제 g=놀이터)
   function pageInfo(){
     var f=(location.pathname.split('/').pop()||'index.html').toLowerCase().replace(/\?.*$/,'').replace(/\.html$/,'');
@@ -57,17 +60,73 @@
   /* ── 진도/보상 ── */
   function store(){var s={};try{s=JSON.parse(localStorage.getItem('m1progress'))||{};}catch(e){}return s;}
   function saveStore(s){try{localStorage.setItem('m1progress',JSON.stringify(s));}catch(e){}}
-  function completeUnit(id){var s=store();s[id]=true;saveStore(s);var n=document.getElementById('done-note');if(n)n.classList.add('show');
-    var l=document.querySelector('.sb-link[data-id="'+id+'"]');if(l)l.classList.add('done');}
   function isDone(id){return !!store()[id];}
+  /* 이어하기(B6): localStorage m1checks = {u6:{c1:{c:1,v:'15'}, showex:{c:1}}}
+   *   c = 그 항목이 진행바에 셈해졌는지(onOk 유무) 1/0 · v = 맞힌 입력값(복원 시 다시 보여 줌). 개념(u) 페이지에서만 기록. */
+  function marks(){var m={};try{m=JSON.parse(localStorage.getItem('m1checks'))||{};}catch(e){}return m;}
+  function saveMarks(m){try{localStorage.setItem('m1checks',JSON.stringify(m));}catch(e){}}
+  function mark(id,counted,val){if(curInfo.kind!=='concept'||!curUnit)return;var m=marks();var u=m[curUnit.id]||(m[curUnit.id]={});
+    if(!u[id]){u[id]={c:counted?1:0};if(val!=null&&String(val)!=='')u[id].v=String(val).slice(0,40);saveMarks(m);}}
+  function markOf(id){if(curInfo.kind!=='concept'||!curUnit)return null;var u=marks()[curUnit.id];return (u&&u[id])||null;}
+
+  /* 완주(A1): 처음 완료될 때만 도장 애니 + 꽃가루. 재방문(이미 완료)은 조용히 도장만. */
+  function completeUnit(id){var s=store(),first=!s[id];s[id]=true;saveStore(s);
+    var l=document.querySelector('.sb-link[data-id="'+id+'"]');if(l)l.classList.add('done');
+    showStamp(id,first);}
+  function showStamp(id,celebrate){var n=document.getElementById('done-note');if(!n)return;
+    var u=UNITS[parseInt(id.slice(1),10)-1];
+    if(u&&!n.classList.contains('stamp')){n.classList.add('stamp');
+      n.innerHTML='<div class="seal">🌸</div><div class="seal-t">단원 '+u.no+' 완주!</div><div class="seal-d">'+u.t+' — 끝까지 해냈어요.</div>';}
+    if(!celebrate&&!n.classList.contains('show'))n.classList.add('still');
+    n.classList.add('show');
+    if(celebrate){confetti();setTimeout(function(){try{n.scrollIntoView({behavior:reducedMotion()?'auto':'smooth',block:'center'});}catch(e){}},200);}}
+  /* 꽃가루 — g*.html 인라인 confetti()를 엔진으로 포팅. host 없으면 body에 만들고 2.4초 뒤 제거. 색 = 단원 시그니처 2색 + 민트 2색. */
+  function confetti(host,colors){if(reducedMotion())return;
+    var own=!host;if(own){host=document.createElement('div');host.className='pg-confetti';document.body.appendChild(host);}
+    host.innerHTML='';
+    colors=colors||[curUnit?curUnit.u:'#4fa892',curUnit?curUnit.u2:'#63c6b1','#4fa892','#63c6b1'];
+    for(var i=0;i<46;i++){var p=document.createElement('i');
+      p.style.left=(Math.random()*100)+'vw';p.style.background=colors[i%colors.length];
+      p.style.animationDelay=(Math.random()*0.4)+'s';p.style.animationDuration=(1.1+Math.random()*0.9)+'s';
+      p.style.transform='rotate('+(Math.random()*360)+'deg)';host.appendChild(p);}
+    host.classList.add('on');
+    setTimeout(function(){host.classList.remove('on');if(own&&host.parentNode)host.parentNode.removeChild(host);},2400);}
+
+  /* 진행바. 개념 페이지면 복원된 칸을 미리 채우고(B6), 완료 단원은 가득 채운 채 도장만 보여 준다. */
   function makeProgress(barId,total){var bar=document.getElementById(barId);if(!bar)return function(){};
     for(var i=0;i<total;i++)bar.appendChild(document.createElement('i'));var done=0;
-    return function(){if(done<total){bar.children[done].classList.add('on');done++;}};}
+    var uid=(curUnit&&curInfo.kind==='concept')?curUnit.id:null;
+    if(uid){
+      var pre=isDone(uid)?total:Math.min(restoredN,total);
+      for(var k=0;k<pre;k++){bar.children[k].classList.add('on');bar.children[k].classList.add('pre');}
+      done=pre;
+      if(isDone(uid))showStamp(uid,false);
+      else if(restoredN>0){
+        setTimeout(function(){resumeBanner(bar,total);},0);   // 페이지 스크립트가 끝난 뒤 실제 칸 수로 배너 문구
+        if(done>=total)setTimeout(function(){completeUnit(uid);},400);
+      }
+    }
+    return function(){if(done<total){var c=bar.children[done];c.classList.add('on');c.classList.remove('pre');
+      c.classList.remove('bump');void c.offsetWidth;c.classList.add('bump');done++;
+      if(uid&&done>=total&&!isDone(uid))completeUnit(uid);}};}
+  /* 이어하기 배너: 진행바 바로 위. 클릭하면 아직 안 푼 첫 확인 문제로 부드럽게 스크롤. */
+  function resumeBanner(bar,total){var n=bar.querySelectorAll('i.on').length;if(!n||document.querySelector('.resume'))return;
+    var b=document.createElement('div');b.className='resume';
+    b.innerHTML='<span class="rs-i">🔖</span><span>지난번에 <b>'+Math.min(n,total)+'/'+total+'</b>까지 했어요.</span><a href="#" class="rs-go">이어서 볼까요? →</a>';
+    bar.parentNode.insertBefore(b,bar);
+    b.querySelector('.rs-go').onclick=function(e){e.preventDefault();
+      var target=null,cs=document.querySelectorAll('.check');
+      for(var i=0;i<cs.length;i++){var inp=cs[i].querySelector('input,textarea');if(inp&&!inp.disabled){target=cs[i];break;}}
+      if(!target)target=cs[cs.length-1]||bar;
+      try{target.scrollIntoView({behavior:reducedMotion()?'auto':'smooth',block:'center'});}catch(e2){}
+      var f=target.querySelector('input:not([disabled]),textarea:not([disabled])');
+      if(f)setTimeout(function(){try{f.focus({preventScroll:true});}catch(e3){}},650);};}
 
   /* ── 사이드바 + 히어로 + 탭바 + 색 ── */
   function initChrome(){
     var info=pageInfo();
     var unit=info.no?UNITS[info.no-1]:null;
+    curInfo=info; curUnit=unit;
     var activeId=unit?unit.id:info.kind;
     var root=document.documentElement.style;
     var uc=unit?unit.u:'#d68a4a', uc2=unit?unit.u2:'#eaad70';
@@ -122,6 +181,21 @@
         }).join('');
         hero.parentNode.insertBefore(nav,hero.nextSibling);
       }
+    }
+
+    // 이어하기(B6): 미완료 개념 페이지면 지난번에 맞힌 문항을 복원(입력·버튼 잠금 + ✓ 표시). 완료 단원은 복원 없이 자유롭게 다시 풀 수 있게 둔다.
+    restoredN=0;
+    if(unit&&info.kind==='concept'&&!s[unit.id]){
+      var m=marks()[unit.id]||{};
+      Object.keys(m).forEach(function(k){var el=document.getElementById(k),rec=m[k]||{};
+        if(!el)return;
+        if(el.tagName==='INPUT'||el.tagName==='TEXTAREA'){
+          el.disabled=true;el.classList.add('ok');el.classList.add('pre');if(rec.v!=null)el.value=rec.v;
+          var b=document.getElementById(k+'b');if(b)b.disabled=true;
+          var o=document.getElementById(k+'o');if(o)o.innerHTML='<span class="good"><i class="tick pre">✓</i>지난번에 맞혔어요</span>';
+          if(rec.c)restoredN++;
+        } else if(el.tagName==='BUTTON'){ if(rec.c)restoredN++; }   // reveal 버튼 — 화면 복원은 reveal() 호출 때
+      });
     }
   }
 
@@ -230,26 +304,43 @@
     return {finite:rs===-1,intPart:i,digits:digits,repeatStart:rs};}
   function factorNote(d){var t=d;while(t%2===0)t/=2;while(t%5===0)t/=5;return {finite:t===1,left:t};}
 
-  /* ── 확인 ── */
-  function checkNum(inputId,correct,outId,onOk){var el=document.getElementById(inputId),out=document.getElementById(outId);
+  /* ── 확인 피드백 (B1 정답 마이크로 애니 · B2 오답 1회째는 힌트만) ──
+   * 정답: 입력 테두리가 민트로 한 번 부드럽게 빛나고(okpulse) ✓가 톡 떠오른다. 오답: 흔들림·빨강 없이 연노랑 테두리로 "아직이에요".
+   * 같은 입력에서 오답 1회째는 정답을 숨기고 한 번 더 생각하게, 2회째부터 정답 공개. 정답 맞히면 시도 횟수 초기화. */
+  var tries={};
+  function bindClear(el){if(el.getAttribute('data-mj'))return;el.setAttribute('data-mj','1');
+    el.addEventListener('input',function(){el.classList.remove('ok');el.classList.remove('retry');});}
+  function feedbackOk(el,out,msg,more){el.classList.remove('retry');el.classList.remove('ok');void el.offsetWidth;el.classList.add('ok');
+    out.innerHTML='<span class="good"><i class="tick">✓</i>'+msg+'</span>'+(more?(' '+more):'');}
+  function feedbackNo(el,out,id,answerHtml,retryMsg,hint){var t=tries[id]=(tries[id]||0)+1;
+    el.classList.remove('ok');el.classList.remove('retry');void el.offsetWidth;el.classList.add('retry');
+    if(t===1)out.innerHTML='<span class="soft">아직이에요 — 한 번 더 생각해 봐요 🙂</span>'+(hint?('<span class="hintline">💡 '+hint+'</span>'):'');
+    else out.innerHTML=(retryMsg||'아니에요')+(answerHtml!=null?('. 답은 <b class="gold">'+answerHtml+'</b>이에요'):'');}
+
+  function checkNum(inputId,correct,outId,onOk){var el=document.getElementById(inputId),out=document.getElementById(outId);if(!el||!out)return;
+    bindClear(el);
     var v=parseInt(el.value,10);
     if(isNaN(v)){out.innerHTML='숫자를 넣어 주세요.';return;}
-    if(v===correct){out.innerHTML='<span class="good">정답이에요</span>';if(onOk)onOk();}
-    else out.innerHTML='아니에요. 답은 <b class="gold">'+correct+'</b>이에요';}
+    if(v===correct){tries[inputId]=0;feedbackOk(el,out,'정답이에요');mark(inputId,!!onOk,el.value);if(onOk)onOk();}
+    else feedbackNo(el,out,inputId,correct);}
+  /* 다른 설명 보기: 개념 페이지에서 지난번에 열었으면(B6) 열린 채로 복원 */
   function reveal(btnId,boxId,onShow){var b=document.getElementById(btnId);if(!b)return;
-    b.onclick=function(){document.getElementById(boxId).classList.add('show');b.style.display='none';if(onShow)onShow();};}
+    var box=document.getElementById(boxId);
+    if(box&&markOf(btnId)&&!isDone(curUnit.id)){box.classList.add('show');box.classList.add('pre');b.style.display='none';return;}
+    b.onclick=function(){if(box)box.classList.add('show');b.style.display='none';mark(btnId,!!onShow);if(onShow)onShow();};}
 
-  /* ── 유연한 정답 확인: correct=숫자(허용오차) 또는 함수(값→bool) ── */
+  /* ── 유연한 정답 확인: correct=숫자(허용오차) 또는 함수(값→bool). opt: correct·okMsg·okMore·retry·hint·onOk ── */
   function check(id,test,outId,opt){opt=opt||{};
     var el=document.getElementById(id),out=document.getElementById(outId);if(!el||!out)return;
+    bindClear(el);
     var raw=(el.value||'').trim().replace(/[−–—]/g,'-').replace(/\s+/g,'');
     if(raw===''){out.innerHTML='답을 넣어 주세요 🙂';return false;}
     var v=parseFloat(raw), ok;
     if(typeof test==='function') ok=!!test(isNaN(v)?raw:v, raw);
     else ok=(!isNaN(v)&&Math.abs(v-test)<1e-9);
-    if(ok){out.innerHTML='<span class="good">'+(opt.okMsg||'정답이에요')+'</span>'+(opt.okMore?(' '+opt.okMore):'');
+    if(ok){tries[id]=0;feedbackOk(el,out,opt.okMsg||'정답이에요',opt.okMore);mark(id,!!opt.onOk,el.value);
       if(opt.onOk)opt.onOk();return true;}
-    out.innerHTML=(opt.retry||'아니에요')+(opt.correct!=null?('. 답은 <b class="gold">'+opt.correct+'</b>이에요'):'');
+    feedbackNo(el,out,id,opt.correct!=null?opt.correct:null,opt.retry,opt.hint);
     return false;}
 
   /* ── 단계별 힌트: 버튼 누를 때마다 다음 힌트 박스 공개 ── */
@@ -269,6 +360,6 @@
     completeUnit:completeUnit,isDone:isDone,makeProgress:makeProgress,fmtEq:fmtEq,sgn:sgn,
     makePlane:makePlane,makeNumberLine:makeNumberLine,makeGeo:makeGeo,renderBlocks:renderBlocks,
     decimalOf:decimalOf,factorNote:factorNote,gcd:gcd,checkNum:checkNum,check:check,
-    reveal:reveal,hintSteps:hintSteps,animateCount:animateCount,
+    reveal:reveal,hintSteps:hintSteps,animateCount:animateCount,confetti:confetti,
     boot:function(){initTheme();initChrome();initReveal();}};
 })();
