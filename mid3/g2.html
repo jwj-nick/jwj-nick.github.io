@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>놀이터 · 근호를 포함한 식의 계산 · 중3-1</title>
+<link rel="stylesheet" href="concept.css?v=20260830c">
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중3</a><span class="dot"></span><a href="u2.html">단원 2</a><span class="dot"></span><span>놀이터</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+  <div class="pg-badge"><span class="i">🎨</span>놀이터 — 점수는 안 매겨요, 그냥 놀아 봐요</div>
+  <h1>근호 계산 놀이터</h1>
+  <p class="lede">√n을 빠르게 정리하고, 진짜와 가짜 등식을 가려내고, 표 없이 근삿값을 만들어 봐요.</p>
+
+  <div class="pg-score" id="score"><span class="dot">🏅</span>해결한 사건 <b id="scoreN">0</b> / <span id="scoreT">4</span></div>
+
+  <!-- 게임 1 · 근호 정리 스피드 -->
+  <div class="pg-game reveal" id="g-simp">
+    <div class="pg-title"><span class="pg-emoji">⚡</span>근호 정리 스피드</div>
+    <div class="pg-desc">√n을 가장 간단한 꼴 a√b로 정리한 것을 골라요. 제곱수를 찾는 게 열쇠예요.</div>
+    <div class="pg-case">
+      <div class="case-no" id="sp-no">문제 1 / 6</div>
+      <div class="case-stmt" id="sp-stmt" style="font-size:22px;font-weight:800;text-align:center"></div>
+    </div>
+    <div class="pg-predict" style="grid-template-columns:repeat(3,1fr)">
+      <button class="pg-pbtn" id="sp-a"></button>
+      <button class="pg-pbtn" id="sp-b"></button>
+      <button class="pg-pbtn" id="sp-c"></button>
+    </div>
+    <div class="out" id="sp-out"></div>
+    <div class="sim-read muted" style="font-size:13px;margin-top:4px"><b id="sp-done" style="color:var(--u)">0</b> / <span id="sp-total">6</span></div>
+  </div>
+
+  <!-- 게임 2 · 참·거짓 감별사 -->
+  <div class="pg-game reveal" id="g-tf">
+    <div class="pg-title"><span class="pg-emoji">⚖️</span>참·거짓 감별사</div>
+    <div class="pg-desc">그럴듯해 보이는 등식이에요. 맞는지 틀린지 판정해요. 헷갈리면 근삿값을 넣어 봐요.</div>
+    <div class="pg-case">
+      <div class="case-no" id="tf-no">문제 1 / 7</div>
+      <div class="case-stmt" id="tf-stmt" style="font-size:20px;font-weight:800;text-align:center"></div>
+    </div>
+    <div class="pg-predict">
+      <button class="pg-pbtn" id="tf-yes">맞아요</button>
+      <button class="pg-pbtn" id="tf-no2">틀려요</button>
+    </div>
+    <div class="out" id="tf-out"></div>
+    <div class="sim-read muted" style="font-size:13px;margin-top:4px"><b id="tf-done" style="color:var(--u)">0</b> / <span id="tf-total">7</span></div>
+  </div>
+
+  <!-- 게임 3 · 근삿값 공장 -->
+  <div class="pg-game reveal" id="g-approx">
+    <div class="pg-title"><span class="pg-emoji">🏭</span>근삿값 공장</div>
+    <div class="pg-desc">√2 ≈ 1.414, √3 ≈ 1.732, √5 ≈ 2.236 만 알면 돼요. √n을 a√b로 정리한 뒤 곱해요. (소수 둘째 자리까지)</div>
+    <p class="reading" id="ap-q" style="font-size:17px;font-weight:700"></p>
+    <div class="row" style="justify-content:center"><span>≈</span><input class="num" id="ap-in" inputmode="decimal" placeholder="?" style="width:100px"><button id="ap-check">확인</button></div>
+    <div class="out" id="ap-out"></div>
+    <div class="sim-read muted" style="font-size:13px;margin-top:4px"><b id="ap-done" style="color:var(--u)">0</b> / <span id="ap-total">4</span></div>
+  </div>
+
+  <!-- 게임 4 · 오류 탐정 -->
+  <div class="pg-game reveal" id="g-detective">
+    <div class="pg-title"><span class="pg-emoji">🔍</span>오류 탐정</div>
+    <div class="pg-desc">누군가 이렇게 풀었어요. 어디가 이상한지 찾아볼까요? (정답은 안 알려줘요 — 스스로 짚어 봐요)</div>
+    <div class="pg-case">
+      <div class="case-no" id="det-no">사건 1 / 6</div>
+      <div class="case-stmt" id="det-stmt"></div>
+    </div>
+    <div style="text-align:center"><button id="det-think">다르게 생각해 볼까요?</button></div>
+    <div class="hint" id="det-counter" style="display:none;margin-top:10px"></div>
+    <div class="ask" id="det-ask" style="display:none;margin-top:10px"></div>
+    <div class="pg-case" id="det-checkbox" style="display:none;margin-top:14px">
+      <div class="case-stmt" id="det-checkq"></div>
+      <div class="row" style="margin-top:10px"><input class="blank" id="det-in" placeholder="답"><button id="det-check">확인</button></div>
+      <div class="out" id="det-out"></div>
+    </div>
+    <div style="text-align:center;margin-top:12px"><button class="ghost" id="det-next" style="display:none">다음 사건 -></button></div>
+  </div>
+
+  <div class="stamp" id="stamp">
+    <div class="seal">🎉</div>
+    <div class="seal-t">놀이터 클리어!</div>
+    <div class="seal-d">근호 정리부터 근삿값까지, √가 손에 익었어요.</div>
+  </div>
+  <div class="bridge" style="margin-top:18px"><a class="golink" href="p2.html">연습 문제로 -></a></div>
+
+  <div class="foot">중3 수학 · 놀이터 · 단원 2</div>
+</div>
+
+<div class="pg-confetti" id="confetti"></div>
+
+<script src="concept.js?v=20260830c"></script>
+<script>
+MJ3.boot();
+(function(){
+  var solved=0, TOTAL=4;
+  function bump(){
+    var el=document.getElementById('scoreN'); solved++; el.textContent=solved;
+    var badge=document.getElementById('score'); badge.classList.remove('bump'); void badge.offsetWidth; badge.classList.add('bump');
+    if(solved>=TOTAL){ MJ3.confetti(document.getElementById('confetti')); document.getElementById('stamp').classList.add('show'); }
+  }
+  /* 3지선다 공용 */
+  function triGame(ids, ROUNDS, noId, stmtId, outId, doneId, totalId, wrongMsg){
+    var pos=0, done=0, bumped=false, B=ids.map(function(i){return document.getElementById(i);});
+    document.getElementById(totalId).textContent=ROUNDS.length;
+    function render(){
+      var r=ROUNDS[pos];
+      document.getElementById(noId).textContent='문제 '+(pos+1)+' / '+ROUNDS.length;
+      document.getElementById(stmtId).innerHTML=r.stmt;
+      B.forEach(function(b,i){ b.textContent=r.opts[i]; b.className='pg-pbtn'; });
+      document.getElementById(outId).innerHTML='';
+    }
+    B.forEach(function(b,i){ b.onclick=function(){
+      var r=ROUNDS[pos], ok=(i===r.ans);
+      b.classList.add(ok?'right':'wrong');
+      document.getElementById(outId).innerHTML=ok?('<span class="good">맞았어요!</span> '+r.note):wrongMsg;
+      if(ok){ done++; document.getElementById(doneId).textContent=done;
+        if(done>=ROUNDS.length){ if(!bumped){bumped=true;bump();} } else { pos++; setTimeout(render,1500); } }
+    }; });
+    render();
+  }
+
+  /* 게임 1: 근호 정리 스피드 */
+  triGame(['sp-a','sp-b','sp-c'],[
+    {stmt:'√12', opts:['2√3','3√2','4√3'], ans:0, note:'12 = 4 × 3 → 2√3'},
+    {stmt:'√50', opts:['5√10','5√2','2√5'], ans:1, note:'50 = 25 × 2 → 5√2'},
+    {stmt:'√27', opts:['9√3','3√3','3√9'], ans:1, note:'27 = 9 × 3 → 3√3'},
+    {stmt:'√32', opts:['4√2','2√8','16√2'], ans:0, note:'32 = 16 × 2 → 4√2 (2√8은 아직 덜 정리된 꼴이에요)'},
+    {stmt:'√75', opts:['25√3','3√5','5√3'], ans:2, note:'75 = 25 × 3 → 5√3'},
+    {stmt:'√48', opts:['4√3','2√12','6√2'], ans:0, note:'48 = 16 × 3 → 4√3'}
+  ],'sp-no','sp-stmt','sp-out','sp-done','sp-total','근호 안에서 가장 큰 제곱수를 찾아요. 밖으로 나오는 건 그 제곱수의 제곱근이에요.');
+
+  /* 게임 2: 참·거짓 */
+  (function(){
+    var ROUNDS=[
+      {stmt:'√2 × √3 = √6', ans:true, note:'곱셈은 근호 안에서 해요.'},
+      {stmt:'√2 + √3 = √5', ans:false, note:'1.41 + 1.73 ≈ 3.14 인데 √5 ≈ 2.24 예요. 덧셈은 근호 안에서 못 해요.'},
+      {stmt:'√9 + √16 = √25', ans:false, note:'3 + 4 = 7 이지만 √25 = 5 예요.'},
+      {stmt:'2√3 = √12', ans:true, note:'2 = √4 이니 √4 × √3 = √12.'},
+      {stmt:'√8 = 2√2', ans:true, note:'8 = 4 × 2 → 2√2.'},
+      {stmt:'1/√2 = √2/2', ans:true, note:'분모·분자에 √2를 곱했어요. 값은 그대로 ≈ 0.707.'},
+      {stmt:'(2√3)² = 6', ans:false, note:'(2√3)² = 2² × (√3)² = 4 × 3 = 12 예요.'}
+    ];
+    var pos=0, done=0, bumped=false, Y=document.getElementById('tf-yes'), N=document.getElementById('tf-no2');
+    document.getElementById('tf-total').textContent=ROUNDS.length;
+    function render(){ var r=ROUNDS[pos];
+      document.getElementById('tf-no').textContent='문제 '+(pos+1)+' / '+ROUNDS.length;
+      document.getElementById('tf-stmt').textContent=r.stmt; Y.className='pg-pbtn'; N.className='pg-pbtn';
+      document.getElementById('tf-out').innerHTML=''; }
+    function pick(v,btn){ var r=ROUNDS[pos], ok=(v===r.ans); btn.classList.add(ok?'right':'wrong');
+      document.getElementById('tf-out').innerHTML=(ok?'<span class="good">맞았어요!</span> ':'다시 봐요 — 근삿값을 넣어 보세요. ')+r.note;
+      if(ok){ done++; document.getElementById('tf-done').textContent=done;
+        if(done>=ROUNDS.length){ if(!bumped){bumped=true;bump();} } else { pos++; setTimeout(render,1600); } } }
+    Y.onclick=function(){pick(true,this);}; N.onclick=function(){pick(false,this);};
+    render();
+  })();
+
+  /* 게임 3: 근삿값 공장 */
+  (function(){
+    var ROUNDS=[
+      {n:8, a:2, b:2, v:2.83, how:'√8 = 2√2 ≈ 2 × 1.414'},
+      {n:12, a:2, b:3, v:3.46, how:'√12 = 2√3 ≈ 2 × 1.732'},
+      {n:20, a:2, b:5, v:4.47, how:'√20 = 2√5 ≈ 2 × 2.236'},
+      {n:50, a:5, b:2, v:7.07, how:'√50 = 5√2 ≈ 5 × 1.414'}
+    ];
+    var pos=0, done=0, bumped=false;
+    document.getElementById('ap-total').textContent=ROUNDS.length;
+    function render(){ var r=ROUNDS[pos];
+      document.getElementById('ap-q').innerHTML='√'+r.n+' 은 얼마쯤일까요?';
+      document.getElementById('ap-in').value=''; document.getElementById('ap-out').innerHTML=''; }
+    document.getElementById('ap-check').onclick=function(){
+      var r=ROUNDS[pos], v=parseFloat(document.getElementById('ap-in').value);
+      if(!isNaN(v)&&Math.abs(v-r.v)<0.016){
+        document.getElementById('ap-out').innerHTML='<span class="good">정답! '+r.how+' ≈ '+r.v+'</span>';
+        done++; document.getElementById('ap-done').textContent=done;
+        if(done>=ROUNDS.length){ if(!bumped){bumped=true;bump();} } else { pos++; setTimeout(render,1800); }
+      } else {
+        document.getElementById('ap-out').innerHTML='먼저 √'+r.n+' 을 a√b 꼴로 정리해요. '+r.n+' 안에 숨은 제곱수는 무엇인가요?';
+      }
+    };
+    render();
+  })();
+
+  /* 게임 4: 오류 탐정 (misconceptions/math3_u02.json 기반, 6개 큐레이션) */
+  (function(){
+    var CASES=[
+      {stmt:'√2 + √3 을 <b>√5</b> 라고 했어요.',
+       counter:'√2 ≈ 1.41, √3 ≈ 1.73 이니 더하면 3.1쯤이에요. 그런데 √5 는 2.24쯤이에요. 같은가요?',
+       ask:'근호 안의 수끼리 계산해도 되는 건 곱셈일 때인가요, 덧셈일 때인가요?',
+       q:'√3 + √3 을 간단히 하면?', a:'2√3'},
+      {stmt:'2√3 을 근호 안으로 넣으면서 <b>√6</b> 이라고 했어요.',
+       counter:'2 = √4 예요. 그러니 2√3 = √4 × √3 = √12 예요.',
+       ask:'계수를 근호 안으로 넣을 때 그대로 넣나요, 제곱해서 넣나요?',
+       q:'3√2 를 √n 꼴로 나타내면?', a:'√18'},
+      {stmt:'√50 을 <b>5√10</b> 이라고 정리했어요.',
+       counter:'5√10 을 다시 근호 안에 넣으면 √250 이에요. 50이 아니죠. 50 = 25 × 2 예요.',
+       ask:'근호 밖으로 나오는 수는 제곱 인수의 제곱근이어야 해요. 25의 제곱근은 무엇인가요?',
+       q:'√72 를 a√b 꼴로 나타내면?', a:'6√2'},
+      {stmt:'1/√2 을 유리화하면서 <b>1/2</b> 이라고 했어요.',
+       counter:'1/√2 ≈ 1 ÷ 1.414 ≈ 0.707 인데 1/2 = 0.5 예요. 값이 달라졌어요. 분모에 √2를 곱했으면 분자에도 곱해야 해요.',
+       ask:'분모에만 곱하면 원래 수와 같은 수인가요?',
+       q:'1/√5 를 유리화하면?', a:'√5/5'},
+      {stmt:'3√2 − √2 를 <b>3</b> 이라고 했어요.',
+       counter:'3√2 − √2 는 √2 가 3개에서 1개를 뺀 거예요. 2개 남죠. 3x − x = 3 이 아닌 것과 같아요.',
+       ask:'√2 를 문자 x 처럼 보면 계산이 어떻게 되나요?',
+       q:'5√3 − 2√3 을 간단히 하면?', a:'3√3'},
+      {stmt:'√2(√3 + 1) 을 <b>√6 + 1</b> 이라고 했어요.',
+       counter:'분배법칙은 괄호 안 모든 항에 곱해요. √2 × 1 = √2 이지 1이 아니에요.',
+       ask:'괄호 안의 1에도 √2를 곱했나요?',
+       q:'√3(√3 + 1) 을 간단히 하면?', a:'3 + √3'}
+    ];
+    var order=[0,1,2,3,4,5].sort(function(){return Math.random()-0.5;});
+    var pos=0, bumped=false;
+    function render(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-no').textContent='사건 '+(pos+1)+' / '+order.length;
+      document.getElementById('det-stmt').innerHTML=c.stmt;
+      document.getElementById('det-counter').style.display='none';
+      document.getElementById('det-ask').style.display='none';
+      document.getElementById('det-checkbox').style.display='none';
+      document.getElementById('det-in').value='';
+      document.getElementById('det-out').innerHTML='';
+      document.getElementById('det-think').style.display='inline-block';
+      document.getElementById('det-next').style.display='none';
+    }
+    document.getElementById('det-think').onclick=function(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-counter').innerHTML='<b>다르게 볼까요?</b> '+c.counter;
+      document.getElementById('det-counter').style.display='block';
+      document.getElementById('det-ask').innerHTML='생각해보기: '+c.ask;
+      document.getElementById('det-ask').style.display='block';
+      document.getElementById('det-checkq').innerHTML=c.q;
+      document.getElementById('det-checkbox').style.display='block';
+      document.getElementById('det-think').style.display='none';
+    };
+    document.getElementById('det-check').onclick=function(){
+      var c=CASES[order[pos]];
+      var v=(document.getElementById('det-in').value||'');
+      var norm=function(s){return s.replace(/[−–]/g,'-').replace(/[^0-9a-zA-Z가-힣<>()/.\-+√]/g,'').toLowerCase();};
+      var ok=v.length>0 && norm(c.a).indexOf(norm(v))>=0;
+      document.getElementById('det-out').innerHTML=ok
+        ? '<span class="good">정답이에요 - '+c.a+'</span>'
+        : '정답: <b>'+c.a+'</b> (직접 써보면서 확인해봐요)';
+      document.getElementById('det-next').style.display='inline-block';
+      if(!bumped){ bumped=true; bump(); }
+    };
+    document.getElementById('det-next').onclick=function(){
+      pos++; if(pos>=order.length) pos=0; render();
+    };
+    render();
+  })();
+})();
+</script>
+</body>
+</html>
