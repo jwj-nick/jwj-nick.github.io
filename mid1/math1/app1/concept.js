@@ -316,12 +316,14 @@
     el.classList.remove('ok');el.classList.remove('retry');void el.offsetWidth;el.classList.add('retry');
     if(t===1)out.innerHTML='<span class="soft">아직이에요 — 한 번 더 생각해 봐요 🙂</span>'+(hint?('<span class="hintline">💡 '+hint+'</span>'):'');
     else out.innerHTML=(retryMsg||'아니에요')+(answerHtml!=null?('. 답은 <b class="gold">'+answerHtml+'</b>이에요'):'');}
+  /* 이어하기 기록은 표준 규약(입력 id + 'b' 버튼)을 따르는 확인 문제만 — 동적 문제(math2 u2 pans2/psolve 같은 것)는 값이 매번 달라 복원하지 않는다 */
+  function markInput(id,counted,val){if(document.getElementById(id+'b'))mark(id,counted,val);}
 
   function checkNum(inputId,correct,outId,onOk){var el=document.getElementById(inputId),out=document.getElementById(outId);if(!el||!out)return;
     bindClear(el);
     var v=parseInt(el.value,10);
     if(isNaN(v)){out.innerHTML='숫자를 넣어 주세요.';return;}
-    if(v===correct){tries[inputId]=0;feedbackOk(el,out,'정답이에요');mark(inputId,!!onOk,el.value);if(onOk)onOk();}
+    if(v===correct){tries[inputId]=0;feedbackOk(el,out,'정답이에요');markInput(inputId,!!onOk,el.value);if(onOk)onOk();}
     else feedbackNo(el,out,inputId,correct);}
   /* 다른 설명 보기: 개념 페이지에서 지난번에 열었으면(B6) 열린 채로 복원 */
   function reveal(btnId,boxId,onShow){var b=document.getElementById(btnId);if(!b)return;
@@ -338,7 +340,7 @@
     var v=parseFloat(raw), ok;
     if(typeof test==='function') ok=!!test(isNaN(v)?raw:v, raw);
     else ok=(!isNaN(v)&&Math.abs(v-test)<1e-9);
-    if(ok){tries[id]=0;feedbackOk(el,out,opt.okMsg||'정답이에요',opt.okMore);mark(id,!!opt.onOk,el.value);
+    if(ok){tries[id]=0;feedbackOk(el,out,opt.okMsg||'정답이에요',opt.okMore);markInput(id,!!opt.onOk,el.value);
       if(opt.onOk)opt.onOk();return true;}
     feedbackNo(el,out,id,opt.correct!=null?opt.correct:null,opt.retry,opt.hint);
     return false;}
