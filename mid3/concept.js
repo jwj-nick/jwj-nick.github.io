@@ -23,8 +23,8 @@
     {id:'u12',no:12,t:'상자 그림과 산점도',u:'#b06ad0',u2:'#c98fe0',sem:2}
   ];
   // 준비된 단원만 링크/탭 노출 → 미완성 단원에서 404 방지. 단원 1개 완성마다 아래 세 곳에 번호 추가(README: UNITS.md).
-  var UNIT_READY={};      // u/p/d 페이지가 있는 단원 → 사이드바 링크
-  var PLAY_READY={};      // 놀이터(g*.html) 완성 단원 → 놀이터 탭
+  var UNIT_READY={1:1};      // u/p/d 페이지가 있는 단원 → 사이드바 링크
+  var PLAY_READY={1:1};      // 놀이터(g*.html) 완성 단원 → 놀이터 탭
   var EXPLORE_READY={};   // 탐험(x*.html, PhET 한국어 sim 있는 단원만) → 탐험 탭
   // 현재 페이지 상태(initChrome이 채움) — 이어하기(B6)·완주 도장(A1)이 참조
   var curInfo={kind:'home'}, curUnit=null, restoredN=0;
@@ -335,13 +335,15 @@
     if(box&&markOf(btnId)&&!isDone(curUnit.id)){box.classList.add('show');box.classList.add('pre');b.style.display='none';return;}
     b.onclick=function(){if(box)box.classList.add('show');b.style.display='none';mark(btnId,!!onShow);if(onShow)onShow();};}
 
+  /* 중3용: "2/5"·"-3/4" 같은 분수 입력도 수로 읽는다(UNITS.md §4 답 형식 규약). 분수가 아니면 parseFloat. */
+  function num(raw){var m=/^(-?\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/.exec(raw);if(m&&+m[2]!==0)return +m[1]/+m[2];return parseFloat(raw);}
   /* ── 유연한 정답 확인: correct=숫자(허용오차) 또는 함수(값→bool). opt: correct·okMsg·okMore·retry·hint·onOk ── */
   function check(id,test,outId,opt){opt=opt||{};
     var el=document.getElementById(id),out=document.getElementById(outId);if(!el||!out)return;
     bindClear(el);
     var raw=(el.value||'').trim().replace(/[−–—]/g,'-').replace(/\s+/g,'');
     if(raw===''){out.innerHTML='답을 넣어 주세요 🙂';return false;}
-    var v=parseFloat(raw), ok;
+    var v=num(raw), ok;
     if(typeof test==='function') ok=!!test(isNaN(v)?raw:v, raw);
     else ok=(!isNaN(v)&&Math.abs(v-test)<1e-9);
     if(ok){tries[id]=0;feedbackOk(el,out,opt.okMsg||'정답이에요',opt.okMore);markInput(id,!!opt.onOk,el.value);
@@ -365,7 +367,7 @@
   window.MJ3={UNITS:UNITS,UNIT_READY:UNIT_READY,PLAY_READY:PLAY_READY,initTheme:initTheme,initReveal:initReveal,initChrome:initChrome,
     completeUnit:completeUnit,isDone:isDone,makeProgress:makeProgress,fmtEq:fmtEq,sgn:sgn,
     makePlane:makePlane,makeNumberLine:makeNumberLine,makeGeo:makeGeo,renderBlocks:renderBlocks,
-    decimalOf:decimalOf,factorNote:factorNote,gcd:gcd,checkNum:checkNum,check:check,
+    decimalOf:decimalOf,factorNote:factorNote,gcd:gcd,checkNum:checkNum,check:check,num:num,
     reveal:reveal,hintSteps:hintSteps,animateCount:animateCount,confetti:confetti,
     boot:function(){initTheme();initChrome();initReveal();}};
 })();
