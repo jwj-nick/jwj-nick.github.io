@@ -23,8 +23,8 @@
     {id:'u12',no:12,t:'상자 그림과 산점도',u:'#b06ad0',u2:'#c98fe0',sem:2}
   ];
   // 준비된 단원만 링크/탭 노출 → 미완성 단원에서 404 방지. 단원 1개 완성마다 아래 세 곳에 번호 추가(README: UNITS.md).
-  var UNIT_READY={1:1,2:1,3:1,4:1};      // u/p/d 페이지가 있는 단원 → 사이드바 링크
-  var PLAY_READY={1:1,2:1,3:1,4:1};      // 놀이터(g*.html) 완성 단원 → 놀이터 탭
+  var UNIT_READY={1:1,2:1,3:1,4:1,5:1};      // u/p/d 페이지가 있는 단원 → 사이드바 링크
+  var PLAY_READY={1:1,2:1,3:1,4:1,5:1};      // 놀이터(g*.html) 완성 단원 → 놀이터 탭
   var EXPLORE_READY={};   // 탐험(x*.html, PhET 한국어 sim 있는 단원만) → 탐험 탭
   // 현재 페이지 상태(initChrome이 채움) — 이어하기(B6)·완주 도장(A1)이 참조
   var curInfo={kind:'home'}, curUnit=null, restoredN=0;
@@ -235,6 +235,16 @@
     return {line:line,dot:dot,X:X,Y:Y};
   }
 
+  /* ── 곡선(이차함수 등): makePlane 의 P 위에 y=fn(x) 그래프. set(fn,color) 로 갱신. (중3 단원 5·6) ── */
+  function makeCurve(svg,P,color){var ns='http://www.w3.org/2000/svg';color=color||'var(--u)';
+    function mk(w,op){var e=document.createElementNS(ns,'path');e.setAttribute('fill','none');e.setAttribute('stroke',color);e.setAttribute('stroke-width',w);
+      e.setAttribute('stroke-linecap','round');e.setAttribute('stroke-linejoin','round');if(op!=null)e.setAttribute('opacity',op);e.setAttribute('class','fn');svg.appendChild(e);return e;}
+    var glow=mk(10,.16), ln=mk(3.5);
+    return {glow:glow,el:ln,set:function(fn,col){var d='',pen=false;
+      for(var x=-7.6;x<=7.6001;x+=0.08){var y=fn(x);if(!isFinite(y)||Math.abs(y)>9){pen=false;continue;}
+        d+=(pen?'L':'M')+P.X(x).toFixed(1)+','+P.Y(y).toFixed(1)+' ';pen=true;}
+      glow.setAttribute('d',d);ln.setAttribute('d',d);if(col){glow.setAttribute('stroke',col);ln.setAttribute('stroke',col);}}};}
+
   /* ── 기하 보드 (중2-2 도형용 · SVG) ── */
   function makeGeo(svg){
     var ns='http://www.w3.org/2000/svg';
@@ -369,7 +379,7 @@
 
   window.MJ3={UNITS:UNITS,UNIT_READY:UNIT_READY,PLAY_READY:PLAY_READY,initTheme:initTheme,initReveal:initReveal,initChrome:initChrome,
     completeUnit:completeUnit,isDone:isDone,makeProgress:makeProgress,fmtEq:fmtEq,sgn:sgn,
-    makePlane:makePlane,makeNumberLine:makeNumberLine,makeGeo:makeGeo,renderBlocks:renderBlocks,
+    makePlane:makePlane,makeCurve:makeCurve,makeNumberLine:makeNumberLine,makeGeo:makeGeo,renderBlocks:renderBlocks,
     decimalOf:decimalOf,factorNote:factorNote,gcd:gcd,checkNum:checkNum,check:check,num:num,simp:simp,sqrtStr:sqrtStr,
     reveal:reveal,hintSteps:hintSteps,animateCount:animateCount,confetti:confetti,
     boot:function(){initTheme();initChrome();initReveal();}};
