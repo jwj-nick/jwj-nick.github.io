@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>놀이터 · 삼각비의 활용 · 중3-2</title>
+<link rel="stylesheet" href="concept.css?v=20260830i">
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중3</a><span class="dot"></span><a href="u8.html">단원 8</a><span class="dot"></span><span>놀이터</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+  <div class="pg-badge"><span class="i">🎨</span>놀이터 — 점수는 안 매겨요, 그냥 놀아 봐요</div>
+  <h1>삼각비 활용 놀이터</h1>
+  <p class="lede">어떤 삼각비를 쓸지 고르고, 나무 높이를 사냥하고, 넓이 계산기를 돌려요.</p>
+
+  <div class="pg-score" id="score"><span class="dot">🏅</span>해결한 사건 <b id="scoreN">0</b> / <span id="scoreT">4</span></div>
+
+  <!-- 게임 1 · 공식 고르기 -->
+  <div class="pg-game reveal" id="g-pick">
+    <div class="pg-title"><span class="pg-emoji">🧭</span>어떤 삼각비를 쓸까</div>
+    <div class="pg-desc">아는 변과 구할 변이 둘 다 들어 있는 식을 골라요.</div>
+    <div class="pg-case">
+      <div class="case-no" id="pk-no">문제 1 / 6</div>
+      <div class="case-stmt" id="pk-stmt" style="font-size:16px;font-weight:700;text-align:center"></div>
+    </div>
+    <div class="pg-predict" style="grid-template-columns:repeat(3,1fr)">
+      <button class="pg-pbtn" id="pk-a" style="font-size:14px"></button>
+      <button class="pg-pbtn" id="pk-b" style="font-size:14px"></button>
+      <button class="pg-pbtn" id="pk-c" style="font-size:14px"></button>
+    </div>
+    <div class="out" id="pk-out"></div>
+    <div class="sim-read muted" style="font-size:13px;margin-top:4px"><b id="pk-done" style="color:var(--u)">0</b> / <span id="pk-total">6</span></div>
+  </div>
+
+  <!-- 게임 2 · 높이 사냥꾼 -->
+  <div class="pg-game reveal" id="g-height">
+    <div class="pg-title"><span class="pg-emoji">🌲</span>높이 사냥꾼</div>
+    <div class="pg-desc">거리와 앙각으로 높이를 구해요. tan 30° ≈ 0.58, tan 45° = 1, tan 60° ≈ 1.73 을 써요. (소수 첫째 자리까지)</div>
+    <svg class="geo" id="ht-fig" viewBox="0 0 340 200" role="img" aria-label="높이 재기" style="max-width:360px"></svg>
+    <p class="reading" id="ht-q" style="font-size:16px;font-weight:700"></p>
+    <div class="row" style="justify-content:center"><span>높이 ≈</span><input class="num" id="ht-in" inputmode="decimal" placeholder="?" style="width:90px"><span>m</span><button id="ht-check">확인</button></div>
+    <div class="out" id="ht-out"></div>
+    <div class="sim-read muted" style="font-size:13px;margin-top:4px"><b id="ht-done" style="color:var(--u)">0</b> / <span id="ht-total">4</span></div>
+  </div>
+
+  <!-- 게임 3 · 넓이 계산기 -->
+  <div class="pg-game reveal" id="g-area">
+    <div class="pg-title"><span class="pg-emoji">📐</span>넓이 계산기</div>
+    <div class="pg-desc">두 변과 끼인각으로 삼각형의 넓이를 구해요. 넓이 = ½ × a × b × sin C. 둔각이면 보각의 sin!</div>
+    <svg class="geo" id="ar-fig" viewBox="0 0 340 200" role="img" aria-label="삼각형" style="max-width:360px"></svg>
+    <p class="reading" id="ar-q" style="font-size:17px;font-weight:700"></p>
+    <div class="row" style="justify-content:center"><span>넓이 =</span><input class="num" id="ar-in" inputmode="numeric" placeholder="?" style="width:80px"><button id="ar-check">확인</button></div>
+    <div class="out" id="ar-out"></div>
+    <div class="sim-read muted" style="font-size:13px;margin-top:4px"><b id="ar-done" style="color:var(--u)">0</b> / <span id="ar-total">4</span></div>
+  </div>
+
+  <!-- 게임 4 · 오류 탐정 -->
+  <div class="pg-game reveal" id="g-detective">
+    <div class="pg-title"><span class="pg-emoji">🔍</span>오류 탐정</div>
+    <div class="pg-desc">누군가 이렇게 풀었어요. 어디가 이상한지 찾아볼까요? (정답은 안 알려줘요 — 스스로 짚어 봐요)</div>
+    <div class="pg-case">
+      <div class="case-no" id="det-no">사건 1 / 6</div>
+      <div class="case-stmt" id="det-stmt"></div>
+    </div>
+    <div style="text-align:center"><button id="det-think">다르게 생각해 볼까요?</button></div>
+    <div class="hint" id="det-counter" style="display:none;margin-top:10px"></div>
+    <div class="ask" id="det-ask" style="display:none;margin-top:10px"></div>
+    <div class="pg-case" id="det-checkbox" style="display:none;margin-top:14px">
+      <div class="case-stmt" id="det-checkq"></div>
+      <div class="row" style="margin-top:10px"><input class="blank" id="det-in" placeholder="답"><button id="det-check">확인</button></div>
+      <div class="out" id="det-out"></div>
+    </div>
+    <div style="text-align:center;margin-top:12px"><button class="ghost" id="det-next" style="display:none">다음 사건 -></button></div>
+  </div>
+
+  <div class="stamp" id="stamp">
+    <div class="seal">🎉</div>
+    <div class="seal-t">놀이터 클리어!</div>
+    <div class="seal-d">자 없이도 높이와 넓이가 나와요.</div>
+  </div>
+  <div class="bridge" style="margin-top:18px"><a class="golink" href="p8.html">연습 문제로 -></a></div>
+
+  <div class="foot">중3 수학 · 놀이터 · 단원 8</div>
+</div>
+
+<div class="pg-confetti" id="confetti"></div>
+
+<script src="concept.js?v=20260830i"></script>
+<script>
+MJ3.boot();
+(function(){
+  var solved=0, TOTAL=4;
+  function bump(){
+    var el=document.getElementById('scoreN'); solved++; el.textContent=solved;
+    var badge=document.getElementById('score'); badge.classList.remove('bump'); void badge.offsetWidth; badge.classList.add('bump');
+    if(solved>=TOTAL){ MJ3.confetti(document.getElementById('confetti')); document.getElementById('stamp').classList.add('show'); }
+  }
+  function Pp(x,y){return {x:x,y:y};}
+  function triGame(ids, ROUNDS, noId, stmtId, outId, doneId, totalId, wrongMsg){
+    var pos=0, done=0, bumped=false, B=ids.map(function(i){return document.getElementById(i);});
+    document.getElementById(totalId).textContent=ROUNDS.length;
+    function render(){ var r=ROUNDS[pos];
+      document.getElementById(noId).textContent='문제 '+(pos+1)+' / '+ROUNDS.length;
+      document.getElementById(stmtId).innerHTML=r.stmt;
+      B.forEach(function(b,i){ b.textContent=r.opts[i]; b.className='pg-pbtn'; });
+      document.getElementById(outId).innerHTML=''; }
+    B.forEach(function(b,i){ b.onclick=function(){ var r=ROUNDS[pos], ok=(i===r.ans);
+      b.classList.add(ok?'right':'wrong');
+      document.getElementById(outId).innerHTML=ok?('<span class="good">맞았어요!</span> '+r.note):wrongMsg;
+      if(ok){ done++; document.getElementById(doneId).textContent=done;
+        if(done>=ROUNDS.length){ if(!bumped){bumped=true;bump();} } else { pos++; setTimeout(render,1500); } } }; });
+    render();
+  }
+
+  /* 게임 1: 공식 고르기 */
+  triGame(['pk-a','pk-b','pk-c'],[
+    {stmt:'빗변 10, A = 30° → 높이는?', opts:['10 × sin 30°','10 × cos 30°','10 × tan 30°'], ans:0, note:'빗변과 높이가 들어 있는 건 sin.'},
+    {stmt:'빗변 8, A = 60° → 밑변은?', opts:['8 × sin 60°','8 × cos 60°','8 × tan 60°'], ans:1, note:'빗변과 밑변 → cos.'},
+    {stmt:'밑변 12, A = 45° → 높이는?', opts:['12 × sin 45°','12 × cos 45°','12 × tan 45°'], ans:2, note:'밑변과 높이 → tan. 빗변은 몰라도 돼요.'},
+    {stmt:'높이 6, A = 30° → 빗변은?', opts:['6 × sin 30°','6 ÷ sin 30°','6 ÷ tan 30°'], ans:1, note:'높이 = 빗변 × sin A 를 거꾸로: 빗변 = 높이 ÷ sin A.'},
+    {stmt:'나무까지 거리 15 m, 앙각 60° → 나무 높이는?', opts:['15 × sin 60°','15 × cos 60°','15 × tan 60°'], ans:2, note:'땅의 거리가 밑변, 나무가 높이 → tan.'},
+    {stmt:'두 변 6, 8, 끼인각 30° → 삼각형 넓이는?', opts:['6 × 8 × sin 30°','½ × 6 × 8 × sin 30°','½ × 6 × 8 × cos 30°'], ans:1, note:'½ab sin C.'}
+  ],'pk-no','pk-stmt','pk-out','pk-done','pk-total','아는 변과 구할 변이 둘 다 들어 있는 삼각비가 무엇인지 봐요. 밑변↔높이는 tan, 빗변이 끼면 sin·cos.');
+
+  /* 게임 2: 높이 사냥꾼 */
+  (function(){
+    var ROUNDS=[{d:12,a:45},{d:10,a:60},{d:20,a:30},{d:15,a:60}];
+    var TAN={30:0.58,45:1,60:1.73};
+    var G=MJ3.makeGeo(document.getElementById('ht-fig')), pos=0, done=0, bumped=false;
+    document.getElementById('ht-total').textContent=ROUNDS.length;
+    function render(){ var r=ROUNDS[pos], h=r.d*Math.tan(r.a*Math.PI/180), s=Math.min(200/r.d,140/h);
+      var O=Pp(40,170), F=Pp(40+r.d*s,170), T=Pp(F.x,170-h*s);
+      G.clear(); G.seg(Pp(10,170),Pp(330,170),{stroke:'var(--sage)',sw:3});
+      G.poly([O,F,T],{fill:'var(--u-soft)',stroke:'var(--u)',sw:1.5}); G.right(F,O,T,{}); G.angle(O,F,T,{r:26,stroke:'var(--accent)'});
+      G.seg(F,T,{stroke:'#7a5a3a',sw:6}); G.el('circle',{cx:T.x,cy:T.y-4,r:13,fill:'var(--sage)',opacity:.8});
+      G.label(Pp((O.x+F.x)/2,186),r.d+' m',{size:12,fill:'var(--muted)'}); G.label(Pp(O.x+40,O.y-12),r.a+'°',{size:12,fill:'var(--accent)'});
+      document.getElementById('ht-q').textContent='거리 '+r.d+' m, 앙각 '+r.a+'° — 나무 높이는?';
+      document.getElementById('ht-in').value=''; document.getElementById('ht-out').innerHTML=''; }
+    document.getElementById('ht-check').onclick=function(){
+      var r=ROUNDS[pos], v=parseFloat(document.getElementById('ht-in').value), ans=r.d*TAN[r.a];
+      if(!isNaN(v)&&Math.abs(v-ans)<0.16){
+        document.getElementById('ht-out').innerHTML='<span class="good">정답! '+r.d+' × tan '+r.a+'° ≈ '+r.d+' × '+TAN[r.a]+' = '+ans.toFixed(1)+' m</span>';
+        done++; document.getElementById('ht-done').textContent=done;
+        if(done>=ROUNDS.length){ if(!bumped){bumped=true;bump();} } else { pos++; setTimeout(render,1800); }
+      } else document.getElementById('ht-out').innerHTML='높이 = 거리 × tan(앙각). tan '+r.a+'° ≈ '+TAN[r.a]+' 을 곱해요.';
+    };
+    render();
+  })();
+
+  /* 게임 3: 넓이 계산기 */
+  (function(){
+    var ROUNDS=[{a:6,b:8,c:30,ans:12},{a:10,b:4,c:90,ans:20},{a:5,b:12,c:150,ans:15},{a:7,b:8,c:30,ans:14}];
+    var G=MJ3.makeGeo(document.getElementById('ar-fig')), pos=0, done=0, bumped=false;
+    document.getElementById('ar-total').textContent=ROUNDS.length;
+    function render(){ var r=ROUNDS[pos], t=r.c*Math.PI/180, k=14;
+      var C=Pp(120,160), A=Pp(120+r.a*k,160), B=Pp(120+r.b*k*Math.cos(t),160-r.b*k*Math.sin(t));
+      G.clear(); G.poly([C,A,B]); G.angle(C,A,B,{r:22,stroke:'var(--accent)'});
+      G.label(Pp((C.x+A.x)/2,176),'a = '+r.a,{size:12,fill:'var(--muted)'}); G.label(Pp((C.x+B.x)/2-14,(C.y+B.y)/2),'b = '+r.b,{size:12,fill:'var(--muted)'});
+      G.label(Pp(C.x+(r.c>90?-30:34),C.y-14),r.c+'°',{size:12,fill:'var(--accent)'});
+      document.getElementById('ar-q').textContent='두 변 '+r.a+', '+r.b+', 끼인각 '+r.c+'° — 넓이는?';
+      document.getElementById('ar-in').value=''; document.getElementById('ar-out').innerHTML=''; }
+    document.getElementById('ar-check').onclick=function(){
+      var r=ROUNDS[pos], v=parseFloat(document.getElementById('ar-in').value);
+      if(v===r.ans){
+        document.getElementById('ar-out').innerHTML='<span class="good">정답! ½ × '+r.a+' × '+r.b+' × sin '+r.c+'° = '+r.ans+'</span>'+(r.c>90?' (sin '+r.c+'° = sin '+(180-r.c)+'°)':'');
+        done++; document.getElementById('ar-done').textContent=done;
+        if(done>=ROUNDS.length){ if(!bumped){bumped=true;bump();} } else { pos++; setTimeout(render,1800); }
+      } else document.getElementById('ar-out').innerHTML='½ × a × b × sin C 예요. '+(r.c>90?'둔각이면 sin(180° − '+r.c+'°) 을 써요.':'sin '+r.c+'° 값을 넣어요.');
+    };
+    render();
+  })();
+
+  /* 게임 4: 오류 탐정 (misconceptions/math3_u08.json 기반, 6개 큐레이션) */
+  (function(){
+    var CASES=[
+      {stmt:'빗변 10, A = 30° 인 직각삼각형의 높이를 <b>10 × cos 30°</b> 로 구했어요.',
+       counter:'높이는 A와 마주 보는 변 → 빗변과 높이의 비는 sin 이에요. cos 을 쓰면 밑변이 나와요.',
+       ask:'구하는 변이 A와 마주 보는 변인가요, 붙어 있는 변인가요?',
+       q:'빗변 8, A = 30° 인 직각삼각형의 높이는?', a:'4'},
+      {stmt:'"건물에서 12 m 떨어진 곳"의 12 m 를 <b>빗변</b>으로 놓고 높이 = 12 × sin 60° 라고 했어요.',
+       counter:'땅에서 잰 거리는 밑변이에요. 빗변은 눈에서 꼭대기까지의 시선이라 재지 않았어요. 밑변에서 높이 → tan.',
+       ask:'잰 12 m 는 직각삼각형의 어느 변인가요?',
+       q:'건물에서 12 m 떨어진 곳에서 앙각 45° 면 건물 높이는?', a:'12'},
+      {stmt:'두 변 4, 6, 끼인각 30° 인 삼각형의 넓이를 <b>4 × 6 × sin 30° = 12</b> 라고 했어요.',
+       counter:'삼각형 넓이는 ½ × 밑변 × 높이. 높이가 6 sin 30° = 3 이니 ½ × 4 × 3 = 6 이에요. ½ 을 빼면 평행사변형 넓이가 돼요.',
+       ask:'삼각형 넓이 공식에서 ½ 은 어디서 왔나요?',
+       q:'두 변 4, 10, 끼인각 30° 인 삼각형의 넓이는?', a:'10'},
+      {stmt:'끼인각이 120° 라서 <b>sin 120° 은 구할 수 없다</b>고 했어요.',
+       counter:'꼭짓점에서 수선을 내리면 바깥쪽에 직각삼각형이 생기고 그 각은 180° − 120° = 60° 예요. 높이 = b sin 60°. 그래서 sin 120° = sin 60°.',
+       ask:'둔각 삼각형에서 수선을 내리면 바깥에 생기는 각은 몇 도인가요?',
+       q:'두 변 6, 10, 끼인각 150° 인 삼각형의 넓이는?', a:'15'},
+      {stmt:'두 변 3, 4, 끼인각 30° 인 평행사변형의 넓이를 <b>½ × 3 × 4 × sin 30°</b> 로 구했어요.',
+       counter:'평행사변형은 같은 삼각형 두 개예요. ½ab sin x 가 두 개 → ab sin x. 3 × 4 × ½ = 6.',
+       ask:'평행사변형을 대각선으로 자르면 삼각형이 몇 개인가요?',
+       q:'두 변 5, 6, 끼인각 30° 인 평행사변형의 넓이는?', a:'15'},
+      {stmt:'직각이 없는 삼각형에서 AC = 10, ∠A = 30° 인데 <b>바로 sin 30° = 높이/10</b> 이 안 된다며 포기했어요.',
+       counter:'C에서 AB에 수선을 내리면 직각삼각형이 생겨요. 그 안에서 높이 = 10 × sin 30° = 5. 수선 하나로 직각을 만드는 거예요.',
+       ask:'직각이 없으면 어떻게 만들 수 있을까요?',
+       q:'AC = 8, ∠A = 60° 일 때 C에서 AB에 내린 높이는?', a:'4√3'}
+    ];
+    var order=[0,1,2,3,4,5].sort(function(){return Math.random()-0.5;});
+    var pos=0, bumped=false;
+    function render(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-no').textContent='사건 '+(pos+1)+' / '+order.length;
+      document.getElementById('det-stmt').innerHTML=c.stmt;
+      document.getElementById('det-counter').style.display='none';
+      document.getElementById('det-ask').style.display='none';
+      document.getElementById('det-checkbox').style.display='none';
+      document.getElementById('det-in').value='';
+      document.getElementById('det-out').innerHTML='';
+      document.getElementById('det-think').style.display='inline-block';
+      document.getElementById('det-next').style.display='none';
+    }
+    document.getElementById('det-think').onclick=function(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-counter').innerHTML='<b>다르게 볼까요?</b> '+c.counter;
+      document.getElementById('det-counter').style.display='block';
+      document.getElementById('det-ask').innerHTML='생각해보기: '+c.ask;
+      document.getElementById('det-ask').style.display='block';
+      document.getElementById('det-checkq').innerHTML=c.q;
+      document.getElementById('det-checkbox').style.display='block';
+      document.getElementById('det-think').style.display='none';
+    };
+    document.getElementById('det-check').onclick=function(){
+      var c=CASES[order[pos]];
+      var v=(document.getElementById('det-in').value||'');
+      var norm=function(s){return s.replace(/[−–]/g,'-').replace(/[^0-9a-zA-Z가-힣<>()/.,\-+√=]/g,'').toLowerCase();};
+      var ok=v.length>0 && norm(c.a).indexOf(norm(v))>=0;
+      document.getElementById('det-out').innerHTML=ok
+        ? '<span class="good">정답이에요 - '+c.a+'</span>'
+        : '정답: <b>'+c.a+'</b> (직접 써보면서 확인해봐요)';
+      document.getElementById('det-next').style.display='inline-block';
+      if(!bumped){ bumped=true; bump(); }
+    };
+    document.getElementById('det-next').onclick=function(){
+      pos++; if(pos>=order.length) pos=0; render();
+    };
+    render();
+  })();
+})();
+</script>
+</body>
+</html>
