@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>놀이터 · 산포도 · 중3-2</title>
+<link rel="stylesheet" href="concept.css?v=20260830l">
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중3</a><span class="dot"></span><a href="u11.html">단원 11</a><span class="dot"></span><span>놀이터</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+  <div class="pg-badge"><span class="i">🎨</span>놀이터 — 점수는 안 매겨요, 그냥 놀아 봐요</div>
+  <h1>산포도 놀이터</h1>
+  <p class="lede">편차 빈칸을 채우고, 분산을 계산하고, 더 고른 반을 골라요.</p>
+
+  <div class="pg-score" id="score"><span class="dot">🏅</span>해결한 사건 <b id="scoreN">0</b> / <span id="scoreT">4</span></div>
+
+  <!-- 게임 1 · 편차 빈칸 -->
+  <div class="pg-game reveal" id="g-dev">
+    <div class="pg-title"><span class="pg-emoji">🧩</span>편차 빈칸 채우기</div>
+    <div class="pg-desc">편차의 합은 항상 0! 빠진 편차 x 를 채워요.</div>
+    <p class="reading" id="dv-q" style="font-size:18px;font-weight:700;letter-spacing:.5px"></p>
+    <div class="row" style="justify-content:center"><span>x =</span><input class="num" id="dv-in" inputmode="numeric" placeholder="?" style="width:80px"><button id="dv-check">확인</button></div>
+    <div class="out" id="dv-out"></div>
+    <div class="sim-read muted" style="font-size:13px;margin-top:4px"><b id="dv-done" style="color:var(--u)">0</b> / <span id="dv-total">4</span></div>
+  </div>
+
+  <!-- 게임 2 · 분산 계산기 -->
+  <div class="pg-game reveal" id="g-var">
+    <div class="pg-title"><span class="pg-emoji">🧮</span>분산 계산기</div>
+    <div class="pg-desc">변량 4개. 평균 → 편차 → 제곱 → 평균, 네 단계로 분산을 구해요. 맞히면 풀이가 펼쳐져요.</div>
+    <p class="reading" id="vr-q" style="font-size:18px;font-weight:700"></p>
+    <div class="row" style="justify-content:center"><span>분산 =</span><input class="num" id="vr-in" inputmode="decimal" placeholder="?" style="width:90px"><button id="vr-check">확인</button></div>
+    <div class="out" id="vr-out"></div>
+    <div class="hint" id="vr-steps" style="display:none;margin-top:8px"></div>
+    <div class="sim-read muted" style="font-size:13px;margin-top:4px"><b id="vr-done" style="color:var(--u)">0</b> / <span id="vr-total">4</span></div>
+  </div>
+
+  <!-- 게임 3 · 고른 반 찾기 -->
+  <div class="pg-game reveal" id="g-cmp">
+    <div class="pg-title"><span class="pg-emoji">⚖️</span>더 고른 반 찾기</div>
+    <div class="pg-desc">평균과 표준편차가 주어져요. 질문에 맞는 반을 골라요 — 힌트: 고른 정도는 평균이 아니라 표준편차!</div>
+    <div class="pg-case">
+      <div class="case-no" id="cp-no">문제 1 / 6</div>
+      <div class="case-stmt" id="cp-stmt" style="font-size:16px;font-weight:700;text-align:center"></div>
+    </div>
+    <div class="pg-predict">
+      <button class="pg-pbtn" id="cp-a"></button>
+      <button class="pg-pbtn" id="cp-b"></button>
+    </div>
+    <div class="out" id="cp-out"></div>
+    <div class="sim-read muted" style="font-size:13px;margin-top:4px"><b id="cp-done" style="color:var(--u)">0</b> / <span id="cp-total">6</span></div>
+  </div>
+
+  <!-- 게임 4 · 오류 탐정 -->
+  <div class="pg-game reveal" id="g-detective">
+    <div class="pg-title"><span class="pg-emoji">🔍</span>오류 탐정</div>
+    <div class="pg-desc">누군가 이렇게 풀었어요. 어디가 이상한지 찾아볼까요? (정답은 안 알려줘요 — 스스로 짚어 봐요)</div>
+    <div class="pg-case">
+      <div class="case-no" id="det-no">사건 1 / 6</div>
+      <div class="case-stmt" id="det-stmt"></div>
+    </div>
+    <div style="text-align:center"><button id="det-think">다르게 생각해 볼까요?</button></div>
+    <div class="hint" id="det-counter" style="display:none;margin-top:10px"></div>
+    <div class="ask" id="det-ask" style="display:none;margin-top:10px"></div>
+    <div class="pg-case" id="det-checkbox" style="display:none;margin-top:14px">
+      <div class="case-stmt" id="det-checkq"></div>
+      <div class="row" style="margin-top:10px"><input class="blank" id="det-in" placeholder="답"><button id="det-check">확인</button></div>
+      <div class="out" id="det-out"></div>
+    </div>
+    <div style="text-align:center;margin-top:12px"><button class="ghost" id="det-next" style="display:none">다음 사건 -></button></div>
+  </div>
+
+  <div class="stamp" id="stamp">
+    <div class="seal">🎉</div>
+    <div class="seal-t">놀이터 클리어!</div>
+    <div class="seal-d">편차 → 제곱 → 평균 → √. 산포도의 네 박자가 몸에 붙었어요.</div>
+  </div>
+  <div class="bridge" style="margin-top:18px"><a class="golink" href="p11.html">연습 문제로 -></a></div>
+
+  <div class="foot">중3 수학 · 놀이터 · 단원 11</div>
+</div>
+
+<div class="pg-confetti" id="confetti"></div>
+
+<script src="concept.js?v=20260830l"></script>
+<script>
+MJ3.boot();
+(function(){
+  var solved=0, TOTAL=4;
+  function bump(){
+    var el=document.getElementById('scoreN'); solved++; el.textContent=solved;
+    var badge=document.getElementById('score'); badge.classList.remove('bump'); void badge.offsetWidth; badge.classList.add('bump');
+    if(solved>=TOTAL){ MJ3.confetti(document.getElementById('confetti')); document.getElementById('stamp').classList.add('show'); }
+  }
+  function S(v){ return (v<0?'−':'')+Math.abs(v); }
+  function fmt(v){ return Number.isInteger(v)?''+v:(+v.toFixed(2)).toString(); }
+
+  /* 게임 1: 편차 빈칸 */
+  (function(){
+    var ROUNDS=[[2,-1,null,3],[-3,1,1,null],[5,null,-2,-1,0],[null,4,-1,-3,2]];
+    var pos=0, done=0, bumped=false;
+    document.getElementById('dv-total').textContent=ROUNDS.length;
+    function ans(r){ var s=0; r.forEach(function(v){ if(v!==null) s+=v; }); return -s; }
+    function render(){ var r=ROUNDS[pos]; document.getElementById('dv-q').textContent='편차: '+r.map(function(v){return v===null?'x':S(v);}).join(',  ');
+      document.getElementById('dv-in').value=''; document.getElementById('dv-out').innerHTML=''; }
+    document.getElementById('dv-check').onclick=function(){
+      var r=ROUNDS[pos], v=MJ3.num(document.getElementById('dv-in').value.replace(/[−–]/g,'-')), a=ans(r);
+      if(v===a){ document.getElementById('dv-out').innerHTML='<span class="good">정답! 나머지 합이 '+S(-a)+' 이니 x = '+S(a)+' 이어야 합이 0이에요.</span>'; done++; document.getElementById('dv-done').textContent=done;
+        if(done>=ROUNDS.length){ if(!bumped){bumped=true;bump();} } else { pos++; setTimeout(render,1700); } }
+      else document.getElementById('dv-out').innerHTML='편차를 전부 더하면 0이 되어야 해요. 나머지를 먼저 더해 봐요.';
+    };
+    render();
+  })();
+
+  /* 게임 2: 분산 계산기 */
+  (function(){
+    var ROUNDS=[[2,4,6,8],[1,2,3,6],[5,5,5,5],[3,7,7,11]];
+    var pos=0, done=0, bumped=false;
+    document.getElementById('vr-total').textContent=ROUNDS.length;
+    function calc(d){ var m=d.reduce(function(a,b){return a+b;},0)/d.length; var dev=d.map(function(v){return v-m;}); var sq=dev.map(function(v){return v*v;}); var sum=sq.reduce(function(a,b){return a+b;},0); return {m:m,dev:dev,sq:sq,sum:sum,v:sum/d.length}; }
+    function render(){ var d=ROUNDS[pos]; document.getElementById('vr-q').textContent='자료: '+d.join(', ');
+      document.getElementById('vr-in').value=''; document.getElementById('vr-out').innerHTML=''; document.getElementById('vr-steps').style.display='none'; }
+    document.getElementById('vr-check').onclick=function(){
+      var d=ROUNDS[pos], c=calc(d), v=MJ3.num(document.getElementById('vr-in').value);
+      if(Math.abs(v-c.v)<1e-9){
+        document.getElementById('vr-out').innerHTML='<span class="good">정답! 분산 = '+fmt(c.v)+'</span>';
+        document.getElementById('vr-steps').innerHTML='① 평균 = '+fmt(c.m)+'　② 편차 = '+c.dev.map(function(x){return S(fmt(x));}).join(', ')+'　③ 제곱 = '+c.sq.map(fmt).join(', ')+'　④ 합 '+fmt(c.sum)+' ÷ '+d.length+' = '+fmt(c.v);
+        document.getElementById('vr-steps').style.display='block';
+        done++; document.getElementById('vr-done').textContent=done;
+        if(done>=ROUNDS.length){ if(!bumped){bumped=true;bump();} } else { pos++; setTimeout(render,2600); } }
+      else document.getElementById('vr-out').innerHTML=(v===0&&c.v!==0?'편차를 그냥 더하면 0이 돼요 — 제곱하고 더해요.':'평균 '+fmt(c.m)+' 기준으로 편차를 구하고, 제곱해서 '+d.length+'으로 나눠요.');
+    };
+    render();
+  })();
+
+  /* 게임 3: 고른 반 */
+  (function(){
+    var ROUNDS=[
+      {q:'평균이 같은 두 반 중 점수가 더 고른 반은?',A:'A반 (평균 70, 표준편차 5)',B:'B반 (평균 70, 표준편차 8)',ans:'A',note:'표준편차가 작을수록 평균 근처에 모여 있어요.'},
+      {q:'점수가 더 고른 반은?',A:'A반 (평균 80, 표준편차 12)',B:'B반 (평균 60, 표준편차 3)',ans:'B',note:'평균이 높다고 고른 게 아니에요. 표준편차 3이 훨씬 촘촘해요.'},
+      {q:'산포도(흩어진 정도)가 더 큰 반은?',A:'A반 (평균 50, 표준편차 10)',B:'B반 (평균 50, 표준편차 4)',ans:'A',note:'표준편차가 클수록 넓게 퍼져 있어요.'},
+      {q:'모든 학생 점수가 똑같은 반은?',A:'A반 (평균 65, 표준편차 0)',B:'B반 (평균 65, 표준편차 2)',ans:'A',note:'표준편차 0 = 편차가 전부 0 = 모두 평균과 같아요.'},
+      {q:'점수 차이가 더 많이 나는 반은?',A:'A반 (평균 90, 표준편차 1)',B:'B반 (평균 70, 표준편차 7)',ans:'B',note:'평균 90이라도 표준편차 1이면 거의 다 90 근처예요.'},
+      {q:'더 고른 반은?',A:'A반 (평균 75, 표준편차 6.5)',B:'B반 (평균 75, 표준편차 6.2)',ans:'B',note:'조금이라도 작은 쪽이 더 고른 거예요.'}
+    ];
+    var pos=0, done=0, bumped=false, A=document.getElementById('cp-a'), B=document.getElementById('cp-b');
+    document.getElementById('cp-total').textContent=ROUNDS.length;
+    function render(){ var r=ROUNDS[pos]; document.getElementById('cp-no').textContent='문제 '+(pos+1)+' / '+ROUNDS.length; document.getElementById('cp-stmt').textContent=r.q; A.textContent=r.A; B.textContent=r.B; A.className='pg-pbtn'; B.className='pg-pbtn'; document.getElementById('cp-out').innerHTML=''; }
+    function pick(v,btn){ var r=ROUNDS[pos], ok=(v===r.ans); btn.classList.add(ok?'right':'wrong');
+      document.getElementById('cp-out').innerHTML=(ok?'<span class="good">맞았어요!</span> ':'다시 생각해 봐요. ')+r.note;
+      if(ok){ done++; document.getElementById('cp-done').textContent=done; if(done>=ROUNDS.length){ if(!bumped){bumped=true;bump();} } else { pos++; setTimeout(render,1600); } } }
+    A.onclick=function(){pick('A',this);}; B.onclick=function(){pick('B',this);};
+    render();
+  })();
+
+  /* 게임 4: 오류 탐정 (misconceptions/math3_u11.json 기반, 6개 큐레이션) */
+  (function(){
+    var CASES=[
+      {stmt:'평균 7, 변량 9 인데 편차를 <b>−2</b> 라고 했어요.',
+       counter:'편차 = 변량 − 평균이에요. 9 − 7 = +2. 평균보다 크면 편차는 양수예요.',
+       ask:'평균보다 큰 변량의 편차는 어떤 부호여야 할까요?',
+       q:'평균 12, 변량 9 일 때 편차는?', a:'-3'},
+      {stmt:'편차 −1, 0, 1 인 자료의 분산을 <b>0</b> 이라고 했어요 (편차를 더해서 평균 냄).',
+       counter:'편차의 합은 늘 0이라 그냥 평균 내면 소용없어요. 제곱해서 평균: (1 + 0 + 1) ÷ 3 = 2/3.',
+       ask:'편차의 부호를 없애기 위해 하는 일은 무엇인가요?',
+       q:'편차 −3, 0, 3 인 자료의 분산은?', a:'6'},
+      {stmt:'편차 제곱의 합이 20, 변량이 4개인데 분산을 <b>20</b> 이라고 했어요.',
+       counter:'분산은 편차 제곱의 "평균"이에요. 20 ÷ 4 = 5.',
+       ask:'"평균"이라는 말이 붙어 있으면 마지막에 무엇을 해야 할까요?',
+       q:'편차 제곱의 합이 30, 변량이 5개일 때 분산은?', a:'6'},
+      {stmt:'분산이 25 인 자료의 표준편차를 <b>25</b> 라고 했어요.',
+       counter:'표준편차 = √분산 이에요. √25 = 5.',
+       ask:'분산은 제곱한 값이에요. 원래 크기로 되돌리려면?',
+       q:'분산 49 인 자료의 표준편차는?', a:'7'},
+      {stmt:'평균 80·표준편차 6 인 반이 평균 60·표준편차 2 인 반보다 <b>더 고르다</b>고 했어요.',
+       counter:'고른 정도는 평균이 아니라 표준편차로 봐요. 표준편차 2인 반이 훨씬 더 고른 거예요.',
+       ask:'평균이 높다는 것과 점수가 모여 있다는 것은 같은 말인가요?',
+       q:'표준편차 4 와 7 중 더 고른 자료의 표준편차는?', a:'4'},
+      {stmt:'모든 변량에 5를 더했더니 분산도 <b>5 커진다</b>고 했어요.',
+       counter:'모두 같은 수를 더하면 평균도 같이 커져서 편차는 그대로예요. 분산은 변하지 않아요.',
+       ask:'변량과 평균이 함께 5씩 커지면 편차(변량 − 평균)는 어떻게 되나요?',
+       q:'분산 7 인 자료의 모든 변량에 10을 더하면 분산은?', a:'7'}
+    ];
+    var order=[0,1,2,3,4,5].sort(function(){return Math.random()-0.5;});
+    var pos=0, bumped=false;
+    function render(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-no').textContent='사건 '+(pos+1)+' / '+order.length;
+      document.getElementById('det-stmt').innerHTML=c.stmt;
+      document.getElementById('det-counter').style.display='none';
+      document.getElementById('det-ask').style.display='none';
+      document.getElementById('det-checkbox').style.display='none';
+      document.getElementById('det-in').value='';
+      document.getElementById('det-out').innerHTML='';
+      document.getElementById('det-think').style.display='inline-block';
+      document.getElementById('det-next').style.display='none';
+    }
+    document.getElementById('det-think').onclick=function(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-counter').innerHTML='<b>다르게 볼까요?</b> '+c.counter;
+      document.getElementById('det-counter').style.display='block';
+      document.getElementById('det-ask').innerHTML='생각해보기: '+c.ask;
+      document.getElementById('det-ask').style.display='block';
+      document.getElementById('det-checkq').innerHTML=c.q;
+      document.getElementById('det-checkbox').style.display='block';
+      document.getElementById('det-think').style.display='none';
+    };
+    document.getElementById('det-check').onclick=function(){
+      var c=CASES[order[pos]];
+      var v=(document.getElementById('det-in').value||'');
+      var norm=function(s){return s.replace(/[−–]/g,'-').replace(/[^0-9a-zA-Z가-힣<>()/.,\-+=]/g,'').toLowerCase();};
+      var ok=v.length>0 && norm(c.a).indexOf(norm(v))>=0;
+      document.getElementById('det-out').innerHTML=ok
+        ? '<span class="good">정답이에요 - '+c.a.replace('-','−')+'</span>'
+        : '정답: <b>'+c.a.replace('-','−')+'</b> (직접 써보면서 확인해봐요)';
+      document.getElementById('det-next').style.display='inline-block';
+      if(!bumped){ bumped=true; bump(); }
+    };
+    document.getElementById('det-next').onclick=function(){
+      pos++; if(pos>=order.length) pos=0; render();
+    };
+    render();
+  })();
+})();
+</script>
+</body>
+</html>
