@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>놀이터 · 상자 그림과 산점도 · 중3-2</title>
+<link rel="stylesheet" href="concept.css?v=20260830m">
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중3</a><span class="dot"></span><a href="u12.html">단원 12</a><span class="dot"></span><span>놀이터</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+  <div class="pg-badge"><span class="i">🎨</span>놀이터 — 점수는 안 매겨요, 그냥 놀아 봐요</div>
+  <h1>상자 그림과 산점도 놀이터</h1>
+  <p class="lede">사분위수를 사냥하고, 상자 그림을 읽고, 산점도의 방향을 감별해요.</p>
+
+  <div class="pg-score" id="score"><span class="dot">🏅</span>해결한 사건 <b id="scoreN">0</b> / <span id="scoreT">4</span></div>
+
+  <!-- 게임 1 · 사분위수 사냥꾼 -->
+  <div class="pg-game reveal" id="g-q">
+    <div class="pg-title"><span class="pg-emoji">🎯</span>사분위수 사냥꾼</div>
+    <div class="pg-desc">크기순 자료가 주어져요. 묻는 사분위수를 구해요. (중앙값은 빼고 절반씩!)</div>
+    <p class="reading" id="qh-q" style="font-size:17px;font-weight:700"></p>
+    <div class="row" style="justify-content:center"><span id="qh-lbl">Q1 =</span><input class="num" id="qh-in" inputmode="decimal" placeholder="?" style="width:80px"><button id="qh-check">확인</button></div>
+    <div class="out" id="qh-out"></div>
+    <div class="sim-read muted" style="font-size:13px;margin-top:4px"><b id="qh-done" style="color:var(--u)">0</b> / <span id="qh-total">4</span></div>
+  </div>
+
+  <!-- 게임 2 · 상자 그림 읽기 -->
+  <div class="pg-game reveal" id="g-box">
+    <div class="pg-title"><span class="pg-emoji">📦</span>상자 그림 읽기</div>
+    <div class="pg-desc">그림에서 값을 읽어요. 상자 = 가운데 절반, 안의 선 = 중앙값.</div>
+    <svg class="geo" id="bx-fig" viewBox="0 0 340 110" role="img" aria-label="상자 그림" style="max-width:360px"></svg>
+    <p class="reading" id="bx-q" style="font-size:16px;font-weight:700"></p>
+    <div class="row" style="justify-content:center"><input class="num" id="bx-in" inputmode="numeric" placeholder="?" style="width:80px"><button id="bx-check">확인</button></div>
+    <div class="out" id="bx-out"></div>
+    <div class="sim-read muted" style="font-size:13px;margin-top:4px"><b id="bx-done" style="color:var(--u)">0</b> / <span id="bx-total">4</span></div>
+  </div>
+
+  <!-- 게임 3 · 상관관계 감별사 -->
+  <div class="pg-game reveal" id="g-corr">
+    <div class="pg-title"><span class="pg-emoji">🔎</span>상관관계 감별사</div>
+    <div class="pg-desc">산점도를 보고 양·음·없음을 고르고, 강한지 약한지도 살펴요.</div>
+    <svg class="geo" id="cr-fig" viewBox="0 0 220 180" role="img" aria-label="산점도" style="max-width:240px"></svg>
+    <div class="case-no" id="cr-no" style="text-align:center">문제 1 / 6</div>
+    <div class="pg-predict">
+      <button class="pg-pbtn" id="cr-pos">양의 상관관계</button>
+      <button class="pg-pbtn" id="cr-neg">음의 상관관계</button>
+      <button class="pg-pbtn" id="cr-none">상관관계 없음</button>
+    </div>
+    <div class="out" id="cr-out"></div>
+    <div class="sim-read muted" style="font-size:13px;margin-top:4px"><b id="cr-done" style="color:var(--u)">0</b> / <span id="cr-total">6</span></div>
+  </div>
+
+  <!-- 게임 4 · 오류 탐정 -->
+  <div class="pg-game reveal" id="g-detective">
+    <div class="pg-title"><span class="pg-emoji">🔍</span>오류 탐정</div>
+    <div class="pg-desc">누군가 이렇게 풀었어요. 어디가 이상한지 찾아볼까요? (정답은 안 알려줘요 — 스스로 짚어 봐요)</div>
+    <div class="pg-case">
+      <div class="case-no" id="det-no">사건 1 / 6</div>
+      <div class="case-stmt" id="det-stmt"></div>
+    </div>
+    <div style="text-align:center"><button id="det-think">다르게 생각해 볼까요?</button></div>
+    <div class="hint" id="det-counter" style="display:none;margin-top:10px"></div>
+    <div class="ask" id="det-ask" style="display:none;margin-top:10px"></div>
+    <div class="pg-case" id="det-checkbox" style="display:none;margin-top:14px">
+      <div class="case-stmt" id="det-checkq"></div>
+      <div class="row" style="margin-top:10px"><input class="blank" id="det-in" placeholder="답"><button id="det-check">확인</button></div>
+      <div class="out" id="det-out"></div>
+    </div>
+    <div style="text-align:center;margin-top:12px"><button class="ghost" id="det-next" style="display:none">다음 사건 -></button></div>
+  </div>
+
+  <div class="stamp" id="stamp">
+    <div class="seal">🎉</div>
+    <div class="seal-t">놀이터 클리어!</div>
+    <div class="seal-d">넷으로 쪼개고, 점으로 찍고 — 그림으로 읽는 통계가 손에 붙었어요.</div>
+  </div>
+  <div class="bridge" style="margin-top:18px"><a class="golink" href="p12.html">연습 문제로 -></a></div>
+
+  <div class="foot">중3 수학 · 놀이터 · 단원 12</div>
+</div>
+
+<div class="pg-confetti" id="confetti"></div>
+
+<script src="concept.js?v=20260830m"></script>
+<script>
+MJ3.boot();
+(function(){
+  var solved=0, TOTAL=4;
+  function bump(){
+    var el=document.getElementById('scoreN'); solved++; el.textContent=solved;
+    var badge=document.getElementById('score'); badge.classList.remove('bump'); void badge.offsetWidth; badge.classList.add('bump');
+    if(solved>=TOTAL){ MJ3.confetti(document.getElementById('confetti')); document.getElementById('stamp').classList.add('show'); }
+  }
+  function Pp(x,y){return {x:x,y:y};}
+  function fmt(v){ return Number.isInteger(v)?''+v:(+v.toFixed(2)).toString(); }
+  function med(a){ var n=a.length; return n%2?a[(n-1)/2]:(a[n/2-1]+a[n/2])/2; }
+  function quart(d){ var s=d.slice().sort(function(a,b){return a-b;}), n=s.length, lo=s.slice(0,Math.floor(n/2)), hi=s.slice(Math.ceil(n/2)); return {min:s[0],q1:med(lo),q2:med(s),q3:med(hi),max:s[n-1]}; }
+  function boxplot(G,q,lo,hi,x0,x1,y,color){
+    var sc=(x1-x0)/(hi-lo), X=function(v){return x0+(v-lo)*sc;};
+    G.seg(Pp(x0,y+34),Pp(x1,y+34),{stroke:'var(--border)',sw:1.5});
+    for(var v=lo;v<=hi;v+=5){ G.seg(Pp(X(v),y+31),Pp(X(v),y+37),{stroke:'var(--border)',sw:1.5}); G.label(Pp(X(v),y+50),''+v,{size:10,fill:'var(--muted)'}); }
+    G.seg(Pp(X(q.min),y),Pp(X(q.q1),y),{stroke:color,sw:2}); G.seg(Pp(X(q.q3),y),Pp(X(q.max),y),{stroke:color,sw:2});
+    G.seg(Pp(X(q.min),y-8),Pp(X(q.min),y+8),{stroke:color,sw:2}); G.seg(Pp(X(q.max),y-8),Pp(X(q.max),y+8),{stroke:color,sw:2});
+    G.el('rect',{x:X(q.q1),y:y-16,width:X(q.q3)-X(q.q1),height:32,fill:'var(--u-soft)',stroke:color,'stroke-width':2,rx:3});
+    G.seg(Pp(X(q.q2),y-16),Pp(X(q.q2),y+16),{stroke:'var(--accent)',sw:3});
+    [q.min,q.q1,q.q2,q.q3,q.max].forEach(function(v,i){ G.label(Pp(X(v),y-22+(i%2?0:-8)),fmt(v),{size:10,fill:i===2?'var(--accent)':'var(--muted)'}); });
+  }
+
+  /* 게임 1: 사분위수 */
+  (function(){
+    var ROUNDS=[{d:[2,4,5,7,8,10,12],k:'q1'},{d:[1,3,4,6,8,9,11,15],k:'q3'},{d:[3,5,6,6,9,12,14],k:'q3'},{d:[10,12,16,17,20,22,25,30],k:'q1'}];
+    var NAME={q1:'제1사분위수 Q1',q3:'제3사분위수 Q3'};
+    var pos=0, done=0, bumped=false;
+    document.getElementById('qh-total').textContent=ROUNDS.length;
+    function render(){ var r=ROUNDS[pos]; document.getElementById('qh-q').textContent='자료: '+r.d.join(', ')+'  →  '+NAME[r.k]+' 은?'; document.getElementById('qh-lbl').textContent=r.k.toUpperCase()+' =';
+      document.getElementById('qh-in').value=''; document.getElementById('qh-out').innerHTML=''; }
+    document.getElementById('qh-check').onclick=function(){
+      var r=ROUNDS[pos], q=quart(r.d), v=MJ3.num(document.getElementById('qh-in').value), a=q[r.k];
+      if(Math.abs(v-a)<1e-9){ document.getElementById('qh-out').innerHTML='<span class="good">정답! 중앙값 '+fmt(q.q2)+' 을 기준으로 '+(r.k==='q1'?'아래':'위')+' 절반의 중앙값 = '+fmt(a)+'</span>'; done++; document.getElementById('qh-done').textContent=done;
+        if(done>=ROUNDS.length){ if(!bumped){bumped=true;bump();} } else { pos++; setTimeout(render,1800); } }
+      else document.getElementById('qh-out').innerHTML='먼저 전체 중앙값을 찾고(홀수 개면 그 값은 빼고), '+(r.k==='q1'?'아래':'위')+' 절반의 중앙값을 구해요.';
+    };
+    render();
+  })();
+
+  /* 게임 2: 상자 그림 읽기 */
+  (function(){
+    var ROUNDS=[
+      {q:{min:5,q1:10,q2:14,q3:20,max:26},ask:'사분위 범위(Q3 − Q1)는?',a:10},
+      {q:{min:2,q1:6,q2:9,q3:13,max:18},ask:'중앙값은?',a:9},
+      {q:{min:12,q1:15,q2:18,q3:24,max:30},ask:'전체 자료의 약 몇 %가 상자 안(Q1 이상 Q3 이하)에 있나요?',a:50},
+      {q:{min:0,q1:4,q2:7,q3:9,max:15},ask:'제3사분위수 Q3 는?',a:9}
+    ];
+    var G=MJ3.makeGeo(document.getElementById('bx-fig')), pos=0, done=0, bumped=false;
+    document.getElementById('bx-total').textContent=ROUNDS.length;
+    function render(){ var r=ROUNDS[pos]; G.clear(); boxplot(G,r.q,0,30,30,320,50,'var(--u)'); document.getElementById('bx-q').textContent=r.ask; document.getElementById('bx-in').value=''; document.getElementById('bx-out').innerHTML=''; }
+    document.getElementById('bx-check').onclick=function(){
+      var r=ROUNDS[pos], v=MJ3.num(document.getElementById('bx-in').value);
+      if(Math.abs(v-r.a)<1e-9){ document.getElementById('bx-out').innerHTML='<span class="good">정답! '+r.a+'</span>'; done++; document.getElementById('bx-done').textContent=done;
+        if(done>=ROUNDS.length){ if(!bumped){bumped=true;bump();} } else { pos++; setTimeout(render,1500); } }
+      else document.getElementById('bx-out').innerHTML='상자의 왼쪽 끝이 Q1, 오른쪽 끝이 Q3, 안의 굵은 선이 중앙값이에요. 상자엔 전체의 약 절반이 들어 있어요.';
+    };
+    render();
+  })();
+
+  /* 게임 3: 상관관계 감별사 */
+  (function(){
+    var noise=[0.3,-0.6,0.8,-0.2,0.5,-0.9,0.1,0.7,-0.4,-0.1,0.6,-0.7,0.2,-0.5];
+    var ROUNDS=[{r:0.9},{r:-0.85},{r:0.05},{r:-0.4},{r:0.45},{r:-0.02}];
+    var G=MJ3.makeGeo(document.getElementById('cr-fig')), pos=0, done=0, bumped=false;
+    var btns={pos:document.getElementById('cr-pos'),neg:document.getElementById('cr-neg'),none:document.getElementById('cr-none')};
+    document.getElementById('cr-total').textContent=ROUNDS.length;
+    function kind(r){ return Math.abs(r)<0.2?'none':(r>0?'pos':'neg'); }
+    function strength(r){ return Math.abs(r)>=0.7?'강한 ':'약한 '; }
+    function render(){ var r=ROUNDS[pos].r; G.clear();
+      var ox=25,oy=15,w=170,h=140; G.seg(Pp(ox,oy+h),Pp(ox+w,oy+h),{stroke:'var(--ink)',sw:1.2}); G.seg(Pp(ox,oy+h),Pp(ox,oy),{stroke:'var(--ink)',sw:1.2});
+      for(var i=0;i<14;i++){ var x=(i+0.5)/14, y=0.5+r*(x-0.5)*0.9+(1-Math.abs(r))*noise[i]*0.45; y=Math.max(0.04,Math.min(0.96,y)); G.dot(Pp(ox+x*w,oy+h-y*h),{r:4,fill:'var(--u)'}); }
+      document.getElementById('cr-no').textContent='문제 '+(pos+1)+' / '+ROUNDS.length;
+      for(var k in btns) btns[k].className='pg-pbtn'; document.getElementById('cr-out').innerHTML=''; }
+    function pick(k){ var r=ROUNDS[pos].r, ok=(k===kind(r)); btns[k].classList.add(ok?'right':'wrong');
+      document.getElementById('cr-out').innerHTML=ok?'<span class="good">맞았어요!</span> '+(kind(r)==='none'?'아무 방향도 없어요.':strength(r)+(r>0?'양':'음')+'의 상관관계 — 점들이 '+(r>0?'오른쪽 위':'오른쪽 아래')+'로 향해요.'):'다시 봐요. 점들이 전체적으로 어느 방향으로 향하나요?';
+      if(ok){ done++; document.getElementById('cr-done').textContent=done; if(done>=ROUNDS.length){ if(!bumped){bumped=true;bump();} } else { pos++; setTimeout(render,1600); } } }
+    btns.pos.onclick=function(){pick('pos');}; btns.neg.onclick=function(){pick('neg');}; btns.none.onclick=function(){pick('none');};
+    render();
+  })();
+
+  /* 게임 4: 오류 탐정 (misconceptions/math3_u12.json 기반, 6개 큐레이션) */
+  (function(){
+    var CASES=[
+      {stmt:'자료 1, 2, 3, 4, 5, 6, 7 에서 Q1 을 구할 때 중앙값 4를 포함해 {1, 2, 3, 4}의 중앙값 <b>2.5</b> 라고 했어요.',
+       counter:'자료가 홀수 개면 중앙값은 빼고 절반을 나눠요. 아래 {1, 2, 3}의 중앙값 2가 Q1이에요.',
+       ask:'중앙값 자체는 아래 절반에도 위 절반에도 들어가지 않아요. 그럼 아래 절반은 몇 개인가요?',
+       q:'자료 2, 3, 5, 8, 9, 11, 13 의 Q3 는?', a:'11'},
+      {stmt:'자료 9, 2, 7, 4, 5 의 중앙값을 세 번째 수 <b>7</b> 이라고 했어요.',
+       counter:'사분위수·중앙값은 크기순으로 나열한 뒤 구해요. 2, 4, 5, 7, 9 에서 중앙값은 5.',
+       ask:'주어진 순서와 크기순은 같은가요?',
+       q:'자료 8, 1, 6, 3, 10 의 중앙값은?', a:'6'},
+      {stmt:'상자 그림에서 최솟값 4, 최댓값 20 이니 사분위 범위를 <b>16</b> 이라고 했어요.',
+       counter:'사분위 범위는 Q3 − Q1, 상자의 폭이에요. 최댓값 − 최솟값은 "범위"라는 다른 값이에요.',
+       ask:'상자 그림에서 상자 부분이 나타내는 두 값은 무엇인가요?',
+       q:'Q1 = 12, Q3 = 30 일 때 사분위 범위는?', a:'18'},
+      {stmt:'상자 그림의 상자 안 세로선을 <b>평균</b>이라고 했어요.',
+       counter:'그 선은 중앙값(Q2)이에요. 상자 그림에는 평균이 나타나지 않아요.',
+       ask:'상자 그림을 그리는 다섯 수는 무엇무엇인가요? 그중에 평균이 있나요?',
+       q:'상자 그림의 상자 안 선이 나타내는 값은?', a:'중앙값'},
+      {stmt:'산점도의 점 (3, 85) 를 "점수 3, 공부 시간 85" 라고 읽었어요.',
+       counter:'순서쌍의 첫째가 가로축 변량이에요. (3, 85) 는 공부 3시간·점수 85점.',
+       ask:'가로축과 세로축에 각각 어떤 변량을 놓았는지 먼저 확인했나요?',
+       q:'(5, 95) 에서 공부 시간은?', a:'5'},
+      {stmt:'산점도의 점들이 아주 가파른 직선을 따라 있으면 <b>강한</b> 상관관계, 완만하면 <b>약한</b> 상관관계라고 했어요.',
+       counter:'세기는 기울기가 아니라 점들이 직선에 얼마나 가까이 모였는가예요. 완만해도 촘촘하면 강한 상관관계예요.',
+       ask:'점들이 넓게 흩어져 있지만 가파른 방향이면 강한 걸까요?',
+       q:'직선에 더 가까이 모인 산점도의 상관관계는 더 (강하다 / 약하다)?', a:'강하다'}
+    ];
+    var order=[0,1,2,3,4,5].sort(function(){return Math.random()-0.5;});
+    var pos=0, bumped=false;
+    function render(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-no').textContent='사건 '+(pos+1)+' / '+order.length;
+      document.getElementById('det-stmt').innerHTML=c.stmt;
+      document.getElementById('det-counter').style.display='none';
+      document.getElementById('det-ask').style.display='none';
+      document.getElementById('det-checkbox').style.display='none';
+      document.getElementById('det-in').value='';
+      document.getElementById('det-out').innerHTML='';
+      document.getElementById('det-think').style.display='inline-block';
+      document.getElementById('det-next').style.display='none';
+    }
+    document.getElementById('det-think').onclick=function(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-counter').innerHTML='<b>다르게 볼까요?</b> '+c.counter;
+      document.getElementById('det-counter').style.display='block';
+      document.getElementById('det-ask').innerHTML='생각해보기: '+c.ask;
+      document.getElementById('det-ask').style.display='block';
+      document.getElementById('det-checkq').innerHTML=c.q;
+      document.getElementById('det-checkbox').style.display='block';
+      document.getElementById('det-think').style.display='none';
+    };
+    document.getElementById('det-check').onclick=function(){
+      var c=CASES[order[pos]];
+      var v=(document.getElementById('det-in').value||'');
+      var norm=function(s){return s.replace(/[−–]/g,'-').replace(/[^0-9a-zA-Z가-힣<>()/.,\-+=]/g,'').toLowerCase();};
+      var ok=v.length>0 && norm(c.a).indexOf(norm(v))>=0;
+      document.getElementById('det-out').innerHTML=ok
+        ? '<span class="good">정답이에요 - '+c.a+'</span>'
+        : '정답: <b>'+c.a+'</b> (직접 써보면서 확인해봐요)';
+      document.getElementById('det-next').style.display='inline-block';
+      if(!bumped){ bumped=true; bump(); }
+    };
+    document.getElementById('det-next').onclick=function(){
+      pos++; if(pos>=order.length) pos=0; render();
+    };
+    render();
+  })();
+})();
+</script>
+</body>
+</html>
