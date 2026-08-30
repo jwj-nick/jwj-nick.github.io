@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>놀이터 · 원과 직선 · 중3-2</title>
+<link rel="stylesheet" href="concept.css?v=20260830j">
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중3</a><span class="dot"></span><a href="u9.html">단원 9</a><span class="dot"></span><span>놀이터</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+  <div class="pg-badge"><span class="i">🎨</span>놀이터 — 점수는 안 매겨요, 그냥 놀아 봐요</div>
+  <h1>원과 직선 놀이터</h1>
+  <p class="lede">현의 길이를 사냥하고, 접선의 길이를 사냥하고, 성질의 참·거짓을 가려요.</p>
+
+  <div class="pg-score" id="score"><span class="dot">🏅</span>해결한 사건 <b id="scoreN">0</b> / <span id="scoreT">4</span></div>
+
+  <!-- 게임 1 · 현 길이 사냥꾼 -->
+  <div class="pg-game reveal" id="g-chord">
+    <div class="pg-title"><span class="pg-emoji">📏</span>현 길이 사냥꾼</div>
+    <div class="pg-desc">반지름 r, 중심에서 현까지의 거리 d. 현의 길이를 구해요. (절반을 구하고 두 배!)</div>
+    <svg class="geo" id="ch-fig" viewBox="0 0 300 220" role="img" aria-label="현" style="max-width:300px"></svg>
+    <p class="reading" id="ch-q" style="font-size:16px;font-weight:700"></p>
+    <div class="row" style="justify-content:center"><span>현의 길이 =</span><input class="num" id="ch-in" inputmode="numeric" placeholder="?" style="width:80px"><button id="ch-check">확인</button></div>
+    <div class="out" id="ch-out"></div>
+    <div class="sim-read muted" style="font-size:13px;margin-top:4px"><b id="ch-done" style="color:var(--u)">0</b> / <span id="ch-total">4</span></div>
+  </div>
+
+  <!-- 게임 2 · 접선 길이 사냥꾼 -->
+  <div class="pg-game reveal" id="g-tan">
+    <div class="pg-title"><span class="pg-emoji">🎯</span>접선 길이 사냥꾼</div>
+    <div class="pg-desc">중심 O, 원 밖의 점 P, 접점 T. 직각은 T에! OP와 반지름으로 PT를 구해요.</div>
+    <svg class="geo" id="tg-fig" viewBox="0 0 320 220" role="img" aria-label="접선" style="max-width:320px"></svg>
+    <p class="reading" id="tg-q" style="font-size:16px;font-weight:700"></p>
+    <div class="row" style="justify-content:center"><span>PT =</span><input class="num" id="tg-in" inputmode="numeric" placeholder="?" style="width:80px"><button id="tg-check">확인</button></div>
+    <div class="out" id="tg-out"></div>
+    <div class="sim-read muted" style="font-size:13px;margin-top:4px"><b id="tg-done" style="color:var(--u)">0</b> / <span id="tg-total">4</span></div>
+  </div>
+
+  <!-- 게임 3 · 참·거짓 감별사 -->
+  <div class="pg-game reveal" id="g-tf">
+    <div class="pg-title"><span class="pg-emoji">⚖️</span>성질 참·거짓 감별사</div>
+    <div class="pg-desc">원과 직선의 성질 문장이에요. 맞는지 틀린지 판정해요.</div>
+    <div class="pg-case">
+      <div class="case-no" id="tf-no">문제 1 / 6</div>
+      <div class="case-stmt" id="tf-stmt" style="font-size:16px;font-weight:700;text-align:center"></div>
+    </div>
+    <div class="pg-predict">
+      <button class="pg-pbtn" id="tf-yes">맞아요</button>
+      <button class="pg-pbtn" id="tf-no2">틀려요</button>
+    </div>
+    <div class="out" id="tf-out"></div>
+    <div class="sim-read muted" style="font-size:13px;margin-top:4px"><b id="tf-done" style="color:var(--u)">0</b> / <span id="tf-total">6</span></div>
+  </div>
+
+  <!-- 게임 4 · 오류 탐정 -->
+  <div class="pg-game reveal" id="g-detective">
+    <div class="pg-title"><span class="pg-emoji">🔍</span>오류 탐정</div>
+    <div class="pg-desc">누군가 이렇게 풀었어요. 어디가 이상한지 찾아볼까요? (정답은 안 알려줘요 — 스스로 짚어 봐요)</div>
+    <div class="pg-case">
+      <div class="case-no" id="det-no">사건 1 / 6</div>
+      <div class="case-stmt" id="det-stmt"></div>
+    </div>
+    <div style="text-align:center"><button id="det-think">다르게 생각해 볼까요?</button></div>
+    <div class="hint" id="det-counter" style="display:none;margin-top:10px"></div>
+    <div class="ask" id="det-ask" style="display:none;margin-top:10px"></div>
+    <div class="pg-case" id="det-checkbox" style="display:none;margin-top:14px">
+      <div class="case-stmt" id="det-checkq"></div>
+      <div class="row" style="margin-top:10px"><input class="blank" id="det-in" placeholder="답"><button id="det-check">확인</button></div>
+      <div class="out" id="det-out"></div>
+    </div>
+    <div style="text-align:center;margin-top:12px"><button class="ghost" id="det-next" style="display:none">다음 사건 -></button></div>
+  </div>
+
+  <div class="stamp" id="stamp">
+    <div class="seal">🎉</div>
+    <div class="seal-t">놀이터 클리어!</div>
+    <div class="seal-d">반지름만 그으면 직각삼각형 — 이제 눈에 보여요.</div>
+  </div>
+  <div class="bridge" style="margin-top:18px"><a class="golink" href="p9.html">연습 문제로 -></a></div>
+
+  <div class="foot">중3 수학 · 놀이터 · 단원 9</div>
+</div>
+
+<div class="pg-confetti" id="confetti"></div>
+
+<script src="concept.js?v=20260830j"></script>
+<script>
+MJ3.boot();
+(function(){
+  var solved=0, TOTAL=4;
+  function bump(){
+    var el=document.getElementById('scoreN'); solved++; el.textContent=solved;
+    var badge=document.getElementById('score'); badge.classList.remove('bump'); void badge.offsetWidth; badge.classList.add('bump');
+    if(solved>=TOTAL){ MJ3.confetti(document.getElementById('confetti')); document.getElementById('stamp').classList.add('show'); }
+  }
+  function Pp(x,y){return {x:x,y:y};}
+
+  /* 게임 1: 현 길이 */
+  (function(){
+    var ROUNDS=[{r:5,d:3},{r:13,d:5},{r:10,d:8},{r:17,d:15}];
+    var G=MJ3.makeGeo(document.getElementById('ch-fig')), pos=0, done=0, bumped=false;
+    document.getElementById('ch-total').textContent=ROUNDS.length;
+    function render(){ var r=ROUNDS[pos], O=Pp(150,110), R=85, dp=r.d/r.r*R, hp=Math.sqrt(R*R-dp*dp);
+      G.clear(); G.el('circle',{cx:O.x,cy:O.y,r:R,fill:'var(--u-soft)',stroke:'var(--u)','stroke-width':2});
+      var A=Pp(O.x-hp,O.y+dp), B=Pp(O.x+hp,O.y+dp), M=Pp(O.x,O.y+dp);
+      G.seg(A,B,{stroke:'var(--accent)',sw:3}); G.seg(O,B,{stroke:'var(--u)',sw:1.5}); G.seg(O,M,{stroke:'var(--sage)',sw:2.5,dash:'5 3'}); G.right(M,O,B,{});
+      G.dot(O,{r:4,fill:'var(--ink)'}); G.label(Pp(O.x,O.y-10),'O',{size:12}); G.label(Pp(O.x+hp/2+12,O.y+dp/2-4),'r = '+r.r,{size:12,fill:'var(--u)'}); G.label(Pp(O.x-16,O.y+dp/2+4),'d = '+r.d,{size:12,fill:'var(--sage)'});
+      document.getElementById('ch-q').textContent='r = '+r.r+', d = '+r.d+' — 현의 길이는?';
+      document.getElementById('ch-in').value=''; document.getElementById('ch-out').innerHTML=''; }
+    document.getElementById('ch-check').onclick=function(){
+      var r=ROUNDS[pos], v=parseInt(document.getElementById('ch-in').value,10), half=Math.sqrt(r.r*r.r-r.d*r.d), ans=2*half;
+      if(v===ans){ document.getElementById('ch-out').innerHTML='<span class="good">정답! 절반 = √('+r.r+'² − '+r.d+'²) = '+half+' → 현 = '+ans+'</span>'; done++; document.getElementById('ch-done').textContent=done;
+        if(done>=ROUNDS.length){ if(!bumped){bumped=true;bump();} } else { pos++; setTimeout(render,1700); } }
+      else document.getElementById('ch-out').innerHTML=(v===half?'그건 현의 절반이에요. 수선이 현을 이등분하니 두 배!':'빗변이 반지름인 직각삼각형: 절반 = √(r² − d²).');
+    };
+    render();
+  })();
+
+  /* 게임 2: 접선 길이 */
+  (function(){
+    var ROUNDS=[{op:10,r:6},{op:13,r:12},{op:15,r:9},{op:25,r:7}];
+    var G=MJ3.makeGeo(document.getElementById('tg-fig')), pos=0, done=0, bumped=false;
+    document.getElementById('tg-total').textContent=ROUNDS.length;
+    function render(){ var r=ROUNDS[pos], k=170/r.op, O=Pp(100,120), R=r.r*k, P=Pp(100+r.op*k,120);
+      var a=Math.acos(r.r/r.op), T=Pp(O.x+R*Math.cos(a),O.y-R*Math.sin(a));
+      G.clear(); G.el('circle',{cx:O.x,cy:O.y,r:R,fill:'var(--u-soft)',stroke:'var(--u)','stroke-width':2});
+      G.seg(O,P,{stroke:'var(--muted)',sw:1.5,dash:'4 3'}); G.seg(O,T,{stroke:'var(--u)',sw:2}); G.seg(T,P,{stroke:'var(--accent)',sw:3}); G.right(T,O,P,{});
+      G.dot(O,{r:4,fill:'var(--ink)'}); G.dot(P,{r:4,fill:'var(--accent)'}); G.dot(T,{r:3.5,fill:'var(--u)'});
+      G.label(Pp(O.x,O.y+16),'O',{size:12}); G.label(Pp(P.x+12,P.y+4),'P',{size:12,fill:'var(--accent)'}); G.label(Pp(T.x-8,T.y-10),'T',{size:12,fill:'var(--u)'});
+      G.label(Pp((O.x+P.x)/2,O.y+18),'OP = '+r.op,{size:12,fill:'var(--muted)'}); G.label(Pp((O.x+T.x)/2-12,(O.y+T.y)/2),'r = '+r.r,{size:12,fill:'var(--u)'});
+      document.getElementById('tg-q').textContent='OP = '+r.op+', 반지름 '+r.r+' — 접선 PT의 길이는?';
+      document.getElementById('tg-in').value=''; document.getElementById('tg-out').innerHTML=''; }
+    document.getElementById('tg-check').onclick=function(){
+      var r=ROUNDS[pos], v=parseInt(document.getElementById('tg-in').value,10), ans=Math.sqrt(r.op*r.op-r.r*r.r);
+      if(v===ans){ document.getElementById('tg-out').innerHTML='<span class="good">정답! PT = √('+r.op+'² − '+r.r+'²) = '+ans+'</span>'; done++; document.getElementById('tg-done').textContent=done;
+        if(done>=ROUNDS.length){ if(!bumped){bumped=true;bump();} } else { pos++; setTimeout(render,1700); } }
+      else document.getElementById('tg-out').innerHTML='직각은 접점 T에 있어요 → 빗변은 OP. PT = √(OP² − r²).';
+    };
+    render();
+  })();
+
+  /* 게임 3: 참·거짓 */
+  (function(){
+    var ROUNDS=[
+      {stmt:'원의 중심에서 현에 내린 수선은 그 현을 이등분한다.', ans:true, note:'이등변삼각형의 꼭지각에서 내린 수선이니까요.'},
+      {stmt:'한 원에서 길이가 같은 두 현은 중심에서 같은 거리에 있다.', ans:true, note:'빗변(반지름)과 한 변(현의 절반)이 같으면 나머지 변도 같아요.'},
+      {stmt:'접선은 접점에서 반지름과 수직이다.', ans:true, note:'접선 문제에서 직각은 항상 접점에 있어요.'},
+      {stmt:'원 밖 한 점에서 그은 두 접선의 길이는 서로 다를 수 있다.', ans:false, note:'RHS 합동으로 늘 같아요.'},
+      {stmt:'원에 외접하는 사각형은 두 대각선의 길이가 같다.', ans:false, note:'같은 건 마주 보는 두 변의 합(AB + CD = AD + BC)이에요.'},
+      {stmt:'중심에 가까운 현일수록 길이가 짧다.', ans:false, note:'가까울수록 길어요. 가장 긴 현은 중심을 지나는 지름.'}
+    ];
+    var pos=0, done=0, bumped=false, Y=document.getElementById('tf-yes'), N=document.getElementById('tf-no2');
+    document.getElementById('tf-total').textContent=ROUNDS.length;
+    function render(){ var r=ROUNDS[pos]; document.getElementById('tf-no').textContent='문제 '+(pos+1)+' / '+ROUNDS.length; document.getElementById('tf-stmt').textContent=r.stmt; Y.className='pg-pbtn'; N.className='pg-pbtn'; document.getElementById('tf-out').innerHTML=''; }
+    function pick(v,btn){ var r=ROUNDS[pos], ok=(v===r.ans); btn.classList.add(ok?'right':'wrong');
+      document.getElementById('tf-out').innerHTML=(ok?'<span class="good">맞았어요!</span> ':'다시 생각해 봐요. ')+r.note;
+      if(ok){ done++; document.getElementById('tf-done').textContent=done; if(done>=ROUNDS.length){ if(!bumped){bumped=true;bump();} } else { pos++; setTimeout(render,1600); } } }
+    Y.onclick=function(){pick(true,this);}; N.onclick=function(){pick(false,this);};
+    render();
+  })();
+
+  /* 게임 4: 오류 탐정 (misconceptions/math3_u09.json 기반, 6개 큐레이션) */
+  (function(){
+    var CASES=[
+      {stmt:'반지름 13, 중심에서 현까지 거리 12인 원에서 현의 길이를 <b>5</b> 라고 했어요.',
+       counter:'√(13² − 12²) = 5 는 현의 절반이에요. 수선이 현을 이등분하니 현 전체는 10이에요.',
+       ask:'구한 5는 현 전체인가요, 절반인가요?',
+       q:'반지름 5, 중심 거리 4인 원에서 현의 길이는?', a:'6'},
+      {stmt:'현 문제에서 삼각형 OMA(M은 현의 중점)의 빗변을 <b>OM</b> 이라고 했어요.',
+       counter:'직각은 M에 있어요(수선). 빗변은 직각과 마주 보는 OA, 즉 반지름이에요.',
+       ask:'직각이 어느 꼭짓점에 있나요? 그 맞은편 변이 빗변이에요.',
+       q:'현의 절반 6, 중심 거리 8일 때 반지름은?', a:'10'},
+      {stmt:'접선 문제에서 직각이 <b>P</b>(원 밖의 점)에 있다고 놓고 OP를 한 변으로 썼어요.',
+       counter:'접선과 반지름은 접점 T에서 수직이에요. 직각은 T, 빗변은 OP.',
+       ask:'접선과 반지름이 만나는 점은 어디인가요?',
+       q:'OP = 15, 반지름 9 일 때 접선 PT의 길이는?', a:'12'},
+      {stmt:'원 밖 점 P에서 그은 두 접선 PA = 7, PB = <b>5</b> 라고 답했어요.',
+       counter:'삼각형 OAP와 OBP는 빗변 OP를 공유하고 OA = OB라서 합동(RHS)이에요. PA = PB.',
+       ask:'한 점에서 원에 그은 두 접선이 서로 다른 길이일 수 있나요?',
+       q:'PA = 3x − 2, PB = 10 이 두 접선의 길이일 때 x는?', a:'4'},
+      {stmt:'원에 외접하는 사각형에서 <b>AB + BC = CD + DA</b> 라고 했어요.',
+       counter:'네 꼭짓점의 접선 길이 짝을 더하면 마주 보는 변끼리 합이 같아요: AB + CD = AD + BC. 인접한 변이 아니에요.',
+       ask:'각 꼭짓점의 접선 길이 두 개는 어느 두 변에 하나씩 들어가나요?',
+       q:'외접사각형에서 AB = 6, BC = 9, CD = 8 일 때 AD는?', a:'5'},
+      {stmt:'삼각형의 내접원 문제에서 <b>AF = BF</b> (F는 AB 위의 접점)라고 했어요.',
+       counter:'같은 건 한 꼭짓점에서 나온 두 접선이에요: AF = AE, BF = BD. AF와 BF는 다른 꼭짓점에서 나왔어요.',
+       ask:'AF와 AE는 어느 점에서 나온 접선인가요? AF와 BF는요?',
+       q:'AB = 7, AF = 3 일 때 BD (D는 BC 위의 접점)는?', a:'4'}
+    ];
+    var order=[0,1,2,3,4,5].sort(function(){return Math.random()-0.5;});
+    var pos=0, bumped=false;
+    function render(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-no').textContent='사건 '+(pos+1)+' / '+order.length;
+      document.getElementById('det-stmt').innerHTML=c.stmt;
+      document.getElementById('det-counter').style.display='none';
+      document.getElementById('det-ask').style.display='none';
+      document.getElementById('det-checkbox').style.display='none';
+      document.getElementById('det-in').value='';
+      document.getElementById('det-out').innerHTML='';
+      document.getElementById('det-think').style.display='inline-block';
+      document.getElementById('det-next').style.display='none';
+    }
+    document.getElementById('det-think').onclick=function(){
+      var c=CASES[order[pos]];
+      document.getElementById('det-counter').innerHTML='<b>다르게 볼까요?</b> '+c.counter;
+      document.getElementById('det-counter').style.display='block';
+      document.getElementById('det-ask').innerHTML='생각해보기: '+c.ask;
+      document.getElementById('det-ask').style.display='block';
+      document.getElementById('det-checkq').innerHTML=c.q;
+      document.getElementById('det-checkbox').style.display='block';
+      document.getElementById('det-think').style.display='none';
+    };
+    document.getElementById('det-check').onclick=function(){
+      var c=CASES[order[pos]];
+      var v=(document.getElementById('det-in').value||'');
+      var norm=function(s){return s.replace(/[−–]/g,'-').replace(/[^0-9a-zA-Z가-힣<>()/.,\-+=]/g,'').toLowerCase();};
+      var ok=v.length>0 && norm(c.a).indexOf(norm(v))>=0;
+      document.getElementById('det-out').innerHTML=ok
+        ? '<span class="good">정답이에요 - '+c.a+'</span>'
+        : '정답: <b>'+c.a+'</b> (직접 써보면서 확인해봐요)';
+      document.getElementById('det-next').style.display='inline-block';
+      if(!bumped){ bumped=true; bump(); }
+    };
+    document.getElementById('det-next').onclick=function(){
+      pos++; if(pos>=order.length) pos=0; render();
+    };
+    render();
+  })();
+})();
+</script>
+</body>
+</html>
