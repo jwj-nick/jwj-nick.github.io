@@ -8,8 +8,14 @@
 <link rel="stylesheet" href="concept.css?v=20260830b">
 <style>
   /* 이 페이지 전용 보강 — 공용 concept.css는 그대로 두고 여기서만 확장 */
+  .qgrid{grid-template-columns:1fr}                 /* 한 줄에 한 문제 */
   .qcard .picks{flex-wrap:wrap}
   .qcard .picks button{flex:1 1 46%;font-size:12.5px;line-height:1.35}
+  .explain-btn{background:none;border:none;box-shadow:none;color:var(--sage);font-size:12.5px;font-weight:700;
+    padding:7px 0 0;cursor:pointer;text-align:left}
+  .explain-btn:hover{text-decoration:underline}
+  .qcard .hint{display:none}
+  .qcard .hint.show{display:block;animation:pop .3s ease}
   .drillcard{background:var(--sage-soft);border:1px solid rgba(79,168,146,.3);border-radius:14px;padding:2px 15px 4px;margin:10px 0 14px}
   .drillcard summary{cursor:pointer;font-weight:800;padding:10px 0;color:var(--sage)}
   .drillcard[open] summary{margin-bottom:2px}
@@ -159,6 +165,15 @@ MJ1.boot();
       qc.appendChild(inp);
     }
     qc.appendChild(r);
+    if(p.exp){
+      var expBtn=document.createElement('button'); expBtn.className='explain-btn'; expBtn.textContent='💡 설명 보기';
+      var expBox=document.createElement('div'); expBox.className='hint'; expBox.innerHTML=p.exp;
+      expBtn.onclick=function(){
+        var open=expBox.classList.toggle('show');
+        expBtn.textContent=open?'🔼 설명 접기':'💡 설명 보기';
+      };
+      qc.appendChild(expBtn); qc.appendChild(expBox);
+    }
     grid.appendChild(qc);
   }
 
