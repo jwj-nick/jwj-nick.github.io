@@ -137,6 +137,7 @@
     var links='<div class="sb-brand">중1 수학<small>1·2학기</small></div>'+
       '<a class="sb-link'+(activeId==='home'?' active':'')+'" href="index.html"><span class="sb-no">🏠</span>홈</a>'+
       '<div class="sb-sep"></div>'+
+      '<a class="sb-link tool'+(activeId==='drill'?' active':'')+'" href="drill.html"><span class="sb-no">⚡</span>스피드 드릴</a>'+
       '<a class="sb-link tool" href="../print/index.html"><span class="sb-no">🖨️</span>중1 프린트</a>'+
       '<a class="sb-link tool" href="../../story/index.html"><span class="sb-no">🎬</span>인물 이야기</a>'+
       '<a class="sb-link tool" href="../../map/index.html"><span class="sb-no">🗺️</span>수학 지도</a>'+

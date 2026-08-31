@@ -1,0 +1,196 @@
+<!-- drill.html — 스피드 드릴: 등식의 성질·식 세우기 자동화 전용 특별 챕터 (2026-08-31) -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>⚡ 스피드 드릴 · 중1</title>
+<link rel="stylesheet" href="concept.css?v=20260830b">
+<style>
+  /* 이 페이지 전용 보강 — 공용 concept.css는 그대로 두고 여기서만 확장 */
+  .qcard .picks{flex-wrap:wrap}
+  .qcard .picks button{flex:1 1 46%;font-size:12.5px;line-height:1.35}
+  .drillcard{background:var(--sage-soft);border:1px solid rgba(79,168,146,.3);border-radius:14px;padding:2px 15px 4px;margin:10px 0 14px}
+  .drillcard summary{cursor:pointer;font-weight:800;padding:10px 0;color:var(--sage)}
+  .drillcard[open] summary{margin-bottom:2px}
+  .drillcard .body{font-size:13.5px;line-height:1.7;padding-bottom:12px}
+  .timerbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .timer{font-variant-numeric:tabular-nums;font-weight:800;color:var(--u);background:var(--u-soft);padding:3px 11px;border-radius:999px;font-size:13.5px}
+  .best{font-size:12px;color:var(--muted)}
+  .best b{color:var(--accent)}
+  #printBtn{background:var(--panel);color:var(--ink);border:1.5px solid var(--border);box-shadow:none}
+  #printArea{display:none}
+  @media print{
+    body > *:not(#printArea){display:none !important}
+    #printArea{display:block !important}
+    #printArea .pq{page-break-inside:avoid;border-bottom:1px dashed #ccc;padding:10px 0}
+    #printArea .pn{font-weight:800;margin-right:6px}
+    #printArea .pline{border-bottom:1px solid #999;display:inline-block;min-width:140px;height:1.1em;margin-left:10px}
+    #printArea .pkey{page-break-before:always}
+    #printArea .pchoices span{display:inline-block;margin:3px 14px 3px 0}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중1 수학</a><span class="dot"></span><span>스피드 드릴</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+  <h1>⚡ 스피드 드릴</h1>
+  <p class="lede">이미 배운 걸 <b>빠르고 자동으로</b> 처리하는 연습이에요 — 새로 배우는 게 아니라 <b>몸에 익히는</b> 시간이에요.
+  하루 한 챕터, 10문제면 충분해요. 오늘 시간을 재고, <b>어제의 나</b>랑만 비교해요.</p>
+
+  <nav class="utabs" id="chapnav" aria-label="챕터 선택"></nav>
+  <details class="drillcard" id="card"><summary>📋 방법 보기</summary><div class="body" id="cardBody"></div></details>
+
+  <div class="drillbar">
+    <div class="pill-row" id="tiernav" style="margin:0"></div>
+    <span class="grow"></span>
+    <div class="timerbar">
+      <span class="timer" id="timer">00:00</span>
+      <span class="best" id="best"></span>
+    </div>
+  </div>
+  <div class="drillbar">
+    <span class="score" id="score"></span>
+    <span class="grow"></span>
+    <button id="printBtn">🖨️ 오늘 문제 인쇄하기</button>
+    <button id="fresh">🔄 새 문제</button>
+  </div>
+  <div class="qgrid" id="grid"></div>
+
+  <div class="foot">스피드 드릴 · 답을 넣고 Enter(선택형은 버튼 클릭) · 10문제를 다 맞히면 오늘 기록이 나와요 · 점수는 저장하지 않아요, 시간만 재요.</div>
+</div>
+
+<div id="printArea"></div>
+
+<script src="concept.js?v=20260830b"></script>
+<script src="drills.js?v=1"></script>
+<script>
+MJ1.boot();
+(function(){
+  var D=window.DRILL;
+  var grid=document.getElementById('grid'), chapnav=document.getElementById('chapnav'),
+      tiernav=document.getElementById('tiernav'), scoreEl=document.getElementById('score'),
+      cardEl=document.getElementById('card'), cardBody=document.getElementById('cardBody'),
+      timerEl=document.getElementById('timer'), bestEl=document.getElementById('best'),
+      printArea=document.getElementById('printArea');
+  if(!D){ grid.innerHTML='<p class="muted">문제 은행을 불러오지 못했어요.</p>'; return; }
+  var N=10, state={ci:0, tier:'기초', items:[]}, solved=0, total=0;
+  var timerId=null, elapsed=0, running=false;
+
+  function bestKey(){ return D.chapters[state.ci].key+'_'+state.tier; }
+  function loadBest(){ try{return JSON.parse(localStorage.getItem('m1drillbest'))||{};}catch(e){return {};} }
+  function saveBest(sec){ var b=loadBest(); b[bestKey()]=sec; try{localStorage.setItem('m1drillbest',JSON.stringify(b));}catch(e){} }
+  function paintBest(){
+    var b=loadBest()[bestKey()];
+    bestEl.innerHTML = b ? ('최고 기록 <b>'+fmtTime(b)+'</b>') : '';
+  }
+  function fmtTime(sec){ var m=Math.floor(sec/60), s=sec%60; return (m<10?'0':'')+m+':'+(s<10?'0':'')+s; }
+  function stopTimer(){ if(timerId){clearInterval(timerId);timerId=null;} running=false; }
+  function startTimer(){
+    stopTimer(); elapsed=0; timerEl.textContent='00:00'; running=true;
+    timerId=setInterval(function(){ elapsed++; timerEl.textContent=fmtTime(elapsed); },1000);
+  }
+  function finishTimer(){
+    if(!running)return; stopTimer();
+    var b=loadBest()[bestKey()];
+    if(!b || elapsed<b){ saveBest(elapsed); paintBest();
+      scoreEl.innerHTML='맞음 <b>'+solved+'</b> / '+total+' · <b style="color:var(--ok)">🎉 최고 기록 경신! '+fmtTime(elapsed)+'</b>';
+      try{MJ1.confetti();}catch(e){}
+    } else {
+      scoreEl.innerHTML='맞음 <b>'+solved+'</b> / '+total+' · 오늘 '+fmtTime(elapsed)+' · 최고 기록 '+fmtTime(b);
+    }
+  }
+
+  function seenKey(k){ return 'm1drillseen_'+k; }
+  function paintCard(){
+    var ch=D.chapters[state.ci];
+    cardBody.innerHTML=ch.card;
+    var sk=seenKey(ch.key);
+    var seen=false; try{seen=!!localStorage.getItem(sk);}catch(e){}
+    cardEl.open = !seen;
+    try{localStorage.setItem(sk,'1');}catch(e){}
+  }
+
+  D.chapters.forEach(function(c,i){
+    var b=document.createElement('button'); b.className='ut'+(i===0?' active':''); b.textContent=c.name;
+    b.onclick=function(){ state.ci=i; paint(); paintCard(); build(); };
+    chapnav.appendChild(b);
+  });
+  ['기초','도전'].forEach(function(tr,i){
+    var b=document.createElement('button'); b.className='pill'+(i===0?' sel':''); b.setAttribute('data-tier',tr); b.textContent=tr;
+    b.onclick=function(){ state.tier=tr; paint(); build(); };
+    tiernav.appendChild(b);
+  });
+  function paint(){
+    Array.prototype.forEach.call(chapnav.children,function(b,i){ b.classList.toggle('active',i===state.ci); });
+    Array.prototype.forEach.call(tiernav.children,function(b){ b.classList.toggle('sel',b.getAttribute('data-tier')===state.tier); });
+  }
+  function updScore(){ scoreEl.innerHTML='맞음 <b>'+solved+'</b> / '+total; }
+  function norm(s){ return (s||'').trim().replace(/[−–—]/g,'-').replace(/\s+/g,''); }
+
+  function makeCard(p, no){
+    total++;
+    var qc=document.createElement('div'); qc.className='qcard';
+    qc.innerHTML='<div class="qn">'+no+'</div><div class="qq">'+p.q+'</div>';
+    var r=document.createElement('div'); r.className='qr';
+    var done=false;
+    function mark(ok){
+      if(done && ok) return;
+      if(ok){ done=true; qc.classList.remove('no'); qc.classList.add('ok'); r.textContent='정답이에요'; solved++; updScore();
+        if(solved>=total) finishTimer(); }
+      else { qc.classList.add('no'); r.innerHTML='아니에요. 답: <span class="ans">'+p.ans+'</span>'; }
+    }
+    if(p.type==='pick'){
+      var wrap=document.createElement('div'); wrap.className='picks';
+      p.choices.forEach(function(ch){
+        var b=document.createElement('button'); b.textContent=ch;
+        b.onclick=function(){ mark(ch===p.ans); };
+        wrap.appendChild(b);
+      });
+      qc.appendChild(wrap);
+    } else {
+      var inp=document.createElement('input'); inp.className='num'; inp.setAttribute('inputmode','numeric'); inp.setAttribute('aria-label','답');
+      function check(){ if(done)return; var t=norm(inp.value); if(t==='')return; var v=parseFloat(t); if(isNaN(v))return; mark(v===p.ans); }
+      inp.addEventListener('keydown',function(e){ if(e.key==='Enter') check(); });
+      inp.addEventListener('blur',check);
+      qc.appendChild(inp);
+    }
+    qc.appendChild(r);
+    grid.appendChild(qc);
+  }
+
+  function buildPrintArea(){
+    var ch=D.chapters[state.ci];
+    var html='<div class="pq"><h2>⚡ 스피드 드릴 — '+ch.name+' ('+state.tier+')</h2>'+
+      '<p>이름 ___________ 날짜 ___________ · 목표: 10문제를 최대한 빨리, 정확하게</p></div>';
+    state.items.forEach(function(p,i){
+      html+='<div class="pq"><span class="pn">'+(i+1)+'.</span>'+p.q;
+      if(p.type==='pick'){
+        html+='<div class="pchoices">'+p.choices.map(function(c){return '<span>○ '+c+'</span>';}).join('')+'</div>';
+      } else {
+        html+=' 답 <span class="pline"></span>';
+      }
+      html+='</div>';
+    });
+    html+='<div class="pkey"><h2>정답</h2>';
+    state.items.forEach(function(p,i){ html+='<div class="pq">'+(i+1)+'. '+p.ans+'</div>'; });
+    html+='</div>';
+    printArea.innerHTML=html;
+  }
+
+  function build(){
+    grid.innerHTML=''; solved=0; total=0; state.items=[];
+    var gen=D.chapters[state.ci].gen[state.tier];
+    for(var i=0;i<N;i++){ var p=gen(); state.items.push(p); makeCard(p, i+1); }
+    updScore(); paintBest(); buildPrintArea(); startTimer();
+  }
+  document.getElementById('fresh').onclick=build;
+  document.getElementById('printBtn').onclick=function(){ buildPrintArea(); window.print(); };
+  paint(); paintCard(); build();
+})();
+</script>
+</body>
+</html>
