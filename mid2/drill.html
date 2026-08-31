@@ -1,4 +1,4 @@
-<!-- drill.html — 계산 연습: 챕터별 빠른 문제 그리드 (문제 은행 랜덤) -->
+<!-- drill.html — 계산 연습: 챕터별 빠른 문제 그리드 (문제 은행 랜덤) + ⚡ 방정식 정리·식 세우기 스피드 드릴 -->
 <!doctype html>
 <html lang="ko">
 <head>
@@ -6,6 +6,36 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>계산 연습 · 중2-1</title>
 <link rel="stylesheet" href="concept.css?v=20260830a">
+<style>
+  /* 이 페이지 전용 보강 — 공용 concept.css는 그대로 두고 여기서만 확장 */
+  .qgrid{grid-template-columns:1fr}                 /* 한 줄에 한 문제 */
+  .qcard .picks{flex-wrap:wrap}
+  .qcard .picks button{flex:1 1 46%;font-size:12.5px;line-height:1.35}
+  .explain-btn{background:none;border:none;box-shadow:none;color:var(--sage);font-size:12.5px;font-weight:700;
+    padding:7px 0 0;cursor:pointer;text-align:left}
+  .explain-btn:hover{text-decoration:underline}
+  .qcard .hint{display:none}
+  .qcard .hint.show{display:block;animation:pop .3s ease}
+  .drillcard{background:var(--sage-soft);border:1px solid rgba(79,168,146,.3);border-radius:14px;padding:2px 15px 4px;margin:10px 0 14px}
+  .drillcard summary{cursor:pointer;font-weight:800;padding:10px 0;color:var(--sage)}
+  .drillcard[open] summary{margin-bottom:2px}
+  .drillcard .body{font-size:13.5px;line-height:1.7;padding-bottom:12px}
+  .timerbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .timer{font-variant-numeric:tabular-nums;font-weight:800;color:var(--u);background:var(--u-soft);padding:3px 11px;border-radius:999px;font-size:13.5px}
+  .best{font-size:12px;color:var(--muted)}
+  .best b{color:var(--accent)}
+  #printBtn{background:var(--panel);color:var(--ink);border:1.5px solid var(--border);box-shadow:none}
+  #printArea{display:none}
+  @media print{
+    body > *:not(#printArea){display:none !important}
+    #printArea{display:block !important}
+    #printArea .pq{page-break-inside:avoid;border-bottom:1px dashed #ccc;padding:10px 0}
+    #printArea .pn{font-weight:800;margin-right:6px}
+    #printArea .pline{border-bottom:1px solid #999;display:inline-block;min-width:140px;height:1.1em;margin-left:10px}
+    #printArea .pkey{page-break-before:always}
+    #printArea .pchoices span{display:inline-block;margin:3px 14px 3px 0}
+  }
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -14,34 +44,87 @@
     <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
   </div>
   <h1>계산 연습</h1>
-  <p class="lede">챕터를 고르고 빠르게 풀어요. 새로고침하거나 <b>새 문제</b>를 누르면 문제가 바뀌어요.</p>
+  <p class="lede">챕터를 고르고 빠르게 풀어요. <b>⚡ 방정식 정리·식 세우기</b>는 이미 배운 걸 자동으로 처리하는 특별 드릴이에요 — 방법 카드·타이머·설명 보기가 있어요.
+  나머지 챕터는 새로고침하거나 <b>새 문제</b>를 누르면 문제가 바뀌어요.</p>
 
   <nav class="utabs" id="chapnav" aria-label="챕터 선택"></nav>
+  <details class="drillcard" id="card" style="display:none"><summary>📋 방법 보기</summary><div class="body" id="cardBody"></div></details>
+
   <div class="drillbar">
     <div class="pill-row" id="tiernav" style="margin:0"></div>
     <span class="grow"></span>
+    <div class="timerbar">
+      <span class="timer" id="timer">00:00</span>
+      <span class="best" id="best"></span>
+    </div>
+  </div>
+  <div class="drillbar">
     <span class="score" id="score"></span>
-    <button id="fresh">새 문제</button>
+    <span class="grow"></span>
+    <button id="printBtn">🖨️ 오늘 문제 인쇄하기</button>
+    <button id="fresh">🔄 새 문제</button>
   </div>
   <div class="qgrid" id="grid"></div>
 
-  <div class="foot">계산 연습 · 답을 넣고 Enter를 눌러요. 문제는 매번 새로 나와요.</div>
+  <div class="foot">계산 연습 · 답을 넣고 Enter(선택형은 버튼 클릭) · 10문제를 다 맞히면 오늘 기록이 나와요 · 점수는 저장하지 않아요.</div>
 </div>
 
+<div id="printArea"></div>
+
 <script src="concept.js?v=20260830a"></script>
-<script src="drills.js?v=3"></script>
+<script src="drills.js?v=4"></script>
 <script>
 MJ.boot();
 (function(){
   var D=window.DRILL;
   var grid=document.getElementById('grid'), chapnav=document.getElementById('chapnav'),
-      tiernav=document.getElementById('tiernav'), scoreEl=document.getElementById('score');
+      tiernav=document.getElementById('tiernav'), scoreEl=document.getElementById('score'),
+      cardEl=document.getElementById('card'), cardBody=document.getElementById('cardBody'),
+      timerEl=document.getElementById('timer'), bestEl=document.getElementById('best'),
+      printArea=document.getElementById('printArea');
   if(!D){ grid.innerHTML='<p class="muted">문제 은행을 불러오지 못했어요.</p>'; return; }
-  var N=10, state={ci:0, tier:'기초'}, solved=0, total=0;
+  var N=10, state={ci:0, tier:'기초', items:[]}, solved=0, total=0;
+  var timerId=null, elapsed=0, running=false;
+
+  function bestKey(){ return D.chapters[state.ci].key+'_'+state.tier; }
+  function loadBest(){ try{return JSON.parse(localStorage.getItem('m2drillbest'))||{};}catch(e){return {};} }
+  function saveBest(sec){ var b=loadBest(); b[bestKey()]=sec; try{localStorage.setItem('m2drillbest',JSON.stringify(b));}catch(e){} }
+  function paintBest(){
+    var b=loadBest()[bestKey()];
+    bestEl.innerHTML = b ? ('최고 기록 <b>'+fmtTime(b)+'</b>') : '';
+  }
+  function fmtTime(sec){ var m=Math.floor(sec/60), s=sec%60; return (m<10?'0':'')+m+':'+(s<10?'0':'')+s; }
+  function stopTimer(){ if(timerId){clearInterval(timerId);timerId=null;} running=false; }
+  function startTimer(){
+    stopTimer(); elapsed=0; timerEl.textContent='00:00'; running=true;
+    timerId=setInterval(function(){ elapsed++; timerEl.textContent=fmtTime(elapsed); },1000);
+  }
+  function finishTimer(){
+    if(!running)return; stopTimer();
+    var b=loadBest()[bestKey()];
+    if(!b || elapsed<b){ saveBest(elapsed); paintBest();
+      scoreEl.innerHTML='맞음 <b>'+solved+'</b> / '+total+' · <b style="color:var(--ok)">🎉 최고 기록 경신! '+fmtTime(elapsed)+'</b>';
+      try{MJ.confetti();}catch(e){}
+    } else {
+      scoreEl.innerHTML='맞음 <b>'+solved+'</b> / '+total+' · 오늘 '+fmtTime(elapsed)+' · 최고 기록 '+fmtTime(b);
+    }
+  }
+
+  function seenKey(k){ return 'm2drillseen_'+k; }
+  function paintCard(){
+    var ch=D.chapters[state.ci];
+    if(!ch.card){ cardEl.style.display='none'; return; }
+    cardEl.style.display='';
+    cardBody.innerHTML=ch.card;
+    var sk=seenKey(ch.key);
+    var seen=false; try{seen=!!localStorage.getItem(sk);}catch(e){}
+    cardEl.open = !seen;
+    try{localStorage.setItem(sk,'1');}catch(e){}
+  }
 
   D.chapters.forEach(function(c,i){
     var b=document.createElement('button'); b.className='ut'+(i===0?' active':''); b.textContent=c.name;
-    b.onclick=function(){ state.ci=i; paint(); build(); };
+    b.onclick=function(){ state.ci=i; paint(); paintCard(); build(); };
     chapnav.appendChild(b);
   });
   ['기초','도전'].forEach(function(tr,i){
@@ -58,14 +141,15 @@ MJ.boot();
 
   function makeCard(p, no){
     total++;
-    var card=document.createElement('div'); card.className='qcard';
-    card.innerHTML='<div class="qn">'+no+'</div><div class="qq">'+p.q+'</div>';
+    var qc=document.createElement('div'); qc.className='qcard';
+    qc.innerHTML='<div class="qn">'+no+'</div><div class="qq">'+p.q+'</div>';
     var r=document.createElement('div'); r.className='qr';
     var done=false;
     function mark(ok){
       if(done && ok) return;
-      if(ok){ done=true; card.classList.remove('no'); card.classList.add('ok'); r.textContent='정답이에요'; solved++; updScore(); }
-      else { card.classList.add('no'); r.innerHTML='아니에요. 답: <span class="ans">'+p.ans+'</span>'; }
+      if(ok){ done=true; qc.classList.remove('no'); qc.classList.add('ok'); r.textContent='정답이에요'; solved++; updScore();
+        if(solved>=total) finishTimer(); }
+      else { qc.classList.add('no'); r.innerHTML='아니에요. 답: <span class="ans">'+p.ans+'</span>'; }
     }
     if(p.type==='pick'){
       var wrap=document.createElement('div'); wrap.className='picks';
@@ -74,25 +158,55 @@ MJ.boot();
         b.onclick=function(){ mark(ch===p.ans); };
         wrap.appendChild(b);
       });
-      card.appendChild(wrap);
+      qc.appendChild(wrap);
     } else {
       var inp=document.createElement('input'); inp.className='num'; inp.setAttribute('inputmode','numeric'); inp.setAttribute('aria-label','답');
       function check(){ if(done)return; var t=norm(inp.value); if(t==='')return; var v=parseFloat(t); if(isNaN(v))return; mark(v===p.ans); }
       inp.addEventListener('keydown',function(e){ if(e.key==='Enter') check(); });
       inp.addEventListener('blur',check);
-      card.appendChild(inp);
+      qc.appendChild(inp);
     }
-    card.appendChild(r);
-    grid.appendChild(card);
+    qc.appendChild(r);
+    if(p.exp){
+      var expBtn=document.createElement('button'); expBtn.className='explain-btn'; expBtn.textContent='💡 설명 보기';
+      var expBox=document.createElement('div'); expBox.className='hint'; expBox.innerHTML=p.exp;
+      expBtn.onclick=function(){
+        var open=expBox.classList.toggle('show');
+        expBtn.textContent=open?'🔼 설명 접기':'💡 설명 보기';
+      };
+      qc.appendChild(expBtn); qc.appendChild(expBox);
+    }
+    grid.appendChild(qc);
   }
+
+  function buildPrintArea(){
+    var ch=D.chapters[state.ci];
+    var html='<div class="pq"><h2>계산 연습 — '+ch.name+' ('+state.tier+')</h2>'+
+      '<p>이름 ___________ 날짜 ___________ · 목표: 10문제를 최대한 빨리, 정확하게</p></div>';
+    state.items.forEach(function(p,i){
+      html+='<div class="pq"><span class="pn">'+(i+1)+'.</span>'+p.q;
+      if(p.type==='pick'){
+        html+='<div class="pchoices">'+p.choices.map(function(c){return '<span>○ '+c+'</span>';}).join('')+'</div>';
+      } else {
+        html+=' 답 <span class="pline"></span>';
+      }
+      html+='</div>';
+    });
+    html+='<div class="pkey"><h2>정답</h2>';
+    state.items.forEach(function(p,i){ html+='<div class="pq">'+(i+1)+'. '+p.ans+'</div>'; });
+    html+='</div>';
+    printArea.innerHTML=html;
+  }
+
   function build(){
-    grid.innerHTML=''; solved=0; total=0;
+    grid.innerHTML=''; solved=0; total=0; state.items=[];
     var gen=D.chapters[state.ci].gen[state.tier];
-    for(var i=0;i<N;i++) makeCard(gen(), i+1);
-    updScore();
+    for(var i=0;i<N;i++){ var p=gen(); state.items.push(p); makeCard(p, i+1); }
+    updScore(); paintBest(); buildPrintArea(); startTimer();
   }
   document.getElementById('fresh').onclick=build;
-  paint(); build();
+  document.getElementById('printBtn').onclick=function(){ buildPrintArea(); window.print(); };
+  paint(); paintCard(); build();
 })();
 </script>
 </body>
