@@ -39,6 +39,7 @@
     if(m=f.match(/^x([1-9]|1[0-3])$/))  return {no:+m[1],kind:'explore'};
     if(m=f.match(/^g([1-9]|1[0-3])$/))  return {no:+m[1],kind:'play'};
     if(/drill/.test(f))          return {kind:'drill'};
+    if(/speed-mastery/.test(f))  return {kind:'speed-mastery'};
     return {kind:'home'};
   }
   function hexA(hex,a){var n=parseInt(hex.slice(1),16);return 'rgba('+(n>>16&255)+','+(n>>8&255)+','+(n&255)+','+a+')';}
@@ -138,6 +139,7 @@
       '<a class="sb-link'+(activeId==='home'?' active':'')+'" href="index.html"><span class="sb-no">🏠</span>홈</a>'+
       '<div class="sb-sep"></div>'+
       '<a class="sb-link tool'+(activeId==='drill'?' active':'')+'" href="drill.html"><span class="sb-no">⚡</span>스피드 드릴</a>'+
+      '<a class="sb-link tool'+(activeId==='speed-mastery'?' active':'')+'" href="speed-mastery.html"><span class="sb-no">🚗</span>속력·거리·시간 특강</a>'+
       '<a class="sb-link tool" href="../print/index.html"><span class="sb-no">🖨️</span>중1 프린트</a>'+
       '<a class="sb-link tool" href="../../story/index.html"><span class="sb-no">🎬</span>인물 이야기</a>'+
       '<a class="sb-link tool" href="../../map/index.html"><span class="sb-no">🗺️</span>수학 지도</a>'+
