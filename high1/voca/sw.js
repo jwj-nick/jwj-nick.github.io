@@ -2,7 +2,7 @@
 // 전략 = 네트워크 우선, 실패 시 캐시 (한자 나라 2026-08-23 교훈: 캐시 우선은 낡은 버전이 영원히 서빙됨).
 // 예외: 웹폰트·오디오(mp3)는 불변 리소스라 캐시 우선.
 // CACHE 버전은 30_pipeline/build.py가 콘텐츠 해시로 자동 갱신한다 (손으로 올리지 않는다).
-const CACHE = "voca-cache-17eb7ae9af";
+const CACHE = "voca-cache-c072a3a367";
 const SHELL = ["./", "./index.html", "./style.css", "./app.js", "./config.js", "./site.webmanifest", "./icon.svg"];
 const STATIC_HOSTS = ["fonts.googleapis.com", "fonts.gstatic.com"];
 

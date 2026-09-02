@@ -16,7 +16,12 @@ window.APP_CONFIG = {
     "totalMax": 15,
     "vaultCap": 40,
     "knownDays": 7,
-    "retestDays": 3
+    "retestDays": 3,
+    "gradDays": [
+      30,
+      90
+    ],
+    "gMax": 3
   },
   "mix": {
     "word": 7,
@@ -30,6 +35,7 @@ window.APP_CONFIG = {
   },
   "quizTypes": [
     "meaning",
+    "reverse",
     "blank"
   ],
   "quizUnlock": {

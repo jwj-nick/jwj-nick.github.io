@@ -4,6 +4,7 @@ window.APP_CONFIG = {
   "track": "mid",
   "title": "Voca Vault",
   "subtitle": "듣고 · 모으고 · 졸업하는 나의 단어장",
+  "offlineBundle": false,
   "back": "../index.html",
   "backLabel": "← 중1 학습 앱",
   "algo": {
@@ -15,7 +16,12 @@ window.APP_CONFIG = {
     "totalMax": 15,
     "vaultCap": 40,
     "knownDays": 7,
-    "retestDays": 3
+    "retestDays": 3,
+    "gradDays": [
+      30,
+      90
+    ],
+    "gMax": 3
   },
   "mix": {
     "word": 7,
@@ -29,6 +35,7 @@ window.APP_CONFIG = {
   },
   "quizTypes": [
     "meaning",
+    "reverse",
     "blank"
   ],
   "quizUnlock": {

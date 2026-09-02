@@ -48,6 +48,7 @@
         var f = freshState();
         Object.keys(f).forEach(function (k) { if (s[k] === undefined) s[k] = f[k]; });
         s.settings = Object.assign(f.settings, s.settings || {});
+        migrateGrad(s);
         return s;
       }
     } catch (e) {}
@@ -303,9 +304,31 @@
   function vaultIds() { return Object.keys(S.items).filter(function (id) { return byId[id] && !S.items[id].g; }); }
   function gradIds() { return Object.keys(S.items).filter(function (id) { return byId[id] && S.items[id].g; }); }
   function toVault(id, t, dueIn) { S.items[id] = { s: 0, due: addDays(t, dueIn === undefined ? 1 : dueIn), g: false }; delete S.known[id]; S.seen[id] = S.seen[id] || t; }
+  // ---- 졸업 후 장기 점검 (결정 #28) ----
+  // 졸업은 끝이 아니라 "간격이 크게 벌어진 상태"다. gs = 통과한 장기 점검 횟수,
+  // due = 다음 점검일. 마지막 단계를 통과하면 due=null이 되어 진짜로 끝난다.
+  function gradIntervals() { var g = A.gradDays; return (g && g.length) ? g : [30, 90]; }
+  function gradDue(t, stage) { var g = gradIntervals(); return stage < g.length ? addDays(t, g[stage]) : null; }
+  function recallDue(set, t) {
+    return (set.G || []).filter(function (id) { return isGrad(id) && S.items[id].due && S.items[id].due <= t; });
+  }
+  // 장기 점검 도입 이전에 졸업한 항목은 due가 비어 있어 영영 안 나온다. 되살리되
+  // 같은 날 한꺼번에 몰리지 않도록 1일차부터 1단계 간격까지 고르게 펼친다.
+  // gs가 있으면 손대지 않는다 — 마지막 단계를 통과해 due=null이 된 항목과 구분하는 표식이다.
+  function migrateGrad(st) {
+    var items = st && st.items; if (!items) return 0;
+    var ids = Object.keys(items).filter(function (id) {
+      return items[id] && items[id].g && !items[id].due && items[id].gs === undefined;
+    }).sort();
+    if (!ids.length) return 0;
+    var iv = gradIntervals()[0] || 30, t0 = todayStr();
+    ids.forEach(function (id, i) { items[id].gs = 0; items[id].due = addDays(t0, 1 + (i % iv)); });
+    return ids.length;
+  }
   function stateLabel(id, t) {
     var r = rec(id);
-    if (r && r.g) return { cls: "grad", text: "졸업" };
+    if (r && r.g) return { cls: "grad", text: !r.due ? "졸업 ✓ 완료"
+      : r.due <= t ? "졸업 · 오늘 복습" : "졸업 · " + r.due.slice(5).replace("-", "/") + " 복습" };
     if (r) return r.due <= t ? { cls: "due", text: "오늘 재시험" } : { cls: "soon", text: r.due.slice(5).replace("-", "/") + " 재시험" };
     if (S.known[id]) return { cls: "", text: "안다 (점검 " + S.known[id].slice(5).replace("-", "/") + ")" };
     return { cls: "", text: "" };
@@ -388,10 +411,14 @@
         return sa - sb || (S.items[a].due < S.items[b].due ? -1 : S.items[a].due > S.items[b].due ? 1 : 0);
       }).slice(0, A.rMax);
     var Sp = Object.keys(S.known).filter(function (id) { return byId[id] && S.known[id] <= t; }).sort().slice(0, A.sMax);
+    // 졸업 후 장기 점검 — 오래 밀린 것부터, gMax개까지. 상한이 있어서 밀린 걸 하루에 몰아 주지 않는다.
+    var G = gradIds().filter(function (id) { var g = S.items[id]; return g.due && g.due <= t; })
+      .sort(function (a, b) { return S.items[a].due < S.items[b].due ? -1 : S.items[a].due > S.items[b].due ? 1 : 0; })
+      .slice(0, A.gMax || 0);
     var N = pickNew(newCount(t));
-    var over = R.length + Sp.length + N.length - A.totalMax;
+    var over = R.length + Sp.length + G.length + N.length - A.totalMax;
     if (over > 0) N = N.slice(0, Math.max(0, N.length - over));
-    d.set = { R: R, S: Sp, N: N };
+    d.set = { R: R, S: Sp, G: G, N: N };
     d.done = false;
     save();
     return d.set;
@@ -399,7 +426,9 @@
   function dueVaultCount(t) { return vaultIds().filter(function (id) { return S.items[id].due <= t; }).length; }
 
   // ---------- 문제 생성 ----------
-  function distractors(it, n, field) {
+  // reject = 오답 후보에서 빼야 할 항목 판정. 보기가 영어 단어인 형식(reverse·blank)에서
+  // 뜻이 같은 단어가 오답으로 섞이면 정답이 둘이 된다 — mid 16쌍·high 30쌍이 실제로 있다.
+  function distractors(it, n, field, reject) {
     var same = ITEMS.filter(function (x) { return x.id !== it.id && x.module === it.module && x.band === it.band && x.pos === it.pos; });
     var mod = ITEMS.filter(function (x) { return x.id !== it.id && x.module === it.module; });
     var pool = shuffle(same).concat(shuffle(mod)).concat(shuffle(ITEMS));
@@ -409,11 +438,19 @@
     for (var i = 0; i < pool.length && out.length < n; i++) {
       var v = field(pool[i]);
       if (!v || seen[v] || pool[i].id === it.id) continue;
+      if (reject && reject(pool[i])) continue;
       seen[v] = true; out.push(v);
     }
     return out;
   }
   function koOf(it) { return it.ko[0]; }
+  function koFull(it) { return it.ko.join(" · "); }
+  function headOf(x) { return x.head; }
+  function meaningClash(it) {
+    var set = {};
+    (it.ko || []).forEach(function (k) { set[k] = 1; });
+    return function (x) { return (x.ko || []).some(function (k) { return set[k]; }); };
+  }
   function maskExample(it) {
     var ex = it.examples && it.examples[0]; if (!ex) return null;
     var cands = [it.head].concat(it.forms || []).sort(function (a, b) { return b.length - a.length; });
@@ -431,13 +468,25 @@
     if (rule && it.band < rule.fromBand) return false;
     return !!(audioFile(it.id, "word.us") || audioFile(it.id, "word.uk") || window.speechSynthesis);
   }
+  // 산출형 = 우리말·문맥·소리에서 영어를 스스로 떠올리는 형식. meaning(뜻 고르기)만 인식형이다.
+  var PRODUCTIVE = { reverse: 1, blank: 1, dictation: 1 };
   function pickType(it, r, purpose) {
     if (purpose === "check" || purpose === "place") return "meaning";
     var types = (CFG.quizTypes || ["meaning"]).slice();
     if (dictationAvailable(it)) types.push("dictation");
     if (it.module === "expr") types = types.filter(function (x) { return x === "meaning" || x === "reverse"; });
     if (types.indexOf("blank") >= 0 && !maskExample(it)) types = types.filter(function (x) { return x !== "blank"; });
-    if (r && r.s === 1 && r.lt && types.length > 1) types = types.filter(function (x) { return x !== r.lt; }); // 형식 다양성 규칙
+    // 졸업이 걸린 문항(s=1 → 맞히면 졸업)과 졸업 후 장기 점검은 산출형으로 낸다.
+    // 뜻 고르기만으로 졸업하면 "보면 아는" 단계에서 학습이 끝난다.
+    if (r && (r.s === 1 || purpose === "recall")) {
+      var prod = types.filter(function (x) { return PRODUCTIVE[x]; });
+      if (prod.length) types = prod;
+    }
+    // 형식 다양성 — 같은 형식으로 두 번 맞혀 졸업하지 않게
+    if (r && r.lt && types.length > 1) {
+      var diff = types.filter(function (x) { return x !== r.lt; });
+      if (diff.length) types = diff;
+    }
     return types[Math.floor(Math.random() * types.length)];
   }
   function buildQuestion(id, purpose) {
@@ -449,12 +498,13 @@
       q.opts = shuffle(distractors(it, 3, koOf).concat([q.answer])); q.optCls = "";
       q.audio = true;
     } else if (type === "reverse") {
-      q.prompt = koOf(it); q.promptCls = "ko"; q.answer = it.head;
-      q.opts = shuffle(distractors(it, 3, function (x) { return x.head; }).concat([q.answer])); q.optCls = "en";
+      // 뜻을 전부 보여준다 — ko[0]만 쓰면 "포함하다"처럼 여러 단어가 공유하는 뜻에서 문제가 모호해진다.
+      q.prompt = koFull(it); q.promptCls = "ko"; q.sub = posLabel(it); q.answer = it.head;
+      q.opts = shuffle(distractors(it, 3, headOf, meaningClash(it)).concat([q.answer])); q.optCls = "en";
     } else if (type === "blank") {
       var m = maskExample(it);
       q.masked = m; q.prompt = ""; q.promptCls = "sentence"; q.sub = m.ko; q.answer = it.head;
-      q.opts = shuffle(distractors(it, 3, function (x) { return x.head; }).concat([q.answer])); q.optCls = "en";
+      q.opts = shuffle(distractors(it, 3, headOf, meaningClash(it)).concat([q.answer])); q.optCls = "en";
     } else { // dictation
       q.prompt = "🔊"; q.promptCls = ""; q.sub = "들리는 단어를 입력하세요"; q.answer = it.head; q.input = true; q.audio = true; q.autoplay = true;
     }
@@ -476,7 +526,8 @@
     }
     sess.pendingIds = set.R.filter(function (id) { return isVault(id) && S.items[id].due <= t; })
       .map(function (id) { return { id: id, purpose: "retest" }; })
-      .concat(set.S.filter(function (id) { return S.known[id] && S.known[id] <= t; }).map(function (id) { return { id: id, purpose: "spot" }; }));
+      .concat(set.S.filter(function (id) { return S.known[id] && S.known[id] <= t; }).map(function (id) { return { id: id, purpose: "spot" }; }))
+      .concat(recallDue(set, t).map(function (id) { return { id: id, purpose: "recall" }; }));
     if (!sess.cards.length && !sess.pendingIds.length) { finishDay(t); renderHome(); return; }
     preload(set.N.concat(set.R));
     pushView("session");
@@ -520,6 +571,12 @@
     } else { ipa.innerHTML = ""; ipa.classList.add("hidden"); }
     audioButtons($(prefix + "-audio"), it.id, "word", it.head);
     $(prefix + "-ko").textContent = it.ko.join(" · ");
+    // note = 동음이의·강세·영국 철자·구문 틀 사용법 (결정 #18에서 넣어 두고 렌더가 빠져 있던 필드)
+    var noteBox = $(prefix + "-note");
+    if (noteBox) {
+      noteBox.textContent = it.note || "";
+      noteBox.classList.toggle("hidden", !it.note);
+    }
     var exBox = $(prefix + "-ex"); exBox.innerHTML = "";
     (it.examples || []).slice(0, 1).forEach(function (ex, n) {
       var m = maskExample(it);
@@ -558,7 +615,8 @@
     var total = sess.queue.length;
     $("prog-fill").style.width = Math.round((sess.idx / total) * 100) + "%";
     var label = sess.mode === "place" ? "실력 체크" : sess.mode === "vault" ? "보관함 재시험" : "오늘의 퀴즈";
-    $("quiz-label").textContent = label + " " + (sess.idx + 1) + "/" + total + (q.purpose === "check" ? " · 오늘 배운 단어" : q.purpose === "spot" ? " · 점검" : "");
+    $("quiz-label").textContent = label + " " + (sess.idx + 1) + "/" + total + (q.purpose === "check" ? " · 오늘 배운 단어" : q.purpose === "spot" ? " · 점검"
+       : q.purpose === "recall" ? " · 졸업 단어 복습" : "");
     $("q-type").textContent = TYPE_LABEL[q.type] || "";
     var p = $("q-prompt"); p.className = "q-prompt " + (q.promptCls || "");
     if (q.type === "blank") {
@@ -634,12 +692,24 @@
       if (correct) { delete S.known[id]; save(); return "점검 통과 ✓ 진짜 아는 단어"; }
       toVault(id, t, 1); pushWrong(it); save(); return "보관함으로 — 내일 다시";
     }
+    if (q.purpose === "recall") { // 졸업 후 장기 점검 — 통과하면 다음 단계로, 틀리면 보관함으로 되돌린다
+      var gr = S.items[id] || (S.items[id] = { s: 2, due: null, g: true, gs: 0 });
+      if (correct) {
+        gr.gs = (gr.gs || 0) + 1; gr.lt = q.type; gr.due = gradDue(t, gr.gs); save();
+        return gr.due ? "아직 기억하고 있어요 ✓ 졸업 유지" : "완전히 내 단어예요 ✓ 이제 안 물어봐요";
+      }
+      gr.g = false; gr.s = 0; gr.gs = 0; gr.due = addDays(t, 1);
+      var gi = S.saved.indexOf(id); if (gi >= 0) S.saved.splice(gi, 1);
+      pushWrong(it); save();
+      return "잊었네요 — 보관함으로, 내일 다시";
+    }
     var r = S.items[id] || (S.items[id] = { s: 0, due: t, g: false });
     var fb;
     if (correct) {
       r.s = (r.s || 0) + 1; r.lt = q.type;
       if (r.s >= 2) {
-        r.g = true; r.due = null;
+        // 졸업 = 끝이 아니라 장기 점검 예약. due를 비우면 그 단어는 두 번 다시 안 나온다.
+        r.g = true; r.gs = 0; r.due = gradDue(t, 0);
         var si = S.saved.indexOf(id); if (si >= 0) S.saved.splice(si, 1);
         sess.gradList.push(it); fb = '<span class="stamp">졸업 🎓</span>';
         playGradSequence(it.head);
@@ -741,7 +811,9 @@
       sub = ids.length ? ids.length + "개 학습 중 · 오늘 재시험 " + due + "개 — 다른 날 2번 맞히면 졸업" : "비어 있어요 — 카드에서 '모른다'를 누르거나 검색해서 담아 보세요";
       if (ids.length) { act.textContent = due ? "지금 재시험 (" + Math.min(due, 10) + "개)" : "연습 퀴즈 (진도 무관)"; act.classList.remove("hidden"); act.onclick = startVaultReview; }
     } else if (kind === "grad") {
-      ids = gradIds().sort(); title = "졸업한 단어"; sub = ids.length + "개 — 검색해서 다시 담으면 복습할 수 있어요";
+      ids = gradIds().sort(); title = "졸업한 단어";
+      var gd = gradIntervals().join("일 · ") + "일";
+      sub = ids.length + "개 — 졸업해도 " + gd + " 뒤에 한 번씩 다시 확인해요. 바로 복습하려면 검색해서 담으면 돼요";
     } else { renderBands(); return; }
     $("list-title").textContent = title; $("list-sub").textContent = sub;
     if (!ids.length) rows.appendChild(el("div", "row empty", "아직 없어요"));
@@ -847,6 +919,7 @@
       if (!parsed || parsed.v !== 1 || !parsed.items) throw new Error("bad");
       var f = freshState();
       Object.keys(f).forEach(function (k) { if (parsed[k] === undefined) parsed[k] = f[k]; });
+      migrateGrad(parsed);
       S = parsed; save();
       $("backup-msg").textContent = "복원 완료! 홈으로 돌아가면 가져온 기록이 보여요.";
     } catch (e) { $("backup-msg").textContent = "파일이 올바르지 않아요 — 이 앱에서 저장한 백업 파일을 골라 주세요."; }
@@ -867,9 +940,10 @@
     var remainN = set.N.filter(function (id) { return !isSeen(id); }).length;
     var remainR = set.R.filter(function (id) { return isVault(id) && S.items[id].due <= t; }).length;
     var remainS = set.S.filter(function (id) { return S.known[id] && S.known[id] <= t; }).length;
+    var remainG = recallDue(set, t).length;
     var btn = $("btn-start-all"), line = $("today-line"), meta = $("hero-meta");
-    if (d.done || (!remainN && !remainR && !remainS)) {
-      if (!d.done && !set.N.length && !set.R.length && !set.S.length) finishDay(t);
+    if (d.done || (!remainN && !remainR && !remainS && !remainG)) {
+      if (!d.done && !set.N.length && !set.R.length && !set.S.length && !(set.G || []).length) finishDay(t);
       $("hero-kicker").textContent = "DONE";
       line.textContent = "오늘 학습 끝! 내일 또 만나요.";
       btn.textContent = "보관함 연습 퀴즈"; btn.onclick = function () { pushView("list"); startVaultReview(); };
@@ -880,7 +954,8 @@
       if (remainN) parts.push("새 단어 " + remainN);
       if (remainR) parts.push("재시험 " + remainR);
       if (remainS) parts.push("점검 " + remainS);
-      line.textContent = parts.join(" · ") + " — 약 " + Math.max(1, Math.round((remainN * 12 + (remainR + remainS) * 8) / 60)) + "분";
+      if (remainG) parts.push("복습 " + remainG);
+      line.textContent = parts.join(" · ") + " — 약 " + Math.max(1, Math.round((remainN * 12 + (remainR + remainS + remainG) * 8) / 60)) + "분";
       btn.textContent = (d.set && (d.newStats.shown > 0)) ? "이어서 하기" : "오늘의 학습 시작";
       btn.onclick = function () { unlockAudio(); startDaily(); };
       var vc = vaultIds().length;
@@ -914,7 +989,15 @@
     S = load();
     document.title = CFG.title;
     $("app-title").textContent = CFG.title; $("app-subtitle").textContent = CFG.subtitle;
-    var back = $("back-link"); back.href = CFG.back || "../index.html"; back.textContent = CFG.backLabel || "← 학습 앱";
+    // APK(자산 내장)에는 돌아갈 상위 허브가 없다. back이 비면 링크를 감춘다 —
+    // 기본값 "../index.html"을 그대로 두면 갈 곳 없는 링크가 남는다.
+    var back = $("back-link");
+    if (CFG.back) {
+      back.href = CFG.back; back.textContent = CFG.backLabel || "← 학습 앱";
+      back.hidden = false;
+    } else {
+      back.hidden = true;
+    }
     applyTheme(currentTheme(), false);
     syncSoundIcon();
     $("theme-toggle").addEventListener("click", function () { applyTheme(currentTheme() === "light" ? "dark" : "light", true); });
