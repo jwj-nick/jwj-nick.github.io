@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>등차수열과 등비수열 — 대수</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
+<script src="lecture.js"></script>
+<link rel="stylesheet" href="alg_app.css">
+<style>
+  .terms{display:flex;flex-wrap:wrap;gap:6px;align-items:flex-end;margin:8px 0}
+  .tm{background:#f5f3ff;border:1px solid #ddd6fe;border-radius:10px;padding:8px 10px;min-width:56px;text-align:center;animation:fade .3s ease}.tm b{display:block;font-size:15px;color:var(--accent-d)}.tm small{font-size:10.5px;color:var(--sub)}
+  .dif{font-size:12px;color:#b45309;font-weight:800;align-self:center}
+  .gauss{display:flex;gap:3px;align-items:flex-end;height:120px;margin:8px 0}.gauss div{flex:1;border-radius:4px 4px 0 0;position:relative}.gauss .u{background:#a78bfa}.gauss .f{background:#fdba74}
+  .canc{font-size:15px;line-height:2;font-family:ui-monospace,Consolas,monospace;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:12px 14px;overflow-x:auto;white-space:pre}.canc s{color:#64748b}.canc b{color:#fde68a}
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Math_1_1</a><span>&rsaquo;</span><a href="alg_hub.html">대수</a><span>&rsaquo;</span><a class="cur" href="#">등차수열과 등비수열</a></nav>
+<div class="hero">
+  <span class="badge">Ⅲ. 수열</span>
+  <h1>🔢 등차수열과 등비수열</h1>
+  <p>일정하게 더하거나, 일정하게 곱하거나 — 규칙이 있는 수의 나열</p>
+</div>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="intro">📋 개요</button>
+  <button class="tab" data-t="ap">➕ 등차수열</button>
+  <button class="tab" data-t="gp">✖️ 등비수열</button>
+  <button class="tab" data-t="sum">🧮 합 공식</button>
+  <button class="tab" data-t="world">🌐 세상 속으로</button>
+  <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="fin">✅ 정리</button>
+</div>
+<div class="wrap">
+
+  <div class="page active" data-p="intro">
+    <div class="card">
+      <h2>📋 규칙이 있는 수의 나열</h2>
+      <div class="hook">
+        <div class="ht">💥 왜 배우나</div>
+        매달 10만 원씩 넣는 적금과, 매년 5%씩 불어나는 예금은 자라는 방식이 달라요. 앞은 <b>일정하게 더해지고</b>(등차), 뒤는 <b>일정하게 곱해져요</b>(등비). 처음 몇 년은 비슷해 보이지만 30년 뒤에는 완전히 다른 그래프가 되죠. 피아노 건반의 주파수, 세균의 증식, 계단의 높이, 달력의 날짜까지 세상의 "규칙적인 나열"은 거의 이 두 가지예요. 이 단원은 그 두 나열을 <b>$n$번째 항</b>과 <b>첫 항부터 $n$항까지의 합</b>으로 계산하는 단원이에요.
+      </div>
+      <div class="splink">🚪 Σ 기호와 "반복문" 감각을 먼저 잡고 싶다면 → <a href="alg_sp_sigma.html">관문 특강: 수열과 Σ 리터러시</a></div>
+      <div class="sci">
+        <div class="ava">🧒</div>
+        <div>
+          <div class="st">가우스 (1777~1855) — 1부터 100까지</div>
+          <div class="sd">어린 가우스가 "1부터 100까지 더하라"는 과제를 몇 초 만에 풀었다는 일화가 있어요. $1+100$, $2+99$, … 짝을 지으면 $101$이 50쌍이니까 $5050$. 일화의 진위는 확실하지 않지만, 이 <b>"뒤집어 더하기"</b>가 등차수열의 합 공식 그 자체예요. 가우스는 훗날 "수학의 왕자"로 불리며 정수론·통계·전자기학까지 바꿔 놓았어요.</div>
+        </div>
+      </div>
+      <div class="toc">
+        <button onclick="go('ap')"><div class="ti">➕</div><div class="tn">등차수열</div><div class="td">일반항 a+(n−1)d</div></button>
+        <button onclick="go('gp')"><div class="ti">✖️</div><div class="tn">등비수열</div><div class="td">일반항 ar^(n−1)</div></button>
+        <button onclick="go('sum')"><div class="ti">🧮</div><div class="tn">합 공식</div><div class="td">뒤집어 더하기 · rS−S</div></button>
+        <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">적금·복리·건반</div></button>
+        <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="ap">
+    <div class="card">
+      <h2>➕ 등차수열 — 일정하게 더한다</h2>
+      <p class="lead">첫째항 $a$와 공차 $d$를 움직여 보세요. 항이 어떻게 자라는지, $n$번째 항이 왜 $a+(n-1)d$인지 카드에서 보여요.</p>
+      <div class="widget">
+        <div class="row"><span>첫째항 $a$</span><input type="range" id="pa" min="-5" max="10" step="1" value="2"><span class="v" id="pav">2</span></div>
+        <div class="row"><span>공차 $d$</span><input type="range" id="pd" min="-4" max="5" step="1" value="3"><span class="v" id="pdv">3</span></div>
+        <div class="terms" id="apTerms"></div>
+        <div class="out" id="apOut"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 일반항</div>$$a_n=a+(n-1)d$$ "$n$번째 항 = 첫째항에서 $(n-1)$번 $d$만큼 움직인 것". 그래프로 그리면 기울기 $d$인 <b>직선 위의 점들</b>이에요.</div>
+      <div class="box b"><div class="t">🔑 등차중항</div>연속한 세 항 $a, b, c$가 등차수열이면 가운데 항은 양옆의 평균: $b=\dfrac{a+c}2$. "일정하게 더한다"에서 바로 나와요.</div>
+      <div class="box b" style="text-align:center;font-size:15px">등차수열에서 $a_3=7$, $a_7=19$ 일 때 $a_{10}$은?</div>
+      <div class="steps"><button class="stepbtn" data-w="w1">▶ 풀이 단계별로 보기</button>
+        <div class="stepwrap" id="w1">
+          <div class="step"><span class="sn">1</span>$a_7-a_3=4d=12$ → $d=3$.<div class="why">→ 3번째에서 7번째까지 4번 움직였다.</div></div>
+          <div class="step"><span class="sn">2</span>$a_3=a+2d=7$ → $a=1$.</div>
+          <div class="step"><span class="sn">3</span>$a_{10}=a+9d=1+27=28$ (또는 $a_7+3d=19+9$).</div>
+          <div class="ans">$a_{10}=28$</div>
+        </div>
+      </div>
+      <div class="box a"><div class="t">⚠️ 흔한 실수</div>$a_n=a+nd$로 쓰는 것. 첫째항은 $0$번 움직인 것이므로 $(n-1)d$. 확인: $n=1$을 넣으면 $a_1=a$가 나와야 해요.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="gp">
+    <div class="card">
+      <h2>✖️ 등비수열 — 일정하게 곱한다</h2>
+      <p class="lead">첫째항 $a$와 공비 $r$을 움직여 보세요. 공비가 1보다 크면 폭발하고, 0과 1 사이면 0으로 다가가고, 음수면 부호가 번갈아요.</p>
+      <div class="widget">
+        <div class="row"><span>첫째항 $a$</span><input type="range" id="ga" min="1" max="5" step="1" value="3"><span class="v" id="gav">3</span></div>
+        <div class="row"><span>공비 $r$</span><input type="range" id="gr" min="-3" max="3" step="0.5" value="2"><span class="v" id="grv">2</span></div>
+        <div class="terms" id="gpTerms"></div>
+        <div class="out" id="gpOut"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 일반항</div>$$a_n=ar^{n-1}$$ "$n$번째 항 = 첫째항에 $r$을 $(n-1)$번 곱한 것". 그래프로 그리면 <b>지수함수 위의 점들</b>이에요(등차가 직선이듯).</div>
+      <div class="box b"><div class="t">🔑 등비중항</div>연속한 세 항 $a, b, c$가 등비수열이면 $b^2=ac$ (가운데 항의 제곱 = 양옆의 곱). $b=\pm\sqrt{ac}$ 두 개일 수 있어요.</div>
+      <div class="box b" style="text-align:center;font-size:15px">등비수열에서 $a_2=6$, $a_5=48$ 일 때 첫째항과 공비는?</div>
+      <div class="steps"><button class="stepbtn" data-w="w2">▶ 풀이 단계별로 보기</button>
+        <div class="stepwrap" id="w2">
+          <div class="step"><span class="sn">1</span>$\dfrac{a_5}{a_2}=r^3=\dfrac{48}{6}=8$ → $r=2$.<div class="why">→ 2번째에서 5번째까지 3번 곱했다.</div></div>
+          <div class="step"><span class="sn">2</span>$a_2=ar=6$ → $a=3$.</div>
+          <div class="ans">$a=3,\ r=2$ (수열: $3, 6, 12, 24, 48,\dots$)</div>
+        </div>
+      </div>
+      <div class="box a"><div class="t">⚠️ 흔한 실수</div>공비가 음수일 때 $r^3=-8$이면 $r=-2$ 하나뿐이지만, $r^2=4$이면 $r=\pm2$ 두 개예요. 짝수 제곱에서 나온 공비는 부호를 둘 다 확인.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="sum">
+    <div class="card">
+      <h2>🧮 합 공식 — 외우지 말고 만들기</h2>
+      <h3>등차수열의 합 — 뒤집어 더하기</h3>
+      <p>$1+2+\cdots+n$을 막대로 쌓으면 계단이에요. 같은 계단을 <b>뒤집어 얹으면 직사각형</b>이 되고, 그 넓이는 $n\times(1+n)$. 우리가 원하는 건 그 절반이에요.</p>
+      <div class="widget">
+        <div class="row"><span>$n$</span><input type="range" id="gn" min="3" max="12" step="1" value="8"><span class="v" id="gnv">8</span></div>
+        <div class="gauss" id="gauss"></div>
+        <div class="btns"><button id="flipBtn" class="on">뒤집은 계단 얹기</button></div>
+        <div class="out" id="gOut"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 등차수열의 합</div>$$S_n=\frac{n(a_1+a_n)}{2}=\frac{n\{2a+(n-1)d\}}{2}$$ "(첫째항 + 끝항) × 개수 ÷ 2". 끝항을 알면 앞 식, 공차를 알면 뒤 식.</div>
+      <div class="box b" style="text-align:center;font-size:15px">첫째항 $2$, 공차 $3$인 등차수열의 첫째항부터 제$10$항까지의 합은?</div>
+      <div class="steps"><button class="stepbtn" data-w="w3">▶ 풀이 단계별로 보기</button>
+        <div class="stepwrap" id="w3">
+          <div class="step"><span class="sn">1</span>$a_{10}=2+9\cdot3=29$.</div>
+          <div class="step"><span class="sn">2</span>$S_{10}=\dfrac{10(2+29)}{2}=5\cdot31=155$.</div>
+          <div class="ans">$155$</div>
+        </div>
+      </div>
+      <h3>등비수열의 합 — $rS$에서 $S$를 빼면 가운데가 사라진다</h3>
+      <p>$S=a+ar+ar^2+\cdots+ar^{n-1}$에 $r$을 곱하면 항이 한 칸씩 밀려요. 두 식을 빼면 <b>가운데가 전부 지워지고</b> 양 끝만 남아요.</p>
+      <div class="canc" id="canc"></div>
+      <div class="box g"><div class="t">✅ 등비수열의 합 ($r\ne1$)</div>$$S_n=\frac{a(r^n-1)}{r-1}=\frac{a(1-r^n)}{1-r}$$ $r=1$이면 모든 항이 같으니 $S_n=na$.</div>
+      <div class="box b" style="text-align:center;font-size:15px">$3+6+12+\cdots+3\cdot2^9$ 의 값은?</div>
+      <div class="steps"><button class="stepbtn" data-w="w4">▶ 풀이 단계별로 보기</button>
+        <div class="stepwrap" id="w4">
+          <div class="step"><span class="sn">1</span>$a=3$, $r=2$, 항 수 $n=10$ (지수가 0부터 9).</div>
+          <div class="step"><span class="sn">2</span>$S_{10}=\dfrac{3(2^{10}-1)}{2-1}=3\cdot1023=3069$.</div>
+          <div class="ans">$3069$</div>
+        </div>
+      </div>
+      <h3>단리 vs 복리 — 등차 vs 등비</h3>
+      <table>
+        <tr><th>해</th><th>단리 (매년 원금의 5%)</th><th>복리 (매년 잔액의 5%)</th></tr>
+        <tr><td>0</td><td>100만</td><td>100만</td></tr>
+        <tr><td>1</td><td>105만 (+5)</td><td>105만 (×1.05)</td></tr>
+        <tr><td>2</td><td>110만</td><td>110.25만</td></tr>
+        <tr><td>10</td><td>150만</td><td>약 162.9만</td></tr>
+        <tr><td>30</td><td>250만</td><td>약 432.2만</td></tr>
+      </table>
+      <div class="box b"><div class="t">🔑 읽는 법</div>단리는 등차수열($100+5n$), 복리는 등비수열($100\times1.05^n$). 처음엔 비슷하지만 시간이 갈수록 등비가 압도해요. 이것이 "복리의 마법"이고, 대출이라면 "복리의 공포"예요.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="world">
+    <div class="card">
+      <h2>🌐 세상 속으로</h2>
+      <div class="keeper">
+        <div class="kt">📌 어른이 되어도 기억할 것</div>
+        <ol>
+          <li><b>일정하게 더하면 직선, 일정하게 곱하면 지수 곡선.</b> 적금은 등차, 복리는 등비. 시간이 길수록 등비가 이긴다.</li>
+          <li><b>72의 법칙</b>: 연 $r\%$ 복리면 약 $72\div r$년 뒤 두 배. 6%면 12년, 3%면 24년.</li>
+          <li><b>합은 만들어 쓰는 것</b>: 등차는 뒤집어 더하기, 등비는 $rS-S$. 공식을 잊어도 30초면 다시 만든다.</li>
+        </ol>
+      </div>
+      <div class="insight">
+        <div class="it">💡 인사이트 — 다음 단원으로</div>
+        여러 항을 더하는 것을 기호 하나로 적은 것이 <b>Σ</b>(다음 단원)예요. 그리고 "다음 항 = 이전 항 + $d$"처럼 <b>이전 항으로 다음 항을 정의</b>하는 방식(귀납적 정의)은 컴퓨터가 세상을 계산하는 기본 방식이고, 대수의 마지막 단원 수학적 귀납법으로 이어져요.
+      </div>
+      <div class="reallife">
+        <div class="rt">🏠 등차와 등비가 보이는 곳</div>
+        <div class="rgrid">
+          <div class="rcell"><div class="ri">🎹</div><div class="rn">피아노 건반</div><div class="rd">반음 올라갈 때마다 주파수 ×$2^{1/12}$ (등비)</div></div>
+          <div class="rcell"><div class="ri">🏦</div><div class="rn">적금 vs 예금</div><div class="rd">단리는 등차, 복리는 등비</div></div>
+          <div class="rcell"><div class="ri">🪜</div><div class="rn">계단·좌석</div><div class="rd">극장 좌석 수가 줄마다 일정하게 증가</div></div>
+          <div class="rcell"><div class="ri">🦠</div><div class="rn">세균 분열</div><div class="rd">20분마다 2배 (등비)</div></div>
+          <div class="rcell"><div class="ri">📄</div><div class="rn">종이 규격</div><div class="rd">A4→A3→A2 넓이 2배 (등비)</div></div>
+          <div class="rcell"><div class="ri">📅</div><div class="rn">달력</div><div class="rd">같은 요일은 7씩 더한 등차</div></div>
+        </div>
+      </div>
+      <div class="industry">
+        <div class="indt">🏭 산업과 직업</div>
+        <div class="indrow"><div class="ii">💹</div><div class="id2"><b>금융</b><br>대출 상환표, 연금, 채권 가격은 전부 등비수열의 합. 금융 계산기의 속은 이 공식이다.<br><span class="major">🎓 경영 · 경제 · 금융공학</span></div></div>
+        <div class="indrow"><div class="ii">🎵</div><div class="id2"><b>음악·음향</b><br>12평균율은 한 옥타브를 등비수열 12칸으로 나눈 것. 신시사이저·튜너의 기본.<br><span class="major">🎓 음향공학 · 작곡</span></div></div>
+        <div class="indrow"><div class="ii">🧬</div><div class="id2"><b>생명·역학</b><br>세포 분열·감염 초기 확산은 등비, 약물의 축적은 등비수열의 합(무한급수는 대학에서).<br><span class="major">🎓 생명과학 · 의학 · 약학</span></div></div>
+        <div class="indrow"><div class="ii">🏗️</div><div class="id2"><b>건축·제조</b><br>계단·객석 배치, 부품 규격의 등비 계열(전선 굵기·저항값 E계열).<br><span class="major">🎓 건축 · 전자공학</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="quiz">
+    <div class="card">
+      <h2>🔥 등차수열·등비수열 퀴즈</h2>
+      <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
+      <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="fin">
+    <div class="card">
+      <h2>✅ 정리</h2>
+      <table>
+        <tr><th class="l"></th><th class="l">등차수열</th><th class="l">등비수열</th></tr>
+        <tr><td class="l">규칙</td><td class="l">일정하게 더함 (공차 $d$)</td><td class="l">일정하게 곱함 (공비 $r$)</td></tr>
+        <tr><td class="l">일반항</td><td class="l">$a_n=a+(n-1)d$</td><td class="l">$a_n=ar^{n-1}$</td></tr>
+        <tr><td class="l">중항</td><td class="l">$b=\frac{a+c}2$</td><td class="l">$b^2=ac$</td></tr>
+        <tr><td class="l">합</td><td class="l">$S_n=\frac{n(a_1+a_n)}2$</td><td class="l">$S_n=\frac{a(r^n-1)}{r-1}$ ($r\ne1$)</td></tr>
+        <tr><td class="l">그래프</td><td class="l">직선 위의 점</td><td class="l">지수함수 위의 점</td></tr>
+      </table>
+      <div class="box b"><div class="t">🔑 한 줄 요약</div>$n$번째 항은 "첫째항에서 $(n-1)$번 움직인 것". 합은 등차면 뒤집어 더하고, 등비면 $rS-S$로 가운데를 지운다.</div>
+      <h3>자가 점검</h3>
+      <div class="chk"><input type="checkbox" id="c1"><label for="c1">두 항의 값으로 공차(공비)와 첫째항을 찾아 일반항을 쓸 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c2"><label for="c2">등차중항·등비중항으로 미지수를 구할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c3"><label for="c3">등차수열의 합 공식을 뒤집어 더하기로 유도할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c4"><label for="c4">등비수열의 합 공식을 $rS-S$로 유도하고 항 수를 바르게 센다</label></div>
+      <h3>약점 태그</h3>
+      <div><span class="tag">대수:등차수열</span><span class="tag">대수:등비수열</span><span class="tag">대수:등차합</span><span class="tag">대수:등비합</span></div>
+      <div class="box g" style="margin-top:16px"><div class="t">➡️ 다음 단원</div>합을 기호 하나로 → <a href="alg_sigma.html">수열의 합 Σ</a>. <a href="alg_hub.html">대수 허브</a>로.</div>
+    </div>
+  </div>
+</div>
+
+<script src="alg_app.js"></script>
+<script>
+function fmt(v){ return LEC.fmt(v); }
+/* 등차 */
+function drawAP(){ var a=parseInt(document.getElementById('pa').value,10), d=parseInt(document.getElementById('pd').value,10); document.getElementById('pav').textContent=fmt(a); document.getElementById('pdv').textContent=fmt(d);
+  var box=document.getElementById('apTerms'); box.innerHTML=''; for(var n=1;n<=8;n++){ var t=document.createElement('div'); t.className='tm'; t.innerHTML='<small>a<sub>'+n+'</sub></small><b>'+fmt(a+(n-1)*d)+'</b><small>'+(n===1?'a':'a+'+(n-1)+'d')+'</small>'; box.appendChild(t); if(n<8){ var s=document.createElement('span'); s.className='dif'; s.textContent=(d>=0?'+':'−')+Math.abs(d); box.appendChild(s); } }
+  var el=document.getElementById('apOut'); el.innerHTML='$a_n='+LEC.poly([d,a-d],'n')+'$ &nbsp;·&nbsp; $a_{20}='+fmt(a+19*d).replace('−','-')+'$ &nbsp;·&nbsp; '+(d>0?'증가':(d<0?'감소':'상수')); LEC.tex(el); }
+['pa','pd'].forEach(function(id){document.getElementById(id).addEventListener('input',drawAP);}); drawAP();
+/* 등비 */
+function drawGP(){ var a=parseInt(document.getElementById('ga').value,10), r=parseFloat(document.getElementById('gr').value); if(r===0){ r=0.5; document.getElementById('gr').value=0.5; } document.getElementById('gav').textContent=a; document.getElementById('grv').textContent=fmt(r);
+  var box=document.getElementById('gpTerms'); box.innerHTML=''; for(var n=1;n<=7;n++){ var v=a*Math.pow(r,n-1); var t=document.createElement('div'); t.className='tm'; t.innerHTML='<small>a<sub>'+n+'</sub></small><b>'+fmt(Math.round(v*1000)/1000)+'</b><small>'+(n===1?'a':'ar<sup>'+(n-1)+'</sup>')+'</small>'; box.appendChild(t); if(n<7){ var s=document.createElement('span'); s.className='dif'; s.textContent='×'+fmt(r); box.appendChild(s); } }
+  var msg = Math.abs(r)>1 ? (r>0?'폭발적으로 커짐':'부호가 번갈아 가며 커짐') : (Math.abs(r)===1 ? (r>0?'모든 항이 같음':'부호만 번갈아') : (r>0?'0으로 다가감':'부호가 번갈아 가며 0으로'));
+  var el=document.getElementById('gpOut'); el.innerHTML='$a_n='+a+'\\cdot('+fmt(r).replace('−','-')+')^{n-1}$ &nbsp;·&nbsp; '+msg; LEC.tex(el); }
+['ga','gr'].forEach(function(id){document.getElementById(id).addEventListener('input',drawGP);}); drawGP();
+/* 가우스 */
+var FLIP=true;
+function drawGauss(){ var n=parseInt(document.getElementById('gn').value,10); document.getElementById('gnv').textContent=n; var box=document.getElementById('gauss'); box.innerHTML='';
+  for(var k=1;k<=n;k++){ var col=document.createElement('div'); var h=k/(n+1)*100; col.style.height=(FLIP?100:h)+'%'; col.style.background=FLIP?'linear-gradient(to top,#a78bfa 0 '+h+'%,#fdba74 '+h+'% 100%)':'#a78bfa'; col.title=k+(FLIP?' + '+(n+1-k):''); box.appendChild(col); }
+  var el=document.getElementById('gOut'); el.innerHTML= FLIP ? '직사각형: 가로 $'+n+'$ × 세로 $(1+'+n+')$ = $'+(n*(n+1))+'$ → 절반 $=\\dfrac{'+n+'\\cdot'+(n+1)+'}{2}='+(n*(n+1)/2)+'$' : '계단: $1+2+\\cdots+'+n+'$ — 뒤집은 계단(주황)을 얹어 보세요'; LEC.tex(el); }
+document.getElementById('gn').addEventListener('input',drawGauss); document.getElementById('flipBtn').addEventListener('click',function(){ FLIP=!FLIP; this.classList.toggle('on',FLIP); drawGauss(); }); drawGauss();
+/* rS−S */
+(function(){ var el=document.getElementById('canc'); el.innerHTML='  S = <b>a</b> + <s>ar</s> + <s>ar²</s> + <s>ar³</s> + … + <s>ar<sup>n−1</sup></s>\n<span style="color:#94a3b8">−)</span> rS =     <s>ar</s> + <s>ar²</s> + <s>ar³</s> + … + <s>ar<sup>n−1</sup></s> + <b>arⁿ</b>\n──────────────────────────────\n S − rS = a − arⁿ  →  (1−r)S = a(1−rⁿ)  →  S = a(rⁿ−1)/(r−1)'; })();
+
+var TABNAME={ap:'➕ 등차수열',gp:'✖️ 등비수열',sum:'🧮 합 공식'};
+var QUIZ=[
+ {q:'첫째항 5, 공차 −2인 등차수열의 제8항은?',o:['−9','−11','21','−7'],a:0,t:'ap',e:'a₈ = 5 + 7×(−2) = −9. (n−1)번 움직인다.'},
+ {q:'등차수열에서 a₂=5, a₆=17 일 때 공차는?',o:['3','4','12','2'],a:0,t:'ap',e:'a₆−a₂ = 4d = 12 → d=3.'},
+ {q:'세 수 2, x, 14 가 이 순서로 등차수열을 이룰 때 x는?',o:['8','7','6','12'],a:0,t:'ap',e:'등차중항: x = (2+14)/2 = 8.'},
+ {q:'첫째항 2, 공비 3인 등비수열의 제5항은?',o:['162','54','486','32'],a:0,t:'gp',e:'a₅ = 2·3⁴ = 2·81 = 162.'},
+ {q:'등비수열에서 a₃=12, a₆=96 일 때 공비는?',o:['2','3','4','8'],a:0,t:'gp',e:'a₆/a₃ = r³ = 8 → r=2.'},
+ {q:'세 수 3, x, 27 이 이 순서로 등비수열을 이룰 때 x의 값은?',o:['±9','9','15','±15'],a:0,t:'gp',e:'등비중항: x² = 3×27 = 81 → x=±9. 짝수 제곱이므로 부호 둘 다.'},
+ {q:'1+2+3+…+50 의 값은?',o:['1275','1250','2550','1225'],a:0,t:'sum',e:'n(a₁+aₙ)/2 = 50×51/2 = 1275.'},
+ {q:'첫째항 3, 공차 4인 등차수열의 첫째항부터 제10항까지의 합은?',o:['210','200','190','420'],a:0,t:'sum',e:'a₁₀ = 3+36 = 39. S = 10(3+39)/2 = 210.'},
+ {q:'1+2+4+…+2⁹ 의 값은?',o:['1023','1024','511','2047'],a:0,t:'sum',e:'a=1, r=2, n=10 → (2¹⁰−1)/(2−1) = 1023.'},
+ {q:'100만 원을 연 5% 복리로 2년 맡기면? (등비수열)',o:['110.25만','110만','105만','112.5만'],a:0,t:'sum',e:'100×1.05² = 110.25만. 단리라면 110만. 이자에 이자가 붙는다.'}
+];
+APP.quiz(QUIZ,TABNAME,{perfect:'완벽해요! 더하는 수열과 곱하는 수열을 구분해요.'});
+</script>
+</body>
+</html>

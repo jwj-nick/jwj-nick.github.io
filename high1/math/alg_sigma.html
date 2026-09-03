@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>수열의 합 Σ — 대수</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
+<script src="lecture.js"></script>
+<link rel="stylesheet" href="alg_app.css">
+<style>
+  .terms{display:flex;flex-wrap:wrap;gap:6px;align-items:center;min-height:40px;margin:8px 0}
+  .term{background:#fff;border:1px solid #ddd6fe;border-radius:10px;padding:6px 10px;font-size:14px;animation:fade .3s ease}.term.k{background:#ede9fe;color:#4c1d95;font-weight:800;padding:2px 6px;font-size:11px}.term.sum{background:#dcfce7;border-color:#86efac;color:#166534;font-weight:800}
+  .canc{font-size:14.5px;line-height:2;font-family:ui-monospace,Consolas,monospace;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:12px 14px;overflow-x:auto;white-space:pre}.canc s{color:#64748b}.canc b{color:#fde68a}
+  .pw{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:8px}.pw div{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:8px 10px;font-size:12.5px;text-align:center;color:var(--sub)}.pw b{display:block;font-size:15px;color:var(--accent)}
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Math_1_1</a><span>&rsaquo;</span><a href="alg_hub.html">대수</a><span>&rsaquo;</span><a class="cur" href="#">수열의 합 Σ</a></nav>
+<div class="hero">
+  <span class="badge">Ⅲ. 수열</span>
+  <h1>➕ 수열의 합 Σ</h1>
+  <p>더하기를 기호 하나로 — 읽고, 쪼개고, 공식으로 계산한다</p>
+</div>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="intro">📋 개요</button>
+  <button class="tab" data-t="sig">∑ 뜻·성질</button>
+  <button class="tab" data-t="pow">🔢 거듭제곱의 합</button>
+  <button class="tab" data-t="var">🔗 여러 가지 합</button>
+  <button class="tab" data-t="world">🌐 세상 속으로</button>
+  <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="fin">✅ 정리</button>
+</div>
+<div class="wrap">
+
+  <div class="page active" data-p="intro">
+    <div class="card">
+      <h2>📋 더하기를 기호 하나로</h2>
+      <div class="hook">
+        <div class="ht">💥 왜 배우나</div>
+        포탄을 피라미드 모양으로 쌓으면 위에서부터 $1, 4, 9, 16, \dots$개예요. 10층이면 몇 개일까요? $1^2+2^2+\cdots+10^2$을 일일이 더해도 되지만, 공식 $\dfrac{n(n+1)(2n+1)}6$에 $10$을 넣으면 3초 만에 $385$예요. 100층이면? 여전히 3초. <b>더하기를 기호 하나($\sum$)로 적고, 공식으로 한 번에 계산하는 것</b>, 이것이 컴퓨터가 없던 시절 수학자들이 만든 "계산 압축 기술"이고, 지금은 프로그래밍의 반복문이에요.
+      </div>
+      <div class="splink">🚪 Σ 기호가 아직 무섭다면 먼저 → <a href="alg_sp_sigma.html">관문 특강: 수열과 Σ 리터러시</a> · 앞 단원 <a href="alg_seq.html">등차수열과 등비수열</a></div>
+      <div class="sci">
+        <div class="ava">🏛️</div>
+        <div>
+          <div class="st">아르키메데스 (기원전 3세기) — 제곱의 합</div>
+          <div class="sd">아르키메데스는 나선 도형의 넓이를 구하려고 $1^2+2^2+\cdots+n^2$의 공식을 찾아냈어요. 넓이를 가는 조각으로 잘라 더하는 그의 방법은 2,000년 뒤 <b>적분</b>이 되었어요. $\sum$은 "무한히 잘게 잘라 더하기"로 가는 첫 걸음이에요.</div>
+        </div>
+      </div>
+      <div class="toc">
+        <button onclick="go('sig')"><div class="ti">∑</div><div class="tn">뜻·성질</div><div class="td">펼치기 · 분리 · 상수</div></button>
+        <button onclick="go('pow')"><div class="ti">🔢</div><div class="tn">거듭제곱의 합</div><div class="td">Σk, Σk², Σk³</div></button>
+        <button onclick="go('var')"><div class="ti">🔗</div><div class="tn">여러 가지 합</div><div class="td">망원합 · 유리화</div></button>
+        <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">SUM · 누적 · 적분</div></button>
+        <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="sig">
+    <div class="card">
+      <h2>∑ Σ의 뜻과 성질</h2>
+      <p class="lead">$\displaystyle\sum_{k=1}^{n}a_k=a_1+a_2+\cdots+a_n$. 아래 시작값, 위 끝값, 옆 항. 식을 고르고 펼쳐 보세요.</p>
+      <div class="widget">
+        <div class="btns" id="exprBtns"><button data-e="k" class="on">$k$</button><button data-e="2k+1">$2k+1$</button><button data-e="k^2">$k^2$</button><button data-e="3">$3$</button><button data-e="(-1)^k">$(-1)^k$</button></div>
+        <div class="row"><span>$n$</span><input type="range" id="sn" min="1" max="8" step="1" value="5"><span class="v" id="snv">5</span></div>
+        <div class="terms" id="terms"></div>
+        <div class="out" id="sigOut"></div>
+      </div>
+      <h3>성질 — 반복문의 성질</h3>
+      <div class="fcards" id="sigcards"></div>
+      <div class="box a"><div class="t">⚠️ 두 가지 함정</div>① $\displaystyle\sum_{k=1}^{n}c=cn$ — 상수도 $n$번 더한다(위 위젯에서 $3$을 골라 보세요). ② $\sum a_kb_k\ne\sum a_k\sum b_k$ — 곱은 분리되지 않는다. $\sum a_k^2\ne\left(\sum a_k\right)^2$도 마찬가지.</div>
+      <div class="box b"><div class="t">🔑 부분합과 항의 관계</div>$S_n=\sum_{k=1}^{n}a_k$이면 $a_n=S_n-S_{n-1}\ (n\ge2)$, $a_1=S_1$. "$n$번째까지의 합에서 $(n-1)$번째까지의 합을 빼면 $n$번째 항". 시작이 1이 아니면 $\displaystyle\sum_{k=m}^{n}a_k=\sum_{k=1}^{n}a_k-\sum_{k=1}^{m-1}a_k$.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="pow">
+    <div class="card">
+      <h2>🔢 자연수 거듭제곱의 합 — 세 개면 충분</h2>
+      <p class="lead">$n$을 움직이며 세 공식이 실제 합과 일치하는지 확인하세요. 이 셋과 Σ의 성질만 있으면 $\sum(ak^2+bk+c)$ 꼴은 전부 계산돼요.</p>
+      <div class="widget">
+        <div class="row"><span>$n$</span><input type="range" id="pn" min="1" max="20" step="1" value="5"><span class="v" id="pnv">5</span></div>
+        <div class="pw"><div>$\sum k$ <b id="p1"></b></div><div>$\sum k^2$ <b id="p2"></b></div><div>$\sum k^3$ <b id="p3"></b></div></div>
+        <div class="out" id="powOut"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 공식</div>$$\sum_{k=1}^{n}k=\frac{n(n+1)}2,\qquad\sum_{k=1}^{n}k^2=\frac{n(n+1)(2n+1)}6,\qquad\sum_{k=1}^{n}k^3=\left\{\frac{n(n+1)}2\right\}^2$$</div>
+      <div class="box b"><div class="t">🔑 읽는 법</div>첫 번째는 가우스의 뒤집어 더하기. 세 번째는 "첫 번째의 제곱"이라는 예쁜 사실($1+8+27=36=6^2$). 두 번째는 아래 유도로.</div>
+      <h3>$\sum k^2$ 유도 — 세제곱 차를 망원합으로</h3>
+      <div class="steps"><button class="stepbtn" data-w="w1">▶ 유도 단계별로 보기</button>
+        <div class="stepwrap" id="w1">
+          <div class="step"><span class="sn">1</span>$(k+1)^3-k^3=3k^2+3k+1$ 을 $k=1$부터 $n$까지 더한다.</div>
+          <div class="step"><span class="sn">2</span>왼쪽은 망원합: $(n+1)^3-1^3$ (가운데가 전부 지워진다).</div>
+          <div class="step"><span class="sn">3</span>오른쪽: $3\sum k^2+3\sum k+n=3\sum k^2+\dfrac{3n(n+1)}2+n$.</div>
+          <div class="step"><span class="sn">4</span>정리하면 $3\sum k^2=(n+1)^3-1-\dfrac{3n(n+1)}2-n=\dfrac{n(n+1)(2n+1)}2$.</div>
+          <div class="ans">$\displaystyle\sum_{k=1}^{n}k^2=\frac{n(n+1)(2n+1)}6$</div>
+        </div>
+      </div>
+      <div class="box b" style="text-align:center;font-size:15px">$\displaystyle\sum_{k=1}^{10}(2k^2-k+1)$ 의 값은?</div>
+      <div class="steps"><button class="stepbtn" data-w="w2">▶ 풀이 단계별로 보기</button>
+        <div class="stepwrap" id="w2">
+          <div class="step"><span class="sn">1</span>쪼개기: $2\sum k^2-\sum k+\sum 1$.</div>
+          <div class="step"><span class="sn">2</span>$2\cdot\dfrac{10\cdot11\cdot21}6-\dfrac{10\cdot11}2+10=770-55+10$.</div>
+          <div class="ans">$725$</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="var">
+    <div class="card">
+      <h2>🔗 여러 가지 수열의 합</h2>
+      <h3>① 망원합 — 두 조각의 차로 쪼개면 가운데가 지워진다</h3>
+      <p>$\dfrac1{k(k+1)}=\dfrac1k-\dfrac1{k+1}$ (통분해서 확인). 이렇게 쪼개 놓고 펼치면 앞뒤가 상쇄돼요. $n$을 바꿔 보세요.</p>
+      <div class="widget">
+        <div class="row"><span>$n$</span><input type="range" id="tn" min="2" max="8" step="1" value="4"><span class="v" id="tnv">4</span></div>
+        <div class="canc" id="canc"></div>
+        <div class="out" id="telOut"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 자주 쓰는 쪼개기</div>$\dfrac1{k(k+1)}=\dfrac1k-\dfrac1{k+1}$, &nbsp; $\dfrac1{k(k+2)}=\dfrac12\left(\dfrac1k-\dfrac1{k+2}\right)$ (두 칸 건너 지워져 앞 두 항·뒤 두 항이 남음), &nbsp; $\dfrac1{(2k-1)(2k+1)}=\dfrac12\left(\dfrac1{2k-1}-\dfrac1{2k+1}\right)$</div>
+      <div class="box b" style="text-align:center;font-size:15px">$\displaystyle\sum_{k=1}^{10}\frac1{k(k+2)}$ 의 값은?</div>
+      <div class="steps"><button class="stepbtn" data-w="w3">▶ 풀이 단계별로 보기</button>
+        <div class="stepwrap" id="w3">
+          <div class="step"><span class="sn">1</span>$\dfrac12\sum\left(\dfrac1k-\dfrac1{k+2}\right)$ 로 쪼갠다.</div>
+          <div class="step"><span class="sn">2</span>펼치면 $\dfrac12\left[\left(1-\dfrac13\right)+\left(\dfrac12-\dfrac14\right)+\left(\dfrac13-\dfrac15\right)+\cdots+\left(\dfrac1{10}-\dfrac1{12}\right)\right]$ — 두 칸 건너 지워져 $1, \dfrac12$과 $-\dfrac1{11}, -\dfrac1{12}$만 남는다.</div>
+          <div class="step"><span class="sn">3</span>$\dfrac12\left(1+\dfrac12-\dfrac1{11}-\dfrac1{12}\right)=\dfrac12\cdot\dfrac{175}{132}=\dfrac{175}{264}$.</div>
+          <div class="ans">$\dfrac{175}{264}$</div>
+        </div>
+      </div>
+      <h3>② 유리화 — 분모의 루트를 없애면 차가 된다</h3>
+      <div class="box b" style="text-align:center;font-size:15px">$\displaystyle\sum_{k=1}^{24}\frac1{\sqrt{k+1}+\sqrt k}$ 의 값은?</div>
+      <div class="steps"><button class="stepbtn" data-w="w4">▶ 풀이 단계별로 보기</button>
+        <div class="stepwrap" id="w4">
+          <div class="step"><span class="sn">1</span>분모·분자에 $\sqrt{k+1}-\sqrt k$를 곱하면 분모가 $1$: 항 $=\sqrt{k+1}-\sqrt k$.</div>
+          <div class="step"><span class="sn">2</span>망원합: $(\sqrt2-\sqrt1)+(\sqrt3-\sqrt2)+\cdots+(\sqrt{25}-\sqrt{24})=\sqrt{25}-1$.</div>
+          <div class="ans">$4$</div>
+        </div>
+      </div>
+      <h3>③ 등비수열의 합을 Σ로</h3>
+      <div class="box b" style="text-align:center;font-size:15px">$\displaystyle\sum_{k=1}^{6}3\cdot2^{k-1}$ 의 값은?</div>
+      <div class="steps"><button class="stepbtn" data-w="w5">▶ 풀이 단계별로 보기</button>
+        <div class="stepwrap" id="w5">
+          <div class="step"><span class="sn">1</span>첫째항 $3$, 공비 $2$, 항 수 $6$인 등비수열의 합.</div>
+          <div class="step"><span class="sn">2</span>$\dfrac{3(2^6-1)}{2-1}=3\cdot63=189$.</div>
+          <div class="ans">$189$</div>
+        </div>
+      </div>
+      <div class="box a"><div class="t">⚠️ 읽는 순서</div>어떤 합이든 ① 항 세 개를 펼쳐 본다 → ② 다항식이면 거듭제곱 합 공식, 분수면 쪼개기, 루트면 유리화, 곱하는 규칙이면 등비 → ③ 남는 항만 계산. 막히면 $k=1,2,3$부터.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="world">
+    <div class="card">
+      <h2>🌐 세상 속으로</h2>
+      <div class="keeper">
+        <div class="kt">📌 어른이 되어도 기억할 것</div>
+        <ol>
+          <li><b>Σ는 반복문(for)이다.</b> 스프레드시트의 SUM, 통계의 평균 $\frac1n\sum x_i$, 물리의 총합, 전부 이 기호.</li>
+          <li><b>망원합</b>: 항을 "차"로 쪼개면 가운데가 지워지고 양 끝만 남는다. 누적량의 변화를 계산하는 모든 곳에서 쓴다.</li>
+          <li>거듭제곱의 합 공식 세 개 — 특히 $\sum k=\frac{n(n+1)}2$는 평생 쓴다.</li>
+        </ol>
+      </div>
+      <div class="insight">
+        <div class="it">💡 인사이트 — 적분으로</div>
+        미적분Ⅰ의 <b>정적분</b>은 "곡선 아래 넓이를 가는 직사각형 $n$개로 쪼개 Σ로 더한 뒤 $n$을 무한히 키운 것"이에요. 아르키메데스가 하던 일이 그대로 공식이 된 것이죠. 그리고 망원합 $S_n-S_{n-1}=a_n$은 "누적의 차 = 순간 변화"라는 미분·적분 관계의 씨앗이에요.
+      </div>
+      <div class="reallife">
+        <div class="rt">🏠 Σ가 돌아가는 곳</div>
+        <div class="rgrid">
+          <div class="rcell"><div class="ri">📊</div><div class="rn">엑셀 SUM</div><div class="rd">=SUM(A1:A100)이 곧 Σ</div></div>
+          <div class="rcell"><div class="ri">🌧️</div><div class="rn">누적 강수량</div><div class="rd">일별 강수의 Σ</div></div>
+          <div class="rcell"><div class="ri">🎱</div><div class="rn">포탄 피라미드</div><div class="rd">$\sum k^2$ 개</div></div>
+          <div class="rcell"><div class="ri">📱</div><div class="rn">데이터 사용량</div><div class="rd">이번 달 총합 = Σ</div></div>
+          <div class="rcell"><div class="ri">🏃</div><div class="rn">누적 거리</div><div class="rd">매일 달린 거리의 합</div></div>
+          <div class="rcell"><div class="ri">💳</div><div class="rn">할부 총액</div><div class="rd">이자 포함 회차 합</div></div>
+        </div>
+      </div>
+      <div class="industry">
+        <div class="indt">🏭 산업과 직업</div>
+        <div class="indrow"><div class="ii">💻</div><div class="id2"><b>프로그래밍</b><br>for 반복문과 누적 변수. 알고리즘의 실행 시간(예: $\sum k=O(n^2)$)을 세는 것도 Σ.<br><span class="major">🎓 컴퓨터공학</span></div></div>
+        <div class="indrow"><div class="ii">📈</div><div class="id2"><b>통계·데이터</b><br>평균·분산·상관계수는 전부 Σ로 정의된다. 데이터 분석의 첫 줄.<br><span class="major">🎓 통계학 · 데이터사이언스</span></div></div>
+        <div class="indrow"><div class="ii">🏦</div><div class="id2"><b>금융</b><br>대출 상환·연금·채권은 등비수열의 Σ. 현재가치 계산의 뼈대.<br><span class="major">🎓 금융공학 · 회계</span></div></div>
+        <div class="indrow"><div class="ii">🔬</div><div class="id2"><b>물리·공학</b><br>여러 힘의 합, 신호의 합성, 유한요소 해석은 작은 조각의 Σ.<br><span class="major">🎓 물리학 · 기계공학</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="quiz">
+    <div class="card">
+      <h2>🔥 수열의 합 퀴즈</h2>
+      <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
+      <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="fin">
+    <div class="card">
+      <h2>✅ 정리</h2>
+      <table>
+        <tr><th class="l">항목</th><th class="l">내용</th></tr>
+        <tr><td class="l">뜻</td><td class="l">$\sum_{k=1}^{n}a_k=a_1+\cdots+a_n$ · 개수 = 끝 − 시작 + 1</td></tr>
+        <tr><td class="l">성질</td><td class="l">합 분리 · 상수 밖으로 · $\sum c=cn$ · 곱은 분리 안 됨</td></tr>
+        <tr><td class="l">거듭제곱 합</td><td class="l">$\frac{n(n+1)}2$ · $\frac{n(n+1)(2n+1)}6$ · $\left\{\frac{n(n+1)}2\right\}^2$</td></tr>
+        <tr><td class="l">망원합</td><td class="l">$\frac1{k(k+1)}=\frac1k-\frac1{k+1}$ → 양 끝만 남음</td></tr>
+        <tr><td class="l">부분합</td><td class="l">$a_n=S_n-S_{n-1}$ ($n\ge2$), $a_1=S_1$</td></tr>
+      </table>
+      <div class="box b"><div class="t">🔑 한 줄 요약</div>세 항 펼쳐 보고 → 다항식은 공식, 분수는 쪼개기, 루트는 유리화, 곱하는 규칙은 등비 → 남는 것만 계산.</div>
+      <h3>자가 점검</h3>
+      <div class="chk"><input type="checkbox" id="c1"><label for="c1">Σ 식을 펼치고, 펼친 식을 Σ로 쓸 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c2"><label for="c2">Σ의 성질로 쪼개고 상수항을 $n$배로 처리할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c3"><label for="c3">거듭제곱 합 공식 세 개로 $\sum(ak^2+bk+c)$를 계산할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c4"><label for="c4">부분분수·유리화로 망원합을 계산할 수 있다</label></div>
+      <h3>약점 태그</h3>
+      <div><span class="tag">대수:Σ의 성질</span><span class="tag">대수:거듭제곱의 합</span><span class="tag">대수:망원합</span><span class="tag">대수:부분합</span></div>
+      <div class="box g" style="margin-top:16px"><div class="t">➡️ 다음 단원</div>"다음 항 = 이전 항으로부터"를 무한히 → <a href="alg_induction.html">귀납적 정의와 수학적 귀납법</a>. <a href="alg_hub.html">대수 허브</a>로.</div>
+    </div>
+  </div>
+</div>
+
+<script src="alg_app.js"></script>
+<script>
+var EXPR={'k':{tex:'k',f:function(k){return k;}},'2k+1':{tex:'(2k+1)',f:function(k){return 2*k+1;}},'k^2':{tex:'k^2',f:function(k){return k*k;}},'3':{tex:'3',f:function(){return 3;}},'(-1)^k':{tex:'(-1)^k',f:function(k){return Math.pow(-1,k);}}};
+var cur='k';
+function drawSig(){ var n=parseInt(document.getElementById('sn').value,10); document.getElementById('snv').textContent=n; var e=EXPR[cur]; var box=document.getElementById('terms'); box.innerHTML=''; var sum=0;
+  for(var k=1;k<=n;k++){ var v=e.f(k); sum+=v; var t=document.createElement('span'); t.className='term'; t.innerHTML='<span class="term k">k='+k+'</span> '+LEC.fmt(v); box.appendChild(t); if(k<n){ var p=document.createElement('span'); p.textContent='+'; p.style.fontWeight='800'; box.appendChild(p); } }
+  var s=document.createElement('span'); s.className='term sum'; s.textContent='= '+LEC.fmt(sum); box.appendChild(s);
+  var el=document.getElementById('sigOut'); el.innerHTML='$\\displaystyle\\sum_{k=1}^{'+n+'}'+e.tex+'='+LEC.fmt(sum).replace('−','-')+'$'+(cur==='3'?' — 항에 $k$가 없어도 $n$번 더한다 ($3n$)':'')+(cur==='(-1)^k'?' — 부호가 번갈아, 짝수 개면 0':''); LEC.tex(el); }
+document.getElementById('exprBtns').addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b)return; cur=b.dataset.e; this.querySelectorAll('button').forEach(function(x){x.classList.remove('on');}); b.classList.add('on'); drawSig(); });
+document.getElementById('sn').addEventListener('input',drawSig); drawSig();
+cards('sigcards',[['$\\sum(a_k+b_k)$','$=\\sum a_k+\\sum b_k$ — 더하는 것을 두 덩이로 나눠 따로 반복해도 된다'],['$\\sum c\\,a_k$','$=c\\sum a_k$ — 매번 곱하는 상수는 밖으로'],['$\\sum_{k=1}^{n}c$','$=cn$ — 상수도 $n$번 더한다 (함정!)'],['$\\sum_{k=1}^{n}a_k-\\sum_{k=1}^{n-1}a_k$','$=a_n$ — 부분합의 차는 마지막 항']]);
+function drawPow(){ var n=parseInt(document.getElementById('pn').value,10); document.getElementById('pnv').textContent=n; var s1=0,s2=0,s3=0; for(var k=1;k<=n;k++){ s1+=k; s2+=k*k; s3+=k*k*k; }
+  document.getElementById('p1').textContent=s1; document.getElementById('p2').textContent=s2; document.getElementById('p3').textContent=s3;
+  var el=document.getElementById('powOut'); el.innerHTML='$\\dfrac{'+n+'\\cdot'+(n+1)+'}{2}='+(n*(n+1)/2)+'$ ✓ &nbsp; $\\dfrac{'+n+'\\cdot'+(n+1)+'\\cdot'+(2*n+1)+'}{6}='+(n*(n+1)*(2*n+1)/6)+'$ ✓ &nbsp; $'+(n*(n+1)/2)+'^2='+Math.pow(n*(n+1)/2,2)+'$ ✓'; LEC.tex(el); }
+document.getElementById('pn').addEventListener('input',drawPow); drawPow();
+function drawTel(){ var n=parseInt(document.getElementById('tn').value,10); document.getElementById('tnv').textContent=n; var s='  Σ 1/(k(k+1)) = '; var parts=[]; for(var k=1;k<=n;k++){ parts.push('(<b>1/'+k+'</b>'+' − '+(k===n?'<b>1/'+(k+1)+'</b>':'<s>1/'+(k+1)+'</s>')+')'); }
+  s+=parts.join(' + ').replace(/\(<b>1\/(\d+)<\/b>/g,function(m,d){ return d==='1'?'(<b>1</b>':'(<s>1/'+d+'</s>'; });
+  document.getElementById('canc').innerHTML=s+'\n  가운데가 지워지고 남는 것: 1 − 1/'+(n+1)+' = '+n+'/'+(n+1);
+  var el=document.getElementById('telOut'); el.innerHTML='$\\displaystyle\\sum_{k=1}^{'+n+'}\\frac1{k(k+1)}=1-\\frac1{'+(n+1)+'}=\\frac{'+n+'}{'+(n+1)+'}$'; LEC.tex(el); }
+document.getElementById('tn').addEventListener('input',drawTel); drawTel();
+
+var TABNAME={sig:'∑ 뜻·성질',pow:'🔢 거듭제곱의 합',var:'🔗 여러 가지 합'};
+var QUIZ=[
+ {q:'Σ(k=1→5) (2k−1) 의 값은?',o:['25','24','15','30'],a:0,t:'sig',e:'1+3+5+7+9=25. 처음 n개 홀수의 합은 n².'},
+ {q:'Σ(k=1→10) 3 의 값은?',o:['30','3','10','13'],a:0,t:'sig',e:'상수도 10번 더한다 → 3×10=30.'},
+ {q:'Σ(k=1→n) a_k = n²+n 일 때 a₅는?',o:['10','30','20','5'],a:0,t:'sig',e:'a₅ = S₅ − S₄ = 30 − 20 = 10.'},
+ {q:'Σ(k=1→n)(a_k + 2b_k) 를 바르게 쪼갠 것은?',o:['Σa_k + 2Σb_k','Σa_k + Σb_k','2Σ(a_k b_k)','Σa_k · 2Σb_k'],a:0,t:'sig',e:'합은 분리, 상수 2는 밖으로.'},
+ {q:'1²+2²+…+10² 의 값은?',o:['385','55','3025','285'],a:0,t:'pow',e:'n(n+1)(2n+1)/6 = 10·11·21/6 = 385.'},
+ {q:'1³+2³+…+5³ 의 값은?',o:['225','125','15','55'],a:0,t:'pow',e:'(5·6/2)² = 15² = 225. 첫 번째 공식의 제곱.'},
+ {q:'Σ(k=1→5)(k²+k) 의 값은?',o:['70','55','35','60'],a:0,t:'pow',e:'Σk² + Σk = 55 + 15 = 70.'},
+ {q:'Σ(k=1→9) 1/(k(k+1)) 의 값은?',o:['9/10','1/10','1','10/11'],a:0,t:'var',e:'1/k − 1/(k+1) 로 쪼개면 1 − 1/10 = 9/10.'},
+ {q:'1/(√2+1) + 1/(√3+√2) + … + 1/(√9+√8) 의 값은?',o:['2','3','4','1'],a:0,t:'var',e:'각 항을 유리화하면 √(k+1)−√k. 망원합 √9 − √1 = 3 − 1 = 2. (√9=3에서 끝내면 √1을 빼먹은 것.)'},
+ {q:'Σ(k=1→5) 2^k 의 값은?',o:['62','31','32','30'],a:0,t:'var',e:'2+4+8+16+32 = 62 = 2(2⁵−1)/(2−1).'}
+];
+APP.quiz(QUIZ,TABNAME,{perfect:'완벽해요! 어떤 합이든 쪼개서 계산할 수 있어요.'});
+</script>
+</body>
+</html>

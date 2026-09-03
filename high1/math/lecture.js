@@ -102,7 +102,7 @@
     + '.lec-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin:12px 0;box-shadow:0 2px 8px rgba(15,23,42,.05)}'
     + '.lec-card h4{font-size:14px;font-weight:800;margin-bottom:8px}'
     + '.lec-widget{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 14px 12px;margin:12px 0;box-shadow:0 2px 8px rgba(15,23,42,.05)}'
-    + '.lec-widget canvas{display:block;width:100%;max-width:480px;margin:0 auto;border-radius:10px;background:#fff;touch-action:none}'
+    + '.lec-widget canvas{display:block;width:100%;max-width:480px;margin:0 auto;border-radius:10px;background:#fff;touch-action:pan-y}'
     + '.lec-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0 4px;font-size:13px}.lec-row input[type=range]{flex:1;min-width:120px;accent-color:var(--lec)}'
     + '.lec-row .v{font-variant-numeric:tabular-nums;font-weight:800;color:var(--lec);min-width:60px;text-align:right}'
     + '.lec-formula{background:linear-gradient(135deg,#f5f3ff,#eef2ff);border:1px solid #ddd6fe;border-radius:14px;padding:14px 16px;margin:12px 0;text-align:center}'
@@ -335,7 +335,7 @@
     P.fillUnder = function (fn, a, b, fill, base) { var c = P.ctx; base = base || 0; c.beginPath(); c.moveTo(P.X(a), P.Y(base)); var N = 200; for (var i = 0; i <= N; i++) { var x = a + (b - a) * i / N; c.lineTo(P.X(x), P.Y(fn(x))); } c.lineTo(P.X(b), P.Y(base)); c.closePath(); c.fillStyle = fill; c.fill(); return P; };
     // 드래그: points = [{x,y}], cb(point) — 터치/마우스 공용
     P.drag = function (points, cb, snap) {
-      var active = null;
+      var active = null; cv.style.touchAction = 'none';
       function pos(e) { var r = cv.getBoundingClientRect(); var t = e.touches ? e.touches[0] : e; return { px: t.clientX - r.left, py: t.clientY - r.top }; }
       function down(e) { var q = pos(e); var best = null, bd = 22; points.forEach(function (p) { var d = Math.hypot(P.X(p.x) - q.px, P.Y(p.y) - q.py); if (d < bd) { bd = d; best = p; } }); active = best; if (active) { e.preventDefault(); move(e); } }
       function move(e) { if (!active) return; e.preventDefault(); var q = pos(e); var x = P.ix(q.px), y = P.iy(q.py); if (snap) { x = Math.round(x / snap) * snap; y = Math.round(y / snap) * snap; } x = Math.max(P.xmin, Math.min(P.xmax, x)); y = Math.max(P.ymin, Math.min(P.ymax, y)); active.x = x; active.y = y; cb(active); }

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>지수와 로그 — 대수</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
+<script src="lecture.js"></script>
+<style>
+  :root{--panel:#fff;--ink:#1e293b;--sub:#64748b;--line:#e2e8f0;--accent:#6d28d9;--accent-d:#4c1d95;--accent-bg:#f5f3ff;--green:#16a34a;--green-bg:#f0fdf4;--amber:#d97706;--amber-bg:#fffbeb;--red:#dc2626;--red-bg:#fef2f2;--indigo:#4f46e5}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',sans-serif;background:#f1f5f9;color:var(--ink);line-height:1.7;-webkit-text-size-adjust:100%}
+  a{color:var(--accent)}
+  .crumb{background:#f8fafc;border-bottom:1px solid var(--line);padding:7px 16px;font-size:12px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+  .crumb a{color:var(--sub);text-decoration:none}.crumb a.cur{color:var(--accent);font-weight:600}.crumb span{color:#cbd5e1}
+  .hero{background:linear-gradient(135deg,#4c1d95,#6d28d9 60%,#8b5cf6);color:#fff;padding:26px 18px 22px;text-align:center}
+  .hero .badge{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:3px 13px;font-size:12px;margin-bottom:10px}
+  .hero h1{font-size:21px;font-weight:800;letter-spacing:-.3px}.hero p{font-size:13px;opacity:.92;margin-top:6px}
+  .tabs{position:sticky;top:0;z-index:50;display:flex;background:#2e1065;overflow-x:auto;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;padding:13px 14px;min-height:44px;color:#ddd6fe;font-size:13.5px;font-weight:600;cursor:pointer;border:none;background:none;border-bottom:3px solid transparent;white-space:nowrap}
+  .tab.active{color:#fff;border-bottom-color:#a78bfa}
+  .wrap{max-width:820px;margin:0 auto;padding:22px 16px 70px}
+  .page{display:none}.page.active{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .card h2{font-size:18px;font-weight:800;margin-bottom:6px}.card h3{font-size:15px;font-weight:700;margin:16px 0 8px;color:var(--accent-d)}.card p{font-size:14px;margin-bottom:8px}.lead{color:var(--sub);font-size:13px;margin-bottom:14px}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}th,td{border:1px solid var(--line);padding:8px 9px;text-align:center}th{background:#f8fafc;font-weight:700}td.l,th.l{text-align:left}
+  .box{border-radius:10px;padding:13px 15px;margin:10px 0;font-size:13.5px}
+  .box.g{background:var(--green-bg);border:1px solid #bbf7d0}.box.a{background:var(--amber-bg);border:1px solid #fde68a}.box.b{background:var(--accent-bg);border:1px solid #ddd6fe}
+  .box .t{font-weight:800;margin-bottom:4px}.box.g .t{color:var(--green)}.box.a .t{color:var(--amber)}.box.b .t{color:var(--accent-d)}
+  .hook{background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #ddd6fe;border-radius:12px;padding:16px 18px;margin:12px 0;font-size:14px}.hook .ht{color:var(--accent);font-weight:800;font-size:15px;margin-bottom:6px}
+  .keeper{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fcd34d;border-radius:12px;padding:15px 17px;margin:12px 0}.keeper .kt{color:#b45309;font-weight:800;font-size:14.5px;margin-bottom:8px}
+  .keeper ol{margin:0;list-style:none}.keeper li{position:relative;padding:8px 0 8px 34px;font-size:13.5px;border-bottom:1px dashed #fde68a}.keeper li:last-child{border-bottom:none}.keeper li::before{content:"📌";position:absolute;left:4px;top:8px}
+  .insight{background:var(--accent-bg);border:1px solid #ddd6fe;border-radius:12px;padding:14px 16px;margin:12px 0;font-size:13.5px}.insight .it{color:var(--accent);font-weight:800;margin-bottom:5px}
+  .reallife{background:var(--green-bg);border:1px solid #bbf7d0;border-radius:12px;padding:14px 16px;margin:12px 0}.reallife .rt{color:var(--green);font-weight:800;margin-bottom:8px}
+  .rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:9px}.rcell{background:#fff;border:1px solid #bbf7d0;border-radius:9px;padding:10px}.rcell .ri{font-size:22px}.rcell .rn{font-weight:800;font-size:13px;margin:3px 0}.rcell .rd{font-size:11.5px;color:#475569;line-height:1.5}
+  .industry{background:#eef2ff;border:1px solid #c7d2fe;border-radius:12px;padding:14px 16px;margin:12px 0}.industry .indt{color:var(--indigo);font-weight:800;margin-bottom:8px}
+  .indrow{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #e0e7ff}.indrow:last-child{border-bottom:none}.indrow .ii{font-size:24px;flex-shrink:0}.indrow .id2{font-size:13px}.indrow .id2 b{color:#312e81}
+  .major{display:inline-block;background:#312e81;color:#c7d2fe;border-radius:6px;padding:2px 8px;font-size:10.5px;font-weight:700;margin-top:4px}
+  .sci{display:flex;gap:13px;align-items:flex-start;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fde68a;border-radius:12px;padding:15px;margin:12px 0}.sci .ava{font-size:34px;line-height:1;flex-shrink:0}.sci .st{font-weight:800;color:#92400e;font-size:14px;margin-bottom:3px}.sci .sd{font-size:13px;color:#78350f}
+  .toc{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:8px}
+  .toc button{text-align:left;background:var(--accent-bg);border:1px solid #ddd6fe;border-radius:10px;padding:12px;cursor:pointer;font:inherit;min-height:44px}.toc .ti{font-size:20px}.toc .tn{font-weight:800;font-size:13.5px;margin-top:4px}.toc .td{font-size:11.5px;color:var(--sub)}
+  .splink{display:flex;align-items:center;gap:10px;background:#fffbeb;border:1.5px dashed #fcd34d;border-radius:12px;padding:12px 14px;margin:12px 0;font-size:13.5px}.splink a{font-weight:800;color:#b45309;text-decoration:none}
+  .fcards{display:grid;grid-template-columns:1fr;gap:9px;margin:10px 0}.fcell{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:#fff;cursor:pointer}.fcell:hover{border-color:var(--accent);background:var(--accent-bg)}
+  .fcell .flhs{font-size:15px}.fcell .frhs{display:none;margin-top:6px;padding-top:6px;border-top:1px dashed var(--line);color:var(--accent-d);font-size:14px}.fcell.show .frhs{display:block}.fcell .ftap{font-size:11px;color:var(--sub);float:right}
+  .widget{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;margin:10px 0}.widget canvas{display:block;width:100%;max-width:520px;margin:0 auto;border-radius:8px;touch-action:pan-y}
+  .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0 4px;font-size:13px}.row input[type=range]{flex:1;min-width:120px;accent-color:var(--accent)}.row .v{font-weight:800;color:var(--accent);min-width:50px;text-align:right}
+  .btns{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.btns button{background:#fff;border:1.5px solid #ddd6fe;color:var(--accent-d);border-radius:999px;padding:8px 14px;font:inherit;font-weight:700;cursor:pointer;min-height:44px}.btns button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .out{background:#0f172a;color:#e2e8f0;border-radius:10px;padding:12px 14px;margin-top:8px;font-size:14px;text-align:center;min-height:44px}.out b{color:#c4b5fd}
+  .ladder{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;margin:10px 0}.ladder div{background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:13px}.ladder b{display:block;color:var(--accent-d);margin-bottom:3px}
+  .steps{margin:10px 0}.stepbtn{background:var(--accent);color:#fff;border:none;border-radius:9px;padding:11px 16px;font:inherit;font-weight:700;font-size:13.5px;cursor:pointer;min-height:44px}
+  .stepwrap{display:none;margin-top:10px}.stepwrap.open{display:block}.step{border:1px solid var(--line);border-radius:10px;padding:11px 14px;margin:8px 0;background:#fff;font-size:14px}.step .sn{display:inline-block;background:var(--accent);color:#fff;border-radius:6px;padding:1px 8px;font-size:12px;font-weight:800;margin-right:6px}.step .why{font-size:12px;color:var(--sub);margin-top:4px}
+  .ans{background:#ecfdf5;border:2px solid #6ee7b7;border-radius:10px;padding:12px 15px;text-align:center;font-size:16px;font-weight:800;color:#065f46;margin:10px 0}
+  .quizhud{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:12px 16px;margin-bottom:14px}.quizhud .qn{font-weight:800;font-size:14px}.quizhud .sc{margin-left:auto;font-size:13px}.quizhud .sc b{color:#c4b5fd;font-size:16px}
+  .qbar{flex-basis:100%;height:8px;background:#334155;border-radius:20px;overflow:hidden;margin-top:2px}.qbar > i{display:block;height:100%;background:linear-gradient(90deg,#a78bfa,#6d28d9)}
+  .qq{font-size:16px;font-weight:700;text-align:center;margin:10px 0 16px}.qopts{display:grid;gap:10px}
+  .qopt{border:2px solid var(--line);background:#fff;border-radius:12px;padding:14px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;min-height:52px;text-align:left}.qopt.correct{background:var(--green-bg);border-color:#6ee7b7;color:#065f46}.qopt.wrong{background:var(--red-bg);border-color:#fecaca;color:#991b1b}.qopt.dim{opacity:.5}
+  .qexp{display:none;margin-top:14px;background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:13px 15px;font-size:13.5px}.qexp.show{display:block}.qexp .et{font-weight:800;margin-bottom:4px}
+  .fix{display:inline-block;margin-top:8px;background:#fff7ed;border:1px solid #fed7aa;color:#c2410c;border-radius:999px;padding:9px 12px;font-size:12.5px;font-weight:700;cursor:pointer;min-height:44px}
+  .qnext{display:none;margin-top:14px;width:100%;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:13px;font:inherit;font-weight:800;font-size:14px;cursor:pointer;min-height:48px}.qnext.show{display:block}
+  .qdone{text-align:center;padding:10px 0}.qdone .big{font-size:40px;font-weight:800;color:var(--accent)}
+  .btn{display:inline-block;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px 18px;font:inherit;font-weight:700;font-size:13.5px;cursor:pointer;text-decoration:none;min-height:44px}
+  .chk{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px}.chk:last-child{border-bottom:none}.chk input{margin-top:4px;width:17px;height:17px;flex-shrink:0;accent-color:var(--accent)}
+  .tag{display:inline-block;background:var(--accent-bg);color:var(--accent);border:1px solid #ddd6fe;border-radius:6px;padding:2px 9px;font-size:11.5px;font-weight:700;margin:3px 4px 0 0}
+  @media (max-width:640px){.hero h1{font-size:19px}.card{padding:16px}}
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Math_1_1</a><span>&rsaquo;</span><a href="alg_hub.html">대수</a><span>&rsaquo;</span><a class="cur" href="#">지수와 로그</a></nav>
+<div class="hero">
+  <span class="badge">Ⅰ. 지수함수와 로그함수</span>
+  <h1>🧮 지수와 로그</h1>
+  <p>거듭제곱을 실수까지 넓히고, 그 반대말을 배운다</p>
+</div>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="intro">📋 개요</button>
+  <button class="tab" data-t="root">🌱 거듭제곱근</button>
+  <button class="tab" data-t="exp">📈 지수의 확장</button>
+  <button class="tab" data-t="log">🔑 로그</button>
+  <button class="tab" data-t="clog">🔢 상용로그</button>
+  <button class="tab" data-t="world">🌐 세상 속으로</button>
+  <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="sum">✅ 정리</button>
+</div>
+<div class="wrap">
+
+  <div class="page active" data-p="intro">
+    <div class="card">
+      <h2>📋 거듭제곱의 세계를 넓히기</h2>
+      <div class="hook">
+        <div class="ht">💥 왜 배우나</div>
+        체스판 발명가가 왕에게 "첫 칸에 쌀 1알, 다음 칸에 2알, 그다음 4알… 64칸까지"를 청했다는 이야기가 있어요. 마지막 칸은 $2^{63}$알, 전부 합치면 약 $1.8\times10^{19}$알로 <b>지금 전 세계가 900년 가까이 거둬야 하는 양이에요</b>. 두 배씩 커지는 것(지수)은 사람의 직관을 배신해요. 그리고 그 거대한 수를 "몇 자리인가"로 줄여 읽는 도구가 <b>로그</b>예요.
+      </div>
+      <div class="splink">🚪 먼저 감부터 잡고 싶다면 → <a href="alg_sp_log.html">관문 특강: 지수→로그 완전정복</a> ($2^x$ 곡선 뒤집기 · 유형 4 무한 연습)</div>
+      <div class="sci">
+        <div class="ava">📜</div>
+        <div>
+          <div class="st">존 네이피어 (1550~1617) — 로그의 발명</div>
+          <div class="sd">스코틀랜드의 네이피어는 천문학자들이 거대한 곱셈에 시달리는 것을 보고 <b>곱셈을 덧셈으로 바꾸는 표</b>를 20년에 걸쳐 만들었어요. 케플러는 이 표로 행성 위치표(루돌프 표)를 완성했고, "네이피어가 천문학자의 수명을 두 배로 늘렸다"는 말이 남았어요. 계산기가 나오기 전까지 350년 가까이 공학자의 필수 도구였던 계산자(slide rule)도 로그예요.</div>
+        </div>
+      </div>
+      <div class="toc">
+        <button onclick="go('root')"><div class="ti">🌱</div><div class="tn">거듭제곱근</div><div class="td">n제곱근은 몇 개?</div></button>
+        <button onclick="go('exp')"><div class="ti">📈</div><div class="tn">지수의 확장</div><div class="td">자연수→정수→유리수→실수</div></button>
+        <button onclick="go('log')"><div class="ti">🔑</div><div class="tn">로그</div><div class="td">정의·성질·밑변환</div></button>
+        <button onclick="go('clog')"><div class="ti">🔢</div><div class="tn">상용로그</div><div class="td">자릿수 계산기</div></button>
+        <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">pH·데시벨·복리</div></button>
+        <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="root">
+    <div class="card">
+      <h2>🌱 거듭제곱근 — $n$제곱하면 $a$가 되는 수</h2>
+      <p class="lead">$x^n=a$를 만족시키는 $x$를 $a$의 <b>$n$제곱근</b>이라고 해요. 몇 개인지는 "그래프 $y=x^n$과 가로선 $y=a$가 몇 번 만나나"로 보면 돼요. $n$과 $a$를 바꿔 보세요.</p>
+      <div class="widget">
+        <canvas id="rcv" height="260"></canvas>
+        <div class="btns" id="nbtns"><button data-n="2">$n=2$</button><button data-n="3" class="on">$n=3$</button><button data-n="4">$n=4$</button><button data-n="5">$n=5$</button></div>
+        <div class="row"><span>$a$</span><input type="range" id="ra" min="-4" max="4" step="1" value="2"><span class="v" id="rav">2</span></div>
+        <div class="out" id="rout"></div>
+      </div>
+      <table>
+        <tr><th></th><th>$a>0$</th><th>$a=0$</th><th>$a<0$</th></tr>
+        <tr><td class="l">$n$ 홀수</td><td>1개: $\sqrt[n]{a}$</td><td>1개: $0$</td><td>1개: $\sqrt[n]{a}$ (음수)</td></tr>
+        <tr><td class="l">$n$ 짝수</td><td>2개: $\pm\sqrt[n]{a}$</td><td>1개: $0$</td><td>없음</td></tr>
+      </table>
+      <div class="box a"><div class="t">⚠️ 기호 $\sqrt[n]{a}$의 뜻</div>$n$이 짝수이고 $a>0$이면 $n$제곱근은 두 개지만, 기호 $\sqrt[n]{a}$는 그중 <b>양수 하나</b>만 가리켜요. "4의 제곱근"은 $\pm2$, "$\sqrt4$"는 $2$. 그리고 $\sqrt{a^2}=|a|$ 예요($a$가 음수일 수 있으니까).</div>
+      <h3>거듭제곱근의 성질 ($a>0, b>0$, $m, n$은 2 이상의 자연수)</h3>
+      <div class="fcards" id="rootcards"></div>
+      <div class="box b"><div class="t">🔑 읽는 법</div>전부 "루트 안에서는 곱·나눗셈·거듭제곱이 자유롭다"는 뜻이에요. 지수로 바꿔 쓰면($\sqrt[n]{a}=a^{1/n}$) 지수법칙 그 자체가 돼요. 다음 탭에서 확인해요.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="exp">
+    <div class="card">
+      <h2>📈 지수의 확장 — 규칙을 지키면서 넓히기</h2>
+      <p class="lead">$2^3=2\times2\times2$은 알지만 $2^0$, $2^{-1}$, $2^{1/2}$은 "2를 0번 곱한다"로는 설명이 안 돼요. 대신 <b>지수법칙이 계속 성립하도록</b> 뜻을 정해요. 그게 확장이에요.</p>
+      <div class="ladder">
+        <div><b>① 자연수</b>$2^3=8$. 곱한 횟수.</div>
+        <div><b>② 정수</b>$2^3\div2^3=2^{0}$ 이어야 하니 $2^0=1$. $2^{-1}=2^0\div2=\dfrac12$. 규칙 $a^{m-n}=a^m\div a^n$ 유지.</div>
+        <div><b>③ 유리수</b>$(2^{1/2})^2=2^{1}$ 이어야 하니 $2^{1/2}=\sqrt2$. 일반적으로 $a^{m/n}=\sqrt[n]{a^m}$.</div>
+        <div><b>④ 실수</b>$2^{\sqrt2}$는 $2^{1.4}, 2^{1.41}, 2^{1.414},\dots$ 가 다가가는 값. 무리수 지수도 하나의 수로 정해진다.</div>
+      </div>
+      <h3>지수법칙 ($a>0, b>0$, $x, y$는 실수)</h3>
+      <div class="fcards" id="expcards"></div>
+      <h3>예제 — 밑을 통일해서 간단히</h3>
+      <div class="box b" style="text-align:center;font-size:15px">$8^{\frac23}\times 4^{-\frac12}$ 의 값은?</div>
+      <div class="steps"><button class="stepbtn" id="stepBtn1">▶ 풀이 단계별로 보기</button>
+        <div class="stepwrap" id="stepWrap1">
+          <div class="step"><span class="sn">1</span>밑을 전부 2로: $8=2^3$, $4=2^2$.<div class="why">→ 밑이 같아야 지수를 더하고 뺄 수 있다.</div></div>
+          <div class="step"><span class="sn">2</span>$(2^3)^{\frac23}=2^{2}$, $(2^2)^{-\frac12}=2^{-1}$.<div class="why">→ $(a^m)^n=a^{mn}$.</div></div>
+          <div class="step"><span class="sn">3</span>$2^2\times2^{-1}=2^{1}=2$.<div class="why">→ 곱은 지수의 합.</div></div>
+          <div class="ans">$8^{\frac23}\times4^{-\frac12}=2$</div>
+        </div>
+      </div>
+      <div class="box a"><div class="t">⚠️ 흔한 실수</div>$a^m\times a^n$은 지수를 <b>더하고</b>, $(a^m)^n$은 지수를 <b>곱해요</b>. 그리고 $a^m+a^n$은 지수법칙이 <b>없어요</b>(그냥 덧셈). 밑이 다르면($2^3\times3^2$) 지수를 합칠 수 없어요.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="log">
+    <div class="card">
+      <h2>🔑 로그 — 지수를 되묻는 말</h2>
+      <p class="lead">$2^x=8$의 $x$는 3이에요. 그런데 $2^x=10$의 $x$는? 정수도 분수도 아니지만 분명히 하나 있어요. 그 수에 이름을 붙인 것이 로그예요.</p>
+      <div class="box g"><div class="t">✅ 정의</div>$a>0$, $a\ne1$, $b>0$일 때, $a^x=b$ 를 만족시키는 $x$를 $\log_a b$ 라 쓴다. $a$는 밑, $b$는 진수.<br>$$a^x=b\ \Longleftrightarrow\ x=\log_a b$$</div>
+      <div class="widget">
+        <div class="btns" id="convbtns"><button data-i="0" class="on">$2^3=8$</button><button data-i="1">$5^2=25$</button><button data-i="2">$10^{-1}=0.1$</button><button data-i="3">$9^{\frac12}=3$</button><button data-i="4">$7^0=1$</button></div>
+        <div class="out" id="convout"></div>
+      </div>
+      <h3>왜 조건이 붙나</h3>
+      <p>밑이 1이면 $1^x$는 항상 1이라 다른 진수를 만들 수 없고, 밑이 음수나 0이면 $(-2)^{1/2}$처럼 정의가 안 되는 지수가 생겨요. 진수는 <b>양수의 거듭제곱은 항상 양수</b>라서 양수만 가능해요. 그래서 로그 문제의 마지막에는 늘 "진수 $>0$" 확인이 붙어요.</p>
+      <h3>로그의 성질 ($a>0, a\ne1, M>0, N>0$)</h3>
+      <div class="fcards" id="logcards"></div>
+      <div class="box b"><div class="t">🔑 읽는 법</div>지수법칙 "곱하면 지수가 더해진다"를 로그 말로 옮긴 것이 "곱의 로그는 로그의 합". 나머지도 마찬가지. 새로 외우는 게 아니라 <b>지수법칙의 번역</b>이에요.</div>
+      <h3>예제 — 하나로 합치기</h3>
+      <div class="box b" style="text-align:center;font-size:15px">$\log_3 18+\log_3 6-\log_3 4$ 의 값은?</div>
+      <div class="steps"><button class="stepbtn" id="stepBtn2">▶ 풀이 단계별로 보기</button>
+        <div class="stepwrap" id="stepWrap2">
+          <div class="step"><span class="sn">1</span>합은 곱, 차는 나눗셈: $\log_3\dfrac{18\times6}{4}$.<div class="why">→ 같은 밑의 로그는 하나로 합친다.</div></div>
+          <div class="step"><span class="sn">2</span>진수 계산: $\dfrac{108}{4}=27$.<div class="why">→ $27=3^3$.</div></div>
+          <div class="step"><span class="sn">3</span>$\log_3 3^3=3$.<div class="why">→ "3을 몇 제곱하면 27?"</div></div>
+          <div class="ans">$=3$</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="clog">
+    <div class="card">
+      <h2>🔢 상용로그 — 자릿수를 세는 눈</h2>
+      <p class="lead">밑이 10인 로그를 상용로그라 하고 $\log N$이라 써요. $\log 10=1$, $\log100=2$, $\log1000=3$… 그래서 $\log N$의 정수 부분은 <b>$N$이 몇 자리인지</b>를 알려줘요.</p>
+      <div class="box g"><div class="t">✅ 자릿수 규칙</div>$N$이 $n$자리 정수 $\Longleftrightarrow n-1\le\log N\lt n$. 즉 자릿수 $=$ ($\log N$의 정수 부분) $+1$.</div>
+      <div class="widget">
+        <div class="row"><span>$2^{n}$ 에서 $n$</span><input type="range" id="pn" min="1" max="60" step="1" value="10"><span class="v" id="pnv">10</span></div>
+        <div class="out" id="pout"></div>
+      </div>
+      <p>$\log 2\approx0.3010$ 하나만 알면 $2^{60}$이 몇 자리인지 실제로 곱해 보지 않고도 알 수 있어요. 위 계산기가 실제 값과 비교해 줘요.</p>
+      <h3>2와 3으로 만드는 상용로그표</h3>
+      <table>
+        <tr><th>$N$</th><th>분해</th><th>$\log N$</th></tr>
+        <tr><td>2</td><td>—</td><td>0.3010</td></tr>
+        <tr><td>3</td><td>—</td><td>0.4771</td></tr>
+        <tr><td>4</td><td>$2^2$</td><td>0.6020</td></tr>
+        <tr><td>5</td><td>$10\div2$</td><td>$1-0.3010=0.6990$</td></tr>
+        <tr><td>6</td><td>$2\times3$</td><td>0.7781</td></tr>
+        <tr><td>8</td><td>$2^3$</td><td>0.9030</td></tr>
+        <tr><td>9</td><td>$3^2$</td><td>0.9542</td></tr>
+        <tr><td>12</td><td>$2^2\times3$</td><td>1.0791</td></tr>
+      </table>
+      <div class="box a"><div class="t">⚠️ 7은?</div>7은 2와 3으로 만들 수 없어요. 그래서 문제에서 $\log7$이 필요하면 따로 값을 줘요($\approx0.8451$). 주어진 값만으로 분해되는지 먼저 확인하세요.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="world">
+    <div class="card">
+      <h2>🌐 세상 속으로</h2>
+      <div class="keeper">
+        <div class="kt">📌 어른이 되어도 기억할 것</div>
+        <ol>
+          <li><b>지수적 증가는 직관을 배신한다.</b> 두 배씩 30번이면 10억 배. 복리·전염병·기술 발전은 처음엔 느려 보이다가 갑자기 폭발한다.</li>
+          <li><b>로그는 큰 수를 사람 크기로 줄여 읽는 눈금이다.</b> 지진 규모·데시벨·pH는 한 칸이 10배(또는 그 근처)다.</li>
+          <li><b>$\log 2\approx0.30$</b>. "2의 10제곱이 대략 1000"과 같은 말이고, 컴퓨터가 용량을 1024(=2¹⁰)씩 묶어 세는(KiB·MiB·GiB) 이유다.</li>
+        </ol>
+      </div>
+      <div class="insight">
+        <div class="it">💡 인사이트 — 역함수라는 큰 그림</div>
+        지수함수 $y=a^x$와 로그함수 $y=\log_a x$는 서로 <b>역함수</b>예요(공통수학2의 역함수가 여기서 다시 나와요). 그래서 다음 단원의 그래프는 새로 외울 것이 없어요. $y=x$에 대해 뒤집으면 끝. 그리고 로그 눈금 그래프(가로축이 1, 10, 100…)를 쓰면 지수적 증가가 <b>직선</b>으로 보여요. 주가·인구·감염자 그래프를 볼 때 축을 확인하는 습관이 여기서 시작돼요.
+      </div>
+      <div class="reallife">
+        <div class="rt">🏠 지수와 로그가 숨어 있는 곳</div>
+        <div class="rgrid">
+          <div class="rcell"><div class="ri">🌋</div><div class="rn">지진 규모</div><div class="rd">규모 1 차이 = 진폭 10배, 에너지 약 32배</div></div>
+          <div class="rcell"><div class="ri">🔊</div><div class="rn">데시벨</div><div class="rd">10dB 커지면 소리 세기 10배</div></div>
+          <div class="rcell"><div class="ri">🧪</div><div class="rn">pH</div><div class="rd">pH 1 차이 = 수소이온 농도 10배</div></div>
+          <div class="rcell"><div class="ri">☢️</div><div class="rn">반감기</div><div class="rd">남은 양 $=\left(\frac12\right)^{t/T}$</div></div>
+          <div class="rcell"><div class="ri">💰</div><div class="rn">복리</div><div class="rd">원리합계 $=a(1+r)^n$</div></div>
+          <div class="rcell"><div class="ri">📷</div><div class="rn">카메라 스톱</div><div class="rd">한 스톱 = 빛의 양 2배</div></div>
+        </div>
+      </div>
+      <div class="industry">
+        <div class="indt">🏭 산업과 직업 — 지수와 로그로 먹고사는 사람들</div>
+        <div class="indrow"><div class="ii">📊</div><div class="id2"><b>데이터·AI</b><br>정보량(비트)은 $\log_2$로 정의되고, 머신러닝의 손실 함수에 로그가 들어간다. 큰 수를 다루는 계산은 로그로 바꿔서 한다.<br><span class="major">🎓 데이터사이언스 · 컴퓨터공학 · 통계</span></div></div>
+        <div class="indrow"><div class="ii">💹</div><div class="id2"><b>금융</b><br>복리·할인·연금·대출 상환은 전부 지수 계산. "몇 년이면 두 배?"는 로그 계산.<br><span class="major">🎓 경영 · 경제 · 금융공학</span></div></div>
+        <div class="indrow"><div class="ii">🎧</div><div class="id2"><b>음향·통신</b><br>데시벨, 신호 대 잡음비, 옥타브(주파수 2배)까지 소리의 세계는 로그 눈금이다.<br><span class="major">🎓 전자공학 · 음향공학</span></div></div>
+        <div class="indrow"><div class="ii">🧬</div><div class="id2"><b>생명·의학</b><br>세균 증식, 약물 농도의 감소, 방사성 연대 측정은 지수 모델. 환자의 pH 관리도 로그.<br><span class="major">🎓 생명과학 · 약학 · 의학</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="quiz">
+    <div class="card">
+      <h2>🔥 지수와 로그 퀴즈</h2>
+      <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
+      <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="sum">
+    <div class="card">
+      <h2>✅ 정리 — 핵심 공식</h2>
+      <table>
+        <tr><th class="l">거듭제곱근</th><th class="l">지수</th><th class="l">로그</th></tr>
+        <tr><td class="l">$\sqrt[n]{a}\sqrt[n]{b}=\sqrt[n]{ab}$</td><td class="l">$a^ma^n=a^{m+n}$</td><td class="l">$\log_aMN=\log_aM+\log_aN$</td></tr>
+        <tr><td class="l">$(\sqrt[n]{a})^m=\sqrt[n]{a^m}$</td><td class="l">$(a^m)^n=a^{mn}$</td><td class="l">$\log_aM^k=k\log_aM$</td></tr>
+        <tr><td class="l">$\sqrt[m]{\sqrt[n]{a}}=\sqrt[mn]{a}$</td><td class="l">$a^{m/n}=\sqrt[n]{a^m}$</td><td class="l">$\log_ab=\dfrac{\log_cb}{\log_ca}$</td></tr>
+      </table>
+      <div class="box b"><div class="t">🔑 한 줄 요약</div>지수는 <b>규칙(지수법칙)을 지키며 넓힌 것</b>이고, 로그는 <b>지수를 되묻는 말</b>이다. 막히면 지수 식으로 되돌려 쓰고, 밑을 통일한다.</div>
+      <h3>자가 점검</h3>
+      <div class="chk"><input type="checkbox" id="c1"><label for="c1">$n$제곱근의 개수를 $n$의 홀짝과 $a$의 부호로 판단할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c2"><label for="c2">$a^0, a^{-n}, a^{m/n}$이 왜 그렇게 정의되는지 설명할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c3"><label for="c3">로그의 정의를 지수 식으로 되돌려 쓸 수 있고, 밑·진수 조건을 안다</label></div>
+      <div class="chk"><input type="checkbox" id="c4"><label for="c4">$\log2, \log3$으로 상용로그 값과 자릿수를 구할 수 있다</label></div>
+      <h3>약점 태그</h3>
+      <div><span class="tag">대수:거듭제곱근</span><span class="tag">대수:지수법칙</span><span class="tag">대수:로그의 성질</span><span class="tag">대수:상용로그</span></div>
+      <div class="box g" style="margin-top:16px"><div class="t">➡️ 다음 단원</div>지수를 변수로 두면 함수가 된다 → <a href="alg_expfn.html">지수함수</a> · <a href="alg_logfn.html">로그함수</a>. <a href="alg_hub.html">대수 허브</a>로.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function go(t){var tab=document.querySelector('.tab[data-t="'+t+'"]');if(tab)tab.click();}
+document.getElementById('tabs').addEventListener('click',function(e){
+  var b=e.target.closest('.tab'); if(!b)return;
+  document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active')});
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
+  b.classList.add('active'); var pg=document.querySelector('.page[data-p="'+b.dataset.t+'"]'); if(pg)pg.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(b.dataset.t==='root') setupRoot();
+});
+function cards(id,list){ var el=document.getElementById(id); el.innerHTML=list.map(function(f){return '<div class="fcell"><span class="ftap">눌러서 보기 ▾</span><div class="flhs">'+f[0]+'</div><div class="frhs">'+f[1]+'</div></div>';}).join(''); el.addEventListener('click',function(e){var c=e.target.closest('.fcell'); if(c)c.classList.toggle('show');}); }
+cards('rootcards',[['$\\sqrt[n]{a}\\,\\sqrt[n]{b}$','$=\\sqrt[n]{ab}$ — 루트 안에서 곱해도 된다'],['$\\dfrac{\\sqrt[n]{a}}{\\sqrt[n]{b}}$','$=\\sqrt[n]{\\dfrac ab}$'],['$(\\sqrt[n]{a})^m$','$=\\sqrt[n]{a^m}$ — 거듭제곱은 안으로'],['$\\sqrt[m]{\\sqrt[n]{a}}$','$=\\sqrt[mn]{a}$ — 루트 두 겹은 지수 곱'],['$\\sqrt[np]{a^{mp}}$','$=\\sqrt[n]{a^m}$ — 약분']]);
+cards('expcards',[['$a^x a^y$','$=a^{x+y}$ — 곱은 지수의 합'],['$a^x\\div a^y$','$=a^{x-y}$ — 나눗셈은 지수의 차'],['$(a^x)^y$','$=a^{xy}$ — 거듭제곱의 거듭제곱은 지수의 곱'],['$(ab)^x$','$=a^xb^x$ — 밑이 곱이면 각각'],['$a^0,\\ a^{-n},\\ a^{\\frac mn}$','$=1,\\ \\dfrac1{a^n},\\ \\sqrt[n]{a^m}$ — 확장의 결과']]);
+cards('logcards',[['$\\log_a MN$','$=\\log_aM+\\log_aN$ — 곱은 합'],['$\\log_a\\dfrac MN$','$=\\log_aM-\\log_aN$ — 나눗셈은 차'],['$\\log_aM^k$','$=k\\log_aM$ — 지수는 앞으로'],['$\\log_a a,\\ \\log_a 1$','$=1,\\ 0$'],['$\\log_ab$ (밑변환)','$=\\dfrac{\\log_cb}{\\log_ca}$ · $\\log_ab\\cdot\\log_ba=1$ · $\\log_{a^m}b^n=\\dfrac nm\\log_ab$']]);
+
+/* 거듭제곱근 그래프 */
+var RN=3, RP=null;
+function setupRoot(){ var cv=document.getElementById('rcv'); if(!RP) RP=LEC.plane(cv,{xmin:-3,xmax:3,ymin:-5,ymax:5,h:260}); else RP.resize(); drawRoot(); }
+function drawRoot(){
+  if(!RP)return; var a=parseInt(document.getElementById('ra').value,10); document.getElementById('rav').textContent=LEC.fmt(a);
+  RP.clear().grid().axes(); RP.seg(RP.xmin,a,RP.xmax,a,'#f59e0b',2,[6,4]);
+  RP.plot(function(x){return Math.pow(x,RN);},'#6d28d9',3);
+  var roots=[]; if(RN%2===1){ roots=[Math.sign(a)*Math.pow(Math.abs(a),1/RN)]; } else { if(a>0) roots=[-Math.pow(a,1/RN),Math.pow(a,1/RN)]; else if(a===0) roots=[0]; }
+  roots.forEach(function(r){ RP.dot(r,a,'#dc2626',6); });
+  var msg = RN%2===1 ? ('n='+RN+' 홀수 → 실수인 '+RN+'제곱근은 항상 <b>1개</b>') : (a>0?('n='+RN+' 짝수, a>0 → <b>2개</b> (±)'):(a===0?'a=0 → <b>1개</b> (0)':('n='+RN+' 짝수, a<0 → <b>없음</b> (짝수 제곱은 음수가 안 됨)')));
+  document.getElementById('rout').innerHTML='$x^{'+RN+'}='+a+'$ 의 실근: '+msg+(roots.length?' &nbsp;<span style="color:#94a3b8">x ≈ '+roots.map(function(r){return LEC.fmt(Math.round(r*1000)/1000);}).join(', ')+'</span>':''); LEC.tex(document.getElementById('rout'));
+}
+document.getElementById('nbtns').addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b)return; RN=parseInt(b.dataset.n,10); this.querySelectorAll('button').forEach(function(x){x.classList.remove('on');}); b.classList.add('on'); drawRoot(); });
+document.getElementById('ra').addEventListener('input',drawRoot);
+LEC.onResize(function(){ if(document.querySelector('.tab.active').dataset.t==='root') setupRoot(); });
+
+/* 지수↔로그 변환 */
+var CONV=[['2^3=8','\\log_2 8=3','2를 3제곱하면 8'],['5^2=25','\\log_5 25=2','5를 2제곱하면 25'],['10^{-1}=0.1','\\log_{10}0.1=-1','10을 −1제곱하면 0.1'],['9^{\\frac12}=3','\\log_9 3=\\dfrac12','9를 ½제곱(제곱근)하면 3'],['7^0=1','\\log_7 1=0','7을 0제곱하면 1']];
+function showConv(i){ var c=CONV[i]; var el=document.getElementById('convout'); el.innerHTML='$'+c[0]+'$ &nbsp;⇄&nbsp; <b>$'+c[1]+'$</b><br><span style="font-size:12.5px;color:#94a3b8">'+c[2]+' → 밑 '+c[0].split('^')[0]+', 진수 '+c[0].split('=')[1]+'</span>'; LEC.tex(el); }
+document.getElementById('convbtns').addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b)return; this.querySelectorAll('button').forEach(function(x){x.classList.remove('on');}); b.classList.add('on'); showConv(parseInt(b.dataset.i,10)); }); showConv(0);
+
+/* 자릿수 계산기 */
+function digits(){ var n=parseInt(document.getElementById('pn').value,10); document.getElementById('pnv').textContent=n; var est=n*0.3010; var d=Math.floor(est)+1; var exact=(BigInt(2)**BigInt(n)).toString();
+  document.getElementById('pout').innerHTML='$\\log 2^{'+n+'}='+n+'\\times0.3010='+est.toFixed(3)+'$ → 정수 부분 '+Math.floor(est)+' → <b>'+d+'자리</b><br><span style="font-size:12.5px;color:#94a3b8">실제 값 '+exact.replace(/\B(?=(\d{3})+(?!\d))/g,',')+' ('+exact.length+'자리) '+(exact.length===d?'✓':'— 근삿값 오차로 경계에서는 어긋날 수 있음')+'</span>'; LEC.tex(document.getElementById('pout')); }
+document.getElementById('pn').addEventListener('input',digits); digits();
+
+/* 단계 공개 */
+[['stepBtn1','stepWrap1'],['stepBtn2','stepWrap2']].forEach(function(p){ document.getElementById(p[0]).addEventListener('click',function(){ var w=document.getElementById(p[1]); w.classList.toggle('open'); this.textContent=w.classList.contains('open')?'▲ 풀이 접기':'▶ 풀이 단계별로 보기'; }); });
+
+/* 퀴즈 (오답 → 고치는 곳) */
+var QUIZ=[
+ {q:'−8의 세제곱근 중 실수인 것의 개수는?',o:['1개','2개','0개','3개'],a:0,t:'root',e:'n=3 홀수 → 실수인 세제곱근은 항상 1개(−2). 그래프 y=x³은 모든 가로선과 한 번 만난다.'},
+ {q:'16의 네제곱근 중 실수인 것은?',o:['2와 −2','2만','4와 −4','없음'],a:0,t:'root',e:'x⁴=16 → x=±2. 짝수 제곱근은 양수 a에 대해 2개. 기호 ⁴√16 은 그중 양수 2만 가리킨다.'},
+ {q:'2⁰ 의 값은?',o:['1','0','2','정의되지 않음'],a:0,t:'exp',e:'a^m ÷ a^m = a^0 이고 왼쪽은 1이므로 a^0 = 1로 정한다(지수법칙 유지).'},
+ {q:'8^(2/3) 의 값은?',o:['4','16/3','6','2'],a:0,t:'exp',e:'8=2³ → (2³)^(2/3)=2²=4. 밑을 통일하고 지수를 곱한다.'},
+ {q:'(a³)² × a⁻⁴ 을 간단히 하면? (a>0)',o:['a²','a⁵','a¹⁰','a'],a:0,t:'exp',e:'(a³)²=a⁶, a⁶×a⁻⁴=a². 거듭제곱의 거듭제곱은 곱, 곱은 합.'},
+ {q:'log₃ 81 의 값은?',o:['4','3','27','81/3'],a:0,t:'log',e:'"3을 몇 제곱하면 81?" 3⁴=81 → 4.'},
+ {q:'log₂ 6 + log₂ (2/3) 의 값은?',o:['2','3','4','log₂ 4/3'],a:0,t:'log',e:'합은 곱의 로그: log₂(6×2/3)=log₂4=2.'},
+ {q:'로그 log_a b 가 정의되기 위한 조건으로 옳은 것은?',o:['a>0, a≠1, b>0','a>0, b>0','a≠0, b≠0','a>1, b>1'],a:0,t:'log',e:'밑은 양수이고 1이 아니어야 하며, 진수는 양수. 양수의 거듭제곱은 항상 양수이기 때문.'},
+ {q:'log 2≈0.3010 일 때 2²⁰ 은 몇 자리 정수인가?',o:['7자리','6자리','20자리','8자리'],a:0,t:'clog',e:'20×0.3010=6.02 → 정수 부분 6 → 7자리. (실제 2²⁰=1,048,576)'},
+ {q:'log 2≈0.3010, log 3≈0.4771 일 때 log 12 의 값은?',o:['1.0791','0.7781','1.2552','0.6020'],a:0,t:'clog',e:'12=2²×3 → 2log2+log3=0.6020+0.4771=1.0791.'}
+];
+var TABNAME={root:'🌱 거듭제곱근',exp:'📈 지수의 확장',log:'🔑 로그',clog:'🔢 상용로그'};
+var qi=0,qscore=0,qans=false;
+function renderQ(){ qans=false; var q=QUIZ[qi]; document.getElementById('qNum').textContent='문제 '+(qi+1)+' / '+QUIZ.length; document.getElementById('qScore').textContent=qscore; document.getElementById('qBar').style.width=(qi/QUIZ.length*100)+'%'; document.getElementById('qQ').textContent=q.q;
+  var opts=document.getElementById('qOpts'); opts.innerHTML=''; q.o.forEach(function(txt,idx){var b=document.createElement('button'); b.className='qopt'; b.textContent=txt; b.addEventListener('click',function(){pick(idx,b);}); opts.appendChild(b);});
+  document.getElementById('qExp').className='qexp'; document.getElementById('qExp').innerHTML=''; document.getElementById('qNext').className='qnext'; }
+function pick(idx,btn){ if(qans)return; qans=true; var q=QUIZ[qi]; document.querySelectorAll('#qOpts .qopt').forEach(function(b,i){if(i===q.a)b.classList.add('correct');else if(b===btn)b.classList.add('wrong');else b.classList.add('dim');});
+  var ok=(idx===q.a); if(ok)qscore++; document.getElementById('qScore').textContent=qscore; var ex=document.getElementById('qExp');
+  ex.innerHTML='<div class="et">'+(ok?'⭕ 정답!':'❌ 오답')+'</div>'+q.e+(ok?'':'<br><button class="fix" onclick="go(\''+q.t+'\')">🩹 지금 바로 고치기 → '+TABNAME[q.t]+'</button>'); ex.className='qexp show'; document.getElementById('qNext').className='qnext show'; }
+document.getElementById('qNext').addEventListener('click',function(){qi++; if(qi>=QUIZ.length){finishQuiz();return;} renderQ();});
+function finishQuiz(){ document.getElementById('qBar').style.width='100%'; document.getElementById('qNum').textContent='완료 ✓'; var pct=Math.round(qscore/QUIZ.length*100);
+  var msg=pct>=90?'완벽해요! 지수와 로그의 기본기를 잡았어요.':pct>=70?'잘했어요! 틀린 것만 다시 보면 완성.':'개념 탭을 한 번 더 보고 재도전해요.';
+  document.getElementById('qArea').innerHTML='<div class="qdone"><div class="big">'+qscore+' / '+QUIZ.length+'</div><p style="margin:8px 0 4px;font-size:15px">정답률 '+pct+'%</p><p style="color:#64748b;font-size:13px;margin-bottom:16px">'+msg+'</p><button class="btn" onclick="restartQuiz()">↺ 다시 풀기</button></div>'; }
+function restartQuiz(){ qi=0;qscore=0; document.getElementById('qArea').innerHTML='<div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button>'; document.getElementById('qNext').addEventListener('click',function(){qi++;if(qi>=QUIZ.length){finishQuiz();return;}renderQ();}); renderQ(); }
+QUIZ.forEach(function(q){var correct=q.o[q.a];for(var i=q.o.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=q.o[i];q.o[i]=q.o[j];q.o[j]=t;}q.a=q.o.indexOf(correct);});
+renderQ();
+</script>
+</body>
+</html>

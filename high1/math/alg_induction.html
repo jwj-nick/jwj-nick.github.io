@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>귀납적 정의와 수학적 귀납법 — 대수</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
+<script src="lecture.js"></script>
+<link rel="stylesheet" href="alg_app.css">
+<style>
+  .terms{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0}
+  .tm{background:#f5f3ff;border:1px solid #ddd6fe;border-radius:10px;padding:8px 10px;min-width:56px;text-align:center;animation:fade .3s ease}.tm b{display:block;font-size:15px;color:var(--accent-d)}.tm small{font-size:10.5px;color:var(--sub)}
+  .arrow{color:#b45309;font-weight:800}
+  .loop{background:#0f172a;color:#e2e8f0;border-radius:12px;padding:10px 12px;font-family:ui-monospace,Consolas,monospace;font-size:12.5px;line-height:1.7;white-space:pre;margin-top:8px}.loop b{color:#a78bfa}
+  .widget canvas{max-width:640px}
+  .pf{border-left:4px solid var(--accent);background:#faf5ff;border-radius:0 12px 12px 0;padding:10px 14px;margin:8px 0;font-size:14px}.pf b{color:var(--accent-d)}
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Math_1_1</a><span>&rsaquo;</span><a href="alg_hub.html">대수</a><span>&rsaquo;</span><a class="cur" href="#">귀납적 정의와 수학적 귀납법</a></nav>
+<div class="hero">
+  <span class="badge">Ⅲ. 수열</span>
+  <h1>🧩 귀납적 정의와 수학적 귀납법</h1>
+  <p>"다음은 이전으로부터" — 두 문장으로 무한을 증명하는 법</p>
+</div>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="intro">📋 개요</button>
+  <button class="tab" data-t="rec">🔁 귀납적 정의</button>
+  <button class="tab" data-t="ind">🧩 수학적 귀납법</button>
+  <button class="tab" data-t="prf">🧮 증명 연습</button>
+  <button class="tab" data-t="world">🌐 세상 속으로</button>
+  <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="fin">✅ 정리</button>
+</div>
+<div class="wrap">
+
+  <div class="page active" data-p="intro">
+    <div class="card">
+      <h2>📋 두 문장으로 무한을 증명한다</h2>
+      <div class="hook">
+        <div class="ht">💥 왜 배우나</div>
+        도미노를 1억 개 세워 놓고 "전부 넘어진다"를 확인하려면 1억 개를 다 봐야 할까요? 아니에요. 두 가지만 확인하면 돼요. <b>① 첫 번째 도미노를 넘어뜨린다. ② 어떤 도미노든 넘어지면 바로 다음 것도 넘어지도록 세워져 있다.</b> 이 두 문장이면 1억 번째도, 1조 번째도 넘어져요. 무한히 많은 경우를 유한한 두 단계로 증명하는 이 방법이 <b>수학적 귀납법</b>이고, "다음 항은 이전 항으로부터"라고 수열을 정의하는 것이 <b>귀납적 정의</b>예요. 둘은 같은 생각의 앞면과 뒷면이에요.
+      </div>
+      <div class="splink">🚪 Σ와 점화식을 "반복문"으로 읽는 감각이 없다면 먼저 → <a href="alg_sp_sigma.html">관문 특강: 수열과 Σ 리터러시</a> · 앞 단원 <a href="alg_seq.html">등차·등비</a> · <a href="alg_sigma.html">Σ</a></div>
+      <div class="sci">
+        <div class="ava">🔺</div>
+        <div>
+          <div class="st">파스칼 (1623~1662) — 귀납법을 글로 쓴 사람</div>
+          <div class="sd">파스칼은 『산술삼각형론』(1654년 집필, 1665년 출간)에서 삼각형의 성질을 증명하며 "첫 줄에서 성립하고, 어떤 줄에서 성립하면 다음 줄에서도 성립한다"는 논법을 <b>명시적으로</b> 썼어요. 오늘날 교과서의 수학적 귀납법 서술은 이 형식이에요. 300년 뒤 컴퓨터 과학은 같은 생각으로 "프로그램이 모든 입력에 대해 옳다"를 증명해요.</div>
+        </div>
+      </div>
+      <div class="toc">
+        <button onclick="go('rec')"><div class="ti">🔁</div><div class="tn">귀납적 정의</div><div class="td">점화식 시뮬레이터</div></button>
+        <button onclick="go('ind')"><div class="ti">🧩</div><div class="tn">수학적 귀납법</div><div class="td">도미노 애니메이션</div></button>
+        <button onclick="go('prf')"><div class="ti">🧮</div><div class="tn">증명 연습</div><div class="td">등식·배수·부등식</div></button>
+        <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">재귀·프로그램 검증</div></button>
+        <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="rec">
+    <div class="card">
+      <h2>🔁 귀납적 정의 — 다음 항은 이전 항으로부터</h2>
+      <p class="lead">수열을 "$n$번째 항은 이것"(일반항)이 아니라 "<b>첫 항은 이것, 다음 항은 이전 항으로 이렇게</b>"로 정하는 방법이에요. 첫 항과 규칙을 고르고 항이 만들어지는 것을 보세요.</p>
+      <div class="widget">
+        <div class="row"><span>$a_1$</span><input type="range" id="ra" min="-3" max="5" step="1" value="1"><span class="v" id="rav">1</span></div>
+        <div class="btns" id="rulebtns">
+          <button data-r="add3" class="on">$a_{n+1}=a_n+3$</button><button data-r="mul2">$a_{n+1}=2a_n$</button><button data-r="addn">$a_{n+1}=a_n+2n$</button><button data-r="sq">$a_{n+1}=a_n^2-1$</button><button data-r="fib">$a_{n+2}=a_{n+1}+a_n$</button>
+        </div>
+        <div class="terms" id="rterms"></div>
+        <div class="loop" id="rloop"></div>
+        <div class="out" id="rout"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 귀납적 정의 (점화식)</div>첫째항 $a_1$ (때로는 $a_2$까지)과, 이웃한 항 사이의 관계식 $a_{n+1}=f(a_n)$을 주면 수열이 정해진다. 관계식을 <b>점화식</b>이라고 한다.</div>
+      <table>
+        <tr><th class="l">점화식</th><th class="l">무슨 수열인가</th></tr>
+        <tr><td class="l">$a_{n+1}-a_n=d$ &nbsp;(또는 $2a_{n+1}=a_n+a_{n+2}$)</td><td class="l">등차수열 — 이웃한 항의 차가 일정 (가운데 항이 평균)</td></tr>
+        <tr><td class="l">$a_{n+1}\div a_n=r$ &nbsp;(또는 $a_{n+1}^2=a_na_{n+2}$)</td><td class="l">등비수열 — 이웃한 항의 비가 일정 (가운데 항의 제곱이 양옆의 곱)</td></tr>
+        <tr><td class="l">$a_{n+1}=a_n+f(n)$</td><td class="l">차가 $n$에 따라 변하는 수열 (계차)</td></tr>
+        <tr><td class="l">$a_{n+2}=a_{n+1}+a_n$</td><td class="l">앞 두 항의 합 (피보나치)</td></tr>
+      </table>
+      <div class="box b" style="text-align:center;font-size:15px">$a_1=2$, $a_{n+1}=3a_n-2$ 로 정의된 수열의 $a_4$는?</div>
+      <div class="steps"><button class="stepbtn" data-w="w1">▶ 풀이 단계별로 보기</button>
+        <div class="stepwrap" id="w1">
+          <div class="step"><span class="sn">1</span>규칙을 그대로 따라간다: $a_2=3\cdot2-2=4$.</div>
+          <div class="step"><span class="sn">2</span>$a_3=3\cdot4-2=10$, &nbsp; $a_4=3\cdot10-2=28$.</div>
+          <div class="ans">$a_4=28$</div>
+        </div>
+      </div>
+      <div class="box a"><div class="t">⚠️ 이 교육과정의 범위</div>점화식에서 항을 <b>차례로 만드는 것</b>과 <b>어떤 수열인지 알아보는 것</b>까지가 범위예요. $a_{n+1}=3a_n-2$ 같은 점화식의 일반항을 구하는 특수 기법은 다루지 않아요. 물으면 "따라가며 계산"이 답이에요.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="ind">
+    <div class="card">
+      <h2>🧩 수학적 귀납법 — 도미노 두 문장</h2>
+      <p class="lead">"모든 자연수 $n$에 대해 $P(n)$이 성립한다"를 증명하고 싶어요. 도미노를 보세요. <b>① 첫 개를 넘어뜨리기</b>(재생 버튼) → <b>② 넘어지면 다음도 넘어진다</b>는 것이 확인되면 끝까지 넘어져요.</p>
+      <div class="widget">
+        <canvas id="dcv" height="200"></canvas>
+        <div class="btns"><button id="pushBtn" class="on">▶ ① 첫 도미노 넘어뜨리기</button><button id="resetBtn">↺ 세우기</button></div>
+        <div class="out" id="dout">두 문장이 참이면 $n$이 아무리 커도 넘어진다</div>
+      </div>
+      <div class="box g"><div class="t">✅ 수학적 귀납법</div>자연수 $n$에 대한 명제 $P(n)$이<br>(ⅰ) $n=1$일 때 성립하고,<br>(ⅱ) $n=k$일 때 성립한다고 가정하면 $n=k+1$일 때도 성립한다<br>는 것을 보이면, $P(n)$은 <b>모든 자연수 $n$</b>에 대해 성립한다.</div>
+      <div class="box b"><div class="t">🔑 읽는 법</div>(ⅰ)은 첫 도미노, (ⅱ)는 "간격이 충분히 좁다"는 확인이에요. (ⅱ)에서 $P(k)$를 <b>가정하는 것</b>이 핵심이에요. "$k$번째가 넘어졌다면"이라는 가정 아래 $k+1$번째를 넘어뜨리는 거니까요. 이 가정을 쓰지 않은 증명은 귀납법이 아니에요.</div>
+      <h3>첫 증명 — 등차수열의 합</h3>
+      <div class="box b" style="text-align:center;font-size:15px">모든 자연수 $n$에 대하여 $1+2+\cdots+n=\dfrac{n(n+1)}2$ 임을 증명하시오.</div>
+      <div class="steps"><button class="stepbtn" data-w="w2">▶ 증명 단계별로 보기</button>
+        <div class="stepwrap" id="w2">
+          <div class="pf"><b>(ⅰ) $n=1$:</b> 좌변 $=1$, 우변 $=\dfrac{1\cdot2}2=1$. 성립.</div>
+          <div class="pf"><b>(ⅱ) $n=k$일 때 성립한다고 가정:</b> $1+2+\cdots+k=\dfrac{k(k+1)}2$.</div>
+          <div class="pf"><b>$n=k+1$:</b> 양변에 $k+1$을 더하면 좌변은 $1+\cdots+k+(k+1)$, 우변은 $\dfrac{k(k+1)}2+(k+1)=\dfrac{(k+1)(k+2)}2$. 이것은 공식에 $n=k+1$을 넣은 꼴. 성립.</div>
+          <div class="ans">(ⅰ), (ⅱ)에 의해 모든 자연수 $n$에 대해 성립 ∎</div>
+        </div>
+      </div>
+      <div class="box a"><div class="t">⚠️ 흔한 실수</div>(ⅱ)에서 $n=k+1$일 때의 식을 <b>먼저 써 놓고 그것을 이용</b>하는 것 — 증명할 것을 가정하는 순환 논법이에요. 가정할 수 있는 것은 $P(k)$뿐이고, 목표 $P(k+1)$은 $P(k)$에서 <b>만들어내야</b> 해요.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="prf">
+    <div class="card">
+      <h2>🧮 증명 연습 — 세 가지 유형</h2>
+      <p class="lead">등식·배수·부등식. 세 유형 모두 뼈대는 같아요: (ⅰ) $n=1$ 확인 → (ⅱ) $P(k)$ 가정 → $P(k+1)$을 만든다. 다른 것은 "만드는 방법"뿐이에요.</p>
+      <h3>① 등식 — 양변에 다음 항을 더한다</h3>
+      <div class="box b" style="text-align:center;font-size:15px">$1+3+5+\cdots+(2n-1)=n^2$</div>
+      <div class="steps"><button class="stepbtn" data-w="w3">▶ 증명 보기</button>
+        <div class="stepwrap" id="w3">
+          <div class="pf"><b>(ⅰ)</b> $n=1$: $1=1^2$. 성립.</div>
+          <div class="pf"><b>(ⅱ)</b> $1+3+\cdots+(2k-1)=k^2$ 가정. 양변에 다음 홀수 $2k+1$을 더하면 우변은 $k^2+2k+1=(k+1)^2$. 성립.</div>
+          <div class="ans">모든 자연수 $n$에 대해 성립 ∎</div>
+        </div>
+      </div>
+      <h3>② 배수 — $P(k)$의 배수 부분을 빼내고 남는 것을 본다</h3>
+      <div class="box b" style="text-align:center;font-size:15px">$n^3+2n$ 은 $3$의 배수이다.</div>
+      <div class="steps"><button class="stepbtn" data-w="w4">▶ 증명 보기</button>
+        <div class="stepwrap" id="w4">
+          <div class="pf"><b>(ⅰ)</b> $n=1$: $1+2=3$. 3의 배수.</div>
+          <div class="pf"><b>(ⅱ)</b> $k^3+2k=3m$ ($m$은 자연수) 가정. $(k+1)^3+2(k+1)=k^3+3k^2+3k+1+2k+2=(k^3+2k)+3(k^2+k+1)=3m+3(k^2+k+1)$. 3의 배수. 성립.</div>
+          <div class="ans">모든 자연수 $n$에 대해 3의 배수 ∎</div>
+        </div>
+      </div>
+      <h3>③ 부등식 — $P(k)$에서 출발해 크기를 비교한다</h3>
+      <div class="box b" style="text-align:center;font-size:15px">$n\ge5$ 인 자연수 $n$에 대하여 $2^n\gt n^2$</div>
+      <div class="steps"><button class="stepbtn" data-w="w5">▶ 증명 보기</button>
+        <div class="stepwrap" id="w5">
+          <div class="pf"><b>(ⅰ)</b> $n=5$: $32\gt25$. 성립. (시작이 1이 아닐 수도 있다.)</div>
+          <div class="pf"><b>(ⅱ)</b> $k\ge5$에서 $2^k\gt k^2$ 가정. $2^{k+1}=2\cdot2^k\gt2k^2$. 그런데 $k\ge5$이면 $2k^2-(k+1)^2=k^2-2k-1=(k-1)^2-2\gt0$ 이므로 $2k^2\gt(k+1)^2$. 따라서 $2^{k+1}\gt(k+1)^2$. 성립.</div>
+          <div class="ans">$n\ge5$인 모든 자연수에 대해 성립 ∎</div>
+        </div>
+      </div>
+      <div class="box b"><div class="t">🔑 세 유형의 공통 기술</div>$P(k+1)$의 식 안에서 <b>$P(k)$의 식을 찾아내는 것</b>. 등식은 "더하기", 배수는 "빼내기", 부등식은 "가정으로 바꿔치기 후 크기 비교". 그 뒤에 남는 것만 정리하면 끝.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="world">
+    <div class="card">
+      <h2>🌐 세상 속으로</h2>
+      <div class="keeper">
+        <div class="kt">📌 어른이 되어도 기억할 것</div>
+        <ol>
+          <li><b>무한을 유한한 두 단계로.</b> "처음이 성립한다 + 이어진다"면 끝까지 성립한다. 도미노 하나면 기억된다.</li>
+          <li><b>재귀</b>: "다음은 이전으로부터"는 컴퓨터가 문제를 푸는 기본 방식이고, 귀납법은 그 프로그램이 옳다는 증명이다.</li>
+          <li>귀납법에서 <b>가정을 쓰지 않았다면 증명이 아니다.</b> 논리적 글쓰기의 기본 — 무엇을 가정했고 무엇을 보였는가.</li>
+        </ol>
+      </div>
+      <div class="insight">
+        <div class="it">💡 인사이트 — 대수의 끝, 그다음</div>
+        여기까지가 <b>대수</b> 전부예요. 지수·로그(폭발과 그 반대말), 삼각함수(원과 파동), 수열(규칙과 합). 다음 과목 <b>미적분Ⅰ</b>은 "가까워진다"에서 시작해 변화율(미분)과 넓이(적분)를 다뤄요. 이 단원의 "다음 항 = 이전 항 + 변화"가 그대로 "다음 순간 = 지금 + 변화율 × 시간"이 돼요.
+      </div>
+      <div class="reallife">
+        <div class="rt">🏠 귀납과 재귀가 보이는 곳</div>
+        <div class="rgrid">
+          <div class="rcell"><div class="ri">🧩</div><div class="rn">도미노</div><div class="rd">첫 개 + 간격</div></div>
+          <div class="rcell"><div class="ri">🪜</div><div class="rn">계단</div><div class="rd">한 칸 오를 수 있으면 끝까지</div></div>
+          <div class="rcell"><div class="ri">🌀</div><div class="rn">피보나치</div><div class="rd">해바라기 씨·나선의 배열</div></div>
+          <div class="rcell"><div class="ri">📁</div><div class="rn">폴더 속 폴더</div><div class="rd">재귀 구조</div></div>
+          <div class="rcell"><div class="ri">💰</div><div class="rn">잔액 갱신</div><div class="rd">다음 달 = 이번 달 × 1.0X + 입금</div></div>
+          <div class="rcell"><div class="ri">🧬</div><div class="rn">세대</div><div class="rd">다음 세대는 이전 세대로부터</div></div>
+        </div>
+      </div>
+      <div class="industry">
+        <div class="indt">🏭 산업과 직업</div>
+        <div class="indrow"><div class="ii">💻</div><div class="id2"><b>소프트웨어 검증</b><br>반복문·재귀 함수가 "모든 입력에 대해 옳다"는 것을 귀납법으로 증명한다. 항공·의료 소프트웨어의 안전성 검증이 이 논리.<br><span class="major">🎓 컴퓨터공학 · 소프트웨어공학</span></div></div>
+        <div class="indrow"><div class="ii">🔐</div><div class="id2"><b>암호·보안</b><br>암호 알고리즘의 성질을 모든 크기에 대해 증명할 때 귀납법이 기본 도구.<br><span class="major">🎓 정보보안 · 수학</span></div></div>
+        <div class="indrow"><div class="ii">📈</div><div class="id2"><b>시뮬레이션</b><br>날씨·주가·감염 모델은 점화식(다음 상태 = 이전 상태로부터)을 컴퓨터로 수백만 번 돌리는 것.<br><span class="major">🎓 응용수학 · 데이터사이언스</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="quiz">
+    <div class="card">
+      <h2>🔥 귀납적 정의·수학적 귀납법 퀴즈</h2>
+      <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
+      <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="fin">
+    <div class="card">
+      <h2>✅ 정리</h2>
+      <table>
+        <tr><th class="l">항목</th><th class="l">내용</th></tr>
+        <tr><td class="l">귀납적 정의</td><td class="l">$a_1$ + 점화식 $a_{n+1}=f(a_n)$ → 항을 차례로 만든다</td></tr>
+        <tr><td class="l">판별</td><td class="l">$a_{n+1}-a_n=d$ 등차 · $a_{n+1}/a_n=r$ 등비 · $2a_{n+1}=a_n+a_{n+2}$ 등차 · $a_{n+1}^2=a_na_{n+2}$ 등비</td></tr>
+        <tr><td class="l">수학적 귀납법</td><td class="l">(ⅰ) $n=1$ 성립 (ⅱ) $P(k)$ 가정 → $P(k+1)$ 증명 ⟹ 모든 $n$</td></tr>
+        <tr><td class="l">유형별 기술</td><td class="l">등식: 다음 항 더하기 · 배수: 배수 부분 빼내기 · 부등식: 가정으로 바꿔치기</td></tr>
+      </table>
+      <div class="box b"><div class="t">🔑 한 줄 요약</div>다음은 이전으로부터. 첫 도미노와 간격, 두 문장이면 무한이 증명된다.</div>
+      <h3>자가 점검</h3>
+      <div class="chk"><input type="checkbox" id="c1"><label for="c1">점화식과 첫째항으로 항을 차례로 만들 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c2"><label for="c2">점화식만 보고 등차·등비수열을 판별할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c3"><label for="c3">수학적 귀납법의 두 단계를 도미노로 설명할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c4"><label for="c4">등식·배수·부등식 명제를 귀납법으로 증명할 수 있다</label></div>
+      <h3>약점 태그</h3>
+      <div><span class="tag">대수:귀납적 정의</span><span class="tag">대수:점화식 판별</span><span class="tag">대수:수학적 귀납법</span></div>
+      <div class="box g" style="margin-top:16px"><div class="t">➡️ 대수 완주</div>Ⅰ 지수·로그 → Ⅱ 삼각함수 → Ⅲ 수열까지 전부 지났어요. <a href="alg_hub.html">대수 허브</a>에서 관문 특강 실전 총정리로 마무리하고, 다음 과목 미적분Ⅰ 허브(준비 중)로.</div>
+    </div>
+  </div>
+</div>
+
+<script src="alg_app.js"></script>
+<script>
+/* 귀납적 정의 시뮬 */
+var RULES={add3:{f:function(p){return p.a+3;},tex:'a_{n+1}=a_n+3',code:'a = a + 3',kind:'등차수열 (공차 3)'},mul2:{f:function(p){return 2*p.a;},tex:'a_{n+1}=2a_n',code:'a = 2 * a',kind:'등비수열 (공비 2)'},addn:{f:function(p){return p.a+2*p.n;},tex:'a_{n+1}=a_n+2n',code:'a = a + 2*n',kind:'차가 2, 4, 6, …으로 커지는 수열'},sq:{f:function(p){return p.a*p.a-1;},tex:'a_{n+1}=a_n^2-1',code:'a = a*a - 1',kind:'급격히 커지는 수열'},fib:{f:null,tex:'a_{n+2}=a_{n+1}+a_n\\ (a_2=a_1)',code:'c = a + b; a = b; b = c',kind:'앞 두 항의 합 (피보나치형)'}};
+var RK='add3';
+function drawR(){ var a1=parseInt(document.getElementById('ra').value,10); document.getElementById('rav').textContent=LEC.fmt(a1); var r=RULES[RK]; var box=document.getElementById('rterms'); box.innerHTML=''; var vals=[a1];
+  if(RK==='fib'){ vals=[a1,a1]; for(var i=2;i<7;i++) vals.push(vals[i-1]+vals[i-2]); } else { for(var n=1;n<7;n++){ vals.push(r.f({a:vals[n-1],n:n})); } }
+  vals.forEach(function(v,i){ if(i>0){ var s=document.createElement('span'); s.className='arrow'; s.textContent='→'; box.appendChild(s); } var t=document.createElement('div'); t.className='tm'; t.innerHTML='<small>a<sub>'+(i+1)+'</sub></small><b>'+(Math.abs(v)>1e9?'너무 큼':LEC.fmt(v))+'</b>'; box.appendChild(t); });
+  document.getElementById('rloop').innerHTML='a = '+a1+(RK==='fib'?'; b = '+a1:'')+'\n<b>for</b> n = 1, 2, 3, …:\n    '+r.code+'   <span style="color:#94a3b8">← 점화식 = 갱신 규칙</span>';
+  var el=document.getElementById('rout'); el.innerHTML='$a_1='+a1+'$, $'+r.tex+'$ &nbsp;·&nbsp; '+r.kind; LEC.tex(el); }
+document.getElementById('rulebtns').addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b)return; RK=b.dataset.r; this.querySelectorAll('button').forEach(function(x){x.classList.remove('on');}); b.classList.add('on'); drawR(); });
+document.getElementById('ra').addEventListener('input',drawR); drawR();
+
+/* 도미노 */
+var DP=null, N=12, fallen=0, raf=null, prog=[];
+function setupD(){ var cv=document.getElementById('dcv'); if(!DP) DP=LEC.plane(cv,{xmin:0,xmax:13,ymin:-0.3,ymax:3,h:200}); else DP.resize(); drawD(); }
+function drawD(){ if(!DP)return; DP.clear(); var c=DP.ctx; DP.seg(0.2,0,12.8,0,'#94a3b8',2);
+  for(var i=0;i<N;i++){ var x=1+i, t=prog[i]||0; var ang=t*Math.PI/2.4; var h=2, w=0.35; c.save(); c.translate(DP.X(x),DP.Y(0)); c.rotate(ang); c.fillStyle=t>=1?'#a78bfa':(t>0?'#c4b5fd':'#6d28d9'); c.fillRect(-w/2/(DP.xmax-DP.xmin)*DP.w, -h/(DP.ymax-DP.ymin)*DP.h, w/(DP.xmax-DP.xmin)*DP.w, h/(DP.ymax-DP.ymin)*DP.h); c.restore(); c.fillStyle='#64748b'; c.font='11px sans-serif'; c.textAlign='center'; c.textBaseline='top'; c.fillText(i===N-1?'n':String(i+1),DP.X(x),DP.Y(0)+4); }
+  var el=document.getElementById('dout'); el.innerHTML= fallen===0? '두 문장이 참이면 $n$이 아무리 커도 넘어진다' : (fallen<N? '(ⅱ) $P('+fallen+')$이 넘어졌으니 $P('+(fallen+1)+')$도 넘어진다…' : '(ⅰ) 첫 개가 넘어졌고 (ⅱ) 이어졌으므로 <b>모든 $n$에 대해 성립</b> ∎'); LEC.tex(el); }
+function anim(){ var done=true; for(var i=0;i<N;i++){ if(i===0||(prog[i-1]||0)>0.5){ if((prog[i]||0)<1){ prog[i]=Math.min(1,(prog[i]||0)+0.08); done=false; } } } fallen=prog.filter(function(v){return v>=1;}).length; drawD(); if(!done) raf=requestAnimationFrame(anim); else raf=null; }
+document.getElementById('pushBtn').addEventListener('click',function(){ if(raf)return; prog=[]; fallen=0; raf=requestAnimationFrame(anim); });
+document.getElementById('resetBtn').addEventListener('click',function(){ if(raf){cancelAnimationFrame(raf);raf=null;} prog=[]; fallen=0; drawD(); });
+APP.onTab({ind:setupD}); LEC.onResize(function(){ if(APP.current()==='ind') setupD(); });
+
+var TABNAME={rec:'🔁 귀납적 정의',ind:'🧩 수학적 귀납법',prf:'🧮 증명 연습'};
+var QUIZ=[
+ {q:'a₁=3, a_{n+1}=a_n+4 로 정의된 수열의 a₄는?',o:['15','19','12','7'],a:0,t:'rec',e:'3 → 7 → 11 → 15. 등차수열(공차 4).'},
+ {q:'a₁=2, a_{n+1}=3a_n 으로 정의된 수열의 a₄는?',o:['54','18','162','24'],a:0,t:'rec',e:'2 → 6 → 18 → 54. 등비수열(공비 3).'},
+ {q:'a₁=1, a_{n+1}=a_n+n 으로 정의된 수열의 a₅는?',o:['11','15','10','5'],a:0,t:'rec',e:'1 → 2 → 4 → 7 → 11. 더하는 수가 1,2,3,4로 커진다.'},
+ {q:'점화식 2a_{n+1}=a_n+a_{n+2} 가 나타내는 수열은?',o:['등차수열','등비수열','피보나치 수열','상수수열만'],a:0,t:'rec',e:'가운데 항이 양옆의 평균 → 등차중항 → 등차수열.'},
+ {q:'점화식 a_{n+1}² = a_n · a_{n+2} 가 나타내는 수열은?',o:['등비수열','등차수열','계차수열','알 수 없다'],a:0,t:'rec',e:'가운데 항의 제곱이 양옆의 곱 → 등비중항 → 등비수열.'},
+ {q:'수학적 귀납법에서 (ⅱ) 단계에 해당하는 것은?',o:['n=k 성립을 가정하고 n=k+1 성립을 보인다','n=1일 때 성립함을 보인다','n=k+1 성립을 가정한다','모든 n에 대해 직접 확인한다'],a:0,t:'ind',e:'(ⅰ) 첫 도미노, (ⅱ) 넘어지면 다음도 넘어진다.'},
+ {q:'수학적 귀납법으로 증명할 때 가정할 수 있는 것은?',o:['P(k)','P(k+1)','P(n) 전체','아무것도 가정하지 않는다'],a:0,t:'ind',e:'P(k)만 가정한다. P(k+1)을 가정하면 증명할 것을 가정하는 순환 논법.'},
+ {q:'1+2+…+n = n(n+1)/2 의 귀납법 증명에서 n=k 가정 후 n=k+1을 보이려면?',o:['양변에 k+1을 더한다','양변에 k+1을 곱한다','양변을 k로 나눈다','n=k+1을 대입해 계산한다'],a:0,t:'prf',e:'좌변에 다음 항 (k+1)을 더하면 우변이 (k+1)(k+2)/2가 됨을 보인다.'},
+ {q:'"n³+2n 은 3의 배수" 증명에서 (k+1)³+2(k+1) 을 정리하면?',o:['(k³+2k) + 3(k²+k+1)','(k³+2k) + 3k²','k³+2k+3','(k+1)(k²+2)'],a:0,t:'prf',e:'전개하면 k³+3k²+3k+1+2k+2 = (k³+2k)+3(k²+k+1). 가정한 3의 배수 + 3의 배수.'},
+ {q:'"n≥5 에서 2ⁿ > n²" 을 귀납법으로 증명할 때 (ⅰ) 단계에서 확인할 n은?',o:['n=5','n=1','n=0','n=4'],a:0,t:'prf',e:'명제가 n≥5부터이므로 첫 도미노는 n=5 (2⁵=32>25).'}
+];
+APP.quiz(QUIZ,TABNAME,{perfect:'완벽해요! 대수 전 단원을 완주했어요.'});
+</script>
+</body>
+</html>

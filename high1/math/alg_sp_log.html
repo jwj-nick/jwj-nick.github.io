@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>지수→로그 완전정복 · 관문 특강</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="if(window.LEC)LEC.tex(document.body)"></script>
+<script src="lecture.js"></script>
+<style>
+  .qcard{background:#faf5ff;border:1px solid #ddd6fe;border-radius:14px;padding:12px 14px;margin-top:10px;text-align:center;font-size:15px;line-height:1.8}
+  .qcard b{color:var(--lec)}
+  .fbtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+  .conv{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin:8px 0}
+  .conv .cell{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px;text-align:center;font-size:18px;min-height:56px;display:flex;align-items:center;justify-content:center}
+  .conv .arrow{color:var(--lec);font-weight:800;font-size:20px;text-align:center}
+  .paircard{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+  .paircard div{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:9px 10px;font-size:13.5px;text-align:center}
+  .paircard div b{display:block;font-size:11px;color:var(--sub);margin-bottom:3px;font-weight:700}
+  @media (max-width:520px){.conv{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Math_1_1</a><span>&rsaquo;</span><a href="alg_hub.html">대수</a><span>&rsaquo;</span><a class="cur" href="#">관문 특강 · 지수와 로그</a></nav>
+<div class="wrap">
+
+<div class="lec-hero">
+  <span class="tag">🚪 관문 특강 · 대수 Ⅰ 지수함수와 로그함수</span>
+  <h1>🔑 지수→로그 완전정복 — 로그는 "지수가 뭐였지?"</h1>
+  <p>로그가 나오는 순간 수학을 접는 학생이 정말 많아요. 로그를 <b>계산 규칙 암기</b>로 배우기 때문이에요. 그런데 로그는 딱 한 문장이에요. <b>"몇 제곱이었지?"라고 되묻는 말.</b> $2^3=8$을 보고 "2를 몇 제곱하면 8이지? 3!"이라고 답하는 것, 그게 $\log_2 8=3$이에요. 이 특강에서는 그 질문 하나로 정의·성질·자릿수·방정식까지 전부 읽어요.</p>
+  <div class="lec-goal"><a href="#type1">① 정의 변환</a><a href="#type2">② 로그의 성질</a><a href="#type3">③ 상용로그·자릿수</a><a href="#type4">④ 지수·로그 방정식</a></div>
+</div>
+<nav class="lec-nav" id="lecNav"></nav>
+
+<!-- ① 감 잡기 -->
+<section class="lec-sec reveal" data-step="1" data-label="감 잡기" id="s1">
+  <div class="eyebrow"><span class="n">1</span>곡선을 뒤집으면 질문이 뒤집힌다 (공식 없이)</div>
+  <p>$y=2^x$ 곡선이에요. 슬라이더로 점을 옮기면 "2를 $x$제곱하면 얼마?"에 답해요. 이제 <b>뒤집기 버튼</b>을 눌러 곡선을 $y=x$에 대해 접어 보세요. 같은 점이 이번엔 <b>"2를 몇 제곱해야 이 수가 되지?"</b>에 답해요. 그 답이 로그예요.</p>
+  <div class="lec-widget">
+    <canvas id="cv1" height="320"></canvas>
+    <div class="fbtns"><button class="lec-btn" id="flipBtn">🔄 뒤집기 → y = log₂ x</button><button class="lec-btn ghost" id="unflipBtn">↺ 되돌리기</button></div>
+    <div class="lec-row"><span>$x$</span><input type="range" id="sx" min="-2" max="3" step="1" value="3"><span class="v" id="sxv">3</span></div>
+    <div class="qcard" id="qcard"></div>
+  </div>
+  <p>보이나요? 곡선은 하나이고, 읽는 방향만 바뀌었어요. $2^x$는 "지수를 넣으면 수가 나오는 기계", $\log_2$는 그 기계를 <b>거꾸로 돌린 것</b>이에요. 그래서 지수함수와 로그함수는 서로 역함수이고, 그래프가 $y=x$ 대칭이에요.</p>
+  <div class="lec-card">
+    <h4>함께 생각하기 ①</h4>
+    <p style="margin-bottom:8px;font-size:14px">$\log_2 32$ 의 값은? ("2를 몇 제곱하면 32?")</p>
+    <div class="lec-checkrow"><input class="num" id="q1" inputmode="numeric" aria-label="답"><button id="q1b">확인</button></div>
+    <div class="lec-out" id="q1o"></div>
+  </div>
+</section>
+
+<!-- ② 공식은 읽는 것 -->
+<section class="lec-sec reveal" data-step="2" data-label="공식 읽기" id="s2">
+  <div class="eyebrow"><span class="n">2</span>공식은 외우는 게 아니라 읽는 것</div>
+  <p>정의부터. 로그는 <b>지수를 되묻는 말</b>이라서, 지수 식과 로그 식은 같은 사실을 두 방향으로 적은 거예요.</p>
+  <div class="lec-formula"><div class="f">$a^x=b \quad\Longleftrightarrow\quad x=\log_a b$ &nbsp;($a>0,\ a\ne1,\ b>0$)</div><small>밑 a, 진수 b. "a를 몇 제곱하면 b가 되나"의 답이 x. 양수를 거듭제곱하면 항상 양수라서 진수 b는 양수만 가능하다.</small></div>
+
+  <p>로그의 성질은 새로 외울 게 아니라 <b>지수법칙을 로그 말로 옮긴 것</b>이에요. $a^m\cdot a^n=a^{m+n}$은 "곱하면 지수가 더해진다". 그러니까 로그(지수를 묻는 말)로 보면 "곱의 로그는 로그의 합".</p>
+  <div class="lec-formula"><div class="f">$\log_a MN=\log_a M+\log_a N,\quad \log_a\dfrac MN=\log_a M-\log_a N,\quad \log_a M^k=k\log_a M$</div><small>지수법칙 a^m·a^n = a^(m+n), a^m ÷ a^n = a^(m−n), (a^m)^k = a^(mk) 의 번역. 그리고 log_a a = 1, log_a 1 = 0.</small></div>
+
+  <p>밑변환은 "어떤 밑으로 물어도 비율은 같다"는 뜻이에요. 계산기에는 밑이 10인 로그밖에 없으니, $\log_2 8$을 구하려면 $\dfrac{\log 8}{\log 2}$로 바꿔서 누르면 돼요.</p>
+  <div class="lec-formula"><div class="f">$\log_a b=\dfrac{\log_c b}{\log_c a},\qquad \log_a b\cdot\log_b a=1$</div><small>밑과 진수를 바꾸면 역수. 밑이 거듭제곱이면 지수를 앞으로 빼서 나눈다: log_{a^m} b^n = (n/m) log_a b.</small></div>
+
+  <p>밑이 10인 로그를 <b>상용로그</b>라 하고 밑을 생략해서 $\log N$이라 써요. 상용로그의 정수 부분이 <b>자릿수를 알려줘요</b>: $\log 1000=3$이니까 1000은 4자리, $\log N$이 3.xxx이면 $N$은 4자리예요.</p>
+  <div class="lec-formula"><div class="f">$N$이 $n$자리 정수 $\Longleftrightarrow n-1\le\log N\lt n$</div><small>log 2 ≈ 0.3010, log 3 ≈ 0.4771 두 개만 알면 2^100 같은 수의 자릿수를 계산할 수 있다.</small></div>
+
+  <div class="lec-card">
+    <h4>함께 생각하기 ②</h4>
+    <p style="margin-bottom:8px;font-size:14px">$\log_2 12-\log_2 3$ 의 값은? (차는 나눗셈의 로그)</p>
+    <div class="lec-checkrow"><input class="num" id="q2" inputmode="numeric" aria-label="답"><button id="q2b">확인</button></div>
+    <div class="lec-out" id="q2o"></div>
+  </div>
+</section>
+
+<!-- ③ 핵심 도구 -->
+<section class="lec-sec reveal" data-step="3" data-label="변환기" id="s3">
+  <div class="eyebrow"><span class="n">3</span>지수 ↔ 로그 변환기 — 핵심 도구</div>
+  <p>로그 문제를 만나면 계산보다 먼저 <b>지수 식으로 되돌려 써요</b>. 되돌리면 거의 항상 중학교 수준의 지수 문제가 돼요. 버튼을 눌러 왕복해 보세요.</p>
+  <div class="lec-card">
+    <div class="conv"><div class="cell" id="cL">$2^3=8$</div><div class="arrow">⇄</div><div class="cell" id="cR">$\log_2 8=3$</div></div>
+    <div class="fbtns"><button class="lec-again" id="convNext">🔄 다른 예로</button></div>
+    <div class="paircard" style="margin-top:12px">
+      <div><b>지수법칙</b>$a^m a^n=a^{m+n}$</div><div><b>로그 성질</b>$\log MN=\log M+\log N$</div>
+      <div><b>지수법칙</b>$a^m\div a^n=a^{m-n}$</div><div><b>로그 성질</b>$\log\frac MN=\log M-\log N$</div>
+      <div><b>지수법칙</b>$(a^m)^k=a^{mk}$</div><div><b>로그 성질</b>$\log M^k=k\log M$</div>
+    </div>
+  </div>
+  <div class="lec-key"><b>불변 앵커</b> 로그는 "몇 제곱이었지?"라는 질문이다. 막히면 $\log_a b=x$를 $a^x=b$로 되돌려 쓴다.</div>
+  <p style="margin-top:12px">되돌려 쓰기 연습이에요. 매번 다른 수가 나와요.</p>
+  <div id="toolbody"></div>
+</section>
+
+<!-- ④ 유형별 완전정복 -->
+<section class="lec-sec reveal" data-step="4" data-label="유형 4" id="s4">
+  <div class="eyebrow"><span class="n">4</span>유형별 완전정복</div>
+  <p>네 가지 유형 모두 <b>지수 식으로 되돌리기 → 밑 맞추기 → 지수 비교</b>예요. "다른 문제로"를 눌러 숫자가 바뀌어도 같은 길로 가는지 확인하세요.</p>
+</section>
+
+<section class="lec-type reveal" id="type1">
+  <div class="lec-type-h"><span class="badge">①</span><span><div class="t">정의 변환</div><div class="d">몇 제곱이었지? — 분수 지수까지</div></span></div>
+  <div class="lec-key"><b>핵심</b> $\log_a b=x \Leftrightarrow a^x=b$. 밑과 진수를 <b>같은 밑의 거듭제곱</b>으로 고쳐 쓰면 지수 비교로 끝난다. $\log_4 8$은 $4=2^2$, $8=2^3$ → $\frac32$.</div>
+  <div id="type1body"></div>
+</section>
+
+<section class="lec-type reveal" id="type2">
+  <div class="lec-type-h"><span class="badge">②</span><span><div class="t">로그의 성질</div><div class="d">합은 곱, 차는 나눗셈, 계수는 거듭제곱</div></span></div>
+  <div class="lec-key"><b>핵심</b> 같은 밑의 로그끼리는 <b>하나로 합친다</b>: 합→곱, 차→나눗셈, 앞의 수→지수. 합친 뒤 진수를 밑의 거듭제곱으로 쓴다.</div>
+  <div id="type2body"></div>
+</section>
+
+<section class="lec-type reveal" id="type3">
+  <div class="lec-type-h"><span class="badge">③</span><span><div class="t">상용로그 · 자릿수</div><div class="d">log 2 = 0.3010, log 3 = 0.4771 두 개로</div></span></div>
+  <div class="lec-key"><b>핵심</b> 자릿수 = $\log N$의 정수 부분 $+1$. $\log 5=\log\frac{10}{2}=1-\log2$, $\log 6=\log2+\log3$ 처럼 <b>2와 3으로 분해</b>한다.</div>
+  <div id="type3body"></div>
+</section>
+
+<section class="lec-type reveal" id="type4">
+  <div class="lec-type-h"><span class="badge">④</span><span><div class="t">지수·로그 방정식</div><div class="d">밑 통일 → 지수 비교 / 로그 → 지수 식</div></span></div>
+  <div class="lec-key"><b>핵심</b> 지수방정식은 <b>밑을 통일</b>하고 지수끼리 비교. 로그방정식은 <b>지수 식으로 되돌리고</b>, 구한 값이 진수 조건(양수)을 만족하는지 마지막에 확인.</div>
+  <div id="type4body"></div>
+</section>
+
+<!-- ⑤ 실전 총정리 -->
+<section class="lec-sec reveal" data-step="5" data-label="실전" id="s5">
+  <div class="eyebrow"><span class="n">5</span>실전 총정리 — 유형 섞어서</div>
+  <p>어떤 유형인지 알려주지 않아요. <b>지수 식으로 되돌리는 것부터</b> 해 보세요. 틀리면 어느 유형인지 알려주고 돌아가는 길을 열어 둘게요.</p>
+  <div id="quizArea"></div>
+  <div style="text-align:center;margin-top:8px"><button class="lec-again" id="quizAreaAgain">🔄 5문제 새로</button></div>
+</section>
+
+<!-- ⑥ 치트시트 -->
+<section class="lec-sec reveal" data-step="6" data-label="치트시트" id="s6">
+  <div class="eyebrow"><span class="n">6</span>마무리 치트시트</div>
+  <div class="lec-cheat">
+    <h3>🔑 지수와 로그 한 장 요약</h3>
+    <div class="row">
+      <div class="chip"><b>정의</b>$a^x=b \Leftrightarrow x=\log_a b$ · 진수 $b>0$, 밑 $a>0, a\ne1$</div>
+      <div class="chip"><b>기본값</b>$\log_a a=1$, $\log_a 1=0$, $\log_a a^k=k$</div>
+    </div>
+    <div class="row">
+      <div class="chip"><b>성질</b>합↔곱 · 차↔나눗셈 · 계수↔지수 (지수법칙의 번역)</div>
+      <div class="chip"><b>밑변환</b>$\log_a b=\frac{\log_c b}{\log_c a}$ · $\log_{a^m}b^n=\frac nm\log_a b$</div>
+    </div>
+    <div class="row">
+      <div class="chip"><b>상용로그</b>$\log 2\approx0.3010$, $\log3\approx0.4771$ · 자릿수 = 정수 부분 + 1</div>
+      <div class="chip"><b>한 문장</b>로그는 "몇 제곱이었지?" — 막히면 지수 식으로 되돌린다</div>
+    </div>
+    <button id="printCheat">🖨️ 이 치트시트 인쇄하기</button>
+  </div>
+  <div class="keeper">
+    <div class="kt">📌 어른이 되어도 기억할 것</div>
+    <ul>
+      <li>지진 규모(리히터), 소리 크기(데시벨), 산성도(pH)는 전부 <b>로그 눈금</b>이에요. 규모 7은 규모 6보다 에너지가 약 32배예요. 큰 수를 사람이 읽을 수 있는 크기로 줄여 주는 도구가 로그예요.</li>
+      <li>복리, 인구 증가, 감염 확산, 반도체 성능은 <b>지수적으로</b> 변해요. "매년 7%"는 10년이면 약 2배라는 감각(70의 법칙)은 로그에서 나와요.</li>
+      <li>로그는 곱셈을 덧셈으로 바꿔 줘요. 계산기가 없던 시절 항해사와 천문학자가 로그표로 거대한 곱셈을 했고, 그 덕에 이후의 항해력과 천문 계산이 가능해졌어요.</li>
+    </ul>
+  </div>
+  <div class="insight"><div class="it">💡 다음으로 이어지는 것</div>이 특강의 "뒤집기"가 그대로 <b>지수함수와 로그함수의 그래프</b>(다음 단원)예요. 그래프의 점근선·정의역·증가와 감소는 전부 "역함수라서" 자동으로 따라와요. 그리고 로그의 "곱을 합으로"는 통계에서 데이터를 다룰 때 다시 만나요.</div>
+  <div class="reallife"><div class="rt">🏠 이미 보고 있던 곳</div>스마트폰 볼륨 단계, 카메라의 조리개·ISO 단계, 별의 밝기 등급, 그리고 "2의 10제곱이 대략 1000"이라서 컴퓨터가 용량을 1024(=2¹⁰)씩 묶어 세는 것(KiB·MiB·GiB). 전부 지수와 로그예요.</div>
+  <div class="reallife"><div class="rt">🏭 이걸로 먹고사는 사람들</div>정보량(비트)을 $\log_2$로 정의하는 정보통신, 복리·할인율을 다루는 금융, 데시벨·pH·지진 규모를 쓰는 음향·화학·지질, 손실 함수에 로그가 들어가는 인공지능. <span style="color:#312e81;font-weight:700">🎓 컴퓨터공학 · 금융공학 · 전자공학</span></div>
+  <p style="text-align:center;color:var(--sub);font-size:13px;margin-top:14px">단원 앱으로 이어서 → <a href="alg_explog.html">지수와 로그</a> · <a href="alg_expfn.html">지수함수</a> · <a href="alg_logfn.html">로그함수</a></p>
+</section>
+
+<div class="lec-foot">관문 특강 · 지수→로그 완전정복 · 대수 · 표준 커리큘럼 제작</div>
+</div>
+<div id="printArea"></div>
+
+<!-- ───────── 생성기(순수 함수 · Node 재검산 대상) ───────── -->
+<script id="gen">
+(function(){
+  var ri=LEC.ri, pick=LEC.pick, frac=LEC.frac, fmt=LEC.fmt;
+  var LOG2=0.3010, LOG3=0.4771;
+  function powStr(a,x){ return a+'^{'+x+'}'; }
+  function digitsExact(base,n){ var s=BigInt(base)**BigInt(n); return s.toString().length; }
+  function lg(a,b){ return Math.log(b)/Math.log(a); }
+
+  window.GEN = {
+    tool:{ label:'지수 ↔ 로그 되돌려 쓰기', anchor:'#s3',
+      gen:function(){ var a=pick([2,3,5,10]), x=ri(1,4); var b=Math.pow(a,x);
+        if(Math.random()<0.5) return { q:'$\\log_{'+a+'} '+b+'$ 을 지수 식 $'+a+'^{\\square}='+b+'$ 으로 되돌리면 $\\square$ 는?', ans:x, fig:{a:a,x:x}, steps:['"'+a+'의 몇 제곱이 '+b+'?"', '$'+powStr(a,x)+'='+b+'$ → $'+x+'$'] };
+        return { q:'$'+powStr(a,x)+'='+b+'$ 을 로그 식 $\\log_{'+a+'} '+b+'=\\square$ 로 바꾸면 $\\square$ 는?', ans:x, fig:{a:a,x:x}, steps:['밑 '+a+', 진수 '+b+', 지수 '+x, '$\\log_{'+a+'} '+b+'='+x+'$'] }; },
+      verify:function(p){ var g=p.fig; return Math.pow(g.a,p.ans)===Math.pow(g.a,g.x); } },
+
+    type1:{ label:'① 정의 변환', anchor:'#type1',
+      gen:function(){ var mode=ri(0,3);
+        if(mode===0){ var a=pick([2,3,5,7]), x=ri(2,5); return { q:'$\\log_{'+a+'} '+Math.pow(a,x)+'$ 의 값은?', ans:x, fig:{v:x}, steps:['"'+a+'의 몇 제곱이 '+Math.pow(a,x)+'?"', '$'+powStr(a,x)+'='+Math.pow(a,x)+'$ → $'+x+'$'] }; }
+        if(mode===1){ var a1=pick([2,3,5]), x1=ri(1,3); var b1=Math.pow(a1,x1); return { q:'$\\log_{'+a1+'} \\dfrac{1}{'+b1+'}$ 의 값은?', ans:-x1, fig:{v:-x1}, steps:['$\\dfrac1{'+b1+'}='+a1+'^{-'+x1+'}$ (역수는 음의 지수)', '$\\log_{'+a1+'} '+a1+'^{-'+x1+'}=-'+x1+'$'] }; }
+        if(mode===2){ var base=pick([2,3]); var m=ri(2,3), n=ri(1,5); while(n===m||n%m===0) n=ri(1,5); var A=Math.pow(base,m), B=Math.pow(base,n); // log_{base^m} base^n = n/m
+          return { q:'$\\log_{'+A+'} '+B+'$ 의 값은? (분수는 3/2 처럼)', ans:n/m, fig:{v:n/m}, steps:['밑과 진수를 같은 밑으로: $'+A+'='+base+'^{'+m+'}$, $'+B+'='+base+'^{'+n+'}$', '$\\log_{'+base+'^{'+m+'}} '+base+'^{'+n+'}=\\dfrac{'+n+'}{'+m+'}\\log_{'+base+'} '+base+'='+frac(n,m)+'$'] }; }
+        var a3=pick([2,3,4,5,10]); var kind=ri(0,1); return kind===0? { q:'$\\log_{'+a3+'} 1$ 의 값은?', ans:0, fig:{v:0}, steps:['"'+a3+'를 몇 제곱하면 1?" → 0제곱', '$\\log_a 1=0$'] } : { q:'$\\log_{'+a3+'} '+a3+'$ 의 값은?', ans:1, fig:{v:1}, steps:['"'+a3+'의 몇 제곱이 '+a3+'?" → 1제곱', '$\\log_a a=1$'] }; },
+      verify:function(p){ return Math.abs(p.fig.v-p.ans)<1e-9; } },
+
+    type2:{ label:'② 로그의 성질', anchor:'#type2',
+      gen:function(){ var a=pick([2,3,5]); var mode=ri(0,3);
+        if(mode===0){ var k=ri(2,4); var t=Math.pow(a,k); var m=pick([2,3,4,6,9,12].filter(function(v){return t%v===0&&v<t;})); if(!m){ m=a; } var n=t/m;
+          return { q:'$\\log_{'+a+'} '+m+'+\\log_{'+a+'} '+n+'$ 의 값은?', ans:k, fig:{a:a,val:t}, steps:['합은 곱의 로그: $\\log_{'+a+'} ('+m+'\\times '+n+')=\\log_{'+a+'} '+t+'$', '$'+t+'='+powStr(a,k)+'$ → $'+k+'$'] }; }
+        if(mode===1){ var k1=ri(1,3); var t1=Math.pow(a,k1); var mult=pick([3,5,7,11].filter(function(v){return v!==a;})); var M=t1*mult;
+          return { q:'$\\log_{'+a+'} '+M+'-\\log_{'+a+'} '+mult+'$ 의 값은?', ans:k1, fig:{a:a,val:t1}, steps:['차는 나눗셈의 로그: $\\log_{'+a+'} \\dfrac{'+M+'}{'+mult+'}=\\log_{'+a+'} '+t1+'$', '$'+t1+'='+powStr(a,k1)+'$ → $'+k1+'$'] }; }
+        if(mode===2){ var c=ri(2,3), e=ri(1,2); var base=Math.pow(a,e); // c·log_a base = c·e
+          return { q:'$'+c+'\\log_{'+a+'} '+base+'$ 의 값은?', ans:c*e, fig:{a:a,val:Math.pow(a,c*e)}, steps:['앞의 수는 지수로: $\\log_{'+a+'} '+base+'^{'+c+'}$', '$'+base+'='+powStr(a,e)+'$ 이므로 $'+base+'^{'+c+'}='+a+'^{'+(c*e)+'}$ → $'+(c*e)+'$'] }; }
+        var b=pick([4,8,9,27,25]); var ab={4:[2,2],8:[2,3],9:[3,2],27:[3,3],25:[5,2]}[b]; var A2=ab[0], nExp=ab[1]; // log_b A2 · log_A2 b... use 밑변환: log_{A2} b = nExp ; log_b A2 = 1/nExp
+        return { q:'$\\log_{'+b+'} '+A2+'$ 의 값은? (분수는 1/2 처럼)', ans:1/nExp, fig:{a:A2,val:null,v:1/nExp}, steps:['밑변환으로 밑을 $'+A2+'$로: $\\dfrac{\\log_{'+A2+'} '+A2+'}{\\log_{'+A2+'} '+b+'}=\\dfrac{1}{'+nExp+'}$', '또는 "'+b+'의 몇 제곱이 '+A2+'?" → $'+b+'^{1/'+nExp+'}='+A2+'$'] }; },
+      verify:function(p){ var g=p.fig; if(g.val!=null) return Math.abs(lg(g.a,g.val)-p.ans)<1e-9; return Math.abs(g.v-p.ans)<1e-9; } },
+
+    type3:{ label:'③ 상용로그·자릿수', anchor:'#type3',
+      gen:function(){ var mode=ri(0,2);
+        if(mode===0){ var base=pick([2,3,6,5]); var lgv={2:LOG2,3:LOG3,6:LOG2+LOG3,5:1-LOG2}[base]; var how={2:'\\log 2',3:'\\log 3',6:'\\log 6=\\log2+\\log3',5:'\\log 5=\\log\\frac{10}{2}=1-\\log 2'}[base];
+          var n, tries=0; do{ n=ri(8,40); tries++; }while(tries<50 && Math.floor(n*lgv)+1!==digitsExact(base,n)); if(Math.floor(n*lgv)+1!==digitsExact(base,n)) n=10;
+          var val=n*lgv; var d=Math.floor(val)+1;
+          return { q:'$\\log 2\\approx0.3010$, $\\log 3\\approx0.4771$ 일 때 $'+base+'^{'+n+'}$ 은 몇 자리 정수인가?', ans:d, fig:{base:base,n:n}, steps:['$\\log '+base+'^{'+n+'}='+n+'\\log '+base+'$, $'+how+'\\approx'+lgv.toFixed(4)+'$', '$'+n+'\\times'+lgv.toFixed(4)+'\\approx'+val.toFixed(2)+'$ → 정수 부분 $'+Math.floor(val)+'$', '자릿수 $='+Math.floor(val)+'+1='+d+'$'] }; }
+        if(mode===1){ var items=[[50,'\\log\\dfrac{100}{2}=2-\\log2',2-LOG2],[500,'\\log\\dfrac{1000}{2}=3-\\log2',3-LOG2],[6,'\\log2+\\log3',LOG2+LOG3],[12,'\\log(2^2\\cdot3)=2\\log2+\\log3',2*LOG2+LOG3],[15,'\\log\\dfrac{30}{2}=\\log3+1-\\log2',LOG3+1-LOG2],[18,'\\log(2\\cdot3^2)=\\log2+2\\log3',LOG2+2*LOG3],[30,'\\log3+1',LOG3+1],[0.2,'\\log\\dfrac{2}{10}=\\log2-1',LOG2-1],[8,'3\\log2',3*LOG2],[0.5,'\\log\\dfrac{1}{2}=-\\log2',-LOG2]];
+          var it=pick(items); return { q:'$\\log 2\\approx0.3010$, $\\log 3\\approx0.4771$ 일 때 $\\log '+it[0]+'$ 의 값은? (소수 넷째 자리까지)', ans:Math.round(it[2]*10000)/10000, tol:0.0006, fig:{v:it[2]}, steps:['2와 3, 10의 거듭제곱으로 분해: $\\log '+it[0]+'='+it[1]+'$', '$\\approx '+it[2].toFixed(4)+'$'] }; }
+        var n2=ri(3,6); return { q:'$\\log N='+n2+'.'+ri(1,9)+ri(0,9)+ri(0,9)+'$ 일 때 정수 $N$은 몇 자리 수인가?', ans:n2+1, fig:{v:n2+1}, steps:['$'+n2+'\\le\\log N<'+(n2+1)+'$ → $10^{'+n2+'}\\le N<10^{'+(n2+1)+'}$', '자릿수 $='+n2+'+1='+(n2+1)+'$'] }; },
+      verify:function(p){ var g=p.fig; if(g.base) return digitsExact(g.base,g.n)===p.ans; return Math.abs(g.v-p.ans)<0.001; } },
+
+    type4:{ label:'④ 지수·로그 방정식', anchor:'#type4',
+      gen:function(){ var mode=ri(0,3);
+        if(mode===0){ var a=pick([2,3,5]), c=LEC.nz(-2,3), k=ri(2,5); var x=k-c; var b=Math.pow(a,k);
+          return { q:'방정식 $'+a+'^{x'+LEC.term(c,'',false)+'}='+b+'$ 의 해는?', ans:x, fig:{v:x}, steps:['우변을 같은 밑으로: $'+b+'='+powStr(a,k)+'$', '밑이 같으면 지수끼리: $x'+LEC.term(c,'',false)+'='+k+'$ → $x='+x+'$'] }; }
+        if(mode===1){ var base=pick([2,3]); var m=ri(1,3), n=ri(1,4); var A=Math.pow(base,m), B=Math.pow(base,n); var x1=n/m; // A^x = B → base^{mx} = base^n
+          return { q:'방정식 $'+A+'^{x}='+B+'$ 의 해는? (분수는 3/2 처럼)', ans:x1, fig:{v:x1}, steps:['밑 통일: $'+A+'='+base+'^{'+m+'}$, $'+B+'='+base+'^{'+n+'}$ → $'+base+'^{'+m+'x}='+base+'^{'+n+'}$', '지수 비교: $'+m+'x='+n+'$ → $x='+frac(n,m)+'$'] }; }
+        if(mode===2){ var a2=pick([2,3,5]), k2=ri(1,3), c2=ri(-4,4); var x2=Math.pow(a2,k2)-c2;
+          return { q:'방정식 $\\log_{'+a2+'}(x'+LEC.term(c2,'',false)+')='+k2+'$ 의 해는?', ans:x2, fig:{v:x2}, steps:['지수 식으로 되돌리기: $x'+LEC.term(c2,'',false)+'='+powStr(a2,k2)+'='+Math.pow(a2,k2)+'$', '$x='+x2+'$', '진수 조건 확인: $x'+LEC.term(c2,'',false)+'='+Math.pow(a2,k2)+'>0$ ✓'] }; }
+        var a3=pick([2,3]); var k3=ri(2,3); var t=Math.pow(a3,k3); var p1=pick([2,3].filter(function(v){return t%v===0;})); if(!p1){ p1=1; } var x3=t/p1; // log_a x + log_a p1 = k3 → x·p1 = a^k3
+        return { q:'방정식 $\\log_{'+a3+'} x+\\log_{'+a3+'} '+p1+'='+k3+'$ 의 해는?', ans:x3, fig:{v:x3}, steps:['합은 곱의 로그: $\\log_{'+a3+'}('+p1+'x)='+k3+'$', '지수 식으로: $'+p1+'x='+powStr(a3,k3)+'='+t+'$ → $x='+x3+'$', '진수 조건 $x>0$ ✓'] }; },
+      verify:function(p){ return Math.abs(p.fig.v-p.ans)<1e-9; } }
+  };
+})();
+</script>
+
+<script>
+LEC.boot({ key:'alg_sp_log', color:'#6d28d9', color2:'#a78bfa' });
+
+/* ① 뒤집기 위젯 */
+(function(){
+  var cv=document.getElementById('cv1'); var P=LEC.plane(cv,{xmin:-2.5,xmax:9.5,ymin:-2.5,ymax:9.5,h:320,square:true});
+  var t=0,target=0,raf=null;
+  function xv(){ return parseInt(document.getElementById('sx').value,10); }
+  function tr(x,y){ return [(1-t)*x+t*y,(1-t)*y+t*x]; }
+  function draw(){
+    var x=xv(); document.getElementById('sxv').textContent=LEC.fmt(x);
+    P.clear().grid().axes();
+    P.seg(P.xmin,P.xmin,P.xmax,P.xmax,'#cbd5e1',1.5,[5,4]); P.text(8.6,8.6,'y = x','#94a3b8','nw');
+    // 원곡선(흐리게)
+    P.plot(function(u){return Math.pow(2,u);},'#e9d5ff',1.5,-2.5,3.3);
+    // 변환 곡선
+    var c=P.ctx; c.lineWidth=3; c.strokeStyle='#6d28d9'; c.beginPath(); var started=false;
+    for(var i=0;i<=400;i++){ var u=-2.5+(3.3+2.5)*i/400; var v=Math.pow(2,u); var q=tr(u,v); if(q[0]<P.xmin-1||q[1]>P.ymax+1||q[0]>P.xmax+1) { started=false; continue; } if(!started){c.moveTo(P.X(q[0]),P.Y(q[1]));started=true;} else c.lineTo(P.X(q[0]),P.Y(q[1])); }
+    c.stroke();
+    var y=Math.pow(2,x); var q=tr(x,y); P.dot(q[0],q[1],'#dc2626',7,'('+LEC.fmt(q[0])+', '+LEC.fmt(q[1])+')', t>0.5?'se':'nw');
+    var card=document.getElementById('qcard');
+    if(t<0.5) card.innerHTML='곡선 $y=2^x$ &nbsp;·&nbsp; "2를 <b>'+LEC.fmt(x)+'</b>제곱하면?" → <b>'+LEC.fmt(y)+'</b> &nbsp;&nbsp; $2^{'+x+'}='+LEC.fmt(y).replace('−','-')+'$';
+    else card.innerHTML='곡선 $y=\\log_2 x$ &nbsp;·&nbsp; "2를 <b>몇 제곱</b>하면 '+LEC.fmt(y)+'?" → <b>'+LEC.fmt(x)+'</b> &nbsp;&nbsp; $\\log_2 '+LEC.fmt(y).replace('−','-')+'='+x+'$';
+    LEC.tex(card);
+  }
+  function anim(){ var d=target-t; if(Math.abs(d)<0.01){ t=target; draw(); raf=null; return; } t+=d*0.1; draw(); raf=requestAnimationFrame(anim); }
+  document.getElementById('flipBtn').addEventListener('click',function(){ target=1; if(!raf)raf=requestAnimationFrame(anim); });
+  document.getElementById('unflipBtn').addEventListener('click',function(){ target=0; if(!raf)raf=requestAnimationFrame(anim); });
+  document.getElementById('sx').addEventListener('input',draw);
+  draw(); LEC.onResize(function(){P.resize();draw();});
+})();
+
+LEC.check('q1',5,{ok:'$2^5=32$ 이니까 5. 질문을 되묻는 것뿐이에요.', bad:'"2를 몇 제곱하면 32?" $2^5=32$.'});
+LEC.check('q2',2,{ok:'$\\log_2\\dfrac{12}{3}=\\log_2 4=2$.', bad:'차는 나눗셈의 로그: $\\log_2\\dfrac{12}{3}$.'});
+
+/* ③ 변환기 예시 */
+(function(){
+  var EX=[[2,3,8],[3,2,9],[5,3,125],[10,2,100],[2,-1,'\\tfrac12'],[4,'\\tfrac12',2],[3,0,1],[2,10,1024]];
+  var i=0; function show(){ var e=EX[i]; var L=document.getElementById('cL'), R=document.getElementById('cR'); L.innerHTML='$'+e[0]+'^{'+e[1]+'}='+e[2]+'$'; R.innerHTML='$\\log_{'+e[0]+'} '+e[2]+'='+e[1]+'$'; LEC.tex(L); LEC.tex(R); }
+  document.getElementById('convNext').addEventListener('click',function(){ i=(i+1)%EX.length; show(); }); show();
+})();
+
+LEC.types(['tool','type1','type2','type3','type4']);
+LEC.quiz('quizArea',{n:5,types:['type1','type2','type3','type4']});
+</script>
+</body>
+</html>
