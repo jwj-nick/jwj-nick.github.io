@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>이차함수 완전정복 · 관문 특강</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="if(window.LEC)LEC.tex(document.body)"></script>
+<script src="lecture.js"></script>
+<style>
+  .pinfo{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:10px}
+  .pinfo div{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:8px 10px;font-size:12.5px;text-align:center;color:var(--sub)}
+  .pinfo b{display:block;font-size:15px;color:var(--lec)}
+  .pinfo .hi{background:#eff6ff;border-color:#bfdbfe}
+  .eqline{text-align:center;font-size:17px;font-weight:800;margin:6px 0 2px}
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Math_1_1</a><span>&rsaquo;</span><a href="mat1_hub.html">공통수학1</a><span>&rsaquo;</span><a class="cur" href="#">관문 특강 · 이차함수</a></nav>
+<div class="wrap">
+
+<div class="lec-hero">
+  <span class="tag">🚪 관문 특강 · 공통수학1 Ⅱ 방정식과 부등식</span>
+  <h1>📈 이차함수 완전정복 — 포물선 한 그림이면 끝</h1>
+  <p>판별식, 근과 계수의 관계, 최댓값·최솟값, 이차부등식… 교과서는 이걸 따로따로 가르치니까 외울 게 넷으로 보여요. 그런데 사실 전부 <b>포물선 그림 하나</b>에서 읽히는 거예요. 그림 하나를 손으로 움직여 보면서, 네 가지가 같은 것의 다른 이름이라는 걸 여기서 확인해요.</p>
+  <div class="lec-goal"><a href="#type1">① 꼭짓점·최대최소</a><a href="#type2">② 판별식</a><a href="#type3">③ 근과 계수</a><a href="#type4">④ 이차부등식</a></div>
+</div>
+<nav class="lec-nav" id="lecNav"></nav>
+
+<!-- ① 감 잡기 -->
+<section class="lec-sec reveal" data-step="1" data-label="감 잡기" id="s1">
+  <div class="eyebrow"><span class="n">1</span>포물선 하나에서 전부 읽기 (공식 없이)</div>
+  <p>슬라이더로 $a$, $b$, $c$를 움직여 보세요. 포물선이 바뀔 때 <b>꼭짓점, $x$축과 만나는 점의 개수, 판별식 $D$의 부호</b>가 어떻게 같이 움직이는지 보세요. 맨 아래 $k$ 슬라이더는 가로선 $y=k$예요.</p>
+  <div class="lec-widget">
+    <div class="eqline" id="eqline"></div>
+    <canvas id="cv1" height="320"></canvas>
+    <div class="lec-row"><span>$a$</span><input type="range" id="sa" min="-3" max="3" step="1" value="1"><span class="v" id="sav">1</span></div>
+    <div class="lec-row"><span>$b$</span><input type="range" id="sb" min="-6" max="6" step="1" value="-4"><span class="v" id="sbv">−4</span></div>
+    <div class="lec-row"><span>$c$</span><input type="range" id="sc" min="-6" max="6" step="1" value="3"><span class="v" id="scv">3</span></div>
+    <div class="lec-row"><span>$k$</span><input type="range" id="sk" min="-8" max="8" step="1" value="0"><span class="v" id="skv">0</span></div>
+    <div class="pinfo">
+      <div>꼭짓점 <b id="pv"></b></div>
+      <div class="hi">판별식 $D=b^2-4ac$ <b id="pd"></b></div>
+      <div>$x$축과 만나는 점 <b id="px"></b></div>
+      <div>$y=k$ 와 만나는 점 <b id="pk"></b></div>
+    </div>
+  </div>
+  <p>보이나요? $a>0$이면 아래로 볼록한 그릇 모양(∪), 꼭짓점이 $x$축 <b>아래</b>에 있으면 $x$축을 두 번 지나고 그때 $D>0$이에요. 꼭짓점이 $x$축 <b>위</b>로 올라가면 못 만나고 $D<0$. 판별식은 새로운 무언가가 아니라 <b>"꼭짓점이 $x$축 어느 쪽에 있나"</b>를 숫자로 적은 것뿐이에요.</p>
+  <div class="lec-card">
+    <h4>함께 생각하기 ①</h4>
+    <p style="margin-bottom:8px;font-size:14px">$y=x^2-4x+3$ 의 꼭짓점의 $y$좌표는? (위 그래프의 초기 상태예요)</p>
+    <div class="lec-checkrow"><input class="num" id="q1" inputmode="decimal" aria-label="답"><button id="q1b">확인</button></div>
+    <div class="lec-out" id="q1o"></div>
+  </div>
+</section>
+
+<!-- ② 공식은 읽는 것 -->
+<section class="lec-sec reveal" data-step="2" data-label="공식 읽기" id="s2">
+  <div class="eyebrow"><span class="n">2</span>공식은 외우는 게 아니라 읽는 것</div>
+  <p>모든 것은 <b>완전제곱</b>에서 시작해요. $x^2-4x+3$에서 $x^2-4x$를 $(x-2)^2-4$로 묶으면 $(x-2)^2-1$. 이 꼴이 되는 순간 꼭짓점 $(2,-1)$이 보여요.</p>
+  <div class="lec-formula"><div class="f">$y=a(x-h)^2+k,\qquad h=-\dfrac{b}{2a}$</div><small>축 x = h 는 "b를 2a로 나누고 부호 바꾸기". 꼭짓점의 y좌표 k는 h를 대입해서 구하는 게 가장 빠르다.</small></div>
+
+  <p>근의 공식도 이 그림에서 읽혀요. 축 $x=h$에서 <b>좌우로 같은 거리</b>만큼 떨어진 곳이 $x$축과 만나는 점이에요. 그 거리가 $\dfrac{\sqrt{D}}{2|a|}$. 그래서 $D>0$이면 두 점, $D=0$이면 축 위 한 점(중근), $D<0$이면 루트 안이 음수라 만나지 않아요.</p>
+  <div class="lec-formula"><div class="f">$x=\dfrac{-b\pm\sqrt{D}}{2a},\qquad D=b^2-4ac$</div><small>"축 ± 반폭". 두 근의 한가운데가 축이다.</small></div>
+
+  <p>근과 계수의 관계는 "두 근을 알면 식을 쓸 수 있다"를 거꾸로 읽은 거예요. $a(x-\alpha)(x-\beta)$를 전개하면 $ax^2-a(\alpha+\beta)x+a\alpha\beta$. 계수를 비교하면 끝.</p>
+  <div class="lec-formula"><div class="f">$\alpha+\beta=-\dfrac{b}{a},\qquad \alpha\beta=\dfrac{c}{a}$</div><small>두 근의 합은 축의 2배(α+β = 2h). 곱은 상수항을 a로 나눈 것. 근을 직접 안 구해도 합·곱은 안다.</small></div>
+
+  <p>이차부등식은 계산이 아니라 <b>그래프가 $x$축보다 위인가 아래인가</b>를 읽는 문제예요. $ax^2+bx+c>0$은 "포물선이 $x$축 위에 있는 $x$의 범위". $a>0$일 때 부등식이 "$\gt0$"이면 두 근의 <b>바깥</b>, "$\lt0$"이면 두 근의 <b>사이</b>. ($a<0$이면 양변에 $-1$을 곱해 $a>0$으로 만든다.)</p>
+  <div class="lec-formula"><div class="f">$a>0$: $(x-\alpha)(x-\beta)>0 \Rightarrow x\lt \alpha$ 또는 $x\gt \beta$ · $(x-\alpha)(x-\beta)<0 \Rightarrow \alpha\lt x\lt \beta$</div><small>a가 음수면 양변에 −1을 곱해 a를 양수로 만들고 부등호를 뒤집는다. 그래프로 확인하는 습관.</small></div>
+
+  <p>최댓값·최솟값은 꼭짓점을 찾는 문제예요. 다만 <b>$x$의 범위가 제한</b>되면 꼭짓점이 범위 안에 있는지부터 확인해요. 범위 밖이면 최대·최소는 양 끝에서 나와요.</p>
+  <div class="lec-card">
+    <h4>함께 생각하기 ②</h4>
+    <p style="margin-bottom:8px;font-size:14px">$x^2-5x+6=0$ 의 두 근의 합은? (근을 구하지 않고 계수만 보고)</p>
+    <div class="lec-checkrow"><input class="num" id="q2" inputmode="decimal" aria-label="답"><button id="q2b">확인</button></div>
+    <div class="lec-out" id="q2o"></div>
+  </div>
+</section>
+
+<!-- ③ 핵심 도구 -->
+<section class="lec-sec reveal" data-step="3" data-label="포물선 카드" id="s3">
+  <div class="eyebrow"><span class="n">3</span>포물선 카드 — 핵심 도구</div>
+  <p>이차함수 문제를 만나면 계산보다 먼저 <b>카드 다섯 칸</b>을 채워요. 채우고 나면 어떤 유형이든 답이 카드 안에 있어요.</p>
+  <table class="lec-table">
+    <tr><th>칸</th><th>어떻게 읽나</th><th>$y=x^2-4x+3$</th></tr>
+    <tr><td>$a$의 부호</td><td>아래로 볼록 ∪ (그릇) / 위로 볼록 ∩ (산)</td><td class="k">$a=1>0$ 그릇</td></tr>
+    <tr><td>축 $x=h$</td><td>$-\dfrac{b}{2a}$</td><td class="k">$x=2$</td></tr>
+    <tr><td>꼭짓점 $(h,k)$</td><td>$h$를 대입</td><td class="k">$(2,-1)$</td></tr>
+    <tr><td>$D$의 부호</td><td>$b^2-4ac$ → $x$축과 만나는 점 개수</td><td class="k">$16-12=4>0$ 두 점</td></tr>
+    <tr><td>$y$절편</td><td>$c$</td><td class="k">$3$</td></tr>
+  </table>
+  <div class="lec-key"><b>불변 앵커</b> 이차함수 문제는 전부 "꼭짓점이 어디에 있나"를 묻는다. 판별식도, 최댓값도, 부등식의 해도 꼭짓점 위치의 다른 표현이다.</div>
+  <p style="margin-top:12px">카드 채우기 연습이에요. 식이 매번 바뀌어요.</p>
+  <div id="toolbody"></div>
+</section>
+
+<!-- ④ 유형별 완전정복 -->
+<section class="lec-sec reveal" data-step="4" data-label="유형 4" id="s4">
+  <div class="eyebrow"><span class="n">4</span>유형별 완전정복</div>
+  <p>네 가지 유형 모두 <b>카드 → 그림 → 답</b> 순서예요. "다른 문제로"를 눌러 숫자가 바뀌어도 같은 길로 가는지 확인하세요.</p>
+</section>
+
+<section class="lec-type reveal" id="type1">
+  <div class="lec-type-h"><span class="badge">①</span><span><div class="t">꼭짓점 · 최댓값·최솟값</div><div class="d">완전제곱 → 꼭짓점 → 범위 확인</div></span></div>
+  <div class="lec-key"><b>핵심</b> 축 $h=-\dfrac{b}{2a}$부터. $x$의 범위가 있으면 꼭짓점이 범위 <b>안</b>인지 확인하고, 밖이면 양 끝값을 비교한다.</div>
+  <div id="type1body"></div>
+</section>
+
+<section class="lec-type reveal" id="type2">
+  <div class="lec-type-h"><span class="badge">②</span><span><div class="t">판별식</div><div class="d">x축과 만나는 점의 개수 · 중근 조건</div></span></div>
+  <div class="lec-key"><b>핵심</b> $D=b^2-4ac$. 두 점 $D>0$, 접함(중근) $D=0$, 만나지 않음 $D<0$. $b$가 짝수면 $\dfrac{D}{4}=\left(\dfrac b2\right)^2-ac$로 계산이 가볍다.</div>
+  <div id="type2body"></div>
+</section>
+
+<section class="lec-type reveal" id="type3">
+  <div class="lec-type-h"><span class="badge">③</span><span><div class="t">근과 계수의 관계</div><div class="d">근을 안 구하고 합·곱으로</div></span></div>
+  <div class="lec-key"><b>핵심</b> $\alpha+\beta=-\dfrac ba$, $\alpha\beta=\dfrac ca$. 그다음은 변형: $\alpha^2+\beta^2=(\alpha+\beta)^2-2\alpha\beta$, $\dfrac1\alpha+\dfrac1\beta=\dfrac{\alpha+\beta}{\alpha\beta}$.</div>
+  <div id="type3body"></div>
+</section>
+
+<section class="lec-type reveal" id="type4">
+  <div class="lec-type-h"><span class="badge">④</span><span><div class="t">이차부등식</div><div class="d">그래프가 x축 위인가 아래인가</div></span></div>
+  <div class="lec-key"><b>핵심</b> 인수분해해서 두 근을 찾고, $a>0$으로 만든 뒤 <b>바깥(>0) / 사이(<0)</b>. 등호가 있으면 근을 포함.</div>
+  <div id="type4body"></div>
+</section>
+
+<!-- ⑤ 실전 총정리 -->
+<section class="lec-sec reveal" data-step="5" data-label="실전" id="s5">
+  <div class="eyebrow"><span class="n">5</span>실전 총정리 — 유형 섞어서</div>
+  <p>어떤 유형인지 알려주지 않아요. <b>카드부터 채우고</b> 풀어 보세요. 틀리면 어느 유형인지 알려주고 돌아가는 길을 열어 둘게요.</p>
+  <div id="quizArea"></div>
+  <div style="text-align:center;margin-top:8px"><button class="lec-again" id="quizAreaAgain">🔄 5문제 새로</button></div>
+</section>
+
+<!-- ⑥ 치트시트 -->
+<section class="lec-sec reveal" data-step="6" data-label="치트시트" id="s6">
+  <div class="eyebrow"><span class="n">6</span>마무리 치트시트</div>
+  <div class="lec-cheat">
+    <h3>📈 이차함수 한 장 요약</h3>
+    <div class="row">
+      <div class="chip"><b>꼭짓점</b>축 $h=-\frac{b}{2a}$, 대입해서 $k$ · $y=a(x-h)^2+k$</div>
+      <div class="chip"><b>판별식</b>$D=b^2-4ac$ · ($a\gt0$ 기준) 두 점 / 접함 / 없음 = 꼭짓점이 축 아래 / 축에 닿음 / 축 위 · $a\lt0$이면 반대</div>
+    </div>
+    <div class="row">
+      <div class="chip"><b>근과 계수</b>$\alpha+\beta=-\frac ba$ · $\alpha\beta=\frac ca$ · $\alpha^2+\beta^2=(\alpha+\beta)^2-2\alpha\beta$</div>
+      <div class="chip"><b>부등식</b>$a>0$으로 만들고, $>0$ 바깥 · $<0$ 사이</div>
+    </div>
+    <div class="row">
+      <div class="chip"><b>최대·최소</b>범위 안에 꼭짓점 있으면 꼭짓점, 없으면 양 끝 비교</div>
+      <div class="chip"><b>한 문장</b>전부 "꼭짓점이 어디 있나"의 다른 이름</div>
+    </div>
+    <button id="printCheat">🖨️ 이 치트시트 인쇄하기</button>
+  </div>
+  <div class="keeper">
+    <div class="kt">📌 어른이 되어도 기억할 것</div>
+    <ul>
+      <li>던진 공, 분수의 물줄기, 위성 안테나의 단면은 전부 포물선이에요. "가장 높은 점"을 묻는 문제는 곧 꼭짓점을 묻는 문제예요.</li>
+      <li>"이익이 최대가 되는 가격", "재료가 최소가 되는 모양" 같은 <b>최적화</b>의 첫 모델이 이차함수예요. 고2 미분은 이 "꼭짓점 찾기"를 모든 곡선으로 넓힌 것이에요.</li>
+      <li>판별식은 "해가 있느냐"를 계산 없이 알려주는 장치예요. 있는지부터 확인하고 구하는 습관이 공학의 기본이에요.</li>
+    </ul>
+  </div>
+  <div class="insight"><div class="it">💡 다음으로 이어지는 것</div>꼭짓점에서 접선은 수평이에요. 미적분Ⅰ에서 배우는 <b>"미분계수 = 0인 곳이 극값"</b>은 바로 이 그림을 모든 함수로 확장한 것이에요. 그리고 근과 계수의 관계는 삼차방정식에서도 같은 방식으로 확장돼요.</div>
+  <div class="reallife"><div class="rt">🏠 이미 보고 있던 곳</div>휴대폰 카메라의 초점 맞추기, 자동차 헤드라이트 반사경, 다리의 케이블 모양, 물로켓의 궤적. 그리고 "몇 개를 팔아야 이익이 최대인가"를 계산하는 가게 주인의 머릿속에도 포물선이 있어요.</div>
+  <div class="reallife"><div class="rt">🏭 이걸로 먹고사는 사람들</div>포물선의 꼭짓점을 찾는 "최적화"는 경영(이익 최대 가격), 공학(재료 최소 설계), 물리(투사체·안테나 반사경)의 기본 도구예요. <span style="color:#312e81;font-weight:700">🎓 산업공학 · 경제학 · 기계·항공공학</span></div>
+  <p style="text-align:center;color:var(--sub);font-size:13px;margin-top:14px">단원 앱으로 이어서 → <a href="mat1_quadratic.html">이차함수와 이차방정식·부등식</a> · <a href="mat1_complex.html">복소수와 이차방정식</a></p>
+</section>
+
+<div class="lec-foot">관문 특강 · 이차함수 완전정복 · 공통수학1 · 표준 커리큘럼 제작</div>
+</div>
+<div id="printArea"></div>
+
+<!-- ───────── 생성기(순수 함수 · Node 재검산 대상) ───────── -->
+<script id="gen">
+(function(){
+  var ri=LEC.ri, pick=LEC.pick, nz=LEC.nz, frac=LEC.frac, poly=LEC.poly, fmt=LEC.fmt, sp=LEC.sgnParen;
+  function f(a,b,c,x){ return a*x*x+b*x+c; }
+  function num(v){ return fmt(v).replace('−','-'); }
+  function co(a){ return a===1?'':(a===-1?'-':String(a)); }
+  function fx(r){ return r===0?'x':'(x'+LEC.term(-r,'',false)+')'; }
+  function sq2(h){ return h===0?'x^2':fx(h)+'^2'; }
+
+  window.GEN = {
+    tool:{ label:'포물선 카드 채우기', anchor:'#s3',
+      gen:function(){
+        var a=pick([1,1,1,2,-1,-2]), h=ri(-4,4), k=ri(-6,6); var b=-2*a*h, c=a*h*h+k; var D=b*b-4*a*c;
+        var ask=ri(0,3); var names=['축 $x=h$ 의 $h$','꼭짓점의 $y$좌표','판별식 $D$','$y$절편']; var ans=[h,k,D,c][ask];
+        return { q:'$y='+poly([a,b,c])+'$ 의 포물선 카드에서 <b>'+names[ask]+'</b>'+(ask===3?'은?':'는?'), ans:ans, fig:{a:a,b:b,c:c,ask:ask},
+          steps:['축: $h=-\\dfrac{b}{2a}='+frac(-b,2*a)+'$', '꼭짓점의 $y$: $h$ 대입 → $'+num(k)+'$ (완전제곱: $y='+co(a)+sq2(h)+LEC.term(k,'',false)+'$)', '판별식 $D=b^2-4ac='+(b*b)+'-4\\cdot'+sp(a)+'\\cdot'+sp(c)+'='+num(D)+'$ → '+(D>0?'두 점':(D===0?'접함':'만나지 않음')), '$y$절편은 상수항 $c='+num(c)+'$'] };
+      },
+      verify:function(p){ var g=p.fig, a=g.a,b=g.b,c=g.c; var h=-b/(2*a), k=f(a,b,c,h), D=b*b-4*a*c; return [h,k,D,c][g.ask]===p.ans; } },
+
+    type1:{ label:'① 꼭짓점·최대최소', anchor:'#type1',
+      gen:function(){
+        var a=pick([1,1,2,-1,-1,-2]), h=ri(-3,3), k=ri(-5,5); var b=-2*a*h, c=a*h*h+k;
+        if(Math.random()<0.45){
+          var word=a>0?'최솟값':'최댓값';
+          return { q:'이차함수 $y='+poly([a,b,c])+'$ 의 <b>'+word+'</b>은?', ans:k, fig:{a:a,b:b,c:c,mode:0},
+            steps:['축: $h=-\\dfrac{b}{2a}='+frac(-b,2*a)+'$', '$x='+h+'$ 대입: $'+a+'\\cdot'+sp(h)+'^2'+LEC.term(b,'',false)+'\\cdot'+sp(h)+LEC.term(c,'',false)+'='+num(k)+'$', (a>0?'$a>0$ 그릇 모양 → 꼭짓점이 가장 낮다 → 최솟값 $':'$a<0$ 산 모양 → 꼭짓점이 가장 높다 → 최댓값 $')+num(k)+'$'] };
+        }
+        // 범위 제한
+        var inside=Math.random()<0.5; var p,q;
+        if(inside){ p=h-ri(1,3); q=h+ri(1,3); } else { if(Math.random()<0.5){ p=h+ri(1,2); q=p+ri(1,3); } else { q=h-ri(1,2); p=q-ri(1,3); } }
+        var vals=[f(a,b,c,p), f(a,b,c,q)]; if(inside) vals.push(k);
+        var askMax=Math.random()<0.5; var ans=askMax?Math.max.apply(null,vals):Math.min.apply(null,vals);
+        return { q:'$'+p+'\\le x\\le '+q+'$ 에서 이차함수 $y='+poly([a,b,c])+'$ 의 <b>'+(askMax?'최댓값':'최솟값')+'</b>은?', ans:ans, fig:{a:a,b:b,c:c,p:p,q:q,askMax:askMax,mode:1},
+          steps:['축 $x='+h+'$ → 꼭짓점 $'+LEC.pt(h,k)+'$', inside?'꼭짓점이 범위 안에 있다 → 후보: 꼭짓점 값 $'+num(k)+'$, 양 끝 $f('+p+')='+num(vals[0])+'$, $f('+q+')='+num(vals[1])+'$':'꼭짓점이 범위 밖 → 범위 안에서는 한쪽으로만 증가 또는 감소. 양 끝만 비교: $f('+p+')='+num(vals[0])+'$, $f('+q+')='+num(vals[1])+'$', (askMax?'가장 큰 값 $':'가장 작은 값 $')+num(ans)+'$'] };
+      },
+      verify:function(p){ var g=p.fig; if(g.mode===0){ var h=-g.b/(2*g.a); return f(g.a,g.b,g.c,h)===p.ans; } var best=null; for(var x=g.p;x<=g.q;x+=0.25){ var v=f(g.a,g.b,g.c,x); if(best===null||(g.askMax?v>best:v<best))best=v; } return Math.abs(best-p.ans)<1e-9; } },
+
+    type2:{ label:'② 판별식', anchor:'#type2',
+      gen:function(){
+        var mode=ri(0,2);
+        if(mode===0){
+          var a=pick([1,1,2,-1,3]), b=ri(-6,6), c=ri(-6,6); var D=b*b-4*a*c; var idx=D>0?0:(D===0?1:2);
+          return { q:'이차방정식 $'+poly([a,b,c])+'=0$ 의 서로 다른 실근의 개수는?', choices:['2개','1개 (중근)','0개'], ans:idx, fig:{D:D},
+            steps:['$D=b^2-4ac='+sp(b)+'^2-4\\cdot'+sp(a)+'\\cdot'+sp(c)+'='+num(D)+'$', (D>0?'$D>0$ → 두 점에서 만남 → 실근 2개':(D===0?'$D=0$ → 접함 → 중근 1개':'$D<0$ → 만나지 않음 → 실근 0개'))] };
+        }
+        if(mode===1){
+          var m=nz(-4,4); var bb=2*m; var kk=m*m;
+          return { q:'이차방정식 $x^2'+LEC.term(bb,'x',false)+'+k=0$ 이 <b>중근</b>을 가질 때 상수 $k$의 값은?', ans:kk, fig:{b:bb},
+            steps:['중근 ⟺ $D=0$', '$D=b^2-4k='+(bb*bb)+'-4k=0$', '$k='+kk+'$ (검산: $(x'+LEC.term(m,'',false)+')^2$ 꼴이 된다)'] };
+        }
+        var r1=nz(-3,3), r2=nz(-3,3); while(r2===r1) r2=nz(-3,3); var P=r1+r2, Q=-r1*r2; // m^2 - Pm - Q = 0 → (m-r1)(m-r2)
+        return { q:'이차방정식 $x^2+2mx'+LEC.term(P,'m',false)+LEC.term(Q,'',false)+'=0$ 이 중근을 가지도록 하는 모든 실수 $m$의 값의 <b>합</b>은?', ans:P, fig:{r1:r1,r2:r2},
+          steps:['중근 ⟺ $D=0$. $b=2m$ 이 짝수이므로 $\\dfrac D4=m^2-('+LEC.poly([P,Q],'m')+')=0$', '$m^2'+LEC.term(-P,'m',false)+LEC.term(-Q,'',false)+'=(m'+LEC.term(-r1,'',false)+')(m'+LEC.term(-r2,'',false)+')=0$ → $m='+r1+'$ 또는 $m='+r2+'$', '합 $='+P+'$ (근과 계수의 관계로 바로 $-(-'+P+')$ 도 가능)'] };
+      },
+      verify:function(p){ var g=p.fig; if(p.choices){ return (g.D>0?0:(g.D===0?1:2))===p.ans; } if(g.b!==undefined){ return p.ans===g.b*g.b/4; } return p.ans===g.r1+g.r2; } },
+
+    type3:{ label:'③ 근과 계수의 관계', anchor:'#type3',
+      gen:function(){
+        var a=pick([1,1,2,3]), b=nz(-7,7), c=nz(-8,8); while(b*b-4*a*c<0){ b=nz(-7,7); c=nz(-8,8); } var s=-b/a, pr=c/a; var mode=ri(0,3);
+        var base=['$\\alpha+\\beta=-\\dfrac ba='+frac(-b,a)+'$, $\\alpha\\beta=\\dfrac ca='+frac(c,a)+'$'];
+        var q, ans, steps;
+        if(mode===0){ q='$\\alpha+\\beta$'; ans=s; steps=base; }
+        else if(mode===1){ q='$\\alpha\\beta$'; ans=pr; steps=base; }
+        else if(mode===2){ q='$\\alpha^2+\\beta^2$'; ans=s*s-2*pr; steps=base.concat(['$\\alpha^2+\\beta^2=(\\alpha+\\beta)^2-2\\alpha\\beta=('+frac(-b,a)+')^2-2\\cdot'+frac(c,a)+'='+frac(b*b-2*a*c,a*a)+'$']); }
+        else { q='$\\dfrac1\\alpha+\\dfrac1\\beta$'; ans=s/pr; steps=base.concat(['$\\dfrac1\\alpha+\\dfrac1\\beta=\\dfrac{\\alpha+\\beta}{\\alpha\\beta}=\\dfrac{'+frac(-b,a)+'}{'+frac(c,a)+'}='+frac(-b,c)+'$']); }
+        return { q:'이차방정식 $'+poly([a,b,c])+'=0$ 의 두 근을 $\\alpha,\\beta$ 라 할 때 '+q+' 의 값은? (분수는 3/2 처럼)', ans:ans, tol:1e-6, fig:{a:a,b:b,c:c,mode:mode}, steps:steps };
+      },
+      verify:function(p){ var g=p.fig; var s=-g.b/g.a, pr=g.c/g.a; var e=[s,pr,s*s-2*pr,s/pr][g.mode]; return Math.abs(e-p.ans)<1e-9; } },
+
+    type4:{ label:'④ 이차부등식', anchor:'#type4',
+      gen:function(){
+        var r1=ri(-5,3), r2=r1+ri(1,6); // r1<r2
+        var b=-(r1+r2), c=r1*r2;
+        if(Math.random()<0.5){
+          var strict=Math.random()<0.5; var inside=Math.random()<0.5; var neg=Math.random()<0.3;
+          var lhs=neg?poly([-1,-b,-c]):poly([1,b,c]); var op = inside ? (strict?'\\lt':'\\le') : (strict?'\\gt':'\\ge'); // for a>0 form
+          var opShown = neg ? ({'\\lt':'\\gt','\\le':'\\ge','\\gt':'\\lt','\\ge':'\\le'})[op] : op;
+          var cnt = inside ? (strict? r2-r1-1 : r2-r1+1) : null;
+          if(inside){
+            return { q:'이차부등식 $'+lhs+' '+opShown+' 0$ 을 만족시키는 <b>정수 $x$의 개수</b>는?', ans:cnt, fig:{r1:r1,r2:r2,strict:strict,inside:true},
+              steps:[neg?'$a<0$ → 양변에 $-1$ 곱하고 부등호 뒤집기: $'+poly([1,b,c])+' '+op+' 0$':'$a>0$ 그대로', '인수분해: $'+fx(r1)+fx(r2)+' '+op+' 0$ → 두 근 $'+r1+', '+r2+'$', '사이(그래프가 $x$축 '+(strict?'아래':'아래이거나 $x$축 위의 점(등호)')+'): $'+r1+(strict?' \\lt x \\lt ':' \\le x \\le ')+r2+'$', '정수: '+(strict?(r2-r1-1)+'개':(r2-r1+1)+'개')] };
+          }
+          // 바깥형 → 해 MC
+          var chs=['$x '+(strict?'\\lt':'\\le')+' '+r1+'$ 또는 $x '+(strict?'\\gt':'\\ge')+' '+r2+'$', '$'+r1+(strict?' \\lt x \\lt ':' \\le x \\le ')+r2+'$', '$x '+(strict?'\\gt':'\\ge')+' '+r2+'$', '모든 실수'];
+          return { q:'이차부등식 $'+lhs+' '+opShown+' 0$ 의 해는?', choices:chs, ans:0, fig:{r1:r1,r2:r2,strict:strict,inside:false},
+            steps:[neg?'$a<0$ → 양변에 $-1$ 곱하고 부등호 뒤집기: $'+poly([1,b,c])+' '+op+' 0$':'$a>0$ 그대로', '인수분해: $'+fx(r1)+fx(r2)+' '+op+' 0$ → 두 근 $'+r1+', '+r2+'$', '바깥(그래프가 $x$축 '+(strict?'위':'위이거나 $x$축 위의 점(등호)')+'): '+chs[0]] };
+        }
+        // 해가 주어질 때 계수
+        var askD=Math.random()<0.5;
+        return { q:'이차부등식 $x^2+ax+b '+'\\lt 0$ 의 해가 $'+r1+' \\lt x \\lt '+r2+'$ 일 때 $'+(askD?'a-b':'a+b')+'$ 의 값은?', ans:askD?b-c:b+c, fig:{r1:r1,r2:r2,mode:'coef',askD:askD},
+          steps:['해가 사이 꼴 → $'+fx(r1)+fx(r2)+' \\lt 0$', '전개: $x^2'+LEC.term(b,'x',false)+LEC.term(c,'',false)+' \\lt 0$ → $a='+b+'$, $b='+c+'$', (askD?'$a-b='+(b-c)+'$':'$a+b='+(b+c)+'$')] };
+      },
+      verify:function(p){ var g=p.fig; if(g.mode==='coef'){ var A=-(g.r1+g.r2), B=g.r1*g.r2; return p.ans===(g.askD?A-B:A+B); } if(g.inside) return p.ans===(g.strict? g.r2-g.r1-1 : g.r2-g.r1+1); return p.ans===0; } }
+  };
+})();
+</script>
+
+<script>
+LEC.boot({ key:'mat1_sp_quad', color:'#1d4ed8', color2:'#60a5fa' });
+
+/* ① 포물선 위젯 */
+(function(){
+  var cv=document.getElementById('cv1'); var P=LEC.plane(cv,{xmin:-8,xmax:8,ymin:-10,ymax:10,h:320,grid:1});
+  var S={a:'sa',b:'sb',c:'sc',k:'sk'};
+  function val(id){ return parseInt(document.getElementById(id).value,10); }
+  function draw(){
+    var a=val('sa'); if(a===0){ a=(window._lastA<0)?-1:1; document.getElementById('sa').value=a; } window._lastA=a;
+    var b=val('sb'), c=val('sc'), k=val('sk');
+    document.getElementById('sav').textContent=LEC.fmt(a); document.getElementById('sbv').textContent=LEC.fmt(b); document.getElementById('scv').textContent=LEC.fmt(c); document.getElementById('skv').textContent=LEC.fmt(k);
+    var h=-b/(2*a), kv=a*h*h+b*h+c, D=b*b-4*a*c;
+    P.clear().grid().axes();
+    // y=k
+    P.seg(P.xmin,k,P.xmax,k,'#f59e0b',2,[6,4]);
+    // 축
+    P.seg(h,P.ymin,h,P.ymax,'#94a3b8',1.5,[4,4]);
+    P.plot(function(x){return a*x*x+b*x+c;},'#1d4ed8',3);
+    // x절편
+    var xs=[]; if(D>=0){ var s=Math.sqrt(D); xs=[(-b-s)/(2*a),(-b+s)/(2*a)]; if(D===0)xs=[xs[0]]; xs.forEach(function(x){ P.dot(x,0,'#dc2626',6); }); }
+    // y=k 교점
+    var Dk=b*b-4*a*(c-k); var nk=0; if(Dk>0){ nk=2; var sk=Math.sqrt(Dk); [(-b-sk)/(2*a),(-b+sk)/(2*a)].forEach(function(x){ P.dot(x,k,'#f59e0b',6); }); } else if(Dk===0){ nk=1; P.dot(-b/(2*a),k,'#f59e0b',6); }
+    P.dot(h,kv,'#7c3aed',7,'('+LEC.fmt(h)+', '+LEC.fmt(kv)+')', a>0?'s':'n');
+    var el=document.getElementById('eqline'); el.innerHTML='$y='+LEC.poly([a,b,c])+'$'; LEC.tex(el);
+    document.getElementById('pv').textContent='('+LEC.fmt(h)+', '+LEC.fmt(kv)+')';
+    document.getElementById('pd').textContent=LEC.fmt(D)+(D>0?' (>0)':(D===0?' (=0)':' (<0)'));
+    document.getElementById('px').textContent=D>0?'2개':(D===0?'1개 (접함)':'0개');
+    document.getElementById('pk').textContent=nk+'개 → '+LEC.poly([a,b,c]).replace(/\^\{2\}/g,'²')+' = '+LEC.fmt(k)+' 의 실근 '+nk+'개';
+  }
+  ['sa','sb','sc','sk'].forEach(function(id){ document.getElementById(id).addEventListener('input',draw); });
+  draw(); LEC.onResize(function(){P.resize();draw();});
+})();
+
+LEC.check('q1',-1,{ok:'축 $x=2$, 대입하면 $4-8+3=-1$. 완전제곱 $(x-2)^2-1$ 에서도 보여요.', bad:'축은 $-\\dfrac{b}{2a}=2$. $x=2$를 대입해 보세요.'});
+LEC.check('q2',5,{ok:'$\\alpha+\\beta=-\\dfrac{b}{a}=-\\dfrac{-5}{1}=5$. 실제 근 $2, 3$의 합과 같아요.', bad:'근과 계수의 관계: 합은 $-\\dfrac ba$. 여기서 $b=-5$, $a=1$.'});
+
+/* 유형 그림: 포물선 */
+function parab(el,a,b,c,opts){
+  var cv=document.createElement('canvas'); cv.height=200; el.className='lec-widget lec-fig'; el.appendChild(cv);
+  var h=-b/(2*a), k=a*h*h+b*h+c; var span=8; var yc=k; var P=LEC.plane(cv,{xmin:h-span/2,xmax:h+span/2,ymin:yc-6,ymax:yc+6,h:200});
+  P.clear().grid().axes(); if(opts&&opts.range){ P.fillUnder(function(){return P.ymax;},opts.range[0],opts.range[1],'rgba(29,78,216,.08)',P.ymin); }
+  P.plot(function(x){return a*x*x+b*x+c;},'#1d4ed8',2.5); P.dot(h,k,'#7c3aed',5);
+}
+GEN.type1.fig=function(p,el){ var g=p.fig; parab(el,g.a,g.b,g.c,g.mode===1?{range:[g.p,g.q]}:null); };
+GEN.tool.fig=function(p,el){ var g=p.fig; parab(el,g.a,g.b,g.c); };
+
+LEC.types(['tool','type1','type2','type3','type4']);
+LEC.quiz('quizArea',{n:5,types:['type1','type2','type3','type4']});
+</script>
+</body>
+</html>

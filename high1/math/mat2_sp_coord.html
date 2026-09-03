@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>도형의 방정식 = 좌표로 도형 읽기 · 관문 특강</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="if(window.LEC)LEC.tex(document.body)"></script>
+<script src="lecture.js"></script>
+<style>
+  #cv1{max-width:430px;margin:0 auto}
+  .tri-info{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:10px}
+  .tri-info div{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:8px 10px;font-size:13px;text-align:center}
+  .tri-info b{display:block;font-size:16px;color:var(--lec)}
+  .trans{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin:8px 0;font-size:13.5px}
+  .trans .cell{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:9px 11px;min-height:44px;display:flex;align-items:center}
+  .trans .arrow{color:var(--lec);font-weight:800;font-size:18px}
+  @media (max-width:520px){.trans{grid-template-columns:1fr}.trans .arrow{text-align:center}}
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Math_1_1</a><span>&rsaquo;</span><a href="mat2_hub.html">공통수학2</a><span>&rsaquo;</span><a class="cur" href="#">관문 특강 · 도형의 방정식</a></nav>
+<div class="wrap">
+
+<div class="lec-hero">
+  <span class="tag">🚪 관문 특강 · 공통수학2 Ⅰ 도형의 방정식</span>
+  <h1>📍 도형의 방정식 = 좌표로 도형 읽기</h1>
+  <p>그림 문제를 보면 막막하고, 식을 보면 무슨 도형인지 안 그려지나요? 그럴 수 있어요. 이 단원은 새 공식을 외우는 단원이 아니라 <b>그림 ↔ 식을 왕복 번역하는 단원</b>이에요. 점·직선·원을 전부 숫자로 바꾸면 그림 문제가 계산 문제가 되고, 거꾸로 식에서 중심·반지름·기울기만 읽어내면 그림이 그려져요. 그 번역 하나만 여기서 끝내요. (평행이동·대칭이동은 단원 앱에서 이어서 다뤄요.)</p>
+  <div class="lec-goal"><a href="#type1">① 거리·내분점</a><a href="#type2">② 직선의 방정식</a><a href="#type3">③ 점과 직선 사이 거리</a><a href="#type4">④ 원과 직선</a></div>
+</div>
+<nav class="lec-nav" id="lecNav"></nav>
+
+<!-- ① 감 잡기 -->
+<section class="lec-sec reveal" data-step="1" data-label="감 잡기" id="s1">
+  <div class="eyebrow"><span class="n">1</span>두 점 사이 거리가 뭔지 감 잡기 (공식 없이)</div>
+  <p>좌표평면 위의 점 두 개를 <b>손가락으로 끌어 옮겨</b> 보세요. 두 점을 잇는 선분 아래에 직각삼각형이 따라 그려져요. 가로로 몇 칸, 세로로 몇 칸 갔는지 보이나요?</p>
+  <div class="lec-widget">
+    <canvas id="cv1" height="300"></canvas>
+    <div class="tri-info">
+      <div>가로 차 <b id="dxv">3</b></div>
+      <div>세로 차 <b id="dyv">4</b></div>
+      <div>거리 <b id="dv">5</b></div>
+      <div>중점 <b id="mv">(2.5, 3)</b></div>
+    </div>
+    <p style="font-size:12.5px;color:var(--sub);margin-top:8px">점은 격자에 붙어요. 가로 3·세로 4처럼 딱 떨어지는 조합(3-4-5, 6-8-10)을 만들어 보세요.</p>
+  </div>
+  <p>빗변이 바로 두 점 사이의 거리예요. 그러니까 거리는 새 공식이 아니라 <b>중학교 때 배운 피타고라스</b> 그대로예요. 가로 차의 제곱 + 세로 차의 제곱에 루트를 씌우면 끝.</p>
+  <div class="lec-card">
+    <h4>함께 생각하기 ①</h4>
+    <p style="margin-bottom:8px;font-size:14px">두 점 $A(1,\,2)$, $B(4,\,6)$ 사이의 거리는?</p>
+    <div class="lec-checkrow"><input class="num" id="q1" inputmode="decimal" aria-label="답"><button id="q1b">확인</button></div>
+    <div class="lec-out" id="q1o"></div>
+  </div>
+</section>
+
+<!-- ② 공식은 읽는 것 -->
+<section class="lec-sec reveal" data-step="2" data-label="공식 읽기" id="s2">
+  <div class="eyebrow"><span class="n">2</span>공식은 외우는 게 아니라 읽는 것</div>
+  <p>이 단원의 공식은 다섯 개예요. 전부 <b>"거리"와 "기울기"</b> 두 단어로 읽혀요.</p>
+
+  <div class="lec-formula"><div class="f">$\overline{AB} = \sqrt{(x_2-x_1)^2 + (y_2-y_1)^2}$</div><small>거리 = 피타고라스. 가로 차·세로 차를 제곱해서 더하고 루트.</small></div>
+
+  <p>내분점은 "가중 평균"으로 읽어요. 수직선 위에서 $1$과 $7$을 $2:1$로 내분하는 점은 $7$ 쪽에 더 가까우니까, <b>가까운 쪽 숫자 $7$에 큰 비율 $2$를 곱해</b> 평균을 내요: $\dfrac{2\cdot 7 + 1\cdot 1}{2+1} = 5$. (비 $m:n$의 $m$은 $A$ 쪽에서 잰 길이라서, 곱해지는 좌표는 반대편 점 $B$의 것 — 이게 "엇갈려 곱하기"예요.) 좌표평면에서는 $x$, $y$를 각각 따로 하면 돼요.</p>
+  <div class="lec-formula"><div class="f">$P\left(\dfrac{m x_2 + n x_1}{m+n},\ \dfrac{m y_2 + n y_1}{m+n}\right)$</div><small>A(x₁, y₁), B(x₂, y₂)일 때 선분 AB를 m : n 으로 내분하는 점. m은 B에, n은 A에 곱한다 (엇갈려 곱하기). 중점은 m = n = 1.</small></div>
+
+  <p>기울기는 속력과 같은 개념이에요. "오른쪽으로 1칸 갈 때 몇 칸 오르나" = 세로 차 ÷ 가로 차. 기울기 하나와 지나는 점 하나만 있으면 직선은 결정돼요.</p>
+  <div class="lec-formula"><div class="f">$y - y_1 = m(x - x_1)$</div><small>점 (x₁, y₁)을 지나고 기울기 m인 직선. 평행이면 기울기 같음, 수직이면 기울기의 곱이 −1 (둘 다 y축에 평행하지 않을 때. y축에 평행한 직선은 기울기가 없다).</small></div>
+
+  <p>점과 직선 사이의 거리 공식은 겉모습이 무섭지만 이렇게 읽어요: <b>"점을 직선의 식에 대입한 값의 절댓값"을 "계수의 길이 $\sqrt{a^2+b^2}$"로 나눈다.</b> 직선 위의 점을 대입하면 0이 나오니까, 대입값의 절댓값이 클수록 직선에서 멀다는 뜻이에요.</p>
+  <div class="lec-formula"><div class="f">$d = \dfrac{|a x_0 + b y_0 + c|}{\sqrt{a^2+b^2}}$</div><small>점 (x₀, y₀)과 직선 ax + by + c = 0 사이의 거리. 직선은 반드시 "= 0" 꼴로 정리하고 대입.</small></div>
+
+  <p>원은 "중심에서 거리가 $r$인 점들의 모임"이에요. 그래서 원의 방정식은 <b>거리 공식에 = r을 붙인 것</b>일 뿐이에요. 양변을 제곱하면 루트가 사라져요.</p>
+  <div class="lec-formula"><div class="f">$(x-a)^2 + (y-b)^2 = r^2$</div><small>중심 (a, b), 반지름 r. 전개된 일반형 x² + y² + Dx + Ey + F = 0 은 완전제곱으로 되돌려 읽는다.</small></div>
+
+  <div class="lec-card">
+    <h4>함께 생각하기 ②</h4>
+    <p style="margin-bottom:8px;font-size:14px">점 $(1,\,1)$과 직선 $3x + 4y + 3 = 0$ 사이의 거리는? (대입한 값을 계수 길이 $\sqrt{3^2+4^2}$로 나누기)</p>
+    <div class="lec-checkrow"><input class="num" id="q2" inputmode="decimal" aria-label="답"><button id="q2b">확인</button></div>
+    <div class="lec-out" id="q2o"></div>
+  </div>
+</section>
+
+<!-- ③ 핵심 도구 -->
+<section class="lec-sec reveal" data-step="3" data-label="번역표" id="s3">
+  <div class="eyebrow"><span class="n">3</span>좌표 번역표 — 핵심 도구</div>
+  <p>문제를 읽으면 먼저 <b>도형을 숫자로 번역</b>해요. 점은 좌표, 직선은 기울기와 점 하나(또는 $a, b, c$), 원은 중심과 반지름. 이 표만 채우면 나머지는 계산이에요.</p>
+  <div class="lec-card">
+    <div class="trans"><div class="cell">"두 점 $A(1,2)$, $B(5,5)$"</div><div class="arrow">⇄</div><div class="cell">가로 차 4, 세로 차 3 → 거리 5, 기울기 $\frac34$</div></div>
+    <div class="trans"><div class="cell">"기울기 2, 점 $(1,3)$을 지나는 직선"</div><div class="arrow">⇄</div><div class="cell">$y-3=2(x-1)$ → $2x - y + 1 = 0$</div></div>
+    <div class="trans"><div class="cell">"중심 $(2,-1)$, 반지름 3인 원"</div><div class="arrow">⇄</div><div class="cell">$(x-2)^2+(y+1)^2=9$ → $x^2+y^2-4x+2y-4=0$</div></div>
+    <div class="trans"><div class="cell">$x^2+y^2+6x-4y+9=0$</div><div class="arrow">⇄</div><div class="cell">$(x+3)^2+(y-2)^2=4$ → 중심 $(-3,2)$, 반지름 2</div></div>
+  </div>
+  <div class="lec-key"><b>불변 앵커</b> 도형 문제는 전부 "거리"와 "기울기"로 번역된다. 막히면 "지금 구해야 하는 게 거리인가, 기울기인가?"부터 묻는다.</div>
+  <p style="margin-top:12px">거꾸로 읽기 연습이에요. 일반형에서 <b>완전제곱으로 되돌려</b> 중심과 반지름을 읽어 보세요. 매번 다른 원이 나와요.</p>
+  <div id="toolbody"></div>
+</section>
+
+<!-- ④ 유형별 완전정복 -->
+<section class="lec-sec reveal" data-step="4" data-label="유형 4" id="s4">
+  <div class="eyebrow"><span class="n">4</span>유형별 완전정복</div>
+  <p>이 단원 문제는 결국 네 가지예요. 각 유형에서 <b>번역 → 식 → 계산</b> 순서로 풀고, "다른 문제로"를 눌러 숫자가 바뀌어도 같은 길로 가는지 확인하세요.</p>
+</section>
+
+<section class="lec-type reveal" id="type1">
+  <div class="lec-type-h"><span class="badge">①</span><span><div class="t">거리·내분점</div><div class="d">가로 차·세로 차로 번역하기</div></span></div>
+  <div class="lec-key"><b>핵심</b> 거리는 피타고라스, 내분점은 엇갈려 곱한 가중 평균. 둘 다 $x$와 $y$를 따로 다룬다.</div>
+  <div id="type1body"></div>
+</section>
+
+<section class="lec-type reveal" id="type2">
+  <div class="lec-type-h"><span class="badge">②</span><span><div class="t">직선의 방정식</div><div class="d">기울기 + 점 하나면 끝</div></span></div>
+  <div class="lec-key"><b>핵심</b> 두 점이 주어지면 먼저 기울기부터. 평행은 기울기 같음, 수직은 기울기 곱이 $-1$ (한쪽을 뒤집고 부호 바꾸기).</div>
+  <div id="type2body"></div>
+</section>
+
+<section class="lec-type reveal" id="type3">
+  <div class="lec-type-h"><span class="badge">③</span><span><div class="t">점과 직선 사이의 거리</div><div class="d">대입값 ÷ 계수 길이</div></span></div>
+  <div class="lec-key"><b>핵심</b> 직선을 $ax+by+c=0$ 꼴로 정리 → 점을 대입해 절댓값 → $\sqrt{a^2+b^2}$로 나눈다. 대입값이 0이면 그 점은 직선 위에 있다.</div>
+  <div id="type3body"></div>
+</section>
+
+<section class="lec-type reveal" id="type4">
+  <div class="lec-type-h"><span class="badge">④</span><span><div class="t">원과 직선</div><div class="d">중심에서 직선까지 거리 d 와 반지름 r 비교</div></span></div>
+  <div class="lec-key"><b>핵심</b> 원과 직선의 위치 관계는 판별식 대신 <b>$d$와 $r$</b>로 판단하면 빠르다. $d < r$ 두 점, $d = r$ 접함, $d > r$ 만나지 않음. 일반형 원은 완전제곱으로 중심·반지름부터 읽는다.</div>
+  <div id="type4body"></div>
+</section>
+
+<!-- ⑤ 실전 총정리 -->
+<section class="lec-sec reveal" data-step="5" data-label="실전" id="s5">
+  <div class="eyebrow"><span class="n">5</span>실전 총정리 — 유형 섞어서</div>
+  <p>이번엔 어떤 유형인지 알려주지 않아요. <b>문제를 읽고 스스로 번역</b>해서 풀어 보세요. 틀리면 어느 유형인지 알려주고, 그 유형으로 돌아가는 길을 열어 둘게요.</p>
+  <div id="quizArea"></div>
+  <div style="text-align:center;margin-top:8px"><button class="lec-again" id="quizAreaAgain">🔄 5문제 새로</button></div>
+</section>
+
+<!-- ⑥ 치트시트 -->
+<section class="lec-sec reveal" data-step="6" data-label="치트시트" id="s6">
+  <div class="eyebrow"><span class="n">6</span>마무리 치트시트</div>
+  <div class="lec-cheat">
+    <h3>📍 도형의 방정식 한 장 요약</h3>
+    <div class="row">
+      <div class="chip"><b>거리</b>$\sqrt{(\Delta x)^2+(\Delta y)^2}$ — 피타고라스</div>
+      <div class="chip"><b>내분점 m : n</b>$\left(\frac{m x_2 + n x_1}{m+n}, \frac{m y_2 + n y_1}{m+n}\right)$ — 엇갈려 곱하기</div>
+    </div>
+    <div class="row">
+      <div class="chip"><b>직선</b>$y-y_1=m(x-x_1)$ · 평행 $m_1=m_2$ · 수직 $m_1 m_2=-1$</div>
+      <div class="chip"><b>점·직선 거리</b>$\dfrac{|ax_0+by_0+c|}{\sqrt{a^2+b^2}}$ — 대입값 ÷ 계수 길이</div>
+    </div>
+    <div class="row">
+      <div class="chip"><b>원</b>$(x-a)^2+(y-b)^2=r^2$ · 일반형은 완전제곱으로</div>
+      <div class="chip"><b>원과 직선</b>$d$ vs $r$ — 작으면 두 점, 같으면 접점, 크면 없음</div>
+    </div>
+    <button id="printCheat">🖨️ 이 치트시트 인쇄하기</button>
+  </div>
+  <div class="keeper">
+    <div class="kt">📌 어른이 되어도 기억할 것</div>
+    <ul>
+      <li>좌표는 데카르트의 발명이에요. 도형을 숫자로 바꾼 순간 기하와 대수가 하나가 됐고, 그래서 컴퓨터가 그림을 다룰 수 있게 됐어요.</li>
+      <li>"점과 직선 사이의 거리"는 게임의 충돌 판정, 지도 앱의 "도로에서 얼마나 벗어났나" 계산에 그대로 쓰여요.</li>
+      <li>원의 방정식은 거리 공식의 다른 이름. "중심에서 같은 거리" 하나로 원·구·GPS 위치 계산까지 이어져요.</li>
+    </ul>
+  </div>
+  <div class="insight"><div class="it">💡 다음으로 이어지는 것</div>"원 위를 도는 점"을 각도로 읽으면 <b>삼각함수</b>(대수)가 되고, 곡선에 붙는 직선(접선)의 기울기를 읽으면 <b>미분</b>(미적분Ⅰ)이 돼요. 이 특강의 "거리·기울기" 두 단어는 고2까지 계속 쓰여요.</div>
+  <div class="reallife"><div class="rt">🏠 이미 보고 있던 곳</div>GPS는 위성들과의 <b>거리</b>로 위치를 잡아요(공간에서는 구의 교점, 평면으로 줄이면 원의 교점). 내비게이션의 "경로 이탈"은 내 위치와 도로(직선)의 <b>거리</b>가 기준값을 넘었다는 뜻이고, 사진 앱의 기울기 보정은 <b>기울기</b> 계산이에요.</div>
+  <div class="reallife"><div class="rt">🏭 이걸로 먹고사는 사람들</div>컴퓨터 그래픽스와 게임의 충돌 판정(점·직선·원 사이 거리), 지도·GIS의 좌표 변환, 자율주행의 차선 인식(내 위치와 차선 직선의 거리), 측량·건축 설계. <span style="color:#312e81;font-weight:700">🎓 컴퓨터공학 · 공간정보공학 · 토목·건축</span></div>
+  <p style="text-align:center;color:var(--sub);font-size:13px;margin-top:14px">단원 앱으로 이어서 → <a href="mat2_coordline.html">평면좌표와 직선의 방정식</a> · <a href="mat2_circle.html">원의 방정식</a> · <a href="mat2_move.html">도형의 이동</a></p>
+</section>
+
+<div class="lec-foot">관문 특강 · 도형의 방정식 = 좌표로 도형 읽기 · 공통수학2 · 표준 커리큘럼 제작</div>
+</div>
+<div id="printArea"></div>
+
+<!-- ───────── 생성기(순수 함수 · Node 재검산 대상) ───────── -->
+<script id="gen">
+(function(){
+  var ri=LEC.ri, pick=LEC.pick, nz=LEC.nz, frac=LEC.frac, pt=LEC.pt, fmt=LEC.fmt;
+  var TRIPLES=[[3,4,5],[4,3,5],[6,8,10],[8,6,10],[5,12,13],[12,5,13],[8,15,17],[15,8,17]];
+  function sg(){ return pick([1,-1]); }
+  function lin(a,b,c){ // ax+by+c=0 KaTeX
+    var s=LEC.term(a,'x',true)+LEC.term(b,'y',false)+LEC.term(c,'',false); return s+'=0';
+  }
+  function circleGeneral(h,k,r){ var D=-2*h,E=-2*k,F=h*h+k*k-r*r; return 'x^2+y^2'+LEC.term(D,'x',false)+LEC.term(E,'y',false)+LEC.term(F,'',false)+'=0'; }
+  function sq(v){ return v<0?'('+v+')^2':v+'^2'; }
+
+  window.GEN = {
+    tool:{ label:'일반형 → 중심·반지름 읽기', anchor:'#s3',
+      gen:function(){
+        var h=ri(-4,4), k=ri(-4,4), r=ri(1,5);
+        var D=-2*h,E=-2*k,F=h*h+k*k-r*r;
+        return { q:'원 $'+circleGeneral(h,k,r)+'$ 의 <b>반지름</b>은? (중심도 함께 읽어 보세요)', ans:r, fig:{h:h,k:k,r:r},
+          steps:['$x$끼리, $y$끼리 모아서 완전제곱: $x^2'+LEC.term(D,'x',false)+' = (x'+LEC.term(-h,'',false)+')^2 - '+(h*h)+'$, $y^2'+LEC.term(E,'y',false)+' = (y'+LEC.term(-k,'',false)+')^2 - '+(k*k)+'$',
+                 '상수를 우변으로: $(x'+LEC.term(-h,'',false)+')^2+(y'+LEC.term(-k,'',false)+')^2 = '+(h*h)+'+'+(k*k)+'-('+F+') = '+(r*r)+'$',
+                 '중심 $'+pt(h,k)+'$, 반지름 $\\sqrt{'+(r*r)+'}='+r+'$'] };
+      },
+      verify:function(p){ var f=p.fig; var D=-2*f.h,E=-2*f.k,F=f.h*f.h+f.k*f.k-f.r*f.r; var r=Math.sqrt((D*D+E*E)/4-F); return Math.abs(r-p.ans)<1e-9; } },
+
+    type1:{ label:'① 거리·내분점', anchor:'#type1',
+      gen:function(){
+        if(Math.random()<0.5){
+          var t=pick(TRIPLES), x1=ri(-4,3), y1=ri(-4,3), dx=t[0]*sg(), dy=t[1]*sg(), x2=x1+dx, y2=y1+dy;
+          return { q:'두 점 $A'+pt(x1,y1)+'$, $B'+pt(x2,y2)+'$ 사이의 거리는?', ans:t[2], fig:{kind:'dist',A:[x1,y1],B:[x2,y2]},
+            steps:['번역: 가로 차 $'+x2+'-'+LEC.sgnParen(x1)+'='+dx+'$, 세로 차 $'+y2+'-'+LEC.sgnParen(y1)+'='+dy+'$',
+                   '피타고라스: $\\sqrt{'+sq(dx)+'+'+sq(dy)+'}=\\sqrt{'+(dx*dx)+'+'+(dy*dy)+'}=\\sqrt{'+(t[2]*t[2])+'}$',
+                   '거리 $='+t[2]+'$'] };
+        } else {
+          var m=ri(1,3), n=ri(1,3); if(m===n){ n=m+ri(1,2); }
+          var ax=ri(-5,2), ay=ri(-5,2), ux=nz(-2,2), uy=nz(-2,2), bx=ax+(m+n)*ux, by=ay+(m+n)*uy;
+          var px=(m*bx+n*ax)/(m+n), py=(m*by+n*ay)/(m+n); var askX=Math.random()<0.5;
+          return { q:'두 점 $A'+pt(ax,ay)+'$, $B'+pt(bx,by)+'$ 에 대하여 선분 $AB$를 $'+m+':'+n+'$ 으로 내분하는 점 $P$의 <b>'+(askX?'$x$':'$y$')+'좌표</b>는?', ans: askX?px:py, fig:{kind:'div',A:[ax,ay],B:[bx,by],P:[px,py],askX:askX},
+            steps:['번역: 내분점은 가중 평균. $m='+m+'$은 $B$에, $n='+n+'$은 $A$에 곱한다 (엇갈려 곱하기)',
+                   '$x = \\dfrac{'+m+'\\cdot'+LEC.sgnParen(bx)+' + '+n+'\\cdot'+LEC.sgnParen(ax)+'}{'+m+'+'+n+'} = \\dfrac{'+(m*bx+n*ax)+'}{'+(m+n)+'} = '+fmt(px).replace('−','-')+'$',
+                   '$y = \\dfrac{'+m+'\\cdot'+LEC.sgnParen(by)+' + '+n+'\\cdot'+LEC.sgnParen(ay)+'}{'+m+'+'+n+'} = \\dfrac{'+(m*by+n*ay)+'}{'+(m+n)+'} = '+fmt(py).replace('−','-')+'$',
+                   '$P'+pt(px,py)+'$ → 묻는 좌표는 $'+fmt(askX?px:py).replace('−','-')+'$'] };
+        }
+      },
+      verify:function(p){ var f=p.fig; if(f.kind==='dist'){ return Math.abs(Math.hypot(f.B[0]-f.A[0],f.B[1]-f.A[1])-p.ans)<1e-9; } return Math.abs(p.ans-(f.askX?f.P[0]:f.P[1]))<1e-9 && Number.isInteger(f.P[0]) && Number.isInteger(f.P[1]); } },
+
+    type2:{ label:'② 직선의 방정식', anchor:'#type2',
+      gen:function(){
+        var mode=ri(0,2);
+        if(mode===0){ // 두 점 → y절편
+          var m=nz(-3,3), k=ri(-5,5), x1=ri(-4,4), x2=x1+nz(-3,3), y1=m*x1+k, y2=m*x2+k;
+          return { q:'두 점 $'+pt(x1,y1)+'$, $'+pt(x2,y2)+'$ 을 지나는 직선의 <b>$y$절편</b>은?', ans:k, fig:{pts:[[x1,y1],[x2,y2]]},
+            steps:['기울기부터: $m=\\dfrac{'+y2+'-'+LEC.sgnParen(y1)+'}{'+x2+'-'+LEC.sgnParen(x1)+'}=\\dfrac{'+(y2-y1)+'}{'+(x2-x1)+'}='+m+'$',
+                   '점 하나 + 기울기: $y-'+LEC.sgnParen(y1)+'='+m+'(x-'+LEC.sgnParen(x1)+')$',
+                   '정리: $y='+LEC.poly([m,k])+'$ → $y$절편 $'+k+'$'] };
+        }
+        if(mode===1){ // 수직 기울기 MC
+          var a=nz(-3,3), b=nz(-3,3); while(Math.abs(a)===Math.abs(b)) b=nz(-3,3); var c=ri(-5,5); var mline=-a/b; var perp=b/a;
+          var opts=[frac(b,a),frac(-a,b),frac(a,b),frac(-b,a)];
+          return { q:'직선 $'+lin(a,b,c)+'$ 에 <b>수직</b>인 직선의 기울기는?', choices:opts.map(function(o){return '$'+o+'$';}), ans:0, fig:{m:mline,perp:perp},
+            steps:['번역: $'+lin(a,b,c)+'$ 를 $y=\\cdots$ 꼴로 → 기울기 $m=\\dfrac{-a}{b}=\\dfrac{'+(-a)+'}{'+b+'}='+frac(-a,b)+'$',
+                   '수직 = 기울기의 곱이 $-1$ → 뒤집고 부호 바꾸기: $-\\dfrac{1}{m}='+frac(b,a)+'$',
+                   '검산: $'+frac(-a,b)+'\\times'+frac(b,a)+'=-1$ ✓'] };
+        }
+        // 평행 직선의 y절편
+        var m2=nz(-3,3), k2=ri(-4,4), px=ri(-4,4), py=ri(-4,4); var k3=py-m2*px;
+        return { q:'직선 $y='+LEC.poly([m2,k2])+'$ 에 <b>평행</b>하고 점 $'+pt(px,py)+'$ 을 지나는 직선의 $y$절편은?', ans:k3, fig:{m:m2,P:[px,py]},
+          steps:['평행 = 기울기 같음 → $m='+m2+'$', '점 + 기울기: $y-'+LEC.sgnParen(py)+'='+m2+'(x-'+LEC.sgnParen(px)+')$', '정리: $y='+LEC.poly([m2,k3])+'$ → $y$절편 $'+k3+'$'] };
+      },
+      verify:function(p){ var f=p.fig; if(p.choices){ return Math.abs(f.m*f.perp+1)<1e-9; } if(f.pts){ var m=(f.pts[1][1]-f.pts[0][1])/(f.pts[1][0]-f.pts[0][0]); return Math.abs((f.pts[0][1]-m*f.pts[0][0])-p.ans)<1e-9; } return Math.abs((f.P[1]-f.m*f.P[0])-p.ans)<1e-9; } },
+
+    type3:{ label:'③ 점과 직선 사이의 거리', anchor:'#type3',
+      gen:function(){
+        var t=pick(TRIPLES), a=t[0]*sg(), b=t[1]*sg(), L=t[2], x0=ri(-4,4), y0=ri(-4,4), d=ri(1,4);
+        var c=sg()*d*L-(a*x0+b*y0); var val=a*x0+b*y0+c;
+        return { q:'점 $'+pt(x0,y0)+'$ 과 직선 $'+lin(a,b,c)+'$ 사이의 거리는?', ans:d, fig:{a:a,b:b,c:c,x0:x0,y0:y0},
+          steps:['직선은 이미 $ax+by+c=0$ 꼴. 점을 대입: $'+a+'\\cdot'+LEC.sgnParen(x0)+' + '+LEC.sgnParen(b)+'\\cdot'+LEC.sgnParen(y0)+' + '+LEC.sgnParen(c)+' = '+val+'$',
+                 '계수 길이: $\\sqrt{'+sq(a)+'+'+sq(b)+'}=\\sqrt{'+(a*a+b*b)+'}='+L+'$',
+                 '거리 $=\\dfrac{|'+val+'|}{'+L+'}='+d+'$'] };
+      },
+      verify:function(p){ var f=p.fig; return Math.abs(Math.abs(f.a*f.x0+f.b*f.y0+f.c)/Math.hypot(f.a,f.b)-p.ans)<1e-9; } },
+
+    type4:{ label:'④ 원과 직선', anchor:'#type4',
+      gen:function(){
+        var h=ri(-3,3), k=ri(-3,3), r=ri(1,4);
+        if(Math.random()<0.45){
+          return { q:'원 $'+circleGeneral(h,k,r)+'$ 의 반지름은?', ans:r, fig:{kind:'r',h:h,k:k,r:r},
+            steps:['완전제곱으로 되돌리기: $(x'+LEC.term(-h,'',false)+')^2+(y'+LEC.term(-k,'',false)+')^2 = '+(r*r)+'$', '중심 $'+pt(h,k)+'$, 반지름 $'+r+'$'] };
+        }
+        var t=pick(TRIPLES), a=t[0]*sg(), b=t[1]*sg(), L=t[2]; var rel=ri(0,2); var d = rel===0? ri(0,Math.max(0,r-1)) : (rel===1? r : r+ri(1,3));
+        var c=sg()*d*L-(a*h+b*k); var val=a*h+b*k+c; var names=['두 점에서 만난다','접한다 (한 점)','만나지 않는다']; var idx = d<r?0:(d===r?1:2);
+        return { q:'원 $(x'+LEC.term(-h,'',false)+')^2+(y'+LEC.term(-k,'',false)+')^2='+(r*r)+'$ 과 직선 $'+lin(a,b,c)+'$ 의 위치 관계는?', choices:names.slice(), ans:idx, fig:{kind:'pos',h:h,k:k,r:r,a:a,b:b,c:c,d:d},
+          steps:['번역: 중심 $'+pt(h,k)+'$, 반지름 $r='+r+'$', '중심에서 직선까지 거리: $d=\\dfrac{|'+a+'\\cdot'+LEC.sgnParen(h)+'+'+LEC.sgnParen(b)+'\\cdot'+LEC.sgnParen(k)+'+'+LEC.sgnParen(c)+'|}{\\sqrt{'+(a*a+b*b)+'}}=\\dfrac{'+Math.abs(val)+'}{'+L+'}='+d+'$',
+                 '$d='+d+'$ 와 $r='+r+'$ 비교 → '+(d<r?'$d \\lt r$ 두 점':(d===r?'$d=r$ 접함':'$d \\gt r$ 만나지 않음'))] };
+      },
+      verify:function(p){ var f=p.fig; if(f.kind==='r') return p.ans===f.r; var d=Math.abs(f.a*f.h+f.b*f.k+f.c)/Math.hypot(f.a,f.b); var idx=d<f.r-1e-9?0:(Math.abs(d-f.r)<1e-9?1:2); return idx===p.ans && Math.abs(d-f.d)<1e-9; } }
+  };
+})();
+</script>
+
+<script>
+LEC.boot({ key:'mat2_sp_coord', color:'#4338ca', color2:'#818cf8' });
+
+/* ① 드래그 위젯 */
+(function(){
+  var cv=document.getElementById('cv1'); var P=LEC.plane(cv,{xmin:-1,xmax:11,ymin:-1,ymax:9,h:300,square:true});
+  var A={x:1,y:2}, B={x:4,y:6};
+  function draw(){
+    P.clear().grid().axes();
+    var dx=B.x-A.x, dy=B.y-A.y;
+    P.seg(A.x,A.y,B.x,A.y,'#f59e0b',2,[5,4]); P.seg(B.x,A.y,B.x,B.y,'#10b981',2,[5,4]);
+    P.seg(A.x,A.y,B.x,B.y,'#4338ca',3);
+    P.text((A.x+B.x)/2,A.y,'가로 '+LEC.fmt(Math.abs(dx)),'#b45309',dy>=0?'s':'n');
+    P.text(B.x,(A.y+B.y)/2,'세로 '+LEC.fmt(Math.abs(dy)),'#047857',dx>=0?'ne':'nw');
+    P.dot(A.x,A.y,'#dc2626',7,'A'+'('+A.x+', '+A.y+')','sw'); P.dot(B.x,B.y,'#2563eb',7,'B'+'('+B.x+', '+B.y+')','ne');
+    var mx=(A.x+B.x)/2, my=(A.y+B.y)/2; P.dot(mx,my,'#7c3aed',5);
+    var d=Math.hypot(dx,dy);
+    document.getElementById('dxv').textContent=LEC.fmt(Math.abs(dx)); document.getElementById('dyv').textContent=LEC.fmt(Math.abs(dy));
+    document.getElementById('dv').textContent=(Number.isInteger(d)?d:('√'+(dx*dx+dy*dy)+' ≈ '+d.toFixed(2)));
+    document.getElementById('mv').textContent='('+LEC.fmt(mx)+', '+LEC.fmt(my)+')';
+  }
+  P.drag([A,B],draw,1); draw(); LEC.onResize(function(){ P.resize(); draw(); });
+})();
+
+LEC.check('q1',5,{ok:'가로 3, 세로 4 → $\\sqrt{9+16}=5$. 피타고라스 그대로예요.', bad:'가로 차 $4-1=3$, 세로 차 $6-2=4$. 제곱해서 더하고 루트.'});
+LEC.check('q2',2,{ok:'대입값 $3+4+3=10$, 계수 길이 $5$ → $10\\div5=2$.', bad:'점을 대입하면 $3\\cdot1+4\\cdot1+3=10$. 이걸 $\\sqrt{3^2+4^2}=5$로 나눠요.'});
+
+/* 유형 그림 */
+function figPlane(el,h){ var cv=document.createElement('canvas'); cv.height=h||300; el.className='lec-widget lec-fig'; el.appendChild(cv); return cv; }
+GEN.type1.fig=function(p,el){
+  var f=p.fig, A=f.A,B=f.B; var xs=[A[0],B[0]], ys=[A[1],B[1]]; if(f.P){xs.push(f.P[0]);ys.push(f.P[1]);}
+  var cx=(Math.min.apply(null,xs)+Math.max.apply(null,xs))/2, cy=(Math.min.apply(null,ys)+Math.max.apply(null,ys))/2; var span=Math.max(8, Math.max.apply(null,xs)-Math.min.apply(null,xs)+4);
+  var cv=figPlane(el,300); var P=LEC.plane(cv,{xmin:cx-span/2,xmax:cx+span/2,ymin:cy-3,ymax:cy+3,h:300,square:true});
+  P.clear().grid().axes(); P.seg(A[0],A[1],B[0],B[1],'#4338ca',2.5); P.dot(A[0],A[1],'#dc2626',6,'A','sw'); P.dot(B[0],B[1],'#2563eb',6,'B','ne'); if(f.P) P.dot(f.P[0],f.P[1],'#7c3aed',6,'P','n');
+};
+GEN.type4.fig=function(p,el){
+  var f=p.fig; var cv=figPlane(el,300); var P=LEC.plane(cv,{xmin:f.h-7,xmax:f.h+7,ymin:f.k-4,ymax:f.k+4,h:300,square:true});
+  P.clear().grid().axes(); P.circle(f.h,f.k,f.r,'#4338ca',2.5,'rgba(67,56,202,.08)'); P.dot(f.h,f.k,'#4338ca',5);
+  if(f.kind==='pos') P.lineABC(f.a,f.b,f.c,'#dc2626',2.5);
+};
+GEN.tool.fig=function(p,el){ GEN.type4.fig({fig:{kind:'r',h:p.fig.h,k:p.fig.k,r:p.fig.r}},el); };
+
+LEC.types(['tool','type1','type2','type3','type4']);
+LEC.quiz('quizArea',{n:5,types:['type1','type2','type3','type4']});
+</script>
+</body>
+</html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>절댓값과 그래프 개형 · 관문 특강</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="if(window.LEC)LEC.tex(document.body)"></script>
+<script src="lecture.js"></script>
+<style>
+  .fbtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+  .pinfo{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:10px}
+  .pinfo div{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:8px 10px;font-size:12.5px;text-align:center;color:var(--sub)}
+  .pinfo b{display:block;font-size:15px;color:var(--lec)}
+  .casetbl td:first-child{font-weight:800}
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Math_1_1</a><span>&rsaquo;</span><a href="mat1_hub.html">공통수학1</a><span>&rsaquo;</span><a class="cur" href="#">관문 특강 · 절댓값</a></nav>
+<div class="wrap">
+
+<div class="lec-hero">
+  <span class="tag">🚪 관문 특강 · 공통수학1 Ⅱ 방정식과 부등식</span>
+  <h1>📏 절댓값과 그래프 개형 — 거리와 접기</h1>
+  <p>절댓값 기호 $|\ |$만 보면 손이 멈추나요? 그럴 수 있어요. 교과서는 "케이스를 나누어라"라고만 하는데, 왜 나누는지는 안 알려주거든요. 절댓값은 그냥 <b>거리</b>예요. 그리고 절댓값 그래프는 그냥 <b>접기</b>예요. 이 두 그림만 몸에 넣으면 케이스 나누기가 저절로 나와요.</p>
+  <div class="lec-goal"><a href="#type1">① 절댓값 방정식</a><a href="#type2">② 절댓값 부등식</a><a href="#type3">③ 두 절댓값의 합</a><a href="#type4">④ 절댓값 그래프</a></div>
+</div>
+<nav class="lec-nav" id="lecNav"></nav>
+
+<!-- ① 감 잡기 -->
+<section class="lec-sec reveal" data-step="1" data-label="감 잡기" id="s1">
+  <div class="eyebrow"><span class="n">1</span>절댓값 그래프는 "접기" (공식 없이)</div>
+  <p>직선 $y=x-a$가 있어요. <b>접기 버튼</b>을 누르면 $x$축 아래로 내려간 부분이 위로 접혀 올라와요. 그 결과가 $y=|x-a|$ 예요. 슬라이더로 $a$와 가로선 $y=b$를 움직여 보세요.</p>
+  <div class="lec-widget">
+    <canvas id="cv1" height="300"></canvas>
+    <div class="fbtns"><button class="lec-btn" id="foldBtn">📐 접기 → y = |x − a|</button><button class="lec-btn ghost" id="unfoldBtn">↺ 펴기</button></div>
+    <div class="lec-row"><span>$a$</span><input type="range" id="sa" min="-5" max="5" step="1" value="2"><span class="v" id="sav">2</span></div>
+    <div class="lec-row"><span>$b$ (가로선 $y=b$)</span><input type="range" id="sb" min="-2" max="6" step="1" value="3"><span class="v" id="sbv">3</span></div>
+    <div class="pinfo">
+      <div>꼭짓점 <b id="pv">(2, 0)</b></div>
+      <div>$|x-a|=b$ 의 해 <b id="ps"></b></div>
+      <div>해의 뜻 <b id="pm" style="font-size:12.5px"></b></div>
+    </div>
+  </div>
+  <p>접힌 그래프는 V자예요. V의 꼭짓점은 $x=a$, 즉 <b>절댓값 안이 0이 되는 곳</b>이에요. 가로선 $y=b$ ($b>0$)와 만나는 두 점은 꼭짓점에서 <b>좌우로 $b$만큼</b> 떨어져 있어요. 그래서 $|x-a|=b$의 해는 $x=a-b$와 $x=a+b$. 절댓값은 "거리", 이게 전부예요.</p>
+  <div class="lec-card">
+    <h4>함께 생각하기 ①</h4>
+    <p style="margin-bottom:8px;font-size:14px">$|x-3|=2$ 의 두 해의 <b>합</b>은? (3에서 거리가 2인 두 점)</p>
+    <div class="lec-checkrow"><input class="num" id="q1" inputmode="decimal" aria-label="답"><button id="q1b">확인</button></div>
+    <div class="lec-out" id="q1o"></div>
+  </div>
+</section>
+
+<!-- ② 공식은 읽는 것 -->
+<section class="lec-sec reveal" data-step="2" data-label="공식 읽기" id="s2">
+  <div class="eyebrow"><span class="n">2</span>공식은 외우는 게 아니라 읽는 것</div>
+  <p>절댓값의 정의는 "부호를 떼라"가 아니라 <b>"음수면 $-1$을 곱해서 양수로 만들어라"</b>예요. 이게 케이스 나누기의 전부예요: 안이 $0$ 이상이면 그대로, 음수면 부호를 바꿔서 벗긴다.</p>
+  <div class="lec-formula"><div class="f">$|x|=\begin{cases}x & (x\ge 0)\\ -x & (x<0)\end{cases}$</div><small>수직선에서 0까지의 거리. |x − a| 는 a까지의 거리. 경계는 "안이 0이 되는 곳".</small></div>
+
+  <p>방정식 $|x-a|=b$는 "$a$에서 거리가 $b$인 점"이니까 두 개예요. 부등식은 <b>거리가 $b$보다 가까운 곳(사이)</b>과 <b>먼 곳(바깥)</b>으로 읽어요.</p>
+  <div class="lec-formula"><div class="f">$|x-a|\lt b \Leftrightarrow a-b\lt x\lt a+b,\qquad |x-a|\gt b \Leftrightarrow x\lt a-b$ 또는 $x\gt a+b$</div><small>"가깝다"는 사이, "멀다"는 바깥. 등호가 붙으면 경계도 포함.</small></div>
+
+  <p>절댓값이 두 개면 경계가 두 개예요. $|x-a|+|x-b|$는 "두 점 $a, b$까지의 거리의 합"이에요. $a$와 $b$ <b>사이</b>에 있으면 합이 항상 $|a-b|$로 일정하고(줄자를 생각해 보세요), 밖으로 나가면 커져요. 그래서 최솟값은 $|a-b|$.</p>
+  <div class="lec-formula"><div class="f">$|x-a|+|x-b|\ \ge\ |a-b|$ (등호는 $a$와 $b$ 사이에서)</div><small>수직선에 두 점을 찍고 "사이 / 왼쪽 밖 / 오른쪽 밖" 세 구간으로 나누면 절댓값이 전부 벗겨진다.</small></div>
+
+  <p>그래프는 접기예요. $y=|f(x)|$는 $y=f(x)$에서 $x$축 아래를 위로 접은 것. $y=|x-a|+k$는 V자를 위로 $k$만큼 올린 것이라 꼭짓점이 $(a,k)$, 최솟값이 $k$예요.</p>
+  <div class="lec-formula"><div class="f">$y=|x-a|+k$: 꼭짓점 $(a,k)$, 최솟값 $k$</div><small>V의 팔 기울기는 ±1. y = m 과의 교점 개수는 m &gt; k 이면 2, m = k 이면 1, m &lt; k 이면 0.</small></div>
+
+  <div class="lec-card">
+    <h4>함께 생각하기 ②</h4>
+    <p style="margin-bottom:8px;font-size:14px">부등식 $|x+1|<3$ 을 만족시키는 정수 $x$의 개수는? ($-1$에서 거리가 3보다 가까운 곳)</p>
+    <div class="lec-checkrow"><input class="num" id="q2" inputmode="numeric" aria-label="답"><button id="q2b">확인</button></div>
+    <div class="lec-out" id="q2o"></div>
+  </div>
+</section>
+
+<!-- ③ 핵심 도구 -->
+<section class="lec-sec reveal" data-step="3" data-label="케이스 표" id="s3">
+  <div class="eyebrow"><span class="n">3</span>케이스 표 — 핵심 도구</div>
+  <p>절댓값이 두 개 이상이면 <b>표</b>를 그려요. ① 안이 0이 되는 경계를 전부 찾고 ② 수직선을 구간으로 나눈 뒤 ③ 구간마다 각 절댓값의 부호를 적고 벗겨요. 예: $|x-1|+|x-4|$.</p>
+  <table class="lec-table casetbl">
+    <tr><th>구간</th><th>$x-1$</th><th>$x-4$</th><th>벗긴 식</th></tr>
+    <tr><td>$x<1$</td><td>$-$ → $-(x-1)$</td><td>$-$ → $-(x-4)$</td><td class="k">$-2x+5$</td></tr>
+    <tr><td>$1\le x<4$</td><td>$+$ → $x-1$</td><td>$-$ → $-(x-4)$</td><td class="k">$3$ (일정!)</td></tr>
+    <tr><td>$x\ge4$</td><td>$+$ → $x-1$</td><td>$+$ → $x-4$</td><td class="k">$2x-5$</td></tr>
+  </table>
+  <div class="lec-key"><b>불변 앵커</b> 절댓값은 거리, 그래프는 접기. 경계는 "안이 0이 되는 곳"이고, 케이스는 경계 개수 + 1개다.</div>
+  <p style="margin-top:12px">표를 머릿속에 그리는 연습이에요. 두 절댓값의 합의 <b>최솟값</b>은 표의 가운데 구간 값이에요.</p>
+  <div id="toolbody"></div>
+</section>
+
+<!-- ④ 유형별 완전정복 -->
+<section class="lec-sec reveal" data-step="4" data-label="유형 4" id="s4">
+  <div class="eyebrow"><span class="n">4</span>유형별 완전정복</div>
+  <p>네 가지 유형 모두 <b>거리로 읽기 → 수직선에 표시 → 답</b> 순서예요. "다른 문제로"를 눌러 숫자가 바뀌어도 같은 길로 가는지 확인하세요.</p>
+</section>
+
+<section class="lec-type reveal" id="type1">
+  <div class="lec-type-h"><span class="badge">①</span><span><div class="t">절댓값 방정식</div><div class="d">거리가 b인 두 점</div></span></div>
+  <div class="lec-key"><b>핵심</b> $|\ \square\ |=b$ 이면 $\square=b$ 또는 $\square=-b$. 안이 $2x-a$처럼 복잡해도 똑같이 두 경우. 두 해의 합은 항상 대칭 중심의 2배.</div>
+  <div id="type1body"></div>
+</section>
+
+<section class="lec-type reveal" id="type2">
+  <div class="lec-type-h"><span class="badge">②</span><span><div class="t">절댓값 부등식</div><div class="d">가까운 곳은 사이, 먼 곳은 바깥</div></span></div>
+  <div class="lec-key"><b>핵심</b> $|x-a|\lt b$ 는 $a-b\lt x\lt a+b$ (사이), $|x-a|\gt b$ 는 바깥 ($b>0$일 때). 정수 개수를 물으면 경계 포함 여부(등호)부터 확인.</div>
+  <div id="type2body"></div>
+</section>
+
+<section class="lec-type reveal" id="type3">
+  <div class="lec-type-h"><span class="badge">③</span><span><div class="t">두 절댓값의 합</div><div class="d">경계 두 개, 구간 세 개</div></span></div>
+  <div class="lec-key"><b>핵심</b> $|x-a|+|x-b|$ 는 두 점까지 거리의 합. 사이에서는 $|a-b|$로 일정(최솟값), 바깥에서는 커진다. $=c$ 의 해는 $c$와 $|a-b|$ 크기 비교로 개수가 정해진다.</div>
+  <div id="type3body"></div>
+</section>
+
+<section class="lec-type reveal" id="type4">
+  <div class="lec-type-h"><span class="badge">④</span><span><div class="t">절댓값 그래프</div><div class="d">접기와 꼭짓점</div></span></div>
+  <div class="lec-key"><b>핵심</b> $y=|x-a|+k$ 는 꼭짓점 $(a,k)$인 V자. 최솟값 $k$. 가로선 $y=m$과의 교점은 $m$이 $k$보다 위면 2개, 같으면 1개, 아래면 0개. (그래프의 평행이동은 공통수학2에서 다시 만나요)</div>
+  <div id="type4body"></div>
+</section>
+
+<!-- ⑤ 실전 총정리 -->
+<section class="lec-sec reveal" data-step="5" data-label="실전" id="s5">
+  <div class="eyebrow"><span class="n">5</span>실전 총정리 — 유형 섞어서</div>
+  <p>어떤 유형인지 알려주지 않아요. <b>거리로 읽고 수직선에 그려서</b> 풀어 보세요. 틀리면 어느 유형인지 알려주고 돌아가는 길을 열어 둘게요.</p>
+  <div id="quizArea"></div>
+  <div style="text-align:center;margin-top:8px"><button class="lec-again" id="quizAreaAgain">🔄 5문제 새로</button></div>
+</section>
+
+<!-- ⑥ 치트시트 -->
+<section class="lec-sec reveal" data-step="6" data-label="치트시트" id="s6">
+  <div class="eyebrow"><span class="n">6</span>마무리 치트시트</div>
+  <div class="lec-cheat">
+    <h3>📏 절댓값 한 장 요약</h3>
+    <div class="row">
+      <div class="chip"><b>정의</b>$|x|$ = 0까지의 거리. 음수면 $-1$을 곱해 벗긴다</div>
+      <div class="chip"><b>방정식</b>$|x-a|=b \Rightarrow x=a\pm b$ (두 해의 합 $2a$)</div>
+    </div>
+    <div class="row">
+      <div class="chip"><b>부등식</b>$<$ 는 사이 $a-b\lt x\lt a+b$ · $>$ 는 바깥</div>
+      <div class="chip"><b>두 절댓값</b>경계 2개 → 구간 3개 표. 사이에서 합 $=|a-b|$ (최솟값)</div>
+    </div>
+    <div class="row">
+      <div class="chip"><b>그래프</b>$y=|f(x)|$ 는 $x$축 아래를 접기 · $y=|x-a|+k$ 꼭짓점 $(a,k)$</div>
+      <div class="chip"><b>한 문장</b>절댓값은 거리, 그래프는 접기, 케이스는 경계+1개</div>
+    </div>
+    <button id="printCheat">🖨️ 이 치트시트 인쇄하기</button>
+  </div>
+  <div class="keeper">
+    <div class="kt">📌 어른이 되어도 기억할 것</div>
+    <ul>
+      <li>"오차 ±0.5mm 이내"는 $|x-x_0|\le0.5$ 예요. 품질 관리, 측정, 허용 범위는 전부 절댓값 부등식이에요.</li>
+      <li>"편차"(평균에서 얼마나 떨어졌나)를 다룰 때 절댓값 또는 제곱을 써요. 통계의 표준편차는 이 "거리" 생각에서 나와요.</li>
+      <li>케이스 나누기는 프로그래밍의 <code>if / else</code>와 같아요. 경계를 먼저 찾고 구간마다 규칙을 적는 사고는 어디서나 쓰여요.</li>
+    </ul>
+  </div>
+  <div class="insight"><div class="it">💡 다음으로 이어지는 것</div>절댓값 그래프의 <b>꺾인 점</b>은 미적분Ⅰ에서 "미분할 수 없는 점"의 대표 예가 돼요. 그리고 "접기"는 공통수학2 <b>도형의 이동</b>(대칭이동)과 같은 조작이에요.</div>
+  <div class="reallife"><div class="rt">🏠 이미 보고 있던 곳</div>내비게이션의 "목적지까지 남은 거리", 온도계의 "설정 온도와의 차이", 게임의 "적과의 거리가 5 이내면 공격" 조건. 방향은 무시하고 <b>크기만</b> 보는 순간마다 절댓값이 있어요.</div>
+  <div class="reallife"><div class="rt">🏭 이걸로 먹고사는 사람들</div>허용 오차($|x-x_0|\le\varepsilon$)로 부품을 검사하는 품질 관리, 센서 값의 편차를 다루는 데이터 분석, "거리가 얼마 이내면"으로 판정하는 게임·자율주행 로직. <span style="color:#312e81;font-weight:700">🎓 산업공학 · 통계학 · 컴퓨터공학</span></div>
+  <p style="text-align:center;color:var(--sub);font-size:13px;margin-top:14px">단원 앱으로 이어서 → <a href="mat1_equation.html">여러 가지 방정식·부등식</a> · <a href="mat2_move.html">도형의 이동(대칭)</a></p>
+</section>
+
+<div class="lec-foot">관문 특강 · 절댓값과 그래프 개형 · 공통수학1 · 표준 커리큘럼 제작</div>
+</div>
+<div id="printArea"></div>
+
+<!-- ───────── 생성기(순수 함수 · Node 재검산 대상) ───────── -->
+<script id="gen">
+(function(){
+  var ri=LEC.ri, pick=LEC.pick, nz=LEC.nz, fmt=LEC.fmt, sp=LEC.sgnParen, frac=LEC.frac;
+  function num(v){ return fmt(v).replace('−','-'); }
+  function fx(r){ return r===0?'x':'(x'+LEC.term(-r,'',false)+')'; }
+  function absx(a){ return '|x'+LEC.term(-a,'',false)+'|'; }   // |x-a|
+  function countInt(lo,hi,incl){ var c=0; for(var x=Math.ceil(lo-1e-9);x<=Math.floor(hi+1e-9);x++){ if(incl||(x>lo+1e-9&&x<hi-1e-9)) c++; } return c; }
+
+  window.GEN = {
+    tool:{ label:'두 절댓값의 합의 최솟값', anchor:'#s3',
+      gen:function(){
+        var a=ri(-5,3), b=a+ri(1,6);
+        return { q:'$'+absx(a)+'+'+absx(b)+'$ 의 <b>최솟값</b>은?', ans:b-a, fig:{a:a,b:b},
+          steps:['경계: $x='+a+'$, $x='+b+'$ → 구간 3개', '사이 $'+a+'\\le x\\le '+b+'$ 에서 $'+fx(a)+'-'+fx(b)+'='+(b-a)+'$ (일정)', '바깥에서는 더 커지므로 최솟값 $'+(b-a)+'$ = 두 점 사이의 거리'] };
+      },
+      verify:function(p){ var g=p.fig; var best=Infinity; for(var x=g.a-5;x<=g.b+5;x+=0.5){ var v=Math.abs(x-g.a)+Math.abs(x-g.b); if(v<best)best=v; } return best===p.ans; } },
+
+    type1:{ label:'① 절댓값 방정식', anchor:'#type1',
+      gen:function(){
+        if(Math.random()<0.5){
+          var a=ri(-5,5), b=ri(1,6); var ask=ri(0,2); var s1=a-b, s2=a+b;
+          var names=['두 해의 합','큰 해','두 해의 곱']; var ans=[s1+s2, s2, s1*s2][ask];
+          return { q:'방정식 $'+absx(a)+'='+b+'$ 의 <b>'+names[ask]+'</b>'+(ask===1?'는?':'은?'), ans:ans, fig:{kind:'a',a:a,b:b,ask:ask},
+            steps:['거리로 읽기: $'+a+'$ 에서 거리가 $'+b+'$ 인 점', '$x'+LEC.term(-a,'',false)+'='+b+'$ 또는 $x'+LEC.term(-a,'',false)+'=-'+b+'$ → $x='+s2+'$ 또는 $x='+s1+'$', names[ask]+' $='+num(ans)+'$'] };
+        }
+        var c=ri(-6,6), d=ri(1,7); // |2x - c| = d → 2x = c ± d → 합 = c
+        return { q:'방정식 $|2x'+LEC.term(-c,'',false)+'|='+d+'$ 의 두 해의 <b>합</b>은?', ans:c, fig:{kind:'b',c:c,d:d},
+          steps:['안이 $2x'+LEC.term(-c,'',false)+'$ 이어도 규칙은 같다: 안 $='+d+'$ 또는 안 $=-'+d+'$', '$2x='+(c+d)+'$ 또는 $2x='+(c-d)+'$ → $x='+frac(c+d,2)+'$ 또는 $x='+frac(c-d,2)+'$', '합 $=\\dfrac{'+(c+d)+'+'+sp(c-d)+'}{2}='+c+'$ (두 해의 중점 $'+frac(c,2)+'$ 의 2배)'] };
+      },
+      verify:function(p){ var g=p.fig; if(g.kind==='a'){ var s1=g.a-g.b,s2=g.a+g.b; return [s1+s2,s2,s1*s2][g.ask]===p.ans; } return ((g.c+g.d)/2+(g.c-g.d)/2)===p.ans; } },
+
+    type2:{ label:'② 절댓값 부등식', anchor:'#type2',
+      gen:function(){
+        var mode=ri(0,2);
+        if(mode===0){ var a=ri(-5,5), b=ri(1,5), incl=Math.random()<0.5; var lo=a-b, hi=a+b; var cnt=countInt(lo,hi,incl);
+          return { q:'부등식 $'+absx(a)+(incl?'\\le':'\\lt')+b+'$ 을 만족시키는 <b>정수 $x$의 개수</b>는?', ans:cnt, fig:{mode:0,lo:lo,hi:hi,incl:incl},
+            steps:['거리로 읽기: $'+a+'$ 에서 거리가 $'+b+'$ '+(incl?'이하':'미만')+' → 사이', '$'+lo+(incl?'\\le x\\le ':'\\lt x\\lt ')+hi+'$', '정수: '+cnt+'개 '+(incl?'(경계 포함)':'(경계 제외)')] }; }
+        if(mode===1){ var a2=ri(-4,4), b2=ri(1,4), incl2=Math.random()<0.5; var lo2=a2-b2, hi2=a2+b2;
+          var ch=['$x'+(incl2?'\\le':'\\lt')+lo2+'$ 또는 $x'+(incl2?'\\ge':'\\gt')+hi2+'$', '$'+lo2+(incl2?'\\le x\\le ':'\\lt x\\lt ')+hi2+'$', '$x'+(incl2?'\\ge':'\\gt')+hi2+'$', '모든 실수'];
+          return { q:'부등식 $'+absx(a2)+(incl2?'\\ge':'\\gt')+b2+'$ 의 해는?', choices:ch, ans:0, fig:{mode:1},
+            steps:['거리로 읽기: $'+a2+'$ 에서 거리가 $'+b2+'$ '+(incl2?'이상':'초과')+' → 바깥', ch[0]] }; }
+        var c=ri(-5,5), d=ri(2,7); // |2x - c| <= d → (c-d)/2 <= x <= (c+d)/2
+        var lo3=(c-d)/2, hi3=(c+d)/2; var cnt3=countInt(lo3,hi3,true);
+        return { q:'부등식 $|2x'+LEC.term(-c,'',false)+'|\\le '+d+'$ 을 만족시키는 <b>정수 $x$의 개수</b>는?', ans:cnt3, fig:{mode:2,lo:lo3,hi:hi3},
+          steps:['안 $=2x'+LEC.term(-c,'',false)+'$ 이 $-'+d+'$ 이상 $'+d+'$ 이하: $-'+d+'\\le 2x'+LEC.term(-c,'',false)+'\\le '+d+'$', '$'+(c-d)+'\\le 2x\\le '+(c+d)+'$ → $'+frac(c-d,2)+'\\le x\\le '+frac(c+d,2)+'$', '그 사이의 정수: '+cnt3+'개'] };
+      },
+      verify:function(p){ var g=p.fig; if(g.mode===1) return p.ans===0; return countInt(g.lo,g.hi,g.mode===2?true:g.incl)===p.ans; } },
+
+    type3:{ label:'③ 두 절댓값의 합', anchor:'#type3',
+      gen:function(){
+        var a=ri(-4,2), b=a+ri(1,5); var gap=b-a; var mode=ri(0,2);
+        if(mode===0){ var c=gap+ri(1,4)*2; // 해 2개: 왼쪽 x = (a+b-c)/2, 오른쪽 (a+b+c)/2 → 합 a+b
+          return { q:'방정식 $'+absx(a)+'+'+absx(b)+'='+c+'$ 의 두 해의 <b>합</b>은?', ans:a+b, fig:{mode:0,a:a,b:b,c:c},
+            steps:['사이에서는 합이 항상 $'+gap+'$ (일정) → $'+c+'\\ne '+gap+'$ 이므로 해는 바깥에 있다', '왼쪽 바깥 $x<'+a+'$: $-'+fx(a)+'-'+fx(b)+'='+c+'$ → $x='+num((a+b-c)/2)+'$', '오른쪽 바깥 $x>'+b+'$: $'+fx(a)+'+'+fx(b)+'='+c+'$ → $x='+num((a+b+c)/2)+'$', '합 $='+(a+b)+'$ (두 해는 중점 $\\frac{a+b}{2}$ 에 대칭)'] }; }
+        if(mode===1){ var rel=ri(0,2); if(rel===0&&gap<2) rel=2; var c2 = rel===0? gap-ri(1,gap-1) : (rel===1? gap : gap+ri(1,4)); var idx = c2<gap?0:(c2===gap?1:2);
+          return { q:'방정식 $'+absx(a)+'+'+absx(b)+'='+c2+'$ 의 실근의 개수는?', choices:['0개','무수히 많다','2개'], ans:idx, fig:{mode:1,gap:gap,c:c2},
+            steps:['두 점까지 거리의 합의 최솟값은 두 점 사이 거리 $'+gap+'$', (idx===0?'$'+c2+'\\lt '+gap+'$ → 최솟값보다 작다 → 해 없음':(idx===1?'$'+c2+'='+gap+'$ → 사이 구간 전체($'+a+'\\le x\\le '+b+'$)가 해 → 무수히 많다':'$'+c2+'\\gt '+gap+'$ → 양쪽 바깥에서 하나씩 → 2개'))] }; }
+        return { q:'$y='+absx(a)+'+'+absx(b)+'$ 의 <b>최솟값</b>은?', ans:gap, fig:{mode:2,a:a,b:b},
+          steps:['경계 $x='+a+'$, $x='+b+'$ 로 세 구간', '사이에서 $'+fx(a)+'-'+fx(b)+'='+gap+'$ 일정, 바깥은 더 큼', '최솟값 $'+gap+'$'] };
+      },
+      verify:function(p){ var g=p.fig; if(g.mode===0){ var r=[]; for(var x=-30;x<=30;x+=0.5){ if(Math.abs(Math.abs(x-g.a)+Math.abs(x-g.b)-g.c)<1e-9) r.push(x); } return r.length===2 && r[0]+r[1]===p.ans; } if(g.mode===1){ return (g.c<g.gap?0:(g.c===g.gap?1:2))===p.ans; } return p.ans===g.b-g.a; } },
+
+    type4:{ label:'④ 절댓값 그래프', anchor:'#type4',
+      gen:function(){
+        var a=ri(-4,4), k=ri(-4,4); var mode=ri(0,2);
+        if(mode===0){ return { q:'함수 $y='+absx(a)+LEC.term(k,'',false)+'$ 의 <b>최솟값</b>은?', ans:k, fig:{mode:0,a:a,k:k},
+          steps:['$|x'+LEC.term(-a,'',false)+'|\\ge0$ 이고 $x='+a+'$ 에서 $0$', '그래프는 꼭짓점 $'+LEC.pt(a,k)+'$ 인 V자 → 최솟값 $'+num(k)+'$'] }; }
+        if(mode===1){ var m=k+ri(-3,3); var n=m>k?2:(m===k?1:0);
+          return { q:'함수 $y='+absx(a)+LEC.term(k,'',false)+'$ 의 그래프와 직선 $y='+m+'$ 이 만나는 점의 개수는?', choices:['2개','1개','0개'], ans:[2,1,0].indexOf(n), fig:{mode:1,a:a,k:k,m:m},
+            steps:['꼭짓점 $'+LEC.pt(a,k)+'$, 위로 열린 V자', '가로선 $y='+m+'$ 이 꼭짓점보다 '+(m>k?'위 → 2개':(m===k?'같은 높이 → 꼭짓점에서 1개':'아래 → 0개'))] }; }
+        var m2=k+ri(1,4); var half=m2-k; // 교점 x = a ± half → 두 교점 사이 거리 2*half
+        return { q:'함수 $y='+absx(a)+LEC.term(k,'',false)+'$ 의 그래프와 직선 $y='+m2+'$ 의 두 교점 사이의 <b>거리</b>는?', ans:2*half, fig:{mode:2,a:a,k:k,m:m2},
+          steps:['$|x'+LEC.term(-a,'',false)+'|'+LEC.term(k,'',false)+'='+m2+'$ → $|x'+LEC.term(-a,'',false)+'|='+half+'$', '$x='+(a-half)+'$ 또는 $x='+(a+half)+'$ (팔의 기울기가 ±1이라 높이만큼 좌우로)', '거리 $='+(2*half)+'$'] };
+      },
+      verify:function(p){ var g=p.fig; if(g.mode===0) return p.ans===g.k; if(g.mode===1){ var n=g.m>g.k?2:(g.m===g.k?1:0); return [2,1,0][p.ans]===n; } return p.ans===2*(g.m-g.k); } }
+  };
+})();
+</script>
+
+<script>
+LEC.boot({ key:'mat1_sp_abs', color:'#1d4ed8', color2:'#60a5fa' });
+
+/* ① 접기 위젯 */
+(function(){
+  var cv=document.getElementById('cv1'); var P=LEC.plane(cv,{xmin:-8,xmax:8,ymin:-6,ymax:8,h:300});
+  var t=0, target=0, raf=null;
+  function a(){ return parseInt(document.getElementById('sa').value,10); } function b(){ return parseInt(document.getElementById('sb').value,10); }
+  function draw(){
+    var A=a(), B=b(); document.getElementById('sav').textContent=LEC.fmt(A); document.getElementById('sbv').textContent=LEC.fmt(B);
+    P.clear().grid().axes();
+    P.seg(P.xmin,B,P.xmax,B,'#f59e0b',2,[6,4]);
+    // 원래 직선(흐리게)
+    P.plot(function(x){return x-A;},'#cbd5e1',1.5);
+    // 접히는 중
+    P.plot(function(x){ var y=x-A; return y>=0? y : y*(1-2*t); },'#1d4ed8',3);
+    P.dot(A,0,'#7c3aed',6,'('+A+', 0)','s');
+    var solved = t>=0.999 && B>0;
+    if(solved){ P.dot(A-B,B,'#dc2626',6,String(A-B),'n'); P.dot(A+B,B,'#dc2626',6,String(A+B),'n'); }
+    document.getElementById('pv').textContent='('+A+', 0)';
+    var ps=document.getElementById('ps'), pm=document.getElementById('pm');
+    if(t<0.999){ ps.textContent='접기 버튼을 눌러요'; pm.textContent='아직 직선 y = x − a'; }
+    else if(B>0){ ps.textContent='x = '+(A-B)+', '+(A+B); pm.textContent=A+'에서 거리 '+B+'인 두 점'; }
+    else if(B===0){ ps.textContent='x = '+A; pm.textContent='꼭짓점에서 한 점(거리 0)'; }
+    else { ps.textContent='없음'; pm.textContent='거리는 음수가 될 수 없어요'; }
+  }
+  function anim(){ var d=target-t; if(Math.abs(d)<0.01){ t=target; draw(); raf=null; return; } t+=d*0.12; draw(); raf=requestAnimationFrame(anim); }
+  document.getElementById('foldBtn').addEventListener('click',function(){ target=1; if(!raf)raf=requestAnimationFrame(anim); });
+  document.getElementById('unfoldBtn').addEventListener('click',function(){ target=0; if(!raf)raf=requestAnimationFrame(anim); });
+  ['sa','sb'].forEach(function(id){ document.getElementById(id).addEventListener('input',draw); });
+  draw(); LEC.onResize(function(){P.resize();draw();});
+})();
+
+LEC.check('q1',6,{ok:'3에서 거리 2인 점은 $1$과 $5$. 합 $6$ = 대칭 중심 3의 2배.', bad:'$x-3=2$ 또는 $x-3=-2$. 두 해 $5, 1$을 더해요.'});
+LEC.check('q2',5,{ok:'$-4\\lt x\\lt 2$ → 정수 $-3,-2,-1,0,1$ 로 5개.', bad:'$-1$에서 거리 3보다 가까운 곳: $-4\\lt x\\lt 2$. 경계는 제외예요.'});
+
+/* 유형 그림: 수직선 / V자 */
+function vgraph(el,a,k,m){
+  var cv=document.createElement('canvas'); cv.height=190; el.className='lec-widget lec-fig'; el.appendChild(cv);
+  var P=LEC.plane(cv,{xmin:a-6,xmax:a+6,ymin:Math.min(k,-1)-2,ymax:Math.max(k,0)+6,h:190});
+  P.clear().grid().axes(); if(m!==undefined) P.seg(P.xmin,m,P.xmax,m,'#f59e0b',2,[6,4]);
+  P.plot(function(x){return Math.abs(x-a)+k;},'#1d4ed8',2.5); P.dot(a,k,'#7c3aed',5);
+}
+function numline(el,pts,seg){
+  var cv=document.createElement('canvas'); cv.height=90; el.className='lec-widget lec-fig'; el.appendChild(cv);
+  var lo=Math.min.apply(null,pts)-3, hi=Math.max.apply(null,pts)+3; var P=LEC.plane(cv,{xmin:lo,xmax:hi,ymin:-1,ymax:1,h:90});
+  P.clear(); var c=P.ctx; c.strokeStyle='#94a3b8'; c.lineWidth=1.5; c.beginPath(); c.moveTo(0,P.Y(0)); c.lineTo(P.w,P.Y(0)); c.stroke();
+  c.fillStyle='#94a3b8'; c.font='11px sans-serif'; c.textAlign='center'; c.textBaseline='top';
+  for(var x=Math.ceil(lo);x<=Math.floor(hi);x++){ c.beginPath(); c.moveTo(P.X(x),P.Y(0)-4); c.lineTo(P.X(x),P.Y(0)+4); c.stroke(); c.fillText(x,P.X(x),P.Y(0)+6); }
+  if(seg) P.seg(seg[0],0,seg[1],0,'#f59e0b',6);
+  pts.forEach(function(p){ P.dot(p,0,'#dc2626',6); });
+}
+GEN.type1.fig=function(p,el){ var g=p.fig; if(g.kind==='a') numline(el,[g.a-g.b,g.a,g.a+g.b]); };
+GEN.type2.fig=function(p,el){ var g=p.fig; if(g.mode!==1) numline(el,[g.lo,g.hi],[g.lo,g.hi]); };
+GEN.type3.fig=function(p,el){ var g=p.fig; if(g.mode!==1) numline(el,[g.a,g.b],[g.a,g.b]); };
+GEN.type4.fig=function(p,el){ var g=p.fig; vgraph(el,g.a,g.k,g.mode===0?undefined:g.m); };
+GEN.tool.fig=function(p,el){ var g=p.fig; numline(el,[g.a,g.b],[g.a,g.b]); };
+
+LEC.types(['tool','type1','type2','type3','type4']);
+LEC.quiz('quizArea',{n:5,types:['type1','type2','type3','type4']});
+</script>
+</body>
+</html>
