@@ -1,0 +1,711 @@
+<!-- sqrt-mastery.html — 제곱근·무리수 감 잡기 특강 (2026-09-04, 중3 01단원 도입 보강용 별도 챕터) -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🌱 제곱근·무리수 감 잡기 · 중3</title>
+<link rel="stylesheet" href="concept.css?v=20260830n">
+<style>
+  :root{ --sq:#1f8a8a; --sq2:#4fb8b0; --area:#f2b23c; --area2:#ffd27a; --blue:#4f92d6; }
+  .sq-hero{border-radius:26px;padding:30px 26px;margin:14px 0 18px;color:#fff;position:relative;overflow:hidden;
+    background:linear-gradient(135deg,var(--sq),var(--sq2));box-shadow:var(--shadow-l)}
+  .sq-hero::after{content:"";position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.14)}
+  .sq-hero h1{color:#fff;margin:0 0 8px;font-size:26px}
+  .sq-hero p{color:rgba(255,255,255,.94);font-size:14.5px;margin:0}
+  .sq-goal{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .sq-goal span{background:rgba(255,255,255,.22);border-radius:999px;padding:6px 13px;font-size:12.5px;font-weight:700}
+  .sq-sec{margin:34px 0}
+  .sq-sec .eyebrow .n{background:linear-gradient(135deg,var(--sq),var(--sq2))}
+
+  /* 근호 표기 */
+  .rt{white-space:nowrap;font-family:var(--serif);font-style:italic}
+  .rt .rad{border-top:1.6px solid currentColor;padding:0 2px 0 1px;margin-left:1px}
+  .sq-f{font-family:var(--serif);font-style:italic;font-size:1.05em;white-space:nowrap}
+
+  .sq-panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px 18px 14px;box-shadow:var(--shadow-s)}
+  .sq-svg{width:100%;max-width:440px;margin:8px auto;display:block;background:var(--panel-2);border:1px solid var(--border);border-radius:14px}
+  .sq-play{background:var(--sq);color:#fff;border:none;border-radius:999px;padding:8px 16px;font-weight:700;font-size:13px;cursor:pointer}
+  .sq-msg{font-weight:800;color:var(--sq);margin-left:8px;font-size:13px}
+  .sq-rangebar{display:flex;align-items:center;gap:10px;margin:14px 0 4px;flex-wrap:wrap}
+  .sq-rangebar input[type=range]{flex:1;min-width:120px}
+  .sq-rangebar .tval{font-variant-numeric:tabular-nums;font-weight:800;color:var(--sq);min-width:64px;text-align:right}
+  .sq-rangebar select{border:1.5px solid var(--sq);border-radius:8px;padding:5px 8px;background:var(--panel);color:var(--ink);font-weight:700}
+
+  .sq-formula{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:14px 0}
+  .sq-formula .f{background:var(--panel-2);border:1.5px solid var(--sq);border-radius:14px;padding:12px 18px;
+    font-family:var(--serif);font-style:italic;font-size:17px;text-align:center;min-width:150px}
+  .sq-formula .f small{display:block;font-family:var(--sans);font-style:normal;font-size:11px;color:var(--muted);margin-top:4px}
+  .sq-trap{background:rgba(242,178,60,.14);border:1px solid rgba(242,178,60,.5);border-radius:12px;padding:10px 14px;font-size:13.5px;margin:12px 0}
+  .sq-trap b{color:#b97a10}
+  .sq-anchor{background:var(--sage-soft);border:1.5px solid rgba(79,168,146,.45);border-radius:14px;padding:12px 16px;font-size:14px;margin:14px 0;display:flex;gap:10px;align-items:flex-start}
+  .sq-anchor .ic{font-size:22px;line-height:1}
+  .sq-anchor b{color:var(--sage)}
+
+  table.sq-table{width:100%;border-collapse:collapse;margin:12px 0;font-size:14px}
+  table.sq-table th{background:var(--panel-2);padding:8px;font-size:12px;color:var(--muted);border:1px solid var(--border)}
+  table.sq-table td{padding:8px;border:1px solid var(--border);text-align:center;font-variant-numeric:tabular-nums}
+  table.sq-table td.known{color:var(--u);font-weight:800;background:var(--u-soft)}
+  table.sq-table td.hot{background:rgba(242,178,60,.18);font-weight:800}
+  .sq-scroll{overflow-x:auto}
+  .sq-ladder td, .sq-ladder th{min-width:38px}
+  .sq-apx td.l{color:var(--blue);font-weight:800} .sq-apx td.r{color:#b97a10;font-weight:800}
+
+  .sq-checkrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .sq-checkrow input.num{width:96px}
+  .sq-out{margin-top:8px;font-size:14px;min-height:1.3em}
+  .sq-picks{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .sq-picks button{background:var(--panel-2);color:var(--ink);border:1.5px solid var(--border);box-shadow:none;font-weight:700;font-family:var(--serif);font-style:italic;font-size:15px;padding:9px 14px}
+  .sq-picks button.ok{border-color:var(--ok);background:var(--ok-soft)}
+  .sq-picks button.no{border-color:#e3c15a;opacity:.7}
+  .sq-picks button:disabled{cursor:default}
+
+  .sq-type{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:20px 20px 18px;margin:16px 0;box-shadow:var(--shadow-m)}
+  .sq-type-h{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .sq-type-h .badge{flex:none;width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,var(--sq),var(--sq2));
+    color:#fff;display:grid;place-items:center;font-weight:800;font-family:var(--serif);font-style:italic}
+  .sq-type-h .t{font-weight:800;font-size:16px}
+  .sq-type-h .d{font-size:12.5px;color:var(--muted)}
+  .sq-key{background:var(--sage-soft);border:1px solid rgba(79,168,146,.3);border-radius:12px;padding:10px 14px;font-size:13.5px;margin:10px 0}
+  .sq-key b{color:var(--sage)}
+  .sq-stem{font-size:14.5px;line-height:1.65;margin:10px 0}
+  .sq-fig{margin:6px 0}
+  .sq-hint{display:none;background:rgba(31,138,138,.08);border-left:3px solid var(--sq);border-radius:0 10px 10px 0;padding:8px 12px;margin:8px 0;font-size:13.5px}
+  .sq-hint.show{display:block}
+  .sq-sol{display:none;background:var(--u-soft);border-radius:12px;padding:12px 14px;margin-top:10px;font-size:13.5px;line-height:1.7}
+  .sq-sol.show{display:block;animation:pop .35s ease}
+  .sq-again{background:none;border:1.5px solid var(--sq);color:var(--sq);border-radius:999px;padding:6px 14px;font-size:12.5px;font-weight:700;cursor:pointer;margin-top:8px}
+  .sq-hintbtn{background:none;border:1.5px dashed var(--sq);color:var(--sq);border-radius:999px;padding:6px 12px;font-size:12.5px;font-weight:700;cursor:pointer;box-shadow:none}
+
+  .sq-quizcard{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px 18px;margin:14px 0;box-shadow:var(--shadow-s)}
+  .sq-quiz-id{display:none;margin-top:8px;font-size:13px;color:var(--sq);font-weight:700}
+  .sq-quiz-id.show{display:block}
+  .sq-quiz-id a{color:var(--sq)}
+
+  .sq-cheat{background:linear-gradient(135deg,var(--sq),var(--sq2));color:#fff;border-radius:18px;padding:20px 22px;margin:16px 0}
+  .sq-cheat h3{margin:0 0 10px;font-size:16px}
+  .sq-cheat .row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+  .sq-cheat .chip{background:rgba(255,255,255,.2);border-radius:10px;padding:8px 12px;font-size:12.5px;flex:1;min-width:150px}
+  .sq-cheat .chip b{display:block;font-size:13px;margin-bottom:2px}
+  .sq-cheat .rt .rad{border-top-color:#fff}
+  #printCheat{background:#fff;color:var(--sq);border:none;border-radius:999px;padding:9px 18px;font-weight:800;font-size:13px;cursor:pointer;margin-top:12px}
+  #printArea{display:none}
+  @media print{ body>*:not(#printArea){display:none !important} #printArea{display:block !important} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중3 수학</a><span class="dot"></span><span>제곱근·무리수 감 잡기</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+
+  <div class="sq-hero">
+    <h1>🌱 제곱근·무리수 감 잡기</h1>
+    <p>"루트 2가 도대체 얼마예요?" 기호 <b>√</b>가 갑자기 나타나서 막막했나요? 괜찮아요 — √는 새로운 계산이 아니라 <b>"넓이가 2인 정사각형의 한 변"</b>에 붙인 이름일 뿐이에요. 공식부터 외우지 않을 거예요. 정사각형을 직접 잘라 보면서 시작해요.</p>
+    <div class="sq-goal">
+      <span>① 제곱근 구하기</span><span>② √a² 벗기기</span><span>③ 대소 비교</span><span>④ 정수 부분</span><span>⑤ 자연수 만들기</span>
+    </div>
+  </div>
+
+  <!-- ───────────────── 1. 넓이 2인 정사각형 ───────────────── -->
+  <section class="sq-sec reveal" id="s1">
+    <div class="eyebrow"><span class="n">1</span>넓이가 2인 정사각형 만들기 (공식 없이)</div>
+    <p>넓이가 4인 정사각형은 한 변이 2, 넓이가 9면 한 변이 3이죠. 그럼 <b>넓이가 2인 정사각형</b>의 한 변은 얼마일까요? 정수로는 안 되지만, 그런 정사각형은 분명히 있어요. ▶ 재생을 눌러 직접 만들어 봐요.</p>
+    <div class="sq-panel">
+      <svg class="sq-svg" id="areaSvg" viewBox="0 0 440 200" role="img" aria-label="1×1 정사각형 4개를 잘라 넓이 2인 정사각형 만들기"></svg>
+      <div style="text-align:center;margin-bottom:6px"><button class="sq-play" id="areaPlay">▶ 재생</button><span class="sq-msg" id="areaMsg"></span></div>
+    </div>
+    <p style="margin-top:14px">네 귀퉁이를 잘라 냈더니 넓이 4의 <b>딱 절반</b>, 넓이 2인 정사각형이 남았어요. 이 정사각형의 한 변은 1보다 길고 2보다 짧아요. 이 길이에 <b>√2</b>(루트 2)라는 이름을 붙여요. 그러니까 <b>√2 = "제곱하면 2가 되는 양수"</b>예요.</p>
+    <div class="card" style="margin-top:12px">
+      <p style="margin:0 0 8px;font-weight:700">함께 생각하기 ①</p>
+      <p style="margin:0 0 10px">넓이가 25인 정사각형의 한 변의 길이는 얼마일까요?</p>
+      <div class="sq-checkrow"><input class="num" id="q1" inputmode="numeric" aria-label="답"><button id="q1b">확인</button></div>
+      <div class="sq-out" id="q1o"></div>
+    </div>
+  </section>
+
+  <!-- ───────────────── 2. 수직선 위에 찍기 ───────────────── -->
+  <section class="sq-sec reveal" id="s2">
+    <div class="eyebrow"><span class="n">2</span>√2는 수직선 위 어디에? — 컴퍼스로 찍어 봐요</div>
+    <p>두 변이 1, 1인 직각삼각형의 빗변은 피타고라스 정리로 <span class="sq-f">1² + 1² = 2</span>, 그러니까 빗변의 길이가 √2예요. 이 빗변을 <b>컴퍼스로 돌려서 수직선에 내리면</b> √2가 정확히 어디인지 찍을 수 있어요. 근호 안의 수를 골라 ▶ 재생을 눌러 보세요.</p>
+    <div class="sq-panel">
+      <div class="sq-rangebar">
+        <span style="font-size:13px;color:var(--muted)">찍을 수</span>
+        <select id="lineSel" aria-label="근호 안의 수">
+          <option value="2">√2 (변 1, 1)</option><option value="5">√5 (변 2, 1)</option><option value="8">√8 (변 2, 2)</option>
+          <option value="10">√10 (변 3, 1)</option><option value="13">√13 (변 3, 2)</option><option value="17">√17 (변 4, 1)</option><option value="20">√20 (변 4, 2)</option>
+        </select>
+        <button class="sq-play" id="linePlay">▶ 재생</button><span class="sq-msg" id="lineMsg"></span>
+      </div>
+      <svg class="sq-svg" id="lineSvg" viewBox="0 0 440 200" role="img" aria-label="수직선 위에 제곱근 작도하기"></svg>
+    </div>
+    <p style="margin-top:14px">√2, √5, √10 … 전부 <b>수직선 위의 분명한 한 점</b>이에요. 눈금 사이에 있어서 낯설 뿐이에요. 이렇게 수직선을 빈틈없이 채우는 수를 통틀어 <b>실수</b>라고 불러요.</p>
+    <div class="card" style="margin-top:12px">
+      <p style="margin:0 0 8px;font-weight:700">함께 생각하기 ②</p>
+      <p style="margin:0 0 10px">직각을 낀 두 변의 길이가 1과 3인 직각삼각형의 빗변은 √<b>?</b> 이에요. 물음표에 들어갈 수는 얼마일까요?</p>
+      <div class="sq-checkrow"><input class="num" id="q2" inputmode="numeric" aria-label="답"><button id="q2b">확인</button></div>
+      <div class="sq-out" id="q2o"></div>
+    </div>
+  </section>
+
+  <!-- ───────────────── 3. 얼마쯤일까 — 근삿값 좁혀가기 + 정의 ───────────────── -->
+  <section class="sq-sec reveal" id="s3">
+    <div class="eyebrow"><span class="n">3</span>√2는 얼마쯤? — 제곱해서 좁혀가기, 그리고 이름 정리</div>
+    <p>√2를 소수로 쓰면 얼마일까요? 계산기 없이도 찾을 수 있어요. <b>제곱해서 2보다 작은지 큰지</b>만 보면 돼요. 자릿수를 늘려 보세요.</p>
+    <div class="sq-panel">
+      <div class="sq-rangebar">
+        <span style="font-size:13px;color:var(--muted)">수</span>
+        <select id="apxSel" aria-label="근호 안의 수"><option value="2">√2</option><option value="3">√3</option><option value="5">√5</option><option value="7">√7</option><option value="10">√10</option><option value="11">√11</option></select>
+        <span style="font-size:13px;color:var(--muted)">소수 자릿수</span>
+        <input type="range" id="apxDigits" min="0" max="3" step="1" value="1" aria-label="소수 자릿수">
+        <span class="tval" id="apxVal">1자리</span>
+      </div>
+      <div class="sq-scroll"><table class="sq-table sq-apx" id="apxTbl"></table></div>
+      <div id="apxRead" style="font-weight:800;color:var(--sq);text-align:center;margin-top:6px"></div>
+    </div>
+    <p style="margin-top:14px">자릿수를 아무리 늘려도 <b>끝나지 않고, 같은 숫자가 반복되지도 않아요</b>. 이런 수를 <b>무리수</b>라고 해요. √2 = 1.41421356… 처럼요. 반대로 √9 = 3, √0.25 = 0.5처럼 근호가 벗겨지는 수는 유리수예요.</p>
+
+    <p style="margin-top:18px;font-weight:700">이제 이름을 정확히 정리해요.</p>
+    <div class="sq-formula">
+      <div class="f">x² = a 이면 x는 <b>a의 제곱근</b><small>제곱해서 a가 되는 수 · 양수 a면 두 개(양수·음수)</small></div>
+      <div class="f">a의 제곱근 = ±√a<small>"제곱근 a" = √a 는 그중 양수 하나</small></div>
+      <div class="f">√(a²) = |a|<small>근호를 벗기면 항상 0 이상 · a가 음수면 −a</small></div>
+    </div>
+    <div class="sq-trap"><b>⚠ 가장 흔한 함정</b> — <b>"16의 제곱근"</b>은 제곱해서 16이 되는 수 전부, 그러니까 <b>4와 −4</b>(±4) 두 개예요. <b>"제곱근 16"</b>은 √16 하나, 그러니까 <b>4</b>예요. 조사 "의"가 있으면 두 개, 없으면 하나예요. 시험에서 가장 많이 틀리는 한 줄이에요.</div>
+    <div class="sq-trap"><b>⚠ 근호를 벗길 때</b> — √((−3)²) = √9 = <b>3</b>이에요. −3이 아니에요. 근호 안이 먼저 계산돼서 9가 되고, √9는 양수 3이니까요. 그래서 <b>a가 음수이면 √(a²) = −a</b>(부호를 뒤집어 양수로) 예요.</div>
+    <div class="card">
+      <p style="margin:0 0 8px;font-weight:700">함께 생각하기 ③</p>
+      <p style="margin:0 0 10px">√((−7)²) 의 값은 얼마일까요?</p>
+      <div class="sq-checkrow"><input class="num" id="q3" inputmode="numeric" aria-label="답" placeholder="음수는 −7처럼"><button id="q3b">확인</button></div>
+      <div class="sq-out" id="q3o"></div>
+    </div>
+  </section>
+
+  <!-- ───────────────── 4. 핵심 도구 — 제곱수 사다리 ───────────────── -->
+  <section class="sq-sec reveal" id="s4">
+    <div class="eyebrow"><span class="n">4</span>핵심 도구 — 제곱수 사다리에 끼우기</div>
+    <p>√가 나오는 문제의 절반은 이 표 하나로 풀려요. <b>1부터 15까지의 제곱수</b>예요. 근호 안의 수를 이웃한 두 제곱수 사이에 끼우면 √가 어느 정수 사이에 있는지 바로 보여요.</p>
+    <div class="sq-panel">
+      <div class="sq-scroll"><table class="sq-table sq-ladder" id="ladder"></table></div>
+      <p style="margin:10px 0 6px;font-size:13.5px">근호 안의 수를 넣어 보세요. 어느 두 제곱수 사이에 끼는지 표에 표시돼요.</p>
+      <div class="sq-checkrow"><span class="sq-f">√</span><input class="num" id="sandIn" inputmode="numeric" aria-label="근호 안의 수" value="50" style="width:80px"><button id="sandBtn">끼워 보기</button></div>
+      <div class="sq-out" id="sandOut"></div>
+    </div>
+    <div class="sq-anchor"><span class="ic">🌱</span><span><b>불변 앵커 — √는 "넓이", 답은 "변의 길이"예요.</b> √a가 얼마쯤인지 궁금하면 언제나 <b>a를 이웃한 제곱수 사이에 끼워요</b>: n² &lt; a &lt; (n+1)² 이면 n &lt; √a &lt; n+1. 비교도, 정수 부분도, 근삿값도 전부 이 한 동작이에요.</span></div>
+    <p style="margin-top:10px">연습을 몇 개 더 해볼까요? 두 칸을 채워요.</p>
+    <div id="sandPractice"></div>
+    <div style="text-align:center;margin-top:8px"><button class="sq-again" id="sandAgain">🔄 다른 문제로</button></div>
+  </section>
+
+  <!-- ───────────────── 5. 유형별 완전정복 ───────────────── -->
+  <section class="sq-sec reveal" id="s5">
+    <div class="eyebrow"><span class="n">5</span>유형별 완전정복</div>
+    <p>이제 진짜 문제로 가요. 5가지 유형만 알면 01단원 전반부는 다 풀려요. 막히면 💡 힌트를 먼저 눌러 보고, 그래도 어려우면 확인을 눌러 풀이를 봐요. "다른 문제로"를 누르면 숫자가 바뀌어요.</p>
+  </section>
+
+  <section class="sq-type reveal" id="type1">
+    <div class="sq-type-h"><span class="badge">①</span><span><div class="t">제곱근 구하기</div><div class="d">"a의 제곱근"은 두 개 · "제곱근 a"는 하나</div></span></div>
+    <div class="sq-key"><b>핵심</b> 제곱해서 a가 되는 수를 찾아요. 양수 a의 제곱근은 부호만 다른 <b>두 개</b>예요. (√a)²과 (−√a)²은 둘 다 a예요.</div>
+    <div id="type1body"></div>
+  </section>
+
+  <section class="sq-type reveal" id="type2">
+    <div class="sq-type-h"><span class="badge">②</span><span><div class="t">√a² 벗기기</div><div class="d">근호를 벗기면 항상 0 이상 · 음수면 부호를 뒤집어요</div></span></div>
+    <div class="sq-key"><b>핵심</b> √(a²) = |a|. 안이 음수면 벗길 때 부호를 뒤집어요(−a). 근호 <b>밖</b>의 −는 그대로 남아요.</div>
+    <div id="type2body"></div>
+  </section>
+
+  <section class="sq-type reveal" id="type3">
+    <div class="sq-type-h"><span class="badge">③</span><span><div class="t">대소 비교</div><div class="d">근호 안으로 넣어서 넓이끼리 비교해요</div></span></div>
+    <div class="sq-key"><b>핵심</b> 정수 n은 √(n²)으로 바꿔서 <b>근호 안끼리</b> 비교해요. 양수는 안이 클수록 크고, <b>음수는 반대</b>예요.</div>
+    <div id="type3body"></div>
+  </section>
+
+  <section class="sq-type reveal" id="type4">
+    <div class="sq-type-h"><span class="badge">④</span><span><div class="t">정수 부분 · 개수 세기</div><div class="d">제곱수 사다리에 끼우면 끝</div></span></div>
+    <div class="sq-key"><b>핵심</b> n² ≤ a &lt; (n+1)² 이면 √a의 정수 부분은 n이에요. "m &lt; √x &lt; n인 자연수 x"는 m² &lt; x &lt; n²으로 바꿔서 세요.</div>
+    <div id="type4body"></div>
+  </section>
+
+  <section class="sq-type reveal" id="type5">
+    <div class="sq-type-h"><span class="badge">⑤</span><span><div class="t">자연수 만들기</div><div class="d">근호 안을 제곱수로 · 소인수분해가 열쇠</div></span></div>
+    <div class="sq-key"><b>핵심</b> √(ax)가 자연수가 되려면 ax가 <b>제곱수</b>여야 해요. a를 소인수분해해서 <b>지수가 홀수인 소인수</b>를 x로 채워요. √(a+x)는 a보다 큰 가장 가까운 제곱수를 찾아요.</div>
+    <div id="type5body"></div>
+  </section>
+
+  <!-- ───────────────── 6. 실전 총정리 ───────────────── -->
+  <section class="sq-sec reveal" id="s6">
+    <div class="eyebrow"><span class="n">6</span>실전 총정리 — 유형 섞어서</div>
+    <p>이번엔 어떤 유형인지 안 알려드려요. <b>"의 제곱근인가, 제곱근 a인가", "근호 안에 넣어서 비교"</b>를 먼저 떠올려 풀어봐요. 틀리면 어느 유형인지 알려드릴게요.</p>
+    <div id="quizArea"></div>
+    <div style="text-align:center;margin-top:8px"><button class="sq-again" id="quizAgain">🔄 5문제 새로</button></div>
+  </section>
+
+  <!-- ───────────────── 7. 치트시트 ───────────────── -->
+  <section class="sq-sec reveal" id="s7">
+    <div class="eyebrow"><span class="n">7</span>마무리 치트시트</div>
+    <div class="sq-cheat">
+      <h3>🌱 제곱근·무리수 한 장 요약</h3>
+      <div class="row">
+        <div class="chip"><b>√a = 넓이 a인 정사각형의 한 변</b>제곱하면 a가 되는 양수 · 수직선 위의 분명한 한 점</div>
+        <div class="chip"><b>a의 제곱근 = ±√a (두 개)</b>제곱근 a = √a (하나) · 0의 제곱근은 0 · 음수의 제곱근은 없어요</div>
+      </div>
+      <div class="row">
+        <div class="chip"><b>√(a²) = |a|</b>√((−3)²) = 3 · a &lt; 0이면 √(a²) = −a · 근호 밖의 −는 그대로</div>
+        <div class="chip"><b>🌱 제곱수 사다리에 끼우기</b>n² &lt; a &lt; (n+1)² → n &lt; √a &lt; n+1 · 비교·정수 부분·근삿값 전부 이 동작</div>
+      </div>
+      <div class="row">
+        <div class="chip"><b>③ 비교</b>정수는 √(n²)으로 바꿔 근호 안끼리 · 음수는 반대</div>
+        <div class="chip"><b>⑤ 자연수 만들기</b>√(ax): a의 홀수 지수 소인수를 x로 · √(a+x): 다음 제곱수까지</div>
+      </div>
+      <div class="row">
+        <div class="chip"><b>무리수</b>근호가 안 벗겨지는 수(√2, √3, √5 …)와 π · 끝없고 반복 없는 소수 · 유리수 + 무리수 = 실수</div>
+      </div>
+      <button id="printCheat">🖨️ 이 치트시트 인쇄하기</button>
+    </div>
+    <p style="text-align:center;color:var(--muted);font-size:13px">여기까지 왔으면 01단원 연습 문제로 돌아가서 다시 풀어봐요 — <a href="p1.html#c2" style="color:var(--sq);font-weight:700">01단원 연습으로 가기 →</a><br>⑤ 유형의 소인수분해가 가물가물하면 — <a href="../mid1/math1/app1/u1.html" style="color:var(--sq);font-weight:700">🔢 중1 소인수분해 개념 다시 보기</a><br>다음 특강도 같은 앱에 있어요 — <a href="factor-mastery.html" style="color:var(--sq);font-weight:700">🧩 인수분해·전개 스피드 완성</a></p>
+  </section>
+
+  <div class="foot">제곱근·무리수 감 잡기 · 01_제곱근과 실수 도입 보강 특강</div>
+</div>
+
+<div id="printArea"></div>
+
+<script src="concept.js?v=20260830n"></script>
+<script>
+MJ3.boot();
+(function(){ var rs=document.documentElement.style; rs.setProperty('--u','#1f8a8a'); rs.setProperty('--u-2','#4fb8b0'); rs.setProperty('--u-soft','rgba(31,138,138,.14)'); })();
+(function(){
+  'use strict';
+  /*GEN-START*/
+  function ri(a,b){return a+Math.floor(Math.random()*(b-a+1));}
+  function pick(a,i){ if(typeof i==='number') return a[((i%a.length)+a.length)%a.length]; return a[Math.floor(Math.random()*a.length)]; }
+  function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;} return a; }
+  function sg(n){ return n<0?('−'+Math.abs(n)):String(n); }
+  function isqrt(a){ var r=Math.floor(Math.sqrt(a)); while((r+1)*(r+1)<=a) r++; while(r*r>a) r--; return r; }
+  function isSquare(a){ var r=isqrt(a); return r*r===a; }
+  function factorize(a){ var out=[], m=a; for(var p=2;p*p<=m;p++){ var c=0; while(m%p===0){ m/=p; c++; } if(c) out.push([p,c]); } if(m>1) out.push([m,1]); return out; }
+  function sqfree(a){ var s=1; factorize(a).forEach(function(pe){ if(pe[1]%2===1) s*=pe[0]; }); return s; }
+  function SUP(n){ return n===1?'':'<sup>'+n+'</sup>'; }
+  function factorStr(a){ return factorize(a).map(function(pe){ return pe[0]+SUP(pe[1]); }).join(' × '); }
+  function nextSq(a){ var r=isqrt(a); return (r+1)*(r+1); }
+  function prevSq(a){ var r=isqrt(a); return (r*r===a)?(r-1)*(r-1):r*r; }
+  function R(x){ return '√{'+x+'}'; }                                  // 근호 표기 원본(√{…}) — rtHtml이 마크업으로 바꿔요
+  /* 숫자 읽기 기준 조사 — 마지막 숫자가 0·1·3·6·7·8(영·일·삼·육·칠·팔)이면 받침 있음 */
+  function lastDigitOf(s){ var t=String(s).replace(/<[^>]+>/g,'').replace(/[^0-9]/g,''); return t?t.charAt(t.length-1):''; }
+  function batchimNum(s){ var d=lastDigitOf(s); return d!==''&&'013678'.indexOf(d)>=0; }
+  function yeyo(n){ return batchimNum(n)?'이에요':'예요'; }
+  function yeyoStr(s){ var t=String(s).replace(/<[^>]+>/g,'').replace(/[{}]/g,''); if(/[a-z]$/i.test(t)) return '예요'; return yeyo(t); }
+  function ga(n){ return batchimNum(n)?'이':'가'; }
+  function eul(n){ return batchimNum(n)?'을':'를'; }
+  function gwa(n){ return batchimNum(n)?'과':'와'; }
+  function neun(n){ return batchimNum(n)?'은':'는'; }
+  function ini(n){ return batchimNum(n)?'이니까':'니까'; }
+  function igo(n){ return batchimNum(n)?'이고':'고'; }
+  function euro(n){ var d=lastDigitOf(n); return (d==='0'||d==='3'||d==='6')?'으로':'로'; }
+
+  /* ── 풀 (전부 정수 해 · Node 재검산 대상) ── */
+  var SQ_POOL=[4,9,16,25,36,49,64,81,100,121,144,169,196,225];
+  var NSQ_POOL=[2,3,5,6,7,10,11,13,15,17,21,23];
+  var K2_POOL=[2,3,5,6,7,9,11,12,13,15];
+  var E_POOL=[{c:'<',k:1},{c:'>',k:3},{c:'<',k:2},{c:'>',k:5},{c:'<',k:4},{c:'>',k:1},{c:'<',k:3},{c:'>',k:2}];
+  var RR_POOL=[[2,3],[5,7],[10,8],[11,13],[15,14],[6,3],[20,17],[23,24]];
+  var RN_POOL=[{n:3,a:8},{n:2,a:5},{n:4,a:15},{n:5,a:26},{n:3,a:10},{n:6,a:35},{n:4,a:17},{n:7,a:48}];
+  var NEG_POOL=[{n:2,a:5},{n:3,a:8},{n:4,a:17},{n:3,a:10},{n:5,a:24},{n:2,a:3},{n:6,a:37},{n:4,a:15}];
+  var MAX_POOL=[ [['√{10}',10],['3',9],['√{15}',15],['4',16]], [['√{5}',5],['2',4],['√{3}',3],['√{7}',7]], [['3',9],['√{8}',8],['√{11}',11],['√{6}',6]],
+                 [['√{20}',20],['4',16],['√{17}',17],['5',25]], [['√{2}',2],['1',1],['√{3}',3],['2',4]], [['√{30}',30],['5',25],['√{24}',24],['√{35}',35]],
+                 [['6',36],['√{40}',40],['√{35}',35],['√{37}',37]], [['√{50}',50],['7',49],['√{48}',48],['√{45}',45]] ];
+  var A4_POOL=[5,8,12,20,27,30,40,50,60,72,85,99,110,130,150,200];
+  var RANGE_POOL=[{m:1,n:2},{m:2,n:3},{m:3,n:4},{m:2,n:4},{m:3,n:5},{m:4,n:5},{m:1,n:3},{m:5,n:6}];
+  var A5_POOL=[8,12,18,20,24,27,28,32,40,45,48,50,54,60,72,75,80,96,98,108];
+  var A5B_POOL=[3,7,10,14,20,22,30,33,40,47,55,60,70,78,90,95];
+
+  /* ① 제곱근 구하기 */
+  function genType1(i){
+    var form=(typeof i==='number')?(i%4):ri(0,3), idx=(typeof i==='number')?Math.floor(i/4):ri(0,999);
+    if(form===0){ var N=pick(SQ_POOL,idx), k=isqrt(N);
+      return {type:1, form:'pm', kind:'pm', N:N, k:k, ans:k, ansText:'±'+k,
+        stem:'<b>'+N+'의 제곱근</b>은 무엇일까요? (있는 것을 모두 써요)',
+        hint:'제곱해서 '+N+ga(N)+' 되는 수는 몇 개일까요? 부호가 다른 두 수를 떠올려요.',
+        sol:'제곱해서 '+N+ga(N)+' 되는 수를 찾아요. '+k+'² = '+N+', 그리고 (−'+k+')² = '+N+'. 그래서 '+N+'의 제곱근은 <b>±'+k+'</b>, 두 개예요. "…의 제곱근"은 언제나 양수·음수 한 쌍이에요.'}; }
+    if(form===1){ var N1=pick(SQ_POOL,idx), k1=isqrt(N1);
+      return {type:1, form:'rt', kind:'num', N:N1, k:k1, ans:k1,
+        stem:'<b>제곱근 '+N1+'</b>'+neun(N1)+' 얼마일까요?',
+        hint:'"제곱근 '+N1+'"은 "'+N1+'의 제곱근"과 달라요. 근호 하나를 뜻해요.',
+        sol:'"제곱근 '+N1+'"은 '+R(N1)+' 하나(양의 제곱근)를 뜻해요. '+k1+'² = '+N1+ini(N1)+' <b>'+k1+'</b>'+yeyo(k1)+'. "'+N1+'의 제곱근"(±'+k1+')과 다르다는 것에 주의해요.'}; }
+    if(form===2){ var N2=pick(SQ_POOL,idx), k2=isqrt(N2), neg=idx%2===1, a2=neg?-k2:k2;
+      return {type:1, form:'sgn', kind:'num', N:N2, k:k2, ans:a2,
+        stem:N2+'의 <b>'+(neg?'음의':'양의')+' 제곱근</b>은 얼마일까요?',
+        hint:N2+'의 제곱근 두 개 중 '+(neg?'음수':'양수')+' 쪽이에요.',
+        sol:N2+'의 제곱근은 ±'+k2+' 두 개예요. 그중 '+(neg?'음수인 <b>−'+k2+'</b>':'양수인 <b>'+k2+'</b>')+ga(k2)+' 답이에요. 기호로는 '+(neg?'−'+R(N2):R(N2))+' = '+sg(a2)+yeyo(a2)+'.'}; }
+    var m=pick(NSQ_POOL,idx), negs=idx%2===1;
+    return {type:1, form:'sq', kind:'num', m:m, ans:m,
+      stem:'('+(negs?'−':'')+R(m)+')² 의 값은 얼마일까요?',
+      hint:R(m)+neun(m)+' "제곱하면 '+m+ga(m)+' 되는 수"예요. 부호는 제곱하면 사라져요.',
+      sol:R(m)+neun(m)+' 제곱하면 '+m+ga(m)+' 되는 양수예요. '+(negs?'(−'+R(m)+')² 은 음수를 제곱한 것이라 양수가 되고, 크기는 ('+R(m)+')² = '+m+'과 같아요. ':'')+'그래서 <b>'+m+'</b>'+yeyo(m)+'. '+m+ga(m)+' 제곱수가 아니어도 제곱하면 근호가 벗겨져요.'};
+  }
+  /* ② √a² 벗기기 */
+  function genType2(i){
+    var form=(typeof i==='number')?(i%5):ri(0,4), idx=(typeof i==='number')?Math.floor(i/5):ri(0,999);
+    if(form===4){ var e=pick(E_POOL,idx), ks=(e.k===1?'a':e.k+'a'), ans=(e.c==='<')?('−'+ks):ks;
+      var inside=(e.k===1)?'a²':(e.k*e.k)+'a²';
+      var ch=[ks,'−'+ks,(e.k===1?'a²':(e.k*e.k)+'a'),(e.k===1?'−a²':e.k+'a²')];
+      return {type:2, form:'sym', kind:'pick', e:e, ans:ans, choices:shuffle(ch),
+        stem:'a '+(e.c==='<'?'&lt;':'&gt;')+' 0일 때, '+R(inside)+'을 간단히 하면 무엇일까요?',
+        hint:'근호 안은 ('+ks+')² 이에요. 벗기면 |'+ks+'| — '+ks+'의 부호를 보세요.',
+        sol:R(inside)+' = '+R('('+ks+')²')+' = |'+ks+'|예요. a '+(e.c==='<'?'&lt;':'&gt;')+' 0이니 '+ks+'는 '+(e.c==='<'?'음수':'양수')+'이고, 절댓값은 '+(e.c==='<'?'부호를 뒤집은 <b>−'+ks+'</b>':'그대로 <b>'+ks+'</b>')+'예요.'}; }
+    var k=pick(K2_POOL,idx);
+    if(form===0) return {type:2, form:'a', kind:'num', k:k, ans:k, stem:R(k+'²')+' 의 값은 얼마일까요?', hint:'근호 안을 먼저 계산해도 되고, √(a²) = |a|를 써도 돼요.',
+      sol:R(k+'²')+' = '+R(k*k)+' = <b>'+k+'</b>'+yeyo(k)+'. "제곱한 뒤 근호를 벗기면 원래의 양수"예요.'};
+    if(form===1) return {type:2, form:'b', kind:'num', k:k, ans:k, stem:R('(−'+k+')²')+' 의 값은 얼마일까요?', hint:'근호 안 (−'+k+')²부터 계산해요. 음수의 제곱은 양수예요.',
+      sol:'(−'+k+')² = '+(k*k)+ini(k*k)+' '+R('(−'+k+')²')+' = '+R(k*k)+' = <b>'+k+'</b>'+yeyo(k)+'. −'+k+ga(k)+' 아니에요 — 근호를 벗기면 항상 0 이상이에요.'};
+    if(form===2) return {type:2, form:'c', kind:'num', k:k, ans:-k, stem:'−'+R(k+'²')+' 의 값은 얼마일까요?', hint:'근호 밖의 −는 그대로 남아요. 근호 부분만 벗겨요.',
+      sol:R(k+'²')+' = '+k+igo(k)+', 근호 <b>밖</b>의 −는 그대로 남으니 <b>−'+k+'</b>'+yeyo(k)+'.'};
+    return {type:2, form:'d', kind:'num', k:k, ans:-k, stem:'−'+R('(−'+k+')²')+' 의 값은 얼마일까요?', hint:'안쪽부터: (−'+k+')² = '+(k*k)+'. 그다음 근호, 마지막에 밖의 −.',
+      sol:'안쪽 (−'+k+')² = '+(k*k)+' → '+R(k*k)+' = '+k+' → 밖의 −를 붙이면 <b>−'+k+'</b>'+yeyo(k)+'. 근호 안의 −는 사라지고 밖의 −는 남아요.'};
+  }
+  /* ③ 대소 비교 */
+  function genType3(i){
+    var form=(typeof i==='number')?(i%4):ri(0,3), idx=(typeof i==='number')?Math.floor(i/4):ri(0,999);
+    if(form===0){ var p=pick(RR_POOL,idx), a=p[0], b=p[1], big=Math.max(a,b), ans=R(big);
+      return {type:3, form:'rr', kind:'pick', a:a, b:b, ans:ans, choices:shuffle([R(a),R(b),'같아요']),
+        fig:[{t:R(a),area:a},{t:R(b),area:b}],
+        stem:R(a)+gwa(a)+' '+R(b)+' 중 더 큰 수는 무엇일까요?',
+        hint:'√는 넓이 a인 정사각형의 한 변이에요. 넓이가 크면 변도 길어요.',
+        sol:'둘 다 양수이고 근호 안끼리 비교하면 '+big+' &gt; '+Math.min(a,b)+ini(Math.min(a,b))+' <b>'+R(big)+'</b>'+ga(big)+' 더 커요. (넓이 '+big+'인 정사각형이 넓이 '+Math.min(a,b)+'인 정사각형보다 변이 길어요.)'}; }
+    if(form===1){ var q=pick(RN_POOL,idx), n=q.n, a1=q.a, nn=n*n, nBig=nn>a1, ans1=nBig?String(n):R(a1);
+      return {type:3, form:'rn', kind:'pick', n:n, a:a1, ans:ans1, choices:shuffle([String(n),R(a1),'같아요']),
+        fig:[{t:String(n),area:nn,hide:true},{t:R(a1),area:a1}],
+        stem:n+gwa(n)+' '+R(a1)+' 중 더 큰 수는 무엇일까요?',
+        hint:n+eul(n)+' 근호 안에 넣으면 '+R('?')+' 일까요? '+n+' = '+R(n+'²')+' 이에요.',
+        sol:n+' = '+R(nn)+euro(nn)+' 바꿔서 근호 안끼리 비교해요. '+(nBig?nn+' &gt; '+a1+ini(a1)+' '+R(nn)+' &gt; '+R(a1)+', 즉 <b>'+n+'</b>'+ga(n)+' 더 커요.':a1+' &gt; '+nn+ini(nn)+' '+R(a1)+' &gt; '+R(nn)+', 즉 <b>'+R(a1)+'</b>'+ga(a1)+' 더 커요.')}; }
+    if(form===2){ var r=pick(NEG_POOL,idx), n2=r.n, a2=r.a, nn2=n2*n2, rootBigger=a2>nn2, ans2=rootBigger?('−'+n2):('−'+R(a2));
+      return {type:3, form:'neg', kind:'pick', n:n2, a:a2, ans:ans2, choices:shuffle(['−'+n2,'−'+R(a2),'같아요']),
+        fig:[{t:String(n2),area:nn2,hide:true},{t:R(a2),area:a2}],
+        stem:'−'+n2+gwa(n2)+' −'+R(a2)+' 중 더 큰 수는 무엇일까요?',
+        hint:'먼저 양수끼리('+n2+gwa(n2)+' '+R(a2)+') 비교하고, 음수는 순서가 뒤집힌다는 걸 기억해요.',
+        sol:'양수끼리 먼저: '+n2+' = '+R(nn2)+igo(nn2)+' '+(rootBigger?a2+' &gt; '+nn2+ini(nn2)+' '+R(a2)+' &gt; '+n2:nn2+' &gt; '+a2+ini(a2)+' '+n2+' &gt; '+R(a2))+'. 음수가 되면 순서가 반대로 뒤집혀요: '+(rootBigger?'−'+R(a2)+' &lt; −'+n2+' → 더 큰 수는 <b>−'+n2+'</b>'+yeyo(n2):'−'+n2+' &lt; −'+R(a2)+' → 더 큰 수는 <b>−'+R(a2)+'</b>'+yeyo(a2))+'. (수직선에서 0에 가까운 쪽이 커요.)'}; }
+    var set=pick(MAX_POOL,idx), best=set[0]; set.forEach(function(o){ if(o[1]>best[1]) best=o; });
+    return {type:3, form:'max', kind:'pick', set:set, ans:best[0], choices:shuffle(set.map(function(o){return o[0];})),
+      fig:set.map(function(o){ return {t:o[0], area:o[1], hide:o[0].indexOf('√')<0}; }),
+      stem:'다음 중 <b>가장 큰 수</b>는 무엇일까요?',
+      hint:'정수를 전부 √(n²) 꼴로 바꾸면 네 수를 한 줄로 비교할 수 있어요.',
+      sol:'전부 근호 안으로 넣어요: '+set.map(function(o){ return o[0]+(o[0].indexOf('√')<0?' = '+R(o[1]):''); }).join(', ')+'. 근호 안이 가장 큰 '+best[1]+ga(best[1])+' 제일 커요 → <b>'+best[0]+'</b>'+yeyoStr(best[0])+'.'};
+  }
+  /* ④ 정수 부분·개수 세기 */
+  function genType4(i){
+    var form=(typeof i==='number')?(i%4):ri(0,3), idx=(typeof i==='number')?Math.floor(i/4):ri(0,999);
+    if(form===3){ var p=pick(RANGE_POOL,idx), incl=idx%2===1, m=p.m, n=p.n, lo=m*m, hi=n*n, cnt=incl?(hi-lo):(hi-lo-1);
+      return {type:4, form:'range', kind:'num', m:m, n:n, incl:incl, ans:cnt,
+        stem:m+' '+(incl?'≤':'&lt;')+' '+R('x')+' &lt; '+n+' 을 만족하는 자연수 x는 모두 몇 개일까요?',
+        hint:'세 수를 전부 제곱해요. '+m+'² '+(incl?'≤':'&lt;')+' x &lt; '+n+'² 이 돼요.',
+        sol:'양수끼리는 제곱해도 순서가 그대로예요. '+m+'² '+(incl?'≤':'&lt;')+' x &lt; '+n+'², 즉 '+lo+' '+(incl?'≤':'&lt;')+' x &lt; '+hi+'. 자연수 x는 '+(incl?lo:lo+1)+'부터 '+(hi-1)+'까지, 모두 <b>'+cnt+'개</b>예요.'}; }
+    var a=pick(A4_POOL,idx), f=isqrt(a);
+    var figObj={a:a,f:f};
+    if(form===0) return {type:4, form:'int', kind:'num', a:a, f:f, ans:f, fig:figObj,
+      stem:R(a)+' 의 정수 부분은 얼마일까요?', hint:a+eul(a)+' 이웃한 두 제곱수 사이에 끼워요. '+(f*f)+' &lt; '+a+' &lt; ?',
+      sol:'제곱수 사다리: '+(f*f)+' &lt; '+a+' &lt; '+((f+1)*(f+1))+ini((f+1)*(f+1))+' '+f+' &lt; '+R(a)+' &lt; '+(f+1)+'. 그래서 정수 부분은 <b>'+f+'</b>'+yeyo(f)+'.'};
+    if(form===1) return {type:4, form:'n', kind:'num', a:a, f:f, ans:f, fig:figObj,
+      stem:'n &lt; '+R(a)+' &lt; n + 1 을 만족하는 자연수 n은 얼마일까요?', hint:R(a)+ga(a)+' 어느 두 정수 사이에 있는지 제곱수로 찾아요.',
+      sol:(f*f)+' &lt; '+a+' &lt; '+((f+1)*(f+1))+ini((f+1)*(f+1))+' '+R(f*f)+' &lt; '+R(a)+' &lt; '+R((f+1)*(f+1))+', 즉 '+f+' &lt; '+R(a)+' &lt; '+(f+1)+'. 따라서 <b>n = '+f+'</b>'+yeyo(f)+'.'};
+    return {type:4, form:'cnt', kind:'num', a:a, f:f, ans:f, fig:figObj,
+      stem:R(a)+' 보다 작은 자연수는 모두 몇 개일까요?', hint:'먼저 '+R(a)+ga(a)+' 어느 두 정수 사이인지 찾아요.',
+      sol:(f*f)+' &lt; '+a+' &lt; '+((f+1)*(f+1))+ini((f+1)*(f+1))+' '+f+' &lt; '+R(a)+' &lt; '+(f+1)+'. '+R(a)+'보다 작은 자연수는 1부터 '+f+'까지, 모두 <b>'+f+'개</b>예요.'};
+  }
+  /* ⑤ 자연수 만들기 */
+  function genType5(i){
+    var form=(typeof i==='number')?(i%4):ri(0,3), idx=(typeof i==='number')?Math.floor(i/4):ri(0,999);
+    if(form===0){ var a=pick(A5_POOL,idx), x=sqfree(a), fs=factorStr(a), odd=factorize(a).filter(function(pe){return pe[1]%2===1;}).map(function(pe){return pe[0];});
+      return {type:5, form:'mul', kind:'num', a:a, ans:x,
+        stem:R(a+'x')+' 가 자연수가 되도록 하는 <b>가장 작은 자연수 x</b>는 얼마일까요?',
+        hint:a+' = '+fs+'. 지수가 홀수인 소인수는 무엇일까요?',
+        sol:a+eul(a)+' 소인수분해하면 '+fs+yeyo(fs)+'. 근호가 벗겨지려면 모든 소인수의 지수가 <b>짝수</b>여야 해요. 지수가 홀수인 소인수 '+odd.join(', ')+eul(odd[odd.length-1])+' 한 번씩 더 곱하면 되니까 <b>x = '+x+'</b>'+yeyo(x)+'. 확인: '+a+' × '+x+' = '+(a*x)+' = '+isqrt(a*x)+'².'}; }
+    if(form===1){ var a1=pick(A5_POOL,idx), x1=sqfree(a1), fs1=factorStr(a1), odd1=factorize(a1).filter(function(pe){return pe[1]%2===1;}).map(function(pe){return pe[0];});
+      return {type:5, form:'div', kind:'num', a:a1, ans:x1,
+        stem:R(a1+'/x')+' 가 자연수가 되도록 하는 <b>가장 작은 자연수 x</b>는 얼마일까요?',
+        hint:a1+' = '+fs1+'. 지수가 홀수인 소인수를 나눠서 없애요.',
+        sol:a1+' = '+fs1+yeyo(fs1)+'. 이번엔 <b>나눠서</b> 홀수 지수를 없애요. '+odd1.join(', ')+euro(odd1[odd1.length-1])+' 나누면 '+a1+' ÷ '+x1+' = '+(a1/x1)+' = '+isqrt(a1/x1)+'² 이 되니까 <b>x = '+x1+'</b>'+yeyo(x1)+'.'}; }
+    if(form===2){ var a2=pick(A5B_POOL,idx), ns=nextSq(a2), x2=ns-a2;
+      return {type:5, form:'add', kind:'num', a:a2, ans:x2,
+        stem:R(a2+' + x')+' 가 자연수가 되도록 하는 <b>가장 작은 자연수 x</b>는 얼마일까요?',
+        hint:a2+'보다 큰 제곱수 중 가장 작은 것은 무엇일까요?',
+        sol:a2+'보다 큰 제곱수 중 가장 작은 것은 '+ns+' = '+isqrt(ns)+'² 이에요. 그러니까 x = '+ns+' − '+a2+' = <b>'+x2+'</b>'+yeyo(x2)+'. 확인: '+R(a2+' + '+x2)+' = '+R(ns)+' = '+isqrt(ns)+'.'}; }
+    var a3=pick(A5B_POOL,idx), ps=prevSq(a3), x3=a3-ps;
+    return {type:5, form:'sub', kind:'num', a:a3, ans:x3,
+      stem:R(a3+' − x')+' 가 자연수가 되도록 하는 <b>가장 작은 자연수 x</b>는 얼마일까요?',
+      hint:a3+'보다 작은 제곱수 중 가장 큰 것은 무엇일까요?',
+      sol:a3+'보다 작은 제곱수 중 가장 큰 것은 '+ps+' = '+isqrt(ps)+'² 이에요. 그러니까 x = '+a3+' − '+ps+' = <b>'+x3+'</b>'+yeyo(x3)+'. 확인: '+R(a3+' − '+x3)+' = '+R(ps)+' = '+isqrt(ps)+'.'};
+  }
+  /* ④ 끼우기 연습 (핵심 도구) */
+  var SAND_POOL=[2,7,11,18,23,29,38,45,55,63,78,90,105,120,140,160];
+  function genSand(i){ var a=pick(SAND_POOL,i), f=isqrt(a); return {a:a, lo:f, hi:f+1}; }
+  /*GEN-END*/
+
+  /* ── 표기 헬퍼 ── */
+  function rtHtml(s){ return String(s).replace(/√\{([^}]*)\}/g,'<span class="rt">√<span class="rad">$1</span></span>'); }
+  function normStr(s){ return (s||'').replace(/−/g,'-').replace(/，/g,',').replace(/\s+/g,''); }
+  function parseNum(s){ s=normStr(s); if(!/^[+-]?\d+(\.\d+)?$/.test(s)) return NaN; return parseFloat(s); }
+  function parsePM(s){
+    s=normStr(s).replace(/\+\/-|\+-|-\+|pm/gi,'±');
+    var nums=s.match(/[+-]?\d+(\.\d+)?/g); if(!nums) return null;
+    if(s.indexOf('±')>=0&&nums.length===1){ var v=Math.abs(parseFloat(nums[0])); return {set:[v,-v]}; }
+    return {set:nums.map(function(t){return parseFloat(t);})};
+  }
+  function closeEnough(v,ans){ return Math.abs(v-ans)<1e-9; }
+  function cheer(){ try{ MJ3.confetti(); }catch(e){} }
+
+  /* ── 함께 생각하기 ①②③ ── */
+  function bindQuick(inputId,btnId,outId,ans,sol){
+    var inp=document.getElementById(inputId), btn=document.getElementById(btnId), out=document.getElementById(outId);
+    btn.onclick=function(){
+      var v=parseNum(inp.value);
+      if(isNaN(v)){ out.innerHTML='숫자를 넣어 주세요 🙂'; return; }
+      if(closeEnough(v,ans)){ out.innerHTML='<b style="color:var(--ok)">✓ 정답이에요!</b> '+rtHtml(sol); cheer(); }
+      else out.innerHTML='<b style="color:var(--sq)">아직이에요.</b> 답은 '+sg(ans)+yeyo(ans)+'. '+rtHtml(sol);
+    };
+    inp.addEventListener('keydown',function(e){ if(e.key==='Enter') btn.click(); });
+  }
+  bindQuick('q1','q1b','q1o',5,'(5 × 5 = 25 — 넓이 25인 정사각형의 한 변은 5, 즉 √{25} = 5예요.)');
+  bindQuick('q2','q2b','q2o',10,'(빗변² = 1² + 3² = 10 이니까 빗변은 √{10}이에요.)');
+  bindQuick('q3','q3b','q3o',7,'((−7)² = 49 → √{49} = 7. 근호를 벗기면 항상 0 이상이에요.)');
+
+  /* ── 1. 넓이 2 정사각형 애니메이션 ── */
+  function makeAnim(svgId, playId, msgId, draw, endMsg, dur){
+    var svg=document.getElementById(svgId), btn=document.getElementById(playId), msg=document.getElementById(msgId);
+    var playing=false, api={lastP:0, cur:null};
+    api.set=function(q,p){ api.cur=q; api.lastP=p||0; svg.innerHTML=draw(q,api.lastP); if(p===0) msg.textContent=''; };
+    btn.onclick=function(){
+      if(playing) return; playing=true; btn.disabled=true; msg.textContent='';
+      var t0=null, D=dur||2600;
+      function step(ts){ if(t0===null)t0=ts; var p=Math.min(1,(ts-t0)/D); api.lastP=p; svg.innerHTML=draw(api.cur,p);
+        if(p<1) requestAnimationFrame(step); else { msg.textContent=endMsg(api.cur); playing=false; btn.disabled=false; } }
+      requestAnimationFrame(step);
+    };
+    return api;
+  }
+  function ease(p){ return p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2; }
+  var areaAnim=makeAnim('areaSvg','areaPlay','areaMsg',function(q,p){
+    var e=ease(p), ox=36, oy=28, s=70, h='';
+    var T=[ox+s,oy], Rr=[ox+2*s,oy+s], B=[ox+s,oy+2*s], L=[ox,oy+s];
+    for(var r=0;r<2;r++) for(var c=0;c<2;c++) h+='<rect x="'+(ox+c*s)+'" y="'+(oy+r*s)+'" width="'+s+'" height="'+s+'" fill="rgba(79,146,214,.16)" stroke="var(--border)"/>';
+    var corners=[[ox,oy,T,L],[ox+2*s,oy,T,Rr],[ox+2*s,oy+2*s,Rr,B],[ox,oy+2*s,B,L]];
+    corners.forEach(function(cn){ h+='<polygon points="'+cn[0]+','+cn[1]+' '+cn[2][0]+','+cn[2][1]+' '+cn[3][0]+','+cn[3][1]+'" fill="rgba(79,146,214,.35)" stroke="var(--blue)" stroke-width="1" opacity="'+(1-0.9*e).toFixed(2)+'"/>'; });
+    h+='<polygon points="'+T[0]+','+T[1]+' '+Rr[0]+','+Rr[1]+' '+B[0]+','+B[1]+' '+L[0]+','+L[1]+'" fill="var(--area)" fill-opacity="'+(0.15+0.65*e).toFixed(2)+'" stroke="#b97a10" stroke-width="2"/>';
+    h+='<text x="'+(ox+s)+'" y="'+(oy+s+5)+'" text-anchor="middle" font-size="13" font-weight="800" fill="var(--ink)">넓이 '+(e<0.5?'4 − ?':'2')+'</text>';
+    if(e>0.75) h+='<text x="'+(ox+s/2-14)+'" y="'+(oy+s/2-6)+'" text-anchor="middle" font-size="14" font-weight="800" fill="#b97a10" transform="rotate(-45 '+(ox+s/2-14)+' '+(oy+s/2-6)+')">√2</text>';
+    h+='<text x="'+(ox+s)+'" y="'+(oy+2*s+18)+'" text-anchor="middle" font-size="11" fill="var(--muted)">한 변 1인 정사각형 4개 (2 × 2)</text>';
+    var lines=[{t:'① 1×1 정사각형 4개 → 넓이 4',b:true},{t:'② 귀퉁이 삼각형 4개를 잘라 내요'},{t:'   (삼각형 하나 = 넓이 ½, 넷이면 2)'},{t:'③ 남은 정사각형의 넓이 = '+(e>0.5?'4 − 2 = 2':'?'),col:'#b97a10',b:true},{t:'④ 한 변의 길이 = '+(e>0.95?'√2 라고 불러요':'?'),col:'var(--sq)',b:true},{t:e>0.95?'1보다 길고 2보다 짧아요':'',col:'var(--muted)'}];
+    lines.forEach(function(l,i){ h+='<text x="200" y="'+(52+i*22)+'" font-size="12.5" font-weight="'+(l.b?'800':'600')+'" fill="'+(l.col||'var(--ink)')+'">'+l.t+'</text>'; });
+    return h;
+  }, function(){ return '넓이 2인 정사각형의 한 변 = √2 · (√2)² = 2'; });
+  areaAnim.set({},0);
+
+  /* ── 2. 수직선 작도 애니메이션 ── */
+  var LEGS={2:[1,1],5:[2,1],8:[2,2],10:[3,1],13:[3,2],17:[4,1],20:[4,2]};
+  var lineAnim=makeAnim('lineSvg','linePlay','lineMsg',function(q,p){
+    var e=ease(p), a=q.a, m=LEGS[a][0], n=LEGS[a][1], unit=45, x0=40, y0=160, h='';
+    h+='<line x1="20" y1="'+y0+'" x2="425" y2="'+y0+'" stroke="var(--ink)" stroke-width="1.6" opacity=".7"/>';
+    for(var k=0;k<=8;k++){ var x=x0+k*unit; h+='<line x1="'+x+'" y1="'+(y0-5)+'" x2="'+x+'" y2="'+(y0+5)+'" stroke="var(--ink)" stroke-width="1.4" opacity=".7"/><text x="'+x+'" y="'+(y0+20)+'" text-anchor="middle" font-size="11" fill="var(--muted)">'+k+'</text>'; }
+    var bx=x0+m*unit, ty=y0-n*unit, Lh=Math.sqrt(a)*unit, th0=Math.atan2(n,m), th=th0*(1-e);
+    h+='<polygon points="'+x0+','+y0+' '+bx+','+y0+' '+bx+','+ty+'" fill="rgba(79,146,214,.18)" stroke="var(--blue)" stroke-width="1.6"/>';
+    h+='<rect x="'+(bx-9)+'" y="'+ty+'" width="9" height="9" fill="none" stroke="var(--blue)" stroke-width="1.2" transform="translate(0 0)"/>';
+    h+='<text x="'+((x0+bx)/2)+'" y="'+(y0-6)+'" text-anchor="middle" font-size="11" font-weight="700" fill="var(--blue)">'+m+'</text>';
+    h+='<text x="'+(bx+8)+'" y="'+((y0+ty)/2+4)+'" font-size="11" font-weight="700" fill="var(--blue)">'+n+'</text>';
+    var ex=x0+Lh*Math.cos(th), ey=y0-Lh*Math.sin(th);
+    if(e>0){ h+='<path d="M'+bx+' '+ty+' A'+Lh.toFixed(1)+' '+Lh.toFixed(1)+' 0 0 1 '+ex.toFixed(1)+' '+ey.toFixed(1)+'" fill="none" stroke="#b97a10" stroke-width="1.6" stroke-dasharray="4 3"/>'; }
+    h+='<line x1="'+x0+'" y1="'+y0+'" x2="'+ex.toFixed(1)+'" y2="'+ey.toFixed(1)+'" stroke="#b97a10" stroke-width="2.6" stroke-linecap="round"/>';
+    h+='<circle cx="'+ex.toFixed(1)+'" cy="'+ey.toFixed(1)+'" r="4.5" fill="var(--area)" stroke="#b97a10" stroke-width="1.6"/>';
+    var lx=(x0+bx)/2-6, ly=(y0+ty)/2-8;
+    h+='<text x="'+lx+'" y="'+ly+'" text-anchor="end" font-size="13" font-weight="800" fill="#b97a10">√'+a+'</text>';
+    if(e>=1){ h+='<line x1="'+ex.toFixed(1)+'" y1="'+(y0-10)+'" x2="'+ex.toFixed(1)+'" y2="'+(y0+10)+'" stroke="#b97a10" stroke-width="2"/><text x="'+ex.toFixed(1)+'" y="'+(y0+36)+'" text-anchor="middle" font-size="12.5" font-weight="800" fill="#b97a10">√'+a+' ≈ '+Math.sqrt(a).toFixed(2)+'</text>'; }
+    var lines=[{t:'빗변² = '+m+'² + '+n+'² = '+(m*m+n*n),b:true},{t:'빗변 = √'+a,b:true,col:'#b97a10'},{t:e>=1?'컴퍼스로 내리니 수직선 위 한 점!':'컴퍼스를 돌려요…',col:'var(--sq)',b:e>=1},{t:e>=1?(isqrt(a)+' < √'+a+' < '+(isqrt(a)+1)):'',col:'var(--muted)'}];
+    lines.forEach(function(l,i){ h+='<text x="250" y="'+(30+i*20)+'" font-size="12.5" font-weight="'+(l.b?'800':'600')+'" fill="'+(l.col||'var(--ink)')+'">'+l.t+'</text>'; });
+    return h;
+  }, function(q){ return '√'+q.a+' ≈ '+Math.sqrt(q.a).toFixed(3)+' — 수직선 위의 한 점이에요'; }, 2200);
+  var lineSel=document.getElementById('lineSel');
+  function setLine(){ lineAnim.set({a:+lineSel.value},0); }
+  lineSel.addEventListener('change',setLine); setLine();
+
+  /* ── 3. 근삿값 좁혀가기 ── */
+  (function(){
+    var sel=document.getElementById('apxSel'), rng=document.getElementById('apxDigits'), tbl=document.getElementById('apxTbl'), read=document.getElementById('apxRead'), val=document.getElementById('apxVal');
+    function paint(){
+      var a=+sel.value, D=+rng.value; val.textContent=D+'자리';
+      var h='<thead><tr><th>자릿수</th><th>작은 쪽 L</th><th>L²</th><th></th><th>U²</th><th>큰 쪽 U</th><th>결론</th></tr></thead><tbody>';
+      var lastL=0,lastU=0;
+      for(var d=0;d<=D;d++){
+        var P=Math.pow(10,d), Ls=Math.floor(Math.sqrt(a)*P)/P, Us=(Math.floor(Math.sqrt(a)*P)+1)/P;
+        var L2=(Ls*Ls).toFixed(2*d), U2=(Us*Us).toFixed(2*d);
+        h+='<tr><td>'+(d===0?'정수':'소수 '+d+'자리')+'</td><td class="l">'+Ls.toFixed(d)+'</td><td class="l">'+L2+'</td><td class="hot">&lt; '+a+' &lt;</td><td class="r">'+U2+'</td><td class="r">'+Us.toFixed(d)+'</td><td>'+Ls.toFixed(d)+' &lt; √'+a+' &lt; '+Us.toFixed(d)+'</td></tr>';
+        lastL=Ls.toFixed(d); lastU=Us.toFixed(d);
+      }
+      tbl.innerHTML=h+'</tbody>';
+      read.textContent='√'+a+' = '+lastL+'… (제곱해서 '+a+'보다 작으면서 가장 큰 수를 한 자리씩 찾아요)';
+    }
+    sel.addEventListener('change',paint); rng.addEventListener('input',paint); paint();
+  })();
+
+  /* ── 4. 제곱수 사다리 + 끼우기 ── */
+  var ladder=document.getElementById('ladder');
+  function paintLadder(hot){
+    var h='<thead><tr><th>n</th>'; for(var n=1;n<=15;n++) h+='<th>'+n+'</th>'; h+='</tr></thead><tbody><tr><td>n²</td>';
+    for(var k=1;k<=15;k++) h+='<td class="'+(hot&&(k===hot||k===hot+1)?'hot':'known')+'">'+(k*k)+'</td>';
+    ladder.innerHTML=h+'</tr></tbody>';
+  }
+  paintLadder(null);
+  (function(){
+    var inp=document.getElementById('sandIn'), btn=document.getElementById('sandBtn'), out=document.getElementById('sandOut');
+    function go(){
+      var a=parseNum(inp.value);
+      if(isNaN(a)||a<1||a>225||a!==Math.floor(a)){ out.innerHTML='1부터 225 사이의 자연수를 넣어 주세요 🙂'; paintLadder(null); return; }
+      var f=isqrt(a);
+      if(f*f===a){ out.innerHTML=rtHtml('<b>'+a+'은 제곱수예요.</b> √{'+a+'} = '+f+' — 눈금에 딱 올라가요.'); paintLadder(null); return; }
+      paintLadder(f);
+      out.innerHTML=rtHtml('<b>'+(f*f)+' &lt; '+a+' &lt; '+((f+1)*(f+1))+'</b> 사이에 껴요. 그러니까 <b>'+f+' &lt; √{'+a+'} &lt; '+(f+1)+'</b> — 정수 부분은 '+f+yeyo(f)+'.');
+    }
+    btn.onclick=go; inp.addEventListener('keydown',function(e){ if(e.key==='Enter') go(); }); go();
+  })();
+  function sandPractice(){
+    var box=document.getElementById('sandPractice'), q=genSand();
+    box.innerHTML='<div class="card"><p style="margin:0 0 8px">'+rtHtml('√{'+q.a+'} 는 어느 두 정수 사이에 있을까요?')+'</p>'+
+      '<div class="sq-checkrow"><input class="num sLo" inputmode="numeric" aria-label="작은 정수" style="width:64px"><span class="sq-f">&lt; √'+q.a+' &lt;</span><input class="num sHi" inputmode="numeric" aria-label="큰 정수" style="width:64px"><button class="sChk">확인</button></div><div class="sq-out sOut"></div></div>';
+    var lo=box.querySelector('.sLo'), hi=box.querySelector('.sHi'), out=box.querySelector('.sOut');
+    function chk(){ var a=parseNum(lo.value), b=parseNum(hi.value);
+      if(isNaN(a)||isNaN(b)){ out.innerHTML='두 칸 모두 숫자를 넣어 주세요 🙂'; return; }
+      if(a===q.lo&&b===q.hi){ out.innerHTML='<b style="color:var(--ok)">✓ 맞았어요!</b> '+(q.lo*q.lo)+' &lt; '+q.a+' &lt; '+(q.hi*q.hi)+ini(q.hi*q.hi)+'요.'; cheer(); }
+      else out.innerHTML='<b style="color:var(--sq)">아직이에요.</b> '+q.a+'을 제곱수 사이에 끼우면 '+(q.lo*q.lo)+' &lt; '+q.a+' &lt; '+(q.hi*q.hi)+' → '+q.lo+' &lt; √'+q.a+' &lt; '+q.hi+' 예요.'; }
+    box.querySelector('.sChk').onclick=chk;
+    [lo,hi].forEach(function(el){ el.addEventListener('keydown',function(e){ if(e.key==='Enter') chk(); }); });
+  }
+  sandPractice(); document.getElementById('sandAgain').onclick=sandPractice;
+
+  /* ── 5. 유형 카드 ── */
+  function figSquares(items, revealed){
+    var n=items.length, W=440, gap=14, maxSide=n>2?72:96, H=maxSide+58;
+    var maxV=0; items.forEach(function(it){ maxV=Math.max(maxV,Math.sqrt(it.area)); });
+    var h='<svg class="sq-svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="넓이로 비교하는 정사각형">';
+    var totalW=n*maxSide+(n-1)*gap, sx=(W-totalW)/2;
+    items.forEach(function(it,i){
+      var side=revealed?Math.max(22,maxSide*Math.sqrt(it.area)/maxV):maxSide*0.78;
+      var cx=sx+i*(maxSide+gap)+maxSide/2, top=10+(maxSide-side);
+      h+='<rect x="'+(cx-side/2).toFixed(1)+'" y="'+top.toFixed(1)+'" width="'+side.toFixed(1)+'" height="'+side.toFixed(1)+'" rx="4" fill="var(--area)" fill-opacity=".55" stroke="#b97a10" stroke-width="1.6"/>';
+      h+='<text x="'+cx+'" y="'+(top+side/2+4).toFixed(1)+'" text-anchor="middle" font-size="11.5" font-weight="800" fill="var(--ink)">넓이 '+((it.hide&&!revealed)?'?':it.area)+'</text>';
+      h+='<text x="'+cx+'" y="'+(maxSide+30)+'" text-anchor="middle" font-size="13" font-weight="800" fill="var(--sq)">'+it.t.replace(/√\{([^}]*)\}/g,'√$1')+(revealed&&it.hide?' = √'+it.area:'')+'</text>';
+    });
+    h+='<text x="'+(W/2)+'" y="'+(H-8)+'" text-anchor="middle" font-size="11" fill="var(--muted)">'+(revealed?'넓이가 클수록 한 변(√)이 길어요':'√는 넓이가 그만큼인 정사각형의 한 변이에요 — 넓이끼리 비교해요')+'</text>';
+    return h+'</svg>';
+  }
+  function figLine(o, revealed){
+    var a=o.a, f=o.f, N=f+2, W=440, x0=30, unit=(W-60)/N, y0=52, h='<svg class="sq-svg" viewBox="0 0 '+W+' 100" role="img" aria-label="제곱수 눈금 수직선">';
+    h+='<line x1="'+(x0-10)+'" y1="'+y0+'" x2="'+(W-20)+'" y2="'+y0+'" stroke="var(--ink)" stroke-width="1.6" opacity=".7"/>';
+    for(var k=0;k<=N;k++){ var x=x0+k*unit; h+='<line x1="'+x.toFixed(1)+'" y1="'+(y0-6)+'" x2="'+x.toFixed(1)+'" y2="'+(y0+6)+'" stroke="var(--ink)" stroke-width="1.4" opacity=".7"/><text x="'+x.toFixed(1)+'" y="'+(y0+22)+'" text-anchor="middle" font-size="11.5" font-weight="700" fill="var(--ink)">'+k+'</text><text x="'+x.toFixed(1)+'" y="'+(y0+36)+'" text-anchor="middle" font-size="10" fill="var(--muted)">'+(k===0?'':'√'+(k*k))+'</text>'; }
+    if(revealed){ var px=x0+Math.sqrt(a)*unit; h+='<rect x="'+(x0+f*unit).toFixed(1)+'" y="'+(y0-14)+'" width="'+unit.toFixed(1)+'" height="28" fill="var(--area)" fill-opacity=".28" rx="4"/><circle cx="'+px.toFixed(1)+'" cy="'+y0+'" r="5" fill="var(--area)" stroke="#b97a10" stroke-width="1.6"/><text x="'+px.toFixed(1)+'" y="'+(y0-20)+'" text-anchor="middle" font-size="12.5" font-weight="800" fill="#b97a10">√'+a+'</text>'; }
+    else h+='<text x="'+(W/2)+'" y="'+(y0-22)+'" text-anchor="middle" font-size="12" font-weight="700" fill="var(--sq)">√'+a+' 는 어느 두 눈금 사이에 있을까요? — 아래 √(제곱수)와 비교해요</text>';
+    return h+'</svg>';
+  }
+  function figOf(q, revealed){
+    if(!q.fig) return '';
+    if(Array.isArray(q.fig)) return figSquares(q.fig, revealed);
+    return figLine(q.fig, revealed);
+  }
+  function answerUI(q){
+    if(q.kind==='pick') return '<div class="sq-picks"></div>';
+    if(q.kind==='pm') return '<div class="sq-checkrow"><input class="num ans" inputmode="text" aria-label="답" placeholder="예: ±4"><button class="chk">확인</button><span style="font-size:12px;color:var(--muted)">±는 +- 로, 또는 "4, −4"처럼 써도 돼요</span></div>';
+    return '<div class="sq-checkrow"><input class="num ans" inputmode="text" aria-label="답" placeholder="예: 5"><button class="chk">확인</button><span style="font-size:12px;color:var(--muted)">음수는 −5처럼</span></div>';
+  }
+  function bindAnswer(container, q, onDone){
+    var out=container.querySelector('.sq-out');
+    if(q.kind==='pick'){
+      var box=container.querySelector('.sq-picks'), done=false;
+      q.choices.forEach(function(c){
+        var b=document.createElement('button'); b.innerHTML=rtHtml(c); b.setAttribute('data-c',c);
+        b.onclick=function(){
+          if(done) return; done=true;
+          var ok=c===q.ans;
+          box.querySelectorAll('button').forEach(function(o){ o.disabled=true; if(o.getAttribute('data-c')===q.ans) o.classList.add('ok'); });
+          if(!ok) b.classList.add('no');
+          out.innerHTML= ok ? '<b style="color:var(--ok)">✓ 정답이에요!</b>' : '<b style="color:var(--sq)">아직이에요.</b> 정답은 <span class="sq-f">'+rtHtml(q.ans)+'</span>'+yeyoStr(q.ans)+'.';
+          if(ok) cheer();
+          onDone(ok);
+        };
+        box.appendChild(b);
+      });
+      return;
+    }
+    var inp=container.querySelector('.ans');
+    function submit(){
+      var ok;
+      if(q.kind==='pm'){
+        var r=parsePM(inp.value);
+        if(!r){ out.innerHTML='숫자를 넣어 주세요 🙂 (예: ±4)'; return; }
+        var has=function(v){ return r.set.some(function(x){return closeEnough(x,v);}); };
+        ok = has(q.ans)&&has(-q.ans)&&r.set.length===2;
+        if(!ok&&r.set.length===1&&has(q.ans)){ out.innerHTML='<b style="color:var(--sq)">하나 더 있어요.</b> "…의 제곱근"은 양수·음수 <b>두 개</b>예요. 정답은 ±'+q.ans+yeyo(q.ans)+'.'; onDone(false); return; }
+        out.innerHTML= ok ? '<b style="color:var(--ok)">✓ 정답이에요!</b> 두 개 다 찾았어요.' : '<b style="color:var(--sq)">아직이에요.</b> 정답은 ±'+q.ans+yeyo(q.ans)+'.';
+      } else {
+        var v=parseNum(inp.value);
+        if(isNaN(v)){ out.innerHTML='숫자를 넣어 주세요 🙂 (음수는 −5처럼 써요)'; return; }
+        ok=closeEnough(v,q.ans);
+        out.innerHTML= ok ? '<b style="color:var(--ok)">✓ 정답이에요!</b>' : '<b style="color:var(--sq)">아직이에요.</b> 정답은 '+sg(q.ans)+yeyo(q.ans)+'.';
+      }
+      if(ok) cheer();
+      onDone(ok);
+    }
+    container.querySelector('.chk').onclick=submit;
+    inp.addEventListener('keydown',function(e){ if(e.key==='Enter') submit(); });
+  }
+  function renderTypeCard(container, gen){
+    function paint(){
+      var q=gen(); q.revealed=false;
+      container.innerHTML='<div class="sq-stem">'+rtHtml(q.stem)+'</div>'+
+        (q.fig?'<div class="sq-fig">'+figOf(q,false)+'</div>':'')+
+        '<div class="sq-hint"></div>'+
+        answerUI(q)+
+        '<div class="sq-out"></div>'+
+        '<div class="sq-sol"></div>'+
+        '<div style="text-align:right;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px"><button class="sq-hintbtn hintBtn">💡 힌트</button><button class="sq-again again">🔄 다른 문제로</button></div>';
+      var sol=container.querySelector('.sq-sol'), hint=container.querySelector('.sq-hint');
+      container.querySelector('.hintBtn').onclick=function(){ hint.innerHTML='💡 '+rtHtml(q.hint); hint.classList.add('show'); };
+      bindAnswer(container, q, function(){ sol.innerHTML='<b>풀이</b> '+rtHtml(q.sol); sol.classList.add('show'); q.revealed=true; var fw=container.querySelector('.sq-fig'); if(fw) fw.innerHTML=figOf(q,true); });
+      container.querySelector('.again').onclick=paint;
+    }
+    paint();
+  }
+  renderTypeCard(document.getElementById('type1body'), genType1);
+  renderTypeCard(document.getElementById('type2body'), genType2);
+  renderTypeCard(document.getElementById('type3body'), genType3);
+  renderTypeCard(document.getElementById('type4body'), genType4);
+  renderTypeCard(document.getElementById('type5body'), genType5);
+
+  /* ── 6. 실전 총정리 ── */
+  var QUIZ_TYPES=[
+    {key:'①', name:'제곱근 구하기', gen:genType1, anchor:'type1'},
+    {key:'②', name:'√a² 벗기기', gen:genType2, anchor:'type2'},
+    {key:'③', name:'대소 비교', gen:genType3, anchor:'type3'},
+    {key:'④', name:'정수 부분·개수 세기', gen:genType4, anchor:'type4'},
+    {key:'⑤', name:'자연수 만들기', gen:genType5, anchor:'type5'}
+  ];
+  function buildQuiz(){
+    var area=document.getElementById('quizArea'); area.innerHTML='';
+    shuffle(QUIZ_TYPES).forEach(function(qt,idx){
+      var q=qt.gen();
+      var card=document.createElement('div'); card.className='sq-quizcard';
+      card.innerHTML='<b>'+(idx+1)+'.</b> <span class="sq-stem" style="display:inline">'+rtHtml(q.stem)+'</span>'+answerUI(q)+'<div class="sq-out"></div><div class="sq-quiz-id"></div>';
+      area.appendChild(card);
+      var idbox=card.querySelector('.sq-quiz-id');
+      bindAnswer(card, q, function(){ idbox.innerHTML='이 문제는 <b>'+qt.key+' '+qt.name+'</b> 유형이에요. <a href="#'+qt.anchor+'">다시 볼까요? →</a>'; idbox.classList.add('show'); });
+    });
+  }
+  buildQuiz();
+  document.getElementById('quizAgain').onclick=buildQuiz;
+
+  /* ── 7. 치트시트 인쇄 ── */
+  document.getElementById('printCheat').onclick=function(){
+    document.getElementById('printArea').innerHTML=document.querySelector('.sq-cheat').outerHTML;
+    window.print();
+  };
+})();
+</script>
+</body>
+</html>

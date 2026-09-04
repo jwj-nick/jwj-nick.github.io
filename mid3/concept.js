@@ -38,6 +38,9 @@
     if(m=f.match(/^d([1-9]|1[0-2])$/))  return {no:+m[1],kind:'deep'};
     if(m=f.match(/^x([1-9]|1[0-2])$/))  return {no:+m[1],kind:'explore'};
     if(m=f.match(/^g([1-9]|1[0-2])$/))  return {no:+m[1],kind:'play'};
+    if(/drill/.test(f))            return {kind:'drill'};
+    if(/factor-mastery/.test(f))   return {kind:'factor-mastery'};
+    if(/sqrt-mastery/.test(f))     return {kind:'sqrt-mastery'};
     return {kind:'home'};
   }
   function hexA(hex,a){var n=parseInt(hex.slice(1),16);return 'rgba('+(n>>16&255)+','+(n>>8&255)+','+(n&255)+','+a+')';}
@@ -139,6 +142,9 @@
       '<div class="sb-sep"></div>'+
       '<a class="sb-link tool" href="print/index.html"><span class="sb-no">🖨️</span>중3 프린트</a>'+
       (firstPlay?'<a class="sb-link tool" href="g'+firstPlay+'.html"><span class="sb-no">🎨</span>놀이터</a>':'')+
+      '<a class="sb-link tool'+(activeId==='drill'?' active':'')+'" href="drill.html"><span class="sb-no">⚡</span>스피드 드릴</a>'+
+      '<a class="sb-link tool'+(activeId==='factor-mastery'?' active':'')+'" href="factor-mastery.html"><span class="sb-no">🧩</span>인수분해·전개 특강</a>'+
+      '<a class="sb-link tool'+(activeId==='sqrt-mastery'?' active':'')+'" href="sqrt-mastery.html"><span class="sb-no">🌱</span>제곱근·무리수 특강</a>'+
       '<div class="sb-sep"></div>'+
       '<details class="sb-sem" open><summary class="sb-group">1학기</summary>';
     UNITS.forEach(function(x,i){
