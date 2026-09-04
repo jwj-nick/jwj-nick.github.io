@@ -46,7 +46,7 @@
   .fcards{display:grid;grid-template-columns:1fr;gap:9px;margin:10px 0}.fcell{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:#fff;cursor:pointer}.fcell:hover{border-color:var(--accent);background:var(--accent-bg)}
   .fcell .flhs{font-size:15px}.fcell .frhs{display:none;margin-top:6px;padding-top:6px;border-top:1px dashed var(--line);color:var(--accent-d);font-size:14px}.fcell.show .frhs{display:block}.fcell .ftap{font-size:11px;color:var(--sub);float:right}
   .widget{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;margin:10px 0}.widget canvas{display:block;width:100%;max-width:520px;margin:0 auto;border-radius:8px;touch-action:pan-y}
-  .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0 4px;font-size:13px}.row input[type=range]{flex:1;min-width:120px;accent-color:var(--accent)}.row .v{font-weight:800;color:var(--accent);min-width:50px;text-align:right}
+  .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0 4px;font-size:13px}.row input[type=range]{flex:1;min-width:120px;min-height:44px;accent-color:var(--accent)}.row .v{font-weight:800;color:var(--accent);min-width:50px;text-align:right}
   .btns{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.btns button{background:#fff;border:1.5px solid #ddd6fe;color:var(--accent-d);border-radius:999px;padding:8px 14px;font:inherit;font-weight:700;cursor:pointer;min-height:44px}.btns button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
   .out{background:#0f172a;color:#e2e8f0;border-radius:10px;padding:12px 14px;margin-top:8px;font-size:14px;text-align:center;min-height:44px}.out b{color:#c4b5fd}
   .ladder{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;margin:10px 0}.ladder div{background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:13px}.ladder b{display:block;color:var(--accent-d);margin-bottom:3px}
@@ -148,7 +148,7 @@
       <div class="fcards" id="expcards"></div>
       <h3>예제 — 밑을 통일해서 간단히</h3>
       <div class="box b" style="text-align:center;font-size:15px">$8^{\frac23}\times 4^{-\frac12}$ 의 값은?</div>
-      <div class="steps"><button class="stepbtn" id="stepBtn1">▶ 풀이 단계별로 보기</button>
+      <div class="steps"><button class="stepbtn" data-w="stepWrap1">▶ 풀이 단계별로 보기</button>
         <div class="stepwrap" id="stepWrap1">
           <div class="step"><span class="sn">1</span>밑을 전부 2로: $8=2^3$, $4=2^2$.<div class="why">→ 밑이 같아야 지수를 더하고 뺄 수 있다.</div></div>
           <div class="step"><span class="sn">2</span>$(2^3)^{\frac23}=2^{2}$, $(2^2)^{-\frac12}=2^{-1}$.<div class="why">→ $(a^m)^n=a^{mn}$.</div></div>
@@ -176,7 +176,7 @@
       <div class="box b"><div class="t">🔑 읽는 법</div>지수법칙 "곱하면 지수가 더해진다"를 로그 말로 옮긴 것이 "곱의 로그는 로그의 합". 나머지도 마찬가지. 새로 외우는 게 아니라 <b>지수법칙의 번역</b>이에요.</div>
       <h3>예제 — 하나로 합치기</h3>
       <div class="box b" style="text-align:center;font-size:15px">$\log_3 18+\log_3 6-\log_3 4$ 의 값은?</div>
-      <div class="steps"><button class="stepbtn" id="stepBtn2">▶ 풀이 단계별로 보기</button>
+      <div class="steps"><button class="stepbtn" data-w="stepWrap2">▶ 풀이 단계별로 보기</button>
         <div class="stepwrap" id="stepWrap2">
           <div class="step"><span class="sn">1</span>합은 곱, 차는 나눗셈: $\log_3\dfrac{18\times6}{4}$.<div class="why">→ 같은 밑의 로그는 하나로 합친다.</div></div>
           <div class="step"><span class="sn">2</span>진수 계산: $\dfrac{108}{4}=27$.<div class="why">→ $27=3^3$.</div></div>
@@ -279,17 +279,9 @@
   </div>
 </div>
 
+<script src="alg_app.js"></script>
 <script>
-function go(t){var tab=document.querySelector('.tab[data-t="'+t+'"]');if(tab)tab.click();}
-document.getElementById('tabs').addEventListener('click',function(e){
-  var b=e.target.closest('.tab'); if(!b)return;
-  document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active')});
-  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
-  b.classList.add('active'); var pg=document.querySelector('.page[data-p="'+b.dataset.t+'"]'); if(pg)pg.classList.add('active');
-  window.scrollTo({top:0,behavior:'smooth'});
-  if(b.dataset.t==='root') setupRoot();
-});
-function cards(id,list){ var el=document.getElementById(id); el.innerHTML=list.map(function(f){return '<div class="fcell"><span class="ftap">눌러서 보기 ▾</span><div class="flhs">'+f[0]+'</div><div class="frhs">'+f[1]+'</div></div>';}).join(''); el.addEventListener('click',function(e){var c=e.target.closest('.fcell'); if(c)c.classList.toggle('show');}); }
+APP.onTab({root:setupRoot});
 cards('rootcards',[['$\\sqrt[n]{a}\\,\\sqrt[n]{b}$','$=\\sqrt[n]{ab}$ — 루트 안에서 곱해도 된다'],['$\\dfrac{\\sqrt[n]{a}}{\\sqrt[n]{b}}$','$=\\sqrt[n]{\\dfrac ab}$'],['$(\\sqrt[n]{a})^m$','$=\\sqrt[n]{a^m}$ — 거듭제곱은 안으로'],['$\\sqrt[m]{\\sqrt[n]{a}}$','$=\\sqrt[mn]{a}$ — 루트 두 겹은 지수 곱'],['$\\sqrt[np]{a^{mp}}$','$=\\sqrt[n]{a^m}$ — 약분']]);
 cards('expcards',[['$a^x a^y$','$=a^{x+y}$ — 곱은 지수의 합'],['$a^x\\div a^y$','$=a^{x-y}$ — 나눗셈은 지수의 차'],['$(a^x)^y$','$=a^{xy}$ — 거듭제곱의 거듭제곱은 지수의 곱'],['$(ab)^x$','$=a^xb^x$ — 밑이 곱이면 각각'],['$a^0,\\ a^{-n},\\ a^{\\frac mn}$','$=1,\\ \\dfrac1{a^n},\\ \\sqrt[n]{a^m}$ — 확장의 결과']]);
 cards('logcards',[['$\\log_a MN$','$=\\log_aM+\\log_aN$ — 곱은 합'],['$\\log_a\\dfrac MN$','$=\\log_aM-\\log_aN$ — 나눗셈은 차'],['$\\log_aM^k$','$=k\\log_aM$ — 지수는 앞으로'],['$\\log_a a,\\ \\log_a 1$','$=1,\\ 0$'],['$\\log_ab$ (밑변환)','$=\\dfrac{\\log_cb}{\\log_ca}$ · $\\log_ab\\cdot\\log_ba=1$ · $\\log_{a^m}b^n=\\dfrac nm\\log_ab$']]);
@@ -321,7 +313,6 @@ function digits(){ var n=parseInt(document.getElementById('pn').value,10); docum
 document.getElementById('pn').addEventListener('input',digits); digits();
 
 /* 단계 공개 */
-[['stepBtn1','stepWrap1'],['stepBtn2','stepWrap2']].forEach(function(p){ document.getElementById(p[0]).addEventListener('click',function(){ var w=document.getElementById(p[1]); w.classList.toggle('open'); this.textContent=w.classList.contains('open')?'▲ 풀이 접기':'▶ 풀이 단계별로 보기'; }); });
 
 /* 퀴즈 (오답 → 고치는 곳) */
 var QUIZ=[
@@ -337,20 +328,7 @@ var QUIZ=[
  {q:'log 2≈0.3010, log 3≈0.4771 일 때 log 12 의 값은?',o:['1.0791','0.7781','1.2552','0.6020'],a:0,t:'clog',e:'12=2²×3 → 2log2+log3=0.6020+0.4771=1.0791.'}
 ];
 var TABNAME={root:'🌱 거듭제곱근',exp:'📈 지수의 확장',log:'🔑 로그',clog:'🔢 상용로그'};
-var qi=0,qscore=0,qans=false;
-function renderQ(){ qans=false; var q=QUIZ[qi]; document.getElementById('qNum').textContent='문제 '+(qi+1)+' / '+QUIZ.length; document.getElementById('qScore').textContent=qscore; document.getElementById('qBar').style.width=(qi/QUIZ.length*100)+'%'; document.getElementById('qQ').textContent=q.q;
-  var opts=document.getElementById('qOpts'); opts.innerHTML=''; q.o.forEach(function(txt,idx){var b=document.createElement('button'); b.className='qopt'; b.textContent=txt; b.addEventListener('click',function(){pick(idx,b);}); opts.appendChild(b);});
-  document.getElementById('qExp').className='qexp'; document.getElementById('qExp').innerHTML=''; document.getElementById('qNext').className='qnext'; }
-function pick(idx,btn){ if(qans)return; qans=true; var q=QUIZ[qi]; document.querySelectorAll('#qOpts .qopt').forEach(function(b,i){if(i===q.a)b.classList.add('correct');else if(b===btn)b.classList.add('wrong');else b.classList.add('dim');});
-  var ok=(idx===q.a); if(ok)qscore++; document.getElementById('qScore').textContent=qscore; var ex=document.getElementById('qExp');
-  ex.innerHTML='<div class="et">'+(ok?'⭕ 정답!':'❌ 오답')+'</div>'+q.e+(ok?'':'<br><button class="fix" onclick="go(\''+q.t+'\')">🩹 지금 바로 고치기 → '+TABNAME[q.t]+'</button>'); ex.className='qexp show'; document.getElementById('qNext').className='qnext show'; }
-document.getElementById('qNext').addEventListener('click',function(){qi++; if(qi>=QUIZ.length){finishQuiz();return;} renderQ();});
-function finishQuiz(){ document.getElementById('qBar').style.width='100%'; document.getElementById('qNum').textContent='완료 ✓'; var pct=Math.round(qscore/QUIZ.length*100);
-  var msg=pct>=90?'완벽해요! 지수와 로그의 기본기를 잡았어요.':pct>=70?'잘했어요! 틀린 것만 다시 보면 완성.':'개념 탭을 한 번 더 보고 재도전해요.';
-  document.getElementById('qArea').innerHTML='<div class="qdone"><div class="big">'+qscore+' / '+QUIZ.length+'</div><p style="margin:8px 0 4px;font-size:15px">정답률 '+pct+'%</p><p style="color:#64748b;font-size:13px;margin-bottom:16px">'+msg+'</p><button class="btn" onclick="restartQuiz()">↺ 다시 풀기</button></div>'; }
-function restartQuiz(){ qi=0;qscore=0; document.getElementById('qArea').innerHTML='<div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button>'; document.getElementById('qNext').addEventListener('click',function(){qi++;if(qi>=QUIZ.length){finishQuiz();return;}renderQ();}); renderQ(); }
-QUIZ.forEach(function(q){var correct=q.o[q.a];for(var i=q.o.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=q.o[i];q.o[i]=q.o[j];q.o[j]=t;}q.a=q.o.indexOf(correct);});
-renderQ();
+APP.quiz(QUIZ, TABNAME, {perfect:'완벽해요! 지수와 로그의 기본기를 잡았어요.'});
 </script>
 </body>
 </html>

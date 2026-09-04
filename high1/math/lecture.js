@@ -103,7 +103,7 @@
     + '.lec-card h4{font-size:14px;font-weight:800;margin-bottom:8px}'
     + '.lec-widget{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 14px 12px;margin:12px 0;box-shadow:0 2px 8px rgba(15,23,42,.05)}'
     + '.lec-widget canvas{display:block;width:100%;max-width:480px;margin:0 auto;border-radius:10px;background:#fff;touch-action:pan-y}'
-    + '.lec-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0 4px;font-size:13px}.lec-row input[type=range]{flex:1;min-width:120px;accent-color:var(--lec)}'
+    + '.lec-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0 4px;font-size:13px}.lec-row input[type=range]{flex:1;min-width:120px;min-height:44px;accent-color:var(--lec)}'
     + '.lec-row .v{font-variant-numeric:tabular-nums;font-weight:800;color:var(--lec);min-width:60px;text-align:right}'
     + '.lec-formula{background:linear-gradient(135deg,#f5f3ff,#eef2ff);border:1px solid #ddd6fe;border-radius:14px;padding:14px 16px;margin:12px 0;text-align:center}'
     + '.lec-formula .f{font-size:18px;font-weight:800;color:var(--ink)}.lec-formula small{display:block;font-size:12.5px;color:var(--sub);font-weight:500;margin-top:4px}'
