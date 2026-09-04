@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<!-- 가족용 개인 학습 앱 — 검색에 노출시킬 이유가 없다 -->
+<meta name="robots" content="noindex, nofollow">
+<title>Voca Vault</title>
+<script>
+// 테마 초기화 — CSS 로드 전에 실행해 깜빡임(FOUC)을 막는다. 저장값 > 시스템 설정 > 라이트 기본.
+(function () {
+  var saved = null;
+  try { saved = localStorage.getItem("voca.theme"); } catch (e) {}
+  var t = (saved === "dark" || saved === "light") ? saved
+    : (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+  document.documentElement.setAttribute("data-theme", t);
+})();
+</script>
+<link rel="manifest" href="site.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#F4F1EA" id="meta-theme-color">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;700&family=Fraunces:opsz,wght@9..144,600;9..144,800&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 홈 = 오늘 -->
+  <section id="view-home" class="view">
+    <a class="back" id="back-link" href="../index.html">← 학습 앱</a>
+    <div class="topbar">
+      <span class="logo" aria-hidden="true">V</span>
+      <div class="tb-title">
+        <h1 id="app-title">Voca Vault</h1>
+        <p id="app-subtitle">듣고 · 모으고 · 졸업하는 나의 단어장</p>
+      </div>
+      <span class="pill fire" title="연속 학습일">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c1 4-4 6-4 11a4 4 0 0 0 8 .4c0-2-1.2-3.2-1.2-5 2.2 1.2 4.2 3.4 4.2 6.6a7 7 0 0 1-14 0C5 9 10 6.5 12 2z"/></svg>
+        <b id="streak-num">0</b>
+      </span>
+      <button class="iconbtn" id="sound-toggle" type="button" aria-label="효과음 켜기/끄기">
+        <svg id="snd-on" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a4.8 4.8 0 0 1 0 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        <svg id="snd-off" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="display:none" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+      </button>
+      <button class="iconbtn" id="theme-toggle" type="button" aria-label="다크/라이트 전환">
+        <svg id="tt-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.4"/><path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21M5.6 5.6l1.6 1.6M16.8 16.8l1.6 1.6M18.4 5.6l-1.6 1.6M7.2 16.8l-1.6 1.6"/></svg>
+        <svg id="tt-moon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="display:none" aria-hidden="true"><path d="M20.4 14.5A8.7 8.7 0 0 1 9.5 3.6 9.3 9.3 0 1 0 20.4 14.5z"/></svg>
+      </button>
+    </div>
+    <button class="searchbar" id="home-search" type="button">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="7"/><path d="M16 16l5 5"/></svg>
+      단어 · 뜻 검색해서 보관함에 담기
+    </button>
+    <div class="hero">
+      <div class="hero-kicker" id="hero-kicker">TODAY</div>
+      <div class="hero-sub" id="today-line"></div>
+      <button class="btn primary big" id="btn-start-all"></button>
+      <div class="hero-meta" id="hero-meta"></div>
+    </div>
+    <div class="levelcard" id="level-card">
+      <div class="lc-top"><span class="lc-lv" id="level-title">Lv 1</span><span class="lc-name" id="level-name"></span></div>
+      <p class="lc-sub" id="level-sub"></p>
+      <button class="btn primary hidden" id="level-btn" type="button"></button>
+    </div>
+    <div class="modules">
+      <div class="mcard" id="card-vault"><span class="mdot c-vault" aria-hidden="true"></span><span class="minfo"><span class="mname">보관함</span><span class="msub" id="mcard-vault-sub"></span></span></div>
+      <div class="mcard" id="card-grad"><span class="mdot c-grad" aria-hidden="true"></span><span class="minfo"><span class="mname">졸업한 단어</span><span class="msub" id="mcard-grad-sub"></span></span></div>
+      <div class="mcard" id="card-bands"><span class="mdot c-bands" aria-hidden="true"></span><span class="minfo"><span class="mname">코스 지도</span><span class="msub" id="mcard-bands-sub"></span></span></div>
+      <div class="mcard" id="card-settings"><span class="mdot c-set" aria-hidden="true"></span><span class="minfo"><span class="mname">설정 · 백업</span><span class="msub" id="mcard-set-sub"></span></span></div>
+    </div>
+    <div class="board">
+      <div class="bt"><span>학습 히트맵</span><span id="heat-sub"></span></div>
+      <div class="heat" id="heat-row"></div>
+    </div>
+    <p class="tip">이 페이지를 홈 화면에 추가하면 앱처럼 쓸 수 있어요.</p>
+  </section>
+
+  <!-- 배치 테스트 (첫 실행) -->
+  <section id="view-place" class="view hidden">
+    <header>
+      <h1>시작 전에 — 실력 체크</h1>
+      <p>골라 주면 그 구간부터 5문씩 위아래로 더듬어 아는 구간을 찾아요 (5~20문, 약 2분). 부담 없이, 모르면 찍어도 돼요. 레벨은 배우면서 계속 다시 재요.</p>
+    </header>
+    <div id="preset-btns"></div>
+    <button class="btn primary big" id="btn-place-start">실력 체크 시작 (약 2분)</button>
+    <button class="btn ghost" id="btn-place-skip">건너뛰고 기본 구간부터</button>
+  </section>
+
+  <!-- 새 단어 카드 -->
+  <section id="view-card" class="view hidden">
+    <div class="prog-bar"><div id="card-fill"></div></div>
+    <div class="prog-label" id="card-label">오늘의 새 단어 1/10</div>
+    <div class="card word-card tilt" id="word-card">
+      <div class="wc-top">
+        <span class="wc-pos" id="wc-pos"></span>
+        <span class="wc-band" id="wc-band"></span>
+      </div>
+      <div class="wc-head" id="wc-head"></div>
+      <div class="wc-ipa" id="wc-ipa"></div>
+      <div class="wc-audio" id="wc-audio"></div>
+      <div class="wc-ko" id="wc-ko"></div>
+      <div class="wc-note hidden" id="wc-note"></div>
+      <div class="wc-ex" id="wc-ex"></div>
+      <div class="wc-mic hidden" id="wc-mic" aria-hidden="true"></div>
+    </div>
+    <div class="judge">
+      <button class="btn judge-no" id="btn-unknown">모른다 → 보관함</button>
+      <button class="btn judge-ok" id="btn-known">안다</button>
+    </div>
+  </section>
+
+  <!-- 퀴즈 (재시험 · 점검 · 확인 · 배치 공용) -->
+  <section id="view-quiz" class="view hidden">
+    <div class="prog-bar"><div id="prog-fill"></div></div>
+    <div class="prog-label" id="quiz-label"></div>
+    <div class="card quiz-card">
+      <div class="q-type" id="q-type"></div>
+      <div class="q-prompt" id="q-prompt"></div>
+      <div class="q-sub" id="q-sub"></div>
+      <div class="q-audio" id="q-audio"></div>
+    </div>
+    <div class="opts" id="opts"></div>
+    <div class="answer-box hidden" id="answer-box">
+      <input class="answer-input" id="answer-input" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="들은 단어를 입력하세요">
+      <button class="btn primary check" id="btn-check">확인</button>
+    </div>
+    <div class="feedback" id="feedback"></div>
+    <button class="btn primary big hidden" id="btn-next">다음</button>
+  </section>
+
+  <!-- 결과 -->
+  <section id="view-result" class="view hidden">
+    <h2 id="result-title">오늘 결과</h2>
+    <div class="score" id="score"></div>
+    <div id="result-place" class="result-block hidden"></div>
+    <div id="result-grad" class="result-block hidden"><h3>오늘 졸업 🎓</h3><div class="chips" id="grad-chips"></div></div>
+    <div id="result-vault" class="result-block hidden"><h3 id="vault-head">보관함 — 다시 나와요</h3><div class="chips" id="vault-chips"></div></div>
+    <button class="btn primary big" id="btn-home">홈으로</button>
+  </section>
+
+  <!-- 목록 (보관함 / 졸업 / 진도 공용) -->
+  <section id="view-list" class="view hidden">
+    <header>
+      <a class="back" href="#" id="btn-list-back">← 홈</a>
+      <h1 id="list-title"></h1>
+      <p id="list-sub"></p>
+    </header>
+    <button class="btn primary hidden" id="btn-list-action"></button>
+    <div class="rows" id="list-rows"></div>
+  </section>
+
+  <!-- 검색 -->
+  <section id="view-search" class="view hidden">
+    <header>
+      <a class="back" href="#" id="btn-search-back">← 홈</a>
+      <h1>찾아보기</h1>
+      <p>영어 단어나 우리말 뜻으로 검색 → 보관함에 담으면 복습에 나와요</p>
+    </header>
+    <input class="search-input" id="search-input" type="search" placeholder="예: achieve, 기회, give up" autocomplete="off">
+    <div class="rows" id="search-results"></div>
+    <p class="tip" id="search-tip"></p>
+  </section>
+
+  <!-- 상세 -->
+  <section id="view-detail" class="view hidden">
+    <header>
+      <a class="back" href="#" id="btn-detail-back">← 뒤로</a>
+      <h1 id="detail-title"></h1>
+      <p id="detail-sub"></p>
+    </header>
+    <div class="card word-card" id="detail-card">
+      <div class="wc-top"><span class="wc-pos" id="d-pos"></span><span class="wc-band" id="d-band"></span></div>
+      <div class="wc-head" id="d-head"></div>
+      <div class="wc-ipa" id="d-ipa"></div>
+      <div class="wc-audio" id="d-audio"></div>
+      <div class="wc-ko" id="d-ko"></div>
+      <div class="wc-note hidden" id="d-note"></div>
+      <div class="wc-ex" id="d-ex"></div>
+    </div>
+    <button class="btn primary big" id="btn-detail-save">보관함에 담기</button>
+    <p class="tip" id="detail-state"></p>
+  </section>
+
+  <!-- 설정 · 백업 -->
+  <section id="view-settings" class="view hidden">
+    <header>
+      <a class="back" href="#" id="btn-settings-back">← 홈</a>
+      <h1>설정 · 백업</h1>
+      <p id="settings-sub"></p>
+    </header>
+    <div class="setrow"><span>기본 억양</span><div class="seg" id="seg-accent"><button data-v="us" type="button">🇺🇸 US</button><button data-v="uk" type="button">🇬🇧 UK</button></div></div>
+    <div class="setrow"><span>하루 새 단어</span><div class="seg" id="seg-daily"><button data-v="6" type="button">6</button><button data-v="10" type="button">10</button><button data-v="14" type="button">14</button></div></div>
+    <div class="setrow"><span>자동 재생 (카드 열면 발음)</span><div class="seg" id="seg-auto"><button data-v="on" type="button">켬</button><button data-v="off" type="button">끔</button></div></div>
+    <div class="setrow" id="row-profile" hidden><span>나는 (누르면 그 구간부터 실력 체크)</span><div class="seg" id="seg-profile"></div></div>
+    <button class="btn ghost" id="btn-place-again">실력 체크 다시 하기 (지금 레벨에서 위아래로)</button>
+    <h2>백업</h2>
+    <button class="btn primary" id="btn-export-file">파일로 저장 — 다운로드 폴더에 백업</button>
+    <button class="btn ghost" id="btn-import-file">파일에서 복원 — 백업 파일 선택</button>
+    <input type="file" id="backup-file" accept=".json,application/json" style="display:none">
+    <button class="btn ghost danger" id="btn-reset">진도 전체 리셋</button>
+    <p class="tip" id="backup-msg">아이폰 사파리는 오래 안 쓰면 기록이 지워질 수 있어요 — 가끔 백업해 두면 안전해요.</p>
+    <p class="tip" id="about-line"></p>
+    <h2>이 앱에 대해</h2>
+    <p class="tip notice">
+      <b>완전히 개인 공부용으로 만든 앱입니다.</b>
+      가족이 쓰려고 직접 만들었고, 팔거나 광고를 붙이지 않습니다.
+      학습 기록은 이 기기 안에만 저장되고 어디로도 전송되지 않습니다.
+      단어 목록은 교육부가 공개한 영어과 기본 어휘 목록을 바탕으로 했고,
+      뜻과 예문은 직접 썼습니다.
+    </p>
+  </section>
+
+</div>
+<div class="combo hidden" id="combo-badge" aria-hidden="true"></div>
+<div class="grad-overlay hidden" id="grad-overlay" aria-hidden="true"><div class="go-word" id="go-word">achieve</div><div class="go-label">졸업 🎓</div></div>
+<script src="config.js"></script>
+<script src="app.js"></script>
+<script>
+  // APK(자산 내장)에서는 서비스워커를 쓰지 않는다. 이미 전부 로컬이라 오프라인
+  // 목적이 없고, mp3를 캐시에 또 담으면 폰 저장공간을 최대 두 배로 쓴다.
+  if ("serviceWorker" in navigator && !(window.APP_CONFIG && window.APP_CONFIG.offlineBundle)) {
+    window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
+  }
+</script>
+</body>
+</html>
