@@ -37,6 +37,8 @@
     if(m=f.match(/^x([1-9]|1[01])$/))  return {no:+m[1],kind:'explore'};
     if(m=f.match(/^g([1-9]|1[01])$/))  return {no:+m[1],kind:'play'};
     if(/drill/.test(f))          return {kind:'drill'};
+    if(/slope-mastery/.test(f))    return {kind:'slope-mastery'};
+    if(/counting-mastery/.test(f)) return {kind:'counting-mastery'};
     return {kind:'home'};
   }
   function hexA(hex,a){var n=parseInt(hex.slice(1),16);return 'rgba('+(n>>16&255)+','+(n>>8&255)+','+(n&255)+','+a+')';}
@@ -139,6 +141,8 @@
       '<a class="sb-link tool'+(activeId==='play'?' active':'')+'" href="g1.html"><span class="sb-no">🎨</span>놀이터</a>'+
       '<a class="sb-link tool'+(activeId==='explore'?' active':'')+'" href="x5.html"><span class="sb-no">🧭</span>탐험</a>'+
       '<a class="sb-link tool'+(activeId==='drill'?' active':'')+'" href="drill.html"><span class="sb-no">✏️</span>계산 연습</a>'+
+      '<a class="sb-link tool'+(activeId==='slope-mastery'?' active':'')+'" href="slope-mastery.html"><span class="sb-no">📈</span>기울기 완전정복 특강</a>'+
+      '<a class="sb-link tool'+(activeId==='counting-mastery'?' active':'')+'" href="counting-mastery.html"><span class="sb-no">🌳</span>경우의 수 특강</a>'+
       '<div class="sb-sep"></div>'+
       '<details class="sb-sem" open><summary class="sb-group">1학기</summary>';
     UNITS.forEach(function(x,i){

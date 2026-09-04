@@ -66,7 +66,7 @@
   </div>
   <div class="qgrid" id="grid"></div>
 
-  <div class="foot">스피드 드릴 · 답을 넣고 Enter(선택형은 버튼 클릭) · 10문제를 다 맞히면 오늘 기록이 나와요 · 점수는 저장하지 않아요, 시간만 재요.</div>
+  <div class="foot">스피드 드릴 · 답을 넣고 Enter(선택형은 버튼 클릭) · 분수 답은 3/4처럼 써요 · 10문제를 다 맞히면 오늘 기록이 나와요 · 점수는 저장하지 않아요, 시간만 재요.</div>
 </div>
 
 <div id="printArea"></div>
@@ -136,6 +136,13 @@ MJ1.boot();
   }
   function updScore(){ scoreEl.innerHTML='맞음 <b>'+solved+'</b> / '+total; }
   function norm(s){ return (s||'').trim().replace(/[−–—]/g,'-').replace(/\s+/g,''); }
+  /* 분수 답(type:'frac') 파싱 — "3/4", "-3/4", "2", "0.5" 를 수로. 그 외는 NaN */
+  function parseFrac(s){
+    var t=norm(s); if(t==='') return NaN;
+    var m=t.match(/^(-?\d+)\/(-?\d+)$/);
+    if(m){ var d=+m[2]; if(d===0) return NaN; return (+m[1])/d; }
+    return /^-?\d+(\.\d+)?$/.test(t) ? parseFloat(t) : NaN;
+  }
 
   function makeCard(p, no){
     total++;
@@ -158,8 +165,12 @@ MJ1.boot();
       });
       qc.appendChild(wrap);
     } else {
-      var inp=document.createElement('input'); inp.className='num'; inp.setAttribute('inputmode','numeric'); inp.setAttribute('aria-label','답');
-      function check(){ if(done)return; var t=norm(inp.value); if(t==='')return; var v=parseFloat(t); if(isNaN(v))return; mark(v===p.ans); }
+      var isFrac=(p.type==='frac');
+      var inp=document.createElement('input'); inp.className='num'; inp.setAttribute('inputmode',isFrac?'text':'numeric'); inp.setAttribute('aria-label','답');
+      if(isFrac) inp.setAttribute('placeholder','예: 3/4');
+      function check(){ if(done)return; var t=norm(inp.value); if(t==='')return;
+        if(isFrac){ var u=parseFrac(t), a=parseFrac(String(p.ans)); if(isNaN(u))return; mark(Math.abs(u-a)<1e-9); return; }
+        var v=parseFloat(t); if(isNaN(v))return; mark(v===p.ans); }
       inp.addEventListener('keydown',function(e){ if(e.key==='Enter') check(); });
       inp.addEventListener('blur',check);
       qc.appendChild(inp);

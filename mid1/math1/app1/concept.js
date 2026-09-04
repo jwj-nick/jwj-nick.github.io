@@ -41,6 +41,10 @@
     if(/drill/.test(f))          return {kind:'drill'};
     if(/speed-mastery/.test(f))  return {kind:'speed-mastery'};
     if(/mixture-mastery/.test(f)) return {kind:'mixture-mastery'};
+    if(/ratio-mastery/.test(f))   return {kind:'ratio-mastery'};
+    if(/calc-reset/.test(f))      return {kind:'calc-reset'};
+    if(/function-mastery/.test(f)) return {kind:'function-mastery'};
+    if(/angle-mastery/.test(f))   return {kind:'angle-mastery'};
     return {kind:'home'};
   }
   function hexA(hex,a){var n=parseInt(hex.slice(1),16);return 'rgba('+(n>>16&255)+','+(n>>8&255)+','+(n&255)+','+a+')';}
@@ -142,6 +146,10 @@
       '<a class="sb-link tool'+(activeId==='drill'?' active':'')+'" href="drill.html"><span class="sb-no">⚡</span>스피드 드릴</a>'+
       '<a class="sb-link tool'+(activeId==='speed-mastery'?' active':'')+'" href="speed-mastery.html"><span class="sb-no">🚗</span>속력·거리·시간 특강</a>'+
       '<a class="sb-link tool'+(activeId==='mixture-mastery'?' active':'')+'" href="mixture-mastery.html"><span class="sb-no">🧂</span>소금물 농도 특강</a>'+
+      '<a class="sb-link tool'+(activeId==='ratio-mastery'?' active':'')+'" href="ratio-mastery.html"><span class="sb-no">🎯</span>비율·퍼센트 특강</a>'+
+      '<a class="sb-link tool'+(activeId==='calc-reset'?' active':'')+'" href="calc-reset.html"><span class="sb-no">🍕</span>분수·음수 계산 리셋</a>'+
+      '<a class="sb-link tool'+(activeId==='function-mastery'?' active':'')+'" href="function-mastery.html"><span class="sb-no">📦</span>함수란 무엇인가 특강</a>'+
+      '<a class="sb-link tool'+(activeId==='angle-mastery'?' active':'')+'" href="angle-mastery.html"><span class="sb-no">📐</span>도형 각도 추적 특강</a>'+
       '<a class="sb-link tool" href="../print/index.html"><span class="sb-no">🖨️</span>중1 프린트</a>'+
       '<a class="sb-link tool" href="../../story/index.html"><span class="sb-no">🎬</span>인물 이야기</a>'+
       '<a class="sb-link tool" href="../../map/index.html"><span class="sb-no">🗺️</span>수학 지도</a>'+

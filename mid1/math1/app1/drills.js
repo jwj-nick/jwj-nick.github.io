@@ -120,6 +120,115 @@
     }
   };
 
+  /* ── 분수 도우미 (챕터 3·4용) ── */
+  function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){var t=a%b;a=b;b=t;}return a||1;}
+  function lcm(a,b){return Math.abs(a*b)/gcd(a,b);}
+  function R(n,d){if(d<0){n=-n;d=-d;}var g=gcd(n,d);return {n:n/g,d:d/g};}
+  function fT(x){return x.d===1?sg(x.n):((x.n<0?'−':'')+Math.abs(x.n)+'/'+x.d);}   // 답 표기: −3/4, 5
+  function fP(x){var t=fT(x);return x.n<0?'('+t+')':t;}                            // 식 안 표기: 음수는 괄호
+  function fS(n,d){return (n<0?'−':'')+Math.abs(n)+'/'+d;}                          // 약분 전 표기
+  function pn(n){return n<0?('(−'+Math.abs(n)+')'):String(n);}                       // 정수: 음수는 괄호
+  function redNote(n,d){var g=gcd(n,d);return g>1?(' → '+g+'로 약분하면 '+fT(R(n,d))):'';}
+
+  /* ── 챕터 3: 분수 계산 — 통분·약분·곱셈·나눗셈 (답은 3/4 꼴로 입력) ── */
+  var FR={
+    기초:function(){
+      var t=ri(1,3);
+      if(t===1){ // 같은 분모 덧뺄셈
+        var n=ri(3,10), a=ri(1,n-1), b=ri(1,n-1), plus=Math.random()<0.6;
+        if(a===b) plus=true; if(!plus&&a<b){var tmp=a;a=b;b=tmp;}
+        var raw=plus?a+b:a-b, ans=R(raw,n);
+        return {q:eq(a+'/'+n+(plus?' + ':' − ')+b+'/'+n)+'<br>= ?', type:'frac', ans:fT(ans),
+          exp:'분모가 같으니 분자만 '+(plus?'더해요':'빼요')+': '+(plus?a+' + '+b:a+' − '+b)+' = '+raw+' → '+fS(raw,n)+redNote(raw,n)+'예요.'};
+      }
+      if(t===2){ // 통분 덧뺄셈
+        var pr=pick([[2,4],[3,6],[2,6],[4,8],[5,10],[2,3],[3,4],[2,5],[4,6],[6,9],[3,5],[4,10]]);
+        var b2=pr[0], d2=pr[1], a2=ri(1,b2-1), c2=ri(1,d2-1), L=lcm(b2,d2), n1=a2*L/b2, n2=c2*L/d2;
+        var plus2=Math.random()<0.6; if(n1===n2) plus2=true;
+        if(!plus2&&n1<n2){ var ta=a2,tb=b2; a2=c2;b2=d2;c2=ta;d2=tb; n1=a2*L/b2; n2=c2*L/d2; }
+        var raw2=plus2?n1+n2:n1-n2, ans2=R(raw2,L);
+        return {q:eq(a2+'/'+b2+(plus2?' + ':' − ')+c2+'/'+d2)+'<br>= ?', type:'frac', ans:fT(ans2),
+          exp:'분모 '+b2+'과 '+d2+'의 최소공배수 '+L+'로 통분해요: '+a2+'/'+b2+' = '+n1+'/'+L+', '+c2+'/'+d2+' = '+n2+'/'+L+'. 분자만 계산하면 '+(plus2?n1+' + '+n2:n1+' − '+n2)+' = '+raw2+' → '+fS(raw2,L)+redNote(raw2,L)+'예요.'};
+      }
+      // 곱셈
+      if(Math.random()<0.5){ var b3=ri(2,9), a3=ri(1,b3-1), k=ri(2,6), ans3=R(a3*k,b3);
+        return {q:eq(a3+'/'+b3+' × '+k)+'<br>= ?', type:'frac', ans:fT(ans3),
+          exp:'정수는 분자에만 곱해요: '+a3+' × '+k+' = '+(a3*k)+' → '+fS(a3*k,b3)+redNote(a3*k,b3)+'예요.'}; }
+      var b4=ri(2,6), a4=ri(1,b4-1), d4=ri(2,6), c4=ri(1,d4-1), ans4=R(a4*c4,b4*d4);
+      return {q:eq(a4+'/'+b4+' × '+c4+'/'+d4)+'<br>= ?', type:'frac', ans:fT(ans4),
+        exp:'분자끼리 '+a4+' × '+c4+' = '+(a4*c4)+', 분모끼리 '+b4+' × '+d4+' = '+(b4*d4)+' → '+fS(a4*c4,b4*d4)+redNote(a4*c4,b4*d4)+'예요.'};
+    },
+    도전:function(){
+      var t=ri(1,3);
+      if(t===1){ // 음수 분수 덧뺄셈
+        var b=pick([2,3,4,5,6,8]), d=pick([2,3,4,5,6,8]), a=ri(1,b-1)*pick([1,-1]), c=ri(1,d-1)*pick([1,-1]), plus=Math.random()<0.5;
+        var x=R(a,b), y=R(c,d), L=lcm(x.d,y.d), n1=x.n*L/x.d, n2=(plus?y.n:-y.n)*L/y.d, raw=n1+n2, ans=R(raw,L);
+        return {q:eq(fP(x)+(plus?' + ':' − ')+fP(y))+'<br>= ?', type:'frac', ans:fT(ans),
+          exp:(plus?'':'뺄셈은 덧셈으로 바꿔요: '+fP(x)+' + '+fP({n:-y.n,d:y.d})+'. ')+'분모를 '+L+'로 통분하면 분자는 '+pn(n1)+' + '+pn(n2)+' = '+sg(raw)+' → '+fS(raw,L)+redNote(raw,L)+'예요.'};
+      }
+      if(t===2){ // 분수 나눗셈
+        var b2=ri(2,8), a2=ri(1,b2-1)*pick([1,-1]), d2=ri(2,8), c2=ri(1,d2-1)*pick([1,-1]);
+        var x2=R(a2,b2), y2=R(c2,d2), ans2=R(x2.n*y2.d, x2.d*y2.n), same=(x2.n<0)===(y2.n<0);
+        return {q:eq(fP(x2)+' ÷ '+fP(y2))+'<br>= ?', type:'frac', ans:fT(ans2),
+          exp:'부호 먼저: '+(same?'같은 부호 → +':'다른 부호 → −')+'. 뒤의 분수를 뒤집어 곱해요: '+Math.abs(x2.n)+'/'+x2.d+' × '+y2.d+'/'+Math.abs(y2.n)+' = '+(Math.abs(x2.n)*y2.d)+'/'+(x2.d*Math.abs(y2.n))+redNote(Math.abs(x2.n)*y2.d,x2.d*Math.abs(y2.n))+' → '+fT(ans2)+'예요.'};
+      }
+      // 혼합: a/b × c/d − e/f (곱셈 먼저)
+      var b3=pick([2,3,4]), a3=ri(1,b3-1), d3=pick([2,3,5]), c3=ri(1,d3-1), f3=pick([2,3,4,6]), e3=ri(1,f3-1);
+      var P=R(a3*c3,b3*d3), E=R(e3,f3), L3=lcm(P.d,E.d), m1=P.n*L3/P.d, m2=E.n*L3/E.d, raw3=m1-m2, ans3=R(raw3,L3);
+      return {q:eq(a3+'/'+b3+' × '+c3+'/'+d3+' − '+e3+'/'+f3)+'<br>= ?', type:'frac', ans:fT(ans3),
+        exp:'곱셈 먼저: '+a3+'/'+b3+' × '+c3+'/'+d3+' = '+fT(P)+'. 그다음 '+fT(P)+' − '+e3+'/'+f3+'를 분모 '+L3+'로 통분하면 '+m1+' − '+m2+' = '+sg(raw3)+' → '+fS(raw3,L3)+redNote(raw3,L3)+'예요.'};
+    }
+  };
+
+  /* ── 챕터 4: 음수 계산 — 부호 먼저, 크기는 나중에 ── */
+  var NG={
+    기초:function(){
+      var t=ri(1,3);
+      if(t===1){ var a=nz(-12,12), b=nz(-12,12), s=a+b, same=(a<0)===(b<0);
+        return {q:eq(sg(a)+' + '+pn(b))+'<br>= ?', type:'num', ans:s,
+          exp:(same?'같은 부호니까 절댓값을 더하고 그 부호를 붙여요: '+Math.abs(a)+' + '+Math.abs(b)+' = '+Math.abs(s)+' → '+sg(s):(s===0?'절댓값이 같은 다른 부호는 0이에요.':'다른 부호니까 절댓값을 빼고 큰 쪽 부호를 붙여요: '+Math.max(Math.abs(a),Math.abs(b))+' − '+Math.min(Math.abs(a),Math.abs(b))+' = '+Math.abs(s)+' → '+sg(s)))+'예요.'}; }
+      if(t===2){ var a2=nz(-12,12), b2=nz(-12,12), s2=a2-b2;
+        return {q:eq(sg(a2)+' − '+pn(b2))+'<br>= ?', type:'num', ans:s2,
+          exp:'빼기는 부호를 바꿔 더해요: '+sg(a2)+' + '+pn(-b2)+' = '+sg(s2)+'예요.'+(b2<0?' ("빼기 음수"는 "더하기 양수"예요.)':'')}; }
+      if(Math.random()<0.5){ var a3=nz(-9,9), b3=nz(-9,9), m=a3*b3, same3=(a3<0)===(b3<0);
+        return {q:eq(pn(a3)+' × '+pn(b3))+'<br>= ?', type:'num', ans:m,
+          exp:'부호 먼저: '+(same3?'같은 부호 → +':'다른 부호 → −')+'. 크기: '+Math.abs(a3)+' × '+Math.abs(b3)+' = '+Math.abs(m)+' → '+sg(m)+'예요.'}; }
+      var b4=nz(-9,9), q4=nz(-9,9), a4=b4*q4, same4=(a4<0)===(b4<0);
+      return {q:eq(pn(a4)+' ÷ '+pn(b4))+'<br>= ?', type:'num', ans:q4,
+        exp:'부호 먼저: '+(same4?'같은 부호 → +':'다른 부호 → −')+'. 크기: '+Math.abs(a4)+' ÷ '+Math.abs(b4)+' = '+Math.abs(q4)+' → '+sg(q4)+'예요.'};
+    },
+    도전:function(){
+      var t=ri(1,3);
+      if(t===1){ // 세 항
+        var a=nz(-9,9), b=nz(-9,9), c=nz(-9,9), o1=pick(['+','-']), o2=pick(['+','-']);
+        var b1=o1==='+'?b:-b, c1=o2==='+'?c:-c, s1=a+b1, s=s1+c1;
+        return {q:eq(sg(a)+' '+(o1==='+'?'+':'−')+' '+pn(b)+' '+(o2==='+'?'+':'−')+' '+pn(c))+'<br>= ?', type:'num', ans:s,
+          exp:'뺄셈은 덧셈으로 바꿔요: '+sg(a)+' + '+pn(b1)+' + '+pn(c1)+'. 왼쪽부터: '+sg(a)+' + '+pn(b1)+' = '+sg(s1)+', '+sg(s1)+' + '+pn(c1)+' = '+sg(s)+'예요.'};
+      }
+      if(t===2){ // 거듭제곱 부호
+        var base=ri(2,5), n=pick([2,3]), form=ri(1,3);
+        if(form===1){ var v1=Math.pow(-base,n); return {q:eq('(−'+base+')<sup>'+n+'</sup>')+'<br>= ?', type:'num', ans:v1,
+          exp:'괄호가 있으니 부호까지 '+n+'번 곱해요. 음수 '+n+'개 → '+(n%2===0?'짝수라 +':'홀수라 −')+', 크기 '+base+'<sup>'+n+'</sup> = '+Math.pow(base,n)+' → '+sg(v1)+'예요.'}; }
+        if(form===2){ var v2=-Math.pow(base,n); return {q:eq('−'+base+'<sup>'+n+'</sup>')+'<br>= ?', type:'num', ans:v2,
+          exp:'괄호가 없으니 '+base+'만 '+n+'번 곱하고 앞에 −를 붙여요: −('+Math.pow(base,n)+') = '+sg(v2)+'예요. (−'+base+')<sup>'+n+'</sup>과 달라요.'}; }
+        var k=nz(-4,4), v3=Math.pow(-1,n)*k*base; // (−1)^n × k × base … 간단 혼합
+        return {q:eq('(−1)<sup>'+n+'</sup> × '+pn(k)+' × '+base)+'<br>= ?', type:'num', ans:v3,
+          exp:'(−1)<sup>'+n+'</sup> = '+sg(Math.pow(-1,n))+'. 음수의 개수를 세면 '+((n%2)+(k<0?1:0))+'개 → '+((((n%2)+(k<0?1:0))%2===0)?'+':'−')+', 크기 1 × '+Math.abs(k)+' × '+base+' = '+Math.abs(v3)+' → '+sg(v3)+'예요.'};
+      }
+      // 혼합계산 순서
+      var f=ri(1,3);
+      if(f===1){ var a5=nz(-9,9), b5=nz(-6,6), c5=nz(-6,6), m5=b5*c5, v5=a5-m5;
+        return {q:eq(sg(a5)+' − '+pn(b5)+' × '+pn(c5))+'<br>= ?', type:'num', ans:v5,
+          exp:'곱셈 먼저: '+pn(b5)+' × '+pn(c5)+' = '+sg(m5)+'. 그다음 '+sg(a5)+' − '+pn(m5)+' = '+sg(v5)+'예요.'}; }
+      if(f===2){ var d6=nz(-6,6), q6=nz(-6,6), a6=d6*q6, c6=nz(-9,9), v6=q6+c6;
+        return {q:eq(pn(a6)+' ÷ '+pn(d6)+' + '+pn(c6))+'<br>= ?', type:'num', ans:v6,
+          exp:'나눗셈 먼저: '+pn(a6)+' ÷ '+pn(d6)+' = '+sg(q6)+'. 그다음 '+sg(q6)+' + '+pn(c6)+' = '+sg(v6)+'예요.'}; }
+      var a7=nz(-4,4), b7=nz(-5,5), c7=nz(-9,9), sq7=a7*a7, m7=sq7*b7, v7=m7-c7;
+      return {q:eq(pn(a7)+'<sup>2</sup> × '+pn(b7)+' − '+pn(c7))+'<br>= ?', type:'num', ans:v7,
+        exp:'거듭제곱 먼저: '+pn(a7)+'<sup>2</sup> = '+sq7+'. 곱셈: '+sq7+' × '+pn(b7)+' = '+sg(m7)+'. 마지막으로 '+sg(m7)+' − '+pn(c7)+' = '+sg(v7)+'예요.'};
+    }
+  };
+
   window.DRILL={ chapters:[
     {key:'eq', name:'① 방정식 정리', desc:'등식의 성질로 x = ? 까지 빠르게', gen:EQ,
      card:'<b>방법 카드</b> — ① 괄호는 분배법칙으로 먼저 풀어요 → ② 분수·소수는 양변에 같은 수를 곱해 정수로 바꿔요 → '+
@@ -127,6 +236,14 @@
           '<span class="muted">예시: 3(x + 2) = 2x + 11 → 3x + 6 = 2x + 11 → 3x − 2x = 11 − 6 → x = 5</span>'},
     {key:'tr', name:'② 식 세우기', desc:'문장을 보고 알맞은 식 고르기(계산은 안 해요)', gen:TR,
      card:'<b>표현 → 기호 대응표</b> — "~보다 ○ 크다"→ +○ · "~보다 ○ 작다"→ −○ · "~의 ○배"→ ×○ · "합이 ~이다"→ …+…=~ · "~%는"→ ×(○/100).<br>'+
-          '<span class="muted">문장을 조각내서 대응표에 맞춰 기호로 바꾼 다음 등호로 연결해요. 계산은 안 해도 돼요 — 식만 정확히 세우면 성공!</span>'}
+          '<span class="muted">문장을 조각내서 대응표에 맞춰 기호로 바꾼 다음 등호로 연결해요. 계산은 안 해도 돼요 — 식만 정확히 세우면 성공!</span>'},
+    {key:'fr', name:'③ 분수 계산', desc:'통분·약분·곱셈·나눗셈을 손에 익히기 (답은 3/4 꼴)', gen:FR,
+     card:'<b>분수 3단계</b> — ① 덧셈·뺄셈은 <b>통분</b>(최소공배수로 분모 맞추기) → ② 분자만 계산 → ③ <b>약분</b>(기약분수로). '+
+          '곱셈은 분자끼리·분모끼리, 나눗셈은 뒤의 분수를 <b>뒤집어 곱하기</b>예요. 음수가 있으면 부호부터 정해요.<br>'+
+          '<span class="muted">답은 3/4처럼 써요(정수면 그냥 숫자). 왜 그런지 헷갈리면 🍕 <a href="calc-reset.html">분수·음수 계산 리셋 특강</a>을 먼저 봐요.</span>'},
+    {key:'ng', name:'④ 음수 계산', desc:'부호 먼저, 크기는 나중에', gen:NG,
+     card:'<b>음수 2단계</b> — ① <b>부호 먼저</b>: 덧셈은 같은 부호면 더하고 그 부호, 다른 부호면 빼고 큰 쪽 부호 · 곱셈·나눗셈은 음수 개수가 짝수면 +, 홀수면 − → ② 크기(절댓값)만 계산. '+
+          '"빼기 음수"는 "더하기 양수"로 바꿔 써요. (−3)² = 9, −3² = −9 조심!<br>'+
+          '<span class="muted">섞인 계산은 괄호 → 거듭제곱 → ×÷ → +− 순서예요. 왜 그런지는 🍕 <a href="calc-reset.html">계산 리셋 특강</a>에 있어요.</span>'}
   ]};
 })();

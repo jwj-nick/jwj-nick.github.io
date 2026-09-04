@@ -1,0 +1,814 @@
+<!-- calc-reset.html — 분수·음수 계산 리셋 특강 (2026-09-03, 02단원 유리수 계산 보강용 별도 챕터 · 스피드 드릴 ③④와 짝) -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🍕 분수·음수 계산 리셋 · 중1</title>
+<link rel="stylesheet" href="concept.css?v=20260830b">
+<style>
+  :root{ --cr:#7c5cbf; --cr2:#a58be0; --pz:#f2b23c; --pz2:#ffd98a; --neg:#d76a6a; --pos:#4fa892; }
+  .cr-hero{border-radius:26px;padding:30px 26px;margin:14px 0 18px;color:#fff;position:relative;overflow:hidden;
+    background:linear-gradient(135deg,var(--cr),var(--cr2));box-shadow:var(--shadow-l)}
+  .cr-hero::after{content:"";position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.14)}
+  .cr-hero h1{color:#fff;margin:0 0 8px;font-size:26px}
+  .cr-hero p{color:rgba(255,255,255,.94);font-size:14.5px;margin:0}
+  .cr-goal{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .cr-goal span{background:rgba(255,255,255,.22);border-radius:999px;padding:6px 13px;font-size:12.5px;font-weight:700}
+  .cr-sec{margin:34px 0}
+  .cr-sec .eyebrow .n{background:linear-gradient(135deg,var(--cr),var(--cr2))}
+
+  .cr-panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px 18px 14px;box-shadow:var(--shadow-s)}
+  .cr-rangebar{display:flex;align-items:center;gap:10px;margin:12px 0 4px;flex-wrap:wrap}
+  .cr-rangebar input[type=range]{flex:1;min-width:120px}
+  .cr-rangebar .tval{font-variant-numeric:tabular-nums;font-weight:800;color:var(--cr);min-width:56px;text-align:right}
+  .cr-rangebar select{background:var(--panel-2);color:var(--ink);border:1.5px solid var(--border);border-radius:10px;padding:7px 10px;font-size:14px;font-family:var(--sans)}
+  .cr-svg{width:100%;max-width:440px;margin:8px auto;display:block;background:var(--panel-2);border:1px solid var(--border);border-radius:14px}
+  .cr-play{background:var(--cr);color:#fff;border:none;border-radius:999px;padding:8px 16px;font-weight:700;font-size:13px;cursor:pointer}
+  .cr-play:disabled{opacity:.6;cursor:default}
+  .cr-msg{font-weight:800;color:var(--cr);margin-left:8px;font-size:13px}
+
+  /* 세로 분수 */
+  .cr-fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.1;margin:0 3px;font-family:var(--serif);font-style:italic;font-size:.95em}
+  .cr-fr b{border-bottom:1.5px solid currentColor;padding:0 4px;font-weight:700}
+  .cr-fr i{padding:0 4px}
+  .cr-expr{font-family:var(--serif);font-style:italic;font-size:19px;line-height:1.9}
+
+  .cr-formula{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:14px 0}
+  .cr-formula .f{background:var(--panel-2);border:1.5px solid var(--cr);border-radius:14px;padding:12px 18px;
+    font-family:var(--serif);font-style:italic;font-size:16px;text-align:center;min-width:150px;flex:1}
+  .cr-formula .f small{display:block;font-family:var(--sans);font-style:normal;font-size:11.5px;color:var(--muted);margin-top:4px}
+  .cr-trap{background:rgba(242,178,60,.14);border:1px solid rgba(242,178,60,.5);border-radius:12px;padding:10px 14px;font-size:13.5px;margin:12px 0}
+  .cr-trap b{color:#b97a10}
+  .cr-anchor{background:var(--sage-soft);border:1.5px solid rgba(79,168,146,.45);border-radius:14px;padding:12px 16px;font-size:14px;margin:14px 0;display:flex;gap:10px;align-items:flex-start}
+  .cr-anchor .ic{font-size:22px;line-height:1}
+  .cr-anchor b{color:var(--sage)}
+
+  table.cr-table{width:100%;border-collapse:collapse;margin:12px 0;font-size:14px}
+  table.cr-table th{background:var(--panel-2);padding:8px;font-size:12px;color:var(--muted);border:1px solid var(--border)}
+  table.cr-table td{padding:9px 8px;border:1px solid var(--border);text-align:center;font-family:var(--serif);font-style:italic;font-size:15px}
+  table.cr-table td.lab{font-family:var(--sans);font-style:normal;font-weight:700;background:var(--panel-2);font-size:13px}
+  table.cr-table td.known{color:var(--u);font-weight:800;background:var(--u-soft)}
+  table.cr-table td.unknown{background:rgba(124,92,191,.08)}
+  table.cr-table input{width:64px;text-align:center;border:1.5px solid var(--cr);border-radius:8px;padding:6px;font-size:14px;background:var(--panel);color:var(--ink);font-family:var(--sans)}
+  table.cr-table input.wide{width:84px}
+
+  .cr-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0}
+  .cr-steps .st{background:var(--panel-2);border:1px solid var(--border);border-radius:14px;padding:12px 14px;font-size:13.5px}
+  .cr-steps .st b{display:block;color:var(--cr);font-size:14px;margin-bottom:4px}
+
+  .cr-type{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:20px 20px 18px;margin:16px 0;box-shadow:var(--shadow-m)}
+  .cr-type-h{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .cr-type-h .badge{flex:none;width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,var(--cr),var(--cr2));
+    color:#fff;display:grid;place-items:center;font-weight:800;font-family:var(--serif);font-style:italic}
+  .cr-type-h .t{font-weight:800;font-size:16px}
+  .cr-type-h .d{font-size:12.5px;color:var(--muted)}
+  .cr-key{background:var(--sage-soft);border:1px solid rgba(79,168,146,.3);border-radius:12px;padding:10px 14px;font-size:13.5px;margin:10px 0}
+  .cr-key b{color:var(--sage)}
+  .cr-stem{font-size:14.5px;line-height:1.7;margin:10px 0}
+  .cr-checkrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .cr-checkrow input.num{width:96px}
+  .cr-hintbtn{background:none;border:1.5px solid var(--border);color:var(--muted);border-radius:999px;padding:6px 12px;font-size:12.5px;font-weight:700;cursor:pointer}
+  .cr-hint{display:none;background:rgba(242,178,60,.12);border-radius:10px;padding:8px 12px;font-size:13px;margin-top:8px}
+  .cr-hint.show{display:block;animation:pop .3s ease}
+  .cr-out{margin-top:8px;font-size:14px;min-height:1.3em}
+  .cr-sol{display:none;background:var(--u-soft);border-radius:12px;padding:12px 14px;margin-top:10px;font-size:13.5px;line-height:1.9}
+  .cr-sol.show{display:block;animation:pop .35s ease}
+  .cr-again{background:none;border:1.5px solid var(--cr);color:var(--cr);border-radius:999px;padding:6px 14px;font-size:12.5px;font-weight:700;cursor:pointer;margin-top:8px}
+
+  .cr-quizcard{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px 18px;margin:14px 0;box-shadow:var(--shadow-s)}
+  .cr-quiz-id{display:none;margin-top:8px;font-size:13px;color:var(--cr);font-weight:700}
+  .cr-quiz-id.show{display:block}
+  .cr-quiz-id a{color:var(--cr)}
+
+  .cr-cheat{background:linear-gradient(135deg,var(--cr),var(--cr2));color:#fff;border-radius:18px;padding:20px 22px;margin:16px 0}
+  .cr-cheat h3{margin:0 0 10px;font-size:16px}
+  .cr-cheat .row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+  .cr-cheat .chip{background:rgba(255,255,255,.2);border-radius:10px;padding:8px 12px;font-size:12.5px;flex:1;min-width:150px}
+  .cr-cheat .chip b{display:block;font-size:13px;margin-bottom:2px}
+  #printCheat{background:#fff;color:var(--cr);border:none;border-radius:999px;padding:9px 18px;font-weight:800;font-size:13px;cursor:pointer;margin-top:12px}
+  #printArea{display:none}
+  @media print{ body>*:not(#printArea){display:none !important} #printArea{display:block !important} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중1 수학</a><span class="dot"></span><span>분수·음수 계산 리셋</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+
+  <div class="cr-hero">
+    <h1>🍕 분수·음수 계산 리셋</h1>
+    <p>문제 뜻은 알겠는데 <b>계산에서 자꾸 틀리나요?</b> 통분, 분수 나눗셈, 그리고 부호(−)까지 — 계산 실수의 뿌리는 거의 이 두 가지예요. 규칙을 외우는 게 아니라 <b>"왜 그렇게 되는지"를 한 번만 제대로 보면</b> 손이 알아서 움직여요. 피자부터 잘라 볼까요?</p>
+    <div class="cr-goal">
+      <span>① 통분 덧셈·뺄셈</span><span>② 분수 곱셈·나눗셈</span><span>③ 음수 덧셈·뺄셈</span><span>④ 음수 곱셈·나눗셈</span><span>⑤ 섞인 계산</span>
+    </div>
+  </div>
+
+  <!-- ───────────────── 1. 분수 감 잡기 ───────────────── -->
+  <section class="cr-sec reveal" id="s1">
+    <div class="eyebrow"><span class="n">1</span>분수는 "몇 조각 중 몇 조각" (공식 없이)</div>
+    <p>피자 한 판을 똑같이 나눈 것이 분모, 그중 가져간 조각이 분자예요. 슬라이더를 움직여 보세요.</p>
+    <div class="cr-panel">
+      <svg class="cr-svg" id="pizzaSvg" viewBox="0 0 440 180" role="img" aria-label="피자 분수 그림"></svg>
+      <div class="cr-rangebar">
+        <span style="font-size:13px;color:var(--muted)">조각 수</span>
+        <input type="range" id="pzN" min="2" max="8" step="1" value="4">
+        <span class="tval" id="pzNv">4조각</span>
+      </div>
+      <div class="cr-rangebar">
+        <span style="font-size:13px;color:var(--muted)">가져간 조각</span>
+        <input type="range" id="pzK" min="0" max="4" step="1" value="1">
+        <span class="tval" id="pzKv">1조각</span>
+      </div>
+    </div>
+
+    <p style="margin-top:18px">그럼 <b>조각 크기가 다른 두 피자</b>는 어떻게 더할까요? 반 판(1/2)과 3분의 1판(1/3)을 그냥 더해서 "2/5"라고 하면 안 돼요 — 조각 크기가 다르니까요. <b>조각을 더 잘게 잘라서 크기를 맞추는 것</b>, 그게 통분이에요. ▶ 재생을 눌러 보세요.</p>
+    <div class="cr-panel">
+      <div class="cr-rangebar" style="margin-top:0">
+        <span style="font-size:13px;color:var(--muted)">더할 두 분수</span>
+        <select id="cdPair">
+          <option value="0">1/2 + 1/3</option>
+          <option value="1">1/2 + 1/4</option>
+          <option value="2">2/3 + 1/6</option>
+          <option value="3">3/4 + 1/6</option>
+        </select>
+      </div>
+      <svg class="cr-svg" id="cdSvg" viewBox="0 0 440 190" role="img" aria-label="통분 피자 애니메이션"></svg>
+      <div style="text-align:center;margin-bottom:6px"><button class="cr-play" id="cdPlay">▶ 재생</button><span class="cr-msg" id="cdMsg"></span></div>
+    </div>
+    <div class="cr-trap"><b>⚠ 가장 흔한 실수</b> — 분모끼리 더하기(1/2 + 1/3 = 2/5 ✗). 분모는 "조각 크기"라서 더하는 게 아니라 <b>맞추는</b> 거예요. 분모가 같아진 뒤에는 분자만 더해요.</div>
+    <div class="card" style="margin-top:12px">
+      <p style="margin:0 0 8px;font-weight:700">함께 생각하기 ①</p>
+      <p style="margin:0 0 10px" class="cr-expr"><span class="cr-fr"><b>1</b><i>2</i></span> + <span class="cr-fr"><b>1</b><i>4</i></span> = ? <span style="font-family:var(--sans);font-style:normal;font-size:13px;color:var(--muted)">(반 판을 4조각 기준으로 바꾸면?)</span></p>
+      <div class="cr-checkrow"><input class="num" id="q1" inputmode="text" placeholder="예: 3/4" aria-label="답"><button id="q1b">확인</button></div>
+      <div class="cr-out" id="q1o"></div>
+    </div>
+  </section>
+
+  <!-- ───────────────── 2. 분수 곱셈·나눗셈 ───────────────── -->
+  <section class="cr-sec reveal" id="s2">
+    <div class="eyebrow"><span class="n">2</span>곱셈은 넓이, 나눗셈은 "몇 번 들어가나"</div>
+    <p>분수 곱셈은 규칙이 쉬워요 — <b>분자끼리, 분모끼리</b>. 왜 그런지는 넓이 그림이 보여 줘요. 가로로 한 번, 세로로 한 번 나눈 뒤 <b>둘 다 색칠된 칸</b>을 세어 보세요.</p>
+    <div class="cr-panel">
+      <div class="cr-rangebar" style="margin-top:0">
+        <span style="font-size:13px;color:var(--muted)">가로</span>
+        <select id="mulA"><option value="2/3">2/3</option><option value="1/2">1/2</option><option value="3/4">3/4</option><option value="1/3">1/3</option><option value="3/5">3/5</option></select>
+        <span style="font-size:13px;color:var(--muted)">× 세로</span>
+        <select id="mulB"><option value="3/4">3/4</option><option value="1/2">1/2</option><option value="2/3">2/3</option><option value="2/5">2/5</option><option value="1/4">1/4</option></select>
+      </div>
+      <svg class="cr-svg" id="mulSvg" viewBox="0 0 440 210" role="img" aria-label="분수 곱셈 넓이 격자"></svg>
+    </div>
+
+    <p style="margin-top:18px">나눗셈은 조금 더 신기해요. <b>1 ÷ 1/3</b>은 "1 안에 1/3이 몇 번 들어가나"예요. 조각을 하나씩 놓아 볼게요.</p>
+    <div class="cr-panel">
+      <div class="cr-rangebar" style="margin-top:0">
+        <span style="font-size:13px;color:var(--muted)">나눗셈</span>
+        <select id="divPair">
+          <option value="0">1 ÷ 1/3</option>
+          <option value="1">2 ÷ 1/4</option>
+          <option value="2">3/4 ÷ 1/4</option>
+          <option value="3">3/2 ÷ 1/2</option>
+        </select>
+      </div>
+      <svg class="cr-svg" id="divSvg" viewBox="0 0 440 150" role="img" aria-label="분수 나눗셈 애니메이션"></svg>
+      <div style="text-align:center;margin-bottom:6px"><button class="cr-play" id="divPlay">▶ 재생</button><span class="cr-msg" id="divMsg"></span></div>
+    </div>
+    <p style="margin-top:14px">1 ÷ 1/3 = 3이었죠? 1/3은 1 안에 <b>3번</b> 들어가니까요. 즉 <b>"1/3로 나누기"는 "3을 곱하기"와 같아요.</b> 3은 1/3을 뒤집은 수예요. 2/3으로 나누면? 2/3은 1 안에 1.5번(= 3/2번) 들어가요. 그래서 3/2를 곱해요. 이것이 "뒤집어 곱하기"의 정체예요.</p>
+    <div class="cr-formula">
+      <div class="f"><span class="cr-fr"><b>a</b><i>b</i></span> × <span class="cr-fr"><b>c</b><i>d</i></span> = <span class="cr-fr"><b>a × c</b><i>b × d</i></span><small>분자끼리, 분모끼리 (넓이 그림)</small></div>
+      <div class="f"><span class="cr-fr"><b>a</b><i>b</i></span> ÷ <span class="cr-fr"><b>c</b><i>d</i></span> = <span class="cr-fr"><b>a</b><i>b</i></span> × <span class="cr-fr"><b>d</b><i>c</i></span><small>나누는 수를 뒤집어서 곱하기 ("몇 번 들어가나")</small></div>
+    </div>
+    <div class="cr-trap"><b>⚠ 조심</b> — 뒤집는 건 <b>나누는 수(뒤의 것)</b>만이에요. 앞의 분수는 그대로예요. 그리고 곱하기 전에 <b>먼저 약분</b>하면 숫자가 작아져서 실수가 줄어요.</div>
+    <div class="card">
+      <p style="margin:0 0 8px;font-weight:700">함께 생각하기 ②</p>
+      <p style="margin:0 0 10px" class="cr-expr"><span class="cr-fr"><b>3</b><i>4</i></span> ÷ <span class="cr-fr"><b>1</b><i>2</i></span> = ? <span style="font-family:var(--sans);font-style:normal;font-size:13px;color:var(--muted)">(3/4 안에 1/2이 몇 번 들어갈까요?)</span></p>
+      <div class="cr-checkrow"><input class="num" id="q2" inputmode="text" placeholder="예: 3/2" aria-label="답"><button id="q2b">확인</button></div>
+      <div class="cr-out" id="q2o"></div>
+    </div>
+  </section>
+
+  <!-- ───────────────── 3. 음수 ───────────────── -->
+  <section class="cr-sec reveal" id="s3">
+    <div class="eyebrow"><span class="n">3</span>음수는 수직선 위의 이동 — 재산과 빚</div>
+    <p>02단원의 브라마굽타를 기억하나요? 그는 양수를 <b>재산</b>, 음수를 <b>빚</b>이라고 불렀어요. 수직선에서는 <b>더하기 = 오른쪽으로 가기, 빼기 = 왼쪽으로 가기</b>예요. 숫자를 골라 ▶ 재생을 눌러 보세요.</p>
+    <div class="cr-panel">
+      <div class="cr-rangebar" style="margin-top:0">
+        <select id="nlA"><option value="3">3</option><option value="-4">−4</option><option value="5">5</option><option value="-7">−7</option><option value="0">0</option><option value="-2">−2</option></select>
+        <select id="nlOp"><option value="+">+</option><option value="-">−</option></select>
+        <select id="nlB"><option value="-5">(−5)</option><option value="4">4</option><option value="-3">(−3)</option><option value="7">7</option><option value="-8">(−8)</option><option value="2">2</option></select>
+        <span class="tval" id="nlExpr" style="min-width:0"></span>
+      </div>
+      <svg class="cr-svg" id="nlSvg" viewBox="0 0 440 130" role="img" aria-label="수직선 애니메이션"></svg>
+      <div style="text-align:center;margin-bottom:6px"><button class="cr-play" id="nlPlay">▶ 재생</button><span class="cr-msg" id="nlMsg"></span></div>
+    </div>
+    <p style="margin-top:14px"><b>음수를 더하면</b> 빚이 늘어난 거니까 왼쪽으로 가요. <b>음수를 빼면</b>? 빚을 없애 준 거니까 오히려 재산이 늘어요 — 오른쪽으로 가요. 그래서 <b>3 − (−5) = 3 + 5 = 8</b>이에요. "빼기 음수"는 "더하기 양수"로 바꿔 쓰면 절대 안 헷갈려요.</p>
+    <div class="cr-formula">
+      <div class="f">a − (−b) = a + b<small>빼기 음수 = 더하기 양수</small></div>
+      <div class="f">a + (−b) = a − b<small>더하기 음수 = 빼기 양수</small></div>
+    </div>
+
+    <p style="margin-top:18px">이제 곱셈이에요. (−)×(−)가 왜 (+)인지, 외우지 말고 <b>패턴</b>으로 찾아 봐요. 왼쪽 수가 1씩 줄어들 때 결과가 어떻게 변하는지 보고, 빈칸을 채워 보세요.</p>
+    <div class="cr-panel">
+      <table class="cr-table" id="patTbl">
+        <tbody>
+          <tr><td class="lab">3 × (−2)</td><td class="known">−6</td></tr>
+          <tr><td class="lab">2 × (−2)</td><td class="known">−4</td></tr>
+          <tr><td class="lab">1 × (−2)</td><td class="known">−2</td></tr>
+          <tr><td class="lab">0 × (−2)</td><td class="known">0</td></tr>
+          <tr><td class="lab">(−1) × (−2)</td><td class="unknown"><input id="pat1" inputmode="text" aria-label="(−1)×(−2)"></td></tr>
+          <tr><td class="lab">(−2) × (−2)</td><td class="unknown"><input id="pat2" inputmode="text" aria-label="(−2)×(−2)"></td></tr>
+        </tbody>
+      </table>
+      <div class="cr-checkrow"><button id="patChk">패턴 확인</button></div>
+      <div class="cr-out" id="patOut"></div>
+    </div>
+    <div class="cr-formula">
+      <div class="f">(+)×(+) = +　(−)×(−) = +<small>같은 부호끼리 곱하면 +</small></div>
+      <div class="f">(+)×(−) = −　(−)×(+) = −<small>다른 부호끼리 곱하면 −</small></div>
+    </div>
+    <p>나눗셈도 곱셈과 똑같은 부호 규칙이에요. 여러 개를 곱할 때는 <b>음수(−)의 개수만 세요</b> — 짝수면 +, 홀수면 −.</p>
+    <div class="cr-trap"><b>⚠ 거듭제곱 함정</b> — (−3)² = (−3)×(−3) = <b>9</b>이지만, −3² = −(3×3) = <b>−9</b>예요. 괄호가 있으면 부호까지 제곱, 없으면 3만 제곱하고 앞에 − 붙이기예요.</div>
+    <div class="card">
+      <p style="margin:0 0 8px;font-weight:700">함께 생각하기 ③</p>
+      <p style="margin:0 0 10px" class="cr-expr">(−2) − (−7) = ?</p>
+      <div class="cr-checkrow"><input class="num" id="q3" inputmode="text" aria-label="답"><button id="q3b">확인</button></div>
+      <div class="cr-out" id="q3o"></div>
+    </div>
+  </section>
+
+  <!-- ───────────────── 4. 핵심 도구 ───────────────── -->
+  <section class="cr-sec reveal" id="s4">
+    <div class="eyebrow"><span class="n">4</span>핵심 도구 — 계산 순서표</div>
+    <p>계산 실수는 대부분 "순서를 건너뛰어서" 생겨요. 아래 두 순서표를 손이 외울 때까지 써요.</p>
+    <div class="cr-steps">
+      <div class="st"><b>🍕 분수 3단계</b>① 통분(분모 맞추기) → ② 분자만 계산 → ③ 약분(기약분수로)</div>
+      <div class="st"><b>➖ 음수 2단계</b>① 부호 먼저 정하기 → ② 절댓값(크기)만 계산</div>
+      <div class="st"><b>🔢 섞인 계산 순서</b>괄호 → 거듭제곱 → 곱셈·나눗셈 → 덧셈·뺄셈</div>
+    </div>
+    <div class="cr-anchor"><span class="ic">🧭</span><span><b>불변 앵커 — 부호 먼저, 크기는 나중에. 분모가 같아야 더할 수 있어요.</b> 이 두 문장만 지키면 이 특강의 문제는 전부 풀려요. 헷갈릴 때마다 여기로 돌아와요.</span></div>
+    <p style="margin-top:10px">분수 3단계를 표로 연습해 볼까요? 빈칸을 채우고 "표 확인"을 눌러요. (분수는 <b>3/4</b>처럼 써요.)</p>
+    <div id="stepDemo"></div>
+    <div style="text-align:center;margin-top:8px"><button class="cr-again" id="stepAgain">🔄 다른 문제로</button></div>
+  </section>
+
+  <!-- ───────────────── 5. 유형별 완전정복 ───────────────── -->
+  <section class="cr-sec reveal" id="s5">
+    <div class="eyebrow"><span class="n">5</span>유형별 완전정복</div>
+    <p>이제 진짜 계산이에요. 다섯 유형만 손에 익히면 02단원 계산 문제는 전부 돼요. 막히면 <b>💡 힌트</b>를 먼저 눌러요 — 첫 단계만 알려 줘요. 분수 답은 <b>3/4</b>처럼, 음수는 <b>−3</b> 또는 <b>-3</b>으로 써요.</p>
+  </section>
+
+  <section class="cr-type reveal" id="type1">
+    <div class="cr-type-h"><span class="badge">①</span><span><div class="t">통분 덧셈·뺄셈</div><div class="d">분모 맞추기 → 분자만 계산 → 약분</div></span></div>
+    <div class="cr-key"><b>핵심</b> 두 분모의 최소공배수로 통분해요. 분모는 더하는 게 아니라 <b>맞추는</b> 거예요.</div>
+    <div id="type1body"></div>
+  </section>
+
+  <section class="cr-type reveal" id="type2">
+    <div class="cr-type-h"><span class="badge">②</span><span><div class="t">분수 곱셈·나눗셈</div><div class="d">분자끼리 분모끼리 · 나눗셈은 뒤집어 곱하기</div></span></div>
+    <div class="cr-key"><b>핵심</b> 나눗셈은 <b>뒤의 분수만</b> 뒤집어서 곱셈으로 바꿔요. 곱하기 전에 약분하면 편해요.</div>
+    <div id="type2body"></div>
+  </section>
+
+  <section class="cr-type reveal" id="type3">
+    <div class="cr-type-h"><span class="badge">③</span><span><div class="t">음수 덧셈·뺄셈</div><div class="d">뺄셈은 덧셈으로 바꾸고 → 부호 먼저</div></span></div>
+    <div class="cr-key"><b>핵심</b> "빼기 음수"는 "더하기 양수"로. 같은 부호는 절댓값을 더하고 그 부호, 다른 부호는 절댓값을 빼고 <b>큰 쪽 부호</b>예요.</div>
+    <svg class="cr-svg" id="t3svg" viewBox="0 0 440 110" role="img" aria-label="수직선"></svg>
+    <div id="type3body"></div>
+  </section>
+
+  <section class="cr-type reveal" id="type4">
+    <div class="cr-type-h"><span class="badge">④</span><span><div class="t">음수 곱셈·나눗셈·거듭제곱</div><div class="d">음수 개수 세기 → 크기 계산</div></span></div>
+    <div class="cr-key"><b>핵심</b> 음수(−)가 짝수 개면 +, 홀수 개면 −. 그다음 크기만 곱해요. (−3)²과 −3²은 달라요.</div>
+    <div id="type4body"></div>
+  </section>
+
+  <section class="cr-type reveal" id="type5">
+    <div class="cr-type-h"><span class="badge">⑤</span><span><div class="t">섞인 계산</div><div class="d">음수 분수 · 계산 순서</div></span></div>
+    <div class="cr-key"><b>핵심</b> 괄호 → 거듭제곱 → 곱셈·나눗셈 → 덧셈·뺄셈. 한 번에 하나씩, 부호부터 정하고 계산해요.</div>
+    <div id="type5body"></div>
+  </section>
+
+  <!-- ───────────────── 6. 실전 총정리 ───────────────── -->
+  <section class="cr-sec reveal" id="s6">
+    <div class="eyebrow"><span class="n">6</span>실전 총정리 — 유형 섞어서</div>
+    <p>이번엔 유형을 안 알려 드려요. <b>순서표를 떠올리며</b> 차근차근 풀어요. 틀리면 어느 유형인지 알려 드릴게요.</p>
+    <div id="quizArea"></div>
+    <div style="text-align:center;margin-top:8px"><button class="cr-again" id="quizAgain">🔄 5문제 새로</button></div>
+  </section>
+
+  <!-- ───────────────── 7. 치트시트 ───────────────── -->
+  <section class="cr-sec reveal" id="s7">
+    <div class="eyebrow"><span class="n">7</span>마무리 치트시트</div>
+    <div class="cr-cheat">
+      <h3>🍕 분수·음수 계산 한 장 요약</h3>
+      <div class="row">
+        <div class="chip"><b>분수 덧셈·뺄셈</b>통분(최소공배수) → 분자만 계산 → 약분</div>
+        <div class="chip"><b>분수 곱셈·나눗셈</b>분자끼리·분모끼리 · ÷는 뒤의 분수를 뒤집어 ×</div>
+      </div>
+      <div class="row">
+        <div class="chip"><b>음수 덧셈·뺄셈</b>빼기 음수 = 더하기 양수 · 같은 부호는 더하고, 다른 부호는 빼고 큰 쪽 부호</div>
+        <div class="chip"><b>음수 곱셈·나눗셈</b>음수 개수 짝수 → + · 홀수 → − · (−3)² = 9, −3² = −9</div>
+      </div>
+      <div class="row">
+        <div class="chip"><b>🧭 불변 앵커</b>부호 먼저, 크기는 나중에 · 분모가 같아야 더할 수 있어요</div>
+        <div class="chip"><b>섞인 계산 순서</b>괄호 → 거듭제곱 → ×÷ → +−</div>
+      </div>
+      <button id="printCheat">🖨️ 이 치트시트 인쇄하기</button>
+    </div>
+    <p style="text-align:center;color:var(--muted);font-size:13px">이해했으면 이제 <b>손에 익힐 차례</b>예요 — <a href="drill.html" style="color:var(--cr);font-weight:700">⚡ 스피드 드릴 ③ 분수 계산 · ④ 음수 계산</a>으로 매일 10문제씩!<br>02단원 문제로 돌아가 다시 풀어 봐요 — <a href="p2.html#c5" style="color:var(--cr);font-weight:700">유형5 덧셈·뺄셈 →</a></p>
+  </section>
+
+  <div class="foot">분수·음수 계산 리셋 · 02_정수와 유리수 계산 보강 특강</div>
+</div>
+
+<div id="printArea"></div>
+
+<script src="concept.js?v=20260830b"></script>
+<script>
+MJ1.boot();
+(function(){
+  'use strict';
+  /*GEN-START*/
+  function ri(a,b){return a+Math.floor(Math.random()*(b-a+1));}
+  function pick(a,i){ if(typeof i==='number') return a[((i%a.length)+a.length)%a.length]; return a[Math.floor(Math.random()*a.length)]; }
+  function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){var t=a%b;a=b;b=t;}return a||1;}
+  function lcm(a,b){return Math.abs(a*b)/gcd(a,b);}
+  function R(n,d){ if(d<0){n=-n;d=-d;} var g=gcd(n,d); return {n:n/g,d:d/g}; }
+  function radd(x,y){return R(x.n*y.d+y.n*x.d, x.d*y.d);}
+  function rsub(x,y){return R(x.n*y.d-y.n*x.d, x.d*y.d);}
+  function rmul(x,y){return R(x.n*y.n, x.d*y.d);}
+  function rdiv(x,y){return R(x.n*y.d, x.d*y.n);}
+  function rpow(x,n){var r={n:1,d:1};for(var i=0;i<n;i++)r=rmul(r,x);return r;}
+  function rval(x){return x.n/x.d;}
+  function sg(n){return n<0?('−'+Math.abs(n)):String(n);}                       // −3 / 3
+  function pn(n){return n<0?('(−'+Math.abs(n)+')'):String(n);}                   // (−3) / 3
+  /* 세로 분수 HTML */
+  function frH(x,paren){ var neg=x.n<0, a=Math.abs(x.n);
+    var core = x.d===1 ? String(a) : '<span class="cr-fr"><b>'+a+'</b><i>'+x.d+'</i></span>';
+    if(!neg) return core;
+    return paren ? '(−'+core+')' : '−'+core; }
+  function frRaw(n,d){ var neg=(n<0)!==(d<0), a=Math.abs(n), b=Math.abs(d);
+    return (neg?'−':'')+'<span class="cr-fr"><b>'+a+'</b><i>'+b+'</i></span>'; }
+  /* 답 표기용 텍스트 ("−3/4", "5") */
+  function frT(x){ return x.d===1 ? sg(x.n) : (x.n<0?'−':'')+Math.abs(x.n)+'/'+x.d; }
+  function isNegR(x){return x.n<0;}
+
+  /* ── 풀 (전부 손으로 고른 세트 · Node 재검산 대상) ── */
+  var T1_POOL=[ [1,2,1,3,'+'],[1,2,1,4,'+'],[2,3,1,6,'+'],[3,4,1,6,'-'],[1,2,1,3,'-'],[5,6,1,4,'+'],[2,5,1,10,'+'],[3,8,1,4,'-'],
+                [1,3,1,9,'+'],[5,6,2,3,'-'],[3,4,2,3,'+'],[7,10,1,5,'-'],[1,6,3,4,'+'],[4,5,1,2,'-'],[5,12,1,4,'+'],[7,8,3,4,'-'] ];
+  var T2_POOL=[ [2,3,3,4,'x'],[3,5,5,6,'x'],[1,2,1,3,'d'],[3,4,1,2,'d'],[2,3,4,9,'d'],[4,5,2,3,'x'],[5,6,3,10,'x'],[3,8,3,4,'d'],
+                [2,7,4,7,'d'],[1,4,2,5,'x'],[6,1,2,3,'d'],[2,9,3,1,'x'],[5,1,5,2,'d'],[3,10,5,9,'x'],[4,9,8,3,'d'],[7,12,3,14,'x'] ];
+  var T3_POOL=[ [3,'+',-5],[-4,'+',-6],[-7,'+',9],[2,'-',5],[-3,'-',4],[5,'-',-3],[-6,'-',-2],[-8,'+',8],
+                [-3,'+',7,'-',9],[4,'-',-6,'+',-10],[-12,'+',5,'+',-3],[1,'-',9,'-',-4],[-5,'-',-5],[10,'+',-13],[-9,'+',4,'-',-6],[6,'-',11,'+',-2] ];
+  var T4_POOL=[ {k:'mul',a:-3,b:-4},{k:'mul',a:-5,b:6},{k:'mul',a:7,b:-2},{k:'div',a:-8,b:-2},{k:'div',a:18,b:-3},{k:'div',a:-24,b:6},
+                {k:'pow',a:-2,n:3,paren:true},{k:'pow',a:-3,n:2,paren:true},{k:'pow',a:3,n:2,paren:false},{k:'pow',a:-1,n:5,paren:true},
+                {k:'mul3',a:-2,b:-3,c:-1},{k:'mul3',a:-4,b:5,c:-2},{k:'mul',a:-9,b:-9},{k:'div',a:-56,b:7},{k:'pow',a:2,n:3,paren:false},{k:'mul3',a:3,b:-2,c:-5} ];
+  var T5_POOL=[ {k:'fadd',x:[-1,2],y:[3,4],op:'+'},{k:'fmul',x:[-2,3],y:[9,4]},{k:'fdiv',x:[-3,5],y:[-6,5]},{k:'fadd',x:[1,2],y:[5,6],op:'-'},
+                {k:'sub_mul',a:2,b:3,c:-4},{k:'pow_mul_sub',a:-2,b:3,c:5},{k:'div_add',a:6,b:-3,c:4},{k:'fadd',x:[-1,3],y:[-1,6],op:'-'},
+                {k:'fmul',x:[-3,4],y:[-2,9]},{k:'sub_pow',a:5,b:-2},{k:'fpow_mul',x:[-1,2],c:8},{k:'fdiv',x:[3,4],y:[-3,8]},
+                {k:'sub_mul',a:-3,b:-2,c:5},{k:'div_add',a:-15,b:5,c:-2},{k:'fadd',x:[-3,4],y:[-1,4],op:'+'},{k:'pow_mul_sub',a:-3,b:2,c:-1} ];
+
+  /* ① 통분 덧뺄셈 */
+  function genType1(i){
+    var p=pick(T1_POOL,i), x=R(p[0],p[1]), y=R(p[2],p[3]), op=p[4];
+    var L=lcm(x.d,y.d), n1=x.n*(L/x.d), n2=y.n*(L/y.d);
+    var rawN = op==='+' ? n1+n2 : n1-n2;
+    var ans = op==='+' ? radd(x,y) : rsub(x,y);
+    var opS = op==='+'?'+':'−';
+    var stem='<span class="cr-expr">'+frH(x)+' '+opS+' '+frH(y)+' = ?</span>';
+    var sol='① 분모 '+x.d+'과 '+y.d+'의 최소공배수는 <b>'+L+'</b>이에요. 통분하면 '+frH(x)+' = '+frRaw(n1,L)+', '+frH(y)+' = '+frRaw(n2,L)+'. '+
+            '② 분자만 계산: '+sg(n1)+' '+opS+' '+sg(n2)+' = '+sg(rawN)+' → '+frRaw(rawN,L)+'. '+
+            (gcd(rawN,L)>1 ? '③ '+gcd(rawN,L)+'로 약분하면 ' : '③ 더 약분할 수 없으니 ')+'<b>답 '+frT(ans)+'</b>이에요.';
+    return {type:1, x:x, y:y, op:op, L:L, n1:n1, n2:n2, stem:stem, ans:ans, ansText:frT(ans), sol:sol,
+      hint:'분모 '+x.d+'과 '+y.d+'의 최소공배수를 먼저 찾아요. 그게 새 분모예요.'};
+  }
+  /* ② 곱셈·나눗셈 */
+  function genType2(i){
+    var p=pick(T2_POOL,i), x=R(p[0],p[1]), y=R(p[2],p[3]), mul=p[4]==='x';
+    var ans = mul ? rmul(x,y) : rdiv(x,y);
+    var flipped = {n:y.d,d:y.n};
+    var rawN = mul ? x.n*y.n : x.n*y.d, rawD = mul ? x.d*y.d : x.d*y.n;
+    var stem='<span class="cr-expr">'+frH(x)+' '+(mul?'×':'÷')+' '+frH(y)+' = ?</span>';
+    var sol = mul
+      ? '① 분자끼리 '+x.n+' × '+y.n+' = '+rawN+', 분모끼리 '+x.d+' × '+y.d+' = '+rawD+' → '+frRaw(rawN,rawD)+'. '+
+        (gcd(rawN,rawD)>1 ? '② '+gcd(rawN,rawD)+'로 약분하면 ' : '② 더 약분할 수 없으니 ')+'<b>답 '+frT(ans)+'</b>이에요.'
+      : '① 뒤의 분수만 뒤집어서 곱셈으로 바꿔요: '+frH(x)+' × '+frH(flipped)+'. ② 분자끼리 '+x.n+' × '+y.d+' = '+rawN+', 분모끼리 '+x.d+' × '+y.n+' = '+rawD+' → '+frRaw(rawN,rawD)+'. '+
+        (gcd(rawN,rawD)>1 ? '③ '+gcd(rawN,rawD)+'로 약분하면 ' : '③ 더 약분할 수 없으니 ')+'<b>답 '+frT(ans)+'</b>이에요.';
+    return {type:2, x:x, y:y, mul:mul, stem:stem, ans:ans, ansText:frT(ans), sol:sol,
+      hint: mul ? '분자는 분자끼리, 분모는 분모끼리 곱해요. 먼저 약분할 수 있는지도 봐요.' : '나누는 분수(뒤의 것)를 뒤집어서 곱셈으로 바꿔요.'};
+  }
+  /* ③ 음수 덧뺄셈 — 항 나열을 순서대로 계산 */
+  function genType3(i){
+    var p=pick(T3_POOL,i);
+    var terms=[p[0]], ops=[];
+    for(var j=1;j<p.length;j+=2){ ops.push(p[j]); terms.push(p[j+1]); }
+    var stemS=String(sg(terms[0]));
+    for(var j2=0;j2<ops.length;j2++) stemS+=' '+(ops[j2]==='+'?'+':'−')+' '+pn(terms[j2+1]);
+    /* 뺄셈 → 덧셈으로 */
+    var addTerms=[terms[0]]; for(var j3=0;j3<ops.length;j3++) addTerms.push(ops[j3]==='-'?-terms[j3+1]:terms[j3+1]);
+    var conv=sg(addTerms[0]); for(var j4=1;j4<addTerms.length;j4++) conv+=' + '+pn(addTerms[j4]);
+    var acc=addTerms[0], steps='';
+    for(var j5=1;j5<addTerms.length;j5++){
+      var t=addTerms[j5], res=acc+t, why;
+      if(acc===0||t===0) why='0을 더하면 그대로';
+      else if((acc<0)===(t<0)) why='같은 부호 → 절댓값 '+Math.abs(acc)+' + '+Math.abs(t)+' = '+Math.abs(res)+', 부호는 '+(res<0?'−':'+');
+      else if(res===0) why='다른 부호인데 절댓값이 같아요 → 0';
+      else why='다른 부호 → 절댓값 '+Math.max(Math.abs(acc),Math.abs(t))+' − '+Math.min(Math.abs(acc),Math.abs(t))+' = '+Math.abs(res)+', 부호는 큰 쪽('+(Math.abs(acc)>Math.abs(t)?sg(acc):sg(t))+')을 따라 '+(res<0?'−':'+');
+      steps+=' '+pn(acc)+' + '+pn(t)+' = <b>'+sg(res)+'</b> ('+why+').';
+      acc=res;
+    }
+    var ans={n:acc,d:1};
+    var hasSub=ops.indexOf('-')>=0;
+    var sol=(hasSub?'① 뺄셈을 덧셈으로 바꿔요: '+conv+'. ② 왼쪽부터 부호 먼저 정하고 계산해요.':'① 왼쪽부터 부호 먼저 정하고 계산해요.')+steps+' <b>답 '+frT(ans)+'</b>이에요.';
+    return {type:3, terms:terms, ops:ops, addTerms:addTerms, stem:'<span class="cr-expr">'+stemS+' = ?</span>', ans:ans, ansText:frT(ans), sol:sol,
+      hint: hasSub ? '"빼기 음수"는 "더하기 양수"로, "빼기 양수"는 "더하기 음수"로 먼저 바꿔 써요.' : '두 수의 부호가 같은지 다른지 먼저 봐요. 같으면 더하고, 다르면 빼요.'};
+  }
+  /* ④ 음수 곱·나눗셈·거듭제곱 */
+  function genType4(i){
+    var p=pick(T4_POOL,i), stemS, sol, val, hint;
+    if(p.k==='mul'){ val=p.a*p.b; stemS=pn(p.a)+' × '+pn(p.b);
+      var same=(p.a<0)===(p.b<0);
+      sol='① 부호 먼저: '+(same?'같은 부호끼리 곱하니 <b>+</b>':'다른 부호끼리 곱하니 <b>−</b>')+'. ② 크기: '+Math.abs(p.a)+' × '+Math.abs(p.b)+' = '+Math.abs(val)+'. 그래서 <b>답 '+sg(val)+'</b>이에요.';
+      hint='부호가 같으면 +, 다르면 −. 부호부터 정해요.'; }
+    else if(p.k==='div'){ val=p.a/p.b; stemS=pn(p.a)+' ÷ '+pn(p.b);
+      var same2=(p.a<0)===(p.b<0);
+      sol='① 부호 먼저: '+(same2?'같은 부호끼리 나누니 <b>+</b>':'다른 부호끼리 나누니 <b>−</b>')+'. ② 크기: '+Math.abs(p.a)+' ÷ '+Math.abs(p.b)+' = '+Math.abs(val)+'. 그래서 <b>답 '+sg(val)+'</b>이에요.';
+      hint='나눗셈도 곱셈과 같은 부호 규칙이에요.'; }
+    else if(p.k==='pow'){
+      if(p.paren){ val=Math.pow(p.a,p.n); stemS=pn(p.a)+'<sup>'+p.n+'</sup>';
+        var rep=[]; for(var j=0;j<p.n;j++) rep.push(pn(p.a));
+        sol='괄호가 있으니 부호까지 '+p.n+'번 곱해요: '+rep.join(' × ')+'. 음수가 '+(p.a<0?p.n:0)+'개 → '+((p.a<0&&p.n%2===1)?'홀수라 <b>−</b>':'짝수라 <b>+</b>')+', 크기는 '+Math.abs(p.a)+'<sup>'+p.n+'</sup> = '+Math.pow(Math.abs(p.a),p.n)+'. <b>답 '+sg(val)+'</b>이에요.';
+        hint='괄호가 있으면 부호도 같이 거듭제곱해요. 음수의 개수를 세요.'; }
+      else { val=-Math.pow(p.a,p.n); stemS='−'+p.a+'<sup>'+p.n+'</sup>';
+        sol='괄호가 없으니 '+p.a+'만 '+p.n+'번 곱하고 앞에 −를 붙여요: −('+p.a+'<sup>'+p.n+'</sup>) = −'+Math.pow(p.a,p.n)+'. <b>답 '+sg(val)+'</b>이에요. ((−'+p.a+')<sup>'+p.n+'</sup>과 달라요!)';
+        hint='괄호가 없으면 거듭제곱은 숫자에만 붙어요. − 는 맨 나중에 붙여요.'; }
+    }
+    else { val=p.a*p.b*p.c; stemS=pn(p.a)+' × '+pn(p.b)+' × '+pn(p.c);
+      var negs=[p.a,p.b,p.c].filter(function(v){return v<0;}).length;
+      sol='① 음수의 개수를 세요: '+negs+'개 → '+(negs%2===0?'짝수라 <b>+</b>':'홀수라 <b>−</b>')+'. ② 크기: '+Math.abs(p.a)+' × '+Math.abs(p.b)+' × '+Math.abs(p.c)+' = '+Math.abs(val)+'. <b>답 '+sg(val)+'</b>이에요.';
+      hint='음수(−)가 몇 개인지 세요. 짝수면 +, 홀수면 −예요.'; }
+    var ans={n:val,d:1};
+    return {type:4, p:p, stem:'<span class="cr-expr">'+stemS+' = ?</span>', ans:ans, ansText:frT(ans), sol:sol, hint:hint};
+  }
+  /* ⑤ 섞인 계산 */
+  function genType5(i){
+    var p=pick(T5_POOL,i), stemS, sol, ans, hint;
+    if(p.k==='fadd'){
+      var x=R(p.x[0],p.x[1]), y=R(p.y[0],p.y[1]), plus=p.op==='+';
+      ans = plus?radd(x,y):rsub(x,y);
+      var y2 = plus? y : {n:-y.n,d:y.d};
+      var L=lcm(x.d,y.d), n1=x.n*(L/x.d), n2=y2.n*(L/y2.d);
+      stemS=frH(x,true)+' '+(plus?'+':'−')+' '+frH(y,true);
+      sol=(plus?'':'① 뺄셈을 덧셈으로: '+frH(x,true)+' + '+frH(y2,true)+'. ')+'분모를 '+L+'로 통분하면 '+frRaw(n1,L)+' + '+frRaw(n2,L)+'. 분자만: '+pn(n1)+' + '+pn(n2)+' = '+sg(n1+n2)+' → '+frRaw(n1+n2,L)+(gcd(n1+n2,L)>1?' → 약분':'')+' → <b>답 '+frT(ans)+'</b>이에요.';
+      hint='분수 3단계 그대로예요 — 통분부터. 부호는 분자에 붙여 두고 계산해요.';
+    } else if(p.k==='fmul'){
+      var x1=R(p.x[0],p.x[1]), y1=R(p.y[0],p.y[1]); ans=rmul(x1,y1);
+      var same=(x1.n<0)===(y1.n<0);
+      stemS=frH(x1,true)+' × '+frH(y1,true);
+      sol='① 부호 먼저: '+(same?'같은 부호 → <b>+</b>':'다른 부호 → <b>−</b>')+'. ② 크기: '+frRaw(Math.abs(x1.n),x1.d)+' × '+frRaw(Math.abs(y1.n),y1.d)+' = '+frRaw(Math.abs(x1.n*y1.n),x1.d*y1.d)+(gcd(x1.n*y1.n,x1.d*y1.d)>1?' → 약분':'')+' → <b>답 '+frT(ans)+'</b>이에요.';
+      hint='부호부터 정하고(음수 개수), 그다음 분자끼리 분모끼리 곱해요.';
+    } else if(p.k==='fdiv'){
+      var x2=R(p.x[0],p.x[1]), y3=R(p.y[0],p.y[1]); ans=rdiv(x2,y3);
+      var same3=(x2.n<0)===(y3.n<0), fl={n:Math.abs(y3.d),d:Math.abs(y3.n)};
+      stemS=frH(x2,true)+' ÷ '+frH(y3,true);
+      sol='① 부호 먼저: '+(same3?'같은 부호 → <b>+</b>':'다른 부호 → <b>−</b>')+'. ② 뒤의 분수를 뒤집어 곱해요: '+frRaw(Math.abs(x2.n),x2.d)+' × '+frRaw(fl.n,fl.d)+' = '+frRaw(Math.abs(x2.n)*fl.n,x2.d*fl.d)+(gcd(Math.abs(x2.n)*fl.n,x2.d*fl.d)>1?' → 약분':'')+' → <b>답 '+frT(ans)+'</b>이에요.';
+      hint='부호부터 정하고, 나누는 분수를 뒤집어 곱해요.';
+    } else if(p.k==='sub_mul'){            // a − b × c
+      var m=p.b*p.c, v=p.a-m; ans={n:v,d:1};
+      stemS=sg(p.a)+' − '+pn(p.b)+' × '+pn(p.c);
+      sol='① 곱셈 먼저: '+pn(p.b)+' × '+pn(p.c)+' = '+sg(m)+'. ② '+sg(p.a)+' − '+pn(m)+' = '+(m<0?sg(p.a)+' + '+(-m)+' = ':'')+'<b>'+sg(v)+'</b>. <b>답 '+sg(v)+'</b>이에요.';
+      hint='곱셈이 뺄셈보다 먼저예요. 곱셈 결과의 부호부터 정해요.';
+    } else if(p.k==='pow_mul_sub'){        // (a)² × b − c
+      var sq=p.a*p.a, m2=sq*p.b, v2=m2-p.c; ans={n:v2,d:1};
+      stemS=pn(p.a)+'<sup>2</sup> × '+pn(p.b)+' − '+pn(p.c);
+      sol='① 거듭제곱 먼저: '+pn(p.a)+'<sup>2</sup> = '+sq+'. ② 곱셈: '+sq+' × '+pn(p.b)+' = '+sg(m2)+'. ③ '+sg(m2)+' − '+pn(p.c)+' = <b>'+sg(v2)+'</b>. <b>답 '+sg(v2)+'</b>이에요.';
+      hint='거듭제곱 → 곱셈 → 뺄셈 순서예요. 괄호 있는 거듭제곱은 부호까지 제곱해요.';
+    } else if(p.k==='div_add'){            // a ÷ b + c
+      var q=p.a/p.b, v3=q+p.c; ans={n:v3,d:1};
+      stemS=pn(p.a)+' ÷ '+pn(p.b)+' + '+pn(p.c);
+      sol='① 나눗셈 먼저: '+pn(p.a)+' ÷ '+pn(p.b)+' = '+sg(q)+' ('+(((p.a<0)===(p.b<0))?'같은 부호 → +':'다른 부호 → −')+'). ② '+pn(q)+' + '+pn(p.c)+' = <b>'+sg(v3)+'</b>. <b>답 '+sg(v3)+'</b>이에요.';
+      hint='나눗셈이 덧셈보다 먼저예요.';
+    } else if(p.k==='sub_pow'){            // a − (b)³
+      var cube=p.b*p.b*p.b, v4=p.a-cube; ans={n:v4,d:1};
+      stemS=sg(p.a)+' − '+pn(p.b)+'<sup>3</sup>';
+      sol='① 거듭제곱 먼저: '+pn(p.b)+'<sup>3</sup> = '+pn(p.b)+' × '+pn(p.b)+' × '+pn(p.b)+' = '+sg(cube)+' (음수 3개 → −). ② '+sg(p.a)+' − '+pn(cube)+' = '+(cube<0?sg(p.a)+' + '+(-cube)+' = ':'')+'<b>'+sg(v4)+'</b>. <b>답 '+sg(v4)+'</b>이에요.';
+      hint='거듭제곱을 먼저 계산해요. 음수의 세제곱은 음수예요.';
+    } else {                               // fpow_mul: (x)² × c
+      var xf=R(p.x[0],p.x[1]), sqf=rmul(xf,xf); ans=rmul(sqf,{n:p.c,d:1});
+      stemS=frH(xf,true)+'<sup>2</sup> × '+pn(p.c);
+      sol='① 거듭제곱 먼저: '+frH(xf,true)+'<sup>2</sup> = '+frH(sqf)+' (음수 2개 → +). ② '+frH(sqf)+' × '+pn(p.c)+' = '+frRaw(sqf.n*p.c,sqf.d)+(gcd(sqf.n*p.c,sqf.d)>1?' → 약분':'')+' → <b>답 '+frT(ans)+'</b>이에요.';
+      hint='괄호 안 분수를 먼저 제곱해요(분자·분모 각각). 부호는 +가 돼요.';
+    }
+    return {type:5, p:p, stem:'<span class="cr-expr">'+stemS+' = ?</span>', ans:ans, ansText:frT(ans), sol:sol, hint:hint};
+  }
+  /*GEN-END*/
+
+  /* ── 입력 파싱: "3/4", "-3/4", "−3/4", "2", "0.5" ── */
+  function norm(s){ return (s||'').trim().replace(/[−–—]/g,'-').replace(/\s+/g,''); }
+  function parseAns(s){
+    var t=norm(s); if(t==='') return NaN;
+    var m=t.match(/^(-?\d+)\/(-?\d+)$/);
+    if(m){ var d=+m[2]; if(d===0) return NaN; return (+m[1])/d; }
+    if(/^-?\d+(\.\d+)?$/.test(t)) return parseFloat(t);
+    return NaN;
+  }
+  function closeEnough(v,ans){ return Math.abs(v-ans) < 1e-6; }
+
+  /* ── SVG 도우미 ── */
+  function polar(cx,cy,r,deg){ var a=(deg-90)*Math.PI/180; return [cx+r*Math.cos(a), cy+r*Math.sin(a)]; }
+  function slicePath(cx,cy,r,a0,a1){
+    var p0=polar(cx,cy,r,a0), p1=polar(cx,cy,r,a1), large=(a1-a0)>180?1:0;
+    return 'M'+cx+' '+cy+' L'+p0[0].toFixed(1)+' '+p0[1].toFixed(1)+' A'+r+' '+r+' 0 '+large+' 1 '+p1[0].toFixed(1)+' '+p1[1].toFixed(1)+' Z';
+  }
+  /* 피자: n조각, k조각 색칠, sub=조각마다 몇 등분 선, fill 색 */
+  function pizzaMarkup(cx,cy,r,n,k,fill,sub){
+    var s='<g>', step=360/n;
+    for(var i=0;i<n;i++){
+      var a0=i*step, a1=(i+1)*step;
+      s+='<path d="'+slicePath(cx,cy,r,a0,a1)+'" fill="'+(i<k?fill:'var(--panel)')+'" stroke="#b8781a" stroke-width="1.6"/>';
+    }
+    if(sub>1){
+      for(var j=0;j<n*sub;j++){ if(j%sub===0) continue; var q=polar(cx,cy,r,j*step/sub);
+        s+='<line x1="'+cx+'" y1="'+cy+'" x2="'+q[0].toFixed(1)+'" y2="'+q[1].toFixed(1)+'" stroke="#b8781a" stroke-width="1" stroke-dasharray="3 2" opacity=".9"/>'; }
+    }
+    s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="#8a5a14" stroke-width="2.2"/>';
+    return s+'</g>';
+  }
+  function txt(x,y,t,opt){ opt=opt||{}; return '<text x="'+x+'" y="'+y+'" font-size="'+(opt.size||12.5)+'" font-weight="'+(opt.b?'800':'600')+'" fill="'+(opt.col||'var(--ink)')+'" text-anchor="'+(opt.anchor||'start')+'">'+t+'</text>'; }
+  function readout(x,y,lines){ var s=''; lines.forEach(function(l,i){ s+=txt(x,y+i*20,l.t,{b:l.b,col:l.col}); }); return s; }
+
+  /* 애니메이션 러너 — draw(state,p)를 0→1로 재생 */
+  function makeAnim(svgId, playId, msgId, draw, endMsg, dur){
+    var svg=document.getElementById(svgId), btn=document.getElementById(playId), msg=document.getElementById(msgId);
+    var cur=null, playing=false, api={lastP:0};
+    api.set=function(q,p){ cur=q; api.lastP=p||0; svg.innerHTML=draw(q,api.lastP); if(!p) msg.textContent=''; };
+    btn.onclick=function(){
+      if(playing||!cur) return;
+      playing=true; btn.disabled=true; msg.textContent='';
+      var t0=null, D=dur||2600;
+      function step(ts){ if(t0===null)t0=ts; var p=Math.min(1,(ts-t0)/D); api.lastP=p; svg.innerHTML=draw(cur,p);
+        if(p<1) requestAnimationFrame(step); else { msg.textContent=endMsg(cur); playing=false; btn.disabled=false; } }
+      requestAnimationFrame(step);
+    };
+    return api;
+  }
+
+  /* ── 1. 피자 슬라이더 ── */
+  (function(){
+    var svg=document.getElementById('pizzaSvg'), rN=document.getElementById('pzN'), rK=document.getElementById('pzK');
+    function paint(){
+      var n=parseInt(rN.value,10); rK.max=n; var k=Math.min(parseInt(rK.value,10),n); rK.value=k;
+      document.getElementById('pzNv').textContent=n+'조각'; document.getElementById('pzKv').textContent=k+'조각';
+      var html=pizzaMarkup(100,90,72,n,k,'var(--pz)',1);
+      html+='<text x="230" y="70" font-size="13" fill="var(--ink)" font-weight="600">한 판을 <tspan font-weight="800">'+n+'</tspan>조각으로</text>';
+      html+='<text x="230" y="92" font-size="13" fill="var(--ink)" font-weight="600">그중 <tspan font-weight="800" fill="#b97a10">'+k+'</tspan>조각</text>';
+      html+='<text x="230" y="130" font-size="26" font-family="Georgia,serif" font-style="italic" fill="var(--cr)" font-weight="800">'+k+'/'+n+'</text>';
+      var g=gcd(k,n);
+      html+='<text x="300" y="130" font-size="12.5" fill="var(--muted)">'+(k===0?'= 0':(k===n?'= 1 (한 판)':(g>1?'= '+(k/g)+'/'+(n/g)+' (약분)':'(기약분수)')))+'</text>';
+      svg.innerHTML=html;
+    }
+    rN.addEventListener('input',paint); rK.addEventListener('input',paint); paint();
+  })();
+
+  /* ── 1. 통분 애니 ── */
+  var CD_PAIRS=[ {a:1,b:2,c:1,d:3},{a:1,b:2,c:1,d:4},{a:2,b:3,c:1,d:6},{a:3,b:4,c:1,d:6} ];
+  var cdAnim=(function(){
+    var sel=document.getElementById('cdPair');
+    var api=makeAnim('cdSvg','cdPlay','cdMsg',function(q,p){
+      var L=lcm(q.b,q.d), s1=L/q.b, s2=L/q.d, n1=q.a*s1, n2=q.c*s2, sum=n1+n2;
+      var phase = p<0.45 ? 0 : (p<0.8 ? 1 : 2);
+      var html=pizzaMarkup(75,85,60,q.b,q.a,'var(--pz)',phase>=1?s1:1);
+      html+=txt(75,165,q.a+'/'+q.b+(phase>=1?' = '+n1+'/'+L:''),{anchor:'middle',b:true,col:'var(--cr)'});
+      html+=txt(150,90,'+',{size:22,b:true,anchor:'middle'});
+      html+=pizzaMarkup(225,85,60,q.d,q.c,'var(--pz2)',phase>=1?s2:1);
+      html+=txt(225,165,q.c+'/'+q.d+(phase>=1?' = '+n2+'/'+L:''),{anchor:'middle',b:true,col:'var(--cr)'});
+      var lines=[{t:'조각 크기가 달라요',b:true}];
+      if(phase>=1){ lines=[{t:'조각을 '+L+'등분으로 맞춰요',b:true},{t:q.a+'/'+q.b+' → '+n1+'/'+L,col:'var(--cr)'},{t:q.c+'/'+q.d+' → '+n2+'/'+L,col:'var(--cr)'}]; }
+      if(phase>=2){ var red=R(sum,L); lines.push({t:'분자만 더해요: '+n1+' + '+n2+' = '+sum,b:true}); lines.push({t:'= '+sum+'/'+L+(red.d!==L?' = '+frT(red):''),col:'var(--pos)',b:true}); }
+      html+=readout(300,52,lines);
+      return html;
+    }, function(q){ return '분모를 맞춘 뒤(통분) 분자만 더했어요'; }, 3200);
+    function reset(){ api.set(CD_PAIRS[parseInt(sel.value,10)],0); }
+    sel.addEventListener('change',reset); reset();
+    return api;
+  })();
+
+  /* ── 2. 곱셈 격자 ── */
+  (function(){
+    var svg=document.getElementById('mulSvg'), sA=document.getElementById('mulA'), sB=document.getElementById('mulB');
+    function parse(s){ var m=s.split('/'); return {n:+m[0],d:+m[1]}; }
+    function paint(){
+      var A=parse(sA.value), B=parse(sB.value), x0=20, y0=14, W=180, H=180, cw=W/A.d, ch=H/B.d;
+      var html='';
+      for(var r=0;r<B.d;r++) for(var c=0;c<A.d;c++){
+        var inA=c<A.n, inB=r<B.n, fill = inA&&inB ? 'var(--cr)' : (inA ? 'rgba(242,178,60,.45)' : (inB ? 'rgba(124,92,191,.28)' : 'var(--panel)'));
+        html+='<rect x="'+(x0+c*cw).toFixed(1)+'" y="'+(y0+r*ch).toFixed(1)+'" width="'+cw.toFixed(1)+'" height="'+ch.toFixed(1)+'" fill="'+fill+'" stroke="var(--border)" stroke-width="1"/>';
+      }
+      html+='<rect x="'+x0+'" y="'+y0+'" width="'+W+'" height="'+H+'" fill="none" stroke="var(--ink)" stroke-width="1.5" opacity=".6"/>';
+      html+=txt(x0+W/2,y0+H+14,'가로 '+A.n+'/'+A.d+' (🟧)',{anchor:'middle',col:'#b97a10',b:true});
+      var prod=rmul(A,B);
+      html+=readout(224,44,[{t:'세로 '+B.n+'/'+B.d+' (🟪)',col:'var(--cr)',b:true},{t:'전체 칸: '+A.d+' × '+B.d+' = '+(A.d*B.d)},{t:'둘 다 색칠: '+A.n+' × '+B.n+' = '+(A.n*B.n),b:true},
+        {t:A.n+'/'+A.d+' × '+B.n+'/'+B.d+' = '+(A.n*B.n)+'/'+(A.d*B.d),col:'var(--cr)',b:true},{t:(prod.d!==A.d*B.d||prod.n!==A.n*B.n)?'약분하면 '+frT(prod):'(기약분수)',col:'var(--pos)',b:true},{t:'분자끼리 · 분모끼리!',col:'var(--muted)'}]);
+      svg.innerHTML=html;
+    }
+    sA.addEventListener('change',paint); sB.addEventListener('change',paint); paint();
+  })();
+
+  /* ── 2. 나눗셈 애니 ── */
+  var DIV_PAIRS=[ {v:{n:1,d:1},u:{n:1,d:3}},{v:{n:2,d:1},u:{n:1,d:4}},{v:{n:3,d:4},u:{n:1,d:4}},{v:{n:3,d:2},u:{n:1,d:2}} ];
+  var divAnim=(function(){
+    var sel=document.getElementById('divPair');
+    var api=makeAnim('divSvg','divPlay','divMsg',function(q,p){
+      var unit=150, x0=30, y=46, h=30, len=rval(q.v)*unit, piece=rval(q.u)*unit, total=Math.round(rval(q.v)/rval(q.u));
+      var shown=Math.floor(p*total+1e-9);
+      var html='<rect x="'+x0+'" y="'+y+'" width="'+len.toFixed(1)+'" height="'+h+'" rx="4" fill="rgba(242,178,60,.35)" stroke="#b8781a"/>';
+      for(var k=0;k<=Math.floor(rval(q.v)+1e-9);k++){ var gx=x0+k*unit; if(gx<=x0+len+0.5) html+='<line x1="'+gx+'" y1="'+(y-6)+'" x2="'+gx+'" y2="'+(y+h+6)+'" stroke="var(--muted)" stroke-width="1"/>'+txt(gx,y+h+20,String(k),{anchor:'middle',col:'var(--muted)',size:11}); }
+      for(var i=0;i<shown;i++) html+='<rect x="'+(x0+i*piece+1).toFixed(1)+'" y="'+(y+3)+'" width="'+(piece-2).toFixed(1)+'" height="'+(h-6)+'" rx="3" fill="var(--cr)" opacity=".85"/>'+txt(x0+i*piece+piece/2,y+h/2+4,frT(q.u),{anchor:'middle',col:'#fff',size:11,b:true});
+      html+=txt(x0,y-14,frT(q.v)+' 안에 '+frT(q.u)+'이(가) 몇 번?',{b:true});
+      html+=readout(x0,y+h+44,[{t:'놓은 조각: '+shown+'개'+(shown===total?' → '+frT(q.v)+' ÷ '+frT(q.u)+' = '+total:''),b:true,col:'var(--cr)'},
+        {t:shown===total?('= '+frT(q.v)+' × '+q.u.d+'/'+q.u.n+' (뒤집어 곱하기)'):'', col:'var(--pos)',b:true}]);
+      return html;
+    }, function(q){ return frT(q.u)+'이(가) '+Math.round(rval(q.v)/rval(q.u))+'번 들어가요 — 뒤집어서 곱한 것과 같아요'; }, 2400);
+    function reset(){ api.set(DIV_PAIRS[parseInt(sel.value,10)],0); }
+    sel.addEventListener('change',reset); reset();
+    return api;
+  })();
+
+  /* ── 3. 수직선 ── */
+  function numberLine(x0,x1,y,min,max){
+    var s='<line x1="'+x0+'" y1="'+y+'" x2="'+x1+'" y2="'+y+'" stroke="var(--ink)" stroke-width="1.6" opacity=".7"/>';
+    var step=(x1-x0)/(max-min);
+    for(var v=min;v<=max;v++){ var x=x0+(v-min)*step; var big=(v%5===0);
+      s+='<line x1="'+x.toFixed(1)+'" y1="'+(y-(big?7:4))+'" x2="'+x.toFixed(1)+'" y2="'+(y+(big?7:4))+'" stroke="var(--ink)" stroke-width="1" opacity=".7"/>';
+      if(big||Math.abs(max-min)<=16) s+=txt(x,y+20,sg(v),{anchor:'middle',size:10.5,col:v===0?'var(--ink)':'var(--muted)',b:v===0}); }
+    return s;
+  }
+  function X(v,x0,x1,min,max){ return x0+(v-min)*(x1-x0)/(max-min); }
+  function arrow(xa,xb,y,col,label){
+    if(Math.abs(xb-xa)<0.5) return '';
+    var dir=xb>xa?1:-1, head=7;
+    var s='<line x1="'+xa.toFixed(1)+'" y1="'+y+'" x2="'+(xb-dir*head).toFixed(1)+'" y2="'+y+'" stroke="'+col+'" stroke-width="3" stroke-linecap="round"/>';
+    s+='<path d="M'+xb.toFixed(1)+' '+y+' L'+(xb-dir*head).toFixed(1)+' '+(y-5)+' L'+(xb-dir*head).toFixed(1)+' '+(y+5)+' Z" fill="'+col+'"/>';
+    if(label) s+=txt((xa+xb)/2,y-8,label,{anchor:'middle',col:col,b:true,size:12});
+    return s;
+  }
+  var nlAnim=(function(){
+    var sA=document.getElementById('nlA'), sOp=document.getElementById('nlOp'), sB=document.getElementById('nlB'), ex=document.getElementById('nlExpr');
+    var api=makeAnim('nlSvg','nlPlay','nlMsg',function(q,p){
+      var min=-12,max=12,x0=24,x1=416,y=78, move=q.op==='+'?q.b:-q.b, res=q.a+move;
+      var html=numberLine(x0,x1,y,min,max);
+      var p1=Math.min(1,p/0.4), p2=Math.max(0,Math.min(1,(p-0.5)/0.5));
+      var curA=q.a*p1;
+      if(p>0) html+=arrow(X(0,x0,x1,min,max),X(curA,x0,x1,min,max),y-22,q.a<0?'var(--neg)':'var(--pos)',p1>=1?(sg(q.a)+'에서 시작'):'');
+      if(p>=0.5){ var cur=q.a+move*p2; html+=arrow(X(q.a,x0,x1,min,max),X(cur,x0,x1,min,max),y-44,move<0?'var(--neg)':'var(--pos)',p2>=1?(move<0?'왼쪽으로 '+(-move):'오른쪽으로 '+move):''); }
+      var dot = p===0 ? 0 : (p<0.5 ? curA : q.a+move*p2);
+      html+='<circle cx="'+X(dot,x0,x1,min,max).toFixed(1)+'" cy="'+y+'" r="6" fill="var(--cr)" stroke="#fff" stroke-width="2"/>';
+      if(p>=1) html+=txt(X(res,x0,x1,min,max),y+36,'도착: '+sg(res),{anchor:'middle',b:true,col:'var(--cr)',size:13});
+      return html;
+    }, function(q){ var move=q.op==='+'?q.b:-q.b; return sg(q.a)+' '+(q.op==='+'?'+':'−')+' '+pn(q.b)+' = '+sg(q.a+move)+(q.op==='-'&&q.b<0?' · 빚을 빼면 재산이 늘어요':''); }, 2600);
+    function reset(){ var q={a:parseInt(sA.value,10),op:sOp.value,b:parseInt(sB.value,10)}; ex.textContent=sg(q.a)+' '+(q.op==='+'?'+':'−')+' '+pn(q.b)+' = ?'; api.set(q,0); }
+    [sA,sOp,sB].forEach(function(s){ s.addEventListener('change',reset); }); reset();
+    return api;
+  })();
+
+  /* ── 3. 패턴표 ── */
+  document.getElementById('patChk').onclick=function(){
+    var v1=parseAns(document.getElementById('pat1').value), v2=parseAns(document.getElementById('pat2').value), out=document.getElementById('patOut');
+    if(isNaN(v1)||isNaN(v2)){ out.innerHTML='두 칸 모두 숫자를 넣어 주세요 🙂'; return; }
+    if(v1===2&&v2===4){ out.innerHTML='<b style="color:var(--ok)">✓ 맞아요!</b> 왼쪽 수가 1씩 줄 때마다 결과는 2씩 <b>커졌죠</b>. 그 흐름대로 가면 (−1)×(−2) = 2, (−2)×(−2) = 4예요. 그래서 <b>(−)×(−) = (+)</b>예요.'; try{MJ1.confetti();}catch(e){} }
+    else out.innerHTML='<b style="color:var(--cr)">아직이에요.</b> −6, −4, −2, 0 … 2씩 커지고 있어요. 다음은 얼마일까요? (0 다음은 2, 그다음은 4예요.)';
+  };
+
+  /* ── 함께 생각하기 ①②③ ── */
+  function bindQuick(inputId,btnId,outId,ansR,sol){
+    var inp=document.getElementById(inputId), btn=document.getElementById(btnId), out=document.getElementById(outId);
+    btn.onclick=function(){
+      var v=parseAns(inp.value);
+      if(isNaN(v)){ out.innerHTML='숫자나 분수(예: 3/4)로 넣어 주세요 🙂'; return; }
+      if(closeEnough(v,rval(ansR))){ out.innerHTML='<b style="color:var(--ok)">✓ 정답이에요!</b> '+sol; try{MJ1.confetti();}catch(e){} }
+      else out.innerHTML='<b style="color:var(--cr)">아직이에요.</b> 답은 '+frT(ansR)+'이에요. '+sol;
+    };
+    inp.addEventListener('keydown',function(e){ if(e.key==='Enter') btn.click(); });
+  }
+  bindQuick('q1','q1b','q1o',{n:3,d:4},'(1/2 = 2/4니까 2/4 + 1/4 = 3/4)');
+  bindQuick('q2','q2b','q2o',{n:3,d:2},'(3/4 × 2/1 = 6/4 = 3/2 — 1/2이 한 번 반 들어가요)');
+  bindQuick('q3','q3b','q3o',{n:5,d:1},'((−2) + 7 = 5 — 빚 7을 없애 주면 재산이 7 늘어요)');
+
+  /* ── 4. 분수 3단계 표 ── */
+  function buildSteps(container, q){
+    container.innerHTML='';
+    var opS=q.op==='+'?'+':'−';
+    var html='<table class="cr-table"><thead><tr><th>단계</th><th>계산</th><th>답</th></tr></thead><tbody>'+
+      '<tr><td class="lab">문제</td><td colspan="2">'+frH(q.x)+' '+opS+' '+frH(q.y)+'</td></tr>'+
+      '<tr><td class="lab">① 통분</td><td>'+q.x.d+'과 '+q.y.d+'의 최소공배수</td><td class="unknown"><input class="stIn" data-k="L" inputmode="numeric" aria-label="최소공배수"></td></tr>'+
+      '<tr><td class="lab">② 분자 계산</td><td>'+frH(q.x)+' '+opS+' '+frH(q.y)+' = <span class="cr-fr"><b>□</b><i>'+q.L+'</i></span></td><td class="unknown"><input class="stIn" data-k="N" inputmode="text" aria-label="분자"></td></tr>'+
+      '<tr><td class="lab">③ 약분</td><td>기약분수로</td><td class="unknown"><input class="stIn wide" data-k="A" inputmode="text" placeholder="예: 3/4" aria-label="답"></td></tr>'+
+      '</tbody></table><div class="cr-checkrow"><button class="stChk">표 확인</button></div><div class="cr-out stOut"></div>';
+    container.innerHTML=html;
+    var out=container.querySelector('.stOut');
+    var rawN = q.op==='+' ? q.n1+q.n2 : q.n1-q.n2;
+    var answers={L:q.L, N:rawN, A:rval(q.ans)};
+    container.querySelector('.stChk').onclick=function(){
+      var ok=true;
+      container.querySelectorAll('.stIn').forEach(function(inp){
+        var k=inp.getAttribute('data-k'), v=parseAns(inp.value);
+        if(isNaN(v)||!closeEnough(v,answers[k])){ ok=false; inp.style.borderColor='#e3c15a'; } else inp.style.borderColor='var(--ok)';
+      });
+      out.innerHTML = ok ? '<b style="color:var(--ok)">✓ 3단계 완성!</b> 통분 → 분자 계산 → 약분, 이 순서가 손에 붙으면 돼요.' : '<span style="color:var(--cr)">한 칸이 아직이에요 — ① 최소공배수가 새 분모, ② 분자만 계산, ③ 공약수로 나눠요.</span>';
+      if(ok){ try{MJ1.confetti();}catch(e){} }
+    };
+    container.querySelectorAll('.stIn').forEach(function(inp){ inp.addEventListener('keydown',function(e){ if(e.key==='Enter') container.querySelector('.stChk').click(); }); });
+  }
+  function stepPractice(){ buildSteps(document.getElementById('stepDemo'), genType1()); }
+  stepPractice();
+  document.getElementById('stepAgain').onclick=stepPractice;
+
+  /* ── 5. 유형 카드 ── */
+  function renderTypeCard(container, gen, onPaint){
+    function paint(){
+      var q=gen(); q.revealed=false;
+      container.innerHTML='<div class="cr-stem">'+q.stem+'</div>'+
+        '<div class="cr-checkrow"><input class="num ans" inputmode="text" placeholder="답" aria-label="답"><button class="chk">확인</button><button class="cr-hintbtn hintbtn">💡 힌트</button></div>'+
+        '<div class="cr-hint"></div>'+
+        '<div class="cr-out"></div>'+
+        '<div class="cr-sol"></div>'+
+        '<div style="text-align:right"><button class="cr-again again">🔄 다른 문제로</button></div>';
+      var ansInp=container.querySelector('.ans'), out=container.querySelector('.cr-out'), sol=container.querySelector('.cr-sol'), hint=container.querySelector('.cr-hint');
+      container.querySelector('.hintbtn').onclick=function(){ hint.innerHTML='💡 '+q.hint; hint.classList.add('show'); };
+      container.querySelector('.chk').onclick=function(){
+        var v=parseAns(ansInp.value);
+        if(isNaN(v)){ out.innerHTML='숫자나 분수(예: 3/4, −2)로 넣어 주세요 🙂'; return; }
+        if(closeEnough(v,rval(q.ans))){ out.innerHTML='<b style="color:var(--ok)">✓ 정답이에요!</b>'; try{MJ1.confetti();}catch(e){} }
+        else out.innerHTML='<b style="color:var(--cr)">아직이에요.</b> 답은 '+q.ansText+'이에요. 아래 풀이를 봐요.';
+        sol.innerHTML='<b>풀이</b> '+q.sol; sol.classList.add('show');
+        q.revealed=true; if(onPaint) onPaint(q);
+      };
+      ansInp.addEventListener('keydown',function(e){ if(e.key==='Enter') container.querySelector('.chk').click(); });
+      container.querySelector('.again').onclick=paint;
+      if(onPaint) onPaint(q);
+    }
+    paint();
+  }
+  /* 유형③ 수직선: 확인 전엔 시작점만, 확인 후엔 이동 화살표 */
+  function drawT3(q){
+    var svg=document.getElementById('t3svg'), min=-16,max=16,x0=20,x1=420,y=64;
+    var html=numberLine(x0,x1,y,min,max);
+    var start=q.addTerms[0];
+    html+='<circle cx="'+X(start,x0,x1,min,max).toFixed(1)+'" cy="'+y+'" r="6" fill="var(--cr)" stroke="#fff" stroke-width="2"/>';
+    html+=txt(X(start,x0,x1,min,max),y-30,'시작 '+sg(start),{anchor:'middle',b:true,col:'var(--cr)'});
+    if(q.revealed){ var acc=start;
+      for(var i=1;i<q.addTerms.length;i++){ var t=q.addTerms[i]; if(t===0) continue; var nx=acc+t;
+        html+=arrow(X(acc,x0,x1,min,max),X(nx,x0,x1,min,max),y-14-(i-1)*12,t<0?'var(--neg)':'var(--pos)',(t<0?'−':'+')+Math.abs(t)); acc=nx; }
+      html+=txt(X(acc,x0,x1,min,max),y+36,'도착 '+sg(acc),{anchor:'middle',b:true,col:'var(--cr)',size:13}); }
+    svg.innerHTML=html;
+  }
+  renderTypeCard(document.getElementById('type1body'), genType1);
+  renderTypeCard(document.getElementById('type2body'), genType2);
+  renderTypeCard(document.getElementById('type3body'), genType3, drawT3);
+  renderTypeCard(document.getElementById('type4body'), genType4);
+  renderTypeCard(document.getElementById('type5body'), genType5);
+
+  /* ── 6. 실전 총정리 ── */
+  var QUIZ_TYPES=[
+    {key:'①', name:'통분 덧셈·뺄셈', gen:genType1, anchor:'type1'},
+    {key:'②', name:'분수 곱셈·나눗셈', gen:genType2, anchor:'type2'},
+    {key:'③', name:'음수 덧셈·뺄셈', gen:genType3, anchor:'type3'},
+    {key:'④', name:'음수 곱셈·나눗셈·거듭제곱', gen:genType4, anchor:'type4'},
+    {key:'⑤', name:'섞인 계산', gen:genType5, anchor:'type5'}
+  ];
+  function buildQuiz(){
+    var area=document.getElementById('quizArea'); area.innerHTML='';
+    var order=QUIZ_TYPES.slice(); for(var i=order.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var tmp=order[i]; order[i]=order[j]; order[j]=tmp; }
+    order.forEach(function(qt,idx){
+      var q=qt.gen();
+      var card=document.createElement('div'); card.className='cr-quizcard';
+      card.innerHTML='<b>'+(idx+1)+'.</b> <span class="cr-stem" style="display:inline">'+q.stem+'</span>'+
+        '<div class="cr-checkrow"><input class="num" inputmode="text" placeholder="답" aria-label="답"><button class="chk">확인</button></div>'+
+        '<div class="cr-out"></div><div class="cr-quiz-id"></div>';
+      area.appendChild(card);
+      var inp=card.querySelector('input'), out=card.querySelector('.cr-out'), idbox=card.querySelector('.cr-quiz-id');
+      function submit(){
+        var v=parseAns(inp.value), ok=!isNaN(v)&&closeEnough(v,rval(q.ans));
+        out.innerHTML= ok ? '<b style="color:var(--ok)">✓ 정답이에요!</b>' : '<b style="color:var(--cr)">아직이에요.</b> 답은 '+q.ansText+'이에요.';
+        idbox.innerHTML='이 문제는 <b>'+qt.key+' '+qt.name+'</b> 유형이에요. <a href="#'+qt.anchor+'">다시 볼까요? →</a>';
+        idbox.classList.add('show');
+        if(ok){ try{MJ1.confetti();}catch(e){} }
+      }
+      card.querySelector('.chk').onclick=submit;
+      inp.addEventListener('keydown',function(e){ if(e.key==='Enter') submit(); });
+    });
+  }
+  buildQuiz();
+  document.getElementById('quizAgain').onclick=buildQuiz;
+
+  /* ── 7. 치트시트 인쇄 ── */
+  document.getElementById('printCheat').onclick=function(){
+    document.getElementById('printArea').innerHTML=document.querySelector('.cr-cheat').outerHTML;
+    window.print();
+  };
+})();
+</script>
+</body>
+</html>

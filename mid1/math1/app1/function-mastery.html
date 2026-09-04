@@ -1,0 +1,763 @@
+<!-- function-mastery.html — 함수란 무엇인가 특강 (2026-09-03, 06단원 정비례·반비례 보강 특별 챕터 · "y=a/x에 a=−2 넣기" 사건 정면 치료) -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>📦 함수란 무엇인가 · 중1</title>
+<link rel="stylesheet" href="concept.css?v=20260830b">
+<style>
+  :root{ --fn:#7b5ce6; --fn2:#a48cf2; --fn-soft:rgba(123,92,230,.12); }
+  .fn-hero{border-radius:26px;padding:30px 26px;margin:14px 0 18px;color:#fff;position:relative;overflow:hidden;
+    background:linear-gradient(135deg,var(--fn),var(--fn2));box-shadow:var(--shadow-l)}
+  .fn-hero::after{content:"";position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.14)}
+  .fn-hero h1{color:#fff;margin:0 0 8px;font-size:26px}
+  .fn-hero p{color:rgba(255,255,255,.94);font-size:14.5px;margin:0}
+  .fn-goal{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .fn-goal span{background:rgba(255,255,255,.22);border-radius:999px;padding:6px 13px;font-size:12.5px;font-weight:700}
+  .fn-sec{margin:34px 0}
+  .fn-sec .eyebrow .n{background:linear-gradient(135deg,var(--fn),var(--fn2))}
+  .fn-f{font-family:var(--serif);font-style:italic;font-size:1.06em;white-space:nowrap}
+
+  .fn-panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px 18px 14px;box-shadow:var(--shadow-s)}
+  .fn-note{font-size:13px;color:var(--muted);margin:8px 0 0}
+  .fn-play{background:var(--fn);color:#fff;border:none;border-radius:999px;padding:8px 16px;font-weight:700;font-size:13px;cursor:pointer}
+  .fn-play:disabled{opacity:.55;cursor:default}
+  .fn-again{background:none;border:1.5px solid var(--fn);color:var(--fn);border-radius:999px;padding:6px 14px;font-size:12.5px;font-weight:700;cursor:pointer;margin-top:8px;box-shadow:none}
+  .fn-chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+  .fn-chips button{background:var(--panel-2);color:var(--ink);border:1.5px solid var(--border);box-shadow:none;font-weight:800;font-size:14px;padding:8px 13px;border-radius:10px;font-variant-numeric:tabular-nums}
+  .fn-chips button.on{border-color:var(--fn);background:var(--fn-soft);color:var(--fn)}
+  .fn-chips button:disabled{opacity:.45;cursor:default}
+
+  /* 상자 기계 */
+  .fn-machine{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin:8px 0}
+  .fn-box{width:110px;height:96px;border-radius:18px;background:linear-gradient(135deg,var(--fn),var(--fn2));color:#fff;display:grid;place-items:center;
+    font-family:var(--serif);font-style:italic;font-size:20px;font-weight:800;box-shadow:var(--shadow-m);position:relative;transition:transform .2s}
+  .fn-box.shake{animation:fnshake .5s ease}
+  @keyframes fnshake{0%{transform:rotate(0)}25%{transform:rotate(-4deg) scale(1.04)}50%{transform:rotate(4deg) scale(1.04)}100%{transform:rotate(0)}}
+  .fn-box small{position:absolute;top:6px;left:0;right:0;text-align:center;font-family:var(--sans);font-style:normal;font-size:10.5px;opacity:.85;font-weight:700}
+  .fn-io{text-align:center}
+  .fn-io .lbl{font-size:11.5px;color:var(--muted);font-weight:700;letter-spacing:.06em}
+  .fn-io .val{font-family:var(--serif);font-style:italic;font-size:30px;font-weight:800;color:var(--fn);font-variant-numeric:tabular-nums;min-height:1.2em}
+  .fn-io .val.pop{animation:pop .35s ease}
+  .fn-log{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0;min-height:1.6em}
+  .fn-log span{background:var(--panel-2);border:1px solid var(--border);border-radius:999px;padding:4px 10px;font-size:12.5px;font-variant-numeric:tabular-nums;font-weight:700}
+  .fn-picks{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .fn-picks button{background:var(--panel-2);color:var(--ink);border:1.5px solid var(--border);box-shadow:none;font-weight:700;font-family:var(--serif);font-style:italic;font-size:15px;padding:9px 14px}
+  .fn-picks button.ok{border-color:var(--ok);background:var(--ok-soft)}
+  .fn-picks button.no{border-color:#e3c15a;opacity:.7}
+  .fn-picks button:disabled{cursor:default}
+
+  /* 표·그래프 */
+  table.fn-table{border-collapse:collapse;margin:10px auto;font-size:14px;font-variant-numeric:tabular-nums}
+  table.fn-table th{background:var(--panel-2);padding:7px 10px;border:1px solid var(--border);font-family:var(--serif);font-style:italic;font-size:15px;color:var(--ink)}
+  table.fn-table td{padding:7px 9px;border:1px solid var(--border);text-align:center;min-width:34px}
+  table.fn-table tr:first-child td{color:var(--muted);font-weight:700}
+  table.fn-table td.known{color:var(--u);font-weight:800;background:var(--u-soft)}
+  table.fn-table td.unknown{background:var(--fn-soft);padding:4px}
+  table.fn-table td.unknown input{width:52px;text-align:center;border:1.5px solid var(--fn);border-radius:8px;padding:6px 2px;font-size:14px;background:var(--panel)}
+  .fn-tblwrap{overflow-x:auto}
+  .fn-graph{width:100%;max-width:230px;display:block;margin:6px auto;border-radius:14px;border:1px solid var(--border)}
+  .fn-trans{display:grid;grid-template-columns:1fr;gap:10px;align-items:center}
+  @media (min-width:560px){.fn-trans{grid-template-columns:1fr 230px}}
+  .fn-read{background:var(--sage-soft);border:1px solid rgba(79,168,146,.3);border-radius:12px;padding:10px 14px;font-size:13.5px;margin:10px 0 0}
+  .fn-read b{color:var(--sage)}
+
+  /* 괄호 무대 */
+  .fn-stage{font-family:var(--serif);font-style:italic;font-size:30px;text-align:center;padding:18px 8px;background:var(--panel-2);border-radius:14px;margin:10px 0 6px;font-variant-numeric:tabular-nums;min-height:1.4em}
+  .fn-stage .br{color:var(--fn);font-weight:800;animation:pop .4s ease}
+  .fn-cap{text-align:center;font-size:13.5px;min-height:1.5em;margin:0 0 8px;color:var(--ink)}
+  .fn-cap b{color:var(--fn)}
+
+  .fn-formula{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:14px 0}
+  .fn-formula .f{background:var(--panel-2);border:1.5px solid var(--fn);border-radius:14px;padding:12px 18px;
+    font-family:var(--serif);font-style:italic;font-size:17px;text-align:center;min-width:150px;flex:1}
+  .fn-formula .f small{display:block;font-family:var(--sans);font-style:normal;font-size:11px;color:var(--muted);margin-top:4px}
+  .fn-trap{background:rgba(242,178,60,.14);border:1px solid rgba(242,178,60,.5);border-radius:12px;padding:10px 14px;font-size:13.5px;margin:12px 0}
+  .fn-trap b{color:#b97a10}
+  .fn-anchor{background:var(--sage-soft);border:1.5px solid rgba(79,168,146,.45);border-radius:14px;padding:12px 16px;font-size:14px;margin:14px 0;display:flex;gap:10px;align-items:flex-start}
+  .fn-anchor .ic{font-size:22px;line-height:1}
+  .fn-anchor b{color:var(--sage)}
+
+  .fn-type{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:20px 20px 18px;margin:16px 0;box-shadow:var(--shadow-m)}
+  .fn-type-h{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .fn-type-h .badge{flex:none;width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,var(--fn),var(--fn2));
+    color:#fff;display:grid;place-items:center;font-weight:800;font-family:var(--serif);font-style:italic}
+  .fn-type-h .t{font-weight:800;font-size:16px}
+  .fn-type-h .d{font-size:12.5px;color:var(--muted)}
+  .fn-key{background:var(--sage-soft);border:1px solid rgba(79,168,146,.3);border-radius:12px;padding:10px 14px;font-size:13.5px;margin:10px 0}
+  .fn-key b{color:var(--sage)}
+  .fn-stem{font-size:14.5px;line-height:1.65;margin:10px 0}
+  .fn-checkrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .fn-checkrow input.num{width:84px}
+  .fn-out{margin-top:8px;font-size:14px;min-height:1.3em}
+  .fn-sol{display:none;background:var(--u-soft);border-radius:12px;padding:12px 14px;margin-top:10px;font-size:13.5px;line-height:1.7}
+  .fn-sol.show{display:block;animation:pop .35s ease}
+
+  .fn-quizcard{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px 18px;margin:14px 0;box-shadow:var(--shadow-s)}
+  .fn-quiz-id{display:none;margin-top:8px;font-size:13px;color:var(--fn);font-weight:700}
+  .fn-quiz-id.show{display:block}
+  .fn-quiz-id a{color:var(--fn)}
+
+  .fn-cheat{background:linear-gradient(135deg,var(--fn),var(--fn2));color:#fff;border-radius:18px;padding:20px 22px;margin:16px 0}
+  .fn-cheat h3{margin:0 0 10px;font-size:16px}
+  .fn-cheat .row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+  .fn-cheat .chip{background:rgba(255,255,255,.2);border-radius:10px;padding:8px 12px;font-size:12.5px;flex:1;min-width:150px}
+  .fn-cheat .chip b{display:block;font-size:13px;margin-bottom:2px}
+  #printCheat{background:#fff;color:var(--fn);border:none;border-radius:999px;padding:9px 18px;font-weight:800;font-size:13px;cursor:pointer;margin-top:12px}
+  #printArea{display:none}
+  @media print{ body>*:not(#printArea){display:none !important} #printArea{display:block !important} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중1 수학</a><span class="dot"></span><span>함수란 무엇인가</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+
+  <div class="fn-hero">
+    <h1>📦 함수란 무엇인가</h1>
+    <p>"y = a/x에서 a = −2일 때 식을 쓰세요." 여기서 손이 멈춘 적이 있죠? 괜찮아요 — 그건 계산을 못해서가 아니라 <b>"a 자리에 뭔가를 넣는다"는 게 뭔지</b>를 아직 아무도 그림으로 보여 주지 않아서예요. 이번 특강은 식을 외우지 않아요. <b>넣으면 나오는 상자</b>에서 시작해요.</p>
+    <div class="fn-goal">
+      <span>① 음수는 괄호부터</span><span>② 표 채우기</span><span>③ a 구하기</span><span>④ 표 → 식</span><span>⑤ 그래프 → 식</span>
+    </div>
+  </div>
+
+  <!-- ───────────────── 1. 상자 기계 ───────────────── -->
+  <section class="fn-sec reveal" id="s1">
+    <div class="eyebrow"><span class="n">1</span>넣으면 나오는 상자 (식 없이 감 잡기)</div>
+    <p>여기 규칙을 숨긴 <b>상자</b>가 있어요. 숫자를 하나 넣으면 상자가 규칙대로 바꿔서 하나를 내놓아요. 숫자를 세 개쯤 넣어 보고 <b>규칙이 뭔지 추리</b>해 보세요.</p>
+    <div class="fn-panel">
+      <div class="fn-machine">
+        <div class="fn-io"><div class="lbl">넣는 수 x</div><div class="val" id="boxIn">?</div></div>
+        <div class="fn-box" id="boxBody"><small>규칙</small><span id="boxLbl">?</span></div>
+        <div class="fn-io"><div class="lbl">나오는 수 y</div><div class="val" id="boxOut">?</div></div>
+      </div>
+      <p class="fn-note" style="margin:0 0 2px">넣어 볼 수를 골라요 👇</p>
+      <div class="fn-chips" id="boxInputs"></div>
+      <div class="fn-log" id="boxLog"></div>
+      <div id="boxGuess"></div>
+      <div class="fn-out" id="boxMsg"></div>
+      <div style="text-align:right"><button class="fn-again" id="boxAgain">🔄 다른 상자로</button></div>
+    </div>
+    <p style="margin-top:14px">방금 한 일이 전부예요. <b>x를 정하면 y가 하나로 정해진다</b> — 이런 관계를 앞으로 <b>함수</b>라고 불러요(정식 이름은 중2에서 배워요. 지금은 "상자"라고 생각해도 충분해요). 상자의 규칙을 글자로 적은 게 <b>식</b>이에요.</p>
+  </section>
+
+  <!-- ───────────────── 2. 식은 규칙을 읽는 것 ───────────────── -->
+  <section class="fn-sec reveal" id="s2">
+    <div class="eyebrow"><span class="n">2</span>식은 외우는 게 아니라 읽는 것</div>
+    <p>상자 규칙 "넣은 수에 2를 곱해요"를 글자로 쓰면 <span class="fn-f">y = 2x</span>예요. "12를 넣은 수로 나눠요"는 <span class="fn-f">y = 12/x</span>예요. 식은 상자 설명서일 뿐이에요.</p>
+    <div class="fn-formula">
+      <div class="f">y = ax<small>정비례 · "x에 a를 곱하면 y" · x가 2배면 y도 2배</small></div>
+      <div class="f">y = a/x<small>반비례 · "a를 x로 나누면 y" · x가 2배면 y는 절반</small></div>
+    </div>
+    <p>두 식에 들어 있는 <b>a</b>는 그 상자의 "고정된 숫자"예요. 이름은 <b>비례상수</b>고요. 상자마다 a가 달라요 — <span class="fn-f">y = 2x</span>는 a = 2, <span class="fn-f">y = −5x</span>는 a = −5, <span class="fn-f">y = −3/x</span>는 a = −3이에요.</p>
+    <div class="fn-trap"><b>⚠ 가장 흔한 함정</b> — "a = −2를 넣으세요"라는 말은 <b>a라는 글자가 있던 자리에 −2를 통째로 놓으라</b>는 뜻이에요. 글자 a 옆에 −2를 붙이는 게 아니에요. 그래서 이 특강의 앵커는 이거예요 👇</div>
+    <div class="fn-anchor"><span class="ic">( )</span><span><b>불변 앵커 — 음수를 넣을 땐 괄호부터 만들어요.</b> 글자 자리를 지우고 빈 괄호 ( )를 놓은 다음, 그 안에 음수를 통째로 넣어요. <span class="fn-f">y = a/x</span>, a = −2 → <span class="fn-f">y = ( )/x</span> → <span class="fn-f">y = (−2)/x</span> → <span class="fn-f">y = −2/x</span>. 이 세 단계가 이 특강 전체예요.</span></div>
+    <div class="card">
+      <p style="margin:0 0 8px;font-weight:700">함께 생각하기 ①</p>
+      <p style="margin:0 0 10px">상자의 규칙이 <span class="fn-f">y = 3x</span>예요. x = 4를 넣으면 y는 얼마일까요?</p>
+      <div class="fn-checkrow"><input class="num" id="q1" inputmode="numeric" aria-label="답"><button id="q1b">확인</button></div>
+      <div class="fn-out" id="q1o"></div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <p style="margin:0 0 8px;font-weight:700">함께 생각하기 ②</p>
+      <p style="margin:0 0 6px">어떤 상자에 −2를 넣었더니 −6이 나오고, 3을 넣었더니 9가 나왔어요. 이 상자의 규칙은 무엇일까요?</p>
+      <div class="fn-picks" id="q2picks"></div>
+      <div class="fn-out" id="q2o"></div>
+    </div>
+  </section>
+
+  <!-- ───────────────── 3. 표 ↔ 그래프 ↔ 식 ───────────────── -->
+  <section class="fn-sec reveal" id="s3">
+    <div class="eyebrow"><span class="n">3</span>표 ↔ 그래프 ↔ 식, 세 가지 말로 번역하기</div>
+    <p>같은 상자를 세 가지 말로 표현할 수 있어요 — <b>식</b>(설명서), <b>표</b>(넣어 본 기록), <b>그래프</b>(기록을 점으로 찍은 그림). 식을 하나 고르면 표와 그래프가 같이 바뀌어요. 세 개가 <b>같은 것</b>이라는 느낌이 들 때까지 눌러 보세요.</p>
+    <div class="fn-panel">
+      <div class="fn-chips" id="eqChips"></div>
+      <div class="fn-trans">
+        <div class="fn-tblwrap" id="trTable"></div>
+        <svg class="fn-graph" id="trSvg" viewBox="0 0 220 220" role="img" aria-label="선택한 식의 그래프"></svg>
+      </div>
+      <div class="fn-read" id="trRead"></div>
+    </div>
+    <p style="margin-top:16px">이제 거꾸로 — 식을 보고 <b>표의 빈칸</b>을 채워 볼까요? x 자리에 숫자를 넣기만 하면 돼요(음수면 괄호부터!).</p>
+    <div class="fn-panel">
+      <p class="fn-stem" id="xyStem" style="margin:0 0 6px"></p>
+      <div class="fn-tblwrap" id="xyPractice"></div>
+      <div style="text-align:right"><button class="fn-again" id="xyAgain">🔄 다른 문제로</button></div>
+    </div>
+  </section>
+
+  <!-- ───────────────── 4. 괄호 애니메이션 ───────────────── -->
+  <section class="fn-sec reveal" id="s4">
+    <div class="eyebrow"><span class="n">4</span>대입 집중 훈련 — 음수는 괄호부터</div>
+    <p>이 특강의 심장이에요. 식과 a를 고르고 <b>▶ 재생</b>을 누르면, 글자 자리에 음수를 넣는 세 단계를 천천히 보여 드려요.</p>
+    <div class="fn-panel">
+      <div class="fn-chips" style="margin-top:0"><span style="font-size:12.5px;color:var(--muted);font-weight:700;align-self:center">식</span><button data-kind="inv" class="on" id="kInv">y = a/x</button><button data-kind="dir" id="kDir">y = ax</button></div>
+      <div class="fn-chips"><span style="font-size:12.5px;color:var(--muted);font-weight:700;align-self:center">a =</span><span id="aChips" style="display:contents"></span></div>
+      <div class="fn-stage" id="parStage"></div>
+      <p class="fn-cap" id="parCap">▶ 재생을 눌러 보세요</p>
+      <div style="text-align:center"><button class="fn-play" id="parPlay">▶ 재생</button></div>
+      <hr style="border:none;border-top:1px dashed var(--border);margin:16px 0">
+      <p style="margin:0 0 4px;font-size:14px">이번엔 완성된 식에 <b>x 값</b>도 넣어 봐요. 규칙은 똑같아요 — x 자리에 괄호부터.</p>
+      <div class="fn-chips"><span style="font-size:12.5px;color:var(--muted);font-weight:700;align-self:center">x =</span><span id="xChips" style="display:contents"></span></div>
+      <div class="fn-stage" id="parStage2"></div>
+      <p class="fn-cap" id="parCap2">x를 고르고 ▶ 재생을 눌러 보세요</p>
+      <div style="text-align:center"><button class="fn-play" id="parPlay2">▶ 재생</button></div>
+    </div>
+    <div class="fn-formula" style="margin-top:16px">
+      <div class="f">a 구하기 (정비례)<small>y = ax에 점을 넣어요 → a = y ÷ x</small></div>
+      <div class="f">a 구하기 (반비례)<small>y = a/x에 점을 넣어요 → a = x × y</small></div>
+    </div>
+    <p>a를 구할 때도 똑같아요. "x = −3일 때 y = 6"이면 <span class="fn-f">y = ax</span>에 <b>괄호로</b> 넣어서 <span class="fn-f">6 = a × (−3)</span>, 그러니까 a = 6 ÷ (−3) = −2예요.</p>
+  </section>
+
+  <!-- ───────────────── 5. 유형별 완전정복 ───────────────── -->
+  <section class="fn-sec reveal" id="s5">
+    <div class="eyebrow"><span class="n">5</span>유형별 완전정복</div>
+    <p>시험에 나오는 건 이 다섯 가지예요. 전부 "<b>글자 자리에 숫자 넣기</b>" 아니면 "<b>넣어서 a 찾기</b>"예요. 틀려도 괜찮아요 — 풀이를 보고 "다른 문제로"를 누르면 끝없이 연습할 수 있어요.</p>
+  </section>
+
+  <section class="fn-type reveal" id="type1">
+    <div class="fn-type-h"><span class="badge">①</span><span><div class="t">음수는 괄호부터</div><div class="d">a 자리 · x 자리에 음수 넣기 — 사건의 현장</div></span></div>
+    <div class="fn-key"><b>핵심</b> 글자 자리를 지우고 빈 괄호를 만든 뒤 음수를 통째로 넣어요. 그다음에야 괄호를 풀어요.</div>
+    <div id="type1body"></div>
+  </section>
+
+  <section class="fn-type reveal" id="type2">
+    <div class="fn-type-h"><span class="badge">②</span><span><div class="t">x를 넣어 y 구하기 — 표 채우기</div><div class="d">식이 주어지고 x가 여러 개</div></span></div>
+    <div class="fn-key"><b>핵심</b> 표의 칸 하나하나가 "x 자리에 그 숫자를 넣은 결과"예요. 음수 칸은 괄호부터.</div>
+    <div id="type2body"></div>
+  </section>
+
+  <section class="fn-type reveal" id="type3">
+    <div class="fn-type-h"><span class="badge">③</span><span><div class="t">점을 알면 a를 구해요</div><div class="d">"x = □일 때 y = △" 또는 "점 (□, △)를 지나요"</div></span></div>
+    <div class="fn-key"><b>핵심</b> 정비례는 a = y ÷ x, 반비례는 a = x × y예요. 식에 점을 괄호로 넣고 a만 남기면 돼요.</div>
+    <div id="type3body"></div>
+  </section>
+
+  <section class="fn-type reveal" id="type4">
+    <div class="fn-type-h"><span class="badge">④</span><span><div class="t">표를 보고 식 고르기</div><div class="d">정비례? 반비례? 둘 다 아님?</div></span></div>
+    <div class="fn-key"><b>핵심</b> x가 2배일 때 y도 2배면 정비례(y ÷ x 일정), y가 절반이면 반비례(x × y 일정), 둘 다 아니면 둘 다 아니에요.</div>
+    <div id="type4body"></div>
+  </section>
+
+  <section class="fn-type reveal" id="type5">
+    <div class="fn-type-h"><span class="badge">⑤</span><span><div class="t">그래프를 보고 식 고르기</div><div class="d">모양으로 정비례·반비례, 위치로 a의 부호</div></span></div>
+    <div class="fn-key"><b>핵심</b> 원점을 지나는 직선이면 y = ax, 곡선(쌍곡선)이면 y = a/x예요. 1·3사분면이면 a > 0, 2·4사분면이면 a < 0. 크기는 지나는 점을 넣어서 구해요.</div>
+    <div id="type5body"></div>
+  </section>
+
+  <!-- ───────────────── 6. 실전 총정리 ───────────────── -->
+  <section class="fn-sec reveal" id="s6">
+    <div class="eyebrow"><span class="n">6</span>실전 총정리 — 유형 섞어서</div>
+    <p>이번엔 어떤 유형인지 안 알려드려요. 문제를 읽고 <b>"지금 뭘 넣어야 하지?"</b>를 먼저 생각해서 풀어 봐요. 틀리면 어느 유형인지 알려드릴게요.</p>
+    <div id="quizArea"></div>
+    <div style="text-align:center;margin-top:8px"><button class="fn-again" id="quizAgain">🔄 5문제 새로</button></div>
+  </section>
+
+  <!-- ───────────────── 7. 치트시트 ───────────────── -->
+  <section class="fn-sec reveal" id="s7">
+    <div class="eyebrow"><span class="n">7</span>마무리 치트시트</div>
+    <div class="fn-cheat">
+      <h3>📦 함수란 무엇인가 한 장 요약</h3>
+      <div class="row">
+        <div class="chip"><b>함수 = 넣으면 하나로 나오는 상자</b>x를 정하면 y가 하나로 정해져요 · 식은 상자 설명서</div>
+      </div>
+      <div class="row">
+        <div class="chip"><b>정비례 y = ax</b>x가 2배면 y도 2배 · 원점을 지나는 직선 · a = y ÷ x</div>
+        <div class="chip"><b>반비례 y = a/x</b>x가 2배면 y는 절반 · 쌍곡선 · a = x × y</div>
+      </div>
+      <div class="row">
+        <div class="chip"><b>( ) 음수는 괄호부터</b>a = −2 → y = ( )/x → y = (−2)/x → y = −2/x</div>
+        <div class="chip"><b>x에 넣을 때도 괄호</b>y = −3x, x = −2 → y = (−3) × (−2) = 6</div>
+      </div>
+      <div class="row">
+        <div class="chip"><b>표 읽기</b>y ÷ x 일정 → 정비례 · x × y 일정 → 반비례 · 둘 다 아니면 둘 다 아님</div>
+        <div class="chip"><b>그래프 읽기</b>직선 = 정비례, 곡선 = 반비례 · 1·3사분면 a > 0, 2·4사분면 a < 0</div>
+      </div>
+      <button id="printCheat">🖨️ 이 치트시트 인쇄하기</button>
+    </div>
+    <p style="text-align:center;color:var(--muted);font-size:13px">여기까지 왔으면 06단원 문제로 돌아가서 다시 풀어 봐요 — <a href="p6.html#c3" style="color:var(--fn);font-weight:700">반비례 식 세우기 문제로 가기 →</a><br>개념을 다시 보고 싶으면 — <a href="u6.html" style="color:var(--fn);font-weight:700">📘 06단원 정비례와 반비례</a></p>
+  </section>
+
+  <div class="foot">함수란 무엇인가 · 06_정비례와 반비례 보강 특강</div>
+</div>
+
+<div id="printArea"></div>
+
+<script src="concept.js?v=20260830b"></script>
+<script>
+MJ1.boot();
+(function(){
+  'use strict';
+  /*GEN-START*/
+  function ri(a,b){return a+Math.floor(Math.random()*(b-a+1));}
+  function pick(a,i){ if(typeof i==='number') return a[((i%a.length)+a.length)%a.length]; return a[Math.floor(Math.random()*a.length)]; }
+  function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;} return a; }
+  function sg(n){ return n<0?('−'+Math.abs(n)):String(n); }
+  function par(n){ return n<0?('(−'+Math.abs(n)+')'):String(n); }
+  function vowelEnd(n){ return /[2459]$/.test(String(Math.abs(n))); }   // 이·사·오·구 → 받침 없음
+  function yeyo(n){ return sg(n)+(vowelEnd(n)?'예요':'이에요'); }
+  function eul(n){ return sg(n)+(vowelEnd(n)?'를':'을'); }
+  function coefx(a){ return a===1?'x':a===-1?'−x':(sg(a)+'x'); }
+  function eqDir(a){ return 'y = '+coefx(a); }
+  function eqInv(a){ return 'y = '+sg(a)+'/x'; }
+  function eqLin(b){ return 'y = x '+(b<0?'− ':'+ ')+Math.abs(b); }
+  function eqOf(r){ return r.kind==='dir'?eqDir(r.a): r.kind==='inv'?eqInv(r.a): eqLin(r.b); }
+  function ruleY(r,x){ return r.kind==='dir'?r.a*x : r.kind==='inv'? r.a/x : x+r.b; }
+  function divisorsXs(a){ var out=[], m=Math.abs(a); for(var d=2;d<=6&&out.length<3;d++){ if(m%d===0) out.push(d); } var xs=[]; for(var k=out.length-1;k>=0;k--) xs.push(-out[k]); return xs.concat(out); }
+  function tableHtml(xs,ys){
+    var h='<div class="fn-tblwrap"><table class="fn-table"><tr><th>x</th>';
+    xs.forEach(function(x){ h+='<td>'+sg(x)+'</td>'; });
+    h+='</tr><tr><th>y</th>';
+    ys.forEach(function(y){ h+='<td class="known">'+sg(y)+'</td>'; });
+    return h+'</tr></table></div>';
+  }
+  /* 좌표평면 SVG (−6~6) : r={kind,a|b}, opts.mark=[x,y] */
+  function graphSvg(r,opts){
+    opts=opts||{}; var W=220,H=220,R=6,s=W/(2*R+1);
+    function px(x){ return (W/2+x*s).toFixed(1); } function py(y){ return (H/2-y*s).toFixed(1); }
+    var h='<rect width="'+W+'" height="'+H+'" fill="var(--panel-2)"/>';
+    for(var g=-R;g<=R;g++){ h+='<line x1="'+px(g)+'" y1="0" x2="'+px(g)+'" y2="'+H+'" stroke="var(--border)" stroke-width="1"/><line x1="0" y1="'+py(g)+'" x2="'+W+'" y2="'+py(g)+'" stroke="var(--border)" stroke-width="1"/>'; }
+    h+='<line x1="0" y1="'+py(0)+'" x2="'+W+'" y2="'+py(0)+'" stroke="var(--ink)" stroke-width="1.4" opacity=".6"/><line x1="'+px(0)+'" y1="0" x2="'+px(0)+'" y2="'+H+'" stroke="var(--ink)" stroke-width="1.4" opacity=".6"/>';
+    [-4,-2,2,4].forEach(function(t){ h+='<text x="'+px(t)+'" y="'+(+py(0)+11)+'" font-size="8" text-anchor="middle" fill="var(--muted)">'+sg(t)+'</text><text x="'+(+px(0)-4)+'" y="'+(+py(t)+3)+'" font-size="8" text-anchor="end" fill="var(--muted)">'+sg(t)+'</text>'; });
+    h+='<text x="'+(W-8)+'" y="'+(+py(0)-4)+'" font-size="9" font-style="italic" text-anchor="end" fill="var(--ink)">x</text><text x="'+(+px(0)+5)+'" y="9" font-size="9" font-style="italic" fill="var(--ink)">y</text>';
+    if(r.kind==='dir'){
+      var xm=Math.min(R, R/Math.abs(r.a));
+      h+='<line x1="'+px(-xm)+'" y1="'+py(-r.a*xm)+'" x2="'+px(xm)+'" y2="'+py(r.a*xm)+'" stroke="var(--fn)" stroke-width="2.6" stroke-linecap="round"/>';
+    } else if(r.kind==='inv'){
+      [1,-1].forEach(function(sn){
+        var pts=[], x0=Math.abs(r.a)/R;
+        for(var k=0;k<=40;k++){ var x=x0+(R-x0)*k/40; pts.push(px(sn*x)+','+py(sn*r.a/x)); }
+        h+='<polyline points="'+pts.join(' ')+'" fill="none" stroke="var(--fn)" stroke-width="2.6" stroke-linecap="round"/>';
+      });
+    } else {
+      var xa=Math.max(-R,-R-r.b), xb=Math.min(R,R-r.b);
+      h+='<line x1="'+px(xa)+'" y1="'+py(xa+r.b)+'" x2="'+px(xb)+'" y2="'+py(xb+r.b)+'" stroke="var(--fn)" stroke-width="2.6" stroke-linecap="round"/>';
+    }
+    if(opts.mark){
+      var mx=opts.mark[0], my=opts.mark[1];
+      h+='<circle cx="'+px(mx)+'" cy="'+py(my)+'" r="4.2" fill="#fff" stroke="var(--fn)" stroke-width="2.4"/>';
+      var lx=+px(mx)+(mx>=0?6:-6), anchor=mx>=0?'start':'end', ly=+py(my)+(my>=0?-6:12);
+      h+='<text x="'+lx+'" y="'+ly+'" font-size="10" font-weight="800" text-anchor="'+anchor+'" fill="var(--fn)">('+sg(mx)+', '+sg(my)+')</text>';
+    }
+    return h;
+  }
+
+  /* ── 상자 기계 규칙 풀 ── */
+  var BOX_RULES=[
+    {kind:'dir',a:2}, {kind:'lin',b:5}, {kind:'dir',a:-3}, {kind:'inv',a:12},
+    {kind:'lin',b:-3}, {kind:'dir',a:-2}, {kind:'inv',a:-6}, {kind:'dir',a:3}
+  ];
+  function ruleInputs(r){ if(r.kind==='inv'){ var out=[]; for(var d=-6;d<=6;d++){ if(d!==0&&r.a%d===0) out.push(d); } return out; } return [-3,-2,-1,1,2,3,4,5]; }
+  function genBox(i){
+    var idx=(typeof i==='number')?i:ri(0,999);
+    var r=pick(BOX_RULES,idx), label=eqOf(r);
+    var others=BOX_RULES.filter(function(o){ return eqOf(o)!==label; });
+    var ch=[label, eqOf(others[(idx+1)%others.length]), eqOf(others[(idx+3)%others.length]), eqOf(others[(idx+5)%others.length])];
+    return {rule:r, inputs:ruleInputs(r), ans:label, choices:shuffle(ch)};
+  }
+
+  /* ── 번역기 식 목록 ── */
+  var EQS=[ {kind:'dir',a:2},{kind:'dir',a:-2},{kind:'dir',a:3},{kind:'dir',a:-1},{kind:'inv',a:6},{kind:'inv',a:-6},{kind:'inv',a:12},{kind:'lin',b:2} ];
+  function transXs(r){ if(r.kind!=='inv') return [-3,-2,-1,0,1,2,3]; var ds=[], m=Math.abs(r.a); for(var d=1;d<=6&&ds.length<4;d++){ if(m%d===0) ds.push(d); } var xs=[]; for(var k=ds.length-1;k>=0;k--) xs.push(-ds[k]); return xs.concat(ds); }
+
+  /* ── 표 채우기 연습 풀 ── */
+  var XYP_POOL=[ {kind:'dir',a:3},{kind:'inv',a:-6},{kind:'dir',a:-4},{kind:'inv',a:8},{kind:'dir',a:-1},{kind:'inv',a:-12},{kind:'dir',a:5},{kind:'inv',a:12} ];
+  function genXY(i){
+    var idx=(typeof i==='number')?i:ri(0,999);
+    var r=pick(XYP_POOL,idx);
+    var xs=r.kind==='dir'?[-3,-2,-1,1,2,3]:divisorsXs(r.a);
+    var ys=xs.map(function(x){ return ruleY(r,x); });
+    var n=xs.length, hide=[idx%n,(idx+2)%n];
+    return {rule:r, xs:xs, ys:ys, hide:hide, stem:'<span class="fn-f">'+eqOf(r)+'</span>예요. 빈칸 두 개를 채워 보세요.'};
+  }
+
+  /* ── 유형 ① 음수는 괄호부터 ── */
+  var T1A_POOL=[ {kind:'inv',a:-2},{kind:'dir',a:-2},{kind:'inv',a:-3},{kind:'dir',a:-4},{kind:'inv',a:-6},{kind:'dir',a:-5},{kind:'inv',a:-12},{kind:'dir',a:-3} ];
+  var T1B_POOL=[ {kind:'dir',a:-3,x:-2},{kind:'inv',a:-6,x:-3},{kind:'dir',a:-2,x:5},{kind:'inv',a:-8,x:2},{kind:'dir',a:4,x:-3},{kind:'inv',a:12,x:-4},{kind:'dir',a:-5,x:-4},{kind:'inv',a:-12,x:3} ];
+  function signNote(a,x,op){ var na=a<0,nx=x<0; if(na&&nx) return '음수 '+op+' 음수 = 양수예요.'; if(na||nx) return '부호가 하나만 음수라서 결과는 음수예요.'; return '둘 다 양수니까 그대로 계산하면 돼요.'; }
+  function genType1(i){
+    var formA=(typeof i==='number')?(i%2===0):(Math.random()<0.5);
+    var idx=(typeof i==='number')?Math.floor(i/2):undefined;
+    if(formA){
+      var p=pick(T1A_POOL,idx), inv=p.kind==='inv', correct=eqOf(p);
+      var alt = inv ? ('y = '+(p.a<0?'−':'')+'x/'+Math.abs(p.a)) : eqLin(p.a);
+      var choices=shuffle([correct, inv?eqInv(-p.a):eqDir(-p.a), inv?eqDir(p.a):eqInv(p.a), alt]);
+      return { type:1, form:'a', kind:'pick', rule:p, ans:correct, choices:choices,
+        stem: inv ? 'y가 x에 <b>반비례</b>하고 비례상수가 a = '+yeyo(p.a)+'. <span class="fn-f">y = a/x</span>의 a 자리에 넣으면 식은 무엇일까요?'
+                  : 'y가 x에 <b>정비례</b>하고 비례상수가 a = '+yeyo(p.a)+'. <span class="fn-f">y = ax</span>의 a 자리에 넣으면 식은 무엇일까요?',
+        sol: inv ? 'a 자리에 <b>빈 괄호부터</b> 만들어요: y = ( )/x → 괄호 안에 '+eul(p.a)+' 통째로 넣어요: y = '+par(p.a)+'/x → 괄호를 풀면 <b>'+correct+'</b>예요. 음수 부호는 분자에 그대로 붙어요.'
+                 : 'a 자리에 <b>빈 괄호부터</b> 만들어요: y = ( )x → 괄호 안에 '+eul(p.a)+' 통째로 넣어요: y = '+par(p.a)+'x → 괄호를 풀면 <b>'+correct+'</b>예요. '+sg(p.a)+'x는 "'+sg(p.a)+' 곱하기 x"라는 뜻이에요.' };
+    }
+    var q=pick(T1B_POOL,idx), inv2=q.kind==='inv', y=ruleY(q,q.x);
+    return { type:1, form:'b', kind:'num', rule:q, x:q.x, ans:y, unit:'',
+      stem:'<span class="fn-f">'+eqOf(q)+'</span>에 x = '+eul(q.x)+' 넣으면 y는 얼마일까요?',
+      sol: inv2 ? 'x 자리에 <b>괄호부터</b>: y = '+par(q.a)+'/( ) → y = '+par(q.a)+'/'+par(q.x)+' = <b>'+sg(y)+'</b>이에요. '+signNote(q.a,q.x,'÷')
+                : 'x 자리에 <b>괄호부터</b>: y = '+par(q.a)+' × ( ) → y = '+par(q.a)+' × '+par(q.x)+' = <b>'+sg(y)+'</b>이에요. '+signNote(q.a,q.x,'×') };
+  }
+
+  /* ── 유형 ② 표 채우기 + x 대입 ── */
+  var T2_POOL=[ {kind:'dir',a:2},{kind:'inv',a:6},{kind:'dir',a:-3},{kind:'inv',a:-12},{kind:'dir',a:5},{kind:'inv',a:-8},{kind:'dir',a:-2},{kind:'dir',a:4} ];
+  function genType2(i){
+    var idx=(typeof i==='number')?i:ri(0,999);
+    var r=pick(T2_POOL,idx);
+    var xs=r.kind==='dir'?[-2,-1,1,2,3]:divisorsXs(r.a);
+    var ys=xs.map(function(x){ return ruleY(r,x); });
+    var n=xs.length, hide=[idx%n,(idx+2)%n];
+    var xq=r.kind==='dir'?((idx%2===0)?-5:6):((idx%2===0)?-1:1);
+    var ans=ruleY(r,xq);
+    var hint=hide.map(function(h){ return 'x = '+sg(xs[h])+' → y = '+sg(ys[h]); }).join(', ');
+    return { type:2, kind:'num', rule:r, xs:xs, ys:ys, hide:hide, xq:xq, ans:ans, unit:'',
+      table:{xs:xs, ys:ys, hide:hide, okMsg:'표가 완성됐어요. 규칙이 보이죠?'},
+      stem:'<span class="fn-f">'+eqOf(r)+'</span>예요. 아래 표의 빈칸을 채우고, <b>x = '+sg(xq)+'일 때 y의 값</b>을 구해 보세요.',
+      sol:(r.kind==='dir' ? 'x 자리에 괄호부터: y = '+par(r.a)+' × '+par(xq)+' = <b>'+sg(ans)+'</b>이에요.' : 'x 자리에 괄호부터: y = '+par(r.a)+'/'+par(xq)+' = <b>'+sg(ans)+'</b>이에요.')+' 표의 빈칸은 '+hint+'예요.' };
+  }
+
+  /* ── 유형 ③ 점으로 a 구하기 ── */
+  var T3_POOL=[ {kind:'dir',p:2,q:6},{kind:'inv',p:2,q:6},{kind:'dir',p:-3,q:6},{kind:'inv',p:-3,q:4},{kind:'dir',p:4,q:-8},{kind:'inv',p:4,q:-2},
+                {kind:'dir',p:-2,q:-10},{kind:'inv',p:-2,q:-3},{kind:'dir',p:3,q:-12},{kind:'inv',p:6,q:-1},{kind:'dir',p:-5,q:15},{kind:'inv',p:-4,q:-2} ];
+  function genType3(i){
+    var idx=(typeof i==='number')?i:ri(0,999);
+    var t=pick(T3_POOL,idx), dir=t.kind==='dir';
+    var a=dir?t.q/t.p:t.p*t.q;
+    var asPoint=(Math.floor(idx/2)%2===1);
+    var cond=asPoint ? '하는 그래프가 점 ('+sg(t.p)+', '+sg(t.q)+')'+(vowelEnd(t.q)?'를':'을')+' 지나요.' : '하고, x = '+sg(t.p)+'일 때 y = '+yeyo(t.q)+'.';
+    return { type:3, kind:'num', rule:{kind:t.kind,a:a}, p:t.p, q:t.q, ans:a, unit:'',
+      stem:'y가 x에 <b>'+(dir?'정비례':'반비례')+'</b>'+cond+' 비례상수 a는 얼마일까요?',
+      sol: dir ? '<span class="fn-f">y = ax</span>에 x, y를 <b>괄호로</b> 넣어요: '+sg(t.q)+' = a × '+par(t.p)+' → a = '+sg(t.q)+' ÷ '+par(t.p)+' = <b>'+sg(a)+'</b>이에요. (정비례는 y ÷ x가 항상 a예요.)'
+               : '<span class="fn-f">y = a/x</span>에 x, y를 <b>괄호로</b> 넣어요: '+sg(t.q)+' = a/'+par(t.p)+' → a = '+sg(t.q)+' × '+par(t.p)+' = <b>'+sg(a)+'</b>이에요. (반비례는 x × y가 항상 a예요.)' };
+  }
+
+  /* ── 유형 ④ 표 → 식 고르기 ── */
+  var T4_POOL=[ {kind:'dir',a:2},{kind:'inv',a:12},{kind:'lin',b:3},{kind:'dir',a:-3},{kind:'inv',a:-6},{kind:'lin',b:-2},{kind:'dir',a:4},{kind:'inv',a:8},{kind:'dir',a:-2} ];
+  function genType4(i){
+    var r=pick(T4_POOL,i);
+    var xs=r.kind==='inv'?((Math.abs(r.a)%3===0)?[1,2,3]:[1,2,4]):[1,2,3];
+    var ys=xs.map(function(x){ return ruleY(r,x); });
+    var correct=eqOf(r), ch, sol;
+    if(r.kind==='dir'){ ch=[correct, eqDir(-r.a), eqInv(r.a), eqLin(r.a)];
+      sol='x가 1 → 2 → 3으로 2배, 3배가 되면 y도 '+sg(ys[0])+' → '+sg(ys[1])+' → '+sg(ys[2])+'으로 2배, 3배예요. 그러니까 <b>정비례</b>이고, a = y ÷ x = '+sg(ys[0])+' ÷ 1 = '+sg(r.a)+' → <b>'+correct+'</b>예요.'; }
+    else if(r.kind==='inv'){ ch=[correct, eqInv(-r.a), eqDir(r.a), eqLin(r.a)];
+      sol='x가 1 → 2로 2배가 되면 y는 '+sg(ys[0])+' → '+sg(ys[1])+'로 절반이 돼요. 그러니까 <b>반비례</b>이고, a = x × y = 1 × '+par(ys[0])+' = '+sg(r.a)+' → <b>'+correct+'</b>예요.'; }
+    else { ch=[correct, eqDir(r.b), eqInv(r.b), eqLin(-r.b)];
+      sol='x가 2배가 돼도 y는 2배가 아니에요('+sg(ys[0])+' → '+sg(ys[1])+'). x × y도 일정하지 않고요. y는 x보다 늘 '+Math.abs(r.b)+(r.b>0?' 크니까':' 작으니까')+' <b>'+correct+'</b>예요. 정비례도 반비례도 아니에요.'; }
+    return { type:4, kind:'pick', rule:r, xs:xs, ys:ys, ans:correct, choices:shuffle(ch),
+      stem:'아래 표에서 x와 y 사이의 관계식은 무엇일까요?'+tableHtml(xs,ys), sol:sol };
+  }
+
+  /* ── 유형 ⑤ 그래프 → 식 고르기 ── */
+  var T5_POOL=[ {kind:'dir',a:2},{kind:'inv',a:4},{kind:'dir',a:-2},{kind:'inv',a:-6},{kind:'dir',a:3},{kind:'inv',a:6},{kind:'dir',a:-3},{kind:'inv',a:-4},{kind:'dir',a:1},{kind:'dir',a:-1} ];
+  function genType5(i){
+    var r=pick(T5_POOL,i), dir=r.kind==='dir', mx=2, my=ruleY(r,mx);
+    var correct=eqOf(r);
+    var ch=dir?[correct, eqDir(-r.a), eqInv(r.a), eqInv(-r.a)]:[correct, eqInv(-r.a), eqDir(r.a), eqDir(-r.a)];
+    return { type:5, kind:'pick', rule:r, mark:[mx,my], ans:correct, choices:shuffle(ch),
+      stem:'그래프를 보고 알맞은 식을 골라 보세요. 그래프는 점 ('+mx+', '+sg(my)+')'+(vowelEnd(my)?'를':'을')+' 지나요.<div style="margin:6px 0"><svg class="fn-graph" viewBox="0 0 220 220" role="img" aria-label="그래프">'+graphSvg(r,{mark:[mx,my]})+'</svg></div>',
+      sol: dir ? '원점을 지나는 <b>직선</b>이니까 정비례 <span class="fn-f">y = ax</span>예요. 점 (2, '+sg(my)+')'+(vowelEnd(my)?'를':'을')+' 괄호로 넣으면 '+sg(my)+' = a × 2 → a = '+sg(r.a)+'. '+(r.a>0?'오른쪽 위로 올라가니까(1·3사분면) a > 0':'오른쪽 아래로 내려가니까(2·4사분면) a < 0')+'이에요. → <b>'+correct+'</b>'
+               : '<b>곡선(쌍곡선)</b>이니까 반비례 <span class="fn-f">y = a/x</span>예요. 점 (2, '+sg(my)+')'+(vowelEnd(my)?'를':'을')+' 괄호로 넣으면 a = 2 × '+par(my)+' = '+sg(r.a)+'. '+(r.a>0?'1·3사분면에 있으니까 a > 0':'2·4사분면에 있으니까 a < 0')+'이에요. → <b>'+correct+'</b>' };
+  }
+  /*GEN-END*/
+
+  function parseNum(s){ s=(s||'').replace(/−/g,'-').replace(/\s+/g,''); if(s===''||s==='-'||s==='+') return NaN; return Number(s); }
+  function closeEnough(v,ans){ return Math.abs(v-ans) < 1e-6; }
+  function cheer(){ try{ MJ1.confetti(); }catch(e){} }
+
+  /* ── 1. 상자 기계 ── */
+  (function(){
+    var inEl=document.getElementById('boxIn'), outEl=document.getElementById('boxOut'), body=document.getElementById('boxBody'), lbl=document.getElementById('boxLbl');
+    var chips=document.getElementById('boxInputs'), log=document.getElementById('boxLog'), guess=document.getElementById('boxGuess'), msg=document.getElementById('boxMsg');
+    var cur=null, tries=0, solved=false, busy=false;
+    function reset(){
+      cur=genBox(); tries=0; solved=false; busy=false;
+      lbl.textContent='?'; inEl.textContent='?'; outEl.textContent='?'; log.innerHTML=''; guess.innerHTML=''; msg.innerHTML='';
+      chips.innerHTML='';
+      cur.inputs.forEach(function(x){
+        var b=document.createElement('button'); b.textContent=sg(x); b.setAttribute('data-x',x);
+        b.onclick=function(){ feed(x,b); };
+        chips.appendChild(b);
+      });
+    }
+    function feed(x,btn){
+      if(busy||solved) return;
+      busy=true; btn.disabled=true;
+      var y=ruleY(cur.rule,x);
+      inEl.textContent=sg(x); inEl.classList.remove('pop'); void inEl.offsetWidth; inEl.classList.add('pop');
+      outEl.textContent='…'; body.classList.remove('shake'); void body.offsetWidth; body.classList.add('shake');
+      setTimeout(function(){
+        outEl.textContent=sg(y); outEl.classList.remove('pop'); void outEl.offsetWidth; outEl.classList.add('pop');
+        var s=document.createElement('span'); s.textContent=sg(x)+' → '+sg(y); log.appendChild(s);
+        tries++; busy=false;
+        if(tries===2) msg.innerHTML='한 개만 더 넣어 보면 규칙이 보일 거예요.';
+        if(tries>=3 && !guess.innerHTML) showGuess();
+      },520);
+    }
+    function showGuess(){
+      msg.innerHTML='';
+      var h='<p style="margin:10px 0 0;font-weight:700">이 상자의 규칙은 무엇일까요?</p><div class="fn-picks"></div>';
+      guess.innerHTML=h;
+      var box=guess.querySelector('.fn-picks');
+      cur.choices.forEach(function(c){
+        var b=document.createElement('button'); b.textContent=c;
+        b.onclick=function(){
+          if(solved) return;
+          if(c===cur.ans){
+            solved=true; b.classList.add('ok'); lbl.textContent=cur.ans;
+            box.querySelectorAll('button').forEach(function(o){ o.disabled=true; });
+            msg.innerHTML='<b style="color:var(--ok)">✓ 맞았어요!</b> 이 상자의 설명서는 <span class="fn-f">'+cur.ans+'</span>였어요. 이렇게 "넣으면 하나로 나오는 규칙"이 함수예요.';
+            cheer();
+          } else {
+            b.classList.add('no'); b.disabled=true;
+            msg.innerHTML='<b style="color:var(--fn)">아직이에요.</b> 기록을 다시 보거나 숫자를 하나 더 넣어 보세요. (음수를 넣어 보면 규칙이 더 잘 보여요.)';
+          }
+        };
+        box.appendChild(b);
+      });
+    }
+    document.getElementById('boxAgain').onclick=reset;
+    reset();
+  })();
+
+  /* ── 함께 생각하기 ①② ── */
+  (function(){
+    var inp=document.getElementById('q1'), btn=document.getElementById('q1b'), out=document.getElementById('q1o');
+    btn.onclick=function(){
+      var v=parseNum(inp.value);
+      if(isNaN(v)){ out.innerHTML='숫자를 넣어 주세요 🙂'; return; }
+      if(closeEnough(v,12)){ out.innerHTML='<b style="color:var(--ok)">✓ 정답이에요!</b> x 자리에 4를 넣으면 y = 3 × 4 = 12예요.'; cheer(); }
+      else out.innerHTML='<b style="color:var(--fn)">아직이에요.</b> "3x"는 3 곱하기 x예요. x 자리에 4를 넣으면 3 × 4 = 12예요.';
+    };
+    inp.addEventListener('keydown',function(e){ if(e.key==='Enter') btn.click(); });
+    var picks=document.getElementById('q2picks'), out2=document.getElementById('q2o'), done=false;
+    shuffle(['y = 3x','y = −3x','y = x − 4','y = 6/x']).forEach(function(c){
+      var b=document.createElement('button'); b.textContent=c;
+      b.onclick=function(){
+        if(done) return;
+        if(c==='y = 3x'){ done=true; b.classList.add('ok'); picks.querySelectorAll('button').forEach(function(o){ o.disabled=true; });
+          out2.innerHTML='<b style="color:var(--ok)">✓ 정답이에요!</b> −2 → −6, 3 → 9. 둘 다 "3을 곱한 것"이에요. 확인할 땐 괄호로: 3 × (−2) = −6 ✓'; cheer(); }
+        else { b.classList.add('no'); b.disabled=true; out2.innerHTML='<b style="color:var(--fn)">아직이에요.</b> 두 기록에 모두 맞아야 해요. −2를 넣어서 −6이 나오려면? (부호가 그대로니까 음수를 곱한 건 아니에요.)'; }
+      };
+      picks.appendChild(b);
+    });
+  })();
+
+  /* ── x/y 표 위젯 (가로형) ── spec={xs,ys,hide:[i],okMsg} */
+  function buildXYTable(container, spec, onAllCorrect){
+    container.innerHTML='';
+    var hide=spec.hide||[];
+    var h='<table class="fn-table"><tr><th>x</th>';
+    spec.xs.forEach(function(x){ h+='<td>'+sg(x)+'</td>'; });
+    h+='</tr><tr><th>y</th>';
+    spec.ys.forEach(function(y,i){
+      if(hide.indexOf(i)>=0) h+='<td class="unknown"><input class="tblIn" data-i="'+i+'" inputmode="numeric" aria-label="y 값"></td>';
+      else h+='<td class="known">'+sg(y)+'</td>';
+    });
+    h+='</tr></table>';
+    if(hide.length) h+='<div class="fn-checkrow"><button class="tblCheck">표 확인</button></div><div class="fn-out tblOut"></div>';
+    container.innerHTML=h;
+    if(!hide.length) return;
+    var out=container.querySelector('.tblOut');
+    container.querySelector('.tblCheck').onclick=function(){
+      var ok=true;
+      container.querySelectorAll('.tblIn').forEach(function(inp){
+        var i=+inp.getAttribute('data-i'), v=parseNum(inp.value);
+        if(isNaN(v)||!closeEnough(v,spec.ys[i])){ ok=false; inp.style.borderColor='#e3c15a'; }
+        else inp.style.borderColor='var(--ok)';
+      });
+      out.innerHTML= ok ? '<b style="color:var(--ok)">✓ 다 맞았어요!</b> '+(spec.okMsg||'') : '<span style="color:var(--fn)">한 칸이 아직이에요 — x 자리에 그 숫자를 넣어요. 음수면 괄호부터!</span>';
+      if(ok){ cheer(); if(onAllCorrect) onAllCorrect(); }
+    };
+    container.querySelectorAll('.tblIn').forEach(function(inp){ inp.addEventListener('keydown',function(e){ if(e.key==='Enter') container.querySelector('.tblCheck').click(); }); });
+  }
+
+  /* ── 3. 번역기 ── */
+  (function(){
+    var chips=document.getElementById('eqChips'), tbl=document.getElementById('trTable'), svg=document.getElementById('trSvg'), read=document.getElementById('trRead');
+    var btns=[];
+    function show(k){
+      btns.forEach(function(b,i){ b.className=i===k?'on':''; });
+      var r=EQS[k], xs=transXs(r), ys=xs.map(function(x){ return ruleY(r,x); });
+      buildXYTable(tbl,{xs:xs,ys:ys,hide:[]});
+      svg.innerHTML=graphSvg(r,{});
+      if(r.kind==='dir') read.innerHTML='<b>정비례</b> — x가 2배가 되면 y도 2배예요. a = '+sg(r.a)+', '+(r.a>0?'양수라서 오른쪽 위로 올라가는':'음수라서 오른쪽 아래로 내려가는')+' 직선이에요. 원점 (0, 0)을 지나요.';
+      else if(r.kind==='inv') read.innerHTML='<b>반비례</b> — x가 2배가 되면 y는 절반이에요. x × y가 항상 '+sg(r.a)+'이고, '+(r.a>0?'1·3사분면':'2·4사분면')+'에 있는 곡선(쌍곡선)이에요. x = 0은 넣을 수 없어서 표에도 없어요.';
+      else read.innerHTML='<b>둘 다 아니에요</b> — x가 2배가 돼도 y는 2배가 아니고, x × y도 일정하지 않아요. 직선이지만 원점을 지나지 않으니 정비례가 아니에요. (중2에서 "일차함수"로 만나요.)';
+    }
+    EQS.forEach(function(r,i){ var b=document.createElement('button'); b.textContent=eqOf(r); b.className='fn-f'; b.onclick=function(){ show(i); }; chips.appendChild(b); btns.push(b); });
+    show(0);
+  })();
+
+  /* ── 3. 표 빈칸 채우기 연습 ── */
+  (function(){
+    var stem=document.getElementById('xyStem'), box=document.getElementById('xyPractice');
+    function paint(){ var q=genXY(); stem.innerHTML=q.stem; buildXYTable(box,{xs:q.xs,ys:q.ys,hide:q.hide,okMsg:'x 자리에 숫자를 넣기만 하면 돼요.'}); }
+    document.getElementById('xyAgain').onclick=paint; paint();
+  })();
+
+  /* ── 4. 괄호 애니메이션 ── */
+  (function(){
+    var kind='inv', a=-2, x=-1;
+    var kInv=document.getElementById('kInv'), kDir=document.getElementById('kDir'), aBox=document.getElementById('aChips'), xBox=document.getElementById('xChips');
+    var stage=document.getElementById('parStage'), cap=document.getElementById('parCap'), play=document.getElementById('parPlay');
+    var stage2=document.getElementById('parStage2'), cap2=document.getElementById('parCap2'), play2=document.getElementById('parPlay2');
+    var playing=false;
+    var A_VALS=[-2,-3,-5,3];
+    function xVals(){ return kind==='inv'?[-Math.abs(a),-1,1,Math.abs(a)]:[-3,-1,1,2]; }
+    function br(s){ return '<span class="br">'+s+'</span>'; }
+    function stepsA(){
+      var base=kind==='inv'?'y = a/x':'y = ax';
+      if(kind==='inv') return [
+        {t:base, c:'식에서 <b>a 자리</b>를 찾아요. a = '+yeyo(a)+'.'},
+        {t:'y = '+br('( )')+'/x', c:'글자 a를 지우고 <b>빈 괄호</b>를 놓아요. 음수가 들어갈 자리예요.'},
+        {t:'y = '+br(par(a))+'/x', c:'괄호 안에 '+eul(a)+' <b>통째로</b> 넣어요.'},
+        {t:'y = '+sg(a)+'/x', c:(a<0?'괄호를 풀면 끝. 부호는 분자에 붙어요 → <b>y = '+sg(a)+'/x</b>':'양수는 괄호 없이 넣어도 같아요 → <b>y = '+sg(a)+'/x</b>')}
+      ];
+      return [
+        {t:base, c:'식에서 <b>a 자리</b>를 찾아요. a = '+yeyo(a)+'.'},
+        {t:'y = '+br('( )')+'x', c:'글자 a를 지우고 <b>빈 괄호</b>를 놓아요.'},
+        {t:'y = '+br(par(a))+'x', c:'괄호 안에 '+eul(a)+' <b>통째로</b> 넣어요.'},
+        {t:'y = '+coefx(a), c:(a<0?'괄호를 풀면 끝 → <b>y = '+coefx(a)+'</b>. "'+coefx(a)+'"는 '+sg(a)+' 곱하기 x예요.':'양수는 괄호 없이 넣어도 같아요 → <b>y = '+coefx(a)+'</b>')}
+      ];
+    }
+    function stepsX(){
+      var y=kind==='inv'?a/x:a*x;
+      if(kind==='inv') return [
+        {t:'y = '+sg(a)+'/x', c:'완성된 식이에요. 이제 x = '+eul(x)+' 넣어요.'},
+        {t:'y = '+par(a)+'/'+br('( )'), c:'x 자리를 지우고 <b>빈 괄호</b>부터. (a도 음수면 괄호를 씌워 두면 안전해요.)'},
+        {t:'y = '+par(a)+'/'+br(par(x)), c:'괄호 안에 '+eul(x)+' 통째로 넣어요.'},
+        {t:'y = '+sg(y), c:sg(a)+' ÷ '+par(x)+' = <b>'+sg(y)+'</b>. '+signNote(a,x,'÷')}
+      ];
+      return [
+        {t:'y = '+coefx(a), c:'완성된 식이에요. 이제 x = '+eul(x)+' 넣어요.'},
+        {t:'y = '+par(a)+' × '+br('( )'), c:'x 자리를 지우고 <b>빈 괄호</b>부터. 곱하기 기호도 보이게 써요.'},
+        {t:'y = '+par(a)+' × '+br(par(x)), c:'괄호 안에 '+eul(x)+' 통째로 넣어요.'},
+        {t:'y = '+sg(y), c:sg(a)+' × '+par(x)+' = <b>'+sg(y)+'</b>. '+signNote(a,x,'×')}
+      ];
+    }
+    function paintA(){ var s=stepsA(); stage.innerHTML=s[0].t; cap.innerHTML='▶ 재생을 눌러 보세요'; }
+    function paintX(){ var s=stepsX(); stage2.innerHTML=s[0].t; cap2.innerHTML='x를 고르고 ▶ 재생을 눌러 보세요'; }
+    function run(steps, st, cp, btn){
+      if(playing) return; playing=true; play.disabled=true; play2.disabled=true;
+      var k=0;
+      function next(){
+        st.innerHTML=steps[k].t; cp.innerHTML=steps[k].c; k++;
+        if(k<steps.length) setTimeout(next,950);
+        else { playing=false; play.disabled=false; play2.disabled=false; }
+      }
+      next();
+    }
+    function renderChips(box, vals, curV, onPick){
+      box.innerHTML='';
+      vals.forEach(function(v){ var b=document.createElement('button'); b.textContent=sg(v); if(v===curV) b.className='on'; b.onclick=function(){ if(playing) return; onPick(v); }; box.appendChild(b); });
+    }
+    function refresh(){
+      kInv.className=kind==='inv'?'on':''; kDir.className=kind==='dir'?'on':'';
+      renderChips(aBox,A_VALS,a,function(v){ a=v; var xv=xVals(); if(xv.indexOf(x)<0) x=xv[0]; refresh(); });
+      renderChips(xBox,xVals(),x,function(v){ x=v; refresh(); });
+      paintA(); paintX();
+    }
+    kInv.onclick=function(){ if(playing) return; kind='inv'; var xv=xVals(); if(xv.indexOf(x)<0) x=xv[0]; refresh(); };
+    kDir.onclick=function(){ if(playing) return; kind='dir'; refresh(); };
+    play.onclick=function(){ run(stepsA(),stage,cap,play); };
+    play2.onclick=function(){ run(stepsX(),stage2,cap2,play2); };
+    refresh();
+  })();
+
+  /* ── 답 UI (숫자 / 4지선다) ── */
+  function answerUI(q){
+    if(q.kind==='pick') return '<div class="fn-picks"></div>';
+    return '<div class="fn-checkrow"><input class="num ans" inputmode="numeric" aria-label="답"><span>'+(q.unit||'')+'</span><button class="chk">확인</button></div>';
+  }
+  function bindAnswer(container, q, onDone){
+    var out=container.querySelector('.fn-out');
+    if(q.kind==='pick'){
+      var box=container.querySelector('.fn-picks'), done=false;
+      q.choices.forEach(function(c){
+        var b=document.createElement('button'); b.textContent=c;
+        b.onclick=function(){
+          if(done) return; done=true;
+          var ok=c===q.ans;
+          box.querySelectorAll('button').forEach(function(o){ o.disabled=true; if(o.textContent===q.ans) o.classList.add('ok'); });
+          if(!ok) b.classList.add('no');
+          out.innerHTML= ok ? '<b style="color:var(--ok)">✓ 정답이에요!</b>' : '<b style="color:var(--fn)">아직이에요.</b> 정답은 <span class="fn-f">'+q.ans+'</span>예요.';
+          if(ok) cheer();
+          onDone(ok);
+        };
+        box.appendChild(b);
+      });
+      return;
+    }
+    var inp=container.querySelector('.ans');
+    function submit(){
+      var v=parseNum(inp.value);
+      if(isNaN(v)){ out.innerHTML='숫자를 넣어 주세요 🙂 (음수는 −5처럼 써요)'; return; }
+      var ok=closeEnough(v,q.ans);
+      out.innerHTML= ok ? '<b style="color:var(--ok)">✓ 정답이에요!</b>' : '<b style="color:var(--fn)">아직이에요.</b> 정답은 '+sg(q.ans)+'예요.';
+      if(ok) cheer();
+      onDone(ok);
+    }
+    container.querySelector('.chk').onclick=submit;
+    inp.addEventListener('keydown',function(e){ if(e.key==='Enter') submit(); });
+  }
+
+  /* ── 5. 유형 카드 ── */
+  function renderTypeCard(container, gen, keyPrefix){
+    function paint(){
+      var q=gen();
+      container.innerHTML='<div class="fn-stem">'+q.stem+'</div>'+
+        (q.table?'<div class="'+keyPrefix+'tbl"></div>':'')+
+        answerUI(q)+
+        '<div class="fn-out"></div>'+
+        '<div class="fn-sol"></div>'+
+        '<div style="text-align:right"><button class="fn-again again">🔄 다른 문제로</button></div>';
+      if(q.table) buildXYTable(container.querySelector('.'+keyPrefix+'tbl'), q.table);
+      var sol=container.querySelector('.fn-sol');
+      bindAnswer(container, q, function(){ sol.innerHTML='<b>풀이</b> '+q.sol; sol.classList.add('show'); });
+      container.querySelector('.again').onclick=paint;
+    }
+    paint();
+  }
+  renderTypeCard(document.getElementById('type1body'), genType1, 'ty1');
+  renderTypeCard(document.getElementById('type2body'), genType2, 'ty2');
+  renderTypeCard(document.getElementById('type3body'), genType3, 'ty3');
+  renderTypeCard(document.getElementById('type4body'), genType4, 'ty4');
+  renderTypeCard(document.getElementById('type5body'), genType5, 'ty5');
+
+  /* ── 6. 실전 총정리 ── */
+  var QUIZ_TYPES=[
+    {key:'①', name:'음수는 괄호부터', gen:genType1, anchor:'type1'},
+    {key:'②', name:'표 채우기', gen:genType2, anchor:'type2'},
+    {key:'③', name:'점으로 a 구하기', gen:genType3, anchor:'type3'},
+    {key:'④', name:'표 → 식', gen:genType4, anchor:'type4'},
+    {key:'⑤', name:'그래프 → 식', gen:genType5, anchor:'type5'}
+  ];
+  function buildQuiz(){
+    var area=document.getElementById('quizArea'); area.innerHTML='';
+    shuffle(QUIZ_TYPES).forEach(function(qt,idx){
+      var q=qt.gen();
+      if(q.table){ q.table=null; }   // 총정리에서는 표 힌트 없이 x 대입만
+      var card=document.createElement('div'); card.className='fn-quizcard';
+      card.innerHTML='<b>'+(idx+1)+'.</b> <span class="fn-stem" style="display:inline">'+(q.type===2?'<span class="fn-f">'+eqOf(q.rule)+'</span>예요. x = '+sg(q.xq)+'일 때 y의 값은?':q.stem)+'</span>'+
+        answerUI(q)+'<div class="fn-out"></div><div class="fn-quiz-id"></div>';
+      area.appendChild(card);
+      var idbox=card.querySelector('.fn-quiz-id');
+      bindAnswer(card, q, function(){
+        idbox.innerHTML='이 문제는 <b>'+qt.key+' '+qt.name+'</b> 유형이에요. <a href="#'+qt.anchor+'">다시 볼까요? →</a>';
+        idbox.classList.add('show');
+      });
+    });
+  }
+  buildQuiz();
+  document.getElementById('quizAgain').onclick=buildQuiz;
+
+  /* ── 7. 치트시트 인쇄 ── */
+  document.getElementById('printCheat').onclick=function(){
+    document.getElementById('printArea').innerHTML=document.querySelector('.fn-cheat').outerHTML;
+    window.print();
+  };
+})();
+</script>
+</body>
+</html>
