@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>조건부확률 직관 — 분모를 바꾸는 것 · 관문 특강</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="if(window.LEC)LEC.tex(document.body)"></script>
+<script src="lecture.js"></script>
+<style>
+  .t22{width:100%;border-collapse:collapse;font-size:13.5px;margin:8px 0}.t22 th,.t22 td{border:1px solid #e2e8f0;padding:9px 6px;text-align:center}.t22 th{background:#f8fafc;font-weight:700}
+  .t22 td.hl{background:#fef3c7;font-weight:800}.t22 td.hl2{background:#dcfce7;font-weight:800}.t22 td.tot{color:var(--sub)}
+  .bars{margin-top:10px}.bars .lab{font-size:12px;color:var(--sub);margin-bottom:3px}.bar2{display:flex;height:26px;border-radius:8px;overflow:hidden;border:1px solid #e2e8f0}.bar2 i{display:block;height:100%}.bar2 .a{background:#dc2626}.bar2 .b{background:#93c5fd}
+  .rd{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:8px}.rd div{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:7px 9px;font-size:12px;text-align:center;color:var(--sub)}.rd b{display:block;font-size:15px;color:var(--lec)}
+  .fbtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+  .tree{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:center;font-size:14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;margin:8px 0}
+  .tree .br{color:var(--lec);font-weight:800}
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Math_1_1</a><span>&rsaquo;</span><a href="prob_hub.html">확률과 통계</a><span>&rsaquo;</span><a class="cur" href="#">관문 특강 · 조건부확률</a></nav>
+<div class="wrap">
+
+<div class="lec-hero">
+  <span class="tag">🚪 관문 특강 · 확률과 통계 Ⅱ 확률</span>
+  <h1>🧮 조건부확률 직관 — "분모를 바꾸는 것"</h1>
+  <p>"검사 정확도 90%인데 양성이 나왔다. 실제로 병이 있을 확률은?" 대부분 90%라고 답하지만, 흔한 병이 아니라면 답은 <b>10%도 안 될 수</b> 있어요. 의사도 자주 틀리는 문제예요. 비밀은 공식이 아니라 <b>표</b>예요. 사람 10,000명을 2×2 표에 채워 넣으면 답이 그냥 보여요. 조건부확률은 "조건에 맞는 사람들만 남기고, <b>그 안에서</b> 비율을 다시 재는 것", 즉 <b>분모를 바꾸는 것</b>이에요.</p>
+  <div class="lec-goal"><a href="#type1">① 표에서 읽기</a><a href="#type2">② 곱셈정리</a><a href="#type3">③ 독립</a><a href="#type4">④ 검사 문제</a></div>
+</div>
+<nav class="lec-nav" id="lecNav"></nav>
+
+<!-- ① 감 잡기 -->
+<section class="lec-sec reveal" data-step="1" data-label="감 잡기" id="s1">
+  <div class="eyebrow"><span class="n">1</span>10,000명을 표에 채우면 답이 보인다 (공식 없이)</div>
+  <p>어떤 병의 검사예요. 슬라이더를 움직여 <b>병이 있는 사람의 비율</b>(유병률), <b>병이 있을 때 양성이 나올 확률</b>(민감도), <b>병이 없을 때 음성이 나올 확률</b>(특이도)을 정하세요. 표가 채워지고, 아래 막대에서 <b>양성인 사람들만</b> 모아 그중 진짜 병이 있는 사람이 얼마나 되는지 보세요.</p>
+  <div class="lec-widget">
+    <div class="lec-row"><span>유병률 (병 있는 비율)</span><input type="range" id="sp" min="0.5" max="10" step="0.5" value="1"><span class="v" id="spv">1%</span></div>
+    <div class="lec-row"><span>민감도 (병 → 양성)</span><input type="range" id="ss" min="80" max="99" step="1" value="90"><span class="v" id="ssv">90%</span></div>
+    <div class="lec-row"><span>특이도 (건강 → 음성)</span><input type="range" id="st" min="80" max="99" step="1" value="90"><span class="v" id="stv">90%</span></div>
+    <table class="t22">
+      <tr><th>10,000명</th><th>양성 판정</th><th>음성 판정</th><th>합계</th></tr>
+      <tr><th>병 있음</th><td class="hl" id="c11"></td><td id="c12"></td><td class="tot" id="c1t"></td></tr>
+      <tr><th>병 없음</th><td class="hl2" id="c21"></td><td id="c22"></td><td class="tot" id="c2t"></td></tr>
+      <tr><th>합계</th><td class="tot" id="ct1"></td><td class="tot" id="ct2"></td><td class="tot">10,000</td></tr>
+    </table>
+    <div class="bars"><div class="lab">양성 판정을 받은 사람들만 모으면 → <span style="color:#dc2626;font-weight:800">진짜 병</span> vs <span style="color:#3b82f6;font-weight:800">건강한데 양성(거짓 양성)</span></div><div class="bar2"><i class="a" id="b1"></i><i class="b" id="b2"></i></div></div>
+    <div class="rd"><div>$P(\text{양성}\mid\text{병})$ 민감도 <b id="r1"></b></div><div>$P(\text{병}\mid\text{양성})$ 양성일 때 진짜 병 <b id="r2"></b></div></div>
+    <div class="lec-out" id="out1"></div>
+  </div>
+  <p>두 숫자가 얼마나 다른지 보이나요? "병이 있을 때 양성"(민감도)과 "양성일 때 병"은 <b>분모가 달라요</b>. 앞은 병 있는 사람(첫 행)이 분모, 뒤는 양성인 사람(첫 열)이 분모예요. 병이 드물면 건강한 사람이 워낙 많아서, 그중 몇 %만 거짓 양성이 나와도 <b>진짜 환자 수를 압도</b>해요. 유병률을 0.5%로 내려 보세요.</p>
+  <div class="lec-card">
+    <h4>함께 생각하기 ①</h4>
+    <p style="margin-bottom:8px;font-size:14px">유병률 1%, 민감도 90%, 특이도 90%일 때(초깃값) 양성 판정을 받은 사람 중 실제로 병이 있는 사람은 약 몇 %인가요? (소수 첫째 자리까지, 예: 12.3)</p>
+    <div class="lec-checkrow"><input class="num" id="q1" inputmode="decimal" aria-label="답"><button id="q1b">확인</button></div>
+    <div class="lec-out" id="q1o"></div>
+  </div>
+</section>
+
+<!-- ② 공식은 읽는 것 -->
+<section class="lec-sec reveal" data-step="2" data-label="공식 읽기" id="s2">
+  <div class="eyebrow"><span class="n">2</span>공식은 외우는 게 아니라 읽는 것</div>
+  <p>위젯에서 한 일을 글자로 쓰면 조건부확률의 정의예요. "B가 일어났다"는 조건이 붙으면, 전체 대신 <b>B만 남기고</b> 그 안에서 A의 비율을 재요.</p>
+  <div class="lec-formula"><div class="f">$P(A\mid B)=\dfrac{P(A\cap B)}{P(B)}$ &nbsp;— 분모를 전체에서 $B$로 바꾼다</div><small>표에서는 "B 행(또는 열)의 합계"가 분모, 그 행 안의 A 칸이 분자. 사람 수로 세도 비율은 같다.</small></div>
+
+  <p>이 식의 분모를 양변에 곱하면 <b>곱셈정리</b>예요. "B가 일어나고, 그다음 A가 일어날" 확률은 두 단계 확률의 곱. 나무그림의 가지를 따라 곱하는 것이 이거예요.</p>
+  <div class="lec-formula"><div class="f">$P(A\cap B)=P(B)\,P(A\mid B)$ &nbsp;— 가지를 따라 곱한다</div><small>주머니에서 공 2개를 연달아 꺼내기: 첫 번째 빨강 × (첫 번째가 빨강이었을 때) 두 번째 빨강.</small></div>
+  <div class="tree">
+    <span class="br">첫 번째</span><span>빨강 $\tfrac{3}{5}$ · 파랑 $\tfrac{2}{5}$ (빨강 3, 파랑 2)</span>
+    <span class="br">두 번째 (빨강 다음)</span><span>빨강 $\tfrac{2}{4}$ · 파랑 $\tfrac{2}{4}$ → 둘 다 빨강 $=\tfrac35\times\tfrac24=\tfrac{3}{10}$</span>
+  </div>
+
+  <p><b>독립</b>은 조건이 붙어도 확률이 안 바뀌는 것. B가 일어났다는 소식이 A의 확률에 아무 영향이 없으면 독립이에요. 그때 곱셈정리는 단순한 곱이 돼요.</p>
+  <div class="lec-formula"><div class="f">$A, B$ 독립 $\iff P(A\mid B)=P(A) \iff P(A\cap B)=P(A)\,P(B)$</div><small>판정은 마지막 식으로: 표에서 P(A∩B)와 P(A)P(B)를 계산해 같은지 본다. 같은 시행을 반복(독립시행)하면 매번 독립.</small></div>
+  <div class="lec-formula"><div class="f">배반($A\cap B=\varnothing$)과 독립은 다르다</div><small>배반이면 P(A∩B)=0이라 오히려 "B가 일어나면 A는 불가능" — 강하게 종속이다. 두 단어를 섞지 않기.</small></div>
+
+  <div class="lec-card">
+    <h4>함께 생각하기 ②</h4>
+    <p style="margin-bottom:8px;font-size:14px">한 반 30명 중 남학생 18명, 그중 안경을 쓴 남학생이 6명이에요. 남학생 한 명을 뽑았을 때 안경을 썼을 확률은? (분수는 1/3 처럼)</p>
+    <div class="lec-checkrow"><input class="num" id="q2" inputmode="decimal" aria-label="답"><button id="q2b">확인</button></div>
+    <div class="lec-out" id="q2o"></div>
+  </div>
+</section>
+
+<!-- ③ 핵심 도구 -->
+<section class="lec-sec reveal" data-step="3" data-label="2×2 표" id="s3">
+  <div class="eyebrow"><span class="n">3</span>2×2 표 채우기 — 핵심 도구</div>
+  <p>조건부확률 문제는 <b>표부터</b> 그려요. 행에 한 기준(남/여, 병/건강), 열에 다른 기준(안경/맨눈, 양성/음성). 칸을 채우고, <b>"…일 때"</b>에 해당하는 행이나 열의 합계를 분모로 잡아요. 공식은 그다음이에요.</p>
+  <table class="lec-table">
+    <tr><th>문장</th><th>분모</th><th>분자</th></tr>
+    <tr><td>남학생<b>일 때</b> 안경 쓸 확률 $P(\text{안경}\mid\text{남})$</td><td>남학생 행 합계</td><td>남 ∩ 안경 칸</td></tr>
+    <tr><td>안경 쓴 사람<b>일 때</b> 남학생일 확률 $P(\text{남}\mid\text{안경})$</td><td>안경 열 합계</td><td>같은 칸!</td></tr>
+    <tr><td>(조건 없이) 안경 쓴 사람일 확률 $P(\text{안경})$</td><td>전체</td><td>안경 열 합계</td></tr>
+  </table>
+  <div class="lec-key"><b>불변 앵커</b> 조건부확률은 분모를 바꾸는 것. "…일 때"가 가리키는 집단의 합계가 새 분모, 분자는 두 조건이 겹치는 칸.</div>
+  <p style="margin-top:12px">표 채우기 연습이에요. 숫자가 매번 바뀌어요. 분수로 답해도 돼요.</p>
+  <div id="toolbody"></div>
+</section>
+
+<!-- ④ 유형별 완전정복 -->
+<section class="lec-sec reveal" data-step="4" data-label="유형 4" id="s4">
+  <div class="eyebrow"><span class="n">4</span>유형별 완전정복</div>
+  <p>네 유형 모두 <b>표 또는 나무그림</b>을 먼저 그리면 풀려요. 답은 분수(3/10)나 소수(0.3) 어느 쪽으로 써도 돼요.</p>
+</section>
+
+<section class="lec-type reveal" id="type1">
+  <div class="lec-type-h"><span class="badge">①</span><span><div class="t">표에서 읽기</div><div class="d">P(A|B)와 P(B|A)는 다르다</div></span></div>
+  <div class="lec-key"><b>핵심</b> "…일 때"의 집단 합계가 분모. 같은 칸을 분자로 쓰더라도 분모가 다르면 값이 다르다.</div>
+  <div id="type1body"></div>
+</section>
+
+<section class="lec-type reveal" id="type2">
+  <div class="lec-type-h"><span class="badge">②</span><span><div class="t">곱셈정리 · 나무그림</div><div class="d">가지를 따라 곱한다</div></span></div>
+  <div class="lec-key"><b>핵심</b> 연달아 꺼내면(비복원) 두 번째 가지의 분모는 하나 줄어든다. 가지 끝까지 곱하고, 여러 가지면 더한다.</div>
+  <div id="type2body"></div>
+</section>
+
+<section class="lec-type reveal" id="type3">
+  <div class="lec-type-h"><span class="badge">③</span><span><div class="t">독립</div><div class="d">서로 영향 없음 → 곱</div></span></div>
+  <div class="lec-key"><b>핵심</b> 독립이면 $P(A\cap B)=P(A)P(B)$. "적어도 하나"는 $1-$(둘 다 아닐 확률). 독립인지 아닌지는 문제가 알려 주거나 표로 판정.</div>
+  <div id="type3body"></div>
+</section>
+
+<section class="lec-type reveal" id="type4">
+  <div class="lec-type-h"><span class="badge">④</span><span><div class="t">검사 문제</div><div class="d">양성일 때 진짜일 확률</div></span></div>
+  <div class="lec-key"><b>핵심</b> 10,000명을 표에 채운다. 양성 열의 합계(진짜 양성 + 거짓 양성)가 분모, 진짜 양성이 분자.</div>
+  <div id="type4body"></div>
+</section>
+
+<!-- ⑤ 실전 총정리 -->
+<section class="lec-sec reveal" data-step="5" data-label="실전" id="s5">
+  <div class="eyebrow"><span class="n">5</span>실전 총정리 — 유형 섞어서</div>
+  <p>어떤 유형인지 알려주지 않아요. <b>표부터</b> 그리세요. 틀리면 어느 유형인지 알려주고 돌아가는 길을 열어 둘게요.</p>
+  <div id="quizArea"></div>
+  <div style="text-align:center;margin-top:8px"><button class="lec-again" id="quizAreaAgain">🔄 5문제 새로</button></div>
+</section>
+
+<!-- ⑥ 치트시트 -->
+<section class="lec-sec reveal" data-step="6" data-label="치트시트" id="s6">
+  <div class="eyebrow"><span class="n">6</span>마무리 치트시트</div>
+  <div class="lec-cheat">
+    <h3>🧮 조건부확률 한 장 요약</h3>
+    <div class="row">
+      <div class="chip"><b>정의</b>$P(A\mid B)=\frac{P(A\cap B)}{P(B)}$ · 분모를 B로</div>
+      <div class="chip"><b>도구</b>2×2 표 → "…일 때" 집단의 합계가 분모</div>
+    </div>
+    <div class="row">
+      <div class="chip"><b>곱셈정리</b>$P(A\cap B)=P(B)P(A\mid B)$ · 나무그림 가지 곱</div>
+      <div class="chip"><b>독립</b>$P(A\cap B)=P(A)P(B)$ · 배반과 다르다</div>
+    </div>
+    <div class="row">
+      <div class="chip"><b>검사 문제</b>10,000명 표 · 양성 열 합계가 분모</div>
+      <div class="chip"><b>한 문장</b>조건부확률은 분모를 바꾸는 것</div>
+    </div>
+    <button id="printCheat">🖨️ 이 치트시트 인쇄하기</button>
+  </div>
+  <div class="keeper">
+    <div class="kt">📌 어른이 되어도 기억할 것</div>
+    <ul>
+      <li><b>"정확도 99%"와 "양성이면 99%"는 다른 말.</b> 드문 병일수록 양성의 대부분이 거짓 양성이에요. 건강검진 결과를 볼 때 평생 쓰는 상식이에요.</li>
+      <li><b>표를 그리면 공식이 필요 없다.</b> 확률 문제의 절반은 "분모가 무엇인가"를 잘못 잡아서 틀려요.</li>
+      <li><b>배반과 독립은 반대에 가깝다.</b> 배반은 하나가 일어나면 다른 것이 불가능한 것, 독립은 아무 영향이 없는 것.</li>
+    </ul>
+  </div>
+  <div class="insight"><div class="it">💡 조건부확률이 세상을 읽는 법</div>스팸 필터는 "이 단어가 있을 때 스팸일 확률"을, 내비는 "지금 이 도로가 막힐 때 저 도로도 막힐 확률"을, 의사는 "이 증상일 때 이 병일 확률"을 계산해요. 새 정보가 들어오면 <b>분모를 바꿔 확률을 갱신</b>하는 것, 이것이 통계학과 인공지능이 "배운다"고 말하는 방식이에요. 🎓 이 갱신 규칙을 베이즈 정리라고 부르는데, 교과서 용어는 아니에요.</div>
+  <div class="reallife"><div class="rt">🏠 이미 보고 있던 곳</div>건강검진 재검 통보(양성이어도 대부분 정상), 일기예보 "비 올 확률"(지금 조건에서의 확률), 스팸 메일함, 카드사의 "이상 거래 의심" 문자, 게임의 "확률형 아이템" 공지.</div>
+  <div class="reallife"><div class="rt">🏭 이걸로 먹고사는 사람들</div>의료 통계·역학(검사 민감도·특이도 설계), 보험 계리(사고 이력이 있을 때의 사고 확률), 데이터 과학·머신러닝(분류 모델은 조건부확률 추정기), 품질 관리(불량 검출기의 거짓 양성률), 법정 통계(증거가 있을 때 유죄일 확률). <span style="color:#134e4a;font-weight:700">🎓 통계학 · 의학·보건학 · 컴퓨터공학 · 경영·보험계리</span></div>
+  <p style="text-align:center;color:var(--sub);font-size:13px;margin-top:14px">단원 앱으로 이어서 → <a href="prob_probability.html">확률의 뜻과 덧셈정리</a> · <a href="prob_conditional.html">조건부확률과 독립</a></p>
+</section>
+
+<div class="lec-foot">관문 특강 · 조건부확률 직관 · 확률과 통계 · 표준 커리큘럼 제작</div>
+</div>
+<div id="printArea"></div>
+
+<!-- ───────── 생성기(순수 함수 · Node 재검산 대상) ───────── -->
+<script id="gen">
+(function(){
+  var ri=LEC.ri, pick=LEC.pick;
+  function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ var t=a%b; a=b; b=t; } return a||1; }
+  function fr(n,d){ var g=gcd(n,d); n/=g; d/=g; return d===1? String(n) : '\\dfrac{'+n+'}{'+d+'}'; }
+  function C(n,r){ var v=1; for(var i=0;i<r;i++) v=v*(n-i)/(i+1); return Math.round(v); }
+
+  window.GEN = {
+    tool:{ label:'2×2 표 채우기', anchor:'#s3',
+      gen:function(){ var m=ri(12,20), f=ri(10,20), a=ri(3,m-3), b=ri(3,f-3); var k=ri(0,2);
+        var tbl='표: 남 '+m+'명(안경 '+a+') · 여 '+f+'명(안경 '+b+') · 안경 합계 '+(a+b)+' · 전체 '+(m+f);
+        if(k===0) return { q:'한 반에 남학생 '+m+'명, 여학생 '+f+'명이 있고 안경을 쓴 학생은 남 '+a+'명, 여 '+b+'명이다. <b>남학생 중</b> 한 명을 뽑았을 때 안경을 썼을 확률은?', ans:a/m, tol:1e-6, fig:{v:a/m}, steps:[tbl, '"남학생일 때" → 분모는 남학생 행 합계 '+m, '$P(\\text{안경}\\mid\\text{남})='+fr(a,m)+'$'] };
+        if(k===1) return { q:'한 반에 남학생 '+m+'명, 여학생 '+f+'명이 있고 안경을 쓴 학생은 남 '+a+'명, 여 '+b+'명이다. <b>안경을 쓴 학생 중</b> 한 명을 뽑았을 때 남학생일 확률은?', ans:a/(a+b), tol:1e-6, fig:{v:a/(a+b)}, steps:[tbl, '"안경 쓴 학생일 때" → 분모는 안경 열 합계 '+(a+b), '$P(\\text{남}\\mid\\text{안경})='+fr(a,a+b)+'$'] };
+        return { q:'한 반에 남학생 '+m+'명, 여학생 '+f+'명이 있고 안경을 쓴 학생은 남 '+a+'명, 여 '+b+'명이다. 반에서 아무나 한 명을 뽑았을 때 <b>여학생이면서 안경을 쓴</b> 학생일 확률은?', ans:b/(m+f), tol:1e-6, fig:{v:b/(m+f)}, steps:[tbl, '조건이 없으므로 분모는 전체 '+(m+f), '$P(\\text{여}\\cap\\text{안경})='+fr(b,m+f)+'$'] }; },
+      verify:function(p){ return Math.abs(p.fig.v-p.ans)<1e-9 && p.ans>0 && p.ans<1; } },
+
+    type1:{ label:'① 표에서 읽기', anchor:'#type1',
+      gen:function(){ var A=ri(20,40), B=ri(20,40), a=ri(5,A-5), b=ri(5,B-5); var ctx=pick([['1학년','2학년','동아리 가입'],['버스','지하철','지각'],['A 공장','B 공장','불량']]); var k=ri(0,1);
+        var tbl=ctx[0]+' '+A+'('+ctx[2]+' '+a+') · '+ctx[1]+' '+B+'('+ctx[2]+' '+b+') · '+ctx[2]+' 합계 '+(a+b);
+        if(k===0) return { q:ctx[0]+' '+A+'명 중 '+ctx[2]+'이(가) '+a+'명, '+ctx[1]+' '+B+'명 중 '+ctx[2]+'이(가) '+b+'명이다. 한 명을 뽑았더니 <b>'+ctx[2]+'</b>이었다. 이 사람이 '+ctx[0]+'일 확률은?', ans:a/(a+b), tol:1e-6, fig:{v:a/(a+b)}, steps:['표: '+tbl, '"'+ctx[2]+'일 때" → 분모는 '+ctx[2]+' 열 합계 '+(a+b)+', 분자는 '+ctx[0]+'∩'+ctx[2]+' 칸 '+a, '$'+fr(a,a+b)+'$'] };
+        return { q:ctx[0]+' '+A+'명 중 '+ctx[2]+'이(가) '+a+'명, '+ctx[1]+' '+B+'명 중 '+ctx[2]+'이(가) '+b+'명이다. <b>'+ctx[1]+'</b> 중 한 명을 뽑았을 때 '+ctx[2]+'일 확률은?', ans:b/B, tol:1e-6, fig:{v:b/B}, steps:['표: '+tbl, '"'+ctx[1]+'일 때" → 분모는 '+ctx[1]+' 행 합계 '+B+', 분자는 그 행의 '+ctx[2]+' 칸 '+b, '$'+fr(b,B)+'$'] }; },
+      verify:function(p){ return Math.abs(p.fig.v-p.ans)<1e-9 && p.ans>0 && p.ans<1; } },
+
+    type2:{ label:'② 곱셈정리 · 나무그림', anchor:'#type2',
+      gen:function(){ var r=ri(3,6), b=ri(2,5), n=r+b; var k=ri(0,2);
+        if(k===0){ var v=r*(r-1)/(n*(n-1)); return { q:'주머니에 빨간 공 '+r+'개, 파란 공 '+b+'개가 있다. 공을 한 개씩 두 번 꺼낼 때(꺼낸 공은 다시 넣지 않음) 두 개 모두 빨간 공일 확률은?', ans:v, tol:1e-6, fig:{v:v}, steps:['첫 번째 빨강 $'+fr(r,n)+'$', '첫 번째가 빨강<b>일 때</b> 두 번째 빨강: 남은 빨강 '+(r-1)+', 전체 '+(n-1)+' → $'+fr(r-1,n-1)+'$', '가지를 따라 곱: $'+fr(r,n)+'\\times'+fr(r-1,n-1)+'='+fr(r*(r-1),n*(n-1))+'$'] }; }
+        if(k===1){ var w=r*b/(n*(n-1)); return { q:'주머니에 빨간 공 '+r+'개, 파란 공 '+b+'개가 있다. 공을 한 개씩 두 번 꺼낼 때(다시 넣지 않음) 첫 번째는 빨간 공, 두 번째는 파란 공일 확률은?', ans:w, tol:1e-6, fig:{v:w}, steps:['첫 번째 빨강 $'+fr(r,n)+'$, 그때 두 번째 파랑 $'+fr(b,n-1)+'$', '$'+fr(r,n)+'\\times'+fr(b,n-1)+'='+fr(r*b,n*(n-1))+'$'] }; }
+        var u=(r*b+b*r)/(n*(n-1)); return { q:'주머니에 빨간 공 '+r+'개, 파란 공 '+b+'개가 있다. 공을 한 개씩 두 번 꺼낼 때(다시 넣지 않음) 두 공의 색이 서로 다를 확률은?', ans:u, tol:1e-6, fig:{v:u}, steps:['가지가 둘: (빨강→파랑) $'+fr(r,n)+'\\times'+fr(b,n-1)+'$, (파랑→빨강) $'+fr(b,n)+'\\times'+fr(r,n-1)+'$', '서로 다른 가지는 더한다: $'+fr(2*r*b,n*(n-1))+'$'] }; },
+      verify:function(p){ return Math.abs(p.fig.v-p.ans)<1e-9 && p.ans>0 && p.ans<1; } },
+
+    type3:{ label:'③ 독립', anchor:'#type3',
+      gen:function(){ var a=ri(5,9), b=ri(4,9); var p=a/10, q=b/10; var k=ri(0,2); var who=pick([['A 선수','B 선수','명중'],['첫 번째 기계','두 번째 기계','정상 작동'],['갑','을','약속 시간에 도착']]);
+        if(k===0){ var v=p*q; return { q:who[0]+'가 '+who[2]+'할 확률은 '+p+', '+who[1]+'가 '+who[2]+'할 확률은 '+q+'이고 두 사건은 서로 독립이다. 둘 다 '+who[2]+'할 확률은?', ans:v, tol:1e-6, fig:{v:v}, steps:['독립 → 곱: $'+p+'\\times'+q+'='+Math.round(v*1000)/1000+'$'] }; }
+        if(k===1){ var w=1-(1-p)*(1-q); return { q:who[0]+'가 '+who[2]+'할 확률은 '+p+', '+who[1]+'가 '+who[2]+'할 확률은 '+q+'이고 서로 독립이다. 적어도 한쪽이 '+who[2]+'할 확률은?', ans:w, tol:1e-6, fig:{v:w}, steps:['"적어도 하나" → $1-$(둘 다 실패)', '둘 다 실패(독립): $'+Math.round((1-p)*1000)/1000+'\\times'+Math.round((1-q)*1000)/1000+'='+Math.round((1-p)*(1-q)*1000)/1000+'$', '$1-'+Math.round((1-p)*(1-q)*1000)/1000+'='+Math.round(w*1000)/1000+'$'] }; }
+        var u=p*(1-q)+(1-p)*q; return { q:who[0]+'가 '+who[2]+'할 확률은 '+p+', '+who[1]+'가 '+who[2]+'할 확률은 '+q+'이고 서로 독립이다. 둘 중 정확히 한쪽만 '+who[2]+'할 확률은?', ans:u, tol:1e-6, fig:{v:u}, steps:['가지가 둘: (성공, 실패) $'+p+'\\times'+Math.round((1-q)*1000)/1000+'$, (실패, 성공) $'+Math.round((1-p)*1000)/1000+'\\times'+q+'$', '더하면 $'+Math.round(u*1000)/1000+'$'] }; },
+      verify:function(p){ return Math.abs(p.fig.v-p.ans)<1e-9 && p.ans>0 && p.ans<1; } },
+
+    type4:{ label:'④ 검사 문제', anchor:'#type4',
+      gen:function(){ var pr=pick([1,2,5,10]), s=pick([80,90,95]), t=pick([80,90,95]); // 10,000명 기준 정수 표
+        var sick=100*pr, tp=pr*s, fn=sick-tp, healthy=10000-sick, fp=(100-pr)*(100-t), tn=healthy-fp; var pos=tp+fp; var v=tp/pos;
+        return { q:'어떤 병의 유병률은 '+pr+'%이다. 검사는 병이 있는 사람을 '+s+'% 확률로 양성, 병이 없는 사람을 '+t+'% 확률로 음성으로 판정한다. 임의의 한 사람이 양성 판정을 받았을 때 실제로 병이 있을 확률은? (소수 셋째 자리까지, 예: 0.083)', ans:v, tol:6e-4, fig:{v:v},
+          steps:['10,000명 표: 병 '+sick+'명 → 양성 '+tp+', 음성 '+fn+' · 건강 '+healthy+'명 → 양성(거짓) '+fp+', 음성 '+tn, '"양성일 때" → 분모는 양성 열 합계 '+tp+'+'+fp+'='+pos, '$P(\\text{병}\\mid\\text{양성})='+fr(tp,pos)+'\\approx'+(Math.round(v*1000)/1000)+'$'] }; },
+      verify:function(p){ return Math.abs(p.fig.v-p.ans)<1e-9 && p.ans>0 && p.ans<1; } }
+  };
+})();
+</script>
+
+<script>
+LEC.boot({ key:'prob_sp_bayes', color:'#0f766e', color2:'#2dd4bf' });
+
+/* ① 2×2 표 */
+(function(){
+  function fmt(n){ return Math.round(n).toLocaleString('ko-KR'); }
+  function draw(){
+    var p=parseFloat(document.getElementById('sp').value)/100, s=parseInt(document.getElementById('ss').value,10)/100, t=parseInt(document.getElementById('st').value,10)/100;
+    document.getElementById('spv').textContent=(p*100)+'%'; document.getElementById('ssv').textContent=Math.round(s*100)+'%'; document.getElementById('stv').textContent=Math.round(t*100)+'%';
+    var N=10000, sick=N*p, healthy=N-sick, tp=sick*s, fn=sick-tp, fp=healthy*(1-t), tn=healthy-fp;
+    document.getElementById('c11').textContent=fmt(tp); document.getElementById('c12').textContent=fmt(fn); document.getElementById('c1t').textContent=fmt(sick);
+    document.getElementById('c21').textContent=fmt(fp); document.getElementById('c22').textContent=fmt(tn); document.getElementById('c2t').textContent=fmt(healthy);
+    document.getElementById('ct1').textContent=fmt(tp+fp); document.getElementById('ct2').textContent=fmt(fn+tn);
+    var ppv=tp/(tp+fp); document.getElementById('b1').style.width=(ppv*100)+'%'; document.getElementById('b2').style.width=((1-ppv)*100)+'%';
+    document.getElementById('r1').textContent=Math.round(s*100)+'%'; document.getElementById('r2').textContent=(ppv*100).toFixed(1)+'%';
+    var el=document.getElementById('out1'); el.innerHTML='양성 '+fmt(tp+fp)+'명 중 진짜 병은 '+fmt(tp)+'명 → $P(\\text{병}\\mid\\text{양성})=\\dfrac{'+fmt(tp).replace(/,/g,'{,}')+'}{'+fmt(tp+fp).replace(/,/g,'{,}')+'}\\approx'+(ppv*100).toFixed(1)+'\\%$'+(ppv<0.5?' — <b>양성이어도 절반 이상은 건강한 사람</b>':''); LEC.tex(el);
+  }
+  ['sp','ss','st'].forEach(function(id){ document.getElementById(id).addEventListener('input',draw); }); draw();
+})();
+
+LEC.check('q1',8.3,{tol:0.15,ok:'병 100명 중 양성 90, 건강 9,900명 중 양성 990 → $\\dfrac{90}{1080}\\approx8.3\\%$. 양성 12명 중 1명만 진짜예요.', bad:'표를 보세요. 양성 열의 합계(90+990)가 분모, 진짜 병(90)이 분자.'});
+LEC.check('q2',1/3,{tol:1e-3,ok:'"남학생일 때" → 분모는 남학생 18명. $\\dfrac{6}{18}=\\dfrac13$.', bad:'분모를 30(전체)이 아니라 남학생 18명으로 바꿔야 해요.'});
+
+LEC.types(['tool','type1','type2','type3','type4']);
+LEC.quiz('quizArea',{n:5,types:['type1','type2','type3','type4']});
+</script>
+</body>
+</html>

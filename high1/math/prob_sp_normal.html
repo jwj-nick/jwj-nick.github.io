@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>정규분포·표준화 감각 — 평균에서 몇 σ · 관문 특강</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="if(window.LEC)LEC.tex(document.body)"></script>
+<script src="lecture.js"></script>
+<style>
+  .fbtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:8px}.fbtns .on{background:var(--lec);color:#fff}
+  .rd{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:8px}.rd div{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:7px 9px;font-size:12px;text-align:center;color:var(--sub)}.rd b{display:block;font-size:15px;color:var(--lec)}
+  .ztbl td,.ztbl th{padding:6px 8px}
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Math_1_1</a><span>&rsaquo;</span><a href="prob_hub.html">확률과 통계</a><span>&rsaquo;</span><a class="cur" href="#">관문 특강 · 정규분포</a></nav>
+<div class="wrap">
+
+<div class="lec-hero">
+  <span class="tag">🚪 관문 특강 · 확률과 통계 Ⅲ 통계</span>
+  <h1>🔔 정규분포·표준화 감각 — "평균에서 몇 σ 떨어졌나"</h1>
+  <p>키, 제품의 무게, 측정 오차, 여러 번 던진 주사위의 평균. 서로 아무 상관없는 것들이 모두 <b>같은 종 모양</b>으로 모여요. 그래서 정규분포 하나만 알면 세상의 많은 것을 읽을 수 있어요. 읽는 방법도 하나예요. <b>"평균에서 몇 σ(표준편차) 떨어졌나"</b>로 바꾸는 것, 그게 표준화예요. 이 특강에서 종 모양이 <b>왜</b> 생기는지 직접 보고, 표준화로 넓이(확률)를 읽는 법을 익혀요.</p>
+  <div class="lec-goal"><a href="#type1">① 표준화</a><a href="#type2">② 넓이 읽기</a><a href="#type3">③ 이항 → 정규</a><a href="#type4">④ 신뢰구간</a></div>
+</div>
+<nav class="lec-nav" id="lecNav"></nav>
+
+<!-- ① 감 잡기 -->
+<section class="lec-sec reveal" data-step="1" data-label="감 잡기" id="s1">
+  <div class="eyebrow"><span class="n">1</span>주사위 평균을 쌓으면 종 모양이 된다 (공식 없이)</div>
+  <p>주사위는 1부터 6이 <b>똑같이</b> 나와요(평평한 분포). 그런데 주사위를 $n$개 던져 <b>평균</b>을 내고, 그 평균을 히스토그램에 쌓아 보세요. $n=1$이면 평평하지만, $n$을 늘리면 가운데(3.5)로 몰리고 <b>종 모양</b>이 돼요. 버튼을 여러 번 눌러 쌓으세요.</p>
+  <div class="lec-widget">
+    <canvas id="cv1" height="280"></canvas>
+    <div class="lec-row"><span>주사위 개수 $n$</span><input type="range" id="sn" min="0" max="4" step="1" value="0"><span class="v" id="snv">1</span></div>
+    <div class="fbtns"><button class="lec-btn" id="b100">🎲 표본 100개 뽑기</button><button class="lec-btn ghost" id="b1000">🎲 1,000개</button><button class="lec-again" id="bReset">🔄 비우기</button></div>
+    <div class="rd"><div>쌓인 표본 수 <b id="r1">0</b></div><div>표본평균들의 평균 <b id="r2">–</b></div><div>표본평균들의 표준편차 <b id="r3">–</b></div><div>이론값 $\sigma/\sqrt{n}$ <b id="r4"></b></div></div>
+    <div class="lec-out" id="out1"></div>
+  </div>
+  <p>두 가지가 보여요. 첫째, $n$이 커질수록 <b>종 모양</b>(정규분포)에 가까워져요. 원래 분포가 평평했는데도요. 둘째, 퍼진 정도(표준편차)가 $\dfrac{\sigma}{\sqrt n}$로 <b>줄어들어요</b>. 주사위 4개 평균은 1개일 때보다 폭이 절반. 이것이 "표본이 크면 평균이 믿을 만하다"의 수학이에요.</p>
+  <div class="lec-card">
+    <h4>함께 생각하기 ①</h4>
+    <p style="margin-bottom:8px;font-size:14px">주사위 1개의 표준편차는 약 $1.71$이에요. 주사위 $9$개를 던져 평균을 낼 때, 그 평균의 표준편차는 약 얼마? (소수 둘째 자리까지)</p>
+    <div class="lec-checkrow"><input class="num" id="q1" inputmode="decimal" aria-label="답"><button id="q1b">확인</button></div>
+    <div class="lec-out" id="q1o"></div>
+  </div>
+</section>
+
+<!-- ② 공식은 읽는 것 -->
+<section class="lec-sec reveal" data-step="2" data-label="공식 읽기" id="s2">
+  <div class="eyebrow"><span class="n">2</span>공식은 외우는 게 아니라 읽는 것</div>
+  <p>정규분포 $N(m,\sigma^2)$은 평균 $m$을 중심으로 좌우 대칭인 종 모양이에요. 곡선 아래 <b>넓이가 확률</b>이고 전체 넓이는 1. 모양은 $m$(위치)과 $\sigma$(폭) 두 숫자로 완전히 정해져요.</p>
+  <div class="lec-formula"><div class="f">$X\sim N(m,\sigma^2)$ &nbsp;⟶&nbsp; $Z=\dfrac{X-m}{\sigma}\sim N(0,1)$ &nbsp;(표준화)</div><small>"평균에서 몇 σ 떨어졌나"로 바꾸면 어떤 정규분포든 하나의 표(표준정규분포표)로 읽는다.</small></div>
+  <p>표준정규분포표는 $P(0\le Z\le z)$, 즉 <b>가운데(0)부터 $z$까지의 넓이</b>를 알려줘요. 자주 쓰는 값은 다섯 개면 충분해요.</p>
+  <table class="lec-table ztbl">
+    <tr><th>$z$</th><th>0.5</th><th>1</th><th>1.5</th><th>2</th><th>2.5</th><th>3</th><th>1.96</th><th>2.58</th></tr>
+    <tr><td>$P(0\le Z\le z)$</td><td>0.1915</td><td>0.3413</td><td>0.4332</td><td>0.4772</td><td>0.4938</td><td>0.4987</td><td>0.4750</td><td>0.4950</td></tr>
+  </table>
+  <div class="lec-formula"><div class="f">$P(Z\le z)=0.5+P(0\le Z\le z)$, &nbsp; $P(Z\ge z)=0.5-P(0\le Z\le z)$, &nbsp; $P(Z\le -z)=P(Z\ge z)$</div><small>왼쪽 절반이 0.5, 대칭. 그림을 그리고 "표 값에 0.5를 더하나 빼나"만 정한다.</small></div>
+  <div class="lec-formula"><div class="f">$P(|Z|\le1)\approx0.68,\quad P(|Z|\le2)\approx0.95,\quad P(|Z|\le3)\approx0.997$</div><small>"1σ 안에 68%, 2σ 안에 95%". 이것만 알아도 세상 대부분의 '정상 범위'를 읽는다.</small></div>
+
+  <p><b>이항분포</b> $B(n,p)$도 $n$이 크면 종 모양이에요(위젯에서 본 그 현상). 그래서 정규분포로 근사해요.</p>
+  <div class="lec-formula"><div class="f">$B(n,p)\approx N(np,\ npq)$ &nbsp;($q=1-p$, $n$이 충분히 클 때)</div><small>평균 np, 분산 npq를 그대로 정규분포의 m, σ²로. 그다음은 표준화.</small></div>
+
+  <p><b>표본평균</b> $\bar X$의 분포가 위젯의 결론이에요. 모집단이 $N(m,\sigma^2)$이면(또는 $n$이 크면) $\bar X\sim N\!\left(m,\dfrac{\sigma^2}{n}\right)$. 이걸 뒤집으면 <b>추정</b>이에요: 표본평균 하나로 모평균이 있을 범위를 말해요.</p>
+  <div class="lec-formula"><div class="f">모평균 95% 신뢰구간: $\bar x-1.96\dfrac{\sigma}{\sqrt n}\ \le\ m\ \le\ \bar x+1.96\dfrac{\sigma}{\sqrt n}$ &nbsp;(99%는 2.58)</div><small>폭은 σ/√n에 비례: 표본이 4배면 폭이 절반. 모비율은 p̂ ± 1.96√(p̂(1−p̂)/n).</small></div>
+
+  <div class="lec-card">
+    <h4>함께 생각하기 ②</h4>
+    <p style="margin-bottom:8px;font-size:14px">$X\sim N(50,10^2)$ 일 때 $P(X\le 60)$ 은? (위 표를 써서 소수 넷째 자리까지)</p>
+    <div class="lec-checkrow"><input class="num" id="q2" inputmode="decimal" aria-label="답"><button id="q2b">확인</button></div>
+    <div class="lec-out" id="q2o"></div>
+  </div>
+</section>
+
+<!-- ③ 핵심 도구 -->
+<section class="lec-sec reveal" data-step="3" data-label="z 게이지" id="s3">
+  <div class="eyebrow"><span class="n">3</span>$z$ 게이지 — 핵심 도구</div>
+  <p>어떤 정규분포 문제든 순서는 같아요: ① 그림을 그리고 원하는 넓이를 색칠 ② $z=\dfrac{x-m}{\sigma}$로 바꾸기 ③ 표에서 읽고 0.5를 더하거나 빼기. 슬라이더로 $z$를 움직이며 색칠된 넓이를 보세요.</p>
+  <div class="lec-widget">
+    <canvas id="cv2" height="240"></canvas>
+    <div class="lec-row"><span>$z$</span><input type="range" id="sz" min="-30" max="30" step="1" value="10"><span class="v" id="szv">1.0</span></div>
+    <div class="fbtns"><button class="lec-btn ghost on" id="mLeft">$P(Z\le z)$</button><button class="lec-btn ghost" id="mMid">$P(0\le Z\le z)$</button><button class="lec-btn ghost" id="mAbs">$P(|Z|\le z)$</button></div>
+    <div class="lec-out" id="out2"></div>
+  </div>
+  <div class="lec-key"><b>불변 앵커</b> 정규분포는 "평균에서 몇 σ"로 모든 것을 읽는다. 그림 → 표준화 → 표 → 0.5 더하기/빼기.</div>
+  <p style="margin-top:12px">표준화 연습이에요. 표 값(0.1915 / 0.3413 / 0.4332 / 0.4772)을 쓰세요.</p>
+  <div id="toolbody"></div>
+</section>
+
+<!-- ④ 유형별 완전정복 -->
+<section class="lec-sec reveal" data-step="4" data-label="유형 4" id="s4">
+  <div class="eyebrow"><span class="n">4</span>유형별 완전정복</div>
+  <p>네 유형 모두 <b>그림 → 표준화 → 표</b>예요. 표 값은 위의 표(0.5→0.1915, 1→0.3413, 1.5→0.4332, 2→0.4772, 1.96→0.4750, 2.58→0.4950)를 써요.</p>
+</section>
+
+<section class="lec-type reveal" id="type1">
+  <div class="lec-type-h"><span class="badge">①</span><span><div class="t">표준화</div><div class="d">x → z → 표</div></span></div>
+  <div class="lec-key"><b>핵심</b> $z=\dfrac{x-m}{\sigma}$. 오른쪽 넓이는 $0.5-$표, 왼쪽 넓이는 $0.5+$표(z가 양수일 때). z가 음수면 대칭으로 뒤집는다.</div>
+  <div id="type1body"></div>
+</section>
+
+<section class="lec-type reveal" id="type2">
+  <div class="lec-type-h"><span class="badge">②</span><span><div class="t">넓이 읽기</div><div class="d">두 z 사이</div></span></div>
+  <div class="lec-key"><b>핵심</b> 같은 쪽이면 큰 것에서 작은 것을 빼고, 0을 사이에 두면 둘을 더한다. 그림을 먼저.</div>
+  <div id="type2body"></div>
+</section>
+
+<section class="lec-type reveal" id="type3">
+  <div class="lec-type-h"><span class="badge">③</span><span><div class="t">이항분포 → 정규 근사</div><div class="d">m = np, σ² = npq</div></span></div>
+  <div class="lec-key"><b>핵심</b> $B(n,p)$의 평균 $np$와 표준편차 $\sqrt{npq}$를 구하고 $N(np,npq)$로 표준화한다.</div>
+  <div id="type3body"></div>
+</section>
+
+<section class="lec-type reveal" id="type4">
+  <div class="lec-type-h"><span class="badge">④</span><span><div class="t">신뢰구간</div><div class="d">x̄ ± 1.96 σ/√n</div></span></div>
+  <div class="lec-key"><b>핵심</b> 95%는 1.96, 99%는 2.58. 구간의 길이는 $2\times1.96\times\dfrac{\sigma}{\sqrt n}$. $n$이 4배면 길이는 절반.</div>
+  <div id="type4body"></div>
+</section>
+
+<!-- ⑤ 실전 총정리 -->
+<section class="lec-sec reveal" data-step="5" data-label="실전" id="s5">
+  <div class="eyebrow"><span class="n">5</span>실전 총정리 — 유형 섞어서</div>
+  <p>어떤 유형인지 알려주지 않아요. <b>그림부터</b> 그리세요. 틀리면 어느 유형인지 알려주고 돌아가는 길을 열어 둘게요.</p>
+  <div id="quizArea"></div>
+  <div style="text-align:center;margin-top:8px"><button class="lec-again" id="quizAreaAgain">🔄 5문제 새로</button></div>
+</section>
+
+<!-- ⑥ 치트시트 -->
+<section class="lec-sec reveal" data-step="6" data-label="치트시트" id="s6">
+  <div class="eyebrow"><span class="n">6</span>마무리 치트시트</div>
+  <div class="lec-cheat">
+    <h3>🔔 정규분포 한 장 요약</h3>
+    <div class="row">
+      <div class="chip"><b>표준화</b>$z=\frac{x-m}{\sigma}$ · "평균에서 몇 σ"</div>
+      <div class="chip"><b>표 읽기</b>표 = $P(0\le Z\le z)$ · 왼쪽 0.5+표 · 오른쪽 0.5−표</div>
+    </div>
+    <div class="row">
+      <div class="chip"><b>68·95·99.7</b>1σ·2σ·3σ 안의 확률</div>
+      <div class="chip"><b>이항 근사</b>$B(n,p)\approx N(np,npq)$</div>
+    </div>
+    <div class="row">
+      <div class="chip"><b>표본평균</b>$\bar X\sim N(m,\frac{\sigma^2}{n})$ · 폭은 $\frac{\sigma}{\sqrt n}$</div>
+      <div class="chip"><b>신뢰구간</b>$\bar x\pm1.96\frac{\sigma}{\sqrt n}$ (95%) · 2.58 (99%)</div>
+    </div>
+    <button id="printCheat">🖨️ 이 치트시트 인쇄하기</button>
+  </div>
+  <div class="keeper">
+    <div class="kt">📌 어른이 되어도 기억할 것</div>
+    <ul>
+      <li><b>"평균에서 몇 σ"가 진짜 정보다.</b> 키 180cm가 큰지, 혈압 130이 높은지는 평균과 σ를 알아야 말할 수 있어요.</li>
+      <li><b>평균을 내면 종 모양이 된다.</b> 원래 분포가 어떻든 표본평균은 정규분포에 가까워져요. 통계학이 성립하는 이유예요.</li>
+      <li><b>여론조사 "±3.1%p, 95% 신뢰수준"</b>은 $1.96\sqrt{0.5\times0.5/1000}\approx0.031$이에요. 응답자 1,000명이면 늘 이 숫자가 나와요.</li>
+    </ul>
+  </div>
+  <div class="insight"><div class="it">💡 곡선 아래 넓이, 다시</div>미적분Ⅰ에서 "곡선 아래 넓이 = 정적분"을 배웠다면, 정규분포의 확률은 정확히 그 넓이예요. 종 모양 곡선의 넓이는 공식으로 딱 떨어지지 않아서 표로 만들어 두었고, 지금은 컴퓨터가 계산해요. 위젯의 색칠이 그 정적분이에요.</div>
+  <div class="reallife"><div class="rt">🏠 이미 보고 있던 곳</div>영유아 성장 곡선(백분위 = 넓이), 공장 제품의 "규격 안 ±3σ", 여론조사의 오차범위, 일기예보 "평년보다 2σ 더운 날", 스마트워치의 "평소보다 심박이 높다" 알림.</div>
+  <div class="reallife"><div class="rt">🏭 이걸로 먹고사는 사람들</div>품질 관리(6σ 공정), 여론조사·시장조사(표본 설계와 신뢰구간), 금융 리스크(수익률 분포의 σ = 변동성), 의료 검사(정상 범위 설정), 데이터 과학(이상치 탐지는 "몇 σ 밖인가"). <span style="color:#134e4a;font-weight:700">🎓 통계학 · 산업공학 · 경제·금융 · 데이터과학</span></div>
+  <p style="text-align:center;color:var(--sub);font-size:13px;margin-top:14px">단원 앱으로 이어서 → <a href="prob_distribution.html">확률분포와 이항분포</a> · <a href="prob_normal.html">정규분포</a> · <a href="prob_estimation.html">통계적 추정</a></p>
+</section>
+
+<div class="lec-foot">관문 특강 · 정규분포·표준화 감각 · 확률과 통계 · 표준 커리큘럼 제작</div>
+</div>
+<div id="printArea"></div>
+
+<!-- ───────── 생성기(순수 함수 · Node 재검산 대상) ───────── -->
+<script id="gen">
+(function(){
+  var ri=LEC.ri, pick=LEC.pick;
+  var TBL={'0.5':0.1915,'1':0.3413,'1.5':0.4332,'2':0.4772,'2.5':0.4938,'3':0.4987,'1.96':0.4750,'2.58':0.4950};
+  function tb(z){ return TBL[String(Math.abs(z))]; }
+  function erf(x){ var s=x<0?-1:1; x=Math.abs(x); var t=1/(1+0.3275911*x); var y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x); return s*y; }
+  function Phi(z){ return 0.5*(1+erf(z/Math.SQRT2)); }
+  function r4(x){ return Math.round(x*10000)/10000; }
+  var CTX=[['어느 공장에서 만드는 과자 한 봉지의 무게','g'],['어느 지역 고등학생의 키','cm'],['어느 회사 배터리의 사용 시간','시간'],['어느 농장 사과 한 개의 무게','g']];
+
+  window.GEN = {
+    tool:{ label:'표준화 계산', anchor:'#s3',
+      gen:function(){ var m=pick([50,60,100,170,200]), s=pick([4,5,8,10,20]), z=pick([0.5,1,1.5,2]); var x=m+z*s; var c=pick(CTX); var v=r4(0.5+tb(z));
+        return { q:c[0]+'는 평균 '+m+c[1]+', 표준편차 '+s+c[1]+'인 정규분포를 따른다. 임의로 하나를 골랐을 때 '+x+c[1]+' 이하일 확률은? (표 값 이용, 소수 넷째 자리까지)', ans:v, tol:6e-5, fig:{z:z}, steps:['표준화: $z=\\dfrac{'+x+'-'+m+'}{'+s+'}='+z+'$', '왼쪽 넓이 = $0.5+P(0\\le Z\\le'+z+')=0.5+'+tb(z)+'='+v+'$'] }; },
+      verify:function(p){ return Math.abs(Phi(p.fig.z)-p.ans)<1e-3; } },
+
+    type1:{ label:'① 표준화', anchor:'#type1',
+      gen:function(){ var m=pick([50,60,100,170,200]), s=pick([4,5,8,10,20]), z=pick([0.5,1,1.5,2]); var c=pick(CTX); var k=ri(0,2);
+        if(k===0){ var x=m+z*s, v=r4(0.5-tb(z)); return { q:c[0]+'는 평균 '+m+c[1]+', 표준편차 '+s+c[1]+'인 정규분포를 따른다. '+x+c[1]+' <b>이상</b>일 확률은? (소수 넷째 자리까지)', ans:v, tol:6e-5, fig:{lo:z,hi:Infinity}, steps:['$z=\\dfrac{'+x+'-'+m+'}{'+s+'}='+z+'$', '오른쪽 넓이 = $0.5-'+tb(z)+'='+v+'$'] }; }
+        if(k===1){ var x2=m-z*s, w=r4(0.5-tb(z)); return { q:c[0]+'는 평균 '+m+c[1]+', 표준편차 '+s+c[1]+'인 정규분포를 따른다. '+x2+c[1]+' <b>이하</b>일 확률은? (소수 넷째 자리까지)', ans:w, tol:6e-5, fig:{lo:-Infinity,hi:-z}, steps:['$z=\\dfrac{'+x2+'-'+m+'}{'+s+'}=-'+z+'$', '왼쪽 꼬리 = 대칭으로 $P(Z\\ge'+z+')=0.5-'+tb(z)+'='+w+'$'] }; }
+        var x3=m-z*s, u=r4(0.5+tb(z)); return { q:c[0]+'는 평균 '+m+c[1]+', 표준편차 '+s+c[1]+'인 정규분포를 따른다. '+x3+c[1]+' <b>이상</b>일 확률은? (소수 넷째 자리까지)', ans:u, tol:6e-5, fig:{lo:-z,hi:Infinity}, steps:['$z=\\dfrac{'+x3+'-'+m+'}{'+s+'}=-'+z+'$', '$P(Z\\ge-'+z+')=0.5+P(0\\le Z\\le'+z+')=0.5+'+tb(z)+'='+u+'$'] }; },
+      verify:function(p){ var lo=p.fig.lo, hi=p.fig.hi; var t=(hi===Infinity?1:Phi(hi))-(lo===-Infinity?0:Phi(lo)); return Math.abs(t-p.ans)<1e-3; } },
+
+    type2:{ label:'② 넓이 읽기', anchor:'#type2',
+      gen:function(){ var Z=[0.5,1,1.5,2]; var k=ri(0,1);
+        if(k===0){ var a=pick(Z), b=pick(Z.filter(function(t){return t!==a;})); var lo=Math.min(a,b), hi=Math.max(a,b); var v=r4(tb(hi)-tb(lo)); return { q:'$Z\\sim N(0,1)$ 일 때 $P('+lo+'\\le Z\\le'+hi+')$ 는? (소수 넷째 자리까지)', ans:v, tol:6e-5, fig:{lo:lo,hi:hi}, steps:['같은 쪽(둘 다 양수) → 큰 넓이에서 작은 넓이를 뺀다', '$'+tb(hi)+'-'+tb(lo)+'='+v+'$'] }; }
+        var a2=pick(Z), b2=pick(Z); var w=r4(tb(a2)+tb(b2)); return { q:'$Z\\sim N(0,1)$ 일 때 $P(-'+a2+'\\le Z\\le'+b2+')$ 는? (소수 넷째 자리까지)', ans:w, tol:6e-5, fig:{lo:-a2,hi:b2}, steps:['0을 사이에 둠 → 왼쪽 조각(대칭으로 $P(0\\le Z\\le'+a2+')$)과 오른쪽 조각을 더한다', '$'+tb(a2)+'+'+tb(b2)+'='+w+'$'] }; },
+      verify:function(p){ return Math.abs(Phi(p.fig.hi)-Phi(p.fig.lo)-p.ans)<1e-3; } },
+
+    type3:{ label:'③ 이항 → 정규', anchor:'#type3',
+      gen:function(){ var S=pick([[100,'1/2',50,5],[400,'1/2',200,10],[100,'1/5',20,4],[400,'1/5',80,8],[180,'1/6',30,5],[150,'2/5',60,6],[48,'1/4',12,3]]); var n=S[0], pt=S[1], m=S[2], sd=S[3]; var z=pick([0.5,1,1.5,2]); var k=ri(0,1); var ctx=pick(['한 개의 주사위를 던져 특정 눈이 나오는','어느 제품이 불량인','한 번 쏘아 명중하는']);
+        if(k===0){ var x=m+z*sd, v=r4(0.5-tb(z)); return { q:ctx+' 확률이 $'+pt+'$ 인 시행을 '+n+'번 반복할 때, 그 사건이 '+x+'번 <b>이상</b> 일어날 확률을 정규분포로 근사하면? (소수 넷째 자리까지)', ans:v, tol:6e-5, fig:{lo:z,hi:Infinity}, steps:['$B('+n+',\\ '+pt+')$: 평균 $np='+m+'$, 표준편차 $\\sqrt{npq}='+sd+'$ → $N('+m+','+sd+'^2)$', '$z=\\dfrac{'+x+'-'+m+'}{'+sd+'}='+z+'$ → $0.5-'+tb(z)+'='+v+'$'] }; }
+        var x2=m-z*sd, w=r4(0.5+tb(z)); return { q:ctx+' 확률이 $'+pt+'$ 인 시행을 '+n+'번 반복할 때, 그 사건이 '+x2+'번 <b>이상</b> 일어날 확률을 정규분포로 근사하면? (소수 넷째 자리까지)', ans:w, tol:6e-5, fig:{lo:-z,hi:Infinity}, steps:['$B('+n+',\\ '+pt+')\\approx N('+m+','+sd+'^2)$', '$z=\\dfrac{'+x2+'-'+m+'}{'+sd+'}=-'+z+'$ → $P(Z\\ge-'+z+')=0.5+'+tb(z)+'='+w+'$'] }; },
+      verify:function(p){ var lo=p.fig.lo, hi=p.fig.hi; var t=(hi===Infinity?1:Phi(hi))-Phi(lo); return Math.abs(t-p.ans)<1e-3; } },
+
+    type4:{ label:'④ 신뢰구간', anchor:'#type4',
+      gen:function(){ var n=pick([25,100,400]), s=pick([5,10,20]), xb=pick([50,60,100,170]); var rn=Math.sqrt(n); var k=ri(0,2); var c=pick(CTX);
+        if(k===0){ var v=Math.round(2*1.96*s/rn*1000)/1000; return { q:c[0]+'의 표준편차가 '+s+c[1]+'임이 알려져 있다. '+n+'개를 임의추출해 표본평균 '+xb+c[1]+'을 얻었다. 모평균에 대한 <b>95% 신뢰구간의 길이</b>는? (소수 셋째 자리까지)', ans:v, tol:6e-4, fig:{n:n,s:s,z:1.96}, steps:['$\\dfrac{\\sigma}{\\sqrt n}=\\dfrac{'+s+'}{'+rn+'}='+(s/rn)+'$', '길이 $=2\\times1.96\\times'+(s/rn)+'='+v+'$'] }; }
+        if(k===1){ var up=Math.round((xb+1.96*s/rn)*1000)/1000; return { q:c[0]+'의 표준편차가 '+s+c[1]+'임이 알려져 있다. '+n+'개를 임의추출해 표본평균 '+xb+c[1]+'을 얻었다. 모평균에 대한 95% 신뢰구간의 <b>위 끝값</b>은? (소수 셋째 자리까지)', ans:up, tol:6e-4, fig:{n:n,s:s,z:1.96,xb:xb}, steps:['$\\bar x+1.96\\dfrac{\\sigma}{\\sqrt n}='+xb+'+1.96\\times'+(s/rn)+'='+up+'$'] }; }
+        var w=Math.round(2*2.58*s/rn*1000)/1000; return { q:c[0]+'의 표준편차가 '+s+c[1]+'임이 알려져 있다. '+n+'개를 임의추출해 표본평균 '+xb+c[1]+'을 얻었다. 모평균에 대한 <b>99% 신뢰구간의 길이</b>는? (소수 셋째 자리까지)', ans:w, tol:6e-4, fig:{n:n,s:s,z:2.58}, steps:['99%는 $2.58$', '길이 $=2\\times2.58\\times\\dfrac{'+s+'}{'+rn+'}='+w+'$'] }; },
+      verify:function(p){ var f=p.fig; if(f.xb!==undefined) return Math.abs(f.xb+f.z*f.s/Math.sqrt(f.n)-p.ans)<1e-3; return Math.abs(2*f.z*f.s/Math.sqrt(f.n)-p.ans)<1e-3; } }
+  };
+})();
+</script>
+
+<script>
+LEC.boot({ key:'prob_sp_normal', color:'#0f766e', color2:'#2dd4bf' });
+
+/* ① 표본평균 히스토그램 */
+(function(){
+  var cv=document.getElementById('cv1'); var P=LEC.plane(cv,{xmin:0.5,xmax:6.5,ymin:-0.06,ymax:1.15,h:280,grid:0});
+  var NS=[1,2,4,9,25]; var means=[]; var SIG=Math.sqrt(35/12);
+  function n(){ return NS[parseInt(document.getElementById('sn').value,10)]; }
+  function roll(k){ var s=0; for(var i=0;i<k;i++) s+=1+Math.floor(Math.random()*6); return s/k; }
+  function add(cnt){ var k=n(); for(var i=0;i<cnt;i++) means.push(roll(k)); draw(); }
+  function draw(){ var k=n(); document.getElementById('snv').textContent=k; document.getElementById('r4').textContent=(SIG/Math.sqrt(k)).toFixed(3);
+    P.clear(); var c=P.ctx; var B=30, w=5/B, bins=[]; for(var i=0;i<B;i++) bins.push(0); means.forEach(function(m){ var b=Math.min(B-1,Math.floor((m-1)/w)); bins[b]++; }); var mx=Math.max.apply(null,bins.concat([1]));
+    // 축
+    c.strokeStyle='#94a3b8'; c.lineWidth=1.5; c.beginPath(); c.moveTo(P.X(0.7),P.Y(0)); c.lineTo(P.X(6.3),P.Y(0)); c.stroke(); c.fillStyle='#64748b'; c.font='11px sans-serif'; c.textAlign='center'; c.textBaseline='top'; for(var t=1;t<=6;t++){ c.fillText(t,P.X(t),P.Y(0)+4); } c.fillText('표본평균',P.X(6.3),P.Y(0)+18);
+    for(var j=0;j<B;j++){ var h=bins[j]/mx; if(!h) continue; var x0=1+j*w; c.fillStyle='rgba(15,118,110,.55)'; c.fillRect(P.X(x0)+1,P.Y(h),P.X(x0+w)-P.X(x0)-2,P.Y(0)-P.Y(h)); }
+    if(means.length>=30){ var sd=SIG/Math.sqrt(k); var peak=means.length*w/(sd*Math.sqrt(2*Math.PI)); P.plot(function(x){ return means.length*w*Math.exp(-(x-3.5)*(x-3.5)/(2*sd*sd))/(sd*Math.sqrt(2*Math.PI))/mx; },'#dc2626',2,1,6); }
+    P.seg(3.5,0,3.5,1.1,'#2563eb',1.5,[5,4]); c.fillStyle='#2563eb'; c.textAlign='left'; c.textBaseline='bottom'; c.fillText('모평균 3.5',P.X(3.55),P.Y(1.1));
+    document.getElementById('r1').textContent=means.length;
+    if(means.length){ var mu=means.reduce(function(a,b){return a+b;},0)/means.length; var va=means.reduce(function(a,b){return a+(b-mu)*(b-mu);},0)/means.length; document.getElementById('r2').textContent=mu.toFixed(3); document.getElementById('r3').textContent=Math.sqrt(va).toFixed(3); } else { document.getElementById('r2').textContent='–'; document.getElementById('r3').textContent='–'; }
+    var el=document.getElementById('out1'); el.innerHTML= means.length<30 ? '주사위 $'+k+'$개의 평균을 표본으로 쌓아요. 버튼을 눌러 100개, 1,000개 쌓아 보세요.' : (k===1 ? '$n=1$: 평평해요(1~6이 골고루). 붉은 곡선(정규분포)과 모양이 달라요. $n$을 올려 보세요.' : '$n='+k+'$: 종 모양으로 모이고, 붉은 곡선 $N\\!\\left(3.5,\\ \\dfrac{'+SIG.toFixed(2)+'^2}{'+k+'}\\right)$과 거의 겹쳐요. 폭 $\\dfrac{\\sigma}{\\sqrt n}='+(SIG/Math.sqrt(k)).toFixed(3)+'$'); LEC.tex(el); }
+  document.getElementById('sn').addEventListener('input',function(){ means=[]; draw(); });
+  document.getElementById('b100').addEventListener('click',function(){ add(100); }); document.getElementById('b1000').addEventListener('click',function(){ add(1000); }); document.getElementById('bReset').addEventListener('click',function(){ means=[]; draw(); });
+  draw(); LEC.onResize(function(){ P.resize(); draw(); });
+})();
+
+LEC.check('q1',0.57,{tol:0.02,ok:'$\\dfrac{1.71}{\\sqrt9}=\\dfrac{1.71}{3}=0.57$. 주사위 9개 평균은 폭이 $\\tfrac13$이 돼요.', bad:'표본평균의 표준편차는 $\\dfrac{\\sigma}{\\sqrt n}$. $\\sqrt9=3$으로 나눠 보세요.'});
+LEC.check('q2',0.8413,{tol:6e-5,ok:'$z=\\dfrac{60-50}{10}=1$ → 왼쪽 넓이 $0.5+0.3413=0.8413$.', bad:'표준화하면 $z=1$. 60 이하는 "왼쪽 전부"이니 0.5에 표 값 0.3413을 더해요.'});
+
+/* ③ z 게이지 */
+(function(){
+  var cv=document.getElementById('cv2'); var P=LEC.plane(cv,{xmin:-3.6,xmax:3.6,ymin:-0.08,ymax:0.46,h:240,grid:0}); var mode='left';
+  function erf(x){ var s=x<0?-1:1; x=Math.abs(x); var t=1/(1+0.3275911*x); var y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x); return s*y; }
+  function Phi(z){ return 0.5*(1+erf(z/Math.SQRT2)); } function pdf(z){ return Math.exp(-z*z/2)/Math.sqrt(2*Math.PI); }
+  function draw(){ var z=parseInt(document.getElementById('sz').value,10)/10; document.getElementById('szv').textContent=z.toFixed(1);
+    P.clear(); var c=P.ctx; c.strokeStyle='#94a3b8'; c.lineWidth=1.5; c.beginPath(); c.moveTo(P.X(-3.5),P.Y(0)); c.lineTo(P.X(3.5),P.Y(0)); c.stroke(); c.fillStyle='#64748b'; c.font='11px sans-serif'; c.textAlign='center'; c.textBaseline='top'; for(var t=-3;t<=3;t++) c.fillText(t,P.X(t),P.Y(0)+4);
+    var a,b,val,txt;
+    if(mode==='left'){ a=-3.6; b=z; val=Phi(z); txt='$P(Z\\le'+z.toFixed(1)+')='+val.toFixed(4)+'$'+(z>0?' = $0.5+'+(val-0.5).toFixed(4)+'$':(z<0?' = $0.5-'+(0.5-val).toFixed(4)+'$ (대칭)':'')); }
+    else if(mode==='mid'){ a=Math.min(0,z); b=Math.max(0,z); val=Math.abs(Phi(z)-0.5); txt='$P(0\\le Z\\le'+Math.abs(z).toFixed(1)+')='+val.toFixed(4)+'$ ← 표에 있는 값'; }
+    else { var az=Math.abs(z); a=-az; b=az; val=Phi(az)-Phi(-az); txt='$P(|Z|\\le'+az.toFixed(1)+')='+val.toFixed(4)+'$ = 표 값 × 2'; }
+    P.fillUnder(pdf,a,b,'rgba(15,118,110,.35)'); P.plot(pdf,'#0f766e',3,-3.5,3.5); P.seg(z,0,z,pdf(z),'#dc2626',2); P.dot(z,0,'#dc2626',5,'z','s');
+    var el=document.getElementById('out2'); el.innerHTML=txt; LEC.tex(el); }
+  document.getElementById('sz').addEventListener('input',draw);
+  [['mLeft','left'],['mMid','mid'],['mAbs','abs']].forEach(function(pr){ document.getElementById(pr[0]).addEventListener('click',function(){ mode=pr[1]; ['mLeft','mMid','mAbs'].forEach(function(id){ document.getElementById(id).classList.toggle('on',id===pr[0]); }); draw(); }); });
+  draw(); LEC.onResize(function(){ P.resize(); draw(); });
+})();
+
+LEC.types(['tool','type1','type2','type3','type4']);
+LEC.quiz('quizArea',{n:5,types:['type1','type2','type3','type4']});
+</script>
+</body>
+</html>

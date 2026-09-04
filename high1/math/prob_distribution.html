@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>확률변수와 이산확률분포 · 이항분포 — 확률과 통계</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
+<script src="lecture.js"></script>
+<link rel="stylesheet" href="prob_app.css">
+<style>
+  .widget canvas{max-width:520px}
+  .dt{width:100%;border-collapse:collapse;font-size:13.5px;margin:8px 0}.dt th,.dt td{border:1px solid #e2e8f0;padding:8px 6px;text-align:center}.dt th{background:#f8fafc}.dt td.bad{background:#fee2e2;color:#b91c1c;font-weight:800}
+  .rdo{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:8px}.rdo div{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:7px 9px;font-size:12px;text-align:center;color:var(--sub)}.rdo b{display:block;font-size:14px;color:var(--accent)}
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Math_1_1</a><span>&rsaquo;</span><a href="prob_hub.html">확률과 통계</a><span>&rsaquo;</span><a class="cur" href="#">확률분포와 이항분포</a></nav>
+<div class="hero">
+  <span class="badge">Ⅲ. 통계</span>
+  <h1>📊 확률변수와 이산확률분포 · 이항분포</h1>
+  <p>확률에 값을 붙이면 평균이 생기고, 반복하면 종 모양이 된다</p>
+</div>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="intro">📋 개요</button>
+  <button class="tab" data-t="tbl">📋 분포표·기댓값</button>
+  <button class="tab" data-t="lin">🔄 aX+b</button>
+  <button class="tab" data-t="bin">📊 이항분포</button>
+  <button class="tab" data-t="world">🌐 세상 속으로</button>
+  <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="fin">✅ 정리</button>
+</div>
+<div class="wrap">
+
+  <div class="page active" data-p="intro">
+    <div class="card">
+      <h2>📋 "평균적으로 얼마"를 계산하는 법</h2>
+      <div class="hook">
+        <div class="ht">💥 왜 배우나</div>
+        주사위를 던져 나온 눈만큼 돈을 받는 게임. 참가비가 얼마면 공정할까요? 1부터 6이 각 $\frac16$이니 <b>평균적으로 3.5</b>를 받아요. 참가비 3,000원이면 이득, 4,000원이면 손해. 이 "평균적으로 얼마"가 <b>기댓값</b>이고, 복권·보험·게임 아이템의 가격이 전부 이 계산 위에 있어요. 그리고 동전을 100번 던져 앞면 수를 세면, 그 분포는 놀랍도록 규칙적인 <b>종 모양</b>이 돼요. 그게 이항분포예요.
+      </div>
+      <div class="splink">🚪 종 모양이 왜 생기는지 먼저 보려면 → <a href="prob_sp_normal.html">관문 특강: 정규분포·표준화 감각</a> · 앞 단원 <a href="prob_conditional.html">조건부확률과 독립</a>(독립시행)</div>
+      <div class="sci">
+        <div class="ava">🔭</div>
+        <div>
+          <div class="st">하위헌스 (1629~1695) — 기댓값을 처음 체계화한 사람</div>
+          <div class="sd">토성의 고리를 발견한 천문학자 하위헌스는 1657년 「주사위 게임의 계산에 관하여」에서 "게임의 가치"라는 개념을 정리했어요. 오늘의 <b>기댓값</b>이에요. 파스칼·페르마의 편지 소식을 듣고 스스로 이론을 세운 뒤 책으로 냈고, 이 책이 반세기 동안 확률론의 표준 교재였어요. 확률에 "값"을 붙여 계산하는 습관이 여기서 시작됐어요.</div>
+        </div>
+      </div>
+      <div class="toc">
+        <button onclick="go('tbl')"><div class="ti">📋</div><div class="tn">분포표·기댓값</div><div class="td">확률 바꾸면 평균·분산 실시간</div></button>
+        <button onclick="go('lin')"><div class="ti">🔄</div><div class="tn">aX+b</div><div class="td">평균은 따라가고 분산은 a²배</div></button>
+        <button onclick="go('bin')"><div class="ti">📊</div><div class="tn">이항분포</div><div class="td">n·p 슬라이더 막대</div></button>
+        <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">보험·복권·품질</div></button>
+        <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="tbl">
+    <div class="card">
+      <h2>📋 확률분포표와 기댓값 — 값 × 확률을 전부 더한다</h2>
+      <p class="lead">확률변수 $X$가 0, 1, 2, 3을 가져요. 세 확률을 슬라이더로 정하면 나머지 하나가 자동으로 채워져요(합이 1). 확률을 바꾸면 <b>기댓값(평균)</b>과 <b>분산·표준편차</b>가 어떻게 움직이는지 보세요.</p>
+      <div class="widget">
+        <canvas id="cv1" height="200"></canvas>
+        <div class="row"><span>$P(X=0)$</span><input type="range" id="p0" min="0" max="10" step="1" value="1"><span class="v" id="p0v">0.1</span></div>
+        <div class="row"><span>$P(X=1)$</span><input type="range" id="p1" min="0" max="10" step="1" value="3"><span class="v" id="p1v">0.3</span></div>
+        <div class="row"><span>$P(X=2)$</span><input type="range" id="p2" min="0" max="10" step="1" value="4"><span class="v" id="p2v">0.4</span></div>
+        <table class="dt"><tr><th>$X$</th><th>0</th><th>1</th><th>2</th><th>3</th><th>합계</th></tr><tr><th>$P(X=x)$</th><td id="t0"></td><td id="t1"></td><td id="t2"></td><td id="t3"></td><td>1</td></tr></table>
+        <div class="rdo"><div>$E(X)$ <b id="e1"></b></div><div>$E(X^2)$ <b id="e2"></b></div><div>$V(X)=E(X^2)-\{E(X)\}^2$ <b id="e3"></b></div><div>$\sigma(X)$ <b id="e4"></b></div></div>
+        <div class="out" id="out1"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 정의</div>이산확률변수 $X$의 확률분포 $P(X=x_i)=p_i$ ($p_i\ge0$, $\sum p_i=1$). <b>기댓값</b> $E(X)=\sum x_ip_i$ (값 × 확률의 합). <b>분산</b> $V(X)=E\big((X-m)^2\big)=E(X^2)-\{E(X)\}^2$. <b>표준편차</b> $\sigma(X)=\sqrt{V(X)}$.</div>
+      <div class="box b" style="text-align:center;font-size:15px">$P(X=1)=a$, $P(X=2)=2a$, $P(X=3)=3a$ 일 때 $a$와 $E(X)$는?</div>
+      <div class="steps"><button class="stepbtn" data-w="w1">▶ 풀이 보기</button><div class="stepwrap" id="w1">
+        <div class="step"><span class="sn">1</span>확률의 합이 1: $a+2a+3a=1$ → $a=\dfrac16$.</div>
+        <div class="step"><span class="sn">2</span>$E(X)=1\cdot\dfrac16+2\cdot\dfrac26+3\cdot\dfrac36=\dfrac{1+4+9}{6}$.</div>
+        <div class="ans">$a=\dfrac16$, $E(X)=\dfrac73$</div></div></div>
+      <div class="box b" style="text-align:center;font-size:15px">동전 3개를 던져 나오는 앞면의 개수 $X$의 기댓값과 분산은?</div>
+      <div class="steps"><button class="stepbtn" data-w="w2">▶ 풀이 보기</button><div class="stepwrap" id="w2">
+        <div class="step"><span class="sn">1</span>분포: $P(0)=\frac18, P(1)=\frac38, P(2)=\frac38, P(3)=\frac18$.</div>
+        <div class="step"><span class="sn">2</span>$E(X)=\dfrac{0+3+6+3}{8}=\dfrac32$. $E(X^2)=\dfrac{0+3+12+9}{8}=3$.</div>
+        <div class="step"><span class="sn">3</span>$V(X)=3-\left(\dfrac32\right)^2=3-\dfrac94$.</div>
+        <div class="ans">$E(X)=\dfrac32$, $V(X)=\dfrac34$</div></div></div>
+      <div class="box a"><div class="t">⚠️ 분산은 "제곱의 평균 − 평균의 제곱"</div>$E(X^2)$은 <b>값을 제곱해서</b> 확률을 곱한 합이에요. $\{E(X)\}^2$과 순서가 달라요. 둘을 헷갈리면 분산이 음수가 나오는데, 분산은 절대 음수가 아니에요.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="lin">
+    <div class="card">
+      <h2>🔄 $aX+b$ — 평균은 따라가고, 분산은 $a^2$배</h2>
+      <p class="lead">주사위 눈 $X$($E=3.5$, $V\approx2.92$)를 $Y=aX+b$로 바꿔요. $b$를 더하면 분포가 <b>통째로 밀리고</b>(평균만 변함), $a$를 곱하면 <b>퍼짐이 $|a|$배</b>(분산은 $a^2$배). 슬라이더로 확인하세요.</p>
+      <div class="widget">
+        <canvas id="cv2" height="220"></canvas>
+        <div class="row"><span>$a$</span><input type="range" id="sa" min="-3" max="3" step="1" value="2"><span class="v" id="sav">2</span></div>
+        <div class="row"><span>$b$</span><input type="range" id="sb" min="-6" max="6" step="1" value="1"><span class="v" id="sbv">1</span></div>
+        <div class="rdo"><div>$E(Y)=aE(X)+b$ <b id="l1"></b></div><div>$V(Y)=a^2V(X)$ <b id="l2"></b></div><div>$\sigma(Y)=|a|\sigma(X)$ <b id="l3"></b></div></div>
+        <div class="out" id="out2"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 변환 공식</div>$E(aX+b)=aE(X)+b$ · $V(aX+b)=a^2V(X)$ · $\sigma(aX+b)=|a|\sigma(X)$. 더하는 $b$는 퍼짐에 영향이 없고, 곱하는 $a$는 제곱으로 분산에 들어간다. $a$가 음수여도 분산은 양수.</div>
+      <div class="box b" style="text-align:center;font-size:15px">$E(X)=3$, $V(X)=2$ 일 때 $E(2X+1)$, $V(2X+1)$, $\sigma(-3X)$ 는?</div>
+      <div class="steps"><button class="stepbtn" data-w="w3">▶ 풀이 보기</button><div class="stepwrap" id="w3">
+        <div class="step"><span class="sn">1</span>$E(2X+1)=2\cdot3+1=7$.</div>
+        <div class="step"><span class="sn">2</span>$V(2X+1)=2^2\cdot2=8$ ($+1$은 무관).</div>
+        <div class="step"><span class="sn">3</span>$\sigma(-3X)=|-3|\sqrt2=3\sqrt2$.</div>
+        <div class="ans">$7$, $8$, $3\sqrt2$</div></div></div>
+      <div class="box a"><div class="t">⚠️ $V(aX+b)$에 $b$를 넣지 않는다</div>분산은 "평균에서 얼마나 퍼졌나"라서, 전부 $b$만큼 밀어도 퍼짐은 그대로예요. $V(2X+1)=4V(X)+1$처럼 쓰면 틀려요.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="bin">
+    <div class="card">
+      <h2>📊 이항분포 — 독립시행 $n$번의 성공 횟수</h2>
+      <p class="lead">성공 확률 $p$인 시행을 $n$번 독립적으로 반복해 성공 횟수를 $X$라 하면 $X\sim B(n,p)$. $n$을 늘리고 $p$를 바꿔 막대 모양을 보세요. $n$이 커지면 <b>종 모양</b>이 되고, 평균은 $np$, 분산은 $npq$예요.</p>
+      <div class="widget">
+        <canvas id="cv3" height="240"></canvas>
+        <div class="row"><span>$n$</span><input type="range" id="sn" min="1" max="40" step="1" value="10"><span class="v" id="snv">10</span></div>
+        <div class="btns" id="pBtns"><button data-p="0.5" class="on">$p=\tfrac12$</button><button data-p="0.1667">$p=\tfrac16$</button><button data-p="0.3">$p=0.3$</button><button data-p="0.8">$p=0.8$</button></div>
+        <div class="rdo"><div>$E(X)=np$ <b id="b1"></b></div><div>$V(X)=npq$ <b id="b2"></b></div><div>$\sigma(X)=\sqrt{npq}$ <b id="b3"></b></div><div>가장 높은 막대 <b id="b4"></b></div></div>
+        <div class="out" id="out3"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 이항분포</div>$X\sim B(n,p)$: $P(X=r)={}_nC_r\,p^rq^{n-r}$ ($q=1-p$). $E(X)=np$, $V(X)=npq$, $\sigma(X)=\sqrt{npq}$. $n$이 충분히 크면 정규분포 $N(np,npq)$에 가깝다(다음 단원).</div>
+      <div class="box b" style="text-align:center;font-size:15px">한 개의 주사위를 180번 던질 때 1의 눈이 나오는 횟수 $X$의 평균과 표준편차는?</div>
+      <div class="steps"><button class="stepbtn" data-w="w4">▶ 풀이 보기</button><div class="stepwrap" id="w4">
+        <div class="step"><span class="sn">1</span>$X\sim B\!\left(180,\tfrac16\right)$.</div>
+        <div class="step"><span class="sn">2</span>$E(X)=180\cdot\tfrac16=30$, $V(X)=180\cdot\tfrac16\cdot\tfrac56=25$.</div>
+        <div class="ans">평균 $30$, 표준편차 $5$</div></div></div>
+      <div class="box b" style="text-align:center;font-size:15px">$X\sim B(n,p)$ 이고 $E(X)=20$, $V(X)=16$ 일 때 $n$과 $p$는?</div>
+      <div class="steps"><button class="stepbtn" data-w="w5">▶ 풀이 보기</button><div class="stepwrap" id="w5">
+        <div class="step"><span class="sn">1</span>$np=20$, $npq=16$ → 나누면 $q=\dfrac{16}{20}=\dfrac45$ → $p=\dfrac15$.</div>
+        <div class="step"><span class="sn">2</span>$n=20\div\dfrac15=100$.</div>
+        <div class="ans">$n=100$, $p=\dfrac15$</div></div></div>
+      <div class="box b" style="text-align:center;font-size:15px">동전 3개를 던질 때 앞면이 2개 이상 나올 확률은? (이항분포로)</div>
+      <div class="steps"><button class="stepbtn" data-w="w6">▶ 풀이 보기</button><div class="stepwrap" id="w6">
+        <div class="step"><span class="sn">1</span>$X\sim B(3,\tfrac12)$. $P(X=2)={}_3C_2\left(\tfrac12\right)^3=\dfrac38$, $P(X=3)=\dfrac18$.</div>
+        <div class="ans">$\dfrac48=\dfrac12$</div></div></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="world">
+    <div class="card">
+      <h2>🌐 세상 속으로</h2>
+      <div class="keeper">
+        <div class="kt">📌 어른이 되어도 기억할 것</div>
+        <ol>
+          <li><b>기댓값 = 값 × 확률의 합.</b> 복권·보험·게임 아이템의 "공정한 가격"은 전부 이 한 줄이다. 파는 쪽은 항상 기댓값보다 비싸게 판다.</li>
+          <li><b>분산은 퍼짐, 더하기는 퍼짐을 안 바꾼다.</b> 모두에게 같은 보너스를 주면 평균만 오르고 격차는 그대로다.</li>
+          <li><b>독립시행을 반복하면 이항분포, 많이 하면 종 모양.</b> 불량품 수·클릭 수·응답자 수, 세상의 "몇 번 중 몇 번"은 전부 이 분포.</li>
+        </ol>
+      </div>
+      <div class="insight">
+        <div class="it">💡 인사이트 — 위험은 분산이다</div>
+        기댓값이 같은 두 선택이 있어요. 확실히 100만 원 받기와, 반반 확률로 0원 또는 200만 원 받기. 기댓값은 둘 다 100만 원이지만 <b>분산</b>이 달라요. 보험은 분산을 돈으로 사는 것이고, 투자의 "위험"이라는 말은 사실 수익률의 표준편차예요. 평균만 보는 사람과 분산까지 보는 사람의 결정이 갈리는 지점이에요.
+      </div>
+      <div class="reallife">
+        <div class="rt">🏠 기댓값·이항분포가 보이는 곳</div>
+        <div class="rgrid">
+          <div class="rcell"><div class="ri">🎟️</div><div class="rn">복권</div><div class="rd">기댓값은 판매가의 절반 정도</div></div>
+          <div class="rcell"><div class="ri">🛡️</div><div class="rn">보험</div><div class="rd">분산을 줄이는 대신 기댓값을 낸다</div></div>
+          <div class="rcell"><div class="ri">🎮</div><div class="rn">뽑기 100회</div><div class="rd">성공 횟수는 B(100, p)</div></div>
+          <div class="rcell"><div class="ri">🏭</div><div class="rn">불량품 수</div><div class="rd">B(n, 불량률) · 평균 np</div></div>
+          <div class="rcell"><div class="ri">📣</div><div class="rn">설문 응답</div><div class="rd">"예"라고 답한 사람 수</div></div>
+          <div class="rcell"><div class="ri">📈</div><div class="rn">투자 위험</div><div class="rd">수익률의 표준편차 = 변동성</div></div>
+        </div>
+      </div>
+      <div class="industry">
+        <div class="indt">🏭 산업과 직업</div>
+        <div class="indrow"><div class="ii">📑</div><div class="id2"><b>보험·연금 설계</b><br>사고 확률과 보상금의 기댓값에 안전 마진을 더해 보험료를 정한다. 보험계리사의 핵심 계산.<br><span class="major">🎓 통계학 · 보험계리 · 경제학</span></div></div>
+        <div class="indrow"><div class="ii">🏭</div><div class="id2"><b>품질 관리</b><br>표본 n개 중 불량 r개가 나올 확률(이항분포)로 "합격/불합격" 검사 기준을 설계한다.<br><span class="major">🎓 산업공학 · 통계학</span></div></div>
+        <div class="indrow"><div class="ii">🎲</div><div class="id2"><b>게임·플랫폼 설계</b><br>아이템 확률과 보상 기댓값, 광고 클릭 수(이항분포)의 예측이 서비스 수익 모델의 뼈대.<br><span class="major">🎓 컴퓨터공학 · 데이터과학</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="quiz">
+    <div class="card">
+      <h2>🔥 확률분포·이항분포 퀴즈</h2>
+      <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
+      <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="fin">
+    <div class="card">
+      <h2>✅ 정리</h2>
+      <table>
+        <tr><th class="l">항목</th><th class="l">내용</th></tr>
+        <tr><td class="l">확률분포</td><td class="l">$p_i\ge0$, $\sum p_i=1$ · 미지수는 합이 1로 결정</td></tr>
+        <tr><td class="l">기댓값·분산</td><td class="l">$E(X)=\sum x_ip_i$ · $V(X)=E(X^2)-\{E(X)\}^2$ · $\sigma=\sqrt V$</td></tr>
+        <tr><td class="l">$aX+b$</td><td class="l">$E=aE(X)+b$ · $V=a^2V(X)$ · $\sigma=|a|\sigma(X)$</td></tr>
+        <tr><td class="l">이항분포</td><td class="l">$B(n,p)$: $_nC_rp^rq^{n-r}$ · $E=np$ · $V=npq$</td></tr>
+      </table>
+      <div class="box b"><div class="t">🔑 한 줄 요약</div>값 × 확률을 더하면 평균, 제곱 평균에서 평균 제곱을 빼면 분산, 독립시행 $n$번은 $B(n,p)$.</div>
+      <h3>자가 점검</h3>
+      <div class="chk"><input type="checkbox" id="k1"><label for="k1">확률분포표의 미지수를 합이 1로 구하고 기댓값을 계산할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k2"><label for="k2">$V(X)=E(X^2)-\{E(X)\}^2$으로 분산을 구할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k3"><label for="k3">$aX+b$의 평균·분산·표준편차를 변환할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k4"><label for="k4">이항분포의 $E$, $V$에서 $n$, $p$를 역으로 구할 수 있다</label></div>
+      <h3>약점 태그</h3>
+      <div><span class="tag">확통:기댓값·분산</span><span class="tag">확통:aX+b</span><span class="tag">확통:이항분포</span></div>
+      <div class="box g" style="margin-top:16px"><div class="t">➡️ 다음 단원</div><a href="prob_normal.html">연속확률변수와 정규분포</a>로. <a href="prob_hub.html">확률과 통계 허브</a>로.</div>
+    </div>
+  </div>
+</div>
+
+<script src="alg_app.js"></script>
+<script>
+function bars(P,vals,probs,color,labelFn){ var c=P.ctx; var mx=Math.max.apply(null,probs.concat([1e-9])); c.strokeStyle='#94a3b8'; c.lineWidth=1.5; c.beginPath(); c.moveTo(P.X(P.xmin+0.2),P.Y(0)); c.lineTo(P.X(P.xmax-0.2),P.Y(0)); c.stroke();
+  vals.forEach(function(v,i){ var h=probs[i]/mx*0.9; if(h>0){ c.fillStyle=color; c.fillRect(P.X(v-0.35),P.Y(h),P.X(v+0.35)-P.X(v-0.35),P.Y(0)-P.Y(h)); } c.fillStyle='#64748b'; c.font='11px sans-serif'; c.textAlign='center'; c.textBaseline='top'; if(labelFn) c.fillText(labelFn(v,i),P.X(v),P.Y(0)+4); }); return mx; }
+
+/* 분포표 */
+var P1=null;
+function setup1(){ var cv=document.getElementById('cv1'); if(!P1) P1=LEC.plane(cv,{xmin:-0.8,xmax:3.8,ymin:-0.15,ymax:1.05,h:200,grid:0}); else P1.resize(); draw1(); }
+function draw1(){ if(!P1)return; var p=[0,1,2].map(function(i){ return parseInt(document.getElementById('p'+i).value,10)/10; }); var rest=Math.round((1-p[0]-p[1]-p[2])*10)/10; var bad=rest<0; [0,1,2].forEach(function(i){ document.getElementById('p'+i+'v').textContent=p[i].toFixed(1); document.getElementById('t'+i).textContent=p[i].toFixed(1); }); var t3=document.getElementById('t3'); t3.textContent=rest.toFixed(1); t3.className=bad?'bad':'';
+  P1.clear(); var probs=p.concat([Math.max(0,rest)]); bars(P1,[0,1,2,3],probs,'rgba(15,118,110,.7)',function(v,i){ return 'X='+v+' ('+probs[i].toFixed(1)+')'; });
+  var el=document.getElementById('out1'); if(bad){ ['e1','e2','e3','e4'].forEach(function(id){ document.getElementById(id).textContent='—'; }); el.innerHTML='확률의 합이 1을 넘었어요. $P(X=3)$이 음수가 될 수 없어요. 슬라이더를 줄이세요.'; LEC.tex(el); return; }
+  var E=0,E2=0; probs.forEach(function(pr,x){ E+=x*pr; E2+=x*x*pr; }); var V=E2-E*E; document.getElementById('e1').textContent=E.toFixed(2); document.getElementById('e2').textContent=E2.toFixed(2); document.getElementById('e3').textContent=V.toFixed(3); document.getElementById('e4').textContent=Math.sqrt(Math.max(0,V)).toFixed(3);
+  var mxI=probs.indexOf(Math.max.apply(null,probs)); P1.seg(E,0,E,0.95,'#dc2626',2,[5,4]); P1.ctx.fillStyle='#dc2626'; P1.ctx.font='bold 11px sans-serif'; P1.ctx.textAlign='center'; P1.ctx.textBaseline='bottom'; P1.ctx.fillText('E(X)='+E.toFixed(2),P1.X(E),P1.Y(0.95)-2);
+  el.innerHTML='$E(X)=0\\cdot'+probs[0].toFixed(1)+'+1\\cdot'+probs[1].toFixed(1)+'+2\\cdot'+probs[2].toFixed(1)+'+3\\cdot'+probs[3].toFixed(1)+'='+E.toFixed(2)+'$ · 확률이 큰 쪽(X='+mxI+')으로 평균이 끌려간다'; LEC.tex(el); }
+['p0','p1','p2'].forEach(function(id){ document.getElementById(id).addEventListener('input',draw1); });
+
+/* aX+b */
+var P2=null; var EX=3.5, VX=35/12;
+function setup2(){ var cv=document.getElementById('cv2'); if(!P2) P2=LEC.plane(cv,{xmin:-20,xmax:26,ymin:-0.15,ymax:1.05,h:220,grid:0}); else P2.resize(); draw2(); }
+function draw2(){ if(!P2)return; var a=parseInt(document.getElementById('sa').value,10), b=parseInt(document.getElementById('sb').value,10); document.getElementById('sav').textContent=LEC.fmt(a); document.getElementById('sbv').textContent=LEC.fmt(b);
+  P2.clear(); var c=P2.ctx; var xs=[1,2,3,4,5,6]; var pr=xs.map(function(){return 1/6;});
+  // X (회색) 와 Y (틸)
+  c.strokeStyle='#94a3b8'; c.lineWidth=1.5; c.beginPath(); c.moveTo(P2.X(-19),P2.Y(0)); c.lineTo(P2.X(25),P2.Y(0)); c.stroke();
+  xs.forEach(function(x){ c.fillStyle='rgba(148,163,184,.5)'; c.fillRect(P2.X(x-0.3),P2.Y(0.5),P2.X(x+0.3)-P2.X(x-0.3),P2.Y(0)-P2.Y(0.5)); });
+  if(a!==0){ xs.forEach(function(x){ var y=a*x+b; c.fillStyle='rgba(15,118,110,.75)'; c.fillRect(P2.X(y-0.3),P2.Y(0.5),P2.X(y+0.3)-P2.X(y-0.3),P2.Y(0)-P2.Y(0.5)); }); } else { c.fillStyle='rgba(15,118,110,.75)'; c.fillRect(P2.X(b-0.3),P2.Y(0.95),P2.X(b+0.3)-P2.X(b-0.3),P2.Y(0)-P2.Y(0.95)); }
+  c.fillStyle='#64748b'; c.font='11px sans-serif'; c.textAlign='center'; c.textBaseline='top'; [-15,-10,-5,0,5,10,15,20,25].forEach(function(t){ c.fillText(t,P2.X(t),P2.Y(0)+4); });
+  c.fillStyle='#94a3b8'; c.textBaseline='bottom'; c.fillText('X (회색)',P2.X(3.5),P2.Y(0.55)); var EY=a*EX+b; c.fillStyle='#0f766e'; c.font='bold 11px sans-serif'; c.fillText('Y=aX+b',P2.X(Math.max(-18,Math.min(24,EY))),P2.Y(a===0?1.0:0.62));
+  P2.seg(EX,0,EX,0.5,'#64748b',1.5,[4,3]); P2.seg(EY,0,EY,a===0?0.95:0.6,'#dc2626',2,[4,3]);
+  var VY=a*a*VX; document.getElementById('l1').textContent=EY.toFixed(2); document.getElementById('l2').textContent=VY.toFixed(3); document.getElementById('l3').textContent=Math.sqrt(VY).toFixed(3);
+  var el=document.getElementById('out2'); el.innerHTML='$E(Y)='+LEC.fmt(a).replace('−','-')+'\\times3.5'+(b>=0?'+':'')+LEC.fmt(b).replace('−','-')+'='+EY.toFixed(2)+'$ · $V(Y)='+a+'^2\\times2.917='+VY.toFixed(3)+'$'+(a===0?' — $a=0$이면 한 점에 모여 분산 0':(Math.abs(a)===1?' — 밀기만 하면 퍼짐 그대로':' — 퍼짐이 $'+Math.abs(a)+'$배, 분산은 $'+(a*a)+'$배')); LEC.tex(el); }
+['sa','sb'].forEach(function(id){ document.getElementById(id).addEventListener('input',draw2); });
+
+/* 이항분포 */
+var P3=null, pp=0.5;
+function C(n,r){ var v=1; for(var i=0;i<r;i++) v=v*(n-i)/(i+1); return Math.round(v); }
+function setup3(){ var cv=document.getElementById('cv3'); if(!P3) P3=LEC.plane(cv,{xmin:-1,xmax:41,ymin:-0.15,ymax:1.05,h:240,grid:0}); else P3.resize(); draw3(); }
+function draw3(){ if(!P3)return; var n=parseInt(document.getElementById('sn').value,10); document.getElementById('snv').textContent=n; var p=pp,q=1-p; P3.xmax=n+1; P3.xmin=-1; var probs=[]; for(var r=0;r<=n;r++) probs.push(C(n,r)*Math.pow(p,r)*Math.pow(q,n-r)); P3.clear(); var vals=probs.map(function(_,i){return i;});
+  var c=P3.ctx; var mx=Math.max.apply(null,probs); c.strokeStyle='#94a3b8'; c.lineWidth=1.5; c.beginPath(); c.moveTo(P3.X(-0.6),P3.Y(0)); c.lineTo(P3.X(n+0.6),P3.Y(0)); c.stroke(); var w=Math.min(0.35,0.42);
+  probs.forEach(function(pr,r){ var h=pr/mx*0.9; c.fillStyle='rgba(15,118,110,.7)'; c.fillRect(P3.X(r-w),P3.Y(h),P3.X(r+w)-P3.X(r-w),P3.Y(0)-P3.Y(h)); }); c.fillStyle='#64748b'; c.font='11px sans-serif'; c.textAlign='center'; c.textBaseline='top'; var step=n<=12?1:(n<=25?5:10); for(var r=0;r<=n;r+=step) c.fillText(r,P3.X(r),P3.Y(0)+4);
+  var E=n*p, V=n*p*q; P3.seg(E,0,E,0.98,'#dc2626',2,[5,4]); c.fillStyle='#dc2626'; c.font='bold 11px sans-serif'; c.textBaseline='bottom'; c.fillText('np='+E.toFixed(1),P3.X(E),P3.Y(0.98)-2);
+  document.getElementById('b1').textContent=E.toFixed(2); document.getElementById('b2').textContent=V.toFixed(3); document.getElementById('b3').textContent=Math.sqrt(V).toFixed(3); document.getElementById('b4').textContent='r='+probs.indexOf(mx);
+  var ptex=(p===0.5?'\\tfrac12':(p<0.2?'\\tfrac16':String(p))); var el=document.getElementById('out3'); el.innerHTML='$B('+n+',\\ '+ptex+')$: $E=np='+E.toFixed(2)+'$, $V=npq='+V.toFixed(3)+'$'+(n>=20?' — 종 모양에 가까워요. $n$이 크면 정규분포로 근사해요':(p===0.5?' — $p=\\tfrac12$이면 좌우 대칭':(p<0.5?' — $p$가 작으면 왼쪽으로 몰려요':' — $p$가 크면 오른쪽으로 몰려요'))); LEC.tex(el); }
+document.getElementById('sn').addEventListener('input',draw3);
+document.getElementById('pBtns').addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b)return; pp=parseFloat(b.getAttribute('data-p')); if(Math.abs(pp-0.1667)<1e-3) pp=1/6; Array.prototype.forEach.call(this.querySelectorAll('button'),function(x){ x.classList.toggle('on',x===b); }); draw3(); });
+APP.onTab({tbl:setup1, lin:setup2, bin:setup3}); LEC.onResize(function(){ var t=APP.current(); if(t==='tbl')setup1(); if(t==='lin')setup2(); if(t==='bin')setup3(); });
+
+var TABNAME={tbl:'📋 분포표·기댓값',lin:'🔄 aX+b',bin:'📊 이항분포'};
+var QUIZ=[
+ {q:'P(X=1)=a, P(X=2)=2a, P(X=3)=3a 일 때 E(X)는?',o:['7/3','2','14/3','1/6'],a:0,t:'tbl',e:'a=1/6, E=(1+4+9)/6=14/6=7/3.'},
+ {q:'동전 3개를 던져 나오는 앞면의 개수 X의 분산은?',o:['3/4','3/2','3','9/4'],a:0,t:'tbl',e:'E(X²)=3, E(X)=3/2 → 3−9/4=3/4.'},
+ {q:'V(X)=E(X²)−{E(X)}² 에서 E(X²)의 뜻은?',o:['값을 제곱해 확률을 곱한 합','평균의 제곱','확률의 제곱의 합','분산의 제곱'],a:0,t:'tbl',e:'Σ x_i² p_i. 평균의 제곱과 순서가 다르다.'},
+ {q:'주사위 눈 X의 기댓값은?',o:['3.5','3','21','6'],a:0,t:'tbl',e:'(1+2+…+6)/6 = 21/6 = 3.5.'},
+ {q:'E(X)=3, V(X)=2 일 때 V(2X+1)은?',o:['8','9','5','7'],a:0,t:'lin',e:'a²V(X)=4·2=8. +1은 분산에 무관.'},
+ {q:'σ(X)=√2 일 때 σ(−3X)는?',o:['3√2','−3√2','9√2','√2'],a:0,t:'lin',e:'|a|σ(X)=3√2. 표준편차는 음수가 없다.'},
+ {q:'모든 값에 같은 수 b를 더하면 바뀌지 않는 것은?',o:['분산','기댓값','최댓값','중앙값'],a:0,t:'lin',e:'통째로 밀면 퍼짐(분산)은 그대로.'},
+ {q:'주사위를 180번 던질 때 1의 눈이 나오는 횟수의 표준편차는?',o:['5','25','30','√30'],a:0,t:'bin',e:'V=180·(1/6)(5/6)=25 → σ=5.'},
+ {q:'X~B(n,p), E(X)=20, V(X)=16 일 때 n은?',o:['100','80','25','400'],a:0,t:'bin',e:'q=16/20=4/5 → p=1/5 → n=20÷(1/5)=100.'},
+ {q:'동전 3개를 던질 때 앞면이 2개 이상일 확률은?',o:['1/2','3/8','1/8','7/8'],a:0,t:'bin',e:'P(2)+P(3)=3/8+1/8=1/2.'}
+];
+APP.quiz(QUIZ,TABNAME,{perfect:'완벽해요! 값 × 확률, 그리고 이항분포까지.'});
+</script>
+</body>
+</html>

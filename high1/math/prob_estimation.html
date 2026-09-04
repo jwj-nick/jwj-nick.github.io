@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>통계적 추정 — 모평균·모비율 — 확률과 통계</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
+<script src="lecture.js"></script>
+<link rel="stylesheet" href="prob_app.css">
+<style>
+  .widget canvas{max-width:520px}
+  .rdo{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:8px}.rdo div{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:7px 9px;font-size:12px;text-align:center;color:var(--sub)}.rdo b{display:block;font-size:14px;color:var(--accent)}
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Math_1_1</a><span>&rsaquo;</span><a href="prob_hub.html">확률과 통계</a><span>&rsaquo;</span><a class="cur" href="#">통계적 추정</a></nav>
+<div class="hero">
+  <span class="badge">Ⅲ. 통계</span>
+  <h1>📏 통계적 추정 — 모평균·모비율</h1>
+  <p>표본 하나로 전체를 말하는 법, 그리고 그 말의 정확한 뜻</p>
+</div>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="intro">📋 개요</button>
+  <button class="tab" data-t="samp">🎲 표본평균의 분포</button>
+  <button class="tab" data-t="mean">📏 모평균 추정</button>
+  <button class="tab" data-t="prop">📊 모비율 추정</button>
+  <button class="tab" data-t="world">🌐 세상 속으로</button>
+  <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="fin">✅ 정리</button>
+</div>
+<div class="wrap">
+
+  <div class="page active" data-p="intro">
+    <div class="card">
+      <h2>📋 1,000명에게 물어 5,000만 명을 말하는 법</h2>
+      <div class="hook">
+        <div class="ht">💥 왜 배우나</div>
+        여론조사는 1,000명쯤에게 묻고 "지지율 45%, 오차범위 ±3.1%p, 95% 신뢰수준"이라고 발표해요. 5,000만 명을 다 묻지 않았는데 어떻게 그런 말을 하고, ±3.1이라는 숫자는 어디서 왔을까요? 국물 맛을 보려고 냄비를 다 마시지 않는 것처럼, <b>잘 섞인 한 숟갈</b>이면 전체를 알 수 있어요. 그 "한 숟갈이 얼마나 믿을 만한가"를 숫자로 말하는 것이 <b>추정</b>이에요. 그리고 "95% 신뢰"의 뜻은 대부분의 어른이 잘못 알고 있어요. 이 단원에서 제대로 알아요.
+      </div>
+      <div class="splink">🚪 표본평균이 왜 종 모양이고 폭이 $\sigma/\sqrt n$인지 감부터 → <a href="prob_sp_normal.html">관문 특강: 정규분포·표준화 감각</a> · 앞 단원 <a href="prob_normal.html">정규분포</a></div>
+      <div class="sci">
+        <div class="ava">🗳️</div>
+        <div>
+          <div class="st">조지 갤럽 (1901~1984) — 240만 명을 이긴 5만 명</div>
+          <div class="sd">1936년 미국 대선. 잡지 리터러리 다이제스트는 <b>240만 명</b>의 응답을 모아 랜던의 승리를 예측했고, 갤럽은 <b>약 5만 명</b>의 표본으로 루스벨트의 승리를 예측했어요. 결과는 루스벨트의 압승. 잡지의 응답자는 전화·자동차 소유자에 치우쳐 있었거든요. 표본은 <b>크기보다 뽑는 방식</b>이 중요하다는 것, 그리고 잘 뽑으면 작아도 충분하다는 것을 세상에 보여준 사건이에요.</div>
+        </div>
+      </div>
+      <div class="toc">
+        <button onclick="go('samp')"><div class="ti">🎲</div><div class="tn">표본평균의 분포</div><div class="td">뽑을수록 종 모양, 폭 σ/√n</div></button>
+        <button onclick="go('mean')"><div class="ti">📏</div><div class="tn">모평균 추정</div><div class="td">신뢰구간 20개 시뮬</div></button>
+        <button onclick="go('prop')"><div class="ti">📊</div><div class="tn">모비율 추정</div><div class="td">±3.1%p의 출처</div></button>
+        <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">여론조사·품질·임상</div></button>
+        <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="samp">
+    <div class="card">
+      <h2>🎲 표본평균의 분포 — 폭이 $\sigma/\sqrt n$으로 줄어든다</h2>
+      <p class="lead">모집단은 평균 $100$, 표준편차 $15$인 정규분포예요(어느 제품의 무게라고 해요). 크기 $n$인 표본을 뽑아 평균 $\bar X$를 내고, 그 값을 히스토그램에 쌓아요. $n$을 바꾸며 <b>가운데는 그대로, 폭은 줄어드는</b> 것을 보세요.</p>
+      <div class="widget">
+        <canvas id="cv1" height="260"></canvas>
+        <div class="row"><span>표본 크기 $n$</span><input type="range" id="sn" min="0" max="3" step="1" value="1"><span class="v" id="snv">16</span></div>
+        <div class="btns"><button id="b100">🎲 표본 100개</button><button id="b1000">🎲 1,000개</button><button id="bReset">🔄 비우기</button></div>
+        <div class="rdo"><div>표본평균들의 평균 <b id="r1">–</b></div><div>표본평균들의 표준편차 <b id="r2">–</b></div><div>이론값 $\sigma/\sqrt n$ <b id="r3"></b></div></div>
+        <div class="out" id="out1"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 표본평균의 분포</div>모평균 $m$, 모표준편차 $\sigma$인 모집단에서 크기 $n$인 표본을 임의추출할 때 $E(\bar X)=m$, $V(\bar X)=\dfrac{\sigma^2}{n}$, $\sigma(\bar X)=\dfrac{\sigma}{\sqrt n}$. 모집단이 정규분포이면 $\bar X\sim N\!\left(m,\dfrac{\sigma^2}{n}\right)$이고, 정규분포가 아니어도 $n$이 크면 근사적으로 그렇다.</div>
+      <div class="box b" style="text-align:center;font-size:15px">$N(100,15^2)$ 인 모집단에서 크기 25인 표본의 평균 $\bar X$가 106 이상일 확률은?</div>
+      <div class="steps"><button class="stepbtn" data-w="w1">▶ 풀이 보기</button><div class="stepwrap" id="w1">
+        <div class="step"><span class="sn">1</span>$\bar X\sim N\!\left(100,\dfrac{15^2}{25}\right)=N(100,3^2)$.<div class="why">→ 표준편차가 15가 아니라 $15/\sqrt{25}=3$. 여기서 가장 많이 틀린다.</div></div>
+        <div class="step"><span class="sn">2</span>$z=\dfrac{106-100}{3}=2$ → $0.5-0.4772$.</div>
+        <div class="ans">$0.0228$</div></div></div>
+      <div class="box a"><div class="t">⚠️ 개체 하나와 표본평균은 다르다</div>제품 하나가 106g 이상일 확률은 $z=\frac{6}{15}=0.4$로 흔하지만, <b>25개의 평균</b>이 106 이상인 것은 $z=2$로 드물어요. 평균은 튀는 값을 서로 상쇄하니까요.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="mean">
+    <div class="card">
+      <h2>📏 모평균의 신뢰구간 — "95%"의 진짜 뜻</h2>
+      <p class="lead">모평균 $m=100$(붉은 선)인 모집단에서 표본을 20번 뽑아, 각각 신뢰구간을 그렸어요. 구간이 $m$을 <b>놓치면 붉게</b> 표시돼요. "다시 뽑기"를 여러 번 눌러 보세요. 95%면 20개 중 평균 1개쯤이 놓쳐요. 그게 95%의 뜻이에요.</p>
+      <div class="widget">
+        <canvas id="cv2" height="300"></canvas>
+        <div class="row"><span>표본 크기 $n$</span><input type="range" id="cn" min="9" max="100" step="1" value="25"><span class="v" id="cnv">25</span></div>
+        <div class="btns"><button id="c95" class="on">95% (1.96)</button><button id="c99">99% (2.58)</button><button id="cAgain">🎲 다시 뽑기</button></div>
+        <div class="rdo"><div>구간 길이 <b id="m1"></b></div><div>이번에 놓친 구간 <b id="m2"></b></div><div>누적 포함률 <b id="m3"></b></div></div>
+        <div class="out" id="out2"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 모평균의 신뢰구간</div>모표준편차 $\sigma$를 알 때 표본평균 $\bar x$로부터<br>95%: $\bar x-1.96\dfrac{\sigma}{\sqrt n}\le m\le\bar x+1.96\dfrac{\sigma}{\sqrt n}$ · 99%: $\bar x\pm2.58\dfrac{\sigma}{\sqrt n}$.<br>길이는 $2\times1.96\times\dfrac{\sigma}{\sqrt n}$: $n$이 4배면 길이는 절반. $\sigma$를 모르고 $n$이 크면 표본표준편차 $s$를 대신 쓴다.</div>
+      <div class="box b" style="text-align:center;font-size:15px">모표준편차 12인 모집단에서 36개를 뽑아 표본평균 50을 얻었다. 모평균의 95% 신뢰구간은?</div>
+      <div class="steps"><button class="stepbtn" data-w="w2">▶ 풀이 보기</button><div class="stepwrap" id="w2">
+        <div class="step"><span class="sn">1</span>$\dfrac{\sigma}{\sqrt n}=\dfrac{12}{6}=2$.</div>
+        <div class="step"><span class="sn">2</span>$50\pm1.96\times2=50\pm3.92$.</div>
+        <div class="ans">$46.08\le m\le53.92$</div></div></div>
+      <div class="box b" style="text-align:center;font-size:15px">모표준편차 10인 모집단에서 95% 신뢰구간의 길이가 4 이하가 되게 하려면 표본을 최소 몇 개 뽑아야 하나?</div>
+      <div class="steps"><button class="stepbtn" data-w="w3">▶ 풀이 보기</button><div class="stepwrap" id="w3">
+        <div class="step"><span class="sn">1</span>길이 $=2\times1.96\times\dfrac{10}{\sqrt n}\le4$ → $\sqrt n\ge\dfrac{39.2}{4}=9.8$.</div>
+        <div class="step"><span class="sn">2</span>$n\ge96.04$ → 자연수 $n$은 97.</div>
+        <div class="ans">$97$개</div></div></div>
+      <div class="box a"><div class="t">⚠️ "95% 신뢰"의 뜻</div>"모평균이 이 구간 안에 있을 확률 95%"가 <b>아니에요</b>. 모평균은 정해진 하나의 수이고, 움직이는 것은 표본과 구간이에요. 같은 방법으로 100번 뽑으면 그중 약 95개의 구간이 모평균을 포함한다는 뜻. 위 위젯이 정확히 그 그림이에요.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="prop">
+    <div class="card">
+      <h2>📊 모비율의 신뢰구간 — ±3.1%p는 어디서 오나</h2>
+      <p class="lead">$n$명에게 물어 표본비율 $\hat p$를 얻었어요. 슬라이더로 $n$과 $\hat p$를 바꾸며 <b>오차 폭</b>이 어떻게 변하는지 보세요. $n=1{,}000$, $\hat p=0.5$에 두면 여론조사에서 늘 보는 ±3.1%p가 나와요.</p>
+      <div class="widget">
+        <canvas id="cv3" height="160"></canvas>
+        <div class="row"><span>응답자 $n$</span><input type="range" id="pn" min="100" max="4000" step="100" value="1000"><span class="v" id="pnv">1000</span></div>
+        <div class="row"><span>표본비율 $\hat p$</span><input type="range" id="pp" min="5" max="95" step="5" value="50"><span class="v" id="ppv">0.50</span></div>
+        <div class="btns"><button id="p95" class="on">95%</button><button id="p99">99%</button></div>
+        <div class="rdo"><div>$\sqrt{\hat p(1-\hat p)/n}$ <b id="q1"></b></div><div>오차 폭 ± <b id="q2"></b></div><div>신뢰구간 <b id="q3"></b></div></div>
+        <div class="out" id="out3"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 모비율의 신뢰구간</div>표본비율 $\hat p=\dfrac Xn$ ($n$이 충분히 클 때 $\hat p\approx N\!\left(p,\dfrac{p(1-p)}{n}\right)$)<br>95%: $\hat p-1.96\sqrt{\dfrac{\hat p(1-\hat p)}{n}}\le p\le\hat p+1.96\sqrt{\dfrac{\hat p(1-\hat p)}{n}}$ · 99%는 2.58. 폭은 $\hat p=0.5$일 때 가장 넓다.</div>
+      <div class="box b" style="text-align:center;font-size:15px">400명에게 물었더니 100명이 찬성했다. 찬성 모비율의 95% 신뢰구간은?</div>
+      <div class="steps"><button class="stepbtn" data-w="w4">▶ 풀이 보기</button><div class="stepwrap" id="w4">
+        <div class="step"><span class="sn">1</span>$\hat p=\dfrac{100}{400}=0.25$, $\sqrt{\dfrac{0.25\times0.75}{400}}=\sqrt{\dfrac{0.1875}{400}}\approx0.0217$.</div>
+        <div class="step"><span class="sn">2</span>$0.25\pm1.96\times0.0217=0.25\pm0.0424$.</div>
+        <div class="ans">$0.2076\le p\le0.2924$ (약 21%~29%)</div></div></div>
+      <div class="box b" style="text-align:center;font-size:15px">여론조사에서 응답자 1,000명, 지지율 50%일 때 95% 오차 폭은?</div>
+      <div class="steps"><button class="stepbtn" data-w="w5">▶ 풀이 보기</button><div class="stepwrap" id="w5">
+        <div class="step"><span class="sn">1</span>$\sqrt{\dfrac{0.5\times0.5}{1000}}=\sqrt{0.00025}\approx0.0158$.</div>
+        <div class="step"><span class="sn">2</span>$1.96\times0.0158\approx0.031$.</div>
+        <div class="ans">약 $\pm3.1$%p — 뉴스의 그 숫자</div></div></div>
+      <div class="box a"><div class="t">⚠️ 오차범위 안이면 "앞선다"고 말할 수 없다</div>후보 A 47%, B 44%, 오차 ±3.1%p면 두 구간이 겹쳐요. 뉴스가 "오차범위 내 접전"이라고 쓰는 이유예요. 표본을 4배로 늘려야 오차가 절반이 돼요.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="world">
+    <div class="card">
+      <h2>🌐 세상 속으로</h2>
+      <div class="keeper">
+        <div class="kt">📌 어른이 되어도 기억할 것</div>
+        <ol>
+          <li><b>표본은 크기보다 뽑는 방식.</b> 치우친 240만 명보다 잘 섞인 5만 명이 정확하다. 댓글·후기·주변 사람은 "잘 섞인 표본"이 아니다.</li>
+          <li><b>오차 폭은 $1/\sqrt n$.</b> 4배 물어야 절반. 1,000명이면 ±3%p, 이것이 여론조사의 표준 크기인 이유.</li>
+          <li><b>"95% 신뢰"는 방법의 성적표.</b> 이 구간 하나가 맞을 확률이 아니라, 같은 방법 100번 중 95번이 맞는다는 뜻.</li>
+        </ol>
+      </div>
+      <div class="insight">
+        <div class="it">💡 인사이트 — 불확실성을 숫자로 말하기</div>
+        추정의 핵심은 "얼마"가 아니라 <b>"얼마 ± 얼마"</b>예요. 오차를 함께 말하는 사람과 숫자 하나만 던지는 사람은 다른 수준의 대화를 해요. 임상시험의 "효과 12% ± 4%", 실험 물리의 "± 0.03", 여론조사의 "± 3.1%p"가 전부 같은 문법이고, 이 단원이 그 문법의 첫 페이지예요.
+      </div>
+      <div class="reallife">
+        <div class="rt">🏠 추정이 보이는 곳</div>
+        <div class="rgrid">
+          <div class="rcell"><div class="ri">🗳️</div><div class="rn">여론조사</div><div class="rd">1,000명, ±3.1%p, 95%</div></div>
+          <div class="rcell"><div class="ri">📺</div><div class="rn">시청률</div><div class="rd">수천 가구 표본으로 전국 추정</div></div>
+          <div class="rcell"><div class="ri">🍜</div><div class="rn">국물 맛보기</div><div class="rd">잘 섞은 한 숟갈 = 임의추출</div></div>
+          <div class="rcell"><div class="ri">🏭</div><div class="rn">출고 검사</div><div class="rd">표본 불량률로 전체 판단</div></div>
+          <div class="rcell"><div class="ri">🩺</div><div class="rn">임상시험</div><div class="rd">효과 크기 ± 신뢰구간</div></div>
+          <div class="rcell"><div class="ri">⭐</div><div class="rn">별점 리뷰</div><div class="rd">리뷰 5개의 4.8점은 오차가 크다</div></div>
+        </div>
+      </div>
+      <div class="industry">
+        <div class="indt">🏭 산업과 직업</div>
+        <div class="indrow"><div class="ii">📊</div><div class="id2"><b>조사·데이터 분석</b><br>표본 설계(누구를 몇 명), 가중치 보정, 신뢰구간 산출이 여론조사·시장조사 회사의 본업. A/B 테스트도 두 표본비율의 추정.<br><span class="major">🎓 통계학 · 사회조사 · 데이터과학</span></div></div>
+        <div class="indrow"><div class="ii">🏭</div><div class="id2"><b>품질·생산</b><br>전수 검사가 불가능한 대량 생산에서 표본 검사로 로트 합격 여부를 결정한다. 표본 크기와 위험의 균형이 핵심.<br><span class="major">🎓 산업공학</span></div></div>
+        <div class="indrow"><div class="ii">🧬</div><div class="id2"><b>의학·역학</b><br>신약 효과, 백신 효능, 질병 유병률은 전부 표본에서 추정한 값 ± 신뢰구간으로 보고된다.<br><span class="major">🎓 의학 · 보건학 · 생물통계</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="quiz">
+    <div class="card">
+      <h2>🔥 통계적 추정 퀴즈</h2>
+      <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
+      <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="fin">
+    <div class="card">
+      <h2>✅ 정리</h2>
+      <table>
+        <tr><th class="l">항목</th><th class="l">내용</th></tr>
+        <tr><td class="l">표본평균</td><td class="l">$E(\bar X)=m$ · $\sigma(\bar X)=\sigma/\sqrt n$ · $\bar X\sim N(m,\sigma^2/n)$</td></tr>
+        <tr><td class="l">모평균 신뢰구간</td><td class="l">$\bar x\pm1.96\frac{\sigma}{\sqrt n}$ (95%) · $\pm2.58$ (99%) · 길이 $\propto1/\sqrt n$</td></tr>
+        <tr><td class="l">모비율 신뢰구간</td><td class="l">$\hat p\pm1.96\sqrt{\hat p(1-\hat p)/n}$ · $\hat p=0.5$, $n=1000$이면 ±3.1%p</td></tr>
+        <tr><td class="l">95%의 뜻</td><td class="l">같은 방법으로 만든 구간 100개 중 약 95개가 모평균을 포함</td></tr>
+      </table>
+      <div class="box b"><div class="t">🔑 한 줄 요약</div>표본평균의 폭은 $\sigma/\sqrt n$, 그 폭의 1.96배가 오차, 95%는 방법의 성적표.</div>
+      <h3>자가 점검</h3>
+      <div class="chk"><input type="checkbox" id="k1"><label for="k1">표본평균의 분포 $N(m,\sigma^2/n)$으로 확률을 구할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k2"><label for="k2">모평균의 95%·99% 신뢰구간과 길이를 구하고 필요한 $n$을 역산할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k3"><label for="k3">모비율의 신뢰구간을 구하고 ±3.1%p의 출처를 설명할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k4"><label for="k4">"95% 신뢰"의 뜻을 올바르게 말할 수 있다</label></div>
+      <h3>약점 태그</h3>
+      <div><span class="tag">확통:표본평균의 분포</span><span class="tag">확통:모평균 추정</span><span class="tag">확통:모비율 추정</span></div>
+      <div class="box g" style="margin-top:16px"><div class="t">🏁 확률과 통계 완주</div>세기 → 확률 → 분포 → 추정. 표본 하나로 세상을 말하는 문법을 익혔어요. <a href="prob_hub.html">확률과 통계 허브</a>에서 흐릿한 단원을 다시 열어 보세요.</div>
+    </div>
+  </div>
+</div>
+
+<script src="alg_app.js"></script>
+<script>
+function randn(){ var u=1-Math.random(), v=Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+function axisX(P,from,to,step){ var c=P.ctx; c.strokeStyle='#94a3b8'; c.lineWidth=1.5; c.beginPath(); c.moveTo(P.X(from),P.Y(0)); c.lineTo(P.X(to),P.Y(0)); c.stroke(); c.fillStyle='#64748b'; c.font='11px sans-serif'; c.textAlign='center'; c.textBaseline='top'; for(var t=Math.ceil(from/step)*step;t<=to+1e-9;t+=step) c.fillText(t,P.X(t),P.Y(0)+4); }
+var M=100, SIG=15;
+
+/* 표본평균 히스토그램 */
+var P1=null, means=[]; var NS=[4,16,64,100];
+function nS(){ return NS[parseInt(document.getElementById('sn').value,10)]; }
+function setup1(){ var cv=document.getElementById('cv1'); if(!P1) P1=LEC.plane(cv,{xmin:70,xmax:130,ymin:-0.12,ymax:1.1,h:260,grid:0}); else P1.resize(); draw1(); }
+function draw1(){ if(!P1)return; var n=nS(); document.getElementById('snv').textContent=n; var sd=SIG/Math.sqrt(n); document.getElementById('r3').textContent=sd.toFixed(3);
+  P1.clear(); var c=P1.ctx; axisX(P1,72,128,10); var B=40, w=60/B, bins=[]; for(var i=0;i<B;i++) bins.push(0); means.forEach(function(m){ var b=Math.floor((m-70)/w); if(b>=0&&b<B) bins[b]++; }); var mx=Math.max.apply(null,bins.concat([1]));
+  for(var j=0;j<B;j++){ if(!bins[j]) continue; var x0=70+j*w; c.fillStyle='rgba(15,118,110,.55)'; c.fillRect(P1.X(x0)+1,P1.Y(bins[j]/mx*0.9),P1.X(x0+w)-P1.X(x0)-2,P1.Y(0)-P1.Y(bins[j]/mx*0.9)); }
+  P1.plot(function(x){ return Math.exp(-(x-M)*(x-M)/(2*SIG*SIG))/(SIG*Math.sqrt(2*Math.PI))*SIG*2.5*0.35; },'#94a3b8',1.5,70,130); c.fillStyle='#94a3b8'; c.font='11px sans-serif'; c.textAlign='left'; c.textBaseline='bottom'; c.fillText('모집단 N(100,15²)',P1.X(112),P1.Y(0.36));
+  if(means.length>=30){ P1.plot(function(x){ return means.length*w*Math.exp(-(x-M)*(x-M)/(2*sd*sd))/(sd*Math.sqrt(2*Math.PI))/mx*0.9; },'#dc2626',2,70,130); }
+  P1.seg(M,0,M,1.05,'#2563eb',1.5,[5,4]);
+  if(means.length){ var mu=means.reduce(function(a,b){return a+b;},0)/means.length; var va=means.reduce(function(a,b){return a+(b-mu)*(b-mu);},0)/means.length; document.getElementById('r1').textContent=mu.toFixed(2); document.getElementById('r2').textContent=Math.sqrt(va).toFixed(3); } else { document.getElementById('r1').textContent='–'; document.getElementById('r2').textContent='–'; }
+  var el=document.getElementById('out1'); el.innerHTML= means.length<30 ? '크기 $'+n+'$인 표본의 평균을 쌓아요. 회색 곡선이 모집단, 파란 선이 모평균 100.' : '$\\bar X\\sim N\\!\\left(100,\\ \\dfrac{15^2}{'+n+'}\\right)$: 붉은 곡선의 폭 $\\dfrac{15}{\\sqrt{'+n+'}}='+sd.toFixed(2)+'$ — 모집단(회색)보다 '+Math.sqrt(n).toFixed(0)+'배 좁아요'; LEC.tex(el); }
+function addM(cnt){ var n=nS(); for(var i=0;i<cnt;i++){ var s=0; for(var k=0;k<n;k++) s+=M+SIG*randn(); means.push(s/n); } draw1(); }
+document.getElementById('sn').addEventListener('input',function(){ means=[]; draw1(); }); document.getElementById('b100').addEventListener('click',function(){ addM(100); }); document.getElementById('b1000').addEventListener('click',function(){ addM(1000); }); document.getElementById('bReset').addEventListener('click',function(){ means=[]; draw1(); });
+
+/* 신뢰구간 20개 */
+var P2=null, Z=1.96, cis=null, hitTot=0, cntTot=0;
+function setup2(){ var cv=document.getElementById('cv2'); if(!P2) P2=LEC.plane(cv,{xmin:80,xmax:120,ymin:-2,ymax:22.5,h:300,grid:0}); else P2.resize(); if(!cis) resample(); draw2(); }
+function resample(){ var n=parseInt(document.getElementById('cn').value,10); cis=[]; for(var i=0;i<20;i++){ var s=0; for(var k=0;k<n;k++) s+=M+SIG*randn(); var xb=s/n, h=Z*SIG/Math.sqrt(n); cis.push([xb-h,xb+h,xb]); } var miss=cis.filter(function(c){ return c[0]>M||c[1]<M; }).length; hitTot+=20-miss; cntTot+=20; }
+function draw2(){ if(!P2)return; var n=parseInt(document.getElementById('cn').value,10); document.getElementById('cnv').textContent=n; P2.clear(); var c=P2.ctx;
+  axisX(P2,82,118,10); P2.seg(M,-1,M,20.5,'#dc2626',2,[5,4]); c.fillStyle='#dc2626'; c.font='bold 11px sans-serif'; c.textAlign='center'; c.textBaseline='bottom'; c.fillText('모평균 m=100',P2.X(M),P2.Y(20.6));
+  var miss=0; cis.forEach(function(ci,i){ var y=i+0.5; var ok=ci[0]<=M&&ci[1]>=M; if(!ok) miss++; var col=ok?'#0f766e':'#dc2626'; P2.seg(Math.max(80,ci[0]),y,Math.min(120,ci[1]),y,col,ok?2.5:3.5); P2.dot(ci[2],y,col,3); });
+  var len=2*Z*SIG/Math.sqrt(n); document.getElementById('m1').textContent=len.toFixed(2); document.getElementById('m2').textContent=miss+' / 20'; document.getElementById('m3').textContent=cntTot?((hitTot/cntTot)*100).toFixed(1)+'% ('+cntTot+'개 중)':'–';
+  var el=document.getElementById('out2'); el.innerHTML='$\\bar x\\pm'+Z+'\\times\\dfrac{15}{\\sqrt{'+n+'}}$, 길이 $'+len.toFixed(2)+'$ · 이번 20개 중 '+miss+'개가 모평균을 놓쳤어요 → 여러 번 반복하면 놓치는 비율이 '+(Z>2?'1%':'5%')+'에 가까워져요'; LEC.tex(el); }
+document.getElementById('cn').addEventListener('input',function(){ resample(); draw2(); }); document.getElementById('cAgain').addEventListener('click',function(){ resample(); draw2(); });
+document.getElementById('c95').addEventListener('click',function(){ Z=1.96; this.classList.add('on'); document.getElementById('c99').classList.remove('on'); hitTot=0; cntTot=0; resample(); draw2(); });
+document.getElementById('c99').addEventListener('click',function(){ Z=2.58; this.classList.add('on'); document.getElementById('c95').classList.remove('on'); hitTot=0; cntTot=0; resample(); draw2(); });
+
+/* 모비율 */
+var P3=null, Zp=1.96;
+function setup3(){ var cv=document.getElementById('cv3'); if(!P3) P3=LEC.plane(cv,{xmin:-0.05,xmax:1.05,ymin:-0.6,ymax:1.2,h:160,grid:0}); else P3.resize(); draw3(); }
+function draw3(){ if(!P3)return; var n=parseInt(document.getElementById('pn').value,10), p=parseInt(document.getElementById('pp').value,10)/100; document.getElementById('pnv').textContent=n; document.getElementById('ppv').textContent=p.toFixed(2);
+  var se=Math.sqrt(p*(1-p)/n), h=Zp*se; P3.clear(); var c=P3.ctx; c.strokeStyle='#94a3b8'; c.lineWidth=1.5; c.beginPath(); c.moveTo(P3.X(0),P3.Y(0)); c.lineTo(P3.X(1),P3.Y(0)); c.stroke(); c.fillStyle='#64748b'; c.font='11px sans-serif'; c.textAlign='center'; c.textBaseline='top'; [0,0.25,0.5,0.75,1].forEach(function(t){ c.fillText((t*100)+'%',P3.X(t),P3.Y(0)+4); });
+  P3.seg(Math.max(0,p-h),0.5,Math.min(1,p+h),0.5,'#0f766e',10); P3.dot(p,0.5,'#0f172a',6); c.fillStyle='#0f766e'; c.font='bold 12px sans-serif'; c.textBaseline='bottom'; c.fillText('p̂ = '+(p*100).toFixed(0)+'% ± '+(h*100).toFixed(1)+'%p',P3.X(p),P3.Y(0.62));
+  document.getElementById('q1').textContent=se.toFixed(4); document.getElementById('q2').textContent=(h*100).toFixed(1)+'%p'; document.getElementById('q3').textContent=((p-h)*100).toFixed(1)+'% ~ '+((p+h)*100).toFixed(1)+'%';
+  var el=document.getElementById('out3'); el.innerHTML='$'+p.toFixed(2)+'\\pm'+Zp+'\\sqrt{\\dfrac{'+p.toFixed(2)+'\\times'+(1-p).toFixed(2)+'}{'+n+'}}='+p.toFixed(2)+'\\pm'+h.toFixed(3)+'$'+(n===1000&&p===0.5?' — <b>여론조사의 ±3.1%p</b>가 여기서 나와요':(p===0.5?' — $\\hat p=0.5$일 때 폭이 가장 넓어요':'')); LEC.tex(el); }
+['pn','pp'].forEach(function(id){ document.getElementById(id).addEventListener('input',draw3); });
+document.getElementById('p95').addEventListener('click',function(){ Zp=1.96; this.classList.add('on'); document.getElementById('p99').classList.remove('on'); draw3(); });
+document.getElementById('p99').addEventListener('click',function(){ Zp=2.58; this.classList.add('on'); document.getElementById('p95').classList.remove('on'); draw3(); });
+APP.onTab({samp:setup1, mean:setup2, prop:setup3}); LEC.onResize(function(){ var t=APP.current(); if(t==='samp')setup1(); if(t==='mean')setup2(); if(t==='prop')setup3(); });
+
+var TABNAME={samp:'🎲 표본평균의 분포',mean:'📏 모평균 추정',prop:'📊 모비율 추정'};
+var QUIZ=[
+ {q:'N(100,15²) 모집단에서 크기 25인 표본평균의 표준편차는?',o:['3','15','0.6','75'],a:0,t:'samp',e:'σ/√n = 15/5 = 3.'},
+ {q:'위 표본평균이 106 이상일 확률은? (P(0≤Z≤2)=0.4772)',o:['0.0228','0.3446','0.4772','0.1587'],a:0,t:'samp',e:'z=(106−100)/3=2 → 0.5−0.4772.'},
+ {q:'표본 크기를 4배로 하면 표본평균의 표준편차는?',o:['절반','1/4','2배','그대로'],a:0,t:'samp',e:'σ/√n → √4=2로 나누어 절반.'},
+ {q:'σ=12, n=36, 표본평균 50일 때 모평균의 95% 신뢰구간은?',o:['46.08 ≤ m ≤ 53.92','48.04 ≤ m ≤ 51.96','38 ≤ m ≤ 62','49 ≤ m ≤ 51'],a:0,t:'mean',e:'σ/√n=2, 1.96×2=3.92.'},
+ {q:'σ=10 일 때 95% 신뢰구간 길이가 4 이하가 되는 최소 표본 크기는?',o:['97','25','49','385'],a:0,t:'mean',e:'2·1.96·10/√n ≤ 4 → √n ≥ 9.8 → n ≥ 96.04.'},
+ {q:'"95% 신뢰구간"의 올바른 뜻은?',o:['같은 방법으로 만든 구간 100개 중 약 95개가 모평균을 포함한다','모평균이 이 구간 안에 있을 확률이 95%다','표본의 95%가 이 구간 안에 있다','모평균이 95%다'],a:0,t:'mean',e:'모평균은 고정, 움직이는 것은 구간. 방법의 성적표다.'},
+ {q:'같은 표본에서 99% 신뢰구간은 95% 신뢰구간보다?',o:['더 길다','더 짧다','같다','n에 따라 다르다'],a:0,t:'mean',e:'2.58 > 1.96 → 더 넓어야 더 자주 포함한다.'},
+ {q:'400명 중 100명 찬성일 때 모비율의 95% 신뢰구간은?',o:['약 0.208 ~ 0.292','약 0.20 ~ 0.30','약 0.25 ~ 0.35','약 0.15 ~ 0.35'],a:0,t:'prop',e:'p̂=0.25, √(0.25·0.75/400)≈0.0217, ±0.0424.'},
+ {q:'응답자 1,000명, 지지율 50%일 때 95% 오차 폭은 약?',o:['±3.1%p','±1.6%p','±5%p','±0.5%p'],a:0,t:'prop',e:'1.96×√(0.25/1000)≈0.031.'},
+ {q:'오차 폭을 절반으로 줄이려면 응답자 수를?',o:['4배','2배','절반','16배'],a:0,t:'prop',e:'폭 ∝ 1/√n.'}
+];
+APP.quiz(QUIZ,TABNAME,{perfect:'완벽해요! 표본 하나로 세상을 말하는 문법을 익혔어요.'});
+</script>
+</body>
+</html>

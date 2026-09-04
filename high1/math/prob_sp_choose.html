@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>순열·조합 구분 — 질문은 하나 · 관문 특강</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="if(window.LEC)LEC.tex(document.body)"></script>
+<script src="lecture.js"></script>
+<style>
+  .fbtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:8px}.fbtns .on{background:var(--lec);color:#fff}
+  .rd{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:8px}.rd div{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:7px 9px;font-size:12px;text-align:center;color:var(--sub)}.rd b{display:block;font-size:15px;color:var(--lec)}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0;min-height:44px}
+  .chip2{min-width:44px;height:36px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:1.5px solid #cbd5e1;background:#fff;font-weight:800;font-size:14px;letter-spacing:1px;transition:.2s}
+  .chip2.dim{opacity:.35;border-style:dashed}
+  .tree{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;margin:8px 0}
+  .tree .q{font-weight:800;margin:8px 0 6px;font-size:14px}
+  .tree .sent{background:#fff;border:1.5px solid var(--lec);border-radius:10px;padding:10px 12px;font-size:14.5px;text-align:center;margin-bottom:6px;min-height:44px;display:flex;align-items:center;justify-content:center}
+  .tree .ans{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+  .tree .ans button.sel{background:var(--lec);color:#fff;border-color:var(--lec)}
+  .res{margin-top:10px;background:#0f172a;color:#e2e8f0;border-radius:10px;padding:10px 12px;font-size:14px;text-align:center;min-height:44px}
+  .res .katex{color:#f1f5f9}
+  .warn{background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:10px 12px;font-size:13px;color:#9a3412;margin:8px 0}
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Math_1_1</a><span>&rsaquo;</span><a href="prob_hub.html">확률과 통계</a><span>&rsaquo;</span><a class="cur" href="#">관문 특강 · 순열·조합</a></nav>
+<div class="wrap">
+
+<div class="lec-hero">
+  <span class="tag">🚪 관문 특강 · 확률과 통계 Ⅰ 경우의 수</span>
+  <h1>🎯 순열·조합 구분 — 질문은 하나, "순서가 중요한가?"</h1>
+  <p>경우의 수 문제가 어려운 이유는 공식이 많아서가 아니에요. <b>어느 공식을 쓸지</b>를 못 정해서예요. 이 특강은 그 결정을 <b>질문 두 개</b>로 바꿔요. ① 순서가 중요한가? ② 같은 것을 다시 뽑을 수 있나? 이 둘만 답하면 $P$, $C$, 중복순열, 중복조합이 저절로 갈라져요. <b>세기 3부작</b>의 마지막 편이에요: 중2 경우의 수 → 고1 순열·조합 → 여기.</p>
+  <div class="lec-goal"><a href="#type1">① P vs C</a><a href="#type2">② 중복 허용</a><a href="#type3">③ 같은 것 · 최단 경로</a><a href="#type4">④ 나누고 곱하기</a></div>
+</div>
+<nav class="lec-nav" id="lecNav"></nav>
+
+<!-- ① 감 잡기 -->
+<section class="lec-sec reveal" data-step="1" data-label="감 잡기" id="s1">
+  <div class="eyebrow"><span class="n">1</span>줄 세우기와 묶기 — 순서를 지우면 몇 개씩 겹치나 (공식 없이)</div>
+  <p>$n$명 중 $r$명을 뽑아요. <b>줄 세우기</b>(회장·부회장처럼 자리가 다름)는 AB와 BA가 다른 경우예요. <b>묶기</b>(대표 2명처럼 자리가 같음)는 AB와 BA가 같은 경우예요. "묶기"를 누르면 같은 묶음이 같은 색으로 합쳐져요. <b>몇 개씩 겹치는지</b> 세어 보세요.</p>
+  <div class="lec-widget">
+    <div class="lec-row"><span>사람 수 $n$</span><input type="range" id="sn" min="3" max="5" step="1" value="4"><span class="v" id="snv">4</span></div>
+    <div class="lec-row"><span>뽑는 수 $r$</span><input type="range" id="sr" min="2" max="3" step="1" value="2"><span class="v" id="srv">2</span></div>
+    <div class="fbtns"><button class="lec-btn ghost on" id="mP">줄 세우기 (순서 있음)</button><button class="lec-btn ghost" id="mC">묶기 (순서 없음)</button></div>
+    <div class="chips" id="chips"></div>
+    <div class="rd"><div>줄 세우기 $_nP_r$ <b id="r1"></b></div><div>한 묶음의 크기 $r!$ <b id="r2"></b></div><div>묶기 $_nC_r$ <b id="r3"></b></div></div>
+    <div class="lec-out" id="out1"></div>
+  </div>
+  <p>보이나요? 묶기의 개수는 줄 세우기의 개수를 <b>$r!$로 나눈 것</b>이에요. 뽑힌 $r$명을 줄 세우는 방법이 $r!$가지라서, 그만큼씩 겹치거든요. 그래서 $_nC_r=\dfrac{_nP_r}{r!}$. 조합 공식은 외우는 게 아니라 "겹치는 만큼 나눈다"는 그림이에요.</p>
+  <div class="lec-card">
+    <h4>함께 생각하기 ①</h4>
+    <p style="margin-bottom:8px;font-size:14px">5명 중 3명을 뽑아 줄 세우는 방법은 60가지예요. 같은 3명을 뽑는 "묶기"는 몇 가지일까요?</p>
+    <div class="lec-checkrow"><input class="num" id="q1" inputmode="numeric" aria-label="답"><button id="q1b">확인</button></div>
+    <div class="lec-out" id="q1o"></div>
+  </div>
+</section>
+
+<!-- ② 공식은 읽는 것 -->
+<section class="lec-sec reveal" data-step="2" data-label="공식 읽기" id="s2">
+  <div class="eyebrow"><span class="n">2</span>공식은 외우는 게 아니라 읽는 것</div>
+  <p>네 공식이 전부 <b>두 질문</b>의 답이에요. 순서가 중요한가(있음/없음) × 같은 것을 다시 뽑을 수 있나(불가/허용).</p>
+  <table class="lec-table">
+    <tr><th></th><th>중복 불가 (한 번 뽑으면 끝)</th><th>중복 허용 (다시 뽑아도 됨)</th></tr>
+    <tr><td><b>순서 있음</b></td><td>순열 $_nP_r=\dfrac{n!}{(n-r)!}$</td><td>중복순열 $_n\Pi_r=n^r$</td></tr>
+    <tr><td><b>순서 없음</b></td><td>조합 $_nC_r=\dfrac{_nP_r}{r!}$</td><td>중복조합 $_nH_r={}_{n+r-1}C_r$</td></tr>
+  </table>
+  <div class="lec-formula"><div class="f">$_nP_r=n(n-1)\cdots(n-r+1)$ — 자리마다 후보가 하나씩 줄어든다</div><small>첫 자리 n가지, 둘째 자리 n−1가지, … r개 자리. 곱의 법칙 그대로.</small></div>
+  <div class="lec-formula"><div class="f">$_n\Pi_r=n^r$ — 자리마다 후보가 그대로 $n$가지</div><small>비밀번호·신호·색칠. 뽑은 것을 되돌려 놓으니 후보가 줄지 않는다.</small></div>
+  <div class="lec-formula"><div class="f">$_nC_r=\dfrac{_nP_r}{r!}=\dfrac{n!}{r!\,(n-r)!}$ — 겹치는 만큼 나눈다</div><small>위젯에서 본 그것. 대표 뽑기·선분 개수·부분집합.</small></div>
+  <div class="lec-formula"><div class="f">$_nH_r={}_{n+r-1}C_r$ — 공 $r$개와 칸막이 $n-1$개를 한 줄로</div><small>같은 사탕 r개를 n명에게: ○○|○|○○○ 처럼 그리면 "○와 |의 배열" = 조합. 단원 앱에서 그림으로.</small></div>
+
+  <p>그리고 <b>같은 것이 있는 순열</b>. AABBC를 줄 세우면 5!이 아니에요. 두 A가 자리를 바꿔도 같은 배열이라 $2!$만큼, 두 B도 $2!$만큼 겹쳐요. 그래서 나눠요.</p>
+  <div class="lec-formula"><div class="f">$\dfrac{n!}{p!\,q!\,\cdots}$ — 같은 것이 $p$개, $q$개, … 있을 때</div><small>최단 경로(→ a개, ↑ b개의 배열)도 이 공식: (a+b)!/(a!b!).</small></div>
+  <div class="warn">⚠️ 옛 자료에 나오는 <b>원순열</b>(둥근 탁자 앉히기, $(n-1)!$)은 2022 개정 교육과정 범위 밖이에요. 보이면 "지금 배우는 범위가 아니다"로 넘겨도 돼요.</div>
+
+  <div class="lec-card">
+    <h4>함께 생각하기 ②</h4>
+    <p style="margin-bottom:8px;font-size:14px">숫자 1, 2, 3 을 반복해서 써도 될 때 만들 수 있는 두 자리 자연수는 몇 개?</p>
+    <div class="lec-checkrow"><input class="num" id="q2" inputmode="numeric" aria-label="답"><button id="q2b">확인</button></div>
+    <div class="lec-out" id="q2o"></div>
+  </div>
+</section>
+
+<!-- ③ 핵심 도구 -->
+<section class="lec-sec reveal" data-step="3" data-label="결정 트리" id="s3">
+  <div class="eyebrow"><span class="n">3</span>결정 트리 — 핵심 도구</div>
+  <p>문제 문장을 읽고 <b>질문 두 개</b>에만 답해요. 그러면 공식이 나와요. 문장을 바꿔 가며 연습하세요.</p>
+  <div class="lec-card">
+    <div class="tree">
+      <div class="sent" id="tSent"></div>
+      <div class="fbtns"><button class="lec-again" id="tNext">🔄 다른 문장</button></div>
+      <div class="q">Q1. 뽑은 것들의 <b>순서(자리)</b>가 다르면 다른 경우인가?</div>
+      <div class="ans" id="tQ1"><button class="lec-btn ghost" data-v="1">순서 있음</button><button class="lec-btn ghost" data-v="0">순서 없음</button></div>
+      <div class="q">Q2. <b>같은 것을 다시</b> 뽑을 수 있나?</div>
+      <div class="ans" id="tQ2"><button class="lec-btn ghost" data-v="0">중복 불가</button><button class="lec-btn ghost" data-v="1">중복 허용</button></div>
+      <div class="res" id="tRes">두 질문에 답하면 공식과 답이 나와요.</div>
+    </div>
+  </div>
+  <div class="lec-key"><b>불변 앵커</b> 순서가 있으면 $P$, 없으면 $C$. 다시 뽑을 수 있으면 $\Pi$와 $H$. 질문은 이 둘뿐이다.</div>
+  <p style="margin-top:12px">이제 숫자로 답하는 연습이에요. 먼저 "순서?"를 속으로 정하고 계산하세요.</p>
+  <div id="toolbody"></div>
+</section>
+
+<!-- ④ 유형별 완전정복 -->
+<section class="lec-sec reveal" data-step="4" data-label="유형 4" id="s4">
+  <div class="eyebrow"><span class="n">4</span>유형별 완전정복</div>
+  <p>네 유형 모두 <b>결정 트리</b>에서 시작해요. "다른 문제로"를 눌러 숫자가 바뀌어도 같은 질문으로 가는지 확인하세요.</p>
+</section>
+
+<section class="lec-type reveal" id="type1">
+  <div class="lec-type-h"><span class="badge">①</span><span><div class="t">P vs C 판정</div><div class="d">순서가 중요한가</div></span></div>
+  <div class="lec-key"><b>핵심</b> 자리 이름이 다르면(회장·부회장, 1등·2등) 순서 있음 → $P$. 자리 이름이 같으면(대표 2명, 선분) 순서 없음 → $C$.</div>
+  <div id="type1body"></div>
+</section>
+
+<section class="lec-type reveal" id="type2">
+  <div class="lec-type-h"><span class="badge">②</span><span><div class="t">중복 허용</div><div class="d">Π 아니면 H</div></span></div>
+  <div class="lec-key"><b>핵심</b> "반복해서 써도", "같은 종류를 여러 개" → 중복 허용. 순서 있으면 $n^r$, 순서 없으면 $_nH_r={}_{n+r-1}C_r$.</div>
+  <div id="type2body"></div>
+</section>
+
+<section class="lec-type reveal" id="type3">
+  <div class="lec-type-h"><span class="badge">③</span><span><div class="t">같은 것이 있는 순열 · 최단 경로</div><div class="d">겹치는 만큼 나눈다</div></span></div>
+  <div class="lec-key"><b>핵심</b> 전부 다르다고 치고 $n!$ → 같은 것끼리의 자리 바꿈 $p!\,q!$로 나눈다. 최단 경로는 → 와 ↑ 의 배열.</div>
+  <div id="type3body"></div>
+</section>
+
+<section class="lec-type reveal" id="type4">
+  <div class="lec-type-h"><span class="badge">④</span><span><div class="t">나누고 곱하기</div><div class="d">단계는 곱, 갈래는 합, 여사건</div></span></div>
+  <div class="lec-key"><b>핵심</b> "그리고"(연달아 하는 단계)는 곱, "또는"(서로 다른 갈래)은 합. "적어도 하나"는 전체에서 반대를 뺀다.</div>
+  <div id="type4body"></div>
+</section>
+
+<!-- ⑤ 실전 총정리 -->
+<section class="lec-sec reveal" data-step="5" data-label="실전" id="s5">
+  <div class="eyebrow"><span class="n">5</span>실전 총정리 — 유형 섞어서</div>
+  <p>어떤 유형인지 알려주지 않아요. <b>순서? 중복?</b>부터 정하세요. 틀리면 어느 유형인지 알려주고 돌아가는 길을 열어 둘게요.</p>
+  <div id="quizArea"></div>
+  <div style="text-align:center;margin-top:8px"><button class="lec-again" id="quizAreaAgain">🔄 5문제 새로</button></div>
+</section>
+
+<!-- ⑥ 치트시트 -->
+<section class="lec-sec reveal" data-step="6" data-label="치트시트" id="s6">
+  <div class="eyebrow"><span class="n">6</span>마무리 치트시트</div>
+  <div class="lec-cheat">
+    <h3>🎯 경우의 수 한 장 요약</h3>
+    <div class="row">
+      <div class="chip"><b>질문 1</b>순서가 중요한가? 있음 → P · 없음 → C</div>
+      <div class="chip"><b>질문 2</b>다시 뽑을 수 있나? 허용 → Π(순서 있음) · H(순서 없음)</div>
+    </div>
+    <div class="row">
+      <div class="chip"><b>공식</b>$_nP_r=\frac{n!}{(n-r)!}$ · $_nC_r=\frac{_nP_r}{r!}$ · $_n\Pi_r=n^r$ · $_nH_r={}_{n+r-1}C_r$</div>
+      <div class="chip"><b>같은 것</b>$\frac{n!}{p!q!}$ · 최단 경로 $\frac{(a+b)!}{a!b!}$</div>
+    </div>
+    <div class="row">
+      <div class="chip"><b>합·곱</b>단계는 곱, 갈래는 합 · "적어도" = 전체 − 반대</div>
+      <div class="chip"><b>한 문장</b>공식을 고르는 게 아니라 질문에 답하는 것</div>
+    </div>
+    <button id="printCheat">🖨️ 이 치트시트 인쇄하기</button>
+  </div>
+  <div class="keeper">
+    <div class="kt">📌 어른이 되어도 기억할 것</div>
+    <ul>
+      <li><b>"순서가 중요한가?"</b>는 수학 밖에서도 쓰는 질문이에요. 비밀번호(순서 있음)와 로또(순서 없음)가 같은 6개 숫자로 얼마나 다른 개수인지가 여기서 갈려요.</li>
+      <li><b>조합은 겹치는 만큼 나눈 것.</b> 세는 문제의 절반은 "몇 번씩 겹치나"를 찾는 문제예요.</li>
+      <li><b>경우의 수는 폭발한다.</b> 10개를 줄 세우면 약 363만, 20개면 243경. 컴퓨터가 "모든 경우를 다 보기"를 못 하는 이유이자, 암호가 안전한 이유예요.</li>
+    </ul>
+  </div>
+  <div class="insight"><div class="it">💡 세기 3부작의 완결, 그리고 확률로</div>중2에서 나열해 세고, 고1에서 $P$·$C$ 공식을 배우고, 여기서 <b>어느 공식인지 고르는 법</b>을 익혔어요. 확률은 "전체 경우 중 원하는 경우의 비율"이라서, 세기가 정확해야 확률도 정확해요. 다음 단원부터 이 도구가 분모와 분자에 들어가요.</div>
+  <div class="reallife"><div class="rt">🏠 이미 보고 있던 곳</div>비밀번호 자릿수와 조합 수(중복순열), 로또 1등 확률의 분모 $_{45}C_6=8{,}145{,}060$(조합), 메뉴 조합·토핑 고르기(중복조합), 4명이 앉는 자리 배치(순열), 지도 앱의 격자 도시 최단 경로(같은 것이 있는 순열).</div>
+  <div class="reallife"><div class="rt">🏭 이걸로 먹고사는 사람들</div>보안 엔지니어(암호 키 공간 크기), 통계학자·데이터 과학자(표본 뽑기 = 조합), 물류·스케줄링(배치 경우의 수와 최적화), 게임 디자이너(카드·아이템 조합 확률), 유전학(염기 배열 = 중복순열). <span style="color:#134e4a;font-weight:700">🎓 컴퓨터공학 · 통계학 · 산업공학 · 생명과학</span></div>
+  <p style="text-align:center;color:var(--sub);font-size:13px;margin-top:14px">단원 앱으로 이어서 → <a href="prob_permutation.html">여러 가지 순열</a> · <a href="prob_combination.html">중복조합과 이항정리</a> · 토대 복습 <a href="mat1_counting.html">고1 순열과 조합</a></p>
+</section>
+
+<div class="lec-foot">관문 특강 · 순열·조합 구분 · 확률과 통계 · 표준 커리큘럼 제작</div>
+</div>
+<div id="printArea"></div>
+
+<!-- ───────── 생성기(순수 함수 · Node 재검산 대상) ───────── -->
+<script id="gen">
+(function(){
+  var ri=LEC.ri, pick=LEC.pick;
+  function fact(n){ var f=1; for(var i=2;i<=n;i++) f*=i; return f; }
+  function P(n,r){ var v=1; for(var i=0;i<r;i++) v*=(n-i); return v; }
+  function C(n,r){ return Math.round(P(n,r)/fact(r)); }
+  function H(n,r){ return C(n+r-1,r); }
+  function Pstr(n,r){ var a=[]; for(var i=0;i<r;i++) a.push(n-i); return a.join('\\times'); }
+
+  window.GEN = {
+    tool:{ label:'결정 트리 계산', anchor:'#s3',
+      gen:function(){ var n=ri(4,7), r=ri(2,3); var kind=pick(['P','C']);
+        var sP=[ n+'명 중 회장 1명과 부회장 1명을 뽑는', n+'명이 달리기를 해서 1등부터 '+r+'등까지 정하는', n+'권의 서로 다른 책 중 '+r+'권을 골라 책꽂이에 왼쪽부터 한 줄로 꽂는' ];
+        var sC=[ n+'명 중 청소 당번 '+r+'명을 뽑는', n+'개의 서로 다른 과일 중 '+r+'개를 골라 바구니에 담는', n+'명 중 대표 '+r+'명을 뽑는' ];
+        if(kind==='P'){ var i=ri(0,2); if(i===0) r=2; var v=P(n,r); return { q:sP[i]+' 방법의 수는?', ans:v, fig:{v:v}, steps:['자리(등수·직책·위치)가 다르면 다른 경우 → <b>순서 있음</b>, 같은 사람을 두 번 못 뽑음 → $P$', '$_{'+n+'}P_{'+r+'}='+Pstr(n,r)+'='+v+'$'] }; }
+        var j=ri(0,2); var w=C(n,r); return { q:sC[j]+' 방법의 수는?', ans:w, fig:{v:w}, steps:['누가 먼저 뽑혔든 같은 묶음 → <b>순서 없음</b>, 중복 불가 → $C$', '$_{'+n+'}C_{'+r+'}=\\dfrac{'+Pstr(n,r)+'}{'+r+'!}='+w+'$'] }; },
+      verify:function(p){ return p.fig.v===p.ans && p.ans>0; } },
+
+    type1:{ label:'① P vs C 판정', anchor:'#type1',
+      gen:function(){ var n=ri(5,8); var k=ri(0,3);
+        if(k===0){ var v=P(n,2); return { q:n+'명의 후보 중에서 회장 1명, 부회장 1명을 뽑는 방법의 수는?', ans:v, fig:{v:v}, steps:['회장과 부회장은 <b>자리가 다르다</b> → 순서 있음 → $P$', '$_{'+n+'}P_2='+n+'\\times'+(n-1)+'='+v+'$'] }; }
+        if(k===1){ var w=C(n,2); return { q:'서로 다른 '+n+'개의 점 중 어느 세 점도 한 직선 위에 없다. 두 점을 이어 만들 수 있는 선분의 개수는?', ans:w, fig:{v:w}, steps:['선분 AB와 BA는 같은 선분 → 순서 없음 → $C$', '$_{'+n+'}C_2=\\dfrac{'+n+'\\times'+(n-1)+'}{2}='+w+'$'] }; }
+        if(k===2){ var r=ri(2,3), u=C(n,r); return { q:n+'명 중 대표 '+r+'명을 뽑는 방법의 수는?', ans:u, fig:{v:u}, steps:['대표 '+r+'명은 자리 구분이 없다 → 순서 없음 → $C$', '$_{'+n+'}C_{'+r+'}=\\dfrac{'+Pstr(n,r)+'}{'+r+'!}='+u+'$'] }; }
+        var r2=3, x=P(n,r2); return { q:n+'명이 이어달리기 선수 3명을 뽑아 1번·2번·3번 주자를 정하는 방법의 수는?', ans:x, fig:{v:x}, steps:['1번·2번·3번 주자는 자리가 다르다 → 순서 있음 → $P$', '$_{'+n+'}P_3='+Pstr(n,3)+'='+x+'$'] }; },
+      verify:function(p){ return p.fig.v===p.ans && p.ans>0; } },
+
+    type2:{ label:'② 중복 허용', anchor:'#type2',
+      gen:function(){ var k=ri(0,3);
+        if(k===0){ var d=ri(3,5), r=ri(2,4), v=Math.pow(d,r); var digits=[1,2,3,4,5].slice(0,d).join(', '); return { q:'숫자 '+digits+' 를 반복해서 써도 될 때, 만들 수 있는 '+r+'자리 자연수의 개수는?', ans:v, fig:{v:v}, steps:['자리가 다르면 다른 수 → 순서 있음. 반복 가능 → 중복 허용 → 중복순열 $\\Pi$', '자리마다 후보 '+d+'가지: $_{'+d+'}\\Pi_{'+r+'}='+d+'^{'+r+'}='+v+'$'] }; }
+        if(k===1){ var c=ri(2,4), f=ri(3,4), w=Math.pow(c,f); return { q:c+'가지 색으로 깃발 '+f+'개를 왼쪽부터 차례로 칠한다. 같은 색을 여러 번 써도 될 때 칠하는 방법의 수는?', ans:w, fig:{v:w}, steps:['깃발의 위치가 다르면 다른 결과 → 순서 있음. 같은 색 반복 → 중복 허용 → $\\Pi$', '$'+c+'^{'+f+'}='+w+'$'] }; }
+        if(k===2){ var t=ri(3,4), m=ri(2,4), u=H(t,m); return { q:t+'종류의 음료 중 '+m+'잔을 주문한다. 같은 종류를 여러 잔 주문해도 되고 순서는 상관없을 때 주문하는 방법의 수는?', ans:u, fig:{v:u}, steps:['어느 잔을 먼저 시켰든 같은 주문 → 순서 없음. 같은 종류 반복 → 중복 허용 → 중복조합 $H$', '$_{'+t+'}H_{'+m+'}={}_{'+(t+m-1)+'}C_{'+m+'}='+u+'$'] }; }
+        var p2=ri(3,4), s=ri(3,5), x=H(p2,s); return { q:'같은 사탕 '+s+'개를 '+p2+'명에게 나누어 주는 방법의 수는? (하나도 받지 못하는 사람이 있어도 된다)', ans:x, fig:{v:x}, steps:['사탕이 전부 같으므로 "누가 몇 개"만 중요 → 순서 없음, 한 사람이 여러 개 → 중복 허용 → $H$', '$_{'+p2+'}H_{'+s+'}={}_{'+(p2+s-1)+'}C_{'+s+'}='+x+'$ (○ '+s+'개와 칸막이 '+(p2-1)+'개의 배열)'] }; },
+      verify:function(p){ return p.fig.v===p.ans && p.ans>0; } },
+
+    type3:{ label:'③ 같은 것 · 최단 경로', anchor:'#type3',
+      gen:function(){ if(Math.random()<0.5){ var pq=pick([[2,2,1],[3,2,0],[2,2,2],[3,1,0],[2,1,2],[3,2,1]]); var p=pq[0], q=pq[1], d=pq[2]; var n=p+q+d;
+          var word=''; for(var i=0;i<p;i++) word+='A'; for(var j=0;j<q;j++) word+='B'; var extra=['C','D']; for(var k=0;k<d;k++) word+=extra[k];
+          var v=Math.round(fact(n)/(fact(p)*fact(q)));
+          return { q:word.split('').join(', ')+' 의 '+n+'개 문자를 모두 한 줄로 나열하는 방법의 수는?', ans:v, fig:{v:v}, steps:['전부 다르다고 치면 $'+n+'!='+fact(n)+'$', 'A '+p+'개끼리 자리를 바꿔도 같은 배열 → $'+p+'!$로 나눔'+(q>1?', B '+q+'개끼리도 → $'+q+'!$로 나눔':''), '$\\dfrac{'+n+'!}{'+p+'!'+(q>1?'\\,'+q+'!':'')+'}='+v+'$'] }; }
+        var a=ri(2,4), b=ri(2,4); var w=C(a+b,a);
+        return { q:'가로 '+a+'칸, 세로 '+b+'칸의 격자 도로에서 왼쪽 아래 모서리에서 오른쪽 위 모서리까지 가는 최단 경로의 수는?', ans:w, fig:{v:w}, steps:['최단 경로 = → '+a+'개와 ↑ '+b+'개를 한 줄로 배열', '같은 것이 있는 순열: $\\dfrac{'+(a+b)+'!}{'+a+'!\\,'+b+'!}='+w+'$'] }; },
+      verify:function(p){ return p.fig.v===p.ans && p.ans>0; } },
+
+    type4:{ label:'④ 나누고 곱하기', anchor:'#type4',
+      gen:function(){ var k=ri(0,2);
+        if(k===0){ var a=ri(3,6), b=ri(3,6), v=a*b; return { q:'남학생 '+a+'명, 여학생 '+b+'명 중에서 남학생 대표 1명과 여학생 대표 1명을 뽑는 방법의 수는?', ans:v, fig:{v:v}, steps:['남 대표 뽑기 <b>그리고</b> 여 대표 뽑기 → 연달아 하는 단계 → 곱', '$'+a+'\\times'+b+'='+v+'$'] }; }
+        if(k===1){ var n=ri(5,7), w=n*C(n-1,2); return { q:n+'명 중 회장 1명을 뽑고, 나머지 중에서 총무 2명을 뽑는 방법의 수는?', ans:w, fig:{v:w}, steps:['회장(순서 무관, 1명) '+n+'가지 <b>그리고</b> 총무 2명은 자리 구분 없음 → $_{'+(n-1)+'}C_2$', '$'+n+'\\times{}_{'+(n-1)+'}C_2='+n+'\\times'+C(n-1,2)+'='+w+'$'] }; }
+        var m=ri(3,4), f=ri(2,3), tot=C(m+f,3), none=C(m,3), u=tot-none;
+        return { q:'남학생 '+m+'명, 여학생 '+f+'명 중 3명을 뽑을 때 여학생이 적어도 한 명 포함되는 방법의 수는?', ans:u, fig:{v:u}, steps:['"적어도 하나" → 전체에서 반대(여학생 0명 = 전부 남학생)를 뺀다', '전체 $_{'+(m+f)+'}C_3='+tot+'$, 전부 남학생 $_{'+m+'}C_3='+none+'$', '$'+tot+'-'+none+'='+u+'$'] }; },
+      verify:function(p){ return p.fig.v===p.ans && p.ans>0; } }
+  };
+})();
+</script>
+
+<script>
+LEC.boot({ key:'prob_sp_choose', color:'#0f766e', color2:'#2dd4bf' });
+
+/* ① 줄 세우기 vs 묶기 */
+(function(){
+  var mode='P'; var HUES=[0,30,60,120,170,200,230,260,290,320];
+  function perms(arr,r){ var out=[]; (function rec(cur,rest){ if(cur.length===r){ out.push(cur.slice()); return; } for(var i=0;i<rest.length;i++){ var nr=rest.slice(); var x=nr.splice(i,1)[0]; cur.push(x); rec(cur,nr); cur.pop(); } })([],arr); return out; }
+  function fact(n){ var f=1; for(var i=2;i<=n;i++) f*=i; return f; }
+  function draw(){
+    var n=parseInt(document.getElementById('sn').value,10), r=parseInt(document.getElementById('sr').value,10);
+    document.getElementById('snv').textContent=n; document.getElementById('srv').textContent=r;
+    var L='ABCDE'.slice(0,n).split(''); var ps=perms(L,r); var groups={}, gi=0; ps.forEach(function(p){ var k=p.slice().sort().join(''); if(!(k in groups)) groups[k]=gi++; });
+    var box=document.getElementById('chips'); box.innerHTML='';
+    ps.forEach(function(p){ var k=p.slice().sort().join(''); var g=groups[k]; var el=document.createElement('span'); el.className='chip2'; el.textContent=p.join('');
+      if(mode==='C'){ var h=HUES[g%HUES.length]; el.style.background='hsl('+h+',70%,90%)'; el.style.borderColor='hsl('+h+',60%,55%)'; if(p.join('')!==k) el.classList.add('dim'); }
+      box.appendChild(el); });
+    var np=ps.length, rf=fact(r), nc=np/rf;
+    document.getElementById('r1').textContent=np; document.getElementById('r2').textContent=rf; document.getElementById('r3').textContent=nc;
+    var el=document.getElementById('out1'); el.innerHTML= mode==='P' ? '$_{'+n+'}P_{'+r+'}='+np+'$ 가지. AB와 BA가 <b>다른</b> 경우로 셌어요.' : '같은 색 = 같은 묶음. 한 묶음에 $'+r+'!='+rf+'$개씩 → $'+np+'\\div'+rf+'={}_{'+n+'}C_{'+r+'}='+nc+'$ 가지'; LEC.tex(el);
+  }
+  document.getElementById('sn').addEventListener('input',draw); document.getElementById('sr').addEventListener('input',draw);
+  document.getElementById('mP').addEventListener('click',function(){ mode='P'; this.classList.add('on'); document.getElementById('mC').classList.remove('on'); draw(); });
+  document.getElementById('mC').addEventListener('click',function(){ mode='C'; this.classList.add('on'); document.getElementById('mP').classList.remove('on'); draw(); });
+  draw();
+})();
+
+LEC.check('q1',10,{ok:'$60\\div3!=60\\div6=10$. 뽑힌 3명을 줄 세우는 $3!=6$가지씩 겹쳐요.', bad:'뽑힌 3명은 $3!=6$가지로 줄 세울 수 있어요. 60을 6으로 나누면?'});
+LEC.check('q2',9,{ok:'각 자리 후보가 3가지씩: $3^2=9$. 중복순열이에요.', bad:'십의 자리 3가지, 일의 자리도 3가지(반복 가능). 곱하면?'});
+
+/* ③ 결정 트리 */
+(function(){
+  var S=[
+    {s:'6명 중 회장 1명, 부회장 1명을 뽑는다.', o:1, d:0, f:'$_6P_2=6\\times5=30$', name:'순열'},
+    {s:'6명 중 대표 2명을 뽑는다.', o:0, d:0, f:'$_6C_2=\\dfrac{6\\times5}{2}=15$', name:'조합'},
+    {s:'숫자 1~4를 반복해서 써서 세 자리 수를 만든다.', o:1, d:1, f:'$_4\\Pi_3=4^3=64$', name:'중복순열'},
+    {s:'3종류 아이스크림 중 4개를 고른다(같은 종류 여러 개 가능, 순서 무관).', o:0, d:1, f:'$_3H_4={}_6C_4=15$', name:'중복조합'},
+    {s:'어느 세 점도 한 직선 위에 있지 않은 7개의 점 중 두 점을 이어 선분을 만든다.', o:0, d:0, f:'$_7C_2=21$', name:'조합'},
+    {s:'5명이 100m 달리기를 해서 1, 2, 3등을 정한다.', o:1, d:0, f:'$_5P_3=5\\times4\\times3=60$', name:'순열'},
+    {s:'같은 연필 5자루를 3명에게 나누어 준다(못 받는 사람 있어도 됨).', o:0, d:1, f:'$_3H_5={}_7C_5=21$', name:'중복조합'},
+    {s:'2가지 색으로 깃발 5개를 순서대로 칠한다(같은 색 반복 가능).', o:1, d:1, f:'$_2\\Pi_5=2^5=32$', name:'중복순열'}
+  ];
+  var i=0, a1=null, a2=null;
+  function show(){ document.getElementById('tSent').textContent=S[i].s; a1=a2=null; ['tQ1','tQ2'].forEach(function(id){ Array.prototype.forEach.call(document.getElementById(id).querySelectorAll('button'),function(b){ b.classList.remove('sel'); }); }); var r=document.getElementById('tRes'); r.innerHTML='두 질문에 답하면 공식과 답이 나와요.'; }
+  function judge(){ if(a1===null||a2===null) return; var c=S[i]; var r=document.getElementById('tRes');
+    if(a1===c.o && a2===c.d){ r.innerHTML='✅ <b>'+c.name+'</b> → '+c.f; } else { var why = a1!==c.o ? (c.o? '자리가 다르면 다른 경우예요(순서 <b>있음</b>).' : '누가 먼저 뽑혔든 같은 결과예요(순서 <b>없음</b>).') : (c.d? '같은 것을 다시 고를 수 있어요(중복 <b>허용</b>).' : '한 번 뽑힌 것은 다시 못 뽑아요(중복 <b>불가</b>).'); r.innerHTML='❌ 다시 읽어 보세요: '+why; }
+    LEC.tex(r); }
+  ['tQ1','tQ2'].forEach(function(id,idx){ document.getElementById(id).addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b)return; Array.prototype.forEach.call(this.querySelectorAll('button'),function(x){ x.classList.remove('sel'); }); b.classList.add('sel'); if(idx===0) a1=parseInt(b.getAttribute('data-v'),10); else a2=parseInt(b.getAttribute('data-v'),10); judge(); }); });
+  document.getElementById('tNext').addEventListener('click',function(){ i=(i+1)%S.length; show(); }); show();
+})();
+
+LEC.types(['tool','type1','type2','type3','type4']);
+LEC.quiz('quizArea',{n:5,types:['type1','type2','type3','type4']});
+</script>
+</body>
+</html>

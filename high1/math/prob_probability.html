@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>확률의 뜻과 덧셈정리 — 확률과 통계</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
+<script src="lecture.js"></script>
+<link rel="stylesheet" href="prob_app.css">
+<style>
+  .widget canvas{max-width:520px}
+  .dice{display:grid;grid-template-columns:auto repeat(6,1fr);gap:3px;max-width:380px;margin:8px auto}.dice span{display:flex;align-items:center;justify-content:center;height:44px;border-radius:6px;background:#f8fafc;border:1px solid #e2e8f0;font-weight:700;font-size:13px;cursor:pointer}.dice .h{background:#f1f5f9;color:var(--sub);font-weight:600;cursor:default}.dice span.on{background:#0f766e;color:#fff;border-color:#0f766e}
+  .rdo{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:8px}.rdo div{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:7px 9px;font-size:12px;text-align:center;color:var(--sub)}.rdo b{display:block;font-size:14px;color:var(--accent)}
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Math_1_1</a><span>&rsaquo;</span><a href="prob_hub.html">확률과 통계</a><span>&rsaquo;</span><a class="cur" href="#">확률의 뜻과 덧셈정리</a></nav>
+<div class="hero">
+  <span class="badge">Ⅱ. 확률</span>
+  <h1>🎲 확률의 뜻과 덧셈정리</h1>
+  <p>많이 하면 비율이 자리를 잡고, "또는"은 더하되 겹친 것을 뺀다</p>
+</div>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="intro">📋 개요</button>
+  <button class="tab" data-t="stat">📈 통계적 확률</button>
+  <button class="tab" data-t="math">📐 수학적 확률</button>
+  <button class="tab" data-t="add">➕ 덧셈정리·여사건</button>
+  <button class="tab" data-t="world">🌐 세상 속으로</button>
+  <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="fin">✅ 정리</button>
+</div>
+<div class="wrap">
+
+  <div class="page active" data-p="intro">
+    <div class="card">
+      <h2>📋 "확률이 1/6"이라는 말의 뜻</h2>
+      <div class="hook">
+        <div class="ht">💥 왜 배우나</div>
+        주사위를 6번 던지면 1이 꼭 한 번 나오나요? 아니에요. 0번일 수도, 3번일 수도 있어요. 그런데 6,000번 던지면 1은 <b>거의 정확히 1,000번쯤</b> 나와요. "확률 $\frac16$"은 한 번의 결과를 말하는 게 아니라, <b>많이 반복했을 때 비율이 자리 잡는 값</b>이에요. 이 감각 없이 공식만 배우면 "확률 90%인데 왜 틀렸어?"라는 오해가 평생 가요. 그리고 "4보다 큰 수 또는 짝수가 나올 확률"을 $\frac26+\frac36$이라고 더하면 안 되는 이유(6이 두 번 세어진다)도 여기서 배워요.
+      </div>
+      <div class="splink">🚪 조건이 붙는 확률("…일 때")은 → <a href="prob_sp_bayes.html">관문 특강: 조건부확률 직관</a> · 세기 도구 <a href="prob_sp_choose.html">순열·조합 구분</a></div>
+      <div class="sci">
+        <div class="ava">✉️</div>
+        <div>
+          <div class="st">파스칼과 페르마 (1654) — 도박사의 질문에서 시작된 확률론</div>
+          <div class="sd">도박을 좋아하던 귀족 드 메레가 파스칼에게 물었어요. "게임을 중간에 멈추면 판돈을 어떻게 나눠야 공정한가?" 파스칼은 페르마와 편지를 주고받으며 이 문제를 풀었고, 그 편지들이 확률론의 출발점으로 꼽혀요. 확률은 처음부터 <b>"공정함을 계산하는 도구"</b>였어요. 오늘의 보험료·복권·일기예보가 전부 그 후손이에요.</div>
+        </div>
+      </div>
+      <div class="toc">
+        <button onclick="go('stat')"><div class="ti">📈</div><div class="tn">통계적 확률</div><div class="td">던질수록 자리 잡는 비율</div></button>
+        <button onclick="go('math')"><div class="ti">📐</div><div class="tn">수학적 확률</div><div class="td">두 주사위 36칸</div></button>
+        <button onclick="go('add')"><div class="ti">➕</div><div class="tn">덧셈정리·여사건</div><div class="td">겹친 것 빼기 · 적어도</div></button>
+        <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">보험·예보·복권</div></button>
+        <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="stat">
+    <div class="card">
+      <h2>📈 통계적 확률 — 던질수록 비율이 자리를 잡는다</h2>
+      <p class="lead">주사위를 던져 <b>1이 나온 비율</b>(상대도수)을 그래프에 그려요. 처음엔 요동치지만 횟수가 늘면 $\frac16\approx0.167$ 근처로 가라앉아요. 버튼을 눌러 던져 보세요.</p>
+      <div class="widget">
+        <canvas id="cv1" height="260"></canvas>
+        <div class="btns"><button id="b10">🎲 10번</button><button id="b100">🎲 100번</button><button id="b1000">🎲 1,000번</button><button id="bReset">🔄 처음부터</button></div>
+        <div class="rdo"><div>던진 횟수 <b id="r1">0</b></div><div>1이 나온 횟수 <b id="r2">0</b></div><div>상대도수 <b id="r3">–</b></div><div>수학적 확률 $\tfrac16$ <b>0.1667</b></div></div>
+        <div class="out" id="out1"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 두 가지 확률</div><b>수학적 확률</b>: 각 경우가 일어날 가능성이 모두 같을 때 $P(A)=\dfrac{n(A)}{n(S)}$. <b>통계적 확률</b>: 시행을 $n$번 반복해 사건이 $r_n$번 일어났을 때 $n$이 커질수록 $\dfrac{r_n}{n}$이 가까워지는 값. 주사위처럼 이상적인 경우 둘은 일치하고, 비가 올 확률처럼 셀 수 없는 경우는 통계적 확률만 있다.</div>
+      <div class="box a"><div class="t">⚠️ "한 번"에는 확률이 안 보인다</div>확률 $\frac16$은 "6번 중 1번"을 보장하지 않아요. 10번 던지면 1이 0번 나오는 확률도 약 16%예요. 확률은 <b>긴 반복</b>에 대한 말이에요. 그래서 "90% 예보였는데 비가 안 왔다"는 예보가 틀린 게 아니에요. 그런 날이 열 번 중 한 번 있어야 정상이에요.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="math">
+    <div class="card">
+      <h2>📐 수학적 확률 — 36칸을 세어 본다</h2>
+      <p class="lead">주사위 두 개를 던지면 결과는 36가지이고 <b>모두 같은 정도로</b> 일어나요. 표에서 칸을 눌러 사건을 골라 보세요. 아래 버튼으로 "합이 7", "합이 4 이하", "같은 눈" 같은 사건을 바로 색칠할 수도 있어요. 색칠된 칸 수 ÷ 36이 확률이에요.</p>
+      <div class="widget">
+        <div class="btns" id="evBtns"><button data-e="sum7">합이 7</button><button data-e="sumle4">합이 4 이하</button><button data-e="same">같은 눈</button><button data-e="has6">6이 적어도 하나</button><button data-e="clear">지우기</button></div>
+        <div class="dice" id="dice"></div>
+        <div class="out" id="out2">칸을 눌러 사건을 만들어 보세요.</div>
+      </div>
+      <div class="box g"><div class="t">✅ 확률의 기본 성질</div>$0\le P(A)\le1$ · $P(S)=1$(반드시 일어남) · $P(\varnothing)=0$(절대 안 일어남). 표본공간 $S$의 각 경우가 <b>같은 정도로 기대</b>될 때만 "칸 수 세기"가 확률이 된다.</div>
+      <div class="box b" style="text-align:center;font-size:15px">두 개의 주사위를 던질 때 두 눈의 합이 7일 확률은?</div>
+      <div class="steps"><button class="stepbtn" data-w="w1">▶ 풀이 보기</button><div class="stepwrap" id="w1">
+        <div class="step"><span class="sn">1</span>전체 $6\times6=36$가지(순서쌍으로 세어야 같은 정도로 기대된다).</div>
+        <div class="step"><span class="sn">2</span>합이 7: $(1,6),(2,5),(3,4),(4,3),(5,2),(6,1)$ → 6가지.</div>
+        <div class="ans">$\dfrac{6}{36}=\dfrac16$</div></div></div>
+      <div class="box b" style="text-align:center;font-size:15px">1부터 10까지 적힌 카드 10장 중 2장을 동시에 뽑을 때 두 수의 합이 짝수일 확률은?</div>
+      <div class="steps"><button class="stepbtn" data-w="w2">▶ 풀이 보기</button><div class="stepwrap" id="w2">
+        <div class="step"><span class="sn">1</span>전체 $_{10}C_2=45$.</div>
+        <div class="step"><span class="sn">2</span>합이 짝수 = 둘 다 짝수 또는 둘 다 홀수: $_5C_2+{}_5C_2=10+10=20$.</div>
+        <div class="ans">$\dfrac{20}{45}=\dfrac49$</div></div></div>
+      <div class="box a"><div class="t">⚠️ "같은 정도로 기대"가 깨지는 순간</div>두 주사위의 합은 2부터 12까지 11가지지만 확률이 $\frac1{11}$씩이 아니에요. 합 7은 6칸, 합 2는 1칸. <b>표본공간은 항상 "같은 정도로 기대되는" 단위</b>(순서쌍 36개)로 잡아야 해요.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="add">
+    <div class="card">
+      <h2>➕ 덧셈정리와 여사건 — 겹친 것을 빼고, 반대를 뺀다</h2>
+      <p class="lead">두 사건 $A$, $B$의 크기와 겹치는 부분을 슬라이더로 정하세요(전체 36). "$A$ 또는 $B$"의 확률이 왜 $P(A)+P(B)$가 아닌지 그림으로 보여요. 겹침을 0으로 만들면 <b>배반사건</b>이 돼요.</p>
+      <div class="widget">
+        <canvas id="cv3" height="220"></canvas>
+        <div class="row"><span>$n(A)$</span><input type="range" id="sA" min="1" max="24" step="1" value="12"><span class="v" id="sAv">12</span></div>
+        <div class="row"><span>$n(B)$</span><input type="range" id="sB" min="1" max="24" step="1" value="9"><span class="v" id="sBv">9</span></div>
+        <div class="row"><span>$n(A\cap B)$</span><input type="range" id="sI" min="0" max="9" step="1" value="3"><span class="v" id="sIv">3</span></div>
+        <div class="out" id="out3"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 덧셈정리</div>$P(A\cup B)=P(A)+P(B)-P(A\cap B)$. 겹친 부분을 두 번 더했으니 한 번 뺀다. $A$, $B$가 <b>배반</b>($A\cap B=\varnothing$)이면 $P(A\cup B)=P(A)+P(B)$.</div>
+      <div class="box g"><div class="t">✅ 여사건</div>$P(A^c)=1-P(A)$. "적어도 하나"·"…가 아닐"은 반대 사건을 세는 것이 빠르다.</div>
+      <div class="box b" style="text-align:center;font-size:15px">카드 52장에서 한 장을 뽑을 때 하트 또는 그림 카드(J, Q, K)일 확률은?</div>
+      <div class="steps"><button class="stepbtn" data-w="w3">▶ 풀이 보기</button><div class="stepwrap" id="w3">
+        <div class="step"><span class="sn">1</span>하트 13장, 그림 카드 12장, 겹침(하트 J·Q·K) 3장.</div>
+        <div class="step"><span class="sn">2</span>$\dfrac{13}{52}+\dfrac{12}{52}-\dfrac{3}{52}=\dfrac{22}{52}$.</div>
+        <div class="ans">$\dfrac{11}{26}$</div></div></div>
+      <div class="box b" style="text-align:center;font-size:15px">두 개의 주사위를 던질 때 적어도 하나가 6일 확률은?</div>
+      <div class="steps"><button class="stepbtn" data-w="w4">▶ 풀이 보기</button><div class="stepwrap" id="w4">
+        <div class="step"><span class="sn">1</span>반대 사건: 둘 다 6이 아님 → $5\times5=25$가지.<div class="why">→ "적어도"는 여사건.</div></div>
+        <div class="step"><span class="sn">2</span>$1-\dfrac{25}{36}$.</div>
+        <div class="ans">$\dfrac{11}{36}$</div></div></div>
+      <div class="box b" style="text-align:center;font-size:15px">5명 중 2명을 뽑을 때 특정한 한 사람 A가 포함될 확률은?</div>
+      <div class="steps"><button class="stepbtn" data-w="w5">▶ 풀이 보기</button><div class="stepwrap" id="w5">
+        <div class="step"><span class="sn">1</span>전체 $_5C_2=10$. A를 포함: A를 뽑고 나머지 4명 중 1명 → $4$.</div>
+        <div class="step"><span class="sn">2</span>$\dfrac{4}{10}$. (여사건으로: A 제외 4명 중 2명 $_4C_2=6$ → $1-\frac{6}{10}$)</div>
+        <div class="ans">$\dfrac25$</div></div></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="world">
+    <div class="card">
+      <h2>🌐 세상 속으로</h2>
+      <div class="keeper">
+        <div class="kt">📌 어른이 되어도 기억할 것</div>
+        <ol>
+          <li><b>확률은 긴 반복에 대한 말.</b> 한 번의 결과로 확률이 틀렸다고 말할 수 없다. 예보·검사·투자 판단의 기본.</li>
+          <li><b>"또는"은 더하고 겹친 것을 뺀다.</b> 두 위험이 겹칠 수 있으면 단순 합은 과대평가다.</li>
+          <li><b>"적어도 하나"는 반대를 센다.</b> 여사건은 계산 기술이자 사고 습관이다.</li>
+        </ol>
+      </div>
+      <div class="insight">
+        <div class="it">💡 인사이트 — 공정함의 계산</div>
+        보험료는 "사고가 날 통계적 확률 × 보상금"에서 시작해요. 복권의 기대 수익은 판매액의 절반 정도로 설계돼 있어요. 두 가지 모두 확률을 아는 쪽이 설계하고, 모르는 쪽이 지불해요. 확률을 아는 것은 <b>계산기를 든 쪽에 서는 것</b>이에요. 기댓값이라는 이름으로 통계 단원에서 다시 만나요.
+      </div>
+      <div class="reallife">
+        <div class="rt">🏠 확률이 보이는 곳</div>
+        <div class="rgrid">
+          <div class="rcell"><div class="ri">🌧️</div><div class="rn">강수 확률</div><div class="rd">같은 조건의 날 중 비 온 비율</div></div>
+          <div class="rcell"><div class="ri">🛡️</div><div class="rn">보험</div><div class="rd">사고 확률로 보험료 설계</div></div>
+          <div class="rcell"><div class="ri">🎰</div><div class="rn">복권·뽑기</div><div class="rd">"또는"과 "적어도"의 함정</div></div>
+          <div class="rcell"><div class="ri">⚽</div><div class="rn">승부차기</div><div class="rd">성공률은 긴 반복의 통계</div></div>
+          <div class="rcell"><div class="ri">🎮</div><div class="rn">확률형 아이템</div><div class="rd">1%를 100번 해도 63%만 성공</div></div>
+          <div class="rcell"><div class="ri">🧪</div><div class="rn">품질 검사</div><div class="rd">불량 "적어도 하나" = 여사건</div></div>
+        </div>
+      </div>
+      <div class="industry">
+        <div class="indt">🏭 산업과 직업</div>
+        <div class="indrow"><div class="ii">📑</div><div class="id2"><b>보험·금융</b><br>사고·질병·연체의 통계적 확률을 추정해 가격을 매긴다. 보험계리사가 하는 일의 핵심.<br><span class="major">🎓 통계학 · 경제학 · 보험계리</span></div></div>
+        <div class="indrow"><div class="ii">🎮</div><div class="id2"><b>게임 설계</b><br>뽑기·전투의 확률 설계와 "적어도 한 번" 체감 확률 조정. 확률 공시 의무도 이 계산에서 나온다.<br><span class="major">🎓 컴퓨터공학 · 게임공학</span></div></div>
+        <div class="indrow"><div class="ii">🏥</div><div class="id2"><b>의료·공중보건</b><br>발병률·치료 성공률은 전부 통계적 확률. 임상 결과를 해석하는 언어.<br><span class="major">🎓 의학 · 보건학 · 역학</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="quiz">
+    <div class="card">
+      <h2>🔥 확률의 뜻과 덧셈정리 퀴즈</h2>
+      <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
+      <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="fin">
+    <div class="card">
+      <h2>✅ 정리</h2>
+      <table>
+        <tr><th class="l">항목</th><th class="l">내용</th></tr>
+        <tr><td class="l">수학적 확률</td><td class="l">$P(A)=\frac{n(A)}{n(S)}$ · 표본공간은 "같은 정도로 기대"되는 단위로</td></tr>
+        <tr><td class="l">통계적 확률</td><td class="l">$n$이 커질 때 상대도수 $\frac{r_n}{n}$이 가까워지는 값</td></tr>
+        <tr><td class="l">기본 성질</td><td class="l">$0\le P\le1$ · $P(S)=1$ · $P(\varnothing)=0$</td></tr>
+        <tr><td class="l">덧셈정리</td><td class="l">$P(A\cup B)=P(A)+P(B)-P(A\cap B)$ · 배반이면 빼는 항 없음</td></tr>
+        <tr><td class="l">여사건</td><td class="l">$P(A^c)=1-P(A)$ · "적어도"는 반대를 센다</td></tr>
+      </table>
+      <div class="box b"><div class="t">🔑 한 줄 요약</div>같은 정도로 기대되는 칸을 세고, "또는"은 겹침을 빼고, "적어도"는 반대를 뺀다.</div>
+      <h3>자가 점검</h3>
+      <div class="chk"><input type="checkbox" id="k1"><label for="k1">수학적 확률과 통계적 확률의 차이를 예를 들어 말할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k2"><label for="k2">표본공간을 "같은 정도로 기대되는" 단위로 잡을 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k3"><label for="k3">덧셈정리에서 겹침을 빼는 이유를 그림으로 설명할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k4"><label for="k4">"적어도 하나"를 여사건으로 계산할 수 있다</label></div>
+      <h3>약점 태그</h3>
+      <div><span class="tag">확통:확률의 뜻</span><span class="tag">확통:덧셈정리</span><span class="tag">확통:여사건</span></div>
+      <div class="box g" style="margin-top:16px"><div class="t">➡️ 다음 단원</div><a href="prob_conditional.html">조건부확률과 독립</a>로. <a href="prob_hub.html">확률과 통계 허브</a>로.</div>
+    </div>
+  </div>
+</div>
+
+<script src="alg_app.js"></script>
+<script>
+/* 통계적 확률 시뮬 */
+var P1=null, hist=[], tot=0, ones=0;
+function setup1(){ var cv=document.getElementById('cv1'); if(!P1) P1=LEC.plane(cv,{xmin:0,xmax:1000,ymin:-0.05,ymax:0.55,h:260,grid:0}); else P1.resize(); draw1(); }
+function roll(k){ for(var i=0;i<k;i++){ tot++; if(Math.floor(Math.random()*6)===0) ones++; hist.push(ones/tot); } }
+function draw1(){ if(!P1)return; var N=Math.max(100,tot); P1.xmax=N; P1.clear(); var c=P1.ctx;
+  c.strokeStyle='#94a3b8'; c.lineWidth=1.5; c.beginPath(); c.moveTo(P1.X(0),P1.Y(0)); c.lineTo(P1.X(N),P1.Y(0)); c.stroke(); c.beginPath(); c.moveTo(P1.X(0),P1.Y(0)); c.lineTo(P1.X(0),P1.Y(0.55)); c.stroke();
+  c.fillStyle='#64748b'; c.font='11px sans-serif'; c.textAlign='right'; c.textBaseline='middle'; [0.1,0.2,0.3,0.4,0.5].forEach(function(y){ c.fillText(y.toFixed(1),P1.X(0)-4,P1.Y(y)); }); c.textAlign='center'; c.textBaseline='top'; c.fillText('던진 횟수 → '+N,P1.X(N/2),P1.Y(0)+6);
+  P1.seg(0,1/6,N,1/6,'#dc2626',1.5,[6,4]); c.fillStyle='#dc2626'; c.textAlign='left'; c.textBaseline='bottom'; c.fillText('1/6 ≈ 0.167',P1.X(0)+6,P1.Y(1/6)-3);
+  if(hist.length>1){ c.strokeStyle='#0f766e'; c.lineWidth=2; c.beginPath(); var step=Math.max(1,Math.floor(hist.length/600)); for(var i=0;i<hist.length;i+=step){ var x=P1.X(i+1), y=P1.Y(Math.min(0.55,hist[i])); if(i===0)c.moveTo(x,y); else c.lineTo(x,y); } c.stroke(); }
+  document.getElementById('r1').textContent=tot; document.getElementById('r2').textContent=ones; document.getElementById('r3').textContent=tot?(ones/tot).toFixed(4):'–';
+  var el=document.getElementById('out1'); el.innerHTML= tot===0 ? '아직 던지지 않았어요.' : (tot<50 ? '$'+tot+'$번: 상대도수 $'+(ones/tot).toFixed(3)+'$ — 아직 요동쳐요. 더 던져 보세요.' : '$'+tot+'$번: 상대도수 $'+(ones/tot).toFixed(4)+'$, $\\tfrac16$과의 차이 $'+Math.abs(ones/tot-1/6).toFixed(4)+'$ — 횟수가 늘수록 붉은 선으로 가라앉아요'); LEC.tex(el); }
+[['b10',10],['b100',100],['b1000',1000]].forEach(function(p){ document.getElementById(p[0]).addEventListener('click',function(){ roll(p[1]); draw1(); }); });
+document.getElementById('bReset').addEventListener('click',function(){ hist=[]; tot=0; ones=0; draw1(); });
+
+/* 두 주사위 표 */
+var sel={};
+function buildDice(){ var box=document.getElementById('dice'); box.innerHTML=''; var h0=document.createElement('span'); h0.className='h'; h0.textContent='＋'; box.appendChild(h0); for(var j=1;j<=6;j++){ var h=document.createElement('span'); h.className='h'; h.textContent=j; box.appendChild(h); }
+  for(var i=1;i<=6;i++){ var hr=document.createElement('span'); hr.className='h'; hr.textContent=i; box.appendChild(hr); for(var k=1;k<=6;k++){ var s=document.createElement('span'); s.textContent=i+k; s.setAttribute('data-k',i+'-'+k); if(sel[i+'-'+k]) s.classList.add('on'); box.appendChild(s); } }
+  var n=Object.keys(sel).length; var el=document.getElementById('out2'); el.innerHTML= n? '색칠된 칸 $'+n+'$개 → 확률 $\\dfrac{'+n+'}{36}$'+(n%2===0||n%3===0?' $=$ '+redu(n,36):'') : '칸을 눌러 사건을 만들어 보세요.'; LEC.tex(el); }
+function redu(a,b){ function g(x,y){ return y?g(y,x%y):x; } var d=g(a,b); return d===1?'':'$\\dfrac{'+(a/d)+'}{'+(b/d)+'}$'; }
+document.getElementById('dice').addEventListener('click',function(e){ var s=e.target.closest('span[data-k]'); if(!s)return; var k=s.getAttribute('data-k'); if(sel[k]) delete sel[k]; else sel[k]=1; buildDice(); });
+document.getElementById('evBtns').addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b)return; var ev=b.getAttribute('data-e'); sel={}; for(var i=1;i<=6;i++) for(var k=1;k<=6;k++){ var ok=false; if(ev==='sum7') ok=(i+k===7); if(ev==='sumle4') ok=(i+k<=4); if(ev==='same') ok=(i===k); if(ev==='has6') ok=(i===6||k===6); if(ok) sel[i+'-'+k]=1; } buildDice(); });
+
+/* 덧셈정리 벤다이어그램 */
+var P3=null;
+function setup3(){ var cv=document.getElementById('cv3'); if(!P3) P3=LEC.plane(cv,{xmin:-5,xmax:5,ymin:-2.2,ymax:2.2,h:220,grid:0,square:true}); else P3.resize(); draw3(); }
+function draw3(){ if(!P3)return; var a=parseInt(document.getElementById('sA').value,10), b=parseInt(document.getElementById('sB').value,10); var sI=document.getElementById('sI'); sI.max=Math.min(a,b); var i=Math.min(parseInt(sI.value,10),Math.min(a,b)); sI.value=i;
+  document.getElementById('sAv').textContent=a; document.getElementById('sBv').textContent=b; document.getElementById('sIv').textContent=i;
+  P3.clear(); var c=P3.ctx; var rA=0.9+a/24*1.1, rB=0.9+b/24*1.1; var gap= i===0 ? rA+rB+0.4 : (rA+rB)*(1-i/Math.min(a,b))*0.85+Math.abs(rA-rB)*0.5+0.2; var xA=-gap/2, xB=gap/2;
+  c.save(); c.globalAlpha=0.35; c.fillStyle='#0f766e'; c.beginPath(); c.arc(P3.X(xA),P3.Y(0),rA*(P3.X(1)-P3.X(0)),0,Math.PI*2); c.fill(); c.fillStyle='#f59e0b'; c.beginPath(); c.arc(P3.X(xB),P3.Y(0),rB*(P3.X(1)-P3.X(0)),0,Math.PI*2); c.fill(); c.restore();
+  c.fillStyle='#0f172a'; c.font='bold 13px sans-serif'; c.textAlign='center'; c.textBaseline='middle'; c.fillText('A: '+(a-i),P3.X(xA-rA*0.35),P3.Y(0)); c.fillText('B: '+(b-i),P3.X(xB+rB*0.35),P3.Y(0)); if(i>0) c.fillText('겹침 '+i,P3.X(0),P3.Y(0)); c.fillStyle='#64748b'; c.font='11px sans-serif'; c.fillText('전체 36 · 바깥 '+(36-(a+b-i)),P3.X(0),P3.Y(-1.95));
+  var u=a+b-i; var el=document.getElementById('out3'); el.innerHTML='$P(A\\cup B)=\\dfrac{'+a+'}{36}+\\dfrac{'+b+'}{36}-\\dfrac{'+i+'}{36}=\\dfrac{'+u+'}{36}$'+(i===0?' — <b>배반사건</b>: 겹침이 없어 그냥 더한다':' — 겹친 '+i+'을 두 번 더했으니 한 번 뺀다'); LEC.tex(el); }
+['sA','sB','sI'].forEach(function(id){ document.getElementById(id).addEventListener('input',draw3); });
+APP.onTab({stat:setup1, math:buildDice, add:setup3}); LEC.onResize(function(){ var t=APP.current(); if(t==='stat')setup1(); if(t==='add')setup3(); });
+
+var TABNAME={stat:'📈 통계적 확률',math:'📐 수학적 확률',add:'➕ 덧셈정리·여사건'};
+var QUIZ=[
+ {q:'"주사위에서 1이 나올 확률이 1/6"이라는 말의 뜻으로 옳은 것은?',o:['많이 던질수록 1이 나온 비율이 1/6에 가까워진다','6번 던지면 1이 꼭 한 번 나온다','처음 6번 안에 1이 나온다','1이 나오면 다음엔 안 나온다'],a:0,t:'stat',e:'확률은 긴 반복에서 자리 잡는 비율이다.'},
+ {q:'두 주사위를 던질 때 두 눈의 합이 7일 확률은?',o:['1/6','1/11','1/12','7/36'],a:0,t:'math',e:'순서쌍 36개 중 6개.'},
+ {q:'두 주사위의 합이 2부터 12까지 11가지인데 확률이 각각 1/11이 아닌 이유는?',o:['각 합이 같은 정도로 기대되지 않기 때문','주사위가 두 개라서','합이 홀수도 있어서','36으로 나누어야 하기 때문만은 아니다'],a:0,t:'math',e:'합 7은 6칸, 합 2는 1칸. 표본공간은 순서쌍 36개로 잡아야 한다.'},
+ {q:'1~10 카드 10장 중 2장을 뽑을 때 두 수의 합이 짝수일 확률은?',o:['4/9','1/2','5/9','2/9'],a:0,t:'math',e:'둘 다 짝수 10 + 둘 다 홀수 10 = 20, 전체 45.'},
+ {q:'카드 52장에서 하트 또는 그림 카드(J,Q,K)를 뽑을 확률은?',o:['11/26','25/52','1/2','12/52'],a:0,t:'add',e:'13+12−3 = 22, 22/52 = 11/26.'},
+ {q:'P(A∪B)=P(A)+P(B) 가 성립하는 조건은?',o:['A와 B가 배반사건일 때','A와 B가 독립일 때','항상','P(A)=P(B)일 때'],a:0,t:'add',e:'겹침이 없을 때만 그냥 더한다.'},
+ {q:'두 주사위를 던질 때 적어도 하나가 6일 확률은?',o:['11/36','1/3','1/6','25/36'],a:0,t:'add',e:'여사건: 둘 다 6이 아님 25/36 → 1 − 25/36.'},
+ {q:'5명 중 2명을 뽑을 때 특정한 A가 포함될 확률은?',o:['2/5','1/5','1/2','3/5'],a:0,t:'add',e:'A 포함 4가지 / 전체 10가지.'},
+ {q:'P(A)=0.5, P(B)=0.4, P(A∩B)=0.2 일 때 P(A∪B)는?',o:['0.7','0.9','0.3','0.2'],a:0,t:'add',e:'0.5+0.4−0.2 = 0.7.'},
+ {q:'"강수 확률 90%"인 날 비가 오지 않았다. 옳은 해석은?',o:['그런 날이 열 번 중 한 번쯤 있어야 정상이다','예보가 틀렸다','확률이 0%였다','다음 날은 반드시 온다'],a:0,t:'stat',e:'확률은 긴 반복에 대한 말. 10%의 경우가 실제로 일어난 것.'}
+];
+APP.quiz(QUIZ,TABNAME,{perfect:'완벽해요! 세고, 겹침을 빼고, 반대를 뺐어요.'});
+</script>
+</body>
+</html>

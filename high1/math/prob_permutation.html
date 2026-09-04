@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>여러 가지 순열 — 확률과 통계</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
+<script src="lecture.js"></script>
+<link rel="stylesheet" href="prob_app.css">
+<style>
+  .slots{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0}.slot{width:64px;min-height:64px;border:2px dashed #99f6e4;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;color:var(--accent-d);background:#fff}.slot small{font-size:11px;color:var(--sub);font-weight:600}.slot b{font-size:20px}
+  .chips{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin:8px 0;max-height:220px;overflow:auto}.chipx{min-width:40px;height:32px;padding:0 8px;display:inline-flex;align-items:center;justify-content:center;border-radius:7px;border:1px solid #cbd5e1;background:#fff;font-weight:700;font-size:13px;letter-spacing:1px}
+  .chipx.hl{background:#ccfbf1;border-color:#0f766e}
+  .rdo{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:8px}.rdo div{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:7px 9px;font-size:12px;text-align:center;color:var(--sub)}.rdo b{display:block;font-size:14px;color:var(--accent)}
+  .widget canvas{max-width:420px}
+  .warn{background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:10px 12px;font-size:13px;color:#9a3412;margin:10px 0}
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Math_1_1</a><span>&rsaquo;</span><a href="prob_hub.html">확률과 통계</a><span>&rsaquo;</span><a class="cur" href="#">여러 가지 순열</a></nav>
+<div class="hero">
+  <span class="badge">Ⅰ. 경우의 수</span>
+  <h1>🔢 여러 가지 순열</h1>
+  <p>다시 뽑아도 되면 곱하고, 같은 것이 있으면 나눈다</p>
+</div>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="intro">📋 개요</button>
+  <button class="tab" data-t="rep">🔁 중복순열</button>
+  <button class="tab" data-t="same">🔤 같은 것이 있는 순열</button>
+  <button class="tab" data-t="path">🗺️ 최단 경로</button>
+  <button class="tab" data-t="world">🌐 세상 속으로</button>
+  <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="fin">✅ 정리</button>
+</div>
+<div class="wrap">
+
+  <div class="page active" data-p="intro">
+    <div class="card">
+      <h2>📋 순열의 두 가지 변주</h2>
+      <div class="hook">
+        <div class="ht">💥 왜 배우나</div>
+        네 자리 비밀번호는 몇 가지일까요? 0~9 열 개를 <b>다시 써도 되니까</b> $10\times10\times10\times10=10{,}000$. 고1에서 배운 순열 $_{10}P_4=5{,}040$이 아니에요. 그리고 BANANA의 글자를 섞어 만들 수 있는 단어는 $6!=720$이 아니라 60개예요. 같은 A 세 개를 서로 바꿔도 같은 단어니까요. 순열에 <b>"다시 뽑아도 되나"</b>와 <b>"같은 것이 있나"</b> 두 조건이 붙으면 어떻게 달라지는지, 그게 이 단원이에요.
+      </div>
+      <div class="splink">🚪 순열·조합 중 어느 공식인지 헷갈리면 → <a href="prob_sp_choose.html">관문 특강: 순열·조합 구분</a> · 토대 <a href="mat1_counting.html">고1 순열과 조합</a></div>
+      <div class="sci">
+        <div class="ava">✒️</div>
+        <div>
+          <div class="st">라이프니츠 (1646~1716) — 스무 살에 쓴 「조합의 기술」</div>
+          <div class="sd">미적분으로 유명한 라이프니츠는 20세에 「조합의 기술(De Arte Combinatoria, 1666)」이라는 책을 썼어요. 글자와 개념을 조합해 모든 생각을 계산할 수 있다는 꿈이었죠. 그 꿈은 300년 뒤 컴퓨터로 실현됐어요. 컴퓨터가 다루는 모든 데이터는 0과 1의 <b>중복순열</b>이에요. $n$비트로 $2^n$가지 상태.</div>
+        </div>
+      </div>
+      <div class="toc">
+        <button onclick="go('rep')"><div class="ti">🔁</div><div class="tn">중복순열</div><div class="td">자리마다 n가지</div></button>
+        <button onclick="go('same')"><div class="ti">🔤</div><div class="tn">같은 것이 있는 순열</div><div class="td">겹치는 만큼 나누기</div></button>
+        <button onclick="go('path')"><div class="ti">🗺️</div><div class="tn">최단 경로</div><div class="td">→와 ↑의 배열</div></button>
+        <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">비트·DNA·번호판</div></button>
+        <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="rep">
+    <div class="card">
+      <h2>🔁 중복순열 — 자리마다 후보가 그대로</h2>
+      <p class="lead">$n$가지 중에서 골라 $r$개의 자리를 채워요. <b>다시 골라도 되면</b> 자리마다 후보가 $n$가지 그대로예요. 토글을 눌러 "다시 못 고르는" 보통 순열과 비교해 보세요. 자리 아래 숫자가 달라져요.</p>
+      <div class="widget">
+        <div class="row"><span>종류 $n$</span><input type="range" id="sn" min="2" max="5" step="1" value="3"><span class="v" id="snv">3</span></div>
+        <div class="row"><span>자리 $r$</span><input type="range" id="sr" min="1" max="4" step="1" value="2"><span class="v" id="srv">2</span></div>
+        <div class="btns"><button id="mRep" class="on">다시 골라도 됨 (중복순열)</button><button id="mNo">다시 못 고름 (순열)</button></div>
+        <div class="slots" id="slots"></div>
+        <div class="chips" id="chips1"></div>
+        <div class="out" id="out1"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 중복순열</div>서로 다른 $n$개에서 중복을 허락하여 $r$개를 택해 일렬로 나열하는 경우의 수 $_n\Pi_r=n^r$. $r$이 $n$보다 커도 된다(비밀번호 자리 수가 숫자 종류보다 많아도 되듯).</div>
+      <div class="box b" style="text-align:center;font-size:15px">1, 2, 3, 4, 5 의 숫자를 반복해서 써서 만들 수 있는 세 자리 자연수의 개수는? 반복하지 않으면?</div>
+      <div class="steps"><button class="stepbtn" data-w="w1">▶ 풀이 보기</button><div class="stepwrap" id="w1">
+        <div class="step"><span class="sn">1</span>반복 허용: 백·십·일의 자리 각각 5가지 → $_5\Pi_3=5^3$.</div>
+        <div class="step"><span class="sn">2</span>반복 불가: $5\times4\times3={}_5P_3$.</div>
+        <div class="ans">$125$개 · 반복 없으면 $60$개</div></div></div>
+      <div class="box b" style="text-align:center;font-size:15px">서로 다른 편지 4통을 우체통 3개에 넣는 방법의 수는? (빈 우체통이 있어도 된다)</div>
+      <div class="steps"><button class="stepbtn" data-w="w2">▶ 풀이 보기</button><div class="stepwrap" id="w2">
+        <div class="step"><span class="sn">1</span>편지 한 통마다 "어느 우체통?" 3가지 선택. 편지가 자리, 우체통이 후보.<div class="why">→ 헷갈리면 "무엇이 자리인가"를 먼저: 편지 4통이 4자리, 각 자리에 우체통 3가지.</div></div>
+        <div class="step"><span class="sn">2</span>$3^4$. ($4^3$이 아님에 주의)</div>
+        <div class="ans">$81$가지</div></div></div>
+      <div class="box a"><div class="t">⚠️ $n^r$인가 $r^n$인가</div>"자리"가 되는 것은 <b>하나씩 결정해야 하는 대상</b>(편지·사람·숫자 칸)이고, 그 자리마다 고를 수 있는 <b>후보의 수</b>가 밑이에요. 편지 4통을 우체통 3개에: 편지마다 3가지 → $3^4$. 자리 수가 지수.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="same">
+    <div class="card">
+      <h2>🔤 같은 것이 있는 순열 — 겹치는 만큼 나눈다</h2>
+      <p class="lead">글자를 골라 보세요. 전부 다르다고 치면 $n!$가지인데, 같은 글자끼리 자리를 바꿔도 같은 배열이라 <b>겹쳐요</b>. 실제 서로 다른 배열이 몇 개인지, 그리고 왜 나눗셈인지 보세요.</p>
+      <div class="widget">
+        <div class="btns" id="wordBtns"><button data-w="AAB" class="on">AAB</button><button data-w="AABB">AABB</button><button data-w="AAAB">AAAB</button><button data-w="AABC">AABC</button><button data-w="AAABB">AAABB</button><button data-w="AABBC">AABBC</button></div>
+        <div class="rdo"><div>전부 다르다면 $n!$ <b id="s1"></b></div><div>같은 것끼리 바꾸기 <b id="s2"></b></div><div>실제 배열 수 <b id="s3"></b></div></div>
+        <div class="chips" id="chips2"></div>
+        <div class="out" id="out2"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 같은 것이 있는 순열</div>$n$개 중 같은 것이 각각 $p$개, $q$개, …일 때 일렬로 나열하는 경우의 수 $\dfrac{n!}{p!\,q!\cdots}$ ($p+q+\cdots\le n$). 이유: 같은 것을 서로 다르다고 보고 센 $n!$ 안에서, 같은 것들끼리의 자리 바꿈 $p!\,q!\cdots$가지가 <b>한 배열로 겹치기</b> 때문.</div>
+      <div class="box b" style="text-align:center;font-size:15px">BANANA 의 여섯 글자를 모두 사용해 만들 수 있는 문자열의 개수는?</div>
+      <div class="steps"><button class="stepbtn" data-w="w3">▶ 풀이 보기</button><div class="stepwrap" id="w3">
+        <div class="step"><span class="sn">1</span>A 3개, N 2개, B 1개. 전부 다르면 $6!=720$.</div>
+        <div class="step"><span class="sn">2</span>A끼리 $3!$, N끼리 $2!$ 겹침 → $\dfrac{6!}{3!\,2!}=\dfrac{720}{12}$.</div>
+        <div class="ans">$60$개</div></div></div>
+      <div class="box b" style="text-align:center;font-size:15px">1, 1, 2, 2, 3 을 모두 써서 만든 다섯 자리 자연수 중 양 끝이 모두 1인 것의 개수는?</div>
+      <div class="steps"><button class="stepbtn" data-w="w4">▶ 풀이 보기</button><div class="stepwrap" id="w4">
+        <div class="step"><span class="sn">1</span>양 끝을 1로 고정하면 가운데 세 자리에 2, 2, 3을 배열.</div>
+        <div class="step"><span class="sn">2</span>$\dfrac{3!}{2!}=3$.<div class="why">→ 조건이 있는 자리를 먼저 채우고 남은 것을 "같은 것이 있는 순열"로.</div></div>
+        <div class="ans">$3$개</div></div></div>
+      <div class="warn">⚠️ 옛 자료의 <b>원순열</b>(둥근 탁자에 앉히기, $(n-1)!$)은 2022 개정 교육과정에서 다루지 않아요. 보이면 범위 밖이라고 생각하고 넘겨도 돼요.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="path">
+    <div class="card">
+      <h2>🗺️ 최단 경로 — →와 ↑의 배열</h2>
+      <p class="lead">격자 도로에서 왼쪽 아래 A에서 오른쪽 위 B로 가는 최단 경로. 오른쪽으로 $a$번, 위로 $b$번 가야 하고 그 <b>순서만</b> 다르니까, → $a$개와 ↑ $b$개를 나열하는 "같은 것이 있는 순열"이에요. 버튼을 눌러 무작위 경로를 그려 보세요.</p>
+      <div class="widget">
+        <canvas id="cv3" height="280"></canvas>
+        <div class="row"><span>가로 $a$</span><input type="range" id="sa" min="1" max="5" step="1" value="4"><span class="v" id="sav">4</span></div>
+        <div class="row"><span>세로 $b$</span><input type="range" id="sb" min="1" max="5" step="1" value="3"><span class="v" id="sbv">3</span></div>
+        <div class="btns"><button id="bRand">🎲 무작위 경로</button><button id="bVia">P를 지나는 경로만</button></div>
+        <div class="out" id="out3"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 최단 경로의 수</div>가로 $a$칸, 세로 $b$칸: $\dfrac{(a+b)!}{a!\,b!}={}_{a+b}C_a$. 특정 점 P를 <b>지나는</b> 경로는 (A→P) × (P→B). 지나지 <b>않는</b> 경로는 전체에서 지나는 경로를 뺀다.</div>
+      <div class="box b" style="text-align:center;font-size:15px">가로 4칸, 세로 3칸 격자에서 A에서 B로 가는 최단 경로 중 점 P(2, 1)을 지나는 경로의 수는?</div>
+      <div class="steps"><button class="stepbtn" data-w="w5">▶ 풀이 보기</button><div class="stepwrap" id="w5">
+        <div class="step"><span class="sn">1</span>A→P: → 2개, ↑ 1개 → $\dfrac{3!}{2!\,1!}=3$.</div>
+        <div class="step"><span class="sn">2</span>P→B: → 2개, ↑ 2개 → $\dfrac{4!}{2!\,2!}=6$.</div>
+        <div class="step"><span class="sn">3</span>연달아 하는 두 단계 → 곱: $3\times6$. (전체는 $\frac{7!}{4!3!}=35$)</div>
+        <div class="ans">$18$가지</div></div></div>
+      <div class="box a"><div class="t">⚠️ 길이 끊긴 격자</div>일부 도로가 막혀 있으면 "막힌 길을 지나는 경로"를 전체에서 빼거나, 갈림점마다 경로 수를 <b>더해 가며</b> 채워요(각 교차점의 경로 수 = 왼쪽 점 + 아래 점). 두 방법이 같은 답을 내는지 확인하는 것도 좋은 연습이에요.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="world">
+    <div class="card">
+      <h2>🌐 세상 속으로</h2>
+      <div class="keeper">
+        <div class="kt">📌 어른이 되어도 기억할 것</div>
+        <ol>
+          <li><b>다시 골라도 되면 $n^r$.</b> 자리 수가 지수. 비밀번호를 한 자리 늘리면 경우의 수가 열 배가 되는 이유.</li>
+          <li><b>같은 것이 있으면 나눈다.</b> "구별되지 않는 것을 구별해서 센 뒤 겹치는 만큼 나누기"는 세기의 기본 기술이다.</li>
+          <li><b>최단 경로는 화살표의 배열.</b> 복잡해 보이는 문제가 글자 나열로 바뀌는 것, 이것이 수학의 "번역".</li>
+        </ol>
+      </div>
+      <div class="insight">
+        <div class="it">💡 인사이트 — 정보는 중복순열이다</div>
+        컴퓨터의 1바이트는 0과 1 여덟 자리, 즉 $_2\Pi_8=2^8=256$가지. 그래서 색상이 256단계, 확장 아스키 문자가 256개예요. DNA는 A·T·G·C 네 글자의 중복순열이고, 세 글자(코돈) 한 묶음이 $4^3=64$가지라서 20종 아미노산을 지정하고도 남아요. 정보를 담는 모든 것은 "몇 가지 기호를 몇 자리에"라는 중복순열이에요.
+      </div>
+      <div class="reallife">
+        <div class="rt">🏠 순열이 보이는 곳</div>
+        <div class="rgrid">
+          <div class="rcell"><div class="ri">🔐</div><div class="rn">비밀번호</div><div class="rd">4자리 숫자 = 10⁴, 영문 대소문자 8자리는 약 53조</div></div>
+          <div class="rcell"><div class="ri">🚗</div><div class="rn">번호판</div><div class="rd">숫자·한글 자리의 중복순열</div></div>
+          <div class="rcell"><div class="ri">🧬</div><div class="rn">DNA</div><div class="rd">A·T·G·C 4글자의 배열</div></div>
+          <div class="rcell"><div class="ri">🎨</div><div class="rn">색상 코드</div><div class="rd">#RRGGBB = 16⁶ ≈ 1,677만 색</div></div>
+          <div class="rcell"><div class="ri">🗺️</div><div class="rn">격자 도시</div><div class="rd">교차로에서 갈림 = 최단 경로 세기</div></div>
+          <div class="rcell"><div class="ri">🔤</div><div class="rn">글자 맞추기</div><div class="rd">같은 글자가 있으면 경우가 줄어든다</div></div>
+        </div>
+      </div>
+      <div class="industry">
+        <div class="indt">🏭 산업과 직업</div>
+        <div class="indrow"><div class="ii">🛡️</div><div class="id2"><b>정보 보안</b><br>암호 키의 "키 공간"은 중복순열의 크기. 128비트 키 = $2^{128}$가지라 전부 시도하는 데 우주 나이보다 오래 걸린다.<br><span class="major">🎓 컴퓨터공학 · 정보보호</span></div></div>
+        <div class="indrow"><div class="ii">🧪</div><div class="id2"><b>생명공학</b><br>염기 서열의 조합 수, 단백질 접힘 경우의 수를 세는 것이 신약·유전자 분석의 첫걸음.<br><span class="major">🎓 생명과학 · 생물정보학</span></div></div>
+        <div class="indrow"><div class="ii">🚚</div><div class="id2"><b>물류·경로 최적화</b><br>배달 경로·창고 동선의 경우의 수는 폭발적으로 늘어나므로, 세는 법을 알아야 "다 볼 수 없다"는 것과 근사 알고리즘의 필요를 안다.<br><span class="major">🎓 산업공학 · 컴퓨터공학</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="quiz">
+    <div class="card">
+      <h2>🔥 여러 가지 순열 퀴즈</h2>
+      <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
+      <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="fin">
+    <div class="card">
+      <h2>✅ 정리</h2>
+      <table>
+        <tr><th class="l">항목</th><th class="l">내용</th></tr>
+        <tr><td class="l">중복순열</td><td class="l">$_n\Pi_r=n^r$ · 자리(결정할 대상)의 수가 지수, 후보의 수가 밑</td></tr>
+        <tr><td class="l">같은 것이 있는 순열</td><td class="l">$\dfrac{n!}{p!\,q!\cdots}$ · 같은 것끼리의 자리 바꿈만큼 나눈다</td></tr>
+        <tr><td class="l">최단 경로</td><td class="l">$\dfrac{(a+b)!}{a!\,b!}$ · 경유점은 곱, 회피는 전체 − 경유</td></tr>
+        <tr><td class="l">범위 밖</td><td class="l">원순열 $(n-1)!$은 2022 개정에서 제외</td></tr>
+      </table>
+      <div class="box b"><div class="t">🔑 한 줄 요약</div>다시 골라도 되면 곱하고($n^r$), 같은 것이 있으면 나눈다($\frac{n!}{p!q!}$).</div>
+      <h3>자가 점검</h3>
+      <div class="chk"><input type="checkbox" id="k1"><label for="k1">문제에서 "자리"와 "후보"를 구별해 $n^r$의 밑과 지수를 정할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k2"><label for="k2">같은 것이 있는 순열이 왜 나눗셈인지 설명할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k3"><label for="k3">최단 경로를 화살표 배열로 바꾸고 경유점 조건을 곱으로 처리할 수 있다</label></div>
+      <h3>약점 태그</h3>
+      <div><span class="tag">확통:중복순열</span><span class="tag">확통:같은 것이 있는 순열</span><span class="tag">확통:최단 경로</span></div>
+      <div class="box g" style="margin-top:16px"><div class="t">➡️ 다음 단원</div><a href="prob_combination.html">중복조합과 이항정리</a>로. <a href="prob_hub.html">확률과 통계 허브</a>로.</div>
+    </div>
+  </div>
+</div>
+
+<script src="alg_app.js"></script>
+<script>
+/* 중복순열 위젯 */
+var repMode=true;
+function fact(n){ var f=1; for(var i=2;i<=n;i++) f*=i; return f; }
+function draw1(){ var n=parseInt(document.getElementById('sn').value,10), r=parseInt(document.getElementById('sr').value,10); document.getElementById('snv').textContent=n; document.getElementById('srv').textContent=r;
+  var L='ABCDE'.slice(0,n).split(''); var slots=document.getElementById('slots'); slots.innerHTML='';
+  var total=1, terms=[]; for(var i=0;i<r;i++){ var cand=repMode?n:Math.max(0,n-i); total*=cand; terms.push(cand); var d=document.createElement('div'); d.className='slot'; d.innerHTML='<small>'+(i+1)+'번째</small><b>'+cand+'</b><small>가지</small>'; slots.appendChild(d); }
+  var box=document.getElementById('chips1'); box.innerHTML=''; var list=[];
+  (function rec(cur){ if(cur.length===r){ list.push(cur.join('')); return; } for(var k=0;k<n;k++){ if(!repMode && cur.indexOf(L[k])>=0) continue; cur.push(L[k]); rec(cur); cur.pop(); } })([]);
+  if(list.length<=64){ list.forEach(function(s){ var c=document.createElement('span'); c.className='chipx'; c.textContent=s; box.appendChild(c); }); } else { box.innerHTML='<span class="chipx">…'+list.length+'가지 (너무 많아 생략)</span>'; }
+  var el=document.getElementById('out1'); el.innerHTML= repMode ? '$_{'+n+'}\\Pi_{'+r+'}='+terms.join('\\times')+'='+n+'^{'+r+'}=$ <b>'+total+'</b>' : (r>n ? '다시 못 고르면 $r$이 $n$보다 클 수 없어요 → <b>0</b>가지' : '$_{'+n+'}P_{'+r+'}='+terms.join('\\times')+'=$ <b>'+total+'</b>'); LEC.tex(el); }
+['sn','sr'].forEach(function(id){ document.getElementById(id).addEventListener('input',draw1); });
+document.getElementById('mRep').addEventListener('click',function(){ repMode=true; this.classList.add('on'); document.getElementById('mNo').classList.remove('on'); draw1(); });
+document.getElementById('mNo').addEventListener('click',function(){ repMode=false; this.classList.add('on'); document.getElementById('mRep').classList.remove('on'); draw1(); });
+
+/* 같은 것이 있는 순열 위젯 */
+var word='AAB';
+function draw2(){ var n=word.length; var cnt={}; word.split('').forEach(function(ch){ cnt[ch]=(cnt[ch]||0)+1; }); var div=1, parts=[]; Object.keys(cnt).forEach(function(ch){ if(cnt[ch]>1){ div*=fact(cnt[ch]); parts.push(cnt[ch]+'!'); } });
+  var set={}; (function rec(cur,rest){ if(!rest.length){ set[cur]=1; return; } var seen={}; for(var i=0;i<rest.length;i++){ if(seen[rest[i]]) continue; seen[rest[i]]=1; rec(cur+rest[i], rest.slice(0,i)+rest.slice(i+1)); } })('',word);
+  var arr=Object.keys(set).sort(); var box=document.getElementById('chips2'); box.innerHTML=''; arr.forEach(function(s){ var c=document.createElement('span'); c.className='chipx'+(s===word?' hl':''); c.textContent=s; box.appendChild(c); });
+  document.getElementById('s1').textContent=n+'! = '+fact(n); document.getElementById('s2').textContent=(parts.join(' × ')||'없음')+' = '+div; document.getElementById('s3').textContent=arr.length;
+  var el=document.getElementById('out2'); el.innerHTML='$\\dfrac{'+n+'!}{'+(parts.join('\\,')||'1')+'}=\\dfrac{'+fact(n)+'}{'+div+'}=$ <b>'+arr.length+'</b> — 같은 글자끼리 자리를 바꾼 $'+div+'$가지가 배열 하나로 겹친다'; LEC.tex(el); }
+document.getElementById('wordBtns').addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b)return; word=b.getAttribute('data-w'); Array.prototype.forEach.call(this.querySelectorAll('button'),function(x){ x.classList.toggle('on',x===b); }); draw2(); });
+
+/* 최단 경로 위젯 */
+var P3=null, path=null, via=false;
+function C(n,r){ var v=1; for(var i=0;i<r;i++) v=v*(n-i)/(i+1); return Math.round(v); }
+function setup3(){ var cv=document.getElementById('cv3'); if(!P3) P3=LEC.plane(cv,{xmin:-0.7,xmax:5.7,ymin:-0.9,ymax:5.7,h:280,grid:0,square:true}); else P3.resize(); draw3(); }
+function randPath(a,b){ var arr=[]; for(var i=0;i<a;i++) arr.push('R'); for(var j=0;j<b;j++) arr.push('U'); for(var k=arr.length-1;k>0;k--){ var m=Math.floor(Math.random()*(k+1)); var t=arr[k]; arr[k]=arr[m]; arr[m]=t; } return arr; }
+function viaPath(a,b,px,py){ return randPath(px,py).concat(randPath(a-px,b-py)); }
+function draw3(){ if(!P3)return; var a=parseInt(document.getElementById('sa').value,10), b=parseInt(document.getElementById('sb').value,10); document.getElementById('sav').textContent=a; document.getElementById('sbv').textContent=b;
+  var px=Math.floor(a/2), py=Math.floor(b/2); P3.clear(); var c=P3.ctx;
+  for(var i=0;i<=a;i++) P3.seg(i,0,i,b,'#cbd5e1',2); for(var j=0;j<=b;j++) P3.seg(0,j,a,j,'#cbd5e1',2);
+  if(path){ var x=0,y=0; path.forEach(function(d){ var nx=x+(d==='R'?1:0), ny=y+(d==='U'?1:0); P3.seg(x,y,nx,ny,'#0f766e',5); x=nx; y=ny; }); }
+  P3.dot(0,0,'#0f172a',6,'A','sw'); P3.dot(a,b,'#0f172a',6,'B','ne'); if(via) P3.dot(px,py,'#dc2626',6,'P','se');
+  var total=C(a+b,a); var el=document.getElementById('out3');
+  if(via){ var v1=C(px+py,px), v2=C(a-px+b-py,a-px); el.innerHTML='P('+px+', '+py+')를 지나는 경로 = (A→P) × (P→B) $={}_{'+(px+py)+'}C_{'+px+'}\\times{}_{'+(a-px+b-py)+'}C_{'+(a-px)+'}='+v1+'\\times'+v2+'=$ <b>'+(v1*v2)+'</b> (전체 '+total+')'; }
+  else { el.innerHTML='→ '+a+'개, ↑ '+b+'개의 배열: $\\dfrac{'+(a+b)+'!}{'+a+'!\\,'+b+'!}={}_{'+(a+b)+'}C_{'+a+'}=$ <b>'+total+'</b>'+(path?' · 그려진 경로: '+path.map(function(d){return d==='R'?'→':'↑';}).join(''):''); }
+  LEC.tex(el); }
+['sa','sb'].forEach(function(id){ document.getElementById(id).addEventListener('input',function(){ path=null; draw3(); }); });
+document.getElementById('bRand').addEventListener('click',function(){ var a=parseInt(document.getElementById('sa').value,10), b=parseInt(document.getElementById('sb').value,10); path= via? viaPath(a,b,Math.floor(a/2),Math.floor(b/2)) : randPath(a,b); draw3(); });
+document.getElementById('bVia').addEventListener('click',function(){ via=!via; this.classList.toggle('on',via); path=null; draw3(); });
+APP.onTab({rep:draw1, same:draw2, path:setup3}); LEC.onResize(function(){ if(APP.current()==='path') setup3(); });
+
+var TABNAME={rep:'🔁 중복순열',same:'🔤 같은 것이 있는 순열',path:'🗺️ 최단 경로'};
+var QUIZ=[
+ {q:'1~5의 숫자를 반복해서 써서 만들 수 있는 세 자리 자연수의 개수는?',o:['125','60','15','243'],a:0,t:'rep',e:'자리마다 5가지: 5³=125.'},
+ {q:'서로 다른 편지 4통을 우체통 3개에 넣는 방법의 수는? (빈 우체통 허용)',o:['81','64','12','24'],a:0,t:'rep',e:'편지마다 우체통 3가지 선택: 3⁴=81. 4³이 아니다.'},
+ {q:'0, 1 두 숫자로 만드는 다섯 자리 문자열(맨 앞 0 허용)의 개수는?',o:['32','10','25','120'],a:0,t:'rep',e:'2⁵=32. 5비트 = 32가지 상태.'},
+ {q:'BANANA 의 여섯 글자를 모두 사용해 만들 수 있는 문자열의 개수는?',o:['60','720','120','360'],a:0,t:'same',e:'6!/(3!·2!) = 720/12 = 60.'},
+ {q:'A, A, B, B, C 를 모두 나열하는 방법의 수는?',o:['30','120','60','20'],a:0,t:'same',e:'5!/(2!2!) = 120/4 = 30.'},
+ {q:'1, 1, 2, 2, 3 을 모두 써서 만든 다섯 자리 자연수 중 양 끝이 모두 1인 것의 개수는?',o:['3','6','30','12'],a:0,t:'same',e:'양 끝 1 고정, 가운데 2,2,3 배열: 3!/2! = 3.'},
+ {q:'같은 것이 있는 순열에서 p!로 나누는 이유는?',o:['같은 것끼리 자리를 바꾼 배열이 하나로 겹치기 때문','자리가 p개 줄어들기 때문','순서가 중요하지 않기 때문','p개는 뽑지 않기 때문'],a:0,t:'same',e:'구별해서 센 n! 안에서 같은 것들의 p!가지 배열이 한 배열로 보이므로 나눈다.'},
+ {q:'가로 4칸, 세로 3칸 격자에서 A에서 B로 가는 최단 경로의 수는?',o:['35','12','7','21'],a:0,t:'path',e:'→4개, ↑3개 배열: 7!/(4!3!) = 35.'},
+ {q:'가로 4칸, 세로 3칸 격자에서 점 P(2,1)을 지나는 최단 경로의 수는?',o:['18','35','9','17'],a:0,t:'path',e:'(A→P) 3 × (P→B) 6 = 18.'},
+ {q:'2022 개정 교육과정 확률과 통계에서 다루지 않는 것은?',o:['원순열','중복순열','같은 것이 있는 순열','중복조합'],a:0,t:'same',e:'원순열은 범위 밖. 옛 자료에서 보이면 넘겨도 된다.'}
+];
+APP.quiz(QUIZ,TABNAME,{perfect:'완벽해요! 곱하고 나누는 두 기술을 손에 넣었어요.'});
+</script>
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중복조합과 이항정리 — 확률과 통계</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
+<script src="lecture.js"></script>
+<link rel="stylesheet" href="prob_app.css">
+<style>
+  .balls{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;margin:10px 0;min-height:44px}
+  .ball{width:34px;height:34px;border-radius:50%;background:#0f766e;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:13px}
+  .bar{width:8px;height:40px;background:#f59e0b;border-radius:4px}
+  .bins{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:6px 0}.bin{min-width:64px;border:2px solid #99f6e4;border-radius:10px;padding:6px 8px;text-align:center;background:#fff;font-size:12px;color:var(--sub)}.bin b{display:block;font-size:18px;color:var(--accent-d)}
+  .chips{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin:8px 0;max-height:160px;overflow:auto}.chipx{min-width:44px;height:30px;padding:0 8px;display:inline-flex;align-items:center;justify-content:center;border-radius:7px;border:1px solid #cbd5e1;background:#fff;font-weight:700;font-size:12.5px}
+  .pas{display:flex;flex-direction:column;align-items:center;gap:4px;margin:10px 0;overflow-x:auto;padding:4px}.prow{display:flex;gap:4px;cursor:pointer;padding:3px 6px;border-radius:8px;min-height:44px;align-items:center}.prow:hover{background:#f0fdfa}.prow.on{background:#ccfbf1}.prow span{min-width:34px;height:30px;display:inline-flex;align-items:center;justify-content:center;border-radius:7px;background:#fff;border:1px solid #cbd5e1;font-weight:700;font-size:12.5px}.prow.on span{border-color:#0f766e;color:var(--accent-d)}.prow .lab{min-width:44px;border:none;background:none;color:var(--sub);font-size:11px}
+  .rdo{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:8px}.rdo div{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:7px 9px;font-size:12px;text-align:center;color:var(--sub)}.rdo b{display:block;font-size:14px;color:var(--accent)}
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Math_1_1</a><span>&rsaquo;</span><a href="prob_hub.html">확률과 통계</a><span>&rsaquo;</span><a class="cur" href="#">중복조합과 이항정리</a></nav>
+<div class="hero">
+  <span class="badge">Ⅰ. 경우의 수</span>
+  <h1>⚪ 중복조합과 이항정리</h1>
+  <p>공과 칸막이로 세고, 삼각형으로 전개한다</p>
+</div>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="intro">📋 개요</button>
+  <button class="tab" data-t="hh">⚪ 중복조합</button>
+  <button class="tab" data-t="bin">🔺 이항정리</button>
+  <button class="tab" data-t="prop">🧮 이항계수의 성질</button>
+  <button class="tab" data-t="world">🌐 세상 속으로</button>
+  <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="fin">✅ 정리</button>
+</div>
+<div class="wrap">
+
+  <div class="page active" data-p="intro">
+    <div class="card">
+      <h2>📋 같은 것을 여러 개 고르기, 그리고 전개식의 계수</h2>
+      <div class="hook">
+        <div class="ht">💥 왜 배우나</div>
+        카페에서 3종류 음료를 4잔 주문해요. 같은 걸 여러 잔 시켜도 되고 순서는 상관없어요. 몇 가지 주문이 가능할까요? 나열하면 15가지인데, 공식 $_3H_4$로 바로 나와요. 비밀은 <b>공 4개와 칸막이 2개를 한 줄로 세우는 것</b>. 그리고 $(a+b)^{10}$을 전개하면 $a^3b^7$의 계수는? 곱셈을 열 번 할 필요 없이 <b>$_{10}C_3=120$</b>. 열 개의 괄호 중 $a$를 꺼낼 괄호 3개를 "고르는" 조합이니까요. 세는 것과 전개하는 것이 같은 일이라는 걸 배우는 단원이에요.
+      </div>
+      <div class="splink">🚪 $P$·$C$·$\Pi$·$H$ 중 어느 것인지 헷갈리면 → <a href="prob_sp_choose.html">관문 특강: 순열·조합 구분</a> · 앞 단원 <a href="prob_permutation.html">여러 가지 순열</a></div>
+      <div class="sci">
+        <div class="ava">🔺</div>
+        <div>
+          <div class="st">파스칼 (1623~1662) — 삼각형에 이름을 남기다</div>
+          <div class="sd">이항계수를 삼각형으로 배열한 "파스칼의 삼각형"은 사실 파스칼보다 수백 년 앞서 중국(양휘, 13세기)과 페르시아 수학자들도 알고 있었어요. 파스칼이 1654년 「산술 삼각형론」에서 그 성질을 체계적으로 증명하고 확률 문제에 연결해서 이름이 붙었어요. 같은 해 페르마와 주고받은 편지가 확률론의 출발점으로 꼽혀요.</div>
+        </div>
+      </div>
+      <div class="toc">
+        <button onclick="go('hh')"><div class="ti">⚪</div><div class="tn">중복조합</div><div class="td">○와 칸막이</div></button>
+        <button onclick="go('bin')"><div class="ti">🔺</div><div class="tn">이항정리</div><div class="td">파스칼 삼각형 → 전개</div></button>
+        <button onclick="go('prop')"><div class="ti">🧮</div><div class="tn">이항계수의 성질</div><div class="td">합은 2ⁿ</div></button>
+        <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">부분집합·조합 폭발</div></button>
+        <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="hh">
+    <div class="card">
+      <h2>⚪ 중복조합 — 공 $r$개와 칸막이 $n-1$개</h2>
+      <p class="lead">$n$종류에서 중복을 허락해 $r$개를 고르는 것은, 종류별로 몇 개씩 고르느냐를 정하는 것과 같아요. 그 "몇 개씩"을 <b>공 $r$개를 칸막이 $n-1$개로 나눈 그림</b>으로 그리면, 그림의 개수 = 공과 칸막이의 배열 수 = 조합이에요. 버튼으로 무작위 배열을 뽑아 보세요.</p>
+      <div class="widget">
+        <div class="row"><span>종류 $n$</span><input type="range" id="sn" min="2" max="5" step="1" value="3"><span class="v" id="snv">3</span></div>
+        <div class="row"><span>고르는 수 $r$</span><input type="range" id="sr" min="1" max="6" step="1" value="4"><span class="v" id="srv">4</span></div>
+        <div class="btns"><button id="bRand">🎲 무작위 배열</button></div>
+        <div class="balls" id="balls"></div>
+        <div class="bins" id="bins"></div>
+        <div class="chips" id="chips"></div>
+        <div class="out" id="out1"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 중복조합</div>서로 다른 $n$개에서 중복을 허락하여 $r$개를 택하는 경우의 수 $_nH_r={}_{n+r-1}C_r$. 공 $r$개와 칸막이 $n-1$개, 합쳐서 $n+r-1$개 자리 중 공(또는 칸막이)의 자리를 고르는 조합.</div>
+      <div class="box b" style="text-align:center;font-size:15px">방정식 $x+y+z=6$ 을 만족하는 음이 아닌 정수해의 개수는? 양의 정수해의 개수는?</div>
+      <div class="steps"><button class="stepbtn" data-w="w1">▶ 풀이 보기</button><div class="stepwrap" id="w1">
+        <div class="step"><span class="sn">1</span>공 6개를 $x, y, z$ 세 칸에 나누기 = 3종류에서 중복 허락 6개 → $_3H_6={}_8C_6={}_8C_2=28$.</div>
+        <div class="step"><span class="sn">2</span>양의 정수해: 먼저 $x, y, z$에 1개씩 주고(3개 소모) 남은 3개를 중복조합 → $_3H_3={}_5C_3=10$.<div class="why">→ "적어도 1개"는 미리 하나씩 나눠 주고 나머지를 센다.</div></div>
+        <div class="ans">$28$개 · 양의 정수해 $10$개</div></div></div>
+      <div class="box b" style="text-align:center;font-size:15px">$(x+y+z)^5$ 의 전개식에서 서로 다른 항의 개수는?</div>
+      <div class="steps"><button class="stepbtn" data-w="w2">▶ 풀이 보기</button><div class="stepwrap" id="w2">
+        <div class="step"><span class="sn">1</span>각 항은 $x^ay^bz^c$ ($a+b+c=5$, 음이 아닌 정수). 그 개수 = $_3H_5$.</div>
+        <div class="step"><span class="sn">2</span>$_3H_5={}_7C_5={}_7C_2=21$.</div>
+        <div class="ans">$21$개</div></div></div>
+      <div class="box a"><div class="t">⚠️ $H$의 첨자</div>$_nH_r$에서 $n$은 <b>종류의 수</b>, $r$은 <b>고르는 개수</b>. $r$이 $n$보다 커도 돼요(3종류 음료 4잔). $C$로 바꿀 때는 $_{n+r-1}C_r$: 위 첨자는 $n+r-1$, 아래는 $r$ 그대로.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="bin">
+    <div class="card">
+      <h2>🔺 이항정리 — 계수는 "고르기"다</h2>
+      <p class="lead">$(a+b)^n$은 괄호 $n$개의 곱. 각 괄호에서 $a$ 또는 $b$ 하나씩 꺼내 곱하니까, $a^{n-r}b^r$이 되는 방법은 <b>$b$를 꺼낼 괄호 $r$개를 고르는</b> $_nC_r$가지예요. 아래 삼각형의 줄을 눌러 전개식을 보세요.</p>
+      <div class="widget">
+        <div class="pas" id="pas"></div>
+        <div class="out" id="out2"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 이항정리</div>$(a+b)^n=\displaystyle\sum_{r=0}^{n}{}_nC_r\,a^{n-r}b^r$. 일반항 $_nC_r\,a^{n-r}b^r$. 파스칼의 삼각형: 각 수는 바로 위 두 수의 합 ($_{n-1}C_{r-1}+{}_{n-1}C_r={}_nC_r$).</div>
+      <div class="box b" style="text-align:center;font-size:15px">$(x+2)^5$ 의 전개식에서 $x^3$ 의 계수는?</div>
+      <div class="steps"><button class="stepbtn" data-w="w3">▶ 풀이 보기</button><div class="stepwrap" id="w3">
+        <div class="step"><span class="sn">1</span>일반항 $_5C_r\,x^{5-r}\,2^r$. $x^3$이려면 $5-r=3$ → $r=2$.</div>
+        <div class="step"><span class="sn">2</span>$_5C_2\cdot2^2=10\times4$.<div class="why">→ 상수 2도 $r$번 곱해진다. 계수 $_5C_2$만 쓰면 틀린다.</div></div>
+        <div class="ans">$40$</div></div></div>
+      <div class="box b" style="text-align:center;font-size:15px">$\left(x^2+\dfrac{1}{x}\right)^6$ 의 전개식에서 상수항은?</div>
+      <div class="steps"><button class="stepbtn" data-w="w4">▶ 풀이 보기</button><div class="stepwrap" id="w4">
+        <div class="step"><span class="sn">1</span>일반항 $_6C_r\,(x^2)^{6-r}\left(\dfrac1x\right)^r={}_6C_r\,x^{12-2r-r}={}_6C_r\,x^{12-3r}$.</div>
+        <div class="step"><span class="sn">2</span>상수항: $12-3r=0$ → $r=4$ → $_6C_4=15$.</div>
+        <div class="ans">$15$</div></div></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="prop">
+    <div class="card">
+      <h2>🧮 이항계수의 성질 — 삼각형 한 줄의 합은 $2^n$</h2>
+      <p class="lead">이항정리에 $a=b=1$을 넣으면 한 줄의 합이 $2^n$. $a=1, b=-1$을 넣으면 교대로 더하고 뺀 값이 0. 이 두 대입이 성질의 전부예요. 줄을 골라 확인해 보세요.</p>
+      <div class="widget">
+        <div class="row"><span>$n$</span><input type="range" id="sp" min="1" max="8" step="1" value="4"><span class="v" id="spv">4</span></div>
+        <div class="rdo"><div>$_nC_0+\cdots+{}_nC_n$ <b id="p1"></b></div><div>$2^n$ <b id="p2"></b></div><div>교대합 $\sum(-1)^r{}_nC_r$ <b id="p3"></b></div><div>짝수 번째 합 = 홀수 번째 합 <b id="p4"></b></div></div>
+        <div class="out" id="out3"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 성질</div>$_nC_0+{}_nC_1+\cdots+{}_nC_n=2^n$ ($a=b=1$) · $_nC_0-{}_nC_1+{}_nC_2-\cdots=0$ ($a=1,b=-1$) · 따라서 $_nC_0+{}_nC_2+\cdots={}_nC_1+{}_nC_3+\cdots=2^{n-1}$ · 대칭 $_nC_r={}_nC_{n-r}$.</div>
+      <div class="box b"><div class="t">🔑 $2^n$의 뜻</div>원소 $n$개인 집합의 부분집합은 각 원소를 "넣거나 안 넣거나" → $2^n$개. 원소 $r$개짜리 부분집합이 $_nC_r$개니까, 전부 더하면 $2^n$. 공식이 아니라 <b>같은 것을 두 가지로 센 것</b>이에요.</div>
+      <div class="box b" style="text-align:center;font-size:15px">$_{10}C_1+{}_{10}C_2+\cdots+{}_{10}C_{10}$ 의 값은?</div>
+      <div class="steps"><button class="stepbtn" data-w="w5">▶ 풀이 보기</button><div class="stepwrap" id="w5">
+        <div class="step"><span class="sn">1</span>$_{10}C_0$부터 $_{10}C_{10}$까지 전부 더하면 $2^{10}=1024$.</div>
+        <div class="step"><span class="sn">2</span>$_{10}C_0=1$이 빠져 있으므로 $1024-1$.</div>
+        <div class="ans">$1023$</div></div></div>
+      <div class="box b" style="text-align:center;font-size:15px">$_{20}C_1+{}_{20}C_3+{}_{20}C_5+\cdots+{}_{20}C_{19}$ 의 값은?</div>
+      <div class="steps"><button class="stepbtn" data-w="w6">▶ 풀이 보기</button><div class="stepwrap" id="w6">
+        <div class="step"><span class="sn">1</span>홀수 번째 항의 합은 전체 $2^{20}$의 절반.</div>
+        <div class="ans">$2^{19}$</div></div></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="world">
+    <div class="card">
+      <h2>🌐 세상 속으로</h2>
+      <div class="keeper">
+        <div class="kt">📌 어른이 되어도 기억할 것</div>
+        <ol>
+          <li><b>같은 것을 여러 개 고르기는 공과 칸막이.</b> 예산을 부서에 나누기, 메뉴 조합, 방정식의 정수해가 전부 같은 그림이다.</li>
+          <li><b>전개식의 계수는 "고르기"의 수.</b> $(a+b)^n$의 계수가 조합인 이유는 괄호를 고르기 때문. 세기와 대수가 한 몸이다.</li>
+          <li><b>부분집합은 $2^n$개.</b> 선택지가 $n$개면 조합은 $2^n$으로 폭발한다. 옵션 30개면 10억 가지.</li>
+        </ol>
+      </div>
+      <div class="insight">
+        <div class="it">💡 인사이트 — 확률로 가는 길</div>
+        동전을 $n$번 던져 앞면이 $r$번 나오는 경우의 수가 $_nC_r$이고, 그래서 그 확률이 $_nC_r\left(\frac12\right)^n$이에요. 파스칼의 삼각형 한 줄을 그래프로 그리면 <b>종 모양</b>이 되고, 그것이 이항분포이며, $n$이 커지면 정규분포가 돼요. 이 단원의 삼각형이 통계 단원의 종 모양으로 이어져요.
+      </div>
+      <div class="reallife">
+        <div class="rt">🏠 중복조합·이항계수가 보이는 곳</div>
+        <div class="rgrid">
+          <div class="rcell"><div class="ri">☕</div><div class="rn">음료 주문</div><div class="rd">3종류 4잔 = ₃H₄ = 15</div></div>
+          <div class="rcell"><div class="ri">🍕</div><div class="rn">토핑 고르기</div><div class="rd">n가지 토핑의 조합 = 2ⁿ</div></div>
+          <div class="rcell"><div class="ri">💰</div><div class="rn">예산 배분</div><div class="rd">정수해 개수 = 공과 칸막이</div></div>
+          <div class="rcell"><div class="ri">🎲</div><div class="rn">동전 n번</div><div class="rd">앞면 r번의 경우 = ₙCᵣ</div></div>
+          <div class="rcell"><div class="ri">🧬</div><div class="rn">유전 형질</div><div class="rd">멘델 비율 1:2:1이 (a+b)²</div></div>
+          <div class="rcell"><div class="ri">🔺</div><div class="rn">당구·볼링 핀</div><div class="rd">삼각수는 삼각형의 세 번째 대각선</div></div>
+        </div>
+      </div>
+      <div class="industry">
+        <div class="indt">🏭 산업과 직업</div>
+        <div class="indrow"><div class="ii">🖥️</div><div class="id2"><b>알고리즘·소프트웨어</b><br>부분집합 $2^n$·조합 $_nC_r$의 크기를 아는 것이 "이 문제를 전부 탐색할 수 있나"의 첫 판단. 조합 폭발을 피하는 설계가 프로그래머의 일상.<br><span class="major">🎓 컴퓨터공학</span></div></div>
+        <div class="indrow"><div class="ii">📊</div><div class="id2"><b>통계·데이터</b><br>이항계수는 이항분포의 뼈대. 여론조사·품질 검사·임상 결과가 전부 "n번 중 r번"의 확률로 계산된다.<br><span class="major">🎓 통계학 · 데이터과학</span></div></div>
+        <div class="indrow"><div class="ii">🧪</div><div class="id2"><b>화학·재료</b><br>같은 원자를 여러 개 고르는 배치(중복조합)가 분자 구조·합금 조성의 경우의 수를 결정한다.<br><span class="major">🎓 화학 · 신소재공학</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="quiz">
+    <div class="card">
+      <h2>🔥 중복조합과 이항정리 퀴즈</h2>
+      <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
+      <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="fin">
+    <div class="card">
+      <h2>✅ 정리</h2>
+      <table>
+        <tr><th class="l">항목</th><th class="l">내용</th></tr>
+        <tr><td class="l">중복조합</td><td class="l">$_nH_r={}_{n+r-1}C_r$ · 공 $r$개 + 칸막이 $n-1$개 · 정수해 개수</td></tr>
+        <tr><td class="l">이항정리</td><td class="l">$(a+b)^n=\sum{}_nC_r\,a^{n-r}b^r$ · 일반항으로 특정 항의 계수·상수항</td></tr>
+        <tr><td class="l">파스칼 삼각형</td><td class="l">$_{n-1}C_{r-1}+{}_{n-1}C_r={}_nC_r$ · 대칭 $_nC_r={}_nC_{n-r}$</td></tr>
+        <tr><td class="l">성질</td><td class="l">합 $2^n$ · 교대합 0 · 짝수 번째 합 = 홀수 번째 합 = $2^{n-1}$</td></tr>
+      </table>
+      <div class="box b"><div class="t">🔑 한 줄 요약</div>같은 것 여러 개는 공과 칸막이($H$), 전개식의 계수는 괄호 고르기($C$), 한 줄의 합은 $2^n$.</div>
+      <h3>자가 점검</h3>
+      <div class="chk"><input type="checkbox" id="k1"><label for="k1">중복조합을 공과 칸막이 그림으로 설명하고 $C$로 바꿀 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k2"><label for="k2">"양의 정수해"처럼 하한이 있는 조건을 미리 배분하고 셀 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k3"><label for="k3">일반항으로 특정 항의 계수와 상수항을 구할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k4"><label for="k4">$a=b=1$, $a=1,b=-1$ 대입으로 이항계수의 합을 구할 수 있다</label></div>
+      <h3>약점 태그</h3>
+      <div><span class="tag">확통:중복조합</span><span class="tag">확통:이항정리</span><span class="tag">확통:이항계수 성질</span></div>
+      <div class="box g" style="margin-top:16px"><div class="t">➡️ 다음 단원</div>Ⅱ 확률로 → <a href="prob_probability.html">확률의 뜻과 덧셈정리</a>. <a href="prob_hub.html">확률과 통계 허브</a>로.</div>
+    </div>
+  </div>
+</div>
+
+<script src="alg_app.js"></script>
+<script>
+function C(n,r){ if(r<0||r>n) return 0; var v=1; for(var i=0;i<r;i++) v=v*(n-i)/(i+1); return Math.round(v); }
+/* 중복조합 위젯 */
+var cur=null;
+function allDist(n,r){ var out=[]; (function rec(k,left,acc){ if(k===n-1){ out.push(acc.concat([left])); return; } for(var i=0;i<=left;i++) rec(k+1,left-i,acc.concat([i])); })(0,r,[]); return out; }
+function draw1(){ var n=parseInt(document.getElementById('sn').value,10), r=parseInt(document.getElementById('sr').value,10); document.getElementById('snv').textContent=n; document.getElementById('srv').textContent=r;
+  var all=allDist(n,r); if(!cur||cur.length!==n||cur.reduce(function(a,b){return a+b;},0)!==r) cur=all[Math.floor(Math.random()*all.length)];
+  var box=document.getElementById('balls'); box.innerHTML=''; cur.forEach(function(k,i){ for(var j=0;j<k;j++){ var b=document.createElement('span'); b.className='ball'; b.textContent=String.fromCharCode(65+i); box.appendChild(b); } if(i<n-1){ var s=document.createElement('span'); s.className='bar'; box.appendChild(s); } });
+  var bins=document.getElementById('bins'); bins.innerHTML=''; cur.forEach(function(k,i){ var d=document.createElement('div'); d.className='bin'; d.innerHTML=String.fromCharCode(65+i)+' 종류<b>'+k+'</b>'; bins.appendChild(d); });
+  var ch=document.getElementById('chips'); ch.innerHTML=''; if(all.length<=60){ all.forEach(function(d){ var c=document.createElement('span'); c.className='chipx'; c.textContent=d.join(','); ch.appendChild(c); }); } else { ch.innerHTML='<span class="chipx">…'+all.length+'가지 (너무 많아 생략)</span>'; }
+  var el=document.getElementById('out1'); el.innerHTML='공 '+r+'개 + 칸막이 '+(n-1)+'개 = '+(n+r-1)+'자리 중 공의 자리 고르기: $_{'+n+'}H_{'+r+'}={}_{'+(n+r-1)+'}C_{'+r+'}=$ <b>'+C(n+r-1,r)+'</b> (나열해 세어도 '+all.length+')'; LEC.tex(el); }
+['sn','sr'].forEach(function(id){ document.getElementById(id).addEventListener('input',function(){ cur=null; draw1(); }); });
+document.getElementById('bRand').addEventListener('click',function(){ cur=null; draw1(); });
+
+/* 파스칼 삼각형 */
+var selRow=3;
+function drawPas(){ var box=document.getElementById('pas'); box.innerHTML=''; for(var n=0;n<=8;n++){ var row=document.createElement('div'); row.className='prow'+(n===selRow?' on':''); row.setAttribute('data-n',n); var lab=document.createElement('span'); lab.className='lab'; lab.textContent='n='+n; row.appendChild(lab); for(var r=0;r<=n;r++){ var s=document.createElement('span'); s.textContent=C(n,r); row.appendChild(s); } box.appendChild(row); }
+  var terms=[]; for(var k=0;k<=selRow;k++){ var co=C(selRow,k); var a=selRow-k, b=k; var t=(co===1?'':co)+(a?('a'+(a>1?'^{'+a+'}':'')):'')+(b?('b'+(b>1?'^{'+b+'}':'')):''); if(!a&&!b) t=String(co); terms.push(t); }
+  var el=document.getElementById('out2'); el.innerHTML='$(a+b)^{'+selRow+'}='+terms.join('+')+'$ · 계수 합 $=2^{'+selRow+'}='+Math.pow(2,selRow)+'$'; LEC.tex(el); }
+document.getElementById('pas').addEventListener('click',function(e){ var row=e.target.closest('.prow'); if(!row)return; selRow=parseInt(row.getAttribute('data-n'),10); drawPas(); });
+
+/* 성질 */
+function draw3(){ var n=parseInt(document.getElementById('sp').value,10); document.getElementById('spv').textContent=n; var sum=0, alt=0, ev=0, od=0, parts=[]; for(var r=0;r<=n;r++){ var c=C(n,r); sum+=c; alt+=(r%2?-c:c); if(r%2) od+=c; else ev+=c; parts.push(c); }
+  document.getElementById('p1').textContent=parts.join('+')+' = '+sum; document.getElementById('p2').textContent=Math.pow(2,n); document.getElementById('p3').textContent=alt; document.getElementById('p4').textContent=ev+' = '+od;
+  var el=document.getElementById('out3'); el.innerHTML='$a=b=1$: 합 $'+sum+'=2^{'+n+'}$ · $a=1,b=-1$: 교대합 $0$ → 짝수 번째와 홀수 번째가 각각 $2^{'+(n-1)+'}='+Math.pow(2,n-1)+'$'; LEC.tex(el); }
+document.getElementById('sp').addEventListener('input',draw3);
+APP.onTab({hh:draw1, bin:drawPas, prop:draw3});
+
+var TABNAME={hh:'⚪ 중복조합',bin:'🔺 이항정리',prop:'🧮 이항계수의 성질'};
+var QUIZ=[
+ {q:'3종류의 음료 중 4잔을 주문하는 방법의 수는? (같은 종류 여러 잔 가능, 순서 무관)',o:['15','81','12','35'],a:0,t:'hh',e:'₃H₄ = ₆C₄ = 15. 공 4개, 칸막이 2개.'},
+ {q:'x+y+z=6 을 만족하는 음이 아닌 정수해의 개수는?',o:['28','20','56','10'],a:0,t:'hh',e:'₃H₆ = ₈C₆ = ₈C₂ = 28.'},
+ {q:'x+y+z=6 을 만족하는 양의 정수해의 개수는?',o:['10','28','15','20'],a:0,t:'hh',e:'먼저 1씩 배분, 남은 3개: ₃H₃ = ₅C₃ = 10.'},
+ {q:'₄H₂ 와 같은 것은?',o:['₅C₂','₄C₂','₆C₂','₅C₄'],a:0,t:'hh',e:'ₙHᵣ = ₙ₊ᵣ₋₁Cᵣ = ₅C₂ = 10.'},
+ {q:'(x+2)⁵ 의 전개식에서 x³ 의 계수는?',o:['40','10','80','20'],a:0,t:'bin',e:'₅C₂·2² = 10·4 = 40. 상수 2도 r번 곱해진다.'},
+ {q:'(a+b)¹⁰ 의 전개식에서 a³b⁷ 의 계수는?',o:['120','210','720','35'],a:0,t:'bin',e:'₁₀C₇ = ₁₀C₃ = 120.'},
+ {q:'(x²+1/x)⁶ 의 전개식에서 상수항은?',o:['15','20','6','1'],a:0,t:'bin',e:'일반항 ₆Cᵣ x^(12−3r), r=4 → ₆C₄ = 15.'},
+ {q:'₁₀C₀+₁₀C₁+…+₁₀C₁₀ 의 값은?',o:['1024','512','100','2048'],a:0,t:'prop',e:'a=b=1 대입: 2¹⁰ = 1024.'},
+ {q:'₁₀C₁+₁₀C₂+…+₁₀C₁₀ 의 값은?',o:['1023','1024','512','511'],a:0,t:'prop',e:'2¹⁰ − ₁₀C₀ = 1024 − 1.'},
+ {q:'₂₀C₁+₂₀C₃+…+₂₀C₁₉ 의 값은?',o:['2¹⁹','2²⁰','2¹⁰','0'],a:0,t:'prop',e:'홀수 번째 합 = 전체의 절반 = 2¹⁹.'}
+];
+APP.quiz(QUIZ,TABNAME,{perfect:'완벽해요! 공과 칸막이, 그리고 괄호 고르기.'});
+</script>
+</body>
+</html>
