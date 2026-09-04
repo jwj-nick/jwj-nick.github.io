@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>함수의 극한 — 미적분Ⅰ</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
+<script src="lecture.js"></script>
+<link rel="stylesheet" href="cal1_app.css">
+<style>.rd{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:8px}.rd div{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:7px 9px;font-size:12px;text-align:center;color:var(--sub)}.rd b{display:block;font-size:14px;color:var(--accent)}.widget canvas{max-width:520px}</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Math_1_1</a><span>&rsaquo;</span><a href="cal1_hub.html">미적분Ⅰ</a><span>&rsaquo;</span><a class="cur" href="#">함수의 극한</a></nav>
+<div class="hero">
+  <span class="badge">Ⅰ. 함수의 극한과 연속</span>
+  <h1>🎯 함수의 극한</h1>
+  <p>다가갈 때 어디로 모이는가 — 미적분의 첫 단어</p>
+</div>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="intro">📋 개요</button>
+  <button class="tab" data-t="def">🔍 극한의 뜻</button>
+  <button class="tab" data-t="calc">⚖️ 성질·계산</button>
+  <button class="tab" data-t="coef">🧮 미정계수·대소</button>
+  <button class="tab" data-t="world">🌐 세상 속으로</button>
+  <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="fin">✅ 정리</button>
+</div>
+<div class="wrap">
+
+  <div class="page active" data-p="intro">
+    <div class="card">
+      <h2>📋 무한히 많은 단계가 유한하게 끝나는 이유</h2>
+      <div class="hook">
+        <div class="ht">💥 왜 배우나</div>
+        고대 그리스의 제논은 이렇게 주장했어요. "아킬레우스는 앞서 출발한 거북이를 절대 못 따라잡는다. 거북이가 있던 자리에 도착하면 거북이는 조금 더 가 있고, 또 그 자리에 도착하면 또 조금 더 가 있고… 무한히 반복되니까." 하지만 실제로는 따라잡죠. 무한히 많은 단계의 시간을 다 더해도 <b>유한한 값으로 모이기</b> 때문이에요. "모인다"를 정확히 말하는 언어가 <b>극한</b>이고, 2,000년 걸린 이 논쟁의 답이 미적분의 첫 단어예요.
+      </div>
+      <div class="splink">🚪 "가까워진다"의 감각을 줌인 위젯으로 먼저 잡으려면 → <a href="cal1_sp_limit.html">관문 특강: 극한 — "가까워진다"의 감각</a></div>
+      <div class="sci">
+        <div class="ava">📐</div>
+        <div>
+          <div class="st">코시와 바이어슈트라스 (19세기) — "한없이 가까워진다"를 정의하다</div>
+          <div class="sd">뉴턴과 라이프니츠가 미적분을 만든 지 150년이 지나도록 "한없이 가까워진다"는 말은 엄밀하지 않았어요. 코시가 극한을 중심에 놓아 미적분을 다시 세웠고, 바이어슈트라스가 "아무리 작은 오차를 정해도 그보다 가깝게 만들 수 있다"는 정의(ε-δ)로 완성했어요. 고등학교에서는 직관으로 배우지만, 그 뒤에 이 엄밀한 정의가 있어요.</div>
+        </div>
+      </div>
+      <div class="toc">
+        <button onclick="go('def')"><div class="ti">🔍</div><div class="tn">극한의 뜻</div><div class="td">구멍·점프·발산</div></button>
+        <button onclick="go('calc')"><div class="ti">⚖️</div><div class="tn">성질·계산</div><div class="td">0/0 · ∞/∞ · ∞−∞</div></button>
+        <button onclick="go('coef')"><div class="ti">🧮</div><div class="tn">미정계수·대소</div><div class="td">분자도 0 · 샌드위치</div></button>
+        <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">순간·근사·수치해석</div></button>
+        <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="def">
+    <div class="card">
+      <h2>🔍 극한의 뜻 — 구멍, 점프, 발산</h2>
+      <p class="lead">함수를 고르고 $x$를 $a$에 다가가게 해 보세요. 왼쪽에서, 오른쪽에서 따로 다가갑니다. 값이 <b>어디로 모이는지</b>만 보세요. $a$에서의 값은 상관없어요.</p>
+      <div class="widget">
+        <canvas id="cv1" height="280"></canvas>
+        <div class="btns" id="fbtns"><button data-f="hole" class="on">구멍 $\frac{x^2-1}{x-1}$</button><button data-f="jump">점프 $\frac{|x|}{x}$</button><button data-f="inf">발산 $\frac1{x^2}$</button></div>
+        <div class="row"><span>거리 $d$</span><input type="range" id="sd" min="0" max="5" step="1" value="0"><span class="v" id="sdv">1</span></div>
+        <div class="rd"><div>좌극한 <b id="rL"></b></div><div>우극한 <b id="rR"></b></div><div>극한 <b id="rE"></b></div></div>
+        <div class="out" id="out1"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 정의</div>$x$가 $a$가 아니면서 $a$에 한없이 가까워질 때 $f(x)$가 일정한 값 $L$에 한없이 가까워지면, $f(x)$는 $L$에 <b>수렴</b>한다고 하고 $\displaystyle\lim_{x\to a}f(x)=L$로 쓴다. 수렴하지 않으면 <b>발산</b>.</div>
+      <table>
+        <tr><th class="l">그래프 모양</th><th class="l">좌극한 / 우극한</th><th class="l">극한</th></tr>
+        <tr><td class="l">구멍 (그 점만 빠짐)</td><td class="l">같다</td><td class="l">존재 (함숫값과 무관)</td></tr>
+        <tr><td class="l">점프 (계단)</td><td class="l">다르다</td><td class="l">없음</td></tr>
+        <tr><td class="l">발산 ($\pm\infty$로)</td><td class="l">한없이 커짐</td><td class="l">없음 ($\infty$는 값이 아님)</td></tr>
+      </table>
+      <div class="box b"><div class="t">🔑 읽는 법</div>$x\to a-$는 왼쪽(작은 쪽)에서, $x\to a+$는 오른쪽(큰 쪽)에서. <b>극한이 있다 ⟺ 좌극한 = 우극한</b>. $x\to\infty$는 "한없이 커질 때", 이때는 방향이 하나라 좌우가 없어요.</div>
+      <div class="box a"><div class="t">⚠️ 흔한 오해</div>"극한값 = 그 점의 함숫값"이 아니에요. 구멍 함수에서 $f(1)$은 없지만 극한은 2예요. 반대로 $f(1)$이 5로 따로 정의돼 있어도 극한은 여전히 2예요. 극한은 "다가갈 때"의 이야기예요.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="calc">
+    <div class="card">
+      <h2>⚖️ 극한의 성질과 계산</h2>
+      <p class="lead">각각 수렴하면 극한은 사칙연산과 자리를 바꿔도 돼요. 그래서 <b>대입해서 값이 나오면 그게 극한값</b>이에요. 대입이 안 되는 꼴(0/0 등)일 때만 기술이 필요해요.</p>
+      <div class="fcards" id="propcards"></div>
+      <h3>꼴별 기술</h3>
+      <div class="box b" style="text-align:center;font-size:15px">$\displaystyle\lim_{x\to3}\frac{x^2-x-6}{x-3}$ &nbsp;(0/0 — 인수분해)</div>
+      <div class="steps"><button class="stepbtn" data-w="w1">▶ 풀이 보기</button><div class="stepwrap" id="w1">
+        <div class="step"><span class="sn">1</span>대입: 분모 0, 분자 $9-3-6=0$ → $\dfrac00$ 꼴.</div>
+        <div class="step"><span class="sn">2</span>$\dfrac{(x-3)(x+2)}{x-3}=x+2$ ($x\ne3$이므로 약분 가능).</div>
+        <div class="ans">$\to 3+2=5$</div></div></div>
+      <div class="box b" style="text-align:center;font-size:15px">$\displaystyle\lim_{x\to0}\frac{\sqrt{x+4}-2}{x}$ &nbsp;(0/0 — 유리화)</div>
+      <div class="steps"><button class="stepbtn" data-w="w2">▶ 풀이 보기</button><div class="stepwrap" id="w2">
+        <div class="step"><span class="sn">1</span>분모·분자에 $\sqrt{x+4}+2$를 곱한다: $\dfrac{(x+4)-4}{x(\sqrt{x+4}+2)}=\dfrac{1}{\sqrt{x+4}+2}$.</div>
+        <div class="ans">$\to\dfrac1{2+2}=\dfrac14$</div></div></div>
+      <div class="box b" style="text-align:center;font-size:15px">$\displaystyle\lim_{x\to\infty}\frac{3x^2-1}{x^2+x}$ &nbsp;(∞/∞ — 최고차항)</div>
+      <div class="steps"><button class="stepbtn" data-w="w3">▶ 풀이 보기</button><div class="stepwrap" id="w3">
+        <div class="step"><span class="sn">1</span>분모 최고차 $x^2$으로 나눈다: $\dfrac{3-\frac1{x^2}}{1+\frac1x}$.</div>
+        <div class="step"><span class="sn">2</span>$\dfrac1x,\dfrac1{x^2}\to0$.</div>
+        <div class="ans">$\to\dfrac31=3$</div></div></div>
+      <div class="box b" style="text-align:center;font-size:15px">$\displaystyle\lim_{x\to\infty}\left(\sqrt{x^2+2x}-x\right)$ &nbsp;(∞−∞ — 유리화)</div>
+      <div class="steps"><button class="stepbtn" data-w="w4">▶ 풀이 보기</button><div class="stepwrap" id="w4">
+        <div class="step"><span class="sn">1</span>켤레를 곱한다: $\dfrac{(x^2+2x)-x^2}{\sqrt{x^2+2x}+x}=\dfrac{2x}{\sqrt{x^2+2x}+x}$.</div>
+        <div class="step"><span class="sn">2</span>$x$로 나눈다: $\dfrac{2}{\sqrt{1+\frac2x}+1}$.</div>
+        <div class="ans">$\to\dfrac2{1+1}=1$</div></div></div>
+      <div class="box a"><div class="t">⚠️ 차수 비교 요령</div>$\dfrac\infty\infty$에서 분자 차수 &lt; 분모 차수면 0, 같으면 최고차 계수의 비, 분자가 크면 발산. "누가 더 빨리 커지나"로 기억.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="coef">
+    <div class="card">
+      <h2>🧮 미정계수와 극한의 대소 관계</h2>
+      <p class="lead">"극한이 존재한다"는 조건 자체가 정보예요. 분모가 0으로 가는데 극한이 있으려면 <b>분자도 0으로 가야</b> 해요(아니면 발산). 이걸로 미지수를 찾아요.</p>
+      <div class="box b" style="text-align:center;font-size:15px">$\displaystyle\lim_{x\to2}\frac{x^2+ax+b}{x-2}=3$ 일 때 $a, b$는?</div>
+      <div class="steps"><button class="stepbtn" data-w="w5">▶ 풀이 보기</button><div class="stepwrap" id="w5">
+        <div class="step"><span class="sn">1</span>분모→0, 극한 존재 → 분자→0: $4+2a+b=0$ → $b=-2a-4$.<div class="why">→ 분자가 $(x-2)$를 인수로 가진다.</div></div>
+        <div class="step"><span class="sn">2</span>$x^2+ax-2a-4=(x-2)(x+a+2)$ → 극한 $=2+a+2=a+4=3$ → $a=-1$.</div>
+        <div class="step"><span class="sn">3</span>$b=-2(-1)-4=-2$.</div>
+        <div class="ans">$a=-1,\ b=-2$</div></div></div>
+      <div class="box b" style="text-align:center;font-size:15px">$\displaystyle\lim_{x\to1}\frac{x-1}{x^2+ax+b}=\dfrac13$ 일 때 $a+b$는? (분모가 0으로 가는 경우)</div>
+      <div class="steps"><button class="stepbtn" data-w="w6">▶ 풀이 보기</button><div class="stepwrap" id="w6">
+        <div class="step"><span class="sn">1</span>분자→0이고 극한이 0이 아닌 값 → 분모도 →0: $1+a+b=0$.<div class="why">→ 분모가 0이 아니면 극한은 0이 되어 버린다.</div></div>
+        <div class="step"><span class="sn">2</span>$x^2+ax+b=(x-1)(x-c)$ 로 두면 극한 $=\dfrac1{1-c}=\dfrac13$ → $c=-2$ → $x^2+x-2$ → $a=1, b=-2$.</div>
+        <div class="ans">$a+b=-1$</div></div></div>
+      <h3>극한의 대소 관계 (샌드위치)</h3>
+      <div class="box g"><div class="t">✅ 성질</div>$a$ 근처에서 $f(x)\le g(x)\le h(x)$이고 $\lim f=\lim h=L$이면 $\lim g=L$. 양쪽에서 같은 값으로 조여지면 가운데도 그 값. 또 $f\le g$이면 $\lim f\le\lim g$ (등호 가능).</div>
+      <div class="box b" style="text-align:center;font-size:15px">$2x-1\le f(x)\le x^2$ 일 때 $\displaystyle\lim_{x\to1}f(x)$는?</div>
+      <div class="steps"><button class="stepbtn" data-w="w7">▶ 풀이 보기</button><div class="stepwrap" id="w7">
+        <div class="step"><span class="sn">1</span>$\lim(2x-1)=1$, $\lim x^2=1$ — 양쪽이 1로 조인다.</div>
+        <div class="ans">$\displaystyle\lim_{x\to1}f(x)=1$</div></div></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="world">
+    <div class="card">
+      <h2>🌐 세상 속으로</h2>
+      <div class="keeper">
+        <div class="kt">📌 어른이 되어도 기억할 것</div>
+        <ol>
+          <li><b>극한은 도착이 아니라 방향.</b> "그 순간의 속력", "무한히 많은 항의 합"은 전부 극한으로 정의된다.</li>
+          <li><b>0/0은 값이 아니라 신호.</b> "정리하면 값이 나온다"는 뜻이지 "답이 없다"는 뜻이 아니다.</li>
+          <li>컴퓨터는 극한을 아주 작은 수로 근사한다. 그 오차를 다루는 것이 수치해석이라는 분야.</li>
+        </ol>
+      </div>
+      <div class="insight">
+        <div class="it">💡 인사이트 — 다음 단원으로</div>
+        극한이 있고 함숫값과 같으면 <b>연속</b>(다음 단원). 그리고 $\dfrac{f(a+h)-f(a)}{h}$의 $h\to0$ 극한이 <b>미분계수</b>예요. 이 단원의 $\dfrac00$ 꼴 계산이 미분 단원에서 매일 나와요. 여기서 인수분해·유리화를 손에 익혀 두는 것이 그래서 중요해요.
+      </div>
+      <div class="reallife">
+        <div class="rt">🏠 극한이 숨어 있는 곳</div>
+        <div class="rgrid">
+          <div class="rcell"><div class="ri">🚗</div><div class="rn">순간 속력</div><div class="rd">짧은 시간 평균의 극한</div></div>
+          <div class="rcell"><div class="ri">🔢</div><div class="rn">0.999…=1</div><div class="rd">극한은 정확한 값</div></div>
+          <div class="rcell"><div class="ri">🗺️</div><div class="rn">지도 확대</div><div class="rd">줌인해도 곡선은 곡선</div></div>
+          <div class="rcell"><div class="ri">🐢</div><div class="rn">제논의 역설</div><div class="rd">무한 단계의 유한 합</div></div>
+          <div class="rcell"><div class="ri">📉</div><div class="rn">점근선</div><div class="rd">한없이 가까워지되 닿지 않음</div></div>
+          <div class="rcell"><div class="ri">🎞️</div><div class="rn">프레임</div><div class="rd">촘촘할수록 연속처럼</div></div>
+        </div>
+      </div>
+      <div class="industry">
+        <div class="indt">🏭 산업과 직업</div>
+        <div class="indrow"><div class="ii">💻</div><div class="id2"><b>수치해석·시뮬레이션</b><br>미분·적분을 컴퓨터가 근사하는 방법과 오차 관리. 날씨·유체·구조 해석의 기반.<br><span class="major">🎓 응용수학 · 계산과학</span></div></div>
+        <div class="indrow"><div class="ii">📶</div><div class="id2"><b>신호 처리</b><br>얼마나 촘촘히 샘플링해야 원래 신호로 수렴하는가. 디지털 오디오·영상의 기본 질문.<br><span class="major">🎓 전자공학</span></div></div>
+        <div class="indrow"><div class="ii">💹</div><div class="id2"><b>금융공학</b><br>연속 복리($n\to\infty$)와 연속 시간 모델은 극한으로 정의된다.<br><span class="major">🎓 금융공학 · 경제학</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="quiz">
+    <div class="card">
+      <h2>🔥 함수의 극한 퀴즈</h2>
+      <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
+      <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="fin">
+    <div class="card">
+      <h2>✅ 정리</h2>
+      <table>
+        <tr><th class="l">항목</th><th class="l">내용</th></tr>
+        <tr><td class="l">정의</td><td class="l">$x\to a$일 때 $f(x)\to L$ · 함숫값과 무관 · 좌 = 우 일 때 존재</td></tr>
+        <tr><td class="l">성질</td><td class="l">수렴하면 합·차·곱·몫과 교환 → 대입 가능하면 대입</td></tr>
+        <tr><td class="l">0/0</td><td class="l">인수분해·유리화 후 약분</td></tr>
+        <tr><td class="l">∞/∞ · ∞−∞</td><td class="l">최고차항으로 나누기 · 켤레 유리화</td></tr>
+        <tr><td class="l">미정계수</td><td class="l">분모→0 & 극한 존재 → 분자→0 (반대 방향도)</td></tr>
+        <tr><td class="l">대소 관계</td><td class="l">$f\le g\le h$, $\lim f=\lim h=L$ → $\lim g=L$</td></tr>
+      </table>
+      <div class="box b"><div class="t">🔑 한 줄 요약</div>극한은 방향이다. 대입해서 꼴을 보고, 0/0이면 구멍을 메우고, ∞/∞면 최고차항만 본다.</div>
+      <h3>자가 점검</h3>
+      <div class="chk"><input type="checkbox" id="c1"><label for="c1">그래프에서 좌극한·우극한·극한 존재 여부를 읽을 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c2"><label for="c2">0/0, ∞/∞, ∞−∞ 꼴을 각각의 기술로 계산할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c3"><label for="c3">극한 존재 조건으로 미정계수를 구할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="c4"><label for="c4">대소 관계(샌드위치)로 극한을 구할 수 있다</label></div>
+      <h3>약점 태그</h3>
+      <div><span class="tag">미적Ⅰ:극한의 뜻</span><span class="tag">미적Ⅰ:0/0 꼴</span><span class="tag">미적Ⅰ:∞/∞ 꼴</span><span class="tag">미적Ⅰ:미정계수</span></div>
+      <div class="box g" style="margin-top:16px"><div class="t">➡️ 다음 단원</div>극한이 함숫값과 같으면 → <a href="cal1_continuity.html">함수의 연속</a>. <a href="cal1_hub.html">미적분Ⅰ 허브</a>로.</div>
+    </div>
+  </div>
+</div>
+
+<script src="alg_app.js"></script>
+<script>
+var P1=null, FK='hole'; var DS=[1,0.5,0.1,0.01,0.001,0.0001];
+var FS={hole:{a:1,f:function(x){return x+1;},L:2,R:2,name:'(x²−1)/(x−1) = x+1 (x≠1)',range:[-1,3,-1,4]},jump:{a:0,f:function(x){return x<0?-1:1;},L:-1,R:1,name:'|x|/x',range:[-2,2,-2,2]},inf:{a:0,f:function(x){return 1/(x*x);},L:Infinity,R:Infinity,name:'1/x²',range:[-2,2,-0.5,8]}};
+function setup1(){ var cv=document.getElementById('cv1'); var F=FS[FK]; P1=LEC.plane(cv,{xmin:F.range[0],xmax:F.range[1],ymin:F.range[2],ymax:F.range[3],h:280,grid:0.5}); draw1(); }
+function draw1(){ if(!P1)return; var F=FS[FK]; var d=DS[parseInt(document.getElementById('sd').value,10)]; document.getElementById('sdv').textContent=d;
+  P1.clear().grid().axes(); P1.seg(F.a,P1.ymin,F.a,P1.ymax,'#f59e0b',1.5,[5,4]);
+  if(FK==='hole'){ P1.plot(F.f,'#be185d',3); var c=P1.ctx; c.fillStyle='#fff'; c.strokeStyle='#be185d'; c.lineWidth=2.5; c.beginPath(); c.arc(P1.X(1),P1.Y(2),6,0,Math.PI*2); c.fill(); c.stroke(); }
+  if(FK==='jump'){ P1.plot(F.f,'#be185d',3,P1.xmin,-1e-9); P1.plot(F.f,'#be185d',3,1e-9,P1.xmax); var c2=P1.ctx; c2.fillStyle='#fff'; c2.strokeStyle='#be185d'; c2.lineWidth=2.5; c2.beginPath(); c2.arc(P1.X(0),P1.Y(-1),6,0,Math.PI*2); c2.fill(); c2.stroke(); c2.beginPath(); c2.arc(P1.X(0),P1.Y(1),6,0,Math.PI*2); c2.fill(); c2.stroke(); c2.fillStyle='#64748b'; c2.font='11px sans-serif'; c2.textAlign='left'; c2.textBaseline='middle'; c2.fillText('f(0)은 정의되지 않음 (0/0)',P1.X(0.15),P1.Y(0.5)); }
+  if(FK==='inf'){ P1.plot(F.f,'#be185d',3,P1.xmin,-0.02); P1.plot(F.f,'#be185d',3,0.02,P1.xmax); }
+  var lx=F.a-d, rx=F.a+d; var lv=F.f(lx), rv=F.f(rx); if(isFinite(lv)&&lv<P1.ymax) P1.dot(lx,lv,'#2563eb',7); if(isFinite(rv)&&rv<P1.ymax) P1.dot(rx,rv,'#dc2626',7);
+  var fmtv=function(v){ return v>1e5?'∞로 발산':LEC.fmt(Math.round(v*1e4)/1e4); };
+  document.getElementById('rL').textContent= FK==='inf'?'+∞':LEC.fmt(F.L); document.getElementById('rR').textContent= FK==='inf'?'+∞':LEC.fmt(F.R); document.getElementById('rE').textContent= FK==='hole'?'존재 (2)':(FK==='jump'?'없음 (좌≠우)':'없음 (발산)');
+  var el=document.getElementById('out1'); el.innerHTML='$f(x)$ = '+F.name+' &nbsp;·&nbsp; $x='+LEC.fmt(Math.round(lx*1e4)/1e4).replace('−','-')+'$ 에서 '+fmtv(lv)+' &nbsp;·&nbsp; $x='+LEC.fmt(Math.round(rx*1e4)/1e4).replace('−','-')+'$ 에서 '+fmtv(rv); LEC.tex(el); }
+document.getElementById('fbtns').addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b)return; FK=b.dataset.f; this.querySelectorAll('button').forEach(function(x){x.classList.remove('on');}); b.classList.add('on'); setup1(); });
+document.getElementById('sd').addEventListener('input',draw1);
+APP.onTab({def:setup1}); LEC.onResize(function(){ if(APP.current()==='def') setup1(); });
+cards('propcards',[['$\\lim(f\\pm g)$','$=\\lim f\\pm\\lim g$ — 각각 수렴할 때'],['$\\lim(cf)$','$=c\\lim f$'],['$\\lim(fg)$','$=\\lim f\\cdot\\lim g$'],['$\\lim\\dfrac fg$','$=\\dfrac{\\lim f}{\\lim g}$ — 단, $\\lim g\\ne0$'],['따라서','다항함수·유리함수는 대입 가능하면 대입한 값이 극한값']]);
+
+var TABNAME={def:'🔍 극한의 뜻',calc:'⚖️ 성질·계산',coef:'🧮 미정계수·대소'};
+var QUIZ=[
+ {q:'f(x)=(x²−1)/(x−1) 에서 lim_{x→1} f(x) 는?',o:['2','1','0','존재하지 않는다'],a:0,t:'def',e:'x≠1에서 f(x)=x+1. 다가가면 2. x=1에서 정의 안 됨(구멍)이지만 극한은 2.'},
+ {q:'f(x) = |x|/x 에서 lim_{x→0} f(x) 는?',o:['존재하지 않는다','0','1','−1'],a:0,t:'def',e:'좌극한 −1, 우극한 1 → 다르므로 극한 없음(점프).'},
+ {q:'lim_{x→0} 1/x² 은?',o:['양의 무한대로 발산','0','1','−∞'],a:0,t:'def',e:'0에 가까워질수록 한없이 커진다 → 발산. ∞는 값이 아니므로 "극한값이 없다".'},
+ {q:'lim_{x→2} (x²−4)/(x−2) 의 값은?',o:['4','0','2','존재하지 않는다'],a:0,t:'calc',e:'(x−2)(x+2)/(x−2) = x+2 → 4.'},
+ {q:'lim_{x→0} (√(x+1)−1)/x 의 값은?',o:['1/2','1','0','2'],a:0,t:'calc',e:'유리화: x/(x(√(x+1)+1)) = 1/(√(x+1)+1) → 1/2.'},
+ {q:'lim_{x→∞} (2x²+3x)/(x²−1) 의 값은?',o:['2','0','3','∞'],a:0,t:'calc',e:'같은 차수 → 최고차 계수의 비 2/1=2.'},
+ {q:'lim_{x→∞} (x+1)/(x²+1) 의 값은?',o:['0','1','∞','1/2'],a:0,t:'calc',e:'분모 차수가 높다 → 0.'},
+ {q:'lim_{x→∞} (√(x²+4x)−x) 의 값은?',o:['2','4','0','1'],a:0,t:'calc',e:'유리화: 4x/(√(x²+4x)+x) → 4/(1+1)=2.'},
+ {q:'lim_{x→1} (x²+ax+b)/(x−1)=5 일 때 a+b 는?',o:['−1','5','4','1'],a:0,t:'coef',e:'분자→0: 1+a+b=0 → a+b=−1. (극한값 5는 a를 정하는 데 쓰인다: 분자=(x−1)(x−c), 1−c=5 → c=−4, a=3, b=−4.)'},
+ {q:'x²−1 ≤ f(x) ≤ 2x−2 일 때 lim_{x→1} f(x) 는?',o:['0','1','2','알 수 없다'],a:0,t:'coef',e:'양쪽 극한이 모두 0 → 샌드위치로 0.'}
+];
+APP.quiz(QUIZ,TABNAME,{perfect:'완벽해요! 극한은 방향이라는 걸 잡았어요.'});
+</script>
+</body>
+</html>

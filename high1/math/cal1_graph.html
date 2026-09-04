@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>증가·감소와 극대·극소 — 미적분Ⅰ</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
+<script src="lecture.js"></script>
+<link rel="stylesheet" href="cal1_app.css">
+<style>.widget canvas{max-width:520px}.sgn{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px;text-align:center}.sgn th,.sgn td{border:1px solid #e2e8f0;padding:7px 6px}.sgn th{background:#f8fafc}.sgn .p{color:#15803d;font-weight:800}.sgn .n{color:#b91c1c;font-weight:800}.sgn .z{color:var(--accent);font-weight:800}</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Math_1_1</a><span>&rsaquo;</span><a href="cal1_hub.html">미적분Ⅰ</a><span>&rsaquo;</span><a class="cur" href="#">증가·감소와 극대·극소</a></nav>
+<div class="hero">
+  <span class="badge">Ⅱ. 미분</span>
+  <h1>⛰️ 함수의 증가·감소와 극대·극소</h1>
+  <p>도함수는 함수의 날씨 예보 — 부호만 보면 오르내림이 보인다</p>
+</div>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="intro">📋 개요</button>
+  <button class="tab" data-t="inc">⛰️ 증가·감소</button>
+  <button class="tab" data-t="ext">🔺 극대·극소</button>
+  <button class="tab" data-t="shape">📈 그래프 개형</button>
+  <button class="tab" data-t="world">🌐 세상 속으로</button>
+  <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="fin">✅ 정리</button>
+</div>
+<div class="wrap">
+
+  <div class="page active" data-p="intro">
+    <div class="card">
+      <h2>📋 도함수는 함수의 날씨 예보</h2>
+      <div class="hook">
+        <div class="ht">💥 왜 배우나</div>
+        내일 기온 그래프를 그리지 않아도 "새벽까지 내려가다 오후 2시에 최고, 이후 하강"이라는 예보만 있으면 하루의 모양을 알죠. 도함수 $f'$가 바로 그 예보예요. <b>$f'$의 부호가 $+$인 구간에서 함수는 오르고, $-$인 구간에서 내려요.</b> 부호가 바뀌는 순간이 꼭대기(극대)와 바닥(극소)이고요. 그래서 복잡한 함수도 $f'$의 부호표 하나로 그래프의 모양이 다 나와요. 최고 이익, 최소 비용, 최단 시간을 찾는 모든 문제가 이 표에서 시작해요.
+      </div>
+      <div class="splink">🚪 "미분계수 = 기울기"가 먼저라면 → <a href="cal1_sp_slope.html">관문 특강: 미분 = 기울기의 완성</a> · 앞 단원 <a href="cal1_tangent.html">접선·평균값 정리</a></div>
+      <div class="sci">
+        <div class="ava">✒️</div>
+        <div>
+          <div class="st">페르마 (1607~1665) — 미분보다 먼저 극값을 찾다</div>
+          <div class="sd">변호사이자 아마추어 수학자였던 페르마는 뉴턴이 태어나기도 전에 "최대·최소가 되는 점에서는 아주 조금 움직여도 값이 거의 안 변한다"는 생각으로 극값을 찾는 방법을 만들었어요. 접선이 수평이라는 뜻이고, 오늘날 "$f'(a)=0$"과 같은 내용이에요. 뉴턴은 훗날 "페르마의 접선법에서 힌트를 얻었다"고 적었어요.</div>
+        </div>
+      </div>
+      <div class="toc">
+        <button onclick="go('inc')"><div class="ti">⛰️</div><div class="tn">증가·감소</div><div class="td">f′ 부호 띠</div></button>
+        <button onclick="go('ext')"><div class="ti">🔺</div><div class="tn">극대·극소</div><div class="td">부호표 위젯</div></button>
+        <button onclick="go('shape')"><div class="ti">📈</div><div class="tn">그래프 개형</div><div class="td">삼차함수 슬라이더</div></button>
+        <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">최적화·고점</div></button>
+        <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="inc">
+    <div class="card">
+      <h2>⛰️ 증가·감소 — 기울기의 부호</h2>
+      <p class="lead">$f(x)=x^3-3x$ 위에서 점을 움직여 보세요. 접선 기울기 $f'(x)$의 부호가 $+$일 때 그래프는 오르고, $-$일 때 내려요. 아래 띠가 $f'$의 부호예요.</p>
+      <div class="widget">
+        <canvas id="cv1" height="300"></canvas>
+        <div class="row"><span>$x$</span><input type="range" id="sx" min="-25" max="25" step="1" value="5"><span class="v" id="sxv">0.5</span></div>
+        <div class="out" id="out1"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 정리</div>어떤 구간에서 $f'(x)\gt0$이면 $f$는 그 구간에서 <b>증가</b>, $f'(x)\lt0$이면 <b>감소</b>한다. (근거: 평균값 정리 — 두 점 사이의 평균변화율이 어떤 $f'(c)$와 같으므로 부호가 따라온다.)</div>
+      <div class="box b"><div class="t">🔑 읽는 법</div>증가·감소를 판정하려면 $f$가 아니라 <b>$f'$를 본다</b>. $f'=0$이 되는 점으로 수직선을 나누고, 구간마다 $f'$의 부호를 하나만 확인하면 돼요(다항함수의 $f'$는 연속이라 구간 안에서 부호가 바뀌지 않아요).</div>
+      <div class="box b" style="text-align:center;font-size:15px">$f(x)=-x^3+3x^2$ 가 증가하는 구간은?</div>
+      <div class="steps"><button class="stepbtn" data-w="w1">▶ 풀이 보기</button><div class="stepwrap" id="w1">
+        <div class="step"><span class="sn">1</span>$f'(x)=-3x^2+6x=-3x(x-2)$.</div>
+        <div class="step"><span class="sn">2</span>$f'=0$: $x=0, 2$. 부호: $x\lt0$에서 $-$, $0\lt x\lt2$에서 $+$, $x\gt2$에서 $-$.<div class="why">→ 최고차 계수가 음수라 바깥이 −.</div></div>
+        <div class="ans">$0\le x\le2$ 에서 증가 (구간 끝점은 포함해도 된다)</div></div></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="ext">
+    <div class="card">
+      <h2>🔺 극대·극소 — 부호가 바뀌는 곳</h2>
+      <p class="lead">$f'(x)=3(x-p)(x-q)$인 삼차함수예요. $p, q$를 움직이며 <b>부호표</b>와 그래프가 함께 바뀌는 것을 보세요. $+\to-$인 곳이 극대, $-\to+$인 곳이 극소예요.</p>
+      <div class="widget">
+        <canvas id="cv2" height="280"></canvas>
+        <div class="row"><span>$p$</span><input type="range" id="sp" min="-3" max="1" step="1" value="-1"><span class="v" id="spv">−1</span></div>
+        <div class="row"><span>$q$ ($q\gt p$)</span><input type="range" id="sq" min="0" max="4" step="1" value="1"><span class="v" id="sqv">1</span></div>
+        <table class="sgn" id="sgntbl"></table>
+        <div class="out" id="out2"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 극대·극소</div>$x=a$ 근처에서 $f(a)$가 가장 크면 <b>극대</b>(값을 극댓값), 가장 작으면 <b>극소</b>. 미분가능한 함수가 $x=a$에서 극값을 가지면 $f'(a)=0$. <b>역은 성립하지 않는다</b>: $f'(a)=0$이어도 부호가 안 바뀌면 극값이 아니다($y=x^3$의 $x=0$).</div>
+      <div class="box b" style="text-align:center;font-size:15px">$f(x)=x^3-6x^2+9x$ 의 극댓값과 극솟값은?</div>
+      <div class="steps"><button class="stepbtn" data-w="w2">▶ 풀이 보기</button><div class="stepwrap" id="w2">
+        <div class="step"><span class="sn">1</span>$f'(x)=3x^2-12x+9=3(x-1)(x-3)$ → $f'=0$: $x=1,3$.</div>
+        <div class="step"><span class="sn">2</span>부호표: $x\lt1$ $+$, $1\lt x\lt3$ $-$, $x\gt3$ $+$ → $x=1$ 극대, $x=3$ 극소.</div>
+        <div class="step"><span class="sn">3</span>$f(1)=1-6+9=4$, $f(3)=27-54+27=0$.</div>
+        <div class="ans">극댓값 $4$ ($x=1$), 극솟값 $0$ ($x=3$)</div></div></div>
+      <div class="box a"><div class="t">⚠️ 흔한 실수</div>"극값 = 최댓값"이 아니에요. 극대는 <b>근처에서</b> 가장 큰 것. 삼차함수는 극댓값보다 큰 값이 저 멀리에 얼마든지 있어요. 구간이 제한된 최댓값은 극값과 양 끝값을 <b>모두</b> 비교해야 해요.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="shape">
+    <div class="card">
+      <h2>📈 그래프의 개형 — 증감표 한 장이면 그려진다</h2>
+      <p class="lead">$f(x)=x^3+ax^2+bx$의 계수를 움직여 보세요. 극값이 <b>두 개</b>일 때와 <b>없을 때</b>가 있어요. 그 갈림길은 $f'(x)=3x^2+2ax+b$의 판별식이에요.</p>
+      <div class="widget">
+        <canvas id="cv3" height="300"></canvas>
+        <div class="row"><span>$a$</span><input type="range" id="sa" min="-4" max="4" step="1" value="0"><span class="v" id="sav">0</span></div>
+        <div class="row"><span>$b$</span><input type="range" id="sb" min="-6" max="6" step="1" value="-3"><span class="v" id="sbv">−3</span></div>
+        <div class="out" id="out3"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 개형 그리는 순서</div>① $f'$ 구하기 → ② $f'=0$의 해 → ③ 증감표(구간별 $f'$ 부호, $f$의 ↗↘, 극값) → ④ $y$절편·필요하면 $x$절편 → ⑤ 그린다.</div>
+      <table class="sgn"><tr><th>$x$</th><th>…</th><th>$1$</th><th>…</th><th>$3$</th><th>…</th></tr><tr><th>$f'(x)$</th><td class="p">+</td><td class="z">0</td><td class="n">−</td><td class="z">0</td><td class="p">+</td></tr><tr><th>$f(x)$</th><td>↗</td><td class="z">4 (극대)</td><td>↘</td><td class="z">0 (극소)</td><td>↗</td></tr></table>
+      <p style="font-size:13px;color:var(--sub)">위 표는 $f(x)=x^3-6x^2+9x$의 증감표. 표만 있으면 그래프가 그려져요.</p>
+      <div class="box b"><div class="t">🔑 삼차함수의 극값 개수</div>$f'(x)=0$이 서로 다른 두 실근 → 극값 2개(극대 1, 극소 1). 중근이거나 실근이 없으면 → 극값 없음(한 방향으로만 증가 또는 감소). 즉 $f'$의 판별식 $D\gt0$ ⟺ 극값이 있다.</div>
+      <div class="box b" style="text-align:center;font-size:15px">$f(x)=x^3+ax^2+3x$ 가 극값을 갖지 않도록 하는 $a$의 범위는?</div>
+      <div class="steps"><button class="stepbtn" data-w="w3">▶ 풀이 보기</button><div class="stepwrap" id="w3">
+        <div class="step"><span class="sn">1</span>$f'(x)=3x^2+2ax+3$. 극값 없음 ⟺ $f'=0$이 서로 다른 두 실근을 갖지 않음 ⟺ $D/4=a^2-9\le0$.</div>
+        <div class="ans">$-3\le a\le3$</div></div></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="world">
+    <div class="card">
+      <h2>🌐 세상 속으로</h2>
+      <div class="keeper">
+        <div class="kt">📌 어른이 되어도 기억할 것</div>
+        <ol>
+          <li><b>오르는지 내리는지는 변화율의 부호가 말해 준다.</b> 매출 자체가 아니라 매출 증가율을 보는 이유.</li>
+          <li><b>꼭대기와 바닥에서는 기울기가 0.</b> 최적화(최대 이익·최소 비용)는 $f'=0$을 푸는 일에서 시작한다.</li>
+          <li><b>$f'=0$이라고 다 극값은 아니다.</b> 부호가 바뀌어야 한다. 정체 구간(변곡)을 고점으로 착각하지 말 것.</li>
+        </ol>
+      </div>
+      <div class="insight">
+        <div class="it">💡 인사이트 — 다음 단원으로</div>
+        그래프를 그릴 수 있으면 "방정식 $f(x)=k$의 실근이 몇 개인가"는 그래프와 가로선의 교점 개수로 읽혀요. 부등식 $f(x)\ge0$은 최솟값이 0 이상인지로. 그리고 위치 $\to$ 속도 $\to$ 가속도는 미분을 두 번 하는 것. 다음 단원 <b>도함수의 활용</b>이에요.
+      </div>
+      <div class="reallife">
+        <div class="rt">🏠 극값이 보이는 곳</div>
+        <div class="rgrid">
+          <div class="rcell"><div class="ri">🌡️</div><div class="rn">하루 기온</div><div class="rd">오후 2시경 극대</div></div>
+          <div class="rcell"><div class="ri">📈</div><div class="rn">주가 고점</div><div class="rd">상승률이 0이 되는 순간</div></div>
+          <div class="rcell"><div class="ri">🚀</div><div class="rn">최고 높이</div><div class="rd">속도가 0이 되는 순간</div></div>
+          <div class="rcell"><div class="ri">📦</div><div class="rn">상자 부피</div><div class="rd">접는 길이의 최적값</div></div>
+          <div class="rcell"><div class="ri">💊</div><div class="rn">약효 최고점</div><div class="rd">혈중 농도의 극대</div></div>
+          <div class="rcell"><div class="ri">🎢</div><div class="rn">롤러코스터</div><div class="rd">꼭대기에서 수평</div></div>
+        </div>
+      </div>
+      <div class="industry">
+        <div class="indt">🏭 산업과 직업</div>
+        <div class="indrow"><div class="ii">💼</div><div class="id2"><b>경영·경제</b><br>이익 = 수입 − 비용의 극대점 찾기. 한계수입 = 한계비용($f'=0$)이 경제학의 기본 원리.<br><span class="major">🎓 경영학 · 경제학</span></div></div>
+        <div class="indrow"><div class="ii">🤖</div><div class="id2"><b>인공지능</b><br>학습은 손실 함수의 극소점을 찾아 내려가는 것. 극소가 여러 개인 지형에서 좋은 바닥을 찾는 것이 연구 주제.<br><span class="major">🎓 컴퓨터공학</span></div></div>
+        <div class="indrow"><div class="ii">🏗️</div><div class="id2"><b>설계·제조</b><br>재료 최소·강도 최대·에너지 최소의 형상 설계는 극값 문제.<br><span class="major">🎓 기계·산업공학</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="quiz">
+    <div class="card">
+      <h2>🔥 증가·감소·극값 퀴즈</h2>
+      <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
+      <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="fin">
+    <div class="card">
+      <h2>✅ 정리</h2>
+      <table>
+        <tr><th class="l">항목</th><th class="l">내용</th></tr>
+        <tr><td class="l">증가·감소</td><td class="l">$f'\gt0$ 증가 · $f'\lt0$ 감소 (평균값 정리가 근거)</td></tr>
+        <tr><td class="l">극값</td><td class="l">극값이면 $f'=0$ · 역 ✗ · 부호 $+\to-$ 극대, $-\to+$ 극소</td></tr>
+        <tr><td class="l">증감표</td><td class="l">$f'=0$의 해로 구간 나누기 → 부호 → ↗↘ → 극값</td></tr>
+        <tr><td class="l">삼차 극값 개수</td><td class="l">$f'$의 $D\gt0$ ⟺ 극값 2개 · $D\le0$ ⟺ 없음</td></tr>
+        <tr><td class="l">최대·최소</td><td class="l">닫힌 구간: 극값과 양 끝값 비교</td></tr>
+      </table>
+      <div class="box b"><div class="t">🔑 한 줄 요약</div>$f$가 아니라 $f'$의 부호를 본다. 부호가 바뀌는 곳이 극값이고, 증감표가 곧 그래프다.</div>
+      <h3>자가 점검</h3>
+      <div class="chk"><input type="checkbox" id="k1"><label for="k1">$f'$의 부호로 증가·감소 구간을 구할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k2"><label for="k2">증감표를 만들어 극댓값·극솟값을 구할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k3"><label for="k3">$f'=0$이어도 극값이 아닐 수 있음을 예로 설명할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k4"><label for="k4">삼차함수가 극값을 가질 조건을 판별식으로 말할 수 있다</label></div>
+      <h3>약점 태그</h3>
+      <div><span class="tag">미적Ⅰ:증가감소</span><span class="tag">미적Ⅰ:극대극소</span><span class="tag">미적Ⅰ:증감표</span><span class="tag">미적Ⅰ:극값 존재 조건</span></div>
+      <div class="box g" style="margin-top:16px"><div class="t">➡️ 다음 단원</div>그래프로 방정식·부등식을 풀고 운동을 읽자 → <a href="cal1_apply.html">도함수의 활용</a>. <a href="cal1_hub.html">미적분Ⅰ 허브</a>로.</div>
+    </div>
+  </div>
+</div>
+
+<script src="alg_app.js"></script>
+<script>
+function f1(x){ return x*x*x-3*x; } function f1p(x){ return 3*x*x-3; }
+var P1=null;
+function setup1(){ var cv=document.getElementById('cv1'); if(!P1) P1=LEC.plane(cv,{xmin:-2.6,xmax:2.6,ymin:-4,ymax:4,h:300}); else P1.resize(); draw1(); }
+function draw1(){ if(!P1)return; var x=parseInt(document.getElementById('sx').value,10)/10; document.getElementById('sxv').textContent=LEC.fmt(x);
+  P1.clear(); var c=P1.ctx; // 부호 띠
+  c.fillStyle='rgba(22,163,74,.15)'; c.fillRect(P1.X(P1.xmin),0,P1.X(-1)-P1.X(P1.xmin),P1.h); c.fillRect(P1.X(1),0,P1.X(P1.xmax)-P1.X(1),P1.h); c.fillStyle='rgba(220,38,38,.12)'; c.fillRect(P1.X(-1),0,P1.X(1)-P1.X(-1),P1.h);
+  P1.grid().axes(); P1.plot(f1,'#be185d',3); var m=f1p(x), y=f1(x); P1.seg(x-1.2,y-1.2*m,x+1.2,y+1.2*m,m>0?'#16a34a':(m<0?'#dc2626':'#f59e0b'),2.5); P1.dot(x,y,'#0f172a',7);
+  c.fillStyle='#15803d'; c.font='bold 12px sans-serif'; c.textAlign='center'; c.textBaseline='top'; c.fillText("f′>0 증가",P1.X(-1.8),6); c.fillText("f′>0 증가",P1.X(1.8),6); c.fillStyle='#b91c1c'; c.fillText("f′<0 감소",P1.X(0),6);
+  var el=document.getElementById('out1'); el.innerHTML='$x='+LEC.fmt(x).replace('−','-')+'$: $f\'(x)=3x^2-3='+LEC.fmt(Math.round(m*100)/100).replace('−','-')+'$ → '+(m>0?'<b>양수 → 증가 중</b>':(m<0?'<b>음수 → 감소 중</b>':'<b>0 → 극값 (접선 수평)</b>')); LEC.tex(el); }
+document.getElementById('sx').addEventListener('input',draw1);
+var P2=null;
+function setup2(){ var cv=document.getElementById('cv2'); if(!P2) P2=LEC.plane(cv,{xmin:-4,xmax:5,ymin:-12,ymax:12,h:280,grid:1}); else P2.resize(); draw2(); }
+function draw2(){ if(!P2)return; var p=parseInt(document.getElementById('sp').value,10), q=parseInt(document.getElementById('sq').value,10); if(q<=p){ q=p+1; document.getElementById('sq').value=q; } document.getElementById('spv').textContent=LEC.fmt(p); document.getElementById('sqv').textContent=q;
+  // f' = 3(x-p)(x-q) = 3x^2 -3(p+q)x + 3pq → f = x^3 - 1.5(p+q)x^2 + 3pq x
+  var A=-1.5*(p+q), B=3*p*q; var f=function(x){return x*x*x+A*x*x+B*x;};
+  P2.clear().grid().axes(); P2.plot(f,'#be185d',3); P2.dot(p,f(p),'#16a34a',7,'극대','n'); P2.dot(q,f(q),'#dc2626',7,'극소','s');
+  document.getElementById('sgntbl').innerHTML='<tr><th>$x$</th><th>…</th><th>$'+p+'$</th><th>…</th><th>$'+q+'$</th><th>…</th></tr><tr><th>$f\'$</th><td class="p">+</td><td class="z">0</td><td class="n">−</td><td class="z">0</td><td class="p">+</td></tr><tr><th>$f$</th><td>↗</td><td class="z">극대 '+LEC.fmt(Math.round(f(p)*100)/100)+'</td><td>↘</td><td class="z">극소 '+LEC.fmt(Math.round(f(q)*100)/100)+'</td><td>↗</td></tr>'; LEC.tex(document.getElementById('sgntbl'));
+  var el=document.getElementById('out2'); el.innerHTML='$f\'(x)=3(x'+LEC.term(-p,'',false)+')(x'+LEC.term(-q,'',false)+')$ → $f(x)=x^3'+LEC.term(A,'x^2',false)+LEC.term(B,'x',false)+'$ (상수항 0으로)'; LEC.tex(el); }
+['sp','sq'].forEach(function(id){document.getElementById(id).addEventListener('input',draw2);});
+var P3=null;
+function setup3(){ var cv=document.getElementById('cv3'); if(!P3) P3=LEC.plane(cv,{xmin:-4,xmax:4,ymin:-15,ymax:15,h:300,grid:1}); else P3.resize(); draw3(); }
+function draw3(){ if(!P3)return; var a=parseInt(document.getElementById('sa').value,10), b=parseInt(document.getElementById('sb').value,10); document.getElementById('sav').textContent=LEC.fmt(a); document.getElementById('sbv').textContent=LEC.fmt(b);
+  var f=function(x){return x*x*x+a*x*x+b*x;}; var D=4*a*a-12*b; P3.clear().grid().axes(); P3.plot(f,'#be185d',3);
+  if(D>0){ var r1=(-2*a-Math.sqrt(D))/6, r2=(-2*a+Math.sqrt(D))/6; P3.dot(r1,f(r1),'#16a34a',6,'극대','n'); P3.dot(r2,f(r2),'#dc2626',6,'극소','s'); }
+  var el=document.getElementById('out3'); el.innerHTML='$f\'(x)=3x^2'+LEC.term(2*a,'x',false)+LEC.term(b,'',false)+'$, 판별식 $D='+(4*a*a)+'-'+(12*b)+'='+D+'$ → '+(D>0?'<b>극값 2개</b> (극대·극소)':(D===0?'<b>극값 없음</b> (중근: 잠깐 평평하지만 계속 증가)':'<b>극값 없음</b> (계속 증가)')); LEC.tex(el); }
+['sa','sb'].forEach(function(id){document.getElementById(id).addEventListener('input',draw3);});
+APP.onTab({inc:setup1, ext:setup2, shape:setup3}); LEC.onResize(function(){ var t=APP.current(); if(t==='inc')setup1(); if(t==='ext')setup2(); if(t==='shape')setup3(); });
+
+var TABNAME={inc:'⛰️ 증가·감소',ext:'🔺 극대·극소',shape:'📈 그래프 개형'};
+var QUIZ=[
+ {q:'f(x)=x²−4x 가 감소하는 구간은?',o:['x≤2','x≥2','x≤4','모든 실수'],a:0,t:'inc',e:'f′=2x−4<0 → x<2.'},
+ {q:'어떤 구간에서 f′(x)>0 이면?',o:['f는 그 구간에서 증가','f는 그 구간에서 감소','f는 극댓값을 갖는다','f는 상수'],a:0,t:'inc',e:'기울기가 양수면 오른쪽으로 갈수록 올라간다.'},
+ {q:'f(x)=x³−3x 가 증가하는 구간은?',o:['x≤−1 또는 x≥1','−1≤x≤1','x≥0','x≤0'],a:0,t:'inc',e:'f′=3x²−3=3(x−1)(x+1)>0 → 바깥.'},
+ {q:'f(x)=x³−3x 의 극댓값은?',o:['2','−2','0','1'],a:0,t:'ext',e:'f′=0 → x=±1. x=−1에서 +→− 극대, f(−1)=−1+3=2.'},
+ {q:'f′(a)=0 이면 x=a에서 반드시 극값을 갖는가?',o:['아니다 (y=x³의 x=0)','그렇다','극대만 가능','극소만 가능'],a:0,t:'ext',e:'부호가 바뀌어야 극값. x³은 x=0에서 f′=0이지만 계속 증가.'},
+ {q:'f(x)=x³−6x²+9x+1 의 극솟값은?',o:['1','5','0','4'],a:0,t:'ext',e:'f′=3(x−1)(x−3). x=3에서 극소, f(3)=27−54+27+1=1.'},
+ {q:'f′의 부호가 x=a에서 +에서 −로 바뀌면?',o:['x=a에서 극대','x=a에서 극소','극값이 아니다','증가한다'],a:0,t:'ext',e:'오르다 내리는 꼭대기 = 극대.'},
+ {q:'삼차함수 f(x)=x³+ax²+3x 가 극값을 갖기 위한 a의 범위는?',o:['a<−3 또는 a>3','−3≤a≤3','a>0','모든 실수'],a:0,t:'shape',e:'f′=3x²+2ax+3의 D/4=a²−9>0.'},
+ {q:'증감표에서 f′가 −, 0, − 순이면 그 점은?',o:['극값이 아니다','극대','극소','알 수 없다'],a:0,t:'shape',e:'부호가 바뀌지 않으면 극값이 아니다(잠시 평평한 뒤 계속 감소).'},
+ {q:'닫힌 구간 [0,4]에서 f(x)=x³−6x²+9x 의 최댓값은?',o:['4','0','−4','7'],a:0,t:'shape',e:'극댓값 f(1)=4, 양 끝 f(0)=0, f(4)=64−96+36=4. 최댓값 4.'}
+];
+APP.quiz(QUIZ,TABNAME,{perfect:'완벽해요! 도함수로 그래프를 예보할 수 있어요.'});
+</script>
+</body>
+</html>

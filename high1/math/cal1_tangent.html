@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>접선의 방정식과 평균값 정리 — 미적분Ⅰ</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
+<script src="lecture.js"></script>
+<link rel="stylesheet" href="cal1_app.css">
+<style>.widget canvas{max-width:520px}</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Math_1_1</a><span>&rsaquo;</span><a href="cal1_hub.html">미적분Ⅰ</a><span>&rsaquo;</span><a class="cur" href="#">접선의 방정식과 평균값 정리</a></nav>
+<div class="hero">
+  <span class="badge">Ⅱ. 미분</span>
+  <h1>✏️ 접선의 방정식과 평균값 정리</h1>
+  <p>곡선에 붙는 직선 — 그리고 "어딘가엔 반드시 평행한 접선이 있다"</p>
+</div>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="intro">📋 개요</button>
+  <button class="tab" data-t="tan">✏️ 접선의 방정식</button>
+  <button class="tab" data-t="ext">🎯 곡선 밖의 점</button>
+  <button class="tab" data-t="mvt">⚖️ 롤·평균값 정리</button>
+  <button class="tab" data-t="world">🌐 세상 속으로</button>
+  <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="fin">✅ 정리</button>
+</div>
+<div class="wrap">
+
+  <div class="page active" data-p="intro">
+    <div class="card">
+      <h2>📋 줌인하면 곡선은 직선이 된다</h2>
+      <div class="hook">
+        <div class="ht">💥 왜 배우나</div>
+        지구는 둥글지만 운동장은 평평해 보이죠. 곡선도 충분히 확대하면 <b>직선처럼</b> 보여요. 그 직선이 <b>접선</b>이고, "곡선을 그 근처에서 직선으로 바꿔 생각하는 것"이 공학과 과학이 복잡한 문제를 푸는 첫 번째 기술이에요(선형 근사). 내비게이션이 1초 뒤 위치를 예측하는 것도, 계산기가 $\sqrt{4.01}$을 구하는 것도 접선이에요. 그리고 "구간의 평균 속력과 똑같은 순간 속력이 어딘가엔 반드시 있다"는 <b>평균값 정리</b>가 미분 이론의 뼈대예요.
+      </div>
+      <div class="splink">🚪 미분계수가 기울기라는 감각이 먼저라면 → <a href="cal1_sp_slope.html">관문 특강: 미분 = 기울기의 완성</a> · 앞 단원 <a href="cal1_derivative.html">미분계수와 도함수</a></div>
+      <div class="sci">
+        <div class="ava">🎓</div>
+        <div>
+          <div class="st">롤과 라그랑주 — "평행한 접선은 반드시 있다"</div>
+          <div class="sd">프랑스의 롤은 1691년 다항식에 대해 "양 끝 값이 같으면 그 사이에 기울기 0인 점이 있다"(롤의 정리)를 발표했고, 100년 뒤 라그랑주가 이를 일반화해 <b>평균값 정리</b>를 세웠어요. "$f'\gt0$이면 증가한다"처럼 당연해 보이는 미분의 성질들이 사실 전부 이 정리에서 나와요. 재미있게도 롤은 처음엔 미분법을 "오류투성이"라며 비판하던 사람이었어요.</div>
+        </div>
+      </div>
+      <div class="toc">
+        <button onclick="go('tan')"><div class="ti">✏️</div><div class="tn">접선의 방정식</div><div class="td">접점 드래그</div></button>
+        <button onclick="go('ext')"><div class="ti">🎯</div><div class="tn">곡선 밖의 점</div><div class="td">접점을 t로</div></button>
+        <button onclick="go('mvt')"><div class="ti">⚖️</div><div class="tn">롤·평균값 정리</div><div class="td">평행한 접선 찾기</div></button>
+        <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">선형 근사·예측</div></button>
+        <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="tan">
+    <div class="card">
+      <h2>✏️ 접선의 방정식 — 점 하나 + 기울기 f′(a)</h2>
+      <p class="lead">곡선 $y=x^3-3x$ 위의 <b>접점을 끌어</b> 보세요. 접선의 식이 실시간으로 바뀌어요. 직선을 정하는 데 필요한 것은 "지나는 점"과 "기울기" 둘뿐이고, 기울기는 미분계수가 줘요.</p>
+      <div class="widget">
+        <canvas id="cv1" height="300"></canvas>
+        <div class="out" id="out1"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 접선의 방정식</div>$$y-f(a)=f'(a)(x-a)$$ 접점 $(a, f(a))$, 기울기 $f'(a)$. 중2의 "점과 기울기로 직선 만들기" 그대로.</div>
+      <div class="box b" style="text-align:center;font-size:15px">곡선 $y=x^2-2x+3$ 위의 $x=2$인 점에서의 접선의 방정식은?</div>
+      <div class="steps"><button class="stepbtn" data-w="w1">▶ 풀이 보기</button><div class="stepwrap" id="w1">
+        <div class="step"><span class="sn">1</span>접점: $f(2)=4-4+3=3$ → $(2,3)$.</div>
+        <div class="step"><span class="sn">2</span>기울기: $f'(x)=2x-2$ → $f'(2)=2$.</div>
+        <div class="step"><span class="sn">3</span>$y-3=2(x-2)$.</div>
+        <div class="ans">$y=2x-1$</div></div></div>
+      <div class="box b" style="text-align:center;font-size:15px">곡선 $y=x^3$ 의 접선 중 기울기가 $12$인 것은?</div>
+      <div class="steps"><button class="stepbtn" data-w="w2">▶ 풀이 보기</button><div class="stepwrap" id="w2">
+        <div class="step"><span class="sn">1</span>기울기 조건: $f'(x)=3x^2=12$ → $x=\pm2$. 접점이 <b>두 개</b>.</div>
+        <div class="step"><span class="sn">2</span>$x=2$: $(2,8)$, $y-8=12(x-2)$ → $y=12x-16$. $x=-2$: $(-2,-8)$ → $y=12x+16$.</div>
+        <div class="ans">$y=12x-16$, $y=12x+16$</div></div></div>
+      <div class="box a"><div class="t">⚠️ 흔한 실수</div>"$x=2$에서의 접선"은 접점의 $y$좌표를 <b>먼저</b> 구해야 해요. $f(2)$를 빼먹고 $y=2x$라고 쓰는 실수가 잦아요. 그리고 기울기가 주어지면 접점은 여러 개일 수 있어요.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="ext">
+    <div class="card">
+      <h2>🎯 곡선 밖의 점에서 그은 접선 — 접점을 t로 둔다</h2>
+      <p class="lead">점 $(0,-1)$은 $y=x^2$ 위에 없어요. 여기서 곡선에 접선을 그으면 두 개가 나와요. 방법은 하나: <b>접점을 $(t, t^2)$으로 두고</b> 접선을 쓴 뒤, 그 접선이 $(0,-1)$을 지나게 하는 것.</p>
+      <div class="widget">
+        <canvas id="cv2" height="280"></canvas>
+        <div class="row"><span>접점 후보 $t$</span><input type="range" id="st" min="-2" max="2" step="0.25" value="0.5"><span class="v" id="stv">0.5</span></div>
+        <div class="out" id="out2"></div>
+      </div>
+      <div class="box b" style="text-align:center;font-size:15px">점 $(0,-1)$에서 곡선 $y=x^2$에 그은 접선의 방정식은?</div>
+      <div class="steps"><button class="stepbtn" data-w="w3">▶ 풀이 보기</button><div class="stepwrap" id="w3">
+        <div class="step"><span class="sn">1</span>접점을 $(t,t^2)$으로 두면 접선은 $y-t^2=2t(x-t)$, 즉 $y=2tx-t^2$.</div>
+        <div class="step"><span class="sn">2</span>$(0,-1)$을 지나므로 $-1=-t^2$ → $t=\pm1$.<div class="why">→ 주어진 점을 대입해 t를 구하는 것이 핵심.</div></div>
+        <div class="step"><span class="sn">3</span>$t=1$: $y=2x-1$, $t=-1$: $y=-2x-1$.</div>
+        <div class="ans">$y=2x-1$, $y=-2x-1$</div></div></div>
+      <div class="box g"><div class="t">✅ 세 가지 접선 문제, 한 가지 방법</div>① 접점이 주어짐 → 바로 공식. ② 기울기가 주어짐 → $f'(t)=m$으로 접점 찾기. ③ 곡선 밖의 점이 주어짐 → 접점을 $t$로 두고 그 점을 대입. <b>모두 "접점 찾기"가 먼저</b>예요.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="mvt">
+    <div class="card">
+      <h2>⚖️ 롤의 정리와 평균값 정리 — 평행한 접선은 반드시 있다</h2>
+      <p class="lead">구간 $[a,b]$의 양 끝을 잇는 직선(할선)의 기울기는 평균변화율이에요. 곡선이 매끈하면, 그 사이 <b>어딘가엔 이 할선과 평행한 접선이 반드시</b> 있어요. 슬라이더로 $c$를 움직여 찾아보세요.</p>
+      <div class="widget">
+        <canvas id="cv3" height="280"></canvas>
+        <div class="btns" id="mbtns"><button data-m="mvt" class="on">평균값 정리 $[0,3]$</button><button data-m="rolle">롤의 정리 $[1,3]$</button></div>
+        <div class="row"><span>$c$</span><input type="range" id="sc" min="0" max="30" step="1" value="10"><span class="v" id="scv">1.0</span></div>
+        <div class="out" id="out3"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 롤의 정리</div>$f$가 $[a,b]$에서 연속, $(a,b)$에서 미분가능하고 $f(a)=f(b)$이면 $f'(c)=0$인 $c$가 $(a,b)$에 존재한다. — 같은 높이로 돌아오려면 어딘가에서 수평이어야 한다.</div>
+      <div class="box g"><div class="t">✅ 평균값 정리</div>$f$가 $[a,b]$에서 연속, $(a,b)$에서 미분가능하면 $$\frac{f(b)-f(a)}{b-a}=f'(c)$$ 인 $c$가 $(a,b)$에 존재한다. — 평균 속력과 같은 순간 속력이 어딘가엔 있다. (롤은 $f(a)=f(b)$인 특수한 경우.)</div>
+      <div class="box b" style="text-align:center;font-size:15px">$f(x)=x^2$, 구간 $[1,3]$에서 평균값 정리를 만족시키는 $c$는?</div>
+      <div class="steps"><button class="stepbtn" data-w="w4">▶ 풀이 보기</button><div class="stepwrap" id="w4">
+        <div class="step"><span class="sn">1</span>평균변화율 $\dfrac{9-1}{3-1}=4$.</div>
+        <div class="step"><span class="sn">2</span>$f'(c)=2c=4$ → $c=2$. $1\lt2\lt3$ ✓.</div>
+        <div class="ans">$c=2$</div></div></div>
+      <div class="box b"><div class="t">🔑 왜 중요한가</div>구간단속에서 평균 속력이 제한을 넘었다면, <b>어느 순간엔 반드시</b> 그 속력을 냈다는 뜻이에요(그래서 단속이 정당해요). 수학에서는 "$f'\gt0$이면 증가"(다음 단원)를 증명하는 데 이 정리를 써요.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="world">
+    <div class="card">
+      <h2>🌐 세상 속으로</h2>
+      <div class="keeper">
+        <div class="kt">📌 어른이 되어도 기억할 것</div>
+        <ol>
+          <li><b>접선 = 곡선의 그 자리 직선 근사.</b> 복잡한 것을 그 근처에서 직선으로 바꿔 푸는 것이 공학의 첫 기술(선형화).</li>
+          <li><b>접선 문제는 접점 찾기가 먼저.</b> 접점·기울기·바깥 점, 무엇이 주어져도 접점 $t$로 돌아간다.</li>
+          <li><b>평균값 정리</b>: 평균과 같은 순간이 반드시 있다. 구간단속의 논리이자 미분 이론의 뼈대.</li>
+        </ol>
+      </div>
+      <div class="insight">
+        <div class="it">💡 인사이트 — 다음 단원으로</div>
+        평균값 정리에서 "$f'\gt0$이면 함수는 증가한다"가 나와요(두 점 사이 평균변화율 = 어떤 $f'(c)\gt0$). 그러니 도함수의 부호만 보면 그래프의 오르내림을 알 수 있고, 그것이 다음 단원 <b>증가·감소와 극대·극소</b>예요.
+      </div>
+      <div class="reallife">
+        <div class="rt">🏠 접선이 쓰이는 곳</div>
+        <div class="rgrid">
+          <div class="rcell"><div class="ri">🧭</div><div class="rn">위치 예측</div><div class="rd">1초 뒤 = 지금 + 속도 × 1초</div></div>
+          <div class="rcell"><div class="ri">🧮</div><div class="rn">근삿값</div><div class="rd">$\sqrt{4.01}\approx2+\frac{0.01}{4}$</div></div>
+          <div class="rcell"><div class="ri">🛣️</div><div class="rn">도로 설계</div><div class="rd">곡선 구간과 직선 구간을 접선으로 잇기</div></div>
+          <div class="rcell"><div class="ri">🚓</div><div class="rn">구간단속</div><div class="rd">평균값 정리의 현장</div></div>
+          <div class="rcell"><div class="ri">🎢</div><div class="rn">롤러코스터</div><div class="rd">꼭대기에서 접선은 수평</div></div>
+          <div class="rcell"><div class="ri">🔭</div><div class="rn">망원경 거울</div><div class="rd">접선 방향으로 빛이 반사</div></div>
+        </div>
+      </div>
+      <div class="industry">
+        <div class="indt">🏭 산업과 직업</div>
+        <div class="indrow"><div class="ii">🛰️</div><div class="id2"><b>항법·로봇</b><br>다음 위치를 접선(속도)으로 예측하고 센서로 보정한다(칼만 필터의 기본). 로봇 팔의 경로 계획도 접선 조건.<br><span class="major">🎓 항공우주 · 로봇공학</span></div></div>
+        <div class="indrow"><div class="ii">🎨</div><div class="id2"><b>디자인·CAD</b><br>글꼴과 자동차 곡면은 곡선 조각을 접선이 이어지도록(매끈하게) 붙인 것. 베지어 곡선의 조절점이 접선 방향.<br><span class="major">🎓 산업디자인 · 기계공학</span></div></div>
+        <div class="indrow"><div class="ii">📈</div><div class="id2"><b>수치해석·금융</b><br>뉴턴법(접선으로 근 찾기), 옵션의 델타(가격 곡선의 접선 기울기).<br><span class="major">🎓 응용수학 · 금융공학</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="quiz">
+    <div class="card">
+      <h2>🔥 접선·평균값 정리 퀴즈</h2>
+      <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
+      <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="fin">
+    <div class="card">
+      <h2>✅ 정리</h2>
+      <table>
+        <tr><th class="l">항목</th><th class="l">내용</th></tr>
+        <tr><td class="l">접선</td><td class="l">$y-f(a)=f'(a)(x-a)$ — 접점 먼저, 기울기는 $f'(a)$</td></tr>
+        <tr><td class="l">기울기 주어짐</td><td class="l">$f'(t)=m$ 풀어 접점 (여러 개 가능)</td></tr>
+        <tr><td class="l">곡선 밖 점</td><td class="l">접점 $(t,f(t))$로 접선을 쓰고 그 점을 대입해 $t$</td></tr>
+        <tr><td class="l">롤의 정리</td><td class="l">$f(a)=f(b)$ → $f'(c)=0$인 $c$ 존재</td></tr>
+        <tr><td class="l">평균값 정리</td><td class="l">$\frac{f(b)-f(a)}{b-a}=f'(c)$인 $c$ 존재 (연속·미분가능)</td></tr>
+      </table>
+      <div class="box b"><div class="t">🔑 한 줄 요약</div>접선은 "접점 + $f'(a)$". 무엇이 주어져도 접점을 $t$로 두고 시작하고, 평균과 같은 순간(평행한 접선)은 반드시 있다.</div>
+      <h3>자가 점검</h3>
+      <div class="chk"><input type="checkbox" id="k1"><label for="k1">곡선 위의 점에서 접선의 방정식을 쓸 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k2"><label for="k2">기울기가 주어진 접선의 접점을 찾을 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k3"><label for="k3">곡선 밖의 점에서 그은 접선을 접점 $t$로 구할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k4"><label for="k4">롤·평균값 정리의 조건과 결론을 말하고 $c$를 구할 수 있다</label></div>
+      <h3>약점 태그</h3>
+      <div><span class="tag">미적Ⅰ:접선의 방정식</span><span class="tag">미적Ⅰ:곡선 밖 접선</span><span class="tag">미적Ⅰ:롤의 정리</span><span class="tag">미적Ⅰ:평균값 정리</span></div>
+      <div class="box g" style="margin-top:16px"><div class="t">➡️ 다음 단원</div>기울기의 부호로 그래프를 읽자 → <a href="cal1_graph.html">증가·감소와 극대·극소</a>. <a href="cal1_hub.html">미적분Ⅰ 허브</a>로.</div>
+    </div>
+  </div>
+</div>
+
+<script src="alg_app.js"></script>
+<script>
+function f1(x){ return x*x*x-3*x; } function f1p(x){ return 3*x*x-3; }
+var P1=null, T={x:1.5,y:f1(1.5)};
+function setup1(){ var cv=document.getElementById('cv1'); if(!P1){ P1=LEC.plane(cv,{xmin:-3,xmax:3,ymin:-5,ymax:5,h:300}); P1.drag([T],function(p){ p.x=Math.round(p.x*4)/4; p.y=f1(p.x); draw1(); },0.25); } else P1.resize(); draw1(); }
+function draw1(){ if(!P1)return; var a=T.x, ya=f1(a), m=f1p(a); P1.clear().grid().axes(); P1.plot(f1,'#be185d',3); P1.seg(P1.xmin,ya+m*(P1.xmin-a),P1.xmax,ya+m*(P1.xmax-a),'#2563eb',2.5); P1.dot(a,ya,'#dc2626',8,'('+LEC.fmt(a)+', '+LEC.fmt(Math.round(ya*100)/100)+')',ya>=0?'ne':'se');
+  var yint=ya-m*a; var el=document.getElementById('out1'); el.innerHTML='접점 $x='+LEC.fmt(a).replace('−','-')+'$: $f\'(x)=3x^2-3$ → 기울기 $'+LEC.fmt(m).replace('−','-')+'$ &nbsp;·&nbsp; 접선 $y-('+LEC.fmt(Math.round(ya*1000)/1000).replace('−','-')+')='+LEC.fmt(m).replace('−','-')+'(x-'+LEC.sgnParen(a)+')$ → $y='+LEC.poly([m,Math.round(yint*1000)/1000]).replace(/−/g,'-')+'$'; LEC.tex(el); }
+var P2=null;
+function setup2(){ var cv=document.getElementById('cv2'); if(!P2) P2=LEC.plane(cv,{xmin:-3,xmax:3,ymin:-2,ymax:5,h:280}); else P2.resize(); draw2(); }
+function draw2(){ if(!P2)return; var t=parseFloat(document.getElementById('st').value); document.getElementById('stv').textContent=LEC.fmt(t);
+  P2.clear().grid().axes(); P2.plot(function(x){return x*x;},'#be185d',3); var m=2*t, b=-t*t; P2.seg(P2.xmin,m*P2.xmin+b,P2.xmax,m*P2.xmax+b,'#2563eb',2.5); P2.dot(t,t*t,'#2563eb',6,'(t, t²)','ne'); P2.dot(0,-1,'#dc2626',7,'(0, −1)','sw');
+  var hit=Math.abs(t*t-1)<1e-9; var el=document.getElementById('out2'); el.innerHTML='접점 $(t,t^2)$의 접선 $y=2tx-t^2$ &nbsp;·&nbsp; $t='+LEC.fmt(t).replace('−','-')+'$: $y='+LEC.poly([m,b]).replace(/−/g,'-')+'$ → $(0,-1)$을 '+(hit?'<b>지난다 ✓</b> (이 $t$가 답)':'지나지 않는다 ($x=0$일 때 $y='+LEC.fmt(b).replace('−','-')+'$)'); LEC.tex(el); }
+document.getElementById('st').addEventListener('input',draw2);
+var P3=null, MODE='mvt';
+var CF={mvt:{f:function(x){return x*x*x/3-x*x+2*x;},fp:function(x){return x*x-2*x+2;},a:0,b:3},rolle:{f:function(x){return x*x-4*x+2;},fp:function(x){return 2*x-4;},a:1,b:3}};
+function setup3(){ var cv=document.getElementById('cv3'); if(!P3) P3=LEC.plane(cv,{xmin:-0.5,xmax:3.6,ymin:-3,ymax:7,h:280}); else P3.resize(); draw3(); }
+function draw3(){ if(!P3)return; var C=CF[MODE]; var sl=document.getElementById('sc'); sl.min=C.a*10; sl.max=C.b*10; var c=parseInt(sl.value,10)/10; if(c<=C.a||c>=C.b){ c=(C.a+C.b)/2; sl.value=c*10; } document.getElementById('scv').textContent=c.toFixed(1);
+  var fa=C.f(C.a), fb=C.f(C.b), ms=(fb-fa)/(C.b-C.a), mc=C.fp(c), fc=C.f(c);
+  P3.clear().grid().axes(); P3.plot(C.f,'#be185d',3); P3.seg(C.a,fa,C.b,fb,'#94a3b8',2,[5,4]); P3.dot(C.a,fa,'#0f172a',5); P3.dot(C.b,fb,'#0f172a',5);
+  P3.seg(P3.xmin,fc+mc*(P3.xmin-c),P3.xmax,fc+mc*(P3.xmax-c),'#2563eb',2.5); P3.dot(c,fc,'#dc2626',7,'c','n');
+  var ok=Math.abs(mc-ms)<0.02; var el=document.getElementById('out3');
+  el.innerHTML=(MODE==='mvt'?'할선 기울기 $\\dfrac{f(3)-f(0)}{3}='+LEC.fmt(Math.round(ms*100)/100).replace('−','-')+'$':'$f(1)=f(3)='+fa+'$ → 할선 기울기 $0$')+' &nbsp;·&nbsp; $f\'('+c.toFixed(1)+')='+LEC.fmt(Math.round(mc*100)/100).replace('−','-')+'$ '+(ok?'<b>→ 평행! 이 $c$가 정리의 $c$</b>':'→ 아직 평행이 아니에요'); LEC.tex(el); }
+document.getElementById('sc').addEventListener('input',draw3);
+document.getElementById('mbtns').addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b)return; MODE=b.dataset.m; this.querySelectorAll('button').forEach(function(x){x.classList.remove('on');}); b.classList.add('on'); document.getElementById('sc').value=(CF[MODE].a+CF[MODE].b)*5; draw3(); });
+APP.onTab({tan:setup1, ext:setup2, mvt:setup3}); LEC.onResize(function(){ var t=APP.current(); if(t==='tan')setup1(); if(t==='ext')setup2(); if(t==='mvt')setup3(); });
+
+var TABNAME={tan:'✏️ 접선의 방정식',ext:'🎯 곡선 밖의 점',mvt:'⚖️ 롤·평균값 정리'};
+var QUIZ=[
+ {q:'곡선 y=x² 위의 점 (1,1)에서의 접선의 방정식은?',o:['y=2x−1','y=2x','y=x','y=2x+1'],a:0,t:'tan',e:'f′(1)=2 → y−1=2(x−1) → y=2x−1.'},
+ {q:'곡선 y=x³−x 위의 x=1인 점에서의 접선의 기울기는?',o:['2','0','1','3'],a:0,t:'tan',e:'f′(x)=3x²−1 → f′(1)=2.'},
+ {q:'곡선 y=x² 의 접선 중 기울기가 6인 접선의 접점은?',o:['(3, 9)','(6, 36)','(2, 4)','(3, 6)'],a:0,t:'tan',e:'2x=6 → x=3, y=9.'},
+ {q:'곡선 y=x²+1 위의 x=0인 점에서의 접선은?',o:['y=1','y=x+1','y=0','x=0'],a:0,t:'tan',e:'f′(0)=0 → 수평선 y=f(0)=1.'},
+ {q:'점 (0,−4)에서 곡선 y=x² 에 그은 접선의 접점의 x좌표는?',o:['±2','±4','±1','2'],a:0,t:'ext',e:'접선 y=2tx−t² 이 (0,−4)를 지남 → −4=−t² → t=±2.'},
+ {q:'곡선 밖의 점에서 접선을 구할 때 첫 단계는?',o:['접점을 (t, f(t))로 둔다','주어진 점을 f에 대입한다','f′(0)을 구한다','y절편을 구한다'],a:0,t:'ext',e:'접점을 미지수로 두고 접선을 쓴 뒤, 주어진 점을 대입해 t를 구한다.'},
+ {q:'f(x)=x²−2x 에 대해 [0,2]에서 롤의 정리를 만족시키는 c는?',o:['1','0','2','1/2'],a:0,t:'mvt',e:'f(0)=f(2)=0. f′(c)=2c−2=0 → c=1.'},
+ {q:'f(x)=x² 에 대해 [0,4]에서 평균값 정리를 만족시키는 c는?',o:['2','4','1','√2'],a:0,t:'mvt',e:'평균변화율 (16−0)/4=4. f′(c)=2c=4 → c=2.'},
+ {q:'평균값 정리를 쓰기 위한 조건은?',o:['닫힌 구간에서 연속, 열린 구간에서 미분가능','증가함수','f(a)=f(b)','다항함수'],a:0,t:'mvt',e:'연속 + 미분가능. f(a)=f(b)는 롤의 정리의 추가 조건.'},
+ {q:'f(x)=x³ 에 대해 [−1,1]에서 평균값 정리의 c의 값은?',o:['±1/√3','0','±1','1/2'],a:0,t:'mvt',e:'평균변화율 (1−(−1))/2=1. 3c²=1 → c=±1/√3. 두 개 모두 구간 안.'}
+];
+APP.quiz(QUIZ,TABNAME,{perfect:'완벽해요! 접선과 평균값 정리를 손에 넣었어요.'});
+</script>
+</body>
+</html>

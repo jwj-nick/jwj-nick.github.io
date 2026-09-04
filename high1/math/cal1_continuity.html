@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>함수의 연속 — 미적분Ⅰ</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
+<script src="lecture.js"></script>
+<link rel="stylesheet" href="cal1_app.css">
+<style>.chk3{display:grid;grid-template-columns:1fr;gap:6px;margin-top:8px}.chk3 div{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:8px 12px;font-size:13.5px;display:flex;justify-content:space-between;align-items:center}.chk3 b.ok{color:#15803d}.chk3 b.no{color:#b91c1c}.widget canvas{max-width:520px}</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Math_1_1</a><span>&rsaquo;</span><a href="cal1_hub.html">미적분Ⅰ</a><span>&rsaquo;</span><a class="cur" href="#">함수의 연속</a></nav>
+<div class="hero">
+  <span class="badge">Ⅰ. 함수의 극한과 연속</span>
+  <h1>🔗 함수의 연속</h1>
+  <p>끊기지 않는다는 것의 수학 — 구멍도 점프도 없이</p>
+</div>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="intro">📋 개요</button>
+  <button class="tab" data-t="def">🔗 연속의 뜻</button>
+  <button class="tab" data-t="prop">📐 연속함수의 성질</button>
+  <button class="tab" data-t="ivt">🧮 사잇값 정리</button>
+  <button class="tab" data-t="world">🌐 세상 속으로</button>
+  <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="fin">✅ 정리</button>
+</div>
+<div class="wrap">
+
+  <div class="page active" data-p="intro">
+    <div class="card">
+      <h2>📋 어느 순간엔 반드시 15℃였다</h2>
+      <div class="hook">
+        <div class="ht">💥 왜 배우나</div>
+        아침에 10℃였던 기온이 낮에 20℃가 됐다면, 그 사이 <b>어느 순간엔 정확히 15℃</b>였을 거예요. 당연해 보이죠? 그런데 이 "당연함"은 기온이 <b>끊기지 않고 변한다</b>(연속)는 가정에서만 성립해요. 주가처럼 갑자기 뛰는 것에는 성립하지 않아요. "끊기지 않는다"를 정확히 말하고, 거기서 "반드시 지나간다"(사잇값 정리)를 끌어내는 것이 이 단원이에요. 방정식에 해가 있는지 계산 없이 아는 방법이기도 해요.
+      </div>
+      <div class="splink">🚪 극한의 감각이 먼저라면 → <a href="cal1_sp_limit.html">관문 특강: 극한 — "가까워진다"의 감각</a> · 앞 단원 <a href="cal1_limit.html">함수의 극한</a></div>
+      <div class="sci">
+        <div class="ava">🧑‍🏫</div>
+        <div>
+          <div class="st">볼차노 (1781~1848) — "당연한 것"을 증명한 사람</div>
+          <div class="sd">프라하의 수학자이자 신부였던 볼차노는 1817년, "연속함수가 어떤 구간에서 부호가 바뀌면 그 사이에 0이 되는 점이 있다"(사잇값 정리)를 <b>그림에 기대지 않고</b> 증명했어요. 그림으로는 당연해 보이는 것을 말로 증명하려면 먼저 "연속"이 무엇인지 정의해야 했고, 그것이 현대 해석학의 출발이 됐어요.</div>
+        </div>
+      </div>
+      <div class="toc">
+        <button onclick="go('def')"><div class="ti">🔗</div><div class="tn">연속의 뜻</div><div class="td">3조건 판정기</div></button>
+        <button onclick="go('prop')"><div class="ti">📐</div><div class="tn">연속함수의 성질</div><div class="td">최대·최소 정리</div></button>
+        <button onclick="go('ivt')"><div class="ti">🧮</div><div class="tn">사잇값 정리</div><div class="td">해가 있다는 증명</div></button>
+        <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">기온·주가·영상</div></button>
+        <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="def">
+    <div class="card">
+      <h2>🔗 연속의 뜻 — 세 가지 확인</h2>
+      <p class="lead">함수를 고르면 $x=1$에서 세 조건을 하나씩 확인해요. 셋 다 통과해야 <b>$x=1$에서 연속</b>이에요. 어느 하나라도 실패하면 <b>불연속</b>.</p>
+      <div class="widget">
+        <canvas id="cv1" height="260"></canvas>
+        <div class="btns" id="fbtns"><button data-f="cont" class="on">매끈</button><button data-f="hole">구멍</button><button data-f="jump">점프</button><button data-f="wrong">값이 딴 데</button></div>
+        <div class="chk3"><div><span>ⓘ $f(1)$이 정의된다</span><b id="c1"></b></div><div><span>ⓘⓘ $\displaystyle\lim_{x\to1}f(x)$가 존재한다</span><b id="c2"></b></div><div><span>ⓘⓘⓘ $\displaystyle\lim_{x\to1}f(x)=f(1)$</span><b id="c3"></b></div></div>
+        <div class="out" id="out1"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 정의</div>함수 $f$가 $x=a$에서 연속 ⟺ ⓘ $f(a)$가 정의되고 ⓘⓘ $\displaystyle\lim_{x\to a}f(x)$가 존재하며 ⓘⓘⓘ $\displaystyle\lim_{x\to a}f(x)=f(a)$. 세 조건을 한 줄로 쓰면 "<b>극한값 = 함숫값</b>". 정의역의 모든 점에서 연속이면 <b>연속함수</b>.</div>
+      <div class="box b"><div class="t">🔑 읽는 법</div>연속은 "다가간 곳(극한)에 실제로 점이 찍혀 있다(함숫값)"예요. 구멍은 점이 없거나 딴 데 있는 것, 점프는 다가가는 곳이 좌우로 다른 것. 그래서 불연속은 늘 셋 중 하나가 깨진 거예요.</div>
+      <h3>연속이 되도록 상수 정하기</h3>
+      <div class="box b" style="text-align:center;font-size:15px">$f(x)=\begin{cases}\dfrac{x^2-4}{x-2} & (x\ne2)\\ k & (x=2)\end{cases}$ 가 $x=2$에서 연속일 때 $k$는?</div>
+      <div class="steps"><button class="stepbtn" data-w="w1">▶ 풀이 보기</button><div class="stepwrap" id="w1">
+        <div class="step"><span class="sn">1</span>극한: $\dfrac{(x-2)(x+2)}{x-2}=x+2\to4$.</div>
+        <div class="step"><span class="sn">2</span>연속 ⟺ 극한값 = 함숫값 → $k=4$.<div class="why">→ 구멍을 정확히 메우는 값.</div></div>
+        <div class="ans">$k=4$</div></div></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="prop">
+    <div class="card">
+      <h2>📐 연속함수의 성질</h2>
+      <p class="lead">연속함수끼리 더하고 곱해도 연속이에요. 그래서 다항함수는 어디서나 연속이고, 유리함수는 <b>분모가 0인 곳만 빼고</b> 연속이에요.</p>
+      <div class="fcards" id="propcards"></div>
+      <h3>최대·최소 정리 — 닫힌 구간에서는 꼭 있다</h3>
+      <p>닫힌 구간 $[a,b]$에서 연속인 함수는 그 구간에서 <b>반드시 최댓값과 최솟값을 가져요</b>. 열린 구간이면 끝점에 다가가기만 하고 닿지 않아 최댓값이 없을 수 있어요. 구간을 바꿔 보세요.</p>
+      <div class="widget">
+        <canvas id="cv2" height="240"></canvas>
+        <div class="btns" id="ibtns"><button data-i="closed" class="on">닫힌 구간 $[0,3]$</button><button data-i="open">열린 구간 $(0,3)$</button></div>
+        <div class="out" id="out2"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 최대·최소 정리</div>$f$가 닫힌 구간 $[a,b]$에서 연속이면 $f$는 이 구간에서 최댓값과 최솟값을 갖는다. (열린 구간이거나 불연속이면 보장되지 않음.)</div>
+      <div class="box a"><div class="t">⚠️ 흔한 실수</div>"연속이면 최댓값이 있다"가 아니라 "<b>닫힌 구간에서</b> 연속이면". $y=x$는 $(0,1)$에서 연속이지만 최댓값이 없어요(1에 닿지 않음).</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="ivt">
+    <div class="card">
+      <h2>🧮 사잇값 정리 — 계산 없이 "해가 있다"</h2>
+      <p class="lead">연속함수가 $f(a)$에서 $f(b)$로 가면 그 사이의 모든 값을 <b>반드시 한 번은</b> 지나요. 특히 부호가 바뀌면 0을 지나니까, 방정식 $f(x)=0$의 해가 그 사이에 있어요. 구간을 움직여 보세요.</p>
+      <div class="widget">
+        <canvas id="cv3" height="260"></canvas>
+        <div class="row"><span>구간 $[a, a+1]$의 $a$</span><input type="range" id="sa" min="-3" max="2" step="1" value="0"><span class="v" id="sav">0</span></div>
+        <div class="out" id="out3"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 사잇값 정리</div>$f$가 $[a,b]$에서 연속이고 $f(a)\ne f(b)$이면, $f(a)$와 $f(b)$ 사이의 임의의 값 $k$에 대해 $f(c)=k$인 $c$가 $(a,b)$에 적어도 하나 존재한다. <b>따름정리:</b> $f(a)f(b)\lt0$이면 $f(x)=0$의 실근이 $(a,b)$에 적어도 하나 있다.</div>
+      <div class="box b" style="text-align:center;font-size:15px">방정식 $x^3-3x+1=0$ 은 $0$과 $1$ 사이에 실근을 갖는가?</div>
+      <div class="steps"><button class="stepbtn" data-w="w2">▶ 풀이 보기</button><div class="stepwrap" id="w2">
+        <div class="step"><span class="sn">1</span>$f(x)=x^3-3x+1$은 다항함수 → 연속.</div>
+        <div class="step"><span class="sn">2</span>$f(0)=1\gt0$, $f(1)=1-3+1=-1\lt0$ → 부호가 바뀐다.</div>
+        <div class="ans">사잇값 정리에 의해 $(0,1)$에 실근이 적어도 하나 있다 (근을 구하지 않고!)</div></div></div>
+      <div class="box b" style="text-align:center;font-size:15px">$f(x)=x^2-2$ 에 대해 $f(1)=-1$, $f(2)=2$. 방정식 $x^2-2=0$의 근 $\sqrt2$는 정말 $(1,2)$에 있나?</div>
+      <div class="steps"><button class="stepbtn" data-w="w3">▶ 풀이 보기</button><div class="stepwrap" id="w3">
+        <div class="step"><span class="sn">1</span>부호가 바뀌므로 $(1,2)$에 근 존재. 실제로 $\sqrt2\approx1.414$.</div>
+        <div class="step"><span class="sn">2</span>구간을 반으로 쪼개면(이분법) $f(1.5)=0.25\gt0$ → 근은 $(1,1.5)$에. 반복하면 원하는 만큼 정확해진다.<div class="why">→ 컴퓨터가 방정식을 푸는 방법 중 하나.</div></div>
+        <div class="ans">있다 — 그리고 이분법으로 좁혀 갈 수 있다</div></div></div>
+      <div class="box a"><div class="t">⚠️ 역은 성립하지 않는다</div>$f(a)f(b)\gt0$이라고 해서 근이 없는 게 아니에요($x^2-1$은 $f(-2)f(2)\gt0$이지만 근이 둘). 정리는 "부호가 바뀌면 있다"만 말해요.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="world">
+    <div class="card">
+      <h2>🌐 세상 속으로</h2>
+      <div class="keeper">
+        <div class="kt">📌 어른이 되어도 기억할 것</div>
+        <ol>
+          <li><b>연속 = 극한값이 함숫값.</b> 구멍도 점프도 없다. 자연의 대부분(온도·위치·압력)은 연속, 사람이 만든 것(주가 갭·계단 요금·디지털 신호)은 불연속이 많다.</li>
+          <li><b>사잇값 정리</b>: 끊기지 않고 변하면 중간값을 반드시 지난다. "해가 있다"를 계산 없이 아는 도구이고, 컴퓨터가 방정식을 푸는 이분법의 근거.</li>
+          <li><b>닫힌 구간에서 연속이면 최대·최소가 있다.</b> 최적화 문제에서 "답이 존재한다"를 보장하는 정리.</li>
+        </ol>
+      </div>
+      <div class="insight">
+        <div class="it">💡 인사이트 — 다음 단원으로</div>
+        미분이 가능하려면 먼저 연속이어야 해요("미분가능 ⇒ 연속"). 그런데 연속이어도 미분이 안 되는 점이 있어요 — 절댓값 함수의 뾰족점처럼. 다음 단원 <b>미분계수와 도함수</b>에서 그 차이가 핵심이에요. 그리고 사잇값 정리는 미분 단원의 평균값 정리, 적분 단원의 정적분 존재로 이어져요.
+      </div>
+      <div class="reallife">
+        <div class="rt">🏠 연속과 불연속이 보이는 곳</div>
+        <div class="rgrid">
+          <div class="rcell"><div class="ri">🌡️</div><div class="rn">기온</div><div class="rd">연속 → 중간값을 반드시 지남</div></div>
+          <div class="rcell"><div class="ri">📈</div><div class="rn">주가 갭</div><div class="rd">장 마감 후 점프 (불연속)</div></div>
+          <div class="rcell"><div class="ri">🚕</div><div class="rn">택시 요금</div><div class="rd">거리마다 계단식 (점프)</div></div>
+          <div class="rcell"><div class="ri">🎞️</div><div class="rn">영상</div><div class="rd">프레임(불연속)을 연속처럼</div></div>
+          <div class="rcell"><div class="ri">🗺️</div><div class="rn">등고선</div><div class="rd">높이가 연속이라 선이 이어짐</div></div>
+          <div class="rcell"><div class="ri">⚖️</div><div class="rn">저울</div><div class="rd">무게 변화는 연속, 눈금은 불연속</div></div>
+        </div>
+      </div>
+      <div class="industry">
+        <div class="indt">🏭 산업과 직업</div>
+        <div class="indrow"><div class="ii">💻</div><div class="id2"><b>수치해석·소프트웨어</b><br>이분법·뉴턴법으로 방정식 풀기, 연속 조건으로 곡선을 매끈하게 잇기(CAD·폰트).<br><span class="major">🎓 컴퓨터공학 · 응용수학</span></div></div>
+        <div class="indrow"><div class="ii">🏗️</div><div class="id2"><b>구조·제어</b><br>하중·온도·압력은 연속 모델. "어느 지점에서 허용치를 넘는가"는 사잇값 정리의 응용.<br><span class="major">🎓 기계·토목공학</span></div></div>
+        <div class="indrow"><div class="ii">💹</div><div class="id2"><b>금융</b><br>연속 시간 모델과 점프 모델(갭)을 구분하는 것이 파생상품 가격 이론의 출발.<br><span class="major">🎓 금융공학 · 경제학</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="quiz">
+    <div class="card">
+      <h2>🔥 함수의 연속 퀴즈</h2>
+      <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
+      <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="fin">
+    <div class="card">
+      <h2>✅ 정리</h2>
+      <table>
+        <tr><th class="l">항목</th><th class="l">내용</th></tr>
+        <tr><td class="l">연속 (점)</td><td class="l">$f(a)$ 존재 · 극한 존재 · 둘이 같다 = "극한값 = 함숫값"</td></tr>
+        <tr><td class="l">연속함수</td><td class="l">정의역 모든 점에서 연속 · 다항함수는 항상, 유리함수는 분모≠0</td></tr>
+        <tr><td class="l">성질</td><td class="l">연속 ± × ÷(분모≠0) 연속</td></tr>
+        <tr><td class="l">최대·최소 정리</td><td class="l">닫힌 구간에서 연속 → 최대·최소 존재</td></tr>
+        <tr><td class="l">사잇값 정리</td><td class="l">$f(a)f(b)\lt0$ → $(a,b)$에 실근 존재</td></tr>
+      </table>
+      <div class="box b"><div class="t">🔑 한 줄 요약</div>연속은 "극한값 = 함숫값". 닫힌 구간에서 연속이면 최대·최소가 있고, 부호가 바뀌면 그 사이에 해가 있다.</div>
+      <h3>자가 점검</h3>
+      <div class="chk"><input type="checkbox" id="k1"><label for="k1">세 조건으로 한 점에서의 연속을 판정할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k2"><label for="k2">연속이 되도록 상수를 정할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k3"><label for="k3">최대·최소 정리의 조건(닫힌 구간·연속)을 말할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k4"><label for="k4">사잇값 정리로 실근의 존재를 보일 수 있다</label></div>
+      <h3>약점 태그</h3>
+      <div><span class="tag">미적Ⅰ:연속의 뜻</span><span class="tag">미적Ⅰ:연속 조건 상수</span><span class="tag">미적Ⅰ:최대최소 정리</span><span class="tag">미적Ⅰ:사잇값 정리</span></div>
+      <div class="box g" style="margin-top:16px"><div class="t">➡️ 다음 단원</div>Ⅱ 미분으로 → <a href="cal1_sp_slope.html">관문 특강: 미분 = 기울기의 완성</a> → <a href="cal1_derivative.html">미분계수와 도함수</a>. <a href="cal1_hub.html">미적분Ⅰ 허브</a>로.</div>
+    </div>
+  </div>
+</div>
+
+<script src="alg_app.js"></script>
+<script>
+var FS={cont:{f:function(x){return 0.5*x*x+0.5;},fa:1,lim:1,name:'$f(x)=\\tfrac12x^2+\\tfrac12$',ok:[1,1,1]},hole:{f:function(x){return 0.5*x*x+0.5;},fa:null,lim:1,name:'$f(x)=\\dfrac{x^3-x^2}{2(x-1)}+\\tfrac12$ (x=1 제외)',ok:[0,1,0]},jump:{f:function(x){return x<1?0.5*x*x+0.5:0.5*x*x+2;},fa:2.5,lim:null,name:'계단: $x\\ge1$에서 위로 1.5 점프',ok:[1,0,0]},wrong:{f:function(x){return 0.5*x*x+0.5;},fa:2.5,lim:1,name:'$f(1)=2.5$ 로 따로 정의',ok:[1,1,0]}};
+var FK='cont', P1=null;
+function setup1(){ var cv=document.getElementById('cv1'); if(!P1) P1=LEC.plane(cv,{xmin:-1.5,xmax:3,ymin:-0.5,ymax:4.5,h:260,grid:0.5}); else P1.resize(); draw1(); }
+function draw1(){ if(!P1)return; var F=FS[FK]; P1.clear().grid().axes(); P1.seg(1,P1.ymin,1,P1.ymax,'#f59e0b',1.5,[5,4]);
+  if(FK==='jump'){ P1.plot(F.f,'#be185d',3,P1.xmin,1-1e-9); P1.plot(F.f,'#be185d',3,1,P1.xmax); var c=P1.ctx; c.fillStyle='#fff'; c.strokeStyle='#be185d'; c.lineWidth=2.5; c.beginPath(); c.arc(P1.X(1),P1.Y(1),6,0,Math.PI*2); c.fill(); c.stroke(); P1.dot(1,2.5,'#be185d',6); }
+  else { P1.plot(F.f,'#be185d',3); if(FK!=='cont'){ var c2=P1.ctx; c2.fillStyle='#fff'; c2.strokeStyle='#be185d'; c2.lineWidth=2.5; c2.beginPath(); c2.arc(P1.X(1),P1.Y(1),6,0,Math.PI*2); c2.fill(); c2.stroke(); } if(F.fa!==null) P1.dot(1,F.fa,'#be185d',6); }
+  var ok=F.ok; ['c1','c2','c3'].forEach(function(id,i){ var b=document.getElementById(id); b.textContent=ok[i]?'✓':'✗'; b.className=ok[i]?'ok':'no'; });
+  var el=document.getElementById('out1'); el.innerHTML=F.name+' &nbsp;→&nbsp; '+(ok[0]&&ok[1]&&ok[2]?'<b>x=1에서 연속</b>':'<b>x=1에서 불연속</b> ('+(ok[0]?'':'함숫값 없음 ')+(ok[1]?'':'극한 없음 ')+(ok[0]&&ok[1]&&!ok[2]?'극한값≠함숫값':'')+')'); LEC.tex(el); }
+document.getElementById('fbtns').addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b)return; FK=b.dataset.f; this.querySelectorAll('button').forEach(function(x){x.classList.remove('on');}); b.classList.add('on'); draw1(); });
+cards('propcards',[['$f, g$가 연속이면','$f\\pm g$, $fg$, $\\dfrac fg$ ($g\\ne0$) 도 연속'],['다항함수','모든 실수에서 연속 (예: $x^3-3x+1$)'],['유리함수 $\\dfrac{p(x)}{q(x)}$','$q(x)\\ne0$인 모든 $x$에서 연속 (분모가 0인 곳만 빠짐)'],['$\\sqrt{x}$ 꼴','정의되는 곳($x\\ge0$)에서 연속']]);
+var P2=null, IK='closed';
+function setup2(){ var cv=document.getElementById('cv2'); if(!P2) P2=LEC.plane(cv,{xmin:-0.5,xmax:3.6,ymin:-0.5,ymax:5,h:240,grid:0.5}); else P2.resize(); draw2(); }
+function g2(x){ return -(x-1.2)*(x-1.2)+4; }
+function draw2(){ if(!P2)return; P2.clear().grid().axes(); P2.plot(g2,'#cbd5e1',1.5); P2.plot(g2,'#be185d',3,0,3);
+  var c=P2.ctx; if(IK==='closed'){ P2.dot(0,g2(0),'#be185d',6); P2.dot(3,g2(3),'#be185d',6); } else { c.fillStyle='#fff'; c.strokeStyle='#be185d'; c.lineWidth=2.5; [[0,g2(0)],[3,g2(3)]].forEach(function(p){ c.beginPath(); c.arc(P2.X(p[0]),P2.Y(p[1]),6,0,Math.PI*2); c.fill(); c.stroke(); }); }
+  P2.dot(1.2,4,'#16a34a',6,'최대 4','n');
+  var el=document.getElementById('out2'); el.innerHTML= IK==='closed' ? '닫힌 구간 $[0,3]$: 최댓값 $4$ ($x=1.2$), 최솟값 $f(3)='+g2(3).toFixed(2)+'$ (끝점) — <b>둘 다 존재</b>' : '열린 구간 $(0,3)$: 최댓값 $4$는 있지만, 최솟값은 $x\\to3$에서 $'+g2(3).toFixed(2)+'$에 <b>다가갈 뿐 닿지 않는다 → 최솟값 없음</b>'; LEC.tex(el); }
+document.getElementById('ibtns').addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b)return; IK=b.dataset.i; this.querySelectorAll('button').forEach(function(x){x.classList.remove('on');}); b.classList.add('on'); draw2(); });
+var P3=null;
+function setup3(){ var cv=document.getElementById('cv3'); if(!P3) P3=LEC.plane(cv,{xmin:-3.5,xmax:3.5,ymin:-4,ymax:4,h:260}); else P3.resize(); draw3(); }
+function h3(x){ return x*x*x-3*x+1; }
+function draw3(){ if(!P3)return; var a=parseInt(document.getElementById('sa').value,10); document.getElementById('sav').textContent=LEC.fmt(a); P3.clear().grid().axes(); P3.plot(h3,'#be185d',3);
+  P3.fillUnder(function(){return P3.ymax;},a,a+1,'rgba(245,158,11,.12)',P3.ymin); var fa=h3(a), fb=h3(a+1); P3.dot(a,fa,'#2563eb',6,'f('+a+')='+fa,fa>=0?'n':'s'); P3.dot(a+1,fb,'#dc2626',6,'f('+(a+1)+')='+fb,fb>=0?'n':'s');
+  var el=document.getElementById('out3'); el.innerHTML='$f(x)=x^3-3x+1$: $f('+a+')='+fa+'$, $f('+(a+1)+')='+fb+'$ → '+(fa*fb<0?'부호가 바뀐다 → <b>$('+a+','+(a+1)+')$에 실근이 적어도 하나 있다</b>':'부호가 같다 → 정리로는 알 수 없음 (있을 수도, 없을 수도)'); LEC.tex(el); }
+document.getElementById('sa').addEventListener('input',draw3);
+APP.onTab({def:setup1, prop:setup2, ivt:setup3}); LEC.onResize(function(){ var t=APP.current(); if(t==='def')setup1(); if(t==='prop')setup2(); if(t==='ivt')setup3(); });
+
+var TABNAME={def:'🔗 연속의 뜻',prop:'📐 연속함수의 성질',ivt:'🧮 사잇값 정리'};
+var QUIZ=[
+ {q:'함수 f가 x=a에서 연속이기 위한 조건이 아닌 것은?',o:['f′(a)가 존재한다','f(a)가 정의된다','lim_{x→a} f(x)가 존재한다','lim_{x→a} f(x)=f(a)'],a:0,t:'def',e:'미분가능은 연속의 조건이 아니다(더 강한 조건). 연속은 세 조건: 정의·극한 존재·일치.'},
+ {q:'f(x)=(x²−9)/(x−3) (x≠3), f(3)=k 가 x=3에서 연속일 때 k는?',o:['6','3','9','0'],a:0,t:'def',e:'극한 = x+3 → 6. 극한값 = 함숫값이 되려면 k=6.'},
+ {q:'f(x)=|x|/x (x≠0), f(0)=1 은 x=0에서?',o:['불연속 (극한 없음)','연속','불연속 (함숫값 없음)','알 수 없다'],a:0,t:'def',e:'좌극한 −1, 우극한 1 → 극한 없음 → 불연속. f(0)을 어떻게 정해도 연속이 될 수 없다.'},
+ {q:'다항함수 f(x)=x³−2x+1 이 연속인 범위는?',o:['모든 실수','x≠0','x>0','x≠1'],a:0,t:'prop',e:'다항함수는 모든 실수에서 연속.'},
+ {q:'유리함수 f(x)=1/(x−2) 가 불연속인 점은?',o:['x=2','x=0','x=−2','없다'],a:0,t:'prop',e:'분모가 0인 x=2에서 정의되지 않으므로 불연속.'},
+ {q:'최대·최소 정리가 보장하는 것은?',o:['닫힌 구간에서 연속이면 최대·최소가 있다','열린 구간에서 연속이면 최대·최소가 있다','연속이면 항상 최댓값이 있다','불연속이면 최댓값이 없다'],a:0,t:'prop',e:'"닫힌 구간 + 연속"이 조건. y=x는 (0,1)에서 최댓값이 없다.'},
+ {q:'f(x)=x³+x−3 에 대해 f(1)=−1, f(2)=7 이다. 옳은 결론은?',o:['(1,2)에 실근이 적어도 하나 있다','(1,2)에 실근이 정확히 하나 있다','(1,2)에 실근이 없다','실근이 정확히 셋이다'],a:0,t:'ivt',e:'부호가 바뀌고 연속 → 적어도 하나. "정확히 하나"는 정리가 말해 주지 않는다(이 경우 실제로는 하나지만 정리만으로는 모름).'},
+ {q:'사잇값 정리를 쓰기 위해 필요한 조건은?',o:['닫힌 구간에서 연속','미분가능','증가함수','다항함수'],a:0,t:'ivt',e:'닫힌 구간 [a,b]에서 연속이면 f(a)와 f(b) 사이의 값을 모두 지난다.'},
+ {q:'f(−1)·f(1) > 0 이면?',o:['(−1,1)에 근이 있는지 없는지 알 수 없다','근이 없다','근이 하나 있다','근이 둘 있다'],a:0,t:'ivt',e:'정리는 "부호가 바뀌면 있다"만 말한다. 같은 부호면 판단 불가 (x²−1/4 은 f(−1)f(1)>0 이지만 근이 둘).'},
+ {q:'f(x)=x²−2 에 대해 f(1)f(2)<0 이다. 이분법으로 다음에 확인할 점은?',o:['x=1.5','x=1','x=2','x=√2'],a:0,t:'ivt',e:'구간의 중점 1.5에서 부호를 보고 근이 있는 반쪽을 고른다. f(1.5)=0.25>0 → 근은 (1,1.5)에.'}
+];
+APP.quiz(QUIZ,TABNAME,{perfect:'완벽해요! 끊기지 않는다는 것의 힘을 알았어요.'});
+</script>
+</body>
+</html>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>미분 = 기울기의 완성 · 관문 특강</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="if(window.LEC)LEC.tex(document.body)"></script>
+<script src="lecture.js"></script>
+<style>
+  .fbtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+  .rd{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:8px}.rd div{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:7px 9px;font-size:12px;text-align:center;color:var(--sub)}.rd b{display:block;font-size:15px;color:var(--lec)}
+  .trilogy{display:flex;gap:6px;flex-wrap:wrap;align-items:center;background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:10px 14px;margin:10px 0;font-size:13px}.trilogy .chip{background:#fff;border:1px solid #fed7aa;border-radius:20px;padding:3px 10px;font-weight:700}.trilogy a.chip{color:#c2410c;text-decoration:none}.trilogy .chip.off{color:#94a3b8;border-style:dashed}.trilogy .chip.now{background:#fed7aa;color:#7c2d12}
+  .dcard{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;margin:8px 0;font-size:16px;text-align:center}.dcard .ar{color:var(--lec);font-weight:800}
+  @media (max-width:520px){.dcard{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Math_1_1</a><span>&rsaquo;</span><a href="cal1_hub.html">미적분Ⅰ</a><span>&rsaquo;</span><a class="cur" href="#">관문 특강 · 미분</a></nav>
+<div class="wrap">
+
+<div class="lec-hero">
+  <span class="tag">🚪 관문 특강 · 미적분Ⅰ Ⅱ 미분 · 변화율 3부작 ③</span>
+  <h1>📏 미분 = 기울기의 완성</h1>
+  <p>중1에서 <b>속력</b>(거리가 시간에 따라 얼마나 변하나)을, 중2에서 <b>기울기</b>(y가 x에 따라 얼마나 변하나)를 배웠죠. 둘은 같은 것, <b>변화율</b>이에요. 그런데 곡선은 어디서 재느냐에 따라 기울기가 달라요. "바로 이 순간의 기울기"를 재는 것이 <b>미분</b>이고, 방법은 두 점을 한없이 가깝게 붙이는 것뿐이에요. 3부작의 마지막, 같은 그림이 세 번째로 진화해요.</p>
+  <div class="lec-goal"><a href="#type1">① 정의로 구하기</a><a href="#type2">② 도함수 계산</a><a href="#type3">③ 접선의 방정식</a><a href="#type4">④ 증감·극값</a></div>
+</div>
+<nav class="lec-nav" id="lecNav"></nav>
+<div class="trilogy">🔗 변화율 3부작 <a class="chip" href="https://jwj-nick.github.io/mid1/math1/app1/speed-mastery.html">① 속력 (중1) ✓</a><span>→</span><span class="chip off">② 기울기 (중2) 준비 중</span><span>→</span><span class="chip now">③ 미분 (지금)</span></div>
+
+<!-- ① 감 잡기 -->
+<section class="lec-sec reveal" data-step="1" data-label="감 잡기" id="s1">
+  <div class="eyebrow"><span class="n">1</span>할선이 접선으로 붙는 순간 (공식 없이)</div>
+  <p>곡선 위에 점 A를 찍고, 조금 떨어진 점 B를 잡아요. 두 점을 잇는 직선(<b>할선</b>)의 기울기는 중2에서 하던 그대로 "세로 차 ÷ 가로 차"예요. 이제 <b>$h$ 슬라이더로 B를 A에 붙여</b> 보세요. 할선이 한 직선으로 수렴하죠. 그것이 <b>접선</b>이고, 그 기울기가 A에서의 <b>미분계수</b>예요.</p>
+  <div class="lec-widget">
+    <canvas id="cv1" height="320"></canvas>
+    <div class="lec-row"><span>점 A의 $x=a$</span><input type="range" id="sa" min="-2" max="2" step="0.5" value="1"><span class="v" id="sav">1</span></div>
+    <div class="lec-row"><span>간격 $h$</span><input type="range" id="sh" min="0" max="6" step="1" value="1"><span class="v" id="shv">1</span></div>
+    <div class="fbtns"><button class="lec-btn" id="animBtn">▶ $h\to0$ 애니메이션</button></div>
+    <div class="rd"><div>평균변화율 (할선 기울기) <b id="rsec"></b></div><div>미분계수 (접선 기울기) <b id="rtan"></b></div><div>차이 <b id="rdif"></b></div></div>
+    <div class="lec-out" id="out1"></div>
+  </div>
+  <p>$f(x)=x^3-3x$예요. $h$가 2일 때와 0.001일 때 할선 기울기가 어떻게 다른지, 그리고 접선 기울기와 얼마나 가까워지는지 보세요. <b>$h$를 0으로 보내는 극한</b>, 그게 정의의 전부예요. 속력 특강에서 "1시간에 12km"를 쓴 것처럼, 여기서는 "$h$ 동안 얼마나 변했나 ÷ $h$"를 쓰고 $h$를 줄여요.</p>
+  <div class="lec-card">
+    <h4>함께 생각하기 ①</h4>
+    <p style="margin-bottom:8px;font-size:14px">$f(x)=x^2$ 에서 $x=1$부터 $x=1+h$까지의 평균변화율은 $\dfrac{(1+h)^2-1}{h}=2+h$ 예요. $h\to0$이면 얼마로 가나요? (= $f'(1)$)</p>
+    <div class="lec-checkrow"><input class="num" id="q1" inputmode="decimal" aria-label="답"><button id="q1b">확인</button></div>
+    <div class="lec-out" id="q1o"></div>
+  </div>
+</section>
+
+<!-- ② 공식은 읽는 것 -->
+<section class="lec-sec reveal" data-step="2" data-label="공식 읽기" id="s2">
+  <div class="eyebrow"><span class="n">2</span>공식은 외우는 게 아니라 읽는 것</div>
+  <p>평균변화율은 중2 기울기 그대로예요. 미분계수는 거기에 극한을 붙인 것.</p>
+  <div class="lec-formula"><div class="f">평균변화율 $\dfrac{\Delta y}{\Delta x}=\dfrac{f(b)-f(a)}{b-a}$ &nbsp;→&nbsp; 미분계수 $f'(a)=\displaystyle\lim_{h\to0}\frac{f(a+h)-f(a)}{h}$</div><small>Δ(델타)는 "변화량". h를 0으로 보내면 할선이 접선이 된다. f'(a) = x=a 에서 접선의 기울기 = 그 순간의 변화율.</small></div>
+
+  <p>점마다 미분계수를 구하면 그것 자체가 새 함수예요. 그게 <b>도함수</b> $f'(x)$. 다항함수의 도함수는 규칙 하나로 나와요: <b>지수를 앞으로 내리고, 지수를 하나 줄인다.</b></p>
+  <div class="lec-formula"><div class="f">$(x^n)'=nx^{n-1},\quad (c)'=0,\quad (cf)'=cf',\quad (f\pm g)'=f'\pm g',\quad (fg)'=f'g+fg'$</div><small>x² 의 도함수 2x 는 정의로 직접 계산: ((x+h)²−x²)/h = 2x+h → 2x. 곱의 미분은 "앞 미분 × 뒤 + 앞 × 뒤 미분".</small></div>
+
+  <p>접선은 "점 하나 + 기울기"로 정해지는 직선이에요(중2). 기울기가 $f'(a)$라는 것만 새로워요.</p>
+  <div class="lec-formula"><div class="f">$x=a$에서의 접선: $y-f(a)=f'(a)(x-a)$</div><small>접점 (a, f(a)), 기울기 f'(a). 곡선 밖의 점에서 그은 접선은 접점을 미지수 t로 두고 그 점을 지나게 한다.</small></div>
+
+  <p>기울기의 부호가 곧 함수의 오르내림이에요. $f'\gt0$이면 올라가고, $f'\lt0$이면 내려가고, 오르다 내리는 꼭대기(<b>극대</b>)나 내리다 오르는 바닥(<b>극소</b>)에서는 접선이 수평, 즉 $f'=0$.</p>
+  <div class="lec-formula"><div class="f">$f'(x)\gt0$ 증가 · $f'(x)\lt0$ 감소 · 극값에서 $f'(x)=0$ (부호가 + → − 극대, − → + 극소)</div><small>f'=0 인데 부호가 안 바뀌면 극값이 아니다(y=x³ 의 x=0). "부호 변화"가 조건.</small></div>
+
+  <div class="lec-card">
+    <h4>함께 생각하기 ②</h4>
+    <p style="margin-bottom:8px;font-size:14px">$f(x)=x^3-3x$ 일 때 $f'(x)=3x^2-3$. $f'(2)$의 값은? (위 위젯에서 $a=2$의 접선 기울기)</p>
+    <div class="lec-checkrow"><input class="num" id="q2" inputmode="decimal" aria-label="답"><button id="q2b">확인</button></div>
+    <div class="lec-out" id="q2o"></div>
+  </div>
+</section>
+
+<!-- ③ 핵심 도구 -->
+<section class="lec-sec reveal" data-step="3" data-label="미분 카드" id="s3">
+  <div class="eyebrow"><span class="n">3</span>미분 카드 — 핵심 도구</div>
+  <p>다항함수의 미분은 항마다 "지수 내리고 하나 줄이기"를 반복하는 것뿐이에요. 상수항은 사라져요(기울기 0). 버튼을 눌러 여러 식을 확인하세요.</p>
+  <div class="lec-card">
+    <div class="dcard"><div id="dL">$f(x)=x^3-3x+5$</div><div class="ar">→ 미분 →</div><div id="dR">$f'(x)=3x^2-3$</div></div>
+    <div class="fbtns"><button class="lec-again" id="dNext">🔄 다른 식으로</button></div>
+  </div>
+  <div class="lec-key"><b>불변 앵커</b> 미분계수 = 그 순간의 기울기 = 그 순간의 속력. 도함수는 "기울기를 알려주는 함수"이고, 계산은 항마다 지수 내리고 하나 줄이기.</div>
+  <p style="margin-top:12px">미분 카드 연습이에요. 계수와 지수를 한 항씩 처리하세요.</p>
+  <div id="toolbody"></div>
+</section>
+
+<!-- ④ 유형별 완전정복 -->
+<section class="lec-sec reveal" data-step="4" data-label="유형 4" id="s4">
+  <div class="eyebrow"><span class="n">4</span>유형별 완전정복</div>
+  <p>네 가지 유형 모두 <b>도함수 계산 → 대입(또는 =0)</b>이에요. "다른 문제로"를 눌러 식이 바뀌어도 같은 길로 가는지 확인하세요.</p>
+</section>
+
+<section class="lec-type reveal" id="type1">
+  <div class="lec-type-h"><span class="badge">①</span><span><div class="t">정의로 구하기</div><div class="d">평균변화율 → 극한</div></span></div>
+  <div class="lec-key"><b>핵심</b> $\dfrac{f(a+h)-f(a)}{h}$를 계산하면 $h$가 약분되어 사라진다. 남은 식에 $h=0$을 넣으면 미분계수. 평균변화율은 두 점의 기울기 그대로.</div>
+  <div id="type1body"></div>
+</section>
+
+<section class="lec-type reveal" id="type2">
+  <div class="lec-type-h"><span class="badge">②</span><span><div class="t">도함수 계산</div><div class="d">지수 내리고 하나 줄이기 · 곱의 미분</div></span></div>
+  <div class="lec-key"><b>핵심</b> 항마다 $(x^n)'=nx^{n-1}$. 곱은 $(fg)'=f'g+fg'$ — 전개해서 미분해도 답은 같다(검산용).</div>
+  <div id="type2body"></div>
+</section>
+
+<section class="lec-type reveal" id="type3">
+  <div class="lec-type-h"><span class="badge">③</span><span><div class="t">접선의 방정식</div><div class="d">접점 + 기울기 f′(a)</div></span></div>
+  <div class="lec-key"><b>핵심</b> $y-f(a)=f'(a)(x-a)$. "기울기가 $m$인 접선"은 $f'(x)=m$을 풀어 접점부터 찾는다.</div>
+  <div id="type3body"></div>
+</section>
+
+<section class="lec-type reveal" id="type4">
+  <div class="lec-type-h"><span class="badge">④</span><span><div class="t">증감·극값</div><div class="d">f′의 부호표</div></span></div>
+  <div class="lec-key"><b>핵심</b> $f'(x)=0$의 해로 구간을 나누고 부호를 적는다. + → − 이면 극대, − → + 이면 극소. 극값은 $f$에 대입한 값.</div>
+  <div id="type4body"></div>
+</section>
+
+<!-- ⑤ 실전 총정리 -->
+<section class="lec-sec reveal" data-step="5" data-label="실전" id="s5">
+  <div class="eyebrow"><span class="n">5</span>실전 총정리 — 유형 섞어서</div>
+  <p>어떤 유형인지 알려주지 않아요. <b>도함수부터 구하고</b> 풀어 보세요. 틀리면 어느 유형인지 알려주고 돌아가는 길을 열어 둘게요.</p>
+  <div id="quizArea"></div>
+  <div style="text-align:center;margin-top:8px"><button class="lec-again" id="quizAreaAgain">🔄 5문제 새로</button></div>
+</section>
+
+<!-- ⑥ 치트시트 -->
+<section class="lec-sec reveal" data-step="6" data-label="치트시트" id="s6">
+  <div class="eyebrow"><span class="n">6</span>마무리 치트시트</div>
+  <div class="lec-cheat">
+    <h3>📏 미분 한 장 요약</h3>
+    <div class="row">
+      <div class="chip"><b>정의</b>$f'(a)=\lim_{h\to0}\frac{f(a+h)-f(a)}{h}$ = 접선 기울기 = 순간 변화율</div>
+      <div class="chip"><b>계산</b>$(x^n)'=nx^{n-1}$ · 상수 → 0 · $(fg)'=f'g+fg'$</div>
+    </div>
+    <div class="row">
+      <div class="chip"><b>접선</b>$y-f(a)=f'(a)(x-a)$</div>
+      <div class="chip"><b>증감·극값</b>$f'\gt0$ 증가 · $f'\lt0$ 감소 · 부호 바뀌는 $f'=0$이 극값</div>
+    </div>
+    <div class="row">
+      <div class="chip"><b>3부작</b>속력(거리/시간) → 기울기(Δy/Δx) → 미분(h→0)</div>
+      <div class="chip"><b>한 문장</b>미분계수 = 그 순간의 기울기 = 그 순간의 속력</div>
+    </div>
+    <button id="printCheat">🖨️ 이 치트시트 인쇄하기</button>
+  </div>
+  <div class="keeper">
+    <div class="kt">📌 어른이 되어도 기억할 것</div>
+    <ul>
+      <li><b>미분은 "지금 얼마나 빨리 변하나"</b>. 속도계, 주가 상승률, 감염 증가 속도, 체온 변화. 세상의 모든 "속도"가 미분이에요.</li>
+      <li><b>극값에서 기울기는 0</b>. 가장 높은 곳, 가장 낮은 곳을 찾는 최적화(이익 최대, 비용 최소, 최단 시간)는 전부 "$f'=0$"을 푸는 일이에요.</li>
+      <li>뉴턴과 라이프니츠가 17세기에 각자 발명했고, 이 도구 하나로 행성의 궤도부터 로켓의 연료까지 계산하게 됐어요.</li>
+    </ul>
+  </div>
+  <div class="insight"><div class="it">💡 다음으로 이어지는 것</div>미분의 반대 방향, "기울기(속력)를 알 때 원래 함수(거리)를 되찾는 것"이 <b>적분</b>이에요. 그리고 속력의 미분은 <b>가속도</b>예요. 3부작의 그림이 한 번 더 진화하는 곳은 다음 특강 "적분 = 넓이 쌓기"예요.</div>
+  <div class="reallife"><div class="rt">🏠 이미 보고 있던 곳</div>자동차 속도계는 아주 짧은 시간의 평균 속력을 표시해요(미분의 근사). 스마트폰의 만보기는 가속도 센서(속도의 미분)를 써요. 일기 예보의 "기온이 급격히 떨어진다"는 미분계수가 큰 음수라는 뜻이에요.</div>
+  <div class="reallife"><div class="rt">🏭 이걸로 먹고사는 사람들</div>물리·공학의 운동 방정식, 경제학의 한계비용·한계효용(미분값), 인공지능의 학습(손실 함수의 기울기를 따라 내려가는 경사하강법), 로켓의 궤도 계산. <span style="color:#312e81;font-weight:700">🎓 기계·항공공학 · 경제학 · 컴퓨터공학(AI)</span></div>
+  <p style="text-align:center;color:var(--sub);font-size:13px;margin-top:14px">단원 앱으로 이어서 → <a href="cal1_derivative.html">미분계수와 도함수</a> · <a href="cal1_tangent.html">접선의 방정식</a> · <a href="cal1_graph.html">증가·감소와 극값</a></p>
+</section>
+
+<div class="lec-foot">관문 특강 · 미분 = 기울기의 완성 · 미적분Ⅰ · 표준 커리큘럼 제작</div>
+</div>
+<div id="printArea"></div>
+
+<!-- ───────── 생성기(순수 함수 · Node 재검산 대상) ───────── -->
+<script id="gen">
+(function(){
+  var ri=LEC.ri, pick=LEC.pick, nz=LEC.nz, frac=LEC.frac, poly=LEC.poly, sp=LEC.sgnParen;
+  function ev(co,x){ var s=0; for(var i=0;i<co.length;i++) s=s*x+co[i]; return s; }
+  function der(co){ var n=co.length-1, out=[]; for(var i=0;i<n;i++) out.push(co[i]*(n-i)); return out; }
+  function fx(r){ return r===0?'x':'(x'+LEC.term(-r,'',false)+')'; }
+
+  window.GEN = {
+    tool:{ label:'미분 카드', anchor:'#s3',
+      gen:function(){ var co=[nz(-3,3),ri(-4,4),ri(-4,4),ri(-5,5)]; var d=der(co); var p=ri(-2,2); var v=ev(d,p);
+        return { q:'$f(x)='+poly(co)+'$ 일 때 $f\'('+p+')$ 의 값은?', ans:v, fig:{v:v}, steps:['항마다 지수 내리고 하나 줄이기: $f\'(x)='+poly(d)+'$ (상수항은 사라진다)', '$f\'('+p+')='+v+'$'] }; },
+      verify:function(p){ return p.fig.v===p.ans; } },
+
+    type1:{ label:'① 정의로 구하기', anchor:'#type1',
+      gen:function(){ var a=nz(-2,3), b=ri(-4,4), c=ri(-3,3); var p=ri(-2,3); var mode=ri(0,1);
+        if(mode===0){ var v=2*a*p+b; return { q:'$f(x)='+poly([a,b,c])+'$ 일 때 $\\displaystyle\\lim_{h\\to0}\\frac{f('+p+'+h)-f('+p+')}{h}$ 의 값은?', ans:v, fig:{v:v},
+          steps:['이 극한은 정의상 $f\'('+p+')$', '$f('+p+'+h)-f('+p+')='+a+'\\{('+p+'+h)^2-'+(p*p)+'\\}+'+sp(b)+'h='+(2*a*p+b)+'h'+LEC.term(a,'h^2',false)+'$', '$h$로 나누면 $'+(2*a*p+b)+LEC.term(a,'h',false)+'$ → $h\\to0$: $'+v+'$'] }; }
+        var q=p+ri(1,3); var avg=(ev([a,b,c],q)-ev([a,b,c],p))/(q-p);
+        return { q:'$f(x)='+poly([a,b,c])+'$ 에서 $x$가 $'+p+'$에서 $'+q+'$까지 변할 때의 평균변화율은?', ans:avg, fig:{v:avg}, steps:['평균변화율 = 두 점의 기울기: $\\dfrac{f('+q+')-f('+p+')}{'+q+'-'+sp(p)+'}$', '$f('+q+')='+ev([a,b,c],q)+'$, $f('+p+')='+ev([a,b,c],p)+'$', '$\\dfrac{'+(ev([a,b,c],q)-ev([a,b,c],p))+'}{'+(q-p)+'}='+LEC.fmt(avg).replace('−','-')+'$'] }; },
+      verify:function(p){ return Math.abs(p.fig.v-p.ans)<1e-9; } },
+
+    type2:{ label:'② 도함수 계산', anchor:'#type2',
+      gen:function(){ if(Math.random()<0.55){ var co=[nz(-2,2),ri(-3,3),ri(-4,4),ri(-3,3)]; var d=der(co); var p=ri(-2,2); var v=ev(d,p);
+          return { q:'$f(x)='+poly(co)+'$ 일 때 $f\'('+p+')$ 의 값은?', ans:v, fig:{v:v}, steps:['$f\'(x)='+poly(d)+'$', '$f\'('+p+')='+v+'$'] }; }
+        var m1=nz(-3,3), b1=ri(-3,3), m2=nz(-3,3), b2=ri(-3,3), p2=ri(-2,2); // (m1x+b1)(m2x+b2)
+        var fv=m1*p2+b1, gv=m2*p2+b2; var v2=m1*gv+fv*m2;
+        return { q:'$f(x)=('+poly([m1,b1])+')('+poly([m2,b2])+')$ 일 때 $f\'('+p2+')$ 의 값은?', ans:v2, fig:{v:v2}, steps:['곱의 미분: $f\'=(\\text{앞})\'(\\text{뒤})+(\\text{앞})(\\text{뒤})\'='+m1+'('+poly([m2,b2])+')+('+poly([m1,b1])+')\\cdot'+sp(m2)+'$', '$x='+p2+'$ 대입: $'+m1+'\\cdot'+sp(gv)+'+'+sp(fv)+'\\cdot'+sp(m2)+'='+v2+'$', '검산: 전개하면 $'+poly([m1*m2,m1*b2+b1*m2,b1*b2])+'$, 미분 $'+poly([2*m1*m2,m1*b2+b1*m2])+'$, 대입 $'+(2*m1*m2*p2+m1*b2+b1*m2)+'$ ✓'] }; },
+      verify:function(p){ return p.fig.v===p.ans; } },
+
+    type3:{ label:'③ 접선의 방정식', anchor:'#type3',
+      gen:function(){ var a=nz(-2,2), b=ri(-3,3), c=ri(-3,3); var p=ri(-2,2); var fa=ev([a,b,c],p), m=2*a*p+b; var mode=ri(0,2);
+        if(mode===0){ var yint=fa-m*p; return { q:'곡선 $y='+poly([a,b,c])+'$ 위의 점 $x='+p+'$ 에서의 접선의 <b>$y$절편</b>은?', ans:yint, fig:{v:yint}, steps:['접점: $f('+p+')='+fa+'$ → $('+p+', '+fa+')$', '기울기: $f\'(x)='+poly([2*a,b])+'$ → $f\'('+p+')='+m+'$', '접선: $y-'+sp(fa)+'='+m+'(x-'+sp(p)+')$ → $y='+poly([m,yint])+'$ → $y$절편 $'+yint+'$'] }; }
+        if(mode===1) return { q:'곡선 $y='+poly([a,b,c])+'$ 위의 점 $x='+p+'$ 에서의 접선의 <b>기울기</b>는?', ans:m, fig:{v:m}, steps:['$f\'(x)='+poly([2*a,b])+'$', '$f\'('+p+')='+m+'$'] };
+        var mm=2*a*p+b; return { q:'곡선 $y='+poly([a,b,c])+'$ 에 접하고 기울기가 $'+mm+'$인 접선의 <b>접점의 $x$좌표</b>는?', ans:p, fig:{v:p}, steps:['기울기가 $'+mm+'$ ⟺ $f\'(x)='+mm+'$', '$'+poly([2*a,b])+'='+mm+'$ → $x='+p+'$'] }; },
+      verify:function(p){ return Math.abs(p.fig.v-p.ans)<1e-9; } },
+
+    type4:{ label:'④ 증감·극값', anchor:'#type4',
+      gen:function(){ var r1=ri(-3,1), r2=r1+ri(1,4); // f' = 3(x-r1)(x-r2) → f = x^3 - 3/2(r1+r2)x^2 + 3 r1 r2 x ; 계수 정수 위해 (r1+r2) 짝수
+        if((r1+r2)%2!==0) r2+=1; var co=[1,-3*(r1+r2)/2,3*r1*r2,ri(-3,3)]; var mode=ri(0,2);
+        if(mode===0) return { q:'$f(x)='+poly(co)+'$ 의 <b>극댓값</b>은?', ans:ev(co,r1), fig:{v:ev(co,r1)}, steps:['$f\'(x)='+poly(der(co))+'=3'+fx(r1)+fx(r2)+'$', '부호표: $x\\lt '+r1+'$ 에서 $+$, $'+r1+'\\lt x\\lt '+r2+'$ 에서 $-$, $x\\gt '+r2+'$ 에서 $+$ → $x='+r1+'$에서 극대(+→−), $x='+r2+'$에서 극소', '극댓값 $f('+r1+')='+ev(co,r1)+'$'] };
+        if(mode===1) return { q:'$f(x)='+poly(co)+'$ 의 <b>극솟값</b>은?', ans:ev(co,r2), fig:{v:ev(co,r2)}, steps:['$f\'(x)=3'+fx(r1)+fx(r2)+'$', '$x='+r2+'$에서 −→+ → 극소', '극솟값 $f('+r2+')='+ev(co,r2)+'$'] };
+        var chs=['$x\\lt '+r1+'$ 또는 $x\\gt '+r2+'$','$'+r1+'\\lt x\\lt '+r2+'$','$x\\gt '+r1+'$','모든 실수'];
+        return { q:'$f(x)='+poly(co)+'$ 가 <b>증가</b>하는 $x$의 범위는?', choices:chs, ans:0, fig:{v:0}, steps:['$f\'(x)=3'+fx(r1)+fx(r2)+'\\gt0$ 인 범위', '두 근의 바깥: '+chs[0]] }; },
+      verify:function(p){ return Math.abs(p.fig.v-p.ans)<1e-9; } }
+  };
+})();
+</script>
+
+<script>
+LEC.boot({ key:'cal1_sp_slope', color:'#be185d', color2:'#f472b6' });
+
+/* ① 할선→접선 */
+(function(){
+  var cv=document.getElementById('cv1'); var P=LEC.plane(cv,{xmin:-3.2,xmax:3.2,ymin:-5,ymax:5,h:320});
+  var HS=[2,1,0.5,0.2,0.1,0.01,0.001]; var raf=null, hi=0;
+  function f(x){ return x*x*x-3*x; } function fp(x){ return 3*x*x-3; }
+  function draw(){
+    var a=parseFloat(document.getElementById('sa').value), h=HS[hi=parseInt(document.getElementById('sh').value,10)];
+    document.getElementById('sav').textContent=LEC.fmt(a); document.getElementById('shv').textContent=h;
+    P.clear().grid().axes(); P.plot(f,'#be185d',3);
+    var ya=f(a), yb=f(a+h); var ms=(yb-ya)/h, mt=fp(a);
+    // 접선(연한 회색)
+    P.seg(P.xmin,ya+mt*(P.xmin-a),P.xmax,ya+mt*(P.xmax-a),'#cbd5e1',2,[5,4]);
+    // 할선
+    P.seg(P.xmin,ya+ms*(P.xmin-a),P.xmax,ya+ms*(P.xmax-a),'#2563eb',2.5);
+    P.seg(a,ya,a+h,ya,'#f59e0b',2,[4,3]); P.seg(a+h,ya,a+h,yb,'#16a34a',2,[4,3]);
+    P.dot(a,ya,'#dc2626',7,'A','sw'); P.dot(a+h,yb,'#2563eb',7,'B','ne');
+    document.getElementById('rsec').textContent=LEC.fmt(Math.round(ms*1000)/1000); document.getElementById('rtan').textContent=LEC.fmt(mt); document.getElementById('rdif').textContent=LEC.fmt(Math.round(Math.abs(ms-mt)*1000)/1000);
+    var el=document.getElementById('out1'); el.innerHTML='할선 기울기 $=\\dfrac{f('+LEC.fmt(a+h).replace('−','-')+')-f('+LEC.fmt(a).replace('−','-')+')}{'+h+'}$ &nbsp;→&nbsp; $h\\to0$ 이면 접선 기울기 $f\'('+LEC.fmt(a).replace('−','-')+')=3\\cdot'+LEC.sgnParen(a)+'^2-3='+LEC.fmt(mt).replace('−','-')+'$'+(h<=0.01?' <b>(거의 붙었다)</b>':''); LEC.tex(el);
+  }
+  function anim(){ if(hi>=HS.length-1){ raf=null; return; } document.getElementById('sh').value=hi+1; draw(); raf=setTimeout(anim,550); }
+  document.getElementById('animBtn').addEventListener('click',function(){ if(raf)return; document.getElementById('sh').value=0; draw(); raf=setTimeout(anim,550); });
+  document.getElementById('sa').addEventListener('input',draw); document.getElementById('sh').addEventListener('input',draw);
+  draw(); LEC.onResize(function(){ P.resize(); draw(); });
+})();
+
+LEC.check('q1',2,{ok:'$2+h\\to2$. $f\'(1)=2$, 즉 $x=1$에서 접선 기울기 2.', bad:'$h$를 0으로 보내면 $2+h$는 어디로?'});
+LEC.check('q2',9,{ok:'$3\\cdot4-3=9$. $a=2$일 때 접선이 가파른 이유.', bad:'$f\'(x)=3x^2-3$에 $x=2$를 넣어요.'});
+
+/* ③ 미분 카드 */
+(function(){ var EX=[['x^3-3x+5','3x^2-3'],['2x^4','8x^3'],['x^2-4x+7','2x-4'],['5x','5'],['x^5+x','5x^4+1'],['-3x^2+2x-1','-6x+2'],['7','0'],['(x+1)(x-2)=x^2-x-2','2x-1']]; var i=0;
+  function show(){ var L=document.getElementById('dL'), R=document.getElementById('dR'); L.innerHTML='$f(x)='+EX[i][0]+'$'; R.innerHTML='$f\'(x)='+EX[i][1]+'$'; LEC.tex(L); LEC.tex(R); }
+  document.getElementById('dNext').addEventListener('click',function(){ i=(i+1)%EX.length; show(); }); show(); })();
+
+LEC.types(['tool','type1','type2','type3','type4']);
+LEC.quiz('quizArea',{n:5,types:['type1','type2','type3','type4']});
+</script>
+</body>
+</html>

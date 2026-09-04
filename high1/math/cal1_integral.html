@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>부정적분과 정적분 — 미적분Ⅰ</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
+<script src="lecture.js"></script>
+<link rel="stylesheet" href="cal1_app.css">
+<style>.widget canvas{max-width:520px}.rdo{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:8px}.rdo div{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:7px 9px;font-size:12px;text-align:center;color:var(--sub)}.rdo b{display:block;font-size:14px;color:var(--accent)}.leg{display:flex;gap:14px;justify-content:center;font-size:12px;color:var(--sub);margin-top:6px}.leg i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:4px}</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Math_1_1</a><span>&rsaquo;</span><a href="cal1_hub.html">미적분Ⅰ</a><span>&rsaquo;</span><a class="cur" href="#">부정적분과 정적분</a></nav>
+<div class="hero">
+  <span class="badge">Ⅲ. 적분</span>
+  <h1>∫ 부정적분과 정적분</h1>
+  <p>미분을 거꾸로 하면 함수 한 가족이 나오고, 넓이는 한 줄로 계산된다</p>
+</div>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="intro">📋 개요</button>
+  <button class="tab" data-t="indef">🔁 부정적분</button>
+  <button class="tab" data-t="def">📐 정적분과 기본정리</button>
+  <button class="tab" data-t="prop">🔧 성질·정적분 함수</button>
+  <button class="tab" data-t="world">🌐 세상 속으로</button>
+  <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="fin">✅ 정리</button>
+</div>
+<div class="wrap">
+
+  <div class="page active" data-p="intro">
+    <div class="card">
+      <h2>📋 미분의 반대편, 그리고 넓이의 지름길</h2>
+      <div class="hook">
+        <div class="ht">💥 왜 배우나</div>
+        속도계만 보고 얼마나 갔는지 알 수 있을까요? 속도가 시시각각 변해도 답은 있어요. "속도 × 아주 짧은 시간"을 전부 더하면 되니까요. 그 더하기가 <b>적분</b>이고, 그래프로 보면 <b>속도 곡선 아래의 넓이</b>예요. 그런데 이 넓이를 잘게 쪼개 더하지 않고도 한 줄로 구하는 방법이 있어요. 미분을 <b>거꾸로</b> 하면 돼요. "미분의 반대가 넓이"라는 이 연결이 미적분학의 기본정리이고, 뉴턴과 라이프니츠가 발견한 가장 큰 비밀이에요.
+      </div>
+      <div class="splink">🚪 넓이를 왜 "쌓기"로 보는지 아직 감이 없으면 → <a href="cal1_sp_area.html">관문 특강: 적분 = 넓이 쌓기</a></div>
+      <div class="sci">
+        <div class="ava">✒️</div>
+        <div>
+          <div class="st">라이프니츠 (1646~1716) — ∫ 기호를 만든 사람</div>
+          <div class="sd">적분 기호 $\int$은 라틴어 summa(합)의 첫 글자 S를 길게 늘인 것이에요. 라이프니츠가 1675년 무렵 만들었고, $dx$ 표기도 그의 작품이에요. 그는 뉴턴과 독립적으로 미적분을 만들었는데, 기호를 잘 만든 덕에 오늘날 우리가 쓰는 표기는 대부분 라이프니츠 쪽이에요. 좋은 기호는 생각을 대신 해 준다는 것을 그가 보여줬어요.</div>
+        </div>
+      </div>
+      <div class="toc">
+        <button onclick="go('indef')"><div class="ti">🔁</div><div class="tn">부정적분</div><div class="td">함수 한 가족 + C</div></button>
+        <button onclick="go('def')"><div class="ti">📐</div><div class="tn">정적분</div><div class="td">F(b) − F(a)</div></button>
+        <button onclick="go('prop')"><div class="ti">🔧</div><div class="tn">성질</div><div class="td">짝·홀 대칭, 정적분 함수</div></button>
+        <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">누적의 언어</div></button>
+        <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="indef">
+    <div class="card">
+      <h2>🔁 부정적분 — 미분하면 그것이 되는 함수 "가족"</h2>
+      <p class="lead">미분해서 $2x$가 되는 함수는? $x^2$이요. 그런데 $x^2+1$도, $x^2-5$도 미분하면 $2x$예요. 상수는 미분하면 사라지니까요. 슬라이더로 $C$를 바꿔 보세요. 곡선은 위아래로 움직이지만 <b>기울기는 어디서나 똑같아요.</b></p>
+      <div class="widget">
+        <canvas id="cv1" height="280"></canvas>
+        <div class="row"><span>$C$</span><input type="range" id="sc" min="-3" max="3" step="1" value="0"><span class="v" id="scv">0</span></div>
+        <div class="out" id="out1"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 정의와 공식</div>$F'(x)=f(x)$이면 $F(x)$를 $f(x)$의 부정적분이라 하고 $\displaystyle\int f(x)\,dx=F(x)+C$로 쓴다. $\displaystyle\int x^n\,dx=\frac{x^{n+1}}{n+1}+C$ ($n$은 0 이상의 정수), $\displaystyle\int k\,dx=kx+C$. 더하기·빼기·상수배는 따로따로 적분해도 된다.</div>
+      <div class="box b" style="text-align:center;font-size:15px">$\displaystyle\int(3x^2-2x+1)\,dx$ 를 구하시오.</div>
+      <div class="steps"><button class="stepbtn" data-w="w1">▶ 풀이 보기</button><div class="stepwrap" id="w1">
+        <div class="step"><span class="sn">1</span>항마다 "차수 하나 올리고 그 수로 나눈다": $3x^2\to x^3$, $-2x\to -x^2$, $1\to x$.<div class="why">→ 거꾸로 미분해 보면 $3x^2-2x+1$이 나오는지 확인.</div></div>
+        <div class="ans">$x^3-x^2+x+C$</div></div></div>
+      <div class="box b" style="text-align:center;font-size:15px">$F'(x)=6x^2-2$ 이고 $F(1)=3$ 일 때 $F(x)$는?</div>
+      <div class="steps"><button class="stepbtn" data-w="w2">▶ 풀이 보기</button><div class="stepwrap" id="w2">
+        <div class="step"><span class="sn">1</span>$F(x)=\displaystyle\int(6x^2-2)\,dx=2x^3-2x+C$.</div>
+        <div class="step"><span class="sn">2</span>$F(1)=2-2+C=3$ → $C=3$.<div class="why">→ 조건 하나가 있으면 가족 중 한 명이 정해진다.</div></div>
+        <div class="ans">$F(x)=2x^3-2x+3$</div></div></div>
+      <div class="box a"><div class="t">⚠️ $+C$ 를 빼먹지 않기</div>부정적분은 함수 <b>하나</b>가 아니라 상수만 다른 <b>가족 전체</b>예요. $C$가 빠지면 답이 아니라 그중 한 명만 쓴 거예요. 반대로 정적분에는 $C$가 없어요(다음 탭에서 왜인지 봐요).</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="def">
+    <div class="card">
+      <h2>📐 정적분 — 넓이를 한 줄로: $F(b)-F(a)$</h2>
+      <p class="lead">$f(x)=x^2-1$의 그래프와 $x$축 사이, $x=a$부터 $x=b$까지. 잘게 쪼개 더한 넓이가 놀랍게도 <b>부정적분 $F$의 두 값의 차</b>와 같아요. $a$, $b$를 움직여 보세요. $x$축 <b>아래</b> 부분은 음수로 세는 것도 보세요.</p>
+      <div class="widget">
+        <canvas id="cv2" height="280"></canvas>
+        <div class="row"><span>$a$</span><input type="range" id="sa" min="-2" max="2" step="0.5" value="0"><span class="v" id="sav">0</span></div>
+        <div class="row"><span>$b$</span><input type="range" id="sb" min="-2" max="3" step="0.5" value="2"><span class="v" id="sbv">2</span></div>
+        <div class="leg"><span><i style="background:rgba(22,163,74,.35)"></i>위쪽 = 양수</span><span><i style="background:rgba(220,38,38,.35)"></i>아래쪽 = 음수</span></div>
+        <div class="out" id="out2"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 미적분학의 기본정리</div>$f$의 한 부정적분을 $F$라 하면 $\displaystyle\int_a^b f(x)\,dx=\Big[F(x)\Big]_a^b=F(b)-F(a)$. 그리고 $\displaystyle\frac{d}{dx}\int_a^x f(t)\,dt=f(x)$: 넓이를 $x$로 미분하면 원래 함수가 나온다.</div>
+      <div class="box b" style="text-align:center;font-size:15px">$\displaystyle\int_0^2(3x^2-2x)\,dx$ 를 구하시오.</div>
+      <div class="steps"><button class="stepbtn" data-w="w3">▶ 풀이 보기</button><div class="stepwrap" id="w3">
+        <div class="step"><span class="sn">1</span>부정적분 $F(x)=x^3-x^2$ (여기서는 $C$를 0으로).</div>
+        <div class="step"><span class="sn">2</span>$F(2)-F(0)=(8-4)-0$.<div class="why">→ $C$를 어떤 값으로 두든 $F(b)-F(a)$에서 서로 빼져 사라진다. 그래서 정적분에는 $C$가 없다.</div></div>
+        <div class="ans">$4$</div></div></div>
+      <div class="box b"><div class="t">🔑 정적분은 "부호 있는 넓이"</div>그래프가 $x$축 위면 양수, 아래면 음수로 더해요. 그래서 $\displaystyle\int_{-1}^{1}(x^2-1)\,dx=-\tfrac43$처럼 <b>음수</b>가 나올 수 있어요. 진짜 넓이(도형의 넓이)를 물으면 아래 부분은 부호를 바꿔 더해야 해요(다음 단원).</div>
+      <div class="box a"><div class="t">⚠️ 위끝에서 아래끝을 뺀다</div>$F(b)-F(a)$이지 $F(a)-F(b)$가 아니에요. 순서를 바꾸면 부호가 뒤집혀요: $\displaystyle\int_b^a f\,dx=-\int_a^b f\,dx$. 위젯에서 $a$를 $b$보다 크게 놓으면 값의 부호가 뒤집히는 것을 확인하세요.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="prop">
+    <div class="card">
+      <h2>🔧 정적분의 성질 — 이어 붙이기·대칭·정적분으로 정의된 함수</h2>
+      <table>
+        <tr><th class="l">성질</th><th class="l">식</th><th class="l">읽는 법</th></tr>
+        <tr><td class="l">같은 끝</td><td class="l">$\displaystyle\int_a^a f\,dx=0$</td><td class="l">폭이 0이면 넓이 0</td></tr>
+        <tr><td class="l">뒤집기</td><td class="l">$\displaystyle\int_b^a f\,dx=-\int_a^b f\,dx$</td><td class="l">거꾸로 가면 부호 반대</td></tr>
+        <tr><td class="l">이어 붙이기</td><td class="l">$\displaystyle\int_a^b f\,dx+\int_b^c f\,dx=\int_a^c f\,dx$</td><td class="l">구간을 나눠 더해도 같다 (순서 무관)</td></tr>
+        <tr><td class="l">선형성</td><td class="l">$\displaystyle\int(kf\pm g)\,dx=k\!\int f\,dx\pm\!\int g\,dx$</td><td class="l">항별로, 상수는 밖으로</td></tr>
+      </table>
+      <p class="lead">대칭 구간 $[-2,2]$에서 함수를 골라 보세요. 짝함수는 좌우가 같아 "오른쪽 × 2", 홀함수는 좌우가 부호만 달라 <b>0</b>이 돼요.</p>
+      <div class="widget">
+        <canvas id="cv3" height="260"></canvas>
+        <div class="btns"><button data-f="sq" class="on">$x^2$</button><button data-f="cu">$x^3$</button><button data-f="li">$x$</button><button data-f="sq1">$x^2-1$</button></div>
+        <div class="rdo"><div>왼쪽 $[-2,0]$ <b id="r1"></b></div><div>오른쪽 $[0,2]$ <b id="r2"></b></div><div>전체 $[-2,2]$ <b id="r3"></b></div></div>
+        <div class="out" id="out3"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 대칭 공식</div>짝함수($f(-x)=f(x)$, 짝수 차수만): $\displaystyle\int_{-a}^{a}f\,dx=2\int_0^a f\,dx$. 홀함수($f(-x)=-f(x)$, 홀수 차수만): $\displaystyle\int_{-a}^{a}f\,dx=0$. 다항식은 <b>차수별로 나눠</b> 홀수 차수 항은 버리고 짝수 차수 항만 두 배.</div>
+      <div class="box b" style="text-align:center;font-size:15px">$\displaystyle\int_{-1}^{2}|x|\,dx$ 를 구하시오.</div>
+      <div class="steps"><button class="stepbtn" data-w="w4">▶ 풀이 보기</button><div class="stepwrap" id="w4">
+        <div class="step"><span class="sn">1</span>$|x|$는 $x=0$에서 식이 바뀐다 → 구간을 $[-1,0]$과 $[0,2]$로 나눈다(이어 붙이기).</div>
+        <div class="step"><span class="sn">2</span>$\displaystyle\int_{-1}^{0}(-x)\,dx+\int_0^2 x\,dx=\Big[-\tfrac{x^2}2\Big]_{-1}^0+\Big[\tfrac{x^2}2\Big]_0^2=\tfrac12+2$.</div>
+        <div class="ans">$\dfrac52$</div></div></div>
+      <h3>정적분으로 정의된 함수</h3>
+      <p>$\displaystyle F(x)=\int_a^x f(t)\,dt$는 "위끝을 변수로 둔" 정적분이에요. 두 가지만 기억해요: <b>미분하면 $f(x)$</b>, <b>$x=a$를 넣으면 0</b>. 그리고 $\displaystyle\int_0^1 f(t)\,dt$처럼 양 끝이 숫자면 그건 함수가 아니라 <b>그냥 상수</b>예요.</p>
+      <div class="box b" style="text-align:center;font-size:15px">$\displaystyle f(x)=3x^2+2\int_0^1 f(t)\,dt$ 를 만족하는 $f(x)$는?</div>
+      <div class="steps"><button class="stepbtn" data-w="w5">▶ 풀이 보기</button><div class="stepwrap" id="w5">
+        <div class="step"><span class="sn">1</span>$\displaystyle\int_0^1 f(t)\,dt=k$ (상수)로 두면 $f(x)=3x^2+2k$.</div>
+        <div class="step"><span class="sn">2</span>$k=\displaystyle\int_0^1(3t^2+2k)\,dt=\Big[t^3+2kt\Big]_0^1=1+2k$ → $k=-1$.</div>
+        <div class="ans">$f(x)=3x^2-2$</div></div></div>
+      <div class="box b" style="text-align:center;font-size:15px">$\displaystyle\int_1^x f(t)\,dt=x^3-ax$ 일 때 상수 $a$와 $f(x)$는?</div>
+      <div class="steps"><button class="stepbtn" data-w="w6">▶ 풀이 보기</button><div class="stepwrap" id="w6">
+        <div class="step"><span class="sn">1</span>$x=1$ 대입: 왼쪽은 0 → $1-a=0$ → $a=1$.</div>
+        <div class="step"><span class="sn">2</span>양변을 $x$로 미분: $f(x)=3x^2-1$.</div>
+        <div class="ans">$a=1$, $f(x)=3x^2-1$</div></div></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="world">
+    <div class="card">
+      <h2>🌐 세상 속으로</h2>
+      <div class="keeper">
+        <div class="kt">📌 어른이 되어도 기억할 것</div>
+        <ol>
+          <li><b>적분은 미분의 반대.</b> 변화율(속도)에서 누적량(거리)으로 돌아가는 계산이다.</li>
+          <li><b>넓이 = F(b) − F(a).</b> 잘게 쪼개 더하는 대신, 거꾸로 미분한 함수의 끝값 차이 하나로 끝난다. 이것이 미적분학의 기본정리.</li>
+          <li><b>정적분은 부호 있는 넓이.</b> 축 아래는 음수. "누적"에는 빼기도 들어간다.</li>
+        </ol>
+      </div>
+      <div class="insight">
+        <div class="it">💡 인사이트 — 누적의 언어</div>
+        세상의 많은 양이 "변화율의 누적"이에요. 강수량은 강우 강도의 적분, 배터리 잔량은 전류의 적분, 총 지출은 소비 속도의 적분. 변화율 그래프만 있으면 누적량은 언제나 그 아래 넓이예요. 반대로 누적량 그래프의 기울기가 변화율이고요. 미분과 적분은 같은 현상을 양쪽에서 보는 한 쌍이에요.
+      </div>
+      <div class="reallife">
+        <div class="rt">🏠 넓이 = 누적이 보이는 곳</div>
+        <div class="rgrid">
+          <div class="rcell"><div class="ri">🚗</div><div class="rn">주행 거리</div><div class="rd">속도 그래프 아래 넓이</div></div>
+          <div class="rcell"><div class="ri">🔋</div><div class="rn">배터리</div><div class="rd">전류를 시간으로 적분 = 충전량</div></div>
+          <div class="rcell"><div class="ri">🌧️</div><div class="rn">강수량</div><div class="rd">강우 강도의 누적</div></div>
+          <div class="rcell"><div class="ri">💡</div><div class="rn">전기 요금</div><div class="rd">전력(kW) × 시간 누적 = kWh</div></div>
+          <div class="rcell"><div class="ri">🛁</div><div class="rn">욕조 물</div><div class="rd">수도꼭지 유량의 적분 = 수위</div></div>
+          <div class="rcell"><div class="ri">📉</div><div class="rn">순 변화</div><div class="rd">들어온 양 − 나간 양 = 부호 있는 넓이</div></div>
+        </div>
+      </div>
+      <div class="industry">
+        <div class="indt">🏭 산업과 직업</div>
+        <div class="indrow"><div class="ii">📡</div><div class="id2"><b>신호·데이터</b><br>센서 값을 시간에 대해 누적하면 위치·에너지·사용량이 된다. 스마트워치의 거리·칼로리가 전부 적분값.<br><span class="major">🎓 전자공학 · 데이터과학</span></div></div>
+        <div class="indrow"><div class="ii">🏗️</div><div class="id2"><b>토목·건축</b><br>단면의 넓이를 길이 방향으로 쌓으면 부피·물량. 댐의 수압, 보의 하중 계산이 적분으로 시작한다.<br><span class="major">🎓 토목공학 · 건축공학</span></div></div>
+        <div class="indrow"><div class="ii">💹</div><div class="id2"><b>금융·보험</b><br>현금 흐름의 누적, 확률 분포 아래의 넓이(확률)가 모두 적분. 확률과 통계에서 다시 만난다.<br><span class="major">🎓 경제학 · 보험계리</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="quiz">
+    <div class="card">
+      <h2>🔥 부정적분·정적분 퀴즈</h2>
+      <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
+      <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="fin">
+    <div class="card">
+      <h2>✅ 정리</h2>
+      <table>
+        <tr><th class="l">항목</th><th class="l">내용</th></tr>
+        <tr><td class="l">부정적분</td><td class="l">$F'=f$ ⟺ $\int f\,dx=F+C$ · $\int x^n dx=\frac{x^{n+1}}{n+1}+C$ · 항별로</td></tr>
+        <tr><td class="l">정적분</td><td class="l">$\int_a^b f\,dx=F(b)-F(a)$ · $C$ 없음 · 부호 있는 넓이</td></tr>
+        <tr><td class="l">성질</td><td class="l">$\int_a^a=0$ · 뒤집기 부호 반대 · 이어 붙이기 · 짝함수 $2\int_0^a$ · 홀함수 0</td></tr>
+        <tr><td class="l">정적분 함수</td><td class="l">$\frac{d}{dx}\int_a^x f(t)dt=f(x)$ · $x=a$ 넣으면 0 · 양 끝이 숫자면 상수</td></tr>
+      </table>
+      <div class="box b"><div class="t">🔑 한 줄 요약</div>거꾸로 미분하면 가족($+C$), 끝값의 차이가 넓이($F(b)-F(a)$), 축 아래는 음수.</div>
+      <h3>자가 점검</h3>
+      <div class="chk"><input type="checkbox" id="k1"><label for="k1">다항함수의 부정적분을 $+C$까지 구할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k2"><label for="k2">$F(b)-F(a)$로 정적분을 계산하고 $C$가 왜 사라지는지 말할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k3"><label for="k3">짝·홀 대칭과 이어 붙이기로 계산을 줄일 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k4"><label for="k4">$\int_a^x f(t)dt$ 를 미분하고 $x=a$를 넣어 조건을 뽑을 수 있다</label></div>
+      <h3>약점 태그</h3>
+      <div><span class="tag">미적Ⅰ:부정적분</span><span class="tag">미적Ⅰ:정적분 계산</span><span class="tag">미적Ⅰ:정적분 함수</span></div>
+      <div class="box g" style="margin-top:16px"><div class="t">➡️ 다음 단원</div><a href="cal1_area.html">정적분의 활용 — 넓이와 속도·거리</a>로. <a href="cal1_hub.html">미적분Ⅰ 허브</a>로.</div>
+    </div>
+  </div>
+</div>
+
+<script src="alg_app.js"></script>
+<script>
+var P1=null;
+function setup1(){ var cv=document.getElementById('cv1'); if(!P1) P1=LEC.plane(cv,{xmin:-3,xmax:3,ymin:-4,ymax:8,h:280}); else P1.resize(); draw1(); }
+function draw1(){ if(!P1)return; var C=parseInt(document.getElementById('sc').value,10); document.getElementById('scv').textContent=LEC.fmt(C);
+  P1.clear().grid().axes(); for(var k=-3;k<=3;k++){ if(k!==C) P1.plot((function(kk){return function(x){return x*x+kk;};})(k),'#cbd5e1',1.5); }
+  P1.plot(function(x){return x*x+C;},'#be185d',3); P1.seg(0.2,1+C-1.6,1.8,1+C+1.6,'#2563eb',2); P1.dot(1,1+C,'#2563eb',5,'기울기 2','e');
+  var el=document.getElementById('out1'); el.innerHTML='$F(x)=x^2'+LEC.term(C,'',false)+'$ → 미분하면 언제나 $F\'(x)=2x$ · $x=1$에서 기울기는 $C$와 상관없이 <b>2</b>'; LEC.tex(el); }
+document.getElementById('sc').addEventListener('input',draw1);
+
+var P2=null; function f2(x){return x*x-1;} function F2(x){return x*x*x/3-x;}
+function setup2(){ var cv=document.getElementById('cv2'); if(!P2) P2=LEC.plane(cv,{xmin:-2.5,xmax:3.5,ymin:-2,ymax:8,h:280}); else P2.resize(); draw2(); }
+function draw2(){ if(!P2)return; var a=parseFloat(document.getElementById('sa').value), b=parseFloat(document.getElementById('sb').value); document.getElementById('sav').textContent=LEC.fmt(a); document.getElementById('sbv').textContent=LEC.fmt(b);
+  P2.clear().grid().axes(); var lo=Math.min(a,b), hi=Math.max(a,b); var cuts=[lo,hi]; [-1,1].forEach(function(c){ if(c>lo&&c<hi) cuts.push(c); }); cuts.sort(function(u,v){return u-v;});
+  for(var i=0;i<cuts.length-1;i++){ var m=(cuts[i]+cuts[i+1])/2; P2.fillUnder(f2,cuts[i],cuts[i+1],f2(m)>=0?'rgba(22,163,74,.35)':'rgba(220,38,38,.35)'); }
+  P2.plot(f2,'#be185d',3); P2.seg(a,P2.ymin,a,P2.ymax,'#f59e0b',1.5,[5,4]); P2.seg(b,P2.ymin,b,P2.ymax,'#2563eb',1.5,[5,4]); P2.dot(a,0,'#f59e0b',5,'a','s'); P2.dot(b,0,'#2563eb',5,'b','s');
+  var val=F2(b)-F2(a); var el=document.getElementById('out2');
+  el.innerHTML='$\\displaystyle\\int_{'+a+'}^{'+b+'}(x^2-1)\\,dx=\\Big[\\tfrac{x^3}{3}-x\\Big]_{'+a+'}^{'+b+'}=$ <b>'+val.toFixed(2)+'</b>'+(a===b?' · 폭이 0':(a>b?' · $a$가 $b$보다 크다 → 부호 반대':(val<0?' · 아래쪽이 더 커서 음수':''))); LEC.tex(el); }
+['sa','sb'].forEach(function(id){ document.getElementById(id).addEventListener('input',draw2); });
+
+var P3=null, cur='sq';
+var FN={sq:{f:function(x){return x*x;},tex:'x^2',even:true},cu:{f:function(x){return x*x*x;},tex:'x^3',even:false},li:{f:function(x){return x;},tex:'x',even:false},sq1:{f:function(x){return x*x-1;},tex:'x^2-1',even:true}};
+function integ(f,a,b){ var n=400,h=(b-a)/n,s=0; for(var i=0;i<n;i++){ s+=f(a+(i+0.5)*h); } return s*h; }
+function setup3(){ var cv=document.getElementById('cv3'); if(!P3) P3=LEC.plane(cv,{xmin:-2.5,xmax:2.5,ymin:-8,ymax:8,h:260}); else P3.resize(); draw3(); }
+function draw3(){ if(!P3)return; var o=FN[cur]; P3.clear().grid().axes();
+  var cuts=[-2,-1,0,1,2]; for(var i=0;i<cuts.length-1;i++){ var m=(cuts[i]+cuts[i+1])/2; P3.fillUnder(o.f,cuts[i],cuts[i+1],o.f(m)>=0?'rgba(22,163,74,.35)':'rgba(220,38,38,.35)'); }
+  P3.plot(o.f,'#be185d',3); P3.seg(-2,P3.ymin,-2,P3.ymax,'#94a3b8',1,[4,4]); P3.seg(2,P3.ymin,2,P3.ymax,'#94a3b8',1,[4,4]);
+  var L=integ(o.f,-2,0), R=integ(o.f,0,2), T=L+R; document.getElementById('r1').textContent=L.toFixed(2); document.getElementById('r2').textContent=R.toFixed(2); document.getElementById('r3').textContent=Math.abs(T)<1e-9?'0':T.toFixed(2);
+  var el=document.getElementById('out3'); el.innerHTML='$\\displaystyle\\int_{-2}^{2}('+o.tex+')\\,dx$ = '+(o.even?'<b>짝함수</b>: 왼쪽 = 오른쪽 → $2\\displaystyle\\int_0^2$ = <b>'+T.toFixed(2)+'</b>':'<b>홀함수</b>: 왼쪽 = −오른쪽 → <b>0</b>'); LEC.tex(el); }
+Array.prototype.forEach.call(document.querySelectorAll('.btns button[data-f]'),function(bt){ bt.addEventListener('click',function(){ cur=this.getAttribute('data-f'); Array.prototype.forEach.call(document.querySelectorAll('.btns button[data-f]'),function(b){ b.classList.toggle('on',b===bt); }); draw3(); }); });
+APP.onTab({indef:setup1, def:setup2, prop:setup3}); LEC.onResize(function(){ var t=APP.current(); if(t==='indef')setup1(); if(t==='def')setup2(); if(t==='prop')setup3(); });
+
+var TABNAME={indef:'🔁 부정적분',def:'📐 정적분과 기본정리',prop:'🔧 성질·정적분 함수'};
+var QUIZ=[
+ {q:'∫(3x²−2x+1)dx 는?',o:['x³−x²+x+C','x³−x²+C','3x³−2x²+x+C','6x−2+C'],a:0,t:'indef',e:'항마다 차수를 하나 올리고 그 수로 나눈다. 미분해서 확인.'},
+ {q:'F′(x)=6x²−2, F(1)=3 일 때 F(x)는?',o:['2x³−2x+3','2x³−2x','6x³−2x+3','2x³−2x+C'],a:0,t:'indef',e:'F=2x³−2x+C, F(1)=C=3.'},
+ {q:'∫₀² (3x²−2x)dx 는?',o:['4','8','12','0'],a:0,t:'def',e:'[x³−x²]₀² = 8−4 = 4.'},
+ {q:'∫₋₁¹ x³ dx 는?',o:['0','1/2','1/4','2'],a:0,t:'prop',e:'홀함수는 대칭 구간에서 0.'},
+ {q:'∫₋₂² x² dx 는?',o:['16/3','8/3','0','16'],a:0,t:'prop',e:'짝함수 → 2·[x³/3]₀² = 2·8/3.'},
+ {q:'∫₁³ f dx + ∫₃⁵ f dx 와 같은 것은?',o:['∫₁⁵ f dx','∫₃³ f dx','∫₅¹ f dx','2∫₁³ f dx'],a:0,t:'prop',e:'이어 붙이기.'},
+ {q:'d/dx ∫₀ˣ (t²+1)dt 는?',o:['x²+1','x³/3+x','2x','x²'],a:0,t:'prop',e:'위끝이 x인 정적분을 미분하면 피적분함수에 x를 넣은 것.'},
+ {q:'∫₋₁² |x| dx 는?',o:['5/2','3/2','2','3'],a:0,t:'prop',e:'[−1,0]에서 1/2, [0,2]에서 2.'},
+ {q:'f(x)=3x²+2∫₀¹ f(t)dt 를 만족하는 f(x)는?',o:['3x²−2','3x²+2','3x²−1','3x²'],a:0,t:'prop',e:'상수 k로 두면 k=1+2k → k=−1, f=3x²+2k=3x²−2.'},
+ {q:'정적분 ∫ₐᵇ f(x)dx 가 음수라는 것의 의미는?',o:['x축 아래 부분이 위 부분보다 크다','넓이가 없다','a가 b보다 크다','f가 감소한다'],a:0,t:'def',e:'정적분은 부호 있는 넓이. 아래 부분이 더 크면 음수.'}
+];
+APP.quiz(QUIZ,TABNAME,{perfect:'완벽해요! 거꾸로 미분하고, 끝값의 차이로 넓이를 구해요.'});
+</script>
+</body>
+</html>

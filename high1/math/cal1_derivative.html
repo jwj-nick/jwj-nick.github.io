@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>미분계수와 도함수 — 미적분Ⅰ</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
+<script src="lecture.js"></script>
+<link rel="stylesheet" href="cal1_app.css">
+<style>.rd{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:8px}.rd div{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:7px 9px;font-size:12px;text-align:center;color:var(--sub)}.rd b{display:block;font-size:14px;color:var(--accent)}.widget canvas{max-width:520px}</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Math_1_1</a><span>&rsaquo;</span><a href="cal1_hub.html">미적분Ⅰ</a><span>&rsaquo;</span><a class="cur" href="#">미분계수와 도함수</a></nav>
+<div class="hero">
+  <span class="badge">Ⅱ. 미분</span>
+  <h1>📏 미분계수와 도함수</h1>
+  <p>순간의 변화율을 정의하고, 그것을 함수로 만든다</p>
+</div>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="intro">📋 개요</button>
+  <button class="tab" data-t="coef">📏 미분계수</button>
+  <button class="tab" data-t="diff">🔗 미분가능과 연속</button>
+  <button class="tab" data-t="rule">✏️ 도함수·미분법</button>
+  <button class="tab" data-t="world">🌐 세상 속으로</button>
+  <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="fin">✅ 정리</button>
+</div>
+<div class="wrap">
+
+  <div class="page active" data-p="intro">
+    <div class="card">
+      <h2>📋 구간단속과 순간단속</h2>
+      <div class="hook">
+        <div class="ht">💥 왜 배우나</div>
+        고속도로 <b>구간단속</b>은 두 지점을 지난 시각으로 평균 속력을 계산해요(거리 ÷ 시간). <b>순간단속</b> 카메라는 "그 순간"의 속력을 재죠. 그런데 순간이란 시간이 0인데, 0으로 나눌 수는 없잖아요? 카메라는 아주 짧은 두 순간의 차이를 재서 그 비율을 씁니다. 시간 간격을 <b>한없이 줄인 평균 속력의 극한</b>, 그것이 순간 속력이고 수학에서는 <b>미분계수</b>예요. 앞 단원의 극한이 여기서 "속력"이 돼요.
+      </div>
+      <div class="splink">🚪 할선이 접선으로 붙는 장면을 먼저 보려면 → <a href="cal1_sp_slope.html">관문 특강: 미분 = 기울기의 완성</a> (변화율 3부작 ③)</div>
+      <div class="sci">
+        <div class="ava">🍎</div>
+        <div>
+          <div class="st">뉴턴과 라이프니츠 (1660~1680년대) — 같은 발견, 다른 기호</div>
+          <div class="sd">영국의 뉴턴은 물체의 운동(속도·가속도)을 계산하려고, 독일의 라이프니츠는 곡선의 접선을 구하려고 각자 미분을 만들었어요. 우선권을 두고 두 나라 수학자들이 수십 년 다퉜지만, 오늘날 우리가 쓰는 $\dfrac{dy}{dx}$, $\int$ 기호는 라이프니츠의 것이에요. 기호를 잘 만든 쪽이 결국 이겼다는 교훈이 있어요.</div>
+        </div>
+      </div>
+      <div class="toc">
+        <button onclick="go('coef')"><div class="ti">📏</div><div class="tn">미분계수</div><div class="td">정의 · 접선 기울기</div></button>
+        <button onclick="go('diff')"><div class="ti">🔗</div><div class="tn">미분가능과 연속</div><div class="td">뾰족점의 비밀</div></button>
+        <button onclick="go('rule')"><div class="ti">✏️</div><div class="tn">도함수·미분법</div><div class="td">xⁿ · 곱의 미분</div></button>
+        <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">속도계·한계비용</div></button>
+        <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="coef">
+    <div class="card">
+      <h2>📏 미분계수 — 평균변화율의 극한</h2>
+      <p class="lead">$f(x)=x^2$ 위의 점 $A(a, a^2)$와 $B(a+h,\ (a+h)^2)$를 잇는 할선의 기울기가 <b>평균변화율</b>이에요. $h$를 0으로 보내면 접선의 기울기, 즉 <b>미분계수</b> $f'(a)$가 돼요.</p>
+      <div class="widget">
+        <canvas id="cv1" height="280"></canvas>
+        <div class="row"><span>$a$</span><input type="range" id="sa" min="-2" max="2" step="0.5" value="1"><span class="v" id="sav">1</span></div>
+        <div class="row"><span>$h$</span><input type="range" id="sh" min="0" max="5" step="1" value="1"><span class="v" id="shv">1</span></div>
+        <div class="rd"><div>평균변화율 $\frac{f(a+h)-f(a)}{h}$ <b id="r1"></b></div><div>$=2a+h$ <b id="r2"></b></div><div>미분계수 $f'(a)=2a$ <b id="r3"></b></div></div>
+        <div class="out" id="out1"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 정의</div>$$f'(a)=\lim_{h\to0}\frac{f(a+h)-f(a)}{h}=\lim_{x\to a}\frac{f(x)-f(a)}{x-a}$$ $x=a$에서의 <b>순간변화율</b> = 그 점에서의 <b>접선의 기울기</b>. 두 식은 $x=a+h$로 같은 것.</div>
+      <div class="box b" style="text-align:center;font-size:15px">$f(x)=x^2+1$ 일 때 정의를 써서 $f'(2)$를 구하시오.</div>
+      <div class="steps"><button class="stepbtn" data-w="w1">▶ 풀이 보기</button><div class="stepwrap" id="w1">
+        <div class="step"><span class="sn">1</span>$f(2+h)-f(2)=\{(2+h)^2+1\}-5=4h+h^2$.</div>
+        <div class="step"><span class="sn">2</span>$\dfrac{4h+h^2}{h}=4+h$ → $h\to0$.<div class="why">→ 0/0 꼴이 h 약분으로 풀린다. 앞 단원의 기술 그대로.</div></div>
+        <div class="ans">$f'(2)=4$</div></div></div>
+      <div class="box a"><div class="t">⚠️ 극한 식 읽기 요령</div>$\displaystyle\lim_{h\to0}\frac{f(a+2h)-f(a)}{h}$ 처럼 모양이 다르면 정의 꼴로 맞춰요: $=2\cdot\displaystyle\lim_{h\to0}\frac{f(a+2h)-f(a)}{2h}=2f'(a)$. "분자의 변화 폭 ÷ 분모"가 일치해야 $f'(a)$ 하나.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="diff">
+    <div class="card">
+      <h2>🔗 미분가능과 연속 — 뾰족한 곳은 미분이 안 된다</h2>
+      <p class="lead">$f(x)=|x|$는 $x=0$에서 연속이지만, 왼쪽에서 다가간 기울기는 $-1$, 오른쪽은 $1$이라 접선이 하나로 정해지지 않아요. 그래서 미분계수가 없어요. 슬라이더로 양쪽 할선을 보세요.</p>
+      <div class="widget">
+        <canvas id="cv2" height="240"></canvas>
+        <div class="row"><span>$h$</span><input type="range" id="sh2" min="0" max="4" step="1" value="1"><span class="v" id="sh2v">1</span></div>
+        <div class="out" id="out2"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 정리</div>$f$가 $x=a$에서 <b>미분가능하면 연속</b>이다. 역은 성립하지 않는다 — 연속이지만 미분 불가능한 점(뾰족점)이 있다. 미분가능 ⟺ 좌미분계수 = 우미분계수.</div>
+      <div class="box b"><div class="t">🔑 읽는 법</div>미분가능은 "줌인하면 직선처럼 보인다"예요. 뾰족점은 아무리 줌인해도 뾰족해요. 끊긴 곳(불연속)은 당연히 기울기를 잴 수 없고요. 그래서 미분가능 ⊂ 연속.</div>
+      <div class="box b" style="text-align:center;font-size:15px">$f(x)=\begin{cases}x^2 & (x\lt1)\\ ax+b & (x\ge1)\end{cases}$ 가 $x=1$에서 미분가능할 때 $a, b$는?</div>
+      <div class="steps"><button class="stepbtn" data-w="w2">▶ 풀이 보기</button><div class="stepwrap" id="w2">
+        <div class="step"><span class="sn">1</span>먼저 연속: $1=a+b$.<div class="why">→ 미분가능하려면 연속부터.</div></div>
+        <div class="step"><span class="sn">2</span>미분계수 일치: 왼쪽 $(x^2)'=2x\to2$, 오른쪽 $a$ → $a=2$.</div>
+        <div class="step"><span class="sn">3</span>$b=1-2=-1$.</div>
+        <div class="ans">$a=2,\ b=-1$ (직선 $y=2x-1$은 $x=1$에서 $y=x^2$의 접선)</div></div></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="rule">
+    <div class="card">
+      <h2>✏️ 도함수와 미분법 — 점마다 기울기를 주는 함수</h2>
+      <p class="lead">모든 $x$에서 미분계수를 구해 새 함수로 만든 것이 <b>도함수</b> $f'(x)$예요. 다항함수는 규칙 몇 개로 바로 나와요. 카드를 눌러 확인하세요.</p>
+      <div class="box g"><div class="t">✅ 도함수</div>$$f'(x)=\lim_{h\to0}\frac{f(x+h)-f(x)}{h}$$ 기호: $f'(x),\ y',\ \dfrac{dy}{dx},\ \dfrac{d}{dx}f(x)$ — 전부 같은 뜻.</div>
+      <div class="fcards" id="rulecards"></div>
+      <h3>$x^n$의 도함수는 왜 $nx^{n-1}$인가</h3>
+      <div class="steps"><button class="stepbtn" data-w="w3">▶ $x^2$, $x^3$으로 확인</button><div class="stepwrap" id="w3">
+        <div class="step"><span class="sn">1</span>$x^2$: $\dfrac{(x+h)^2-x^2}{h}=\dfrac{2xh+h^2}{h}=2x+h\to2x$.</div>
+        <div class="step"><span class="sn">2</span>$x^3$: $\dfrac{(x+h)^3-x^3}{h}=\dfrac{3x^2h+3xh^2+h^3}{h}=3x^2+3xh+h^2\to3x^2$.</div>
+        <div class="step"><span class="sn">3</span>일반: $(x+h)^n$을 전개하면 $x^n+nx^{n-1}h+(h^2$ 이상 항$)$. $x^n$을 빼고 $h$로 나누면 $nx^{n-1}$만 남는다.</div>
+        <div class="ans">$(x^n)'=nx^{n-1}$ — "지수를 앞으로 내리고 하나 줄인다"</div></div></div>
+      <h3>곱의 미분법</h3>
+      <div class="box b" style="text-align:center;font-size:15px">$f(x)=(x^2+1)(2x-3)$ 의 도함수는?</div>
+      <div class="steps"><button class="stepbtn" data-w="w4">▶ 풀이 보기</button><div class="stepwrap" id="w4">
+        <div class="step"><span class="sn">1</span>$(fg)'=f'g+fg'$: $2x(2x-3)+(x^2+1)\cdot2$.</div>
+        <div class="step"><span class="sn">2</span>$=4x^2-6x+2x^2+2=6x^2-6x+2$.</div>
+        <div class="step"><span class="sn">3</span>검산: 전개 $2x^3-3x^2+2x-3$ → 미분 $6x^2-6x+2$ ✓.</div>
+        <div class="ans">$f'(x)=6x^2-6x+2$</div></div></div>
+      <div class="box a"><div class="t">⚠️ 흔한 실수</div>$(fg)'\ne f'g'$. 곱의 미분은 "앞 미분 × 뒤 + 앞 × 뒤 미분". 그리고 상수의 미분은 0이지 상수가 아니에요: $(5)'=0$, $(5x)'=5$.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="world">
+    <div class="card">
+      <h2>🌐 세상 속으로</h2>
+      <div class="keeper">
+        <div class="kt">📌 어른이 되어도 기억할 것</div>
+        <ol>
+          <li><b>미분계수 = 순간 변화율 = 접선 기울기.</b> 속도계, 심박 변화, 물가 상승률 — "지금 얼마나 빨리"는 전부 미분.</li>
+          <li><b>미분가능 ⇒ 연속, 역은 아님.</b> 뾰족한 곳(꺾임)은 기울기가 없다. 그래프가 매끈해야 미분이 된다.</li>
+          <li><b>$(x^n)'=nx^{n-1}$</b> 하나로 다항함수는 전부 미분된다.</li>
+        </ol>
+      </div>
+      <div class="insight">
+        <div class="it">💡 인사이트 — 다음 단원으로</div>
+        미분계수가 기울기라는 것을 알았으니 <b>접선의 방정식</b>(다음 단원)은 "점 + 기울기"로 바로 써져요. 그리고 기울기의 부호가 함수의 오르내림을 알려주니 <b>증가·감소·극값</b>으로 이어져요. 경제학의 "한계비용"(한 개 더 만들 때 드는 비용)도 비용함수의 미분계수예요.
+      </div>
+      <div class="reallife">
+        <div class="rt">🏠 미분계수가 보이는 곳</div>
+        <div class="rgrid">
+          <div class="rcell"><div class="ri">🚗</div><div class="rn">속도계</div><div class="rd">위치의 미분</div></div>
+          <div class="rcell"><div class="ri">📈</div><div class="rn">상승률</div><div class="rd">"오늘 +3%"는 변화율</div></div>
+          <div class="rcell"><div class="ri">🌡️</div><div class="rn">체온 변화</div><div class="rd">오르는 속도가 중요</div></div>
+          <div class="rcell"><div class="ri">🏔️</div><div class="rn">경사도</div><div class="rd">도로 표지 "8%" = 기울기</div></div>
+          <div class="rcell"><div class="ri">🔋</div><div class="rn">충전 속도</div><div class="rd">배터리 % 의 미분</div></div>
+          <div class="rcell"><div class="ri">📉</div><div class="rn">한계비용</div><div class="rd">비용함수의 미분</div></div>
+        </div>
+      </div>
+      <div class="industry">
+        <div class="indt">🏭 산업과 직업</div>
+        <div class="indrow"><div class="ii">🤖</div><div class="id2"><b>인공지능</b><br>학습은 "손실을 줄이는 방향" = 손실 함수의 기울기(미분)를 따라 내려가는 것(경사하강법). 딥러닝 프레임워크의 핵심 기능이 자동 미분.<br><span class="major">🎓 컴퓨터공학 · 인공지능</span></div></div>
+        <div class="indrow"><div class="ii">📊</div><div class="id2"><b>경제·경영</b><br>한계비용·한계수입·탄력성은 전부 미분계수. "한 단위 더"의 효과를 재는 언어.<br><span class="major">🎓 경제학 · 경영학</span></div></div>
+        <div class="indrow"><div class="ii">⚙️</div><div class="id2"><b>물리·제어</b><br>속도·가속도·전류(전하의 변화율). 자율주행의 제어기는 오차의 미분값을 본다.<br><span class="major">🎓 기계·전기공학 · 물리학</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="quiz">
+    <div class="card">
+      <h2>🔥 미분계수와 도함수 퀴즈</h2>
+      <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
+      <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="fin">
+    <div class="card">
+      <h2>✅ 정리</h2>
+      <table>
+        <tr><th class="l">항목</th><th class="l">내용</th></tr>
+        <tr><td class="l">평균변화율</td><td class="l">$\dfrac{f(b)-f(a)}{b-a}$ — 두 점의 기울기</td></tr>
+        <tr><td class="l">미분계수</td><td class="l">$f'(a)=\lim_{h\to0}\dfrac{f(a+h)-f(a)}{h}$ — 접선 기울기 · 순간변화율</td></tr>
+        <tr><td class="l">미분가능·연속</td><td class="l">미분가능 ⇒ 연속 (역 ✗) · 뾰족점은 미분 불가</td></tr>
+        <tr><td class="l">미분법</td><td class="l">$(x^n)'=nx^{n-1}$ · $(c)'=0$ · $(cf)'=cf'$ · $(f\pm g)'=f'\pm g'$ · $(fg)'=f'g+fg'$</td></tr>
+      </table>
+      <div class="box b"><div class="t">🔑 한 줄 요약</div>미분계수는 순간의 기울기, 도함수는 기울기를 알려주는 함수. 매끈해야 미분되고, 계산은 지수 내리고 하나 줄이기.</div>
+      <h3>자가 점검</h3>
+      <div class="chk"><input type="checkbox" id="k1"><label for="k1">정의로 미분계수를 구할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k2"><label for="k2">$\lim\frac{f(a+2h)-f(a)}{h}$ 꼴을 $f'(a)$로 바꿀 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k3"><label for="k3">미분가능 조건(연속 + 좌우 미분계수 일치)으로 상수를 정할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k4"><label for="k4">다항함수와 곱의 도함수를 계산할 수 있다</label></div>
+      <h3>약점 태그</h3>
+      <div><span class="tag">미적Ⅰ:미분계수 정의</span><span class="tag">미적Ⅰ:미분가능성</span><span class="tag">미적Ⅰ:다항함수 미분</span><span class="tag">미적Ⅰ:곱의 미분</span></div>
+      <div class="box g" style="margin-top:16px"><div class="t">➡️ 다음 단원</div>기울기를 알았으니 직선을 긋자 → <a href="cal1_tangent.html">접선의 방정식과 평균값 정리</a>. <a href="cal1_hub.html">미적분Ⅰ 허브</a>로.</div>
+    </div>
+  </div>
+</div>
+
+<script src="alg_app.js"></script>
+<script>
+var HS=[2,1,0.5,0.1,0.01,0.001];
+var P1=null;
+function setup1(){ var cv=document.getElementById('cv1'); if(!P1) P1=LEC.plane(cv,{xmin:-3,xmax:3.5,ymin:-1,ymax:8,h:280}); else P1.resize(); draw1(); }
+function draw1(){ if(!P1)return; var a=parseFloat(document.getElementById('sa').value), h=HS[parseInt(document.getElementById('sh').value,10)]; document.getElementById('sav').textContent=LEC.fmt(a); document.getElementById('shv').textContent=h;
+  var f=function(x){return x*x;}; var ya=f(a), yb=f(a+h), ms=(yb-ya)/h, mt=2*a;
+  P1.clear().grid().axes(); P1.plot(f,'#be185d',3); P1.seg(P1.xmin,ya+mt*(P1.xmin-a),P1.xmax,ya+mt*(P1.xmax-a),'#cbd5e1',2,[5,4]); P1.seg(P1.xmin,ya+ms*(P1.xmin-a),P1.xmax,ya+ms*(P1.xmax-a),'#2563eb',2.5); P1.dot(a,ya,'#dc2626',7,'A','sw'); P1.dot(a+h,yb,'#2563eb',6,'B','se');
+  document.getElementById('r1').textContent=LEC.fmt(Math.round(ms*1000)/1000); document.getElementById('r2').textContent=LEC.fmt(Math.round((2*a+h)*1000)/1000); document.getElementById('r3').textContent=LEC.fmt(mt);
+  var el=document.getElementById('out1'); el.innerHTML='$\\dfrac{(a+h)^2-a^2}{h}=\\dfrac{2ah+h^2}{h}=2a+h$ → $h\\to0$ 이면 $f\'(a)=2a='+LEC.fmt(mt).replace('−','-')+'$'; LEC.tex(el); }
+['sa','sh'].forEach(function(id){document.getElementById(id).addEventListener('input',draw1);});
+var P2=null; var HS2=[1,0.5,0.2,0.1,0.05];
+function setup2(){ var cv=document.getElementById('cv2'); if(!P2) P2=LEC.plane(cv,{xmin:-2.5,xmax:2.5,ymin:-0.7,ymax:2.5,h:240,grid:0.5}); else P2.resize(); draw2(); }
+function draw2(){ if(!P2)return; var h=HS2[parseInt(document.getElementById('sh2').value,10)]; document.getElementById('sh2v').textContent=h;
+  P2.clear().grid().axes(); P2.plot(Math.abs,'#be185d',3); P2.seg(-2.4,2.4,0,0,'#2563eb',2,[5,4]); P2.seg(0,0,2.4,2.4,'#dc2626',2,[5,4]);
+  P2.dot(-h,h,'#2563eb',6,'왼쪽 할선 기울기 −1','nw'); P2.dot(h,h,'#dc2626',6,'오른쪽 할선 기울기 1','ne'); P2.dot(0,0,'#0f172a',6);
+  var el=document.getElementById('out2'); el.innerHTML='$x=0$에서 좌미분계수 $\\dfrac{|-h|-0}{-h}=-1$, 우미분계수 $\\dfrac{|h|-0}{h}=1$ → 다르다 → <b>미분 불가능</b> (연속이지만 뾰족하다)'; LEC.tex(el); }
+document.getElementById('sh2').addEventListener('input',draw2);
+cards('rulecards',[['$(c)\'$','$=0$ — 상수는 기울기 0'],['$(x^n)\'$','$=nx^{n-1}$ — 지수 내리고 하나 줄이기'],['$(cf)\'$','$=cf\'$ — 상수배는 그대로'],['$(f\\pm g)\'$','$=f\'\\pm g\'$ — 항마다'],['$(fg)\'$','$=f\'g+fg\'$ — 앞 미분 × 뒤 + 앞 × 뒤 미분'],['예: $(3x^4-2x^2+7)\'$','$=12x^3-4x$']]);
+APP.onTab({coef:setup1, diff:setup2}); LEC.onResize(function(){ var t=APP.current(); if(t==='coef')setup1(); if(t==='diff')setup2(); });
+
+var TABNAME={coef:'📏 미분계수',diff:'🔗 미분가능과 연속',rule:'✏️ 도함수·미분법'};
+var QUIZ=[
+ {q:'f(x)=x² 에서 x가 1에서 3까지 변할 때의 평균변화율은?',o:['4','2','8','3'],a:0,t:'coef',e:'(9−1)/(3−1)=4.'},
+ {q:'f(x)=x² 에서 f′(3) 은?',o:['6','9','3','2'],a:0,t:'coef',e:'정의로: ((3+h)²−9)/h = 6+h → 6. 또는 (x²)′=2x.'},
+ {q:'lim_{h→0} (f(a+3h)−f(a))/h 를 f′(a)로 나타내면?',o:['3f′(a)','f′(a)','f′(a)/3','f′(3a)'],a:0,t:'coef',e:'분모를 3h로 맞추면 3·lim (f(a+3h)−f(a))/(3h) = 3f′(a).'},
+ {q:'f(x)=|x| 는 x=0에서?',o:['연속이지만 미분 불가능','미분가능','불연속','연속이고 미분가능'],a:0,t:'diff',e:'좌미분계수 −1, 우미분계수 1 → 다르다. 뾰족점.'},
+ {q:'"미분가능하면 연속이다"의 역은?',o:['성립하지 않는다 (|x| 반례)','항상 성립한다','다항함수에서만 성립','불연속일 때만 성립'],a:0,t:'diff',e:'연속이지만 미분 불가능한 점이 있으므로 역은 거짓.'},
+ {q:'f(x)= x² (x<1), ax+b (x≥1) 이 x=1에서 미분가능할 때 a+b 는?',o:['1','2','−1','3'],a:0,t:'diff',e:'연속: a+b=1. 미분계수: 2=a → b=−1. a+b=1.'},
+ {q:'(x⁵)′ 은?',o:['5x⁴','x⁴','5x⁵','4x⁵'],a:0,t:'rule',e:'지수를 앞으로 내리고 하나 줄인다.'},
+ {q:'f(x)=2x³−4x+7 일 때 f′(1) 은?',o:['2','5','6','3'],a:0,t:'rule',e:'f′(x)=6x²−4 → f′(1)=2. 상수 7은 사라진다.'},
+ {q:'f(x)=(x+1)(x²−2) 일 때 f′(1) 은?',o:['3','1','−1','5'],a:0,t:'rule',e:'f′=1·(x²−2)+(x+1)·2x → x=1: −1+4=3. 전개(x³+x²−2x−2)′=3x²+2x−2 → 3 ✓.'},
+ {q:'(5)′ 의 값은?',o:['0','5','1','5x'],a:0,t:'rule',e:'상수함수의 기울기는 0.'}
+];
+APP.quiz(QUIZ,TABNAME,{perfect:'완벽해요! 순간의 기울기를 정의할 수 있어요.'});
+</script>
+</body>
+</html>

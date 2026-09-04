@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>적분 = 넓이 쌓기 · 관문 특강</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="if(window.LEC)LEC.tex(document.body)"></script>
+<script src="lecture.js"></script>
+<style>
+  .fbtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:8px}.fbtns .on{background:var(--lec);color:#fff}
+  .rd{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:8px}.rd div{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:7px 9px;font-size:12px;text-align:center;color:var(--sub)}.rd b{display:block;font-size:15px;color:var(--lec)}
+  .dcard{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;margin:8px 0;font-size:16px;text-align:center}.dcard .ar{color:var(--lec);font-weight:800}
+  @media (max-width:520px){.dcard{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Math_1_1</a><span>&rsaquo;</span><a href="cal1_hub.html">미적분Ⅰ</a><span>&rsaquo;</span><a class="cur" href="#">관문 특강 · 적분</a></nav>
+<div class="wrap">
+
+<div class="lec-hero">
+  <span class="tag">🚪 관문 특강 · 미적분Ⅰ Ⅲ 적분</span>
+  <h1>🧱 적분 = 넓이 쌓기</h1>
+  <p>곡선 아래 넓이를 재는 가장 정직한 방법은 <b>직사각형으로 채우고, 더 가늘게, 더 가늘게</b> 자르는 거예요. 그리고 교과서가 가장 못 가르치는 질문, <b>"미분의 반대가 왜 넓이인가?"</b>를 여기서 그림으로 풀어요. 넓이가 자라는 속도가 곡선의 높이라는 것, 그 한 문장이 미적분의 기본정리예요.</p>
+  <div class="lec-goal"><a href="#type1">① 부정적분</a><a href="#type2">② 정적분 계산</a><a href="#type3">③ 넓이</a><a href="#type4">④ 속도 → 거리</a></div>
+</div>
+<nav class="lec-nav" id="lecNav"></nav>
+
+<!-- ① 감 잡기 -->
+<section class="lec-sec reveal" data-step="1" data-label="감 잡기" id="s1">
+  <div class="eyebrow"><span class="n">1</span>직사각형을 늘리면 넓이가 모인다 (공식 없이)</div>
+  <p>$y=x^2$ 아래, $0$부터 $2$까지의 넓이를 재고 싶어요. 직사각형 $n$개로 채워 보세요. $n$을 늘릴수록 넓이가 어떤 값으로 모이나요? 그다음 <b>"면적함수"</b> 버튼을 눌러, 오른쪽 끝 $x$를 움직이며 넓이가 <b>어떤 속도로</b> 자라는지 보세요.</p>
+  <div class="lec-widget">
+    <canvas id="cv1" height="300"></canvas>
+    <div class="fbtns"><button class="lec-btn ghost on" id="mRiem">직사각형(리만합)</button><button class="lec-btn ghost" id="mArea">면적함수 $S(x)$</button></div>
+    <div class="lec-row" id="rowN"><span>직사각형 개수 $n$</span><input type="range" id="sn" min="0" max="8" step="1" value="2"><span class="v" id="snv">4</span></div>
+    <div class="lec-row" id="rowX" style="display:none"><span>오른쪽 끝 $x$</span><input type="range" id="sx" min="0" max="20" step="1" value="10"><span class="v" id="sxv">1</span></div>
+    <div class="rd"><div id="rdA">직사각형 합 <b id="r1"></b></div><div id="rdB">진짜 넓이 $\frac83$ <b id="r2"></b></div><div id="rdC">차이 <b id="r3"></b></div></div>
+    <div class="lec-out" id="out1"></div>
+  </div>
+  <p>면적함수 모드에서 $x$를 조금 늘리면 넓이는 <b>높이 × 조금</b>만큼 늘어요. 즉 넓이의 변화율(미분)이 바로 곡선의 높이 $f(x)$예요. 그래서 "넓이를 구하려면 미분해서 $f$가 되는 함수를 찾으면 된다". 이것이 미분과 적분을 잇는 다리예요.</p>
+  <div class="lec-card">
+    <h4>함께 생각하기 ①</h4>
+    <p style="margin-bottom:8px;font-size:14px">직사각형을 무한히 늘리면 $y=x^2$ 아래 $0$부터 $2$까지의 넓이는 얼마로 모이나요? (분수는 8/3 처럼)</p>
+    <div class="lec-checkrow"><input class="num" id="q1" inputmode="decimal" aria-label="답"><button id="q1b">확인</button></div>
+    <div class="lec-out" id="q1o"></div>
+  </div>
+</section>
+
+<!-- ② 공식은 읽는 것 -->
+<section class="lec-sec reveal" data-step="2" data-label="공식 읽기" id="s2">
+  <div class="eyebrow"><span class="n">2</span>공식은 외우는 게 아니라 읽는 것</div>
+  <p>먼저 <b>부정적분</b>. "미분하면 $f$가 되는 함수"를 $f$의 부정적분이라 하고 $\int f(x)dx$로 써요. 미분하면 상수는 사라지니까, 거꾸로 갈 때는 상수 $C$가 <b>어떤 값이든</b> 될 수 있어요.</p>
+  <div class="lec-formula"><div class="f">$\displaystyle\int x^n\,dx=\frac{1}{n+1}x^{n+1}+C$ &nbsp;(미분의 반대: 지수 하나 올리고, 그 수로 나눈다)</div><small>검산은 미분: (x³/3)' = x². 상수 C는 "위아래로 평행한 곡선 가족" 전부.</small></div>
+
+  <p><b>정적분</b>은 넓이예요(교과서 정의: $y=f(x)$의 그래프와 $x$축, $x=a$, $x=b$로 둘러싸인 부분의 넓이에 부호를 붙인 것). 그래프가 $x$축 아래면 음수로 세요.</p>
+  <div class="lec-formula"><div class="f">$\displaystyle\int_a^b f(x)\,dx$ = $a$부터 $b$까지 그래프 아래의 <b>부호 있는 넓이</b></div><small>위는 +, 아래는 −. 그래서 정적분이 0이어도 "넓이"는 0이 아닐 수 있다.</small></div>
+
+  <p>이제 핵심. 왜 넓이를 부정적분으로 계산할 수 있나? 위젯에서 봤듯이 <b>면적함수 $S(x)$의 변화율이 $f(x)$</b>예요. 그러니까 $S$는 $f$의 부정적분 중 하나이고, $S(a)=0$이라는 조건으로 상수가 정해져요.</p>
+  <div class="lec-formula"><div class="f">$\displaystyle\int_a^b f(x)\,dx=F(b)-F(a)$ &nbsp;($F'=f$) — 미적분의 기본정리</div><small>"부정적분을 구해 두 끝값을 빼면 넓이". C는 빼는 과정에서 사라진다.</small></div>
+
+  <p>정적분의 성질도 넓이로 읽혀요. 구간을 이어 붙이면 넓이도 더해지고, 위아래 뒤집으면 부호가 바뀌어요.</p>
+  <div class="lec-formula"><div class="f">$\int_a^b+\int_b^c=\int_a^c,\quad \int_a^a=0,\quad \int_b^a=-\int_a^b,\quad \int(kf\pm g)=k\int f\pm\int g$</div><small>넓이 문제는 "위 − 아래": 곡선이 x축 아래면 −f 를, 두 곡선 사이면 (위 곡선 − 아래 곡선)을 적분한다.</small></div>
+
+  <p>마지막으로 속도. 속도 그래프 아래 넓이가 <b>이동한 거리</b>예요(속력 × 시간을 가늘게 쌓은 것). 3부작의 속력 그림이 여기서 넓이로 돌아와요.</p>
+  <div class="lec-formula"><div class="f">위치 변화 $=\displaystyle\int_a^b v(t)\,dt$, &nbsp; 이동 거리 $=\displaystyle\int_a^b |v(t)|\,dt$</div><small>후진(v&lt;0)하면 위치는 줄지만 거리는 늘어난다. 그래서 절댓값.</small></div>
+
+  <div class="lec-card">
+    <h4>함께 생각하기 ②</h4>
+    <p style="margin-bottom:8px;font-size:14px">$F(x)=\dfrac{x^3}3$ 은 $x^2$의 부정적분이에요. $F(2)-F(0)$의 값은? (분수로)</p>
+    <div class="lec-checkrow"><input class="num" id="q2" inputmode="decimal" aria-label="답"><button id="q2b">확인</button></div>
+    <div class="lec-out" id="q2o"></div>
+  </div>
+</section>
+
+<!-- ③ 핵심 도구 -->
+<section class="lec-sec reveal" data-step="3" data-label="적분 카드" id="s3">
+  <div class="eyebrow"><span class="n">3</span>적분 카드 — 핵심 도구</div>
+  <p>다항함수의 적분은 미분 카드를 거꾸로 돌리는 거예요: 항마다 <b>지수 하나 올리고, 그 수로 나눈다</b>. 상수 $c$는 $cx$가 돼요. 검산은 항상 미분.</p>
+  <div class="lec-card">
+    <div class="dcard"><div id="dL">$f(x)=3x^2-2x+1$</div><div class="ar">→ 적분 →</div><div id="dR">$F(x)=x^3-x^2+x+C$</div></div>
+    <div class="fbtns"><button class="lec-again" id="dNext">🔄 다른 식으로</button></div>
+  </div>
+  <div class="lec-key"><b>불변 앵커</b> 적분은 넓이 쌓기, 미분의 반대. 넓이의 변화율이 높이다. 계산은 "지수 올리고 나누기, 그리고 두 끝값 빼기".</div>
+  <p style="margin-top:12px">적분 카드 연습이에요. 미분해서 되돌아가는지 검산하세요.</p>
+  <div id="toolbody"></div>
+</section>
+
+<!-- ④ 유형별 완전정복 -->
+<section class="lec-sec reveal" data-step="4" data-label="유형 4" id="s4">
+  <div class="eyebrow"><span class="n">4</span>유형별 완전정복</div>
+  <p>네 가지 유형 모두 <b>부정적분 구하기 → 두 끝값 빼기</b>예요. 넓이와 거리는 "부호"만 조심하면 돼요.</p>
+</section>
+
+<section class="lec-type reveal" id="type1">
+  <div class="lec-type-h"><span class="badge">①</span><span><div class="t">부정적분</div><div class="d">미분의 반대 + C</div></span></div>
+  <div class="lec-key"><b>핵심</b> $F'(x)=f(x)$이면 $F(x)=\int f\,dx$. 조건 하나(예: $F(0)=3$)가 주어지면 $C$가 정해진다.</div>
+  <div id="type1body"></div>
+</section>
+
+<section class="lec-type reveal" id="type2">
+  <div class="lec-type-h"><span class="badge">②</span><span><div class="t">정적분 계산</div><div class="d">F(b) − F(a)</div></span></div>
+  <div class="lec-key"><b>핵심</b> 부정적분 $F$를 구하고 $F(b)-F(a)$. $C$는 쓰지 않아도 된다(빼면 사라짐). 음수 대입은 괄호.</div>
+  <div id="type2body"></div>
+</section>
+
+<section class="lec-type reveal" id="type3">
+  <div class="lec-type-h"><span class="badge">③</span><span><div class="t">넓이</div><div class="d">위 − 아래, 부호 주의</div></span></div>
+  <div class="lec-key"><b>핵심</b> 먼저 교점(경계)을 구하고, 구간에서 어느 쪽이 위인지 확인한 뒤 (위 − 아래)를 적분한다. $x$축 아래 부분은 $-f$를 적분.</div>
+  <div id="type3body"></div>
+</section>
+
+<section class="lec-type reveal" id="type4">
+  <div class="lec-type-h"><span class="badge">④</span><span><div class="t">속도 → 거리</div><div class="d">속도 그래프 아래 넓이</div></span></div>
+  <div class="lec-key"><b>핵심</b> 위치 변화 $=\int v$, 이동 거리 $=\int|v|$. $v=0$이 되는 순간(방향 전환)에서 구간을 나눈다.</div>
+  <div id="type4body"></div>
+</section>
+
+<!-- ⑤ 실전 총정리 -->
+<section class="lec-sec reveal" data-step="5" data-label="실전" id="s5">
+  <div class="eyebrow"><span class="n">5</span>실전 총정리 — 유형 섞어서</div>
+  <p>어떤 유형인지 알려주지 않아요. <b>부정적분부터</b> 구하세요. 틀리면 어느 유형인지 알려주고 돌아가는 길을 열어 둘게요.</p>
+  <div id="quizArea"></div>
+  <div style="text-align:center;margin-top:8px"><button class="lec-again" id="quizAreaAgain">🔄 5문제 새로</button></div>
+</section>
+
+<!-- ⑥ 치트시트 -->
+<section class="lec-sec reveal" data-step="6" data-label="치트시트" id="s6">
+  <div class="eyebrow"><span class="n">6</span>마무리 치트시트</div>
+  <div class="lec-cheat">
+    <h3>🧱 적분 한 장 요약</h3>
+    <div class="row">
+      <div class="chip"><b>부정적분</b>$\int x^n dx=\frac{x^{n+1}}{n+1}+C$ · 검산은 미분</div>
+      <div class="chip"><b>정적분</b>부호 있는 넓이 · $\int_a^b f=F(b)-F(a)$</div>
+    </div>
+    <div class="row">
+      <div class="chip"><b>왜 되나</b>넓이의 변화율 = 높이 → $S'=f$ (기본정리)</div>
+      <div class="chip"><b>넓이</b>경계(교점) 찾기 → (위 − 아래) 적분 · 축 아래는 $-f$</div>
+    </div>
+    <div class="row">
+      <div class="chip"><b>속도</b>위치 변화 $\int v$ · 이동 거리 $\int|v|$</div>
+      <div class="chip"><b>한 문장</b>적분은 넓이 쌓기, 미분의 반대</div>
+    </div>
+    <button id="printCheat">🖨️ 이 치트시트 인쇄하기</button>
+  </div>
+  <div class="keeper">
+    <div class="kt">📌 어른이 되어도 기억할 것</div>
+    <ul>
+      <li><b>쌓으면 적분, 쪼개면 미분.</b> 누적 강수량은 강수 강도의 적분, 총 거리는 속력의 적분, 총 사용량은 순간 소비의 적분.</li>
+      <li><b>미분과 적분은 서로 반대</b>라는 사실(기본정리)이 17세기에 밝혀지면서, 넓이 계산이 "부정적분 찾기"라는 계산 문제로 바뀌었어요. 과학혁명의 엔진이에요.</li>
+      <li>컴퓨터는 적분을 직사각형 합으로 근사해요. 위젯의 $n$을 늘리는 것이 컴퓨터가 하는 일 그대로예요.</li>
+    </ul>
+  </div>
+  <div class="insight"><div class="it">💡 3부작의 완결과 그 너머</div>속력(중1) → 기울기(중2) → 미분(변화율) → <b>적분(누적)</b>. 변화율을 쌓으면 원래 양으로 돌아와요. 이것으로 미적분Ⅰ의 큰 그림이 완성돼요. 대학에서는 이 넓이 쌓기가 부피·확률·전기장·경제의 총효용까지 넓어져요.</div>
+  <div class="reallife"><div class="rt">🏠 이미 보고 있던 곳</div>전기 요금 고지서(순간 전력의 적분 = kWh), 자동차 주행 거리계(속력의 적분), 저수지 수위(유입량의 적분), 운동 앱의 "오늘 소모 칼로리"(소모율의 적분).</div>
+  <div class="reallife"><div class="rt">🏭 이걸로 먹고사는 사람들</div>구조 설계(하중의 누적), 약물 동태학(혈중 농도 곡선 아래 넓이 AUC), 경제학(소비자 잉여 = 수요 곡선 아래 넓이), 컴퓨터 그래픽·물리 엔진(속도를 적분해 위치 갱신), 데이터 분석(누적 분포). <span style="color:#312e81;font-weight:700">🎓 기계·토목공학 · 약학 · 경제학 · 컴퓨터공학</span></div>
+  <p style="text-align:center;color:var(--sub);font-size:13px;margin-top:14px">단원 앱으로 이어서 → <a href="cal1_integral.html">부정적분과 정적분</a> · <a href="cal1_area.html">넓이 · 속도와 거리</a></p>
+</section>
+
+<div class="lec-foot">관문 특강 · 적분 = 넓이 쌓기 · 미적분Ⅰ · 표준 커리큘럼 제작</div>
+</div>
+<div id="printArea"></div>
+
+<!-- ───────── 생성기(순수 함수 · Node 재검산 대상) ───────── -->
+<script id="gen">
+(function(){
+  var ri=LEC.ri, pick=LEC.pick, nz=LEC.nz, frac=LEC.frac, poly=LEC.poly, sp=LEC.sgnParen;
+  function ev(co,x){ var s=0; for(var i=0;i<co.length;i++) s=s*x+co[i]; return s; }
+  function integ(co){ var n=co.length-1, out=[]; for(var i=0;i<=n;i++) out.push(co[i]/(n-i+1)); out.push(0); return out; } // 계수 (유리수)
+  function polyQ(co,x){ // 유리수 계수 다항식 KaTeX (frac 사용)
+    x=x||'x'; var n=co.length-1, out='', first=true;
+    for(var i=0;i<=n;i++){ var d=n-i, c=co[i]; if(Math.abs(c)<1e-12) continue; var num=Math.round(c*12), den=12; var g=LEC.gcd(num,den); num/=g; den/=g;
+      var sym=d===0?'':(d===1?x:x+'^{'+d+'}'); var sgn=c<0?'-':(first?'':'+'); var a=Math.abs(num); var coef = den===1 ? (a===1&&sym?'':String(a)) : '\\frac{'+a+'}{'+den+'}';
+      out+=sgn+coef+sym; first=false; }
+    return out||'0'; }
+  function defint(co,a,b){ var F=integ(co); return ev(F,b)-ev(F,a); }
+
+  window.GEN = {
+    tool:{ label:'적분 카드', anchor:'#s3',
+      gen:function(){ var co=[pick([3,6,-3]),pick([2,4,-2,0]),ri(-3,3)]; var a=ri(-1,1), b=a+ri(1,3); var v=defint(co,a,b);
+        return { q:'$\\displaystyle\\int_{'+a+'}^{'+b+'}('+poly(co)+')\\,dx$ 의 값은? (분수는 7/3 처럼)', ans:v, tol:1e-6, fig:{v:v}, steps:['부정적분: 지수 올리고 나누기 → $F(x)='+polyQ(integ(co))+'$', '$F('+b+')-F('+sp(a)+')='+LEC.fmt(Math.round(ev(integ(co),b)*1e6)/1e6).replace('−','-')+'-('+LEC.fmt(Math.round(ev(integ(co),a)*1e6)/1e6).replace('−','-')+')='+LEC.fmt(Math.round(v*1e6)/1e6).replace('−','-')+'$'] }; },
+      verify:function(p){ return Math.abs(p.fig.v-p.ans)<1e-9; } },
+
+    type1:{ label:'① 부정적분', anchor:'#type1',
+      gen:function(){ var co=[pick([3,6,-3,2]),pick([2,-2,4,0]),ri(-3,3)]; var c0=ri(-3,3); var p=ri(-2,2); var F=integ(co); var v=ev(F,p)+c0;
+        return { q:'$F\'(x)='+poly(co)+'$ 이고 $F(0)='+c0+'$ 일 때 $F('+p+')$ 의 값은? (분수 가능)', ans:v, tol:1e-6, fig:{v:v}, steps:['$F(x)=\\int('+poly(co)+')dx='+polyQ(F)+'+C$', '$F(0)=C='+c0+'$', '$F('+p+')='+LEC.fmt(Math.round(v*1e6)/1e6).replace('−','-')+'$'] }; },
+      verify:function(p){ return Math.abs(p.fig.v-p.ans)<1e-9; } },
+
+    type2:{ label:'② 정적분 계산', anchor:'#type2',
+      gen:function(){ var co=pick([[3,0,0],[1,0,-1],[2,1,0],[-1,2,1],[4,0,-2],[1,-2,3]]); var a=ri(-2,1), b=a+ri(1,3); var v=defint(co,a,b);
+        return { q:'$\\displaystyle\\int_{'+a+'}^{'+b+'}('+poly(co)+')\\,dx$ 의 값은? (분수 가능)', ans:v, tol:1e-6, fig:{v:v}, steps:['$F(x)='+polyQ(integ(co))+'$', '$F('+b+')-F('+sp(a)+')='+LEC.fmt(Math.round(v*1e6)/1e6).replace('−','-')+'$ (음수 대입은 괄호!)'] }; },
+      verify:function(p){ return Math.abs(p.fig.v-p.ans)<1e-9; } },
+
+    type3:{ label:'③ 넓이', anchor:'#type3',
+      gen:function(){ if(Math.random()<0.5){ var r=ri(1,3); var area=4*r*r*r/3; // y=x^2-r^2 와 x축 사이
+          return { q:'곡선 $y=x^2-'+(r*r)+'$ 과 $x$축으로 둘러싸인 부분의 넓이는? (분수 가능)', ans:area, tol:1e-6, fig:{v:area}, steps:['경계: $x^2-'+(r*r)+'=0$ → $x=\\pm'+r+'$. 그 사이에서 곡선은 $x$축 <b>아래</b>', '넓이 $=\\int_{-'+r+'}^{'+r+'}\\{0-(x^2-'+(r*r)+')\\}dx=\\int_{-'+r+'}^{'+r+'}('+(r*r)+'-x^2)dx$', '$=\\left['+(r*r)+'x-\\frac{x^3}3\\right]_{-'+r+'}^{'+r+'}='+frac(4*r*r*r,3)+'$'] }; }
+        var a=ri(1,4); var area2=a*a*a/6; // y=x^2 과 y=ax
+        return { q:'곡선 $y=x^2$ 과 직선 $y='+(a===1?'':a)+'x$ 로 둘러싸인 부분의 넓이는? (분수 가능)', ans:area2, tol:1e-6, fig:{v:area2}, steps:['교점: $x^2='+(a===1?'':a)+'x$ → $x=0,\\ '+a+'$. 그 사이에서는 직선이 <b>위</b>', '넓이 $=\\int_0^{'+a+'}('+(a===1?'':a)+'x-x^2)dx=\\left[\\frac{'+a+'}{2}x^2-\\frac{x^3}3\\right]_0^{'+a+'}$', '$=\\dfrac{'+a+'^3}{2}-\\dfrac{'+a+'^3}{3}=\\dfrac{'+a+'^3}{6}='+frac(a*a*a,6)+'$'] }; },
+      verify:function(p){ return Math.abs(p.fig.v-p.ans)<1e-9; } },
+
+    type4:{ label:'④ 속도 → 거리', anchor:'#type4',
+      gen:function(){ var c=ri(2,5), T=c+ri(1,3); // v(t)=c-t, 0≤t≤T, t=c 에서 방향 전환
+        var pos=c*T-T*T/2, dist=c*c/2+(T-c)*(T-c)/2; var askDist=Math.random()<0.5;
+        return { q:'수직선 위를 움직이는 점의 속도가 $v(t)='+c+'-t$ 일 때, $t=0$부터 $t='+T+'$까지 '+(askDist?'<b>움직인 거리</b>':'<b>위치의 변화량</b>')+'은? (분수 가능)', ans:askDist?dist:pos, tol:1e-6, fig:{v:askDist?dist:pos},
+          steps:['$v=0$ 인 순간: $t='+c+'$ (방향 전환). 그 전은 $v\\gt0$, 그 후는 $v\\lt0$', '위치 변화 $=\\int_0^{'+T+'}('+c+'-t)dt=\\left['+c+'t-\\frac{t^2}2\\right]_0^{'+T+'}='+frac(2*c*T-T*T,2)+'$', '움직인 거리 $=\\int_0^{'+c+'}('+c+'-t)dt+\\int_{'+c+'}^{'+T+'}(t-'+c+')dt=\\frac{'+(c*c)+'}{2}+\\frac{'+((T-c)*(T-c))+'}{2}='+frac(c*c+(T-c)*(T-c),2)+'$', askDist?'묻는 것은 거리 → $'+frac(c*c+(T-c)*(T-c),2)+'$':'묻는 것은 위치 변화 → $'+frac(2*c*T-T*T,2)+'$'] }; },
+      verify:function(p){ return Math.abs(p.fig.v-p.ans)<1e-9; } }
+  };
+})();
+</script>
+
+<script>
+LEC.boot({ key:'cal1_sp_area', color:'#be185d', color2:'#f472b6' });
+
+/* ① 리만합 / 면적함수 */
+(function(){
+  var cv=document.getElementById('cv1'); var P=LEC.plane(cv,{xmin:-0.3,xmax:2.4,ymin:-0.5,ymax:4.6,h:300,grid:0.5});
+  var NS=[1,2,4,8,16,32,64,128,256]; var mode='riem';
+  function f(x){ return x*x; }
+  function draw(){
+    P.clear().grid().axes(); var c=P.ctx;
+    if(mode==='riem'){
+      var n=NS[parseInt(document.getElementById('sn').value,10)]; document.getElementById('snv').textContent=n; var w=2/n, sum=0;
+      for(var i=0;i<n;i++){ var x0=i*w, h=f(x0+w); sum+=h*w; c.fillStyle='rgba(190,24,93,.25)'; c.strokeStyle='rgba(190,24,93,.7)'; c.lineWidth=1; c.fillRect(P.X(x0),P.Y(h),P.X(x0+w)-P.X(x0),P.Y(0)-P.Y(h)); c.strokeRect(P.X(x0),P.Y(h),P.X(x0+w)-P.X(x0),P.Y(0)-P.Y(h)); }
+      P.plot(f,'#be185d',3,0,2.4); P.dot(2,4,'#be185d',5);
+      document.getElementById('r1').textContent=sum.toFixed(4); document.getElementById('r2').textContent=(8/3).toFixed(4); document.getElementById('r3').textContent=(sum-8/3).toFixed(4);
+      document.getElementById('rdA').firstChild.textContent='직사각형 합 '; document.getElementById('rdB').firstChild.textContent='진짜 넓이 8/3 '; document.getElementById('rdC').firstChild.textContent='차이 ';
+      var el=document.getElementById('out1'); el.innerHTML='$n='+n+'$: 직사각형(오른쪽 높이) 넓이의 합 $='+sum.toFixed(4)+'$ → $n$을 늘릴수록 $\\dfrac83\\approx2.6667$로 모인다'; LEC.tex(el);
+    } else {
+      var x=parseInt(document.getElementById('sx').value,10)/10; document.getElementById('sxv').textContent=x.toFixed(1);
+      P.fillUnder(f,0,x,'rgba(190,24,93,.25)'); P.plot(f,'#be185d',3,0,2.4); P.seg(x,0,x,f(x),'#2563eb',3); P.dot(x,f(x),'#2563eb',6,'높이 '+f(x).toFixed(2),'ne');
+      var S=x*x*x/3;
+      document.getElementById('rdA').firstChild.textContent='넓이 S(x) = x³/3 '; document.getElementById('rdB').firstChild.textContent='높이 f(x) = x² '; document.getElementById('rdC').firstChild.textContent='S′(x) = ? ';
+      document.getElementById('r1').textContent=S.toFixed(3); document.getElementById('r2').textContent=f(x).toFixed(3); document.getElementById('r3').textContent=(x*x).toFixed(3)+' = 높이';
+      var el2=document.getElementById('out1'); el2.innerHTML='$S(x)=\\dfrac{x^3}{3}$ 을 미분하면 $S\'(x)=x^2=f(x)$ — <b>넓이가 자라는 속도 = 곡선의 높이</b>. 그래서 넓이는 "미분해서 $f$가 되는 함수"로 구한다'; LEC.tex(el2);
+    }
+  }
+  document.getElementById('sn').addEventListener('input',draw); document.getElementById('sx').addEventListener('input',draw);
+  document.getElementById('mRiem').addEventListener('click',function(){ mode='riem'; this.classList.add('on'); document.getElementById('mArea').classList.remove('on'); document.getElementById('rowN').style.display=''; document.getElementById('rowX').style.display='none'; draw(); });
+  document.getElementById('mArea').addEventListener('click',function(){ mode='area'; this.classList.add('on'); document.getElementById('mRiem').classList.remove('on'); document.getElementById('rowN').style.display='none'; document.getElementById('rowX').style.display=''; draw(); });
+  draw(); LEC.onResize(function(){ P.resize(); draw(); });
+})();
+
+LEC.check('q1',8/3,{tol:0.01,ok:'$\\dfrac83\\approx2.667$. 직사각형이 무한히 가늘어지면 정확히 이 값.', bad:'위젯에서 $n=256$일 때 합을 보세요. 어디로 모이나요? 분수로는 8/3.'});
+LEC.check('q2',8/3,{tol:0.01,ok:'$\\dfrac83-0=\\dfrac83$. 위젯의 넓이와 같아요 — 이것이 기본정리.', bad:'$F(2)=\\dfrac{8}{3}$, $F(0)=0$.'});
+
+/* ③ 적분 카드 */
+(function(){ var EX=[['3x^2-2x+1','x^3-x^2+x+C'],['4x^3','x^4+C'],['x^2','\\tfrac13x^3+C'],['6x+5','3x^2+5x+C'],['2','2x+C'],['x^4-x','\\tfrac15x^5-\\tfrac12x^2+C'],['-2x+3','-x^2+3x+C']]; var i=0;
+  function show(){ var L=document.getElementById('dL'), R=document.getElementById('dR'); L.innerHTML='$f(x)='+EX[i][0]+'$'; R.innerHTML='$F(x)='+EX[i][1]+'$'; LEC.tex(L); LEC.tex(R); }
+  document.getElementById('dNext').addEventListener('click',function(){ i=(i+1)%EX.length; show(); }); show(); })();
+
+LEC.types(['tool','type1','type2','type3','type4']);
+LEC.quiz('quizArea',{n:5,types:['type1','type2','type3','type4']});
+</script>
+</body>
+</html>

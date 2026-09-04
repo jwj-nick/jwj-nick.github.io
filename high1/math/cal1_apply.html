@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>도함수의 활용 — 방정식·부등식·속도와 가속도 — 미적분Ⅰ</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
+<script src="lecture.js"></script>
+<link rel="stylesheet" href="cal1_app.css">
+<style>.widget canvas{max-width:520px}.rdo{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:8px}.rdo div{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:7px 9px;font-size:12px;text-align:center;color:var(--sub)}.rdo b{display:block;font-size:14px;color:var(--accent)}</style>
+</head>
+<body>
+<nav class="crumb"><a href="../index.html">고1</a><span>&rsaquo;</span><a href="index.html">Math_1_1</a><span>&rsaquo;</span><a href="cal1_hub.html">미적분Ⅰ</a><span>&rsaquo;</span><a class="cur" href="#">도함수의 활용</a></nav>
+<div class="hero">
+  <span class="badge">Ⅱ. 미분</span>
+  <h1>🚗 도함수의 활용 — 방정식·부등식·속도와 가속도</h1>
+  <p>그래프를 그릴 수 있으면 풀지 않고도 안다</p>
+</div>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="intro">📋 개요</button>
+  <button class="tab" data-t="eq">🔢 방정식의 실근</button>
+  <button class="tab" data-t="ineq">⚖️ 부등식</button>
+  <button class="tab" data-t="motion">🚗 속도·가속도</button>
+  <button class="tab" data-t="world">🌐 세상 속으로</button>
+  <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="fin">✅ 정리</button>
+</div>
+<div class="wrap">
+
+  <div class="page active" data-p="intro">
+    <div class="card">
+      <h2>📋 풀지 않고 아는 법, 그리고 움직임을 읽는 법</h2>
+      <div class="hook">
+        <div class="ht">💥 왜 배우나</div>
+        $x^3-3x=k$의 해가 몇 개인지 알고 싶어요. 삼차방정식을 푸는 공식은 고등학교에서 배우지 않죠. 그런데 $y=x^3-3x$의 그래프를 그려 놓고 가로선 $y=k$를 위아래로 움직이면, <b>교점의 개수</b>가 곧 해의 개수예요. 풀지 않고 아는 거예요. 그리고 하늘로 던진 공은 "속도가 0이 되는 순간" 가장 높아요. 위치를 미분하면 속도, 한 번 더 하면 가속도. 갈릴레이가 피사에서 재던 것을 미분 두 번으로 읽는 단원이에요.
+      </div>
+      <div class="splink">🚪 미분이 아직 "기울기"로 안 보이면 → <a href="cal1_sp_slope.html">관문 특강: 미분 = 기울기의 완성</a> · 앞 단원 <a href="cal1_graph.html">증가·감소와 극값</a></div>
+      <div class="sci">
+        <div class="ava">🔭</div>
+        <div>
+          <div class="st">갈릴레이 (1564~1642) — 떨어지는 공에서 법칙을 읽다</div>
+          <div class="sd">갈릴레이는 경사면에 공을 굴리며 "이동 거리는 시간의 제곱에 비례한다"($s=\frac12gt^2$)를 알아냈어요. 미분이 없던 시대라 속도가 시간에 비례한다는 것까지만 밝혔지만, 오늘 우리는 $s$를 미분해 $v=gt$, 한 번 더 미분해 $a=g$를 바로 얻어요. 뉴턴의 운동 법칙 $F=ma$의 $a$가 바로 이 두 번째 미분이에요.</div>
+        </div>
+      </div>
+      <div class="toc">
+        <button onclick="go('eq')"><div class="ti">🔢</div><div class="tn">방정식의 실근</div><div class="td">교점 세기</div></button>
+        <button onclick="go('ineq')"><div class="ti">⚖️</div><div class="tn">부등식</div><div class="td">최솟값 ≥ 0</div></button>
+        <button onclick="go('motion')"><div class="ti">🚗</div><div class="tn">속도·가속도</div><div class="td">수직선 운동 애니</div></button>
+        <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">로켓·브레이크</div></button>
+        <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="eq">
+    <div class="card">
+      <h2>🔢 방정식의 실근의 개수 — 교점 세기</h2>
+      <p class="lead">$y=x^3-3x$의 그래프와 가로선 $y=k$. $k$를 움직이면 교점이 3개, 2개, 1개로 바뀌어요. 방정식 $x^3-3x=k$의 서로 다른 실근의 개수가 그거예요. 갈림길은 <b>극값</b>이에요.</p>
+      <div class="widget">
+        <canvas id="cv1" height="280"></canvas>
+        <div class="row"><span>$k$</span><input type="range" id="sk" min="-3.5" max="3.5" step="0.5" value="1"><span class="v" id="skv">1</span></div>
+        <div class="out" id="out1"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 방법</div>$f(x)=k$의 실근의 개수 = $y=f(x)$와 $y=k$의 교점의 개수. 극댓값과 극솟값 <b>사이</b>면 3개, 극값과 같으면 2개(하나는 중근), 바깥이면 1개.</div>
+      <div class="box b" style="text-align:center;font-size:15px">$x^3-3x-k=0$ 이 서로 다른 세 실근을 가질 $k$의 범위는?</div>
+      <div class="steps"><button class="stepbtn" data-w="w1">▶ 풀이 보기</button><div class="stepwrap" id="w1">
+        <div class="step"><span class="sn">1</span>$x^3-3x=k$로 옮긴다. $f(x)=x^3-3x$의 극값: $f'=3x^2-3=0$ → $x=\pm1$, 극댓값 $f(-1)=2$, 극솟값 $f(1)=-2$.</div>
+        <div class="step"><span class="sn">2</span>가로선이 극댓값과 극솟값 사이에 있어야 세 번 만난다.</div>
+        <div class="ans">$-2\lt k\lt2$</div></div></div>
+      <div class="box b"><div class="t">🔑 상수를 분리하라</div>$x^3-3x-k=0$처럼 미지의 상수가 있으면 "$f(x)=k$" 꼴로 <b>상수를 한쪽으로 분리</b>해요. 그러면 $f$의 그래프는 하나로 고정되고 가로선만 움직여서 셀 수 있어요.</div>
+      <div class="box a"><div class="t">⚠️ 실근이 "몇 개"인가만 묻는다</div>실근의 값을 구하는 것이 아니에요. 극값의 값과 $k$를 비교하는 것으로 끝. 근이 양수인지 음수인지를 물으면 $y$절편·극값의 위치까지 그래프에서 읽어요.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="ineq">
+    <div class="card">
+      <h2>⚖️ 부등식의 증명 — 최솟값이 0 이상이면 끝</h2>
+      <p class="lead">"$x\ge0$인 모든 $x$에 대해 $f(x)\ge0$"을 보이려면, 그 범위에서 $f$의 <b>최솟값</b>이 0 이상임을 보이면 돼요. 최솟값은 극값과 끝값 중에 있어요.</p>
+      <div class="widget">
+        <canvas id="cv2" height="260"></canvas>
+        <div class="out" id="out2">$f(x)=x^3-3x+2$, $x\ge0$: 극솟값 $f(1)=0$ → 최솟값 $0\ge0$ ✓</div>
+      </div>
+      <div class="box b" style="text-align:center;font-size:15px">$x\ge0$ 일 때 $x^3+2\ge3x$ 임을 보이시오.</div>
+      <div class="steps"><button class="stepbtn" data-w="w2">▶ 풀이 보기</button><div class="stepwrap" id="w2">
+        <div class="step"><span class="sn">1</span>$f(x)=x^3-3x+2$로 두고 $x\ge0$에서 $f(x)\ge0$을 보인다.<div class="why">→ 부등식은 "한쪽으로 몰아 ≥0".</div></div>
+        <div class="step"><span class="sn">2</span>$f'(x)=3x^2-3=3(x-1)(x+1)$. $x\ge0$에서 $x=1$이 극소: $f(1)=1-3+2=0$. 끝값 $f(0)=2$.</div>
+        <div class="step"><span class="sn">3</span>$x\ge0$에서 최솟값은 $0$ → $f(x)\ge0$.</div>
+        <div class="ans">$x^3+2\ge3x$ (등호는 $x=1$) ∎</div></div></div>
+      <div class="box b" style="text-align:center;font-size:15px">모든 실수 $x$에 대해 $x^4-4x+a\gt0$ 이 성립하도록 하는 $a$의 범위는?</div>
+      <div class="steps"><button class="stepbtn" data-w="w3">▶ 풀이 보기</button><div class="stepwrap" id="w3">
+        <div class="step"><span class="sn">1</span>$f(x)=x^4-4x+a$, $f'=4x^3-4=4(x-1)(x^2+x+1)$ → $x=1$에서만 부호 변화(−→+) → 최솟값 $f(1)=1-4+a=a-3$.</div>
+        <div class="step"><span class="sn">2</span>최솟값 $\gt0$ → $a-3\gt0$.</div>
+        <div class="ans">$a\gt3$</div></div></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="motion">
+    <div class="card">
+      <h2>🚗 속도와 가속도 — 위치를 두 번 미분</h2>
+      <p class="lead">수직선 위를 움직이는 점의 위치가 $x(t)=t^3-6t^2+9t$예요. 시간 $t$를 움직이며 점이 어디 있고, 어느 방향으로, 얼마나 빨리 가는지 보세요. <b>속도가 0이 되는 순간 방향이 바뀌어요.</b></p>
+      <div class="widget">
+        <canvas id="cv3" height="300"></canvas>
+        <div class="row"><span>$t$</span><input type="range" id="st" min="0" max="40" step="1" value="5"><span class="v" id="stv">0.5</span></div>
+        <div class="btns"><button id="playBtn">▶ 재생</button></div>
+        <div class="rdo"><div>위치 $x$ <b id="r1"></b></div><div>속도 $v=x'$ <b id="r2"></b></div><div>가속도 $a=v'$ <b id="r3"></b></div><div>방향 <b id="r4"></b></div></div>
+        <div class="out" id="out3"></div>
+      </div>
+      <div class="box g"><div class="t">✅ 정의</div>위치 $x(t)$ → 속도 $v(t)=x'(t)$ → 가속도 $a(t)=v'(t)=x''(t)$. 속력은 $|v|$. $v=0$이면 순간 정지(방향 전환 후보), $v$와 $a$의 부호가 같으면 속력 증가, 다르면 감소.</div>
+      <div class="box b" style="text-align:center;font-size:15px">$x(t)=t^3-6t^2+9t$ 일 때, 점이 운동 방향을 바꾸는 시각과 $t=3$에서의 가속도는?</div>
+      <div class="steps"><button class="stepbtn" data-w="w4">▶ 풀이 보기</button><div class="stepwrap" id="w4">
+        <div class="step"><span class="sn">1</span>$v(t)=3t^2-12t+9=3(t-1)(t-3)$ → $v=0$: $t=1,3$. 앞뒤로 부호가 바뀌므로 둘 다 방향 전환.</div>
+        <div class="step"><span class="sn">2</span>$a(t)=6t-12$ → $a(3)=6$.</div>
+        <div class="ans">방향 전환 $t=1, 3$ · $a(3)=6$</div></div></div>
+      <div class="box b" style="text-align:center;font-size:15px">지면에서 위로 던진 물체의 높이가 $h(t)=30t-5t^2$ (m) 일 때 최고 높이는?</div>
+      <div class="steps"><button class="stepbtn" data-w="w5">▶ 풀이 보기</button><div class="stepwrap" id="w5">
+        <div class="step"><span class="sn">1</span>$v(t)=30-10t=0$ → $t=3$ (최고점에서 속도 0).</div>
+        <div class="step"><span class="sn">2</span>$h(3)=90-45=45$.</div>
+        <div class="ans">$45$ m (가속도 $-10$ m/s², 즉 중력)</div></div></div>
+      <div class="box a"><div class="t">⚠️ 속도 0 ≠ 정지해 있다</div>$v=0$은 "그 순간" 멈춘 것. 던진 공은 최고점에서 속도가 0이지만 가속도는 $-10$이라 바로 떨어져요. 그리고 "속력이 커진다"는 $|v|$가 커진다는 뜻으로, $v\lt0$이면서 $a\lt0$이면 속력은 커져요.</div>
+    </div>
+  </div>
+
+  <div class="page" data-p="world">
+    <div class="card">
+      <h2>🌐 세상 속으로</h2>
+      <div class="keeper">
+        <div class="kt">📌 어른이 되어도 기억할 것</div>
+        <ol>
+          <li><b>방정식의 해 개수 = 그래프의 교점 개수.</b> 풀 수 없는 방정식도 그래프로는 "몇 개"를 안다.</li>
+          <li><b>부등식 증명은 최솟값 찾기.</b> "항상 ≥0"은 "가장 작을 때도 ≥0".</li>
+          <li><b>위치 → 속도 → 가속도, 미분 두 번.</b> 속도계와 가속도 센서가 그 둘이고, 뉴턴의 $F=ma$가 그 끝에 있다.</li>
+        </ol>
+      </div>
+      <div class="insight">
+        <div class="it">💡 인사이트 — 다음 단원으로</div>
+        속도를 알 때 위치로 돌아가는 것, 즉 미분의 반대가 <b>적분</b>이에요. 속도 그래프 아래의 넓이가 이동 거리라는 것을 다음 단원에서 확인해요. 변화율 3부작(속력 → 기울기 → 미분)이 "쌓기"로 마무리되는 곳이에요.
+      </div>
+      <div class="reallife">
+        <div class="rt">🏠 미분 두 번이 보이는 곳</div>
+        <div class="rgrid">
+          <div class="rcell"><div class="ri">🚀</div><div class="rn">로켓</div><div class="rd">최고점 = 속도 0</div></div>
+          <div class="rcell"><div class="ri">🚗</div><div class="rn">브레이크</div><div class="rd">v>0, a<0 → 속력 감소</div></div>
+          <div class="rcell"><div class="ri">📱</div><div class="rn">만보기</div><div class="rd">가속도 센서로 걸음 감지</div></div>
+          <div class="rcell"><div class="ri">🎢</div><div class="rn">놀이기구</div><div class="rd">가속도가 스릴의 정체</div></div>
+          <div class="rcell"><div class="ri">📈</div><div class="rn">"증가세 둔화"</div><div class="rd">v>0, a<0 (늘지만 느리게)</div></div>
+          <div class="rcell"><div class="ri">🛗</div><div class="rn">엘리베이터</div><div class="rd">출발·정지 때만 느끼는 가속도</div></div>
+        </div>
+      </div>
+      <div class="industry">
+        <div class="indt">🏭 산업과 직업</div>
+        <div class="indrow"><div class="ii">🛰️</div><div class="id2"><b>항공우주·자동차</b><br>궤도·주행 제어는 위치·속도·가속도를 매 순간 계산한다. 자율주행의 "부드러운 정지"는 가속도 제어.<br><span class="major">🎓 항공우주 · 기계공학</span></div></div>
+        <div class="indrow"><div class="ii">🏭</div><div class="id2"><b>공정·품질</b><br>"조건을 만족하는 설계값이 존재하는가"(실근 존재), "어떤 값에서도 안전한가"(부등식 증명)는 설계 검증의 언어.<br><span class="major">🎓 산업공학 · 안전공학</span></div></div>
+        <div class="indrow"><div class="ii">🎮</div><div class="id2"><b>게임 물리</b><br>캐릭터 점프는 $h(t)=v_0t-\frac12gt^2$ 그대로. 프레임마다 속도에 가속도를 더한다.<br><span class="major">🎓 컴퓨터공학 · 게임공학</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" data-p="quiz">
+    <div class="card">
+      <h2>🔥 도함수의 활용 퀴즈</h2>
+      <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
+      <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
+    </div>
+  </div>
+
+  <div class="page" data-p="fin">
+    <div class="card">
+      <h2>✅ 정리</h2>
+      <table>
+        <tr><th class="l">항목</th><th class="l">내용</th></tr>
+        <tr><td class="l">실근의 개수</td><td class="l">$f(x)=k$ → $y=f(x)$와 $y=k$의 교점 개수 · 상수 분리 · 극값과 비교</td></tr>
+        <tr><td class="l">부등식</td><td class="l">한쪽으로 몰아 $f(x)\ge0$ → 그 범위의 최솟값 $\ge0$</td></tr>
+        <tr><td class="l">속도·가속도</td><td class="l">$v=x'$, $a=v'$ · $v=0$ 방향 전환 후보 · 최고점은 $v=0$</td></tr>
+        <tr><td class="l">속력</td><td class="l">$|v|$ · $v, a$ 같은 부호면 속력 증가</td></tr>
+      </table>
+      <div class="box b"><div class="t">🔑 한 줄 요약</div>그래프로 세고(실근), 최솟값으로 보이고(부등식), 두 번 미분해 읽는다(운동).</div>
+      <h3>자가 점검</h3>
+      <div class="chk"><input type="checkbox" id="k1"><label for="k1">상수를 분리해 방정식의 실근 개수를 극값과 비교해 구할 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k2"><label for="k2">최솟값으로 부등식이 항상 성립함을 보일 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k3"><label for="k3">위치 함수에서 속도·가속도를 구하고 방향 전환 시각을 찾을 수 있다</label></div>
+      <div class="chk"><input type="checkbox" id="k4"><label for="k4">던진 물체의 최고 높이를 $v=0$으로 구할 수 있다</label></div>
+      <h3>약점 태그</h3>
+      <div><span class="tag">미적Ⅰ:실근의 개수</span><span class="tag">미적Ⅰ:부등식 증명</span><span class="tag">미적Ⅰ:속도가속도</span></div>
+      <div class="box g" style="margin-top:16px"><div class="t">➡️ 다음 단원</div>Ⅲ 적분으로 → <a href="cal1_sp_area.html">관문 특강: 적분 = 넓이 쌓기</a> → <a href="cal1_integral.html">부정적분과 정적분</a>. <a href="cal1_hub.html">미적분Ⅰ 허브</a>로.</div>
+    </div>
+  </div>
+</div>
+
+<script src="alg_app.js"></script>
+<script>
+function f1(x){ return x*x*x-3*x; }
+var P1=null;
+function setup1(){ var cv=document.getElementById('cv1'); if(!P1) P1=LEC.plane(cv,{xmin:-3,xmax:3,ymin:-4,ymax:4,h:280}); else P1.resize(); draw1(); }
+function draw1(){ if(!P1)return; var k=parseFloat(document.getElementById('sk').value); document.getElementById('skv').textContent=LEC.fmt(k);
+  P1.clear().grid().axes(); P1.plot(f1,'#be185d',3); P1.seg(P1.xmin,k,P1.xmax,k,'#f59e0b',2,[6,4]); P1.dot(-1,2,'#16a34a',5,'극대 2','n'); P1.dot(1,-2,'#2563eb',5,'극소 −2','s');
+  // 교점: x^3-3x-k=0 근 찾기(수치)
+  var roots=[]; for(var x=-3;x<3;x+=0.001){ var a=f1(x)-k, b=f1(x+0.001)-k; if(a===0||a*b<0) roots.push(x+0.0005); } roots=roots.filter(function(r,i,arr){ return i===0||Math.abs(r-arr[i-1])>0.01; });
+  roots.forEach(function(r){ P1.dot(r,k,'#dc2626',6); });
+  var n=Math.abs(k)<2?3:(Math.abs(k)===2?2:1);
+  var el=document.getElementById('out1'); el.innerHTML='$y='+LEC.fmt(k).replace('−','-')+'$ 와의 교점 <b>'+n+'개</b> → 방정식 $x^3-3x='+LEC.fmt(k).replace('−','-')+'$ 의 서로 다른 실근 <b>'+n+'개</b>'+(n===3?' ($-2\\lt k\\lt2$)':(n===2?' (극값과 같은 높이: 하나는 중근)':' (극값 바깥)')); LEC.tex(el); }
+document.getElementById('sk').addEventListener('input',draw1);
+var P2=null;
+function setup2(){ var cv=document.getElementById('cv2'); if(!P2) P2=LEC.plane(cv,{xmin:-0.5,xmax:2.5,ymin:-1,ymax:4,h:260,grid:0.5}); else P2.resize(); draw2(); }
+function draw2(){ if(!P2)return; var f=function(x){return x*x*x-3*x+2;}; P2.clear().grid().axes(); P2.fillUnder(f,0,2.4,'rgba(190,24,93,.12)'); P2.plot(f,'#be185d',3,0,2.5); P2.dot(1,0,'#2563eb',7,'최솟값 0 (x=1)','se'); P2.dot(0,2,'#0f172a',5,'f(0)=2','ne'); LEC.tex(document.getElementById('out2')); }
+var P3=null, playing=false, timer=null;
+function xf(t){ return t*t*t-6*t*t+9*t; } function vf(t){ return 3*t*t-12*t+9; } function af(t){ return 6*t-12; }
+function setup3(){ var cv=document.getElementById('cv3'); if(!P3) P3=LEC.plane(cv,{xmin:-0.5,xmax:4.5,ymin:-12,ymax:12,h:300}); else P3.resize(); draw3(); }
+function draw3(){ if(!P3)return; var t=parseInt(document.getElementById('st').value,10)/10; document.getElementById('stv').textContent=t.toFixed(1);
+  P3.clear().grid().axes(); P3.plot(xf,'#be185d',3,0,4.2); P3.plot(vf,'#2563eb',2,0,4.2); P3.plot(af,'#16a34a',1.5,0,4.2);
+  var c=P3.ctx; c.font='bold 11px sans-serif'; c.textAlign='left'; c.textBaseline='top'; c.fillStyle='#be185d'; c.fillText('x(t) 위치',6,6); c.fillStyle='#2563eb'; c.fillText('v(t) 속도',6,20); c.fillStyle='#16a34a'; c.fillText('a(t) 가속도',6,34);
+  P3.seg(t,P3.ymin,t,P3.ymax,'#f59e0b',1.5,[5,4]); P3.dot(t,xf(t),'#be185d',6); P3.dot(t,vf(t),'#2563eb',5); P3.dot(t,af(t),'#16a34a',4);
+  // 수직선 위 점 (아래쪽 띠)
+  var yb=-10.5; P3.seg(-0.3,yb,4.3,yb,'#94a3b8',2); var pos=xf(t); var px=Math.max(-0.3,Math.min(4.3,pos/1.2)); P3.dot(px,yb,'#0f172a',7); c.fillStyle='#64748b'; c.font='11px sans-serif'; c.textAlign='center'; c.fillText('수직선 위 점의 위치 x = '+pos.toFixed(2),P3.X(2),P3.Y(yb)+8);
+  var v=vf(t), a=af(t); document.getElementById('r1').textContent=pos.toFixed(2); document.getElementById('r2').textContent=v.toFixed(2); document.getElementById('r3').textContent=a.toFixed(2); document.getElementById('r4').textContent=Math.abs(v)<0.05?'정지 (전환)':(v>0?'→ 양의 방향':'← 음의 방향');
+  var el=document.getElementById('out3'); el.innerHTML='$t='+t.toFixed(1)+'$: '+(Math.abs(v)<0.05?'<b>속도 0 — 방향이 바뀌는 순간</b>':(v*a>0?'속도와 가속도 부호가 같다 → <b>속력 증가</b>':'속도와 가속도 부호가 다르다 → <b>속력 감소</b>')); LEC.tex(el); }
+document.getElementById('st').addEventListener('input',function(){ playing=false; document.getElementById('playBtn').textContent='▶ 재생'; draw3(); });
+document.getElementById('playBtn').addEventListener('click',function(){ playing=!playing; this.textContent=playing?'⏸ 멈춤':'▶ 재생'; if(playing){ (function step(){ if(!playing)return; var s=document.getElementById('st'); var v=parseInt(s.value,10)+1; if(v>40){ v=0; } s.value=v; draw3(); timer=setTimeout(step,120); })(); } });
+APP.onTab({eq:setup1, ineq:setup2, motion:setup3}); LEC.onResize(function(){ var t=APP.current(); if(t==='eq')setup1(); if(t==='ineq')setup2(); if(t==='motion')setup3(); });
+
+var TABNAME={eq:'🔢 방정식의 실근',ineq:'⚖️ 부등식',motion:'🚗 속도·가속도'};
+var QUIZ=[
+ {q:'방정식 x³−3x=k 가 서로 다른 세 실근을 가질 k의 범위는?',o:['−2 < k < 2','k>2','k<−2','모든 실수'],a:0,t:'eq',e:'극댓값 2, 극솟값 −2 사이에 가로선이 있어야 세 번 만난다.'},
+ {q:'방정식 x³−3x=2 의 서로 다른 실근의 개수는?',o:['2개','3개','1개','0개'],a:0,t:'eq',e:'k=2는 극댓값과 같다 → 극대점에서 접하고(중근) 다른 곳에서 한 번 → 2개.'},
+ {q:'방정식 x³−3x−5=0 의 서로 다른 실근의 개수는?',o:['1개','2개','3개','0개'],a:0,t:'eq',e:'x³−3x=5, 5>극댓값 2 → 한 번만 만난다.'},
+ {q:'x≥0 에서 x³+2≥3x 를 보이려면 무엇을 확인하면 되는가?',o:['f(x)=x³−3x+2의 x≥0에서의 최솟값이 0 이상','f(0)=2>0','f′(x)>0','f(1)=0'],a:0,t:'ineq',e:'항상 ≥0 ⟺ 최솟값 ≥0. 최솟값은 극소 f(1)=0.'},
+ {q:'모든 실수 x에 대해 x⁴−4x+a>0 이 성립할 a의 범위는?',o:['a>3','a>0','a≥3','a<3'],a:0,t:'ineq',e:'f′=4(x−1)(x²+x+1) → 최솟값 f(1)=a−3>0.'},
+ {q:'x(t)=t³−6t²+9t 에서 속도가 0이 되는 시각은?',o:['t=1, 3','t=2','t=0, 3','t=3만'],a:0,t:'motion',e:'v=3t²−12t+9=3(t−1)(t−3).'},
+ {q:'x(t)=t³−6t²+9t 에서 t=3일 때 가속도는?',o:['6','0','−6','9'],a:0,t:'motion',e:'a=6t−12 → a(3)=6.'},
+ {q:'h(t)=30t−5t² 로 던진 물체의 최고 높이는?',o:['45','30','90','25'],a:0,t:'motion',e:'v=30−10t=0 → t=3, h(3)=45.'},
+ {q:'속도 v<0, 가속도 a<0 이면?',o:['음의 방향으로 속력이 커진다','속력이 줄어든다','정지한다','양의 방향으로 움직인다'],a:0,t:'motion',e:'같은 부호 → 속력 |v| 증가. 방향은 음.'},
+ {q:'최고점에 도달한 순간 던진 물체의 속도와 가속도는?',o:['v=0, a=−10 (중력)','v=0, a=0','v>0, a=0','v=0, a>0'],a:0,t:'motion',e:'순간 정지하지만 가속도는 여전히 중력.'}
+];
+APP.quiz(QUIZ,TABNAME,{perfect:'완벽해요! 그래프로 세고 미분으로 움직임을 읽어요.'});
+</script>
+</body>
+</html>
