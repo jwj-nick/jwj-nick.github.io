@@ -56,7 +56,7 @@
   canvas{background:#fff;border:1px solid var(--line);border-radius:12px;max-width:100%;touch-action:none}
   .readout{background:#0f172a;color:#e2e8f0;border-radius:10px;padding:12px 14px;margin:8px 0;font-size:14px;text-align:center;line-height:1.8} .readout b{color:#60a5fa}
   .slider{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:13px;font-weight:700}
-  .slider input[type=range]{flex:1;accent-color:var(--accent);height:28px}
+  .slider input[type=range]{flex:1;accent-color:var(--accent);height:44px}
   .quizhud{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:12px 16px;margin-bottom:14px} .quizhud .qn{font-weight:800;font-size:14px} .quizhud .sc{margin-left:auto;font-size:13px} .quizhud .sc b{color:#60a5fa;font-size:16px}
   .qbar{flex-basis:100%;height:8px;background:#334155;border-radius:20px;overflow:hidden;margin-top:2px} .qbar > i{display:block;height:100%;background:linear-gradient(90deg,#60a5fa,#2563eb)}
   .qq{font-size:16px;font-weight:700;text-align:center;margin:10px 0 16px} .qopts{display:grid;gap:10px}
@@ -224,16 +224,9 @@
   </div>
 </div>
 
+<script src="alg_app.js"></script>
 <script>
-function go(t){var tab=document.querySelector('.tab[data-t="'+t+'"]');if(tab)tab.click();}
-document.getElementById('tabs').addEventListener('click',function(e){
-  var b=e.target.closest('.tab'); if(!b)return;
-  document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active')});
-  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
-  b.classList.add('active'); var t=b.dataset.t; var pg=document.querySelector('.page[data-p="'+t+'"]'); if(pg)pg.classList.add('active');
-  window.scrollTo({top:0,behavior:'smooth'});
-  if(t==='rat'){ initCv1(); } if(t==='irr'){ initCv2(); }
-});
+APP.onTab({rat:initCv1, irr:initCv2});
 function setupCanvas(cv,w,h){var dpr=window.devicePixelRatio||1;cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);cv.style.width=w+'px';cv.style.height=h+'px';var ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);return ctx;}
 function planeTf(w,h,pad,mn,mx){var s=(w-2*pad)/(mx-mn);return {X:function(x){return pad+(x-mn)*s;}, Y:function(y){return h-pad-(y-mn)*s;}, s:s};}
 function grid(ctx,tf,w,h,mn,mx){
@@ -305,38 +298,7 @@ var QUIZ=[
  {q:'y = √x 는 어떤 함수의 역함수인가?',o:['y = x² (x ≥ 0)','y = x²','y = 2x','y = 1/x'],a:0,e:'y=√x는 y=x²(x≥0)의 역함수. y=x에 대칭.'},
  {q:'유리·무리함수의 그래프를 그리는 공통 원리는?',o:['기본형의 평행이동','회전','확대만','대칭 불가'],a:0,e:'y=k/x, y=√x 같은 기본형을 p,q만큼 평행이동해서 그린다. (도형의 이동)'}
 ];
-var qi=0,qscore=0,qans=false;
-function renderQ(){
-  qans=false; var q=QUIZ[qi];
-  document.getElementById('qNum').textContent='문제 '+(qi+1)+' / '+QUIZ.length;
-  document.getElementById('qScore').textContent=qscore; document.getElementById('qBar').style.width=(qi/QUIZ.length*100)+'%';
-  document.getElementById('qQ').textContent=q.q;
-  var opts=document.getElementById('qOpts'); opts.innerHTML='';
-  q.o.forEach(function(txt,idx){var b=document.createElement('button'); b.className='qopt'; b.textContent=txt; b.addEventListener('click',function(){pick(idx,b);}); opts.appendChild(b);});
-  document.getElementById('qExp').className='qexp'; document.getElementById('qExp').innerHTML=''; document.getElementById('qNext').className='qnext';
-}
-function pick(idx,btn){
-  if(qans)return; qans=true; var q=QUIZ[qi];
-  document.querySelectorAll('#qOpts .qopt').forEach(function(b,i){if(i===q.a)b.classList.add('correct');else if(b===btn)b.classList.add('wrong');else b.classList.add('dim');});
-  var ok=(idx===q.a); if(ok)qscore++; document.getElementById('qScore').textContent=qscore;
-  var ex=document.getElementById('qExp'); ex.innerHTML='<div class="et">'+(ok?'⭕ 정답!':'❌ 오답')+'</div>'+q.e; ex.className='qexp show';
-  document.getElementById('qNext').className='qnext show';
-}
-document.getElementById('qNext').addEventListener('click',function(){qi++; if(qi>=QUIZ.length){finishQuiz();return;} renderQ();});
-function finishQuiz(){
-  document.getElementById('qBar').style.width='100%'; document.getElementById('qNum').textContent='완료 ✓';
-  var pct=Math.round(qscore/QUIZ.length*100);
-  var msg=pct>=90?'완벽해요! 유리·무리함수를 정복했어요. 공통수학2 완주!':pct>=70?'잘했어요! 틀린 것만 다시 보면 완성.':'개념 탭을 한 번 더 보고 재도전해요.';
-  document.getElementById('qArea').innerHTML='<div class="qdone"><div class="big">'+qscore+' / '+QUIZ.length+'</div><p style="margin:8px 0 4px;font-size:15px">정답률 '+pct+'%</p><p style="color:#64748b;font-size:13px;margin-bottom:16px">'+msg+'</p><button class="btn" onclick="restartQuiz()">↺ 다시 풀기</button></div>';
-}
-function restartQuiz(){
-  qi=0;qscore=0;
-  document.getElementById('qArea').innerHTML='<div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button>';
-  document.getElementById('qNext').addEventListener('click',function(){qi++;if(qi>=QUIZ.length){finishQuiz();return;}renderQ();});
-  renderQ();
-}
-QUIZ.forEach(function(q){var correct=q.o[q.a];for(var i=q.o.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=q.o[i];q.o[i]=q.o[j];q.o[j]=t;}q.a=q.o.indexOf(correct);});
-renderQ();
+APP.quiz(QUIZ, null, {perfect:'완벽해요! 유리·무리함수를 정복했어요. 공통수학2 완주!'});
 </script>
 </body>
 </html>

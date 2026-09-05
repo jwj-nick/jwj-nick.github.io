@@ -250,15 +250,8 @@
   </div>
 </div>
 
+<script src="alg_app.js"></script>
 <script>
-function go(t){var tab=document.querySelector('.tab[data-t="'+t+'"]');if(tab)tab.click();}
-document.getElementById('tabs').addEventListener('click',function(e){
-  var b=e.target.closest('.tab'); if(!b)return;
-  document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active')});
-  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
-  b.classList.add('active'); var pg=document.querySelector('.page[data-p="'+b.dataset.t+'"]'); if(pg)pg.classList.add('active');
-  window.scrollTo({top:0,behavior:'smooth'});
-});
 
 /* 단계 토글 */
 function toggleStep(btnId, wrapId){
@@ -311,48 +304,15 @@ var QUIZ=[
  {q:'고차방정식을 풀 때 먼저 하는 것은?',o:['인수정리로 인수를 찾아 인수분해','바로 근의 공식','포기','대입만 반복'],a:0,e:'인수정리로 대입해 0이 되는 값을 찾아 인수분해로 차수를 낮춘다.'},
  {q:'연립방정식 x+y=5, 2x−y=1 의 해는?',o:['x=2, y=3','x=3, y=2','x=1, y=4','x=4, y=1'],a:0,e:'두 식을 더하면 3x=6→x=2, 대입하면 y=3.'},
  {q:'연립방정식을 푸는 방법이 아닌 것은?',o:['판별식','대입법','가감법','그래프의 교점'],a:0,e:'대입·가감·그래프 교점으로 푼다. 판별식은 이차방정식 근 판별용.'},
- {q:'|x|<3 의 해는?',o:['−3<x<3','x<−3 또는 x>3','x=3','x>3'],a:0,e:'|x|&lt;a ⟺ −a&lt;x&lt;a. 원점에서 거리 3 이내.'},
- {q:'|x|>2 의 해는?',o:['x<−2 또는 x>2','−2<x<2','x=2','모든 실수'],a:0,e:'|x|>a ⟺ x<−a 또는 x>a. 거리가 2보다 먼 곳.'},
+ {q:'|x|<3 의 해는?',o:['−3&lt;x<3','x<−3 또는 x>3','x=3','x>3'],a:0,e:'|x|&lt;a ⟺ −a&lt;x&lt;a. 원점에서 거리 3 이내.'},
+ {q:'|x|>2 의 해는?',o:['x<−2 또는 x>2','−2&lt;x<2','x=2','모든 실수'],a:0,e:'|x|>a ⟺ x<−a 또는 x>a. 거리가 2보다 먼 곳.'},
  {q:'부등식 −2x<6 의 해는? (양변을 −2로 나눔)',o:['x>−3','x<−3','x>3','x<3'],a:0,e:'음수(−2)로 나누면 부등호가 뒤집힘: x>−3.'},
  {q:'연립부등식 x≥1 그리고 x<4 의 해는?',o:['1≤x<4','x<4','x≥1','해 없음'],a:0,e:'두 조건의 공통 범위(교집합) = 1≤x<4.'},
  {q:'부등식에서 양변에 음수를 곱하면?',o:['부등호 방향이 바뀐다','그대로다','등호가 된다','해가 없어진다'],a:0,e:'음수 곱/나눗셈 → 부등호 방향 반대. 가장 흔한 실수.'},
  {q:'연립부등식의 해를 구하는 핵심은?',o:['각 부등식 해의 공통 부분','각 해의 합집합','더 큰 해','더 작은 해'],a:0,e:'두 부등식을 동시에 만족 = 교집합(공통 범위).'}
 ];
-var qi=0,qscore=0,qans=false;
-function renderQ(){
-  qans=false; var q=QUIZ[qi];
-  document.getElementById('qNum').textContent='문제 '+(qi+1)+' / '+QUIZ.length;
-  document.getElementById('qScore').textContent=qscore; document.getElementById('qBar').style.width=(qi/QUIZ.length*100)+'%';
-  document.getElementById('qQ').textContent=q.q;
-  var opts=document.getElementById('qOpts'); opts.innerHTML='';
-  q.o.forEach(function(txt,idx){var b=document.createElement('button'); b.className='qopt'; b.textContent=txt; b.addEventListener('click',function(){pick(idx,b);}); opts.appendChild(b);});
-  document.getElementById('qExp').className='qexp'; document.getElementById('qExp').innerHTML=''; document.getElementById('qNext').className='qnext';
-}
-function pick(idx,btn){
-  if(qans)return; qans=true; var q=QUIZ[qi];
-  document.querySelectorAll('#qOpts .qopt').forEach(function(b,i){if(i===q.a)b.classList.add('correct');else if(b===btn)b.classList.add('wrong');else b.classList.add('dim');});
-  var ok=(idx===q.a); if(ok)qscore++; document.getElementById('qScore').textContent=qscore;
-  var ex=document.getElementById('qExp'); ex.innerHTML='<div class="et">'+(ok?'⭕ 정답!':'❌ 오답')+'</div>'+q.e; ex.className='qexp show';
-  document.getElementById('qNext').className='qnext show';
-}
-document.getElementById('qNext').addEventListener('click',function(){qi++; if(qi>=QUIZ.length){finishQuiz();return;} renderQ();});
-function finishQuiz(){
-  document.getElementById('qBar').style.width='100%'; document.getElementById('qNum').textContent='완료 ✓';
-  var pct=Math.round(qscore/QUIZ.length*100);
-  var msg=pct>=90?'완벽해요! 방정식·부등식 자유자재.':pct>=70?'잘했어요! 틀린 것만 다시 보면 완성.':'개념 탭을 한 번 더 보고 재도전해요.';
-  document.getElementById('qArea').innerHTML='<div class="qdone"><div class="big">'+qscore+' / '+QUIZ.length+'</div><p style="margin:8px 0 4px;font-size:15px">정답률 '+pct+'%</p><p style="color:#64748b;font-size:13px;margin-bottom:16px">'+msg+'</p><button class="btn" onclick="restartQuiz()">↺ 다시 풀기</button></div>';
-}
-function restartQuiz(){
-  qi=0;qscore=0;
-  document.getElementById('qArea').innerHTML='<div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button>';
-  document.getElementById('qNext').addEventListener('click',function(){qi++;if(qi>=QUIZ.length){finishQuiz();return;}renderQ();});
-  renderQ();
-}
-
-/* init */
-QUIZ.forEach(function(q){var correct=q.o[q.a];for(var i=q.o.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=q.o[i];q.o[i]=q.o[j];q.o[j]=t;}q.a=q.o.indexOf(correct);});
+APP.quiz(QUIZ, null, {perfect:'완벽해요! 방정식·부등식 자유자재.'});
 drawNL(0);
-renderQ();
 </script>
 </body>
 </html>

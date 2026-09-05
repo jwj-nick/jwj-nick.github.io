@@ -254,15 +254,8 @@
   </div>
 </div>
 
+<script src="alg_app.js"></script>
 <script>
-function go(t){var tab=document.querySelector('.tab[data-t="'+t+'"]');if(tab)tab.click();}
-document.getElementById('tabs').addEventListener('click',function(e){
-  var b=e.target.closest('.tab'); if(!b)return;
-  document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active')});
-  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
-  b.classList.add('active'); var pg=document.querySelector('.page[data-p="'+b.dataset.t+'"]'); if(pg)pg.classList.add('active');
-  window.scrollTo({top:0,behavior:'smooth'});
-});
 
 /* 복소평면 SVG (2+3i, 3-2i, -2+i 예시) */
 (function drawCplane(){
@@ -318,41 +311,8 @@ var QUIZ=[
  {q:'x²−5x+6=0 의 두 근의 곱은?',o:['6','−6','5','1'],a:0,e:'곱 = c/a = 6/1 = 6. (근 2,3의 곱 6)'},
  {q:'합이 7, 곱이 12인 두 근을 갖는 이차방정식은?',o:['x²−7x+12=0','x²+7x+12=0','x²−12x+7=0','x²+7x−12=0'],a:0,e:'x²−(합)x+(곱)=0 → x²−7x+12=0. (근 3,4)'}
 ];
-var qi=0,qscore=0,qans=false;
-function renderQ(){
-  qans=false; var q=QUIZ[qi];
-  document.getElementById('qNum').textContent='문제 '+(qi+1)+' / '+QUIZ.length;
-  document.getElementById('qScore').textContent=qscore; document.getElementById('qBar').style.width=(qi/QUIZ.length*100)+'%';
-  document.getElementById('qQ').textContent=q.q;
-  var opts=document.getElementById('qOpts'); opts.innerHTML='';
-  q.o.forEach(function(txt,idx){var b=document.createElement('button'); b.className='qopt'; b.textContent=txt; b.addEventListener('click',function(){pick(idx,b);}); opts.appendChild(b);});
-  document.getElementById('qExp').className='qexp'; document.getElementById('qExp').innerHTML=''; document.getElementById('qNext').className='qnext';
-}
-function pick(idx,btn){
-  if(qans)return; qans=true; var q=QUIZ[qi];
-  document.querySelectorAll('#qOpts .qopt').forEach(function(b,i){if(i===q.a)b.classList.add('correct');else if(b===btn)b.classList.add('wrong');else b.classList.add('dim');});
-  var ok=(idx===q.a); if(ok)qscore++; document.getElementById('qScore').textContent=qscore;
-  var ex=document.getElementById('qExp'); ex.innerHTML='<div class="et">'+(ok?'⭕ 정답!':'❌ 오답')+'</div>'+q.e; ex.className='qexp show';
-  document.getElementById('qNext').className='qnext show';
-}
-document.getElementById('qNext').addEventListener('click',function(){qi++; if(qi>=QUIZ.length){finishQuiz();return;} renderQ();});
-function finishQuiz(){
-  document.getElementById('qBar').style.width='100%'; document.getElementById('qNum').textContent='완료 ✓';
-  var pct=Math.round(qscore/QUIZ.length*100);
-  var msg=pct>=90?'완벽해요! 복소수·판별식을 잡았어요.':pct>=70?'잘했어요! 틀린 것만 다시 보면 완성.':'개념 탭을 한 번 더 보고 재도전해요.';
-  document.getElementById('qArea').innerHTML='<div class="qdone"><div class="big">'+qscore+' / '+QUIZ.length+'</div><p style="margin:8px 0 4px;font-size:15px">정답률 '+pct+'%</p><p style="color:#64748b;font-size:13px;margin-bottom:16px">'+msg+'</p><button class="btn" onclick="restartQuiz()">↺ 다시 풀기</button></div>';
-}
-function restartQuiz(){
-  qi=0;qscore=0;
-  document.getElementById('qArea').innerHTML='<div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button>';
-  document.getElementById('qNext').addEventListener('click',function(){qi++;if(qi>=QUIZ.length){finishQuiz();return;}renderQ();});
-  renderQ();
-}
-
-/* init */
-QUIZ.forEach(function(q){var correct=q.o[q.a];for(var i=q.o.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=q.o[i];q.o[i]=q.o[j];q.o[j]=t;}q.a=q.o.indexOf(correct);});
+APP.quiz(QUIZ, null, {perfect:'완벽해요! 복소수·판별식을 잡았어요.'});
 selD('pos');
-renderQ();
 </script>
 </body>
 </html>

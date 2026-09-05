@@ -56,7 +56,7 @@
   canvas{background:#fff;border:1px solid var(--line);border-radius:12px;max-width:100%;touch-action:none}
   .readout{background:#0f172a;color:#e2e8f0;border-radius:10px;padding:12px 14px;margin:8px 0;font-size:14px;text-align:center;line-height:1.8} .readout b{color:#818cf8}
   .slider{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:13px;font-weight:700}
-  .slider input[type=range]{flex:1;accent-color:var(--accent);height:28px}
+  .slider input[type=range]{flex:1;accent-color:var(--accent);height:44px}
   .quizhud{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:12px 16px;margin-bottom:14px} .quizhud .qn{font-weight:800;font-size:14px} .quizhud .sc{margin-left:auto;font-size:13px} .quizhud .sc b{color:#818cf8;font-size:16px}
   .qbar{flex-basis:100%;height:8px;background:#334155;border-radius:20px;overflow:hidden;margin-top:2px} .qbar > i{display:block;height:100%;background:linear-gradient(90deg,#818cf8,#4f46e5)}
   .qq{font-size:16px;font-weight:700;text-align:center;margin:10px 0 16px} .qopts{display:grid;gap:10px}
@@ -231,16 +231,9 @@
   </div>
 </div>
 
+<script src="alg_app.js"></script>
 <script>
-function go(t){var tab=document.querySelector('.tab[data-t="'+t+'"]');if(tab)tab.click();}
-document.getElementById('tabs').addEventListener('click',function(e){
-  var b=e.target.closest('.tab'); if(!b)return;
-  document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active')});
-  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
-  b.classList.add('active'); var t=b.dataset.t; var pg=document.querySelector('.page[data-p="'+t+'"]'); if(pg)pg.classList.add('active');
-  window.scrollTo({top:0,behavior:'smooth'});
-  if(t==='eq'){ initCv1(); } if(t==='rel'){ initCv2(); }
-});
+APP.onTab({eq:initCv1, rel:initCv2});
 function setupCanvas(cv,w,h){var dpr=window.devicePixelRatio||1;cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);cv.style.width=w+'px';cv.style.height=h+'px';var ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);return ctx;}
 function planeTf(w,h,pad,xmin,xmax,ymin,ymax){var sx=(w-2*pad)/(xmax-xmin), sy=(h-2*pad)/(ymax-ymin);return {X:function(x){return pad+(x-xmin)*sx;}, Y:function(y){return h-pad-(y-ymin)*sy;}, sx:sx, sy:sy};}
 function drawGrid(ctx,tf,w,h,xmin,xmax,ymin,ymax){
@@ -305,38 +298,7 @@ var QUIZ=[
  {q:'원의 접선이 접점에서 이루는 각은? (반지름과)',o:['수직(90°)','평행','45°','60°'],a:0,e:'접선은 접점에서 반지름과 항상 수직(90°)이다.'},
  {q:'GPS가 위치를 찾는 원리와 가장 관련 깊은 것은?',o:['여러 원의 교점','직선의 기울기','포물선의 초점','삼각형의 넓이'],a:0,e:'위성마다 "거리 r인 원"을 그리고, 원들이 겹치는 교점이 내 위치. 원의 방정식·교점 계산이 핵심.'}
 ];
-var qi=0,qscore=0,qans=false;
-function renderQ(){
-  qans=false; var q=QUIZ[qi];
-  document.getElementById('qNum').textContent='문제 '+(qi+1)+' / '+QUIZ.length;
-  document.getElementById('qScore').textContent=qscore; document.getElementById('qBar').style.width=(qi/QUIZ.length*100)+'%';
-  document.getElementById('qQ').textContent=q.q;
-  var opts=document.getElementById('qOpts'); opts.innerHTML='';
-  q.o.forEach(function(txt,idx){var b=document.createElement('button'); b.className='qopt'; b.textContent=txt; b.addEventListener('click',function(){pick(idx,b);}); opts.appendChild(b);});
-  document.getElementById('qExp').className='qexp'; document.getElementById('qExp').innerHTML=''; document.getElementById('qNext').className='qnext';
-}
-function pick(idx,btn){
-  if(qans)return; qans=true; var q=QUIZ[qi];
-  document.querySelectorAll('#qOpts .qopt').forEach(function(b,i){if(i===q.a)b.classList.add('correct');else if(b===btn)b.classList.add('wrong');else b.classList.add('dim');});
-  var ok=(idx===q.a); if(ok)qscore++; document.getElementById('qScore').textContent=qscore;
-  var ex=document.getElementById('qExp'); ex.innerHTML='<div class="et">'+(ok?'⭕ 정답!':'❌ 오답')+'</div>'+q.e; ex.className='qexp show';
-  document.getElementById('qNext').className='qnext show';
-}
-document.getElementById('qNext').addEventListener('click',function(){qi++; if(qi>=QUIZ.length){finishQuiz();return;} renderQ();});
-function finishQuiz(){
-  document.getElementById('qBar').style.width='100%'; document.getElementById('qNum').textContent='완료 ✓';
-  var pct=Math.round(qscore/QUIZ.length*100);
-  var msg=pct>=90?'완벽해요! 원의 방정식을 정복했어요.':pct>=70?'잘했어요! 틀린 것만 다시 보면 완성.':'개념 탭을 한 번 더 보고 재도전해요.';
-  document.getElementById('qArea').innerHTML='<div class="qdone"><div class="big">'+qscore+' / '+QUIZ.length+'</div><p style="margin:8px 0 4px;font-size:15px">정답률 '+pct+'%</p><p style="color:#64748b;font-size:13px;margin-bottom:16px">'+msg+'</p><button class="btn" onclick="restartQuiz()">↺ 다시 풀기</button></div>';
-}
-function restartQuiz(){
-  qi=0;qscore=0;
-  document.getElementById('qArea').innerHTML='<div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button>';
-  document.getElementById('qNext').addEventListener('click',function(){qi++;if(qi>=QUIZ.length){finishQuiz();return;}renderQ();});
-  renderQ();
-}
-QUIZ.forEach(function(q){var correct=q.o[q.a];for(var i=q.o.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=q.o[i];q.o[i]=q.o[j];q.o[j]=t;}q.a=q.o.indexOf(correct);});
-renderQ();
+APP.quiz(QUIZ, null, {perfect:'완벽해요! 원의 방정식을 정복했어요.'});
 </script>
 </body>
 </html>

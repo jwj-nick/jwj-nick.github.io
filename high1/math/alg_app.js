@@ -39,8 +39,12 @@
     if (window.LEC) LEC.tex(el);
   };
   // #탭id 해시로 열면 그 탭부터 (허브·특강에서 딥링크, 렌더 확인용)
+  // 인라인 스크립트의 APP.onTab 등록이 끝난 뒤(DOMContentLoaded)에 연다 — setTimeout(0)은 외부 스크립트 뒤 파서 양보 시 등록보다 먼저 실행될 수 있음
   var h0 = (location.hash || '').slice(1);
-  if (h0 && document.querySelector('.tab[data-t="' + h0 + '"]')) setTimeout(function () { window.go(h0); }, 0);
+  if (h0 && document.querySelector('.tab[data-t="' + h0 + '"]')) {
+    var openHash = function () { window.go(h0); };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', openHash); else setTimeout(openHash, 0);
+  }
   document.addEventListener('click', function (e) {
     var b = e.target.closest('.stepbtn'); if (!b || !b.dataset.w) return;
     var w = document.getElementById(b.dataset.w); if (!w) return; w.classList.toggle('open');
@@ -58,6 +62,7 @@
   var CSS = '.qbox{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:13.5px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;line-height:1.5}'
     + '.qbox .sp{flex:1;min-width:150px}.qbox b{font-weight:800}'
     + '.qbox .qbtn{background:var(--accent,#7c3aed);color:#fff;border:none;border-radius:999px;padding:9px 15px;font:inherit;font-weight:800;font-size:13px;cursor:pointer;min-height:44px}'
+    + '.fix{display:inline-block;margin-top:8px;background:#fff7ed;border:1px solid #fed7aa;color:#c2410c;border-radius:999px;padding:9px 12px;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;min-height:44px}'   // 과목 CSS와 동일값 — 자체 CSS만 있는 고1 앱을 위한 기본값
     + '.fix.guess{background:#f1f5f9;border-color:#cbd5e1;color:#475569}.fix.guess[disabled]{opacity:.75;cursor:default}'
     + '.qnote{margin-top:8px;font-size:12.5px;font-weight:700;color:#0f766e}'
     + '.qdone .qsub{font-size:13px;color:#64748b;margin:4px 0}.qdone .acts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}'

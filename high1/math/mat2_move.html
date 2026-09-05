@@ -59,7 +59,7 @@
   .cbtn.on{background:var(--accent);border-color:var(--accent);color:#fff}
   .readout{background:#0f172a;color:#e2e8f0;border-radius:10px;padding:12px 14px;margin:8px 0;font-size:14px;text-align:center;line-height:1.8} .readout b{color:#a78bfa}
   .slider{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:13px;font-weight:700}
-  .slider input[type=range]{flex:1;accent-color:var(--accent);height:28px}
+  .slider input[type=range]{flex:1;accent-color:var(--accent);height:44px}
   .quizhud{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:12px 16px;margin-bottom:14px} .quizhud .qn{font-weight:800;font-size:14px} .quizhud .sc{margin-left:auto;font-size:13px} .quizhud .sc b{color:#a78bfa;font-size:16px}
   .qbar{flex-basis:100%;height:8px;background:#334155;border-radius:20px;overflow:hidden;margin-top:2px} .qbar > i{display:block;height:100%;background:linear-gradient(90deg,#a78bfa,#7c3aed)}
   .qq{font-size:16px;font-weight:700;text-align:center;margin:10px 0 16px} .qopts{display:grid;gap:10px}
@@ -229,16 +229,9 @@
   </div>
 </div>
 
+<script src="alg_app.js"></script>
 <script>
-function go(t){var tab=document.querySelector('.tab[data-t="'+t+'"]');if(tab)tab.click();}
-document.getElementById('tabs').addEventListener('click',function(e){
-  var b=e.target.closest('.tab'); if(!b)return;
-  document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active')});
-  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
-  b.classList.add('active'); var t=b.dataset.t; var pg=document.querySelector('.page[data-p="'+t+'"]'); if(pg)pg.classList.add('active');
-  window.scrollTo({top:0,behavior:'smooth'});
-  if(t==='lab'){ initCv(); }
-});
+APP.onTab({lab:initCv});
 function setupCanvas(cv,w,h){var dpr=window.devicePixelRatio||1;cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);cv.style.width=w+'px';cv.style.height=h+'px';var ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);return ctx;}
 function planeTf(w,h,pad,xmin,xmax,ymin,ymax){var sx=(w-2*pad)/(xmax-xmin), sy=(h-2*pad)/(ymax-ymin);return {X:function(x){return pad+(x-xmin)*sx;}, Y:function(y){return h-pad-(y-ymin)*sy;}, sx:sx, sy:sy};}
 function drawGrid(ctx,tf,w,h,xmin,xmax,ymin,ymax){
@@ -309,38 +302,7 @@ var QUIZ=[
  {q:'어떤 함수의 역함수의 그래프는 원래 그래프를 무엇에 대해 대칭한 것?',o:['직선 y=x','x축','y축','원점'],a:0,e:'역함수의 그래프는 y=x 대칭. 함수 단원에서 다시 만난다.'},
  {q:'점을 옮길 때와 그래프 식을 바꿀 때의 부호 관계로 옳은 것은?',o:['서로 반대 부호','항상 같은 부호','둘 다 부호 없음','알 수 없다'],a:0,e:'점은 (x+a), 그래프 식은 f(x−a). 반대 부호가 핵심.'}
 ];
-var qi=0,qscore=0,qans=false;
-function renderQ(){
-  qans=false; var q=QUIZ[qi];
-  document.getElementById('qNum').textContent='문제 '+(qi+1)+' / '+QUIZ.length;
-  document.getElementById('qScore').textContent=qscore; document.getElementById('qBar').style.width=(qi/QUIZ.length*100)+'%';
-  document.getElementById('qQ').textContent=q.q;
-  var opts=document.getElementById('qOpts'); opts.innerHTML='';
-  q.o.forEach(function(txt,idx){var b=document.createElement('button'); b.className='qopt'; b.textContent=txt; b.addEventListener('click',function(){pick(idx,b);}); opts.appendChild(b);});
-  document.getElementById('qExp').className='qexp'; document.getElementById('qExp').innerHTML=''; document.getElementById('qNext').className='qnext';
-}
-function pick(idx,btn){
-  if(qans)return; qans=true; var q=QUIZ[qi];
-  document.querySelectorAll('#qOpts .qopt').forEach(function(b,i){if(i===q.a)b.classList.add('correct');else if(b===btn)b.classList.add('wrong');else b.classList.add('dim');});
-  var ok=(idx===q.a); if(ok)qscore++; document.getElementById('qScore').textContent=qscore;
-  var ex=document.getElementById('qExp'); ex.innerHTML='<div class="et">'+(ok?'⭕ 정답!':'❌ 오답')+'</div>'+q.e; ex.className='qexp show';
-  document.getElementById('qNext').className='qnext show';
-}
-document.getElementById('qNext').addEventListener('click',function(){qi++; if(qi>=QUIZ.length){finishQuiz();return;} renderQ();});
-function finishQuiz(){
-  document.getElementById('qBar').style.width='100%'; document.getElementById('qNum').textContent='완료 ✓';
-  var pct=Math.round(qscore/QUIZ.length*100);
-  var msg=pct>=90?'완벽해요! 이동·대칭을 정복했어요.':pct>=70?'잘했어요! 부호 규칙만 다시 보면 완성.':'개념 탭을 한 번 더 보고 재도전해요.';
-  document.getElementById('qArea').innerHTML='<div class="qdone"><div class="big">'+qscore+' / '+QUIZ.length+'</div><p style="margin:8px 0 4px;font-size:15px">정답률 '+pct+'%</p><p style="color:#64748b;font-size:13px;margin-bottom:16px">'+msg+'</p><button class="btn" onclick="restartQuiz()">↺ 다시 풀기</button></div>';
-}
-function restartQuiz(){
-  qi=0;qscore=0;
-  document.getElementById('qArea').innerHTML='<div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button>';
-  document.getElementById('qNext').addEventListener('click',function(){qi++;if(qi>=QUIZ.length){finishQuiz();return;}renderQ();});
-  renderQ();
-}
-QUIZ.forEach(function(q){var correct=q.o[q.a];for(var i=q.o.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=q.o[i];q.o[i]=q.o[j];q.o[j]=t;}q.a=q.o.indexOf(correct);});
-renderQ();
+APP.quiz(QUIZ, null, {perfect:'완벽해요! 이동·대칭을 정복했어요.'});
 </script>
 </body>
 </html>

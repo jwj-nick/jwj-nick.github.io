@@ -69,7 +69,7 @@
   .bartrack{flex:1;background:#f1f5f9;border-radius:8px;height:26px;overflow:hidden;border:1px solid var(--line)}
   .bartrack > i{display:block;height:100%;border-radius:8px;transition:width .15s}
   .slider{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:13px;font-weight:700}
-  .slider input[type=range]{flex:1;accent-color:var(--accent);height:28px}
+  .slider input[type=range]{flex:1;accent-color:var(--accent);height:44px}
   .readout{background:#0f172a;color:#e2e8f0;border-radius:10px;padding:12px 14px;margin:8px 0;font-size:14px;text-align:center;line-height:1.8} .readout b{color:#fb7185}
   .quizhud{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:12px 16px;margin-bottom:14px} .quizhud .qn{font-weight:800;font-size:14px} .quizhud .sc{margin-left:auto;font-size:13px} .quizhud .sc b{color:#fb7185;font-size:16px}
   .qbar{flex-basis:100%;height:8px;background:#334155;border-radius:20px;overflow:hidden;margin-top:2px} .qbar > i{display:block;height:100%;background:linear-gradient(90deg,#fb7185,#e11d48)}
@@ -266,16 +266,9 @@
   </div>
 </div>
 
+<script src="alg_app.js"></script>
 <script>
-function go(t){var tab=document.querySelector('.tab[data-t="'+t+'"]');if(tab)tab.click();}
-document.getElementById('tabs').addEventListener('click',function(e){
-  var b=e.target.closest('.tab'); if(!b)return;
-  document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active')});
-  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
-  b.classList.add('active'); var t=b.dataset.t; var pg=document.querySelector('.page[data-p="'+t+'"]'); if(pg)pg.classList.add('active');
-  window.scrollTo({top:0,behavior:'smooth'});
-  if(t==='ineq'){ updAMGM(); }
-});
+APP.onTab({ineq:updAMGM});
 /* 역이대우 카드 뒤집기 */
 document.getElementById('pgrid').addEventListener('click',function(e){
   var c=e.target.closest('.pcard'); if(!c)return; c.classList.toggle('rev');
@@ -308,38 +301,7 @@ var QUIZ=[
  {q:'"~한 경우 ~한다" 형태의 조건문과 가장 관련 깊은 것은?',o:['명제(if 논리)','넓이 계산','확률 분포','삼각비'],a:0,e:'프로그래밍의 if 조건문·회로 논리가 곧 명제 논리(불 대수)다.'},
  {q:'명제가 거짓임을 보이는 가장 간단한 방법은?',o:['반례 하나 제시','모든 경우 증명','대우 증명','정의 암기'],a:0,e:'단 하나의 반례로 명제는 거짓이 된다. (참을 보이려면 모든 경우 필요)'}
 ];
-var qi=0,qscore=0,qans=false;
-function renderQ(){
-  qans=false; var q=QUIZ[qi];
-  document.getElementById('qNum').textContent='문제 '+(qi+1)+' / '+QUIZ.length;
-  document.getElementById('qScore').textContent=qscore; document.getElementById('qBar').style.width=(qi/QUIZ.length*100)+'%';
-  document.getElementById('qQ').textContent=q.q;
-  var opts=document.getElementById('qOpts'); opts.innerHTML='';
-  q.o.forEach(function(txt,idx){var b=document.createElement('button'); b.className='qopt'; b.textContent=txt; b.addEventListener('click',function(){pick(idx,b);}); opts.appendChild(b);});
-  document.getElementById('qExp').className='qexp'; document.getElementById('qExp').innerHTML=''; document.getElementById('qNext').className='qnext';
-}
-function pick(idx,btn){
-  if(qans)return; qans=true; var q=QUIZ[qi];
-  document.querySelectorAll('#qOpts .qopt').forEach(function(b,i){if(i===q.a)b.classList.add('correct');else if(b===btn)b.classList.add('wrong');else b.classList.add('dim');});
-  var ok=(idx===q.a); if(ok)qscore++; document.getElementById('qScore').textContent=qscore;
-  var ex=document.getElementById('qExp'); ex.innerHTML='<div class="et">'+(ok?'⭕ 정답!':'❌ 오답')+'</div>'+q.e; ex.className='qexp show';
-  document.getElementById('qNext').className='qnext show';
-}
-document.getElementById('qNext').addEventListener('click',function(){qi++; if(qi>=QUIZ.length){finishQuiz();return;} renderQ();});
-function finishQuiz(){
-  document.getElementById('qBar').style.width='100%'; document.getElementById('qNum').textContent='완료 ✓';
-  var pct=Math.round(qscore/QUIZ.length*100);
-  var msg=pct>=90?'완벽해요! 명제의 논리를 정복했어요.':pct>=70?'잘했어요! 틀린 것만 다시 보면 완성.':'개념 탭을 한 번 더 보고 재도전해요.';
-  document.getElementById('qArea').innerHTML='<div class="qdone"><div class="big">'+qscore+' / '+QUIZ.length+'</div><p style="margin:8px 0 4px;font-size:15px">정답률 '+pct+'%</p><p style="color:#64748b;font-size:13px;margin-bottom:16px">'+msg+'</p><button class="btn" onclick="restartQuiz()">↺ 다시 풀기</button></div>';
-}
-function restartQuiz(){
-  qi=0;qscore=0;
-  document.getElementById('qArea').innerHTML='<div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button>';
-  document.getElementById('qNext').addEventListener('click',function(){qi++;if(qi>=QUIZ.length){finishQuiz();return;}renderQ();});
-  renderQ();
-}
-QUIZ.forEach(function(q){var correct=q.o[q.a];for(var i=q.o.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=q.o[i];q.o[i]=q.o[j];q.o[j]=t;}q.a=q.o.indexOf(correct);});
-renderQ();
+APP.quiz(QUIZ, null, {perfect:'완벽해요! 명제의 논리를 정복했어요.'});
 </script>
 </body>
 </html>
