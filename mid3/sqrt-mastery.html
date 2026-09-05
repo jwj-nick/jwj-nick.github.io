@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>🌱 제곱근·무리수 감 잡기 · 중3</title>
-<link rel="stylesheet" href="concept.css?v=20260830n">
+<link rel="stylesheet" href="concept.css?v=20260905a">
 <style>
   :root{ --sq:#1f8a8a; --sq2:#4fb8b0; --area:#f2b23c; --area2:#ffd27a; --blue:#4f92d6; }
   .sq-hero{border-radius:26px;padding:30px 26px;margin:14px 0 18px;color:#fff;position:relative;overflow:hidden;
@@ -238,6 +238,7 @@
   <section class="sq-sec reveal" id="s6">
     <div class="eyebrow"><span class="n">6</span>실전 총정리 — 유형 섞어서</div>
     <p>이번엔 어떤 유형인지 안 알려드려요. <b>"의 제곱근인가, 제곱근 a인가", "근호 안에 넣어서 비교"</b>를 먼저 떠올려 풀어봐요. 틀리면 어느 유형인지 알려드릴게요.</p>
+    <p class="mscore" id="quizScore"></p>
     <div id="quizArea"></div>
     <div style="text-align:center;margin-top:8px"><button class="sq-again" id="quizAgain">🔄 5문제 새로</button></div>
   </section>
@@ -272,7 +273,7 @@
 
 <div id="printArea"></div>
 
-<script src="concept.js?v=20260830n"></script>
+<script src="concept.js?v=20260905a"></script>
 <script>
 MJ3.boot();
 (function(){ var rs=document.documentElement.style; rs.setProperty('--u','#1f8a8a'); rs.setProperty('--u-2','#4fb8b0'); rs.setProperty('--u-soft','rgba(31,138,138,.14)'); })();
@@ -686,15 +687,17 @@ MJ3.boot();
     {key:'④', name:'정수 부분·개수 세기', gen:genType4, anchor:'type4'},
     {key:'⑤', name:'자연수 만들기', gen:genType5, anchor:'type5'}
   ];
+  var scorer=null;
   function buildQuiz(){
     var area=document.getElementById('quizArea'); area.innerHTML='';
+    scorer=MJ3.masteryScore('quizScore',5,'sqrt-mastery','제곱근·무리수 특강');
     shuffle(QUIZ_TYPES).forEach(function(qt,idx){
       var q=qt.gen();
       var card=document.createElement('div'); card.className='sq-quizcard';
       card.innerHTML='<b>'+(idx+1)+'.</b> <span class="sq-stem" style="display:inline">'+rtHtml(q.stem)+'</span>'+answerUI(q)+'<div class="sq-out"></div><div class="sq-quiz-id"></div>';
       area.appendChild(card);
       var idbox=card.querySelector('.sq-quiz-id');
-      bindAnswer(card, q, function(){ idbox.innerHTML='이 문제는 <b>'+qt.key+' '+qt.name+'</b> 유형이에요. <a href="#'+qt.anchor+'">다시 볼까요? →</a>'; idbox.classList.add('show'); });
+      bindAnswer(card, q, function(ok){ idbox.innerHTML='이 문제는 <b>'+qt.key+' '+qt.name+'</b> 유형이에요. <a href="#'+qt.anchor+'">다시 볼까요? →</a>'; idbox.classList.add('show'); scorer.mark(idx,ok); });
     });
   }
   buildQuiz();

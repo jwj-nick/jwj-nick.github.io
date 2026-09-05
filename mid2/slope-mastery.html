@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>📈 기울기 완전정복 · 중2</title>
-<link rel="stylesheet" href="concept.css?v=20260830a">
+<link rel="stylesheet" href="concept.css?v=20260905a">
 <style>
   :root{ --sl:#4f92d6; --sl2:#77b2ea; --run:#e08a2e; --rise:#2e9e6b; }
   .sl-hero{border-radius:26px;padding:30px 26px;margin:14px 0 18px;color:#fff;position:relative;overflow:hidden;
@@ -236,6 +236,7 @@
   <section class="sl-sec reveal" id="s5">
     <div class="eyebrow"><span class="n">5</span>실전 총정리 — 유형 섞어서</div>
     <p>이번엔 어떤 유형인지 안 알려드려요. <b>문제를 읽고 "오른쪽으로 1칸 갈 때 몇 칸"을 먼저 생각</b>해서 풀어봐요. 틀리면 어느 유형인지 알려드릴게요. 분수 답은 3/2처럼 써도 돼요.</p>
+    <p class="mscore" id="quizScore"></p>
     <div id="quizArea"></div>
     <div style="text-align:center;margin-top:8px"><button class="sl-again" id="quizAgain">🔄 5문제 새로</button></div>
   </section>
@@ -274,7 +275,7 @@
 
 <div id="printArea"></div>
 
-<script src="concept.js?v=20260830a"></script>
+<script src="concept.js?v=20260905a"></script>
 <script>
 MJ.boot();
 (function(){
@@ -777,8 +778,10 @@ MJ.boot();
     {key:'④', name:'평행 · 절편', gen:genType4, anchor:'type4'},
     {key:'⑤', name:'문장 → 변화율', gen:genType5, anchor:'type5'}
   ];
+  var scorer=null;
   function buildQuiz(){
     var area=document.getElementById('quizArea'); area.innerHTML='';
+    scorer=MJ.masteryScore('quizScore',5,'slope-mastery','기울기 완전정복 특강');
     shuffle(QUIZ_TYPES).forEach(function(qt,idx){
       var q=qt.gen(), card=document.createElement('div'); card.className='sl-quizcard';
       var extra = (q.type===3) ? '<svg class="sl-graph" viewBox="0 0 440 230" role="img" aria-label="그래프">'+t3Markup(q,1,false)+'</svg>' : '';
@@ -789,7 +792,7 @@ MJ.boot();
       area.appendChild(card);
       var out=card.querySelector('.sl-out'), idbox=card.querySelector('.sl-quiz-id');
       function done(ok){ out.innerHTML= ok ? '<b style="color:var(--ok)">✓ 정답이에요!</b>' : '<b style="color:var(--sl)">아직이에요.</b> 답은 '+q.ansText+(q.unit||'')+'예요.';
-        idbox.innerHTML='이 문제는 <b>'+qt.key+' '+qt.name+'</b> 유형이에요. <a href="#'+qt.anchor+'">다시 볼까요? →</a>'; idbox.classList.add('show'); if(ok) cheer(); }
+        idbox.innerHTML='이 문제는 <b>'+qt.key+' '+qt.name+'</b> 유형이에요. <a href="#'+qt.anchor+'">다시 볼까요? →</a>'; idbox.classList.add('show'); if(ok) cheer(); scorer.mark(idx,ok); }
       if(q.kind==='pick'){ card.querySelectorAll('.sl-choice').forEach(function(b){ b.onclick=function(){ var ok=(b.getAttribute('data-v')===q.ans);
           card.querySelectorAll('.sl-choice').forEach(function(o){ o.disabled=true; if(o.getAttribute('data-v')===q.ans) o.classList.add('ok'); }); if(!ok) b.classList.add('no'); done(ok); }; }); }
       else { var inp=card.querySelector('input'); function submit(){ var v=parseAns(inp.value); if(isNaN(v)){ out.innerHTML='숫자를 넣어 주세요 🙂 (분수는 3/2처럼)'; return; } done(near(v,q.ans)); }

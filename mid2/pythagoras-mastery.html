@@ -1,0 +1,854 @@
+<!-- pythagoras-mastery.html — 피타고라스 감 잡기 특강 (2026-09-05, 중2 10단원 피타고라스 정리 보강 · 정사각형 넓이 퍼즐 + 더하기/빼기 판단 훈련 · 제곱근 특강(중3) 예고편) -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>📐 피타고라스 감 잡기 · 중2</title>
+<link rel="stylesheet" href="concept.css?v=20260905a">
+<style>
+  :root{ --pg:#d68a4a; --pg2:#eaad70; --sa:#2e9e6b; --sb:#4f92d6; --sc:#d94f6b; }
+  .pg-hero{border-radius:26px;padding:30px 26px;margin:14px 0 18px;color:#fff;position:relative;overflow:hidden;
+    background:linear-gradient(135deg,var(--pg),var(--pg2));box-shadow:var(--shadow-l)}
+  .pg-hero::after{content:"";position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.14)}
+  .pg-hero h1{color:#fff;margin:0 0 8px;font-size:26px}
+  .pg-hero p{color:rgba(255,255,255,.94);font-size:14.5px;margin:0}
+  .pg-goal{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .pg-goal span{background:rgba(255,255,255,.22);border-radius:999px;padding:6px 13px;font-size:12.5px;font-weight:700}
+  .pg-sec{margin:34px 0}
+  .pg-sec .eyebrow .n{background:linear-gradient(135deg,var(--pg),var(--pg2))}
+
+  .pg-panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px 18px 14px;box-shadow:var(--shadow-s)}
+  .pg-rangebar{display:flex;align-items:center;gap:10px;margin:12px 0 4px}
+  .pg-rangebar input[type=range]{flex:1}
+  .pg-rangebar .tval{font-variant-numeric:tabular-nums;font-weight:800;color:var(--pg);min-width:56px;text-align:right}
+  .pg-rangebar .lab{font-size:13px;color:var(--muted);min-width:64px}
+
+  .pg-fig{width:100%;max-width:440px;margin:8px auto;display:block;background:var(--panel-2);border:1px solid var(--border);border-radius:14px}
+  .pg-fig [data-side]{cursor:pointer}
+  .pg-play{background:var(--pg);color:#fff;border:none;border-radius:999px;padding:8px 16px;font-weight:700;font-size:13px;cursor:pointer}
+  .pg-play:disabled{opacity:.55;cursor:default}
+  .pg-msg{font-weight:800;color:var(--pg);margin-left:8px;font-size:13px}
+  .pg-read{text-align:center;font-size:14px;margin-top:8px;line-height:1.75;min-height:1.4em}
+  .pg-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);justify-content:center;margin:6px 0 0}
+  .pg-legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:4px}
+
+  .pg-formula{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:14px 0}
+  .pg-formula .f{background:var(--panel-2);border:1.5px solid var(--pg);border-radius:14px;padding:12px 18px;
+    font-family:var(--serif);font-style:italic;font-size:17px;text-align:center;min-width:150px;flex:1}
+  .pg-formula .f small{display:block;font-family:var(--sans);font-style:normal;font-size:11px;color:var(--muted);margin-top:4px}
+
+  .pg-trap{background:rgba(242,178,60,.14);border:1px solid rgba(242,178,60,.5);border-radius:12px;padding:10px 14px;font-size:13.5px;margin:12px 0}
+  .pg-trap b{color:#b97a10}
+  .pg-anchor{background:var(--sage-soft);border:1.5px solid rgba(79,168,146,.45);border-radius:14px;padding:12px 16px;font-size:14px;margin:14px 0;display:flex;gap:10px;align-items:flex-start}
+  .pg-anchor .ic{font-size:22px;line-height:1}
+  .pg-anchor b{color:var(--sage)}
+  .pg-call{background:rgba(31,138,138,.10);border:1.5px solid rgba(31,138,138,.45);border-radius:14px;padding:12px 16px;font-size:14px;margin:14px 0}
+  .pg-call a{color:#1f8a8a;font-weight:800}
+
+  .pg-calc{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;margin:10px 0}
+  .pg-calc label{display:flex;align-items:center;gap:6px;font-weight:700;font-size:14px}
+  .pg-calc input{width:70px;text-align:center}
+  .pg-calc .sa{color:var(--sa)} .pg-calc .sb{color:var(--sb)} .pg-calc .sc{color:var(--sc)}
+  .pg-pm{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:10px 0 4px}
+  .pg-pm button{border-radius:14px;padding:12px 18px;font-size:15px;font-weight:800;border:2px solid var(--border);background:var(--panel-2);color:var(--ink);box-shadow:none;min-width:150px}
+  .pg-pm button.ok{border-color:var(--ok);background:var(--sage-soft)}
+  .pg-pm button.no{border-color:#e3c15a;background:rgba(240,204,96,.12)}
+  .pg-pm button:disabled{cursor:default;opacity:.85}
+
+  table.pg-table{width:100%;border-collapse:collapse;margin:12px 0;font-size:14px}
+  table.pg-table th{background:var(--panel-2);padding:8px;font-size:12px;color:var(--muted);border:1px solid var(--border)}
+  table.pg-table td{padding:9px 8px;border:1px solid var(--border);text-align:center}
+  table.pg-table td:first-child{font-weight:700;background:var(--panel-2);color:var(--ink);white-space:nowrap}
+  table.pg-table td.known{color:var(--u);font-weight:800;background:var(--u-soft)}
+  table.pg-table td.hyp{color:var(--sc);font-weight:800}
+  table.pg-table td.leg{color:var(--muted);font-weight:600}
+  table.pg-table td.unknown{background:rgba(214,138,74,.08)}
+  table.pg-table td.unknown input{width:70px;text-align:center;border:1.5px solid var(--pg);border-radius:8px;padding:6px;font-size:14px;background:var(--panel)}
+  table.pg-table td.ansq{color:var(--pg);font-weight:800;font-style:italic}
+  table.pg-table tr.hyprow td{border-top:2px solid var(--sc)}
+
+  .pg-type{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:20px 20px 18px;margin:16px 0;box-shadow:var(--shadow-m)}
+  .pg-type-h{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .pg-type-h .badge{flex:none;width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,var(--pg),var(--pg2));
+    color:#fff;display:grid;place-items:center;font-weight:800;font-family:var(--serif);font-style:italic}
+  .pg-type-h .t{font-weight:800;font-size:16px}
+  .pg-type-h .d{font-size:12.5px;color:var(--muted)}
+  .pg-key{background:var(--sage-soft);border:1px solid rgba(79,168,146,.3);border-radius:12px;padding:10px 14px;font-size:13.5px;margin:10px 0}
+  .pg-key b{color:var(--sage)}
+  .pg-stem{font-size:14.5px;line-height:1.65;margin:10px 0}
+  .pg-eq{background:var(--panel-2);border-left:3px solid var(--pg);border-radius:0 10px 10px 0;padding:8px 12px;margin:8px 0;font-family:var(--serif);font-style:italic;font-size:15px}
+  .pg-checkrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .pg-checkrow input.num{width:92px}
+  .pg-out{margin-top:8px;font-size:14px;min-height:1.3em}
+  .pg-sol{display:none;background:var(--u-soft);border-radius:12px;padding:12px 14px;margin-top:10px;font-size:13.5px;line-height:1.7}
+  .pg-sol.show{display:block;animation:pop .35s ease}
+  .pg-again{background:none;border:1.5px solid var(--pg);color:var(--pg);border-radius:999px;padding:6px 14px;font-size:12.5px;font-weight:700;cursor:pointer;margin-top:8px}
+  .pg-choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:10px 0}
+  .pg-choice{background:var(--panel-2);border:1.5px solid var(--border);color:var(--ink);border-radius:12px;padding:10px 8px;font-family:var(--serif);font-style:italic;font-size:15px;font-weight:600;box-shadow:none}
+  .pg-choice.ok{border-color:var(--ok);background:var(--sage-soft)}
+  .pg-choice.no{border-color:#e3c15a;background:rgba(240,204,96,.12)}
+  .pg-choice:disabled{cursor:default;opacity:.85}
+  .pg-pre{display:inline-block;background:rgba(31,138,138,.12);color:#1f8a8a;border-radius:999px;padding:2px 9px;font-size:11.5px;font-weight:800;margin-left:6px;vertical-align:middle}
+
+  .pg-quizcard{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px 18px;margin:14px 0;box-shadow:var(--shadow-s)}
+  .pg-quiz-id{display:none;margin-top:8px;font-size:13px;color:var(--pg);font-weight:700}
+  .pg-quiz-id.show{display:block}
+  .pg-quiz-id a{color:var(--pg)}
+
+  .pg-cheat{background:linear-gradient(135deg,var(--pg),var(--pg2));color:#fff;border-radius:18px;padding:20px 22px;margin:16px 0}
+  .pg-cheat h3{margin:0 0 10px;font-size:16px}
+  .pg-cheat .row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+  .pg-cheat .chip{background:rgba(255,255,255,.2);border-radius:10px;padding:8px 12px;font-size:12.5px;flex:1;min-width:150px}
+  .pg-cheat .chip b{display:block;font-size:13px;margin-bottom:2px}
+  #printCheat{background:#fff;color:var(--pg);border:none;border-radius:999px;padding:9px 18px;font-weight:800;font-size:13px;cursor:pointer;margin-top:12px}
+  #printArea{display:none}
+  @media print{ body>*:not(#printArea){display:none !important} #printArea{display:block !important} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중2 수학</a><span class="dot"></span><span>피타고라스 감 잡기</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+
+  <div class="pg-hero">
+    <h1>📐 피타고라스 감 잡기</h1>
+    <p>"a² + b² = c²"는 외웠는데, 막상 문제에서 <b>어느 변이 c인지</b>, <b>더해야 하는지 빼야 하는지</b> 헷갈리나요? 그럴 수 있어요 — 이 식은 외우는 공식이 아니라 <b>정사각형 세 개의 넓이 이야기</b>예요. 칸을 직접 옮겨 보면서 시작해요.</p>
+    <div class="pg-goal">
+      <span>① 빗변 구하기</span><span>② 다른 한 변 구하기</span><span>③ 피타고라스 수</span><span>④ 좌표 두 점 거리</span><span>⑤ 사다리 · 대각선</span>
+    </div>
+  </div>
+
+  <!-- ───────────────── 1. 감 잡기 ───────────────── -->
+  <section class="pg-sec reveal" id="s1">
+    <div class="eyebrow"><span class="n">1</span>정사각형 세 개 넓이 퍼즐 (공식 없이)</div>
+    <p>직각삼각형의 세 변에 각각 정사각형을 붙여 볼게요. <b style="color:var(--sa)">초록 칸</b>과 <b style="color:var(--sb)">파란 칸</b>을 전부 <b style="color:var(--sc)">빨간 정사각형</b>으로 옮기면 딱 맞게 채워져요. ▶ 칸 옮기기를 눌러 보세요. 슬라이더로 변을 바꾸면 넓이 숫자도 함께 바뀌어요.</p>
+    <div class="pg-panel">
+      <svg class="pg-fig" id="sqSvg" viewBox="0 0 440 330" role="img" aria-label="직각삼각형 세 변 위의 정사각형 넓이 퍼즐"></svg>
+      <div class="pg-rangebar"><span class="lab" style="color:var(--sa)">변 a</span><input type="range" id="ra" min="1" max="8" step="1" value="3"><span class="tval" id="va">3</span></div>
+      <div class="pg-rangebar"><span class="lab" style="color:var(--sb)">변 b</span><input type="range" id="rb" min="1" max="8" step="1" value="4"><span class="tval" id="vb">4</span></div>
+      <div style="text-align:center;margin-top:6px"><button class="pg-play" id="sqPlay">▶ 칸 옮기기</button><span class="pg-msg" id="sqMsg"></span></div>
+      <div class="pg-read" id="sqRead"></div>
+      <div class="pg-legend"><span><i style="background:#2e9e6b"></i>a² 칸</span><span><i style="background:#4f92d6"></i>b² 칸</span><span><i style="background:#d94f6b"></i>빗변 위 정사각형 c²</span></div>
+    </div>
+    <p style="margin-top:14px">변을 어떻게 바꿔도 <b>작은 두 정사각형의 넓이를 더하면 큰 정사각형의 넓이</b>가 돼요. 3·4일 때는 9 + 16 = 25, 6·8일 때는 36 + 64 = 100이에요. 칸이 딱 안 맞는 변(예: 2·3)에서도 넓이 숫자는 여전히 4 + 9 = 13으로 맞아요 — 다만 그 큰 정사각형의 한 변은 정수가 아니어서, 중3에서 √13이라고 쓰는 법을 배워요.</p>
+    <div class="card" style="margin-top:12px">
+      <p style="margin:0 0 8px;font-weight:700">함께 생각하기 ①</p>
+      <p style="margin:0 0 10px">직각을 낀 두 변이 3과 4예요. 두 작은 정사각형의 넓이는 9와 16이니까, 빗변 위 정사각형의 넓이는 25예요. 그러면 <b>빗변의 길이</b>는 얼마일까요? (넓이가 25인 정사각형의 한 변이에요.)</p>
+      <div class="pg-checkrow"><input class="num" id="q1" inputmode="numeric" aria-label="답"><button id="q1b">확인</button></div>
+      <div class="pg-out" id="q1o"></div>
+    </div>
+  </section>
+
+  <!-- ───────────────── 2. 공식은 읽는 것 ───────────────── -->
+  <section class="pg-sec reveal" id="s2">
+    <div class="eyebrow"><span class="n">2</span>공식은 외우는 게 아니라 읽는 것</div>
+    <p>방금 본 "작은 정사각형 둘의 넓이 합 = 큰 정사각형의 넓이"를 그대로 식으로 쓰면 이렇게 돼요. 여기서 c는 언제나 <b style="color:var(--sc)">빗변</b> — <b>직각의 맞은편에 있는, 가장 긴 변</b>이에요.</p>
+    <div class="pg-formula">
+      <div class="f">a² + b² = c²<small>직각을 낀 두 변의 제곱의 합 = 빗변의 제곱</small></div>
+      <div class="f">c = 빗변<small>직각의 맞은편 · 세 변 중 가장 긴 변</small></div>
+    </div>
+    <div class="pg-anchor"><span class="ic">🔍</span><span><b>불변 앵커 — 빗변부터 찾아요.</b> 직각 표시(∟)를 보고, 그 <b>맞은편</b> 변에 먼저 c라고 적어요. 삼각형이 어떻게 돌아가 있든 상관없어요. 빗변만 정해지면 나머지 둘은 무조건 "제곱해서 더하는 쪽"이에요.</span></div>
+    <p>삼각형이 돌아가 있으면 빗변이 헷갈리기 쉬워요. 그림에서 <b>빗변이라고 생각하는 변을 눌러 보세요.</b> 🔄 버튼으로 다른 삼각형도 만나 봐요.</p>
+    <div class="pg-panel">
+      <svg class="pg-fig" id="hypSvg" viewBox="0 0 440 210" role="img" aria-label="빗변 찾기"></svg>
+      <div class="pg-read" id="hypRead">어느 변이 빗변일까요? 변을 눌러 보세요.</div>
+      <div style="text-align:center;margin-top:6px"><button class="pg-again" id="hypNext">🔄 다른 삼각형으로</button></div>
+    </div>
+
+    <p style="margin-top:18px">그런데 이 식은 <b>직각삼각형에서만</b> 성립해요. 두 변 3, 4를 그대로 두고 그 사이의 각만 바꿔 볼게요. 90°에서만 c²이 25로 딱 맞아요.</p>
+    <div class="pg-panel">
+      <svg class="pg-fig" id="angSvg" viewBox="0 0 440 200" role="img" aria-label="직각이 아니면 성립하지 않아요"></svg>
+      <div class="pg-rangebar"><span class="lab">사이의 각</span><input type="range" id="angRange" min="40" max="140" step="1" value="90"><span class="tval" id="angVal">90°</span></div>
+      <div class="pg-read" id="angRead"></div>
+    </div>
+    <div class="pg-trap"><b>⚠ 가장 흔한 실수</b> — 빗변 13과 한 변 5가 주어졌는데 <b>13² + 5²</b>으로 더하는 거예요. 빗변은 <b>제일 큰 제곱</b>이니까, 빗변을 알고 다른 변을 구할 때는 <b>c²에서 빼요</b>: 13² − 5² = 169 − 25 = 144 → 12. 답이 빗변 13보다 작게 나와야 정상이에요.</div>
+    <div class="card">
+      <p style="margin:0 0 8px;font-weight:700">함께 생각하기 ②</p>
+      <p style="margin:0 0 10px">빗변이 10이고 직각을 낀 한 변이 6이에요. 나머지 한 변은 얼마일까요? (구하는 변이 빗변인가요, 아닌가요? 그러면 더할까요, 뺄까요?)</p>
+      <div class="pg-checkrow"><input class="num" id="q2" inputmode="numeric" aria-label="답"><button id="q2b">확인</button></div>
+      <div class="pg-out" id="q2o"></div>
+    </div>
+  </section>
+
+  <!-- ───────────────── 3. 핵심 도구 ───────────────── -->
+  <section class="pg-sec reveal" id="s3">
+    <div class="eyebrow"><span class="n">3</span>핵심 도구 — 더하기 · 빼기 판단 + 제곱 표</div>
+    <p>세 변 중 <b>둘</b>을 넣으면 나머지 하나를 구해 주는 계산기예요. 빈칸 하나만 남기고 눌러 보세요. 구하는 변이 <b style="color:var(--sc)">빗변 c</b>면 더하고, 아니면 빼는 걸 눈으로 확인해요.</p>
+    <div class="pg-panel">
+      <div class="pg-calc">
+        <label class="sa">a<input class="num" id="ca" inputmode="decimal" aria-label="변 a"></label>
+        <label class="sb">b<input class="num" id="cb" inputmode="decimal" aria-label="변 b"></label>
+        <label class="sc">c (빗변)<input class="num" id="cc" inputmode="decimal" aria-label="빗변 c"></label>
+        <button id="calcBtn">나머지 변 구하기</button>
+      </div>
+      <div class="pg-read" id="calcOut">예: a = 5, c = 13을 넣고 b는 비워 두세요.</div>
+    </div>
+
+    <p style="margin-top:18px">이제 판단 연습이에요. 그림을 보고 <b>물음표 변이 빗변인지</b> 먼저 보고, 더할지 뺄지 골라요. 계산은 안 해도 돼요 — 방향만 맞히면 돼요.</p>
+    <div class="pg-panel">
+      <svg class="pg-fig" id="pmSvg" viewBox="0 0 440 180" role="img" aria-label="더하기 빼기 판단"></svg>
+      <div class="pg-pm"><button id="pmAdd">➕ 제곱을 더해요</button><button id="pmSub">➖ 제곱을 빼요</button></div>
+      <div class="pg-out" id="pmOut" style="text-align:center"></div>
+      <div style="text-align:center"><button class="pg-again" id="pmAgain">🔄 다른 문제로</button></div>
+    </div>
+
+    <p style="margin-top:18px">문제는 전부 이 <b>제곱 표</b>로 정리해요. 변마다 "빗변인가요?"를 먼저 적고, 제곱을 채워요. <span style="color:var(--u);font-weight:800">아는 건 주황색</span>, <span style="color:var(--pg);font-weight:800">구하는 건 입력칸</span>이에요. 빗변 줄의 제곱은 나머지 두 줄의 <b>합</b>이에요.</p>
+    <div id="tblDemo"></div>
+    <div class="pg-anchor"><span class="ic">📐</span><span><b>빗변 찾기 → 제곱 표 → 빗변 줄은 합, 다른 줄은 차 → 마지막에 제곱을 풀어요.</b> 어떤 문제든 결국 이 네 줄이에요. "빗변 제곱이 제일 크다"만 기억하면 더하기·빼기를 절대 안 틀려요.</span></div>
+    <p style="margin-top:10px">연습을 몇 개 더 해볼까요? 매번 다른 삼각형이에요.</p>
+    <div id="tblPractice"></div>
+    <div style="text-align:center;margin-top:8px"><button class="pg-again" id="tblAgain">🔄 다른 문제로</button></div>
+  </section>
+
+  <!-- ───────────────── 4. 유형별 완전정복 ───────────────── -->
+  <section class="pg-sec reveal" id="s4">
+    <div class="eyebrow"><span class="n">4</span>유형별 완전정복</div>
+    <p>이제 진짜 문제로 가요. 5가지 유형만 알면 다 풀려요 — <b>그림 → 제곱 표 → 식 → 풀이</b> 순서예요. 각 유형의 "▶ 재생"을 누르면 빗변에 표시가 들어오고 정사각형이 자라나요. 답은 확인 전까지 안 보여 줘요. <span class="pg-pre">중3 예고</span> 표시가 있는 문제는 답이 √ 모양이라 4개 중에서 고르기만 하면 돼요.</p>
+    <div class="pg-legend"><span><i style="background:#2e9e6b"></i>변 a</span><span><i style="background:#4f92d6"></i>변 b</span><span><i style="background:#d94f6b"></i>빗변 c</span></div>
+  </section>
+  <section class="pg-type reveal" id="type1">
+    <div class="pg-type-h"><span class="badge">①</span><span><div class="t">빗변 구하기</div><div class="d">직각을 낀 두 변 → 제곱해서 더해요</div></span></div>
+    <div class="pg-key"><b>핵심</b> 구하는 변이 <b>빗변</b>이면 <b>더해요</b>. c² = a² + b². 답이 두 변보다 <b>길게</b> 나와야 정상이에요.</div>
+    <svg class="pg-fig" id="t1svg" viewBox="0 0 440 230" role="img" aria-label="빗변 구하기 그림"></svg>
+    <div style="text-align:center;margin-bottom:6px"><button class="pg-play" id="t1play">▶ 재생</button><span class="pg-msg" id="t1msg"></span></div>
+    <div id="type1body"></div>
+  </section>
+
+  <section class="pg-type reveal" id="type2">
+    <div class="pg-type-h"><span class="badge">②</span><span><div class="t">다른 한 변 구하기</div><div class="d">빗변 + 한 변 → 빗변 제곱에서 빼요</div></span></div>
+    <div class="pg-key"><b>핵심</b> 구하는 변이 <b>빗변이 아니면</b> <b>빼요</b>. b² = c² − a². 답이 빗변보다 <b>짧게</b> 나와야 정상이에요. 빗변끼리 더하면 안 돼요.</div>
+    <svg class="pg-fig" id="t2svg" viewBox="0 0 440 230" role="img" aria-label="다른 한 변 구하기 그림"></svg>
+    <div style="text-align:center;margin-bottom:6px"><button class="pg-play" id="t2play">▶ 재생</button><span class="pg-msg" id="t2msg"></span></div>
+    <div id="type2body"></div>
+  </section>
+
+  <section class="pg-type reveal" id="type3">
+    <div class="pg-type-h"><span class="badge">③</span><span><div class="t">피타고라스 수</div><div class="d">3·4·5 · 5·12·13 · 8·15·17 · 7·24·25 와 그 배수</div></span></div>
+    <div class="pg-key"><b>핵심</b> 직각삼각형이 되는 세 정수를 <b>피타고라스 수</b>라고 해요. 배수(6·8·10, 9·12·15 …)도 전부 돼요. 세 변이 주어지면 <b>가장 긴 변</b>을 c로 놓고 a² + b² = c²인지 확인해요.</div>
+    <svg class="pg-fig" id="t3svg" viewBox="0 0 440 230" role="img" aria-label="피타고라스 수 그림"></svg>
+    <div style="text-align:center;margin-bottom:6px"><button class="pg-play" id="t3play">▶ 재생</button><span class="pg-msg" id="t3msg"></span></div>
+    <div id="type3body"></div>
+  </section>
+
+  <section class="pg-type reveal" id="type4">
+    <div class="pg-type-h"><span class="badge">④</span><span><div class="t">좌표평면 두 점 사이 거리</div><div class="d">가로 차 · 세로 차로 직각삼각형 만들기</div></span></div>
+    <div class="pg-key"><b>핵심</b> 두 점을 잇는 선분을 <b>빗변</b>으로 하는 직각삼각형을 그려요. 가로 차와 세로 차가 직각을 낀 두 변이에요. 거리² = (가로 차)² + (세로 차)².</div>
+    <svg class="pg-fig" id="t4svg" viewBox="0 0 440 230" role="img" aria-label="좌표평면 두 점 사이 거리 그림"></svg>
+    <div style="text-align:center;margin-bottom:6px"><button class="pg-play" id="t4play">▶ 재생</button><span class="pg-msg" id="t4msg"></span></div>
+    <div id="type4body"></div>
+  </section>
+
+  <section class="pg-type reveal" id="type5">
+    <div class="pg-type-h"><span class="badge">⑤</span><span><div class="t">활용 — 사다리 · 대각선 · 높이</div><div class="d">문장 속에서 직각삼각형 찾기</div></span></div>
+    <div class="pg-key"><b>핵심</b> 문장 속에서 <b>직각삼각형을 찾고</b>, 어느 것이 빗변인지 먼저 정해요. 사다리·대각선·직선 거리는 보통 <b>빗변</b>이고, 높이는 빗변이 <b>아니에요</b>.</div>
+    <svg class="pg-fig" id="t5svg" viewBox="0 0 440 230" role="img" aria-label="활용 문제 그림"></svg>
+    <div style="text-align:center;margin-bottom:6px"><button class="pg-play" id="t5play">▶ 재생</button><span class="pg-msg" id="t5msg"></span></div>
+    <div id="type5body"></div>
+  </section>
+
+  <!-- ───────────────── 5. 실전 총정리 ───────────────── -->
+  <section class="pg-sec reveal" id="s5">
+    <div class="eyebrow"><span class="n">5</span>실전 총정리 — 유형 섞어서</div>
+    <p>이번엔 어떤 유형인지 안 알려드려요. <b>빗변이 어느 변인지 먼저 정하고</b>, 더할지 뺄지 판단해서 풀어봐요. 틀리면 어느 유형인지 알려드릴게요. 5문제를 첫 시도에 다 맞히면 도장이 찍혀요.</p>
+    <p class="mscore" id="quizScore"></p>
+    <div id="quizArea"></div>
+    <div style="text-align:center;margin-top:8px"><button class="pg-again" id="quizAgain">🔄 5문제 새로</button></div>
+  </section>
+
+  <!-- ───────────────── 6. 치트시트 ───────────────── -->
+  <section class="pg-sec reveal" id="s6">
+    <div class="eyebrow"><span class="n">6</span>마무리 치트시트</div>
+    <div class="pg-cheat">
+      <h3>📐 피타고라스 한 장 요약</h3>
+      <div class="row">
+        <div class="chip"><b>a² + b² = c²</b>작은 정사각형 둘의 넓이 합 = 빗변 위 정사각형의 넓이 · c = 빗변(직각의 맞은편, 가장 긴 변)</div>
+      </div>
+      <div class="row">
+        <div class="chip"><b>더하기 · 빼기</b>구하는 변이 빗변 → 제곱을 더해요 · 빗변이 아니면 → 빗변 제곱에서 빼요</div>
+        <div class="chip"><b>제곱 표</b>빗변? → 제곱 → 빗변 줄은 합 → 마지막에 제곱을 풀어요</div>
+      </div>
+      <div class="row">
+        <div class="chip"><b>① 빗변</b>c² = a² + b² · 답은 두 변보다 길어요</div>
+        <div class="chip"><b>② 한 변</b>b² = c² − a² · 답은 빗변보다 짧아요</div>
+      </div>
+      <div class="row">
+        <div class="chip"><b>③ 피타고라스 수</b>3·4·5 · 5·12·13 · 8·15·17 · 7·24·25 + 배수 · 가장 긴 변이 c</div>
+        <div class="chip"><b>④ 좌표 거리</b>거리² = (가로 차)² + (세로 차)²</div>
+      </div>
+      <div class="row">
+        <div class="chip"><b>⑤ 활용</b>사다리 · 대각선 · 직선 거리 = 빗변 / 높이 = 빗변 아님</div>
+        <div class="chip"><b>⚠ 직각일 때만</b>직각이 아니면 a² + b² ≠ c² · 직각 표시(∟)부터 찾아요</div>
+      </div>
+      <button id="printCheat">🖨️ 이 치트시트 인쇄하기</button>
+    </div>
+    <div class="pg-call">🌱 <b>중3 예고</b> — 이 특강에서 "제곱해서 13이 되는 수"를 √13이라고 잠깐 써 봤어요. 중3에서 √를 정식으로 배워요. 미리 구경하고 싶으면 → <a href="../mid3/sqrt-mastery.html">제곱근·무리수 감 잡기 특강</a></div>
+    <p style="text-align:center;color:var(--muted);font-size:13px">여기까지 왔으면 이제 10단원 연습으로 돌아가서 다시 풀어봐요 — <a href="p10.html#c1" style="color:var(--pg);font-weight:700">유형1 빗변 구하기부터 →</a><br>개념부터 다시 보고 싶으면 — <a href="u10.html" style="color:var(--pg);font-weight:700">10단원 피타고라스 정리</a></p>
+  </section>
+
+  <div class="foot">피타고라스 감 잡기 · 10_피타고라스 정리 보강 특강 · 제곱근 특강(중3) 예고편</div>
+</div>
+
+<div id="printArea"></div>
+
+<script src="concept.js?v=20260905a"></script>
+<script>
+MJ.boot();
+(function(){
+  'use strict';
+  /* 특강 강조색을 단원 시그니처 자리에 (엔진은 비단원 페이지에 기본 분홍을 넣는다) */
+  (function(){ var r=document.documentElement.style; r.setProperty('--u','#d68a4a'); r.setProperty('--u-2','#eaad70'); r.setProperty('--u-soft','rgba(214,138,74,0.14)'); })();
+
+  /*GEN-START*/
+  function pick(a,i){ if(typeof i==='number') return a[((i%a.length)+a.length)%a.length]; return a[Math.floor(Math.random()*a.length)]; }
+  function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+  function isSq(n){ var r=Math.round(Math.sqrt(n)); return r*r===n; }
+  function sqf(n){ for(var k=2;k*k<=n;k++){ if(n%(k*k)===0) return false; } return true; }      // 제곱 인수 없음
+  function rt(n){ return isSq(n) ? String(Math.round(Math.sqrt(n))) : ('√'+n); }                // 표기: 25→"5", 13→"√13"
+  function rtVal(s){ s=String(s); return s.charAt(0)==='√' ? Math.sqrt(+s.slice(1)) : (+s); }   // 보기 문자열 → 값
+  function sg(n){ return n<0?('−'+Math.abs(n)):String(n); }
+  function pt(x,y){ return '('+sg(x)+', '+sg(y)+')'; }
+  /* 숫자 읽기 끝소리 받침: 0영 1일 2이 3삼 4사 5오 6육 7칠 8팔 9구 → 0·1·3·6·7·8 받침 있음 */
+  function batch(n){ var s=String(Math.abs(n)); return '013678'.indexOf(s.charAt(s.length-1))>=0; }
+  function J(n,a,b){ return batch(n)?a:b; }
+  /* 4지선다 보기: 정답 rt(ansN) + 값이 서로 다른 오답 3개 (근호 후보는 제곱 인수가 있으면 건너뜀) */
+  function choices4(ansN, cands){
+    var out=[rt(ansN)], vals=[Math.sqrt(ansN)];
+    function add(str,v){ for(var k=0;k<vals.length;k++) if(Math.abs(vals[k]-v)<1e-9) return; vals.push(v); out.push(str); }
+    cands.forEach(function(c){ if(out.length>=4||c.n<=0) return; if(c.root){ if(!isSq(c.n)&&!sqf(c.n)) return; add(rt(c.n),Math.sqrt(c.n)); } else add(String(c.n),c.n); });
+    var k=1; while(out.length<4){ var n=ansN+k; if(sqf(n)||isSq(n)) add(rt(n),Math.sqrt(n)); k++; }
+    return shuffle(out);
+  }
+  function sqRows(list){ return list.map(function(r){ return {label:r[0],len:r[1],hyp:!!r[2],sq:(r[1]==='?'?r[3]:r[1]*r[1]),hide:true}; }); }
+
+  /* ── 풀 (전부 손으로 고른 세트 · Node 재검산 대상) ── */
+  var T1_NUM=[[3,4],[6,8],[5,12],[9,12],[8,15],[12,16],[7,24],[15,20],[12,5],[4,3],[15,8],[20,15]];
+  var T1_SQ=[[2,3],[1,2],[3,5],[2,5],[4,5],[1,3],[3,6],[2,6],[5,6],[4,6]];
+  var T1_PICK=[[2,3],[1,2],[3,5],[2,5],[4,5],[1,3],[5,6],[1,4],[2,7],[4,7]];
+  var T2_NUM=[[5,3],[10,6],[13,5],[13,12],[15,9],[17,8],[20,12],[25,7],[25,15],[26,10],[10,8],[17,15]];
+  var T2_SQ=[[4,2],[5,2],[6,4],[7,3],[8,5],[6,1],[9,4],[7,5],[10,3],[8,3]];
+  var T2_PICK=[[4,3],[5,2],[6,5],[8,5],[7,6],[6,1],[9,4],[8,3],[10,3],[4,1]];
+  var T3_BASE=[[3,4,5],[5,12,13],[8,15,17],[7,24,25]];
+  var T3_MULT=[[0,2],[0,3],[1,2],[0,4],[2,2],[0,5],[1,3],[0,10],[3,2],[0,6]];      // [기본 삼각형 번호, 배수 k]
+  var T3_WHICH=[ [[5,12,13],[4,5,6],[6,7,9],[7,8,10]], [[3,5,6],[6,8,10],[5,6,8],[4,6,7]], [[8,15,17],[9,12,14],[7,9,11],[10,12,15]],
+                 [[2,3,4],[9,12,15],[5,7,9],[6,9,11]], [[7,24,25],[6,10,12],[8,9,12],[5,8,10]], [[4,7,8],[12,16,20],[10,11,15],[9,10,13]] ];
+  var T4_NUM=[ [[-3,-4],[3,4]], [[-2,-1],[1,3]], [[1,2],[4,6]], [[-4,3],[0,0]], [[-1,-2],[2,2]], [[2,-3],[-2,0]], [[0,-4],[3,0]], [[-4,-2],[4,4]], [[5,-3],[-3,3]], [[-1,5],[3,2]] ];
+  var T4_PICK=[ [[0,0],[2,3]], [[-1,-1],[1,2]], [[1,1],[2,3]], [[-2,2],[3,3]], [[0,-3],[4,2]], [[-3,1],[2,3]], [[2,-2],[-1,-1]], [[-4,-3],[1,-2]], [[1,-4],[-1,3]], [[-1,-4],[4,-2]] ];
+  var T5_LAD=[[10,6],[13,5],[5,3],[17,8],[15,9],[25,7],[26,10],[13,12]];
+  var T5_RECT=[[3,4],[6,8],[5,12],[8,15],[12,16],[9,12],[15,20],[7,24]];
+  var T5_TRI=[4,6,8,10,12,2,14,16];
+  var T5_TRIP=[[3,4],[6,8],[5,12],[9,12],[8,15],[12,16]];
+  function isRight(t){ return t[0]*t[0]+t[1]*t[1]===t[2]*t[2]; }
+
+  /* ① 빗변 구하기 (num: 정수 답 · sq: c² 값 · pick: √ 4지선다 = 중3 예고) */
+  function genType1(i){
+    var det=(typeof i==='number'), form=det?['num','sq','pick'][i%3]:pick(['num','num','sq','pick']), idx=det?Math.floor(i/3):undefined;
+    var p=pick(form==='num'?T1_NUM:form==='sq'?T1_SQ:T1_PICK, idx), a=p[0], b=p[1], N=a*a+b*b, c=Math.round(Math.sqrt(N));
+    var q={ type:1, form:form, a:a, b:b, N:N, unknown:'c', unit:'',
+      table:{rows:sqRows([['a',a,0],['b',b,0],['c','?',1,N]]), okMsg:'빗변 줄은 두 줄의 합이에요. 이제 제곱을 풀면 끝이에요.'},
+      eq:'c² = a² + b² = '+a+'² + '+b+'²' };
+    if(form==='num'){ q.kind='num'; q.ans=c; q.ansText=String(c);
+      q.stem='직각을 낀 두 변의 길이가 <b>'+a+'</b>, <b>'+b+'</b>인 직각삼각형이 있어요. <b>빗변 c</b>의 길이는 얼마일까요?';
+      q.sol='구하는 변이 빗변이니까 <b>더해요</b>. c² = '+a+'² + '+b+'² = '+(a*a)+' + '+(b*b)+' = '+N+'이고, '+N+' = '+c+'²이니까 c = <b>'+c+'</b>이에요. 빗변이 두 변보다 길게 나왔죠? 그러면 정상이에요.'; }
+    else if(form==='sq'){ q.kind='num'; q.ans=N; q.ansText=String(N); q.table.rows[2].hide=false; q.table.rows[2].isAns=true;
+      q.stem='직각을 낀 두 변의 길이가 <b>'+a+'</b>, <b>'+b+'</b>인 직각삼각형이 있어요. 빗변의 길이를 c라 할 때 <b>c²의 값</b>은 얼마일까요?';
+      q.sol='빗변 위 정사각형의 넓이를 묻는 문제예요. c² = '+a+'² + '+b+'² = '+(a*a)+' + '+(b*b)+' = <b>'+N+'</b>이에요. ('+N+J(N,'은','는')+' 어떤 정수의 제곱이 아니라서, c 자체는 중3에서 √'+N+'이라고 써요.)'; }
+    else { q.kind='pick'; q.ans=rt(N); q.ansText=rt(N); q.pre=true;
+      q.choices=choices4(N,[{n:Math.abs(a*a-b*b),root:true},{n:N,root:false},{n:a+b,root:false},{n:(a+b)*(a+b),root:false}]);
+      q.stem='직각을 낀 두 변의 길이가 <b>'+a+'</b>, <b>'+b+'</b>인 직각삼각형의 <b>빗변 c</b>는 얼마일까요? <span class="pg-pre">중3 예고</span> (√N은 "제곱하면 N이 되는 수"예요.)';
+      q.sol='c² = '+a+'² + '+b+'² = '+(a*a)+' + '+(b*b)+' = '+N+'이에요. 제곱해서 '+N+J(N,'이','가')+' 되는 수를 √'+N+'이라고 써요(중3에서 배워요). 그래서 c = <b>√'+N+'</b>이에요. 더하는 쪽으로 간 게 핵심이에요.'; }
+    return q;
+  }
+  /* ② 다른 한 변 구하기 */
+  function genType2(i){
+    var det=(typeof i==='number'), form=det?['num','sq','pick'][i%3]:pick(['num','num','sq','pick']), idx=det?Math.floor(i/3):undefined;
+    var p=pick(form==='num'?T2_NUM:form==='sq'?T2_SQ:T2_PICK, idx), c=p[0], a=p[1], N=c*c-a*a, b=Math.round(Math.sqrt(N));
+    var q={ type:2, form:form, c:c, a:a, N:N, unknown:'b', unit:'',
+      table:{rows:sqRows([['c',c,1],['a',a,0],['b','?',0,N]]), okMsg:'빗변 줄이 제일 커요. 빗변 제곱에서 빼서 b²을 구했어요.'},
+      eq:'b² = c² − a² = '+c+'² − '+a+'²' };
+    if(form==='num'){ q.kind='num'; q.ans=b; q.ansText=String(b);
+      q.stem='빗변의 길이가 <b>'+c+'</b>, 직각을 낀 한 변의 길이가 <b>'+a+'</b>인 직각삼각형이 있어요. <b>나머지 한 변 b</b>의 길이는 얼마일까요?';
+      q.sol='구하는 변 b는 빗변이 아니에요. 그러니까 빗변 제곱에서 <b>빼요</b>. b² = '+c+'² − '+a+'² = '+(c*c)+' − '+(a*a)+' = '+N+'이고, '+N+' = '+b+'²이니까 b = <b>'+b+'</b>이에요. 빗변 '+c+'보다 짧게 나왔으니 정상이에요.'; }
+    else if(form==='sq'){ q.kind='num'; q.ans=N; q.ansText=String(N); q.table.rows[2].hide=false; q.table.rows[2].isAns=true;
+      q.stem='빗변의 길이가 <b>'+c+'</b>, 직각을 낀 한 변의 길이가 <b>'+a+'</b>인 직각삼각형이 있어요. 나머지 한 변의 길이를 b라 할 때 <b>b²의 값</b>은 얼마일까요?';
+      q.sol='b는 빗변이 아니니까 빼요. b² = '+c+'² − '+a+'² = '+(c*c)+' − '+(a*a)+' = <b>'+N+'</b>이에요. ('+N+J(N,'은','는')+' 어떤 정수의 제곱이 아니라서, b 자체는 중3에서 √'+N+'이라고 써요.)'; }
+    else { q.kind='pick'; q.ans=rt(N); q.ansText=rt(N); q.pre=true;
+      q.choices=choices4(N,[{n:c*c+a*a,root:true},{n:N,root:false},{n:c-a,root:false},{n:c+a,root:false}]);
+      q.stem='빗변의 길이가 <b>'+c+'</b>, 직각을 낀 한 변의 길이가 <b>'+a+'</b>인 직각삼각형의 <b>나머지 한 변 b</b>는 얼마일까요? <span class="pg-pre">중3 예고</span>';
+      q.sol='b는 빗변이 아니니까 빼요. b² = '+c+'² − '+a+'² = '+(c*c)+' − '+(a*a)+' = '+N+'이에요. 제곱해서 '+N+J(N,'이','가')+' 되는 수는 √'+N+'이니까 b = <b>√'+N+'</b>이에요. 더해서 √'+(c*c+a*a)+'이 나왔다면 빗변끼리 더한 실수예요.'; }
+    return q;
+  }
+  /* ③ 피타고라스 수 (hyp: 배수로 빗변 · leg: 배수로 한 변 · which: 직각삼각형 고르기) */
+  function genType3(i){
+    var det=(typeof i==='number'), form=det?['hyp','leg','which'][i%3]:pick(['hyp','leg','which']), idx=det?Math.floor(i/3):undefined;
+    if(form==='which'){
+      var set=pick(T3_WHICH,idx), right=null; set.forEach(function(t){ if(isRight(t)) right=t; });
+      var ans=right.join(', ');
+      var expl=set.map(function(t){ var s=t[0]*t[0]+t[1]*t[1]; return t.join('·')+' → '+t[0]+'² + '+t[1]+'² = '+s+(isRight(t)?' = ':' ≠ ')+t[2]+'² = '+(t[2]*t[2])+(isRight(t)?' ✓':''); }).join(' / ');
+      return { type:3, form:'which', kind:'pick', set:set, right:right, ans:ans, ansText:ans, choices:shuffle(set.map(function(t){ return t.join(', '); })), unit:'',
+        stem:'세 변의 길이가 다음과 같은 삼각형 중 <b>직각삼각형</b>은 어느 것일까요? (가장 긴 변이 빗변이에요.)',
+        eq:'(가장 긴 변)² = (나머지 두 변의 제곱의 합) 이면 직각삼각형',
+        sol:expl+'. 그래서 <b>'+ans+'</b>이에요. 세 수 중 <b>가장 큰 수</b>를 c로 놓는 것만 놓치지 않으면 돼요.' };
+    }
+    var m=pick(T3_MULT,idx), base=T3_BASE[m[0]], k=m[1], a=base[0]*k, b=base[1]*k, c=base[2]*k, bs=base.join('·');
+    if(form==='hyp') return { type:3, form:'hyp', kind:'num', a:a, b:b, c:c, base:base, k:k, unknown:'c', ans:c, ansText:String(c), unit:'',
+      table:{rows:sqRows([['a',a,0],['b',b,0],['c','?',1,c*c]]), okMsg:bs+'의 '+k+'배 — 계산 없이도 보였다면 최고예요.'},
+      eq:'c² = '+a+'² + '+b+'²  (또는 '+bs+' × '+k+')',
+      stem:'직각을 낀 두 변의 길이가 <b>'+a+'</b>, <b>'+b+'</b>인 직각삼각형의 <b>빗변</b>은 얼마일까요? (피타고라스 수를 떠올려 보세요.)',
+      sol:a+' = '+base[0]+' × '+k+', '+b+' = '+base[1]+' × '+k+'이니까 '+bs+'의 <b>'+k+'배</b>예요. 빗변 = '+base[2]+' × '+k+' = <b>'+c+'</b>이에요. 확인: '+a+'² + '+b+'² = '+(a*a)+' + '+(b*b)+' = '+(c*c)+' = '+c+'² 맞아요.' };
+    return { type:3, form:'leg', kind:'num', a:a, b:b, c:c, base:base, k:k, unknown:'b', ans:b, ansText:String(b), unit:'',
+      table:{rows:sqRows([['c',c,1],['a',a,0],['b','?',0,b*b]]), okMsg:'빗변 제곱에서 뺐어요. '+bs+'의 '+k+'배로 봐도 같아요.'},
+      eq:'b² = '+c+'² − '+a+'²  (또는 '+bs+' × '+k+')',
+      stem:'빗변의 길이가 <b>'+c+'</b>, 직각을 낀 한 변의 길이가 <b>'+a+'</b>인 직각삼각형의 <b>나머지 한 변</b>은 얼마일까요? (피타고라스 수를 떠올려 보세요.)',
+      sol:c+' = '+base[2]+' × '+k+', '+a+' = '+base[0]+' × '+k+'이니까 '+bs+'의 <b>'+k+'배</b>예요. 나머지 변 = '+base[1]+' × '+k+' = <b>'+b+'</b>이에요. 확인: '+c+'² − '+a+'² = '+(c*c)+' − '+(a*a)+' = '+(b*b)+' = '+b+'² 맞아요. 빗변이 아니니까 뺀 거예요.' };
+  }
+  /* ④ 좌표평면 두 점 사이 거리 (num: 정수 · pick: √ 4지선다) */
+  function genType4(i){
+    var det=(typeof i==='number'), form=det?['num','pick'][i%2]:pick(['num','num','pick']), idx=det?Math.floor(i/2):undefined;
+    var p=pick(form==='num'?T4_NUM:T4_PICK, idx), A=p[0], B=p[1], dx=Math.abs(B[0]-A[0]), dy=Math.abs(B[1]-A[1]), N=dx*dx+dy*dy, d=Math.round(Math.sqrt(N));
+    var q={ type:4, form:form, A:A, B:B, dx:dx, dy:dy, N:N, unknown:'c', unit:'',
+      table:{rows:sqRows([['가로 차',dx,0],['세로 차',dy,0],['거리 AB','?',1,N]]), okMsg:'가로 차·세로 차가 직각을 낀 두 변, 거리가 빗변이에요.'},
+      eq:'AB² = (가로 차)² + (세로 차)² = '+dx+'² + '+dy+'²',
+      stem:'좌표평면 위의 두 점 A'+pt(A[0],A[1])+', B'+pt(B[0],B[1])+' 사이의 <b>거리</b>는 얼마일까요?'+(form==='pick'?' <span class="pg-pre">중3 예고</span>':'') };
+    var head='A에서 B까지 가로로 '+dx+'칸, 세로로 '+dy+'칸이에요. 이 둘을 직각을 낀 두 변으로 하는 직각삼각형의 <b>빗변</b>이 AB예요. AB² = '+dx+'² + '+dy+'² = '+(dx*dx)+' + '+(dy*dy)+' = '+N;
+    if(form==='num'){ q.kind='num'; q.ans=d; q.ansText=String(d); q.sol=head+'이고, '+N+' = '+d+'²이니까 AB = <b>'+d+'</b>이에요.'; }
+    else { q.kind='pick'; q.ans=rt(N); q.ansText=rt(N); q.pre=true;
+      q.choices=choices4(N,[{n:Math.abs(dx*dx-dy*dy),root:true},{n:N,root:false},{n:dx+dy,root:false},{n:(dx+dy)*(dx+dy),root:false}]);
+      q.sol=head+'이에요. 제곱해서 '+N+J(N,'이','가')+' 되는 수는 √'+N+'이니까 AB = <b>√'+N+'</b>이에요.'; }
+    return q;
+  }
+  /* ⑤ 활용 (ladder: 사다리 높이 · rect: 대각선 · tri: 정삼각형 높이의 제곱 · trip: 동쪽·북쪽 직선 거리) */
+  function genType5(i){
+    var det=(typeof i==='number'), form=det?['ladder','rect','tri','trip'][i%4]:pick(['ladder','rect','tri','trip']), idx=det?Math.floor(i/4):undefined;
+    if(form==='ladder'){ var L=pick(T5_LAD,idx), c=L[0], a=L[1], N=c*c-a*a, b=Math.round(Math.sqrt(N));
+      return { type:5, form:'ladder', kind:'num', c:c, a:a, b:b, N:N, unknown:'b', ans:b, ansText:String(b), unit:'m',
+        table:{rows:sqRows([['사다리 (빗변)',c,1],['벽까지 거리',a,0],['높이','?',0,N]]), okMsg:'사다리가 빗변, 높이는 빗변이 아니에요.'},
+        eq:'(높이)² = '+c+'² − '+a+'²',
+        stem:'길이가 <b>'+c+' m</b>인 사다리를 벽에서 <b>'+a+' m</b> 떨어진 곳에 세웠어요. 사다리가 벽에 닿는 <b>높이</b>는 몇 m일까요?',
+        sol:'사다리·벽·바닥이 직각삼각형을 만들어요. 사다리가 <b>빗변</b>이고 높이는 빗변이 아니니까 빼요. (높이)² = '+c+'² − '+a+'² = '+(c*c)+' − '+(a*a)+' = '+N+' = '+b+'² → 높이 = <b>'+b+' m</b>예요.' }; }
+    if(form==='rect'){ var R=pick(T5_RECT,idx), w=R[0], h=R[1], N2=w*w+h*h, d=Math.round(Math.sqrt(N2));
+      return { type:5, form:'rect', kind:'num', w:w, h:h, d:d, N:N2, unknown:'c', ans:d, ansText:String(d), unit:'cm',
+        table:{rows:sqRows([['가로',w,0],['세로',h,0],['대각선 (빗변)','?',1,N2]]), okMsg:'대각선이 빗변이에요. 두 제곱을 더했어요.'},
+        eq:'(대각선)² = '+w+'² + '+h+'²',
+        stem:'가로 <b>'+w+' cm</b>, 세로 <b>'+h+' cm</b>인 직사각형의 <b>대각선</b>의 길이는 몇 cm일까요?',
+        sol:'대각선은 가로·세로를 직각을 낀 두 변으로 하는 직각삼각형의 <b>빗변</b>이에요. 그러니까 더해요. (대각선)² = '+w+'² + '+h+'² = '+(w*w)+' + '+(h*h)+' = '+N2+' = '+d+'² → 대각선 = <b>'+d+' cm</b>예요.' }; }
+    if(form==='tri'){ var s=pick(T5_TRI,idx), half=s/2, N3=s*s-half*half;
+      return { type:5, form:'tri', kind:'num', s:s, half:half, N:N3, unknown:'b', ans:N3, ansText:String(N3), unit:'',
+        table:{rows:[{label:'한 변 (빗변)',len:s,hyp:true,sq:s*s,hide:true},{label:'밑변의 반',len:half,hyp:false,sq:half*half,hide:true},{label:'높이 h',len:'?',hyp:false,sq:N3,hide:false,isAns:true}], okMsg:'높이는 빗변이 아니에요. 빗변 제곱에서 뺐어요.'},
+        eq:'h² = '+s+'² − '+half+'²',
+        stem:'한 변의 길이가 <b>'+s+' cm</b>인 정삼각형의 높이를 h cm라 할 때, <b>h²의 값</b>은 얼마일까요? (높이를 그으면 밑변이 반으로 나뉘어요.)',
+        sol:'높이를 그으면 직각삼각형이 생겨요. 빗변은 정삼각형의 한 변 '+s+', 직각을 낀 한 변은 밑변의 반 '+half+'이에요. 높이는 빗변이 아니니까 빼요. h² = '+s+'² − '+half+'² = '+(s*s)+' − '+(half*half)+' = <b>'+N3+'</b>이에요. (h 자체는 중3에서 √'+N3+'으로 써요.)' }; }
+    var T=pick(T5_TRIP,idx), e=T[0], n=T[1], N4=e*e+n*n, dd=Math.round(Math.sqrt(N4));
+    return { type:5, form:'trip', kind:'num', e:e, n:n, d:dd, N:N4, unknown:'c', ans:dd, ansText:String(dd), unit:'km',
+      table:{rows:sqRows([['동쪽으로',e,0],['북쪽으로',n,0],['직선 거리 (빗변)','?',1,N4]]), okMsg:'꺾어서 간 두 길이 직각을 낀 두 변이에요.'},
+      eq:'(직선 거리)² = '+e+'² + '+n+'²',
+      stem:'집에서 동쪽으로 <b>'+e+' km</b> 간 다음, 북쪽으로 <b>'+n+' km</b> 갔어요. 집에서 지금 있는 곳까지의 <b>직선 거리</b>는 몇 km일까요?',
+      sol:'동쪽 길과 북쪽 길은 직각으로 만나요. 직선 거리가 <b>빗변</b>이니까 더해요. (직선 거리)² = '+e+'² + '+n+'² = '+(e*e)+' + '+(n*n)+' = '+N4+' = '+dd+'² → <b>'+dd+' km</b>예요.' };
+  }
+  /*GEN-END*/
+
+  function parseAns(s){ s=(s||'').trim().replace(/[−–—]/g,'-').replace(/\s+/g,''); if(s==='') return NaN; var v=parseFloat(s); return isNaN(v)?NaN:v; }
+  function near(v,a){ return Math.abs(v-a)<1e-6; }
+  function cheer(){ try{ MJ.confetti(); }catch(e){} }
+  function f1(v){ return String(Math.round(v*10)/10); }
+  function approx(N){ var r=Math.sqrt(N); return String(Math.round(r*100)/100); }
+
+  /* ── SVG 프리미티브 ── */
+  var CA='var(--sa)', CB='var(--sb)', CC='var(--sc)';
+  function L(x1,y1,x2,y2,o){ o=o||{}; return '<line x1="'+f1(x1)+'" y1="'+f1(y1)+'" x2="'+f1(x2)+'" y2="'+f1(y2)+'" stroke="'+(o.col||'var(--ink)')+'" stroke-width="'+(o.w||2)+'"'+(o.dash?' stroke-dasharray="6 4"':'')+(o.op!=null?' opacity="'+o.op+'"':'')+' stroke-linecap="round"'+(o.attr||'')+'/>'; }
+  function T(x,y,t,o){ o=o||{}; return '<text x="'+f1(x)+'" y="'+f1(y)+'" font-size="'+(o.fs||12)+'" font-weight="'+(o.b?'800':'600')+'" fill="'+(o.col||'var(--ink)')+'" text-anchor="'+(o.an||'middle')+'" dominant-baseline="middle"'+(o.it?' font-style="italic"':'')+'>'+t+'</text>'; }
+  function poly(P,o){ o=o||{}; var d=''; for(var k=0;k<P.length;k++) d+=(k?' L':'M')+f1(P[k][0])+' '+f1(P[k][1]);
+    return '<path d="'+d+' Z" fill="'+(o.fill||'none')+'"'+(o.fop!=null?' fill-opacity="'+o.fop+'"':'')+' stroke="'+(o.col||'var(--ink)')+'" stroke-width="'+(o.w||2)+'"'+(o.dash?' stroke-dasharray="6 4"':'')+' stroke-linejoin="round"'+(o.attr||'')+'/>'; }
+  function readout(x,y,lines){ var s=''; lines.forEach(function(l,i){ if(l.t==null||l.t==='') return; s+='<text x="'+x+'" y="'+(y+i*19)+'" font-size="'+(l.fs||12)+'" font-weight="'+(l.b?'800':'600')+'" fill="'+(l.col||'var(--ink)')+'">'+l.t+'</text>'; }); return s; }
+  function add(P,Q,k){ k=(k==null)?1:k; return [P[0]+Q[0]*k, P[1]+Q[1]*k]; }
+  function mid(P,Q){ return [(P[0]+Q[0])/2,(P[1]+Q[1])/2]; }
+  function unit(P,Q){ var dx=Q[0]-P[0], dy=Q[1]-P[1], d=Math.hypot(dx,dy)||1; return [dx/d,dy/d]; }
+  /* 직각 표시 — 꼭짓점 C에서 두 변 방향 u, v(단위벡터) */
+  function rmark(C,u,v,s){ s=s||9; var p1=add(C,u,s), p2=add(add(C,u,s),v,s), p3=add(C,v,s);
+    return '<path d="M'+f1(p1[0])+' '+f1(p1[1])+' L'+f1(p2[0])+' '+f1(p2[1])+' L'+f1(p3[0])+' '+f1(p3[1])+'" fill="none" stroke="var(--ink)" stroke-width="1.5"/>'; }
+  /* 직각삼각형 좌표(회전 포함): C=직각, a=CB, b=CA. rot(도)만큼 돌리고 box{x,y,w,h}에 맞춰 중앙 배치 */
+  function rtri(a,b,rot,box){
+    var r=(rot||0)*Math.PI/180, cs=Math.cos(r), sn=Math.sin(r);
+    var raw=[[0,0],[a,0],[0,-b]].map(function(p){ return [p[0]*cs-p[1]*sn, p[0]*sn+p[1]*cs]; });
+    var minX=1e9,maxX=-1e9,minY=1e9,maxY=-1e9; raw.forEach(function(p){ minX=Math.min(minX,p[0]); maxX=Math.max(maxX,p[0]); minY=Math.min(minY,p[1]); maxY=Math.max(maxY,p[1]); });
+    var s=Math.min(box.w/(maxX-minX), box.h/(maxY-minY)), cx=box.x+box.w/2, cy=box.y+box.h/2, mx=(minX+maxX)/2, my=(minY+maxY)/2;
+    var P=raw.map(function(p){ return [cx+(p[0]-mx)*s, cy+(p[1]-my)*s]; });
+    return {C:P[0], B:P[1], A:P[2], s:s};
+  }
+  /* 변 라벨 위치: 변 PQ의 중점에서 삼각형 바깥쪽(제3의 꼭짓점 반대편)으로 off만큼 */
+  function outLabel(P,Q,O,off){ var m=mid(P,Q), u=unit(P,Q), n=[-u[1],u[0]]; if((O[0]-m[0])*n[0]+(O[1]-m[1])*n[1]>0){ n=[-n[0],-n[1]]; } return add(m,n,off); }
+  /* 삼각형 한 장: labels {a,b,c} 문자열, hl='c' 면 빗변 강조(굵게+점선 후광), rot 회전 */
+  function triFig(a,b,rot,box,labels,o){
+    o=o||{}; var g=rtri(a,b,rot,box), C=g.C,B=g.B,A=g.A, s='';
+    s+=poly([C,B,A],{fill:'var(--pg)',fop:.07,col:'var(--ink)',w:2});
+    if(o.hl==='c') s+=L(A[0],A[1],B[0],B[1],{col:CC,w:9,op:.25})+L(A[0],A[1],B[0],B[1],{col:CC,w:3});
+    if(o.hl==='a') s+=L(C[0],C[1],B[0],B[1],{col:CA,w:9,op:.25})+L(C[0],C[1],B[0],B[1],{col:CA,w:3});
+    if(o.hl==='b') s+=L(C[0],C[1],A[0],A[1],{col:CB,w:9,op:.25})+L(C[0],C[1],A[0],A[1],{col:CB,w:3});
+    s+=rmark(C,unit(C,B),unit(C,A),Math.min(10,g.s*0.9));
+    var la=outLabel(C,B,A,13), lb=outLabel(C,A,B,13), lc=outLabel(A,B,C,14);
+    if(labels){ if(labels.a!=null) s+=T(la[0],la[1],labels.a,{col:CA,b:true,fs:o.fs||12.5}); if(labels.b!=null) s+=T(lb[0],lb[1],labels.b,{col:CB,b:true,fs:o.fs||12.5}); if(labels.c!=null) s+=T(lc[0],lc[1],labels.c,{col:CC,b:true,fs:o.fs||12.5}); }
+    return s;
+  }
+  /* 변 위에 정사각형 4점 (바깥쪽) */
+  function sqOn(P,Q,O){ var u=unit(P,Q), d=Math.hypot(Q[0]-P[0],Q[1]-P[1]), n=[-u[1],u[0]]; var m=mid(P,Q); if((O[0]-m[0])*n[0]+(O[1]-m[1])*n[1]>0) n=[-n[0],-n[1]]; return [P,Q,add(Q,n,d),add(P,n,d)]; }
+  function ease(t){ return t<0?0:t>1?1:(0.5-0.5*Math.cos(t*Math.PI)); }
+
+  /* ── 1. 정사각형 세 개 넓이 퍼즐 ── */
+  (function(){
+    var svg=document.getElementById('sqSvg'), ra=document.getElementById('ra'), rb=document.getElementById('rb'), va=document.getElementById('va'), vb=document.getElementById('vb'), btn=document.getElementById('sqPlay'), msg=document.getElementById('sqMsg'), read=document.getElementById('sqRead');
+    var playing=false, prog=0;
+    function geom(a,b){ var W=440,H=330, w=a+2*b, h=2*a+b, s=Math.min(400/w,300/h); var ox=(W-w*s)/2+b*s, oy=(H-h*s)/2+(a+b)*s;
+      var C=[ox,oy], B=[ox+a*s,oy], A=[ox,oy-b*s], c=Math.hypot(a,b), u=[a/c,b/c], n=[b/c,-a/c];
+      return {s:s,C:C,B:B,A:A,c:c,u:u,n:n}; }
+    function cellA(g,i,j){ var s=g.s, x=g.C[0]+i*s, y=g.C[1]+j*s; return [[x,y],[x+s,y],[x+s,y+s],[x,y+s]]; }
+    function cellB(g,i,j){ var s=g.s, x=g.C[0]-(i+1)*s, y=g.C[1]-(j+1)*s; return [[x,y],[x+s,y],[x+s,y+s],[x,y+s]]; }
+    function cellC(g,i,j){ var s=g.s, P0=add(add(g.A,g.u,i*s),g.n,j*s); return [P0, add(P0,g.u,s), add(add(P0,g.u,s),g.n,s), add(P0,g.n,s)]; }
+    function lerpP(P,Q,t){ return P.map(function(p,k){ return [p[0]+(Q[k][0]-p[0])*t, p[1]+(Q[k][1]-p[1])*t]; }); }
+    function draw(a,b,p){
+      var g=geom(a,b), N=a*a+b*b, ci=Math.round(g.c), intC=(ci*ci===N), s='';
+      var SA=[g.C,g.B,add(g.B,[0,1],a*g.s),add(g.C,[0,1],a*g.s)], SB=[g.C,g.A,add(g.A,[-1,0],b*g.s),add(g.C,[-1,0],b*g.s)], SC=[g.A,g.B,add(g.B,g.n,g.c*g.s),add(g.A,g.n,g.c*g.s)];
+      s+=poly(SA,{fill:CA,fop:.08,col:CA,w:1.5})+poly(SB,{fill:CB,fop:.08,col:CB,w:1.5})+poly(SC,{fill:CC,fop:.08,col:CC,w:1.5});
+      var i,j,t=0, total=N, cells='';
+      for(i=0;i<a;i++) for(j=0;j<a;j++){ var src=cellA(g,i,j), lp=0; if(intC){ lp=ease((p-0.35*t/total)/0.65); } var dst=intC?cellC(g,t%ci,Math.floor(t/ci)):src; cells+=poly(lerpP(src,dst,lp),{fill:CA,fop:.55,col:'#fff',w:1}); t++; }
+      for(i=0;i<b;i++) for(j=0;j<b;j++){ var src2=cellB(g,i,j), lp2=0; if(intC){ lp2=ease((p-0.35*t/total)/0.65); } var dst2=intC?cellC(g,t%ci,Math.floor(t/ci)):src2; cells+=poly(lerpP(src2,dst2,lp2),{fill:CB,fop:.55,col:'#fff',w:1}); t++; }
+      s+=cells;
+      s+=poly([g.C,g.B,g.A],{fill:'var(--panel)',fop:.9,col:'var(--ink)',w:2.2})+rmark(g.C,[1,0],[0,-1],Math.min(10,g.s*.8));
+      var ma=mid(SA[2],SA[3]), mb=mid(SB[2],SB[3]), mc=mid(SC[2],SC[3]);
+      s+=T(mid(g.C,g.B)[0],g.C[1]+9,'a = '+a,{col:CA,b:true,fs:11})+T(g.C[0]-9,mid(g.C,g.A)[1],'b = '+b,{col:CB,b:true,fs:11,an:'end'});
+      var done=intC&&p>=1;
+      s+=T(mid(SA[0],SA[2])[0],mid(SA[0],SA[2])[1]+(a<3?0:0),'a² = '+(a*a),{col:CA,b:true,fs:a<3?9.5:12});
+      s+=T(mid(SB[0],SB[2])[0],mid(SB[0],SB[2])[1],'b² = '+(b*b),{col:CB,b:true,fs:b<3?9.5:12});
+      var cLab=intC?(done?'c² = '+N:'c² = ?'):('c² = '+N);
+      s+=T(mid(SC[0],SC[2])[0],mid(SC[0],SC[2])[1],cLab,{col:CC,b:true,fs:12});
+      s+=T(add(mid(g.A,g.B),g.n,-11)[0],add(mid(g.A,g.B),g.n,-11)[1],'c',{col:CC,b:true,fs:12,it:true});
+      svg.innerHTML=s;
+      return {N:N,intC:intC,ci:ci};
+    }
+    function paint(){ var a=parseInt(ra.value,10), b=parseInt(rb.value,10); va.textContent=a; vb.textContent=b; var r=draw(a,b,prog);
+      btn.disabled=!r.intC;
+      read.innerHTML='a² + b² = '+(a*a)+' + '+(b*b)+' = <b style="color:var(--sc)">'+r.N+'</b> = c² → '+(r.intC?'c = <b>'+r.ci+'</b> ('+r.ci+' × '+r.ci+' = '+r.N+')':'c는 정수가 아니에요 (약 '+approx(r.N)+', 중3에서 √'+r.N+'이라고 써요)')+
+        (r.intC?'':'<br><span style="color:var(--muted);font-size:12.5px">칸 옮기기는 빗변이 정수일 때(3·4, 6·8) 돼요. 넓이의 합은 언제나 맞아요.</span>'); }
+    ra.addEventListener('input',function(){ prog=0; msg.textContent=''; paint(); }); rb.addEventListener('input',function(){ prog=0; msg.textContent=''; paint(); }); paint();
+    btn.onclick=function(){ if(playing||btn.disabled) return; playing=true; btn.disabled=true; msg.textContent=''; var t0=null, dur=3000, a=parseInt(ra.value,10), b=parseInt(rb.value,10);
+      function step(ts){ if(t0===null)t0=ts; prog=Math.min(1,(ts-t0)/dur); draw(a,b,prog); if(prog<1) requestAnimationFrame(step); else { msg.textContent=(a*a)+' + '+(b*b)+' = '+(a*a+b*b)+' — 딱 맞게 채워졌어요'; playing=false; btn.disabled=false; } }
+      requestAnimationFrame(step); };
+  })();
+
+  /* ── 함께 생각하기 ①② ── */
+  function bindQuick(inputId,btnId,outId,ans,sol){
+    var inp=document.getElementById(inputId), btn=document.getElementById(btnId), out=document.getElementById(outId);
+    btn.onclick=function(){ var v=parseAns(inp.value);
+      if(isNaN(v)){ out.innerHTML='숫자를 넣어 주세요 🙂'; return; }
+      if(near(v,ans)){ out.innerHTML='<b style="color:var(--ok)">✓ 정답이에요!</b> '+sol; cheer(); }
+      else out.innerHTML='<b style="color:var(--pg)">아직이에요.</b> 답은 '+ans+J(ans,'이에요','예요')+'. '+sol; };
+    inp.addEventListener('keydown',function(e){ if(e.key==='Enter') btn.click(); });
+  }
+  bindQuick('q1','q1b','q1o',5,'(넓이 25인 정사각형의 한 변은 5 × 5 = 25이니까 5예요. 빗변 c = 5.)');
+  bindQuick('q2','q2b','q2o',8,'(구하는 변은 빗변이 아니니까 빼요: 10² − 6² = 100 − 36 = 64 = 8² → 8. 빗변 10보다 작게 나왔으니 정상이에요.)');
+
+  /* ── 2. 빗변 찾기 (회전한 삼각형에서 변 클릭) ── */
+  var HYP_POOL=[{a:3,b:4,rot:0},{a:4,b:3,rot:135},{a:5,b:12,rot:200},{a:2,b:3,rot:60},{a:6,b:8,rot:300},{a:1,b:2,rot:250},{a:8,b:15,rot:100},{a:3,b:2,rot:320}];
+  (function(){
+    var svg=document.getElementById('hypSvg'), read=document.getElementById('hypRead'), next=document.getElementById('hypNext');
+    var k=0, chosen=null;
+    function paint(){
+      var p=HYP_POOL[k], g=rtri(p.a,p.b,p.rot,{x:30,y:20,w:230,h:170}), C=g.C,B=g.B,A=g.A, s='';
+      s+=poly([C,B,A],{fill:'var(--pg)',fop:.07,col:'var(--ink)',w:2})+rmark(C,unit(C,B),unit(C,A),10);
+      function side(P,Q,id,col){ var on=(chosen===id), okSide=(id==='c');
+        return '<g data-side="'+id+'">'+L(P[0],P[1],Q[0],Q[1],{col:'#000',w:20,op:0})+(on?L(P[0],P[1],Q[0],Q[1],{col:okSide?CC:'#e3c15a',w:10,op:.35}):'')+L(P[0],P[1],Q[0],Q[1],{col:on?(okSide?CC:'#b97a10'):'var(--ink)',w:on?4:2.5})+'</g>'; }
+      s+=side(C,B,'a')+side(C,A,'b')+side(A,B,'c');
+      if(chosen==='c'){ var lc=outLabel(A,B,C,14); s+=T(lc[0],lc[1],'빗변',{col:CC,b:true,fs:12.5}); }
+      s+=readout(290,50,[{t:'직각 표시(∟)를 찾고',b:true},{t:'그 맞은편 변이 빗변',col:CC,b:true},{t:'가장 긴 변이기도 해요',col:'var(--muted)',fs:11.5},{t:''},{t:'('+(k+1)+'/'+HYP_POOL.length+' 번째 삼각형)',col:'var(--muted)',fs:11}]);
+      svg.innerHTML=s;
+    }
+    svg.addEventListener('click',function(e){ var g=e.target&&e.target.closest?e.target.closest('[data-side]'):null; if(!g) return; chosen=g.getAttribute('data-side'); paint();
+      if(chosen==='c'){ read.innerHTML='<b style="color:var(--ok)">✓ 맞아요!</b> 직각(∟)의 맞은편, 가장 긴 변이 빗변이에요. 이 변이 c예요.'; cheer(); }
+      else read.innerHTML='<b style="color:var(--pg)">아직이에요.</b> 그 변은 직각을 <b>끼고</b> 있어요. 직각 표시의 <b>맞은편</b>을 찾아보세요.'; });
+    next.onclick=function(){ k=(k+1)%HYP_POOL.length; chosen=null; read.textContent='어느 변이 빗변일까요? 변을 눌러 보세요.'; paint(); };
+    paint();
+  })();
+
+  /* ── 2. 직각이 아니면 성립하지 않아요 (각 슬라이더, 두 변 3·4 고정) ── */
+  (function(){
+    var svg=document.getElementById('angSvg'), rng=document.getElementById('angRange'), val=document.getElementById('angVal'), read=document.getElementById('angRead');
+    var a=3, b=4, S=36;
+    function paint(){
+      var th=parseInt(rng.value,10), r=th*Math.PI/180, c2=a*a+b*b-2*a*b*Math.cos(r), s='';
+      var C=[70,150], B=[C[0]+a*S,C[1]], A=[C[0]+b*S*Math.cos(r), C[1]-b*S*Math.sin(r)];
+      s+=poly([C,B,A],{fill:th===90?CC:'var(--pg)',fop:.09,col:'var(--ink)',w:2});
+      if(th===90) s+=rmark(C,[1,0],[0,-1],10); else s+='<path d="M'+f1(C[0]+18)+' '+f1(C[1])+' A18 18 0 0 0 '+f1(C[0]+18*Math.cos(r))+' '+f1(C[1]-18*Math.sin(r))+'" fill="none" stroke="var(--pg)" stroke-width="2"/>';
+      s+=T(C[0]+30,C[1]-14,th+'°',{col:'var(--pg)',b:true,fs:11.5});
+      s+=T(mid(C,B)[0],C[1]+12,'a = 3',{col:CA,b:true,fs:11.5}); var lb=outLabel(C,A,B,12); s+=T(lb[0],lb[1],'b = 4',{col:CB,b:true,fs:11.5}); var lc=outLabel(A,B,C,12); s+=T(lc[0],lc[1],'c',{col:CC,b:true,fs:12,it:true});
+      // 막대 비교
+      var bx=250, bw=160, mx=45; function bar(y,v,col,lab){ var w=Math.max(2,bw*v/mx); return '<rect x="'+bx+'" y="'+y+'" width="'+f1(w)+'" height="18" rx="5" fill="'+col+'" opacity=".8"/>'+T(bx,y-9,lab,{fs:11,b:true,col:col,an:'start'}); }
+      s+=bar(52,a*a+b*b,'var(--pg)','a² + b² = 25')+bar(104,c2,CC,'c² = '+f1(c2));
+      s+=L(bx+bw*25/mx,40,bx+bw*25/mx,130,{col:'var(--muted)',w:1,dash:true});
+      s+=T(bx+bw/2,160,th===90?'딱 맞아요 ✓':(c2<25?'c²이 더 작아요':'c²이 더 커요'),{fs:13,b:true,col:th===90?'var(--ok)':'var(--pg)'});
+      svg.innerHTML=s; val.textContent=th+'°';
+      read.innerHTML= th===90 ? '<b style="color:var(--ok)">90°일 때만</b> c² = 25 = a² + b²이에요. 그래서 이름이 "직각삼각형의" 정리예요.'
+        : '사이의 각이 '+th+'°면 c² ≈ '+f1(c2)+' — 25가 아니에요. 각이 '+(th<90?'작아지면 빗변 쪽이 짧아지고':'커지면 빗변 쪽이 길어져요')+', 식은 <b>직각일 때만</b> 맞아요.';
+    }
+    rng.addEventListener('input',paint); paint();
+  })();
+
+  /* ── 3. 계산기: 둘을 넣으면 나머지 ── */
+  (function(){
+    var ia=document.getElementById('ca'), ib=document.getElementById('cb'), ic=document.getElementById('cc'), btn=document.getElementById('calcBtn'), out=document.getElementById('calcOut');
+    function rootText(N){ var Ni=Math.round(N*10000)/10000; if(Math.abs(Ni-Math.round(Ni))<1e-9){ var n=Math.round(Ni); return isSq(n)?('<b>'+Math.round(Math.sqrt(n))+'</b>'):('<b>√'+n+'</b> (중3 표기) ≈ '+approx(n)); } return '약 <b>'+approx(N)+'</b>'; }
+    btn.onclick=function(){
+      var a=parseAns(ia.value), b=parseAns(ib.value), c=parseAns(ic.value), filled=[!isNaN(a),!isNaN(b),!isNaN(c)].filter(Boolean).length;
+      if(filled!==2){ out.innerHTML='세 칸 중 <b>두 칸</b>만 채우고 하나는 비워 주세요 🙂'; return; }
+      if((!isNaN(a)&&a<=0)||(!isNaN(b)&&b<=0)||(!isNaN(c)&&c<=0)){ out.innerHTML='변의 길이는 0보다 커야 해요.'; return; }
+      if(isNaN(c)){ var N=a*a+b*b; out.innerHTML='구하는 변 = <b style="color:var(--sc)">빗변 c</b> → <b>더해요</b>. c² = a² + b² = '+f1(a*a)+' + '+f1(b*b)+' = '+f1(N)+' → c = '+rootText(N); cheer(); return; }
+      var known=isNaN(a)?b:a, name=isNaN(a)?'a':'b', other=isNaN(a)?'b':'a';
+      if(c<=known){ out.innerHTML='빗변은 <b>가장 긴 변</b>이에요. c가 '+other+'보다 커야 직각삼각형이 돼요.'; return; }
+      var N2=c*c-known*known; out.innerHTML='구하는 변 = <b>'+name+'</b> (빗변이 아님) → <b>빼요</b>. '+name+'² = c² − '+other+'² = '+f1(c*c)+' − '+f1(known*known)+' = '+f1(N2)+' → '+name+' = '+rootText(N2); cheer();
+    };
+    [ia,ib,ic].forEach(function(inp){ inp.addEventListener('keydown',function(e){ if(e.key==='Enter') btn.click(); }); });
+  })();
+
+  /* ── 3. 더하기·빼기 판단 훈련 ── */
+  var PM_POOL=[{a:6,b:null,c:10},{a:3,b:4,c:null},{a:null,b:12,c:13},{a:8,b:15,c:null},{a:5,b:null,c:13},{a:9,b:12,c:null},{a:null,b:24,c:25},{a:7,b:null,c:25},{a:12,b:16,c:null},{a:null,b:8,c:17}];
+  (function(){
+    var svg=document.getElementById('pmSvg'), bAdd=document.getElementById('pmAdd'), bSub=document.getElementById('pmSub'), out=document.getElementById('pmOut'), again=document.getElementById('pmAgain');
+    var cur=null, rot=0, used=false;
+    function paint(){ var p=cur, ask=(p.c==null)?'c':(p.a==null?'a':'b');
+      var s=triFig(p.a||Math.max(3,Math.round(Math.sqrt(p.c*p.c-p.b*p.b))), p.b||Math.max(3,Math.round(Math.sqrt(p.c*p.c-p.a*p.a))), rot, {x:30,y:15,w:220,h:150}, {a:p.a==null?'?':String(p.a), b:p.b==null?'?':String(p.b), c:p.c==null?'?':String(p.c)}, {hl:used?ask:null});
+      s+=readout(280,48,[{t:'물음표 변이',b:true},{t:'빗변인가요?',b:true,col:CC},{t:'빗변 → 더하기',fs:11.5,col:'var(--muted)'},{t:'아니면 → 빼기',fs:11.5,col:'var(--muted)'}]);
+      svg.innerHTML=s; }
+    function newQ(){ var nxt=pick(PM_POOL); while(cur&&nxt===cur) nxt=pick(PM_POOL); cur=nxt; rot=[0,45,90,135,180,225,270,315][Math.floor(Math.random()*8)]; used=false; out.innerHTML=''; bAdd.disabled=false; bSub.disabled=false; bAdd.className=''; bSub.className=''; paint(); }
+    function judge(isAdd){ if(used) return; used=true; var p=cur, askC=(p.c==null), ok=(isAdd===askC);
+      var known=askC?[p.a,p.b]:[p.c,(p.a==null?p.b:p.a)], N=askC?(p.a*p.a+p.b*p.b):(p.c*p.c-known[1]*known[1]), v=Math.round(Math.sqrt(N));
+      (askC?bAdd:bSub).classList.add('ok'); if(!ok) (isAdd?bAdd:bSub).classList.add('no'); bAdd.disabled=true; bSub.disabled=true; paint();
+      out.innerHTML=(ok?'<b style="color:var(--ok)">✓ 맞아요!</b> ':'<b style="color:var(--pg)">아직이에요.</b> ')+(askC?'물음표가 <b>빗변</b>이니까 <b>더해요</b>: '+p.a+'² + '+p.b+'² = '+N+' → '+v:'물음표는 빗변이 <b>아니니까</b> 빗변 제곱에서 <b>빼요</b>: '+p.c+'² − '+known[1]+'² = '+N+' → '+v)+'. '+(ok?'':'빗변은 직각의 맞은편이에요.'); if(ok) cheer(); }
+    bAdd.onclick=function(){ judge(true); }; bSub.onclick=function(){ judge(false); }; again.onclick=newQ; newQ();
+  })();
+
+  /* ── 3. 제곱 표 빌더 ── spec {rows:[{label,len,hyp,sq,hide,isAns}], okMsg} */
+  function buildTable(container, spec, onAllCorrect){
+    container.innerHTML='';
+    var html='<div><table class="pg-table"><thead><tr><th>변</th><th>길이</th><th>빗변인가요?</th><th>제곱</th></tr></thead><tbody>';
+    spec.rows.forEach(function(r,rI){
+      html+='<tr'+(r.hyp?' class="hyprow"':'')+'><td>'+r.label+'</td><td class="'+(r.len==='?'?'ansq':'known')+'">'+r.len+'</td><td class="'+(r.hyp?'hyp':'leg')+'">'+(r.hyp?'빗변 ✓':'아니요')+'</td>';
+      if(r.hide) html+='<td class="unknown"><input class="tblIn" data-row="'+rI+'" inputmode="numeric" aria-label="'+r.label+'의 제곱"></td>';
+      else if(r.isAns) html+='<td class="ansq">답 (아래 칸에)</td>';
+      else html+='<td class="known">'+r.sq+'</td>';
+      html+='</tr>';
+    });
+    html+='</tbody></table><div class="pg-checkrow"><button class="tblCheck">표 확인</button></div><div class="pg-out tblOut"></div></div>';
+    container.innerHTML=html;
+    var wrap=container.firstChild, out=wrap.querySelector('.tblOut');
+    wrap.querySelector('.tblCheck').onclick=function(){
+      var ok=true, any=false;
+      wrap.querySelectorAll('.tblIn').forEach(function(inp){ var rI=+inp.getAttribute('data-row'), v=parseAns(inp.value); any=true;
+        if(isNaN(v)||!near(v,spec.rows[rI].sq)){ ok=false; inp.style.borderColor='#e3c15a'; } else inp.style.borderColor='var(--ok)'; });
+      if(!any){ out.innerHTML='채울 칸이 없어요 🙂'; return; }
+      out.innerHTML = ok ? '<b style="color:var(--ok)">✓ 다 맞았어요!</b> '+(spec.okMsg||'') : '<span style="color:var(--pg)">한 칸이 아직이에요 — 제곱은 같은 수를 두 번 곱해요. 빗변 줄의 제곱은 나머지 두 줄의 <b>합</b>이에요(빗변 줄이 제일 커요).</span>';
+      if(ok){ cheer(); if(onAllCorrect) onAllCorrect(); }
+    };
+    wrap.querySelectorAll('.tblIn').forEach(function(inp){ inp.addEventListener('keydown',function(e){ if(e.key==='Enter') wrap.querySelector('.tblCheck').click(); }); });
+  }
+  buildTable(document.getElementById('tblDemo'), {rows:sqRows([['a',3,0],['b',4,0],['c','?',1,25]]), okMsg:'9 + 16 = 25, 넓이가 25인 정사각형의 한 변은 5예요. 그래서 c = 5.'});
+  function randomTablePractice(){
+    var pool=[genType1(0),genType1(3),genType1(6),genType2(0),genType2(3),genType2(6),genType5(0),genType5(1),genType5(3),genType3(0)];
+    var q=pick(pool), host=document.getElementById('tblPractice');
+    buildTable(host, q.table);
+    host.insertAdjacentHTML('afterbegin','<p class="pg-stem" style="margin:6px 0 2px">'+q.stem+'</p>');
+  }
+  randomTablePractice();
+  document.getElementById('tblAgain').onclick=randomTablePractice;
+  /* ══════════ 유형 카드 공통 ══════════ */
+  var BOX={x:20,y:18,w:250,h:194};                      // 그림 영역(오른쪽은 readout)
+  function qmark(q,val){ return q.revealed? val : '?'; }
+
+  /* 유형별 그림 — 값은 전부 문제에서 계산해서 그린다(그림과 수치가 어긋나지 않게) */
+  function figOf(q){
+    var r=q.revealed;
+    if(q.type===1){
+      var s=triFig(q.a,q.b,q.rot||0,BOX,{a:String(q.a),b:String(q.b),c:qmark(q,q.ansText)},{hl:'c'});
+      return s+readout(292,44,[{t:'빗변을 구해요',b:true,col:CC},{t:'c² = a² + b²'},{t:q.a+'² + '+q.b+'² = '+q.N},{t:r?('c = '+q.ansText):'',b:true,col:CC}]);
+    }
+    if(q.type===2){
+      var bb=Math.sqrt(q.N);
+      var s2=triFig(q.a,bb,q.rot||0,BOX,{a:String(q.a),b:qmark(q,q.ansText),c:String(q.c)},{hl:'b'});
+      return s2+readout(292,44,[{t:'빗변이 아니에요',b:true,col:CB},{t:'b² = c² − a²'},{t:q.c+'² − '+q.a+'² = '+q.N},{t:r?('b = '+q.ansText):'',b:true,col:CB}]);
+    }
+    if(q.type===3){
+      if(q.form==='which'){
+        var out='', bw=136;
+        q.set.forEach(function(t,k){
+          var bx={x:14+k*bw,y:30,w:bw-16,h:120}, ok=isRight(t);
+          out+=triFig(t[0],t[1],0,bx,{a:String(t[0]),b:String(t[1]),c:String(t[2])},{fs:11.5,hl:(r&&ok)?'c':null});
+          out+=T(bx.x+bx.w/2,bx.y+bx.h+16,t.join(' · '),{fs:12,b:true,col:(r&&ok)?'var(--ok)':'var(--muted)'});
+          if(r) out+=T(bx.x+bx.w/2,bx.y+bx.h+34,(t[0]*t[0]+t[1]*t[1])+(ok?' = ':' ≠ ')+(t[2]*t[2])+(ok?' ✓':''),{fs:11.5,col:ok?'var(--ok)':'var(--muted)'});
+        });
+        return out;
+      }
+      var lab3=(q.unknown==='c')?{a:String(q.a),b:String(q.b),c:qmark(q,q.ansText)}:{a:String(q.a),b:qmark(q,q.ansText),c:String(q.c)};
+      var s3=triFig(q.a,(q.unknown==='c')?q.b:Math.sqrt(q.N),q.rot||0,BOX,lab3,{hl:q.unknown});
+      return s3+readout(292,44,[{t:q.base.join(' · ')+'의 '+q.k+'배',b:true,col:CC},{t:'세 변을 '+q.k+'로 나누면'},{t:q.base.join(' · ')+'이 보여요'},{t:r?(q.unknown==='c'?'c = ':'b = ')+q.ansText:'',b:true,col:CC}]);
+    }
+    if(q.type===4){
+      // 격자 좌표평면 + 두 점 + 직각삼각형
+      var xs=[q.A[0],q.B[0]], ys=[q.A[1],q.B[1]];
+      var lo=Math.min(0,Math.min.apply(null,xs))-1, hi=Math.max(0,Math.max.apply(null,xs))+1;
+      var lo2=Math.min(0,Math.min.apply(null,ys))-1, hi2=Math.max(0,Math.max.apply(null,ys))+1;
+      var span=Math.max(hi-lo,hi2-lo2), u=Math.min(180/span,26), ox=30+((span-(hi-lo))/2)*u, oy=20+((span-(hi2-lo2))/2)*u;
+      function X(x){ return ox+(x-lo)*u; } function Y(y){ return oy+(hi2-y)*u; }
+      var g='';
+      for(var gx=lo;gx<=hi;gx++) g+=L(X(gx),Y(lo2),X(gx),Y(hi2),{col:'var(--border)',w:1});
+      for(var gy=lo2;gy<=hi2;gy++) g+=L(X(lo),Y(gy),X(hi),Y(gy),{col:'var(--border)',w:1});
+      g+=L(X(lo),Y(0),X(hi),Y(0),{col:'var(--muted)',w:1.5})+L(X(0),Y(lo2),X(0),Y(hi2),{col:'var(--muted)',w:1.5});
+      var Ax=X(q.A[0]),Ay=Y(q.A[1]),Bx=X(q.B[0]),By=Y(q.B[1]),Cx=X(q.B[0]),Cy=Y(q.A[1]);
+      g+=L(Ax,Ay,Cx,Cy,{col:CA,w:3})+L(Cx,Cy,Bx,By,{col:CB,w:3})+L(Ax,Ay,Bx,By,{col:CC,w:3});
+      g+=rmark([Cx,Cy],unit([Cx,Cy],[Ax,Ay]),unit([Cx,Cy],[Bx,By]),9);
+      g+='<circle cx="'+f1(Ax)+'" cy="'+f1(Ay)+'" r="4.5" fill="var(--pg)"/><circle cx="'+f1(Bx)+'" cy="'+f1(By)+'" r="4.5" fill="var(--pg)"/>';
+      g+=T(Ax,Ay-13,'A'+pt(q.A[0],q.A[1]),{fs:11.5,b:true})+T(Bx,By-13,'B'+pt(q.B[0],q.B[1]),{fs:11.5,b:true});
+      g+=T((Ax+Cx)/2,Cy+14,String(q.dx),{fs:12,b:true,col:CA})+T(Cx+16,(Cy+By)/2,String(q.dy),{fs:12,b:true,col:CB});
+      g+=T((Ax+Bx)/2-14,(Ay+By)/2-10,qmark(q,q.ansText),{fs:12.5,b:true,col:CC});
+      return g+readout(292,44,[{t:'가로 차 '+q.dx+' · 세로 차 '+q.dy,b:true},{t:'AB² = '+q.dx+'² + '+q.dy+'²'},{t:'= '+q.N},{t:r?('AB = '+q.ansText):'',b:true,col:CC}]);
+    }
+    /* 유형 5 — 상황별 그림 */
+    if(q.form==='ladder'){
+      var h=Math.sqrt(q.N), tri=rtri(q.a,h,0,BOX), C=tri.C,B=tri.B,A=tri.A;
+      var s5=L(A[0],A[1],C[0],C[1],{col:'var(--muted)',w:6})+L(C[0],C[1],B[0],B[1],{col:'var(--muted)',w:6});
+      s5+=poly([C,B,A],{fill:'var(--pg)',fop:.07,col:'var(--ink)',w:2})+L(B[0],B[1],A[0],A[1],{col:CC,w:9,op:.25})+L(B[0],B[1],A[0],A[1],{col:CC,w:3});
+      s5+=rmark(C,unit(C,B),unit(C,A),10);
+      s5+=T(outLabel(C,B,A,14)[0],outLabel(C,B,A,14)[1],q.a+' m',{col:CA,b:true})
+        +T(outLabel(C,A,B,16)[0],outLabel(C,A,B,16)[1],qmark(q,q.ansText+' m'),{col:CB,b:true})
+        +T(outLabel(A,B,C,15)[0],outLabel(A,B,C,15)[1],'사다리 '+q.c+' m',{col:CC,b:true,fs:12});
+      return s5+readout(292,44,[{t:'사다리가 빗변이에요',b:true,col:CC},{t:'높이² = '+q.c+'² − '+q.a+'²'},{t:'= '+q.N},{t:r?('높이 = '+q.ansText+' m'):'',b:true,col:CB}]);
+    }
+    if(q.form==='rect'){
+      var W=q.w, H=q.h, sc=Math.min(230/W,150/H), w2=W*sc, h2=H*sc, x0=40, y0=BOX.y+(BOX.h-h2)/2;
+      var g2=poly([[x0,y0],[x0+w2,y0],[x0+w2,y0+h2],[x0,y0+h2]],{fill:'var(--pg)',fop:.07,col:'var(--ink)',w:2});
+      g2+=L(x0,y0+h2,x0+w2,y0,{col:CC,w:9,op:.25})+L(x0,y0+h2,x0+w2,y0,{col:CC,w:3});
+      g2+=rmark([x0,y0+h2],[1,0],[0,-1],10);
+      g2+=T(x0+w2/2,y0+h2+15,q.w+' cm',{col:CA,b:true})+T(x0-18,y0+h2/2,q.h+' cm',{col:CB,b:true})
+        +T(x0+w2/2+14,y0+h2/2-8,qmark(q,q.ansText+' cm'),{col:CC,b:true,fs:12});
+      return g2+readout(292,44,[{t:'대각선이 빗변이에요',b:true,col:CC},{t:'대각선² = '+q.w+'² + '+q.h+'²'},{t:'= '+q.N},{t:r?('대각선 = '+q.ansText+' cm'):'',b:true,col:CC}]);
+    }
+    if(q.form==='tri'){
+      var side=q.s, sc2=Math.min(210/side,170/(side*0.866)), L2=side*sc2, hh=L2*0.866, x1=50, yb=BOX.y+BOX.h-24;
+      var P1=[x1,yb], P2=[x1+L2,yb], P3=[x1+L2/2,yb-hh];
+      var g3=poly([P1,P2,P3],{fill:'var(--pg)',fop:.07,col:'var(--ink)',w:2});
+      g3+=L(P3[0],P3[1],P3[0],yb,{col:CB,w:3,dash:true})+rmark([P3[0],yb],[1,0],[0,-1],9);
+      g3+=T((x1+P3[0])/2,yb+15,String(q.half),{col:CA,b:true})+T(P3[0]+16,(yb+P3[1])/2,qmark(q,'h'),{col:CB,b:true})
+        +T(outLabel(P1,P3,P2,14)[0],outLabel(P1,P3,P2,14)[1],q.s+' cm',{col:CC,b:true});
+      return g3+readout(292,44,[{t:'높이는 빗변이 아니에요',b:true,col:CB},{t:'h² = '+q.s+'² − '+q.half+'²'},{t:r?('= '+q.N):'= ?',b:true,col:CB}]);
+    }
+    // trip
+    var e=q.e, n=q.n, sc3=Math.min(200/e,150/n), ew=e*sc3, nh=n*sc3, X0=45, Y0=BOX.y+BOX.h-30;
+    var Hh=[X0,Y0], Kk=[X0+ew,Y0], Nn=[X0+ew,Y0-nh];
+    var g4=L(Hh[0],Hh[1],Kk[0],Kk[1],{col:CA,w:3})+L(Kk[0],Kk[1],Nn[0],Nn[1],{col:CB,w:3})+L(Hh[0],Hh[1],Nn[0],Nn[1],{col:CC,w:3,dash:true});
+    g4+=rmark(Kk,[-1,0],[0,-1],9);
+    g4+='<circle cx="'+f1(Hh[0])+'" cy="'+f1(Hh[1])+'" r="4.5" fill="var(--pg)"/><circle cx="'+f1(Nn[0])+'" cy="'+f1(Nn[1])+'" r="4.5" fill="var(--pg)"/>';
+    g4+=T(Hh[0],Hh[1]+16,'집',{fs:11.5,b:true})+T(Nn[0],Nn[1]-13,'지금',{fs:11.5,b:true})
+      +T((Hh[0]+Kk[0])/2,Kk[1]+15,'동 '+e+' km',{col:CA,b:true,fs:11.5})+T(Kk[0]+22,(Kk[1]+Nn[1])/2,'북 '+n+' km',{col:CB,b:true,fs:11.5})
+      +T((Hh[0]+Nn[0])/2-16,(Hh[1]+Nn[1])/2-10,qmark(q,q.ansText+' km'),{col:CC,b:true,fs:12});
+    return g4+readout(292,44,[{t:'직선 거리가 빗변이에요',b:true,col:CC},{t:'거리² = '+e+'² + '+n+'²'},{t:'= '+q.N},{t:r?('거리 = '+q.ansText+' km'):'',b:true,col:CC}]);
+  }
+
+  /* 답 입력 UI — 숫자 또는 4지선다 */
+  function answerUI(q){
+    if(q.kind==='pick') return '<div class="pg-choices">'+q.choices.map(function(c){ return '<button class="pg-choice" data-v="'+c+'">'+c+'</button>'; }).join('')+'</div>';
+    return '<div class="pg-checkrow"><input class="num ans" inputmode="decimal" aria-label="답"><span>'+(q.unit||'')+'</span><button class="chk">확인</button></div>';
+  }
+  /* 채점 — onDone(정답여부) 은 유형 카드·총정리가 공유한다 */
+  function bindAnswer(card,q,onDone){
+    var out=card.querySelector('.pg-out'), done=false;
+    function finish(ok){
+      if(done) return; done=true;
+      out.innerHTML = ok ? '<b style="color:var(--ok)">✓ 정답이에요!</b>' : '<b style="color:var(--pg)">아직이에요.</b> 답은 <b>'+q.ansText+(q.unit||'')+'</b>'+J(rtVal(q.ansText),'이에요','예요');
+      if(ok) cheer();
+      q.revealed=true;
+      var fig=q.figHost||card.querySelector('.pg-figwrap'); if(fig) fig.innerHTML=figOf(q);
+      var sol=card.querySelector('.pg-sol'); if(sol){ sol.innerHTML=q.sol; sol.classList.add('show'); }
+      if(onDone) onDone(ok);
+    }
+    if(q.kind==='pick'){
+      card.querySelectorAll('.pg-choice').forEach(function(b){
+        b.onclick=function(){ if(done) return;
+          var ok=(b.getAttribute('data-v')===q.ansText);
+          card.querySelectorAll('.pg-choice').forEach(function(x){ x.disabled=true; if(x.getAttribute('data-v')===q.ansText) x.classList.add('ok'); });
+          if(!ok) b.classList.add('no');
+          finish(ok); };
+      });
+    } else {
+      var inp=card.querySelector('.ans'), btn=card.querySelector('.chk');
+      function submit(){ if(done) return; var v=parseAns(inp.value);
+        if(isNaN(v)){ out.innerHTML='숫자를 넣어 주세요 🙂'; return; }
+        finish(near(v,q.ans)); }
+      btn.onclick=submit; inp.addEventListener('keydown',function(e){ if(e.key==='Enter') submit(); });
+    }
+  }
+
+  /* ══════════ 5. 유형별 완전정복 ══════════ */
+  var TYPE_GENS={1:genType1,2:genType2,3:genType3,4:genType4,5:genType5};
+  var ROTS=[0,40,90,140,200,250,300,330];
+  function renderType(n){
+    var host=document.getElementById('type'+n+'body'), svg=document.getElementById('t'+n+'svg');
+    var q=TYPE_GENS[n](); q.revealed=false; q.rot=pick(ROTS);
+    svg.innerHTML=figOf(q);
+    host.innerHTML='<p class="pg-stem">'+q.stem+'</p>'+
+      '<div class="pg-eq">'+q.eq+'</div>'+
+      (q.table?'<div class="pg-tblhost"></div>':'')+
+      answerUI(q)+
+      '<div class="pg-out"></div><div class="pg-sol"></div>'+
+      '<div style="text-align:center"><button class="pg-again again">🔄 다른 문제로</button></div>';
+    q.figHost=svg;
+    if(q.table) buildTable(host.querySelector('.pg-tblhost'), q.table);
+    bindAnswer(host,q,null);
+    host.querySelector('.again').onclick=function(){ renderType(n); };
+    // ▶ 재생: 빗변을 먼저 짚고, 제곱 표시를 차례로 켠다
+    var btn=document.getElementById('t'+n+'play'), msg=document.getElementById('t'+n+'msg');
+    if(btn){ btn.onclick=function(){ var steps=[
+        '먼저 <b>빗변</b>을 찾아요 — 직각의 맞은편, 가장 긴 변이에요.',
+        (q.unknown==='c'||q.type===4)?'구하는 게 빗변이니까 두 제곱을 <b>더해요</b>.':'구하는 게 빗변이 아니니까 빗변 제곱에서 <b>빼요</b>.',
+        '식: '+q.eq];
+      var i=0; btn.disabled=true;
+      (function next(){ if(i>=steps.length){ btn.disabled=false; return; } msg.innerHTML=steps[i++]; setTimeout(next,1100); })(); }; }
+  }
+  [1,2,3,4,5].forEach(renderType);
+
+  /* ══════════ 6. 실전 총정리 ══════════ */
+  var QUIZ_TYPES=[
+    {key:'①', name:'빗변 구하기', gen:genType1, anchor:'type1'},
+    {key:'②', name:'다른 한 변 구하기', gen:genType2, anchor:'type2'},
+    {key:'③', name:'피타고라스 수', gen:genType3, anchor:'type3'},
+    {key:'④', name:'좌표평면 두 점 사이 거리', gen:genType4, anchor:'type4'},
+    {key:'⑤', name:'활용', gen:genType5, anchor:'type5'}
+  ];
+  var scorer=null;
+  function buildQuiz(){
+    var area=document.getElementById('quizArea'); area.innerHTML='';
+    scorer=MJ.masteryScore('quizScore',5,'pythagoras-mastery','피타고라스 감 잡기 특강');
+    shuffle(QUIZ_TYPES).forEach(function(qt,idx){
+      var q=qt.gen(); q.revealed=false; q.rot=pick(ROTS);
+      var card=document.createElement('div'); card.className='pg-quizcard';
+      card.innerHTML='<b>'+(idx+1)+'.</b> <span class="pg-stem" style="display:inline">'+q.stem+'</span>'+
+        '<svg class="pg-fig pg-figwrap" viewBox="0 0 440 230" role="img" aria-label="문제 그림">'+figOf(q)+'</svg>'+
+        answerUI(q)+'<div class="pg-out"></div><div class="pg-sol"></div><div class="pg-quiz-id"></div>';
+      area.appendChild(card);
+      var idbox=card.querySelector('.pg-quiz-id');
+      bindAnswer(card,q,function(ok){
+        idbox.innerHTML='이 문제는 <b>'+qt.key+' '+qt.name+'</b> 유형이었어요. <a href="#'+qt.anchor+'">다시 볼까요? →</a>';
+        idbox.classList.add('show');
+        scorer.mark(idx,ok);
+      });
+    });
+  }
+  buildQuiz();
+  document.getElementById('quizAgain').onclick=buildQuiz;
+
+  /* ══════════ 7. 치트시트 인쇄 ══════════ */
+  document.getElementById('printCheat').onclick=function(){
+    document.getElementById('printArea').innerHTML=document.querySelector('.pg-cheat').outerHTML;
+    window.print();
+  };
+})();
+</script>
+</body>
+</html>

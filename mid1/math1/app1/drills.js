@@ -229,6 +229,86 @@
     }
   };
 
+  /* ── 챕터 5: 단위 환산 — 속력·농도 문제에서 늘 발목을 잡는 곳 (숫자 입력) ── */
+  var UT={
+    기초:function(){
+      var t=ri(1,5);
+      if(t===1){ // 길이 큰 단위 → 작은 단위
+        var pr=pick([['km','m',1000],['m','cm',100],['cm','mm',10]]);
+        var a=ri(2,9)*(pr[2]===1000?1:1)+(Math.random()<0.4?0.5:0);
+        if(a%1!==0&&pr[2]===10)a=Math.round(a);        // mm 는 소수 없이
+        var v=a*pr[2];
+        return {q:eq(a+' '+pr[0]+' = ? '+pr[1]), type:'num', ans:v,
+          exp:'1 '+pr[0]+' = '+pr[2]+' '+pr[1]+'예요. 작은 단위로 갈 때는 <b>곱해요</b>: '+a+' × '+pr[2]+' = '+v+' '+pr[1]+'예요.'};
+      }
+      if(t===2){ // 길이 작은 단위 → 큰 단위 (딱 떨어지게)
+        var pr2=pick([['m','km',1000],['cm','m',100],['mm','cm',10]]);
+        var k2=ri(2,9), v2=k2*pr2[2];
+        return {q:eq(v2+' '+pr2[0]+' = ? '+pr2[1]), type:'num', ans:k2,
+          exp:'1 '+pr2[1]+' = '+pr2[2]+' '+pr2[0]+'이니까 큰 단위로 갈 때는 <b>나눠요</b>: '+v2+' ÷ '+pr2[2]+' = '+k2+' '+pr2[1]+'예요.'};
+      }
+      if(t===3){ // 시간
+        var kind=ri(1,4);
+        if(kind===1){ var h=ri(2,6); return {q:eq(h+'시간 = ? 분'), type:'num', ans:h*60,
+          exp:'1시간 = 60분이에요. '+h+' × 60 = '+(h*60)+'분이에요.'}; }
+        if(kind===2){ var m=pick([15,30,45,60,90,120,150,180]); return {q:eq(m+'분 = ? 시간'), type:'num', ans:m/60,
+          exp:'60분이 1시간이에요. '+m+' ÷ 60 = '+(m/60)+'시간이에요. (0.5시간 = 30분)'}; }
+        if(kind===3){ var mm=ri(2,9); return {q:eq(mm+'분 = ? 초'), type:'num', ans:mm*60,
+          exp:'1분 = 60초예요. '+mm+' × 60 = '+(mm*60)+'초예요.'}; }
+        var h4=ri(1,3), m4=pick([15,20,30,40,45]);
+        return {q:eq(h4+'시간 '+m4+'분 = ? 분'), type:'num', ans:h4*60+m4,
+          exp:h4+'시간은 '+(h4*60)+'분이에요. 여기에 '+m4+'분을 더하면 '+(h4*60+m4)+'분이에요.'};
+      }
+      if(t===4){ // 무게·부피
+        var pr4=pick([['kg','g',1000],['L','mL',1000],['t','kg',1000]]);
+        var up=Math.random()<0.5, k4=ri(2,9);
+        if(up) return {q:eq(k4+' '+pr4[0]+' = ? '+pr4[1]), type:'num', ans:k4*1000,
+          exp:'1 '+pr4[0]+' = 1000 '+pr4[1]+'이에요. '+k4+' × 1000 = '+(k4*1000)+' '+pr4[1]+'이에요.'};
+        return {q:eq((k4*1000)+' '+pr4[1]+' = ? '+pr4[0]), type:'num', ans:k4,
+          exp:'1000 '+pr4[1]+'이 1 '+pr4[0]+'이에요. '+(k4*1000)+' ÷ 1000 = '+k4+' '+pr4[0]+'이에요.'};
+      }
+      // t===5 : 분수 시간 감각
+      var pr5=pick([[30,0.5],[15,0.25],[45,0.75],[12,0.2],[6,0.1],[90,1.5],[24,0.4],[36,0.6]]);
+      return {q:eq(pr5[0]+'분은 몇 시간인가요? (소수로)'), type:'num', ans:pr5[1],
+        exp:pr5[0]+' ÷ 60 = '+pr5[1]+'시간이에요. 속력 문제에서 시속을 쓸 때는 시간을 <b>시간 단위</b>로 바꿔야 해요.'};
+    },
+    도전:function(){
+      var t=ri(1,5);
+      if(t===1){ // 넓이
+        var pr=pick([['m<sup>2</sup>','cm<sup>2</sup>',10000],['cm<sup>2</sup>','mm<sup>2</sup>',100]]);
+        var a=ri(2,9);
+        return {q:eq(a+' '+pr[0]+' = ? '+pr[1]), type:'num', ans:a*pr[2],
+          exp:'길이가 '+(pr[2]===10000?100:10)+'배면 넓이는 그 <b>제곱</b>인 '+pr[2]+'배예요. '+a+' × '+pr[2]+' = '+(a*pr[2])+'이에요.'};
+      }
+      if(t===2){ // 넓이 역방향
+        var pr2=pick([['cm<sup>2</sup>','m<sup>2</sup>',10000],['mm<sup>2</sup>','cm<sup>2</sup>',100]]);
+        var k2=ri(2,9), v2=k2*pr2[2];
+        return {q:eq(v2+' '+pr2[0]+' = ? '+pr2[1]), type:'num', ans:k2,
+          exp:'1 '+pr2[1]+' = '+pr2[2]+' '+pr2[0]+'이니까 '+v2+' ÷ '+pr2[2]+' = '+k2+'예요.'};
+      }
+      if(t===3){ // 부피
+        var kind=ri(1,3);
+        if(kind===1){ var a3=ri(2,9); return {q:eq(a3+' L = ? cm<sup>3</sup>'), type:'num', ans:a3*1000,
+          exp:'1 L = 1000 cm<sup>3</sup>예요(= 1000 mL). '+a3+' × 1000 = '+(a3*1000)+'이에요.'}; }
+        if(kind===2){ var k3=ri(2,9); return {q:eq((k3*1000)+' cm<sup>3</sup> = ? L'), type:'num', ans:k3,
+          exp:'1000 cm<sup>3</sup>가 1 L예요. '+(k3*1000)+' ÷ 1000 = '+k3+' L예요.'}; }
+        var a5=ri(2,9); return {q:eq(a5+' m<sup>3</sup> = ? L'), type:'num', ans:a5*1000,
+          exp:'1 m<sup>3</sup> = 1000 L예요(한 변이 1 m인 통에 물 1000 L). '+a5+' × 1000 = '+(a5*1000)+' L예요.'};
+      }
+      if(t===4){ // 시속 → 분속·초속
+        var km=pick([18,36,54,72,90,108]);
+        if(Math.random()<0.5){ return {q:eq('시속 '+km+' km = 초속 ? m'), type:'num', ans:km/3.6,
+          exp:'시속 '+km+' km는 1시간(3600초)에 '+(km*1000)+' m 가는 거예요. '+(km*1000)+' ÷ 3600 = '+(km/3.6)+' m/초예요.'}; }
+        return {q:eq('시속 '+km+' km = 분속 ? m'), type:'num', ans:km*1000/60,
+          exp:'1시간은 60분이니까 '+(km*1000)+' m ÷ 60 = '+(km*1000/60)+' m/분이에요.'};
+      }
+      // t===5 : 초속 → 시속
+      var ms=pick([5,10,15,20,25,30]);
+      return {q:eq('초속 '+ms+' m = 시속 ? km'), type:'num', ans:ms*3.6,
+        exp:'1초에 '+ms+' m니까 1시간(3600초)에는 '+(ms*3600)+' m = '+(ms*3.6)+' km예요. (초속 → 시속은 3.6을 곱해요)'};
+    }
+  };
+
   window.DRILL={ chapters:[
     {key:'eq', name:'① 방정식 정리', desc:'등식의 성질로 x = ? 까지 빠르게', gen:EQ,
      card:'<b>방법 카드</b> — ① 괄호는 분배법칙으로 먼저 풀어요 → ② 분수·소수는 양변에 같은 수를 곱해 정수로 바꿔요 → '+
@@ -245,5 +325,11 @@
      card:'<b>음수 2단계</b> — ① <b>부호 먼저</b>: 덧셈은 같은 부호면 더하고 그 부호, 다른 부호면 빼고 큰 쪽 부호 · 곱셈·나눗셈은 음수 개수가 짝수면 +, 홀수면 − → ② 크기(절댓값)만 계산. '+
           '"빼기 음수"는 "더하기 양수"로 바꿔 써요. (−3)² = 9, −3² = −9 조심!<br>'+
           '<span class="muted">섞인 계산은 괄호 → 거듭제곱 → ×÷ → +− 순서예요. 왜 그런지는 🍕 <a href="calc-reset.html">계산 리셋 특강</a>에 있어요.</span>'}
+,
+    {key:'ut', name:'⑤ 단위 환산', desc:'km↔m · 시↔분 · cm²↔m² — 속력 문제의 숨은 함정', gen:UT,
+     card:'<b>단위 사다리</b> — 길이 km <span class="muted">×1000</span> m <span class="muted">×100</span> cm <span class="muted">×10</span> mm · '+
+          '시간 시 <span class="muted">×60</span> 분 <span class="muted">×60</span> 초 · 무게 kg <span class="muted">×1000</span> g · 부피 L <span class="muted">×1000</span> mL(= cm<sup>3</sup>).<br>'+
+          '<b>작은 단위로 내려갈 땐 곱하고, 큰 단위로 올라갈 땐 나눠요.</b> 넓이는 길이 배율의 <b>제곱</b>(m<sup>2</sup> → cm<sup>2</sup>는 ×10000), 부피는 <b>세제곱</b>이에요.<br>'+
+          '<span class="muted">시속 ↔ 초속은 3.6으로 나누고 곱해요(시속 72 km = 초속 20 m). 속력 문제는 🚗 <a href="speed-mastery.html">속력 특강</a>에 있어요.</span>'}
   ]};
 })();

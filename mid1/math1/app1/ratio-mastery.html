@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>🎯 비율·퍼센트 감각 리셋 · 중1</title>
-<link rel="stylesheet" href="concept.css?v=20260830b">
+<link rel="stylesheet" href="concept.css?v=20260905a">
 <style>
   :root{ --rt:#2e9e6b; --rt2:#5cc48f; --part:#f2b23c; --part2:#ffd27a; --blue:#4f92d6; }
   .rt-hero{border-radius:26px;padding:30px 26px;margin:14px 0 18px;color:#fff;position:relative;overflow:hidden;
@@ -255,6 +255,7 @@
   <section class="rt-sec reveal" id="s5">
     <div class="eyebrow"><span class="n">5</span>실전 총정리 — 유형 섞어서</div>
     <p>이번엔 어떤 유형인지 안 알려드려요. <b>문제를 읽고 "전체가 뭐지?"를 먼저 생각</b>해서 풀어봐요. 틀리면 어느 유형인지 알려드릴게요.</p>
+    <p class="mscore" id="quizScore"></p>
     <div id="quizArea"></div>
     <div style="text-align:center;margin-top:8px"><button class="rt-again" id="quizAgain">🔄 5문제 새로</button></div>
   </section>
@@ -298,7 +299,7 @@
 
 <div id="printArea"></div>
 
-<script src="concept.js?v=20260830b"></script>
+<script src="concept.js?v=20260905a"></script>
 <script>
 MJ1.boot();
 (function(){
@@ -620,8 +621,10 @@ MJ1.boot();
     {key:'⑤', name:'비로 나누기', gen:genType5, anchor:'type5'}
   ];
   function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+  var scorer=null;
   function buildQuiz(){
     var area=document.getElementById('quizArea'); area.innerHTML='';
+    scorer=MJ1.masteryScore('quizScore',5,'ratio-mastery','비율·퍼센트 특강');
     var picks=shuffle(QUIZ_TYPES);
     picks.forEach(function(qt,idx){
       var q=qt.gen();
@@ -638,6 +641,7 @@ MJ1.boot();
         if(ok) cheer();
         idbox.innerHTML='이 문제는 <b>'+qt.key+' '+qt.name+'</b> 유형이에요. <a href="#'+qt.anchor+'">다시 볼까요? →</a>';
         idbox.classList.add('show');
+        scorer.mark(idx,ok);
       }
       card.querySelector('.chk').onclick=submit;
       inp.addEventListener('keydown',function(e){ if(e.key==='Enter') submit(); });

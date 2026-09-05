@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>🌳 경우의 수 세는 법 · 중2</title>
-<link rel="stylesheet" href="concept.css?v=20260830a">
+<link rel="stylesheet" href="concept.css?v=20260905a">
 <style>
   :root{ --cn:#b06ad0; --cn2:#c98fe0; --cn-a:#f2b23c; --cn-b:#4f92d6; }
   .cn-hero{border-radius:26px;padding:30px 26px;margin:14px 0 18px;color:#fff;position:relative;overflow:hidden;
@@ -232,6 +232,7 @@
   <section class="cn-sec reveal" id="s5">
     <div class="eyebrow"><span class="n">5</span>실전 총정리 — 유형 섞어서</div>
     <p>이번엔 어떤 유형인지 안 알려 드려요. <b>문장을 읽고 "그리고인지 또는인지", "자격이 같은지"</b>를 먼저 정한 다음 풀어 봐요. 틀리면 어느 유형인지 알려 드릴게요.</p>
+    <p class="mscore" id="quizScore"></p>
     <div id="quizArea"></div>
     <div style="text-align:center;margin-top:8px"><button class="cn-again" id="quizAgain">🔄 5문제 새로</button></div>
   </section>
@@ -267,7 +268,7 @@
 
 <div id="printArea"></div>
 
-<script src="concept.js?v=20260830a"></script>
+<script src="concept.js?v=20260905a"></script>
 <script>
 MJ.boot();
 (function(){
@@ -726,8 +727,10 @@ MJ.boot();
     {key:'④', name:'정수 만들기', gen:genType4, anchor:'type4'},
     {key:'⑤', name:'대표 뽑기', gen:genType5, anchor:'type5'}
   ];
+  var scorer=null;
   function buildQuiz(){
     var area=document.getElementById('quizArea'); area.innerHTML='';
+    scorer=MJ.masteryScore('quizScore',5,'counting-mastery','경우의 수 특강');
     var picks=shuffle(QUIZ_TYPES.slice()).slice(0,4).concat([pick(QUIZ_TYPES)]);
     picks.forEach(function(qt,idx){
       var q=qt.gen();
@@ -744,6 +747,7 @@ MJ.boot();
         if(ok) cheer();
         idbox.innerHTML='이 문제는 <b>'+qt.key+' '+qt.name+'</b> 유형이에요. <a href="#'+qt.anchor+'">다시 볼까요? →</a>';
         idbox.classList.add('show');
+        scorer.mark(idx,ok);
       }
       card.querySelector('.chk').onclick=submit;
       inp.addEventListener('keydown',function(e){ if(e.key==='Enter') submit(); });

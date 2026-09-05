@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>🍕 분수·음수 계산 리셋 · 중1</title>
-<link rel="stylesheet" href="concept.css?v=20260830b">
+<link rel="stylesheet" href="concept.css?v=20260905a">
 <style>
   :root{ --cr:#7c5cbf; --cr2:#a58be0; --pz:#f2b23c; --pz2:#ffd98a; --neg:#d76a6a; --pos:#4fa892; }
   .cr-hero{border-radius:26px;padding:30px 26px;margin:14px 0 18px;color:#fff;position:relative;overflow:hidden;
@@ -294,6 +294,7 @@
   <section class="cr-sec reveal" id="s6">
     <div class="eyebrow"><span class="n">6</span>실전 총정리 — 유형 섞어서</div>
     <p>이번엔 유형을 안 알려 드려요. <b>순서표를 떠올리며</b> 차근차근 풀어요. 틀리면 어느 유형인지 알려 드릴게요.</p>
+    <p class="mscore" id="quizScore"></p>
     <div id="quizArea"></div>
     <div style="text-align:center;margin-top:8px"><button class="cr-again" id="quizAgain">🔄 5문제 새로</button></div>
   </section>
@@ -325,7 +326,7 @@
 
 <div id="printArea"></div>
 
-<script src="concept.js?v=20260830b"></script>
+<script src="concept.js?v=20260905a"></script>
 <script>
 MJ1.boot();
 (function(){
@@ -778,8 +779,10 @@ MJ1.boot();
     {key:'④', name:'음수 곱셈·나눗셈·거듭제곱', gen:genType4, anchor:'type4'},
     {key:'⑤', name:'섞인 계산', gen:genType5, anchor:'type5'}
   ];
+  var scorer=null;
   function buildQuiz(){
     var area=document.getElementById('quizArea'); area.innerHTML='';
+    scorer=MJ1.masteryScore('quizScore',5,'calc-reset','분수·음수 계산 리셋');
     var order=QUIZ_TYPES.slice(); for(var i=order.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var tmp=order[i]; order[i]=order[j]; order[j]=tmp; }
     order.forEach(function(qt,idx){
       var q=qt.gen();
@@ -795,6 +798,7 @@ MJ1.boot();
         idbox.innerHTML='이 문제는 <b>'+qt.key+' '+qt.name+'</b> 유형이에요. <a href="#'+qt.anchor+'">다시 볼까요? →</a>';
         idbox.classList.add('show');
         if(ok){ try{MJ1.confetti();}catch(e){} }
+        scorer.mark(idx,ok);
       }
       card.querySelector('.chk').onclick=submit;
       inp.addEventListener('keydown',function(e){ if(e.key==='Enter') submit(); });

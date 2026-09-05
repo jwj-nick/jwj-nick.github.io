@@ -1,0 +1,209 @@
+<!-- mastery.html — 특강 지도(A2): 중1~중3 특강 16개의 선수 관계 + 완주 도장 현황 -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>특강 지도 — 중학 수학</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Nanum+Myeongjo:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#14110d; --fg:#f3ead9; --muted:#a99b80; --gold:#c9a14a; --gold2:#D9A441;
+    --line:#3a3324; --card:#1d1812; --card2:#241d15;
+    --g1:#7fb3d5; --g2:#c98b3a; --g3:#9d6bb0; --ok:#6fbf82;
+  }
+  body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--fg);
+    min-height:100vh;padding:max(14px,env(safe-area-inset-top)) 14px max(28px,env(safe-area-inset-bottom));}
+  .wrap{width:100%;max-width:760px;margin:0 auto}
+  .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:10px;flex-wrap:wrap}
+  .back{color:var(--gold);text-decoration:none;font-size:14px}
+  h1{font-family:'Nanum Myeongjo',serif;font-size:clamp(22px,6vw,30px);margin:8px 0 2px;text-align:center}
+  .sub{color:var(--muted);font-size:13px;text-align:center;margin-bottom:14px;line-height:1.6}
+
+  .prog{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+  .prog .pt{font-size:14px;font-weight:700;margin-bottom:9px}
+  .prog .pt b{color:var(--gold2)}
+  .bar{display:flex;gap:4px}
+  .bar i{flex:1;height:9px;border-radius:6px;background:#2b2419}
+  .bar i.on{background:linear-gradient(90deg,var(--gold),var(--gold2))}
+  .prog .ph{color:#6f6450;font-size:11.5px;margin-top:9px;line-height:1.6}
+
+  .toggles{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
+  .tg{font-size:12.5px;color:var(--muted);background:var(--card);border:1px solid var(--line);
+    border-radius:999px;padding:7px 13px;cursor:pointer;user-select:none;transition:.15s}
+  .tg[data-on="1"]{color:#1a1206;font-weight:700}
+  .tg.g1[data-on="1"]{background:var(--g1);border-color:var(--g1)}
+  .tg.g2[data-on="1"]{background:var(--g2);border-color:var(--g2)}
+  .tg.g3[data-on="1"]{background:var(--g3);border-color:var(--g3)}
+  .tg.done[data-on="1"]{background:var(--ok);border-color:var(--ok)}
+
+  .track{margin:0 0 22px}
+  .track-h{display:flex;align-items:baseline;gap:9px;margin:0 2px 10px;flex-wrap:wrap}
+  .track-h .tt{font-family:'Nanum Myeongjo',serif;font-size:17px;font-weight:800;color:var(--gold2)}
+  .track-h .td{font-size:12.5px;color:var(--muted)}
+
+  .step{display:flex;gap:9px;flex-wrap:wrap}
+  .step.arw::before{content:"↓";flex:0 0 100%;text-align:center;color:#5b5039;font-size:15px;letter-spacing:3px;margin:3px 0 1px}
+
+  .m{flex:1 1 230px;min-width:0;display:flex;gap:11px;align-items:center;text-decoration:none;color:inherit;
+    background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 13px;transition:.15s}
+  .m:hover{border-color:var(--gold);transform:translateY(-2px)}
+  .m .ic{flex:0 0 auto;width:40px;height:40px;border-radius:12px;background:var(--card2);
+    display:grid;place-items:center;font-size:20px;border:1px solid var(--line)}
+  .m .mid{flex:1 1 auto;min-width:0}
+  .m .nm{display:block;font-size:14.5px;font-weight:700;line-height:1.3}
+  .m .ds{display:block;font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.45}
+  .m .gr{flex:0 0 auto;font-size:10.5px;border-radius:6px;padding:2px 7px;color:#1a1206;font-weight:700;align-self:flex-start}
+  .m .gr.g1{background:var(--g1)} .m .gr.g2{background:var(--g2)} .m .gr.g3{background:var(--g3)}
+  .m .chk{flex:0 0 auto;width:26px;height:26px;border-radius:50%;border:1px solid var(--line);
+    display:grid;place-items:center;font-size:13px;color:#4a4230}
+  .m.done{border-color:var(--ok)}
+  .m.done .chk{background:var(--ok);color:#12200f;border-color:var(--ok);font-weight:900}
+  .m.drill .ic{border-style:dashed}
+  .m.hide{display:none}
+
+  .note{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;
+    font-size:12.5px;color:var(--muted);line-height:1.75;margin-top:6px}
+  .note b{color:var(--fg)}
+  .legend{margin-top:16px;color:#6f6450;font-size:11.5px;text-align:center;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="back" href="index.html">← 수학 지도</a>
+    <a class="back" href="../index.html">중1 학습 앱 →</a>
+  </div>
+  <h1>특강 지도</h1>
+  <p class="sub">특강은 학년을 가로질러요. <b>지금 막힌 곳에서 화살표를 거꾸로 따라 내려가면</b> 무엇이 먼저인지 보여요.</p>
+
+  <div class="prog">
+    <div class="pt" id="progText">완주한 특강을 세는 중이에요…</div>
+    <div class="bar" id="progBar"></div>
+    <div class="ph">특강의 <b>실전 총정리</b>를 한 번에 다 맞히면 도장이 찍혀요. 도장은 이 기기에만 저장돼요.</div>
+  </div>
+
+  <div class="toggles">
+    <span class="tg g1" data-f="1" data-on="1">중1</span>
+    <span class="tg g2" data-f="2" data-on="1">중2</span>
+    <span class="tg g3" data-f="3" data-on="1">중3</span>
+    <span class="tg done" data-f="undone" data-on="0">아직 안 한 것만</span>
+  </div>
+
+  <div id="tracks"></div>
+
+  <div class="note">
+    <b>막혔을 때 쓰는 법</b><br>
+    ① 지금 어려운 단원과 가장 가까운 특강을 찾아요. ② 그 특강이 버거우면 <b>화살표 위쪽(왼쪽)</b> 특강으로 한 칸 내려가요.
+    ③ 뿌리부터 도장을 하나씩 채우고 다시 올라와요.<br>
+    예를 들어 중3 인수분해가 막히면 → 중1 <b>분수·음수 계산 리셋</b>부터, 중3 삼각비가 막히면 → 중1 <b>비율·퍼센트</b>부터가 지름길이에요.
+  </div>
+
+  <div class="legend">
+    ✓ 완주 도장 — 실전 총정리를 한 번에 다 맞힌 특강<br>
+    점선 아이콘 — 특강이 아니라 <b>스피드 드릴</b>(반복 연습)이에요
+  </div>
+</div>
+
+<script>
+/* 특강 16개 + 드릴 2개. 경로는 이 파일(/mid1/map/) 기준 상대경로. */
+var TRACKS=[
+  {t:'계산의 뿌리', d:'식을 다루는 손기술 — 여기가 흔들리면 위층이 다 흔들려요',
+   steps:[
+     [{k:'calc-reset',g:1,i:'🍕',n:'분수·음수 계산 리셋',d:'통분·부호 규칙을 그림부터 다시',h:'../math1/app1/calc-reset.html'},
+      {k:'',g:1,i:'⚡',n:'스피드 드릴 (중1)',d:'방정식·분수·음수·단위 환산 반복',h:'../math1/app1/drill.html',drill:1}],
+     [{k:'factor-mastery',g:3,i:'🧩',n:'인수분해·전개',d:'곱셈공식은 직사각형의 넓이예요',h:'../../mid3/factor-mastery.html'},
+      {k:'',g:3,i:'⚡',n:'스피드 드릴 (중3)',d:'전개·인수분해 반복',h:'../../mid3/drill.html',drill:1}]
+   ]},
+  {t:'비율에서 문장제까지', d:'"무엇의 몇 %"를 읽는 힘이 속력·농도·문장제로 이어져요',
+   steps:[
+     [{k:'ratio-mastery',g:1,i:'🎯',n:'비율·퍼센트',d:'100칸 그리드로 %의 뜻부터',h:'../math1/app1/ratio-mastery.html'}],
+     [{k:'mixture-mastery',g:1,i:'🧂',n:'소금물 농도',d:'소금의 양은 변하지 않아요',h:'../math1/app1/mixture-mastery.html'},
+      {k:'speed-mastery',g:1,i:'🚗',n:'속력·거리·시간',d:'네 가지 유형을 표 하나로',h:'../math1/app1/speed-mastery.html'}],
+     [{k:'word-mastery',g:1,i:'🗺️',n:'문장제 번역',d:'문장제는 표 하나로 번역하는 일이에요',h:'../math1/app1/word-mastery.html'}]
+   ]},
+  {t:'함수 3부작', d:'x를 넣으면 y가 나온다 → 얼마나 가파른가 → 포물선',
+   steps:[
+     [{k:'function-mastery',g:1,i:'📦',n:'함수란 무엇인가',d:'상자 기계로 규칙을 추리해요',h:'../math1/app1/function-mastery.html'}],
+     [{k:'slope-mastery',g:2,i:'📈',n:'기울기 완전정복',d:'오른쪽 1칸 갈 때 몇 칸 오르나',h:'../../mid2/slope-mastery.html'}],
+     [{k:'parabola-mastery',g:3,i:'🎢',n:'이차함수 그래프 이동',d:'꼭짓점이 어디로 가는지 슬라이더로',h:'../../mid3/parabola-mastery.html'}]
+   ]},
+  {t:'도형과 길이', d:'각을 추적하고, 닮음으로 늘이고, 빗변을 재고, 비로 각을 읽어요',
+   steps:[
+     [{k:'angle-mastery',g:1,i:'📐',n:'도형 각도 추적',d:'아는 각부터 하나씩 표시하는 습관',h:'../math1/app1/angle-mastery.html'}],
+     [{k:'similar-mastery',g:2,i:'🔍',n:'닮음비 → 넓이비 → 부피비',d:'길이 k배면 넓이는 k²배',h:'../../mid2/similar-mastery.html'},
+      {k:'pythagoras-mastery',g:2,i:'🔺',n:'피타고라스 감 잡기',d:'정사각형 3개의 넓이 퍼즐',h:'../../mid2/pythagoras-mastery.html'}],
+     [{k:'sqrt-mastery',g:3,i:'🌱',n:'제곱근·무리수',d:'√2는 넓이 2인 정사각형의 한 변',h:'../../mid3/sqrt-mastery.html'}],
+     [{k:'trig-mastery',g:3,i:'📏',n:'삼각비 처음 만나기',d:'닮음이면 변의 비가 늘 같아요',h:'../../mid3/trig-mastery.html'}]
+   ]},
+  {t:'따로 서 있는 특강', d:'선수 과목 없이 그 단원만 넘으면 되는 두 가지',
+   steps:[
+     [{k:'inequality-mastery',g:2,i:'⚖️',n:'부등식 방향 감각',d:'음수를 곱하면 왜 뒤집히나',h:'../../mid2/inequality-mastery.html'},
+      {k:'counting-mastery',g:2,i:'🎲',n:'경우의 수 세는 법',d:'그리고는 곱하기, 또는는 더하기',h:'../../mid2/counting-mastery.html'}]
+   ]}
+];
+
+function stamps(){
+  var all={};
+  ['m1mastery','m2mastery','m3mastery'].forEach(function(k){
+    try{ var o=JSON.parse(localStorage.getItem(k))||{}; for(var p in o) if(o[p]) all[p]=1; }catch(e){}
+  });
+  return all;
+}
+var DONE=stamps();
+
+function cardHtml(m){
+  var done=m.k&&DONE[m.k];
+  return '<a class="m'+(done?' done':'')+(m.drill?' drill':'')+'" data-g="'+m.g+'" data-done="'+(done?1:0)+'" href="'+m.h+'">'+
+    '<span class="ic">'+m.i+'</span>'+
+    '<span class="mid"><b class="nm">'+m.n+'</b><span class="ds">'+m.d+'</span></span>'+
+    '<span class="gr g'+m.g+'">중'+m.g+'</span>'+
+    '<span class="chk">'+(done?'✓':'')+'</span></a>';
+}
+function render(){
+  document.getElementById('tracks').innerHTML=TRACKS.map(function(tr){
+    var body=tr.steps.map(function(st,i){ return '<div class="step'+(i?' arw':'')+'">'+st.map(cardHtml).join('')+'</div>'; }).join('');
+    return '<section class="track"><div class="track-h"><span class="tt">'+tr.t+'</span><span class="td">'+tr.d+'</span></div>'+body+'</section>';
+  }).join('');
+  applyFilter();
+
+  var keys=[]; TRACKS.forEach(function(tr){tr.steps.forEach(function(st){st.forEach(function(m){if(m.k)keys.push(m.k);});});});
+  var n=keys.filter(function(k){return DONE[k];}).length;
+  document.getElementById('progText').innerHTML= n===0
+    ? '아직 완주한 특강이 없어요. <b>하나만</b> 끝내 봐요!'
+    : (n>=keys.length ? '특강 <b>'+keys.length+'개를 모두</b> 완주했어요! 대단해요 🎉'
+      : '특강 <b>'+n+'</b> / '+keys.length+'개 완주했어요.');
+  document.getElementById('progBar').innerHTML=keys.map(function(k,i){
+    return '<i class="'+(DONE[k]?'on':'')+'"></i>';
+  }).join('');
+}
+function applyFilter(){
+  var on={}, undone=false;
+  document.querySelectorAll('.tg').forEach(function(t){
+    if(t.dataset.f==='undone') undone=(t.dataset.on==='1'); else on[t.dataset.f]=(t.dataset.on==='1');
+  });
+  document.querySelectorAll('.m').forEach(function(el){
+    var vis = on[el.dataset.g] && !(undone && el.dataset.done==='1');
+    el.classList.toggle('hide', !vis);
+  });
+  document.querySelectorAll('.track').forEach(function(tr){
+    var any=tr.querySelectorAll('.m:not(.hide)').length;
+    tr.style.display = any? '' : 'none';
+    var shown=0;
+    tr.querySelectorAll('.step').forEach(function(st){
+      var vis=st.querySelectorAll('.m:not(.hide)').length>0;
+      st.style.display = vis? '' : 'none';
+      if(vis){ st.classList.toggle('arw', shown>0); shown++; }
+    });
+  });
+}
+document.querySelectorAll('.tg').forEach(function(t){
+  t.addEventListener('click',function(){ t.dataset.on = t.dataset.on==='1'?'0':'1'; applyFilter(); });
+});
+render();
+</script>
+</body>
+</html>

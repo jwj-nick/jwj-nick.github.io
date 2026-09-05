@@ -41,6 +41,8 @@
     if(/drill/.test(f))            return {kind:'drill'};
     if(/factor-mastery/.test(f))   return {kind:'factor-mastery'};
     if(/sqrt-mastery/.test(f))     return {kind:'sqrt-mastery'};
+    if(/parabola-mastery/.test(f)) return {kind:'parabola-mastery'};
+    if(/trig-mastery/.test(f)) return {kind:'trig-mastery'};
     return {kind:'home'};
   }
   function hexA(hex,a){var n=parseInt(hex.slice(1),16);return 'rgba('+(n>>16&255)+','+(n>>8&255)+','+(n&255)+','+a+')';}
@@ -94,6 +96,61 @@
     host.classList.add('on');
     setTimeout(function(){host.classList.remove('on');if(own&&host.parentNode)host.parentNode.removeChild(host);},2400);}
 
+  /* ── 특강 완주 도장(A1) ─────────────────────────────────────────
+   * localStorage m3mastery = {'speed-mastery':{d:1,t:1725...}}
+   * 특강 페이지가 실전 총정리를 한 번에 다 맞히면 masteryClear(key,title) 를 부른다.
+   * 홈 tool-card[data-mastery] · 사이드바 .sb-link[data-mkey] 에 ✓ 가 켜진다. */
+  var MKEY='m3mastery';
+  function mstore(){var s={};try{s=JSON.parse(localStorage.getItem(MKEY))||{};}catch(e){}return s;}
+  function masteryDone(key){return !!mstore()[key];}
+  function masteryList(){return mstore();}
+  function paintMastery(){var s=mstore(),i,els;
+    els=document.querySelectorAll('[data-mastery]');
+    for(i=0;i<els.length;i++){if(s[els[i].getAttribute('data-mastery')])els[i].classList.add('mdone');}
+    els=document.querySelectorAll('.sb-link[data-mkey]');
+    for(i=0;i<els.length;i++){if(s[els[i].getAttribute('data-mkey')])els[i].classList.add('done');}}
+  function masteryClear(key,title){
+    var s=mstore(),first=!s[key];
+    s[key]={d:1,t:Date.now()};
+    try{localStorage.setItem(MKEY,JSON.stringify(s));}catch(e){}
+    paintMastery();
+    var n=document.getElementById('mastery-seal');
+    if(!n){n=document.createElement('div');n.id='mastery-seal';n.className='done-note stamp';
+      var host=document.getElementById('quizArea');
+      if(host&&host.parentNode)host.parentNode.appendChild(n);else document.body.appendChild(n);}
+    n.innerHTML='<div class="seal">🏅</div><div><div class="seal-t">'+(title||'특강')+' 완주!</div>'+
+      '<div class="seal-d">실전 총정리를 한 번에 다 맞혔어요. 홈 카드에 ✓ 도장이 찍혔어요.</div></div>';
+    if(!first&&!n.classList.contains('show'))n.classList.add('still');
+    n.classList.add('show');
+    if(first){confetti();setTimeout(function(){try{n.scrollIntoView({behavior:reducedMotion()?'auto':'smooth',block:'center'});}catch(e){}},220);}
+    return first;}
+  /* 총정리 점수판: '⭐ n/5' 를 그려 주고, 다 맞히면 도장을 찍는다. 첫 제출만 센다. */
+  function masteryScore(boardId,total,key,title){
+    var seen={},ok=0,board=document.getElementById(boardId);
+    var seal=document.getElementById('mastery-seal');if(seal)seal.classList.remove('show');
+    function paint(){if(board)board.innerHTML='<b>⭐ '+ok+' / '+total+'</b> <span class="soft">첫 시도에 맞힌 문제예요.'+
+      (masteryDone(key)?' 🏅 이미 완주한 특강이에요.':'')+'</span>';}
+    paint();
+    return {reset:function(){seen={};ok=0;paint();var n=document.getElementById('mastery-seal');if(n)n.classList.remove('show');},
+      mark:function(i,good){if(seen[i])return;seen[i]=1;if(good)ok++;paint();
+        if(ok>=total)masteryClear(key,title);},
+      score:function(){return ok;}};}
+
+  /* ── 오답 → 특강 추천(A4) ───────────────────────────────────────
+   * 연습 페이지의 유형 블록에 data-mastery-hint="파일.html|🚗 속력 특강" 을 달아 두면
+   * 그 블록에서 오답이 2번 쌓였을 때 아래에 특강 카드가 조용히 나타난다. */
+  function suggestOnMiss(el){
+    if(!el||!el.closest)return;
+    var sec=el.closest('[data-mastery-hint]');if(!sec)return;
+    var n=(parseInt(sec.getAttribute('data-miss'),10)||0)+1;
+    sec.setAttribute('data-miss',n);
+    if(n<2||sec.querySelector('.mhint'))return;
+    var spec=(sec.getAttribute('data-mastery-hint')||'').split('|');
+    var href=spec[0],label=spec[1]||'특강';
+    var a=document.createElement('a');a.className='mhint';a.href=href;
+    a.innerHTML='<span class="mh-i">🎯</span><span><b>이 유형이 자꾸 걸리나요?</b><br>'+label+'에서 원리부터 다시 보면 훨씬 수월해져요.</span><span class="mh-go">→</span>';
+    sec.appendChild(a);}
+
   /* 진행바. 개념 페이지면 복원된 칸을 미리 채우고(B6), 완료 단원은 가득 채운 채 도장만 보여 준다. */
   function makeProgress(barId,total){var bar=document.getElementById(barId);if(!bar)return function(){};
     for(var i=0;i<total;i++)bar.appendChild(document.createElement('i'));var done=0;
@@ -143,8 +200,11 @@
       '<a class="sb-link tool" href="print/index.html"><span class="sb-no">🖨️</span>중3 프린트</a>'+
       (firstPlay?'<a class="sb-link tool" href="g'+firstPlay+'.html"><span class="sb-no">🎨</span>놀이터</a>':'')+
       '<a class="sb-link tool'+(activeId==='drill'?' active':'')+'" href="drill.html"><span class="sb-no">⚡</span>스피드 드릴</a>'+
-      '<a class="sb-link tool'+(activeId==='factor-mastery'?' active':'')+'" href="factor-mastery.html"><span class="sb-no">🧩</span>인수분해·전개 특강</a>'+
-      '<a class="sb-link tool'+(activeId==='sqrt-mastery'?' active':'')+'" href="sqrt-mastery.html"><span class="sb-no">🌱</span>제곱근·무리수 특강</a>'+
+      '<a class="sb-link tool'+(activeId==='factor-mastery'?' active':'')+'" href="factor-mastery.html" data-mkey="factor-mastery"><span class="sb-no">🧩</span>인수분해·전개 특강<span class="sb-chk">✓</span></a>'+
+      '<a class="sb-link tool'+(activeId==='sqrt-mastery'?' active':'')+'" href="sqrt-mastery.html" data-mkey="sqrt-mastery"><span class="sb-no">🌱</span>제곱근·무리수 특강<span class="sb-chk">✓</span></a>'+
+      '<a class="sb-link tool'+(activeId==='parabola-mastery'?' active':'')+'" href="parabola-mastery.html" data-mkey="parabola-mastery"><span class="sb-no">🎢</span>이차함수 이동 특강<span class="sb-chk">✓</span></a>'+
+      '<a class="sb-link tool'+(activeId==='trig-mastery'?' active':'')+'" href="trig-mastery.html" data-mkey="trig-mastery"><span class="sb-no">📏</span>삼각비 특강<span class="sb-chk">✓</span></a>'+
+      '<a class="sb-link tool" href="../mid1/map/mastery.html"><span class="sb-no">🏅</span>특강 지도</a>'+
       '<div class="sb-sep"></div>'+
       '<details class="sb-sem" open><summary class="sb-group">1학기</summary>';
     UNITS.forEach(function(x,i){
@@ -334,6 +394,7 @@
   function feedbackOk(el,out,msg,more){el.classList.remove('retry');el.classList.remove('ok');void el.offsetWidth;el.classList.add('ok');
     out.innerHTML='<span class="good"><i class="tick">✓</i>'+msg+'</span>'+(more?(' '+more):'');}
   function feedbackNo(el,out,id,answerHtml,retryMsg,hint){var t=tries[id]=(tries[id]||0)+1;
+    suggestOnMiss(el);
     el.classList.remove('ok');el.classList.remove('retry');void el.offsetWidth;el.classList.add('retry');
     if(t===1)out.innerHTML='<span class="soft">아직이에요 — 한 번 더 생각해 봐요 🙂</span>'+(hint?('<span class="hintline">💡 '+hint+'</span>'):'');
     else out.innerHTML=(retryMsg||'아니에요')+(answerHtml!=null?('. 답은 <b class="gold">'+answerHtml+'</b>이에요'):'');}
@@ -387,6 +448,7 @@
     completeUnit:completeUnit,isDone:isDone,makeProgress:makeProgress,fmtEq:fmtEq,sgn:sgn,
     makePlane:makePlane,makeCurve:makeCurve,makeNumberLine:makeNumberLine,makeGeo:makeGeo,renderBlocks:renderBlocks,
     decimalOf:decimalOf,factorNote:factorNote,gcd:gcd,checkNum:checkNum,check:check,num:num,simp:simp,sqrtStr:sqrtStr,
+    masteryDone:masteryDone,masteryClear:masteryClear,suggestOnMiss:suggestOnMiss,masteryScore:masteryScore,masteryList:masteryList,paintMastery:paintMastery,
     reveal:reveal,hintSteps:hintSteps,animateCount:animateCount,confetti:confetti,
-    boot:function(){initTheme();initChrome();initReveal();}};
+    boot:function(){initTheme();initChrome();initReveal();paintMastery();}};
 })();
