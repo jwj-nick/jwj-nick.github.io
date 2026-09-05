@@ -84,6 +84,7 @@
   <button class="tab" data-t="op">📊 연산·법칙</button>
   <button class="tab" data-t="world">🌐 세상 속으로</button>
   <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="drill">⚡ 실전</button>
   <button class="tab" data-t="sum">✅ 정리</button>
 </div>
 <div class="wrap">
@@ -107,6 +108,7 @@
         <button onclick="go('op')"><div class="ti">📊</div><div class="tn">연산·법칙</div><div class="td">드모르간·개수</div></button>
         <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">DB·검색·확률</div></button>
         <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+        <button onclick="go('drill')"><div class="ti">⚡</div><div class="tn">실전</div><div class="td">점검 12문제</div></button>
         <button onclick="go('sum')"><div class="ti">✅</div><div class="tn">정리</div><div class="td">기호·자가점검</div></button>
       </div>
     </div>
@@ -150,6 +152,14 @@
       <h3>부분집합·포함관계</h3>
       <div class="box b">
         A의 모든 원소가 B에 있으면 A는 B의 <b>부분집합</b>($A \subset B$). 원소 $n$ 개인 집합의 부분집합은 $2^n$ 개, 진부분집합은 $2^n - 1$ 개. 공집합 $\varnothing$ 은 모든 집합의 부분집합.
+      </div>
+      <div class="box a">
+        <div class="t">⚠️ $\in$ 과 $\subset$ — 원소인가, 부분집합인가</div>
+        $a\in A$ 는 "$a$ 가 $A$ 의 <b>원소로 나열되어</b> 있다", $B\subset A$ 는 "$B$ 의 <b>원소가 전부</b> $A$ 의 원소"다. 중괄호가 겹치면 원소를 또박또박 나열해 대조한다. 예: $A=\{\varnothing, 0, \{0\}\}$ 의 원소는 $\varnothing$, $0$, $\{0\}$ 셋 → $\varnothing\in A$ (참), $\varnothing\subset A$ (참, 공집합은 모든 집합의 부분집합), $\{0\}\in A$ (참), $\{0\}\subset A$ (참, $0\in A$ 이므로), $\{\varnothing\}\in A$ (<b>거짓</b> — 그런 원소는 없다).
+      </div>
+      <div class="box b">
+        <div class="t">🔁 조건을 포함 관계·개수로 번역하기</div>
+        <b>$A\cup B=A \iff B\subset A$</b> (합집합이 한쪽과 같으면 그쪽이 큰 집합), <b>$A\cap B=A \iff A\subset B$</b> (교집합이 한쪽과 같으면 그쪽이 작은 집합), $A\cap X=\varnothing$ 은 "$A$ 의 원소가 $X$ 에 없다".<br><b>부분집합의 개수</b>: 원소 $n$ 개 중 $k$ 개를 반드시 넣고 $l$ 개를 반드시 빼면 $2^{\,n-k-l}$ (남는 원소를 나열해 센다).<br><b>$n(A\cap B)$ 의 최대·최소</b>: 최대 $=\min(n(A),n(B))$ (작은 쪽이 큰 쪽에 포함될 때), 최소 $=n(A)+n(B)-n(U)$ (음수면 0).<br><b>배수의 집합</b> $A_k$: $A_4\cap A_6=A_{12}$ (최소공배수), 약수의 집합의 교집합은 최대공약수의 약수.
       </div>
     </div>
   </div>
@@ -201,6 +211,10 @@
       <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
       <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
     </div>
+  </div>
+
+  <div class="page" data-p="drill">
+    <div id="drill"></div>
   </div>
 
   <div class="page" data-p="sum">
@@ -299,5 +313,15 @@ var QUIZ=[
 ];
 APP.quiz(QUIZ, null, {perfect:'완벽해요! 집합 연산을 정복했어요.'});
 </script>
+<!-- ⚡ 실전 — 심화 문항 드릴.
+     drill.js = 공용 엔진(subject_hub/_shared/drill.js)
+     drill_mat2_04.js = 문항 데이터. 정본은 exam_track/problem_bank/data/mat2_04.js
+     둘 다 `python exam_track/tools/sync_drill.py --write`가 만든 복사본 — 직접 고치지 말 것. -->
+<script>
+  // 원인 코드 → 고치기 탭 (drill.js v2의 🩹 지금 바로 고치기 칩). 앱에 전역 go(tab)이 있어야 칩이 생긴다(alg_app.js 제공).
+  window.DRILL_FIX = {"C1":["sum", "✅ 정리 표에서 조건·구할 것 다시 확인"], "C2":["venn", "🟢 벤다이어그램으로 다시 보기"], "C3":["op", "🔧 연산 법칙 짝 가르기"], "C4":["venn", "🟢 벤다이어그램에 원소를 직접 써 보기"], "C5":["quiz", "🔥 퀴즈로 계산 감각 다시"]};
+</script>
+<script src="drill.js"></script>
+<script src="drill_mat2_04.js"></script>
 </body>
 </html>
