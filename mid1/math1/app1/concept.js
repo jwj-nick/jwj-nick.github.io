@@ -46,6 +46,7 @@
     if(/function-mastery/.test(f)) return {kind:'function-mastery'};
     if(/angle-mastery/.test(f))   return {kind:'angle-mastery'};
     if(/word-mastery/.test(f)) return {kind:'word-mastery'};
+    if(/data-mastery/.test(f)) return {kind:'data-mastery'};
     return {kind:'home'};
   }
   function hexA(hex,a){var n=parseInt(hex.slice(1),16);return 'rgba('+(n>>16&255)+','+(n>>8&255)+','+(n&255)+','+a+')';}
@@ -207,6 +208,7 @@
       '<a class="sb-link tool'+(activeId==='function-mastery'?' active':'')+'" href="function-mastery.html" data-mkey="function-mastery"><span class="sb-no">📦</span>함수란 무엇인가 특강<span class="sb-chk">✓</span></a>'+
       '<a class="sb-link tool'+(activeId==='angle-mastery'?' active':'')+'" href="angle-mastery.html" data-mkey="angle-mastery"><span class="sb-no">📐</span>도형 각도 추적 특강<span class="sb-chk">✓</span></a>'+
       '<a class="sb-link tool'+(activeId==='word-mastery'?' active':'')+'" href="word-mastery.html" data-mkey="word-mastery"><span class="sb-no">🗺️</span>문장제 번역 특강<span class="sb-chk">✓</span></a>'+
+      '<a class="sb-link tool'+(activeId==='data-mastery'?' active':'')+'" href="data-mastery.html" data-mkey="data-mastery"><span class="sb-no">📊</span>자료 읽는 법 특강<span class="sb-chk">✓</span></a>'+
       '<a class="sb-link tool" href="../print/index.html"><span class="sb-no">🖨️</span>중1 프린트</a>'+
       '<a class="sb-link tool" href="../../story/index.html"><span class="sb-no">🎬</span>인물 이야기</a>'+
       '<a class="sb-link tool" href="../../map/index.html"><span class="sb-no">🗺️</span>수학 지도</a>'+

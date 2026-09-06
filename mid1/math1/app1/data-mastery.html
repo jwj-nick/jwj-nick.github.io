@@ -1,0 +1,956 @@
+<!-- data-mastery.html — 자료 읽는 법 특강 (2026-09-06, 13단원 통계 용어 해부 + 이 단원의 미래 · 특강 ⑰) -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>📊 자료 읽는 법 · 통계 용어 해부 · 중1</title>
+<link rel="stylesheet" href="concept.css?v=20260906a">
+<style>
+  :root{ --dt:#3f8f7a; --dt2:#63b39c; --warn:#e0913a; --blue:#4f92d6; --plum:#b26fa8; }
+  .dt-hero{border-radius:26px;padding:30px 26px;margin:14px 0 18px;color:#fff;position:relative;overflow:hidden;
+    background:linear-gradient(135deg,var(--dt),var(--dt2));box-shadow:var(--shadow-l)}
+  .dt-hero::after{content:"";position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.14)}
+  .dt-hero h1{color:#fff;margin:0 0 8px;font-size:26px}
+  .dt-hero p{color:rgba(255,255,255,.94);font-size:14.5px;margin:0}
+  .dt-goal{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .dt-goal span{background:rgba(255,255,255,.22);border-radius:999px;padding:6px 13px;font-size:12.5px;font-weight:700}
+  .dt-sec{margin:34px 0}
+  .dt-sec .eyebrow .n{background:linear-gradient(135deg,var(--dt),var(--dt2))}
+  .dt-panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px 18px 14px;box-shadow:var(--shadow-s)}
+  .dt-rangebar{display:flex;align-items:center;gap:10px;margin:14px 0 4px}
+  .dt-rangebar input[type=range]{flex:1}
+  .dt-rangebar .tval{font-variant-numeric:tabular-nums;font-weight:800;color:var(--dt);min-width:74px;text-align:right}
+
+  /* 0. 자가 점검 칩 */
+  .dt-selfchk{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+  .dt-selfchk button{background:var(--panel-2);border:1.5px solid var(--border);border-radius:999px;padding:7px 14px;
+    font-size:13.5px;font-weight:700;color:var(--ink);cursor:pointer;transition:all .15s}
+  .dt-selfchk button.know{background:var(--sage-soft);border-color:var(--sage);color:var(--sage)}
+  .dt-selfchk button.dunno{background:rgba(224,145,58,.16);border-color:var(--warn);color:#a4670f}
+  .dt-selfread{text-align:center;font-weight:800;color:var(--dt);font-size:14.5px;margin-top:10px;min-height:1.4em}
+
+  /* 2. 용어 카드 뒤집기 */
+  .dt-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin:14px 0}
+  .dt-card{perspective:900px;height:220px;cursor:pointer}
+  .dt-card .inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+  .dt-card.flip .inner{transform:rotateY(180deg)}
+  .dt-card .face{position:absolute;inset:0;backface-visibility:hidden;border-radius:16px;padding:14px 15px;
+    border:1.5px solid var(--border);background:var(--panel);box-shadow:var(--shadow-s);overflow:hidden}
+  .dt-card .front{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;
+    background:linear-gradient(150deg,var(--panel),var(--panel-2))}
+  .dt-card .front .han{font-family:var(--serif);font-size:30px;font-weight:800;color:var(--dt);letter-spacing:2px}
+  .dt-card .front .ko{font-size:17px;font-weight:800}
+  .dt-card .front .en{font-size:11.5px;color:var(--muted);letter-spacing:.4px}
+  .dt-card .front .tap{font-size:11px;color:var(--muted);margin-top:6px}
+  .dt-card .back{transform:rotateY(180deg);font-size:12.5px;line-height:1.6;display:flex;flex-direction:column;gap:7px;
+    background:linear-gradient(150deg,var(--panel),var(--sage-soft))}
+  .dt-card .back .r{display:flex;gap:7px;align-items:flex-start}
+  .dt-card .back .r .k{flex:none;font-size:10.5px;font-weight:800;color:#fff;background:var(--dt);border-radius:6px;padding:2px 6px;margin-top:1px}
+  .dt-card .back .r.ex .k{background:var(--warn)}
+  .dt-card.done .front{border-color:var(--dt)}
+  .dt-cardhint{text-align:center;font-size:12.5px;color:var(--muted);margin-top:4px}
+
+  /* 3. 다섯 가지 옷 */
+  .dt-steps{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin:10px 0}
+  .dt-steps button{background:var(--panel-2);border:1.5px solid var(--border);border-radius:999px;padding:6px 13px;
+    font-size:13px;font-weight:800;cursor:pointer;color:var(--ink)}
+  .dt-steps button.on{background:var(--dt);border-color:var(--dt);color:#fff}
+  .dt-stage{min-height:250px;display:grid;place-items:center;padding:6px 0}
+  .dt-raw{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:420px}
+  .dt-raw i{display:grid;place-items:center;width:38px;height:32px;border-radius:8px;background:var(--u-soft);
+    border:1px solid var(--border);font-size:13px;font-weight:700;font-style:normal;transition:all .4s}
+  .dt-raw i.hi{background:var(--dt);color:#fff;border-color:var(--dt)}
+  table.dt-stem{border-collapse:collapse;font-size:14px}
+  table.dt-stem td{padding:4px 8px;border-bottom:1px solid var(--border)}
+  table.dt-stem td.s{font-weight:800;color:var(--dt);border-right:2px solid var(--dt);text-align:center}
+  table.dt-stem td.l{letter-spacing:4px;font-variant-numeric:tabular-nums}
+  .dt-keep{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+  .dt-keep .kp{border-radius:10px;padding:6px 11px;font-size:12px;font-weight:700}
+  .dt-keep .kp.y{background:var(--sage-soft);color:var(--sage);border:1px solid rgba(79,168,146,.4)}
+  .dt-keep .kp.n{background:rgba(224,145,58,.14);color:#a4670f;border:1px solid rgba(224,145,58,.45)}
+  .dt-stagenote{text-align:center;font-size:13.5px;line-height:1.7;margin-top:10px}
+  .dt-stagenote b{color:var(--dt)}
+
+  /* 표 공통 */
+  table.dt-table{width:100%;border-collapse:collapse;margin:12px 0;font-size:14px}
+  table.dt-table th{background:var(--panel-2);padding:8px;font-size:12px;color:var(--muted);border:1px solid var(--border)}
+  table.dt-table td{padding:8px;border:1px solid var(--border);text-align:center}
+  table.dt-table td.cls{font-weight:700;background:var(--panel-2);text-align:left;padding-left:12px}
+  table.dt-table td.hi{background:var(--u-soft);color:var(--u);font-weight:800}
+  table.dt-table tr.sum td{background:var(--panel-2);font-weight:800}
+  table.dt-table td input{width:62px;text-align:center;border:1.5px solid var(--dt);border-radius:8px;padding:5px;font-size:14px;background:var(--panel)}
+
+  /* 4. 이상·미만 */
+  .dt-axis{width:100%;max-width:460px;margin:6px auto;display:block}
+  .dt-binread{text-align:center;font-size:14.5px;font-weight:800;color:var(--dt);margin-top:8px;min-height:1.5em}
+  .dt-edge{background:rgba(224,145,58,.14);border:1px solid rgba(224,145,58,.5);border-radius:12px;padding:10px 14px;font-size:13.5px;margin:12px 0}
+  .dt-edge b{color:#a4670f}
+  .dt-anchor{background:var(--sage-soft);border:1.5px solid rgba(79,168,146,.45);border-radius:14px;padding:12px 16px;
+    font-size:14px;margin:14px 0;display:flex;gap:10px;align-items:flex-start}
+  .dt-anchor .ic{font-size:22px;line-height:1}
+  .dt-anchor b{color:var(--sage)}
+
+  /* 5. 상대도수 저울 */
+  .dt-two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media (max-width:540px){ .dt-two{grid-template-columns:1fr} }
+  .dt-two .h{text-align:center;font-weight:800;font-size:14px;margin-bottom:6px}
+  .dt-bar{height:26px;border-radius:8px;background:var(--panel-2);border:1px solid var(--border);overflow:hidden;position:relative}
+  .dt-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--dt),var(--dt2));transition:width .35s}
+  .dt-bar span{position:absolute;inset:0;display:grid;place-items:center;font-size:12px;font-weight:800;color:var(--ink)}
+  .dt-verdict{text-align:center;font-weight:800;font-size:14.5px;margin-top:12px;min-height:1.5em;color:var(--dt)}
+  .dt-stack{display:flex;height:30px;border-radius:9px;overflow:hidden;border:1px solid var(--border);margin:10px 0}
+  .dt-stack i{display:grid;place-items:center;font-size:11px;font-weight:800;color:#fff;transition:width .3s}
+
+  /* 6·7. 미래·사회 카드 */
+  .dt-next{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin:14px 0}
+  .dt-nx{background:var(--panel);border:1px solid var(--border);border-left:4px solid var(--dt);border-radius:14px;
+    padding:14px 16px;box-shadow:var(--shadow-s)}
+  .dt-nx .when{font-size:11.5px;font-weight:800;color:#fff;background:var(--dt);border-radius:999px;padding:3px 10px;display:inline-block}
+  .dt-nx .when.g2{background:var(--blue)} .dt-nx .when.g3{background:var(--plum)} .dt-nx .when.hi{background:var(--warn)}
+  .dt-nx h4{margin:8px 0 6px;font-size:15px}
+  .dt-nx p{margin:0;font-size:13px;line-height:1.65;color:var(--muted)}
+  .dt-nx a{display:inline-block;margin-top:8px;font-size:12.5px;font-weight:700;color:var(--dt)}
+  .dt-life{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:11px;margin:14px 0}
+  .dt-lf{background:var(--panel-2);border:1px solid var(--border);border-radius:14px;padding:13px 15px;font-size:13px;line-height:1.65}
+  .dt-lf b{display:block;font-size:14px;margin-bottom:4px;color:var(--dt)}
+  .dt-trick{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px 18px;margin:14px 0;box-shadow:var(--shadow-s)}
+  .dt-trickbtns{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:10px}
+  .dt-trickbtns button{background:var(--panel-2);border:1.5px solid var(--border);border-radius:999px;padding:6px 13px;font-size:13px;font-weight:700;cursor:pointer;color:var(--ink)}
+  .dt-trickbtns button.on{background:var(--warn);border-color:var(--warn);color:#fff}
+  .dt-trickread{font-size:13.5px;line-height:1.7;margin-top:10px}
+  .dt-trickread b{color:#a4670f}
+
+  /* 공통 문답 */
+  .dt-checkrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .dt-checkrow input.num{width:90px}
+  .dt-out{margin-top:8px;font-size:14px;min-height:1.3em}
+  .dt-quizcard{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px 18px;margin:14px 0;box-shadow:var(--shadow-s)}
+  .dt-quiz-id{display:none;margin-top:8px;font-size:13px;color:var(--dt);font-weight:700}
+  .dt-quiz-id.show{display:block}
+  .dt-quiz-id a{color:var(--dt)}
+  .dt-stem{font-size:14.5px;line-height:1.7;margin:4px 0}
+  .dt-again{background:none;border:1.5px solid var(--dt);color:var(--dt);border-radius:999px;padding:6px 14px;font-size:12.5px;font-weight:700;cursor:pointer;margin-top:8px}
+
+  .dt-cheat{background:linear-gradient(135deg,var(--dt),var(--dt2));color:#fff;border-radius:18px;padding:20px 22px;margin:16px 0}
+  .dt-cheat h3{margin:0 0 10px;font-size:16px}
+  .dt-cheat .row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+  .dt-cheat .chip{background:rgba(255,255,255,.2);border-radius:10px;padding:8px 12px;font-size:12.5px;flex:1;min-width:150px}
+  .dt-cheat .chip b{display:block;font-size:13px;margin-bottom:2px}
+  #printCheat{background:#fff;color:var(--dt);border:none;border-radius:999px;padding:9px 18px;font-weight:800;font-size:13px;cursor:pointer;margin-top:12px}
+  #printArea{display:none}
+  @media print{ body>*:not(#printArea){display:none !important} #printArea{display:block !important} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중1 수학</a><span class="dot"></span><span>자료 읽는 법</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+
+  <div class="dt-hero">
+    <h1>📊 자료 읽는 법 — 말부터 풀어요</h1>
+    <p>도수, 계급, 계급값, 상대도수… 13단원은 <b>계산이 어려운 게 아니라 말이 낯선</b> 단원이에요. 한 번도 써 본 적 없는 단어로 문제가 쓰여 있으니까요. 그래서 이 특강은 <b>단어부터 분해</b>해요. 그리고 마지막에는 <b>이 공부가 앞으로 무엇이 되는지</b>도 보여드릴게요.</p>
+    <div class="dt-goal">
+      <span>① 용어 해부</span><span>② 자료의 다섯 가지 옷</span><span>③ 이상·미만</span><span>④ 상대도수</span><span>⑤ 이 단원의 미래</span>
+    </div>
+  </div>
+
+  <!-- ───────────────── 1. 자가 점검 ───────────────── -->
+  <section class="dt-sec reveal" id="s1">
+    <div class="eyebrow"><span class="n">1</span>먼저 — 몇 개나 설명할 수 있나요?</div>
+    <p>아래는 13단원에 나오는 말들이에요. 하나씩 눌러서 <b>"뜻을 남한테 설명할 수 있다"</b>면 초록, <b>"들어는 봤는데 설명은 못 하겠다"</b>면 주황으로 표시해 봐요. 솔직하게 눌러도 괜찮아요. 모르는 게 많을수록 이 특강이 더 쓸모 있어요.</p>
+    <div class="dt-panel">
+      <div class="dt-selfchk" id="selfChk"></div>
+      <div class="dt-selfread" id="selfRead">하나씩 눌러 보세요.</div>
+    </div>
+    <p style="margin-top:14px">문제를 못 푸는 이유가 <b>계산이 아니라 말</b>일 때가 많아요. "도수분포다각형의 넓이를 구하시오"라는 문장에서 셋 중 하나라도 뜻이 흐릿하면, 계산 실력과 상관없이 손이 멈춰요. 그러니 <b>말부터 확실히 해두면 이 단원은 생각보다 쉬워요.</b></p>
+  </section>
+
+  <!-- ───────────────── 2. 용어 해부실 ───────────────── -->
+  <section class="dt-sec reveal" id="s2">
+    <div class="eyebrow"><span class="n">2</span>용어 해부실 — 카드를 눌러서 뒤집어 봐요</div>
+    <p>수학 용어는 대부분 <b>한자를 그대로 옮긴 말</b>이에요. 그래서 글자 뜻만 알면 절반은 풀려요. 카드를 누르면 <b>글자 뜻 · 평소에 쓰는 같은 말 · 수학에서의 뜻 · 예시</b>가 나와요.</p>
+    <div class="dt-cards" id="termCards"></div>
+    <div class="dt-cardhint" id="cardHint">0 / 11장 열어 봤어요.</div>
+
+    <div class="dt-anchor" style="margin-top:18px">
+      <span class="ic">🔑</span>
+      <div><b>기억할 한 가지</b> — <b>도수(度數)</b>의 度는 <b>온도·각도·안경 도수</b>에 쓰는 그 글자예요. 전부 "얼마나 되는지 재는" 뜻이에요. 그러니 도수는 어렵게 생각할 것 없이 <b>"몇 개인지 센 개수"</b>예요. 문제에서 '도수'가 보이면 속으로 '개수'라고 바꿔 읽어도 대부분 맞아요.</div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <p style="margin:0 0 8px;font-weight:700">함께 생각하기 ①</p>
+      <p style="margin:0 0 10px">"<b>30 이상 40 미만</b>" 계급에 자료가 <b>7개</b> 들어 있어요. 이때 <b>도수</b>는 얼마일까요? (숫자만 적어요)</p>
+      <div class="dt-checkrow"><input class="num" id="q1" inputmode="numeric" aria-label="답"><button id="q1b">확인</button></div>
+      <div class="dt-out" id="q1o"></div>
+    </div>
+  </section>
+
+  <!-- ───────────────── 3. 다섯 가지 옷 ───────────────── -->
+  <section class="dt-sec reveal" id="s3">
+    <div class="eyebrow"><span class="n">3</span>같은 자료, 다섯 가지 옷</div>
+    <p>13단원이 헷갈리는 두 번째 이유는 <b>비슷한 게 다섯 개나 나오기</b> 때문이에요. 줄기와 잎, 도수분포표, 히스토그램, 도수분포다각형… 사실 이건 <b>전부 같은 자료</b>예요. 옷만 갈아입은 거예요. 아래 버튼을 순서대로 눌러 보세요.</p>
+    <div class="dt-panel">
+      <div class="dt-steps" id="dressBtns"></div>
+      <div class="dt-stage" id="dressStage"></div>
+      <div class="dt-keep" id="dressKeep"></div>
+      <div class="dt-stagenote" id="dressNote"></div>
+    </div>
+    <p style="margin-top:14px">여기서 <b>가장 중요한 갈림길</b>은 ②에서 ③으로 넘어가는 자리예요. 줄기와 잎까지는 <b>원래 값이 그대로 살아</b> 있지만, 도수분포표부터는 <b>"몇 개"만 남고 값은 사라져요.</b> 그래서 도수분포표만 보고는 가장 큰 값이 정확히 얼마인지 알 수 없어요. 대신 <b>어디에 몰려 있는지</b>는 훨씬 잘 보여요. 잃는 게 있으면 얻는 것도 있는 거예요.</p>
+    <div class="dt-edge"><b>⚠ 시험에 자주 나와요</b> — "도수분포표에서 가장 큰 변량을 구할 수 있나요?" 답은 <b>없어요</b>예요. 어느 계급에 있는지만 알 뿐, 정확한 값은 이미 사라졌어요. 다만 줄기와 잎 그림에서는 <b>구할 수 있어요.</b></div>
+    <div class="card" style="margin-top:12px">
+      <p style="margin:0 0 8px;font-weight:700">함께 생각하기 ②</p>
+      <p style="margin:0 0 10px">위 자료로 만든 <b>도수분포표에서 계급의 크기</b>는 얼마일까요? (계급 하나의 폭이에요)</p>
+      <div class="dt-checkrow"><input class="num" id="q2" inputmode="numeric" aria-label="답"><button id="q2b">확인</button></div>
+      <div class="dt-out" id="q2o"></div>
+    </div>
+  </section>
+
+  <!-- ───────────────── 4. 이상·미만 ───────────────── -->
+  <section class="dt-sec reveal" id="s4">
+    <div class="eyebrow"><span class="n">4</span>이상과 미만 — 경계에 선 값은 어디로 가나요</div>
+    <p>이 단원에서 <b>가장 많이 틀리는 자리</b>예요. 계산이 아니라 <b>경계</b>에서 틀려요. 글자 뜻으로 먼저 잡아요.</p>
+    <div class="dt-two" style="margin:12px 0">
+      <div class="dt-lf"><b>이상(以上)</b>以 = 써·부터, 上 = 위. <b>그 수부터 위로</b>예요. 그 수 자신도 <b>들어가요.</b> "30 이상"에 30은 들어가요.</div>
+      <div class="dt-lf"><b>미만(未滿)</b>未 = 아직 아니다, 滿 = 가득 차다. <b>아직 그 수에 못 미쳤다</b>는 뜻이에요. 그 수 자신은 <b>안 들어가요.</b> "40 미만"에 40은 안 들어가요.</div>
+    </div>
+    <p>그래서 <b>"30 이상 40 미만"</b>은 30은 포함하고 40은 빼요. 40은 다음 계급인 "40 이상 50 미만"의 <b>첫 손님</b>이 돼요. 아래에서 값을 움직여 어느 칸으로 떨어지는지 직접 봐요.</p>
+    <div class="dt-panel">
+      <svg class="dt-axis" id="binAxis" viewBox="0 0 460 150" role="img" aria-label="이상 미만 경계 그림"></svg>
+      <div class="dt-rangebar">
+        <span style="font-size:13px;color:var(--muted)">20</span>
+        <input type="range" id="binRange" min="20" max="60" step="1" value="37">
+        <span style="font-size:13px;color:var(--muted)">60</span>
+        <span class="tval" id="binVal">37</span>
+      </div>
+      <div class="dt-binread" id="binRead"></div>
+      <p style="margin:10px 0 0;font-size:13px;color:var(--muted);text-align:center">30, 40, 50처럼 <b>딱 경계인 수</b>에 맞춰 보세요. 항상 <b>오른쪽 칸(더 큰 쪽)</b>으로 들어가요.</p>
+    </div>
+    <div class="dt-anchor" style="margin-top:14px">
+      <span class="ic">🚪</span>
+      <div><b>한 문장으로</b> — 경계에 선 수는 <b>언제나 오른쪽 방으로 들어가요.</b> 왼쪽 방은 "아직 그 수가 안 된" 값들만 쓰는 방이거든요.</div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <p style="margin:0 0 8px;font-weight:700">함께 생각하기 ③</p>
+      <p style="margin:0 0 10px">계급이 "50 이상 60 미만", "60 이상 70 미만"일 때 <b>60점</b>은 어느 계급에 들어갈까요? 그 계급의 <b>계급값</b>을 적어 주세요.</p>
+      <div class="dt-checkrow"><input class="num" id="q3" inputmode="decimal" aria-label="답"><button id="q3b">확인</button></div>
+      <div class="dt-out" id="q3o"></div>
+    </div>
+  </section>
+
+  <!-- ───────────────── 5. 상대도수 ───────────────── -->
+  <section class="dt-sec reveal" id="s5">
+    <div class="eyebrow"><span class="n">5</span>상대도수 — 인원이 다른 두 반을 공평하게</div>
+    <p><b>상대(相對)</b>는 "서로 맞대어 본다"는 뜻이에요. 그러니 상대도수는 <b>전체와 맞대어 본 도수</b>예요. "몇 명"이 아니라 <b>"전체 중에서 얼마"</b>인 거죠.</p>
+    <div class="dt-panel">
+      <div class="dt-two">
+        <div>
+          <div class="h">🟩 1반</div>
+          <div class="dt-rangebar"><span style="font-size:12px;color:var(--muted)">전체</span><input type="range" id="rA" min="10" max="40" step="1" value="20"><span class="tval" id="rAv">20명</span></div>
+          <div class="dt-rangebar"><span style="font-size:12px;color:var(--muted)">해당</span><input type="range" id="rAs" min="0" max="40" step="1" value="8"><span class="tval" id="rAsv">8명</span></div>
+          <div class="dt-bar"><i id="barA" style="width:40%"></i><span id="barAt"></span></div>
+        </div>
+        <div>
+          <div class="h">🟦 2반</div>
+          <div class="dt-rangebar"><span style="font-size:12px;color:var(--muted)">전체</span><input type="range" id="rB" min="10" max="40" step="1" value="40"><span class="tval" id="rBv">40명</span></div>
+          <div class="dt-rangebar"><span style="font-size:12px;color:var(--muted)">해당</span><input type="range" id="rBs" min="0" max="40" step="1" value="12"><span class="tval" id="rBsv">12명</span></div>
+          <div class="dt-bar"><i id="barB" style="width:30%"></i><span id="barBt"></span></div>
+        </div>
+      </div>
+      <div class="dt-verdict" id="relVerdict"></div>
+    </div>
+    <p style="margin-top:14px">슬라이더를 움직이다 보면 <b>사람 수는 2반이 더 많은데 비율은 1반이 더 높은</b> 경우가 나와요. 그래서 인원이 다르면 <b>반드시 상대도수로</b> 비교해야 해요.</p>
+
+    <p style="margin-top:16px"><b>상대도수를 다 더하면 왜 항상 1일까요?</b> 전체를 조각조각 나눠 가진 것이니까, 조각을 전부 모으면 원래 전체 하나가 돼요. 아래 띠가 그 그림이에요.</p>
+    <div class="dt-panel">
+      <div class="dt-stack" id="relStack"></div>
+      <p style="margin:0;font-size:13.5px;text-align:center" id="relStackRead"></p>
+      <p style="margin:8px 0 0;font-size:13px;color:var(--muted);text-align:center">상대도수에 100을 곱하면 <b>백분율(%)</b>이 돼요. 0.25 = 25%처럼요. 시험에서 "백분율로 나타내시오"가 나오면 상대도수를 구한 다음 100을 곱하면 끝이에요.</p>
+    </div>
+    <div class="dt-edge"><b>⚠ 자주 틀리는 곳</b> — 상대도수를 구할 때 나누는 수는 <b>그 계급의 도수가 아니라 전체 도수</b>예요. 그리고 <b>도수 = 상대도수 × 전체 도수</b>로 거꾸로도 구할 수 있어요. "상대도수가 0.2이고 전체가 25명이면 도수는 5명"처럼요.</div>
+    <div class="card" style="margin-top:12px">
+      <p style="margin:0 0 8px;font-weight:700">함께 생각하기 ④</p>
+      <p style="margin:0 0 10px">어떤 계급의 상대도수가 <b>0.15</b>이고 전체 도수가 <b>40명</b>이에요. 이 계급의 <b>도수</b>는 몇 명일까요?</p>
+      <div class="dt-checkrow"><input class="num" id="q4" inputmode="numeric" aria-label="답"><span>명</span><button id="q4b">확인</button></div>
+      <div class="dt-out" id="q4o"></div>
+    </div>
+  </section>
+
+  <!-- ───────────────── 6. 앞으로 무엇이 되나 ───────────────── -->
+  <section class="dt-sec reveal" id="s6">
+    <div class="eyebrow"><span class="n">6</span>이 단원은 앞으로 무엇이 되나요</div>
+    <p>13단원은 <b>통계의 첫 章</b>이에요. 지금 배우는 것이 중2·중3·고등학교로 이어지는데, 놀랍게도 <b>질문은 계속 똑같아요.</b> "이 숫자 더미를 어떻게 한눈에 볼까?" 도구만 점점 정교해질 뿐이에요.</p>
+
+    <p style="margin-top:16px"><b>중3에서 만날 것 하나를 미리 볼까요.</b> 지금은 "어디에 몰려 있나"를 그림으로 봤지만, 중3에서는 <b>자료 전체를 대표하는 수 하나</b>를 정해요. 그 방법이 여러 개인데, 아래에서 <b>한 명만 아주 큰 값</b>으로 바꿔 보세요.</p>
+    <div class="dt-panel">
+      <svg class="dt-axis" id="meanAxis" viewBox="0 0 460 130" role="img" aria-label="평균과 중앙값 비교"></svg>
+      <div class="dt-rangebar">
+        <span style="font-size:13px;color:var(--muted)">마지막 한 명의 값</span>
+        <input type="range" id="meanRange" min="6" max="90" step="1" value="9">
+        <span class="tval" id="meanVal">9</span>
+      </div>
+      <div class="dt-binread" id="meanRead"></div>
+      <p style="margin:10px 0 0;font-size:13px;color:var(--muted);text-align:center">한 명만 크게 만들면 <b>평균은 훌쩍 끌려가는데 중앙값은 거의 안 움직여요.</b> "우리 회사 평균 연봉"이 실제 체감과 다른 이유가 이거예요.</p>
+    </div>
+
+    <p style="margin-top:18px"><b>고등학교에서 만날 것도 하나 볼까요.</b> 히스토그램의 <b>계급을 점점 잘게</b> 나누면 어떻게 될까요? 슬라이더를 오른쪽으로 밀어 보세요.</p>
+    <div class="dt-panel">
+      <svg class="dt-axis" id="normAxis" viewBox="0 0 460 170" role="img" aria-label="계급을 잘게 나누면 종 모양이 되는 그림"></svg>
+      <div class="dt-rangebar">
+        <span style="font-size:13px;color:var(--muted)">계급 수</span>
+        <input type="range" id="normRange" min="4" max="40" step="1" value="6">
+        <span class="tval" id="normVal">6칸</span>
+      </div>
+      <div class="dt-binread" id="normRead"></div>
+      <p style="margin:10px 0 0;font-size:13px;color:var(--muted);text-align:center">막대가 촘촘해질수록 <b>부드러운 종 모양</b>이 나타나요. 이걸 <b>정규분포</b>라고 하는데, 키·몸무게·시험 점수처럼 세상의 수많은 자료가 이 모양을 하고 있어요. 고2 '확률과 통계'에서 본격적으로 배워요.</p>
+    </div>
+
+    <p style="margin-top:18px">앞으로의 지도를 한눈에 정리하면 이래요. <b>이미 만들어 둔 페이지</b>는 눌러서 미리 구경해도 좋아요.</p>
+    <div class="dt-next">
+      <div class="dt-nx"><span class="when g2">중2</span><h4>확률</h4><p>도수를 세던 습관이 그대로 확률이 돼요. "일어난 경우 ÷ 전체 경우"는 사실 상대도수와 같은 모양이에요.</p><a href="../../../mid2/u11.html">중2 확률 페이지 보기 →</a></div>
+      <div class="dt-nx"><span class="when g3">중3</span><h4>대푯값과 산포도</h4><p>자료를 대표하는 수(평균·중앙값·최빈값)를 정하고, 얼마나 흩어졌는지를 <b>숫자 하나</b>로 나타내요. 분산과 표준편차예요.</p><a href="../../../mid3/u11.html">중3 산포도 페이지 보기 →</a></div>
+      <div class="dt-nx"><span class="when g3">중3</span><h4>상자 그림과 산점도</h4><p>분포를 <b>다섯 개의 수</b>로 요약하고, 두 자료 사이의 관계(키와 몸무게처럼)를 점으로 그려서 읽어요.</p><a href="../../../mid3/u12.html">중3 상자그림·산점도 보기 →</a></div>
+      <div class="dt-nx"><span class="when hi">고2</span><h4>정규분포와 표준화</h4><p>위에서 본 종 모양이에요. "평균에서 얼마나 떨어졌나"를 자로 재듯 표준화해서, 상위 몇 %인지 계산해요.</p></div>
+      <div class="dt-nx"><span class="when hi">고2</span><h4>표본조사</h4><p>전 국민을 다 조사할 수 없으니 일부만 뽑아서 전체를 짐작해요. 뉴스의 "표본오차 ±3.1%p"가 바로 이 이야기예요.</p></div>
+      <div class="dt-nx"><span class="when hi">그 뒤</span><h4>데이터 과학·인공지능</h4><p>인공지능이 배우는 것도 결국 <b>자료의 분포</b>예요. 자료가 한쪽으로 치우쳐 있으면 인공지능의 판단도 함께 치우쳐요.</p></div>
+    </div>
+  </section>
+
+  <!-- ───────────────── 7. 사회에서 ───────────────── -->
+  <section class="dt-sec reveal" id="s7">
+    <div class="eyebrow"><span class="n">7</span>이미 우리 곁에 있는 통계</div>
+    <p>사실 13단원의 내용은 <b>이미 매일 만나고</b> 있어요. 몰라서 그냥 지나쳤을 뿐이에요.</p>
+    <div class="dt-life">
+      <div class="dt-lf"><b>🏫 성적 등급</b>고등학교의 "1등급 = 상위 4%"는 상대도수를 위에서부터 차곡차곡 더한 값이에요. 점수가 아니라 <b>비율</b>로 자르는 거예요.</div>
+      <div class="dt-lf"><b>🏥 성장 곡선</b>병원에서 "키가 상위 30%"라고 하는 그 표예요. 또래 전체를 100으로 놓고 내 위치를 재는 것이라, 정확히 상대도수의 누적이에요.</div>
+      <div class="dt-lf"><b>📷 사진 앱의 그래프</b>사진 편집 화면에 나오는 울퉁불퉁한 그래프가 <b>히스토그램</b>이에요. 어두운 픽셀부터 밝은 픽셀까지 몇 개씩 있는지 센 것이죠.</div>
+      <div class="dt-lf"><b>👥 인구 피라미드</b>나이대별 인구 수를 그린 그림인데, 사실 <b>히스토그램 두 개를 옆으로 눕혀 붙인 것</b>이에요. 계급 = 나이 구간, 도수 = 사람 수예요.</div>
+      <div class="dt-lf"><b>🗳️ 여론조사</b>"1,000명에게 물었더니 42%"라는 기사 밑에는 늘 표본오차가 적혀 있어요. 일부만 물어봤으니 오차가 있다고 <b>스스로 밝히는</b> 거예요.</div>
+      <div class="dt-lf"><b>🎮 확률 공개</b>게임 아이템 뽑기 확률을 공개하도록 법으로 정해져 있어요. 확률은 중2에서 배우는데, 그 뿌리가 지금의 상대도수예요.</div>
+    </div>
+
+    <p style="margin-top:18px"><b>그리고 가장 중요한 것 하나</b> — 통계는 <b>속이기도 쉬워요.</b> 거짓말을 하지 않고도 인상을 바꿀 수 있거든요. 아래 세 가지는 뉴스와 광고에서 실제로 자주 보는 방법이에요. 눌러서 확인해 봐요.</p>
+    <div class="dt-trick">
+      <div class="dt-trickbtns" id="trickBtns"></div>
+      <svg class="dt-axis" id="trickSvg" viewBox="0 0 460 180" role="img" aria-label="통계로 속이는 방법 비교 그림"></svg>
+      <div class="dt-trickread" id="trickRead"></div>
+    </div>
+    <div class="dt-anchor">
+      <span class="ic">🧐</span>
+      <div><b>그래프를 볼 때 세 가지만 확인해요</b> — ① 세로축이 <b>0에서 시작</b>하나요? ② 계급의 폭이 <b>일정</b>한가요? ③ 전체가 <b>몇 명</b>인가요? 이 셋만 확인해도 웬만한 눈속임은 통하지 않아요.</div>
+    </div>
+  </section>
+
+  <!-- ───────────────── 8. 실전 총정리 ───────────────── -->
+  <section class="dt-sec reveal" id="s8">
+    <div class="eyebrow"><span class="n">8</span>실전 총정리 — 수시평가 대비</div>
+    <p>이번엔 어떤 유형인지 안 알려드려요. <b>문제에 나온 말의 뜻을 먼저 확인</b>하고 풀어 봐요. 틀리면 어느 자리로 돌아가면 되는지 알려드릴게요.</p>
+    <p class="mscore" id="quizScore"></p>
+    <div id="quizArea"></div>
+    <div style="text-align:center;margin-top:8px"><button class="dt-again" id="quizAgain">🔄 5문제 새로</button></div>
+  </section>
+
+  <!-- ───────────────── 9. 치트시트 ───────────────── -->
+  <section class="dt-sec reveal" id="s9">
+    <div class="eyebrow"><span class="n">9</span>마무리 치트시트</div>
+    <div class="dt-cheat">
+      <h3>📊 자료의 정리와 해석 한 장 요약</h3>
+      <div class="row">
+        <div class="chip"><b>변량</b>자료의 값 하나하나</div>
+        <div class="chip"><b>계급</b>계단처럼 나눈 구간 (예: 30 이상 40 미만)</div>
+        <div class="chip"><b>계급의 크기</b>구간의 폭 = 위 끝 − 아래 끝</div>
+      </div>
+      <div class="row">
+        <div class="chip"><b>계급값</b>(아래 끝 + 위 끝) ÷ 2 · 그 칸의 대표 선수</div>
+        <div class="chip"><b>도수</b>그 계급에 들어온 자료의 개수</div>
+        <div class="chip"><b>상대도수</b>도수 ÷ 전체 도수 · 다 더하면 1 · ×100 하면 %</div>
+      </div>
+      <div class="row">
+        <div class="chip"><b>이상은 포함, 미만은 제외</b>경계에 선 수는 언제나 오른쪽 칸으로</div>
+        <div class="chip"><b>히스토그램 넓이</b>계급의 크기 × 도수의 합 · 도수분포다각형도 같은 넓이</div>
+      </div>
+      <div class="row">
+        <div class="chip"><b>도수 = 상대도수 × 전체</b>거꾸로도 구해요</div>
+        <div class="chip"><b>줄기와 잎은 값이 살아 있고, 도수분포표는 값이 사라져요</b>대신 분포는 더 잘 보여요</div>
+      </div>
+      <button id="printCheat">🖨️ 이 치트시트 인쇄하기</button>
+    </div>
+    <p style="text-align:center;color:var(--muted);font-size:13px">단원으로 돌아가기 — <a href="u13.html" style="color:var(--dt);font-weight:700">13단원 개념</a> · <a href="g13.html" style="color:var(--dt);font-weight:700">놀이터</a> · <a href="p13.html" style="color:var(--dt);font-weight:700">연습 문제</a> · <a href="d13.html" style="color:var(--dt);font-weight:700">나이팅게일 이야기</a><br>같이 보면 좋은 특강 — <a href="ratio-mastery.html" style="color:var(--dt);font-weight:700">🎯 비율·퍼센트 특강</a>(상대도수의 뿌리예요)</p>
+  </section>
+
+  <footer>중1 수학 · 자료 읽는 법 특강 · 말이 풀리면 문제도 풀려요</footer>
+</div>
+<div id="printArea"></div>
+
+<script src="concept.js?v=20260906a"></script>
+<script>
+MJ1.boot();
+(function(){
+  'use strict';
+  /*GEN-START*/
+  function ri(a,b){return a+Math.floor(Math.random()*(b-a+1));}
+  function pick(a,i){ if(typeof i==='number') return a[((i%a.length)+a.length)%a.length]; return a[Math.floor(Math.random()*a.length)]; }
+  function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+  function fmt(n){ n=Math.round(n*1000)/1000; return String(n); }
+  /* 숫자 뒤 '이에요/예요' — 읽는 소리의 받침 기준 (…일·삼·육·칠·팔·십·영 = 받침 있음) */
+  function NE(n){ var s=String(n); var d=s.charAt(s.length-1); return ('013678'.indexOf(d)>=0)?'이에요':'예요'; }
+  function JE(w){ if(!w) return '예요'; var c=w.charCodeAt(w.length-1); if(c<0xAC00||c>0xD7A3) return '예요'; return ((c-0xAC00)%28!==0)?'이에요':'예요'; }
+
+  /* 자료 묶음 — 계급이 딱 떨어지도록 만든 풀 */
+  var SUBJ=[
+    {what:'수학 점수', unit:'점', per:'명', who:'우리 반 학생',    bases:[0,10,20,30,40,50,60,70,80], sizes:[5,10]},
+    {what:'키', unit:'cm', per:'명', who:'1학년 학생',            bases:[140,145,150,155,160,165], sizes:[5,10]},
+    {what:'하루 독서 시간', unit:'분', per:'명', who:'독서반 학생', bases:[0,10,20,30,40,50], sizes:[10,20]},
+    {what:'앉은키', unit:'cm', per:'명', who:'모둠 친구',          bases:[70,75,80,85], sizes:[5]},
+    {what:'한 달 동안 읽은 쪽수', unit:'쪽', per:'명', who:'도서부 학생', bases:[0,100,200,300], sizes:[50,100]},
+    {what:'멀리뛰기 기록', unit:'cm', per:'명', who:'체육 시간 학생', bases:[120,140,160,180], sizes:[10,20]}
+  ];
+  /* 목적어 조사 — 받침이 있으면 '을', 없으면 '를' */
+  function JO(w){ if(!w) return '를'; var c=w.charCodeAt(w.length-1);
+    if(c<0xAC00||c>0xD7A3) return '를'; return ((c-0xAC00)%28!==0)?'을':'를'; }
+  /* 상대도수 × 전체 도수가 정수로 떨어지는 조합만 */
+  var RPAIRS=[[20,0.1],[20,0.15],[20,0.2],[20,0.25],[20,0.3],[20,0.4],
+              [25,0.2],[25,0.4],[40,0.1],[40,0.15],[40,0.2],[40,0.25],[40,0.3],[40,0.4],
+              [50,0.1],[50,0.2],[50,0.3],[50,0.4]];
+
+  /* ① 계급값 구하기 */
+  function genType1(i){
+    var sub=pick(SUBJ,i);
+    var s=pick(sub.sizes,(i===undefined?undefined:i+1)), base=pick(sub.bases,(i===undefined?undefined:i+2));
+    var lo=base, hi=base+s;
+    var mid=(lo+hi)/2;
+    return {stem:'어떤 도수분포표에 <b>'+lo+' 이상 '+hi+' 미만</b>인 계급이 있어요. 이 계급의 <b>계급값</b>은 얼마일까요?'+
+              '<br><span style="font-size:12.5px;color:var(--muted)">('+sub.what+JO(sub.what)+' 조사한 표예요)</span>',
+            ans:mid, unit:'', hint:'계급값 = (아래 끝 + 위 끝) ÷ 2',
+            sol:'계급값은 그 계급을 대표하는 가운데 값이에요. ('+lo+' + '+hi+') ÷ 2 = <b>'+fmt(mid)+'</b>'+NE(fmt(mid))+'.',
+            anchor:'s2', tname:'계급값 구하기'};
+  }
+  /* ② 도수분포표 빈칸 */
+  function genType2(i){
+    var sub=pick(SUBJ,i), n=pick([4,5],(i===undefined?undefined:i+1));
+    var s=pick(sub.sizes,(i===undefined?undefined:i+2)), base=pick(sub.bases,(i===undefined?undefined:i+3));
+    var fs=[], k;
+    for(k=0;k<n;k++) fs.push(ri(2,9));
+    var blank=(i===undefined)?ri(0,n-1):(i%n);
+    var total=0; for(k=0;k<n;k++) total+=fs[k];
+    var rest=total-fs[blank];
+    var rows='<table class="dt-table" style="margin:8px 0"><tr><th>계급('+sub.unit+')</th><th>도수('+sub.per+')</th></tr>';
+    for(k=0;k<n;k++){
+      var lo=base+s*k;
+      rows+='<tr><td class="cls">'+lo+' 이상 '+(lo+s)+' 미만</td><td'+(k===blank?' class="hi"':'')+'>'+(k===blank?'?':fs[k])+'</td></tr>';
+    }
+    rows+='<tr class="sum"><td class="cls">합계</td><td>'+total+'</td></tr></table>';
+    return {stem:sub.who+' '+total+sub.per+'의 '+sub.what+JO(sub.what)+' 조사한 표예요. <b>?</b>에 들어갈 도수는 얼마일까요?'+rows,
+            ans:fs[blank], unit:sub.per, hint:'합계에서 나머지 도수를 모두 빼요.',
+            sol:'도수를 다 더하면 합계가 돼요. 나머지 도수의 합이 '+rest+'이니까, '+total+' − '+rest+' = <b>'+fs[blank]+'</b>'+sub.per+JE(sub.per)+'.',
+            anchor:'s2', tname:'도수분포표 빈칸'};
+  }
+  /* ③ 상대도수 ↔ 도수 ↔ 백분율 */
+  function genType3(i){
+    var mode=(i===undefined)?ri(0,2):(i%3);
+    var pr=pick(RPAIRS,(i===undefined?undefined:i+1));
+    var N=pr[0], r=pr[1], f=Math.round(N*r);
+    var sub=pick(SUBJ,(i===undefined?undefined:i+3));
+    if(mode===0){
+      return {stem:'전체 도수가 <b>'+N+sub.per+'</b>이고, 어떤 계급의 도수가 <b>'+f+sub.per+'</b>예요. 이 계급의 <b>상대도수</b>는 얼마일까요?<br><span style="font-size:12.5px;color:var(--muted)">(소수로 적어요)</span>',
+              ans:r, unit:'', hint:'상대도수 = 그 계급의 도수 ÷ 전체 도수',
+              sol:'상대도수는 전체와 맞대어 본 값이에요. '+f+' ÷ '+N+' = <b>'+fmt(r)+'</b>'+NE(fmt(r))+'.',
+              anchor:'s5', tname:'상대도수 구하기'};
+    }
+    if(mode===1){
+      return {stem:'어떤 계급의 <b>상대도수가 '+fmt(r)+'</b>이고 전체 도수가 <b>'+N+sub.per+'</b>예요. 이 계급의 <b>도수</b>는 얼마일까요?',
+              ans:f, unit:sub.per, hint:'도수 = 상대도수 × 전체 도수',
+              sol:'상대도수에 전체 도수를 곱하면 도수가 나와요. '+fmt(r)+' × '+N+' = <b>'+f+'</b>'+sub.per+JE(sub.per)+'.',
+              anchor:'s5', tname:'상대도수로 도수 구하기'};
+    }
+    return {stem:'전체 <b>'+N+sub.per+'</b> 중 어떤 계급의 도수가 <b>'+f+sub.per+'</b>예요. 이 계급은 전체의 몇 <b>%</b>일까요?',
+            ans:r*100, unit:'%', hint:'상대도수를 구한 뒤 100을 곱해요.',
+            sol:'먼저 상대도수는 '+f+' ÷ '+N+' = '+fmt(r)+'이에요. 여기에 100을 곱하면 <b>'+fmt(r*100)+'%</b>'+JE('%')+'.',
+            anchor:'s5', tname:'백분율로 나타내기'};
+  }
+  /* ④ 히스토그램·도수분포다각형 넓이 */
+  function genType4(i){
+    var sub=pick(SUBJ,i);
+    var s=pick(sub.sizes,(i===undefined?undefined:i+1)), N=pick([20,25,30,40,50],(i===undefined?undefined:i+2));
+    var which=(i===undefined)?ri(0,1):(i%2);
+    var name=which? '도수분포다각형과 가로축으로 둘러싸인 부분' : '히스토그램의 모든 직사각형';
+    var tail=which? '<br><span style="font-size:12.5px;color:var(--muted)">(도수분포다각형이 감싼 넓이는 히스토그램 전체 넓이와 같아요)</span>' : '';
+    return {stem:sub.who+' '+N+sub.per+'의 '+sub.what+JO(sub.what)+' 계급의 크기 <b>'+s+'</b>(으)로 나타냈어요. <b>'+name+'</b>의 넓이의 합은 얼마일까요?'+tail,
+            ans:s*N, unit:'', hint:'넓이 = 계급의 크기 × 도수의 합',
+            sol:'막대 하나의 넓이는 (계급의 크기) × (그 계급의 도수)예요. 전부 더하면 계급의 크기 × 도수의 합이 되니까 '+s+' × '+N+' = <b>'+(s*N)+'</b>'+NE(s*N)+'.',
+            anchor:'s3', tname:'히스토그램 넓이'};
+  }
+  /* ⑤ 줄기와 잎 읽기 */
+  function genType5(i){
+    var stems=pick([[1,2,3],[2,3,4],[3,4,5],[5,6,7],[6,7,8]],i);
+    var leaves=[], k, j, seedBase=(i===undefined)?ri(0,99):i;
+    for(k=0;k<stems.length;k++){
+      var cnt=2+((seedBase+k)%4), arr=[];
+      for(j=0;j<cnt;j++) arr.push((seedBase*3+k*7+j*4)%10);
+      arr.sort(function(a,b){return a-b;});
+      leaves.push(arr);
+    }
+    var total=0; for(k=0;k<stems.length;k++) total+=leaves[k].length;
+    var mode=(i===undefined)?ri(0,2):(i%3);
+    var rows='<table class="dt-stem" style="margin:8px auto"><tr><td class="s">줄기</td><td class="l" style="letter-spacing:normal;font-weight:800">잎</td></tr>';
+    for(k=0;k<stems.length;k++) rows+='<tr><td class="s">'+stems[k]+'</td><td class="l">'+leaves[k].join(' ')+'</td></tr>';
+    rows+='</table>';
+    var sub=pick(SUBJ,(i===undefined?undefined:i+1));
+    if(mode===0){
+      return {stem:sub.what+JO(sub.what)+' 줄기와 잎 그림으로 나타냈어요. <b>자료는 모두 몇 개</b>일까요?'+rows,
+              ans:total, unit:'개', hint:'잎 하나가 자료 하나예요. 잎을 모두 세요.',
+              sol:'잎 하나가 자료 하나예요. 줄기별로 '+leaves.map(function(a){return a.length;}).join(' + ')+' = <b>'+total+'</b>개'+JE('개')+'.',
+              anchor:'s3', tname:'줄기와 잎 — 자료의 개수'};
+    }
+    if(mode===1){
+      var target=stems[stems.length-1], cntT=leaves[stems.length-1].length;
+      return {stem:sub.what+JO(sub.what)+' 줄기와 잎 그림으로 나타냈어요. <b>'+(target*10)+' 이상</b>인 자료는 몇 개일까요?'+rows,
+              ans:cntT, unit:'개', hint:'줄기가 '+target+'인 줄의 잎을 세요.',
+              sol:'줄기가 '+target+'이면 '+(target*10)+'부터 '+(target*10+9)+'까지예요. 그 줄의 잎이 '+cntT+'개니까 답은 <b>'+cntT+'</b>개'+JE('개')+'.',
+              anchor:'s3', tname:'줄기와 잎 — 조건에 맞는 개수'};
+    }
+    var last=leaves[stems.length-1], big=stems[stems.length-1]*10+last[last.length-1];
+    return {stem:sub.what+JO(sub.what)+' 줄기와 잎 그림으로 나타냈어요. <b>가장 큰 값</b>은 얼마일까요?'+rows,
+            ans:big, unit:sub.unit, hint:'맨 아래 줄기의 가장 오른쪽 잎을 봐요.',
+            sol:'줄기 '+stems[stems.length-1]+'에 잎 '+last[last.length-1]+'이 붙어 있으니 <b>'+big+'</b>'+NE(big)+'. 줄기와 잎 그림은 이렇게 <b>원래 값이 그대로 살아 있어요.</b>',
+            anchor:'s3', tname:'줄기와 잎 — 가장 큰 값'};
+  }
+  /*GEN-END*/
+
+  function norm(s){ return String(s==null?'':s).replace(/[^0-9.\-]/g,''); }
+  function closeEnough(a,b){ return Math.abs(a-b)<1e-6; }
+  function cheer(){ try{ MJ1.confetti(); }catch(e){} }
+
+  /* ── 1. 자가 점검 ── */
+  var TERMS=[
+    {ko:'자료', han:'資料', en:'data',
+     hanx:'資 = 밑천 · 料 = 재료',
+     life:'"참고 자료", "자료를 모으다"처럼 평소에도 쓰는 말이에요.',
+     math:'조사해서 모은 값 전체예요. 아직 정리하기 전의 숫자 더미예요.',
+     ex:'우리 반 30명의 키를 전부 적어 놓은 것'},
+    {ko:'변량', han:'變量', en:'variate',
+     hanx:'變 = 변하다 · 量 = 양',
+     life:'"변화", "수량"에 들어 있는 그 글자들이에요.',
+     math:'자료의 값 하나하나예요. 사람마다 달라지는(變) 그 양(量)이에요.',
+     ex:'키를 조사했다면 152, 148, 161… 하나하나가 변량'},
+    {ko:'계급', han:'階級', en:'class',
+     hanx:'階 = 계단 · 級 = 등급',
+     life:'"계단"의 階, "고급·초급"의 級이에요.',
+     math:'자료를 나눠 담는 구간이에요. 계단처럼 층층이 나눈 칸이라고 생각해요.',
+     ex:'"150 이상 160 미만"이 계급 하나예요'},
+    {ko:'계급의 크기', han:'↔', en:'class size',
+     hanx:'한 칸의 폭이에요',
+     life:'옷 사이즈처럼 "칸이 얼마나 넓은가"예요.',
+     math:'계급 하나의 폭이에요. 위 끝 − 아래 끝으로 구해요. 모든 계급은 폭이 같아야 해요.',
+     ex:'"150 이상 160 미만"이면 크기는 10'},
+    {ko:'계급값', han:'⊙', en:'class mark',
+     hanx:'그 칸의 대표 선수',
+     life:'반에서 한 명이 대표로 나가는 것과 비슷해요.',
+     math:'계급을 대표하는 가운데 값이에요. (아래 끝 + 위 끝) ÷ 2로 구해요.',
+     ex:'"150 이상 160 미만"의 계급값은 155'},
+    {ko:'도수', han:'度數', en:'frequency',
+     hanx:'度 = 정도·횟수 · 數 = 수',
+     life:'<b>온도·각도·안경 도수</b>가 전부 같은 度예요. "얼마나 되는지 재는" 글자예요.',
+     math:'그 계급에 들어온 자료의 <b>개수</b>예요. 문제에서 도수가 보이면 "개수"로 바꿔 읽어도 돼요.',
+     ex:'영어 frequency는 라디오 <b>주파수</b>와 같은 단어예요 — 몇 번 나오나'},
+    {ko:'도수분포표', han:'分布', en:'frequency table',
+     hanx:'分 = 나뉘어 · 布 = 펼쳐짐',
+     life:'"인구 분포", "분포도"처럼 흩어진 모양을 말할 때 써요.',
+     math:'계급마다 도수가 몇인지 적은 표예요. 즉 <b>개수가 어떻게 흩어져 있는지</b> 적은 표예요.',
+     ex:'왼쪽에 계급, 오른쪽에 도수를 적어요'},
+    {ko:'히스토그램', han:'📊', en:'histogram',
+     hanx:'그리스말 histos(똑바로 선 것) + gramma(그림)',
+     life:'사진 앱의 편집 화면에 나오는 울퉁불퉁한 그래프가 바로 이것이에요.',
+     math:'도수분포표를 막대로 그린 그림이에요. 구간이 이어져 있으니 <b>막대도 붙여서</b> 그려요.',
+     ex:'막대그래프는 막대를 떼어 그리는 점이 달라요'},
+    {ko:'도수분포다각형', han:'多角形', en:'frequency polygon',
+     hanx:'多 = 많다 · 角 = 각 · 形 = 모양',
+     life:'각이 여러 개인 도형이라는 뜻이에요.',
+     math:'막대 윗변의 <b>중점</b>을 이은 선이에요. 양 끝은 도수 0인 계급까지 늘려 가로축에 닿게 해요.',
+     ex:'그래야 닫힌 도형이 되고, 넓이가 히스토그램과 같아져요'},
+    {ko:'상대도수', han:'相對', en:'relative frequency',
+     hanx:'相 = 서로 · 對 = 마주하다',
+     life:'"상대편", "상대적으로"처럼 <b>다른 것과 견줄 때</b> 쓰는 말이에요.',
+     math:'전체와 맞대어 본 도수예요. 그 계급의 도수 ÷ 전체 도수로 구해요.',
+     ex:'다 더하면 항상 1 · 100을 곱하면 %가 돼요'},
+    {ko:'이상·미만', han:'以上<br>未滿', en:'at least · less than',
+     hanx:'以上 = 그 수부터 위 · 未 = 아직 아니다, 滿 = 차다',
+     life:'"19세 미만 관람 불가"는 19살이 <b>아직 안 된</b> 사람이라는 뜻이에요.',
+     math:'이상은 그 수를 <b>포함</b>하고, 미만은 <b>포함하지 않아요.</b>',
+     ex:'"30 이상 40 미만"에 30은 들어가고 40은 안 들어가요'}
+  ];
+  (function(){
+    var box=document.getElementById('selfChk'), read=document.getElementById('selfRead'), state={};
+    TERMS.forEach(function(t,i){
+      var b=document.createElement('button'); b.type='button'; b.textContent=t.ko;
+      b.onclick=function(){
+        state[i]=(state[i]===1)?2:(state[i]===2?0:1);
+        b.className=state[i]===1?'know':(state[i]===2?'dunno':'');
+        var know=0,dunno=0,k;
+        for(k in state){ if(state[k]===1)know++; if(state[k]===2)dunno++; }
+        read.textContent = (know+dunno===0) ? '하나씩 눌러 보세요.'
+          : ('설명할 수 있어요 '+know+'개 · 아직이에요 '+dunno+'개'+(dunno>0?' — 아래 카드에서 그 단어들부터 찾아봐요.':' — 훌륭해요! 그래도 카드를 한 번 열어 보면 새로 보이는 게 있어요.'));
+      };
+      box.appendChild(b);
+    });
+  })();
+
+  /* ── 2. 용어 카드 ── */
+  (function(){
+    var box=document.getElementById('termCards'), hint=document.getElementById('cardHint'), opened={};
+    TERMS.forEach(function(t,i){
+      var c=document.createElement('div'); c.className='dt-card'; c.setAttribute('role','button'); c.setAttribute('tabindex','0');
+      c.innerHTML='<div class="inner">'+
+        '<div class="face front"><div class="han">'+t.han+'</div><div class="ko">'+t.ko+'</div><div class="en">'+t.en+'</div><div class="tap">눌러서 뒤집어요</div></div>'+
+        '<div class="face back">'+
+          '<div class="r"><span class="k">글자</span><span>'+t.hanx+'</span></div>'+
+          '<div class="r"><span class="k">평소</span><span>'+t.life+'</span></div>'+
+          '<div class="r"><span class="k">수학</span><span>'+t.math+'</span></div>'+
+          '<div class="r ex"><span class="k">예</span><span>'+t.ex+'</span></div>'+
+        '</div></div>';
+      function flip(){ c.classList.toggle('flip'); if(!opened[i]){ opened[i]=1; c.classList.add('done');
+        var n=Object.keys(opened).length;
+        hint.textContent=n+' / '+TERMS.length+'장 열어 봤어요.'+(n>=TERMS.length?' 전부 열었어요! 이제 문제의 말이 달라 보일 거예요. 👏':'');
+        if(n>=TERMS.length) cheer(); } }
+      c.onclick=flip;
+      c.onkeydown=function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); flip(); } };
+      box.appendChild(c);
+    });
+  })();
+
+  document.getElementById('q1b').onclick=function(){
+    MJ1.check('q1',7,'q1o',{correct:'7',hint:'도수 = 그 계급에 들어온 자료의 개수예요. 7개가 들어 있으면 도수는 7이에요.'});
+  };
+
+  /* ── 3. 같은 자료, 다섯 가지 옷 ── */
+  var DATA=[63,55,71,88,58,67,74,52,79,61,83,72,68,76,63,59,64,73,75,81];
+  var SORTED=DATA.slice().sort(function(a,b){return a-b;});
+  var CSIZE=10, CBASE=50, NC=4;              /* 50~90 을 10 씩 4 칸 */
+  function classCounts(){ var c=[0,0,0,0],k;
+    for(k=0;k<SORTED.length;k++) c[Math.floor((SORTED[k]-CBASE)/CSIZE)]++;
+    return c; }
+  var COUNTS=classCounts();
+  (function(){
+    var btns=document.getElementById('dressBtns'), stage=document.getElementById('dressStage'),
+        keep=document.getElementById('dressKeep'), note=document.getElementById('dressNote');
+    var STEPS=[
+      {t:'① 원자료', keep:[['y','값이 전부 살아 있어요'],['n','한눈에 안 들어와요']],
+       note:'조사한 그대로 적어 놓은 상태예요. <b>정보는 하나도 잃지 않았지만</b>, 몇 점대가 많은지는 전혀 안 보여요.'},
+      {t:'② 줄기와 잎', keep:[['y','값이 전부 살아 있어요'],['y','크기 순으로 정리돼요'],['y','대략의 모양도 보여요']],
+       note:'십의 자리를 <b>줄기</b>, 일의 자리를 <b>잎</b>으로 나눠 적었어요. 값을 하나도 안 버리면서 모양까지 보이는 <b>가장 알찬 정리법</b>이에요. 다만 자료가 아주 많으면 잎이 너무 길어져요.'},
+      {t:'③ 도수분포표', keep:[['y','어디에 몰렸는지 또렷해요'],['n','개별 값은 사라져요']],
+       note:'구간(계급)마다 <b>몇 개인지만</b> 적었어요. 여기서부터 개별 값이 사라져요. 대신 자료가 1,000개여도 표 한 장으로 끝나요.'},
+      {t:'④ 히스토그램', keep:[['y','모양이 한눈에 보여요'],['n','개별 값은 사라져요']],
+       note:'도수분포표를 막대로 세운 그림이에요. 구간이 <b>이어져</b> 있으니 막대도 붙여서 그려요. 막대 하나의 넓이 = 계급의 크기 × 도수예요.'},
+      {t:'⑤ 도수분포다각형', keep:[['y','여러 자료를 겹쳐 비교하기 좋아요'],['n','개별 값은 사라져요']],
+       note:'막대 윗변의 <b>중점</b>을 이은 선이에요. 양 끝은 도수 0인 계급까지 늘려서 가로축에 닿게 해요. 그래야 닫힌 도형이 되고, <b>넓이가 히스토그램과 똑같아져요.</b>'}
+    ];
+    var cur=0;
+    function svgWrap(inner,vb){ return '<svg viewBox="'+(vb||'0 0 400 210')+'" style="width:100%;max-width:400px" role="img" aria-label="자료를 나타낸 그림">'+inner+'</svg>'; }
+    function drawBars(poly){
+      var x0=46,y0=170,bw=76,maxC=Math.max.apply(null,COUNTS),sc=115/maxC,s='',k;
+      s+='<line x1="34" y1="'+y0+'" x2="380" y2="'+y0+'" stroke="var(--border)" stroke-width="1.5"/>';
+      s+='<line x1="34" y1="26" x2="34" y2="'+y0+'" stroke="var(--border)" stroke-width="1.5"/>';
+      for(k=0;k<NC;k++){
+        var h=COUNTS[k]*sc, x=x0+k*bw, cx=x+bw/2;
+        if(!poly) s+='<rect x="'+x+'" y="'+(y0-h)+'" width="'+bw+'" height="'+h+'" fill="var(--u-soft)" stroke="var(--dt)" stroke-width="1.5"/>';
+        else s+='<rect x="'+x+'" y="'+(y0-h)+'" width="'+bw+'" height="'+h+'" fill="rgba(63,143,122,.10)" stroke="rgba(63,143,122,.35)" stroke-width="1" stroke-dasharray="3 3"/>';
+        s+='<text x="'+cx+'" y="'+(y0-h-7)+'" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">'+COUNTS[k]+'</text>';
+        s+='<text x="'+cx+'" y="'+(y0+16)+'" text-anchor="middle" font-size="10.5" fill="var(--muted)">'+(CBASE+k*CSIZE)+'~'+(CBASE+(k+1)*CSIZE)+'</text>';
+      }
+      if(poly){
+        var pts=[],p0={x:x0-bw/2,y:y0};
+        pts.push(p0.x+','+p0.y);
+        for(k=0;k<NC;k++) pts.push((x0+k*bw+bw/2)+','+(y0-COUNTS[k]*sc));
+        pts.push((x0+NC*bw+bw/2)+','+y0);
+        s+='<polyline points="'+pts.join(' ')+'" fill="rgba(63,143,122,.20)" stroke="var(--dt)" stroke-width="2.5" stroke-linejoin="round"/>';
+        for(k=0;k<NC;k++) s+='<circle cx="'+(x0+k*bw+bw/2)+'" cy="'+(y0-COUNTS[k]*sc)+'" r="4" fill="var(--dt)" stroke="var(--panel)" stroke-width="2"/>';
+      }
+      s+='<text x="20" y="30" font-size="10.5" fill="var(--muted)">(명)</text>';
+      s+='<text x="378" y="'+(y0+30)+'" text-anchor="end" font-size="10.5" fill="var(--muted)">(점)</text>';
+      return svgWrap(s);
+    }
+    function render(){
+      var s='',k;
+      if(cur===0){
+        s='<div class="dt-raw">'+DATA.map(function(v){return '<i>'+v+'</i>';}).join('')+'</div>';
+        stage.innerHTML=s;
+      } else if(cur===1){
+        var st={},k2;
+        for(k2=0;k2<SORTED.length;k2++){ var g=Math.floor(SORTED[k2]/10); (st[g]=st[g]||[]).push(SORTED[k2]%10); }
+        s='<table class="dt-stem"><tr><td class="s">줄기</td><td class="l" style="letter-spacing:normal;font-weight:800">잎</td></tr>';
+        Object.keys(st).sort().forEach(function(g){ s+='<tr><td class="s">'+g+'</td><td class="l">'+st[g].join(' ')+'</td></tr>'; });
+        s+='</table><p style="text-align:center;font-size:12.5px;color:var(--muted);margin:6px 0 0">잎 하나 = 자료 하나 · 모두 '+SORTED.length+'개</p>';
+        stage.innerHTML=s;
+      } else if(cur===2){
+        s='<table class="dt-table" style="max-width:340px"><tr><th>계급(점)</th><th>도수(명)</th></tr>';
+        for(k=0;k<NC;k++) s+='<tr><td class="cls">'+(CBASE+k*CSIZE)+' 이상 '+(CBASE+(k+1)*CSIZE)+' 미만</td><td>'+COUNTS[k]+'</td></tr>';
+        s+='<tr class="sum"><td class="cls">합계</td><td>'+SORTED.length+'</td></tr></table>';
+        stage.innerHTML=s;
+      } else if(cur===3){ stage.innerHTML=drawBars(false); }
+      else { stage.innerHTML=drawBars(true); }
+      keep.innerHTML=STEPS[cur].keep.map(function(p){ return '<span class="kp '+p[0]+'">'+(p[0]==='y'?'✔ ':'✘ ')+p[1]+'</span>'; }).join('');
+      note.innerHTML=STEPS[cur].note;
+      Array.prototype.forEach.call(btns.children,function(b,i){ b.className=(i===cur)?'on':''; });
+    }
+    STEPS.forEach(function(st,i){
+      var b=document.createElement('button'); b.type='button'; b.textContent=st.t;
+      b.onclick=function(){ cur=i; render(); };
+      btns.appendChild(b);
+    });
+    render();
+  })();
+  document.getElementById('q2b').onclick=function(){
+    MJ1.check('q2',10,'q2o',{correct:'10',hint:'계급 하나의 폭이에요. "50 이상 60 미만"이면 60 − 50 이에요.'});
+  };
+
+  /* ── 4. 이상·미만 축 ── */
+  (function(){
+    var svg=document.getElementById('binAxis'), rng=document.getElementById('binRange'),
+        val=document.getElementById('binVal'), read=document.getElementById('binRead');
+    var BASE=20, SZ=10, N=4, x0=30, x1=430, y=86;
+    function draw(){
+      var v=+rng.value; val.textContent=v;
+      var idx=Math.min(N-1,Math.floor((v-BASE)/SZ));
+      var w=(x1-x0)/N, s='', k;
+      for(k=0;k<N;k++){
+        var lo=BASE+k*SZ, hi=lo+SZ, X=x0+k*w, on=(k===idx);
+        s+='<rect x="'+X+'" y="'+(y-30)+'" width="'+w+'" height="60" rx="8" fill="'+(on?'var(--dt)':'var(--panel-2)')+'" stroke="'+(on?'var(--dt)':'var(--border)')+'" stroke-width="1.5"/>';
+        s+='<text x="'+(X+w/2)+'" y="'+(y-6)+'" text-anchor="middle" font-size="11.5" font-weight="800" fill="'+(on?'#fff':'var(--ink)')+'">'+lo+' 이상</text>';
+        s+='<text x="'+(X+w/2)+'" y="'+(y+11)+'" text-anchor="middle" font-size="11.5" font-weight="800" fill="'+(on?'#fff':'var(--ink)')+'">'+hi+' 미만</text>';
+        s+='<text x="'+(X+w/2)+'" y="'+(y+30)+'" text-anchor="middle" font-size="10.5" fill="'+(on?'var(--dt)':'var(--muted)')+'">계급값 '+((lo+hi)/2)+'</text>';
+      }
+      var px=x0+((v-BASE)/(SZ*N))*(x1-x0);
+      s+='<line x1="'+px+'" y1="'+(y-52)+'" x2="'+px+'" y2="'+(y-32)+'" stroke="var(--warn)" stroke-width="2.5"/>';
+      s+='<circle cx="'+px+'" cy="'+(y-56)+'" r="15" fill="var(--warn)"/>';
+      s+='<text x="'+px+'" y="'+(y-51)+'" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">'+v+'</text>';
+      s+='<text x="'+x0+'" y="'+(y+50)+'" font-size="10.5" fill="var(--muted)">← 작은 값</text>';
+      s+='<text x="'+x1+'" y="'+(y+50)+'" text-anchor="end" font-size="10.5" fill="var(--muted)">큰 값 →</text>';
+      svg.innerHTML=s;
+      var lo2=BASE+idx*SZ, hi2=lo2+SZ, edge=((v-BASE)%SZ===0);
+      read.innerHTML= v+'은(는) <b>'+lo2+' 이상 '+hi2+' 미만</b> 계급으로 들어가요.'+
+        (edge? ' ← 딱 경계인 값이에요. <b>이상</b>이니까 이 칸의 첫 손님이 돼요.' : '');
+    }
+    rng.oninput=draw; draw();
+  })();
+  document.getElementById('q3b').onclick=function(){
+    MJ1.check('q3',65,'q3o',{correct:'65',hint:'60은 "60 이상 70 미만"에 들어가요. 계급값은 (60 + 70) ÷ 2 예요.'});
+  };
+
+  /* ── 5. 상대도수 저울 ── */
+  (function(){
+    var rA=document.getElementById('rA'), rAs=document.getElementById('rAs'),
+        rB=document.getElementById('rB'), rBs=document.getElementById('rBs'),
+        v=document.getElementById('relVerdict');
+    function draw(){
+      var A=+rA.value, As=Math.min(+rAs.value,A), B=+rB.value, Bs=Math.min(+rBs.value,B);
+      rAs.max=A; rBs.max=B;
+      document.getElementById('rAv').textContent=A+'명'; document.getElementById('rAsv').textContent=As+'명';
+      document.getElementById('rBv').textContent=B+'명'; document.getElementById('rBsv').textContent=Bs+'명';
+      var pa=As/A, pb=Bs/B;
+      document.getElementById('barA').style.width=(pa*100)+'%';
+      document.getElementById('barB').style.width=(pb*100)+'%';
+      document.getElementById('barAt').textContent=As+' / '+A+' = '+fmt(Math.round(pa*1000)/1000);
+      document.getElementById('barBt').textContent=Bs+' / '+B+' = '+fmt(Math.round(pb*1000)/1000);
+      var msg;
+      if(Math.abs(pa-pb)<1e-9) msg='상대도수가 똑같아요 — 비율로 보면 두 반이 같아요.';
+      else{
+        var hi=(pa>pb)?'1반':'2반', hiN=(pa>pb)?As:Bs, loN=(pa>pb)?Bs:As;
+        msg='비율이 높은 쪽은 <b>'+hi+'</b>이에요';
+        if(hiN<loN) msg+=' — 사람 수는 더 적은데도요! 그래서 <b>상대도수로 비교해야</b> 공평해요.';
+        else msg+='.';
+      }
+      v.innerHTML=msg;
+    }
+    [rA,rAs,rB,rBs].forEach(function(el){ el.oninput=draw; });
+    draw();
+  })();
+  (function(){
+    var stack=document.getElementById('relStack'), read=document.getElementById('relStackRead');
+    var cs=COUNTS, tot=SORTED.length, cols=['#3f8f7a','#63b39c','#8fcfb9','#bde4d6'], s='', parts=[];
+    cs.forEach(function(c,i){
+      var r=Math.round(c/tot*1000)/1000;
+      s+='<i style="width:'+(c/tot*100)+'%;background:'+cols[i]+'">'+fmt(r)+'</i>';
+      parts.push(fmt(r));
+    });
+    stack.innerHTML=s;
+    read.innerHTML='위의 자료(20명)로 구한 상대도수예요. '+parts.join(' + ')+' = <b>1</b>이 돼요.';
+  })();
+  document.getElementById('q4b').onclick=function(){
+    MJ1.check('q4',6,'q4o',{correct:'6',hint:'도수 = 상대도수 × 전체 도수 예요. 0.15 × 40 을 계산해요.'});
+  };
+
+  /* ── 6-1. 평균 vs 중앙값 ── */
+  (function(){
+    var svg=document.getElementById('meanAxis'), rng=document.getElementById('meanRange'),
+        val=document.getElementById('meanVal'), read=document.getElementById('meanRead');
+    var FIX=[5,6,7,8], x0=40, x1=430, y=76, LO=0, HI=95;
+    function X(v){ return x0+(v-LO)/(HI-LO)*(x1-x0); }
+    function draw(){
+      var x=+rng.value; val.textContent=x;
+      var arr=FIX.concat([x]).sort(function(a,b){return a-b;});
+      var sum=0,k; for(k=0;k<arr.length;k++) sum+=arr[k];
+      var mean=sum/arr.length, med=arr[2];
+      var s='';
+      s+='<line x1="'+x0+'" y1="'+y+'" x2="'+x1+'" y2="'+y+'" stroke="var(--border)" stroke-width="2"/>';
+      for(k=0;k<=90;k+=10){ s+='<line x1="'+X(k)+'" y1="'+(y-4)+'" x2="'+X(k)+'" y2="'+(y+4)+'" stroke="var(--border)" stroke-width="1"/>';
+        s+='<text x="'+X(k)+'" y="'+(y+18)+'" text-anchor="middle" font-size="9.5" fill="var(--muted)">'+k+'</text>'; }
+      FIX.forEach(function(v2){ s+='<circle cx="'+X(v2)+'" cy="'+y+'" r="6" fill="var(--dt2)" stroke="var(--panel)" stroke-width="2"/>'; });
+      s+='<circle cx="'+X(x)+'" cy="'+y+'" r="8" fill="var(--warn)" stroke="var(--panel)" stroke-width="2"/>';
+      s+='<polygon points="'+X(mean)+','+(y-12)+' '+(X(mean)-7)+','+(y-24)+' '+(X(mean)+7)+','+(y-24)+'" fill="var(--blue)"/>';
+      s+='<text x="'+X(mean)+'" y="'+(y-29)+'" text-anchor="middle" font-size="11" font-weight="800" fill="var(--blue)">평균 '+fmt(Math.round(mean*10)/10)+'</text>';
+      s+='<polygon points="'+X(med)+','+(y+12)+' '+(X(med)-7)+','+(y+24)+' '+(X(med)+7)+','+(y+24)+'" fill="var(--plum)"/>';
+      s+='<text x="'+X(med)+'" y="'+(y+40)+'" text-anchor="middle" font-size="11" font-weight="800" fill="var(--plum)">중앙값 '+med+'</text>';
+      svg.innerHTML=s;
+      var base=(5+6+7+8+9)/5;
+      read.innerHTML='자료는 '+arr.join(', ')+'예요. <b style="color:var(--blue)">평균 '+fmt(Math.round(mean*10)/10)+'</b> · <b style="color:var(--plum)">중앙값 '+med+'</b>'+
+        (x>=40? ' — 한 명 때문에 평균은 '+fmt(Math.round((mean-base)*10)/10)+'만큼 끌려갔는데, 중앙값은 그대로예요.' : '');
+    }
+    rng.oninput=draw; draw();
+  })();
+
+  /* ── 6-2. 계급을 잘게 나누면 ── */
+  (function(){
+    var svg=document.getElementById('normAxis'), rng=document.getElementById('normRange'),
+        val=document.getElementById('normVal'), read=document.getElementById('normRead');
+    var x0=36, x1=430, y0=132, H=104, L=3.2;
+    function dens(t){ return Math.exp(-t*t/2); }
+    function draw(){
+      var n=+rng.value; val.textContent=n+'칸';
+      var w=(x1-x0)/n, s='', k;
+      s+='<line x1="'+x0+'" y1="'+y0+'" x2="'+x1+'" y2="'+y0+'" stroke="var(--border)" stroke-width="1.5"/>';
+      for(k=0;k<n;k++){
+        var t=-L+ (k+0.5)*(2*L/n), h=dens(t)*H, X=x0+k*w;
+        s+='<rect x="'+X+'" y="'+(y0-h)+'" width="'+(w-(n>24?0.4:1))+'" height="'+h+'" fill="var(--u-soft)" stroke="var(--dt)" stroke-width="'+(n>24?0.6:1.2)+'"/>';
+      }
+      var pts=[],i;
+      for(i=0;i<=120;i++){ var t2=-L+i*(2*L/120); pts.push((x0+(t2+L)/(2*L)*(x1-x0))+','+(y0-dens(t2)*H)); }
+      s+='<polyline points="'+pts.join(' ')+'" fill="none" stroke="var(--plum)" stroke-width="2.5" opacity="'+(n>=12?0.95:0.35)+'"/>';
+      s+='<text x="'+x0+'" y="'+(y0+18)+'" font-size="10.5" fill="var(--muted)">작은 값</text>';
+      s+='<text x="'+x1+'" y="'+(y0+18)+'" text-anchor="end" font-size="10.5" fill="var(--muted)">큰 값</text>';
+      s+='<text x="'+((x0+x1)/2)+'" y="'+(y0+34)+'" text-anchor="middle" font-size="10.5" fill="var(--muted)">가운데에 가장 많이 모여 있는 자료예요</text>';
+      svg.innerHTML=s;
+      read.innerHTML= n<=8 ? '계급이 '+n+'칸 — 아직 계단처럼 울퉁불퉁해요.'
+        : (n<=20 ? '계급이 '+n+'칸 — 곡선의 모양이 슬슬 보이기 시작해요.'
+                 : '계급이 '+n+'칸 — 거의 <b>매끄러운 곡선</b>이 됐어요. 이 종 모양이 <b>정규분포</b>예요.');
+    }
+    rng.oninput=draw; draw();
+  })();
+
+  /* ── 7. 통계로 속이는 세 가지 ── */
+  (function(){
+    var btns=document.getElementById('trickBtns'), svg=document.getElementById('trickSvg'), read=document.getElementById('trickRead');
+    function panelBars(ox,vals,base,top,labels,color,title){
+      var s='', w=26, gap=10, y0=140, H=92, k;
+      s+='<text x="'+(ox+70)+'" y="26" text-anchor="middle" font-size="11.5" font-weight="800" fill="var(--ink)">'+title+'</text>';
+      s+='<line x1="'+(ox+16)+'" y1="'+y0+'" x2="'+(ox+150)+'" y2="'+y0+'" stroke="var(--border)" stroke-width="1.5"/>';
+      s+='<line x1="'+(ox+16)+'" y1="36" x2="'+(ox+16)+'" y2="'+y0+'" stroke="var(--border)" stroke-width="1.5"/>';
+      s+='<text x="'+(ox+13)+'" y="'+(y0+2)+'" text-anchor="end" font-size="9" fill="var(--muted)">'+base+'</text>';
+      s+='<text x="'+(ox+13)+'" y="42" text-anchor="end" font-size="9" fill="var(--muted)">'+top+'</text>';
+      for(k=0;k<vals.length;k++){
+        var h=Math.max(2,(vals[k]-base)/(top-base)*H), x=ox+26+k*(w+gap);
+        s+='<rect x="'+x+'" y="'+(y0-h)+'" width="'+w+'" height="'+h+'" fill="'+color+'" opacity=".85"/>';
+        s+='<text x="'+(x+w/2)+'" y="'+(y0+14)+'" text-anchor="middle" font-size="9" fill="var(--muted)">'+labels[k]+'</text>';
+      }
+      return s;
+    }
+    var TRICKS=[
+      {t:'① 세로축 자르기', draw:function(){
+        var v=[98,99,100,102], lb=['1월','2월','3월','4월'];
+        return panelBars(8,v,0,110,lb,'var(--dt)','세로축이 0부터 — 거의 안 변했어요')+
+               panelBars(240,v,97,103,lb,'var(--warn)','세로축이 97부터 — 폭등한 것처럼!');
+       }, read:'<b>같은 숫자예요.</b> 98, 99, 100, 102로 거의 변하지 않았는데, 오른쪽처럼 세로축을 97부터 그리면 <b>두 배로 뛴 것처럼</b> 보여요. 뉴스 그래프를 볼 때 <b>세로축이 0에서 시작하는지</b>부터 확인해요.'},
+      {t:'② 계급 폭 장난', draw:function(){
+        var s='', y0=140, H=92, k;
+        s+='<text x="78" y="26" text-anchor="middle" font-size="11.5" font-weight="800" fill="var(--ink)">폭이 일정해요</text>';
+        s+='<line x1="16" y1="'+y0+'" x2="150" y2="'+y0+'" stroke="var(--border)" stroke-width="1.5"/>';
+        var c1=[4,6,7,3];
+        for(k=0;k<4;k++){ var h=c1[k]/7*H; s+='<rect x="'+(20+k*32)+'" y="'+(y0-h)+'" width="30" height="'+h+'" fill="var(--dt)" opacity=".8"/>';
+          s+='<text x="'+(35+k*32)+'" y="'+(y0+14)+'" text-anchor="middle" font-size="8.5" fill="var(--muted)">'+(k*10)+'~'+((k+1)*10)+'</text>'; }
+        s+='<text x="310" y="26" text-anchor="middle" font-size="11.5" font-weight="800" fill="var(--ink)">마지막 칸만 넓게</text>';
+        s+='<line x1="248" y1="'+y0+'" x2="440" y2="'+y0+'" stroke="var(--border)" stroke-width="1.5"/>';
+        var w2=[30,30,90], c2=[4,6,10], lb2=['0~10','10~20','20~50'], x=252;
+        for(k=0;k<3;k++){ var h2=c2[k]/10*H;
+          s+='<rect x="'+x+'" y="'+(y0-h2)+'" width="'+(w2[k]-2)+'" height="'+h2+'" fill="var(--warn)" opacity=".8"/>';
+          s+='<text x="'+(x+w2[k]/2)+'" y="'+(y0+14)+'" text-anchor="middle" font-size="8.5" fill="var(--muted)">'+lb2[k]+'</text>';
+          x+=w2[k]; }
+        return s;
+       }, read:'오른쪽은 마지막 계급만 <b>폭을 3배</b>로 넓게 잡았어요. 그러면 그 칸에 자료가 많이 들어가니 <b>막대가 유난히 높아</b> 보여요. 하지만 넓이로 따지면 이야기가 달라져요. 그래서 히스토그램은 <b>계급의 크기를 모두 같게</b> 하는 것이 약속이에요.'},
+      {t:'③ 평균만 말하기', draw:function(){
+        var s='', y=96;
+        function row(oy,vals,title,color){
+          var t='';
+          t+='<text x="230" y="'+(oy-24)+'" text-anchor="middle" font-size="11.5" font-weight="800" fill="var(--ink)">'+title+'</text>';
+          t+='<line x1="30" y1="'+oy+'" x2="430" y2="'+oy+'" stroke="var(--border)" stroke-width="1.5"/>';
+          vals.forEach(function(v){ t+='<circle cx="'+(30+v/100*400)+'" cy="'+oy+'" r="6" fill="'+color+'" opacity=".85"/>'; });
+          t+='<polygon points="230,'+(oy-9)+' 223,'+(oy-20)+' 237,'+(oy-20)+'" fill="var(--blue)"/>';
+          return t;
+        }
+        s+=row(58,[46,48,50,52,54],'A 반 — 평균 50점','var(--dt)');
+        s+=row(140,[10,30,50,70,90],'B 반 — 평균도 50점','var(--warn)');
+        return s;
+       }, read:'두 반의 <b>평균은 똑같이 50점</b>이에요. 그런데 A반은 다들 50점 근처인데 B반은 10점부터 90점까지 흩어져 있어요. <b>평균 하나만 말하면 이 차이가 통째로 숨어요.</b> 그래서 중3에서 "얼마나 흩어졌나"를 재는 <b>표준편차</b>를 배워요.'}
+    ];
+    var cur=0;
+    function render(){
+      svg.innerHTML=TRICKS[cur].draw();
+      read.innerHTML=TRICKS[cur].read;
+      Array.prototype.forEach.call(btns.children,function(b,i){ b.className=(i===cur)?'on':''; });
+    }
+    TRICKS.forEach(function(t,i){
+      var b=document.createElement('button'); b.type='button'; b.textContent=t.t;
+      b.onclick=function(){ cur=i; render(); };
+      btns.appendChild(b);
+    });
+    render();
+  })();
+
+  /* ── 8. 실전 총정리 (5유형 섞어서) ── */
+  var QUIZ_TYPES=[
+    {key:'①', name:'계급값 구하기', gen:genType1, anchor:'s2'},
+    {key:'②', name:'도수분포표 읽기', gen:genType2, anchor:'s2'},
+    {key:'③', name:'상대도수', gen:genType3, anchor:'s5'},
+    {key:'④', name:'히스토그램 넓이', gen:genType4, anchor:'s3'},
+    {key:'⑤', name:'줄기와 잎 읽기', gen:genType5, anchor:'s3'}
+  ];
+  var scorer=null;
+  function buildQuiz(){
+    var area=document.getElementById('quizArea'); area.innerHTML='';
+    scorer=MJ1.masteryScore('quizScore',5,'data-mastery','자료 읽는 법 특강');
+    shuffle(QUIZ_TYPES).forEach(function(qt,idx){
+      var q=qt.gen();
+      var card=document.createElement('div'); card.className='dt-quizcard';
+      card.innerHTML='<b>'+(idx+1)+'.</b> <span class="dt-stem" style="display:inline">'+q.stem+'</span>'+
+        '<div class="dt-checkrow"><input class="num" inputmode="decimal" aria-label="답"><span>'+q.unit+'</span><button class="chk">확인</button></div>'+
+        '<div class="dt-out"></div><div class="dt-quiz-id"></div>';
+      area.appendChild(card);
+      var inp=card.querySelector('input'), out=card.querySelector('.dt-out'), idbox=card.querySelector('.dt-quiz-id');
+      function submit(){
+        var raw=norm(inp.value);
+        if(raw===''){ out.innerHTML='답을 넣어 주세요 🙂'; return; }
+        var v=parseFloat(raw), ok=!isNaN(v)&&closeEnough(v,q.ans);
+        out.innerHTML= ok ? '<b style="color:var(--ok)">✓ 정답이에요!</b> '+q.sol
+                          : '<b style="color:var(--dt)">아직이에요.</b> '+q.sol;
+        if(ok) cheer();
+        idbox.innerHTML='이 문제는 <b>'+qt.key+' '+qt.name+'</b>이에요. <a href="#'+qt.anchor+'">다시 볼까요? →</a>';
+        idbox.classList.add('show');
+        scorer.mark(idx,ok);
+      }
+      card.querySelector('.chk').onclick=submit;
+      inp.addEventListener('keydown',function(e){ if(e.key==='Enter') submit(); });
+    });
+  }
+  buildQuiz();
+  document.getElementById('quizAgain').onclick=buildQuiz;
+
+  /* ── 9. 치트시트 인쇄 ── */
+  document.getElementById('printCheat').onclick=function(){
+    document.getElementById('printArea').innerHTML=document.querySelector('.dt-cheat').outerHTML;
+    window.print();
+  };
+})();
+</script>
+</body>
+</html>
