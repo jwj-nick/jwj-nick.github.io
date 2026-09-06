@@ -22,7 +22,7 @@
   ];
   // 탐험(PhET/GeoGebra) 탭이 준비된 단원만 노출 → 미준비 단원에서 404 방지
   var EXPLORE_READY={1:1,2:1,3:1,4:1,5:1,6:1,7:1,8:1,9:1,10:1,11:1};
-  var PLAY_READY={1:1,2:1,3:1,4:1,5:1,6:1,7:1,8:1,9:1,10:1};   // 놀이터(g*.html) 완성된 단원만. math2 07~10 완주. math1 07~12는 착수 방식 결정 후 추가
+  var PLAY_READY={1:1,2:1,3:1,4:1,5:1,6:1,7:1,8:1,9:1,10:1,11:1};   // 놀이터(g*.html) 완성된 단원만. math2 07~10 완주. math1 07~12는 착수 방식 결정 후 추가
   // 현재 페이지 상태(initChrome이 채움) — 이어하기(B6)·완주 도장(A1)이 참조
   var curInfo={kind:'home'}, curUnit=null, restoredN=0;
   function reducedMotion(){try{return !!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);}catch(e){return false;}}

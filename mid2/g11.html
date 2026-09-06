@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>놀이터 · 확률 · 중2-2</title>
+<link rel="stylesheet" href="concept.css?v=20260905a">
+<style>
+  .pb-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+  .pb-btn{background:var(--u);color:#fff;border:none;border-radius:999px;padding:8px 16px;font-size:13.5px;font-weight:800;cursor:pointer}
+  .pb-btn.ghost{background:none;border:1.5px solid var(--u);color:var(--u)}
+  .pb-bars{display:flex;gap:5px;align-items:flex-end;height:120px;margin:12px 0 6px;padding:0 4px}
+  .pb-bars .b{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%}
+  .pb-bars .b i{display:block;width:100%;background:linear-gradient(180deg,var(--u),var(--u-2,var(--u)));border-radius:5px 5px 0 0;transition:height .25s;min-height:2px}
+  .pb-bars .b span{font-size:10.5px;color:var(--muted);margin-top:4px}
+  .pb-bars .b b{font-size:11px;color:var(--u);margin-bottom:3px}
+  .pb-line{position:relative;height:0;border-top:2px dashed var(--accent);margin:-126px 4px 126px;opacity:.8}
+  .pb-line span{position:absolute;right:0;top:-16px;font-size:10.5px;font-weight:800;color:var(--accent);background:var(--panel);padding:0 4px}
+  .pb-read{text-align:center;font-size:13.5px;line-height:1.7;margin-top:8px}
+  .pb-read b{color:var(--u)}
+
+  .pb-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;max-width:330px;margin:10px auto}
+  .pb-grid .h{font-size:10.5px;color:var(--muted);text-align:center;font-weight:700;padding:2px 0}
+  .pb-grid .c{aspect-ratio:1;display:grid;place-items:center;border-radius:5px;background:var(--panel-2);
+    border:1px solid var(--border);font-size:10.5px;font-weight:700;color:var(--muted);transition:all .2s}
+  .pb-grid .c.on{background:var(--u);border-color:var(--u);color:#fff}
+  .pb-picks{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin:8px 0}
+  .pb-picks button{background:var(--panel-2);border:1.5px solid var(--border);border-radius:999px;padding:6px 13px;
+    font-size:12.5px;font-weight:700;cursor:pointer;color:var(--ink)}
+  .pb-picks button.on{background:var(--u);border-color:var(--u);color:#fff}
+
+  .pb-two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0}
+  .pb-two .t{text-align:center;font-size:12.5px;font-weight:800;margin-bottom:5px}
+  .pb-meter{height:26px;border-radius:8px;background:var(--panel-2);border:1px solid var(--border);overflow:hidden;position:relative}
+  .pb-meter i{display:block;height:100%;transition:width .3s}
+  .pb-meter span{position:absolute;inset:0;display:grid;place-items:center;font-size:11.5px;font-weight:800;color:var(--ink)}
+  .pb-coins{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:10px 0}
+  .pb-coins i{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;
+    border:2px solid var(--u);color:var(--u);background:var(--panel);font-style:normal}
+  .pb-coins i.head{background:var(--u);color:#fff}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중2</a><span class="dot"></span><a href="u11.html">단원 11</a><span class="dot"></span><span>놀이터</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+  <div class="pg-badge"><span class="i">🎨</span>놀이터 — 점수는 안 매겨요, 그냥 놀아 봐요</div>
+  <h1>확률 놀이터</h1>
+  <p class="lede">확률은 "이렇게 될 것"이 아니라 "이렇게 되는 몫"이에요. 직접 던져 보고, 세어 보고, 뒤집어서 세어 봐요.</p>
+
+  <div class="pg-score" id="score"><span class="dot">🏅</span>해결한 사건 <b id="scoreN">0</b> / <span id="scoreT">4</span></div>
+
+  <!-- 게임 1 · 주사위 실험실 -->
+  <div class="pg-game reveal" id="g-dice">
+    <div class="pg-title"><span class="pg-emoji">🎲</span>주사위 실험실</div>
+    <div class="pg-desc">주사위를 던질수록 각 눈이 나온 <b>상대도수</b>가 <b>1/6 ≈ 0.167</b>에 가까워져요. 중1에서 배운 상대도수가 바로 확률로 이어지는 자리예요.</div>
+    <div class="pb-bars" id="dc-bars"></div>
+    <div class="pb-line"><span>1/6 ≈ 0.167</span></div>
+    <div class="pb-row">
+      <button class="pb-btn" id="dc-1">🎲 1번 던지기</button>
+      <button class="pb-btn" id="dc-100">🎲 100번 던지기</button>
+      <button class="pb-btn ghost" id="dc-reset">처음부터</button>
+    </div>
+    <div class="pb-read" id="dc-read">아직 던지지 않았어요. 버튼을 눌러 봐요.</div>
+  </div>
+
+  <!-- 게임 2 · 두 주사위 표 -->
+  <div class="pg-game reveal" id="g-table">
+    <div class="pg-title"><span class="pg-emoji">🔲</span>두 주사위, 36칸 표</div>
+    <div class="pg-desc">주사위 두 개를 던지면 경우가 <b>6 × 6 = 36가지</b>예요. 조건을 눌러서 몇 칸이 색칠되는지 세어 봐요.</div>
+    <div class="pb-picks" id="tb-picks"></div>
+    <div class="pb-grid" id="tb-grid" aria-label="두 주사위의 36가지 경우"></div>
+    <div class="pb-read" id="tb-read"></div>
+    <div class="pg-case" style="margin-top:12px">
+      <div class="case-stmt">직접 세어 볼까요? <b>두 눈의 합이 9 이상</b>인 경우는 몇 가지일까요?</div>
+      <div class="row" style="margin-top:10px"><input class="num" id="tb-in" inputmode="numeric" style="width:80px" aria-label="답"><span>가지</span><button id="tb-check">확인</button></div>
+      <div class="out" id="tb-out"></div>
+    </div>
+  </div>
+
+  <!-- 게임 3 · 여사건 저울 -->
+  <div class="pg-game reveal" id="g-comp">
+    <div class="pg-title"><span class="pg-emoji">🪙</span>"적어도 하나" 뒤집어 세기</div>
+    <div class="pg-desc">동전을 여러 개 던져 <b>적어도 하나가 앞면</b>일 확률을 구할 때, 앞면 1개·2개·3개…를 다 더하면 힘들어요. <b>"모두 뒷면"만 빼면</b> 끝이에요.</div>
+    <div class="controls">
+      <div class="ctrl"><label><span>동전 개수</span><span id="cp-nv">3</span>개</label><input type="range" id="cp-n" min="1" max="8" step="1" value="3"></div>
+    </div>
+    <div class="pb-coins" id="cp-coins"></div>
+    <div class="pb-two">
+      <div><div class="t">전부 세기 😵</div><div class="pb-meter"><i id="cp-hard" style="width:0%;background:linear-gradient(90deg,#e0913a,#f0b46a)"></i><span id="cp-hardt"></span></div></div>
+      <div><div class="t">뒤집어 세기 🙂</div><div class="pb-meter"><i id="cp-easy" style="width:0%;background:linear-gradient(90deg,var(--u),var(--u-2,var(--u)))"></i><span id="cp-easyt"></span></div></div>
+    </div>
+    <div class="pb-read" id="cp-read"></div>
+    <div class="pb-row"><button class="pb-btn ghost" id="cp-toss">🪙 실제로 던져 보기</button></div>
+    <div class="pb-read" id="cp-toss-read" style="min-height:1.4em"></div>
+  </div>
+
+  <!-- 게임 4 · 오류 탐정 -->
+  <div class="pg-game reveal" id="g-detective">
+    <div class="pg-title"><span class="pg-emoji">🔍</span>오류 탐정</div>
+    <div class="pg-desc">누군가 이렇게 말했어요. 어디가 이상한지 찾아볼까요? (정답은 안 알려줘요 — 스스로 짚어 봐요)</div>
+    <div class="pg-case">
+      <div class="case-no" id="det-no">사건 1 / 6</div>
+      <div class="case-stmt" id="det-stmt"></div>
+    </div>
+    <div style="text-align:center"><button id="det-think">다르게 생각해 볼까요?</button></div>
+    <div class="hint" id="det-counter" style="display:none;margin-top:10px"></div>
+    <div class="ask" id="det-ask" style="display:none;margin-top:10px"></div>
+    <div class="pg-case" id="det-checkbox" style="display:none;margin-top:14px">
+      <div class="case-stmt" id="det-checkq"></div>
+      <div class="row" style="margin-top:10px"><input class="blank" id="det-in" placeholder="답"><button id="det-check">확인</button></div>
+      <div class="out" id="det-out"></div>
+    </div>
+    <div style="text-align:center;margin-top:12px"><button class="ghost" id="det-next" style="display:none">다음 사건 -></button></div>
+  </div>
+
+  <div class="stamp" id="stamp">
+    <div class="seal">🎉</div>
+    <div class="seal-t">놀이터 클리어!</div>
+    <div class="seal-d">던져 보고, 세어 보고, 뒤집어 세는 법까지 익혔어요.</div>
+  </div>
+  <div class="bridge" style="margin-top:18px"><a class="golink" href="p11.html">연습 문제로 -></a></div>
+
+  <p style="text-align:center;font-size:13.5px;color:var(--muted);margin:14px 0 0">🎲 경우를 세는 것부터 막히면 <a href="counting-mastery.html" style="color:var(--u);font-weight:700">경우의 수 세는 법 특강 →</a>을 먼저 봐요.</p>
+
+  <div class="foot">중2 수학 · 놀이터 · 단원 11</div>
+</div>
+
+<div class="pg-confetti" id="confetti"></div>
+
+<script src="concept.js?v=20260905a"></script>
+<script>
+MJ.boot();
+(function(){
+  var solved=0, TOTAL=4, done={};
+  function bump(key){
+    if(done[key])return; done[key]=1;
+    var el=document.getElementById('scoreN'); solved++; el.textContent=solved;
+    var badge=document.getElementById('score'); badge.classList.remove('bump'); void badge.offsetWidth; badge.classList.add('bump');
+    if(solved>=TOTAL){ confetti(); document.getElementById('stamp').classList.add('show'); MJ.completeUnit('g11'); }
+  }
+  function confetti(){
+    var host=document.getElementById('confetti'); host.innerHTML='';
+    var colors=['#3fa89a','#63c6b1','#e59a3c','#f2be6b','#4fa892'];
+    for(var i=0;i<46;i++){
+      var s=document.createElement('i');
+      s.style.left=(Math.random()*100)+'vw';
+      s.style.background=colors[i%colors.length];
+      s.style.animationDelay=(Math.random()*0.4)+'s';
+      s.style.animationDuration=(1.1+Math.random()*0.9)+'s';
+      s.style.transform='rotate('+(Math.random()*360)+'deg)';
+      host.appendChild(s);
+    }
+    host.classList.add('on');
+    setTimeout(function(){host.classList.remove('on');},2200);
+  }
+  function ri(a,b){ return a+Math.floor(Math.random()*(b-a+1)); }
+
+  /* ── 게임 1 · 주사위 실험실 ── */
+  (function(){
+    var cnt=[0,0,0,0,0,0], total=0;
+    var bars=document.getElementById('dc-bars'), read=document.getElementById('dc-read');
+    for(var k=0;k<6;k++){
+      var b=document.createElement('div'); b.className='b';
+      b.innerHTML='<b></b><i style="height:0%"></i><span>'+(k+1)+'</span>';
+      bars.appendChild(b);
+    }
+    function paint(){
+      for(var k=0;k<6;k++){
+        var r=total? cnt[k]/total : 0;
+        var el=bars.children[k];
+        el.querySelector('i').style.height=Math.min(100,r*100/0.30*0.85)+'%';   /* 0.30 을 위쪽 기준으로 */
+        el.querySelector('b').textContent=total? (Math.round(r*1000)/1000).toFixed(3) : '';
+      }
+      if(!total){ read.textContent='아직 던지지 않았어요. 버튼을 눌러 봐요.'; return; }
+      var mx=0,mn=1,k2;
+      for(k2=0;k2<6;k2++){ var rr=cnt[k2]/total; if(rr>mx)mx=rr; if(rr<mn)mn=rr; }
+      var gap=Math.round((mx-mn)*1000)/1000;
+      read.innerHTML='모두 <b>'+total+'번</b> 던졌어요. 가장 높은 값과 낮은 값의 차이는 <b>'+gap.toFixed(3)+'</b>예요.'+
+        (total<50 ? ' 아직 들쭉날쭉하죠? 더 던져 봐요.'
+         : (gap<0.05 ? ' 여섯 막대가 <b>1/6 근처</b>로 모였어요 — 이게 확률이에요.'
+                     : ' 조금씩 고르게 되고 있어요. 100번을 더 던져 봐요.'));
+      if(total>=100) bump('dice');
+    }
+    function roll(n){ for(var i=0;i<n;i++){ cnt[ri(0,5)]++; total++; } paint(); }
+    document.getElementById('dc-1').onclick=function(){ roll(1); };
+    document.getElementById('dc-100').onclick=function(){ roll(100); };
+    document.getElementById('dc-reset').onclick=function(){ cnt=[0,0,0,0,0,0]; total=0; paint(); };
+    paint();
+  })();
+
+  /* ── 게임 2 · 두 주사위 36칸 ── */
+  (function(){
+    var grid=document.getElementById('tb-grid'), picks=document.getElementById('tb-picks'), read=document.getElementById('tb-read');
+    var COND=[
+      {t:'합이 7', f:function(a,b){return a+b===7;}, why:'대각선으로 6칸이에요 — 두 주사위에서 <b>가장 잘 나오는 합</b>이에요.'},
+      {t:'합이 5 이하', f:function(a,b){return a+b<=5;}, why:'왼쪽 위 삼각형이에요.'},
+      {t:'두 눈이 같음', f:function(a,b){return a===b;}, why:'대각선 6칸이에요. 이런 걸 "같은 눈"이라고 해요.'},
+      {t:'적어도 하나가 6', f:function(a,b){return a===6||b===6;}, why:'가장자리 ㄱ자 모양 11칸이에요. 6과 6이 겹치니 6 + 6 − 1 = 11이에요.'},
+      {t:'합이 짝수', f:function(a,b){return (a+b)%2===0;}, why:'딱 절반인 18칸이에요.'}
+    ];
+    var cur=0, cells=[];
+    grid.innerHTML='';
+    var h=document.createElement('div'); h.className='h'; h.textContent='＼'; grid.appendChild(h);
+    for(var c=1;c<=6;c++){ var hh=document.createElement('div'); hh.className='h'; hh.textContent=c; grid.appendChild(hh); }
+    for(var r=1;r<=6;r++){
+      var hr=document.createElement('div'); hr.className='h'; hr.textContent=r; grid.appendChild(hr);
+      for(var c2=1;c2<=6;c2++){
+        var d=document.createElement('div'); d.className='c'; d.textContent=(r+c2);
+        grid.appendChild(d); cells.push({a:r,b:c2,el:d});
+      }
+    }
+    function paint(){
+      var C=COND[cur], n=0;
+      cells.forEach(function(x){ var on=C.f(x.a,x.b); x.el.classList.toggle('on',on); if(on)n++; });
+      var g=function(a,b){ while(b){var t=a%b;a=b;b=t;} return a||1; }(n,36);
+      read.innerHTML='<b>'+C.t+'</b> → 색칠된 칸 <b>'+n+'</b>가지 · 확률 <b>'+n+'/36'+(g>1?' = '+(n/g)+'/'+(36/g):'')+'</b> ≈ '+
+        (Math.round(n/36*1000)/1000).toFixed(3)+'<br><span style="color:var(--muted)">'+C.why+'</span>';
+      Array.prototype.forEach.call(picks.children,function(b,i){ b.className=(i===cur)?'on':''; });
+    }
+    COND.forEach(function(C,i){
+      var b=document.createElement('button'); b.type='button'; b.textContent=C.t;
+      b.onclick=function(){ cur=i; paint(); };
+      picks.appendChild(b);
+    });
+    paint();
+    document.getElementById('tb-check').onclick=function(){
+      MJ.check('tb-in',10,'tb-out',{correct:'10',hint:'합이 9·10·11·12인 칸을 세어 봐요. 4 + 3 + 2 + 1 이에요.',
+        onOk:function(){ bump('table'); }});
+    };
+  })();
+
+  /* ── 게임 3 · 여사건 ── */
+  (function(){
+    var rng=document.getElementById('cp-n'), coins=document.getElementById('cp-coins'),
+        read=document.getElementById('cp-read'), tossRead=document.getElementById('cp-toss-read');
+    function draw(){
+      var n=+rng.value;
+      document.getElementById('cp-nv').textContent=n;
+      var all=Math.pow(2,n), none=1, at=all-none;
+      var p=at/all;
+      document.getElementById('cp-hard').style.width=(p*100)+'%';
+      document.getElementById('cp-easy').style.width=(p*100)+'%';
+      document.getElementById('cp-hardt').textContent=(n>=4? n+'가지를 다 더해야 해요' : '앞면 1개~'+n+'개를 더해요');
+      document.getElementById('cp-easyt').textContent='1 − '+none+'/'+all+' = '+at+'/'+all;
+      var s='';
+      for(var i=0;i<n;i++) s+='<i>뒤</i>';
+      coins.innerHTML=s;
+      read.innerHTML='동전 '+n+'개를 던질 때 모든 경우는 <b>2^'+n+' = '+all+'가지</b>예요. 그중 <b>모두 뒷면</b>은 딱 <b>1가지</b>뿐이니, '+
+        '적어도 하나가 앞면일 확률은 <b>1 − 1/'+all+' = '+at+'/'+all+'</b> ≈ '+(Math.round(p*1000)/1000).toFixed(3)+'예요.'+
+        (n>=5? ' 개수가 늘수록 <b>전부 세는 쪽</b>은 훨씬 힘들어져요.' : '');
+      tossRead.textContent='';
+    }
+    rng.oninput=draw; draw();
+    document.getElementById('cp-toss').onclick=function(){
+      var n=+rng.value, s='', heads=0;
+      for(var i=0;i<n;i++){ var h=Math.random()<0.5; if(h)heads++; s+='<i class="'+(h?'head':'')+'">'+(h?'앞':'뒤')+'</i>'; }
+      coins.innerHTML=s;
+      tossRead.innerHTML= heads>0 ? '앞면이 <b>'+heads+'개</b> 나왔어요 — "적어도 하나가 앞면"에 해당해요.'
+                                  : '모두 뒷면이 나왔어요! 이 경우가 바로 <b>여사건</b>이에요.';
+      bump('comp');
+    };
+  })();
+
+  /* ── 게임 4 · 오류 탐정 ── */
+  (function(){
+    var CASES=[
+      {stmt:'"동전을 5번 던졌는데 전부 앞면이 나왔어요. 그러니까 다음 번엔 <b>뒷면이 나올 확률이 더 높아요.</b>"',
+       counter:'동전은 앞에서 무슨 일이 있었는지 <b>기억하지 못해요.</b> 매번 앞면·뒷면이 각각 1/2로 똑같아요.',
+       ask:'그럼 여섯 번째에 앞면이 나올 확률은 얼마일까요?',
+       q:'여섯 번째에 앞면이 나올 확률을 분수로 쓰면?', a:'1/2',
+       test:function(v,raw){ return /^1\/2$|^0\.5$/.test(raw); }},
+      {stmt:'"주사위를 6번 던지면 1의 눈이 <b>반드시 한 번은</b> 나와요. 확률이 1/6이니까요."',
+       counter:'확률은 <b>약속이 아니라 몫</b>이에요. 6번 던져도 1이 한 번도 안 나올 수 있고, 세 번 나올 수도 있어요.',
+       ask:'6번 던져서 1이 한 번도 안 나올 경우도 분명히 있어요. 그럼 매번 1이 <b>아닌</b> 눈이 나올 확률은?',
+       q:'주사위 한 번에 1이 아닌 눈이 나올 확률을 분수로 쓰면?', a:'5/6',
+       test:function(v,raw){ return /^5\/6$/.test(raw); }},
+      {stmt:'"내일 비 올 확률이 30%, 모레는 40%예요. 그러니 <b>이틀 중에 비가 올 확률은 70%</b>예요."',
+       counter:'두 날 모두 비가 오는 경우가 <b>두 번 세어져요.</b> 확률은 그냥 더하면 안 되고, 겹치는 부분을 따져야 해요.',
+       ask:'이럴 때도 "적어도 하루는 비"를 구하려면 뒤집어 세는 게 편해요. 이틀 다 비가 안 올 확률은 0.7 × 0.6 이에요.',
+       q:'0.7 × 0.6 은 얼마일까요? (소수로)', a:'0.42',
+       test:function(v){ return Math.abs(v-0.42)<1e-9; }},
+      {stmt:'"주머니에 빨간 공 3개, 파란 공 2개가 있어요. 공을 하나 꺼내고 <b>넣지 않은 채</b> 또 꺼낼 때, 두 번째도 빨강일 확률은 똑같이 3/5예요."',
+       counter:'첫 번째 공을 <b>다시 넣지 않았으니</b> 전체 개수가 5에서 4로 줄었어요. 조건이 달라졌으니 확률도 달라져요.',
+       ask:'첫 번째로 빨강을 꺼냈다면, 남은 공은 빨강 2개·파랑 2개예요.',
+       q:'그때 두 번째도 빨강일 확률을 분수로 쓰면? (약분해서)', a:'1/2',
+       test:function(v,raw){ return /^1\/2$|^2\/4$|^0\.5$/.test(raw); }},
+      {stmt:'"이 게임의 승률이 50%예요. 그러니 <b>두 번 하면 한 번은 반드시</b> 이겨요."',
+       counter:'두 번 다 질 수도 있어요. 두 번 모두 지는 경우도 <b>1/2 × 1/2 = 1/4</b>로 엄연히 있어요.',
+       ask:'그럼 두 번 중 적어도 한 번 이길 확률은 1에서 "두 번 다 지는 확률"을 뺀 값이에요.',
+       q:'1 − 1/4 를 분수로 쓰면?', a:'3/4',
+       test:function(v,raw){ return /^3\/4$|^0\.75$/.test(raw); }},
+      {stmt:'"당첨 확률이 1%인 뽑기를 <b>100번 하면 반드시 당첨</b>돼요."',
+       counter:'매번 당첨되지 않을 확률이 0.99이고, 100번 모두 꽝일 확률은 0.99를 100번 곱한 값이에요. 0이 아니라 <b>약 0.366</b>이에요 — 세 번에 한 번꼴로는 100번을 해도 꽝이에요.',
+       ask:'확률은 몇 번 하면 보장되는 약속이 아니에요. 한 번에 당첨되지 않을 확률부터 확인해요.',
+       q:'당첨 확률이 1%일 때, 한 번에 당첨되지 않을 확률은 몇 %일까요? (숫자만)', a:'99',
+       test:function(v){ return v===99; }}
+    ];
+    var i=0;
+    var stmt=document.getElementById('det-stmt'), no=document.getElementById('det-no'),
+        counter=document.getElementById('det-counter'), ask=document.getElementById('det-ask'),
+        box=document.getElementById('det-checkbox'), q=document.getElementById('det-checkq'),
+        next=document.getElementById('det-next'), out=document.getElementById('det-out');
+    function show(){
+      var C=CASES[i];
+      no.textContent='사건 '+(i+1)+' / '+CASES.length;
+      stmt.innerHTML=C.stmt;
+      counter.style.display='none'; ask.style.display='none'; box.style.display='none'; next.style.display='none';
+      out.innerHTML=''; document.getElementById('det-in').value='';
+      document.getElementById('det-think').style.display='';
+    }
+    document.getElementById('det-think').onclick=function(){
+      var C=CASES[i];
+      counter.innerHTML='💡 '+C.counter; counter.style.display='';
+      ask.innerHTML=C.ask; ask.style.display='';
+      q.innerHTML=C.q; box.style.display='';
+      this.style.display='none';
+    };
+    document.getElementById('det-check').onclick=function(){
+      var C=CASES[i];
+      var okOne=MJ.check('det-in',C.test,'det-out',{correct:C.a});
+      if(okOne){
+        next.style.display=(i<CASES.length-1)?'':'none';
+        if(i>=CASES.length-1) bump('detective');
+      }
+    };
+    next.onclick=function(){ if(i<CASES.length-1){ i++; show(); } };
+    show();
+  })();
+})();
+</script>
+</body>
+</html>
