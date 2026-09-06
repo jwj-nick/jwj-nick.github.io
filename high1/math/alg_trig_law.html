@@ -25,6 +25,7 @@
   <button class="tab" data-t="area">🔺 넓이·활용</button>
   <button class="tab" data-t="world">🌐 세상 속으로</button>
   <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="drill">⚡ 실전</button>
   <button class="tab" data-t="sum">✅ 정리</button>
 </div>
 <div class="wrap">
@@ -50,6 +51,7 @@
         <button onclick="go('area')"><div class="ti">🔺</div><div class="tn">넓이·활용</div><div class="td">½ab sinC · 측량</div></button>
         <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">GPS·측량·건축</div></button>
         <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+        <button onclick="go('drill')"><div class="ti">⚡</div><div class="tn">실전</div><div class="td">점검 12문제</div></button>
       </div>
     </div>
   </div>
@@ -79,6 +81,10 @@
           <div class="step"><span class="sn">1</span>$\dfrac{a}{\sin A}=2R$ → $2R=\dfrac{2}{\sin30°}=\dfrac{2}{1/2}=4$.</div>
           <div class="ans">$R=2$</div>
         </div>
+      </div>
+      <div class="box b">
+        <div class="t">⚖️ sin 의 비 = 변의 비</div>
+        사인법칙 $\dfrac a{\sin A}=\dfrac b{\sin B}=\dfrac c{\sin C}=2R$ 를 뒤집어 보면 $a=2R\sin A$, $b=2R\sin B$, $c=2R\sin C$ 다. 세 변이 모두 같은 $2R$ 을 곱한 꼴이므로<br>$$\sin A:\sin B:\sin C=a:b:c$$<br>즉 <b>sin 의 비가 주어지면 그것이 곧 변의 비</b>이고, 그 반대도 같다. 그래서 sin 의 비만 알아도 $a=4k,\ b=5k,\ c=6k$ 처럼 놓고 코사인법칙으로 각을 구할 수 있다($k$ 는 계산 중에 약분되어 사라진다).<br>예 — $(a+b):(b+c):(c+a)=7:8:9$ 이면 세 식을 모두 더해 $2(a+b+c)=24k$, 즉 $a+b+c=12k$. 여기서 각 변을 빼내면 $a=4k,\ b=3k,\ c=5k$ 이므로 $\sin A:\sin B:\sin C=4:3:5$.<br>세 식을 더한 값이 <b>전체의 두 배</b>라는 것을 놓치면 비가 통째로 어긋난다.
       </div>
     </div>
   </div>
@@ -113,6 +119,10 @@
         </div>
       </div>
       <div class="box a"><div class="t">⚠️ 사인법칙 vs 코사인법칙</div>각과 마주 보는 변의 <b>쌍</b>이 하나라도 있으면 사인법칙, 두 변과 <b>끼인각</b> 또는 <b>세 변</b>이면 코사인법칙. 헷갈리면 "아는 것이 무엇인가"를 먼저 적어요.</div>
+      <div class="box g">
+        <div class="t">🔧 변과 각이 섞인 등식 — 변으로 통일한다</div>
+        $a\cos B=b\cos A$ 처럼 변과 각이 한 식에 있으면 <b>한쪽으로 통일</b>한다. 코사인법칙을 각을 구하는 꼴로 써서 $\cos$ 을 세 변의 식으로 바꾸면 변만 남는다.<br>$\cos A=\dfrac{b^2+c^2-a^2}{2bc},\qquad \cos B=\dfrac{a^2+c^2-b^2}{2ac}$<br>대입하면 $\dfrac{a(a^2+c^2-b^2)}{2ac}=\dfrac{b(b^2+c^2-a^2)}{2bc}$ → 양변에서 $a$, $b$ 가 약분되어 $\dfrac{a^2+c^2-b^2}{2c}=\dfrac{b^2+c^2-a^2}{2c}$ → $a^2-b^2=b^2-a^2$ → $a^2=b^2$, 즉 <b>$a=b$ 인 이등변삼각형</b>이다.<br>정리한 결과가 <b>두 변의 관계</b>인지 <b>세 변의 관계</b>인지를 그대로 읽는다. $a=b$ 가 나왔다고 정삼각형이라고 넓히면 안 된다.<br>$a^2=b^2+c^2$ 꼴로 정리되면 직각삼각형이다.
+      </div>
     </div>
   </div>
 
@@ -189,6 +199,10 @@
       <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
       <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
     </div>
+  </div>
+
+  <div class="page" data-p="drill">
+    <div id="drill"></div>
   </div>
 
   <div class="page" data-p="sum">
@@ -269,5 +283,15 @@ var QUIZ=[
 APP.quiz(QUIZ,TABNAME,{perfect:'완벽해요! 삼각형은 이제 계산으로 풀려요.'});
 </script>
 <script src="math_nav.js"></script>
+<!-- ⚡ 실전 — 심화 문항 드릴.
+     drill.js = 공용 엔진(subject_hub/_shared/drill.js)
+     drill_alg_06.js = 문항 데이터. 정본은 exam_track/problem_bank/data/alg_06.js
+     둘 다 `python exam_track/tools/sync_drill.py --write`가 만든 복사본 — 직접 고치지 말 것. -->
+<script>
+  // 원인 코드 → 고치기 탭 (drill.js v2의 🩹 지금 바로 고치기 칩). 전역 go(tab) 필요.
+  window.DRILL_FIX = {"C1":["sum", "✅ 정리 표에서 조건·구할 것 다시 확인"], "C2":["cos", "📏 코사인법칙 다시 보기"], "C3":["area", "🔺 넓이 공식에서 헷갈리는 짝 가르기"], "C4":["sine", "🧭 어느 법칙을 쓰는지 다시 판별하기"], "C5":["quiz", "🔥 퀴즈로 계산 감각 다시"]};
+</script>
+<script src="drill.js"></script>
+<script src="drill_alg_06.js"></script>
 </body>
 </html>
