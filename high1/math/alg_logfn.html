@@ -24,6 +24,7 @@
   <button class="tab" data-t="eq">🧮 방정식·부등식</button>
   <button class="tab" data-t="world">🌐 세상 속으로</button>
   <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="drill">⚡ 실전</button>
   <button class="tab" data-t="sum">✅ 정리</button>
 </div>
 <div class="wrap">
@@ -49,6 +50,7 @@
         <button onclick="go('eq')"><div class="ti">🧮</div><div class="tn">방정식·부등식</div><div class="td">진수 조건이 먼저</div></button>
         <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">데시벨·등급·로그 눈금</div></button>
         <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+        <button onclick="go('drill')"><div class="ti">⚡</div><div class="tn">실전</div><div class="td">점검 12문제</div></button>
       </div>
     </div>
   </div>
@@ -137,6 +139,14 @@
           <div class="ans">최댓값 $3$, 최솟값 $1$</div>
         </div>
       </div>
+      <div class="box b">
+        <div class="t">🔀 밑이 다르면 먼저 통일한다</div>
+        한 식에 밑이 서로 다른 로그가 있으면 그대로 더하거나 비교할 수 없다. <b>밑을 하나로 통일</b>하는 것이 첫 손이다.<br>$\log_a b = \dfrac{\log_c b}{\log_c a}$ — 바꾸려는 로그가 위, 원래 밑의 로그가 아래.<br>예 1 — $\log_4 N = \dfrac{\log_2 N}{\log_2 4} = \dfrac12\log_2 N$ 이므로 $\log_2(x+2) = \log_4(3x+10)$ 은 양변에 2를 곱해 $2\log_2(x+2) = \log_2(3x+10)$, 즉 $(x+2)^2 = 3x+10$ 으로 바뀐다.<br>예 2 — 밑이 문자일 때도 같다. $\log_x 4 = \dfrac{\log_2 4}{\log_2 x} = \dfrac{2}{\log_2 x}$. 그래서 $\log_2 x + \log_x 4 = 3$ 은 $t = \log_2 x$ 로 놓으면 $t + \dfrac2t = 3$ 이 된다.<br>밑이 다른 로그를 그냥 더해 진수를 곱해 버리는 것이 이 유형의 실점 지점이다.
+      </div>
+      <div class="box a">
+        <div class="t">📦 (log x)² 꼴은 치환한다 — 범위도 함께</div>
+        로그가 <b>제곱으로</b> 들어 있거나 같은 로그가 여러 번 나오면 $t = \log_a x$ 로 놓아 이차식으로 바꾼다. 이때 $x$ 의 범위가 곧 $t$ 의 범위가 된다.<br>예 — $\dfrac19 \le x \le 27$ 에서 $y = (\log_3 x)^2 - 4\log_3 x + 1$ 의 최솟값은?<br>① $t = \log_3 x$ 로 놓으면 $x = \frac19$ 에서 $t = -2$, $x = 27$ 에서 $t = 3$ → <b>$-2 \le t \le 3$</b><br>② $y = t^2 - 4t + 1 = (t-2)^2 - 3$ · 꼭짓점 $t = 2$ 가 범위 <b>안</b>에 있으므로 최솟값은 $-3$ (이때 $x = 9$)<br>③ 꼭짓점이 범위 <b>밖</b>이면 가까운 끝점에서 최솟값이 나온다.<br>$(\log_a x)^2$ 과 $\log_a x^2 = 2\log_a x$ 는 <b>전혀 다른 식</b>이다. 제곱이 로그 밖에 있는지 진수에 있는지 먼저 본다.
+      </div>
     </div>
   </div>
 
@@ -182,6 +192,10 @@
       <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
       <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
     </div>
+  </div>
+
+  <div class="page" data-p="drill">
+    <div id="drill"></div>
   </div>
 
   <div class="page" data-p="sum">
@@ -261,5 +275,15 @@ var QUIZ=[
 APP.quiz(QUIZ,TABNAME,{perfect:'완벽해요! 로그함수는 지수함수의 거울이라는 걸 잡았어요.'});
 </script>
 <script src="math_nav.js"></script>
+<!-- ⚡ 실전 — 심화 문항 드릴.
+     drill.js = 공용 엔진(subject_hub/_shared/drill.js)
+     drill_alg_03.js = 문항 데이터. 정본은 exam_track/problem_bank/data/alg_03.js
+     둘 다 `python exam_track/tools/sync_drill.py --write`가 만든 복사본 — 직접 고치지 말 것. -->
+<script>
+  // 원인 코드 → 고치기 탭 (drill.js v2의 🩹 지금 바로 고치기 칩). 전역 go(tab) 필요.
+  window.DRILL_FIX = {"C1":["sum", "✅ 정리 표에서 조건·구할 것 다시 확인"], "C2":["eq", "🧮 예제로 규칙 다시 세우기"], "C3":["move", "🪞 헷갈리는 짝 가르기"], "C4":["eq", "🧭 어떤 도구를 쓰는지 다시 판별하기"], "C5":["quiz", "🔥 퀴즈로 계산 감각 다시"]};
+</script>
+<script src="drill.js"></script>
+<script src="drill_alg_03.js"></script>
 </body>
 </html>
