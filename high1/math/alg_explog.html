@@ -82,6 +82,7 @@
   <button class="tab" data-t="clog">🔢 상용로그</button>
   <button class="tab" data-t="world">🌐 세상 속으로</button>
   <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="drill">⚡ 실전</button>
   <button class="tab" data-t="sum">✅ 정리</button>
 </div>
 <div class="wrap">
@@ -108,6 +109,7 @@
         <button onclick="go('clog')"><div class="ti">🔢</div><div class="tn">상용로그</div><div class="td">자릿수 계산기</div></button>
         <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">pH·데시벨·복리</div></button>
         <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+        <button onclick="go('drill')"><div class="ti">⚡</div><div class="tn">실전</div><div class="td">점검 12문제</div></button>
       </div>
     </div>
   </div>
@@ -184,6 +186,18 @@
           <div class="ans">$=3$</div>
         </div>
       </div>
+      <div class="box b">
+        <div class="t">🔁 밑 바꾸기 — 예제로 익히기</div>
+        $\log_a b = \dfrac{\log_c b}{\log_c a}$ — <b>바꾸려는 로그가 위, 원래 밑의 로그가 아래</b>다.<br>예 — $\log_2 3 = a$ 일 때 $\log_3 16$ 을 $a$ 로 나타내면? 밑을 2로 바꾸면 $\log_3 16 = \dfrac{\log_2 16}{\log_2 3} = \dfrac{4}{a}$.<br>위아래를 뒤집거나 곱셈으로 쓰면 값이 완전히 달라진다. $a \approx 1.585$ 이므로 $4/a \approx 2.52$ 이고, $3^2 = 9 \lt 16 \lt 27 = 3^3$ 이라 2와 3 사이인 것과 맞는지 <b>대략적인 크기로 검산</b>하는 습관이 안전하다.
+      </div>
+      <div class="box a">
+        <div class="t">🧅 로그가 겹쳐 있으면 — 바깥부터 한 겹씩</div>
+        $\log_3(\log_2 x) = 1$ 처럼 로그 안에 로그가 있으면 <b>바깥부터</b> 지수 꼴로 바꿔 벗긴다.<br>① 바깥: $\log_2 x = 3^1 = 3$<br>② 안쪽: $x = 2^3 = 8$<br>확인: $\log_2 8 = 3$, $\log_3 3 = 1$ ✓<br>한 단계마다 <b>지수 꼴로 적어 두면</b> 밑과 지수의 자리를 뒤바꾸지 않는다. 두 밑을 곱하거나(3 × 2 = 6) 한 겹만 벗기고 멈추는 것이 실점 지점이다.
+      </div>
+      <div class="box g">
+        <div class="t">✂️ 로그방정식 3단계 — 마지막은 진수 조건</div>
+        ① 로그의 <b>합은 진수의 곱</b>으로 묶는다 &nbsp; ② 지수 꼴로 바꿔 방정식을 푼다 &nbsp; ③ <b>진수 조건으로 버린다</b>.<br>예 — $\log_2(x-3) + \log_2 x = 2$<br>① $(x-3)x = 2^2 = 4$ &nbsp; ② $x^2 - 3x - 4 = 0 \Rightarrow (x-4)(x+1) = 0 \Rightarrow x = 4$ 또는 $-1$<br>③ 진수 조건 $x - 3 \gt 0$ 에서 $x \gt 3$ 이므로 <b>$x = -1$ 은 버린다</b>. 답은 $x = 4$.<br>③을 빼먹으면 답이 하나 더 붙는다. 조건을 <b>①보다 먼저</b> 적어 두면 버릴 값이 바로 보인다.
+      </div>
     </div>
   </div>
 
@@ -255,6 +269,10 @@
       <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
       <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
     </div>
+  </div>
+
+  <div class="page" data-p="drill">
+    <div id="drill"></div>
   </div>
 
   <div class="page" data-p="sum">
@@ -331,5 +349,15 @@ var TABNAME={root:'🌱 거듭제곱근',exp:'📈 지수의 확장',log:'🔑 �
 APP.quiz(QUIZ, TABNAME, {perfect:'완벽해요! 지수와 로그의 기본기를 잡았어요.'});
 </script>
 <script src="math_nav.js"></script>
+<!-- ⚡ 실전 — 심화 문항 드릴.
+     drill.js = 공용 엔진(subject_hub/_shared/drill.js)
+     drill_alg_01.js = 문항 데이터. 정본은 exam_track/problem_bank/data/alg_01.js
+     둘 다 `python exam_track/tools/sync_drill.py --write`가 만든 복사본 — 직접 고치지 말 것. -->
+<script>
+  // 원인 코드 → 고치기 탭 (drill.js v2의 🩹 지금 바로 고치기 칩). 전역 go(tab) 필요.
+  window.DRILL_FIX = {"C1":["sum", "✅ 정리 표에서 조건·구할 것 다시 확인"], "C2":["log", "📖 규칙·공식 다시 보기"], "C3":["exp", "🪞 헷갈리는 짝 가르기"], "C4":["clog", "🧭 어떤 도구를 쓰는지 다시 판별하기"], "C5":["quiz", "🔥 퀴즈로 계산 감각 다시"]};
+</script>
+<script src="drill.js"></script>
+<script src="drill_alg_01.js"></script>
 </body>
 </html>
