@@ -1,0 +1,604 @@
+<!-- probability-mastery.html — 확률 감 잡기 특강 (2026-09-06, 중2 11단원 · 특강 ⑲ · 세기 3부작 완성) -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🎲 확률 감 잡기 · 중2</title>
+<link rel="stylesheet" href="concept.css?v=20260906a">
+<style>
+  :root{ --pb:#7c5cbf; --pb2:#a58be0; --warn:#e0913a; --ok2:#3f9a7a; }
+  .pm-hero{border-radius:26px;padding:30px 26px;margin:14px 0 18px;color:#fff;position:relative;overflow:hidden;
+    background:linear-gradient(135deg,var(--pb),var(--pb2));box-shadow:var(--shadow-l)}
+  .pm-hero::after{content:"";position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.14)}
+  .pm-hero h1{color:#fff;margin:0 0 8px;font-size:26px}
+  .pm-hero p{color:rgba(255,255,255,.94);font-size:14.5px;margin:0}
+  .pm-goal{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .pm-goal span{background:rgba(255,255,255,.22);border-radius:999px;padding:6px 13px;font-size:12.5px;font-weight:700}
+  .pm-sec{margin:34px 0}
+  .pm-sec .eyebrow .n{background:linear-gradient(135deg,var(--pb),var(--pb2))}
+  .pm-panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px 18px 14px;box-shadow:var(--shadow-s)}
+  .pm-rangebar{display:flex;align-items:center;gap:10px;margin:14px 0 4px}
+  .pm-rangebar input[type=range]{flex:1}
+  .pm-rangebar .tval{font-variant-numeric:tabular-nums;font-weight:800;color:var(--pb);min-width:70px;text-align:right}
+  .pm-read{text-align:center;font-size:14px;line-height:1.75;margin-top:10px;min-height:1.5em}
+  .pm-read b{color:var(--pb)}
+
+  /* 확률 자 */
+  .pm-ruler{position:relative;height:44px;margin:16px 0 6px}
+  .pm-ruler .bar{position:absolute;left:0;right:0;top:16px;height:12px;border-radius:6px;
+    background:linear-gradient(90deg,#d9d3de,#a58be0,#7c5cbf)}
+  .pm-ruler .pin{position:absolute;top:4px;width:2px;height:36px;background:var(--accent);transition:left .2s}
+  .pm-ruler .pin span{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:800;color:var(--accent);white-space:nowrap}
+  .pm-ruler .tick{position:absolute;top:30px;font-size:10.5px;color:var(--muted);transform:translateX(-50%)}
+
+  /* 100칸 그리드 */
+  .pm-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;max-width:300px;margin:10px auto}
+  .pm-grid i{display:block;aspect-ratio:1;border-radius:4px;background:var(--panel-2);border:1px solid var(--border);transition:background .15s}
+  .pm-grid i.on{background:var(--pb);border-color:var(--pb)}
+  .pm-picks{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin:8px 0}
+  .pm-picks button{background:var(--panel-2);border:1.5px solid var(--border);border-radius:999px;padding:6px 13px;
+    font-size:12.5px;font-weight:700;cursor:pointer;color:var(--ink)}
+  .pm-picks button.on{background:var(--pb);border-color:var(--pb);color:#fff}
+
+  /* 나무 그림 */
+  .pm-tree{width:100%;max-width:400px;display:block;margin:0 auto;background:var(--panel-2);border:1px solid var(--border);border-radius:14px}
+  .pm-two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0}
+  .pm-two .t{text-align:center;font-size:12.5px;font-weight:800;margin-bottom:5px}
+  .pm-meter{height:26px;border-radius:8px;background:var(--panel-2);border:1px solid var(--border);overflow:hidden;position:relative}
+  .pm-meter i{display:block;height:100%;transition:width .3s}
+  .pm-meter span{position:absolute;inset:0;display:grid;place-items:center;font-size:11.5px;font-weight:800;color:var(--ink)}
+
+  .pm-anchor{background:var(--sage-soft);border:1.5px solid rgba(79,168,146,.45);border-radius:14px;padding:12px 16px;
+    font-size:14px;margin:14px 0;display:flex;gap:10px;align-items:flex-start}
+  .pm-anchor .ic{font-size:22px;line-height:1}
+  .pm-anchor b{color:var(--sage)}
+  .pm-trap{background:rgba(224,145,58,.14);border:1px solid rgba(224,145,58,.5);border-radius:12px;padding:10px 14px;font-size:13.5px;margin:12px 0}
+  .pm-trap b{color:#a4670f}
+
+  .pm-type{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:20px 20px 18px;margin:16px 0;box-shadow:var(--shadow-m)}
+  .pm-type-h{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .pm-type-h .badge{flex:none;width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,var(--pb),var(--pb2));
+    color:#fff;display:grid;place-items:center;font-weight:800;font-family:var(--serif);font-style:italic}
+  .pm-type-h .t{font-weight:800;font-size:16px}
+  .pm-type-h .d{font-size:12.5px;color:var(--muted)}
+  .pm-key{background:var(--sage-soft);border:1px solid rgba(79,168,146,.3);border-radius:12px;padding:10px 14px;font-size:13.5px;margin:10px 0}
+  .pm-key b{color:var(--sage)}
+  .pm-stem{font-size:14.5px;line-height:1.7;margin:10px 0}
+  .pm-checkrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .pm-checkrow input.num{width:100px}
+  .pm-out{margin-top:8px;font-size:14px;min-height:1.3em}
+  .pm-sol{display:none;background:var(--u-soft);border-radius:12px;padding:12px 14px;margin-top:10px;font-size:13.5px;line-height:1.7}
+  .pm-sol.show{display:block;animation:pop .35s ease}
+  .pm-again{background:none;border:1.5px solid var(--pb);color:var(--pb);border-radius:999px;padding:6px 14px;font-size:12.5px;font-weight:700;cursor:pointer;margin-top:8px}
+  .pm-quizcard{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px 18px;margin:14px 0;box-shadow:var(--shadow-s)}
+  .pm-quiz-id{display:none;margin-top:8px;font-size:13px;color:var(--pb);font-weight:700}
+  .pm-quiz-id.show{display:block}
+  .pm-quiz-id a{color:var(--pb)}
+
+  .pm-cheat{background:linear-gradient(135deg,var(--pb),var(--pb2));color:#fff;border-radius:18px;padding:20px 22px;margin:16px 0}
+  .pm-cheat h3{margin:0 0 10px;font-size:16px}
+  .pm-cheat .row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+  .pm-cheat .chip{background:rgba(255,255,255,.2);border-radius:10px;padding:8px 12px;font-size:12.5px;flex:1;min-width:150px}
+  .pm-cheat .chip b{display:block;font-size:13px;margin-bottom:2px}
+  #printCheat{background:#fff;color:var(--pb);border:none;border-radius:999px;padding:9px 18px;font-weight:800;font-size:13px;cursor:pointer;margin-top:12px}
+  #printArea{display:none}
+  @media print{ body>*:not(#printArea){display:none !important} #printArea{display:block !important} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="crumbs"><a href="index.html">중2 수학</a><span class="dot"></span><span>확률 감 잡기</span></div>
+    <button class="ttoggle" id="ttoggle" aria-label="밝기 전환"></button>
+  </div>
+
+  <div class="pm-hero">
+    <h1>🎲 확률 감 잡기</h1>
+    <p>확률은 <b>"이렇게 될 것"이 아니라 "이렇게 되는 몫"</b>이에요. 경우의 수를 셀 줄 알면 확률은 <b>나눗셈 한 번</b>이에요. 그런데 이 단원이 어려운 이유는 계산이 아니라 <b>세는 방법</b>과 <b>더할지 곱할지</b>에 있어요. 거기부터 잡아요.</p>
+    <div class="pm-goal">
+      <span>① 확률은 0과 1 사이</span><span>② 세면 확률</span><span>③ 더하기와 곱하기</span><span>④ 여사건</span><span>⑤ 꺼내고 다시 넣기</span>
+    </div>
+  </div>
+
+  <!-- ───────────────── 1. 확률 자 ───────────────── -->
+  <section class="pm-sec reveal" id="s1">
+    <div class="eyebrow"><span class="n">1</span>확률은 0과 1 사이의 몫이에요</div>
+    <p>확률은 <b>절대 1을 넘지 않고, 0보다 작아지지도 않아요.</b> 만약 계산 결과가 1보다 크게 나왔다면 어딘가 틀린 거예요. 아래 자에서 여러 사건이 어디쯤 있는지 봐요.</p>
+    <div class="pm-panel">
+      <div class="pm-picks" id="rulerPicks"></div>
+      <div class="pm-ruler" id="ruler">
+        <div class="bar"></div>
+        <div class="tick" style="left:0">0<br><span style="font-size:9.5px">절대 안 일어남</span></div>
+        <div class="tick" style="left:50%">1/2</div>
+        <div class="tick" style="left:100%">1<br><span style="font-size:9.5px">반드시 일어남</span></div>
+        <div class="pin" id="rulerPin" style="left:50%"><span></span></div>
+      </div>
+      <div class="pm-read" id="rulerRead" style="margin-top:26px"></div>
+    </div>
+    <div class="pm-anchor">
+      <span class="ic">📏</span>
+      <div><b>확률 = <span style="font-family:var(--serif);font-style:italic">일어나는 경우의 수 ÷ 전체 경우의 수</span></b> — 분자는 언제나 분모보다 작거나 같아요. 그래서 답이 <b>1보다 크면 무조건 틀린</b> 거예요. 계산이 끝나면 이걸로 한 번 점검해요.</div>
+    </div>
+  </section>
+
+  <!-- ───────────────── 2. 세면 확률 ───────────────── -->
+  <section class="pm-sec reveal" id="s2">
+    <div class="eyebrow"><span class="n">2</span>세는 것이 곧 확률이에요</div>
+    <p>주머니에 공이 들어 있어요. 확률을 구하는 일은 <b>"몇 개 중 몇 개인가"</b>를 세는 일이에요. 슬라이더로 공의 개수를 바꾸면서 100칸 그리드가 어떻게 채워지는지 봐요.</p>
+    <div class="pm-panel">
+      <div class="pm-rangebar">
+        <span style="font-size:13px;color:var(--muted)">🟪 원하는 공</span>
+        <input type="range" id="cntA" min="0" max="20" step="1" value="3">
+        <span class="tval" id="cntAV">3개</span>
+      </div>
+      <div class="pm-rangebar">
+        <span style="font-size:13px;color:var(--muted)">⬜ 나머지 공</span>
+        <input type="range" id="cntB" min="0" max="20" step="1" value="7">
+        <span class="tval" id="cntBV">7개</span>
+      </div>
+      <div class="pm-grid" id="probGrid" aria-label="확률을 100칸으로 나타낸 그림"></div>
+      <div class="pm-read" id="gridRead"></div>
+    </div>
+    <div class="pm-trap"><b>⚠ 가장 흔한 실수</b> — 분모를 <b>나머지 공의 개수</b>로 잡는 것이에요. 분모는 언제나 <b>전체</b>예요. 원하는 공 3개, 나머지 7개면 확률은 3/7 이 아니라 <b>3/10</b> 이에요.</div>
+    <div class="card" style="margin-top:12px">
+      <p style="margin:0 0 8px;font-weight:700">함께 생각하기 ①</p>
+      <p style="margin:0 0 10px">빨간 공 <b>4</b>개와 파란 공 <b>6</b>개가 든 주머니에서 공 하나를 꺼낼 때 빨간 공일 확률을 <b>소수</b>로 적어 주세요.</p>
+      <div class="pm-checkrow"><input class="num" id="q1" inputmode="decimal" aria-label="답"><button id="q1b">확인</button></div>
+      <div class="pm-out" id="q1o"></div>
+    </div>
+  </section>
+
+  <!-- ───────────────── 3. 더하기와 곱하기 ───────────────── -->
+  <section class="pm-sec reveal" id="s3">
+    <div class="eyebrow"><span class="n">3</span>더할 때와 곱할 때 — 말로 갈라져요</div>
+    <p>이 단원 최대의 갈림길이에요. 그런데 판단 기준은 아주 단순해요.</p>
+    <div class="pm-two" style="margin:14px 0">
+      <div class="pm-key" style="margin:0"><b>“또는” → 더해요</b><br>한 번의 시도에서 <b>이것 아니면 저것</b>일 때. 예: 주사위 한 번에 <b>2 또는 5</b>가 나올 확률 = 1/6 + 1/6</div>
+      <div class="pm-key" style="margin:0;background:rgba(124,92,191,.10);border-color:rgba(124,92,191,.35)"><b style="color:var(--pb)">“그리고” → 곱해요</b><br>여러 번의 시도가 <b>이어질</b> 때. 예: 동전이 앞면이고 <b>그리고</b> 주사위가 짝수일 확률 = 1/2 × 1/2</div>
+    </div>
+    <p>말로만 보면 헷갈리니 <b>나무 그림</b>으로 봐요. 아래에서 시도 횟수를 늘려 보세요.</p>
+    <div class="pm-panel">
+      <svg id="treeSvg" class="pm-tree" viewBox="0 0 400 210" role="img" aria-label="동전을 여러 번 던질 때의 나무 그림"></svg>
+      <div class="pm-rangebar">
+        <span style="font-size:13px;color:var(--muted)">동전을 던지는 횟수</span>
+        <input type="range" id="treeN" min="1" max="4" step="1" value="2">
+        <span class="tval" id="treeNV">2번</span>
+      </div>
+      <div class="pm-read" id="treeRead"></div>
+    </div>
+    <div class="pm-anchor">
+      <span class="ic">🌳</span>
+      <div><b>왜 곱셈인가요?</b> 가지가 <b>2배씩 늘어나기</b> 때문이에요. 한 번에 2갈래면 두 번에 2 × 2 = 4갈래, 세 번에 8갈래예요. 그래서 확률도 <b>1/2 을 횟수만큼 곱하는</b> 모양이 돼요.</div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <p style="margin:0 0 8px;font-weight:700">함께 생각하기 ②</p>
+      <p style="margin:0 0 10px">동전을 <b>두 번</b> 던져 <b>둘 다 앞면</b>이 나오는 경우는 전체 <b>4가지</b> 중 몇 가지일까요? (개수를 적어요)</p>
+      <div class="pm-checkrow"><input class="num" id="q2" inputmode="numeric" aria-label="답"><span>가지</span><button id="q2b">확인</button></div>
+      <div class="pm-out" id="q2o"></div>
+    </div>
+  </section>
+
+  <!-- ───────────────── 4. 여사건 ───────────────── -->
+  <section class="pm-sec reveal" id="s4">
+    <div class="eyebrow"><span class="n">4</span>여사건 — 반대편을 세면 훨씬 빨라요</div>
+    <p><b>"적어도 하나는 ~"</b>이라는 말이 나오면 거의 언제나 <b>반대편을 세는 것</b>이 빨라요. 반대편(여사건)은 대개 <b>딱 한 경우</b>거든요.</p>
+    <div class="pm-panel">
+      <div class="pm-rangebar">
+        <span style="font-size:13px;color:var(--muted)">동전 개수</span>
+        <input type="range" id="compN" min="1" max="8" step="1" value="3">
+        <span class="tval" id="compNV">3개</span>
+      </div>
+      <div class="pm-two">
+        <div><div class="t">전부 세기 😵</div><div class="pm-meter"><i id="compHard" style="width:0%;background:linear-gradient(90deg,#e0913a,#f0b46a)"></i><span id="compHardT"></span></div></div>
+        <div><div class="t">뒤집어 세기 🙂</div><div class="pm-meter"><i id="compEasy" style="width:0%;background:linear-gradient(90deg,var(--pb),var(--pb2))"></i><span id="compEasyT"></span></div></div>
+      </div>
+      <div class="pm-read" id="compRead"></div>
+    </div>
+    <div class="pm-trap"><b>⚠ 뒤집을 때 조심할 것</b> — "적어도 하나"의 반대는 <b>"하나도 없다"</b>예요. "모두"의 반대가 아니에요. 예를 들어 "적어도 하나가 앞면"의 반대는 "<b>모두 뒷면</b>"이에요.</div>
+  </section>
+
+  <!-- ───────────────── 5. 다시 넣기 ───────────────── -->
+  <section class="pm-sec reveal" id="s5">
+    <div class="eyebrow"><span class="n">5</span>다시 넣나요, 안 넣나요</div>
+    <p>공을 꺼낸 뒤 <b>다시 넣는지</b>가 답을 바꿔요. 다시 넣으면 조건이 그대로지만, 안 넣으면 <b>전체와 개수가 함께 줄어요</b>. 아래에서 두 경우를 나란히 봐요.</p>
+    <div class="pm-panel">
+      <div class="pm-rangebar">
+        <span style="font-size:13px;color:var(--muted)">🟪 빨간 공</span>
+        <input type="range" id="repR" min="1" max="8" step="1" value="3">
+        <span class="tval" id="repRV">3개</span>
+      </div>
+      <div class="pm-rangebar">
+        <span style="font-size:13px;color:var(--muted)">⬜ 파란 공</span>
+        <input type="range" id="repB" min="1" max="8" step="1" value="2">
+        <span class="tval" id="repBV">2개</span>
+      </div>
+      <svg id="repSvg" class="pm-tree" viewBox="0 0 400 190" role="img" aria-label="다시 넣는 경우와 안 넣는 경우의 비교"></svg>
+      <div class="pm-read" id="repRead"></div>
+    </div>
+    <div class="pm-anchor">
+      <span class="ic">🫙</span>
+      <div><b>문장에서 찾는 신호</b> — "꺼낸 공을 다시 넣고" → 조건이 그대로. "꺼낸 공을 넣지 않고" 또는 "연속해서 두 개를 꺼낼 때" → <b>두 번째부터 개수가 줄어요</b>.</div>
+    </div>
+  </section>
+
+  <!-- ───────────────── 6. 유형별 연습 ───────────────── -->
+  <section class="pm-sec reveal" id="s6">
+    <div class="eyebrow"><span class="n">6</span>유형별 연습 — 네 가지</div>
+    <p>답은 <b>기약분수</b>로 적어요(예: 3/10). 소수로 적어도 맞게 채점해요.</p>
+
+    <div class="pm-type" id="type1">
+      <div class="pm-type-h"><span class="badge">1</span><span><span class="t">한 번 꺼내는 확률</span><br><span class="d">몇 개 중 몇 개인가</span></span></div>
+      <div class="pm-key"><b>🔑 핵심</b> — 분모는 <b>전체</b>, 분자는 <b>원하는 것</b>. 나머지 개수를 분모에 쓰지 않도록 조심해요.</div>
+      <div id="type1body"></div>
+    </div>
+
+    <div class="pm-type" id="type2">
+      <div class="pm-type-h"><span class="badge">2</span><span><span class="t">두 사건이 이어질 때</span><br><span class="d">"그리고" 는 곱하기</span></span></div>
+      <div class="pm-key"><b>🔑 핵심</b> — 각각의 확률을 구해 <b>곱해요</b>. 서로 영향을 주지 않는 사건일 때 그대로 곱하면 돼요.</div>
+      <div id="type2body"></div>
+    </div>
+
+    <div class="pm-type" id="type3">
+      <div class="pm-type-h"><span class="badge">3</span><span><span class="t">여사건 — 적어도 하나</span><br><span class="d">1에서 반대편을 빼요</span></span></div>
+      <div class="pm-key"><b>🔑 핵심</b> — "적어도 하나"의 반대는 <b>"하나도 없다"</b>. 반대편 확률을 구해 <b>1에서 빼요</b>.</div>
+      <div id="type3body"></div>
+    </div>
+
+    <div class="pm-type" id="type4">
+      <div class="pm-type-h"><span class="badge">4</span><span><span class="t">다시 넣지 않고 꺼내기</span><br><span class="d">두 번째부터 개수가 줄어요</span></span></div>
+      <div class="pm-key"><b>🔑 핵심</b> — 두 번째 확률에서 <b>전체와 해당 개수를 각각 1씩</b> 줄여요. 그다음 곱해요.</div>
+      <div id="type4body"></div>
+    </div>
+  </section>
+
+  <!-- ───────────────── 7. 실전 총정리 ───────────────── -->
+  <section class="pm-sec reveal" id="s7">
+    <div class="eyebrow"><span class="n">7</span>실전 총정리 — 유형 섞어서</div>
+    <p>어떤 유형인지 안 알려드려요. <b>"또는인가 그리고인가", "다시 넣나"</b>를 먼저 확인하고 풀어 봐요. 답은 기약분수 또는 소수로 적어요.</p>
+    <p class="mscore" id="quizScore"></p>
+    <div id="quizArea"></div>
+    <div style="text-align:center;margin-top:8px"><button class="pm-again" id="quizAgain">🔄 5문제 새로</button></div>
+  </section>
+
+  <!-- ───────────────── 8. 치트시트 ───────────────── -->
+  <section class="pm-sec reveal" id="s8">
+    <div class="eyebrow"><span class="n">8</span>마무리 치트시트</div>
+    <div class="pm-cheat">
+      <h3>🎲 확률 한 장 요약</h3>
+      <div class="row">
+        <div class="chip"><b>확률 = 원하는 경우 ÷ 전체 경우</b>언제나 0 이상 1 이하 · 1을 넘으면 무조건 틀린 계산</div>
+      </div>
+      <div class="row">
+        <div class="chip"><b>“또는” → 더하기</b>한 번의 시도에서 이것 아니면 저것</div>
+        <div class="chip"><b>“그리고” → 곱하기</b>시도가 이어질 때</div>
+      </div>
+      <div class="row">
+        <div class="chip"><b>여사건</b>(일어날 확률) + (안 일어날 확률) = 1 · "적어도 하나"는 1 − (하나도 없을 확률)</div>
+        <div class="chip"><b>다시 넣기</b>넣으면 그대로 · 안 넣으면 전체와 개수가 1씩 줄어요</div>
+      </div>
+      <div class="row">
+        <div class="chip"><b>🧭 푸는 순서</b>① 전체 경우를 센다 ② 또는인지 그리고인지 가른다 ③ "적어도"면 뒤집는다 ④ 답이 1 이하인지 점검</div>
+      </div>
+      <button id="printCheat">🖨️ 이 치트시트 인쇄하기</button>
+    </div>
+    <p style="text-align:center;color:var(--muted);font-size:13px">세기 3부작 — <a href="counting-mastery.html" style="color:var(--pb);font-weight:700">🎲 경우의 수 세는 법</a> → <b>확률 감 잡기</b> → 고등학교 순열·조합<br>이어서 볼 곳 — <a href="u11.html" style="color:var(--pb);font-weight:700">11단원 개념</a> · <a href="g11.html" style="color:var(--pb);font-weight:700">확률 놀이터</a> · <a href="p11.html" style="color:var(--pb);font-weight:700">11단원 연습</a> · <a href="../mid1/math1/app1/data-mastery.html" style="color:var(--pb);font-weight:700">📊 자료 읽는 법(상대도수)</a></p>
+  </section>
+
+  <footer>중2 수학 · 확률 감 잡기 특강 · 세면 확률이 나와요</footer>
+</div>
+<div id="printArea"></div>
+
+<script src="concept.js?v=20260906a"></script>
+<script>
+MJ.boot();
+/* 비단원 페이지 기본색을 이 특강의 보라로 덮어쓴다 */
+(function(){ var r=document.documentElement.style;
+  r.setProperty('--u','#7c5cbf'); r.setProperty('--u-2','#a58be0'); r.setProperty('--u-soft','rgba(124,92,191,.14)'); })();
+(function(){
+  'use strict';
+  /*GEN-START*/
+  function ri(a,b){return a+Math.floor(Math.random()*(b-a+1));}
+  function pick(a,i){ if(typeof i==='number') return a[((i%a.length)+a.length)%a.length]; return a[Math.floor(Math.random()*a.length)]; }
+  function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+  function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ var t=a%b; a=b; b=t; } return a||1; }
+  function frac(a,b){ var g=gcd(a,b); a/=g; b/=g; return b===1? String(a) : (a+'/'+b); }
+  function fracHTML(a,b){ var g=gcd(a,b); a/=g; b/=g;
+    return b===1? String(a) : '<span class="frac"><b>'+a+'</b><i>'+b+'</i></span>'; }
+
+  var THINGS=[{n:'빨간 공',o:'파란 공',w:'주머니',u:'개'},
+              {n:'흰 바둑돌',o:'검은 바둑돌',w:'통',u:'개'},
+              {n:'당첨 제비',o:'꽝 제비',w:'상자',u:'장'},
+              {n:'노란 구슬',o:'초록 구슬',w:'주머니',u:'개'}];
+
+  /* ① 한 번 꺼내는 확률 */
+  function genType1(i){
+    var t=pick(THINGS,i), a=pick([2,3,4,5,6],(i===undefined?undefined:i+1)), b=pick([3,4,5,6,7],(i===undefined?undefined:i+2));
+    var tot=a+b;
+    return {stem:t.w+'에 '+t.n+' <b>'+a+'</b>'+t.u+'와 '+t.o+' <b>'+b+'</b>'+t.u+'가 들어 있어요. 하나를 꺼낼 때 '+t.n+'일 확률을 구하시오.',
+            ans:a/tot, ansText:frac(a,tot), anchor:'type1', tname:'한 번 꺼내는 확률',
+            hint:'분모는 전체 '+tot+t.u+'예요. 나머지 개수가 아니에요.',
+            sol:'전체는 '+a+' + '+b+' = <b>'+tot+'</b>'+t.u+'이고 '+t.n+'은 '+a+t.u+'예요. '+
+                '확률은 '+fracHTML(a,tot)+' 이에요.'};
+  }
+  /* ② 이어지는 두 사건 — 다시 넣는 경우(독립) */
+  function genType2(i){
+    var mode=(i===undefined)?ri(0,1):(i%2);
+    if(mode===0){
+      var t=pick(THINGS,i), a=pick([2,3,4],(i===undefined?undefined:i+1)), b=pick([2,3,4,6],(i===undefined?undefined:i+2));
+      var tot=a+b, num=a*a, den=tot*tot;
+      return {stem:t.w+'에 '+t.n+' <b>'+a+'</b>'+t.u+'와 '+t.o+' <b>'+b+'</b>'+t.u+'가 들어 있어요. 하나를 꺼내 확인하고 <b>다시 넣은 뒤</b> 또 하나를 꺼낼 때, 두 번 모두 '+t.n+'일 확률을 구하시오.',
+              ans:num/den, ansText:frac(num,den), anchor:'type2', tname:'이어지는 두 사건',
+              hint:'다시 넣었으니 두 번째도 조건이 똑같아요. 두 확률을 곱해요.',
+              sol:'다시 넣었으므로 두 번 모두 '+fracHTML(a,tot)+' 이에요. \"그리고\"이므로 곱하면 '+
+                  fracHTML(a,tot)+' × '+fracHTML(a,tot)+' = '+fracHTML(num,den)+' 이에요.'};
+    }
+    var k=pick([2,3,4,5,6],(i===undefined?undefined:i+1));         /* 주사위 눈 조건 */
+    var cnt=k;                                                      /* k 이하가 나올 경우의 수 */
+    return {stem:'동전 한 개와 주사위 한 개를 동시에 던질 때, 동전은 앞면이 나오고 주사위는 <b>'+k+' 이하</b>의 눈이 나올 확률을 구하시오.',
+            ans:0.5*(cnt/6), ansText:frac(cnt,12), anchor:'type2', tname:'이어지는 두 사건',
+            hint:'동전 확률과 주사위 확률을 각각 구해 곱해요.',
+            sol:'동전이 앞면일 확률은 '+fracHTML(1,2)+' 이고, 주사위가 '+k+' 이하일 확률은 '+fracHTML(cnt,6)+' 이에요. '+
+                '두 사건이 함께 일어나야 하므로 곱하면 '+fracHTML(cnt,12)+' 이에요.'};
+  }
+  /* ③ 여사건 — 적어도 하나 */
+  function genType3(i){
+    var mode=(i===undefined)?ri(0,1):(i%2);
+    if(mode===0){
+      var n=pick([2,3,4,5],(i===undefined?undefined:i+1));
+      var all=Math.pow(2,n);
+      return {stem:'동전 <b>'+n+'개</b>를 동시에 던질 때, <b>적어도 한 개는 앞면</b>이 나올 확률을 구하시오.',
+              ans:(all-1)/all, ansText:frac(all-1,all), anchor:'type3', tname:'여사건 — 적어도 하나',
+              hint:'반대는 \"모두 뒷면\" 하나뿐이에요. 1 에서 빼요.',
+              sol:'전체 경우는 2<sup>'+n+'</sup> = <b>'+all+'</b>가지예요. 반대인 \"모두 뒷면\"은 <b>1가지</b>뿐이라 확률이 '+
+                  fracHTML(1,all)+' 이에요. 그러므로 구하는 확률은 1 − '+fracHTML(1,all)+' = '+fracHTML(all-1,all)+' 이에요.'};
+    }
+    var p=pick([[1,4],[1,5],[2,5],[3,8],[1,6],[2,9]],(i===undefined?undefined:i+1));
+    return {stem:'어떤 사건이 일어날 확률이 '+fracHTML(p[0],p[1])+' 일 때, 그 사건이 <b>일어나지 않을</b> 확률을 구하시오.',
+            ans:(p[1]-p[0])/p[1], ansText:frac(p[1]-p[0],p[1]), anchor:'type3', tname:'여사건 — 일어나지 않을 확률',
+            hint:'일어날 확률과 일어나지 않을 확률을 더하면 1 이에요.',
+            sol:'두 확률의 합이 1 이므로 1 − '+fracHTML(p[0],p[1])+' = '+fracHTML(p[1]-p[0],p[1])+' 이에요.'};
+  }
+  /* ④ 다시 넣지 않고 두 번 꺼내기 */
+  function genType4(i){
+    var t=pick(THINGS,i), a=pick([3,4,5],(i===undefined?undefined:i+1)), b=pick([2,3,4],(i===undefined?undefined:i+2));
+    var tot=a+b, num=a*(a-1), den=tot*(tot-1);
+    return {stem:t.w+'에 '+t.n+' <b>'+a+'</b>'+t.u+'와 '+t.o+' <b>'+b+'</b>'+t.u+'가 들어 있어요. 하나를 꺼내 확인하고 <b>다시 넣지 않은 채</b> 또 하나를 꺼낼 때, 두 번 모두 '+t.n+'일 확률을 구하시오.',
+            ans:num/den, ansText:frac(num,den), anchor:'type4', tname:'다시 넣지 않고 꺼내기',
+            hint:'두 번째에는 전체가 '+(tot-1)+', '+t.n+'이 '+(a-1)+'로 하나씩 줄어요.',
+            sol:'첫 번째는 '+fracHTML(a,tot)+' 이에요. 다시 넣지 않았으니 두 번째는 전체 '+(tot-1)+' 중 '+(a-1)+' 이라 '+
+                fracHTML(a-1,tot-1)+' 이에요. 곱하면 '+fracHTML(a,tot)+' × '+fracHTML(a-1,tot-1)+' = '+fracHTML(num,den)+' 이에요.'};
+  }
+  /*GEN-END*/
+
+  /* 답 비교 — 분수(3/10) 도 소수(0.3) 도 맞게 본다 */
+  function parseAns(raw){
+    raw=String(raw||'').replace(/\s+/g,'');
+    var m=raw.match(/^(-?\d+)\/(\d+)$/);
+    if(m) return +m[1]/+m[2];
+    var v=parseFloat(raw.replace(/[^0-9.\-]/g,''));
+    return isNaN(v)? null : v;
+  }
+  function closeEnough(a,b){ return Math.abs(a-b)<5e-4; }
+  function cheer(){ try{ MJ.confetti(); }catch(e){} }
+
+  /* ── 1. 확률 자 ── */
+  (function(){
+    var picks=document.getElementById('rulerPicks'), pin=document.getElementById('rulerPin'), read=document.getElementById('rulerRead');
+    var CASES=[
+      {t:'해가 서쪽에서 뜬다', p:0, why:'절대 일어나지 않는 일의 확률은 <b>0</b> 이에요.'},
+      {t:'주사위에서 6이 나온다', p:1/6, why:'여섯 눈 중 하나이므로 1/6 ≈ 0.167 이에요.'},
+      {t:'동전이 앞면이다', p:1/2, why:'앞·뒤 두 가지 중 하나라 정확히 1/2 이에요.'},
+      {t:'주사위가 3 이하이다', p:1/2, why:'1, 2, 3 세 눈이라 3/6 = 1/2 이에요.'},
+      {t:'주사위가 7 이하이다', p:1, why:'어떤 눈이 나와도 참이라 확률이 <b>1</b> 이에요.'}
+    ];
+    var cur=2;
+    function draw(){
+      var C=CASES[cur];
+      pin.style.left=(C.p*100)+'%';
+      pin.querySelector('span').textContent=(Math.round(C.p*1000)/1000);
+      read.innerHTML='<b>'+C.t+'</b> → 확률 <b>'+(Math.round(C.p*1000)/1000)+'</b><br><span style="color:var(--muted)">'+C.why+'</span>';
+      Array.prototype.forEach.call(picks.children,function(b,i){ b.className=(i===cur)?'on':''; });
+    }
+    CASES.forEach(function(C,i){
+      var b=document.createElement('button'); b.type='button'; b.textContent=C.t;
+      b.onclick=function(){ cur=i; draw(); };
+      picks.appendChild(b);
+    });
+    draw();
+  })();
+
+  /* ── 2. 100칸 그리드 ── */
+  (function(){
+    var ca=document.getElementById('cntA'), cb=document.getElementById('cntB'),
+        grid=document.getElementById('probGrid'), read=document.getElementById('gridRead');
+    var cells=[];
+    for(var i=0;i<100;i++){ var e=document.createElement('i'); grid.appendChild(e); cells.push(e); }
+    function draw(){
+      var a=+ca.value, b=+cb.value, tot=a+b;
+      document.getElementById('cntAV').textContent=a+'개';
+      document.getElementById('cntBV').textContent=b+'개';
+      if(tot===0){ cells.forEach(function(e){e.className='';});
+        read.innerHTML='공이 하나도 없어요. 슬라이더를 움직여 공을 넣어 봐요.'; return; }
+      var on=Math.round(a/tot*100);
+      cells.forEach(function(e,i){ e.className = i<on ? 'on' : ''; });
+      read.innerHTML='전체 <b>'+tot+'개</b> 중 <b>'+a+'개</b> → 확률 <b>'+a+'/'+tot+'</b> ≈ '+
+        (Math.round(a/tot*1000)/1000)+' → 100칸 중 <b>'+on+'칸</b>이에요.';
+    }
+    ca.oninput=draw; cb.oninput=draw; draw();
+  })();
+  document.getElementById('q1b').onclick=function(){
+    MJ.check('q1',function(v,raw){ var p=parseAns(raw); return p!==null&&closeEnough(p,0.4); },'q1o',
+      {correct:'0.4 (= 4/10 = 2/5)',hint:'분모는 전체 10개예요. 4 ÷ 10 을 계산해요.'});
+  };
+
+  /* ── 3. 나무 그림 ── */
+  (function(){
+    var svg=document.getElementById('treeSvg'), rng=document.getElementById('treeN'), read=document.getElementById('treeRead');
+    function draw(){
+      var n=+rng.value;
+      document.getElementById('treeNV').textContent=n+'번';
+      var s='', W=400, levelY=[30], i, k;
+      for(i=1;i<=n;i++) levelY.push(30 + i*(150/n));
+      /* 각 단계의 노드 위치 */
+      var nodes=[[{x:W/2,y:levelY[0],lab:'시작'}]];
+      for(i=1;i<=n;i++){
+        var prev=nodes[i-1], cur=[], cnt=Math.pow(2,i), gap=W/(cnt+1);
+        for(k=0;k<cnt;k++) cur.push({x:gap*(k+1), y:levelY[i], lab:(k%2===0?'앞':'뒤')});
+        nodes.push(cur);
+      }
+      for(i=1;i<=n;i++){
+        for(k=0;k<nodes[i].length;k++){
+          var p=nodes[i-1][Math.floor(k/2)], c=nodes[i][k];
+          s+='<line x1="'+p.x.toFixed(1)+'" y1="'+(p.y+8)+'" x2="'+c.x.toFixed(1)+'" y2="'+(c.y-8)+
+             '" stroke="var(--pb)" stroke-width="1.2" opacity=".6"/>';
+        }
+      }
+      for(i=0;i<=n;i++){
+        var r=(i===0)?11:Math.max(7,11-n);
+        for(k=0;k<nodes[i].length;k++){
+          var c2=nodes[i][k], head=(c2.lab==='앞');
+          s+='<circle cx="'+c2.x.toFixed(1)+'" cy="'+c2.y+'" r="'+r+'" fill="'+
+             (i===0?'var(--muted)':(head?'var(--pb)':'var(--panel)'))+'" stroke="var(--pb)" stroke-width="1.4"/>';
+          if(n<=3) s+='<text x="'+c2.x.toFixed(1)+'" y="'+(c2.y+4)+'" text-anchor="middle" font-size="'+(i===0?9:10)+
+             '" font-weight="800" fill="'+(i===0?'#fff':(head?'#fff':'var(--pb)'))+'">'+(i===0?'':c2.lab)+'</text>';
+        }
+      }
+      var leaves=Math.pow(2,n);
+      s+='<text x="200" y="200" text-anchor="middle" font-size="11.5" font-weight="700" fill="var(--muted)">'+
+         '끝 가지 '+leaves+'개 = 2'+(n>1?('<tspan font-size="9" dy="-4">'+n+'</tspan>'):'')+'</text>';
+      svg.innerHTML=s;
+      read.innerHTML='동전을 <b>'+n+'번</b> 던지면 경우가 <b>2<sup>'+n+'</sup> = '+leaves+'가지</b>예요. '+
+        '모두 앞면일 확률은 <b>1/'+leaves+'</b> 이고, 이것이 곧 '+
+        '<span style="font-family:var(--serif);font-style:italic">1/2 을 '+n+'번 곱한 값</span>이에요.';
+    }
+    rng.oninput=draw; draw();
+  })();
+  document.getElementById('q2b').onclick=function(){
+    MJ.check('q2',1,'q2o',{correct:'1',hint:'앞앞·앞뒤·뒤앞·뒤뒤 네 가지 중 "앞앞" 하나예요.'});
+  };
+
+  /* ── 4. 여사건 저울 ── */
+  (function(){
+    var rng=document.getElementById('compN'), read=document.getElementById('compRead');
+    function draw(){
+      var n=+rng.value, all=Math.pow(2,n), at=all-1, p=at/all;
+      document.getElementById('compNV').textContent=n+'개';
+      document.getElementById('compHard').style.width=(p*100)+'%';
+      document.getElementById('compEasy').style.width=(p*100)+'%';
+      document.getElementById('compHardT').textContent= n>=4 ? ('앞면 1개~'+n+'개를 '+n+'번 더해요') : ('경우를 '+at+'가지 세요');
+      document.getElementById('compEasyT').textContent='1 − 1/'+all+' = '+at+'/'+all;
+      read.innerHTML='동전 '+n+'개의 전체 경우는 <b>'+all+'가지</b>예요. \"적어도 하나가 앞면\"의 반대인 '+
+        '<b>모두 뒷면</b>은 딱 <b>1가지</b>라, 확률은 <b>1 − 1/'+all+' = '+at+'/'+all+'</b> ≈ '+
+        (Math.round(p*1000)/1000)+' 이에요.'+(n>=5?' 개수가 늘수록 <b>전부 세는 쪽</b>은 훨씬 번거로워져요.':'');
+    }
+    rng.oninput=draw; draw();
+  })();
+
+  /* ── 5. 다시 넣기 비교 ── */
+  (function(){
+    var rr=document.getElementById('repR'), rb=document.getElementById('repB'),
+        svg=document.getElementById('repSvg'), read=document.getElementById('repRead');
+    function draw(){
+      var a=+rr.value, b=+rb.value, tot=a+b;
+      document.getElementById('repRV').textContent=a+'개';
+      document.getElementById('repBV').textContent=b+'개';
+      var s='', y=44;
+      function jar(cx,label,na,nb,sub){
+        var t='', i, R=9;
+        t+='<text x="'+cx+'" y="26" text-anchor="middle" font-size="12" font-weight="800" fill="var(--ink)">'+label+'</text>';
+        t+='<rect x="'+(cx-58)+'" y="'+y+'" width="116" height="52" rx="10" fill="var(--panel)" stroke="var(--pb)" stroke-width="1.6"/>';
+        for(i=0;i<na+nb;i++){
+          var col=i%6, row=Math.floor(i/6);
+          t+='<circle cx="'+(cx-46+col*19)+'" cy="'+(y+16+row*20)+'" r="'+R+'" fill="'+
+             (i<na?'var(--pb)':'var(--panel-2)')+'" stroke="var(--pb)" stroke-width="1.2"/>';
+        }
+        t+='<text x="'+cx+'" y="'+(y+72)+'" text-anchor="middle" font-size="11.5" font-weight="700" fill="var(--pb)">'+sub+'</text>';
+        return t;
+      }
+      s+=jar(105,'다시 넣으면', a, b, a+'/'+tot+' × '+a+'/'+tot);
+      s+=jar(295,'안 넣으면', a, b, a+'/'+tot+' × '+(a-1)+'/'+(tot-1));
+      s+='<text x="295" y="'+(y+90)+'" text-anchor="middle" font-size="10.5" fill="var(--muted)">두 번째엔 전체도 '+(tot-1)+', 빨강도 '+(a-1)+'</text>';
+      s+='<text x="105" y="'+(y+90)+'" text-anchor="middle" font-size="10.5" fill="var(--muted)">두 번째도 조건이 그대로</text>';
+      svg.innerHTML=s;
+      var p1=(a/tot)*(a/tot), p2=(a/tot)*((a-1)/(tot-1));
+      read.innerHTML='두 번 모두 빨간 공일 확률 — 다시 넣으면 <b>'+(Math.round(p1*1000)/1000)+
+        '</b>, 안 넣으면 <b>'+(Math.round(p2*1000)/1000)+'</b> 예요. '+
+        (p2<p1? '안 넣으면 빨간 공이 하나 줄어드니 확률도 <b>작아져요</b>.' : '');
+    }
+    rr.oninput=draw; rb.oninput=draw; draw();
+  })();
+
+  /* ── 6. 유형 카드 ── */
+  function renderTypeCard(host, gen){
+    var q=null;
+    function build(){
+      q=gen();
+      host.innerHTML='<p class="pm-stem">'+q.stem+'</p>'+
+        '<div class="pm-checkrow"><input class="num" inputmode="text" aria-label="답" placeholder="예: 3/10"><button class="chk">확인</button>'+
+        '<button class="pm-again again">🔄 다른 문제로</button></div>'+
+        '<div class="pm-out"></div><div class="pm-sol"></div>';
+      var inp=host.querySelector('input'), out=host.querySelector('.pm-out'), sol=host.querySelector('.pm-sol');
+      function submit(){
+        var p=parseAns(inp.value);
+        if(p===null){ out.innerHTML='답을 넣어 주세요 🙂 (분수는 3/10 처럼)'; return; }
+        var ok=closeEnough(p,q.ans);
+        out.innerHTML= ok? '<b style="color:var(--ok)">✓ 정답이에요!</b>'
+                         : '<b style="color:var(--pb)">아직이에요.</b> <span style="color:var(--muted)">💡 '+q.hint+'</span>';
+        sol.innerHTML=q.sol; sol.classList.add('show');
+        if(ok) cheer();
+      }
+      host.querySelector('.chk').onclick=submit;
+      inp.addEventListener('keydown',function(e){ if(e.key==='Enter') submit(); });
+      host.querySelector('.again').onclick=build;
+    }
+    build();
+  }
+  renderTypeCard(document.getElementById('type1body'), genType1);
+  renderTypeCard(document.getElementById('type2body'), genType2);
+  renderTypeCard(document.getElementById('type3body'), genType3);
+  renderTypeCard(document.getElementById('type4body'), genType4);
+
+  /* ── 7. 실전 총정리 ── */
+  var QUIZ=[
+    {gen:genType1}, {gen:genType2}, {gen:genType3}, {gen:genType4},
+    {gen:function(){ return pick([genType1,genType2,genType3,genType4])(); }}
+  ];
+  var scorer=null;
+  function buildQuiz(){
+    var area=document.getElementById('quizArea'); area.innerHTML='';
+    scorer=MJ.masteryScore('quizScore',5,'probability-mastery','확률 감 잡기 특강');
+    shuffle(QUIZ).forEach(function(qt,idx){
+      var q=qt.gen();
+      var card=document.createElement('div'); card.className='pm-quizcard';
+      card.innerHTML='<b>'+(idx+1)+'.</b> <span class="pm-stem" style="display:inline">'+q.stem+'</span>'+
+        '<div class="pm-checkrow"><input class="num" inputmode="text" aria-label="답" placeholder="예: 3/10"><button class="chk">확인</button></div>'+
+        '<div class="pm-out"></div><div class="pm-quiz-id"></div>';
+      area.appendChild(card);
+      var inp=card.querySelector('input'), out=card.querySelector('.pm-out'), idbox=card.querySelector('.pm-quiz-id');
+      function submit(){
+        var p=parseAns(inp.value);
+        if(p===null){ out.innerHTML='답을 넣어 주세요 🙂 (분수는 3/10 처럼)'; return; }
+        var ok=closeEnough(p,q.ans);
+        out.innerHTML=(ok? '<b style="color:var(--ok)">✓ 정답이에요!</b> ' : '<b style="color:var(--pb)">아직이에요.</b> ')+q.sol;
+        if(ok) cheer();
+        idbox.innerHTML='이 문제는 <b>'+q.tname+'</b> 유형이에요. <a href="#'+q.anchor+'">다시 볼까요? →</a>';
+        idbox.classList.add('show');
+        scorer.mark(idx,ok);
+      }
+      card.querySelector('.chk').onclick=submit;
+      inp.addEventListener('keydown',function(e){ if(e.key==='Enter') submit(); });
+    });
+  }
+  buildQuiz();
+  document.getElementById('quizAgain').onclick=buildQuiz;
+
+  /* ── 8. 치트시트 인쇄 ── */
+  document.getElementById('printCheat').onclick=function(){
+    document.getElementById('printArea').innerHTML=document.querySelector('.pm-cheat').outerHTML;
+    window.print();
+  };
+})();
+</script>
+</body>
+</html>

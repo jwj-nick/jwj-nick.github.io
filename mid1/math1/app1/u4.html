@@ -48,6 +48,7 @@
       <div class="controls">
         <div class="ctrl"><label><span>양변에 더할 수 c</span><span id="cv">0</span></label><input type="range" id="rc" min="0" max="10" step="1" value="0"></div>
       </div>
+      <svg id="scaleSvg" viewBox="0 0 400 200" style="width:100%;max-width:400px;display:block;margin:6px auto 0" role="img" aria-label="개념을 나타낸 그림"></svg>
       <div class="sim-read" id="read" style="margin-top:10px"></div>
     </div>
     <p class="muted" style="margin-top:12px">x + 3 = 7의 해는 x = 4예요. 양변에 c를 더해도 <b class="hl">등식은 여전히 성립</b>해요 — 저울이 처음부터 균형이었다면, 양쪽에 똑같이 얹어도 계속 균형이에요.</p>
@@ -135,6 +136,7 @@ MJ1.boot();
       document.getElementById('cv').textContent=c;
       var left=4+3+c, right=7+c;
       read.innerHTML='왼쪽: 4+3+'+c+' = <b class="hl">'+left+'</b>　　오른쪽: 7+'+c+' = <b class="hl">'+right+'</b>　→　'+(left===right?'⚖️ 균형 유지!':'?');
+      drawScale(c);
       did('balance');
     }
     rc.oninput=draw; draw();
@@ -145,6 +147,41 @@ MJ1.boot();
   document.getElementById('c4b').onclick=function(){ MJ1.checkNum('c4',8,'c4o',function(){did('solve');}); };
   document.getElementById('c5b').onclick=function(){ MJ1.checkNum('c5',10,'c5o',function(){did('frac');}); };
   document.getElementById('c6b').onclick=function(){ MJ1.check('c6',function(v,raw){return /^x\+6$/.test(raw);},'c6o',{correct:'x+6'}); };
+  /* ── 양팔저울 — 양쪽에 똑같이 얹어도 균형이 그대로임을 보인다 ── */
+  function drawScale(c){
+    var g=document.getElementById('scaleSvg'); if(!g) return;
+    var s='', cx=200, top=40, arm=120, py=top+18;
+    /* 기둥과 팔 (언제나 수평 — 균형이 유지되니까) */
+    s+='<line x1="'+cx+'" y1="'+top+'" x2="'+cx+'" y2="168" stroke="var(--muted)" stroke-width="3"/>';
+    s+='<line x1="'+(cx-arm)+'" y1="'+top+'" x2="'+(cx+arm)+'" y2="'+top+'" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>';
+    s+='<polygon points="'+cx+',168 '+(cx-24)+',182 '+(cx+24)+',182" fill="var(--muted)" opacity=".55"/>';
+    function pan(px,label){
+      var t='';
+      t+='<line x1="'+px+'" y1="'+top+'" x2="'+px+'" y2="'+py+'" stroke="var(--muted)" stroke-width="1.4"/>';
+      t+='<path d="M'+(px-46)+','+py+' L'+(px+46)+','+py+' L'+(px+34)+','+(py+12)+' L'+(px-34)+','+(py+12)+' Z" fill="var(--panel-2)" stroke="var(--ink)" stroke-width="1.4"/>';
+      t+='<text x="'+px+'" y="164" text-anchor="middle" font-size="11.5" font-weight="700" fill="var(--ink)">'+label+'</text>';
+      return t;
+    }
+    function weights(px, n, startX){
+      var t='', i, w=13, per=6;
+      for(i=0;i<n;i++){
+        var col=i%per, row=Math.floor(i/per);
+        t+='<rect x="'+(startX+col*(w+2))+'" y="'+(py-14-row*(w+2))+'" width="'+w+'" height="'+w+
+           '" rx="2" fill="var(--gold,#c9972b)" opacity=".8"/>';
+      }
+      return t;
+    }
+    /* 왼쪽 = x 상자 + 추 3개 + c개 · 오른쪽 = 추 7개 + c개 */
+    s+=pan(cx-arm, 'x + 3 + '+c);
+    s+='<rect x="'+(cx-arm-44)+'" y="'+(py-30)+'" width="26" height="26" rx="4" fill="var(--u)" stroke="var(--u)" stroke-width="1.5"/>';
+    s+='<text x="'+(cx-arm-31)+'" y="'+(py-12)+'" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">x</text>';
+    s+=weights(cx-arm, 3+c, cx-arm-14);
+    s+=pan(cx+arm, '7 + '+c);
+    s+=weights(cx+arm, 7+c, cx+arm-44);
+    s+='<text x="'+cx+'" y="'+(top-14)+'" text-anchor="middle" font-size="12" font-weight="800" fill="var(--u)">⚖️ 양쪽에 '+c+'개씩 더 얹어도 수평이에요</text>';
+    g.innerHTML=s;
+  }
+
   MJ1.reveal('showex','exbox',function(){did('teach');});
 })();
 </script>

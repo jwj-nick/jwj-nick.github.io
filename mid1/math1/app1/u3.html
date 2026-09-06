@@ -48,6 +48,7 @@
       <div class="controls">
         <div class="ctrl"><label><span>x</span><span id="xv">2</span></label><input type="range" id="rx" min="-5" max="5" step="1" value="2"></div>
       </div>
+      <svg id="areaSvg" viewBox="0 0 400 200" style="width:100%;max-width:400px;display:block;margin:6px auto 0" role="img" aria-label="개념을 나타낸 그림"></svg>
       <div class="sim-read" id="read" style="margin-top:10px"></div>
     </div>
     <p class="muted" style="margin-top:12px">식 <span class="eq">2x + 1</span>에 x 대신 값을 <b class="hl">대입</b>하면 식의 값이 나와요. <b class="gold">음수를 대입할 땐 꼭 괄호</b>를 써야 부호가 안 섞여요.</p>
@@ -135,6 +136,7 @@ MJ1.boot();
       document.getElementById('xv').textContent=x;
       var val=2*x+1;
       read.innerHTML='2x + 1　→　2×('+x+') + 1 = <b class="hl">'+val+'</b>';
+      drawArea(x);
       did('sub');
     }
     rx.oninput=draw; draw();
@@ -145,6 +147,29 @@ MJ1.boot();
   document.getElementById('c4b').onclick=function(){ MJ1.checkNum('c4',-5,'c4o',function(){did('term');}); };
   document.getElementById('c5b').onclick=function(){ MJ1.check('c5',function(v,raw){return /2x/.test(raw)&&/3y/.test(raw);},'c5o',{correct:'2x+3y',onOk:function(){did('like');}}); };
   document.getElementById('c6b').onclick=function(){ MJ1.check('c6',function(v,raw){return /6x/.test(raw)&&/-3/.test(raw);},'c6o',{correct:'6x−3'}); };
+  /* ── 넓이 모델 — 2x + 1 을 길이 x 인 막대 두 개와 단위 칸 하나로 ── */
+  function drawArea(x){
+    var g=document.getElementById('areaSvg'); if(!g) return;
+    var unit=26, s='', k, y=54, gap=10;
+    var bw=Math.max(14, x*unit);
+    for(k=0;k<2;k++){
+      var by=y+k*(unit+gap);
+      s+='<rect x="40" y="'+by+'" width="'+bw+'" height="'+unit+'" fill="var(--u-soft)" stroke="var(--u)" stroke-width="1.6" rx="3"/>';
+      s+='<text x="'+(40+bw/2)+'" y="'+(by+unit/2+4.5)+'" text-anchor="middle" font-size="12" font-weight="800" fill="var(--u)">x</text>';
+      var i2;
+      for(i2=1;i2<x;i2++)
+        s+='<line x1="'+(40+i2*unit)+'" y1="'+by+'" x2="'+(40+i2*unit)+'" y2="'+(by+unit)+'" stroke="var(--u)" stroke-width=".7" opacity=".45"/>';
+    }
+    var uy=y+2*(unit+gap);
+    s+='<rect x="40" y="'+uy+'" width="'+unit+'" height="'+unit+'" fill="var(--gold-soft,rgba(201,151,43,.18))" stroke="var(--gold,#c9972b)" stroke-width="1.6" rx="3"/>';
+    s+='<text x="'+(40+unit/2)+'" y="'+(uy+unit/2+4.5)+'" text-anchor="middle" font-size="12" font-weight="800" fill="var(--gold,#c9972b)">1</text>';
+    s+='<text x="40" y="34" font-size="12" font-weight="700" fill="var(--ink)">x = '+x+' 일 때 2x + 1 을 칸으로 그리면</text>';
+    s+='<text x="40" y="'+(uy+unit+22)+'" font-size="12.5" font-weight="800" fill="var(--u)">칸 수를 모두 세면 '+
+       x+' + '+x+' + 1 = '+(2*x+1)+' 이에요</text>';
+    s+='<text x="380" y="34" text-anchor="end" font-size="10.5" fill="var(--muted)">막대 하나가 x, 노란 칸이 1</text>';
+    g.innerHTML=s;
+  }
+
   MJ1.reveal('showex','exbox',function(){did('teach');});
 })();
 </script>

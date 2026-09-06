@@ -43,6 +43,7 @@
     if(/sqrt-mastery/.test(f))     return {kind:'sqrt-mastery'};
     if(/parabola-mastery/.test(f)) return {kind:'parabola-mastery'};
     if(/trig-mastery/.test(f)) return {kind:'trig-mastery'};
+    if(/circle-mastery/.test(f)) return {kind:'circle-mastery'};
     return {kind:'home'};
   }
   function hexA(hex,a){var n=parseInt(hex.slice(1),16);return 'rgba('+(n>>16&255)+','+(n>>8&255)+','+(n&255)+','+a+')';}
@@ -204,6 +205,7 @@
       '<a class="sb-link tool'+(activeId==='sqrt-mastery'?' active':'')+'" href="sqrt-mastery.html" data-mkey="sqrt-mastery"><span class="sb-no">🌱</span>제곱근·무리수 특강<span class="sb-chk">✓</span></a>'+
       '<a class="sb-link tool'+(activeId==='parabola-mastery'?' active':'')+'" href="parabola-mastery.html" data-mkey="parabola-mastery"><span class="sb-no">🎢</span>이차함수 이동 특강<span class="sb-chk">✓</span></a>'+
       '<a class="sb-link tool'+(activeId==='trig-mastery'?' active':'')+'" href="trig-mastery.html" data-mkey="trig-mastery"><span class="sb-no">📏</span>삼각비 특강<span class="sb-chk">✓</span></a>'+
+      '<a class="sb-link tool'+(activeId==='circle-mastery'?' active':'')+'" href="circle-mastery.html" data-mkey="circle-mastery"><span class="sb-no">⭕</span>원의 성질 특강<span class="sb-chk">✓</span></a>'+
       '<a class="sb-link tool" href="../mid1/map/mastery.html"><span class="sb-no">🏅</span>특강 지도</a>'+
       '<div class="sb-sep"></div>'+
       '<details class="sb-sem" open><summary class="sb-group">1학기</summary>';

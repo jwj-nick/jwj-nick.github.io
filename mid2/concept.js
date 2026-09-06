@@ -39,6 +39,7 @@
     if(/drill/.test(f))          return {kind:'drill'};
     if(/slope-mastery/.test(f))    return {kind:'slope-mastery'};
     if(/counting-mastery/.test(f)) return {kind:'counting-mastery'};
+    if(/probability-mastery/.test(f)) return {kind:'probability-mastery'};
     if(/inequality-mastery/.test(f)) return {kind:'inequality-mastery'};
     if(/similar-mastery/.test(f)) return {kind:'similar-mastery'};
     if(/pythagoras-mastery/.test(f)) return {kind:'pythagoras-mastery'};
@@ -201,6 +202,7 @@
       '<a class="sb-link tool'+(activeId==='drill'?' active':'')+'" href="drill.html"><span class="sb-no">✏️</span>계산 연습</a>'+
       '<a class="sb-link tool'+(activeId==='slope-mastery'?' active':'')+'" href="slope-mastery.html" data-mkey="slope-mastery"><span class="sb-no">📈</span>기울기 완전정복 특강<span class="sb-chk">✓</span></a>'+
       '<a class="sb-link tool'+(activeId==='counting-mastery'?' active':'')+'" href="counting-mastery.html" data-mkey="counting-mastery"><span class="sb-no">🌳</span>경우의 수 특강<span class="sb-chk">✓</span></a>'+
+      '<a class="sb-link tool'+(activeId==='probability-mastery'?' active':'')+'" href="probability-mastery.html" data-mkey="probability-mastery"><span class="sb-no">🎯</span>확률 감 잡기 특강<span class="sb-chk">✓</span></a>'+
       '<a class="sb-link tool'+(activeId==='inequality-mastery'?' active':'')+'" href="inequality-mastery.html" data-mkey="inequality-mastery"><span class="sb-no">⚖️</span>부등식 방향 특강<span class="sb-chk">✓</span></a>'+
       '<a class="sb-link tool'+(activeId==='similar-mastery'?' active':'')+'" href="similar-mastery.html" data-mkey="similar-mastery"><span class="sb-no">🔍</span>닮음비 특강<span class="sb-chk">✓</span></a>'+
       '<a class="sb-link tool'+(activeId==='pythagoras-mastery'?' active':'')+'" href="pythagoras-mastery.html" data-mkey="pythagoras-mastery"><span class="sb-no">🔺</span>피타고라스 특강<span class="sb-chk">✓</span></a>'+

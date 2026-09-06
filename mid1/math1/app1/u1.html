@@ -48,6 +48,7 @@
       <div class="controls">
         <div class="ctrl"><label><span>수 n</span><span id="nv">28</span></label><input type="range" id="rn" min="2" max="100" step="1" value="28"></div>
       </div>
+      <svg id="treeSvg" viewBox="0 0 400 200" style="width:100%;max-width:400px;display:block;margin:6px auto 0" role="img" aria-label="개념을 나타낸 그림"></svg>
       <div class="sim-read" id="read" style="margin-top:10px"></div>
     </div>
     <p class="muted" style="margin-top:12px">약수를 다 세어 보면 그 수가 소수인지 합성수인지 바로 알 수 있어요. 약수가 딱 2개면 소수, 3개 이상이면 합성수예요.</p>
@@ -141,6 +142,7 @@ MJ1.boot();
       var ds=divisors(k);
       var kind = ds.length===2 ? '소수' : (k===1 ? '(소수도 합성수도 아님)' : '합성수');
       read.innerHTML=k+'의 약수: <b class="gold">'+ds.join(', ')+'</b> (총 '+ds.length+'개)　→　<b class="hl">'+kind+'</b>';
+      drawTree(k);
       did('div');
     }
     rn.oninput=draw; draw();
@@ -151,6 +153,42 @@ MJ1.boot();
   document.getElementById('c4b').onclick=function(){ MJ1.check('c4',function(v,raw){return /2/.test(raw)&&/3/.test(raw)&&/5/.test(raw);},'c4o',{correct:'2²×3×5',onOk:function(){did('pf');}}); };
   document.getElementById('c5b').onclick=function(){ MJ1.checkNum('c5',12,'c5o',function(){did('gcd');}); };
   document.getElementById('c6b').onclick=function(){ MJ1.checkNum('c6',96,'c6o'); };
+  /* ── 소인수 나무 — 소인수를 하나씩 떼어 내며 내려간다 ── */
+  function drawTree(n){
+    var g=document.getElementById('treeSvg'); if(!g) return;
+    var s='', x=200, y=34, step=30, node=n, depth=0, primes=[];
+    function isPrime(k){ if(k<2) return false; for(var i=2;i*i<=k;i++) if(k%i===0) return false; return true; }
+    function smallestFactor(k){ for(var i=2;i*i<=k;i++) if(k%i===0) return i; return k; }
+    function bubble(cx,cy,txt,prime){
+      return '<circle cx="'+cx+'" cy="'+cy+'" r="15" fill="'+(prime?'var(--u)':'var(--u-soft)')+
+        '" stroke="var(--u)" stroke-width="1.6"/>'+
+        '<text x="'+cx+'" y="'+(cy+4.5)+'" text-anchor="middle" font-size="12" font-weight="800" fill="'+
+        (prime?'#fff':'var(--ink)')+'">'+txt+'</text>';
+    }
+    if(n<2){
+      g.innerHTML='<text x="200" y="100" text-anchor="middle" font-size="13" fill="var(--muted)">1 은 소수도 합성수도 아니라 더 뜯을 수 없어요</text>';
+      return;
+    }
+    s+=bubble(x,y,node,isPrime(node));
+    while(!isPrime(node) && depth<6){
+      var f=smallestFactor(node), q=node/f;
+      primes.push(f);
+      var ny=y+step+8, lx=x-56, rx=x+34;
+      s+='<line x1="'+x+'" y1="'+(y+15)+'" x2="'+lx+'" y2="'+(ny-15)+'" stroke="var(--u)" stroke-width="1.4"/>';
+      s+='<line x1="'+x+'" y1="'+(y+15)+'" x2="'+rx+'" y2="'+(ny-15)+'" stroke="var(--u)" stroke-width="1.4"/>';
+      s+=bubble(lx,ny,f,true);
+      s+=bubble(rx,ny,q,isPrime(q));
+      node=q; x=rx; y=ny; depth++;
+    }
+    if(isPrime(node)) primes.push(node);
+    var cnt={},k; for(k=0;k<primes.length;k++) cnt[primes[k]]=(cnt[primes[k]]||0)+1;
+    var parts=Object.keys(cnt).sort(function(a,b){return a-b;}).map(function(p){
+      return cnt[p]>1 ? p+'<tspan font-size="9" dy="-5">'+cnt[p]+'</tspan><tspan dy="5"></tspan>' : p; });
+    s+='<text x="20" y="192" font-size="12.5" font-weight="800" fill="var(--u)">'+n+' = '+parts.join(' × ')+'</text>';
+    s+='<text x="380" y="24" text-anchor="end" font-size="10.5" fill="var(--muted)">색이 진한 동그라미가 소수예요</text>';
+    g.innerHTML=s;
+  }
+
   MJ1.reveal('showex','exbox',function(){did('teach');});
 })();
 </script>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>단원 1 · 유리수와 순환소수 · 중2-1</title>
-<link rel="stylesheet" href="concept.css?v=20260905a">
+<link rel="stylesheet" href="concept.css?v=20260906a">
 </head>
 <body>
 <div class="wrap">
@@ -69,6 +69,8 @@
         <div class="ctrl"><label><span>분모 d</span><span id="vd">3</span></label><input type="range" id="denR" min="2" max="12" step="1" value="3"></div>
       </div>
       <div class="hint" id="verdict"></div>
+      <svg id="remSvg" viewBox="0 0 400 150" style="width:100%;max-width:400px;display:block;margin:10px auto 0" role="img" aria-label="나눗셈에서 나머지가 되풀이되는 그림"></svg>
+      <div class="reading" id="remNote" style="text-align:center"></div>
     </div>
     <p class="muted" style="margin-top:12px">먼저 <b class="gold">약분</b>해서 기약분수(<span class="en">fraction in lowest terms</span>)로 만든 다음, 그 <b class="hl">분모</b>(<span class="en">denominator</span>)만 보면 돼요. 분모가 <b class="gold">2와 5</b>로만 이루어져 있으면 유한소수, 다른 소인수가 섞여 있으면 무한소수(순환소수)예요. 여러 값으로 바꿔보며 이 규칙을 확인해 봐요.</p>
   </section>
@@ -153,7 +155,7 @@
   <div class="foot">중2-1 · 단원 1 · 위 탭에서 연습·심화로 이어가요</div>
 </div>
 
-<script src="concept.js?v=20260905a"></script>
+<script src="concept.js?v=20260906a"></script>
 <script>
 MJ.boot();
 (function(){
@@ -179,6 +181,50 @@ MJ.boot();
     }
     return s+o.digits.join('');
   }
+  /* ── 나눗셈의 나머지를 늘어놓아 '왜 되풀이되는지' 를 보인다 ──
+     나머지는 0 부터 (분모−1) 까지뿐이라, 0 이 안 나오면 언젠가 반드시 같은 나머지가 다시 나온다. */
+  function drawRemainders(n, d){
+    var g=document.getElementById('remSvg'), note=document.getElementById('remNote');
+    if(!g) return;
+    var rem=n%d, seen={}, seq=[], digits=[], loopAt=-1, i;
+    for(i=0;i<14;i++){
+      if(rem===0) break;
+      if(seen[rem]!==undefined){ loopAt=seen[rem]; break; }
+      seen[rem]=seq.length;
+      seq.push(rem);
+      digits.push(Math.floor(rem*10/d));
+      rem=(rem*10)%d;
+    }
+    var s='', x0=26, w=Math.min(44, 348/Math.max(1,seq.length)), y=54;
+    for(i=0;i<seq.length;i++){
+      var inLoop=(loopAt>=0 && i>=loopAt);
+      var cx=x0+i*w;
+      s+='<rect x="'+cx+'" y="'+y+'" width="'+(w-6)+'" height="30" rx="6" fill="'+
+         (inLoop?'var(--u)':'var(--panel-2)')+'" stroke="var(--u)" stroke-width="1.4"/>';
+      s+='<text x="'+(cx+(w-6)/2)+'" y="'+(y+20)+'" text-anchor="middle" font-size="12" font-weight="800" fill="'+
+         (inLoop?'#fff':'var(--ink)')+'">'+seq[i]+'</text>';
+      s+='<text x="'+(cx+(w-6)/2)+'" y="'+(y+48)+'" text-anchor="middle" font-size="11.5" font-weight="700" fill="var(--muted)">'+digits[i]+'</text>';
+    }
+    s+='<text x="16" y="'+(y+20)+'" text-anchor="end" font-size="10" fill="var(--muted)">나머지</text>';
+    s+='<text x="16" y="'+(y+48)+'" text-anchor="end" font-size="10" fill="var(--muted)">몫</text>';
+    if(loopAt>=0){
+      var ax=x0+loopAt*w+(w-6)/2, bx=x0+(seq.length-1)*w+(w-6)/2;
+      s+='<path d="M'+bx+','+(y-6)+' C'+bx+','+(y-34)+' '+ax+','+(y-34)+' '+ax+','+(y-6)+
+         '" fill="none" stroke="var(--accent)" stroke-width="2"/>';
+      s+='<path d="M'+ax+','+(y-6)+' l-4,-8 l8,0 z" fill="var(--accent)"/>';
+      s+='<text x="'+((ax+bx)/2)+'" y="'+(y-38)+'" text-anchor="middle" font-size="11" font-weight="800" fill="var(--accent)">같은 나머지가 다시 나왔어요</text>';
+      note.innerHTML='나머지 <b>'+seq[loopAt]+'</b> 이 다시 나오는 순간부터 몫도 똑같이 되풀이돼요 — 그래서 <b>순환소수</b>가 돼요.';
+    }else if(rem===0){
+      s+='<rect x="'+(x0+seq.length*w)+'" y="'+y+'" width="'+(w-6)+'" height="30" rx="6" fill="var(--sage-soft)" stroke="var(--sage)" stroke-width="1.4"/>';
+      s+='<text x="'+(x0+seq.length*w+(w-6)/2)+'" y="'+(y+20)+'" text-anchor="middle" font-size="12" font-weight="800" fill="var(--sage)">0</text>';
+      note.innerHTML='나머지가 <b>0</b> 이 되어 나눗셈이 끝났어요 — 그래서 <b>유한소수</b>예요.';
+    }else{
+      note.innerHTML='나머지가 계속 이어지고 있어요.';
+    }
+    s+='<text x="380" y="24" text-anchor="end" font-size="10.5" fill="var(--muted)">나머지는 0 ~ '+(d-1)+' 중 하나뿐이에요</text>';
+    g.innerHTML=s;
+  }
+
   function explore(){
     var a=+numR.value, b=+denR.value;
     document.getElementById('vn').textContent=a;
@@ -196,6 +242,7 @@ MJ.boot();
     var reason  = f.finite ? ('기약분모 '+rd+' = 2와 5로만 이루어져 → 유한')
                            : ('기약분모 '+rd+'에 '+f.left+'가 남아 → 무한');
     document.getElementById('verdict').innerHTML='<b class="hl">'+verdict+'</b> · '+reason;
+    drawRemainders(rn, rd);
   }
   numR.oninput=explore; denR.oninput=explore; explore();   // 첫 렌더 (진도 카운트 안 함)
   numR.addEventListener('input',function(){did('play');});
