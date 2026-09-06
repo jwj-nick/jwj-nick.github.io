@@ -213,7 +213,7 @@
         else if (k === picked) cls += " sel";
         return '<button class="' + cls + '" data-i="' + k + '"' + (shown ? " disabled" : "")
           + ' style="text-align:left' + (!shown && k === picked ? ";border-color:var(--accent)" : "") + '">'
-          + NUM.charAt(k) + "&nbsp; " + esc(o.t) + "</button>";
+          + NUM.charAt(k) + "&nbsp; " + o.t + "</button>";   // 발문·자료와 같이 원문 그대로 — 데이터가 &lt;·&gt;로 적혀 있다(esc를 거치면 이중 이스케이프되어 화면에 &lt;가 보인다)
       }).join("") + "</div>";
 
       if (!shown) {
@@ -232,7 +232,7 @@
           + "</div>" + fmt(it.solve.key);
         if (!right && chosen.why) {
           h += '<div class="dcause"><b>왜 ' + NUM.charAt(picked) + "를 골랐나 — "
-            + esc(chosen.cause || "") + "</b><br>" + fmt(esc(chosen.why)) + "</div>";
+            + esc(chosen.cause || "") + "</b><br>" + fmt(chosen.why) + "</div>";
         }
         if (right && conf === "guess") {
           h += '<div class="dcause"><b>찍어서 맞음</b><br>'
