@@ -48,6 +48,7 @@
       <div class="controls">
         <div class="ctrl"><label><span>밑면의 변의 수 n</span><span id="nv">5</span></label><input type="range" id="rn" min="3" max="10" step="1" value="5"></div>
       </div>
+      <svg id="vefSvg" viewBox="0 0 400 200" style="width:100%;max-width:400px;display:block;margin:6px auto 0" role="img" aria-label="n각기둥과 n각뿔 그림"></svg>
       <div class="sim-read" id="read" style="margin-top:10px"></div>
     </div>
     <p class="muted" style="margin-top:12px">각기둥은 <span class="eq">V=2n, E=3n, F=n+2</span>. 각뿔은 <span class="eq">V=n+1, E=2n, F=n+1</span>. 각뿔대는 각기둥과 <b class="hl">V,E,F가 똑같아요</b> — 차이는 옆면이 직사각형(각기둥)인지 사다리꼴(각뿔대)인지예요.</p>
@@ -70,6 +71,15 @@
     <div class="eyebrow"><span class="n">5</span>돌려서 만드는 입체</div>
     <h2>평면도형 + 회전축 = 회전체</h2>
     <p>직사각형을 한 변으로 돌리면 <b class="hl">원기둥</b>, 직각삼각형을 직각 낀 변으로 돌리면 <b class="hl">원뿔</b>, 사다리꼴(직각 2개)을 평행하지 않은 변으로 돌리면 <b class="hl">원뿔대</b>, 반원을 지름으로 돌리면 <b class="hl">구</b>가 돼요. <b class="gold">각기둥은 회전체가 아니에요</b> — 회전체는 항상 곡면을 가져요.</p>
+    <div class="card">
+      <div class="rotbtns" id="rotBtns" style="display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-bottom:8px"></div>
+      <svg id="rotSvg" viewBox="0 0 400 210" style="width:100%;max-width:400px;display:block;margin:0 auto" role="img" aria-label="평면도형을 회전축으로 돌려 회전체를 만드는 그림"></svg>
+      <div class="controls" style="margin-top:6px">
+        <div class="ctrl"><label><span>돌린 각도</span><span id="rotv">360°</span></label><input type="range" id="rotr" min="0" max="360" step="5" value="360"></div>
+      </div>
+      <div class="sim-read" id="rotread" style="margin-top:8px"></div>
+    </div>
+
     <div class="check">
       <div class="row"><span>반원을 지름을 축으로 1회전하면?</span>
         <input class="blank" id="c5" placeholder="답"><button id="c5b">확인</button></div>
@@ -82,6 +92,12 @@
     <div class="eyebrow"><span class="n">6</span>★ 시험 단골 함정</div>
     <h2>수직 단면은 원, 축단면은 좌우대칭</h2>
     <p>회전축에 <b class="gold">수직</b>으로 자르면 자른 자리는 <b class="hl">항상 원</b>이에요. 회전축을 <b class="gold">포함</b>해서 자르면(축단면) 좌우대칭인 도형이 나와요 — 원기둥은 직사각형, 원뿔은 이등변삼각형이에요. 이 둘을 바꿔 말하는 게 시험 단골 함정이에요.</p>
+    <div class="card">
+      <div class="cutbtns" id="cutBtns" style="display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-bottom:8px"></div>
+      <svg id="cutSvg" viewBox="0 0 400 190" style="width:100%;max-width:400px;display:block;margin:0 auto" role="img" aria-label="회전체를 자른 단면 그림"></svg>
+      <div class="sim-read" id="cutread" style="margin-top:8px"></div>
+    </div>
+
     <div class="check">
       <div class="row"><span>원기둥을 회전축에 수직으로 자른 단면의 모양은?</span>
         <input class="blank" id="c6" placeholder="답"><button id="c6b">확인</button></div>
@@ -127,6 +143,49 @@ MJ1.boot();
 
   // ── 3. 각기둥·각뿔·각뿔대 V,E,F 실험 ──
   (function(){
+  /* ── 입체를 타원 투영으로 그리는 도구 ── */
+  var INK='var(--ink)', LINE='var(--u)', SOFT='var(--u-soft)', MUT='var(--muted)', GOLD='var(--gold,#c9972b)';
+  function ring(cx,cy,rx,ry,n){ var p=[],k,a;
+    for(k=0;k<n;k++){ a=(-90+k*360/n)*Math.PI/180;
+      p.push({x:cx+rx*Math.cos(a), y:cy+ry*Math.sin(a), front:Math.sin(a)>0.001}); }
+    return p; }
+  function poly(pts,fill,stroke,sw){ return '<polygon points="'+pts.map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' ')+
+    '" fill="'+(fill||'none')+'" stroke="'+(stroke||LINE)+'" stroke-width="'+(sw||1.6)+'" stroke-linejoin="round"/>'; }
+  function seg(a,b,dash,stroke,sw){ return '<line x1="'+a.x.toFixed(1)+'" y1="'+a.y.toFixed(1)+'" x2="'+b.x.toFixed(1)+'" y2="'+b.y.toFixed(1)+
+    '" stroke="'+(stroke||LINE)+'" stroke-width="'+(sw||1.5)+'"'+(dash?' stroke-dasharray="4 3" opacity=".55"':'')+'/>'; }
+  function txt(x,y,t,o){ o=o||{}; return '<text x="'+x+'" y="'+y+'" text-anchor="'+(o.anchor||'middle')+'" font-size="'+(o.size||11.5)+
+    '" font-weight="'+(o.weight||'700')+'" fill="'+(o.fill||INK)+'">'+t+'</text>'; }
+  /* 밑면을 앞·뒤로 나눠 그린다 — 뒤쪽은 점선이라 입체로 보인다 */
+  function ringPath(p,dashBack){
+    var out='',k;
+    for(k=0;k<p.length;k++){ var a=p[k], b=p[(k+1)%p.length];
+      out+=seg(a,b,dashBack&&!(a.front||b.front)); }
+    return out; }
+  function drawSolids(n){
+    var g=document.getElementById('vefSvg'); if(!g) return;
+    var rx=46, ry=15, s='';
+    /* 왼쪽 = n각기둥 */
+    var cx=100, B=150, T=72;
+    var lo=ring(cx,B,rx,ry,n), hi=ring(cx,T,rx,ry,n), k;
+    s+='<polygon points="'+lo.map(function(p,i){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' ')+'" fill="'+SOFT+'" opacity=".5" stroke="none"/>';
+    s+=ringPath(lo,true);
+    for(k=0;k<n;k++) s+=seg(lo[k],hi[k],!lo[k].front);
+    s+=poly(hi,SOFT,LINE,1.6);
+    s+=txt(cx,42,n+'각기둥');
+    s+=txt(cx,176,'V='+(2*n)+' · E='+(3*n)+' · F='+(n+2),{size:11,fill:MUT,weight:'600'});
+    /* 오른쪽 = n각뿔 */
+    var cx2=300, apex={x:cx2,y:64};
+    var lo2=ring(cx2,B,rx,ry,n);
+    s+='<polygon points="'+lo2.map(function(p){return p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' ')+'" fill="'+SOFT+'" opacity=".5" stroke="none"/>';
+    s+=ringPath(lo2,true);
+    for(k=0;k<n;k++) s+=seg(lo2[k],apex,!lo2[k].front);
+    s+='<circle cx="'+apex.x+'" cy="'+apex.y+'" r="3" fill="'+GOLD+'"/>';
+    s+=txt(cx2,42,n+'각뿔');
+    s+=txt(cx2,176,'V='+(n+1)+' · E='+(2*n)+' · F='+(n+1),{size:11,fill:MUT,weight:'600'});
+    s+=txt(200,192,'뒤쪽 모서리는 점선으로 그렸어요',{size:10,fill:MUT,weight:'500'});
+    g.innerHTML=s;
+  }
+
     var rn=document.getElementById('rn'), read=document.getElementById('read');
     function draw(){
       var n=+rn.value;
@@ -136,6 +195,7 @@ MJ1.boot();
       read.innerHTML=n+'각기둥 → V='+prism.v+' E='+prism.e+' F='+prism.f+
         '　·　'+n+'각뿔 → V='+pyr.v+' E='+pyr.e+' F='+pyr.f+
         '　·　'+n+'각뿔대 → V,E,F는 '+n+'각기둥과 <b class="hl">같아요</b>';
+      drawSolids(n);
       did('vef');
     }
     rn.oninput=draw; draw();
@@ -146,6 +206,135 @@ MJ1.boot();
   document.getElementById('c4b').onclick=function(){ MJ1.checkNum('c4',5,'c4o',function(){did('platonic');}); };
   document.getElementById('c5b').onclick=function(){ MJ1.check('c5',function(v,raw){return /^구$/.test(raw)||/구/.test(raw);},'c5o',{correct:'구',onOk:function(){did('rot');}}); };
   document.getElementById('c6b').onclick=function(){ MJ1.check('c6',function(v,raw){return /^원$/.test(raw)||/원/.test(raw);},'c6o',{correct:'원'}); };
+
+  /* ── 5. 평면도형을 돌려 회전체 만들기 ── */
+  (function(){
+    var svg=document.getElementById('rotSvg'), btns=document.getElementById('rotBtns'),
+        rng=document.getElementById('rotr'), read=document.getElementById('rotread');
+    if(!svg) return;
+    var AX=150, Y0=40, Y1=170, R=86;                 /* 회전축 x, 위·아래 y, 최대 반지름 */
+    var ROT_KINDS=[
+      {t:'▭ 직사각형', name:'원기둥', r:function(u){return 1;},
+       why:'축에서 거리가 <b>어디서나 같으니</b> 옆면이 곧은 기둥이 돼요.'},
+      {t:'◺ 직각삼각형', name:'원뿔', r:function(u){return u;},
+       why:'축에서 거리가 <b>아래로 갈수록 커지니</b> 뾰족한 뿔이 돼요.'},
+      {t:'⏢ 사다리꼴', name:'원뿔대', r:function(u){return 0.42+0.58*u;},
+       why:'뿔의 뾰족한 끝을 잘라낸 모양이에요. 위아래 원의 크기가 달라요.'},
+      {t:'◗ 반원', name:'구', r:function(u){return Math.sin(Math.PI*u);},
+       why:'축에서 거리가 <b>가운데가 가장 크고 양 끝이 0</b>이라 공 모양이 돼요.'}
+    ];
+    var cur=0;
+    function yOf(u){ return Y0+(Y1-Y0)*u; }
+    function arc(cx,cy,rx,ry,t){                      /* -90°에서 t 만큼 돈 자취 */
+      if(rx<0.5) return '';
+      var p=[],i,N=Math.max(2,Math.round(t/6));
+      for(i=0;i<=N;i++){ var a=(-90+t*i/N)*Math.PI/180;
+        p.push((cx+rx*Math.cos(a)).toFixed(1)+','+(cy+ry*Math.sin(a)).toFixed(1)); }
+      return '<polyline points="'+p.join(' ')+'" fill="none" stroke="var(--u)" stroke-width="1" opacity=".45"/>';
+    }
+    function draw(){
+      var K=ROT_KINDS[cur], t=+rng.value, s='', i, u, rr;
+      document.getElementById('rotv').textContent=t+'°';
+      /* 회전축 */
+      s+='<line x1="'+AX+'" y1="'+(Y0-14)+'" x2="'+AX+'" y2="'+(Y1+14)+'" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="6 4"/>';
+      s+='<text x="'+(AX-8)+'" y="'+(Y0-18)+'" text-anchor="end" font-size="10.5" fill="var(--muted)">회전축</text>';
+      /* 지나간 자취 — 여러 높이의 타원 호 */
+      for(i=0;i<=14;i++){ u=i/14; rr=R*K.r(u);
+        s+=arc(AX,yOf(u),rr,rr*0.28,t); }
+      /* 완성된 회전체의 실루엣 */
+      if(t>=355){
+        var right=[],left=[];
+        for(i=0;i<=30;i++){ u=i/30; rr=R*K.r(u);
+          right.push((AX+rr).toFixed(1)+','+yOf(u).toFixed(1));
+          left.unshift((AX-rr).toFixed(1)+','+yOf(u).toFixed(1)); }
+        s+='<polygon points="'+right.concat(left).join(' ')+'" fill="var(--u-soft)" opacity=".55" stroke="var(--u)" stroke-width="1.8" stroke-linejoin="round"/>';
+        /* 위·아래 테두리 타원 */
+        [0,1].forEach(function(u2){ var r2=R*K.r(u2);
+          if(r2>1) s+='<ellipse cx="'+AX+'" cy="'+yOf(u2)+'" rx="'+r2.toFixed(1)+'" ry="'+(r2*0.28).toFixed(1)+
+            '" fill="none" stroke="var(--u)" stroke-width="1.6"'+(u2===1?' stroke-dasharray="5 4" opacity=".7"':'')+'/>'; });
+      }
+      /* 지금 돌아가 있는 평면도형 */
+      var c=Math.cos(t*Math.PI/180), pts=[];
+      for(i=0;i<=30;i++){ u=i/30; pts.push((AX+R*K.r(u)*c).toFixed(1)+','+yOf(u).toFixed(1)); }
+      pts.push(AX+','+yOf(1)); pts.push(AX+','+yOf(0));
+      s+='<polygon points="'+pts.join(' ')+'" fill="var(--accent)" opacity=".30" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>';
+      s+='<text x="200" y="196" text-anchor="middle" font-size="10.5" fill="var(--muted)">'+
+         (t>=355?'한 바퀴 다 돌았어요':'주황색 도형이 회전축을 중심으로 돌고 있어요')+'</text>';
+      svg.innerHTML=s;
+      read.innerHTML='<b>'+K.t+'</b>을(를) 회전축으로 한 바퀴 돌리면 <b class="hl">'+K.name+'</b>이 돼요. '+K.why;
+    }
+    ROT_KINDS.forEach(function(K,i){
+      var b=document.createElement('button'); b.type='button'; b.textContent=K.t+' → '+K.name;
+      b.style.cssText='background:var(--panel-2);border:1.5px solid var(--border);border-radius:999px;padding:6px 13px;font-size:12.5px;font-weight:700;cursor:pointer;color:var(--ink)';
+      b.onclick=function(){ cur=i;
+        Array.prototype.forEach.call(btns.children,function(x,k){
+          x.style.background=(k===i)?'var(--u)':'var(--panel-2)';
+          x.style.borderColor=(k===i)?'var(--u)':'var(--border)';
+          x.style.color=(k===i)?'#fff':'var(--ink)'; });
+        draw(); did('rot'); };
+      btns.appendChild(b);
+    });
+    btns.children[0].onclick();
+    rng.oninput=draw;
+  })();
+
+  /* ── 6. 단면 — 수직으로 자르면 원, 축을 포함해 자르면 좌우대칭 ── */
+  (function(){
+    var svg=document.getElementById('cutSvg'), btns=document.getElementById('cutBtns'), read=document.getElementById('cutread');
+    if(!svg) return;
+    var CUTS=[
+      {solid:'원기둥', how:'수직', face:'원',      why:'회전축에 수직으로 자르면 <b>어떤 높이에서 잘라도 원</b>이에요.'},
+      {solid:'원기둥', how:'축 포함', face:'직사각형', why:'축을 품고 자르면 좌우대칭 도형이 나와요 — 원기둥은 <b>직사각형</b>이에요.'},
+      {solid:'원뿔',   how:'수직', face:'원',      why:'원뿔도 수직으로 자르면 <b>원</b>이에요. 다만 높이에 따라 크기가 달라져요.'},
+      {solid:'원뿔',   how:'축 포함', face:'이등변삼각형', why:'축을 품고 자르면 <b>이등변삼각형</b>이에요. 두 모선의 길이가 같으니까요.'}
+    ];
+    var cur=0;
+    function draw(){
+      var C=CUTS[cur], s='', AX=110, Y0=44, Y1=150, R=54, cone=(C.solid==='원뿔');
+      /* 왼쪽 = 입체 */
+      if(cone){
+        s+='<polygon points="'+AX+','+Y0+' '+(AX+R)+','+Y1+' '+(AX-R)+','+Y1+'" fill="var(--u-soft)" opacity=".6" stroke="var(--u)" stroke-width="1.8" stroke-linejoin="round"/>';
+        s+='<ellipse cx="'+AX+'" cy="'+Y1+'" rx="'+R+'" ry="'+(R*0.28)+'" fill="var(--u-soft)" opacity=".7" stroke="var(--u)" stroke-width="1.6"/>';
+      }else{
+        s+='<rect x="'+(AX-R)+'" y="'+Y0+'" width="'+(2*R)+'" height="'+(Y1-Y0)+'" fill="var(--u-soft)" opacity=".6" stroke="var(--u)" stroke-width="1.8"/>';
+        s+='<ellipse cx="'+AX+'" cy="'+Y1+'" rx="'+R+'" ry="'+(R*0.28)+'" fill="var(--u-soft)" opacity=".7" stroke="var(--u)" stroke-width="1.6"/>';
+        s+='<ellipse cx="'+AX+'" cy="'+Y0+'" rx="'+R+'" ry="'+(R*0.28)+'" fill="var(--panel)" stroke="var(--u)" stroke-width="1.6"/>';
+      }
+      /* 자르는 자리 */
+      if(C.how==='수직'){
+        var ym=(Y0+Y1)/2, rm=cone? R*(ym-Y0)/(Y1-Y0) : R;
+        s+='<ellipse cx="'+AX+'" cy="'+ym+'" rx="'+rm.toFixed(1)+'" ry="'+(rm*0.28).toFixed(1)+'" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-dasharray="5 3"/>';
+        s+='<line x1="'+(AX-R-16)+'" y1="'+ym+'" x2="'+(AX+R+16)+'" y2="'+ym+'" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="3 3" opacity=".7"/>';
+      }else{
+        s+='<line x1="'+AX+'" y1="'+(Y0-12)+'" x2="'+AX+'" y2="'+(Y1+14)+'" stroke="var(--accent)" stroke-width="2.2" stroke-dasharray="5 3"/>';
+      }
+      s+='<text x="'+AX+'" y="'+(Y1+34)+'" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ink)">'+C.solid+' · '+C.how+'</text>';
+      /* 화살표 */
+      s+='<path d="M196,100 L232,100" stroke="var(--muted)" stroke-width="1.6"/><path d="M232,100 l-7,-4 l0,8 z" fill="var(--muted)"/>';
+      s+='<text x="214" y="90" text-anchor="middle" font-size="10" fill="var(--muted)">자른 면</text>';
+      /* 오른쪽 = 단면 */
+      var bx=310, by=97;
+      if(C.face==='원') s+='<circle cx="'+bx+'" cy="'+by+'" r="38" fill="var(--accent)" opacity=".28" stroke="var(--accent)" stroke-width="2"/>';
+      else if(C.face==='직사각형') s+='<rect x="'+(bx-38)+'" y="'+(by-46)+'" width="76" height="92" fill="var(--accent)" opacity=".28" stroke="var(--accent)" stroke-width="2"/>';
+      else s+='<polygon points="'+bx+','+(by-48)+' '+(bx+40)+','+(by+44)+' '+(bx-40)+','+(by+44)+'" fill="var(--accent)" opacity=".28" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>';
+      s+='<text x="'+bx+'" y="'+(by+70)+'" text-anchor="middle" font-size="11.5" font-weight="800" fill="var(--accent)">'+C.face+'</text>';
+      svg.innerHTML=s;
+      read.innerHTML=C.why;
+    }
+    CUTS.forEach(function(C,i){
+      var b=document.createElement('button'); b.type='button'; b.textContent=C.solid+' · '+C.how;
+      b.style.cssText='background:var(--panel-2);border:1.5px solid var(--border);border-radius:999px;padding:6px 13px;font-size:12.5px;font-weight:700;cursor:pointer;color:var(--ink)';
+      b.onclick=function(){ cur=i;
+        Array.prototype.forEach.call(btns.children,function(x,k){
+          x.style.background=(k===i)?'var(--u)':'var(--panel-2)';
+          x.style.borderColor=(k===i)?'var(--u)':'var(--border)';
+          x.style.color=(k===i)?'#fff':'var(--ink)'; });
+        draw(); };
+      btns.appendChild(b);
+    });
+    btns.children[0].onclick();
+  })();
+
   MJ1.reveal('showex','exbox',function(){did('teach');});
 })();
 </script>

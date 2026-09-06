@@ -33,6 +33,14 @@
     <div class="eyebrow"><span class="n">2</span>기둥과 뿔</div>
     <h2>옆넓이 = 둘레 × 높이, 뿔은 밑면이 하나뿐</h2>
     <p>각기둥의 겉넓이는 <span class="eq">2×밑넓이 + 옆넓이</span>, 옆넓이는 <b class="gold">밑면 둘레 × 높이</b>예요(옆면을 펼치면 큰 직사각형이 되니까요). 각뿔은 밑면이 <b class="hl">1개뿐</b>이라 겉넓이는 <span class="eq">밑넓이 + 옆넓이</span>예요.</p>
+    <div class="card">
+      <svg id="netSvg" viewBox="0 0 400 200" style="width:100%;max-width:400px;display:block;margin:0 auto" role="img" aria-label="원기둥을 펼쳐 전개도를 만드는 그림"></svg>
+      <div class="controls" style="margin-top:6px">
+        <div class="ctrl"><label><span>펼치기</span><span id="netv">0%</span></label><input type="range" id="netr" min="0" max="100" step="1" value="0"></div>
+      </div>
+      <div class="sim-read" id="netread" style="margin-top:8px"></div>
+    </div>
+
     <div class="check">
       <div class="row"><span>밑넓이 12cm², 옆넓이 40cm²인 각기둥의 겉넓이는?</span>
         <input class="num" id="c2" inputmode="numeric" aria-label="답"><span>cm²</span><button id="c2b">확인</button></div>
@@ -49,6 +57,12 @@
         <div class="ctrl"><label><span>밑넓이</span><span id="sv">10</span> cm²</label><input type="range" id="rs" min="4" max="20" step="1" value="10"></div>
         <div class="ctrl"><label><span>높이</span><span id="hv">6</span> cm</label><input type="range" id="rh" min="2" max="12" step="1" value="6"></div>
       </div>
+      <svg id="pourSvg" viewBox="0 0 400 190" style="width:100%;max-width:400px;display:block;margin:6px auto 0" role="img" aria-label="뿔 세 번을 부으면 기둥이 가득 차는 그림"></svg>
+      <div style="text-align:center;margin-top:6px">
+        <button id="pourBtn" style="background:var(--u);color:#fff;border:none;border-radius:999px;padding:7px 16px;font-size:13px;font-weight:800;cursor:pointer">🫗 뿔로 한 번 붓기</button>
+        <button id="pourReset" style="background:none;border:1.5px solid var(--u);color:var(--u);border-radius:999px;padding:6px 14px;font-size:12.5px;font-weight:700;cursor:pointer;margin-left:6px">비우기</button>
+      </div>
+      <div class="sim-read" id="pourread" style="margin-top:8px"></div>
       <div class="sim-read" id="read" style="margin-top:10px"></div>
     </div>
     <p class="muted" style="margin-top:12px">같은 밑면·높이일 때, <b class="hl">각뿔 3개를 채우면 각기둥 하나가 딱 차요</b>. 그래서 각뿔의 부피는 <span class="eq">(1／3) × 밑넓이 × 높이</span>예요.</p>
@@ -59,6 +73,11 @@
     <div class="eyebrow"><span class="n">4</span>★ 시험 단골 함정</div>
     <h2>원뿔은 부피엔 높이, 겉넓이엔 모선</h2>
     <p>원기둥 겉넓이 <span class="eq">2πr² + 2πrh</span>, 부피 <span class="eq">πr²h</span>. 원뿔 겉넓이 <span class="eq">πr² + πrl</span>(옆면은 부채꼴), 부피 <span class="eq">(1／3)πr²h</span> — <b class="gold">부피엔 높이 h</b>, <b class="hl">겉넓이엔 모선 l</b>을 써요. 헷갈리면 안 돼요!</p>
+    <div class="card">
+      <svg id="coneSvg" viewBox="0 0 400 195" style="width:100%;max-width:400px;display:block;margin:0 auto" role="img" aria-label="원뿔의 반지름·높이·모선을 구분한 그림"></svg>
+      <div class="sim-read" id="coneread" style="margin-top:8px"></div>
+    </div>
+
     <div class="check">
       <div class="row"><span>반지름 3cm, 모선 5cm인 원뿔의 옆넓이는? (계수만)</span>
         <input class="num" id="c4" inputmode="numeric" aria-label="답"><span>π cm²</span><button id="c4b">확인</button></div>
@@ -145,6 +164,103 @@ MJ1.boot();
   document.getElementById('c4b').onclick=function(){ MJ1.checkNum('c4',15,'c4o',function(){did('cone');}); };
   document.getElementById('c5b').onclick=function(){ MJ1.checkNum('c5',36,'c5o',function(){did('sphere');}); };
   document.getElementById('c6b').onclick=function(){ MJ1.checkNum('c6',36,'c6o'); };
+
+  /* ── 2. 원기둥을 펼치면 직사각형 하나와 원 두 개 ── */
+  (function(){
+    var svg=document.getElementById('netSvg'), rng=document.getElementById('netr'), read=document.getElementById('netread');
+    if(!svg) return;
+    var R=40, H=76;                                   /* 반지름·높이(그림 단위) */
+    function draw(){
+      var p=+rng.value/100, s='';
+      document.getElementById('netv').textContent=(+rng.value)+'%';
+      var cx=110-40*p, top=46, bot=top+H;
+      /* 옆면 — 펼칠수록 둘레(2πr) 만큼 폭이 늘어난다 */
+      var w=2*R+(2*Math.PI*R-2*R)*p, lx=200-w/2+70*p;
+      s+='<rect x="'+lx.toFixed(1)+'" y="'+top+'" width="'+w.toFixed(1)+'" height="'+H+'" fill="var(--u-soft)" opacity=".75" stroke="var(--u)" stroke-width="1.8"/>';
+      s+='<text x="'+(lx+w/2).toFixed(1)+'" y="'+(top+H/2+4)+'" text-anchor="middle" font-size="11.5" font-weight="700" fill="var(--u)">옆면</text>';
+      if(p>0.25) s+='<text x="'+(lx+w/2).toFixed(1)+'" y="'+(bot+15)+'" text-anchor="middle" font-size="10.5" fill="var(--muted)">가로 = 밑면의 둘레 2πr</text>';
+      if(p>0.25) s+='<text x="'+(lx-8).toFixed(1)+'" y="'+(top+H/2+4)+'" text-anchor="end" font-size="10.5" fill="var(--muted)">높이 h</text>';
+      /* 위·아래 원 — 펼치면 위아래로 떨어져 나온다 */
+      var ry=R*(0.3+0.7*p), oy=top-10-26*p, by=bot+10+26*p;
+      s+='<ellipse cx="'+(lx+w/2).toFixed(1)+'" cy="'+oy.toFixed(1)+'" rx="'+R+'" ry="'+ry.toFixed(1)+'" fill="var(--panel)" stroke="var(--u)" stroke-width="1.6"/>';
+      s+='<ellipse cx="'+(lx+w/2).toFixed(1)+'" cy="'+by.toFixed(1)+'" rx="'+R+'" ry="'+ry.toFixed(1)+'" fill="var(--u-soft)" opacity=".8" stroke="var(--u)" stroke-width="1.6"/>';
+      if(p>0.55){
+        s+='<text x="'+(lx+w/2).toFixed(1)+'" y="'+(oy+4)+'" text-anchor="middle" font-size="10.5" font-weight="700" fill="var(--u)">밑면 πr²</text>';
+        s+='<text x="'+(lx+w/2).toFixed(1)+'" y="'+(by+4)+'" text-anchor="middle" font-size="10.5" font-weight="700" fill="var(--u)">밑면 πr²</text>';
+      }
+      svg.innerHTML=s;
+      read.innerHTML = p<0.15 ? '슬라이더를 오른쪽으로 밀어서 원기둥을 <b>펼쳐</b> 봐요.'
+        : (p<0.85 ? '펼치는 중이에요 — 옆면이 <b>직사각형</b>으로 펴지고 있어요.'
+                  : '다 펼쳤어요. 겉넓이는 <b class="hl">밑면 두 개 + 직사각형 하나</b>예요. 직사각형의 가로가 <b>밑면의 둘레</b>라는 게 핵심이에요 → <span class="eq">2πr² + 2πrh</span>');
+    }
+    rng.oninput=draw; draw();
+  })();
+
+  /* ── 3. 뿔 세 번을 부으면 기둥이 가득 찬다 ── */
+  (function(){
+    var svg=document.getElementById('pourSvg'), btn=document.getElementById('pourBtn'),
+        rst=document.getElementById('pourReset'), read=document.getElementById('pourread');
+    if(!svg) return;
+    var filled=0;                                     /* 0,1,2,3 */
+    var CX=110, CX2=290, TOP=40, BOT=150, R=42;
+    function draw(){
+      var s='', h=BOT-TOP;
+      /* 왼쪽 = 뿔(부어 넣는 그릇) */
+      s+='<polygon points="'+CX+','+TOP+' '+(CX+R)+','+BOT+' '+(CX-R)+','+BOT+'" fill="var(--u-soft)" opacity=".45" stroke="var(--u)" stroke-width="1.8" stroke-linejoin="round"/>';
+      s+='<ellipse cx="'+CX+'" cy="'+BOT+'" rx="'+R+'" ry="'+(R*0.26)+'" fill="none" stroke="var(--u)" stroke-width="1.5"/>';
+      s+='<text x="'+CX+'" y="'+(BOT+30)+'" text-anchor="middle" font-size="11.5" font-weight="700" fill="var(--ink)">뿔 (밑면·높이가 같아요)</text>';
+      /* 오른쪽 = 기둥(받는 그릇) */
+      s+='<rect x="'+(CX2-R)+'" y="'+TOP+'" width="'+(2*R)+'" height="'+h+'" fill="none" stroke="var(--u)" stroke-width="1.8"/>';
+      var fh=h*filled/3, fy=BOT-fh;
+      if(fh>0) s+='<rect x="'+(CX2-R)+'" y="'+fy.toFixed(1)+'" width="'+(2*R)+'" height="'+fh.toFixed(1)+'" fill="var(--accent)" opacity=".35"/>';
+      /* 1/3 눈금 */
+      [1,2].forEach(function(k){ var y=BOT-h*k/3;
+        s+='<line x1="'+(CX2-R)+'" y1="'+y+'" x2="'+(CX2+R)+'" y2="'+y+'" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4 3" opacity=".6"/>';
+        s+='<text x="'+(CX2+R+6)+'" y="'+(y+4)+'" font-size="10" fill="var(--muted)">'+k+'/3</text>'; });
+      s+='<ellipse cx="'+CX2+'" cy="'+BOT+'" rx="'+R+'" ry="'+(R*0.26)+'" fill="none" stroke="var(--u)" stroke-width="1.5"/>';
+      s+='<text x="'+CX2+'" y="'+(BOT+30)+'" text-anchor="middle" font-size="11.5" font-weight="700" fill="var(--ink)">기둥</text>';
+      /* 부은 횟수 */
+      s+='<text x="200" y="'+(TOP-14)+'" text-anchor="middle" font-size="12" font-weight="800" fill="var(--u)">부은 횟수 '+filled+' / 3</text>';
+      s+='<path d="M158,84 L242,84" stroke="var(--accent)" stroke-width="1.6" opacity=".7"/><path d="M242,84 l-7,-4 l0,8 z" fill="var(--accent)" opacity=".7"/>';
+      svg.innerHTML=s;
+      read.innerHTML = filled===0 ? '버튼을 눌러 <b>뿔 가득</b> 담은 것을 기둥에 부어 봐요.'
+        : (filled<3 ? '뿔로 '+filled+'번 부었어요. 기둥의 <b>'+filled+'/3</b>이 찼어요.'
+                    : '세 번 만에 기둥이 <b class="hl">딱 가득</b> 찼어요! 그래서 뿔의 부피는 기둥의 <span class="eq">1／3</span>이에요.');
+    }
+    btn.onclick=function(){ if(filled<3){ filled++; draw(); if(filled===3){ try{MJ1.confetti();}catch(e){} } } };
+    rst.onclick=function(){ filled=0; draw(); };
+    draw();
+  })();
+
+  /* ── 4. 원뿔에서 높이 h 와 모선 l 은 다른 선이에요 ── */
+  (function(){
+    var svg=document.getElementById('coneSvg'), read=document.getElementById('coneread');
+    if(!svg) return;
+    var CX=150, TOP=36, BOT=142, R=62, s='';
+    s+='<polygon points="'+CX+','+TOP+' '+(CX+R)+','+BOT+' '+(CX-R)+','+BOT+'" fill="var(--u-soft)" opacity=".5" stroke="var(--u)" stroke-width="1.8" stroke-linejoin="round"/>';
+    s+='<ellipse cx="'+CX+'" cy="'+BOT+'" rx="'+R+'" ry="'+(R*0.26)+'" fill="var(--u-soft)" opacity=".7" stroke="var(--u)" stroke-width="1.6"/>';
+    /* 높이 h — 꼭짓점에서 밑면 중심까지 (파랑) */
+    s+='<line x1="'+CX+'" y1="'+TOP+'" x2="'+CX+'" y2="'+BOT+'" stroke="#4f92d6" stroke-width="2.4" stroke-dasharray="6 4"/>';
+    s+='<text x="'+(CX-8)+'" y="'+((TOP+BOT)/2)+'" text-anchor="end" font-size="13" font-weight="800" fill="#4f92d6">h</text>';
+    /* 모선 l — 꼭짓점에서 밑면 둘레까지 (주황) */
+    s+='<line x1="'+CX+'" y1="'+TOP+'" x2="'+(CX+R)+'" y2="'+BOT+'" stroke="#e0913a" stroke-width="2.8"/>';
+    s+='<text x="'+(CX+R/2+14)+'" y="'+((TOP+BOT)/2-4)+'" font-size="13" font-weight="800" fill="#e0913a">l</text>';
+    /* 반지름 r */
+    s+='<line x1="'+CX+'" y1="'+BOT+'" x2="'+(CX+R)+'" y2="'+BOT+'" stroke="var(--gold,#c9972b)" stroke-width="2.2"/>';
+    s+='<text x="'+(CX+R/2)+'" y="'+(BOT+16)+'" text-anchor="middle" font-size="12.5" font-weight="800" fill="var(--gold,#c9972b)">r</text>';
+    /* 직각 표시 */
+    s+='<path d="M'+CX+','+(BOT-10)+' L'+(CX+10)+','+(BOT-10)+' L'+(CX+10)+','+BOT+'" fill="none" stroke="var(--muted)" stroke-width="1.2"/>';
+    /* 오른쪽 = 공식 대조 */
+    s+='<text x="262" y="58" font-size="12" font-weight="800" fill="#4f92d6">부피에는 h</text>';
+    s+='<text x="262" y="76" font-size="11.5" fill="var(--ink)">(1／3) × π r² × h</text>';
+    s+='<text x="262" y="106" font-size="12" font-weight="800" fill="#e0913a">겉넓이에는 l</text>';
+    s+='<text x="262" y="124" font-size="11.5" fill="var(--ink)">π r² + π r l</text>';
+    s+='<text x="262" y="152" font-size="10.5" fill="var(--muted)">h·r·l 은 직각삼각형이라</text>';
+    s+='<text x="262" y="167" font-size="10.5" fill="var(--muted)">l 이 h 보다 항상 길어요</text>';
+    svg.innerHTML=s;
+    read.innerHTML='<b style="color:#4f92d6">h(높이)</b>는 꼭짓점에서 <b>밑면 한가운데</b>로 내린 선이고, <b style="color:#e0913a">l(모선)</b>은 꼭짓점에서 <b>밑면 둘레</b>로 간 선이에요. 서로 다른 선이라 값도 달라요 — 이걸 바꿔 쓰는 것이 이 단원 최고의 함정이에요.';
+  })();
+
   MJ1.reveal('showex','exbox',function(){did('teach');});
 })();
 </script>
