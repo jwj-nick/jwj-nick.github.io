@@ -33,6 +33,7 @@
   <button class="tab" data-t="prop">🧮 이항계수의 성질</button>
   <button class="tab" data-t="world">🌐 세상 속으로</button>
   <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="drill">⚡ 실전</button>
   <button class="tab" data-t="fin">✅ 정리</button>
 </div>
 <div class="wrap">
@@ -58,6 +59,7 @@
         <button onclick="go('prop')"><div class="ti">🧮</div><div class="tn">이항계수의 성질</div><div class="td">합은 2ⁿ</div></button>
         <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">부분집합·조합 폭발</div></button>
         <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+        <button onclick="go('drill')"><div class="ti">⚡</div><div class="tn">실전</div><div class="td">심화 12문제</div></button>
       </div>
     </div>
   </div>
@@ -109,6 +111,14 @@
         <div class="step"><span class="sn">1</span>일반항 $_6C_r\,(x^2)^{6-r}\left(\dfrac1x\right)^r={}_6C_r\,x^{12-2r-r}={}_6C_r\,x^{12-3r}$.</div>
         <div class="step"><span class="sn">2</span>상수항: $12-3r=0$ → $r=4$ → $_6C_4=15$.</div>
         <div class="ans">$15$</div></div></div>
+      <div class="box b">
+        <div class="t">➕ 두 식의 곱에서 한 차수의 계수만 모으기</div>
+        $(1+x)^m(1+ax)^n$ 처럼 <b>두 식의 곱</b>에서 $x^k$ 의 계수를 물으면, 지수의 <b>합이 $k$ 가 되는 모든 짝</b>을 빠짐없이 더한다.<br>예 — $(1+x)^3(1+3x)^2$ 에서 $x^2$ 의 계수는?<br>① 각각 전개: $(1+x)^3=1+3x+3x^2+\cdots$, $(1+3x)^2=1+6x+9x^2$<br>② 지수의 짝 $(0,2),(1,1),(2,0)$ 을 표로 적는다:<br>&nbsp;&nbsp;$1	imes9=9$ &nbsp;·&nbsp; $3	imes6=18$ &nbsp;·&nbsp; $3	imes1=3$<br>③ $9+18+3=30$<br>확인 — 실제로 곱해 보면 $1+9x+30x^2+\cdots$ ✓<br>⚠️ <b>밑이 다르면 지수를 합칠 수 없다.</b> $(1+x)^3(1+3x)^2$ 을 $(1+3x)^5$ 로 보고 $_5C_2\cdot3^2=90$ 이라 하면 틀린다. 각 식의 계수를 따로 구한 뒤 짝지어 더한다.
+      </div>
+      <div class="box a">
+        <div class="t">➖ 앞쪽 항에 계수·부호가 있으면 그것도 거듭제곱된다</div>
+        $(a+b)^n$ 의 $a$ 자리에 $2x$ 가, $b$ 자리에 $-1$ 이 들어가도 규칙은 그대로다. 다만 <b>계수와 부호도 지수만큼 곱해진다</b>는 것을 잊기 쉽다.<br>예 — $(3x-1)^4$ 에서 $x^2$ 의 계수는?<br>① 일반항 $_4C_r(3x)^{4-r}(-1)^r$ → $x$ 의 지수는 $4-r$ 이므로 $4-r=2$, 즉 $r=2$<br>② $_4C_2	imes3^2	imes(-1)^2=6	imes9	imes1=54$<br>확인 — $x=1$ 을 넣으면 $(3-1)^4=16$ 이어야 하는데 계수를 모두 더하면 $81-108+54-12+1=16$ ✓<br>⚠️ 세 가지를 한꺼번에 챙긴다 — <b>조합 기호 · 앞쪽 계수의 거듭제곱 · 부호</b>. $(-1)^r$ 은 $r$ 이 홀수면 음수다. 하나라도 빠뜨리면 값이 배수만큼 어긋나거나 부호가 뒤집힌다.
+      </div>
     </div>
   </div>
 
@@ -176,6 +186,10 @@
       <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
       <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
     </div>
+  </div>
+
+  <div class="page" data-p="drill">
+    <div id="drill"></div>
   </div>
 
   <div class="page" data-p="fin">
@@ -246,5 +260,15 @@ var QUIZ=[
 APP.quiz(QUIZ,TABNAME,{perfect:'완벽해요! 공과 칸막이, 그리고 괄호 고르기.'});
 </script>
 <script src="math_nav.js"></script>
+<!-- ⚡ 실전 — 심화 문항 드릴.
+     drill.js = 공용 엔진(subject_hub/_shared/drill.js)
+     drill_prob_02.js = 문항 데이터. 정본은 exam_track/problem_bank/data/prob_02.js
+     둘 다 `python exam_track/tools/sync_drill.py --write`가 만든 복사본 — 직접 고치지 말 것. -->
+<script>
+  // 원인 코드 → 고치기 탭 (drill.js v2의 🩹 지금 바로 고치기 칩). 전역 go(tab) 필요.
+  window.DRILL_FIX = {"C1":["hh", "✅ 조건을 빠뜨리지 않았는지 다시 확인"], "C2":["prop", "📖 개념 다시 보기 — 이항계수의 성질"], "C3":["bin", "🪞 헷갈리는 짝 가르기 — 일반항의 r"], "C4":["hh", "🧭 어떤 도구를 쓰는지 다시 판별하기"], "C5":["quiz", "🔥 퀴즈로 계산 감각 다시"]};
+</script>
+<script src="drill.js"></script>
+<script src="drill_prob_02.js"></script>
 </body>
 </html>
