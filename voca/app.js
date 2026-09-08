@@ -14,8 +14,11 @@
   var byModule = { word: [], idiom: [], expr: [] };
   var MANIFEST = { items: {} };
   var LEGACY = {};       // v1 트랙 id → v2 통합 id (content/<track>/legacy-ids.json, 통합 트랙에만 있다)
+  var CONFUSE = {};      // id → 헷갈리는 단어 id 목록 (content/<track>/confusables.json) — 오답 보기에 우선 쓴다
   var S = null;
   var sess = null;
+  // APK(WebView)에서만 있는 네이티브 다리 — 매일 알림. 웹(iPhone)에서는 null이라 알림 설정 줄이 숨는다.
+  var BRIDGE = (window.Android && typeof window.Android.setReminder === "function") ? window.Android : null;
 
   // ---------- 데이터 로드 ----------
   function loadJSON(url) {
@@ -28,16 +31,35 @@
     }).concat([
       loadJSON(base + "audio-manifest.json").catch(function () { return { items: {} }; }),
       // 대응표는 통합 트랙에만 있다 — 없는 빌드에서 fetch하면 404가 콘솔 오류로 남아 게이트를 깬다
-      CFG.legacyIds ? loadJSON(base + "legacy-ids.json").catch(function () { return { map: {} }; }) : Promise.resolve({ map: {} })
+      CFG.legacyIds ? loadJSON(base + "legacy-ids.json").catch(function () { return { map: {} }; }) : Promise.resolve({ map: {} }),
+      CFG.confusables ? loadJSON(base + "confusables.json").catch(function () { return { groups: [] }; }) : Promise.resolve({ groups: [] })
     ])).then(function (loaded) {
+      var confDoc = loaded.pop() || { groups: [] };
       LEGACY = (loaded.pop() || {}).map || {};
       MANIFEST = loaded.pop() || { items: {} };
       ITEMS = [];
       loaded.forEach(function (doc) { (doc.items || []).forEach(function (it) { ITEMS.push(it); }); });
       ITEMS.sort(function (a, b) { return a.band - b.band || a.rank - b.rank || (a.id < b.id ? -1 : 1); });
       ITEMS.forEach(function (it) { byId[it.id] = it; byModule[it.module].push(it); });
+      buildConfuse(confDoc.groups || []);
     });
   }
+  // 혼동 쌍(affect/effect) — 묶음의 단어 중 이 트랙에 있는 것끼리 서로 연결한다 (단어 모듈, 표제어 소문자 일치)
+  function buildConfuse(groups) {
+    CONFUSE = {};
+    var byHead = {};
+    byModule.word.forEach(function (it) { var h = it.head.toLowerCase(); (byHead[h] = byHead[h] || []).push(it.id); });
+    groups.forEach(function (g) {
+      var ids = [];
+      g.forEach(function (h) { (byHead[String(h).toLowerCase()] || []).forEach(function (id) { if (ids.indexOf(id) < 0) ids.push(id); }); });
+      if (ids.length < 2) return;
+      ids.forEach(function (id) {
+        var cur = CONFUSE[id] || (CONFUSE[id] = []);
+        ids.forEach(function (o) { if (o !== id && cur.indexOf(o) < 0) cur.push(o); });
+      });
+    });
+  }
+  function confusablesOf(it) { return (CONFUSE[it.id] || []).map(function (id) { return byId[id]; }).filter(Boolean); }
 
   // ---------- 상태 (v2 — 20_design/v2-unified-ladder.md §8) ----------
   // level.focus = 지금 새 단어를 뽑는 구간(v1의 startBand). passed = 점검을 통과한 구간.
@@ -97,6 +119,7 @@
   function normalize(s) {
     var f = freshState();
     Object.keys(f).forEach(function (k) { if (s[k] === undefined) s[k] = f[k]; });
+    if (!s.settings.reminder) s.settings.reminder = { on: false, h: 20 };
     s.settings = Object.assign(f.settings, s.settings || {});
     s.level = Object.assign(f.level, s.level || {});
     s.courses = Object.assign(f.courses, s.courses || {});
@@ -370,7 +393,19 @@
   function isSeen(id) { return !!(S.seen[id] || S.items[id] || S.known[id]); }
   function vaultIds() { return Object.keys(S.items).filter(function (id) { return byId[id] && !S.items[id].g; }); }
   function gradIds() { return Object.keys(S.items).filter(function (id) { return byId[id] && S.items[id].g; }); }
-  function toVault(id, t, dueIn) { S.items[id] = { s: 0, due: addDays(t, dueIn === undefined ? 1 : dueIn), g: false }; delete S.known[id]; S.seen[id] = S.seen[id] || t; }
+  function toVault(id, t, dueIn) {
+    var prev = S.items[id];
+    S.items[id] = { s: 0, due: addDays(t, dueIn === undefined ? 1 : dueIn), g: false };
+    if (prev && prev.f) S.items[id].f = prev.f; // 틀린 횟수는 보관함을 드나들어도 남는다
+    delete S.known[id]; S.seen[id] = S.seen[id] || t;
+  }
+  // ---- 자꾸 틀리는 단어 ---- f = 배운 뒤에 틀린 횟수(재시험·점검·장기 복습). 첫 만남의 "모른다"는 세지 않는다.
+  function bumpFail(id) { var r = S.items[id]; if (r) r.f = (r.f || 0) + 1; }
+  function hardMin() { return A.hardMin || 3; }
+  function hardIds() {
+    return Object.keys(S.items).filter(function (id) { return byId[id] && (S.items[id].f || 0) >= hardMin(); })
+      .sort(function (a, b) { return (S.items[b].f - S.items[a].f) || (byId[a].head < byId[b].head ? -1 : 1); });
+  }
   // ---- 졸업 후 장기 점검 (결정 #28) ----
   // 졸업은 끝이 아니라 "간격이 크게 벌어진 상태"다. gs = 통과한 장기 점검 횟수,
   // due = 다음 점검일. 마지막 단계를 통과하면 due=null이 되어 진짜로 끝난다.
@@ -518,7 +553,8 @@
   function distractors(it, n, field, reject) {
     var same = ITEMS.filter(function (x) { return x.id !== it.id && x.module === it.module && x.band === it.band && x.pos === it.pos; });
     var mod = ITEMS.filter(function (x) { return x.id !== it.id && x.module === it.module; });
-    var pool = shuffle(same).concat(shuffle(mod)).concat(shuffle(ITEMS));
+    // 혼동 쌍이 있으면 오답 보기의 맨 앞에 — 같은 구간 무작위로는 affect/effect 같은 쌍이 변별되지 않는다
+    var pool = shuffle(confusablesOf(it)).concat(shuffle(same)).concat(shuffle(mod)).concat(shuffle(ITEMS));
     var out = [], seen = {};
     var ansVal = field(it);
     seen[ansVal] = true;
@@ -601,17 +637,15 @@
 
   // ---------- 세션 ----------
   function newSession(mode, t) {
-    return { mode: mode, t: t, cards: [], cardIdx: 0, cardResults: [], queue: [], idx: 0, ok: 0, combo: 0, wrongList: [], gradList: [], placeStats: {}, level: null };
+    return { mode: mode, t: t, t0: Date.now(), cards: [], cardIdx: 0, cardResults: [], queue: [], idx: 0, ok: 0, combo: 0, wrongList: [], gradList: [], placeStats: {}, level: null };
   }
   function skipDue(set) { return (set.K || []).filter(function (id) { return S.skipped[id] && byId[id]; }); }
   function startDaily() {
     var t = todayStr(), set = buildToday(t);
     var d = dayRec(t);
-    if (d.done && !set.N.length && !set.R.length && !set.S.length && !(set.K || []).length) { renderHome(); return; }
     sess = newSession("daily", t);
-    if (!d.done) {
-      sess.cards = set.N.filter(function (id) { return !isSeen(id); }); // 이어하기: 이미 판정한 카드는 건너뜀
-    }
+    // 이어하기: 이미 판정한 카드는 건너뜀. "한 세트 더"로 이은 카드(d.done 이후)도 여기서 잡힌다.
+    sess.cards = set.N.filter(function (id) { return !isSeen(id); });
     sess.pendingIds = set.R.filter(function (id) { return isVault(id) && S.items[id].due <= t; })
       .map(function (id) { return { id: id, purpose: "retest" }; })
       .concat(set.S.filter(function (id) { return S.known[id] && S.known[id] <= t; }).map(function (id) { return { id: id, purpose: "spot" }; }))
@@ -636,6 +670,17 @@
     if (!ids.length) { renderList("vault"); return; }
     sess = newSession("vault", t);
     sess.pendingIds = ids.map(function (id) { return { id: id, purpose: due.length ? "retest" : "practice" }; });
+    buildQuizQueue();
+    pushView("session");
+    renderQuestion();
+  }
+  // 진도에 손대지 않는 연습 퀴즈 (자꾸 틀리는 단어 화면)
+  function startPractice(ids) {
+    var t = todayStr();
+    ids = shuffle(ids.slice()).slice(0, 10);
+    if (!ids.length) return;
+    sess = newSession("vault", t);
+    sess.pendingIds = ids.map(function (id) { return { id: id, purpose: "practice" }; });
     buildQuizQueue();
     pushView("session");
     renderQuestion();
@@ -665,6 +710,21 @@
     if (noteBox) {
       noteBox.textContent = it.note || "";
       noteBox.classList.toggle("hidden", !it.note);
+    }
+    // 헷갈리는 단어 — 카드에서는 글로만, 상세에서는 눌러서 건너갈 수 있게
+    var cfBox = $(prefix + "-conf");
+    if (cfBox) {
+      var cfs = confusablesOf(it); cfBox.innerHTML = "";
+      if (cfs.length) {
+        cfBox.appendChild(el("span", "cfl", "헷갈리기 쉬운 단어"));
+        cfs.forEach(function (c) {
+          var chip = el(prefix === "d" ? "button" : "span", "cf"); if (prefix === "d") chip.type = "button";
+          chip.appendChild(el("b", "", c.head)); chip.appendChild(document.createTextNode(" " + koOf(c)));
+          if (prefix === "d") chip.addEventListener("click", function () { renderDetail(c, listFrom); });
+          cfBox.appendChild(chip);
+        });
+      }
+      cfBox.classList.toggle("hidden", !cfs.length);
     }
     var exBox = $(prefix + "-ex"); exBox.innerHTML = "";
     (it.examples || []).slice(0, 1).forEach(function (ex, n) {
@@ -791,12 +851,12 @@
     if (q.purpose === "check") {
       var bs = bandStat(it.band); bs.firstN++; if (correct) bs.firstOk++;
       if (correct) return "정답!";
-      if (S.known[id]) { toVault(id, t, 1); pushWrong(it); return "보관함으로 — 내일 다시"; }
+      if (S.known[id]) { toVault(id, t, 1); bumpFail(id); pushWrong(it); return "보관함으로 — 내일 다시"; }
       pushWrong(it); return "보관함에 있어요 — 내일 다시";
     }
     if (q.purpose === "spot") {
       if (correct) { delete S.known[id]; save(); return "점검 통과 ✓ 진짜 아는 단어"; }
-      toVault(id, t, 1); pushWrong(it); save(); return "보관함으로 — 내일 다시";
+      toVault(id, t, 1); bumpFail(id); pushWrong(it); save(); return "보관함으로 — 내일 다시";
     }
     if (q.purpose === "recall") { // 졸업 후 장기 점검 — 통과하면 다음 단계로, 틀리면 보관함으로 되돌린다
       var gr = S.items[id] || (S.items[id] = { s: 2, due: null, g: true, gs: 0 });
@@ -804,7 +864,7 @@
         gr.gs = (gr.gs || 0) + 1; gr.lt = q.type; gr.due = gradDue(t, gr.gs); save();
         return gr.due ? "아직 기억하고 있어요 ✓ 졸업 유지" : "완전히 내 단어예요 ✓ 이제 안 물어봐요";
       }
-      gr.g = false; gr.s = 0; gr.gs = 0; gr.due = addDays(t, 1);
+      gr.g = false; gr.s = 0; gr.gs = 0; gr.due = addDays(t, 1); gr.f = (gr.f || 0) + 1;
       var gi = S.saved.indexOf(id); if (gi >= 0) S.saved.splice(gi, 1);
       pushWrong(it); save();
       return "잊었네요 — 보관함으로, 내일 다시";
@@ -822,7 +882,7 @@
       } else { r.due = addDays(t, A.retestDays); fb = "정답! " + A.retestDays + "일 뒤 다른 형식으로 한 번 더 맞히면 졸업"; }
     } else {
       var wasGrad = r.g;
-      r.s = 0; r.g = false; r.due = addDays(t, 1);
+      r.s = 0; r.g = false; r.due = addDays(t, 1); r.f = (r.f || 0) + 1;
       pushWrong(it);
       fb = wasGrad ? "졸업 취소 — 보관함으로" : "보관함 — 내일 다시";
     }
@@ -830,17 +890,52 @@
     return fb;
   }
   function pushWrong(it) { if (!sess.wrongList.some(function (x) { return x.id === it.id; })) sess.wrongList.push(it); }
+  // ---- 정직한 예상 시간 ---- 아이의 실제 속도로 잰다. 단위 = 카드 1.5 + 문항 1(카드에는 확인 문항이 딸린다).
+  // 자리를 비운 시간은 단위당 60초로 잘라 평균을 망치지 않게 한다. 표본이 적으면 단위당 10초.
+  function recordPace(t) {
+    var units = sess.cardResults.length * 1.5 + sess.queue.length;
+    if (!units || !sess.t0) return;
+    var sec = Math.min((Date.now() - sess.t0) / 1000, units * 60);
+    var d = dayRec(t); d.sec = (d.sec || 0) + Math.round(sec); d.units = (d.units || 0) + units; save();
+  }
+  function paceSec() {
+    var t = todayStr(), sec = 0, units = 0;
+    for (var i = 0; i < 7; i++) { var d = S.days[addDays(t, -i)]; if (d && d.units) { sec += d.sec || 0; units += d.units; } }
+    return units >= 10 ? sec / units : 10;
+  }
+  function estimateMin(newN, others) { return Math.max(1, Math.round((newN * 2.5 + others) * paceSec() / 60)); }
+  // ---- "한 세트 더" (설계 §6) ---- 오늘 세트를 끝낸 뒤에만, 같은 규칙(pickNew · 오늘의 N)으로 새 단어를 오늘 세트에 잇는다.
+  // 보관함이 상한을 넘었으면 주지 않는다 — 새 단어를 더 주는 것보다 비우는 게 먼저다.
+  function extraSetSize(t) {
+    var d = dayRec(t);
+    if (!d.done || vaultIds().length > A.vaultCap) return 0;
+    return pickNew(newCount(t)).length;
+  }
+  function startExtraSet() {
+    var t = todayStr(), d = dayRec(t), set = buildToday(t);
+    var ids = pickNew(newCount(t));
+    if (!ids.length) { renderHome(); return; }
+    set.N = set.N.concat(ids); d.extra = (d.extra || 0) + 1; save();
+    startDaily();
+  }
+  // ---- 매일 알림 (APK만) ---- 웹 쪽이 설정의 정본, 네이티브는 그걸 AlarmManager에 건다. 오늘 세트를 끝내면 그날은 안 울린다.
+  function syncReminder() {
+    if (!BRIDGE) return;
+    var r = S.settings.reminder || { on: false, h: 20 };
+    try { BRIDGE.setReminder(!!r.on, r.h | 0, 0); } catch (e) {}
+  }
   function finishDay(t) {
     var d = dayRec(t);
     if (d.done) return;
     d.done = true;
     if (S.lastDone === addDays(t, -1)) S.streakDays++; else if (S.lastDone !== t) S.streakDays = 1;
     S.lastDone = t; save();
+    if (BRIDGE) try { BRIDGE.markDone(t); } catch (e) {}
   }
   function bumpHeat() { var d = dayRec(todayStr()); d.q = (d.q || 0) + 1; save(); }
   function finishSession() {
     var t = sess.t;
-    if (sess.mode === "daily") finishDay(t);
+    if (sess.mode === "daily") { finishDay(t); recordPace(t); }
     if (sess.mode === "place") { placeStep(); return; }
     if (sess.mode === "level") { finishLevelCheck(); return; }
     renderResult();
@@ -858,6 +953,9 @@
     var all = vaultNew.concat(sess.wrongList.filter(function (w) { return !vaultNew.some(function (x) { return x.id === w.id; }); }));
     if (all.length) { v.classList.remove("hidden"); $("vault-head").textContent = "보관함 — 내일 다시 나와요 (" + all.length + ")"; all.forEach(function (it) { vc.appendChild(el("span", "chip vault", it.head)); }); } else v.classList.add("hidden");
     if (sess.mode === "daily" && total > 0 && okTotal === total) setTimeout(function () { fxAt($("score"), fxColors(), 40, 7); sfxFanfare(); }, 300);
+    var mb = $("btn-more-result"), extraN = sess.mode === "daily" ? extraSetSize(sess.t) : 0;
+    if (extraN) { mb.textContent = "한 세트 더 — 새 단어 " + extraN + "개 · 약 " + estimateMin(extraN, 0) + "분"; mb.classList.remove("hidden"); mb.onclick = function () { unlockAudio(); startExtraSet(); }; }
+    else mb.classList.add("hidden");
     show("view-result");
   }
 
@@ -1012,11 +1110,13 @@
     var st = stateLabel(it.id, t);
     r.appendChild(el("span", "rh", it.head));
     r.appendChild(el("span", "rk", it.ko.join(", ")));
+    var rc = rec(it.id);
+    if (rc && rc.f >= 2) { var fb = el("span", "rf", "✗" + rc.f); fb.title = "배운 뒤 " + rc.f + "번 틀림"; r.appendChild(fb); }
     if (st.text) r.appendChild(el("span", "rs " + st.cls, st.text));
     r.addEventListener("click", function () { onClick(it); });
     return r;
   }
-  var listFrom = "home";
+  var listFrom = "home", lastList = "vault";
   function renderList(kind) {
     var t = todayStr(), rows = $("list-rows"); rows.innerHTML = "";
     var act = $("btn-list-action"); act.classList.add("hidden"); act.onclick = null;
@@ -1030,13 +1130,29 @@
       ids = gradIds().sort(); title = "졸업한 단어";
       var gd = gradIntervals().join("일 · ") + "일";
       sub = ids.length + "개 — 졸업해도 " + gd + " 뒤에 한 번씩 다시 확인해요. 바로 복습하려면 검색해서 담으면 돼요";
+    } else if (kind === "hard") {
+      ids = hardIds(); title = "자꾸 틀리는 단어";
+      sub = ids.length ? ids.length + "개 — 배운 뒤 " + hardMin() + "번 이상 틀린 단어예요. 졸업해도 여기 남아요 · 연습 퀴즈는 진도에 영향 없어요"
+        : "아직 없어요 — 배운 뒤 " + hardMin() + "번 이상 틀린 단어가 여기 모여요";
+      if (ids.length) { act.textContent = "이 단어들만 연습 퀴즈 (" + Math.min(ids.length, 10) + "개)"; act.classList.remove("hidden"); act.onclick = function () { startPractice(ids); }; }
     } else { renderMap(); return; }
+    lastList = kind;
     $("list-title").textContent = title; $("list-sub").textContent = sub;
     if (!ids.length) rows.appendChild(el("div", "row empty", "아직 없어요"));
     ids.forEach(function (id) { rows.appendChild(rowFor(byId[id], t, function (it) { renderDetail(it, "list"); })); });
     show("view-list");
   }
   // ---- 코스 지도 (v2 §5) — 사다리 전체 · "지금 여기" · 구간별 상태 · 점검 버튼 · 코스 켜기/끄기 ----
+  // 소수점 레벨(설계 §4-3) — 정수 = 지금 구간, 소수 = 그 구간 단어 중 배우기 시작한 비율(내림, 최대 .9).
+  // 4.0은 점검을 통과해야만 나온다 — 숫자가 매일 조금씩 오르되 레벨 자체는 측정값으로 남는다(결정 #33).
+  function levelProgress(b) {
+    var c = bandCounts(b, ["word"]);
+    return c.total ? (c.learning + c.vault + c.grad + c.done) / c.total : 0;
+  }
+  function levelText(b) {
+    b = b || focusBand();
+    return "Lv " + b + "." + Math.min(9, Math.floor(levelProgress(b) * 10));
+  }
   function bandCounts(b, modules) {
     var c = { total: 0, unseen: 0, skipped: 0, learning: 0, vault: 0, grad: 0, done: 0 };
     ITEMS.forEach(function (it) {
@@ -1056,7 +1172,7 @@
     var act = $("btn-list-action"); act.classList.add("hidden"); act.onclick = null;
     var lv = S.level, f = lv.focus;
     $("list-title").textContent = "코스 지도";
-    $("list-sub").textContent = "Lv " + f + " · " + bandLabel(f) + " — 구간을 누르면 단어 목록, 점검으로 레벨을 다시 재요";
+    $("list-sub").textContent = levelText(f) + " · " + bandLabel(f) + " — 소수점은 이 구간에서 배우기 시작한 비율. 구간을 누르면 단어 목록, 점검으로 레벨을 다시 재요";
     var bar = el("div", "bandbar");
     Object.keys(CFG.bands || {}).map(Number).sort(function (a, b) { return a - b; }).forEach(function (b) {
       var row = el("div", "bandrow" + (b === f ? " focus" : b < f ? " passed" : " ahead"));
@@ -1155,7 +1271,8 @@
     var st = stateLabel(it.id, t);
     if (isVault(it.id)) { b.textContent = "보관함에 있어요 ✓"; b.disabled = true; }
     else { b.textContent = isGrad(it.id) ? "다시 보관함에 담기 (졸업 취소)" : "보관함에 담기"; b.disabled = false; }
-    $("detail-state").textContent = st.text ? "상태: " + st.text : "아직 안 배운 단어예요 — 담으면 오늘 세트에 바로 들어와요";
+    var rc = rec(it.id), fl = rc && rc.f ? " · 배운 뒤 " + rc.f + "번 틀림" : "";
+    $("detail-state").textContent = st.text ? "상태: " + st.text + fl : "아직 안 배운 단어예요 — 담으면 오늘 세트에 바로 들어와요";
   }
   function saveToVault() {
     var it = detailItem, t = todayStr();
@@ -1169,9 +1286,11 @@
 
   // ---------- 설정 · 백업 ----------
   function renderSettings() {
-    $("settings-sub").textContent = "Lv " + focusBand() + " · " + bandLabel(focusBand()) + " · 앱 v" + (CFG.appVersion || "?") + " · 콘텐츠 " + (CFG.contentVersion || "");
+    $("settings-sub").textContent = levelText() + " · " + bandLabel(focusBand()) + " · 앱 v" + (CFG.appVersion || "?") + " · 콘텐츠 " + (CFG.contentVersion || "");
     syncSeg("seg-accent", S.settings.accent); syncSeg("seg-daily", String(S.settings.dailyNew)); syncSeg("seg-auto", S.settings.auto ? "on" : "off");
     if (CFG.presets) syncSeg("seg-profile", S.profile || "");
+    $("row-reminder").hidden = !BRIDGE;
+    if (BRIDGE) syncSeg("seg-reminder", S.settings.reminder && S.settings.reminder.on ? String(S.settings.reminder.h) : "off");
     $("backup-msg").textContent = "아이폰 사파리는 오래 안 쓰면 기록이 지워질 수 있어요 — 가끔 백업해 두면 안전해요.";
     $("btn-reset").textContent = "진도 전체 리셋"; resetArmed = false;
     $("about-line").textContent = "Voca Vault v" + (CFG.appVersion || "?") + (CFG.builtAt ? " (" + CFG.builtAt + ")" : "") + " · 단어 출처: 교육부 2022 개정 영어과 기본 어휘 · 뜻·예문 자작 · 발음: 미리 만든 음성 또는 기기 음성";
@@ -1224,12 +1343,15 @@
     var remainG = recallDue(set, t).length;
     var remainK = skipDue(set).length;
     var btn = $("btn-start-all"), line = $("today-line"), meta = $("hero-meta");
-    if (d.done || (!remainN && !remainR && !remainS && !remainG && !remainK)) {
+    if (!remainN && !remainR && !remainS && !remainG && !remainK) {
       if (!d.done && !set.N.length && !set.R.length && !set.S.length && !(set.G || []).length && !(set.K || []).length) finishDay(t);
       $("hero-kicker").textContent = "DONE";
       line.textContent = "오늘 학습 끝! 내일 또 만나요.";
       btn.textContent = "보관함 연습 퀴즈"; btn.onclick = function () { pushView("list"); startVaultReview(); };
-      meta.textContent = "새 단어는 하루 한 세트 — 더 하고 싶으면 검색해서 담아 보세요.";
+      var extraN = extraSetSize(t), mb = $("btn-more");
+      if (extraN) { mb.textContent = "한 세트 더 — 새 단어 " + extraN + "개 · 약 " + estimateMin(extraN, 0) + "분"; mb.classList.remove("hidden"); mb.onclick = function () { unlockAudio(); startExtraSet(); }; }
+      else mb.classList.add("hidden");
+      meta.textContent = extraN ? "오늘 몫은 끝 — 더 하고 싶으면 한 세트 더, 아니면 내일 또" : (d.extra ? "오늘 " + (d.extra + 1) + "세트 — 충분해요, 내일 또" : "새 단어는 하루 한 세트 — 더 하고 싶으면 검색해서 담아 보세요.");
     } else {
       $("hero-kicker").textContent = "TODAY";
       var parts = [];
@@ -1238,29 +1360,31 @@
       if (remainS) parts.push("점검 " + remainS);
       if (remainG) parts.push("복습 " + remainG);
       if (remainK) parts.push("건너뛴 단어 " + remainK);
-      line.textContent = parts.join(" · ") + " — 약 " + Math.max(1, Math.round((remainN * 12 + (remainR + remainS + remainG + remainK) * 8) / 60)) + "분";
+      line.textContent = parts.join(" · ") + " — 약 " + estimateMin(remainN, remainR + remainS + remainG + remainK) + "분";
       btn.textContent = (d.set && (d.newStats.shown > 0)) ? "이어서 하기" : "오늘의 학습 시작";
       btn.onclick = function () { unlockAudio(); startDaily(); };
+      $("btn-more").classList.add("hidden");
       var vc = vaultIds().length;
       meta.textContent = vc > A.vaultCap ? "보관함이 " + vc + "개 — 새 단어는 잠시 쉬고 보관함부터 비워요" : "다른 날 2번 맞히면 졸업 · 모르면 보관함으로";
     }
     $("mcard-vault-sub").textContent = vaultIds().length + "개 · 오늘 " + dueVaultCount(t) + "개";
     $("mcard-grad-sub").textContent = gradIds().length + "개";
+    var hn = hardIds().length; $("mcard-hard-sub").textContent = hn ? hn + "개 · " + hardMin() + "번 이상 틀림" : "아직 없어요";
     // 분자·분모를 같은 모수로 — 검색으로 담은 band 1 항목이 분자만 키우면 안 된다
     var minB = CFG.dailyMinBand || 1;
     var seenN = Object.keys(S.seen).filter(function (id) { return byId[id] && byId[id].band >= minB; }).length;
     var poolN = ITEMS.filter(function (x) { return x.band >= minB; }).length;
-    $("mcard-bands-sub").textContent = "Lv " + focusBand() + " · " + seenN + "/" + poolN;
+    $("mcard-bands-sub").textContent = levelText() + " · " + seenN + "/" + poolN;
     // 레벨 카드 — 지금 레벨 + 점검 제안(신호는 제안만, 이동은 점검 통과로만)
     var f = focusBand();
-    $("level-title").textContent = "Lv " + f;
+    $("level-title").textContent = levelText(f);
     $("level-name").textContent = bandLabel(f) + (S.level.boost ? " · 보강 " + bandLabel(S.level.boost) : "");
     var prop = S.placed ? levelProposal(t) : null, lb = $("level-btn");
     if (prop) {
       $("level-sub").textContent = prop.text; lb.textContent = prop.btn; lb.classList.remove("hidden");
       lb.onclick = function () { pushView("session"); startLevelCheck(prop.band, prop.kind); };
     } else {
-      $("level-sub").textContent = "통과한 구간 " + S.level.passed.length + "개 · 코스 지도에서 언제든 점검할 수 있어요";
+      $("level-sub").textContent = "이 구간 단어의 " + Math.round(levelProgress(f) * 100) + "%를 배우기 시작했어요 · 통과한 구간 " + S.level.passed.length + "개 · 점검은 코스 지도에서 언제든";
       lb.classList.add("hidden"); lb.onclick = null;
     }
     $("mcard-set-sub").textContent = (S.settings.accent === "uk" ? "🇬🇧 UK" : "🇺🇸 US") + " · 하루 " + S.settings.dailyNew;
@@ -1313,10 +1437,11 @@
     $("btn-search-back").addEventListener("click", function (e) { e.preventDefault(); renderHome(); });
     $("card-vault").addEventListener("click", function () { pushView("list"); renderList("vault"); });
     $("card-grad").addEventListener("click", function () { pushView("list"); renderList("grad"); });
+    $("card-hard").addEventListener("click", function () { pushView("list"); renderList("hard"); });
     $("card-bands").addEventListener("click", function () { pushView("list"); renderList("bands"); });
     $("card-settings").addEventListener("click", function () { pushView("settings"); renderSettings(); });
     $("btn-list-back").addEventListener("click", function (e) { e.preventDefault(); renderHome(); });
-    $("btn-detail-back").addEventListener("click", function (e) { e.preventDefault(); if (listFrom === "search") show("view-search"); else if (listFrom === "band" && lastBand) renderBandList(lastBand); else renderList("vault"); });
+    $("btn-detail-back").addEventListener("click", function (e) { e.preventDefault(); if (listFrom === "search") show("view-search"); else if (listFrom === "band" && lastBand) renderBandList(lastBand); else renderList(lastList); });
     // 코스 지도의 점검 버튼 (행이 동적으로 만들어지므로 위임)
     $("list-rows").addEventListener("click", function (e) {
       var b = e.target.closest("button.mini[data-band]"); if (!b) return;
@@ -1335,6 +1460,7 @@
     bindSeg("seg-accent", function (v) { S.settings.accent = v; });
     bindSeg("seg-daily", function (v) { S.settings.dailyNew = Number(v); var d = dayRec(todayStr()); if (d.set && d.newStats.shown === 0) { delete d.set; } });
     bindSeg("seg-auto", function (v) { S.settings.auto = v === "on"; });
+    bindSeg("seg-reminder", function (v) { S.settings.reminder = v === "off" ? { on: false, h: (S.settings.reminder || {}).h || 20 } : { on: true, h: Number(v) }; syncReminder(); });
     $("btn-place-again").addEventListener("click", function () { pushView("session"); startPlacement(focusBand()); });
     $("btn-export-file").addEventListener("click", doExportFile);
     $("btn-import-file").addEventListener("click", function () { $("backup-file").click(); });
@@ -1360,6 +1486,7 @@
     document.addEventListener("click", unlockAudio, { once: true, capture: true });
     loadAllData().then(function () {
       S = load();
+      syncReminder(); // APK: 저장된 알림 설정을 네이티브에 다시 건다 (업데이트·재설치 뒤에도)
       if (!S.placed && Object.keys(S.items).length === 0) show("view-place"); else renderHome();
     }).catch(function (e) {
       $("today-line").textContent = "콘텐츠를 불러오지 못했어요 — 새로고침해 주세요. (" + e.message + ")";

@@ -28,7 +28,8 @@ window.APP_CONFIG = {
     "levelDays": 14,
     "levelSignalN": 20,
     "kMax": 1,
-    "boostShare": 0.3
+    "boostShare": 0.3,
+    "hardMin": 3
   },
   "mix": {
     "word": 7,
@@ -81,8 +82,9 @@ window.APP_CONFIG = {
     "voca.high1"
   ],
   "legacyIds": true,
+  "confusables": true,
   "defaultAccent": "us",
-  "contentVersion": "79625116b5",
-  "appVersion": "2.0.0",
-  "builtAt": "2026-09-04"
+  "contentVersion": "93d82162ba",
+  "appVersion": "2.1.0",
+  "builtAt": "2026-09-09"
 };
