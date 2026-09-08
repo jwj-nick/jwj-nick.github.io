@@ -67,6 +67,11 @@
   // stats.bands[L] = 구간별 신호(안다/모른다·첫 확인 정답) — 점검을 "제안"하는 데만 쓰고 레벨을 직접 옮기지 않는다(결정 #33).
   function minBand() { return CFG.dailyMinBand || 1; }
   function maxBand() { return Math.max.apply(null, Object.keys(CFG.bands || { "1": 1 }).map(Number)); }
+  // 팩(성인 코스) = 사다리 위의 구간. 레벨(실력 체크·승급·보강·소수점)은 ladderMax까지만 보고, 팩은 코스로 켜고 끈다.
+  function ladderMax() { return CFG.ladderMax || maxBand(); }
+  function isPack(it) { return it.band > ladderMax(); }
+  function packsCfg() { return CFG.packs || {}; }
+  function packKey(b) { return "p" + b; }
   function defaultCourses() {
     var c = {}; MODULES.forEach(function (m) { c[m] = { on: true }; }); return c;
   }
@@ -453,7 +458,7 @@
   function exprUnlocked() {
     var rule = CFG.mixUnlock && CFG.mixUnlock.expr;
     if (!rule) return true;
-    var nextWord = byModule.word.filter(function (it) { return it.band >= Math.max(focusBand(), minBand()) && !isSeen(it.id) && !S.skipped[it.id]; })[0];
+    var nextWord = byModule.word.filter(function (it) { return it.band >= Math.max(focusBand(), minBand()) && !isPack(it) && !isSeen(it.id) && !S.skipped[it.id]; })[0];
     var band = nextWord ? nextWord.band : 9;
     return Math.max(band, focusBand()) >= rule.fromBand;
   }
@@ -462,7 +467,7 @@
   // band 라벨 자체는 남겨야 quizUnlock(받아쓰기 fromBand)이 동작한다. config.blendBands가 있으면 그것을 우선한다.
   function blendBands() {
     if (CFG.blendBands && CFG.blendBands.length) return CFG.blendBands;
-    var f = focusBand(); return f < maxBand() ? [f, f + 1] : [f];
+    var f = focusBand(); return f < ladderMax() ? [f, f + 1] : [f];
   }
   function orderedPool(list) {
     var blend = blendBands();
@@ -484,7 +489,13 @@
     }
     return out.slice(0, at < 0 ? out.length : at).concat(rr, out.slice(at < 0 ? out.length : at));
   }
-  function courseOn(m) { return !(S.courses && S.courses[m] && S.courses[m].on === false); }
+  function courseOn(m) {
+    var c = S.courses && S.courses[m];
+    if (c) return c.on !== false;
+    // 팩 코스의 기본값은 프로필별(config packs[b].on[profile]) — 아이들은 꺼짐, 성인은 켜짐. 손으로 토글하면 그게 우선.
+    if (m.charAt(0) === "p" && packsCfg()[m.slice(1)]) { var d = packsCfg()[m.slice(1)].on || {}; return !!d[S.profile || ""]; }
+    return true;
+  }
   function unseenIn(m, band) { return byModule[m].filter(function (it) { return it.band === band && !isSeen(it.id) && !S.skipped[it.id]; }); }
   function pickNew(n) {
     if (n <= 0) return [];
@@ -493,10 +504,19 @@
     var floor = Math.max(focusBand(), minBand());
     var queues = {};
     MODULES.forEach(function (m) {
-      queues[m] = courseOn(m) ? orderedPool(byModule[m].filter(function (it) { return it.band >= floor && !isSeen(it.id) && !S.skipped[it.id]; })) : [];
+      queues[m] = courseOn(m) ? orderedPool(byModule[m].filter(function (it) { return it.band >= floor && !isPack(it) && !isSeen(it.id) && !S.skipped[it.id]; })) : [];
     });
     if (!exprUnlocked()) queues.expr = [];
-    var mix = CFG.mix || { word: 1, idiom: 0, expr: 0 };
+    var mix = Object.assign({}, CFG.mix || { word: 1, idiom: 0, expr: 0 });
+    // 팩 코스 — 레벨과 무관하게, 켜져 있으면 rank 순으로 mix 비중만큼 섞인다
+    var lanes = MODULES.slice();
+    Object.keys(packsCfg()).forEach(function (b) {
+      var k = packKey(b);
+      queues[k] = courseOn(k) ? ITEMS.filter(function (it) { return it.band === Number(b) && !isSeen(it.id) && !S.skipped[it.id]; })
+        .sort(function (x, y) { return x.rank - y.rank; }) : [];
+      mix[k] = packsCfg()[b].mix || 1;
+      lanes.push(k);
+    });
     var order = [];
     // 보강 구간(boost) — 보강 점검에서 약하게 나온 아래 구간의 미학습 단어를 신규의 일부로 섞는다.
     // 그 구간이 바닥나면 자연히 풀린다.
@@ -506,17 +526,19 @@
       if (!bq.length) { S.level.boost = null; }
       else { var take = Math.min(bq.length, Math.max(1, Math.round(n * (A.boostShare || 0.3)))); bq.slice(0, take).forEach(function (it) { order.push(it.id); }); }
     }
-    var cycle = MODULES.reduce(function (acc, m) { return acc + (mix[m] || 0); }, 0) || 1;
-    while (order.length < n && (queues.word.length || queues.idiom.length || queues.expr.length)) {
-      var before = order.length;
-      MODULES.forEach(function (m) {
-        for (var k = 0; k < (mix[m] || 0) && order.length < n; k++) { if (queues[m].length) order.push(queues[m].shift().id); }
-      });
-      if (order.length === before) { // mix가 전부 0인 모듈만 남음 → 단어 우선으로 채움
-        MODULES.forEach(function (m) { while (queues[m].length && order.length < n) order.push(queues[m].shift().id); });
-      }
-      if (cycle === 0) break;
+    // 비중대로 자리를 나눈다 (내림, 남는 자리는 비중 큰 레인부터). 예전의 "레인마다 mix개씩 순환"은
+    // 세트가 작으면(6개) 단어가 다 차지하고, 팩(mix 3)은 10개 세트에서도 자리를 못 받았다.
+    var active = lanes.filter(function (m) { return queues[m].length; });
+    var tot = active.reduce(function (acc, m) { return acc + (mix[m] || 0); }, 0);
+    if (tot > 0) {
+      var rem = n - order.length, want = {}, given = 0;
+      active.forEach(function (m) { want[m] = Math.floor(rem * (mix[m] || 0) / tot); given += want[m]; });
+      var byMix = active.slice().sort(function (a, b) { return (mix[b] || 0) - (mix[a] || 0); });
+      for (var i = 0; given < rem && byMix.length; i = (i + 1) % byMix.length) { want[byMix[i]]++; given++; }
+      active.forEach(function (m) { for (var k = 0; k < want[m] && queues[m].length; k++) order.push(queues[m].shift().id); });
     }
+    // 어느 레인이 바닥나 모자라면 단어부터 채운다
+    lanes.forEach(function (m) { while (queues[m].length && order.length < n) order.push(queues[m].shift().id); });
     return order;
   }
   function buildToday(t) {
@@ -993,14 +1015,14 @@
   }
   function setFocus(band) {
     var lv = S.level;
-    lv.focus = Math.min(Math.max(band, minBand()), maxBand());
+    lv.focus = Math.min(Math.max(band, minBand()), ladderMax());
     for (var b = minBand(); b < lv.focus; b++) if (lv.passed.indexOf(b) < 0) lv.passed.push(b);
     lv.passed = lv.passed.filter(function (b) { return b < lv.focus; }).sort(function (a, b) { return a - b; });
     if (lv.boost && lv.boost >= lv.focus) lv.boost = null;
   }
   // ---- 첫 실력 체크 (적응형): 시작 구간 5문 → ≥80%면 위로, <50%면 아래로, 그 사이면 멈춤. 최대 4구간 = 20문 ----
   function startPlacement(fromBand) {
-    var b = Math.min(Math.max(fromBand || focusBand(), minBand()), maxBand());
+    var b = Math.min(Math.max(fromBand || focusBand(), minBand()), ladderMax());
     sess = newSession("place", todayStr());
     sess.place = { band: b, rounds: 0, path: [] };
     if (!placeRound()) { finishPlacement(b); return; }
@@ -1019,10 +1041,10 @@
     var rate = ps.n ? ps.ok / ps.n : 0;
     p.path.push(p.band);
     var next = null;
-    if (rate >= 0.8 && p.band < maxBand() && p.rounds < 4) next = p.band + 1;
+    if (rate >= 0.8 && p.band < ladderMax() && p.rounds < 4) next = p.band + 1;
     else if (rate < 0.5 && p.band > minBand() && p.rounds < 4) next = p.band - 1;
     if (next !== null && p.path.indexOf(next) >= 0) next = null; // 이미 지나온 구간 = 경계를 찾았다
-    if (next === null) { finishPlacement(rate >= 0.8 ? Math.min(p.band + 1, maxBand()) : p.band); return; }
+    if (next === null) { finishPlacement(rate >= 0.8 ? Math.min(p.band + 1, ladderMax()) : p.band); return; }
     p.band = next;
     if (!placeRound()) { finishPlacement(p.band); return; }
     renderQuestion();
@@ -1046,7 +1068,7 @@
   // ---- 레벨 점검: 대상 구간의 미학습 10문 · 산출형만. 대상이 현재 구간 위면 승급 판정, 아래면 보강 판정 ----
   function startLevelCheck(band, kind) {
     band = Number(band);
-    if (!(band >= minBand() && band <= maxBand())) return false;
+    if (!(band >= minBand() && band <= ladderMax())) return false;
     var ids = sampleBand(band, A.levelN || 10);
     if (!ids.length) return false;
     unlockAudio();
@@ -1094,12 +1116,12 @@
   // 신호 → 점검 제안 (레벨을 직접 옮기지 않는다). 카운터는 점검 때마다 리셋되므로 "마지막 점검 이후"의 신호다.
   function levelProposal(t) {
     var lv = S.level, f = lv.focus, bs = bandStat(f), minN = A.levelSignalN || 20;
-    if (f < maxBand() && bs.shown >= minN && bs.unknown / bs.shown <= 0.15 && bs.firstN >= 10 && bs.firstOk / bs.firstN >= 0.9)
+    if (f < ladderMax() && bs.shown >= minN && bs.unknown / bs.shown <= 0.15 && bs.firstN >= 10 && bs.firstOk / bs.firstN >= 0.9)
       return { kind: "up", band: f + 1, text: bandLabel(f) + " 구간은 거의 아는 것 같아요. 다음 구간 점검을 볼까요?", btn: bandLabel(f + 1) + " 점검 (10문)" };
     if (f > minBand() && bs.shown >= minN && bs.unknown / bs.shown >= 0.6)
       return { kind: "down", band: f - 1, text: "요즘 모르는 단어가 많아요. 앞 구간을 잠깐 점검해 볼까요?", btn: bandLabel(f - 1) + " 점검 (10문)" };
     var days = lv.lastCheck ? daysBetween(lv.lastCheck, t) : null;
-    if (f < maxBand() && bs.shown >= minN && (days === null || days >= (A.levelDays || 14)))
+    if (f < ladderMax() && bs.shown >= minN && (days === null || days >= (A.levelDays || 14)))
       return { kind: "up", band: f + 1, text: "점검한 지 " + (days === null ? "한참" : days + "일") + " 됐어요. 다음 구간 점검을 볼까요?", btn: bandLabel(f + 1) + " 점검 (10문)" };
     return null;
   }
@@ -1175,6 +1197,7 @@
     $("list-sub").textContent = levelText(f) + " · " + bandLabel(f) + " — 소수점은 이 구간에서 배우기 시작한 비율. 구간을 누르면 단어 목록, 점검으로 레벨을 다시 재요";
     var bar = el("div", "bandbar");
     Object.keys(CFG.bands || {}).map(Number).sort(function (a, b) { return a - b; }).forEach(function (b) {
+      if (b > ladderMax()) return; // 팩 구간은 사다리가 아니라 아래 "코스"에
       var row = el("div", "bandrow" + (b === f ? " focus" : b < f ? " passed" : " ahead"));
       var bn = el("div", "bn");
       if (b < minBand()) { // 검색 전용 구간은 접어 둔다
@@ -1199,20 +1222,25 @@
       var bm = el("div", "bm"); bm.appendChild(el("span", "", parts.join(" · ")));
       var a = null;
       if (b > f) a = { label: "실력 체크로 열기", band: b, kind: "manual" };
-      else if (b === f && f < maxBand()) a = { label: "승급 점검", band: f + 1, kind: "up" };
+      else if (b === f && f < ladderMax()) a = { label: "승급 점검", band: f + 1, kind: "up" };
       else if (b < f) a = { label: lv.boost === b ? "보강 점검 다시" : "보강 점검", band: b, kind: "down" };
       if (a) { var btn = el("button", "mini", a.label); btn.type = "button"; btn.setAttribute("data-band", a.band); btn.setAttribute("data-kind", a.kind); bm.appendChild(btn); }
       row.appendChild(bn); row.appendChild(bp); row.appendChild(bm); bar.appendChild(row);
     });
     rows.appendChild(bar);
     var cb = el("div", "bandbar");
-    [["idiom", "숙어"], ["expr", "관용표현"]].forEach(function (pair) {
-      var m = pair[0]; if (!byModule[m].length) return;
+    var courseRows = [["idiom", "숙어", byModule.idiom], ["expr", "관용표현", byModule.expr]];
+    Object.keys(packsCfg()).map(Number).sort(function (a, b) { return a - b; }).forEach(function (b) {
+      courseRows.push([packKey(b), (packsCfg()[b].label || bandLabel(b)) + " 팩", ITEMS.filter(function (it) { return it.band === b; }), b]);
+    });
+    courseRows.forEach(function (pair) {
+      var m = pair[0], list = pair[2]; if (!list.length) return;
       var on = courseOn(m);
-      var grad = byModule[m].filter(function (it) { return isGrad(it.id); }).length;
-      var seen = byModule[m].filter(function (it) { return isSeen(it.id); }).length;
+      var grad = list.filter(function (it) { return isGrad(it.id); }).length;
+      var seen = list.filter(function (it) { return isSeen(it.id); }).length;
       var row = el("div", "bandrow course" + (on ? "" : " off"));
-      var bn = el("div", "bn"); bn.innerHTML = "<span>" + pair[1] + " (" + byModule[m].length + ")</span><span>졸업 " + grad + " · 본 것 " + seen + "</span>";
+      var bn = el("div", "bn"); bn.innerHTML = "<span>" + esc(pair[1]) + " (" + list.length + ")</span><span>졸업 " + grad + " · 본 것 " + seen + "</span>";
+      if (pair[3]) bn.addEventListener("click", function () { renderBandList(pair[3]); });
       var bm = el("div", "bm"); bm.appendChild(el("span", "", on ? "오늘 세트에 섞여 나와요" : "꺼짐 — 새로 안 나와요 (검색은 돼요)"));
       var tg = el("button", "mini", on ? "끄기" : "켜기"); tg.type = "button";
       tg.addEventListener("click", function () {

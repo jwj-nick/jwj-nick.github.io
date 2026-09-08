@@ -58,7 +58,8 @@ window.APP_CONFIG = {
     "4": "중등 심화",
     "5": "고등 기본",
     "6": "고등 핵심",
-    "7": "고등 확장"
+    "7": "고등 확장",
+    "8": "AI · LLM 기사"
   },
   "dailyMinBand": 2,
   "defaultBand": 3,
@@ -77,6 +78,20 @@ window.APP_CONFIG = {
       "start": 6
     }
   },
+  "ladderMax": 7,
+  "packs": {
+    "8": {
+      "key": "ai",
+      "label": "AI · LLM 기사",
+      "mix": 3,
+      "on": {
+        "adult": true,
+        "mid": false,
+        "high": false
+      },
+      "note": "팩 = 사다리 위의 코스. 레벨(실력 체크·승급)은 ladderMax=7까지만 보고, 팩은 코스 지도에서 켜고 끈다. 기본은 성인 프로필만 켬"
+    }
+  },
   "legacyNs": [
     "voca.mid1",
     "voca.high1"
@@ -84,7 +99,7 @@ window.APP_CONFIG = {
   "legacyIds": true,
   "confusables": true,
   "defaultAccent": "us",
-  "contentVersion": "93d82162ba",
-  "appVersion": "2.1.0",
+  "contentVersion": "a537e41061",
+  "appVersion": "2.2.0",
   "builtAt": "2026-09-09"
 };
