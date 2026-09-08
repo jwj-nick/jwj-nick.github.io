@@ -83,6 +83,7 @@
   <button class="tab" data-t="digital">💾 정보와 디지털</button>
   <button class="tab" data-t="world">🌐 세상 속으로</button>
   <button class="tab" data-t="quiz">🔥 퀴즈</button>
+  <button class="tab" data-t="drill">⚡ 실전</button>
   <button class="tab" data-t="sum">✅ 정리</button>
 </div>
 <div class="wrap">
@@ -107,6 +108,7 @@
         <button onclick="go('digital')"><div class="ti">💾</div><div class="tn">정보와 디지털</div><div class="td">아날로그 vs 디지털</div></button>
         <button onclick="go('world')"><div class="ti">🌐</div><div class="tn">세상 속으로</div><div class="td">표준·센서 산업</div></button>
         <button onclick="go('quiz')"><div class="ti">🔥</div><div class="tn">퀴즈</div><div class="td">10문제</div></button>
+        <button onclick="go('drill')"><div class="ti">⚡</div><div class="tn">실전</div><div class="td">점검 12문제</div></button>
         <button onclick="go('sum')"><div class="ti">✅</div><div class="tn">정리</div><div class="td">요약·자가점검</div></button>
       </div>
     </div>
@@ -145,6 +147,14 @@
         <tr><td>정확도</td><td class="l">참값에 얼마나 <b>가까운가</b> (과녁 중심에 가까움)</td></tr>
         <tr><td>정밀도</td><td class="l">여러 번 쟀을 때 얼마나 <b>모여 있는가</b> (일관성)</td></tr>
       </table>
+      <div class="box a">
+        <div class="t">🎯 오차는 두 갈래다</div>
+        <b>우연 오차</b> — 눈금을 읽는 순간, 초시계를 누르는 순간처럼 <b>그때그때 방향이 달라지는</b> 어긋남.
+        여러 번 재서 평균을 내면 서로 상쇄되어 작아진다.<br>
+        <b>계통 오차</b> — 저울의 영점이 3 g 어긋난 것처럼 <b>매번 같은 방향으로</b> 생기는 어긋남.
+        백 번을 재도 평균이 그만큼 치우친 채로 남는다. 도구를 바로잡거나 <b>어긋난 양만큼 빼야</b> 사라진다.<br>
+        ▸ 짧은 시간을 잴 때는 <b>여러 번을 한꺼번에 재어 횟수로 나눈다</b> — 누르는 순간의 어긋남이 그만큼 잘게 나뉜다.
+      </div>
       <div class="box g">
         <div class="t">🧮 어림(estimation) — 재기 전에 감 잡기</div>
         정밀하게 재기 전, <b>대략의 값을 빠르게 추정</b>하는 것도 과학의 중요한 능력이다. "이 방에 사람이 몇 명 들어갈까?"처럼 <b>자릿수만이라도</b> 먼저 가늠하면 큰 실수를 막는다.
@@ -165,6 +175,14 @@
       <div class="box b">
         <div class="t">🔑 디지털이 이긴 이유</div>
         디지털(0과 1)은 <b>잡음에 강하고, 복제·전송·저장·계산이 쉽다.</b> 그래서 음악(LP→MP3)·사진(필름→디지털)·통신이 전부 디지털로 바뀌었다. 컴퓨터·AI가 다루는 모든 정보가 0과 1이다.
+      </div>
+      <div class="box a">
+        <div class="t">✂️ 숫자로 바꾸면 무엇이 사라지나</div>
+        아날로그를 디지털로 바꿀 때 정하는 것은 두 가지다 —
+        <b>얼마나 자주 재는가</b>(음악 CD는 1초에 44,100번)와 <b>얼마나 잘게 적는가</b>(소수 몇째 자리까지).
+        잰 순간과 순간 <b>사이</b>의 변화, 적는 자리보다 <b>작은</b> 차이는 남지 않는다.
+        둘은 <b>따로 정해지는 설정</b>이라 하나를 늘려도 다른 하나는 그대로다.
+        그래서 디지털은 자주·잘게 잴수록 원래에 <b>가까워질 뿐</b> 똑같아지지는 않는다.
       </div>
       <div class="box a">
         <div class="t">📡 센서 — 세상을 디지털로</div>
@@ -212,6 +230,10 @@
       <div class="quizhud"><span class="qn" id="qNum">문제 1 / 10</span><span class="sc">점수 <b id="qScore">0</b> / 10</span><div class="qbar"><i id="qBar" style="width:0%"></i></div></div>
       <div id="qArea"><div class="qq" id="qQ"></div><div class="qopts" id="qOpts"></div><div class="qexp" id="qExp"></div><button class="qnext" id="qNext">다음 문제 →</button></div>
     </div>
+  </div>
+
+  <div class="page" data-p="drill">
+    <div id="drill"></div>
   </div>
 
   <div class="page" data-p="sum">
@@ -372,5 +394,15 @@ drawTarget('hh');
 drawSig('ana');
 renderQ();
 </script>
+<!-- ⚡ 실전 — 심화 문항 드릴.
+     drill.js = 공용 엔진(subject_hub/_shared/drill.js)
+     drill_sci1_01.js = 문항 데이터. 정본은 exam_track/problem_bank/data/sci1_01.js
+     둘 다 `python exam_track/tools/sync_drill.py --write`가 만든 복사본 — 직접 고치지 말 것. -->
+<script>
+  // 원인 코드 → 고치기 탭 (drill.js v2의 🩹 지금 바로 고치기 칩). 전역 go(tab) 필요.
+  window.DRILL_FIX = {"C1":["sum", "✅ 정리에서 발문·조건 다시 확인"], "C2":["meas", "📖 측정과 오차 다시 보기"], "C3":["meas", "🪞 정확도와 정밀도 가르기"], "C4":["meas", "🧭 상황에 맞춰 판단해 보기"], "C5":["unit", "🔥 단위와 유도량으로 다시 계산"], "C7":["digital", "🔎 자료가 말한 만큼만 읽기"]};
+</script>
+<script src="drill.js"></script>
+<script src="drill_sci1_01.js"></script>
 </body>
 </html>
