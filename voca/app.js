@@ -15,6 +15,7 @@
   var MANIFEST = { items: {} };
   var LEGACY = {};       // v1 트랙 id → v2 통합 id (content/<track>/legacy-ids.json, 통합 트랙에만 있다)
   var CONFUSE = {};      // id → 헷갈리는 단어 id 목록 (content/<track>/confusables.json) — 오답 보기에 우선 쓴다
+  var HEAD2KO = {};      // "module|표제어소문자" → 대표 뜻 — 오답 보기 4개의 뜻을 채점 후 보여줄 때 쓴다
   var S = null;
   var sess = null;
   // APK(WebView)에서만 있는 네이티브 다리 — 매일 알림. 웹(iPhone)에서는 null이라 알림 설정 줄이 숨는다.
@@ -40,7 +41,7 @@
       ITEMS = [];
       loaded.forEach(function (doc) { (doc.items || []).forEach(function (it) { ITEMS.push(it); }); });
       ITEMS.sort(function (a, b) { return a.band - b.band || a.rank - b.rank || (a.id < b.id ? -1 : 1); });
-      ITEMS.forEach(function (it) { byId[it.id] = it; byModule[it.module].push(it); });
+      ITEMS.forEach(function (it) { byId[it.id] = it; byModule[it.module].push(it); HEAD2KO[it.module + "|" + it.head.toLowerCase()] = koOf(it); });
       buildConfuse(confDoc.groups || []);
     });
   }
@@ -591,6 +592,12 @@
   function koOf(it) { return it.ko[0]; }
   function koFull(it) { return it.ko.join(" · "); }
   function headOf(x) { return x.head; }
+  // 오답 보기 4개 각각의 뜻 — 채점 후 보여줘서, 정답만이 아니라 보기로 나온 단어를 전부 한 번씩 훑고 넘어가게 한다
+  function optKoMap(module, opts) {
+    var map = {};
+    opts.forEach(function (o) { map[o] = HEAD2KO[module + "|" + o.toLowerCase()] || ""; });
+    return map;
+  }
   function meaningClash(it) {
     var set = {};
     (it.ko || []).forEach(function (k) { set[k] = 1; });
@@ -646,10 +653,13 @@
       // 뜻을 전부 보여준다 — ko[0]만 쓰면 "포함하다"처럼 여러 단어가 공유하는 뜻에서 문제가 모호해진다.
       q.prompt = koFull(it); q.promptCls = "ko"; q.sub = posLabel(it); q.answer = it.head;
       q.opts = shuffle(distractors(it, 3, headOf, meaningClash(it)).concat([q.answer])); q.optCls = "en";
+      q.optKo = optKoMap(it.module, q.opts);
     } else if (type === "blank") {
       var m = maskExample(it);
       q.masked = m; q.prompt = ""; q.promptCls = "sentence"; q.sub = m.ko; q.answer = it.head;
       q.opts = shuffle(distractors(it, 3, headOf, meaningClash(it)).concat([q.answer])); q.optCls = "en";
+      q.optKo = optKoMap(it.module, q.opts);
+      q.hideSub = true; // 문장 해석은 힌트로 감춘다 — 문맥으로 빈칸을 추론하는 연습인데 번역을 먼저 보여주면 그 훈련이 안 된다
     } else { // dictation
       q.prompt = "🔊"; q.promptCls = ""; q.sub = "들리는 단어를 입력하세요"; q.answer = it.head; q.input = true; q.audio = true; q.autoplay = true;
     }
@@ -797,7 +807,15 @@
     if (q.type === "blank") {
       p.innerHTML = esc(q.masked.before) + '<span class="blank"></span>' + esc(q.masked.after);
     } else p.textContent = q.prompt;
-    $("q-sub").textContent = q.sub || "";
+    var subEl = $("q-sub"), hintBtn = $("btn-hint");
+    if (q.hideSub) { // 빈칸 채우기 — 문장 해석은 힌트를 눌러야 나온다
+      subEl.textContent = ""; subEl.classList.add("hidden");
+      hintBtn.classList.remove("hidden");
+      hintBtn.onclick = function () { subEl.textContent = q.sub; subEl.classList.remove("hidden"); hintBtn.classList.add("hidden"); };
+    } else {
+      hintBtn.classList.add("hidden"); hintBtn.onclick = null;
+      subEl.classList.remove("hidden"); subEl.textContent = q.sub || "";
+    }
     var qa = $("q-audio"); qa.innerHTML = "";
     if (q.audio && q.type !== "blank") audioButtons(qa, it.id, "word", it.head, true);
     if (q.autoplay) setTimeout(function () { var b = qa.querySelector(".abtn." + S.settings.accent); if (b) b.click(); }, 200);
@@ -832,9 +850,12 @@
       $("answer-input").disabled = true; $("btn-check").disabled = true;
     } else {
       Array.prototype.forEach.call($("opts").children, function (b) {
+        var head = b.textContent; // opt-ko를 붙이기 전에 읽어야 한다 — 붙이면 textContent가 두 줄을 합친 값이 된다
         b.disabled = true;
-        if (b.textContent === q.answer) b.classList.add("ok");
+        if (head === q.answer) b.classList.add("ok");
         else if (b === btn) b.classList.add("bad");
+        // 채점 후엔 정답만이 아니라 보기 4개 전부의 뜻을 보여준다 — 결국 공부가 목적이니 한 번씩은 훑고 넘어가게
+        if (q.optKo && q.optKo[head]) b.appendChild(el("span", "opt-ko", q.optKo[head]));
       });
     }
     var ansLine = (!correct || q.input) ? ' <span class="ans">' + esc(it.head) + '</span> — ' + esc(it.ko[0]) : "";

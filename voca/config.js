@@ -99,7 +99,7 @@ window.APP_CONFIG = {
   "legacyIds": true,
   "confusables": true,
   "defaultAccent": "us",
-  "contentVersion": "a537e41061",
-  "appVersion": "2.2.0",
-  "builtAt": "2026-09-09"
+  "contentVersion": "be368558cb",
+  "appVersion": "2.3.0",
+  "builtAt": "2026-09-11"
 };
