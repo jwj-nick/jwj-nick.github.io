@@ -87,12 +87,6 @@
     <div id="plan"></div>
   </div>
   <div class="card">
-    <h2>아빠와 클로드가 궁금한 것</h2>
-    <p class="small">답을 적고 [전체 복사]를 눌러 카톡으로 아빠에게 보내 줘. 다음 판에 반영한다.</p>
-    <div id="qa"></div>
-    <div class="row"><button class="btn" id="qa-copy">📋 전체 복사</button><span class="small" id="qa-msg"></span></div>
-  </div>
-  <div class="card">
     <h2>개념이 흔들리면 (단원 앱 복습)</h2>
     <div class="links">
       <a href="mat2_circle.html">⭕ 원의 방정식 · 원과 직선의 위치 관계</a>
@@ -220,7 +214,7 @@
     <div class="pp-toolbar">
       <button class="btn" id="pp-btn">🖨️ 인쇄 / PDF로 저장</button>
       <a class="btn sec" id="pp-dl" href="2sem_perf_circle_path_print.html" download="math2_perf_print_pack.html" style="text-decoration:none;display:inline-flex;align-items:center">⬇️ 파일로 저장</a>
-      <span class="small">인쇄 창에서 "PDF로 저장"을 고르면 파일로 남는다. 종이로 뽑아 3·4쪽(변형 문제·답)을 손으로 푸는 게 핵심.</span>
+      <span class="small">인쇄 창에서 "PDF로 저장"을 고르면 파일로 남는다. 종이로 뽑아 3·4절(변형 문제·답)을 손으로 푸는 게 핵심.</span>
     </div>
     <div id="pp-wrap"></div>
   </div>
@@ -739,13 +733,12 @@ var VG = (function () {
     ['검산', '7분', '위 검산 루틴 4개'],
     ['여유', '5분', '답안 깨끗이, 단위·둘 다·반지름 확인']
   ];
-  var QUESTIONS_FOR_SON = [
-    '시험 시간은 수업시간 50분 전부인가, 아니면 그중 일부인가?',
-    '1번 4소문항과 2번의 배점(15점 배분)을 선생님이 알려 주셨나?',
-    '계산기·자(직선자)를 쓸 수 있나? 답안은 문제지 여백에 쓰나, 별도 답안지인가?',
-    '선생님이 "숫자만 바뀐다", "대칭이동을 꼭 써라" 같은 힌트를 주셨나? 주셨다면 그대로 적어 줘.',
-    '중간고사에서 원의 접선·대칭이동 문제를 맞았나, 틀렸나? 틀렸다면 어디서 막혔나(공식? 계산? 서술?).',
-    '앱과 프린트에서 가장 헷갈린 부분 하나만 골라 줘. (다음 판에 반영)'
+  /* 시험 조건 확인 항목 — 아이에게 묻지 않고 Nick이 채팅에서 답한다(소통 규약 2026-09-12). 앱·프린트에는 넣지 않는다. */
+  var QUESTIONS_FOR_NICK = [
+    '시험 시간이 수업시간 50분 전부인지(기본 가정 50분)',
+    '계산기·자 사용 가능 여부(기본 가정: 둘 다 불가)',
+    '답안을 문제지 여백에 쓰는지, 별도 답안지인지(기본 가정: 문제지 여백)',
+    '선생님이 준 힌트가 있으면 그 문장 그대로'
   ];
 
   /* ---------- 프린트 팩 렌더러 (앱 🖨️ 탭 + 정적 파일 공용) ---------- */
@@ -844,8 +837,7 @@ var VG = (function () {
       '<tr><td>2</td><td>답안 틀 카드 2장 (▢에 숫자만 갈아끼움) + 원리 그림</td><td>9/13 — 순서와 근거 문장을 외운다</td></tr>' +
       '<tr><td>3</td><td>변형 문제 10세트 (문제 쪽)</td><td>9/14·15·16 — 하루 2~3세트, 반드시 종이에 손으로</td></tr>' +
       '<tr><td>4</td><td>변형 정답·풀이 (답 쪽)</td><td>풀고 나서만 본다. 틀린 자리 → 답안 틀로 돌아가기</td></tr>' +
-      '<tr><td>5</td><td>함정 체크리스트 · 검산 루틴 · 시험 당일 시간 배분</td><td>9/16 저녁 + 9/17 등교 전</td></tr>' +
-      '<tr><td>6</td><td>아빠·클로드가 묻는 질문 6개</td><td>9/13 답을 적어 아빠에게</td></tr></table>';
+      '<tr><td>5</td><td>함정 체크리스트 · 검산 루틴 · 시험 당일 시간 배분</td><td>9/16 저녁 + 9/17 등교 전</td></tr></table>';
     h += '<h2>정답 한눈에 (예시문항)</h2><table><tr><th>문항</th><th>정답</th></tr>' +
       '<tr><td>1-1</td><td>' + esc(s1.answers.circle) + '</td></tr><tr><td>1-2-1</td><td>m = ' + esc(s1.answers.m1.s()) + ' 또는 ' + esc(s1.answers.m2.s()) + '</td></tr>' +
       '<tr><td>1-2-2</td><td>' + esc(s1.answers.line1.slope) + ' , ' + esc(s1.answers.line2.slope) + '</td></tr><tr><td>1-3</td><td>P' + esc(pt(s1.answers.P[0], s1.answers.P[1])) + '</td></tr>' +
@@ -886,8 +878,7 @@ var VG = (function () {
     h += '<div class="pp-page"><h2>5. 함정 체크리스트 (전날 저녁·등교 전)</h2><table class="pp-chk">' + PITFALLS.map(function (q) { return '<tr><td>☐</td><td><b>' + esc(q.k) + '</b></td><td>' + md(q.t) + '</td></tr>'; }).join('') + '</table>' +
       '<h2>검산 루틴 (1분)</h2><ol>' + CHECKS.map(function (c) { return '<li>' + esc(c) + '</li>'; }).join('') + '</ol>' +
       '<h2>시험 당일 시간 배분 (50분 기준, 시간 확인 후 조정)</h2><table><tr><th>구간</th><th>시간</th><th>내용</th></tr>' + TIMEPLAN.map(function (r) { return '<tr><td>' + esc(r[0]) + '</td><td>' + esc(r[1]) + '</td><td>' + esc(r[2]) + '</td></tr>'; }).join('') + '</table>';
-    /* 6. 질문 */
-    h += '<h2>6. 아빠·클로드가 묻는 질문 — 답을 적어 아빠에게</h2><table>' + QUESTIONS_FOR_SON.map(function (q, i) { return '<tr><td style="width:24px">' + (i + 1) + '</td><td>' + esc(q) + '<div class="pp-ans sm" style="min-height:44px;margin:4px 0 0"></div></td></tr>'; }).join('') + '</table></div>';
+    h += '</div>';
     h += '</div>';
     return h;
   }
@@ -897,7 +888,7 @@ var VG = (function () {
     T1_STORIES: T1_STORIES, T2_STORIES: T2_STORIES, TRIPLES: TRIPLES, UNITS: UNITS, LINES: LINES, LINE_IDS: LINE_IDS,
     solveT1: solveT1, solveT2: solveT2, solveAny: solveAny, genT1: genT1, genT2: genT2, validT2: validT2,
     verifyT1: verifyT1, verifyT2: verifyT2, verifyAny: verifyAny, parseNum: parseNum, near: near, mulberry32: mulberry32,
-    SAMPLE_T1: SAMPLE_T1, SAMPLE_T2: SAMPLE_T2, FIXED_SETS: FIXED_SETS, TEMPLATES: TEMPLATES, PITFALLS: PITFALLS, CHECKS: CHECKS, TIMEPLAN: TIMEPLAN, QUESTIONS_FOR_SON: QUESTIONS_FOR_SON,
+    SAMPLE_T1: SAMPLE_T1, SAMPLE_T2: SAMPLE_T2, FIXED_SETS: FIXED_SETS, TEMPLATES: TEMPLATES, PITFALLS: PITFALLS, CHECKS: CHECKS, TIMEPLAN: TIMEPLAN, QUESTIONS_FOR_NICK: QUESTIONS_FOR_NICK,
     stepsHtml: stepsHtml, problemHtml: problemHtml, svgTangent: svgTangent, svgUnfold: svgUnfold, PRINT_CSS: PRINT_CSS, renderPrintPack: renderPrintPack
   };
 })();
@@ -939,16 +930,6 @@ var VG = (function () {
     var done = LS.get('plan', {});
     $('#plan').innerHTML = PLAN.map(function (p, i) { return '<label class="chk"><input type="checkbox" data-i="' + i + '"' + (done[i] ? ' checked' : '') + '><span><b>' + esc(p[0]) + '</b><br><span class="small">' + esc(p[1]) + '</span></span></label>'; }).join('');
     $$('#plan input').forEach(function (c) { c.addEventListener('change', function () { done[c.dataset.i] = c.checked; LS.set('plan', done); }); });
-    var qa = LS.get('qa', {});
-    $('#qa').innerHTML = VG.QUESTIONS_FOR_SON.map(function (q, i) { return '<div style="margin:8px 0"><div style="font-size:14px"><b>Q' + (i + 1) + '.</b> ' + esc(q) + '</div><textarea data-i="' + i + '" placeholder="답을 적어 줘">' + esc(qa[i] || '') + '</textarea></div>'; }).join('');
-    $$('#qa textarea').forEach(function (t) { t.addEventListener('input', function () { qa[t.dataset.i] = t.value; LS.set('qa', qa); }); });
-    $('#qa-copy').addEventListener('click', function () {
-      var txt = VG.QUESTIONS_FOR_SON.map(function (q, i) { return 'Q' + (i + 1) + '. ' + q + '\n→ ' + (qa[i] || '(미답)'); }).join('\n\n');
-      var done2 = function () { $('#qa-msg').textContent = '복사됨 — 카톡에 붙여넣기'; };
-      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done2, function () { fallback(); });
-      else fallback();
-      function fallback() { var ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done2(); } catch (e) { $('#qa-msg').textContent = '복사 실패 — 길게 눌러 복사'; } document.body.removeChild(ta); }
-    });
   })();
 
   /* ---------- 접선 실험 ---------- */
