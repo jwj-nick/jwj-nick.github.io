@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중화 반응 수행평가 준비</title>
+<style>
+  :root{--bg:#f7f8fb;--card:#fff;--ink:#1f2937;--mute:#6b7280;--line:#e5e7eb;--acc:#2563eb;--acc2:#1d4ed8;--ok:#16a34a;--bad:#dc2626;--warn:#d97706;--key:#fef3c7;--soft:#eff6ff}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:"Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.6}
+  header{background:#fff;border-bottom:1px solid var(--line);padding:10px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  header h1{font-size:17px;margin:0;flex:1;min-width:160px}
+  .dday{background:#fee2e2;color:#991b1b;border-radius:999px;padding:4px 10px;font-weight:700;font-size:13px}
+  .btn{min-height:44px;padding:8px 14px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:14px;cursor:pointer;color:var(--ink);text-decoration:none;display:inline-flex;align-items:center;gap:6px;font-family:inherit}
+  .btn.primary{background:var(--acc);border-color:var(--acc);color:#fff}
+  .btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+  .btn.ghost{background:transparent}
+  .btn.sm{min-height:44px;padding:4px 10px;font-size:13px}
+  .btn:disabled{opacity:.5;cursor:default}
+  .tabs{display:flex;gap:6px;overflow-x:auto;padding:8px 10px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5;-webkit-overflow-scrolling:touch}
+  .tab{flex:0 0 auto;min-height:44px;padding:6px 12px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:14px;cursor:pointer;white-space:nowrap;font-family:inherit}
+  .tab.active{background:var(--acc);color:#fff;border-color:var(--acc)}
+  main{max-width:860px;margin:0 auto;padding:12px 14px 60px}
+  .page{display:none}.page.active{display:block}
+  h2{font-size:18px;margin:8px 0 10px}
+  h3{font-size:15.5px;margin:14px 0 6px}
+  .box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:10px 0}
+  .note{background:var(--soft);border:1px solid #bfdbfe;border-radius:10px;padding:10px 12px;margin:8px 0;font-size:14px}
+  .warn{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:10px 12px;margin:8px 0;font-size:14px}
+  .mute{color:var(--mute);font-size:13px}
+  mark{background:var(--key);padding:0 2px;border-radius:2px}
+  table{border-collapse:collapse;width:100%;margin:6px 0;font-size:14px}
+  th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+  th{background:#f3f4f6}
+  td.c,th.c{text-align:center;white-space:nowrap}
+  .tblwrap{overflow-x:auto}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0}
+  .chip{display:inline-block;padding:2px 8px;border-radius:999px;background:#f3f4f6;font-size:12.5px;margin:2px 3px 2px 0}
+  .chip.on{background:#dcfce7;color:#166534}
+  .prog{height:10px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin:6px 0}
+  .prog > div{height:100%;background:var(--ok);width:0}
+  /* cards */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:10px 0;cursor:pointer}
+  .card .t{font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+  .card .t .st{font-size:12px;font-weight:500;padding:2px 8px;border-radius:999px;background:#f3f4f6}
+  .card .t .st.done{background:#dcfce7;color:#166534}
+  .card .front,.card .back{display:none}
+  .card.f .front{display:block}.card.b .back{display:block}
+  .card .lab{color:var(--mute);font-size:13px;margin-top:6px}
+  .card .acts{margin-top:8px;display:flex;gap:6px}
+  /* lab */
+  .lab-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media (max-width:640px){.lab-grid{grid-template-columns:1fr}}
+  input[type=range]{width:100%}
+  select,input[type=text]{min-height:44px;font-size:15px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;font-family:inherit}
+  textarea{width:100%;min-height:64px;font-size:14px;padding:8px;border:1px solid var(--line);border-radius:8px;font-family:inherit}
+  .ionbar{display:grid;grid-template-columns:52px 1fr 50px;gap:6px;align-items:center;margin:4px 0;font-size:14px}
+  .ionbar .bar{height:14px;background:#e5e7eb;border-radius:999px;overflow:hidden}
+  .ionbar .bar > div{height:100%;border-radius:999px}
+  .readout{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin:8px 0}
+  .readout .r{background:#f9fafb;border:1px solid var(--line);border-radius:10px;padding:8px;text-align:center}
+  .readout .r b{display:block;font-size:17px}
+  .readout .r span{font-size:12px;color:var(--mute)}
+  /* quiz */
+  .opt{display:block;width:100%;text-align:left;min-height:44px;padding:8px 12px;margin:6px 0;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:15px;cursor:pointer;font-family:inherit}
+  .opt.right{background:#dcfce7;border-color:var(--ok)}
+  .opt.wrong{background:#fee2e2;border-color:var(--bad)}
+  .fb{margin:8px 0;padding:8px 10px;border-radius:8px;font-size:14px}
+  .fb.ok{background:#dcfce7}.fb.bad{background:#fee2e2}
+  /* mock */
+  .mi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:10px 0}
+  .mi .q{font-weight:600}
+  .mi .pt{color:var(--mute);font-size:12.5px;margin-left:6px}
+  .mi .ans{display:none;border-left:3px solid var(--acc);padding-left:10px;margin:8px 0}
+  .mi.s1 .hint{display:block}.mi .hint{display:none;margin:8px 0}
+  .mi.s2 .ans{display:block}
+  .mi .keys{display:none;margin-top:8px}
+  .mi.s2 .keys{display:block}
+  .mi label{display:flex;gap:8px;align-items:flex-start;min-height:44px;font-size:14px;padding:4px 0}
+  .mi input[type=checkbox]{width:20px;height:20px;margin-top:3px}
+  .score{font-weight:700}
+  .timer{font-variant-numeric:tabular-nums;font-weight:700;font-size:18px}
+  .sw{display:inline-block;width:18px;height:18px;border-radius:4px;border:1px solid #d1d5db;vertical-align:middle;margin-right:4px}
+  .eq input{width:90px;text-align:center}
+  ul{margin:4px 0 4px 18px;padding:0}li{margin:3px 0}
+  .hidden{display:none}
+  footer{text-align:center;color:var(--mute);font-size:12px;padding:16px}
+</style>
+</head>
+<body>
+<nav style="background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:7px 16px;font-size:12px;display:flex;align-items:center;gap:5px"><a href="../index.html" style="color:#6b7280;text-decoration:none">고1</a><span style="color:#d1d5db">&rsaquo;</span><a href="index.html" style="color:#2563eb;text-decoration:none;font-weight:600">Science</a></nav>
+<header>
+  <h1>🧪 중화 반응 수행평가 준비</h1>
+  <span class="dday" id="dday">D-?</span>
+  <a class="btn" href="2sem_perf_neutral_print.html" id="printLink">🖨️ 프린트 팩</a>
+</header>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="start">📋 시작</button>
+  <button class="tab" data-t="cards">🃏 카드 9장</button>
+  <button class="tab" data-t="lab">🧪 실험실</button>
+  <button class="tab" data-t="drill">⚡ 이온 드릴</button>
+  <button class="tab" data-t="ind">🎨 지시약</button>
+  <button class="tab" data-t="mock">✍️ 모의 3회</button>
+  <button class="tab" data-t="life">🌱 생활 속</button>
+  <button class="tab" data-t="check">✅ 전날 점검</button>
+</div>
+<main>
+
+<!-- ============ 시작 ============ -->
+<section class="page active" data-p="start">
+  <h2>📋 시험 정보와 5일 계획</h2>
+  <div class="box">
+    <div><b>2학기 통합과학2 1차 수행평가(논술형)</b> — <b>2026-09-17(목)</b> 통합과학 수업 시간, 교실</div>
+    <div>20점 만점(최하 7점) · 범위 교과서 42~49쪽 &amp; 학습지 · <b>흑색 펜·샤프</b> · 평가지 밖에 쓴 건 채점 안 함</div>
+    <div class="note" style="margin-top:8px"><b>목표 한 줄:</b> 채점 체크리스트 9항목마다 <b>요구 키워드가 들어간 완전한 문장</b>을 손으로 쓸 수 있으면 만점. 답은 항상 <b>결론 + 근거</b>.</div>
+  </div>
+  <div class="box">
+    <h3 style="margin-top:0">학교 채점 체크리스트 (안내문 그대로)</h3>
+    <ol style="margin:4px 0 0 18px;padding:0;font-size:14px">
+      <li>중화점에서 용액의 부피를 정확하게 구하였는가?</li>
+      <li>중화반응에서 혼합 용액의 액성을 정확하게 서술하였는가?</li>
+      <li>중화반응의 열 출입 형태를 올바르게 답하였는가?</li>
+      <li>중화반응의 열 출입 형태를 판단한 근거를 정확하게 서술하였는가?</li>
+      <li>우리 생활 주변에서 중화반응을 이용하는 사례를 올바르게 서술하였는가?</li>
+      <li>중화반응을 이용하는 사례에서 산성 물질과 염기성 물질을 구분할 수 있는가?</li>
+      <li>우리 생활 주변에서 중화반응을 이용하는 까닭을 올바르게 제시하였는가?</li>
+      <li>중화반응에서 지시약의 특징과 액성 구분 방법을 모두 정확하게 서술하였는가?</li>
+      <li>중화반응의 반응식을 올바르게 서술하였는가?</li>
+    </ol>
+  </div>
+  <div class="box">
+    <h3 style="margin-top:0">5일 계획 <span class="mute" id="planProg"></span></h3>
+    <div id="plan"></div>
+    <div class="mute">하루 35~40분이면 충분하다. 모의는 꼭 <b>종이에 손으로</b> 쓴다(시험이 손글씨니까).</div>
+  </div>
+  <div class="box">
+    <h3 style="margin-top:0">🙋 아빠와 클로드가 궁금한 것</h3>
+    <div class="mute">모의고사 숫자와 형식을 <b>실제 수업 조건</b>에 맞추려고 묻는 거야. 모르면 "모름"이라고 써도 돼. 다 쓰면 [답 복사하기] → 카톡으로 아빠에게.</div>
+    <div id="qa"></div>
+    <div class="row"><button class="btn primary" id="copyQa">📋 답 복사하기</button><span class="mute" id="copyMsg"></span></div>
+  </div>
+  <div class="box">
+    <h3 style="margin-top:0">🖨️ 프린트 팩</h3>
+    <div class="mute">카드 9장 · 모의 3회(문제/답안 분리) · 이온 드릴 · 표 · 질문지가 한 파일에 있다. 열어서 "인쇄 / PDF로 저장"을 누르면 된다.</div>
+    <div class="row"><a class="btn primary" href="2sem_perf_neutral_print.html">프린트 팩 열기</a></div>
+  </div>
+</section>
+
+<!-- ============ 카드 ============ -->
+<section class="page" data-p="cards">
+  <h2>🃏 모범답안 카드 9장 <span class="mute" id="cardProg"></span></h2>
+  <div class="prog"><div id="cardBar"></div></div>
+  <div class="note">카드를 누르면 <b>앞(대표 문항) ↔ 뒤(모범 문장·키워드·감점 포인트)</b>가 바뀐다. 노란 표시가 <b>채점 키워드</b>. 뒷면을 보지 않고 앞면 문항에 답을 말해 본 뒤 뒤집어 확인하기.</div>
+  <div id="cards"></div>
+  <div class="box"><b>손글씨 기호</b> H⁺ / OH⁻ / H₂O(2는 작게 아래) / NaCl / Ca(OH)₂ / 화살표 → (등호 =가 아님)</div>
+</section>
+
+<!-- ============ 실험실 ============ -->
+<section class="page" data-p="lab">
+  <h2>🧪 실험실 — 직접 넣어 보며 이해하기</h2>
+  <div class="row">
+    <button class="btn primary" id="modeA">적정형 (염산에 NaOH를 조금씩)</button>
+    <button class="btn" id="modeB">총 부피 고정형 (A~E 시험관)</button>
+  </div>
+  <div class="box" id="labA">
+    <div class="row">
+      <label>묽은 염산 <select id="acidVol"><option value="20">20 mL</option><option value="30">30 mL</option><option value="10">10 mL</option></select></label>
+      <label>지시약 <select id="indA"><option value="pp">페놀프탈레인</option><option value="btb">BTB</option></select></label>
+    </div>
+    <div>수산화 나트륨 수용액 넣은 양: <b id="naohVal">0 mL</b></div>
+    <input type="range" id="naoh" min="0" max="40" step="2" value="0">
+  </div>
+  <div class="box hidden" id="labB">
+    <div class="row"><label>지시약 <select id="indB"><option value="btb">BTB</option><option value="pp">페놀프탈레인</option></select></label> <span class="mute">총 부피 20 mL 고정 (학습지 A~E)</span></div>
+    <div>묽은 염산 <b id="hclVal">10 mL</b> + 수산화 나트륨 수용액 <b id="naohBVal">10 mL</b></div>
+    <input type="range" id="hclB" min="0" max="20" step="2" value="10">
+    <div class="row">
+      <button class="btn sm" data-h="6">A (6+14)</button><button class="btn sm" data-h="8">B (8+12)</button><button class="btn sm" data-h="10">C (10+10)</button><button class="btn sm" data-h="12">D (12+8)</button><button class="btn sm" data-h="14">E (14+6)</button>
+    </div>
+  </div>
+  <div class="lab-grid">
+    <div class="box">
+      <svg id="beaker" viewBox="0 0 200 180" width="100%" style="max-width:220px;display:block;margin:0 auto" aria-label="비커">
+        <path d="M50 20 L50 150 Q50 165 65 165 L135 165 Q150 165 150 150 L150 20" fill="none" stroke="#9ca3af" stroke-width="3"/>
+        <rect id="liquid" x="52" y="90" width="96" height="73" rx="8" fill="#f3f4f6"/>
+        <text id="liqLabel" x="100" y="130" text-anchor="middle" font-size="13" fill="#374151">무색</text>
+        <text x="100" y="14" text-anchor="middle" font-size="11" fill="#6b7280">혼합 용액</text>
+      </svg>
+      <div class="readout">
+        <div class="r"><b id="rAcid">산성</b><span>액성</span></div>
+        <div class="r"><b id="rLeft">H⁺ 10</b><span>남은 이온</span></div>
+        <div class="r"><b id="rTemp">20.0 ℃</b><span>온도</span></div>
+        <div class="r"><b id="rWater">0</b><span>물 분자(단위)</span></div>
+        <div class="r"><b id="rTotal">20</b><span>총 이온 수</span></div>
+        <div class="r"><b id="rVol">20 mL</b><span>전체 부피</span></div>
+      </div>
+    </div>
+    <div class="box">
+      <div><b>이온 수</b> <span class="mute">(2 mL = 1단위)</span></div>
+      <div class="ionbar"><span>H⁺</span><div class="bar"><div id="bH" style="background:#ef4444"></div></div><span id="nH">10</span></div>
+      <div class="ionbar"><span>Cl⁻</span><div class="bar"><div id="bCl" style="background:#84cc16"></div></div><span id="nCl">10</span></div>
+      <div class="ionbar"><span>Na⁺</span><div class="bar"><div id="bNa" style="background:#f59e0b"></div></div><span id="nNa">0</span></div>
+      <div class="ionbar"><span>OH⁻</span><div class="bar"><div id="bOH" style="background:#3b82f6"></div></div><span id="nOH">0</span></div>
+      <div style="margin-top:10px"><b>온도 그래프</b></div>
+      <svg id="tgraph" viewBox="0 0 320 150" width="100%" aria-label="온도 그래프"></svg>
+    </div>
+  </div>
+  <div class="box" id="labExplain"></div>
+  <div class="note" id="labNoteA"><b>여기서 볼 것:</b> ① H⁺가 0이 되는 순간 = 온도 최고 = 중화점 ② Cl⁻은 안 변한다(구경꾼) ③ 중화점 전엔 총 이온 수가 그대로(H⁺ 하나 빠지면 Na⁺ 하나 들어옴) ④ 중화점 뒤엔 물이 더 안 생기고, 온도 낮은 용액이 더해져 온도가 내려간다 ⑤ 지시약을 바꿔 보면 색은 달라도 액성은 같다.</div>
+  <div class="note hidden" id="labNoteB"><b>여기서 볼 것:</b> ① 총 부피가 같으니 "반응한 양 = 작은 쪽"이 온도를 정한다 ② C(10:10)에서 반응량 최대 → 온도 최고 = 중화점 ③ A·E는 6 mL만 반응하고 남는 8 mL는 열을 안 낸다(희석 때문이 아니다) ④ 색은 남은 이온이 정한다: A·B 파랑(OH⁻ 남음) / C 초록 / D·E 노랑(H⁺ 남음).</div>
+</section>
+
+<!-- ============ 드릴 ============ -->
+<section class="page" data-p="drill">
+  <h2>⚡ 이온 드릴 — 남은 이온을 숫자로</h2>
+  <div class="note"><b>계산 절차 한 줄:</b> 같은 농도 → 부피 = 이온 수(HCl·NaOH·KOH처럼 이온을 하나씩 내놓을 때. 황산·수산화 칼슘은 2배). <b>남은 이온 = 큰 쪽 − 작은 쪽</b>. 남은 게 H⁺면 산성 / 없으면 중성 / OH⁻면 염기성. <b>반응한 양 = 작은 쪽</b> = 물의 양 ∝ 중화열.</div>
+  <div class="row"><button class="btn primary" id="drillStart">랜덤 10문 시작</button><span class="mute" id="drillStat"></span></div>
+  <div id="drillArea"></div>
+  <h3>고정 10문 (프린트 팩과 같음)</h3>
+  <div id="drill10"></div>
+</section>
+
+<!-- ============ 지시약 ============ -->
+<section class="page" data-p="ind">
+  <h2>🎨 지시약</h2>
+  <div class="tblwrap"><table id="indTable"></table></div>
+  <div class="note">외우는 요령: <b>페놀프탈레인은 염기성에서만 붉다</b>(나머지 무색) · <b>BTB는 노랑 → 초록 → 파랑</b> · <b>리트머스는 "산 = 빨강"</b>(산성: 푸른 → 붉은). 답안에는 <b>지시약 이름을 먼저</b> 쓰고 색을 쓴다. 수업은 BTB, 교과서 그림은 페놀프탈레인.</div>
+  <div class="row"><button class="btn primary" id="indStart">지시약 퀴즈 10문</button><span class="mute" id="indStat"></span></div>
+  <div id="indArea"></div>
+</section>
+
+<!-- ============ 모의 ============ -->
+<section class="page" data-p="mock">
+  <h2>✍️ 실전 모의 3회 (각 20점 · 20분)</h2>
+  <div class="note">순서: ① 회차 고르기 → ② 타이머 시작 → ③ <b>종이에 손으로</b> 9문항 쓰기 → ④ 문항마다 [모범답안]을 열고 <b>내 답에 있었던 키워드</b>에 체크 → ⑤ 점수 확인 → 부족한 항목은 카드로.</div>
+  <div class="row">
+    <button class="btn primary" data-m="0">1회 적정 표형</button>
+    <button class="btn" data-m="1">2회 총 부피 고정형</button>
+    <button class="btn" data-m="2">3회 부피 조합 그래프형</button>
+  </div>
+  <div class="row"><span class="timer" id="timer">20:00</span><button class="btn sm" id="tStart">▶ 시작</button><button class="btn sm" id="tPause">⏸</button><button class="btn sm" id="tReset">↺</button></div>
+  <div id="mockHist" class="mute"></div>
+  <div id="mockArea"></div>
+</section>
+
+<!-- ============ 생활 ============ -->
+<section class="page" data-p="life">
+  <h2>🌱 생활 속 중화 반응 (⑤⑥⑦ 한 번에)</h2>
+  <div class="note">문장 틀: <b>사례</b> = 상황 + 무엇을 넣어 + 중화 / <b>구분</b> = 산성 물질·염기성 물질 짝 / <b>까닭</b> = 원인 → 반대 성질 → 중화 → 효과</div>
+  <div class="tblwrap"><table id="lifeTable"></table></div>
+  <div class="warn">⚠️ 중화가 <b>아닌</b> 것(함정): 하수구 세정제로 머리카락 녹이기(염기가 단백질을 녹임) · 철광석 + 코크스 제련(산화·환원) · 도시가스 연소.</div>
+  <div class="row"><button class="btn primary" id="lifeStart">사례 퀴즈 10문</button><span class="mute" id="lifeStat"></span></div>
+  <div id="lifeArea"></div>
+</section>
+
+<!-- ============ 점검 ============ -->
+<section class="page" data-p="check">
+  <h2>✅ 시험 전날 점검</h2>
+  <div class="box">
+    <h3 style="margin-top:0">반응식 빈칸 쓰기</h3>
+    <div class="eq" style="font-size:16px;line-height:2.2">
+      <div>HCl + <input type="text" id="e1a" placeholder="?"> → <input type="text" id="e1b" placeholder="?"> + H₂O</div>
+      <div>H⁺ + <input type="text" id="e2a" placeholder="?"> → <input type="text" id="e2b" placeholder="?"></div>
+      <div>HCl + KOH → <input type="text" id="e3a" placeholder="?"> + <input type="text" id="e3b" placeholder="?"></div>
+    </div>
+    <div class="row"><button class="btn primary" id="eqCheck">채점</button><span id="eqMsg"></span></div>
+    <div class="mute">입력은 NaOH, NaCl, OH-, H2O, KCl 처럼 써도 된다(첨자·전하 표기 없이 채점). 실제 시험지에는 <b>H⁺ OH⁻ H₂O</b>로 또렷하게.</div>
+  </div>
+  <div class="box">
+    <h3 style="margin-top:0">9항목 자기 점검 <span class="mute" id="checkProg"></span></h3>
+    <div id="checklist"></div>
+  </div>
+  <div class="box">
+    <h3 style="margin-top:0">시험장 요령</h3>
+    <ul>
+      <li>문제를 읽으면 먼저 <b>어느 체크리스트 항목인지</b> 번호를 붙인다. 그 항목의 키워드를 반드시 넣는다.</li>
+      <li>모든 답은 <b>결론 + 근거</b>. "~이다. 왜냐하면 ~이기 때문이다."</li>
+      <li>표·그래프 문제는 <b>숫자를 답에 인용</b>한다(예: "온도가 24.0 ℃로 가장 높은 20 mL").</li>
+      <li>부피를 물으면 <b>넣은 부피와 전체 부피 둘 다</b>, 단위 mL까지.</li>
+      <li>지시약은 <b>이름을 먼저</b> 쓰고 색을 쓴다.</li>
+      <li>반응식은 <b>전하(⁺ ⁻)와 아래 첨자(₂)</b>를 또렷하게. 화살표는 →.</li>
+      <li>흑색 펜·샤프만. 평가지 밖에 쓰지 않는다. 또박또박.</li>
+    </ul>
+  </div>
+</section>
+</main>
+<footer>정본: 교과서 42~49쪽 · 학습지 12~15쪽 · 완자 72~76쪽 | 데이터는 이 폰 안에만 저장된다</footer>
+
+<script>
+/* ===================== 데이터 (10_prep 정본에서 옮김) ===================== */
+var LS='sci2perf_';
+function lsGet(k,d){try{var v=localStorage.getItem(LS+k);return v?JSON.parse(v):d;}catch(e){return d;}}
+function lsSet(k,v){try{localStorage.setItem(LS+k,JSON.stringify(v));}catch(e){}}
+
+var CARDS=[
+ {n:1,title:'중화점에서 용액의 부피',
+  front:'묽은 염산 20 mL에 같은 농도의 NaOH를 4 mL씩 넣으며 온도를 쟀다. 중화점은 NaOH 몇 mL를 넣었을 때인가? 근거는? 그때 혼합 용액의 전체 부피는?',
+  back:'같은 농도의 묽은 염산과 수산화 나트륨 수용액은 <mark>같은 부피에 같은 수의 H⁺과 OH⁻</mark>이 들어 있고 <mark>1:1</mark>로 반응한다. 따라서 염산 20 mL의 중화점은 NaOH 수용액 <mark>20 mL</mark>를 넣었을 때이고, 혼합 용액의 전체 부피는 20 + 20 = <mark>40 mL</mark>이다. 표·그래프에서는 <mark>온도가 가장 높은 지점</mark>이 중화점이다.',
+  keys:['같은 농도 → 같은 부피(1:1)','온도가 가장 높은 지점','넣은 부피','전체 부피 = 합','단위 mL'],
+  minus:'넣은 부피만 쓰고 전체 부피(합)를 안 씀 · "같은 농도" 조건 누락 · 단위 누락. → 넣은 부피와 전체 부피 둘 다 쓴다. 수업 실측 표(최고 12 mL)가 나오면 농도가 달랐다는 뜻이니 온도 최고점 근거만 쓴다.'},
+ {n:2,title:'혼합 용액의 액성',
+  front:'염산 20 mL에 NaOH를 12 mL / 20 mL / 28 mL 넣었을 때 각각의 액성과 그 까닭은?',
+  back:'액성은 반응하고 <mark>남아 있는 이온</mark>으로 정한다. 12 mL → <mark>H⁺이 남으므로 산성</mark>(20−12 = 8 mL분). 20 mL → <mark>모두 반응하여 중성</mark>. 28 mL → <mark>OH⁻이 남으므로 염기성</mark>(28−20 = 8 mL분).',
+  keys:['남아 있는 이온','H⁺ 남음 → 산성','모두 반응 → 중성','OH⁻ 남음 → 염기성','남은 양 = 큰 쪽 − 작은 쪽'],
+  minus:'"산성이다"만 쓰고 근거 없음 · 부피 비교 없이 감으로 판단 · Na⁺·Cl⁻(구경꾼)을 근거로 씀. → 남은 이온 수를 숫자로 적는다.'},
+ {n:3,title:'열 출입 형태',
+  front:'중화 반응은 열을 방출하는 반응인가, 흡수하는 반응인가?',
+  back:'중화 반응은 <mark>중화열</mark>이 발생하는 <mark>발열 반응</mark>이다(열을 <mark>방출</mark>한다).',
+  keys:['발열 반응','중화열','방출'],
+  minus:'"온도가 올라간다"만 쓰고 발열 반응·중화열 용어를 안 씀.'},
+ {n:4,title:'열 출입을 판단한 근거',
+  front:'온도 변화 자료를 근거로 중화 반응이 발열 반응임을 서술하고, 중화점 이후 온도가 낮아지는 까닭도 쓰시오.',
+  back:'NaOH를 넣을수록 혼합 용액의 <mark>온도가 처음보다 높아져 중화점에서 가장 높았다</mark>. H⁺과 OH⁻이 반응해 물이 생성될 때 <mark>중화열이 발생</mark>하고, <mark>반응하는 이온 수가 많을수록 중화열이 더 많이 발생</mark>하기 때문이다. 중화점 이후에는 H⁺이 없어 <mark>중화 반응이 일어나지 않아 중화열이 발생하지 않고</mark>, <mark>혼합 용액보다 온도가 낮은(처음 온도의) NaOH 수용액이 더해지므로</mark> 온도가 낮아진다.<br><b>유형 주의:</b> "낮은 용액 추가"는 한 비커에 계속 넣는 적정형에서만. A~E 고정형·(가)~(라) 조합형은 "반응한 이온 수가 많을수록 중화열이 많다(남는 용액은 열을 안 낸다)" 한 축으로.',
+  keys:['온도가 처음보다 상승(자료)','중화점에서 최고','중화열 발생','이온 수 많을수록 많이 발생','(적정형) 이후: 반응 없음 + 온도 낮은 용액 추가','(고정·조합형) 남는 용액은 열을 안 냄'],
+  minus:'"온도가 올랐으니까"로 끝냄 · 하강 이유에서 "온도 낮은 용액 추가"를 빠뜨림 · 근거 없이 결론만.'},
+ {n:5,title:'생활 속 중화 반응 사례',
+  front:'생활 속에서 중화 반응을 이용하는 사례를 두 가지 문장으로 쓰시오.',
+  back:'문장 틀 = <b>상황 + 무엇을 넣어 + 중화</b>.<br>① <mark>위산 과다</mark>로 속이 쓰릴 때 약한 염기성 물질이 든 <mark>제산제</mark>를 먹어 위산을 <mark>중화</mark>한다.<br>② 입안 세균이 만든 <mark>산성 물질</mark>이 충치를 일으키므로 염기성 물질이 든 <mark>치약</mark>으로 닦아 중화한다.<br>③ 생선의 <mark>비린내(염기성)</mark>를 <mark>산성인 레몬즙</mark>으로 중화한다.<br>④ <mark>산성화된 토양·호수</mark>에 <mark>염기성 석회 가루</mark>를 뿌린다.<br>⑤ 배기가스의 <mark>황산화물</mark>을 <mark>산화 칼슘</mark>과 반응시켜 제거한다.<br>⑥ 벌에 쏘이면 <mark>암모니아수</mark> 약을 바른다. ⑦ 묵은 김치의 <mark>신맛</mark>을 <mark>제빵 소다</mark>로 줄인다.',
+  keys:['사례 이름','상황(문제)','넣는 물질','"중화"라는 단어'],
+  minus:'"제산제"처럼 단어만 씀 · 중화가 아닌 사례(하수구 세정제, 철 제련, 연소).'},
+ {n:6,title:'사례에서 산성·염기성 물질 구분',
+  front:'제산제 사례와 생선 사례에서 산성 물질과 염기성 물질을 각각 쓰시오.',
+  back:'제산제 — 산성: <mark>위산(염산)</mark>, 염기성: <mark>제산제(수산화 마그네슘 등)</mark>.<br>생선 — 산성: <mark>레몬즙(시트르산)</mark>, 염기성: <mark>비린내 물질</mark>.<br>벌 — 산성: <mark>벌침 독</mark>, 염기성: <mark>암모니아수</mark>. 변기 — 산성: <mark>구연산·산성 세제</mark>, 염기성: <mark>변기 때</mark>. 토양 — 산성: <mark>산성 물질</mark>, 염기성: <mark>석회 가루</mark>. 배기가스 — 산성: <mark>황산화물</mark>, 염기성: <mark>산화 칼슘</mark>.',
+  keys:['산성 물질 = ○○','염기성 물질 = ○○','둘이 짝으로'],
+  minus:'한쪽만 씀 · 방향 뒤바뀜(생선·벌·변기에서 자주). 항상 짝으로.'},
+ {n:7,title:'중화 반응을 이용하는 까닭',
+  front:'제산제 사례에서 중화 반응을 이용하는 까닭을 서술하시오.',
+  back:'문장 틀 = <b>원인 → 반대 성질 → 중화 → 효과</b>.<br><mark>산성(염기성) 물질이 문제를 일으키므로</mark>, <mark>반대 성질의 물질</mark>을 넣어 <mark>중화 반응으로 그 성질을 없애거나 약하게</mark> 하기 위해서이다. 예: 위산이 과다하면 속이 쓰리고 식도가 손상되므로 염기성 제산제로 위산을 중화해 <mark>통증을 완화</mark>한다.',
+  keys:['문제의 원인(산성/염기성)','반대 성질의 물질','중화','효과(없앤다·약하게·완화)'],
+  minus:'상황만 쓰고 왜 중화가 해결인지 없음 · "중화하기 위해서"만 되풀이.'},
+ {n:8,title:'지시약의 특징과 액성 구분',
+  front:'페놀프탈레인(또는 BTB)의 색 변화를 쓰고, 색 변화로 액성을 구분하는 방법을 서술하시오.',
+  back:'지시약은 <mark>액성에 따라 색이 변하는 물질</mark>이다. <mark>페놀프탈레인</mark>은 <mark>산성·중성 무색, 염기성 붉은색</mark> → 염산에 넣고 NaOH를 가하면 중화점까지 무색이다가 염기성이 되면 붉은색. <mark>BTB</mark>는 <mark>산성 노란색·중성 초록색·염기성 파란색</mark> → 초록색이 되는 지점이 중화점. 리트머스: 산성 푸른→붉은, 염기성 붉은→푸른.',
+  keys:['액성에 따라 색이 변하는 물질','지시약 이름 명시','페놀프탈레인: 산·중 무색 / 염기 붉은색','BTB: 노랑·초록·파랑','색이 변하는 지점 = 중화점'],
+  minus:'지시약 이름 없이 색만 · 페놀프탈레인 중성을 붉은색이라 씀 · BTB와 페놀프탈레인 색을 섞음. 수업은 BTB, 교과서는 페놀프탈레인 → 이름을 밝힌다.'},
+ {n:9,title:'중화 반응의 반응식',
+  front:'묽은 염산과 수산화 나트륨 수용액의 중화 반응을 화학 반응식과 알짜 이온 반응식으로 쓰시오.',
+  back:'화학 반응식 <mark>HCl + NaOH → NaCl + H₂O</mark> (산 + 염기 → <mark>염</mark> + 물).<br>이온으로: H⁺ + Cl⁻ + Na⁺ + OH⁻ → H₂O + Na⁺ + Cl⁻.<br>알짜 이온 반응식 <mark>H⁺ + OH⁻ → H₂O</mark> (1:1).<br>수산화 칼륨이면 HCl + KOH → KCl + H₂O. 심화: 2HCl + Ca(OH)₂ → CaCl₂ + 2H₂O.',
+  keys:['반응물 HCl, NaOH','생성물 NaCl(염) + H₂O','H⁺ + OH⁻ → H₂O','전하·첨자 표기'],
+  minus:'전하(⁺ ⁻) 누락 · 염(NaCl) 누락 · H2O처럼 첨자를 크게 · 화살표 대신 등호.'}
+];
+
+var PLAN=[
+ '9/13 (일) 40분 — 📋질문에 답하기 → 🃏카드 9장 → ⚡이온 드릴 1세트',
+ '9/14 (월) 35분 — ✍️모의 1회 종이에 → 자가 채점 → 부족 카드 → 🧪실험실 5분',
+ '9/15 (화) 35분 — ✍️모의 2회 → 🎨지시약 퀴즈 → 🌱사례 퀴즈',
+ '9/16 (수) 35분 — ✍️모의 3회 → ✅전날 점검(반응식 빈칸)',
+ '9/17 (목) 5분 — 등교 전 🃏카드만'
+];
+
+var QA=[
+ {h:'Q1. 교과서 45쪽 디지털 온도계 실험 — 실제 수업 조건',
+  d:'교과서엔 "염산 20 mL + NaOH 4 mL씩"인데 네 표에서는 온도가 12 mL에서 가장 높았어(20.7 → 21.2 → 20.9). 44쪽에 "30mL"라고 써 놓았더라.',
+  q:['(1) 비커에 넣은 묽은 염산은 몇 mL였어? (20? 30?)','(2) 염산과 NaOH 수용액의 농도가 같다고 했어, 달랐어?','(3) NaOH를 몇 mL씩 넣었어?','(4) 지시약은 페놀프탈레인? BTB? 색이 몇 mL에서 바뀌었어?','(5) 선생님이 "중화점은 ○ mL"라고 정리해 준 값이 있어?']},
+ {h:'Q2. 선생님이 흘린 시험 형식 힌트',d:'',
+  q:['(1) 문제가 몇 개 정도? 큰 문제 하나에 소문항 여러 개?','(2) 표나 그래프를 주고 읽게 한다고 했어?','(3) 반응식을 쓰라고 할 거라고 했어?','(4) 지시약은 수업에서 BTB로 배운 게 맞아? 시험에도 BTB?','(5) 학습지 12~15쪽 말고 다른 프린트를 더 받았어? (받았으면 사진)']},
+ {h:'Q3. 채점 방식',d:'',
+  q:['(1) 9개 항목의 점수 배분을 알려 줬어?','(2) "최하점수 7점"은 무슨 뜻이라고 했어?']},
+ {h:'Q4. 앱을 써 보고 나서',d:'',
+  q:['(1) 이해가 안 되거나 틀린 것 같은 곳? (탭 + 내용)','(2) 불편한 기능 / 있으면 좋겠는 기능?','(3) 모의 자가채점 점수: 1회 / 2회 / 3회']},
+ {h:'Q5. 9개 항목 중 아직 자신 없는 번호는?',d:'',q:['번호와 이유']}
+];
+
+var IND=[
+ {n:'리트머스 종이',a:'푸른색 → 붉은색',m:'변화 없음',b:'붉은색 → 푸른색',ca:'#ef4444',cm:'#e5e7eb',cb:'#3b82f6'},
+ {n:'페놀프탈레인',a:'무색',m:'무색',b:'붉은색',ca:'#f9fafb',cm:'#f9fafb',cb:'#ec4899'},
+ {n:'BTB',a:'노란색',m:'초록색',b:'파란색',ca:'#facc15',cm:'#22c55e',cb:'#3b82f6'},
+ {n:'메틸 오렌지',a:'붉은색',m:'노란색',b:'노란색',ca:'#ef4444',cm:'#facc15',cb:'#facc15'}
+];
+
+var CASES=[
+ {c:'제산제 복용',a:'위산(염산)',b:'제산제(수산화 마그네슘 등)',w:'위산 과다 → 속쓰림·식도 손상 → 위산을 중화해 통증 완화',f:'건강'},
+ {c:'치약으로 양치',a:'세균이 만든 산성 물질',b:'치약 속 염기성 물질',w:'산성 물질이 충치 원인 → 중화해 충치 예방',f:'건강'},
+ {c:'생선에 레몬즙',a:'레몬즙(시트르산)',b:'비린내를 내는 물질',w:'비린내 물질(염기성)을 중화해 냄새 제거',f:'생활'},
+ {c:'생선 손질 후 도마를 식초로',a:'식초(아세트산)',b:'비린내를 내는 물질',w:'레몬과 같은 원리',f:'생활'},
+ {c:'산성 토양·호수에 석회 가루',a:'산성비·비료로 생긴 산성 물질',b:'석회 가루',w:'산성화되면 생물이 잘 못 자람 → 중화해 회복',f:'환경'},
+ {c:'공장 배기가스 처리',a:'황산화물(이산화 황)',b:'산화 칼슘',w:'황산화물이 산성비 원인 → 배출 전 중화해 제거',f:'환경·산업'},
+ {c:'벌에 쏘였을 때 암모니아수',a:'벌침의 독(산성)',b:'암모니아수',w:'산성 독을 중화해 통증 완화',f:'건강'},
+ {c:'묵은 김치에 제빵 소다',a:'김치의 신맛(산성 물질)',b:'제빵 소다(탄산수소 나트륨)',w:'신맛(산성)을 중화해 줄임',f:'생활'},
+ {c:'변기 청소',a:'구연산·산성 세제',b:'변기 때(염기성)',w:'염기성 때를 중화해 제거',f:'생활'},
+ {c:'옛 책(산성 종이) 보존',a:'산성 종이',b:'염기성 약품',w:'누렇게 변하고 손상 → 중화해 수명 연장',f:'산업·문화'}
+];
+
+var DRILL10=[
+ ['염산 20 mL + NaOH 12 mL. 남은 이온과 액성은?','H⁺ 8 mL분 남음, 산성 · 20−12 = 8'],
+ ['염산 20 mL + NaOH 20 mL. 액성은?','중성 · 모두 반응'],
+ ['염산 20 mL + NaOH 28 mL. 남은 이온과 액성은?','OH⁻ 8 mL분 남음, 염기성 · 28−20 = 8'],
+ ['염산 20 mL + NaOH 12 mL를 중화점까지 만들려면 무엇을 몇 mL 더?','NaOH 8 mL · 부족한 쪽 = NaOH'],
+ ['염산 10 mL + NaOH 50 mL. 액성과 혼합 용액 전체 부피는?','염기성, 60 mL · 50−10 = 40 OH⁻ 남음, 10+50'],
+ ['(가) 염산 20 + NaOH 40, (나) 염산 30 + NaOH 30. 생성된 물이 더 많은 것은?','(나) · 반응량 = 작은 쪽: 20 vs 30'],
+ ['(가) 염산 40 + NaOH 20의 남은 H⁺ 수와 (다) 염산 20 + NaOH 40의 남은 OH⁻ 수를 비교하면?','같다 · 40−20 = 20, 40−20 = 20 (문제집 14번 ㄷ)'],
+ ['염산 20 mL(H⁺ 2N, Cl⁻ 2N)에 NaOH 10 mL(Na⁺ N, OH⁻ N). 이온 종류·수와 총 이온 수는?','H⁺ N, Cl⁻ 2N, Na⁺ N, OH⁻ 0 · 총 4N(변화 없음)'],
+ ['8번 용액에 NaOH 10 mL 더 넣어 중화점, 다시 10 mL 더. 총 이온 수는?','중화점까지 4N 그대로 → 이후 6N으로 증가'],
+ ['(가) 20+40, (나) 30+30, (다) 40+20, (라) 50+10 (염산+NaOH). 최고 온도 높은 순서는?','(나) &gt; (가) = (다) &gt; (라) · 반응량 30 &gt; 20 = 20 &gt; 10']
+];
+
+/* 모의 3회 — 02_mock_bank.md */
+var LIFE_Q=[ // 공통 5·6·7 소문항 (회차마다 요구 분야만 다름)
+ {q:'우리 생활에서 중화 반응을 이용하는 사례를 두 가지 문장으로 쓰시오.',pt:2,item:5,
+  ans:'(예) ① 위산이 과다하게 분비되어 속이 쓰릴 때 약한 염기성 물질이 든 <mark>제산제</mark>를 먹어 위산을 중화한다. ② 생선의 <mark>비린내</mark>를 없애려고 산성인 <mark>레몬즙</mark>을 뿌려 중화한다.',
+  keys:['사례 1 문장(상황+넣는 것+중화)','사례 2 문장','둘 다 실제 중화 사례']},
+ {q:'위 각 사례에서 산성 물질과 염기성 물질을 구분하여 쓰시오.',pt:2,item:6,
+  ans:'(예) 제산제 — 산성: <mark>위산(염산)</mark>, 염기성: <mark>제산제(수산화 마그네슘 등)</mark>. 생선 — 산성: <mark>레몬즙(시트르산)</mark>, 염기성: <mark>비린내를 내는 물질</mark>.',
+  keys:['사례 1 산·염기 짝','사례 2 산·염기 짝','방향이 뒤바뀌지 않음']},
+ {q:'위 사례 중 하나를 골라, 중화 반응을 이용하는 까닭을 서술하시오.',pt:2,item:7,
+  ans:'(예) 위산이 과다하면 <mark>속이 쓰리고 식도가 손상</mark>될 수 있으므로, <mark>반대 성질인 염기성</mark> 제산제를 먹어 <mark>위산을 중화</mark>하여 <mark>통증을 완화</mark>하기 위해서이다.',
+  keys:['문제의 원인(산성 물질)','반대 성질의 물질','중화','효과']}
+];
+var MOCKS=[
+ {title:'모의 1회 — 적정 표형 (교과서 45쪽 실험)',
+  scen:'<b>상황</b> 같은 농도의 묽은 염산 20 mL를 비커에 넣고 <b>페놀프탈레인 용액</b>을 2~3방울 떨어뜨렸다. 여기에 같은 농도의 수산화 나트륨 수용액을 4 mL씩 넣으면서 혼합 용액의 온도와 색을 기록하였다. (혼합 전 두 용액의 온도는 같다.)'+
+   '<div class="tblwrap"><table><tr><th>NaOH 수용액(mL)</th><td class="c">0</td><td class="c">4</td><td class="c">8</td><td class="c">12</td><td class="c">16</td><td class="c">20</td><td class="c">24</td><td class="c">28</td></tr>'+
+   '<tr><th>온도(℃)</th><td class="c">20.0</td><td class="c">20.8</td><td class="c">21.6</td><td class="c">22.4</td><td class="c">23.2</td><td class="c">24.0</td><td class="c">23.5</td><td class="c">23.0</td></tr>'+
+   '<tr><th>색</th><td class="c">무색</td><td class="c">무색</td><td class="c">무색</td><td class="c">무색</td><td class="c">무색</td><td class="c">무색</td><td class="c">붉은색</td><td class="c">붉은색</td></tr></table></div>',
+  items:[
+   {q:'중화점은 수산화 나트륨 수용액을 몇 mL 넣었을 때인가? 그렇게 판단한 근거를 쓰고, 그때 혼합 용액의 전체 부피를 구하시오.',pt:3,item:1,
+    ans:'온도가 <mark>가장 높은 24.0 ℃</mark>가 된 <mark>20 mL</mark>를 넣었을 때가 중화점이다. 같은 농도이므로 <mark>같은 부피(20 mL)</mark>에 같은 수의 H⁺과 OH⁻이 있어 1:1로 모두 반응하기 때문이다. 혼합 용액의 전체 부피는 <mark>20 + 20 = 40 mL</mark>.',
+    keys:['온도 최고점 근거','20 mL','같은 농도 → 같은 부피 1:1','전체 부피 40 mL(합산식)','단위 mL']},
+   {q:'수산화 나트륨 수용액을 12 mL, 20 mL, 28 mL 넣었을 때 혼합 용액의 액성을 각각 쓰고, 그 까닭을 남아 있는 이온으로 설명하시오.',pt:3,item:2,
+    ans:'12 mL: H⁺이 OH⁻보다 많아 <mark>H⁺이 남으므로(20−12 = 8 mL분) 산성</mark>. 20 mL: H⁺과 OH⁻이 <mark>모두 반응하여 중성</mark>. 28 mL: <mark>OH⁻이 남으므로(28−20 = 8 mL분) 염기성</mark>.',
+    keys:['12 mL 산성 + H⁺ 남음','20 mL 중성 + 모두 반응','28 mL 염기성 + OH⁻ 남음','"남아 있는 이온"으로 판단','남은 양 수치']},
+   {q:'이 중화 반응의 열 출입 형태를 쓰시오.',pt:1,item:3,
+    ans:'<mark>중화열</mark>이 발생하는 <mark>발열 반응</mark>이다.',keys:['발열 반응','중화열(또는 열을 방출)']},
+   {q:'앞 문항과 같이 판단한 근거를 표의 온도 변화를 이용하여 서술하시오. 중화점 이후 온도가 낮아지는 까닭도 포함하시오.',pt:3,item:4,
+    ans:'NaOH를 넣을수록 온도가 <mark>20.0 ℃에서 24.0 ℃까지 높아져 중화점에서 가장 높았다</mark>. H⁺과 OH⁻이 반응해 물이 생성될 때 <mark>중화열이 발생</mark>하고, <mark>반응하는 이온 수가 많을수록 중화열이 더 많이 발생</mark>하기 때문이다. 중화점 이후에는 H⁺이 없어 <mark>중화 반응이 일어나지 않아 중화열이 발생하지 않고</mark>, <mark>혼합 용액보다 온도가 낮은(처음 온도 20.0 ℃의) NaOH 수용액이 더해지므로</mark> 온도가 낮아진다.',
+    keys:['온도 상승 자료 인용','중화점에서 최고','중화열 발생','이온 수 많을수록 많이 발생','이후: 반응 없음','이후: 온도 낮은 용액 추가']},
+   {q:'이 실험에서 지시약의 특징과 색 변화를 쓰고, 색 변화로 혼합 용액의 액성을 구분하는 방법을 서술하시오.',pt:2,item:8,
+    ans:'지시약은 <mark>액성에 따라 색이 변하는 물질</mark>이다. <mark>페놀프탈레인</mark>은 <mark>산성·중성에서 무색, 염기성에서 붉은색</mark>이다. H⁺이 모두 반응하기 전까지(0~20 mL)는 산성·중성이라 <mark>무색</mark>이고, 중화점을 지나 OH⁻이 남는 24 mL부터 <mark>붉은색</mark>이 된다. 무색이면 산성 또는 중성, 붉은색이면 염기성으로 구분한다.',
+    keys:['지시약 정의','페놀프탈레인 이름','산·중 무색 / 염기 붉은색','색이 변하는 지점(중화점 통과)','색 → 액성 구분 서술']},
+   {q:'이 실험에서 일어난 중화 반응을 화학 반응식으로 쓰고, 알짜 이온 반응식도 쓰시오.',pt:2,item:9,
+    ans:'<mark>HCl + NaOH → NaCl + H₂O</mark>, 알짜 이온 반응식 <mark>H⁺ + OH⁻ → H₂O</mark>.',
+    keys:['반응물 HCl, NaOH','생성물 NaCl + H₂O','H⁺ + OH⁻ → H₂O','전하·첨자 정확']},
+   LIFE_Q[0],LIFE_Q[1],LIFE_Q[2]
+  ]},
+ {title:'모의 2회 — 총 부피 고정형 (학습지 14쪽 A~E)',
+  scen:'<b>상황</b> 같은 온도·같은 농도의 묽은 염산과 수산화 나트륨 수용액을 표와 같이 섞어 총 부피를 20 mL로 같게 한 뒤, <b>BTB 용액</b>을 1~2방울 넣고 혼합 용액의 최고 온도와 색을 기록하였다. (혼합 전 두 용액의 온도는 모두 20.0 ℃이다.)'+
+   '<div class="tblwrap"><table><tr><th>시험관</th><th class="c">A</th><th class="c">B</th><th class="c">C</th><th class="c">D</th><th class="c">E</th></tr>'+
+   '<tr><th>묽은 염산(mL)</th><td class="c">6</td><td class="c">8</td><td class="c">10</td><td class="c">12</td><td class="c">14</td></tr>'+
+   '<tr><th>NaOH 수용액(mL)</th><td class="c">14</td><td class="c">12</td><td class="c">10</td><td class="c">8</td><td class="c">6</td></tr>'+
+   '<tr><th>최고 온도(℃)</th><td class="c">22.4</td><td class="c">23.2</td><td class="c">24.0</td><td class="c">23.2</td><td class="c">22.4</td></tr>'+
+   '<tr><th>색</th><td class="c">파란색</td><td class="c">파란색</td><td class="c">초록색</td><td class="c">노란색</td><td class="c">노란색</td></tr></table></div>',
+  items:[
+   {q:'완전히 중화된 시험관은 어느 것인가? 근거를 쓰고, 그 시험관에서 반응한 염산과 수산화 나트륨 수용액의 부피, 혼합 용액의 전체 부피를 쓰시오.',pt:3,item:1,
+    ans:'<mark>C</mark>. 같은 농도이므로 <mark>염산과 NaOH 수용액의 부피가 같은(10 mL : 10 mL)</mark> C에서 H⁺과 OH⁻이 1:1로 모두 반응한다. 온도도 C에서 <mark>가장 높고(24.0 ℃)</mark> BTB가 <mark>초록색(중성)</mark>이다. 반응한 부피는 각각 <mark>10 mL</mark>, 전체 부피는 10 + 10 = <mark>20 mL</mark>.',
+    keys:['C','같은 농도 → 같은 부피 1:1','온도 최고 근거','반응 부피 10 mL씩','전체 부피 20 mL']},
+   {q:'시험관 A, C, E의 액성을 각각 쓰고, 남아 있는 이온으로 까닭을 설명하시오.',pt:3,item:2,
+    ans:'A: NaOH 수용액이 더 많아 <mark>OH⁻이 남으므로(14−6 = 8 mL분) 염기성</mark>. C: <mark>모두 반응하여 중성</mark>. E: 염산이 더 많아 <mark>H⁺이 남으므로(14−6 = 8 mL분) 산성</mark>.',
+    keys:['A 염기성 + OH⁻ 남음','C 중성 + 모두 반응','E 산성 + H⁺ 남음','남은 이온으로 판단 서술','남은 양 수치']},
+   {q:'중화 반응의 열 출입 형태를 쓰시오.',pt:1,item:3,ans:'<mark>중화열</mark>이 발생하는 <mark>발열 반응</mark>.',keys:['발열 반응','중화열']},
+   {q:'시험관 C의 온도가 가장 높고, A와 E로 갈수록 온도가 낮은 까닭을 서술하시오.',pt:3,item:4,
+    ans:'모든 시험관에서 혼합 후 온도가 <mark>처음(20.0 ℃)보다 높아졌으므로</mark> 중화 반응은 <mark>중화열이 발생하는 발열 반응</mark>이다. <mark>반응하는 H⁺과 OH⁻의 수가 많을수록 중화열이 더 많이 발생</mark>하는데, C에서는 10 mL씩 반응하여 반응한 이온 수가 <mark>가장 많으므로</mark> 온도가 가장 높다. A·E는 6 mL씩만 반응하고 <mark>남는 용액은 반응하지 않아 중화열을 내지 않으므로</mark> 온도가 낮다.',
+    keys:['처음보다 온도 상승 → 발열','중화열 발생','반응 이온 수 ∝ 중화열','C: 반응량 최대(10 mL씩)','A·E: 반응량 적음(6 mL씩)','남는 용액은 반응 안 함']},
+   {q:'BTB 용액의 특징을 쓰고, A~E의 색으로 액성을 구분하는 방법을 서술하시오. 만약 BTB 대신 페놀프탈레인 용액을 넣었다면 A, C, E는 각각 무슨 색인가?',pt:2,item:8,
+    ans:'지시약은 <mark>액성에 따라 색이 변하는 물질</mark>이다. <mark>BTB</mark>는 <mark>산성 노란색, 중성 초록색, 염기성 파란색</mark>이므로 A·B(파란색)는 염기성, C(초록색)는 중성, D·E(노란색)는 산성이다. <mark>페놀프탈레인</mark>이면 A는 <mark>붉은색</mark>(염기성), C는 <mark>무색</mark>(중성), E는 <mark>무색</mark>(산성).',
+    keys:['지시약 정의','BTB 이름 + 노랑·초록·파랑','A~E 액성 대응','초록색인 C = 중화점','페놀프탈레인 A 붉은색','페놀프탈레인 C·E 무색']},
+   {q:'시험관에서 일어난 중화 반응의 화학 반응식과 알짜 이온 반응식을 쓰시오.',pt:2,item:9,
+    ans:'<mark>HCl + NaOH → NaCl + H₂O</mark>, <mark>H⁺ + OH⁻ → H₂O</mark>.',keys:['반응물','생성물(염 + 물)','알짜 이온식','전하·첨자']},
+   {q:'환경 분야와 건강 분야에서 중화 반응을 이용하는 사례를 각각 한 가지씩 문장으로 쓰시오.',pt:2,item:5,
+    ans:'(예) 환경 — <mark>산성화된 토양이나 호수</mark>에 <mark>염기성인 석회 가루</mark>를 뿌려 중화한다. 건강 — 입안 세균이 만든 <mark>산성 물질</mark>이 충치를 일으키므로 <mark>염기성 물질이 든 치약</mark>으로 닦아 중화한다.',
+    keys:['환경 사례 문장','건강 사례 문장','둘 다 실제 중화']},
+   {q:'위 각 사례에서 산성 물질과 염기성 물질을 쓰시오.',pt:2,item:6,
+    ans:'(예) 토양 — 산성: <mark>산성비·비료로 산성화된 토양의 산성 물질</mark>, 염기성: <mark>석회 가루</mark>. 치약 — 산성: <mark>세균이 만든 산성 물질</mark>, 염기성: <mark>치약 속 염기성 물질</mark>.',
+    keys:['사례 1 짝','사례 2 짝','방향 정확']},
+   {q:'위 사례 중 하나에서 중화 반응을 이용하는 까닭을 서술하시오.',pt:2,item:7,
+    ans:'(예) 토양이 <mark>산성화되면 생물이 잘 자라지 못하므로</mark>, <mark>반대 성질인 염기성</mark> 석회 가루를 뿌려 <mark>산성 물질을 중화</mark>하여 <mark>토양을 생물이 살기 좋은 상태로 되돌리기</mark> 위해서이다.',
+    keys:['원인','반대 성질','중화','효과']}
+  ]},
+ {title:'모의 3회 — 부피 조합 그래프형 (완자 19번, 염산 + KOH)',
+  scen:'<b>상황</b> 온도가 같고 농도가 같은 묽은 염산(HCl)과 수산화 칼륨(KOH) 수용액을 표와 같이 부피를 달리하여 섞은 뒤 각 혼합 용액의 최고 온도를 측정하였다. (혼합 전 두 용액의 온도는 모두 24 ℃이다.)'+
+   '<div class="tblwrap"><table><tr><th>혼합 용액</th><th class="c">(가)</th><th class="c">(나)</th><th class="c">(다)</th><th class="c">(라)</th></tr>'+
+   '<tr><th>묽은 염산(mL)</th><td class="c">20</td><td class="c">30</td><td class="c">40</td><td class="c">50</td></tr>'+
+   '<tr><th>KOH 수용액(mL)</th><td class="c">40</td><td class="c">30</td><td class="c">20</td><td class="c">10</td></tr>'+
+   '<tr><th>최고 온도(℃)</th><td class="c">28</td><td class="c">30</td><td class="c">28</td><td class="c">26</td></tr></table></div>'+
+   '<svg viewBox="0 0 360 150" width="100%" style="max-width:340px;display:block;margin:4px 0" aria-label="최고 온도 그래프"><line x1="40" y1="120" x2="340" y2="120" stroke="#374151"/><line x1="40" y1="120" x2="40" y2="15" stroke="#374151"/><text x="8" y="20" font-size="10" fill="#374151">℃</text><text x="14" y="124" font-size="9" fill="#6b7280">24</text><text x="14" y="90" font-size="9" fill="#6b7280">26</text><text x="14" y="56" font-size="9" fill="#6b7280">28</text><text x="14" y="22" font-size="9" fill="#6b7280">30</text><polyline points="90,52 160,18 230,52 300,86" fill="none" stroke="#dc2626" stroke-width="2"/><circle cx="90" cy="52" r="3" fill="#dc2626"/><circle cx="160" cy="18" r="3" fill="#dc2626"/><circle cx="230" cy="52" r="3" fill="#dc2626"/><circle cx="300" cy="86" r="3" fill="#dc2626"/><text x="80" y="138" font-size="10">(가)</text><text x="150" y="138" font-size="10">(나)</text><text x="220" y="138" font-size="10">(다)</text><text x="290" y="138" font-size="10">(라)</text></svg>',
+  items:[
+   {q:'완전히 중화된 혼합 용액은 어느 것인가? 근거를 쓰고 그 용액의 전체 부피를 구하시오. 또 (가)를 완전히 중화하려면 어느 용액을 몇 mL 더 넣어야 하는가?',pt:3,item:1,
+    ans:'<mark>(나)</mark>. 같은 농도이므로 <mark>염산과 KOH 수용액의 부피가 같은(30 : 30)</mark> (나)에서 H⁺과 OH⁻이 1:1로 모두 반응하고, 최고 온도도 <mark>가장 높다(30 ℃)</mark>. 전체 부피는 30 + 30 = <mark>60 mL</mark>. (가)는 KOH가 20 mL 더 많으므로 <mark>묽은 염산 20 mL</mark>를 더 넣어야 한다.',
+    keys:['(나)','같은 부피 1:1 근거','온도 최고 근거','전체 부피 60 mL','(가)에 염산 20 mL 추가']},
+   {q:'(가)와 (라)의 액성을 각각 쓰고 남아 있는 이온으로 설명하시오.',pt:3,item:2,
+    ans:'(가): KOH 수용액이 더 많아 <mark>OH⁻이 남으므로(40−20 = 20 mL분) 염기성</mark>. (라): 염산이 더 많아 <mark>H⁺이 남으므로(50−10 = 40 mL분) 산성</mark>.',
+    keys:['(가) 염기성 + OH⁻ 남음','(라) 산성 + H⁺ 남음','남은 이온으로 판단','남은 양 수치','K⁺·Cl⁻을 근거로 쓰지 않음']},
+   {q:'중화 반응의 열 출입 형태를 쓰시오.',pt:1,item:3,ans:'<mark>중화열</mark>이 발생하는 <mark>발열 반응</mark>.',keys:['발열 반응','중화열']},
+   {q:'(가)~(라)에서 중화 반응으로 생성된 물의 양을 부등호로 비교하고, 그 까닭을 혼합 용액의 온도와 관련지어 서술하시오.',pt:3,item:4,
+    ans:'<mark>(나) &gt; (가) = (다) &gt; (라)</mark>. 반응한 H⁺과 OH⁻의 양은 (나) 30 mL분, (가)·(다) 20 mL분, (라) 10 mL분이다. 네 용액 모두 혼합 후 온도가 <mark>처음(24 ℃)보다 높아졌으므로 발열</mark>이며, <mark>생성된 물의 양이 많을수록 중화열이 많이 발생하여 최고 온도가 높으므로</mark>, 온도가 30 &gt; 28 = 28 &gt; 26 ℃인 순서가 곧 물의 양 순서이다.',
+    keys:['부등호 (나) > (가) = (다) > (라)','반응량 30/20/20/10','처음보다 온도 상승 → 발열','물의 양 ∝ 중화열 ∝ 온도','온도 자료와 연결']},
+   {q:'(가), (나), (라)에 페놀프탈레인 용액을 넣으면 각각 무슨 색인가? BTB 용액을 넣으면? 지시약으로 액성을 구분하는 방법을 함께 서술하시오.',pt:2,item:8,
+    ans:'지시약은 <mark>액성에 따라 색이 변하는 물질</mark>이다. <mark>페놀프탈레인</mark>: (가) <mark>붉은색</mark>(염기성), (나) <mark>무색</mark>(중성), (라) <mark>무색</mark>(산성). <mark>BTB</mark>: (가) <mark>파란색</mark>, (나) <mark>초록색</mark>, (라) <mark>노란색</mark>. 색을 표와 대조해 산성·중성·염기성을 구분한다.',
+    keys:['지시약 정의','페놀프탈레인 붉/무/무','BTB 파/초/노','액성 대응','초록색인 (나) = 중화점','이름 명시']},
+   {q:'묽은 염산과 수산화 칼륨 수용액의 중화 반응을 화학 반응식과 알짜 이온 반응식으로 쓰시오.',pt:2,item:9,
+    ans:'<mark>HCl + KOH → KCl + H₂O</mark>, <mark>H⁺ + OH⁻ → H₂O</mark>.',keys:['반응물 HCl, KOH','생성물 KCl + H₂O','알짜 이온식','전하·첨자']},
+   {q:'산업 분야에서 중화 반응을 이용하는 사례를 한 가지, 일상생활에서 한 가지를 문장으로 쓰시오.',pt:2,item:5,
+    ans:'(예) 산업 — 공장에서 배기가스를 배출하기 전에 <mark>산성비의 원인인 황산화물</mark>을 <mark>염기성인 산화 칼슘</mark>과 반응시켜 제거한다. 일상 — <mark>벌에 쏘였을 때</mark> <mark>암모니아수(염기성)</mark>가 든 약을 발라 벌침의 <mark>산성 독</mark>을 중화한다.',
+    keys:['산업 사례 문장','일상 사례 문장','둘 다 실제 중화']},
+   {q:'위 각 사례에서 산성 물질과 염기성 물질을 쓰시오.',pt:2,item:6,
+    ans:'(예) 배기가스 — 산성: <mark>황산화물</mark>, 염기성: <mark>산화 칼슘</mark>. 벌 쏘임 — 산성: <mark>벌침의 독</mark>, 염기성: <mark>암모니아수</mark>.',
+    keys:['사례 1 짝','사례 2 짝','방향 정확']},
+   {q:'위 사례 중 하나에서 중화 반응을 이용하는 까닭을 서술하시오.',pt:2,item:7,
+    ans:'(예) 황산화물이 그대로 배출되면 <mark>산성비</mark>를 일으켜 환경을 해치므로, <mark>반대 성질인 염기성</mark> 산화 칼슘과 반응시켜 <mark>중화</mark>함으로써 <mark>산성 물질을 없애고 배출</mark>하기 위해서이다.',
+    keys:['원인','반대 성질','중화','효과']}
+  ]}
+];
+
+/* ===================== 공통 ===================== */
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function pick(a){return a[Math.floor(Math.random()*a.length)];}
+
+// D-day
+(function(){var t=new Date(2026,8,17);var n=new Date();n.setHours(0,0,0,0);var d=Math.round((t-n)/86400000);$('dday').textContent=d>0?'D-'+d:(d===0?'D-day':'끝!');})();
+
+// 탭
+document.getElementById('tabs').addEventListener('click',function(e){
+  var b=e.target.closest('.tab');if(!b)return;
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  b.classList.add('active');
+  document.querySelector('.page[data-p="'+b.dataset.t+'"]').classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  lsSet('tab',b.dataset.t);
+  if(b.dataset.t==='lab')renderLab();
+});
+(function(){var t=lsGet('tab','start');var b=document.querySelector('.tab[data-t="'+t+'"]');if(b&&t!=='start')b.click();})();
+
+/* ===================== 시작 ===================== */
+(function(){
+  var st=lsGet('plan',[]);
+  var h='';PLAN.forEach(function(p,i){h+='<label style="display:flex;gap:8px;align-items:flex-start;min-height:40px;padding:4px 0"><input type="checkbox" data-i="'+i+'" '+(st[i]?'checked':'')+' style="width:20px;height:20px;margin-top:4px"><span>'+esc(p)+'</span></label>';});
+  $('plan').innerHTML=h;
+  function prog(){var c=st.filter(Boolean).length;$('planProg').textContent=c+'/5 완료';}
+  prog();
+  $('plan').addEventListener('change',function(e){var i=+e.target.dataset.i;st[i]=e.target.checked;lsSet('plan',st);prog();});
+  // QA
+  var ans=lsGet('qa',{});
+  var q='';QA.forEach(function(g,gi){q+='<h3>'+esc(g.h)+'</h3>'+(g.d?'<div class="mute">'+esc(g.d)+'</div>':'');g.q.forEach(function(x,qi){var k=gi+'_'+qi;q+='<div style="margin:6px 0"><div style="font-size:14px">'+esc(x)+'</div><textarea data-k="'+k+'" placeholder="답 (모르면 모름)">'+esc(ans[k]||'')+'</textarea></div>';});});
+  $('qa').innerHTML=q;
+  $('qa').addEventListener('input',function(e){if(e.target.tagName==='TEXTAREA'){ans[e.target.dataset.k]=e.target.value;lsSet('qa',ans);}});
+  $('copyQa').addEventListener('click',function(){
+    var out='[중화 반응 수행평가 앱 — 질문 답]\n';
+    QA.forEach(function(g,gi){out+='\n'+g.h+'\n';g.q.forEach(function(x,qi){out+='- '+x+' → '+(ans[gi+'_'+qi]||'(비어 있음)')+'\n';});});
+    var done=function(ok){$('copyMsg').textContent=ok?'복사됐어! 카톡에 붙여넣어 아빠에게 보내 줘.':'복사가 안 되면 아래 글을 길게 눌러 복사해.';if(!ok){var ta=document.createElement('textarea');ta.value=out;ta.style.width='100%';ta.style.minHeight='200px';$('qa').appendChild(ta);}};
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(out).then(function(){done(true);},function(){done(false);});}else{done(false);}
+  });
+})();
+
+/* ===================== 카드 ===================== */
+(function(){
+  var st=lsGet('cards',{});
+  function render(){
+    var h='';CARDS.forEach(function(c){
+      var d=st[c.n]==='done';
+      h+='<div class="card f" data-n="'+c.n+'"><div class="t"><span>'+c.n+'. '+esc(c.title)+'</span><span class="st '+(d?'done':'')+'">'+(d?'외웠어':'아직')+'</span></div>'+
+        '<div class="front"><div class="mute">대표 문항 (뒤집기 전에 먼저 말해 보기)</div><div>'+esc(c.front)+'</div><div class="mute" style="margin-top:6px">▶ 눌러서 모범답안 보기</div></div>'+
+        '<div class="back"><div>'+c.back+'</div><div style="margin-top:6px">'+c.keys.map(function(k){return '<span class="chip">'+esc(k)+'</span>';}).join('')+'</div>'+
+        '<div class="lab">감점: '+esc(c.minus)+'</div>'+
+        '<div class="acts"><button class="btn sm ok" data-act="done">외웠어</button><button class="btn sm" data-act="again">다시</button></div></div></div>';
+    });
+    $('cards').innerHTML=h;
+    var c=Object.keys(st).filter(function(k){return st[k]==='done';}).length;
+    $('cardProg').textContent=c+'/9 외움';$('cardBar').style.width=(c/9*100)+'%';
+  }
+  render();
+  $('cards').addEventListener('click',function(e){
+    var card=e.target.closest('.card');if(!card)return;
+    var act=e.target.dataset.act;var n=card.dataset.n;
+    if(act){st[n]=act==='done'?'done':'again';lsSet('cards',st);render();return;}
+    card.classList.toggle('f');card.classList.toggle('b');
+  });
+})();
+
+/* ===================== 실험실 ===================== */
+var labMode='A';
+function calc(acid,base){ // mL, same conc. 1 unit = 2 mL
+  var uA=acid/2,uB=base/2;var r=Math.min(uA,uB);
+  return {H:uA-r,Cl:uA,Na:uB,OH:uB-r,water:r,total:(uA-r)+uA+uB+(uB-r),vol:acid+base,
+    acidity:(uA-r)>0?'산성':((uB-r)>0?'염기성':'중성'),left:(uA-r)>0?'H⁺ '+(uA-r)+'단위 ('+(uA-r)*2+' mL분)':((uB-r)>0?'OH⁻ '+(uB-r)+'단위 ('+(uB-r)*2+' mL분)':'없음')};
+}
+function tempA(acid,x){var r=Math.min(x,acid),ex=Math.max(0,x-acid);return 20+0.2*r*(20/acid)-0.125*ex*(20/acid);}
+function tempB(h){var r=Math.min(h,20-h);return 20+0.4*r;}
+function colorOf(ind,ac){
+  if(ind==='pp')return ac==='염기성'?{c:'#f9a8d4',t:'붉은색'}:{c:'#f3f4f6',t:'무색'};
+  return ac==='산성'?{c:'#fde047',t:'노란색'}:(ac==='중성'?{c:'#86efac',t:'초록색'}:{c:'#93c5fd',t:'파란색'});
+}
+function renderLab(){
+  var acid,base,T,ind,x;
+  if(labMode==='A'){acid=+$('acidVol').value;base=+$('naoh').value;ind=$('indA').value;T=tempA(acid,base);$('naohVal').textContent=base+' mL';}
+  else{acid=+$('hclB').value;base=20-acid;ind=$('indB').value;T=tempB(acid);$('hclVal').textContent=acid+' mL';$('naohBVal').textContent=base+' mL';}
+  var s=calc(acid,base);var col=colorOf(ind,s.acidity);
+  $('liquid').setAttribute('fill',col.c);$('liqLabel').textContent=col.t+' ('+s.acidity+')';
+  $('rAcid').textContent=s.acidity;$('rLeft').textContent=s.left;$('rTemp').textContent=T.toFixed(1)+' ℃';
+  $('rWater').textContent=s.water;$('rTotal').textContent=s.total;$('rVol').textContent=s.vol+' mL';
+  var mx=Math.max(acid,base)/2||1;
+  function bar(id,n,v){$(id).style.width=Math.min(100,v/mx*100)+'%';$(n).textContent=v;}
+  bar('bH','nH',s.H);bar('bCl','nCl',s.Cl);bar('bNa','nNa',s.Na);bar('bOH','nOH',s.OH);
+  // graph
+  var pts=[],W=320,H=150,L=36,B=125,Tmin=19.5,Tmax=25;
+  var svg='<line x1="'+L+'" y1="'+B+'" x2="310" y2="'+B+'" stroke="#374151"/><line x1="'+L+'" y1="10" x2="'+L+'" y2="'+B+'" stroke="#374151"/>';
+  function px(v,max){return L+(v/max)*(300-L);}function py(t){return B-(t-Tmin)/(Tmax-Tmin)*(B-15);}
+  if(labMode==='A'){var max=acid*2;for(var v=0;v<=max;v+=2)pts.push([px(v,max),py(tempA(acid,v))]);
+    svg+='<text x="'+(px(acid,max)-14)+'" y="'+(B+14)+'" font-size="10" fill="#6b7280">'+acid+' mL(중화점)</text><line x1="'+px(acid,max)+'" y1="15" x2="'+px(acid,max)+'" y2="'+B+'" stroke="#d1d5db" stroke-dasharray="3 3"/>';
+    x=px(base,max);svg+='<text x="'+(L+2)+'" y="'+(B+14)+'" font-size="10" fill="#6b7280">0</text><text x="280" y="'+(B+14)+'" font-size="10" fill="#6b7280">NaOH mL</text>';}
+  else{for(var h=0;h<=20;h+=2)pts.push([px(h,20),py(tempB(h))]);x=px(acid,20);
+    svg+='<text x="'+(px(10,20)-18)+'" y="'+(B+14)+'" font-size="10" fill="#6b7280">C(10:10)</text><text x="'+(L+2)+'" y="'+(B+14)+'" font-size="10" fill="#6b7280">HCl 0</text><text x="270" y="'+(B+14)+'" font-size="10" fill="#6b7280">HCl 20 mL</text>';}
+  svg+='<polyline points="'+pts.map(function(p){return p[0].toFixed(1)+','+p[1].toFixed(1);}).join(' ')+'" fill="none" stroke="#dc2626" stroke-width="2"/>';
+  svg+='<circle cx="'+x.toFixed(1)+'" cy="'+py(T).toFixed(1)+'" r="5" fill="#1d4ed8"/>';
+  svg+='<text x="6" y="14" font-size="10" fill="#374151">℃</text><text x="8" y="'+py(20)+'" font-size="9" fill="#6b7280">20</text><text x="8" y="'+py(24)+'" font-size="9" fill="#6b7280">24</text>';
+  $('tgraph').innerHTML=svg;
+  // explain
+  var ex='';
+  if(labMode==='A'){
+    if(base<acid)ex='아직 <b>H⁺이 '+s.H+'단위 남아 산성</b>. 넣은 OH⁻은 넣는 족족 H⁺과 만나 물이 되므로 OH⁻은 0. Cl⁻은 그대로, Na⁺은 쌓인다 → 총 이온 수 '+s.total+'(변화 없음). 중화열이 계속 나와 온도 상승 중.';
+    else if(base===acid)ex='<b>중화점!</b> H⁺과 OH⁻이 모두 반응(각 '+(acid/2)+'단위) → <b>중성</b>. 물 분자 '+s.water+'단위로 최대, 온도 최고. 전체 부피 '+acid+' + '+base+' = '+s.vol+' mL. '+(ind==='pp'?'페놀프탈레인은 중성이라 아직 무색(바로 다음 방울부터 붉어짐).':'BTB는 초록색.');
+    else ex='<b>OH⁻이 '+s.OH+'단위 남아 염기성</b>. 더 이상 H⁺이 없어 반응이 없고 물도 더 안 생긴다('+s.water+'단위 그대로). 총 이온 수는 이제 늘어난다('+s.total+'). 온도가 낮은 용액이 더해져 온도 하강.';
+  }else{
+    var t=acid<10?'OH⁻이 남아 <b>염기성</b>':(acid===10?'<b>중화점(C)</b> — 중성, 온도 최고':'H⁺이 남아 <b>산성</b>');
+    ex='염산 '+acid+' mL + NaOH '+base+' mL: 반응한 양 = 작은 쪽 = '+Math.min(acid,base)+' mL분 → 물 '+s.water+'단위, 온도 '+T.toFixed(1)+' ℃. 남은 이온 = '+Math.abs(acid-base)+' mL분 → '+t+'. 색: '+col.t+'.';
+  }
+  $('labExplain').innerHTML=ex;
+}
+$('modeA').addEventListener('click',function(){labMode='A';$('labA').classList.remove('hidden');$('labB').classList.add('hidden');$('labNoteA').classList.remove('hidden');$('labNoteB').classList.add('hidden');$('modeA').classList.add('primary');$('modeB').classList.remove('primary');renderLab();});
+$('modeB').addEventListener('click',function(){labMode='B';$('labB').classList.remove('hidden');$('labA').classList.add('hidden');$('labNoteB').classList.remove('hidden');$('labNoteA').classList.add('hidden');$('modeB').classList.add('primary');$('modeA').classList.remove('primary');renderLab();});
+$('acidVol').addEventListener('change',function(){$('naoh').max=(+this.value)*2;$('naoh').value=0;renderLab();});
+['naoh','indA','hclB','indB'].forEach(function(id){$(id).addEventListener('input',renderLab);});
+$('labB').addEventListener('click',function(e){var b=e.target.closest('[data-h]');if(!b)return;$('hclB').value=b.dataset.h;renderLab();});
+renderLab();
+
+/* ===================== 퀴즈 엔진 (드릴·지시약·사례 공통) ===================== */
+function runQuiz(area,stat,gen,n,tip){
+  var qs=[];for(var i=0;i<n;i++)qs.push(gen());
+  var idx=0,score=0,retry=[],round=1;
+  function show(){
+    if(idx>=qs.length){
+      if(retry.length&&round<3){qs=retry;retry=[];idx=0;round++;area.innerHTML='<div class="note">틀린 문제 '+qs.length+'개를 다시 풀자 (되풀이 '+(round-1)+'회차).</div>';setTimeout(show,700);return;}
+      area.innerHTML='<div class="box"><b>끝!</b> 처음에 맞힌 것 '+score+'/'+n+'. '+(score===n?'완벽. 다음 탭으로.':(tip||'틀린 것은 표를 다시 보고 한 번 더.'))+'</div>';stat.textContent='';return;
+    }
+    var q=qs[idx];stat.textContent=(idx+1)+'/'+qs.length+(round>1?' (되풀이)':'');
+    var h='<div class="box"><div style="font-weight:600">'+q.q+'</div>';
+    var opts=q.opts.slice();shuffle(opts);
+    opts.forEach(function(o){h+='<button class="opt" data-v="'+esc(o)+'">'+esc(o)+'</button>';});
+    h+='<div id="qfb"></div><button class="btn primary hidden" id="qnext">다음 →</button></div>';
+    area.innerHTML=h;
+    area.querySelectorAll('.opt').forEach(function(b){b.addEventListener('click',function(){
+      if(area.querySelector('#qnext').classList.contains('shown'))return;
+      var ok=b.dataset.v===q.a;
+      area.querySelectorAll('.opt').forEach(function(x){x.disabled=true;if(x.dataset.v===q.a)x.classList.add('right');});
+      if(!ok){b.classList.add('wrong');if(round<3)retry.push(q);}else if(round===1)score++;
+      area.querySelector('#qfb').innerHTML='<div class="fb '+(ok?'ok':'bad')+'">'+(ok?'맞았어. ':'아니야. ')+q.how+'</div>';
+      var nb=area.querySelector('#qnext');nb.classList.remove('hidden');nb.classList.add('shown');nb.addEventListener('click',function(){idx++;show();});
+    });});
+  }
+  show();
+}
+var VOLS=[10,20,30,40,50];
+function genIon(){
+  var base=pick(['NaOH','KOH']);var a=pick(VOLS),b=pick(VOLS);var s=calc(a,b);var typ=Math.floor(Math.random()*6);
+  var pre='같은 농도의 묽은 염산 <b>'+a+' mL</b> + '+base+' 수용액 <b>'+b+' mL</b>. ';
+  var diff=Math.abs(a-b);
+  function uniq(arr){return arr.filter(function(v,i,x){return x.indexOf(v)===i;});}
+  if(typ===0){
+    var ans0=s.acidity==='산성'?'H⁺ '+diff+' mL분 남음 → 산성':(s.acidity==='중성'?'모두 반응 → 중성':'OH⁻ '+diff+' mL분 남음 → 염기성');
+    var d2=diff||10, wrongNum=[Math.min(a,b),a+b,Math.max(a,b)].filter(function(n){return n!==d2&&n>0;})[0];
+    var opts0=uniq([ans0,'H⁺ '+d2+' mL분 남음 → 산성','모두 반응 → 중성','OH⁻ '+d2+' mL분 남음 → 염기성',
+      (a>b?'H⁺ ':'OH⁻ ')+wrongNum+' mL분 남음 → '+(a>b?'산성':'염기성')]).slice(0,4);
+    if(opts0.indexOf(ans0)<0)opts0[0]=ans0;
+    var how0=a===b?'차이가 0(20 = 20처럼 부피가 같음)이라 H⁺과 OH⁻이 모두 반응하고 아무것도 남지 않는다 → 중성.':
+      '큰 쪽 − 작은 쪽 = '+Math.max(a,b)+' − '+Math.min(a,b)+' = '+diff+'. 큰 쪽이 '+(a>b?'염산이라 H⁺':'염기라 OH⁻')+'이 남는다. (작은 쪽 '+Math.min(a,b)+'은 "반응한 양"이지 남은 양이 아니다.)';
+    return {q:pre+'남은 이온과 액성은?',a:ans0,opts:opts0,how:how0};}
+  if(typ===1){
+    if(a===b){return {q:pre+'중화점까지 더 넣어야 할 것은?',a:'이미 중화점(더 넣을 것 없음)',opts:['이미 중화점(더 넣을 것 없음)','염산 10 mL',base+' 10 mL','염산 20 mL'],how:'부피가 같으니 H⁺과 OH⁻이 이미 모두 반응했다.'};}
+    var need=a>b?base+' '+diff+' mL':'염산 '+diff+' mL';
+    var opts1=uniq([need,(a>b?'염산':base)+' '+diff+' mL',(a>b?base:'염산')+' '+(diff+10)+' mL',(a>b?base:'염산')+' '+Math.max(10,diff-10)+' mL','이미 중화점(더 넣을 것 없음)']).slice(0,4);
+    if(opts1.indexOf(need)<0)opts1[0]=need;
+    return {q:pre+'중화점까지 무엇을 몇 mL 더 넣어야 하나?',a:need,opts:opts1,how:'부족한 쪽('+(a>b?'염기':'염산')+')을 차이만큼: '+Math.max(a,b)+' − '+Math.min(a,b)+' = '+diff+' mL.'};}
+  if(typ===2){ // 총 부피를 (가)와 같게 맞춘 (나)
+    var tot=a+b,cand=VOLS.filter(function(v){return v!==a&&VOLS.indexOf(tot-v)>=0;}),tries=0;
+    while(!cand.length&&tries<20){a=pick(VOLS);b=pick(VOLS);tot=a+b;cand=VOLS.filter(function(v){return v!==a&&VOLS.indexOf(tot-v)>=0;});tries++;}
+    if(!cand.length){a=20;b=30;tot=50;cand=[10,30,40];}
+    var a2=pick(cand),b2=tot-a2;
+    var r1=Math.min(a,b),r2=Math.min(a2,b2);
+    var ans2=r1>r2?'(가)':(r2>r1?'(나)':'같다');
+    return {q:'(가) 염산 '+a+' + '+base+' '+b+' mL, (나) 염산 '+a2+' + '+base+' '+b2+' mL (총 부피 같음). 생성된 물이 더 많아 최고 온도가 더 높은 것은?',a:ans2,opts:['(가)','(나)','같다'],how:'반응한 양 = 작은 쪽. (가) '+r1+', (나) '+r2+' mL분 → '+ans2+'. 총 부피가 같으니 반응량이 곧 온도 순서다.'};}
+  if(typ===3){
+    var ind=pick(['BTB','페놀프탈레인']);var c=ind==='BTB'?(s.acidity==='산성'?'노란색':(s.acidity==='중성'?'초록색':'파란색')):(s.acidity==='염기성'?'붉은색':'무색');
+    var leftTxt=diff?('('+(a>b?'H⁺':'OH⁻')+' '+diff+' mL분 남음)'):'(모두 반응)';
+    return {q:pre+'<b>'+ind+'</b>을 넣으면 무슨 색?',a:c,opts:ind==='BTB'?['노란색','초록색','파란색','붉은색']:['무색','붉은색','노란색','파란색'],how:'액성은 '+s.acidity+leftTxt+'. '+ind+'은 '+(ind==='BTB'?'산성 노랑·중성 초록·염기성 파랑':'산·중 무색, 염기성만 붉은색')+'.'};}
+  if(typ===4){
+    var opts4=uniq([(a+b)+' mL',Math.max(a,b)+' mL',diff+' mL',Math.min(a,b)+' mL',(a+b+10)+' mL']).slice(0,4);
+    if(opts4.indexOf((a+b)+' mL')<0)opts4[0]=(a+b)+' mL';
+    return {q:pre+'혼합 용액의 전체 부피는?',a:(a+b)+' mL',opts:opts4,how:'전체 부피는 그냥 합: '+a+' + '+b+' = '+(a+b)+' mL. (남은 이온 수와 헷갈리지 말 것)'};}
+  // typ 5: 문제집 14번 유형 — (가)는 산 과잉, (다)는 염기 과잉으로 제한 (1/5은 함정 허용)
+  var A=a,B=b;if(Math.random()<0.8&&A<=B){var t=A;A=Math.max(B,A+10);B=t;if(VOLS.indexOf(A)<0)A=50;}
+  var a3=pick(VOLS),b3=pick(VOLS);if(Math.random()<0.8&&b3<=a3){var t2=b3;b3=Math.max(a3,b3+10);a3=t2;if(VOLS.indexOf(b3)<0)b3=50;}
+  var lh=Math.max(0,A-B),lo=Math.max(0,b3-a3);
+  var ans5=lh>lo?'(가)가 더 많다':(lo>lh?'(다)가 더 많다':'같다');
+  return {q:'(가) 염산 '+A+' + '+base+' '+B+' mL의 <b>남은 H⁺</b> 수와 (다) 염산 '+a3+' + '+base+' '+b3+' mL의 <b>남은 OH⁻</b> 수를 비교하면?',a:ans5,opts:['(가)가 더 많다','(다)가 더 많다','같다'],how:'(가) 남은 H⁺ = '+A+' − '+B+' → '+lh+' mL분(음수면 0, 남는 건 OH⁻). (다) 남은 OH⁻ = '+b3+' − '+a3+' → '+lo+' mL분. 따라서 '+ans5+'.'};
+}
+$('drillStart').addEventListener('click',function(){runQuiz($('drillArea'),$('drillStat'),genIon,10,'틀린 유형은 노트에 "남은 이온 = 큰 쪽 − 작은 쪽"을 한 번 더 써 보기.');});
+(function(){var h='';DRILL10.forEach(function(d,i){h+='<div class="box" style="padding:8px 12px"><div><b>'+(i+1)+'.</b> '+esc(d[0])+'</div><button class="btn sm" data-i="'+i+'">정답 보기</button><div class="hidden" id="d10_'+i+'" style="margin-top:6px;color:#166534">'+d[1]+'</div></div>';});
+  $('drill10').innerHTML=h;$('drill10').addEventListener('click',function(e){var b=e.target.closest('[data-i]');if(!b)return;$('d10_'+b.dataset.i).classList.toggle('hidden');});})();
+
+/* ===================== 지시약 ===================== */
+(function(){
+  var h='<tr><th>지시약</th><th>산성</th><th>중성</th><th>염기성</th></tr>';
+  IND.forEach(function(r){h+='<tr><td><b>'+esc(r.n)+'</b></td><td><span class="sw" style="background:'+r.ca+'"></span>'+esc(r.a)+'</td><td><span class="sw" style="background:'+r.cm+'"></span>'+esc(r.m)+'</td><td><span class="sw" style="background:'+r.cb+'"></span>'+esc(r.b)+'</td></tr>';});
+  $('indTable').innerHTML=h;
+  var ACS=[['산성','a'],['중성','m'],['염기성','b']];
+  function gen(){
+    var r=pick(IND),ac=pick(ACS);
+    if(Math.random()<0.5){var all=r.n==='리트머스 종이'?['푸른색 → 붉은색','붉은색 → 푸른색','변화 없음','둘 다 붉은색']:['무색','붉은색','노란색','초록색','파란색'];var a=r[ac[1]];var opts=[a];shuffle(all).forEach(function(x){if(opts.length<4&&opts.indexOf(x)<0)opts.push(x);});
+      return {q:'<b>'+esc(r.n)+'</b>을(를) <b>'+ac[0]+'</b> 용액에 넣으면?',a:a,opts:opts,how:esc(r.n)+': 산성 '+r.a+' / 중성 '+r.m+' / 염기성 '+r.b+'.'};}
+    var color=r[ac[1]];var poss=ACS.filter(function(x){return r[x[1]]===color;}).map(function(x){return x[0];});
+    var ans=poss.length===1?poss[0]:poss.join(' 또는 ');
+    var opts2=['산성','중성','염기성','산성 또는 중성','중성 또는 염기성'].filter(function(v){return v!==ans;});shuffle(opts2);opts2=opts2.slice(0,3);opts2.push(ans);
+    return {q:'<b>'+esc(r.n)+'</b>이(가) <b>'+esc(color)+'</b>이면 액성은?',a:ans,opts:opts2,how:esc(r.n)+': 산성 '+r.a+' / 중성 '+r.m+' / 염기성 '+r.b+'. 페놀프탈레인 무색은 산성·중성 둘 다 가능.'};
+  }
+  $('indStart').addEventListener('click',function(){runQuiz($('indArea'),$('indStat'),gen,10,'표를 다시 보기: 페놀프탈레인은 염기성에서만 붉다, BTB는 노랑·초록·파랑.');});
+})();
+
+/* ===================== 생활 속 ===================== */
+(function(){
+  var h='<tr><th>사례</th><th>산성 물질</th><th>염기성 물질</th><th>왜 중화하나</th><th>분야</th></tr>';
+  CASES.forEach(function(c){h+='<tr><td><b>'+esc(c.c)+'</b></td><td>'+esc(c.a)+'</td><td>'+esc(c.b)+'</td><td>'+esc(c.w)+'</td><td>'+esc(c.f)+'</td></tr>';});
+  $('lifeTable').innerHTML=h;
+  function gen(){
+    var c=pick(CASES);var side=Math.random()<0.5?'a':'b';var lab=side==='a'?'산성 물질':'염기성 물질';
+    var pool=CASES.map(function(x){return x[side==='a'?'b':'a'];}).concat(CASES.filter(function(x){return x!==c;}).map(function(x){return x[side];}));
+    var opts=[c[side]];shuffle(pool).forEach(function(x){if(opts.length<4&&opts.indexOf(x)<0)opts.push(x);});
+    return {q:'<b>'+esc(c.c)+'</b> 사례에서 <b>'+lab+'</b>은?',a:c[side],opts:opts,how:'산성: '+esc(c.a)+' / 염기성: '+esc(c.b)+'. 까닭: '+esc(c.w)+'.'};
+  }
+  $('lifeStart').addEventListener('click',function(){runQuiz($('lifeArea'),$('lifeStat'),gen,10,'헷갈린 사례는 표에서 산성·염기성 짝을 소리 내어 읽어 보기.');});
+})();
+
+/* ===================== 모의 ===================== */
+var curMock=0,tSec=1200,tInt=null,tEnd=0;
+function fmt(s){var m=Math.floor(s/60),x=s%60;return (m<10?'0':'')+m+':'+(x<10?'0':'')+x;}
+function tick(){tSec=Math.max(0,Math.round((tEnd-Date.now())/1000));$('timer').textContent=fmt(tSec);if(tSec<=0){clearInterval(tInt);tInt=null;$('timer').textContent='00:00 ⏰';}}
+$('tStart').addEventListener('click',function(){if(tInt||tSec<=0)return;tEnd=Date.now()+tSec*1000;tInt=setInterval(tick,500);});
+$('tPause').addEventListener('click',function(){if(!tInt)return;clearInterval(tInt);tInt=null;tSec=Math.max(0,Math.round((tEnd-Date.now())/1000));});
+$('tReset').addEventListener('click',function(){clearInterval(tInt);tInt=null;tSec=1200;$('timer').textContent=fmt(tSec);});
+function renderHist(){var h=[];for(var i=0;i<3;i++){var r=lsGet('mock_'+i,null);if(r)h.push((i+1)+'회 '+r.score+'/20 ('+r.date+')');}$('mockHist').textContent=h.length?'기록: '+h.join(' · '):'아직 기록 없음';}
+function renderMock(){
+  var m=MOCKS[curMock];var saved=lsGet('mock_'+curMock,null);
+  var h='<div class="box"><h3 style="margin-top:0">'+esc(m.title)+'</h3>'+m.scen+'<div class="warn">종이에 1번부터 9번까지 <b>손으로</b> 다 쓴 뒤에 [모범답안]을 연다. 먼저 보면 연습이 안 된다.</div></div>';
+  m.items.forEach(function(it,i){
+    h+='<div class="mi" data-i="'+i+'"><div class="q">'+(i+1)+'. '+esc(it.q)+'<span class="pt">['+it.pt+'점]</span></div>'+
+      '<div class="row"><button class="btn sm" data-s="1">힌트: 키워드만</button><button class="btn sm primary" data-s="2">모범답안</button></div>'+
+      '<div class="hint"><div class="mute">체크리스트 항목 '+it.item+'번 · 키워드:</div>'+it.keys.map(function(k){return '<span class="chip">'+esc(k)+'</span>';}).join('')+'</div>'+
+      '<div class="ans">'+it.ans+'</div>'+
+      '<div class="keys"><div class="mute">내 답에 이 키워드가 있었나? (있었으면 체크)</div>'+it.keys.map(function(k,ki){return '<label><input type="checkbox" data-k="'+ki+'"><span>'+esc(k)+'</span></label>';}).join('')+
+      '<div>항목 점수: <span class="score" data-sc="'+i+'">0</span> / '+it.pt+'</div></div></div>';
+  });
+  h+='<div class="box"><div style="font-size:18px">총점 <span class="score" id="mockTotal">0</span> / 20</div><div id="mockAdvice" class="mute"></div><div class="row"><button class="btn primary" id="mockSave">점수 저장</button></div></div>';
+  $('mockArea').innerHTML=h;
+  $('mockArea').querySelectorAll('[data-s]').forEach(function(b){b.addEventListener('click',function(){var mi=b.closest('.mi');if(b.dataset.s==='1')mi.classList.add('s1');else{mi.classList.add('s2');}});});
+  $('mockSave').addEventListener('click',function(){var sc=calcMock();var d=new Date();lsSet('mock_'+curMock,{score:sc,date:(d.getMonth()+1)+'/'+d.getDate()});renderHist();$('mockAdvice').textContent='저장했어. '+advice(sc);});
+  if(saved)$('mockAdvice').textContent='지난 기록: '+saved.score+'/20 ('+saved.date+')';
+}
+function advice(sc){return sc>=18?'18점 이상: 다음 회차로. 전날엔 카드만.':(sc>=14?'14~17점: 점수가 깎인 항목의 카드를 다시 읽고 그 문항만 다시 손으로 써 보기.':'13점 이하: 카드 9장 전체 → 이온 드릴 1세트 → 같은 회차 재시도.');}
+function calcMock(){
+  var m=MOCKS[curMock];var total=0;var weak=[];
+  $('mockArea').querySelectorAll('.mi').forEach(function(mi,i){
+    var it=m.items[i];var n=mi.querySelectorAll('input[type=checkbox]:checked').length;var sc=n===it.keys.length?it.pt:Math.floor(it.pt*n/it.keys.length);
+    mi.querySelector('[data-sc]').textContent=sc;total+=sc;if(sc<it.pt)weak.push(it.item);
+  });
+  $('mockTotal').textContent=total;
+  var w=weak.filter(function(v,i,a){return a.indexOf(v)===i;}).sort();
+  $('mockAdvice').innerHTML=advice(total)+(w.length?' 부족 항목: '+w.map(function(n){return '<button class="btn sm" data-card="'+n+'">카드 '+n+'</button>';}).join(' '):'');
+  $('mockAdvice').querySelectorAll('[data-card]').forEach(function(b){b.addEventListener('click',function(){document.querySelector('.tab[data-t="cards"]').click();var c=document.querySelector('.card[data-n="'+b.dataset.card+'"]');if(c){c.classList.remove('f');c.classList.add('b');c.scrollIntoView({behavior:'smooth',block:'center'});}});});
+  return total;
+}
+$('mockArea').addEventListener('change',function(e){if(e.target.type!=='checkbox')return;calcMock();});
+document.querySelector('.page[data-p="mock"]').querySelectorAll('[data-m]').forEach(function(b){b.addEventListener('click',function(){curMock=+b.dataset.m;document.querySelector('.page[data-p="mock"]').querySelectorAll('[data-m]').forEach(function(x){x.classList.remove('primary');});b.classList.add('primary');renderMock();});});
+renderHist();renderMock();
+
+/* ===================== 점검 ===================== */
+(function(){
+  function norm(s){return String(s||'').replace(/\s+/g,'').replace(/[₂]/g,'2').replace(/[⁺]/g,'+').replace(/[⁻]/g,'-').toUpperCase();}
+  function isOH(v){v=norm(v);return v==='OH-'||v==='OH−'||v==='OH';}
+  $('eqCheck').addEventListener('click',function(){
+    var r=[];
+    r.push(norm($('e1a').value)==='NAOH');r.push(norm($('e1b').value)==='NACL');
+    r.push(isOH($('e2a').value));r.push(norm($('e2b').value)==='H2O');
+    var k1=norm($('e3a').value),k2=norm($('e3b').value);var kok=(k1==='KCL'&&k2==='H2O')||(k1==='H2O'&&k2==='KCL');r.push(kok);r.push(kok);
+    var n=r.filter(Boolean).length;
+    $('eqMsg').innerHTML=n===6?'<span style="color:#166534;font-weight:700">전부 맞았어!</span>':'<span style="color:#991b1b">'+n+'/6. 정답: HCl + <b>NaOH</b> → <b>NaCl</b> + H₂O / H⁺ + <b>OH⁻</b> → <b>H₂O</b> / HCl + KOH → <b>KCl</b> + <b>H₂O</b></span>';
+  });
+  var items=['① 중화점 부피: 같은 농도 → 같은 부피 1:1, 온도 최고점, 넣은 부피 + 전체 부피','② 액성: 남은 이온(큰 쪽 − 작은 쪽)으로 판단','③ 발열 반응, 중화열','④ 근거: 온도 상승 → 중화점 최고 → 이후 반응 없음 + 찬 용액','⑤ 사례 문장 2개 (상황 + 넣는 것 + 중화)','⑥ 산성 물질 / 염기성 물질 짝','⑦ 까닭: 원인 → 반대 성질 → 중화 → 효과','⑧ 지시약 정의 + 이름 + 색 + 중화점 판단','⑨ HCl + NaOH → NaCl + H₂O, H⁺ + OH⁻ → H₂O'];
+  var st=lsGet('check',[]);
+  var h='';items.forEach(function(t,i){h+='<label style="display:flex;gap:8px;align-items:flex-start;min-height:40px;padding:4px 0"><input type="checkbox" data-i="'+i+'" '+(st[i]?'checked':'')+' style="width:20px;height:20px;margin-top:4px"><span>'+esc(t)+'</span></label>';});
+  $('checklist').innerHTML=h;
+  function prog(){$('checkProg').textContent=st.filter(Boolean).length+'/9';}prog();
+  $('checklist').addEventListener('change',function(e){st[+e.target.dataset.i]=e.target.checked;lsSet('check',st);prog();});
+})();
+</script>
+</body>
+</html>
