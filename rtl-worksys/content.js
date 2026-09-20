@@ -7,7 +7,7 @@ window.WS = {
     title: "RTL WorkSys",
     subtitle: "AI-native RTL 업무 시스템 · core 설계 노트",
     updated: "2026-09-20",
-    version: "0.3",
+    version: "0.3.1",
     tagline: "ticket이 생기면 AI가 먼저 일을 시작한다. 사람은 검수와 결정에 선다."
   },
 
@@ -604,17 +604,7 @@ window.WS = {
         ["첫 자율 갈래", "timing·area 갈래(oracle = synth + LEC + regression). test·coverage가 둘째"],
         ["dry replay", "workflow 변경의 승격 안건에 필수 첨부"],
         ["reject 뒤", "재시도 없음. 사람이 이어받는다"]
-      ]}},
-
-      { h: "10. 더 생각할 것 (열어 둔 것)" },
-      { ul: [
-        "diagnose 갈래의 oracle = 재현. \"문제가 재현된다\"가 첫 checkpoint, \"원인 가설이 재현을 설명하고 가설을 뒤집는 실험이 실패한다\"가 다음. 원인을 찾은 뒤 고치는 것은 change 갈래로 handoff.",
-        "사람이 이어받은 뒤의 통로: reject 뒤 사람이 고친 결과가 시스템으로 돌아오는 통로가 검수 기록의 한 줄뿐인데 충분한가.",
-        "긴 사슬에서 link 사이에 workflow가 바뀌면 다음 link는 어느 버전을 쓰는가. 기본안: link 시작 시점의 버전.",
-        "fork의 공유: 같은 block을 맡은 둘이 fork를 나누어 쓰고 싶을 때. 기본안: fork는 개인, 공유하려면 정본 후보로.",
-        "oracle이 사람뿐인 workflow(판정형 갈래)는 full posture가 없다. 기본안: oracle weak → default_posture 상한 = draft.",
-        "실적(track_record)의 \"양호\" 기준: 숫자 대신 \"직전 [ ]건 중 reject 0\"처럼 형태만 정하는가."
-      ] }
+      ]}}
     ],
     related: ["workflow", "posture", "sandbox", "hitl", "result", "review", "learn", "fork"], stages: ["plan", "execute", "result", "review", "apply", "learn"]
   }
