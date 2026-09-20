@@ -42,7 +42,7 @@ main{max-width:720px;margin:0 auto;padding:12px 16px}
 .hideE .w,.hideE .s{visibility:hidden}
 /* sheet */
 .sheet h2{font-size:13px;font-weight:800;background:#f3f4f6;padding:6px 10px;border-radius:6px;margin:16px 0 8px}
-.item{display:grid;grid-template-columns:26px 1fr;gap:6px;padding:8px 0 10px;border-bottom:1px dashed var(--line)}
+.item{display:grid;grid-template-columns:26px 1fr 30px;gap:6px;padding:8px 0 10px;border-bottom:1px dashed var(--line)}
 .item .n{font-weight:800;font-size:13px;padding-top:3px}
 .q{font-size:16px;line-height:1.6}
 .q u{text-decoration-thickness:2px;font-weight:800}
@@ -74,35 +74,29 @@ input.ans.ok{border-color:var(--ok);background:var(--okb)}input.ans.no{border-co
   <div class="r"><a class="btn sm" href="2sem_perf_vocab_print.html" target="_blank">🖨 프린트 팩</a><a class="btn sm" href="2sem_perf_vocab_print.pdf" target="_blank">PDF</a></div>
 </header>
 <main>
-
-<section class="view" id="v-words">
-  <div class="tools">
-    <button class="btn sm" id="tStar" onclick="toggleW('onlyStar')">⭐ 표시만</button>
-    <button class="btn sm" id="tHideK" onclick="toggleW('hideK')">뜻 가리기</button>
-    <button class="btn sm" id="tHideE" onclick="toggleW('hideE')">영어 가리기</button>
-    <span id="wCount"></span>
-  </div>
-  <div class="note">안 외워지는 단어는 ⭐를 눌러 두세요. 다시 누르면 해제됩니다. 시험지에서 틀리면 자동으로 ⭐가 붙습니다.</div>
-  <div id="wlist"></div>
-</section>
-
 <section class="view on" id="v-sheet">
-  <div class="sticky"><span id="shLabel">시험지 · 20문항 · 약 15분</span><span id="shProg"></span></div>
-  <div class="note" style="margin-top:8px">실제 시험과 같은 구성(뜻 5 · 빈칸1개 5 · 빈칸2개 5 · 영작 5). 빈칸은 철자·대소문자까지 완전히 같아야 정답. 영작은 종이에 쓴 뒤 정답과 대조해 스스로 판정.</div>
-  <div class="tools"><button class="btn sm p" onclick="newSheet('all')">새 시험지</button><button class="btn sm" onclick="newSheet('star')">⭐ 표시한 것만으로</button><span id="shInfo"></span></div>
-  <div class="sheet" id="sheet"></div>
+  <div class="sticky"><span id="lab-sheet">시험지 · 20문항</span><span id="prog-sheet"></span></div>
+  <div class="note" style="margin-top:8px">실전 구성 = 뜻 5·빈칸1개 5·빈칸2개 5·영작 5. 랜덤 = 55단어×4유형 220문항 중 20개를 섞어서. 빈칸은 철자·대소문자까지 완전 일치만 정답. 영작은 종이에 쓴 뒤 정답과 대조해 스스로 판정.</div>
+  <div class="tools"><button class="btn sm p" onclick="newSheet('exam')">실전 구성</button><button class="btn sm p" onclick="newSheet('random')">🎲 랜덤 20</button><button class="btn sm" onclick="newSheet('star')">⭐만으로</button><span id="shInfo"></span></div>
+  <div class="sheet" id="sh-sheet"></div>
 </section>
-
+<section class="view" id="v-t1"><div class="sticky"><span>① 뜻 쓰기 · 55문항 전체</span><span id="prog-t1"></span></div><div class="tools" style="margin-top:8px"><button class="btn sm" onclick="fullSheet('t1',true)">처음부터 다시</button></div><div class="sheet" id="sh-t1"></div></section>
+<section class="view" id="v-t2a"><div class="sticky"><span>② 빈칸 1개 · 55문항 전체</span><span id="prog-t2a"></span></div><div class="tools" style="margin-top:8px"><button class="btn sm" onclick="fullSheet('t2a',true)">처음부터 다시</button></div><div class="sheet" id="sh-t2a"></div></section>
+<section class="view" id="v-t2b"><div class="sticky"><span>② 빈칸 2개 · 55문항 전체</span><span id="prog-t2b"></span></div><div class="tools" style="margin-top:8px"><button class="btn sm" onclick="fullSheet('t2b',true)">처음부터 다시</button></div><div class="sheet" id="sh-t2b"></div></section>
+<section class="view" id="v-t3"><div class="sticky"><span>③ 영작 · 55문항 전체</span><span id="prog-t3"></span></div><div class="note" style="margin-top:8px">종이에 문장을 쓴 뒤 채점을 눌러 정답과 대조하고 맞음/틀림을 고르세요.</div><div class="tools"><button class="btn sm" onclick="fullSheet('t3',true)">처음부터 다시</button></div><div class="sheet" id="sh-t3"></div></section>
 <section class="view" id="v-star">
-  <div class="tools"><button class="btn sm p" onclick="newSheet('star');go('sheet')">⭐로 시험지 만들기</button><span id="stCount"></span></div>
+  <div class="tools"><button class="btn sm p" onclick="newSheet('star')">⭐로 시험지 만들기</button><span id="stCount"></span></div>
+  <div class="note">틀린 단어는 자동으로 ⭐. 외웠으면 ★를 눌러 해제.</div>
   <div id="slist"></div>
 </section>
-
 </main>
 <nav>
-  <button data-v="words" onclick="go('words')">단어표</button>
   <button data-v="sheet" class="on" onclick="go('sheet')">시험지</button>
-  <button data-v="star" onclick="go('star')">⭐ 표시한 것</button>
+  <button data-v="t1" onclick="go('t1')">① 뜻</button>
+  <button data-v="t2a" onclick="go('t2a')">② 빈칸1</button>
+  <button data-v="t2b" onclick="go('t2b')">② 빈칸2</button>
+  <button data-v="t3" onclick="go('t3')">③ 영작</button>
+  <button data-v="star" onclick="go('star')">⭐</button>
 </nav>
 
 <script>
@@ -119,24 +113,13 @@ function norm(s){return s.replace(/[\u2018\u2019]/g,"'").replace(/\s+/g,' ').tri
 function rx(x){return new RegExp('\\b'+x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\b');}
 function dday(){const t=new Date();t.setHours(0,0,0,0);const d=Math.round((EXAM-t)/864e5);return d>0?'D-'+d:d===0?'D-DAY':'끝';}
 $('dday').textContent=dday();
-function go(v){document.querySelectorAll('.view').forEach(e=>e.classList.remove('on'));$('v-'+v).classList.add('on');document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));window.scrollTo(0,0);if(v==='words')renderWords();if(v==='star')renderStar();}
+function go(v){document.querySelectorAll('.view').forEach(e=>e.classList.remove('on'));$('v-'+v).classList.add('on');document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));window.scrollTo(0,0);if(v==='star')renderStar();if(TYPES.includes(v)&&!SH[v])fullSheet(v);}
 function starIds(){return Object.keys(ST.star).filter(k=>ST.star[k]).map(Number);}
 function setStar(n,on){ST.star[n]=!!on;save();}
-
-// ---- word table ----
-const WV={onlyStar:false,hideK:false,hideE:false};
-function toggleW(k){WV[k]=!WV[k];renderWords();}
-function renderWords(){
-  const list=WV.onlyStar?W.filter(w=>ST.star[w.n]):W;
-  $('tStar').classList.toggle('on',WV.onlyStar);$('tHideK').classList.toggle('on',WV.hideK);$('tHideE').classList.toggle('on',WV.hideE);
-  $('wCount').textContent=list.length+'개 · ⭐'+starIds().length;
-  $('wlist').className=(WV.hideK?'hideK ':'')+(WV.hideE?'hideE':'');
-  $('wlist').innerHTML=list.length?list.map(w=>`<div class="wrow ${ST.star[w.n]?'star':''}" id="wr${w.n}"><div class="n">${w.n}</div><div><div class="w">${esc(w.w)}<small>${esc(w.pos)}</small></div><div class="k">${esc(w.k)}</div><div class="s">${underlineHTML(w).replace(/<u>/g,'<b>').replace(/<\/u>/g,'</b>')}</div><div class="ko">${esc(w.ko)}</div></div><button class="star-btn ${ST.star[w.n]?'on':''}" onclick="setStar(${w.n},!ST.star[${w.n}]);renderWords()">★</button></div>`).join(''):'<div class="empty">⭐ 표시한 단어가 없습니다.</div>';
-}
 function renderStar(){const ids=starIds();$('stCount').textContent='⭐ '+ids.length+'개';
-  $('slist').innerHTML=ids.length?ids.map(n=>{const w=W[n-1];return `<div class="wrow star"><div class="n">${w.n}</div><div><div class="w">${esc(w.w)}<small>${esc(w.pos)}</small></div><div class="k">${esc(w.k)}</div><div class="s">${esc(w.s)}</div><div class="ko">${esc(w.ko)}</div></div><button class="star-btn on" onclick="setStar(${n},false);renderStar()">★</button></div>`;}).join(''):'<div class="empty">다 외웠습니다 🎉<br><span style="font-size:12px">단어표나 시험지에서 ⭐가 붙으면 여기 모입니다.</span></div>';}
+  $('slist').innerHTML=ids.length?ids.map(n=>{const w=W[n-1];return `<div class="wrow star"><div class="n">${w.n}</div><div><div class="w">${esc(w.w)}<small>${esc(w.pos)}</small></div><div class="k">${esc(w.k)}</div><div class="s">${esc(w.s)}</div><div class="ko">${esc(w.ko)}</div></div><button class="star-btn on" onclick="setStar(${n},false);renderStar()">★</button></div>`;}).join(''):'<div class="empty">다 외웠습니다 🎉<br><span style="font-size:12px">시험지에서 틀리거나 ★를 누르면 여기 모입니다.</span></div>';}
 
-// ---- sheet ----
+// ---- questions ----
 function underlineHTML(w){return esc(w.s).replace(rx(w.f),m=>'<u>'+esc(m)+'</u>');}
 function blankHTML(w,extra){let s=esc(w.s);[w.f].concat(extra||[]).forEach(x=>{s=s.replace(rx(x),'<span class="bl">(&nbsp;&nbsp;&nbsp;&nbsp;)</span>');});return s;}
 function chunksFor(w){const body=w.s.replace(/\.$/,'');const fi=body.indexOf(w.f);const before=body.slice(0,fi).trim().split(' ').filter(Boolean);const after=body.slice(fi+w.f.length).trim().split(' ').filter(Boolean);
@@ -146,54 +129,61 @@ function chunksFor(w){const body=w.s.replace(/\.$/,'');const fi=body.indexOf(w.f
 function orderBlanks(w){const i1=w.s.indexOf(w.f),i2=w.s.search(rx(w.b2));return i1<i2?w.f+', '+w.b2:w.b2+', '+w.f;}
 function korOK(user,w){const u=norm(user).replace(/\s/g,'');if(!u)return false;const parts=w.k.split(/[,;\/]/).map(x=>x.replace(/[~\s]/g,'').replace(/^(A에게|B를|B하도록)/,'')).filter(x=>x.length>=2);return parts.some(p=>u.includes(p)||(p.includes(u)&&u.length>=2));}
 function diffHTML(user,ans){const a=norm(user).split(' '),b=norm(ans).split(' ');let out=[];for(let i=0;i<Math.max(a.length,b.length);i++){if(a[i]===b[i])out.push(esc(b[i]));else{if(a[i]!==undefined)out.push('<s>'+esc(a[i])+'</s>');if(b[i]!==undefined)out.push('<b class="d">'+esc(b[i])+'</b>');}}return out.join(' ');}
+const TYPES=['t1','t2a','t2b','t3'];
+const H={t1:'1. 다음 문장의 밑줄 친 단어의 뜻을 한글로 쓰시오.',t2a:'2. 주어진 한글 뜻과 같은 의미가 되도록 영어 문장을 완성하시오. (빈칸 1개)',t2b:'2. 주어진 한글 뜻과 같은 의미가 되도록 영어 문장을 완성하시오. (빈칸 2개)',t3:'3. 주어진 한글 뜻과 같은 의미가 되도록 주어진 단어를 모두 이용하여 영어 문장을 완성하시오. (필요시 다른 단어 추가)'};
+const TAG={t1:'뜻',t2a:'빈칸1',t2b:'빈칸2',t3:'영작'};
 function mkQ(type,w){
   if(type==='t1')return{type,w,ans:w.k,html:`<div class="q">${underlineHTML(w)}</div><input class="ans" autocomplete="off" placeholder="한글 뜻">`};
   if(type==='t2a')return{type,w,ans:w.f,html:`<div class="ko">${esc(w.ko)}</div><div class="q">${blankHTML(w)}</div><input class="ans" autocomplete="off" autocapitalize="off" placeholder="빈칸">`};
   if(type==='t2b')return{type,w,ans:orderBlanks(w),html:`<div class="ko">${esc(w.ko)}</div><div class="q">${blankHTML(w,[w.b2])}</div><input class="ans" autocomplete="off" autocapitalize="off" placeholder="순서대로, 쉼표로 구분">`};
-  return{type,w,ans:w.s,html:`<div class="ko">${esc(w.ko)}</div><div class="chunks">(${chunksFor(w).map(c=>'<code>'+esc(c)+'</code>').join(', ')})</div><div class="note" style="margin:0">종이에 문장을 쓴 뒤 채점하세요.</div>`};
+  return{type,w,ans:w.s,html:`<div class="ko">${esc(w.ko)}</div><div class="chunks">(${chunksFor(w).map(c=>'<code>'+esc(c)+'</code>').join(', ')})</div>`};
 }
 function grade(q,user){if(q.type==='t1')return korOK(user,q.w)?'ok':'chk';if(q.type==='t2b'){const u=norm(user).split(',').map(x=>x.trim()).join(', ');return u===q.ans?'ok':'no';}if(q.type==='t3')return 'self';return norm(user)===norm(q.ans)?'ok':'no';}
 
-let SH={qs:[],graded:false,mode:'all'};
+// ---- sheets (key: sheet | t1 | t2a | t2b | t3) ----
+const SH={};
 function pickWords(mode){
   let pool=mode==='star'?W.filter(w=>ST.star[w.n]):W.slice();
   if(!pool.length){alert('⭐ 표시한 단어가 없습니다.');return null;}
-  // 덜 본 단어 우선, 20개
   pool=shuf(pool).sort((a,b)=>(ST.seen[a.n]||0)-(ST.seen[b.n]||0));
-  let sel=pool.slice(0,20);
-  while(sel.length<20)sel=sel.concat(shuf(pool).slice(0,20-sel.length));
-  return shuf(sel);
+  let sel=pool.slice(0,20);while(sel.length<20)sel=sel.concat(shuf(pool).slice(0,20-sel.length));return shuf(sel);
 }
 function newSheet(mode){
-  const sel=pickWords(mode);if(!sel)return;
-  sel.forEach(w=>ST.seen[w.n]=(ST.seen[w.n]||0)+1);save();
-  SH={qs:[].concat(sel.slice(0,5).map(w=>mkQ('t1',w)),sel.slice(5,10).map(w=>mkQ('t2a',w)),sel.slice(10,15).map(w=>mkQ('t2b',w)),sel.slice(15,20).map(w=>mkQ('t3',w))),graded:false,mode};
-  $('shInfo').textContent=mode==='star'?'⭐ 표시한 단어로 구성':'';
-  const H={t1:'1. 다음 문장의 밑줄 친 단어의 뜻을 한글로 쓰시오.',t2a:'2. 주어진 한글 뜻과 같은 의미가 되도록 영어 문장을 완성하시오. (빈칸 1개)',t2b:'2. 주어진 한글 뜻과 같은 의미가 되도록 영어 문장을 완성하시오. (빈칸 2개)',t3:'3. 주어진 한글 뜻과 같은 의미가 되도록 주어진 단어를 모두 이용하여 영어 문장을 완성하시오. (필요시 다른 단어 추가)'};
+  let qs;
+  if(mode==='random'){const all=[];W.forEach(w=>TYPES.forEach(t=>all.push([t,w])));qs=shuf(all).slice(0,20).map(([t,w])=>mkQ(t,w));}
+  else{const sel=pickWords(mode);if(!sel)return;qs=[].concat(sel.slice(0,5).map(w=>mkQ('t1',w)),sel.slice(5,10).map(w=>mkQ('t2a',w)),sel.slice(10,15).map(w=>mkQ('t2b',w)),sel.slice(15,20).map(w=>mkQ('t3',w)));}
+  qs.forEach(q=>ST.seen[q.w.n]=(ST.seen[q.w.n]||0)+1);save();
+  $('shInfo').textContent={exam:'실전 구성',random:'랜덤 20 (220문항 중)',star:'⭐ 표시한 단어로 구성'}[mode];
+  renderSheet('sheet',qs,mode==='random');go('sheet');
+}
+function fullSheet(type,force){if(SH[type]&&!force)return;renderSheet(type,W.map(w=>mkQ(type,w)),false);window.scrollTo(0,0);}
+function renderSheet(key,qs,tagEach){
+  SH[key]={qs,graded:false,ok:0,pending:0};
   let html='',last='';
-  SH.qs.forEach((q,i)=>{if(q.type!==last){html+=`<h2>${H[q.type]}</h2>`;last=q.type;}html+=`<div class="item" id="it${i}"><div class="n">${i+1}</div><div>${q.html}<div class="fb" id="fb${i}"></div></div></div>`;});
-  html+=`<div class="tools" style="margin-top:14px"><button class="btn p" id="gradeBtn" onclick="gradeSheet()">채점</button></div><div id="sum"></div>`;
-  $('sheet').innerHTML=html;
-  document.querySelectorAll('#sheet input.ans').forEach(el=>el.addEventListener('input',updProg));
-  updProg();go('sheet');
+  qs.forEach((q,i)=>{if(!tagEach&&q.type!==last){html+=`<h2>${H[q.type]}</h2>`;last=q.type;}
+    const tag=tagEach?`<span class="pill">${TAG[q.type]}</span> `:'';
+    html+=`<div class="item" id="${key}-it${i}"><div class="n">${i+1}</div><div>${tag}${q.html}<div class="fb" id="${key}-fb${i}"></div></div><button class="star-btn ${ST.star[q.w.n]?'on':''}" onclick="setStar(${q.w.n},!ST.star[${q.w.n}]);this.classList.toggle('on')">★</button></div>`;});
+  if(tagEach)html=`<h2>랜덤 20문항 · 유형이 섞여 있음</h2>`+html;
+  html+=`<div class="tools" style="margin-top:14px"><button class="btn p" id="${key}-grade" onclick="gradeSheet('${key}')">채점</button></div><div id="${key}-sum"></div>`;
+  $('sh-'+key).innerHTML=html;
+  document.querySelectorAll('#sh-'+key+' input.ans').forEach(el=>el.addEventListener('input',()=>updProg(key)));updProg(key);
 }
-function updProg(){const ins=[...document.querySelectorAll('#sheet input.ans')];const f=ins.filter(i=>i.value.trim()).length;$('shProg').textContent=SH.graded?'채점 완료':`작성 ${f} / ${ins.length}`;}
-function gradeSheet(){
-  if(SH.graded)return;SH.graded=true;let ok=0,pending=0;
-  SH.qs.forEach((q,i)=>{const it=$('it'+i);const inp=it.querySelector('input.ans');const user=inp?inp.value:'';const r=grade(q,user);const fb=$('fb'+i);it.classList.add('graded');
-    if(inp)inp.disabled=true;
-    if(r==='ok'){ok++;it.classList.add('res-ok');inp.classList.add('ok');fb.innerHTML=`<span class="a">${esc(q.ans)}</span>`;}
-    else if(r==='no'){it.classList.add('res-no');inp.classList.add('no');setStar(q.w.n,true);fb.innerHTML=`정답 <span class="a">${esc(q.ans)}</span> <span class="star-tag">⭐ 표시됨</span><br>${diffHTML(user,q.ans)}`;}
-    else if(r==='chk'){pending++;fb.innerHTML=`모범답 <span class="a">${esc(q.w.k)}</span> · 내 답: ${esc(user)||'(빈칸)'}<div class="self"><button class="btn sm ok" onclick="selfMark(${i},true)">맞음</button><button class="btn sm no" onclick="selfMark(${i},false)">틀림</button></div>`;}
-    else{pending++;fb.innerHTML=`정답 <span class="a">${esc(q.ans)}</span><div class="self"><button class="btn sm ok" onclick="selfMark(${i},true)">맞음</button><button class="btn sm no" onclick="selfMark(${i},false)">틀림</button></div>`;}
+function updProg(key){const s=SH[key];const ins=[...document.querySelectorAll('#sh-'+key+' input.ans')];const f=ins.filter(i=>i.value.trim()).length;$('prog-'+key).textContent=s.graded?`채점 완료 ${s.ok}/${s.qs.length}`:ins.length?`작성 ${f} / ${ins.length}`:'';}
+function gradeSheet(key){
+  const s=SH[key];if(s.graded)return;s.graded=true;
+  s.qs.forEach((q,i)=>{const it=$(key+'-it'+i);const inp=it.querySelector('input.ans');const user=inp?inp.value:'';const r=grade(q,user);const fb=$(key+'-fb'+i);it.classList.add('graded');if(inp)inp.disabled=true;
+    const self=`<div class="self"><button class="btn sm ok" onclick="selfMark('${key}',${i},true)">맞음</button><button class="btn sm no" onclick="selfMark('${key}',${i},false)">틀림</button></div>`;
+    if(r==='ok'){s.ok++;it.classList.add('res-ok');inp.classList.add('ok');fb.innerHTML=`<span class="a">${esc(q.ans)}</span>`;}
+    else if(r==='no'){it.classList.add('res-no');inp.classList.add('no');setStar(q.w.n,true);it.querySelector('.star-btn').classList.add('on');fb.innerHTML=`정답 <span class="a">${esc(q.ans)}</span> <span class="star-tag">⭐</span><br>${diffHTML(user,q.ans)}`;}
+    else if(r==='chk'){s.pending++;fb.innerHTML=`모범답 <span class="a">${esc(q.w.k)}</span> · 내 답: ${esc(user)||'(빈칸)'}${self}`;}
+    else{s.pending++;fb.innerHTML=`정답 <span class="a">${esc(q.ans)}</span>${self}`;}
   });
-  SH.ok=ok;SH.pending=pending;ST.sheets++;save();$('gradeBtn').style.display='none';updProg();renderSum();
-  window.scrollTo({top:0,behavior:'smooth'});
+  ST.sheets++;save();$(key+'-grade').style.display='none';updProg(key);renderSum(key);window.scrollTo({top:0,behavior:'smooth'});
 }
-function selfMark(i,ok){const q=SH.qs[i];const it=$('it'+i);it.querySelector('.self').innerHTML=ok?'<span style="color:var(--ok);font-weight:700">맞음</span>':'<span style="color:var(--no);font-weight:700">틀림</span> <span class="star-tag">⭐ 표시됨</span>';it.classList.add(ok?'res-ok':'res-no');if(ok)SH.ok++;else setStar(q.w.n,true);SH.pending--;renderSum();}
-function renderSum(){const wrong=SH.qs.filter((q,i)=>$('it'+i).classList.contains('res-no')).map(q=>q.w.w);
-  $('sum').innerHTML=`<div class="sumbox"><span class="score">${SH.ok} / 20</span>${SH.pending?` <span style="color:var(--mute)">(직접 판정 ${SH.pending}개 남음)</span>`:''}<br>${wrong.length?'틀린 단어: <b>'+wrong.map(esc).join(', ')+'</b> → ⭐ 표시됨':'틀린 것 없음 🎉'}<div class="tools" style="margin-top:8px"><button class="btn sm p" onclick="newSheet('all')">새 시험지</button><button class="btn sm" onclick="go('star')">⭐ 표시한 것 보기</button></div></div>`;
-  const top=document.querySelector('.sheet');const s=$('sum');if(!$('sumTop')){const c=s.cloneNode(true);c.id='sumTop';top.prepend(c);}else{$('sumTop').innerHTML=s.innerHTML;}}
+function selfMark(key,i,ok){const s=SH[key];const q=s.qs[i];const it=$(key+'-it'+i);it.querySelector('.self').innerHTML=ok?'<span style="color:var(--ok);font-weight:700">맞음</span>':'<span style="color:var(--no);font-weight:700">틀림</span> <span class="star-tag">⭐</span>';it.classList.add(ok?'res-ok':'res-no');if(ok)s.ok++;else{setStar(q.w.n,true);it.querySelector('.star-btn').classList.add('on');}s.pending--;updProg(key);renderSum(key);}
+function renderSum(key){const s=SH[key];const wrong=s.qs.filter((q,i)=>$(key+'-it'+i).classList.contains('res-no')).map(q=>q.w.w);
+  const inner=`<div class="sumbox"><span class="score">${s.ok} / ${s.qs.length}</span>${s.pending?` <span style="color:var(--mute)">(직접 판정 ${s.pending}개 남음)</span>`:''}<br>${wrong.length?'틀린 단어: <b>'+wrong.map(esc).join(', ')+'</b> → ⭐':'틀린 것 없음 🎉'}<div class="tools" style="margin-top:8px">${key==='sheet'?`<button class="btn sm p" onclick="newSheet('random')">🎲 랜덤 20</button><button class="btn sm" onclick="newSheet('exam')">실전 구성</button>`:`<button class="btn sm p" onclick="fullSheet('${key}',true)">처음부터 다시</button>`}<button class="btn sm" onclick="go('star')">⭐ 보기</button></div></div>`;
+  $(key+'-sum').innerHTML=inner;const top=$('sh-'+key);let st=$(key+'-sumTop');if(!st){st=document.createElement('div');st.id=key+'-sumTop';top.prepend(st);}st.innerHTML=inner;}
 
 // selftest
 if(location.search.includes('selftest')){const out=[];const t=(n,c)=>out.push((c?'PASS':'FAIL')+' '+n);
@@ -203,11 +193,13 @@ if(location.search.includes('selftest')){const out=[];const t=(n,c)=>out.push((c
   t('t1',grade(mkQ('t1',W[6]),'효율적인')==='ok'&&grade(mkQ('t1',W[6]),'엉뚱')==='chk');
   t('t3 self',grade(mkQ('t3',W[4]),'')==='self');
   t('chunks 3',W.every(w=>chunksFor(w).length===3&&chunksFor(w).includes(w.f)));
-  newSheet('all');t('sheet 20',document.querySelectorAll('#sheet .item').length===20);
-  const ins=document.querySelectorAll('#sheet input.ans');t('inputs 15',ins.length===15);
-  gradeSheet();t('graded',SH.graded&&$('sumTop'));t('star after wrong',starIds().length>0);
+  newSheet('exam');t('exam 20',document.querySelectorAll('#sh-sheet .item').length===20&&document.querySelectorAll('#sh-sheet input.ans').length===15);
+  newSheet('random');t('random 20',document.querySelectorAll('#sh-sheet .item').length===20&&document.querySelectorAll('#sh-sheet .pill').length===20);
+  gradeSheet('sheet');t('graded',SH.sheet.graded&&!!$('sheet-sumTop'));
+  TYPES.forEach(k=>{fullSheet(k);t('full '+k,document.querySelectorAll('#sh-'+k+' .item').length===55);});
+  gradeSheet('t2a');t('full grade',SH.t2a.graded&&starIds().length>0);
   const pre=document.createElement('pre');pre.id='selftest';pre.textContent=out.join('\n');document.body.prepend(pre);}
-else newSheet('all');
+else newSheet('exam');
 </script>
 </body>
 </html>
