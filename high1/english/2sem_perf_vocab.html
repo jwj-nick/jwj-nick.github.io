@@ -65,7 +65,7 @@ input.ans.ok{border-color:var(--ok);background:var(--okb)}input.ans.no{border-co
 .sumbox{background:var(--pb);border-radius:10px;padding:12px;margin:12px 0;font-size:14px;line-height:1.6}
 .empty{padding:40px 0;text-align:center;color:var(--mute);font-size:14px}
 .star-tag{color:var(--star);font-size:14px}
-.peek{margin-top:5px}.btn.ghost{color:var(--mute);border-style:dashed;background:#fff}
+.peek{margin-top:5px}.btn.ghost{color:var(--mute);border-style:dashed;background:#fff}.btn.ghost.on{color:var(--p);border-color:var(--p);border-style:solid}
 .rv{font-size:13px;margin-top:4px;background:#f9fafb;border-radius:8px;padding:6px 8px}.rv b{color:var(--ok)}
 .hint{font-size:12px;color:var(--mute);line-height:1.5;margin-top:3px}
 </style>
@@ -165,14 +165,16 @@ function renderSheet(key,qs,tagEach){
   let html='',last='';
   qs.forEach((q,i)=>{if(!tagEach&&q.type!==last){html+=`<h2>${H[q.type]}</h2>`;last=q.type;}
     const tag=tagEach?`<span class="pill">${TAG[q.type]}</span> `:'';
-    html+=`<div class="item" id="${key}-it${i}"><div class="n">${i+1}</div><div>${tag}${q.html}<div class="peek"><button class="btn sm ghost" onclick="reveal('${key}',${i},this)">정답 보기</button></div><div class="fb" id="${key}-fb${i}"></div></div><button class="star-btn ${ST.star[q.w.n]?'on':''}" onclick="setStar(${q.w.n},!ST.star[${q.w.n}]);this.classList.toggle('on')">★</button></div>`;});
+    html+=`<div class="item" id="${key}-it${i}"><div class="n">${i+1}</div><div>${tag}${q.html}<div class="peek"><button class="btn sm ghost" onclick="reveal('${key}',${i})">정답 보기</button></div><div class="fb" id="${key}-fb${i}"></div></div><button class="star-btn ${ST.star[q.w.n]?'on':''}" onclick="setStar(${q.w.n},!ST.star[${q.w.n}]);this.classList.toggle('on')">★</button></div>`;});
   if(tagEach)html=`<h2>랜덤 20문항 · 유형이 섞여 있음</h2>`+html;
   html+=`<div class="tools" style="margin-top:14px"><button class="btn p" id="${key}-grade" onclick="gradeSheet('${key}')">채점</button></div><div id="${key}-sum"></div>`;
   $('sh-'+key).innerHTML=html;
   document.querySelectorAll('#sh-'+key+' input.ans').forEach(el=>el.addEventListener('input',()=>updProg(key)));updProg(key);
 }
-function reveal(key,i,btn){const s=SH[key];const q=s.qs[i];const it=$(key+'-it'+i);s.revealed=s.revealed||{};s.revealed[i]=true;setStar(q.w.n,true);it.querySelector('.star-btn').classList.add('on');
-  btn.parentNode.innerHTML=`<div class="rv">정답 <b>${esc(q.ans)}</b> <span class="star-tag">⭐</span><div class="hint">${esc(q.w.w)} ${esc(q.w.pos)} ${esc(q.w.k)}<br>${esc(q.w.s)}<br>${esc(q.w.ko)}</div></div>`;}
+function reveal(key,i){const s=SH[key];const q=s.qs[i];const it=$(key+'-it'+i);s.revealed=s.revealed||{};
+  s.revealed[i]=true;setStar(q.w.n,true);it.querySelector('.star-btn').classList.add('on');
+  it.querySelector('.peek').innerHTML=`<button class="btn sm ghost on" onclick="hidePeek('${key}',${i})">정답 끄기</button><div class="rv">정답 <b>${esc(q.ans)}</b> <span class="star-tag">⭐</span><div class="hint">${esc(q.w.w)} ${esc(q.w.pos)} ${esc(q.w.k)}<br>${esc(q.w.s)}<br>${esc(q.w.ko)}</div></div>`;}
+function hidePeek(key,i){const it=$(key+'-it'+i);it.querySelector('.peek').innerHTML=`<button class="btn sm ghost" onclick="reveal('${key}',${i})">정답 보기</button>`;}
 function updProg(key){const s=SH[key];const ins=[...document.querySelectorAll('#sh-'+key+' input.ans')];const f=ins.filter(i=>i.value.trim()).length;$('prog-'+key).textContent=s.graded?`채점 완료 ${s.ok}/${s.qs.length}`:ins.length?`작성 ${f} / ${ins.length}`:'';}
 function gradeSheet(key){
   const s=SH[key];if(s.graded)return;s.graded=true;
@@ -202,7 +204,9 @@ if(location.search.includes('selftest')){const out=[];const t=(n,c)=>out.push((c
   newSheet('random');t('random 20',document.querySelectorAll('#sh-sheet .item').length===20&&document.querySelectorAll('#sh-sheet .pill').length===20);
   gradeSheet('sheet');t('graded',SH.sheet.graded&&!!$('sheet-sumTop'));
   TYPES.forEach(k=>{fullSheet(k);t('full '+k,document.querySelectorAll('#sh-'+k+' .item').length===55);});
-  reveal('t2a',0,document.querySelector('#t2a-it0 .peek button'));t('reveal shows',!!document.querySelector('#t2a-it0 .rv')&&ST.star[SH.t2a.qs[0].w.n]);
+  reveal('t2a',0);t('reveal shows',!!document.querySelector('#t2a-it0 .rv')&&ST.star[SH.t2a.qs[0].w.n]);
+  hidePeek('t2a',0);t('reveal toggle off',!document.querySelector('#t2a-it0 .rv')&&!!document.querySelector('#t2a-it0 .peek button'));
+  reveal('t2a',0);
   gradeSheet('t2a');t('full grade',SH.t2a.graded&&starIds().length>0);t('revealed=wrong',$('t2a-it0').classList.contains('res-no'));
   const pre=document.createElement('pre');pre.id='selftest';pre.textContent=out.join('\n');document.body.prepend(pre);}
 else newSheet('exam');
