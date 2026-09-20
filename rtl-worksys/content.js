@@ -7,7 +7,7 @@ window.WS = {
     title: "RTL WorkSys",
     subtitle: "AI-native RTL 업무 시스템 · core 설계 노트",
     updated: "2026-09-20",
-    version: "0.1",
+    version: "0.2",
     tagline: "ticket이 생기면 AI가 먼저 일을 시작한다. 사람은 검수와 결정에 선다."
   },
 
@@ -422,6 +422,104 @@ window.WS = {
       { ul: ["승격: fork의 draft → 정기 회의에서 정본 MR. 제안은 시스템이 얼마든지, 반영은 사람이. 승인은 병목이 되지 않는다. fork에서는 즉시 쓴다.", "강등: 정본 = 정기 회의에서 \"[ ]기간 미사용 또는 reject 사례와 연관\"인 workflow·규칙을 stale → retired로(결정 주체: 정본 승인자 소수). fork = 개인이 자유롭게, 다만 보조 agent(gardener)가 후보를 목록으로 제시한다.", "사람 역량 위축 방지: 정기적으로 사람이 직접 처리하는 ticket을 둔다. 형태·비율은 공란, 결정 주체 = 팀 리더. 시스템은 ai:manual ticket을 건드리지 않는다."] }
     ]}
   ],
+
+
+  /* ───────────── 발생 — intake & routing (ticket을 넘어 일의 발생 전체) ───────────── */
+  intake: {
+    title: "intake & routing — 일의 발생을 받아 처리에 착수시키는 단계",
+    lead: "core의 앞 세 단계(intake → triage → gate)를 입구를 ticket 하나로 한정하지 않고 일반화한 설계다. ticket 분류(분류 record 여섯 칸, gate 다섯 조건)는 그대로 유효하며, 이 페이지는 그 앞뒤에 무엇이 더 있어야 하는지를 정한다.",
+    summary: [
+      "AI가 처리해야 할 \"일의 발생\"은 ticket만이 아니다. 도구가 낸 신호, 예정된 시각, 상태 변화, mail·chat의 요청, 시스템 내부에서 생긴 backlog가 모두 같은 core로 들어온다.",
+      "그러려면 분류 앞에 \"발생 → 공통 intake 레코드\"로 정규화하는 adapter가 입구마다 있어야 한다.",
+      "분류는 카테고리 하나 고르기가 아니라 축 여럿이다: 일인가 / 무엇을 원하는가 / 무엇에 대한 것인가 / 어떤 종류의 일인가 / gate / 누가 기다리는가 / 기존 일과의 관계.",
+      "여섯 단계(capture → raw scan → work-or-not → understand → categorize → gate → route)를 거쳐 task 폴더가 열리고 workflow가 지정된다.",
+      "이 설계에서 드러난 가장 큰 빈칸: \"왜 그런가\"를 찾는 diagnose(debug) 갈래가 없다."
+    ],
+    excluded: "사람이 말로 한 것을 기록으로 만드는 일(회의 → action item)은 이 단계의 범위가 아니다. 별도 도구·별도 갈래의 일이다.",
+    body: [
+      { h: "1. 발생의 모양 — 입구 목록" },
+      { table: { head: ["입구", "예", "ticket과 다른 점", "범위"], rows: [
+        ["ticket", "issue tracker의 ticket", "이미 \"일\"의 형식을 갖추고 있다", "포함 (첫 구현)"],
+        ["tool 신호", "야간 regression 실패, lint 경고 증가, synthesis timing 악화, CI 실패", "요청자가 없다. \"이것이 일인가\"부터 판단해야 한다", "포함 (둘째 adapter)"],
+        ["schedule", "주간 보고, 마일스톤 점검, 정기 회귀", "시각이 트리거다. workflow가 미리 정해져 있다", "나중에"],
+        ["state 변화", "spec 개정, 상류 IP 새 버전", "직접 요청은 없지만 파급 작업이 생긴다", "나중에"],
+        ["mail", "메일로 온 요청", "원문이 일의 형식이 아니다", "나중에 (LLM 입력 승인 범위 확인 뒤)"],
+        ["chat / 메신저", "메신저 한 줄 요청", "같음. AI가 대신 ticket을 만들지 않고 ticket 개설을 회신으로 제안한다", "나중에"],
+        ["고객 피드백", "고객이 보낸 문제 보고·질문", "대외 내용이라 별도 규율이 필요하다", "제외"],
+        ["internal backlog", "다른 갈래가 남긴 \"나중에 test 보강\", 검수 reject 뒤 재작업", "시스템 내부에서 발생. 사람이 모르는 사이에 쌓인다", "포함"]
+      ]}},
+
+      { h: "2. 여섯 단계 (intake → triage → gate 안의 구조)" },
+      { table: { head: ["단계", "하는 일", "산출물", "여기서 멈추는 경우"], rows: [
+        ["0 capture", "adapter가 원문을 받아 intake 레코드 초안을 만든다. 규칙으로 채울 수 있는 필드는 LLM 없이 채운다", "`00_intake.md` 초안 + 원문 참조", "없음. 받은 것은 반드시 레코드가 된다"],
+        ["1 raw scan", "LLM에 넣기 전에 pattern으로 위험 신호·금지 링크·민감 내용을 본다", "scan 결과", "위험 신호 → `ai:risk`, 사람에게 알리고 끝"],
+        ["2 work-or-not", "일이다 / 기록만 한다 / 기존 일에 붙인다", "`work_decision` 필드", "기록만 → label 후 종료. 붙인다 → 기존 task에 comment, 종료"],
+        ["3 understand", "ask의 종류·대상·요청자·\"끝\"의 모양·관계를 읽는다", "레코드의 나머지 필드", "없음. 빈 필드는 빈 채로 다음 단계로"],
+        ["4 categorize", "업무 유형 `cat:<id>` 하나 + 근거 등급. 여러 유형에 걸치면 child 후보 목록", "`10_triage.md` (분류 record 여섯 칸)", "없음"],
+        ["5 gate", "권한 범위 밖 / 정보 부족 / 해법 불확실·노력 초과·workflow 신설 / 진행", "`20_gate.md` + `ai:*` label", "범위 밖 → 기록만. 정보 부족 → 질문 다섯 칸. 불확실 → discuss"],
+        ["6 route", "task 폴더 확정, workflow 지정, 초기 posture, 출처에 첫 회신", "`30_plan.md` 착수, 출처에 comment", "없음"]
+      ]}},
+      { ul: ["raw scan을 LLM 앞에 두는 이유: 입구가 늘수록 LLM에 넣기 전에 걸러야 할 원문(외부 mail, 첨부 링크)이 는다. gate의 위험 조건은 그 뒤 두 번째 검사다.", "work-or-not은 ticket에는 거의 \"일이다\"로 통과한다(관리성 ticket만 기록). tool 신호와 state 변화에서는 이 단계가 핵심이다."] },
+
+      { h: "3. 공통 intake 레코드 (00_intake.md의 필드)" },
+      { code: "source:        type(ticket|mail|chat|tool|schedule|state|internal), ref, received_at, raw_ref\nscan:          risk(none|flagged), links(allowed|blocked), notes\nwork_decision: work | info | attach(target task)\nask:           answer | change | diagnose | decide | notify | scheduled\nobject:        kind(rtl|tb|script|constraint|doc|spec|env|process), id\nrequester:     사람 또는 도구. 도구면 default owner 규칙으로 채운 사람\ndone_shape:    answer | patch | report | decision-material | none\ndeadline:      있으면 그대로, 없으면 공란\nrelation:      new | duplicate(of) | follow_up(of) | part_of(epic) | child_of(intake)\ncategory:      cat:<id>, grounds(explicit|similar-case|inferred), alternatives\ngate:          result, reason\nroute:         workflow id, initial posture, children[]" },
+      { ul: ["누가 채우는가: `source`·`scan`·`received_at`·`deadline`은 adapter가 규칙으로. `work_decision`·`ask`·`object`·`relation`·`category`는 LLM이 근거 한 줄과 함께. `requester`·`done_shape`는 원문에 있으면 그대로, 없으면 기본값 규칙으로.", "LLM이 채운 필드는 모두 근거 한 줄을 옆에 둔다. 검수와 golden set이 그 근거를 본다.", "분류 record 여섯 칸을 대체하지 않는다. 여섯 칸은 `category` 이후의 상세이고, 이 레코드는 그 앞의 공통 껍데기다."] },
+
+      { h: "4. 입구별 adapter — 하는 일과 못 하는 일" },
+      { table: { head: ["입구", "규칙으로 채우는 것", "LLM이 읽어야 하는 것", "work-or-not 기본 규칙"], rows: [
+        ["ticket", "ref, 시각, 요청자, 마감, 기존 label", "ask, object, category, relation", "일이다. 관리성 ticket은 기록만"],
+        ["tool 신호", "ref, 시각, object, 실패 signature", "신규인가 재발인가, 심각도", "signature가 열린 task와 같으면 붙인다. 새로우면 shadow 단계에서는 owner에게 제안, 이후 자동 개설"],
+        ["schedule", "전부 (workflow가 미리 정해져 있다)", "없음", "일이다. 분류 없이 바로 route"],
+        ["state 변화", "ref, 시각, 무엇이 바뀌었는가", "파급 범위", "기록만 + 파급 child 후보를 owner에게 제안"],
+        ["mail / chat", "시각, 발신자", "전부", "요청이면 일, 공유·잡담은 기록만. AI가 대신 ticket을 만들지 않고 개설을 제안"],
+        ["internal", "전부 (시스템이 만든 레코드)", "없음", "일이다. 낮은 우선 queue. timing·area / test·coverage 갈래가 소비"]
+      ]}},
+      { note: "adapter 도입 순서: ticket → tool 신호 → (schedule, state 변화) → (mail, chat). tool 신호를 둘째로 두는 이유는 요청자가 없어 사람에게 부담이 없고, \"일인가\" 판단의 golden set이 쌓이기 때문이다." },
+
+      { h: "5. ask의 종류 → workflow 묶음" },
+      { table: { head: ["ask", "뜻", "가는 곳", "비고"], rows: [
+        ["answer", "질문에 답하라", "knowledge 검색 + 근거 붙인 답. 짧은 판정형 workflow", "코드 리뷰 갈래와 같은 \"판정과 근거\" 틀"],
+        ["change", "무언가를 바꿔라", "설계·검증 사슬 / timing·area / test·coverage 갈래 중 category로 결정", "산출물이 patch"],
+        ["diagnose", "문제를 보고한다. 원인을 찾아라", "debug workflow (미설계)", "RTL 조직에서 가장 흔한 발생"],
+        ["decide", "결정이 필요하다", "결정 자료 준비 → [HD]", "AI는 결정하지 않고 비교표·대안·근거를 만든다"],
+        ["notify", "알려만 준다", "기록만, 또는 state 변화 adapter로", "일이 아니다"],
+        ["scheduled", "정해진 시각이 됐다", "미리 정한 workflow", "분류 없음"]
+      ]}},
+      { p: "ask의 종류는 조직과 무관하게 일반적이라고 본다. 조직마다 다른 것은 업무 유형(categories.yaml)뿐이다." },
+
+      { h: "6. 규칙 셋" },
+      { ul: [
+        "관계·중복(dedup): tool 신호는 `object + 실패 signature`를 fingerprint로 삼아 열린 task와 비교한다. 같으면 새 task를 열지 않고 기존 task에 comment로 붙인다. ticket은 유사 사례를 `follow_up(of)`로 표시만 하고 새 task는 연다. 사람이 적은 ticket을 AI가 닫지 않는다.",
+        "분류 근거 등급(숫자 없음): `explicit`(원문이 유형을 명시) / `similar-case`(golden set의 채택 사례와 유사) / `inferred`(추론뿐). `inferred`이면 category를 정하되 gate에서 \"해법 불확실\"로 discuss를 건다. posture를 근거 셋으로 정하는 원리와 같다.",
+        "틀린 분류를 잡는 자리 셋: ① golden set과의 불일치 ② 검수 판정의 \"category was wrong\" 항목 ③ 실행 중 재분류. 셋 다 `categories.yaml`을 고치는 입력이다."
+      ] },
+
+      { h: "7. 범위 결정 (설계 기본값. 조직이 바꾸면 그대로)" },
+      { table: { head: ["대상(object)", "AI가 일을 열어도 되는가"], rows: [
+        ["RTL 소스 · testbench·test · script · synthesis constraint · 문서", "허용 (고치는 범위는 workflow의 posture와 scope.yaml이 정한다)"],
+        ["spec 자체", "결정 자료 준비까지 (spec 수정은 결정 사항)"],
+        ["환경 설정 (tool version·license·CI job)", "열지 않음 (IT·관리자 영역)"],
+        ["프로세스·규칙 문서 (팀 규칙·checklist)", "열지 않음 (정본 회의 영역)"]
+      ]}},
+      { ul: [
+        "AI가 스스로 일을 열면 안 되는 것: 고객 대외 회신 / 릴리스·tag·배포 / 다른 팀 소유 영역 / 환경·권한·계정 변경 / 사람 평가·일정·인력 배치.",
+        "tool 신호의 default owner: 그 block·TB의 owner(naming 또는 ownership 파일). ownership 파일이 없으면 준비 단계의 항목이 된다.",
+        "한 ticket에 일이 여럿 섞여 있을 때: AI가 child 후보를 만들고 요청자에게 \"나눌까요\"로 묻는다. 자동 분할 개설은 shadow 단계 뒤에 owner 승인 아래 켠다."
+      ] },
+
+      { h: "8. 가상 사례 넷 — 여섯 단계를 태워 본다" },
+      { ul: [
+        "야간 regression에서 어제와 같은 test가 다시 실패 → tool adapter가 object·signature를 채움 → signature가 어제 열린 task와 같다 → attach. 기존 task에 \"재발, 로그 링크\" comment. 사람은 아무것도 받지 않는다.",
+        "메신저 한 줄 \"block X timing 안 맞는데 한번 봐줄래?\" → 요청이다 → work → ask = diagnose인지 change인지 불명, grounds = inferred → gate 정보 부족 → 질문 다섯 칸을 발신자에게 회신하고 ticket 개설을 제안.",
+        "spec 개정 알림 → info + 파급 child 후보 셋(RTL 두 block, TB 하나, 문서) → shadow 단계에서는 owner에게 \"이 셋을 열까요\"로 제안.",
+        "설계 사슬 갈래가 남긴 \"나중에 test 보강\" backlog → internal adapter가 레코드를 통째로 만듦 → category = test·coverage → 낮은 우선 queue. 야간에 자원이 비면 그 갈래가 집어 간다."
+      ] },
+
+      { h: "9. 빈칸 — diagnose(debug) 갈래" },
+      { p: "지금의 갈래 넷(설계·검증 사슬 / 코드 리뷰 / timing·area / test·coverage)은 모두 \"만들거나 고치거나 판정하는\" 갈래다. \"왜 그런가\"를 찾는 갈래가 없다. regression 실패의 원인 찾기, timing 악화의 원인 찾기, 보고된 오동작의 재현은 RTL 조직에서 가장 흔한 발생이며, tool 신호 입구의 대부분이 이 ask로 들어온다. 갈래 설계의 다음 항목이다. 그때까지 diagnose는 gate에서 \"workflow 없음 → discuss\"로 멈춘다." }
+    ],
+    related: ["triage", "grades", "gate"]
+  },
 
   /* ───────────── 원칙 열 개 ───────────── */
   principles: [

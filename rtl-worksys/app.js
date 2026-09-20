@@ -173,6 +173,26 @@
     return o;
   }
 
+
+  /* ── 탭: 발생 (intake & routing) ── */
+  function viewIntake() {
+    var k = W.intake;
+    var o = '<div class="card"><h2>' + esc(k.title) + "</h2>" + h("p", "lead", tx(k.lead)) + "</div>";
+    o += '<div class="card"><h2>한 장 요약</h2><ol class="li steps5">' +
+      k.summary.map(function (s) { return h("li", "", tx(s)); }).join("") + "</ol>" +
+      h("div", "note", tx(k.excluded)) + "</div>";
+    o += '<div class="card"><div class="docbody" style="padding:0">' + blocks(k.body) + "</div></div>";
+    o += '<div class="card"><h2>관련 설계</h2>' +
+      k.related.map(function (id) {
+        var d = docById(id);
+        return d ? '<button class="deeplink" data-doc="' + id + '">✎ ' + esc(d.title) + "</button>" : "";
+      }).join("") +
+      '<button class="deeplink" data-stage-go="intake">▤ 단계 1 intake</button>' +
+      '<button class="deeplink" data-stage-go="triage">▤ 단계 2 triage</button>' +
+      '<button class="deeplink" data-stage-go="gate">▤ 단계 3 gate</button></div>';
+    return o;
+  }
+
   /* ── 탭: 설계 ── */
   function viewDocs(openId) {
     var o = '<div class="card"><h2>설계</h2>' +
@@ -250,7 +270,7 @@
   }
 
   /* ── 라우팅 ── */
-  var TABS = ["home", "core", "cases", "docs", "road", "about"];
+  var TABS = ["home", "core", "intake", "cases", "docs", "road", "about"];
   var state = { tab: get("ws_tab", "home"), caseId: null, step: 0, docOpen: null, stage: null };
 
   // #core/gate · #cases/C1 · #docs/posture 같은 해시를 읽는다 (공유 가능한 링크)
@@ -280,6 +300,7 @@
     var t = state.tab, html;
     if (t === "home") html = viewHome();
     else if (t === "core") html = viewCore(state.stage);
+    else if (t === "intake") html = viewIntake();
     else if (t === "cases") html = state.caseId ? viewCase(state.caseId, state.step) : viewCases();
     else if (t === "docs") html = viewDocs(state.docOpen);
     else if (t === "road") html = viewRoad();
