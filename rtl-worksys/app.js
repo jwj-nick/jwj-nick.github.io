@@ -174,22 +174,30 @@
   }
 
 
-  /* ── 탭: 발생 (intake & routing) ── */
-  function viewIntake() {
-    var k = W.intake;
-    var o = '<div class="card"><h2>' + esc(k.title) + "</h2>" + h("p", "lead", tx(k.lead)) + "</div>";
+  /* ── 탭: 심화 (항목별 전용 페이지) ── */
+  function deepById(id) {
+    for (var i = 0; i < W.deep.length; i++) if (W.deep[i].id === id) return W.deep[i];
+    return W.deep[0];
+  }
+  function viewDeep(id) {
+    var k = deepById(id);
+    var o = '<div class="rail" id="rail">' + W.deep.map(function (d) {
+      return '<button data-deep="' + d.id + '"' + (d.id === k.id ? ' class="on"' : "") + ">" + esc(d.tab) + "</button>";
+    }).join("") + "</div>";
+    o += '<div class="card"><h2>' + esc(k.title) + "</h2>" + h("p", "lead", tx(k.lead)) + "</div>";
     o += '<div class="card"><h2>한 장 요약</h2><ol class="li steps5">' +
       k.summary.map(function (s) { return h("li", "", tx(s)); }).join("") + "</ol>" +
       h("div", "note", tx(k.excluded)) + "</div>";
     o += '<div class="card"><div class="docbody" style="padding:0">' + blocks(k.body) + "</div></div>";
     o += '<div class="card"><h2>관련 설계</h2>' +
-      k.related.map(function (id) {
-        var d = docById(id);
-        return d ? '<button class="deeplink" data-doc="' + id + '">✎ ' + esc(d.title) + "</button>" : "";
+      (k.related || []).map(function (rid) {
+        var d = docById(rid);
+        return d ? '<button class="deeplink" data-doc="' + rid + '">✎ ' + esc(d.title) + "</button>" : "";
       }).join("") +
-      '<button class="deeplink" data-stage-go="intake">▤ 단계 1 intake</button>' +
-      '<button class="deeplink" data-stage-go="triage">▤ 단계 2 triage</button>' +
-      '<button class="deeplink" data-stage-go="gate">▤ 단계 3 gate</button></div>';
+      (k.stages || []).map(function (sid) {
+        var st = stageById(sid);
+        return st ? '<button class="deeplink" data-stage-go="' + sid + '">▤ 단계 ' + st.n + " " + esc(st.name) + "</button>" : "";
+      }).join("") + "</div>";
     return o;
   }
 
@@ -270,20 +278,22 @@
   }
 
   /* ── 라우팅 ── */
-  var TABS = ["home", "core", "intake", "cases", "docs", "road", "about"];
-  var state = { tab: get("ws_tab", "home"), caseId: null, step: 0, docOpen: null, stage: null };
+  var TABS = ["home", "core", "deep", "cases", "docs", "road", "about"];
+  var state = { tab: get("ws_tab", "home"), caseId: null, step: 0, docOpen: null, stage: null, deep: get("ws_deep", "intake") };
 
   // #core/gate · #cases/C1 · #docs/posture 같은 해시를 읽는다 (공유 가능한 링크)
   function readHash() {
     var raw = (location.hash || "").replace(/^#/, "");
     if (!raw) return false;
     var parts = raw.split("/");
+    if (parts[0] === "intake" || parts[0] === "workflow") parts = ["deep", parts[0]];
     if (TABS.indexOf(parts[0]) < 0) return false;
     state.tab = parts[0]; state.caseId = null; state.step = 0;
     if (parts[1]) {
       if (state.tab === "core") state.stage = parts[1];
       else if (state.tab === "cases") state.caseId = parts[1].toUpperCase();
       else if (state.tab === "docs") state.docOpen = parts[1];
+      else if (state.tab === "deep") state.deep = parts[1];
     }
     return true;
   }
@@ -291,6 +301,7 @@
     var frag = state.tab;
     if (state.tab === "core" && state.stage) frag += "/" + state.stage;
     else if (state.tab === "cases" && state.caseId) frag += "/" + state.caseId;
+    else if (state.tab === "deep" && state.deep) frag += "/" + state.deep;
     if (("#" + frag) !== location.hash) {
       try { history.replaceState(null, "", "#" + frag); } catch (e) { location.hash = frag; }
     }
@@ -300,7 +311,7 @@
     var t = state.tab, html;
     if (t === "home") html = viewHome();
     else if (t === "core") html = viewCore(state.stage);
-    else if (t === "intake") html = viewIntake();
+    else if (t === "deep") html = viewDeep(state.deep);
     else if (t === "cases") html = state.caseId ? viewCase(state.caseId, state.step) : viewCases();
     else if (t === "docs") html = viewDocs(state.docOpen);
     else if (t === "road") html = viewRoad();
@@ -336,6 +347,7 @@
     if (b.dataset.step !== undefined && state.caseId) { state.step = +b.dataset.step; return paint(); }
     if (b.dataset.doc) { state.tab = "docs"; state.docOpen = b.dataset.doc; set("ws_tab", "docs"); return paint(); }
     if (b.dataset.stageGo) { state.tab = "core"; state.stage = b.dataset.stageGo; set("ws_stage", state.stage); set("ws_tab", "core"); state.caseId = null; return paint(); }
+    if (b.dataset.deep) { state.deep = b.dataset.deep; set("ws_deep", state.deep); return paint(); }
     if (b.dataset.stage) { state.stage = b.dataset.stage; set("ws_stage", state.stage); return paint(); }
   });
 

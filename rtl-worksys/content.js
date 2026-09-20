@@ -7,7 +7,7 @@ window.WS = {
     title: "RTL WorkSys",
     subtitle: "AI-native RTL 업무 시스템 · core 설계 노트",
     updated: "2026-09-20",
-    version: "0.2",
+    version: "0.3",
     tagline: "ticket이 생기면 AI가 먼저 일을 시작한다. 사람은 검수와 결정에 선다."
   },
 
@@ -424,8 +424,9 @@ window.WS = {
   ],
 
 
-  /* ───────────── 발생 — intake & routing (ticket을 넘어 일의 발생 전체) ───────────── */
-  intake: {
+  /* ───────────── 심화 — 항목별 전용 페이지 (c 발생 · d 자율 · 이후 갈래) ───────────── */
+  deep: [
+  { id: "intake", tab: "c · 발생", short: "intake & routing",
     title: "intake & routing — 일의 발생을 받아 처리에 착수시키는 단계",
     lead: "core의 앞 세 단계(intake → triage → gate)를 입구를 ticket 하나로 한정하지 않고 일반화한 설계다. ticket 분류(분류 record 여섯 칸, gate 다섯 조건)는 그대로 유효하며, 이 페이지는 그 앞뒤에 무엇이 더 있어야 하는지를 정한다.",
     summary: [
@@ -518,8 +519,106 @@ window.WS = {
       { h: "9. 빈칸 — diagnose(debug) 갈래" },
       { p: "지금의 갈래 넷(설계·검증 사슬 / 코드 리뷰 / timing·area / test·coverage)은 모두 \"만들거나 고치거나 판정하는\" 갈래다. \"왜 그런가\"를 찾는 갈래가 없다. regression 실패의 원인 찾기, timing 악화의 원인 찾기, 보고된 오동작의 재현은 RTL 조직에서 가장 흔한 발생이며, tool 신호 입구의 대부분이 이 ask로 들어온다. 갈래 설계의 다음 항목이다. 그때까지 diagnose는 gate에서 \"workflow 없음 → discuss\"로 멈춘다." }
     ],
-    related: ["triage", "grades", "gate"]
+    related: ["triage", "grades", "gate"], stages: ["intake", "triage", "gate"]
   },
+  { id: "workflow", tab: "d · 자율", short: "workflow & autonomy",
+    title: "workflow & autonomy — 착수된 일을 AI가 결과 패키지까지 스스로 끌고 가는 방식",
+    lead: "core의 뒤 여섯 단계(plan → execute → result → review → apply → learn)가 이미 정해 둔 것을 \"AI가 일을 자율로 진행한다는 것이 무엇인가\"의 관점에서 다시 묶고, 거기에 없던 것 여섯을 더한 설계다. 앞 단계(발생)가 task 폴더와 workflow를 정해 주면 여기서 시작한다.",
+    summary: [
+      "자율 진행의 단위는 checkpoint, 자율의 정도는 posture, 자율의 경계는 sandbox와 scope.yaml이다. 이 셋은 설계 절에 이미 있다.",
+      "더한 것 ①: workflow 파일은 AI 전용이 아니라 팀이 일하는 방식의 정본이다. 사람이 직접 처리하는 ticket도 같은 checkpoint를 따른다.",
+      "더한 것 ②·③: workflow가 없는 일은 세 경로(이웃 합성 / 초안 신설 / one-off) 중 하나로 가고, 근거표에 들어가는 evaluator 결과는 기록되는 실행에서 나온 것이어야 한다(탐색은 local, 근거는 batch).",
+      "더한 것 ④·⑤: 자율 선언 세 줄(하겠다 / 묻겠다 / 하지 않겠다)을 plan에 적고, 세션은 소모품이며 STATE가 정본이다(checkpoint마다 모델 등급 자리).",
+      "더한 것 ⑥: workflow를 고치면 과거 accepted task의 evaluator 기록으로 새 checkpoint 목록을 판정해 본다(dry replay)."
+    ],
+    excluded: "이 페이지는 설계 절의 workflow·posture·실행 규칙·결과와 검수·학습을 다시 정하지 않는다. 그것들은 설계 탭에 그대로 있고, 여기서는 참조만 한다.",
+    body: [
+      { h: "1. 이미 정해진 것 (설계 탭 참조. 여기서 바꾸지 않는다)" },
+      { table: { head: ["무엇", "요지"], rows: [
+        ["workflow 파일", "step 순서가 아니라 checkpoint 목록(무엇이 참이어야 하는가 + 어떻게 확인하는가 + 실패하면). frontmatter에 oracle·cost_ladder·side_effects·default_posture·track_record. `[SE]` 부작용, `[HD]` 사람 결정"],
+        ["선택·신설·재plan", "카테고리의 default_workflow. 보조 카테고리는 부록으로 합친다. 없으면 첫 작업이 초안 만들기 → discuss → draft로 fork에서 즉시 사용. 실행 중 맞지 않으면 멈추지 않고 재plan"],
+        ["사슬(chain)", "긴 일은 workflow 여러 개의 link 목록. link 사이 `[HD]`. 앞 link의 결과 패키지 = 다음 link의 입력 요건"],
+        ["posture", "full / draft / prepare / hold. 근거 셋(실적·정보 충분성·oracle 강도) + 되돌림 축. 숫자 없음. checkpoint 단위로 낮출 수 있다"],
+        ["sandbox·자원", "경계는 스크립트가 만들고 안에서는 자유. 규칙 snapshot. 긴 일은 batch, 작은 sim·syn은 local. 비용 사다리. 야간 backlog"],
+        ["실행 중 HITL 아홉", "지식 요청·의도 확인·작업량 초과·위험 고지·되돌리기 어려운 행동 직전·진전 없음·분류 재확인 실패·자원 대기·범위 이탈. 막히면 멈추지 않는다"],
+        ["결과 패키지·검수", "다섯 줄 + 분류·posture + 근거표 + 링크 + MR 후보 + 가정 + 미완 + 학습 예고. accept / with-fix / reject. reject 뒤 재시도 없음, 사람이 이어받음"],
+        ["학습", "채널 ① 검수 판정 + 채널 ② 자동 기록. golden set 자동 누적. 정본 vs fork, 승격·강등, 사람 직접 처리 ticket"]
+      ]}},
+
+      { h: "2. 자율 진행의 세 층" },
+      { code: "scope.yaml + sandbox                 ← 경계: 이 밖은 하지 않는다 (어느 posture에서도)\n  └ workflow (checkpoint 목록)       ← 무엇이 참이어야 끝인가\n      └ posture (full/draft/prepare/hold)  ← 어디까지 스스로 가는가. checkpoint 단위로 낮춤\n          └ 행동 (읽기 / 수정 / evaluator 실행 / 제출 [SE] / 회신)  ← 되돌림 축으로 등급" },
+      { ul: ["자율은 \"AI가 알아서 한다\"가 아니라 \"이 경계 안에서, 이 checkpoint를, 이 posture로\"의 세 겹이다. 사람은 세 겹 중 어느 것도 실행 중에 바꾸지 않는다. 바꾸는 자리는 검수(posture 과함·부족)와 정본 회의(경계·workflow)다.", "어떤 posture에서도 하지 않는 행동: 되돌리기 어려운 행동(issue tracker 상태 변경·고객 회신·정본 수정·MR 생성)은 \"하려 한다 + 내용\"까지만. 이것은 posture가 아니라 경계의 규칙이다."] },
+
+      { h: "3. workflow 파일은 팀이 일하는 방식의 정본이다 (더한 것 ①)" },
+      { ul: [
+        "workflow 파일은 AI가 읽는 지시서가 아니라 \"이 종류의 일은 이것이 확인되어야 끝난 것이다\"라는 팀의 합의다. 사람이 직접 처리하는 ticket(`ai:manual`)도 같은 checkpoint를 따르고 같은 결과 패키지 형식으로 끝낸다. 그래야 사람이 한 일과 AI가 한 일이 같은 실적 표에 쌓이고, 사람이 한 일에서도 workflow가 배운다.",
+        "workflow 신설은 \"AI 도구를 만드는 일\"이 아니라 \"팀의 절차를 적는 일\"이다. 초안은 AI가 만들지만 adopted로 올리는 것은 정본 회의다.",
+        "팀에 이미 있는 checklist·절차서는 checkpoint 목록의 씨앗이다. 그대로 옮기지 않고 \"무엇이 참이어야 하는가 + 어떻게 확인하는가\"로 다시 쓴다. 확인 방법이 없는 항목은 `[HD]` 또는 \"사람 확인\"으로 남는다."
+      ] },
+
+      { h: "4. workflow가 없는 일이 들어왔을 때 (더한 것 ②)" },
+      { table: { head: ["경로", "언제", "어떻게", "posture"], rows: [
+        ["A 이웃 합성", "이웃 카테고리의 workflow가 checkpoint의 대부분을 덮는다", "이웃 workflow + 부록 checkpoint. plan에 \"합성\" 표시", "이웃의 default에서 한 단계 낮춤"],
+        ["B 초안 신설", "같은 종류의 일이 다시 올 것이 분명하다", "첫 작업 = 초안 만들기(과거 해결 방식·이웃 workflow·oracle 후보). discuss에 첨부. 사람이 \"가 보자\" → draft로 fork에서 즉시 사용", "draft"],
+        ["C one-off", "다시 올 것 같지 않고 되돌림 축이 낮다", "workflow 없이 최소 checkpoint 셋(입력 확인 / 산출물 / 검수)만으로 진행", "draft 고정"]
+      ]}},
+      { note: "one-off도 학습 기록에 \"이 일이 다시 올 것 같은가\"를 반드시 남긴다. 같은 one-off가 반복되면(횟수 공란, 결정 주체 = 정본 승인자) 초안 신설이 의무가 된다. diagnose(원인 찾기)는 지금 전부 경로 B다." },
+
+      { h: "5. 실행 경로 규칙 — 탐색은 local, 근거는 기록되는 실행에서 (더한 것 ③)" },
+      { ul: [
+        "긴 job과 짧은 job의 경계는 숫자가 아니라 \"이 결과가 근거표에 들어가는가\"로 정한다.",
+        "탐색(어느 방향이 맞는지 보는 sim·syn, 후보 비교의 첫 사다리)은 local이어도 된다. 결과는 STATE에 요약만 남는다.",
+        "근거(checkpoint의 pass/fail을 판정하는 evaluator 결과)는 기록되는 실행(batch job, CI, 결과가 job id로 남는 실행)에서 나온 것이어야 한다. evaluator JSON의 commit/revision·tool_version·job ref가 채워져야 근거표에 들어간다.",
+        "예외: 결정론적이고 짧은 도구(lint, 정적 검사, 스크립트 검사)는 local 결과도 근거가 된다. 어느 도구가 예외인지는 정본의 목록(결정 주체 = 시스템 관리자).",
+        "효과: 검수자는 근거표의 모든 줄을 재현할 수 있고, 야간 backlog와 병렬 후보 탐색은 자연스럽게 batch로 간다."
+      ] },
+
+      { h: "6. 자율 선언 세 줄 (더한 것 ④)" },
+      { code: "자율 선언 (30_plan.md, posture 아래)\n  하겠다:      <묻지 않고 할 행동. 예: sandbox 안 RTL 수정, lint·sim 실행, 후보 3개 병렬 탐색>\n  묻겠다:      <어느 checkpoint에서 무엇을. 예: interface 변경이 필요해지면 [HD]>\n  하지 않겠다: <경계 밖. 예: 정본 수정, MR 생성, 다른 block 파일 수정>" },
+      { ul: ["검수자는 결과 패키지의 \"분류·posture 한 줄\"과 이 세 줄을 대조해 posture 과함·부족을 판정한다. 세 줄이 없으면 판정할 기준이 없다.", "세 줄은 workflow의 default_posture와 scope.yaml에서 자동으로 초안이 나오고, plan에서 이 task에 맞게 좁힌다. 넓히지는 못한다."] },
+
+      { h: "7. 세션은 소모품, STATE가 정본 (더한 것 ⑤)" },
+      { ul: [
+        "한 task는 여러 세션(agent 실행)에 걸친다. 세션이 끝나거나 바뀌어도 STATE와 task 폴더만 있으면 이어진다. 남겨야 하는 것은 STATE의 결정·가정과 evaluator 기록이다.",
+        "모델 등급 자리: checkpoint마다 \"어느 등급의 모델이 하는가\"를 적을 자리를 둔다. 기본 배치(이름은 공란): 분류·요약·evaluator 결과 해석 = 값싼 등급 / 계획·판단·결과 패키지·재plan·사람에게 보내는 문장 = 강한 등급.",
+        "세션 분리 기준: 자원 대기(batch job 결과를 기다림)가 생기면 세션을 끝내고, 결과가 오면 새 세션이 STATE에서 재개한다. 기다리며 세션을 잡고 있지 않는다."
+      ] },
+
+      { h: "8. workflow의 회귀 시험 — dry replay (더한 것 ⑥)" },
+      { ul: [
+        "workflow(checkpoint 목록·입력 요건·oracle)를 고칠 때, 그 workflow로 accepted된 과거 task들의 evaluator 기록과 결과 패키지를 재료로 새 checkpoint 목록이 같은 판정을 내는지 본다. 실행을 다시 하지 않으므로 싸다.",
+        "판정이 달라지는 task가 있으면 그것이 변경의 근거이거나(의도한 강화) 결함이다(의도하지 않은 탈락). 정본 회의의 승격 안건에 dry replay 결과를 붙인다.",
+        "분류기의 golden set 회귀와 짝이다. 분류기는 golden set으로, workflow는 accepted task 기록으로."
+      ] },
+
+      { h: "9. 범위 결정 (설계 기본값. 조직이 바꾸면 그대로)" },
+      { table: { head: ["항목", "기본값"], rows: [
+        ["workflow 파일을 사람이 직접 처리하는 ticket에도 적용", "적용한다 (같은 checkpoint·같은 결과 패키지)"],
+        ["팀의 기존 checklist·절차서", "workflow 초안의 씨앗으로 다시 쓴다"],
+        ["workflow 없는 일의 one-off", "허용, draft 고정, 되돌림 축 낮은 일만, 학습 기록 의무. 반복되면 초안 신설 의무"],
+        ["근거표에 들어가는 evaluator 결과", "기록되는 실행에서 나온 것만. 예외 = 결정론적 짧은 도구 목록"],
+        ["자율 선언 세 줄", "plan 필수. 넓히지 못하고 좁히기만"],
+        ["모델 등급", "checkpoint 필드로 둔다. 이름·수는 공란"],
+        ["자원 대기 중 세션", "끝낸다. 결과가 오면 새 세션이 STATE에서 재개"],
+        ["야간 backlog", "허용 (oracle이 수치인 workflow만). 시간대·동시 수 공란"],
+        ["첫 자율 갈래", "timing·area 갈래(oracle = synth + LEC + regression). test·coverage가 둘째"],
+        ["dry replay", "workflow 변경의 승격 안건에 필수 첨부"],
+        ["reject 뒤", "재시도 없음. 사람이 이어받는다"]
+      ]}},
+
+      { h: "10. 더 생각할 것 (열어 둔 것)" },
+      { ul: [
+        "diagnose 갈래의 oracle = 재현. \"문제가 재현된다\"가 첫 checkpoint, \"원인 가설이 재현을 설명하고 가설을 뒤집는 실험이 실패한다\"가 다음. 원인을 찾은 뒤 고치는 것은 change 갈래로 handoff.",
+        "사람이 이어받은 뒤의 통로: reject 뒤 사람이 고친 결과가 시스템으로 돌아오는 통로가 검수 기록의 한 줄뿐인데 충분한가.",
+        "긴 사슬에서 link 사이에 workflow가 바뀌면 다음 link는 어느 버전을 쓰는가. 기본안: link 시작 시점의 버전.",
+        "fork의 공유: 같은 block을 맡은 둘이 fork를 나누어 쓰고 싶을 때. 기본안: fork는 개인, 공유하려면 정본 후보로.",
+        "oracle이 사람뿐인 workflow(판정형 갈래)는 full posture가 없다. 기본안: oracle weak → default_posture 상한 = draft.",
+        "실적(track_record)의 \"양호\" 기준: 숫자 대신 \"직전 [ ]건 중 reject 0\"처럼 형태만 정하는가."
+      ] }
+    ],
+    related: ["workflow", "posture", "sandbox", "hitl", "result", "review", "learn", "fork"], stages: ["plan", "execute", "result", "review", "apply", "learn"]
+  }
+  ],
 
   /* ───────────── 원칙 열 개 ───────────── */
   principles: [
