@@ -127,7 +127,7 @@
   /* ── 탭: 사례 ── */
   function viewCases() {
     var o = '<div class="card"><h2>가상 ticket walkthrough</h2>' +
-      h("p", "mut small", "설계가 실제 ticket을 감당하는지 확인한 사례들이다. 모든 ticket·블록·stream 이름은 가상이다. 사례를 고르면 아홉 단계를 한 장씩 따라간다.") + "</div>";
+      h("p", "mut small", "설계가 실제 ticket을 감당하는지 확인한 사례들이다. 모든 ticket·블록·신호 이름은 가상이다. 사례를 고르면 아홉 단계를 한 장씩 따라간다.") + "</div>";
     o += '<div class="caselist">' + W.cases.map(function (c) {
       return '<button class="caseitem" data-case="' + c.id + '">' +
         h("div", "id", c.id) + h("div", "ti", esc(c.title)) + h("div", "fr", esc(c.from)) +
@@ -260,8 +260,8 @@
   /* ── 탭: 소개 ── */
   function viewAbout() {
     var a = W.about;
-    var o = '<div class="card"><h2>이 노트에 대하여</h2>' +
-      h("p", "lead", tx(a.who)) + h("p", "", tx(a.why)) + h("p", "", tx(a.how)) +
+    var o = '<div class="card"><h2>이 앱에 대하여</h2>' +
+      h("p", "lead", tx(a.purpose)) + h("p", "", tx(a.how)) +
       h("div", "note", tx(a.scope)) + h("p", "dim small", tx(a.status)) + "</div>";
     o += '<div class="card"><h2>설계의 재료</h2>' +
       h("p", "mut small", "공개 자료와 공식 문서에서 확인한 것들이다. 조직 내부 자료는 쓰지 않았다.") +
@@ -317,7 +317,7 @@
     else if (t === "road") html = viewRoad();
     else html = viewAbout();
     html += '<footer>RTL WorkSys · v' + W.meta.version + " · " + W.meta.updated +
-      "<br>개인 프로젝트의 공개 설계 노트. 모든 사례는 가상이다.</footer>";
+      "<br>설계 중간 결과 뷰어. 모든 사례는 가상이다.</footer>";
     app.innerHTML = html;
     writeHash();
 

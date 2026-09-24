@@ -1,6 +1,6 @@
 /* RTL WorkSys — 콘텐츠 데이터 (앱의 텍스트는 전부 여기).
    범위: core(ticket 한 건이 지나가는 아홉 단계)만. 갈래(a·b·e·f)는 사례 안에서만 스친다.
-   규율: 조직 실명·수치 없음. 모든 ticket·블록·stream 이름은 가상. 숫자 기준은 공란 + 결정 주체.
+   규율: 조직 실명·수치 없음. 모든 ticket·블록·신호 이름은 가상. 숫자 기준은 공란 + 결정 주체.
    본문 블록 형식: {h:"소제목"} {p:"문단"} {ul:[...]} {table:{head:[...],rows:[[...]]}} {code:"..."} {note:"..."} */
 window.WS = {
   meta: {
@@ -50,7 +50,7 @@ window.WS = {
       file: "00_intake.md",
       detail: [
         "제목·본문·field·comment·첨부 목록·연결 ticket을 그대로 보존한다. 첨부 내용은 열지 않는다.",
-        "module index에서 본문에 나온 블록·신호·stream 이름을 찾는다. 같은 블록의 열린 ticket, 최근 닫힌 ticket, 유사 과거 ticket을 검색으로 모은다(사람이 하는 방식과 같다).",
+        "module index에서 본문에 나온 블록·신호·파일 이름을 찾는다. 같은 블록의 열린 ticket, 최근 닫힌 ticket, 유사 과거 ticket을 검색으로 모은다(사람이 하는 방식과 같다).",
         "raw 위험 scan = LLM 이전의 정규식·목록 검사. 메일 주소·계정 문구·자격 증명 패턴·allowlist 밖 링크·반출 문구. hit이면 gate 조건 1로 직행한다.",
         "하지 않는 것: 외부 링크 접속, field·상태 변경.",
         "시스템이 만든 backlog ticket·정기 ticket도 예외 없이 같은 단계를 지난다(부모 key를 기록)."
@@ -131,21 +131,21 @@ window.WS = {
   /* ───────────── 가상 ticket walkthrough ───────────── */
   cases: [
     {
-      id: "C1", title: "\"stream S 재생 시 화면 깨짐\"", from: "고객 · 본문 두 줄 · 첨부 없음",
+      id: "C1", title: "\"입력 pattern P에서 출력 data 깨짐\"", from: "고객 · 본문 두 줄 · 첨부 없음",
       one: "정보 부족의 표준형. 시스템은 멈추되 놀지 않고, 답이 오면 끝까지 자율로 간다.",
       tags: ["needs-info", "prepare", "full"], humanCount: 3,
       steps: [
-        { stage: "intake", text: "고객 경로. module index에 hit 없음(블록 이름이 없다). 같은 증상 문구의 과거 ticket 3건을 찾았고 전부 decoder 출력 mismatch로 종결되었다. raw scan 없음. 외부 링크 없음." },
-        { stage: "triage", text: "① cat:bugfix-customer ② 등급 근사 — 유사 3건은 맞지만 블록 미상, stream 미첨부 ③ 제품은 field로 판별, 블록은 \"stream을 받으면 header에서 판별\" ④ 버그 수정 workflow의 입력 요건과 대조: 재현 stream(필수) 빠짐, 버전(필수) 빠짐 ⑤ 과거 3건 링크, 중복 아님." },
-        { stage: "gate", hold: "needs-info", human: true, text: "1 통과(유사 3건이 있어 낯섦 아님) · 2 통과 · 3 HOLD needs-info · 4·5는 검사만. label ai:needs-info, 질문 초안을 comment에: \"재현 stream과 버전이 필요합니다. 재현 없이는 원인 격리를 할 수 없기 때문입니다. 없으면 과거 3건의 원인 요약만 전달하겠습니다.\" 고객 ticket이므로 발송은 사람이 한다. 사람의 첫 등장, 1분." },
-        { stage: "execute", note: "기다리는 동안", text: "실행은 하지 않지만 놀지도 않는다(prepare). 과거 3건의 원인·수정 요약, 같은 제품의 열린 decoder ticket 2건, 최근 decoder 변경 이력을 STATE에 정리해 둔다." },
-        { stage: "gate", note: "재진입", text: "고객이 stream과 버전을 첨부했다. 조건 1·2를 다시 검사하고(첨부에 외부 링크·자격 증명 없음) 3 통과 → plan." },
+        { stage: "intake", text: "고객 경로. module index에 hit 없음(블록 이름이 없다). 같은 증상 문구의 과거 ticket 3건을 찾았고 전부 datapath 블록의 출력 mismatch로 종결되었다. raw scan 없음. 외부 링크 없음." },
+        { stage: "triage", text: "① cat:bugfix-customer ② 등급 근사 — 유사 3건은 맞지만 블록 미상, 재현 입력 미첨부 ③ 제품은 field로 판별, 블록은 \"재현 입력을 받으면 그 설정값에서 판별\" ④ 버그 수정 workflow의 입력 요건과 대조: 재현 입력(test vector, 필수) 빠짐, 버전(필수) 빠짐 ⑤ 과거 3건 링크, 중복 아님." },
+        { stage: "gate", hold: "needs-info", human: true, text: "1 통과(유사 3건이 있어 낯섦 아님) · 2 통과 · 3 HOLD needs-info · 4·5는 검사만. label ai:needs-info, 질문 초안을 comment에: \"재현 입력과 버전이 필요합니다. 재현 없이는 원인 격리를 할 수 없기 때문입니다. 없으면 과거 3건의 원인 요약만 전달하겠습니다.\" 고객 ticket이므로 발송은 사람이 한다. 사람의 첫 등장, 1분." },
+        { stage: "execute", note: "기다리는 동안", text: "실행은 하지 않지만 놀지도 않는다(prepare). 과거 3건의 원인·수정 요약, 같은 datapath 블록의 열린 ticket 2건, 그 블록의 최근 변경 이력을 STATE에 정리해 둔다." },
+        { stage: "gate", note: "재진입", text: "고객이 재현 입력과 버전을 첨부했다. 조건 1·2를 다시 검사하고(첨부에 외부 링크·자격 증명 없음) 3 통과 → plan." },
         { stage: "plan", text: "WF-bugfix v4. 실적 양호, 필수 3/3, oracle strong(sim vs reference), 되돌림 최고 = task branch push. posture full. handoff 예고: 읽기·분석은 windows, sim·regression은 linux." },
         { stage: "execute", text: "C1 재현(local sim) pass → C2 원인 격리(가설 3 → 1) → C3 수정 → C4 [SE] regression(batch runner, job id 기록) pass → C5 결과 패키지." },
         { stage: "result", text: "다섯 줄, 근거표(C1·C4 evaluator 파일), diff 링크, MR 후보(중요도 높음: 고객 영향), 가정(\"nightly set으로 충분\"), 학습 예고(재발 방지 test → backlog)." },
         { stage: "review", human: true, text: "한 장을 보고 accept. 사람의 두 번째 등장." },
         { stage: "apply", human: true, text: "MR을 만든다. 세 번째 등장." },
-        { stage: "learn", text: "WF-bugfix accepted +1. 분류 record는 golden set에 \"맞은 예\"로. \"stream S 계열 재발 방지 test\" backlog ticket이 생기고, 그 ticket은 같은 엔진을 타고 야간에 돈다. 해결 사례를 지식에." }
+        { stage: "learn", text: "WF-bugfix accepted +1. 분류 record는 golden set에 \"맞은 예\"로. \"pattern P 계열 재발 방지 test\" backlog ticket이 생기고, 그 ticket은 같은 엔진을 타고 야간에 돈다. 해결 사례를 지식에." }
       ],
       takeaway: "사람은 세 번 등장했고 합쳐서 십여 분이다. 분류 결과를 사람이 확정하고 담당자를 배정하는 구조였다면 사람을 기다리는 지점이 하나 더 있었을 것이다. 여기에는 없다. 시스템이 곧 담당이다."
     },
@@ -194,10 +194,10 @@ window.WS = {
       one: "중복 후보. 시스템은 닫지 않고, \"재발 확인\"을 계획 맨 앞에 넣는다.",
       tags: ["중복 후보", "재발 확인"], humanCount: 2,
       steps: [
-        { stage: "triage", text: "① 원 ticket과 같은 cat:bugfix-customer ② 근사 ⑤ 중복 후보 <3개월 전 key> — 같은 블록·증상·stream 계열. 다른 점 = 버전(그 사이 수정이 있었으므로 재발 가능)." },
+        { stage: "triage", text: "① 원 ticket과 같은 cat:bugfix-customer ② 근사 ⑤ 중복 후보 <3개월 전 key> — 같은 블록·증상·입력 pattern 계열. 다른 점 = 버전(그 사이 수정이 있었으므로 재발 가능)." },
         { stage: "gate", text: "proceed. 정보는 원 ticket에서 가져올 수 있다." },
-        { stage: "plan", text: "WF-bugfix. 다만 맨 앞에 \"재발 확인\" checkpoint를 삽입: 원 ticket의 수정이 현재 버전에 들어 있는가, 같은 stream이 같은 증상을 내는가." },
-        { stage: "execute", text: "C0 재발 확인 → \"수정은 들어 있고 증상은 다른 frame에서 발생\" → 같은 문제가 아니다 → 정상 WF-bugfix 진행. (반대로 \"수정이 빠져 있음\"이면 result를 \"중복 확정 제안 + 원 수정 재적용 후보\"로 끝내고 사람이 duplicate로 닫는다.)" },
+        { stage: "plan", text: "WF-bugfix. 다만 맨 앞에 \"재발 확인\" checkpoint를 삽입: 원 ticket의 수정이 현재 버전에 들어 있는가, 같은 입력이 같은 증상을 내는가." },
+        { stage: "execute", text: "C0 재발 확인 → \"수정은 들어 있고 증상은 다른 입력 구간에서 발생\" → 같은 문제가 아니다 → 정상 WF-bugfix 진행. (반대로 \"수정이 빠져 있음\"이면 result를 \"중복 확정 제안 + 원 수정 재적용 후보\"로 끝내고 사람이 duplicate로 닫는다.)" },
         { stage: "review", human: true, text: "accept." },
         { stage: "apply", human: true, text: "MR 생성. 중복이었다면 여기서 사람이 닫는다." }
       ],
@@ -300,7 +300,7 @@ window.WS = {
         ["5", "작업량 기준 초과", "추산(checkpoint 수, sim·synth 횟수, 예상 시간, 병렬 후보 수)이 카테고리별 기준(공란)을 크게 벗어남", "hold:discuss", "ai:discuss, 추산과 \"줄일 수 있는 방법\""]
       ]}},
       { ul: ["위험은 두 번 검사한다. intake 직후 raw scan(목록 신호만, 분류 전)과 gate에서(낯섦 신호는 유사 ticket 검색이 필요하므로 triage 뒤). 둘 중 어디서든 hit이면 stop.", "false positive의 비용은 사람의 몇 분이고 false negative의 비용은 조직의 위험이므로 조건 1은 넓게 잡는다. \"위험이 아니었다\" 판정도 기록해 목록의 정밀도를 올린다.", "링크는 allowlist(조직 내부 도메인·issue tracker·wiki·Git 서버·batch runner) 밖일 때만 신호다. 이것이 없으면 내부 위키 링크가 든 ticket도 전부 멈춘다.", "조직의 LLM 입력 승인·차단 장치는 이 gate와 별개로 항상 동작한다. gate는 그것을 대체하지 않는다."] },
-      { code: "# GATE — <TICKET-KEY> @ <일시>\n| # | 조건 | 판정 | 근거 |\n| 1 | 위험 신호 | 통과 | 목록 신호 없음(raw scan·gate 모두), 낯섦: 유사 ticket 3건 있음 |\n| 2 | 권한 범위 | 통과 | scope.yaml: (cat:bugfix-customer, Git 제품) 허용 행동에 edit-rtl·run-local 있음 |\n| 3 | 정보 | HOLD | 필수 요건 \"재현 stream\" 빠짐 |\n| 4 | 불확실 | (검사만) | WF-bugfix adopted, oracle strong |\n| 5 | 작업량 | (검사만) | 추산: checkpoint 7 — 기준 안 |\n결론: hold:needs-info\n남긴 것: ai:needs-info · comment 초안(Q-1, 발송 = 사람: 고객 ticket)\n기다리는 동안: prepare — 같은 블록 열린 ticket·최근 변경 이력·유사 사례 해결 방법을 STATE에 정리\n재진입: 새 comment·첨부 도착 → 조건 1·2 재검사 후 조건 3부터" }
+      { code: "# GATE — <TICKET-KEY> @ <일시>\n| # | 조건 | 판정 | 근거 |\n| 1 | 위험 신호 | 통과 | 목록 신호 없음(raw scan·gate 모두), 낯섦: 유사 ticket 3건 있음 |\n| 2 | 권한 범위 | 통과 | scope.yaml: (cat:bugfix-customer, Git 제품) 허용 행동에 edit-rtl·run-local 있음 |\n| 3 | 정보 | HOLD | 필수 요건 \"재현 입력\" 빠짐 |\n| 4 | 불확실 | (검사만) | WF-bugfix adopted, oracle strong |\n| 5 | 작업량 | (검사만) | 추산: checkpoint 7 — 기준 안 |\n결론: hold:needs-info\n남긴 것: ai:needs-info · comment 초안(Q-1, 발송 = 사람: 고객 ticket)\n기다리는 동안: prepare — 같은 블록 열린 ticket·최근 변경 이력·유사 사례 해결 방법을 STATE에 정리\n재진입: 새 comment·첨부 도착 → 조건 1·2 재검사 후 조건 3부터" }
     ]},
     { id: "reentry", group: "gate", title: "hold에서 돌아오는 법 (재진입)", body: [
       { table: { head: ["hold", "돌아오는 신호", "어디로", "기다리는 동안"], rows: [
@@ -707,11 +707,10 @@ window.WS = {
 
   /* ───────────── 소개 ───────────── */
   about: {
-    who: "20년 넘게 video codec IP의 RTL 설계·검증을 해 온 엔지니어가 쓰는 설계 노트다. 팀과 프로젝트를 이끌고 고객을 상대하면서, \"AI가 일하고 사람은 검수와 결정에 서는\" 작업 방식을 RTL 조직에 어떻게 세울 수 있을지를 개인 프로젝트로 설계하고 있다.",
-    why: "이 노트는 특정 조직의 산출물이 아니다. 일반적인 RTL 설계·검증 조직이라면 어디에나 적용될 수 있도록 core만 추려 공개한다. 공개하는 이유는 둘이다. 같은 고민을 하는 사람에게 출발점을 주는 것, 그리고 내가 배운 것을 밖에 내놓아 더 빨리 틀리고 더 빨리 고치는 것(learn-in-public).",
-    how: "설계는 가상 ticket 수십 건을 아홉 단계에 태워 보며 만들었다. 틀에 부족한 것이 드러나면 설계를 고쳤고, 그 결과가 이 앱의 사례와 설계 절이다. 실제 도입 조직에서 실물 ticket을 겪어야 답이 나오는 것들은 \"열린 긴장\"에 숨기지 않고 적었다.",
-    scope: "이 앱은 core(분류 → gate → 계획 → 실행 → 결과 → 검수 → 반영 → 학습)만 다룬다. 아키텍처→검증 사슬, 코드 리뷰, timing/area, test/coverage 같은 갈래는 사례 안에서만 스친다. 갈래는 core가 실행하는 workflow의 가족이고, 다른 것은 oracle과 posture뿐이다.",
-    status: "v0.1 (2026-09). 설계는 계속 바뀐다. 바뀐 것은 이 앱에 그대로 반영된다."
+    purpose: "이 앱은 설계 중인 AI-native RTL 업무 시스템의 중간 결과를 한곳에서 확인하기 위한 뷰어다. 설계 원본은 비공개 작업 공간에 있고, 이 앱은 그중 조직 고유 정보를 뺀 core를 옮겨 둔 사본이다. 외부 독자를 위해 쓴 문서가 아니며, 배포 수단으로 공개 페이지를 쓸 뿐이다.",
+    how: "설계는 가상 ticket 수십 건을 아홉 단계에 태워 보며 만든다. 틀에 부족한 것이 드러나면 설계를 고치고, 그 결과가 이 앱의 사례와 설계 절로 옮겨진다. 실물 ticket을 겪어야 답이 나오는 것들은 \"열린 긴장\"에 적는다.",
+    scope: "이 앱은 core(분류 → gate → 계획 → 실행 → 결과 → 검수 → 반영 → 학습)와 항목별 심화 페이지를 다룬다. 갈래는 core가 실행하는 workflow의 가족이고, 다른 것은 oracle과 posture뿐이다.",
+    status: "설계는 계속 바뀐다. 바뀐 것은 이 앱에 반영되며 이전 판과의 비교는 두지 않는다."
   },
   sources: [
     { t: "Agentic 설계 패턴 일반 — plan/act/reflect, evaluator-optimizer, HITL 배치", n: "issue triage의 실용 결론(\"Top-1은 낮아도 후보 목록은 쓸 만하다\")과 agent 자기 보고 confidence의 한계가 등급 넷 + cascade의 근거" },
