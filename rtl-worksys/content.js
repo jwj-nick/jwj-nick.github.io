@@ -1,5 +1,5 @@
 /* RTL WorkSys — 콘텐츠 데이터 (앱의 텍스트는 전부 여기).
-   범위: core(ticket 한 건이 지나가는 아홉 단계)만. 갈래(a·b·e·f)는 사례 안에서만 스친다.
+   범위: core(ticket 한 건이 지나가는 아홉 단계)만. 갈래(chain·code-review·timing-area·coverage)는 사례 안에서만 스친다.
    규율: 조직 실명·수치 없음. 모든 ticket·블록·신호 이름은 가상. 숫자 기준은 공란 + 결정 주체.
    본문 블록 형식: {h:"소제목"} {p:"문단"} {ul:[...]} {table:{head:[...],rows:[[...]]}} {code:"..."} {note:"..."} */
 window.WS = {
@@ -424,9 +424,9 @@ window.WS = {
   ],
 
 
-  /* ───────────── 심화 — 항목별 전용 페이지 (c 발생 · d 자율 · 이후 갈래) ───────────── */
+  /* ───────────── 심화 — 주제별 전용 페이지 (intake 발생 · workflow 자율 · 이후 갈래) ───────────── */
   deep: [
-  { id: "intake", tab: "c · 발생", short: "intake & routing",
+  { id: "intake", tab: "intake · 발생", short: "intake & routing",
     title: "intake & routing — 일의 발생을 받아 처리에 착수시키는 단계",
     lead: "core의 앞 세 단계(intake → triage → gate)를 입구를 ticket 하나로 한정하지 않고 일반화한 설계다. ticket 분류(분류 record 여섯 칸, gate 다섯 조건)는 그대로 유효하며, 이 페이지는 그 앞뒤에 무엇이 더 있어야 하는지를 정한다.",
     summary: [
@@ -521,7 +521,7 @@ window.WS = {
     ],
     related: ["triage", "grades", "gate"], stages: ["intake", "triage", "gate"]
   },
-  { id: "workflow", tab: "d · 자율", short: "workflow & autonomy",
+  { id: "workflow", tab: "workflow · 자율", short: "workflow & autonomy",
     title: "workflow & autonomy — 착수된 일을 AI가 결과 패키지까지 스스로 끌고 가는 방식",
     lead: "core의 뒤 여섯 단계(plan → execute → result → review → apply → learn)가 이미 정해 둔 것을 \"AI가 일을 자율로 진행한다는 것이 무엇인가\"의 관점에서 다시 묶고, 거기에 없던 것 여섯을 더한 설계다. 앞 단계(발생)가 task 폴더와 workflow를 정해 주면 여기서 시작한다.",
     summary: [
