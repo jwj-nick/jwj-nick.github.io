@@ -1,13 +1,13 @@
 /* RTL WorkSys — 콘텐츠 데이터 (앱의 텍스트는 전부 여기).
-   범위: core(ticket 한 건이 지나가는 아홉 단계)만. 갈래(chain·code-review·timing-area·coverage)는 사례 안에서만 스친다.
+   범위: core(ticket 한 건이 지나가는 아홉 단계) + 설계 작업 전체의 진행 현황(status) + 주제별 심화 페이지(deep).
    규율: 조직 실명·수치 없음. 모든 ticket·블록·신호 이름은 가상. 숫자 기준은 공란 + 결정 주체.
    본문 블록 형식: {h:"소제목"} {p:"문단"} {ul:[...]} {table:{head:[...],rows:[[...]]}} {code:"..."} {note:"..."} */
 window.WS = {
   meta: {
     title: "RTL WorkSys",
     subtitle: "AI-native RTL 업무 시스템 · core 설계 노트",
-    updated: "2026-09-20",
-    version: "0.3.1",
+    updated: "2026-09-26",
+    version: "0.4",
     tagline: "ticket이 생기면 AI가 먼저 일을 시작한다. 사람은 검수와 결정에 선다."
   },
 
@@ -425,8 +425,86 @@ window.WS = {
 
 
   /* ───────────── 심화 — 주제별 전용 페이지 (intake 발생 · workflow 자율 · 이후 갈래) ───────────── */
+  /* ───────────── 현황 (설계 작업 전체의 진행 상태, 동기화 때마다 갱신) ───────────── */
+  status: {
+    asOf: "2026-09-26",
+    headline: [
+      "core는 개념 설계 수준에서 두 부분이 모두 확정됐다. 입구인 intake와 본체인 workflow다. 구현은 이 설계 작업의 범위가 아니다.",
+      "약점은 core 정본이 세 문서(core 설계서, intake, workflow)로 나뉘어 아직 서로 맞춰지지 않았다는 것이다. 이식 계획 18건이 대기 중이다.",
+      "갈래 중에서는 chain의 틀만 나왔다. 지금은 설계 본선이 쉬는 동안 아이디어 메모(합성 시스템, RTL revision, knowledge base, mutation 기반 TB 평가)를 쌓고 있다."
+    ],
+    tracks: [
+      { name: "core 설계", st: "done", label: "확정",
+        what: "ticket 한 건이 지나가는 아홉 단계, gate 다섯 조건, posture 넷, 사람 자리. intake(입구 일반화)와 workflow(자율 진행)를 심화해 확정했다.",
+        next: "intake·workflow 문서의 내용을 core 설계서·protocol·walkthrough·도입 단계 문서에 녹이는 이식(18건)." },
+      { name: "주제별 심화", st: "wip", label: "셋째 주제",
+        what: "주제 여덟 가운데 intake·workflow 확정, chain 틀. 주제 하나 = 세션 하나 방식의 규약과 브리핑(intake·workflow·chain)이 준비되어 있고, 심화 세션은 아직 열지 않았다.",
+        next: "chain 기본값 일곱 교정 → chain 정본 문서. 그다음 timing-area → coverage → code-review → gaps." },
+      { name: "아이디어 메모", st: "wip", label: "인터뷰 중",
+        what: "전체 flow를 정리할 시간이 없을 때 단편 아이디어를 주제별 파일에 먼저 쌓는다(09-24 시작). 기록(말한 그대로)과 탐구(Claude 확장)를 파일로 나눈다.",
+        next: "갈래를 좁히는 질문 여덟 가운데 셋째(성능·면적 판정 기준은 어디서 오는가)부터 이어 간다." },
+      { name: "현업 적용 묶음", st: "done", label: "10 파일",
+        what: "설계 문서 10개를 현업 세션용으로 묶어 두었다. 묶을 때 금지 토큰 검사를 돌리며 결과는 0건이다.",
+        next: "이식이 끝나면 다시 묶는다. chain 정본이 생기면 추가한다." },
+      { name: "이 뷰어", st: "done", label: "v0.4",
+        what: "core 아홉 단계·사례·설계 절에 더해 심화 페이지 셋(intake·workflow·chain)과 이 현황 화면을 보여 준다.",
+        next: "설계 쪽에서 무엇이 바뀔 때마다 동기화한다." }
+    ],
+    topics: [
+      ["intake", "core 입구", "done", "확정", "일의 발생(ticket·tool 신호·backlog …)을 공통 레코드로 받아 처리에 착수시킨다. 입구 일곱, 여섯 단계, ask 종류 여섯."],
+      ["workflow", "core 본체", "done", "확정", "착수된 일을 결과 패키지까지 자율로. 세 층(경계·checkpoint·posture) + 더한 것 여섯."],
+      ["chain", "갈래", "wip", "틀 · 교정 대기", "아키텍처부터 검증까지. link 일곱, 원칙 다섯, 기본값 일곱. 정본 문서 없음."],
+      ["timing-area", "갈래", "seed", "이름·성격만", "탐색형, oracle = synth + LEC. 도입 2단계의 첫 자율 갈래로 예정."],
+      ["coverage", "갈래", "seed", "이름·성격만", "탐색형, oracle = coverage + sim. 다른 갈래가 남긴 backlog의 소비자."],
+      ["code-review", "갈래", "seed", "이름·성격만", "판정형, oracle 약함. 다른 갈래의 마지막 단계로도 불린다."],
+      ["gaps", "마지막", "seed", "빈칸 1순위 있음", "diagnose(\"왜 그런가\") 갈래가 없다. intake에 ask 종류 diagnose가 있는데 받아서 보낼 곳이 없다."],
+      ["evolve", "core learn", "done", "갈래 아님", "시스템 자기 개선은 core의 learn 단계가 맡는다."]
+    ],
+    ideas: [
+      { name: "합성 시스템 (DC synthesis)", st: "seed", label: "seed",
+        what: "제품 수준의 여러 조건으로 합성 데이터를 확보·관리·실험·분석한다(sales용 조건 matrix). 개발 인사이트용으로 집중 조건 몇 개 × 서브모듈별 면적·최대 주파수를 본다. 기존 합성 자산을 먼저 확인·정리한다." },
+      { name: "RTL revision", st: "wip", label: "인터뷰 중",
+        what: "기존 RTL을 평가하고 개선을 판단해 진행한다. 작업 다섯: A 코드 리뷰(수준 높은 reviewer agent) · B 검증 상태 리뷰(module별, 추가 test 제안까지) · C 성능·면적 · D 합성 max freq · E 판단과 plan. 시작은 사람이 대상을 지정한다. 작업은 각각 독립으로 돌고 옵션으로 연결한다." },
+      { name: "RTL 리뷰 확인 목록", st: "wip", label: "초안",
+        what: "흔한 실수 · 꼭 피할 것 · coding style · copyright 문구 네 부분. 조직의 guideline과 대조해야 한다." },
+      { name: "knowledge base 재정리", st: "seed", label: "seed",
+        what: "흩어진 기존 자료를 주제별로 모아 다시 정리하고 주제끼리 엮는다. 필수 주제 다섯. 후보로 주제 목록, 주제별 필수 항목, product × 주제 지도(진척판), 필요한 실험이 있다." },
+      { name: "mutation 기반 TB 평가", st: "seed", label: "seed",
+        what: "상용 qualification tool 없이, AI가 RTL에 의도적인 결함을 넣어 TB가 잡아내는지로 TB의 검증력을 잰다. RTL revision의 B와 닿는다." },
+      { name: "RTL 자동 검증 skill·agent", st: "plan", label: "예정",
+        what: "test를 직접 작성하고 돌리는 일. RTL revision의 B(검증 상태 리뷰)와는 다른 scope로 분리했다. 아직 파일이 없다." }
+    ],
+    todo: {
+      me: [
+        "chain 기본값 일곱을 보고 다른 것만 고친다(심화 › chain 페이지 4절).",
+        "원할 때 심화 세션을 연다(intake · workflow · chain).",
+        "아이디어 메모의 좁히기 질문을 셋째부터 이어서 답한다."
+      ],
+      ai: [
+        "이식 18건: intake·workflow 문서를 core 설계서·protocol·walkthrough·도입 단계 문서에 녹이고 묶음을 다시 만든다. 가장 먼저 갚을 부채로 제안되어 있다.",
+        "chain 교정이 오면 chain 정본 문서를 쓰고 묶음과 이 뷰어에 넣는다.",
+        "그다음 diagnose 갈래(gaps 1순위)."
+      ]
+    },
+    timeline: [
+      ["09-19", "착수", "리서치 네 편, 전체 구조 초안, 가상 시나리오, 핵심 질문 답변. 질문 배터리 방식을 버리고 가상 ticket을 걸어 보는 방식으로 전환."],
+      ["09-19~20", "재정의 · core 설계", "분류를 AI 자신의 첫 단계로 재정의. core 둘(intake·workflow) + 갈래 넷. core 설계서, protocol 템플릿, 가상 사례 26건 walkthrough."],
+      ["09-20", "현업 적용 준비", "동료용 개요, 작업 지시서, 확인 리스트, 도입 0~3단계, 문서 규칙, 묶음 도구. 이후 설계 작업의 성격을 리뷰·일반화·업그레이드로 전환."],
+      ["09-20", "이 뷰어", "core 아홉 단계·사례 9건·설계 15절로 첫 배포."],
+      ["09-20~21", "주제별 심화", "intake 확정, workflow 확정(\"더 생각할 것\" 절은 드롭), chain 틀. 심화 세션 규약과 브리핑."],
+      ["09-24~", "아이디어 메모", "합성 시스템, RTL revision, 리뷰 확인 목록, knowledge base, mutation 기반 TB 평가."],
+      ["09-26", "이름 · 조망", "주제 글자(a~f)를 이름(intake·workflow·chain …)으로 바꿈. 전체 조망과 core 상태 점검."]
+    ],
+    decisions: [
+      ["09-20", "intake 확정", "입구는 ticket만이 아니다. 발생 → 공통 레코드 → 여섯 단계 → route. 범위 기본값 채택. 빈칸: diagnose 갈래 없음."],
+      ["09-20", "workflow 확정", "자율의 세 층 + 더한 것 여섯. \"더 생각할 것\" 절은 과해서 드롭."],
+      ["09-20", "chain 틀 (가정)", "카테고리가 아니라 사슬 template + link 카테고리 여럿. link 일곱, 원칙 다섯."],
+      ["09-26", "주제 이름", "c·d·a·e·f·b·z·g → intake·workflow·chain·timing-area·coverage·code-review·gaps·evolve."]
+    ]
+  },
+
   deep: [
-  { id: "intake", tab: "intake · 발생", short: "intake & routing",
+  { id: "intake", tab: "intake · 발생", short: "intake & routing", badge: "확정",
     title: "intake & routing — 일의 발생을 받아 처리에 착수시키는 단계",
     lead: "core의 앞 세 단계(intake → triage → gate)를 입구를 ticket 하나로 한정하지 않고 일반화한 설계다. ticket 분류(분류 record 여섯 칸, gate 다섯 조건)는 그대로 유효하며, 이 페이지는 그 앞뒤에 무엇이 더 있어야 하는지를 정한다.",
     summary: [
@@ -521,7 +599,7 @@ window.WS = {
     ],
     related: ["triage", "grades", "gate"], stages: ["intake", "triage", "gate"]
   },
-  { id: "workflow", tab: "workflow · 자율", short: "workflow & autonomy",
+  { id: "workflow", tab: "workflow · 자율", short: "workflow & autonomy", badge: "확정",
     title: "workflow & autonomy — 착수된 일을 AI가 결과 패키지까지 스스로 끌고 가는 방식",
     lead: "core의 뒤 여섯 단계(plan → execute → result → review → apply → learn)가 이미 정해 둔 것을 \"AI가 일을 자율로 진행한다는 것이 무엇인가\"의 관점에서 다시 묶고, 거기에 없던 것 여섯을 더한 설계다. 앞 단계(발생)가 task 폴더와 workflow를 정해 주면 여기서 시작한다.",
     summary: [
@@ -607,6 +685,56 @@ window.WS = {
       ]}}
     ],
     related: ["workflow", "posture", "sandbox", "hitl", "result", "review", "learn", "fork"], stages: ["plan", "execute", "result", "review", "apply", "learn"]
+  },
+  { id: "chain", tab: "chain · 사슬", short: "chain", badge: "틀 · 교정 대기",
+    title: "chain — 아키텍처부터 검증까지 이어지는 사슬",
+    lead: "core가 실행하는 workflow 갈래 가운데 가장 긴 일이다. 요구 정리에서 sign-off 준비까지를 workflow 하나로 두지 않고, link 여럿과 그것을 잇는 사슬 template으로 둔다. 지금은 기본안(틀)만 있고, 이름·개수·사람 결정 위치는 교정을 기다린다. 정본 문서는 아직 없다.",
+    summary: [
+      "chain은 카테고리 하나가 아니다. 카테고리 표에는 link 카테고리 여럿이 들어가고, 사슬 template이 그것을 잇는다. issue tracker에서는 epic이 사슬 인스턴스, child ticket이 link다.",
+      "link 기본안은 일곱이다: 요구·feasibility → 아키텍처 → interface·register·시퀀스 spec → RTL 구현 ∥ 검증 환경·test → 통합·regression → sign-off 준비.",
+      "핵심 leverage는 spec-derived oracle이다. 앞 link가 기계가 읽는 spec을 만들면, 그 spec이 뒤 link의 assertion·ref model 골격·coverage 목표·정합성 검사가 된다.",
+      "검증 독립성: RTL link와 검증 link는 다른 세션이고, 공유 입력은 spec뿐이다. 검증 link는 RTL을 읽지 않는다.",
+      "사람의 결정은 넷(착수·아키텍처 선택·interface freeze·sign-off)이다. 그 밖의 사람 자리는 검수다."
+    ],
+    excluded: "통합·regression 안에서 \"왜 실패했나\"를 찾는 일은 이 갈래가 아니라 diagnose 갈래의 일이다. diagnose 갈래는 아직 없다(빈칸 1순위).",
+    body: [
+      { h: "1. link 기본안 일곱" },
+      { table: { head: ["link", "하는 일", "산출물", "oracle", "posture 상한", "사람 결정"], rows: [
+        ["L1 요구·feasibility", "요구를 표로, 제약·리스크·대안 방향, 가능성 판단 재료", "요구표, feasibility 메모", "weak (사람)", "draft", "착수 결정"],
+        ["L2 아키텍처", "대안 비교(구조·성능·면적·latency 추정), block 분할, 자원 예산", "대안 비교표, block 분할도, 예산표", "weak, 일부 medium (추정 script, 과거 실적)", "draft", "아키텍처 선택"],
+        ["L3 interface·register·시퀀스 spec", "인터페이스 표, register map, 시퀀스·timing, 성능 예산을 machine-readable로", "spec 산출물 묶음", "medium (표 사이 정합성 검사: 이름·폭·주소 충돌·미정의 참조)", "draft → full (정합성 부분)", "interface freeze"],
+        ["L4 RTL 구현 (block)", "spec에서 RTL, lint·compile, spec-derived assertion 통과, 단위 sim", "RTL + lint·assertion 결과", "strong", "full (sandbox 안). interface 변경은 `[HD]`", "—"],
+        ["L5 검증 환경·test (block)", "test plan, TB, reference model, test, coverage 목표", "TB·test·ref model·coverage 보고", "strong (sim vs ref model, coverage)", "full", "test plan 승인 `[HD]`"],
+        ["L6 통합·regression", "subsystem·top 연결, regression 구성·실행, 실패 분류", "통합 RTL·regression 결과", "strong (regression)", "full. 원인 찾기는 diagnose 갈래로", "통합 시점"],
+        ["L7 sign-off 준비", "lint·CDC·synth·coverage 보고서 취합, 미결 목록, release note 초안", "sign-off 패키지", "strong (보고서) + 사람 판정", "draft", "sign-off"]
+      ]}},
+      { note: "link마다 workflow 파일이 하나(또는 여럿) 있고, checkpoint 규약·결과 패키지·학습은 workflow & autonomy 페이지와 같다. 이름과 개수는 기본안이며 과거 ticket 조사가 다르게 말하면 그쪽을 따른다." },
+      { h: "2. chain 고유의 원칙 다섯" },
+      { ul: [
+        "앞에서 검증 가능한 산출물을 만든다(spec-derived oracle). 아키텍처·spec 산출물이 문서로만 끝나면 뒤 link의 oracle은 사람뿐이다. L3를 machine-readable로 만들면 L4 assertion, L5 ref model 골격·coverage 목표, L7 정합성 검사가 거기서 나온다. \"문서 → 코드 → 검증\"이 아니라 \"결정 → 기계가 읽는 spec → 그 spec이 판정하는 구현·검증\"이다.",
+        "검증 독립성. L4와 L5는 같은 세션·같은 추론에서 나오면 안 된다. L5 세션은 RTL을 읽지 않고 test plan·ref model을 만든다. RTL을 읽는 것은 coverage hole 분석이라는 별도 checkpoint에서만이다. 사람 조직의 설계/검증 분리를 \"세션 분리 + 입력 제한\"으로 구현하며, 이것이 `scope.yaml`의 새 축(어느 link가 어느 산출물을 읽을 수 있는가)이 된다.",
+        "사슬은 순서가 아니라 의존 그래프다. L4와 L5는 L3 뒤에서 병렬, L6은 둘 뒤, L7은 L6 뒤. 반복되는 사슬은 정본 자산 `core/chains/CH-<id>.md`(link·의존·병렬·`[HD]` 위치)로 둔다.",
+        "spec 변경은 사슬 재plan이다. 진행 중 spec 개정이 들어오면 영향받는 link 목록을 만들고 각 link를 재plan하거나 child를 연다.",
+        "사람의 결정은 넷이다. 착수(L1 뒤), 아키텍처 선택(L2), interface freeze(L3), sign-off(L7). test plan 승인은 다섯째 후보다. 사슬 전체의 결과 패키지는 link별 근거표 묶음과 결정 넷의 기록이다."
+      ]},
+      { h: "3. ticket 매핑과 도입 순서" },
+      { ul: [
+        "\"기능 X 신규\"가 들어오면 L1 child 하나만 연다. 착수 결정이 나면 L2, interface freeze가 나면 L4·L5를 병렬로 연다. 한 번에 다 열지 않는다.",
+        "link 하나만 요구하는 ticket(\"block Y RTL 구현, spec 있음\")은 사슬 없이 그 link의 workflow 단독으로 간다.",
+        "chain 전체는 도입 3단계지만 link 단위로 앞당길 수 있다. oracle이 강한 L5 TB 골격·test 생성이 먼저, L4 lint·assertion이 둘째다. L1~L3은 oracle이 약해 draft로 오래 간다."
+      ]},
+      { h: "4. 교정을 기다리는 기본값 일곱" },
+      { table: { head: ["#", "항목", "기본값"], rows: [
+        ["1", "link 일곱과 `[HD]` 위치", "위 표대로. 이름·개수는 과거 ticket 조사로 검증"],
+        ["2", "검증 독립성", "적용 (세션 분리 + L5는 RTL을 읽지 않음)"],
+        ["3", "ticket 매핑", "epic = 사슬, child = link, 한 번에 다 열지 않음"],
+        ["4", "L3 machine-readable 산출물", "인터페이스 표 · register map · 시퀀스 · 성능 예산표 (넷)"],
+        ["5", "사슬 template", "정본 자산 `core/chains/`로 둔다"],
+        ["6", "도입 2단계로 앞당길 link", "L5 TB 골격·test 생성 먼저, L4 lint·assertion 둘째"],
+        ["7", "교정 뒤 진행", "정본 문서 작성 → 이 페이지를 정본 기준으로 다시 씀"]
+      ]}}
+    ],
+    related: ["workflow", "posture", "hitl", "sandbox", "result"], stages: ["plan", "execute", "review"]
   }
   ],
 
@@ -709,7 +837,7 @@ window.WS = {
   about: {
     purpose: "이 앱은 설계 중인 AI-native RTL 업무 시스템의 중간 결과를 한곳에서 확인하기 위한 뷰어다. 설계 원본은 비공개 작업 공간에 있고, 이 앱은 그중 조직 고유 정보를 뺀 core를 옮겨 둔 사본이다. 외부 독자를 위해 쓴 문서가 아니며, 배포 수단으로 공개 페이지를 쓸 뿐이다.",
     how: "설계는 가상 ticket 수십 건을 아홉 단계에 태워 보며 만든다. 틀에 부족한 것이 드러나면 설계를 고치고, 그 결과가 이 앱의 사례와 설계 절로 옮겨진다. 실물 ticket을 겪어야 답이 나오는 것들은 \"열린 긴장\"에 적는다.",
-    scope: "이 앱은 core(분류 → gate → 계획 → 실행 → 결과 → 검수 → 반영 → 학습)와 항목별 심화 페이지를 다룬다. 갈래는 core가 실행하는 workflow의 가족이고, 다른 것은 oracle과 posture뿐이다.",
+    scope: "이 앱은 core(분류 → gate → 계획 → 실행 → 결과 → 검수 → 반영 → 학습), 주제별 심화 페이지, 설계 작업 전체의 현황(현황 탭)을 다룬다. 갈래는 core가 실행하는 workflow의 가족이고, 다른 것은 oracle과 posture뿐이다.",
     status: "설계는 계속 바뀐다. 바뀐 것은 이 앱에 반영되며 이전 판과의 비교는 두지 않는다."
   },
   sources: [

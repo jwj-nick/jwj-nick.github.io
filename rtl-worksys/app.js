@@ -54,8 +54,9 @@
     var m = W.home, o = "";
     o += '<div class="hero">' +
       h("div", "tl", esc(W.meta.tagline)) +
-      h("p", "mut small", esc(W.meta.subtitle) + " · core(분류 → 자율 진행)만 다룬다.") +
+      h("p", "mut small", esc(W.meta.subtitle) + " · core와 설계 작업 현황을 본다.") +
       h("div", "up", "v" + W.meta.version + " · " + W.meta.updated + " 갱신") +
+      '<button class="deeplink" data-tab-go="status">◎ 설계 작업 현황 (' + esc(W.status.asOf) + " 기준)</button>" +
       "</div>";
 
     o += '<div class="card"><h2>30초 요약</h2><ol class="li steps5">' +
@@ -174,7 +175,55 @@
   }
 
 
-  /* ── 탭: 심화 (항목별 전용 페이지) ── */
+  /* ── 탭: 현황 ── */
+  var ST_TAG = { done: "g", wip: "y", seed: "m", plan: "" };
+  function stTag(st, label) { return h("span", "tag " + (ST_TAG[st] || ""), esc(label)); }
+  function hasDeep(id) {
+    for (var i = 0; i < W.deep.length; i++) if (W.deep[i].id === id) return true;
+    return false;
+  }
+  function viewStatus() {
+    var s = W.status, o = "";
+    o += '<div class="hero">' + h("div", "tl", "설계 작업 현황") +
+      '<ol class="li steps5">' + s.headline.map(function (x) { return h("li", "", tx(x)); }).join("") + "</ol>" +
+      h("div", "up", s.asOf + " 기준") + "</div>";
+
+    o += '<div class="card"><h2>작업 줄기</h2>';
+    s.tracks.forEach(function (t) {
+      o += '<div class="condrow"><div class="t">' + esc(t.name) + stTag(t.st, t.label) + "</div>" +
+        h("div", "kv mut", tx(t.what)) + '<div class="kv"><b>다음 —</b> ' + tx(t.next) + "</div></div>";
+    });
+    o += "</div>";
+
+    o += '<div class="card"><h2>주제 여덟</h2>' +
+      h("p", "mut small", "core 둘과 갈래, 그리고 마지막 빈칸 찾기다. 심화 페이지가 있는 주제는 눌러서 연다.");
+    s.topics.forEach(function (r) {
+      var name = hasDeep(r[0]) ? '<button class="deeplink inl" data-deep-go="' + r[0] + '">⇥ ' + esc(r[0]) + "</button>" : "<b>" + esc(r[0]) + "</b>";
+      o += '<div class="condrow"><div class="t">' + name + h("span", "tag m", esc(r[1])) + stTag(r[2], r[3]) + "</div>" +
+        h("div", "kv mut", tx(r[4])) + "</div>";
+    });
+    o += "</div>";
+
+    o += '<div class="card"><h2>아이디어 메모</h2>' +
+      h("p", "mut small", "설계 본선과 별도로 쌓는 단편 아이디어다. 충분히 자라면 설계 문서로 올라간다.");
+    s.ideas.forEach(function (r) {
+      o += '<div class="condrow"><div class="t">' + esc(r.name) + stTag(r.st, r.label) + "</div>" +
+        h("div", "kv mut", tx(r.what)) + "</div>";
+    });
+    o += "</div>";
+
+    o += '<div class="card"><h2>다음 할 일</h2>' +
+      h("h3", "", "직접") + '<ul class="li">' + s.todo.me.map(function (x) { return h("li", "", tx(x)); }).join("") + "</ul>" +
+      h("h3", "", "Claude 세션") + '<ul class="li">' + s.todo.ai.map(function (x) { return h("li", "", tx(x)); }).join("") + "</ul></div>";
+
+    o += '<div class="card"><h2>지나온 길</h2>' +
+      block({ table: { head: ["날짜", "무엇", "내용"], rows: s.timeline } }) + "</div>";
+    o += '<div class="card"><h2>최근 결정</h2>' +
+      block({ table: { head: ["날짜", "결정", "내용"], rows: s.decisions } }) + "</div>";
+    return o;
+  }
+
+  /* ── 탭: 심화 ── */
   function deepById(id) {
     for (var i = 0; i < W.deep.length; i++) if (W.deep[i].id === id) return W.deep[i];
     return W.deep[0];
@@ -184,7 +233,7 @@
     var o = '<div class="rail" id="rail">' + W.deep.map(function (d) {
       return '<button data-deep="' + d.id + '"' + (d.id === k.id ? ' class="on"' : "") + ">" + esc(d.tab) + "</button>";
     }).join("") + "</div>";
-    o += '<div class="card"><h2>' + esc(k.title) + "</h2>" + h("p", "lead", tx(k.lead)) + "</div>";
+    o += '<div class="card"><h2>' + esc(k.title) + (k.badge ? h("span", "tag " + (k.badge === "확정" ? "g" : "y"), esc(k.badge)) : "") + "</h2>" + h("p", "lead", tx(k.lead)) + "</div>";
     o += '<div class="card"><h2>한 장 요약</h2><ol class="li steps5">' +
       k.summary.map(function (s) { return h("li", "", tx(s)); }).join("") + "</ol>" +
       h("div", "note", tx(k.excluded)) + "</div>";
@@ -271,14 +320,14 @@
     o += '<div class="card"><h2>규율</h2><ul class="li">' +
       ["특정 조직의 실명·수치·코드·ticket 원문은 쓰지 않는다. 모든 예시는 가상이다.",
         "숫자는 공란으로 두고 목적·결정 주체·결정 방법만 적는다.",
-        "이 앱은 core만 다룬다. 갈래는 사례 안에서만 스친다.",
+        "core와 주제별 심화, 설계 작업 전체의 현황을 다룬다. 현황 화면은 설계 쪽이 바뀔 때마다 동기화한다.",
         "설계가 바뀌면 이 앱이 바뀐다. 이전 판과의 비교는 두지 않는다."
       ].map(function (s) { return h("li", "mut", tx(s)); }).join("") + "</ul></div>";
     return o;
   }
 
   /* ── 라우팅 ── */
-  var TABS = ["home", "core", "deep", "cases", "docs", "road", "about"];
+  var TABS = ["home", "status", "core", "deep", "cases", "docs", "road", "about"];
   var state = { tab: get("ws_tab", "home"), caseId: null, step: 0, docOpen: null, stage: null, deep: get("ws_deep", "intake") };
 
   // #core/gate · #cases/C1 · #docs/posture 같은 해시를 읽는다 (공유 가능한 링크)
@@ -286,7 +335,7 @@
     var raw = (location.hash || "").replace(/^#/, "");
     if (!raw) return false;
     var parts = raw.split("/");
-    if (parts[0] === "intake" || parts[0] === "workflow") parts = ["deep", parts[0]];
+    if (parts[0] === "intake" || parts[0] === "workflow" || parts[0] === "chain") parts = ["deep", parts[0]];
     if (TABS.indexOf(parts[0]) < 0) return false;
     state.tab = parts[0]; state.caseId = null; state.step = 0;
     if (parts[1]) {
@@ -310,6 +359,7 @@
   function paint() {
     var t = state.tab, html;
     if (t === "home") html = viewHome();
+    else if (t === "status") html = viewStatus();
     else if (t === "core") html = viewCore(state.stage);
     else if (t === "deep") html = viewDeep(state.deep);
     else if (t === "cases") html = state.caseId ? viewCase(state.caseId, state.step) : viewCases();
@@ -347,6 +397,8 @@
     if (b.dataset.step !== undefined && state.caseId) { state.step = +b.dataset.step; return paint(); }
     if (b.dataset.doc) { state.tab = "docs"; state.docOpen = b.dataset.doc; set("ws_tab", "docs"); return paint(); }
     if (b.dataset.stageGo) { state.tab = "core"; state.stage = b.dataset.stageGo; set("ws_stage", state.stage); set("ws_tab", "core"); state.caseId = null; return paint(); }
+    if (b.dataset.tabGo) { state.tab = b.dataset.tabGo; set("ws_tab", state.tab); state.caseId = null; return paint(); }
+    if (b.dataset.deepGo) { state.tab = "deep"; state.deep = b.dataset.deepGo; set("ws_deep", state.deep); set("ws_tab", "deep"); state.caseId = null; return paint(); }
     if (b.dataset.deep) { state.deep = b.dataset.deep; set("ws_deep", state.deep); return paint(); }
     if (b.dataset.stage) { state.stage = b.dataset.stage; set("ws_stage", state.stage); return paint(); }
   });
