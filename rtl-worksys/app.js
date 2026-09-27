@@ -232,8 +232,9 @@
     var k = deepById(id);
     var o = '<div class="rail" id="rail">' + W.deep.map(function (d) {
       return '<button data-deep="' + d.id + '"' + (d.id === k.id ? ' class="on"' : "") + ">" + esc(d.tab) + "</button>";
-    }).join("") + "</div>";
+    }).join("") + '<button data-tab-go="ia">intake agent ▸</button></div>';
     o += '<div class="card"><h2>' + esc(k.title) + (k.badge ? h("span", "tag " + (k.badge === "확정" ? "g" : "y"), esc(k.badge)) : "") + "</h2>" + h("p", "lead", tx(k.lead)) + "</div>";
+    if (k.ext) o += '<div class="card extcard">' + h("p", "", tx(k.ext.text)) + '<button class="deeplink" data-tab-go="' + k.ext.go + '">' + esc(k.ext.label) + "</button></div>";
     o += '<div class="card"><h2>한 장 요약</h2><ol class="li steps5">' +
       k.summary.map(function (s) { return h("li", "", tx(s)); }).join("") + "</ol>" +
       h("div", "note", tx(k.excluded)) + "</div>";
@@ -247,6 +248,239 @@
         var st = stageById(sid);
         return st ? '<button class="deeplink" data-stage-go="' + sid + '">▤ 단계 ' + st.n + " " + esc(st.name) + "</button>" : "";
       }).join("") + "</div>";
+    return o;
+  }
+
+  /* ── intake agent 탐색기 (데이터 = intake_agent.js, 처음 열 때 불러온다) ── */
+  function loadIA(cb) {
+    if (window.IA) return cb();
+    var s = document.createElement("script");
+    s.src = "intake_agent.js";
+    s.onload = cb;
+    s.onerror = function () { app.innerHTML = '<div class="card">intake agent 데이터를 불러오지 못했다.</div>'; };
+    document.body.appendChild(s);
+  }
+
+  // 작은 markdown 렌더러: 제목·문단·목록(중첩)·표·code block·인용·구분선·강조·code·link
+  function mdInline(s) {
+    var codes = [];
+    var t = String(s).replace(/`([^`]*)`/g, function (m, c) { codes.push(c); return "\u0000" + (codes.length - 1) + "\u0000"; });
+    var e = esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+    e = e.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, function (m, tt, u) {
+      var d = iaDocByPath(u);
+      return d ? '<button class="mdlink" data-ia-doc="' + d.sec + "/" + d.id + '">' + tt + "</button>" : "<u>" + tt + "</u>";
+    });
+    return e.replace(/\u0000(\d+)\u0000/g, function (m, i) { return "<code>" + esc(codes[+i]) + "</code>"; });
+  }
+  function mdCode(s) {
+    // `경로.md` 처럼 code로 적힌 문서 경로도 누르면 열리게
+    return s.replace(/<code>([^<]+\.(?:md|yaml|json))<\/code>/g, function (m, p) {
+      var d = iaDocByPath(p);
+      return d ? '<button class="mdlink code" data-ia-doc="' + d.sec + "/" + d.id + '">' + p + "</button>" : m;
+    });
+  }
+  function md(src, toc) {
+    var L = src.split("\n"), o = [], i = 0, hn = 0;
+    var isList = function (l) { return /^(\s*)([-*]|\d+\.)\s+/.test(l); };
+    var isBlockStart = function (l) { return /^(#{1,6}\s|```|>|\||---\s*$)/.test(l) || isList(l); };
+    while (i < L.length) {
+      var l = L[i];
+      if (/^\s*$/.test(l)) { i++; continue; }
+      if (/^```/.test(l)) {
+        var buf = []; i++;
+        while (i < L.length && !/^```/.test(L[i])) buf.push(L[i++]);
+        i++; o.push("<pre>" + esc(buf.join("\n")) + "</pre>"); continue;
+      }
+      var hm = /^(#{1,6})\s+(.*)$/.exec(l);
+      if (hm) {
+        var lv = hm[1].length, id = "h" + (++hn), tag = lv <= 1 ? "h2" : lv === 2 ? "h3" : "h4";
+        if (toc && lv === 2) toc.push([id, hm[2]]);
+        o.push("<" + tag + ' id="' + id + '">' + mdInline(hm[2]) + "</" + tag + ">"); i++; continue;
+      }
+      if (/^---\s*$/.test(l)) { o.push("<hr>"); i++; continue; }
+      if (/^>/.test(l)) {
+        var q = [];
+        while (i < L.length && /^>/.test(L[i])) q.push(L[i++].replace(/^>\s?/, ""));
+        o.push('<div class="note">' + md(q.join("\n")) + "</div>"); continue;
+      }
+      if (/^\|/.test(l) && i + 1 < L.length && /^\|?\s*:?-{2,}/.test(L[i + 1])) {
+        var cells = function (r) { return r.replace(/^\||\|\s*$/g, "").split(/(?<!\\)\|/).map(function (c) { return c.trim().replace(/\\\|/g, "|"); }); };
+        var head = cells(l); i += 2; var rows = [];
+        while (i < L.length && /^\|/.test(L[i])) rows.push(cells(L[i++]));
+        o.push('<div class="tblwrap"><table><thead><tr>' + head.map(function (c) { return "<th>" + mdInline(c) + "</th>"; }).join("") +
+          "</tr></thead><tbody>" + rows.map(function (r) { return "<tr>" + r.map(function (c) { return "<td>" + mdInline(c) + "</td>"; }).join("") + "</tr>"; }).join("") +
+          "</tbody></table></div>");
+        continue;
+      }
+      if (isList(l)) {
+        var items = [];
+        while (i < L.length && (isList(L[i]) || (/^\s{2,}\S/.test(L[i]) && items.length))) {
+          var m = /^(\s*)([-*]|\d+\.)\s+(.*)$/.exec(L[i]);
+          if (m) items.push({ ind: m[1].length, ol: /\d/.test(m[2]), t: m[3] });
+          else items[items.length - 1].t += " " + L[i].trim();
+          i++;
+        }
+        o.push(mdList(items, 0, 0).html); continue;
+      }
+      var p = [];
+      while (i < L.length && !/^\s*$/.test(L[i]) && !(p.length && isBlockStart(L[i]))) p.push(L[i++]);
+      o.push("<p>" + mdInline(p.join(" ")) + "</p>");
+    }
+    return mdCode(o.join(""));
+  }
+  function mdList(items, k, ind) {
+    var ol = items[k].ol, html = ol ? '<ol class="li">' : '<ul class="li">';
+    while (k < items.length && items[k].ind >= ind) {
+      if (items[k].ind > ind) { var sub = mdList(items, k, items[k].ind); html = html.replace(/<\/li>$/, "") + sub.html + "</li>"; k = sub.k; continue; }
+      html += "<li>" + mdInline(items[k].t) + "</li>"; k++;
+    }
+    return { html: html + (ol ? "</ol>" : "</ul>"), k: k };
+  }
+
+  var IA_SECS = [
+    ["overview", "개요"], ["design", "설계"], ["arch", "구조"], ["agents", "부품 10"], ["contracts", "계약 3"],
+    ["rules", "규칙 8"], ["golden", "시험 91"], ["eval", "평가"], ["session", "세션 기록"]
+  ];
+  function iaDocs(sec) { return window.IA.docs.filter(function (d) { return d.sec === sec; }); }
+  function iaDocByPath(p) {
+    if (!window.IA) return null;
+    p = String(p).replace(/^\.\.?\//, "").replace(/^\.\.\//, "");
+    var all = window.IA.docs.concat(window.IA.rules.map(function (r) { return { sec: "rules", id: r.id, path: r.path }; }))
+      .concat(window.IA.schemas.map(function (s) { return { sec: "contracts", id: s.id, path: s.path }; }));
+    for (var i = 0; i < all.length; i++) {
+      var a = all[i].path;
+      if (a && (a === p || a.slice(-p.length - 1) === "/" + p || p.slice(-a.length) === a)) return all[i];
+    }
+    return null;
+  }
+  function yamlHl(t) {
+    return t.split("\n").map(function (ln) {
+      var e = esc(ln);
+      if (/^\s*#/.test(ln)) return '<span class="yc">' + e + "</span>";
+      e = e.replace(/^(\s*-?\s*)([A-Za-z_][\w.\-]*)(:)/, '$1<span class="yk">$2</span>$3');
+      return e.replace(/(\s#\s.*)$/, '<span class="yc">$1</span>');
+    }).join("\n");
+  }
+  function kv(v, depth) {
+    if (v === null || v === undefined) return '<span class="dim">null</span>';
+    if (typeof v !== "object") return tx(String(v));
+    if (Array.isArray(v)) {
+      if (!v.length) return '<span class="dim">[ ]</span>';
+      if (v.every(function (x) { return x === null || typeof x !== "object"; })) return v.map(function (x) { return h("span", "chip", esc(String(x))); }).join(" ");
+      return '<ol class="kvl">' + v.map(function (x) { return "<li>" + kv(x, depth + 1) + "</li>"; }).join("") + "</ol>";
+    }
+    return '<dl class="kvt">' + Object.keys(v).map(function (k) { return "<dt>" + esc(k) + "</dt><dd>" + kv(v[k], depth + 1) + "</dd>"; }).join("") + "</dl>";
+  }
+  var GATE_TAG = function (g) { return !g ? "" : g === "proceed" ? "g" : /^stop|risk/.test(g) ? "r" : /^hold/.test(g) ? "y" : "m"; };
+
+  function viewIA() {
+    var I = window.IA, sec = state.ia.sec || "overview", o = "";
+    o += '<div class="card"><h2>intake agent system' + h("span", "tag y", "심화 결과 · 교정 대기") + "</h2>" +
+      h("p", "lead", "intake 심화 세션(09-27~28)이 intake를 설명 문서에서 세울 수 있는 agent 시스템의 명세로 옮긴 결과 전체다. 부품 " + I.stats.agents +
+        " · 데이터 계약 " + I.stats.schemas + " · 규칙 설정 " + I.stats.rules + " · 시험 사례 " + I.stats.cases + "건. 세세한 가정과 결정은 위임으로 정해졌고 교정을 기다린다.") +
+      h("p", "dim small", "읽는 순서: 개요(전체 설명) → 구조 §2~§4 → 시험 사례 몇 건. " + I.asOf + " 기준.") +
+      '<button class="deeplink" data-deep-go="intake">⇥ intake 요약 페이지로</button></div>';
+    o += '<div class="rail">' + IA_SECS.map(function (s) {
+      return '<button data-ia-sec="' + s[0] + '"' + (s[0] === sec ? ' class="on"' : "") + ">" + esc(s[1]) + "</button>";
+    }).join("") + "</div>";
+
+    if (sec === "rules") return o + iaRules();
+    if (sec === "contracts") return o + iaContracts();
+    if (sec === "golden") return o + iaGolden();
+
+    var ds = iaDocs(sec), cur = ds.filter(function (d) { return d.id === state.ia.id; })[0] || ds[0];
+    if (ds.length > 1) {
+      o += '<div class="rail sub">' + ds.map(function (d) {
+        return '<button data-ia-doc="' + sec + "/" + d.id + '"' + (d === cur ? ' class="on"' : "") + ">" + esc(d.short) + "</button>";
+      }).join("") + "</div>";
+    }
+    var toc = [], body = md(cur.md, toc);
+    o += '<div class="card mdb">' + (cur.path ? h("div", "dim small path", esc(cur.path)) : "") +
+      (toc.length > 2 ? '<details class="toc"><summary>목차 ' + toc.length + "</summary>" + toc.map(function (t) {
+        return '<button class="tocb" data-scroll="' + t[0] + '">' + mdInline(t[1]) + "</button>";
+      }).join("") + "</details>" : "") + body + "</div>";
+    return o;
+  }
+  function iaRules() {
+    var I = window.IA, cur = I.rules.filter(function (r) { return r.id === state.ia.id; })[0] || I.rules[0];
+    var o = '<div class="rail sub">' + I.rules.map(function (r) {
+      return '<button data-ia-doc="rules/' + r.id + '"' + (r === cur ? ' class="on"' : "") + ">" + esc(r.id) + "</button>";
+    }).join("") + "</div>";
+    o += '<div class="card mdb">' + h("div", "dim small path", esc(cur.path)) + h("h2", "", esc(cur.title)) +
+      h("p", "mut small", "규칙 설정(YAML)이다. 숫자는 공란이고 결정 주체가 적혀 있다. # 줄은 설명, 굵은 이름은 key다.") +
+      (cur.ids.length ? '<div class="chips">' + cur.ids.map(function (x) { return h("span", "chip", esc(x)); }).join("") + "</div>" : "") +
+      '<pre class="yaml">' + yamlHl(cur.text) + "</pre></div>";
+    return o;
+  }
+  function iaContracts() {
+    var I = window.IA, cur = I.schemas.filter(function (r) { return r.id === state.ia.id; })[0] || I.schemas[0];
+    var o = '<div class="rail sub">' + I.schemas.map(function (r) {
+      return '<button data-ia-doc="contracts/' + r.id + '"' + (r === cur ? ' class="on"' : "") + ">" + esc(r.short) + "</button>";
+    }).join("") + "</div>";
+    o += '<div class="card mdb">' + h("div", "dim small path", esc(cur.path)) + h("h2", "", esc(cur.title)) + h("p", "", tx(cur.desc)) +
+      h("h3", "", "필드 " + cur.fields.length) +
+      '<div class="flds">' + cur.fields.map(function (f) {
+        var dep = (f[0].match(/\./g) || []).length;
+        return '<div class="fld" style="margin-left:' + Math.min(dep, 4) * 12 + 'px"><div class="fh"><code>' + esc(f[0]) + "</code>" +
+          (f[2] ? h("span", "tag y", "필수") : "") + h("span", "ft", esc(f[1])) + "</div>" + (f[3] ? h("div", "fd", tx(f[3])) : "") + "</div>";
+      }).join("") + "</div>" +
+      '<details class="doc"><summary>JSON Schema 원문</summary><pre>' + esc(cur.text) + "</pre></details></div>";
+    return o;
+  }
+  function iaCaseMatch(c) {
+    var f = state.iaf;
+    if (f.group && c.group !== f.group) return false;
+    if (f.mode && c.mode !== f.mode) return false;
+    if (f.gate && c.gate !== f.gate) return false;
+    if (f.q) { var q = f.q.toLowerCase(); if ((c.id + " " + c.title + " " + c.why + " " + c.checks.join(" ")).toLowerCase().indexOf(q) < 0) return false; }
+    return true;
+  }
+  function iaCaseList() {
+    var cs = window.IA.cases.filter(iaCaseMatch);
+    return h("div", "dim small", cs.length + "건") + cs.map(function (c) {
+      return '<button class="caseitem ia" data-ia-case="' + c.id + '"><div class="ct"><b>' + esc(c.id) + "</b> " + esc(c.title) + "</div>" +
+        '<div class="tags">' + h("span", "tag m", esc(c.group)) + (c.mode ? h("span", "tag", esc(c.mode)) : "") +
+        (c.gate ? h("span", "tag " + GATE_TAG(c.gate), esc(c.gate)) : "") + (c.wd ? h("span", "tag m", "wd " + esc(c.wd)) : "") +
+        (c.risk ? h("span", "tag r", "risk") : "") + "</div></button>";
+    }).join("");
+  }
+  function iaGolden() {
+    var I = window.IA, f = state.iaf, o = "";
+    if (state.ia.id && state.ia.id !== "golden_readme") {
+      var c = I.cases.filter(function (x) { return x.id === state.ia.id; })[0];
+      if (c) {
+        var idx = I.cases.indexOf(c);
+        o += '<div class="card mdb"><button class="deeplink" data-ia-doc="golden/">◂ 사례 목록</button>' +
+          h("h2", "", esc(c.id) + " · " + esc(c.title)) +
+          '<div class="tags">' + h("span", "tag m", esc(c.group)) + (c.mode ? h("span", "tag", "mode " + esc(c.mode)) : "") +
+          (c.gate ? h("span", "tag " + GATE_TAG(c.gate), "gate " + esc(c.gate)) : "") + (c.wd ? h("span", "tag m", "work_decision " + esc(c.wd)) : "") + "</div>" +
+          h("div", "note", "<b>왜 —</b> " + tx(c.why)) +
+          (c.checks.length ? h("h3", "", "확인하는 규칙") + '<div class="chips">' + c.checks.map(function (x) { return h("span", "chip", esc(x)); }).join("") + "</div>" : "") +
+          (c.given ? h("h3", "", "주어진 것 (given)") + kv(c.given, 0) : "") +
+          h("h3", "", "사건 (event)") + kv(c.event, 0) +
+          h("h3", "", "기대 결과 (expect)") + kv(c.expect, 0) +
+          '<details class="doc"><summary>YAML 원문</summary><pre class="yaml">' + yamlHl(c.raw) + "</pre></details>" +
+          '<div class="pnav"><button data-ia-case="' + (I.cases[idx - 1] || c).id + '"' + (idx ? "" : " disabled") + ">◂ 이전</button>" +
+          '<button class="pri" data-ia-case="' + (I.cases[idx + 1] || c).id + '"' + (idx < I.cases.length - 1 ? "" : " disabled") + ">다음 ▸</button></div></div>";
+        return o;
+      }
+    }
+    if (state.ia.id === "golden_readme") {
+      var d = iaDocs("golden")[0], toc = [];
+      return '<div class="card mdb"><button class="deeplink" data-ia-doc="golden/">◂ 사례 목록</button>' + md(d.md, toc) + "</div>";
+    }
+    var uniq = function (k) { var s = {}; I.cases.forEach(function (c) { if (c[k]) s[c[k]] = (s[c[k]] || 0) + 1; }); return Object.keys(s).map(function (x) { return [x, s[x]]; }); };
+    var chipRow = function (key, label, vals) {
+      return '<div class="frow"><span class="fl">' + label + "</span>" + ['<button class="fchip' + (!f[key] ? " on" : "") + '" data-iaf="' + key + '=">전체</button>'].concat(vals.map(function (v) {
+        return '<button class="fchip' + (f[key] === v[0] ? " on" : "") + '" data-iaf="' + key + "=" + esc(v[0]) + '">' + esc(v[0]) + " " + v[1] + "</button>";
+      })).join("") + "</div>";
+    };
+    o += '<div class="card"><h2>시험 사례 ' + I.stats.cases + "건</h2>" +
+      h("p", "mut small", "가상 발생마다 무엇이 나와야 하는지(기대 결과)와 그 이유를 적은 시험 세트다. 회사에서 agent를 세운 뒤에는 회귀 시험이 된다. hard-zero 셋: 위험 놓침 0 · 잘못 붙이기 0 · 밖으로 새기 0.") +
+      '<button class="deeplink" data-ia-doc="golden/golden_readme">✎ 시험 세트 설명 · 채점법</button>' +
+      chipRow("group", "입구", uniq("group")) + chipRow("mode", "mode", uniq("mode")) + chipRow("gate", "gate", uniq("gate")) +
+      '<input id="iaq" class="iaq" placeholder="검색: id · 제목 · 이유 · 규칙 id" value="' + esc(f.q || "") + '">' +
+      '<div id="ialist">' + iaCaseList() + "</div></div>";
     return o;
   }
 
@@ -327,8 +561,8 @@
   }
 
   /* ── 라우팅 ── */
-  var TABS = ["home", "status", "core", "deep", "cases", "docs", "road", "about"];
-  var state = { tab: get("ws_tab", "home"), caseId: null, step: 0, docOpen: null, stage: null, deep: get("ws_deep", "intake") };
+  var TABS = ["home", "status", "core", "deep", "cases", "docs", "road", "about", "ia"];
+  var state = { tab: get("ws_tab", "home"), caseId: null, step: 0, docOpen: null, stage: null, deep: get("ws_deep", "intake"), ia: { sec: "overview", id: null }, iaf: {} };
 
   // #core/gate · #cases/C1 · #docs/posture 같은 해시를 읽는다 (공유 가능한 링크)
   function readHash() {
@@ -343,6 +577,7 @@
       else if (state.tab === "cases") state.caseId = parts[1].toUpperCase();
       else if (state.tab === "docs") state.docOpen = parts[1];
       else if (state.tab === "deep") state.deep = parts[1];
+      else if (state.tab === "ia") state.ia = { sec: parts[1], id: parts[2] ? decodeURIComponent(parts[2]) : null };
     }
     return true;
   }
@@ -351,6 +586,7 @@
     if (state.tab === "core" && state.stage) frag += "/" + state.stage;
     else if (state.tab === "cases" && state.caseId) frag += "/" + state.caseId;
     else if (state.tab === "deep" && state.deep) frag += "/" + state.deep;
+    else if (state.tab === "ia") frag += "/" + (state.ia.sec || "overview") + (state.ia.id ? "/" + encodeURIComponent(state.ia.id) : "");
     if (("#" + frag) !== location.hash) {
       try { history.replaceState(null, "", "#" + frag); } catch (e) { location.hash = frag; }
     }
@@ -360,6 +596,10 @@
     var t = state.tab, html;
     if (t === "home") html = viewHome();
     else if (t === "status") html = viewStatus();
+    else if (t === "ia") {
+      if (!window.IA) { app.innerHTML = '<div class="card">intake agent 데이터를 불러오는 중…</div>'; return loadIA(paint); }
+      html = viewIA();
+    }
     else if (t === "core") html = viewCore(state.stage);
     else if (t === "deep") html = viewDeep(state.deep);
     else if (t === "cases") html = state.caseId ? viewCase(state.caseId, state.step) : viewCases();
@@ -373,7 +613,7 @@
 
     var btns = document.querySelectorAll("#nav button");
     for (var i = 0; i < btns.length; i++) {
-      btns[i].className = btns[i].dataset.tab === t ? "on" : "";
+      btns[i].className = btns[i].dataset.tab === (t === "ia" ? "deep" : t) ? "on" : "";
     }
     if (state.docOpen) {
       var el = document.getElementById("doc-" + state.docOpen);
@@ -397,10 +637,21 @@
     if (b.dataset.step !== undefined && state.caseId) { state.step = +b.dataset.step; return paint(); }
     if (b.dataset.doc) { state.tab = "docs"; state.docOpen = b.dataset.doc; set("ws_tab", "docs"); return paint(); }
     if (b.dataset.stageGo) { state.tab = "core"; state.stage = b.dataset.stageGo; set("ws_stage", state.stage); set("ws_tab", "core"); state.caseId = null; return paint(); }
+    if (b.dataset.iaSec) { state.tab = "ia"; state.ia = { sec: b.dataset.iaSec, id: null }; return paint(); }
+    if (b.dataset.iaDoc !== undefined) { var pp = b.dataset.iaDoc.split("/"); state.tab = "ia"; state.ia = { sec: pp[0], id: pp[1] || null }; set("ws_tab", "ia"); return paint(); }
+    if (b.dataset.iaCase) { state.tab = "ia"; state.ia = { sec: "golden", id: b.dataset.iaCase }; return paint(); }
+    if (b.dataset.iaf !== undefined) { var kv2 = b.dataset.iaf.split("="); state.iaf[kv2[0]] = kv2.slice(1).join("="); state.ia.id = null; return paint(); }
+    if (b.dataset.scroll) { var se = document.getElementById(b.dataset.scroll); if (se) se.scrollIntoView({ block: "start" }); return; }
     if (b.dataset.tabGo) { state.tab = b.dataset.tabGo; set("ws_tab", state.tab); state.caseId = null; return paint(); }
     if (b.dataset.deepGo) { state.tab = "deep"; state.deep = b.dataset.deepGo; set("ws_deep", state.deep); set("ws_tab", "deep"); state.caseId = null; return paint(); }
     if (b.dataset.deep) { state.deep = b.dataset.deep; set("ws_deep", state.deep); return paint(); }
     if (b.dataset.stage) { state.stage = b.dataset.stage; set("ws_stage", state.stage); return paint(); }
+  });
+
+  app.addEventListener("input", function (e) {
+    if (e.target.id !== "iaq") return;
+    state.iaf.q = e.target.value;
+    var el = document.getElementById("ialist"); if (el) el.innerHTML = iaCaseList();
   });
 
   /* ── 테마 ── */
