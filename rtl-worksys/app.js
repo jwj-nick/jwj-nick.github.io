@@ -56,7 +56,8 @@
       h("div", "tl", esc(W.meta.tagline)) +
       h("p", "mut small", esc(W.meta.subtitle) + " · core와 설계 작업 현황을 본다.") +
       h("div", "up", "v" + W.meta.version + " · " + W.meta.updated + " 갱신") +
-      '<button class="deeplink" data-tab-go="map">▶ core 한 장 (그림 · 15초 애니메이션)</button> ' +
+      '<button class="deeplink" data-map-go="core">▶ 한 장 · 15초 (core · intake · workflow)</button> ' +
+      '<button class="deeplink" data-tab-go="talk">? 더 깊게 논의할 것</button> ' +
       '<button class="deeplink" data-tab-go="status">◎ 설계 작업 현황 (' + esc(W.status.asOf) + " 기준)</button>" +
       "</div>";
 
@@ -93,11 +94,20 @@
 
   /* ── core 한 장 (그림 · 15초 애니메이션) ── */
   var ZTAG = ["", "m", "y", "g"];
+  function goBtn(g) {
+    // g = [라벨, 종류(stage|deep|tab|bun|map), 대상]
+    var at = { stage: "data-stage-go", deep: "data-deep-go", tab: "data-tab-go", bun: "data-bun-go", map: "data-map-go" }[g[1]] || "data-tab-go";
+    return '<button class="deeplink" ' + at + '="' + esc(g[2]) + '">▸ ' + esc(g[0]) + "</button>";
+  }
   function viewMap() {
-    var M = W.map, th = document.documentElement.dataset.theme === "light" ? "light" : "dark", o = "";
+    var id = W.maps[state.map] ? state.map : "core", M = W.maps[id], o = "";
+    var th = document.documentElement.dataset.theme === "light" ? "light" : "dark";
+    o += '<div class="rail">' + W.mapOrder.map(function (k) {
+      return '<button data-map-go="' + k + '"' + (k === id ? ' class="on"' : "") + ">" + esc(W.maps[k].tab) + "</button>";
+    }).join("") + "</div>";
     o += '<div class="card"><h2>' + esc(M.title) + ' <span class="tag g">그림 · 15초 애니메이션</span></h2>' +
-      h("p", "lead", tx(M.lead)) + "</div>";
-    o += '<div class="mapmedia"><img src="' + M.media.gif + '" alt="core 15초 애니메이션" loading="lazy"></div>';
+      h("p", "lead", tx(M.lead)) + (M.go ? M.go.map(goBtn).join(" ") : "") + "</div>";
+    o += '<div class="mapmedia"><img src="' + M.media.gif + '" alt="' + esc(M.title) + ' 15초 애니메이션" loading="lazy"></div>';
     o += '<div class="maplinks">' +
       [["mp4 (1920×1080)", M.media.mp4], ["그림 · 라이트", M.media.png.light], ["그림 · 다크", M.media.png.dark],
         ["움직이는 HTML", M.media.html + "?theme=" + th]].map(function (l) {
@@ -110,27 +120,60 @@
     }).join("") + "</div></div>";
 
     o += '<a class="mapimg" href="' + M.media.png[th] + '" target="_blank" rel="noopener"><img src="' + M.media.png[th] +
-      '" alt="core 한 장 그림" loading="lazy"></a>' + h("p", "dim xs center", "그림을 누르면 원본 크기(1920×1080)로 열린다.");
+      '" alt="' + esc(M.title) + ' 그림" loading="lazy"></a>' + h("p", "dim xs center", "그림을 누르면 원본 크기(1920×1080)로 열린다.");
 
-    o += '<div class="card"><h2>왜 core가 먼저인가</h2><ol class="why4">' + M.why.map(function (w) {
+    o += '<div class="card"><h2>' + esc(M.whyTitle || "왜 중요한가") + '</h2><ol class="why4">' + M.why.map(function (w) {
       return "<li>" + h("b", "", esc(w[0])) + h("span", "", tx(w[1])) + "</li>";
     }).join("") + "</ol></div>";
 
     M.zones.forEach(function (z) {
       o += '<div class="card zone z' + z.z + '"><h2>' + esc(z.name) + ' <span class="tag ' + ZTAG[z.z] + '">' + esc(z.stages) + "</span></h2>" +
         h("p", "", tx(z.what)) + '<ul class="li">' + z.ul.map(function (s) { return h("li", "", tx(s)); }).join("") + "</ul>" +
-        z.go.map(function (g) {
-          var at = g[1] === "stage" ? 'data-stage-go="' : g[1] === "deep" ? 'data-deep-go="' : 'data-tab-go="';
-          return '<button class="deeplink" ' + at + g[2] + '">▸ ' + esc(g[0]) + "</button>";
-        }).join(" ") + "</div>";
+        (z.go || []).map(goBtn).join(" ") + "</div>";
     });
 
-    o += '<div class="card"><h2>core 위에 얹힐 주제 <span class="tag n">주제마다 한 장 · 예정</span></h2>' +
-      '<div class="tblwrap"><table><thead><tr><th>주제</th><th>자리</th><th>지금</th><th>한 장</th></tr></thead><tbody>' +
-      M.topics.map(function (r) {
-        return "<tr><td><strong>" + esc(r[0]) + "</strong></td><td>" + esc(r[1]) + '</td><td><span class="tag ' + r[3] + '">' +
-          esc(r[2]) + "</span></td><td>" + tx(r[4]) + "</td></tr>";
-      }).join("") + "</tbody></table></div>" + h("div", "note", tx(M.topicsNote)) + "</div>";
+    if (M.topics) {
+      o += '<div class="card"><h2>' + esc(M.topicsTitle || "core 위에 얹힐 주제") + ' <span class="tag n">주제마다 한 장</span></h2>' +
+        '<div class="tblwrap"><table><thead><tr><th>주제</th><th>자리</th><th>지금</th><th>한 장</th></tr></thead><tbody>' +
+        M.topics.map(function (r) {
+          return "<tr><td><strong>" + esc(r[0]) + "</strong></td><td>" + esc(r[1]) + '</td><td><span class="tag ' + r[3] + '">' +
+            esc(r[2]) + "</span></td><td>" + tx(r[4]) + "</td></tr>";
+        }).join("") + "</tbody></table></div>" + h("div", "note", tx(M.topicsNote)) + "</div>";
+    }
+    if (M.docs) {
+      o += '<div class="card"><h2>그림 문서 <span class="tag m">정적 · 자세히</span></h2>' + h("p", "mut small", tx(M.docsNote)) +
+        '<div class="igdocs">' + M.docs.map(function (d) {
+          return '<a class="igdoc" href="' + d[0] + '" target="_blank" rel="noopener"><b>' + esc(d[1]) + " ↗</b><span>" + tx(d[2]) + "</span></a>";
+        }).join("") + "</div></div>";
+    }
+    o += '<div class="card"><button class="deeplink" data-tab-go="talk">? 더 깊게 논의할 것</button></div>';
+    return o;
+  }
+
+  /* ── 더 깊게 논의할 것 ── */
+  function viewTalk() {
+    var T = W.talk, o = "";
+    o += '<div class="hero">' + h("div", "tl", esc(T.title)) + h("p", "", tx(T.lead)) +
+      h("div", "up", T.asOf + " 기준 · 봤음 표시는 이 기기에만 남는다") + "</div>";
+    o += '<div class="rail">' + T.groups.map(function (g) {
+      return '<button data-scroll="tg-' + g.id + '">' + esc(g.short) + " " + g.items.length + "</button>";
+    }).join("") + "</div>";
+    T.groups.forEach(function (g) {
+      var seen = g.items.filter(function (it) { return get("ws_seen_" + it.id, ""); }).length;
+      o += '<div class="card" id="tg-' + g.id + '"><h2>' + esc(g.title) + ' <span class="tag ' + (g.cls || "y") + '">' +
+        seen + " / " + g.items.length + " 봤음</span></h2>" + h("p", "mut small", tx(g.note));
+      g.items.forEach(function (it) {
+        var s = get("ws_seen_" + it.id, "");
+        o += '<div class="talk' + (s ? " seen" : "") + '"><div class="t">' + esc(it.t) +
+          (it.tag ? h("span", "tag " + it.tag[1], esc(it.tag[0])) : "") + "</div>" +
+          h("div", "kv", tx(it.what)) +
+          (it.now ? '<div class="kv mut"><b>지금 가정 —</b> ' + tx(it.now) + "</div>" : "") +
+          (it.ask ? '<div class="kv ask"><b>판단할 것 —</b> ' + tx(it.ask) + "</div>" : "") +
+          '<div class="tgo">' + (it.go || []).map(goBtn).join(" ") +
+          ' <button class="seenb" data-talk-seen="' + it.id + '">' + (s ? "✓ 봤음" : "○ 봤음 표시") + "</button></div></div>";
+      });
+      o += "</div>";
+    });
     return o;
   }
 
@@ -140,7 +183,7 @@
     var o = '<div class="card"><h2>core — ticket 한 건이 지나가는 아홉 단계</h2>' +
       h("p", "mut small", "단계마다 work repo의 <code>tasks/&lt;TICKET-KEY&gt;/</code> 폴더에 파일 하나가 남는다. 어느 파일 하나만 열어도 지금 무슨 일이 어디까지 갔는지 알 수 있어야 한다.") +
       '<div class="legend"><span><i class="h-yes"></i>사람이 반드시</span><span><i class="h-cond"></i>조건부</span><span><i class="h-no"></i>사람 없이</span></div>' +
-      '<button class="deeplink" data-tab-go="map">▶ core 한 장 (그림 · 15초 애니메이션)</button></div>';
+      '<button class="deeplink" data-map-go="core">▶ core 한 장 (그림 · 15초 애니메이션)</button></div>';
 
     o += '<div class="rail" id="rail">' + W.stages.map(function (s) {
       return '<button data-stage="' + s.id + '"' + (s.id === cur ? ' class="on"' : "") + ">" +
@@ -231,7 +274,8 @@
     var s = W.status, o = "";
     o += '<div class="hero">' + h("div", "tl", "설계 작업 현황") +
       '<ol class="li steps5">' + s.headline.map(function (x) { return h("li", "", tx(x)); }).join("") + "</ol>" +
-      h("div", "up", s.asOf + " 기준") + "</div>";
+      h("div", "up", s.asOf + " 기준") +
+      '<button class="deeplink" data-tab-go="talk">? 더 깊게 논의할 것</button> <button class="deeplink" data-map-go="core">▶ 한 장 · 15초</button></div>';
 
     o += '<div class="card"><h2>작업 줄기</h2>';
     s.tracks.forEach(function (t) {
@@ -277,9 +321,11 @@
     var k = deepById(id);
     var o = '<div class="rail" id="rail">' + W.deep.map(function (d) {
       return '<button data-deep="' + d.id + '"' + (d.id === k.id ? ' class="on"' : "") + ">" + esc(d.tab) + "</button>";
-    }).join("") + '<button data-tab-go="ia">intake agent ▸</button></div>';
+    }).join("") + '<button data-bun-go="ia">intake agent ▸</button><button data-bun-go="wa">workflow agent ▸</button></div>';
     o += '<div class="card"><h2>' + esc(k.title) + (k.badge ? h("span", "tag " + (k.badge === "확정" ? "g" : "y"), esc(k.badge)) : "") + "</h2>" + h("p", "lead", tx(k.lead)) + "</div>";
-    if (k.ext) o += '<div class="card extcard">' + h("p", "", tx(k.ext.text)) + '<button class="deeplink" data-tab-go="' + k.ext.go + '">' + esc(k.ext.label) + "</button></div>";
+    if (k.ext) o += '<div class="card extcard">' + h("p", "", tx(k.ext.text)) + '<button class="deeplink" data-bun-go="' + k.ext.go + '">' + esc(k.ext.label) + "</button>" +
+      (k.ext.map ? ' <button class="deeplink" data-map-go="' + k.ext.map + '">▶ 한 장 (15초)</button>' : "") +
+      ' <button class="deeplink" data-tab-go="talk">? 더 깊게 논의할 것</button></div>';
     o += '<div class="card"><h2>한 장 요약</h2><ol class="li steps5">' +
       k.summary.map(function (s) { return h("li", "", tx(s)); }).join("") + "</ol>" +
       h("div", "note", tx(k.excluded)) + "</div>";
@@ -296,13 +342,40 @@
     return o;
   }
 
-  /* ── intake agent 탐색기 (데이터 = intake_agent.js, 처음 열 때 불러온다) ── */
-  function loadIA(cb) {
-    if (window.IA) return cb();
+  /* ── agent 명세 탐색기: intake(#ia) · workflow(#wa). 데이터는 처음 열 때 불러온다 ── */
+  var BUN = {
+    ia: { g: "IA", src: "intake_agent.js", deep: "intake", name: "intake agent system", tag: "심화 결과 · 교정 대기",
+      secs: [["overview", "개요"], ["design", "설계"], ["arch", "구조"], ["agents", "부품 10"], ["contracts", "계약 3"],
+        ["rules", "규칙 8"], ["golden", "시험 91"], ["eval", "평가"], ["session", "세션 기록"]],
+      facets: [["group", "입구"], ["mode", "mode"], ["gate", "gate"]],
+      lead: function (I) {
+        return "intake 심화 세션(09-27~28)이 intake를 설명 문서에서 세울 수 있는 agent 시스템의 명세로 옮긴 결과 전체다. 부품 " + I.stats.agents +
+          " · 데이터 계약 " + I.stats.schemas + " · 규칙 설정 " + I.stats.rules + " · 시험 사례 " + I.stats.cases + "건. 세세한 가정과 결정은 위임으로 정해졌고 교정을 기다린다.";
+      },
+      read: "읽는 순서: 개요(전체 설명) → 구조 §2~§4 → 시험 사례 몇 건. 가정을 가장 많이 넣은 줄은 세션 기록 › 읽기 안내에 모여 있다.",
+      rulesNote: "규칙 설정(YAML)이다. 숫자는 공란이고 결정 주체가 적혀 있다. # 줄은 설명, 굵은 이름은 key다.",
+      golden: "가상 발생마다 무엇이 나와야 하는지(기대 결과)와 그 이유를 적은 시험 세트다. 회사에서 agent를 세운 뒤에는 회귀 시험이 된다. hard-zero 셋: 위험 놓침 0 · 잘못 붙이기 0 · 밖으로 새기 0." },
+    wa: { g: "WA", src: "workflow_agent.js", deep: "workflow", name: "workflow agent system", tag: "심화 결과 · 교정 대기",
+      secs: [["overview", "개요"], ["design", "설계 85"], ["arch", "구조"], ["agents", "부품 11"], ["library", "workflow 라이브러리"],
+        ["contracts", "계약 11"], ["rules", "설정 3"], ["golden", "시험 68"], ["eval", "평가 · 세우기"], ["session", "세션 기록"]],
+      facets: [["group", "종류"], ["wf", "workflow"], ["posture", "posture"]],
+      lead: function (I) {
+        return "workflow 자율 세션(09-28)이 workflow를 세울 수 있는 agent 시스템의 명세로 옮긴 결과 전체다. 중심은 표준화된 workflow 라이브러리(공통 골격 → 작업 모양 일곱 → 업무별 특화 열여섯, 조립 둘)이고, 부품 " +
+          I.stats.agents + " · 데이터 계약 " + I.stats.schemas + " · 시험 사례 " + I.stats.cases + "건(해석 " + I.stats.byGroup["해석"] + " · 한 바퀴 " + I.stats.byGroup["한 바퀴"] +
+          " · replay " + I.stats.byGroup["replay"] + ")이 함께 있다. 결정 75항은 위임으로 정해졌고 교정을 기다린다.";
+      },
+      read: "읽는 순서: 개요(전체 설명) → workflow 라이브러리 › 라이브러리 설명 → 공통 골격 → 관심 있는 특화 하나. 교정 후보 11은 세션 기록 › 인계 문서 §7.",
+      rulesNote: "회사가 값을 채우는 설정(YAML)과 시험 사례가 공통으로 가정하는 설정이다. 숫자는 공란이고 결정 주체가 적혀 있다.",
+      golden: "해석(상속·조립을 풀어 checkpoint 목록이 맞는가, 결정론) · 한 바퀴(가상 task가 plan부터 학습까지 어떤 모양으로 지나가는가) · replay(workflow를 고칠 때 과거 기록으로 판정이 어떻게 바뀌는가). hard-zero 셋: 경계 넘기 0 · 근거 없는 판정 0 · 사람 기록 훼손 0." }
+  };
+  function bk() { return state.tab === "wa" ? "wa" : "ia"; }
+  function BD() { return window[BUN[bk()].g]; }
+  function loadBun(k, cb) {
+    if (window[BUN[k].g]) return cb();
     var s = document.createElement("script");
-    s.src = "intake_agent.js";
+    s.src = BUN[k].src;
     s.onload = cb;
-    s.onerror = function () { app.innerHTML = '<div class="card">intake agent 데이터를 불러오지 못했다.</div>'; };
+    s.onerror = function () { app.innerHTML = '<div class="card">' + BUN[k].name + " 데이터를 불러오지 못했다.</div>"; };
     document.body.appendChild(s);
   }
 
@@ -382,16 +455,13 @@
     return { html: html + (ol ? "</ol>" : "</ul>"), k: k };
   }
 
-  var IA_SECS = [
-    ["overview", "개요"], ["design", "설계"], ["arch", "구조"], ["agents", "부품 10"], ["contracts", "계약 3"],
-    ["rules", "규칙 8"], ["golden", "시험 91"], ["eval", "평가"], ["session", "세션 기록"]
-  ];
-  function iaDocs(sec) { return window.IA.docs.filter(function (d) { return d.sec === sec; }); }
+  function iaDocs(sec) { return BD().docs.filter(function (d) { return d.sec === sec; }); }
   function iaDocByPath(p) {
-    if (!window.IA) return null;
+    var D = BD();
+    if (!D) return null;
     p = String(p).replace(/^\.\.?\//, "").replace(/^\.\.\//, "");
-    var all = window.IA.docs.concat(window.IA.rules.map(function (r) { return { sec: "rules", id: r.id, path: r.path }; }))
-      .concat(window.IA.schemas.map(function (s) { return { sec: "contracts", id: s.id, path: s.path }; }));
+    var all = D.docs.concat(D.rules.map(function (r) { return { sec: "rules", id: r.id, path: r.path }; }))
+      .concat(D.schemas.map(function (s) { return { sec: "contracts", id: s.id, path: s.path }; }));
     for (var i = 0; i < all.length; i++) {
       var a = all[i].path;
       if (a && (a === p || a.slice(-p.length - 1) === "/" + p || p.slice(-a.length) === a)) return all[i];
@@ -416,16 +486,15 @@
     }
     return '<dl class="kvt">' + Object.keys(v).map(function (k) { return "<dt>" + esc(k) + "</dt><dd>" + kv(v[k], depth + 1) + "</dd>"; }).join("") + "</dl>";
   }
-  var GATE_TAG = function (g) { return !g ? "" : g === "proceed" ? "g" : /^stop|risk/.test(g) ? "r" : /^hold/.test(g) ? "y" : "m"; };
-
   function viewIA() {
-    var I = window.IA, sec = state.ia.sec || "overview", o = "";
-    o += '<div class="card"><h2>intake agent system' + h("span", "tag y", "심화 결과 · 교정 대기") + "</h2>" +
-      h("p", "lead", "intake 심화 세션(09-27~28)이 intake를 설명 문서에서 세울 수 있는 agent 시스템의 명세로 옮긴 결과 전체다. 부품 " + I.stats.agents +
-        " · 데이터 계약 " + I.stats.schemas + " · 규칙 설정 " + I.stats.rules + " · 시험 사례 " + I.stats.cases + "건. 세세한 가정과 결정은 위임으로 정해졌고 교정을 기다린다.") +
-      h("p", "dim small", "읽는 순서: 개요(전체 설명) → 구조 §2~§4 → 시험 사례 몇 건. " + I.asOf + " 기준.") +
-      '<button class="deeplink" data-deep-go="intake">⇥ intake 요약 페이지로</button></div>';
-    o += '<div class="rail">' + IA_SECS.map(function (s) {
+    var K = BUN[bk()], I = BD(), sec = state.ia.sec || "overview", o = "";
+    o += '<div class="card"><h2>' + esc(K.name) + h("span", "tag y", K.tag) + "</h2>" +
+      h("p", "lead", tx(K.lead(I))) +
+      h("p", "dim small", esc(K.read) + " " + I.asOf + " 기준.") +
+      '<button class="deeplink" data-deep-go="' + K.deep + '">⇥ ' + K.deep + " 요약 페이지</button> " +
+      '<button class="deeplink" data-map-go="' + K.deep + '">▶ ' + K.deep + " 한 장 (15초)</button> " +
+      '<button class="deeplink" data-tab-go="talk">? 더 깊게 논의할 것</button></div>';
+    o += '<div class="rail">' + K.secs.map(function (s) {
       return '<button data-ia-sec="' + s[0] + '"' + (s[0] === sec ? ' class="on"' : "") + ">" + esc(s[1]) + "</button>";
     }).join("") + "</div>";
 
@@ -447,18 +516,18 @@
     return o;
   }
   function iaRules() {
-    var I = window.IA, cur = I.rules.filter(function (r) { return r.id === state.ia.id; })[0] || I.rules[0];
+    var I = BD(), cur = I.rules.filter(function (r) { return r.id === state.ia.id; })[0] || I.rules[0];
     var o = '<div class="rail sub">' + I.rules.map(function (r) {
       return '<button data-ia-doc="rules/' + r.id + '"' + (r === cur ? ' class="on"' : "") + ">" + esc(r.id) + "</button>";
     }).join("") + "</div>";
     o += '<div class="card mdb">' + h("div", "dim small path", esc(cur.path)) + h("h2", "", esc(cur.title)) +
-      h("p", "mut small", "규칙 설정(YAML)이다. 숫자는 공란이고 결정 주체가 적혀 있다. # 줄은 설명, 굵은 이름은 key다.") +
+      h("p", "mut small", esc(BUN[bk()].rulesNote)) +
       (cur.ids.length ? '<div class="chips">' + cur.ids.map(function (x) { return h("span", "chip", esc(x)); }).join("") + "</div>" : "") +
       '<pre class="yaml">' + yamlHl(cur.text) + "</pre></div>";
     return o;
   }
   function iaContracts() {
-    var I = window.IA, cur = I.schemas.filter(function (r) { return r.id === state.ia.id; })[0] || I.schemas[0];
+    var I = BD(), cur = I.schemas.filter(function (r) { return r.id === state.ia.id; })[0] || I.schemas[0];
     var o = '<div class="rail sub">' + I.schemas.map(function (r) {
       return '<button data-ia-doc="contracts/' + r.id + '"' + (r === cur ? ' class="on"' : "") + ">" + esc(r.short) + "</button>";
     }).join("") + "</div>";
@@ -473,36 +542,34 @@
     return o;
   }
   function iaCaseMatch(c) {
-    var f = state.iaf;
-    if (f.group && c.group !== f.group) return false;
-    if (f.mode && c.mode !== f.mode) return false;
-    if (f.gate && c.gate !== f.gate) return false;
+    var f = state.iaf, fs = BUN[bk()].facets;
+    for (var i = 0; i < fs.length; i++) {
+      if (f[fs[i][0]] && c.facets[fs[i][0]] !== f[fs[i][0]]) return false;
+    }
     if (f.q) { var q = f.q.toLowerCase(); if ((c.id + " " + c.title + " " + c.why + " " + c.checks.join(" ")).toLowerCase().indexOf(q) < 0) return false; }
     return true;
   }
   function iaCaseList() {
-    var cs = window.IA.cases.filter(iaCaseMatch);
+    var cs = BD().cases.filter(iaCaseMatch);
     return h("div", "dim small", cs.length + "건") + cs.map(function (c) {
       return '<button class="caseitem ia" data-ia-case="' + c.id + '"><div class="ct"><b>' + esc(c.id) + "</b> " + esc(c.title) + "</div>" +
-        '<div class="tags">' + h("span", "tag m", esc(c.group)) + (c.mode ? h("span", "tag", esc(c.mode)) : "") +
-        (c.gate ? h("span", "tag " + GATE_TAG(c.gate), esc(c.gate)) : "") + (c.wd ? h("span", "tag m", "wd " + esc(c.wd)) : "") +
-        (c.risk ? h("span", "tag r", "risk") : "") + "</div></button>";
+        '<div class="tags">' + caseTags(c) + "</div></button>";
     }).join("");
   }
+  function caseTags(c) { return c.tags.map(function (t) { return h("span", "tag " + t[1], esc(t[0])); }).join(""); }
   function iaGolden() {
-    var I = window.IA, f = state.iaf, o = "";
+    var I = BD(), K = BUN[bk()], f = state.iaf, o = "";
     if (state.ia.id && state.ia.id !== "golden_readme") {
       var c = I.cases.filter(function (x) { return x.id === state.ia.id; })[0];
       if (c) {
         var idx = I.cases.indexOf(c);
         o += '<div class="card mdb"><button class="deeplink" data-ia-doc="golden/">◂ 사례 목록</button>' +
           h("h2", "", esc(c.id) + " · " + esc(c.title)) +
-          '<div class="tags">' + h("span", "tag m", esc(c.group)) + (c.mode ? h("span", "tag", "mode " + esc(c.mode)) : "") +
-          (c.gate ? h("span", "tag " + GATE_TAG(c.gate), "gate " + esc(c.gate)) : "") + (c.wd ? h("span", "tag m", "work_decision " + esc(c.wd)) : "") + "</div>" +
+          '<div class="tags">' + caseTags(c) + "</div>" +
           h("div", "note", "<b>왜 —</b> " + tx(c.why)) +
           (c.checks.length ? h("h3", "", "확인하는 규칙") + '<div class="chips">' + c.checks.map(function (x) { return h("span", "chip", esc(x)); }).join("") + "</div>" : "") +
           (c.given ? h("h3", "", "주어진 것 (given)") + kv(c.given, 0) : "") +
-          h("h3", "", "사건 (event)") + kv(c.event, 0) +
+          (c.event ? h("h3", "", "사건 (event)") + kv(c.event, 0) : "") +
           h("h3", "", "기대 결과 (expect)") + kv(c.expect, 0) +
           '<details class="doc"><summary>YAML 원문</summary><pre class="yaml">' + yamlHl(c.raw) + "</pre></details>" +
           '<div class="pnav"><button data-ia-case="' + (I.cases[idx - 1] || c).id + '"' + (idx ? "" : " disabled") + ">◂ 이전</button>" +
@@ -514,16 +581,16 @@
       var d = iaDocs("golden")[0], toc = [];
       return '<div class="card mdb"><button class="deeplink" data-ia-doc="golden/">◂ 사례 목록</button>' + md(d.md, toc) + "</div>";
     }
-    var uniq = function (k) { var s = {}; I.cases.forEach(function (c) { if (c[k]) s[c[k]] = (s[c[k]] || 0) + 1; }); return Object.keys(s).map(function (x) { return [x, s[x]]; }); };
+    var uniq = function (k) { var s = {}; I.cases.forEach(function (c) { var v = c.facets[k]; if (v) s[v] = (s[v] || 0) + 1; }); return Object.keys(s).map(function (x) { return [x, s[x]]; }); };
     var chipRow = function (key, label, vals) {
       return '<div class="frow"><span class="fl">' + label + "</span>" + ['<button class="fchip' + (!f[key] ? " on" : "") + '" data-iaf="' + key + '=">전체</button>'].concat(vals.map(function (v) {
         return '<button class="fchip' + (f[key] === v[0] ? " on" : "") + '" data-iaf="' + key + "=" + esc(v[0]) + '">' + esc(v[0]) + " " + v[1] + "</button>";
       })).join("") + "</div>";
     };
     o += '<div class="card"><h2>시험 사례 ' + I.stats.cases + "건</h2>" +
-      h("p", "mut small", "가상 발생마다 무엇이 나와야 하는지(기대 결과)와 그 이유를 적은 시험 세트다. 회사에서 agent를 세운 뒤에는 회귀 시험이 된다. hard-zero 셋: 위험 놓침 0 · 잘못 붙이기 0 · 밖으로 새기 0.") +
+      h("p", "mut small", esc(K.golden)) +
       '<button class="deeplink" data-ia-doc="golden/golden_readme">✎ 시험 세트 설명 · 채점법</button>' +
-      chipRow("group", "입구", uniq("group")) + chipRow("mode", "mode", uniq("mode")) + chipRow("gate", "gate", uniq("gate")) +
+      K.facets.map(function (fc) { return chipRow(fc[0], fc[1], uniq(fc[0])); }).join("") +
       '<input id="iaq" class="iaq" placeholder="검색: id · 제목 · 이유 · 규칙 id" value="' + esc(f.q || "") + '">' +
       '<div id="ialist">' + iaCaseList() + "</div></div>";
     return o;
@@ -606,8 +673,8 @@
   }
 
   /* ── 라우팅 ── */
-  var TABS = ["home", "status", "core", "deep", "cases", "docs", "road", "about", "ia", "map"];
-  var state = { tab: get("ws_tab", "home"), caseId: null, step: 0, docOpen: null, stage: null, deep: get("ws_deep", "intake"), ia: { sec: "overview", id: null }, iaf: {} };
+  var TABS = ["home", "status", "core", "deep", "cases", "docs", "road", "about", "ia", "wa", "map", "talk"];
+  var state = { map: "core", tab: get("ws_tab", "home"), caseId: null, step: 0, docOpen: null, stage: null, deep: get("ws_deep", "intake"), ia: { sec: "overview", id: null }, iaf: {} };
 
   // #core/gate · #cases/C1 · #docs/posture 같은 해시를 읽는다 (공유 가능한 링크)
   function readHash() {
@@ -622,7 +689,8 @@
       else if (state.tab === "cases") state.caseId = parts[1].toUpperCase();
       else if (state.tab === "docs") state.docOpen = parts[1];
       else if (state.tab === "deep") state.deep = parts[1];
-      else if (state.tab === "ia") state.ia = { sec: parts[1], id: parts[2] ? decodeURIComponent(parts[2]) : null };
+      else if (state.tab === "ia" || state.tab === "wa") state.ia = { sec: parts[1], id: parts[2] ? decodeURIComponent(parts[2]) : null };
+      else if (state.tab === "map") state.map = parts[1];
     }
     return true;
   }
@@ -631,7 +699,8 @@
     if (state.tab === "core" && state.stage) frag += "/" + state.stage;
     else if (state.tab === "cases" && state.caseId) frag += "/" + state.caseId;
     else if (state.tab === "deep" && state.deep) frag += "/" + state.deep;
-    else if (state.tab === "ia") frag += "/" + (state.ia.sec || "overview") + (state.ia.id ? "/" + encodeURIComponent(state.ia.id) : "");
+    else if (state.tab === "ia" || state.tab === "wa") frag += "/" + (state.ia.sec || "overview") + (state.ia.id ? "/" + encodeURIComponent(state.ia.id) : "");
+    else if (state.tab === "map" && state.map && state.map !== "core") frag += "/" + state.map;
     if (("#" + frag) !== location.hash) {
       try { history.replaceState(null, "", "#" + frag); } catch (e) { location.hash = frag; }
     }
@@ -642,10 +711,12 @@
     if (t === "home") html = viewHome();
     else if (t === "status") html = viewStatus();
     else if (t === "map") html = viewMap();
-    else if (t === "ia") {
-      if (!window.IA) { app.innerHTML = '<div class="card">intake agent 데이터를 불러오는 중…</div>'; return loadIA(paint); }
+    else if (t === "ia" || t === "wa") {
+      if (state.iaBun !== t) { if (state.iaBun) { state.ia = { sec: "overview", id: null }; state.iaf = {}; } state.iaBun = t; }
+      if (!BD()) { app.innerHTML = '<div class="card">' + BUN[t].name + " 데이터를 불러오는 중…</div>"; return loadBun(t, paint); }
       html = viewIA();
     }
+    else if (t === "talk") html = viewTalk();
     else if (t === "core") html = viewCore(state.stage);
     else if (t === "deep") html = viewDeep(state.deep);
     else if (t === "cases") html = state.caseId ? viewCase(state.caseId, state.step) : viewCases();
@@ -659,7 +730,7 @@
 
     var btns = document.querySelectorAll("#nav button");
     for (var i = 0; i < btns.length; i++) {
-      btns[i].className = btns[i].dataset.tab === (t === "ia" ? "deep" : t === "map" ? "home" : t) ? "on" : "";
+      btns[i].className = btns[i].dataset.tab === (t === "ia" || t === "wa" ? "deep" : t === "map" || t === "talk" ? "home" : t) ? "on" : "";
     }
     if (state.docOpen) {
       var el = document.getElementById("doc-" + state.docOpen);
@@ -683,9 +754,12 @@
     if (b.dataset.step !== undefined && state.caseId) { state.step = +b.dataset.step; return paint(); }
     if (b.dataset.doc) { state.tab = "docs"; state.docOpen = b.dataset.doc; set("ws_tab", "docs"); return paint(); }
     if (b.dataset.stageGo) { state.tab = "core"; state.stage = b.dataset.stageGo; set("ws_stage", state.stage); set("ws_tab", "core"); state.caseId = null; return paint(); }
-    if (b.dataset.iaSec) { state.tab = "ia"; state.ia = { sec: b.dataset.iaSec, id: null }; return paint(); }
-    if (b.dataset.iaDoc !== undefined) { var pp = b.dataset.iaDoc.split("/"); state.tab = "ia"; state.ia = { sec: pp[0], id: pp[1] || null }; set("ws_tab", "ia"); return paint(); }
-    if (b.dataset.iaCase) { state.tab = "ia"; state.ia = { sec: "golden", id: b.dataset.iaCase }; return paint(); }
+    if (b.dataset.iaSec) { state.tab = bk(); state.ia = { sec: b.dataset.iaSec, id: null }; return paint(); }
+    if (b.dataset.iaDoc !== undefined) { var pp = b.dataset.iaDoc.split("/"); state.tab = bk(); state.ia = { sec: pp[0], id: pp[1] || null }; return paint(); }
+    if (b.dataset.iaCase) { state.tab = bk(); state.ia = { sec: "golden", id: b.dataset.iaCase }; return paint(); }
+    if (b.dataset.bunGo) { var bp = b.dataset.bunGo.split("/"); state.tab = bp[0]; if (state.iaBun && state.iaBun !== bp[0]) state.iaf = {}; state.iaBun = bp[0]; state.ia = { sec: bp[1] || "overview", id: bp[2] || null }; return paint(); }
+    if (b.dataset.mapGo) { state.tab = "map"; state.map = b.dataset.mapGo; return paint(); }
+    if (b.dataset.talkSeen) { var ks = "ws_seen_" + b.dataset.talkSeen; set(ks, get(ks, "") ? "" : "1"); var y = window.scrollY; paint(); window.scrollTo(0, y); return; }
     if (b.dataset.iaf !== undefined) { var kv2 = b.dataset.iaf.split("="); state.iaf[kv2[0]] = kv2.slice(1).join("="); state.ia.id = null; return paint(); }
     if (b.dataset.scroll) { var se = document.getElementById(b.dataset.scroll); if (se) se.scrollIntoView({ block: "start" }); return; }
     if (b.dataset.tabGo) { state.tab = b.dataset.tabGo; set("ws_tab", state.tab); state.caseId = null; return paint(); }

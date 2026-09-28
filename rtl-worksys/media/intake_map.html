@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>intake 한 장 · RTL WorkSys</title>
+<style>
+:root{
+  --bg:#0f1420; --bg2:#171e2e; --card:#1a2233; --line:#2c3850;
+  --fg:#e4e9f2; --mut:#93a1bb; --dim:#6b7a96;
+  --acc:#4fb8f5; --acc2:#8b8cf8; --ok:#3ddba0; --warn:#f5c04f; --bad:#f8776f;
+}
+:root[data-theme="light"]{
+  --bg:#f6f8fc; --bg2:#ffffff; --card:#ffffff; --line:#dde4f0;
+  --fg:#16203a; --mut:#5b6b88; --dim:#8494b0;
+  --acc:#1878c8; --acc2:#5b5ce0; --ok:#129c6c; --warn:#b5780a; --bad:#d4463c;
+}
+html,body{margin:0;height:100%;background:var(--bg)}
+body{display:flex;align-items:center;justify-content:center;overflow:hidden}
+svg{width:100vw;height:100vh;display:block}
+text{font-family:'Malgun Gothic','Apple SD Gothic Neo',-apple-system,'Segoe UI',Roboto,sans-serif}
+.mono{font-family:ui-monospace,Consolas,'Cascadia Code',monospace}
+</style>
+</head>
+<body>
+<svg id="s" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"></svg>
+<script src="scene_kit.js"></script>
+<script>
+(function () {
+  "use strict";
+  var svg = document.getElementById("s"), K = SceneKit(svg, 15);
+  var E = K.E, T = K.T, G = K.G, pill = K.pill, fade = K.fade, pop = K.pop, rise = K.rise, draw = K.draw;
+
+  K.header("RTL WorkSys  ·  intake 한 장", [
+    { t0: 0, t1: 3.0, main: "일은 ticket으로만 오지 않는다",
+      sub: "도구 신호 · backlog · command, 나중에는 schedule · 상태 변화 · mail · chat. 입구가 늘면 소음과 위험도 는다." },
+    { t0: 3.0, t1: 6.5, main: "모든 발생은 공통 레코드가 되어 일곱 단계를 지난다",
+      sub: "일인가 · 무엇을 원하나 · 어떤 종류인가 · 해도 되나 · 어디로 보내나. 결과는 task 폴더의 세 파일과 첫 회신이다." },
+    { t0: 6.5, t1: 9.5, main: "LLM 앞에서 먼저 거르고, 같은 원인은 하나로 묶는다",
+      sub: "raw scan이 위험을 LLM보다 먼저 본다. test 30개가 같은 변경 구간에서 깨졌다면 일은 하나다." },
+    { t0: 9.5, t1: 11.5, main: "순서와 멈춤은 코드가, 판단은 LLM이 한다",
+      sub: "LLM이 채운 칸마다 근거 한 줄과 근거 등급이 붙고, 모든 판단이 원장에 남는다." },
+    { t0: 11.5, t1: 99, main: "입구가 정확해야 뒤의 모든 일이 산다",
+      sub: "입구에서 새면 workflow · 검수 · 학습이 모두 틀린 일 위에서 돈다. 품질 기준은 hard-zero 셋과 시험 사례 91건이다." }
+  ]);
+
+  var mark0 = svg.childNodes.length;
+  var Y = 395, KC = { code: "var(--acc)", mix: "var(--warn)", llm: "var(--acc2)" };
+  var KL = { code: "코드", mix: "규칙 + LLM", llm: "LLM" };
+
+  /* ── 입구 여덟 ── */
+  var inG = G();
+  T(165, 268, "일의 발생", 18, { fill: "var(--mut)", fontWeight: 700 }, inG, "middle");
+  var INL = [["ticket", 1], ["도구 신호", 1], ["internal", 1], ["command", 1], ["schedule", 0], ["상태 변화", 0], ["mail", 0], ["chat", 0]];
+  var inPaths = [], inY = [];
+  INL.forEach(function (e, i) {
+    var y = 302 + i * 46; inY.push(y);
+    if (e[1]) {
+      var p = E("path", { d: "M 250 " + y + " C 300 " + y + ", 300 " + Y + ", 345 " + Y, fill: "none" }, { stroke: "var(--line)", strokeWidth: 2.5 });
+      inPaths.push(p);
+      draw(p, 2.7 + i * 0.1, 0.6);
+    }
+    var g = pill(165, y, e[0], 17, e[1] ? "var(--acc)" : "var(--dim)", inG, { h: 36, pad: 30, dash: e[1] ? "none" : "5 5",
+      fill: e[1] ? undefined : "transparent" });
+    pop(g, 165, y, 0.25 + i * 0.12, 0.45);
+  });
+  var later = T(165, 690, "점선 = 나중에 여는 입구", 14, { fill: "var(--dim)" }, inG, "middle");
+  fade(later, 1.4, 0.5);
+
+  /* ── 흐름선 ── */
+  var main = E("path", { d: "M 345 " + Y + " H 1606", fill: "none" }, { stroke: "var(--line)", strokeWidth: 3 });
+  draw(main, 3.2, 1.6);
+  var outHead = E("path", { d: "M 1594 " + (Y - 9) + " L 1608 " + Y + " L 1594 " + (Y + 9), fill: "none" }, { stroke: "var(--line)", strokeWidth: 3, strokeLinecap: "round" });
+  fade(outHead, 4.6, 0.3);
+
+  /* ── 입자 층 (노드 뒤로 지나간다) ── */
+  var flowG = G();
+
+  /* ── 일곱 단계 ── */
+  var ST = [
+    ["0", "capture", "봉투로 받기", "code"], ["1", "raw scan", "LLM 앞 위험 검사", "code"], ["2", "work-or-not", "일인가 · 묶기", "mix"],
+    ["3", "understand", "무엇을 원하나", "llm"], ["4", "categorize", "어떤 종류인가", "llm"], ["5", "gate", "해도 되나", "mix"], ["6", "route", "어디로 보내나", "code"]
+  ];
+  var nodeG = G(), kindLbl = [];
+  ST.forEach(function (s, i) {
+    var cx = 420 + i * 178, g = G(nodeG), c = KC[s[3]];
+    s.cx = cx;
+    K.box(cx - 75, 340, 150, 110, c, g, { fill: "var(--card)", stroke: "color-mix(in srgb," + c + " 60%, var(--line))" });
+    E("rect", { x: cx - 75, y: 340, width: 150, height: 7, rx: 3 }, { fill: c }, g);
+    T(cx, 384, s[0], 26, { fill: c, fontWeight: 800 }, g, "middle");
+    T(cx, 414, s[1], 19, { fontWeight: 800 }, g, "middle");
+    T(cx, 437, s[2], 14, { fill: "var(--mut)" }, g, "middle");
+    pop(g, cx, Y, 3.2 + i * 0.2, 0.45);
+    var kl = T(cx, 328, KL[s[3]], 14, { fill: c, fontWeight: 800 }, nodeG, "middle");
+    kindLbl.push(kl);
+    fade(kl, 9.7 + i * 0.08, 0.35);
+  });
+  var legendG = G();
+  T(420 - 75, 300, "누가 정하나:", 15, { fill: "var(--mut)", fontWeight: 700 }, legendG);
+  [["code", 450], ["mix", 540], ["llm", 668]].forEach(function (l) {
+    E("rect", { x: l[1], y: 288, width: 14, height: 14, rx: 3 }, { fill: KC[l[0]] }, legendG);
+    T(l[1] + 20, 300, KL[l[0]], 15, { fill: KC[l[0]], fontWeight: 800 }, legendG);
+  });
+  fade(legendG, 9.6, 0.4);
+
+  /* ── workflow로 ── */
+  var outG = G();
+  K.box(1616, 322, 236, 146, "var(--acc2)", outG);
+  T(1734, 352, "workflow로", 20, { fill: "var(--acc2)", fontWeight: 800 }, outG, "middle");
+  ["00_intake.md", "10_triage.md", "20_gate.md"].forEach(function (f, i) {
+    T(1640, 382 + i * 24, f, 15, { fill: "var(--fg)" }, outG).setAttribute("class", "mono");
+  });
+  T(1640, 454, "+ 첫 회신 하나", 15, { fill: "var(--mut)" }, outG);
+  rise(outG, 4.6, 0.5, 14);
+
+  /* ── 가지: 위험 멈춤 · 30 → 1 · 근거 · hold · route ── */
+  function stub(x, t0, color) {
+    var p = E("path", { d: "M " + x + " 452 V 521", fill: "none" }, { stroke: color, strokeWidth: 2, strokeDasharray: "4 5" });
+    fade(p, t0, 0.3);
+    return p;
+  }
+  var riskP = E("path", { d: "M 598 452 V 521", fill: "none" }, { stroke: "var(--bad)", strokeWidth: 2.5 });
+  draw(riskP, 5.2, 0.35);
+  var riskG = G();
+  pill(598, 540, "위험 → 멈춤", 17, "var(--bad)", riskG, { h: 38, pad: 30 });
+  T(598, 584, "ai:risk · 사람에게 알림", 14, { fill: "var(--mut)" }, riskG, "middle");
+  rise(riskG, 5.4, 0.45, 12);
+
+  stub(776, 6.6, "var(--warn)");
+  var mergeG = G();
+  var mergePill = pill(776, 540, "30 신호 → 1 묶음", 17, "var(--warn)", mergeG, { h: 38, pad: 30 });
+  T(776, 584, "같은 변경 구간 · 재발은 붙인다", 14, { fill: "var(--mut)" }, mergeG, "middle");
+  rise(mergeG, 8.1, 0.45, 12);
+
+  stub(1043, 10.0, "var(--acc2)");
+  var evG = G();
+  pill(1043, 540, "근거 한 줄 + 근거 등급", 17, "var(--acc2)", evG, { h: 38, pad: 30 });
+  T(1043, 584, "explicit · similar-case · inferred", 14, { fill: "var(--mut)" }, evG, "middle");
+  rise(evG, 10.0, 0.45, 12);
+
+  stub(1310, 9.9, "var(--warn)");
+  var holdG = G();
+  pill(1290, 540, "범위 밖 · 정보 부족 · 논의", 16, "var(--warn)", holdG, { h: 38, pad: 28 });
+  T(1290, 584, "hold: 기록만 · 질문 다섯 칸 · 논의 자료", 14, { fill: "var(--mut)" }, holdG, "middle");
+  rise(holdG, 9.9, 0.45, 12);
+
+  stub(1488, 10.2, "var(--acc)");
+  var routeG = G();
+  pill(1505, 624, "우선순위 · 대기열 · 첫 회신", 16, "var(--acc)", routeG, { h: 38, pad: 28 });
+  T(1505, 668, "배정하지 않는다 · 알림만", 14, { fill: "var(--mut)" }, routeG, "middle");
+  var routeLn = E("path", { d: "M 1488 521 V 604", fill: "none" }, { stroke: "var(--acc)", strokeWidth: 2, strokeDasharray: "4 5" }, routeG);
+  rise(routeG, 10.2, 0.45, 12);
+
+  var mark1 = svg.childNodes.length;
+
+  /* ── 아래 왼쪽: 왜 intake가 먼저인가 ── */
+  var whyG = G();
+  K.box(80, 736, 860, 314, "var(--line)", whyG, { fill: "var(--card)", stroke: "var(--line)", sw: 1.5, rx: 20 });
+  T(112, 782, "왜 intake부터 제대로 세워야 하나", 27, { fontWeight: 800 }, whyG);
+  var WHY = [
+    ["순서", "var(--acc)", "LLM이 원문을 읽기 전에 raw scan이 위험 문장을 먼저 거른다."],
+    ["소음", "var(--warn)", "한 원인의 신호 여럿은 하나로 묶는다. 알림이 쏟아지면 사람이 끈다."],
+    ["책임", "var(--acc2)", "LLM이 채운 칸마다 근거와 등급을 적고, 모든 판단을 원장에 남긴다."],
+    ["방향", "var(--ok)", "애매하면 일로 보고, 행동이 실패하면 아무것도 하지 않는다."]
+  ];
+  var wy = 836;
+  WHY.forEach(function (w, i) {
+    var g = G(whyG);
+    E("circle", { cx: 126, cy: wy - 7, r: 15 }, { fill: "color-mix(in srgb," + w[1] + " 20%, var(--card))", stroke: w[1], strokeWidth: 2 }, g);
+    T(126, wy, String(i + 1), 17, { fill: w[1], fontWeight: 800 }, g, "middle");
+    T(156, wy, w[0], 21, { fill: w[1], fontWeight: 800 }, g);
+    var r = K.wrap(232, wy, w[2], 19, 680, 26, { fill: "var(--fg)" }, g);
+    wy += 30 + r.n * 26;
+    rise(g, 12.1 + i * 0.25, 0.5, 14);
+  });
+  fade(whyG, 11.9, 0.4);
+
+  /* ── 아래 오른쪽: 품질 기준 ── */
+  var qG = G();
+  K.box(980, 736, 860, 314, "var(--line)", qG, { fill: "var(--card)", stroke: "var(--line)", sw: 1.5, rx: 20 });
+  T(1012, 782, "품질 기준: hard-zero 셋", 27, { fontWeight: 800 }, qG);
+  [["위험 놓침", "var(--bad)"], ["잘못 붙이기", "var(--warn)"], ["밖으로 새기", "var(--acc2)"]].forEach(function (z, i) {
+    var x = 1012 + i * 272, g = G(qG);
+    K.box(x, 806, 256, 124, z[1], g, { rx: 16 });
+    T(x + 128, 872, "0", 54, { fill: z[1], fontWeight: 800 }, g, "middle");
+    T(x + 128, 908, z[0], 20, { fontWeight: 800 }, g, "middle");
+    rise(g, 11.8 + i * 0.2, 0.45, -30);
+  });
+  var chipsG = G(qG), cx0 = 1012;
+  ["부품 11", "데이터 계약 3", "규칙 설정 8", "시험 사례 91"].forEach(function (c) {
+    var w = K.width(c, 16) + 28;
+    pill(cx0 + w / 2, 966, c, 16, "var(--acc)", chipsG, { h: 34, pad: 28 });
+    cx0 += w + 10;
+  });
+  T(1012, 1024, "결정 후보 51은 위임으로 정한 가정이다. 틀린 줄만 고치면 된다.", 16, { fill: "var(--mut)" }, qG);
+  fade(qG, 11.6, 0.4);
+
+  /* ── 입자 ── */
+  var rnd = K.rng(11), chaos = [], pal = ["var(--acc)", "var(--acc2)", "var(--warn)", "var(--bad)", "var(--dim)"];
+  var chaosG = G();
+  if (!K.POSTER) for (var c = 0; c < 34; c++) {
+    var src = inY[c % 8];
+    var d = { sx: 250, sy: src, tx: 420 + rnd() * 1250, ty: 280 + rnd() * 380, t0: 0.5 + rnd() * 1.6, r: 4 + rnd() * 5, ph: rnd() * 6.3 };
+    d.el = E("circle", { r: d.r }, { fill: pal[c % 5], opacity: 0 }, chaosG);
+    chaos.push(d);
+  }
+  var SPEED = 440, flow = [], ins = inPaths.map(function (p) { return K.seg(p); }), MAIN = K.seg(main);
+  if (!K.POSTER) for (var k = 0; k < 44; k++) {
+    var t0 = 4.1 + k * 0.25;
+    if (t0 > 15) break;
+    var risk = k % 7 === 3;
+    var route = [ins[k % 4], risk ? K.seg(main, 598 - 345) : MAIN];
+    if (risk) route.push(K.seg(riskP));
+    flow.push({ t0: t0, route: route, risk: risk, el: E("circle", { r: 7 }, { fill: risk ? "var(--bad)" : "var(--acc)", opacity: 0 }, flowG) });
+  }
+  // 30 → 1: 흩어진 신호 30개가 한 점으로
+  var merge = [], mrnd = K.rng(5);
+  if (!K.POSTER) for (var m = 0; m < 30; m++) {
+    var ang = mrnd() * 6.283, rad = 40 + mrnd() * 70;
+    merge.push({ x: 776 + Math.cos(ang) * rad * 1.5, y: 492 + Math.sin(ang) * rad * 0.3, el: E("circle", { r: 4.5 }, { fill: "var(--warn)", opacity: 0 }, mergeG) });
+  }
+  var mergeDot = K.POSTER ? null : E("circle", { cx: 776, cy: 500, r: 0 }, { fill: "var(--warn)" }, mergeG);
+
+  var stageG = G(), moved = [];
+  for (var q = mark0; q < mark1; q++) moved.push(svg.childNodes[q]);
+  moved.forEach(function (n) { stageG.appendChild(n); });
+  stageG.appendChild(chaosG);
+  svg.insertBefore(stageG, whyG);
+  K.lift(stageG, 150, 11.1, 0.7);
+
+  K.start(function (t) {
+    chaos.forEach(function (d) {
+      var p = K.eo(K.clamp((t - d.t0) / 1.2)), o = K.clamp((t - d.t0) / 0.3) * (1 - K.clamp((t - 2.6) / 0.6));
+      d.el.setAttribute("cx", d.sx + (d.tx - d.sx) * p + 12 * Math.sin(t * 3 + d.ph));
+      d.el.setAttribute("cy", d.sy + (d.ty - d.sy) * p + 10 * Math.cos(t * 2.5 + d.ph));
+      d.el.style.opacity = o * 0.85;
+    });
+    flow.forEach(function (f) {
+      var s = (t - f.t0) * SPEED, pos = s < 0 ? null : K.along(f.route, s);
+      if (!pos) { f.el.style.opacity = 0; return; }
+      f.el.setAttribute("cx", pos.x); f.el.setAttribute("cy", pos.y);
+      f.el.style.opacity = Math.min(1, pos.tail / 40);
+    });
+    merge.forEach(function (d, i) {
+      var a = K.clamp((t - 6.7 - i * 0.012) / 0.3), p = K.eo(K.clamp((t - 7.4) / 0.8));
+      d.el.setAttribute("cx", d.x + (776 - d.x) * p); d.el.setAttribute("cy", d.y + (500 - d.y) * p);
+      d.el.style.opacity = a * (1 - K.clamp((t - 8.1) / 0.15));
+    });
+    if (mergeDot) mergeDot.setAttribute("r", 11 * K.eo(K.clamp((t - 8.1) / 0.3)) * (1 - K.clamp((t - 11.3) / 0.4)));
+  });
+})();
+</script>
+</body>
+</html>

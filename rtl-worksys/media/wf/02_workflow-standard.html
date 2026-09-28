@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>workflow 표준화</title>
+<style>
+:root{
+  --bg:#f7f6f2; --panel:#ffffff; --fg:#1c232b; --muted:#5a6472; --line:#c6ccd4; --soft:#eef1f5;
+  --acc:#2457d6; --acc-soft:#e3ebfd; --hum:#b45309; --hum-soft:#fdf0e1; --ok:#15803d; --ok-soft:#e4f5ea;
+  --bad:#b91c1c; --bad-soft:#fde7e7; --svc:#475569; --svc-soft:#edf1f5;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1319; --panel:#151b22; --fg:#e5e9ef; --muted:#9aa5b4; --line:#3a434f; --soft:#1b232c;
+    --acc:#7ea9ff; --acc-soft:#172640; --hum:#f0a05c; --hum-soft:#3a2714; --ok:#4cc27a; --ok-soft:#14301e;
+    --bad:#f07b7b; --bad-soft:#3b1818; --svc:#a9b4c3; --svc-soft:#1c2530;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1319; --panel:#151b22; --fg:#e5e9ef; --muted:#9aa5b4; --line:#3a434f; --soft:#1b232c;
+  --acc:#7ea9ff; --acc-soft:#172640; --hum:#f0a05c; --hum-soft:#3a2714; --ok:#4cc27a; --ok-soft:#14301e;
+  --bad:#f07b7b; --bad-soft:#3b1818; --svc:#a9b4c3; --svc-soft:#1c2530;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg)}
+body{font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR","Segoe UI",system-ui,sans-serif;font-size:16px;line-height:1.65}
+main{max-width:1120px;margin:0 auto;padding:28px 16px 72px}
+nav.top{font-size:14px;color:var(--muted);margin-bottom:12px}
+nav.top a{color:var(--acc);text-decoration:none;margin-right:12px}
+h1{font-size:28px;line-height:1.3;margin:4px 0 8px}
+h2{font-size:20px;margin:40px 0 8px;padding-top:8px;border-top:1px solid var(--line)}
+p.lead{font-size:17px;color:var(--muted);margin:0 0 16px}
+figure{margin:18px 0;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+figure svg{width:100%;height:auto;display:block;color:var(--fg)}
+figcaption{color:var(--muted);font-size:14px;margin-top:8px}
+table{border-collapse:collapse;width:100%;font-size:14.5px;background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--soft);font-weight:600}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin:14px 0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.card h3{margin:0 0 4px;font-size:17px}
+.card .id{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;color:var(--muted)}
+.card dl{margin:8px 0 0;font-size:14px}
+.card dt{color:var(--muted);font-size:12.5px;margin-top:6px}
+.card dd{margin:0}
+.tag{display:inline-block;padding:0 8px;border-radius:999px;font-size:12.5px;border:1px solid var(--line)}
+.tag.m{background:var(--acc-soft);border-color:var(--acc);color:var(--acc)}
+.tag.n{background:var(--soft)}
+.note{font-size:14px;color:var(--muted)}
+svg text{font-family:inherit}
+.t{fill:currentColor}.m{fill:var(--muted)}.ta{fill:var(--acc)}.th{fill:var(--hum)}.tb{fill:var(--bad)}.tok{fill:var(--ok)}
+.box{fill:var(--panel);stroke:var(--line);stroke-width:1.2}
+.boxa{fill:var(--acc-soft);stroke:var(--acc);stroke-width:1.4}
+.boxh{fill:var(--hum-soft);stroke:var(--hum);stroke-width:1.4}
+.boxs{fill:var(--svc-soft);stroke:var(--svc);stroke-width:1.2}
+.boxok{fill:var(--ok-soft);stroke:var(--ok);stroke-width:1.3}
+.ghost{fill:none;stroke:var(--muted);stroke-width:1.2;stroke-dasharray:5 4}
+.ln{stroke:currentColor;stroke-width:1.4;fill:none}.lna{stroke:var(--acc);stroke-width:1.6;fill:none}.lnm{stroke:var(--muted);stroke-width:1.2;fill:none}
+.dash{stroke-dasharray:5 4}
+.mk{fill:currentColor}.mka{fill:var(--acc)}.mkm{fill:var(--muted)}
+.dot{fill:var(--acc)}.dotoff{fill:none;stroke:var(--line);stroke-width:1.3}
+@media print{
+  :root{--bg:#fff;--panel:#fff;--fg:#111;--muted:#444;--line:#bbb;--soft:#f2f2f2}
+  nav.top{display:none} figure,table,.card{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<main>
+<nav class="top"><a href="index.html">목차</a><a href="01_core-one-page.html">core 한 장</a><a href="03_assembly-rtl-review.html">조립·RTL review</a><a href="04_agent-system.html">agent system</a></nav>
+<h1>workflow 표준화: 공통 골격 위에 작업 모양, 그 위에 업무별 특화</h1>
+<p class="lead">모든 workflow가 같은 자리와 같은 결과 형식을 물려받는다. 업무마다 다른 것은 "작업의 모양"과 "업무의 구체"뿐이다. 그래서 사람이 한 일과 AI가 한 일이 같은 실적 표에 쌓이고, 한 곳을 고치면 모든 업무가 함께 좋아진다.</p>
+
+<h2>1. 세 층</h2>
+<figure>
+<svg viewBox="0 0 1180 400" role="img" aria-label="세 층 구조. 맨 위 공통 골격 WF-common을 작업 모양 일곱이 상속하고, 업무별 특화 workflow가 모양 하나를 상속한다. 특화는 채우기와 좁히기만 할 수 있고 넓히지 못한다.">
+<defs><marker id="w1a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mkm" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<rect class="boxa" x="20" y="14" width="1140" height="66" rx="10"/>
+<text class="t" x="590" y="40" text-anchor="middle" font-size="16" font-weight="700">WF-common 공통 골격</text>
+<text class="m" x="590" y="63" text-anchor="middle" font-size="13">자리 여덟 · 공통 checkpoint 넷(C0 입력 · CB 경계 · CR 결과 · CL 학습) · 공통 원칙 다섯 · 물려받는 규칙(posture · HITL 아홉 · 근거 자격 · reject 뒤 재시도 없음 …)</text>
+<g>
+  <line class="lnm" x1="95" y1="80" x2="95" y2="118" marker-end="url(#w1a)"/><line class="lnm" x1="260" y1="80" x2="260" y2="118" marker-end="url(#w1a)"/>
+  <line class="lnm" x1="425" y1="80" x2="425" y2="118" marker-end="url(#w1a)"/><line class="lnm" x1="590" y1="80" x2="590" y2="118" marker-end="url(#w1a)"/>
+  <line class="lnm" x1="755" y1="80" x2="755" y2="118" marker-end="url(#w1a)"/><line class="lnm" x1="920" y1="80" x2="920" y2="118" marker-end="url(#w1a)"/>
+  <line class="lnm" x1="1085" y1="80" x2="1085" y2="118" marker-end="url(#w1a)"/>
+</g>
+<g font-size="14">
+  <rect class="box" x="20" y="120" width="150" height="62" rx="9"/><text class="t" x="95" y="146" text-anchor="middle" font-weight="700">수정형</text><text class="m" x="95" y="167" text-anchor="middle" font-size="12" font-family="ui-monospace,Consolas,monospace">AR-change</text>
+  <rect class="box" x="185" y="120" width="150" height="62" rx="9"/><text class="t" x="260" y="146" text-anchor="middle" font-weight="700">탐색형</text><text class="m" x="260" y="167" text-anchor="middle" font-size="12" font-family="ui-monospace,Consolas,monospace">AR-explore</text>
+  <rect class="box" x="350" y="120" width="150" height="62" rx="9"/><text class="t" x="425" y="146" text-anchor="middle" font-weight="700">판정형</text><text class="m" x="425" y="167" text-anchor="middle" font-size="12" font-family="ui-monospace,Consolas,monospace">AR-assess</text>
+  <rect class="box" x="515" y="120" width="150" height="62" rx="9"/><text class="t" x="590" y="146" text-anchor="middle" font-weight="700">조사형</text><text class="m" x="590" y="167" text-anchor="middle" font-size="12" font-family="ui-monospace,Consolas,monospace">AR-diagnose</text>
+  <rect class="box" x="680" y="120" width="150" height="62" rx="9"/><text class="t" x="755" y="146" text-anchor="middle" font-weight="700">작성형</text><text class="m" x="755" y="167" text-anchor="middle" font-size="12" font-family="ui-monospace,Consolas,monospace">AR-author</text>
+  <rect class="box" x="845" y="120" width="150" height="62" rx="9"/><text class="t" x="920" y="146" text-anchor="middle" font-weight="700">결정 자료형</text><text class="m" x="920" y="167" text-anchor="middle" font-size="12" font-family="ui-monospace,Consolas,monospace">AR-decide</text>
+  <rect class="box" x="1010" y="120" width="150" height="62" rx="9"/><text class="t" x="1085" y="146" text-anchor="middle" font-weight="700">실험형</text><text class="m" x="1085" y="167" text-anchor="middle" font-size="12" font-family="ui-monospace,Consolas,monospace">AR-campaign</text>
+</g>
+<g font-size="11.5" class="m">
+  <text class="m" x="95" y="200" text-anchor="middle">대상을 고친다</text><text class="m" x="260" y="200" text-anchor="middle">후보 여럿, 수치로</text>
+  <text class="m" x="425" y="200" text-anchor="middle">고치지 않고 지적</text><text class="m" x="590" y="200" text-anchor="middle">원인 확인까지</text>
+  <text class="m" x="755" y="200" text-anchor="middle">초안까지</text><text class="m" x="920" y="200" text-anchor="middle">결정은 사람</text>
+  <text class="m" x="1085" y="200" text-anchor="middle">값마다 출처</text>
+</g>
+<g>
+  <line class="lnm" x1="95" y1="208" x2="95" y2="232" marker-end="url(#w1a)"/><line class="lnm" x1="260" y1="208" x2="260" y2="232" marker-end="url(#w1a)"/>
+  <line class="lnm" x1="425" y1="208" x2="425" y2="232" marker-end="url(#w1a)"/><line class="lnm" x1="590" y1="208" x2="590" y2="232" marker-end="url(#w1a)"/>
+  <line class="lnm" x1="755" y1="208" x2="755" y2="232" marker-end="url(#w1a)"/><line class="lnm" x1="920" y1="208" x2="920" y2="232" marker-end="url(#w1a)"/>
+  <line class="lnm" x1="1085" y1="208" x2="1085" y2="232" marker-end="url(#w1a)"/>
+</g>
+<g font-size="12.5" font-family="ui-monospace,Consolas,monospace">
+  <rect class="boxs" x="20" y="234" width="150" height="112" rx="8"/>
+  <text class="t" x="30" y="256">WF-bugfix</text><text class="t" x="30" y="278">WF-lint</text><text class="t" x="30" y="300">WF-review-fix</text><text class="t" x="30" y="322">WF-rtl-impl</text>
+  <rect class="boxs" x="185" y="234" width="150" height="112" rx="8"/>
+  <text class="t" x="195" y="256">WF-timing</text><text class="t" x="195" y="278">WF-coverage</text>
+  <rect class="boxs" x="350" y="234" width="150" height="112" rx="8"/>
+  <text class="t" x="360" y="256">WF-rtl-code-</text><text class="t" x="372" y="274">review (A)</text><text class="t" x="360" y="296">WF-rtl-verif-</text><text class="t" x="372" y="314">review (B)</text><text class="t" x="360" y="336">…perf-area (C)</text>
+  <rect class="boxs" x="515" y="234" width="150" height="112" rx="8"/>
+  <text class="t" x="525" y="256">WF-regr-</text><text class="t" x="537" y="274">diagnose</text><text class="m" x="525" y="296" font-family="inherit">(골격)</text>
+  <rect class="boxs" x="680" y="234" width="150" height="112" rx="8"/>
+  <text class="t" x="690" y="256">WF-answer</text><text class="t" x="690" y="278">WF-answer-draft</text>
+  <rect class="boxs" x="845" y="234" width="150" height="112" rx="8"/>
+  <text class="t" x="855" y="256">WF-decision-</text><text class="t" x="867" y="274">material</text><text class="t" x="855" y="296">WF-improvement-</text><text class="t" x="867" y="314">plan (E)</text>
+  <rect class="boxs" x="1010" y="234" width="150" height="112" rx="8"/>
+  <text class="t" x="1020" y="256">WF-syn-matrix</text><text class="t" x="1020" y="278">WF-syn-subtop-</text><text class="t" x="1032" y="296">fmax (D)</text>
+</g>
+<text class="m" x="590" y="376" text-anchor="middle" font-size="13">상속 규칙: 특화는 <tspan class="ta" font-weight="700">채우기</tspan> · <tspan class="ta" font-weight="700">좁히기만</tspan> · 업무의 구체는 <tspan class="ta" font-weight="700">자기 것</tspan>. 공통의 자리·원칙·규칙은 <tspan class="th" font-weight="700">잠금</tspan>, 넓히지 못한다</text>
+</svg>
+<figcaption>한 업무가 두 모양을 가지면(원인 찾기 + 수정) 다중 상속 대신 phase가 모양을 빌린다(버그 수정의 원인 phase = 조사형). 판정형의 A~C, 실험형의 D, 결정 자료형의 E가 RTL review pipeline의 다섯 작업이다.</figcaption>
+</figure>
+
+<h2>2. 여덟 자리: 모든 workflow가 같은 순서로 지난다</h2>
+<figure>
+<svg viewBox="0 0 1180 264" role="img" aria-label="여덟 자리: plan, 입력, 시작점, 본체, 판정, 회귀와 부작용, 결과, 학습. plan은 30_plan.md가, 입력의 C0와 회귀의 CB, 결과의 CR, 학습의 CL은 공통 checkpoint가 채우고, 시작점·본체·판정·회귀는 작업 모양이 모양을 정하고 특화가 채운다.">
+<g font-size="14" font-weight="700">
+  <rect class="boxs" x="20" y="30" width="130" height="58" rx="8"/><text class="t" x="85" y="55" text-anchor="middle">PL plan</text><text class="m" x="85" y="76" text-anchor="middle" font-size="11.5" font-weight="400">plan 단계 파일</text>
+  <rect class="boxa" x="162" y="30" width="130" height="58" rx="8"/><text class="t" x="227" y="55" text-anchor="middle">IN 입력</text><text class="m" x="227" y="76" text-anchor="middle" font-size="11.5" font-weight="400">있고, 버전이 맞나</text>
+  <rect class="box" x="304" y="30" width="130" height="58" rx="8"/><text class="t" x="369" y="55" text-anchor="middle">BL 시작점</text><text class="m" x="369" y="76" text-anchor="middle" font-size="11.5" font-weight="400">처음에 무엇이 참</text>
+  <rect class="box" x="446" y="30" width="130" height="58" rx="8"/><text class="t" x="511" y="55" text-anchor="middle">DO 본체</text><text class="m" x="511" y="76" text-anchor="middle" font-size="11.5" font-weight="400">산출물</text>
+  <rect class="box" x="588" y="30" width="130" height="58" rx="8"/><text class="t" x="653" y="55" text-anchor="middle">OR 판정</text><text class="m" x="653" y="76" text-anchor="middle" font-size="11.5" font-weight="400">근거와 함께 참인가</text>
+  <rect class="box" x="730" y="30" width="130" height="58" rx="8"/><text class="t" x="795" y="55" text-anchor="middle">RG 회귀·부작용</text><text class="m" x="795" y="76" text-anchor="middle" font-size="11.5" font-weight="400">안 바뀐 것은 그대로</text>
+  <rect class="boxa" x="872" y="30" width="130" height="58" rx="8"/><text class="t" x="937" y="55" text-anchor="middle">RS 결과</text><text class="m" x="937" y="76" text-anchor="middle" font-size="11.5" font-weight="400">한 파일로 판정</text>
+  <rect class="boxa" x="1014" y="30" width="146" height="58" rx="8"/><text class="t" x="1087" y="55" text-anchor="middle">LN 학습</text><text class="m" x="1087" y="76" text-anchor="middle" font-size="11.5" font-weight="400">생략 불가</text>
+</g>
+<g font-size="13" font-family="ui-monospace,Consolas,monospace" font-weight="700">
+  <text class="m" x="85" y="112" text-anchor="middle" font-family="inherit" font-weight="400">30_plan.md</text>
+  <text class="ta" x="227" y="112" text-anchor="middle">C0 (공통)</text>
+  <text class="ta" x="795" y="112" text-anchor="middle">+ CB (공통)</text>
+  <text class="ta" x="937" y="112" text-anchor="middle">CR (공통)</text>
+  <text class="ta" x="1087" y="112" text-anchor="middle">CL (공통)</text>
+</g>
+<path class="lnm" d="M304,124 V130 H860 V124"/>
+<text class="t" x="582" y="150" text-anchor="middle" font-size="13" font-weight="600">작업 모양이 "어떻게 채울지"를 정하고, 특화가 C1부터 번호를 붙여 채운다</text>
+<g font-size="12">
+  <text class="m" x="369" y="176" text-anchor="middle">수정: 재현·기준</text><text class="m" x="511" y="176" text-anchor="middle">수정: 고침</text><text class="m" x="653" y="176" text-anchor="middle">수정: oracle</text><text class="m" x="795" y="176" text-anchor="middle">수정: regression·LEC</text>
+  <text class="m" x="369" y="196" text-anchor="middle">판정: 이전 run·범위</text><text class="m" x="511" y="196" text-anchor="middle">판정: 지적 쌓기</text><text class="m" x="653" y="196" text-anchor="middle">판정: policy 계산</text><text class="m" x="795" y="196" text-anchor="middle">판정: 대상 불변</text>
+  <text class="m" x="369" y="216" text-anchor="middle">실험: 칸 계획</text><text class="m" x="511" y="216" text-anchor="middle">실험: 측정·유도</text><text class="m" x="653" y="216" text-anchor="middle">실험: 출처 완결</text><text class="m" x="795" y="216" text-anchor="middle">실험: 이상치</text>
+</g>
+<text class="m" x="590" y="250" text-anchor="middle" font-size="12.5">자리는 공통이지만 checkpoint 번호는 workflow마다 다르다. 그래서 공통 checkpoint 넷은 고정 id(C0 · CB · CR · CL)를 쓴다</text>
+</svg>
+<figcaption>시작점(BL)이 모든 workflow에 있는 이유: 끝을 판정하려면 처음에 무엇이 참이었는지가 기록되어 있어야 한다("원래부터 실패였나, 이번 변경 때문인가").</figcaption>
+</figure>
+
+<h2>3. phase: "원인만"·"수정만" 요청도 같은 workflow가 받는다</h2>
+<figure>
+<svg viewBox="0 0 1180 290" role="img" aria-label="버그 수정 workflow의 phase. C0과 C1은 run 단위로 늘 돌고, C2는 원인 phase, C3에서 C5는 수정 phase, CB와 CR과 CL은 공통이다. 전체 요청은 모두, 원인만 요청은 C2까지, 수정만 요청은 C2를 건너뛰고 나머지를 돈다.">
+<g font-size="12.5" font-weight="600">
+  <path class="lnm" d="M250,30 V38 H410 V30"/><text class="m" x="330" y="24" text-anchor="middle">run 단위(늘 돈다)</text>
+  <path class="lna" d="M430,30 V38 H530 V30"/><text class="ta" x="480" y="24" text-anchor="middle">원인 phase(조사형)</text>
+  <path class="lna" d="M550,30 V38 H830 V30"/><text class="ta" x="690" y="24" text-anchor="middle">수정 phase(수정형)</text>
+  <path class="lnm" d="M850,30 V38 H1130 V30"/><text class="m" x="990" y="24" text-anchor="middle">공통</text>
+</g>
+<g font-size="14" font-weight="700" font-family="ui-monospace,Consolas,monospace">
+  <text class="t" x="290" y="66" text-anchor="middle">C0</text><text class="t" x="370" y="66" text-anchor="middle">C1</text><text class="t" x="480" y="66" text-anchor="middle">C2</text>
+  <text class="t" x="590" y="66" text-anchor="middle">C3</text><text class="t" x="690" y="66" text-anchor="middle">C4</text><text class="t" x="790" y="66" text-anchor="middle">C5</text>
+  <text class="t" x="890" y="66" text-anchor="middle">CB</text><text class="t" x="990" y="66" text-anchor="middle">CR</text><text class="t" x="1090" y="66" text-anchor="middle">CL</text>
+</g>
+<g font-size="12">
+  <text class="m" x="290" y="86" text-anchor="middle">IN 입력</text><text class="m" x="370" y="86" text-anchor="middle">BL 재현</text><text class="m" x="480" y="86" text-anchor="middle">OR 원인 확인</text>
+  <text class="m" x="590" y="86" text-anchor="middle">DO 수정</text><text class="m" x="690" y="86" text-anchor="middle">OR 재현 test</text><text class="m" x="790" y="86" text-anchor="middle">RG regression</text>
+  <text class="m" x="890" y="86" text-anchor="middle">RG 경계</text><text class="m" x="990" y="86" text-anchor="middle">RS 결과</text><text class="m" x="1090" y="86" text-anchor="middle">LN 학습</text>
+</g>
+<g font-size="14">
+  <text class="t" x="30" y="130" font-weight="700">"원인 찾아서 고쳐 주세요"</text>
+  <text class="t" x="30" y="185" font-weight="700">"원인만 알려 주세요"</text>
+  <text class="t" x="30" y="240" font-weight="700">"원인은 X, 고쳐 주세요"</text>
+</g>
+<line class="lnm" x1="20" y1="100" x2="1160" y2="100"/>
+<!-- row 1 all -->
+<g><circle class="dot" cx="290" cy="126" r="9"/><circle class="dot" cx="370" cy="126" r="9"/><circle class="dot" cx="480" cy="126" r="9"/><circle class="dot" cx="590" cy="126" r="9"/><circle class="dot" cx="690" cy="126" r="9"/><circle class="dot" cx="790" cy="126" r="9"/><circle class="dot" cx="890" cy="126" r="9"/><circle class="dot" cx="990" cy="126" r="9"/><circle class="dot" cx="1090" cy="126" r="9"/></g>
+<!-- row 2 diagnose only -->
+<g><circle class="dot" cx="290" cy="181" r="9"/><circle class="dot" cx="370" cy="181" r="9"/><circle class="dot" cx="480" cy="181" r="9"/><circle class="dotoff" cx="590" cy="181" r="9"/><circle class="dotoff" cx="690" cy="181" r="9"/><circle class="dotoff" cx="790" cy="181" r="9"/><circle class="dot" cx="890" cy="181" r="9"/><circle class="dot" cx="990" cy="181" r="9"/><circle class="dot" cx="1090" cy="181" r="9"/></g>
+<!-- row 3 change only -->
+<g><circle class="dot" cx="290" cy="236" r="9"/><circle class="dot" cx="370" cy="236" r="9"/><circle class="dotoff" cx="480" cy="236" r="9"/><circle class="dot" cx="590" cy="236" r="9"/><circle class="dot" cx="690" cy="236" r="9"/><circle class="dot" cx="790" cy="236" r="9"/><circle class="dot" cx="890" cy="236" r="9"/><circle class="dot" cx="990" cy="236" r="9"/><circle class="dot" cx="1090" cy="236" r="9"/></g>
+<g font-size="12" class="m">
+  <text class="m" x="30" y="148">결과: 원인 보고 + diff + MR 후보</text>
+  <text class="m" x="30" y="203">결과: 원인 보고 (수정은 새 요청으로)</text>
+  <text class="m" x="30" y="258">결과: diff + MR 후보 (재현은 그래도 한다)</text>
+</g>
+<text class="m" x="590" y="282" text-anchor="middle" font-size="12.5">규칙: IN·BL은 run 단위 · DO·OR·RG는 phase에 속함 · 고른 phase마다 판정(OR)이 하나 이상 · 자리 순서는 phase 안에서만</text>
+</svg>
+<figcaption>intake가 요청 둘을 한 workflow의 두 phase로 보내면(route.phases), 이 표대로 checkpoint가 골라진다. 원인 phase는 조사형 모양을 빌려 대상을 고치지 않고 scratch에서 before/after로 확인한다. 행동도 phase마다 따로 계산하므로 "원인만" run에는 RTL 수정 행동이 아예 없다(guard가 막고, 경계 확인이 대상 diff가 비었는지 센다).</figcaption>
+</figure>
+
+<h2>4. 상속 규칙</h2>
+<table>
+<tr><th style="width:18%">규칙</th><th style="width:38%">무엇에</th><th>뜻</th></tr>
+<tr><td><b>잠금</b></td><td>자리 여덟과 순서, 공통 checkpoint 넷, phase마다 판정, 공통 원칙 다섯, 물려받는 규칙, 전역 금지 행동</td><td>특화가 없애거나 바꾸지 못한다</td></tr>
+<tr><td><b>채우기(필수)</b></td><td>작업 모양의 의무(obligations)</td><td>특화의 checkpoint 중 하나 이상이 그 의무를 이행한다고 표시(implements)해야 한다. resolver가 검사한다</td></tr>
+<tr><td><b>채우기</b></td><td>BL·DO·OR·RG 자리의 checkpoint</td><td>특화가 자기 번호(C1…)로 채운다</td></tr>
+<tr><td><b>좁히기만</b></td><td>쓰는 행동(모양의 상한 안), 대상을 고치는가(고친다 → 안 고친다만), 읽기 제한·세션 분리(더하기만), checkpoint의 posture 상한(낮추기만)</td><td>넓히지 못한다. 자율 선언의 원칙과 같다</td></tr>
+<tr><td><b>더하기</b></td><td>사람 개입 지점, 결과 절, 학습 항목</td><td>모양이 정한 것에 더한다</td></tr>
+<tr><td><b>더하기(의무와 함께)</b></td><td>쓰는 기록 종류(review ledger · QoR matrix)</td><td>모양에 없는 기록을 더할 수 있지만, 그 기록이 끌어오는 의무(지적의 신원·관측 계산, 값의 출처)를 이행해야 한다</td></tr>
+<tr><td><b>자기 것</b></td><td>입력 요건(필수·권장·모드), oracle, 비용 사다리, 기본 posture, 덮는 요청, phase, 경로 힌트</td><td>업무가 정한다. 기본 posture는 권한 범위의 상한에서 잘리고, plan이 oracle 강도·실적·정보로 더 낮출 수 있다</td></tr>
+</table>
+
+<h2>5. workflow가 없는 일: 세 경로도 세 층 위에서 설명된다</h2>
+<figure>
+<svg viewBox="0 0 1180 300" role="img" aria-label="특화가 있는 보통 경로는 세 층을 다 쓴다. one-off는 공통과 모양만 쓴다. 초안 신설은 모양에서 시작한 새 특화 초안을 fork에서 쓴다. 이웃 합성은 이웃의 특화에 부록 checkpoint를 붙이고 posture를 한 단계 낮춘다.">
+<g font-size="13">
+  <!-- default -->
+  <text class="t" x="150" y="26" text-anchor="middle" font-weight="700">보통(adopted)</text>
+  <rect class="boxs" x="60" y="44" width="180" height="46" rx="7"/><text class="t" x="150" y="72" text-anchor="middle">특화 workflow</text>
+  <rect class="box" x="60" y="96" width="180" height="46" rx="7"/><text class="t" x="150" y="124" text-anchor="middle">작업 모양</text>
+  <rect class="boxa" x="60" y="148" width="180" height="46" rx="7"/><text class="t" x="150" y="176" text-anchor="middle">WF-common</text>
+  <text class="m" x="150" y="222" text-anchor="middle" font-size="12">특화의 기본 posture</text>
+  <!-- one-off -->
+  <text class="t" x="440" y="26" text-anchor="middle" font-weight="700">one-off</text>
+  <rect class="ghost" x="350" y="44" width="180" height="46" rx="7"/><text class="m" x="440" y="72" text-anchor="middle">특화 없음</text>
+  <rect class="box" x="350" y="96" width="180" height="46" rx="7"/><text class="t" x="440" y="116" text-anchor="middle">작업 모양</text><text class="m" x="440" y="134" text-anchor="middle" font-size="11.5">기본 채움 C1…</text>
+  <rect class="boxa" x="350" y="148" width="180" height="46" rx="7"/><text class="t" x="440" y="176" text-anchor="middle">WF-common</text>
+  <text class="m" x="440" y="222" text-anchor="middle" font-size="12">draft 고정 · 되돌림 낮은 일만 · 최소 셋</text>
+  <text class="m" x="440" y="242" text-anchor="middle" font-size="12">학습에 "다시 올 것 같은가"</text>
+  <!-- draft-new -->
+  <text class="t" x="730" y="26" text-anchor="middle" font-weight="700">초안 신설(none)</text>
+  <rect class="boxh" x="640" y="44" width="180" height="46" rx="7" style="stroke-dasharray:5 4"/><text class="th" x="730" y="64" text-anchor="middle">새 특화 초안</text><text class="m" x="730" y="82" text-anchor="middle" font-size="11.5">fork · draft</text>
+  <rect class="box" x="640" y="96" width="180" height="46" rx="7"/><text class="t" x="730" y="116" text-anchor="middle">작업 모양</text><text class="m" x="730" y="134" text-anchor="middle" font-size="11.5">기본 채움이 출발점</text>
+  <rect class="boxa" x="640" y="148" width="180" height="46" rx="7"/><text class="t" x="730" y="176" text-anchor="middle">WF-common</text>
+  <text class="m" x="730" y="222" text-anchor="middle" font-size="12">gate에서 논의 → "가 보자" 뒤</text>
+  <text class="m" x="730" y="242" text-anchor="middle" font-size="12">draft로 즉시 사용, 정본은 회의</text>
+  <!-- neighbor -->
+  <text class="t" x="1020" y="26" text-anchor="middle" font-weight="700">이웃 합성</text>
+  <rect class="boxs" x="930" y="44" width="180" height="46" rx="7"/><text class="t" x="1020" y="64" text-anchor="middle">이웃의 특화</text><text class="m" x="1020" y="82" text-anchor="middle" font-size="11.5">+ 부록 AP1…</text>
+  <rect class="boxh" x="1114" y="50" width="40" height="34" rx="6"/><text class="th" x="1134" y="72" text-anchor="middle" font-size="12" font-weight="700">AP</text>
+  <rect class="box" x="930" y="96" width="180" height="46" rx="7"/><text class="t" x="1020" y="124" text-anchor="middle">작업 모양</text>
+  <rect class="boxa" x="930" y="148" width="180" height="46" rx="7"/><text class="t" x="1020" y="176" text-anchor="middle">WF-common</text>
+  <text class="m" x="1020" y="222" text-anchor="middle" font-size="12">이웃 default에서 한 단계 낮춤</text>
+  <text class="m" x="1020" y="242" text-anchor="middle" font-size="12">부록은 자기 phase + 판정</text>
+</g>
+<text class="m" x="590" y="284" text-anchor="middle" font-size="12.5">어느 경로든 공통 골격은 그대로다. 결과 패키지·경계 확인·학습이 같아서, 한 번 해 본 일이 다음 workflow의 재료가 된다</text>
+</svg>
+<figcaption>intake의 gate가 "workflow 가용성"으로 경로를 정해 보낸다: adopted → 보통, neighbor-compose → 이웃 합성, one-off-eligible → one-off, none → 초안 신설과 논의.</figcaption>
+</figure>
+
+<h2>6. 작업 모양 일곱</h2>
+<div class="cards">
+  <div class="card"><h3>수정형</h3><div class="id">AR-change</div><dl><dt>모양</dt><dd>시작점 → 허용 범위 안에서 고침 → oracle → 회귀</dd><dt>대상을 고치나</dt><dd><span class="tag m">task branch</span></dd><dt>끝</dt><dd>MR 후보 + 새 세션의 의도 대조</dd><dt>대표</dt><dd>버그 수정 · lint 정리 · 자동 수정 · 구현 link</dd></dl></div>
+  <div class="card"><h3>탐색형</h3><div class="id">AR-explore</div><dl><dt>모양</dt><dd>기준 수치 → 격리된 후보 여럿 → 비용 사다리 → policy가 승자</dd><dt>대상을 고치나</dt><dd><span class="tag m">task branch</span></dd><dt>끝</dt><dd>후보 비교표 · 미완도 결과</dd><dt>대표</dt><dd>timing 개선 · coverage 보강</dd></dl></div>
+  <div class="card"><h3>판정형</h3><div class="id">AR-assess</div><dl><dt>모양</dt><dd>입력 정합성 → 이전 run·범위 → 도구 층 → 지적 쌓기 → 수정 제안(scratch) → policy</dd><dt>대상을 고치나</dt><dd><span class="tag n">고치지 않음</span></dd><dt>끝</dt><dd>GATE · run 레포트 · ledger 변경분</dd><dt>대표</dt><dd>RTL 코드 리뷰 · 검증 상태 · 성능·면적</dd></dl></div>
+  <div class="card"><h3>조사형</h3><div class="id">AR-diagnose (골격)</div><dl><dt>모양</dt><dd>같은 입력으로 재현 → 가설 표 → 좁히기 → before/after</dd><dt>대상을 고치나</dt><dd><span class="tag n">고치지 않음</span></dd><dt>끝</dt><dd>원인 보고 + 수정 방향(수정도 요청했으면 후속 요청)</dd><dt>대표</dt><dd>regression 원인 · 버그의 원인 phase</dd></dl></div>
+  <div class="card"><h3>작성형</h3><div class="id">AR-author</div><dl><dt>모양</dt><dd>출처 고정 → 주장마다 인용 → 인용 정합 script</dd><dt>대상을 고치나</dt><dd><span class="tag n">초안만</span></dd><dt>끝</dt><dd>초안 · 인용표 · 확인되지 않은 주장</dd><dt>대표</dt><dd>지식 답변 · 고객 답변 초안</dd></dl></div>
+  <div class="card"><h3>결정 자료형</h3><div class="id">AR-decide</div><dl><dt>모양</dt><dd>현재 상태 고정 → 선택지(현상 유지 포함) × 영향 면 → 구조 검사</dd><dt>대상을 고치나</dt><dd><span class="tag n">고치지 않음</span></dd><dt>끝</dt><dd>결정 자료 한 장 · 정할 사람 · 결정 뒤 후속</dd><dt>대표</dt><dd>spec 변경 결정 · 개선 plan(E)</dd></dl></div>
+  <div class="card"><h3>실험형</h3><div class="id">AR-campaign</div><dl><dt>모양</dt><dd>조건 고정 → 칸 계획 → 측정 → 유도·계산 → 출처 완결 → 이상치</dd><dt>대상을 고치나</dt><dd><span class="tag n">고치지 않음</span></dd><dt>끝</dt><dd>matrix 변경분 · 값마다 실측·유도·계산</dd><dt>대표</dt><dd>합성 조건 matrix · sub-top 합성(D)</dd></dl></div>
+</div>
+<p class="note">모양에 posture의 상한은 없다. 판단형 일의 경계는 행동의 상한(판정형은 대상 수정 행동이 없다)과 사람 결정(결정 자료형은 결정이 사람의 자리)으로 표현한다. 숫자 기준은 전부 공란이다.</p>
+</main>
+</body>
+</html>

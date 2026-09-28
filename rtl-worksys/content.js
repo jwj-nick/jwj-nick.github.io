@@ -6,8 +6,8 @@ window.WS = {
   meta: {
     title: "RTL WorkSys",
     subtitle: "AI-native RTL 업무 시스템 · core 설계 노트",
-    updated: "2026-09-28",
-    version: "0.6",
+    updated: "2026-09-29",
+    version: "0.7",
     tagline: "ticket이 생기면 AI가 먼저 일을 시작한다. 사람은 검수와 결정에 선다."
   },
 
@@ -427,89 +427,96 @@ window.WS = {
   /* ───────────── 심화 — 주제별 전용 페이지 (intake 발생 · workflow 자율 · 이후 갈래) ───────────── */
   /* ───────────── 현황 (설계 작업 전체의 진행 상태, 동기화 때마다 갱신) ───────────── */
   status: {
-    asOf: "2026-09-28",
+    asOf: "2026-09-29",
     headline: [
-      "core는 개념 설계 수준에서 두 부분이 모두 확정됐다. 입구인 intake와 본체인 workflow다. intake는 09-27~28 심화에서 설명 문서를 넘어 세울 수 있는 agent 시스템의 명세(부품 11·계약 3·규칙 8·시험 사례 91)가 됐고, 위임으로 정한 결정 51이 교정을 기다린다.",
-      "약점은 core 정본이 여러 문서(core 설계서, intake 설계와 agent 명세, workflow)로 나뉘어 아직 서로 맞춰지지 않았다는 것이다. 이식 계획 18건에 intake 심화의 이식 후보 20여 건이 더해졌다. 현업 적용 묶음에는 agent 명세가 아직 들어가지 않았다.",
-      "아이디어 메모는 knowledge base를 가운데 두는 전체 계획으로 자랐다. RTL review system은 초기 논의를 마치고 레포트 템플릿과 현업 적용 묶음까지 나왔다."
+      "core 두 부분(입구 intake와 본체 workflow)이 모두 세울 수 있는 agent 시스템의 명세가 됐다. intake는 부품 11 · 계약 3 · 규칙 8 · 시험 91, workflow는 표준화된 workflow 라이브러리(공통 골격 → 작업 모양 일곱 → 특화 열여섯, 조립 둘)와 부품 11 · 계약 11 · 시험 68이다. 위임으로 정한 결정 126항(intake 51 · workflow 75)이 교정을 기다린다.",
+      "약점이던 core 정본의 분산은 workflow 자율 세션의 이식으로 크게 줄었다(core 설계서 · protocol · walkthrough 36건 · 도입 단계가 두 명세에 맞춰졌다). 남은 것은 intake와 workflow 계약이 맞물린 교정 후보, 그리고 현업 적용 묶음에 workflow 명세를 넣는 일이다.",
+      "이 뷰어에 core · intake · workflow의 한 장과 15초 애니메이션, 그리고 교정과 논의 거리를 한곳에 모은 '더 깊게 논의할 것'이 생겼다."
     ],
     tracks: [
-      { name: "core 설계", st: "done", label: "확정",
-        what: "ticket 한 건이 지나가는 아홉 단계, gate 다섯 조건, posture 넷, 사람 자리. intake(입구 일반화)와 workflow(자율 진행)를 심화해 확정했다.",
-        next: "intake·workflow 문서와 intake agent 명세의 내용을 core 설계서·protocol·walkthrough·도입 단계 문서에 녹이는 이식." },
-      { name: "주제별 심화", st: "wip", label: "intake 심화 2라운드",
-        what: "intake 심화 세션이 처음 열렸다(09-27 시작 브리핑, 09-28 자율 진행). 결과 = intake agent 시스템 명세 묶음, intake 설계 개정(일곱 단계, command 입구 등), 독립 검토 여섯 번. chain은 틀만 있고 심화 세션은 아직 열지 않았다.",
-        next: "intake agent 명세를 읽고 틀린 줄만 교정(심화 › intake agent). 이어서 chain 기본값 일곱 교정 → chain 정본." },
+      { name: "core 설계", st: "done", label: "확정 + 명세 교정 대기",
+        what: "ticket 한 건이 지나가는 아홉 단계, gate 다섯 조건, posture 넷, 사람 자리. intake와 workflow를 심화해 확정했고, 두 부분 모두 agent 시스템 명세가 됐다. 09-28에 두 명세의 내용이 core 설계서 · protocol · walkthrough · 도입 단계 문서에 이식됐다.",
+        next: "교정: 이미 확정된 것을 건드린 곳 14(intake 3 · workflow 11)부터 본다. 더 깊게 논의할 것 ① 참고." },
+      { name: "주제별 심화", st: "wip", label: "intake · workflow 명세 완료",
+        what: "intake 심화(09-27~28)가 intake agent 명세를, workflow 자율 세션(09-28)이 workflow agent 명세와 core 이식을 만들었다. 두 세션 모두 독립 검토를 여러 차례 돌렸다(workflow는 열 차례, 지적 143건 중 142건 반영). chain은 틀만 있고 심화 세션은 아직 열지 않았다.",
+        next: "두 명세를 읽고 틀린 줄만 교정 → chain 기본값 일곱 교정 → chain 정본 → diagnose 갈래(빈칸 1순위)." },
       { name: "아이디어 메모", st: "wip", label: "KB 중심 계획",
-        what: "단편 아이디어를 주제별 파일에 쌓는다(09-24 시작). 09-27에 knowledge base를 가운데 두고 합성 시스템·RTL review가 사실을 대는 전체 계획(K0~K4)을 세웠다. RTL review system은 초기 논의를 마쳤다.",
-        next: "KB 첫 단계(K0): 제품 이해 질문·체크리스트를 파일럿 제품 하나로 수행(현업에서)." },
-      { name: "현업 적용 묶음", st: "wip", label: "갱신 필요",
-        what: "설계 문서 10개를 현업 세션용으로 묶어 두었다(금지 토큰 0건). RTL review 묶음은 따로 나왔다. intake agent 명세 묶음은 아직 들어가지 않았다.",
-        next: "묶음 도구가 intake agent 명세를 포함하게 고치고 다시 묶는다." },
-      { name: "이 뷰어", st: "done", label: "v0.5",
-        what: "core·사례·설계 절, 심화 페이지 셋, 현황 화면에 더해 intake agent 탐색기(명세 전문·부품·계약 필드·규칙·시험 사례 91건 검색·인계 문서)를 보여 준다.",
-        next: "설계 쪽에서 무엇이 바뀔 때마다 동기화한다. 탐색기는 원본에서 자동 생성한다." }
+        what: "단편 아이디어를 주제별 파일에 쌓는다(09-24 시작). knowledge base를 가운데 두고 합성 시스템 · RTL review가 사실을 대는 전체 계획(K0~K4)이 있다. RTL review system(A~E)과 합성 matrix는 workflow 라이브러리의 특화 workflow로 들어갔다.",
+        next: "KB 첫 단계(K0): 제품 이해 질문 · 체크리스트를 파일럿 제품 하나로 수행(현업에서)." },
+      { name: "현업 적용 묶음", st: "wip", label: "workflow 명세 추가 대기",
+        what: "설계 문서를 현업 세션용으로 묶는다(금지 토큰 검사 포함). 09-28에 intake agent 명세가 들어가 41 파일이 됐다. workflow agent 명세와 그림 문서는 아직이다.",
+        next: "묶음 도구에 workflow 명세 폴더와 그림 문서(HTML)를 더하고 다시 묶는다." },
+      { name: "이 뷰어", st: "done", label: "v0.7",
+        what: "core · 사례 · 설계 절, 심화 페이지 셋, 현황, intake agent · workflow agent 탐색기(명세 전문 · 부품 · 계약 필드 · 설정 · 시험 사례 검색 · 인계 문서), 한 장 셋(그림 + 15초), 더 깊게 논의할 것.",
+        next: "설계 쪽에서 무엇이 바뀔 때마다 동기화한다. 탐색기 데이터와 한 장은 원본에서 다시 만든다. 주제가 정리되면 그 주제의 한 장을 더한다." }
     ],
     topics: [
-      ["intake", "core 입구", "wip", "확정 + agent 명세 교정 대기", "일의 발생(ticket·tool 신호·backlog·command …)을 공통 레코드로 받아 처리에 착수시킨다. 일곱 단계. 09-27~28 심화에서 agent 시스템 명세(부품 11·계약 3·규칙 8·시험 91)로 확장됐고, 위임 결정 51이 교정을 기다린다."],
-      ["workflow", "core 본체", "done", "확정", "착수된 일을 결과 패키지까지 자율로. 세 층(경계·checkpoint·posture) + 더한 것 여섯."],
-      ["chain", "갈래", "wip", "틀 · 교정 대기", "아키텍처부터 검증까지. link 일곱, 원칙 다섯, 기본값 일곱. 정본 문서 없음."],
-      ["timing-area", "갈래", "seed", "이름·성격만", "탐색형, oracle = synth + LEC. 도입 2단계의 첫 자율 갈래로 예정."],
-      ["coverage", "갈래", "seed", "이름·성격만", "탐색형, oracle = coverage + sim. 다른 갈래가 남긴 backlog의 소비자."],
-      ["code-review", "갈래", "seed", "이름·성격만", "판정형, oracle 약함. 다른 갈래의 마지막 단계로도 불린다. (아이디어 메모의 RTL review system과 닿는다.)"],
-      ["gaps", "마지막", "seed", "빈칸 1순위 있음", "diagnose(\"왜 그런가\") 갈래가 없다. intake agent의 실패 묶음(변경 구간·member·seed)이 이 갈래의 첫 입력 후보로 적혔다."],
-      ["evolve", "core learn", "done", "갈래 아님", "시스템 자기 개선은 core의 learn 단계가 맡는다."]
+      ["intake", "core 입구", "wip", "확정 + agent 명세 교정 대기", "일의 발생(ticket · 도구 신호 · backlog · command …)을 공통 레코드로 받아 처리에 착수시킨다. 일곱 단계. agent 시스템 명세(부품 11 · 계약 3 · 규칙 8 · 시험 91)와 위임 결정 51이 교정을 기다린다."],
+      ["workflow", "core 본체", "wip", "확정 + agent 명세 교정 대기", "착수된 일을 결과 패키지까지 자율로. 표준화된 workflow 라이브러리(공통 골격 → 모양 일곱 → 특화 열여섯, 조립 둘), 부품 11 · 계약 11 · 시험 68. 위임 결정 75가 교정을 기다린다."],
+      ["chain", "갈래", "wip", "틀 · 교정 대기", "아키텍처부터 검증까지. link 일곱, 원칙 다섯, 기본값 일곱. workflow 라이브러리에 조립 CH-feature가 생겼다. 정본 문서 없음."],
+      ["timing-area", "갈래", "seed", "이름 · 성격만", "탐색형, oracle = synth + LEC. workflow 라이브러리의 WF-timing이 목표 지표 mode(timing · area)로 덮는다."],
+      ["coverage", "갈래", "seed", "이름 · 성격만", "탐색형, oracle = coverage + sim. WF-coverage 첫 판이 있다. 다른 갈래가 남긴 backlog의 소비자."],
+      ["code-review", "갈래", "seed", "이름 · 성격만", "판정형. RTL review A~E가 판정형 특화와 pipeline으로 들어갔다. 리뷰어는 고치지 않는다."],
+      ["gaps", "마지막", "seed", "빈칸 1순위 있음", "diagnose(\"왜 그런가\") 갈래가 없다. 조사형 모양은 골격까지, intake의 실패 묶음이 첫 입력 후보."],
+      ["evolve", "core learn", "done", "갈래 아님", "시스템 자기 개선은 core의 learn 단계가 맡는다. workflow를 바꿀 때는 dry replay로 과거 기록의 판정을 미리 본다."]
     ],
     ideas: [
       { name: "전체 계획: knowledge base 중심", st: "wip", label: "제안 · 확인 대기",
-        what: "KB가 가운데 있고, 합성 시스템(QoR matrix)과 RTL review(지적·판정 ledger)가 사실을 댄다. 숫자와 판정의 원천은 하나이고 KB는 복사하지 않고 가리킨다. 세 시스템이 공유하는 원칙(값의 출처, 입력 버전이 바뀌면 낡음을 앎, 사람의 판정은 영구 기록, 계산은 script·서술은 AI, 보지 못한 것을 적음). 단계 K0~K4." },
+        what: "KB가 가운데 있고, 합성 시스템(QoR matrix)과 RTL review(지적 · 판정 ledger)가 사실을 댄다. 숫자와 판정의 원천은 하나이고 KB는 복사하지 않고 가리킨다. 이 원칙은 workflow 라이브러리의 공통 원칙 다섯과 system of record로 들어갔다. 단계 K0~K4." },
       { name: "knowledge base 재정리", st: "wip", label: "K0 진행 중",
-        what: "흩어진 기존 자료를 주제별로 모아 다시 정리하고 엮는다. 필수 주제 다섯, 릴리즈 축, 제품 이해가 최종 결론. 제품 이해 질문·체크리스트(영역 13, 제품 이해 카드, KB 구조 결정 표)를 파일럿 제품 하나로 현업에서 수행할 예정." },
-      { name: "RTL review system", st: "done", label: "초기 논의 완료",
-        what: "기존 RTL을 평가하고 개선을 판단해 진행한다. 작업 A~E(코드 리뷰·검증 상태·성능 면적·합성 max freq·판단과 plan). 레포트 템플릿(ledger·run 레포트·digest 세 층, 지적 record, 수정 제안, 자동 등급, 도입 단계)이 세 차례 비평을 거쳤고, 현업 적용 묶음이 따로 나왔다." },
+        what: "흩어진 기존 자료를 주제별로 모아 다시 정리하고 엮는다. 필수 주제 다섯, 릴리즈 축, 제품 이해가 최종 결론. 제품 이해 질문 · 체크리스트(영역 13, 제품 이해 카드, KB 구조 결정 표)를 파일럿 제품 하나로 현업에서 수행할 예정." },
+      { name: "RTL review system", st: "done", label: "workflow로 들어감",
+        what: "기존 RTL을 평가하고 개선을 판단해 진행한다. 작업 A~E(코드 리뷰 · 검증 상태 · 성능 면적 · 합성 max freq · 판단과 plan)가 판정형 · 실험형 · 결정 자료형 특화 workflow와 pipeline preset으로 표준화됐다. 레포트 템플릿과 현업 적용 묶음이 따로 있다." },
       { name: "RTL 리뷰 확인 목록", st: "wip", label: "초안",
         what: "흔한 실수 · 꼭 피할 것 · coding style · copyright 문구 네 부분. 조직의 guideline과 대조해야 한다." },
-      { name: "합성 시스템 (DC synthesis)", st: "seed", label: "seed",
-        what: "제품 수준의 여러 조건으로 합성 데이터를 확보·관리·실험·분석한다(sales용 조건 matrix). 개발 인사이트용으로 집중 조건 몇 개 × 서브모듈별 면적·최대 주파수를 본다. KB 계획에서 QoR matrix(실측·유도·계산)로 자리를 잡았다." },
+      { name: "합성 시스템 (DC synthesis)", st: "wip", label: "workflow로 들어감",
+        what: "제품 수준의 여러 조건으로 합성 데이터를 확보 · 관리 · 실험 · 분석한다. 실험형 특화 둘(고객 레포트용 matrix · sub-top 최대 주파수)이 됐고, 칸마다 값의 종류(실측 · 유도 · 계산)와 출처, 입력 버전에 묶인 낡음 전파가 있다." },
       { name: "mutation 기반 TB 평가", st: "seed", label: "보류",
         what: "상용 qualification tool 없이, AI가 RTL에 의도적인 결함을 넣어 TB가 잡아내는지로 TB의 검증력을 잰다. 지금은 보류." },
-      { name: "RTL 자동 검증 skill·agent", st: "plan", label: "예정",
-        what: "test를 직접 작성하고 돌리는 일. RTL review의 B(검증 상태 리뷰)와는 다른 scope로 분리했다. KB 계획에서 Verification 주제의 사실 공급원으로 자리만 잡혀 있다." }
+      { name: "RTL 자동 검증 skill · agent", st: "plan", label: "예정",
+        what: "test를 직접 작성하고 돌리는 일. RTL review의 B(검증 상태 리뷰)와는 다른 scope로 분리했다." }
     ],
     todo: {
       me: [
-        "intake agent 명세를 읽고 틀린 줄만 고친다. 읽는 순서: 심화 › intake agent › 개요 → 구조 §2~§4 → 시험 사례 몇 건. 이미 확정된 내용을 건드린 곳 셋(command 입구 추가, internal 예시에서 reject 재작업 삭제, \"스스로 열면 안 되는 일\"을 machine 발생에만 적용)은 특히 확인.",
-        "chain 기본값 일곱을 보고 다른 것만 고친다(심화 › chain 4절).",
-        "아이디어 메모: KB 전체 계획을 확인하고, 제품 이해 체크리스트를 현업의 파일럿 제품 하나로 수행."
+        "교정: '더 깊게 논의할 것' ①의 14곳을 먼저 본다(intake 확정을 건드린 3 · intake와 workflow 계약이 맞물린 11). 틀린 것만 고치면 된다.",
+        "intake 첫 사례 걷기(S02): 판단할 곳 넷 중 다른 것만 짚거나 'S02 맞음'.",
+        "workflow 명세 읽기: workflow 한 장 → 탐색기 개요 → 라이브러리 설명 → 공통 골격 → 관심 있는 특화 하나.",
+        "chain 기본값 일곱을 보고 다른 것만 고친다(심화 › chain 4절)."
       ],
       ai: [
-        "intake 심화 결과 롤업: 결정 후보 51을 결정 로그로(가정), 이식 후보를 이식 계획으로, 묶음 도구가 intake agent 명세를 포함하도록 고치고 다시 묶는다.",
-        "이식: intake·workflow 문서와 intake agent 명세를 core 설계서·protocol·walkthrough·도입 단계 문서에 녹인다. 가장 먼저 갚을 부채로 제안되어 있다.",
-        "chain 교정이 오면 chain 정본 → 묶음 → 이 뷰어. 그다음 diagnose 갈래(gaps 1순위, intake의 실패 묶음을 첫 입력으로)."
+        "workflow 결과 롤업: 결정 후보 75를 결정 로그로(가정), 이식 완료 표시, 업그레이드 후보, 묶음 도구에 workflow 명세 폴더와 그림 문서를 더하고 다시 묶는다.",
+        "교정이 오면 intake 쪽 동기화(계약 · 규칙 · 시험 설정)를 한 세션에서 하고, 표지를 켠다.",
+        "chain 교정이 오면 chain 정본 → 묶음 → 이 뷰어. 그다음 diagnose 갈래."
       ]
     },
     timeline: [
       ["09-19", "착수", "리서치 네 편, 전체 구조 초안, 가상 시나리오, 핵심 질문 답변. 질문 배터리 방식을 버리고 가상 ticket을 걸어 보는 방식으로 전환."],
-      ["09-19~20", "재정의 · core 설계", "분류를 AI 자신의 첫 단계로 재정의. core 둘(intake·workflow) + 갈래 넷. core 설계서, protocol 템플릿, 가상 사례 26건 walkthrough."],
-      ["09-20", "현업 적용 준비", "동료용 개요, 작업 지시서, 확인 리스트, 도입 0~3단계, 문서 규칙, 묶음 도구. 이후 설계 작업의 성격을 리뷰·일반화·업그레이드로 전환."],
-      ["09-20", "이 뷰어", "core 아홉 단계·사례 9건·설계 15절로 첫 배포."],
+      ["09-19~20", "재정의 · core 설계", "분류를 AI 자신의 첫 단계로 재정의. core 둘(intake · workflow) + 갈래 넷. core 설계서, protocol 템플릿, 가상 사례 26건 walkthrough."],
+      ["09-20", "현업 적용 준비", "동료용 개요, 작업 지시서, 확인 리스트, 도입 0~3단계, 문서 규칙, 묶음 도구. 이후 설계 작업의 성격을 리뷰 · 일반화 · 업그레이드로 전환."],
+      ["09-20", "이 뷰어", "core 아홉 단계 · 사례 9건 · 설계 15절로 첫 배포."],
       ["09-20~21", "주제별 심화", "intake 확정, workflow 확정(\"더 생각할 것\" 절은 드롭), chain 틀. 심화 세션 규약과 브리핑."],
-      ["09-24~27", "아이디어 메모", "합성 시스템, RTL revision, 리뷰 확인 목록, knowledge base, mutation 기반 TB 평가. RTL review system 초기 논의 완료(레포트 템플릿·현업 묶음), KB 중심 전체 계획."],
-      ["09-26", "이름 · 조망", "주제 글자(a~f)를 이름(intake·workflow·chain …)으로 바꿈. 전체 조망과 core 상태 점검. 이 뷰어에 현황 화면."],
-      ["09-27~28", "intake 심화", "첫 심화 세션. 시작 브리핑에서 더 깊게 볼 자리 여섯(fan-in dedup, 요청 여럿, 재진입, 도구 일의 종료, 우선순위, 단계 이름)을 짚고, 자율 진행으로 intake agent 시스템 명세 묶음을 만들었다. 독립 검토 여섯 번(높음 지적 8 → 3 → 3 → 2 → 1 → 1)."]
+      ["09-24~27", "아이디어 메모", "합성 시스템, RTL revision, 리뷰 확인 목록, knowledge base, mutation 기반 TB 평가. RTL review system 초기 논의 완료, KB 중심 전체 계획."],
+      ["09-26", "이름 · 조망", "주제 글자(a~f)를 이름(intake · workflow · chain …)으로 바꿈. 전체 조망과 core 상태 점검. 이 뷰어에 현황 화면."],
+      ["09-27~28", "intake 심화", "첫 심화 세션. 자율 진행으로 intake agent 시스템 명세 묶음(부품 11 · 계약 3 · 규칙 8 · 시험 91). 독립 검토 여섯 번. 읽기 안내와 첫 사례 걷기."],
+      ["09-28", "intake 롤업 · 묶음", "결정 51항을 가정으로 기록, 이식 계획, 현업 적용 묶음에 intake 명세 포함(41 파일, 금지 토큰 0)."],
+      ["09-28", "workflow 자율 세션", "workflow agent 시스템 명세(표준화 라이브러리 · 부품 11 · 계약 11 · 시험 68 · 그림 문서 넷)와 core 이식. 독립 검토 열 번(지적 143건 중 142건 반영)."],
+      ["09-29", "이 뷰어 v0.7", "workflow agent 탐색기, 한 장 셋(core · intake · workflow, 그림 + 15초), 더 깊게 논의할 것."]
     ],
     decisions: [
       ["09-20", "intake 확정", "입구는 ticket만이 아니다. 발생 → 공통 레코드 → 일곱 단계 → route. 범위 기본값 채택. 빈칸: diagnose 갈래 없음."],
       ["09-20", "workflow 확정", "자율의 세 층 + 더한 것 여섯. \"더 생각할 것\" 절은 과해서 드롭."],
       ["09-20", "chain 틀 (가정)", "카테고리가 아니라 사슬 template + link 카테고리 여럿. link 일곱, 원칙 다섯."],
-      ["09-26", "주제 이름", "c·d·a·e·f·b·z·g → intake·workflow·chain·timing-area·coverage·code-review·gaps·evolve."],
-      ["09-28", "intake agent (가정 51, 교정 대기)", "순서와 멈춤은 코드·판단은 LLM, 틀릴 때의 방향 셋, hard-zero 셋, dedup 두 층, flaky = 같은 입력에서 갈린 것만, 수치 신호는 기준값 비교, 도구 일의 끝 = 해소 후보, 우선순위는 규칙 근거로만 올림, 보는 사람 기준, 위험 해제 등. 전문은 intake agent › 세션 기록 › 인계 문서."]
+      ["09-26", "주제 이름", "c · d · a · e · f · b · z · g → intake · workflow · chain · timing-area · coverage · code-review · gaps · evolve."],
+      ["09-28", "intake agent (가정 51, 교정 대기)", "순서와 멈춤은 코드 · 판단은 LLM, 틀릴 때의 방향 셋, hard-zero 셋, dedup 두 층, flaky = 같은 입력에서 갈린 것만, 도구 일의 끝 = 해소 후보, 우선순위는 규칙 근거로만, 보는 사람 기준 등."],
+      ["09-28", "workflow를 자율 세션에", "core + workflow를 자율 세션이 agent 명세로 만들고 core 이식까지 한다. 표준화 구조 = 공통 → 작업 모양 → 특화, 조립 = chain · pipeline."],
+      ["09-28", "workflow agent (가정 75, 교정 대기)", "세 층 표준화와 상속 규칙, 자리 여덟 · 공통 checkpoint 넷, phase, 조립(간선 종류 넷, 한 task = 한 결과 패키지), 자율 선언 = 실행 중 allowlist, 계산은 script, system of record, 자동 수정은 지적마다 한 번, 기록 범위 등. intake와 맞물린 교정 후보 11."],
+      ["09-28", "현업 적용 묶음에 명세 폴더", "묶음 도구가 하위 폴더까지 싣고 금지 토큰을 넓혀 검사한다. intake 명세 포함, workflow 명세는 다음."]
     ]
   },
 
   deep: [
   { id: "intake", tab: "intake · 발생", short: "intake & routing", badge: "확정 · agent 명세 교정 대기",
-    ext: { text: "이 주제는 09-27~28 심화에서 세울 수 있는 agent 시스템의 명세로 확장됐다. 부품 11, 데이터 계약 3, 규칙 설정 8, 시험 사례 91건, 결정 후보 51(위임에 의한 가정, 교정 대기). 아래는 요약이고, 전문과 사례는 intake agent 탐색기에 있다.", label: "◎ intake agent 탐색기 열기", go: "ia" },
+    ext: { text: "이 주제는 09-27~28 심화에서 세울 수 있는 agent 시스템의 명세로 확장됐다. 부품 11, 데이터 계약 3, 규칙 설정 8, 시험 사례 91건, 결정 후보 51(위임에 의한 가정, 교정 대기). 아래는 요약이고, 전문과 사례는 intake agent 탐색기에 있다.", label: "◎ intake agent 탐색기 열기", go: "ia", map: "intake" },
     title: "intake & routing — 일의 발생을 받아 처리에 착수시키는 단계",
     lead: "core의 앞 세 단계(intake → triage → gate)를 입구를 ticket 하나로 한정하지 않고 일반화한 설계다. ticket 분류(분류 record 여섯 칸, gate 다섯 조건)는 그대로 유효하며, 이 페이지는 그 앞뒤에 무엇이 더 있어야 하는지를 정한다.",
     summary: [
@@ -605,7 +612,8 @@ window.WS = {
     ],
     related: ["triage", "grades", "gate"], stages: ["intake", "triage", "gate"]
   },
-  { id: "workflow", tab: "workflow · 자율", short: "workflow & autonomy", badge: "확정",
+  { id: "workflow", tab: "workflow · 자율", short: "workflow & autonomy", badge: "확정 · agent 명세 교정 대기",
+    ext: { text: "이 주제는 09-28 자율 세션에서 세울 수 있는 agent 시스템의 명세가 됐다. 중심은 표준화된 workflow 라이브러리(공통 골격 → 작업 모양 일곱 → 업무별 특화 열여섯, 조립 둘)이고, 부품 11(코드 여섯 · LLM 다섯) · 데이터 계약 11 · 시험 사례 68(해석 29 · 한 바퀴 34 · replay 5), 결정 75(위임에 의한 가정, 교정 대기)가 함께 있다. 순서와 멈춤은 코드가, 판단과 작업은 LLM이 한다. 아래는 확정 당시의 요약이고, 전문은 workflow agent 탐색기에 있다.", label: "◎ workflow agent 탐색기 열기", go: "wa", map: "workflow" },
     title: "workflow & autonomy — 착수된 일을 AI가 결과 패키지까지 스스로 끌고 가는 방식",
     lead: "core의 뒤 여섯 단계(plan → execute → result → review → apply → learn)가 이미 정해 둔 것을 \"AI가 일을 자율로 진행한다는 것이 무엇인가\"의 관점에서 다시 묶고, 거기에 없던 것 여섯을 더한 설계다. 앞 단계(발생)가 task 폴더와 workflow를 정해 주면 여기서 시작한다.",
     summary: [
@@ -842,7 +850,11 @@ window.WS = {
   /* ───────────── 소개 ───────────── */
   /* ───────────── core 한 장 (그림 · 15초 애니메이션) ─────────────
      그림과 애니메이션은 media/core_map.html 한 파일에서 30_tools/render_media.mjs가 뽑는다. */
-  map: {
+  mapOrder: ["core", "intake", "workflow"],
+  maps: {
+  core: {
+    tab: "core",
+    whyTitle: "왜 core가 먼저인가",
     title: "core 한 장",
     lead: "AI workflow를 실무에 쓰려면 먼저 모든 일이 지나가는 길, 곧 core가 서 있어야 한다. 이 화면은 core 전체를 그림 한 장과 15초 애니메이션으로 보여 주고, 그림의 각 부분을 글로 풀어 둔다.",
     media: {
@@ -904,7 +916,368 @@ window.WS = {
       ["code-review", "갈래", "이름 · 성격만", "n", "예정"],
       ["diagnose", "빈칸 1순위", "갈래 없음", "r", "예정 (설계가 시작되면)"]
     ],
-    topicsNote: "주제가 정리되면 같은 틀로 그 주제의 한 장을 만든다. 담을 것은 그 주제가 core의 어느 자리에 얹히는지, workflow의 checkpoint와 oracle, 사람이 서는 자리, 지금 상태다. 그림과 애니메이션은 장면 HTML 하나에서 같은 도구로 뽑으므로, 주제마다 장면만 새로 쓰면 된다."
+    topicsNote: "주제가 정리되면 같은 틀로 그 주제의 한 장을 만든다. 담을 것은 그 주제가 core의 어느 자리에 얹히는지, workflow의 checkpoint와 oracle, 사람이 서는 자리, 지금 상태다. 그림과 애니메이션은 장면 HTML 하나에서 같은 도구로 뽑으므로, 주제마다 장면만 새로 쓰면 된다.",
+    docsNote: "workflow 자율 세션이 사람에게 설명하려고 그린 정적 그림 문서 중 core 편이다. 폭이 넓어 가로 화면이나 PC에서 보는 편이 낫다.",
+    docs: [["media/wf/01_core-one-page.html", "core 한 장 (자세히)", "아홉 단계 · 사람이 서는 자리 · intake와 workflow의 경계를 한 장에 자세히"]]
+  },
+  intake: {
+    tab: "intake",
+    title: "intake 한 장",
+    whyTitle: "왜 intake부터 제대로 세워야 하나",
+    lead: "intake는 일의 발생을 받아 \"일인가 · 무엇을 원하나 · 어떤 종류인가 · 해도 되나 · 어디로 보내나\"를 정하는 core의 입구다. 심화에서 세울 수 있는 agent 시스템의 명세(부품 11 · 데이터 계약 3 · 규칙 설정 8 · 시험 사례 91)가 됐다. 이 화면은 그 명세를 한 장과 15초로 보여 준다.",
+    go: [["intake agent 탐색기", "bun", "ia"], ["intake 요약 페이지", "deep", "intake"]],
+    media: {
+      mp4: "media/intake_15s.mp4", gif: "media/intake_15s.gif", html: "media/intake_map.html",
+      png: { light: "media/intake_map_light.png", dark: "media/intake_map_dark.png" }
+    },
+    story: [
+      ["0~3초", "일은 ticket으로만 오지 않는다", "입구 여덟이 켜지고, 도구 신호에서 쏟아진 발생이 흩어진다. 입구가 늘면 소음과 위험도 는다."],
+      ["3~6.5초", "모든 발생은 공통 레코드가 되어 일곱 단계를 지난다", "0 capture부터 6 route까지. 결과는 task 폴더의 세 파일과 첫 회신이다. 위험 문장이 있는 발생은 raw scan에서 빠진다."],
+      ["6.5~9.5초", "LLM 앞에서 먼저 거르고, 같은 원인은 하나로 묶는다", "test 30개의 실패가 같은 변경 구간에서 났으므로 한 묶음이 된다."],
+      ["9.5~11.5초", "순서와 멈춤은 코드가, 판단은 LLM이 한다", "단계마다 누가 정하는지(코드 · 규칙 + LLM · LLM)가 켜지고, gate의 hold와 route의 회신이 나온다."],
+      ["11.5~15초", "입구가 정확해야 뒤의 모든 일이 산다", "왜 intake부터인지 네 줄과 품질 기준(hard-zero 셋 · 시험 사례 91)이 나온다."]
+    ],
+    why: [
+      ["순서", "LLM 하나에게 ticket을 통째로 맡기면 원문 속 위험(자격 증명, 반출 요구, 시스템을 조종하려는 문장)을 패턴 검사보다 먼저 만난다. 그래서 raw scan을 LLM 앞에 코드로 둔다."],
+      ["소음", "도구 신호는 양이 많고 반복된다. 커밋 하나가 test 서른 개를 깨뜨린 날 발생 하나를 일 하나로 열면 사람이 시스템을 끈다. 반대로 너무 쉽게 묶으면 새 버그가 옛 일 속에 묻힌다. 그래서 묶고 붙이는 일은 결정론 규칙과 이력으로 한다."],
+      ["책임", "누가 무엇을 근거로 판정했는지 남지 않으면 검수도 개선도 할 수 없다. LLM이 채운 칸마다 근거 한 줄과 근거 등급이 붙고, 모든 사건과 판단이 원장에 남는다."],
+      ["뒤가 산다", "intake가 틀리면 workflow · 검수 · 학습이 모두 틀린 일 위에서 돈다. 입구가 정확해야 AI workflow 전체를 실무에서 믿을 수 있다."]
+    ],
+    zones: [
+      { name: "입구 여덟", z: 0, stages: "ticket · 도구 신호 · internal · command + 나중 넷",
+        what: "adapter가 발생을 봉투로 바꾸고, 규칙으로 채울 수 있는 칸만 채운다. adapter는 판단하지 않는다.",
+        ul: [
+          "도구 신호는 run 하나를 봉투 하나로 보낸다. 처음 켤 때는 이력만 쌓고, 알려진 실패(waiver · expected-fail)는 일로 열지 않는다.",
+          "command는 사람이 시스템을 직접 부르는 입구다. ticket 없이도 같은 intake · gate · 학습을 지나고, 결과는 부른 사람의 sandbox에 머문다.",
+          "입구마다 mode(off · shadow · active)로 켜고, 무엇을 할 수 있는지는 scope가 막는다. 대화형 입구(command · chat · mail)에는 shadow가 없다."
+        ],
+        go: [["부품 › adapter", "bun", "ia/agents/adapters"], ["규칙 › entrances", "bun", "ia/rules/entrances"]] },
+      { name: "거르고 묶기", z: 2, stages: "1 raw scan · 2 work-or-not",
+        what: "LLM이 원문을 읽기 전에 pattern 검사가 위험을 거르고, 같은 일인지 · 한 원인인지를 결정론 규칙과 이력으로 정한다.",
+        ul: [
+          "raw scan에 걸리면 그 자리에서 멈춘다(`ai:risk`, 사람에게 알림). 사람이 해제한 hit는 다시 멈추지 않는다.",
+          "dedup 두 층: sfp(같은 branch · 같은 오류 문장의 재발은 기존 일에 붙인다)와 cluster key(환경 → storm → 변경 구간 → 오류 문장 순으로 한 원인을 묶는다).",
+          "flaky는 같은 입력(같은 revision · 같은 seed)에서 결과가 갈린 것만이다. seed 하나에서만 나는 실패는 재현되는 버그 후보로 연다.",
+          "닮았다는 이유로는 붙이지 않는다. 기존 일에 붙이는 것은 값이 같을 때만이다."
+        ],
+        go: [["규칙 › dedup", "bun", "ia/rules/dedup"], ["부품 › dedup-linker", "bun", "ia/agents/dedup_linker"]] },
+      { name: "읽고 판정하기", z: 1, stages: "3 understand · 4 categorize · 5 gate",
+        what: "무엇을 원하나(요청 여럿과 순서), 어떤 종류인가, 해도 되나를 정한다. LLM이 채운 칸에는 근거 한 줄과 근거 등급이 붙는다.",
+        ul: [
+          "근거 등급은 explicit(원문이 명시) · similar-case(채택된 사례와 닮음) · inferred(추론뿐) 셋이다. inferred 근거로는 '명확' 판정을 내리지 않는다.",
+          "categorize는 값싼 모델이 먼저 보고, 명확하지 않으면 강한 모델이 다시 본다.",
+          "gate는 위험 → 권한 → 정보 → 불확실 → 작업량 순서로 검사한다. 범위 밖이면 좁혀서 할 수 있는 부분만 하고, 정보가 없으면 질문 다섯 칸을 쓴다."
+        ],
+        go: [["부품 › gate-checker", "bun", "ia/agents/gate_checker"], ["계약 › 공통 레코드", "bun", "ia/contracts/intake_record"]] },
+      { name: "보내기와 회신", z: 3, stages: "6 route",
+        what: "우선순위 · 대기열 · 이어진 요청을 정하고 workflow로 보낸다. 결과는 task 폴더의 세 파일과 첫 회신 하나다.",
+        ul: [
+          "우선순위는 규칙 근거로만 올린다. 원문의 어조('급함!!')로는 올리지 않는다.",
+          "배정하지 않고 owner에게 알림만 한다. ticket을 닫거나 옮기지도 않는다.",
+          "보는 사람이 밖이면 그 자리에 쓰지 않는다(초안 + 내부 알림)."
+        ],
+        go: [["부품 › router", "bun", "ia/agents/router"], ["규칙 › priority", "bun", "ia/rules/priority"]] }
+    ]
+  },
+  workflow: {
+    tab: "workflow",
+    title: "workflow 한 장",
+    whyTitle: "왜 workflow를 표준화하나",
+    lead: "workflow는 착수된 일을 결과 패키지까지 끌고 가는 core의 본체다. 자율 세션에서 세울 수 있는 agent 시스템의 명세가 됐고, 중심에는 표준화된 workflow 라이브러리(공통 골격 → 작업 모양 일곱 → 업무별 특화 열여섯, 조립 둘)가 있다. 이 화면은 그 구조를 한 장과 15초로 보여 준다.",
+    go: [["workflow agent 탐색기", "bun", "wa"], ["workflow 요약 페이지", "deep", "workflow"]],
+    media: {
+      mp4: "media/workflow_15s.mp4", gif: "media/workflow_15s.gif", html: "media/workflow_map.html",
+      png: { light: "media/workflow_map_light.png", dark: "media/workflow_map_dark.png" }
+    },
+    story: [
+      ["0~3초", "업무마다 절차가 다르면, 실적이 쌓이지 않고 배울 수도 없다", "길이도 색도 다른 절차 막대가 흩어져 떠다닌다."],
+      ["3~6.5초", "모든 workflow는 같은 골격을 물려받는다", "공통 골격(자리 여덟 · 공통 checkpoint 넷) 아래에 작업 모양 일곱, 그 아래에 업무별 특화 열여섯이 달린다."],
+      ["6.5~9.5초", "순서와 멈춤은 코드가, 판단과 작업은 LLM이 한다", "controller를 가운데 두고 코드 부품과 LLM 부품이 붙는다. 선언 밖 행동 하나가 guard에 막혀 튕긴다."],
+      ["9.5~12초", "여러 workflow는 조립한다. 리뷰어는 고치지 않는다", "RTL review A~E가 한 task 안에서 이어지고, 수정은 판단(E) 뒤에 다른 task로 열린다."],
+      ["12~15초", "한 번 표준화하면, 새 업무는 특화 한 장이면 된다", "왜 표준화하는지 네 줄(끝 · 경계 · 근거 · 절차)과 hard-zero 셋이 나온다."]
+    ],
+    why: [
+      ["끝", "무엇이 참이어야 끝인지 처음에 정해지지 않으면, 처음에는 잘 가다가 마무리가 되지 않는다. 그래서 workflow는 step 목록이 아니라 checkpoint(무엇이 참이어야 하는가 + 어떻게 확인하는가)의 목록이고, 시작점(BL)을 먼저 기록한다."],
+      ["경계", "'고치는 김에'가 범위를 번지게 하고, 되돌리기 어려운 행동이 섞인다. 그래서 자율 선언을 실행 중 allowlist로 만들어 guard가 막고, 끝에서 경계 확인이 다시 센다."],
+      ["근거", "'통과했다'는 말과 실제 기록이 어긋난다. 그래서 근거는 기록되는 실행에서만 나오고, 계산은 script가 하며, 보지 못한 것은 통과가 아니라 따로 적는다."],
+      ["절차", "업무마다 사람마다 절차가 다르면 실적이 쌓이지 않고 배울 수도 없다. 공통 골격을 한 곳에 두고 차이만 특화에 쓰면, 사람이 한 일과 AI가 한 일이 같은 표에 쌓이고 한 곳을 고치면 모든 업무가 함께 좋아진다."]
+    ],
+    zones: [
+      { name: "공통 골격", z: 0, stages: "WF-common",
+        what: "모든 workflow가 같은 여덟 자리와 공통 checkpoint 넷을 물려받는다.",
+        ul: [
+          "자리 여덟: PL plan · IN 입력 · BL 시작점 · DO 본체 · OR 판정 · RG 회귀·부작용 · RS 결과 · LN 학습. 자리는 checkpoint 번호와 분리되어 있다.",
+          "공통 checkpoint 넷: C0 입력 확인 · CB 경계 확인 · CR 결과 패키지 · CL 학습.",
+          "시작점(BL)이 모든 workflow에 있는 이유: 끝을 판정하려면 처음에 무엇이 참이었는지가 기록되어 있어야 한다(\"원래부터 실패였나, 이번 변경 때문인가\")."
+        ],
+        go: [["라이브러리 › 공통 골격", "bun", "wa/library/WF-common"]] },
+      { name: "작업 모양 일곱 + 특화", z: 1, stages: "모양 7 · 특화 16",
+        what: "작업 모양(수정 · 탐색 · 판정 · 조사 · 작성 · 결정 자료 · 실험)이 자리를 어떻게 채울지 정하고, 특화 workflow는 업무의 구체만 쓴다.",
+        ul: [
+          "상속 규칙: 잠금 · 채우기(모양의 의무는 필수) · 좁히기만 · 더하기 · 자기 것. 특화는 넓히지 못한다.",
+          "한 업무가 모양 둘을 가지면(원인 찾기 + 수정) 다중 상속 대신 phase가 모양을 빌린다. '원인만' · '수정만' 요청도 같은 workflow가 받는다.",
+          "workflow가 없는 일의 세 경로: one-off(모양의 기본 채움만, draft) · 초안 신설(모양에서 시작) · 이웃 합성(이웃 특화 + 부록)."
+        ],
+        go: [["라이브러리 설명", "bun", "wa/library/wf_readme"], ["예: WF-bugfix", "bun", "wa/library/WF-bugfix"]] },
+      { name: "agent 부품", z: 2, stages: "코드 6 · LLM 5",
+        what: "순서와 멈춤은 결정론 프로그램이 지키고, LLM은 자기 칸의 판단과 작업만 한다.",
+        ul: [
+          "코드: controller · resolver · policy engine · evaluator adapter · record writer · dry replay runner. LLM: planner · checkpoint runner(worker) · hitl manager · result writer · learner.",
+          "자율 선언 = 실행 중 allowlist. guard(권한 규칙 + hook)가 선언 밖 행동을 막고, 끝에서 경계 확인이 고정 항목(port · parameter)까지 비교한다.",
+          "판정 · 등급 · 유도값은 script가 계산한다. LLM이 쓴 판정 값은 근거와 대조해 강등될 수 있다.",
+          "세션은 소모품이고 STATE가 정본이다. batch를 기다리는 동안 세션은 끝나고, 결과가 오면 새 세션이 STATE에서 이어 간다."
+        ],
+        go: [["구조", "bun", "wa/arch"], ["부품 › checkpoint runner", "bun", "wa/agents/checkpoint_runner"]] },
+      { name: "조립과 근거의 원천", z: 3, stages: "pipeline · chain · records",
+        what: "여러 workflow는 조립한다. 한 task = 한 결과 패키지 = 한 번의 검수이고, 리뷰어는 고치지 않는다.",
+        ul: [
+          "간선 종류 넷: auto(같은 task) · on-decision · on-accept · on-result(다른 task). RTL review A~E는 preset으로 잇는 pipeline이고, 기능 개발은 link마다 task가 열리는 chain이다.",
+          "자동 수정은 지적마다 한 번이다. reject 뒤에는 재시도하지 않는다.",
+          "근거표의 evaluator 등급은 기록되는 실행에서만 나온다. 지적과 판정은 review ledger에, 합성 값과 출처(실측 · 유도 · 계산)는 QoR matrix에 살고, 레포트와 KB는 가리키기만 한다."
+        ],
+        go: [["조립 › PL-rtl-review", "bun", "wa/library/PL-rtl-review"], ["계약 › matrix 칸", "bun", "wa/contracts/matrix_cell"]] }
+    ],
+    docsNote: "workflow 자율 세션이 사람에게 설명하려고 그린 정적 그림 문서다. 폭이 넓은 그림이 많아 가로 화면이나 PC에서 보는 편이 낫다.",
+    docs: [
+      ["media/wf/02_workflow-standard.html", "workflow 표준화", "세 층 · 여덟 자리 · phase · 상속 규칙 · workflow가 없는 일의 세 경로"],
+      ["media/wf/03_assembly-rtl-review.html", "조립과 RTL review", "간선 종류 · pipeline preset · 리뷰 → 자동 수정 고리 · 합성 matrix"],
+      ["media/wf/04_agent-system.html", "agent system", "부품 지도 · task 폴더 파일과 계약 · 자율 선언 두 겹 · 세션과 STATE · hard-zero"],
+      ["media/wf/01_core-one-page.html", "core 한 장 (자세히)", "아홉 단계 · 사람이 서는 자리 · intake와 workflow의 경계"],
+      ["media/wf/index.html", "목차", "그림 문서 넷의 목차"]
+    ]
+  }
+  },
+
+  /* ───────────── 더 깊게 논의할 것 ─────────────
+     원천: intake·workflow 심화의 인계 문서(교정 후보 · 업그레이드 후보 · 확인할 것), 읽기 안내, 설계 본선의 열린 스레드. */
+  talk: {
+    title: "더 깊게 논의할 것",
+    asOf: "2026-09-29",
+    lead: "intake와 workflow 심화는 세세한 결정을 위임받아 가정으로 정했다(intake 51항, workflow 75항). 전부 읽을 필요는 없다. 아래 순서로 보고 틀린 것만 고치면 된다. ① 이미 확정된 것을 건드린 곳 ② 현장 감각으로 판단할 가정 ③ 아직 설계하지 않은 주제 ④ 현장에서만 답이 나오는 것. 항목마다 '지금 가정'과 '판단할 것'을 적었고, 관련 원문으로 바로 갈 수 있다.",
+    groups: [
+      { id: "fix", short: "교정", cls: "r", title: "① 교정: 이미 확정된 것을 건드린 곳",
+        note: "심화 세션이 확정된 설계나 서로의 계약을 바꾼 곳이다. 틀렸을 때만 고치면 된다. workflow 쪽 1~10은 intake 계약과 맞물린 곳이라, intake 원안을 유지하고 workflow 쪽 표지를 기본으로 꺼 두었다.",
+        items: [
+          { id: "t-i-cmd", t: "intake 입구에 command를 더했다", tag: ["intake", "m"],
+            what: "사람이 시스템을 직접 부르는 입구(session 명령 · skill 호출)를 입구 목록에 넣었다. 확정 당시에는 없던 입구다.",
+            now: "부른 사람이 곧 요청자다. ticket 없이도 같은 intake · gate · 학습을 지나고, 결과는 부른 사람의 sandbox에 머문다. 도입 2단계부터 쓴다.",
+            ask: "사람이 직접 부른 일도 intake를 지나게 할 것인가, 아니면 command는 intake 밖의 도구 호출로 둘 것인가.",
+            go: [["intake 설계 › 입구 표", "bun", "ia/design"], ["부품 › adapter", "bun", "ia/agents/adapters"]] },
+          { id: "t-i-reject", t: "internal 예시에서 '검수 reject 뒤 재작업'을 뺐다", tag: ["intake", "m"],
+            what: "시스템 내부에서 생기는 발생의 예시에 있던 'reject 뒤 재작업'을 지웠다.",
+            now: "reject 뒤에는 사람이 이어받고 시스템은 재시도하지 않는다는 core 확정과 맞췄다.",
+            ask: "reject된 일을 시스템이 다시 여는 경로가 정말 없어도 되는가.",
+            go: [["intake 설계", "bun", "ia/design"]] },
+          { id: "t-i-self", t: "'스스로 열면 안 되는 일'을 기계가 낸 발생에만 적용", tag: ["intake", "m"],
+            what: "고객 대외 회신 · 릴리스 · 다른 팀 영역 · 환경과 권한 · 사람 평가처럼 AI가 스스로 열면 안 되는 일의 목록을, 도구 · internal · state · schedule 발생에만 적용했다.",
+            now: "사람이 연 일은 이 목록이 아니라 gate의 각 조건으로 판정한다.",
+            ask: "사람이 요청했더라도 이 목록에 있는 일은 처음부터 막아야 하는가.",
+            go: [["부품 › gate-checker §2.1", "bun", "ia/agents/gate_checker"]] },
+          { id: "t-w-onresult", t: "결과가 나오면 바로 자동 수정 task (on-result)", tag: ["workflow ↔ intake", "y"],
+            what: "판정형 결과가 나오자마자 policy가 기계로 허락한 자동 수정 항목만 새 task로 여는 간선이다. intake의 확정 결정('후속은 검수 뒤나 결정 뒤, reject면 만들지 않는다')과 다르다.",
+            now: "intake 표지(on-result trigger) 뒤에만 쓰고 기본은 끔이다. 그전 최고 모드는 '검수 때 일괄 승인'이다. 부모가 reject되면 철회하고 표시한다.",
+            ask: "검수 전에 자동 수정 task가 열리는 것을 허용할 것인가. 허용한다면 어떤 등급의 수정까지인가.",
+            go: [["인계 문서 §7", "bun", "wa/session/handoff"], ["라이브러리 › WF-review-fix", "bun", "wa/library/WF-review-fix"]] },
+          { id: "t-w-ref", t: "후속 요청 참조(부모 key + 후속 id)", tag: ["workflow ↔ intake", "y"],
+            what: "자동 수정 task가 부모 결과의 항목만 적용하도록, intake의 internal 제안에 '부모 key + 후속 id'를 더하자는 제안이다.",
+            now: "반영 전에는 목록이 필요한 후속 요청은 제안으로만 남는다.",
+            ask: "intake 레코드에 후속 참조 칸을 더할 것인가.",
+            go: [["인계 문서 §7", "bun", "wa/session/handoff"]] },
+          { id: "t-w-ci", t: "CI 리뷰 요청 사건(MR · commit 대상)", tag: ["workflow ↔ intake", "y"],
+            what: "intake의 tool 입구는 지금 run 결과만 나르고 MR branch를 제외한다. 'CI에서 코드 리뷰만' preset을 쓰려면 리뷰 요청 사건이 필요하다.",
+            now: "반영 전에는 그 preset을 쓰지 않는다. MR 대상 run은 작성자의 개인 기록 범위에 쌓인다.",
+            ask: "CI의 리뷰 요청을 intake 입구로 받을 것인가.",
+            go: [["인계 문서 §7", "bun", "wa/session/handoff"], ["조립 › PL-rtl-review", "bun", "wa/library/PL-rtl-review"]] },
+          { id: "t-w-preset", t: "route 블록에 preset, gate가 preset 노드의 필수 입력을 본다", tag: ["workflow ↔ intake", "y"],
+            what: "RTL review처럼 preset을 고르는 조립은 필수 입력이 노드마다 다르다. gate의 '정보 부족' 조건이 이것을 봐야 한다.",
+            now: "반영 전에는 plan이 실행 전에 검사하고, 빠지면 입력 확인만 돌린 뒤 질문을 남겨 기다린다(`ai:waiting`). workflow가 intake 레코드를 needs-info로 되돌리지는 않는다.",
+            ask: "preset을 intake가 정할 것인가, workflow의 plan이 정할 것인가.",
+            go: [["인계 문서 §7", "bun", "wa/session/handoff"]] },
+          { id: "t-w-fork", t: "가용한 workflow에 개인 fork의 candidate도 포함", tag: ["workflow ↔ intake", "y"],
+            what: "지금 문구는 정본에 채택된(adopted) workflow와 fork의 draft만 말한다. 정본 회의 전의 candidate를 fork 주인이 쓸 수 있게 하자는 제안이다.",
+            now: "정본은 adopted만, fork의 draft · candidate는 fork 주인이 쓸 때만.",
+            ask: "정본 회의를 기다리지 않고 개인이 candidate를 쓰게 할 것인가.",
+            go: [["인계 문서 §7", "bun", "wa/session/handoff"]] },
+          { id: "t-w-lint", t: "lint 정리 업무의 허용 범위에 batch 실행", tag: ["workflow ↔ intake", "y"],
+            what: "등가성 · regression 근거를 기록되는 실행으로 남기려면 lint 정리에도 batch 실행이 필요하다.",
+            now: "workflow 쪽 시험 설정이 intake 설정을 덮어쓰고 있다.",
+            ask: "lint 정리 같은 작은 수정에도 batch 실행 권한을 줄 것인가.",
+            go: [["설정 › fixtures", "bun", "wa/rules/fixtures"]] },
+          { id: "t-w-ask", t: "요청 종류에 review · 실험 요청이 없다", tag: ["workflow ↔ intake", "y"],
+            what: "intake의 ask 종류(answer · change · diagnose · decide · notify · scheduled)에 '리뷰해 달라', '실험해 달라'가 따로 없다.",
+            now: "지금은 answer · diagnose · scheduled로 받는다(카테고리가 덮는 요청으로).",
+            ask: "ask 종류에 review를 따로 둘 것인가.",
+            go: [["규칙 › asks", "bun", "ia/rules/asks"]] },
+          { id: "t-w-human", t: "'사람 수행' command", tag: ["workflow ↔ intake", "y"],
+            what: "사람이 같은 workflow로 직접 일을 하고 실적이 같은 표에 쌓이게 하는 경로다. intake가 ticket key와 함께 받아 사람 수행 레코드로 넘겨야 한다.",
+            now: "반영 전에는 쓰지 않는다. 사람은 workflow 파일을 checklist로 직접 따른다.",
+            ask: "사람이 한 일도 시스템 실적 표에 같은 형식으로 쌓을 것인가.",
+            go: [["인계 문서 §7", "bun", "wa/session/handoff"]] },
+          { id: "t-w-fx", t: "intake 시험 설정 동기화 둘", tag: ["workflow ↔ intake", "y"],
+            what: "(가) 몇 카테고리의 야간 허용 값이 '야간 대기열은 수치 oracle만' 규칙과 어긋난다. (나) RTL 구현 workflow의 입력 요건이 intake 쪽에는 spec 하나뿐인데 workflow는 대상 block · 허용 범위 · spec assertion 묶음도 필수로 둔다.",
+            now: "workflow 쪽 시험 설정이 덮어쓰고 있다.",
+            ask: "intake 시험 설정을 workflow 쪽에 맞춰 고칠 것인가.",
+            go: [["설정 › fixtures", "bun", "wa/rules/fixtures"]] },
+          { id: "t-w-chain", t: "사슬(chain) 진입", tag: ["workflow ↔ intake", "y"],
+            what: "카테고리의 기본 workflow가 사슬 id일 수 있게 하고, gate는 첫 link의 가용성 · 입력 요건을 보며 route는 첫 link만 연다.",
+            now: "반영 전에는 그 카테고리의 기본값을 비워 논의로 멈추고, 결정 뒤 첫 link를 초안 신설 경로로 연다. 다음 link는 간선 종류대로 사슬 link 발생으로 연다.",
+            ask: "기능 개발 같은 사슬 일을 intake가 처음부터 사슬로 알아보게 할 것인가.",
+            go: [["조립 › CH-feature", "bun", "wa/library/CH-feature"], ["chain 요약", "deep", "chain"]] },
+          { id: "t-w-85", t: "workflow 설계의 범위 기본값에 일곱 줄을 더했다", tag: ["workflow", "m"],
+            what: "표준화 세 층, 판정형은 대상을 고치지 않음, 조립, 자동 수정은 한 번, system of record, 기록 범위, pipeline의 노드별 posture. 기존 열두 줄은 그대로다.",
+            now: "확정된 workflow 설계 문서에 기본값으로 더해 두었다.",
+            ask: "일곱 줄 중 받아들이기 어려운 것이 있는가.",
+            go: [["설계 85 › 범위 기본값", "bun", "wa/design"]] }
+        ] },
+      { id: "field-i", short: "intake 가정", cls: "y", title: "② 현장 감각으로 판단할 가정 · intake",
+        note: "회사 현실과 어긋날 가능성이 가장 큰 줄들이다. 검증 현장의 감각으로 바로 판단할 수 있는 곳이 많다.",
+        items: [
+          { id: "t-i-flaky", t: "flaky의 정의",
+            what: "flaky = 같은 입력(같은 revision · 같은 seed)에서 결과가 갈린 것만이다.",
+            now: "seed 하나에서만 나는 실패는 flaky가 아니라 재현되는 버그 후보로 열고, 그 해소는 같은 seed의 pass로만 센다.",
+            ask: "검증 현장에서 이 정의로 운영할 수 있는가. random regression의 현실과 맞는가.",
+            go: [["규칙 › dedup", "bun", "ia/rules/dedup"], ["사례 S15", "bun", "ia/golden/GC-S15"]] },
+          { id: "t-i-base", t: "수치 신호의 기준값은 사람이 닫을 때만 바뀐다",
+            what: "lint 경고 수 · slack · coverage 같은 수치는 기준값(마지막 정상 상태)과 비교한다. 기준 초과는 실패처럼, 기준 안은 pass처럼 다룬다.",
+            now: "기준값이 저절로 바뀌면 조금씩 나빠지는 것을 놓치므로, 사람이 일을 닫으며 정할 때만 바꾼다.",
+            ask: "기준값 관리가 사람에게 부담이 되지 않는가.",
+            go: [["규칙 › dedup", "bun", "ia/rules/dedup"]] },
+          { id: "t-i-end", t: "도구가 연 일의 끝",
+            what: "연속 pass가 나오면 해소 후보(`ai:review`)로 올리고, 닫는 것은 사람이다. 다시 실패하거나 사람이 '아직 안 고쳐졌다'고 하면 되살린다.",
+            now: "도구가 연 일도 시스템이 스스로 닫지 않는다.",
+            ask: "해소 후보를 사람이 일일이 닫는 것이 현장에서 버틸 만한가.",
+            go: [["전체 설명 §5", "bun", "ia/overview"]] },
+          { id: "t-i-human", t: "사람이 쓴 ticket은 LLM 판단만으로 '일 아님'이 되지 않는다",
+            what: "사람이 쓴 ticket을 '일 아님'으로 돌리는 것은 결정론 규칙으로만 한다.",
+            now: "사람의 요청을 조용히 버리는 것보다 가끔 불필요한 일을 여는 쪽이 낫다고 보았다.",
+            ask: "이 방향(애매하면 일로 본다)이 맞는가.",
+            go: [["전체 설명 §4", "bun", "ia/overview"]] },
+          { id: "t-i-assign", t: "시스템은 ticket을 닫거나 옮기거나 사람을 배정하지 않는다",
+            what: "owner에게 알림까지만 한다.",
+            now: "AI가 배정하면 조직의 반발이 크다고 보았다.",
+            ask: "알림만으로 일이 굴러가는가, 아니면 배정 제안 정도는 필요한가.",
+            go: [["규칙 › ownership", "bun", "ia/rules/ownership"]] },
+          { id: "t-i-order", t: "세우는 순서: 도구 신호를 ticket shadow 뒤에",
+            what: "회사에서 세우는 순서를 0 준비 → … → 3 ticket shadow → 4 도구 신호 → … 로 두었다.",
+            now: "ticket 흐름을 먼저 검수로 익힌 뒤 도구 신호를 연다.",
+            ask: "도구 신호(요청자가 없어 사람 부담이 적다)를 더 먼저 여는 편이 낫지 않은가.",
+            go: [["전체 설명 §7", "bun", "ia/overview"]] },
+          { id: "t-i-s02", t: "첫 사례 걷기: 야간 regression 30개 실패(S02)",
+            what: "main branch의 야간 regression에서 tb_d의 test 30개가 서로 다른 모양(assertion · timeout · mismatch)으로 실패했다. 30개 모두 rev 100에서 pass, rev 104에서 첫 fail이다.",
+            now: "① 오류 모양이 달라도 같은 변경 구간이면 하나로 묶는다 ② 요청자는 커밋 작성자가 아니라 TB owner ③ main의 실패는 곧바로 now ④ 원인 찾기 workflow가 없으면 '논의'로 멈추고 실행하지 않는다.",
+            ask: "넷 중 현장 감각과 다른 것이 있는가. 모두 맞으면 'S02 맞음'이면 충분하다.",
+            go: [["읽기 안내 · 걷기 전문", "bun", "ia/session/r03"], ["사례 S02", "bun", "ia/golden/GC-S02"]] },
+          { id: "t-i-next", t: "다음에 걸을 사례 여섯",
+            what: "S15(random regression에서 seed 하나만 실패) · S04(license 오류가 여러 TB에서) · S25(build 붕괴 기록이 열린 동안) · U01(정보 부족 질문에 답이 옴) · U10('나눌까요'에 '나눠 주세요') · U23(대체된 도구 ticket을 사람이 중복으로 닫음).",
+            now: "도구 신호 사례를 먼저 두었다. 가정이 가장 많이 들어간 곳이다.",
+            ask: "어느 사례부터 걸을 것인가.",
+            go: [["시험 사례 목록", "bun", "ia/golden"]] }
+        ] },
+      { id: "field-w", short: "workflow 가정", cls: "y", title: "② 현장 감각으로 판단할 가정 · workflow",
+        note: "workflow 결정 75항 중 구조를 좌우하는 것만 골랐다. 전체는 인계 문서 §2에 있다.",
+        items: [
+          { id: "t-w-3layer", t: "세 층 표준화와 작업 모양 일곱",
+            what: "공통 골격 → 작업 모양(수정 · 탐색 · 판정 · 조사 · 작성 · 결정 자료 · 실험) → 업무별 특화. 모양에 posture 상한은 두지 않는다.",
+            now: "특화는 채우고 좁히기만 하고, 넓히지 못한다.",
+            ask: "우리 업무가 이 일곱 모양 안에 들어오는가. 빠진 모양이 있는가.",
+            go: [["라이브러리 설명", "bun", "wa/library/wf_readme"]] },
+          { id: "t-w-phase", t: "phase: 요청마다 phase, 모양은 빌린다",
+            what: "'원인 찾아서 고쳐 주세요'는 한 workflow의 두 phase(조사형 + 수정형)다. '원인만' 요청이면 수정 phase가 빠지고, 대상 diff는 비어야 한다.",
+            now: "다중 상속 대신 phase가 다른 모양을 빌린다.",
+            ask: "원인 찾기와 수정을 한 task로 묶는 것이 검수하기에 편한가.",
+            go: [["예: WF-bugfix", "bun", "wa/library/WF-bugfix"], ["공통 골격 §3", "bun", "wa/library/WF-common"]] },
+          { id: "t-w-task", t: "한 task = 한 결과 패키지 = 한 번의 검수, 리뷰어는 고치지 않는다",
+            what: "같은 task로 잇는 것은 auto 간선뿐이다. 판정형에서 수정형으로 가는 auto 간선은 금지다.",
+            now: "수정은 늘 다른 task다. 리뷰 결과의 수정 제안은 판단 노드(E)의 결정 자료로 들어가거나 검수 뒤에 열린다.",
+            ask: "리뷰와 수정을 분리하는 비용(task가 둘)이 받아들일 만한가.",
+            go: [["조립 › PL-rtl-review", "bun", "wa/library/PL-rtl-review"]] },
+          { id: "t-w-allow", t: "자율 선언 = 실행 중 allowlist, 고정 항목",
+            what: "plan의 '하겠다 · 묻겠다 · 하지 않겠다'가 guard의 허용 목록이 된다. 고치는 module의 port · parameter는 기본 고정이고, interface 변경은 사람 결정([HD]) 뒤에만 풀린다.",
+            now: "guard가 실행 중에 막고, 끝에서 경계 확인이 run 시작 전 상태와 비교한다.",
+            ask: "port · parameter를 기본 고정하는 것이 너무 빡빡하지 않은가.",
+            go: [["부품 › checkpoint runner §3", "bun", "wa/agents/checkpoint_runner"]] },
+          { id: "t-w-scope", t: "기록 범위: 사람이 부른 run은 개인 범위",
+            what: "command로 부른 run과 MR 대상 CI run의 지적은 부른 사람의 개인 범위에 쌓이고, 후속은 제안으로만 남는다. 공유 branch의 정기 run은 공유 ledger에 잠정으로 쓴다.",
+            now: "공유 기록은 검수 accept 뒤에 확정된다.",
+            ask: "개인 리뷰 결과가 팀 ledger에 섞이지 않게 하는 이 경계가 맞는가.",
+            go: [["구조", "bun", "wa/arch"]] },
+          { id: "t-w-posture", t: "posture는 plan에서 표대로",
+            what: "oracle이 약하면 draft, 실적도 없고 oracle도 약하면 prepare, oracle이 중간이면 실적이 충분할 때만 full이다.",
+            now: "경로 규칙이 먼저다: one-off = draft 고정, 초안 신설 = draft, 이웃 합성 = 한 단계 낮춤.",
+            ask: "우리 업무의 oracle 강도를 이렇게 세 값으로 나눌 수 있는가.",
+            go: [["부품 › planner", "bun", "wa/agents/planner"]] },
+          { id: "t-w-records", t: "records는 검수 전까지 잠정",
+            what: "review ledger와 QoR matrix는 제품 코드 repo가 아닌 별도 저장소에 두고, run별 변경분은 검수 accept로 확정, reject면 그 run의 것만 되돌리고 격리한다.",
+            now: "남이 인용하거나 밖으로 내보내는 것은 accept 뒤에만.",
+            ask: "잠정 기록을 다른 run이 비교 기준으로 쓰는 방식이 혼란스럽지 않은가.",
+            go: [["계약 › 지적 record", "bun", "wa/contracts/finding"]] },
+          { id: "t-w-mode", t: "workflow mode: 필수 모드는 사람이 고른다",
+            what: "성능 · 면적 리뷰(C)처럼 모드를 골라야 하는 작업은 모드를 입력 요건으로 선언한다.",
+            now: "필수 모드가 없으면 기본값으로 대신 고르지 않고 질문한다. 권장 모드는 추론할 수 있고 가정으로 남긴다.",
+            ask: "필수 모드를 매번 묻는 것이 번거롭지 않은가.",
+            go: [["예: WF-rtl-perf-area-review", "bun", "wa/library/WF-rtl-perf-area-review"]] }
+        ] },
+      { id: "design", short: "설계할 주제", cls: "m", title: "③ 아직 설계하지 않은 주제",
+        note: "심화 세션들이 '다음에 깊게 볼 곳'으로 남긴 것과 설계 본선의 열린 스레드다. 순서는 제안이다.",
+        items: [
+          { id: "t-d-diag", t: "diagnose 갈래 설계 (빈칸 1순위)", tag: ["갈래", "r"],
+            what: "\"왜 그런가\"를 찾는 원인 조사 갈래가 없다. RTL 조직에서 가장 흔한 발생이다.",
+            now: "조사형 모양은 골격까지, 특화 regr-diagnose는 골격(draft)이다. intake의 실패 묶음(변경 구간 · 구간 안 변경 목록 · member 전부 · 실패한 seed)이 첫 입력 후보이고, bisect checkpoint가 후보다.",
+            ask: "원인 조사의 '끝'을 무엇으로 정할 것인가(재현 + 원인 변경 특정 + before/after?).",
+            go: [["모양 › 조사형", "bun", "wa/library/AR-diagnose"], ["WF-regr-diagnose", "bun", "wa/library/WF-regr-diagnose"]] },
+          { id: "t-d-chain", t: "chain 기본값 일곱 교정 → chain 정본", tag: ["갈래", "y"],
+            what: "아키텍처부터 검증까지 이어지는 사슬의 틀(link 일곱, 원칙 다섯, 기본값 일곱)이 교정을 기다린다. workflow 쪽에 조립(CH-feature)은 이미 생겼다.",
+            now: "사슬 template + link 카테고리 여럿, link마다 task, 사이에 사람의 결정.",
+            ask: "기본값 일곱 중 다른 것만 고치면 정본으로 간다.",
+            go: [["chain 요약 › 기본값", "deep", "chain"], ["조립 › CH-feature", "bun", "wa/library/CH-feature"]] },
+          { id: "t-d-poc", t: "첫 PoC 범위: 결정론 부품 먼저", tag: ["도입", "g"],
+            what: "intake는 controller + ticket adapter + raw scan + 결정론 규칙을, workflow는 controller · resolver · policy engine · evaluator adapter를 LLM 없이 먼저 세운다.",
+            now: "시험 사례의 결정론 칸이 전부 맞으면 LLM 부품을 붙인다.",
+            ask: "회사에서 가장 먼저 세울 한 조각을 무엇으로 할 것인가.",
+            go: [["intake 전체 설명 §7", "bun", "ia/overview"], ["workflow 전체 설명 §8", "bun", "wa/overview"]] },
+          { id: "t-d-risk", t: "위험 감지가 자라는 절차", tag: ["core", "m"],
+            what: "정의되지 않은 위험을 실무 중에 감지하고 경고하며 진화하는 능력. 지금은 raw scan(목록 신호) + gate(낯섦 신호)까지 왔다.",
+            now: "검수의 '위험이 아니었다 / 멈췄어야 했다' 판정을 pattern 시험 문장으로 계속 더하는 절차가 제안되어 있다.",
+            ask: "위험 목록과 allowlist를 누가 어떤 주기로 키울 것인가.",
+            go: [["규칙 › risk_patterns", "bun", "ia/rules/risk_patterns"]] },
+          { id: "t-d-fork", t: "정본과 개인 fork의 경계, 정기 회의의 형태", tag: ["core", "m"],
+            what: "정본에는 지식과 기본 규칙만, 나머지는 개인 fork에서 자유롭게 진화하고 정기 회의로 정본에 올린다. 승인이 병목이 되지 않는 구조가 목표다.",
+            now: "workflow 쪽은 dry replay(과거 accepted 기록으로 판정만 다시)를 승격 안건의 근거로 붙이게 했다.",
+            ask: "정기 회의를 어떤 모양으로 할 것인가(주기 · 참석 · 안건 형식).",
+            go: [["부품 › dry replay", "bun", "wa/agents/dry_replay_runner"]] },
+          { id: "t-d-model", t: "모델 등급과 세션 분리의 기본 제안", tag: ["core", "m"],
+            what: "가벼운 모델로 충분한 곳에 강한 모델을 쓰거나, 한 세션에서 오래 이어 가 품질이 떨어지는 문제.",
+            now: "checkpoint마다 모델 등급 칸과 fresh 세션 칸이 있다. 제안 문서는 아직 없다.",
+            ask: "checkpoint 단위로 모델 등급을 정하는 방식이 맞는가.",
+            go: [["공통 골격", "bun", "wa/library/WF-common"]] },
+          { id: "t-d-tools", t: "도구 넷: 원장 replay · 자동 등급 측정 · skill 생성기 · records 저장소", tag: ["도구", "g"],
+            what: "① 규칙을 바꿀 때 과거 사건의 판정만 다시 돌리는 원장 replay ② 자동 수정 등급을 계산만 하고 사람 판정과 비교하는 측정 도구 ③ workflow 파일에서 skill · 권한 규칙 · guard hook을 만드는 생성기 ④ review ledger · QoR matrix를 repo로 둘지 DB로 둘지.",
+            now: "업그레이드 후보로만 적혀 있다.",
+            ask: "넷 중 무엇이 가장 먼저 필요한가.",
+            go: [["agent·skill로 세우기", "bun", "wa/eval/packaging"]] },
+          { id: "t-d-digest", t: "owner digest의 모양", tag: ["도입", "g"],
+            what: "알림 피로를 줄이는 digest(now 맨 위 · 재발 · 해소 후보 · owner 미상 · 알려진 실패 정리 후보)를 메신저와 메일 중 어디에 둘지.",
+            now: "shadow 단계에서는 digest가 사람이 보는 유일한 창이다.",
+            ask: "사람들이 매일 실제로 보는 자리는 어디인가.",
+            go: [["평가", "bun", "ia/eval"]] }
+        ] },
+      { id: "site", short: "현장에서", cls: "n", title: "④ 현장에서만 답이 나오는 것",
+        note: "이 설계 공간에서는 정할 수 없고, 조직의 실제 도구와 규칙을 봐야 답이 나오는 것들이다. 전체 목록은 두 인계 문서의 §5에 있다.",
+        items: [
+          { id: "t-s-tool", t: "도구 신호의 재료",
+            what: "run 결과를 어디에 어떤 형식으로 남기는가, pass 결과도 남는가, 마지막 pass revision과 seed를 찾을 수 있는가, path → block · TB 대응표, waiver · expected-fail 목록, 수치 기준값의 출처.",
+            go: [["intake 인계 문서 §5", "bun", "ia/session/handoff"]] },
+          { id: "t-s-tracker", t: "issue tracker의 사건",
+            what: "변경 이력의 유일한 id, 내부 전용 comment, 고객이 보는 project, 시스템 계정 구분, 생성 · 편집 · comment · label · 상태 변경을 각각 사건으로 받을 수 있는가, 자동 배정 규칙.",
+            go: [["intake 인계 문서 §5", "bun", "ia/session/handoff"]] },
+          { id: "t-s-run", t: "실행과 근거",
+            what: "local 결과를 믿는 정책, batch job id와 로그 보존, 결정론적 짧은 도구 목록, 모델 등급 목록, scratch 사본 위치, elaboration 기반 port · parameter 추출 도구.",
+            go: [["workflow 인계 문서 §5", "bun", "wa/session/handoff"]] },
+          { id: "t-s-rec", t: "기록과 보고",
+            what: "records 저장소 위치와 권한, coverage DB의 instance 단위 추출과 revision, recipe · library · constraint 버전 체계, 최대 주파수 탐색의 정의, 고객 레포트 형식과 공개 정책.",
+            go: [["workflow 인계 문서 §5", "bun", "wa/session/handoff"]] }
+        ] }
+    ]
   },
 
   about: {

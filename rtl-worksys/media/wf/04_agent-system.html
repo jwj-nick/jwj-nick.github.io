@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>workflow agent system</title>
+<style>
+:root{
+  --bg:#f7f6f2; --panel:#ffffff; --fg:#1c232b; --muted:#5a6472; --line:#c6ccd4; --soft:#eef1f5;
+  --acc:#2457d6; --acc-soft:#e3ebfd; --hum:#b45309; --hum-soft:#fdf0e1; --ok:#15803d; --ok-soft:#e4f5ea;
+  --bad:#b91c1c; --bad-soft:#fde7e7; --svc:#475569; --svc-soft:#edf1f5;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1319; --panel:#151b22; --fg:#e5e9ef; --muted:#9aa5b4; --line:#3a434f; --soft:#1b232c;
+    --acc:#7ea9ff; --acc-soft:#172640; --hum:#f0a05c; --hum-soft:#3a2714; --ok:#4cc27a; --ok-soft:#14301e;
+    --bad:#f07b7b; --bad-soft:#3b1818; --svc:#a9b4c3; --svc-soft:#1c2530;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1319; --panel:#151b22; --fg:#e5e9ef; --muted:#9aa5b4; --line:#3a434f; --soft:#1b232c;
+  --acc:#7ea9ff; --acc-soft:#172640; --hum:#f0a05c; --hum-soft:#3a2714; --ok:#4cc27a; --ok-soft:#14301e;
+  --bad:#f07b7b; --bad-soft:#3b1818; --svc:#a9b4c3; --svc-soft:#1c2530;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg)}
+body{font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR","Segoe UI",system-ui,sans-serif;font-size:16px;line-height:1.65}
+main{max-width:1120px;margin:0 auto;padding:28px 16px 72px}
+nav.top{font-size:14px;color:var(--muted);margin-bottom:12px}
+nav.top a{color:var(--acc);text-decoration:none;margin-right:12px}
+h1{font-size:28px;line-height:1.3;margin:4px 0 8px}
+h2{font-size:20px;margin:40px 0 8px;padding-top:8px;border-top:1px solid var(--line)}
+p.lead{font-size:17px;color:var(--muted);margin:0 0 16px}
+figure{margin:18px 0;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+figure svg{width:100%;height:auto;display:block;color:var(--fg)}
+figcaption{color:var(--muted);font-size:14px;margin-top:8px}
+table{border-collapse:collapse;width:100%;font-size:14.5px;background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--soft);font-weight:600}
+.note{font-size:14px;color:var(--muted)}
+svg text{font-family:inherit}
+.t{fill:currentColor}.m{fill:var(--muted)}.ta{fill:var(--acc)}.th{fill:var(--hum)}.tb{fill:var(--bad)}.tok{fill:var(--ok)}
+.box{fill:var(--panel);stroke:var(--line);stroke-width:1.2}
+.boxa{fill:var(--acc-soft);stroke:var(--acc);stroke-width:1.4}
+.boxh{fill:var(--hum-soft);stroke:var(--hum);stroke-width:1.4}
+.boxs{fill:var(--svc-soft);stroke:var(--svc);stroke-width:1.2}
+.boxb{fill:var(--bad-soft);stroke:var(--bad);stroke-width:1.3}
+.boxok{fill:var(--ok-soft);stroke:var(--ok);stroke-width:1.3}
+.입력 구간{fill:none;stroke:var(--acc);stroke-width:1.6;stroke-dasharray:8 5}
+.ln{stroke:currentColor;stroke-width:1.4;fill:none}.lna{stroke:var(--acc);stroke-width:1.6;fill:none}
+.lnh{stroke:var(--hum);stroke-width:1.6;fill:none}.lnb{stroke:var(--bad);stroke-width:1.5;fill:none}.lnm{stroke:var(--muted);stroke-width:1.2;fill:none}.lnok{stroke:var(--ok);stroke-width:1.5;fill:none}
+.dash{stroke-dasharray:5 4}
+.mk{fill:currentColor}.mka{fill:var(--acc)}.mkh{fill:var(--hum)}.mkb{fill:var(--bad)}.mkm{fill:var(--muted)}.mkok{fill:var(--ok)}
+.bar{fill:var(--acc)}.gap{fill:var(--soft);stroke:var(--line);stroke-width:1}
+@media print{
+  :root{--bg:#fff;--panel:#fff;--fg:#111;--muted:#444;--line:#bbb;--soft:#f2f2f2}
+  nav.top{display:none} figure,table{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<main>
+<nav class="top"><a href="index.html">목차</a><a href="01_core-one-page.html">core 한 장</a><a href="02_workflow-standard.html">workflow 표준화</a><a href="03_assembly-rtl-review.html">조립·RTL review</a></nav>
+<h1>workflow agent system: 순서는 코드가, 판단은 LLM이 맡는다</h1>
+<p class="lead">LLM 하나에게 "끝까지 해 줘"라고 맡기면 끝·경계·근거가 흐려진다. 그래서 순서와 멈춤은 결정론 프로그램이 지키고, LLM은 자기 칸의 판단과 작업만 한다. 자율 선언은 글이 아니라 실행 중 허용 목록이다.</p>
+
+<h2>1. 부품 지도</h2>
+<figure>
+<svg viewBox="0 0 1180 430" role="img" aria-label="가운데 workflow-controller가 intake에서 route 블록을 받는다. 위쪽 결정론 service인 resolver, policy engine, evaluator adapter, record writer, dry replay runner와 아래쪽 LLM 부품인 planner, checkpoint runner, hitl manager, result writer, learner를 부른다. 결과는 사람의 검수와 반영으로 가고, 후속 요청과 학습 backlog는 intake의 internal 입구로 돌아간다.">
+<defs>
+  <marker id="g1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0,0 L10,5 L0,10 z"/></marker>
+  <marker id="g1h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mkh" d="M0,0 L10,5 L0,10 z"/></marker>
+  <marker id="g1a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mka" d="M0,0 L10,5 L0,10 z"/></marker>
+</defs>
+<text class="m" x="590" y="18" text-anchor="middle" font-size="12.5" font-weight="700">결정론 service (LLM 없음)</text>
+<g font-size="12.5">
+  <rect class="boxs" x="150" y="28" width="160" height="56" rx="8"/><text class="t" x="230" y="51" text-anchor="middle" font-weight="700">resolver</text><text class="m" x="230" y="70" text-anchor="middle" font-size="11">층을 풀고 hash</text>
+  <rect class="boxs" x="330" y="28" width="160" height="56" rx="8"/><text class="t" x="410" y="51" text-anchor="middle" font-weight="700">policy engine</text><text class="m" x="410" y="70" text-anchor="middle" font-size="11">판정·등급·GATE·허락</text>
+  <rect class="boxs" x="510" y="28" width="160" height="56" rx="8"/><text class="t" x="590" y="51" text-anchor="middle" font-weight="700">evaluator adapter</text><text class="m" x="590" y="70" text-anchor="middle" font-size="11">도구 → 공통 JSON</text>
+  <rect class="boxs" x="690" y="28" width="160" height="56" rx="8"/><text class="t" x="770" y="51" text-anchor="middle" font-weight="700">record writer</text><text class="m" x="770" y="70" text-anchor="middle" font-size="11">records 기계 칸</text>
+  <rect class="boxs" x="870" y="28" width="160" height="56" rx="8"/><text class="t" x="950" y="51" text-anchor="middle" font-weight="700">dry replay</text><text class="m" x="950" y="70" text-anchor="middle" font-size="11">workflow 변경 회귀</text>
+</g>
+<rect class="boxa" x="400" y="170" width="380" height="80" rx="12"/>
+<text class="t" x="590" y="200" text-anchor="middle" font-size="16" font-weight="700">workflow-controller</text>
+<text class="m" x="590" y="223" text-anchor="middle" font-size="12.5">순서·멈춤 · dispatch 수락 · 세션 수명 · STATE · label · 후속 요청</text>
+<g>
+  <line class="lnm" x1="230" y1="84" x2="470" y2="168"/><line class="lnm" x1="410" y1="84" x2="530" y2="168"/><line class="lnm" x1="590" y1="84" x2="590" y2="168"/>
+  <line class="lnm" x1="770" y1="84" x2="650" y2="168"/><line class="lnm" x1="950" y1="84" x2="710" y2="168"/>
+</g>
+<text class="m" x="590" y="296" text-anchor="middle" font-size="12.5" font-weight="700">LLM 부품 (출력은 규칙이 검사한다)</text>
+<g font-size="12.5">
+  <rect class="box" x="150" y="306" width="160" height="56" rx="8"/><text class="t" x="230" y="329" text-anchor="middle" font-weight="700">planner</text><text class="m" x="230" y="348" text-anchor="middle" font-size="11">posture·자율 선언</text>
+  <rect class="box" x="330" y="306" width="160" height="56" rx="8"/><text class="t" x="410" y="329" text-anchor="middle" font-weight="700">checkpoint runner</text><text class="m" x="410" y="348" text-anchor="middle" font-size="11">worker + guard</text>
+  <rect class="box" x="510" y="306" width="160" height="56" rx="8"/><text class="t" x="590" y="329" text-anchor="middle" font-weight="700">hitl manager</text><text class="m" x="590" y="348" text-anchor="middle" font-size="11">질문·답·[HD]</text>
+  <rect class="box" x="690" y="306" width="160" height="56" rx="8"/><text class="t" x="770" y="329" text-anchor="middle" font-weight="700">result writer</text><text class="m" x="770" y="348" text-anchor="middle" font-size="11">서술 + 의도 대조</text>
+  <rect class="box" x="870" y="306" width="160" height="56" rx="8"/><text class="t" x="950" y="329" text-anchor="middle" font-weight="700">learner</text><text class="m" x="950" y="348" text-anchor="middle" font-size="11">제안 표</text>
+</g>
+<g>
+  <line class="lnm" x1="230" y1="306" x2="470" y2="252"/><line class="lnm" x1="410" y1="306" x2="530" y2="252"/><line class="lnm" x1="590" y1="306" x2="590" y2="252"/>
+  <line class="lnm" x1="770" y1="306" x2="650" y2="252"/><line class="lnm" x1="950" y1="306" x2="710" y2="252"/>
+</g>
+<!-- in / out -->
+<g font-size="12.5">
+  <rect class="boxs" x="10" y="176" width="150" height="68" rx="9"/><text class="t" x="85" y="200" text-anchor="middle" font-weight="700">intake</text><text class="m" x="85" y="219" text-anchor="middle" font-size="11">20_gate.md route</text><text class="m" x="85" y="235" text-anchor="middle" font-size="11">+ dispatch_ref</text>
+  <line class="ln" x1="160" y1="210" x2="398" y2="210" marker-end="url(#g1)"/><text class="m" x="280" y="202" text-anchor="middle" font-size="11.5">지금 dispatch_ref·queued일 때만</text>
+  <rect class="boxh" x="1030" y="160" width="140" height="56" rx="9"/><text class="th" x="1100" y="183" text-anchor="middle" font-weight="700">사람</text><text class="m" x="1100" y="202" text-anchor="middle" font-size="11">검수 · 반영</text>
+  <line class="lnh" x1="780" y1="190" x2="1028" y2="190" marker-end="url(#g1h)"/><text class="th" x="905" y="182" text-anchor="middle" font-size="11.5">40_result.md 한 파일</text>
+  <path class="lna" d="M780,236 H1000 V400 H85 V246" marker-end="url(#g1a)"/><text class="ta" x="540" y="394" text-anchor="middle" font-size="11.5">후속 요청(on-result·on-accept·on-decision) · 학습 backlog → intake internal 입구</text>
+</g>
+</svg>
+<figcaption>LLM 부품은 파일·label·외부에 직접 쓰지 않는다(worker만 sandbox 안의 허용된 자리에 쓴다). 계산 칸(판정·등급·순위·유도값·GATE)은 policy가 쓰고, LLM이 쓴 판정 값은 강등될 수 있다.</figcaption>
+</figure>
+
+<h2>2. task 폴더 파일과 계약: 단계 하나에 파일 하나</h2>
+<figure>
+<svg viewBox="0 0 1180 300" role="img" aria-label="intake의 20_gate.md route 블록에서 30_plan.md, 실행 중 STATE.md와 eval json, 40_result.md, 사람의 50_review.md, 60_learn.md로 이어진다. 각 파일의 frontmatter는 JSON Schema 계약을 따른다. resolved workflow의 hash가 plan, STATE, 결과, 학습에 같은 값으로 남고, records는 ledger와 matrix다.">
+<defs><marker id="h1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0,0 L10,5 L0,10 z"/></marker><marker id="h1m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mkm" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<g font-size="12.5" font-family="ui-monospace,Consolas,monospace">
+  <rect class="boxs" x="10" y="60" width="140" height="60" rx="8"/><text class="t" x="80" y="86" text-anchor="middle" font-weight="700">20_gate.md</text><text class="m" x="80" y="106" text-anchor="middle" font-size="11">intake_record</text>
+  <rect class="box" x="180" y="60" width="140" height="60" rx="8"/><text class="t" x="250" y="86" text-anchor="middle" font-weight="700">30_plan.md</text><text class="m" x="250" y="106" text-anchor="middle" font-size="11">plan</text>
+  <rect class="boxa" x="350" y="60" width="140" height="60" rx="8"/><text class="t" x="420" y="86" text-anchor="middle" font-weight="700">STATE.md</text><text class="m" x="420" y="106" text-anchor="middle" font-size="11">state</text>
+  <rect class="box" x="350" y="170" width="140" height="60" rx="8"/><text class="t" x="420" y="196" text-anchor="middle" font-weight="700">eval/*.json</text><text class="m" x="420" y="216" text-anchor="middle" font-size="11">eval_result</text>
+  <rect class="box" x="520" y="60" width="150" height="60" rx="8"/><text class="t" x="595" y="86" text-anchor="middle" font-weight="700">40_result.md</text><text class="m" x="595" y="106" text-anchor="middle" font-size="11">result_package</text>
+  <rect class="boxh" x="700" y="60" width="150" height="60" rx="8"/><text class="t" x="775" y="86" text-anchor="middle" font-weight="700">50_review.md</text><text class="m" x="775" y="106" text-anchor="middle" font-size="11">review_verdict</text>
+  <rect class="box" x="880" y="60" width="140" height="60" rx="8"/><text class="t" x="950" y="86" text-anchor="middle" font-weight="700">60_learn.md</text><text class="m" x="950" y="106" text-anchor="middle" font-size="11">learn_record</text>
+  <rect class="boxs" x="520" y="170" width="330" height="60" rx="8"/><text class="t" x="685" y="196" text-anchor="middle" font-weight="700">records/ (system of record)</text><text class="m" x="685" y="216" text-anchor="middle" font-size="11">finding (review ledger) · matrix_cell (QoR matrix)</text>
+  <rect class="box" x="10" y="200" width="300" height="60" rx="8"/><text class="t" x="160" y="226" text-anchor="middle" font-weight="700">resolved workflow + hash</text><text class="m" x="160" y="246" text-anchor="middle" font-size="11">resolved_workflow</text>
+</g>
+<g font-size="11.5">
+  <line class="ln" x1="150" y1="90" x2="178" y2="90" marker-end="url(#h1)"/>
+  <line class="ln" x1="320" y1="90" x2="348" y2="90" marker-end="url(#h1)"/>
+  <line class="ln" x1="490" y1="90" x2="518" y2="90" marker-end="url(#h1)"/>
+  <line class="ln" x1="670" y1="90" x2="698" y2="90" marker-end="url(#h1)"/>
+  <line class="ln" x1="850" y1="90" x2="878" y2="90" marker-end="url(#h1)"/>
+  <path class="ln" d="M410,120 V168" marker-end="url(#h1)"/><path class="ln" d="M430,168 V122" marker-end="url(#h1)"/>
+  <text class="m" x="400" y="148" text-anchor="end">근거 실행</text><text class="m" x="440" y="148">근거 자격</text>
+  <path class="lnm dash" d="M490,200 H518" marker-end="url(#h1m)"/><text class="m" x="504" y="192" text-anchor="middle">변경분</text>
+  <path class="lnm dash" d="M160,200 V150 H250 V122" marker-end="url(#h1m)"/><text class="m" x="205" y="144" text-anchor="middle">hash</text>
+</g>
+<g font-size="12">
+  <text class="m" x="1030" y="80">살아 움직이는 것은</text><text class="m" x="1030" y="98">STATE 하나</text>
+  <text class="m" x="1030" y="130">번호 파일은 확정 뒤</text><text class="m" x="1030" y="148">아래에 덧붙이기만</text>
+  <text class="m" x="1030" y="180">50_review.md는</text><text class="m" x="1030" y="198">사람 원문(불가침)</text>
+</g>
+<text class="m" x="590" y="290" text-anchor="middle" font-size="12.5">frontmatter = 기계가 읽는 레코드(JSON Schema) · 본문 = 사람이 한 화면에서 읽는 요약 · 같은 hash가 plan·STATE·결과·학습에 남는다</text>
+</svg>
+<figcaption>근거표의 evaluator 등급은 근거 자격이 있는 eval 파일(기록되는 실행의 job ref, 또는 결정론적 짧은 도구의 local 실행)만 가리킬 수 있다. 계산은 evaluator adapter가 한다.</figcaption>
+</figure>
+
+<h2>3. 자율 선언은 두 겹으로 지킨다</h2>
+<figure>
+<svg viewBox="0 0 1180 330" role="img" aria-label="plan의 자율 선언 세 줄이 기계용 allowlist가 된다. 실행 중에는 guard가 모든 도구 호출을 먼저 보고 허용 목록 밖을 막는다. 허용 파일 안에서 port를 바꾸는 것처럼 파일 단위 규칙으로 드러나지 않는 위반은 끝의 경계 확인이 plan의 고정 항목과 비교해 잡는다. 잡히면 결과 맨 위에 적고 반영 후보에서 뺀다.">
+<defs>
+  <marker id="d1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0,0 L10,5 L0,10 z"/></marker>
+  <marker id="d1b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mkb" d="M0,0 L10,5 L0,10 z"/></marker>
+  <marker id="d1ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mkok" d="M0,0 L10,5 L0,10 z"/></marker>
+</defs>
+<g font-size="12.5">
+  <rect class="box" x="10" y="40" width="220" height="118" rx="9"/>
+  <text class="t" x="120" y="62" text-anchor="middle" font-weight="700">30_plan.md 자율 선언</text>
+  <text class="tok" x="24" y="88">하겠다: 허용 파일 수정 · lint·sim</text>
+  <text class="th" x="24" y="110">묻겠다: interface를 바꿔야 할 때</text>
+  <text class="tb" x="24" y="132">하지 않겠다: MR 생성 · 허용 밖</text>
+  <text class="m" x="120" y="150" text-anchor="middle" font-size="11">넓히지 못하고 좁히기만</text>
+  <rect class="boxa" x="270" y="60" width="170" height="78" rx="9"/><text class="t" x="355" y="86" text-anchor="middle" font-weight="700">allowlist</text><text class="m" x="355" y="106" text-anchor="middle" font-size="11">행동 · 쓰기 대상</text><text class="m" x="355" y="122" text-anchor="middle" font-size="11">읽기 제한 · job 종류</text>
+</g>
+<line class="ln" x1="230" y1="99" x2="268" y2="99" marker-end="url(#d1)"/>
+<!-- worker actions -->
+<g font-size="12">
+  <text class="t" x="610" y="30" text-anchor="middle" font-weight="700">실행 중 worker의 도구 호출</text>
+  <rect class="box" x="480" y="44" width="260" height="30" rx="6"/><text class="t" x="610" y="64" text-anchor="middle">허용 파일 편집(blk_d.v)</text>
+  <rect class="box" x="480" y="84" width="260" height="30" rx="6"/><text class="t" x="610" y="104" text-anchor="middle">regression batch 제출</text>
+  <rect class="box" x="480" y="124" width="260" height="30" rx="6"/><text class="t" x="610" y="144" text-anchor="middle">MR 생성 시도</text>
+  <rect class="box" x="480" y="164" width="260" height="30" rx="6"/><text class="t" x="610" y="184" text-anchor="middle">다른 block 파일 편집 시도</text>
+  <rect class="box" x="480" y="204" width="260" height="30" rx="6"/><text class="t" x="610" y="224" text-anchor="middle">허용 파일 안에서 port 폭 변경</text>
+</g>
+<rect class="boxs" x="770" y="44" width="120" height="190" rx="9"/><text class="t" x="830" y="130" text-anchor="middle" font-size="13" font-weight="700">guard</text><text class="m" x="830" y="150" text-anchor="middle" font-size="11">권한 규칙 +</text><text class="m" x="830" y="166" text-anchor="middle" font-size="11">PreToolUse hook</text>
+<g font-size="12">
+  <line class="lnok" x1="740" y1="59" x2="768" y2="59"/><line class="lnok" x1="890" y1="59" x2="930" y2="59" marker-end="url(#d1ok)"/><text class="tok" x="936" y="63">허용</text>
+  <line class="lnok" x1="740" y1="99" x2="768" y2="99"/><line class="lnok" x1="890" y1="99" x2="930" y2="99" marker-end="url(#d1ok)"/><text class="tok" x="936" y="103">허용(제출 ID 기록)</text>
+  <line class="lnb" x1="740" y1="139" x2="766" y2="139" marker-end="url(#d1b)"/><text class="tb" x="936" y="143">막음 → "하려 한다 + 내용"</text>
+  <line class="lnb" x1="740" y1="179" x2="766" y2="179" marker-end="url(#d1b)"/><text class="tb" x="936" y="183">막음 → 기록</text>
+  <line class="lnok" x1="740" y1="219" x2="768" y2="219"/><line class="lnok dash" x1="890" y1="219" x2="930" y2="219" marker-end="url(#d1ok)"/><text class="m" x="936" y="223">통과(파일 단위로는 안 보임)</text>
+</g>
+<rect class="boxb" x="480" y="262" width="410" height="54" rx="9"/>
+<text class="tb" x="685" y="285" text-anchor="middle" font-size="13" font-weight="700">CB 경계 확인(끝, script): 고정 port·parameter 비교</text>
+<text class="m" x="685" y="304" text-anchor="middle" font-size="11.5">port 목록이 바뀜 → 결과 맨 위 "경계 위반" · 반영 후보에서 뺌 · 운영자 알림</text>
+<path class="lnb" d="M990,234 V289 H892" marker-end="url(#d1b)"/>
+<text class="m" x="120" y="220" text-anchor="middle" font-size="12">두 겹이어야</text><text class="m" x="120" y="240" text-anchor="middle" font-size="12">"경계 넘기 0"을 믿는다</text>
+</svg>
+<figcaption>막힌 시도는 결과 패키지의 "선언 대비 실제"와 학습 기록에 남는다. 막힌 시도가 잦으면 선언이 너무 좁거나 workflow가 틀렸다는 신호다.</figcaption>
+</figure>
+
+<h2>4. 세션은 소모품, STATE가 정본</h2>
+<figure>
+<svg viewBox="0 0 1180 230" role="img" aria-label="한 task가 세 세션에 걸친다. 첫 세션은 C0부터 C4 제출까지 하고 batch 결과를 기다리는 동안 끝난다. job이 끝나면 새 세션이 STATE에서 이어 C4 판정과 C5 제출을 하고 다시 끝난다. 세 번째 세션이 C5 판정, 경계 확인, 결과 패키지를 만든다. STATE는 처음부터 끝까지 이어진다.">
+<defs><marker id="s1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<line class="ln" x1="20" y1="170" x2="1160" y2="170" marker-end="url(#s1)"/><text class="m" x="1150" y="190" text-anchor="end" font-size="12">시간</text>
+<rect class="boxa" x="20" y="130" width="1120" height="22" rx="6"/><text class="t" x="580" y="146" text-anchor="middle" font-size="12.5" font-weight="700">STATE.md: 진행 · 결정 · 질문 · 가정 · 제출 ID (세션이 바뀌어도 이어진다)</text>
+<g font-size="12">
+  <rect class="bar" x="20" y="60" width="330" height="40" rx="6"/><text class="t" x="185" y="85" text-anchor="middle" font-weight="700" style="fill:var(--panel)">세션 1: C0 · C1 · C2 · C3 · C4 제출</text>
+  <rect class="gap" x="350" y="60" width="200" height="40" rx="6"/><text class="m" x="450" y="85" text-anchor="middle">batch job 실행 중(세션 없음)</text>
+  <rect class="bar" x="550" y="60" width="230" height="40" rx="6"/><text class="t" x="665" y="85" text-anchor="middle" font-weight="700" style="fill:var(--panel)">세션 2: C4 판정 · C5 제출</text>
+  <rect class="gap" x="780" y="60" width="160" height="40" rx="6"/><text class="m" x="860" y="85" text-anchor="middle">regression 중</text>
+  <rect class="bar" x="940" y="60" width="200" height="40" rx="6"/><text class="t" x="1040" y="85" text-anchor="middle" font-weight="700" style="fill:var(--panel)">세션 3: C5 · CB · CR</text>
+</g>
+<g font-size="11.5">
+  <text class="m" x="350" y="48" text-anchor="middle">끝: 자원 대기</text><text class="m" x="550" y="48" text-anchor="middle">새로 열림: job 완료</text>
+  <text class="m" x="780" y="48" text-anchor="middle">끝: 자원 대기</text><text class="m" x="940" y="48" text-anchor="middle">새로 열림</text>
+</g>
+<text class="m" x="590" y="214" text-anchor="middle" font-size="12.5">새 세션이 받는 것: STATE · resolved workflow의 지금·남은 checkpoint · plan · eval 요약. 이전 대화와 추론은 받지 않는다 · 제출 ID가 있으면 재제출하지 않고 조회</text>
+</svg>
+<figcaption>기다리며 세션을 잡고 있지 않는다. label은 돌고 있는 checkpoint가 없으면 ai:waiting, 다시 돌면 ai:in-progress다.</figcaption>
+</figure>
+
+<h2>5. 세 hard-zero: 하나라도 나오면 그 변경을 되돌린다</h2>
+<table>
+<tr><th style="width:20%">hard-zero</th><th>뜻</th><th style="width:30%">어디서 세나</th></tr>
+<tr><td><b>경계 넘기 0</b></td><td>선언·권한 범위·sandbox 밖의 행동(세션이 묶인 phase의 행동 밖 포함), 고정 항목(port·parameter)이 비교 기준(run 시작 전 또는 확정된 spec 판)과 달라짐, 되돌리기 어려운 행동(MR 생성·ticket 상태 변경·외부 발송·정본 수정), 판정형이 대상을 고침, reject 뒤 재시도(실패했거나 진행 중인 자동 수정이 있는 지적에 자동 수정을 다시 여는 것 포함)</td><td>guard 기록 · 경계 확인(CB) · golden의 never</td></tr>
+<tr><td><b>근거 없는 판정 0</b></td><td>근거 자격 없는 결과가 evaluator 등급으로 근거표에 들어감, 보지 못한 것이 통과로 적힘, LLM이 계산 칸을 씀</td><td>결과 패키지 검사(CR) · evaluator adapter</td></tr>
+<tr><td><b>사람 기록 훼손 0</b></td><td>시스템이 검수 판정·ledger의 사람 칸(waiver·이의·답)·공개 기록·STATE의 사람 줄을 고침</td><td>record writer · controller 권한</td></tr>
+</table>
+
+<h2>6. 회사에서 세우는 순서</h2>
+<table>
+<tr><th style="width:18%">단계</th><th>하는 일</th><th style="width:34%">끝났다고 보는 조건(숫자 공란)</th></tr>
+<tr><td>0 준비</td><td>공통 골격·작업 모양 일곱을 정본에 두고, 첫 특화를 회사 checklist·절차서로 채운다(checkpoint로 다시 쓴다). evaluator 목록·policy·권한 범위·records 위치</td><td>resolver 전체 검사 오류 0</td></tr>
+<tr><td>1 뼈대</td><td>계약 열하나, controller·resolver·policy·evaluator adapter(LLM 없이)</td><td>해석 사례 전부 일치, 한 바퀴 사례의 결정론 칸 전부 일치</td></tr>
+<tr><td>2 판단 agent</td><td>planner·worker·result writer·hitl manager·learner, guard(권한 규칙·hook)를 선언에서 생성</td><td>한 바퀴 사례에서 hard-zero 0</td></tr>
+<tr><td>3 첫 갈래 자율</td><td>첫 카테고리를 열고 posture는 draft부터</td><td>검수 기록이 쌓이고 reject의 원인이 산출물 쪽으로 옮겨 감</td></tr>
+<tr><td>4 판정형·실험형</td><td>RTL review: A만(사람) → CI 빠른 preset(intake가 CI 리뷰 요청을 받아들인 뒤) → 전체 + 자동 수정(끔 → 일괄 승인 → 자동. 일괄 승인은 intake가 후속의 부모 참조를 나른 뒤, 자동은 on-result까지 받아들이고 노드가 full일 때). 노드는 실적이 쌓이기 전 draft(GATE는 알림만). 합성 matrix와 records(run별 잠정 → 검수 뒤 확정)</td><td>판정형 도입 단계의 진입 조건</td></tr>
+<tr><td>5 조립과 사슬</td><td>preset을 넓히고 사슬 link를 연다. 정본 승격은 dry replay 첨부</td><td>안건마다 replay 레포트</td></tr>
+</table>
+<p class="note">agent·skill로 세우는 매핑(subagent 정의·workflow skill·권한 규칙·hook)은 70_packaging.md에 있다. 숫자 기준은 전부 공란이고, 예시는 가상이다.</p>
+</main>
+</body>
+</html>

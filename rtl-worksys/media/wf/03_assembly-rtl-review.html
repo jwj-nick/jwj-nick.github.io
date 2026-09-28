@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>조립과 RTL review</title>
+<style>
+:root{
+  --bg:#f7f6f2; --panel:#ffffff; --fg:#1c232b; --muted:#5a6472; --line:#c6ccd4; --soft:#eef1f5;
+  --acc:#2457d6; --acc-soft:#e3ebfd; --hum:#b45309; --hum-soft:#fdf0e1; --ok:#15803d; --ok-soft:#e4f5ea;
+  --bad:#b91c1c; --bad-soft:#fde7e7; --svc:#475569; --svc-soft:#edf1f5;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1319; --panel:#151b22; --fg:#e5e9ef; --muted:#9aa5b4; --line:#3a434f; --soft:#1b232c;
+    --acc:#7ea9ff; --acc-soft:#172640; --hum:#f0a05c; --hum-soft:#3a2714; --ok:#4cc27a; --ok-soft:#14301e;
+    --bad:#f07b7b; --bad-soft:#3b1818; --svc:#a9b4c3; --svc-soft:#1c2530;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1319; --panel:#151b22; --fg:#e5e9ef; --muted:#9aa5b4; --line:#3a434f; --soft:#1b232c;
+  --acc:#7ea9ff; --acc-soft:#172640; --hum:#f0a05c; --hum-soft:#3a2714; --ok:#4cc27a; --ok-soft:#14301e;
+  --bad:#f07b7b; --bad-soft:#3b1818; --svc:#a9b4c3; --svc-soft:#1c2530;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg)}
+body{font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR","Segoe UI",system-ui,sans-serif;font-size:16px;line-height:1.65}
+main{max-width:1120px;margin:0 auto;padding:28px 16px 72px}
+nav.top{font-size:14px;color:var(--muted);margin-bottom:12px}
+nav.top a{color:var(--acc);text-decoration:none;margin-right:12px}
+h1{font-size:28px;line-height:1.3;margin:4px 0 8px}
+h2{font-size:20px;margin:40px 0 8px;padding-top:8px;border-top:1px solid var(--line)}
+p.lead{font-size:17px;color:var(--muted);margin:0 0 16px}
+figure{margin:18px 0;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+figure svg{width:100%;height:auto;display:block;color:var(--fg)}
+figcaption{color:var(--muted);font-size:14px;margin-top:8px}
+table{border-collapse:collapse;width:100%;font-size:14.5px;background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--soft);font-weight:600}
+.note{font-size:14px;color:var(--muted)}
+svg text{font-family:inherit}
+.t{fill:currentColor}.m{fill:var(--muted)}.ta{fill:var(--acc)}.th{fill:var(--hum)}.tb{fill:var(--bad)}.tok{fill:var(--ok)}
+.box{fill:var(--panel);stroke:var(--line);stroke-width:1.2}
+.boxa{fill:var(--acc-soft);stroke:var(--acc);stroke-width:1.4}
+.boxh{fill:var(--hum-soft);stroke:var(--hum);stroke-width:1.4}
+.boxs{fill:var(--svc-soft);stroke:var(--svc);stroke-width:1.2}
+.boxb{fill:var(--bad-soft);stroke:var(--bad);stroke-width:1.3}
+.boxok{fill:var(--ok-soft);stroke:var(--ok);stroke-width:1.3}
+.입력 구간{fill:none;stroke:var(--acc);stroke-width:1.6;stroke-dasharray:8 5}
+.ghost{fill:none;stroke:var(--muted);stroke-width:1.2;stroke-dasharray:4 4}
+.ln{stroke:currentColor;stroke-width:1.4;fill:none}.lna{stroke:var(--acc);stroke-width:1.6;fill:none}
+.lnh{stroke:var(--hum);stroke-width:1.6;fill:none}.lnb{stroke:var(--bad);stroke-width:1.5;fill:none}.lnm{stroke:var(--muted);stroke-width:1.2;fill:none}
+.dash{stroke-dasharray:5 4}
+.mk{fill:currentColor}.mka{fill:var(--acc)}.mkh{fill:var(--hum)}.mkb{fill:var(--bad)}.mkm{fill:var(--muted)}
+.cm{fill:var(--acc)}.cd{fill:var(--acc-soft);stroke:var(--acc);stroke-width:1.4;stroke-dasharray:5 3}.cc{fill:var(--panel);stroke:var(--acc);stroke-width:1.4;stroke-dasharray:1.5 3}
+.ce{fill:none;stroke:var(--line);stroke-width:1.2;stroke-dasharray:3 3}.cs{fill:var(--soft);stroke:var(--muted);stroke-width:1.2}
+@media print{
+  :root{--bg:#fff;--panel:#fff;--fg:#111;--muted:#444;--line:#bbb;--soft:#f2f2f2}
+  nav.top{display:none} figure,table{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<main>
+<nav class="top"><a href="index.html">목차</a><a href="01_core-one-page.html">core 한 장</a><a href="02_workflow-standard.html">workflow 표준화</a><a href="04_agent-system.html">agent system</a></nav>
+<h1>조립: 작업은 독립으로 돌리고, 옵션으로 잇는다</h1>
+<p class="lead">RTL review의 다섯 작업(코드 · 검증 상태 · 성능면적 · 합성 · 판단과 plan)은 각자 혼자 돈다. 필요할 때 옵션으로 이어 붙인다. 리뷰어는 고치지 않고, 수정은 늘 다른 task로 나가 따로 검수받는다.</p>
+
+<h2>1. 간선 종류 넷과 task 경계</h2>
+<figure>
+<svg viewBox="0 0 1180 290" role="img" aria-label="같은 task 안은 auto 간선만이다. on-accept는 검수 accept 뒤, on-decision은 사람의 결정이 기록된 뒤, on-result는 결과가 나오면 policy가 기계로 허락한 항목만 새 task를 연다. 사람이 사이에 서거나 판정에서 수정으로 넘어가면 task가 나뉜다.">
+<defs>
+  <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0,0 L10,5 L0,10 z"/></marker>
+  <marker id="a1h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mkh" d="M0,0 L10,5 L0,10 z"/></marker>
+  <marker id="a1a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mka" d="M0,0 L10,5 L0,10 z"/></marker>
+</defs>
+<rect class="입력 구간" x="20" y="40" width="420" height="190" rx="12"/>
+<text class="ta" x="230" y="30" text-anchor="middle" font-size="13.5" font-weight="700">task 1: 결과 패키지 하나 · 검수 하나</text>
+<rect class="box" x="50" y="110" width="140" height="52" rx="8"/><text class="t" x="120" y="141" text-anchor="middle" font-size="14" font-weight="700">노드 A</text>
+<rect class="box" x="270" y="110" width="140" height="52" rx="8"/><text class="t" x="340" y="141" text-anchor="middle" font-size="14" font-weight="700">노드 B</text>
+<line class="ln" x1="190" y1="136" x2="268" y2="136" marker-end="url(#a1)"/><text class="t" x="229" y="128" text-anchor="middle" font-size="12.5" font-weight="700">auto</text>
+<text class="m" x="230" y="200" text-anchor="middle" font-size="12">앞 노드가 끝나면 바로 · 산출물 계약만 확인</text>
+<!-- outgoing -->
+<g font-size="13">
+  <path class="lnh" d="M440,90 H690" marker-end="url(#a1h)"/><text class="th" x="565" y="80" text-anchor="middle" font-weight="700">on-accept</text><text class="m" x="565" y="108" text-anchor="middle" font-size="12">검수 accept 뒤(고른 것만)</text>
+  <path class="lnh" d="M440,160 H690" marker-end="url(#a1h)"/><text class="th" x="565" y="150" text-anchor="middle" font-weight="700">on-decision</text><text class="m" x="565" y="178" text-anchor="middle" font-size="12">사람의 결정이 기록된 뒤</text>
+  <path class="lna" d="M440,230 H690" marker-end="url(#a1a)"/><text class="ta" x="565" y="220" text-anchor="middle" font-weight="700">on-result</text><text class="m" x="565" y="248" text-anchor="middle" font-size="12">policy가 허락한 항목만(intake 반영 뒤)</text>
+  <rect class="boxs" x="694" y="68" width="200" height="44" rx="8"/><text class="t" x="794" y="95" text-anchor="middle">task 2 (새 검수)</text>
+  <rect class="boxs" x="694" y="138" width="200" height="44" rx="8"/><text class="t" x="794" y="165" text-anchor="middle">task 3 (새 검수)</text>
+  <rect class="boxs" x="694" y="208" width="200" height="44" rx="8"/><text class="t" x="794" y="235" text-anchor="middle">task 4 (새 검수)</text>
+</g>
+<g font-size="12.5">
+  <text class="t" x="920" y="86" font-weight="700">task를 나누는 때</text>
+  <text class="m" x="920" y="110">① 사람이 사이에 선다</text>
+  <text class="m" x="920" y="132">(검수·결정)</text>
+  <text class="m" x="920" y="160">② 판정 → 수정</text>
+  <text class="m" x="920" y="182">(리뷰어는 고치지 않는다)</text>
+  <text class="m" x="920" y="210">새 task는 intake를 다시</text>
+  <text class="m" x="920" y="232">지나 권한을 다시 본다</text>
+</g>
+<text class="m" x="590" y="280" text-anchor="middle" font-size="12.5">pipeline = auto 간선으로 묶인 한 task · chain = task를 나누는 간선으로 이은 link들 · 한 workflow 안의 phase(원인 → 수정)는 조립이 아니다</text>
+</svg>
+<figcaption>"한 task = 한 결과 패키지 = 한 번의 검수." 사람이 한 번에 판정할 수 있는 단위로 나눈다. 새 task의 칸(요청 종류·대상·요지·카테고리 힌트)은 intake의 internal 발생 칸과 같다.</figcaption>
+</figure>
+
+<h2>2. RTL review pipeline (A~E)</h2>
+<figure>
+<svg viewBox="0 0 1180 446" role="img" aria-label="RTL review pipeline. 한 task 안에서 A 코드 리뷰, B 검증 상태, C 성능·면적, D 합성은 각자 돌고, E 판단과 plan이 A부터 D의 결과를 같은 revision일 때만 받는다. B는 A의 동작 요약을, C는 D의 area 분해를 있으면 쓴다. task 밖으로는 A의 수정 제안이 자동 수정 task로, E의 결정된 change set이 수정 task로, B의 추가 test 제안이 나중에 자동 검증 agent로 간다. 밖으로 나가는 것은 모두 새 task이고 새로 검수한다.">
+<defs>
+  <marker id="p1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0,0 L10,5 L0,10 z"/></marker>
+  <marker id="p1m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mkm" d="M0,0 L10,5 L0,10 z"/></marker>
+  <marker id="p1a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mka" d="M0,0 L10,5 L0,10 z"/></marker>
+  <marker id="p1h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mkh" d="M0,0 L10,5 L0,10 z"/></marker>
+</defs>
+<text class="m" x="20" y="20" font-size="12.5">계기: 사람의 대상 지정(ticket·command) · CI(commit·MR) · 정기</text>
+<!-- inside one task -->
+<text class="ta" x="360" y="50" text-anchor="middle" font-size="13" font-weight="700">한 task: 결과 패키지 하나 · review ledger 공유 · 리뷰어는 고치지 않는다</text>
+<rect class="입력 구간" x="20" y="60" width="680" height="272" rx="12"/>
+<g font-size="13.5">
+  <rect class="box" x="40" y="90" width="190" height="60" rx="9"/><text class="t" x="135" y="114" text-anchor="middle" font-weight="700">A 코드 리뷰</text><text class="m" x="135" y="135" text-anchor="middle" font-size="12">판정형 · 도구 층 + AI 층</text>
+  <rect class="box" x="290" y="90" width="190" height="60" rx="9"/><text class="t" x="385" y="114" text-anchor="middle" font-weight="700">B 검증 상태</text><text class="m" x="385" y="135" text-anchor="middle" font-size="12">판정형 · module 단위</text>
+  <rect class="box" x="40" y="240" width="190" height="60" rx="9"/><text class="t" x="135" y="264" text-anchor="middle" font-weight="700">D 합성·최대 주파수</text><text class="m" x="135" y="285" text-anchor="middle" font-size="12">실험형 · sub-top 단위</text>
+  <rect class="box" x="290" y="240" width="190" height="60" rx="9"/><text class="t" x="385" y="264" text-anchor="middle" font-weight="700">C 성능·면적</text><text class="m" x="385" y="285" text-anchor="middle" font-size="12">판정형 · 세 모드 중 하나</text>
+  <rect class="boxa" x="530" y="150" width="160" height="92" rx="9"/><text class="t" x="610" y="176" text-anchor="middle" font-weight="700">E 판단과 plan</text><text class="m" x="610" y="198" text-anchor="middle" font-size="11.5">결정 자료형 · 결정은 사람</text><text class="m" x="610" y="220" text-anchor="middle" font-size="11.5">같은 revision만 받는다</text>
+</g>
+<g font-size="11.5">
+  <line class="lnm dash" x1="230" y1="120" x2="288" y2="120" marker-end="url(#p1m)"/><text class="m" x="259" y="112" text-anchor="middle">있으면</text><text class="m" x="259" y="138" text-anchor="middle">동작 요약</text>
+  <line class="lnm dash" x1="230" y1="270" x2="288" y2="270" marker-end="url(#p1m)"/><text class="m" x="259" y="262" text-anchor="middle">있으면</text><text class="m" x="259" y="288" text-anchor="middle">area 분해</text>
+  <path class="ln" d="M480,120 C510,120 500,172 528,172" marker-end="url(#p1)"/>
+  <path class="ln" d="M480,270 C510,270 500,220 528,220" marker-end="url(#p1)"/>
+  <path class="ln" d="M135,90 V74 H610 V148" marker-end="url(#p1)"/>
+  <path class="ln" d="M135,300 V316 H610 V244" marker-end="url(#p1)"/>
+</g>
+<!-- out of the task -->
+<text class="t" x="950" y="50" text-anchor="middle" font-size="13" font-weight="700">task 밖으로: 늘 새 task, 새 검수</text>
+<g font-size="12">
+  <rect class="boxs" x="740" y="92" width="100" height="36" rx="18"/><text class="t" x="790" y="115" text-anchor="middle" font-weight="700">A 수정 제안</text>
+  <line class="lna" x1="840" y1="110" x2="958" y2="110" marker-end="url(#p1a)"/>
+  <text class="ta" x="899" y="102" text-anchor="middle" font-size="11.5" font-weight="700">on-result(반영 뒤)</text>
+  <text class="th" x="899" y="126" text-anchor="middle" font-size="11.5" font-weight="700">on-accept(일괄 승인)</text>
+  <rect class="boxs" x="960" y="84" width="200" height="52" rx="9"/><text class="t" x="1060" y="106" text-anchor="middle" font-size="13" font-weight="700">자동 수정 task</text><text class="m" x="1060" y="125" text-anchor="middle" font-size="11.5">WF-review-fix · 수정형</text>
+
+  <rect class="boxs" x="740" y="182" width="100" height="36" rx="18"/><text class="t" x="790" y="205" text-anchor="middle" font-weight="700">E change set</text>
+  <line class="lnh" x1="840" y1="200" x2="958" y2="200" marker-end="url(#p1h)"/>
+  <text class="th" x="899" y="192" text-anchor="middle" font-size="11.5" font-weight="700">on-decision</text>
+  <text class="m" x="899" y="216" text-anchor="middle" font-size="11.5">결정이 기록된 뒤</text>
+  <rect class="boxs" x="960" y="174" width="200" height="52" rx="9"/><text class="t" x="1060" y="196" text-anchor="middle" font-size="13" font-weight="700">수정 task들</text><text class="m" x="1060" y="215" text-anchor="middle" font-size="11.5">자동 수정 · 버그 · lint · timing</text>
+
+  <rect class="boxs" x="740" y="272" width="100" height="36" rx="18"/><text class="t" x="790" y="295" text-anchor="middle" font-weight="700">B 추가 test</text>
+  <line class="lnm dash" x1="840" y1="290" x2="958" y2="290" marker-end="url(#p1m)"/>
+  <text class="m" x="899" y="282" text-anchor="middle" font-size="11.5" font-weight="700">on-accept</text>
+  <text class="m" x="899" y="306" text-anchor="middle" font-size="11.5">(나중)</text>
+  <rect class="ghost" x="960" y="264" width="200" height="52" rx="9"/><text class="m" x="1060" y="286" text-anchor="middle" font-size="13" font-weight="700">자동 검증 agent</text><text class="m" x="1060" y="305" text-anchor="middle" font-size="11.5">test 작성은 별도 범위</text>
+</g>
+<!-- presets -->
+<g font-size="12.5">
+  <text class="t" x="20" y="364" font-weight="700">preset (계기가 고른다)</text>
+  <rect class="boxa" x="20" y="376" width="180" height="56" rx="8"/><text class="t" x="110" y="398" text-anchor="middle" font-weight="700">A만</text><text class="m" x="110" y="418" text-anchor="middle" font-size="11.5">사람 지정의 기본</text>
+  <rect class="boxa" x="215" y="376" width="180" height="56" rx="8"/><text class="t" x="305" y="398" text-anchor="middle" font-weight="700">B → E</text><text class="m" x="305" y="418" text-anchor="middle" font-size="11.5">검증을 보고 plan까지</text>
+  <rect class="boxa" x="410" y="376" width="180" height="56" rx="8"/><text class="t" x="500" y="398" text-anchor="middle" font-weight="700">A~D</text><text class="m" x="500" y="418" text-anchor="middle" font-size="11.5">판정만</text>
+  <rect class="boxa" x="605" y="376" width="180" height="56" rx="8"/><text class="t" x="695" y="398" text-anchor="middle" font-weight="700">A~E 전부</text><text class="m" x="695" y="418" text-anchor="middle" font-size="11.5">정기 전체 run</text>
+  <rect class="boxa" x="800" y="376" width="360" height="56" rx="8"/><text class="t" x="980" y="398" text-anchor="middle" font-weight="700">CI에서 A만</text><text class="m" x="980" y="418" text-anchor="middle" font-size="11.5">바뀐 범위(delta) · 도구 층 + 메시지 판정만 · 빠르게</text>
+</g>
+</svg>
+<figcaption>각 작업은 혼자 돌 수 있다. 같은 run에 앞 노드가 있으면 뒤 노드는 그것을 기다리고, 없으면 같은 revision의 accept run 산출물을 쓰거나 스스로 만든다. E는 revision이 다른 산출물을 섞지 않는다. E가 preset에 있으면 A의 후속은 따로 나가지 않고 E의 결정으로만 나간다(같은 지적이 두 수정 task를 열지 않게). E가 없으면 A의 다른 지적은 리뷰어가 골라 on-accept로 버그 수정·lint 정리 task를 연다. command·MR 계기의 run은 부른 사람의 개인 기록 범위에 쓰고 후속은 제안으로만 남긴다. mutation으로 test의 검증력을 재는 작업은 보류다.</figcaption>
+</figure>
+
+<h2>3. 리뷰 → 자동 수정: 기계가 판정할 수 있을 때만 자동</h2>
+<figure>
+<svg viewBox="0 0 1180 300" role="img" aria-label="판정형 결과에서 policy가 측정 사실로 적용 자동 등급을 계산하고 진행 모드가 자동이면 on-result로 자동 수정 task가 열린다. 자동 수정은 base 확인, 정확 적용, 해결 조건의 결정적 판정, 조건부 회귀, 도구 재리뷰와 ledger 일치, 눈가림 AI 재리뷰를 지나 MR 후보를 사람 검수에 올린다. 제안이 낡으면 재작성 후속을 남기고, 새 지적이 나오면 그 change set을 되돌리며 그 지적은 다시 자동으로 열리지 않는다.">
+<defs>
+  <marker id="f1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0,0 L10,5 L0,10 z"/></marker>
+  <marker id="f1a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mka" d="M0,0 L10,5 L0,10 z"/></marker>
+  <marker id="f1b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mkb" d="M0,0 L10,5 L0,10 z"/></marker>
+  <marker id="f1h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mkh" d="M0,0 L10,5 L0,10 z"/></marker>
+</defs>
+<g font-size="13">
+  <rect class="box" x="20" y="70" width="150" height="64" rx="9"/><text class="t" x="95" y="96" text-anchor="middle" font-weight="700">판정형 결과</text><text class="m" x="95" y="116" text-anchor="middle" font-size="11.5">수정 제안 + scratch 측정</text>
+  <rect class="boxa" x="196" y="62" width="160" height="80" rx="9"/><text class="t" x="276" y="88" text-anchor="middle" font-weight="700">policy</text><text class="m" x="276" y="108" text-anchor="middle" font-size="11.5">적용 자동 등급(측정 사실)</text><text class="m" x="276" y="126" text-anchor="middle" font-size="11.5">+ 등급별 진행 모드</text>
+</g>
+<line class="ln" x1="170" y1="102" x2="194" y2="102" marker-end="url(#f1)"/>
+<line class="lna" x1="356" y1="102" x2="418" y2="102" marker-end="url(#f1a)"/><text class="ta" x="387" y="94" text-anchor="middle" font-size="11.5" font-weight="700">on-result</text>
+<rect class="입력 구간" x="420" y="40" width="740" height="150" rx="12"/>
+<text class="ta" x="790" y="32" text-anchor="middle" font-size="13" font-weight="700">자동 수정 task (수정형): 제안을 적용만 한다</text>
+<g font-size="12.5">
+  <rect class="box" x="430" y="70" width="110" height="64" rx="8"/><text class="t" x="485" y="95" text-anchor="middle" font-weight="700">C1 base 확인</text><text class="m" x="485" y="115" text-anchor="middle" font-size="11">hash가 같은가</text>
+  <rect class="box" x="552" y="70" width="110" height="64" rx="8"/><text class="t" x="607" y="95" text-anchor="middle" font-weight="700">C2 정확 적용</text><text class="m" x="607" y="115" text-anchor="middle" font-size="11">제안마다 commit</text>
+  <rect class="box" x="674" y="70" width="110" height="64" rx="8"/><text class="t" x="729" y="95" text-anchor="middle" font-weight="700">C3 해결 조건</text><text class="m" x="729" y="115" text-anchor="middle" font-size="11">도구·LEC·test</text>
+  <rect class="box" x="796" y="70" width="110" height="64" rx="8"/><text class="t" x="851" y="95" text-anchor="middle" font-weight="700">C4 회귀</text><text class="m" x="851" y="115" text-anchor="middle" font-size="11">등가성이 없을 때</text>
+  <rect class="box" x="918" y="70" width="110" height="64" rx="8"/><text class="t" x="973" y="95" text-anchor="middle" font-weight="700">C5 도구 재리뷰</text><text class="m" x="973" y="115" text-anchor="middle" font-size="11">ledger 일치</text>
+  <rect class="box" x="1040" y="70" width="110" height="64" rx="8"/><text class="t" x="1095" y="95" text-anchor="middle" font-weight="700">C6 AI 재리뷰</text><text class="m" x="1095" y="115" text-anchor="middle" font-size="11">눈가림·새 세션</text>
+</g>
+<g><line class="ln" x1="540" y1="102" x2="550" y2="102" marker-end="url(#f1)"/><line class="ln" x1="662" y1="102" x2="672" y2="102" marker-end="url(#f1)"/><line class="ln" x1="784" y1="102" x2="794" y2="102" marker-end="url(#f1)"/><line class="ln" x1="906" y1="102" x2="916" y2="102" marker-end="url(#f1)"/><line class="ln" x1="1028" y1="102" x2="1038" y2="102" marker-end="url(#f1)"/></g>
+<g font-size="12">
+  <line class="lnb" x1="485" y1="134" x2="485" y2="222" marker-end="url(#f1b)"/><rect class="boxb" x="396" y="224" width="200" height="44" rx="7"/><text class="tb" x="496" y="243" text-anchor="middle" font-weight="700">낡은 제안은 적용 안 함</text><text class="m" x="496" y="260" text-anchor="middle" font-size="11">→ 판정형에 제안 재작성(후속)</text>
+  <line class="lnh" x1="790" y1="190" x2="790" y2="222" marker-end="url(#f1h)"/><rect class="boxh" x="670" y="224" width="240" height="44" rx="7"/><text class="th" x="790" y="243" text-anchor="middle" font-weight="700">MR 후보 → 사람 검수·반영</text><text class="m" x="790" y="260" text-anchor="middle" font-size="11">MR은 사람이 만든다</text>
+  <line class="lnb" x1="1095" y1="134" x2="1095" y2="222" marker-end="url(#f1b)"/><rect class="boxb" x="920" y="224" width="240" height="44" rx="7"/><text class="tb" x="1040" y="243" text-anchor="middle" font-weight="700">신규·재발 지적 → 그 change set 되돌림</text><text class="m" x="1040" y="260" text-anchor="middle" font-size="11">그 지적은 다시 자동으로 열리지 않음</text>
+</g>
+<g font-size="11.5">
+  <text class="m" x="20" y="176">진행 모드(등급별, 팀 리더):</text>
+  <text class="m" x="20" y="196">끔 → 제안만 남는다</text>
+  <text class="m" x="20" y="216">일괄 승인 → on-accept(부모 참조 반영 뒤)</text>
+  <text class="m" x="20" y="236">자동 → on-result(trigger 반영 + 노드 full)</text>
+  <text class="m" x="20" y="262">자동-1 = 등가성을 실제로 돌려 등가</text>
+  <text class="m" x="20" y="282">+ 외부 참조 0 · AI만 찾은 지적은 자동 아님</text>
+</g>
+</svg>
+<figcaption>채점자는 결정적이다(도구·등가성·test). LLM의 "고쳤다"는 근거가 아니고, AI 재리뷰(C6)의 근거 등급은 의견이다. 자동 수정은 지적마다 한 번이다: 자동 수정이 진행 중이거나 accept되지 않고 끝난 지적은 사람 결정 등급이라 다음 run이 다시 열지 않는다. 도입은 끔 → 일괄 승인 → 자동 순서다. 일괄 승인은 intake가 후속 요청의 부모 참조를 나를 때, 자동은 여기에 on-result trigger까지 받아들이고 판정 노드가 full일 때만 쓴다.</figcaption>
+</figure>
+
+<h2>4. 판정형의 한 척도와 GATE</h2>
+<table>
+<tr><th style="width:12%">severity</th><th>뜻 (코드·검증·성능면적·합성 네 작업이 같은 척도)</th><th style="width:30%">policy가 계산하는 것</th></tr>
+<tr><td><b>S1</b> 요구 위반</td><td>지원 config 또는 적법한 사용 순서에서 제품 요구(기능·성능·주파수)를 어긴다</td><td>확신도 확정·높음이면 <b>차단</b>, 중간·낮음이면 <b>확인 필요</b>(실행할 것과 역할 필수)</td></tr>
+<tr><td><b>S2</b> 위험</td><td>범위·환경이 바뀌면 어길 수 있다, 또는 <b>어기는지 확인할 수 없다</b>(test되지 않거나 관측되지 않음)</td><td rowspan="3">LLM이 쓴 확신도는 근거와 대조해 강등: 확정 ⇒ 실행 근거, 높음 ⇒ 도구 사실 + 문서 또는 과거 사례</td></tr>
+<tr><td><b>S3</b> 품질·효율</td><td>요구는 지키지만 유지보수·style·문서 불일치, 과잉 설계·area 낭비</td></tr>
+<tr><td><b>S4</b> 정보</td><td>참고</td></tr>
+<tr><td colspan="3"><b>배포 gate</b>는 severity와 따로 센다(copyright 문구·주석의 내부 정보·다른 license 문구·절대 경로 include가 이름이 정해진 배포 대상에 있음). <b>GATE PASS</b> = run 완료 · 열린 차단 0 · 배포 gate 막음 0 · 선택한 작업 중 판정 불가 0. 무엇을 막는지(merge·알림·배포)는 계기별로 팀 리더가 정한다.</td></tr>
+</table>
+
+<h2>5. 합성 matrix: 값마다 출처가 있고, 입력이 바뀌면 낡음이 된다</h2>
+<figure>
+<svg viewBox="0 0 1180 340" role="img" aria-label="왼쪽: config 셋과 library 조합 넷의 칸. config 1과 2는 실측, config 3은 대표 칸 하나만 실측하고 나머지는 승인된 규칙으로 유도했으며 한 칸은 이상치로 표시되었다. 오른쪽: RTL revision이 바뀌면 실측 칸이 낡음이 되고, 그 칸에서 유도된 칸도 따라 낡음이 된다.">
+<defs><marker id="m1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mka" d="M0,0 L10,5 L0,10 z"/></marker><marker id="m1m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mkm" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<text class="t" x="290" y="24" text-anchor="middle" font-size="13.5" font-weight="700">요청: config 1~3 × library 조합 넷 (목표 주파수 합성)</text>
+<g font-size="12" class="m">
+  <text class="m" x="150" y="52" text-anchor="middle">node-A vt-1</text><text class="m" x="250" y="52" text-anchor="middle">node-A vt-2</text><text class="m" x="350" y="52" text-anchor="middle">node-B vt-1</text><text class="m" x="450" y="52" text-anchor="middle">node-B vt-2</text>
+  <text class="m" x="60" y="86" text-anchor="end">config-1</text><text class="m" x="60" y="146" text-anchor="end">config-2</text><text class="m" x="60" y="206" text-anchor="end">config-3</text>
+</g>
+<g>
+  <rect class="cm" x="110" y="64" width="80" height="40" rx="5"/><rect class="cm" x="210" y="64" width="80" height="40" rx="5"/><rect class="cm" x="310" y="64" width="80" height="40" rx="5"/><rect class="cm" x="410" y="64" width="80" height="40" rx="5"/>
+  <rect class="cm" x="110" y="124" width="80" height="40" rx="5"/><rect class="cm" x="210" y="124" width="80" height="40" rx="5"/><rect class="cm" x="310" y="124" width="80" height="40" rx="5"/><rect class="cm" x="410" y="124" width="80" height="40" rx="5"/>
+  <rect class="cm" x="110" y="184" width="80" height="40" rx="5"/><rect class="cd" x="210" y="184" width="80" height="40" rx="5"/><rect class="cd" x="310" y="184" width="80" height="40" rx="5"/><rect class="cd" x="410" y="184" width="80" height="40" rx="5" style="stroke:var(--bad)"/>
+  <text class="ta" x="250" y="209" text-anchor="middle" font-size="12" font-weight="700">유도 1</text><text class="ta" x="350" y="209" text-anchor="middle" font-size="12" font-weight="700">유도 1</text><text class="tb" x="450" y="209" text-anchor="middle" font-size="12" font-weight="700">! 이상치</text>
+</g>
+<g font-size="11.5">
+  <path class="lna" d="M250,164 V182" marker-end="url(#m1)"/><path class="lna" d="M350,164 V182" marker-end="url(#m1)"/><path class="lna" d="M150,224 C150,250 250,250 250,226" marker-end="url(#m1)"/>
+  <text class="ta" x="300" y="258" text-anchor="middle">승인된 규칙(id·버전)으로 유도 · 깊이 1</text>
+</g>
+<g font-size="11.5">
+  <rect class="cm" x="110" y="282" width="22" height="16" rx="3"/><text class="t" x="138" y="295">실측(job ref·원 레포트)</text>
+  <rect class="cd" x="270" y="282" width="22" height="16" rx="3"/><text class="t" x="298" y="295">유도(근거 칸·규칙·깊이)</text>
+  <rect class="cc" x="430" y="282" width="22" height="16" rx="3"/><text class="t" x="458" y="295">계산(공식·입력)</text>
+  <rect class="ce" x="110" y="308" width="22" height="16" rx="3"/><text class="t" x="138" y="321">비어 있음(이유)</text>
+  <rect class="cs" x="270" y="308" width="22" height="16" rx="3"/><text class="t" x="298" y="321">낡음</text>
+  <text class="tb" x="430" y="321" font-weight="700">!</text><text class="t" x="444" y="321">이상치(값은 고치지 않음)</text>
+</g>
+<!-- right: stale -->
+<line class="lnm" x1="600" y1="40" x2="600" y2="330"/>
+<text class="t" x="890" y="24" text-anchor="middle" font-size="13.5" font-weight="700">RTL revision이 바뀐 뒤</text>
+<g font-size="12">
+  <text class="m" x="700" y="52" text-anchor="middle">node-A vt-1</text><text class="m" x="800" y="52" text-anchor="middle">node-A vt-2</text><text class="m" x="900" y="52" text-anchor="middle">node-B vt-1</text>
+  <text class="m" x="650" y="86" text-anchor="end">config-2</text><text class="m" x="650" y="146" text-anchor="end">config-3</text>
+</g>
+<rect class="cs" x="660" y="64" width="80" height="40" rx="5"/><rect class="cs" x="760" y="64" width="80" height="40" rx="5"/><rect class="cm" x="860" y="64" width="80" height="40" rx="5"/>
+<rect class="cs" x="660" y="124" width="80" height="40" rx="5"/><rect class="cs" x="760" y="124" width="80" height="40" rx="5"/><rect class="cm" x="860" y="124" width="80" height="40" rx="5"/>
+<g font-size="11.5">
+  <text class="m" x="700" y="89" text-anchor="middle">낡음</text><text class="m" x="800" y="89" text-anchor="middle">낡음</text>
+  <text class="m" x="700" y="149" text-anchor="middle">낡음</text><text class="m" x="800" y="149" text-anchor="middle">낡음(전파)</text>
+  <text class="t" x="900" y="149" text-anchor="middle" font-weight="700" style="fill:var(--panel)">승격</text>
+  <path class="lnm dash" d="M800,104 V122" marker-end="url(#m1m)"/>
+</g>
+<g font-size="12.5">
+  <text class="m" x="960" y="80">다시 잰 칸: 새 실측</text>
+  <text class="m" x="960" y="140">예전 유도 칸을 실측하면</text>
+  <text class="m" x="960" y="158">"승격" · 차이가 남는다</text>
+  <text class="m" x="640" y="200">입력(RTL·recipe·library·corner)이 바뀌면 그 칸이 낡고,</text>
+  <text class="m" x="640" y="220">낡은 칸에서 유도·계산된 칸도 따라 낡는다</text>
+  <text class="m" x="640" y="250">새 실측과 예전 유도값의 차이 = 규칙 오차의 누적</text>
+  <text class="m" x="640" y="270">→ "유도값을 밖으로 내보내도 되는가"의 근거</text>
+  <text class="m" x="640" y="300">레포트·KB·고객 답변은 칸을 복사하지 않고 가리킨다</text>
+</g>
+</svg>
+<figcaption>계산은 script가 한다: 칸 계획·유도·출처 검사·이상치·낡음 전파는 policy가 계산하고 LLM은 값을 쓰지 않는다. 밖으로 나가는 값과 그 기록(누구에게·언제·값의 종류)은 사람의 일이다.</figcaption>
+</figure>
+
+<h2>6. 사슬 한 줄: link마다 task가 하나이고, 사이에 사람의 결정이 있다</h2>
+<figure>
+<svg viewBox="0 0 1180 230" role="img" aria-label="기능 추가 사슬. 요구, 아키텍처, spec 뒤에 각각 착수 결정, 아키텍처 선택, interface freeze라는 사람의 결정이 있고, freeze 뒤 RTL 구현과 검증이 병렬로 열린다. 검증 link는 RTL을 읽지 않는다. 둘이 검수를 지나면 통합, 그다음 sign-off 준비와 sign-off 결정이 온다.">
+<defs><marker id="k1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<g font-size="12.5">
+  <rect class="box" x="10" y="80" width="112" height="56" rx="8"/><text class="t" x="66" y="104" text-anchor="middle" font-weight="700">L1 요구</text><text class="m" x="66" y="123" text-anchor="middle" font-size="11">결정 자료형</text>
+  <rect class="box" x="190" y="80" width="112" height="56" rx="8"/><text class="t" x="246" y="104" text-anchor="middle" font-weight="700">L2 아키텍처</text><text class="m" x="246" y="123" text-anchor="middle" font-size="11">결정 자료형</text>
+  <rect class="box" x="370" y="80" width="112" height="56" rx="8"/><text class="t" x="426" y="104" text-anchor="middle" font-weight="700">L3 spec</text><text class="m" x="426" y="123" text-anchor="middle" font-size="11">기계가 읽는 형태</text>
+  <rect class="box" x="580" y="24" width="130" height="56" rx="8"/><text class="t" x="645" y="48" text-anchor="middle" font-weight="700">L4 RTL 구현</text><text class="m" x="645" y="67" text-anchor="middle" font-size="11">수정형</text>
+  <rect class="boxa" x="580" y="138" width="130" height="56" rx="8"/><text class="t" x="645" y="162" text-anchor="middle" font-weight="700">L5 검증·test</text><text class="m" x="645" y="181" text-anchor="middle" font-size="11">RTL을 읽지 않음</text>
+  <rect class="box" x="800" y="80" width="112" height="56" rx="8"/><text class="t" x="856" y="104" text-anchor="middle" font-weight="700">L6 통합</text><text class="m" x="856" y="123" text-anchor="middle" font-size="11">regression</text>
+  <rect class="box" x="990" y="80" width="112" height="56" rx="8"/><text class="t" x="1046" y="104" text-anchor="middle" font-weight="700">L7 sign-off</text><text class="m" x="1046" y="123" text-anchor="middle" font-size="11">판정형 준비</text>
+</g>
+<g font-size="11.5" font-weight="700">
+  <line class="lnh" x1="122" y1="108" x2="188" y2="108" marker-end="url(#k1)"/><text class="th" x="155" y="98" text-anchor="middle">착수 결정</text>
+  <line class="lnh" x1="302" y1="108" x2="368" y2="108" marker-end="url(#k1)"/><text class="th" x="335" y="84" text-anchor="middle">아키텍처</text><text class="th" x="335" y="99" text-anchor="middle">선택</text>
+  <path class="lnh" d="M482,108 H530 V52 H578" marker-end="url(#k1)"/><path class="lnh" d="M530,108 V166 H578" marker-end="url(#k1)"/><text class="th" x="538" y="113">interface freeze</text>
+  <path class="ln" d="M710,52 H750 V100 H798" marker-end="url(#k1)"/><path class="ln" d="M710,166 H750 V116 H798" marker-end="url(#k1)"/><text class="m" x="756" y="96" font-weight="400">검수</text>
+  <line class="ln" x1="912" y1="108" x2="988" y2="108" marker-end="url(#k1)"/><text class="m" x="950" y="98" text-anchor="middle" font-weight="400">검수</text>
+  <line class="lnh" x1="1046" y1="136" x2="1046" y2="160" marker-end="url(#k1)"/><text class="th" x="1046" y="178" text-anchor="middle">sign-off 결정(사람)</text>
+</g>
+<text class="m" x="590" y="222" text-anchor="middle" font-size="12.5">한 번에 다 열지 않는다(간선대로: 결정 기록 또는 검수 accept) · 공유 입력은 spec뿐(검증 독립성) · spec이 바뀌면 사슬을 다시 plan한다</text>
+</svg>
+<figcaption>사슬 고유의 결정(link의 이름·수, 사람 결정의 자리, spec 산출물의 모양)은 사슬 갈래 설계에서 정한다. 이 그림은 조립 형식을 보이는 한 줄 예시다.</figcaption>
+</figure>
+</main>
+</body>
+</html>
