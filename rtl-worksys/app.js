@@ -56,6 +56,7 @@
       h("div", "tl", esc(W.meta.tagline)) +
       h("p", "mut small", esc(W.meta.subtitle) + " · core와 설계 작업 현황을 본다.") +
       h("div", "up", "v" + W.meta.version + " · " + W.meta.updated + " 갱신") +
+      '<button class="deeplink" data-tab-go="map">▶ core 한 장 (그림 · 15초 애니메이션)</button> ' +
       '<button class="deeplink" data-tab-go="status">◎ 설계 작업 현황 (' + esc(W.status.asOf) + " 기준)</button>" +
       "</div>";
 
@@ -90,12 +91,56 @@
     return o;
   }
 
+  /* ── core 한 장 (그림 · 15초 애니메이션) ── */
+  var ZTAG = ["", "m", "y", "g"];
+  function viewMap() {
+    var M = W.map, th = document.documentElement.dataset.theme === "light" ? "light" : "dark", o = "";
+    o += '<div class="card"><h2>' + esc(M.title) + ' <span class="tag g">그림 · 15초 애니메이션</span></h2>' +
+      h("p", "lead", tx(M.lead)) + "</div>";
+    o += '<div class="mapmedia"><img src="' + M.media.gif + '" alt="core 15초 애니메이션" loading="lazy"></div>';
+    o += '<div class="maplinks">' +
+      [["mp4 (1920×1080)", M.media.mp4], ["그림 · 라이트", M.media.png.light], ["그림 · 다크", M.media.png.dark],
+        ["움직이는 HTML", M.media.html + "?theme=" + th]].map(function (l) {
+        return '<a href="' + l[1] + '" target="_blank" rel="noopener">' + esc(l[0]) + " ↗</a>";
+      }).join("") + "</div>";
+
+    o += '<div class="card"><h2>15초의 흐름</h2><div class="story">' + M.story.map(function (s) {
+      return '<div class="srow">' + h("span", "st", esc(s[0])) + "<div>" + h("div", "b", tx(s[1])) +
+        h("div", "mut small", tx(s[2])) + "</div></div>";
+    }).join("") + "</div></div>";
+
+    o += '<a class="mapimg" href="' + M.media.png[th] + '" target="_blank" rel="noopener"><img src="' + M.media.png[th] +
+      '" alt="core 한 장 그림" loading="lazy"></a>' + h("p", "dim xs center", "그림을 누르면 원본 크기(1920×1080)로 열린다.");
+
+    o += '<div class="card"><h2>왜 core가 먼저인가</h2><ol class="why4">' + M.why.map(function (w) {
+      return "<li>" + h("b", "", esc(w[0])) + h("span", "", tx(w[1])) + "</li>";
+    }).join("") + "</ol></div>";
+
+    M.zones.forEach(function (z) {
+      o += '<div class="card zone z' + z.z + '"><h2>' + esc(z.name) + ' <span class="tag ' + ZTAG[z.z] + '">' + esc(z.stages) + "</span></h2>" +
+        h("p", "", tx(z.what)) + '<ul class="li">' + z.ul.map(function (s) { return h("li", "", tx(s)); }).join("") + "</ul>" +
+        z.go.map(function (g) {
+          var at = g[1] === "stage" ? 'data-stage-go="' : g[1] === "deep" ? 'data-deep-go="' : 'data-tab-go="';
+          return '<button class="deeplink" ' + at + g[2] + '">▸ ' + esc(g[0]) + "</button>";
+        }).join(" ") + "</div>";
+    });
+
+    o += '<div class="card"><h2>core 위에 얹힐 주제 <span class="tag n">주제마다 한 장 · 예정</span></h2>' +
+      '<div class="tblwrap"><table><thead><tr><th>주제</th><th>자리</th><th>지금</th><th>한 장</th></tr></thead><tbody>' +
+      M.topics.map(function (r) {
+        return "<tr><td><strong>" + esc(r[0]) + "</strong></td><td>" + esc(r[1]) + '</td><td><span class="tag ' + r[3] + '">' +
+          esc(r[2]) + "</span></td><td>" + tx(r[4]) + "</td></tr>";
+      }).join("") + "</tbody></table></div>" + h("div", "note", tx(M.topicsNote)) + "</div>";
+    return o;
+  }
+
   /* ── 탭: 아홉 단계 ── */
   function viewCore(sel) {
     var cur = sel || get("ws_stage", W.stages[0].id);
     var o = '<div class="card"><h2>core — ticket 한 건이 지나가는 아홉 단계</h2>' +
       h("p", "mut small", "단계마다 work repo의 <code>tasks/&lt;TICKET-KEY&gt;/</code> 폴더에 파일 하나가 남는다. 어느 파일 하나만 열어도 지금 무슨 일이 어디까지 갔는지 알 수 있어야 한다.") +
-      '<div class="legend"><span><i class="h-yes"></i>사람이 반드시</span><span><i class="h-cond"></i>조건부</span><span><i class="h-no"></i>사람 없이</span></div></div>';
+      '<div class="legend"><span><i class="h-yes"></i>사람이 반드시</span><span><i class="h-cond"></i>조건부</span><span><i class="h-no"></i>사람 없이</span></div>' +
+      '<button class="deeplink" data-tab-go="map">▶ core 한 장 (그림 · 15초 애니메이션)</button></div>';
 
     o += '<div class="rail" id="rail">' + W.stages.map(function (s) {
       return '<button data-stage="' + s.id + '"' + (s.id === cur ? ' class="on"' : "") + ">" +
@@ -561,7 +606,7 @@
   }
 
   /* ── 라우팅 ── */
-  var TABS = ["home", "status", "core", "deep", "cases", "docs", "road", "about", "ia"];
+  var TABS = ["home", "status", "core", "deep", "cases", "docs", "road", "about", "ia", "map"];
   var state = { tab: get("ws_tab", "home"), caseId: null, step: 0, docOpen: null, stage: null, deep: get("ws_deep", "intake"), ia: { sec: "overview", id: null }, iaf: {} };
 
   // #core/gate · #cases/C1 · #docs/posture 같은 해시를 읽는다 (공유 가능한 링크)
@@ -596,6 +641,7 @@
     var t = state.tab, html;
     if (t === "home") html = viewHome();
     else if (t === "status") html = viewStatus();
+    else if (t === "map") html = viewMap();
     else if (t === "ia") {
       if (!window.IA) { app.innerHTML = '<div class="card">intake agent 데이터를 불러오는 중…</div>'; return loadIA(paint); }
       html = viewIA();
@@ -613,7 +659,7 @@
 
     var btns = document.querySelectorAll("#nav button");
     for (var i = 0; i < btns.length; i++) {
-      btns[i].className = btns[i].dataset.tab === (t === "ia" ? "deep" : t) ? "on" : "";
+      btns[i].className = btns[i].dataset.tab === (t === "ia" ? "deep" : t === "map" ? "home" : t) ? "on" : "";
     }
     if (state.docOpen) {
       var el = document.getElementById("doc-" + state.docOpen);
@@ -665,6 +711,7 @@
     document.documentElement.dataset.theme = next; set("ws_theme", next);
     var mt = document.querySelector('meta[name="theme-color"]');
     if (mt) mt.content = next === "light" ? "#f6f8fc" : "#0f1420";
+    if (state.tab === "map") paint();
   });
 
   window.addEventListener("hashchange", function () { if (readHash()) paint(); });

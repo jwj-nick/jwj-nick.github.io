@@ -1,5 +1,5 @@
 /* RTL WorkSys — 콘텐츠 데이터 (앱의 텍스트는 전부 여기).
-   범위: core(ticket 한 건이 지나가는 아홉 단계) + 설계 작업 전체의 진행 현황(status) + 주제별 심화 페이지(deep).
+   범위: core(ticket 한 건이 지나가는 아홉 단계, 한 장 그림·애니메이션 포함) + 설계 작업 전체의 진행 현황(status) + 주제별 심화 페이지(deep).
    규율: 조직 실명·수치 없음. 모든 ticket·블록·신호 이름은 가상. 숫자 기준은 공란 + 결정 주체.
    본문 블록 형식: {h:"소제목"} {p:"문단"} {ul:[...]} {table:{head:[...],rows:[[...]]}} {code:"..."} {note:"..."} */
 window.WS = {
@@ -7,7 +7,7 @@ window.WS = {
     title: "RTL WorkSys",
     subtitle: "AI-native RTL 업무 시스템 · core 설계 노트",
     updated: "2026-09-28",
-    version: "0.5",
+    version: "0.6",
     tagline: "ticket이 생기면 AI가 먼저 일을 시작한다. 사람은 검수와 결정에 선다."
   },
 
@@ -840,6 +840,73 @@ window.WS = {
   ],
 
   /* ───────────── 소개 ───────────── */
+  /* ───────────── core 한 장 (그림 · 15초 애니메이션) ─────────────
+     그림과 애니메이션은 media/core_map.html 한 파일에서 30_tools/render_media.mjs가 뽑는다. */
+  map: {
+    title: "core 한 장",
+    lead: "AI workflow를 실무에 쓰려면 먼저 모든 일이 지나가는 길, 곧 core가 서 있어야 한다. 이 화면은 core 전체를 그림 한 장과 15초 애니메이션으로 보여 주고, 그림의 각 부분을 글로 풀어 둔다.",
+    media: {
+      mp4: "media/core_15s.mp4", gif: "media/core_15s.gif", html: "media/core_map.html",
+      png: { light: "media/core_map_light.png", dark: "media/core_map_dark.png" }
+    },
+    story: [
+      ["0~3초", "AI에게 실무를 맡기려면, 일이 지나갈 길부터 있어야 한다", "사람마다 제각각 쓰는 AI는 멈출 곳을 모르고, 배운 것이 쌓이지 않는다."],
+      ["3~6.5초", "들어온 일은 모두 같은 아홉 단계를 지난다", "입구 넷에서 들어온 일이 intake와 gate를 지나고, 걸린 일은 멈춰 사람을 부른다."],
+      ["6.5~9.5초", "AI는 판정자와 함께 스스로 진행하고, 사람은 두 자리에서 결정한다", "checkpoint마다 oracle이 판정하고, 검수와 반영 자리에 불이 켜진다."],
+      ["9.5~11.5초", "결과는 learn으로 돌아가 다음 일을 더 잘하게 만든다", "learn 고리가 닫히고, 일이 고리를 타고 입구로 돌아간다."],
+      ["11.5~15초", "core가 기틀이다. 주제마다 workflow를 얹으면 실무가 된다", "core 위에 주제 다섯이 얹히고, 왜 core가 먼저인지 네 줄이 나온다."]
+    ],
+    why: [
+      ["같은 길", "입구(ticket · 도구 신호 · backlog · command)가 늘고 주제가 늘어도 모든 일이 같은 아홉 단계를 지난다. 일마다 AI 쓰는 법을 따로 만들 필요가 없고, 누가 맡겨도 같은 방식으로 처리된다."],
+      ["안전", "gate가 일을 시작하기 전에 위험 · 권한 · 정보 · 불확실 · 작업량을 검사해 멈추고, 실행 중에는 lint · sim · synth · LEC · coverage 같은 결정론적 oracle이 판정한다. 사람은 검수와 반영에서 결정하므로, AI의 시도를 넓혀도 통제가 유지된다."],
+      ["누적", "검수 판정과 실행 기록이 learn으로 돌아가 분류 규칙과 workflow를 고친다. 개인의 요령으로 흩어지던 경험이 시스템에 쌓이고, 쓸수록 좋아진다."],
+      ["확장", "새 주제(chain · timing-area · coverage · code-review · diagnose)는 core를 다시 만들지 않는다. 그 주제의 workflow · checkpoint · oracle만 정리해 얹으면 실무에 들어간다. 그래서 core를 먼저 제대로 세우는 것이 전체의 기틀이다."]
+    ],
+    zones: [
+      { name: "입구 · intake", z: 0, stages: "1 intake · 2 triage · 3 gate",
+        what: "일이 어디서 오든 공통 레코드로 받고, 무슨 일인지 AI가 스스로 판정하고, 시작해도 되는지 gate 다섯 조건으로 검사한다.",
+        ul: [
+          "intake 심화에서 일곱 단계(capture → raw scan → work-or-not → understand → categorize → gate → route)로 펼쳐졌다. 그림의 1~3은 이 일곱 단계를 core 단계로 묶어 보인 것이다.",
+          "gate는 위험 → 권한 → 정보 → 불확실 → 작업량 순서로 검사한다. 걸리면 hold(stop · record-only · needs-info · discuss)로 멈추고 사람을 부른다.",
+          "세울 수 있는 agent 시스템 명세로 확장됐다: 부품 11, 데이터 계약 3, 규칙 설정 8, 시험 사례 91. 결정 후보 51이 교정을 기다린다."
+        ],
+        go: [["단계 › intake", "stage", "intake"], ["단계 › gate", "stage", "gate"], ["심화 › intake", "deep", "intake"], ["intake agent 탐색기", "tab", "ia"]] },
+      { name: "본체 · workflow", z: 1, stages: "4 plan · 5 execute · 6 result",
+        what: "workflow를 고르고 posture(full · draft · prepare · hold)를 정한 뒤, sandbox 안에서 checkpoint를 하나씩 통과해 검수자가 한 장으로 판정할 결과 패키지를 만든다.",
+        ul: [
+          "checkpoint마다 oracle(lint · sim · synth · LEC · coverage)이 판정한다. 결과 패키지의 근거 등급이 사실과 의견을 나눈다.",
+          "실행 중에도 아홉 조건에서 사람을 부르지만 멈추지는 않는다. 질문을 남기고 sandbox 안에서 가능한 부분을 계속하며, 답이 없을 때의 기본값은 보수적이다.",
+          "미완도 결과다. \"여기까지 + 이유 + 다음 후보\"로 마감한다."
+        ],
+        go: [["단계 › execute", "stage", "execute"], ["심화 › workflow", "deep", "workflow"]] },
+      { name: "사람", z: 2, stages: "7 review · 8 apply",
+        what: "사람이 반드시 서는 자리는 둘뿐이다. 사람의 역할은 분류 · 배정 · 진행 관리에서 검수 · 결정으로 옮겨 간다.",
+        ul: [
+          "review: 결과 패키지 한 장을 보고 accept / accept-with-fix / reject 중 하나를 고른다. 목표는 10초에 방향, 10분에 판정이다.",
+          "apply: MR 생성 · 직접 commit · 회신 · 보류 · 폐기를 정한다. main으로의 MR, 고객 회신, ticket 상태 변경은 시스템이 하지 않는다.",
+          "그 밖의 사람 자리는 조건부다. gate의 hold, workflow에 미리 표시된 사람 결정 checkpoint, 실행 중 HITL이 그것이다."
+        ],
+        go: [["단계 › review", "stage", "review"], ["개요 › 사람이 등장하는 순간", "tab", "home"]] },
+      { name: "learn", z: 3, stages: "9 learn",
+        what: "자동 실행 기록과 검수 판정을 합쳐 무엇을 고칠지 제안한다. 생략할 수 없는 단계다.",
+        ul: [
+          "제안은 개인 fork에는 즉시, 정본에는 정기 회의로 반영된다.",
+          "너무 큰 개선(재발 방지 test, 문서 부재)은 backlog ticket이 되어 같은 core를 다시 탄다. 그림 왼쪽 입구의 backlog가 그것이다."
+        ],
+        go: [["단계 › learn", "stage", "learn"]] }
+    ],
+    topics: [
+      ["intake", "core 입구", "확정 · agent 명세 교정 대기", "g", "이 그림의 1~3. 주제 한 장은 일곱 단계 + agent 부품으로 예정"],
+      ["workflow", "core 본체", "확정", "g", "이 그림의 4~6. 주제 한 장은 세 층(경계 · checkpoint · posture)으로 예정"],
+      ["chain", "갈래", "틀 · 교정 대기", "y", "예정 (정본이 나온 뒤)"],
+      ["timing-area", "갈래", "이름 · 성격만", "n", "예정"],
+      ["coverage", "갈래", "이름 · 성격만", "n", "예정"],
+      ["code-review", "갈래", "이름 · 성격만", "n", "예정"],
+      ["diagnose", "빈칸 1순위", "갈래 없음", "r", "예정 (설계가 시작되면)"]
+    ],
+    topicsNote: "주제가 정리되면 같은 틀로 그 주제의 한 장을 만든다. 담을 것은 그 주제가 core의 어느 자리에 얹히는지, workflow의 checkpoint와 oracle, 사람이 서는 자리, 지금 상태다. 그림과 애니메이션은 장면 HTML 하나에서 같은 도구로 뽑으므로, 주제마다 장면만 새로 쓰면 된다."
+  },
+
   about: {
     purpose: "이 앱은 설계 중인 AI-native RTL 업무 시스템의 중간 결과를 한곳에서 확인하기 위한 뷰어다. 설계 원본은 비공개 작업 공간에 있고, 이 앱은 그중 조직 고유 정보를 뺀 core를 옮겨 둔 사본이다. 외부 독자를 위해 쓴 문서가 아니며, 배포 수단으로 공개 페이지를 쓸 뿐이다.",
     how: "설계는 가상 ticket 수십 건을 아홉 단계에 태워 보며 만든다. 틀에 부족한 것이 드러나면 설계를 고치고, 그 결과가 이 앱의 사례와 설계 절로 옮겨진다. 실물 ticket을 겪어야 답이 나오는 것들은 \"열린 긴장\"에 적는다.",

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>core 한 장 · RTL WorkSys</title>
+<!-- core 한 장: 15초 timeline. ?t=<초> 고정 표시 · ?poster=1 마지막 장면(입자 없음) · ?theme=light|dark · ?capture=1 (렌더 도구가 __seek로 구동) -->
+<style>
+:root{
+  --bg:#0f1420; --bg2:#171e2e; --card:#1a2233; --line:#2c3850;
+  --fg:#e4e9f2; --mut:#93a1bb; --dim:#6b7a96;
+  --acc:#4fb8f5; --acc2:#8b8cf8; --ok:#3ddba0; --warn:#f5c04f; --bad:#f8776f;
+}
+:root[data-theme="light"]{
+  --bg:#f6f8fc; --bg2:#ffffff; --card:#ffffff; --line:#dde4f0;
+  --fg:#16203a; --mut:#5b6b88; --dim:#8494b0;
+  --acc:#1878c8; --acc2:#5b5ce0; --ok:#129c6c; --warn:#b5780a; --bad:#d4463c;
+}
+html,body{margin:0;height:100%;background:var(--bg)}
+body{display:flex;align-items:center;justify-content:center;overflow:hidden}
+svg{width:100vw;height:100vh;display:block}
+text{font-family:'Malgun Gothic','Apple SD Gothic Neo',-apple-system,'Segoe UI',Roboto,sans-serif}
+</style>
+</head>
+<body>
+<svg id="s" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"></svg>
+<script>
+(function () {
+  "use strict";
+  var Q = new URLSearchParams(location.search);
+  if (Q.get("theme")) document.documentElement.dataset.theme = Q.get("theme");
+  var POSTER = Q.get("poster") === "1", CAPTURE = Q.get("capture") === "1";
+  var DUR = 15, NS = "http://www.w3.org/2000/svg", svg = document.getElementById("s");
+
+  /* ── 요소 만들기 ── */
+  function E(tag, at, st, parent) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in at) e.setAttribute(k, at[k]);
+    if (st) for (var j in st) e.style[j] = st[j];
+    (parent || svg).appendChild(e);
+    return e;
+  }
+  function T(x, y, s, size, st, parent, anchor) {
+    var e = E("text", { x: x, y: y, "text-anchor": anchor || "start" },
+      Object.assign({ fontSize: size + "px", fill: "var(--fg)" }, st || {}), parent);
+    e.textContent = s;
+    return e;
+  }
+  function G(parent) { return E("g", {}, null, parent); }
+  // 폭 안에서 줄바꿈 (글자 폭을 실제로 재서)
+  function wrapText(x, y, s, size, width, lh, st, parent) {
+    var g = G(parent), words = s.split(" "), line = "", n = 0;
+    var probe = T(x, y, "", size, st, g);
+    var lines = [];
+    for (var i = 0; i < words.length; i++) {
+      var trial = line ? line + " " + words[i] : words[i];
+      probe.textContent = trial;
+      if (probe.getComputedTextLength() > width && line) { lines.push(line); line = words[i]; }
+      else line = trial;
+    }
+    if (line) lines.push(line);
+    g.removeChild(probe);
+    lines.forEach(function (l) { T(x, y + (n++) * lh, l, size, st, g); });
+    return { g: g, n: lines.length };
+  }
+  function pill(cx, cy, label, size, color, parent, opts) {
+    opts = opts || {};
+    var g = G(parent), t = T(cx, cy + size * 0.36, label, size,
+      { fill: opts.textColor || color, fontWeight: 700 }, g, "middle");
+    var w = t.getComputedTextLength() + (opts.pad || 30), h = opts.h || size * 2.1;
+    var r = E("rect", { x: cx - w / 2, y: cy - h / 2, width: w, height: h, rx: h / 2 },
+      { fill: opts.fill || "color-mix(in srgb," + color + " 14%, var(--card))",
+        stroke: color, strokeWidth: opts.sw || 2, strokeDasharray: opts.dash || "none" }, null);
+    g.insertBefore(r, t);
+    g._w = w; g._rect = r; g._text = t;
+    return g;
+  }
+
+  /* ── 애니메이션 등록: seek(t)가 모든 항목을 그 시각의 모양으로 둔다 ── */
+  var A = [];
+  function clamp(x) { return x < 0 ? 0 : x > 1 ? 1 : x; }
+  function eo(x) { return 1 - Math.pow(1 - x, 3); }
+  function eback(x) { var c = 1.6; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); }
+  function fade(el, t0, d, t1, d1) { A.push({ k: "fade", el: el, t0: t0, d: d || 0.4, t1: t1, d1: d1 || 0.35 }); return el; }
+  function pop(el, cx, cy, t0, d) { A.push({ k: "pop", el: el, cx: cx, cy: cy, t0: t0, d: d || 0.45 }); return el; }
+  function rise(el, t0, d, dy) { A.push({ k: "rise", el: el, t0: t0, d: d || 0.5, dy: dy || 24 }); return el; }
+  function draw(el, t0, d) {
+    var L = el.getTotalLength();
+    el.style.strokeDasharray = L + " " + L;
+    A.push({ k: "draw", el: el, t0: t0, d: d, L: L });
+    return el;
+  }
+  function apply(a, t) {
+    var p;
+    if (a.k === "fade") {
+      p = eo(clamp((t - a.t0) / a.d));
+      if (a.t1 !== undefined) p *= 1 - eo(clamp((t - a.t1) / a.d1));
+      a.el.style.opacity = p;
+    } else if (a.k === "pop") {
+      p = clamp((t - a.t0) / a.d);
+      var s = p <= 0 ? 0.001 : eback(p);
+      a.el.setAttribute("transform", "translate(" + a.cx + " " + a.cy + ") scale(" + s + ") translate(" + (-a.cx) + " " + (-a.cy) + ")");
+      a.el.style.opacity = clamp(p * 2.5);
+    } else if (a.k === "rise") {
+      p = eo(clamp((t - a.t0) / a.d));
+      a.el.setAttribute("transform", "translate(0 " + ((1 - p) * a.dy) + ")");
+      a.el.style.opacity = p;
+    } else if (a.k === "draw") {
+      p = eo(clamp((t - a.t0) / a.d));
+      a.el.style.strokeDashoffset = a.L * (1 - p);
+    }
+  }
+
+  /* ── 좌표 ── */
+  var Y = 400, R = 31;
+  var ST = [
+    { id: "intake", ko: "받기", x: 400, z: 0 }, { id: "triage", ko: "분류", x: 540, z: 0 }, { id: "gate", ko: "문", x: 680, z: 0 },
+    { id: "plan", ko: "계획", x: 900, z: 1 }, { id: "execute", ko: "실행", x: 1020, z: 1 }, { id: "result", ko: "결과", x: 1140, z: 1 },
+    { id: "review", ko: "검수", x: 1370, z: 2 }, { id: "apply", ko: "반영", x: 1510, z: 2 },
+    { id: "learn", ko: "학습", x: 1720, z: 3 }
+  ];
+  var ZC = ["var(--acc)", "var(--acc2)", "var(--warn)", "var(--ok)"];
+  var ZONES = [
+    { x0: 330, x1: 750, title: "입구 · intake", sub: "일곱 단계 · gate 다섯 조건" },
+    { x0: 840, x1: 1200, title: "본체 · workflow", sub: "sandbox · checkpoint · posture 넷" },
+    { x0: 1290, x1: 1590, title: "사람", sub: "반드시 사람이 서는 두 자리" },
+    { x0: 1650, x1: 1790, title: "learn", sub: "되먹임" }
+  ];
+
+  /* ── 제목줄: 장면마다 바뀌는 문장 ── */
+  var CAP = [
+    { t0: 0.0, t1: 3.0, main: "AI에게 실무를 맡기려면, 일이 지나갈 길부터 있어야 한다",
+      sub: "사람마다 제각각 쓰는 AI는 멈출 곳을 모르고, 배운 것이 쌓이지 않는다." },
+    { t0: 3.0, t1: 6.5, main: "들어온 일은 모두 같은 아홉 단계를 지난다",
+      sub: "ticket · 도구 신호 · backlog · command → 공통 레코드 → gate 다섯 조건. 걸리면 멈추고 사람을 부른다." },
+    { t0: 6.5, t1: 9.5, main: "AI는 판정자와 함께 스스로 진행하고, 사람은 두 자리에서 결정한다",
+      sub: "lint · sim · synth · LEC · coverage가 checkpoint마다 판정한다. 사람은 검수와 반영에 선다." },
+    { t0: 9.5, t1: 11.5, main: "결과는 learn으로 돌아가 다음 일을 더 잘하게 만든다",
+      sub: "검수 판정과 실행 기록이 규칙과 workflow를 고친다. 쓸수록 좋아지는 구조다." },
+    { t0: 11.5, t1: 99, main: "core가 기틀이다. 주제마다 workflow를 얹으면 실무가 된다",
+      sub: "모든 일이 같은 길을 지나고, AI는 oracle과 함께 진행하며, 사람은 두 자리에서 결정한다." }
+  ];
+  T(80, 78, "RTL WorkSys  ·  core 한 장", 24, { fill: "var(--acc)", fontWeight: 800, letterSpacing: "1px" });
+  var capG = G();
+  CAP.forEach(function (c, i) {
+    var g = G(capG);
+    T(80, 146, c.main, 46, { fontWeight: 800 }, g);
+    T(80, 198, c.sub, 24, { fill: "var(--mut)" }, g);
+    if (POSTER) { g.style.opacity = i === CAP.length - 1 ? 1 : 0; return; }
+    fade(g, c.t0 === 0 ? -1 : c.t0, 0.4, c.t1 < 99 ? c.t1 - 0.25 : undefined, 0.3);
+  });
+  // 진행 막대 (움직일 때만)
+  var bar = POSTER ? null : E("rect", { x: 80, y: 222, width: 0, height: 3, rx: 1.5 }, { fill: "var(--acc)", opacity: 0.5 });
+
+  /* ── 뒤 배경: 구역 판 ── */
+  var mark0 = svg.childNodes.length;
+  var zoneG = G();
+  ZONES.forEach(function (z, i) {
+    var g = G(zoneG);
+    E("rect", { x: z.x0, y: 244, width: z.x1 - z.x0, height: 262, rx: 20 },
+      { fill: "color-mix(in srgb," + ZC[i] + " 8%, var(--card))", stroke: "color-mix(in srgb," + ZC[i] + " 45%, var(--line))", strokeWidth: 1.5 }, g);
+    T((z.x0 + z.x1) / 2, 280, z.title, 22, { fill: ZC[i], fontWeight: 800 }, g, "middle");
+    T((z.x0 + z.x1) / 2, 306, z.sub, 16, { fill: "var(--mut)" }, g, "middle");
+    fade(g, 3.2 + i * 0.25, 0.5);
+  });
+
+  /* ── 입구: 일의 발생 ── */
+  var INL = ["ticket", "도구 신호", "backlog", "command"], inlY = [310, 370, 430, 490];
+  var inG = G();
+  T(160, 272, "일의 발생", 18, { fill: "var(--mut)", fontWeight: 700 }, inG, "middle");
+  var inPaths = [];
+  INL.forEach(function (s, i) {
+    var p = E("path", { d: "M 246 " + inlY[i] + " C 310 " + inlY[i] + ", 320 " + Y + ", " + (400 - R) + " " + Y, fill: "none" },
+      { stroke: "var(--line)", strokeWidth: 2.5 });
+    inPaths.push(p);
+    draw(p, 2.6 + i * 0.1, 0.7);
+    var g = pill(160, inlY[i], s, 19, "var(--acc)", inG, { h: 42, pad: 34 });
+    pop(g, 160, inlY[i], 0.3 + i * 0.22, 0.5);
+  });
+
+  /* ── 흐름선 · hold 갈래 · learn 고리 ── */
+  var main = E("path", { d: "M " + 400 + " " + Y + " H 1720", fill: "none" }, { stroke: "var(--line)", strokeWidth: 3 });
+  draw(main, 3.3, 1.7);
+  var holdP = E("path", { d: "M 680 " + (Y + R + 70) + " V 541", fill: "none" }, { stroke: "var(--bad)", strokeWidth: 2.5 });
+  draw(holdP, 5.0, 0.4);
+  var loop = E("path", { d: "M 1720 " + (Y + R + 70) + " V 664 H 400 V " + (Y + R + 74), fill: "none" },
+    { stroke: "var(--ok)", strokeWidth: 3, strokeLinecap: "round" });
+  draw(loop, 9.6, 1.3);
+  var loopHead = E("path", { d: "M 388 " + (Y + R + 88) + " L 400 " + (Y + R + 72) + " L 412 " + (Y + R + 88), fill: "none" },
+    { stroke: "var(--ok)", strokeWidth: 3, strokeLinecap: "round", strokeLinejoin: "round" });
+  fade(loopHead, 10.8, 0.3);
+  var loopLbl = pill(1060, 664, "learn: 검수 판정 + 실행 기록 → 규칙과 workflow를 고친다", 19, "var(--ok)", null,
+    { h: 40, pad: 36, fill: "var(--bg)" });
+  fade(loopLbl, 10.3, 0.5);
+
+  /* ── 아홉 단계 노드 ── */
+  var nodeG = G();
+  ST.forEach(function (s, i) {
+    var g = G(nodeG), c = ZC[s.z], human = s.z === 2;
+    if (human) {
+      var ring = E("circle", { cx: s.x, cy: Y, r: R + 12 }, { fill: "none", stroke: "var(--warn)", strokeWidth: 3, opacity: 0 }, g);
+      s.ring = ring;
+    }
+    E("circle", { cx: s.x, cy: Y, r: R },
+      { fill: human ? "color-mix(in srgb,var(--warn) 22%, var(--card))" : "var(--card)", stroke: c, strokeWidth: 3.5 }, g);
+    T(s.x, Y + 9, String(i + 1), 24, { fill: c, fontWeight: 800 }, g, "middle");
+    T(s.x, Y + R + 34, s.id, 21, { fontWeight: 800 }, g, "middle");
+    T(s.x, Y + R + 58, s.ko, 16, { fill: "var(--mut)" }, g, "middle");
+    pop(g, s.x, Y, 3.2 + i * 0.17, 0.45);
+  });
+
+  /* ── gate의 hold ── */
+  var holdG = G();
+  pill(640, 560, "걸리면 멈추고 사람을 부른다", 17, "var(--bad)", holdG, { h: 38, pad: 30 });
+  T(640, 606, "위험 · 권한 · 정보 · 불확실 · 작업량", 16, { fill: "var(--mut)" }, holdG, "middle");
+  rise(holdG, 5.2, 0.5, 16);
+
+  /* ── oracle 판정자 ── */
+  var orG = G(), ORC = ["lint", "sim", "synth", "LEC", "coverage"], chips = [];
+  var cx = 1020, widths = [], total = 0;
+  ORC.forEach(function (s) { var tmp = T(0, -100, s, 17, { fontWeight: 700 }); widths.push(tmp.getComputedTextLength() + 44); svg.removeChild(tmp); });
+  total = widths.reduce(function (a, b) { return a + b; }, 0) + 8 * (ORC.length - 1);
+  var ox = cx - total / 2;
+  var conn = E("path", { d: "M 1020 " + (Y + R + 70) + " V 541", fill: "none" }, { stroke: "var(--acc2)", strokeWidth: 2, strokeDasharray: "5 6" }, orG);
+  ORC.forEach(function (s, i) {
+    var w = widths[i], x = ox + w / 2;
+    var g = pill(x, 560, "✓ " + s, 17, "var(--acc2)", orG, { h: 38, pad: 22 });
+    chips.push({ g: g, t: 7.0 + i * 0.22 });
+    ox += w + 8;
+  });
+  T(1020, 606, "checkpoint마다 판정자(oracle)가 확인한다", 16, { fill: "var(--mut)" }, orG, "middle");
+  fade(orG, 6.6, 0.4);
+
+  /* ── 사람 두 자리 ── */
+  var huG = G();
+  pill(1440, 560, "판정 → 반영 결정", 17, "var(--warn)", huG, { h: 38, pad: 30 });
+  T(1440, 606, "accept·reject / MR·회신·보류", 16, { fill: "var(--mut)" }, huG, "middle");
+  E("path", { d: "M 1370 " + (Y + R + 62) + " V 540 M 1510 " + (Y + R + 62) + " V 540", fill: "none" },
+    { stroke: "var(--warn)", strokeWidth: 2, strokeDasharray: "4 5", opacity: 0.6 }, huG);
+  rise(huG, 8.1, 0.5, 16);
+
+  var mark1 = svg.childNodes.length;
+  /* ── 아래 왼쪽: 왜 core가 먼저인가 ── */
+  var whyG = G();
+  E("rect", { x: 80, y: 736, width: 860, height: 314, rx: 20 }, { fill: "var(--card)", stroke: "var(--line)", strokeWidth: 1.5 }, whyG);
+  T(112, 782, "왜 core가 먼저인가", 27, { fontWeight: 800 }, whyG);
+  var WHY = [
+    ["같은 길", "var(--acc)", "입구가 늘고 주제가 늘어도, 모든 일이 같은 아홉 단계를 지난다."],
+    ["안전", "var(--bad)", "gate가 먼저 멈추고, oracle이 판정하고, 사람은 검수·반영에서 결정한다."],
+    ["누적", "var(--ok)", "검수 판정과 실행 기록이 learn으로 돌아가 규칙과 workflow를 고친다."],
+    ["확장", "var(--acc2)", "새 주제는 core를 다시 만들지 않는다. workflow만 정리해 얹는다."]
+  ];
+  var wy = 830;
+  WHY.forEach(function (w, i) {
+    var g = G(whyG);
+    E("circle", { cx: 126, cy: wy - 7, r: 15 }, { fill: "color-mix(in srgb," + w[1] + " 20%, var(--card))", stroke: w[1], strokeWidth: 2 }, g);
+    T(126, wy, String(i + 1), 17, { fill: w[1], fontWeight: 800 }, g, "middle");
+    T(156, wy, w[0], 21, { fill: w[1], fontWeight: 800 }, g);
+    var r = wrapText(252, wy, w[2], 20, 660, 27, { fill: "var(--fg)" }, g);
+    wy += 26 + r.n * 27;
+    rise(g, 12.0 + i * 0.25, 0.5, 14);
+  });
+  fade(whyG, 11.9, 0.4);
+
+  /* ── 아래 오른쪽: core 위에 얹힐 주제 ── */
+  var topG = G();
+  E("rect", { x: 980, y: 736, width: 860, height: 314, rx: 20 }, { fill: "var(--card)", stroke: "var(--line)", strokeWidth: 1.5 }, topG);
+  T(1012, 782, "core 위에 얹힐 주제", 27, { fontWeight: 800 }, topG);
+  T(1808, 782, "주제마다 한 장 · 예정", 16, { fill: "var(--mut)" }, topG, "end");
+  var base = G(topG);
+  E("rect", { x: 1012, y: 948, width: 796, height: 50, rx: 12 },
+    { fill: "color-mix(in srgb,var(--acc) 22%, var(--card))", stroke: "var(--acc)", strokeWidth: 2 }, base);
+  T(1034, 981, "core  =  intake + workflow", 21, { fill: "var(--acc)", fontWeight: 800 }, base);
+  T(1788, 981, "개념 설계 확정", 17, { fill: "var(--ok)", fontWeight: 800 }, base, "end");
+  fade(base, 11.7, 0.4);
+  var TOP = [
+    ["chain", "설계→검증 사슬", "틀", "var(--warn)"],
+    ["timing-area", "synth · LEC 탐색", "seed", "var(--mut)"],
+    ["coverage", "coverage · sim", "seed", "var(--mut)"],
+    ["code-review", "판정과 근거", "seed", "var(--mut)"],
+    ["diagnose", "\"왜 그런가\"", "빈칸", "var(--bad)"]
+  ];
+  var bw = 150, gap = (796 - 5 * bw) / 4;
+  TOP.forEach(function (m, i) {
+    var g = G(topG), x = 1012 + i * (bw + gap), gapCase = m[2] === "빈칸";
+    E("rect", { x: x, y: 806, width: bw, height: 128, rx: 14 },
+      { fill: gapCase ? "transparent" : "var(--bg2)", stroke: gapCase ? "var(--bad)" : "var(--line)",
+        strokeWidth: 2, strokeDasharray: gapCase ? "7 6" : "none" }, g);
+    T(x + bw / 2, 846, m[0], 19, { fontWeight: 800 }, g, "middle");
+    T(x + bw / 2, 874, m[1], 14.5, { fill: "var(--mut)" }, g, "middle");
+    pill(x + bw / 2, 908, m[2], 14, m[3], g, { h: 28, pad: 24 });
+    E("path", { d: "M " + (x + bw / 2) + " 934 V 948", fill: "none" }, { stroke: "var(--line)", strokeWidth: 2 }, g);
+    rise(g, 11.9 + i * 0.2, 0.55, -40);
+  });
+  T(1012, 1030, "주제마다 workflow · checkpoint · oracle을 정리해 얹는다. 각 주제의 한 장도 같은 틀로 만든다.", 16,
+    { fill: "var(--mut)" }, topG);
+  fade(topG, 11.5, 0.4);
+
+  /* ── S1: 제각각 흩어진 일 (입자) ── */
+  function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  var rnd = rng(7), chaos = [], pal = ["var(--acc)", "var(--acc2)", "var(--warn)", "var(--ok)", "var(--bad)"];
+  var chaosG = G();
+  if (!POSTER) for (var c = 0; c < 22; c++) {
+    var d = { x: 380 + rnd() * 1300, y: 270 + rnd() * 330, ax: 30 + rnd() * 70, ay: 20 + rnd() * 50,
+      fx: 0.6 + rnd() * 1.2, fy: 0.5 + rnd() * 1.1, ph: rnd() * 6.28, r: 5 + rnd() * 6 };
+    d.el = E("circle", { r: d.r }, { fill: pal[c % 5], opacity: 0 }, chaosG);
+    d.q = c % 3 === 0 ? T(0, 0, "?", 22, { fill: "var(--mut)", fontWeight: 800, opacity: 0 }, chaosG, "middle") : null;
+    d.t0 = 0.2 + rnd() * 0.9;
+    chaos.push(d);
+  }
+
+  /* ── 흐르는 일 (입자): 입구 → 아홉 단계 → (hold) → learn → (고리) ── */
+  var flowG = G(), flow = [];
+  function seg(p) { return { p: p, L: p.getTotalLength() }; }
+  var SEGS = { main: seg(main), hold: seg(holdP), loop: seg(loop) };
+  var ins = inPaths.map(seg);
+  if (!POSTER) for (var k = 0; k < 40; k++) {
+    var t0 = 4.2 + k * 0.28;
+    if (t0 > DUR) break;
+    var toHold = k % 6 === 2;
+    var route = [ins[k % 4], toHold ? { p: main, L: 680 - 400 } : SEGS.main];
+    if (toHold) route.push(SEGS.hold);
+    var el = E("circle", { r: 7 }, { fill: toHold ? "var(--bad)" : "var(--acc)", opacity: 0 }, flowG);
+    flow.push({ t0: t0, route: route, el: el, hold: toHold });
+  }
+  var SPEED = 430;
+  function flowAt(f, t) {
+    var s = (t - f.t0) * SPEED;
+    if (s < 0) return null;
+    var route = f.route.slice();
+    // learn 고리가 그려진 뒤에 도착한 일은 고리를 타고 입구로 돌아간다
+    if (!f.hold) {
+      var tArrive = f.t0 + (route[0].L + SEGS.main.L) / SPEED;
+      if (tArrive > 10.9) route.push(SEGS.loop);
+    }
+    for (var i = 0; i < route.length; i++) {
+      if (s <= route[i].L) {
+        var pt = route[i].p.getPointAtLength(s);
+        var tail = route.length - 1 === i ? route[i].L - s : 999;
+        return { x: pt.x, y: pt.y, o: Math.min(1, tail / 40), onLoop: route[i] === SEGS.loop };
+      }
+      s -= route[i].L;
+    }
+    return null;
+  }
+
+  // 흐름도 묶음: 앞 장면에서는 화면 가운데, 마지막 장면 직전에 위로 올라간다
+  var stageG = G(), moved = [];
+  for (var m = mark0; m < mark1; m++) moved.push(svg.childNodes[m]);
+  moved.forEach(function (n) { stageG.appendChild(n); });
+  stageG.insertBefore(flowG, nodeG);
+  stageG.appendChild(loopLbl);
+  stageG.appendChild(chaosG);
+  svg.insertBefore(stageG, whyG);
+
+  function seek(t) {
+    var dy = POSTER ? 0 : 170 * (1 - eo(clamp((t - 11.1) / 0.7)));
+    stageG.setAttribute("transform", "translate(0 " + dy + ")");
+    for (var i = 0; i < A.length; i++) apply(A[i], t);
+    if (bar) bar.setAttribute("width", 1760 * clamp(t / DUR));
+    // oracle 판정: 차례로 초록 확인
+    chips.forEach(function (c) {
+      var on = t >= c.t || POSTER;
+      c.g._rect.style.stroke = on ? "var(--ok)" : "var(--acc2)";
+      c.g._rect.style.fill = on ? "color-mix(in srgb,var(--ok) 16%, var(--card))" : "color-mix(in srgb,var(--acc2) 14%, var(--card))";
+      c.g._text.style.fill = on ? "var(--ok)" : "var(--acc2)";
+    });
+    // 사람 자리: 켜지는 고리
+    ST.forEach(function (s) {
+      if (!s.ring) return;
+      var p = POSTER ? 1 : clamp((t - 8.0) / 0.5);
+      var pulse = POSTER ? 0 : Math.max(0, Math.sin((t - 8.0) * 5)) * (t < 9.6 ? 1 : 0);
+      s.ring.style.opacity = p * (0.55 + 0.45 * pulse);
+      s.ring.setAttribute("r", R + 10 + 5 * pulse);
+    });
+    // 흩어진 일
+    chaos.forEach(function (d) {
+      var o = clamp((t - d.t0) / 0.4) * (1 - clamp((t - 2.6) / 0.6));
+      var x = d.x + d.ax * Math.sin(t * d.fx * 2 + d.ph), y = d.y + d.ay * Math.cos(t * d.fy * 2 + d.ph * 1.3);
+      d.el.setAttribute("cx", x); d.el.setAttribute("cy", y); d.el.style.opacity = o * 0.85;
+      if (d.q) { d.q.setAttribute("x", x + 14); d.q.setAttribute("y", y - 10); d.q.style.opacity = o * 0.7; }
+    });
+    // 흐르는 일
+    flow.forEach(function (f) {
+      var pos = flowAt(f, t);
+      if (!pos) { f.el.style.opacity = 0; return; }
+      f.el.setAttribute("cx", pos.x); f.el.setAttribute("cy", pos.y);
+      f.el.style.fill = f.hold ? "var(--bad)" : pos.onLoop ? "var(--ok)" : "var(--acc)";
+      f.el.style.opacity = pos.o;
+    });
+  }
+
+  window.__DUR = DUR;
+  window.__seek = seek;
+  var fixed = Q.get("t");
+  if (POSTER) seek(DUR);
+  else if (fixed !== null) seek(+fixed);
+  else if (!CAPTURE) {
+    // 브라우저에서 열면 반복해서 보여 준다 (끝에서 2초 멈춤). 누르면 처음부터.
+    var start = performance.now();
+    svg.addEventListener("click", function () { start = performance.now(); });
+    (function loopFn(now) {
+      var t = ((now - start) / 1000) % (DUR + 2);
+      seek(Math.min(t, DUR));
+      requestAnimationFrame(loopFn);
+    })(start);
+  } else seek(0);
+  window.__ready = true;
+})();
+</script>
+</body>
+</html>
