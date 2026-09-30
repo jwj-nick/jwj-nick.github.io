@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KB Agent System</title>
+<meta name="description" content="질문하면 근거와 함께 답하는 지식 저장소를 전용 agent들이 짓고 유지하는 시스템의 한 장 해설">
+<style>
+:root{
+  --bg:#f7f6f2; --panel:#ffffff; --fg:#1c232b; --muted:#5a6472; --line:#c9cfd7; --soft:#eef1f5;
+  --acc:#2457d6; --acc-soft:#e3ebfd; --hum:#b45309; --hum-soft:#fdf0e1; --ok:#15803d; --ok-soft:#e4f5ea;
+  --bad:#b91c1c; --bad-soft:#fde7e7; --svc:#475569; --svc-soft:#edf1f5; --cus:#7c3aed; --cus-soft:#f1eafe;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1319; --panel:#151b22; --fg:#e5e9ef; --muted:#9aa5b4; --line:#3a434f; --soft:#1b232c;
+    --acc:#7ea9ff; --acc-soft:#172640; --hum:#f0a05c; --hum-soft:#3a2714; --ok:#4cc27a; --ok-soft:#14301e;
+    --bad:#f07b7b; --bad-soft:#3b1818; --svc:#a9b4c3; --svc-soft:#1c2530; --cus:#b69cff; --cus-soft:#261a3f;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1319; --panel:#151b22; --fg:#e5e9ef; --muted:#9aa5b4; --line:#3a434f; --soft:#1b232c;
+  --acc:#7ea9ff; --acc-soft:#172640; --hum:#f0a05c; --hum-soft:#3a2714; --ok:#4cc27a; --ok-soft:#14301e;
+  --bad:#f07b7b; --bad-soft:#3b1818; --svc:#a9b4c3; --svc-soft:#1c2530; --cus:#b69cff; --cus-soft:#261a3f;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg)}
+body{font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR","Segoe UI",system-ui,sans-serif;font-size:16px;line-height:1.7;word-break:keep-all;overflow-wrap:anywhere}
+main{max-width:1120px;margin:0 auto;padding:28px 16px 80px}
+a{color:var(--acc)}
+.kicker{font-size:13px;color:var(--muted);letter-spacing:.02em}
+h1{font-size:30px;line-height:1.3;margin:6px 0 10px}
+h2{font-size:22px;margin:48px 0 10px;padding-top:12px;border-top:1px solid var(--line)}
+h2 .no{color:var(--acc);margin-right:8px}
+h3{font-size:17px;margin:22px 0 8px}
+p{margin:8px 0}
+.lead{font-size:17px;color:var(--muted)}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 8px}
+.toc a{font-size:13.5px;text-decoration:none;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:3px 11px;color:var(--fg)}
+.toc a:hover{border-color:var(--acc);color:var(--acc)}
+.star{border-left:5px solid var(--acc);background:var(--acc-soft);padding:14px 18px;border-radius:0 12px 12px 0;font-size:18.5px;font-weight:650;margin:16px 0}
+.answer{border:2px solid var(--ok);background:var(--ok-soft);border-radius:14px;padding:16px 18px;margin:18px 0}
+.answer .q{font-size:14px;color:var(--muted);margin-bottom:4px}
+.answer .a{font-size:19px;font-weight:700;margin-bottom:6px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin:12px 0}
+.grid>*,.agent>*,.over>*,.layers>*,.flow>*{min-width:0}
+.grid.two{grid-template-columns:repeat(auto-fill,minmax(420px,1fr))}
+.grid.three{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 15px}
+.card h4{margin:0 0 6px;font-size:16.5px}
+.card p,.card li{font-size:14.5px;color:var(--muted)}
+.card ul{margin:4px 0 0;padding-left:18px}
+.card.a{border-color:var(--acc);background:var(--acc-soft)}
+.card.h{border-color:var(--hum);background:var(--hum-soft)}
+.card.ok{border-color:var(--ok);background:var(--ok-soft)}
+.card.bad{border-color:var(--bad);background:var(--bad-soft)}
+.card.c{border-color:var(--cus);background:var(--cus-soft)}
+.card.s{border-color:var(--svc);background:var(--svc-soft)}
+.big{font-size:32px;font-weight:800;line-height:1.1;margin-bottom:4px}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:14.5px;background:var(--panel);border:1px solid var(--line)}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--soft);font-weight:650}
+.tw table{min-width:600px}
+th,td{overflow-wrap:normal}
+td.y{color:var(--ok);font-weight:700;text-align:center}
+td.n{color:var(--muted);text-align:center}
+td.m{color:var(--hum);font-weight:650;text-align:center}
+code{font-family:ui-monospace,Consolas,monospace;font-size:13.5px;background:var(--soft);padding:0 4px;border-radius:4px}
+pre{font-family:ui-monospace,Consolas,monospace;font-size:13px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;overflow-x:auto;line-height:1.55;margin:10px 0}
+.note{font-size:14px;color:var(--muted)}
+.pill{display:inline-block;font-size:12.5px;padding:1px 9px;border-radius:999px;border:1px solid var(--line);background:var(--soft);margin:2px 3px 2px 0;white-space:nowrap}
+.pill.a{border-color:var(--acc);color:var(--acc);background:var(--acc-soft)}
+.pill.h{border-color:var(--hum);color:var(--hum);background:var(--hum-soft)}
+.pill.ok{border-color:var(--ok);color:var(--ok);background:var(--ok-soft)}
+.pill.c{border-color:var(--cus);color:var(--cus);background:var(--cus-soft)}
+.pill.s{border-color:var(--svc);color:var(--svc);background:var(--svc-soft)}
+/* 흐름 그림: 넓은 화면 가로, 좁은 화면 세로 */
+.flow{display:flex;align-items:stretch;gap:0;margin:14px 0}
+.flow .st{flex:1 1 0;background:var(--panel);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;min-width:0}
+.flow .st b{display:block;font-size:14.5px;margin-bottom:3px}
+.flow .st span{display:block;font-size:13px;color:var(--muted);line-height:1.5}
+.flow .st.a{border-color:var(--acc);background:var(--acc-soft)}
+.flow .st.h{border-color:var(--hum);background:var(--hum-soft)}
+.flow .st.ok{border-color:var(--ok);background:var(--ok-soft)}
+.flow .st.s{border-color:var(--svc);background:var(--svc-soft)}
+.flow .st.c{border-color:var(--cus);background:var(--cus-soft)}
+.flow .ar{flex:0 0 26px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:18px}
+.flow .ar::before{content:"→"}
+.back{margin:-4px 0 14px;padding:8px 12px;border:1.5px dashed var(--acc);border-radius:10px;font-size:14px;color:var(--acc);background:var(--panel)}
+/* 전체 그림 */
+.over{display:grid;grid-template-columns:minmax(0,1fr) 26px minmax(0,1.35fr) 26px minmax(0,1fr) 26px minmax(0,1fr);gap:0;align-items:stretch;margin:14px 0}
+.over .col{background:var(--panel);border:1.5px solid var(--line);border-radius:14px;padding:12px}
+.over .col h4{margin:0 0 8px;font-size:15px}
+.over .col .it{font-size:13.5px;padding:5px 8px;border-radius:8px;border:1px solid var(--line);background:var(--soft);margin:5px 0;line-height:1.45}
+.over .col.sys{border:2px solid var(--acc);background:var(--acc-soft)}
+.over .col.sys .it{background:var(--panel)}
+.over .col.sys .it.ag{border-color:var(--acc)}
+.over .col.sys .it.sc{border-color:var(--svc)}
+.over .ar{display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:18px}
+.over .ar::before{content:"→"}
+.humbar{margin:8px 0 0;border:1.5px solid var(--hum);background:var(--hum-soft);border-radius:12px;padding:9px 14px;font-size:14px}
+/* 세 층 */
+.layers{display:grid;grid-template-columns:170px minmax(0,1fr) minmax(0,1fr);gap:8px;margin:14px 0}
+.layers .lh{font-weight:700;font-size:14.5px;padding:10px;border-radius:10px;background:var(--soft);border:1px solid var(--line)}
+.layers .lh small{display:block;font-weight:400;color:var(--muted);font-size:12.5px}
+.layers .cell{border-radius:10px;padding:10px 12px;font-size:14px;border:1.5px solid var(--line);background:var(--panel)}
+.layers .span2{grid-column:2 / span 2}
+.layers .eng{border-color:var(--ok);background:var(--ok-soft)}
+.layers .co{border-color:var(--acc);background:var(--acc-soft)}
+.layers .me{border-color:var(--cus);background:var(--cus-soft)}
+.layers .head{font-weight:700;text-align:center;font-size:14px;padding:6px;border:none;background:none}
+.agent{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:12px;margin:12px 0}
+.agent .card{border-top:5px solid var(--acc)}
+.agent .card.rr{border-top-color:var(--hum)}
+.agent dl{margin:6px 0 0;display:grid;grid-template-columns:78px 1fr;gap:3px 8px;font-size:13.8px}
+.agent dt{color:var(--muted);font-weight:650}
+.agent dd{margin:0}
+.agent .role{font-size:14px;color:var(--fg);margin:2px 0 4px}
+.mono{font-family:ui-monospace,Consolas,monospace;font-size:13px}
+footer{margin-top:56px;padding-top:14px;border-top:1px solid var(--line);font-size:13.5px;color:var(--muted)}
+@media (max-width:760px){
+  h1{font-size:24px}
+  .flow{flex-direction:column}
+  .flow .ar{flex:0 0 22px}
+  .flow .ar::before{content:"↓"}
+  .over{grid-template-columns:minmax(0,1fr)}
+  .over .ar{height:22px}
+  .over .ar::before{content:"↓"}
+  .layers{grid-template-columns:minmax(0,1fr)}
+  .layers .span2{grid-column:auto}
+  .layers .head{display:none}
+  .grid.two,.grid.three,.agent{grid-template-columns:minmax(0,1fr)}
+  .agent dl{grid-template-columns:70px 1fr}
+}
+@media print{
+  :root{--bg:#fff;--panel:#fff;--fg:#111;--muted:#444;--line:#bbb;--soft:#f2f2f2}
+  .toc{display:none} .card,table,.flow,.over,.layers{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<main>
+
+<div class="kicker">설계 해설 · 모든 예시(제품 · 고객 · 수치)는 가상 · 숫자 기준은 공란</div>
+<h1>KB Agent System: 질문하면 근거와 함께 답하는 지식 저장소를, 전용 agent들이 짓고 유지한다</h1>
+<p class="lead">흩어진 제품 자료(코드 · spec · issue · 릴리즈 · 합성 결과 · 고객 질문)를 사람과 AI agent가 실제 질문에 답할 수 있는 하나의 KB로 만들고, 원천이 바뀌어도 낡지 않게 유지하는 시스템이다. 이 페이지 하나만 읽고도 시스템 전체가 이해되도록 썼다. 순서대로 읽으면 <b>무엇을</b>(1~2) → <b>누가</b>(3~4) → <b>어떻게 돌아가나</b>(5~6) → <b>무엇이 믿게 하나</b>(7~8) → <b>어떻게 세우나</b>(9~11) 순서다.</p>
+<nav class="toc">
+<a href="#s0">핵심 답</a><a href="#s1">1 북극성</a><a href="#s2">2 한 장 그림</a><a href="#s3">3 부품</a><a href="#s4">4 사람의 자리</a><a href="#s5">5 작업 고리</a><a href="#s6">6 세 흐름</a><a href="#s7">7 믿게 하는 장치</a><a href="#s8">8 고객 정보</a><a href="#s9">9 세 층</a><a href="#s10">10 반입물 만들기</a><a href="#s11">11 지금 상태</a><a href="#s12">12 용어</a>
+</nav>
+
+<div class="answer" id="s0">
+  <div class="q">KB를 구축할 때 KB 전용 agent system이 KB를 짓는가?</div>
+  <div class="a">맞다. 사람은 문서를 쓰지 않고 판정한다.</div>
+  <p>agent 다섯이 원천을 읽어 문서 초안과 갱신을 MR(merge request)로 낸다. script 셋이 검사 · 계산 · 작업 분배를 맡는다. 사람은 MR을 보고 받아들일지 정하고, 받아들인 문서만 <b>reviewed</b>가 된다. 사람이 직접 쓰는 것은 판정 기록, 릴리즈 확정, agent가 찾지 못한 몇 가지 사실(예: 담당 역할)뿐이다.</p>
+  <div class="grid">
+    <div class="card a"><h4>agent: 쓴다(제안)</h4><p>원천을 읽고 template대로 초안을 쓴다. 모든 쓰기는 MR이고 draft로 시작한다.</p></div>
+    <div class="card s"><h4>script: 센다 · 막는다 · 나눈다</h4><p>신선도 · 연결 · 누출 · 확정 기록 변조 · 생성 칸을 판정하고, 할 일을 작업으로 만들어 agent에 나눈다. LLM을 부르지 않는다.</p></div>
+    <div class="card h"><h4>사람: 판정한다</h4><p>MR을 받아들이면 누가 · 언제 · 어떤 방법으로 확인했는지와 확인한 본문의 hash가 남는다.</p></div>
+  </div>
+</div>
+
+<!-- 1 -->
+<h2 id="s1"><span class="no">1</span>북극성: 무엇을 만드나</h2>
+<div class="star">어떤 제품의 어떤 질문이든, 사람과 agent가 KB에서 근거(원천 위치와 버전)가 붙은 답을 찾는다. 답을 못 찾으면, 그 빈 곳이 자동으로 채울 일이 된다.</div>
+<div class="grid three">
+  <div class="card ok"><h4>믿을 수 있다</h4><p>모든 사실에 출처와 버전이 붙고, 사람이 무엇을 확인했는지 보인다. 장치: 인용 <code>[s1]</code>, 근거가 붙은 추정 표시, 확인 기록과 확인한 본문의 hash.</p></div>
+  <div class="card ok"><h4>살아 있다</h4><p>원천이 바뀌면 KB가 스스로 "다시 봐야 함(stale)"을 표시하고, 갱신 제안이 자동으로 온다. 장치: 문서마다 원천 revision, 매일 lint, 사건 hook.</p></div>
+  <div class="card ok"><h4>빈 곳이 보인다</h4><p>무엇이 없는지, 어떤 질문에 답하지 못했는지가 목록으로 남는다. 장치: 지도(<code>_map/</code>), 답하지 못한 질문의 기록(gap)과 순위.</p></div>
+</div>
+<h3>왜 문서 모음이 아니라 "시스템"인가</h3>
+<p>자료를 한 번 모아 정리하면 네 가지가 무너진다. 각각을 막는 장치가 시스템의 부품이 된다.</p>
+<div class="tw"><table>
+<tr><th>무너지는 것</th><th>막는 방법</th></tr>
+<tr><td><b>낡는다.</b> 정리한 날부터 코드와 문서가 갈라진다</td><td>모든 사실이 원천 revision을 든다. 원천이 바뀌면 lint가 stale을 표시하고 agent가 갱신을 제안한다</td></tr>
+<tr><td><b>출처가 사라진다.</b> 옮겨 적은 숫자와 문장은 어디서 왔는지 모르게 된다</td><td>복사하지 않고 가리킨다. 숫자는 원래 자리(QoR matrix · 결과 서버)에만 있고 문서는 run id를 가리킨다</td></tr>
+<tr><td><b>고객 정보가 섞인다.</b> 한 고객의 질문 · 요구가 다른 고객에게 가는 답에 들어간다</td><td>고객 정보는 처음부터 별도 repo에 두고, 이름 · 내용 · 채널 · 세션 · 로그에서 막는다(8장)</td></tr>
+<tr><td><b>채워지지 않는다.</b> 한 번의 정리 뒤에는 아무도 채우지 않는다</td><td>채우는 일을 원천 사건(commit · ticket 종료 · 릴리즈)에 붙이고, 답하지 못한 질문이 채울 일의 순위가 된다</td></tr>
+</table></div>
+
+<!-- 2 -->
+<h2 id="s2"><span class="no">2</span>한 장 그림</h2>
+<p>원천은 읽기만 한다. KB agent system이 원천을 읽어 KB repo를 채우고 유지한다. 사람과 다른 agent는 KB에 묻는다. 사람은 그 가운데에서 판정한다.</p>
+<div class="over">
+  <div class="col"><h4>원천 (읽기만)</h4>
+    <div class="it">코드 저장소 (SVN · Git)</div><div class="it">spec · 문서 저장소 · wiki</div><div class="it">issue tracker (bug · 요구)</div><div class="it">결과 서버 · QoR matrix</div><div class="it">메일 · 고객 문의</div><div class="it">RTL review ledger · 납품 보관소</div>
+  </div>
+  <div class="ar"></div>
+  <div class="col sys"><h4>KB agent system</h4>
+    <div class="it ag"><b>agent 5</b>: Surveyor · Harvester · Curator · Librarian · Release recorder</div>
+    <div class="it sc"><b>script 3</b>: lint bot · generator · event router(scheduler 포함)</div>
+    <div class="it"><b>규칙</b> <code>_schema</code>: 문서 종류 · 연결 · 출처 우선순위 · 질문 유형 · 사건 표 · checklist</div>
+    <div class="it"><b>계약 11</b>: 문서 머리 · registry · 작업 · 답 · gap · 제안 …</div>
+    <div class="it"><b>skill 8</b>: agent를 부르는 입구(Claude Code)</div>
+  </div>
+  <div class="ar"></div>
+  <div class="col"><h4>KB repo (Git)</h4>
+    <div class="it"><b>본 KB</b>: 제품 · module · bug · 요구 · 릴리즈 문서(Markdown + YAML 머리)</div>
+    <div class="it"><code>_map/</code> 지도: 채움 상태 · stale · gap 순위</div>
+    <div class="it"><code>_ledger/</code> 확정 기록의 hash 원장</div>
+    <div class="it"><b>고객 repo</b>: 고객별 질문 · 납품 · feedback (접근 제한)</div>
+  </div>
+  <div class="ar"></div>
+  <div class="col"><h4>쓰는 쪽</h4>
+    <div class="it">설계자 · 신입 · FAE (Claude Code에서 kb-ask)</div>
+    <div class="it">다른 agent: intake(일 접수) · workflow(일 수행) · RTL reviewer</div>
+    <div class="it">답: 결론 + 근거(문서 id@revision) + 표시 + 못 찾은 곳</div>
+  </div>
+</div>
+<div class="humbar"><b>사람</b>: MR 판정(받아들이면 reviewed) · 릴리즈와 납품 확정 · 예외 승인 · agent가 찾지 못한 사실에 답하기 · 규칙 변경(정본 회의)</div>
+
+<!-- 3 -->
+<h2 id="s3"><span class="no">3</span>부품: 이것이 전부다</h2>
+<h3>3.1 agent 다섯 (LLM)</h3>
+<p>agent는 모두 Claude Code의 subagent + skill로 선다. 사람이 대화로 부르거나, event router가 비대화형 세션으로 연다. 공통 규칙이 있다: <b>원천은 읽기만, KB에는 MR로만, 입력으로 받은 고객 권한 밖은 읽지 않는다.</b></p>
+<div class="agent">
+  <div class="card"><h4>Surveyor <span class="pill a">kb-survey</span></h4>
+    <div class="role">제품 하나의 원천이 어디에 무엇이 있는지 조사한다.</div>
+    <dl><dt>언제</dt><dd>제품 착수 때 한 번(사람이 부른다)</dd>
+    <dt>받는 것</dt><dd>제품 이름 + 입구 하나(repo 경로면 충분)</dd>
+    <dt>내는 것</dt><dd>MR: registry 항목, 제품 이해 카드(card) 초안, card의 "빈 곳"(사람만 답할 수 있는 짧은 질문)</dd>
+    <dt>안 한다</dt><dd>내용 문서 쓰기, 추측으로 칸 채우기, 권한 밖 원천 읽기</dd></dl></div>
+  <div class="card"><h4>Harvester <span class="pill a">kb-harvest</span><span class="pill a">kb-sync</span></h4>
+    <div class="role">원천에서 문서 초안을 쓰고, 원천 사건마다 갱신 · 확인을 제안한다. KB를 채우는 주력이다.</div>
+    <dl><dt>언제</dt><dd>bootstrap 계획, 원천 사건(commit · ticket 종료 …), 지도의 빈 곳</dd>
+    <dt>받는 것</dt><dd>작업 한 건: 대상 · 고객 권한 · 찾아볼 원천 목록</dd>
+    <dt>내는 것</dt><dd>MR: draft 문서 + 제안 머리(사람이 꼭 볼 곳, 판정 등급 제안)</dd>
+    <dt>안 한다</dt><dd>main에 쓰기, 확인 칸 쓰기, 확정 기록 고치기, 원천에 없는 사실, 고객 이름 옮기기</dd></dl></div>
+  <div class="card"><h4>Curator <span class="pill a">kb-review 보조</span></h4>
+    <div class="role">KB를 덜 어지럽게 만들고, 사람이 MR을 빨리 판정하게 돕는다.</div>
+    <dl><dt>언제</dt><dd>MR마다(검수 요약), 정기(충돌 · FAQ · 중복 · 은퇴 · gap 순위)</dd>
+    <dt>받는 것</dt><dd>MR, KB 전체, 지도</dd>
+    <dt>내는 것</dt><dd>MR 설명 맨 위 다섯 줄 요약, 정리 제안 MR, 지도의 빈 곳을 작업으로</dd>
+    <dt>안 한다</dt><dd>사람 대신 reviewed로 올리기, 충돌을 지워서 해결하기</dd></dl></div>
+  <div class="card"><h4>Librarian <span class="pill a">kb-ask</span></h4>
+    <div class="role">KB만으로 근거가 붙은 답을 낸다. 사람과 다른 agent의 창구다.</div>
+    <dl><dt>언제</dt><dd>누가 물을 때</dd>
+    <dt>받는 것</dt><dd>질문 + 고객 권한 + 답이 갈 곳(내부 · 고객에게 나감)</dd>
+    <dt>내는 것</dt><dd>답(결론 · 인용 · 표시), 답하지 못한 자리(gap) 기록</dd>
+    <dt>안 한다</dt><dd>일반 지식으로 채우기, 원천을 직접 읽어 KB에 없는 사실로 답하기, 권한 넓히기, 문서 고치기</dd></dl></div>
+  <div class="card rr"><h4>Release recorder <span class="pill h">kb-release-record</span></h4>
+    <div class="role">릴리즈와 납품을 확정 기록으로 남긴다. KB의 "어느 버전에서"가 여기를 가리킨다.</div>
+    <dl><dt>언제</dt><dd>release tag, 납품 완료, bootstrap(과거 릴리즈 재구성)</dd>
+    <dt>받는 것</dt><dd>tag · log · bug 역색인 · checklist 근거</dd>
+    <dt>내는 것</dt><dd>MR: 릴리즈 폴더 초안, checklist 자동 판정, 고객에게 낸 수치의 동결 사본</dd>
+    <dt>안 한다</dt><dd>사람 항목 판정, 예외 승인, 확정 찍기</dd></dl></div>
+</div>
+
+<h3>3.2 script 셋 (LLM 없음, 결정론)</h3>
+<div class="grid three">
+  <div class="card s"><h4>lint bot</h4><p>문서 모양 · 원천 존재와 신선도 · 인용과 추정 근거 · 연결 · 고객 이름 · 확정 기록 변조 · 생성 칸을 검사하고 지도(<code>_map/</code>)를 만든다. <b>문서를 고치지 않고</b>, 자기 메시지로 고객 정보를 흘리지 않는다. MR마다 바뀐 문서만, 매일 전체.</p></div>
+  <div class="card s"><h4>generator</h4><p>코드에서 port · parameter 표와 module 목록을 만든다(사람이 손으로 쓰지 않는다). 릴리즈 확정 순간의 표를 굳히고 hash를 원장에 남긴다. 사람이 판정할 때 확인한 본문의 hash를 찍는다.</p></div>
+  <div class="card s"><h4>event router · scheduler</h4><p>원천 사건 · 지도의 빈 곳 · 정기 일정 · 사람 요청을 <b>작업</b>으로 만들어 agent 세션에 나눈다. 작업마다 고객 권한과 찾아볼 원천을 붙이고, 이미 거절된 제안은 다시 보내지 않는다.</p></div>
+</div>
+
+<h3>3.3 규칙과 계약</h3>
+<div class="grid two">
+  <div class="card"><h4>규칙 <code>_schema</code> (KB repo 안의 정본)</h4><ul>
+    <li>문서 종류 29: 종류마다 자리 · id 모양 · 필수 필드 · 필수 절 · 절마다 쓸 것. template은 여기서 생성한다</li>
+    <li>연결 18종: 한 방향으로만 쓰고, 역방향은 lint가 만든다</li>
+    <li>출처 우선순위: 사실 종류(structure · intent · number · history · practice)마다 무엇을 먼저 믿나</li>
+    <li>질문 유형 15: 질문마다 KB를 여는 길</li>
+    <li>사건 표 12: 원천 사건 → script 동작 · agent 작업</li>
+    <li>checklist: 릴리즈 · 검증 항목과 자동 판정 여부</li></ul></div>
+  <div class="card"><h4>계약 11 (JSON Schema)</h4><ul>
+    <li>문서 머리(front matter)</li>
+    <li>registry 넷: 제품 · 원천 · 고객 정책 · 담당 역할</li>
+    <li>고객 이름 목록</li>
+    <li><b>작업</b>: agent 세션 하나의 입력</li>
+    <li>답 · gap(답하지 못한 자리) · 제안(MR 머리) · lint 결과</li></ul>
+    <p>agent의 입력과 출력이 계약을 벗어나면 script가 거절한다.</p></div>
+</div>
+
+<h3>3.4 skill 여덟 (사람과 router가 agent를 부르는 입구)</h3>
+<div class="tw"><table>
+<tr><th>skill</th><th>agent · script</th><th>누가 부르나</th><th>무엇을 하나</th></tr>
+<tr><td><code>kb-survey</code></td><td>Surveyor</td><td>KB 관리자(제품 착수)</td><td>원천 조사 → registry · card</td></tr>
+<tr><td><code>kb-harvest</code></td><td>Harvester</td><td>router(bootstrap 계획 · 지도)</td><td>문서 초안</td></tr>
+<tr><td><code>kb-sync</code></td><td>Harvester + generator</td><td>router(원천 사건)</td><td>갱신 · 확인 제안</td></tr>
+<tr><td><code>kb-review</code></td><td>Curator + generator</td><td>문서 담당(사람)</td><td>검수 요약, 판정 hash</td></tr>
+<tr><td><code>kb-lint</code></td><td>lint bot</td><td>CI(MR마다 · 매일)</td><td>검사와 지도</td></tr>
+<tr><td><code>kb-release-record</code></td><td>Release recorder + generator</td><td>릴리즈 · 납품 절차</td><td>확정 기록 초안, 자동 판정, 원장</td></tr>
+<tr><td><code>kb-ask</code></td><td>Librarian</td><td>누구나, 다른 agent</td><td>근거가 붙은 답, gap</td></tr>
+<tr><td><code>kb-eval</code></td><td>Librarian + 채점 script</td><td>팀 리더(정기)</td><td>질문 표본을 KB만으로 답하게 해 채점</td></tr>
+</table></div>
+
+<h3>3.5 누가 무엇을 쓸 수 있나</h3>
+<p>시스템의 안전은 이 표에서 나온다. agent가 쓸 수 있는 곳은 MR branch뿐이고, 믿음을 만드는 칸(확인 · 확정)은 사람과 script만 쓴다.</p>
+<div class="tw"><table>
+<tr><th></th><th>문서 초안 (MR)</th><th>확인 칸 → reviewed</th><th>확정 (릴리즈 · 납품)</th><th>hash 원장</th><th>지도 · 로그</th><th>원천</th></tr>
+<tr><td>Surveyor · Harvester · Curator</td><td class="y">MR</td><td class="n">✕</td><td class="n">✕</td><td class="n">✕</td><td class="n">✕</td><td class="n">읽기만</td></tr>
+<tr><td>Release recorder</td><td class="y">MR</td><td class="n">✕</td><td class="n">✕ (초안만)</td><td class="n">✕</td><td class="n">✕</td><td class="n">읽기만</td></tr>
+<tr><td>Librarian</td><td class="n">✕</td><td class="n">✕</td><td class="n">✕</td><td class="n">✕</td><td class="m">gap 사건만</td><td class="n">record만 읽기</td></tr>
+<tr><td>lint bot</td><td class="n">✕</td><td class="n">✕</td><td class="n">✕</td><td class="n">✕</td><td class="y">지도</td><td class="n">읽기만</td></tr>
+<tr><td>generator</td><td class="m">생성 칸</td><td class="m">hash만 찍음</td><td class="n">✕</td><td class="y">덧붙이기</td><td class="n">✕</td><td class="n">읽기만</td></tr>
+<tr><td>event router</td><td class="n">✕</td><td class="n">✕</td><td class="n">✕</td><td class="n">✕</td><td class="y">작업 · gap 로그</td><td class="n">사건 받기</td></tr>
+<tr><td><b>사람</b></td><td class="y">판정 · merge</td><td class="y">씀</td><td class="y">씀</td><td class="m">보호 branch merge</td><td class="n">✕</td><td class="n">—</td></tr>
+</table></div>
+
+<!-- 4 -->
+<h2 id="s4"><span class="no">4</span>사람의 자리: 쓰지 않고 판정한다</h2>
+<div class="tw"><table>
+<tr><th>역할</th><th>하는 일</th></tr>
+<tr><td>KB 관리자</td><td>규칙(<code>_schema</code>)과 registry의 정본 관리, 정본 회의, 매일 지도 점검과 작업 배분. <b>이 역할이 비면 시스템은 조용히 낡는다.</b></td></tr>
+<tr><td>제품 리더</td><td>제품 card와 구조 문서 확인, 파일럿 착수 결정</td></tr>
+<tr><td>문서 담당(sub-top · 검증 · 구현)</td><td>자기 범위 MR 판정(reviewed로 올림), 충돌 판정</td></tr>
+<tr><td>릴리즈 담당</td><td>checklist의 사람 항목 판정, 예외 승인, 릴리즈 확정</td></tr>
+<tr><td>FAE</td><td>고객 repo(질문 · feedback · 납품 확인), 새 고객을 이름 목록에 등록</td></tr>
+<tr><td>보안 담당</td><td>고객 repo 권한, 원천별 AI 읽기 허용, 전처리 규칙, 고객 ID 정책</td></tr>
+<tr><td>팀 리더</td><td>질문 표본과 품질 목표, 단계 전환, 판정 등급 기본값</td></tr>
+</table></div>
+<p><b>판정 등급</b>으로 사람의 부담을 조절한다. <span class="pill ok">auto</span> 생성 칸 재생성처럼 script가 증명한 것은 사람 없이 merge한다. <span class="pill a">light</span> 사실 추가는 한 사람이 읽는다. <span class="pill h">full</span> 구조 · 영향 판단은 담당이 원천과 대조한다. 확인 방법은 실제로 한 것만 적는다: 사람이 읽음 · 사람이 코드와 대조 · script가 증명. agent가 한 대조를 사람의 대조로 적지 않는다.</p>
+
+<!-- 5 -->
+<h2 id="s5"><span class="no">5</span>작업 한 건이 도는 고리: 시스템의 심장</h2>
+<p>세 흐름(처음 채우기 · 유지 · 질문)은 사실 하나의 고리다. <b>모든 agent 세션은 작업 한 건에서 시작하고, 결과는 MR 하나다.</b> 작업은 네 곳에서 생긴다.</p>
+<div class="flow">
+  <div class="st h"><b>① 작업이 생긴다</b><span>bootstrap 계획 · 원천 사건 · 지도의 빈 곳 · 사람 요청</span></div><div class="ar"></div>
+  <div class="st s"><b>② router가 작업을 만든다</b><span>종류 · 대상 · 고객 권한 · 찾아볼 원천 · 판정 등급 · 중복 방지 key</span></div><div class="ar"></div>
+  <div class="st a"><b>③ agent 세션 하나</b><span>skill이 규칙과 template을 들고 원천을 읽는다</span></div><div class="ar"></div>
+  <div class="st a"><b>④ MR</b><span>draft 문서 + 제안 머리(사람이 볼 곳 · 등급)</span></div><div class="ar"></div>
+  <div class="st s"><b>⑤ 검사</b><span>lint가 바뀐 문서를 판정, Curator가 다섯 줄 요약</span></div><div class="ar"></div>
+  <div class="st h"><b>⑥ 사람 판정</b><span>받아들이면 확인 기록 + 본문 hash → reviewed</span></div><div class="ar"></div>
+  <div class="st ok"><b>⑦ 지도</b><span>매일 lint가 채움 상태 · stale · gap 순위를 다시 만든다</span></div>
+</div>
+<div class="back">↺ 지도의 빈 곳(없는 문서 · 다시 봐야 할 문서 · 답하지 못한 질문)이 다시 ①의 작업이 된다. KB가 스스로 다음 할 일을 만든다.</div>
+<div class="grid two">
+  <div class="card"><h4>작업 한 건의 모양 (계약 <code>kb_job</code>)</h4>
+<pre>id: J-0002
+kind: sync                 # survey · harvest · sync · curate · faq · release-record …
+origin: event              # bootstrap-plan · event · map · schedule · human
+event: issue-closed-bug jira:VXD-130
+skill: kb-sync
+target: { product: vx-dec, doc_type: bug, doc_ids: [BUG-VXD-130] }
+customer_scope: none       # none 또는 고객 하나. all은 없다
+sources: [jira:VXD-130, svn-main:/commit/r1502]
+review_level_hint: full
+dedupe_key: BUG-VXD-130@r1502</pre></div>
+  <div class="card"><h4>이 모양이 지키는 것</h4><ul>
+    <li><b>범위:</b> agent는 받은 원천 목록 밖을 찾아본 것처럼 쓰지 않는다. 그래서 "없음(찾아본 곳: …)"이 믿을 만하다.</li>
+    <li><b>고객 권한:</b> 작업 하나는 고객 하나까지만 본다. 두 고객을 한 세션에서 보지 않는다.</li>
+    <li><b>반복 방지:</b> 같은 대상 · 같은 원천 revision으로 거절된 제안은 다시 작업이 되지 않는다.</li>
+    <li><b>기록:</b> 작업 로그는 권한 단위로 남는다(고객 작업은 그 고객 폴더에).</li>
+    <li><b>예외:</b> Librarian은 작업이 아니라 질문으로 불린다. 답하지 못한 자리가 지도를 거쳐 작업이 된다.</li></ul></div>
+</div>
+
+<!-- 6 -->
+<h2 id="s6"><span class="no">6</span>세 흐름을 시간 순서로 (가상 제품 VX decoder로)</h2>
+<h3>6.1 Bootstrap: 제품 하나를 처음 채운다</h3>
+<p>릴리즈 축을 먼저 세운다. 그래야 bug의 "영향 받은 릴리즈"와 고객의 "가진 릴리즈"를 가리킬 수 있다.</p>
+<div class="flow">
+  <div class="st a"><b>1 조사</b><span>Surveyor → registry · card · 빈 곳 질문. 제품 리더가 확인</span></div><div class="ar"></div>
+  <div class="st h"><b>2 릴리즈 축</b><span>Release recorder가 과거 릴리즈 재구성. 못 찾은 칸은 없음 · 모름</span></div><div class="ar"></div>
+  <div class="st a"><b>3 bug</b><span>종료된 bug부터. 영향 릴리즈는 기록이 없으면 VCS로 계산</span></div><div class="ar"></div>
+  <div class="st a"><b>4 요구 · spec</b><span>spec 목록, 코드와 어긋난 곳(spec-gaps)</span></div><div class="ar"></div>
+  <div class="st a"><b>5 module</b><span>sub-top마다. port · parameter 표는 코드에서 생성</span></div><div class="ar"></div>
+  <div class="st c"><b>6 고객</b><span>보안 준비(이름 목록 · 전처리 · 권한)가 끝난 뒤</span></div><div class="ar"></div>
+  <div class="st a"><b>7 나머지</b><span>architecture · verification · implementation …</span></div>
+</div>
+<p class="note">단계마다 Harvester가 MR을 내고, 담당이 판정하고, lint가 지도를 갱신한다. 지도의 빈 칸이 줄어드는 것이 진척이다.</p>
+
+<h3>6.2 Operate: 원천에서 사건이 생길 때마다</h3>
+<p>예: bug ticket VXD-130이 종료되었다.</p>
+<div class="flow">
+  <div class="st s"><b>사건</b><span>issue tracker hook → router: issue-closed-bug</span></div><div class="ar"></div>
+  <div class="st s"><b>작업</b><span>router가 작업을 만든다. ticket의 고객 tag로 고객 권한, registry로 원천 목록</span></div><div class="ar"></div>
+  <div class="st a"><b>Harvester</b><span>ticket(고객 이름을 CUST-ID로 바꾼 전처리본)과 수정 commit을 읽어 bug 문서 초안</span></div><div class="ar"></div>
+  <div class="st a"><b>계산 · 표시</b><span>영향 릴리즈는 script가 계산 → <code>(계산: ancestry)</code>. 다음 tag 전이면 fixed-in = 미정</span></div><div class="ar"></div>
+  <div class="st a"><b>함께 온 사건</b><span>같은 commit으로 module 원천이 바뀜 → module 확인 제안도 같은 MR에</span></div><div class="ar"></div>
+  <div class="st h"><b>판정</b><span>sub-top 담당이 MR 판정 → reviewed</span></div>
+</div>
+<p class="note">사건이 몰리면 문서 단위로 묶고, 담당에게는 하루 한 묶음으로 확인을 요청한다(상한은 팀 리더가 정한다). 교훈은 RTL review의 bug 패턴 library로 넘긴다.</p>
+
+<h3>6.3 Use: 질문할 때</h3>
+<div class="grid two">
+  <div class="card"><h4>신입: "blk_parse의 header FIFO 깊이는?"</h4>
+    <p>Librarian이 질문 유형을 고르고 module 목록 → <code>vx-dec/mod/blk_parse</code>를 연다. port · parameter 표는 코드에서 생성한 칸이라 코드 값 16이 있다. 그런데 spec-gaps에 열린 충돌(uarch spec은 32)이 있다.</p>
+    <p><b>답:</b> "코드 값은 16이고 spec은 32다. 담당이 판정 중이다." 여기에 <span class="pill h">conflict</span> 표시가 붙고, 인용은 문서 id와 원천 revision이다.</p></div>
+  <div class="card c"><h4>FAE(고객 CUST-001 권한): "이 고객이 쓰는 릴리즈에 AXI burst bug가 있나?"</h4>
+    <p>CUST-001 폴더의 납품 기록 → 지금 쓰는 릴리즈 2.0 → bug 문서의 fixed-in(2.0)을 따라간다. <b>답:</b> "없다. 이전 납품 1.1에는 있었다."</p>
+    <p>고객 권한이 없는 사람이 같은 질문을 하면, 고객이 가진 릴리즈는 말하지 않고 "권한 밖" gap을 남긴다. 다른 고객이 있다는 사실은 어느 경우에도 드러나지 않는다.</p></div>
+</div>
+<div class="flow">
+  <div class="st"><b>답의 모양</b><span>결론 한두 문장</span></div><div class="ar"></div>
+  <div class="st"><b>근거</b><span>주장마다 문서 id@revision</span></div><div class="ar"></div>
+  <div class="st h"><b>표시</b><span>draft 근거 · stale · 추정 · 계산 · 충돌을 그대로 옮긴다</span></div><div class="ar"></div>
+  <div class="st ok"><b>못 찾은 곳</b><span>gap: 이유(문서 없음 · 절 없음 · 연결 없음 · 권한 밖 …) + 자리 → 지도 → 작업</span></div>
+</div>
+
+<!-- 7 -->
+<h2 id="s7"><span class="no">7</span>무엇이 믿게 하나</h2>
+<h3>7.1 문서 한 장의 해부</h3>
+<div class="grid two">
+  <div class="card"><h4>머리 (agent와 script가 읽는 구조)</h4>
+<pre>id: BUG-VXD-117            # 원천 ID를 그대로
+type: bug
+status: reviewed           # draft | reviewed | retired
+sensitivity: customer-derived
+owner_role: sub-top 담당    # 사람 이름이 아니라 역할
+applies_to: { releases: [REL-vx-dec-1.0, REL-vx-dec-1.1] }
+sources:                   # 복사하지 않고 가리킨다
+  - { key: s1, kind: issue, ref: "jira:VXD-117", rev: "2026-06-02" }
+  - { key: s2, kind: vcs-log, ref: "svn-main:/commit/r1431", rev: "r1431" }
+verified: { by_role: sub-top 담당, date: 2026-06-05,
+            method: human-read, body_hash: "…" }   # 사람만
+links:                     # 한 방향만. 역방향은 lint가
+  - { rel: caused-by, to: vx-dec/mod/blk_filter }</pre></div>
+  <div class="card"><h4>본문 (사람이 읽는 설명)</h4>
+<pre>## 요약
+특정 config에서 filter 경계 처리가 틀린다 [s1].
+
+## 수정
+경계 조건을 고쳤다 [s2].
+
+## 영향 범위
+1.0과 1.1이 영향을 받는다 (계산: ancestry).
+그 이전 릴리즈는 모름: 버그를 넣은 commit을
+아직 찾지 못했다.</pre>
+  <p>모든 문서는 <code>## 요약</code>으로 시작하고, 종류별 필수 절이 이어진다. 쓸 것이 없어도 절을 지우지 않는다.</p></div>
+</div>
+<h3>7.2 다섯 가지 표시: 모르는 것을 모른다고 쓴다</h3>
+<div class="tw"><table>
+<tr><th>표시</th><th>뜻</th><th>지키는 장치</th></tr>
+<tr><td><code>[s1]</code></td><td>원천 s1에 있는 사실</td><td>lint: 인용한 key가 원천 목록에 있어야 한다</td></tr>
+<tr><td><code>(추정: s2 — 이유)</code></td><td>원천 s2에서 추론한 사실</td><td>lint: 근거 key가 없는 추정은 오류. 근거가 없으면 "모름"으로 쓴다</td></tr>
+<tr><td><code>(계산: 규칙)</code></td><td>script가 규칙으로 계산한 사실(예: VCS 조상 관계)</td><td>포함 여부는 script의 결과만 쓴다</td></tr>
+<tr><td><code>없음(찾아본 곳: …)</code></td><td>찾아보았지만 없다. 빈 칸(찾아보지 않음)과 다르다</td><td>찾아본 곳은 작업이 준 원천 목록 안이어야 한다</td></tr>
+<tr><td><code>모름: 이유</code></td><td>있을 수 있으나 확인할 수 없다</td><td>답에서는 partial + gap이 된다</td></tr>
+</table></div>
+<h3>7.3 낡음 · 확인 · 확정</h3>
+<div class="grid three">
+  <div class="card"><h4>stale: 원천이 바뀌었다</h4><p>문서가 본 revision과 원천의 현재 revision이 다르면 lint가 지도에 올린다. 문서에는 쓰지 않는다(계산한다). 생성 칸만 쓰는 원천이면 script가 확인하고, 나머지는 사람이 확인한다.</p></div>
+  <div class="card"><h4>reviewed-outdated: 확인 뒤 바뀌었다</h4><p>사람이 판정할 때 확인한 본문의 hash가 남는다. 그 뒤 본문이 바뀌면 lint가 짚고, 답에서는 draft처럼 다룬다.</p></div>
+  <div class="card"><h4>확정 기록: 바뀌지 않는다</h4><p>릴리즈가 확정되면 그 순간의 "고친 bug · 알려진 issue" 표가 굳고, hash가 보호 원장에 남는다. 나중에 안 사실은 "사후 정정"으로 덧붙이기만 한다. 고객에게 낸 수치는 동결 사본으로 둔다.</p></div>
+</div>
+<h3>7.4 자료끼리 다를 때</h3>
+<p>충돌은 지우지 않고 기록한다. 먼저 사실의 종류를 고르고, 종류마다 다른 순서로 적을 값을 고른다. "코드가 늘 이긴다"가 아니다.</p>
+<div class="tw"><table>
+<tr><th>사실 종류</th><th>예</th><th>먼저 믿는 것</th></tr>
+<tr><td>structure</td><td>port · parameter · 계층</td><td>생성 원천 → 코드 → 문서. 코드와 spec이 다르면 늘 spec-gaps에 올린다</td></tr>
+<tr><td>intent</td><td>기능 · 요구 · 규격</td><td>spec → 요구 기록 → 결정. 어느 쪽이 맞는지는 담당이 판정한다</td></tr>
+<tr><td>number</td><td>합성 결과 · coverage</td><td>원래 자리(record)만. 문서의 숫자는 인용이어야 한다</td></tr>
+<tr><td>history</td><td>릴리즈 · bug 이력</td><td>확정 기록 → issue → log</td></tr>
+<tr><td>practice</td><td>사용법 · 주의점</td><td>reviewed KB → tool 문서 → wiki</td></tr>
+</table></div>
+<h3>7.5 hard-zero 넷: 하나라도 나오면 변경을 되돌린다</h3>
+<div class="grid">
+  <div class="card bad"><h4>근거 없는 사실</h4><p>인용 없는 주장이 답이나 문서에 들어갔다.</p></div>
+  <div class="card bad"><h4>고객 정보 누출</h4><p>권한 밖 고객의 이름 · id · 내용이 보였다.</p></div>
+  <div class="card bad"><h4>확정 기록 훼손</h4><p>확정된 릴리즈 · 납품 기록이 바뀌었다.</p></div>
+  <div class="card bad"><h4>낡음 은폐</h4><p>원천이 바뀌었는데 허용 지연 밖까지 표시가 없었다.</p></div>
+</div>
+
+<!-- 8 -->
+<h2 id="s8"><span class="no">8</span>고객 정보를 지키는 여섯 방향 (회사 KB)</h2>
+<p>고객 정보는 이름만의 문제가 아니다. 저장 위치를 처음부터 나누고, 한 겹이 뚫려도 다음 겹이 막도록 이름 · 원천 읽기 · 내용 · 채널 · 세션 · 로그의 여섯 방향에서 막는다. 개인 KB에서는 같은 장치가 "회사 정보 차단"과 "공개 · 비공개 구분"이 된다(9장).</p>
+<div class="tw"><table>
+<tr><th>방향</th><th>장치</th></tr>
+<tr><td><b>바탕:</b> 저장 위치</td><td>고객 정보는 처음부터 고객 repo에, 고객 단위 권한(폴더 권한이 안 되는 Git 서버에서는 고객마다 project). 검색 index도 권한 단위로 따로</td></tr>
+<tr><td>이름</td><td>고객 이름 · 다른 표기 · 과제명 · 메일 domain은 이름 목록에만. lint가 본 KB · 지도 · 로그 · registry를 검사한다</td></tr>
+<tr><td>원천 읽기</td><td>고객 이름이 섞인 원천은 전처리(이름 → CUST-ID) 뒤에만 agent가 읽는다. 새 고객은 등록 전까지 읽지 않는다</td></tr>
+<tr><td>내용</td><td>고객에게서 온 내용은 sensitivity로 표시하고, 고객에게 나가는 답(outbound)에는 인용하지 않는다</td></tr>
+<tr><td>채널</td><td>lint 메시지에 이름을 쓰지 않는다(목록 번호만). commit message · MR 제목 · branch 이름도 push 때 검사한다</td></tr>
+<tr><td>세션</td><td>모든 agent가 고객 권한을 입력으로 받고, 한 세션은 고객 하나까지만. 여러 고객의 같은 질문은 두 단계로만 FAQ가 된다(고객 세션은 질문의 서명만 남기고, 고객 권한 없는 세션이 본 KB 원천만으로 쓴다)</td></tr>
+<tr><td>로그</td><td>답하지 못한 질문 기록은 누출 검사 뒤 권한 단위 로그에. 본 KB 로그에는 질문 원문이 없다. 잘못 들어간 줄은 보안 담당이 지우는 절차가 있다</td></tr>
+</table></div>
+
+<!-- 9 -->
+<h2 id="s9"><span class="no">9</span>세 층: 같은 엔진으로 회사 KB와 개인 KB를 만든다</h2>
+<p>시스템은 세 층으로 나뉜다. <b>엔진</b>은 어디서나 같다. <b>규칙 묶음</b>(어떤 문서를 어떤 모양으로 두나)이 영역을 정하고, <b>인스턴스</b>(실제 원천과 문서)가 KB 하나가 된다. lint · template · 지도는 규칙 묶음을 읽어 움직이므로, 규칙 묶음을 바꾸면 같은 엔진이 다른 영역의 KB를 짓는다.</p>
+<div class="layers">
+  <div class="head"></div><div class="head">회사 KB</div><div class="head">개인 KB</div>
+  <div class="lh">엔진<small>어디서나 같다</small></div>
+  <div class="cell eng span2">원칙 여덟 · agent 다섯의 역할 · script 셋(lint · generator · router) · 계약 11 · 시험 runner. <b>작업 → MR → 판정 → 지도</b>의 고리. 인용 · 추정 · 모름 표시, stale, 확인 hash.</div>
+  <div class="lh">규칙 묶음<small><code>_schema</code>: 영역을 정한다</small></div>
+  <div class="cell co"><b>RTL IP 제품 KB</b>: 문서 종류 29(card · module · bug · 요구 · 릴리즈 · 납품 …), 연결 18, 릴리즈 축과 확정 원장, 고객 repo와 여섯 방향 분리</div>
+  <div class="cell me"><b>공부 · 업무 노트 KB</b>(예): workspace card · 주제 · 자료 노트(논문 · 책) · 결정 · 내가 물었던 질문. 릴리즈 축과 고객 repo 없음</div>
+  <div class="lh">인스턴스<small>registry · adapter · 문서</small></div>
+  <div class="cell co">회사 제품 · 코드 저장소(SVN · Git) · issue tracker · 결과 서버, 고객 정책, 담당 역할</div>
+  <div class="cell me">내 git repo들(공부 노트 · 세션 로그), 읽기 금지 원천(개인 재무 등), 회사 정보 차단 목록</div>
+</div>
+<div class="tw"><table>
+<tr><th>회사 KB의 장치</th><th>개인 KB에서는</th></tr>
+<tr><td>고객 이름 목록 검사</td><td><b>회사 정보 차단기</b>: 회사명 · 제품 codename · 동료 이름을 목록에 넣으면, 회사 흔적이 개인 KB에 들어오는 순간 lint가 막는다</td></tr>
+<tr><td>sensitivity(고객에게서 온 내용)</td><td>public · private 구분</td></tr>
+<tr><td>outbound 답(고객에게 나가는 글)</td><td>공개 학습 페이지로 나가는 글: private 문서를 인용하지 않는다</td></tr>
+<tr><td>원천별 AI 읽기 허용</td><td>절대 섞이면 안 되는 원천(개인 재무 등)은 등록할 때 읽기 금지</td></tr>
+<tr><td>릴리즈 축 · 확정 원장 · 고객 repo</td><td>쓰지 않는다(필요해지면 나중에)</td></tr>
+<tr><td>답하지 못한 질문 → 채울 일</td><td>답하지 못한 질문 → <b>공부할 일</b></td></tr>
+</table></div>
+<p class="note">확인한 것: 문서 종류 셋짜리 개인용 규칙 묶음과 실제 git 원천을 같은 엔진에 붙였을 때 오류 0, 원천 노트를 고쳐 commit하면 stale, 근거 없는 추정과 없는 연결은 오류, 지도의 열은 개인용 문서 종류로 나왔다.</p>
+
+<!-- 10 -->
+<h2 id="s10"><span class="no">10</span>반입물을 만드는 과정</h2>
+<p>설계 워크스페이스에서 만든 것은 일반화한 규칙과 가상 제품으로 시험한 엔진이다. 여기서 두 갈래로 실제 KB가 나온다. 두 갈래 모두 <b>엔진은 복사하고, 규칙 묶음과 인스턴스를 채운다.</b></p>
+
+<h3>10.1 회사 반입물</h3>
+<div class="flow">
+  <div class="st ok"><b>① 설계 · 가상 시험</b><span>일반화한 규칙, 가상 제품 family로 lint · agent 시험 (지금 여기)</span></div><div class="ar"></div>
+  <div class="st h"><b>② 회사 현실 대비</b><span>반입 전: SVN adapter · 조상 관계 계산, 원천 전처리, 작업 분배 reference, CI 예시, 회사 첫 주 작업 지시서</span></div><div class="ar"></div>
+  <div class="st s"><b>③ packing</b><span>내부 파일(진행판 · 옛 판 · 시험 원 출력) 제외, 금지 표기 검사</span></div><div class="ar"></div>
+  <div class="st a"><b>④ 셋업</b><span>빈 KB project, <code>_schema</code> · <code>_tools</code> 복사, registry, lint CI</span></div><div class="ar"></div>
+  <div class="st a"><b>⑤ adapter</b><span>SVN · issue tracker · wiki. 합격 = 이 묶음의 시험 사례와 같은 결과</span></div><div class="ar"></div>
+  <div class="st a"><b>⑥ 파일럿</b><span>제품 하나: 조사 → 릴리즈 축 → 초안 → 판정 → kb-ask를 사람에게</span></div><div class="ar"></div>
+  <div class="st ok"><b>⑦ 넓히기</b><span>다음 제품은 card부터, 파생 제품은 차이만</span></div>
+</div>
+<div class="grid two">
+  <div class="card"><h4>셋업 명령 (빈 폴더에서 첫 lint까지, 실제로 따라 해 확인)</h4>
+<pre>git clone &lt;KB project&gt; kb &amp;&amp; cd kb
+cp -r &lt;묶음&gt;/40_schema _schema
+cp -r &lt;묶음&gt;/20_contracts _schema/contracts
+cp -r &lt;묶음&gt;/55_tools _tools
+# _registry/ 네 파일: 제품 · 원천 · 고객 정책 · 역할
+git clone &lt;코드 project&gt; ../src/code
+python _tools/kb_template.py --schema _schema --out _schema/templates
+mkdir -p products/&lt;family&gt;/&lt;product&gt;
+cp _schema/templates/card.md products/&lt;family&gt;/&lt;product&gt;/card.md
+python _tools/kb_lint.py --kb . --schema _schema \
+  --contracts _schema/contracts --sources ../src --out _map</pre>
+  <p>채우지 않은 card에는 오류 7건이 채울 곳을 가리키고, 채우면 오류 0이 되며 지도가 생긴다.</p></div>
+  <div class="card"><h4>회사에서 먼저 확인할 것</h4><ul>
+    <li>고객 repo의 권한 단위: 고객 폴더 단위가 되는가, 안 되면 고객마다 project</li>
+    <li>VCS 조상 관계를 script가 물을 수 있는가(SVN mergeinfo · git ancestor)</li>
+    <li>릴리즈 · 검증 checklist의 실제 항목과 자동 판정 여부</li>
+    <li>원천 전처리(고객 이름 → CUST-ID)를 어디서 하나</li>
+    <li>kb-ask를 다른 agent에 여는 방식, 작업의 고객 tag를 넘기는 방식</li></ul>
+  <p><b>첫 단계의 기본안:</b> 고객 정보는 다루지 않고 시작한다. 이름 목록 · 전처리 · 고객 repo 권한이 준비되면 연다.</p></div>
+</div>
+
+<h3>10.2 개인 KB</h3>
+<div class="flow">
+  <div class="st c"><b>① 새 워크스페이스</b><span>private git. 회사 워크스페이스와 섞지 않는다</span></div><div class="ar"></div>
+  <div class="st ok"><b>② 엔진 복사</b><span><code>_tools</code> · 계약. 고치지 않고 그대로</span></div><div class="ar"></div>
+  <div class="st c"><b>③ 규칙 묶음 쓰기</b><span>문서 종류 · 연결 · 원천 종류(논문 · 책 · 웹 · 세션 로그) · 지도 열</span></div><div class="ar"></div>
+  <div class="st c"><b>④ registry</b><span>내 repo들(<code>rev_resolver: git</code>), 읽기 금지 원천, 회사 정보 차단 목록</span></div><div class="ar"></div>
+  <div class="st a"><b>⑤ skill 설치</b><span>kb-lint · kb-ask · kb-harvest부터</span></div><div class="ar"></div>
+  <div class="st a"><b>⑥ 조사</b><span>Surveyor가 내 repo들을 읽어 workspace card</span></div><div class="ar"></div>
+  <div class="st ok"><b>⑦ 매일</b><span>노트 commit → stale · 갱신 제안, 질문 → 답하지 못한 곳 = 공부할 일</span></div>
+</div>
+<p class="note">개인 KB에서는 사람이 한 명이므로 판정 등급을 가볍게 둔다(light 기본). 반면 원칙(인용 · 추정 표시 · 모름)은 그대로 지킨다. 그래야 공개 학습 페이지로 나가는 글에도 근거가 붙는다.</p>
+
+<!-- 11 -->
+<h2 id="s11"><span class="no">11</span>지금 상태 (정직하게)</h2>
+<div class="grid">
+  <div class="card ok"><div class="big">62 / 62</div><p><b>lint mutation</b>: 결함 주입 51건을 모두 잡고, 무해한 변경 · 경고 11건에는 오류를 내지 않았다.</p></div>
+  <div class="card ok"><div class="big">25 / 25</div><p><b>질의응답</b>: 명세만 준 agent, 고객 권한마다 세션을 나눔. 근거 없는 주장 0 · 누출 0 · 표시 누락 0.</p></div>
+  <div class="card ok"><div class="big">3 / 3</div><p><b>수집</b>: bug ticket · 고객 메일 · 코드 commit → 초안의 lint 오류 0, 고객 이름 0.</p></div>
+  <div class="card ok"><div class="big">6 / 6</div><p><b>git 원천 adapter</b>: 그대로 · hash 앞부분 · 짧은 표기 · 고친 뒤 · 없는 경로 · adapter 없음.</p></div>
+  <div class="card a"><div class="big">15</div><p><b>적대적 설계 검토</b>(현장 설계자 · 보안 · agent 사용성 · 규모)의 지적을 모두 반영했다.</p></div>
+  <div class="card a"><div class="big">dry run</div><p><b>셋업</b>: 빈 폴더 → 첫 lint → 판정 hash → 본문 변경 감지 → push 텍스트 검사까지 따라 했다.</p></div>
+</div>
+<div class="grid three">
+  <div class="card ok"><h4>돈다</h4><ul><li>규칙 묶음(문서 종류 29 · template 29)과 계약 11</li><li>lint · generator · template 도구</li><li>git 원천 adapter</li><li>시험 runner와 가상 제품(문서 50개)</li></ul></div>
+  <div class="card a"><h4>명세 · 골격</h4><ul><li>agent 다섯의 명세와 프롬프트 골격</li><li>skill 여덟의 골격(설치 전)</li><li>권한 규칙 · hook · 도입 단계 · 평가 방법</li></ul></div>
+  <div class="card h"><h4>아직 없다 (회사 반입 전후로 채운다)</h4><ul><li>SVN · issue tracker · wiki adapter</li><li>VCS 조상 관계 계산 script</li><li>원천 전처리와 작업 분배(router)의 reference</li><li>이름 목록과 독립인 두 번째 누출 검사</li><li>실제 원천에서 agent 초안의 품질(파일럿에서 처음 잰다)</li></ul></div>
+</div>
+
+<!-- 12 -->
+<h2 id="s12"><span class="no">12</span>용어</h2>
+<div class="tw"><table>
+<tr><th>용어</th><th>뜻</th></tr>
+<tr><td>원천</td><td>사실이 원래 있는 곳: 코드 저장소 · 문서 저장소 · issue tracker · 결과 서버 · 메일</td></tr>
+<tr><td>registry</td><td>회사(또는 개인)마다 다른 값: 제품 · 원천 · 고객 정책 · 담당 역할</td></tr>
+<tr><td>card</td><td>제품(개인 KB에서는 workspace)마다 한 장: 정체 · 원천 입구 · 구성 · 릴리즈 · 담당 · 빈 곳</td></tr>
+<tr><td>MR</td><td>merge request. agent의 모든 쓰기가 들어오는 문. 사람이 판정한다</td></tr>
+<tr><td>draft · reviewed</td><td>agent가 쓴 상태 · 사람이 확인한 상태</td></tr>
+<tr><td>stale</td><td>문서가 본 원천 revision과 원천의 현재 revision이 다르다(lint가 계산)</td></tr>
+<tr><td>생성 칸</td><td>코드에서 script가 만드는 표(port · parameter, module 목록). 손으로 쓰지 않는다</td></tr>
+<tr><td>지도(<code>_map/</code>)</td><td>채움 상태 · stale · 충돌 · 문서 필요 · gap 순위 · 역색인. lint가 만든다</td></tr>
+<tr><td>gap</td><td>답하지 못한 이유 한 건(문서 없음 · 절 없음 · 연결 없음 · stale · 충돌 · 권한 밖 · KB 밖)</td></tr>
+<tr><td>작업(job)</td><td>agent 세션 하나의 입력: 종류 · 대상 · 고객 권한 · 찾아볼 원천</td></tr>
+<tr><td>확정 기록 · 보호 원장</td><td>확정된 릴리즈 · 납품. hash가 원장에 남고, 사후 정정만 덧붙인다</td></tr>
+<tr><td>ancestry</td><td>VCS의 조상 관계. "이 수정이 이 릴리즈에 들어 있나"를 계산하는 방법</td></tr>
+<tr><td>규칙 묶음 · 인스턴스</td><td>영역을 정하는 <code>_schema</code> · 실제 원천과 문서가 들어간 KB 하나</td></tr>
+</table></div>
+<p class="note">설계 묶음의 정본 파일: 구조 <code>10_architecture.md</code> · 셋업 <code>05_setup_and_use.md</code> · 규칙 <code>40_schema/</code> · 계약 <code>20_contracts/</code> · agent <code>30_agents/</code> · 시험 <code>50_golden/RESULTS.md</code> · 평가 <code>60_evaluation.md</code> · 세우기 <code>70_packaging.md</code> · 도입 <code>80_rollout.md</code>.</p>
+
+<footer>KB Agent System 설계 해설. 모든 제품 · 고객 · 수치는 가상이다. 숫자 기준(표본 크기 · 기한 · 상한)은 공란이며 결정 주체가 정한다. 브라우저 인쇄로 뽑을 수 있다.</footer>
+</main>
+</body>
+</html>
