@@ -18,6 +18,7 @@
   --sframe: #b07cf7;
   --ok: #3fb68b;
   --bad: #ef5d5d;
+  --mismatch: #ff5c47;  /* diff mode: where B departs from A */
   --canvas-bg: #151a20;
   --font: "Barlow Semi Condensed", "Arial Narrow", "Segoe UI", system-ui, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
@@ -114,12 +115,19 @@ code, .mono { font-family: var(--mono); font-size: 12.5px; }
 #braid .wire.sel { stroke: var(--amber); opacity: 1; stroke-width: 2; }
 #braid .selmark { fill: none; stroke: var(--amber); stroke-width: 2; }
 #braid text { fill: var(--faint); font: 11px var(--font); }
+#braid .diffmark { fill: var(--mismatch); stroke: var(--panel); stroke-width: 1; }
+#braid .diffmark.first { stroke: var(--text); stroke-width: 1; }
 
 /* -------------------------------------------------------------- workspace */
 .workspace {
   display: grid; grid-template-columns: minmax(0, 1fr) 420px; min-height: 0;
 }
-.viewer { display: grid; grid-template-rows: auto 1fr auto auto; min-width: 0; min-height: 0; }
+.viewer { display: grid; grid-template-rows: auto auto 1fr auto auto; min-width: 0; min-height: 0; }
+.viewer > .toolbar { grid-row: 1; }
+.viewer > .diffbar { grid-row: 2; }
+.viewer > .canvas-wrap { grid-row: 3; }
+.viewer > .legend { grid-row: 4; }
+.viewer > .statusbar { grid-row: 5; }
 .toolbar {
   display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center;
   padding: 8px 12px; border-bottom: 1px solid var(--line-soft);
@@ -151,6 +159,18 @@ code, .mono { font-family: var(--mono); font-size: 12.5px; }
 .legend { display: flex; flex-wrap: wrap; gap: 4px 12px; padding: 6px 12px; font-size: 12.5px; color: var(--dim); border-top: 1px solid var(--line-soft); min-height: 30px; align-items: center; }
 .legend i { display: inline-block; width: 11px; height: 11px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
 .legend .ramp { width: 160px; height: 10px; border-radius: 2px; display: inline-block; vertical-align: -1px; margin: 0 6px; }
+/* diff mode: one line that says how B departs from A, with a way to go there */
+.diffbar {
+  display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center;
+  padding: 7px 12px; font-size: 14px; border-bottom: 1px solid var(--line-soft);
+  background: color-mix(in srgb, var(--mismatch) 11%, var(--panel));
+  border-left: 3px solid var(--mismatch);
+}
+.diffbar[hidden] { display: none; }
+.diffbar.equal { background: color-mix(in srgb, var(--ok) 10%, var(--panel)); border-left-color: var(--ok); }
+.diffbar .who { color: var(--dim); }
+.diffbar b { font-weight: 600; }
+.diffbar .btn { padding: 3px 10px; }
 .statusbar { padding: 5px 12px; font-size: 13px; color: var(--dim); border-top: 1px solid var(--line-soft); background: var(--panel); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* -------------------------------------------------------------- inspector */
@@ -195,6 +215,9 @@ table.grid tr.cur td { background: color-mix(in srgb, var(--amber) 16%, transpar
 .search { width: 100%; background: var(--raised); border: 1px solid var(--line); border-radius: var(--r); padding: 5px 8px; margin: 4px 0 8px; }
 .note { font-size: 13px; color: var(--faint); }
 .bad { color: var(--bad); }
+.mis, .tab-body h3.mis { color: var(--mismatch); }
+table.grid td.ab-a { color: var(--dim); }
+table.grid td.ab-b { color: var(--mismatch); font-weight: 600; }
 .good { color: var(--ok); }
 
 /* ----------------------------------------------------------------- dialog */
