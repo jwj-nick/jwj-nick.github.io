@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KB 단계별 입출력</title>
+<meta name="description" content="KB를 처음 만들 때와 계속 유지할 때, 단계마다 무엇이 들어가고 누가 무엇을 내놓는가">
+<style>
+:root{
+  --bg:#f7f6f2; --panel:#ffffff; --fg:#1c232b; --muted:#5a6472; --line:#c9cfd7; --soft:#eef1f5;
+  --acc:#2457d6; --acc-soft:#e3ebfd; --hum:#b45309; --hum-soft:#fdf0e1; --ok:#15803d; --ok-soft:#e4f5ea;
+  --bad:#b91c1c; --bad-soft:#fde7e7; --svc:#475569; --svc-soft:#edf1f5; --cus:#7c3aed; --cus-soft:#f1eafe;
+  --none:#e6e8ec; --src:#f3f4f6;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1319; --panel:#151b22; --fg:#e5e9ef; --muted:#9aa5b4; --line:#3a434f; --soft:#1b232c;
+    --acc:#7ea9ff; --acc-soft:#172640; --hum:#f0a05c; --hum-soft:#3a2714; --ok:#4cc27a; --ok-soft:#14301e;
+    --bad:#f07b7b; --bad-soft:#3b1818; --svc:#a9b4c3; --svc-soft:#1c2530; --cus:#b69cff; --cus-soft:#261a3f;
+    --none:#232a33; --src:#1b2129;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1319; --panel:#151b22; --fg:#e5e9ef; --muted:#9aa5b4; --line:#3a434f; --soft:#1b232c;
+  --acc:#7ea9ff; --acc-soft:#172640; --hum:#f0a05c; --hum-soft:#3a2714; --ok:#4cc27a; --ok-soft:#14301e;
+  --bad:#f07b7b; --bad-soft:#3b1818; --svc:#a9b4c3; --svc-soft:#1c2530; --cus:#b69cff; --cus-soft:#261a3f;
+  --none:#232a33; --src:#1b2129;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg)}
+body{font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR","Segoe UI",system-ui,sans-serif;font-size:16px;line-height:1.7;word-break:keep-all;overflow-wrap:anywhere}
+main{max-width:1160px;margin:0 auto;padding:28px 16px 80px}
+a{color:var(--acc)}
+nav.top{font-size:14px;margin-bottom:10px}
+nav.top a{text-decoration:none}
+.kicker{font-size:13px;color:var(--muted)}
+h1{font-size:29px;line-height:1.3;margin:6px 0 10px}
+h2{font-size:22px;margin:48px 0 10px;padding-top:12px;border-top:1px solid var(--line)}
+h2 .no{color:var(--acc);margin-right:8px}
+h3{font-size:17px;margin:22px 0 8px}
+p{margin:8px 0}
+.lead{font-size:17px;color:var(--muted)}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0}
+.toc a{font-size:13.5px;text-decoration:none;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:3px 11px;color:var(--fg)}
+.note{font-size:14px;color:var(--muted)}
+code{font-family:ui-monospace,Consolas,monospace;font-size:13px;background:var(--soft);padding:0 4px;border-radius:4px}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.legend span{font-size:13px;padding:2px 10px;border-radius:8px;border:1.5px solid var(--line);background:var(--panel)}
+.legend .i{border-color:var(--svc);background:var(--svc-soft)}
+.legend .w{border-color:var(--acc);background:var(--acc-soft)}
+.legend .o{border-color:var(--ok);background:var(--ok-soft)}
+.legend .h{border-color:var(--hum);background:var(--hum-soft)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin:12px 0}
+.grid>*,.io>*,.flow>*,.map>*,.life>*{min-width:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.card h4{margin:0 0 5px;font-size:16px}
+.card p,.card li{font-size:14px;color:var(--muted)}
+.card ul{margin:4px 0 0;padding-left:18px}
+/* 전체 지도 */
+.flow{display:flex;align-items:stretch;margin:10px 0}
+.flow .st{flex:1 1 0;background:var(--panel);border:1.5px solid var(--line);border-radius:12px;padding:9px 11px}
+.flow .st b{display:block;font-size:14px}
+.flow .st span{display:block;font-size:12.5px;color:var(--muted);line-height:1.45}
+.flow .st.a{border-color:var(--acc);background:var(--acc-soft)}
+.flow .st.h{border-color:var(--hum);background:var(--hum-soft)}
+.flow .st.ok{border-color:var(--ok);background:var(--ok-soft)}
+.flow .st.s{border-color:var(--svc);background:var(--svc-soft)}
+.flow .st.c{border-color:var(--cus);background:var(--cus-soft)}
+.flow .ar{flex:0 0 22px;display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.flow .ar::before{content:"→"}
+.phase{border:2px solid var(--line);border-radius:16px;padding:12px 14px;margin:12px 0;background:var(--panel)}
+.phase>.t{font-weight:700;font-size:15px;margin-bottom:4px}
+.phase.b{border-color:var(--acc)}
+.phase.u{border-color:var(--ok)}
+.loops{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:8px}
+.loops .card{border-width:1.5px}
+/* 입출력 줄 */
+.io{display:grid;grid-template-columns:150px minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:0;margin:10px 0;border:1.5px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel)}
+.io .hd{font-size:12.5px;font-weight:700;color:var(--muted);padding:6px 10px;background:var(--soft);border-bottom:1px solid var(--line)}
+.io .sg{padding:10px 12px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--soft)}
+.io .sg b{display:block;font-size:15px}
+.io .sg small{display:block;color:var(--muted);font-size:12.5px;line-height:1.4;margin-top:2px}
+.io .c{padding:9px 11px;font-size:13.5px;line-height:1.55;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.io .c:last-child{border-right:none}
+.io .c.i{background:var(--svc-soft)}
+.io .c.w{background:var(--acc-soft)}
+.io .c.o{background:var(--ok-soft)}
+.io .c.h{background:var(--hum-soft)}
+.io .c ul{margin:0;padding-left:16px}
+.io .c li{margin:1px 0}
+.io .c .lb{display:none;font-size:11.5px;font-weight:700;color:var(--muted);margin-bottom:2px}
+.io .row-c{background:var(--cus-soft)}
+.pill{display:inline-block;font-size:12px;padding:0 8px;border-radius:999px;border:1px solid var(--line);background:var(--soft);margin:1px 2px 1px 0;white-space:nowrap}
+.pill.a{border-color:var(--acc);color:var(--acc);background:var(--panel)}
+.pill.s{border-color:var(--svc);color:var(--svc);background:var(--panel)}
+/* 공통 모양 */
+.anat{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:12px 0}
+.anat .b{border:1.5px solid var(--line);border-radius:12px;padding:10px;background:var(--panel);position:relative}
+.anat .b b{display:block;font-size:14px;margin-bottom:4px}
+.anat .b div{font-size:12.8px;color:var(--muted);line-height:1.5}
+.anat .b.i{border-color:var(--svc);background:var(--svc-soft)}
+.anat .b.w{border-color:var(--acc);background:var(--acc-soft)}
+.anat .b.o{border-color:var(--ok);background:var(--ok-soft)}
+.anat .b.h{border-color:var(--hum);background:var(--hum-soft)}
+.anat .b .n{position:absolute;top:-10px;left:10px;background:var(--fg);color:var(--bg);font-size:11.5px;font-weight:700;border-radius:999px;padding:0 7px}
+/* 문서의 일생 */
+.life{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:12px 0}
+.life .s{border:2px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--panel)}
+.life .s b{display:block;font-size:15px}
+.life .s div{font-size:13px;color:var(--muted);line-height:1.5}
+.life .s.n{background:var(--src)}
+.life .s.d{border-color:var(--acc);background:var(--acc-soft)}
+.life .s.r{border-color:var(--ok);background:var(--ok-soft)}
+.life .s.t{border-color:var(--hum);background:var(--hum-soft)}
+.life .s.x{border-style:dashed}
+.tr{margin:8px 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:8px}
+.tr div{font-size:13.5px;border-left:4px solid var(--acc);background:var(--panel);padding:6px 10px;border-radius:0 8px 8px 0}
+.tr div.h{border-left-color:var(--hum)}
+.tr div.o{border-left-color:var(--ok)}
+.tr div.m{border-left-color:var(--muted)}
+/* 지도가 채워지는 모습 */
+.map{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0}
+.snap{border:1.5px solid var(--line);border-radius:12px;padding:10px;background:var(--panel)}
+.snap h4{margin:0 0 6px;font-size:14px}
+.cells{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}
+.cells span{font-size:12px;padding:3px 6px;border-radius:6px;border:1px solid var(--line);background:var(--none);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cells span.s{background:var(--src);border-style:dashed}
+.cells span.d{background:var(--acc-soft);border-color:var(--acc);color:var(--fg)}
+.cells span.r{background:var(--ok-soft);border-color:var(--ok);color:var(--fg)}
+.cells span.t{background:var(--hum-soft);border-color:var(--hum);color:var(--fg)}
+.cells span.c{background:var(--bad-soft);border-color:var(--bad);color:var(--fg)}
+footer{margin-top:56px;padding-top:14px;border-top:1px solid var(--line);font-size:13.5px;color:var(--muted)}
+@media (max-width:860px){
+  .io{grid-template-columns:minmax(0,1fr)}
+  .io .hd{display:none}
+  .io .c{border-right:none}
+  .io .c .lb{display:block}
+  .io .sg{border-right:none}
+  .anat{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .life{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .map{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .loops{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:620px){
+  h1{font-size:23px}
+  .flow{flex-direction:column}
+  .flow .ar::before{content:"↓"}
+  .anat,.life,.map,.loops{grid-template-columns:minmax(0,1fr)}
+}
+@media print{.toc,nav.top{display:none} .io,.card,.snap,.life{break-inside:avoid}}
+</style>
+</head>
+<body>
+<main>
+<nav class="top"><a href="index.html">← KB Agent System 한 장 해설</a></nav>
+<div class="kicker">단계별 입력 · 출력 · 모든 예시는 가상 · 숫자 기준은 공란</div>
+<h1>KB 만들기와 유지: 단계마다 무엇이 들어가고, 누가 무엇을 내놓나</h1>
+<p class="lead">한 장 해설이 시스템의 부품과 고리를 보였다면, 이 페이지는 시간 순서로 따라간다. 제품 하나의 KB를 <b>처음 만들 때</b>(B0~B7)와 그 뒤 <b>계속 유지할 때</b>(사건 · 매일 · 정기 · 질문), 단계마다 무엇이 들어가고 누가 처리해 무엇이 나오며 사람은 어디서 확인하는지를 같은 모양의 그림으로 보인다.</p>
+<div class="legend"><span class="i">입력</span><span class="w">처리 (누가)</span><span class="o">출력</span><span class="h">사람 확인 · 지도 변화</span></div>
+<nav class="toc"><a href="#g1">1 전체 지도</a><a href="#g2">2 한 단계의 공통 모양</a><a href="#g3">3 처음 만들기 B0~B7</a><a href="#g4">4 지도가 채워지는 모습</a><a href="#g5">5 계속 유지: 사건마다</a><a href="#g6">6 계속 유지: 매일 · 정기</a><a href="#g7">7 문서 한 장의 일생</a></nav>
+
+<!-- 1 -->
+<h2 id="g1"><span class="no">1</span>전체 지도: 처음 한 번, 그다음 계속</h2>
+<div class="phase b"><div class="t">처음 만들기 (Bootstrap): 제품 하나를 한 번 채운다</div>
+<div class="flow">
+  <div class="st s"><b>B0 준비</b><span>repo · 규칙 · 도구 · CI</span></div><div class="ar"></div>
+  <div class="st a"><b>B1 조사</b><span>원천 목록 · card</span></div><div class="ar"></div>
+  <div class="st h"><b>B2 릴리즈 축</b><span>과거 릴리즈 재구성</span></div><div class="ar"></div>
+  <div class="st a"><b>B3 bug</b><span>영향 · 수정 릴리즈</span></div><div class="ar"></div>
+  <div class="st a"><b>B4 요구 · spec</b><span>어긋난 곳 표시</span></div><div class="ar"></div>
+  <div class="st a"><b>B5 module</b><span>생성 표 + 서술</span></div><div class="ar"></div>
+  <div class="st a"><b>B6 나머지</b><span>구조 · 검증 · 구현</span></div><div class="ar"></div>
+  <div class="st c"><b>B7 고객</b><span>보안 준비 뒤</span></div>
+</div>
+<p class="note">릴리즈 축(B2)을 먼저 세우는 이유: bug의 "영향 받은 릴리즈"와 고객의 "가진 릴리즈"가 모두 릴리즈 기록을 가리키기 때문이다. 끝은 질문 표본으로 잰다(답한 비율 · gap · hard-zero).</p></div>
+<div class="phase u"><div class="t">계속 유지 (Operate): 그 뒤로 네 가지 박자로 돈다</div>
+<div class="loops">
+  <div class="card"><h4>사건마다</h4><p>commit · bug 종료 · 요구 변경 · release tag · 납품 · 고객 답변 · 합성 run · 리뷰 판정 · task 완료 · 원천 이동 → 확인 · 갱신 제안 MR</p></div>
+  <div class="card"><h4>매일</h4><p>lint 전체 → 지도 다시 만들기(stale · 충돌 · 문서 필요 · gap 순위 · 확정 뒤 영향)</p></div>
+  <div class="card"><h4>정기</h4><p>Curator 정리(충돌 · FAQ · 중복 · 은퇴 · gap 순위 → 작업), 질문 표본 채점, 정본 회의</p></div>
+  <div class="card"><h4>질문할 때</h4><p>Librarian의 답, 답하지 못한 자리(gap) → 지도 → 작업</p></div>
+</div></div>
+
+<!-- 2 -->
+<h2 id="g2"><span class="no">2</span>한 단계의 공통 모양</h2>
+<p>처음 만들 때든 유지할 때든, agent가 일하는 단계는 모두 같은 여섯 칸을 지난다. 아래 3장과 5장의 표는 이 여섯 칸을 단계마다 채운 것이다.</p>
+<div class="anat">
+  <div class="b i"><span class="n">1</span><b>작업</b><div>종류 · 대상 · 고객 권한 · 찾아볼 원천 목록 · 판정 등급 · 중복 방지 key</div></div>
+  <div class="b i"><span class="n">2</span><b>규칙 · 틀</b><div>문서 종류의 template(필수 절 · 절마다 쓸 것), 출처 우선순위, 문서 기준</div></div>
+  <div class="b w"><span class="n">3</span><b>agent 세션</b><div>원천(전처리본)을 읽고 초안. 사실마다 <code>[s1]</code>, 추론은 근거와 함께, 모르면 "모름"</div></div>
+  <div class="b o"><span class="n">4</span><b>MR</b><div>draft 문서 + 제안 머리(사람이 꼭 볼 곳 · 판정 등급 · 근거 원천)</div></div>
+  <div class="b h"><span class="n">5</span><b>검사 · 판정</b><div>lint가 바뀐 문서를 판정, Curator가 다섯 줄 요약, 담당이 판정 → 확인 기록 + 본문 hash</div></div>
+  <div class="b h"><span class="n">6</span><b>지도</b><div>merge 뒤 매일 lint가 채움 상태 · stale · gap 순위를 다시 만든다 → 다음 작업</div></div>
+</div>
+
+<!-- 3 -->
+<h2 id="g3"><span class="no">3</span>처음 만들기: B0~B7의 입력과 출력</h2>
+<div class="io">
+  <div class="hd">단계</div><div class="hd">입력</div><div class="hd">처리 (누가)</div><div class="hd">출력</div><div class="hd">사람 확인 · 지도</div>
+
+  <div class="sg"><b>B0 준비</b><small>작업 요청 WR-01 · 02</small></div>
+  <div class="c i"><span class="lb">입력</span><ul><li>규칙 묶음 <code>_schema</code> · 계약</li><li>도구 <code>_tools</code></li><li>registry 빈 틀</li><li>원천 읽기 권한(서비스 계정)</li></ul></div>
+  <div class="c w"><span class="lb">처리</span>KB 관리자 · 시스템 관리자: repo 만들기, 보호 branch, lint CI(MR마다 · 매일 · 텍스트 검사), 원천 adapter</div>
+  <div class="c o"><span class="lb">출력</span><ul><li>KB repo</li><li>lint CI</li><li>빈 지도</li></ul></div>
+  <div class="c h"><span class="lb">사람 · 지도</span>팀 리더가 파일럿 제품을 정한다. 지도는 비어 있다</div>
+
+  <div class="sg"><b>B1 조사</b><small>Surveyor <span class="pill a">kb-survey</span></small></div>
+  <div class="c i"><span class="lb">입력</span><ul><li>제품 이름 + 입구 하나(repo 경로)</li><li>조사표 14영역: 정체 · 공유 · 구성 · 구조 · 코드 · 문서 · 요구 · 검증 · 구현 · 릴리즈 · bug · 고객 · 사람 · 접근</li><li>AI 읽기 허용 범위</li></ul></div>
+  <div class="c w"><span class="lb">처리</span>원천을 읽고 칸마다 <b>찾음</b>(위치 + revision) · <b>없음</b> · <b>모름</b>(이유) 중 하나로 채운다. family 소속과 공유 module을 먼저 판단한다</div>
+  <div class="c o"><span class="lb">출력</span>MR: <ul><li>registry: 제품 · 원천(문서 종류별) · 담당</li><li>card 초안: 정체 · 원천 입구 · 구성 · 공유 · 릴리즈 · 담당 · 빈 곳</li><li>빈 곳 질문(사람만 답할 수 있는 것)</li></ul></div>
+  <div class="c h"><span class="lb">사람 · 지도</span>제품 리더가 card를 확인하고 빈 곳에 답한다(답은 원천 종류 interview로 남는다). 지도에 제품 행이 생기고, 원천만 있는 칸은 source-only</div>
+
+  <div class="sg"><b>B2 릴리즈 축</b><small>Release recorder <span class="pill a">kb-release-record</span></small></div>
+  <div class="c i"><span class="lb">입력</span><ul><li>tag · commit log</li><li>릴리즈 note · 납품 폴더</li><li>checklist 흔적</li></ul></div>
+  <div class="c w"><span class="lb">처리</span>과거 릴리즈를 같은 형식으로 재구성한다. 못 찾은 칸은 "없음" · "모름". 줄기(trunk · maintenance)를 적고 같은 줄기끼리만 잇는다</div>
+  <div class="c o"><span class="lb">출력</span>MR: <ul><li>릴리즈마다 release 기록(+ checklist 판정)</li><li>"앞으로 반드시 남길 기록" 목록</li></ul></div>
+  <div class="c h"><span class="lb">사람 · 지도</span>릴리즈 담당이 확인 → 확정 → hash가 원장에. 지도의 release 칸이 reviewed</div>
+
+  <div class="sg"><b>B3 bug</b><small>Harvester <span class="pill a">kb-harvest</span> + <span class="pill s">포함 여부 계산</span></small></div>
+  <div class="c i"><span class="lb">입력</span><ul><li>종료된 bug ticket(전처리본)</li><li>수정 commit</li><li>포함 여부 계산 결과(script)</li><li>문서 기준</li></ul></div>
+  <div class="c w"><span class="lb">처리</span>문서 기준에 걸리는 bug만 문서로 쓴다(고객 · FPGA 발견, 릴리즈 뒤 발견, 공유 module, spec 오독 등). 영향 · 수정 릴리즈는 계산 결과에 <code>(계산: ancestry)</code></div>
+  <div class="c o"><span class="lb">출력</span>MR: <ul><li>bug 문서: 재현 조건 · 원인 · 수정 · 영향 범위 · 교훈</li><li>bug 목록(생성, 나머지는 한 줄)</li><li>교훈 → RTL review로 넘김</li></ul></div>
+  <div class="c h"><span class="lb">사람 · 지도</span>sub-top 담당이 원천과 대조해 판정(full). 원인 module이 "문서 필요" 목록에 오른다</div>
+
+  <div class="sg"><b>B4 요구 · spec</b><small>Harvester</small></div>
+  <div class="c i"><span class="lb">입력</span><ul><li>요구 ticket</li><li>spec 문서 목록과 버전</li><li>코드</li></ul></div>
+  <div class="c w"><span class="lb">처리</span>요구는 건마다 문서, spec은 목록만(복사하지 않는다). 코드와 spec이 다르면 어느 쪽이 맞는지 정하지 않고 spec-gaps에 올린다</div>
+  <div class="c o"><span class="lb">출력</span>MR: <ul><li>요구 문서</li><li>spec 목록</li><li>spec-gaps(열린 충돌)</li></ul></div>
+  <div class="c h"><span class="lb">사람 · 지도</span>제품 리더가 판정, 충돌은 담당이 판정. 지도의 충돌 목록에 열린 항목이 보인다</div>
+
+  <div class="sg"><b>B5 module</b><small>generator + Harvester</small></div>
+  <div class="c i"><span class="lb">입력</span><ul><li>filelist</li><li>코드(port · parameter · 계층)</li><li>B3의 원인 module 목록</li></ul></div>
+  <div class="c w"><span class="lb">처리</span>generator가 module 목록과 port · parameter 표를 코드에서 만든다(손으로 쓰지 않는다). Harvester가 sub-top마다 역할 · 내부 구조 · 제약과 함정을 쓴다</div>
+  <div class="c o"><span class="lb">출력</span>MR: <ul><li>module 목록(생성)</li><li>sub-top module 문서(생성 표 + 서술)</li></ul></div>
+  <div class="c h"><span class="lb">사람 · 지도</span>sub-top 담당이 판정. "문서 필요" 목록이 줄어든다</div>
+
+  <div class="sg"><b>B6 나머지 서술형</b><small>Harvester</small></div>
+  <div class="c i"><span class="lb">입력</span><ul><li>구조 · 통합 가이드 · FAQ</li><li>검증 계획 · 결과 서버 run</li><li>합성 결과(QoR run)</li></ul></div>
+  <div class="c w"><span class="lb">처리</span>절마다 template의 안내대로 쓴다. 숫자는 옮기지 않고 run id를 가리킨다</div>
+  <div class="c o"><span class="lb">출력</span>MR: architecture · interfaces · verification · implementation · integration 문서</div>
+  <div class="c h"><span class="lb">사람 · 지도</span>각 담당이 판정. 제품 행이 거의 다 찬다</div>
+
+  <div class="sg row-c"><b>B7 고객</b><small>Harvester(고객 권한 하나) · 보안 준비 뒤</small></div>
+  <div class="c i"><span class="lb">입력</span><ul><li>고객 문의 · 답변(전처리본)</li><li>납품 기록</li><li>고객 권한 하나</li></ul></div>
+  <div class="c w"><span class="lb">처리</span>고객 저장소에만 기록한다. 여러 고객의 같은 질문은 두 단계로만 FAQ가 된다(고객 권한 없는 세션이 본 KB 원천만으로 쓴다)</div>
+  <div class="c o"><span class="lb">출력</span>MR(고객 저장소): 고객 개요 · 납품 · 질문 · feedback 기록, 본 KB FAQ 승격 제안</div>
+  <div class="c h"><span class="lb">사람 · 지도</span>FAE가 판정. 고객 폴더의 지도는 그 권한에서만 보인다</div>
+</div>
+<div class="card" style="border-color:var(--ok)"><h4>처음 만들기가 끝났다는 판정</h4><p>card와 핵심 문서 종류가 reviewed, lint 오류 0, 실제 질문 표본을 KB만으로 답하게 했을 때 답한 비율 [ ] 이상(목표는 팀 리더), hard-zero 0. 이때 사건 hook을 켜고(5장), 사람 없이 받아들일 제안 종류(auto)를 정한다.</p></div>
+
+<!-- 4 -->
+<h2 id="g4"><span class="no">4</span>지도가 채워지는 모습 (가상 제품 하나)</h2>
+<p>진척은 지도(<code>_map/coverage.md</code>)로 보인다. 칸의 상태는 다섯이다: <span class="pill">none</span> 원천도 문서도 없음 · <span class="pill">source-only</span> 원천만 있음 · <span class="pill a">draft</span> agent가 씀 · <span class="pill" style="border-color:var(--ok);color:var(--ok)">reviewed</span> 사람이 확인 · <span class="pill" style="border-color:var(--hum);color:var(--hum)">stale</span> 원천이 바뀜.</p>
+<div class="map">
+  <div class="snap"><h4>B1 조사 뒤</h4><div class="cells">
+    <span class="r">card</span><span class="s">release</span><span class="s">bug</span><span class="s">요구</span><span class="s">spec</span><span class="s">module</span><span>구조</span><span class="s">검증</span><span class="s">구현</span><span>고객</span></div></div>
+  <div class="snap"><h4>B2 · B3 뒤</h4><div class="cells">
+    <span class="r">card</span><span class="r">release</span><span class="d">bug 3/5</span><span class="s">요구</span><span class="s">spec</span><span class="s">module</span><span>구조</span><span class="s">검증</span><span class="s">구현</span><span>고객</span></div></div>
+  <div class="snap"><h4>B4 · B5 뒤</h4><div class="cells">
+    <span class="r">card</span><span class="r">release</span><span class="r">bug</span><span class="r">요구</span><span class="c">spec 충돌 1</span><span class="d">module 2/3</span><span>구조</span><span class="s">검증</span><span class="s">구현</span><span>고객</span></div></div>
+  <div class="snap"><h4>B6 뒤 · 유지 중</h4><div class="cells">
+    <span class="r">card</span><span class="r">release</span><span class="r">bug</span><span class="r">요구</span><span class="r">spec</span><span class="t">module stale 1</span><span class="r">구조</span><span class="r">검증</span><span class="d">구현</span><span>고객</span></div></div>
+</div>
+<p class="note">마지막 칸의 stale 1은 실패가 아니라 시스템이 살아 있다는 표시다: 코드가 바뀌었고, 그 module 문서를 다시 보라는 제안이 이미 와 있다. 고객 칸은 고객 단계를 열기 전까지 none이다.</p>
+
+<!-- 5 -->
+<h2 id="g5"><span class="no">5</span>계속 유지: 사건마다의 입력과 출력</h2>
+<p>원천에서 사건이 생기면 event router가 작업을 만들어 나눈다. script가 할 수 있는 것은 script가 하고(지도 표시), 판단이 필요한 것만 agent 작업이 되어 MR로 온다. 담당에게는 하루 한 묶음으로 간다.</p>
+<div class="io">
+  <div class="hd">사건</div><div class="hd">입력</div><div class="hd">처리 (누가)</div><div class="hd">출력</div><div class="hd">사람 확인 · 지도</div>
+
+  <div class="sg"><b>코드 commit</b><small>코드 저장소 hook</small></div>
+  <div class="c i"><span class="lb">입력</span>commit + 바뀐 경로, 그 경로를 인용한 문서 목록(원천 색인)</div>
+  <div class="c w"><span class="lb">처리</span>script: 신선도 · 생성 표 비교. 생성 표만 쓰는 원천이고 그대로면 script가 revision을 올린다. 나머지는 Harvester가 문서마다 판단</div>
+  <div class="c o"><span class="lb">출력</span>stale 표시, MR: "그대로 참"(revision만 올림) 또는 "갱신"(해당 절만)</div>
+  <div class="c h"><span class="lb">사람 · 지도</span>담당이 판정. 판단이 갈리면 "그대로 참"으로 내고 새 사실을 사람이 볼 곳에 적는다</div>
+
+  <div class="sg"><b>bug 종료</b><small>issue tracker hook</small></div>
+  <div class="c i"><span class="lb">입력</span>ticket(전처리본), 수정 commit, 고객 tag</div>
+  <div class="c w"><span class="lb">처리</span>Harvester: bug 문서 초안 · 갱신. 영향 · 수정 릴리즈는 script 계산, 다음 tag 전이면 수정 릴리즈 = 미정</div>
+  <div class="c o"><span class="lb">출력</span>MR: bug 문서(+ 같은 commit이 닿는 module 확인 제안을 같은 MR에), 교훈 넘김</div>
+  <div class="c h"><span class="lb">사람 · 지도</span>sub-top 담당 판정(full)</div>
+
+  <div class="sg"><b>요구 변경</b><small>issue tracker hook</small></div>
+  <div class="c i"><span class="lb">입력</span>요구 ticket의 상태 · 반영 릴리즈 변경</div>
+  <div class="c w"><span class="lb">처리</span>Harvester: 요구 문서 갱신</div>
+  <div class="c o"><span class="lb">출력</span>MR: 요구 문서</div>
+  <div class="c h"><span class="lb">사람 · 지도</span>제품 리더 판정</div>
+
+  <div class="sg"><b>release tag</b><small>릴리즈 절차의 한 단계</small></div>
+  <div class="c i"><span class="lb">입력</span>tag, 이전 릴리즈, bug 역색인, checklist 근거</div>
+  <div class="c w"><span class="lb">처리</span>script: 폴더 · 자동 판정 · "미정" 수정 릴리즈 해소. Release recorder: 변경 · 알려진 issue 초안</div>
+  <div class="c o"><span class="lb">출력</span>MR: release 기록 · checklist 판정 기록 · 합성 기록</div>
+  <div class="c h"><span class="lb">사람 · 지도</span>릴리즈 담당이 사람 항목 판정 → 확정 → 표가 굳고 hash가 원장에. 이후 본문 불변</div>
+
+  <div class="sg row-c"><b>납품 완료</b><small>납품 절차</small></div>
+  <div class="c i"><span class="lb">입력</span>고객 · 릴리즈 · 패키지 hash, 고객에게 낸 수치</div>
+  <div class="c w"><span class="lb">처리</span>Release recorder(고객 권한 하나): 고객별 차이, 동결 사본</div>
+  <div class="c o"><span class="lb">출력</span>MR(고객 저장소): 납품 기록 + 동결 사본</div>
+  <div class="c h"><span class="lb">사람 · 지도</span>FAE 확인 → hash가 원장에</div>
+
+  <div class="sg row-c"><b>고객 답변 발송</b><small>답을 보낼 때</small></div>
+  <div class="c i"><span class="lb">입력</span>문의 · 답변 기록(전처리본), 고객 권한 하나</div>
+  <div class="c w"><span class="lb">처리</span>Harvester: 질문 기록. 같은 고객의 같은 질문이면 잇고, 본 KB FAQ에 있으면 가리키기만</div>
+  <div class="c o"><span class="lb">출력</span>MR(고객 저장소): 질문 기록, 필요하면 FAQ 승격 제안(두 단계)</div>
+  <div class="c h"><span class="lb">사람 · 지도</span>FAE 판정</div>
+
+  <div class="sg"><b>합성 run · 리뷰 판정 · task 완료</b><small>기록 system에서</small></div>
+  <div class="c i"><span class="lb">입력</span>새 run 기록, 확정된 리뷰 지적, 검수 통과한 작업 결과</div>
+  <div class="c w"><span class="lb">처리</span>script: 인용이 최신 run인가. Harvester: critical path 절 · module "제약과 함정" · 해결 사례 초안</div>
+  <div class="c o"><span class="lb">출력</span>MR: 구현 · module 문서 갱신, 해결 사례</div>
+  <div class="c h"><span class="lb">사람 · 지도</span>각 담당 판정</div>
+
+  <div class="sg"><b>원천 이동 · 삭제</b><small>lint가 발견</small></div>
+  <div class="c i"><span class="lb">입력</span>풀리지 않는 원천 참조</div>
+  <div class="c w"><span class="lb">처리</span>Harvester: 새 위치 찾기(못 찾으면 "모름")</div>
+  <div class="c o"><span class="lb">출력</span>MR: 원천 참조 고침</div>
+  <div class="c h"><span class="lb">사람 · 지도</span>담당 판정. 그때까지 lint 오류로 보인다</div>
+
+  <div class="sg"><b>답하지 못한 질문</b><small>Librarian → router</small></div>
+  <div class="c i"><span class="lb">입력</span>gap: 이유 · 끊긴 문서 · 절 · topic · 질문자 종류</div>
+  <div class="c w"><span class="lb">처리</span>router: 누출 검사 뒤 권한 단위 로그에(본 KB 로그에는 질문 원문 없음)</div>
+  <div class="c o"><span class="lb">출력</span>gap 로그 한 줄 → 지도의 gap 순위</div>
+  <div class="c h"><span class="lb">사람 · 지도</span>바로 작업이 되지 않는다. 정기 정리가 순위대로 작업으로 바꾼다(6장)</div>
+</div>
+
+<!-- 6 -->
+<h2 id="g6"><span class="no">6</span>계속 유지: 매일 · 정기의 입력과 출력</h2>
+<div class="io">
+  <div class="hd">박자</div><div class="hd">입력</div><div class="hd">처리 (누가)</div><div class="hd">출력</div><div class="hd">사람 확인 · 지도</div>
+
+  <div class="sg"><b>매일</b><small>scheduler</small></div>
+  <div class="c i"><span class="lb">입력</span>KB 전체, 원천의 바뀐 경로 목록, 원장, 고객 이름 목록</div>
+  <div class="c w"><span class="lb">처리</span>lint 전체(script)</div>
+  <div class="c o"><span class="lb">출력</span>지도: 채움 상태 · stale(script · 사람 처리 구분) · 충돌 · 문서 필요 · gap 순위 · 확정 뒤 영향 · 역색인</div>
+  <div class="c h"><span class="lb">사람 · 지도</span>KB 관리자가 본다. 지도는 문서가 아니라 계산 결과라 사람이 고치지 않는다</div>
+
+  <div class="sg"><b>정기 정리</b><small>Curator · 주기 공란</small></div>
+  <div class="c i"><span class="lb">입력</span>지도 전체, 열린 충돌, 반복 질문의 서명</div>
+  <div class="c w"><span class="lb">처리</span>Curator: 충돌 판정 제안, FAQ 승격(두 단계), 중복 합치기, 은퇴 후보, gap 순위 → 작업</div>
+  <div class="c o"><span class="lb">출력</span>정리 제안 MR, Harvester 작업(순위가 높은 gap · 문서 필요)</div>
+  <div class="c h"><span class="lb">사람 · 지도</span>KB 관리자가 작업을 배분하고, 담당이 판정</div>
+
+  <div class="sg"><b>품질 측정</b><small>kb-eval · 주기 공란</small></div>
+  <div class="c i"><span class="lb">입력</span>질문 표본(실제로 반복된 질문)</div>
+  <div class="c w"><span class="lb">처리</span>Librarian이 KB만으로 답하고 script가 채점</div>
+  <div class="c o"><span class="lb">출력</span>답한 비율 · 틀린 답 · gap 이유 분포 · hard-zero</div>
+  <div class="c h"><span class="lb">사람 · 지도</span>팀 리더가 단계 전환을 정한다. 틀린 답은 표본에 더한다</div>
+
+  <div class="sg"><b>정본 회의</b><small>KB 관리자 주관</small></div>
+  <div class="c i"><span class="lb">입력</span>template 개선 후보, gap 이유 분포, 회귀 시험 결과</div>
+  <div class="c w"><span class="lb">처리</span>규칙 변경(문서 종류 · 절 · 연결 · 우선순위) → 판 올림</div>
+  <div class="c o"><span class="lb">출력</span>새 규칙 판, 이행 MR(빠진 새 절을 "모름: 이행으로 추가됨"으로 채움)</div>
+  <div class="c h"><span class="lb">사람 · 지도</span>옛 문서는 경고만 받고 담당이 천천히 채운다</div>
+</div>
+
+<!-- 7 -->
+<h2 id="g7"><span class="no">7</span>문서 한 장의 일생</h2>
+<p>문서의 상태는 다섯 가지 가운데 하나다. 사람이 쓰는 칸은 status(draft · reviewed · retired)뿐이고, stale과 outdated는 lint가 계산해 지도에 보인다.</p>
+<div class="life">
+  <div class="s n"><b>source-only</b><div>원천은 있고 문서는 없다. 지도의 빈 칸 = 채울 일</div></div>
+  <div class="s d"><b>draft</b><div>agent가 쓴 초안. 답에 쓰이면 "draft 근거" 표시</div></div>
+  <div class="s r"><b>reviewed</b><div>사람이 확인했다. 누가 · 언제 · 어떤 방법으로 · 어떤 본문(hash)</div></div>
+  <div class="s t"><b>stale · outdated</b><div>원천이 바뀌었다 · 확인 뒤 본문이 바뀌었다. 다시 볼 일</div></div>
+  <div class="s x"><b>retired</b><div>원천이 사라졌거나 더 쓰이지 않는다. 지우지 않고 은퇴</div></div>
+</div>
+<div class="tr">
+  <div>source-only → draft: 작업 → agent 초안 MR</div>
+  <div class="o">draft → reviewed: 담당이 판정하고 확인 hash를 찍는다</div>
+  <div class="h">reviewed → stale: 원천 revision이 바뀐다(lint가 계산)</div>
+  <div class="o">stale → reviewed: "그대로 참" 제안을 받아들인다(revision만 오른다)</div>
+  <div>stale → draft 수정 → reviewed: "갱신" MR을 판정한다</div>
+  <div class="h">reviewed → outdated: 확인 뒤 본문이 바뀌었다 → 다시 판정</div>
+  <div class="m">아무 상태 → retired: Curator 제안, 사람 승인</div>
+  <div class="h">기록형(릴리즈 · 납품): draft → 확정 → 원장 hash. 그 뒤로는 사후 정정만 덧붙인다</div>
+</div>
+<p class="note">개인 KB에서도 모양은 같다. 사람이 한 명이므로 판정을 가볍게 두고(한 번 읽음), 원천은 내 노트 repo의 commit이다.</p>
+
+<footer>KB Agent System 단계별 입출력. 모든 제품 · 고객 · 수치는 가상이다. 숫자 기준(주기 · 상한 · 목표)은 공란이며 결정 주체가 정한다. <a href="index.html">한 장 해설로 돌아가기</a></footer>
+</main>
+</body>
+</html>
