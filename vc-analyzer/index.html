@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VC Analyzer</title>
+<meta name="description" content="Bitstream analyzer for AV2 and AV1: frame reorder timeline, block overlays, pixel stages and entropy-decoded syntax per block.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%231d232b'/%3E%3Cpath d='M2 12h3V6H2zm4.5 0h3V3h-3zM11 12h3V8h-3z' fill='%23ffb347'/%3E%3C/svg%3E">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18h4V9H3zm7 0h4V4h-4zm7 0h4v-6h-4z"/></svg>
+    <span class="brand-name">VC Analyzer</span>
+  </div>
+  <label class="stream-pick">
+    <span class="visually-hidden">Stream</span>
+    <select id="streamSelect" aria-label="Stream"></select>
+  </label>
+  <dl class="facts" id="facts"></dl>
+  <div class="nav">
+    <button class="icon-btn" id="prevFrame" title="Previous frame (←)" aria-label="Previous frame">
+      <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <span class="frame-pos" id="framePos" aria-live="polite">–</span>
+    <button class="icon-btn" id="nextFrame" title="Next frame (→)" aria-label="Next frame">
+      <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+  </div>
+  <div class="top-actions">
+    <label class="btn file-btn" title="Open a bundle folder written by `vca export`">
+      <input type="file" id="folderInput" webkitdirectory directory multiple>
+      Open bundle
+    </label>
+    <button class="btn" id="helpBtn" title="Shortcuts and how to use (?)">Help</button>
+  </div>
+</header>
+
+<section class="timeline" aria-label="Frame timeline">
+  <div class="timeline-head">
+    <span class="lane-label">Decode order</span>
+    <span class="timeline-legend" id="typeLegend"></span>
+    <span class="lane-hint">Lines show where each decoded frame appears in output order. Outlined bars are not output directly.</span>
+  </div>
+  <div class="braid-wrap" id="braidWrap"><svg id="braid" role="img" aria-label="Decode to output order"></svg></div>
+  <div class="timeline-foot"><span class="lane-label">Output order</span></div>
+</section>
+
+<main class="workspace">
+  <section class="viewer" aria-label="Picture">
+    <div class="toolbar" role="toolbar" aria-label="Overlays">
+      <div class="tool-group" id="fillGroup" aria-label="Block fill"></div>
+      <div class="tool-group" id="lineGroup" aria-label="Lines"></div>
+      <div class="tool-group">
+        <label class="select-label">Pixels
+          <select id="stageSelect" aria-label="Pixel stage"></select></label>
+        <button class="chip" id="grayBtn" aria-pressed="true" title="Show the picture in luma only so overlay colours stand out">Gray picture</button>
+        <label class="select-label">Opacity
+          <input type="range" id="opacity" min="0" max="100" value="45" aria-label="Fill opacity"></label>
+      </div>
+      <div class="tool-group zoom-group">
+        <button class="icon-btn" id="zoomOut" title="Zoom out (−)" aria-label="Zoom out"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+        <button class="btn small" id="zoomFit" title="Fit (0)">Fit</button>
+        <button class="btn small" id="zoom1" title="1:1 (1)">1:1</button>
+        <button class="icon-btn" id="zoomIn" title="Zoom in (+)" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></svg></button>
+      </div>
+    </div>
+    <div class="canvas-wrap" id="canvasWrap">
+      <canvas id="canvas" tabindex="0" aria-label="Frame with overlays. Click a block to inspect it."></canvas>
+      <div class="tooltip" id="tooltip" hidden></div>
+      <div class="empty" id="emptyState" hidden></div>
+    </div>
+    <div class="legend" id="legend"></div>
+    <div class="statusbar" id="statusbar">Load a stream to begin.</div>
+  </section>
+
+  <aside class="inspector" aria-label="Inspector">
+    <nav class="tabs" role="tablist" id="tabs">
+      <button role="tab" data-tab="block" aria-selected="true">Block</button>
+      <button role="tab" data-tab="frame">Frame</button>
+      <button role="tab" data-tab="syntax">Syntax</button>
+      <button role="tab" data-tab="stats">Stats</button>
+      <button role="tab" data-tab="stream">Stream</button>
+    </nav>
+    <div class="tab-body" id="tabBody"></div>
+  </aside>
+</main>
+
+<dialog id="helpDialog" class="dialog">
+  <form method="dialog" class="dialog-inner">
+    <h2>Using VC Analyzer</h2>
+    <p>Pick a frame on the timeline, then click any block. The inspector shows its prediction, transform and motion data, the partition decisions above it, and every entropy-decoded symbol attributed to it with its cost in bits.</p>
+    <h3>Keys</h3>
+    <table class="keys">
+      <tr><td><kbd>←</kbd> <kbd>→</kbd></td><td>Previous / next frame (in the order chosen on the Frame tab)</td></tr>
+      <tr><td><kbd>m</kbd> <kbd>r</kbd> <kbd>q</kbd> <kbd>b</kbd> <kbd>s</kbd> <kbd>n</kbd></td><td>Fill blocks by mode, reference, qindex, bits, skip, or no fill</td></tr>
+      <tr><td><kbd>g</kbd> <kbd>t</kbd> <kbd>v</kbd> <kbd>p</kbd></td><td>Toggle block grid, transform grid, motion vectors, superblocks and tiles</td></tr>
+      <tr><td><kbd>0</kbd> <kbd>1</kbd> <kbd>+</kbd> <kbd>−</kbd></td><td>Fit, 1:1, zoom in, zoom out. Drag to pan, wheel to zoom.</td></tr>
+      <tr><td><kbd>c</kbd></td><td>Copy the selected block as context for an AI assistant</td></tr>
+    </table>
+    <h3>Your own streams</h3>
+    <p>Analyze locally with the command line, then either serve it or export a bundle and open the folder here. The page reads the folder in your browser; nothing is uploaded.</p>
+    <pre>python -m vca analyze stream.ivf --pixels all
+python -m vca serve stream.vca
+python -m vca export stream.vca -o bundle/</pre>
+    <p class="fine">Pixel stages come from the reference decoder: recon is the output after in-loop filters, prefilter is the reconstruction before them, pred is the prediction. Coordinates are luma pixels; motion vectors are in 1/8 pel.</p>
+    <div class="dialog-actions"><button class="btn" value="close">Close</button></div>
+  </form>
+</dialog>
+
+<script src="app.js"></script>
+</body>
+</html>
