@@ -196,7 +196,7 @@ footer{margin-top:56px;padding-top:14px;border-top:1px solid var(--line);font-si
   <div class="ar"></div>
   <div class="col"><h4>KB repo (Git)</h4>
     <div class="it"><b>본 KB</b>: 제품 · module · bug · 요구 · 릴리즈 문서(Markdown + YAML 머리)</div>
-    <div class="it"><code>_map/</code> 지도: 채움 상태 · stale · gap 순위</div>
+    <div class="it"><code>_map/</code> 지도: 채움 상태 · stale · gap 순위 · 있어야 하는데 없는 자료</div>
     <div class="it"><code>_ledger/</code> 확정 기록의 hash 원장</div>
     <div class="it"><b>고객 repo</b>: 고객별 질문 · 납품 · feedback (접근 제한)</div>
   </div>
@@ -256,7 +256,7 @@ footer{margin-top:56px;padding-top:14px;border-top:1px solid var(--line);font-si
 <h3>3.3 규칙과 계약</h3>
 <div class="grid two">
   <div class="card"><h4>규칙 <code>_schema</code> (KB repo 안의 정본)</h4><ul>
-    <li>문서 종류 29: 종류마다 자리 · id 모양 · 필수 필드 · 필수 절 · 절마다 쓸 것. template은 여기서 생성한다</li>
+    <li>문서 종류 30: 종류마다 자리 · id 모양 · 필수 필드 · 필수 절 · 절마다 쓸 것. template은 여기서 생성한다</li>
     <li>연결 18종: 한 방향으로만 쓰고, 역방향은 lint가 만든다</li>
     <li>출처 우선순위: 사실 종류(structure · intent · number · history · practice)마다 무엇을 먼저 믿나</li>
     <li>질문 유형 15: 질문마다 KB를 여는 길</li>
@@ -351,7 +351,7 @@ dedupe_key: BUG-VXD-130@r1502</pre></div>
 <h3>6.1 Bootstrap: 제품 하나를 처음 채운다</h3>
 <p>릴리즈 축을 먼저 세운다. 그래야 bug의 "영향 받은 릴리즈"와 고객의 "가진 릴리즈"를 가리킬 수 있다.</p>
 <div class="flow">
-  <div class="st a"><b>1 조사</b><span>Surveyor → registry · card · 빈 곳 질문. 제품 리더가 확인</span></div><div class="ar"></div>
+  <div class="st a"><b>1 조사</b><span>Surveyor → registry · card · 기대 자료 목록 · 가설 확인 시트. 담당이 답하고 제품 리더가 확인</span></div><div class="ar"></div>
   <div class="st h"><b>2 릴리즈 축</b><span>Release recorder가 과거 릴리즈 재구성. 못 찾은 칸은 없음 · 모름</span></div><div class="ar"></div>
   <div class="st a"><b>3 bug</b><span>종료된 bug부터. 영향 릴리즈는 기록이 없으면 VCS로 계산</span></div><div class="ar"></div>
   <div class="st a"><b>4 요구 · spec</b><span>spec 목록, 코드와 어긋난 곳(spec-gaps)</span></div><div class="ar"></div>
@@ -366,7 +366,7 @@ dedupe_key: BUG-VXD-130@r1502</pre></div>
 <div class="flow">
   <div class="st s"><b>사건</b><span>issue tracker hook → router: issue-closed-bug</span></div><div class="ar"></div>
   <div class="st s"><b>작업</b><span>router가 작업을 만든다. ticket의 고객 tag로 고객 권한, registry로 원천 목록</span></div><div class="ar"></div>
-  <div class="st a"><b>Harvester</b><span>ticket(고객 이름을 CUST-ID로 바꾼 전처리본)과 수정 commit을 읽어 bug 문서 초안</span></div><div class="ar"></div>
+  <div class="st a"><b>Harvester</b><span>ticket(고객 이름을 고객 별칭으로 바꾼 전처리본)과 수정 commit을 읽어 bug 문서 초안</span></div><div class="ar"></div>
   <div class="st a"><b>계산 · 표시</b><span>영향 릴리즈는 script가 계산 → <code>(계산: ancestry)</code>. 다음 tag 전이면 fixed-in = 미정</span></div><div class="ar"></div>
   <div class="st a"><b>함께 온 사건</b><span>같은 commit으로 module 원천이 바뀜 → module 확인 제안도 같은 MR에</span></div><div class="ar"></div>
   <div class="st h"><b>판정</b><span>sub-top 담당이 MR 판정 → reviewed</span></div>
@@ -378,8 +378,8 @@ dedupe_key: BUG-VXD-130@r1502</pre></div>
   <div class="card"><h4>신입: "blk_parse의 header FIFO 깊이는?"</h4>
     <p>Librarian이 질문 유형을 고르고 module 목록 → <code>vx-dec/mod/blk_parse</code>를 연다. port · parameter 표는 코드에서 생성한 칸이라 코드 값 16이 있다. 그런데 spec-gaps에 열린 충돌(uarch spec은 32)이 있다.</p>
     <p><b>답:</b> "코드 값은 16이고 spec은 32다. 담당이 판정 중이다." 여기에 <span class="pill h">conflict</span> 표시가 붙고, 인용은 문서 id와 원천 revision이다.</p></div>
-  <div class="card c"><h4>FAE(고객 CUST-001 권한): "이 고객이 쓰는 릴리즈에 AXI burst bug가 있나?"</h4>
-    <p>CUST-001 폴더의 납품 기록 → 지금 쓰는 릴리즈 2.0 → bug 문서의 fixed-in(2.0)을 따라간다. <b>답:</b> "없다. 이전 납품 1.1에는 있었다."</p>
+  <div class="card c"><h4>FAE(고객 NOVA 권한): "이 고객이 쓰는 릴리즈에 AXI burst bug가 있나?"</h4>
+    <p>NOVA 폴더의 납품 기록 → 지금 쓰는 릴리즈 2.0 → bug 문서의 fixed-in(2.0)을 따라간다. <b>답:</b> "없다. 이전 납품 1.1에는 있었다."</p>
     <p>고객 권한이 없는 사람이 같은 질문을 하면, 고객이 가진 릴리즈는 말하지 않고 "권한 밖" gap을 남긴다. 다른 고객이 있다는 사실은 어느 경우에도 드러나지 않는다.</p></div>
 </div>
 <div class="flow">
@@ -475,7 +475,7 @@ links:                     # 한 방향만. 역방향은 lint가
   <div class="lh">엔진<small>어디서나 같다</small></div>
   <div class="cell eng span2">원칙 여덟 · agent 다섯의 역할 · script 셋(lint · generator · router) · 계약 12 · 시험 runner. <b>작업 → MR → 판정 → 지도</b>의 고리. 인용 · 추정 · 모름 표시, stale, 확인 hash.</div>
   <div class="lh">규칙 묶음<small><code>_schema</code>: 영역을 정한다</small></div>
-  <div class="cell co"><b>RTL IP 제품 KB</b>: 문서 종류 29(card · module · bug · 요구 · 릴리즈 · 납품 …), 연결 18, 릴리즈 축과 확정 원장, 고객 repo와 여섯 방향 분리</div>
+  <div class="cell co"><b>RTL IP 제품 KB</b>: 문서 종류 30(card · module · bug · 요구 · 릴리즈 · 납품 · 계약 …), 연결 18, 릴리즈 축과 확정 원장, 고객 repo와 여섯 방향 분리</div>
   <div class="cell me"><b>공부 · 업무 노트 KB</b>(예): workspace card · 주제 · 자료 노트(논문 · 책) · 결정 · 내가 물었던 질문. 릴리즈 축과 고객 repo 없음</div>
   <div class="lh">인스턴스<small>registry · adapter · 문서</small></div>
   <div class="cell co">회사 제품 · 코드 저장소(SVN · Git) · issue tracker · 결과 서버, 고객 정책, 담당 역할</div>
@@ -499,18 +499,18 @@ links:                     # 한 방향만. 역방향은 lint가
 <h3>10.1 회사로 가져갈 묶음과 회사 KB</h3>
 <div class="flow">
   <div class="st ok"><b>① 설계 · 가상 시험</b><span>일반화한 규칙, 가상 제품 family로 lint · agent 시험 (지금 여기)</span></div><div class="ar"></div>
-  <div class="st h"><b>② 회사 현실 대비</b><span>가져가기 전: 작업 요청서 10건(할 일 · 기본 요구사항 · 합격 시험)과 정답 표(조상 관계 · 전처리 · router)</span></div><div class="ar"></div>
+  <div class="st h"><b>② 회사 현실 대비</b><span>가져가기 전: 큰 할 일 · 작업 요청서 12건(필수 · 기본안 요구사항 · 합격 시험) · 정답 표 · 인터뷰 키트</span></div><div class="ar"></div>
   <div class="st s"><b>③ packing</b><span>내부 파일(진행판 · 옛 판 · 시험 원 출력) 제외, 금지 표기 검사</span></div><div class="ar"></div>
   <div class="st a"><b>④ 셋업</b><span>빈 KB project, <code>_schema</code> · <code>_tools</code> 복사, registry, lint CI</span></div><div class="ar"></div>
   <div class="st a"><b>⑤ adapter</b><span>SVN · issue tracker · wiki. 합격 = 이 묶음의 시험 사례와 같은 결과</span></div><div class="ar"></div>
-  <div class="st a"><b>⑥ 파일럿</b><span>제품 하나: 조사 → 릴리즈 축 → 초안 → 판정 → kb-ask를 사람에게</span></div><div class="ar"></div>
+  <div class="st a"><b>⑥ 파일럿</b><span>제품은 회사에서 인터뷰로 정한다: 조사 → 기존 문서 들여오기 → 릴리즈 축 → 초안 → 판정 → kb-ask</span></div><div class="ar"></div>
   <div class="st ok"><b>⑦ 넓히기</b><span>다음 제품은 card부터, 파생 제품은 차이만</span></div>
 </div>
-<h3>가져갈 묶음의 핵심: 작업 요청서 10건</h3>
-<p>회사에서 무엇을 만들지는 구현이 아니라 <b>요청서</b>로 가져간다. 요청서마다 왜 필요한지, 할 일, 기본 요구사항(REQ), 끝났다고 판정하는 시험, 회사에서 먼저 확인할 것이 있다. 회사 원천에 붙여야 하는 부품(조상 관계 계산 · 원천 전처리 · 작업 분배)은 <b>정답 표</b>를 함께 가져가, 회사에서 만든 것이 그 표와 같은 답을 내면 합격이다.</p>
+<h3>가져갈 묶음의 핵심: 큰 할 일 여섯과 작업 요청서 12건</h3>
+<p>묶음이 정한 것은 북극성 · 원칙 다섯 · 큰 할 일 여섯(기존 문서화 AI와 결합 · 믿음의 장치 · 원천 잇기 · 릴리즈 축 · 요구 축 · 살아 있게와 품질 재기)뿐이다. 파일럿 제품 · 순서 · 숫자 · 기존 template과의 정본 관계는 회사의 Claude 세션이 사람에게 <b>가설 확인 시트</b>로 묻고 정한다. 무엇을 만들지는 구현이 아니라 <b>요청서</b>로 가져간다. 요청서마다 왜 필요한지, 할 일, 기본 요구사항(REQ), 끝났다고 판정하는 시험, 회사에서 먼저 확인할 것이 있다. 회사 원천에 붙여야 하는 부품(조상 관계 계산 · 원천 전처리 · 작업 분배)은 <b>정답 표</b>를 함께 가져가, 회사에서 만든 것이 그 표와 같은 답을 내면 합격이다.</p>
 <div class="tw"><table>
 <tr><th>요청</th><th>무엇을 만드나</th><th>합격 시험</th></tr>
-<tr><td>WR-01</td><td>본 KB repo · 규칙 · 도구 · lint CI(MR마다 · 매일 · 텍스트 검사)</td><td>lint 사례 63건이 회사 CI에서 같은 결과</td></tr>
+<tr><td>WR-01</td><td>본 KB repo · 규칙 · 도구 · lint CI(MR마다 · 매일 · 텍스트 검사)</td><td>lint 사례 66건이 회사 CI에서 같은 결과</td></tr>
 <tr><td>WR-02</td><td>원천 adapter(SVN · issue tracker · 문서 저장소)</td><td>adapter마다 여섯 경우 + 실제 원천 대조</td></tr>
 <tr><td>WR-03</td><td>릴리즈 포함 여부 계산(VCS 조상 관계)</td><td>정답 표: 가상 이력 20칸 · 첫 릴리즈 4건 · supersedes</td></tr>
 <tr><td>WR-04</td><td>원천 전처리(고객 이름 → 고객 ID, 이름 목록과 독립인 두 번째 겹)</td><td>정답 표 13건 + 전처리본 이름 검사 0건</td></tr>
@@ -520,6 +520,8 @@ links:                     # 한 방향만. 역방향은 lint가
 <tr><td>WR-08</td><td>checklist와 릴리즈 · 납품 절차</td><td>릴리즈 하나를 재구성해 확정까지</td></tr>
 <tr><td>WR-09</td><td>파일럿 제품 하나 채우기</td><td>단계 1의 끝난 조건 + 첫 측정</td></tr>
 <tr><td>WR-10</td><td>질문 표본과 품질 측정</td><td>첫 측정값 기록</td></tr>
+<tr><td>WR-11</td><td>기존 문서화 AI 과정과 결합(그 결과를 초안의 씨앗으로, 같은 문서를 두 길로 만들지 않는다)</td><td>대응표 · 들여온 초안 lint 오류 0</td></tr>
+<tr><td>WR-12</td><td>요구 축: 고객 제품마다의 계약 → 요구 → spec · module · 검증 · 릴리즈</td><td>계약 하나의 항목 전부가 요구에 이어짐</td></tr>
 </table></div>
 <p class="note">순서: WR-01 → 02 → 03 · 07 → 06, 병행으로 08 · 10, 고객 단계 전에 05 → 04. 파일럿(WR-09)은 01 · 02 · 03 · 07 뒤. 첫 단계는 고객 정보 없이 시작한다.</p>
 <div class="grid two">
@@ -540,7 +542,7 @@ python _tools/kb_lint.py --kb . --schema _schema \
     <li>고객 repo의 권한 단위: 고객 폴더 단위가 되는가, 안 되면 고객마다 project</li>
     <li>VCS 조상 관계를 script가 물을 수 있는가(SVN mergeinfo · git ancestor)</li>
     <li>릴리즈 · 검증 checklist의 실제 항목과 자동 판정 여부</li>
-    <li>원천 전처리(고객 이름 → CUST-ID)를 어디서 하나</li>
+    <li>원천 전처리(고객 이름 → 고객 별칭)를 어디서 하나</li>
     <li>kb-ask를 다른 agent에 여는 방식, 작업의 고객 tag를 넘기는 방식</li></ul>
   <p><b>첫 단계의 기본안:</b> 고객 정보는 다루지 않고 시작한다. 이름 목록 · 전처리 · 고객 repo 권한이 준비되면 연다.</p></div>
 </div>
@@ -560,16 +562,16 @@ python _tools/kb_lint.py --kb . --schema _schema \
 <!-- 11 -->
 <h2 id="s11"><span class="no">11</span>지금 상태 (정직하게)</h2>
 <div class="grid">
-  <div class="card ok"><div class="big">63 / 63</div><p><b>lint mutation</b>: 결함 주입 51건을 모두 잡고, 무해한 변경 · 경고 12건에는 오류를 내지 않았다.</p></div>
+  <div class="card ok"><div class="big">66 / 66</div><p><b>lint mutation</b>: 결함 주입 53건을 모두 잡고, 무해한 변경 · 경고 13건에는 오류를 내지 않았다.</p></div>
   <div class="card ok"><div class="big">25 / 25</div><p><b>질의응답</b>: 명세만 준 agent, 고객 권한마다 세션을 나눔. 근거 없는 주장 0 · 누출 0 · 표시 누락 0.</p></div>
   <div class="card ok"><div class="big">3 / 3</div><p><b>수집</b>: bug ticket · 고객 메일 · 코드 commit → 초안의 lint 오류 0, 고객 이름 0.</p></div>
   <div class="card ok"><div class="big">6 / 6</div><p><b>git 원천 adapter</b>: 그대로 · hash 앞부분 · 짧은 표기 · 고친 뒤 · 없는 경로 · adapter 없음.</p></div>
   <div class="card a"><div class="big">15</div><p><b>적대적 설계 검토</b>(현장 설계자 · 보안 · agent 사용성 · 규모)의 지적을 모두 반영했다.</p></div>
-  <div class="card a"><div class="big">37</div><p><b>회사 구현용 정답 표</b>: 조상 관계 10 · 전처리 13 · router 14. 서로 모순 0건, 일부러 틀린 답은 모두 잡는다.</p></div>
+  <div class="card a"><div class="big">38</div><p><b>회사 구현용 정답 표</b>: 조상 관계 10 · 전처리 13 · router 15. 서로 모순 0건, 일부러 틀린 답은 모두 잡는다.</p></div>
   <div class="card a"><div class="big">dry run</div><p><b>셋업</b>: 빈 폴더 → 첫 lint → 판정 hash → 본문 변경 감지 → push 텍스트 검사까지 따라 했다.</p></div>
 </div>
 <div class="grid three">
-  <div class="card ok"><h4>돈다</h4><ul><li>규칙 묶음(문서 종류 29 · template 29)과 계약 11</li><li>lint · generator · template 도구</li><li>git 원천 adapter</li><li>시험 runner와 가상 제품(문서 50개)</li></ul></div>
+  <div class="card ok"><h4>돈다</h4><ul><li>규칙 묶음(문서 종류 30 · template 30)과 계약 12</li><li>lint · generator · template 도구</li><li>git 원천 adapter</li><li>시험 runner와 가상 제품(문서 50개)</li></ul></div>
   <div class="card a"><h4>명세 · 골격</h4><ul><li>agent 다섯의 명세와 프롬프트 골격</li><li>skill 여덟의 골격(설치 전)</li><li>권한 규칙 · hook · 도입 단계 · 평가 방법</li></ul></div>
   <div class="card h"><h4>회사에서 요청서대로 만든다 (정답 표는 준비됨)</h4><ul><li>SVN · issue tracker · wiki adapter (WR-02)</li><li>VCS 조상 관계 계산 (WR-03)</li><li>원천 전처리와 두 번째 누출 검사 (WR-04)</li><li>event router · scheduler (WR-06)</li><li>실제 원천에서 agent 초안의 품질(파일럿에서 처음 잰다, WR-09)</li></ul></div>
 </div>
