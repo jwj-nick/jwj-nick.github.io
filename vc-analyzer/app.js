@@ -28,6 +28,7 @@
     MERGE: '#52c7b8', SKIP_MERGE: '#3fb8af', MMVD: '#7fd3e8', SKIP_MMVD: '#6cc3d8',
     AFFINE_MERGE: '#2ec4a0', SKIP_AFFINE_MERGE: '#25a888', SBTMVP: '#9fb4ff', SKIP_SBTMVP: '#8aa2f0',
     CIIP: '#b39dff', GEO: '#8e7dff', SKIP_GEO: '#7d6cf0', AMVP: '#4b8dff', AFFINE_AMVP: '#2ec4a0', SMVD: '#6a5cff',
+    PALETTE: '#cfd8dc',   // IBC modes take the intrabc colour (modeColor)
   };
   const REF_COLORS = ['#4b8dff', '#3fb8af', '#f2c14e', '#e76f6f', '#b07cf7', '#7fd3e8', '#ff9f5a', '#9be15d'];
   const RAMP = [[68, 1, 84], [59, 82, 139], [33, 145, 140], [94, 201, 98], [253, 231, 37]];
@@ -1004,8 +1005,9 @@
       ctx.strokeStyle = '#ff66c4';
       ctx.lineWidth = 2.5 * px;
       ctx.beginPath();
-      (t.col_start_sb || []).forEach((c) => { ctx.moveTo(c * sb, 0); ctx.lineTo(c * sb, fr.height); });
-      (t.row_start_sb || []).forEach((r) => { ctx.moveTo(0, r * sb); ctx.lineTo(fr.width, r * sb); });
+      // the last start is the end in superblocks: clamp it to the picture (partial last superblock)
+      (t.col_start_sb || []).forEach((c) => { const x = Math.min(c * sb, fr.width); ctx.moveTo(x, 0); ctx.lineTo(x, fr.height); });
+      (t.row_start_sb || []).forEach((r) => { const y = Math.min(r * sb, fr.height); ctx.moveTo(0, y); ctx.lineTo(fr.width, y); });
       ctx.stroke();
       ctx.setLineDash([]);
     }
