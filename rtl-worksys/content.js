@@ -704,7 +704,7 @@ window.WS = {
     related: ["workflow", "posture", "sandbox", "hitl", "result", "review", "learn", "fork"], stages: ["plan", "execute", "result", "review", "apply", "learn"]
   },
   { id: "chain", tab: "chain · 사슬", short: "chain", badge: "정본 · 일부 가정",
-    ext: { text: "이 주제는 10-01에 정본이 생겼다. link 여덟(L3와 C-model L3m이 나란히), C-model 세 층, 원칙 다섯, 가상 사례, 기본값. 사슬을 돌리는 조립 형식은 workflow agent 명세의 조립 CH-feature에 있다. link 표 · 검증 독립성 · spec 변경 규칙은 확정이고, encoder/decoder의 oracle 구분은 가정(교정 대기)이며, link 이름 · 개수는 과거 일감으로 검증할 예정이다.", label: "◎ 조립 CH-feature (workflow agent)", go: "wa/library/CH-feature", map: "chain" },
+    ext: { text: "이 주제는 10-01에 정본이 생겼다. link 여덟(L3와 C-model L3m이 나란히), C-model 세 층, 원칙 다섯, 가상 사례, 기본값. 사슬을 돌리는 조립 형식은 workflow agent 명세의 조립 CH-feature에 있다(L3m 노드와 C-model 간선까지 정본에 맞춤). link 표 · 검증 독립성 · spec 변경 규칙은 확정이고, encoder/decoder의 oracle 구분은 가정(교정 대기)이며, link 이름 · 개수는 과거 일감으로 검증할 예정이다.", label: "◎ 조립 CH-feature (workflow agent)", go: "wa/library/CH-feature", map: "chain" },
     title: "chain — 아키텍처부터 검증까지 이어지는 사슬",
     lead: "chain은 새 엔진이 아니라 core(intake · workflow) 위에서 도는 갈래다. 요구 정리부터 sign-off 준비까지를 workflow 하나로 두지 않고, link 하나 = task 하나 = workflow 하나로 나눈 뒤 조립(assembly)으로 잇는다. 사슬은 조립의 한 모양이다. 이 페이지는 사슬의 내용(link 몇 토막, 사람이 어디서 결정하는지, link 사이에 무엇이 넘어가는지, oracle이 어디서 오는지)을 정한 정본을 옮긴 것이다.",
     summary: [
