@@ -111,8 +111,11 @@
   const FILLS = [
     { id: 'mode', label: 'Mode', key: 'm' }, { id: 'ref', label: 'Reference', key: 'r' },
     { id: 'qindex', label: 'Qindex', key: 'q' }, { id: 'bits', label: 'Bits', key: 'b' },
-    { id: 'skip', label: 'Skip', key: 's' }, { id: 'none', label: 'No fill', key: 'n' },
+    { id: 'skip', label: 'Skip', key: 's' },
+    { id: 'cycles', label: 'HW cycles', key: 'w', arch: true }, { id: 'fetch', label: 'Ref fetch', key: 'f', arch: true },
+    { id: 'none', label: 'No fill', key: 'n' },
   ];
+  const hasArch = () => !!(state.manifest && state.manifest.arch);
   const LINES = [
     { id: 'grid', label: 'Blocks', key: 'g' }, { id: 'tx', label: 'Transforms', key: 't' },
     { id: 'mv', label: 'Motion', key: 'v' }, { id: 'sb', label: 'Superblocks', key: 'p' },
@@ -396,6 +399,8 @@
       if (fm.stage) state.stage = 'D:' + fm.stage;
       state.fill = 'none';
     }
+    if (FILLS.some((x) => x.arch && x.id === state.fill) && !hasArch()) state.fill = 'mode';
+    renderChips();
     if (state.diff && hash.lines === null) state.lines.add('mismatch');
     if (!state.diff) state.lines.delete('mismatch');
     renderChips();
@@ -832,6 +837,7 @@
       ctx.globalAlpha = 1;
       if (state.fill === 'skip') drawSkipHatch(ctx, blocks, visible, px);
     }
+    if (state.fill === 'cycles') drawArchLabels(ctx, vis, px);
     // transform grid
     if (state.lines.has('tx')) {
       ctx.strokeStyle = 'rgba(120,205,255,0.55)';
@@ -895,6 +901,20 @@
       case 'ref': return (b) => (b[C.pred] === 'inter' ? refColor(b[C.ref0]) : (b[C.pred] === 'intrabc' ? '#48c774' : null));
       case 'qindex': { const qm = qMax(); return (b) => rgb(ramp((b[C.qindex] ?? 0) / qm)); }
       case 'skip': return (b) => (b[C.skip_txfm] ? 'rgb(16,18,22)' : null);
+      case 'cycles': {
+        const A = archOf(state.payload);
+        if (!A) return () => null;
+        return (b) => { const r = A.sbAt(b[C.x], b[C.y]); return r ? rgb(ramp(r[3] / (A.sbMax || 1))) : null; };
+      }
+      case 'fetch': {
+        const A = archOf(state.payload);
+        if (!A) return () => null;
+        const lmax = Math.log1p(A.fetchMax);
+        return (b) => {
+          const v = A.blk(b);
+          return v && v[1] > 0 ? rgb(ramp(Math.log1p(v[1] / (b[C.w] * b[C.h])) / (lmax || 1))) : null;
+        };
+      }
       case 'bits': {
         const max = bitsMax(blocks);
         const lmax = Math.log1p(max * 256);
@@ -905,6 +925,47 @@
       }
       default: return () => null;
     }
+  }
+
+  // Arch Model L0 (vca arch): per-superblock rows (manifest arch.sb_cols) and per-block [ENT cycles, fetch bytes]
+  function archOf(p) {
+    if (!p || !p.arch) return null;
+    if (p._arch) return p._arch;
+    const fr = p.frame, sb = fr.sb_size || 64, cols = Math.max(1, Math.ceil(fr.width / sb));
+    const bySb = new Map(p.arch.sb.map((r) => [r[0], r]));
+    const byId = new Map(p.blocks.map((b, i) => [b[C.id], p.arch.blk[i]]));
+    let fetchMax = 0;
+    p.blocks.forEach((b, i) => { const v = p.arch.blk[i]; if (v && v[1] > 0) fetchMax = Math.max(fetchMax, v[1] / (b[C.w] * b[C.h])); });
+    p._arch = {
+      sb, cols, frame: p.arch.frame, rows: p.arch.sb, fetchMax,
+      sbMax: Math.max(0, ...p.arch.sb.map((r) => r[3])),
+      sbIndex: (x, y) => Math.floor(y / sb) * cols + Math.floor(x / sb),
+      sbAt(x, y) { return bySb.get(this.sbIndex(x, y)); },
+      blk: (b) => byId.get(b[C.id]),
+    };
+    return p._arch;
+  }
+  const ARCH_MODULES = () => (state.manifest.arch && state.manifest.arch.modules) || ['ENT', 'IQT', 'PRD', 'LPF', 'MEM'];
+
+  // Superblock labels for the HW cycles fill: the slowest module and the cycles, when the superblock is big enough.
+  function drawArchLabels(ctx, vis, px) {
+    const A = archOf(state.payload);
+    if (!A || A.sb / px < 44) return;
+    const mods = ARCH_MODULES();
+    ctx.save();
+    ctx.font = `${11 * px}px ui-sans-serif, system-ui, sans-serif`;
+    ctx.textBaseline = 'top';
+    for (const r of A.rows) {
+      const [, x, y, cyc, bi] = r;
+      if (x > vis[2] || y > vis[3] || x + A.sb < vis[0] || y + A.sb < vis[1]) continue;
+      const label = `${mods[bi]} ${cyc >= 1000 ? (cyc / 1000).toFixed(1) + 'k' : Math.round(cyc)}`;
+      const w = ctx.measureText(label).width;
+      ctx.fillStyle = 'rgba(10,12,16,0.72)';
+      ctx.fillRect(x + 3 * px, y + 3 * px, w + 6 * px, 15 * px);
+      ctx.fillStyle = '#f4f6f8';
+      ctx.fillText(label, x + 6 * px, y + 5 * px);
+    }
+    ctx.restore();
   }
 
   function bitsMax(blocks) {
@@ -1027,6 +1088,20 @@
     }
   }
 
+  function archLegend() {
+    const A = archOf(state.payload), M = state.manifest.arch;
+    if (!A || !A.frame || !A.frame.modeled) return '<span class="note">The HW model has no estimate for this frame.</span>';
+    const fr = A.frame, cfg = M.config || {};
+    const grad = `<span class="ramp" style="background:linear-gradient(90deg,${RAMP.map((c) => rgb(c)).join(',')})"></span>`;
+    const src = `L0 estimate, ${M.config_file ? 'config ' + esc(M.config_file) : 'placeholder config'}`;
+    if (state.fill === 'cycles') {
+      const perSb = fr.budget / Math.max(1, fr.sbs);
+      return `0${grad}${fmt(Math.round(A.sbMax))} cycles per superblock <span class="note">frame ${fmt(Math.round(fr.cycles))} cycles = ${(100 * fr.utilization).toFixed(2)}% of ${fmt(Math.round(fr.budget))} at ${cfg.clock_mhz} MHz, ${cfg.fps} fps (${fmt(Math.round(perSb))} per superblock on average); slowest module ${esc(fr.bottleneck)}. ${src}.</span>`;
+    }
+    const ap = Object.entries(fr.approx || {}).map(([k, v]) => `${esc(k)} ${v}`).join(', ');
+    return `0${grad}${fmt(A.fetchMax, 1)} bytes per pixel <span class="note">log scale; frame fetch ${fmt(fr.fetch_bytes / 1024, 1)} KB (${fmt(fr.fetch_per_pixel, 2)} B/px) + write ${fmt(fr.write_bytes / 1024, 1)} KB, burst ${(cfg.modules || {}).MEM ? cfg.modules.MEM.burst_bytes : '?'} B${ap ? '; approximated: ' + ap : ''}. Intra blocks are unfilled. ${src}.</span>`;
+  }
+
   function renderLegend() {
     const el = $('#legend');
     if (!state.payload) { el.innerHTML = ''; return; }
@@ -1048,6 +1123,8 @@
       html = `${qName()} 0<span class="ramp" style="background:linear-gradient(90deg,${RAMP.map((c) => rgb(c)).join(',')})"></span>${qMax()} <span class="note">this frame: ${Math.min(...q)}–${Math.max(...q)}</span>`;
     } else if (state.fill === 'bits') {
       html = `0<span class="ramp" style="background:linear-gradient(90deg,${RAMP.map((c) => rgb(c)).join(',')})"></span>${fmt(bitsMax(blocks), 2)} bits per pixel <span class="note">log scale; symbols attributed by decoder context</span>`;
+    } else if (state.fill === 'cycles' || state.fill === 'fetch') {
+      html = archLegend();
     } else if (state.fill === 'skip') {
       html = '<span><i style="background:rgb(16,18,22)"></i>skip_txfm (no residual)</span><span><i style="background:repeating-linear-gradient(45deg,#ffb347 0 2px,transparent 2px 4px)"></i>skip_mode</span>';
     }
@@ -1175,6 +1252,12 @@
     if (extra.cfl) facts += kvRow('CfL', esc(JSON.stringify(extra.cfl)));
     if (extra.palette_size) facts += kvRow('Palette size', `${extra.palette_size[0]} / ${extra.palette_size[1]}`);
     facts += kvRow('Entropy bits', fmt(o.bits, 2), `${fmt(o.nsym)} symbols`);
+    const A = archOf(state.payload);
+    if (A) {
+      const v = A.blk(state.payload.blocks[state.sel]) || [null, 0], r = A.sbAt(o.x, o.y);
+      facts += kvRow('HW model (L0)', `ENT ${fmt(v[0], 1)} cycles, fetch ${fmt(v[1])} bytes`,
+        r ? `superblock ${r[0]}: ${fmt(r[3], 0)} cycles, ${ARCH_MODULES()[r[4]]} slowest` : '');
+    }
     const codec = (state.manifest.stream.codec || '').toUpperCase();
     const extRows = Object.entries(ext).filter(([k]) => k !== '_').map(([k, v]) => kvRow(k, esc(Array.isArray(v) ? v.join(', ') : v))).join('');
     const chroma = isChromaBlock(state.sel);
@@ -1230,6 +1313,14 @@
       + kvRow('Tiles', `${fr.tiles ? fr.tiles.cols : 1}×${fr.tiles ? fr.tiles.rows : 1}`)
       + kvRow('Bytes', fmt((fr.units || {}).bytes), 'all OBUs of this frame') + kvRow('Entropy bits', fmt((fr.stats || {}).symbol_bits, 1))
       + kvRow('Recon MD5', `<span class="mono">${esc((fr.recon || {}).md5)}</span>`);
+    const A = archOf(state.payload);
+    if (A && A.frame && A.frame.modeled) {
+      const af = A.frame;
+      facts += kvRow('HW model (L0)', `${fmt(af.cycles, 0)} cycles, ${(100 * af.utilization).toFixed(2)}% of budget, ${esc(af.bottleneck)} slowest`,
+        ARCH_MODULES().map((m) => `${m} ${fmt(af.modules[m], 0)}`).join(' · '))
+        + kvRow('Reference fetch', `${fmt(af.fetch_bytes / 1024, 1)} KB`, `${fmt(af.fetch_per_pixel, 2)} bytes per pixel; write ${fmt(af.write_bytes / 1024, 1)} KB`)
+        + kvRow('Loop filter stages', esc((af.filters || ['?']).join(', ') || 'none'));
+    }
     const obj = (o) => Object.entries(o || {}).map(([k, v]) => kvRow(k, esc(typeof v === 'object' ? JSON.stringify(v) : v))).join('');
     const refs = (fr.refs || []).map((r, i) => `<tr><td>${esc(r.name || 'REF' + i)}</td><td class="num">${fmt(r.slot)}</td><td class="num">${fmt(r.order_hint)}</td></tr>`).join('');
     const units = (fr.units_list || []).map((u) => `<tr><td class="num">${u.i}</td><td>${esc(u.type_name)}</td><td class="num">${fmt(u.offset)}</td><td class="num">${fmt(u.size)}</td></tr>`).join('');
@@ -1418,6 +1509,7 @@
       `- Prediction: ${o.pred}, mode ${o.mode}${o.uv_mode ? ', chroma ' + o.uv_mode : ''}${o.ref0 ? `, ref ${[o.ref0, o.ref1].filter(Boolean).join('+')}, mv (x,y 1/8 pel) (${o.mv0_col},${o.mv0_row})${o.mv1_row !== undefined ? ` (${o.mv1_col},${o.mv1_row})` : ''}` : ''}${o.motion_mode ? ', motion ' + o.motion_mode : ''}${o.interp_filter ? ', filter ' + o.interp_filter : ''}`,
       `- Transform: ${o.tx_size} ${o.tx_type}, skip_txfm ${o.skip_txfm}, ${qName()} ${o.qindex}${o.cdef_idx === null || o.cdef_idx === undefined ? '' : ', cdef index ' + o.cdef_idx}`,
       `- Entropy bits: ${fmt(o.bits, 3)} over ${o.nsym} symbols`,
+      archContext(o),
       `- Decoder fields: ${JSON.stringify(ext)}`,
       path.length ? `- Partition path: ${path.map((n) => `${n.bsize}@(${n.x},${n.y}) ${n.partition}`).join(' > ')}` : '',
       '',
@@ -1524,7 +1616,7 @@
 
   // ------------------------------------------------------------ controls
   function renderChips() {
-    $('#fillGroup').innerHTML = FILLS.map((f) => `<button class="chip" data-fill="${f.id}" aria-pressed="${state.fill === f.id}" title="Fill blocks by ${f.label.toLowerCase()} (${f.key})">${f.label}<span class="hk">${f.key}</span></button>`).join('');
+    $('#fillGroup').innerHTML = FILLS.filter((f) => !f.arch || hasArch()).map((f) => `<button class="chip" data-fill="${f.id}" aria-pressed="${state.fill === f.id}" title="Fill blocks by ${f.label.toLowerCase()} (${f.key})">${f.label}<span class="hk">${f.key}</span></button>`).join('');
     $('#lineGroup').innerHTML = LINES.filter((l) => !l.diffOnly || state.diff).map((l) => `<button class="chip" data-line="${l.id}" aria-pressed="${state.lines.has(l.id)}" title="${l.label} (${l.key})">${l.label}<span class="hk">${l.key}</span></button>`).join('');
   }
   function setFill(id) { state.fill = id; renderChips(); renderLegend(); requestRender(); writeHash(); }
@@ -1664,10 +1756,16 @@
       else if (k === 'Escape') select(-1);
       else if (k === 'x' && state.diff) flipAB();
       else {
-        const f = FILLS.find((x) => x.key === k); if (f) { setFill(f.id); return; }
+        const f = FILLS.find((x) => x.key === k && (!x.arch || hasArch())); if (f) { setFill(f.id); return; }
         const l = LINES.find((x) => x.key === k); if (l && (!l.diffOnly || state.diff)) toggleLine(l.id);
       }
     });
+  }
+  function archContext(o) {
+    const A = archOf(state.payload);
+    if (!A || !A.frame || !A.frame.modeled) return '';
+    const v = A.blk(state.payload.blocks[state.sel]) || [null, 0], r = A.sbAt(o.x, o.y), mods = ARCH_MODULES();
+    return `- HW model L0 (${state.manifest.arch.config_file || 'placeholder config'}): block ENT ${fmt(v[0], 1)} cycles, reference fetch ${v[1]} bytes; superblock ${r ? r[0] : '?'} ${r ? mods.map((m, i) => `${m} ${Math.round(r[5 + i])}`).join(' ') : ''} cycles (slowest ${r ? mods[r[4]] : '?'}); frame ${Math.round(A.frame.cycles)} cycles, ${(100 * A.frame.utilization).toFixed(2)}% of budget`;
   }
   let braidTimer = 0;
   function renderBraidDebounced() { clearTimeout(braidTimer); braidTimer = setTimeout(() => state.manifest && renderBraid(), 120); }
