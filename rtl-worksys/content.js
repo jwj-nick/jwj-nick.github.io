@@ -6,8 +6,8 @@ window.WS = {
   meta: {
     title: "RTL WorkSys",
     subtitle: "AI-native RTL 업무 시스템 · core 설계 노트",
-    updated: "2026-09-29",
-    version: "0.7",
+    updated: "2026-10-01",
+    version: "0.8",
     tagline: "ticket이 생기면 AI가 먼저 일을 시작한다. 사람은 검수와 결정에 선다."
   },
 
@@ -438,22 +438,22 @@ window.WS = {
         what: "ticket 한 건이 지나가는 아홉 단계, gate 다섯 조건, posture 넷, 사람 자리. intake와 workflow를 심화해 확정했고, 두 부분 모두 agent 시스템 명세가 됐다. 09-28에 두 명세의 내용이 core 설계서 · protocol · walkthrough · 도입 단계 문서에 이식됐다.",
         next: "교정: 이미 확정된 것을 건드린 곳 14(intake 3 · workflow 11)부터 본다. 더 깊게 논의할 것 ① 참고." },
       { name: "주제별 심화", st: "wip", label: "intake · workflow 명세 완료",
-        what: "intake 심화(09-27~28)가 intake agent 명세를, workflow 자율 세션(09-28)이 workflow agent 명세와 core 이식을 만들었다. 두 세션 모두 독립 검토를 여러 차례 돌렸다(workflow는 열 차례, 지적 143건 중 142건 반영). chain은 틀만 있고 심화 세션은 아직 열지 않았다.",
-        next: "두 명세를 읽고 틀린 줄만 교정 → chain 기본값 일곱 교정 → chain 정본 → diagnose 갈래(빈칸 1순위)." },
+        what: "intake 심화(09-27~28)가 intake agent 명세를, workflow 자율 세션(09-28)이 workflow agent 명세와 core 이식을 만들었다. 두 세션 모두 독립 검토를 여러 차례 돌렸다(workflow는 열 차례, 지적 143건 중 142건 반영). 10-01에 chain 정본이 생겼다(C-model 세 층을 반영한 link 여덟, 원칙 다섯, 가상 사례, 기본값).",
+        next: "두 명세를 읽고 틀린 줄만 교정 → chain의 encoder/decoder oracle 가정 교정 → diagnose 갈래(빈칸 1순위)." },
       { name: "아이디어 메모", st: "wip", label: "KB 중심 계획",
         what: "단편 아이디어를 주제별 파일에 쌓는다(09-24 시작). knowledge base를 가운데 두고 합성 시스템 · RTL review가 사실을 대는 전체 계획(K0~K4)이 있다. RTL review system(A~E)과 합성 matrix는 workflow 라이브러리의 특화 workflow로 들어갔다.",
         next: "KB 첫 단계(K0): 제품 이해 질문 · 체크리스트를 파일럿 제품 하나로 수행(현업에서)." },
       { name: "현업 적용 묶음", st: "wip", label: "workflow 명세 추가 대기",
         what: "설계 문서를 현업 세션용으로 묶는다(금지 토큰 검사 포함). 09-28에 intake agent 명세가 들어가 41 파일이 됐다. workflow agent 명세와 그림 문서는 아직이다.",
         next: "묶음 도구에 workflow 명세 폴더와 그림 문서(HTML)를 더하고 다시 묶는다." },
-      { name: "이 뷰어", st: "done", label: "v0.7",
-        what: "core · 사례 · 설계 절, 심화 페이지 셋, 현황, intake agent · workflow agent 탐색기(명세 전문 · 부품 · 계약 필드 · 설정 · 시험 사례 검색 · 인계 문서), 한 장 셋(그림 + 15초), 더 깊게 논의할 것.",
+      { name: "이 뷰어", st: "done", label: "v0.8",
+        what: "core · 사례 · 설계 절, 심화 페이지 셋(chain은 정본 기준), 현황, intake agent · workflow agent 탐색기, 한 장 넷(core · intake · workflow · chain: 그림 + 15초 요약 + 약 4분 해설판), 더 깊게 논의할 것.",
         next: "설계 쪽에서 무엇이 바뀔 때마다 동기화한다. 탐색기 데이터와 한 장은 원본에서 다시 만든다. 주제가 정리되면 그 주제의 한 장을 더한다." }
     ],
     topics: [
       ["intake", "core 입구", "wip", "확정 + agent 명세 교정 대기", "일의 발생(ticket · 도구 신호 · backlog · command …)을 공통 레코드로 받아 처리에 착수시킨다. 일곱 단계. agent 시스템 명세(부품 11 · 계약 3 · 규칙 8 · 시험 91)와 위임 결정 51이 교정을 기다린다."],
       ["workflow", "core 본체", "wip", "확정 + agent 명세 교정 대기", "착수된 일을 결과 패키지까지 자율로. 표준화된 workflow 라이브러리(공통 골격 → 모양 일곱 → 특화 열여섯, 조립 둘), 부품 11 · 계약 11 · 시험 68. 위임 결정 75가 교정을 기다린다."],
-      ["chain", "갈래", "wip", "틀 · 교정 대기", "아키텍처부터 검증까지. link 일곱, 원칙 다섯, 기본값 일곱. workflow 라이브러리에 조립 CH-feature가 생겼다. 정본 문서 없음."],
+      ["chain", "갈래", "wip", "정본 · 일부 가정 (10-01)", "core 위의 갈래(link 하나 = task 하나 = workflow 하나, 사슬 = 조립의 한 모양). 한 장 · 해설판 있음. link L1~L7에 C-model link L3m이 L3와 나란히, C-model 세 층, 사람 결정 넷. link 표 · 검증 독립성 · spec 변경 규칙은 확정, encoder/decoder oracle 구분은 가정, link 이름 · 개수는 과거 일감으로 검증 예정."],
       ["timing-area", "갈래", "seed", "이름 · 성격만", "탐색형, oracle = synth + LEC. workflow 라이브러리의 WF-timing이 목표 지표 mode(timing · area)로 덮는다."],
       ["coverage", "갈래", "seed", "이름 · 성격만", "탐색형, oracle = coverage + sim. WF-coverage 첫 판이 있다. 다른 갈래가 남긴 backlog의 소비자."],
       ["code-review", "갈래", "seed", "이름 · 성격만", "판정형. RTL review A~E가 판정형 특화와 pipeline으로 들어갔다. 리뷰어는 고치지 않는다."],
@@ -481,12 +481,12 @@ window.WS = {
         "교정: '더 깊게 논의할 것' ①의 14곳을 먼저 본다(intake 확정을 건드린 3 · intake와 workflow 계약이 맞물린 11). 틀린 것만 고치면 된다.",
         "intake 첫 사례 걷기(S02): 판단할 곳 넷 중 다른 것만 짚거나 'S02 맞음'.",
         "workflow 명세 읽기: workflow 한 장 → 탐색기 개요 → 라이브러리 설명 → 공통 골격 → 관심 있는 특화 하나.",
-        "chain 기본값 일곱을 보고 다른 것만 고친다(심화 › chain 4절)."
+        "chain: encoder/decoder의 oracle 구분 가정을 본다(심화 › chain 2절 · 6절). link 이름 · 개수는 과거 일감으로 확인."
       ],
       ai: [
         "workflow 결과 롤업: 결정 후보 75를 결정 로그로(가정), 이식 완료 표시, 업그레이드 후보, 묶음 도구에 workflow 명세 폴더와 그림 문서를 더하고 다시 묶는다.",
         "교정이 오면 intake 쪽 동기화(계약 · 규칙 · 시험 설정)를 한 세션에서 하고, 표지를 켠다.",
-        "chain 교정이 오면 chain 정본 → 묶음 → 이 뷰어. 그다음 diagnose 갈래."
+        "chain 정본을 조립 CH-feature(L3m 노드, C-model 간선)와 core 설계서 · walkthrough에 반영. 그다음 diagnose 갈래."
       ]
     },
     timeline: [
@@ -500,7 +500,9 @@ window.WS = {
       ["09-27~28", "intake 심화", "첫 심화 세션. 자율 진행으로 intake agent 시스템 명세 묶음(부품 11 · 계약 3 · 규칙 8 · 시험 91). 독립 검토 여섯 번. 읽기 안내와 첫 사례 걷기."],
       ["09-28", "intake 롤업 · 묶음", "결정 51항을 가정으로 기록, 이식 계획, 현업 적용 묶음에 intake 명세 포함(41 파일, 금지 토큰 0)."],
       ["09-28", "workflow 자율 세션", "workflow agent 시스템 명세(표준화 라이브러리 · 부품 11 · 계약 11 · 시험 68 · 그림 문서 넷)와 core 이식. 독립 검토 열 번(지적 143건 중 142건 반영)."],
-      ["09-29", "이 뷰어 v0.7", "workflow agent 탐색기, 한 장 셋(core · intake · workflow, 그림 + 15초), 더 깊게 논의할 것."]
+      ["09-29", "이 뷰어 v0.7", "workflow agent 탐색기, 한 장 셋(core · intake · workflow, 그림 + 15초), 더 깊게 논의할 것."],
+      ["10-01", "chain 정본", "chain을 다시 걸어 C-model 세 층(상위 · exactness oracle · module trace)을 넣었다. L3m이 L3와 나란히 interface freeze, L5는 RTL 블라인드, freeze 뒤 spec 변경은 L3 · L3m 재freeze."],
+      ["10-01", "이 뷰어 v0.8", "한 장 넷에 해설판(음성 · 자막 · 배경음, 약 4분)을 붙였다. chain 한 장 · 해설판. codec 키워드 gate는 없앴다."]
     ],
     decisions: [
       ["09-20", "intake 확정", "입구는 ticket만이 아니다. 발생 → 공통 레코드 → 일곱 단계 → route. 범위 기본값 채택. 빈칸: diagnose 갈래 없음."],
@@ -510,7 +512,8 @@ window.WS = {
       ["09-28", "intake agent (가정 51, 교정 대기)", "순서와 멈춤은 코드 · 판단은 LLM, 틀릴 때의 방향 셋, hard-zero 셋, dedup 두 층, flaky = 같은 입력에서 갈린 것만, 도구 일의 끝 = 해소 후보, 우선순위는 규칙 근거로만, 보는 사람 기준 등."],
       ["09-28", "workflow를 자율 세션에", "core + workflow를 자율 세션이 agent 명세로 만들고 core 이식까지 한다. 표준화 구조 = 공통 → 작업 모양 → 특화, 조립 = chain · pipeline."],
       ["09-28", "workflow agent (가정 75, 교정 대기)", "세 층 표준화와 상속 규칙, 자리 여덟 · 공통 checkpoint 넷, phase, 조립(간선 종류 넷, 한 task = 한 결과 패키지), 자율 선언 = 실행 중 allowlist, 계산은 script, system of record, 자동 수정은 지적마다 한 번, 기록 범위 등. intake와 맞물린 교정 후보 11."],
-      ["09-28", "현업 적용 묶음에 명세 폴더", "묶음 도구가 하위 폴더까지 싣고 금지 토큰을 넓혀 검사한다. intake 명세 포함, workflow 명세는 다음."]
+      ["09-28", "현업 적용 묶음에 명세 폴더", "묶음 도구가 하위 폴더까지 싣고 금지 토큰을 넓혀 검사한다. intake 명세 포함, workflow 명세는 다음."],
+      ["10-01", "chain 정본 (일부 가정)", "link 표 · 검증 독립성 · spec 변경 규칙은 확정. C-model 세 층과 L3m. encoder/decoder oracle 구분은 가정(교정 대기)."]
     ]
   },
 
@@ -700,52 +703,84 @@ window.WS = {
     ],
     related: ["workflow", "posture", "sandbox", "hitl", "result", "review", "learn", "fork"], stages: ["plan", "execute", "result", "review", "apply", "learn"]
   },
-  { id: "chain", tab: "chain · 사슬", short: "chain", badge: "틀 · 교정 대기",
+  { id: "chain", tab: "chain · 사슬", short: "chain", badge: "정본 · 일부 가정",
+    ext: { text: "이 주제는 10-01에 정본이 생겼다. link 여덟(L3와 C-model L3m이 나란히), C-model 세 층, 원칙 다섯, 가상 사례, 기본값. 사슬을 돌리는 조립 형식은 workflow agent 명세의 조립 CH-feature에 있다. link 표 · 검증 독립성 · spec 변경 규칙은 확정이고, encoder/decoder의 oracle 구분은 가정(교정 대기)이며, link 이름 · 개수는 과거 일감으로 검증할 예정이다.", label: "◎ 조립 CH-feature (workflow agent)", go: "wa/library/CH-feature", map: "chain" },
     title: "chain — 아키텍처부터 검증까지 이어지는 사슬",
-    lead: "core가 실행하는 workflow 갈래 가운데 가장 긴 일이다. 요구 정리에서 sign-off 준비까지를 workflow 하나로 두지 않고, link 여럿과 그것을 잇는 사슬 template으로 둔다. 지금은 기본안(틀)만 있고, 이름·개수·사람 결정 위치는 교정을 기다린다. 정본 문서는 아직 없다.",
+    lead: "chain은 새 엔진이 아니라 core(intake · workflow) 위에서 도는 갈래다. 요구 정리부터 sign-off 준비까지를 workflow 하나로 두지 않고, link 하나 = task 하나 = workflow 하나로 나눈 뒤 조립(assembly)으로 잇는다. 사슬은 조립의 한 모양이다. 이 페이지는 사슬의 내용(link 몇 토막, 사람이 어디서 결정하는지, link 사이에 무엇이 넘어가는지, oracle이 어디서 오는지)을 정한 정본을 옮긴 것이다.",
     summary: [
-      "chain은 카테고리 하나가 아니다. 카테고리 표에는 link 카테고리 여럿이 들어가고, 사슬 template이 그것을 잇는다. issue tracker에서는 epic이 사슬 인스턴스, child ticket이 link다.",
-      "link 기본안은 일곱이다: 요구·feasibility → 아키텍처 → interface·register·시퀀스 spec → RTL 구현 ∥ 검증 환경·test → 통합·regression → sign-off 준비.",
-      "핵심 leverage는 spec-derived oracle이다. 앞 link가 기계가 읽는 spec을 만들면, 그 spec이 뒤 link의 assertion·ref model 골격·coverage 목표·정합성 검사가 된다.",
-      "검증 독립성: RTL link와 검증 link는 다른 세션이고, 공유 입력은 spec뿐이다. 검증 link는 RTL을 읽지 않는다.",
-      "사람의 결정은 넷(착수·아키텍처 선택·interface freeze·sign-off)이다. 그 밖의 사람 자리는 검수다."
+      "chain은 core 위의 갈래다. link 하나 = task 하나 = workflow 하나이고, 사슬은 그것들을 잇는 조립(assembly)의 한 모양이다. 카테고리 표에는 link 카테고리가 들어가고, 사슬 진입 카테고리의 기본값이 사슬 id(CH-*)다.",
+      "link: L1 요구 · feasibility → L2 아키텍처 → L3 spec ∥ L3m C-model → L4 RTL ∥ L5 검증(RTL 블라인드) → L6 통합 · regression → L7 sign-off 준비.",
+      "사람의 결정은 넷이다: 착수 · 아키텍처 선택 · interface freeze · sign-off. 그 밖의 link 사이는 검수 accept로 넘어간다. 한 번에 다 열지 않고 첫 link만 연다.",
+      "앞 link가 뒤 link의 oracle을 만든다. L3는 spec assertion을, L3m은 C-model 세 층(상위 model · exactness oracle model · module function-level trace model)을 맞춰 bit-exact 비교 기준과 module 경계의 bit-to-bit trace를 넘긴다.",
+      "freeze 뒤 spec이 바뀌면 L3 · L3m으로 돌아가 다시 freeze하고, 영향받는 L4 · L5만 다시 연다."
     ],
-    excluded: "통합·regression 안에서 \"왜 실패했나\"를 찾는 일은 이 갈래가 아니라 diagnose 갈래의 일이다. diagnose 갈래는 아직 없다(빈칸 1순위).",
+    excluded: "L6 통합 · regression에서 \"왜 실패했나\"를 찾는 일은 이 갈래가 아니라 diagnose 갈래의 일이다. L6은 실패를 기록하고, 원인 찾기는 사람이 요청한다. diagnose는 module trace로 첫 불일치 경계를 찾는다.",
     body: [
-      { h: "1. link 기본안 일곱" },
-      { table: { head: ["link", "하는 일", "산출물", "oracle", "posture 상한", "사람 결정"], rows: [
-        ["L1 요구·feasibility", "요구를 표로, 제약·리스크·대안 방향, 가능성 판단 재료", "요구표, feasibility 메모", "weak (사람)", "draft", "착수 결정"],
-        ["L2 아키텍처", "대안 비교(구조·성능·면적·latency 추정), block 분할, 자원 예산", "대안 비교표, block 분할도, 예산표", "weak, 일부 medium (추정 script, 과거 실적)", "draft", "아키텍처 선택"],
-        ["L3 interface·register·시퀀스 spec", "인터페이스 표, register map, 시퀀스·timing, 성능 예산을 machine-readable로", "spec 산출물 묶음", "medium (표 사이 정합성 검사: 이름·폭·주소 충돌·미정의 참조)", "draft → full (정합성 부분)", "interface freeze"],
-        ["L4 RTL 구현 (block)", "spec에서 RTL, lint·compile, spec-derived assertion 통과, 단위 sim", "RTL + lint·assertion 결과", "strong", "full (sandbox 안). interface 변경은 `[HD]`", "—"],
-        ["L5 검증 환경·test (block)", "test plan, TB, reference model, test, coverage 목표", "TB·test·ref model·coverage 보고", "strong (sim vs ref model, coverage)", "full", "test plan 승인 `[HD]`"],
-        ["L6 통합·regression", "subsystem·top 연결, regression 구성·실행, 실패 분류", "통합 RTL·regression 결과", "strong (regression)", "full. 원인 찾기는 diagnose 갈래로", "통합 시점"],
-        ["L7 sign-off 준비", "lint·CDC·synth·coverage 보고서 취합, 미결 목록, release note 초안", "sign-off 패키지", "strong (보고서) + 사람 판정", "draft", "sign-off"]
+      { h: "0. 한 장" },
+      { code: " L1 요구·feasibility ─[착수]─▶ L2 아키텍처 ─[아키텍처 선택]─┬─▶ L3 spec (기계가 읽는 형태) ────────┐\n                                                         └─▶ L3m C-model (oracle · module trace) ─┤\n                                                                         [interface freeze]       │\n                                   ┌──────────────────────────────────────────────────────────┘\n                                   ├─▶ L4 RTL ──────────────┐\n                                   └─▶ L5 검증 (RTL 블라인드) ─┴─[검수]─▶ L6 통합·regression ─[검수]─▶ L7 sign-off 준비 ─[sign-off]" },
+      { ul: [
+        "사슬은 카테고리가 아니다. 사슬 template 하나와 link 카테고리 여럿이다.",
+        "한 번에 다 열지 않는다. 첫 link만 열고, 다음 link는 사람의 결정(on-decision)이나 검수 accept(on-accept)로 열린다. 합류 link(L6)는 들어오는 간선이 모두 채워졌을 때 한 번 열린다.",
+        "link 하나만 요구하는 ticket(\"block Y RTL 구현, spec 있음\")은 사슬 없이 그 link의 workflow 단독으로 간다."
+      ] },
+      { h: "1. link 표" },
+      { table: { head: ["link", "작업 모양", "AI가 하는 일", "사람이 결정하는 것", "다음으로 넘기는 것"], rows: [
+        ["L1 요구 · feasibility", "결정 자료형", "표준 문서 · 고객 요구에서 요구 목록, 영향 block 후보, 비용 근거표", "착수", "요구 목록(항목마다 id)"],
+        ["L2 아키텍처", "결정 자료형", "대안 비교(latency · area · memory 영향), block 분할, 자원 예산", "아키텍처 선택", "선택안 · block 분할 · 자원 예산"],
+        ["L3 spec", "작성형", "interface 표 · register map · 시퀀스 · 성능 예산표를 기계가 읽는 형태로, 거기서 assertion 골격 생성", "interface freeze(L3m과 함께)", "spec · spec assertion"],
+        ["L3m C-model", "수정형", "상위 model 반영 확인, exactness oracle model 수정, module function-level trace model 수정", "interface freeze(L3와 함께)", "oracle model · module trace model · trace 형식"],
+        ["L4 RTL", "수정형", "block 구현, lint, spec assertion 통과, module trace와 bit-to-bit 대조", "검수", "RTL"],
+        ["L5 검증", "수정형", "RTL을 읽지 않고 spec · C-model로 TB · test · coverage 목표", "test plan 승인, 검수", "TB · test · coverage 목표"],
+        ["L6 통합 · regression", "수정형", "합쳐서 regression. 실패는 기록하고, 원인 찾기는 사람이 요청한다(diagnose 갈래로)", "검수", "결과표 · 실패 묶음"],
+        ["L7 sign-off 준비", "판정형", "보고서 취합, 미결 목록, spec · RTL · C-model 정합성 검사", "sign-off", "사슬 요약"]
       ]}},
-      { note: "link마다 workflow 파일이 하나(또는 여럿) 있고, checkpoint 규약·결과 패키지·학습은 workflow & autonomy 페이지와 같다. 이름과 개수는 기본안이며 과거 ticket 조사가 다르게 말하면 그쪽을 따른다." },
-      { h: "2. chain 고유의 원칙 다섯" },
+      { note: "link의 이름과 개수는 과거 일감으로 검증할 예정이다. 특화 workflow가 아직 없는 link는 작업 모양(결정 자료형 · 작성형 · 수정형 · 판정형)의 기본 채움으로 돈다." },
+      { h: "2. C-model의 세 층과 oracle" },
+      { table: { head: ["층", "무엇", "사슬에서의 쓰임"], rows: [
+        ["상위 model", "encoder는 algorithm model, decoder는 golden model(표준 기준)", "L1 · L2의 기준. 새 기능이 상위 model에 먼저 들어가 있어야 L2가 대안을 비교할 수 있다"],
+        ["exactness oracle model", "출력이 bit-exact인지 판정하는 C-model", "L5 · L6의 출력 비교 기준"],
+        ["module function-level trace model", "module마다 function 단위로 trace를 내는 C-model", "module 경계의 bit-to-bit 대조. L4의 block 단위 확인, L5의 module 단위 checker, diagnose의 경계 관측"]
+      ]}},
       { ul: [
-        "앞에서 검증 가능한 산출물을 만든다(spec-derived oracle). 아키텍처·spec 산출물이 문서로만 끝나면 뒤 link의 oracle은 사람뿐이다. L3를 machine-readable로 만들면 L4 assertion, L5 ref model 골격·coverage 목표, L7 정합성 검사가 거기서 나온다. \"문서 → 코드 → 검증\"이 아니라 \"결정 → 기계가 읽는 spec → 그 spec이 판정하는 구현·검증\"이다.",
-        "검증 독립성. L4와 L5는 같은 세션·같은 추론에서 나오면 안 된다. L5 세션은 RTL을 읽지 않고 test plan·ref model을 만든다. RTL을 읽는 것은 coverage hole 분석이라는 별도 checkpoint에서만이다. 사람 조직의 설계/검증 분리를 \"세션 분리 + 입력 제한\"으로 구현하며, 이것이 `scope.yaml`의 새 축(어느 link가 어느 산출물을 읽을 수 있는가)이 된다.",
-        "사슬은 순서가 아니라 의존 그래프다. L4와 L5는 L3 뒤에서 병렬, L6은 둘 뒤, L7은 L6 뒤. 반복되는 사슬은 정본 자산 `core/chains/CH-<id>.md`(link·의존·병렬·`[HD]` 위치)로 둔다.",
-        "spec 변경은 사슬 재plan이다. 진행 중 spec 개정이 들어오면 영향받는 link 목록을 만들고 각 link를 재plan하거나 child를 연다.",
-        "사람의 결정은 넷이다. 착수(L1 뒤), 아키텍처 선택(L2), interface freeze(L3), sign-off(L7). test plan 승인은 다섯째 후보다. 사슬 전체의 결과 패키지는 link별 근거표 묶음과 결정 넷의 기록이다."
-      ]},
-      { h: "3. ticket 매핑과 도입 순서" },
+        "L3m은 L3와 나란히 간다. block 분할(L2)이 정해지면 module trace model의 경계도 정해진다. trace 형식(어느 경계에서, 어떤 필드를, 어떤 순서로)은 spec의 일부로 함께 freeze된다.",
+        "상위 model이 아직 새 기능을 담지 않았으면 L1의 비용 근거표에 그 일을 적고, 상위 model 작업은 사슬 밖의 선행 일감(알고리즘 담당)으로 둔다.",
+        "(가정 · 교정 대기) encoder와 decoder는 oracle의 성격이 다르다. decoder는 표준이 출력을 정하므로 golden model과의 bit-exact가 판정 기준이다. encoder는 출력이 구현 선택에 따라 달라질 수 있으므로 HW 동작을 그대로 옮긴 oracle model과의 bit-exact가 판정 기준이고, 표준 적합성은 golden decoder로 다시 확인한다.",
+        "module trace model이 없는 module은 L5가 출력 비교만 하고, 그 사실을 coverage 목표의 빈칸으로 적는다."
+      ] },
+      { h: "3. 원칙 다섯" },
       { ul: [
-        "\"기능 X 신규\"가 들어오면 L1 child 하나만 연다. 착수 결정이 나면 L2, interface freeze가 나면 L4·L5를 병렬로 연다. 한 번에 다 열지 않는다.",
-        "link 하나만 요구하는 ticket(\"block Y RTL 구현, spec 있음\")은 사슬 없이 그 link의 workflow 단독으로 간다.",
-        "chain 전체는 도입 3단계지만 link 단위로 앞당길 수 있다. oracle이 강한 L5 TB 골격·test 생성이 먼저, L4 lint·assertion이 둘째다. L1~L3은 oracle이 약해 draft로 오래 간다."
-      ]},
-      { h: "4. 교정을 기다리는 기본값 일곱" },
-      { table: { head: ["#", "항목", "기본값"], rows: [
-        ["1", "link 일곱과 `[HD]` 위치", "위 표대로. 이름·개수는 과거 ticket 조사로 검증"],
-        ["2", "검증 독립성", "적용 (세션 분리 + L5는 RTL을 읽지 않음)"],
-        ["3", "ticket 매핑", "epic = 사슬, child = link, 한 번에 다 열지 않음"],
-        ["4", "L3 machine-readable 산출물", "인터페이스 표 · register map · 시퀀스 · 성능 예산표 (넷)"],
-        ["5", "사슬 template", "정본 자산 `core/chains/`로 둔다"],
-        ["6", "도입 2단계로 앞당길 link", "L5 TB 골격·test 생성 먼저, L4 lint·assertion 둘째"],
-        ["7", "교정 뒤 진행", "정본 문서 작성 → 이 페이지를 정본 기준으로 다시 씀"]
+        "spec-derived oracle. 앞 link가 검증 가능한 산출물(spec assertion · oracle model · module trace)을 만들고, 뒤 link는 그것을 oracle로 쓴다. 뒤 link가 스스로 정답을 만들지 않는다.",
+        "검증 독립성. L4와 L5는 다른 세션이다. L5는 RTL을 읽지 않는다(coverage hole 분석 checkpoint에서만 예외). 공유 입력은 spec과 C-model뿐이다. 설계와 검증이 같은 추론에서 나오지 않게 하려는 것이다.",
+        "사슬 = 의존 그래프. 사슬 template은 정본 자산(`core/chains/CH-<id>.md`)이고, 형식은 workflow agent 명세의 조립 계약을 따른다.",
+        "spec 변경 = 사슬 재plan. interface freeze 뒤에 spec이 바뀌면 L3 · L3m으로 되돌아가 다시 freeze하고, 영향받는 L4 · L5만 다시 연다. 영향 범위는 spec 항목 id와 block 분할로 계산한다.",
+        "사람 결정 넷. 착수 · 아키텍처 선택 · interface freeze · sign-off는 AI가 대신하지 않는다. AI는 결정 자료만 만든다."
+      ] },
+      { h: "4. ticket 매핑" },
+      { ul: [
+        "epic = 사슬 인스턴스, child ticket = link.",
+        "첫 link만 child로 열고, 다음 link는 간선이 채워질 때 연다. 열린 link의 child ticket이 그때 생긴다.",
+        "사슬 요약(결정 기록 넷 + link별 근거표)은 epic에 남는다."
+      ] },
+      { h: "5. 가상 사례: 디코더 IP에 새 in-loop filter mode 추가" },
+      { table: { head: ["link", "일어나는 일"], rows: [
+        ["L1", "표준 문서의 해당 절과 고객 요구에서 요구 목록을 뽑는다. golden model에 새 mode가 이미 있는지 확인하고, 있으면 그 revision을 요구 목록에 적는다. 영향 block 후보는 filter와 line buffer다. 담당 리더가 착수를 결정한다."],
+        ["L2", "대안 둘(기존 filter pipeline 확장, 별도 stage 추가)을 latency · area · line buffer 영향으로 비교한다. 아키텍트가 선택한다."],
+        ["L3 ∥ L3m", "L3는 새 register 필드와 filter stage 사이 interface를 기계가 읽는 형태로 쓰고 assertion 골격을 만든다. L3m은 exactness oracle model에 새 mode를 넣고, filter module의 trace model에 새 경로를 더하며, trace 경계를 spec에 적는다. 둘이 함께 interface freeze된다."],
+        ["L4 ∥ L5", "L4는 filter block을 구현하고 module trace와 bit-to-bit 대조로 확인한다. L5는 RTL을 보지 않고 spec과 oracle model로 test(새 mode 조합)와 coverage 목표를 만든다."],
+        ["L6", "regression에서 새 mode의 특정 크기 조합이 실패한다. 실패 묶음이 결과표에 적히고, 원인 찾기는 담당이 요청해 diagnose 갈래로 간다. diagnose는 module trace로 첫 불일치 경계를 찾는다."],
+        ["freeze 뒤 변경", "고객 요구로 register 필드 하나가 바뀌면 L3 · L3m을 다시 freeze하고, 그 필드를 쓰는 L4 block과 L5 test만 다시 연다."],
+        ["L7", "보고서와 미결 목록을 취합하고 spec · RTL · C-model의 정합성을 검사한다. 책임자가 sign-off한다."]
+      ]}},
+      { h: "6. 기본값과 상태" },
+      { table: { head: ["항목", "기본값", "결정 주체", "상태"], rows: [
+        ["link 표와 사람 결정 넷", "표대로, 이름 · 개수는 과거 일감으로 검증", "설계 리더", "확정 · 이름과 개수는 검증 예정"],
+        ["검증 독립성", "세션 분리 + L5는 RTL을 읽지 않음", "검증 리더", "확정"],
+        ["spec 변경 규칙", "L3 · L3m 재freeze, 영향받는 L4 · L5만 다시", "설계 리더", "확정"],
+        ["C-model link(L3m)", "L3와 나란히, interface freeze를 함께", "설계 리더 · C-model 담당", "확정(C-model 세 층 반영)"],
+        ["encoder/decoder oracle 구분", "decoder = golden과 bit-exact, encoder = HW 동작 oracle model과 bit-exact + golden decoder로 적합성", "C-model 담당", "가정 · 교정 대기"],
+        ["module trace model이 없는 module", "출력 비교만, coverage 빈칸으로 기록", "검증 리더", "기본값"],
+        ["사슬 template 정본", "`core/chains/`", "정본 승인자", "기본값"],
+        ["먼저 AI에 맡길 link", "L5 TB 골격 · test 생성 먼저, L4 lint · assertion 둘째", "팀 리더", "기본값"]
       ]}}
     ],
     related: ["workflow", "posture", "hitl", "sandbox", "result"], stages: ["plan", "execute", "review"]
@@ -850,7 +885,7 @@ window.WS = {
   /* ───────────── 소개 ───────────── */
   /* ───────────── core 한 장 (그림 · 15초 애니메이션) ─────────────
      그림과 애니메이션은 media/core_map.html 한 파일에서 30_tools/render_media.mjs가 뽑는다. */
-  mapOrder: ["core", "intake", "workflow"],
+  mapOrder: ["core", "intake", "workflow", "chain"],
   maps: {
   core: {
     tab: "core",
@@ -866,7 +901,7 @@ window.WS = {
       {"k": "tour", "view": [1080, 230, 880, 495], "box": [1280, 240, 320, 380], "text": "셋째, 사람의 자리입니다. 사람은 결과 패키지 한 장을 보고 accept, accept-with-fix, reject 중 하나를 고르고, MR을 만들지, 회신할지, 보류할지를 정합니다. main으로 가는 MR, 고객 회신, ticket 상태 변경은 시스템이 하지 않습니다. reject된 일은 사람이 이어받고, 시스템은 다시 시도하지 않습니다."},
       {"k": "tour", "view": [200, 200, 1640, 922], "box": [380, 636, 1420, 58], "text": "넷째, 학습입니다. 모든 일은 생략 없이 학습 기록을 남깁니다. 자동 실행 기록과 검수 판정을 합쳐 무엇을 고칠지 제안하고, 개인 fork에는 바로, 정본에는 정기 회의를 거쳐 반영합니다. 너무 큰 개선은 backlog가 되어 같은 core를 다시 탑니다."},
       {"k": "tour", "view": [40, 690, 980, 551], "box": [80, 736, 860, 314], "text": "왜 core가 먼저일까요. 네 가지입니다. 입구와 주제가 늘어도 모든 일이 같은 길을 지납니다. gate가 먼저 멈추고 판정자가 확인하고 사람이 결정하니, AI의 시도를 넓혀도 통제가 유지됩니다. 경험이 개인의 요령으로 흩어지지 않고 시스템에 쌓입니다. 그리고 새 주제가 생겨도 core를 다시 만들지 않습니다."},
-      {"k": "tour", "view": [940, 690, 980, 551], "box": [980, 736, 860, 314], "text": "그래서 주제별 심화는 모두 core 위에 얹힙니다. core의 두 부분인 intake와 workflow는 확정됐고, chain은 틀이 있으며, timing-area, coverage, code-review는 이름과 성격만 있습니다. 원인을 찾는 diagnose 갈래는 아직 빈칸입니다."},
+      {"k": "tour", "view": [940, 690, 980, 551], "box": [980, 736, 860, 314], "text": "그래서 주제별 심화는 모두 core 위에 얹힙니다. core의 두 부분인 intake와 workflow는 확정됐고, chain은 정본이 생겼으며, timing-area, coverage, code-review는 이름과 성격만 있습니다. 원인을 찾는 diagnose 갈래는 아직 빈칸입니다."},
       {"k": "close", "text": "임계값 같은 숫자는 비워 두고, 도입하는 팀이 정합니다. core는 AI workflow를 실무에 넣는 기틀입니다. 주제마다 workflow와 checkpoint, 판정자를 정리해 얹으면, 그 일이 실무가 됩니다."}
     ],
     whyTitle: "왜 core가 먼저인가",
@@ -925,7 +960,7 @@ window.WS = {
     topics: [
       ["intake", "core 입구", "확정 · agent 명세 교정 대기", "g", "이 그림의 1~3. 주제 한 장은 일곱 단계 + agent 부품으로 예정"],
       ["workflow", "core 본체", "확정", "g", "이 그림의 4~6. 주제 한 장은 세 층(경계 · checkpoint · posture)으로 예정"],
-      ["chain", "갈래", "틀 · 교정 대기", "y", "예정 (정본이 나온 뒤)"],
+      ["chain", "갈래", "정본 · 일부 가정", "g", "있음 (#map/chain)"],
       ["timing-area", "갈래", "이름 · 성격만", "n", "예정"],
       ["coverage", "갈래", "이름 · 성격만", "n", "예정"],
       ["code-review", "갈래", "이름 · 성격만", "n", "예정"],
@@ -1089,6 +1124,85 @@ window.WS = {
       ["media/wf/04_agent-system.html", "agent system", "부품 지도 · task 폴더 파일과 계약 · 자율 선언 두 겹 · 세션과 STATE · hard-zero"],
       ["media/wf/01_core-one-page.html", "core 한 장 (자세히)", "아홉 단계 · 사람이 서는 자리 · intake와 workflow의 경계"],
       ["media/wf/index.html", "목차", "그림 문서 넷의 목차"]
+    ]
+  },
+  chain: {
+    tab: "chain",
+    narr: [
+      {"k": "intro", "seg": [0, 3], "text": "요구부터 sign-off까지의 기능 개발을 AI에게 한 덩어리로 맡기면, 사람은 따라갈 수도 판정할 수도 없습니다. 검수할 자리가 없고, 정답을 만든 쪽이 자기 답을 채점합니다."},
+      {"k": "intro", "seg": [3, 6.5], "text": "chain은 이 긴 일을 link로 자릅니다. link 하나는 task 하나이고 workflow 하나입니다. 사슬은 새 엔진이 아니라 core 위에서 link들을 잇는 조립의 한 모양입니다."},
+      {"k": "intro", "seg": [6.5, 9.5], "text": "사람은 착수, 아키텍처 선택, interface freeze, sign-off의 네 결정에 섭니다. 그 밖의 link 사이는 검수 accept로 넘어가고, intake는 첫 link만 엽니다."},
+      {"k": "intro", "seg": [9.5, 12], "text": "앞 link는 뒤 link의 판정 기준, 곧 oracle을 만듭니다. spec은 assertion을, C-model은 bit-exact 기준과 module trace를 넘깁니다."},
+      {"k": "intro", "seg": [12, 15], "text": "그래서 긴 개발이 검수할 수 있는 토막과 기계 판정으로 바뀝니다. 하나씩 보겠습니다."},
+      {"k": "tour", "view": [40, 230, 1100, 619], "box": [80, 372, 525, 128], "text": "L1은 표준 문서와 고객 요구에서 요구 목록, 영향 block 후보, 비용 근거표를 만들고, 담당 리더가 착수를 결정합니다. L2는 대안을 latency, area, memory 영향으로 비교하고 아키텍트가 고릅니다. AI는 결정 자료만 만들고 결정은 사람이 합니다."},
+      {"k": "tour", "view": [400, 220, 860, 484], "box": [640, 326, 350, 226], "text": "L3는 interface 표, register map, 시퀀스를 기계가 읽는 형태로 쓰고 assertion 골격을 만듭니다. 나란히 가는 L3m은 C-model을 맞춥니다. 둘은 함께 interface freeze를 받습니다. freeze 뒤에 spec이 바뀌면 둘을 다시 freeze하고, 영향받는 L4와 L5만 다시 엽니다."},
+      {"k": "tour", "view": [520, 200, 900, 506], "box": [628, 276, 584, 334], "text": "freeze 뒤에는 L4 RTL과 L5 검증이 나란히 열립니다. L4는 block을 구현하고 spec assertion과 module trace로 대조합니다. L5는 RTL을 읽지 않고 spec과 C-model만으로 test와 coverage 목표를 만듭니다. 설계와 검증이 같은 추론에서 나오지 않게 하려는 것입니다."},
+      {"k": "tour", "view": [1000, 240, 920, 518], "box": [1240, 370, 600, 136], "text": "L6은 L4와 L5가 모두 검수를 지나야 한 번 열립니다. regression 실패는 기록만 하고, 원인 찾기는 사람이 요청해 diagnose 갈래로 넘깁니다. L7은 spec, RTL, C-model의 정합성을 검사하고, sign-off는 책임자가 합니다."},
+      {"k": "tour", "view": [0, 0, 1920, 1080], "box": [70, 268, 1780, 424], "text": "가상 사례는 디코더 IP에 새 in-loop filter mode를 더하는 일입니다. 이 일은 epic 하나가 되고, link마다 child ticket이 열립니다. regression에서 특정 크기 조합이 실패하면, diagnose가 module trace로 첫 불일치 경계를 찾습니다."},
+      {"k": "tour", "view": [940, 690, 980, 551], "box": [995, 795, 830, 135], "text": "C-model은 세 층입니다. 상위 model은 encoder의 algorithm model, decoder의 golden model로 L1과 L2의 기준입니다. exactness oracle model은 출력이 bit-exact인지 판정합니다. module trace model은 module 경계를 bit-to-bit로 대조합니다."},
+      {"k": "tour", "view": [940, 690, 980, 551], "box": [995, 952, 830, 90], "text": "link 표와 사람 결정 넷, 검증 독립성, spec 변경 규칙은 확정입니다. encoder와 decoder의 oracle 구분은 가정이고, 교정을 기다립니다. link의 이름과 개수는 과거 일감으로 검증할 예정입니다."},
+      {"k": "tour", "view": [40, 690, 980, 551], "box": [80, 736, 860, 314], "text": "정리하면 chain이 기틀인 이유는 넷입니다. 긴 개발을 검수할 수 있는 토막으로 자르고, 판정은 앞 link가 만든 oracle로 하며, 설계와 검증을 떼어 놓고, 사람은 네 결정에 집중합니다."},
+      {"k": "close", "text": "chain은 core 위의 조립이라, 기능 개발도 같은 intake와 workflow로 돕니다. AI에게 큰 일을 맡겨도 사람이 따라가고 판정할 수 있게 하는 것, 이것이 실무의 기틀입니다."}
+    ],
+    title: "chain 한 장",
+    whyTitle: "왜 chain이 기틀인가",
+    lead: "chain은 새 엔진이 아니라 core(intake · workflow) 위의 갈래다. 요구 정리부터 sign-off 준비까지를 link로 자르고, link 하나 = task 하나 = workflow 하나로 돌린 뒤 조립(assembly)으로 잇는다. 사람은 결정 넷에 서고, 앞 link가 뒤 link의 판정 기준(oracle)을 만든다. 이 화면은 그 사슬을 한 장과 15초로 보여 준다.",
+    go: [["chain 요약 페이지", "deep", "chain"], ["조립 CH-feature", "bun", "wa/library/CH-feature"], ["workflow 한 장", "map", "workflow"]],
+    media: {
+      mp4: "media/chain_15s.mp4", gif: "media/chain_15s.gif", html: "media/chain_map.html",
+      png: { light: "media/chain_map_light.png", dark: "media/chain_map_dark.png" }
+    },
+    story: [
+      ["0~3초", "기능 개발을 통째로 맡기면, 따라갈 수도 판정할 수도 없다", "'요구부터 sign-off까지 task 하나'라는 큰 점선 상자 안에서 색색의 입자가 뒤섞인다. 검수할 자리도, 판정 기준도, 사람의 결정도 보이지 않는다."],
+      ["3~6.5초", "link 하나 = task 하나. 사슬은 core 위의 조립이다", "아래에 core 띠(intake → workflow)가 깔리고, 그 위에 L1 → L2 → L3 ∥ L3m → L4 ∥ L5 → L6 → L7이 차례로 이어진다."],
+      ["6.5~9.5초", "사람은 결정 넷에 서고, 나머지는 검수 accept로 넘어간다", "첫 link에서 출발한 표지가 사슬을 따라가며 결정 넷(◆)과 검수 accept(✓)를 켠다. L6은 L4 · L5 두 갈래가 모두 도착해야 열린다."],
+      ["9.5~12초", "앞 link가 뒤 link의 oracle을 만든다", "L3 → L4에 spec assertion, L3m → L5에 bit-exact 기준 · module trace 화살표가 그려지고, L4와 L5 사이에 'RTL을 읽지 않는다' 선이 생긴다. 오른쪽 아래에 C-model 세 층이 나온다."],
+      ["12~15초", "긴 개발이 검수할 수 있는 토막과 기계 판정으로 바뀐다", "왜 기틀인지 네 줄(토막 · oracle · 독립 · 결정)과 상태(확정 · 가정 · 검증 예정)가 나온다."]
+    ],
+    why: [
+      ["토막", "긴 기능 개발을 한 덩어리로 맡기면 사람이 중간에 따라갈 수 없다. link마다 결과 패키지 하나, 검수 하나로 자르면 AI에게 큰 일을 맡겨도 사람이 한 토막씩 확인하며 따라간다. 한 번에 다 열지 않고 첫 link만 연다."],
+      ["oracle", "AI 산출물을 사람의 감으로 판정하면 판정이 사람마다 다르고 근거가 남지 않는다. 앞 link가 뒤 link의 판정 기준을 만든다. L3는 spec assertion을, L3m은 bit-exact 기준과 module 경계의 bit-to-bit trace를 넘기고, 뒤 link는 스스로 정답을 만들지 않는다."],
+      ["독립", "설계와 검증이 같은 추론에서 나오면 같은 오해가 양쪽에 들어가 서로를 통과시킨다. 그래서 L4와 L5는 다른 세션이고, L5는 RTL을 읽지 않는다(coverage hole 분석에서만 예외). 공유 입력은 spec과 C-model뿐이다."],
+      ["결정", "사람은 착수 · 아키텍처 선택 · interface freeze · sign-off 넷에 집중하고, AI는 결정 자료만 만든다. freeze 뒤에 spec이 바뀌면 L3 · L3m을 다시 freeze하고 영향받는 L4 · L5만 다시 연다. 영향 범위는 spec 항목 id와 block 분할로 계산한다."]
+    ],
+    zones: [
+      { name: "요구 · 아키텍처", z: 0, stages: "L1 · L2 · 결정 자료형",
+        what: "AI가 결정 자료를 만들고, 사람이 착수와 아키텍처 선택을 결정한다.",
+        ul: [
+          "L1 요구 · feasibility: 표준 문서 · 고객 요구에서 요구 목록(항목마다 id), 영향 block 후보, 비용 근거표를 만든다. 사람은 착수를 결정한다.",
+          "L2 아키텍처: 대안을 latency · area · memory 영향으로 비교하고 block 분할 · 자원 예산을 낸다. 사람은 아키텍처를 선택한다.",
+          "상위 model이 새 기능을 아직 담지 않았으면 L1의 비용 근거표에 적고, 상위 model 작업은 사슬 밖의 선행 일감으로 둔다.",
+          "intake는 사슬 진입 ticket을 받으면 첫 link만 연다. link 하나만 요구하는 ticket은 사슬 없이 그 link의 workflow 단독으로 간다."
+        ],
+        go: [["chain 요약 › link 표", "deep", "chain"], ["조립 CH-feature", "bun", "wa/library/CH-feature"]] },
+      { name: "spec ∥ C-model", z: 1, stages: "L3 · L3m · interface freeze",
+        what: "뒤 link의 oracle을 만드는 두 link가 나란히 가고, 함께 interface freeze를 받는다.",
+        ul: [
+          "L3 spec(작성형): interface 표 · register map · 시퀀스 · 성능 예산표를 기계가 읽는 형태로 쓰고, 거기서 spec assertion 골격을 만든다.",
+          "L3m C-model(수정형): 상위 model 반영을 확인하고, exactness oracle model과 module function-level trace model을 고친다. trace 형식(어느 경계 · 어떤 필드 · 어떤 순서)은 spec의 일부로 함께 freeze된다.",
+          "C-model 세 층: 상위 model(encoder algorithm · decoder golden) → L1 · L2 기준, exactness oracle model → L5 · L6 비교 기준, module trace model → L4 · L5 · diagnose의 bit-to-bit 대조.",
+          "(가정 · 교정 대기) decoder는 golden model과의 bit-exact가 판정 기준이고, encoder는 HW 동작을 옮긴 oracle model과의 bit-exact에 golden decoder로 표준 적합성을 다시 확인한다.",
+          "freeze 뒤 spec 변경 = 사슬 재plan: L3 · L3m을 다시 freeze하고 영향받는 L4 · L5만 다시 연다."
+        ],
+        go: [["chain 요약 › C-model 세 층", "deep", "chain"]] },
+      { name: "RTL ∥ 검증", z: 2, stages: "L4 · L5 · 검증 독립성",
+        what: "freeze 뒤 두 link가 병렬로 열리고, 공유 입력은 spec과 C-model뿐이다.",
+        ul: [
+          "L4 RTL: block 구현, lint, spec assertion 통과, module trace와 bit-to-bit 대조. assertion 묶음은 oracle로 받아 쓰고 고치지 않는다.",
+          "L5 검증: RTL을 읽지 않고 spec · C-model로 TB · test · coverage 목표를 만든다. coverage hole 분석 checkpoint에서만 RTL을 읽는다. 사람은 test plan을 승인하고 검수한다.",
+          "module trace model이 없는 module은 출력 비교만 하고, 그 사실을 coverage 목표의 빈칸으로 적는다.",
+          "기본값: 먼저 AI에 맡길 link는 L5의 TB 골격 · test 생성, 둘째는 L4의 lint · assertion이다(팀 리더가 정한다)."
+        ],
+        go: [["chain 요약 › 원칙 다섯", "deep", "chain"], ["조립 CH-feature", "bun", "wa/library/CH-feature"]] },
+      { name: "통합 · sign-off 준비", z: 3, stages: "L6 · L7 · join all",
+        what: "L6은 L4 · L5가 모두 검수를 지나야 한 번 열리고, 마지막 결정 sign-off는 사람이 한다.",
+        ul: [
+          "L6 통합 · regression: 합쳐서 regression을 돌리고 결과표 · 실패 묶음을 남긴다. 원인 찾기는 사람이 요청해 diagnose 갈래로 간다. diagnose는 module trace로 첫 불일치 경계를 찾는다.",
+          "L7 sign-off 준비(판정형): 보고서 취합, 미결 목록, spec · RTL · C-model 정합성 검사. 사람이 sign-off한다.",
+          "ticket 매핑: epic = 사슬 인스턴스, child ticket = link. 열린 link의 child가 그때 생기고, 사슬 요약(결정 기록 넷 + link별 근거표)은 epic에 남는다.",
+          "상태: link 표 · 검증 독립성 · spec 변경 규칙은 확정이다. link의 이름 · 개수는 과거 일감으로 검증할 예정이다."
+        ],
+        go: [["chain 요약 › 가상 사례", "deep", "chain"], ["workflow 한 장", "map", "workflow"]] }
     ]
   }
   },
@@ -1262,6 +1376,30 @@ window.WS = {
             ask: "필수 모드를 매번 묻는 것이 번거롭지 않은가.",
             go: [["예: WF-rtl-perf-area-review", "bun", "wa/library/WF-rtl-perf-area-review"]] }
         ] },
+      { id: "field-c", short: "chain 가정", cls: "y", title: "② 현장 감각으로 판단할 가정 · chain",
+        note: "chain 정본(10-01)에서 확정이 아닌 줄이다. link 표 · 검증 독립성 · spec 변경 규칙은 확정이다.",
+        items: [
+          { id: "t-c-oracle", t: "encoder와 decoder의 oracle 구분", tag: ["가정 · 교정 대기", "y"],
+            what: "decoder는 표준이 출력을 정하므로 golden model과의 bit-exact가 판정 기준이다. encoder는 출력이 구현 선택에 따라 달라질 수 있으므로, HW 동작을 그대로 옮긴 oracle model과의 bit-exact가 판정 기준이고, 표준 적합성은 golden decoder로 다시 확인한다.",
+            now: "C-model 세 층(상위 · exactness oracle · module trace)은 교정을 받아 반영했고, 이 구분만 가정으로 남았다.",
+            ask: "encoder 쪽 판정 기준이 이 모양이 맞는가.",
+            go: [["chain › C-model 세 층", "deep", "chain"]] },
+          { id: "t-c-links", t: "link 이름과 개수", tag: ["검증 예정", "n"],
+            what: "L1 요구 · feasibility → L2 아키텍처 → L3 spec ∥ L3m C-model → L4 RTL ∥ L5 검증 → L6 통합 · regression → L7 sign-off 준비.",
+            now: "표대로 쓰고, 이름 · 개수는 과거 일감 조사로 검증한다.",
+            ask: "실제 기능 추가 일감이 이 토막으로 나뉘는가. 빠진 토막(예: 성능 모델 · FPGA 검증)이 있는가.",
+            go: [["chain › link 표", "deep", "chain"]] },
+          { id: "t-c-trace", t: "module trace model이 없는 module", tag: ["기본값", "n"],
+            what: "module 경계의 bit-to-bit 대조가 불가능하다.",
+            now: "L5가 출력 비교만 하고, 그 사실을 coverage 목표의 빈칸으로 적는다.",
+            ask: "trace model이 없는 module을 사슬 안에서 만들게 할 것인가, 빈칸으로 둘 것인가.",
+            go: [["chain › 기본값", "deep", "chain"]] },
+          { id: "t-c-first", t: "먼저 AI에 맡길 link", tag: ["기본값", "n"],
+            what: "oracle이 강한 link부터 연다.",
+            now: "L5 TB 골격 · test 생성이 먼저, L4 lint · assertion이 둘째. L1~L3은 oracle이 약해 draft로 오래 간다.",
+            ask: "현장에서 가장 먼저 효과가 보일 link가 이것이 맞는가.",
+            go: [["chain › 기본값", "deep", "chain"]] }
+        ] },
       { id: "design", short: "설계할 주제", cls: "m", title: "③ 아직 설계하지 않은 주제",
         note: "심화 세션들이 '다음에 깊게 볼 곳'으로 남긴 것과 설계 본선의 열린 스레드다. 순서는 제안이다.",
         items: [
@@ -1270,7 +1408,7 @@ window.WS = {
             now: "조사형 모양은 골격까지, 특화 regr-diagnose는 골격(draft)이다. intake의 실패 묶음(변경 구간 · 구간 안 변경 목록 · member 전부 · 실패한 seed)이 첫 입력 후보이고, bisect checkpoint가 후보다.",
             ask: "원인 조사의 '끝'을 무엇으로 정할 것인가(재현 + 원인 변경 특정 + before/after?).",
             go: [["모양 › 조사형", "bun", "wa/library/AR-diagnose"], ["WF-regr-diagnose", "bun", "wa/library/WF-regr-diagnose"]] },
-          { id: "t-d-chain", t: "chain 기본값 일곱 교정 → chain 정본", tag: ["갈래", "y"],
+          { id: "t-d-chain", t: "chain 기본값 일곱 교정 → chain 정본", tag: ["반영됨 10-01", "g"],
             what: "아키텍처부터 검증까지 이어지는 사슬의 틀(link 일곱, 원칙 다섯, 기본값 일곱)이 교정을 기다린다. workflow 쪽에 조립(CH-feature)은 이미 생겼다.",
             now: "사슬 template + link 카테고리 여럿, link마다 task, 사이에 사람의 결정.",
             ask: "기본값 일곱 중 다른 것만 고치면 정본으로 간다.",
