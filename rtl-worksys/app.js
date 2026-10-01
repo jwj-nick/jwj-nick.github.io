@@ -1,4 +1,4 @@
-/* RTL WorkSys — 렌더러. 콘텐츠는 전부 content.js. */
+/* RTL WorkSys — 렌더러(v0.9). 화면: ① 한눈에 ② 시스템 ③ 사례 ④ 결정 + 자료실 · 명세 탐색기. 콘텐츠는 전부 content.js. */
 (function () {
   "use strict";
   var W = window.WS, app = document.getElementById("app");
@@ -20,14 +20,6 @@
   function h(tag, cls, inner) {
     return "<" + tag + (cls ? ' class="' + cls + '"' : "") + ">" + (inner || "") + "</" + tag + ">";
   }
-  function stageById(id) {
-    for (var i = 0; i < W.stages.length; i++) if (W.stages[i].id === id) return W.stages[i];
-    return null;
-  }
-  function docById(id) {
-    for (var i = 0; i < W.docs.length; i++) if (W.docs[i].id === id) return W.docs[i];
-    return null;
-  }
 
   /* ── 블록 렌더 (설계 절 본문) ── */
   function block(b) {
@@ -48,334 +40,6 @@
     return "";
   }
   function blocks(arr) { return arr.map(block).join(""); }
-
-  /* ── 탭: 개요 ── */
-  function viewHome() {
-    var m = W.home, o = "";
-    o += '<div class="hero">' +
-      h("div", "tl", esc(W.meta.tagline)) +
-      h("p", "mut small", esc(W.meta.subtitle) + " · core와 설계 작업 현황을 본다.") +
-      h("div", "up", "v" + W.meta.version + " · " + W.meta.updated + " 갱신") +
-      '<button class="deeplink" data-map-go="core">▶ 한 장 · 15초 (core · intake · workflow)</button> ' +
-      '<button class="deeplink" data-tab-go="talk">? 더 깊게 논의할 것</button> ' +
-      '<button class="deeplink" data-tab-go="status">◎ 설계 작업 현황 (' + esc(W.status.asOf) + " 기준)</button>" +
-      "</div>";
-
-    o += '<div class="card"><h2>30초 요약</h2><ol class="li steps5">' +
-      m.summary.map(function (s) { return h("li", "", tx(s)); }).join("") + "</ol></div>";
-
-    o += '<div class="card"><h2>왜 만드는가</h2>' + h("p", "lead", tx(m.why)) +
-      h("h3", "", "무엇이 아닌가") +
-      '<ul class="li">' + m.notWhat.map(function (s) { return h("li", "mut", tx(s)); }).join("") + "</ul></div>";
-
-    o += '<div class="card"><h2>당신이 등장하는 순간 <span class="tag g">반드시 둘</span></h2>';
-    m.must.forEach(function (r) {
-      o += '<div class="mustrow">' + h("div", "t", esc(r.when)) +
-        '<div class="kv"><b>받는 것 —</b> ' + tx(r.get) + "</div>" +
-        '<div class="kv"><b>하는 것 —</b> ' + tx(r.do) + "</div></div>";
-    });
-    o += "</div>";
-
-    o += '<div class="card"><h2>시스템이 스스로 멈추고 부른다 <span class="tag y">조건부 여섯</span></h2>' +
-      h("p", "mut small", "분류 직후, 일을 시작하기 전에 다섯 조건을 이 순서로 검사한다. 하나라도 걸리면 그 조건의 방식으로 멈춘다. 여섯 번째는 workflow 안에 미리 표시된 사람 결정 지점이다.");
-    m.cond.forEach(function (c) {
-      o += '<div class="condrow"><div class="t">' + h("span", "n", c.n) + esc(c.name) +
-        h("span", "tag " + (c.hold === "stop" ? "r" : c.hold === "HD" ? "" : "y"), esc(c.hold)) + "</div>" +
-        '<div class="kv mut">' + tx(c.what) + "</div>" +
-        '<div class="kv"><b>시스템 —</b> ' + tx(c.leaves) + "</div>" +
-        '<div class="kv"><b>당신 —</b> ' + tx(c.you) + "</div>" +
-        '<div class="kv dim"><b>답하지 않으면 —</b> ' + tx(c.silent) + "</div></div>";
-    });
-    o += h("div", "note", tx(m.execHitl)) + "</div>";
-
-    o += '<div class="card"><h2>당신이 등장하지 않는 순간</h2>' + h("p", "", tx(m.notYou)) + "</div>";
-    return o;
-  }
-
-  /* ── core 한 장 (그림 · 15초 애니메이션) ── */
-  var ZTAG = ["", "m", "y", "g"];
-  function goBtn(g) {
-    // g = [라벨, 종류(stage|deep|tab|bun|map), 대상]
-    var at = { stage: "data-stage-go", deep: "data-deep-go", tab: "data-tab-go", bun: "data-bun-go", map: "data-map-go" }[g[1]] || "data-tab-go";
-    return '<button class="deeplink" ' + at + '="' + esc(g[2]) + '">▸ ' + esc(g[0]) + "</button>";
-  }
-  function viewMap() {
-    var id = W.maps[state.map] ? state.map : "core", M = W.maps[id], o = "";
-    var th = document.documentElement.dataset.theme === "light" ? "light" : "dark";
-    o += '<div class="rail">' + W.mapOrder.map(function (k) {
-      return '<button data-map-go="' + k + '"' + (k === id ? ' class="on"' : "") + ">" + esc(W.maps[k].tab) + "</button>";
-    }).join("") + "</div>";
-    o += '<div class="card"><h2>' + esc(M.title) + ' <span class="tag g">그림 · 15초 애니메이션</span></h2>' +
-      h("p", "lead", tx(M.lead)) + (M.go ? M.go.map(goBtn).join(" ") : "") + "</div>";
-    if (M.narr) {
-      var NB = { intro: "개요", tour: "자세히", close: "맺음" }, ti = 0;
-      o += '<div class="card narrcard"><h2>해설판 <span class="tag g">음성 · 자막 · 배경음</span> <span class="tag n" id="narrDur"></span></h2>' +
-        h("p", "mut small", "15초 요약을 말로 풀어 설명한다. 앞부분은 같은 애니메이션 위에서 전체를 개관하고, 뒷부분은 그림의 각 부분을 확대해 짚는다. 소리는 처음에 꺼져 있다.") +
-        '<video class="player" controls preload="none" playsinline poster="' + M.media.png.dark + '" src="media/' + id + '_narrated.mp4"></video>' +
-        '<details class="doc"><summary>대본 (' + M.narr.length + "문단)</summary><div class=\"docbody narrtext\">" +
-        M.narr.map(function (b, i) {
-          var lab = b.k === "tour" ? NB.tour + " " + (++ti) : NB[b.k];
-          return '<div class="nb"><div class="nbh"><b>' + esc(lab) + '</b> <button class="seekb" data-seek="' + i + '" hidden></button></div>' + h("p", "", tx(b.text)) + "</div>";
-        }).join("") + "</div></details></div>";
-    }
-    o += h("div", "dim xs", "15초 요약 (소리 없음)") +
-      '<div class="mapmedia"><img src="' + M.media.gif + '" alt="' + esc(M.title) + ' 15초 애니메이션" loading="lazy"></div>';
-    o += '<div class="maplinks">' +
-      [["mp4 (1920×1080)", M.media.mp4], ["그림 · 라이트", M.media.png.light], ["그림 · 다크", M.media.png.dark],
-        ["움직이는 HTML", M.media.html + "?theme=" + th]].map(function (l) {
-        return '<a href="' + l[1] + '" target="_blank" rel="noopener">' + esc(l[0]) + " ↗</a>";
-      }).join("") + "</div>";
-
-    o += '<div class="card"><h2>15초의 흐름</h2><div class="story">' + M.story.map(function (s) {
-      return '<div class="srow">' + h("span", "st", esc(s[0])) + "<div>" + h("div", "b", tx(s[1])) +
-        h("div", "mut small", tx(s[2])) + "</div></div>";
-    }).join("") + "</div></div>";
-
-    o += '<a class="mapimg" href="' + M.media.png[th] + '" target="_blank" rel="noopener"><img src="' + M.media.png[th] +
-      '" alt="' + esc(M.title) + ' 그림" loading="lazy"></a>' + h("p", "dim xs center", "그림을 누르면 원본 크기(1920×1080)로 열린다.");
-
-    o += '<div class="card"><h2>' + esc(M.whyTitle || "왜 중요한가") + '</h2><ol class="why4">' + M.why.map(function (w) {
-      return "<li>" + h("b", "", esc(w[0])) + h("span", "", tx(w[1])) + "</li>";
-    }).join("") + "</ol></div>";
-
-    M.zones.forEach(function (z) {
-      o += '<div class="card zone z' + z.z + '"><h2>' + esc(z.name) + ' <span class="tag ' + ZTAG[z.z] + '">' + esc(z.stages) + "</span></h2>" +
-        h("p", "", tx(z.what)) + '<ul class="li">' + z.ul.map(function (s) { return h("li", "", tx(s)); }).join("") + "</ul>" +
-        (z.go || []).map(goBtn).join(" ") + "</div>";
-    });
-
-    if (M.topics) {
-      o += '<div class="card"><h2>' + esc(M.topicsTitle || "core 위에 얹힐 주제") + ' <span class="tag n">주제마다 한 장</span></h2>' +
-        '<div class="tblwrap"><table><thead><tr><th>주제</th><th>자리</th><th>지금</th><th>한 장</th></tr></thead><tbody>' +
-        M.topics.map(function (r) {
-          return "<tr><td><strong>" + esc(r[0]) + "</strong></td><td>" + esc(r[1]) + '</td><td><span class="tag ' + r[3] + '">' +
-            esc(r[2]) + "</span></td><td>" + tx(r[4]) + "</td></tr>";
-        }).join("") + "</tbody></table></div>" + h("div", "note", tx(M.topicsNote)) + "</div>";
-    }
-    if (M.docs) {
-      o += '<div class="card"><h2>그림 문서 <span class="tag m">정적 · 자세히</span></h2>' + h("p", "mut small", tx(M.docsNote)) +
-        '<div class="igdocs">' + M.docs.map(function (d) {
-          return '<a class="igdoc" href="' + d[0] + '" target="_blank" rel="noopener"><b>' + esc(d[1]) + " ↗</b><span>" + tx(d[2]) + "</span></a>";
-        }).join("") + "</div></div>";
-    }
-    o += '<div class="card"><button class="deeplink" data-tab-go="talk">? 더 깊게 논의할 것</button></div>';
-    return o;
-  }
-
-  var narrInfo = {};
-  function hookNarr() {
-    var id = W.maps[state.map] ? state.map : "core";
-    if (!W.maps[id].narr) return;
-    var fill = function (j) {
-      var d = document.getElementById("narrDur");
-      if (d) d.textContent = Math.floor(j.total / 60) + "분 " + Math.round(j.total % 60) + "초";
-      var bs = document.querySelectorAll(".seekb");
-      for (var i = 0; i < bs.length; i++) {
-        var b = j.beats[+bs[i].dataset.seek];
-        if (!b) continue;
-        bs[i].dataset.t = b.t;
-        bs[i].textContent = "▸ " + Math.floor(b.t / 60) + ":" + ("0" + Math.floor(b.t % 60)).slice(-2) + "부터 듣기";
-        bs[i].hidden = false;
-      }
-    };
-    if (narrInfo[id]) return fill(narrInfo[id]);
-    try {
-      fetch("media/" + id + "_narrated.json").then(function (r) { return r.ok ? r.json() : null; })
-        .then(function (j) { if (j) { narrInfo[id] = j; if (state.tab === "map") fill(j); } }).catch(function () {});
-    } catch (e) {}
-  }
-
-  /* ── 더 깊게 논의할 것 ── */
-  function viewTalk() {
-    var T = W.talk, o = "";
-    o += '<div class="hero">' + h("div", "tl", esc(T.title)) + h("p", "", tx(T.lead)) +
-      h("div", "up", T.asOf + " 기준 · 봤음 표시는 이 기기에만 남는다") + "</div>";
-    o += '<div class="rail">' + T.groups.map(function (g) {
-      return '<button data-scroll="tg-' + g.id + '">' + esc(g.short) + " " + g.items.length + "</button>";
-    }).join("") + "</div>";
-    T.groups.forEach(function (g) {
-      var seen = g.items.filter(function (it) { return get("ws_seen_" + it.id, ""); }).length;
-      o += '<div class="card" id="tg-' + g.id + '"><h2>' + esc(g.title) + ' <span class="tag ' + (g.cls || "y") + '">' +
-        seen + " / " + g.items.length + " 봤음</span></h2>" + h("p", "mut small", tx(g.note));
-      g.items.forEach(function (it) {
-        var s = get("ws_seen_" + it.id, "");
-        o += '<div class="talk' + (s ? " seen" : "") + '"><div class="t">' + esc(it.t) +
-          (it.tag ? h("span", "tag " + it.tag[1], esc(it.tag[0])) : "") + "</div>" +
-          h("div", "kv", tx(it.what)) +
-          (it.now ? '<div class="kv mut"><b>지금 가정 —</b> ' + tx(it.now) + "</div>" : "") +
-          (it.ask ? '<div class="kv ask"><b>판단할 것 —</b> ' + tx(it.ask) + "</div>" : "") +
-          '<div class="tgo">' + (it.go || []).map(goBtn).join(" ") +
-          ' <button class="seenb" data-talk-seen="' + it.id + '">' + (s ? "✓ 봤음" : "○ 봤음 표시") + "</button></div></div>";
-      });
-      o += "</div>";
-    });
-    return o;
-  }
-
-  /* ── 탭: 아홉 단계 ── */
-  function viewCore(sel) {
-    var cur = sel || get("ws_stage", W.stages[0].id);
-    var o = '<div class="card"><h2>core — ticket 한 건이 지나가는 아홉 단계</h2>' +
-      h("p", "mut small", "단계마다 work repo의 <code>tasks/&lt;TICKET-KEY&gt;/</code> 폴더에 파일 하나가 남는다. 어느 파일 하나만 열어도 지금 무슨 일이 어디까지 갔는지 알 수 있어야 한다.") +
-      '<div class="legend"><span><i class="h-yes"></i>사람이 반드시</span><span><i class="h-cond"></i>조건부</span><span><i class="h-no"></i>사람 없이</span></div>' +
-      '<button class="deeplink" data-map-go="core">▶ core 한 장 (그림 · 15초 애니메이션)</button></div>';
-
-    o += '<div class="rail" id="rail">' + W.stages.map(function (s) {
-      return '<button data-stage="' + s.id + '"' + (s.id === cur ? ' class="on"' : "") + ">" +
-        s.n + " " + esc(s.name) + '<i class="h h-' + s.human + '"></i></button>';
-    }).join("") + "</div>";
-
-    var s = stageById(cur);
-    o += '<div class="stagecard">' +
-      h("div", "num", "STAGE " + s.n + " / 9") +
-      '<div class="nm">' + esc(s.name) + "<em>" + esc(s.ko) + "</em></div>" +
-      h("p", "lead", tx(s.does)) +
-      h("div", "filerow", "남는 것 · " + esc(s.file)) +
-      '<ul class="li">' + s.detail.map(function (d) { return h("li", "", tx(d)); }).join("") + "</ul>";
-    if (s.docs && s.docs.length) {
-      o += h("h3", "", "관련 설계") +
-        s.docs.map(function (id) {
-          var d = docById(id);
-          return d ? '<button class="deeplink" data-doc="' + id + '">✎ ' + esc(d.title) + "</button>" : "";
-        }).join("");
-    }
-    o += "</div>";
-
-    var idx = W.stages.indexOf(s);
-    o += '<div class="pnav">' +
-      '<button data-stage="' + (idx > 0 ? W.stages[idx - 1].id : "") + '"' + (idx === 0 ? " disabled" : "") + ">← 이전 단계</button>" +
-      '<button class="pri" data-stage="' + (idx < 8 ? W.stages[idx + 1].id : "") + '"' + (idx === 8 ? " disabled" : "") + ">다음 단계 →</button></div>";
-    return o;
-  }
-
-  /* ── 탭: 사례 ── */
-  function viewCases() {
-    var o = '<div class="card"><h2>가상 ticket walkthrough</h2>' +
-      h("p", "mut small", "설계가 실제 ticket을 감당하는지 확인한 사례들이다. 모든 ticket·블록·신호 이름은 가상이다. 사례를 고르면 아홉 단계를 한 장씩 따라간다.") + "</div>";
-    o += '<div class="caselist">' + W.cases.map(function (c) {
-      return '<button class="caseitem" data-case="' + c.id + '">' +
-        h("div", "id", c.id) + h("div", "ti", esc(c.title)) + h("div", "fr", esc(c.from)) +
-        h("div", "on1", tx(c.one)) +
-        '<div class="tags">' + c.tags.map(function (t) { return h("span", "tag n", esc(t)); }).join("") +
-        '<span class="hcount">사람 등장 ' + c.humanCount + "회</span></div></button>";
-    }).join("") + "</div>";
-    return o;
-  }
-
-  function viewCase(id, step) {
-    var c = null;
-    for (var i = 0; i < W.cases.length; i++) if (W.cases[i].id === id) c = W.cases[i];
-    if (!c) return viewCases();
-    var n = Math.max(0, Math.min(step || 0, c.steps.length - 1));
-    var st = c.steps[n], sd = stageById(st.stage);
-
-    var o = '<button class="back" id="back">← 사례 목록</button>';
-    o += '<div class="card"><h2>' + esc(c.title) + "</h2>" +
-      h("div", "fr dim xs", esc(c.from)) + h("p", "mut small", tx(c.one)) + "</div>";
-
-    o += '<div class="player"><div class="pbar">' + c.steps.map(function (s, i) {
-      return "<i class=" + (i === n ? '"on"' : s.human ? '"hm"' : '""') + "></i>";
-    }).join("") + "</div>";
-
-    o += '<div class="pstep"><div class="sn">' +
-      h("span", "tag", (sd ? sd.n + " " + sd.name : st.stage)) +
-      (st.note ? h("span", "tag n", esc(st.note)) : "") +
-      (st.hold ? h("span", "tag r", esc(st.hold)) : "") +
-      (st.human ? h("span", "tag y", "사람 등장") : "") +
-      '<span class="hcount">' + (n + 1) + " / " + c.steps.length + "</span></div>" +
-      h("p", "", tx(st.text));
-    if (sd) o += '<button class="deeplink" data-stage-go="' + sd.id + '">▤ 이 단계의 설계 보기</button>';
-    o += "</div>";
-
-    o += '<div class="pnav">' +
-      '<button data-step="' + (n - 1) + '"' + (n === 0 ? " disabled" : "") + ">← 이전</button>" +
-      '<button class="pri" data-step="' + (n + 1) + '"' + (n === c.steps.length - 1 ? " disabled" : "") + ">다음 →</button></div></div>";
-
-    if (n === c.steps.length - 1) {
-      o += '<div class="card" style="margin-top:12px"><h2>이 사례에서 볼 것</h2>' + h("p", "lead", tx(c.takeaway)) + "</div>";
-    }
-    return o;
-  }
-
-
-  /* ── 탭: 현황 ── */
-  var ST_TAG = { done: "g", wip: "y", seed: "m", plan: "" };
-  function stTag(st, label) { return h("span", "tag " + (ST_TAG[st] || ""), esc(label)); }
-  function hasDeep(id) {
-    for (var i = 0; i < W.deep.length; i++) if (W.deep[i].id === id) return true;
-    return false;
-  }
-  function viewStatus() {
-    var s = W.status, o = "";
-    o += '<div class="hero">' + h("div", "tl", "설계 작업 현황") +
-      '<ol class="li steps5">' + s.headline.map(function (x) { return h("li", "", tx(x)); }).join("") + "</ol>" +
-      h("div", "up", s.asOf + " 기준") +
-      '<button class="deeplink" data-tab-go="talk">? 더 깊게 논의할 것</button> <button class="deeplink" data-map-go="core">▶ 한 장 · 15초</button></div>';
-
-    o += '<div class="card"><h2>작업 줄기</h2>';
-    s.tracks.forEach(function (t) {
-      o += '<div class="condrow"><div class="t">' + esc(t.name) + stTag(t.st, t.label) + "</div>" +
-        h("div", "kv mut", tx(t.what)) + '<div class="kv"><b>다음 —</b> ' + tx(t.next) + "</div></div>";
-    });
-    o += "</div>";
-
-    o += '<div class="card"><h2>주제 여덟</h2>' +
-      h("p", "mut small", "core 둘과 갈래, 그리고 마지막 빈칸 찾기다. 심화 페이지가 있는 주제는 눌러서 연다.");
-    s.topics.forEach(function (r) {
-      var name = hasDeep(r[0]) ? '<button class="deeplink inl" data-deep-go="' + r[0] + '">⇥ ' + esc(r[0]) + "</button>" : "<b>" + esc(r[0]) + "</b>";
-      o += '<div class="condrow"><div class="t">' + name + h("span", "tag m", esc(r[1])) + stTag(r[2], r[3]) + "</div>" +
-        h("div", "kv mut", tx(r[4])) + "</div>";
-    });
-    o += "</div>";
-
-    o += '<div class="card"><h2>아이디어 메모</h2>' +
-      h("p", "mut small", "설계 본선과 별도로 쌓는 단편 아이디어다. 충분히 자라면 설계 문서로 올라간다.");
-    s.ideas.forEach(function (r) {
-      o += '<div class="condrow"><div class="t">' + esc(r.name) + stTag(r.st, r.label) + "</div>" +
-        h("div", "kv mut", tx(r.what)) + "</div>";
-    });
-    o += "</div>";
-
-    o += '<div class="card"><h2>다음 할 일</h2>' +
-      h("h3", "", "직접") + '<ul class="li">' + s.todo.me.map(function (x) { return h("li", "", tx(x)); }).join("") + "</ul>" +
-      h("h3", "", "Claude 세션") + '<ul class="li">' + s.todo.ai.map(function (x) { return h("li", "", tx(x)); }).join("") + "</ul></div>";
-
-    o += '<div class="card"><h2>지나온 길</h2>' +
-      block({ table: { head: ["날짜", "무엇", "내용"], rows: s.timeline } }) + "</div>";
-    o += '<div class="card"><h2>최근 결정</h2>' +
-      block({ table: { head: ["날짜", "결정", "내용"], rows: s.decisions } }) + "</div>";
-    return o;
-  }
-
-  /* ── 탭: 심화 ── */
-  function deepById(id) {
-    for (var i = 0; i < W.deep.length; i++) if (W.deep[i].id === id) return W.deep[i];
-    return W.deep[0];
-  }
-  function viewDeep(id) {
-    var k = deepById(id);
-    var o = '<div class="rail" id="rail">' + W.deep.map(function (d) {
-      return '<button data-deep="' + d.id + '"' + (d.id === k.id ? ' class="on"' : "") + ">" + esc(d.tab) + "</button>";
-    }).join("") + '<button data-bun-go="ia">intake agent ▸</button><button data-bun-go="wa">workflow agent ▸</button></div>';
-    o += '<div class="card"><h2>' + esc(k.title) + (k.badge ? h("span", "tag " + (k.badge === "확정" ? "g" : "y"), esc(k.badge)) : "") + "</h2>" + h("p", "lead", tx(k.lead)) + "</div>";
-    if (k.ext) o += '<div class="card extcard">' + h("p", "", tx(k.ext.text)) + '<button class="deeplink" data-bun-go="' + k.ext.go + '">' + esc(k.ext.label) + "</button>" +
-      (k.ext.map ? ' <button class="deeplink" data-map-go="' + k.ext.map + '">▶ 한 장 (15초)</button>' : "") +
-      ' <button class="deeplink" data-tab-go="talk">? 더 깊게 논의할 것</button></div>';
-    o += '<div class="card"><h2>한 장 요약</h2><ol class="li steps5">' +
-      k.summary.map(function (s) { return h("li", "", tx(s)); }).join("") + "</ol>" +
-      h("div", "note", tx(k.excluded)) + "</div>";
-    o += '<div class="card"><div class="docbody" style="padding:0">' + blocks(k.body) + "</div></div>";
-    o += '<div class="card"><h2>관련 설계</h2>' +
-      (k.related || []).map(function (rid) {
-        var d = docById(rid);
-        return d ? '<button class="deeplink" data-doc="' + rid + '">✎ ' + esc(d.title) + "</button>" : "";
-      }).join("") +
-      (k.stages || []).map(function (sid) {
-        var st = stageById(sid);
-        return st ? '<button class="deeplink" data-stage-go="' + sid + '">▤ 단계 ' + st.n + " " + esc(st.name) + "</button>" : "";
-      }).join("") + "</div>";
-    return o;
-  }
 
   /* ── agent 명세 탐색기: intake(#ia) · workflow(#wa). 데이터는 처음 열 때 불러온다 ── */
   var BUN = {
@@ -526,9 +190,9 @@
     o += '<div class="card"><h2>' + esc(K.name) + h("span", "tag y", K.tag) + "</h2>" +
       h("p", "lead", tx(K.lead(I))) +
       h("p", "dim small", esc(K.read) + " " + I.asOf + " 기준.") +
-      '<button class="deeplink" data-deep-go="' + K.deep + '">⇥ ' + K.deep + " 요약 페이지</button> " +
-      '<button class="deeplink" data-map-go="' + K.deep + '">▶ ' + K.deep + " 한 장 (15초)</button> " +
-      '<button class="deeplink" data-tab-go="talk">? 더 깊게 논의할 것</button></div>';
+      '<button class="deeplink" data-sys-go="' + K.deep + '">▦ 시스템 › ' + K.deep + "</button> " +
+      '<button class="deeplink" data-tab-go="decide">? 지금 판단할 것</button> ' +
+      '<button class="deeplink" data-tab-go="lib">▤ 자료실</button></div>';
     o += '<div class="rail">' + K.secs.map(function (s) {
       return '<button data-ia-sec="' + s[0] + '"' + (s[0] === sec ? ' class="on"' : "") + ">" + esc(s[1]) + "</button>";
     }).join("") + "</div>";
@@ -631,182 +295,314 @@
     return o;
   }
 
-  /* ── 탭: 설계 ── */
-  function viewDocs(openId) {
-    var o = '<div class="card"><h2>설계</h2>' +
-      h("p", "mut small", "core의 형식과 규칙이다. 숫자(임계값·횟수·기간)는 전부 공란이고 대신 목적·결정 주체를 적는다.") + "</div>";
-    var group = null;
-    W.docs.forEach(function (d) {
-      if (d.group !== group) { group = d.group; o += h("div", "grouphd", esc(group)); }
-      var open = d.id === openId ? " open" : "";
-      o += '<details class="doc" id="doc-' + d.id + '"' + open + "><summary>" + esc(d.title) + "</summary>" +
-        '<div class="docbody">' + blocks(d.body) + "</div></details>";
-    });
-
-    o += h("div", "grouphd", "원칙");
-    o += '<details class="doc"><summary>왜 이 구조인가 — 원칙 열 개</summary><div class="docbody">' +
-      W.principles.map(function (p) {
-        return '<div class="condrow"><div class="t">' + h("span", "n", p.n) + esc(p.name) + "</div>" +
-          h("div", "kv", tx(p.what)) + h("div", "kv dim", "<b>근거 —</b> " + tx(p.why)) + "</div>";
-      }).join("") + "</div></details>";
-    o += '<details class="doc"><summary>대안 — 무엇을 버렸나</summary><div class="docbody">' +
-      block({ table: { head: ["안", "내용", "왜 아닌가 / 어디에 남았나"], rows: W.alternatives.map(function (a) { return [a.name, a.what, a.why]; }) } }) +
-      "</div></details>";
-    o += '<details class="doc"><summary>용어</summary><div class="docbody"><dl class="glo">' +
-      W.glossary.map(function (g) { return "<dt>" + tx(g[0]) + "</dt><dd>" + tx(g[1]) + "</dd>"; }).join("") +
-      "</dl></div></details>";
-    return o;
+  /* ── 공통 조각 ── */
+  var ZTAG = ["", "m", "y", "g"];
+  var GO_ATTR = { sys: "data-sys-go", walk: "data-walk-go", bun: "data-bun-go", tab: "data-tab-go" };
+  function goBtn(g) {
+    // g = [라벨, 종류(sys|walk|bun|tab), 대상]
+    return '<button class="deeplink" ' + (GO_ATTR[g[1]] || "data-tab-go") + '="' + esc(g[2]) + '">▸ ' + esc(g[0]) + "</button>";
+  }
+  function theme() { return document.documentElement.dataset.theme === "light" ? "light" : "dark"; }
+  function ul(arr, cls) { return '<ul class="li' + (cls ? " " + cls : "") + '">' + arr.map(function (s) { return h("li", "", tx(s)); }).join("") + "</ul>"; }
+  function deepById(id) {
+    for (var i = 0; i < W.deep.length; i++) if (W.deep[i].id === id) return W.deep[i];
+    return null;
   }
 
-  /* ── 탭: 로드맵 ── */
-  function viewRoad() {
-    var o = '<div class="card"><h2>오늘의 방식에서 여기까지 — 네 단계</h2>' +
-      h("p", "mut small", "도입 순서의 제안이다. 기간·건수·비율 같은 숫자는 전부 공란이고, 대신 그 판단의 목적과 결정 주체를 적는다. 단계를 넘어가는 결정은 언제나 사람이 한다.") + "</div>";
-
-    W.migration.forEach(function (m) {
-      o += '<div class="mstage"><div class="mh">' + h("div", "mn", m.n) + h("div", "mt", esc(m.name)) + "</div>" +
-        '<div class="trow"><b>켜지는 것</b><span>' + tx(m.on) + "</span></div>" +
-        '<div class="trow"><b>사람</b><span>' + tx(m.human) + "</span></div>" +
-        '<div class="trow"><b>쌓이는 것</b><span>' + tx(m.stack) + "</span></div>" +
-        '<div class="trow"><b>되돌리기</b><span>' + tx(m.undo) + "</span></div>" +
-        '<div class="trow"><b>다음으로</b><span class="mut">' + tx(m.next) + "</span></div></div>";
-    });
-
-    o += '<div class="card"><h2>단계와 무관하게 항상 참인 것</h2><ul class="li">' +
-      W.migrationAlways.map(function (s) { return h("li", "", tx(s)); }).join("") + "</ul></div>";
-
-    o += '<div class="card"><h2>숫자는 비워 둔다</h2>' +
-      h("p", "mut small", "설계자가 초기값을 정해 버리면 받아들이는 사람이 생각하고 결정할 몫을 뺏는다. 스스로 정한 숫자는 지켜지고, 받은 숫자는 의심받는다.") +
-      block({ table: { head: ["항목", "목적", "결정 주체", "결정 방법"], rows: W.blanks } }) + "</div>";
-
-    o += '<div class="card"><h2>열린 긴장 — 숨기지 않는 것</h2>' +
-      h("p", "mut small", "이 구조가 풀지 못했거나, 실제 ticket을 겪어야 답이 나오는 것들이다. 이 지점에서 의문을 가진다면 그것이 맞다.") +
-      W.tensions.map(function (t) {
-        return '<div class="tension">' + h("div", "tt", esc(t.t)) + h("div", "small mut", tx(t.p)) + "</div>";
+  // 한 장: 해설판(음성 · 자막) → 그림 → 15초 요약 링크 → 왜 중요한가 → 부분별로(접힘)
+  function mapMedia(id, opt) {
+    var M = W.maps[id], th = theme(), o = "";
+    opt = opt || {};
+    if (!M) return "";
+    if (M.narr) {
+      var NB = { intro: "개요", tour: "자세히", close: "맺음" }, ti = 0;
+      o += '<div class="card narrcard"><h2>' + esc(opt.title || M.title) + ' <span class="tag g">해설 · 음성 · 자막</span> <span class="tag n" id="narrDur"></span></h2>' +
+        '<video class="player" controls preload="none" playsinline poster="' + M.media.png.dark + '" src="media/' + id + '_narrated.mp4"></video>' +
+        h("p", "dim xs", "소리는 처음에 꺼져 있다. 앞부분은 전체 개관, 뒷부분은 그림의 각 부분을 확대해 설명한다.") +
+        '<details class="doc"><summary>대본 (' + M.narr.length + "문단)</summary><div class=\"docbody narrtext\">" +
+        M.narr.map(function (b, i) {
+          var lab = b.k === "tour" ? NB.tour + " " + (++ti) : NB[b.k];
+          return '<div class="nb"><div class="nbh"><b>' + esc(lab) + '</b> <button class="seekb" data-seek="' + i + '" hidden></button></div>' + h("p", "", tx(b.text)) + "</div>";
+        }).join("") + "</div></details></div>";
+    }
+    if (!M.narr) o += '<a class="mapimg" href="' + M.media.png[th] + '" target="_blank" rel="noopener"><img src="' + M.media.png[th] +
+      '" alt="' + esc(M.title) + ' 그림" loading="lazy"></a>';
+    o += '<div class="maplinks">' +
+      [["15초 요약 (GIF)", M.media.gif], ["15초 요약 (mp4)", M.media.mp4], ["그림 원본", M.media.png[th]], ["움직이는 HTML", M.media.html + "?theme=" + th]].map(function (l) {
+        return '<a href="' + l[1] + '" target="_blank" rel="noopener">' + esc(l[0]) + " ↗</a>";
       }).join("") + "</div>";
+    if (opt.why !== false && M.why) {
+      o += '<div class="card"><h2>' + esc(M.whyTitle || "왜 중요한가") + '</h2><ol class="why4">' + M.why.map(function (w) {
+        return "<li>" + h("b", "", esc(w[0])) + h("span", "", tx(w[1])) + "</li>";
+      }).join("") + "</ol></div>";
+    }
+    if (opt.zones !== false && M.zones) {
+      o += '<details class="doc zones"><summary>그림의 부분별로 (' + M.zones.length + ")</summary><div class=\"docbody\">" +
+        M.zones.map(function (z) {
+          return '<div class="zone z' + z.z + '"><div class="b">' + esc(z.name) + ' <span class="tag ' + ZTAG[z.z] + '">' + esc(z.stages) + "</span></div>" +
+            h("p", "", tx(z.what)) + ul(z.ul) + "</div>";
+        }).join("") + "</div></details>";
+    }
     return o;
   }
 
-  /* ── 탭: 소개 ── */
-  function viewAbout() {
-    var a = W.about;
-    var o = '<div class="card"><h2>이 앱에 대하여</h2>' +
-      h("p", "lead", tx(a.purpose)) + h("p", "", tx(a.how)) +
-      h("div", "note", tx(a.scope)) + h("p", "dim small", tx(a.status)) + "</div>";
-    o += '<div class="card"><h2>설계의 재료</h2>' +
-      h("p", "mut small", "공개 자료와 공식 문서에서 확인한 것들이다. 조직 내부 자료는 쓰지 않았다.") +
-      '<ul class="li">' + W.sources.map(function (s) {
-        return h("li", "", "<b>" + tx(s.t) + "</b><br><span class='mut small'>" + tx(s.n) + "</span>");
-      }).join("") + "</ul></div>";
-    o += '<div class="card"><h2>규율</h2><ul class="li">' +
-      ["특정 조직의 실명·수치·코드·ticket 원문은 쓰지 않는다. 모든 예시는 가상이다.",
-        "숫자는 공란으로 두고 목적·결정 주체·결정 방법만 적는다.",
-        "core와 주제별 심화, 설계 작업 전체의 현황을 다룬다. 현황 화면은 설계 쪽이 바뀔 때마다 동기화한다.",
-        "설계가 바뀌면 이 앱이 바뀐다. 이전 판과의 비교는 두지 않는다."
-      ].map(function (s) { return h("li", "mut", tx(s)); }).join("") + "</ul></div>";
+  var narrInfo = {};
+  function hookNarr(id) {
+    if (!id || !W.maps[id] || !W.maps[id].narr) return;
+    var fill = function (j) {
+      var d = document.getElementById("narrDur");
+      if (d) d.textContent = Math.floor(j.total / 60) + "분 " + Math.round(j.total % 60) + "초";
+      var bs = document.querySelectorAll(".seekb");
+      for (var i = 0; i < bs.length; i++) {
+        var b = j.beats[+bs[i].dataset.seek];
+        if (!b) continue;
+        bs[i].dataset.t = b.t;
+        bs[i].textContent = "▸ " + Math.floor(b.t / 60) + ":" + ("0" + Math.floor(b.t % 60)).slice(-2) + "부터 듣기";
+        bs[i].hidden = false;
+      }
+    };
+    if (narrInfo[id]) return fill(narrInfo[id]);
+    try {
+      fetch("media/" + id + "_narrated.json").then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (j) { if (j) { narrInfo[id] = j; if (curMapId() === id) fill(j); } }).catch(function () {});
+    } catch (e) {}
+  }
+  function curMapId() {
+    if (state.tab === "home") return "core";
+    if (state.tab === "sys" && state.sys && W.sys.topics[state.sys]) return W.sys.topics[state.sys].map;
+    return null;
+  }
+
+  /* ── ① 한눈에 ── */
+  function viewHome() {
+    var m = W.home, o = "";
+    o += '<div class="hero">' + h("div", "tl", esc(m.title)) +
+      '<ol class="li steps5">' + m.summary.map(function (s) { return h("li", "", tx(s)); }).join("") + "</ol>" +
+      '<div class="herobtns"><button class="deeplink" data-tab-go="sys">▦ 시스템</button> <button class="deeplink" data-tab-go="walk">▷ 사례 다섯</button> <button class="deeplink" data-tab-go="decide">? 지금 판단할 것</button></div></div>';
+    o += mapMedia("core", { title: "core 한 장", zones: false });
+
+    o += '<div class="card"><h2>사람이 서는 자리 <span class="tag g">반드시 둘</span></h2>' +
+      m.must.map(function (r) { return '<div class="seat"><b>' + esc(r[0]) + "</b>" + h("div", "kv", tx(r[1])) + "</div>"; }).join("") +
+      h("h3", "", "조건부: 시스템이 스스로 멈춰 부를 때") +
+      m.cond.map(function (r) { return '<div class="seat c"><b>' + esc(r[0]) + "</b>" + h("div", "kv mut", tx(r[1])) + "</div>"; }).join("") + "</div>";
+
+    o += '<div class="card"><h2>시스템의 부분</h2>' + h("p", "mut small", tx(W.sys.lead)) + '<div class="topiclist">' +
+      W.sys.order.map(function (k) {
+        var t = W.sys.topics[k];
+        return '<button class="topicbtn" data-sys-go="' + k + '"><div class="tt"><b>' + esc(t.name) + "</b> " + h("span", "tag m", esc(t.role)) +
+          h("span", "tag " + t.badge[1], esc(t.badge[0])) + "</div>" + h("div", "mut small", tx(t.one)) + "</button>";
+      }).join("") + "</div></div>";
+
+    o += '<div class="card"><h2>무엇이 아닌가</h2>' + ul(m.notWhat, "mutli") + h("div", "note", tx(m.blank)) + "</div>";
+    return o;
+  }
+
+  /* ── ② 시스템 ── */
+  function topicRail(cur) {
+    return '<div class="rail">' + W.sys.order.map(function (k) {
+      return '<button data-sys-go="' + k + '"' + (k === cur ? ' class="on"' : "") + ">" + esc(W.sys.topics[k].name) + "</button>";
+    }).join("") + "</div>";
+  }
+  function viewSys(id) {
+    var S = W.sys, o = "";
+    if (!id || !S.topics[id]) {
+      o += '<div class="card"><h2>시스템</h2>' + h("p", "lead", tx(S.lead)) + "</div>";
+      S.order.forEach(function (k) {
+        var t = S.topics[k];
+        o += '<button class="card topiccard" data-sys-go="' + k + '"><div class="tt"><b>' + esc(t.name) + "</b> " + h("span", "tag m", esc(t.role)) +
+          h("span", "tag " + t.badge[1], esc(t.badge[0])) + "</div>" + h("p", "", tx(t.one)) +
+          (t.map ? h("div", "dim xs", "▶ 한 장 · 해설 있음") : "") + "</button>";
+      });
+      o += '<div class="card"><h2>다음 주제 <span class="tag n">이름 · 성격만</span></h2>' +
+        S.next.map(function (r) { return '<div class="seat c"><b>' + esc(r[0]) + "</b>" + h("div", "kv mut", tx(r[1])) + "</div>"; }).join("") + "</div>";
+      return o;
+    }
+    var t = S.topics[id], idx = S.order.indexOf(id);
+    o += topicRail(id);
+    o += '<div class="card"><h2>' + esc(t.name) + " " + h("span", "tag m", esc(t.role)) + h("span", "tag " + t.badge[1], esc(t.badge[0])) + "</h2>" +
+      h("p", "lead", tx(t.one)) + ul(t.what) + "</div>";
+    if (t.map) o += mapMedia(t.map, { title: t.name + " 한 장" });
+    o += '<div class="card"><h2>핵심 규칙</h2><ol class="li">' + t.rules.map(function (s) { return h("li", "", tx(s)); }).join("") + "</ol></div>";
+    o += '<div class="card"><h2>사람의 자리</h2>' + ul(t.human) + h("h3", "", "품질 기준") + ul(t.quality) + "</div>";
+    o += '<div class="card"><h2>상태</h2>' + t.state.map(function (r) {
+      return '<div class="strow"><span class="tag ' + r[0] + '">' + esc(r[1]) + "</span><span>" + tx(r[2]) + "</span></div>";
+    }).join("") + "</div>";
+    var d = t.more ? deepById(t.more) : null;
+    if (d) {
+      o += '<details class="doc"><summary>자세히: ' + esc(d.title) + '</summary><div class="docbody">' +
+        h("p", "", tx(d.lead)) + '<ol class="li">' + d.summary.map(function (s) { return h("li", "", tx(s)); }).join("") + "</ol>" +
+        h("div", "note", tx(d.excluded)) + blocks(d.body) + "</div></details>";
+    }
+    var walks = W.walks.filter(function (w) { return w.go.some(function (g) { return g[1] === "sys" && g[2] === id; }); });
+    o += '<div class="card"><h2>원문과 사례</h2>' +
+      (t.spec.length ? t.spec.map(goBtn).join(" ") : h("p", "dim small", "명세 원문은 설계 워크스페이스에 있다(이 앱에는 요약만).")) +
+      (walks.length ? h("h3", "", "이 주제가 나오는 사례") + walks.map(function (w) { return goBtn([w.id + " " + w.title, "walk", w.id]); }).join(" ") : "") + "</div>";
+    o += '<div class="pnav">' +
+      '<button data-sys-go="' + (S.order[idx - 1] || "") + '"' + (idx ? "" : " disabled") + ">◂ " + esc(idx ? S.topics[S.order[idx - 1]].name : "") + "</button>" +
+      '<button class="pri" data-sys-go="' + (S.order[idx + 1] || "") + '"' + (idx < S.order.length - 1 ? "" : " disabled") + ">" +
+      esc(idx < S.order.length - 1 ? S.topics[S.order[idx + 1]].name : "") + " ▸</button></div>";
+    return o;
+  }
+
+  /* ── ③ 사례 ── */
+  var WHO_TAG = function (w) { return /사람/.test(w) ? "y" : /LLM/.test(w) ? "m" : /규칙/.test(w) ? "n" : ""; };
+  function viewWalk(id) {
+    var o = "", ws = W.walks, w = null;
+    for (var i = 0; i < ws.length; i++) if (ws[i].id === id) w = ws[i];
+    if (!w) {
+      o += '<div class="card"><h2>사례</h2>' + h("p", "lead", "지금 명세로 걸어 본 일 다섯이다. 일 하나가 입구에서 끝까지 어떻게 지나가는지, 단계마다 누가(코드 · 규칙 · LLM · 사람) 정하는지를 본다. 모든 예시는 가상이다.") + "</div>";
+      ws.forEach(function (x) {
+        o += '<button class="card topiccard" data-walk-go="' + x.id + '"><div class="tt"><b>' + esc(x.id) + " · " + esc(x.title) + "</b></div>" +
+          h("div", "dim xs", esc(x.from)) + h("p", "", tx(x.one)) + "</button>";
+      });
+      return o;
+    }
+    var idx = ws.indexOf(w);
+    o += '<div class="rail">' + ws.map(function (x) {
+      return '<button data-walk-go="' + x.id + '"' + (x === w ? ' class="on"' : "") + ">" + esc(x.id) + "</button>";
+    }).join("") + "</div>";
+    o += '<div class="card"><h2>' + esc(w.title) + "</h2>" + h("div", "dim small", esc(w.from)) + h("p", "lead", tx(w.one)) + "</div>";
+    o += '<div class="card"><div class="walk">' + w.steps.map(function (s) {
+      return '<div class="wstep"><div class="wh"><b>' + esc(s[0]) + '</b> <span class="tag ' + WHO_TAG(s[1]) + '">' + esc(s[1]) + "</span></div>" + h("div", "kv", tx(s[2])) + "</div>";
+    }).join("") + "</div></div>";
+    o += '<div class="card"><h2>이 사례에서 볼 것</h2>' + ul(w.see) + w.go.map(goBtn).join(" ") + "</div>";
+    o += '<div class="pnav">' +
+      '<button data-walk-go="' + (ws[idx - 1] || w).id + '"' + (idx ? "" : " disabled") + ">◂ 이전</button>" +
+      '<button class="pri" data-walk-go="' + (ws[idx + 1] || w).id + '"' + (idx < ws.length - 1 ? "" : " disabled") + ">다음 ▸</button></div>";
+    return o;
+  }
+
+  /* ── ④ 결정 ── */
+  function talkItem(it) {
+    var s = get("ws_seen_" + it.id, "");
+    return '<div class="talk' + (s ? " seen" : "") + '"><div class="t">' + esc(it.t) +
+      (it.tag ? h("span", "tag " + it.tag[1], esc(it.tag[0])) : "") + "</div>" +
+      h("div", "kv", tx(it.what)) +
+      (it.now ? '<div class="kv mut"><b>지금 가정 —</b> ' + tx(it.now) + "</div>" : "") +
+      (it.ask ? '<div class="kv ask"><b>판단할 것 —</b> ' + tx(it.ask) + "</div>" : "") +
+      '<div class="tgo">' + (it.go || []).map(function (g) {
+        return goBtn(g[1] === "deep" ? [g[0], "sys", g[2]] : g);
+      }).join(" ") +
+      ' <button class="seenb" data-talk-seen="' + it.id + '">' + (s ? "✓ 봤음" : "○ 봤음 표시") + "</button></div></div>";
+  }
+  function viewDecide() {
+    var D = W.decide, T = W.talk, o = "", all = {};
+    T.groups.forEach(function (g) { g.items.forEach(function (it) { all[it.id] = it; }); });
+    o += '<div class="hero">' + h("div", "tl", "지금 판단할 것") + h("p", "", tx(D.lead)) + h("div", "up", "봤음 표시는 이 기기에만 남는다") + "</div>";
+    var seen = D.now.filter(function (k) { return get("ws_seen_" + k, ""); }).length;
+    o += '<div class="card"><h2>먼저 볼 열 가지 <span class="tag y">' + seen + " / " + D.now.length + " 봤음</span></h2>" +
+      D.now.map(function (k) { return all[k] ? talkItem(all[k]) : ""; }).join("") + "</div>";
+    o += '<div class="card"><h2>다음</h2><ol class="li">' + D.next.map(function (s) { return h("li", "", tx(s)); }).join("") + "</ol></div>";
+    o += '<div class="card"><h2>주제별 상태</h2>' + W.sys.order.map(function (k) {
+      var t = W.sys.topics[k];
+      return '<div class="strow"><button class="deeplink inl" data-sys-go="' + k + '">' + esc(t.name) + "</button>" + h("span", "tag " + t.badge[1], esc(t.badge[0])) +
+        "<span>" + t.state.filter(function (r) { return r[0] !== "g"; }).map(function (r) { return esc(r[1]) + ": " + tx(r[2]); }).join(" · ") + "</span></div>";
+    }).join("") + "</div>";
+    var rest = 0;
+    var groups = T.groups.map(function (g) {
+      var items = g.items.filter(function (it) { return D.now.indexOf(it.id) < 0; });
+      rest += items.length;
+      return items.length ? '<details class="doc"><summary>' + esc(g.title) + " (" + items.length + ")</summary><div class=\"docbody\">" +
+        h("p", "mut small", tx(g.note)) + items.map(talkItem).join("") + "</div></details>" : "";
+    }).join("");
+    o += '<div class="card"><h2>나머지 논의 거리 <span class="tag n">' + rest + "</span></h2>" + groups + "</div>";
+    return o;
+  }
+
+  /* ── 자료실 ── */
+  function viewLib() {
+    var o = '<div class="card"><h2>자료실</h2>' + h("p", "lead", tx(W.lib.lead)) + "</div>";
+    o += '<div class="card"><h2>명세 탐색기</h2>' +
+      '<button class="topicbtn" data-bun-go="ia"><div class="tt"><b>intake agent system</b></div>' + h("div", "mut small", "명세 전문 · 부품 10 · 계약 3 · 규칙 8 · 시험 사례 91 · 인계 문서") + "</button>" +
+      '<button class="topicbtn" data-bun-go="wa"><div class="tt"><b>workflow agent system</b></div>' + h("div", "mut small", "명세 전문 · workflow 라이브러리 28 · 부품 11 · 계약 11 · 시험 사례 68 · 인계 문서") + "</button></div>";
+    o += '<div class="card"><h2>그림 문서 <span class="tag m">정적 · 폭이 넓다</span></h2><div class="igdocs">' + W.lib.docs.map(function (d) {
+      return '<a class="igdoc" href="' + d[0] + '" target="_blank" rel="noopener"><b>' + esc(d[1]) + " ↗</b><span>" + tx(d[2]) + "</span></a>";
+    }).join("") + "</div></div>";
+    o += '<div class="card"><h2>15초 요약 · 해설</h2>' + W.mapOrder.map(function (k) {
+      var M = W.maps[k];
+      return '<div class="strow"><b>' + esc(M.tab) + '</b><span class="maplinks inl">' +
+        [["GIF", M.media.gif], ["mp4", M.media.mp4], ["해설 mp4", "media/" + k + "_narrated.mp4"], ["그림", M.media.png[theme()]]].map(function (l) {
+          return '<a href="' + l[1] + '" target="_blank" rel="noopener">' + l[0] + " ↗</a>";
+        }).join("") + "</span></div>";
+    }).join("") + "</div>";
+    o += '<details class="doc"><summary>용어</summary><div class="docbody"><dl class="glo">' +
+      W.glossary.map(function (g) { return "<dt>" + tx(g[0]) + "</dt><dd>" + tx(g[1]) + "</dd>"; }).join("") + "</dl></div></details>";
     return o;
   }
 
   /* ── 라우팅 ── */
-  var TABS = ["home", "status", "core", "deep", "cases", "docs", "road", "about", "ia", "wa", "map", "talk"];
-  var state = { map: "core", tab: get("ws_tab", "home"), caseId: null, step: 0, docOpen: null, stage: null, deep: get("ws_deep", "intake"), ia: { sec: "overview", id: null }, iaf: {} };
-
-  // #core/gate · #cases/C1 · #docs/posture 같은 해시를 읽는다 (공유 가능한 링크)
+  var TABS = ["home", "sys", "walk", "decide", "lib", "ia", "wa"];
+  var state = { tab: "home", sys: null, walk: null, ia: { sec: "overview", id: null }, iaf: {}, iaBun: null };
+  // 옛 주소를 새 화면으로: #core/... #docs/... #deep/<id> #map/<id> #cases #status #talk #road #about
   function readHash() {
     var raw = (location.hash || "").replace(/^#/, "");
     if (!raw) return false;
-    var parts = raw.split("/");
-    if (parts[0] === "intake" || parts[0] === "workflow" || parts[0] === "chain") parts = ["deep", parts[0]];
-    if (TABS.indexOf(parts[0]) < 0) return false;
-    state.tab = parts[0]; state.caseId = null; state.step = 0;
-    if (parts[1]) {
-      if (state.tab === "core") state.stage = parts[1];
-      else if (state.tab === "cases") state.caseId = parts[1].toUpperCase();
-      else if (state.tab === "docs") state.docOpen = parts[1];
-      else if (state.tab === "deep") state.deep = parts[1];
-      else if (state.tab === "ia" || state.tab === "wa") state.ia = { sec: parts[1], id: parts[2] ? decodeURIComponent(parts[2]) : null };
-      else if (state.tab === "map") state.map = parts[1];
-    }
+    var p = raw.split("/");
+    var A = { core: ["sys", "core"], docs: ["sys", "core"], road: ["decide"], about: ["home"], cases: ["walk"], status: ["decide"], talk: ["decide"],
+      intake: ["sys", "intake"], workflow: ["sys", "workflow"], chain: ["sys", "chain"], diagnose: ["sys", "diagnose"] };
+    if (p[0] === "deep" || p[0] === "map") p = ["sys", p[1] || "core"];
+    else if (A[p[0]]) p = A[p[0]];
+    if (TABS.indexOf(p[0]) < 0) return false;
+    state.tab = p[0];
+    if (p[0] === "sys") state.sys = p[1] || null;
+    else if (p[0] === "walk") state.walk = p[1] ? p[1].toUpperCase() : null;
+    else if (p[0] === "ia" || p[0] === "wa") state.ia = { sec: p[1] || "overview", id: p[2] ? decodeURIComponent(p[2]) : null };
     return true;
   }
   function writeHash() {
-    var frag = state.tab;
-    if (state.tab === "core" && state.stage) frag += "/" + state.stage;
-    else if (state.tab === "cases" && state.caseId) frag += "/" + state.caseId;
-    else if (state.tab === "deep" && state.deep) frag += "/" + state.deep;
-    else if (state.tab === "ia" || state.tab === "wa") frag += "/" + (state.ia.sec || "overview") + (state.ia.id ? "/" + encodeURIComponent(state.ia.id) : "");
-    else if (state.tab === "map" && state.map && state.map !== "core") frag += "/" + state.map;
-    if (("#" + frag) !== location.hash) {
-      try { history.replaceState(null, "", "#" + frag); } catch (e) { location.hash = frag; }
-    }
+    var f = state.tab;
+    if (f === "sys" && state.sys) f += "/" + state.sys;
+    else if (f === "walk" && state.walk) f += "/" + state.walk;
+    else if (f === "ia" || f === "wa") f += "/" + (state.ia.sec || "overview") + (state.ia.id ? "/" + encodeURIComponent(state.ia.id) : "");
+    if (("#" + f) !== location.hash) { try { history.replaceState(null, "", "#" + f); } catch (e) { location.hash = f; } }
   }
 
-  function paint() {
-    var t = state.tab, html;
-    if (t === "home") html = viewHome();
-    else if (t === "status") html = viewStatus();
-    else if (t === "map") html = viewMap();
+  function paint(keepScroll) {
+    var t = state.tab, html, y = window.scrollY;
+    if (t === "sys") html = viewSys(state.sys);
+    else if (t === "walk") html = viewWalk(state.walk);
+    else if (t === "decide") html = viewDecide();
+    else if (t === "lib") html = viewLib();
     else if (t === "ia" || t === "wa") {
       if (state.iaBun !== t) { if (state.iaBun) { state.ia = { sec: "overview", id: null }; state.iaf = {}; } state.iaBun = t; }
       if (!BD()) { app.innerHTML = '<div class="card">' + BUN[t].name + " 데이터를 불러오는 중…</div>"; return loadBun(t, paint); }
       html = viewIA();
-    }
-    else if (t === "talk") html = viewTalk();
-    else if (t === "core") html = viewCore(state.stage);
-    else if (t === "deep") html = viewDeep(state.deep);
-    else if (t === "cases") html = state.caseId ? viewCase(state.caseId, state.step) : viewCases();
-    else if (t === "docs") html = viewDocs(state.docOpen);
-    else if (t === "road") html = viewRoad();
-    else html = viewAbout();
+    } else html = viewHome();
     html += '<footer>RTL WorkSys · v' + W.meta.version + " · " + W.meta.updated +
-      "<br>설계 중간 결과 뷰어. 모든 사례는 가상이다.</footer>";
+      '<br>설계 중간 결과 뷰어. 모든 사례는 가상이고, 숫자 기준은 공란이다. <button class="deeplink inl" data-tab-go="lib">▤ 자료실</button></footer>';
     app.innerHTML = html;
     writeHash();
-    if (t === "map") hookNarr();
-
+    hookNarr(curMapId());
+    var navOn = t === "ia" || t === "wa" ? "sys" : t;
     var btns = document.querySelectorAll("#nav button");
-    for (var i = 0; i < btns.length; i++) {
-      btns[i].className = btns[i].dataset.tab === (t === "ia" || t === "wa" ? "deep" : t === "map" || t === "talk" ? "home" : t) ? "on" : "";
-    }
-    if (state.docOpen) {
-      var el = document.getElementById("doc-" + state.docOpen);
-      if (el) el.scrollIntoView({ block: "start" });
-      state.docOpen = null;
-    } else {
-      window.scrollTo(0, 0);
-    }
+    for (var i = 0; i < btns.length; i++) btns[i].className = btns[i].dataset.tab === navOn ? "on" : "";
+    window.scrollTo(0, keepScroll ? y : 0);
   }
 
   document.getElementById("nav").addEventListener("click", function (e) {
     var b = e.target.closest("button"); if (!b) return;
-    state.tab = b.dataset.tab; state.caseId = null; state.step = 0;
-    set("ws_tab", state.tab); paint();
+    state.tab = b.dataset.tab; state.sys = null; state.walk = null;
+    paint();
   });
+  document.getElementById("libbtn").addEventListener("click", function () { state.tab = "lib"; paint(); });
 
   app.addEventListener("click", function (e) {
     var b = e.target.closest("button"); if (!b) return;
-    if (b.id === "back") { state.caseId = null; state.step = 0; return paint(); }
-    if (b.dataset.case) { state.caseId = b.dataset.case; state.step = 0; return paint(); }
-    if (b.dataset.step !== undefined && state.caseId) { state.step = +b.dataset.step; return paint(); }
-    if (b.dataset.doc) { state.tab = "docs"; state.docOpen = b.dataset.doc; set("ws_tab", "docs"); return paint(); }
-    if (b.dataset.stageGo) { state.tab = "core"; state.stage = b.dataset.stageGo; set("ws_stage", state.stage); set("ws_tab", "core"); state.caseId = null; return paint(); }
+    if (b.dataset.sysGo !== undefined) { state.tab = "sys"; state.sys = b.dataset.sysGo || null; return paint(); }
+    if (b.dataset.walkGo !== undefined) { state.tab = "walk"; state.walk = b.dataset.walkGo || null; return paint(); }
+    if (b.dataset.tabGo) { state.tab = b.dataset.tabGo; state.sys = null; state.walk = null; return paint(); }
     if (b.dataset.iaSec) { state.tab = bk(); state.ia = { sec: b.dataset.iaSec, id: null }; return paint(); }
     if (b.dataset.iaDoc !== undefined) { var pp = b.dataset.iaDoc.split("/"); state.tab = bk(); state.ia = { sec: pp[0], id: pp[1] || null }; return paint(); }
     if (b.dataset.iaCase) { state.tab = bk(); state.ia = { sec: "golden", id: b.dataset.iaCase }; return paint(); }
+    if (b.dataset.iaf !== undefined) { var kv2 = b.dataset.iaf.split("="); state.iaf[kv2[0]] = kv2.slice(1).join("="); state.ia.id = null; return paint(); }
     if (b.dataset.bunGo) { var bp = b.dataset.bunGo.split("/"); state.tab = bp[0]; if (state.iaBun && state.iaBun !== bp[0]) state.iaf = {}; state.iaBun = bp[0]; state.ia = { sec: bp[1] || "overview", id: bp[2] || null }; return paint(); }
     if (b.dataset.seek !== undefined && b.dataset.t) {
       var pl = document.querySelector(".player");
       if (pl) { pl.currentTime = +b.dataset.t; pl.scrollIntoView({ block: "center" }); var pr = pl.play(); if (pr && pr.catch) pr.catch(function () {}); }
       return;
     }
-    if (b.dataset.mapGo) { state.tab = "map"; state.map = b.dataset.mapGo; return paint(); }
-    if (b.dataset.talkSeen) { var ks = "ws_seen_" + b.dataset.talkSeen; set(ks, get(ks, "") ? "" : "1"); var y = window.scrollY; paint(); window.scrollTo(0, y); return; }
-    if (b.dataset.iaf !== undefined) { var kv2 = b.dataset.iaf.split("="); state.iaf[kv2[0]] = kv2.slice(1).join("="); state.ia.id = null; return paint(); }
+    if (b.dataset.talkSeen) { var ks = "ws_seen_" + b.dataset.talkSeen; set(ks, get(ks, "") ? "" : "1"); return paint(true); }
     if (b.dataset.scroll) { var se = document.getElementById(b.dataset.scroll); if (se) se.scrollIntoView({ block: "start" }); return; }
-    if (b.dataset.tabGo) { state.tab = b.dataset.tabGo; set("ws_tab", state.tab); state.caseId = null; return paint(); }
-    if (b.dataset.deepGo) { state.tab = "deep"; state.deep = b.dataset.deepGo; set("ws_deep", state.deep); set("ws_tab", "deep"); state.caseId = null; return paint(); }
-    if (b.dataset.deep) { state.deep = b.dataset.deep; set("ws_deep", state.deep); return paint(); }
-    if (b.dataset.stage) { state.stage = b.dataset.stage; set("ws_stage", state.stage); return paint(); }
   });
 
   app.addEventListener("input", function (e) {
@@ -826,7 +622,7 @@
     document.documentElement.dataset.theme = next; set("ws_theme", next);
     var mt = document.querySelector('meta[name="theme-color"]');
     if (mt) mt.content = next === "light" ? "#f6f8fc" : "#0f1420";
-    if (state.tab === "map") paint();
+    paint(true);
   });
 
   window.addEventListener("hashchange", function () { if (readHash()) paint(); });
