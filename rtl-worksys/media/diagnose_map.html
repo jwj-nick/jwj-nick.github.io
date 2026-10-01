@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>diagnose 한 장 · RTL WorkSys</title>
+<!-- 장면 규약 = 00_META/INFOGRAPHIC.md -->
+<style>
+:root{
+  --bg:#0f1420; --bg2:#171e2e; --card:#1a2233; --line:#2c3850;
+  --fg:#e4e9f2; --mut:#93a1bb; --dim:#6b7a96;
+  --acc:#4fb8f5; --acc2:#8b8cf8; --ok:#3ddba0; --warn:#f5c04f; --bad:#f8776f;
+}
+:root[data-theme="light"]{
+  --bg:#f6f8fc; --bg2:#ffffff; --card:#ffffff; --line:#dde4f0;
+  --fg:#16203a; --mut:#5b6b88; --dim:#8494b0;
+  --acc:#1878c8; --acc2:#5b5ce0; --ok:#129c6c; --warn:#b5780a; --bad:#d4463c;
+}
+html,body{margin:0;height:100%;background:var(--bg)}
+body{display:flex;align-items:center;justify-content:center;overflow:hidden}
+svg{width:100vw;height:100vh;display:block}
+text{font-family:'Malgun Gothic','Apple SD Gothic Neo',-apple-system,'Segoe UI',Roboto,sans-serif}
+.mono{font-family:ui-monospace,Consolas,'Cascadia Code',monospace}
+</style>
+</head>
+<body>
+<svg id="s" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"></svg>
+<script src="scene_kit.js"></script>
+<script>
+(function () {
+  "use strict";
+  var svg = document.getElementById("s"), K = SceneKit(svg, 15);
+  var E = K.E, T = K.T, G = K.G, pill = K.pill, fade = K.fade, pop = K.pop, rise = K.rise, draw = K.draw;
+
+  /* ── 제목줄 다섯: 문제 → 구조 → 작동 원리 → 조립·품질 → 왜 중요한가 ── */
+  K.header("RTL WorkSys  ·  diagnose 한 장", [
+    { t0: 0, t1: 3.0, main: "\"원인을 찾아 달라\"는 분류되지만, 보낼 곳이 없었다",
+      sub: "regression 실패 · 고객 이슈 · 가끔 hang. 가장 흔한 일인데, 층을 모른 채 RTL부터 파게 된다." },
+    { t0: 3.0, t1: 6.5, main: "층부터 가른다. 원인은 RTL 밖에 있는 경우가 많다",
+      sub: "문서 · 이해 · 환경 · TB · C-model · spec · 도구 · RTL · FW · 구현 결과. 결과가 갈리면 층이 아니라 '불안정'이다." },
+    { t0: 6.5, t1: 9.5, main: "내부는 재현 조건으로, 고객은 질문과 multi-test로 가른다",
+      sub: "질문은 후보를 가르는 것만 한 번에. 회신은 늘 사람이 승인하고, 진짜 bug면 내부 이슈를 따로 열어 link한다." },
+    { t0: 9.5, t1: 12.0, main: "재현 → 가설 표 → 싼 것부터 좁히기 → before/after",
+      sub: "대상은 고치지 않는다(계측은 scratch에서만). 확인하지 못한 것은 그렇다고 쓰고, 원인마다 따로 보고한다." },
+    { t0: 12.0, t1: 99, main: "층마다 끝이 다르고, 층을 가른 질문 · test가 쌓인다",
+      sub: "문서 보강 · 결정 · FAQ · 환경 안내 · errata · 내부 수정 이슈. Track B로 묶음이 자라는 것이 기틀이다." }
+  ]);
+
+  var mark0 = svg.childNodes.length;
+
+  /* ── 위 왼쪽 이름표 ── */
+  var ttl = G();
+  var ttlT = "diagnose = intake 다음의 원인 찾기 갈래";
+  T(80, 282, ttlT, 21, { fill: "var(--acc2)", fontWeight: 800 }, ttl);
+  T(80 + K.width(ttlT, 21, 800) + 18, 282, "버그 수정 · timing의 원인 phase도 같은 방법", 15, { fill: "var(--mut)" }, ttl);
+  fade(ttl, 3.1, 0.4);
+
+  /* ── 범례 (S3) ── */
+  var lg = G();
+  E("rect", { x: 1496, y: 270, width: 16, height: 16, rx: 3 }, { fill: "color-mix(in srgb,var(--acc) 30%, var(--card))", stroke: "var(--acc)", strokeWidth: 2 }, lg);
+  T(1520, 284, "코드", 16, { fill: "var(--acc)", fontWeight: 800 }, lg);
+  E("rect", { x: 1580, y: 270, width: 16, height: 16, rx: 3 }, { fill: "color-mix(in srgb,var(--acc2) 30%, var(--card))", stroke: "var(--acc2)", strokeWidth: 2 }, lg);
+  T(1604, 284, "LLM", 16, { fill: "var(--acc2)", fontWeight: 800 }, lg);
+  E("rect", { x: 1666, y: 270, width: 15, height: 15, rx: 2, transform: "rotate(45 1673.5 277.5)" }, { fill: "color-mix(in srgb,var(--warn) 30%, var(--card))", stroke: "var(--warn)", strokeWidth: 2.5 }, lg);
+  T(1692, 284, "사람 승인", 16, { fill: "var(--warn)", fontWeight: 800 }, lg);
+  fade(lg, 6.6, 0.4);
+
+  /* ── 흐름의 선 (노드보다 먼저) ── */
+  var Y = 372, NW = 180, NH = 72;
+  function nx(i) { return 80 + i * 226; }
+  var edgeG = G();
+  function edge(d, t0, color, dash) {
+    var p = E("path", { d: d, fill: "none" }, { stroke: color || "var(--line)", strokeWidth: 3, strokeDasharray: dash || "none" }, edgeG);
+    if (!dash) draw(p, t0, 0.4); else fade(p, t0, 0.4);
+    return p;
+  }
+  edge("M " + (nx(0) + NW) + " " + Y + " H " + nx(1), 3.45);
+  [9.55, 9.8, 10.05, 10.3].forEach(function (t, k) { edge("M " + (nx(k + 1) + NW) + " " + Y + " H " + nx(k + 2), t); });
+  edge("M " + (nx(5) + NW) + " " + Y + " H " + nx(6), 12.05);
+  edge("M " + (nx(6) + NW) + " " + Y + " H " + nx(7), 12.25);
+  // 층 판별 → 층 열
+  var fan = edge("M " + (nx(1) + NW / 2) + " " + (Y + NH / 2) + " V 446", 3.7);
+  // Track B → 층 판별 (묶음이 자란다)
+  var loop = E("path", { d: "M " + (nx(7) + NW / 2) + " " + (Y - NH / 2) + " C " + (nx(7) + NW / 2) + " 290, " + (nx(1) + 130) + " 290, " + (nx(1) + 130) + " " + (Y - NH / 2 - 2), fill: "none" },
+    { stroke: "var(--ok)", strokeWidth: 2.5, strokeDasharray: "8 6" });
+  fade(loop, 12.4, 0.5);
+  var loopH = E("path", { d: "M " + (nx(1) + 122) + " " + (Y - NH / 2 - 12) + " L " + (nx(1) + 130) + " " + (Y - NH / 2) + " L " + (nx(1) + 138) + " " + (Y - NH / 2 - 12), fill: "none" }, { stroke: "var(--ok)", strokeWidth: 2.5 });
+  fade(loopH, 12.6, 0.3);
+  var loopP = pill(1086, 300, "Track B → 질문 · test 묶음이 자란다", 15, "var(--ok)", null, { h: 28, pad: 26 });
+  pop(loopP, 1086, 300, 12.6, 0.4);
+
+  /* ── 흐름 노드 여덟 ── */
+  var NODES = [
+    { name: "intake", sub: "ask = diagnose", c: "var(--acc)", t: 3.25 },
+    { name: "층 판별", sub: "가장 먼저 · 확정", c: "var(--acc2)", t: 3.45 },
+    { name: "재현", sub: "같은 입력으로", c: "var(--acc2)", t: 9.45 },
+    { name: "가설 표", sub: "예측 · 가르는 실험", c: "var(--acc2)", t: 9.7 },
+    { name: "좁히기", sub: "싼 것부터", c: "var(--acc2)", t: 9.95 },
+    { name: "확인", sub: "before/after", c: "var(--ok)", t: 10.2 },
+    { name: "끝", sub: "층마다 다르다", c: "var(--warn)", t: 12.0 },
+    { name: "Track B", sub: "어느 질문 · test가 갈랐나", c: "var(--ok)", t: 12.2 }
+  ];
+  var nodeBoxes = [];
+  NODES.forEach(function (n, i) {
+    var g = G(), x = nx(i), cx = x + NW / 2;
+    var r = K.box(x, Y - NH / 2, NW, NH, n.c, g, { rx: 12, fill: "var(--card)" });
+    T(cx, Y - 4, n.name, 20, { fill: n.c, fontWeight: 800 }, g, "middle");
+    T(cx, Y + 22, n.sub, 14, { fill: "var(--mut)" }, g, "middle");
+    pop(g, cx, Y, n.t, 0.45);
+    nodeBoxes.push({ r: r, c: n.c, on: n.t + 0.3 });
+  });
+
+  /* ── 층 열 (S2) ── */
+  var layG = G();
+  var layLbl = T(80, 440, "층 열 (가정 · 교정 대기)", 15, { fill: "var(--mut)", fontWeight: 700 }, layG);
+  fade(layLbl, 3.7, 0.4);
+  var LAY = ["문서", "이해", "환경", "TB", "C-model", "spec", "도구", "RTL", "FW", "구현 결과"];
+  var LW = 128, LH = 50, LY = 452, chips = [];
+  LAY.forEach(function (s, i) {
+    var x = 80 + i * 146, g = G(layG), isR = s === "RTL";
+    var c = isR ? "var(--acc2)" : "var(--acc)";
+    var r = K.box(x, LY, LW, LH, c, g, { rx: 10, fill: "var(--card)" });
+    T(x + LW / 2, LY + 32, s, 18, { fill: c, fontWeight: 800 }, g, "middle");
+    pop(g, x + LW / 2, LY + LH / 2, 3.85 + i * 0.13, 0.4);
+    chips.push({ r: r, c: c });
+  });
+  // RTL 밖 일곱 층
+  var brG = G(layG);
+  E("path", { d: "M 82 512 V 520 H 1002 V 512", fill: "none" }, { stroke: "var(--warn)", strokeWidth: 2 }, brG);
+  T(542, 540, "RTL 밖 일곱 층: 층을 모른 채 RTL을 파고들지 않는다", 15, { fill: "var(--warn)", fontWeight: 700 }, brG, "middle");
+  rise(brG, 5.35, 0.45, 8);
+  // 불안정
+  var unG = G(layG);
+  K.box(1572, LY, 268, LH, "var(--bad)", unG, { rx: 10, dash: "7 5", fill: "color-mix(in srgb,var(--bad) 8%, var(--card))" });
+  T(1706, LY + 22, "불안정 = 층이 아니라 상태", 16, { fill: "var(--bad)", fontWeight: 800 }, unG, "middle");
+  T(1706, LY + 42, "같은 입력에서 결과가 갈림 → 안정화 일감", 13, { fill: "var(--mut)" }, unG, "middle");
+  pop(unG, 1706, LY + LH / 2, 5.75, 0.45);
+
+  /* ── 층을 가르는 법 (S3): 내부 · 고객 ── */
+  var BY = 556, BH = 138;
+  var inG = G();
+  K.box(80, BY, 780, BH, "var(--acc)", inG, { rx: 14, fill: "color-mix(in srgb,var(--acc) 5%, var(--card))" });
+  T(104, BY + 32, "내부 이슈 · 재현 조건 대조", 19, { fill: "var(--acc)", fontWeight: 800 }, inG);
+  T(836, BY + 32, "oracle 쪽부터 지운다", 14, { fill: "var(--mut)" }, inG, "end");
+  var INL = [
+    ["우리 regression에서 재현", "TB · C-model · RTL 가운데 (checker 기대값부터 다시 계산)"],
+    ["특정 환경에서만", "환경 · FW · interface 가정부터"],
+    ["도구 · 버전이 바뀐 뒤에만", "도구부터"]
+  ];
+  INL.forEach(function (l, i) {
+    var y = BY + 66 + i * 26, g = G(inG);
+    T(104, y, l[0], 15, { fill: "var(--fg)", fontWeight: 700 }, g);
+    T(318, y, "→ " + l[1], 15, { fill: "var(--mut)" }, g);
+    rise(g, 6.75 + i * 0.15, 0.4, 8);
+  });
+  fade(inG, 6.6, 0.4);
+
+  var cuG = G();
+  K.box(900, BY, 940, BH, "var(--acc2)", cuG, { rx: 14, fill: "color-mix(in srgb,var(--acc2) 5%, var(--card))" });
+  T(924, BY + 32, "고객 이슈 · 질문 묶음과 multi-test를 함께", 19, { fill: "var(--acc2)", fontWeight: 800 }, cuG);
+  T(1816, BY + 32, "질문은 후보를 가르는 것만, 한 번에", 14, { fill: "var(--mut)" }, cuG, "end");
+  fade(cuG, 7.0, 0.4);
+  var RY = BY + 72;
+  var cuLine = E("path", { d: "M 940 " + RY + " H 1800", fill: "none" }, { stroke: "var(--line)", strokeWidth: 2.5 }, cuG);
+  var cuDraw = 7.2;
+  var cuTok = K.particles(G(cuG));
+  var CU = [
+    { s: "질문 묶음", c: "var(--acc2)", t: 7.25 },
+    { s: "자동 multi-test", c: "var(--acc)", t: 7.35, par: true },
+    { s: "층 판별", c: "var(--acc2)", t: 7.6 },
+    { s: "답 초안", c: "var(--acc2)", t: 7.8 },
+    { s: "사람 승인", c: "var(--warn)", t: 8.0, dia: true },
+    { s: "회신", c: "var(--warn)", t: 8.2 },
+    { s: "고객 확인", c: "var(--ok)", t: 8.4 }
+  ];
+  var cx0 = 924, cuPos = {};
+  CU.forEach(function (c, i) {
+    if (c.dia) {
+      var g = G(cuG), dx = cx0 + 14;
+      var d = E("rect", { x: dx - 11, y: RY - 11, width: 22, height: 22, rx: 3, transform: "rotate(45 " + dx + " " + RY + ")" },
+        { fill: "color-mix(in srgb,var(--warn) 30%, var(--card))", stroke: "var(--warn)", strokeWidth: 3 }, g);
+      T(dx + 22, RY + 6, c.s, 15, { fill: "var(--warn)", fontWeight: 800 }, g);
+      pop(g, dx, RY, c.t, 0.4);
+      cuPos[c.s] = dx;
+      cx0 = dx + 22 + K.width(c.s, 15, 800) + 30;
+      return;
+    }
+    var w = K.width(c.s, 15, 700) + 26, cx = cx0 + w / 2;
+    var p = pill(cx, RY, c.s, 15, c.c, cuG, { h: 30, pad: 26, fill: "var(--card)" });
+    pop(p, cx, RY, c.t, 0.4);
+    cuPos[c.s] = cx;
+    cx0 += w + (c.s === "질문 묶음" ? 34 : 30);
+  });
+  cuLine.setAttribute("d", "M 940 " + RY + " H " + cuPos["고객 확인"]);
+  draw(cuLine, cuDraw, 1.3);
+  // 질문 묶음 ∥ multi-test 표시
+  var parT = T((cuPos["질문 묶음"] + cuPos["자동 multi-test"]) / 2, RY + 6, "∥", 18, { fill: "var(--mut)", fontWeight: 800 }, cuG, "middle");
+  fade(parT, 7.4, 0.3);
+  // 진짜 bug → 내부 이슈 link
+  var lkG = G(cuG);
+  var lkx = cuPos["층 판별"], LKY = BY + 116;
+  E("path", { d: "M " + lkx + " " + (RY + 15) + " V " + LKY + " H 852", fill: "none" }, { stroke: "var(--bad)", strokeWidth: 2.5, strokeDasharray: "7 5" }, lkG);
+  E("path", { d: "M 864 " + (LKY - 7) + " L 852 " + LKY + " L 864 " + (LKY + 7), fill: "none" }, { stroke: "var(--bad)", strokeWidth: 2.5 }, lkG);
+  T(lkx + 14, LKY + 5, "진짜 bug면 내부 이슈를 따로 열어 link (합치지 않는다)", 15, { fill: "var(--bad)", fontWeight: 700 }, lkG);
+  rise(lkG, 8.7, 0.4, 8);
+
+  /* ── S1: 보낼 곳이 비어 있다 (흩어진 입자) ── */
+  var chaosG = K.particles(G()), bits = [], tags = [];
+  if (!K.POSTER) {
+    var lump = G(chaosG);
+    var pI = pill(250, 450, "intake", 20, "var(--acc)", lump, { h: 44, pad: 40 });
+    E("path", { d: "M 312 450 H 400", fill: "none" }, { stroke: "var(--line)", strokeWidth: 3 }, lump);
+    pill(510, 450, "ask = diagnose", 18, "var(--acc2)", lump, { h: 44, pad: 36 });
+    E("path", { d: "M 620 450 H 700", fill: "none" }, { stroke: "var(--line)", strokeWidth: 3, strokeDasharray: "6 6" }, lump);
+    K.box(712, 300, 1040, 300, "var(--bad)", lump, { rx: 26, dash: "10 8", fill: "color-mix(in srgb,var(--bad) 6%, var(--card))" });
+    T(1232, 350, "보낼 곳 = ?", 26, { fill: "var(--bad)", fontWeight: 800 }, lump, "middle");
+    T(1232, 574, "층을 모른 채 RTL부터   ·   고치면서 찾기   ·   확인 없이 닫기", 19, { fill: "var(--mut)" }, lump, "middle");
+    fade(lump, 0.15, 0.35, 2.55, 0.4);
+    var TAG = ["regression 새 실패", "고객: 출력 불일치", "가끔 hang", "timing 악화", "C-model과 bit 불일치", "FPGA에서만 실패"];
+    var rnd = K.rng(23);
+    TAG.forEach(function (s, i) {
+      var g = G(chaosG), bx = 880 + (i % 3) * 330 + (Math.floor(i / 3) ? 50 : 0) + rnd() * 20, by = 418 + Math.floor(i / 3) * 84 + rnd() * 10;
+      pill(0, 0, s, 16, ["var(--acc)", "var(--warn)", "var(--bad)", "var(--acc2)", "var(--ok)", "var(--acc)"][i], g, { h: 32, pad: 26 });
+      tags.push({ el: g, x: bx, y: by, ph: rnd() * 6.3, t0: 0.3 + i * 0.18 });
+    });
+    var pal = ["var(--acc)", "var(--acc2)", "var(--warn)", "var(--ok)", "var(--bad)"];
+    for (var c = 0; c < 34; c++) {
+      var d = { x: 760 + rnd() * 940, y: 395 + rnd() * 120, r: 3 + rnd() * 5, ph: rnd() * 6.3, fx: 0.6 + rnd() * 1.2, t0: 0.2 + rnd() * 1.0 };
+      d.el = E("circle", { r: d.r }, { fill: pal[c % 5], opacity: 0 }, chaosG);
+      bits.push(d);
+    }
+  }
+
+  var mark1 = svg.childNodes.length;
+
+  /* ── 아래 왼쪽: 왜 diagnose가 기틀인가 ── */
+  var whyG = G();
+  K.box(80, 736, 860, 314, "var(--line)", whyG, { fill: "var(--card)", stroke: "var(--line)", sw: 1.5, rx: 20 });
+  T(112, 782, "왜 diagnose가 기틀인가", 27, { fontWeight: 800 }, whyG);
+  var WHY = [
+    ["층", "var(--acc)", "원인이 RTL 밖인 경우가 많다. 층부터 가르면 헛짚지 않는다."],
+    ["근거", "var(--ok)", "고치지 않고 before/after로 확인한다. 못 한 것은 그렇다고 쓴다."],
+    ["끝", "var(--warn)", "층마다 끝이 다르다. 문서 보강 · FAQ · errata · 수정 이슈."],
+    ["자람", "var(--acc2)", "층을 가른 질문 · test가 Track B로 남아 묶음이 자란다."]
+  ];
+  var wy = 836;
+  WHY.forEach(function (w, i) {
+    var g = G(whyG);
+    E("circle", { cx: 126, cy: wy - 7, r: 15 }, { fill: "color-mix(in srgb," + w[1] + " 20%, var(--card))", stroke: w[1], strokeWidth: 2 }, g);
+    T(126, wy, String(i + 1), 17, { fill: w[1], fontWeight: 800 }, g, "middle");
+    T(156, wy, w[0], 21, { fill: w[1], fontWeight: 800 }, g);
+    var r = K.wrap(240, wy, w[2], 19, 672, 26, { fill: "var(--fg)" }, g);
+    wy += 30 + r.n * 26;
+    rise(g, 12.2 + i * 0.25, 0.5, 14);
+  });
+  fade(whyG, 12.0, 0.4);
+
+  /* ── 아래 오른쪽: 좁히기 사다리 · 원칙 · 상태 ── */
+  var rgG = G();
+  K.box(980, 736, 860, 314, "var(--line)", rgG, { fill: "var(--card)", stroke: "var(--line)", sw: 1.5, rx: 20 });
+  T(1012, 782, "좁히기 사다리와 상태", 27, { fontWeight: 800 }, rgG);
+  T(1808, 782, "싼 것부터, 텍스트로 대조", 15, { fill: "var(--mut)" }, rgG, "end");
+  fade(rgG, 9.5, 0.4);
+  var LAD = ["변경 구간 bisect", "seed · 설정 변주", "module trace 첫 불일치", "경계 안 텍스트 trace"];
+  var lx = 1012;
+  LAD.forEach(function (s, i) {
+    var g = G(rgG), w = K.width(s, 15, 700) + 24;
+    pill(lx + w / 2, 826, s, 15, "var(--acc)", g, { h: 32, pad: 24, rx: 8 });
+    if (i < LAD.length - 1) T(lx + w + 13, 832, "→", 17, { fill: "var(--mut)", fontWeight: 800 }, g, "middle");
+    lx += w + 26;
+    rise(g, 9.8 + i * 0.2, 0.45, 10);
+  });
+  var PR = [
+    ["✕", "var(--bad)", "대상을 고치지 않는다. 계측은 scratch 사본에서만 넣고 지운다."],
+    ["✓", "var(--ok)", "확인 = 되돌린 scratch에서 사라지고 원래에서 다시 나타남."]
+  ];
+  PR.forEach(function (p, i) {
+    var g = G(rgG), y = 878 + i * 30;
+    T(1022, y, p[0], 17, { fill: p[1], fontWeight: 800 }, g, "middle");
+    T(1044, y, p[2], 16, { fill: "var(--fg)" }, g);
+    rise(g, 10.6 + i * 0.2, 0.45, 8);
+  });
+  var stG = G(rgG);
+  E("path", { d: "M 1012 940 H 1808", fill: "none" }, { stroke: "var(--line)", strokeWidth: 1.5 }, stG);
+  fade(stG, 12.1, 0.4);
+  var ST = [
+    ["확정", "var(--ok)", "none", "층 판별 먼저"],
+    ["가정", "var(--warn)", "5 4", "층 열 표 · 질문 묶음 · multi-test 묶음 · 실패 종류별 시작점"],
+    ["반영 대기", "var(--acc2)", "5 4", "조사형 모양의 층 판별 자리 · regression 원인 찾기 초안"]
+  ];
+  ST.forEach(function (s, i) {
+    var y = 973 + i * 28, g = G(rgG);
+    var w = K.width(s[0], 14) + 22;
+    pill(1012 + w / 2, y - 5, s[0], 14, s[1], g, { h: 22, pad: 22, dash: s[2] });
+    T(1012 + 104, y, s[3], 16, { fill: "var(--fg)" }, g);
+    rise(g, 12.3 + i * 0.2, 0.45, 10);
+  });
+
+  /* ── 흐름도를 하나로 묶어 올린다 ── */
+  var stageG = G(), moved = [];
+  for (var q = mark0; q < mark1; q++) moved.push(svg.childNodes[q]);
+  moved.forEach(function (n) { stageG.appendChild(n); });
+  svg.insertBefore(stageG, whyG);
+  K.lift(stageG, 150, 9.0, 0.7);
+
+  /* ── 고객 줄의 표지 (S3) ── */
+  var tok = K.POSTER ? null : E("circle", { r: 8 }, { fill: "var(--warn)", opacity: 0 }, cuTok);
+  var TR = [[7.3, cuPos["질문 묶음"]], [7.7, cuPos["층 판별"]], [8.0, cuPos["답 초안"]], [8.25, cuPos["사람 승인"]], [8.55, cuPos["사람 승인"]], [8.8, cuPos["회신"]], [9.0, cuPos["고객 확인"]]];
+
+  K.start(function (t) {
+    bits.forEach(function (d) {
+      var o = K.clamp((t - d.t0) / 0.3) * (1 - K.clamp((t - 2.5) / 0.5));
+      d.el.setAttribute("cx", d.x + 50 * Math.sin(t * d.fx * 2 + d.ph));
+      d.el.setAttribute("cy", d.y + 28 * Math.cos(t * d.fx * 1.7 + d.ph));
+      d.el.style.opacity = o * 0.7;
+    });
+    tags.forEach(function (g) {
+      var o = K.clamp((t - g.t0) / 0.35) * (1 - K.clamp((t - 2.5) / 0.45));
+      g.el.setAttribute("transform", "translate(" + (g.x + 26 * Math.sin(t * 1.3 + g.ph)) + " " + (g.y + 10 * Math.cos(t * 1.1 + g.ph)) + ")");
+      g.el.style.opacity = o;
+    });
+    if (tok) {
+      if (t < TR[0][0] || t > TR[TR.length - 1][0] + 0.2) tok.style.opacity = 0;
+      else {
+        var x = TR[TR.length - 1][1];
+        for (var i = 0; i < TR.length - 1; i++) if (t <= TR[i + 1][0]) { x = TR[i][1] + (TR[i + 1][1] - TR[i][1]) * K.clamp((t - TR[i][0]) / (TR[i + 1][0] - TR[i][0])); break; }
+        tok.setAttribute("cx", x); tok.setAttribute("cy", RY - 22); tok.style.opacity = 1;
+      }
+    }
+    nodeBoxes.forEach(function (b) {
+      var on = K.POSTER || t >= b.on;
+      b.r.style.fill = on ? "color-mix(in srgb," + b.c + " 14%, var(--card))" : "var(--card)";
+    });
+    chips.forEach(function (b, i) {
+      b.r.style.fill = "color-mix(in srgb," + b.c + " 10%, var(--card))";
+    });
+  });
+})();
+</script>
+</body>
+</html>

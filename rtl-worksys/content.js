@@ -133,35 +133,35 @@ window.WS = {
         spec: [["조립 CH-feature", "bun", "wa/library/CH-feature"]]
       },
       diagnose: {
-        name: "diagnose", role: "갈래 · 원인 찾기", badge: ["정본 · 첫 판", "y"],
-        one: "\"왜 그런가\"를 찾는다. 층부터 가르고, 고치지 않으며, 확인하지 못한 것은 그렇다고 쓴다.",
+        name: "diagnose", role: "갈래 · 원인 찾기", badge: ["정본 · 일부 가정", "y"],
+        one: "intake는 \"원인을 찾아 달라\"로 분류만 한다. 그 뒤 보낼 곳이 비어 있던 자리를 채운 갈래다. 층부터 가르고, 고치지 않으며, 확인하지 못한 것은 그렇다고 쓴다.",
         what: [
           "흐름: 층 판별 → 재현 → 가설 표 → 좁히기(싼 것부터) → 확인(before/after) → 끝(층마다 다름) → Track B(어느 질문 · test가 층을 갈랐나).",
           "층 열: 문서 · 이해 · 환경 · TB · C-model · spec · 도구 · RTL · FW · 구현 결과. 층마다 재현 수단 · oracle · 좁히는 도구 · 끝이 다르다. 불안정(같은 입력에서 결과가 갈림)은 층이 아니라 상태다.",
           "좁히기 순서: 변경 구간 bisect → seed · 설정 변주 → module trace 첫 불일치 → 경계 안 신호의 텍스트 trace. waveform은 사람이 볼 때만."
         ],
-        map: null,
+        map: "diagnose", more: "diagnose",
         rules: [
           "층부터 가른다. 원인이 RTL 밖(문서 · 이해 · 환경 · TB · C-model · spec · 도구)에 있는 경우가 많다. 층을 모른 채 RTL을 파고들지 않는다.",
           "고치지 않는다. 계측은 scratch 사본 안에서만 넣고 지운다. 수정은 요청이 있을 때 다음 phase나 후속 요청으로 간다.",
           "내부 이슈는 재현 조건 대조로 층을 가른다. oracle 쪽(TB · C-model)이 틀렸을 가능성을 먼저 지운다.",
           "고객 이슈는 범위 좁히기 질문(후보를 가르는 것만, 한 번에, 왜 묻는지 한 줄)과 자동 multi-test를 함께 돌린다.",
-          "원인마다 따로 보고한다. 하나를 되돌려도 증상이 남으면 다음 가설로 간다."
+          "끝이 층마다 다르다: 문서 보강 · 결정 뒤 수정 · FAQ 축적 · 환경 안내 · errata · 내부 수정 이슈. 원인마다 따로 보고하고, 어느 질문 · test가 층을 갈랐는지 Track B로 남긴다."
         ],
         human: ["원인 찾기를 연다: 도구 신호의 실패는 사람이 요청할 때, 사람의 요청과 고객 이슈는 바로", "원인 보고를 검수하고 수정 여부를 정한다"],
         quality: ["확인 = 되돌린 scratch에서 증상이 사라지고 원래에서 다시 나타남(또는 최소 재현)", "질문 묶음 · multi-test 묶음은 가족 · 층별 정본 자산이고 Track B로 고쳐진다"],
-        state: [["g", "정본", "층 열 · 층을 가르는 법 · 재현에서 확인까지 · 실패 종류별 시작점"], ["n", "반영 대기", "조사형 모양 · regression 원인 찾기 workflow 초안 · intake 질문 묶음에 이 방법을 넣는 일"]],
+        state: [["g", "확정", "층 판별 먼저"], ["y", "가정 · 교정 대기", "층 열 표 · 질문 묶음 · multi-test 묶음 · 실패 종류별 시작점"], ["n", "반영 대기", "조사형 모양의 층 판별 자리 · regression 원인 찾기 초안 · intake 질문 묶음과의 연결"]],
         spec: [["조사형 모양 (AR-diagnose)", "bun", "wa/library/AR-diagnose"], ["regression 원인 찾기 (초안)", "bun", "wa/library/WF-regr-diagnose"]]
       },
       workmap: {
-        name: "업무 지도", role: "intake와 workflow 사이", badge: ["정본 · 첫 판", "y"],
+        name: "업무 지도", role: "분류 · diagnose의 바탕", badge: ["정본 · 일부 가정", "y"],
         one: "어떤 일이 어디서 생기고, 무엇으로 분류되며, 원인을 어떻게 좁히고, 어느 workflow로 일하는가.",
         what: [
           "기존 자산을 먼저 옮긴다. 팀이 이미 쓰는 checklist · 검증 환경 · 확인 환경 · 절차서 · 판정 기준을 workflow의 checkpoint와 evaluator로 옮긴다. 기존 확인은 바닥이고, AI용 조건은 그 위에 더할 뿐이다.",
           "모든 일에는 두 트랙이 붙는다. Track A는 일 자체, Track B는 그 일이 쓴 workflow의 기록(사용 · 평가 · 개선 · revision · 신설). Track B 기록이 없으면 완료가 아니다.",
           "분류 축 다섯: 출처(고객 · 내부) · 요청 종류 · 업무 가족(열둘) · lifecycle 단계 · 층. 같은 증상이라도 출처가 다르면 끝까지의 과정이 다르다."
         ],
-        map: null,
+        map: "workmap", more: "workmap",
         rules: [
           "옮긴 checkpoint는 workflow가 상속하는 잠금 항목이다. 자산이 없는 자리는 '기존 확인 없음'으로 표시한다.",
           "이식이 끝난 업무 가족부터 shadow를 시작한다. 끝나지 않은 가족은 AI가 초안까지만 한다.",
@@ -171,7 +171,7 @@ window.WS = {
         ],
         human: ["고객 회신은 늘 사람이 승인한다", "자산 목록의 완결 · 옮긴 checkpoint의 승인(팀 리더 · 정본 승인자)"],
         quality: ["고객 응답 지표: 첫 회신 · 최종 회신 시간, 재질문, 고객 확인 비율(목표 공란)", "Track B 기록이 모든 일의 완료 조건"],
-        state: [["g", "정본", "자산 이식 먼저 · 두 트랙 · 분류 축 다섯 · 업무 가족 열둘 · 고객 트랙 · 내부 lifecycle"], ["n", "반영 대기", "intake의 출처 축 · 고객 입구, workflow의 Track B 칸 · 고객 회신 workflow"]],
+        state: [["g", "확정", "기존 자산 이식 먼저 · 두 트랙 · 고객 트랙 재개"], ["y", "가정 · 교정 대기", "분류 축 다섯 · 업무 가족 열둘 · lifecycle 여덟 단계"], ["n", "회사에서 확인", "고객 이슈가 들어오는 경로 · 기존 자산의 위치와 담당"], ["n", "반영 대기", "intake의 출처 축 · 고객 입구, workflow의 Track B 칸 · 고객 회신 workflow"]],
         spec: []
       }
     }
@@ -253,10 +253,10 @@ window.WS = {
   /* ───────────── ④ 결정 ───────────── */
   decide: {
     lead: "지금 판단할 것만 앞에 둔다. 나머지 논의 거리는 아래에 접어 두었다. 원본 문서와 이력은 설계 워크스페이스에 그대로 있다.",
-    now: ["t-i-cmd", "t-i-reject", "t-i-self", "t-w-onresult", "t-w-human", "t-w-chain", "t-c-oracle", "t-i-s02", "t-i-flaky", "t-w-allow"],
+    now: ["t-i-cmd", "t-i-reject", "t-i-self", "t-w-onresult", "t-w-human", "t-w-chain", "t-c-oracle", "t-i-s02", "t-i-flaky", "t-dg-layers"],
     next: [
       "교정: 위의 열 가지 중 틀린 것만 고친다. 확정을 건드린 intake 세 곳이 먼저다.",
-      "읽기: 새로 생긴 diagnose와 업무 지도 카드를 보고, 층 열과 두 트랙이 현장 감각과 맞는지 본다.",
+      "읽기: diagnose와 업무 지도 카드(한 장 · 해설 포함)를 보고, 층 열 · 질문 묶음 · 업무 가족이 현장 감각과 맞는지 본다.",
       "설계 쪽 반영 대기: chain · diagnose · 업무 지도의 '반영할 곳'(intake의 출처 축 · 고객 입구, workflow의 Track B 칸 · 고객 회신 workflow, 조사형 모양의 층 판별 자리, core 설계서 · walkthrough)."
     ]
   },
@@ -540,13 +540,197 @@ window.WS = {
       ]}}
     ],
     related: ["workflow", "posture", "hitl", "sandbox", "result"], stages: ["plan", "execute", "review"]
+  },
+  { id: "diagnose", tab: "diagnose · 원인", short: "diagnose", badge: "정본 · 일부 가정",
+    title: "diagnose — 원인 찾기 갈래",
+    lead: "intake는 \"원인을 찾아 달라\"(ask = diagnose)로 분류까지만 한다. 그 뒤 보낼 곳이 비어 있던 자리를 채운 갈래가 diagnose다. 버그 수정 · timing 개선 workflow의 원인 phase도 같은 방법을 따른다. 바탕은 업무 지도(분류 축 다섯 · 두 트랙 · 고객 트랙)다.",
+    summary: [
+      "순서: 층 판별 → 재현 → 가설 표 → 좁히기(싼 것부터) → before/after 확인 → 끝(층마다 다름) → Track B.",
+      "층 열: 문서 · 이해 · 환경 · TB · C-model · spec · 도구 · RTL · FW · 구현 결과. 원인이 RTL 밖에 있는 경우가 많아서 층부터 가른다. 같은 입력에서 결과가 갈리면 층이 아니라 '불안정' 상태로 보고 안정화 일감으로 넘긴다.",
+      "고객 이슈는 처음 설명으로 층이 정해지지 않으면 후보를 가르는 질문만 한 번에 묶어 보내고, 동시에 증상별 자동 multi-test를 돌려 층을 가른다. 회신은 늘 사람이 승인한다.",
+      "끝이 층마다 다르다: 문서 보강 · 결정 뒤 수정 · FAQ 축적 · 환경 안내 · errata · 내부 수정 이슈.",
+      "대상을 고치지 않는다(계측은 scratch에서만). 확인하지 못한 것은 그렇다고 쓴다. 원인마다 따로 보고한다. 어느 질문 · test가 층을 갈랐는지 Track B로 남겨 묶음을 고친다."
+    ],
+    excluded: "원인을 찾은 뒤의 수정은 이 갈래가 하지 않는다. 버그 수정처럼 원인과 수정을 함께 덮는 workflow면 같은 task의 다음 phase로, 요청자가 수정도 요청했으면 후속 요청으로 간다. 서버 · license · disk 같은 환경 실패는 범위 밖이라 운영 담당에 넘기고 여기까지의 결과로 마감한다.",
+    body: [
+      { h: "1. 순서" },
+      { code: " 층 판별 ──▶ 재현 ──▶ 가설 표 ──▶ 좁히기 ──▶ 확인(before/after) ──▶ 끝(층마다 다름) ──▶ Track B\n (질문 · 자동 multi-test)                     (싼 것부터)                                 (어느 질문 · test가 갈랐나)" },
+      { ul: [
+        "재현: 같은 입력(revision · seed · 설정 · 환경)으로. 재현되지 않으면 결과가 갈리는지 본다(갈리면 불안정). 상대 환경의 재현은 상대 조건을 흉내 낸 우리 환경에서 한다.",
+        "가설 표: 가설 · 예측(맞다면 무엇이 보여야 하나) · 가르는 실험 · 결과 · 판정. 세션이 바뀌어도 이 표로 이어 간다. 가설은 변경 구간의 diff → trace 첫 불일치 경계 → 과거 bug 패턴 → 실패 묶음의 공통점 순으로 만든다.",
+        "좁히기는 싼 것부터: 변경 구간 bisect → seed · 설정 변주 → module trace 첫 불일치 → 경계 안 신호의 텍스트 trace. module trace model이 있으면 RTL 쪽에도 같은 형식의 trace dump를 넣어 텍스트로 대조한다. waveform은 사람이 볼 때만 쓴다.",
+        "확인: 원인으로 지목한 변경을 되돌리거나 고정한 scratch에서 증상이 사라지고 원래에서 다시 나타나야 확인이다. 또는 최소 재현.",
+        "여러 원인: 하나를 되돌려도 증상이 남으면 남은 불일치의 첫 경계에서 다음 가설을 세운다. 원인마다 before/after와 보고를 따로 낸다."
+      ] },
+      { h: "2. 층 열 (가정 · 교정 대기)" },
+      { table: { head: ["층", "재현 수단", "oracle", "좁히는 도구", "끝"], rows: [
+        ["문서", "문서의 해당 절과 사용자의 적용을 나란히", "코드 · spec(정본)", "문서와 코드의 항목 대조", "문서 보강 · 수정 이슈, 회신"],
+        ["이해", "질문을 문서 · KB로 답해 봄", "문서 · KB의 근거", "근거 위치 찾기", "회신 + FAQ 축적"],
+        ["환경", "상대 환경의 조건을 우리 쪽에서 흉내", "우리 환경의 정상 결과", "조건 하나씩 바꿔 차이 찾기", "회신(차이와 맞추는 법) + 환경 요구 보강"],
+        ["TB", "같은 입력으로 checker 판정을 따로 계산", "C-model · spec", "checker 기대값 계산 경로 trace", "TB 수정 이슈"],
+        ["C-model", "같은 입력으로 C-model 두 층 비교", "상위 model · 표준", "module trace 경계에서 model끼리 대조", "C-model 수정 이슈"],
+        ["spec", "해석이 갈리는 문장의 두 해석 결과 비교", "사람의 결정", "해석별 영향 범위", "결정 자료 → spec 갱신"],
+        ["도구", "같은 입력을 도구 두 버전 · 두 종류로", "다른 도구 · 이전 버전의 결과", "버전 bisect, 최소 예제", "도구 담당에 넘기고 마감, 회피책 기록"],
+        ["RTL", "같은 revision · seed · 설정으로 simulation", "oracle model · module trace · spec assertion", "변경 구간 bisect → trace 첫 불일치 → 경계 안 신호", "원인 보고 → 수정(요청 시)"],
+        ["FW", "driver · firmware를 붙인 co-sim 또는 FPGA", "문서의 설정 순서 · register 정의", "register 접근 log, 설정 순서 trace", "FW 수정 이슈 또는 문서 정합"],
+        ["구현 결과", "같은 script · constraint · library로 합성 · STA · GLS", "이전 결과 · 목표표 · RTL simulation", "경로 · 변경 구간 대조, RTL과 GLS 경계 대조", "개선 이슈 · constraint 확인 · 회신"]
+      ]}},
+      { note: "불안정은 층이 아니라 상태다. 같은 입력으로 결과가 갈리면(race · 초기화되지 않은 값 · X 전파 · 환경 요동) 원인 찾기를 멈추고 안정화 일감으로 넘긴다. 반복 횟수는 공란(검증 리더)." },
+      { h: "3. 층을 가르는 법" },
+      { ul: [
+        "내부 이슈: 재현 조건을 대조해 가른다. 우리 regression에서 같은 입력으로 재현되면 TB · C-model · RTL · 구현 결과 가운데서 좁히되, oracle 쪽(TB · C-model)이 틀렸을 가능성을 먼저 지운다. 특정 환경(통합 · co-sim · FPGA)에서만 생기면 환경 · FW · interface 가정부터. 도구 · 버전이 바뀐 뒤에만 생기면 도구부터.",
+        "고객 이슈: 처음 설명으로 층이 정해지지 않으면 범위 좁히기 질문을 보내고, 동시에 자동 multi-test를 돌린다. 질문은 후보 층을 가르는 정보만, 받은 자료에서 읽을 수 있는 것은 묻지 않고, 한 번에 묶어, 질문마다 왜 묻는지 한 줄."
+      ] },
+      { table: { head: ["업무 가족", "기본 질문 묶음 (가정)"], rows: [
+        ["기능 불일치", "쓰는 릴리즈, register 설정 값과 순서, 입력 조건, 환경(simulation · FPGA · 실리콘), 재현 빈도"],
+        ["interface · 통합", "clock · reset 구성, bus 설정(outstanding · burst · QoS), memory 구성과 latency, interrupt 처리 방식"],
+        ["성능", "측정 조건(해상도 · 입력 종류 · 설정), clock, memory 대역과 latency, 측정 방법"],
+        ["구현 결과", "도구와 버전, library · corner, constraint, log 전문"],
+        ["power", "측정 조건, 활동률 가정, gating 설정, 측정 방법"],
+        ["문서 정합", "참조한 문서와 판, 해당 절, 기대한 동작"]
+      ]}},
+      { table: { head: ["증상", "함께 돌리는 자동 multi-test (가정)", "가르는 층"], rows: [
+        ["상대 환경에서만 출력 불일치", "상대 릴리즈로 우리 regression · 상대 설정 값으로 같은 입력 · 상대 memory latency 흉내 · 알려진 bug 대조", "환경 · 진짜 bug(알려짐 · 새것)"],
+        ["성능 미달", "상대 조건으로 성능 test · 우리 기준 조건으로 같은 test · memory latency 변주", "환경(조건) · 설계"],
+        ["가끔 hang", "같은 입력 반복 · timeout watchdog trace · handshake checker 켠 simulation", "불안정 · 설계 · 환경"],
+        ["합성 warning · 목표 미달", "상대 도구 버전 · 우리 버전, 상대 constraint · 우리 constraint", "도구 · 환경(constraint) · 구현 결과"],
+        ["설정 뒤 동작 이상", "문서 순서 · 상대 순서로 설정, register 접근 log", "문서 · 이해 · FW"]
+      ]}},
+      { note: "질문 묶음과 multi-test 묶음은 업무 가족 · 층별 정본 자산이고, Track B 기록으로 늘어난다. 어떤 질문 · test가 실제로 층을 갈랐는지가 기록의 핵심이다." },
+      { h: "4. 실패 종류별 시작점 (가정)" },
+      { table: { head: ["종류", "시작점"], rows: [
+        ["새 실패(변경 구간 있음)", "구간 bisect"],
+        ["오래된 실패(구간 없음)", "module trace 경계부터"],
+        ["간헐 실패", "같은 입력 반복으로 불안정부터 가름"],
+        ["묶음 실패(변경 하나가 여럿을 깨뜨림)", "intake의 실패 묶음 전체를 한 원인 후보로, member의 공통점부터"],
+        ["환경 실패(server · license · disk)", "범위 밖: 운영 담당에 넘기고 여기까지의 결과로 마감"],
+        ["릴리즈 사이 차이", "릴리즈 구간 bisect"],
+        ["질문형(재현할 실패가 없음)", "층 판별만: 문서 · 이해 · spec에서 근거를 찾아 답. 근거가 없으면 문서 빈칸으로 기록"]
+      ]}},
+      { h: "5. 누가 여나 · 어느 workflow로" },
+      { ul: [
+        "도구 신호의 실패는 intake가 묶음으로 모으고, 원인 찾기 task는 사람이 요청할 때 연다. 같은 묶음이 되풀이되면 intake가 요청을 제안만 한다.",
+        "사람의 요청(\"원인을 찾아 달라\")은 바로 연다. \"원인을 찾아 고쳐 달라\"면 원인과 수정을 함께 덮는 workflow(버그 수정 · timing)의 두 phase가 된다.",
+        "고객 이슈는 고객 트랙이 연다. 진짜 bug로 판별되면 내부 이슈를 따로 열어 link한다(합치지 않는다).",
+        "workflow: 버그 수정 · timing의 원인 phase가 이 방법을 따른다. regression 실패 원인 찾기는 전용 workflow 초안. 덮는 특화가 없으면 조사형 모양(재현 · 가설 표 · before/after 의무)의 기본 채움 + 층 표. 같은 일이 되풀이되면 특화 초안을 신설한다."
+      ] },
+      { h: "6. 가상 사례 셋" },
+      { table: { head: ["사례", "흐름"], rows: [
+        ["regression 새 실패", "야간 regression에서 test 여럿이 rev 101~104 사이에서 처음 실패 → intake가 한 묶음으로 → owner가 원인 찾기를 요청 → 층 판별: 우리 regression에서 재현되므로 TB · C-model · RTL 가운데 → checker 기대값을 C-model로 다시 계산해 oracle 쪽 오류를 지움 → 변경 구간 bisect로 rev 103 → module trace 첫 불일치 경계 → scratch에서 rev 103의 변경을 되돌리면 사라지고 원래에서 다시 나타남(확인) → 원인 보고. 수정은 요청이 있으면 다음 phase."],
+        ["고객 환경에서만 출력 불일치", "고객: \"특정 입력에서 출력이 다르다, 우리 쪽 simulation에서만\" → 층 미정 → 질문 묶음(릴리즈 · 설정 값과 순서 · 입력 조건 · 환경 · 재현 빈도)을 한 번에 보내고, 동시에 multi-test(고객 릴리즈로 우리 regression · 고객 설정 값 · 고객 memory latency 흉내 · 알려진 bug 대조) → 고객 설정 값에서만 재현, 문서의 설정 순서와 다름 → 층 = 문서와 코드 불일치 → 답 초안 → 사람 승인 → 회신 + 어느 쪽이 맞는지 결정 → 문서 또는 코드 수정 이슈. Track B: 설정 순서 질문이 층을 갈랐다고 기록."],
+        ["가끔 hang", "통합 환경에서 가끔 멈춤 → 같은 입력 반복으로 먼저 가름 → 결과가 갈림 → 층이 아니라 불안정 상태로 보고 안정화 일감으로 넘김(원인 찾기를 멈춤). 결과가 갈리지 않으면 timeout watchdog trace · handshake checker로 설계 · 환경을 가른다."]
+      ]}},
+      { h: "7. 상태" },
+      { table: { head: ["항목", "상태"], rows: [
+        ["층 판별 먼저", "확정"],
+        ["층 열 표 · 질문 묶음 · multi-test 묶음 · 실패 종류별 시작점", "가정 · 교정 대기"],
+        ["조사형 모양의 층 판별 자리, regression 원인 찾기 초안, intake 질문 묶음과의 연결", "반영 대기(설계 쪽)"]
+      ]}}
+    ],
+    related: [], stages: []
+  },
+  { id: "workmap", tab: "업무 지도 · 분류", short: "work map", badge: "정본 · 일부 가정",
+    title: "업무 지도 — 일의 분류와 진단의 바탕",
+    lead: "intake(분류)와 workflow(실행) 사이에서 어떤 일이 어디서 생기고, 무엇으로 분류되며, 원인을 어떻게 좁히고, 어느 workflow로 일하는가를 한 장의 지도로 묶는다. 고객이 트리거한 일과 내부에서 생긴 일을 모두 덮는다. diagnose 갈래의 바탕이다.",
+    summary: [
+      "기존 자산을 먼저 옮긴다. AI용 완료 조건 · gate보다 먼저 팀의 checklist · 검증 환경 · 확인 환경 · 절차서 · 판정 기준 · 기록 양식을 workflow의 checkpoint · evaluator · policy로 옮겨 바닥으로 고정한다.",
+      "모든 일에 두 트랙이 붙는다. Track A = 일 자체, Track B = 그 일이 쓴 workflow의 기록(revision · 막힌 곳 · 평가 · 개선 · 신설). Track B가 없으면 완료가 아니다. 분류와 진단에도 붙는다.",
+      "분류 축 다섯: 출처(고객 · 내부) · 요청 종류(ask) · 업무 가족(열둘) · lifecycle 단계(여덟) · 층. ①~④는 intake가 정하고, ⑤는 진단이 좁혀 가며 정한다.",
+      "고객 트랙: 범위 좁히기 질문 → 재현 · 자동 multi-test → 답 초안 → 사람 승인 → 회신 → 고객 확인으로 끝난다. 진짜 bug면 내부 이슈를 따로 열어 link한다.",
+      "같은 증상이라도 출처가 다르면 끝까지의 과정이 다르다: 고객 이슈는 고객 확인으로, 내부 이슈는 수정과 검수로 끝난다."
+    ],
+    excluded: "업무 가족 열둘과 lifecycle 여덟 단계는 가상의 기본안이다. 실제 이름과 경계는 조직의 과거 일감과 기존 자산 목록으로 다시 정한다.",
+    body: [
+      { h: "1. 기존 자산 이식 (가장 먼저)" },
+      { table: { head: ["종류", "예", "옮겨 가는 곳"], rows: [
+        ["checklist", "설계 review · 검증 sign-off · 릴리즈 · 납품 checklist", "workflow의 checkpoint(참이어야 하는 것)"],
+        ["검증 환경", "regression 묶음, testbench, C-model 비교 환경, coverage 수집 설정", "evaluator(결정론 도구), oracle"],
+        ["확인 환경", "lint 규칙 묶음, CDC · RDC 검사, synthesis · STA script, equivalence check, power 분석", "evaluator, gate의 입력"],
+        ["절차서", "bring-up 순서, FPGA test 절차, 릴리즈 절차, 고객 대응 절차", "workflow의 단계 순서와 사람 자리"],
+        ["판정 기준", "waiver 규칙, 허용 warning 목록, 성능 목표표", "policy(숫자 공란, 결정 주체)"],
+        ["기록 양식", "bug report · 고객 회신 · 결과 보고서 양식", "결과 패키지의 절 구성"]
+      ]}},
+      { ul: [
+        "그대로 복사하지 않고 다시 쓴다. 항목 하나를 \"참이어야 하는 것\"과 \"확인하는 방법(사람 · script · evaluator)\"으로 나눈다.",
+        "옮긴 checkpoint는 workflow가 상속하는 잠금 항목이다. AI용 조건은 그 위에만 붙는다. 자산이 없는 자리는 '기존 확인 없음'으로 표시한다.",
+        "이식이 끝난 업무 가족부터 shadow를 시작한다. 끝나지 않은 가족은 AI가 초안까지만 한다."
+      ] },
+      { h: "2. 두 트랙" },
+      { table: { head: ["트랙", "무엇", "끝"], rows: [
+        ["Track A", "일 자체: 답 · patch · 원인 보고 · 결정 자료 · 고객 회신", "결과 패키지와 검수(고객 트랙이면 고객 확인)"],
+        ["Track B", "그 일이 쓴 workflow의 기록: 쓴 workflow와 revision, 막힌 곳과 사람이 메운 곳, 평가, 개선 제안, revision 제안 또는 신설 초안", "workflow 원장 한 줄 + (있으면) 개선 · revision · 신설"]
+      ]}},
+      { ul: [
+        "Track B 기록이 없으면 완료 선언을 할 수 없다. 사람이 직접 한 일도 같다.",
+        "분류와 진단에도 Track B가 붙는다: 분류가 맞았는지, 질문이 범위를 실제로 좁혔는지, 자동 test가 후보를 갈랐는지가 기록되어 분류 규칙 · 질문 목록 · 진단 test 묶음을 고친다.",
+        "같은 일이 정해진 횟수(공란) 넘게 'workflow 없음'으로 끝나면 신설이 의무가 된다."
+      ] },
+      { h: "3. 분류 축 다섯 (가정)" },
+      { table: { head: ["축", "값", "무엇을 바꾸는가"], rows: [
+        ["① 출처", "고객 · 내부(사람) · 내부(tool 신호) · 내부(사슬 · 후속)", "lifecycle과 완료 조건, 회신 규율"],
+        ["② 요청 종류(ask)", "answer · change · diagnose · decide · notify · scheduled", "workflow의 작업 모양"],
+        ["③ 업무 가족", "열둘(아래)", "쓰는 특화 workflow, 이식할 자산"],
+        ["④ lifecycle 단계", "여덟(아래)", "그 단계의 기존 확인 · 다음 단계"],
+        ["⑤ 층", "문서 · 이해 · 환경 · TB · C-model · spec · 도구 · RTL · FW · 구현 결과", "진단의 첫 갈래, 끝의 모양"]
+      ]}},
+      { table: { head: ["업무 가족 (가정)", "대표 일", "주된 ask"], rows: [
+        ["F1 이해 · 질문", "spec · 문서 · 동작에 대한 질문, 사용법", "answer"],
+        ["F2 문서 정합", "문서와 코드 불일치, 설명 부족, 문서 보강", "diagnose → change"],
+        ["F3 기능 불일치", "출력 · 동작이 기대와 다름", "diagnose → change"],
+        ["F4 interface · 통합", "bus · clock · reset · interrupt · register · API, 통합 환경에서만 생기는 문제", "diagnose · answer"],
+        ["F5 성능", "throughput · latency · bandwidth", "diagnose · answer · change"],
+        ["F6 구현 결과", "frequency · area · SRAM 목록 · synthesis · PnR · lint log", "answer · diagnose"],
+        ["F7 power", "소비 전력, 효율, clock gating", "answer · diagnose · change"],
+        ["F8 PPA 최적화", "power · performance · area · frequency 균형", "decide → change"],
+        ["F9 기능 추가", "새 feature, 고객 custom feature", "decide → change(사슬)"],
+        ["F10 검증 지표", "coverage · regression 시간 · test 보강", "change · diagnose"],
+        ["F11 환경 · 도구", "build · CI · license · 도구 버전 · simulator 차이", "diagnose"],
+        ["F12 일정 · 대응", "일정 압박, 항의, 확인 요청, 진행 보고", "answer(사람 우선)"]
+      ]}},
+      { h: "4. 고객 트랙" },
+      { code: "접수 → 범위 좁히기(질문) → 재현 · 자동 multi-test 진단 → 답 초안 → 사람 승인 → 회신 → 고객 확인 → 종료\n                                     └─ 진짜 bug → 내부 이슈 열기(link) → 수정 · 릴리즈 계획 → 회신에 반영" },
+      { table: { head: ["고객 이슈의 층", "뜻", "끝"], rows: [
+        ["설명 부족", "우리 문서의 설명이 모자람", "회신 + 문서 보강 이슈"],
+        ["문서와 코드 불일치", "고객에게는 모순으로 보임", "회신 + 어느 쪽이 맞는지 결정 → 수정 이슈"],
+        ["고객 이해도", "문서 · 코드는 충분함", "회신 + FAQ 축적"],
+        ["제공된 설명을 보지 못함", "설명이 있는데 상식으로 적용함", "회신(그 설명의 위치) + 찾기 쉽게 하는 문서 개선 후보"],
+        ["고객 환경 차이", "우리 환경에서는 정상, 고객 simulation · FPGA에서 문제", "회신(차이와 맞추는 방법) + 환경 요구 보강"],
+        ["진짜 bug", "고객 조건으로 우리 쪽에서도 재현", "회신 + 내부 이슈 + errata 후보"]
+      ]}},
+      { ul: [
+        "회신은 늘 사람이 승인한다. AI는 초안까지 쓴다.",
+        "종료: 고객이 확인하면 종료. 답이 없으면 정한 기간(공란) 뒤 담당자가 종료를 선언한다.",
+        "지표: 첫 회신 · 최종 회신까지의 시간, 재질문 횟수, 고객 확인 비율(목표값 공란).",
+        "고객 표기는 별칭만 쓰고, 한 작업이 두 고객의 자료를 읽지 않는다."
+      ] },
+      { h: "5. 내부 lifecycle 여덟 단계 (가정)" },
+      { code: "S1 spec · feature 학습 → S2 검증 환경 → S3 구현 → S4 검증 · 디버깅 → S5 각종 test → S6 합성 · 구현 → S7 상위 SW co-sim → S8 FPGA test" },
+      { table: { head: ["단계", "생기는 상황 (예)", "진단의 첫 갈래", "workflow"], rows: [
+        ["S1", "spec 해석이 둘로 갈림", "spec", "결정 자료형"],
+        ["S2", "checker가 틀린 판정", "TB · C-model", "조사형"],
+        ["S3", "spec assertion 발화", "RTL · spec · assertion", "조사형 → 버그 수정"],
+        ["S4", "regression 새 실패 / 간헐 실패 / C-model과 bit 불일치", "RTL · TB · C-model / 불안정 / RTL · C-model", "조사형(diagnose)"],
+        ["S5", "coverage hole / 성능 목표 미달", "stimulus · 도달 불가 조건 / 설계 · test 조건", "coverage / 조사형 → 결정 자료형"],
+        ["S6", "timing 위반 / equivalence check 실패", "구현 결과 · RTL · constraint / 도구 · RTL", "timing / 조사형"],
+        ["S7", "driver · firmware를 붙이면 hang", "FW · register 순서 · RTL", "조사형"],
+        ["S8", "FPGA에서만 실패", "환경 · clock · memory model · RTL", "조사형"]
+      ]}},
+      { note: "chain의 link와의 관계: S1은 L1~L3의 앞, S2는 L5, S3는 L4, S4 · S5는 L5 · L6, S6은 L6과 L7 사이, S7 · S8은 L6 뒤의 통합 확인이다." },
+      { h: "6. 상태" },
+      { table: { head: ["항목", "상태"], rows: [
+        ["기존 자산 이식 먼저 · 두 트랙 · 고객 트랙 재개", "확정"],
+        ["분류 축 다섯 · 업무 가족 열둘 · lifecycle 여덟 단계", "가정 · 교정 대기"],
+        ["고객 이슈가 들어오는 경로 · 기존 자산의 위치와 담당", "회사에서 확인 예정"]
+      ]}}
+    ],
+    related: [], stages: []
   }
   ],
 
 
   /* ───────────── core 한 장 (그림 · 15초 애니메이션) ─────────────
      그림과 애니메이션은 media/core_map.html 한 파일에서 30_tools/render_media.mjs가 뽑는다. */
-  mapOrder: ["core", "intake", "workflow", "chain"],
+  mapOrder: ["core", "intake", "workflow", "chain", "diagnose", "workmap"],
   maps: {
   core: {
     tab: "core",
@@ -865,6 +1049,166 @@ window.WS = {
         ],
         go: [["chain 요약 › 가상 사례", "deep", "chain"], ["workflow 한 장", "map", "workflow"]] }
     ]
+  },
+  diagnose: {
+    tab: "diagnose",
+    narr: [
+      {"k": "intro", "seg": [0, 3], "text": "regression 실패, 고객 이슈, 가끔 생기는 hang처럼 원인을 찾아야 하는 일은 가장 흔합니다. intake는 이런 일을 원인 찾기로 분류만 합니다. 그 뒤 보낼 곳이 비어 있던 자리를 채우는 갈래가 diagnose입니다."},
+      {"k": "intro", "seg": [3, 6.5], "text": "diagnose는 층부터 가릅니다. 문서, 이해, 환경, TB, C-model, spec, 도구, RTL, FW, 구현 결과의 열 층입니다. 원인이 RTL 밖에 있는 경우가 많아서, 층을 모른 채 RTL부터 파고들지 않습니다."},
+      {"k": "intro", "seg": [6.5, 9.5], "text": "층을 가르는 방법은 출처에 따라 다릅니다. 내부 이슈는 재현 조건을 대조하고, 고객 이슈는 후보를 가르는 질문과 자동 multi-test를 함께 돌립니다. 고객 회신은 늘 사람이 승인합니다."},
+      {"k": "intro", "seg": [9.5, 12], "text": "층이 정해지면 재현, 가설 표, 좁히기, 확인으로 갑니다. 좁히기는 싼 것부터이고, 확인은 before/after입니다. 대상은 고치지 않습니다."},
+      {"k": "intro", "seg": [12, 15], "text": "그래서 층마다 알맞은 끝으로 가고, 층을 가른 질문과 test가 쌓입니다. 하나씩 보겠습니다."},
+      {"k": "tour", "view": [40, 240, 1120, 630], "box": [80, 428, 1016, 124], "text": "층 열의 앞 일곱, 문서부터 도구까지는 모두 RTL 밖입니다. 층마다 재현 수단, oracle, 좁히는 도구, 끝이 다릅니다. TB 층은 같은 입력으로 checker 판정을 따로 계산해 보고, 도구 층은 같은 입력을 두 버전으로 돌려 봅니다."},
+      {"k": "tour", "view": [880, 250, 1040, 585], "box": [1560, 440, 292, 74], "text": "가끔 hang이 나는 사례입니다. 먼저 같은 입력을 반복합니다. 결과가 갈리면 층이 아니라 불안정 상태로 보고, 원인 찾기를 멈추고 안정화 일감으로 넘깁니다. 갈리지 않으면 timeout watchdog trace와 handshake checker로 설계와 환경을 가릅니다."},
+      {"k": "tour", "view": [40, 400, 1100, 619], "box": [80, 556, 780, 138], "text": "regression 새 실패 사례입니다. 여러 test가 같은 변경 구간에서 처음 실패하면 intake가 한 묶음으로 모으고, owner가 요청할 때 원인 찾기가 열립니다. 우리 regression에서 재현되므로 TB, C-model, RTL 가운데서 좁히되, checker 기대값을 C-model로 다시 계산해 oracle 쪽 오류부터 지웁니다."},
+      {"k": "tour", "view": [440, 250, 1440, 810], "box": [532, 324, 858, 96], "text": "다음은 변경 구간 bisect로 원인 revision을 찾고, module trace 첫 불일치 경계로 좁힙니다. 그 변경을 되돌린 scratch에서 증상이 사라지고 원래에서 다시 나타나면 확인입니다. 수정은 요청이 있을 때 다음 phase로 갑니다."},
+      {"k": "tour", "view": [940, 690, 980, 551], "box": [995, 800, 830, 120], "text": "좁히기 사다리는 싼 것부터입니다. 변경 구간 bisect, seed와 설정 변주, module trace 첫 불일치, 경계 안 텍스트 trace 순서입니다. 계측은 scratch 사본에서만 넣고, 확인하지 못한 것은 남은 후보와 이유를 씁니다."},
+      {"k": "tour", "view": [860, 400, 1060, 596], "box": [900, 556, 940, 138], "text": "고객 환경에서만 출력이 다르다는 사례입니다. 릴리즈, 설정 값과 순서, 입력 조건, 환경, 재현 빈도를 한 번에 묻고, 고객 조건을 흉내 낸 multi-test를 함께 돌립니다. 고객 설정 값에서만 재현되고 문서의 순서와 다르면, 층은 문서와 코드의 불일치입니다. 답 초안은 사람이 승인해 회신하고, 진짜 bug라면 내부 이슈를 따로 열어 link합니다."},
+      {"k": "tour", "view": [940, 240, 980, 551], "box": [1436, 300, 406, 120], "text": "끝은 층마다 다릅니다. 문서 보강, 결정 뒤 수정, FAQ 축적, 환경 안내, errata, 내부 수정 이슈입니다. 어느 질문과 test가 층을 실제로 갈랐는지는 Track B로 남겨 두 묶음을 고칩니다."},
+      {"k": "tour", "view": [40, 690, 980, 551], "box": [80, 736, 860, 314], "text": "정리하면 diagnose가 기틀인 이유는 넷입니다. 층부터 가르니 헛짚지 않고, before/after로 확인하니 근거가 남습니다. 층마다 알맞은 끝으로 가고, 층을 가른 질문과 test가 쌓입니다."},
+      {"k": "close", "text": "버그 수정과 timing 개선의 원인 phase도 같은 방법을 따릅니다. 층 판별 먼저는 확정이고, 층 열 표와 질문 묶음은 가정입니다. 원인 찾기를 AI에 맡겨도 근거가 남고 묶음이 자라는 것, 이것이 실무의 기틀입니다."}
+    ],
+    title: "diagnose 한 장",
+    whyTitle: "왜 diagnose가 기틀인가",
+    lead: "diagnose는 intake가 \"원인을 찾아 달라\"(ask = diagnose)로 분류한 일을 받는 갈래다. 층부터 가르고(문서 · 이해 · 환경 · TB · C-model · spec · 도구 · RTL · FW · 구현 결과), 재현 → 가설 표 → 싼 것부터 좁히기 → before/after로 확인한다. 대상은 고치지 않고, 끝은 층마다 다르며, 층을 가른 질문 · test는 Track B로 남는다. 버그 수정 · timing 개선의 원인 phase도 같은 방법을 따른다. 이 화면은 그 흐름을 한 장과 15초로 보여 준다.",
+    go: [["diagnose 카드", "sys", "diagnose"], ["업무 지도 한 장", "sys", "workmap"], ["조사형 모양", "bun", "wa/library/AR-diagnose"]],
+    media: {
+      mp4: "media/diagnose_15s.mp4", gif: "media/diagnose_15s.gif", html: "media/diagnose_map.html",
+      png: { light: "media/diagnose_map_light.png", dark: "media/diagnose_map_dark.png" }
+    },
+    story: [
+      ["0~3초", "\"원인을 찾아 달라\"는 분류되지만, 보낼 곳이 없었다", "intake → ask = diagnose 다음에 '보낼 곳 = ?'라는 빨간 점선 상자가 있고, 그 안에서 regression 새 실패 · 고객 출력 불일치 · 가끔 hang 같은 일감이 갈 곳 없이 떠다닌다."],
+      ["3~6.5초", "층부터 가른다. 원인은 RTL 밖에 있는 경우가 많다", "intake 다음에 '층 판별' 노드가 서고, 그 아래로 층 열 열 칸이 차례로 나온다. 앞 일곱(문서~도구)에 'RTL 밖' 괄호가, 오른쪽 끝에 '불안정 = 층이 아니라 상태' 점선 칸이 붙는다."],
+      ["6.5~9.5초", "내부는 재현 조건으로, 고객은 질문과 multi-test로 가른다", "왼쪽에 내부 이슈 판(재현 조건 대조), 오른쪽에 고객 이슈 줄(질문 묶음 ∥ 자동 multi-test → 층 판별 → 답 초안 → ◆ 사람 승인 → 회신 → 고객 확인)이 나오고, 표지가 그 줄을 따라간다. 층 판별에서 '진짜 bug면 내부 이슈 link' 점선이 내부 판으로 간다."],
+      ["9.5~12초", "재현 → 가설 표 → 싼 것부터 좁히기 → before/after", "흐름도가 위로 올라가고 재현 · 가설 표 · 좁히기 · 확인 노드가 이어진다. 오른쪽 아래에 좁히기 사다리(bisect → seed · 설정 변주 → module trace 첫 불일치 → 텍스트 trace)와 원칙 둘(고치지 않는다 · before/after)이 나온다."],
+      ["12~15초", "층마다 끝이 다르고, 층을 가른 질문 · test가 쌓인다", "끝 · Track B 노드가 붙고, Track B에서 층 판별로 돌아가는 고리('질문 · test 묶음이 자란다')가 그려진다. 왜 기틀인지 네 줄(층 · 근거 · 끝 · 자람)과 상태(확정 · 가정 · 반영 대기)가 나온다."]
+    ],
+    why: [
+      ["층", "원인 찾기를 AI에 맡기면 가장 먼저 RTL을 파고들기 쉽다. 그런데 원인은 문서 · 이해 · 환경 · TB · C-model · spec · 도구처럼 RTL 밖에 있는 경우가 많다. 층부터 가르면 헛짚는 시간이 줄고, 같은 입력에서 결과가 갈리는 '불안정'은 원인 찾기를 멈추고 안정화 일감으로 넘긴다."],
+      ["근거", "원인 찾기는 대상을 고치지 않는다. 계측은 scratch 사본에서만 넣고 지우고, 원인은 되돌린 scratch에서 증상이 사라지고 원래에서 다시 나타나는 before/after로 확인한다. 확인하지 못한 것은 남은 후보와 이유를 그대로 쓰고, 원인이 여럿이면 원인마다 따로 보고한다. 그래서 검수자가 원인 보고를 근거로 판정할 수 있다."],
+      ["끝", "층이 정해지면 끝도 정해진다. 문서는 문서 보강, spec은 결정 자료 → spec 갱신, 이해는 회신 + FAQ 축적, 환경은 차이와 맞추는 법의 안내, 진짜 bug는 회신 + 내부 수정 이슈 + errata 후보. 모든 원인 찾기를 'RTL 수정'으로 끝내지 않는다."],
+      ["자람", "어느 질문 · 어느 test가 층을 실제로 갈랐는지를 Track B로 남긴다. 그 기록으로 업무 가족별 질문 묶음과 증상별 multi-test 묶음이 고쳐지고 늘어난다. 같은 원인 찾기가 되풀이되면 특화 workflow 초안을 신설한다. 원인 찾기가 일할수록 빨라지는 구조다."]
+    ],
+    zones: [
+      { name: "층 판별 · 층 열", z: 0, stages: "층 판별 · 열 층 · 불안정",
+        what: "원인 찾기는 층부터 가른다. 층마다 재현 수단 · oracle · 좁히는 도구 · 끝이 다르다.",
+        ul: [
+          "층 열(가정 · 교정 대기): 문서 · 이해 · 환경 · TB · C-model · spec · 도구 · RTL · FW · 구현 결과. 앞 일곱은 RTL 밖이다.",
+          "예: TB 층은 같은 입력으로 checker 판정을 따로 계산하고(oracle = C-model · spec), 도구 층은 같은 입력을 도구 두 버전 · 두 종류로 돌린다(버전 bisect, 최소 예제).",
+          "불안정은 층이 아니라 상태다. 같은 입력에서 결과가 갈리면(race · 초기화되지 않은 값 · X 전파 · 환경 요동) 원인 찾기를 멈추고 안정화 일감으로 넘긴다. 반복 횟수는 공란(검증 리더).",
+          "층 판별 먼저는 확정이다. 층 열 표의 칸은 가정이고 교정을 기다린다."
+        ],
+        go: [["diagnose 카드", "sys", "diagnose"]] },
+      { name: "층을 가르는 법", z: 1, stages: "내부 이슈 · 고객 이슈",
+        what: "내부 이슈는 재현 조건 대조로, 고객 이슈는 질문 묶음과 자동 multi-test를 함께 돌려 층을 가른다.",
+        ul: [
+          "내부: 우리 regression에서 같은 입력으로 재현되면 TB · C-model · RTL · 구현 결과 가운데서 좁히되, oracle 쪽(TB · C-model)이 틀렸을 가능성을 먼저 지운다. 특정 환경에서만 생기면 환경 · FW · interface 가정부터, 도구 · 버전이 바뀐 뒤에만 생기면 도구부터.",
+          "고객: 처음 설명으로 층이 정해지지 않으면 후보 층을 가르는 질문만 한 번에 묶어 보낸다(받은 자료에서 읽을 수 있는 것은 묻지 않고, 질문마다 왜 묻는지 한 줄). 업무 가족마다 기본 묶음이 있다(가정).",
+          "동시에 증상별 자동 multi-test를 돌린다. 예: 상대 환경에서만 출력 불일치 → 상대 릴리즈로 우리 regression · 상대 설정 값 · 상대 memory latency 흉내 · 알려진 bug 대조(가정).",
+          "고객 회신은 늘 사람이 승인한다. 진짜 bug면 내부 이슈를 따로 열어 link한다(합치지 않는다)."
+        ],
+        go: [["업무 지도 카드", "sys", "workmap"], ["diagnose 카드", "sys", "diagnose"]] },
+      { name: "재현에서 확인까지", z: 2, stages: "재현 · 가설 표 · 좁히기 · before/after",
+        what: "조사형 모양의 의무(재현 · 가설 표 · before/after)를 층 판별 뒤에 이어 간다.",
+        ul: [
+          "재현: 같은 입력(revision · seed · 설정 · 환경)으로. 상대 환경의 재현은 상대 조건을 흉내 낸 우리 환경에서 한다.",
+          "가설 표: 가설 · 예측 · 가르는 실험 · 결과 · 판정. 세션이 바뀌어도 이 표로 이어 간다. 가설은 변경 구간의 diff → trace 첫 불일치 경계 → 과거 bug 패턴 → 실패 묶음의 공통점 순으로 만든다.",
+          "좁히기는 싼 것부터: 변경 구간 bisect → seed · 설정 변주 → module trace 첫 불일치 → 경계 안 신호의 텍스트 trace. waveform은 사람이 볼 때만.",
+          "확인: 되돌리거나 고정한 scratch에서 증상이 사라지고 원래에서 다시 나타나야 확인이다(또는 최소 재현). 대상은 고치지 않고, 수정은 요청이 있을 때 다음 phase나 후속 요청으로 간다.",
+          "실패 종류별 시작점(가정): 새 실패 = 구간 bisect, 오래된 실패 = module trace 경계부터, 간헐 실패 = 같은 입력 반복으로 불안정부터, 환경 실패 = 범위 밖(운영 담당에 넘기고 마감)."
+        ],
+        go: [["조사형 모양", "bun", "wa/library/AR-diagnose"], ["regression 원인 찾기 (초안)", "bun", "wa/library/WF-regr-diagnose"]] },
+      { name: "끝 · Track B · 여는 주체", z: 3, stages: "끝(층마다) · Track B · 누가 여나",
+        what: "끝은 층마다 다르고, 층을 가른 질문 · test가 Track B로 남아 묶음을 고친다.",
+        ul: [
+          "끝: 문서 보강 · 수정 이슈, 결정 자료 → spec 갱신, 회신 + FAQ 축적, 환경 안내 + 환경 요구 보강, 도구 담당에 넘기고 회피책 기록, errata 후보, 내부 수정 이슈.",
+          "여는 주체: 도구 신호의 실패는 intake가 묶음으로 모으고, 원인 찾기는 사람이 요청할 때 연다. 사람의 요청과 고객 이슈는 바로 연다. \"원인을 찾아 고쳐 달라\"면 버그 수정 · timing workflow의 두 phase가 된다.",
+          "덮는 특화 workflow가 없으면 조사형 모양의 기본 채움 + 층 표로 일하고, 같은 일이 되풀이되면 특화 초안을 신설한다.",
+          "반영 대기(설계 쪽): 조사형 모양의 층 판별 자리, regression 원인 찾기 초안, intake 질문 묶음과의 연결."
+        ],
+        go: [["intake 카드", "sys", "intake"], ["업무 지도 카드", "sys", "workmap"]] }
+    ]
+  },
+  workmap: {
+    tab: "업무 지도",
+    narr: [
+      {"k": "intro", "seg": [0, 3], "text": "같은 증상이라도 출처가 다르면 끝까지의 과정이 다릅니다. 출력이 다르다는 이슈가 고객에게서 오면 고객 확인으로 끝나고, 내부 regression에서 오면 수정과 검수로 끝납니다. 분류 없이 일하면 이 차이가 사라집니다."},
+      {"k": "intro", "seg": [3, 6.5], "text": "업무 지도는 일을 다섯 축으로 분류합니다. 출처, 요청 종류인 ask, 업무 가족, lifecycle 단계, 그리고 층입니다. 앞의 넷은 intake가 정하고, 층은 진단이 좁혀 가며 정합니다."},
+      {"k": "intro", "seg": [6.5, 9.5], "text": "고객 이슈는 고객 트랙으로 가고, 회신은 늘 사람이 승인합니다. 내부 일은 lifecycle 단계마다 생기는 상황과 진단의 첫 갈래, 쓰는 workflow가 정해져 있습니다."},
+      {"k": "intro", "seg": [9.5, 12], "text": "가장 먼저 할 일은 기존 자산의 이식입니다. 팀이 이미 쓰는 확인을 workflow로 옮겨 바닥으로 고정합니다."},
+      {"k": "intro", "seg": [12, 15], "text": "그리고 모든 일에 Track B가 붙습니다. Track B가 없으면 완료가 아닙니다. 하나씩 보겠습니다."},
+      {"k": "tour", "view": [40, 240, 1100, 619], "box": [80, 276, 550, 218], "text": "출처는 고객, 내부의 사람, 내부의 tool 신호, 사슬과 후속으로 나뉩니다. 출처는 lifecycle과 완료 조건, 회신 규율을 바꿉니다. 요청 종류는 answer, change, diagnose, decide, notify, scheduled이고, workflow의 작업 모양을 정합니다."},
+      {"k": "tour", "view": [600, 240, 1100, 619], "box": [660, 306, 530, 188], "text": "업무 가족은 열둘입니다. 이해와 질문, 문서 정합, 기능 불일치부터 환경과 도구, 일정과 대응까지입니다. 가족이 정해지면 쓰는 특화 workflow와 이식할 자산이 정해집니다. 열두 가족은 가상의 기본안이고, 과거 일감으로 다시 정합니다."},
+      {"k": "tour", "view": [1000, 240, 920, 518], "box": [1208, 276, 644, 358], "text": "내부 lifecycle은 spec 학습부터 FPGA test까지 여덟 단계입니다. 검증 단계의 regression 새 실패는 RTL, TB, C-model에서 찾고 조사형으로 갑니다. 합성 단계의 timing 위반은 구현 결과와 constraint부터 보고 timing workflow로 갑니다."},
+      {"k": "tour", "view": [40, 360, 1200, 675], "box": [80, 508, 1110, 124], "text": "고객 트랙은 접수, 범위 좁히기 질문, multi-test, 답 초안, 사람 승인, 회신, 고객 확인의 순서입니다. 특정 입력에서 출력이 깨진다는 이슈가 고객 조건으로 우리 쪽에서도 재현되면 진짜 bug입니다. 그러면 내부 이슈를 따로 열어 link하고, 고객 이슈는 그 진행을 따라가며 회신 일정을 관리합니다."},
+      {"k": "tour", "view": [940, 690, 980, 551], "box": [995, 795, 830, 100], "text": "checklist는 checkpoint로, 검증 환경과 확인 환경은 evaluator로, 절차서는 단계 순서와 사람 자리로, 판정 기준은 policy로, 기록 양식은 결과 패키지의 절로 옮깁니다. 그대로 복사하지 않고, 참이어야 하는 것과 확인하는 방법으로 나눠 다시 씁니다."},
+      {"k": "tour", "view": [940, 690, 980, 551], "box": [995, 903, 830, 138], "text": "옮긴 확인은 workflow가 상속하는 잠금 항목이고, AI용 조건은 그 위에만 붙습니다. 이식이 끝난 업무 가족부터 shadow를 시작합니다. 분류 축과 업무 가족, 단계는 가정이고, 고객 이슈가 들어오는 경로와 자산의 위치는 회사에서 확인합니다."},
+      {"k": "tour", "view": [0, 0, 1920, 1080], "box": [80, 644, 1760, 50], "text": "모든 일에는 두 트랙이 붙습니다. Track A는 일 자체이고, Track B는 그 일이 쓴 workflow의 기록입니다. 막힌 곳, 평가, 개선 제안, revision이나 신설 초안이 남습니다. Track B가 없으면 사람이 직접 한 일도 완료가 아닙니다."},
+      {"k": "tour", "view": [40, 690, 980, 551], "box": [80, 736, 860, 314], "text": "정리하면 업무 지도가 기틀인 이유는 넷입니다. 출처에 따라 끝을 다르게 하고, 팀의 기존 확인을 바닥으로 삼고, 다섯 축으로 workflow와 진단의 첫 갈래를 정하고, Track B로 분류와 질문, test 묶음을 키웁니다."},
+      {"k": "close", "text": "업무 지도는 일이 어디서 생겨 어디로 가는지를 보여 주고, diagnose 갈래도 이 위에 섭니다. 기존 확인 위에 AI를 얹고 모든 일이 기록을 남기게 하는 것, 이것이 실무의 기틀입니다."}
+    ],
+    title: "업무 지도 한 장",
+    whyTitle: "왜 업무 지도가 기틀인가",
+    lead: "업무 지도는 intake(분류)와 workflow(실행) 사이에서 어떤 일이 어디서 생기고, 무엇으로 분류되며, 어느 workflow로 일하는가를 한 장으로 묶는다. 분류 축은 다섯(출처 · ask · 업무 가족 · lifecycle 단계 · 층)이고, 고객 이슈는 고객 트랙으로, 내부 일은 lifecycle 단계로 간다. 가장 먼저 팀의 기존 자산을 옮겨 바닥으로 고정하고, 모든 일에 Track A(일)와 Track B(쓴 workflow의 기록)가 붙는다. diagnose 갈래의 바탕이다.",
+    go: [["업무 지도 카드", "sys", "workmap"], ["diagnose 한 장", "sys", "diagnose"], ["intake 카드", "sys", "intake"]],
+    media: {
+      mp4: "media/workmap_15s.mp4", gif: "media/workmap_15s.gif", html: "media/workmap_map.html",
+      png: { light: "media/workmap_map_light.png", dark: "media/workmap_map_dark.png" }
+    },
+    story: [
+      ["0~3초", "같은 증상도 출처가 다르면, 끝까지의 과정이 다르다", "'고객'과 '내부 regression'이 같은 증상(특정 입력에서 출력 불일치)으로 모인 뒤 '분류 없음 = 같은 처리 ?' 빨간 점선 상자로 들어간다. 상자 안의 '고객 확인 ?'과 '수정 · 검수 ?'가 구분되지 않고 뒤섞인다."],
+      ["3~6.5초", "분류 축 다섯: 출처 · ask · 업무 가족 · lifecycle · 층", "다섯 축 칸이 차례로 서고 값이 채워진다(출처 넷 · ask 여섯 · 업무 가족 열둘 · 단계 여덟 · 층 열). 위에 '①~④ intake가 정한다', '⑤ 진단이 좁혀 가며 정한다' 괄호가 붙는다."],
+      ["6.5~9.5초", "고객은 고객 트랙으로, 내부는 lifecycle 단계로 간다", "왼쪽에 고객 트랙(접수 → 범위 좁히기 질문 → multi-test → 답 초안 → ◆ 사람 승인 → 회신 → 고객 확인)이 나오고 표지가 따라간다. 오른쪽에 내부 예시 두 줄(S4 regression 새 실패 → RTL · TB · C-model → 조사형, S6 timing 위반 → 구현 결과 · constraint → timing)이 나오며, 위 축 칸에서 해당 값이 켜진다. '진짜 bug면 내부 이슈 link' 점선이 내부 판으로 간다."],
+      ["9.5~12초", "기존 자산을 먼저 옮겨, 바닥으로 고정한다", "흐름도가 위로 올라가고 오른쪽 아래에 자산 여섯(checklist · 검증 환경 · 확인 환경 · 절차서 · 판정 기준 · 기록 양식)과 옮겨 가는 곳(checkpoint · evaluator · policy …)이 나온다. 'AI용 조건은 그 위에만' 줄이 붙는다."],
+      ["12~15초", "모든 일에 Track B가 붙고, B가 없으면 완료가 아니다", "흐름도 아래에 Track A · Track B 띠가 깔리고, 왜 기틀인지 네 줄(출처 · 바닥 · 분류 · 기록)과 상태(확정 · 가정 · 회사 확인)가 나온다."]
+    ],
+    why: [
+      ["출처", "같은 증상(예: 특정 입력에서 출력 불일치)이 고객에게서도, 내부 regression에서도 온다. 원인 찾기 방법은 같지만 고객 이슈는 사람이 승인한 회신과 고객 확인으로, 내부 이슈는 수정과 검수로 끝난다. 그래서 두 이슈는 합치지 않고 link한다. 분류 없이 일하면 회신 승인이나 고객 확인 같은 끝이 빠진다."],
+      ["바닥", "팀은 checkpoint의 답 대부분을 이미 checklist · script · regression · sign-off 절차로 가지고 있다. 그것을 옮기지 않고 AI용 조건을 새로 만들면 검증된 확인이 빠지거나 두 기준이 따로 논다. 옮긴 확인은 workflow가 상속하는 잠금 항목이 되고, 사람이 한 일과 AI가 한 일이 같은 기준으로 비교된다."],
+      ["분류", "축 다섯이 각각 다른 것을 바꾼다. 출처는 완료 조건과 회신 규율, ask는 workflow의 작업 모양, 업무 가족은 특화 workflow와 이식할 자산, lifecycle 단계는 그 단계의 기존 확인, 층은 진단의 첫 갈래와 끝의 모양을 정한다. ①~④는 intake가, ⑤는 진단이 정한다."],
+      ["기록", "모든 일에 Track B(쓴 workflow와 revision, 막힌 곳과 사람이 메운 곳, 평가, 개선 제안, revision 제안이나 신설 초안)가 붙고, 이것이 없으면 사람이 한 일도 완료가 아니다. 분류와 진단에도 붙어서, 분류 규칙 · 질문 목록 · 진단 test 묶음이 이 기록으로 고쳐진다."]
+    ],
+    zones: [
+      { name: "분류 축 다섯", z: 0, stages: "출처 · ask · 업무 가족 · lifecycle · 층",
+        what: "①~④는 intake가 정하고, ⑤ 층은 진단이 좁혀 가며 정한다. 축마다 바꾸는 것이 다르다(가정 · 교정 대기).",
+        ul: [
+          "① 출처: 고객 · 내부(사람) · 내부(tool 신호) · 내부(사슬 · 후속) → lifecycle과 완료 조건, 회신 규율.",
+          "② 요청 종류(ask): answer · change · diagnose · decide · notify · scheduled → workflow의 작업 모양.",
+          "③ 업무 가족 열둘: 이해 · 질문, 문서 정합, 기능 불일치, interface · 통합, 성능, 구현 결과, power, PPA 최적화, 기능 추가, 검증 지표, 환경 · 도구, 일정 · 대응 → 특화 workflow와 이식할 자산.",
+          "④ lifecycle 단계 · ⑤ 층 → 그 단계의 기존 확인과 다음 단계, 진단의 첫 갈래와 끝의 모양.",
+          "처음 설명만으로 업무 가족이나 층이 정해지지 않으면 후보를 가르는 질문만 보낸다. 열두 가족과 여덟 단계는 가상의 기본안이고, 조직의 과거 일감과 자산 목록으로 다시 정한다."
+        ],
+        go: [["업무 지도 카드", "sys", "workmap"], ["intake 카드", "sys", "intake"]] },
+      { name: "고객 트랙", z: 1, stages: "접수 → 질문 · multi-test → 승인 → 회신 → 고객 확인",
+        what: "고객 이슈는 따로 간다. 회신은 늘 사람이 승인하고, 진짜 bug면 내부 이슈를 따로 열어 link한다(확정: 고객 트랙 재개).",
+        ul: [
+          "접수 → 범위 좁히기 질문 → 재현 · 자동 multi-test 진단 → 답 초안 → 사람 승인 → 회신 → 고객 확인 → 종료. AI는 초안까지 쓴다.",
+          "고객 이슈의 층: 설명 부족 · 문서와 코드 불일치 · 고객 이해도 · 제공된 설명을 보지 못함 · 고객 환경 차이 · 진짜 bug. 층마다 끝이 다르다(문서 보강 · 결정 → 수정 · FAQ · 문서 위치 안내 · 환경 요구 보강 · 내부 이슈 + errata 후보).",
+          "종료: 고객이 확인하면 종료, 답이 없으면 정한 기간(공란) 뒤 담당자가 종료를 선언한다. 지표는 첫 회신 · 최종 회신 시간, 재질문, 고객 확인 비율(목표 공란).",
+          "고객 표기는 별칭만 쓰고, 한 작업이 두 고객의 자료를 읽지 않는다. 고객 이슈가 들어오는 경로는 회사에서 확인한다."
+        ],
+        go: [["diagnose 한 장", "sys", "diagnose"], ["업무 지도 카드", "sys", "workmap"]] },
+      { name: "내부 lifecycle", z: 2, stages: "S1 spec 학습 → … → S8 FPGA test",
+        what: "단계마다 생기는 상황, 진단의 첫 갈래, 쓰는 workflow가 정해져 있다(가정 · 교정 대기).",
+        ul: [
+          "여덟 단계: spec · feature 학습 → 검증 환경 → 구현 → 검증 · 디버깅 → 각종 test → 합성 · 구현 → 상위 SW co-sim → FPGA test.",
+          "예: 검증 · 디버깅 단계의 regression 새 실패 → RTL · TB · C-model → 조사형(diagnose 갈래). 간헐 실패 → 불안정부터.",
+          "예: 합성 · 구현 단계의 timing 위반 → 구현 결과 · RTL · constraint → timing workflow. equivalence check 실패 → 조사형.",
+          "예: SW co-sim에서 driver를 붙이면 hang → FW · register 순서 · RTL. FPGA에서만 실패 → 환경 · clock · memory model · RTL.",
+          "chain의 link와의 관계: 첫 단계는 요구 · 아키텍처 · spec의 앞, 검증 환경은 검증 link, 구현은 RTL link, 마지막 두 단계는 통합 뒤의 확인이다."
+        ],
+        go: [["diagnose 카드", "sys", "diagnose"], ["chain 카드", "sys", "chain"]] },
+      { name: "자산 이식 · 두 트랙", z: 3, stages: "기존 자산 → checkpoint · evaluator · policy · Track A/B",
+        what: "가장 먼저 기존 자산을 옮겨 바닥으로 고정하고, 모든 일에 Track B 기록을 붙인다(확정).",
+        ul: [
+          "옮길 것: checklist → checkpoint, 검증 환경 → evaluator · oracle, 확인 환경 → evaluator · gate 입력, 절차서 → 단계 순서와 사람 자리, 판정 기준 → policy(숫자 공란), 기록 양식 → 결과 패키지의 절.",
+          "그대로 복사하지 않고 '참이어야 하는 것'과 '확인하는 방법(사람 · script · evaluator)'으로 나눠 다시 쓴다. 자산이 없는 자리는 '기존 확인 없음'으로 표시하고, 그 자리의 첫 조건은 담당 리더가 승인한다.",
+          "이식이 끝난 업무 가족부터 shadow를 시작한다. 끝나지 않은 가족은 AI가 초안까지만 한다.",
+          "Track A = 일 자체(답 · patch · 원인 보고 · 결정 자료 · 고객 회신), Track B = 그 일이 쓴 workflow의 기록. 같은 일이 정해진 횟수(공란) 넘게 'workflow 없음'으로 끝나면 신설이 의무가 된다.",
+          "기존 자산의 위치와 담당은 회사에서 확인한다."
+        ],
+        go: [["업무 지도 카드", "sys", "workmap"], ["workflow 카드", "sys", "workflow"]] }
+    ]
   }
   },
 
@@ -1061,10 +1405,34 @@ window.WS = {
             ask: "현장에서 가장 먼저 효과가 보일 link가 이것이 맞는가.",
             go: [["chain › 기본값", "deep", "chain"]] }
         ] },
+      { id: "field-dg", short: "diagnose · 분류 가정", cls: "y", title: "② 현장 감각으로 판단할 가정 · diagnose와 업무 지도",
+        note: "층 판별 먼저 · 기존 자산 이식 먼저 · 두 트랙 · 고객 트랙 재개는 확정이다. 아래는 가정(교정 대기)이다.",
+        items: [
+          { id: "t-dg-layers", t: "층 열 열 개와 층마다의 끝", tag: ["가정 · 교정 대기", "y"],
+            what: "문서 · 이해 · 환경 · TB · C-model · spec · 도구 · RTL · FW · 구현 결과. 층마다 재현 수단 · oracle · 좁히는 도구 · 끝을 정했다. 불안정은 층이 아니라 상태로 본다.",
+            now: "원인이 RTL 밖에 있는 경우가 많다는 판단에서 층부터 가른다.",
+            ask: "빠진 층이나 합쳐야 할 층이 있는가. 층마다의 끝이 현장과 맞는가.",
+            go: [["diagnose › 자세히", "sys", "diagnose"]] },
+          { id: "t-dg-bundles", t: "가족별 질문 묶음 · 증상별 multi-test 묶음", tag: ["가정 · 교정 대기", "y"],
+            what: "고객 이슈의 층이 처음 설명으로 정해지지 않을 때, 후보를 가르는 질문만 한 번에 보내고 동시에 증상별 test를 돌린다.",
+            now: "기능 불일치 · interface · 성능 · 구현 결과 · power · 문서 정합의 기본 질문, 다섯 증상의 test 묶음. Track B로 늘어난다.",
+            ask: "첫 질문 묶음으로 실제로 층이 갈리는가. 먼저 만들어 둘 test 묶음은 무엇인가.",
+            go: [["diagnose › 자세히", "sys", "diagnose"]] },
+          { id: "t-dg-families", t: "업무 가족 열둘 · lifecycle 여덟 단계", tag: ["가정 · 교정 대기", "y"],
+            what: "분류 축 다섯(출처 · ask · 업무 가족 · lifecycle 단계 · 층) 가운데 가족과 단계의 기본안이다.",
+            now: "F1 이해 · 질문 … F12 일정 · 대응, S1 spec 학습 … S8 FPGA test. 실제 이름과 경계는 과거 일감과 기존 자산 목록으로 다시 정한다.",
+            ask: "우리 조직의 일이 이 가족 · 단계로 나뉘는가.",
+            go: [["업무 지도 › 자세히", "sys", "workmap"]] },
+          { id: "t-dg-company", t: "회사에서 확인할 것: 고객 이슈 경로 · 기존 자산 위치", tag: ["회사에서 확인", "n"],
+            what: "고객 이슈가 어디로 들어오는지, 기존 checklist · 검증 · 확인 환경이 어디에 있고 누가 담당하는지.",
+            now: "자산 이식이 0단계의 중심 작업이므로 이 목록이 먼저 필요하다.",
+            ask: "목록을 누가 언제 만들 것인가.",
+            go: [["업무 지도", "sys", "workmap"]] }
+        ] },
       { id: "design", short: "설계할 주제", cls: "m", title: "③ 아직 설계하지 않은 주제",
         note: "심화 세션들이 '다음에 깊게 볼 곳'으로 남긴 것과 설계 본선의 열린 스레드다. 순서는 제안이다.",
         items: [
-          { id: "t-d-diag", t: "diagnose 갈래 설계 (빈칸 1순위)", tag: ["갈래", "r"],
+          { id: "t-d-diag", t: "diagnose 갈래 설계 (빈칸 1순위)", tag: ["반영됨 · 정본", "g"],
             what: "\"왜 그런가\"를 찾는 원인 조사 갈래가 없다. RTL 조직에서 가장 흔한 발생이다.",
             now: "조사형 모양은 골격까지, 특화 regr-diagnose는 골격(draft)이다. intake의 실패 묶음(변경 구간 · 구간 안 변경 목록 · member 전부 · 실패한 seed)이 첫 입력 후보이고, bisect checkpoint가 후보다.",
             ask: "원인 조사의 '끝'을 무엇으로 정할 것인가(재현 + 원인 변경 특정 + before/after?).",
