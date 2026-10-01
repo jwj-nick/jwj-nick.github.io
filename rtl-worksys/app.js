@@ -107,7 +107,19 @@
     }).join("") + "</div>";
     o += '<div class="card"><h2>' + esc(M.title) + ' <span class="tag g">그림 · 15초 애니메이션</span></h2>' +
       h("p", "lead", tx(M.lead)) + (M.go ? M.go.map(goBtn).join(" ") : "") + "</div>";
-    o += '<div class="mapmedia"><img src="' + M.media.gif + '" alt="' + esc(M.title) + ' 15초 애니메이션" loading="lazy"></div>';
+    if (M.narr) {
+      var NB = { intro: "개요", tour: "자세히", close: "맺음" }, ti = 0;
+      o += '<div class="card narrcard"><h2>해설판 <span class="tag g">음성 · 자막 · 배경음</span> <span class="tag n" id="narrDur"></span></h2>' +
+        h("p", "mut small", "15초 요약을 말로 풀어 설명한다. 앞부분은 같은 애니메이션 위에서 전체를 개관하고, 뒷부분은 그림의 각 부분을 확대해 짚는다. 소리는 처음에 꺼져 있다.") +
+        '<video class="player" controls preload="none" playsinline poster="' + M.media.png.dark + '" src="media/' + id + '_narrated.mp4"></video>' +
+        '<details class="doc"><summary>대본 (' + M.narr.length + "문단)</summary><div class=\"docbody narrtext\">" +
+        M.narr.map(function (b, i) {
+          var lab = b.k === "tour" ? NB.tour + " " + (++ti) : NB[b.k];
+          return '<div class="nb"><div class="nbh"><b>' + esc(lab) + '</b> <button class="seekb" data-seek="' + i + '" hidden></button></div>' + h("p", "", tx(b.text)) + "</div>";
+        }).join("") + "</div></details></div>";
+    }
+    o += h("div", "dim xs", "15초 요약 (소리 없음)") +
+      '<div class="mapmedia"><img src="' + M.media.gif + '" alt="' + esc(M.title) + ' 15초 애니메이션" loading="lazy"></div>';
     o += '<div class="maplinks">' +
       [["mp4 (1920×1080)", M.media.mp4], ["그림 · 라이트", M.media.png.light], ["그림 · 다크", M.media.png.dark],
         ["움직이는 HTML", M.media.html + "?theme=" + th]].map(function (l) {
@@ -148,6 +160,29 @@
     }
     o += '<div class="card"><button class="deeplink" data-tab-go="talk">? 더 깊게 논의할 것</button></div>';
     return o;
+  }
+
+  var narrInfo = {};
+  function hookNarr() {
+    var id = W.maps[state.map] ? state.map : "core";
+    if (!W.maps[id].narr) return;
+    var fill = function (j) {
+      var d = document.getElementById("narrDur");
+      if (d) d.textContent = Math.floor(j.total / 60) + "분 " + Math.round(j.total % 60) + "초";
+      var bs = document.querySelectorAll(".seekb");
+      for (var i = 0; i < bs.length; i++) {
+        var b = j.beats[+bs[i].dataset.seek];
+        if (!b) continue;
+        bs[i].dataset.t = b.t;
+        bs[i].textContent = "▸ " + Math.floor(b.t / 60) + ":" + ("0" + Math.floor(b.t % 60)).slice(-2) + "부터 듣기";
+        bs[i].hidden = false;
+      }
+    };
+    if (narrInfo[id]) return fill(narrInfo[id]);
+    try {
+      fetch("media/" + id + "_narrated.json").then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (j) { if (j) { narrInfo[id] = j; if (state.tab === "map") fill(j); } }).catch(function () {});
+    } catch (e) {}
   }
 
   /* ── 더 깊게 논의할 것 ── */
@@ -727,6 +762,7 @@
       "<br>설계 중간 결과 뷰어. 모든 사례는 가상이다.</footer>";
     app.innerHTML = html;
     writeHash();
+    if (t === "map") hookNarr();
 
     var btns = document.querySelectorAll("#nav button");
     for (var i = 0; i < btns.length; i++) {
@@ -758,6 +794,11 @@
     if (b.dataset.iaDoc !== undefined) { var pp = b.dataset.iaDoc.split("/"); state.tab = bk(); state.ia = { sec: pp[0], id: pp[1] || null }; return paint(); }
     if (b.dataset.iaCase) { state.tab = bk(); state.ia = { sec: "golden", id: b.dataset.iaCase }; return paint(); }
     if (b.dataset.bunGo) { var bp = b.dataset.bunGo.split("/"); state.tab = bp[0]; if (state.iaBun && state.iaBun !== bp[0]) state.iaf = {}; state.iaBun = bp[0]; state.ia = { sec: bp[1] || "overview", id: bp[2] || null }; return paint(); }
+    if (b.dataset.seek !== undefined && b.dataset.t) {
+      var pl = document.querySelector(".player");
+      if (pl) { pl.currentTime = +b.dataset.t; pl.scrollIntoView({ block: "center" }); var pr = pl.play(); if (pr && pr.catch) pr.catch(function () {}); }
+      return;
+    }
     if (b.dataset.mapGo) { state.tab = "map"; state.map = b.dataset.mapGo; return paint(); }
     if (b.dataset.talkSeen) { var ks = "ws_seen_" + b.dataset.talkSeen; set(ks, get(ks, "") ? "" : "1"); var y = window.scrollY; paint(); window.scrollTo(0, y); return; }
     if (b.dataset.iaf !== undefined) { var kv2 = b.dataset.iaf.split("="); state.iaf[kv2[0]] = kv2.slice(1).join("="); state.ia.id = null; return paint(); }

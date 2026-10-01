@@ -121,8 +121,103 @@
       }
       if (extra) extra(t);
     };
+    // 입자 층: 해설판의 둘러보기 구간에서는 숨긴다
+    K.particleLayers = [];
+    K.particles = function (g) { K.particleLayers.push(g); return g; };
+
+    /* 해설판(window.__NARR): 앞부분은 15초 timeline을 말에 맞춰 늦춰 틀고, 뒷부분은 완성된 그림 위에서
+       camera(viewBox)를 옮기며 spotlight로 짚는다. 자막은 그림 아래 띠에 쓴다.
+       __NARR = { total, intro:[{T0,T1,s0,s1}], tour:[{T0,T1,view:[x,y,w,h], box:[x,y,w,h]|null}], subs:[{T0,T1,text}] } */
+    var N = window.__NARR || null;
+    K.narr = N;
+    function lerp(a, b, p) { return a + (b - a) * p; }
+    function lerpArr(a, b, p) { return a.map(function (v, i) { return lerp(v, b[i], p); }); }
+    var FULL = [0, 0, 1920, 1080];
+    if (N) {
+      document.body.classList.add("narr");
+      var st = document.createElement("style");
+      st.textContent = "body.narr{flex-direction:column}body.narr svg{height:calc(100vh - 128px)}" +
+        "#subband{height:128px;width:100vw;display:flex;align-items:center;justify-content:center;background:var(--bg2);border-top:1px solid var(--line);box-sizing:border-box;padding:0 120px}" +
+        "#subtext{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;font-size:31px;line-height:1.38;color:var(--fg);text-align:center;font-weight:600;letter-spacing:-.2px}";
+      document.head.appendChild(st);
+      var band = document.createElement("div"); band.id = "subband";
+      var sub = document.createElement("div"); sub.id = "subtext"; band.appendChild(sub);
+      document.body.appendChild(band);
+      K.subEl = sub;
+    }
+    function introTau(t) {
+      for (var i = 0; i < N.intro.length; i++) {
+        var a = N.intro[i];
+        if (t < a.T1 || i === N.intro.length - 1) {
+          var D = a.T1 - a.T0, d = a.s1 - a.s0, x = Math.max(0, t - a.T0);
+          if (D <= d) return a.s0 + Math.min(d, x * d / D);
+          // 말이 더 길면 1.6배까지 늦춰 틀고, 그래도 남으면 멈춘다. 멈추는 자리는 제목줄이 바뀌는 순간(구간 끝)보다 조금 앞이다
+          var f = Math.min(D / d, 1.6), hold = Math.max(d * 0.6, d - 0.45);
+          return a.s0 + Math.min(hold, x / f);
+        }
+      }
+      return DUR;
+    }
+    function spotSetup() {
+      var g = K.G();
+      K.spotMask = K.E("path", { d: "", "fill-rule": "evenodd" }, { fill: "var(--bg)", opacity: 0 }, g);
+      K.spotRing = K.E("rect", { x: 0, y: 0, width: 0, height: 0, rx: 18 }, { fill: "none", stroke: "var(--acc)", strokeWidth: 4, opacity: 0 }, g);
+    }
+    function spot(box, o) {
+      if (!K.spotMask) spotSetup();
+      if (!box || o <= 0) { K.spotMask.style.opacity = 0; K.spotRing.style.opacity = 0; return; }
+      var x = box[0] - 12, y = box[1] - 12, w = box[2] + 24, hh = box[3] + 24;
+      K.spotMask.setAttribute("d", "M-3000 -3000H5000V5000H-3000Z M" + x + " " + y + "h" + w + "v" + hh + "h" + (-w) + "Z");
+      K.spotMask.style.opacity = 0.62 * o;
+      K.spotRing.setAttribute("x", x); K.spotRing.setAttribute("y", y); K.spotRing.setAttribute("width", w); K.spotRing.setAttribute("height", hh);
+      K.spotRing.style.opacity = o;
+    }
+    function narrSeek(t, extra) {
+      var tourStart = N.tour.length ? N.tour[0].T0 : N.total;
+      if (t < tourStart) {
+        K.seekAll(introTau(t), extra);
+        svg.setAttribute("viewBox", FULL.join(" "));
+        spot(null, 0);
+        K.particleLayers.forEach(function (g) { g.style.display = ""; });
+      } else {
+        K.seekAll(DUR, extra);
+        K.particleLayers.forEach(function (g) { g.style.display = "none"; });
+        var i = 0;
+        while (i < N.tour.length - 1 && t >= N.tour[i + 1].T0) i++;
+        var cur = N.tour[i], prev = i ? N.tour[i - 1] : { view: FULL, box: null };
+        var p = eo(clamp((t - cur.T0) / 0.9));
+        var v = lerpArr(prev.view || FULL, cur.view || FULL, p);
+        svg.setAttribute("viewBox", v.join(" "));
+        var pb = prev.box, cb = cur.box;
+        if (pb && cb) spot(lerpArr(pb, cb, p), 1);
+        else if (cb) spot(cb, p);
+        else if (pb) spot(pb, 1 - p);
+        else spot(null, 0);
+      }
+      if (K.subEl) {
+        var s = "";
+        for (var j = 0; j < N.subs.length; j++) if (t >= N.subs[j].T0 && t < N.subs[j].T1) { s = N.subs[j].text; break; }
+        if (K.subEl.textContent !== s) K.subEl.textContent = s;
+      }
+    }
+
+    // 같은 모양이면 같은 key: 렌더 도구가 같은 장면을 다시 찍지 않는다
+    function subIndex(t) {
+      for (var j = 0; j < N.subs.length; j++) if (t >= N.subs[j].T0 && t < N.subs[j].T1) return j;
+      return -1;
+    }
+    window.__stateKey = function (t) {
+      if (!N) return "x" + t;
+      var tourStart = N.tour.length ? N.tour[0].T0 : N.total, si = subIndex(t);
+      if (t < tourStart) return "i" + introTau(t).toFixed(3) + "|" + si;
+      var i = 0;
+      while (i < N.tour.length - 1 && t >= N.tour[i + 1].T0) i++;
+      return (t - N.tour[i].T0 < 0.95 ? "t" + t.toFixed(3) : "T" + i) + "|" + si;
+    };
+
     K.start = function (extra) {
-      var seek = function (t) { K.seekAll(t, extra); };
+      var seek = N ? function (t) { narrSeek(t, extra); } : function (t) { K.seekAll(t, extra); };
+      if (N) { window.__DUR = N.total; window.__seek = seek; seek(0); window.__ready = true; return; }
       window.__DUR = DUR;
       window.__seek = seek;
       var fixed = Q.get("t");
