@@ -297,9 +297,10 @@
 
   /* ── 공통 조각 ── */
   var ZTAG = ["", "m", "y", "g"];
-  var GO_ATTR = { sys: "data-sys-go", walk: "data-walk-go", bun: "data-bun-go", tab: "data-tab-go" };
+  var GO_ATTR = { sys: "data-sys-go", walk: "data-walk-go", bun: "data-bun-go", tab: "data-tab-go", atlas: "data-atlas-go" };
   function goBtn(g) {
-    // g = [라벨, 종류(sys|walk|bun|tab), 대상]
+    // g = [라벨, 종류(sys|walk|bun|tab|atlas|url), 대상]
+    if (g[1] === "url") return '<a class="deeplink" href="' + esc(g[2]) + '" target="_blank" rel="noopener">↗ ' + esc(g[0]) + "</a>";
     return '<button class="deeplink" ' + (GO_ATTR[g[1]] || "data-tab-go") + '="' + esc(g[2]) + '">▸ ' + esc(g[0]) + "</button>";
   }
   function theme() { return document.documentElement.dataset.theme === "light" ? "light" : "dark"; }
@@ -369,6 +370,7 @@
   }
   function curMapId() {
     if (state.tab === "home") return "core";
+    if (state.tab === "atlas") return W.maps.atlas ? "atlas" : null;
     if (state.tab === "sys" && state.sys && W.sys.topics[state.sys]) return W.sys.topics[state.sys].map;
     return null;
   }
@@ -378,7 +380,7 @@
     var m = W.home, o = "";
     o += '<div class="hero">' + h("div", "tl", esc(m.title)) +
       '<ol class="li steps5">' + m.summary.map(function (s) { return h("li", "", tx(s)); }).join("") + "</ol>" +
-      '<div class="herobtns"><button class="deeplink" data-tab-go="sys">▦ 시스템</button> <button class="deeplink" data-tab-go="walk">▷ 사례 다섯</button> <button class="deeplink" data-tab-go="decide">? 지금 판단할 것</button></div></div>';
+      '<div class="herobtns"><button class="deeplink" data-tab-go="atlas">⌗ 전체 지도</button> <button class="deeplink" data-tab-go="sys">▦ 시스템</button> <button class="deeplink" data-tab-go="walk">▷ 사례 다섯</button> <button class="deeplink" data-tab-go="decide">? 지금 판단할 것</button></div></div>';
     o += mapMedia("core", { title: "core 한 장", zones: false });
 
     o += '<div class="card"><h2>사람이 서는 자리 <span class="tag g">반드시 둘</span></h2>' +
@@ -386,7 +388,7 @@
       h("h3", "", "조건부: 시스템이 스스로 멈춰 부를 때") +
       m.cond.map(function (r) { return '<div class="seat c"><b>' + esc(r[0]) + "</b>" + h("div", "kv mut", tx(r[1])) + "</div>"; }).join("") + "</div>";
 
-    o += '<div class="card"><h2>시스템의 부분</h2>' + h("p", "mut small", tx(W.sys.lead)) + '<div class="topiclist">' +
+    o += '<div class="card"><h2>시스템의 부분 <button class="deeplink inl" data-tab-go="atlas">⌗ 서로 어떻게 겹치나: 전체 지도</button></h2>' + h("p", "mut small", tx(W.sys.lead)) + '<div class="topiclist">' +
       W.sys.order.map(function (k) {
         var t = W.sys.topics[k];
         return '<button class="topicbtn" data-sys-go="' + k + '"><div class="tt"><b>' + esc(t.name) + "</b> " + h("span", "tag m", esc(t.role)) +
@@ -427,6 +429,12 @@
     o += '<div class="card"><h2>상태</h2>' + t.state.map(function (r) {
       return '<div class="strow"><span class="tag ' + r[0] + '">' + esc(r[1]) + "</span><span>" + tx(r[2]) + "</span></div>";
     }).join("") + "</div>";
+    if (t.place) {
+      o += '<div class="card"><h2>전체 안에서의 자리</h2>' + h("p", "mut small", tx(t.place.lead)) +
+        h("h3", "", "누가 무엇을 묻나") + t.place.ask.map(function (r) { return '<div class="strow"><b>' + esc(r[0]) + "</b><span>" + tx(r[1]) + "</span></div>"; }).join("") +
+        h("h3", "", "일의 끝이 KB로 들어오는 길") + t.place.back.map(function (r) { return '<div class="strow"><b>' + esc(r[0]) + "</b><span>→ " + tx(r[1]) + "</span></div>"; }).join("") +
+        '<div class="tgo">' + goBtn(["전체 지도: 겹침 지도", "atlas", "grid"]) + " " + goBtn(["일이 흐르는 길", "atlas", "S1"]) + "</div></div>";
+    }
     var d = t.more ? deepById(t.more) : null;
     if (d) {
       o += '<details class="doc"><summary>자세히: ' + esc(d.title) + '</summary><div class="docbody">' +
@@ -441,6 +449,119 @@
       '<button data-sys-go="' + (S.order[idx - 1] || "") + '"' + (idx ? "" : " disabled") + ">◂ " + esc(idx ? S.topics[S.order[idx - 1]].name : "") + "</button>" +
       '<button class="pri" data-sys-go="' + (S.order[idx + 1] || "") + '"' + (idx < S.order.length - 1 ? "" : " disabled") + ">" +
       esc(idx < S.order.length - 1 ? S.topics[S.order[idx + 1]].name : "") + " ▸</button></div>";
+    return o;
+  }
+
+  /* ── ② 전체 지도 ── */
+  var LANE_CLS = ["ln-h", "ln-i", "ln-w", "ln-t", "ln-k"];
+  // 경계를 따로 설명한 열(atlas.shared)만 노랗게 칠한다
+  function atlasSharedCol(ci) { return !!atlasShareNote(ci); }
+  function atlasShareNote(ci) {
+    var A = W.atlas, name = A.cols[ci][0];
+    for (var i = 0; i < A.shared.length; i++) if (A.shared[i][0] === name) return A.shared[i][1];
+    return "";
+  }
+  function atlasDetail() {
+    var A = W.atlas, sel = state.acell;
+    if (!sel) return h("p", "dim xs adhint", "칸(● · ○)을 누르면 그 칸의 뜻이, 열 이름을 누르면 그 책임을 누가 나눠 맡는지가 여기에 나온다. 주제 이름을 누르면 주제 카드로 간다.");
+    var o = '<div class="adet">';
+    if (sel.charAt(0) === "c") {
+      var ci = +sel.slice(2), col = A.cols[ci];
+      o += '<div class="adh"><b>' + esc(col[0]) + "</b> " + h("span", "dim small", tx(col[1])) + "</div>";
+      var sn = atlasShareNote(ci);
+      if (sn) o += h("div", "note", "<b>나눠 맡음 —</b> " + tx(sn));
+      A.rows.forEach(function (r) {
+        var c = r.cells[ci]; if (!c) return;
+        o += '<div class="strow"><span class="ac ' + (c[0] === "●" ? "own" : "use") + ' st">' + c[0] + "</span>" + goBtn([r.name, r.go[0], r.go[1]]) + "<span>" + tx(c[1]) + "</span></div>";
+      });
+    } else {
+      var p = sel.split(","), r = A.rows[+p[0]], cj = +p[1], c = r.cells[cj], cl = A.cols[cj];
+      o += '<div class="adh"><span class="ac ' + (c[0] === "●" ? "own" : "use") + ' st">' + c[0] + "</span> <b>" + esc(r.name) + " × " + esc(cl[0]) + "</b> " +
+        h("span", "tag " + (c[0] === "●" ? "g" : "n"), c[0] === "●" ? "정본: 이 주제가 규칙을 정한다" : "사용: 정본의 규칙을 따른다") + "</div>" +
+        h("p", "", tx(c[1])) + h("div", "dim small", esc(cl[0]) + " = " + tx(cl[1]));
+      var sn2 = atlasSharedCol(cj) ? atlasShareNote(cj) : "";
+      if (sn2) o += h("div", "note", "<b>이 열은 나눠 맡는다 —</b> " + tx(sn2));
+      o += '<div class="tgo">' + goBtn([r.name + " 카드", r.go[0], r.go[1]]) + ' <button class="deeplink" data-acell="c:' + cj + '">▸ ' + esc(cl[0]) + " 열 전체</button></div>";
+    }
+    return o + "</div>";
+  }
+  function atlasOut(x) {
+    var cell = function (lab, arr, note) {
+      return '<div class="ocell"><div class="ol"><b>' + lab + "</b>" + (arr.length ? h("span", "tag m", String(arr.length)) : "") + "</div>" +
+        (arr.length ? ul(arr) : h("p", "dim small", tx(note || "따로 없다"))) + "</div>";
+    };
+    var cnt = [["agent", x.agent], ["도구", x.tool], ["skill", x.skill]].map(function (z) { return z[0] + " " + (z[1].length || "없음"); }).join(" · ");
+    return '<details class="doc out"><summary><span class="osum"><b>' + esc(x.name) + "</b> " + h("span", "tag m", cnt) + h("span", "og mut small", tx(x.goal)) + "</span></summary>" +
+      '<div class="docbody">' + (x.allNote ? h("div", "note", tx(x.allNote)) : "") + '<div class="ogrid">' +
+      (x.allNote ? "" : cell("agent · LLM이 판단", x.agent, x.agentNote) + cell("도구 · 결정론", x.tool, x.toolNote) + cell("skill · 불러 쓰는 절차", x.skill)) +
+      cell("문서", x.doc) + "</div>" + (x.quality ? h("div", "dim small", "<b>기준 —</b> " + tx(x.quality)) : "") +
+      '<div class="tgo">' + goBtn([x.name + " 카드", x.go[0], x.go[1]]) + "</div></div></details>";
+  }
+  function atlasFlow(f) {
+    var A = W.atlas;
+    var o = '<div class="lanekey">' + A.lanes.map(function (l, i) { return '<span class="lchip ' + LANE_CLS[i] + '">' + esc(l) + "</span>"; }).join("") + "</div>";
+    o += '<div class="tblwrap"><table class="swim"><thead><tr><th>#</th>' + A.lanes.map(function (l, i) { return '<th class="' + LANE_CLS[i] + '">' + esc(l) + "</th>"; }).join("") + "</tr></thead><tbody>" +
+      f.steps.map(function (s, i) {
+        return '<tr><td class="sn">' + (i + 1) + "</td>" + s.map(function (c, li) {
+          return '<td class="' + LANE_CLS[li] + (c ? " on" : " off") + '" data-l="' + esc(A.lanes[li]) + '">' + tx(c) + "</td>";
+        }).join("") + "</tr>";
+      }).join("") + "</tbody></table></div>";
+    o += '<div class="seat"><b>남는 파일</b>' + h("div", "kv mut", tx(f.files)) + "</div>" +
+      '<div class="seat"><b>이 길의 다른 점</b>' + h("div", "kv mut", tx(f.diff)) + "</div>" +
+      '<div class="tgo">' + f.walks.map(function (wid) {
+        var w = W.walks.filter(function (x) { return x.id === wid; })[0];
+        return w ? goBtn(["사례 " + w.id + " · " + w.title, "walk", w.id]) : "";
+      }).join(" ") + "</div>";
+    return o;
+  }
+  function viewAtlas() {
+    var A = W.atlas, o = "";
+    var fl = A.flows.filter(function (f) { return f.id === state.aflow; })[0] || A.flows[0];
+    o += '<div class="hero">' + h("div", "tl", esc(A.title)) + h("p", "", tx(A.lead)) +
+      '<div class="herobtns">' + [["겹침 지도", "a-grid"], ["결과물", "a-out"], ["일이 흐르는 길", "a-flow"], ["세우는 순서", "a-stage"], ["빈 곳", "a-gap"]].map(function (b) {
+        return '<button class="deeplink" data-scroll="' + b[1] + '">▾ ' + esc(b[0]) + "</button>";
+      }).join(" ") + "</div></div>";
+    o += '<div class="card"><h2>한 장으로 보면</h2>' + A.four.map(function (r) {
+      return '<div class="seat"><b>' + esc(r[0]) + "</b>" + h("div", "kv mut", tx(r[1])) + "</div>";
+    }).join("") + "</div>";
+    if (W.maps.atlas) o += mapMedia("atlas", { title: "전체 지도 한 장" });
+
+    o += '<div class="card" id="a-grid"><h2>겹침 지도 <span class="tag g">● 정본</span><span class="tag n">○ 사용</span></h2>' +
+      h("p", "mut small", "주제 여덟 × 책임 열. ● = 이 책임의 규칙을 정한다, ○ = 정본의 규칙을 따라 빌려 쓴다, 빈칸 = 관계 없음. 노란 열 셋(입구 · oracle · 학습)은 정본이 여럿이라 경계를 따로 적은 곳이다.") +
+      '<div class="agwrap"><table class="agrid"><thead><tr><th class="rh"></th>' + A.cols.map(function (c, ci) {
+        return '<th' + (atlasSharedCol(ci) ? ' class="sh"' : "") + '><button data-acell="c:' + ci + '"' + (state.acell === "c:" + ci ? ' class="on"' : "") + ">" + esc(c[0]) + "</button></th>";
+      }).join("") + "</tr></thead><tbody>" + A.rows.map(function (r, ri) {
+        return '<tr><th class="rh"><button data-sys-go="' + esc(r.go[1]) + '">' + esc(r.name) + "</button></th>" + r.cells.map(function (c, ci) {
+          var cls = atlasSharedCol(ci) ? ' class="sh"' : "";
+          if (!c) return "<td" + cls + "></td>";
+          var k = ri + "," + ci;
+          return "<td" + cls + '><button class="ac ' + (c[0] === "●" ? "own" : "use") + (state.acell === k ? " on" : "") + '" data-acell="' + k + '" title="' + esc(r.name + " × " + A.cols[ci][0] + ": " + c[1]) + '">' + c[0] + "</button></td>";
+        }).join("") + "</tr>";
+      }).join("") + "</tbody></table></div>" + atlasDetail() +
+      h("h3", "", "나눠 맡는 열 셋") + A.shared.map(function (s) {
+        return '<div class="seat c"><b>' + esc(s[0]) + "</b>" + h("div", "kv mut", tx(s[1])) + "</div>";
+      }).join("") + h("div", "note", tx(A.kbNote)) + "</div>";
+
+    o += '<div class="card" id="a-out"><h2>주제별 목표와 결과물</h2>' +
+      h("p", "mut small", "결과물은 넷으로 나눈다: agent(LLM이 판단하는 부품) · 도구(결정론 script · evaluator · controller) · skill(사람이나 agent가 불러 쓰는 절차 묶음) · 문서(설계 · 계약 · 규칙 · workflow 파일 · 시험). 누르면 이름이 펼쳐진다.") +
+      A.outputs.map(atlasOut).join("") +
+      h("h3", "", "아직 정본이 없는 갈래") + A.pending.map(function (r) {
+        return '<div class="seat c"><b>' + esc(r[0]) + "</b>" + h("div", "kv mut", tx(r[1])) + "</div>";
+      }).join("") + "</div>";
+
+    o += '<div class="card" id="a-flow"><h2>일이 흐르는 길 <span class="tag m">가상 셋</span></h2>' +
+      h("p", "mut small", "줄 다섯(사람 · intake · workflow · 도구 · KB)에 단계마다 움직이는 부품을 적었다. 같은 부품이 세 길에 모두 나온다.") +
+      '<div class="rail sub">' + A.flows.map(function (f) {
+        return '<button data-aflow="' + f.id + '"' + (f === fl ? ' class="on"' : "") + ">" + esc(f.title) + "</button>";
+      }).join("") + "</div>" + atlasFlow(fl) + "</div>";
+
+    o += '<div class="card" id="a-stage"><h2>회사에 세우는 순서와 이 지도</h2>' +
+      block({ table: { head: ["migration 단계", "켜지는 것"], rows: A.stages } }) + "</div>";
+    o += '<div class="card" id="a-gap"><h2>이 지도에서 보이는 빈 곳 <span class="tag n">반영 대기</span></h2>' +
+      block({ table: { head: ["빈 곳", "어디서 메우나"], rows: A.gaps } }) + "</div>";
+    o += '<div class="card"><h2>상태</h2>' + A.state.map(function (r) {
+      return '<div class="strow"><span class="tag ' + r[0] + '">' + esc(r[1]) + "</span><span>" + tx(r[2]) + "</span></div>";
+    }).join("") + "</div>";
     return o;
   }
 
@@ -531,21 +652,23 @@
   }
 
   /* ── 라우팅 ── */
-  var TABS = ["home", "sys", "walk", "decide", "lib", "ia", "wa"];
-  var state = { tab: "home", sys: null, walk: null, ia: { sec: "overview", id: null }, iaf: {}, iaBun: null };
+  var TABS = ["home", "atlas", "sys", "walk", "decide", "lib", "ia", "wa"];
+  var state = { tab: "home", sys: null, walk: null, aflow: null, acell: null, ascroll: null, ia: { sec: "overview", id: null }, iaf: {}, iaBun: null };
   // 옛 주소를 새 화면으로: #core/... #docs/... #deep/<id> #map/<id> #cases #status #talk #road #about
   function readHash() {
     var raw = (location.hash || "").replace(/^#/, "");
     if (!raw) return false;
     var p = raw.split("/");
     var A = { core: ["sys", "core"], docs: ["sys", "core"], road: ["decide"], about: ["home"], cases: ["walk"], status: ["decide"], talk: ["decide"],
-      intake: ["sys", "intake"], workflow: ["sys", "workflow"], chain: ["sys", "chain"], diagnose: ["sys", "diagnose"] };
-    if (p[0] === "deep" || p[0] === "map") p = ["sys", p[1] || "core"];
+      intake: ["sys", "intake"], workflow: ["sys", "workflow"], chain: ["sys", "chain"], diagnose: ["sys", "diagnose"], kb: ["sys", "kb"] };
+    if ((p[0] === "deep" || p[0] === "map") && p[1] === "atlas") p = ["atlas"];
+    else if (p[0] === "deep" || p[0] === "map") p = ["sys", p[1] || "core"];
     else if (A[p[0]]) p = A[p[0]];
     if (TABS.indexOf(p[0]) < 0) return false;
     state.tab = p[0];
     if (p[0] === "sys") state.sys = p[1] || null;
     else if (p[0] === "walk") state.walk = p[1] ? p[1].toUpperCase() : null;
+    else if (p[0] === "atlas") atlasGo(p[1] || "");
     else if (p[0] === "ia" || p[0] === "wa") state.ia = { sec: p[1] || "overview", id: p[2] ? decodeURIComponent(p[2]) : null };
     return true;
   }
@@ -553,6 +676,7 @@
     var f = state.tab;
     if (f === "sys" && state.sys) f += "/" + state.sys;
     else if (f === "walk" && state.walk) f += "/" + state.walk;
+    else if (f === "atlas" && state.aflow) f += "/" + state.aflow;
     else if (f === "ia" || f === "wa") f += "/" + (state.ia.sec || "overview") + (state.ia.id ? "/" + encodeURIComponent(state.ia.id) : "");
     if (("#" + f) !== location.hash) { try { history.replaceState(null, "", "#" + f); } catch (e) { location.hash = f; } }
   }
@@ -560,6 +684,7 @@
   function paint(keepScroll) {
     var t = state.tab, html, y = window.scrollY;
     if (t === "sys") html = viewSys(state.sys);
+    else if (t === "atlas") html = viewAtlas();
     else if (t === "walk") html = viewWalk(state.walk);
     else if (t === "decide") html = viewDecide();
     else if (t === "lib") html = viewLib();
@@ -576,7 +701,13 @@
     var navOn = t === "ia" || t === "wa" ? "sys" : t;
     var btns = document.querySelectorAll("#nav button");
     for (var i = 0; i < btns.length; i++) btns[i].className = btns[i].dataset.tab === navOn ? "on" : "";
+    if (state.ascroll) { var ae = document.getElementById(state.ascroll); state.ascroll = null; if (ae) { ae.scrollIntoView({ block: "start" }); return; } }
     window.scrollTo(0, keepScroll ? y : 0);
+  }
+  // #atlas/S1 = 그 길을 고르고 '일이 흐르는 길'로, #atlas/grid = 겹침 지도로
+  function atlasGo(v) {
+    if (/^S\d$/i.test(v)) { state.aflow = v.toUpperCase(); state.ascroll = "a-flow"; }
+    else if (v) state.ascroll = "a-" + v;
   }
 
   document.getElementById("nav").addEventListener("click", function (e) {
@@ -589,6 +720,9 @@
   app.addEventListener("click", function (e) {
     var b = e.target.closest("button"); if (!b) return;
     if (b.dataset.sysGo !== undefined) { state.tab = "sys"; state.sys = b.dataset.sysGo || null; return paint(); }
+    if (b.dataset.atlasGo !== undefined) { state.tab = "atlas"; atlasGo(b.dataset.atlasGo); return paint(); }
+    if (b.dataset.acell !== undefined) { state.acell = state.acell === b.dataset.acell ? null : b.dataset.acell; return paint(true); }
+    if (b.dataset.aflow) { state.aflow = b.dataset.aflow; return paint(true); }
     if (b.dataset.walkGo !== undefined) { state.tab = "walk"; state.walk = b.dataset.walkGo || null; return paint(); }
     if (b.dataset.tabGo) { state.tab = b.dataset.tabGo; state.sys = null; state.walk = null; return paint(); }
     if (b.dataset.iaSec) { state.tab = bk(); state.ia = { sec: b.dataset.iaSec, id: null }; return paint(); }

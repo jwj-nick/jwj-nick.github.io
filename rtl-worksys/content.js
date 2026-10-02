@@ -1,5 +1,5 @@
 /* RTL WorkSys — 콘텐츠 데이터 (앱의 텍스트는 전부 여기).
-   구조(v0.9, 최종판을 향한 정리): ① 한눈에(home) ② 시스템(sys: 주제마다 같은 틀) ③ 사례(walks) ④ 결정(decide · talk) + 자료실(lib · 탐색기).
+   구조(v0.10): ① 한눈에(home) ② 전체 지도(atlas: 겹침 지도 · 결과물 · 일이 흐르는 길) ③ 시스템(sys: 주제마다 같은 틀, KB 포함) ④ 사례(walks) ⑤ 결정(decide · talk) + 자료실(lib · 탐색기).
    주제 카드의 한 장 · 해설판 = maps.<id>, '자세히' = deep[]의 같은 id.
    규율: 조직 실명·수치 없음. 모든 ticket·블록·신호 이름은 가상. 숫자 기준은 공란 + 결정 주체.
    본문 블록 형식: {h:"소제목"} {p:"문단"} {ul:[...]} {table:{head:[...],rows:[[...]]}} {code:"..."} {note:"..."} */
@@ -8,7 +8,7 @@ window.WS = {
     title: "RTL WorkSys",
     subtitle: "AI-native RTL 업무 시스템 · core 설계 노트",
     updated: "2026-10-02",
-    version: "0.9",
+    version: "0.10",
     tagline: "ticket이 생기면 AI가 먼저 일을 시작한다. 사람은 검수와 결정에 선다."
   },
 
@@ -39,10 +39,150 @@ window.WS = {
     blank: "이 설계에 숫자 기준은 없다. 임계값 · 횟수 · 기간은 공란으로 두고, 누가 어떻게 정하는지만 적는다."
   },
 
+  /* ───────────── 전체 지도 (atlas) ─────────────
+     주제마다 어떤 책임의 정본이고 무엇을 빌려 쓰는가(겹침 지도), 주제별 결과물, 일 셋이 부품 사이를 지나가는 길(swimlane).
+     새 내용은 없다. 각 칸의 정본은 그 주제 카드에 있다. */
+  atlas: {
+    title: "전체 지도",
+    lead: "주제 카드는 따로 서 있지만 실제 일은 모두 같은 부품을 지나간다. 이 화면은 그것을 한 장으로 묶는다: 주제마다 어떤 책임의 정본인지, 무엇을 결과물로 내는지, 일 셋이 부품 사이를 어떻게 흐르는지.",
+    four: [
+      ["core는 둘이다", "intake는 \"무슨 일인가 · 해도 되는가 · 어디로 보내나\"를, workflow는 \"어떻게 끝내고 무엇으로 맞았다고 하나\"를 맡는다. 일은 발생 → intake → workflow → 사람의 검수 → 반영 → learn(Track B)으로 한 바퀴 돈다."],
+      ["갈래는 엔진이 아니다", "chain · diagnose · code-review · timing-area · coverage는 workflow 파일(특화 · 조립)과 그 내용(link 표 · 층 표 · oracle)을 정한다. 엔진은 core 하나다."],
+      ["업무 지도는 둘 사이의 지도다", "일이 어디서 생기고 무엇으로 분류되며 어느 workflow로 가는지, 그리고 전체에 걸린 원칙(기존 자산 이식 먼저 · 두 트랙)을 정한다."],
+      ["KB는 별도로 가져가는 system이다", "지식의 정본이다. intake · workflow · diagnose · 고객 트랙이 모두 묻고, 일의 끝(FAQ · errata · bug 문서)이 KB로 들어간다."]
+    ],
+    cols: [
+      ["입구", "일이 들어오는 자리: 입구의 종류, 입구마다의 adapter, 단계와 파일"],
+      ["분류", "무엇에 대한 어떤 일인가를 정하는 축과 규칙"],
+      ["gate", "해도 되는가: 위험 · 권한 · 정보 · 불확실 · 작업량"],
+      ["plan", "어떻게 할 것인가: posture · 실행 중 허용 목록(allowlist) · 계획"],
+      ["실행", "checkpoint를 하나씩 지나며 일을 하는 것"],
+      ["oracle", "무엇으로 맞았다고 판정하나"],
+      ["결과 · 검수", "결과 패키지 한 장과 사람의 판정"],
+      ["반영", "MR · 회신 · 결정을 실제로 내보내는 자리"],
+      ["학습", "Track B: 쓴 workflow · 규칙 · 묶음을 고치는 기록"],
+      ["지식", "근거(원천 위치와 버전)가 붙은 제품 지식"]
+    ],
+    rows: [
+      { name: "core 공통", go: ["sys", "core"], cells: [["●", "아홉 단계 · 단계마다 파일"], 0, ["●", "다섯 조건(위험 → 권한 → 정보 → 불확실 → 작업량)"], 0, 0, 0, ["●", "결과 패키지 · 검수"], ["●", "사람이 반영"], ["●", "learn 단계"], 0] },
+      { name: "intake", go: ["sys", "intake"], cells: [["●", "입구 · 입구마다 adapter"], ["●", "분류 축 · 규칙"], ["●", "판정 순서"], 0, 0, 0, 0, 0, ["○", "분류의 기록"], ["○", "module 목록"]] },
+      { name: "workflow", go: ["sys", "workflow"], cells: [0, 0, 0, ["●", "posture · allowlist"], ["●", "checkpoint"], ["●", "evaluator · 근거 자격(판정의 형식)"], ["●", "결과 패키지의 절"], 0, ["●", "LN 자리 · dry replay"], ["○", "설계 지식 질문"]] },
+      { name: "업무 지도", go: ["sys", "workmap"], cells: [["●", "출처 축 · 고객 입구"], ["●", "업무 가족 열둘 · 층 축"], 0, 0, 0, 0, 0, 0, ["●", "두 트랙(Track B 의무) · 기존 자산 이식"], 0] },
+      { name: "chain", go: ["sys", "chain"], cells: [["○", "첫 link만 연다"], 0, 0, ["○", "link마다"], ["○", "link = task"], ["●", "spec · C-model 층"], ["○", "link마다"], ["●", "사람 결정 넷"], 0, 0] },
+      { name: "diagnose", go: ["sys", "diagnose"], cells: [0, ["○", "ask = diagnose"], 0, 0, ["●", "층 판별 · 좁히기"], ["●", "재현 · before/after"], ["○", "원인 보고"], 0, ["●", "질문 · test 묶음의 revision"], ["○", "bug 패턴"]] },
+      { name: "고객 트랙", go: ["sys", "workmap"], cells: [["●", "고객 입구"], ["○", "같은 분류 축"], ["○", "같은 gate"], 0, ["○", "diagnose를 쓴다"], 0, ["●", "회신 승인 · 고객 확인"], ["●", "회신"], ["○", "Track B"], ["○", "FAQ · errata"]] },
+      { name: "KB", go: ["sys", "kb"], cells: [["○", "원천 사건(commit · ticket · 릴리즈 · 납품 …)"], 0, 0, 0, ["●", "KB agent의 작업"], ["●", "lint · 정답 표"], ["●", "MR 판정"], 0, ["●", "gap → 일감"], ["●", "지식의 정본"]] }
+    ],
+    shared: [
+      ["입구", "core는 단계와 파일을, intake는 입구별 adapter를, 업무 지도는 출처 축과 고객 입구를 정한다. 고객 입구는 intake 명세에 아직 반영되지 않았다(반영 대기)."],
+      ["oracle", "workflow는 판정의 형식(evaluator 공통 JSON · 근거 자격)을, 갈래는 무엇이 oracle인지(chain = spec · C-model 층, diagnose = 재현 · before/after, KB = lint · 정답 표)를 정한다."],
+      ["학습", "core는 learn 단계를, workflow는 LN 자리와 dry replay를, 업무 지도는 \"Track B가 늘 붙는다\"는 의무를, diagnose는 질문 · test 묶음의 revision을 정한다. 하나의 Track B 기록 형식으로 모인다."]
+    ],
+    kbNote: "KB는 거의 모든 열에서 ○ 또는 ●다. 지식은 KB만 정본이다. 다른 주제는 묻기만 하고 KB에 직접 쓰지 않는다(MR로 제안한다).",
+    outputs: [
+      { name: "intake", go: ["sys", "intake"], goal: "어떤 발생이든 같은 레코드로 받아, 일인지 · 무엇을 원하는지 · 무엇에 대한 것인지 · 어떤 종류인지 · 해도 되는지를 정하고 workflow로 보낸다.",
+        agent: ["work-judge", "understander", "categorizer", "gate-checker(판단 부분)", "reply-writer"],
+        tool: ["intake-controller", "adapter(입구마다)", "raw-scanner", "dedup-linker", "router", "원장(append-only)"],
+        skill: ["사람이 시스템을 직접 부르는 command 입구(사람 수행 command 포함)"],
+        doc: ["설계서", "명세 묶음: README · architecture", "계약 셋(발생 봉투 · 공통 레코드 · 원장 한 줄)", "부품 명세 열", "규칙 YAML 여덟(asks · dedup · entrances · event_actions · ownership · priority · risk_patterns · work_decision)", "시험 사례 91건 · 평가"],
+        quality: "hard-zero 셋: 위험 놓침 0 · 잘못 붙이기 0 · 밖으로 새기 0" },
+      { name: "workflow", go: ["sys", "workflow"], goal: "일 하나를 checkpoint 단위로 끝까지 진행하고, 판정은 도구가 하며, 결과는 한 장으로 검수받는다.",
+        agent: ["planner", "checkpoint runner의 worker", "result writer(서술)", "hitl manager(질문 · 답 해석)", "learner(제안)", "판정형의 관점별 sub-reviewer"],
+        tool: ["workflow-controller", "resolver(+ registry)", "policy engine", "evaluator adapter", "record writer", "dry replay runner", "행동 guard(권한 규칙 + hook)"],
+        skill: ["특화 workflow마다 하나. workflow 파일에서 생성하고 손으로 고치지 않는다"],
+        doc: ["설계서", "명세 묶음: 계약 열하나 · 부품 명세 열하나", "WF-common · 작업 모양 일곱 · 특화 열여섯 · 조립 둘", "evaluators · policies", "시험(해석 29 · 한 바퀴 34 · replay 5) · 평가 · 포장", "설명 그림 다섯"],
+        quality: "hard-zero 셋, 리뷰어는 고치지 않는다, 한 task = 한 결과 패키지 = 한 번의 검수" },
+      { name: "chain", go: ["sys", "chain"], goal: "아키텍처부터 검증까지 이어지는 긴 일을 link(= task) 사슬로 나누고, 앞 link가 뒤 link의 oracle을 만든다.",
+        agent: [], agentNote: "따로 없다. link마다 workflow의 agent를 쓴다.",
+        tool: [], toolNote: "따로 없다. 조립 계약(간선 종류 넷)과 controller가 다음 link를 연다.",
+        skill: ["link의 workflow skill"],
+        doc: ["정본: link 표 · C-model 세 층 · 원칙 다섯 · 사례 · 기본값", "조립 CH-feature"],
+        quality: "사람의 결정 넷: 착수 · 아키텍처 선택 · interface freeze · sign-off" },
+      { name: "diagnose", go: ["sys", "diagnose"], goal: "원인을 층부터 가르고, 재현 → 가설 → 좁히기 → before/after로 확인한다. 대상을 고치지 않는다.",
+        agent: ["조사형 workflow의 worker(가설 생성 · 좁히기)", "고객 트랙의 질문 작성"],
+        tool: ["bisect", "seed 변주", "module trace 대조", "자동 multi-test 묶음 실행", "evaluator"],
+        skill: ["조사형 특화 workflow skill(WF-regr-diagnose 등)", "원인 phase를 가진 WF-bugfix · WF-timing"],
+        doc: ["정본: 층 열 표 · 질문 묶음 · multi-test 묶음 · 실패 종류별 시작점", "작업 모양 AR-diagnose", "특화 초안 WF-regr-diagnose"] },
+      { name: "업무 지도", go: ["sys", "workmap"], goal: "일이 어디서 생기고 무엇으로 분류되며 어느 workflow로 가는지 한 장으로 보이고, 시스템 전체의 원칙(기존 자산 이식 먼저 · 두 트랙)을 정한다.",
+        agent: [], tool: [], skill: [], allNote: "agent · 도구 · skill은 따로 없다. intake와 workflow의 규칙 · 설정 값으로 들어간다.",
+        doc: ["정본: 자산 이식 · 두 트랙 · 분류 축 다섯 · 업무 가족 열둘 · 고객 트랙 · 내부 lifecycle 단계별 상황 표", "migration 0단계의 자산 이식 항목"] },
+      { name: "KB", go: ["sys", "kb"], goal: "어떤 제품의 어떤 질문이든 근거(원천 위치와 버전)가 붙은 답을 찾고, 답하지 못한 빈 곳이 채울 일이 된다. 세 성질: 믿을 수 있다 · 살아 있다 · 빈 곳이 보인다.",
+        agent: ["Surveyor(원천 조사)", "Harvester(초안 · 갱신)", "Curator(정리 · 검수 보조)", "Librarian(답)", "Release recorder(확정 기록)"],
+        tool: ["reference 도구 여덟: lint · 문서 생성 · template · 시험 실행 · 채점 둘 · 사례 검사 · git adapter 자가 시험", "event router"],
+        skill: ["골격 여덟: ask · eval · harvest · lint · release-record · review · survey · sync"],
+        doc: ["설계 · 셋업", "계약 열둘", "규칙 묶음(문서 종류 서른 · 연결 열여덟 · 출처 우선순위 · 질문 유형 · 사건 표 · checklist · template)", "가상 제품 견본 · 합격 사례", "평가 · 세우기 · 도입", "작업 요청 열둘 · 인터뷰 키트 · 설명 그림"],
+        quality: "agent는 MR로 제안하고 사람이 reviewed로 올린다. core와 별도 묶음으로 가져간다." }
+    ],
+    pending: [
+      ["code-review · timing-area · coverage", "아직 갈래 정본이 없다. workflow 묶음 안에 특화 workflow 첫 판이 있다(RTL review 다섯 · timing(timing · area) · coverage · lint · 합성 matrix). 갈래 고유의 내용은 현장 절차와 대조하며 채운다."],
+      ["evolve", "별도 갈래가 아니다. learn 단계와 정기(schedule) 입구, Track B가 맡는다."]
+    ],
+    lanes: ["사람", "intake", "workflow", "도구", "KB"],
+    flows: [
+      { id: "S1", title: "내부: 야간 regression 실패", walks: ["W1", "W2"],
+        steps: [
+          ["", "adapter가 실패 신호를 봉투로 만든다 → raw-scanner 통과", "", "regression 결과(job id)", ""],
+          ["", "dedup-linker가 같은 변경 구간의 실패 서른 개를 묶음 하나로 → work-judge \"일이다\" → categorizer \"기능 불일치\", ask = diagnose", "", "", ""],
+          ["owner digest 맨 위에서 묶음을 보고 원인 찾기를 요청한다", "gate 통과 → router가 WF-regr-diagnose로", "", "", ""],
+          ["", "", "planner: posture full(원인 보고까지) · allowlist(scratch만)", "", ""],
+          ["", "", "worker: 층 판별(TB · C-model 먼저 지운다) → 구간 bisect → module trace 첫 불일치", "bisect · trace 대조 · evaluator", "과거 bug 패턴을 묻는다(Librarian)"],
+          ["", "", "before/after 확인 → result writer가 원인 보고", "evaluator 결과 파일", ""],
+          ["검수: accept. 수정도 원하면 후속 요청", "", "후속 요청 → WF-bugfix(수정 phase)", "", ""],
+          ["", "", "learner: Track B(쓴 workflow · 막힌 곳 · 어느 test가 층을 갈랐나)", "", "bug 문서 초안 MR(Harvester)"]
+        ],
+        files: "00_intake · 10_triage · 20_gate · 30_plan · STATE(가설 표) · 40_result(원인 보고) · 50_review · 60_learn(Track B)",
+        diff: "원인 찾기는 사람이 요청할 때 연다. 원인 보고로 끝나고, 수정은 후속 요청이 연다." },
+      { id: "S2", title: "고객: \"특정 입력에서 출력이 깨진다\"", walks: ["W5"],
+        steps: [
+          ["", "고객 입구 adapter → 출처 = 고객, 보는 사람 = 밖", "", "", ""],
+          ["", "categorizer \"기능 불일치\", 층 미정 → gate 정보 부족: 범위 좁히기 질문 묶음(릴리즈 · 설정 · 입력 · 환경 · 빈도)", "", "", "알려진 bug · errata 대조(Librarian)"],
+          ["질문 초안을 승인해 보낸다", "", "", "", ""],
+          ["", "답이 오면 다시 읽는다 → 고객 트랙 workflow로", "자동 multi-test 묶음: 고객 릴리즈로 regression · 고객 설정으로 같은 입력 · latency 흉내", "regression · evaluator", ""],
+          ["", "", "층 = 진짜 bug → 내부 이슈를 따로 열어 link한다(→ 내부 길의 5~8과 같은 길)", "", ""],
+          ["회신 초안(원인 · 회피책 · 고쳐질 릴리즈)을 승인해 보낸다", "", "result writer가 회신 초안", "", ""],
+          ["고객 확인 → 종료 선언", "", "learner: Track B(어느 질문 · test가 층을 갈랐나)", "", "errata 후보 · FAQ 후보 MR"]
+        ],
+        files: "고객 이슈의 task 폴더와 내부 이슈의 task 폴더가 따로 남고 서로 link된다",
+        diff: "회신은 늘 사람이 승인한다. 응답 시간 · 재질문 · 고객 확인이 지표다. 고객 이슈와 내부 이슈는 합치지 않는다." },
+      { id: "S3", title: "기능 추가: 사슬", walks: ["W4"],
+        steps: [
+          ["", "categorizer \"기능 추가\" → 기본값 = 사슬 CH-feature → 첫 link만 연다", "", "", ""],
+          ["착수 결정", "", "L1 결정 자료형: 요구 목록 · 비용 근거표", "", "요구 · 계약 문서의 요구 축"],
+          ["아키텍처 선택", "결정이 기록되면 다음 link가 발생한다(사슬 link)", "L2 결정 자료형: 대안 비교표", "", ""],
+          ["interface freeze", "", "L3 spec ∥ L3m C-model(oracle model · module trace)", "assertion 생성", ""],
+          ["검수 둘", "", "L4 RTL ∥ L5 검증(RTL 블라인드)", "lint · sim · coverage", ""],
+          ["검수", "두 link가 모두 accept되면 합류 link가 발생한다", "L6 통합 · regression. 실패는 기록만(원인 찾기는 사람이 요청 → 내부 길)", "regression", ""],
+          ["sign-off", "", "L7 판정형: 보고서 취합 · 미결 목록 · spec · RTL · C-model 정합성", "", "릴리즈 기록(Release recorder)"]
+        ],
+        files: "link마다 task 폴더 하나(결과 패키지 하나). 조립 파일이 link 사이의 간선을 기록한다",
+        diff: "link 하나 = task 하나 = 결과 패키지 하나. 사람 결정 넷 외에는 검수 accept로 넘어간다. freeze 뒤 spec이 바뀌면 L3 · L3m을 다시 freeze하고 영향받는 L4 · L5만 다시 연다." }
+    ],
+    stages: [
+      ["0 준비", "업무 지도의 기존 자산 이식(checklist · 검증 · 확인 환경 → checkpoint · evaluator), 카테고리 조사, KB 묶음 반입과 회사 Claude 세션의 가설 확인"],
+      ["1 shadow", "intake 열 전체(분류 · gate까지), 고객 트랙은 질문 초안까지"],
+      ["2 첫 갈래 자율", "workflow 열 + 이식이 끝난 업무 가족 하나(oracle이 강한 것), diagnose(원인 보고까지)"],
+      ["3 확장", "chain(사슬), 고객 트랙 회신 초안, KB와의 hook(FAQ · errata · bug 문서)"]
+    ],
+    gaps: [
+      ["intake에 고객 입구 · 출처 축 · diagnose 행선지 · 범위 좁히기 질문 · 분류의 Track B · 사슬 진입이 아직 없다", "intake 명세 개정"],
+      ["workflow에 Track B 기록 칸, 조사형 모양의 층 판별 자리, regression 원인 찾기 채우기, 고객 트랙 workflow가 없다", "workflow 후속"],
+      ["core와 KB의 접점(intake의 module 목록 = KB view, workflow의 설계 지식 질문 = kb-ask)이 경계 표 수준이다", "접점 대응표"],
+      ["합성 matrix · review ledger와 KB의 연결 필드가 없다", "필드 대응표"],
+      ["code-review · timing-area · coverage 갈래의 고유 내용", "현장 절차와 대조"]
+    ],
+    state: [
+      ["g", "정리", "이 지도에는 새 결정이 없다. 칸마다의 정본과 상태는 그 주제 카드에 있다."],
+      ["g", "확정", "core 공통 규약 · intake(입구 · 분류 · gate) · chain(link 사슬 · L3m · L5 블라인드) · 업무 지도의 기존 자산 이식 먼저 · 두 트랙 · 고객 트랙 재개 · KB(북극성 · 원칙 · agent system · 별도 묶음)"],
+      ["y", "가정 · 교정 대기", "workflow 명세 묶음 · intake 명세의 위임 결정 · diagnose(층 열 표 · 묶음 · 시작점) · 업무 지도의 분류 축 다섯 · 업무 가족 열둘 · lifecycle 여덟 단계 · chain의 encoder/decoder oracle 구분"],
+      ["n", "확인 대기", "KB의 고객 표기 해석 · 계약의 상업 조건 · 기존 문서화 AI와의 분담"],
+      ["n", "반영 대기", "아래 '이 지도에서 보이는 빈 곳' 다섯"]
+    ]
+  },
+
   /* ───────────── ② 시스템: 주제마다 같은 틀 ───────────── */
   sys: {
-    lead: "core 하나 위에 갈래가 얹힌다. 주제마다 같은 틀(무엇 · 한 장 · 핵심 규칙 · 사람의 자리 · 품질 기준 · 상태 · 명세 원문)로 본다.",
-    order: ["core", "intake", "workflow", "chain", "diagnose", "workmap"],
+    lead: "core 하나 위에 갈래가 얹히고, 옆에서 KB가 지식의 정본을 맡는다. 주제마다 같은 틀(무엇 · 한 장 · 핵심 규칙 · 사람의 자리 · 품질 기준 · 상태 · 명세 원문)로 본다. 주제 사이의 겹침은 전체 지도에서 본다.",
+    order: ["core", "intake", "workflow", "chain", "diagnose", "workmap", "kb"],
     next: [
       ["timing-area", "탐색형 갈래. oracle = synth + LEC. workflow 라이브러리의 timing workflow가 목표 지표 mode(timing · area)로 첫 판을 덮는다."],
       ["coverage", "탐색형 갈래. oracle = coverage + sim. coverage workflow 첫 판이 있고, 다른 갈래가 남긴 test 보강 backlog를 소비한다."]
@@ -173,6 +313,45 @@ window.WS = {
         quality: ["고객 응답 지표: 첫 회신 · 최종 회신 시간, 재질문, 고객 확인 비율(목표 공란)", "Track B 기록이 모든 일의 완료 조건"],
         state: [["g", "확정", "기존 자산 이식 먼저 · 두 트랙 · 고객 트랙 재개"], ["y", "가정 · 교정 대기", "분류 축 다섯 · 업무 가족 열둘 · lifecycle 여덟 단계"], ["n", "회사에서 확인", "고객 이슈가 들어오는 경로 · 기존 자산의 위치와 담당"], ["n", "반영 대기", "intake의 출처 축 · 고객 입구, workflow의 Track B 칸 · 고객 회신 workflow"]],
         spec: []
+      },
+      kb: {
+        name: "KB", role: "지식의 정본 · 별도 묶음", badge: ["확정 · 확인 대기 셋", "g"],
+        one: "어떤 제품의 어떤 질문이든 근거(원천 위치와 버전)가 붙은 답을 찾고, 답하지 못한 빈 곳은 채울 일감이 된다. intake · workflow · diagnose · 고객 트랙이 모두 묻는 자리다.",
+        what: [
+          "세 성질: 믿을 수 있다(모든 사실이 원천 위치와 revision을 가리킨다) · 살아 있다(원천이 바뀌면 stale 표시와 갱신 제안이 나온다) · 빈 곳이 보인다(답하지 못한 질문과 없는 자료가 일감 목록이 된다).",
+          "전용 agent system이 짓는다. agent 다섯(Surveyor 원천 조사 · Harvester 초안과 갱신 · Curator 정리와 검수 보조 · Librarian 답 · Release recorder 확정 기록)과 결정론 script(lint · event router · 생성)다. agent는 MR로 제안하고, 사람이 받아들여야 reviewed가 된다.",
+          "core와 별도 묶음(zip)으로 가져간다. 회사의 Claude 세션이 먼저 원천을 읽고, 파일럿 · 순서 · 숫자 · 기존 template과의 정본 관계를 가설 확인 시트로 도입 리더 · 담당과 정한다."
+        ],
+        map: "kb", more: "kb",
+        rules: [
+          "근거: KB의 모든 사실은 원천 위치와 revision을 가리킨다. 가리키고 복사하지 않는다. 추론은 근거와 함께 (추정), 계산은 (계산), 모르면 모른다고 쓴다.",
+          "사람이 판정한다: agent는 초안과 갱신을 MR로 제안하고, 사람이 받아들여야 reviewed가 된다. 확정된 릴리즈 · 납품 기록은 바뀌지 않는다(사후 정정은 덧붙이기만).",
+          "계산은 script: 신선도 · 연결 · 누출 · 릴리즈 포함 여부는 결정론 script가 판정한다. script는 LLM을 부르지 않고 문서를 고치지 않는다.",
+          "고객 정보는 섞지 않는다: 고객 정보는 따로 두고, 본 KB에는 고객 별칭만 쓰며, 한 세션은 고객 하나만 본다.",
+          "빈 곳은 일감이다: 있어야 하는데 없는 자료와 답하지 못한 질문은 목록이 되고, 채워지면 KB가 갱신된다."
+        ],
+        human: ["문서 담당: 자기 범위의 MR을 판정해 reviewed로 올린다(판정 등급 auto · light · full), 충돌 판정", "릴리즈 담당 · FAE: 릴리즈 확정 · 납품 확인 · FAQ 판정", "KB 관리자: 규칙과 registry의 정본, 정기 정본 회의", "보안 담당: 고객 저장소 권한 · AI 읽기 허용 범위 · 전처리 규칙", "팀 리더 · 제품 리더: 질문 표본과 품질 목표, 파일럿 제품, 단계 전환"],
+        quality: ["hard-zero 넷: 근거 없는 사실 · 고객 정보 누출 · 확정 기록 훼손 · 낡음 은폐. 하나라도 나오면 그 변경을 되돌린다", "질문 표본을 KB만으로 답하게 해서 답한 비율을 잰다(목표 공란, 팀 리더)"],
+        state: [["g", "확정", "북극성 · 세 성질 · 원칙 다섯 · agent 다섯과 script · 큰 할 일 여섯 · core와 별도 묶음으로 가져가기"], ["y", "확인 대기", "고객 표기의 해석 · 계약의 상업 조건 · 기존 문서화 AI와의 분담. 묶음에 기본안으로 적혀 있고 회사에서 사람과 확인한다"], ["n", "회사에서 정할 것", "파일럿 제품과 작업 순서 · 기존 template과 KB 문서 종류의 정본 관계 · 고객 별칭 목록 · 숫자 기준"], ["n", "반영 대기", "core와의 접점(intake의 module 목록 = KB view, workflow의 설계 지식 질문 = kb-ask)이 경계 표 수준이다"]],
+        place: {
+          lead: "다른 주제는 KB에 묻기만 하고 직접 쓰지 않는다. 일이 끝나며 생긴 지식은 Harvester가 MR로 제안하고 사람이 판정한다.",
+          ask: [
+            ["intake", "무엇에 대한 일인가: module 목록과 유사 사례"],
+            ["workflow", "설계 지식 질문(kb-ask): plan과 실행 중에 필요한 spec · 결정 · 과거 사례"],
+            ["diagnose", "과거 bug 패턴: 같은 증상의 알려진 원인(Librarian)"],
+            ["고객 트랙", "알려진 bug · errata 대조, 그 고객이 가진 릴리즈(고객 권한 단위로만)"],
+            ["chain", "요구 · 계약 문서의 요구 축(첫 link), spec · RTL · C-model 정합성의 근거"],
+            ["RTL review", "module의 제약과 함정, bug 패턴"]
+          ],
+          back: [
+            ["원인 보고가 accept됨", "bug 문서 초안 MR(Harvester)"],
+            ["고객 이슈가 고객 확인으로 끝남", "errata 후보 · FAQ 후보 MR"],
+            ["sign-off · 릴리즈 · 납품", "릴리즈 · 납품 기록(Release recorder), 확정되면 바뀌지 않는다"],
+            ["commit · ticket 종료 · 요구 변경 · 합성 · 리뷰 · task accept", "event router가 사건을 받아 갱신 · 확인 제안(MR)"],
+            ["답하지 못한 질문", "gap 한 건 → 채울 일감 목록"]
+          ]
+        },
+        spec: [["공개 해설: KB 한 장", "url", "../kb-system/"], ["공개 해설: 단계별 입력 · 출력", "url", "../kb-system/stages.html"], ["전체 지도에서 KB의 자리", "atlas", "grid"]]
       }
     }
   },
@@ -192,7 +371,7 @@ window.WS = {
         ["owner가 원인 찾기를 요청", "사람 → LLM", "diagnose: 우리 regression에서 재현되므로 TB · C-model · RTL 가운데서 좁힌다. oracle 쪽부터 지우고, 변경 구간 bisect → module trace 첫 불일치 → before/after로 확인. 고치지 않는다."]
       ],
       see: ["일은 30개가 아니라 1개다. 알림이 쏟아지면 사람이 시스템을 끈다.", "붙이는 것은 값이 같을 때만이다.", "원인 찾기는 층부터, 그리고 고치지 않는다."],
-      go: [["intake", "sys", "intake"], ["diagnose", "sys", "diagnose"], ["시험 사례 S02", "bun", "ia/golden/GC-S02"]] },
+      go: [["intake", "sys", "intake"], ["diagnose", "sys", "diagnose"], ["시험 사례 S02", "bun", "ia/golden/GC-S02"], ["전체 지도: 내부 regression의 길", "atlas", "S1"]] },
     { id: "W2", title: "\"원인 찾아서 고쳐 주세요\" → 버그 수정 한 바퀴", from: "내부 ticket · \"blk_d 출력이 reference와 다릅니다\"",
       one: "요청 둘(원인 · 수정)이 한 workflow의 두 phase가 되고, 자율 선언이 실행 중 허용 목록이 된다.",
       steps: [
@@ -206,7 +385,7 @@ window.WS = {
         ["learn", "코드", "재발 방지 test를 intake의 internal 입구로 backlog에 보낸다. 그 일도 다시 intake를 지난다."]
       ],
       see: ["두 요청 = 한 workflow의 두 phase. '원인만'이면 수정 phase가 빠지고 대상 diff는 비어야 한다.", "선언이 곧 allowlist. 막힌 시도는 결과 패키지에 남는다.", "세션은 소모품, STATE가 정본."],
-      go: [["workflow", "sys", "workflow"], ["WF-bugfix", "bun", "wa/library/WF-bugfix"], ["시험 사례 W01", "bun", "wa/golden/GW-W01"]] },
+      go: [["workflow", "sys", "workflow"], ["WF-bugfix", "bun", "wa/library/WF-bugfix"], ["시험 사례 W01", "bun", "wa/golden/GW-W01"], ["전체 지도: 내부 regression의 길", "atlas", "S1"]] },
     { id: "W3", title: "\"blk_ctrl 리뷰해 줘\" → 리뷰어는 고치지 않는다", from: "사람이 직접 부름(command)",
       one: "판정과 수정을 떼어 놓는다. 사람이 부른 run의 결과는 부른 사람의 개인 범위에 머문다.",
       steps: [
@@ -233,7 +412,7 @@ window.WS = {
         ["L7 sign-off 준비", "LLM → 사람", "보고서 · 미결 목록 취합, spec · RTL · C-model 정합성 검사. 책임자가 sign-off한다."]
       ],
       see: ["사람의 결정은 넷이다.", "검증은 RTL을 읽지 않는다.", "spec이 바뀌어도 영향받는 link만 다시 연다."],
-      go: [["chain", "sys", "chain"], ["CH-feature", "bun", "wa/library/CH-feature"]] },
+      go: [["chain", "sys", "chain"], ["CH-feature", "bun", "wa/library/CH-feature"], ["전체 지도: 사슬의 길", "atlas", "S3"]] },
     { id: "W5", title: "고객: \"특정 입력에서 출력이 깨진다\" → 고객 트랙", from: "고객 이슈 · 가상 고객",
       one: "질문과 자동 multi-test로 층을 가르고, 회신은 사람이 승인한다. 진짜 bug면 내부 이슈를 따로 열어 link한다.",
       steps: [
@@ -247,7 +426,7 @@ window.WS = {
         ["Track B", "코드", "어느 질문 · 어느 test가 실제로 층을 갈랐는지 기록해 질문 묶음과 test 묶음을 고친다."]
       ],
       see: ["같은 증상도 출처가 다르면 끝이 다르다(고객 확인 vs 수정과 검수).", "층부터 가른다. 원인이 고객 환경이나 문서일 수도 있다.", "Track B가 붙어야 완료다."],
-      go: [["업무 지도", "sys", "workmap"], ["diagnose", "sys", "diagnose"]] }
+      go: [["업무 지도", "sys", "workmap"], ["diagnose", "sys", "diagnose"], ["전체 지도: 고객 이슈의 길", "atlas", "S2"]] }
   ],
 
   /* ───────────── ④ 결정 ───────────── */
@@ -256,8 +435,8 @@ window.WS = {
     now: ["t-i-cmd", "t-i-reject", "t-i-self", "t-w-onresult", "t-w-human", "t-w-chain", "t-c-oracle", "t-i-s02", "t-i-flaky", "t-dg-layers"],
     next: [
       "교정: 위의 열 가지 중 틀린 것만 고친다. 확정을 건드린 intake 세 곳이 먼저다.",
-      "읽기: diagnose와 업무 지도 카드(한 장 · 해설 포함)를 보고, 층 열 · 질문 묶음 · 업무 가족이 현장 감각과 맞는지 본다.",
-      "설계 쪽 반영 대기: chain · diagnose · 업무 지도의 '반영할 곳'(intake의 출처 축 · 고객 입구, workflow의 Track B 칸 · 고객 회신 workflow, 조사형 모양의 층 판별 자리, core 설계서 · walkthrough)."
+      "읽기: 전체 지도에서 주제 사이의 겹침(●가 둘인 열 셋)과 일 셋의 길을 보고, 그다음 diagnose · 업무 지도 · KB 카드에서 층 열 · 질문 묶음 · 업무 가족이 현장 감각과 맞는지 본다.",
+      "설계 쪽 반영 대기: chain · diagnose · 업무 지도의 '반영할 곳'(intake의 출처 축 · 고객 입구, workflow의 Track B 칸 · 고객 회신 workflow, 조사형 모양의 층 판별 자리, core 설계서 · walkthrough), core와 KB의 접점 대응표."
     ]
   },
 
@@ -724,13 +903,86 @@ window.WS = {
       ]}}
     ],
     related: [], stages: []
+  },
+  { id: "kb", tab: "KB · 지식의 정본", short: "KB agent system", badge: "확정 · 확인 대기 셋",
+    title: "KB agent system — 근거가 붙은 제품 지식",
+    lead: "흩어진 제품 자료(코드 · spec · issue · 릴리즈 · 합성 결과 · 고객 질문)를 사람과 AI agent가 실제 질문에 답할 수 있는 하나의 KB로 정리하고 유지하는 시스템이다. core(intake · workflow)와 별도 묶음으로 가져가며, 전체 안에서는 지식의 정본 자리에 선다. 아래는 전체 시스템 관점의 요약이고, 그림 해설은 공개 해설 페이지에 있다.",
+    summary: [
+      "북극성: 어떤 제품의 어떤 질문이든 사람과 agent가 근거(원천 위치와 버전)가 붙은 답을 찾는다. 답을 못 찾으면 그 빈 곳이 채울 일이 된다.",
+      "가리키고 복사하지 않는다. KB 문서는 원천의 위치 · revision · 요약 · 연결을 가진다. 숫자는 system of record에만 있고, 고객에게 나간 것만 동결 사본을 둔다.",
+      "구조는 고정이고 회사마다 다른 점은 registry의 값이다. 문서 종류 서른 · 연결 열여덟 · 두 축(주제 + 릴리즈) · 두 저장소(본 KB + 접근이 제한된 고객 저장소).",
+      "agent는 MR로 제안하고 사람이 reviewed로 올린다. 확정된 릴리즈 · 납품 기록은 보호 원장의 hash로 묶여 바뀌지 않는다.",
+      "계산은 script, 서술은 AI. lint가 신선도 · 연결 · 고객 누출 · 확정 기록 변조 · 근거 없는 추정을 검사하고 지도를 만든다."
+    ],
+    excluded: "이 페이지의 제품 · 고객 · 수치는 모두 가상이다(가상 제품 family VX, 가상 고객 NOVA 등). 회사 자료가 들어간 KB가 아니며, 실제 KB를 채우고 실험하는 일은 회사에서 한다.",
+    body: [
+      { h: "1. 질문 셋이 지나가는 길 (가상)" },
+      { p: "(가) 신입 설계자가 \"blk_parse의 header FIFO 깊이는?\"이라고 묻는다. Librarian이 module 목록에서 그 module 문서를 연다. port · parameter 표는 코드에서 생성한 칸이라 코드 값 16이 있다. spec과의 열린 충돌(spec은 32)이 있어 답에 \"코드 16, spec 32, 담당이 판정 중\"을 충돌 표시와 함께 적는다. 인용은 문서 id와 원천 revision이다." },
+      { p: "(나) 고객 권한이 있는 FAE가 \"이 고객이 쓰는 릴리즈에 AXI burst bug가 있나?\"라고 묻는다. Librarian이 그 고객의 납품 기록 → 지금 쓰는 릴리즈 → bug 문서의 fixed-in을 따라가 \"없다, 이전 납품에는 있었다\"를 답한다. 같은 질문을 고객 권한이 없는 사람이 하면 고객의 보유 릴리즈는 말하지 않고 '권한 밖' gap을 남긴다. 다른 고객의 존재는 어느 경우에도 드러나지 않는다." },
+      { p: "(다) bug ticket이 종료된다(사건). event router가 Harvester를 부른다. Harvester는 ticket(전처리본)과 수정 commit을 읽어 bug 문서 초안을 쓴다. 고객은 별칭으로만 쓰고, 영향 릴리즈가 ticket에 없으면 commit과 tag로 계산해 (계산)으로 표시한다. 같은 commit으로 바뀐 module 문서의 확인 제안도 함께 낸다. 모두 MR이고, 담당이 판정하면 reviewed가 된다." },
+      { h: "2. 부품: agent 다섯과 결정론 script" },
+      { table: { head: ["부품", "하는 일"], rows: [
+        ["모든 agent 공통", "고객 권한(없음 또는 고객 하나)을 입력으로 받고, 한 세션이 두 고객 폴더를 읽지 않는다. 원천은 읽기만, KB에는 MR로만 쓴다"],
+        ["Surveyor", "제품 하나의 원천을 조사해 registry와 제품 이해 카드를 만든다. 사람에게는 찾지 못한 것만 짧게 묻는다"],
+        ["Harvester", "원천에서 template대로 초안을 쓰고, 원천 사건마다 갱신 · 확인 제안을 낸다"],
+        ["Curator", "MR 검수 요약, 충돌 · FAQ · 중복 · 은퇴 · gap 순위 정리"],
+        ["Librarian", "KB만으로 인용이 붙은 답을 낸다. 답하지 못하면 gap을 남긴다"],
+        ["Release recorder", "릴리즈 · 납품 기록, checklist 자동 판정, 동결 사본"],
+        ["lint · 생성 · event router", "검사와 지도, 코드에서 만드는 칸, 사건 분배. 모두 결정론이다"]
+      ] } },
+      { h: "3. 큰 할 일 여섯 (회사에서 하는 일)" },
+      { table: { head: ["큰 할 일", "의미"], rows: [
+        ["1. 기존 문서화 AI와 결합해 1차 문서를 만든다", "이미 있는 과정을 대신하지 않고, 그 결과에 출처 · 판정 · 연결 · 신선도를 붙인다"],
+        ["2. 믿음의 장치를 세운다", "lint CI, 확정 원장, 권한 · hook, agent · skill"],
+        ["3. 원천을 KB에 잇는다", "코드 · 문서 저장소와 issue tracker에서 revision을 읽고, 고객 이름을 지우고, 릴리즈 포함 여부를 계산한다"],
+        ["4. 릴리즈 축을 세운다", "릴리즈 · 납품 · errata · 합성 · 동반 자산(C-model · 검증 SW)이 \"어느 버전에서\"의 기준이 된다"],
+        ["5. 요구 축을 세운다", "고객 제품마다의 계약을 원본으로 요구 → spec · module · 검증 · 릴리즈를 잇는다"],
+        ["6. 살아 있게 하고 품질을 잰다", "사건 → 작업 → 지도의 고리, 실제 질문 표본으로 답하는 비율"]
+      ] } },
+      { note: "큰 할 일은 작업 요청 열둘로 나뉘어 있다. 작업 요청마다 왜 필요한지 · 만들 것 · 요구사항(필수와 기본안) · 끝났다고 보는 시험이 적혀 있다. 필수는 원칙에서 나온 것이라 바꾸지 않고, 기본안은 회사에서 사람과 상의해 바꿔도 된다." },
+      { h: "4. 시험으로 확인한 것 (가상 제품)" },
+      { table: { head: ["시험", "결과"], rows: [
+        ["lint mutation(결함을 하나씩 넣어 잡는지)", "66건 전부 통과"],
+        ["질의응답(명세만 준 Librarian)", "25건 전부 맞음, hard-zero 0(근거 없는 주장 · 누출 · 표시 누락)"],
+        ["수집(명세만 준 Harvester)", "3건 전부 통과, 작업 공간 lint 오류 0, 고객 이름 0"],
+        ["회사 구현용 정답 표(조상 관계 10 · 전처리 13 · router 15)", "38건 모순 0. 정답을 일부러 틀리게 바꾸면 모두 잡는다"],
+        ["git 원천 adapter", "6건 전부 통과"],
+        ["적대적 설계 검토", "명세만 읽은 검토자의 지적 15건을 반영한 뒤 위 시험을 다시 돌렸다"]
+      ] } },
+      { h: "5. 회사에서 세우는 순서" },
+      { table: { head: ["단계", "무엇을"], rows: [
+        ["0 준비", "본 KB 저장소와 고객 저장소, 규칙 설치, lint CI, 권한 · 전처리"],
+        ["1 파일럿 bootstrap", "Surveyor가 registry · 카드, Release recorder가 과거 릴리즈 재구성, Harvester가 순서대로 초안, 문서 담당이 MR 판정"],
+        ["2 살아 있게", "사건 hook(commit · ticket · 릴리즈), 매일 lint, 정기 정리, stale 줄이기"],
+        ["3 쓰게", "사람이 kb-ask를 쓰고, intake · workflow · RTL review agent가 묻는다. 질문 표본으로 성적을 잰다"],
+        ["4 넓히기", "다음 제품은 카드부터, 지도 순위대로, 정본 회의 정례화"]
+      ] } },
+      { h: "6. 가져가는 방식" },
+      { ul: [
+        "core 묶음과 별도인 zip 하나로 가져간다. 묶음을 만들 때 시험이 하나라도 실패하면 zip을 만들지 않는다.",
+        "처음 여는 문서는 작업 요청 묶음의 안내(북극성 · 원칙 다섯 · 큰 할 일 여섯 · 회사에서 사람과 정할 것)다.",
+        "회사의 Claude 세션은 먼저 원천(기존 문서화 자산 · 제품 저장소 목록)을 읽고, 정할 것을 가설 확인 시트로 만들어 도입 리더에게 한 번에 보인다. 빈 설문이 아니라 원천에서 읽은 가설 · 기본안 · 답이 바꾸는 것을 붙인다.",
+        "고객 정보는 고객 저장소 · 전처리가 준비되고 보안 담당이 승인한 뒤에 다룬다. 그 전에는 본 KB가 고객을 다루지 않는다."
+      ] },
+      { h: "7. 회사에서 사람과 정할 것과 확인 대기" },
+      { table: { head: ["무엇", "상태"], rows: [
+        ["파일럿 제품과 작업 순서", "회사에서 정할 것"],
+        ["기존 문서화 template과 KB 문서 종류 · 절 가운데 무엇을 정본으로 할지", "회사에서 정할 것"],
+        ["고객 별칭 · 분류 코드 목록, 고객 정보를 여는 시점", "회사에서 정할 것(보안 담당과)"],
+        ["숫자 기준(기한 · 상한 · 주기 · 표본 크기)과 판정 등급", "회사에서 정할 것(공란)"],
+        ["고객 표기의 해석(별칭 + 고객 문서 분류 + 번호)", "확인 대기(기본안이 묶음에 있다)"],
+        ["계약에서 가져올 범위(기술 요구 항목만, 상업 조건은 위치만)", "확인 대기(기본안이 묶음에 있다)"],
+        ["기존 문서화 AI와의 분담(기존 과정 = 1차 생성, KB = 출처 · 판정 · 연결 · 신선도)", "확인 대기(기본안이 묶음에 있다)"]
+      ] } }
+    ],
+    related: [], stages: []
   }
   ],
 
 
   /* ───────────── core 한 장 (그림 · 15초 애니메이션) ─────────────
      그림과 애니메이션은 media/core_map.html 한 파일에서 30_tools/render_media.mjs가 뽑는다. */
-  mapOrder: ["core", "intake", "workflow", "chain", "diagnose", "workmap"],
+  mapOrder: ["core", "intake", "workflow", "chain", "diagnose", "workmap", "atlas", "kb"],
   maps: {
   core: {
     tab: "core",
@@ -1209,6 +1461,181 @@ window.WS = {
         ],
         go: [["업무 지도 카드", "sys", "workmap"], ["workflow 카드", "sys", "workflow"]] }
     ]
+  },
+  atlas: {
+    tab: "전체 지도",
+    narr: [
+      {"k": "intro", "seg": [0, 3], "text": "이 설계는 주제가 여럿으로 나뉘어 있습니다. intake, workflow, chain, diagnose, 업무 지도, 고객 트랙, 그리고 KB입니다. 그래도 실제 일은 모두 같은 core 한 바퀴를 지납니다."},
+      {"k": "intro", "seg": [3, 6.5], "text": "갈래는 엔진이 아닙니다. chain은 link 표를, diagnose는 층 표를, code-review와 timing-area, coverage는 특화 workflow와 oracle을 정합니다. 업무 지도는 출처와 고객 트랙을 정합니다."},
+      {"k": "intro", "seg": [6.5, 9.5], "text": "지식은 KB 한 곳이 정본입니다. intake, workflow, diagnose, 고객 트랙이 KB에 묻고, 일의 끝에서 나온 FAQ와 errata, bug 문서는 MR로 제안되어 사람이 reviewed로 올립니다."},
+      {"k": "intro", "seg": [9.5, 11.5], "text": "겹침 지도는 주제 여덟과 책임 열 칸을 맞춰 봅니다. 채운 점은 정본, 빈 점은 빌려 쓰는 곳입니다."},
+      {"k": "intro", "seg": [11.5, 15], "text": "그래서 내부 실패도, 고객 이슈도, 기능 추가도 같은 부품을 지나갑니다. 하나씩 보겠습니다."},
+      {"k": "tour", "view": [0, 0, 1920, 1080], "box": [70, 236, 1780, 128], "text": "core는 둘입니다. intake는 무슨 일인지, 해도 되는지, 어디로 보낼지를 맡고, workflow는 어떻게 끝내고 무엇으로 맞았다고 할지를 맡습니다. learn에 남은 Track B는 분류 규칙과 workflow를 고칩니다. core 규약과 intake는 확정이고, workflow 명세 묶음은 가정입니다."},
+      {"k": "tour", "view": [300, 200, 1300, 731], "box": [330, 386, 1100, 92], "text": "chain은 긴 일을 link 사슬로 나누고, 앞 link가 뒤 link의 oracle을 만듭니다. 나머지 셋은 특화 workflow 첫 판만 있고, 고유 내용은 현장 절차와 대조해 채웁니다. chain은 확정이고 oracle 구분만 가정이며, diagnose는 가정입니다."},
+      {"k": "tour", "view": [0, 0, 1920, 1080], "box": [70, 488, 1780, 92], "text": "KB는 별도 묶음으로 반입하는 system입니다. 어떤 제품의 어떤 질문이든 원천 위치와 버전이 붙은 답을 주고, 답하지 못한 빈 곳은 채울 일감이 됩니다. 다른 주제는 KB에 직접 쓰지 않고 MR로 제안합니다. KB는 확정이고, 고객 표기 해석 등 세 줄은 확인 대기입니다."},
+      {"k": "tour", "view": [940, 690, 980, 551], "box": [995, 790, 830, 236], "text": "한 열에 채운 점이 여럿이면 경계를 확인할 곳입니다. 정본 문서가 짚은 열은 입구, oracle, 학습입니다. 입구는 core가 단계와 파일을, intake가 adapter를, 업무 지도가 고객 입구를 정합니다. oracle은 workflow가 형식을, 갈래가 무엇이 oracle인지를 정합니다."},
+      {"k": "tour", "view": [0, 0, 1920, 1080], "box": [70, 580, 1780, 36], "text": "첫째 길은 야간 regression 실패입니다. 같은 변경 구간의 실패 서른 개가 묶음 하나가 되고, owner가 요청하면 WF-regr-diagnose가 원인 보고를 씁니다. 수정은 후속 요청으로 가고, Track B와 bug 문서 MR이 남습니다."},
+      {"k": "tour", "view": [0, 0, 1920, 1080], "box": [70, 618, 1780, 36], "text": "둘째 길은 고객 이슈입니다. 범위 좁히기 질문 뒤에 multi-test를 돌리고, 진짜 bug면 내부 이슈를 따로 열어 첫째 길로 보냅니다. 회신은 늘 사람이 승인하고, 고객 확인으로 끝나며, errata와 FAQ 후보가 MR로 남습니다."},
+      {"k": "tour", "view": [0, 0, 1920, 1080], "box": [70, 656, 1780, 36], "text": "셋째 길은 기능 추가 사슬입니다. intake는 첫 link만 열고, link 하나가 task 하나입니다. 사람 결정 넷 외에는 검수 accept로 다음 link가 열리고, 끝에서 릴리즈 기록이 KB에 남습니다."},
+      {"k": "tour", "view": [40, 690, 980, 551], "box": [80, 736, 860, 314], "text": "정리하면 이유는 넷입니다. 일은 모두 같은 core를 지나고, 갈래는 내용을 채우며, 지식은 KB 한 곳이 정본이고, 책임마다 정본이 하나라서 부품을 바꿔도 다른 곳이 흔들리지 않습니다."},
+      {"k": "close", "text": "회사에는 자산 이식과 KB 반입, intake shadow, workflow와 diagnose, chain과 KB hook 순서로 세웁니다. intake의 고객 입구와 출처 축, core와 KB의 접점 표는 반영 대기입니다. 주제가 늘어도 같은 길 위에 내용을 더하는 것, 이것이 실무의 기틀입니다."}
+    ],
+    title: "전체 지도 한 장",
+    whyTitle: "왜 전체 지도가 기틀인가",
+    lead: "이 설계는 주제 여럿(core · intake · workflow · chain · diagnose · 업무 지도 · 고객 트랙 · KB)으로 나뉘어 있다. 전체 지도는 그것을 한 장으로 묶는다. 실제 일은 모두 같은 core(발생 → intake → workflow → 사람의 검수 → 반영 → learn)를 지나가고, 갈래는 엔진이 아니라 그 안의 내용(link 표 · 층 표 · oracle)을 채우며, 지식은 KB 한 곳이 정본이다. 겹침 지도는 책임마다 어느 주제가 정본(●)이고 어느 주제가 빌려 쓰는지(○)를 보여 준다. 새 결정이 없는 정리이며, 각 칸의 정본은 그 주제의 문서다.",
+    go: [["시스템 카드", "tab", "sys"], ["사례 다섯", "tab", "walk"], ["KB 한 장", "sys", "kb"], ["업무 지도 한 장", "sys", "workmap"]],
+    media: {
+      mp4: "media/atlas_15s.mp4", gif: "media/atlas_15s.gif", html: "media/atlas_map.html",
+      png: { light: "media/atlas_map_light.png", dark: "media/atlas_map_dark.png" }
+    },
+    story: [
+      ["0~3초", "주제는 여럿이어도, 일은 모두 같은 core 한 바퀴를 지난다", "intake · workflow · chain · diagnose · 업무 지도 · 고객 트랙 · KB · code-review · timing-area · coverage 이름표가 흩어져 떠다니다 사라지고, 그 자리에 발생 → intake → workflow → ◆ 사람의 검수 → 반영 → learn의 core 줄이 선다. 표지가 줄을 따라가고, learn에서 intake로 돌아가는 Track B 고리가 그려진다."],
+      ["3~6.5초", "갈래는 엔진이 아니라, workflow 안의 내용을 채운다", "workflow 아래에 갈래 칸이 서고 chain · link 표, diagnose · 층 표, code-review · timing-area · coverage(점선: 정본 없음) 칩이 차례로 나온다. intake 아래에는 업무 지도(출처 · 업무 가족 · 고객 트랙 · 두 트랙) 칸이 붙는다."],
+      ["6.5~9.5초", "지식은 KB 한 곳이 정본이다. 모두 묻고, 끝은 MR로 돌아온다", "아래에 KB 띠가 깔리고, KB에서 업무 지도 · diagnose 쪽으로 kb-ask 점선이 올라간다. 반영 · learn에서 '일의 끝이 KB로'(FAQ · errata · bug 문서 → MR 제안) 칸을 거쳐 KB로 내려가는 점선에 표지가 흐른다."],
+      ["9.5~11.5초", "책임마다 정본은 하나다: ● 정본, ○ 사용", "흐름도가 위로 올라가고 오른쪽 아래에 겹침 지도(주제 여덟 × 책임 열 칸, 행마다 상태 표)가 한 줄씩 채워진다. 입구 · oracle · 학습 열에 '나눠 맡는다' 점선 띠가 켜진다."],
+      ["11.5~15초", "일 셋이 같은 부품을 지나가니, 부품을 바꿔도 흔들리지 않는다", "흐름도 아래에 일 셋(내부 regression 실패 · 고객 이슈 · 기능 추가 사슬)의 줄이 깔리고, 표지가 같은 정거장(intake · workflow · 검수 · 반영 · learn)을 지나간다. 왜 기틀인지 네 줄(한 길 · 내용 · 지식 · 정본)이 나온다."]
+    ],
+    why: [
+      ["한 길", "어떤 일이든 발생 → intake → workflow → 사람의 검수 → 반영 → learn을 지난다. 단계마다 남는 파일도 같다(00_intake · 10_triage · 20_gate · 30_plan · STATE · 40_result · 50_review · 60_learn). 새 갈래가 생겨도 길을 새로 만들지 않고, 사람은 어떤 일이든 같은 자리에서 같은 모양의 결과 한 장을 검수한다."],
+      ["내용", "갈래는 엔진이 아니다. chain은 link 표와 C-model 층을, diagnose는 층 표와 질문 · test 묶음을, code-review · timing-area · coverage는 특화 workflow와 oracle을 정한다. 실행 · 판정 · 검수의 형식은 workflow가 한 번만 정하므로, 갈래를 더하는 일은 workflow 파일과 그 내용을 더하는 일이 된다."],
+      ["지식", "지식은 KB 한 곳이 정본이다. intake(module 목록) · workflow(설계 지식 질문) · diagnose(과거 bug 패턴) · 고객 트랙(알려진 bug · errata)이 모두 KB에 묻고, 일의 끝에서 나온 FAQ · errata · bug 문서는 KB에 직접 쓰지 않고 MR로 제안해 사람이 reviewed로 올린다. 그래서 같은 사실이 여러 곳에 따로 적혀 어긋나는 일이 없다."],
+      ["정본", "책임마다 정본이 하나다. 한 열에 ●가 여럿이면 그 책임을 나눠 맡는 것이고(예: 입구 = core의 단계 · 파일, intake의 adapter, 업무 지도의 출처 축 · 고객 입구), 나머지는 정본의 규칙을 빌려 쓴다. 그래서 부품 하나를 고치거나 바꿔도 다른 주제가 흔들리지 않고, 고칠 곳이 어디인지 바로 보인다."]
+    ],
+    zones: [
+      { name: "core 한 바퀴", z: 0, stages: "발생 → intake → workflow → 사람의 검수 → 반영 → learn",
+        what: "core는 둘이다. intake는 \"무슨 일인가 · 해도 되는가 · 어디로 보내나\"를, workflow는 \"어떻게 끝내고 무엇으로 맞았다고 하나\"를 맡는다.",
+        ul: [
+          "발생: ticket · tool 신호 · 고객 · command · 사슬의 다음 link · backlog. 어떤 발생이든 같은 레코드로 받는다.",
+          "intake: 받기 → 분류 → gate. 품질 기준은 hard-zero 셋(위험 놓침 · 잘못 붙이기 · 밖으로 새기). 확정이고, 명세의 세세한 위임 결정은 교정 대기다.",
+          "workflow: plan → checkpoint 실행 → oracle 판정 → 결과 패키지. 판정은 도구가 하고, 한 task = 한 결과 패키지 = 한 번의 검수다. 명세 묶음은 위임에 의한 가정(교정 대기)이다.",
+          "사람의 검수 → 반영 → learn: 사람이 결과 한 장으로 검수하고 반영한다. learn에서 Track B(쓴 workflow의 기록)가 남아 분류 규칙과 workflow revision을 고친다. core 공통 규약은 확정이다."
+        ],
+        go: [["core 카드", "sys", "core"], ["intake 카드", "sys", "intake"], ["workflow 카드", "sys", "workflow"]] },
+      { name: "갈래 = 내용", z: 1, stages: "chain · diagnose · code-review · timing-area · coverage · 업무 지도",
+        what: "갈래는 엔진이 아니다. workflow 파일(특화 · 조립)과 그 내용(link 표 · 층 표 · oracle)을 정한다.",
+        ul: [
+          "chain: 아키텍처부터 검증까지의 긴 일을 link(= task) 사슬로 나누고, 앞 link가 뒤 link의 oracle을 만든다. 사람 결정 넷(착수 · 아키텍처 선택 · interface freeze · sign-off). 확정이고, encoder/decoder의 oracle 구분만 가정이다.",
+          "diagnose: 원인을 층부터 가르고 재현 → 가설 → 좁히기 → before/after로 확인한다. 대상을 고치지 않는다. 가정(교정 대기).",
+          "code-review · timing-area · coverage: 정본 문서는 아직 없고, workflow 묶음 안에 특화 workflow 첫 판이 있다. 고유 내용은 현장 절차와 대조하며 채운다.",
+          "업무 지도: intake와 workflow 사이의 지도. 기존 자산 이식 먼저 · 두 트랙 · 고객 트랙 재개는 확정, 분류 축 다섯 · 업무 가족 열둘 · lifecycle 여덟 단계는 가정이다. 자기 agent · 도구는 없고 intake와 workflow의 규칙 · 설정 값으로 들어간다."
+        ],
+        go: [["chain 카드", "sys", "chain"], ["diagnose 카드", "sys", "diagnose"], ["업무 지도 카드", "sys", "workmap"]] },
+      { name: "KB = 지식의 정본", z: 2, stages: "묻기(kb-ask) · 일의 끝 → MR",
+        what: "KB는 별도 묶음으로 반입하는 system이다. 어떤 제품의 어떤 질문이든 근거(원천 위치와 버전)가 붙은 답을 주고, 답하지 못한 빈 곳은 채울 일감이 된다.",
+        ul: [
+          "묻는 쪽: intake(module 목록), workflow(설계 지식 질문), diagnose(과거 bug 패턴), 고객 트랙(알려진 bug · errata 대조).",
+          "들어오는 것: 일의 끝에서 나온 FAQ · errata 후보 · bug 문서 초안 · 릴리즈 기록. 다른 주제는 KB에 직접 쓰지 않고 MR로 제안하고, 사람이 reviewed로 올린다.",
+          "KB 묶음은 확정이다. 고객 표기 해석 · 계약의 상업 조건 · 기존 문서화 AI와의 분담 세 줄은 확인 대기다.",
+          "core와 KB의 접점(intake의 module 목록 = KB view, workflow의 설계 지식 질문 = kb-ask)은 아직 경계 표 수준이다(반영 대기)."
+        ],
+        go: [["KB 한 장", "sys", "kb"]] },
+      { name: "겹침 지도", z: 3, stages: "주제 여덟 × 책임 열 칸 (● 정본 · ○ 사용)",
+        what: "책임 열 칸(입구 · 분류 · gate · plan · 실행 · oracle · 검수 · 반영 · 학습 · 지식)마다 어느 주제가 규칙을 정하고(●) 어느 주제가 빌려 쓰는지(○)를 본다.",
+        ul: [
+          "한 열에 ●가 여럿이면 경계를 확인할 곳이다. 정본 문서가 짚은 열은 셋이고, 모두 나눠 맡는다.",
+          "입구: core는 단계와 파일을, intake는 입구별 adapter를, 업무 지도는 출처 축과 고객 입구를 정한다. 고객 입구는 intake에 아직 반영되지 않았다(반영 대기).",
+          "oracle: workflow는 판정의 형식(evaluator 공통 JSON, 근거 자격)을, 갈래는 무엇이 oracle인지(chain = spec · C-model 층, diagnose = 재현 · before/after, KB = lint · 정답 표)를 정한다.",
+          "학습: core는 learn 단계를, workflow는 LN 자리와 dry replay를, 업무 지도는 'Track B가 늘 붙는다'는 의무를, diagnose는 질문 · test 묶음의 revision을 정한다. 하나의 Track B 기록 형식으로 모인다.",
+          "KB는 거의 모든 열에서 ● 또는 ○다. 지식의 정본은 KB뿐이다."
+        ],
+        go: [["시스템 카드", "tab", "sys"]] },
+      { name: "일 셋 · 세우는 순서 · 빈 곳", z: 0, stages: "내부 regression · 고객 이슈 · 기능 추가 사슬",
+        what: "가상의 일 셋이 같은 부품(사람 · intake · workflow · 도구 · KB)을 지나가며, 단계마다 남는 파일이 같다.",
+        ul: [
+          "내부 regression 실패: adapter → 같은 변경 구간의 실패 서른 개를 묶음 하나로 → owner가 원인 찾기 요청 → WF-regr-diagnose(층 판별 → bisect → module trace 첫 불일치 → before/after) → 원인 보고 검수 → 수정은 후속 요청 → Track B · bug 문서 초안 MR.",
+          "고객 이슈(가상: 특정 입력에서 출력이 깨진다): 고객 입구 → 범위 좁히기 질문(사람 승인) → 자동 multi-test → 진짜 bug면 내부 이슈를 따로 열어 link → 회신 초안을 사람이 승인 → 고객 확인 → errata · FAQ 후보 MR.",
+          "기능 추가 사슬: intake는 첫 link만 연다 → link마다 workflow 한 바퀴(L3 spec ∥ L3m C-model, L4 RTL ∥ L5 검증) → 사람 결정 넷 외에는 검수 accept로 다음 link → sign-off에서 릴리즈 기록(KB).",
+          "세우는 순서(migration): 0 준비 = 기존 자산 이식 · 카테고리 조사 · KB 묶음 반입 → 1 shadow = intake(분류 · gate까지) · 고객 트랙 질문 초안 → 2 첫 갈래 자율 = workflow + oracle이 강한 업무 가족 하나 · diagnose(원인 보고까지) → 3 확장 = chain · 고객 회신 초안 · KB hook.",
+          "빈 곳(반영 대기): intake의 고객 입구 · 출처 축 · diagnose 행선지 · 사슬 진입, workflow의 Track B 기록 칸 · 고객 트랙 workflow, core와 KB의 접점 대응표, 합성 matrix · review ledger와 KB의 연결 필드, code-review · timing-area · coverage의 고유 내용."
+        ],
+        go: [["사례 다섯", "tab", "walk"], ["diagnose 카드", "sys", "diagnose"]] }
+    ]
+  },
+  kb: {
+    tab: "KB",
+    narr: [
+      {"k": "intro", "seg": [0, 3], "text": "제품 자료는 코드, spec, issue, 릴리즈, 합성 결과, 고객 질문으로 흩어져 있습니다. 정리한 문서는 그날부터 낡고, 출처 없는 문장이 섞여서 어느 것이 맞는지 알기 어렵습니다."},
+      {"k": "intro", "seg": [3, 6.5], "text": "KB의 북극성은 하나입니다. 어떤 제품의 어떤 질문이든 원천 위치와 버전이 붙은 답을 찾고, 답하지 못한 빈 곳은 채울 일감이 됩니다. KB는 원천을 가리키고 복사하지 않습니다."},
+      {"k": "intro", "seg": [6.5, 9.5], "text": "KB는 전용 agent 다섯과 script가 짓습니다. agent는 MR로 제안하고, 사람이 받아들여야 reviewed가 됩니다. 계산은 script가 하고, 확정된 릴리즈와 납품 기록은 바뀌지 않습니다."},
+      {"k": "intro", "seg": [9.5, 11.5], "text": "큰 할 일 여섯을 정했고, 가상 제품으로 시험했으며, 별도 묶음으로 회사에 가져갑니다."},
+      {"k": "intro", "seg": [11.5, 15], "text": "그리고 intake, workflow, diagnose, 고객 트랙이 모두 KB에 묻습니다. 하나씩 보겠습니다."},
+      {"k": "tour", "view": [300, 180, 1100, 619], "box": [432, 252, 780, 160], "text": "KB의 세 성질입니다. 믿을 수 있다는 것은 모든 사실이 원천 위치와 revision을 가리키고, 추론이면 추정, 계산이면 계산이라고 표시한다는 뜻입니다. 살아 있다는 것은 원천이 바뀌면 stale 표시와 갱신 제안이 뜬다는 뜻이고, 빈 곳이 보인다는 것은 답하지 못한 질문이 gap으로 남는다는 뜻입니다."},
+      {"k": "tour", "view": [1000, 200, 900, 506], "box": [1272, 252, 568, 74], "text": "가상의 질문 셋을 따라가 봅니다. 신입 설계자가 가상 module blk_parse의 header FIFO 깊이를 묻습니다. Librarian은 코드에서 생성한 표의 16과, spec의 32가 충돌 중이라는 기록을 함께 찾아, 코드 16, spec 32, 담당이 판정 중이라고 인용과 함께 답합니다."},
+      {"k": "tour", "view": [1000, 200, 900, 506], "box": [1272, 338, 568, 74], "text": "FAE가 가상 고객 NOVA의 권한으로, 그 고객이 쓰는 릴리즈에 AXI burst bug가 있는지 묻습니다. Librarian은 납품 기록과 bug 문서의 fixed-in을 따라가 없다고 답합니다. 권한이 없는 사람이 물으면 고객 정보는 말하지 않고 권한 밖 gap을 남깁니다."},
+      {"k": "tour", "view": [40, 380, 1200, 675], "box": [92, 478, 1072, 118], "text": "KB를 짓는 agent는 다섯입니다. Surveyor는 원천을 조사해 registry와 제품 카드를 만들고, 사람에게는 찾지 못한 것만 짧게 묻습니다. Harvester는 초안과 갱신 제안을, Curator는 정리와 검수 보조를, Librarian은 답을, Release recorder는 확정 기록을 맡습니다."},
+      {"k": "tour", "view": [900, 380, 1000, 563], "box": [1176, 478, 650, 118], "text": "셋째 질문은 사건입니다. bug ticket이 종료되면 event router가 Harvester를 부르고, Harvester는 ticket과 수정 commit을 읽어 bug 문서 초안을 씁니다. 고객은 별칭으로만 적습니다. 이 초안은 MR이고, 담당이 판정해야 reviewed가 됩니다."},
+      {"k": "tour", "view": [940, 690, 980, 551], "box": [995, 795, 830, 112], "text": "hard-zero는 넷입니다. 근거 없는 사실, 고객 정보 누출, 확정 기록 훼손, 낡음 은폐 가운데 하나라도 나오면 그 변경을 되돌립니다. 가상 제품으로 lint 시험 66건, 질의응답 25건, 수집 3건이 모두 통과했고, 정답 표 38건은 모순이 없습니다."},
+      {"k": "tour", "view": [940, 690, 980, 551], "box": [995, 905, 830, 135], "text": "이 묶음은 별도 zip으로 가져가고, 회사의 Claude 세션이 가설 확인 시트로 사람과 세부를 정합니다. 파일럿 제품, 기존 template과의 정본 관계, 고객 별칭 목록, 숫자 기준은 아직 정하지 않았습니다. 고객 표기 해석, 계약의 상업 조건, 문서화 AI 분담은 확인 대기입니다."},
+      {"k": "tour", "view": [0, 0, 1920, 1080], "box": [70, 608, 1780, 92], "text": "그래서 intake, workflow, diagnose, 고객 트랙이 같은 KB에 묻고, 일의 끝에서 나온 FAQ와 errata, bug 문서, 릴리즈 기록이 사건을 거쳐 KB로 돌아옵니다."},
+      {"k": "close", "text": "원칙은 다섯입니다. 근거를 붙이고, 사람이 판정하고, 계산은 script가 하고, 고객 정보는 섞지 않고, 빈 곳은 일감으로 삼습니다. 근거가 붙은 지식 위에서 AI가 일하게 하는 것, 이것이 실무의 기틀입니다."}
+    ],
+    title: "KB 한 장",
+    whyTitle: "왜 KB가 기틀인가",
+    lead: "KB system은 흩어진 제품 자료(코드 · spec · issue · 릴리즈 · 합성 결과 · 고객 질문)를 사람과 AI agent가 실제 질문에 답할 수 있는 하나의 KB로 정리하고 유지하는 시스템의 명세다. 북극성은 \"어떤 제품의 어떤 질문이든 근거(원천 위치와 버전)가 붙은 답을 찾고, 답하지 못한 빈 곳은 채울 일감이 된다\"이다. 전용 agent 다섯이 조사 · 초안 · 정리 · 답 · 확정 기록을 맡아 MR로 제안하고, 사람이 reviewed로 올리며, 계산은 script가 한다. 가상 제품으로 시험했고, 이 설계와 별도 묶음(zip)으로 회사에 가져가 회사의 Claude 세션이 사람과 세부를 정한다. 예시의 제품 · 고객 · module 이름은 모두 가상이다.",
+    go: [["KB 카드", "sys", "kb"], ["전체 지도", "tab", "atlas"]],
+    media: {
+      mp4: "media/kb_15s.mp4", gif: "media/kb_15s.gif", html: "media/kb_map.html",
+      png: { light: "media/kb_map_light.png", dark: "media/kb_map_dark.png" }
+    },
+    story: [
+      ["0~3초", "제품 자료는 흩어져 있고, 정리한 날부터 낡고, 출처가 빠진다", "빨간 점선 상자 '흩어짐 · 낡음 · 출처 없음' 안에서 코드 · spec(어느 버전?) · wiki 정리본(낡음) · issue 댓글 · 릴리즈 노트 · 합성 결과 · 메일 속 답 · 고객 질문 · 출처 없는 문장이 떠다닌다. 아래에 'FIFO 깊이는? → 코드 · spec · wiki가 서로 다르다'가 적힌다."],
+      ["3~6.5초", "질문하면 근거가 붙은 답이 나오고, 빈 곳은 일감이 된다", "원천 칸(읽기만)에서 '가리킨다' 화살표로 KB 칸이 선다. KB 안에 가상 문서 한 장(source · status · links)과 세 성질(믿을 수 있다 · 살아 있다 · 빈 곳이 보인다)이 나오고, 오른쪽에 '근거가 붙은 답'과 '빈 곳 = 채울 일감' 칸이 붙는다."],
+      ["6.5~9.5초", "agent는 MR로 제안하고, 사람이 reviewed로 올린다", "'누가 짓나' 칸에 agent 다섯(Surveyor · Harvester · Curator · Librarian · Release recorder)이 차례로 서고, MR 제안 → ◆ 사람이 판정 → reviewed 줄을 표지가 지나간다. reviewed에서 KB로 올라가는 점선, script 줄(lint · generator · event router), '확정 기록은 바뀌지 않는다'가 붙는다."],
+      ["9.5~11.5초", "가상 제품으로 시험했고, 별도 묶음으로 가져간다", "흐름도가 위로 올라가고 오른쪽 아래에 시험 결과(lint 66/66 · 질의응답 25/25 · 수집 3/3 · 정답 표 38건 모순 0), hard-zero 넷, 큰 할 일 여섯, '별도 zip으로 반입 → 회사의 Claude 세션이 가설 확인 시트로 사람과 세부를 정한다'가 나온다."],
+      ["11.5~15초", "모든 일이 KB에 묻고, 일의 끝이 KB로 돌아온다", "흐름도 아래에 '묻는다'(intake · workflow · diagnose · 고객 트랙 · 사람)와 '돌아온다'(FAQ · errata · bug 문서 · 릴리즈 기록 · 해결 사례) 띠가 깔리고, 왜 기틀인지 네 줄(근거 · 판정 · 살아 있음 · 한 곳)과 상태(확정 · 확인 대기 · 회사에서 정함)가 나온다."]
+    ],
+    why: [
+      ["근거", "AI가 일하려면 믿을 수 있는 지식이 필요하다. KB의 모든 사실은 원천 위치와 revision을 가리키고, 추론이면 (추정), 계산이면 (계산), 모르면 '모름'으로 쓴다. 답에는 문서 id와 원천 revision이 인용으로 붙고, 인용 없는 주장은 hard-zero다. 자료끼리 다르면 지우지 않고 사실 종류별 우선순위로 고르며 진 쪽도 남긴다."],
+      ["판정", "agent는 KB에 직접 쓰지 않고 MR로 초안과 갱신을 제안한다. 사람이 받아들여야 reviewed가 되고, 사람이 확인한 뒤 본문이 바뀌면 reviewed-outdated로 보인다. 확정된 릴리즈 · 납품 기록은 보호 원장의 hash로 묶여 바뀌지 않고, 사후 정정은 덧붙이기만 한다. 신선도 · 연결 · 누출 · 포함 여부 같은 계산은 결정론 script가 한다."],
+      ["살아 있음", "정리한 날부터 낡는 문서 모음과 달리, 원천에서 사건(commit · ticket 종료 · 릴리즈 · 납품 · 고객 답변 · 합성 · 리뷰 · task accept)이 생기면 event router가 Harvester를 불러 갱신 제안을 낸다. 원천이 바뀌었는데 표시가 없으면 '낡음 은폐' hard-zero다. 답하지 못한 질문은 gap으로 남아 채울 일감이 되고, 있어야 하는데 없는 자료는 기대 자료 목록에 오른다."],
+      ["한 곳", "intake(module 목록) · workflow(설계 지식 질문) · diagnose(과거 bug 패턴) · 고객 트랙(알려진 bug · errata)이 모두 같은 KB에 묻는다(kb-ask, 고객 권한과 audience를 함께 넘긴다). 일의 끝에서 나온 FAQ · errata · bug 문서 · 릴리즈 기록은 사건을 거쳐 MR로 돌아온다. 그래서 KB는 시스템 전체가 기대는 지식의 정본이 된다."]
+    ],
+    zones: [
+      { name: "북극성 · 세 성질 · 원칙", z: 0, stages: "원천 → KB → 근거가 붙은 답 · 빈 곳 = 일감",
+        what: "어떤 제품의 어떤 질문이든 근거(원천 위치와 버전)가 붙은 답을 찾고, 답하지 못한 빈 곳은 채울 일감이 된다. 세 성질 = 믿을 수 있다 · 살아 있다 · 빈 곳이 보인다.",
+        ul: [
+          "가리키고 복사하지 않는다. KB 문서는 원천의 위치 · revision · 요약 · 연결을 가진다. 숫자는 system of record에만 있고, 고객에게 나간 것만 동결 사본을 둔다.",
+          "구조는 고정, 회사마다 다른 점은 registry의 값. 문서 종류 30 · 연결 18 · 두 축(주제 + 릴리즈) · 두 repo(본 KB + 접근 제한 고객 repo). 본문 절 구성은 기존 template에 맞춘다.",
+          "원칙 다섯(바뀌지 않는 것): ① 근거 ② 사람이 판정한다 ③ 계산은 script ④ 고객 정보는 섞지 않는다(본 KB에는 고객 별칭만, 한 세션은 고객 하나만) ⑤ 빈 곳은 일감이다.",
+          "원본과 정본: spec 원본 = 데이터시트, bug 최종 정리본 = errata, register 정본 = RTL · firmware code. C-model · 검증 SW는 릴리즈가 버전을 가리키는 동반 자산이다."
+        ],
+        go: [["KB 카드", "sys", "kb"]] },
+      { name: "누가 짓나", z: 1, stages: "agent 다섯 · script · 사람(MR 판정)",
+        what: "KB는 전용 agent system이 짓는다. agent는 MR로 제안하고, 사람이 reviewed로 올린다. 원천은 읽기만 한다.",
+        ul: [
+          "Surveyor: 제품 하나의 원천을 조사해 registry와 제품 이해 카드를 만든다. 사람에게는 빈 설문이 아니라 가설 확인 시트(원천에서 읽은 가설 → 맞음 · 고침 · 모름)로 찾지 못한 것만 묻는다.",
+          "Harvester: 원천에서 template대로 초안을 쓰고, 원천 사건마다 갱신 · 확인 제안을 낸다. Curator: MR 검수 요약, 충돌 · FAQ · 중복 · 은퇴 · gap 순위 정리. Librarian: KB만으로 인용이 붙은 답, 답 못 하면 gap. Release recorder: 릴리즈 · 납품 기록, checklist 자동 판정, 동결 사본.",
+          "script(결정론): lint(신선도 · 연결 · 고객 누출 · 확정 기록 변조 · 근거 없는 추정 검사, 지도 생성), generator(코드에서 port · parameter 표 생성), event router(사건 분배). script는 문서를 고치지 않고, 자기 메시지로 고객 정보를 흘리지 않는다.",
+          "사람의 자리: KB 관리자 · 제품 리더 · 문서 담당(MR 판정) · 릴리즈 담당 · FAE · 보안 담당 · 팀 리더. 모든 agent는 고객 권한을 입력으로 받고, 한 세션이 두 고객 폴더를 읽지 않는다."
+        ],
+        go: [["KB 카드", "sys", "kb"]] },
+      { name: "질문 셋이 지나가는 길", z: 2, stages: "(가) 설계 질문 · (나) 고객 질문 · (다) 사건",
+        what: "가상의 질문 셋이 같은 KB를 지나가는 길이다. 제품 vx-dec, module blk_parse, 고객 NOVA는 모두 가상이다.",
+        ul: [
+          "(가) 신입 설계자: \"blk_parse의 header FIFO 깊이는?\" Librarian이 module 문서를 연다. port · parameter 표는 코드에서 생성한 블록이라 코드 값 16이 있고, spec과의 열린 충돌(spec은 32)이 있어 \"코드 16, spec 32, 담당이 판정 중\"을 conflict 표시와 함께, 문서 id와 원천 revision을 인용해 답한다.",
+          "(나) FAE(고객 NOVA 권한): \"이 고객이 쓰는 릴리즈에 AXI burst bug가 있나?\" 납품 기록 → 지금 쓰는 릴리즈 → bug 문서의 fixed-in을 따라가 \"없다, 이전 납품에는 있었다\"를 답한다. 권한 없는 사람이 물으면 고객의 보유 릴리즈는 말하지 않고 '권한 밖' gap을 남긴다. 다른 고객의 존재는 어느 경우에도 드러나지 않는다.",
+          "(다) bug ticket 종료(사건): event router가 Harvester를 부른다. ticket(전처리본)과 수정 commit을 읽어 bug 문서 초안을 쓴다. 고객은 별칭으로만, 영향 릴리즈가 ticket에 없으면 commit과 tag로 계산해 (계산) 표시, fixed-in은 \"다음 릴리즈(미정)\". module 문서의 확인 제안도 함께 낸다. 모두 MR이고, 담당이 판정하면 reviewed가 된다."
+        ],
+        go: [["KB 카드", "sys", "kb"]] },
+      { name: "시험 · hard-zero", z: 3, stages: "가상 제품 family · lint · 질의응답 · 수집 · 정답 표",
+        what: "가상 제품 family 하나(문서 51)로 설계를 시험했다. 통과율보다 설계의 구멍을 찾은 것이 가치였다.",
+        ul: [
+          "hard-zero 넷(하나라도 나오면 그 변경을 되돌린다): 근거 없는 사실 · 고객 정보 누출 · 확정 기록 훼손 · 낡음 은폐.",
+          "lint mutation 시험 66건 전부 통과, 명세만 준 agent의 질의응답 25건과 수집 3건 통과(hard-zero 0), git 원천 adapter 6건 통과, 회사 구현용 합격 사례(조상 관계 10 · 전처리 13 · router 15)의 정답 표 38건 모순 0.",
+          "시험이 찾아낸 결함은 반영했다. 예: 역색인이 고객 문서 id를 권한 구분 없이 담던 누출 → 권한 단위로 분리하고 회귀 사례를 더했다.",
+          "지표(답한 비율 · reviewed 비율 · stale 수 · 사람 수정률 · 판정 부담)는 측정하되 목표값은 공란이고, 운영하는 사람(팀 리더 · KB 관리자)이 실적을 보고 정한다."
+        ],
+        go: [["KB 카드", "sys", "kb"]] },
+      { name: "반입 · 세우는 순서 · 정할 것", z: 0, stages: "별도 zip → 회사 Claude 세션 → 파일럿 제품 하나부터",
+        what: "이 설계와 별도 묶음(zip)으로 가져간다. 묶음은 큰 틀(북극성 · 원칙 · 큰 할 일)만 정하고, 세부는 회사의 Claude 세션이 가설 확인 시트로 사람과 정한다.",
+        ul: [
+          "큰 할 일 여섯: ① 기존 문서화 AI와 결합해 1차 문서 ② 믿음의 장치(lint CI · 확정 원장 · 권한 · hook) ③ 원천을 KB에 잇기 ④ 릴리즈 축 ⑤ 요구 축(고객 제품마다의 계약) ⑥ 살아 있게 하고 품질을 잰다. 작업 요청 열둘이 이것을 나눈다.",
+          "세우는 단계(기본안): 0 준비(repo 둘 · 규칙 설치 · lint CI · 권한 · 전처리) → 1 파일럿 제품 bootstrap(card → 릴리즈 축 → bug → 요구 · spec → 고객) → 2 살아 있게(사건 hook · 매일 lint) → 3 쓰게(사람 → intake · workflow agent) → 4 넓히기.",
+          "회사에서 사람과 정할 것(정하지 않았다): 파일럿 제품과 작업 순서, 기존 문서화 template과 KB 문서 종류 · 절 가운데 무엇을 정본으로 할지, 고객 별칭과 분류 코드 목록, 숫자 기준(기한 · 상한 · 주기 · 표본 크기)과 판정 등급.",
+          "상태: KB 묶음은 확정이다. 고객 표기 해석 · 계약의 상업 조건(기술 요구만 가져오고 상업 조건은 옮기지 않는다는 기본안) · 기존 문서화 AI와의 분담(1차 생성은 기존 과정, KB는 출처 · 판정 · 연결 · 신선도라는 기본안) 세 줄은 확인 대기다."
+        ],
+        go: [["전체 지도", "tab", "atlas"], ["KB 카드", "sys", "kb"]] }
+    ]
   }
   },
 
@@ -1495,6 +1922,11 @@ window.WS = {
 
   /* ───────────── 용어 ───────────── */
   glossary: [
+    ["● 정본 / ○ 사용", "전체 지도의 표시. ● = 그 책임의 규칙을 정하는 주제, ○ = 정본의 규칙을 따라 빌려 쓰는 주제"],
+    ["KB", "제품 지식의 정본. 모든 사실이 원천 위치와 revision을 가리키고, agent가 MR로 제안하면 사람이 reviewed로 올린다"],
+    ["reviewed", "KB 문서를 사람이 확인한 상태. agent는 만들 수 없다. 확인 뒤 본문이 바뀌면 reviewed-outdated가 된다"],
+    ["gap", "KB가 답하지 못한 이유 한 건(문서 없음 · 절 없음 · 연결 없음 · 낡음 · 충돌 · 권한 밖 · KB 밖). 채울 일감이 된다"],
+    ["stale", "문서가 본 원천 revision과 원천의 현재 revision이 다르다. lint가 계산하고 갱신 제안이 나온다"],
     ["core", "분류(c) + workflow·자율 진행(d). ticket 한 건이 지나가는 아홉 단계와 단계마다 남는 파일 하나"],
     ["갈래", "core가 실행하는 workflow의 가족(아키텍처→검증·코드 리뷰·timing/area·test/coverage·…). 다른 것은 oracle과 posture뿐"],
     ["triage / 분류", "AI가 \"이 ticket으로 내가 무엇을 해야 하는가\"를 알기 위한 판정. 여섯 칸, 등급 넷"],

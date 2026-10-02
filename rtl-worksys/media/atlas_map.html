@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>전체 지도 한 장 · RTL WorkSys</title>
+<!-- 장면 규약 = 00_META/INFOGRAPHIC.md -->
+<style>
+:root{
+  --bg:#0f1420; --bg2:#171e2e; --card:#1a2233; --line:#2c3850;
+  --fg:#e4e9f2; --mut:#93a1bb; --dim:#6b7a96;
+  --acc:#4fb8f5; --acc2:#8b8cf8; --ok:#3ddba0; --warn:#f5c04f; --bad:#f8776f;
+}
+:root[data-theme="light"]{
+  --bg:#f6f8fc; --bg2:#ffffff; --card:#ffffff; --line:#dde4f0;
+  --fg:#16203a; --mut:#5b6b88; --dim:#8494b0;
+  --acc:#1878c8; --acc2:#5b5ce0; --ok:#129c6c; --warn:#b5780a; --bad:#d4463c;
+}
+html,body{margin:0;height:100%;background:var(--bg)}
+body{display:flex;align-items:center;justify-content:center;overflow:hidden}
+svg{width:100vw;height:100vh;display:block}
+text{font-family:'Malgun Gothic','Apple SD Gothic Neo',-apple-system,'Segoe UI',Roboto,sans-serif}
+.mono{font-family:ui-monospace,Consolas,'Cascadia Code',monospace}
+</style>
+</head>
+<body>
+<svg id="s" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"></svg>
+<script src="scene_kit.js"></script>
+<script>
+(function () {
+  "use strict";
+  var svg = document.getElementById("s"), K = SceneKit(svg, 15);
+  var E = K.E, T = K.T, G = K.G, pill = K.pill, fade = K.fade, pop = K.pop, rise = K.rise, draw = K.draw;
+
+  /* ── 제목줄 다섯: core 한 바퀴 → 갈래 = 내용 → KB = 지식의 정본 → 겹침 지도 → 왜 기틀인가 ── */
+  K.header("RTL WorkSys  ·  전체 지도 한 장", [
+    { t0: 0, t1: 3.0, main: "주제는 여럿이어도, 일은 모두 같은 core 한 바퀴를 지난다",
+      sub: "발생 → intake → workflow → 사람의 검수 → 반영 → learn(Track B). 주제마다 따로 일하지 않는다." },
+    { t0: 3.0, t1: 6.5, main: "갈래는 엔진이 아니라, workflow 안의 내용을 채운다",
+      sub: "chain은 link 표, diagnose는 층 표, 나머지는 특화 workflow와 oracle. 업무 지도는 분류 축과 고객 트랙." },
+    { t0: 6.5, t1: 9.5, main: "지식은 KB 한 곳이 정본이다. 모두 묻고, 끝은 MR로 돌아온다",
+      sub: "intake · workflow · diagnose · 고객 트랙이 묻고, FAQ · errata · bug 문서는 MR로 제안해 사람이 올린다." },
+    { t0: 9.5, t1: 11.5, main: "책임마다 정본은 하나다: ● 정본, ○ 사용",
+      sub: "주제 여덟 × 책임 열 칸. 여러 주제가 ●인 열(입구 · oracle · 학습)은 일을 나눠 맡는다." },
+    { t0: 11.5, t1: 99, main: "일 셋이 같은 부품을 지나가니, 부품을 바꿔도 흔들리지 않는다",
+      sub: "내부 regression 실패 · 고객 이슈 · 기능 추가 사슬. 같은 core, 같은 KB, 책임마다 정본 하나. 이것이 기틀이다." }
+  ]);
+
+  var mark0 = svg.childNodes.length;
+
+  /* ── 좌표 ── */
+  var CY = 312, CH = 84, CT = CY - CH / 2;            // core 줄
+  var CORE = [
+    { id: "src", name: "발생", sub: "ticket · 신호 · 고객 · link", x: 80, w: 200, c: "var(--mut)", t: 1.15 },
+    { id: "in", name: "intake", sub: "받기 → 분류 → gate", x: 340, w: 300, c: "var(--acc)", t: 1.35 },
+    { id: "wf", name: "workflow", sub: "plan → checkpoint → oracle 판정 → 결과 패키지", x: 700, w: 470, c: "var(--acc2)", t: 1.55 },
+    { id: "rv", name: "사람의 검수", sub: "결과 한 장으로", x: 1230, w: 190, c: "var(--warn)", t: 1.75, dia: true },
+    { id: "ap", name: "반영", sub: "사람이 반영", x: 1480, w: 150, c: "var(--warn)", t: 1.95 },
+    { id: "ln", name: "learn", sub: "Track B", x: 1690, w: 150, c: "var(--ok)", t: 2.15 }
+  ];
+  var C = {};
+  CORE.forEach(function (n) { n.cx = n.x + n.w / 2; C[n.id] = n; });
+  var R2 = 396, R2H = 72;                               // 갈래 줄
+  var KY = 500, KH = 70;                                // KB 띠
+  var LANES = [604, 642, 680];                          // 일 셋
+
+  /* ── S1: 주제가 흩어져 보인다 (입자) ── */
+  var chaosG = K.particles(G()), tags = [];
+  if (!K.POSTER) {
+    var TAG = ["intake", "workflow", "chain", "diagnose", "업무 지도", "고객 트랙", "KB", "code-review", "timing-area", "coverage"];
+    var pal = ["var(--acc)", "var(--acc2)", "var(--acc2)", "var(--acc2)", "var(--acc)", "var(--warn)", "var(--ok)", "var(--acc2)", "var(--acc2)", "var(--acc2)"];
+    var rnd = K.rng(93);
+    TAG.forEach(function (s, i) {
+      var g = G(chaosG);
+      pill(0, 0, s, 18, pal[i], g, { h: 36, pad: 30 });
+      tags.push({ el: g, x: 260 + (i % 5) * 340 + rnd() * 60, y: 430 + Math.floor(i / 5) * 90 + rnd() * 30, ph: rnd() * 6.3, t0: 0.1 + i * 0.07 });
+    });
+  }
+
+  /* ── core 줄의 선 (노드보다 먼저) ── */
+  var edgeG = G(), coreEdges = [];
+  for (var i = 0; i < CORE.length - 1; i++) {
+    var a = CORE[i], b = CORE[i + 1];
+    var p = E("path", { d: "M " + (a.x + a.w) + " " + CY + " H " + (b.x - 4), fill: "none" }, { stroke: "var(--line)", strokeWidth: 3 }, edgeG);
+    var hd = E("path", { d: "M " + (b.x - 12) + " " + (CY - 6) + " L " + (b.x - 3) + " " + CY + " L " + (b.x - 12) + " " + (CY + 6), fill: "none" }, { stroke: "var(--line)", strokeWidth: 3 }, edgeG);
+    draw(p, a.t + 0.15, 0.3); fade(hd, a.t + 0.35, 0.2);
+    coreEdges.push(p);
+  }
+  // learn → intake: Track B가 다음 일을 고친다
+  var loop = E("path", { d: "M " + C.ln.cx + " " + CT + " C " + C.ln.cx + " 240, " + C.in.cx + " 240, " + C.in.cx + " " + (CT - 2), fill: "none" },
+    { stroke: "var(--ok)", strokeWidth: 2.5, strokeDasharray: "8 6" });
+  fade(loop, 2.45, 0.4);
+  var loopH = E("path", { d: "M " + (C.in.cx - 8) + " " + (CT - 12) + " L " + C.in.cx + " " + CT + " L " + (C.in.cx + 8) + " " + (CT - 12), fill: "none" }, { stroke: "var(--ok)", strokeWidth: 2.5 });
+  fade(loopH, 2.6, 0.3);
+  var loopP = pill(1128, 254, "Track B → 분류 규칙 · workflow revision이 고쳐진다", 15, "var(--ok)", null, { h: 28, pad: 26, fill: "var(--bg)" });
+  pop(loopP, 1128, 254, 2.6, 0.4);
+  var coreTok = K.particles(G());
+
+  /* ── core 노드 ── */
+  var nodeBoxes = [];
+  CORE.forEach(function (n) {
+    var g = G();
+    var r = K.box(n.x, CT, n.w, CH, n.c, g, { rx: 12, fill: "var(--card)" });
+    if (n.dia) {
+      var dx = n.cx - K.width(n.name, 21, 800) / 2 - 14, dy = CY - 9;
+      E("rect", { x: dx - 8, y: dy - 8, width: 16, height: 16, rx: 2, transform: "rotate(45 " + dx + " " + dy + ")" },
+        { fill: "color-mix(in srgb,var(--warn) 30%, var(--card))", stroke: "var(--warn)", strokeWidth: 2.5 }, g);
+      T(n.cx + 10, CY - 2, n.name, 21, { fill: n.c, fontWeight: 800 }, g, "middle");
+    } else T(n.cx, CY - 2, n.name, 21, { fill: n.id === "src" ? "var(--fg)" : n.c, fontWeight: 800 }, g, "middle");
+    T(n.cx, CY + 24, n.sub, 14, { fill: "var(--mut)" }, g, "middle");
+    pop(g, n.cx, CY, n.t, 0.45);
+    nodeBoxes.push({ r: r, c: n.c, on: n.t + 0.3 });
+  });
+
+  /* ── S2: 갈래 줄 ── */
+  var brG = G();
+  // 업무 지도 → intake
+  var wmG = G(brG);
+  K.box(340, R2, 300, R2H, "var(--acc)", wmG, { rx: 12, fill: "color-mix(in srgb,var(--acc) 6%, var(--card))" });
+  T(360, R2 + 28, "업무 지도", 18, { fill: "var(--acc)", fontWeight: 800 }, wmG);
+  T(360 + K.width("업무 지도", 18, 800) + 12, R2 + 28, "둘 사이의 지도", 14, { fill: "var(--mut)" }, wmG);
+  T(360, R2 + 54, "출처 · 업무 가족 · 고객 트랙 · 두 트랙", 15, { fill: "var(--fg)" }, wmG);
+  E("path", { d: "M " + C.in.cx + " " + R2 + " V " + (CT + CH + 4), fill: "none" }, { stroke: "var(--acc)", strokeWidth: 2.5 }, wmG);
+  E("path", { d: "M " + (C.in.cx - 7) + " " + (CT + CH + 14) + " L " + C.in.cx + " " + (CT + CH + 4) + " L " + (C.in.cx + 7) + " " + (CT + CH + 14), fill: "none" }, { stroke: "var(--acc)", strokeWidth: 2.5 }, wmG);
+  rise(wmG, 5.3, 0.45, 10);
+  // 갈래 = 내용 → workflow
+  var bxG = G(brG);
+  var BX = 700, BW = 720;
+  K.box(BX, R2, BW, R2H, "var(--acc2)", bxG, { rx: 12, fill: "color-mix(in srgb,var(--acc2) 6%, var(--card))" });
+  T(BX + 20, R2 + 26, "갈래", 18, { fill: "var(--acc2)", fontWeight: 800 }, bxG);
+  T(BX + 20 + K.width("갈래", 18, 800) + 12, R2 + 26, "엔진이 아니다. workflow 파일(특화 · 조립)과 그 내용을 정한다", 14, { fill: "var(--mut)" }, bxG);
+  fade(bxG, 3.2, 0.4);
+  E("path", { d: "M " + C.wf.cx + " " + R2 + " V " + (CT + CH + 4), fill: "none" }, { stroke: "var(--acc2)", strokeWidth: 2.5 }, bxG);
+  E("path", { d: "M " + (C.wf.cx - 7) + " " + (CT + CH + 14) + " L " + C.wf.cx + " " + (CT + CH + 4) + " L " + (C.wf.cx + 7) + " " + (CT + CH + 14), fill: "none" }, { stroke: "var(--acc2)", strokeWidth: 2.5 }, bxG);
+  var BR = [["chain", "link 표"], ["diagnose", "층 표"], ["code-review", ""], ["timing-area", ""], ["coverage", ""]];
+  var bxx = BX + 20, chipX = {};
+  BR.forEach(function (b, k) {
+    var g = G(bxG), s = b[1] ? b[0] + " · " + b[1] : b[0];
+    var w = K.width(s, 15, 700) + 24;
+    pill(bxx + w / 2, R2 + 50, s, 15, "var(--acc2)", g, { h: 28, pad: 24, rx: 8, fill: "var(--card)", dash: b[1] ? "none" : "5 4" });
+    chipX[b[0]] = bxx + w / 2;
+    pop(g, bxx + w / 2, R2 + 50, 3.5 + k * 0.22, 0.4);
+    bxx += w + 10;
+  });
+  var bxNote = T(BX + BW - 18, R2 + 56, "+ oracle", 15, { fill: "var(--acc2)", fontWeight: 800 }, bxG, "end");
+  fade(bxNote, 4.7, 0.4);
+
+  // 일의 끝 → KB
+  var endG = G();
+  K.box(1480, R2, 360, R2H, "var(--ok)", endG, { rx: 12, dash: "7 5", fill: "color-mix(in srgb,var(--ok) 6%, var(--card))" });
+  T(1500, R2 + 28, "일의 끝이 KB로", 18, { fill: "var(--ok)", fontWeight: 800 }, endG);
+  T(1500, R2 + 54, "FAQ · errata · bug 문서 → MR 제안", 15, { fill: "var(--fg)" }, endG);
+  [C.ap.cx, C.ln.cx].forEach(function (x) {
+    E("path", { d: "M " + x + " " + (CT + CH) + " V " + (R2 - 4), fill: "none" }, { stroke: "var(--ok)", strokeWidth: 2.5, strokeDasharray: "6 5" }, endG);
+    E("path", { d: "M " + (x - 7) + " " + (R2 - 13) + " L " + x + " " + (R2 - 3) + " L " + (x + 7) + " " + (R2 - 13), fill: "none" }, { stroke: "var(--ok)", strokeWidth: 2.5 }, endG);
+  });
+  E("path", { d: "M 1660 " + (R2 + R2H) + " V " + (KY - 4), fill: "none" }, { stroke: "var(--ok)", strokeWidth: 2.5, strokeDasharray: "6 5" }, endG);
+  E("path", { d: "M 1653 " + (KY - 13) + " L 1660 " + (KY - 3) + " L 1667 " + (KY - 13), fill: "none" }, { stroke: "var(--ok)", strokeWidth: 2.5 }, endG);
+  rise(endG, 7.8, 0.45, 10);
+
+  /* ── S3: KB 띠 ── */
+  var kbG = G();
+  K.box(80, KY, 1760, KH, "var(--ok)", kbG, { rx: 14, fill: "color-mix(in srgb,var(--ok) 9%, var(--card))" });
+  T(104, KY + 30, "KB", 22, { fill: "var(--ok)", fontWeight: 800 }, kbG);
+  T(104 + K.width("KB", 22, 800) + 14, KY + 30, "지식의 정본 · 별도 묶음으로 반입", 15, { fill: "var(--mut)" }, kbG);
+  T(104, KY + 56, "근거(원천 위치와 버전)가 붙은 답 · 답하지 못한 빈 곳 = 채울 일감", 15, { fill: "var(--fg)" }, kbG);
+  fade(kbG, 6.6, 0.4);
+  var kbR = G(kbG);
+  T(1000, KY + 30, "묻는다", 15, { fill: "var(--acc)", fontWeight: 800 }, kbR);
+  T(1066, KY + 30, "intake · workflow · diagnose · 고객 트랙 (kb-ask)", 15, { fill: "var(--fg)" }, kbR);
+  T(1000, KY + 56, "들어온다", 15, { fill: "var(--ok)", fontWeight: 800 }, kbR);
+  T(1080, KY + 56, "직접 쓰지 않고 MR로 제안 → 사람이 reviewed로", 15, { fill: "var(--fg)" }, kbR);
+  rise(kbR, 7.0, 0.45, 8);
+  // KB → 묻는 쪽 (위로)
+  var askG = G();
+  [C.in.cx, chipX["diagnose"]].forEach(function (x, k) {
+    E("path", { d: "M " + x + " " + KY + " V " + (R2 + R2H + 4), fill: "none" }, { stroke: "var(--acc)", strokeWidth: 2.5, strokeDasharray: "6 5" }, askG);
+    E("path", { d: "M " + (x - 7) + " " + (R2 + R2H + 13) + " L " + x + " " + (R2 + R2H + 3) + " L " + (x + 7) + " " + (R2 + R2H + 13), fill: "none" }, { stroke: "var(--acc)", strokeWidth: 2.5 }, askG);
+  });
+  var askP = pill(C.in.cx + 74, (R2 + R2H + KY) / 2, "kb-ask", 13, "var(--acc)", askG, { h: 22, pad: 18, fill: "var(--bg)" });
+  fade(askG, 7.3, 0.4);
+  var kbTok = K.particles(G());
+
+  /* ── S5: 일 셋이 같은 부품을 지나간다 ── */
+  var laneG = G();
+  var LN = [
+    { name: "내부 regression 실패", c: "var(--acc)",
+      st: ["실패 서른 → 묶음 하나", "WF-regr-diagnose → 원인 보고", "accept → 후속 수정", "", "Track B · bug 문서 MR"] },
+    { name: "고객 이슈", c: "var(--warn)",
+      st: ["고객 입구 · 범위 좁히기 질문", "multi-test → 회신 초안", "◆ 회신 승인", "고객 확인", "FAQ · errata 후보 MR"] },
+    { name: "기능 추가 사슬", c: "var(--acc2)",
+      st: ["첫 link만 연다", "link 하나 = task 하나", "사람 결정 넷", "다음 link", "릴리즈 기록"] }
+  ];
+  var STX = [C.in.cx, C.wf.cx, C.rv.cx, C.ap.cx, C.ln.cx];
+  LN.forEach(function (l, k) {
+    var g = G(laneG), y = LANES[k];
+    pill(80 + (K.width(l.name, 15, 700) + 26) / 2, y, l.name, 15, l.c, g, { h: 28, pad: 26 });
+    var ln = E("path", { d: "M " + (STX[0] - 60) + " " + y + " H " + (STX[4] + 60), fill: "none" }, { stroke: l.c, strokeWidth: 3, opacity: 0.55 }, g);
+    STX.forEach(function (x, j) {
+      E("circle", { cx: x, cy: y, r: 6 }, { fill: "var(--card)", stroke: l.c, strokeWidth: 2.5 }, g);
+      if (l.st[j]) T(x, y - 10, l.st[j], 13, { fill: "var(--fg)" }, g, "middle");
+    });
+    rise(g, 11.7 + k * 0.3, 0.45, 10);
+    l.y = y;
+  });
+  var laneTok = K.particles(G());
+
+  var mark1 = svg.childNodes.length;
+
+  /* ── 아래 왼쪽: 왜 전체 지도가 기틀인가 ── */
+  var whyG = G();
+  K.box(80, 736, 860, 314, "var(--line)", whyG, { fill: "var(--card)", stroke: "var(--line)", sw: 1.5, rx: 20 });
+  T(112, 782, "왜 전체 지도가 기틀인가", 27, { fontWeight: 800 }, whyG);
+  var WHY = [
+    ["한 길", "var(--acc)", "일은 모두 같은 core를 지난다. 새 주제가 와도 길은 하나다."],
+    ["내용", "var(--acc2)", "갈래는 엔진이 아니라 link 표 · 층 표 · oracle을 채운다."],
+    ["지식", "var(--ok)", "지식은 KB 한 곳이 정본이다. 다른 주제는 묻고, MR로 제안한다."],
+    ["정본", "var(--warn)", "책임마다 정본이 하나라서, 부품을 바꿔도 다른 곳이 흔들리지 않는다."]
+  ];
+  var wy = 836;
+  WHY.forEach(function (w, i) {
+    var g = G(whyG);
+    E("circle", { cx: 126, cy: wy - 7, r: 15 }, { fill: "color-mix(in srgb," + w[1] + " 20%, var(--card))", stroke: w[1], strokeWidth: 2 }, g);
+    T(126, wy, String(i + 1), 17, { fill: w[1], fontWeight: 800 }, g, "middle");
+    T(156, wy, w[0], 21, { fill: w[1], fontWeight: 800 }, g);
+    var r = K.wrap(240, wy, w[2], 19, 672, 26, { fill: "var(--fg)" }, g);
+    wy += 30 + r.n * 26;
+    rise(g, 12.2 + i * 0.25, 0.5, 14);
+  });
+  fade(whyG, 12.0, 0.4);
+
+  /* ── 아래 오른쪽: 겹침 지도 (주제 여덟 × 책임 열) ── */
+  var mxG = G();
+  K.box(980, 736, 860, 314, "var(--line)", mxG, { fill: "var(--card)", stroke: "var(--line)", sw: 1.5, rx: 20 });
+  T(1012, 782, "겹침 지도", 27, { fontWeight: 800 }, mxG);
+  var lgx = 1012 + K.width("겹침 지도", 27, 800) + 22;
+  E("circle", { cx: lgx + 7, cy: 774, r: 7 }, { fill: "var(--acc2)" }, mxG);
+  T(lgx + 20, 780, "정본", 15, { fill: "var(--fg)", fontWeight: 700 }, mxG);
+  E("circle", { cx: lgx + 76, cy: 774, r: 6 }, { fill: "none", stroke: "var(--mut)", strokeWidth: 2 }, mxG);
+  T(lgx + 89, 780, "사용", 15, { fill: "var(--fg)", fontWeight: 700 }, mxG);
+  T(1808, 782, "책임마다 정본은 하나", 15, { fill: "var(--mut)" }, mxG, "end");
+  fade(mxG, 9.5, 0.4);
+  var COLS = ["입구", "분류", "gate", "plan", "실행", "oracle", "검수", "반영", "학습", "지식"];
+  var SHARED = [0, 5, 8];
+  var X0 = 1232, CW = 57.6, HY = 816, RY0 = 842, RH = 23.4;
+  function colX(j) { return X0 + CW * j + CW / 2; }
+  // 나눠 맡는 열 (S4 끝)
+  var shG = G(mxG);
+  SHARED.forEach(function (j) {
+    K.box(colX(j) - CW / 2 + 3, HY - 18, CW - 6, RH * 8 + 30, "var(--warn)", shG, { rx: 8, sw: 1.5, dash: "5 4", fill: "color-mix(in srgb,var(--warn) 8%, var(--card))" });
+  });
+  fade(shG, 10.7, 0.4);
+  var hdG = G(mxG);
+  COLS.forEach(function (s, j) {
+    T(colX(j), HY, s, 14, { fill: SHARED.indexOf(j) >= 0 ? "var(--warn)" : "var(--mut)", fontWeight: 800 }, hdG, "middle");
+  });
+  fade(hdG, 9.6, 0.4);
+  // ●=2 · ○=1
+  var ROWS = [
+    ["core 공통", "확정", [2, 0, 2, 0, 0, 0, 2, 2, 2, 0]],
+    ["intake", "확정", [2, 2, 2, 0, 0, 0, 0, 0, 1, 1]],
+    ["workflow", "가정", [0, 0, 0, 2, 2, 2, 2, 0, 2, 1]],
+    ["업무 지도", "일부", [2, 2, 0, 0, 0, 0, 0, 0, 2, 0]],
+    ["chain", "확정", [1, 0, 0, 1, 1, 2, 1, 2, 0, 0]],
+    ["diagnose", "가정", [0, 1, 0, 0, 2, 2, 1, 0, 2, 1]],
+    ["고객 트랙", "확정", [2, 1, 1, 0, 1, 0, 2, 2, 1, 1]],
+    ["KB", "확정", [1, 0, 0, 0, 2, 2, 2, 0, 2, 2]]
+  ];
+  var STC = { "확정": ["var(--ok)", "none"], "가정": ["var(--warn)", "4 3"], "일부": ["var(--acc2)", "4 3"] };
+  ROWS.forEach(function (r, i) {
+    var g = G(mxG), y = RY0 + i * RH;
+    T(1012, y + 5, r[0], 15, { fill: "var(--fg)", fontWeight: 800 }, g);
+    var sc = STC[r[1]];
+    pill(1178, y, r[1], 13, sc[0], g, { h: 20, pad: 16, dash: sc[1] });
+    r[2].forEach(function (v, j) {
+      if (v === 2) E("circle", { cx: colX(j), cy: y, r: 7 }, { fill: r[0] === "KB" ? "var(--ok)" : "var(--acc2)" }, g);
+      else if (v === 1) E("circle", { cx: colX(j), cy: y, r: 5.5 }, { fill: "none", stroke: "var(--mut)", strokeWidth: 2 }, g);
+    });
+    rise(g, 9.75 + i * 0.1, 0.4, 8);
+  });
+  var ftG = G(mxG);
+  T(1012, 1038, "확정 안의 대기: intake 명세의 위임 결정 · chain의 oracle 구분 · KB 확인 세 줄", 13, { fill: "var(--mut)" }, ftG);
+  fade(ftG, 12.3, 0.4);
+
+  /* ── 흐름도를 하나로 묶어 올린다 ── */
+  var stageG = G(), moved = [];
+  for (var q = mark0; q < mark1; q++) moved.push(svg.childNodes[q]);
+  moved.forEach(function (n) { stageG.appendChild(n); });
+  svg.insertBefore(stageG, whyG);
+  K.lift(stageG, 150, 9.0, 0.7);
+
+  /* ── 움직이는 표지 ── */
+  var tokCore = K.POSTER ? null : E("circle", { r: 8 }, { fill: "var(--acc)", opacity: 0 }, coreTok);
+  var CTR = [[1.5, C.src.cx], [1.8, C.in.cx], [2.15, C.wf.cx], [2.45, C.rv.cx], [2.65, C.ap.cx], [2.9, C.ln.cx]];
+  var kbDots = [];
+  if (!K.POSTER) {
+    // 위로: 묻기(파랑), 아래로: 일의 끝(초록)
+    [[C.in.cx, KY, R2 + R2H, "var(--acc)", 7.5], [chipX["diagnose"], KY, R2 + R2H, "var(--acc)", 7.7],
+     [1660, R2 + R2H, KY, "var(--ok)", 8.2], [C.ap.cx, CT + CH, R2, "var(--ok)", 7.95], [C.ln.cx, CT + CH, R2, "var(--ok)", 8.05]].forEach(function (d) {
+      kbDots.push({ x: d[0], y0: d[1], y1: d[2], t0: d[4], el: E("circle", { r: 6 }, { fill: d[3], opacity: 0 }, kbTok) });
+    });
+  }
+  var laneDots = [];
+  if (!K.POSTER) LN.forEach(function (l, k) {
+    laneDots.push({ y: l.y, t0: 12.1 + k * 0.35, el: E("circle", { r: 8 }, { fill: l.c, opacity: 0 }, laneTok) });
+  });
+
+  K.start(function (t) {
+    tags.forEach(function (g) {
+      var o = K.clamp((t - g.t0) / 0.35) * (1 - K.clamp((t - 1.0) / 0.5));
+      g.el.setAttribute("transform", "translate(" + (g.x + 30 * Math.sin(t * 1.3 + g.ph)) + " " + (g.y + 14 * Math.cos(t * 1.1 + g.ph)) + ")");
+      g.el.style.opacity = o;
+    });
+    if (tokCore) {
+      if (t < CTR[0][0] || t > CTR[CTR.length - 1][0] + 0.15) tokCore.style.opacity = 0;
+      else {
+        var x = CTR[CTR.length - 1][1];
+        for (var i = 0; i < CTR.length - 1; i++) if (t <= CTR[i + 1][0]) { x = CTR[i][1] + (CTR[i + 1][1] - CTR[i][1]) * K.clamp((t - CTR[i][0]) / (CTR[i + 1][0] - CTR[i][0])); break; }
+        tokCore.setAttribute("cx", x); tokCore.setAttribute("cy", CT - 12); tokCore.style.opacity = 1;
+      }
+    }
+    kbDots.forEach(function (d) {
+      var p = (t - d.t0) / 0.6;
+      if (p < 0 || p > 1) { d.el.style.opacity = 0; return; }
+      d.el.setAttribute("cx", d.x); d.el.setAttribute("cy", d.y0 + (d.y1 - d.y0) * K.eo(p)); d.el.style.opacity = 1;
+    });
+    laneDots.forEach(function (d) {
+      var p = (t - d.t0) / 1.6;
+      if (p < 0 || p > 1.05) { d.el.style.opacity = 0; return; }
+      var x = (STX[0] - 60) + (STX[4] + 60 - (STX[0] - 60)) * K.clamp(p);
+      d.el.setAttribute("cx", x); d.el.setAttribute("cy", d.y); d.el.style.opacity = p > 1 ? 0 : 1;
+    });
+    nodeBoxes.forEach(function (b) {
+      var on = K.POSTER || t >= b.on;
+      b.r.style.fill = on ? "color-mix(in srgb," + b.c + " 13%, var(--card))" : "var(--card)";
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KB 한 장 · RTL WorkSys</title>
+<!-- 장면 규약 = 00_META/INFOGRAPHIC.md -->
+<style>
+:root{
+  --bg:#0f1420; --bg2:#171e2e; --card:#1a2233; --line:#2c3850;
+  --fg:#e4e9f2; --mut:#93a1bb; --dim:#6b7a96;
+  --acc:#4fb8f5; --acc2:#8b8cf8; --ok:#3ddba0; --warn:#f5c04f; --bad:#f8776f;
+}
+:root[data-theme="light"]{
+  --bg:#f6f8fc; --bg2:#ffffff; --card:#ffffff; --line:#dde4f0;
+  --fg:#16203a; --mut:#5b6b88; --dim:#8494b0;
+  --acc:#1878c8; --acc2:#5b5ce0; --ok:#129c6c; --warn:#b5780a; --bad:#d4463c;
+}
+html,body{margin:0;height:100%;background:var(--bg)}
+body{display:flex;align-items:center;justify-content:center;overflow:hidden}
+svg{width:100vw;height:100vh;display:block}
+text{font-family:'Malgun Gothic','Apple SD Gothic Neo',-apple-system,'Segoe UI',Roboto,sans-serif}
+.mono{font-family:ui-monospace,Consolas,'Cascadia Code',monospace}
+</style>
+</head>
+<body>
+<svg id="s" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"></svg>
+<script src="scene_kit.js"></script>
+<script>
+(function () {
+  "use strict";
+  var svg = document.getElementById("s"), K = SceneKit(svg, 15);
+  var E = K.E, T = K.T, G = K.G, pill = K.pill, fade = K.fade, pop = K.pop, rise = K.rise, draw = K.draw;
+
+  /* ── 제목줄 다섯: 문제 → 북극성 → 누가 짓나 → 시험 · 반입 → 왜 기틀인가 ── */
+  K.header("RTL WorkSys  ·  KB 한 장", [
+    { t0: 0, t1: 3.0, main: "제품 자료는 흩어져 있고, 정리한 날부터 낡고, 출처가 빠진다",
+      sub: "코드 · spec · issue · 릴리즈 · 합성 결과 · 고객 질문이 따로 있다. 정리본은 원천과 어긋나고, 누가 확인했는지 모른다." },
+    { t0: 3.0, t1: 6.5, main: "질문하면 근거가 붙은 답이 나오고, 빈 곳은 일감이 된다",
+      sub: "KB는 원천을 가리키고 복사하지 않는다. 세 성질: 믿을 수 있다 · 살아 있다 · 빈 곳이 보인다." },
+    { t0: 6.5, t1: 9.5, main: "agent는 MR로 제안하고, 사람이 reviewed로 올린다",
+      sub: "agent 다섯이 조사 · 초안 · 정리 · 답 · 확정 기록을 맡고, 계산은 script가 한다. 확정 기록은 바뀌지 않는다." },
+    { t0: 9.5, t1: 11.5, main: "가상 제품으로 시험했고, 별도 묶음으로 가져간다",
+      sub: "hard-zero 넷은 하나라도 나오면 되돌린다. 세부는 회사의 Claude 세션이 가설 확인 시트로 사람과 정한다." },
+    { t0: 11.5, t1: 99, main: "모든 일이 KB에 묻고, 일의 끝이 KB로 돌아온다",
+      sub: "intake · workflow · diagnose · 고객 트랙이 같은 지식에 기댄다. 근거가 붙은 지식, 이것이 AI가 일하는 기틀이다." }
+  ]);
+
+  var mark0 = svg.childNodes.length;
+
+  /* ── S1: 흩어진 자료 (입자) ── */
+  var chaosG = K.particles(G()), tags = [], bits = [];
+  if (!K.POSTER) {
+    var lump = G(chaosG);
+    K.box(140, 270, 1640, 360, "var(--bad)", lump, { rx: 26, dash: "10 8", fill: "color-mix(in srgb,var(--bad) 5%, var(--card))" });
+    T(960, 318, "흩어짐  ·  낡음  ·  출처 없음", 26, { fill: "var(--bad)", fontWeight: 800 }, lump, "middle");
+    T(960, 604, "\"FIFO 깊이는?\"  →  코드 · spec · wiki가 서로 다르고, 어느 것이 맞는지 아무도 모른다", 19, { fill: "var(--mut)" }, lump, "middle");
+    fade(lump, 0.15, 0.35, 2.55, 0.4);
+    var TAG = [["코드", "var(--acc)"], ["spec (어느 버전?)", "var(--acc2)"], ["wiki 정리본 · 낡음", "var(--bad)"], ["issue 댓글", "var(--warn)"],
+               ["릴리즈 노트", "var(--ok)"], ["합성 결과", "var(--acc)"], ["메일 속 답", "var(--warn)"], ["고객 질문", "var(--warn)"], ["출처 없는 문장", "var(--bad)"]];
+    var rnd = K.rng(68);
+    TAG.forEach(function (s, i) {
+      var g = G(chaosG);
+      pill(0, 0, s[0], 17, s[1], g, { h: 34, pad: 28, dash: s[1] === "var(--bad)" ? "5 4" : "none" });
+      tags.push({ el: g, x: 300 + (i % 5) * 320 + (Math.floor(i / 5) ? 160 : 0) + rnd() * 40, y: 400 + Math.floor(i / 5) * 100 + rnd() * 30, ph: rnd() * 6.3, t0: 0.25 + i * 0.12 });
+    });
+    var pal = ["var(--acc)", "var(--acc2)", "var(--warn)", "var(--ok)", "var(--bad)"];
+    for (var c = 0; c < 30; c++) {
+      var d = { x: 220 + rnd() * 1480, y: 360 + rnd() * 200, r: 3 + rnd() * 4, ph: rnd() * 6.3, fx: 0.6 + rnd() * 1.2, t0: 0.2 + rnd() * 1.0 };
+      d.el = E("circle", { r: d.r }, { fill: pal[c % 5], opacity: 0 }, chaosG);
+      bits.push(d);
+    }
+  }
+
+  /* ── S2: 원천 → KB → 답 · gap ── */
+  var AY = 252, AH = 160;
+  // 원천
+  var srcG = G();
+  K.box(80, AY, 290, AH, "var(--mut)", srcG, { rx: 14, fill: "var(--card)" });
+  T(102, AY + 30, "원천", 19, { fill: "var(--fg)", fontWeight: 800 }, srcG);
+  T(348, AY + 30, "읽기만", 14, { fill: "var(--mut)" }, srcG, "end");
+  var SRC = ["코드 저장소", "spec · 문서", "issue", "릴리즈 · tag", "합성 결과", "고객 질문"];
+  SRC.forEach(function (s, k) {
+    var col = k % 2, row = Math.floor(k / 2), x = 100 + col * 128, y = AY + 46 + row * 36;
+    K.box(x, y, 120, 28, "var(--line)", srcG, { rx: 7, sw: 1.2, fill: "var(--bg2)" });
+    T(x + 60, y + 19, s, 13, { fill: "var(--fg)", fontWeight: 700 }, srcG, "middle");
+  });
+  pop(srcG, 225, AY + AH / 2, 3.15, 0.45);
+  function arrow(x0, x1, y, color, t0, g) {
+    var p = E("path", { d: "M " + x0 + " " + y + " H " + (x1 - 4), fill: "none" }, { stroke: color, strokeWidth: 3 }, g);
+    var h = E("path", { d: "M " + (x1 - 13) + " " + (y - 7) + " L " + (x1 - 3) + " " + y + " L " + (x1 - 13) + " " + (y + 7), fill: "none" }, { stroke: color, strokeWidth: 3 }, g);
+    draw(p, t0, 0.3); fade(h, t0 + 0.2, 0.2);
+  }
+  var arG = G();
+  arrow(370, 432, AY + AH / 2, "var(--line)", 3.45, arG);
+  var arL = T(401, AY + AH / 2 - 12, "가리킨다", 13, { fill: "var(--mut)" }, arG, "middle");
+  fade(arL, 3.6, 0.3);
+
+  // KB 본체
+  var kbG = G();
+  var KX = 432, KW = 780;
+  K.box(KX, AY, KW, AH, "var(--ok)", kbG, { rx: 16, sw: 2.5, fill: "color-mix(in srgb,var(--ok) 6%, var(--card))" });
+  T(KX + 22, AY + 34, "KB", 26, { fill: "var(--ok)", fontWeight: 800 }, kbG);
+  T(KX + 22 + K.width("KB", 26, 800) + 14, AY + 32, "가리키고 복사하지 않는다 · 파일 하나 = 사실 덩어리 하나", 14, { fill: "var(--mut)" }, kbG);
+  pop(kbG, KX + KW / 2, AY + AH / 2, 3.6, 0.45);
+  // 문서 한 장 (가상)
+  var docG = G(kbG);
+  var DX = KX + 22, DY = AY + 50;
+  K.box(DX, DY, 330, 96, "var(--line)", docG, { rx: 8, sw: 1.5, fill: "var(--bg2)" });
+  T(DX + 14, DY + 22, "vx-dec/mod/blk_parse  (가상)", 14, { fill: "var(--acc)", fontWeight: 700 }, docG).setAttribute("class", "mono");
+  var DL = [["source", "원천 위치 · revision"], ["status", "draft → reviewed (사람)"], ["links", "bug · spec · 릴리즈"]];
+  DL.forEach(function (l, k) {
+    T(DX + 14, DY + 46 + k * 21, l[0], 13, { fill: "var(--mut)", fontWeight: 700 }, docG).setAttribute("class", "mono");
+    T(DX + 80, DY + 46 + k * 21, l[1], 13, { fill: "var(--fg)" }, docG);
+  });
+  rise(docG, 4.0, 0.45, 8);
+  // 세 성질
+  var PROP = [
+    ["믿을 수 있다", "모든 사실에 출처 · (추정) · (계산) 표시"],
+    ["살아 있다", "원천이 바뀌면 stale 표시 → 갱신 제안"],
+    ["빈 곳이 보인다", "답하지 못한 질문 = gap 기록"]
+  ];
+  PROP.forEach(function (p, k) {
+    var g = G(kbG), y = DY + 18 + k * 33, x = DX + 352;
+    E("circle", { cx: x + 6, cy: y - 5, r: 6 }, { fill: "var(--ok)" }, g);
+    T(x + 20, y, p[0], 16, { fill: "var(--ok)", fontWeight: 800 }, g);
+    T(x + 20 + K.width(p[0], 16, 800) + 10, y, p[1], 13, { fill: "var(--fg)" }, g);
+    rise(g, 4.5 + k * 0.3, 0.45, 8);
+  });
+
+  // 답 · gap
+  var ansG = G();
+  arrow(KX + KW, 1272, AY + 37, "var(--line)", 5.35, ansG);
+  K.box(1272, AY, 568, 74, "var(--acc)", ansG, { rx: 12, fill: "color-mix(in srgb,var(--acc) 7%, var(--card))" });
+  T(1292, AY + 30, "근거가 붙은 답", 18, { fill: "var(--acc)", fontWeight: 800 }, ansG);
+  T(1292 + K.width("근거가 붙은 답", 18, 800) + 12, AY + 30, "인용 = 문서 id + 원천 revision", 14, { fill: "var(--mut)" }, ansG);
+  T(1292, AY + 56, "\"코드 16, spec 32, 담당이 판정 중\" (conflict 표시)", 15, { fill: "var(--fg)" }, ansG);
+  rise(ansG, 5.5, 0.45, 10);
+  var gapG = G();
+  arrow(KX + KW, 1272, AY + 123, "var(--line)", 5.8, gapG);
+  K.box(1272, AY + 86, 568, 74, "var(--bad)", gapG, { rx: 12, dash: "7 5", fill: "color-mix(in srgb,var(--bad) 6%, var(--card))" });
+  T(1292, AY + 116, "빈 곳 = 채울 일감", 18, { fill: "var(--bad)", fontWeight: 800 }, gapG);
+  T(1292 + K.width("빈 곳 = 채울 일감", 18, 800) + 12, AY + 116, "gap 이유 → 일감 목록", 14, { fill: "var(--mut)" }, gapG);
+  T(1292, AY + 142, "문서 없음 · 절 없음 · 연결 없음 · 낡음 · 충돌 · 권한 밖", 15, { fill: "var(--fg)" }, gapG);
+  rise(gapG, 5.95, 0.45, 10);
+
+  /* ── S3: 누가 짓나 ── */
+  var BY = 440, BH = 156;
+  var bldG = G();
+  K.box(80, BY, 1760, BH, "var(--acc2)", bldG, { rx: 14, fill: "color-mix(in srgb,var(--acc2) 4%, var(--card))" });
+  T(104, BY + 30, "누가 짓나", 19, { fill: "var(--acc2)", fontWeight: 800 }, bldG);
+  T(104 + K.width("누가 짓나", 19, 800) + 14, BY + 30, "agent 다섯(LLM) · script(결정론) · 사람(판정). 원천은 읽기만, KB에는 MR로만", 14, { fill: "var(--mut)" }, bldG);
+  fade(bldG, 6.6, 0.4);
+  var AG = [
+    ["Surveyor", "원천 조사 · registry · card"], ["Harvester", "초안 · 사건마다 갱신 제안"], ["Curator", "정리 · 검수 보조 · FAQ"],
+    ["Librarian", "근거가 붙은 답 · gap"], ["Release recorder", "릴리즈 · 납품 확정 기록"]
+  ];
+  var agX = 104, AGW = 200, AGY = BY + 46, AGH = 62;
+  AG.forEach(function (a, k) {
+    var g = G(bldG), x = agX + k * (AGW + 12);
+    K.box(x, AGY, AGW, AGH, "var(--acc2)", g, { rx: 10, fill: "var(--card)" });
+    T(x + AGW / 2, AGY + 26, a[0], 17, { fill: "var(--acc2)", fontWeight: 800 }, g, "middle");
+    T(x + AGW / 2, AGY + 48, a[1], 13, { fill: "var(--mut)" }, g, "middle");
+    pop(g, x + AGW / 2, AGY + AGH / 2, 6.8 + k * 0.17, 0.4);
+  });
+  var scG = G(bldG);
+  K.box(104, BY + 118, 1048, 28, "var(--acc)", scG, { rx: 7, sw: 1.5, fill: "color-mix(in srgb,var(--acc) 8%, var(--card))" });
+  T(118, BY + 137, "script", 14, { fill: "var(--acc)", fontWeight: 800 }, scG);
+  T(178, BY + 137, "lint · generator · event router  —  계산은 script, 서술은 AI. script는 문서를 고치지 않는다", 14, { fill: "var(--fg)" }, scG);
+  rise(scG, 8.4, 0.4, 8);
+  // MR → 사람 → reviewed
+  var mrG = G(bldG);
+  var MY = AGY + AGH / 2, mx = 1196;
+  var hx = 1370, hg = G(mrG);
+  var mrLine = E("path", { d: "M " + (agX + 5 * AGW + 4 * 12) + " " + MY + " H " + (hx - 16), fill: "none" }, { stroke: "var(--line)", strokeWidth: 2.5 }, mrG);
+  draw(mrLine, 7.75, 0.35);
+  var mrLine2 = E("path", { d: "M " + (hx + 22 + K.width("사람이 판정", 15, 800) + 12) + " " + MY + " H 1810", fill: "none" }, { stroke: "var(--line)", strokeWidth: 2.5 }, mrG);
+  draw(mrLine2, 8.1, 0.3);
+  var mp = pill(mx + 40, MY, "MR 제안", 15, "var(--acc2)", mrG, { h: 30, pad: 24, fill: "var(--card)" });
+  pop(mp, mx + 40, MY, 7.85, 0.4);
+  E("rect", { x: hx - 11, y: MY - 11, width: 22, height: 22, rx: 3, transform: "rotate(45 " + hx + " " + MY + ")" },
+    { fill: "color-mix(in srgb,var(--warn) 30%, var(--card))", stroke: "var(--warn)", strokeWidth: 3 }, hg);
+  T(hx + 22, MY + 6, "사람이 판정", 15, { fill: "var(--warn)", fontWeight: 800 }, hg);
+  pop(hg, hx, MY, 8.05, 0.4);
+  var rp = pill(1680, MY, "reviewed", 15, "var(--ok)", mrG, { h: 30, pad: 26, fill: "var(--card)" });
+  pop(rp, 1680, MY, 8.25, 0.4);
+  var frG = G(mrG);
+  T(1196, BY + 137, "확정된 릴리즈 · 납품 기록은 바뀌지 않는다 (보호 원장)", 14, { fill: "var(--warn)", fontWeight: 700 }, frG);
+  rise(frG, 8.6, 0.4, 8);
+  // reviewed → KB (위로)
+  var upG = G(bldG);
+  E("path", { d: "M 1680 " + (MY - 15) + " V " + (BY - 14) + " H " + (KX + KW - 60) + " V " + (AY + AH + 4), fill: "none" }, { stroke: "var(--ok)", strokeWidth: 2.5, strokeDasharray: "7 5" }, upG);
+  E("path", { d: "M " + (KX + KW - 67) + " " + (AY + AH + 14) + " L " + (KX + KW - 60) + " " + (AY + AH + 4) + " L " + (KX + KW - 53) + " " + (AY + AH + 14), fill: "none" }, { stroke: "var(--ok)", strokeWidth: 2.5 }, upG);
+  fade(upG, 8.45, 0.4);
+  var mrTok = K.particles(G());
+
+  /* ── S5: 묻는 쪽 · 돌아오는 것 ── */
+  var usG = G();
+  var UY = 618, UH = 72;
+  K.box(80, UY, 870, UH, "var(--acc)", usG, { rx: 12, fill: "color-mix(in srgb,var(--acc) 9%, var(--card))" });
+  T(102, UY + 30, "묻는다", 18, { fill: "var(--acc)", fontWeight: 800 }, usG);
+  T(102 + K.width("묻는다", 18, 800) + 12, UY + 30, "kb-ask · 고객 권한과 audience를 함께 넘긴다", 14, { fill: "var(--mut)" }, usG);
+  var ux = 102;
+  ["intake", "workflow", "diagnose", "고객 트랙", "사람"].forEach(function (s) {
+    var w = K.width(s, 15, 700) + 24;
+    pill(ux + w / 2, UY + 52, s, 15, "var(--acc)", usG, { h: 26, pad: 24, fill: "var(--card)" });
+    ux += w + 10;
+  });
+  K.box(970, UY, 870, UH, "var(--ok)", usG, { rx: 12, fill: "color-mix(in srgb,var(--ok) 9%, var(--card))" });
+  T(992, UY + 30, "돌아온다", 18, { fill: "var(--ok)", fontWeight: 800 }, usG);
+  T(992 + K.width("돌아온다", 18, 800) + 12, UY + 30, "일의 끝 → 사건 → MR", 14, { fill: "var(--mut)" }, usG);
+  ux = 992;
+  ["FAQ", "errata", "bug 문서", "릴리즈 기록", "해결 사례"].forEach(function (s) {
+    var w = K.width(s, 15, 700) + 24;
+    pill(ux + w / 2, UY + 52, s, 15, "var(--ok)", usG, { h: 26, pad: 24, fill: "var(--card)" });
+    ux += w + 10;
+  });
+  rise(usG, 11.75, 0.5, 14);
+
+  var mark1 = svg.childNodes.length;
+
+  /* ── 아래 왼쪽: 왜 KB가 기틀인가 ── */
+  var whyG = G();
+  K.box(80, 736, 860, 314, "var(--line)", whyG, { fill: "var(--card)", stroke: "var(--line)", sw: 1.5, rx: 20 });
+  T(112, 782, "왜 KB가 기틀인가", 27, { fontWeight: 800 }, whyG);
+  var WHY = [
+    ["근거", "var(--ok)", "AI의 답에 원천 위치와 버전이 붙는다. 모르면 모른다고 쓴다."],
+    ["판정", "var(--warn)", "agent는 MR로 제안하고 사람이 올린다. 확정 기록은 바뀌지 않는다."],
+    ["살아 있음", "var(--acc)", "원천이 바뀌면 낡음이 보이고, 빈 곳은 채울 일감이 된다."],
+    ["한 곳", "var(--acc2)", "모든 일이 같은 지식에 묻고, 일의 끝이 다시 KB로 돌아온다."]
+  ];
+  var wy = 836;
+  WHY.forEach(function (w, i) {
+    var g = G(whyG);
+    E("circle", { cx: 126, cy: wy - 7, r: 15 }, { fill: "color-mix(in srgb," + w[1] + " 20%, var(--card))", stroke: w[1], strokeWidth: 2 }, g);
+    T(126, wy, String(i + 1), 17, { fill: w[1], fontWeight: 800 }, g, "middle");
+    T(156, wy, w[0], 21, { fill: w[1], fontWeight: 800 }, g);
+    var r = K.wrap(270, wy, w[2], 19, 642, 26, { fill: "var(--fg)" }, g);
+    wy += 30 + r.n * 26;
+    rise(g, 12.2 + i * 0.25, 0.5, 14);
+  });
+  fade(whyG, 12.0, 0.4);
+
+  /* ── 아래 오른쪽: 시험과 반입 · 상태 ── */
+  var tsG = G();
+  K.box(980, 736, 860, 314, "var(--line)", tsG, { fill: "var(--card)", stroke: "var(--line)", sw: 1.5, rx: 20 });
+  T(1012, 782, "시험과 반입", 27, { fontWeight: 800 }, tsG);
+  T(1808, 782, "가상 제품 family 하나 · 문서 51", 15, { fill: "var(--mut)" }, tsG, "end");
+  fade(tsG, 9.5, 0.4);
+  var STAT = ["lint 66/66", "질의응답 25/25", "수집 3/3", "정답 표 38건 · 모순 0"];
+  var sx = 1012;
+  STAT.forEach(function (s, i) {
+    var g = G(tsG), w = K.width(s, 15, 700) + 26;
+    pill(sx + w / 2, 818, s, 15, "var(--ok)", g, { h: 30, pad: 26, rx: 8 });
+    sx += w + 12;
+    rise(g, 9.65 + i * 0.15, 0.4, 8);
+  });
+  function chipRow(y, label, color, items, dash, t0) {
+    var g = G(tsG);
+    T(1012, y + 5, label, 15, { fill: color, fontWeight: 800 }, g);
+    var x = 1012 + K.width(label, 15, 800) + 14;
+    items.forEach(function (s) {
+      var w = K.width(s, 13, 700) + 20;
+      pill(x + w / 2, y, s, 13, color, g, { h: 24, pad: 20, rx: 6, dash: dash });
+      x += w + 8;
+    });
+    rise(g, t0, 0.4, 8);
+  }
+  chipRow(858, "hard-zero 넷", "var(--bad)", ["근거 없는 사실", "고객 정보 누출", "확정 기록 훼손", "낡음 은폐"], "none", 10.2);
+  chipRow(892, "큰 할 일 여섯", "var(--acc)", ["1차 문서", "믿음의 장치", "원천 잇기", "릴리즈 축", "요구 축", "살아 있게 · 품질"], "none", 10.55);
+  var pkG = G(tsG);
+  T(1012, 928, "별도 zip으로 반입 → 회사의 Claude 세션이 가설 확인 시트로 사람과 세부를 정한다", 15, { fill: "var(--acc2)", fontWeight: 700 }, pkG);
+  rise(pkG, 10.9, 0.45, 8);
+  var stG = G(tsG);
+  E("path", { d: "M 1012 946 H 1808", fill: "none" }, { stroke: "var(--line)", strokeWidth: 1.5 }, stG);
+  fade(stG, 12.1, 0.4);
+  var ST = [
+    ["확정", "var(--ok)", "none", "북극성 · 원칙 다섯 · 큰 할 일 여섯 · 별도 zip 반입"],
+    ["확인 대기", "var(--warn)", "5 4", "고객 표기 해석 · 계약의 상업 조건 · 문서화 AI 분담"],
+    ["회사에서 정함", "var(--acc2)", "5 4", "파일럿 제품 · template 정본 관계 · 고객 별칭 · 숫자 기준"]
+  ];
+  ST.forEach(function (s, i) {
+    var y = 976 + i * 28, g = G(tsG);
+    var w = K.width(s[0], 14) + 22;
+    pill(1012 + w / 2, y - 5, s[0], 14, s[1], g, { h: 22, pad: 22, dash: s[2] });
+    T(1012 + 128, y, s[3], 16, { fill: "var(--fg)" }, g);
+    rise(g, 12.3 + i * 0.2, 0.45, 10);
+  });
+
+  /* ── 흐름도를 하나로 묶어 올린다 ── */
+  var stageG = G(), moved = [];
+  for (var q = mark0; q < mark1; q++) moved.push(svg.childNodes[q]);
+  moved.forEach(function (n) { stageG.appendChild(n); });
+  svg.insertBefore(stageG, whyG);
+  K.lift(stageG, 150, 9.0, 0.7);
+
+  /* ── 표지: MR이 사람을 거쳐 reviewed로 ── */
+  var tok = K.POSTER ? null : E("circle", { r: 8 }, { fill: "var(--acc2)", opacity: 0 }, mrTok);
+  var TR = [[8.1, mx + 40], [8.4, hx], [8.7, hx], [8.95, 1680]];
+
+  K.start(function (t) {
+    bits.forEach(function (d) {
+      var o = K.clamp((t - d.t0) / 0.3) * (1 - K.clamp((t - 2.5) / 0.5));
+      d.el.setAttribute("cx", d.x + 50 * Math.sin(t * d.fx * 2 + d.ph));
+      d.el.setAttribute("cy", d.y + 28 * Math.cos(t * d.fx * 1.7 + d.ph));
+      d.el.style.opacity = o * 0.6;
+    });
+    tags.forEach(function (g) {
+      var o = K.clamp((t - g.t0) / 0.35) * (1 - K.clamp((t - 2.5) / 0.45));
+      g.el.setAttribute("transform", "translate(" + (g.x + 26 * Math.sin(t * 1.3 + g.ph)) + " " + (g.y + 10 * Math.cos(t * 1.1 + g.ph)) + ")");
+      g.el.style.opacity = o;
+    });
+    if (tok) {
+      if (t < TR[0][0] || t > TR[TR.length - 1][0] + 0.2) tok.style.opacity = 0;
+      else {
+        var x = TR[TR.length - 1][1];
+        for (var i = 0; i < TR.length - 1; i++) if (t <= TR[i + 1][0]) { x = TR[i][1] + (TR[i + 1][1] - TR[i][1]) * K.clamp((t - TR[i][0]) / (TR[i + 1][0] - TR[i][0])); break; }
+        tok.setAttribute("cx", x); tok.setAttribute("cy", MY - 22); tok.style.opacity = 1;
+      }
+    }
+  });
+})();
+</script>
+</body>
+</html>
