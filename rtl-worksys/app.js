@@ -45,7 +45,7 @@
   var BUN = {
     ia: { g: "IA", src: "intake_agent.js", deep: "intake", name: "intake agent system", tag: "심화 결과 · 교정 대기",
       secs: [["overview", "개요"], ["design", "설계"], ["arch", "구조"], ["agents", "부품 10"], ["contracts", "계약 3"],
-        ["rules", "규칙 8"], ["golden", "시험 91"], ["eval", "평가"], ["session", "세션 기록"]],
+        ["rules", "규칙 9"], ["golden", "시험 108"], ["eval", "평가"], ["session", "세션 기록"]],
       facets: [["group", "입구"], ["mode", "mode"], ["gate", "gate"]],
       lead: function (I) {
         return "intake 심화 세션(09-27~28)이 intake를 설명 문서에서 세울 수 있는 agent 시스템의 명세로 옮긴 결과 전체다. 부품 " + I.stats.agents +
@@ -462,7 +462,21 @@
       [1, 2, 3, 4].map(function (k) { return '<div class="strow"><b>' + esc(T.head[k]) + "</b><span>" + tx(r[k]) + "</span></div>"; }).join("") + "</div>";
     return o + "</div></div>";
   }
-  var FIGS = { core: coreStrip, chain: chainFig, diagnose: layerFig };
+  // intake: 고객 트랙 한 줄 + 출처 넷(같은 내용, 다른 출처 = 다른 끝)
+  function intakeFig() {
+    var F = W.sys.topics.intake.fig; if (!F) return "";
+    return '<div class="card" id="s-fig"><h2>고객 트랙 한 줄</h2>' +
+      '<div class="ctrack">' + F.track.map(function (t, i) {
+        return '<div class="ctk' + (i === 3 ? " hum" : "") + '"><b>' + esc(t[0]) + "</b>" + h("span", "", tx(t[1])) + "</div>";
+      }).join('<span class="car">→</span>') + "</div>" +
+      '<div class="cbug"><b>↳</b> ' + tx(F.bug) + "</div>" +
+      h("h3", "", "출처 넷: 같은 내용, 다른 출처 = 다른 끝") +
+      '<div class="srcs">' + F.sources.map(function (r, i) {
+        return '<div class="src s' + i + '"><b>' + esc(r[0]) + '</b><span class="ex">' + tx(r[1]) + '</span><span class="end">→ ' + tx(r[2]) + "</span></div>";
+      }).join("") + "</div>" + h("p", "dim small", tx(F.same)) +
+      '<div class="tgo">' + goBtn(["원인 찾기의 행선지 표", "sys", "intake/more"]) + " " + goBtn(["사례 W5 · 고객 트랙", "walk", "W5"]) + " " + goBtn(["전체 지도: 고객 이슈의 길", "atlas", "S2"]) + "</div></div>";
+  }
+  var FIGS = { core: coreStrip, intake: intakeFig, chain: chainFig, diagnose: layerFig };
 
   function topicRail(cur) {
     return '<div class="rail">' + W.sys.order.map(function (k) {
@@ -759,7 +773,7 @@
   function viewLib() {
     var o = '<div class="card"><h2>자료실</h2>' + h("p", "lead", tx(W.lib.lead)) + "</div>";
     o += '<div class="card"><h2>명세 탐색기</h2>' +
-      '<button class="topicbtn" data-bun-go="ia"><div class="tt"><b>intake agent system</b></div>' + h("div", "mut small", "명세 전문 · 부품 10 · 계약 3 · 규칙 8 · 시험 사례 91 · 인계 문서") + "</button>" +
+      '<button class="topicbtn" data-bun-go="ia"><div class="tt"><b>intake agent system</b></div>' + h("div", "mut small", "명세 전문 · 부품 11 · 계약 3 · 규칙 9 · 시험 사례 108(고객 6) · 인계 문서") + "</button>" +
       '<button class="topicbtn" data-bun-go="wa"><div class="tt"><b>workflow agent system</b></div>' + h("div", "mut small", "명세 전문 · workflow 라이브러리 28 · 부품 11 · 계약 11 · 시험 사례 68 · 인계 문서") + "</button></div>";
     o += '<div class="card"><h2>그림 문서 <span class="tag m">정적 · 폭이 넓다</span></h2><div class="igdocs">' + W.lib.docs.map(function (d) {
       return '<a class="igdoc" href="' + d[0] + '" target="_blank" rel="noopener"><b>' + esc(d[1]) + " ↗</b><span>" + tx(d[2]) + "</span></a>";
