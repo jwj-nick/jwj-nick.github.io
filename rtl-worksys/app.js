@@ -43,25 +43,25 @@
 
   /* ── agent 명세 탐색기: intake(#ia) · workflow(#wa). 데이터는 처음 열 때 불러온다 ── */
   var BUN = {
-    ia: { g: "IA", src: "intake_agent.js", deep: "intake", name: "intake agent system", tag: "심화 결과 · 교정 대기",
+    ia: { g: "IA", src: "intake_agent.js", deep: "intake", name: "intake agent system", tag: "심화 결과 · 확정(실무에서 조정)",
       secs: [["overview", "개요"], ["design", "설계"], ["arch", "구조"], ["agents", "부품 10"], ["contracts", "계약 3"],
-        ["rules", "규칙 9"], ["golden", "시험 114"], ["eval", "평가"], ["session", "세션 기록"]],
+        ["rules", "규칙 9"], ["golden", "시험 119"], ["eval", "평가"], ["session", "세션 기록"]],
       facets: [["group", "입구"], ["mode", "mode"], ["gate", "gate"]],
       lead: function (I) {
         return "intake 심화 세션(09-27~28)이 intake를 설명 문서에서 세울 수 있는 agent 시스템의 명세로 옮긴 결과 전체다. 부품 " + I.stats.agents +
-          " · 데이터 계약 " + I.stats.schemas + " · 규칙 설정 " + I.stats.rules + " · 시험 사례 " + I.stats.cases + "건. 세세한 가정과 결정은 위임으로 정해졌고 교정을 기다린다.";
+          " · 데이터 계약 " + I.stats.schemas + " · 규칙 설정 " + I.stats.rules + " · 시험 사례 " + I.stats.cases + "건. 세세한 결정은 위임으로 정해졌고 확정되었다(실무에서 조정하는 출발점).";
       },
       read: "읽는 순서: 개요(전체 설명) → 구조 §2~§4 → 시험 사례 몇 건. 가정을 가장 많이 넣은 줄은 세션 기록 › 읽기 안내에 모여 있다.",
       rulesNote: "규칙 설정(YAML)이다. 숫자는 공란이고 결정 주체가 적혀 있다. # 줄은 설명, 굵은 이름은 key다.",
       golden: "가상 발생마다 무엇이 나와야 하는지(기대 결과)와 그 이유를 적은 시험 세트다. 회사에서 agent를 세운 뒤에는 회귀 시험이 된다. hard-zero 셋: 위험 놓침 0 · 잘못 붙이기 0 · 밖으로 새기 0." },
-    wa: { g: "WA", src: "workflow_agent.js", deep: "workflow", name: "workflow agent system", tag: "심화 결과 · 교정 대기",
-      secs: [["overview", "개요"], ["design", "설계 85"], ["arch", "구조"], ["agents", "부품 11"], ["library", "workflow 라이브러리"],
-        ["contracts", "계약 11"], ["rules", "설정 4"], ["golden", "시험 84"], ["eval", "평가 · 세우기"], ["session", "세션 기록"]],
+    wa: { g: "WA", src: "workflow_agent.js", deep: "workflow", name: "workflow agent system", tag: "심화 결과 · 확정(실무에서 조정)",
+      secs: [["overview", "개요"], ["design", "설계 85 · 갈래 정본"], ["arch", "구조"], ["agents", "부품 11"], ["library", "workflow 라이브러리"],
+        ["contracts", "계약 11"], ["rules", "설정 5"], ["golden", "시험 88"], ["eval", "평가 · 세우기"], ["session", "세션 기록"]],
       facets: [["group", "종류"], ["wf", "workflow"], ["posture", "posture"]],
       lead: function (I) {
-        return "workflow 심화 세션(09-28 ~ 10-02)이 workflow를 세울 수 있는 agent 시스템의 명세로 옮긴 결과 전체다. 중심은 표준화된 workflow 라이브러리(공통 골격 → 작업 모양 일곱 → 업무별 특화 열일곱, 트랙 덧붙임 하나, 조립 둘)이고, 부품 " +
+        return "workflow 심화 세션(09-28 ~ 10-03)이 workflow를 세울 수 있는 agent 시스템의 명세로 옮긴 결과 전체다. 중심은 표준화된 workflow 라이브러리(공통 골격 → 작업 모양 일곱 → 업무별 특화 열일곱, 트랙 덧붙임 하나, 조립 둘)이고, 부품 " +
           I.stats.agents + " · 데이터 계약 " + I.stats.schemas + " · 시험 사례 " + I.stats.cases + "건(해석 " + I.stats.byGroup["해석"] + " · 한 바퀴 " + I.stats.byGroup["한 바퀴"] +
-          " · replay " + I.stats.byGroup["replay"] + ")이 함께 있다. 결정(첫 판 75항과 이후 79항)은 위임으로 정해졌고 교정을 기다린다.";
+          " · replay " + I.stats.byGroup["replay"] + ")이 함께 있다. 위임으로 정한 결정은 확정되었고(실무에서 조정하는 출발점), 그 뒤의 것은 위임 가정이다.";
       },
       read: "읽는 순서: 개요(전체 설명) → workflow 라이브러리 › 라이브러리 설명 → 공통 골격 → 관심 있는 특화 하나. 교정 후보 11은 세션 기록 › 인계 문서 §7.",
       rulesNote: "회사가 값을 채우는 설정(YAML)과 시험 사례가 공통으로 가정하는 설정이다. 숫자는 공란이고 결정 주체가 적혀 있다.",
@@ -191,7 +191,7 @@
       h("p", "lead", tx(K.lead(I))) +
       h("p", "dim small", esc(K.read) + " " + I.asOf + " 기준.") +
       '<button class="deeplink" data-sys-go="' + K.deep + '">▦ 시스템 › ' + K.deep + "</button> " +
-      '<button class="deeplink" data-tab-go="decide">? 지금 판단할 것</button> ' +
+      '<button class="deeplink" data-tab-go="decide">? 결정 · 조정</button> ' +
       '<button class="deeplink" data-tab-go="lib">▤ 자료실</button></div>';
     o += '<div class="rail">' + K.secs.map(function (s) {
       return '<button data-ia-sec="' + s[0] + '"' + (s[0] === sec ? ' class="on"' : "") + ">" + esc(s[1]) + "</button>";
@@ -381,7 +381,7 @@
     var m = W.home, o = "";
     o += '<div class="hero">' + h("div", "tl", esc(m.title)) +
       '<ol class="li steps5">' + m.summary.map(function (s) { return h("li", "", tx(s)); }).join("") + "</ol>" +
-      '<div class="herobtns"><button class="deeplink" data-tab-go="atlas">⌗ 전체 지도</button> <button class="deeplink" data-tab-go="sys">▦ 시스템</button> <button class="deeplink" data-tab-go="walk">▷ 사례 다섯</button> <button class="deeplink" data-tab-go="decide">? 지금 판단할 것</button></div></div>';
+      '<div class="herobtns"><button class="deeplink" data-tab-go="atlas">⌗ 전체 지도</button> <button class="deeplink" data-tab-go="sys">▦ 시스템</button> <button class="deeplink" data-tab-go="walk">▷ 사례 다섯</button> <button class="deeplink" data-tab-go="decide">? 결정 · 조정</button> <button class="deeplink" data-scroll="h-tuning">기본값은 출발점</button></div></div>';
     o += mapMedia("core", { title: "core 한 장", zones: false });
     o += coreStrip();
 
@@ -397,6 +397,11 @@
           h("span", "tag " + t.badge[1], esc(t.badge[0])) + "</div>" + h("div", "mut small", tx(t.one)) + "</button>";
       }).join("") + "</div></div>";
 
+    var T = m.tuning;
+    o += '<div class="card" id="h-tuning"><h2>' + esc(T.title) + ' <span class="tag y">실무에서 확인 · 결정 · 수정</span></h2>' + h("p", "", tx(T.lead)) +
+      h("h3", "", "바꾸면 안 되는 것 다섯") + '<ol class="li">' + T.keep.map(function (x) { return h("li", "", tx(x)); }).join("") + "</ol>" +
+      h("h3", "", "조정 대상의 예") + block({ table: { head: ["기본값", "무엇을 보고 조정하나", "정하는 사람"], rows: T.adjust } }) +
+      h("div", "note", tx(T.how)) + '<div class="tgo">' + goBtn(["core › 정기 정본 회의", "sys", "core/box-meeting"]) + "</div></div>";
     o += '<div class="card"><h2>무엇이 아닌가</h2>' + ul(m.notWhat, "mutli") + h("div", "note", tx(m.blank)) + "</div>";
     return o;
   }
@@ -452,7 +457,7 @@
     var T = deepTable("diagnose", function (hd) { return hd[0] === "층" && hd.length === 5; });
     if (!T) return "";
     var sel = figSel.diagnose || T.rows[0][0], r = null;
-    var o = '<div class="card" id="s-fig"><h2>층 사다리 <span class="tag y">가정 · 교정 대기</span></h2>' +
+    var o = '<div class="card" id="s-fig"><h2>층 사다리 <span class="tag g">확정 · 실무에서 조정</span></h2>' +
       h("p", "dim small", "원인을 찾기 전에 층부터 가른다. 위쪽(문서 · 이해 · 환경)일수록 RTL 밖이다. 불안정은 층이 아니라 상태다. 층을 누르면 그 층의 재현 수단 · oracle · 좁히는 도구 · 끝이 나온다.") +
       '<div class="lfig"><div class="lad">' + T.rows.map(function (x, i) {
         if (x[0] === sel) r = x;
@@ -479,7 +484,7 @@
   // workflow: 원인 찾기 한 줄 + 두 트랙의 왕복 + 고객 트랙 덧붙임 + 선택 도구
   function wfFig() {
     var F = W.sys.topics.workflow.fig; if (!F) return "";
-    return '<div class="card" id="s-fig"><h2>원인 찾기 · 두 트랙 · 고객 트랙 <span class="tag y">가정 · 교정 대기</span></h2>' +
+    return '<div class="card" id="s-fig"><h2>원인 찾기 · 두 트랙 · 고객 트랙 <span class="tag g">확정 · 실무에서 조정</span></h2>' +
       h("h3", "", "원인 찾기(조사형) 한 줄") +
       '<div class="ctrack">' + F.diag.map(function (t, i) {
         return '<div class="ctk' + (i === 0 || i === F.diag.length - 1 ? " hum" : "") + '"><b>' + esc(t[0]) + "</b>" + h("span", "", tx(t[1])) + "</div>";
@@ -498,6 +503,18 @@
       '<div class="wtools">' + F.tools.map(function (r) { return '<span class="chip">' + esc(r[0]) + " <i>" + esc(r[1]) + "</i></span>"; }).join("") + "</div>" +
       h("p", "dim small", tx(F.toolsNote)) +
       '<div class="tgo">' + goBtn(["자세히: 층 판별 · 두 트랙 · 고객 트랙", "sys", "workflow/more"]) + " " + goBtn(["고객 트랙 (TR-customer)", "bun", "wa/library/TR-customer"]) + " " + goBtn(["diagnose 층 사다리", "sys", "diagnose/fig"]) + " " + goBtn(["intake 고객 트랙 한 줄", "sys", "intake/fig"]) + "</div></div>";
+  }
+  // 갈래(timing-area · coverage): 층 사다리. 위에서부터 싼 순서
+  function branchLayerFig(id) {
+    var t = W.sys.topics[id], F = t.fig, sel = figSel[id] || F.layers[0][0], r = null;
+    var o = '<div class="card" id="s-fig"><h2>' + (id === "coverage" ? "hole의 층 여섯" : "timing 위반의 하위 층 다섯") + ' <span class="tag y">가정(위임) · 실무에서 조정</span></h2>' +
+      h("p", "dim small", "위에서부터 싼 것 순서로 가른다. 층을 누르면 알아보는 법과 끝이 나온다.") +
+      '<div class="lfig"><div class="lad">' + F.layers.map(function (x, i) {
+        if (x[0] === sel) r = x;
+        return '<button class="lrung' + (x[0] === sel ? " on" : "") + '" data-fig="' + id + ":" + esc(x[0]) + '"><span class="n">' + (i + 1) + "</span>" + esc(x[0]) + "</button>";
+      }).join("") + "</div>";
+    if (r) o += '<div class="adet ldet"><div class="adh"><b>' + esc(r[0]) + "</b></div>" + h("p", "", tx(r[1])) + "</div>";
+    return o + "</div>" + h("p", "dim small", tx(F.note)) + '<div class="tgo">' + goBtn(["자세히", "sys", id + "/more"]) + " " + goBtn(["diagnose 층 사다리", "sys", "diagnose/fig"]) + "</div></div>";
   }
   var FIGS = { core: coreStrip, intake: intakeFig, chain: chainFig, diagnose: layerFig, workflow: wfFig };
 
@@ -526,7 +543,13 @@
       h("p", "lead", tx(t.one)) + ul(t.what) + '<div class="tgo">' + goBtn(["전체 지도에서 이 주제", "atlas", "row:" + id]) + "</div></div>";
     if (t.map) o += '<div id="s-map">' + mapMedia(t.map, { title: t.name + " 한 장" }) + "</div>";
     o += '<div class="card" id="s-rules"><h2>핵심 규칙</h2><ol class="li">' + t.rules.map(function (s) { return h("li", "", tx(s)); }).join("") + "</ol></div>";
+    (t.boxes || []).forEach(function (b) {
+      o += '<div class="card" id="s-box-' + b.id + '"><h2>' + esc(b.title) + (b.tag ? " " + h("span", "tag " + b.tag[1], esc(b.tag[0])) : "") + "</h2>" +
+        (b.lead ? h("p", "mut small", tx(b.lead)) : "") +
+        b.rows.map(function (r) { return '<div class="strow"><b>' + esc(r[0]) + "</b><span>" + tx(r[1]) + "</span></div>"; }).join("") + "</div>";
+    });
     if (FIGS[id]) o += FIGS[id]();
+    else if (t.fig && t.fig.layers) o += branchLayerFig(id);
     if (t.place) o += placeCard(t.place);
     o += '<div class="card" id="s-human"><h2>사람의 자리</h2>' + ul(t.human) + h("h3", "", "품질 기준") + ul(t.quality) + "</div>";
     o += '<div class="card" id="s-state"><h2>상태</h2>' + t.state.map(function (r) {
@@ -585,7 +608,7 @@
   }
   // 겹침 지도의 열 → 주제 카드의 절
   var ATLAS_SEC = ["what", "rules", "rules", "rules", "rules", "rules", "human", "human", "state", "what"];
-  var SEC_NAME = { what: "무엇", rules: "핵심 규칙", human: "사람의 자리 · 품질", state: "상태", place: "전체 안에서의 자리", more: "자세히", spec: "원문과 사례" };
+  var SEC_NAME = { fig: "그림", what: "무엇", rules: "핵심 규칙", human: "사람의 자리 · 품질", state: "상태", place: "전체 안에서의 자리", more: "자세히", spec: "원문과 사례" };
   // 결과물 이름 → 명세 탐색기의 부품 명세
   var AGENT_DOC = {
     intake: ["intake_controller", "adapters", "raw_scanner", "dedup_linker", "work_judge", "understander", "categorizer", "gate_checker", "router", "reply_writer"],
@@ -640,7 +663,7 @@
     if (W.maps.atlas) o += mapMedia("atlas", { title: "전체 지도 한 장" });
 
     o += '<div class="card" id="a-grid"><h2>겹침 지도 <span class="tag g">● 정본</span><span class="tag n">○ 사용</span></h2>' +
-      h("p", "mut small", "주제 여덟 × 책임 열. ● = 이 책임의 규칙을 정한다, ○ = 정본의 규칙을 따라 빌려 쓴다, 빈칸 = 관계 없음. 노란 열 셋(입구 · oracle · 학습)은 정본이 여럿이라 경계를 따로 적은 곳이다.") +
+      h("p", "mut small", "주제 " + A.rows.length + " × 책임 열. ● = 이 책임의 규칙을 정한다, ○ = 정본의 규칙을 따라 빌려 쓴다, 빈칸 = 관계 없음. 노란 열 다섯(입구 · 실행 · oracle · 반영 · 학습)은 정본이 여럿이라 경계를 따로 적은 곳이다.") +
       '<div class="agwrap"><table class="agrid"><thead><tr><th class="rh"></th>' + A.cols.map(function (c, ci) {
         return '<th' + (atlasSharedCol(ci) ? ' class="sh"' : "") + '><button data-acell="c:' + ci + '"' + (state.acell === "c:" + ci ? ' class="on"' : "") + ">" + esc(c[0]) + "</button></th>";
       }).join("") + "</tr></thead><tbody>" + A.rows.map(function (r, ri) {
@@ -651,14 +674,14 @@
           return "<td" + cls + '><button class="ac ' + (c[0] === "●" ? "own" : "use") + (state.acell === k ? " on" : "") + '" data-acell="' + k + '" title="' + esc(r.name + " × " + A.cols[ci][0] + ": " + c[1]) + '">' + c[0] + "</button></td>";
         }).join("") + "</tr>";
       }).join("") + "</tbody></table></div>" + atlasDetail() +
-      h("h3", "", "나눠 맡는 열 셋") + A.shared.map(function (s) {
+      h("h3", "", "나눠 맡는 열 " + ["", "하나", "둘", "셋", "넷", "다섯", "여섯"][A.shared.length]) + A.shared.map(function (s) {
         return '<div class="seat c"><b>' + esc(s[0]) + "</b>" + h("div", "kv mut", tx(s[1])) + "</div>";
       }).join("") + h("div", "note", tx(A.kbNote)) + "</div>";
 
     o += '<div class="card" id="a-out"><h2>주제별 목표와 결과물</h2>' +
       h("p", "mut small", "결과물은 넷으로 나눈다: agent(LLM이 판단하는 부품) · 도구(결정론 script · evaluator · controller) · skill(사람이나 agent가 불러 쓰는 절차 묶음) · 문서(설계 · 계약 · 규칙 · workflow 파일 · 시험). 누르면 이름이 펼쳐진다.") +
       A.outputs.map(atlasOut).join("") +
-      h("h3", "", "아직 정본이 없는 갈래") + A.pending.map(function (r) {
+      h("h3", "", "아직 갈래 문서가 없는 것") + A.pending.map(function (r) {
         return '<div class="seat c"><b>' + esc(r[0]) + "</b>" + h("div", "kv mut", tx(r[1])) + "</div>";
       }).join("") + "</div>";
 
@@ -741,15 +764,15 @@
     return '<div class="talk' + (s ? " seen" : "") + '"><div class="t">' + esc(it.t) +
       (it.tag ? h("span", "tag " + it.tag[1], esc(it.tag[0])) : "") + "</div>" +
       h("div", "kv", tx(it.what)) +
-      (it.now ? '<div class="kv mut"><b>지금 가정 —</b> ' + tx(it.now) + "</div>" : "") +
-      (it.ask ? '<div class="kv ask"><b>판단할 것 —</b> ' + tx(it.ask) + "</div>" : "") +
+      (it.now ? '<div class="kv mut"><b>지금 —</b> ' + tx(it.now) + "</div>" : "") +
+      (it.ask ? '<div class="kv ask"><b>실무에서 볼 것 —</b> ' + tx(it.ask) + "</div>" : "") +
       '<div class="tgo">' + (it.go || []).map(function (g) {
         return goBtn(g[1] === "deep" ? [g[0], "sys", g[2]] : g);
       }).join(" ") +
       ' <button class="seenb" data-talk-seen="' + it.id + '">' + (s ? "✓ 봤음" : "○ 봤음 표시") + "</button></div></div>";
   }
   // 주제 × 상태 묶음(확정 · 가정 · 확인 · 반영 대기) + 갖춘 것(한 장 · 해설 · 자세히 · 탐색기 · 사례)
-  var ST_COLS = [["확정", "g", /확정|정리/], ["가정 · 교정 대기", "y", /가정|교정/], ["확인 · 회사에서", "n", /확인|회사/], ["반영 대기", "r", /반영/]];
+  var ST_COLS = [["확정 · 정본", "g", /^(확정|정리|정본|반영됨)/], ["가정 · 실무에서 조정", "y", /가정/], ["확인 · 회사에서 · 보류", "n", /확인|회사|보류|검증 예정/], ["반영 대기", "r", /반영 대기/]];
   function statusGrid() {
     var o = '<div class="card"><h2>주제별 상태</h2>' + h("p", "dim small", "칸의 숫자 = 그 상태에 든 항목 수(점 하나 = 항목 하나). 누르면 그 주제 카드의 상태로 간다.") +
       '<div class="tblwrap"><table class="stgrid"><thead><tr><th></th>' + ST_COLS.map(function (c) { return '<th><span class="tag ' + c[1] + '">' + esc(c[0]) + "</span></th>"; }).join("") +
@@ -775,7 +798,7 @@
   function viewDecide() {
     var D = W.decide, T = W.talk, o = "", all = {};
     T.groups.forEach(function (g) { g.items.forEach(function (it) { all[it.id] = it; }); });
-    o += '<div class="hero">' + h("div", "tl", "지금 판단할 것") + h("p", "", tx(D.lead)) + h("div", "up", "봤음 표시는 이 기기에만 남는다") + "</div>";
+    o += '<div class="hero">' + h("div", "tl", "결정 · 조정") + h("p", "", tx(D.lead)) + '<button class="deeplink" data-tab-go="home">기본값은 출발점(한눈에)</button>'  + h("div", "up", "봤음 표시는 이 기기에만 남는다") + "</div>";
     var seen = D.now.filter(function (k) { return get("ws_seen_" + k, ""); }).length;
     o += '<div class="card"><h2>먼저 볼 열 가지 <span class="tag y">' + seen + " / " + D.now.length + " 봤음</span></h2>" +
       D.now.map(function (k) { return all[k] ? talkItem(all[k]) : ""; }).join("") + "</div>";
@@ -796,8 +819,8 @@
   function viewLib() {
     var o = '<div class="card"><h2>자료실</h2>' + h("p", "lead", tx(W.lib.lead)) + "</div>";
     o += '<div class="card"><h2>명세 탐색기</h2>' +
-      '<button class="topicbtn" data-bun-go="ia"><div class="tt"><b>intake agent system</b></div>' + h("div", "mut small", "명세 전문 · 부품 11 · 계약 3 · 규칙 9 · 시험 사례 114(고객 7) · 인계 문서") + "</button>" +
-      '<button class="topicbtn" data-bun-go="wa"><div class="tt"><b>workflow agent system</b></div>' + h("div", "mut small", "명세 전문 · workflow 파일 28(트랙 1 · 특화 17) · 부품 11 · 계약 11 · 설정 4 · 시험 사례 84 · 인계 문서") + "</button></div>";
+      '<button class="topicbtn" data-bun-go="ia"><div class="tt"><b>intake agent system</b></div>' + h("div", "mut small", "명세 전문 · 부품 11 · 계약 3 · 규칙 9 · 시험 사례 119(고객 7) · 인계 문서") + "</button>" +
+      '<button class="topicbtn" data-bun-go="wa"><div class="tt"><b>workflow agent system</b></div>' + h("div", "mut small", "명세 전문 · workflow 파일 28(트랙 1 · 특화 17) · 부품 11 · 계약 11 · 설정 5 · 시험 사례 88 · 갈래 정본 둘 · 인계 문서") + "</button></div>";
     o += '<div class="card"><h2>그림 문서 <span class="tag m">정적 · 폭이 넓다</span></h2><div class="igdocs">' + W.lib.docs.map(function (d) {
       return '<button class="igdoc" data-lv="doc/' + d[3] + '"><b>' + esc(d[1]) + "</b><span>" + tx(d[2]) + "</span></button>";
     }).join("") + "</div></div>";

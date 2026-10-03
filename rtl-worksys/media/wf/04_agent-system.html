@@ -37,6 +37,10 @@ figcaption{color:var(--muted);font-size:14px;margin-top:8px}
 table{border-collapse:collapse;width:100%;font-size:14.5px;background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden}
 th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
 th{background:var(--soft);font-weight:600}
+.tune{font-size:14.5px;background:var(--hum-soft);border:1px solid var(--hum);border-radius:10px;padding:8px 12px;margin:0 0 16px}
+code{font-family:ui-monospace,Consolas,monospace;font-size:13px;background:var(--soft);padding:0 4px;border-radius:4px;overflow-wrap:anywhere}
+td{overflow-wrap:anywhere}
+.ghost{fill:none;stroke:var(--muted);stroke-width:1.2;stroke-dasharray:4 4}
 .note{font-size:14px;color:var(--muted)}
 svg text{font-family:inherit}
 .t{fill:currentColor}.m{fill:var(--muted)}.ta{fill:var(--acc)}.th{fill:var(--hum)}.tb{fill:var(--bad)}.tok{fill:var(--ok)}
@@ -62,11 +66,12 @@ svg text{font-family:inherit}
 <main>
 <nav class="top"><a href="index.html">목차</a><a href="01_core-one-page.html">core 한 장</a><a href="02_workflow-standard.html">workflow 표준화</a><a href="03_assembly-rtl-review.html">조립·RTL review</a></nav>
 <h1>workflow agent system: 순서는 코드가, 판단은 LLM이 맡는다</h1>
-<p class="lead">LLM 하나에게 "끝까지 해 줘"라고 맡기면 끝·경계·근거가 흐려진다. 그래서 순서와 멈춤은 결정론 프로그램이 지키고, LLM은 자기 칸의 판단과 작업만 한다. 자율 선언은 글이 아니라 실행 중 허용 목록이다.</p>
+<p class="lead">LLM 하나에게 "끝까지 해 줘"라고 맡기면 끝·경계·근거가 흐려진다. 그래서 순서와 멈춤은 결정론 프로그램이 지키고, LLM은 자기 칸의 판단과 작업만 한다. 자율 선언은 글이 아니라 실행 중 허용 목록이다. intake와는 정해진 사건으로만 주고받는다.</p>
+<p class="tune">여기의 규칙 상당수는 실무에서 확인 · 결정 · 수정할 기본값이다(<code>30_WorkOrders/30_tuning_points.md</code>).</p>
 
 <h2>1. 부품 지도</h2>
 <figure>
-<svg viewBox="0 0 1180 430" role="img" aria-label="가운데 workflow-controller가 intake에서 route 블록을 받는다. 위쪽 결정론 service인 resolver, policy engine, evaluator adapter, record writer, dry replay runner와 아래쪽 LLM 부품인 planner, checkpoint runner, hitl manager, result writer, learner를 부른다. 결과는 사람의 검수와 반영으로 가고, 후속 요청과 학습 backlog는 intake의 internal 입구로 돌아간다.">
+<svg viewBox="0 0 1180 420" role="img" aria-label="가운데 workflow-controller가 intake에서 route 블록을 받는다. plan의 route 사본은 intake의 route와 같은 모양이다. 위쪽 결정론 service인 resolver, policy engine, evaluator adapter, record writer, dry replay runner와 아래쪽 LLM 부품인 planner, checkpoint runner, hitl manager, result writer, learner를 부른다. 결과는 사람의 검수와 반영으로 가고, 후속 요청과 사슬의 다음 link와 학습 backlog는 intake의 internal 입구로 돌아간다. 계약 사건 셋(학습 완료 learn-done, route 거부 workflow-refused, 실행 중 위험 risk-raised)도 intake로 간다.">
 <defs>
   <marker id="g1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0,0 L10,5 L0,10 z"/></marker>
   <marker id="g1h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mkh" d="M0,0 L10,5 L0,10 z"/></marker>
@@ -74,7 +79,7 @@ svg text{font-family:inherit}
 </defs>
 <text class="m" x="590" y="18" text-anchor="middle" font-size="12.5" font-weight="700">결정론 service (LLM 없음)</text>
 <g font-size="12.5">
-  <rect class="boxs" x="150" y="28" width="160" height="56" rx="8"/><text class="t" x="230" y="51" text-anchor="middle" font-weight="700">resolver</text><text class="m" x="230" y="70" text-anchor="middle" font-size="11">층을 풀고 hash</text>
+  <rect class="boxs" x="150" y="28" width="160" height="56" rx="8"/><text class="t" x="230" y="51" text-anchor="middle" font-weight="700">resolver</text><text class="m" x="230" y="70" text-anchor="middle" font-size="11">층 · 트랙을 풀고 hash</text>
   <rect class="boxs" x="330" y="28" width="160" height="56" rx="8"/><text class="t" x="410" y="51" text-anchor="middle" font-weight="700">policy engine</text><text class="m" x="410" y="70" text-anchor="middle" font-size="11">판정·등급·GATE·허락</text>
   <rect class="boxs" x="510" y="28" width="160" height="56" rx="8"/><text class="t" x="590" y="51" text-anchor="middle" font-weight="700">evaluator adapter</text><text class="m" x="590" y="70" text-anchor="middle" font-size="11">도구 → 공통 JSON</text>
   <rect class="boxs" x="690" y="28" width="160" height="56" rx="8"/><text class="t" x="770" y="51" text-anchor="middle" font-weight="700">record writer</text><text class="m" x="770" y="70" text-anchor="middle" font-size="11">records 기계 칸</text>
@@ -82,7 +87,7 @@ svg text{font-family:inherit}
 </g>
 <rect class="boxa" x="400" y="170" width="380" height="80" rx="12"/>
 <text class="t" x="590" y="200" text-anchor="middle" font-size="16" font-weight="700">workflow-controller</text>
-<text class="m" x="590" y="223" text-anchor="middle" font-size="12.5">순서·멈춤 · dispatch 수락 · 세션 수명 · STATE · label · 후속 요청</text>
+<text class="m" x="590" y="223" text-anchor="middle" font-size="12.5">순서·멈춤 · dispatch 수락 · 세션 수명 · STATE · label 자리 · 사건</text>
 <g>
   <line class="lnm" x1="230" y1="84" x2="470" y2="168"/><line class="lnm" x1="410" y1="84" x2="530" y2="168"/><line class="lnm" x1="590" y1="84" x2="590" y2="168"/>
   <line class="lnm" x1="770" y1="84" x2="650" y2="168"/><line class="lnm" x1="950" y1="84" x2="710" y2="168"/>
@@ -92,26 +97,70 @@ svg text{font-family:inherit}
   <rect class="box" x="150" y="306" width="160" height="56" rx="8"/><text class="t" x="230" y="329" text-anchor="middle" font-weight="700">planner</text><text class="m" x="230" y="348" text-anchor="middle" font-size="11">posture·자율 선언</text>
   <rect class="box" x="330" y="306" width="160" height="56" rx="8"/><text class="t" x="410" y="329" text-anchor="middle" font-weight="700">checkpoint runner</text><text class="m" x="410" y="348" text-anchor="middle" font-size="11">worker + guard</text>
   <rect class="box" x="510" y="306" width="160" height="56" rx="8"/><text class="t" x="590" y="329" text-anchor="middle" font-weight="700">hitl manager</text><text class="m" x="590" y="348" text-anchor="middle" font-size="11">질문·답·[HD]</text>
-  <rect class="box" x="690" y="306" width="160" height="56" rx="8"/><text class="t" x="770" y="329" text-anchor="middle" font-weight="700">result writer</text><text class="m" x="770" y="348" text-anchor="middle" font-size="11">서술 + 의도 대조</text>
-  <rect class="box" x="870" y="306" width="160" height="56" rx="8"/><text class="t" x="950" y="329" text-anchor="middle" font-weight="700">learner</text><text class="m" x="950" y="348" text-anchor="middle" font-size="11">제안 표</text>
+  <rect class="box" x="690" y="306" width="160" height="56" rx="8"/><text class="t" x="770" y="329" text-anchor="middle" font-weight="700">result writer</text><text class="m" x="770" y="348" text-anchor="middle" font-size="11">서술 · 회신 초안 · Track B</text>
+  <rect class="box" x="870" y="306" width="160" height="56" rx="8"/><text class="t" x="950" y="329" text-anchor="middle" font-weight="700">learner</text><text class="m" x="950" y="348" text-anchor="middle" font-size="11">제안 표 · Track B 확정본</text>
 </g>
 <g>
   <line class="lnm" x1="230" y1="306" x2="470" y2="252"/><line class="lnm" x1="410" y1="306" x2="530" y2="252"/><line class="lnm" x1="590" y1="306" x2="590" y2="252"/>
   <line class="lnm" x1="770" y1="306" x2="650" y2="252"/><line class="lnm" x1="950" y1="306" x2="710" y2="252"/>
 </g>
-<!-- in / out -->
 <g font-size="12.5">
-  <rect class="boxs" x="10" y="176" width="150" height="68" rx="9"/><text class="t" x="85" y="200" text-anchor="middle" font-weight="700">intake</text><text class="m" x="85" y="219" text-anchor="middle" font-size="11">20_gate.md route</text><text class="m" x="85" y="235" text-anchor="middle" font-size="11">+ dispatch_ref</text>
-  <line class="ln" x1="160" y1="210" x2="398" y2="210" marker-end="url(#g1)"/><text class="m" x="280" y="202" text-anchor="middle" font-size="11.5">지금 dispatch_ref·queued일 때만</text>
+  <rect class="boxs" x="10" y="166" width="150" height="86" rx="9"/><text class="t" x="85" y="190" text-anchor="middle" font-weight="700">intake</text><text class="m" x="85" y="213" text-anchor="middle" font-size="11">20_gate.md route</text><text class="m" x="85" y="229" text-anchor="middle" font-size="11">+ dispatch_ref</text><text class="m" x="85" y="244" text-anchor="middle" font-size="11">+ 실행 중 사건</text>
+  <line class="ln" x1="160" y1="208" x2="398" y2="208" marker-end="url(#g1)"/><text class="m" x="280" y="184" text-anchor="middle" font-size="11.5">지금 dispatch_ref·queued일 때만</text><text class="ta" x="280" y="200" text-anchor="middle" font-size="11.5">plan의 route 사본 = 같은 모양</text>
+  <line class="lnh dash" x1="398" y1="238" x2="162" y2="238" marker-end="url(#g1h)"/><text class="th" x="168" y="254" font-size="11.5">계약 사건: learn-done(학습 완료) ·</text><text class="th" x="168" y="268" font-size="11.5">workflow-refused · risk-raised</text>
   <rect class="boxh" x="1030" y="160" width="140" height="56" rx="9"/><text class="th" x="1100" y="183" text-anchor="middle" font-weight="700">사람</text><text class="m" x="1100" y="202" text-anchor="middle" font-size="11">검수 · 반영</text>
   <line class="lnh" x1="780" y1="190" x2="1028" y2="190" marker-end="url(#g1h)"/><text class="th" x="905" y="182" text-anchor="middle" font-size="11.5">40_result.md 한 파일</text>
-  <path class="lna" d="M780,236 H1000 V400 H85 V246" marker-end="url(#g1a)"/><text class="ta" x="540" y="394" text-anchor="middle" font-size="11.5">후속 요청(on-result·on-accept·on-decision) · 학습 backlog → intake internal 입구</text>
+  <path class="lna" d="M780,236 H1050 V400 H85 V252" marker-end="url(#g1a)"/><text class="ta" x="540" y="394" text-anchor="middle" font-size="11.5">후속 요청(on-result · on-accept · on-decision) · 사슬의 다음 link · 학습 backlog → intake internal 입구</text>
 </g>
 </svg>
-<figcaption>LLM 부품은 파일·label·외부에 직접 쓰지 않는다(worker만 sandbox 안의 허용된 자리에 쓴다). 계산 칸(판정·등급·순위·유도값·GATE)은 policy가 쓰고, LLM이 쓴 판정 값은 강등될 수 있다.</figcaption>
+<figcaption>LLM 부품은 파일·label·외부에 직접 쓰지 않는다(worker만 sandbox 안의 허용된 자리에 쓴다). 계산 칸(판정·등급·순위·유도값·GATE·sign-off 판정)은 policy가 쓰고, LLM이 쓴 판정 값은 강등될 수 있다. plan의 route 사본(route_ref)은 intake 계약의 route와 같은 모양이라 칸이 그대로 옮겨진다.</figcaption>
 </figure>
 
-<h2>2. task 폴더 파일과 계약: 단계 하나에 파일 하나</h2>
+<h2>2. intake와 주고받는 사건</h2>
+<table>
+<tr><th style="width:9%">방향</th><th style="width:24%">사건</th><th>받는 쪽이 하는 일</th><th style="width:18%">켜는 조건</th></tr>
+<tr><td>받음</td><td>route 블록 + dispatch_ref</td><td>지금 dispatch_ref와 같고 레코드가 queued일 때만 plan을 시작한다. 레코드 source(출처 · customer_scope · 보는 사람)로 트랙을 덧붙인다</td><td>늘</td></tr>
+<tr><td>받음</td><td>실행 중 사람의 글(input-to-running)</td><td>hitl manager가 해석한다. 고객의 답이면 질문 id에 매기고, 조건이 채워진 multi-test를 다시 연다</td><td>늘</td></tr>
+<tr><td>받음</td><td>위험 고지 · 해제(risk-notice · risk-clear-running)</td><td>그 내용에 닿는 행동만 즉시 멈추고 안전한 checkpoint는 계속한다</td><td>늘</td></tr>
+<tr><td>받음</td><td>부모 reject(parent_rejected)</td><td>on-result로 열린 자식의 STATE에 부모 reject를 적는다. 상태는 바꾸지 않는다</td><td>늘</td></tr>
+<tr><td>보냄</td><td>후속 요청 · 사슬의 다음 link · 학습 backlog</td><td>internal 입구로 들어가 gate를 다시 지난다(권한은 새 task의 카테고리로 다시 본다)</td><td>on-result는 표지를 켠 뒤</td></tr>
+<tr><td>보냄</td><td><b>학습 완료(learn-done)</b></td><td>학습 기록이 확정되면 보낸다. intake가 Track B의 "분류 쪽으로 돌려줄 것"(층 · 질문 결과 · 층을 가른 test · 분류 교정)을 읽어 원장에 track-b 줄을 덧붙인다. 레코드가 닫힌 뒤여도 같다</td><td>늘(계약 사건)</td></tr>
+<tr><td>보냄</td><td><b>route 거부(workflow-refused)</b></td><td>resolver가 route 결함(트랙이 막는 수정 phase · 맞지 않는 사슬 link)을 찾으면 plan을 시작하지 않고 보낸다. intake가 route를 한 번 다시 계산해 경로가 다르면 새 dispatch, 같거나 두 번째면 논의 대기 + 운영자 알림</td><td>늘(계약 사건)</td></tr>
+<tr><td>보냄</td><td><b>실행 중 위험(risk-raised)</b></td><td>worker · guard가 올린 위험 고지가 label 자리 없는 고객 레코드에서 일어나면 보낸다. intake가 손잡이 ticket을 확보해 <code>ai:risk</code>와 이유를 두고 레코드의 label 자리를 바꾼다. 레코드 상태는 그대로다</td><td>표지를 켠 뒤(intake 쪽은 늘 받는다). 그전에는 내부 알림만</td></tr>
+</table>
+<p class="note">방향은 workflow 쪽에서 본 것이다(받음 = intake가 보낸 사건, 보냄 = intake로 보내는 사건). platform 표지는 기본이 꺼짐이고, 시스템 관리자가 켠다(intake 쪽 짝 설정이 있으면 함께 켠다). 켜기 전에는 더 보수적인 동작(제안만, 질문하고 기다림, 내부 알림)을 한다.</p>
+
+<h2>3. label 자리: 고객 ticket에는 label을 붙이지 않는다</h2>
+<figure>
+<svg viewBox="0 0 1180 320" role="img" aria-label="label 자리. 내부 레코드는 레코드의 ticket에 label을 붙인다. 손잡이 ticket이 있는 고객 레코드는 손잡이 ticket에 붙이고 고객 ticket에는 붙이지 않는다. 손잡이가 없고 고객이 label을 볼 수 있는 고객 레코드는 label을 붙이지 않고 상태를 내부 전용 comment 첫 줄로만 보인다. 실행 중 worker나 guard가 위험 고지를 올리면 risk-raised 사건으로 intake가 손잡이 ticket을 확보해 ai:risk를 붙이고, 그 뒤의 label은 끝까지 손잡이에 간다.">
+<defs><marker id="l3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<text class="m" x="590" y="22" text-anchor="middle" font-size="12.5">controller는 label을 쓸 때마다 레코드의 지금 label 자리(status.label_on · route.ticket_ref)를 다시 읽는다 · plan의 값은 사본이다</text>
+<g font-size="12.5">
+  <rect class="boxs" x="20" y="36" width="360" height="36" rx="8"/><text class="t" x="200" y="59" text-anchor="middle" font-weight="700">내부 레코드</text>
+  <rect class="boxs" x="410" y="36" width="360" height="36" rx="8"/><text class="t" x="590" y="59" text-anchor="middle" font-weight="700">고객 레코드 · 손잡이 ticket 있음</text>
+  <rect class="boxs" x="800" y="36" width="360" height="36" rx="8"/><text class="t" x="980" y="59" text-anchor="middle" font-weight="700">고객 레코드 · 손잡이 없음 · label이 보임</text>
+</g>
+<g font-size="13">
+  <rect class="boxa" x="20" y="84" width="360" height="76" rx="9"/><text class="t" x="200" y="110" text-anchor="middle" font-weight="700">레코드의 ticket</text><text class="m" x="200" y="132" text-anchor="middle" font-size="11.5">상태 label 하나 + AI comment 하나(갱신)</text>
+  <rect class="boxa" x="410" y="84" width="172" height="76" rx="9"/><text class="t" x="496" y="110" text-anchor="middle" font-weight="700">손잡이 ticket</text><text class="m" x="496" y="130" text-anchor="middle" font-size="11">내부 project</text><text class="ta" x="496" y="148" text-anchor="middle" font-size="11" font-weight="700">label은 여기</text>
+  <rect class="box" x="598" y="84" width="172" height="76" rx="9"/><text class="t" x="684" y="110" text-anchor="middle" font-weight="700">고객 ticket</text><text class="tb" x="684" y="130" text-anchor="middle" font-size="11" font-weight="700">label 없음</text><text class="m" x="684" y="148" text-anchor="middle" font-size="11">"확인 중: 손잡이 &lt;key&gt;"</text>
+  <rect class="ghost" x="800" y="84" width="360" height="76" rx="9"/><text class="tb" x="980" y="110" text-anchor="middle" font-weight="700">label 없음</text><text class="m" x="980" y="132" text-anchor="middle" font-size="11.5">상태는 내부 전용 comment 첫 줄로만</text>
+</g>
+<text class="t" x="20" y="194" font-size="13" font-weight="700">실행 중 위험 고지가 손잡이를 만드는 길 (오른쪽 경우)</text>
+<g font-size="12.5">
+  <rect class="boxb" x="20" y="206" width="270" height="58" rx="8"/><text class="tb" x="155" y="230" text-anchor="middle" font-weight="700">worker · guard의 위험 고지</text><text class="m" x="155" y="250" text-anchor="middle" font-size="11">그 행동만 즉시 멈추고 나머지는 계속</text>
+  <rect class="boxs" x="310" y="206" width="270" height="58" rx="8"/><text class="t" x="445" y="230" text-anchor="middle" font-weight="700">risk-raised → intake</text><text class="m" x="445" y="250" text-anchor="middle" font-size="11">레코드 key · 위치 · 이유 한 줄(발췌 가림)</text>
+  <rect class="boxs" x="600" y="206" width="270" height="58" rx="8"/><text class="t" x="735" y="230" text-anchor="middle" font-weight="700">intake가 손잡이 확보</text><text class="m" x="735" y="250" text-anchor="middle" font-size="11">ai:risk · 이유 · 레코드 label 자리 갱신</text>
+  <rect class="boxa" x="890" y="206" width="270" height="58" rx="8"/><text class="t" x="1025" y="230" text-anchor="middle" font-weight="700">이후 label은 끝까지 손잡이에</text><text class="m" x="1025" y="250" text-anchor="middle" font-size="11">해제 = 손잡이에서 ai:risk 떼기</text>
+</g>
+<g><line class="ln" x1="290" y1="235" x2="308" y2="235" marker-end="url(#l3)"/><line class="ln" x1="580" y1="235" x2="598" y2="235" marker-end="url(#l3)"/><line class="ln" x1="870" y1="235" x2="888" y2="235" marker-end="url(#l3)"/></g>
+<text class="m" x="590" y="290" text-anchor="middle" font-size="12">workflow는 ticket을 만들지 않는다(손잡이는 intake가 만든다) · 멈춘 이유는 손잡이 ticket에만 쓴다</text>
+<text class="m" x="590" y="310" text-anchor="middle" font-size="12">표지를 켜기 전: label 없이 고객 대응 담당 · 운영자에게 내부 알림, 해제되지 않은 위험 고지는 결과 맨 위 줄로 검수자가 판정</text>
+</svg>
+<figcaption>label도 "쓰는 자리"다. 고객이 label과 그 변경 이력을 볼 수 있으면(회사 확인 전 기본 = 보임) 고객 ticket에는 상태 label을 붙이지 않는다. label이 고객에게 보이지 않는다고 확인된 project는 고객 ticket에 label을 둔다. 경계 확인(CB)이 label 기록마다 그때의 label 자리였는지 센다.</figcaption>
+</figure>
+
+<h2>4. task 폴더 파일과 계약: 단계 하나에 파일 하나</h2>
 <figure>
 <svg viewBox="0 0 1180 300" role="img" aria-label="intake의 20_gate.md route 블록에서 30_plan.md, 실행 중 STATE.md와 eval json, 40_result.md, 사람의 50_review.md, 60_learn.md로 이어진다. 각 파일의 frontmatter는 JSON Schema 계약을 따른다. resolved workflow의 hash가 plan, STATE, 결과, 학습에 같은 값으로 남고, records는 ledger와 matrix다.">
 <defs><marker id="h1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0,0 L10,5 L0,10 z"/></marker><marker id="h1m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mkm" d="M0,0 L10,5 L0,10 z"/></marker></defs>
@@ -144,10 +193,10 @@ svg text{font-family:inherit}
 </g>
 <text class="m" x="590" y="290" text-anchor="middle" font-size="12.5">frontmatter = 기계가 읽는 레코드(JSON Schema) · 본문 = 사람이 한 화면에서 읽는 요약 · 같은 hash가 plan·STATE·결과·학습에 남는다</text>
 </svg>
-<figcaption>근거표의 evaluator 등급은 근거 자격이 있는 eval 파일(기록되는 실행의 job ref, 또는 결정론적 짧은 도구의 local 실행)만 가리킬 수 있다. 계산은 evaluator adapter가 한다.</figcaption>
+<figcaption>근거표의 evaluator 등급은 근거 자격이 있는 eval 파일(기록되는 실행의 job ref, 또는 결정론적 짧은 도구의 local 실행)만 가리킬 수 있다. 계산은 evaluator adapter가 한다. 결과 패키지에는 Track B 미리보기, 학습 기록에는 Track B 확정본이 있고, 둘 중 하나가 비면 그 일은 완료가 아니다. 고객 트랙이 덧붙으면 결과 패키지에 회신 초안 절이 더해진다.</figcaption>
 </figure>
 
-<h2>3. 자율 선언은 두 겹으로 지킨다</h2>
+<h2>5. 자율 선언은 두 겹으로 지킨다</h2>
 <figure>
 <svg viewBox="0 0 1180 330" role="img" aria-label="plan의 자율 선언 세 줄이 기계용 allowlist가 된다. 실행 중에는 guard가 모든 도구 호출을 먼저 보고 허용 목록 밖을 막는다. 허용 파일 안에서 port를 바꾸는 것처럼 파일 단위 규칙으로 드러나지 않는 위반은 끝의 경계 확인이 plan의 고정 항목과 비교해 잡는다. 잡히면 결과 맨 위에 적고 반영 후보에서 뺀다.">
 <defs>
@@ -191,7 +240,7 @@ svg text{font-family:inherit}
 <figcaption>막힌 시도는 결과 패키지의 "선언 대비 실제"와 학습 기록에 남는다. 막힌 시도가 잦으면 선언이 너무 좁거나 workflow가 틀렸다는 신호다.</figcaption>
 </figure>
 
-<h2>4. 세션은 소모품, STATE가 정본</h2>
+<h2>6. 세션은 소모품, STATE가 정본</h2>
 <figure>
 <svg viewBox="0 0 1180 230" role="img" aria-label="한 task가 세 세션에 걸친다. 첫 세션은 C0부터 C4 제출까지 하고 batch 결과를 기다리는 동안 끝난다. job이 끝나면 새 세션이 STATE에서 이어 C4 판정과 C5 제출을 하고 다시 끝난다. 세 번째 세션이 C5 판정, 경계 확인, 결과 패키지를 만든다. STATE는 처음부터 끝까지 이어진다.">
 <defs><marker id="s1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0,0 L10,5 L0,10 z"/></marker></defs>
@@ -210,25 +259,37 @@ svg text{font-family:inherit}
 </g>
 <text class="m" x="590" y="214" text-anchor="middle" font-size="12.5">새 세션이 받는 것: STATE · resolved workflow의 지금·남은 checkpoint · plan · eval 요약. 이전 대화와 추론은 받지 않는다 · 제출 ID가 있으면 재제출하지 않고 조회</text>
 </svg>
-<figcaption>기다리며 세션을 잡고 있지 않는다. label은 돌고 있는 checkpoint가 없으면 ai:waiting, 다시 돌면 ai:in-progress다.</figcaption>
+<figcaption>기다리며 세션을 잡고 있지 않는다. label은 돌고 있는 checkpoint가 없으면 ai:waiting, 다시 돌면 ai:in-progress다(label 자리에, 3절).</figcaption>
 </figure>
 
-<h2>5. 세 hard-zero: 하나라도 나오면 그 변경을 되돌린다</h2>
+<h2>7. 세 hard-zero: 하나라도 나오면 그 변경을 되돌린다</h2>
 <table>
 <tr><th style="width:20%">hard-zero</th><th>뜻</th><th style="width:30%">어디서 세나</th></tr>
-<tr><td><b>경계 넘기 0</b></td><td>선언·권한 범위·sandbox 밖의 행동(세션이 묶인 phase의 행동 밖 포함), 고정 항목(port·parameter)이 비교 기준(run 시작 전 또는 확정된 spec 판)과 달라짐, 되돌리기 어려운 행동(MR 생성·ticket 상태 변경·외부 발송·정본 수정), 판정형이 대상을 고침, reject 뒤 재시도(실패했거나 진행 중인 자동 수정이 있는 지적에 자동 수정을 다시 여는 것 포함)</td><td>guard 기록 · 경계 확인(CB) · golden의 never</td></tr>
-<tr><td><b>근거 없는 판정 0</b></td><td>근거 자격 없는 결과가 evaluator 등급으로 근거표에 들어감, 보지 못한 것이 통과로 적힘, LLM이 계산 칸을 씀</td><td>결과 패키지 검사(CR) · evaluator adapter</td></tr>
-<tr><td><b>사람 기록 훼손 0</b></td><td>시스템이 검수 판정·ledger의 사람 칸(waiver·이의·답)·공개 기록·STATE의 사람 줄을 고침</td><td>record writer · controller 권한</td></tr>
+<tr><td><b>경계 넘기 0</b></td><td>선언·권한 범위·sandbox 밖의 행동(세션이 묶인 phase의 행동 밖 포함), 고정 항목(port·parameter)이 비교 기준(run 시작 전 또는 확정된 spec 판)과 달라짐, 되돌리기 어려운 행동(MR 생성·ticket 상태 변경·외부 발송·정본 수정), 판정형이 대상을 고침, reject 뒤 재시도(실패했거나 진행 중인 자동 수정이 있는 지적에 자동 수정을 다시 여는 것 포함), 보는 사람이 밖인 레코드의 공개 자리에 씀(고객이 볼 수 있는 label 포함), 다른 customer_scope의 자료를 읽거나 근거·초안에 씀, 고객 레코드에서 대상을 고침</td><td>guard 기록 · 경계 확인(CB) · 회신 초안 검사 · golden의 never</td></tr>
+<tr><td><b>근거 없는 판정 0</b></td><td>근거 자격 없는 결과가 evaluator 등급으로 근거표에 들어감, 보지 못한 것이 통과로 적힘(조건부 met을 met으로, 효과를 잃은 억제를 억제로 센 것 포함), LLM이 계산 칸(GATE · 유도값 · 자동 등급 · sign-off 판정)을 씀</td><td>결과 패키지 검사(CR) · evaluator adapter · policy</td></tr>
+<tr><td><b>사람 기록 훼손 0</b></td><td>시스템이 검수 판정·ledger의 사람 칸(waiver · 억제 기록의 이유와 승인 · 이의 · 답)·공개 기록·STATE의 사람 줄을 고침</td><td>record writer · controller 권한</td></tr>
 </table>
 
-<h2>6. 회사에서 세우는 순서</h2>
+<h2>8. 시험 세트와 설정의 크기</h2>
+<table>
+<tr><th style="width:30%">무엇</th><th style="width:10%">수</th><th>뜻</th></tr>
+<tr><td>해석 사례 <code>cases_resolve</code></td><td><b>36</b></td><td>유효한 해석 17 + resolver가 거부해야 할 것 19(고객 트랙의 수정 phase, 진입 link 없는 사슬 포함). 전부 결정론이고 100% 일치가 기준</td></tr>
+<tr><td>한 바퀴 사례 <code>cases_walk</code></td><td><b>43</b></td><td>가상 task 한 바퀴(블록 sign-off · 고객 트랙 · route 거부 · 고객 레코드의 label 자리와 risk-raised 포함). 단계별(결정론 칸, 허용 0)과 처음부터 끝까지(LLM 포함) 두 방식으로 돌린다</td></tr>
+<tr><td>dry replay <code>cases_replay</code></td><td><b>6</b></td><td>workflow · 모양 · policy를 바꿀 때 과거 accepted 기록으로 판정만 다시 본다</td></tr>
+<tr><td>evaluator <code>evaluators.yaml</code></td><td><b>30</b></td><td>그중 선택 도구 7(RDC · X-propagation · DFT rule · constraint 검사 · formal 도달성 · RTL ↔ netlist 등가성 · power 추정). 결정론적 짧은 도구 표시가 근거 자격의 예외 목록이다</td></tr>
+<tr><td>policy 규칙 <code>policies.yaml</code></td><td><b>84</b></td><td>묶음 15(공통 · plan · HITL · 모양별 · 고객 · 합성 · 조립 · 기록 · platform), platform 표지 6 포함. 숫자 기준은 전부 공란이고 결정 주체가 적혀 있다</td></tr>
+<tr><td>데이터 계약 <code>20_contracts</code></td><td><b>11</b></td><td>workflow 파일 · 조립 · 해석 결과 · task 폴더 파일 여섯 · 지적 · matrix 칸</td></tr>
+</table>
+<p class="note">회사 설정으로 바꾸면 id만 바뀌고 판정의 모양은 그대로여야 한다. 검수에서 "어디가 문제였나"가 나온 task는 가상화해 한 바퀴 사례로 더한다.</p>
+
+<h2>9. 회사에서 세우는 순서</h2>
 <table>
 <tr><th style="width:18%">단계</th><th>하는 일</th><th style="width:34%">끝났다고 보는 조건(숫자 공란)</th></tr>
-<tr><td>0 준비</td><td>공통 골격·작업 모양 일곱을 정본에 두고, 첫 특화를 회사 checklist·절차서로 채운다(checkpoint로 다시 쓴다). evaluator 목록·policy·권한 범위·records 위치</td><td>resolver 전체 검사 오류 0</td></tr>
+<tr><td>0 준비</td><td>공통 골격·작업 모양 일곱·트랙 덧붙임을 정본에 두고, 첫 특화를 회사 checklist·절차서로 채운다(기존 checklist·검증 환경·확인 환경을 먼저 찾아 checkpoint로 다시 쓴다. 옮긴 확인이 바닥이다). evaluator 목록·policy·multi-test 묶음·권한 범위·records 위치. 기존 waiver · exclusion · 예외는 억제 기록으로 일괄 등록</td><td>resolver 전체 검사 오류 0, 해석 사례의 id를 회사 id로 바꾼 대응표</td></tr>
 <tr><td>1 뼈대</td><td>계약 열하나, controller·resolver·policy·evaluator adapter(LLM 없이)</td><td>해석 사례 전부 일치, 한 바퀴 사례의 결정론 칸 전부 일치</td></tr>
-<tr><td>2 판단 agent</td><td>planner·worker·result writer·hitl manager·learner, guard(권한 규칙·hook)를 선언에서 생성</td><td>한 바퀴 사례에서 hard-zero 0</td></tr>
-<tr><td>3 첫 갈래 자율</td><td>첫 카테고리를 열고 posture는 draft부터</td><td>검수 기록이 쌓이고 reject의 원인이 산출물 쪽으로 옮겨 감</td></tr>
-<tr><td>4 판정형·실험형</td><td>RTL review: A만(사람) → CI 빠른 preset(intake가 CI 리뷰 요청을 받아들인 뒤) → 전체 + 자동 수정(끔 → 일괄 승인 → 자동. 일괄 승인은 intake가 후속의 부모 참조를 나른 뒤, 자동은 on-result까지 받아들이고 노드가 full일 때). 노드는 실적이 쌓이기 전 draft(GATE는 알림만). 합성 matrix와 records(run별 잠정 → 검수 뒤 확정)</td><td>판정형 도입 단계의 진입 조건</td></tr>
+<tr><td>2 판단 agent</td><td>planner·worker·result writer·hitl manager·learner, guard(권한 규칙·hook)를 선언에서 생성</td><td>한 바퀴 사례 두 방식에서 hard-zero 0</td></tr>
+<tr><td>3 첫 갈래 자율</td><td>첫 카테고리를 열고 posture는 draft부터. 고객 입구는 shadow(질문 · 회신 초안까지)에서 시작해 고객 트랙이 쌓이면 active</td><td>검수 기록이 쌓이고 reject의 원인이 산출물 쪽으로 옮겨 감. Track B 빠짐 0</td></tr>
+<tr><td>4 판정형·실험형</td><td>RTL review: A만(사람) → CI 빠른 preset(intake가 CI 리뷰 요청을 받아들인 뒤) → 전체 + 자동 수정(끔 → 일괄 승인 → 자동). milestone preset과 블록 sign-off 판정. 노드는 실적이 쌓이기 전 draft(GATE는 알림만). 합성 matrix와 records(run별 잠정 → 검수 뒤 확정)</td><td>판정형 도입 단계의 진입 조건</td></tr>
 <tr><td>5 조립과 사슬</td><td>preset을 넓히고 사슬 link를 연다. 정본 승격은 dry replay 첨부</td><td>안건마다 replay 레포트</td></tr>
 </table>
 <p class="note">agent·skill로 세우는 매핑(subagent 정의·workflow skill·권한 규칙·hook)은 70_packaging.md에 있다. 숫자 기준은 전부 공란이고, 예시는 가상이다.</p>

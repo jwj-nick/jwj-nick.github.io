@@ -31,12 +31,14 @@ nav.top a{color:var(--acc);text-decoration:none;margin-right:12px}
 h1{font-size:28px;line-height:1.3;margin:4px 0 8px}
 h2{font-size:20px;margin:40px 0 8px;padding-top:8px;border-top:1px solid var(--line)}
 p.lead{font-size:17px;color:var(--muted);margin:0 0 16px}
+.tune{font-size:14.5px;background:var(--hum-soft);border:1px solid var(--hum);border-radius:10px;padding:8px 12px;margin:0 0 16px}
 figure{margin:18px 0;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
 figure svg{width:100%;height:auto;display:block;color:var(--fg)}
 figcaption{color:var(--muted);font-size:14px;margin-top:8px}
 table{border-collapse:collapse;width:100%;font-size:14.5px;background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden}
-th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top;overflow-wrap:anywhere}
 th{background:var(--soft);font-weight:600}
+code{font-family:ui-monospace,Consolas,monospace;font-size:13px;background:var(--soft);padding:0 4px;border-radius:4px;overflow-wrap:anywhere}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin:14px 0}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
 .card h3{margin:0 0 4px;font-size:17px}
@@ -54,11 +56,13 @@ svg text{font-family:inherit}
 .boxa{fill:var(--acc-soft);stroke:var(--acc);stroke-width:1.4}
 .boxh{fill:var(--hum-soft);stroke:var(--hum);stroke-width:1.4}
 .boxs{fill:var(--svc-soft);stroke:var(--svc);stroke-width:1.2}
+.boxb{fill:var(--bad-soft);stroke:var(--bad);stroke-width:1.3}
 .boxok{fill:var(--ok-soft);stroke:var(--ok);stroke-width:1.3}
 .ghost{fill:none;stroke:var(--muted);stroke-width:1.2;stroke-dasharray:5 4}
 .ln{stroke:currentColor;stroke-width:1.4;fill:none}.lna{stroke:var(--acc);stroke-width:1.6;fill:none}.lnm{stroke:var(--muted);stroke-width:1.2;fill:none}
+.lnh{stroke:var(--hum);stroke-width:1.6;fill:none}.lnb{stroke:var(--bad);stroke-width:1.5;fill:none}
 .dash{stroke-dasharray:5 4}
-.mk{fill:currentColor}.mka{fill:var(--acc)}.mkm{fill:var(--muted)}
+.mk{fill:currentColor}.mka{fill:var(--acc)}.mkm{fill:var(--muted)}.mkh{fill:var(--hum)}.mkb{fill:var(--bad)}
 .dot{fill:var(--acc)}.dotoff{fill:none;stroke:var(--line);stroke-width:1.3}
 @media print{
   :root{--bg:#fff;--panel:#fff;--fg:#111;--muted:#444;--line:#bbb;--soft:#f2f2f2}
@@ -70,15 +74,16 @@ svg text{font-family:inherit}
 <main>
 <nav class="top"><a href="index.html">목차</a><a href="01_core-one-page.html">core 한 장</a><a href="03_assembly-rtl-review.html">조립·RTL review</a><a href="04_agent-system.html">agent system</a></nav>
 <h1>workflow 표준화: 공통 골격 위에 작업 모양, 그 위에 업무별 특화</h1>
-<p class="lead">모든 workflow가 같은 자리와 같은 결과 형식을 물려받는다. 업무마다 다른 것은 "작업의 모양"과 "업무의 구체"뿐이다. 그래서 사람이 한 일과 AI가 한 일이 같은 실적 표에 쌓이고, 한 곳을 고치면 모든 업무가 함께 좋아진다.</p>
+<p class="lead">모든 workflow가 같은 자리와 같은 결과 형식을 물려받는다. 업무마다 다른 것은 "작업의 모양"과 "업무의 구체"뿐이고, 일의 출처가 과정을 바꾸는 곳(고객이 트리거한 일)은 트랙이 위에 덧붙는다. 그래서 사람이 한 일과 AI가 한 일이 같은 실적 표에 쌓이고, 한 곳을 고치면 모든 업무가 함께 좋아진다.</p>
+<p class="tune">여기의 규칙 상당수는 실무에서 확인 · 결정 · 수정할 기본값이다(<code>30_WorkOrders/30_tuning_points.md</code>).</p>
 
-<h2>1. 세 층</h2>
+<h2>1. 세 층과 트랙 덧붙임</h2>
 <figure>
-<svg viewBox="0 0 1180 400" role="img" aria-label="세 층 구조. 맨 위 공통 골격 WF-common을 작업 모양 일곱이 상속하고, 업무별 특화 workflow가 모양 하나를 상속한다. 특화는 채우기와 좁히기만 할 수 있고 넓히지 못한다.">
+<svg viewBox="0 0 1180 500" role="img" aria-label="세 층 구조. 맨 위 공통 골격 WF-common을 작업 모양 일곱이 상속하고, 업무별 특화 workflow 열일곱이 모양 하나를 상속한다. 판정형에는 블록 sign-off 판정이 더해졌다. 그 아래 고객 트랙 덧붙임이 출처가 고객인 일에 카테고리 workflow 위로 더해진다. 특화와 트랙은 채우기와 좁히기만 할 수 있고 넓히지 못한다.">
 <defs><marker id="w1a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mkm" d="M0,0 L10,5 L0,10 z"/></marker></defs>
 <rect class="boxa" x="20" y="14" width="1140" height="66" rx="10"/>
 <text class="t" x="590" y="40" text-anchor="middle" font-size="16" font-weight="700">WF-common 공통 골격</text>
-<text class="m" x="590" y="63" text-anchor="middle" font-size="13">자리 여덟 · 공통 checkpoint 넷(C0 입력 · CB 경계 · CR 결과 · CL 학습) · 공통 원칙 다섯 · 물려받는 규칙(posture · HITL 아홉 · 근거 자격 · reject 뒤 재시도 없음 …)</text>
+<text class="m" x="590" y="63" text-anchor="middle" font-size="13">자리 여덟 · 공통 checkpoint 넷(C0 입력 · CB 경계 · CR 결과 · CL 학습) · 공통 원칙 다섯 · 물려받는 규칙(posture · HITL 아홉 · 근거 자격 · reject 뒤 재시도 없음 · Track B …)</text>
 <g>
   <line class="lnm" x1="95" y1="80" x2="95" y2="118" marker-end="url(#w1a)"/><line class="lnm" x1="260" y1="80" x2="260" y2="118" marker-end="url(#w1a)"/>
   <line class="lnm" x1="425" y1="80" x2="425" y2="118" marker-end="url(#w1a)"/><line class="lnm" x1="590" y1="80" x2="590" y2="118" marker-end="url(#w1a)"/>
@@ -96,7 +101,7 @@ svg text{font-family:inherit}
 </g>
 <g font-size="11.5" class="m">
   <text class="m" x="95" y="200" text-anchor="middle">대상을 고친다</text><text class="m" x="260" y="200" text-anchor="middle">후보 여럿, 수치로</text>
-  <text class="m" x="425" y="200" text-anchor="middle">고치지 않고 지적</text><text class="m" x="590" y="200" text-anchor="middle">원인 확인까지</text>
+  <text class="m" x="425" y="200" text-anchor="middle">고치지 않고 지적</text><text class="m" x="590" y="200" text-anchor="middle">층부터, 원인 확인까지</text>
   <text class="m" x="755" y="200" text-anchor="middle">초안까지</text><text class="m" x="920" y="200" text-anchor="middle">결정은 사람</text>
   <text class="m" x="1085" y="200" text-anchor="middle">값마다 출처</text>
 </g>
@@ -107,29 +112,35 @@ svg text{font-family:inherit}
   <line class="lnm" x1="1085" y1="208" x2="1085" y2="232" marker-end="url(#w1a)"/>
 </g>
 <g font-size="12.5" font-family="ui-monospace,Consolas,monospace">
-  <rect class="boxs" x="20" y="234" width="150" height="112" rx="8"/>
+  <rect class="boxs" x="20" y="234" width="150" height="124" rx="8"/>
   <text class="t" x="30" y="256">WF-bugfix</text><text class="t" x="30" y="278">WF-lint</text><text class="t" x="30" y="300">WF-review-fix</text><text class="t" x="30" y="322">WF-rtl-impl</text>
-  <rect class="boxs" x="185" y="234" width="150" height="112" rx="8"/>
+  <rect class="boxs" x="185" y="234" width="150" height="124" rx="8"/>
   <text class="t" x="195" y="256">WF-timing</text><text class="t" x="195" y="278">WF-coverage</text>
-  <rect class="boxs" x="350" y="234" width="150" height="112" rx="8"/>
-  <text class="t" x="360" y="256">WF-rtl-code-</text><text class="t" x="372" y="274">review (A)</text><text class="t" x="360" y="296">WF-rtl-verif-</text><text class="t" x="372" y="314">review (B)</text><text class="t" x="360" y="336">…perf-area (C)</text>
-  <rect class="boxs" x="515" y="234" width="150" height="112" rx="8"/>
-  <text class="t" x="525" y="256">WF-regr-</text><text class="t" x="537" y="274">diagnose</text><text class="m" x="525" y="296" font-family="inherit">(골격)</text>
-  <rect class="boxs" x="680" y="234" width="150" height="112" rx="8"/>
+  <rect class="boxs" x="350" y="234" width="150" height="124" rx="8"/>
+  <text class="m" x="360" y="256">WF-rtl-</text><text class="t" x="368" y="276">code-review (A)</text><text class="t" x="368" y="296">verif-review (B)</text><text class="t" x="368" y="316">perf-area (C)</text>
+  <text class="ta" x="360" y="342" font-weight="700">WF-block-signoff</text>
+  <rect class="boxs" x="515" y="234" width="150" height="124" rx="8"/>
+  <text class="t" x="525" y="256">WF-regr-</text><text class="t" x="537" y="274">diagnose</text><text class="m" x="525" y="296" font-family="inherit">(draft)</text>
+  <rect class="boxs" x="680" y="234" width="150" height="124" rx="8"/>
   <text class="t" x="690" y="256">WF-answer</text><text class="t" x="690" y="278">WF-answer-draft</text>
-  <rect class="boxs" x="845" y="234" width="150" height="112" rx="8"/>
+  <rect class="boxs" x="845" y="234" width="150" height="124" rx="8"/>
   <text class="t" x="855" y="256">WF-decision-</text><text class="t" x="867" y="274">material</text><text class="t" x="855" y="296">WF-improvement-</text><text class="t" x="867" y="314">plan (E)</text>
-  <rect class="boxs" x="1010" y="234" width="150" height="112" rx="8"/>
+  <rect class="boxs" x="1010" y="234" width="150" height="124" rx="8"/>
   <text class="t" x="1020" y="256">WF-syn-matrix</text><text class="t" x="1020" y="278">WF-syn-subtop-</text><text class="t" x="1032" y="296">fmax (D)</text>
 </g>
-<text class="m" x="590" y="376" text-anchor="middle" font-size="13">상속 규칙: 특화는 <tspan class="ta" font-weight="700">채우기</tspan> · <tspan class="ta" font-weight="700">좁히기만</tspan> · 업무의 구체는 <tspan class="ta" font-weight="700">자기 것</tspan>. 공통의 자리·원칙·규칙은 <tspan class="th" font-weight="700">잠금</tspan>, 넓히지 못한다</text>
+<text class="m" x="590" y="378" text-anchor="middle" font-size="12.5">업무별 특화 열일곱 · 판정형의 A~C, 실험형의 D, 결정 자료형의 E가 RTL review의 다섯 작업 · 블록 sign-off 판정은 milestone에서 그 결과를 모은다</text>
+<rect class="boxh" x="20" y="392" width="1140" height="70" rx="10" style="stroke-dasharray:6 4"/>
+<text class="th" x="40" y="414" font-size="14" font-weight="700">트랙 덧붙임 TR-customer (상속 층이 아니라 위에 덧붙는 묶음)</text>
+<text class="m" x="40" y="435" font-size="12.5">출처가 고객이면 resolver가 카테고리의 workflow 위에 자동으로 덧붙인다: CT1 고객 경계·질문의 답 · CT2 자동 multi-test · 회신 초안 · 진짜 bug → 내부 이슈 후속</text>
+<text class="m" x="40" y="453" font-size="12.5">행동을 더하지 못하고 좁히기만 한다 · posture 상한 draft · 대상을 고치는 phase는 고를 수 없다 · resolved workflow와 hash에 트랙과 그 버전이 들어간다</text>
+<text class="m" x="590" y="488" text-anchor="middle" font-size="13">상속 규칙: 특화는 <tspan class="ta" font-weight="700">채우기</tspan> · <tspan class="ta" font-weight="700">좁히기만</tspan> · 업무의 구체는 <tspan class="ta" font-weight="700">자기 것</tspan>. 공통의 자리·원칙·규칙은 <tspan class="th" font-weight="700">잠금</tspan>, 넓히지 못한다</text>
 </svg>
-<figcaption>한 업무가 두 모양을 가지면(원인 찾기 + 수정) 다중 상속 대신 phase가 모양을 빌린다(버그 수정의 원인 phase = 조사형). 판정형의 A~C, 실험형의 D, 결정 자료형의 E가 RTL review pipeline의 다섯 작업이다.</figcaption>
+<figcaption>한 업무가 두 모양을 가지면(원인 찾기 + 수정) 다중 상속 대신 phase가 모양을 빌린다(버그 수정 · timing 개선의 원인 phase = 조사형). 고객 이슈는 여러 업무 가족에 걸쳐 workflow 하나로 덮을 수 없어서, 고객용 특화를 따로 만들지 않고 트랙으로 덧붙인다.</figcaption>
 </figure>
 
 <h2>2. 여덟 자리: 모든 workflow가 같은 순서로 지난다</h2>
 <figure>
-<svg viewBox="0 0 1180 264" role="img" aria-label="여덟 자리: plan, 입력, 시작점, 본체, 판정, 회귀와 부작용, 결과, 학습. plan은 30_plan.md가, 입력의 C0와 회귀의 CB, 결과의 CR, 학습의 CL은 공통 checkpoint가 채우고, 시작점·본체·판정·회귀는 작업 모양이 모양을 정하고 특화가 채운다.">
+<svg viewBox="0 0 1180 300" role="img" aria-label="여덟 자리: plan, 입력, 시작점, 본체, 판정, 회귀와 부작용, 결과, 학습. plan은 30_plan.md가, 입력의 C0와 회귀의 CB, 결과의 CR, 학습의 CL은 공통 checkpoint가 채운다. 고객 트랙이 덧붙으면 입력 뒤에 CT1, 시작점 앞에 CT2가 들어간다. 결과와 학습에는 Track B가 붙는다. 시작점·본체·판정·회귀는 작업 모양이 모양을 정하고 특화가 채운다.">
 <g font-size="14" font-weight="700">
   <rect class="boxs" x="20" y="30" width="130" height="58" rx="8"/><text class="t" x="85" y="55" text-anchor="middle">PL plan</text><text class="m" x="85" y="76" text-anchor="middle" font-size="11.5" font-weight="400">plan 단계 파일</text>
   <rect class="boxa" x="162" y="30" width="130" height="58" rx="8"/><text class="t" x="227" y="55" text-anchor="middle">IN 입력</text><text class="m" x="227" y="76" text-anchor="middle" font-size="11.5" font-weight="400">있고, 버전이 맞나</text>
@@ -137,8 +148,8 @@ svg text{font-family:inherit}
   <rect class="box" x="446" y="30" width="130" height="58" rx="8"/><text class="t" x="511" y="55" text-anchor="middle">DO 본체</text><text class="m" x="511" y="76" text-anchor="middle" font-size="11.5" font-weight="400">산출물</text>
   <rect class="box" x="588" y="30" width="130" height="58" rx="8"/><text class="t" x="653" y="55" text-anchor="middle">OR 판정</text><text class="m" x="653" y="76" text-anchor="middle" font-size="11.5" font-weight="400">근거와 함께 참인가</text>
   <rect class="box" x="730" y="30" width="130" height="58" rx="8"/><text class="t" x="795" y="55" text-anchor="middle">RG 회귀·부작용</text><text class="m" x="795" y="76" text-anchor="middle" font-size="11.5" font-weight="400">안 바뀐 것은 그대로</text>
-  <rect class="boxa" x="872" y="30" width="130" height="58" rx="8"/><text class="t" x="937" y="55" text-anchor="middle">RS 결과</text><text class="m" x="937" y="76" text-anchor="middle" font-size="11.5" font-weight="400">한 파일로 판정</text>
-  <rect class="boxa" x="1014" y="30" width="146" height="58" rx="8"/><text class="t" x="1087" y="55" text-anchor="middle">LN 학습</text><text class="m" x="1087" y="76" text-anchor="middle" font-size="11.5" font-weight="400">생략 불가</text>
+  <rect class="boxa" x="872" y="30" width="130" height="58" rx="8"/><text class="t" x="937" y="55" text-anchor="middle">RS 결과</text><text class="m" x="937" y="76" text-anchor="middle" font-size="11.5" font-weight="400">한 파일 + Track B</text>
+  <rect class="boxa" x="1014" y="30" width="146" height="58" rx="8"/><text class="t" x="1087" y="55" text-anchor="middle">LN 학습</text><text class="m" x="1087" y="76" text-anchor="middle" font-size="11.5" font-weight="400">Track B 확정본</text>
 </g>
 <g font-size="13" font-family="ui-monospace,Consolas,monospace" font-weight="700">
   <text class="m" x="85" y="112" text-anchor="middle" font-family="inherit" font-weight="400">30_plan.md</text>
@@ -147,21 +158,26 @@ svg text{font-family:inherit}
   <text class="ta" x="937" y="112" text-anchor="middle">CR (공통)</text>
   <text class="ta" x="1087" y="112" text-anchor="middle">CL (공통)</text>
 </g>
-<path class="lnm" d="M304,124 V130 H860 V124"/>
-<text class="t" x="582" y="150" text-anchor="middle" font-size="13" font-weight="600">작업 모양이 "어떻게 채울지"를 정하고, 특화가 C1부터 번호를 붙여 채운다</text>
-<g font-size="12">
-  <text class="m" x="369" y="176" text-anchor="middle">수정: 재현·기준</text><text class="m" x="511" y="176" text-anchor="middle">수정: 고침</text><text class="m" x="653" y="176" text-anchor="middle">수정: oracle</text><text class="m" x="795" y="176" text-anchor="middle">수정: regression·LEC</text>
-  <text class="m" x="369" y="196" text-anchor="middle">판정: 이전 run·범위</text><text class="m" x="511" y="196" text-anchor="middle">판정: 지적 쌓기</text><text class="m" x="653" y="196" text-anchor="middle">판정: policy 계산</text><text class="m" x="795" y="196" text-anchor="middle">판정: 대상 불변</text>
-  <text class="m" x="369" y="216" text-anchor="middle">실험: 칸 계획</text><text class="m" x="511" y="216" text-anchor="middle">실험: 측정·유도</text><text class="m" x="653" y="216" text-anchor="middle">실험: 출처 완결</text><text class="m" x="795" y="216" text-anchor="middle">실험: 이상치</text>
+<g font-size="12" font-weight="700">
+  <text class="th" x="227" y="132" text-anchor="middle">+ CT1 (고객 트랙)</text>
+  <text class="th" x="369" y="132" text-anchor="middle">CT2 (트랙)가 먼저</text>
 </g>
-<text class="m" x="590" y="250" text-anchor="middle" font-size="12.5">자리는 공통이지만 checkpoint 번호는 workflow마다 다르다. 그래서 공통 checkpoint 넷은 고정 id(C0 · CB · CR · CL)를 쓴다</text>
+<path class="lnm" d="M304,144 V150 H860 V144"/>
+<text class="t" x="582" y="170" text-anchor="middle" font-size="13" font-weight="600">작업 모양이 "어떻게 채울지"를 정하고, 특화가 C1부터 번호를 붙여 채운다</text>
+<g font-size="12">
+  <text class="m" x="369" y="196" text-anchor="middle">수정: 재현·기준</text><text class="m" x="511" y="196" text-anchor="middle">수정: 고침</text><text class="m" x="653" y="196" text-anchor="middle">수정: oracle</text><text class="m" x="795" y="196" text-anchor="middle">수정: regression·LEC</text>
+  <text class="m" x="369" y="216" text-anchor="middle">판정: 이전 run·범위</text><text class="m" x="511" y="216" text-anchor="middle">판정: 지적 쌓기</text><text class="m" x="653" y="216" text-anchor="middle">판정: policy 계산</text><text class="m" x="795" y="216" text-anchor="middle">판정: 대상 불변</text>
+  <text class="m" x="369" y="236" text-anchor="middle">조사: 층 판별·재현</text><text class="m" x="511" y="236" text-anchor="middle">조사: 가설·좁히기</text><text class="m" x="653" y="236" text-anchor="middle">조사: before/after</text><text class="m" x="795" y="236" text-anchor="middle">조사: 대상 불변</text>
+  <text class="m" x="369" y="256" text-anchor="middle">실험: 칸 계획</text><text class="m" x="511" y="256" text-anchor="middle">실험: 측정·유도</text><text class="m" x="653" y="256" text-anchor="middle">실험: 출처 완결</text><text class="m" x="795" y="256" text-anchor="middle">실험: 이상치</text>
+</g>
+<text class="m" x="590" y="288" text-anchor="middle" font-size="12.5">순서: C0 → 특화 IN → 트랙 IN → (RC · DUP) → 트랙 BL → BL → phase마다 DO · OR · RG → CB → CR → (검수 · 적용) → CL</text>
 </svg>
-<figcaption>시작점(BL)이 모든 workflow에 있는 이유: 끝을 판정하려면 처음에 무엇이 참이었는지가 기록되어 있어야 한다("원래부터 실패였나, 이번 변경 때문인가").</figcaption>
+<figcaption>시작점(BL)이 모든 workflow에 있는 이유: 끝을 판정하려면 처음에 무엇이 참이었는지가 기록되어 있어야 한다("원래부터 실패였나, 이번 변경 때문인가"). 자리는 공통이지만 checkpoint 번호는 workflow마다 다르다. 그래서 공통 checkpoint 넷은 고정 id(C0 · CB · CR · CL)를, 트랙의 checkpoint는 CT 번호를 쓴다.</figcaption>
 </figure>
 
 <h2>3. phase: "원인만"·"수정만" 요청도 같은 workflow가 받는다</h2>
 <figure>
-<svg viewBox="0 0 1180 290" role="img" aria-label="버그 수정 workflow의 phase. C0과 C1은 run 단위로 늘 돌고, C2는 원인 phase, C3에서 C5는 수정 phase, CB와 CR과 CL은 공통이다. 전체 요청은 모두, 원인만 요청은 C2까지, 수정만 요청은 C2를 건너뛰고 나머지를 돈다.">
+<svg viewBox="0 0 1180 350" role="img" aria-label="버그 수정 workflow의 phase. C0과 C1은 run 단위로 늘 돌고, C2는 원인 phase, C3에서 C5는 수정 phase, CB와 CR과 CL은 공통이다. 전체 요청은 모두, 원인만 요청은 C2까지, 수정만 요청은 C2를 건너뛰고 나머지를 돈다. 고객이 보낸 같은 요청은 원인 phase만 돌고 수정 phase는 고를 수 없다.">
 <g font-size="12.5" font-weight="600">
   <path class="lnm" d="M250,30 V38 H410 V30"/><text class="m" x="330" y="24" text-anchor="middle">run 단위(늘 돈다)</text>
   <path class="lna" d="M430,30 V38 H530 V30"/><text class="ta" x="480" y="24" text-anchor="middle">원인 phase(조사형)</text>
@@ -174,7 +190,7 @@ svg text{font-family:inherit}
   <text class="t" x="890" y="66" text-anchor="middle">CB</text><text class="t" x="990" y="66" text-anchor="middle">CR</text><text class="t" x="1090" y="66" text-anchor="middle">CL</text>
 </g>
 <g font-size="12">
-  <text class="m" x="290" y="86" text-anchor="middle">IN 입력</text><text class="m" x="370" y="86" text-anchor="middle">BL 재현</text><text class="m" x="480" y="86" text-anchor="middle">OR 원인 확인</text>
+  <text class="m" x="290" y="86" text-anchor="middle">IN 입력</text><text class="m" x="370" y="86" text-anchor="middle">BL 재현·층</text><text class="m" x="480" y="86" text-anchor="middle">OR 원인 확인</text>
   <text class="m" x="590" y="86" text-anchor="middle">DO 수정</text><text class="m" x="690" y="86" text-anchor="middle">OR 재현 test</text><text class="m" x="790" y="86" text-anchor="middle">RG regression</text>
   <text class="m" x="890" y="86" text-anchor="middle">RG 경계</text><text class="m" x="990" y="86" text-anchor="middle">RS 결과</text><text class="m" x="1090" y="86" text-anchor="middle">LN 학습</text>
 </g>
@@ -182,61 +198,193 @@ svg text{font-family:inherit}
   <text class="t" x="30" y="130" font-weight="700">"원인 찾아서 고쳐 주세요"</text>
   <text class="t" x="30" y="185" font-weight="700">"원인만 알려 주세요"</text>
   <text class="t" x="30" y="240" font-weight="700">"원인은 X, 고쳐 주세요"</text>
+  <text class="th" x="30" y="295" font-weight="700">고객: "고쳐 주세요"</text>
 </g>
 <line class="lnm" x1="20" y1="100" x2="1160" y2="100"/>
-<!-- row 1 all -->
 <g><circle class="dot" cx="290" cy="126" r="9"/><circle class="dot" cx="370" cy="126" r="9"/><circle class="dot" cx="480" cy="126" r="9"/><circle class="dot" cx="590" cy="126" r="9"/><circle class="dot" cx="690" cy="126" r="9"/><circle class="dot" cx="790" cy="126" r="9"/><circle class="dot" cx="890" cy="126" r="9"/><circle class="dot" cx="990" cy="126" r="9"/><circle class="dot" cx="1090" cy="126" r="9"/></g>
-<!-- row 2 diagnose only -->
 <g><circle class="dot" cx="290" cy="181" r="9"/><circle class="dot" cx="370" cy="181" r="9"/><circle class="dot" cx="480" cy="181" r="9"/><circle class="dotoff" cx="590" cy="181" r="9"/><circle class="dotoff" cx="690" cy="181" r="9"/><circle class="dotoff" cx="790" cy="181" r="9"/><circle class="dot" cx="890" cy="181" r="9"/><circle class="dot" cx="990" cy="181" r="9"/><circle class="dot" cx="1090" cy="181" r="9"/></g>
-<!-- row 3 change only -->
 <g><circle class="dot" cx="290" cy="236" r="9"/><circle class="dot" cx="370" cy="236" r="9"/><circle class="dotoff" cx="480" cy="236" r="9"/><circle class="dot" cx="590" cy="236" r="9"/><circle class="dot" cx="690" cy="236" r="9"/><circle class="dot" cx="790" cy="236" r="9"/><circle class="dot" cx="890" cy="236" r="9"/><circle class="dot" cx="990" cy="236" r="9"/><circle class="dot" cx="1090" cy="236" r="9"/></g>
+<g><circle class="dot" cx="290" cy="291" r="9"/><circle class="dot" cx="370" cy="291" r="9"/><circle class="dot" cx="480" cy="291" r="9"/><circle class="dotoff" cx="590" cy="291" r="9" style="stroke:var(--bad)"/><circle class="dotoff" cx="690" cy="291" r="9" style="stroke:var(--bad)"/><circle class="dotoff" cx="790" cy="291" r="9" style="stroke:var(--bad)"/><circle class="dot" cx="890" cy="291" r="9"/><circle class="dot" cx="990" cy="291" r="9"/><circle class="dot" cx="1090" cy="291" r="9"/></g>
 <g font-size="12" class="m">
   <text class="m" x="30" y="148">결과: 원인 보고 + diff + MR 후보</text>
   <text class="m" x="30" y="203">결과: 원인 보고 (수정은 새 요청으로)</text>
   <text class="m" x="30" y="258">결과: diff + MR 후보 (재현은 그래도 한다)</text>
+  <text class="m" x="30" y="313">결과: 원인 보고 + 회신 초안 · 수정 phase 거부(내부 이슈 후속)</text>
 </g>
-<text class="m" x="590" y="282" text-anchor="middle" font-size="12.5">규칙: IN·BL은 run 단위 · DO·OR·RG는 phase에 속함 · 고른 phase마다 판정(OR)이 하나 이상 · 자리 순서는 phase 안에서만</text>
+<text class="m" x="590" y="340" text-anchor="middle" font-size="12.5">규칙: IN·BL은 run 단위 · DO·OR·RG는 phase에 속함 · 고른 phase마다 판정(OR)이 하나 이상 · 자리 순서는 phase 안에서만</text>
 </svg>
-<figcaption>intake가 요청 둘을 한 workflow의 두 phase로 보내면(route.phases), 이 표대로 checkpoint가 골라진다. 원인 phase는 조사형 모양을 빌려 대상을 고치지 않고 scratch에서 before/after로 확인한다. 행동도 phase마다 따로 계산하므로 "원인만" run에는 RTL 수정 행동이 아예 없다(guard가 막고, 경계 확인이 대상 diff가 비었는지 센다).</figcaption>
+<figcaption>intake가 요청 둘을 한 workflow의 두 phase로 보내면(route.phases), 이 표대로 checkpoint가 골라진다. 원인 phase는 조사형 모양을 빌려 대상을 고치지 않고 scratch에서 before/after로 확인한다. 행동도 phase마다 따로 계산하므로 "원인만" run에는 RTL 수정 행동이 아예 없다(guard가 막고, 경계 확인이 대상 diff가 비었는지 센다). 고객 레코드는 intake가 수정 요청을 미뤄 두고 원인 phase만 보낸다. 그래도 수정 phase가 오면 resolver가 거부하고, workflow는 plan을 시작하지 않은 채 intake에 거부 사건을 보낸다.</figcaption>
 </figure>
 
 <h2>4. 상속 규칙</h2>
 <table>
 <tr><th style="width:18%">규칙</th><th style="width:38%">무엇에</th><th>뜻</th></tr>
-<tr><td><b>잠금</b></td><td>자리 여덟과 순서, 공통 checkpoint 넷, phase마다 판정, 공통 원칙 다섯, 물려받는 규칙, 전역 금지 행동</td><td>특화가 없애거나 바꾸지 못한다</td></tr>
-<tr><td><b>채우기(필수)</b></td><td>작업 모양의 의무(obligations)</td><td>특화의 checkpoint 중 하나 이상이 그 의무를 이행한다고 표시(implements)해야 한다. resolver가 검사한다</td></tr>
+<tr><td><b>잠금</b></td><td>자리 여덟과 순서, 공통 checkpoint 넷, phase마다 판정, 공통 원칙 다섯, 물려받는 규칙(Track B 포함), 전역 금지 행동</td><td>특화가 없애거나 바꾸지 못한다</td></tr>
+<tr><td><b>채우기(필수)</b></td><td>작업 모양의 의무(obligations)</td><td>특화의 checkpoint 중 하나 이상이 그 의무를 이행한다고 표시(implements)해야 한다. resolver가 검사한다(조사형이면 층 판별 · 재현 · 원인 확인)</td></tr>
 <tr><td><b>채우기</b></td><td>BL·DO·OR·RG 자리의 checkpoint</td><td>특화가 자기 번호(C1…)로 채운다</td></tr>
 <tr><td><b>좁히기만</b></td><td>쓰는 행동(모양의 상한 안), 대상을 고치는가(고친다 → 안 고친다만), 읽기 제한·세션 분리(더하기만), checkpoint의 posture 상한(낮추기만)</td><td>넓히지 못한다. 자율 선언의 원칙과 같다</td></tr>
 <tr><td><b>더하기</b></td><td>사람 개입 지점, 결과 절, 학습 항목</td><td>모양이 정한 것에 더한다</td></tr>
 <tr><td><b>더하기(의무와 함께)</b></td><td>쓰는 기록 종류(review ledger · QoR matrix)</td><td>모양에 없는 기록을 더할 수 있지만, 그 기록이 끌어오는 의무(지적의 신원·관측 계산, 값의 출처)를 이행해야 한다</td></tr>
 <tr><td><b>자기 것</b></td><td>입력 요건(필수·권장·모드), oracle, 비용 사다리, 기본 posture, 덮는 요청, phase, 경로 힌트</td><td>업무가 정한다. 기본 posture는 권한 범위의 상한에서 잘리고, plan이 oracle 강도·실적·정보로 더 낮출 수 있다</td></tr>
+<tr><td><b>트랙 덧붙임</b></td><td>run 단위 checkpoint(CT…, 자리 IN·BL), 결과 절, 학습 항목, 읽기 제한, 하지 않겠다, 트랙 후속, posture 상한</td><td>사람이 고르지 않고 레코드의 출처로 붙는다. 행동을 더하지 못하고, 트랙이 대상 수정을 막으면 그 task에서 대상을 고치는 phase를 고를 수 없다</td></tr>
 </table>
 
-<h2>5. workflow가 없는 일: 세 경로도 세 층 위에서 설명된다</h2>
+<h2>5. 고객 트랙: 고객이 트리거한 일은 끝까지의 과정이 다르다</h2>
+<figure>
+<svg viewBox="0 0 1180 330" role="img" aria-label="고객 트랙. intake의 고객 입구가 별칭과 customer_scope를 붙이고 범위 좁히기 질문을 보내며 수정 요청은 미룬다. workflow에서는 CT1 고객 경계와 질문의 답, CT2 자동 multi-test, 카테고리 workflow의 원인 phase, 경계 확인과 결과 패키지(회신 초안과 Track B 포함)를 지나 검수로 간다. 회신은 고객 대응 담당이 보낸다. 다른 고객 자료 읽기, 고객이 보는 자리에 쓰기, 고객 레코드에서 대상 고치기는 하지 않는다. 진짜 bug면 검수자가 골라 내부 이슈 후속을 연다.">
+<defs>
+  <marker id="t5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0,0 L10,5 L0,10 z"/></marker>
+  <marker id="t5h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mkh" d="M0,0 L10,5 L0,10 z"/></marker>
+</defs>
+<rect class="boxs" x="20" y="40" width="220" height="200" rx="10"/>
+<text class="t" x="130" y="64" text-anchor="middle" font-size="14" font-weight="700">intake (고객 입구)</text>
+<g font-size="12">
+  <text class="m" x="34" y="90">별칭 · customer_scope</text>
+  <text class="m" x="34" y="112">보는 사람 = 늘 밖</text>
+  <text class="m" x="34" y="134">범위 좁히기 질문</text>
+  <text class="m" x="34" y="152">(자료에 있으면 묻지 않음)</text>
+  <text class="m" x="34" y="176">막는 질문: 답 뒤에 dispatch</text>
+  <text class="m" x="34" y="198">수정 요청은 미룸</text>
+  <text class="m" x="34" y="220">제안 posture draft</text>
+</g>
+<g font-size="13">
+  <rect class="boxh" x="262" y="60" width="160" height="64" rx="9"/><text class="t" x="342" y="85" text-anchor="middle" font-weight="700">CT1 고객 경계</text><text class="m" x="342" y="106" text-anchor="middle" font-size="11.5">질문의 답 · 쓸 자리 (IN)</text>
+  <rect class="boxh" x="436" y="60" width="170" height="64" rx="9"/><text class="t" x="521" y="85" text-anchor="middle" font-weight="700">CT2 자동 multi-test</text><text class="m" x="521" y="106" text-anchor="middle" font-size="11.5">고객 조건으로 한 번에 (BL)</text>
+  <rect class="box" x="620" y="60" width="200" height="64" rx="9"/><text class="t" x="720" y="84" text-anchor="middle" font-weight="700">카테고리 workflow</text><text class="m" x="720" y="103" text-anchor="middle" font-size="11.5">층 판별 → 원인 확인</text><text class="m" x="720" y="118" text-anchor="middle" font-size="11.5">(원인 phase만)</text>
+  <rect class="boxa" x="834" y="60" width="178" height="64" rx="9"/><text class="t" x="923" y="84" text-anchor="middle" font-weight="700">CB → CR</text><text class="m" x="923" y="103" text-anchor="middle" font-size="11.5">결과 · 회신 초안</text><text class="m" x="923" y="118" text-anchor="middle" font-size="11.5">Track B</text>
+  <rect class="boxh" x="1026" y="60" width="134" height="64" rx="9"/><text class="th" x="1093" y="85" text-anchor="middle" font-weight="700">검수 · 회신</text><text class="m" x="1093" y="106" text-anchor="middle" font-size="11.5">고객 대응 담당</text>
+</g>
+<g>
+  <line class="ln" x1="240" y1="92" x2="260" y2="92" marker-end="url(#t5)"/>
+  <line class="ln" x1="422" y1="92" x2="434" y2="92" marker-end="url(#t5)"/>
+  <line class="ln" x1="606" y1="92" x2="618" y2="92" marker-end="url(#t5)"/>
+  <line class="ln" x1="820" y1="92" x2="832" y2="92" marker-end="url(#t5)"/>
+  <line class="lnh" x1="1012" y1="92" x2="1024" y2="92" marker-end="url(#t5h)"/>
+</g>
+<rect class="boxb" x="270" y="150" width="566" height="96" rx="9"/>
+<g font-size="12.5">
+  <text class="tb" x="286" y="173" font-weight="700">하지 않는 것 (행동 guard가 막고, 경계 확인 CB가 다시 센다)</text>
+  <text class="t" x="286" y="196">다른 customer_scope의 자료를 읽거나 근거 · 초안 · test 입력에 쓰기</text>
+  <text class="t" x="286" y="216">고객이 보는 자리(ticket · thread · portal · mail)에 comment · label · 첨부 쓰기</text>
+  <text class="t" x="286" y="236">고객 레코드에서 대상(RTL · TB · 문서 정본) 고치기 · 회신 보내기 · 날짜 · 릴리즈 약속</text>
+</g>
+<path class="lnh" d="M1093,124 V150" marker-end="url(#t5h)"/>
+<rect class="boxs" x="854" y="152" width="306" height="94" rx="9"/>
+<g font-size="12">
+  <text class="t" x="868" y="174" font-weight="700">트랙 후속 (on-accept, 기본 고르지 않음)</text>
+  <text class="m" x="868" y="196">진짜 bug(층 = RTL·FW, 우리 환경에서 재현)</text>
+  <text class="m" x="868" y="214">→ 내부 이슈(고객 이슈와 합치지 않고 잇는다)</text>
+  <text class="m" x="868" y="236">기능 추가 → 내부 레코드가 사슬 인스턴스</text>
+</g>
+<text class="m" x="590" y="282" text-anchor="middle" font-size="12.5">posture 상한 draft: 진단은 원인 확인(before/after)까지 돌리되, 원인 판정과 회신 문구는 사람이 확정한다</text>
+<text class="m" x="590" y="306" text-anchor="middle" font-size="12.5">label 자리: 고객이 label을 볼 수 있으면 고객 ticket에는 label을 붙이지 않는다 → 내부 손잡이 ticket(있으면) 또는 내부 전용 comment 첫 줄</text>
+</svg>
+<figcaption>진행을 막는 질문을 기다리는 동안에는 읽기 전용 준비(plan 없음)가 알려진 bug · errata 대조, 문서 근거 찾기, 돌릴 test 고르기까지 한다. test는 기록되는 실행이라 workflow의 첫 일(CT2)로 돈다. 실행 중에 고객의 답이 오면 질문 id에 매기고, 조건이 채워진 "조건 대기" test만 다시 돌린다. 고객 이슈의 끝(고객 확인 또는 무응답 기간 뒤 담당의 선언)은 intake 쪽 레코드의 일이다.</figcaption>
+</figure>
+
+<h2>6. 조사형: 층 판별이 첫 의무다</h2>
+<figure>
+<svg viewBox="0 0 1180 300" role="img" aria-label="조사형 workflow의 순서. 층 판별, 같은 입력으로 재현, 가설 표, 싼 것부터 좁히기, 원인마다 before/after로 원인 확인, 층마다 다른 끝, Track B. 층 열은 문서, 이해, 환경, TB, C-model, spec, 도구, RTL, FW, 구현 결과. 가르는 재료는 내부 이슈면 재현 조건 대조, 고객 이슈면 질문의 답과 자동 multi-test, 질문형이면 문서 근거. 같은 입력에서 결과가 갈리면 층이 아니라 불안정 상태다.">
+<defs><marker id="d6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<g font-size="13.5">
+  <rect class="boxa" x="20" y="30" width="150" height="64" rx="9"/><text class="t" x="95" y="55" text-anchor="middle" font-weight="700">1 층 판별 (BL)</text><text class="m" x="95" y="76" text-anchor="middle" font-size="11">첫 의무 · 원인이 있는 층</text>
+  <rect class="box" x="185" y="30" width="150" height="64" rx="9"/><text class="t" x="260" y="55" text-anchor="middle" font-weight="700">2 재현 (BL)</text><text class="m" x="260" y="76" text-anchor="middle" font-size="11">같은 입력·seed·config</text>
+  <rect class="box" x="350" y="30" width="150" height="64" rx="9"/><text class="t" x="425" y="55" text-anchor="middle" font-weight="700">3 가설 표 (DO)</text><text class="m" x="425" y="76" text-anchor="middle" font-size="11">예측 · 가르는 실험</text>
+  <rect class="box" x="515" y="30" width="150" height="64" rx="9"/><text class="t" x="590" y="55" text-anchor="middle" font-weight="700">4 좁히기 (DO)</text><text class="m" x="590" y="76" text-anchor="middle" font-size="11">싼 것부터 · scratch만</text>
+  <rect class="box" x="680" y="30" width="150" height="64" rx="9"/><text class="t" x="755" y="55" text-anchor="middle" font-weight="700">5 원인 확인 (OR)</text><text class="m" x="755" y="76" text-anchor="middle" font-size="11">before/after · 원인마다</text>
+  <rect class="box" x="845" y="30" width="150" height="64" rx="9"/><text class="t" x="920" y="55" text-anchor="middle" font-weight="700">6 끝</text><text class="m" x="920" y="76" text-anchor="middle" font-size="11">층마다 다름</text>
+  <rect class="boxs" x="1010" y="30" width="150" height="64" rx="9"/><text class="t" x="1085" y="55" text-anchor="middle" font-weight="700">7 Track B</text><text class="m" x="1085" y="76" text-anchor="middle" font-size="11">무엇이 층을 갈랐나</text>
+</g>
+<g><line class="ln" x1="170" y1="62" x2="183" y2="62" marker-end="url(#d6)"/><line class="ln" x1="335" y1="62" x2="348" y2="62" marker-end="url(#d6)"/><line class="ln" x1="500" y1="62" x2="513" y2="62" marker-end="url(#d6)"/><line class="ln" x1="665" y1="62" x2="678" y2="62" marker-end="url(#d6)"/><line class="ln" x1="830" y1="62" x2="843" y2="62" marker-end="url(#d6)"/><line class="ln" x1="995" y1="62" x2="1008" y2="62" marker-end="url(#d6)"/></g>
+<text class="t" x="20" y="138" font-size="13" font-weight="700">층 열</text>
+<g font-size="12.5" font-weight="600">
+  <rect class="boxs" x="80" y="118" width="96" height="30" rx="15"/><text class="t" x="128" y="138" text-anchor="middle">문서</text>
+  <rect class="boxs" x="184" y="118" width="96" height="30" rx="15"/><text class="t" x="232" y="138" text-anchor="middle">이해</text>
+  <rect class="boxs" x="288" y="118" width="96" height="30" rx="15"/><text class="t" x="336" y="138" text-anchor="middle">환경</text>
+  <rect class="boxs" x="392" y="118" width="96" height="30" rx="15"/><text class="t" x="440" y="138" text-anchor="middle">TB</text>
+  <rect class="boxs" x="496" y="118" width="96" height="30" rx="15"/><text class="t" x="544" y="138" text-anchor="middle">C-model</text>
+  <rect class="boxs" x="600" y="118" width="96" height="30" rx="15"/><text class="t" x="648" y="138" text-anchor="middle">spec</text>
+  <rect class="boxs" x="704" y="118" width="96" height="30" rx="15"/><text class="t" x="752" y="138" text-anchor="middle">도구</text>
+  <rect class="boxs" x="808" y="118" width="96" height="30" rx="15"/><text class="t" x="856" y="138" text-anchor="middle">RTL</text>
+  <rect class="boxs" x="912" y="118" width="96" height="30" rx="15"/><text class="t" x="960" y="138" text-anchor="middle">FW</text>
+  <rect class="boxs" x="1016" y="118" width="144" height="30" rx="15"/><text class="t" x="1088" y="138" text-anchor="middle">구현 결과</text>
+</g>
+<text class="t" x="20" y="186" font-size="13" font-weight="700">가르는 재료</text>
+<g font-size="12">
+  <rect class="box" x="20" y="196" width="370" height="54" rx="8"/><text class="t" x="34" y="217" font-weight="700">내부 이슈: 재현 조건 대조</text><text class="m" x="34" y="237">같은 입력으로 재현되면 oracle 쪽(TB · C-model)부터 지운다</text>
+  <rect class="boxh" x="405" y="196" width="370" height="54" rx="8"/><text class="th" x="419" y="217" font-weight="700">고객 이슈: 질문의 답 + 자동 multi-test</text><text class="m" x="419" y="237">답이 아직 없으면 지금 결과로 가르고, 답이 오면 다시 본다</text>
+  <rect class="box" x="790" y="196" width="370" height="54" rx="8"/><text class="t" x="804" y="217" font-weight="700">질문형: 문서 · 이해 · spec의 근거</text><text class="m" x="804" y="237">재현할 실패가 없으면 재현은 이유와 함께 건너뜀</text>
+</g>
+<text class="m" x="590" y="282" text-anchor="middle" font-size="12.5"><tspan class="tb" font-weight="700">불안정은 층이 아니라 상태다:</tspan> 같은 입력에서 결과가 갈리면 원인 찾기를 멈추고 안정화 일감을 학습 backlog로 · 대상은 고치지 않는다(계측은 scratch 사본에서만)</text>
+</svg>
+<figcaption>원인은 RTL 밖(문서 · 이해 · 환경 · TB · C-model · spec · 도구)에 있는 경우가 많아서, 층을 모른 채 RTL부터 파지 않는다. 가설은 변경 구간 diff → trace 첫 불일치 경계 → 과거 bug 패턴 → 실패 묶음의 공통점 순으로 세우고, 좁히기는 변경 구간 bisect → seed · 설정 변주 → module trace 첫 불일치 → 경계 안 신호 trace 순이다. 확인하지 못했으면 남은 후보 · 확신도(말로) · 이유를 적는다. 다른 팀의 일이면 out-of-scope 후속, 같은 팀이 나중에 할 일은 학습 backlog다.</figcaption>
+</figure>
+
+<h2>7. 결과 패키지와 학습 기록의 Track B: 비면 완료가 아니다</h2>
+<figure>
+<svg viewBox="0 0 1180 272" role="img" aria-label="Track B 흐름. 결과 패키지의 Track B 미리보기가 비면 결과 검사 CR이 통과하지 않아 검수로 가지 않는다. 검수자는 내용이 실제와 다르면 어디가 문제였나에 적는다. 학습 기록의 확정본이 비면 CL이 통과하지 않아 완료가 아니다. 학습이 확정되면 학습 완료 사건이 intake로 가고, intake가 원장에 track-b 줄을 덧붙인다. 정기 집계가 이 줄들로 분류 규칙, 질문 묶음, multi-test 묶음, workflow를 revision한다.">
+<defs>
+  <marker id="b7" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk" d="M0,0 L10,5 L0,10 z"/></marker>
+  <marker id="b7a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mka" d="M0,0 L10,5 L0,10 z"/></marker>
+</defs>
+<g font-size="13">
+  <rect class="box" x="20" y="30" width="210" height="64" rx="9"/><text class="t" x="125" y="55" text-anchor="middle" font-weight="700" font-family="ui-monospace,Consolas,monospace">40_result.md</text><text class="m" x="125" y="76" text-anchor="middle" font-size="11.5">Track B 미리보기</text>
+  <rect class="boxs" x="262" y="30" width="160" height="64" rx="9"/><text class="t" x="342" y="55" text-anchor="middle" font-weight="700">CR 결과 검사</text><text class="m" x="342" y="76" text-anchor="middle" font-size="11.5">비면 검수로 가지 않음</text>
+  <rect class="boxh" x="454" y="30" width="170" height="64" rx="9"/><text class="th" x="539" y="55" text-anchor="middle" font-weight="700">검수 (사람)</text><text class="m" x="539" y="76" text-anchor="middle" font-size="11.5">다르면 "어디가 문제였나"</text>
+  <rect class="box" x="656" y="30" width="200" height="64" rx="9"/><text class="t" x="756" y="55" text-anchor="middle" font-weight="700" font-family="ui-monospace,Consolas,monospace">60_learn.md</text><text class="m" x="756" y="76" text-anchor="middle" font-size="11.5">Track B 확정본</text>
+  <rect class="boxs" x="888" y="30" width="272" height="64" rx="9"/><text class="t" x="1024" y="55" text-anchor="middle" font-weight="700">CL 학습</text><text class="m" x="1024" y="76" text-anchor="middle" font-size="11.5">비면 그 일은 완료로 세지 않음</text>
+</g>
+<g><line class="ln" x1="230" y1="62" x2="260" y2="62" marker-end="url(#b7)"/><line class="ln" x1="422" y1="62" x2="452" y2="62" marker-end="url(#b7)"/><line class="ln" x1="624" y1="62" x2="654" y2="62" marker-end="url(#b7)"/><line class="ln" x1="856" y1="62" x2="886" y2="62" marker-end="url(#b7)"/></g>
+<path class="lna" d="M1024,94 V140" marker-end="url(#b7a)"/><text class="ta" x="1014" y="122" text-anchor="end" font-size="12" font-weight="700">학습 완료 사건(learn-done)</text>
+<rect class="boxs" x="800" y="142" width="360" height="80" rx="9"/>
+<text class="t" x="980" y="166" text-anchor="middle" font-size="13" font-weight="700">intake 원장에 track-b 덧붙임 줄</text>
+<text class="m" x="980" y="187" text-anchor="middle" font-size="11.5">레코드가 닫힌 뒤여도 같다</text>
+<text class="m" x="980" y="205" text-anchor="middle" font-size="11.5">workflow는 원장에 직접 쓰지 않는다</text>
+<path class="lna" d="M800,182 H762" marker-end="url(#b7a)"/>
+<rect class="boxa" x="380" y="142" width="380" height="80" rx="9"/>
+<text class="t" x="570" y="166" text-anchor="middle" font-size="13" font-weight="700">정기 집계 (주기 공란, 정본 승인자)</text>
+<text class="m" x="570" y="187" text-anchor="middle" font-size="11.5">분류 규칙 · 범위 좁히기 질문 묶음</text>
+<text class="m" x="570" y="205" text-anchor="middle" font-size="11.5">multi-test 묶음 · workflow revision</text>
+<rect class="box" x="20" y="142" width="320" height="80" rx="9"/>
+<text class="t" x="180" y="166" text-anchor="middle" font-size="13" font-weight="700">되풀이 → 초안 신설 의무</text>
+<text class="m" x="180" y="187" text-anchor="middle" font-size="11.5">"workflow 없음" · one-off로 끝난 횟수가</text>
+<text class="m" x="180" y="205" text-anchor="middle" font-size="11.5">기준(공란)을 넘으면</text>
+<path class="lnm dash" d="M380,182 H342" marker-end="url(#b7)"/>
+<text class="m" x="590" y="254" text-anchor="middle" font-size="12.5">Track A = 일 자체(답 · patch · 원인 보고 · 결정 자료 · 회신 초안) · Track B = 그 일이 쓴 workflow의 기록 · 사람이 같은 workflow로 수행한 일도 같다</text>
+</svg>
+<figcaption>Track B는 "일은 끝났는데 workflow는 배우지 못한다"를 막는 칸이다. 결과 패키지에는 미리보기, 학습 기록에는 확정본이 있고, 확정본의 "분류 쪽으로 돌려줄 것"은 intake controller가 읽어 원장에 덧붙인다.</figcaption>
+</figure>
+<table>
+<tr><th style="width:24%">Track B 칸</th><th>무엇</th><th style="width:24%">어디서 오나</th></tr>
+<tr><td>쓴 workflow · revision</td><td>workflow id · version · 경로 · 덧붙은 트랙 · resolved hash. 쓸 workflow가 없었으면 "없음 → 이번 길"</td><td>plan · resolved (script)</td></tr>
+<tr><td>막힌 곳과 메운 곳</td><td>실행 중 HITL, 사람이 답 · 결정한 곳, 기본값으로 넘어간 곳, 검수에서 사람이 고친 산출물</td><td>STATE · 검수 판정 (script)</td></tr>
+<tr><td>평가</td><td>checkpoint 상태별 수, 검수 판정과 어디가 문제였나, 소요</td><td>STATE · 검수 판정 (script)</td></tr>
+<tr><td>개선</td><td>checkpoint 추가 · 수정, 입력 요건, 질문 묶음, multi-test 묶음, evaluator 추가, 경로 힌트</td><td>LLM (근거는 이번 task의 기록 줄)</td></tr>
+<tr><td>결과</td><td>revision 제안 · 초안 신설 제안 · 없음(이유)</td><td>learner</td></tr>
+<tr><td>분류 쪽으로 돌려줄 것</td><td>진단이 정한 층(못 정했으면 남은 후보), 범위 좁히기 질문마다 답이 왔나 · 층을 갈랐나 · 받은 자료로 알 수 있었나, 층을 실제로 가른 test와 돌린 test 전부</td><td>층 표 · 질문 기록 · multi-test 결과</td></tr>
+</table>
+
+<h2>8. workflow가 없는 일: 세 경로도 세 층 위에서 설명된다</h2>
 <figure>
 <svg viewBox="0 0 1180 300" role="img" aria-label="특화가 있는 보통 경로는 세 층을 다 쓴다. one-off는 공통과 모양만 쓴다. 초안 신설은 모양에서 시작한 새 특화 초안을 fork에서 쓴다. 이웃 합성은 이웃의 특화에 부록 checkpoint를 붙이고 posture를 한 단계 낮춘다.">
 <g font-size="13">
-  <!-- default -->
   <text class="t" x="150" y="26" text-anchor="middle" font-weight="700">보통(adopted)</text>
   <rect class="boxs" x="60" y="44" width="180" height="46" rx="7"/><text class="t" x="150" y="72" text-anchor="middle">특화 workflow</text>
   <rect class="box" x="60" y="96" width="180" height="46" rx="7"/><text class="t" x="150" y="124" text-anchor="middle">작업 모양</text>
   <rect class="boxa" x="60" y="148" width="180" height="46" rx="7"/><text class="t" x="150" y="176" text-anchor="middle">WF-common</text>
   <text class="m" x="150" y="222" text-anchor="middle" font-size="12">특화의 기본 posture</text>
-  <!-- one-off -->
   <text class="t" x="440" y="26" text-anchor="middle" font-weight="700">one-off</text>
   <rect class="ghost" x="350" y="44" width="180" height="46" rx="7"/><text class="m" x="440" y="72" text-anchor="middle">특화 없음</text>
   <rect class="box" x="350" y="96" width="180" height="46" rx="7"/><text class="t" x="440" y="116" text-anchor="middle">작업 모양</text><text class="m" x="440" y="134" text-anchor="middle" font-size="11.5">기본 채움 C1…</text>
   <rect class="boxa" x="350" y="148" width="180" height="46" rx="7"/><text class="t" x="440" y="176" text-anchor="middle">WF-common</text>
   <text class="m" x="440" y="222" text-anchor="middle" font-size="12">draft 고정 · 되돌림 낮은 일만 · 최소 셋</text>
   <text class="m" x="440" y="242" text-anchor="middle" font-size="12">학습에 "다시 올 것 같은가"</text>
-  <!-- draft-new -->
   <text class="t" x="730" y="26" text-anchor="middle" font-weight="700">초안 신설(none)</text>
   <rect class="boxh" x="640" y="44" width="180" height="46" rx="7" style="stroke-dasharray:5 4"/><text class="th" x="730" y="64" text-anchor="middle">새 특화 초안</text><text class="m" x="730" y="82" text-anchor="middle" font-size="11.5">fork · draft</text>
   <rect class="box" x="640" y="96" width="180" height="46" rx="7"/><text class="t" x="730" y="116" text-anchor="middle">작업 모양</text><text class="m" x="730" y="134" text-anchor="middle" font-size="11.5">기본 채움이 출발점</text>
   <rect class="boxa" x="640" y="148" width="180" height="46" rx="7"/><text class="t" x="730" y="176" text-anchor="middle">WF-common</text>
   <text class="m" x="730" y="222" text-anchor="middle" font-size="12">gate에서 논의 → "가 보자" 뒤</text>
   <text class="m" x="730" y="242" text-anchor="middle" font-size="12">draft로 즉시 사용, 정본은 회의</text>
-  <!-- neighbor -->
   <text class="t" x="1020" y="26" text-anchor="middle" font-weight="700">이웃 합성</text>
   <rect class="boxs" x="930" y="44" width="180" height="46" rx="7"/><text class="t" x="1020" y="64" text-anchor="middle">이웃의 특화</text><text class="m" x="1020" y="82" text-anchor="middle" font-size="11.5">+ 부록 AP1…</text>
   <rect class="boxh" x="1114" y="50" width="40" height="34" rx="6"/><text class="th" x="1134" y="72" text-anchor="middle" font-size="12" font-weight="700">AP</text>
@@ -245,22 +393,55 @@ svg text{font-family:inherit}
   <text class="m" x="1020" y="222" text-anchor="middle" font-size="12">이웃 default에서 한 단계 낮춤</text>
   <text class="m" x="1020" y="242" text-anchor="middle" font-size="12">부록은 자기 phase + 판정</text>
 </g>
-<text class="m" x="590" y="284" text-anchor="middle" font-size="12.5">어느 경로든 공통 골격은 그대로다. 결과 패키지·경계 확인·학습이 같아서, 한 번 해 본 일이 다음 workflow의 재료가 된다</text>
+<text class="m" x="590" y="284" text-anchor="middle" font-size="12.5">어느 경로든 공통 골격은 그대로다. 결과 패키지·경계 확인·학습·Track B가 같아서, 한 번 해 본 일이 다음 workflow의 재료가 된다</text>
 </svg>
-<figcaption>intake의 gate가 "workflow 가용성"으로 경로를 정해 보낸다: adopted → 보통, neighbor-compose → 이웃 합성, one-off-eligible → one-off, none → 초안 신설과 논의.</figcaption>
+<figcaption>intake의 gate가 "workflow 가용성"으로 경로를 정해 보낸다: adopted → 보통, neighbor-compose → 이웃 합성, one-off-eligible → one-off, none → 초안 신설과 논의. 덮는 특화가 없고 요청이 원인 찾기뿐이면 다시 올 일이어도 조사형 one-off로 간다(대상을 고치지 않고 방법이 정해져 있기 때문). 같은 one-off가 정해진 횟수(공란)를 넘으면 Track B 집계가 세어 초안 신설이 의무가 된다.</figcaption>
 </figure>
 
-<h2>6. 작업 모양 일곱</h2>
+<h2>9. 작업 모양 일곱</h2>
 <div class="cards">
   <div class="card"><h3>수정형</h3><div class="id">AR-change</div><dl><dt>모양</dt><dd>시작점 → 허용 범위 안에서 고침 → oracle → 회귀</dd><dt>대상을 고치나</dt><dd><span class="tag m">task branch</span></dd><dt>끝</dt><dd>MR 후보 + 새 세션의 의도 대조</dd><dt>대표</dt><dd>버그 수정 · lint 정리 · 자동 수정 · 구현 link</dd></dl></div>
   <div class="card"><h3>탐색형</h3><div class="id">AR-explore</div><dl><dt>모양</dt><dd>기준 수치 → 격리된 후보 여럿 → 비용 사다리 → policy가 승자</dd><dt>대상을 고치나</dt><dd><span class="tag m">task branch</span></dd><dt>끝</dt><dd>후보 비교표 · 미완도 결과</dd><dt>대표</dt><dd>timing 개선 · coverage 보강</dd></dl></div>
-  <div class="card"><h3>판정형</h3><div class="id">AR-assess</div><dl><dt>모양</dt><dd>입력 정합성 → 이전 run·범위 → 도구 층 → 지적 쌓기 → 수정 제안(scratch) → policy</dd><dt>대상을 고치나</dt><dd><span class="tag n">고치지 않음</span></dd><dt>끝</dt><dd>GATE · run 레포트 · ledger 변경분</dd><dt>대표</dt><dd>RTL 코드 리뷰 · 검증 상태 · 성능·면적</dd></dl></div>
-  <div class="card"><h3>조사형</h3><div class="id">AR-diagnose (골격)</div><dl><dt>모양</dt><dd>같은 입력으로 재현 → 가설 표 → 좁히기 → before/after</dd><dt>대상을 고치나</dt><dd><span class="tag n">고치지 않음</span></dd><dt>끝</dt><dd>원인 보고 + 수정 방향(수정도 요청했으면 후속 요청)</dd><dt>대표</dt><dd>regression 원인 · 버그의 원인 phase</dd></dl></div>
+  <div class="card"><h3>판정형</h3><div class="id">AR-assess</div><dl><dt>모양</dt><dd>입력 정합성 → 이전 run·범위 → 도구 층 → 지적 쌓기 → 수정 제안(scratch) → policy</dd><dt>대상을 고치나</dt><dd><span class="tag n">고치지 않음</span></dd><dt>끝</dt><dd>GATE · 사람 리뷰 진입 · 억제 기록 상태 · run 레포트 · ledger 변경분</dd><dt>대표</dt><dd>RTL 코드 리뷰 · 검증 상태 · 성능·면적 · 블록 sign-off 판정</dd></dl></div>
+  <div class="card"><h3>조사형</h3><div class="id">AR-diagnose</div><dl><dt>모양</dt><dd>층 판별 → 같은 입력으로 재현 → 가설 표 → 좁히기(싼 것부터) → 원인마다 before/after</dd><dt>대상을 고치나</dt><dd><span class="tag n">고치지 않음</span></dd><dt>끝</dt><dd>원인 보고(층 표 · 가설 표) + 수정 방향. 불안정이면 안정화 backlog</dd><dt>대표</dt><dd>regression 원인 · 버그 · timing의 원인 phase · 고객 이슈 진단(+ 고객 트랙)</dd></dl></div>
   <div class="card"><h3>작성형</h3><div class="id">AR-author</div><dl><dt>모양</dt><dd>출처 고정 → 주장마다 인용 → 인용 정합 script</dd><dt>대상을 고치나</dt><dd><span class="tag n">초안만</span></dd><dt>끝</dt><dd>초안 · 인용표 · 확인되지 않은 주장</dd><dt>대표</dt><dd>지식 답변 · 고객 답변 초안</dd></dl></div>
   <div class="card"><h3>결정 자료형</h3><div class="id">AR-decide</div><dl><dt>모양</dt><dd>현재 상태 고정 → 선택지(현상 유지 포함) × 영향 면 → 구조 검사</dd><dt>대상을 고치나</dt><dd><span class="tag n">고치지 않음</span></dd><dt>끝</dt><dd>결정 자료 한 장 · 정할 사람 · 결정 뒤 후속</dd><dt>대표</dt><dd>spec 변경 결정 · 개선 plan(E)</dd></dl></div>
-  <div class="card"><h3>실험형</h3><div class="id">AR-campaign</div><dl><dt>모양</dt><dd>조건 고정 → 칸 계획 → 측정 → 유도·계산 → 출처 완결 → 이상치</dd><dt>대상을 고치나</dt><dd><span class="tag n">고치지 않음</span></dd><dt>끝</dt><dd>matrix 변경분 · 값마다 실측·유도·계산</dd><dt>대표</dt><dd>합성 조건 matrix · sub-top 합성(D)</dd></dl></div>
+  <div class="card"><h3>실험형</h3><div class="id">AR-campaign</div><dl><dt>모양</dt><dd>조건 고정(숨은 축 포함) → 칸 계획 → 측정 → 유도·계산 → 출처 완결 → 이상치</dd><dt>대상을 고치나</dt><dd><span class="tag n">고치지 않음</span></dd><dt>끝</dt><dd>matrix 변경분 · 값마다 실측·유도·계산</dd><dt>대표</dt><dd>합성 조건 matrix · sub-top 합성(D)</dd></dl></div>
 </div>
-<p class="note">모양에 posture의 상한은 없다. 판단형 일의 경계는 행동의 상한(판정형은 대상 수정 행동이 없다)과 사람 결정(결정 자료형은 결정이 사람의 자리)으로 표현한다. 숫자 기준은 전부 공란이다.</p>
+<p class="note">모양에 posture의 상한은 없다. 판단형 일의 경계는 행동의 상한(판정형 · 조사형은 대상 수정 행동이 없다)과 사람 결정(결정 자료형은 결정이 사람의 자리)으로 표현한다. posture 상한은 트랙(고객 트랙 = draft)과 권한 범위가 건다.</p>
+
+<h2>10. 특화 workflow 열일곱</h2>
+<table>
+<tr><th style="width:27%">파일</th><th style="width:15%">모양</th><th>업무</th><th style="width:13%">status</th></tr>
+<tr><td><code>WF-bugfix</code></td><td>수정형 + 조사형 phase</td><td>기능 버그 수정(고객 발 · 내부 발)</td><td>adopted</td></tr>
+<tr><td><code>WF-lint</code></td><td>수정형</td><td>lint · CDC 경고 정리</td><td>adopted</td></tr>
+<tr><td><code>WF-review-fix</code></td><td>수정형</td><td>판정형이 낸 수정 제안의 적용(자동 수정)</td><td>candidate</td></tr>
+<tr><td><code>WF-rtl-impl</code></td><td>수정형</td><td>feature RTL 구현(사슬의 구현 link)</td><td>adopted</td></tr>
+<tr><td><code>WF-timing</code></td><td>탐색형 + 조사형 phase</td><td>timing · area 개선(목표 지표 mode)</td><td>adopted</td></tr>
+<tr><td><code>WF-coverage</code></td><td>탐색형</td><td>test · coverage 보강</td><td>adopted</td></tr>
+<tr><td><code>WF-rtl-code-review</code></td><td>판정형</td><td>RTL 코드 리뷰(A)</td><td>candidate</td></tr>
+<tr><td><code>WF-rtl-verif-review</code></td><td>판정형</td><td>검증 상태 리뷰(B, closure 판정 선택)</td><td>candidate</td></tr>
+<tr><td><code>WF-rtl-perf-area-review</code></td><td>판정형</td><td>성능 · 면적 적절성(C, 세 모드)</td><td>candidate</td></tr>
+<tr><td><code>WF-block-signoff</code></td><td>판정형</td><td>블록 sign-off 판정(milestone에서 갈래별 accept된 결과를 모아 준비 여부와 미결 목록, sign-off는 사람)</td><td>candidate</td></tr>
+<tr><td><code>WF-regr-diagnose</code></td><td>조사형</td><td>regression 실패 원인 찾기(실패 종류 · 층 판별 → 재현 → 가설 → 좁히기 → 원인마다 before/after)</td><td>draft</td></tr>
+<tr><td><code>WF-answer</code></td><td>작성형</td><td>설계 지식 질문에 근거를 붙여 답</td><td>adopted</td></tr>
+<tr><td><code>WF-answer-draft</code></td><td>작성형</td><td>고객 질문 답변 초안</td><td>adopted</td></tr>
+<tr><td><code>WF-decision-material</code></td><td>결정 자료형</td><td>spec 변경 결정 자료</td><td>adopted</td></tr>
+<tr><td><code>WF-improvement-plan</code></td><td>결정 자료형</td><td>판단과 개선 plan(E)</td><td>candidate</td></tr>
+<tr><td><code>WF-syn-matrix</code></td><td>실험형</td><td>제품 조건 합성 matrix(고객 레포트용)</td><td>candidate</td></tr>
+<tr><td><code>WF-syn-subtop-fmax</code></td><td>실험형</td><td>sub-top 합성과 최대 주파수(D, 지정 corner · mode 전부 met 한 줄)</td><td>candidate</td></tr>
+</table>
+<p class="note">status: draft(fork) → candidate(정본 회의 안건) → adopted(정본). 조립 둘(pipeline <code>PL-rtl-review</code>, 사슬 <code>CH-feature</code>)과 트랙 하나(<code>TR-customer</code>)는 이 목록 밖이다. checkpoint는 회사의 실제 ticket을 겪으며 채워지는 첫 판이다.</p>
+
+<h2>11. 선택 도구: 있으면 쓰고, 없으면 "보지 못한 것"</h2>
+<table>
+<tr><th style="width:26%">선택 도구 일곱</th><th>없을 때</th></tr>
+<tr><td>RDC · X-propagation · DFT rule · constraint 검사 · formal 도달성 · RTL ↔ netlist 등가성 · power 추정</td><td>evaluator가 돌지 않고 "도구 없음"인 결과 파일을 남긴다. 그 확인은 결과의 <b>보지 못한 것: 도구 없음</b>에 적히고, 확인 목록 항목은 "도구로 확인"으로 세지 않는다(AI가 코드로만 본 것은 의견 등급 지적). <b>통과로도 실패로도 바꾸지 않는다.</b></td></tr>
+<tr><td>GATE에서</td><td>작업은 돌았으므로 "판정 불가 0" 항에 세지 않고, GATE 줄에 <b>보지 못한 확인 n건</b>을 함께 적는다. 팀 리더가 GATE 필수로 올린 확인은 도구가 없으면 판정 불가로 센다(PASS 불가)</td></tr>
+<tr><td>sign-off 성격의 판정에서</td><td>coverage closure · 블록 sign-off 판정은 보지 못한 확인이 하나라도 있으면 충족이 될 수 없다(판정 불가 + 풀 방법)</td></tr>
+<tr><td>소관이 회사마다 다른 넷</td><td>RDC sign-off 팀 · DFT 경계 · constraint 소유 · netlist 등가성은 회사에서 정하기 전까지 지적과 알림으로만 내고, "clean" · "sign-off"를 선언하지 않으며, 다른 팀의 산출물을 고치지 않는다</td></tr>
+</table>
+<p class="note">숫자 기준은 전부 공란이고 결정 주체가 정한다. 예시는 가상이다.</p>
 </main>
 </body>
 </html>

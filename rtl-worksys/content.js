@@ -8,7 +8,7 @@ window.WS = {
     title: "RTL WorkSys",
     subtitle: "AI-native RTL 업무 시스템 · 전체 뷰어",
     updated: "2026-10-03",
-    version: "0.13",
+    version: "0.14",
     tagline: "ticket이 생기면 AI가 먼저 일을 시작한다. 사람은 검수와 결정에 선다."
   },
 
@@ -36,7 +36,21 @@ window.WS = {
       "사람을 빼는 시스템이 아니라 사람의 자리를 분류 · 배정 · 진행 관리에서 검수 · 결정으로 옮기는 시스템이다.",
       "issue tracker · Git · CI를 대체하지 않는다. 그 위에서 label 하나, comment 하나, task 폴더 하나로 흔적을 남긴다."
     ],
-    blank: "이 설계에 숫자 기준은 없다. 임계값 · 횟수 · 기간은 공란으로 두고, 누가 어떻게 정하는지만 적는다."
+    blank: "이 설계에 숫자 기준은 없다. 임계값 · 횟수 · 기간은 공란으로 두고, 누가 어떻게 정하는지만 적는다.",
+    tuning: {
+      title: "기본값은 출발점이다",
+      lead: "이 시스템의 규칙 가운데 상당수는 회사 실물을 보지 않고 정한 출발점(기본값)이다. 가상 사례로 맞춰 보았지만 실제 ticket · 도구 · 팀 경계에서 그대로 맞는다는 보장은 없다. 실무를 하면서 확인하고, 정하고, 고친다. 고치는 것은 실패가 아니라 이 시스템이 의도한 운영 방식이다.",
+      keep: ["위험 신호는 즉시 멈춘다", "고객에게 가는 글은 사람이 보낸다", "main MR은 시스템이 만들지 않는다", "보지 못한 것을 통과로 세지 않는다", "학습 기록(Track B) 없이 일이 끝나지 않는다"],
+      adjust: [
+        ["업무 가족 열둘 · 카테고리 표", "과거 ticket 조사 결과, \"기타\"의 크기, 분류 교정이 몰리는 곳", "조사자 · 팀 리더"],
+        ["도구 신호의 원인 찾기는 사람이 요청할 때", "요청까지 걸린 시간, 요청 없이 되풀이된 실패 묶음", "팀 리더"],
+        ["posture는 draft부터", "검수 판정의 \"posture 부족\" 반복, reject 원인의 변화", "팀 리더 · 검수자"],
+        ["억제 기록은 코드가 바뀌면 효과 정지", "RTL 수정 직후 GATE FAIL과 재승인 부담", "팀 리더 · 검증 리더"],
+        ["timing 위반의 층 판별 순서", "어느 층이 실제 원인이었나(Track B)", "설계 리더"],
+        ["모델 등급의 역할별 기본값", "등급별 호출 수 · escalation 빈도 · 결함이 몰리는 역할", "시스템 관리자"]
+      ],
+      how: "조정은 근거(검수 판정 · Track B 집계 · shadow 기록)와 함께 한다. 개인 · 팀 fork에서 먼저 바꿔 쓰고, 효과가 보이면 정기 정본 회의에 \"기본값 조정\" 안건으로 올린다. 방향이 엄격하면 즉시, 중립이면 이의 기간 뒤, 완화면 회의에서 정한다. 처음의 기본값은 대부분 \"덜 자율 · 더 많이 묻기\" 쪽이고, 넓히는 것은 실적이 쌓인 뒤다."
+    }
   },
 
   /* ───────────── 전체 지도 (atlas) ─────────────
@@ -58,18 +72,22 @@ window.WS = {
       ["지식", "근거(원천 위치와 버전)가 붙은 제품 지식"]
     ],
     rows: [
-      { name: "core 공통", go: ["sys", "core"], cells: [["●", "아홉 단계 · 단계마다 파일"], 0, ["●", "다섯 조건(위험 → 권한 → 정보 → 불확실 → 작업량)"], 0, 0, 0, ["●", "결과 패키지 · 검수"], ["●", "사람이 반영"], ["●", "learn 단계"], 0] },
+      { name: "core 공통", go: ["sys", "core"], cells: [["●", "아홉 단계 · 단계마다 파일"], 0, ["●", "다섯 조건(위험 → 권한 → 정보 → 불확실 → 작업량) · 위험 목록이 자라는 법"], 0, 0, 0, ["●", "결과 패키지 · 검수"], ["●", "사람이 반영"], ["●", "learn 단계 · 정기 정본 회의"], 0] },
       { name: "intake", go: ["sys", "intake"], cells: [["●", "입구 · 입구마다 adapter"], ["●", "분류 축 · 규칙"], ["●", "판정 순서"], 0, 0, 0, 0, 0, ["○", "분류의 기록"], ["○", "module 목록"]] },
-      { name: "workflow", go: ["sys", "workflow"], cells: [0, 0, 0, ["●", "posture · allowlist"], ["●", "checkpoint"], ["●", "evaluator · 근거 자격(판정의 형식)"], ["●", "결과 패키지의 절"], 0, ["●", "LN 자리 · dry replay"], ["○", "설계 지식 질문"]] },
+      { name: "workflow", go: ["sys", "workflow"], cells: [0, 0, 0, ["●", "posture · allowlist"], ["●", "checkpoint · 모델 등급"], ["●", "evaluator · 근거 자격(판정의 형식)"], ["●", "결과 패키지의 절"], 0, ["●", "LN 자리 · dry replay"], ["○", "설계 지식 질문"]] },
       { name: "업무 지도", go: ["sys", "workmap"], cells: [["●", "출처 축 · 고객 입구"], ["●", "업무 가족 열둘 · 층 축"], 0, 0, 0, 0, 0, 0, ["●", "두 트랙(Track B 의무) · 기존 자산 이식"], 0] },
       { name: "chain", go: ["sys", "chain"], cells: [["○", "첫 link만 연다"], 0, 0, ["○", "link마다"], ["○", "link = task"], ["●", "spec · C-model 층"], ["○", "link마다"], ["●", "사람 결정 넷"], 0, 0] },
+      { name: "timing-area", go: ["sys", "timing"], cells: [["○", "정기 합성 · 수치 feed"], ["○", "ask"], 0, ["○", "workflow의 plan"], ["●", "층 다섯 · 억제 기록 운용"], ["●", "같은 조건 비교(숨은 축)"], ["○", "QoR 칸 · sign-off 재료"], ["●", "사람(constraint · 구조 · ECO)"], ["●", "층 분포 · path 계열"], ["○", "KB"]] },
+      { name: "coverage", go: ["sys", "coverage"], cells: [["○", "정기 run · 수치 feed"], ["○", "ask"], 0, ["○", "workflow의 plan"], ["●", "hole 층 여섯 · exclusion 운용"], ["●", "채움 ≠ 확인 · 분모 바뀜 표시"], ["○", "closure 판정 자료"], ["●", "사람(closure · exclusion)"], ["●", "hole 층 · 되돌린 exclusion"], ["○", "KB"]] },
       { name: "diagnose", go: ["sys", "diagnose"], cells: [0, ["○", "ask = diagnose"], 0, 0, ["●", "층 판별 · 좁히기"], ["●", "재현 · before/after"], ["○", "원인 보고"], 0, ["●", "질문 · test 묶음의 revision"], ["○", "bug 패턴"]] },
       { name: "고객 트랙", go: ["sys", "workmap"], cells: [["●", "고객 입구"], ["○", "같은 분류 축"], ["○", "같은 gate"], 0, ["○", "diagnose를 쓴다"], 0, ["●", "회신 승인 · 고객 확인"], ["●", "회신"], ["○", "Track B"], ["○", "FAQ · errata"]] },
       { name: "KB", go: ["sys", "kb"], cells: [["○", "원천 사건(commit · ticket · 릴리즈 · 납품 …)"], 0, 0, 0, ["●", "KB agent의 작업"], ["●", "lint · 정답 표"], ["●", "MR 판정"], 0, ["●", "gap → 일감"], ["●", "지식의 정본"]] }
     ],
     shared: [
       ["입구", "core는 단계와 파일을, intake는 입구별 adapter를, 업무 지도는 출처 축과 고객 입구를 정한다. 고객 입구는 intake의 고객 입구 adapter가 받는다(늘 밖, 고객 별칭만, 회신은 사람 승인)."],
-      ["oracle", "workflow는 판정의 형식(evaluator 공통 JSON · 근거 자격)을, 갈래는 무엇이 oracle인지(chain = spec · C-model 층, diagnose = 재현 · before/after, KB = lint · 정답 표)를 정한다."],
+      ["실행", "workflow는 checkpoint의 형식과 모델 등급을, 갈래는 그 안에서 무엇을 하는지(diagnose = 층 판별 · 좁히기, timing-area = 하위 층 다섯과 억제 기록, coverage = hole 층과 exclusion)를 정한다."],
+      ["oracle", "workflow는 판정의 형식(evaluator 공통 JSON · 근거 자격)을, 갈래는 무엇이 oracle인지(chain = spec · C-model 층, diagnose = 재현 · before/after, timing-area = 숨은 축까지 같은 조건의 비교, coverage = 채움과 확인의 구분, KB = lint · 정답 표)를 정한다."],
+      ["반영", "core는 \"반영은 사람\"을, 갈래는 그 사람이 무엇을 정하는지(chain = 결정 넷, timing-area = constraint · 구조 · ECO, coverage = closure · exclusion)를 정한다."],
       ["학습", "core는 learn 단계를, workflow는 LN 자리와 dry replay를, 업무 지도는 \"Track B가 늘 붙는다\"는 의무를, diagnose는 질문 · test 묶음의 revision을 정한다. 하나의 Track B 기록 형식으로 모인다."]
     ],
     kbNote: "KB는 거의 모든 열에서 ○ 또는 ●다. 지식은 KB만 정본이다. 다른 주제는 묻기만 하고 KB에 직접 쓰지 않는다(MR로 제안한다).",
@@ -78,13 +96,13 @@ window.WS = {
         agent: ["work-judge", "understander", "categorizer", "gate-checker(판단 부분)", "reply-writer"],
         tool: ["intake-controller", "adapter(입구마다)", "raw-scanner", "dedup-linker", "router", "원장(append-only)"],
         skill: ["사람이 시스템을 직접 부르는 command 입구(사람 수행 command 포함)"],
-        doc: ["설계서", "명세 묶음: README · architecture", "계약 셋(발생 봉투 · 공통 레코드 · 원장 한 줄)", "부품 명세 열", "규칙 YAML 아홉(asks · dedup · entrances · event_actions · narrowing_questions · ownership · priority · risk_patterns · work_decision)", "시험 사례 114건(고객 7 포함) · 평가"],
+        doc: ["설계서", "명세 묶음: README · architecture", "계약 셋(발생 봉투 · 공통 레코드 · 원장 한 줄)", "부품 명세 열", "규칙 YAML 아홉(asks · dedup · entrances · event_actions · narrowing_questions · ownership · priority · risk_patterns · work_decision)", "시험 사례 119건(고객 7 포함) · 평가"],
         quality: "hard-zero 셋: 위험 놓침 0 · 잘못 붙이기 0 · 밖으로 새기 0" },
       { name: "workflow", go: ["sys", "workflow"], goal: "일 하나를 checkpoint 단위로 끝까지 진행하고, 판정은 도구가 하며, 결과는 한 장으로 검수받는다.",
         agent: ["planner", "checkpoint runner의 worker", "result writer(서술)", "hitl manager(질문 · 답 해석)", "learner(제안)", "판정형의 관점별 sub-reviewer"],
         tool: ["workflow-controller", "resolver(+ registry)", "policy engine", "evaluator adapter", "record writer", "dry replay runner", "행동 guard(권한 규칙 + hook)"],
         skill: ["특화 workflow마다 하나. workflow 파일에서 생성하고 손으로 고치지 않는다"],
-        doc: ["설계서", "명세 묶음: 계약 열하나 · 부품 명세 열하나", "WF-common · 작업 모양 일곱 · 트랙 덧붙임 하나(고객) · 특화 열일곱(블록 sign-off 포함) · 조립 둘", "evaluators(선택 도구 일곱 포함) · policies · multi-test 묶음", "시험(해석 36 · 한 바퀴 42 · replay 6) · 평가 · 포장", "설명 그림 다섯"],
+        doc: ["설계서", "명세 묶음: 계약 열하나 · 부품 명세 열하나", "WF-common · 작업 모양 일곱 · 트랙 덧붙임 하나(고객) · 특화 열일곱(블록 sign-off 포함) · 조립 둘", "evaluators(선택 도구 일곱 포함) · policies · multi-test 묶음 · 모델 등급", "시험(해석 36 · 한 바퀴 46 · replay 6) · 평가 · 포장", "설명 그림 다섯"],
         quality: "hard-zero 셋, 리뷰어는 고치지 않는다, 한 task = 한 결과 패키지 = 한 번의 검수" },
       { name: "chain", go: ["sys", "chain"], goal: "아키텍처부터 검증까지 이어지는 긴 일을 link(= task) 사슬로 나누고, 앞 link가 뒤 link의 oracle을 만든다.",
         agent: [], agentNote: "따로 없다. link마다 workflow의 agent를 쓴다.",
@@ -92,6 +110,18 @@ window.WS = {
         skill: ["link의 workflow skill"],
         doc: ["정본: link 표 · C-model 세 층 · 원칙 다섯 · 사례 · 기본값", "조립 CH-feature"],
         quality: "사람의 결정 넷: 착수 · 아키텍처 선택 · interface freeze · sign-off" },
+      { name: "timing-area", go: ["sys", "timing"], goal: "timing · area 일을 사실을 내는 일과 고치는 일로 나누고, 위반은 층부터 가르며, 같은 조건(숨은 축 포함)끼리만 비교한다.",
+        agent: [], agentNote: "따로 없다. timing · sub-top fmax · 합성 matrix · 성능 · 면적 리뷰 workflow의 agent를 쓴다.",
+        tool: ["합성 · STA evaluator", "선택 도구: constraint 검사 · netlist 등가성 · power 추정(없으면 보지 못한 것)"],
+        skill: ["그 workflow들의 skill"],
+        doc: ["정본: 일의 종류와 workflow 대응 · 층 가르기 · 억제 기록 운용 · 추세와 milestone · 보지 못한 것 · 사람이 정하는 자리 · Track B · 기본값"],
+        quality: "사람: constraint 변경 · 예외 승인 · 구조 변경 · 목표 변경 · ECO · sign-off" },
+      { name: "coverage", go: ["sys", "coverage"], goal: "hole을 층부터 가르고, 채운 것과 확인한 것을 구분하며, closure는 AI가 판정 자료를 만들고 사람이 판정한다.",
+        agent: [], agentNote: "따로 없다. coverage 보강 · 검증 상태 리뷰 · 블록 sign-off 판정 workflow의 agent를 쓴다.",
+        tool: ["coverage 추출 evaluator", "선택 도구: formal 도달성(없으면 보지 못한 것)"],
+        skill: ["그 workflow들의 skill"],
+        doc: ["정본: 일의 종류와 workflow 대응 · hole 층 · exclusion 운용 · closure와 sign-off · 추세 · mutation 자리(보류) · Track B · 기본값"],
+        quality: "사람: exclusion 승인 · covergroup 축소 승인 · closure 판정 · sign-off" },
       { name: "diagnose", go: ["sys", "diagnose"], goal: "원인을 층부터 가르고, 재현 → 가설 → 좁히기 → before/after로 확인한다. 대상을 고치지 않는다.",
         agent: ["조사형 workflow의 worker(가설 생성 · 좁히기)", "고객 트랙의 질문 작성"],
         tool: ["bisect", "seed 변주", "module trace 대조", "자동 multi-test 묶음 실행", "evaluator"],
@@ -108,8 +138,8 @@ window.WS = {
         quality: "agent는 MR로 제안하고 사람이 reviewed로 올린다. core와 별도 묶음으로 가져간다." }
     ],
     pending: [
-      ["code-review · timing-area · coverage", "아직 갈래 정본이 없다. workflow 묶음 안에 특화 workflow 첫 판이 있다(RTL review 다섯 · timing(timing · area) · coverage · lint · 합성 matrix). 갈래 고유의 내용은 현장 절차와 대조하며 채운다."],
-      ["evolve", "별도 갈래가 아니다. learn 단계와 정기(schedule) 입구, Track B가 맡는다."]
+      ["code-review", "workflow 묶음 안에 특화 workflow(RTL review 다섯 · lint)와 조립 RTL review pipeline이 있고 현장 절차와 대조를 마쳤다. 갈래 고유의 문서는 아직 없고, 회사의 review 절차를 겪으며 채운다."],
+      ["evolve", "별도 갈래가 아니다. learn 단계와 정기(schedule) 입구, Track B, 정기 정본 회의가 맡는다."]
     ],
     lanes: ["사람", "intake", "workflow", "도구", "KB"],
     flows: [
@@ -131,7 +161,7 @@ window.WS = {
           ["", "고객 입구 adapter → 출처 = 고객, 보는 사람 = 밖", "", "", ""],
           ["", "categorizer \"기능 불일치\"(업무 가족 채움), 층 미정 → gate: 범위 좁히기 질문 묶음(릴리즈 · 설정 · 입력 · 환경 · 빈도). 받은 자료에 있는 것은 묻지 않고, 멈추는 것은 workflow 필수 입력이 빠졌을 때뿐", "", "", "알려진 bug · errata 대조(Librarian)"],
           ["질문 초안을 승인해 보낸다", "", "", "", ""],
-          ["", "답이 오면 다시 읽는다 → 카테고리 workflow + 고객 트랙 덧붙임으로", "자동 multi-test 묶음: 고객 릴리즈로 regression · 고객 설정으로 같은 입력 · latency 흉내", "regression · evaluator", ""],
+          ["", "답이 오면 다시 읽는다 → 카테고리의 workflow(원인 찾기 phase만)로 보내고, 고객 트랙 덧붙임(고객 경계 · posture 상한 draft · 자동 multi-test · 회신 초안)이 얹힌다", "자동 multi-test 묶음: 고객 릴리즈로 regression · 고객 설정으로 같은 입력 · latency 흉내", "regression · evaluator", ""],
           ["", "", "층 = 진짜 bug → 결과 패키지에 내부 이슈 후속을 제안, 검수자가 고른 것만 내부 이슈로 열려 link(→ 내부 길의 5~8과 같은 길). 고객 레코드에서는 고치지 않는다", "", ""],
           ["회신 초안(원인 · 회피책 · 고쳐질 릴리즈)을 승인해 보낸다", "", "result writer가 회신 초안", "", ""],
           ["고객 확인 → 종료 선언", "", "learner: Track B(어느 질문 · test가 층을 갈랐나)", "", "errata 후보 · FAQ 후보 MR"]
@@ -160,13 +190,13 @@ window.WS = {
     gaps: [
       ["core와 KB의 접점(intake의 module 목록 = KB view, workflow의 설계 지식 질문 = kb-ask)이 경계 표 수준이다", "접점 대응표"],
       ["합성 matrix · review ledger와 KB의 연결 필드가 없다", "필드 대응표"],
-      ["실행 중 worker의 위험 고지로 고객 이슈의 손잡이 ticket을 만드는 intake 사건이 아직 없다(workflow 쪽 표지는 꺼 둠)", "intake 후속"],
-      ["test 검증력 측정(mutation)은 보류다. 블록 sign-off 기준표 · 억제 기록의 기계가 읽는 형식은 회사 checklist와 도구 형식을 본 뒤 정한다", "회사 확인 · 업그레이드 원장"]
+      ["code-review 갈래의 고유 문서가 없다(특화 workflow와 조립은 있다)", "회사 review 절차를 겪은 뒤"],
+      ["test 검증력 측정(mutation)은 보류다(들어오면 붙을 자리는 coverage 갈래에 적어 둠). 블록 sign-off 기준표 · 억제 기록의 기계가 읽는 형식은 회사 checklist와 도구 형식을 본 뒤 정한다", "회사 확인 · 업그레이드 원장"]
     ],
     state: [
       ["g", "정리", "이 지도에는 새 결정이 없다. 칸마다의 정본과 상태는 그 주제 카드에 있다."],
-      ["g", "확정", "core 공통 규약 · intake(입구 · 분류 · gate · 고객 입구) · chain(link 사슬 · L3m · L5 블라인드) · 업무 지도의 기존 자산 이식 먼저 · 두 트랙 · 고객 트랙 재개 · KB(북극성 · 원칙 · agent system · 별도 묶음)"],
-      ["y", "가정 · 교정 대기", "workflow 명세 묶음 · intake 명세의 위임 결정(동기화 포함) · diagnose(층 열 표 · 묶음 · 시작점) · 업무 지도의 분류 축 다섯 · 업무 가족 열둘 · lifecycle 여덟 단계 · chain의 encoder/decoder oracle 구분"],
+      ["g", "확정 · 실무에서 조정", "core 공통 규약 · intake · workflow 명세(위임 결정 포함) · chain · diagnose 층 열 · 업무 지도(분류 축 · 업무 가족 열둘 · lifecycle 여덟 단계 · 두 트랙) · 겹침 지도 · KB. 확정은 합리적 출발점이고 실무에서 조정한다"],
+      ["y", "가정(위임) · 실무에서 조정", "실행 중 위험 고지 · 블록 sign-off의 자리 · 위험 감지가 자라는 법 · 정기 정본 회의 · 모델 등급 · timing-area · coverage 갈래"],
       ["n", "확인 대기", "KB의 고객 표기 해석 · 계약의 상업 조건 · 기존 문서화 AI와의 분담"],
       ["n", "반영 대기", "아래 '이 지도에서 보이는 빈 곳' 넷"]
     ]
@@ -175,10 +205,10 @@ window.WS = {
   /* ───────────── ② 시스템: 주제마다 같은 틀 ───────────── */
   sys: {
     lead: "core 하나 위에 갈래가 얹히고, 옆에서 KB가 지식의 정본을 맡는다. 주제마다 같은 틀(무엇 · 한 장 · 핵심 규칙 · 사람의 자리 · 품질 기준 · 상태 · 명세 원문)로 본다. 주제 사이의 겹침은 전체 지도에서 본다.",
-    order: ["core", "intake", "workflow", "chain", "diagnose", "workmap", "kb"],
+    order: ["core", "intake", "workflow", "chain", "diagnose", "timing", "coverage", "workmap", "kb"],
     next: [
-      ["timing-area", "탐색형 갈래. oracle = synth + LEC. workflow 라이브러리의 timing workflow가 목표 지표 mode(timing · area)로 첫 판을 덮는다."],
-      ["coverage", "탐색형 갈래. oracle = coverage + sim. coverage workflow 첫 판이 있고, 다른 갈래가 남긴 test 보강 backlog를 소비한다."]
+      ["code-review", "판정형 갈래. 특화 workflow(RTL review 다섯 · lint)와 조립 RTL review pipeline이 있고 현장 절차와 대조를 마쳤다. 갈래 고유의 문서는 회사의 review 절차를 겪은 뒤에 쓴다."],
+      ["evolve", "별도 갈래가 아니다. learn 단계와 정기 입구, Track B, 정기 정본 회의가 맡는다."]
     ],
     topics: {
       core: {
@@ -197,13 +227,34 @@ window.WS = {
           "학습은 생략할 수 없다. 자동 기록과 검수 판정을 합쳐 제안 표를 만들고, 개인 fork에는 바로, 정본에는 정기 회의로 반영한다.",
           "숫자 기준은 공란이다. 목적과 결정 주체(IT팀 · 시스템 관리자 · 팀 리더)만 적는다."
         ],
-        human: ["반드시: 검수 · 반영", "조건부: gate hold · plan 때의 질문 · 사람 결정 checkpoint · 실행 중 HITL 아홉", "없음: intake · triage · result · learn은 사람 없이 끝난다"],
+        boxes: [
+          { id: "risk", title: "위험 감지가 자라는 법", tag: ["가정(위임) · 실무에서 조정", "y"],
+            lead: "위험 목록은 엄격하게 하는 쪽과 느슨하게 하는 쪽을 다르게 다룬다. 잘못된 엄격화의 비용은 사람의 몇 분이고, 잘못된 완화의 비용은 회사의 위험이다.",
+            rows: [
+              ["엄격화", "신호를 더하거나 pattern을 넓히는 변경. 정본 승인자 또는 IT팀(보안) 한 명이 승인하면 즉시 반영하고, 회의에는 사후 보고한다."],
+              ["완화", "allowlist를 더하거나 pattern을 좁히는 변경. pattern 시험과 과거 원장 replay를 붙여 정기 회의에서만 정한다."],
+              ["오탐의 근거", "사람이 위험 label을 떼며 \"위험이 아니었다\"고 적은 것과 검수 판정뿐이다. 같은 묶음에 놓친 기록이 하나라도 있으면 완화 후보가 아니다."],
+              ["놓친 위험", "그 문장을 반드시 걸려야 하는 시험 문장으로 먼저 더하고, 지금 열린 일(intake 중 · 실행 중)을 다시 검사한다. 정본 갱신이 진행 중인 일에 들어가는 유일한 예외다."],
+              ["fork", "개인 · 팀 fork는 위험 신호를 더할 수만 있고, 빼거나 allowlist를 넓히지 못한다."]
+            ] },
+          { id: "meeting", title: "정기 정본 회의", tag: ["가정(위임) · 실무에서 조정", "y"],
+            lead: "정본을 바꾸는 통로다. 안건은 파일 하나씩 대기열에 쌓이고, 방향에 따라 세 길로 간다. 승인이 병목이 되지 않게 하면서, 덜 묻는 쪽의 변경만 사람이 모여서 본다.",
+            rows: [
+              ["안건의 출처 일곱", "fork 변경 · Track B 집계 · 검수 집계 · 위험 목록 · 권한 범위 · 기본값 조정 · 사람의 제안"],
+              ["세 길", "엄격화 = 즉시 반영(사후 보고) / 중립 · 저위험 개선 = 이의 기간 동안 이의가 없으면 채택 / 완화 · 확장 · 신설 · 삭제 = 회의 결정. 방향이 애매하면 회의로 간다."],
+              ["회의 자료", "agent가 미리 만든다. 검증 자료(dry replay · pattern 시험 · 원장 replay · 등급 비교)가 없는 안건은 올리지 않는다."],
+              ["제안자", "자기 안건을 승인하지 않는다."],
+              ["강등 두 단계", "후보는 즉시 \"낡음\" 표시, 다음 회의까지 쓰임이나 이의가 없으면 은퇴."],
+              ["공란", "주기 · 이의 기간 · 정족수(팀 리더가 정한다)"]
+            ] }
+        ],
+        human: ["반드시: 검수 · 반영", "조건부: gate hold · plan 때의 질문 · 사람 결정 checkpoint · 실행 중 HITL 아홉", "없음: intake · triage · result · learn은 사람 없이 끝난다", "정본을 바꾸는 것: 정기 정본 회의(엄격화는 승인자 한 명으로 즉시)"],
         quality: ["모든 일은 결과 패키지 한 장과 검수 판정 하나로 끝난다", "검수 판정이 곧 학습 재료다(accept · with-fix · reject와 '어디가 문제였나')"],
-        state: [["g", "확정", "아홉 단계 · gate 다섯 조건 · posture 넷 · 사람의 자리 둘 · 결과 패키지 · 학습"], ["y", "교정 대기", "intake · workflow 명세에서 위임으로 정한 결정(intake 첫 판 51 + 이후 63 · workflow 첫 판 75 + 이후 79)이 core 설계서에 이식되어 있다"]],
+        state: [["g", "확정", "아홉 단계 · gate 다섯 조건 · posture 넷 · 사람의 자리 둘 · 결과 패키지 · 학습"], ["g", "확정 · 실무에서 조정", "intake · workflow 명세에서 위임으로 정한 결정이 core 설계서에 이식되어 있고, 모두 확정되었다. 확정은 합리적 출발점이라는 뜻이고 실무에서 조정한다"], ["y", "가정(위임) · 실무에서 조정", "위험 감지가 자라는 법 · 정기 정본 회의 · 모델 등급과 세션 분리"]],
         spec: [["intake 명세", "bun", "ia/overview"], ["workflow 명세", "bun", "wa/overview"]]
       },
       intake: {
-        name: "intake", role: "core 입구", badge: ["확정 · 명세 교정 대기", "y"],
+        name: "intake", role: "core 입구", badge: ["확정 · 실무에서 조정", "g"],
         one: "일의 발생을 받아 \"어디서 왔나 · 일인가 · 무엇을 원하나 · 어떤 종류인가 · 해도 되나 · 어디로 보내나\"를 정한다. 같은 내용이라도 출처가 다르면 끝까지의 과정이 다르다.",
         what: [
           "입구는 ticket만이 아니다: ticket · 고객 · 도구 신호(CI 리뷰 요청 포함) · internal(후속 요청 · 사슬의 다음 link · backlog) · command(사람 수행 포함), 나중에 schedule · 상태 변화 · mail · chat. 출처 넷(고객 · 내부 사람 · 내부 도구 · 다른 일의 뒤)은 입구와 계정으로 규칙이 채운다.",
@@ -235,20 +286,21 @@ window.WS = {
           "LLM이 채운 칸에는 근거 한 줄과 근거 등급(explicit · similar-case · inferred)이 붙는다. inferred로는 '명확'을 내리지 않는다.",
           "틀릴 때의 방향: 애매하면 일로 본다, 행동이 실패하면 아무것도 하지 않는다, 보는 사람이 밖이면 쓰지 않는다(고객이 보는 자리에는 label도 쓰지 않는다).",
           "고객 ticket이 위험으로 멈추면 고객이 보지 않는 내부 project에 손잡이 ticket을 만들어 위험 label과 멈춘 이유를 둔다. 해제는 사람이 손잡이의 label을 떼는 것이다.",
-          "workflow가 보내는 사건 둘을 받는다: 학습 완료(원장에 Track B 줄을 덧붙임) · route 거부(지금의 정본으로 분류 → route를 한 번 다시 계산, 경로가 같으면 논의)."
+          "workflow가 보내는 사건 셋을 받는다: 학습 완료(원장에 Track B 줄을 덧붙임) · route 거부(지금의 정본으로 분류 → route를 한 번 다시 계산, 경로가 같으면 논의) · 실행 중 위험 고지(손잡이 없는 고객 레코드면 손잡이를 확보).",
+          "블록 sign-off 판정 카테고리는 사람이 부를 때만 연다(도구 신호로는 열지 않는다). 합성 칸이 met → 미달로 바뀌면 일이 되고, coverage 감소 지적은 열려 있는 수치 feed 일에 붙는다."
         ],
         human: ["정보 부족이면 질문에 답한다(범위 좁히기 질문은 진행과 함께 간다)", "고객 대응 담당: 질문 · 회신 초안을 승인해 보내고, 고객 확인 또는 무응답 뒤 종료를 선언한다", "도구 신호 실패의 원인 찾기를 요청한다(feed마다 바로 열기로 팀 리더가 바꿀 수 있다)", "검수자: 고객 이슈의 진짜 bug를 내부 이슈로 열지 고른다", "\"나눌까요\"에 답하고, 위험 hit를 해제한다(고객 이슈는 손잡이 ticket의 label을 뗀다). 배정은 하지 않는다: owner에게 알림만"],
-        quality: ["hard-zero 셋: 위험 놓침 0 · 잘못 붙이기 0 · 밖으로 새기 0(다른 고객의 자료가 초안 · 근거에 들어가는 것도 센다)", "시험 사례 114건(고객 7 포함)", "분류의 Track B: 레코드가 끝날 때 원장에 한 줄. 없으면 \"Track B 빠짐\"으로 센다"],
-        state: [["g", "확정", "입구 일반화 · 일곱 단계 · 범위 기본값 · 고객 트랙 재개(고객 입구 · 고객 이슈와 내부 이슈를 합치지 않음) · 고객 레코드에서 고치지 않음 · 도구 신호의 원인 찾기는 요청할 때 · 원인 찾기 one-off"], ["y", "가정 · 교정 대기", "명세의 위임 결정(첫 판 51 · 동기화 28 · workflow 반영 19 · 손잡이 ticket 16). 확정과 맞닿은 곳은 틀렸을 때만 고친다: command 입구 · reject 재작업 삭제 · 스스로 열면 안 되는 일"], ["n", "반영 대기", "실행 중 worker의 위험 고지로 손잡이 ticket을 만드는 사건(workflow 쪽은 표지를 꺼 두고 기다린다)"]],
-        spec: [["intake agent 명세 (탐색기)", "bun", "ia/overview"], ["시험 사례 114", "bun", "ia/golden"], ["범위 좁히기 질문 묶음", "bun", "ia/rules/narrowing_questions"]]
+        quality: ["hard-zero 셋: 위험 놓침 0 · 잘못 붙이기 0 · 밖으로 새기 0(다른 고객의 자료가 초안 · 근거에 들어가는 것도 센다)", "시험 사례 119건(고객 7 포함)", "분류의 Track B: 레코드가 끝날 때 원장에 한 줄. 없으면 \"Track B 빠짐\"으로 센다"],
+        state: [["g", "확정 · 실무에서 조정", "입구 일반화 · 일곱 단계 · 범위 기본값 · 고객 트랙 · 명세의 위임 결정(첫 판 · 동기화 · workflow 반영 · 손잡이 ticket: 위험으로 멈출 때만 만들고, 손잡이 project의 내부 사람이면 해제)"], ["y", "가정(위임) · 실무에서 조정", "실행 중 위험 고지 사건 · 사람 계기만 여는 블록 sign-off 카테고리 · met → 미달 전이 feed · coverage 감소 지적 붙이기"]],
+        spec: [["intake agent 명세 (탐색기)", "bun", "ia/overview"], ["시험 사례 119", "bun", "ia/golden"], ["범위 좁히기 질문 묶음", "bun", "ia/rules/narrowing_questions"]]
       },
       workflow: {
-        name: "workflow", role: "core 본체", badge: ["확정 · 명세 교정 대기", "y"],
+        name: "workflow", role: "core 본체", badge: ["확정 · 실무에서 조정", "g"],
         one: "착수된 일을 결과 패키지까지 자율로 끌고 간다. 모든 workflow는 같은 골격을 물려받고, 일의 출처가 고객이면 고객 트랙이 그 위에 덧붙는다.",
         what: [
           "세 층 표준화: 공통 골격(자리 여덟 · 공통 checkpoint 넷) → 작업 모양 일곱(수정 · 탐색 · 판정 · 조사 · 작성 · 결정 자료 · 실험) → 업무별 특화 열일곱(블록 sign-off 판정 포함). 특화는 채우고 좁히기만 한다. 상속 층과 따로, 출처가 고객이면 트랙 덧붙임(고객 트랙)이 얹힌다.",
           "여러 workflow는 조립한다: 한 task 안에서 auto로 잇는 pipeline(RTL review A~E, preset 여섯 · milestone 포함), 사람의 결정 · 검수를 사이에 두고 task를 잇는 chain. 사슬은 진입 link를 연 레코드가 직접 돌고, L3 → L4 간선이 대상 block 범위를 나른다.",
-          "부품 열하나: 코드 여섯(controller · resolver · policy · evaluator adapter · record writer · dry replay)과 LLM 다섯(planner · worker · hitl manager · result writer · learner). 회사가 값을 채우는 설정은 evaluators(선택 도구 일곱 포함) · policies · multi-test 묶음이다."
+          "부품 열하나: 코드 여섯(controller · resolver · policy · evaluator adapter · record writer · dry replay)과 LLM 다섯(planner · worker · hitl manager · result writer · learner). 회사가 값을 채우는 설정은 evaluators(선택 도구 일곱 포함) · policies · multi-test 묶음 · 모델 등급 넷이다."
         ],
         fig: {
           diag: [
@@ -284,12 +336,25 @@ window.WS = {
           "원인 찾기는 층 판별부터 한다(조사형의 의무). 원인이 RTL 밖에 있을 수 있다.",
           "한 task = 한 결과 패키지 = 한 번의 검수. 리뷰어는 고치지 않는다. 자동 수정은 지적마다 한 번이다.",
           "waiver · coverage exclusion · 합성 예외(억제 기록)는 승인 때의 구문에 묶인다. 구문이 바뀌면 재확인이 필요하고 그동안 효과를 잃는다.",
-          "workflow는 ticket을 만들지 않는다. 상태 label은 레코드가 정한 ticket 하나(고객 ticket이면 손잡이 ticket)에만 붙는다."
+          "workflow는 ticket을 만들지 않는다. 상태 label은 레코드가 정한 ticket 하나(고객 ticket이면 손잡이 ticket)에만 붙는다.",
+          "intake와 주고받는 사건은 셋이다: 학습 완료(Track B 줄을 원장에) · route 거부(intake가 한 번 다시 계산) · 실행 중 위험 고지(손잡이 없는 고객 레코드면 intake가 손잡이를 만듦, 켜는 표지는 기본 꺼짐)."
+        ],
+        boxes: [
+          { id: "tiers", title: "모델 등급과 세션", tag: ["가정(위임) · 실무에서 조정", "y"],
+            lead: "강한 모델이 필요 없는 곳에 쓰지 않고, 필요한 곳에서 아끼지 않는다. 모델 이름은 공란이고 등급만 정한다.",
+            rows: [
+              ["가벼운", "분류 · 추출 · 결과 해석"],
+              ["표준", "계약이 분명한 수정 · 작성 · 후보 생성"],
+              ["강한", "계획 · 원인 판정 · 지적 · 결과 서술 · 사람에게 가는 글"],
+              ["내리지 않는 자리", "위험의 두 번째 검사 · planner · reviewer · result writer · 사람에게 가는 질문"],
+              ["올리기 · 내리기", "판정이 갈리거나 진전이 없으면 한 등급 올려 한 번 더(시도 수에 셈). 기본 등급 올리기는 즉시, 내리기는 그림자 실행 비교 기록을 붙여 정본 회의에서. 비용 때문에 몰래 내리지 않고 사람에게 묻는다"],
+              ["세션", "산출물 하나 = 세션 하나. 품질 저하 신호(context 사용량 · 시도 수 · guard 차단 연속 · 결정과 어긋난 행동)가 보이면 새 세션을 열고, STATE와 버린 시도의 한 줄 요약만 넘긴다"]
+            ] }
         ],
         human: ["검수 · 반영", "필수 mode 선택(예: 성능 · 면적 리뷰의 모드)", "실행 중 질문에 답(답이 없으면 보수적 기본값)", "억제 기록(waiver · exclusion · 합성 예외)의 승인과 재확인", "블록 sign-off: 판정은 시스템이 모으고, sign-off는 기준표의 책임자가 한다", "고객 일: 회신은 고객 대응 담당이 보내고, 진짜 bug의 내부 이슈는 검수자가 고른다"],
-        quality: ["hard-zero 셋: 경계 넘기 0(밖 레코드의 공개 자리 쓰기 · 다른 고객 자료 · 고객 레코드에서 대상 수정 포함) · 근거 없는 판정 0 · 사람 기록 훼손 0", "시험 사례: 해석 36 · 한 바퀴 42 · replay 6", "Track B 빠짐 0", "현장 절차 대조(덮음 / 일부 / 빠짐): code-review 23 / 0 / 0 · timing-area 19 / 0 / 0 · coverage 13 / 1 / 0(남은 일부 = mutation, 보류)"],
-        state: [["g", "확정", "자율의 세 층 · checkpoint · posture · 두 트랙 · 고객 트랙 재개(고객 이슈와 내부 이슈를 합치지 않음)"], ["y", "가정 · 교정 대기", "agent 명세의 결정(첫 판 75 · 후속 25 · 현장 절차 19 + 29 · 손잡이 6). 큰 가정 셋은 틀렸을 때만 고친다: 고객 트랙을 트랙 덧붙임으로 · 고객 일의 posture 상한 draft · regression 원인 찾기 workflow는 실적이 생길 때까지 draft"], ["n", "회사에서 확인", "선택 도구의 유무와 소관 · 블록 sign-off 기준표 · 억제 기록의 기계가 읽는 형식"], ["n", "반영 대기", "실행 중 위험 고지로 손잡이 ticket을 만드는 intake 사건(그전까지 표지 꺼짐) · 설명 그림 셋 다시 그리기 · test 검증력(mutation)은 보류"]],
-        spec: [["workflow agent 명세 (탐색기)", "bun", "wa/overview"], ["workflow 라이브러리", "bun", "wa/library/wf_readme"], ["고객 트랙 (TR-customer)", "bun", "wa/library/TR-customer"], ["블록 sign-off 판정", "bun", "wa/library/WF-block-signoff"], ["multi-test 묶음", "bun", "wa/rules/multi_test_bundles"]]
+        quality: ["hard-zero 셋: 경계 넘기 0(밖 레코드의 공개 자리 쓰기 · 다른 고객 자료 · 고객 레코드에서 대상 수정 포함) · 근거 없는 판정 0 · 사람 기록 훼손 0", "시험 사례: 해석 36 · 한 바퀴 46 · replay 6", "Track B 빠짐 0", "현장 절차 대조(덮음 / 일부 / 빠짐): code-review 23 / 0 / 0 · timing-area 19 / 0 / 0 · coverage 13 / 1 / 0(남은 일부 = mutation, 보류)"],
+        state: [["g", "확정 · 실무에서 조정", "자율의 세 층 · checkpoint · posture · 두 트랙 · agent 명세의 결정(첫 판과 후속 · 현장 절차 · 손잡이 ticket) · 고객 트랙 = 트랙 덧붙임 · 고객 일의 posture 상한 draft · regression 원인 찾기는 실적이 생길 때까지 draft · 블록 sign-off 별도 판정 · 억제 기록 효과 정지 기본"], ["y", "가정(위임) · 실무에서 조정", "실행 중 위험 고지 사건 · 블록 sign-off의 자리(사람 계기 카테고리) · 모델 등급 · timing-area와 coverage 갈래의 이식(QoR 추세 · covergroup 수정 판정 · 돌지 않은 test)"], ["n", "회사에서 확인", "선택 도구의 유무와 소관 · 블록 sign-off 기준표 · 억제 기록의 기계가 읽는 형식"], ["n", "보류", "test 검증력 측정(mutation)"]],
+        spec: [["workflow agent 명세 (탐색기)", "bun", "wa/overview"], ["workflow 라이브러리", "bun", "wa/library/wf_readme"], ["고객 트랙 (TR-customer)", "bun", "wa/library/TR-customer"], ["블록 sign-off 판정", "bun", "wa/library/WF-block-signoff"], ["multi-test 묶음", "bun", "wa/rules/multi_test_bundles"], ["모델 등급", "bun", "wa/rules/model_tiers"]]
       },
       chain: {
         name: "chain", role: "갈래 · 아키텍처부터 검증까지", badge: ["정본 · 일부 가정", "y"],
@@ -330,7 +395,7 @@ window.WS = {
         ],
         human: ["원인 찾기를 연다: 도구 신호의 실패는 사람이 요청할 때, 사람의 요청과 고객 이슈는 바로", "원인 보고를 검수하고 수정 여부를 정한다"],
         quality: ["확인 = 되돌린 scratch에서 증상이 사라지고 원래에서 다시 나타남(또는 최소 재현)", "질문 묶음 · multi-test 묶음은 가족 · 층별 정본 자산이고 Track B로 고쳐진다"],
-        state: [["g", "확정", "층 판별 먼저"], ["y", "가정 · 교정 대기", "층 열 표 · 질문 묶음 · multi-test 묶음 · 실패 종류별 시작점"], ["g", "반영됨", "workflow 묶음: 조사형 모양의 층 판별 의무 · regression 원인 찾기 채움(draft 유지) · 고객 트랙의 자동 multi-test"]],
+        state: [["g", "확정", "층 판별 먼저"], ["g", "확정 · 실무에서 조정", "층 열 표 · 질문 묶음 · multi-test 묶음 · 실패 종류별 시작점"], ["g", "반영됨", "workflow 묶음: 조사형 모양의 층 판별 의무 · regression 원인 찾기 채움(draft 유지) · 고객 트랙의 자동 multi-test"]],
         spec: [["조사형 모양 (AR-diagnose)", "bun", "wa/library/AR-diagnose"], ["regression 원인 찾기 (초안)", "bun", "wa/library/WF-regr-diagnose"]]
       },
       workmap: {
@@ -351,8 +416,73 @@ window.WS = {
         ],
         human: ["고객 회신은 늘 사람이 승인한다", "자산 목록의 완결 · 옮긴 checkpoint의 승인(팀 리더 · 정본 승인자)"],
         quality: ["고객 응답 지표: 첫 회신 · 최종 회신 시간, 재질문, 고객 확인 비율(목표 공란)", "Track B 기록이 모든 일의 완료 조건"],
-        state: [["g", "확정", "기존 자산 이식 먼저 · 두 트랙 · 고객 트랙 재개"], ["y", "가정 · 교정 대기", "분류 축 다섯 · 업무 가족 열둘 · lifecycle 여덟 단계"], ["n", "회사에서 확인", "고객 이슈가 들어오는 경로 · 기존 자산의 위치와 담당"], ["g", "반영됨", "workflow 묶음의 Track B 칸 · 고객 트랙 덧붙임"]],
+        state: [["g", "확정", "기존 자산 이식 먼저 · 두 트랙 · 고객 트랙 재개"], ["g", "확정 · 실무에서 조정", "분류 축 다섯 · 업무 가족 열둘 · lifecycle 여덟 단계"], ["n", "회사에서 확인", "고객 이슈가 들어오는 경로 · 기존 자산의 위치와 담당"], ["g", "반영됨", "workflow 묶음의 Track B 칸 · 고객 트랙 덧붙임"]],
         spec: []
+      },
+      timing: {
+        name: "timing-area", role: "갈래", map: "timing", badge: ["정본 · 가정(위임, 실무에서 조정)", "y"],
+        one: "합성 결과의 timing과 area를 다루는 일. 사실을 내는 일과 고치는 일을 나누고, 위반은 층부터 가르며, 같은 조건끼리만 비교한다.",
+        what: [
+          "사실을 내는 일(sub-top 합성 · fmax · 고객 레포트용 matrix)은 사실과 지적만 낸다. RTL을 고치는 것은 timing 개선 workflow뿐이고, 고칠지는 사람이 정한다(직접 요청, 또는 판단과 plan의 결정 뒤).",
+          "timing 위반의 상당수는 RTL 밖에 원인이 있다. 하위 층 다섯을 싼 것부터 가른다: 측정 → constraint → 합성 설정 → library · corner · 도구 → RTL 구조. 앞의 넷이 지워진 path만 RTL 후보가 된다.",
+          "새 엔진이 아니다. timing · sub-top fmax · 합성 matrix · 성능 · 면적 리뷰의 특화 workflow 넷과 합성 · STA evaluator를 쓰고, 이 갈래 문서는 그 사이(일의 종류 · 층 · 예외 운용 · 추세 · 사람의 자리)를 잇는다."
+        ],
+        fig: {
+          layers: [
+            ["측정", "두 run의 recipe · corner · 숨은 축이 다르면 같은 조건으로 다시 비교. 차이가 사라지면 일 아님"],
+            ["constraint", "clock 정의 · unconstrained endpoint · 근거 없는 예외 · IO delay. 후보를 만들지 않고 constraint 담당에게 알림"],
+            ["합성 설정", "recipe · 합성 mode · floorplan · clock 가정의 변경. 합성 담당에게 알림, 의도된 변경이면 기준선을 새로"],
+            ["library · corner · 도구", "같은 RTL을 두 버전으로. 담당에게 넘기고 회피책 기록"],
+            ["RTL 구조", "변경 구간 좁히기, 논리 깊이 · fanout. 요청이 있을 때만 timing 개선 workflow의 수정 phase"]
+          ],
+          note: "불안정(같은 조건에서 결과가 흔들림)은 층이 아니라 상태다. area도 같은 순서로 본다(clock이 빡빡해지면 합성이 cell을 키운다)."
+        },
+        rules: [
+          "합성 · fmax · matrix는 사실과 지적만 낸다. RTL을 고치는 것은 timing 개선 workflow뿐이다.",
+          "층부터 가른다. 층을 모른 채 RTL 후보를 만들지 않는다.",
+          "숨은 축(합성 mode · floorplan · clock 가정)이나 recipe · library · corner · constraint가 다른 run끼리는 비교하지 않는다. 추세도 그 자리에서 \"조건 바뀜\"으로 끊는다.",
+          "constraint · netlist · library는 남의 것이다. 고치지 않고 지적과 알림을 낸다. false path · multicycle 예외는 사람만 MR로 쓰고, RTL이 바뀌면 효과가 멈춘다(그 path의 met은 조건부). 예외를 더하자는 제안은 AI가 하지 않는다.",
+          "추세의 원천은 정기 sub-top 합성이다. met → 미달로 바뀐 칸은 변화 폭과 무관하게 일이 된다(원인 찾기는 사람이 요청할 때). WNS · TNS · area 변화는 기준(공란)을 넘을 때만 일이다.",
+          "회사에 없는 선택 도구(constraint 검사 · netlist 등가성 · power 추정)의 확인은 통과가 아니다. constraint 검사가 없으면 블록 sign-off의 timing 재료는 판정 불가다."
+        ],
+        human: ["constraint 변경(clock 정의 · uncertainty · IO delay · 예외): constraint 담당(소유는 회사에서 정함)", "예외 승인 · 재확인 · 철회: 동료 또는 설계 리더", "latency · interface를 바꾸는 후보, 구조 변경: 설계 리더 · 아키텍트", "목표 주파수 · area budget 변경: 제품 · 설계 리더", "netlist ECO: 구현 담당(지금은 범위 밖)", "고객에게 낼 QoR 값: 제품 · 영업 리더", "블록 sign-off: 기준표의 책임자"],
+        quality: ["같은 조건끼리만 비교(거짓 악화 · 거짓 개선 0)", "효과를 잃은 예외 · 기록 없는 예외는 milestone 리뷰와 블록 sign-off에서 0", "Track B: 층 판별 결과의 분포 · path 계열별 잘 된 방법 · 비교 실수 · 억제 기록의 부담"],
+        state: [["g", "정본", "갈래 문서(일의 종류와 workflow 대응 · 층 가르기 · 억제 기록 운용 · 추세와 milestone · 보지 못한 것 · 사람이 정하는 자리 · Track B · 기본값)와 workflow 묶음 이식"], ["y", "가정(위임) · 실무에서 조정", "층 판별 순서 · met → 미달 전이 · 숨은 축 규칙 · 예외의 RTL 변경 시 동작 · constraint 변경 리뷰 = 판정형 one-off"], ["n", "회사에서 정할 것", "변화 기준 · 정기 합성의 주기와 branch · 예외 tier2 범위 · constraint 소유 · hold와 ECO의 소관"]],
+        spec: [["갈래 정본 (탐색기)", "bun", "wa/design/timing_area"], ["WF-timing", "bun", "wa/library/WF-timing"], ["WF-syn-subtop-fmax", "bun", "wa/library/WF-syn-subtop-fmax"], ["WF-syn-matrix", "bun", "wa/library/WF-syn-matrix"]],
+        more: "timing"
+      },
+      coverage: {
+        name: "coverage", role: "갈래", map: "coverage", badge: ["정본 · 가정(위임, 실무에서 조정)", "y"],
+        one: "hole에서 closure까지. hole은 층부터 가르고, 채운 것과 확인한 것을 구분하며, closure는 AI가 판정 자료를 만들고 사람이 판정한다.",
+        what: [
+          "건드린 것과 확인한 것은 다르다. test가 hole의 논리를 실행했어도 그 동작이 틀렸을 때 실패하지 않으면 채운 것이 아니다. coverage 숫자(도구 사실)와 관측 수단(checker · assertion · reference 비교)을 따로 센다.",
+          "모든 hole이 test 부족은 아니다. 층 여섯을 가른다: 측정 환경 · spec 변경 · covergroup 정의 오류 · 도달 불가 · test 부족 · RTL 결함 의심.",
+          "새 엔진이 아니다. coverage 보강 · 검증 상태 리뷰 · 블록 sign-off 판정의 특화 workflow와 coverage 추출 · formal 도달성 evaluator를 쓰고, 이 갈래 문서는 그 사이를 채운다."
+        ],
+        fig: {
+          layers: [
+            ["측정 환경", "DB revision · merge 정의 · 실패 test가 merge됨 · 돌지 않은 test · 도구 변경. coverage 일이 아니다: 측정을 바로잡거나 다시 merge해 재판정"],
+            ["spec 변경", "bin이 가리키는 동작이 spec에서 빠졌거나 바뀜. covergroup 정리 또는 만료 조건이 붙은 exclusion 후보"],
+            ["covergroup 정의 오류", "bin · cross가 spec의 값 범위 · 조합과 안 맞음. 수정 제안(분모가 바뀌므로 spec 근거 대조로 판정)"],
+            ["도달 불가", "parameter로 꺼진 기능 · 방어용 branch. 근거 등급이 붙은 exclusion 후보"],
+            ["test 부족", "도달 가능한데 지금 test가 조건을 만들지 않음. test 후보(채움과 확인을 따로 판정)"],
+            ["RTL 결함 의심", "spec은 도달 가능하다는데 formal이 도달 불가를 증명. exclusion이 아니라 원인 찾기로"]
+          ],
+          note: "근거 등급: formal 증명 > spec 절 · 설계 조건 > 추론. formal의 \"결론 없음\"은 근거가 아니다. formal 증명은 그 run의 constraint 아래의 사실이므로 constraint 버전을 함께 적는다."
+        },
+        rules: [
+          "hole은 측정 환경부터 지운다. 그다음 spec · covergroup 대조, 도달 가능성, test 부족 순이다.",
+          "도달 가능한데 채워지지 않는 hole은 formal(있으면)로 다시 본다. 도달 불가가 증명되면 RTL 결함 의심으로 원인 찾기에 보내고, exclusion으로 덮지 않는다.",
+          "covergroup 수정은 분모를 바꾼다. 판정은 coverage 증가가 아니라 spec 근거 대조와 분모 바뀜 표시로 하고, bin을 지우거나 줄이는 수정은 exclusion과 같은 승인 등급을 받는다.",
+          "exclusion은 억제 기록이다. 사람만 승인하고, RTL이 바뀌면 효과가 멈추며(분모에서 빼지 않음), spec 변경 · 기능 비활성으로 낸 것에는 만료 조건을 붙인다.",
+          "closure는 보수적으로 센다: 목표 없는 종류는 충족이 아니고, 실패 test가 merge되었으면 판정 불가, 돌지 않은 test가 덮을 bin이 남은 종류도 판정 불가다. closure 충족은 동작이 확인되었다는 뜻이 아니다.",
+          "같은 변화가 두 길(정기 리뷰의 감소 지적 · intake의 수치 feed)로 오면 하나로 붙고, feed 레코드가 주인이다."
+        ],
+        human: ["exclusion 승인(동료 또는 검증 리더) · 재확인 · 철회", "covergroup 축소 승인", "closure 판정의 수용, closure를 켜는 milestone", "종류별 목표 표(공란)", "블록 sign-off: 기준표의 책임자", "mutation 도입 여부와 시점(지금은 보류)"],
+        quality: ["채움과 확인을 따로 센다(관측 수단이 없는 동작은 closure와 별개로 지적)", "보지 못한 것(없는 도구 · 돌지 않은 test · 다른 revision의 DB · 실패 test가 섞인 merge)은 충족으로 세지 않는다", "Track B: 어느 test가 어느 hole을 닫았나 · hole의 층 · 되돌려진 exclusion · 관측 수단이 없는 module"],
+        state: [["g", "정본", "갈래 문서(일의 종류와 workflow 대응 · hole 층 · exclusion 운용 · closure와 sign-off · 추세 · mutation 자리 · Track B · 기본값)와 workflow 묶음 이식"], ["y", "가정(위임) · 실무에서 조정", "hole 층 판별 순서 · 도달 불가 근거 등급 · covergroup 축소 승인 · 돌지 않은 test = 판정 불가 · 두 길을 하나로"], ["n", "회사에서 정할 것", "종류별 목표 · closure를 켜는 milestone · 감소 지적 기준 · exclusion tier2 범위"], ["n", "보류", "test 검증력 측정(mutation): 들어오면 붙을 자리 셋만 적어 둠"]],
+        spec: [["갈래 정본 (탐색기)", "bun", "wa/design/coverage"], ["WF-coverage", "bun", "wa/library/WF-coverage"], ["WF-rtl-verif-review", "bun", "wa/library/WF-rtl-verif-review"], ["WF-block-signoff", "bun", "wa/library/WF-block-signoff"]],
+        more: "coverage"
       },
       kb: {
         name: "KB", role: "지식의 정본 · 별도 묶음", badge: ["확정 · 확인 대기 셋", "g"],
@@ -471,12 +601,12 @@ window.WS = {
 
   /* ───────────── ④ 결정 ───────────── */
   decide: {
-    lead: "지금 판단할 것만 앞에 둔다. 나머지 논의 거리는 아래에 접어 두었다. 원본 문서와 이력은 설계 워크스페이스에 그대로 있다.",
-    now: ["t-w-signoff", "t-w-suspend", "t-w-milestone", "t-i-handle", "t-i-handle-clear", "t-w-track", "t-w-custdraft", "t-w-regr", "t-i-cmd", "t-i-reject", "t-i-self", "t-w-onresult", "t-w-human", "t-w-chain", "t-c-oracle", "t-i-s02", "t-i-flaky", "t-dg-layers"],
+    lead: "지금까지 물었던 설계 질문은 모두 기본안으로 확정되었다. 확정은 합리적 출발점이라는 뜻이고, 회사에서 실무를 하며 조정한다. 앞에는 그 뒤 위임으로 정한 가정(실무에서 조정)을 두었다. 틀려 보이는 것만 알려 주면 된다.",
+    now: ["t-r-riskraised", "t-r-signoffcat", "t-r-riskgrow", "t-r-meeting", "t-r-tiers", "t-r-talayers", "t-r-tatrend", "t-r-cvformal", "t-r-cvnotrun", "t-r-cvtwo"],
     next: [
-      "교정: 위 항목 중 틀린 것만 고친다. 앞의 여덟(블록 sign-off · 억제 기록 · milestone 입력 · 손잡이 ticket 둘 · 고객 트랙의 큰 가정 셋)이 가장 최근 것이다. 답하지 않은 항목은 기본안을 유지한다.",
-      "읽기: 전체 지도에서 주제 사이의 겹침(●가 둘인 열 셋)과 일 셋의 길을 보고, 그다음 diagnose · 업무 지도 · KB 카드에서 층 열 · 질문 묶음 · 업무 가족이 현장 감각과 맞는지 본다.",
-      "설계 쪽 반영 대기: 실행 중 위험 고지로 손잡이 ticket을 만드는 intake 사건, core와 KB의 접점 대응표, 합성 matrix · review ledger와 KB의 연결 필드. test 검증력(mutation)은 보류."
+      "확정: 지금까지의 질문은 모두 기본안으로 확정되었다. 확정은 합리적 출발점이라는 뜻이고, 회사에서 실무를 하며 조정한다(한눈에의 \"기본값은 출발점\").",
+      "읽기: 전체 지도에서 주제 사이의 겹침(●가 둘 이상인 열 다섯)과 일 셋의 길을 보고, 그다음 diagnose · timing-area · coverage · 업무 지도 · KB 카드에서 층 열 · 질문 묶음 · 업무 가족이 현장 감각과 맞는지 본다.",
+      "설계 쪽 반영 대기: core와 KB의 접점 대응표, 합성 matrix · review ledger와 KB의 연결 필드, code-review 갈래 문서(회사 review 절차 뒤). test 검증력(mutation)은 보류."
     ]
   },
 
@@ -495,9 +625,9 @@ window.WS = {
 
   /* ───────────── 주제의 '자세히' (시스템 카드 아래 접힘) ───────────── */
   deep: [
-  { id: "intake", badge: "확정 · agent 명세 교정 대기",
+  { id: "intake", badge: "확정 · 실무에서 조정",
     title: "intake & routing — 일의 발생을 받아 처리에 착수시키는 단계",
-    excluded: "사람이 말로 한 것을 기록으로 만드는 일(회의 → action item)은 이 단계의 범위가 아니다. 별도 도구 · 별도 갈래의 일이다. 명세의 세부 결정은 위임으로 정한 가정(교정 대기)이다.",
+    excluded: "사람이 말로 한 것을 기록으로 만드는 일(회의 → action item)은 이 단계의 범위가 아니다. 별도 도구 · 별도 갈래의 일이다. 명세의 세부 결정은 위임으로 정했고 확정되었다(실무에서 조정).",
     body: [
       { h: "1. 발생의 모양 — 입구 목록" },
       { table: { head: ["입구", "예", "ticket과 다른 점", "범위"], rows: [
@@ -597,6 +727,7 @@ window.WS = {
         "① golden set과의 불일치(shadow에서 사람이 채택하지 않은 분류) ② 검수 판정의 \"category was wrong\" ③ 실행 중 재분류 ④ 사람이 ticket의 cat: label을 바꾼 것.",
         "레코드가 끝날 때(닫힘 · 끝남 · 대체됨) 원장에 Track B 줄 하나: 처음 카테고리와 끝 카테고리, 업무 가족, 교정(자리 넷 중 어디서 무엇이 무엇으로), 보낸 질문마다 답이 왔는가, 받은 자료로 알 수 있었는데 물었는가. 진단이 정한 층과 층을 가른 질문 · test는 검수자와 workflow 학습이 같은 줄에 채운다.",
         "workflow의 학습이 끝나면 학습 완료 사건이 와서 같은 레코드에 Track B 줄(층 · 층을 가른 질문과 test · 분류 교정)을 덧붙인다. 레코드가 닫힌 뒤에도 덧붙인다. workflow가 route 결함으로 거부하면(route 거부 사건) 지금의 정본으로 분류 → route를 한 번 다시 계산하고, 경로가 달라지면 새로 보내고 같거나 두 번째면 논의로 둔다.",
+        "실행 중 위험 고지(risk-raised): workflow가 손잡이 없는 고객 레코드에서 위험을 올리면 보낸다. intake는 dispatch가 지금 것이고 진행 중일 때만 손잡이를 확보해 위험 label을 두고, 레코드 상태는 그대로 둔다. 레코드당 손잡이는 하나이고, label 자리가 이미 있으면 계약 위반으로 원장에 남기고 운영자에게 알린다.",
         "이 줄 없이 끝난 레코드는 \"Track B 빠짐\"으로 센다. 정기 집계(주기 공란, 정본 승인자)가 분류 규칙 · 카테고리 표 · 범위 좁히기 질문 묶음을 고치는 MR의 재료다. 제안은 시스템이, 반영은 사람이 한다."
       ] },
       { h: "11. 범위 결정 (설계 기본값)" },
@@ -623,10 +754,10 @@ window.WS = {
         "고객(가상): \"release 3.2에서 특정 입력의 frame 30부터 블록 경계가 깨진다\" → 별칭 · 늘 밖 · 요청자 = 고객 대응 담당 → 필수 입력이 있어 진행, 받은 자료에 없는 것(설정 값과 순서 · 환경 · 재현 빈도)만 질문 → 원인 찾기만 고객 레코드에서, 수정은 미룸 → 진짜 bug로 accept되면 내부 이슈가 따로 열려 이어진다.",
         "\"디코더에 feature F를 추가해 주세요\" → 기본값 = 사슬 → 이 ticket이 epic이 되어 진입 link를 직접 돈다 → 다음 link는 착수 결정이 기록되면 열린다."
       ] },
-      { note: "시험 세트 114건: ticket 25 · 고객 7 · tool 신호와 리뷰 요청 26 · internal과 command 12 · 이미 있는 일의 사건 36 · 나중 입구 8. 회사에서 agent를 만든 뒤에는 이 목록이 회귀 시험이 된다. 전문과 기대 결과는 intake agent 탐색기에 있다." }
+      { note: "시험 세트 119건(입구별 건수는 탐색기의 시험 사례 화면에 있다). 회사에서 agent를 만든 뒤에는 이 목록이 회귀 시험이 된다. 전문과 기대 결과는 intake agent 탐색기에 있다." }
     ]
   },
-  { id: "workflow",   badge: "확정 · agent 명세 교정 대기",
+  { id: "workflow",   badge: "확정 · 실무에서 조정",
     title: "workflow & autonomy — 착수된 일을 AI가 결과 패키지까지 스스로 끌고 가는 방식",
     lead: "§1~§9는 자율 진행의 설계(세 층 · 경로 · 선언 · 세션 · 회귀 시험), §10~§17은 그 뒤 명세 묶음에 더해진 것(층 판별 · 두 트랙 · 고객 트랙 · 갈래별 현장 절차 · 억제 기록 · 블록 sign-off · label 자리 · 시험)이다.",
     excluded: "이 페이지는 설계 절의 workflow·posture·실행 규칙·결과와 검수·학습을 다시 정하지 않는다. 그것들은 설계 탭에 그대로 있고, 여기서는 참조만 한다.",
@@ -742,7 +873,8 @@ window.WS = {
         ["code-review", "확인 목록에 X 발생과 전파 · reset domain crossing · DFT 친화성(scan 제어 reset · test mode clock mux · 내부 tri-state), reset 정책 · FSM 도달 불가와 deadlock · clock gating, assertion 목록. CDC · RDC setup이 불완전하면 clean 판정 불가. 지원 config마다 elaboration"],
         ["code-review (단계)", "제품 단계별 ruleset 엄격도 표: 같은 rule이 RTL freeze 뒤에는 차단이 된다(GATE의 별도 항). 도구 층이 깨끗해야 사람 리뷰가 시작된다"],
         ["timing-area", "합성의 숨은 축(합성 mode · floorplan 입력 · clock 가정)을 칸의 신원으로. constraint 건전성(clock 정의 · unconstrained endpoint · 예외의 근거 · 소유자 · RTL 대응 · IO delay의 budget 근거) → 문제가 있으면 '조건부 met'. DRV 위반 수, 경고 닫힌 집합(latch · 상수 flop · 조합 loop …), 지정 corner · mode 전부 met. power는 관측 지표(순위에 쓰지 않음). hold · netlist ECO는 범위 밖"],
-        ["coverage", "검증 상태 리뷰에 closure 판정(종류별 목표는 공란 · 검증 리더, 승인된 exclusion만 분모에서 뺌, 통과한 test만 merge, 미충족이면 GATE FAIL)과 이전 accept run 대비 추이. vacuous assertion은 따로 센다. 도달 불가 hole은 formal 도달성으로(exclusion 후보일 뿐)"]
+        ["timing-area (추세)", "정기 sub-top 합성의 QoR 추세: met → 미달은 변화 폭과 무관하게 일, 숨은 축이 바뀌면 추세를 끊는다. timing 개선 workflow는 기준과 후보를 같은 합성 조건으로 재고, 승자는 QoR 칸이 아니다(merge 뒤 정기 run이 칸을 갱신)"],
+        ["coverage", "검증 상태 리뷰에 closure 판정(종류별 목표는 공란 · 검증 리더, 승인된 exclusion만 분모에서 뺌, 통과한 test만 merge, 미충족이면 GATE FAIL, 돌지 않은 test가 덮을 bin이 남으면 판정 불가)과 이전 accept run 대비 추이. vacuous assertion은 따로 센다. 도달 불가 hole은 formal 도달성으로(exclusion 후보일 뿐), spec상 도달 가능한데 도달 불가가 증명되면 RTL 결함 의심. covergroup 수정은 spec 근거 대조와 분모 바뀜 표시로 판정"]
       ]}},
 
       { h: "14. 억제 기록의 수명 (waiver · coverage exclusion · 합성 예외)" },
@@ -763,15 +895,17 @@ window.WS = {
       { ul: [
         "workflow의 상태 label(진행 중 · 대기 · 위험 · 검수 · 학습됨)은 레코드가 정한 ticket 하나에만 붙는다. 고객이 label을 볼 수 있는 고객 ticket에는 붙이지 않는다.",
         "위험으로 멈춘 고객 이슈에는 intake가 고객이 보지 않는 내부 project에 손잡이 ticket을 만들고, 그 뒤의 label은 끝까지 손잡이에 간다. controller는 label을 쓸 때마다 레코드에서 자리를 다시 읽는다(실행 중에 손잡이가 생길 수 있다). 멈춘 이유는 손잡이와 결과 패키지에만 쓴다.",
-        "workflow는 ticket을 만들지 않는다. 실행 중 worker의 위험 고지가 손잡이 없는 고객 레코드에서 나면 intake에 위험 고지 사건을 보내 손잡이를 만들게 한다. intake 쪽 사건이 아직 없어 표지를 꺼 두었고, 그동안은 label 없이 내부 알림과 결과 맨 위 줄로 처리한다."
+        "workflow는 ticket을 만들지 않는다. 실행 중 worker · guard의 위험 고지가 손잡이 없는 고객 레코드에서 나면 intake에 위험 고지 사건(risk-raised)을 보낸다. intake는 그 dispatch가 지금 것이고 진행 중일 때만 손잡이를 확보하고 위험 label을 둔다(레코드 상태는 그대로, 해제는 손잡이에서). 켜는 것은 workflow 쪽 표지 하나이고 기본은 꺼짐이다. 꺼져 있으면 label 없이 내부 알림과 결과 맨 위 줄로 처리한다."
       ] },
 
       { h: "17. 시험 세트와 대조" },
       { ul: [
-        "해석 36 · 한 바퀴 42 · dry replay 6. 고객 트랙(고객 버그 · 고객 성능 · 손잡이 ticket), 원인이 둘인 regression, 사슬 인스턴스, 구현 link의 block 범위, 블록 sign-off(RTL freeze에서 not-ready) 사례가 새로 들어왔다.",
-        "intake 명세와의 대조 208항목이 모두 맞는다(ask phase · 사슬 조립 · 고객 사례 짝 · label 자리).",
+        "해석 36 · 한 바퀴 46 · dry replay 6. 고객 트랙(고객 버그 · 고객 성능 · 손잡이 ticket · 실행 중 위험 고지), 원인이 둘인 regression, 사슬 인스턴스, 구현 link의 block 범위, 블록 sign-off(RTL freeze에서 not-ready), QoR 추세 · covergroup 수정 · formal이 증명한 도달 불가 사례가 들어 있다.",
+        "intake 명세와의 대조 325항목이 모두 맞는다(ask phase · 사슬 조립 · 고객 사례 짝 · label 자리 · 사건 셋 · 수치 feed).",
         "workflow를 고칠 때 dry replay로 과거 accept 기록의 판정이 어떻게 바뀌는지 본다(§8)."
-      ] }
+      ] },
+      { h: "18. 모델 등급과 세션" },
+      { note: "카드의 '모델 등급과 세션' 상자에 있다. 등급 셋(가벼운 · 표준 · 강한)과 LLM 없음, 내리지 않는 자리, 올리기는 즉시 · 내리기는 비교 기록 + 정본 회의, 산출물 하나 = 세션 하나." }
     ]
   },
   { id: "chain",   badge: "정본 · 일부 가정",
@@ -859,7 +993,7 @@ window.WS = {
         "확인: 원인으로 지목한 변경을 되돌리거나 고정한 scratch에서 증상이 사라지고 원래에서 다시 나타나야 확인이다. 또는 최소 재현.",
         "여러 원인: 하나를 되돌려도 증상이 남으면 남은 불일치의 첫 경계에서 다음 가설을 세운다. 원인마다 before/after와 보고를 따로 낸다."
       ] },
-      { h: "2. 층 열 (가정 · 교정 대기)" },
+      { h: "2. 층 열 (확정 · 실무에서 조정)" },
       { table: { head: ["층", "재현 수단", "oracle", "좁히는 도구", "끝"], rows: [
         ["문서", "문서의 해당 절과 사용자의 적용을 나란히", "코드 · spec(정본)", "문서와 코드의 항목 대조", "문서 보강 · 수정 이슈, 회신"],
         ["이해", "질문을 문서 · KB로 답해 봄", "문서 · KB의 근거", "근거 위치 찾기", "회신 + FAQ 축적"],
@@ -920,7 +1054,7 @@ window.WS = {
       { h: "7. 상태" },
       { table: { head: ["항목", "상태"], rows: [
         ["층 판별 먼저", "확정"],
-        ["층 열 표 · 질문 묶음 · multi-test 묶음 · 실패 종류별 시작점", "가정 · 교정 대기"],
+        ["층 열 표 · 질문 묶음 · multi-test 묶음 · 실패 종류별 시작점", "확정 · 실무에서 조정"],
         ["조사형 모양의 층 판별 자리, regression 원인 찾기 초안", "반영 대기(설계 쪽)"]
       ]}}
     ]
@@ -1007,11 +1141,13 @@ window.WS = {
       { h: "6. 상태" },
       { table: { head: ["항목", "상태"], rows: [
         ["기존 자산 이식 먼저 · 두 트랙 · 고객 트랙 재개", "확정"],
-        ["분류 축 다섯 · 업무 가족 열둘 · lifecycle 여덟 단계", "가정 · 교정 대기"],
+        ["분류 축 다섯 · 업무 가족 열둘 · lifecycle 여덟 단계", "확정 · 실무에서 조정"],
         ["고객 이슈가 들어오는 경로 · 기존 자산의 위치와 담당", "회사에서 확인 예정"]
       ]}}
     ]
   },
+  {"id": "timing", "badge": "정본 · 가정(위임, 실무에서 조정)", "title": "timing-area — 합성 결과의 timing · area 갈래", "lead": "정본 갈래 문서의 절을 옮겼다. 층 가르기(§2)는 카드의 그림에 있다. 규칙 상당수는 회사 실물을 보지 않고 정한 출발점이고, 실무에서 확인 · 결정 · 수정한다. 숫자는 공란이다.", "body": [{"h": "1. 일의 종류와 workflow 대응"}, {"table": {"head": ["일", "주된 입구", "ask", "workflow", "덮지 않는 부분과 그 처리"], "rows": [["합성 · STA의 timing 위반(새로 생김 · 악화)", "STA feed, 사람 요청", "diagnose(왜) · change(고쳐)", "WF-timing mode timing", "원인만이면 C2까지. 경계 path만 미달이면 constraint 담당 알림이 먼저"], ["area 증가 · area 목표 미달", "정기 합성의 변화, 사람 요청", "diagnose · change", "WF-timing mode area", "승자는 slack이 기준보다 나빠지지 않아야 한다"], ["sub-top 목표 달성 확인과 fmax", "정기 계기, 사람 요청, milestone", "answer · diagnose", "WF-syn-subtop-fmax", "개선 방법은 내지 않는다"], ["고객 레포트용 조건 표", "사람 요청, 정기", "answer · scheduled", "WF-syn-matrix", "밖으로 내는 값은 사람이 확정하고 보낸다"], ["module의 성능 · 면적 적절성", "RTL review pipeline", "answer · diagnose", "WF-rtl-perf-area-review", "모드는 사람이 고른다. 개선은 판단과 plan"], ["어느 submodule을 고칠지, PPA 균형", "리뷰 결과, 고객(F8)", "decide", "판단과 plan(WF-improvement-plan), 그 밖은 결정 자료형 모양(AR-decide)의 기본 채움", "결정 뒤 WF-timing이 후속 요청(on-decision)으로 열린다"], ["constraint 변경 리뷰(예외 추가 · clock 정의 변경)", "사람 요청, MR", "answer", "특화 없음 → 판정형 one-off(AR-assess 기본 채움 + constraint-check 전후 비교)", "constraint 소유가 RTL 조직으로 정해지고 되풀이되면 특화 초안 신설"], ["equivalence check 실패, GLS 불일치", "도구 신호, 사람 요청", "diagnose", "조사형 one-off(원인 찾기 갈래의 구현 결과 층)", "되풀이되면 특화 초안"], ["power 감축", "사람 요청, 고객(F7)", "change", "WF-timing을 이웃으로 빌림(부록 checkpoint가 power 추정으로 승자 선택)", "되풀이되면 power 특화 신설 의무"], ["고객의 \"목표 frequency를 못 맞춘다\"", "고객 입구", "diagnose → answer", "고객 트랙 덧붙임 + multi-test 묶음 mt.synth-warning-target", "진짜 문제면 내부 이슈를 따로 열어 link"], ["netlist ECO, hold 수정", "", "", "범위 밖", "소관을 회사에서 정한 뒤 ECO 특화(수정형, 대상 netlist)를 둘 수 있다"]]}}, {"ul": ["원인과 수정의 경계. \"왜 나빠졌는지\"만 물으면 WF-timing은 원인 phase(C1 기준 재현, C7 constraint 건전성, C2 원인 분석)까지 돌고 path 분석 보고로 끝난다. 원인이 constraint로 판정되면 수정 phase로 넘어가지 않고 constraint 담당에게 알린다.", "판정과 개선의 연결. sub-top 합성의 timing_groups(submodule별 critical path 묶음)와 area_breakdown이 판단과 plan의 근거다. 같은 revision의 묶음이 있으면 WF-timing의 C1 · C2는 그것을 읽어 출발점으로 삼는다(다시 재지 않는 것이 아니라, 무엇부터 볼지 정하는 데 쓴다)."]}, {"h": "3. 억제 기록: false path · multicycle · waiver"}, {"p": "합성 예외는 assess.waiver-lifecycle의 세 종류 가운데 하나(constraint-exception)이고, lint waiver · coverage exclusion과 같은 수명 규칙을 쓴다. 이 갈래에서의 운용은 다음과 같다."}, {"table": {"head": ["질문", "기본 운용"], "rows": [["정본은 어디인가", "review ledger의 억제 항목(예외 근거 기록의 줄). constraint 파일의 예외는 그 내보내기이거나 맞춰 볼 대상이다(어느 쪽인지는 CAD · flow 담당이 정함)"], ["누가 쓰나", "사람만 MR로 쓴다. 근거 · 소유 역할 · 승인 · 만료 조건은 사람 칸이다. 시스템은 새 예외 · 재확인 · 고아 정리를 결과 패키지의 반영 후보로만 낸다"], ["누가 승인하나", "기본안: 동료 확인(tier1), 설계 리더(tier2). 어떤 예외가 tier2인지(예: milestone 뒤 새 예외, 넓은 범위를 덮는 예외)는 공란(설계 리더)"], ["RTL이 바뀌면", "시작 · 끝 지점의 RTL 구문 hash가 승인 때와 다르면 재확인 필요. 기본 suspend: constraint는 그대로 적용되지만 그 예외가 덮는 path의 met은 \"조건부 met\"이 되고, WF-timing은 그 path에 후보를 만들지 않는다. 팀이 warn으로 바꾸면 표시만 한다"], ["맞는 path가 없으면", "완료된 constraint 검사가 같은 조건으로 돌았는데 0이면 고아. 판정은 바꾸지 않고 정리 제안"], ["기록이 없으면", "constraint에는 있는데 근거 기록이 없는 예외는 \"기록 없음\" 지적(S2, 합성 단위마다 묶음 하나)"], ["RTL과 맞나", "multicycle은 enable · hold 구조가 RTL에 있는가, false path는 두 끝이 같은 동작 시점에 쓰이지 않는가를 reviewer가 읽어 쓴다. 의견 등급이고 확인 필요(역할 = constraint 담당)로 낸다"], ["리뷰 대상인가", "그렇다. milestone 리뷰와 블록 sign-off에서 효과를 잃은 예외(제안 · 재확인 필요 · 만료)와 기록 없음은 0이어야 한다(assess.block-signoff suppressions)"], ["도입 때", "기존 예외와 그 주석 · 목록을 일괄 등록하고 기존 승인을 인정한다. 옮긴 자산이 바닥이다"]]}}, {"ul": ["예외를 더하자는 제안은 AI가 하지 않는다. 위반 path가 \"실제로는 false path 같다\"고 보이면 그 판단을 근거와 함께 constraint 담당 알림으로 낸다. 위반을 예외로 없애는 것은 개선이 아니다."]}, {"h": "4. 추세와 milestone"}, {"p": "정기로 보는 것. 정기 sub-top 합성(WF-syn-subtop-fmax, 정기 입구)이 추세의 원천이다. 주기와 대상 branch는 공란(합성 담당 리더 · 팀 리더)이다. 값은 QoR matrix에 쌓이고, 같은 칸 신원(sub-top · revision · recipe · library · corner · 숨은 축)의 이전 accept 칸과 비교한다."}, {"p": "어떤 변화가 일이 되나."}, {"table": {"head": ["변화", "입구", "처리"], "rows": [["met → 미달로 바뀜(지정 corner · mode 어느 칸이든)", "상태 변화", "변화 기준과 무관하게 일이다. ask = diagnose, 원인 찾기는 사람이 요청할 때 연다(diagnose_open on-request). owner digest 맨 위"], ["WNS · TNS · area가 기준 이상 변함", "정기 · STA feed", "기준(공란, 합성 담당 리더)을 넘으면 digest에 올리고 같은 처리. 넘지 않으면 기록만"], ["새 경고 종류(latch · multi-driven · 조합 loop · logic 삭제)", "정기", "지적(D:warn-*)으로 ledger. 일로 열지 않고 리뷰에서 본다"], ["예외가 재확인 필요 · 만료가 됨", "정기 · RTL 변경", "suppress 지적 + 승인 요청 묶음. 그 path의 met은 조건부"], ["library · constraint · recipe 버전이 바뀜", "상태 변화", "영향 칸이 낡음이 된다(campaign.stale-propagation). 다시 돌릴 칸 제안을 owner에게"], ["숨은 축이 바뀜", "(변화 아님)", "추세를 끊고 \"조건 바뀜\"으로 표시한다. 줄어든 것처럼 보이지 않게 한다"]]}}, {"p": "milestone. RTL freeze · release 같은 milestone에서는 sign-off corner · mode 목록 전부로 sub-top 합성을 돌리고(목록과 기준표는 설계 리더 · 합성 담당 리더), 블록 sign-off 판정(WF-block-signoff)이 그 칸을 timing 재료로 읽는다. 재료가 되는 것은 같은 revision의 accept된 칸뿐이다. WF-timing의 승자는 task branch의 결과라 QoR 칸이 아니다. merge 뒤 다음 정기 run이 칸을 갱신하고, milestone이 가까우면 그 revision으로 sub-top 합성을 명시 요청한다."}, {"h": "5. 보지 못한 것"}, {"p": "이 갈래가 기대는 선택 도구는 셋이다. 회사에 없으면 adapter가 status unavailable인 eval 파일을 남기고, 그 확인은 결과의 \"보지 못한 것: 도구 없음\"에 적힌다."}, {"table": {"head": ["선택 도구", "없으면 보지 못하는 것", "일상 run에서", "블록 sign-off에서"], "rows": [["constraint-check", "clock 정의 · unconstrained endpoint · IO delay · 예외 목록과 맞는 path 수(고아 판정 포함)", "met을 그대로 내되 \"constraint 건전성: 보지 못함\" 한 줄, GATE 줄에 보지 못한 확인 수. AI가 constraint 문서를 읽어 찾은 문제는 의견 등급 지적", "timing 재료는 판정 불가(풀 방법: 기존 STA의 constraint 점검 report를 evaluator로 등록하거나, 기준표가 그 확인을 참고 재료로 내림)"], ["lec-netlist", "RTL ↔ 합성 netlist 등가성", "기본 off. 등가 여부 = 보지 않음", "기준표가 필수 재료로 넣었을 때만 판정 불가"], ["power-estimate", "power 추정(관측 지표)", "후보 비교표의 power 칸이 보지 못함. 순위에는 원래 쓰지 않으므로 승자는 그대로", "기준표가 넣었을 때만"]]}}, {"ul": ["보지 못한 확인은 통과로도 실패로도 바꾸지 않는다. GATE를 막는 것은 팀 리더가 gate_required에 올린 확인뿐이다.", "소관이 회사마다 다른 둘(constraint 소유, netlist 등가성)은 정해지기 전까지 지적과 알림만 내고 \"clean\"을 선언하지 않는다.", "범위 밖이라 늘 적는 것: hold(구현 단계), netlist ECO. sign-off corner · mode 목록이 없으면 \"기준 corner 하나만 봄\"도 늘 적는다."]}, {"h": "6. 사람이 정하는 자리"}, {"p": "AI는 다음을 하지 않는다. 필요하면 근거를 붙인 제안 · 알림 · 결정 자료까지 낸다."}, {"table": {"head": ["결정", "정하는 사람", "AI가 내는 것"], "rows": [["constraint 변경(clock 정의 · uncertainty · IO delay · 예외 추가와 삭제)", "constraint 담당(소유는 회사에서 정함)", "문제 path와 근거, 대안 설명"], ["예외 승인 · 재확인 · 철회", "설계 리더(tier2) 또는 동료(tier1)", "재확인 요청 묶음, 고아 정리 diff"], ["latency · interface를 바꾸는 후보(pipeline 추가 등) 채택", "설계 리더 · 아키텍트", "그 후보만 draft로"], ["구조 변경(병렬도 · memory 구성 · block 분할)", "아키텍트(필요하면 사슬의 결정으로)", "대안 비교표(결정 자료형)"], ["목표 주파수 · area budget 변경", "제품 · 설계 리더", "도달값과 목표의 차, 다음 후보"], ["진전 없음 뒤의 방향", "설계 리더", "도달값 · 시도한 후보 · 다음 후보"], ["netlist ECO 여부와 수행", "구현 담당(소관은 회사에서 정함)", "범위 밖 알림"], ["유도 규칙 승인, 고객에게 낼 QoR 값과 종류", "규칙 승인자, 제품 · 영업 리더", "유도값 표시, 보기 초안"], ["블록 sign-off", "기준표의 책임자", "준비됨 · 미충족 · 판정 불가와 미결 목록"]]}}, {"h": "7. 학습(Track B)"}, {"p": "다음을 task마다 기록하고 정기적으로 모으면, 다음 일이 빨라진다."}, {"ul": ["층 판별 결과의 분포. 어느 하위 층이 실제 원인이었나, 어느 확인이 층을 갈랐나. 분포가 쏠리면 C1의 첫 갈래 순서를 바꾼다.", "path 계열별 잘 된 방법. retiming · 논리 단순화 · pipeline 가운데 무엇이 어떤 path 계열에서 목표에 닿았나. WF-timing 경로 힌트의 순서와 병렬 후보 수의 근거가 된다.", "constraint 문제가 되풀이되는 합성 단위. constraint 담당과 정리할 안건 후보로 모은다.", "억제 기록의 부담. 재확인 필요가 RTL 수정마다 몇 건 생기고, 재승인까지 얼마나 걸리나. suspend와 warn 사이 조정의 근거다.", "비교 실수. 숨은 축이 달라서 생긴 거짓 악화 · 거짓 개선. 숨은 축 가운데 필수로 고정할 것의 근거다.", "흔들림과 유도 오차. 같은 조건에서 흔들린 단위, 유도값과 나중 실측의 차이. 탐색 정의와 유도 규칙 보정의 근거다.", "분류되지 않은 경고 문형. \"기타\"로 센 합성 경고의 문형을 분류 표 보강 제안으로.", "one-off의 되풀이. constraint 변경 리뷰 · equivalence 실패 원인 · power 감축이 one-off로 몇 번 끝났나. 기준(공란, 정본 승인자)을 넘으면 특화 초안 신설 의무다."]}, {"h": "8. 기본값"}, {"p": "모두 출발점이며 실무에서 조정한다."}, {"table": {"head": ["항목", "기본값", "결정 주체"], "rows": [["timing 위반의 층 판별 순서", "측정 → constraint → 합성 설정 → library · corner · 도구 → RTL", "설계 리더"], ["met → 미달 전이", "변화 기준과 무관하게 일(diagnose), 원인 찾기는 사람 요청 시", "팀 리더"], ["WNS · TNS · area 변화 기준", "공란", "합성 담당 리더"], ["정기 sub-top 합성의 주기 · 대상 branch", "공란", "합성 담당 리더 · 팀 리더"], ["숨은 축이 다른 run의 비교", "하지 않음, 추세는 \"조건 바뀜\"으로 끊음", "합성 담당 리더"], ["예외의 RTL 변경 시 동작", "suspend(met은 조건부, 후보 만들지 않음)", "설계 리더"], ["예외 tier2 범위", "공란", "설계 리더"], ["constraint-check가 없을 때 블록 sign-off의 timing 재료", "판정 불가(풀 방법 제시)", "설계 리더"], ["lec-netlist", "off(등가 여부 = 보지 않음)", "팀 리더 · 합성 담당 리더"], ["power", "관측 지표, 순위에 쓰지 않음", "팀 리더"], ["constraint 변경 리뷰", "판정형 one-off", "정본 승인자"], ["hold · netlist ECO", "범위 밖", "팀 리더"], ["흔들림 판별의 반복 횟수", "공란", "합성 담당 리더"]]}}]},
+  {"id": "coverage", "badge": "정본 · 가정(위임, 실무에서 조정)", "title": "coverage — hole에서 closure까지", "lead": "정본 갈래 문서의 절을 옮겼다. 규칙 상당수는 회사 실물을 보지 않고 정한 출발점이고, 실무에서 확인 · 결정 · 수정한다. 숫자는 공란이다.", "body": [{"h": "1. 일의 종류와 workflow 대응"}, {"p": "intake는 coverage에 관한 일을 업무 가족 \"검증 지표\"로 분류하고 ask(무엇을 원하는가)로 workflow를 고른다. 덮는 특화 workflow가 없으면 작업 모양의 기본 채움으로 진행하는 one-off가 되고, 같은 one-off가 되풀이되면 특화 초안을 신설한다."}, {"table": {"head": ["일", "ask", "덮는 workflow", "비고"], "rows": [["hole 채우기(test 보강)", "change", "WF-coverage", "hole 정의가 필수 입력이다. 없으면 질문"], ["재발 방지 test", "change", "WF-coverage(부모 결함 입력)", "버그 수정 · 원인 찾기가 남긴 backlog가 들어온다. 결함을 되돌린 RTL에서 test가 실패해야 채택"], ["hole 분석만(왜 비었나, 채울 수 있나)", "answer · diagnose", "WF-rtl-verif-review(module 범위, closure off)", "hole 몇 개만 좁게 보면 조사형 one-off로 §2의 층 표를 따른다"], ["covergroup 추가 · 수정", "change", "WF-coverage(후보 종류 covergroup 수정, C3 · C8)", "분모가 바뀌므로 \"coverage 증가\"로 판정하지 않고 spec 근거 대조와 분모 바뀜 표시로 판정한다. 축소는 exclusion과 같은 승인 등급이고, 승인 전에는 줄어든 분모를 closure에 쓰지 않는다(§2.3)"], ["exclusion 리뷰(재확인 · 정리 · 승인 요청 묶음)", "answer", "WF-rtl-verif-review", "결과 B5가 수명 상태와 억제 기록 diff 하나를 낸다. 승인은 사람(§3)"], ["closure 판정", "answer", "WF-rtl-verif-review(closure = on)", "보통 RTL review의 milestone preset 안에서 돈다(§4)"], ["블록 sign-off의 coverage 부분", "answer", "WF-block-signoff", "같은 revision의 accept된 closure 판정을 재료로 읽을 뿐 다시 계산하지 않는다"], ["추세 관찰", "answer", "RTL review 정기 preset 안의 WF-rtl-verif-review", "이전 run 대비 종류별 변화 줄(§5)"], ["coverage 수치 악화의 원인 찾기", "diagnose", "조사형 one-off(AR-diagnose + §2)", "측정 환경 층부터 지운다. 되풀이되면 특화 초안 후보"], ["사슬 안의 검증 link(TB · test · coverage 목표)", "change", "기능 추가 사슬의 검증 link(사슬 갈래)", "검증 link는 RTL을 읽지 않는다. hole 분석 checkpoint에서만 예외"], ["test 검증력 측정(mutation)", "answer", "보류(§6)", "목록에만 둔다"]]}}, {"h": "2. hole을 층으로 가르는 법"}, {"note": "hole 층 표(층 여섯과 알아보는 법 · 끝)는 카드의 그림에 있다."}, {"h": "2.2 가르는 순서"}, {"ul": ["측정 환경을 먼저 지운다. DB revision · merge 정의 · test 결과 필터 · 돌지 않은 test를 본다. WF-coverage C1과 B의 C1이 이미 하는 일이며, 여기서 걸리면 그 hole은 아직 hole이 아니다.", "spec과 covergroup을 대조한다. bin이 가리키는 동작이 spec에 있는가, 값 범위 · 조합이 spec과 맞는가. 맞지 않으면 test가 아니라 coverage 모델의 문제다.", "도달 가능성을 근거와 함께 판정한다. 근거 등급은 formal 증명(도구 사실) > spec 절 · 설계 조건(문서) > 추론(의견)이다. formal이 도달 trace를 찾으면 LLM의 판정을 뒤집고 test 후보로 되돌린다. formal의 \"결론 없음\"은 근거가 아니다. formal 증명은 그 run이 쓴 constraint 아래의 사실이므로, constraint가 과하면 도달 불가가 거짓일 수 있다. constraint 버전을 근거에 함께 적는다.", "도달 가능하면 test 부족으로 본다. test 후보를 만들고, 채워졌는지(C4)와 동작을 확인하는지(C5)를 따로 판정한다.", "채워지지 않는 도달 가능 hole은 다시 가른다. 후보를 바꿔도 채워지지 않으면 formal 도달성(있으면)을 돌린다. 도달 불가가 증명되면 spec과 RTL이 어긋난 것이므로 RTL 결함 의심으로 원인 찾기 후속을 낸다. exclusion으로 덮지 않는다."]}, {"h": "2.3 covergroup을 고칠 때의 판정"}, {"p": "covergroup 수정은 분모를 바꾼다. bin을 지우면 coverage가 오르고, 이것은 채운 것이 아니다. 그래서 covergroup 수정의 oracle은 coverage 증가가 아니라 spec 근거 대조(수정한 bin · cross마다 spec 절과 값 범위)와 분모 바뀜 표시(추세 줄에서 늘어남과 따로 보임)다. bin을 지우거나 줄이는 수정은 exclusion과 같은 승인 등급을 요구하는 것을 기본안으로 둔다(결정: 검증 리더)."}, {"h": "3. exclusion(억제 기록)의 운용"}, {"p": "규칙의 정본은 policy assess.waiver-lifecycle 하나이고, waiver · 합성 예외와 같은 규칙을 쓴다. coverage 갈래에서 운용할 때의 요지는 다음과 같다."}, {"table": {"head": ["항목", "운용"], "rows": [["근거 필수", "exclusion 후보마다 맞추는 키(instance + 종류 + bin · 지점) · anchor 구문 hash · 이유 · 근거 등급(§2.2의 셋) · 요구 승인 등급이 있다. 근거가 추론뿐이면 후보는 낼 수 있지만 요구 승인 등급이 높다"], ["누가 승인하나", "tier1 = 작성자가 아닌 설계자 · 검증자 한 명, tier2 = 검증 리더. 어느 exclusion이 tier2인지(예: closure에 드는 것, milestone 뒤의 새 exclusion, 근거가 도구 사실이 아닌 것)는 공란이며 검증 리더가 정한다. 등급이 모자라면 제안 상태로 센다"], ["RTL이 바뀌면", "anchor 구문의 hash가 승인 때와 다르면 재확인 필요가 되고, 기본(suspend)에서는 분모에서 빼지 않는다. 사람이 같은 등급으로 다시 승인하면 유효로 돌아온다. 팀이 warn을 고르면 효과는 유지하고 지적만 낸다"], ["만료", "spec 변경이나 기능 비활성으로 낸 exclusion에는 만료 조건(milestone · revision)을 붙이는 것을 기본안으로 둔다. 기능이 다시 켜질 때 저절로 hole로 돌아오게 하기 위해서다"], ["고아", "완료된 run이 같은 coverage 모델로 돌았는데 맞는 bin이 0이면 고아다. 판정을 바꾸지 않고 정리 제안만 낸다"], ["기록 없음", "도구용 exclusion 파일에만 있고 억제 기록이 없는 exclusion은 효과는 그대로 두되 지적으로 낸다"], ["시스템이 하지 않는 것", "억제 기록의 사람 칸(이유 · 승인 · 만료 조건)을 쓰지 않는다. 새 exclusion · 재확인 · 정리는 결과 패키지의 반영 후보(억제 기록 diff 하나)로만 낸다"], ["도입", "팀의 기존 exclusion은 도입 때 억제 기록으로 일괄 등록하고 기존 승인을 인정한다. 옮긴 자산이 바닥이다"]]}}, {"h": "4. closure 판정과 sign-off"}, {"ul": ["closure는 검증 상태 리뷰의 판정 mode다. 입력 closure 판정 = on이면 종류별(line · branch · condition · toggle · FSM state · FSM transition · functional · assertion) coverage를 유효한 exclusion만 분모에서 뺀 뒤 목표 표와 비교한다. 목표 표의 값은 공란이며 검증 리더가 정한 정본(버전)에 있다. workflow는 위치만 가리킨다.", "언제 켜나. milestone(RTL freeze · release 등)에서 사람이 RTL review의 milestone preset으로 지정하거나, 정기 preset이 켜도록 정한다. 어느 milestone에 켤지는 검증 리더가 정한다.", "AI가 만드는 것은 판정 자료다. 종류별 충족 · 미충족(남은 bin · 지점 목록) · 목표 없음 · 판정 불가, 승인 대기 exclusion 수, 남은 bin마다 추가 제안 또는 exclusion 후보. closure를 받아들이는 것, 그리고 sign-off는 사람이다.", "보수적으로 센다. - 목표 표에 없는 종류는 \"목표 없음\"으로 표시할 뿐 충족으로 세지 않는다. - 실패 test가 merge되었거나 결과 필터를 모르면 closure는 판정 불가다. - test 목록에 있는데 돌지 않은 test(merge에 없음)는 보지 못한 것으로 적는다. 그 test가 덮기로 한 bin이 남아 있으면 그 종류는 판정 불가로 본다(기본안). - formal 도달성 같은 선택 도구가 없으면 그 근거는 unavailable(보지 못한 것)이고, 그 도구에만 기댄 exclusion 근거는 도구 사실로 세지 않는다. - closure 충족은 동작이 확인되었다는 뜻이 아니다. 관측 수단이 없는 동작은 closure와 별개로 지적(확인할 수 없음)으로 남는다.", "블록 sign-off와의 관계. 블록 sign-off 판정은 같은 revision의 accept된 closure 판정 결과를 재료 하나로 읽는다. closure 판정이 없거나 DB revision이 다르거나 실패 test가 merge되었으면 그 재료는 판정 불가이고, 풀 방법은 \"milestone preset으로 B를 closure on으로 돌린다\"이다. 기능 추가 사슬의 마지막 link(sign-off 준비)는 블록마다 accept된 sign-off 판정을 읽을 뿐이다."]}, {"h": "5. 추세와 regression 결과의 연결"}, {"p": "coverage 숫자의 변화가 일이 되는 길은 둘이고, 계기가 다르다."}, {"table": {"head": ["계기", "무엇을 보나", "언제 일이 되나", "비교 기준"], "rows": [["정기(RTL review 정기 preset의 B)", "이전 run 대비 instance별 · 종류별 변화 줄(줄어든 종류가 맨 앞, 분모 바뀜은 따로)", "줄어듦이 기준을 넘으면 지적(coverage 감소)으로 오른다. 기준은 공란(검증 리더)", "같은 merge 정의의 이전 accept run"], ["상태 변화(intake의 coverage 수치 feed)", "regression이 낸 coverage 값", "기준값보다 정한 폭 이상 나빠지면 실패처럼 다룬다. 폭은 공란(검증 리더 · 팀 리더)", "마지막 정상 상태의 기준값(사람이 수치 일을 닫으며 새로 정할 때만 바뀜)"]]}}, {"ul": ["분모가 바뀐 줄어듦은 hole이 아닐 수 있다. RTL에 코드가 늘었거나 covergroup이 바뀌었거나 exclusion이 효과를 잃은 경우다. 앞의 둘은 새 hole이 맞을 수 있고, 마지막은 재확인 요청이다. 추세 줄은 이 셋을 가려서 보인다.", "측정이 바뀐 줄어듦은 coverage 일이 아니다. merge 정의가 바뀌었거나, test가 돌지 않았거나(regression 중단 · 환경 실패), 도구 버전이 바뀐 경우다. §2의 측정 환경 층으로 마감하고 운영 쪽 후속을 낸다.", "같은 변화가 두 길로 두 번 일이 되지 않게 한다. intake의 수치 feed가 연 일이 열려 있으면 정기 run의 감소 지적은 그 일에 붙는다(기본안).", "regression 실패와의 관계. 실패한 test는 merge에 넣지 않으므로, regression 실패가 늘면 coverage가 함께 줄어든다. 이때 원인은 실패이고 hole이 아니다. 실패 묶음의 원인 찾기(WF-regr-diagnose)가 먼저이고, coverage 일은 실패가 풀린 뒤의 값으로 본다."]}, {"h": "6. mutation(test 검증력 측정): 보류"}, {"p": "mutation은 RTL에 일부러 작은 결함을 넣어 test가 그것을 잡는지로 검증 환경의 품질을 재는 방법이다. 지금은 보류이며 목록에만 둔다. 들어온다면 붙을 자리는 다음과 같다."}, {"ul": ["evaluator: 선택 도구 하나(결함을 넣은 사본에서 test를 돌리고 결함마다 잡힘 · 놓침 · 결론 없음을 내는 것). 없으면 보지 못한 것이다.", "검증 상태 리뷰의 관측 수단 대응: \"관측 수단이 있다\"를 LLM의 읽기(의견)에서 도구 사실로 올리는 근거가 된다.", "coverage 보강의 의미 없는 채우기 방지: WF-coverage C5의 \"부모 결함을 되돌린 RTL에서 test가 실패한다\"는 결함 하나짜리 mutation이다. mutation이 들어오면 부모 결함이 없는 hole에도 같은 확인을 쓸 수 있다.", "결정 주체와 도입 시점은 검증 리더 · 팀 리더가 정한다."]}, {"h": "7. 학습(Track B)"}, {"p": "모든 coverage 일의 Track B에 공통 칸(쓴 workflow · 막힌 곳 · 평가)에 더해 다음을 남긴다."}, {"table": {"head": ["남길 것", "어디에 쓰이나"], "rows": [["어느 test가 어느 hole을 닫았나(채움과 확인을 따로)", "비슷한 hole의 test 후보 출발점, 건드리기만 한 test 계열의 정리"], ["hole의 층(§2.1)과 층을 가른 근거", "층별 빈도 → 측정 환경 개선 · covergroup 리뷰의 필요"], ["어떤 exclusion이 되돌려졌나(formal trace로 도달 가능 판명 · 재확인에서 거절 · 철회 · 만료로 hole 복귀)", "근거 등급과 승인 등급의 기본안 조정. 추론 근거 exclusion이 자주 되돌려지면 등급을 올린다"], ["채워지지 않은 도달 가능 hole과 그 끝(RTL 결함 의심 포함)", "원인 찾기와의 연결, 과거 bug 패턴"], ["관측 수단이 없는 module · 동작", "검증 환경 개선 후보(checker · assertion 추가)"], ["판정 불가가 된 이유(merge · revision · 돌지 않은 test · 도구 없음)", "측정 환경 정비, milestone 전 준비 항목"], ["수치 신호 가운데 측정 환경으로 끝난 것", "intake 수치 feed의 기준 폭 조정"]]}}, {"h": "8. 기본값"}, {"p": "각 항목은 출발점이며 실무에서 조정한다."}, {"table": {"head": ["항목", "기본값", "결정 주체"], "rows": [["hole 층 판별 순서", "측정 환경 → spec · covergroup → 도달 가능성 → test 부족", "검증 리더"], ["도달 불가 근거 등급", "formal 증명 > spec 절 · 설계 조건 > 추론, formal 결론 없음은 근거 아님", "검증 리더"], ["exclusion 요구 승인 등급", "근거가 도구 사실이면 tier1, 아니면 tier2. tier2 대상 목록은 공란", "검증 리더"], ["RTL 변경 시 exclusion", "suspend(분모에서 빼지 않음), warn으로 바꿀 수 있음", "검증 리더"], ["spec 변경 · 기능 비활성 exclusion의 만료 조건", "붙이는 것을 기본으로", "검증 리더"], ["covergroup에서 bin을 지우거나 줄이는 수정", "exclusion과 같은 승인 등급", "검증 리더"], ["coverage merge", "통과한 test만", "검증 리더"], ["closure 종류별 목표", "공란(목표 표, 버전)", "검증 리더"], ["closure를 켜는 milestone", "공란", "검증 리더"], ["돌지 않은 test가 덮기로 한 bin이 남은 종류", "판정 불가", "검증 리더"], ["정기 추세의 감소 지적 기준", "공란", "검증 리더"], ["intake 수치 feed의 악화 폭 · 기준값", "공란, 기준값은 사람이 수치 일을 닫을 때만 갱신", "검증 리더 · 팀 리더"], ["수치 신호의 일", "두 길(정기 · feed)이 같은 변화면 하나로 붙음", "시스템 관리자"], ["채워지지 않는 도달 가능 hole", "formal(있으면) → 증명되면 원인 찾기 후속, exclusion 금지", "검증 리더"], ["mutation", "보류", "검증 리더 · 팀 리더"]]}}]},
   { id: "kb",   badge: "확정 · 확인 대기 셋",
     title: "KB agent system — 근거가 붙은 제품 지식",
     excluded: "이 페이지의 제품 · 고객 · 수치는 모두 가상이다(가상 제품 family VX, 가상 고객 NOVA 등). 회사 자료가 들어간 KB가 아니며, 실제 KB를 채우고 실험하는 일은 회사에서 한다.",
@@ -1081,7 +1217,7 @@ window.WS = {
 
   /* ───────────── core 한 장 (그림 · 15초 애니메이션) ─────────────
      그림과 애니메이션은 media/core_map.html 한 파일에서 30_tools/render_media.mjs가 뽑는다. */
-  mapOrder: ["core", "intake", "workflow", "chain", "diagnose", "workmap", "atlas", "kb"],
+  mapOrder: ["core", "intake", "workflow", "chain", "diagnose", "timing", "coverage", "workmap", "atlas", "kb"],
   maps: {
   core: {
     tab: "core",
@@ -1118,7 +1254,7 @@ window.WS = {
         ul: [
           "intake 심화에서 일곱 단계(capture → raw scan → work-or-not → understand → categorize → gate → route)로 펼쳐졌다. 그림의 1~3은 이 일곱 단계를 core 단계로 묶어 보인 것이다.",
           "gate는 위험 → 권한 → 정보 → 불확실 → 작업량 순서로 검사한다. 걸리면 hold(stop · record-only · needs-info · discuss)로 멈추고 사람을 부른다.",
-          "세울 수 있는 agent 시스템 명세로 확장됐다: 부품 11, 데이터 계약 3, 규칙 설정 8, 시험 사례 91. 결정 후보 51이 교정을 기다린다."
+          "세울 수 있는 agent 시스템 명세로 확장됐다: 부품 11, 데이터 계약 3, 규칙 설정 9, 시험 사례 119. 위임 결정은 확정되었다(실무에서 조정)."
         ],
         go: [["intake 카드", "sys", "intake"], ["gate 다섯 조건 · core 규칙", "sys", "core/rules"], ["intake agent 탐색기", "bun", "ia"]] },
       { name: "본체 · workflow", z: 1, stages: "4 plan · 5 execute · 6 result",
@@ -1161,7 +1297,7 @@ window.WS = {
       {"k": "tour", "view": [300, 400, 960, 540], "box": [338, 598, 884, 104], "text": "범위 좁히기 질문은 받은 자료에 있는 것은 묻지 않고, workflow의 필수 입력이 빠졌을 때만 멈춥니다. 회신은 늘 담당이 승인해 보냅니다. 진짜 bug는 검수자가 고른 것만 내부 이슈로 열리고, 고객 이슈와 합치지 않고 link로 잇습니다. 사슬이 필요하면 사람의 ticket이 epic이 되어 첫 link를 직접 돌고, 다음 link는 child로 열립니다."},
       {"k": "tour", "view": [1080, 236, 820, 461], "box": [1590, 250, 292, 412], "text": "그래서 같은 출력 깨짐도 끝이 다릅니다. 고객이 보내면 고객 확인으로, ticket이면 검수와 반영으로, 야간 regression이면 묶음과 요청으로, 다른 일의 뒤라면 부모의 계약이 정한 workflow로 끝납니다."},
       {"k": "tour", "view": [40, 690, 980, 551], "box": [80, 736, 860, 314], "text": "왜 intake부터 세워야 할까요. 순서가 무너지면 LLM이 위험한 원문을 먼저 읽고, 소음을 못 다스리면 사람이 시스템을 끕니다. 틀린 분류를 잡는 자리 넷, 곧 golden 불일치, 검수의 category was wrong, 실행 중 재분류, 사람이 바꾼 cat label이 분류의 Track B 한 줄로 모여 분류 규칙과 질문 묶음을 고칩니다."},
-      {"k": "tour", "view": [940, 690, 980, 551], "box": [980, 736, 860, 314], "text": "품질 기준은 hard-zero 셋, 곧 위험 놓침과 잘못 붙이기와 밖으로 새기가 없는 것이고, 시험 사례 114건이 이것을 확인합니다. 위임 결정은 첫 판 51항, 동기화 28항, 그 뒤 workflow와 맞춘 35항이고, 교정을 기다리는 가정입니다. 확정과 맞닿은 곳은 틀렸을 때만 고칩니다."},
+      {"k": "tour", "view": [940, 690, 980, 551], "box": [980, 736, 860, 314], "text": "품질 기준은 hard-zero 셋, 곧 위험 놓침과 잘못 붙이기와 밖으로 새기가 없는 것이고, 시험 사례 119건이 이것을 확인합니다. 명세의 결정들은 확정되었지만, 확정은 합리적인 출발점이라는 뜻이고 실무에서 확인하고 조정합니다."},
       {"k": "close", "text": "intake가 정확하면 뒤의 workflow와 검수와 학습이 옳은 일 위에서 돌고, 틀린 분류도 기록으로 고쳐집니다. 그래서 intake는 AI workflow를 실무에 넣는 첫 관문입니다."}
     ],
     title: "intake 한 장",
@@ -1216,10 +1352,10 @@ window.WS = {
         ul: [
           "자리 넷: golden 불일치(shadow에서 사람이 채택하지 않은 분류) · 검수의 \"category was wrong\" · 실행 중 재분류 · 사람이 `cat:` label을 바꿈.",
           "레코드가 끝날 때 Track B 줄 하나: 처음과 끝 카테고리, 업무 가족, 교정, 질문마다 답이 왔는가, 받은 자료로 알 수 있었는데 물었는가. 이 줄 없이 끝나면 \"Track B 빠짐\"으로 센다.",
-          "품질 기준은 hard-zero 셋(위험 놓침 0 · 잘못 붙이기 0 · 밖으로 새기 0)과 시험 사례 114건(고객 7 포함)이다. 부품 열하나 · 데이터 계약 셋 · 규칙 YAML 아홉.",
-          "위임 결정은 첫 판 51 + 동기화 28, 모두 가정(교정 대기)이다. 확정과 맞닿은 동기화 결정 셋(고객 레코드에서 고치지 않음 · 도구 신호의 원인 찾기는 요청할 때 · 원인 찾기 one-off 예외)은 틀렸을 때만 교정한다."
+          "품질 기준은 hard-zero 셋(위험 놓침 0 · 잘못 붙이기 0 · 밖으로 새기 0)과 시험 사례 119건(고객 7 포함)이다. 부품 열하나 · 데이터 계약 셋 · 규칙 YAML 아홉.",
+          "위임 결정(첫 판 · 동기화 · 이후)은 모두 확정되었다. 확정은 합리적 출발점이고 실무에서 조정한다."
         ],
-        go: [["시험 사례 114", "bun", "ia/golden"], ["평가 방법", "bun", "ia/eval"]] }
+        go: [["시험 사례 119", "bun", "ia/golden"], ["평가 방법", "bun", "ia/eval"]] }
     ]
   },
   workflow: {
@@ -1236,9 +1372,9 @@ window.WS = {
       {"k": "tour", "view": [1160, 230, 720, 405], "box": [1200, 266, 658, 158], "text": "원인은 문서, 이해, 환경, TB, C-model, spec, 도구, RTL, FW, 구현 결과 어디에나 있을 수 있어서, 층 판별이 먼저입니다. 내부 일은 재현 조건을 대조하고, 고객 일은 질문의 답과 자동 multi-test로 층을 가릅니다. 그다음 재현, 가설 표, 싼 것부터 좁히기, 원인마다 before/after를 거칩니다. 끝은 층마다 다릅니다."},
       {"k": "tour", "view": [1160, 400, 720, 405], "box": [1200, 446, 658, 232], "text": "모든 일에는 두 트랙이 붙습니다. Track A는 일 자체이고, Track B는 그 일이 쓴 workflow의 기록입니다. 막힌 곳과 평가, 그리고 원인 찾기를 했다면 정한 층과 층을 가른 질문과 test를 남깁니다. Track B가 비면 완료가 아닙니다. 학습이 끝나면 이 내용이 intake 원장의 레코드로 돌아가 분류가 배웁니다."},
       {"k": "tour", "view": [940, 690, 980, 551], "box": [996, 796, 832, 152], "text": "선택 도구 일곱은 회사에 있으면 쓰고, 없으면 그 확인을 보지 못한 것으로 남깁니다. waiver, coverage exclusion, 합성 예외 같은 억제 기록은 승인 때의 구문이 바뀌면 효과를 잃고 재확인을 기다립니다. 블록 sign-off 판정은 accept된 결과를 모아 준비됨, 미충족, 판정 불가를 냅니다. sign-off는 기준표의 책임자가 합니다."},
-      {"k": "tour", "view": [940, 690, 980, 551], "box": [996, 962, 832, 84], "text": "품질 기준은 세 개의 hard-zero입니다. 경계를 넘지 않고, 근거 없이 판정하지 않고, 사람의 기록을 훼손하지 않습니다. 상속 해석 36건, 한 바퀴 42건, 판정만 다시 해 보는 dry replay 6건이 이것을 시험합니다."},
+      {"k": "tour", "view": [940, 690, 980, 551], "box": [996, 962, 832, 84], "text": "품질 기준은 세 개의 hard-zero입니다. 경계를 넘지 않고, 근거 없이 판정하지 않고, 사람의 기록을 훼손하지 않습니다. 상속 해석 36건, 한 바퀴 46건, 판정만 다시 해 보는 dry replay 6건이 이것을 시험합니다."},
       {"k": "tour", "view": [40, 690, 980, 551], "box": [80, 736, 860, 314], "text": "정리하면 workflow가 기틀인 이유는 넷입니다. 절차는 골격 한 곳에 두고, 원인은 층 판별부터 가르고, 근거는 도구와 script가 내고, 학습은 Track B로 돌려줍니다."},
-      {"k": "close", "text": "사람이 한 일과 AI가 한 일이 같은 표에 쌓이고, 한 곳을 고치면 모든 업무가 함께 좋아집니다. 이것이 AI workflow를 실무에 넣는 기틀입니다. 명세의 결정들은 아직 가정이고, 회사에서 교정을 기다립니다."}
+      {"k": "close", "text": "사람이 한 일과 AI가 한 일이 같은 표에 쌓이고, 한 곳을 고치면 모든 업무가 함께 좋아집니다. 이것이 AI workflow를 실무에 넣는 기틀입니다. 명세의 결정들은 확정되었지만 합리적인 출발점이고, 회사에서 실무를 하며 조정합니다."}
     ],
     title: "workflow 한 장",
     whyTitle: "왜 workflow가 실무의 기틀인가",
@@ -1258,16 +1394,16 @@ window.WS = {
         ul: [
           "공통 골격: 자리 여덟(PL plan · IN 입력 · BL 시작점 · DO 본체 · OR 판정 · RG 회귀·부작용 · RS 결과 · LN 학습)과 공통 checkpoint 넷(C0 입력 확인 · CB 경계 확인 · CR 결과 패키지 · CL 학습).",
           "작업 모양 일곱(수정 · 탐색 · 판정 · 조사 · 작성 · 결정 자료 · 실험)이 자리를 어떻게 채울지 정하고, 특화는 채우고 좁히기만 한다. 넓히지 못한다.",
-          "특화 열일곱. 판정형에 블록 sign-off 판정이 새로 들어왔고, regression 원인 찾기는 실적이 생길 때까지 draft로 둔다(가정 · 교정 대기)."
+          "특화 열일곱. 판정형에 블록 sign-off 판정이 새로 들어왔고, regression 원인 찾기는 실적이 생길 때까지 draft로 둔다(확정 · 실무에서 조정)."
         ],
         go: [["탐색기 › 공통 골격", "bun", "wa/library/WF-common"], ["workflow › 자세히", "sys", "workflow/more"]] },
       { name: "고객 트랙 덧붙임", z: 1, stages: "TR-customer",
-        what: "출처가 고객이면 카테고리의 workflow 위에 고객 트랙이 덧붙는다. 별도 workflow가 아니다(가정 · 교정 대기).",
+        what: "출처가 고객이면 카테고리의 workflow 위에 고객 트랙이 덧붙는다. 별도 workflow가 아니다(확정 · 실무에서 조정).",
         ul: [
           "CT1 고객 경계와 질문의 답: 고객 별칭만 쓰고, 다른 고객의 자료를 읽거나 근거 · 초안에 쓰지 않으며, 고객이 보는 자리에 쓰지 않는다.",
           "CT2 자동 multi-test: 원인 찾기 phase가 있으면 증상별 묶음을 한 번에 돌려 층을 가른다. 알려진 bug 대조는 늘 함께 돈다.",
           "회신 초안은 결과 패키지의 한 절이고, 보내는 것은 고객 대응 담당이다. 진짜 bug의 내부 이슈 · 기능 요청의 사슬은 검수자가 고를 때만 열린다(기본은 고르지 않음).",
-          "고객 레코드에서는 대상을 고치지 않는다(resolver가 막는다). posture 상한은 draft다(가정 · 교정 대기). 상태 label은 고객이 볼 수 있는 ticket에 붙이지 않는다."
+          "고객 레코드에서는 대상을 고치지 않는다(resolver가 막는다). posture 상한은 draft다(확정 · 실무에서 조정). 상태 label은 고객이 볼 수 있는 ticket에 붙이지 않는다."
         ],
         go: [["탐색기 › TR-customer", "bun", "wa/library/TR-customer"], ["workflow › 카드 그림", "sys", "workflow/fig"]] },
       { name: "층 판별과 두 트랙", z: 2, stages: "조사형 의무 · Track A/B",
@@ -1284,7 +1420,7 @@ window.WS = {
           "선택 도구 일곱(RDC · X-propagation · DFT rule · formal 도달성 · constraint 검사 · netlist 등가성 · power 추정): 있으면 쓰고, 없으면 '보지 못한 확인'으로 남는다.",
           "억제 기록(waiver · coverage exclusion · 합성 예외)은 유효할 때만 효과를 낸다. 승인 때의 구문이 바뀌면 재확인 필요가 되어 효과를 잃는다.",
           "블록 sign-off 판정: 같은 revision에서 accept된 결과를 모아 준비됨 / 미충족 / 판정 불가와 미결 목록을 낸다. sign-off는 기준표의 책임자(사람)가 한다. 기준표는 공란이다.",
-          "hard-zero 셋: 경계 넘기 0 · 근거 없는 판정 0 · 사람 기록 훼손 0. 시험 사례: 상속 해석 36 · 한 바퀴 42 · dry replay 6."
+          "hard-zero 셋: 경계 넘기 0 · 근거 없는 판정 0 · 사람 기록 훼손 0. 시험 사례: 상속 해석 36 · 한 바퀴 46 · dry replay 6."
         ],
         go: [["탐색기 › WF-block-signoff", "bun", "wa/library/WF-block-signoff"], ["탐색기 › 시험 세트", "bun", "wa/golden"], ["workflow › 자세히", "sys", "workflow/more"]] }
     ]
@@ -1375,7 +1511,7 @@ window.WS = {
       {"k": "tour", "view": [860, 400, 1060, 596], "box": [900, 556, 940, 138], "text": "고객 환경에서만 출력이 다르다는 사례입니다. 릴리즈, 설정 값과 순서, 입력 조건, 환경, 재현 빈도를 한 번에 묻고, 고객 조건을 흉내 낸 multi-test를 함께 돌립니다. 고객 설정 값에서만 재현되고 문서의 순서와 다르면, 층은 문서와 코드의 불일치입니다. 답 초안은 사람이 승인해 회신하고, 진짜 bug라면 내부 이슈를 따로 열어 link합니다."},
       {"k": "tour", "view": [940, 240, 980, 551], "box": [1436, 300, 406, 120], "text": "끝은 층마다 다릅니다. 문서 보강, 결정 뒤 수정, FAQ 축적, 환경 안내, errata, 내부 수정 이슈입니다. 어느 질문과 test가 층을 실제로 갈랐는지는 Track B로 남겨 두 묶음을 고칩니다."},
       {"k": "tour", "view": [40, 690, 980, 551], "box": [80, 736, 860, 314], "text": "정리하면 diagnose가 기틀인 이유는 넷입니다. 층부터 가르니 헛짚지 않고, before/after로 확인하니 근거가 남습니다. 층마다 알맞은 끝으로 가고, 층을 가른 질문과 test가 쌓입니다."},
-      {"k": "close", "text": "버그 수정과 timing 개선의 원인 phase도 같은 방법을 따릅니다. 층 판별 먼저는 확정이고, 층 열 표와 질문 묶음은 가정입니다. 원인 찾기를 AI에 맡겨도 근거가 남고 묶음이 자라는 것, 이것이 실무의 기틀입니다."}
+      {"k": "close", "text": "버그 수정과 timing 개선의 원인 phase도 같은 방법을 따릅니다. 층 판별 먼저도, 층 열 표와 질문 묶음도 확정되었고, 실무에서 조정합니다. 원인 찾기를 AI에 맡겨도 근거가 남고 묶음이 자라는 것, 이것이 실무의 기틀입니다."}
     ],
     title: "diagnose 한 장",
     whyTitle: "왜 diagnose가 기틀인가",
@@ -1393,10 +1529,10 @@ window.WS = {
       { name: "층 판별 · 층 열", z: 0, stages: "층 판별 · 열 층 · 불안정",
         what: "원인 찾기는 층부터 가른다. 층마다 재현 수단 · oracle · 좁히는 도구 · 끝이 다르다.",
         ul: [
-          "층 열(가정 · 교정 대기): 문서 · 이해 · 환경 · TB · C-model · spec · 도구 · RTL · FW · 구현 결과. 앞 일곱은 RTL 밖이다.",
+          "층 열(확정 · 실무에서 조정): 문서 · 이해 · 환경 · TB · C-model · spec · 도구 · RTL · FW · 구현 결과. 앞 일곱은 RTL 밖이다.",
           "예: TB 층은 같은 입력으로 checker 판정을 따로 계산하고(oracle = C-model · spec), 도구 층은 같은 입력을 도구 두 버전 · 두 종류로 돌린다(버전 bisect, 최소 예제).",
           "불안정은 층이 아니라 상태다. 같은 입력에서 결과가 갈리면(race · 초기화되지 않은 값 · X 전파 · 환경 요동) 원인 찾기를 멈추고 안정화 일감으로 넘긴다. 반복 횟수는 공란(검증 리더).",
-          "층 판별 먼저는 확정이다. 층 열 표의 칸은 가정이고 교정을 기다린다."
+          "층 판별 먼저도, 층 열 표의 칸도 확정되었다(실무에서 조정)."
         ],
         go: [["diagnose 카드", "sys", "diagnose"]] },
       { name: "층을 가르는 법", z: 1, stages: "내부 이슈 · 고객 이슈",
@@ -1442,7 +1578,7 @@ window.WS = {
       {"k": "tour", "view": [1000, 240, 920, 518], "box": [1208, 276, 644, 358], "text": "내부 lifecycle은 spec 학습부터 FPGA test까지 여덟 단계입니다. 검증 단계의 regression 새 실패는 RTL, TB, C-model에서 찾고 조사형으로 갑니다. 합성 단계의 timing 위반은 구현 결과와 constraint부터 보고 timing workflow로 갑니다."},
       {"k": "tour", "view": [40, 360, 1200, 675], "box": [80, 508, 1110, 124], "text": "고객 트랙은 접수, 범위 좁히기 질문, multi-test, 답 초안, 사람 승인, 회신, 고객 확인의 순서입니다. 특정 입력에서 출력이 깨진다는 이슈가 고객 조건으로 우리 쪽에서도 재현되면 진짜 bug입니다. 그러면 내부 이슈를 따로 열어 link하고, 고객 이슈는 그 진행을 따라가며 회신 일정을 관리합니다."},
       {"k": "tour", "view": [940, 690, 980, 551], "box": [995, 795, 830, 100], "text": "checklist는 checkpoint로, 검증 환경과 확인 환경은 evaluator로, 절차서는 단계 순서와 사람 자리로, 판정 기준은 policy로, 기록 양식은 결과 패키지의 절로 옮깁니다. 그대로 복사하지 않고, 참이어야 하는 것과 확인하는 방법으로 나눠 다시 씁니다."},
-      {"k": "tour", "view": [940, 690, 980, 551], "box": [995, 903, 830, 138], "text": "옮긴 확인은 workflow가 상속하는 잠금 항목이고, AI용 조건은 그 위에만 붙습니다. 이식이 끝난 업무 가족부터 shadow를 시작합니다. 분류 축과 업무 가족, 단계는 가정이고, 고객 이슈가 들어오는 경로와 자산의 위치는 회사에서 확인합니다."},
+      {"k": "tour", "view": [940, 690, 980, 551], "box": [995, 903, 830, 138], "text": "옮긴 확인은 workflow가 상속하는 잠금 항목이고, AI용 조건은 그 위에만 붙습니다. 이식이 끝난 업무 가족부터 shadow를 시작합니다. 분류 축과 업무 가족, 단계는 확정되었지만 출발점이고, 고객 이슈가 들어오는 경로와 자산의 위치는 회사에서 확인합니다."},
       {"k": "tour", "view": [0, 0, 1920, 1080], "box": [80, 644, 1760, 50], "text": "모든 일에는 두 트랙이 붙습니다. Track A는 일 자체이고, Track B는 그 일이 쓴 workflow의 기록입니다. 막힌 곳, 평가, 개선 제안, revision이나 신설 초안이 남습니다. Track B가 없으면 사람이 직접 한 일도 완료가 아닙니다."},
       {"k": "tour", "view": [40, 690, 980, 551], "box": [80, 736, 860, 314], "text": "정리하면 업무 지도가 기틀인 이유는 넷입니다. 출처에 따라 끝을 다르게 하고, 팀의 기존 확인을 바닥으로 삼고, 다섯 축으로 workflow와 진단의 첫 갈래를 정하고, Track B로 분류와 질문, test 묶음을 키웁니다."},
       {"k": "close", "text": "업무 지도는 일이 어디서 생겨 어디로 가는지를 보여 주고, diagnose 갈래도 이 위에 섭니다. 기존 확인 위에 AI를 얹고 모든 일이 기록을 남기게 하는 것, 이것이 실무의 기틀입니다."}
@@ -1461,7 +1597,7 @@ window.WS = {
     ],
     zones: [
       { name: "분류 축 다섯", z: 0, stages: "출처 · ask · 업무 가족 · lifecycle · 층",
-        what: "①~④는 intake가 정하고, ⑤ 층은 진단이 좁혀 가며 정한다. 축마다 바꾸는 것이 다르다(가정 · 교정 대기).",
+        what: "①~④는 intake가 정하고, ⑤ 층은 진단이 좁혀 가며 정한다. 축마다 바꾸는 것이 다르다(확정 · 실무에서 조정).",
         ul: [
           "① 출처: 고객 · 내부(사람) · 내부(tool 신호) · 내부(사슬 · 후속) → lifecycle과 완료 조건, 회신 규율.",
           "② 요청 종류(ask): answer · change · diagnose · decide · notify · scheduled → workflow의 작업 모양.",
@@ -1480,7 +1616,7 @@ window.WS = {
         ],
         go: [["diagnose 한 장", "sys", "diagnose"], ["업무 지도 카드", "sys", "workmap"]] },
       { name: "내부 lifecycle", z: 2, stages: "S1 spec 학습 → … → S8 FPGA test",
-        what: "단계마다 생기는 상황, 진단의 첫 갈래, 쓰는 workflow가 정해져 있다(가정 · 교정 대기).",
+        what: "단계마다 생기는 상황, 진단의 첫 갈래, 쓰는 workflow가 정해져 있다(확정 · 실무에서 조정).",
         ul: [
           "여덟 단계: spec · feature 학습 → 검증 환경 → 구현 → 검증 · 디버깅 → 각종 test → 합성 · 구현 → 상위 SW co-sim → FPGA test.",
           "예: 검증 · 디버깅 단계의 regression 새 실패 → RTL · TB · C-model → 조사형(diagnose 갈래). 간헐 실패 → 불안정부터.",
@@ -1504,20 +1640,20 @@ window.WS = {
   atlas: {
     tab: "전체 지도",
     narr: [
-      {"k": "intro", "seg": [0, 3], "text": "이 설계는 주제가 여럿으로 나뉘어 있습니다. intake, workflow, chain, diagnose, 업무 지도, 고객 트랙, 그리고 KB입니다. 그래도 실제 일은 모두 같은 core 한 바퀴를 지납니다."},
-      {"k": "intro", "seg": [3, 6.5], "text": "갈래는 엔진이 아닙니다. chain은 link 표를, diagnose는 층 표를, code-review와 timing-area, coverage는 특화 workflow와 oracle을 정합니다. 업무 지도는 출처와 고객 트랙을 정합니다."},
+      {"k": "intro", "seg": [0, 3], "text": "이 설계는 주제가 여럿으로 나뉘어 있습니다. intake, workflow, chain, diagnose, timing-area, coverage, 업무 지도, 고객 트랙, 그리고 KB입니다. 그래도 실제 일은 모두 같은 core 한 바퀴를 지납니다."},
+      {"k": "intro", "seg": [3, 6.5], "text": "갈래는 엔진이 아닙니다. chain은 link 표를, diagnose는 층 표를, timing-area는 하위 층 다섯을, coverage는 hole 층을 정하고, code-review는 특화 workflow와 oracle을 씁니다. 업무 지도는 출처와 고객 트랙을 정합니다."},
       {"k": "intro", "seg": [6.5, 9.5], "text": "지식은 KB 한 곳이 정본입니다. intake, workflow, diagnose, 고객 트랙이 KB에 묻고, 일의 끝에서 나온 FAQ와 errata, bug 문서는 MR로 제안되어 사람이 reviewed로 올립니다."},
-      {"k": "intro", "seg": [9.5, 11.5], "text": "겹침 지도는 주제 여덟과 책임 열 칸을 맞춰 봅니다. 채운 점은 정본, 빈 점은 빌려 쓰는 곳입니다."},
+      {"k": "intro", "seg": [9.5, 11.5], "text": "겹침 지도는 주제 열과 책임 열 칸을 맞춰 봅니다. 채운 점은 정본, 빈 점은 빌려 쓰는 곳입니다."},
       {"k": "intro", "seg": [11.5, 15], "text": "그래서 내부 실패도, 고객 이슈도, 기능 추가도 같은 부품을 지나갑니다. 하나씩 보겠습니다."},
-      {"k": "tour", "view": [0, 0, 1920, 1080], "box": [70, 236, 1780, 128], "text": "core는 둘입니다. intake는 무슨 일인지, 해도 되는지, 어디로 보낼지를 맡고, workflow는 어떻게 끝내고 무엇으로 맞았다고 할지를 맡습니다. learn에 남은 Track B는 분류 규칙과 workflow를 고칩니다. core 규약과 intake는 확정이고, workflow 명세 묶음은 가정입니다."},
-      {"k": "tour", "view": [300, 200, 1300, 731], "box": [330, 386, 1100, 92], "text": "chain은 긴 일을 link 사슬로 나누고, 앞 link가 뒤 link의 oracle을 만듭니다. 나머지 셋은 특화 workflow 첫 판만 있고, 고유 내용은 현장 절차와 대조해 채웁니다. chain은 확정이고 oracle 구분만 가정이며, diagnose는 가정입니다."},
+      {"k": "tour", "view": [0, 0, 1920, 1080], "box": [70, 236, 1780, 128], "text": "core는 둘입니다. intake는 무슨 일인지, 해도 되는지, 어디로 보낼지를 맡고, workflow는 어떻게 끝내고 무엇으로 맞았다고 할지를 맡습니다. learn에 남은 Track B는 분류 규칙과 workflow를 고칩니다. core 규약과 intake, workflow 명세는 확정이고, 실무에서 조정하는 출발점입니다."},
+      {"k": "tour", "view": [300, 200, 1300, 731], "box": [330, 386, 1100, 92], "text": "chain은 긴 일을 link 사슬로 나누고, 앞 link가 뒤 link의 oracle을 만듭니다. timing-area와 coverage는 갈래 정본이 생겼고, code-review는 특화 workflow만 있습니다. chain은 확정이고 oracle 구분만 가정이며, diagnose는 확정입니다."},
       {"k": "tour", "view": [0, 0, 1920, 1080], "box": [70, 488, 1780, 92], "text": "KB는 별도 묶음으로 반입하는 system입니다. 어떤 제품의 어떤 질문이든 원천 위치와 버전이 붙은 답을 주고, 답하지 못한 빈 곳은 채울 일감이 됩니다. 다른 주제는 KB에 직접 쓰지 않고 MR로 제안합니다. KB는 확정이고, 고객 표기 해석 등 세 줄은 확인 대기입니다."},
-      {"k": "tour", "view": [940, 690, 980, 551], "box": [995, 790, 830, 236], "text": "한 열에 채운 점이 여럿이면 경계를 확인할 곳입니다. 정본 문서가 짚은 열은 입구, oracle, 학습입니다. 입구는 core가 단계와 파일을, intake가 adapter를, 업무 지도가 고객 입구를 정합니다. oracle은 workflow가 형식을, 갈래가 무엇이 oracle인지를 정합니다."},
+      {"k": "tour", "view": [940, 690, 980, 551], "box": [995, 790, 830, 236], "text": "한 열에 채운 점이 여럿이면 경계를 확인할 곳입니다. 그런 열은 입구, 실행, oracle, 반영, 학습의 다섯입니다. 입구는 core가 단계와 파일을, intake가 adapter를, 업무 지도가 고객 입구를 정합니다. 실행과 oracle은 workflow가 형식을, 갈래가 그 안의 내용을 정하고, 반영은 사람이 무엇을 정하는지를 갈래가 정합니다."},
       {"k": "tour", "view": [0, 0, 1920, 1080], "box": [70, 580, 1780, 36], "text": "첫째 길은 야간 regression 실패입니다. 같은 변경 구간의 실패 서른 개가 묶음 하나가 되고, owner가 요청하면 WF-regr-diagnose가 원인 보고를 씁니다. 수정은 후속 요청으로 가고, Track B와 bug 문서 MR이 남습니다."},
       {"k": "tour", "view": [0, 0, 1920, 1080], "box": [70, 618, 1780, 36], "text": "둘째 길은 고객 이슈입니다. 범위 좁히기 질문 뒤에 multi-test를 돌리고, 진짜 bug면 내부 이슈를 따로 열어 첫째 길로 보냅니다. 회신은 늘 사람이 승인하고, 고객 확인으로 끝나며, errata와 FAQ 후보가 MR로 남습니다."},
       {"k": "tour", "view": [0, 0, 1920, 1080], "box": [70, 656, 1780, 36], "text": "셋째 길은 기능 추가 사슬입니다. intake는 첫 link만 열고, link 하나가 task 하나입니다. 사람 결정 넷 외에는 검수 accept로 다음 link가 열리고, 끝에서 릴리즈 기록이 KB에 남습니다."},
       {"k": "tour", "view": [40, 690, 980, 551], "box": [80, 736, 860, 314], "text": "정리하면 이유는 넷입니다. 일은 모두 같은 core를 지나고, 갈래는 내용을 채우며, 지식은 KB 한 곳이 정본이고, 책임마다 정본이 하나라서 부품을 바꿔도 다른 곳이 흔들리지 않습니다."},
-      {"k": "close", "text": "회사에는 자산 이식과 KB 반입, intake shadow, workflow와 diagnose, chain과 KB hook 순서로 세웁니다. workflow의 고객 트랙과 Track B 칸, core 문서 동기화, core와 KB의 접점 표는 반영 대기입니다. 주제가 늘어도 같은 길 위에 내용을 더하는 것, 이것이 실무의 기틀입니다."}
+      {"k": "close", "text": "회사에는 자산 이식과 KB 반입, intake shadow, workflow와 diagnose, chain과 KB hook 순서로 세웁니다. core와 KB의 접점 표와 code-review 갈래 문서는 반영 대기입니다. 주제가 늘어도 같은 길 위에 내용을 더하는 것, 이것이 실무의 기틀입니다."}
     ],
     title: "전체 지도 한 장",
     whyTitle: "왜 전체 지도가 기틀인가",
@@ -1536,8 +1672,8 @@ window.WS = {
         what: "core는 둘이다. intake는 \"무슨 일인가 · 해도 되는가 · 어디로 보내나\"를, workflow는 \"어떻게 끝내고 무엇으로 맞았다고 하나\"를 맡는다.",
         ul: [
           "발생: ticket · tool 신호 · 고객 · command · 사슬의 다음 link · backlog. 어떤 발생이든 같은 레코드로 받는다.",
-          "intake: 받기 → 분류 → gate. 품질 기준은 hard-zero 셋(위험 놓침 · 잘못 붙이기 · 밖으로 새기). 확정이고, 명세의 세세한 위임 결정은 교정 대기다.",
-          "workflow: plan → checkpoint 실행 → oracle 판정 → 결과 패키지. 판정은 도구가 하고, 한 task = 한 결과 패키지 = 한 번의 검수다. 명세 묶음은 위임에 의한 가정(교정 대기)이다.",
+          "intake: 받기 → 분류 → gate. 품질 기준은 hard-zero 셋(위험 놓침 · 잘못 붙이기 · 밖으로 새기). 확정이고, 명세의 세세한 위임 결정도 확정되었다(실무에서 조정).",
+          "workflow: plan → checkpoint 실행 → oracle 판정 → 결과 패키지. 판정은 도구가 하고, 한 task = 한 결과 패키지 = 한 번의 검수다. 명세 묶음의 위임 결정은 확정되었다(실무에서 조정).",
           "사람의 검수 → 반영 → learn: 사람이 결과 한 장으로 검수하고 반영한다. learn에서 Track B(쓴 workflow의 기록)가 남아 분류 규칙과 workflow revision을 고친다. core 공통 규약은 확정이다."
         ],
         go: [["core 카드", "sys", "core"], ["intake 카드", "sys", "intake"], ["workflow 카드", "sys", "workflow"]] },
@@ -1545,9 +1681,9 @@ window.WS = {
         what: "갈래는 엔진이 아니다. workflow 파일(특화 · 조립)과 그 내용(link 표 · 층 표 · oracle)을 정한다.",
         ul: [
           "chain: 아키텍처부터 검증까지의 긴 일을 link(= task) 사슬로 나누고, 앞 link가 뒤 link의 oracle을 만든다. 사람 결정 넷(착수 · 아키텍처 선택 · interface freeze · sign-off). 확정이고, encoder/decoder의 oracle 구분만 가정이다.",
-          "diagnose: 원인을 층부터 가르고 재현 → 가설 → 좁히기 → before/after로 확인한다. 대상을 고치지 않는다. 가정(교정 대기).",
-          "code-review · timing-area · coverage: 정본 문서는 아직 없고, workflow 묶음 안에 특화 workflow 첫 판이 있다. 고유 내용은 현장 절차와 대조하며 채운다.",
-          "업무 지도: intake와 workflow 사이의 지도. 기존 자산 이식 먼저 · 두 트랙 · 고객 트랙 재개는 확정, 분류 축 다섯 · 업무 가족 열둘 · lifecycle 여덟 단계는 가정이다. 자기 agent · 도구는 없고 intake와 workflow의 규칙 · 설정 값으로 들어간다."
+          "diagnose: 원인을 층부터 가르고 재현 → 가설 → 좁히기 → before/after로 확인한다. 대상을 고치지 않는다. 확정 · 실무에서 조정.",
+          "timing-area: 하위 층 다섯 · 억제 기록 운용 · 같은 조건 비교. coverage: hole 층 여섯 · 채움 ≠ 확인 · closure는 사람. 둘 다 갈래 정본이 있고 가정(실무에서 조정)이다. code-review는 특화 workflow만 있고, 갈래 문서는 회사 review 절차 뒤에 쓴다.",
+          "업무 지도: intake와 workflow 사이의 지도. 기존 자산 이식 먼저 · 두 트랙 · 고객 트랙 재개는 확정, 분류 축 다섯 · 업무 가족 열둘 · lifecycle 여덟 단계도 확정이다(실무에서 조정). 자기 agent · 도구는 없고 intake와 workflow의 규칙 · 설정 값으로 들어간다."
         ],
         go: [["chain 카드", "sys", "chain"], ["diagnose 카드", "sys", "diagnose"], ["업무 지도 카드", "sys", "workmap"]] },
       { name: "KB = 지식의 정본", z: 2, stages: "묻기(kb-ask) · 일의 끝 → MR",
@@ -1562,7 +1698,7 @@ window.WS = {
       { name: "겹침 지도", z: 3, stages: "주제 여덟 × 책임 열 칸 (● 정본 · ○ 사용)",
         what: "책임 열 칸(입구 · 분류 · gate · plan · 실행 · oracle · 검수 · 반영 · 학습 · 지식)마다 어느 주제가 규칙을 정하고(●) 어느 주제가 빌려 쓰는지(○)를 본다.",
         ul: [
-          "한 열에 ●가 여럿이면 경계를 확인할 곳이다. 정본 문서가 짚은 열은 셋이고, 모두 나눠 맡는다.",
+          "한 열에 ●가 여럿이면 경계를 확인할 곳이다. 그런 열은 다섯(입구 · 실행 · oracle · 반영 · 학습)이고, 모두 나눠 맡는다.",
           "입구: core는 단계와 파일을, intake는 입구별 adapter를, 업무 지도는 출처 축과 고객 입구를 정한다. 고객 입구는 intake의 고객 입구 adapter가 받는다.",
           "oracle: workflow는 판정의 형식(evaluator 공통 JSON, 근거 자격)을, 갈래는 무엇이 oracle인지(chain = spec · C-model 층, diagnose = 재현 · before/after, KB = lint · 정답 표)를 정한다.",
           "학습: core는 learn 단계를, workflow는 LN 자리와 dry replay를, 업무 지도는 'Track B가 늘 붙는다'는 의무를, diagnose는 질문 · test 묶음의 revision을 정한다. 하나의 Track B 기록 형식으로 모인다.",
@@ -1657,6 +1793,150 @@ window.WS = {
         ],
         go: [["전체 지도", "tab", "atlas"], ["KB 카드", "sys", "kb"]] }
     ]
+  },
+  coverage: {
+    tab: "coverage",
+    narr: [
+      {"k": "intro", "seg": [0, 3], "text": "coverage 숫자가 올랐다고 동작이 확인된 것은 아닙니다. test가 hole의 논리를 건드려도, 그 동작이 틀렸을 때 실패하지 않으면 채운 것이 아닙니다. 그리고 모든 hole이 test 부족도 아닙니다."},
+      {"k": "intro", "seg": [3, 6.5], "text": "그래서 이 갈래는 coverage 숫자와 관측 수단을 따로 셉니다. hole은 층 여섯으로 가릅니다. 측정 환경, spec 변경, covergroup 정의 오류, 도달 불가, test 부족, 그리고 RTL 결함 의심입니다."},
+      {"k": "intro", "seg": [6.5, 9.5], "text": "분모를 바꾸는 일은 사람이 승인합니다. covergroup을 줄이는 수정은 exclusion과 같은 승인을 받습니다. exclusion은 근거 등급이 붙고, RTL이 바뀌면 효과가 멈춥니다."},
+      {"k": "intro", "seg": [9.5, 12], "text": "closure는 AI가 판정 자료를 만들고 사람이 판정합니다. 목표가 없는 종류는 충족이 아니고, 보지 못한 것이 남으면 판정 불가입니다."},
+      {"k": "intro", "seg": [12, 15], "text": "채움과 확인을 따로 세니, 숫자를 믿을 수 있습니다. 하나씩 보겠습니다."},
+      {"k": "tour", "view": [40, 40, 1840, 1035], "box": [76, 300, 1768, 62], "text": "먼저 맨 위의 두 셈입니다. 채워졌는지는 coverage 숫자, 곧 도구 사실로 봅니다. 동작을 확인하는지는 checker, assertion, reference 비교 같은 관측 수단으로 봅니다. 관측 수단이 없는 동작은 따로 지적합니다."},
+      {"k": "tour", "view": [40, 250, 1000, 563], "box": [72, 396, 876, 152], "text": "hole을 가르는 첫째는 측정 환경입니다. DB revision이 대상과 다르거나, merge 정의가 바뀌었거나, test가 돌지 않았으면 그 hole은 아직 hole이 아닙니다. 측정을 바로잡고 다시 판정합니다. 다음으로 bin이 가리키는 동작이 spec에서 빠졌거나 cross가 불가능한 조합이면, test가 아니라 coverage 모델의 문제입니다."},
+      {"k": "tour", "view": [920, 250, 1000, 563], "box": [954, 396, 876, 152], "text": "도달 불가는 parameter로 꺼진 기능이나 방어용 branch입니다. 근거 등급은 formal 증명, spec 절과 설계 조건, 추론 순이고, formal의 결론 없음은 근거가 아닙니다. 도달 가능하면 test 후보를 만듭니다. 그래도 채워지지 않는데 formal이 도달 불가를 증명하면, spec과 RTL이 어긋난 것이므로 원인 찾기로 보냅니다."},
+      {"k": "tour", "view": [40, 420, 1000, 563], "box": [74, 554, 572, 152], "text": "covergroup 수정은 분모를 바꿉니다. bin을 지우면 coverage가 오르지만, 이것은 채운 것이 아닙니다. 그래서 수정마다 spec 절과 값 범위를 대조하고, 추세에서 분모가 바뀐 것을 따로 표시합니다. bin을 지우거나 줄이는 수정은 exclusion과 같은 승인 등급을 받습니다."},
+      {"k": "tour", "view": [660, 400, 1200, 675], "box": [664, 554, 1182, 152], "text": "exclusion은 억제 기록입니다. 후보마다 근거 등급과 요구 승인 등급이 붙고, 사람만 승인합니다. 승인한 뒤 RTL이 바뀌면 재확인 필요가 되어 분모에 다시 들어가고, 다시 승인하면 유효로 돌아옵니다. spec 변경으로 낸 것에는 만료 조건을 붙여, 기능이 다시 켜지면 hole로 돌아오게 합니다."},
+      {"k": "tour", "view": [940, 690, 980, 551], "box": [995, 800, 830, 146], "text": "closure는 검증 상태 리뷰의 판정 mode입니다. AI는 종류별 충족, 미충족과 남은 bin, 목표 없음, 판정 불가를 자료로 만들고, 사람이 받아들입니다. 실패 test가 merge되었거나 돌지 않은 test가 덮기로 한 bin이 남으면 판정 불가입니다. 같은 변화가 정기 감소 지적과 수치 feed 두 길로 오면 일 하나로 붙습니다."},
+      {"k": "tour", "view": [40, 690, 980, 551], "box": [80, 736, 860, 314], "text": "정리하면 coverage 갈래가 기틀인 이유는 넷입니다. 채움과 확인을 따로 세고, 층부터 가릅니다. 분모를 바꾸는 일과 closure는 사람이 정하고, 보지 못한 것은 통과로 세지 않습니다."},
+      {"k": "close", "text": "test 검증력 측정인 mutation은 보류이고, 붙을 자리만 적어 두었습니다. 규칙 상당수는 회사 실물을 보지 않고 정한 출발점이라 가정으로 두고 실무에서 조정하며, 목표와 기준 숫자는 공란입니다. coverage 숫자를 믿을 수 있는 근거로 만드는 것, 이것이 AI workflow를 실무에 넣는 기틀입니다."}
+    ],
+    title: "coverage 한 장",
+    whyTitle: "왜 coverage 갈래가 기틀인가",
+    media: {
+      mp4: "media/coverage_15s.mp4", gif: "media/coverage_15s.gif", html: "media/coverage_map.html",
+      png: { light: "media/coverage_map_light.png", dark: "media/coverage_map_dark.png" }
+    },
+    why: [
+      ["확인", "test가 hole의 논리를 실행했어도 그 동작이 틀렸을 때 실패하지 않으면 채운 것이 아니다. 그래서 모든 판정이 coverage 숫자(도구 사실)와 관측 수단(checker · assertion · reference 비교)을 따로 센다. 관측 수단이 없는 동작은 closure와 별개로 지적으로 남는다."],
+      ["층", "모든 hole이 test 부족은 아니다. 측정 환경 → spec 변경 · covergroup 정의 오류 → 도달 불가 → test 부족 순으로 지우고, 도달 가능한데 채워지지 않는 hole은 RTL 결함 의심으로 원인 찾기에 보낸다. 그래서 의미 없는 test와 근거 없는 exclusion이 생기지 않는다."],
+      ["사람", "분모를 바꾸는 일은 사람이 승인한다. covergroup 축소는 exclusion과 같은 승인 등급을 받고, exclusion은 사람만 승인하며 RTL이 바뀌면 효과가 멈춘다. closure의 수용과 sign-off도 사람이다. 시스템은 억제 기록 · 목표 표를 고치지 않고 반영 후보로만 낸다."],
+      ["보수", "보지 못한 것은 통과로 세지 않는다. 목표 없음은 충족이 아니고, 실패 test가 merge되었거나 돌지 않은 test가 덮을 bin이 남으면 판정 불가다. 어느 test가 어느 hole을 닫았는지, 어느 exclusion이 되돌려졌는지가 Track B로 남아 다음 판정의 근거가 된다."]
+    ],
+    zones: [
+      { name: "두 셈 · hole 층 여섯", z: 0, stages: "채움 ≠ 확인 · 측정 환경 → … → RTL 결함 의심",
+        what: "coverage 숫자와 관측 수단을 따로 세고, hole은 층 여섯으로 가른다. 층마다 끝이 다르다.",
+        ul: [
+          "두 셈: coverage 숫자(line · branch · condition · toggle · FSM · functional · assertion)는 도구 사실로 '건드렸다'를 말한다. '확인했다'는 checker · assertion · reference 비교 같은 관측 수단이 말한다.",
+          "층 여섯과 끝: 측정 환경(coverage 일이 아니다, 측정을 바로잡고 재판정) · spec 변경(covergroup 정리 또는 만료 조건이 붙은 exclusion 후보) · covergroup 정의 오류(수정 제안) · 도달 불가(exclusion 후보) · test 부족(test 후보) · RTL 결함 의심(원인 찾기).",
+          "도달 불가의 근거 등급: formal 증명 > spec 절 · 설계 조건 > 추론. formal의 '결론 없음'은 근거가 아니고, formal 증명은 그 run의 constraint 아래의 사실이므로 constraint 버전을 함께 적는다.",
+          "도달 가능한데 채워지지 않으면 formal(있으면)로 다시 본다. 도달 불가가 증명되면 spec과 RTL이 어긋난 것이므로 exclusion으로 덮지 않는다.",
+          "상태: 가정(위임) · 실무에서 조정. 판별 순서와 근거 등급의 결정 주체는 검증 리더다."
+        ],
+        go: [["coverage 카드 · 층 그림", "sys", "coverage/fig"], ["갈래 정본 (탐색기)", "bun", "wa/design/coverage"]] },
+      { name: "covergroup 수정 · exclusion", z: 1, stages: "분모 바뀜 · 억제 기록 · 사람 승인",
+        what: "분모를 바꾸는 일은 사람이 승인한다. covergroup 축소와 exclusion이 같은 승인 등급을 쓴다.",
+        ul: [
+          "covergroup 수정의 oracle은 coverage 증가가 아니라 spec 근거 대조(수정한 bin · cross마다 spec 절과 값 범위)와 분모 바뀜 표시다. 승인 전에는 줄어든 분모를 closure에 쓰지 않는다.",
+          "exclusion 후보마다 맞추는 키 · anchor 구문 hash · 이유 · 근거 등급 · 요구 승인 등급이 있다. tier1은 작성자가 아닌 설계자 · 검증자 한 명, tier2는 검증 리더다. tier2의 범위는 공란이다.",
+          "RTL이 바뀌어 anchor hash가 다르면 재확인 필요가 되고, 기본(suspend)에서는 분모에서 빼지 않는다. 같은 등급으로 다시 승인하면 유효로 돌아온다.",
+          "spec 변경 · 기능 비활성으로 낸 exclusion에는 만료 조건(milestone · revision)을 붙여 기능이 다시 켜지면 hole로 돌아오게 한다. 시스템은 사람 칸(이유 · 승인 · 만료 조건)을 쓰지 않고 억제 기록 diff로만 제안한다."
+        ],
+        go: [["WF-coverage", "bun", "wa/library/WF-coverage"], ["coverage 카드 · 더 보기", "sys", "coverage/more"]] },
+      { name: "closure · 추세", z: 2, stages: "판정 자료 · 사람 판정 · 블록 sign-off · 두 길",
+        what: "closure는 검증 상태 리뷰의 판정 mode다. AI가 판정 자료를 만들고, 사람이 받아들인다.",
+        ul: [
+          "유효한 exclusion만 분모에서 뺀 뒤 종류별로 목표 표와 비교해 충족 · 미충족(남은 bin 목록) · 목표 없음 · 판정 불가를 낸다. 목표 표의 값과 closure를 켜는 milestone은 공란(검증 리더)이다.",
+          "보수적으로 센다: 목표 없음은 충족이 아니고, 실패 test가 merge되었거나 결과 필터를 모르면 판정 불가, 돌지 않은 test가 덮기로 한 bin이 남으면 그 종류는 판정 불가다. closure 충족은 동작 확인이 아니다.",
+          "블록 sign-off 판정은 같은 revision의 accept된 closure 판정을 재료로 읽을 뿐 다시 계산하지 않는다. 없으면 판정 불가이고, 풀 방법은 milestone에서 closure를 켜고 리뷰를 돌리는 것이다.",
+          "추세: 정기 리뷰의 감소 지적과 intake의 수치 feed가 같은 변화면 일 하나로 붙는다. 분모가 바뀐 줄어듦은 따로 보이고, 측정이 바뀐 줄어듦은 coverage 일이 아니다. regression 실패가 늘어 줄었으면 실패의 원인 찾기가 먼저다."
+        ],
+        go: [["WF-rtl-verif-review", "bun", "wa/library/WF-rtl-verif-review"], ["WF-block-signoff", "bun", "wa/library/WF-block-signoff"]] },
+      { name: "끝 · Track B · 보류", z: 3, stages: "원인 찾기로 · 학습 · mutation 보류",
+        what: "채워지지 않는 도달 가능 hole은 원인 찾기로 가고, 무엇이 hole을 닫았는지가 Track B로 쌓인다.",
+        ul: [
+          "RTL 결함 의심과 coverage 수치 악화의 원인 찾기는 diagnose의 방법(측정 환경 층부터)을 따른다.",
+          "Track B: 어느 test가 어느 hole을 닫았나(채움과 확인을 따로) · hole의 층과 근거 · 되돌려진 exclusion · 관측 수단이 없는 module · 판정 불가가 된 이유. 추론 근거 exclusion이 자주 되돌려지면 승인 등급을 올린다.",
+          "mutation(RTL에 작은 결함을 넣어 test가 잡는지로 검증 환경을 재는 방법)은 보류다. 들어오면 선택 도구 evaluator, 관측 수단의 근거, 의미 없는 채우기 방지의 자리에 붙는다.",
+          "상태: 갈래 정본과 workflow 이식이 있다. 규칙 상당수는 회사 실물을 보지 않고 정한 출발점이라 가정(위임)으로 두고 실무에서 조정한다."
+        ],
+        go: [["diagnose 그림", "sys", "diagnose/fig"], ["coverage 카드 · 더 보기", "sys", "coverage/more"]] }
+    ]
+  },
+  timing: {
+    tab: "timing-area",
+    narr: [
+      {"k": "intro", "seg": [0, 3], "text": "합성이나 STA에서 WNS가 나빠지면, 가장 쉬운 길은 RTL부터 고치는 것입니다. 그런데 조건이 다른 두 run을 비교했거나, constraint가 바뀌었을 수도 있습니다. 근거 없이 고치면 숫자만 남고 이유는 사라집니다."},
+      {"k": "intro", "seg": [3, 6.5], "text": "timing-area 갈래는 먼저 일을 둘로 나눕니다. sub-top 합성과 fmax, 고객 레포트용 조건 표인 matrix는 사실과 지적만 냅니다. RTL을 고치는 것은 timing 개선 workflow 하나뿐이고, 고칠지는 사람이 정합니다."},
+      {"k": "intro", "seg": [6.5, 9.5], "text": "위반의 원인은 하위 층 다섯으로 가릅니다. 측정, constraint, 합성 설정, library와 corner와 도구, 그리고 RTL 구조입니다. 싼 것부터 지우고, 앞의 넷이 지워진 path만 RTL 후보가 됩니다."},
+      {"k": "intro", "seg": [9.5, 11.5], "text": "비교는 같은 조건끼리만 합니다. constraint와 library는 남의 것이라 고치지 않고 알립니다."},
+      {"k": "intro", "seg": [11.5, 15], "text": "그래서 AI가 고치는 숫자에는 늘 근거가 붙습니다. 부분별로 보겠습니다."},
+      {"k": "tour", "view": [0, 0, 1920, 1080], "box": [80, 318, 1760, 150], "text": "위 줄기는 사실을 내는 일입니다. 정기 sub-top 합성이 fmax와 QoR 칸을 쌓고, 성능과 면적 리뷰가 bottleneck을 지적합니다. 아래 줄기가 고치는 일입니다. 사람이 직접 요청하거나, 판단과 plan의 결정이 나온 뒤에만 timing 개선 workflow가 열립니다. 원인 phase에서 층을 가르고, 수정 phase에서 후보를 LEC와 regression으로 확인해 MR 후보를 냅니다."},
+      {"k": "tour", "view": [40, 380, 1100, 619], "box": [80, 500, 1040, 90], "text": "층 판별은 싼 것부터입니다. 먼저 측정입니다. 비교한 두 run의 recipe나 corner가 다르면 같은 조건으로 다시 재고, 차이가 사라지면 일이 아닙니다. 다음은 constraint입니다. clock 정의가 빠졌거나 근거 없는 예외가 있으면 후보를 만들지 않고 constraint 담당에게 알립니다. 합성 설정이 바뀌었으면 합성 담당에게 알립니다."},
+      {"k": "tour", "view": [800, 380, 1100, 619], "box": [1160, 470, 680, 120], "text": "library나 corner, 도구 버전이 바뀐 뒤에만 생긴 위반은 같은 RTL을 두 버전으로 돌려 가르고 담당에게 넘깁니다. 이 넷이 지워진 path만 RTL 구조 층으로 가서, 요청이 있을 때 수정 phase로 이어집니다."},
+      {"k": "tour", "view": [40, 440, 1000, 563], "box": [80, 600, 860, 100], "text": "비교는 같은 조건끼리만 합니다. 합성 mode, floorplan, clock 가정 같은 숨은 축이 하나라도 다르면 비교하지 않습니다. 추세는 정기 sub-top 합성에서 보고, 숨은 축이 바뀌면 추세를 끊어 조건 바뀜으로 표시합니다. met에서 미달로 바뀐 칸은 변화 폭과 무관하게 일이 됩니다. WNS와 TNS 변화의 기준은 공란입니다."},
+      {"k": "tour", "view": [920, 440, 1000, 563], "box": [980, 600, 860, 100], "text": "constraint, netlist, library는 남의 것입니다. 고치지 않고 지적과 알림을 냅니다. false path와 multicycle 예외는 사람만 MR로 쓰고, 덮는 path의 RTL이 바뀌면 효과가 멈춰 그 path의 met은 조건부가 됩니다. AI는 예외를 더하자고 제안하지 않습니다. 위반을 예외로 지우는 것은 개선이 아니기 때문입니다."},
+      {"k": "tour", "view": [940, 690, 980, 551], "box": [995, 800, 830, 120], "text": "결정은 사람이 합니다. constraint 변경은 constraint 담당이, 예외 승인은 동료나 설계 리더가, latency나 구조를 바꾸는 후보는 설계 리더와 아키텍트가 정합니다. 회사에 없는 선택 도구의 확인은 통과로 치지 않고, 보지 못한 것으로 적습니다."},
+      {"k": "tour", "view": [40, 690, 980, 551], "box": [80, 736, 860, 314], "text": "정리하면 timing-area가 기틀인 이유는 넷입니다. 사실과 수정을 나누고, 싼 층부터 지우고, 같은 조건끼리만 비교하고, 남의 설정과 예외는 사람 몫으로 남깁니다."},
+      {"k": "close", "text": "갈래 정본은 있지만, 층 순서와 추세 규칙, 예외 규칙의 상당수는 회사 실물을 보지 않고 정한 출발점입니다. 실무에서 조정합니다. AI가 timing을 고쳐도 숫자마다 근거가 남는 것, 이것이 실무의 기틀입니다."}
+    ],
+    title: "timing-area 한 장",
+    whyTitle: "왜 timing-area가 기틀인가",
+    media: {
+      mp4: "media/timing_15s.mp4", gif: "media/timing_15s.gif", html: "media/timing_map.html",
+      png: { light: "media/timing_map_light.png", dark: "media/timing_map_dark.png" }
+    },
+    why: [
+      ["나눔", "합성 · fmax · matrix는 사실과 지적만 내고 개선 방법은 내지 않는다. RTL을 고치는 것은 timing 개선 workflow뿐이고, 고칠지는 사람이 정한다(직접 요청, 또는 판단과 plan의 결정 뒤). 그래서 정기 합성이 돌 때마다 RTL이 바뀌는 일이 없고, 수정에는 늘 요청과 근거가 붙는다."],
+      ["층", "timing 위반의 상당수는 RTL 밖(측정 · constraint · 합성 설정 · library · corner · 도구)에 원인이 있다. 싼 것부터 지우면 입력 대조와 검사 도구로 끝나는 일이 많고, 합성을 여러 번 돌리는 것은 RTL 구조 층뿐이다. 층을 모른 채 RTL 후보를 만들지 않는다."],
+      ["같은 조건", "recipe · library · corner · constraint, 그리고 합성 mode · floorplan · clock 가정(숨은 축)이 다른 run끼리는 비교하지 않는다. 숨은 축이 바뀌면 추세를 '조건 바뀜'으로 끊어 거짓 악화 · 거짓 개선을 막는다. met → 미달은 변화 폭과 무관하게 일이다."],
+      ["남의 것", "constraint · netlist · library는 고치지 않고 지적과 알림을 낸다. false path · multicycle 예외는 사람만 MR로 쓰고, RTL이 바뀌면 효과가 멈춰 그 path의 met은 조건부가 된다. AI는 예외 추가를 제안하지 않고, 회사에 없는 선택 도구의 확인은 통과가 아니라 '보지 못함'으로 적는다."]
+    ],
+    zones: [
+      { name: "사실을 내는 일 · 고치는 일", z: 0, stages: "intake → 사실(sub-top 합성 · fmax · matrix · 리뷰) / 고치는 일(timing 개선 workflow)",
+        what: "사실을 내는 workflow와 RTL을 고치는 workflow를 나눈다. 고칠지는 사람이 정한다(가정 · 실무에서 조정).",
+        ul: [
+          "입구: STA · 합성 feed, 정기 sub-top 합성, 사람 요청, 고객, milestone. intake가 요청 종류(diagnose · change · answer · decide)를 정해 workflow로 보낸다.",
+          "사실: sub-top 합성과 fmax 확인, 고객 레포트용 조건 표(matrix), module의 성능 · 면적 리뷰. 사실과 지적(QoR 칸 · bottleneck · 낭비)만 내고 개선 방법은 내지 않는다. 밖으로 내는 값은 사람이 확정한다.",
+          "고치는 일: timing 개선 workflow의 두 phase. 원인 phase(기준 재현 · constraint 건전성 · 원인 분석)는 path 분석 보고로 끝나고, 수정 phase는 후보 → 합성 → LEC → regression으로 MR 후보를 낸다.",
+          "\"왜 나빠졌나\"만 물으면 원인 phase까지만 돈다. 원인이 constraint로 판정되면 수정 phase로 넘어가지 않고 constraint 담당에게 알린다.",
+          "판단과 plan의 결정 뒤에 timing 개선 workflow가 후속 요청으로 열린다. 같은 revision의 submodule별 critical path 묶음과 area 분해가 있으면 원인 phase가 무엇부터 볼지 정하는 데 쓴다."
+        ],
+        go: [["timing-area 그림", "sys", "timing/fig"], ["sub-top 합성 · fmax workflow", "bun", "wa/library/WF-syn-subtop-fmax"], ["timing 개선 workflow", "bun", "wa/library/WF-timing"]] },
+      { name: "하위 층 다섯", z: 1, stages: "측정 → constraint → 합성 설정 → library · corner · 도구 → RTL 구조",
+        what: "timing 위반은 싼 층부터 가른다. 앞의 넷은 입력 대조와 검사 도구로 끝나고, 합성을 여러 번 돌리는 것은 RTL 구조 층뿐이다(가정 · 실무에서 조정).",
+        ul: [
+          "측정: 두 run의 recipe · corner · 숨은 축이 다르거나 덜 끝난 run, hierarchy 처리가 달라 area 귀속이 바뀜 → 같은 조건으로 다시 비교. 차이가 사라지면 일 아님으로 마감.",
+          "constraint: clock 정의 누락 · unconstrained endpoint · 근거 없는 예외 · IO delay가 budget과 다름 · 경계 path만 미달 → 그 path는 후보를 만들지 않고 constraint 담당에게 알림.",
+          "합성 설정: recipe · 합성 mode · floorplan · clock 가정의 변경 → 합성 담당에게 알림. 의도된 변경이면 기준선을 새로 잡는다.",
+          "library · corner · 도구: 버전이 바뀐 뒤에만 생김 → 같은 RTL을 두 버전으로 돌려 가르고, 담당에게 넘기고 회피책을 기록한다.",
+          "RTL 구조: 위 넷이 지워졌고 변경 구간이 있음, 논리 깊이 · fanout이 늘어난 path → 요청이 있을 때 timing 개선 workflow의 수정 phase.",
+          "area도 같은 순서로 본다(clock이 빡빡해지면 합성이 cell을 키운다). 같은 조건에서 결과가 흔들리면 층이 아니라 불안정 상태다. 원인이 둘 섞이면 path 묶음마다 따로 보고한다."
+        ],
+        go: [["층 가르기 그림", "sys", "timing/fig"], ["diagnose 한 장", "sys", "diagnose/fig"]] },
+      { name: "같은 조건 · 추세", z: 2, stages: "숨은 축 · 정기 sub-top 합성 · met → 미달",
+        what: "같은 조건끼리만 비교하고, 추세는 정기 sub-top 합성에서 본다. 숨은 축이 바뀌면 추세를 끊는다(가정 · 실무에서 조정).",
+        ul: [
+          "숨은 축: 합성 mode · floorplan · clock 가정(uncertainty · latency). recipe · library · corner · constraint와 함께 하나라도 다르면 비교하지 않는다.",
+          "추세의 원천은 정기 sub-top 합성이다. 값은 QoR matrix에 쌓이고, 같은 칸(sub-top · revision · recipe · library · corner · 숨은 축)의 이전 accept 칸과 비교한다. 주기와 대상 branch는 공란(합성 담당 리더 · 팀 리더).",
+          "met → 미달로 바뀐 칸은 변화 폭과 무관하게 일이다(원인 찾기는 사람이 요청할 때 연다). WNS · TNS · area 변화는 기준(공란, 합성 담당 리더)을 넘을 때만 일이고, 넘지 않으면 기록만 한다.",
+          "library · constraint · recipe 버전이 바뀌면 영향 칸이 낡음이 되고, 다시 돌릴 칸을 owner에게 제안한다. 숨은 축이 바뀌면 \"조건 바뀜\"으로 끊어 줄어든 것처럼 보이지 않게 한다.",
+          "milestone에서는 sign-off corner · mode 목록 전부로 sub-top 합성을 돌리고, 블록 sign-off 판정이 같은 revision의 accept된 칸만 timing 재료로 읽는다."
+        ],
+        go: [["갈래 정본 (탐색기)", "bun", "wa/design/timing_area"], ["timing-area 요약 · 더 보기", "sys", "timing/more"]] },
+      { name: "남의 것 · 예외 · 사람의 자리", z: 3, stages: "constraint · netlist · library · false path · multicycle · 보지 못한 것",
+        what: "남의 설정은 고치지 않고 알린다. 예외는 사람만 쓰고 수명이 있다. 보지 못한 것은 보지 못했다고 쓴다(가정 · 실무에서 조정).",
+        ul: [
+          "constraint · netlist · library는 고치지 않는다. 문제를 찾으면 근거를 붙인 지적과 알림을 낸다.",
+          "false path · multicycle 예외는 사람만 MR로 쓴다(근거 · 소유 역할 · 승인 · 만료 조건은 사람 칸). 승인은 동료 확인 또는 설계 리더이고, 어떤 예외가 설계 리더 승인인지는 공란이다.",
+          "예외가 덮는 path의 RTL이 바뀌면 재확인이 필요해지고, 그 path의 met은 조건부가 된다. timing 개선 workflow는 그 path에 후보를 만들지 않는다. constraint에는 있는데 근거 기록이 없는 예외는 '기록 없음'으로 지적한다.",
+          "예외를 더하자는 제안은 AI가 하지 않는다. \"실제로는 false path 같다\"고 보이면 그 판단을 근거와 함께 constraint 담당 알림으로 낸다.",
+          "선택 도구 셋(constraint 검사 · netlist 등가성 · power 추정)이 회사에 없으면 그 확인은 '보지 못함'이다. 통과로도 실패로도 바꾸지 않는다. constraint 검사가 없으면 블록 sign-off의 timing 재료는 판정 불가다. hold와 netlist ECO는 범위 밖이다.",
+          "사람이 정하는 자리: constraint 변경(constraint 담당), 예외 승인(동료 · 설계 리더), latency · interface · 구조를 바꾸는 후보(설계 리더 · 아키텍트), 목표 주파수 · area budget(제품 · 설계 리더), 고객에게 낼 QoR 값(제품 · 영업 리더).",
+          "상태: 갈래 정본과 workflow 묶음 이식이 있다. 층 순서 · met → 미달 규칙 · 숨은 축 규칙 · 예외의 RTL 변경 시 동작은 회사 실물을 보지 않고 정한 출발점(가정, 위임)이고 실무에서 조정한다. 변화 기준 · 합성 주기 · constraint 소유는 회사에서 정한다."
+        ],
+        go: [["갈래 정본 (탐색기)", "bun", "wa/design/timing_area"], ["workflow 한 장", "sys", "workflow/fig"], ["timing-area 요약 · 더 보기", "sys", "timing/more"]] }
+    ]
   }
   },
 
@@ -1664,10 +1944,64 @@ window.WS = {
      원천: intake·workflow 심화의 인계 문서(교정 후보 · 업그레이드 후보 · 확인할 것), 읽기 안내, 설계 본선의 열린 스레드. */
   talk: {
     title: "더 깊게 논의할 것",
-    asOf: "2026-10-02",
-    lead: "intake와 workflow 심화는 세세한 결정을 위임받아 가정으로 정했다(intake 첫 판 51항과 이후 63항, workflow 첫 판 75항과 이후 79항). 전부 읽을 필요는 없다. 아래 순서로 보고 틀린 것만 고치면 된다. ① 이미 확정된 것을 건드린 곳 ② 현장 감각으로 판단할 가정 ③ 아직 설계하지 않은 주제 ④ 현장에서만 답이 나오는 것. 항목마다 '지금 가정'과 '판단할 것'을 적었고, 관련 원문으로 바로 갈 수 있다.",
+    asOf: "2026-10-03",
+    lead: "심화 세션들이 세세한 결정을 위임받아 가정으로 정했고, 그 가정은 모두 기본안으로 확정되었다(확정 = 실무에서 조정하는 출발점). 아래 ①~④는 확정된 결정의 이유와, 실무에서 조정할 때 볼 질문으로 남긴다. 맨 앞 ⓪은 그 뒤 위임으로 정한 가정이다. 항목마다 '지금'과 '볼 것'을 적었고, 관련 원문으로 바로 갈 수 있다.",
     groups: [
-      { id: "fix", short: "교정", cls: "r", title: "① 교정: 이미 확정된 것을 건드린 곳",
+      { id: "recent", short: "최근 가정", cls: "y", title: "⓪ 최근 위임 가정 (실무에서 조정)",
+        note: "확정 이후 위임으로 정한 것이다. 기본안으로 이미 진행되어 있고, 틀려 보이는 것만 알려 주면 된다.",
+        items: [
+          { id: "t-r-riskraised", t: "실행 중 위험 고지는 workflow가 보내고 intake가 손잡이를 만든다", tag: ["intake · workflow", "m"],
+            what: "실행 중 worker · guard가 손잡이 없는 고객 레코드에서 위험을 올리면 workflow가 사건을 보낸다. intake는 그 dispatch가 지금 것이고 진행 중일 때만 손잡이를 확보해 위험 label을 둔다.",
+            now: "레코드 상태는 그대로 두고 해제는 손잡이에서 한다. 켜는 것은 workflow 쪽 표지 하나이고 기본은 꺼짐이다.",
+            ask: "실행 중 위험 고지에도 레코드를 멈춤 상태로 바꿀 것인가.",
+            go: [["workflow › 자세히 §16", "sys", "workflow/more"], ["intake › 자세히", "sys", "intake/more"]] },
+          { id: "t-r-signoffcat", t: "블록 sign-off 판정은 사람이 부를 때만 여는 카테고리", tag: ["intake · workflow", "m"],
+            what: "intake에 블록 sign-off 카테고리를 두고 '사람 계기만'으로 표시했다. 사슬의 sign-off link는 그대로이고, 판정 결과가 있으면 읽는다.",
+            now: "milestone의 추가 필수 입력은 workflow의 plan이 검사한다(gate는 바꾸지 않음).",
+            ask: "정기 release처럼 일정으로 sign-off 판정을 자동으로 열 것인가.",
+            go: [["WF-block-signoff", "bun", "wa/library/WF-block-signoff"]] },
+          { id: "t-r-riskgrow", t: "위험 목록: 엄격화는 즉시, 완화는 회의", tag: ["core", "m"],
+            what: "신호를 더하는 변경은 승인자 한 명으로 즉시, allowlist를 더하는 변경은 pattern 시험 · 원장 replay를 붙여 회의에서. 오탐의 근거는 해제 사유와 검수 판정뿐이다.",
+            now: "놓친 위험이 드러나면 시험 문장을 먼저 더하고 열린 일을 다시 검사한다. fork는 신호를 더할 수만 있다.",
+            ask: "엄격화도 회의를 거치게 할 것인가(멈춤이 갑자기 늘 수 있다).",
+            go: [["core › 위험 감지가 자라는 법", "sys", "core/box-risk"]] },
+          { id: "t-r-meeting", t: "정기 정본 회의: 세 길과 강등 두 단계", tag: ["core", "m"],
+            what: "안건은 대기열에 파일로 쌓이고, 엄격화 = 즉시 / 중립 · 저위험 = 이의 기간 뒤 채택 / 완화 · 확장 · 신설 · 삭제 = 회의 결정으로 간다.",
+            now: "제안자는 자기 안건을 승인하지 않는다. 강등은 즉시 '낡음' 표시 → 다음 회의까지 쓰임 · 이의가 없으면 은퇴. 주기 · 이의 기간 · 정족수는 공란(팀 리더).",
+            ask: "이의 기간 채택이 팀 문화에 맞는가.",
+            go: [["core › 정기 정본 회의", "sys", "core/box-meeting"]] },
+          { id: "t-r-tiers", t: "모델 등급 셋과 내리지 않는 자리", tag: ["workflow", "m"],
+            what: "분류 · 추출 · 해석 = 가벼운, 계약이 분명한 수정 · 작성 = 표준, 계획 · 원인 판정 · 지적 · 결과 서술 · 사람에게 가는 글 = 강한.",
+            now: "위험 두 번째 검사 · planner · reviewer · result writer · 질문은 내리지 않는다. 내리기는 그림자 실행 비교 기록을 붙여 회의에서.",
+            ask: "표준 등급이 맡는 수정 · 작성의 범위가 맞는가.",
+            go: [["workflow › 모델 등급과 세션", "sys", "workflow/box-tiers"], ["모델 등급 설정", "bun", "wa/rules/model_tiers"]] },
+          { id: "t-r-talayers", t: "timing 위반의 층 판별 순서", tag: ["timing-area", "m"],
+            what: "측정 → constraint → 합성 설정 → library · corner · 도구 → RTL 구조. 앞의 넷이 지워진 path만 RTL 후보가 된다.",
+            now: "앞의 넷은 입력 대조와 검사 도구로 끝나 싸다. 예외(false path · multicycle)는 사람만 쓰고, AI는 예외 추가를 제안하지 않는다.",
+            ask: "우리 팀에서 실제로 가장 흔한 원인 층이 이 순서와 맞는가.",
+            go: [["timing-area", "sys", "timing/fig"]] },
+          { id: "t-r-tatrend", t: "met → 미달 전이는 변화 폭과 무관하게 일", tag: ["timing-area", "m"],
+            what: "정기 sub-top 합성의 칸이 met에서 미달로 바뀌면 일이 된다(원인 찾기는 사람 요청 시). WNS · TNS · area 변화는 기준(공란)을 넘을 때만.",
+            now: "숨은 축이 바뀌면 추세를 끊고 '조건 바뀜'으로 표시한다.",
+            ask: "경계에서 met과 미달을 오가는 칸이 일을 너무 많이 만들지 않을까.",
+            go: [["timing-area › 자세히", "sys", "timing/more"]] },
+          { id: "t-r-cvformal", t: "도달 가능한데 도달 불가가 증명된 hole = RTL 결함 의심", tag: ["coverage", "m"],
+            what: "spec상 도달 가능한 hole을 formal이 도달 불가로 증명하면 exclusion이 아니라 원인 찾기로 보낸다.",
+            now: "formal 증명은 그 run의 constraint 아래의 사실이므로 constraint 버전을 근거에 함께 적는다. formal의 '결론 없음'은 근거가 아니다.",
+            ask: "formal 도구가 없는 팀에서는 이 hole을 어떻게 다룰 것인가.",
+            go: [["coverage", "sys", "coverage/fig"]] },
+          { id: "t-r-cvnotrun", t: "돌지 않은 test가 덮을 bin이 남으면 closure 판정 불가", tag: ["coverage", "m"],
+            what: "test 목록에 있는데 merge에 없는 test는 보지 못한 것이다. 그 test가 덮기로 한 bin이 남은 종류는 판정 불가로 본다.",
+            now: "test와 bin의 대응이 적혀 있지 않으면 남은 bin이 있는 종류 전부가 판정 불가다.",
+            ask: "대응을 모를 때 이 처리가 너무 보수적이지 않은가.",
+            go: [["coverage › 자세히", "sys", "coverage/more"]] },
+          { id: "t-r-cvtwo", t: "coverage 악화가 두 길로 오면 하나로", tag: ["coverage · intake", "m"],
+            what: "정기 리뷰의 감소 지적과 intake의 수치 feed가 같은 변화를 가리키면 하나로 붙고 feed 레코드가 주인이다.",
+            now: "feed의 기본 요청은 곧장 coverage 보강이고, 측정 환경은 그 workflow의 기준 checkpoint가 거른다.",
+            ask: "측정 환경 확인(원인 찾기)을 먼저 열어야 하는가.",
+            go: [["coverage › 자세히", "sys", "coverage/more"]] }
+        ] },
+      { id: "fix", short: "교정", cls: "r", title: "① 확정 · 실무에서 조정: 이미 확정된 것을 건드렸던 곳",
         note: "심화 세션이 확정된 설계나 서로의 계약을 바꾼 곳이다. 틀렸을 때만 고치면 된다. workflow 쪽 항목들은 intake 계약과 맞물린 곳이었고, intake 동기화로 양쪽이 맞춰졌다(반영됨). 표지가 있는 것은 켜는 사람이 시스템 관리자다.",
         items: [
           { id: "t-i-cmd", t: "intake 입구에 command를 더했다", tag: ["intake", "m"],
@@ -1741,7 +2075,7 @@ window.WS = {
             ask: "일곱 줄 중 받아들이기 어려운 것이 있는가.",
             go: [["설계 85 › 범위 기본값", "bun", "wa/design"]] }
         ] },
-      { id: "field-i", short: "intake 가정", cls: "y", title: "② 현장 감각으로 판단할 가정 · intake",
+      { id: "field-i", short: "intake 가정", cls: "y", title: "② 확정 · 실무에서 조정: intake",
         note: "회사 현실과 어긋날 가능성이 가장 큰 줄들이다. 검증 현장의 감각으로 바로 판단할 수 있는 곳이 많다.",
         items: [
           { id: "t-i-handle", t: "고객 이슈의 손잡이 ticket은 위험으로 멈출 때만 만든다", tag: ["intake", "m"],
@@ -1795,7 +2129,7 @@ window.WS = {
             ask: "어느 사례부터 걸을 것인가.",
             go: [["시험 사례 목록", "bun", "ia/golden"]] }
         ] },
-      { id: "field-w", short: "workflow 가정", cls: "y", title: "② 현장 감각으로 판단할 가정 · workflow",
+      { id: "field-w", short: "workflow 가정", cls: "y", title: "② 확정 · 실무에서 조정: workflow",
         note: "workflow 결정(첫 판 75항 · 이후 79항) 중 구조를 좌우하는 것만 골랐다. 앞의 일곱이 가장 최근에 더해진 것이다. 전체는 인계 문서의 각 절 §2에 있다.",
         items: [
           { id: "t-w-track", t: "고객 트랙은 별도 workflow가 아니라 '트랙 덧붙임'이다", tag: ["workflow 후속", "m"],
@@ -1874,7 +2208,7 @@ window.WS = {
             ask: "필수 모드를 매번 묻는 것이 번거롭지 않은가.",
             go: [["예: WF-rtl-perf-area-review", "bun", "wa/library/WF-rtl-perf-area-review"]] }
         ] },
-      { id: "field-c", short: "chain 가정", cls: "y", title: "② 현장 감각으로 판단할 가정 · chain",
+      { id: "field-c", short: "chain 가정", cls: "y", title: "② 확정 · 실무에서 조정: chain",
         note: "chain 정본(10-01)에서 확정이 아닌 줄이다. link 표 · 검증 독립성 · spec 변경 규칙은 확정이다.",
         items: [
           { id: "t-c-oracle", t: "encoder와 decoder의 oracle 구분", tag: ["가정 · 교정 대기", "y"],
@@ -1898,20 +2232,20 @@ window.WS = {
             ask: "현장에서 가장 먼저 효과가 보일 link가 이것이 맞는가.",
             go: [["chain › 기본값", "sys", "chain/more"]] }
         ] },
-      { id: "field-dg", short: "diagnose · 분류 가정", cls: "y", title: "② 현장 감각으로 판단할 가정 · diagnose와 업무 지도",
-        note: "층 판별 먼저 · 기존 자산 이식 먼저 · 두 트랙 · 고객 트랙 재개는 확정이다. 아래는 가정(교정 대기)이다.",
+      { id: "field-dg", short: "diagnose · 분류 가정", cls: "y", title: "② 확정 · 실무에서 조정: diagnose와 업무 지도",
+        note: "층 판별 먼저 · 기존 자산 이식 먼저 · 두 트랙 · 고객 트랙 재개는 확정이다. 아래도 R57에 확정되었다(실무에서 조정).",
         items: [
-          { id: "t-dg-layers", t: "층 열 열 개와 층마다의 끝", tag: ["가정 · 교정 대기", "y"],
+          { id: "t-dg-layers", t: "층 열 열 개와 층마다의 끝", tag: ["확정 · 실무에서 조정", "g"],
             what: "문서 · 이해 · 환경 · TB · C-model · spec · 도구 · RTL · FW · 구현 결과. 층마다 재현 수단 · oracle · 좁히는 도구 · 끝을 정했다. 불안정은 층이 아니라 상태로 본다.",
             now: "원인이 RTL 밖에 있는 경우가 많다는 판단에서 층부터 가른다.",
             ask: "빠진 층이나 합쳐야 할 층이 있는가. 층마다의 끝이 현장과 맞는가.",
             go: [["diagnose › 자세히", "sys", "diagnose"]] },
-          { id: "t-dg-bundles", t: "가족별 질문 묶음 · 증상별 multi-test 묶음", tag: ["가정 · 교정 대기", "y"],
+          { id: "t-dg-bundles", t: "가족별 질문 묶음 · 증상별 multi-test 묶음", tag: ["확정 · 실무에서 조정", "g"],
             what: "고객 이슈의 층이 처음 설명으로 정해지지 않을 때, 후보를 가르는 질문만 한 번에 보내고 동시에 증상별 test를 돌린다.",
             now: "기능 불일치 · interface · 성능 · 구현 결과 · power · 문서 정합의 기본 질문, 다섯 증상의 test 묶음. Track B로 늘어난다.",
             ask: "첫 질문 묶음으로 실제로 층이 갈리는가. 먼저 만들어 둘 test 묶음은 무엇인가.",
             go: [["diagnose › 자세히", "sys", "diagnose"]] },
-          { id: "t-dg-families", t: "업무 가족 열둘 · lifecycle 여덟 단계", tag: ["가정 · 교정 대기", "y"],
+          { id: "t-dg-families", t: "업무 가족 열둘 · lifecycle 여덟 단계", tag: ["확정 · 실무에서 조정", "g"],
             what: "분류 축 다섯(출처 · ask · 업무 가족 · lifecycle 단계 · 층) 가운데 가족과 단계의 기본안이다.",
             now: "F1 이해 · 질문 … F12 일정 · 대응, S1 spec 학습 … S8 FPGA test. 실제 이름과 경계는 과거 일감과 기존 자산 목록으로 다시 정한다.",
             ask: "우리 조직의 일이 이 가족 · 단계로 나뉘는가.",
@@ -1930,21 +2264,6 @@ window.WS = {
             now: "시험 사례의 결정론 칸이 전부 맞으면 LLM 부품을 붙인다.",
             ask: "회사에서 가장 먼저 세울 한 조각을 무엇으로 할 것인가.",
             go: [["intake 전체 설명 §7", "bun", "ia/overview"], ["workflow 전체 설명 §8", "bun", "wa/overview"]] },
-          { id: "t-d-risk", t: "위험 감지가 자라는 절차", tag: ["core", "m"],
-            what: "정의되지 않은 위험을 실무 중에 감지하고 경고하며 진화하는 능력. 지금은 raw scan(목록 신호) + gate(낯섦 신호)까지 왔다.",
-            now: "검수의 '위험이 아니었다 / 멈췄어야 했다' 판정을 pattern 시험 문장으로 계속 더하는 절차가 제안되어 있다.",
-            ask: "위험 목록과 allowlist를 누가 어떤 주기로 키울 것인가.",
-            go: [["규칙 › risk_patterns", "bun", "ia/rules/risk_patterns"]] },
-          { id: "t-d-fork", t: "정본과 개인 fork의 경계, 정기 회의의 형태", tag: ["core", "m"],
-            what: "정본에는 지식과 기본 규칙만, 나머지는 개인 fork에서 자유롭게 진화하고 정기 회의로 정본에 올린다. 승인이 병목이 되지 않는 구조가 목표다.",
-            now: "workflow 쪽은 dry replay(과거 accepted 기록으로 판정만 다시)를 승격 안건의 근거로 붙이게 했다.",
-            ask: "정기 회의를 어떤 모양으로 할 것인가(주기 · 참석 · 안건 형식).",
-            go: [["부품 › dry replay", "bun", "wa/agents/dry_replay_runner"]] },
-          { id: "t-d-model", t: "모델 등급과 세션 분리의 기본 제안", tag: ["core", "m"],
-            what: "가벼운 모델로 충분한 곳에 강한 모델을 쓰거나, 한 세션에서 오래 이어 가 품질이 떨어지는 문제.",
-            now: "checkpoint마다 모델 등급 칸과 fresh 세션 칸이 있다. 제안 문서는 아직 없다.",
-            ask: "checkpoint 단위로 모델 등급을 정하는 방식이 맞는가.",
-            go: [["공통 골격", "bun", "wa/library/WF-common"]] },
           { id: "t-d-tools", t: "도구 넷: 원장 replay · 자동 등급 측정 · skill 생성기 · records 저장소", tag: ["도구", "g"],
             what: "① 규칙을 바꿀 때 과거 사건의 판정만 다시 돌리는 원장 replay ② 자동 수정 등급을 계산만 하고 사람 판정과 비교하는 측정 도구 ③ workflow 파일에서 skill · 권한 규칙 · guard hook을 만드는 생성기 ④ review ledger · QoR matrix를 repo로 둘지 DB로 둘지.",
             now: "업그레이드 후보로만 적혀 있다.",
@@ -2017,6 +2336,11 @@ window.WS = {
     ["선택 도구 · 보지 못한 것", "회사에 있으면 쓰는 evaluator(RDC · X-propagation · DFT rule · formal 도달성 · constraint 검사 · netlist 등가성 · power 추정). 없으면 그 확인은 보지 못한 것으로 남고 통과로 세지 않는다"],
     ["억제 기록", "waiver · coverage exclusion · 합성 예외처럼 사람이 승인해 도구 결과의 일부를 판정에서 빼는 기록. 승인 때의 구문에 묶이고, 구문이 바뀌면 재확인이 필요해 효과를 잃는다"],
     ["블록 sign-off 판정", "milestone에서 같은 revision의 accept된 결과를 모아 블록이 준비됨 / 미충족 / 판정 불가인지와 미결 목록을 내는 판정. sign-off 자체는 사람이 한다"],
+    ["정기 정본 회의", "정본을 바꾸는 통로. 안건은 대기열에 파일로 쌓이고 방향으로 세 길에 나뉜다: 엄격화 = 즉시, 중립 · 저위험 = 이의 기간 뒤 채택, 완화 · 확장 · 신설 · 삭제 = 회의 결정"],
+    ["모델 등급", "가벼운 · 표준 · 강한(과 LLM 없음). 역할마다 기본 등급이 있고, 위험 두 번째 검사 · planner · reviewer · result writer · 질문은 내리지 않는다"],
+    ["숨은 축", "조건 표에 잘 드러나지 않지만 합성 결과를 바꾸는 조건(합성 mode · floorplan · clock 가정). 다르면 비교하지 않고 추세를 끊는다"],
+    ["hole 층", "coverage hole이 생긴 자리: 측정 환경 · spec 변경 · covergroup 정의 오류 · 도달 불가 · test 부족 · RTL 결함 의심"],
+    ["기본값은 출발점", "확정된 규칙도 회사 실물을 보기 전의 출발점이다. 근거와 함께 fork에서 먼저 바꾸고 정기 정본 회의로 정본에 올린다. 바꾸면 안 되는 것은 다섯이다"],
     ["● 정본 / ○ 사용", "전체 지도의 표시. ● = 그 책임의 규칙을 정하는 주제, ○ = 정본의 규칙을 따라 빌려 쓰는 주제"],
     ["KB", "제품 지식의 정본. 모든 사실이 원천 위치와 revision을 가리키고, agent가 MR로 제안하면 사람이 reviewed로 올린다"],
     ["reviewed", "KB 문서를 사람이 확인한 상태. agent는 만들 수 없다. 확인 뒤 본문이 바뀌면 reviewed-outdated가 된다"],

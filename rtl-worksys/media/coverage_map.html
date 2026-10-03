@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>coverage 한 장 · RTL WorkSys</title>
+<!-- 장면 규약 = 00_META/INFOGRAPHIC.md -->
+<style>
+:root{
+  --bg:#0f1420; --bg2:#171e2e; --card:#1a2233; --line:#2c3850;
+  --fg:#e4e9f2; --mut:#93a1bb; --dim:#6b7a96;
+  --acc:#4fb8f5; --acc2:#8b8cf8; --ok:#3ddba0; --warn:#f5c04f; --bad:#f8776f;
+}
+:root[data-theme="light"]{
+  --bg:#f6f8fc; --bg2:#ffffff; --card:#ffffff; --line:#dde4f0;
+  --fg:#16203a; --mut:#5b6b88; --dim:#8494b0;
+  --acc:#1878c8; --acc2:#5b5ce0; --ok:#129c6c; --warn:#b5780a; --bad:#d4463c;
+}
+html,body{margin:0;height:100%;background:var(--bg)}
+body{display:flex;align-items:center;justify-content:center;overflow:hidden}
+svg{width:100vw;height:100vh;display:block}
+text{font-family:'Malgun Gothic','Apple SD Gothic Neo',-apple-system,'Segoe UI',Roboto,sans-serif}
+.mono{font-family:ui-monospace,Consolas,'Cascadia Code',monospace}
+</style>
+</head>
+<body>
+<svg id="s" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"></svg>
+<script src="scene_kit.js"></script>
+<script>
+(function () {
+  "use strict";
+  var svg = document.getElementById("s"), K = SceneKit(svg, 15);
+  var E = K.E, T = K.T, G = K.G, pill = K.pill, fade = K.fade, pop = K.pop, rise = K.rise, draw = K.draw;
+
+  /* ── 제목줄 다섯: 문제 → 구조 → 작동 원리 → 조립·품질 → 왜 중요한가 ── */
+  K.header("RTL WorkSys  ·  coverage 한 장", [
+    { t0: 0, t1: 3.0, main: "숫자가 올랐다고 동작이 확인된 것은 아니다",
+      sub: "test가 논리를 건드려도 틀린 동작에서 실패하지 않으면 채운 것이 아니다. 모든 hole이 test 부족도 아니다." },
+    { t0: 3.0, t1: 6.5, main: "hole은 층 여섯으로 가른다. 측정 환경부터 지운다",
+      sub: "측정 환경 → spec 변경 · covergroup 정의 오류 → 도달 불가 → test 부족, 그리고 RTL 결함 의심." },
+    { t0: 6.5, t1: 9.5, main: "분모를 바꾸는 일은 사람이 승인한다",
+      sub: "covergroup 축소는 exclusion과 같은 승인. exclusion은 근거 등급이 붙고, RTL이 바뀌면 효과가 멈춘다." },
+    { t0: 9.5, t1: 12.0, main: "closure는 AI가 판정 자료를 만들고 사람이 판정한다",
+      sub: "목표 없음은 충족이 아니다. 실패 test가 merge되었거나 돌지 않은 test가 덮을 bin이 남으면 판정 불가다." },
+    { t0: 12.0, t1: 99, main: "채움과 확인을 따로 세니, 숫자를 믿을 수 있다",
+      sub: "보지 못한 것은 통과로 세지 않는다. 같은 변화는 일 하나로, mutation은 보류. 이것이 실무의 기틀이다." }
+  ]);
+
+  var mark0 = svg.childNodes.length;
+
+  /* ── 위 왼쪽 이름표 · 오른쪽 근거 등급 ── */
+  var ttl = G();
+  var ttlT = "coverage = hole에서 closure까지의 갈래";
+  T(80, 282, ttlT, 21, { fill: "var(--acc2)", fontWeight: 800 }, ttl);
+  T(80 + K.width(ttlT, 21, 800) + 18, 282, "새 엔진이 아니라 workflow 넷 사이를 채운다", 15, { fill: "var(--mut)" }, ttl);
+  fade(ttl, 3.1, 0.4);
+  var evG = G();
+  T(1840, 282, "도달 불가 근거: formal 증명 > spec 절 · 설계 조건 > 추론  (formal '결론 없음'은 근거 아님)", 15, { fill: "var(--warn)", fontWeight: 700 }, evG, "end");
+  fade(evG, 5.9, 0.4);
+
+  /* ── 두 셈: 채움 ≠ 확인 (S2 시작) ── */
+  var SY = 306, SH = 50;
+  var cnG = G();
+  K.box(80, SY, 850, SH, "var(--acc)", cnG, { rx: 12, fill: "color-mix(in srgb,var(--acc) 8%, var(--card))" });
+  T(104, SY + 32, "coverage 숫자 = 건드렸다", 19, { fill: "var(--acc)", fontWeight: 800 }, cnG);
+  T(906, SY + 32, "도구 사실 · line · branch · toggle · FSM · functional", 14, { fill: "var(--mut)" }, cnG, "end");
+  rise(cnG, 3.3, 0.45, 10);
+  var neq = T(960, SY + 36, "≠", 34, { fill: "var(--bad)", fontWeight: 800 }, null, "middle");
+  pop(neq, 960, SY + 25, 3.6, 0.4);
+  var obG = G();
+  K.box(990, SY, 850, SH, "var(--ok)", obG, { rx: 12, fill: "color-mix(in srgb,var(--ok) 8%, var(--card))" });
+  T(1014, SY + 32, "관측 수단 = 확인했다", 19, { fill: "var(--ok)", fontWeight: 800 }, obG);
+  T(1816, SY + 32, "checker · assertion · reference 비교. 없으면 따로 지적", 14, { fill: "var(--mut)" }, obG, "end");
+  rise(obG, 3.75, 0.45, 10);
+
+  /* ── hole 층 여섯 (S2) ── */
+  var layLbl = T(80, 392, "hole 층 여섯: 이 순서로 지운다", 15, { fill: "var(--mut)", fontWeight: 700 });
+  fade(layLbl, 3.95, 0.4);
+  var rtlNote = T(1822, 392, "도달 가능한데 안 채워지면 formal(있으면) → 도달 불가가 증명되면 RTL 결함 의심", 15, { fill: "var(--bad)", fontWeight: 700 }, null, "end");
+  fade(rtlNote, 5.6, 0.4);
+  var LAY = [
+    { s: "측정 환경", d: "DB revision · merge · 돌지 않은 test", e: "coverage 일이 아니다. 측정을 바로잡고 다시 merge해 재판정", c: "var(--acc)" },
+    { s: "spec 변경", d: "bin의 동작이 spec에서 빠짐 · 바뀜", e: "covergroup 정리, 또는 만료 조건이 붙은 exclusion 후보", c: "var(--acc2)" },
+    { s: "covergroup 정의 오류", d: "bin · cross가 spec 범위와 어긋남", e: "covergroup 수정 제안. 분모가 바뀐다", c: "var(--acc2)" },
+    { s: "도달 불가", d: "parameter로 꺼진 기능 · 방어 branch", e: "exclusion 후보. 근거 등급과 요구 승인 등급", c: "var(--warn)" },
+    { s: "test 부족", d: "도달 가능한데 조건을 못 만든다", e: "test 후보. 채움과 확인을 따로 판정한다", c: "var(--ok)" },
+    { s: "RTL 결함 의심", d: "spec은 가능, formal은 불가 증명", e: "exclusion이 아니다. 원인 찾기(diagnose)로", c: "var(--bad)" }
+  ];
+  var LW = 272, LG = 22, LY = 404, LH = 62, chips = [];
+  LAY.forEach(function (l, i) {
+    var x = 80 + i * (LW + LG), g = G(), cx = x + LW / 2;
+    var r = K.box(x, LY, LW, LH, l.c, g, { rx: 12, fill: "var(--card)", dash: i === 5 ? "8 5" : undefined });
+    T(x + 16, LY + 27, (i + 1) + "  " + l.s, 19, { fill: l.c, fontWeight: 800 }, g);
+    T(x + 16, LY + 50, l.d, 13, { fill: "var(--mut)" }, g);
+    pop(g, cx, LY + LH / 2, 4.05 + i * 0.25, 0.45);
+    chips.push({ r: r, c: l.c, on: 4.35 + i * 0.25 });
+    var eg = G();
+    K.box(x, LY + LH + 10, LW, 64, "var(--line)", eg, { rx: 10, fill: "color-mix(in srgb," + l.c + " 4%, var(--card))", stroke: "var(--line)", sw: 1.2 });
+    T(x + 14, LY + LH + 32, "끝 →", 13, { fill: l.c, fontWeight: 800 }, eg);
+    K.wrap(x + 52, LY + LH + 32, l.e, 14, LW - 64, 20, { fill: "var(--fg)" }, eg);
+    rise(eg, 4.3 + i * 0.25, 0.4, 8);
+    if (i < 5) {
+      var ax = x + LW + 3, ay = LY + LH / 2;
+      var ar = E("path", { d: "M " + ax + " " + (ay - 7) + " L " + (ax + 15) + " " + ay + " L " + ax + " " + (ay + 7), fill: "none" },
+        { stroke: i === 4 ? "var(--bad)" : "var(--mut)", strokeWidth: 2.5 });
+      fade(ar, 4.25 + i * 0.25, 0.3);
+    }
+  });
+
+  /* ── S3 왼쪽: covergroup 수정 = 분모가 바뀐다 ── */
+  var BY = 560, BH = 140;
+  var cgG = G();
+  K.box(80, BY, 560, BH, "var(--acc2)", cgG, { rx: 14, fill: "color-mix(in srgb,var(--acc2) 5%, var(--card))" });
+  T(104, BY + 32, "covergroup 수정 = 분모가 바뀐다", 19, { fill: "var(--acc2)", fontWeight: 800 }, cgG);
+  fade(cgG, 6.6, 0.4);
+  var CG = [
+    ["✕", "var(--bad)", "coverage 증가로 판정하지 않는다(bin을 지우면 오른다)"],
+    ["✓", "var(--ok)", "spec 근거 대조 + 분모 바뀜 표시로 판정한다"],
+    ["◇", "var(--warn)", "bin 삭제 · 축소 = exclusion과 같은 승인 등급"]
+  ];
+  CG.forEach(function (p, i) {
+    var g = G(cgG), y = BY + 66 + i * 26;
+    T(112, y, p[0], 16, { fill: p[1], fontWeight: 800 }, g, "middle");
+    T(132, y, p[2], 15, { fill: "var(--fg)" }, g);
+    rise(g, 6.8 + i * 0.2, 0.4, 8);
+  });
+
+  /* ── S3 오른쪽: exclusion = 억제 기록 ── */
+  var exG = G();
+  K.box(670, BY, 1170, BH, "var(--warn)", exG, { rx: 14, fill: "color-mix(in srgb,var(--warn) 5%, var(--card))" });
+  T(694, BY + 32, "exclusion = 억제 기록. 사람만 승인한다", 19, { fill: "var(--warn)", fontWeight: 800 }, exG);
+  T(1816, BY + 32, "시스템은 사람 칸을 쓰지 않고 diff로만 제안", 14, { fill: "var(--mut)" }, exG, "end");
+  fade(exG, 7.0, 0.4);
+  var RY = BY + 70;
+  var exLine = E("path", { d: "M 700 " + RY + " H 1800", fill: "none" }, { stroke: "var(--line)", strokeWidth: 2.5 }, exG);
+  var exTok = K.particles(G(exG));
+  var EX = [
+    { s: "후보 · 근거 등급", c: "var(--acc2)", t: 7.2 },
+    { s: "사람 승인 (tier1 · tier2)", c: "var(--warn)", t: 7.45, dia: true },
+    { s: "유효: 분모에서 뺀다", c: "var(--ok)", t: 7.7 },
+    { s: "RTL 바뀜", c: "var(--acc)", t: 7.95 },
+    { s: "재확인 필요: 분모에 다시 넣는다", c: "var(--bad)", t: 8.2, dash: "6 4" }
+  ];
+  var ex0 = 694, exPos = {};
+  EX.forEach(function (c) {
+    if (c.dia) {
+      var g = G(exG), dx = ex0 + 14;
+      E("rect", { x: dx - 11, y: RY - 11, width: 22, height: 22, rx: 3, transform: "rotate(45 " + dx + " " + RY + ")" },
+        { fill: "color-mix(in srgb,var(--warn) 30%, var(--card))", stroke: "var(--warn)", strokeWidth: 3 }, g);
+      T(dx + 22, RY + 6, c.s, 15, { fill: "var(--warn)", fontWeight: 800 }, g);
+      pop(g, dx, RY, c.t, 0.4);
+      exPos[c.s] = dx;
+      ex0 = dx + 22 + K.width(c.s, 15, 800) + 34;
+      return;
+    }
+    var w = K.width(c.s, 15, 700) + 26, cx = ex0 + w / 2;
+    var p = pill(cx, RY, c.s, 15, c.c, exG, { h: 30, pad: 26, fill: "var(--card)", dash: c.dash });
+    pop(p, cx, RY, c.t, 0.4);
+    exPos[c.s] = cx;
+    ex0 += w + 34;
+  });
+  var lastS = EX[EX.length - 1].s, diaS = EX[1].s;
+  exLine.setAttribute("d", "M 700 " + RY + " H " + exPos[lastS]);
+  draw(exLine, 7.15, 1.2);
+  // 재확인 → 다시 승인 (고리)
+  var lpG = G(exG);
+  var LPY = RY + 26;
+  E("path", { d: "M " + exPos[lastS] + " " + (RY + 15) + " V " + LPY + " H " + exPos[diaS] + " V " + (RY + 16), fill: "none" }, { stroke: "var(--warn)", strokeWidth: 2, strokeDasharray: "6 5" }, lpG);
+  E("path", { d: "M " + (exPos[diaS] - 6) + " " + (RY + 26) + " L " + exPos[diaS] + " " + (RY + 16) + " L " + (exPos[diaS] + 6) + " " + (RY + 26), fill: "none" }, { stroke: "var(--warn)", strokeWidth: 2 }, lpG);
+  fade(lpG, 8.45, 0.4);
+  var exFoot = T(694, BY + 128, "같은 등급으로 다시 승인하면 유효. spec 변경 · 기능 비활성으로 낸 것은 만료 조건 → 기능이 켜지면 hole로 돌아온다", 14, { fill: "var(--mut)" }, exG);
+  rise(exFoot, 8.6, 0.4, 6);
+
+  /* ── S1: 숫자는 오르는데 확인은 비어 있다 (흩어진 입자) ── */
+  var chaosG = K.particles(G()), bits = [], tags = [], barFill = null;
+  if (!K.POSTER) {
+    var lump = G(chaosG);
+    T(410, 340, "coverage 숫자", 24, { fill: "var(--acc)", fontWeight: 800 }, lump, "middle");
+    K.box(170, 370, 480, 56, "var(--acc)", lump, { rx: 12, fill: "var(--card)" });
+    barFill = E("rect", { x: 176, y: 376, width: 0, height: 44, rx: 8 }, { fill: "color-mix(in srgb,var(--ok) 55%, var(--card))" }, lump);
+    pill(410, 470, "건드렸다 ↑", 18, "var(--ok)", lump, { h: 40, pad: 34 });
+    T(695, 470, "≠", 46, { fill: "var(--bad)", fontWeight: 800 }, lump, "middle");
+    K.box(740, 300, 1040, 300, "var(--bad)", lump, { rx: 26, dash: "10 8", fill: "color-mix(in srgb,var(--bad) 6%, var(--card))" });
+    T(1260, 350, "확인했다 = ?", 26, { fill: "var(--bad)", fontWeight: 800 }, lump, "middle");
+    T(1260, 574, "의미 없는 test   ·   근거 없는 exclusion   ·   보지 못한 것을 통과로", 19, { fill: "var(--mut)" }, lump, "middle");
+    fade(lump, 0.15, 0.35, 2.55, 0.4);
+    var TAG = ["bin을 지워서 오름", "실패 test가 merge됨", "돌지 않은 test", "불가능한 조합의 cross", "꺼진 기능의 bin", "checker 없는 동작"];
+    var rnd = K.rng(41);
+    TAG.forEach(function (s, i) {
+      var g = G(chaosG), bx = 900 + (i % 3) * 330 + (Math.floor(i / 3) ? 50 : 0) + rnd() * 20, by = 418 + Math.floor(i / 3) * 84 + rnd() * 10;
+      pill(0, 0, s, 16, ["var(--acc2)", "var(--bad)", "var(--warn)", "var(--acc2)", "var(--acc)", "var(--ok)"][i], g, { h: 32, pad: 26 });
+      tags.push({ el: g, x: bx, y: by, ph: rnd() * 6.3, t0: 0.3 + i * 0.18 });
+    });
+    var pal = ["var(--acc)", "var(--acc2)", "var(--warn)", "var(--ok)", "var(--bad)"];
+    for (var c = 0; c < 34; c++) {
+      var d = { x: 790 + rnd() * 940, y: 395 + rnd() * 120, r: 3 + rnd() * 5, ph: rnd() * 6.3, fx: 0.6 + rnd() * 1.2, t0: 0.2 + rnd() * 1.0 };
+      d.el = E("circle", { r: d.r }, { fill: pal[c % 5], opacity: 0 }, chaosG);
+      bits.push(d);
+    }
+  }
+
+  var mark1 = svg.childNodes.length;
+
+  /* ── 아래 왼쪽: 왜 coverage가 기틀인가 ── */
+  var whyG = G();
+  K.box(80, 736, 860, 314, "var(--line)", whyG, { fill: "var(--card)", stroke: "var(--line)", sw: 1.5, rx: 20 });
+  T(112, 782, "왜 coverage 갈래가 기틀인가", 27, { fontWeight: 800 }, whyG);
+  var WHY = [
+    ["확인", "var(--ok)", "채움과 확인을 따로 센다. 숫자가 올라도 동작은 따로 묻는다."],
+    ["층", "var(--acc2)", "층부터 가르니 의미 없는 test · 근거 없는 exclusion이 없다."],
+    ["사람", "var(--warn)", "분모를 바꾸는 일과 closure는 사람이 승인 · 판정한다."],
+    ["보수", "var(--bad)", "보지 못한 것은 통과로 세지 않고, 근거는 Track B로 자란다."]
+  ];
+  var wy = 836;
+  WHY.forEach(function (w, i) {
+    var g = G(whyG);
+    E("circle", { cx: 126, cy: wy - 7, r: 15 }, { fill: "color-mix(in srgb," + w[1] + " 20%, var(--card))", stroke: w[1], strokeWidth: 2 }, g);
+    T(126, wy, String(i + 1), 17, { fill: w[1], fontWeight: 800 }, g, "middle");
+    T(156, wy, w[0], 21, { fill: w[1], fontWeight: 800 }, g);
+    var r = K.wrap(240, wy, w[2], 19, 672, 26, { fill: "var(--fg)" }, g);
+    wy += 30 + r.n * 26;
+    rise(g, 12.2 + i * 0.25, 0.5, 14);
+  });
+  fade(whyG, 12.0, 0.4);
+
+  /* ── 아래 오른쪽: closure 판정과 상태 (S4) ── */
+  var clG = G();
+  K.box(980, 736, 860, 314, "var(--line)", clG, { fill: "var(--card)", stroke: "var(--line)", sw: 1.5, rx: 20 });
+  T(1012, 782, "closure 판정과 상태", 27, { fontWeight: 800 }, clG);
+  T(1808, 782, "목표 · 기준 숫자는 공란(검증 리더)", 15, { fill: "var(--mut)" }, clG, "end");
+  fade(clG, 9.5, 0.4);
+  var CF = [
+    { s: "AI: 종류별 판정 자료", c: "var(--acc2)", t: 9.7 },
+    { s: "사람: closure 수용", c: "var(--warn)", t: 9.95, dia: true },
+    { s: "블록 sign-off가 재료로 읽는다", c: "var(--ok)", t: 10.2 }
+  ];
+  var cx0 = 1012, CFY = 826;
+  CF.forEach(function (c, i) {
+    var g = G(clG);
+    if (c.dia) {
+      var dx = cx0 + 14;
+      E("rect", { x: dx - 11, y: CFY - 11, width: 22, height: 22, rx: 3, transform: "rotate(45 " + dx + " " + CFY + ")" },
+        { fill: "color-mix(in srgb,var(--warn) 30%, var(--card))", stroke: "var(--warn)", strokeWidth: 3 }, g);
+      T(dx + 22, CFY + 6, c.s, 15, { fill: "var(--warn)", fontWeight: 800 }, g);
+      cx0 = dx + 22 + K.width(c.s, 15, 800) + 14;
+    } else {
+      var w = K.width(c.s, 15, 700) + 24;
+      pill(cx0 + w / 2, CFY, c.s, 15, c.c, g, { h: 32, pad: 24, rx: 8 });
+      cx0 += w + 14;
+    }
+    if (i < CF.length - 1) { T(cx0 + 2, CFY + 6, "→", 17, { fill: "var(--mut)", fontWeight: 800 }, g, "middle"); cx0 += 22; }
+    rise(g, c.t, 0.45, 10);
+  });
+  var CC = [
+    ["충족", "var(--ok)", "none"],
+    ["미충족 → 남은 bin 목록", "var(--warn)", "none"],
+    ["목표 없음 ≠ 충족", "var(--mut)", "5 4"],
+    ["판정 불가", "var(--bad)", "5 4"]
+  ];
+  var ccx = 1012;
+  CC.forEach(function (c, i) {
+    var g = G(clG), w = K.width(c[0], 15, 700) + 24;
+    pill(ccx + w / 2, 872, c[0], 15, c[1], g, { h: 30, pad: 24, dash: c[2] });
+    ccx += w + 12;
+    rise(g, 10.4 + i * 0.15, 0.4, 8);
+  });
+  var CB = [
+    ["✕", "var(--bad)", "실패 test가 merge됨 · 돌지 않은 test가 덮을 bin이 남음 → 판정 불가"],
+    ["＝", "var(--acc)", "같은 변화가 정기 감소 지적 · 수치 feed 두 길로 오면 일 하나로"]
+  ];
+  CB.forEach(function (p, i) {
+    var g = G(clG), y = 914 + i * 26;
+    T(1022, y, p[0], 16, { fill: p[1], fontWeight: 800 }, g, "middle");
+    T(1044, y, p[2], 16, { fill: "var(--fg)" }, g);
+    rise(g, 11.0 + i * 0.2, 0.45, 8);
+  });
+  var stG = G(clG);
+  E("path", { d: "M 1012 956 H 1808", fill: "none" }, { stroke: "var(--line)", strokeWidth: 1.5 }, stG);
+  fade(stG, 12.1, 0.4);
+  var ST = [
+    ["정본", "var(--ok)", "none", "갈래 문서 · workflow 넷과 policy에 이식"],
+    ["가정(위임)", "var(--warn)", "5 4", "층 순서 · 근거 등급 · 축소 승인 · 두 길 하나로. 실무에서 조정"],
+    ["보류", "var(--dim)", "5 4", "mutation(test 검증력 측정): 붙을 자리만 적어 둠"]
+  ];
+  ST.forEach(function (s, i) {
+    var y = 984 + i * 26, g = G(clG);
+    var w = K.width(s[0], 14) + 22;
+    pill(1012 + w / 2, y - 5, s[0], 14, s[1], g, { h: 22, pad: 22, dash: s[2] });
+    T(1012 + 112, y, s[3], 16, { fill: "var(--fg)" }, g);
+    rise(g, 12.3 + i * 0.2, 0.45, 10);
+  });
+
+  /* ── 흐름도를 하나로 묶어 올린다 ── */
+  var stageG = G(), moved = [];
+  for (var q = mark0; q < mark1; q++) moved.push(svg.childNodes[q]);
+  moved.forEach(function (n) { stageG.appendChild(n); });
+  svg.insertBefore(stageG, whyG);
+  K.lift(stageG, 150, 9.0, 0.7);
+
+  /* ── exclusion 줄의 표지 (S3) ── */
+  var tok = K.POSTER ? null : E("circle", { r: 8 }, { fill: "var(--warn)", opacity: 0 }, exTok);
+  var TR = [[7.3, exPos[EX[0].s]], [7.6, exPos[diaS]], [7.85, exPos[diaS]], [8.05, exPos[EX[2].s]], [8.3, exPos[EX[3].s]], [8.6, exPos[lastS]], [8.9, exPos[lastS]]];
+
+  K.start(function (t) {
+    if (barFill) barFill.setAttribute("width", 468 * K.eo(K.clamp((t - 0.3) / 1.8)));
+    bits.forEach(function (d) {
+      var o = K.clamp((t - d.t0) / 0.3) * (1 - K.clamp((t - 2.5) / 0.5));
+      d.el.setAttribute("cx", d.x + 50 * Math.sin(t * d.fx * 2 + d.ph));
+      d.el.setAttribute("cy", d.y + 28 * Math.cos(t * d.fx * 1.7 + d.ph));
+      d.el.style.opacity = o * 0.7;
+    });
+    tags.forEach(function (g) {
+      var o = K.clamp((t - g.t0) / 0.35) * (1 - K.clamp((t - 2.5) / 0.45));
+      g.el.setAttribute("transform", "translate(" + (g.x + 26 * Math.sin(t * 1.3 + g.ph)) + " " + (g.y + 10 * Math.cos(t * 1.1 + g.ph)) + ")");
+      g.el.style.opacity = o;
+    });
+    if (tok) {
+      if (t < TR[0][0] || t > TR[TR.length - 1][0] + 0.2) tok.style.opacity = 0;
+      else {
+        var x = TR[TR.length - 1][1];
+        for (var i = 0; i < TR.length - 1; i++) if (t <= TR[i + 1][0]) { x = TR[i][1] + (TR[i + 1][1] - TR[i][1]) * K.clamp((t - TR[i][0]) / (TR[i + 1][0] - TR[i][0])); break; }
+        tok.setAttribute("cx", x); tok.setAttribute("cy", RY - 22); tok.style.opacity = 1;
+      }
+    }
+    chips.forEach(function (b) {
+      var on = K.POSTER || t >= b.on;
+      b.r.style.fill = on ? "color-mix(in srgb," + b.c + " 12%, var(--card))" : "var(--card)";
+    });
+  });
+})();
+</script>
+</body>
+</html>
