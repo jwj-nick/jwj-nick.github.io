@@ -45,7 +45,7 @@
   var BUN = {
     ia: { g: "IA", src: "intake_agent.js", deep: "intake", name: "intake agent system", tag: "심화 결과 · 교정 대기",
       secs: [["overview", "개요"], ["design", "설계"], ["arch", "구조"], ["agents", "부품 10"], ["contracts", "계약 3"],
-        ["rules", "규칙 9"], ["golden", "시험 108"], ["eval", "평가"], ["session", "세션 기록"]],
+        ["rules", "규칙 9"], ["golden", "시험 114"], ["eval", "평가"], ["session", "세션 기록"]],
       facets: [["group", "입구"], ["mode", "mode"], ["gate", "gate"]],
       lead: function (I) {
         return "intake 심화 세션(09-27~28)이 intake를 설명 문서에서 세울 수 있는 agent 시스템의 명세로 옮긴 결과 전체다. 부품 " + I.stats.agents +
@@ -56,12 +56,12 @@
       golden: "가상 발생마다 무엇이 나와야 하는지(기대 결과)와 그 이유를 적은 시험 세트다. 회사에서 agent를 세운 뒤에는 회귀 시험이 된다. hard-zero 셋: 위험 놓침 0 · 잘못 붙이기 0 · 밖으로 새기 0." },
     wa: { g: "WA", src: "workflow_agent.js", deep: "workflow", name: "workflow agent system", tag: "심화 결과 · 교정 대기",
       secs: [["overview", "개요"], ["design", "설계 85"], ["arch", "구조"], ["agents", "부품 11"], ["library", "workflow 라이브러리"],
-        ["contracts", "계약 11"], ["rules", "설정 3"], ["golden", "시험 68"], ["eval", "평가 · 세우기"], ["session", "세션 기록"]],
+        ["contracts", "계약 11"], ["rules", "설정 4"], ["golden", "시험 84"], ["eval", "평가 · 세우기"], ["session", "세션 기록"]],
       facets: [["group", "종류"], ["wf", "workflow"], ["posture", "posture"]],
       lead: function (I) {
-        return "workflow 자율 세션(09-28)이 workflow를 세울 수 있는 agent 시스템의 명세로 옮긴 결과 전체다. 중심은 표준화된 workflow 라이브러리(공통 골격 → 작업 모양 일곱 → 업무별 특화 열여섯, 조립 둘)이고, 부품 " +
+        return "workflow 심화 세션(09-28 ~ 10-02)이 workflow를 세울 수 있는 agent 시스템의 명세로 옮긴 결과 전체다. 중심은 표준화된 workflow 라이브러리(공통 골격 → 작업 모양 일곱 → 업무별 특화 열일곱, 트랙 덧붙임 하나, 조립 둘)이고, 부품 " +
           I.stats.agents + " · 데이터 계약 " + I.stats.schemas + " · 시험 사례 " + I.stats.cases + "건(해석 " + I.stats.byGroup["해석"] + " · 한 바퀴 " + I.stats.byGroup["한 바퀴"] +
-          " · replay " + I.stats.byGroup["replay"] + ")이 함께 있다. 결정 75항은 위임으로 정해졌고 교정을 기다린다.";
+          " · replay " + I.stats.byGroup["replay"] + ")이 함께 있다. 결정(첫 판 75항과 이후 79항)은 위임으로 정해졌고 교정을 기다린다.";
       },
       read: "읽는 순서: 개요(전체 설명) → workflow 라이브러리 › 라이브러리 설명 → 공통 골격 → 관심 있는 특화 하나. 교정 후보 11은 세션 기록 › 인계 문서 §7.",
       rulesNote: "회사가 값을 채우는 설정(YAML)과 시험 사례가 공통으로 가정하는 설정이다. 숫자는 공란이고 결정 주체가 적혀 있다.",
@@ -476,7 +476,30 @@
       }).join("") + "</div>" + h("p", "dim small", tx(F.same)) +
       '<div class="tgo">' + goBtn(["원인 찾기의 행선지 표", "sys", "intake/more"]) + " " + goBtn(["사례 W5 · 고객 트랙", "walk", "W5"]) + " " + goBtn(["전체 지도: 고객 이슈의 길", "atlas", "S2"]) + "</div></div>";
   }
-  var FIGS = { core: coreStrip, intake: intakeFig, chain: chainFig, diagnose: layerFig };
+  // workflow: 원인 찾기 한 줄 + 두 트랙의 왕복 + 고객 트랙 덧붙임 + 선택 도구
+  function wfFig() {
+    var F = W.sys.topics.workflow.fig; if (!F) return "";
+    return '<div class="card" id="s-fig"><h2>원인 찾기 · 두 트랙 · 고객 트랙 <span class="tag y">가정 · 교정 대기</span></h2>' +
+      h("h3", "", "원인 찾기(조사형) 한 줄") +
+      '<div class="ctrack">' + F.diag.map(function (t, i) {
+        return '<div class="ctk' + (i === 0 || i === F.diag.length - 1 ? " hum" : "") + '"><b>' + esc(t[0]) + "</b>" + h("span", "", tx(t[1])) + "</div>";
+      }).join('<span class="car">→</span>') + "</div>" +
+      h("h3", "", "모든 일에 두 트랙") +
+      '<div class="srcs">' + F.tracks.map(function (r, i) {
+        return '<div class="src s' + i + '"><b>' + esc(r[0]) + '</b><span class="ex">' + tx(r[1]) + "</span></div>";
+      }).join("") + "</div>" +
+      '<div class="cbug wb"><b>↺</b> ' + tx(F.back) + "</div>" +
+      h("h3", "", "고객 트랙 = 트랙 덧붙임") +
+      '<div class="wstack"><div class="wtop">' + F.cust.map(function (r) {
+        return '<div class="wtk"><b>' + esc(r[0]) + "</b>" + h("span", "", tx(r[1])) + "</div>";
+      }).join("") + '</div><div class="wbase">' + tx(F.custBase) + "</div></div>" +
+      '<div class="cbug"><b>✕</b> ' + tx(F.custNo) + "</div>" +
+      h("h3", "", "갈래 현장 절차: 선택 도구") +
+      '<div class="wtools">' + F.tools.map(function (r) { return '<span class="chip">' + esc(r[0]) + " <i>" + esc(r[1]) + "</i></span>"; }).join("") + "</div>" +
+      h("p", "dim small", tx(F.toolsNote)) +
+      '<div class="tgo">' + goBtn(["자세히: 층 판별 · 두 트랙 · 고객 트랙", "sys", "workflow/more"]) + " " + goBtn(["고객 트랙 (TR-customer)", "bun", "wa/library/TR-customer"]) + " " + goBtn(["diagnose 층 사다리", "sys", "diagnose/fig"]) + " " + goBtn(["intake 고객 트랙 한 줄", "sys", "intake/fig"]) + "</div></div>";
+  }
+  var FIGS = { core: coreStrip, intake: intakeFig, chain: chainFig, diagnose: layerFig, workflow: wfFig };
 
   function topicRail(cur) {
     return '<div class="rail">' + W.sys.order.map(function (k) {
@@ -512,7 +535,7 @@
     var d = t.more ? deepById(t.more) : null;
     if (d) {
       o += '<details class="doc" id="s-more"' + (state.sysSec === "more" ? " open" : "") + '><summary>자세히: ' + esc(d.title) + '</summary><div class="docbody">' +
-        (d.excluded ? h("div", "note", tx(d.excluded)) : "") + blocks(d.body) + "</div></details>";
+        (d.lead ? h("p", "dim small", tx(d.lead)) : "") + (d.excluded ? h("div", "note", tx(d.excluded)) : "") + blocks(d.body) + "</div></details>";
     }
     var walks = W.walks.filter(function (w) { return w.go.some(function (g) { return g[1] === "sys" && g[2] === id; }); });
     o += '<div class="card" id="s-spec"><h2>원문과 사례</h2>' +
@@ -773,16 +796,16 @@
   function viewLib() {
     var o = '<div class="card"><h2>자료실</h2>' + h("p", "lead", tx(W.lib.lead)) + "</div>";
     o += '<div class="card"><h2>명세 탐색기</h2>' +
-      '<button class="topicbtn" data-bun-go="ia"><div class="tt"><b>intake agent system</b></div>' + h("div", "mut small", "명세 전문 · 부품 11 · 계약 3 · 규칙 9 · 시험 사례 108(고객 6) · 인계 문서") + "</button>" +
-      '<button class="topicbtn" data-bun-go="wa"><div class="tt"><b>workflow agent system</b></div>' + h("div", "mut small", "명세 전문 · workflow 라이브러리 28 · 부품 11 · 계약 11 · 시험 사례 68 · 인계 문서") + "</button></div>";
+      '<button class="topicbtn" data-bun-go="ia"><div class="tt"><b>intake agent system</b></div>' + h("div", "mut small", "명세 전문 · 부품 11 · 계약 3 · 규칙 9 · 시험 사례 114(고객 7) · 인계 문서") + "</button>" +
+      '<button class="topicbtn" data-bun-go="wa"><div class="tt"><b>workflow agent system</b></div>' + h("div", "mut small", "명세 전문 · workflow 파일 28(트랙 1 · 특화 17) · 부품 11 · 계약 11 · 설정 4 · 시험 사례 84 · 인계 문서") + "</button></div>";
     o += '<div class="card"><h2>그림 문서 <span class="tag m">정적 · 폭이 넓다</span></h2><div class="igdocs">' + W.lib.docs.map(function (d) {
-      return '<a class="igdoc" href="' + d[0] + '" target="_blank" rel="noopener"><b>' + esc(d[1]) + " ↗</b><span>" + tx(d[2]) + "</span></a>";
+      return '<button class="igdoc" data-lv="doc/' + d[3] + '"><b>' + esc(d[1]) + "</b><span>" + tx(d[2]) + "</span></button>";
     }).join("") + "</div></div>";
     o += '<div class="card"><h2>15초 요약 · 해설</h2>' + W.mapOrder.map(function (k) {
       var M = W.maps[k];
       return '<div class="strow"><b>' + esc(M.tab) + '</b><span class="maplinks inl">' +
-        [["GIF", M.media.gif], ["mp4", M.media.mp4], ["해설 mp4", "media/" + k + "_narrated.mp4"], ["그림", M.media.png[theme()]]].map(function (l) {
-          return '<a href="' + l[1] + '" target="_blank" rel="noopener">' + l[0] + " ↗</a>";
+        LV_MEDIA.map(function (l) {
+          return '<button class="lvm" data-lv="media/' + k + "/" + l[0] + '">' + l[1] + "</button>";
         }).join("") + "</span></div>";
     }).join("") + "</div>";
     o += '<details class="doc"><summary>용어</summary><div class="docbody"><dl class="glo">' +
@@ -790,9 +813,36 @@
     return o;
   }
 
+  /* ── 자료실 안의 보기 화면(#lib/doc/<id> · #lib/media/<주제>/<종류>)과 '앞 페이지 · 자료실' 줄 ── */
+  var LV_MEDIA = [["gif", "GIF"], ["mp4", "15초 mp4"], ["narr", "해설 mp4"], ["png", "그림"]];
+  function libBar(title) {
+    return '<div class="libbar"><button class="deeplink" data-nav-back="1">← 앞 페이지</button>' +
+      '<button class="deeplink" data-tab-go="lib">▤ 자료실</button>' + (title ? '<span class="lbt">' + esc(title) + "</span>" : "") + "</div>";
+  }
+  function viewLibItem(v) {
+    var p = v.split("/"), o;
+    if (p[0] === "doc") {
+      var d = W.lib.docs.filter(function (x) { return x[3] === p[1]; })[0];
+      if (!d) return libBar("") + '<div class="card">없는 문서다.</div>';
+      o = libBar(d[1]) + '<div class="card"><p class="small mut">' + tx(d[2]) +
+        ' <a href="' + d[0] + '" target="_blank" rel="noopener">새 창으로 ↗</a></p>' +
+        '<iframe class="docframe" src="' + d[0] + '" title="' + esc(d[1]) + '" loading="lazy"></iframe></div>';
+      return o + libBar("");
+    }
+    var M = W.maps[p[1]], kind = p[2] || "gif", lab = (LV_MEDIA.filter(function (l) { return l[0] === kind; })[0] || ["", ""])[1];
+    if (p[0] !== "media" || !M) return libBar("") + '<div class="card">없는 자료다.</div>';
+    var src = kind === "gif" ? M.media.gif : kind === "mp4" ? M.media.mp4 : kind === "narr" ? "media/" + p[1] + "_narrated.mp4" : M.media.png[theme()];
+    o = libBar(M.tab + " · " + lab) + '<div class="card"><div class="rail sub">' + LV_MEDIA.map(function (l) {
+      return '<button data-lv="media/' + p[1] + "/" + l[0] + '"' + (l[0] === kind ? ' class="on"' : "") + ">" + l[1] + "</button>";
+    }).join("") + "</div>" +
+      (kind === "mp4" || kind === "narr" ? '<video class="lvmedia" src="' + src + '" controls playsinline preload="metadata"></video>' : '<img class="lvmedia" src="' + src + '" alt="' + esc(M.tab) + '">') +
+      '<p class="small"><a href="' + src + '" target="_blank" rel="noopener">파일 따로 열기 ↗</a> · <button class="deeplink inl" ' + (p[1] === "atlas" ? 'data-atlas-go=""' : 'data-sys-go="' + p[1] + '/map"') + ">이 주제의 화면</button></p></div>";
+    return o + libBar("");
+  }
+
   /* ── 라우팅 ── */
   var TABS = ["home", "atlas", "sys", "walk", "decide", "lib", "ia", "wa"];
-  var state = { tab: "home", astep: null, sys: null, sysSec: null, walk: null, aflow: null, acell: null, arow: null, ascroll: null, ia: { sec: "overview", id: null }, iaf: {}, iaBun: null };
+  var state = { tab: "home", lv: null, astep: null, sys: null, sysSec: null, walk: null, aflow: null, acell: null, arow: null, ascroll: null, ia: { sec: "overview", id: null }, iaf: {}, iaBun: null };
   // 옛 주소를 새 화면으로: #core/... #docs/... #deep/<id> #map/<id> #cases #status #talk #road #about
   function readHash() {
     var raw = (location.hash || "").replace(/^#/, "");
@@ -809,6 +859,7 @@
     else if (p[0] === "walk") state.walk = p[1] ? p[1].toUpperCase() : null;
     else if (p[0] === "atlas") atlasGo(p[1] || "");
     else if (p[0] === "ia" || p[0] === "wa") state.ia = { sec: p[1] || "overview", id: p[2] ? decodeURIComponent(p[2]) : null };
+    else if (p[0] === "lib") state.lv = p[1] ? p.slice(1).join("/") : null;
     return true;
   }
   function writeHash() {
@@ -817,8 +868,17 @@
     else if (f === "walk" && state.walk) f += "/" + state.walk;
     else if (f === "atlas" && state.aflow) f += "/" + state.aflow;
     else if (f === "ia" || f === "wa") f += "/" + (state.ia.sec || "overview") + (state.ia.id ? "/" + encodeURIComponent(state.ia.id) : "");
-    if (("#" + f) !== location.hash) { try { history.replaceState(null, "", "#" + f); } catch (e) { location.hash = f; } }
+    else if (f === "lib" && state.lv) f += "/" + state.lv;
+    if (("#" + f) === location.hash) return;
+    // 화면이 바뀌면 기록을 쌓는다(앞 페이지 · 브라우저 뒤로 가기). 같은 화면 안의 고르기는 덮어쓴다
+    var push = !replaceNext && location.hash !== "";
+    replaceNext = false;
+    try {
+      if (push) { history.pushState(null, "", "#" + f); navDepth++; }
+      else history.replaceState(null, "", "#" + f);
+    } catch (e) { location.hash = f; }
   }
+  var navDepth = 0, replaceNext = false;
 
   function paint(keepScroll) {
     var t = state.tab, html, y = window.scrollY;
@@ -826,18 +886,19 @@
     else if (t === "atlas") html = viewAtlas();
     else if (t === "walk") html = viewWalk(state.walk);
     else if (t === "decide") html = viewDecide();
-    else if (t === "lib") html = viewLib();
+    else if (t === "lib") html = state.lv ? viewLibItem(state.lv) : viewLib();
     else if (t === "ia" || t === "wa") {
       if (state.iaBun !== t) { if (state.iaBun) { state.ia = { sec: "overview", id: null }; state.iaf = {}; } state.iaBun = t; }
       if (!BD()) { app.innerHTML = '<div class="card">' + BUN[t].name + " 데이터를 불러오는 중…</div>"; return loadBun(t, paint); }
-      html = viewIA();
+      html = libBar(BUN[t].name) + viewIA() + libBar("");
     } else html = viewHome();
     html += '<footer>RTL WorkSys · v' + W.meta.version + " · " + W.meta.updated +
       '<br>설계 중간 결과 뷰어. 모든 사례는 가상이고, 숫자 기준은 공란이다. <button class="deeplink inl" data-tab-go="lib">▤ 자료실</button></footer>';
     app.innerHTML = html;
+    if (keepScroll) replaceNext = true;
     writeHash();
     hookNarr(curMapId());
-    var navOn = t === "ia" || t === "wa" ? "sys" : t;
+    var navOn = t === "ia" || t === "wa" || t === "lib" ? "" : t;
     var btns = document.querySelectorAll("#nav button");
     for (var i = 0; i < btns.length; i++) btns[i].className = btns[i].dataset.tab === navOn ? "on" : "";
     if (state.ascroll) { var ae = document.getElementById(state.ascroll); state.ascroll = null; if (ae) { ae.scrollIntoView({ block: "start" }); return; } }
@@ -855,7 +916,7 @@
     state.tab = b.dataset.tab; state.sys = null; state.sysSec = null; state.walk = null; state.arow = null;
     paint();
   });
-  document.getElementById("libbtn").addEventListener("click", function () { state.tab = "lib"; paint(); });
+  document.getElementById("libbtn").addEventListener("click", function () { state.tab = "lib"; state.lv = null; paint(); });
 
   app.addEventListener("click", function (e) {
     var b = e.target.closest("button"); if (!b) return;
@@ -875,7 +936,12 @@
     }
     if (b.dataset.fig) { var fp = b.dataset.fig.split(":"); figSel[fp[0]] = fp.slice(1).join(":"); return paint(true); }
     if (b.dataset.walkGo !== undefined) { state.tab = "walk"; state.walk = b.dataset.walkGo || null; return paint(); }
-    if (b.dataset.tabGo) { state.tab = b.dataset.tabGo; state.sys = null; state.walk = null; return paint(); }
+    if (b.dataset.navBack) {
+      if (navDepth > 0) return history.back();
+      state.tab = "lib"; state.lv = null; return paint();
+    }
+    if (b.dataset.lv) { state.tab = "lib"; state.lv = b.dataset.lv; return paint(); }
+    if (b.dataset.tabGo) { state.tab = b.dataset.tabGo; state.sys = null; state.walk = null; state.lv = null; return paint(); }
     if (b.dataset.iaSec) { state.tab = bk(); state.ia = { sec: b.dataset.iaSec, id: null }; return paint(); }
     if (b.dataset.iaDoc !== undefined) { var pp = b.dataset.iaDoc.split("/"); state.tab = bk(); state.ia = { sec: pp[0], id: pp[1] || null }; return paint(); }
     if (b.dataset.iaCase) { state.tab = bk(); state.ia = { sec: "golden", id: b.dataset.iaCase }; return paint(); }
@@ -911,8 +977,10 @@
   });
 
   window.addEventListener("hashchange", function () { if (readHash()) paint(); });
+  window.addEventListener("popstate", function () { if (navDepth > 0) navDepth--; replaceNext = true; if (readHash()) paint(); });
 
   document.getElementById("sub").textContent = W.meta.subtitle;
   readHash();
+  replaceNext = true;
   paint();
 })();

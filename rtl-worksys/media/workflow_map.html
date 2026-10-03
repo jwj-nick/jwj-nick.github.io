@@ -32,40 +32,48 @@ text{font-family:'Malgun Gothic','Apple SD Gothic Neo',-apple-system,'Segoe UI',
   var E = K.E, T = K.T, G = K.G, pill = K.pill, fade = K.fade, pop = K.pop, rise = K.rise, draw = K.draw;
 
   K.header("RTL WorkSys  ·  workflow 한 장", [
-    { t0: 0, t1: 3.0, main: "업무마다 절차가 다르면, 실적이 쌓이지 않고 배울 수도 없다",
-      sub: "사람마다 · 업무마다 다른 절차는 끝 · 경계 · 근거가 흐려진다. 같은 표에 쌓이지 않으니 고칠 곳도 없다." },
-    { t0: 3.0, t1: 6.5, main: "모든 workflow는 같은 골격을 물려받는다",
-      sub: "공통 골격(자리 여덟 · 공통 checkpoint 넷) → 작업 모양 일곱 → 업무별 특화 열여섯." },
-    { t0: 6.5, t1: 9.5, main: "순서와 멈춤은 코드가, 판단과 작업은 LLM이 한다",
-      sub: "자율 선언은 글이 아니라 실행 중 allowlist다. 선언 밖 행동은 guard가 막고, 끝에서 경계 확인이 다시 센다." },
-    { t0: 9.5, t1: 12.0, main: "여러 workflow는 조립한다. 리뷰어는 고치지 않는다",
-      sub: "한 task = 한 결과 패키지 = 한 번의 검수. 판정 뒤의 수정은 늘 다른 task로 연다." },
-    { t0: 12.0, t1: 99, main: "한 번 표준화하면, 새 업무는 특화 한 장이면 된다",
-      sub: "골격 · 모양 · 조립 · 부품은 그대로 두고 업무의 구체만 쓴다. 이것이 AI workflow를 실무에 넣는 기틀이다." }
+    { t0: 0, t1: 3.0, main: "절차가 제각각이면 끝 · 경계 · 근거가 흐려진다",
+      sub: "원인을 RTL부터 파고, 보지 못한 확인을 통과로 세고, 일이 끝나도 workflow는 배우지 못한다." },
+    { t0: 3.0, t1: 6.5, main: "모든 workflow는 같은 골격을 물려받고 좁힌다",
+      sub: "골격(자리 여덟 · checkpoint 넷) → 작업 모양 일곱 → 특화 열일곱. 출처가 고객이면 고객 트랙이 덧붙는다." },
+    { t0: 6.5, t1: 9.5, main: "원인 찾기는 층 판별부터, 끝에는 늘 Track B",
+      sub: "층 판별 → 재현 → 가설 → 좁히기 → before/after → 층마다 다른 끝. Track B가 비면 완료가 아니다." },
+    { t0: 9.5, t1: 11.5, main: "판정은 도구가 내고, 보지 못한 것은 통과가 아니다",
+      sub: "선택 도구 일곱 · 억제 기록의 수명 · 블록 sign-off 판정. sign-off 자체는 사람이 한다." },
+    { t0: 11.5, t1: 99, main: "한 골격 위에서 일하고 배우니, 새 업무는 특화 한 장이다",
+      sub: "절차 · 원인 · 근거 · 학습이 같은 표에 쌓인다. 이것이 AI workflow를 실무에 넣는 기틀이다." }
   ]);
 
   var mark0 = svg.childNodes.length;
 
-  /* ── 세 층: 공통 골격 ── */
+  /* ── S1 입자 층 (노드보다 먼저: 제각각인 절차 막대) ── */
+  var rnd = K.rng(7), bits = [], chaosG = K.particles(G()), pal = ["var(--acc)", "var(--acc2)", "var(--warn)", "var(--ok)", "var(--bad)"];
+  if (!K.POSTER) for (var c = 0; c < 28; c++) {
+    var d = { x: 120 + rnd() * 1580, y: 280 + rnd() * 380, w: 40 + rnd() * 180, ph: rnd() * 6.3, fx: 0.5 + rnd(), t0: 0.2 + rnd() * 1.2 };
+    d.el = E("rect", { x: 0, y: 0, width: d.w, height: 12, rx: 6 }, { fill: pal[c % 5], opacity: 0 }, chaosG);
+    bits.push(d);
+  }
+
+  /* ── S2 왼쪽: 공통 골격 → 모양 일곱 → 특화 열일곱 ── */
   var comG = G();
   K.box(80, 258, 1080, 104, "var(--acc)", comG, { fill: "color-mix(in srgb,var(--acc) 12%, var(--card))" });
   T(102, 290, "WF-common · 공통 골격", 21, { fill: "var(--acc)", fontWeight: 800 }, comG);
-  T(1140, 290, "모든 workflow가 물려받는다", 16, { fill: "var(--mut)" }, comG, "end");
+  T(1140, 290, "모든 workflow가 물려받는다 · 특화는 좁히기만", 16, { fill: "var(--mut)" }, comG, "end");
   fade(comG, 3.1, 0.4);
   var SL = ["PL plan", "IN 입력", "BL 시작점", "DO 본체", "OR 판정", "RG 회귀", "RS 결과", "LN 학습"], sx = 102;
   SL.forEach(function (s, i) {
     var w = K.width(s, 15) + 24, g = pill(sx + w / 2, 330, s, 15, "var(--acc)", comG, { h: 32, pad: 24, rx: 8, fill: "var(--card)" });
-    pop(g, sx + w / 2, 330, 3.3 + i * 0.09, 0.4);
+    pop(g, sx + w / 2, 330, 3.3 + i * 0.08, 0.4);
     sx += w + 8;
   });
-  var cc = pill(sx + 8 + K.width("+ C0 · CB · CR · CL", 15) / 2 + 12, 330, "+ C0 · CB · CR · CL", 15, "var(--ok)", comG, { h: 32, pad: 24, rx: 8 });
-  fade(cc, 4.1, 0.4);
+  var ccTxt = "+ C0 · CB · CR · CL";
+  var cc = pill(sx + 8 + (K.width(ccTxt, 15) + 24) / 2, 330, ccTxt, 15, "var(--ok)", comG, { h: 32, pad: 24, rx: 8 });
+  fade(cc, 4.0, 0.4);
 
-  /* ── 작업 모양 일곱 + 특화 ── */
   var AR = [
     ["수정형", "AR-change", ["WF-bugfix", "WF-lint", "WF-review-fix", "WF-rtl-impl"]],
     ["탐색형", "AR-explore", ["WF-timing", "WF-coverage"]],
-    ["판정형", "AR-assess", ["code-review (A)", "verif-review (B)", "perf-area (C)"]],
+    ["판정형", "AR-assess", ["code-review (A)", "verif-review (B)", "perf-area (C)", "block-signoff"]],
     ["조사형", "AR-diagnose", ["regr-diagnose"]],
     ["작성형", "AR-author", ["WF-answer", "answer-draft"]],
     ["결정 자료형", "AR-decide", ["decision-material", "improve-plan (E)"]],
@@ -74,69 +82,105 @@ text{font-family:'Malgun Gothic','Apple SD Gothic Neo',-apple-system,'Segoe UI',
   var arG = G(), spG = G();
   AR.forEach(function (a, i) {
     var x = 80 + i * 156, cx = x + 73, g = G(arG);
-    E("path", { d: "M " + cx + " 362 V 398", fill: "none" }, { stroke: "var(--line)", strokeWidth: 2 }, g);
-    K.box(x, 398, 146, 64, "var(--acc2)", g, { rx: 12 });
-    T(cx, 426, a[0], 18, { fill: "var(--acc2)", fontWeight: 800 }, g, "middle");
-    T(cx, 448, a[1], 13, { fill: "var(--mut)" }, g, "middle").setAttribute("class", "mono");
-    pop(g, cx, 430, 4.2 + i * 0.13, 0.45);
+    E("path", { d: "M " + cx + " 362 V 390", fill: "none" }, { stroke: "var(--line)", strokeWidth: 2 }, g);
+    K.box(x, 390, 146, 60, "var(--acc2)", g, { rx: 12 });
+    T(cx, 416, a[0], 18, { fill: "var(--acc2)", fontWeight: 800 }, g, "middle");
+    T(cx, 438, a[1], 13, { fill: "var(--mut)" }, g, "middle").setAttribute("class", "mono");
+    pop(g, cx, 420, 4.1 + i * 0.12, 0.45);
     a[2].forEach(function (w, j) {
-      var y = 478 + j * 32, gg = G(spG), sk = w === "regr-diagnose";
-      K.box(x, y, 146, 26, "var(--line)", gg, { rx: 7, fill: "var(--bg2)", stroke: sk ? "var(--bad)" : "var(--line)", sw: 1.5, dash: sk ? "5 4" : "none" });
-      T(cx, y + 18, w, 13, { fill: sk ? "var(--bad)" : "var(--fg)" }, gg, "middle").setAttribute("class", "mono");
-      rise(gg, 5.0 + i * 0.1 + j * 0.08, 0.4, -10);
+      var y = 462 + j * 30, gg = G(spG), dr = w === "regr-diagnose", nw = w === "block-signoff";
+      var col = dr ? "var(--bad)" : nw ? "var(--ok)" : "var(--line)";
+      K.box(x, y, 146, 25, col, gg, { rx: 7, fill: nw ? "color-mix(in srgb,var(--ok) 14%, var(--bg2))" : "var(--bg2)", stroke: col, sw: 1.5, dash: dr ? "5 4" : "none" });
+      T(cx, y + 17, w, 13, { fill: dr ? "var(--bad)" : nw ? "var(--ok)" : "var(--fg)", fontWeight: nw ? 700 : 400 }, gg, "middle").setAttribute("class", "mono");
+      rise(gg, 4.8 + i * 0.09 + j * 0.07, 0.4, -10);
     });
   });
-  var rule = T(80, 648, "특화는 채우고 좁히기만 한다. 넓히지 못한다. 점선 = 골격만 있는 특화.", 16, { fill: "var(--mut)" });
-  fade(rule, 6.0, 0.4);
+  var legend = T(1160, 578, "특화 17 · 점선 = draft · 초록 = 새 판정형(블록 sign-off)", 14, { fill: "var(--mut)" }, null, "end");
+  fade(legend, 5.4, 0.4);
 
-  /* ── agent system ── */
-  var agG = G(), linkG = G(agG), links = [];
-  var agHead = G(agG);
-  T(1222, 282, "agent system", 21, { fontWeight: 800 }, agHead);
-  T(1848, 282, "순서는 코드, 판단은 LLM", 16, { fill: "var(--mut)" }, agHead, "end");
-  fade(agHead, 6.6, 0.4);
-  function row(label, color, y, names, t0) {
-    fade(T(1222, y - 10, label, 14, { fill: color, fontWeight: 800 }, agG), t0, 0.4);
-    names.forEach(function (n, i) {
-      var x = 1222 + i * 126, g = G(agG);
-      K.box(x, y, 118, 46, color, g, { rx: 10 });
-      T(x + 59, y + 29, n, 15, { fontWeight: 700 }, g, "middle");
-      pop(g, x + 59, y + 23, t0 + i * 0.1, 0.4);
-      var ln = E("path", { d: "M " + (x + 59) + " " + (y < 420 ? y + 46 : y) + " L 1535 " + (y < 420 ? 400 : 452), fill: "none" },
-        { stroke: color, strokeWidth: 1.6, strokeDasharray: "5 6", opacity: 0.7 }, linkG);
-      links.push(ln);
-      fade(ln, t0 + 0.5, 0.4);
-    });
-  }
-  row("코드 (LLM 없음)", "var(--acc)", 318, ["resolver", "policy", "evaluator", "record", "dry replay"], 6.7);
-  var ctl = G(agG);
-  K.box(1330, 400, 410, 52, "var(--acc)", ctl, { rx: 12, fill: "color-mix(in srgb,var(--acc) 24%, var(--card))" });
-  T(1535, 432, "workflow-controller · 순서 · 멈춤 · STATE", 17, { fill: "var(--fg)", fontWeight: 800 }, ctl, "middle");
-  pop(ctl, 1535, 426, 6.6, 0.45);
-  row("LLM", "var(--acc2)", 502, ["planner", "worker", "hitl", "result", "learner"], 7.2);
-  var grd = G(agG);
-  K.box(1222, 584, 400, 74, "var(--bad)", grd, { rx: 12 });
-  T(1242, 612, "guard: 자율 선언 = 실행 중 allowlist", 17, { fill: "var(--bad)", fontWeight: 800 }, grd);
-  T(1242, 640, "✕ MR 생성 · 선언 밖 파일 · 고정 port 변경", 15, { fill: "var(--fg)" }, grd);
-  rise(grd, 7.9, 0.45, 14);
-  var hum = G(agG);
-  K.box(1640, 584, 208, 74, "var(--warn)", hum, { rx: 12 });
-  T(1744, 614, "사람", 18, { fill: "var(--warn)", fontWeight: 800 }, hum, "middle");
-  T(1744, 640, "검수 · 반영", 15, { fill: "var(--fg)" }, hum, "middle");
-  rise(hum, 8.1, 0.45, 14);
-  var xMark = T(1400, 575, "✕", 34, { fill: "var(--bad)", fontWeight: 800, opacity: 0 }, agG, "middle");
+  /* ── S2 끝: 고객 트랙 덧붙임 (상속 층이 아니라 위에 얹힌다) ── */
+  var trG = G();
+  K.box(80, 598, 1080, 92, "var(--warn)", trG, { rx: 14, dash: "8 6", fill: "color-mix(in srgb,var(--warn) 9%, var(--card))" });
+  T(102, 628, "TR-customer · 고객 트랙 덧붙임", 19, { fill: "var(--warn)", fontWeight: 800 }, trG).setAttribute("class", "");
+  T(1140, 628, "출처가 고객이면 카테고리 workflow 위에 · 별도 workflow가 아니다", 15, { fill: "var(--mut)" }, trG, "end");
+  var CT = [["CT1 고객 경계 · 질문의 답", "var(--warn)"], ["CT2 자동 multi-test", "var(--warn)"], ["회신 초안", "var(--warn)"],
+            ["진짜 bug → 내부 이슈(검수자가 고름)", "var(--warn)"], ["✕ 고치지 않음", "var(--bad)"], ["posture 상한 draft", "var(--bad)"]];
+  var tx = 102;
+  CT.forEach(function (z, i) {
+    var w = K.width(z[0], 14) + 22, g = pill(tx + w / 2, 664, z[0], 14, z[1], trG, { h: 30, pad: 22, rx: 8, fill: "var(--card)" });
+    pop(g, tx + w / 2, 664, 5.9 + i * 0.08, 0.35);
+    tx += w + 10;
+  });
+  [153, 309].forEach(function (cx) {
+    E("path", { d: "M " + cx + " 598 V 586 M " + (cx - 6) + " 592 L " + cx + " 584 L " + (cx + 6) + " 592", fill: "none" }, { stroke: "var(--warn)", strokeWidth: 2 }, trG);
+  });
+  rise(trG, 5.6, 0.45, 16);
+
+  /* ── S3 오른쪽: 원인 찾기 = 층 판별부터 → 두 트랙 → intake 원장 ── */
+  var dgG = G();
+  var dgHead = G(dgG);
+  T(1210, 282, "원인 찾기는 층 판별부터", 21, { fontWeight: 800 }, dgHead);
+  T(1848, 282, "조사형 모양의 의무", 16, { fill: "var(--mut)" }, dgHead, "end");
+  fade(dgHead, 6.6, 0.4);
+  var STEP = [
+    ["① 층 판별", "문서 … TB · RTL · FW · 구현", "var(--bad)"],
+    ["② 재현", "같은 입력 · revision · seed", "var(--acc)"],
+    ["③ 가설", "후보마다 가를 test", "var(--acc)"],
+    ["④ 좁히기", "싼 것부터 · 첫 불일치", "var(--acc)"],
+    ["⑤ before/after", "원인마다 따로", "var(--acc)"],
+    ["⑥ 층마다 다른 끝", "수정 · 회신 · 학습", "var(--acc2)"]
+  ];
+  var stepXY = [];
+  STEP.forEach(function (s, i) {
+    var r = Math.floor(i / 3), cIdx = i % 3, x = 1210 + cIdx * 219, y = 300 + r * 74, g = G(dgG);
+    K.box(x, y, 200, 56, s[2], g, { rx: 11, fill: i === 0 ? "color-mix(in srgb,var(--bad) 16%, var(--card))" : undefined });
+    T(x + 100, y + 24, s[0], 17, { fill: i === 0 ? "var(--bad)" : "var(--fg)", fontWeight: 800 }, g, "middle");
+    T(x + 100, y + 45, s[1], 13, { fill: "var(--mut)" }, g, "middle");
+    pop(g, x + 100, y + 28, 6.8 + i * 0.14, 0.4);
+    stepXY.push([x, y]);
+  });
+  var dgPath = E("path", { d: "M 1410 328 H 1429 M 1629 328 H 1648 M 1748 356 V 364 H 1310 V 374 M 1410 402 H 1429 M 1629 402 H 1648", fill: "none" },
+    { stroke: "var(--line)", strokeWidth: 2.5 }, dgG);
+  draw(dgPath, 6.9, 0.9);
+
+  var tkG = G(dgG);
+  K.box(1210, 458, 638, 40, "var(--acc)", tkG, { rx: 10 });
+  T(1228, 484, "Track A · 일 자체", 17, { fill: "var(--acc)", fontWeight: 800 }, tkG);
+  T(1830, 484, "결과 패키지 → 검수 → 반영", 15, { fill: "var(--fg)" }, tkG, "end");
+  K.box(1210, 506, 638, 40, "var(--ok)", tkG, { rx: 10, fill: "color-mix(in srgb,var(--ok) 14%, var(--card))" });
+  T(1228, 532, "Track B · workflow의 기록", 17, { fill: "var(--ok)", fontWeight: 800 }, tkG);
+  T(1830, 532, "쓴 workflow · 막힌 곳 · 층 · 질문 · test", 15, { fill: "var(--fg)" }, tkG, "end");
+  rise(tkG, 7.8, 0.45, 12);
+  var tkHead = T(1210, 451, "모든 일에 두 트랙", 14, { fill: "var(--mut)", fontWeight: 700 }, dgG);
+  fade(tkHead, 7.7, 0.4);
+
+  var back = E("path", { d: "M 1660 546 V 600", fill: "none" }, { stroke: "var(--ok)", strokeWidth: 2.5, strokeDasharray: "6 5" }, dgG);
+  var backHead = E("path", { d: "M 1652 592 L 1660 602 L 1668 592", fill: "none" }, { stroke: "var(--ok)", strokeWidth: 2.5 }, dgG);
+  draw(back, 8.4, 0.4); fade(backHead, 8.7, 0.2);
+  var evt = T(1672, 577, "학습 완료 사건", 13, { fill: "var(--mut)" }, dgG);
+  fade(evt, 8.5, 0.3);
+  var ldG = G(dgG);
+  K.box(1460, 604, 388, 66, "var(--ok)", ldG, { rx: 12 });
+  T(1654, 632, "intake 원장 · Track B 줄 덧붙임", 16, { fill: "var(--ok)", fontWeight: 800 }, ldG, "middle");
+  T(1654, 656, "층 · 질문 결과 · test · 분류 교정", 14, { fill: "var(--fg)" }, ldG, "middle");
+  pop(ldG, 1654, 637, 8.7, 0.4);
+  var emp = pill(1328, 637, "Track B가 비면 완료 아님", 15, "var(--warn)", dgG, { h: 40, pad: 26 });
+  pop(emp, 1328, 637, 8.9, 0.4);
+
+  // 층 판별 → … → Track B로 가는 한 건
+  var probe = K.POSTER ? null : E("circle", { r: 9 }, { fill: "var(--bad)", opacity: 0 }, dgG);
 
   var mark1 = svg.childNodes.length;
 
-  /* ── 아래 왼쪽: 왜 표준화하나 ── */
+  /* ── 아래 왼쪽: 왜 실무의 기틀인가 ── */
   var whyG = G();
   K.box(80, 736, 860, 314, "var(--line)", whyG, { fill: "var(--card)", stroke: "var(--line)", sw: 1.5, rx: 20 });
-  T(112, 782, "왜 workflow를 표준화하나", 27, { fontWeight: 800 }, whyG);
+  T(112, 782, "왜 workflow가 실무의 기틀인가", 27, { fontWeight: 800 }, whyG);
   var WHY = [
-    ["끝", "var(--acc)", "무엇이 참이어야 끝인지 checkpoint로 정하고, 시작점부터 기록한다."],
-    ["경계", "var(--bad)", "자율 선언이 실행 중 allowlist가 되어 guard가 막고, 끝에서 다시 센다."],
-    ["근거", "var(--acc2)", "판정은 기록되는 실행과 script가 낸다. 보지 못한 것은 통과가 아니다."],
-    ["절차", "var(--ok)", "골격은 한 곳에, 업무의 차이만 특화에. 실적이 한 표에 쌓인다."]
+    ["절차", "var(--acc)", "골격은 한 곳, 차이만 특화에. 고객 일도 새 workflow 없이 트랙을 덧붙인다."],
+    ["원인", "var(--bad)", "층 판별부터 싼 것 순서로 가른다. RTL 밖의 원인을 RTL에서 파지 않는다."],
+    ["근거", "var(--acc2)", "판정은 도구와 script가 낸다. 없는 도구 · 낡은 억제 기록은 통과가 아니다."],
+    ["학습", "var(--ok)", "모든 일에 Track B. 층 · 질문 · test가 intake로 돌아가 분류가 배운다."]
   ];
   var wy = 836;
   WHY.forEach(function (w, i) {
@@ -144,62 +188,78 @@ text{font-family:'Malgun Gothic','Apple SD Gothic Neo',-apple-system,'Segoe UI',
     E("circle", { cx: 126, cy: wy - 7, r: 15 }, { fill: "color-mix(in srgb," + w[1] + " 20%, var(--card))", stroke: w[1], strokeWidth: 2 }, g);
     T(126, wy, String(i + 1), 17, { fill: w[1], fontWeight: 800 }, g, "middle");
     T(156, wy, w[0], 21, { fill: w[1], fontWeight: 800 }, g);
-    var r = K.wrap(222, wy, w[2], 19, 690, 26, { fill: "var(--fg)" }, g);
+    var r = K.wrap(222, wy, w[2], 19, 700, 26, { fill: "var(--fg)" }, g);
     wy += 30 + r.n * 26;
-    rise(g, 12.2 + i * 0.25, 0.5, 14);
+    rise(g, 11.8 + i * 0.25, 0.5, 14);
   });
-  fade(whyG, 12.0, 0.4);
+  fade(whyG, 11.6, 0.4);
 
-  /* ── 아래 오른쪽: 조립 · 품질 기준 ── */
-  var asG = G();
-  K.box(980, 736, 860, 314, "var(--line)", asG, { fill: "var(--card)", stroke: "var(--line)", sw: 1.5, rx: 20 });
-  T(1012, 782, "조립 · 품질 기준", 27, { fontWeight: 800 }, asG);
-  T(1012, 818, "RTL review pipeline: 한 task 안에서 auto로 잇는다", 15, { fill: "var(--mut)" }, asG);
-  var PN = [["A", "코드"], ["B", "검증"], ["C", "성능면적"], ["D", "합성"], ["E", "판단"]], pNodes = [];
-  var pl = E("path", { d: "M 1040 860 H 1480", fill: "none" }, { stroke: "var(--line)", strokeWidth: 3 }, asG);
-  draw(pl, 9.7, 1.0);
-  PN.forEach(function (n, i) {
-    var x = 1040 + i * 110, g = G(asG);
-    var c = E("circle", { cx: x, cy: 860, r: 21 }, { fill: "var(--card)", stroke: "var(--acc2)", strokeWidth: 3 }, g);
-    T(x, 867, n[0], 19, { fill: "var(--acc2)", fontWeight: 800 }, g, "middle");
-    T(x, 902, n[1], 14, { fill: "var(--mut)" }, g, "middle");
-    pop(g, x, 860, 9.7 + i * 0.18, 0.4);
-    pNodes.push({ c: c, t: 10.1 + i * 0.22 });
-  });
-  var fixG = G(asG);
-  E("path", { d: "M 1502 860 H 1590", fill: "none" }, { stroke: "var(--warn)", strokeWidth: 2.5, strokeDasharray: "6 5" }, fixG);
-  E("path", { d: "M 1580 852 L 1592 860 L 1580 868", fill: "none" }, { stroke: "var(--warn)", strokeWidth: 2.5 }, fixG);
-  K.box(1600, 836, 210, 48, "var(--warn)", fixG, { rx: 10 });
-  T(1705, 866, "수정은 다른 task", 16, { fill: "var(--warn)", fontWeight: 800 }, fixG, "middle");
-  T(1546, 902, "on-decision", 13, { fill: "var(--mut)" }, fixG, "middle");
-  rise(fixG, 11.1, 0.45, 12);
-  var hzG = G(asG), hx = 1012;
-  [["경계 넘기 0", "var(--bad)"], ["근거 없는 판정 0", "var(--warn)"], ["사람 기록 훼손 0", "var(--acc2)"]].forEach(function (z, i) {
-    var w = K.width(z[0], 18) + 34;
-    var g = pill(hx + w / 2, 950, z[0], 18, z[1], hzG, { h: 42, pad: 34 });
-    pop(g, hx + w / 2, 950, 11.6 + i * 0.15, 0.4);
-    hx += w + 12;
-  });
-  T(1012, 1004, "시험 사례: 해석 29 · 한 바퀴 34 · replay 5   부품 11 · 데이터 계약 11", 16, { fill: "var(--fg)" }, asG);
-  T(1012, 1032, "결정 75항은 위임으로 정한 가정이다. 교정 후보 11은 intake와 맞물린 곳이다.", 15, { fill: "var(--mut)" }, asG);
-  fade(asG, 9.5, 0.4);
+  /* ── 아래 오른쪽: 판정 · 품질 기준 ── */
+  var qG = G();
+  K.box(980, 736, 860, 314, "var(--line)", qG, { fill: "var(--card)", stroke: "var(--line)", sw: 1.5, rx: 20 });
+  T(1012, 780, "판정 · 품질 기준", 27, { fontWeight: 800 }, qG);
+  T(1808, 780, "보지 못한 것은 통과가 아니다", 16, { fill: "var(--bad)", fontWeight: 700 }, qG, "end");
+  fade(qG, 9.5, 0.4);
 
-  /* ── S1: 제각각인 절차 (길이가 다른 막대들) ── */
-  var rnd = K.rng(3), bits = [], chaosG = K.particles(G()), pal = ["var(--acc)", "var(--acc2)", "var(--warn)", "var(--ok)", "var(--bad)"];
-  if (!K.POSTER) for (var c = 0; c < 26; c++) {
-    var d = { x: 120 + rnd() * 1600, y: 280 + rnd() * 380, w: 40 + rnd() * 180, ph: rnd() * 6.3, fx: 0.5 + rnd(), t0: 0.2 + rnd() * 1.2 };
-    d.el = E("rect", { x: 0, y: 0, width: d.w, height: 12, rx: 6 }, { fill: pal[c % 5], opacity: 0 }, chaosG);
-    bits.push(d);
+  function rowLabel(y, s, t0) { var l = T(1012, y + 6, s, 15, { fill: "var(--mut)", fontWeight: 700 }, qG); fade(l, t0, 0.3); }
+  function chips(x0, y, items, size, t0, step, h) {
+    var x = x0;
+    items.forEach(function (z, i) {
+      var w = K.width(z[0], size) + 20, g = pill(x + w / 2, y, z[0], size, z[1], qG, { h: h || 28, pad: 20, rx: 8, fill: z[2] || undefined, dash: z[3] });
+      pop(g, x + w / 2, y, t0 + i * step, 0.35);
+      x += w + 8;
+    });
+    return x;
   }
-  // guard에 막히는 행동 하나
-  var probe = K.POSTER ? null : E("circle", { r: 9 }, { fill: "var(--bad)", opacity: 0 }, agG);
+  // 1 선택 도구 일곱
+  rowLabel(820, "선택 도구", 9.6);
+  chips(1112, 820, [["RDC", "var(--acc)"], ["X-prop", "var(--acc)"], ["DFT rule", "var(--acc)"], ["formal 도달성", "var(--acc)"],
+                    ["constraint", "var(--acc)"], ["netlist 등가성", "var(--acc)"], ["power", "var(--acc)"]], 14, 9.7, 0.06);
+  var noTool = T(1808, 852, "없으면 '보지 못한 확인 n건'으로 남는다", 13, { fill: "var(--mut)" }, qG, "end");
+  fade(noTool, 10.1, 0.3);
+  // 2 억제 기록의 수명
+  rowLabel(880, "억제 기록", 10.1);
+  var ex = chips(1112, 880, [["유효", "var(--ok)"], ["재확인 필요", "var(--warn)"], ["만료", "var(--bad)"], ["고아", "var(--bad)"], ["철회", "var(--dim)"]], 14, 10.2, 0.06);
+  var supNote = T(ex + 6, 886, "효과는 유효만 · 구문이 바뀌면 효과를 잃는다", 13, { fill: "var(--mut)" }, qG);
+  fade(supNote, 10.5, 0.3);
+  // 3 블록 sign-off 판정
+  rowLabel(930, "블록 sign-off", 10.5);
+  var sx2 = chips(1132, 930, [["준비됨", "var(--ok)"], ["미충족", "var(--bad)"], ["판정 불가", "var(--warn)"]], 14, 10.6, 0.08);
+  var sgn = G(qG);
+  E("path", { d: "M " + (sx2 + 2) + " 930 H " + (sx2 + 34) + " M " + (sx2 + 26) + " 924 L " + (sx2 + 34) + " 930 L " + (sx2 + 26) + " 936", fill: "none" }, { stroke: "var(--warn)", strokeWidth: 2 }, sgn);
+  var sp = pill(sx2 + 44 + (K.width("sign-off는 사람(기준표의 책임자)", 14) + 20) / 2, 930, "sign-off는 사람(기준표의 책임자)", 14, "var(--warn)", sgn, { h: 28, pad: 20, rx: 8 });
+  fade(sgn, 10.85, 0.35);
+  // 4 hard-zero 셋
+  var hzG = G(qG), hx = 1012;
+  [["경계 넘기 0", "var(--bad)"], ["근거 없는 판정 0", "var(--warn)"], ["사람 기록 훼손 0", "var(--acc2)"]].forEach(function (z, i) {
+    var w = K.width(z[0], 17) + 30;
+    var g = pill(hx + w / 2, 988, z[0], 17, z[1], hzG, { h: 40, pad: 30 });
+    pop(g, hx + w / 2, 988, 11.0 + i * 0.12, 0.4);
+    hx += w + 10;
+  });
+  var hzL = T(hx + 8, 994, "hard-zero", 15, { fill: "var(--mut)", fontWeight: 700 }, qG);
+  fade(hzL, 11.3, 0.3);
+  var gold = T(1012, 1034, "시험 사례: 상속 해석 36 · 한 바퀴 42 · dry replay 6   ·   결정은 가정 · 교정 대기", 15, { fill: "var(--fg)" }, qG);
+  fade(gold, 11.3, 0.3);
 
+  /* ── 흐름도를 묶어 올린다 ── */
   var stageG = G(), moved = [];
   for (var q = mark0; q < mark1; q++) moved.push(svg.childNodes[q]);
   moved.forEach(function (n) { stageG.appendChild(n); });
-  stageG.appendChild(chaosG);
   svg.insertBefore(stageG, whyG);
-  K.lift(stageG, 150, 9.0, 0.7);
+  K.lift(stageG, 150, 9.0, 0.6);
+
+  // 탐침 경로: 층 판별 → … → ⑥ → Track B → intake 원장
+  var PTS = [[1310, 328], [1519, 328], [1748, 328], [1748, 364], [1310, 364], [1310, 402], [1519, 402], [1748, 402], [1748, 526], [1660, 526], [1660, 604]];
+  var segL = [], tot = 0;
+  for (var k = 1; k < PTS.length; k++) { var L = Math.hypot(PTS[k][0] - PTS[k - 1][0], PTS[k][1] - PTS[k - 1][1]); segL.push(L); tot += L; }
+  function at(p) {
+    var s = p * tot;
+    for (var k = 0; k < segL.length; k++) {
+      if (s <= segL[k] || k === segL.length - 1) { var f = segL[k] ? Math.min(1, s / segL[k]) : 0; return [PTS[k][0] + (PTS[k + 1][0] - PTS[k][0]) * f, PTS[k][1] + (PTS[k + 1][1] - PTS[k][1]) * f]; }
+      s -= segL[k];
+    }
+  }
 
   K.start(function (t) {
     bits.forEach(function (d) {
@@ -208,19 +268,12 @@ text{font-family:'Malgun Gothic','Apple SD Gothic Neo',-apple-system,'Segoe UI',
       d.el.setAttribute("y", d.y + 26 * Math.cos(t * d.fx * 1.6 + d.ph));
       d.el.style.opacity = o * 0.8;
     });
-    links.forEach(function (l) { l.style.strokeDashoffset = -t * 30; });
     if (probe) {
-      // worker(1222+126+59, 548)에서 내려와 guard 위에서 튕긴다
-      var p = K.clamp((t - 8.3) / 0.45), back = K.clamp((t - 8.75) / 0.4);
-      var y = 548 + 32 * K.eo(p) - 60 * K.eo(back);
-      probe.setAttribute("cx", 1407); probe.setAttribute("cy", y);
-      probe.style.opacity = t < 8.3 ? 0 : 1 - K.clamp((t - 9.0) / 0.2);
-      xMark.style.opacity = t >= 8.7 && t < 9.4 ? 1 : 0;
+      var p = K.clamp((t - 7.4) / 1.4), xy = at(K.eo(p));
+      probe.setAttribute("cx", xy[0]); probe.setAttribute("cy", xy[1]);
+      probe.style.fill = p > 0.72 ? "var(--ok)" : "var(--bad)";
+      probe.style.opacity = t < 7.4 ? 0 : 1 - K.clamp((t - 8.85) / 0.2);
     }
-    pNodes.forEach(function (n) {
-      var on = K.POSTER || t >= n.t;
-      n.c.style.fill = on ? "color-mix(in srgb,var(--acc2) 30%, var(--card))" : "var(--card)";
-    });
   });
 })();
 </script>
