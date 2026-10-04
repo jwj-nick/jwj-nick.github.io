@@ -14,183 +14,203 @@
   - 밑줄 친 낱말(용어)을 누르면 아래에 뜻풀이가 뜬다.
 -->
 <style>
+  /* 디자인: 밝은 바탕 + 진한 녹색(주색) + 파란색(보조). 통계 · 공공 데이터 사이트처럼 차분하게.
+     색은 아래 변수에서만 정한다. 어두운 모드는 쓰지 않는다(항상 밝게). */
   :root {
-    --bg:#f4f1ea; --card:#ffffff; --ink:#1b2440; --sub:#5e6678; --line:#e4dfd3; --soft:#f8f6f1;
-    --navy:#18284a; --navy2:#22386a; --coral:#ff6b57; --acc:#2f6db5; --good:#2e7d32; --warn:#d1495b; --onnavy:#ffffff;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root { --bg:#10131b; --card:#1a1f2b; --ink:#eef0f5; --sub:#9aa3b5; --line:#2b3242; --soft:#212737; --navy:#0b1222; --navy2:#16213b; --acc:#6ea8ef; --good:#6cc070; --warn:#ff7a85; }
+    color-scheme: light;
+    --bg:#f4f6f5; --card:#ffffff; --ink:#17201c; --sub:#56635c; --line:#dce3df; --soft:#eef3f0;
+    --green:#0f5132; --green2:#1d6b47; --greenbg:#e8f2ec; --blue:#1f5fa8; --bluebg:#e9f0f9;
+    --acc:#1f5fa8; --good:#1d7a46; --warn:#b42318; --warnbg:#fdecea;
   }
   * { box-sizing:border-box; }
-  html { scroll-behavior:smooth; }
-  body { margin:0; font-family:"Pretendard","Malgun Gothic","Apple SD Gothic Neo",sans-serif; background:var(--bg); color:var(--ink); line-height:1.55; }
-  .wrap { max-width:1080px; margin:0 auto; padding:0 16px; }
-  a { color:var(--acc); }
-  /* 머리 */
-  .top { background:var(--navy); color:var(--onnavy); }
-  .bar { display:flex; align-items:center; gap:14px; padding-top:14px; flex-wrap:wrap; }
-  .logo { font-weight:900; font-size:20px; letter-spacing:1px; display:flex; align-items:center; gap:8px; cursor:pointer; }
-  .logo i { display:inline-block; width:26px; height:26px; border-radius:7px; background:var(--coral); position:relative; }
-  .logo i::after { content:""; position:absolute; left:6px; top:11px; width:14px; height:4px; background:var(--navy); border-radius:2px; transform:rotate(-30deg); }
-  .logo small { font-weight:500; font-size:12.5px; opacity:.7; letter-spacing:0; }
-  nav.tabs { display:flex; gap:4px; overflow-x:auto; padding:12px 0 0; scrollbar-width:none; }
-  nav.tabs button { flex:none; border:0; background:transparent; color:#c9d3ea; padding:10px 14px; border-radius:10px 10px 0 0; cursor:pointer; font:inherit; font-size:14.5px; }
-  nav.tabs button.on { background:var(--bg); color:var(--ink); font-weight:700; }
-  nav.tabs button span { display:inline-block; width:18px; height:18px; line-height:18px; text-align:center; border-radius:50%; background:#ffffff22; font-size:11px; margin-right:6px; }
-  nav.tabs button.on span { background:var(--coral); color:#fff; }
-  main { padding:18px 0 40px; }
+  body { margin:0; font-family:"Pretendard","Malgun Gothic","Apple SD Gothic Neo",sans-serif; background:var(--bg); color:var(--ink); line-height:1.6; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:1120px; margin:0 auto; padding:0 16px; }
+  a { color:var(--blue); text-underline-offset:2px; }
+  b, strong { font-weight:700; }
+  /* 머리: 흰 바탕, 위에 녹색 띠, 아래 회색 선 */
+  .top { background:#fff; border-top:4px solid var(--green); border-bottom:1px solid var(--line); }
+  .bar { display:flex; align-items:center; justify-content:space-between; gap:12px; padding-top:14px; flex-wrap:wrap; }
+  .logo { display:flex; align-items:center; gap:10px; cursor:pointer; color:var(--ink); }
+  .logo i { width:30px; height:30px; border-radius:6px; background:var(--green); position:relative; flex:none; }
+  .logo i::before { content:""; position:absolute; left:7px; right:7px; bottom:8px; height:2px; background:#fff; }
+  .logo i::after { content:""; position:absolute; left:9px; bottom:11px; width:12px; height:9px; border-left:2px solid #fff; border-top:2px solid #fff; transform:skewX(-20deg); opacity:.9; }
+  .logo b { font-size:19px; letter-spacing:.5px; color:var(--green); }
+  .logo small { display:block; font-size:12.5px; color:var(--sub); line-height:1.2; }
+  .basis { font-size:12.5px; color:var(--sub); background:var(--soft); border:1px solid var(--line); border-radius:4px; padding:4px 10px; }
+  .basis b { color:var(--green); }
+  nav.tabs { display:flex; gap:2px; overflow-x:auto; margin-top:10px; scrollbar-width:none; }
+  nav.tabs button { flex:none; border:0; border-bottom:3px solid transparent; background:transparent; color:var(--sub); padding:10px 14px 9px; cursor:pointer; font:inherit; font-size:14.5px; }
+  nav.tabs button:hover { color:var(--ink); }
+  nav.tabs button.on { color:var(--green); border-bottom-color:var(--green); font-weight:700; }
+  main { padding:22px 0 40px; }
   section.page { display:none; } section.page.on { display:block; }
-  /* 화면 소개 */
-  .intro { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px 20px; margin-bottom:16px; display:grid; grid-template-columns:1.2fr 1fr; gap:6px 24px; }
+  /* 화면 소개: 왼쪽 녹색 선 */
+  .intro { background:var(--card); border:1px solid var(--line); border-left:4px solid var(--green); border-radius:6px; padding:16px 20px; margin-bottom:18px; display:grid; grid-template-columns:1fr 1fr; gap:6px 28px; }
   .intro .q { grid-column:1 / -1; }
-  .intro .q small { color:var(--coral); font-weight:800; font-size:12.5px; letter-spacing:.5px; }
-  .intro .q h2 { margin:2px 0 4px; font-size:23px; letter-spacing:-.4px; }
+  .intro .q small { color:var(--green); font-weight:700; font-size:12.5px; letter-spacing:.3px; }
+  .intro .q h2 { margin:2px 0 6px; font-size:22px; letter-spacing:-.3px; }
   .intro p { margin:0; font-size:14px; color:var(--sub); }
   .intro p b { color:var(--ink); }
   @media (max-width:760px) { .intro { grid-template-columns:1fr; } }
-  /* 카드 · 격자 */
-  .grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-  .grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
-  .g-plan { display:grid; grid-template-columns:1.35fr 1fr; gap:16px; align-items:start; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  .grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  .g-plan { display:grid; grid-template-columns:1.35fr 1fr; gap:18px; align-items:start; }
   @media (max-width:860px) { .grid, .g-plan, .grid3 { grid-template-columns:1fr; } }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px 18px; margin-bottom:16px; }
-  .card h3 { font-size:16.5px; margin:0 0 8px; }
-  .card h3 small { font-weight:500; color:var(--sub); font-size:12.5px; margin-left:6px; }
-  .note { font-size:12.8px; color:var(--sub); margin:8px 0 0; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:18px 20px; margin-bottom:18px; }
+  .card h3 { font-size:16px; margin:0 0 10px; color:var(--ink); }
+  .card h3 small { font-weight:400; color:var(--sub); font-size:12.5px; margin-left:6px; }
+  .note { font-size:12.8px; color:var(--sub); margin:10px 0 0; }
   .muted { color:var(--sub); }
   .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
   label { font-size:13.5px; color:var(--sub); }
-  select, input[type=number], input[type=text] { font:inherit; font-size:15px; padding:7px 9px; border:1px solid var(--line); border-radius:9px; background:var(--card); color:var(--ink); }
+  select, input[type=number], input[type=text] { font:inherit; font-size:15px; padding:7px 9px; border:1px solid #c9d3cd; border-radius:6px; background:#fff; color:var(--ink); }
+  input:focus, select:focus { outline:2px solid var(--blue); outline-offset:1px; }
   input[type=number] { width:96px; }
-  input[type=range] { width:100%; accent-color:var(--coral); }
-  .seg { display:inline-flex; border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--soft); }
-  .seg button { border:0; background:transparent; color:var(--sub); padding:7px 13px; cursor:pointer; font:inherit; font-size:14px; }
-  .seg button.on { background:var(--navy); color:#fff; font-weight:700; }
+  input[type=range] { width:100%; accent-color:var(--green); }
+  .seg { display:inline-flex; border:1px solid #c9d3cd; border-radius:6px; overflow:hidden; background:#fff; }
+  .seg button { border:0; border-right:1px solid #c9d3cd; background:transparent; color:var(--sub); padding:7px 13px; cursor:pointer; font:inherit; font-size:14px; }
+  .seg button:last-child { border-right:0; }
+  .seg button.on { background:var(--green); color:#fff; font-weight:700; }
   .pos { color:var(--good); } .neg { color:var(--warn); }
   table { border-collapse:collapse; width:100%; font-size:13.8px; }
-  th, td { border-bottom:1px solid var(--line); padding:7px 5px; text-align:left; vertical-align:middle; }
-  th { color:var(--sub); font-weight:600; font-size:12.5px; }
+  th, td { border-bottom:1px solid var(--line); padding:7px 6px; text-align:left; vertical-align:middle; }
+  th { color:var(--sub); font-weight:600; font-size:12.5px; background:var(--soft); }
   td.n, th.n { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
   td input[type=number] { width:70px; padding:4px 6px; font-size:14px; text-align:right; }
   svg { display:block; width:100%; height:auto; }
   svg text { fill:var(--sub); font-size:11px; font-family:inherit; }
-  .legend { font-size:12.8px; color:var(--sub); } .legend i { display:inline-block; width:10px; height:10px; border-radius:3px; margin:0 4px 0 10px; }
-  details { margin-top:8px; } summary { cursor:pointer; color:var(--acc); font-size:14px; font-weight:600; }
+  .legend { font-size:12.8px; color:var(--sub); } .legend i { display:inline-block; width:10px; height:10px; border-radius:2px; margin:0 4px 0 10px; }
+  details { margin-top:8px; } summary { cursor:pointer; color:var(--blue); font-size:14px; font-weight:600; }
   /* 용어 */
-  .t { border-bottom:1.5px dotted var(--coral); cursor:help; }
-  #gloss { position:fixed; left:50%; bottom:16px; transform:translate(-50%, calc(100% + 40px)); visibility:hidden; width:min(560px, calc(100% - 32px)); background:var(--navy); color:#fff; border-radius:14px; padding:14px 18px 14px; box-shadow:0 10px 30px #0005; transition:transform .25s; z-index:9; font-size:14.5px; }
+  .t { border-bottom:1.5px dotted var(--blue); cursor:help; }
+  #gloss { position:fixed; left:50%; bottom:16px; transform:translate(-50%, calc(100% + 40px)); visibility:hidden; width:min(560px, calc(100% - 32px)); background:#fff; color:var(--ink); border:1px solid var(--line); border-top:3px solid var(--green); border-radius:8px; padding:14px 40px 14px 18px; box-shadow:0 12px 32px #0f513233; transition:transform .25s; z-index:9; font-size:14.5px; }
   #gloss.on { transform:translate(-50%, 0); visibility:visible; }
-  #gloss b { color:var(--coral); } #gloss button { position:absolute; right:10px; top:8px; background:none; border:0; color:#fff; font-size:18px; cursor:pointer; }
-  /* 홈 */
-  .hero { padding:26px 0 30px; display:grid; grid-template-columns:1.25fr 1fr; gap:24px; align-items:center; }
-  .hero h1 { font-size:38px; line-height:1.2; margin:0 0 10px; letter-spacing:-1px; }
-  .hero h1 em { font-style:normal; color:var(--coral); }
-  .hero p { color:#c9d3ea; margin:0; font-size:15.5px; }
-  .formula { background:var(--navy2); border-radius:14px; padding:16px 18px; font-size:15px; }
-  .formula b { color:var(--coral); font-size:17px; }
-  .formula div { margin-top:6px; color:#c9d3ea; font-size:13px; }
-  @media (max-width:760px) { .hero { grid-template-columns:1fr; } .hero h1 { font-size:29px; } }
+  #gloss b { color:var(--green); } #gloss button { position:absolute; right:10px; top:8px; background:none; border:0; color:var(--sub); font-size:20px; cursor:pointer; }
+  /* 개요 */
+  .hero { padding:26px 16px 4px; display:grid; grid-template-columns:1.2fr 1fr; gap:28px; align-items:center; }
+  .hero h1 { font-size:34px; line-height:1.25; margin:0 0 10px; letter-spacing:-.8px; }
+  .hero h1 em { font-style:normal; color:var(--green); }
+  .hero p { color:var(--sub); margin:0; font-size:15.5px; }
+  .formula { background:var(--greenbg); border:1px solid #cfe3d7; border-radius:8px; padding:16px 18px; font-size:15.5px; }
+  .formula b { color:var(--green); }
+  .formula div { margin-top:8px; color:var(--sub); font-size:13px; }
+  @media (max-width:760px) { .hero { grid-template-columns:1fr; } .hero h1 { font-size:27px; } }
   .fxs { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; }
   @media (max-width:960px) { .fxs { grid-template-columns:repeat(2,1fr); } }
-  .fx { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px 14px; }
+  .fx { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:12px 14px; }
   .fx .c { font-size:13px; color:var(--sub); display:flex; justify-content:space-between; }
+  .fx .c span:last-child { font-weight:700; color:var(--blue); }
   .fx .v { font-size:22px; font-weight:800; font-variant-numeric:tabular-nums; margin:2px 0; }
-  .fx .v small { font-size:12px; font-weight:500; color:var(--sub); }
+  .fx .v small { font-size:12px; font-weight:400; color:var(--sub); }
   .fx .d { font-size:12.5px; }
-  .rng { position:relative; height:6px; border-radius:3px; background:linear-gradient(90deg, var(--good), #e0c341, var(--warn)); margin:10px 0 4px; opacity:.85; }
+  .rng { position:relative; height:6px; border-radius:3px; background:linear-gradient(90deg, #1d7a46, #e2c044 50%, #b42318); margin:10px 0 4px; opacity:.75; }
   .rng b { position:absolute; top:-5px; width:4px; height:16px; background:var(--ink); border-radius:2px; transform:translateX(-2px); }
   .rng-l { display:flex; justify-content:space-between; font-size:11px; color:var(--sub); }
   .passes { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; }
   @media (max-width:960px) { .passes { grid-template-columns:1fr 1fr; } }
   @media (max-width:480px) { .passes, .fxs { grid-template-columns:1fr; } }
-  .pass { position:relative; background:var(--card); border:1px solid var(--line); border-radius:14px; overflow:hidden; cursor:pointer; transition:transform .15s; }
-  .pass:hover { transform:translateY(-2px); }
-  .pass .tp { padding:12px 14px 10px; border-top:6px solid var(--cc); }
+  .pass { background:var(--card); border:1px solid var(--line); border-radius:8px; overflow:hidden; cursor:pointer; transition:border-color .15s, box-shadow .15s; }
+  .pass:hover { border-color:var(--green); box-shadow:0 4px 14px #0f513214; }
+  .pass .tp { padding:12px 14px 8px; border-top:4px solid var(--cc); }
   .pass .tp small { color:var(--sub); font-size:12px; display:block; }
-  .pass .tp b { font-size:17px; }
-  .pass .days { font-size:42px; font-weight:900; color:var(--cc); line-height:1.1; margin-top:4px; font-variant-numeric:tabular-nums; }
-  .pass .days small { font-size:15px; font-weight:700; color:var(--ink); display:inline; }
-  .pass .bt { border-top:2px dashed var(--line); padding:8px 14px 10px; font-size:12.5px; color:var(--sub); position:relative; }
-  .pass .bt::before, .pass .bt::after { content:""; position:absolute; top:-9px; width:16px; height:16px; border-radius:50%; background:var(--bg); border:1px solid var(--line); }
-  .pass .bt::before { left:-9px; } .pass .bt::after { right:-9px; }
+  .pass .tp b { font-size:16px; }
+  .pass .days { white-space:nowrap; font-size:38px; font-weight:800; color:var(--ink); line-height:1.1; margin-top:4px; font-variant-numeric:tabular-nums; letter-spacing:-1px; }
+  .pass .days small { font-size:15px; font-weight:600; color:var(--sub); letter-spacing:0; }
+  .pass .bt { border-top:1px solid var(--line); background:var(--soft); padding:8px 14px 9px; font-size:12.3px; color:var(--sub); }
   .feat { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
   @media (max-width:860px) { .feat { grid-template-columns:1fr 1fr; } }
   @media (max-width:480px) { .feat { grid-template-columns:1fr; } }
-  .feat button { text-align:left; font:inherit; color:var(--ink); background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px; cursor:pointer; }
-  .feat button:hover { border-color:var(--coral); }
-  .feat .no { display:inline-block; width:28px; height:28px; line-height:28px; text-align:center; border-radius:50%; background:var(--navy); color:#fff; font-weight:800; margin-bottom:8px; }
+  .feat button { text-align:left; font:inherit; color:var(--ink); background:var(--card); border:1px solid var(--line); border-radius:8px; padding:16px; cursor:pointer; }
+  .feat button:hover { border-color:var(--green); }
+  .feat .no { display:inline-block; font-size:12px; font-weight:700; color:var(--green); margin-bottom:6px; letter-spacing:.3px; }
   .feat b { display:block; font-size:16px; margin-bottom:4px; } .feat p { margin:0; font-size:13.5px; color:var(--sub); }
-  .feat .k { display:inline-block; margin-top:8px; font-size:12px; padding:2px 8px; border-radius:20px; background:var(--soft); color:var(--sub); }
-  h2.sec { font-size:18px; margin:26px 0 10px; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
-  h2.sec small { font-size:13px; font-weight:500; color:var(--sub); }
-  /* 여행 계획 */
+  .feat .k { display:inline-block; margin-top:10px; font-size:12px; padding:2px 8px; border-radius:4px; background:var(--bluebg); color:var(--blue); }
+  .feat .k.tr { background:var(--greenbg); color:var(--green); }
+  h2.sec { font-size:17px; margin:28px 0 12px; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; padding-bottom:6px; border-bottom:1px solid var(--line); }
+  h2.sec small { font-size:13px; font-weight:400; color:var(--sub); }
+  /* 여행 예산 */
   .cbtn { display:flex; gap:6px; flex-wrap:wrap; }
-  .cbtn button { font:inherit; font-size:14.5px; border:1.5px solid var(--line); background:var(--card); color:var(--ink); padding:7px 14px; border-radius:22px; cursor:pointer; }
-  .cbtn button.on { border-color:var(--cc); background:var(--cc); color:#fff; font-weight:700; }
-  .slot { display:grid; grid-template-columns:auto 1fr; gap:8px 12px; align-items:center; }
-  .slot input[type=number] { width:130px; }
-  .act { display:flex; gap:10px; padding:9px 0; border-bottom:1px solid var(--line); align-items:flex-start; }
+  .cbtn button { font:inherit; font-size:14.5px; border:1px solid #c9d3cd; background:#fff; color:var(--ink); padding:6px 14px; border-radius:6px; cursor:pointer; }
+  .cbtn button::before { content:""; display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--cc); margin-right:7px; vertical-align:1px; }
+  .cbtn button.on { border-color:var(--green); background:var(--green); color:#fff; font-weight:700; }
+  .cbtn button.on::before { background:#fff; }
+  .slot { display:grid; grid-template-columns:96px 1fr; gap:14px 14px; align-items:start; }
+  .slot > label { padding-top:6px; font-weight:700; color:var(--ink); }
+  @media (max-width:520px) { .slot { grid-template-columns:1fr; gap:6px; } }
+  .picks { display:flex; flex-wrap:wrap; gap:6px; }
+  .picks button { font:inherit; text-align:left; font-size:13.5px; border:1px solid #c9d3cd; background:#fff; color:var(--ink); padding:6px 10px; border-radius:6px; cursor:pointer; line-height:1.35; }
+  .picks button small { display:block; color:var(--sub); font-size:12px; font-variant-numeric:tabular-nums; }
+  .picks button.on { border-color:var(--green); background:var(--greenbg); box-shadow:inset 0 0 0 1px var(--green); }
+  .picks button.on small { color:var(--green); }
+  .pick-src { font-size:12.3px; color:var(--sub); margin-top:6px; }
+  .act { display:flex; gap:10px; padding:10px 0; border-bottom:1px solid var(--line); align-items:flex-start; }
   .act:last-child { border-bottom:0; }
-  .act input { margin-top:4px; width:17px; height:17px; accent-color:var(--coral); }
-  .act .nm { font-weight:700; } .act .nm small { font-weight:500; color:var(--sub); }
+  .act input { margin-top:4px; width:17px; height:17px; accent-color:var(--green); }
+  .act .nm { font-weight:700; } .act .nm small { font-weight:400; color:var(--sub); }
   .act .ds { font-size:12.8px; color:var(--sub); }
   .act .pr { margin-left:auto; text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; font-size:14px; }
   .act .pr small { display:block; color:var(--sub); font-size:11.5px; }
-  .tag { display:inline-block; font-size:11px; padding:1px 7px; border-radius:10px; background:var(--soft); color:var(--sub); margin-left:4px; vertical-align:1px; }
+  .tag { display:inline-block; font-size:11px; padding:1px 6px; border-radius:3px; background:var(--soft); border:1px solid var(--line); color:var(--sub); margin-left:6px; vertical-align:1px; font-weight:400; }
   .total { position:sticky; top:12px; }
-  .total .sum { font-size:40px; font-weight:900; letter-spacing:-1px; font-variant-numeric:tabular-nums; }
-  .total .sum small { font-size:16px; }
-  .stack { display:flex; height:16px; border-radius:8px; overflow:hidden; margin:10px 0 6px; background:var(--soft); }
+  .total .card:first-child { border-top:4px solid var(--green); }
+  .total .sum { font-size:38px; font-weight:800; letter-spacing:-1px; font-variant-numeric:tabular-nums; color:var(--green); }
+  .total .sum small { font-size:16px; color:var(--ink); }
+  .stack { display:flex; height:12px; border-radius:3px; overflow:hidden; margin:10px 0 8px; background:var(--soft); }
   .stack i { display:block; height:100%; }
-  .lines div { display:flex; justify-content:space-between; font-size:14px; padding:3px 0; }
-  .lines i { display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:6px; }
-  .tvibox { background:var(--navy); color:#fff; border-radius:12px; padding:12px 14px; margin-top:12px; }
-  .tvibox b { font-size:26px; color:var(--coral); }
-  /* 정말 더 갈까 */
-  .ans { border-radius:16px; padding:18px; color:#fff; }
-  .ans small { opacity:.8; font-size:13px; } .ans h3 { font-size:21px; margin:2px 0 6px; } .ans p { margin:0; font-size:14.5px; opacity:.95; }
-  .ans.yes { background:var(--navy); } .ans.no { background:#7a3b4a; }
-  .ans .big { font-size:34px; font-weight:900; color:var(--coral); }
-  .ans.no .big { color:#ffd0c8; }
+  .lines div { display:flex; justify-content:space-between; font-size:14px; padding:4px 0; border-bottom:1px dashed var(--line); }
+  .lines div:last-child { border-bottom:0; }
+  .lines i { display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:6px; }
+  .tvibox { background:var(--bluebg); border:1px solid #cddcf0; border-radius:6px; padding:10px 14px; margin-top:12px; font-size:13.5px; color:var(--sub); }
+  .tvibox b { font-size:24px; color:var(--blue); }
+  /* 검증 답 카드 */
+  .ans { border:1px solid var(--line); border-left:5px solid var(--good); background:#fff; border-radius:8px; padding:16px 20px; }
+  .ans.no { border-left-color:var(--warn); }
+  .ans small { color:var(--sub); font-size:13px; } .ans h3 { font-size:19px; margin:2px 0 4px; } .ans p { margin:0; font-size:14.5px; color:var(--sub); }
+  .ans .big { font-size:30px; font-weight:800; color:var(--good); font-variant-numeric:tabular-nums; }
+  .ans.no .big { color:var(--warn); }
   /* 사건 퀴즈 */
-  .quiz { border:1px solid var(--line); border-radius:14px; padding:14px 16px; background:var(--card); }
-  .quiz .when { font-size:12.5px; color:var(--coral); font-weight:800; }
+  .quiz { border:1px solid var(--line); border-radius:8px; padding:14px 16px; background:var(--card); }
+  .quiz .when { font-size:12.5px; color:var(--green); font-weight:700; }
   .quiz .qq { font-size:15px; margin:4px 0 10px; }
   .quiz .vs { display:flex; gap:10px; margin-bottom:10px; }
-  .quiz .vs div { flex:1; background:var(--soft); border-radius:10px; padding:8px 10px; font-size:12.5px; color:var(--sub); }
-  .quiz .vs b { display:block; font-size:22px; color:var(--ink); }
+  .quiz .vs div { flex:1; background:var(--soft); border-radius:6px; padding:8px 10px; font-size:12.5px; color:var(--sub); }
+  .quiz .vs b { display:block; font-size:21px; color:var(--ink); }
   .quiz .opts { display:grid; gap:6px; }
-  .quiz .opts button { text-align:left; font:inherit; font-size:14px; border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:10px; padding:8px 12px; cursor:pointer; }
-  .quiz .opts button.ok { background:var(--good); color:#fff; border-color:var(--good); }
-  .quiz .opts button.no { background:var(--warn); color:#fff; border-color:var(--warn); opacity:.8; }
-  .quiz .rv { display:none; font-size:13.5px; margin-top:10px; border-left:3px solid var(--coral); padding-left:10px; }
+  .quiz .opts button { text-align:left; font:inherit; font-size:14px; border:1px solid #c9d3cd; background:#fff; color:var(--ink); border-radius:6px; padding:8px 12px; cursor:pointer; }
+  .quiz .opts button:hover { border-color:var(--blue); }
+  .quiz .opts button.ok { background:var(--greenbg); color:var(--green); border-color:var(--green); font-weight:700; }
+  .quiz .opts button.no { background:var(--warnbg); color:var(--warn); border-color:#f3b8b2; }
+  .quiz .rv { display:none; font-size:13.5px; margin-top:10px; border-left:3px solid var(--green); padding-left:10px; }
   .quiz.done .rv { display:block; }
   .ev { border-left:3px solid var(--warn); padding:4px 10px; margin:8px 0; font-size:13.5px; }
-  footer { font-size:12.5px; color:var(--sub); padding:10px 0 40px; border-top:1px solid var(--line); }
+  footer { font-size:12.5px; color:var(--sub); padding:18px 0 40px; border-top:1px solid var(--line); background:#fff; }
 </style>
 </head>
 <body>
 <div class="top">
   <div class="wrap">
-    <div class="bar"><div class="logo" data-go="home"><i></i>TVI <small>Travel Value Index · 100만원으로 며칠?</small></div></div>
+    <div class="bar">
+      <div class="logo" data-go="home"><i></i><div><b>TVI</b><small>여행 실질 가치 지수 · 100만원으로 며칠?</small></div></div>
+      <div class="basis">데이터 기준 · 환율 <b id="bFx"></b> · 현지 물가 <b>2026-10-04</b></div>
+    </div>
     <nav class="tabs">
-      <button data-tab="home" class="on"><span>⌂</span>홈</button>
-      <button data-tab="plan"><span>1</span>내 여행 예산</button>
-      <button data-tab="trend"><span>2</span>20년 동안</button>
-      <button data-tab="check"><span>3</span>싸지면 더 갈까</button>
-      <button data-tab="event"><span>4</span>숫자가 틀린 순간</button>
-      <button data-tab="method"><span>i</span>방법 · 자료</button>
+      <button data-tab="home" class="on">개요</button>
+      <button data-tab="plan">여행 예산</button>
+      <button data-tab="trend">20년 변화</button>
+      <button data-tab="check">여행 수요 검증</button>
+      <button data-tab="event">사건 분석</button>
+      <button data-tab="method">방법과 자료</button>
     </nav>
   </div>
-  <div class="wrap hero" id="hero">
-    <div>
-      <h1>100만원 들고 떠나면,<br><em>며칠</em> 지낼 수 있을까?</h1>
-      <p>같은 100만원이라도 어느 나라에 가느냐, 언제 가느냐에 따라 버틸 수 있는 날이 다릅니다. 그 차이를 만드는 두 가지가 <b class="t" data-k="환율" style="color:#fff">환율</b>과 <b class="t" data-k="물가" style="color:#fff">현지 물가</b>입니다.</p>
-    </div>
-    <div class="formula">
-      <b>TVI</b> = 100만원 ÷ (<b class="t" data-k="환율">환율</b> × 현지 하루 생활비)
-      <div>하루 생활비 = 아침(슈퍼) + 점심(간편식) + 저녁(식당) + 숙소 + 카페 1잔 + 대중교통 5번 + 택시 1번. 값이 클수록 같은 돈으로 오래 머문다는 뜻입니다.</div>
-    </div>
+</div>
+<div class="wrap hero" id="hero">
+  <div>
+    <h1>100만원 들고 떠나면,<br><em>며칠</em> 지낼 수 있을까?</h1>
+    <p>같은 100만원이라도 어느 나라에 가느냐, 언제 가느냐에 따라 머물 수 있는 날이 다릅니다. 그 차이를 만드는 두 가지가 <b class="t" data-k="환율">환율</b>과 <b class="t" data-k="물가">현지 물가</b>입니다.</p>
+  </div>
+  <div class="formula">
+    <b>TVI</b> = 100만원 ÷ (<b class="t" data-k="환율">환율</b> × 현지 하루 생활비)
+    <div>하루 생활비 = 아침(슈퍼) + 점심(간편식) + 저녁(식당) + 숙소 + 카페 1잔 + 대중교통 5번 + 택시 1번. 값이 클수록 같은 돈으로 오래 머문다는 뜻입니다.</div>
   </div>
 </div>
 
@@ -198,7 +218,7 @@
 
 <!-- ══════ 홈 -->
 <section class="page on" id="home">
-  <h2 class="sec" style="margin-top:4px">오늘의 환율 <small id="fxDate"></small></h2>
+  <h2 class="sec" style="margin-top:14px">오늘의 환율 <small id="fxDate"></small></h2>
   <div class="fxs" id="fxs"></div>
   <p class="note">막대 = 최근 1년(영업일 기준) 중 오늘 환율의 위치입니다. 왼쪽(초록)에 가까울수록 그 나라 돈이 1년 중 싼 편이라 여행자에게 유리합니다. <b>앞으로 오를지 내릴지 알려 주는 예측이 아닙니다.</b> 출처: 한국은행 ECOS <span class="t" data-k="매매기준율">매매기준율</span>.</p>
 
@@ -207,10 +227,10 @@
 
   <h2 class="sec">이 앱으로 할 수 있는 것</h2>
   <div class="feat">
-    <button data-go="plan"><span class="no">1</span><b>내 여행 예산 짜기</b><p>나라 · 일수 · 여행 스타일을 고르고 항공권 · 숙소 · 관광지를 넣으면 총 예산이 나옵니다.</p><span class="k">여행에 쓰기</span></button>
-    <button data-go="trend"><span class="no">2</span><b>20년 동안 무엇이 바뀌었나</b><p>2005~2025년 TVI. 돈의 가치까지 따지면(실질) 이야기가 달라집니다.</p><span class="k">경제 공부</span></button>
-    <button data-go="check"><span class="no">3</span><b>싸지면 정말 더 갈까</b><p>TVI가 좋아진 해에 실제 여행객도 늘었는지 20년 자료로 확인합니다.</p><span class="k">경제 공부</span></button>
-    <button data-go="event"><span class="no">4</span><b>숫자가 틀린 순간</b><p>환율로는 설명되지 않는 달. 무슨 일이 있었는지 퀴즈로 맞혀 보세요.</p><span class="k">경제 공부</span></button>
+    <button data-go="plan"><span class="no">01</span><b>내 여행 예산 짜기</b><p>나라 · 일수 · 여행 스타일을 고르고 항공권 · 숙소 · 관광지를 넣으면 총 예산이 나옵니다.</p><span class="k tr">여행에 쓰기</span></button>
+    <button data-go="trend"><span class="no">02</span><b>20년 동안 무엇이 바뀌었나</b><p>2005~2025년 TVI. 돈의 가치까지 따지면(실질) 이야기가 달라집니다.</p><span class="k">경제 공부</span></button>
+    <button data-go="check"><span class="no">03</span><b>싸지면 정말 더 갈까</b><p>TVI가 좋아진 해에 실제 여행객도 늘었는지 20년 자료로 확인합니다.</p><span class="k">경제 공부</span></button>
+    <button data-go="event"><span class="no">04</span><b>숫자가 틀린 순간</b><p>환율로는 설명되지 않는 달. 무슨 일이 있었는지 퀴즈로 맞혀 보세요.</p><span class="k">경제 공부</span></button>
   </div>
 </section>
 
@@ -236,16 +256,18 @@
         <p class="note">'보통'은 TVI 계산에 쓴 하루 바구니와 같습니다. 양을 바꾸면 이 화면의 계산만 바뀝니다. 물가는 <b>나라 평균</b>(Numbeo 나라 페이지, 2026-10-04)이라 수도는 더 비쌀 수 있습니다.</p>
       </div>
       <div class="card">
-        <h3>② 항공권 · 숙소 <small>직접 찾아 넣는 칸</small></h3>
+        <h3>② 항공권 · 숙소 <small>예시를 고르거나 직접 입력</small></h3>
         <div class="slot">
-          <label>왕복 항공권 (1인)</label><div class="row"><input type="number" id="pFlight" placeholder="예: 검색한 값" step="10000" min="0"><label>원</label></div>
-          <label>숙소 1박</label>
-          <div class="row">
-            <span class="seg" id="pStay"><button data-v="proxy" class="on">대용값 쓰기</button><button data-v="own">직접 입력</button></span>
-            <input type="number" id="pStayOwn" placeholder="1박 원" step="5000" min="0" style="display:none"><label id="pStayLab"></label>
-          </div>
+          <label>왕복 항공권<br><span class="muted" style="font-weight:400;font-size:12px">1인 · 인천 출발</span></label>
+          <div><div class="picks" id="pFlightPicks"></div>
+            <div class="row" id="pFlightOwnRow" style="margin-top:8px;display:none"><input type="number" id="pFlight" placeholder="검색한 값" step="10000" min="0" style="width:140px"><label>원</label></div>
+            <div class="pick-src" id="pFlightSrc"></div></div>
+          <label>숙소 1박<br><span class="muted" style="font-weight:400;font-size:12px">1인 기준</span></label>
+          <div><div class="picks" id="pStayPicks"></div>
+            <div class="row" id="pStayOwnRow" style="margin-top:8px;display:none"><input type="number" id="pStayOwn" placeholder="1박 값" step="5000" min="0" style="width:140px"><label>원</label></div>
+            <div class="pick-src" id="pStaySrc"></div></div>
         </div>
-        <p class="note">항공권과 숙소 값은 지어내지 않으려고 비워 두었습니다. 항공권 · 숙소 검색 사이트에서 날짜를 정해 찾은 값을 넣으세요. 숙소 '대용값'은 Numbeo에 호텔 항목이 없어 <b>도심 원룸 월세 ÷ 30</b>으로 대신한 값이라 실제 호텔보다 쌀 수 있습니다.</p>
+        <p class="note">예시 값은 AI 조사 에이전트가 항공사 · 숙소 공식 사이트나 언론에서 찾은 값입니다(출처 · 확인일 표시). 항공권과 숙소는 날짜 · 시기에 따라 값이 크게 달라지니, 실제 계획에는 직접 검색한 값을 넣으세요. '대용값'은 Numbeo에 호텔 항목이 없어 <b>도심 원룸 월세 ÷ 30</b>으로 대신한 값이라 실제 숙소보다 쌀 수 있습니다.</p>
       </div>
       <div class="card">
         <h3>③ 가 볼 곳 · 해 볼 것 <small id="pCity"></small></h3>
@@ -428,15 +450,15 @@
 </section>
 </main>
 
-<footer class="wrap">
+<footer><div class="wrap">
   자료: <a href="https://www.numbeo.com/" target="_blank">Numbeo.com</a> · 한국은행 ECOS · World Bank · 한국관광 데이터랩 · 각 관광지 공식 사이트. 고등학교 탐구 프로젝트 결과물(2026). 데이터 갱신 <span id="updated"></span>.
-</footer>
+</div></footer>
 <div id="gloss"><button aria-label="닫기">×</button><div id="glossTxt"></div></div>
 
 <script src="data.js"></script>
 <script>
 const D = TVI_DATA, C5 = D.countries;
-const COLORS = { 스페인:"#d1495b", 일본:"#2e86ab", 미국:"#5b4fc4", 영국:"#4f8a57", 중국:"#e09f3e" };
+const COLORS = { 스페인:"#c0504d", 일본:"#1f5fa8", 미국:"#5b4f9e", 영국:"#1d7a46", 중국:"#c98a1b" };
 const CITY = { 스페인:"마드리드", 일본:"도쿄", 미국:"워싱턴 D.C.", 영국:"런던", 중국:"베이징" };
 const $ = (id) => document.getElementById(id);
 const fmt = (n, d = 0) => Number(n).toLocaleString("ko-KR", { maximumFractionDigits: d, minimumFractionDigits: d });
@@ -527,7 +549,7 @@ C5.forEach((c) => {
 });
 const D0 = fxNow["일본"].date, dateTxt = `${D0.slice(0, 4)}-${D0.slice(4, 6)}-${D0.slice(6)}`;
 $("fxDate").textContent = `${dateTxt} (자료가 있는 가장 최근 영업일) 기준`;
-$("mFxDate").textContent = dateTxt;
+$("mFxDate").textContent = dateTxt; $("bFx").textContent = dateTxt;
 $("fxs").innerHTML = C5.map((c) => {
   const f = fxNow[c], mul = f.cur === "JPY" ? 100 : 1, chg = (f.v / f.prev - 1) * 100;
   const pos = (f.v - f.lo) / (f.hi - f.lo) * 100, word = f.rank < 0.3 ? "1년 중 싼 편" : f.rank > 0.7 ? "1년 중 비싼 편" : "1년 중 보통";
@@ -571,7 +593,40 @@ const ITEMS = [
 const P = { c: "일본", qty: {}, picked: {} }; // 화면 상태: 나라, 항목별 양, 고른 활동
 const getStyle = seg("pStyle", () => { setStyle(); plan(); });
 function setStyle() { const i = { a: 0, b: 1, c: 2 }[getStyle()]; ITEMS.forEach((it) => (P.qty[it.k] = it.q[i])); }
-const getStay = seg("pStay", (v) => { $("pStayOwn").style.display = v === "own" ? "" : "none"; plan(); });
+P.fSel = {}; P.sSel = {}; // 나라별로 고른 항공권 · 숙소 예시
+// 예시 목록: 조사 에이전트가 찾은 값(71_DATA/research/*_trip.json) + 고정 선택지
+function tripOpts(c) {
+  const T = (D.trip || {})[c] || {}, fx = fxNow[c].v;
+  const toKrw = (o) => (o.currency === "KRW" ? o.price : o.price * fx);
+  const ok = (o) => o.price !== null && o.price !== undefined;
+  const flights = [{ id: "none", label: "넣지 않음", sub: "총 예산에서 뺌" },
+    ...(T.flights || []).filter(ok).map((o, i) => ({ id: "f" + i, label: o.label, sub: won(toKrw(o)), krw: toKrw(o), local: o.currency !== "KRW", o })),
+    { id: "own", label: "직접 입력", sub: "검색한 값" }];
+  const proxy = price(c, "rent") / 30 * fx;
+  const lodging = [{ id: "proxy", label: "대용값", sub: `${won(proxy)} · 원룸 월세 ÷ 30`, krw: proxy, local: true },
+    ...(T.lodging || []).filter(ok).map((o, i) => ({ id: "l" + i, label: o.label, sub: won(toKrw(o)), krw: toKrw(o), local: o.currency !== "KRW", o })),
+    { id: "own", label: "직접 입력", sub: "검색한 값" }];
+  return { flights, lodging };
+}
+function srcLine(o) {
+  if (!o) return "";
+  return `${o.kind ? o.kind + " · " : ""}${o.note ? o.note + " · " : ""}${o.url ? `<a href="${o.url}" target="_blank">출처${o.source_type && !String(o.source_type).startsWith("공식") ? "(" + o.source_type + ")" : ""}</a>` : ""}${o.checked ? ` (${o.checked} 확인)` : ""}`;
+}
+function renderPicks() {
+  const c = P.c, O = tripOpts(c);
+  P.fSel[c] = P.fSel[c] || "none"; P.sSel[c] = P.sSel[c] || "proxy";
+  const draw = (box, list, sel, key) => {
+    $(box).innerHTML = list.map((o) => `<button data-id="${o.id}" class="${o.id === sel ? "on" : ""}">${o.label}<small>${o.sub}</small></button>`).join("");
+    $(box).querySelectorAll("button").forEach((b) => (b.onclick = () => { P[key][c] = b.dataset.id; renderPicks(); plan(); }));
+  };
+  draw("pFlightPicks", O.flights, P.fSel[c], "fSel");
+  draw("pStayPicks", O.lodging, P.sSel[c], "sSel");
+  $("pFlightOwnRow").style.display = P.fSel[c] === "own" ? "" : "none";
+  $("pStayOwnRow").style.display = P.sSel[c] === "own" ? "" : "none";
+  $("pFlightSrc").innerHTML = srcLine((O.flights.find((o) => o.id === P.fSel[c]) || {}).o);
+  $("pStaySrc").innerHTML = srcLine((O.lodging.find((o) => o.id === P.sSel[c]) || {}).o);
+  if (!(D.trip || {})[c]) $("pFlightSrc").textContent = "이 나라는 아직 예시가 없습니다.";
+}
 cbtn("pCountry", C5, P.c, (c) => planCountry(c));
 function planCountry(c) {
   P.c = c;
@@ -581,6 +636,7 @@ function planCountry(c) {
 const price = (c, k) => D.numbeo[c][NB[k]];
 const short = (t) => { const m = String(t).split(/(?<=[.다])\s|\s—\s/)[0]; return m.length > 90 ? m.slice(0, 88) + "…" : m; }; // 주의 문구의 첫 문장만
 function renderActs() {
+  renderPicks();
   const c = P.c, R = D.research[c], cur = D.currency[c];
   $("pCity").textContent = `수도 ${CITY[c]} 기준`;
   const rows = [];
@@ -613,30 +669,30 @@ function plan() {
       const p = price(c, it.k), sub = p * P.qty[it.k]; day += sub;
       return `<tr><td>${it.lab} <span class="muted" style="font-size:12px">${it.unit}</span></td><td class="n">${fmt(p, 2)}</td>
         <td class="n"><input type="number" data-k="${it.k}" value="${P.qty[it.k]}" step="0.25" min="0"></td><td class="n">${won(sub * fx)}</td></tr>`;
-    }).join("") + `<tr style="font-weight:800"><td>하루 합계 (숙소 빼고)</td><td></td><td></td><td class="n">${won(day * fx)}</td></tr>`;
+    }).join("") + `<tr style="font-weight:800"><td>하루 합계 (숙소 제외)</td><td></td><td></td><td class="n">${won(day * fx)}</td></tr>`;
   $("pItems").querySelectorAll("input").forEach((i) => (i.onchange = () => { P.qty[i.dataset.k] = +i.value || 0; plan(); }));
   $("pCostNote").textContent = `${c} · ${UNIT[cur]} = ${fmt(fx * (cur === "JPY" ? 100 : 1), 2)}원 (${dateTxt})`;
   // 숙소 · 항공 · 활동
-  const proxy = price(c, "rent") / 30 * fx;
-  const own = getStay() === "own" && +$("pStayOwn").value > 0;
-  const stay = own ? +$("pStayOwn").value : proxy * fxMul;
-  $("pStayLab").textContent = own ? "" : `대용값 1박 ${won(proxy * fxMul)}`;
-  const flight = +$("pFlight").value || 0;
+  // 항공권 · 숙소: 고른 예시(현지 통화 값은 환율 막대의 영향을 받음) 또는 직접 입력(원)
+  const O = tripOpts(c), fs = O.flights.find((o) => o.id === P.fSel[c]) || O.flights[0], ss = O.lodging.find((o) => o.id === P.sSel[c]) || O.lodging[0];
+  const own = ss.id === "own";
+  const stay = own ? (+$("pStayOwn").value || 0) : ss.krw * (ss.local ? fxMul : 1);
+  const flight = fs.id === "own" ? (+$("pFlight").value || 0) : fs.id === "none" ? 0 : fs.krw * (fs.local ? fxMul : 1);
   const acts = P.rows.filter((r) => P.picked[c + r.id] && r.price).reduce((s, r) => s + r.price, 0) * fx * fxMul;
   const living = day * fx * fxMul * nights, lodging = stay * nights;
-  const parts = [["항공권", flight, "#8a94a8"], ["숙소", lodging, "#2f6db5"], ["생활비", living, "#ff6b57"], ["관광 · 체험", acts, "#e0b341"]];
+  const parts = [["항공권", flight, "#7b8794"], ["숙소", lodging, "#1f5fa8"], ["생활비", living, "#0f5132"], ["관광 · 체험", acts, "#c98a1b"]];
   const sum = parts.reduce((s, p) => s + p[1], 0);
   $("pSum").innerHTML = `${fmt(Math.round(sum / 1000) * 1000)}<small>원</small>`;
   $("pStack").innerHTML = parts.map(([, v, col]) => `<i style="width:${sum ? v / sum * 100 : 0}%;background:${col}"></i>`).join("");
-  $("pLines").innerHTML = parts.map(([lab, v, col]) => `<div><span><i style="background:${col}"></i>${lab}${lab === "항공권" && !flight ? " <span class='muted'>(아직 안 넣음)</span>" : lab === "숙소" ? ` <span class='muted'>${nights}박${own ? "" : " · 대용값"}</span>` : lab === "생활비" ? ` <span class='muted'>${nights}일</span>` : ""}</span><b>${won(v)}</b></div>`).join("");
+  $("pLines").innerHTML = parts.map(([lab, v, col]) => `<div><span><i style="background:${col}"></i>${lab}${lab === "항공권" ? ` <span class='muted'>${flight ? fs.label : "넣지 않음"}</span>` : lab === "숙소" ? ` <span class='muted'>${nights}박 · ${ss.label}</span>` : lab === "생활비" ? ` <span class='muted'>${nights}일</span>` : ""}</span><b>${won(v)}</b></div>`).join("");
   const perDay = day * fx * fxMul + stay;
-  $("pTviLab").textContent = `이 스타일 · 이 숙소로 100만원이면 (항공권 빼고)`;
+  $("pTviLab").textContent = `이 스타일 · 이 숙소로 100만원이면 (항공권 제외)`;
   $("pTvi").textContent = `${fmt(1e6 / perDay, 1)}일`;
   const v = +$("pFx").value;
   $("pFxV").textContent = v === 0 ? "오늘 환율 그대로" : `${c} 돈 가치 ${sgn(v, 0)}%`;
   $("pFxNote").textContent = v === 0
-    ? "막대를 움직이면 현지 돈의 가치가 오르내린 경우의 총 예산이 바로 계산됩니다. 항공권 · 직접 넣은 숙소는 원화 값이라 그대로 둡니다."
-    : `오늘보다 ${c} 돈이 ${Math.abs(v)}% ${v > 0 ? "비싸지면(원화 약세)" : "싸지면(원화 강세)"} 현지에서 쓰는 돈이 ${won(Math.abs((living + acts + (own ? 0 : lodging)) * (1 - 1 / fxMul)))} ${v > 0 ? "늘어납니다" : "줄어듭니다"}.`;
+    ? "막대를 움직이면 현지 돈의 가치가 오르내린 경우의 총 예산이 바로 계산됩니다. 원화로 낸 값(직접 입력, 원화 항공권)은 그대로 둡니다."
+    : `오늘보다 ${c} 돈이 ${Math.abs(v)}% ${v > 0 ? "비싸지면(원화 약세)" : "싸지면(원화 강세)"} 현지에서 쓰는 돈이 ${won(Math.abs((living + acts + (ss.local ? lodging : 0) + (fs.local ? flight : 0)) * (1 - 1 / fxMul)))} ${v > 0 ? "늘어납니다" : "줄어듭니다"}.`;
   // 다섯 나라 비교 (같은 양 · 숙소 대용값)
   const W = 420, H = 190, L = 54, T = 6, rowH = (H - T) / 5;
   const vals = C5.map((k) => ITEMS.reduce((s, it) => s + price(k, it.k) * P.qty[it.k], 0) * fxNow[k].v + price(k, "rent") / 30 * fxNow[k].v);
@@ -695,7 +751,7 @@ function money() {
 ["mYear", "mAmt"].forEach((id) => ($(id).oninput = money)); money();
 (function decomp() {
   const W = 520, H = 300, L = 54, R = 104, T = 6, B = 40;
-  const parts = [["fx_logpt", "환율", "#2f6db5"], ["price_logpt", "현지 물가", "#e09f3e"], ["kor_logpt", "한국 물가(되돌림)", "#6aa84f"]];
+  const parts = [["fx_logpt", "환율", "#1f5fa8"], ["price_logpt", "현지 물가", "#c98a1b"], ["kor_logpt", "한국 물가(되돌림)", "#6aa883"]];
   const x = scale(-60, 50, L, W - R), band = (H - T - B) / C5.length;
   let s = ticks(-60, 50, 6).map((v) => el("line", { x1: x(v), x2: x(v), y1: T, y2: H - B, stroke: v === 0 ? "#888" : "#8882" }) + el("text", { x: x(v), y: H - B + 14, "text-anchor": "middle" }, v)).join("");
   C5.forEach((c, i) => {
@@ -721,7 +777,7 @@ $("aYesP").innerHTML = `다섯 나라 평균 TVI가 10% 좋아진 해에 한국�
   let s = axes(x, y, ticks(-28, 12, 5), ticks(-28, 32, 6), W, H, L, B, (v) => v + "%", (v) => v + "%");
   s += el("line", { x1: x(0), x2: x(0), y1: T, y2: H - B, stroke: "#888" }) + el("line", { x1: L, x2: W - 10, y1: y(0), y2: y(0), stroke: "#888" });
   s += el("line", { x1: x(-26), x2: x(10), y1: y(T0.a * 100 + T0.b * -26), y2: y(T0.a * 100 + T0.b * 10), stroke: css("--warn"), "stroke-width": 2.5 });
-  pts.forEach((p) => (s += el("circle", { cx: x(p.x), cy: y(p.y), r: 5.5, fill: css("--navy2") === "" ? "#22386a" : css("--acc") }, `<title>${p.year}: TVI ${p.x}% / 출국자 ${p.y}%</title>`) + el("text", { x: x(p.x) + 7, y: y(p.y) - 5 }, "'" + String(p.year).slice(2))));
+  pts.forEach((p) => (s += el("circle", { cx: x(p.x), cy: y(p.y), r: 5.5, fill: "#0f5132", opacity: 0.85 }, `<title>${p.year}: TVI ${p.x}% / 출국자 ${p.y}%</title>`) + el("text", { x: x(p.x) + 7, y: y(p.y) - 5 }, "'" + String(p.year).slice(2))));
   s += el("text", { x: x(-27), y: y(-25), style: "font-size:12px" }, "← 여행이 비싸진 해");
   $("totChart").innerHTML = s;
 })();
