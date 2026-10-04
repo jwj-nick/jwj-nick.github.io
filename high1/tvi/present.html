@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TVI 발표 준비</title>
+<!--
+  최종발표(5분 · 7장) 연습 페이지. 결과물 앱(index.html)과 같은 폴더에 있다.
+  - 왼쪽: 슬라이드(slides.html)를 그대로 넣어 보여 준다. 오른쪽: 그 장의 목표 · 대본.
+  - 대본 · 예상 질문은 present_data.js에서 읽는다(11_build_site.py가 script_easy.md에서 만든다).
+  - 타이머: 장을 넘길 때마다 걸린 시간을 적어, 연습이 끝나면 목표 시간과 비교한다.
+  - 연습 기록은 이 브라우저에만 잠깐 남는다(서버로 보내지 않는다).
+-->
+<style>
+  :root {
+    color-scheme: light;
+    --bg:#f4f6f5; --card:#fff; --ink:#17201c; --sub:#56635c; --line:#dce3df; --soft:#eef3f0;
+    --green:#0f5132; --greenbg:#e8f2ec; --blue:#1f5fa8; --bluebg:#e9f0f9; --good:#1d7a46; --warn:#b42318; --warnbg:#fdecea;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:"Pretendard","Malgun Gothic","Apple SD Gothic Neo",sans-serif; background:var(--bg); color:var(--ink); line-height:1.65; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:1180px; margin:0 auto; padding:0 16px; }
+  a { color:var(--blue); text-underline-offset:2px; }
+  .top { background:#fff; border-top:4px solid var(--green); border-bottom:1px solid var(--line); }
+  .bar { display:flex; align-items:center; justify-content:space-between; gap:10px 16px; padding:14px 0; flex-wrap:wrap; }
+  .logo { display:flex; align-items:center; gap:10px; color:var(--ink); text-decoration:none; }
+  .logo i { width:30px; height:30px; border-radius:6px; background:var(--green); flex:none; }
+  .logo b { font-size:19px; color:var(--green); } .logo small { display:block; font-size:12.5px; color:var(--sub); line-height:1.2; }
+  .links { display:flex; gap:8px; flex-wrap:wrap; }
+  .links a, .btn { display:inline-block; font:inherit; font-size:14px; font-weight:700; padding:7px 13px; border-radius:6px; border:1px solid var(--blue); background:#fff; color:var(--blue); text-decoration:none; cursor:pointer; }
+  .btn.main, .links a.main { background:var(--blue); color:#fff; }
+  .btn.green { background:var(--green); border-color:var(--green); color:#fff; }
+  .btn:disabled { opacity:.4; cursor:default; }
+  main { padding:20px 0 40px; }
+  .intro { background:#fff; border:1px solid var(--line); border-left:4px solid var(--green); border-radius:6px; padding:14px 20px; margin-bottom:18px; }
+  .intro h1 { font-size:22px; margin:0 0 4px; } .intro p { margin:0; font-size:14px; color:var(--sub); }
+  .g { display:grid; grid-template-columns:1.25fr 1fr; gap:18px; align-items:start; }
+  @media (max-width:900px) { .g { grid-template-columns:1fr; } }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:16px 20px; margin-bottom:18px; }
+  .card h2 { font-size:16px; margin:0 0 10px; } .card h2 small { font-weight:400; color:var(--sub); font-size:12.5px; margin-left:6px; }
+  .frame { position:relative; width:100%; aspect-ratio:16 / 9; background:#111; border-radius:6px; overflow:hidden; }
+  .frame iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+  .nav { display:flex; align-items:center; gap:10px; margin-top:10px; flex-wrap:wrap; }
+  .nav .pg { font-weight:700; font-variant-numeric:tabular-nums; min-width:56px; text-align:center; }
+  .dots { display:flex; gap:4px; flex:1; min-width:140px; }
+  .dots button { flex:1; height:8px; border:0; border-radius:4px; background:var(--line); cursor:pointer; padding:0; }
+  .dots button.on { background:var(--green); }
+  .goal small { color:var(--green); font-weight:700; font-size:12.5px; }
+  .goal h3 { margin:2px 0 8px; font-size:20px; letter-spacing:-.3px; }
+  .chip { display:inline-block; font-size:12.5px; padding:2px 9px; border-radius:4px; background:var(--bluebg); color:var(--blue); margin-right:6px; }
+  .talk { font-size:15.5px; } .talk p { margin:0 0 10px; }
+  .talk b { background:#fff3c4; padding:0 2px; border-radius:2px; }
+  .must { background:var(--greenbg); border-radius:6px; padding:10px 14px; font-size:14px; margin-top:8px; }
+  .must b { color:var(--green); }
+  .clock { font-size:46px; font-weight:900; font-variant-numeric:tabular-nums; letter-spacing:-1px; line-height:1.1; }
+  .clock.over { color:var(--warn); }
+  .pace { font-size:14px; margin:4px 0 10px; min-height:22px; }
+  .pace.late { color:var(--warn); font-weight:700; } .pace.ok { color:var(--good); }
+  .tl { position:relative; display:flex; height:22px; border-radius:4px; overflow:hidden; background:var(--soft); margin:6px 0 4px; }
+  .tl span { border-right:2px solid #fff; font-size:11px; color:var(--sub); text-align:center; line-height:22px; }
+  .tl span.now { background:var(--greenbg); color:var(--green); font-weight:700; }
+  .tl i { position:absolute; top:0; bottom:0; width:2px; background:var(--warn); left:0; }
+  table { border-collapse:collapse; width:100%; font-size:13.8px; margin-top:10px; }
+  th, td { border-bottom:1px solid var(--line); padding:6px; text-align:left; }
+  th { background:var(--soft); color:var(--sub); font-size:12.5px; font-weight:600; }
+  td.n, th.n { text-align:right; font-variant-numeric:tabular-nums; }
+  .pos { color:var(--good); } .neg { color:var(--warn); }
+  details.qa { border:1px solid var(--line); border-radius:6px; margin-bottom:8px; background:#fff; }
+  details.qa summary { cursor:pointer; padding:10px 14px; font-weight:700; font-size:15px; list-style:none; }
+  details.qa summary::before { content:"Q"; display:inline-block; width:22px; height:22px; border-radius:4px; background:var(--blue); color:#fff; text-align:center; font-size:13px; line-height:22px; margin-right:8px; }
+  details.qa[open] summary { border-bottom:1px solid var(--line); }
+  details.qa div { padding:10px 14px 12px; font-size:14.5px; color:var(--ink); background:var(--soft); }
+  ul.tips { margin:0; padding-left:18px; font-size:14px; } ul.tips li { margin:3px 0; }
+  footer { font-size:12.5px; color:var(--sub); padding:18px 0 40px; border-top:1px solid var(--line); background:#fff; }
+</style>
+</head>
+<body>
+<div class="top"><div class="wrap bar">
+  <a class="logo" href="index.html"><i></i><div><b>TVI 발표 준비</b><small>최종발표 5분 · 슬라이드 7장 연습</small></div></a>
+  <div class="links">
+    <a class="main" href="slides.html" target="_blank">슬라이드만 크게(발표용)</a>
+    <a href="slides.pdf" target="_blank">PDF</a>
+    <a href="index.html">결과물 앱</a>
+  </div>
+</div></div>
+
+<main class="wrap">
+  <div class="intro">
+    <h1>장마다 질문 하나 → 그림 하나 → 한 줄 정리 하나</h1>
+    <p>듣는 사람은 이 주제에 관심 없는 친구들입니다. 아래 대본은 초안이니 <b>자기 말로</b> 고쳐 말하고, 노란 글씨만은 꼭 말하세요. 타이머를 켜고 ▶로 넘기면 장마다 걸린 시간이 기록됩니다.</p>
+  </div>
+
+  <div class="g">
+    <div>
+      <div class="card">
+        <div class="frame"><iframe id="sf" src="slides.html#1" title="발표 슬라이드"></iframe></div>
+        <div class="nav">
+          <button class="btn" id="prev">◀ 이전</button>
+          <span class="pg" id="pg">1 / 7</span>
+          <button class="btn main" id="next">다음 ▶</button>
+          <div class="dots" id="dots"></div>
+        </div>
+        <p style="font-size:12.5px; color:var(--sub); margin:8px 0 0">키보드 ← → 로도 넘깁니다. 실제 발표는 위의 "슬라이드만 크게"에서 F(전체 화면)를 누르세요.</p>
+      </div>
+      <div class="card">
+        <h2>5분 타이머 <small>장을 넘길 때마다 걸린 시간을 적습니다</small></h2>
+        <div class="clock" id="clock">0:00</div>
+        <div class="pace" id="pace">시작을 누르고 1장부터 말해 보세요.</div>
+        <div class="tl" id="tl"></div>
+        <div class="row" style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap">
+          <button class="btn green" id="tStart">시작</button>
+          <button class="btn" id="tReset">처음부터</button>
+        </div>
+        <div id="laps"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card goal" id="goal"></div>
+      <div class="card">
+        <h2>발표 요령</h2>
+        <ul class="tips">
+          <li>장마다 첫 문장은 <b>슬라이드 위의 질문</b>을 그대로 묻는 말로 시작합니다.</li>
+          <li>숫자는 한 장에 한두 개만 말합니다. 나머지는 그림이 보여 줍니다.</li>
+          <li>외운 티가 나면 역효과입니다. 대본을 보지 않고 노란 글씨만 기억해서 말해 보세요.</li>
+          <li>6장에서 시간이 남으면 결과물 앱을 직접 열어 '여행 예산'을 한 번 눌러 보입니다.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>예상 질문 <small>먼저 자기 말로 답해 본 뒤 눌러서 근거를 확인하세요</small></h2>
+    <div style="margin-bottom:10px"><button class="btn" id="shuf">순서 섞기</button></div>
+    <div id="qa"></div>
+  </div>
+</main>
+
+<footer><div class="wrap">고등학교 탐구 프로젝트 최종발표 연습 페이지(2026). 슬라이드의 숫자는 결과물 앱과 같은 자료(data.js)에서 그립니다. <a href="index.html">결과물 앱으로</a></div></footer>
+
+<script src="present_data.js"></script>
+<script>
+const S = SCRIPT.slides, N = S.length, $ = (id) => document.getElementById(id);
+const esc = (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+const bold = (t) => esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+const mmss = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+let cur = 1;
+
+// 장 바꾸기: 슬라이드 · 대본 · 점 표시를 함께 바꾼다
+function go(n, fromFrame) {
+  n = Math.max(1, Math.min(N, n));
+  if (timer.on && n === cur + 1) timer.laps[cur - 1] = timer.now() - timer.laps.slice(0, cur - 1).reduce((a, b) => a + (b || 0), 0);
+  cur = n;
+  if (!fromFrame) $("sf").src = "slides.html#" + n;
+  $("pg").textContent = `${n} / ${N}`;
+  $("prev").disabled = n === 1; $("next").disabled = n === N;
+  [...$("dots").children].forEach((d, i) => d.classList.toggle("on", i < n));
+  const s = S[n - 1], must = [...s.talk.matchAll(/\*\*(.+?)\*\*/g)].map((m) => m[1]);
+  $("goal").innerHTML = `<small>${n}장 · 이 장의 질문(목표)</small><h3>${esc(s.goal)}</h3>
+    <span class="chip">목표 ${s.sec}초</span><span class="chip">여기까지 ${mmss(s.end)}</span>
+    <div class="talk" style="margin-top:12px">${s.talk.split("\n").filter(Boolean).map((p) => `<p>${bold(p)}</p>`).join("")}</div>
+    ${must.length ? `<div class="must"><b>꼭 말할 것</b><br>${must.map(esc).join("<br>")}</div>` : ""}`;
+  drawTl();
+}
+$("dots").innerHTML = S.map((s) => `<button title="${s.n}장" data-n="${s.n}"></button>`).join("");
+$("dots").onclick = (e) => e.target.dataset.n && go(+e.target.dataset.n);
+$("prev").onclick = () => go(cur - 1);
+$("next").onclick = () => go(cur + 1);
+addEventListener("keydown", (e) => { if (e.key === "ArrowRight") go(cur + 1); if (e.key === "ArrowLeft") go(cur - 1); });
+// 슬라이드 안을 눌러 넘겨도 대본이 따라오게(slides.html이 장 번호를 보내 준다)
+addEventListener("message", (e) => { if (e.data && e.data.slide && e.data.slide !== cur) go(e.data.slide, true); });
+
+// 타이머: 지금 시간이 어느 장에 있어야 하는지 계획(누적 시간)과 비교한다
+const TOTAL = S[N - 1].end;
+const timer = { on: false, start: 0, acc: 0, laps: [], now() { return this.acc + (this.on ? (Date.now() - this.start) / 1000 : 0); } };
+function drawTl() {
+  const t = timer.now(), plan = (S.find((s) => t < s.end) || S[N - 1]).n;
+  $("tl").innerHTML = S.map((s) => `<span style="width:${(s.sec / TOTAL) * 100}%" class="${s.n === cur ? "now" : ""}">${s.n}</span>`).join("") + `<i style="left:${Math.min(100, (t / TOTAL) * 100)}%"></i>`;
+  $("clock").textContent = mmss(t); $("clock").classList.toggle("over", t > 300);
+  if (!timer.on && t === 0) return;
+  const p = $("pace");
+  if (t > 300) { p.className = "pace late"; p.textContent = "5분을 넘었습니다. 마무리하세요."; }
+  else if (cur < plan) { p.className = "pace late"; p.textContent = `계획으로는 지금 ${plan}장에 있어야 합니다. 조금 빠르게.`; }
+  else { p.className = "pace ok"; p.textContent = `계획대로입니다(계획상 ${plan}장).`; }
+}
+function drawLaps() {
+  if (!timer.laps.some((x) => x)) { $("laps").innerHTML = ""; return; }
+  $("laps").innerHTML = `<table><tr><th>장</th><th class="n">목표</th><th class="n">실제</th><th class="n">차이</th></tr>` +
+    S.map((s, i) => { const a = timer.laps[i]; if (!a) return ""; const d = a - s.sec;
+      return `<tr><td>${s.n}</td><td class="n">${s.sec}초</td><td class="n">${Math.round(a)}초</td><td class="n ${d > 5 ? "neg" : "pos"}">${d > 0 ? "+" : ""}${Math.round(d)}초</td></tr>`; }).join("") + "</table>";
+}
+setInterval(() => { if (timer.on) drawTl(); }, 250);
+$("tStart").onclick = () => {
+  if (timer.on) { timer.acc = timer.now(); timer.on = false; $("tStart").textContent = "계속"; }
+  else { timer.start = Date.now(); timer.on = true; $("tStart").textContent = "멈춤"; if (timer.acc === 0) go(1); }
+  drawTl();
+};
+$("tReset").onclick = () => { Object.assign(timer, { on: false, acc: 0, laps: [] }); $("tStart").textContent = "시작"; $("pace").className = "pace"; $("pace").textContent = "시작을 누르고 1장부터 말해 보세요."; go(1); drawLaps(); };
+// 마지막 장에서 멈추면 7장 시간도 적는다
+$("tStart").addEventListener("click", () => { if (!timer.on && cur === N && timer.acc > 0) { timer.laps[N - 1] = timer.acc - timer.laps.slice(0, N - 1).reduce((a, b) => a + (b || 0), 0); } drawLaps(); });
+$("next").addEventListener("click", drawLaps);
+
+// 예상 질문: 답은 접어 두고, 눌러서 연다
+const drawQa = (list) => ($("qa").innerHTML = list.map((x) => `<details class="qa"><summary>${esc(x.q)}</summary><div>${bold(x.a)}</div></details>`).join(""));
+drawQa(SCRIPT.qa);
+$("shuf").onclick = () => drawQa([...SCRIPT.qa].sort(() => Math.random() - 0.5));
+go(1);
+</script>
+</body>
+</html>

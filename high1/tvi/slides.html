@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>100만원으로 며칠? (쉬운 판)</title>
+<!--
+  최종발표 슬라이드 · 쉬운 판 (5분 · 7장, 2026-10-04). 고1 친구들이 처음 듣고도 따라올 수 있게 다시 썼다.
+  장마다: 위 = "이 장의 질문", 가운데 = 답을 보여 주는 그림 하나, 아래 = "한 줄 정리".
+  넘기기: → / Space / 클릭 = 다음, ← = 이전, F = 전체 화면. 제출용 PDF = slides_easy.pdf. 대본 = script_easy.md.
+  숫자는 손으로 적지 않고 결과물 앱과 같은 data.js에서 읽어 그린다(앱과 숫자가 어긋나지 않게).
+  예전 판(대학 수준 용어)은 slides.html에 그대로 있다.
+-->
+<style>
+  :root { --ink:#17201c; --sub:#56635c; --navy:#0f5132; --navy2:#e8f2ec; --coral:#1f5fa8; --sand:#f4f6f5; --line:#dce3df; --good:#1d7a46; --warn:#b42318; }
+  * { box-sizing:border-box; }
+  html, body { margin:0; background:#111; font-family:"Pretendard","Malgun Gothic","Apple SD Gothic Neo",sans-serif; color:var(--ink); }
+  .slide { width:1280px; height:720px; background:var(--sand); position:relative; overflow:hidden; padding:44px 64px 0; margin:0 auto; display:none; }
+  .slide.on { display:block; }
+  .dark { background:#fff; color:var(--ink); border-top:14px solid var(--navy); }
+  .q { font-size:18px; font-weight:800; color:var(--coral); letter-spacing:.5px; margin:0; }
+  h2 { font-size:42px; margin:4px 0 22px; letter-spacing:-1px; }
+  .take { position:absolute; left:0; right:0; bottom:0; background:var(--navy); color:#fff; padding:18px 64px 20px; font-size:25px; font-weight:700; }
+  .take::before { content:"한 줄 정리"; display:inline-block; background:var(--coral); color:#fff; font-size:15px; padding:4px 10px; border-radius:6px; margin-right:16px; vertical-align:4px; }
+  .take span { color:#b9e6c9 !important; }
+  .num { position:absolute; right:28px; top:22px; color:#9aa3b2; font-size:14px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:18px; padding:20px 24px; }
+  .row { display:flex; gap:24px; }
+  .muted { color:var(--sub); }
+  .big { font-size:64px; font-weight:900; letter-spacing:-2px; line-height:1; }
+  svg { display:block; } svg text { font-family:inherit; }
+  img { display:block; }
+  .chip { display:inline-flex; align-items:center; gap:8px; background:#fff; border:1px solid var(--line); border-radius:40px; padding:9px 16px; font-size:19px; margin:0 6px 10px 0; }
+  .chip b { color:var(--coral); }
+  /* 화면에서는 창 크기에 맞춰 1280×720 한 장을 줄이거나 키운다(폰에서도 한 장이 다 보이게). 인쇄(PDF)는 원래 크기 그대로. */
+  @media screen {
+    html, body { height:100%; overflow:hidden; }
+    .slide.on { position:absolute; left:var(--x, 0px); top:var(--y, 0px); margin:0; transform-origin:0 0; transform:scale(var(--s, 1)); }
+  }
+  @media print {
+    @page { size:1280px 720px; margin:0; }
+    html, body { background:#fff; }
+    .slide { display:block !important; page-break-after:always; margin:0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 1. 궁금하게 만들기 -->
+<section class="slide dark">
+  <p class="q" style="margin-top:20px">오늘(<span id="d1"></span>) 환율로 계산하면</p>
+  <h1 style="font-size:66px; margin:8px 0 6px; letter-spacing:-2px; line-height:1.15">100만원 들고 떠나면,<br><span style="color:var(--coral)">며칠</span> 지낼 수 있을까?</h1>
+  <div class="row" id="s1" style="margin-top:44px"></div>
+  <p style="margin-top:42px; font-size:19px; color:var(--sub)">같은 100만원인데 4배 가까이 차이가 납니다. 이 차이는 무엇이 만들고, 사람들의 여행을 바꿀까요?</p>
+  <p style="position:absolute; left:64px; bottom:30px; font-size:18px; color:var(--sub)">고등학교 AI 융합 탐구 프로젝트</p>
+</section>
+
+<!-- 2. 계산법 -->
+<section class="slide">
+  <p class="q">이 장의 질문</p>
+  <h2>여행비는 무엇으로 정해질까?</h2>
+  <div class="row">
+    <div style="flex:1.05">
+      <p style="font-size:21px; margin:0 0 12px"><b>여행자의 하루</b>를 정해 놓고, 그 나라 물가로 값을 매겼습니다.</p>
+      <div id="s2chips"></div>
+      <p class="muted" style="font-size:16px; margin:6px 0 0">물가: Numbeo(전 세계 사람들이 입력한 물가 사이트), 2026-10 · 숙소는 원룸 월세 ÷ 30으로 대신함</p>
+    </div>
+    <div class="card" style="flex:1">
+      <p class="muted" style="margin:0 0 6px; font-size:18px">예: 스페인, 2025년</p>
+      <div style="font-size:27px; line-height:1.9" id="s2calc"></div>
+    </div>
+  </div>
+  <div class="take">여행비 = 환율 × 현지 물가. TVI는 "100만원으로 며칠?"을 센 숫자입니다.</div>
+</section>
+
+<!-- 3. 20년 -->
+<section class="slide">
+  <p class="q">이 장의 질문</p>
+  <h2>20년 전보다 해외여행이 비싸졌을까?</h2>
+  <div class="row">
+    <div class="card" style="flex:0 0 360px">
+      <p class="muted" style="margin:0; font-size:18px">함정: 돈의 가치도 변한다</p>
+      <p style="font-size:24px; margin:10px 0 0">2005년의 <b>100만원</b>은</p>
+      <p class="big" style="color:var(--coral); margin:8px 0">157만원</p>
+      <p style="font-size:20px; margin:0">지금 돈으로 이만큼입니다.<br>한국 물가가 20년 동안 57% 올랐기 때문입니다.</p>
+      <p class="muted" style="font-size:16px; margin:14px 0 0">그래서 해마다 예산을 '지금 돈 가치'로 맞춰 다시 셌습니다(실질).</p>
+    </div>
+    <div class="card" style="flex:1"><svg id="s3" viewBox="0 0 740 400" width="740" height="400"></svg></div>
+  </div>
+  <div class="take">돈의 가치까지 따지면 <span style="color:var(--coral)">일본만 오히려 싸졌습니다.</span> 일본 물가가 거의 안 올랐기 때문입니다.</div>
+</section>
+
+<!-- 4. 검증 -->
+<section class="slide">
+  <p class="q">이 장의 질문</p>
+  <h2>여행이 싸지면, 사람들은 정말 더 갈까?</h2>
+  <div class="row">
+    <div style="flex:1; display:flex; flex-direction:column; gap:16px">
+      <div class="card" style="background:var(--navy); color:#fff; border:0">
+        <p style="margin:0; font-size:18px; opacity:.8">해외여행을 가느냐?</p>
+        <p style="margin:4px 0 6px; font-size:30px; font-weight:800">예 <span style="color:#b9e6c9" id="s4yes"></span></p>
+        <p style="margin:0; font-size:19px" id="s4yesP"></p>
+      </div>
+      <div class="card" style="background:#fff; border-left:6px solid var(--warn)">
+        <p style="margin:0; font-size:18px; color:var(--sub)">어느 나라로 가느냐?</p>
+        <p style="margin:4px 0 6px; font-size:30px; font-weight:800">거의 관계 없음</p>
+        <p style="margin:0; font-size:19px">원화가 약해지면 <b>모든 나라가 함께</b> 비싸지니까, 그중 어느 나라를 고를지는 바뀌지 않았습니다.</p>
+      </div>
+    </div>
+    <div class="card" style="flex:0 0 520px; padding:14px 18px">
+      <svg id="s4" viewBox="0 0 480 380" width="480" height="380"></svg>
+    </div>
+  </div>
+  <div class="take">여행을 '가느냐'는 돈이 정하지만, '어디로'는 돈만으로 정해지지 않습니다.</div>
+</section>
+
+<!-- 5. 사건 -->
+<section class="slide">
+  <p class="q">이 장의 질문</p>
+  <h2>환율로 설명되지 않는 순간에는 무슨 일이 있었을까?</h2>
+  <p style="font-size:19px; margin:-8px 0 14px" class="muted">그 나라로 간 사람의 비중이 1년 전보다 얼마나 변했나 · <b style="color:#9aa3b2">■</b> 환율로 예상한 변화 <b style="color:var(--coral)">■</b> 실제 변화</p>
+  <div id="s5"></div>
+  <div class="take">경제 논리는 평소를 설명하고, <span style="color:var(--coral)">사건(안전 · 감정 · 제도)은 예외를 만듭니다.</span></div>
+</section>
+
+<!-- 6. 앱 -->
+<section class="slide">
+  <p class="q">이 장의 질문</p>
+  <h2>그래서 무엇을 만들었나?</h2>
+  <div class="row">
+    <img src="app2_plan.png" style="width:640px; height:430px; object-fit:cover; object-position:top; border-radius:14px; border:1px solid var(--line)">
+    <div style="flex:1">
+      <p style="font-size:22px; margin:0 0 14px"><b>TVI 앱</b> · 인터넷 없이도 열립니다</p>
+      <p class="chip" style="display:flex"><b>1</b>오늘 환율로 <b style="color:var(--ink)">내 여행 예산</b> 계산</p>
+      <p class="chip" style="display:flex"><b>2</b>항공권 · 숙소 · 관광지 예시 고르기</p>
+      <p class="chip" style="display:flex"><b>3</b>"환율만 바뀐 세상" 같은 20년 실험</p>
+      <p class="chip" style="display:flex"><b>4</b>사건 퀴즈와 기사 원문 링크</p>
+      <p style="font-size:19px; margin-top:16px">jwj-nick.github.io/high1/tvi/</p>
+    </div>
+  </div>
+  <div class="take">탐구 결과를 "읽는 것"에서 "직접 만져 보는 것"으로 바꿨습니다.</div>
+</section>
+
+<!-- 7. 결론 -->
+<section class="slide dark">
+  <p class="q" style="margin-top:6px">정리</p>
+  <h2 style="font-size:46px; margin-bottom:26px">경제 논리는 평소를 설명하고,<br><span style="color:var(--coral)">사건은 예외를 만든다</span></h2>
+  <div class="row">
+    <div class="card" style="flex:1; background:var(--navy2); border:0; color:var(--ink)">
+      <p style="margin:0 0 8px; font-size:18px; color:var(--navy); font-weight:800">알아낸 것</p>
+      <p style="font-size:19px; margin:0 0 6px">· 돈의 가치까지 따지면 20년 동안 일본만 싸졌다</p>
+      <p style="font-size:19px; margin:0 0 6px">· 싸지면 해외여행은 더 간다(변화의 62%)</p>
+      <p style="font-size:19px; margin:0">· 어느 나라를 고를지는 돈만으로 정해지지 않는다</p>
+    </div>
+    <div class="card" style="flex:1; background:var(--navy2); border:0; color:var(--ink)">
+      <p style="margin:0 0 8px; font-size:18px; color:var(--navy); font-weight:800">한계</p>
+      <p style="font-size:19px; margin:0 0 6px">· 나라당 자료가 5~16년뿐이다</p>
+      <p style="font-size:19px; margin:0 0 6px">· 원화가 약할 때는 경기도 나빠서, 돈 때문인지 소득 때문인지 완전히 나누지 못했다</p>
+    </div>
+    <div class="card" style="flex:1; background:var(--navy2); border:0; color:var(--ink)">
+      <p style="margin:0 0 8px; font-size:18px; color:var(--navy); font-weight:800">배운 것</p>
+      <p style="font-size:19px; margin:0 0 6px">· 명목과 실질은 다르다</p>
+      <p style="font-size:19px; margin:0 0 6px">· 데이터의 함정은 직접 열어 봐야 보인다</p>
+      <p style="font-size:19px; margin:0">· AI에게는 한 조각씩 시키고, 맞는지는 손 계산과 원문으로 확인한다</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:64px; bottom:28px; font-size:16px; color:var(--sub)">자료: Numbeo.com · 한국은행 ECOS · World Bank · 한국관광 데이터랩 · 기사 원문(서울신문, 외교부). 감사합니다.</p>
+</section>
+
+<script src="data.js"></script>
+<script>
+const D = TVI_DATA, C5 = D.countries;
+const COLORS = { 스페인:"#c0504d", 일본:"#1f5fa8", 미국:"#5b4f9e", 영국:"#1d7a46", 중국:"#c98a1b" };
+const fmt = (n, d = 0) => Number(n).toLocaleString("ko-KR", { maximumFractionDigits: d, minimumFractionDigits: d });
+const sgn = (n, d = 0) => (n > 0 ? "+" : n < 0 ? "−" : "") + fmt(Math.abs(n), d);
+const lp = (v) => (Math.exp(v / 100) - 1) * 100;
+const $ = (id) => document.getElementById(id);
+const el = (tag, a, inner = "") => `<${tag} ${Object.entries(a).map(([k, v]) => `${k}="${v}"`).join(" ")}>${inner}</${tag}>`;
+
+// 1장: 오늘 환율 × 지금 물가로 다섯 나라 며칠
+const today = (c) => { const a = D.fxDaily[D.currency[c]]; return a[a.length - 1]; };
+const cost = (c) => D.dailyNow[c].find((p) => p.part === "합계").cost;
+const d0 = today("일본")[0]; $("d1").textContent = `${d0.slice(0, 4)}.${+d0.slice(4, 6)}.${+d0.slice(6)}`;
+$("s1").innerHTML = C5.map((c) => {
+  const days = 1e6 / (cost(c) * today(c)[1]);
+  return `<div style="flex:1; border-top:6px solid ${COLORS[c]}; background:var(--sand); border-radius:14px; padding:14px 18px">
+    <div style="font-size:20px; color:var(--sub)">${c}</div><div style="font-size:60px; font-weight:900; color:${COLORS[c]}; line-height:1.1">${fmt(days, 1)}<span style="font-size:22px; color:var(--sub)"> 일</span></div></div>`;
+}).join("");
+
+// 2장: 하루 일정과 스페인 2025년 계산
+const NB = D.numbeo["스페인"];
+const chips = [["🥐", "아침", "슈퍼에서 빵 · 우유 · 바나나"], ["🍔", "점심", "패스트푸드 세트"], ["🍝", "저녁", "괜찮은 식당 1인분"], ["🛏️", "숙소", "1박"], ["☕", "카페", "1잔"], ["🚇", "대중교통", "5번"], ["🚕", "택시", "1번(5km)"]];
+$("s2chips").innerHTML = chips.map(([i, a, b]) => `<span class="chip">${i} <b>${a}</b> ${b}</span>`).join("");
+const es = D.series["스페인"].find((r) => r.year === 2025);
+$("s2calc").innerHTML = `하루 <b>${fmt(es.costLocal, 2)}유로</b><br>× 환율 <b>${fmt(es.fx, 0)}원</b><span class="muted" style="font-size:18px"> (2025년 평균)</span><br>= 하루 <b>${fmt(es.costKrw / 1e4, 1)}만원</b><br>100만원 ÷ ${fmt(es.costKrw / 1e4, 1)}만원 = <b style="color:var(--coral); font-size:40px">${fmt(es.tvi, 1)}일</b>`;
+
+// 3장: 2005 → 2025 변화, 명목(옅게) vs 실질(진하게)
+(() => {
+  const W = 740, H = 400, L = 90, R = 30, T = 56, rowH = 64;
+  const x = (v) => L + (v + 70) / 110 * (W - L - R);
+  let s = el("text", { x: L, y: 20, style: "font-size:16px;fill:#5e6678" }, "2005 → 2025년, 100만원으로 머무는 날의 변화");
+  s += el("rect", { x: L, y: 34, width: 14, height: 10, fill: "#c9ced8" }) + el("text", { x: L + 20, y: 44, style: "font-size:14px;fill:#5e6678" }, "그냥 100만원(명목)");
+  s += el("rect", { x: L + 190, y: 34, width: 14, height: 10, fill: "#0f5132" }) + el("text", { x: L + 210, y: 44, style: "font-size:14px;fill:#5e6678" }, "지금 돈 가치로 맞춤(실질)");
+  s += el("line", { x1: x(0), x2: x(0), y1: T, y2: T + rowH * 5, stroke: "#888" });
+  C5.forEach((c, i) => {
+    const d = D.decomposition[c], y0 = T + 8 + i * rowH, jp = c === "일본";
+    s += el("text", { x: L - 12, y: y0 + 32, "text-anchor": "end", style: `font-size:20px;font-weight:${jp ? 900 : 500};fill:${jp ? "#1f5fa8" : "#17201c"}` }, c);
+    [[d.tvi_pct, "#c9ced8", 0], [d.real_pct, jp ? "#1f5fa8" : "#0f5132", 24]].forEach(([v, col, dy], j) => {
+      s += el("rect", { x: Math.min(x(0), x(v)), y: y0 + dy, width: Math.abs(x(v) - x(0)), height: 20, rx: 4, fill: col });
+      s += el("text", { x: v < 0 ? x(v) - 6 : x(v) + 6, y: y0 + dy + 16, "text-anchor": v < 0 ? "end" : "start", style: `font-size:${j ? 17 : 14}px;font-weight:${j ? 800 : 500};fill:${j ? (v > 0 ? "#2e7d32" : "#d1495b") : "#8a94a8"}` }, sgn(v) + "%");
+    });
+  });
+  s += el("text", { x: x(-35), y: H - 4, "text-anchor": "middle", style: "font-size:14px;fill:#8a94a8" }, "← 비싸짐");
+  s += el("text", { x: x(25), y: H - 4, "text-anchor": "middle", style: "font-size:14px;fill:#8a94a8" }, "싸짐 →");
+  $("s3").innerHTML = s;
+})();
+
+// 4장: 평균 TVI 변화 vs 전체 출국자 변화
+(() => {
+  const t = D.panel.total, W = 480, H = 380, L = 66, B = 46, T = 30;
+  const x = (v) => L + (v + 28) / 40 * (W - L - 12), y = (v) => H - B - (v + 28) / 60 * (H - B - T);
+  $("s4yes").textContent = `(10% 싸지면 출국자 +${fmt(t.b * 10, 0)}%)`;
+  $("s4yesP").innerHTML = `다섯 나라 평균 TVI가 좋아진 해에 한국인 출국자도 늘었습니다. 해마다 변화의 <b>${fmt(t.r2 * 100, 0)}%</b>를 이 관계 하나로 설명합니다.`;
+  let s = el("text", { x: 4, y: 18, style: "font-size:15px;fill:#5e6678" }, "점 하나 = 한 해 (코로나 때 제외)");
+  [-20, -10, 0, 10, 20, 30].forEach((v) => (s += el("line", { x1: L, x2: W - 12, y1: y(v), y2: y(v), stroke: "#0001" }) + el("text", { x: L - 6, y: y(v) + 5, "text-anchor": "end", style: "font-size:13px;fill:#8a94a8" }, v + "%")));
+  [-20, -10, 0, 10].forEach((v) => (s += el("text", { x: x(v), y: H - B + 18, "text-anchor": "middle", style: "font-size:13px;fill:#8a94a8" }, v + "%")));
+  s += el("line", { x1: x(0), x2: x(0), y1: T, y2: H - B, stroke: "#888" }) + el("line", { x1: L, x2: W - 12, y1: y(0), y2: y(0), stroke: "#888" });
+  s += el("line", { x1: x(-26), x2: x(10), y1: y(t.a * 100 - 26 * t.b), y2: y(t.a * 100 + 10 * t.b), stroke: "#1f5fa8", "stroke-width": 3 });
+  t.points.forEach((p) => (s += el("circle", { cx: x(p.x), cy: y(p.y), r: 7, fill: "#0f5132" })));
+  const p09 = t.points.find((p) => p.year === 2009);
+  if (p09) s += el("text", { x: x(p09.x) + 10, y: y(p09.y) + 5, style: "font-size:14px;fill:#5e6678" }, "2009 금융위기");
+  s += el("text", { x: (L + W) / 2, y: H - 6, "text-anchor": "middle", style: "font-size:15px;fill:#17201c" }, "가로: 여행이 얼마나 싸졌나(TVI 변화)");
+  s += el("text", { x: 12, y: (H - B + T) / 2, "text-anchor": "middle", transform: `rotate(-90 12 ${(H - B + T) / 2})`, style: "font-size:15px;fill:#17201c" }, "세로: 출국자 변화");
+  $("s4").innerHTML = s;
+})();
+
+// 5장: 사건 셋 — 예상 vs 실제
+(() => {
+  const EV = [
+    { c: "일본", ym: "2011-04", t: "2011 동일본대지진 · 원전 사고", k: "안전", src: "서울신문 2011-05-03" },
+    { c: "일본", ym: "2019-10", t: "2019 수출 규제 뒤 불매운동", k: "감정", src: "서울신문 2019-09-18" },
+    { c: "미국", ym: "2009-01", t: "2008.11 미국 무비자 입국 시작", k: "제도", src: "외교부 공지" },
+  ];
+  const x = (v) => 400 + v * 5;
+  $("s5").innerHTML = EV.map((e) => {
+    const r = D.monthly[e.c].rows.find((q) => q.ym === e.ym), pred = lp(r.pred), act = lp(r.d_share);
+    const bar = (v, col, yy) => el("rect", { x: Math.min(x(0), x(v)), y: yy, width: Math.max(3, Math.abs(x(v) - x(0))), height: 24, rx: 4, fill: col }) +
+      el("text", { x: v < 0 ? x(v) - 8 : x(v) + 8, y: yy + 19, "text-anchor": v < 0 ? "end" : "start", style: `font-size:19px;font-weight:800;fill:${col === "#9aa3b2" ? "#8a94a8" : "#1f5fa8"}` }, sgn(v) + "%");
+    return `<div class="card" style="display:flex; align-items:center; gap:18px; padding:12px 22px; margin-bottom:12px">
+      <div style="flex:0 0 330px"><div style="font-size:15px; color:var(--coral); font-weight:800">${e.c} · ${e.k}</div><div style="font-size:21px; font-weight:800">${e.t}</div><div class="muted" style="font-size:14px">${e.src} · <b style="color:var(--ink)">평소의 ${fmt(Math.abs(r.z), 1)}배 빗나감</b></div></div>
+      <svg viewBox="0 0 800 64" width="800" height="64" style="flex:1">${el("line", { x1: x(0), x2: x(0), y1: 0, y2: 64, stroke: "#888" })}${bar(pred, "#9aa3b2", 4)}${bar(act, "#1f5fa8", 34)}
+</svg></div>`;
+  }).join("");
+})();
+
+// 넘기기
+const slides = [...document.querySelectorAll(".slide")];
+slides.forEach((s, i) => s.insertAdjacentHTML("beforeend", `<span class="num">${i + 1} / ${slides.length}</span>`));
+let cur = Math.max(0, Math.min(slides.length - 1, (parseInt(location.hash.slice(1)) || 1) - 1));
+const show = () => {
+  slides.forEach((s, i) => s.classList.toggle("on", i === cur)); history.replaceState(null, "", "#" + (cur + 1));
+  if (parent !== window) parent.postMessage({ slide: cur + 1 }, "*"); // 발표 준비 페이지 안에 들어 있으면 지금 장 번호를 알려 준다
+};
+addEventListener("keydown", (e) => {
+  if (["ArrowRight", " ", "PageDown"].includes(e.key)) cur = Math.min(slides.length - 1, cur + 1);
+  else if (["ArrowLeft", "PageUp"].includes(e.key)) cur = Math.max(0, cur - 1);
+  else if (e.key === "f") document.documentElement.requestFullscreen();
+  show();
+});
+// 클릭 · 터치: 화면 왼쪽 1/3 = 이전, 나머지 = 다음
+addEventListener("click", (e) => { cur = e.clientX < innerWidth / 3 ? Math.max(0, cur - 1) : Math.min(slides.length - 1, cur + 1); show(); });
+// 발표 준비 페이지가 주소 뒤 #번호를 바꾸면 그 장으로 간다
+addEventListener("hashchange", () => { const n = parseInt(location.hash.slice(1)); if (n && n - 1 !== cur) { cur = Math.max(0, Math.min(slides.length - 1, n - 1)); show(); } });
+// 창 크기에 맞추기: 배율 s = 가로 · 세로 중 더 빡빡한 쪽에 맞춘 값
+const fit = () => {
+  const s = Math.min(innerWidth / 1280, innerHeight / 720), r = document.documentElement.style;
+  r.setProperty("--s", s); r.setProperty("--x", (innerWidth - 1280 * s) / 2 + "px"); r.setProperty("--y", (innerHeight - 720 * s) / 2 + "px");
+};
+addEventListener("resize", fit); fit();
+show();
+</script>
+</body>
+</html>
