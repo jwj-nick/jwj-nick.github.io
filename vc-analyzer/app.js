@@ -138,7 +138,7 @@
     { id: 'mode', label: 'Mode', key: 'm' }, { id: 'ref', label: 'Reference', key: 'r' },
     { id: 'qindex', label: 'Qindex', key: 'q' }, { id: 'bits', label: 'Bits', key: 'b' },
     { id: 'skip', label: 'Skip', key: 's' },
-    { id: 'cycles', label: 'HW cycles', key: 'w', arch: true }, { id: 'fetch', label: 'Ref fetch', key: 'f', arch: true },
+    { id: 'cycles', label: 'HW cycles (draft)', key: 'w', arch: true }, { id: 'fetch', label: 'Ref fetch (draft)', key: 'f', arch: true },
     { id: 'none', label: 'No fill', key: 'n' },
   ];
   const hasArch = () => !!(state.manifest && state.manifest.arch);
@@ -1282,7 +1282,7 @@
     const A = archOf(state.payload);
     if (A) {
       const v = A.blk(state.payload.blocks[state.sel]) || [null, 0], r = A.sbAt(o.x, o.y);
-      facts += kvRow('HW model (L0)', `ENT ${fmt(v[0], 1)} cycles, fetch ${fmt(v[1])} bytes`,
+      facts += kvRow('HW model (L0 draft)', `ENT ${fmt(v[0], 1)} cycles, fetch ${fmt(v[1])} bytes`,
         r ? `superblock ${r[0]}: ${fmt(r[3], 0)} cycles, ${ARCH_MODULES()[r[4]]} slowest` : '');
     }
     const codec = (state.manifest.stream.codec || '').toUpperCase();
@@ -1343,7 +1343,7 @@
     const A = archOf(state.payload);
     if (A && A.frame && A.frame.modeled) {
       const af = A.frame;
-      facts += kvRow('HW model (L0)', `${fmt(af.cycles, 0)} cycles, ${(100 * af.utilization).toFixed(2)}% of budget, ${esc(af.bottleneck)} slowest`,
+      facts += kvRow('HW model (L0 draft)', `${fmt(af.cycles, 0)} cycles, ${(100 * af.utilization).toFixed(2)}% of budget, ${esc(af.bottleneck)} slowest`,
         ARCH_MODULES().map((m) => `${m} ${fmt(af.modules[m], 0)}`).join(' · '))
         + kvRow('Reference fetch', `${fmt(af.fetch_bytes / 1024, 1)} KB`, `${fmt(af.fetch_per_pixel, 2)} bytes per pixel; write ${fmt(af.write_bytes / 1024, 1)} KB`)
         + kvRow('Loop filter stages', esc((af.filters || ['?']).join(', ') || 'none'));
@@ -1669,7 +1669,7 @@
 
   // ------------------------------------------------------------ controls
   function renderChips() {
-    $('#fillGroup').innerHTML = FILLS.filter((f) => !f.arch || hasArch()).map((f) => (f.id === 'qindex' && usesQp() ? { ...f, label: 'QP' } : f)).map((f) => `<button class="chip" data-fill="${f.id}" aria-pressed="${state.fill === f.id}" title="Fill blocks by ${f.label.toLowerCase()} (${f.key})">${f.label}<span class="hk">${f.key}</span></button>`).join('');
+    $('#fillGroup').innerHTML = FILLS.filter((f) => !f.arch || hasArch()).map((f) => (f.id === 'qindex' && usesQp() ? { ...f, label: 'QP' } : f)).map((f) => `<button class="chip" data-fill="${f.id}" aria-pressed="${state.fill === f.id}" title="${f.arch ? 'Provisional L0 HW estimate from placeholder parameters, not a validated model. ' : ''}Fill blocks by ${f.label.toLowerCase()} (${f.key})">${f.label}<span class="hk">${f.key}</span></button>`).join('');
     $('#lineGroup').innerHTML = LINES.filter(lineShown).map((l) => `<button class="chip" data-line="${l.id}" aria-pressed="${state.lines.has(l.id)}" title="${l.label} (${l.key})">${l.label}<span class="hk">${l.key}</span></button>`).join('');
   }
   function setFill(id) { state.fill = id; renderChips(); renderLegend(); requestRender(); writeHash(); }
@@ -1681,11 +1681,44 @@
     if (state.tab !== 'syntax') state.tab = 'block';
     requestRender(); renderTab(); writeHash();
   }
+  // Keep the selected block on screen after keyboard or coordinate navigation.
+  function revealSel() {
+    if (state.sel < 0 || !state.payload) return;
+    const b = state.payload.blocks[state.sel], { s, ox, oy } = state.view, r = canvas.getBoundingClientRect();
+    const x0 = b[C.x] * s + ox, y0 = b[C.y] * s + oy, x1 = x0 + b[C.w] * s, y1 = y0 + b[C.h] * s;
+    if (x0 < 0 || y0 < 0 || x1 > r.width || y1 > r.height) {
+      state.view.ox = r.width / 2 - (b[C.x] + b[C.w] / 2) * s; state.view.oy = r.height / 2 - (b[C.y] + b[C.h] / 2) * s; requestRender();
+    }
+  }
+  function selectAt(x, y) { const bi = blockAt(x, y); if (bi >= 0) { select(bi); revealSel(); } return bi; }
+  // Neighbour of the selected block: the block covering the first pixel just past its edge.
+  function stepBlock(dx, dy) {
+    if (!state.payload) return;
+    if (state.sel < 0) { selectAt(0, 0); return; }
+    const b = state.payload.blocks[state.sel];
+    const x = dx < 0 ? b[C.x] - 1 : dx > 0 ? b[C.x] + b[C.w] : b[C.x];
+    const y = dy < 0 ? b[C.y] - 1 : dy > 0 ? b[C.y] + b[C.h] : b[C.y];
+    selectAt(x, y);
+  }
+  function selectCostliest() {
+    if (!state.payload) return;
+    let best = -1, bits = -1;
+    state.payload.blocks.forEach((b, i) => { if (!isChromaBlock(i) && (b[C.bits] || 0) > bits) { bits = b[C.bits] || 0; best = i; } });
+    if (best >= 0) { select(best); revealSel(); }
+  }
+  function gotoTyped() {
+    const m = $('#gotoXY').value.match(/(-?\d+)\D+(-?\d+)/);
+    const ok = m && selectAt(+m[1], +m[2]) >= 0;
+    $('#gotoXY').classList.toggle('bad', !ok);
+  }
 
   function wire() {
     renderChips();
     $('#fillGroup').addEventListener('click', (e) => { const b = e.target.closest('[data-fill]'); if (b) setFill(b.dataset.fill); });
     $('#lineGroup').addEventListener('click', (e) => { const b = e.target.closest('[data-line]'); if (b) toggleLine(b.dataset.line); });
+    $('#gotoBtn').addEventListener('click', gotoTyped);
+    $('#gotoXY').addEventListener('keydown', (e) => { if (e.key === 'Enter') gotoTyped(); });
+    $('#costBtn').addEventListener('click', selectCostliest);
     $('#opacity').addEventListener('input', (e) => { state.opacity = e.target.value / 100; requestRender(); });
     $('#stageSelect').addEventListener('change', async (e) => {
       state.stage = e.target.value;
@@ -1794,10 +1827,14 @@
     window.addEventListener('resize', () => { renderBraidDebounced(); fitCanvasHeight(); requestRender(); });
 
     document.addEventListener('keydown', (e) => {
-      if (e.target.closest('input, select, textarea') || e.metaKey || e.ctrlKey || e.altKey) return;
+      if ((e.target.closest && e.target.closest('input, select, textarea')) || e.metaKey || e.ctrlKey || e.altKey) return;
       if ($('#helpDialog').open) return;
       const k = e.key;
-      if (k === 'ArrowLeft') { stepFrame(-1); e.preventDefault(); }
+      if (e.shiftKey && k.startsWith('Arrow')) {
+        stepBlock(k === 'ArrowLeft' ? -1 : k === 'ArrowRight' ? 1 : 0, k === 'ArrowUp' ? -1 : k === 'ArrowDown' ? 1 : 0); e.preventDefault();
+      }
+      else if (k === 'e') selectCostliest();
+      else if (k === 'ArrowLeft') { stepFrame(-1); e.preventDefault(); }
       else if (k === 'ArrowRight') { stepFrame(1); e.preventDefault(); }
       else if (k === 'Home' && state.manifest) selectFrame(orderedFrames()[0].f);
       else if (k === 'End' && state.manifest) { const l = orderedFrames(); selectFrame(l[l.length - 1].f); }
