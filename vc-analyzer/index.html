@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="app.css?v=e0ab48eb46">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%231d232b'/%3E%3Cpath d='M2 12h3V6H2zm4.5 0h3V3h-3zM11 12h3V8h-3z' fill='%23ffb347'/%3E%3C/svg%3E">
 </head>
 <body>
@@ -31,7 +31,7 @@
   </div>
   <div class="top-actions">
     <label class="btn file-btn" title="Open a bundle folder written by `vca export`">
-      <input type="file" id="folderInput" webkitdirectory directory multiple>
+      <input type="file" id="folderInput" webkitdirectory directory multiple aria-label="Open bundle folder">
       Open bundle
     </label>
     <button class="btn" id="helpBtn" title="Shortcuts and how to use (?)">Help</button>
@@ -101,12 +101,15 @@
     <h3>Keys</h3>
     <table class="keys">
       <tr><td><kbd>←</kbd> <kbd>→</kbd></td><td>Previous / next frame (in the order chosen on the Frame tab)</td></tr>
+      <tr><td><kbd>Home</kbd> <kbd>End</kbd></td><td>First / last frame</td></tr>
       <tr><td><kbd>m</kbd> <kbd>r</kbd> <kbd>q</kbd> <kbd>b</kbd> <kbd>s</kbd> <kbd>n</kbd></td><td>Fill blocks by mode, reference, qindex, bits, skip, or no fill</td></tr>
       <tr><td><kbd>w</kbd> <kbd>f</kbd></td><td>After <code>vca arch</code>: fill superblocks by estimated HW cycles, blocks by reference fetch per pixel. Provisional: placeholder parameters, see ARCH_MODEL.md</td></tr>
-      <tr><td><kbd>g</kbd> <kbd>t</kbd> <kbd>v</kbd> <kbd>p</kbd></td><td>Toggle block grid, transform grid, motion vectors, superblocks and tiles</td></tr>
+      <tr><td><kbd>g</kbd> <kbd>t</kbd> <kbd>v</kbd> <kbd>p</kbd> <kbd>h</kbd></td><td>Toggle block grid, transform grid, motion vectors, superblocks and tiles, and (AV2, VVC) the chroma tree</td></tr>
       <tr><td><kbd>0</kbd> <kbd>1</kbd> <kbd>+</kbd> <kbd>−</kbd></td><td>Fit, 1:1, zoom in, zoom out. Drag to pan, wheel to zoom.</td></tr>
       <tr><td><kbd>Shift</kbd>+<kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd></td><td>Select the neighbouring block. The x, y box selects the block at a pixel; <kbd>e</kbd> selects the costliest block.</td></tr>
+      <tr><td><kbd>Esc</kbd></td><td>Clear the block selection</td></tr>
       <tr><td><kbd>c</kbd></td><td>Copy the selected block as context for an AI assistant</td></tr>
+      <tr><td><kbd>?</kbd></td><td>Open this help</td></tr>
       <tr><td><kbd>d</kbd> <kbd>x</kbd></td><td>Diff mode: toggle mismatch outlines; flip the picture between A and B</td></tr>
     </table>
     <h3>Comparing two decoders</h3>
@@ -123,6 +126,14 @@ python -m vca export stream.vca -o bundle/</pre>
   </form>
 </dialog>
 
-<script src="app.js"></script>
+<script type="module" src="js/main.js?v=e0ab48eb46"></script>
+<script>
+  // Browsers do not run module scripts from file://: say so instead of showing a blank page.
+  if (location.protocol === 'file:') {
+    const e = document.getElementById('emptyState');
+    e.hidden = false;
+    e.textContent = 'This page cannot run from a file on disk. Start it with "python -m vca serve <analysis>" and open the address it prints.';
+  }
+</script>
 </body>
 </html>
