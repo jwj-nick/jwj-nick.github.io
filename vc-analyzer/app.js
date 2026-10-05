@@ -29,6 +29,7 @@
     AFFINE_MERGE: '#2ec4a0', SKIP_AFFINE_MERGE: '#25a888', SBTMVP: '#9fb4ff', SKIP_SBTMVP: '#8aa2f0',
     CIIP: '#b39dff', GEO: '#8e7dff', SKIP_GEO: '#7d6cf0', AMVP: '#4b8dff', AFFINE_AMVP: '#2ec4a0', SMVD: '#6a5cff',
     PALETTE: '#cfd8dc',   // IBC modes take the intrabc colour (modeColor)
+    PCM: '#cfd8dc',       // HEVC pcm_flag CU
   };
   const REF_COLORS = ['#4b8dff', '#3fb8af', '#f2c14e', '#e76f6f', '#b07cf7', '#7fd3e8', '#ff9f5a', '#9be15d'];
   const RAMP = [[68, 1, 84], [59, 82, 139], [33, 145, 140], [94, 201, 98], [253, 231, 37]];
@@ -47,11 +48,15 @@
     const m = mode || '';
     if (VVC_MODE_COLORS[m]) return VVC_MODE_COLORS[m];
     const ang = /^ANG_(\d+)$/.exec(m);
-    if (ang) {  // VVC angular 2..66: 18 = horizontal, 50 = vertical
+    if (ang) {  // VVC angular 2..66: 18 = horizontal, 50 = vertical; HEVC 2..34: 10 and 26
       const a = +ang[1];
-      return Math.abs(a - 50) <= 2 ? '#f2c14e' : (Math.abs(a - 18) <= 2 ? '#d9a441' : '#e76f6f');
+      const [hor, ver, near] = codecOf() === 'hevc' ? [10, 26, 1] : [18, 50, 2];
+      return Math.abs(a - ver) <= near ? '#f2c14e' : (Math.abs(a - hor) <= near ? '#d9a441' : '#e76f6f');
     }
     if (pred === 'intra') {
+      if (m.startsWith('I_16x16')) return '#f2c14e';   // AVC
+      if (m === 'I_NxN') return '#e76f6f';
+      if (m === 'I_PCM') return '#cfd8dc';
       if (m === 'DC_PRED') return '#e8863a';
       if (m === 'V_PRED') return '#f2c14e';
       if (m === 'H_PRED') return '#d9a441';
@@ -59,6 +64,14 @@
       if (m.startsWith('SMOOTH')) return '#e5989b';
       if (m === 'PAETH_PRED') return '#b5838d';
       return '#e8863a';
+    }
+    if (/^[PB]_/.test(m)) {                 // AVC: skip, direct, 8x8 sub-partitions, bi-prediction, 16x8 / 8x16
+      if (m.endsWith('_Skip')) return '#3fb8af';
+      if (m.startsWith('B_Direct')) return '#52c7b8';
+      if (m.endsWith('8x8')) return '#8e7dff';
+      if (m.includes('Bi')) return '#6a5cff';
+      if (/16x8|8x16/.test(m)) return '#7b8cff';
+      return '#4b8dff';
     }
     if (m.includes('OPTFLOW')) return '#b39dff';
     if (m.startsWith('WARP')) return '#2ec4a0';
@@ -82,10 +95,22 @@
     const av1 = ['LAST', 'LAST2', 'LAST3', 'GOLDEN', 'BWDREF', 'ALTREF2', 'ALTREF'].indexOf(name);
     return av1;
   }
-  // quantizer scale of the stream's codec: AV1/AV2 qindex 0..255, VVC QP 0..63
-  const isVvc = () => !!(state.manifest && state.manifest.stream && state.manifest.stream.codec === 'vvc');
-  const qMax = () => (isVvc() ? 63 : 255);
-  const qName = () => (isVvc() ? 'QP' : 'qindex');
+  // quantizer scale of the stream's codec: AV1/AV2 qindex 0..255, VVC / HEVC QP 0..63
+  const codecOf = () => ((state.manifest && state.manifest.stream && state.manifest.stream.codec) || '');
+  const isVvc = () => ['vvc', 'hevc'].includes(codecOf());
+  const usesQp = () => ['vvc', 'hevc', 'avc'].includes(codecOf());   // QP codecs (AVC 0..51, VVC / HEVC 0..63)
+  // codec tools the inspector and the line chips show only where they exist
+  const hasCdef = () => ['av1', 'av2'].includes(codecOf());
+  const hasChromaTree = () => ['av2', 'vvc'].includes(codecOf());   // AV2 SDP, VVC dual tree
+  const qMax = () => (codecOf() === 'avc' ? 51 : (isVvc() ? 63 : 255));
+  const qName = () => (usesQp() ? 'QP' : 'qindex');
+  const ohPart = (fr) => (fr.order_hint === null || fr.order_hint === undefined ? '' : `, order hint ${fr.order_hint}`);   // VP9 has none
+  // decoder field values: lists of numbers joined, objects (e.g. AVC partitions) as compact JSON
+  const extText = (v) => {
+    const s = Array.isArray(v) && !v.some((x) => x && typeof x === 'object') ? v.join(', ')
+      : (v && typeof v === 'object' ? JSON.stringify(v) : String(v));
+    return s.length > 240 ? s.slice(0, 240) + ' …' : s;
+  };
   const typeName = (t) => String(t || '').replace('_FRAME', '').replace('_SLICE', '').replace('_', ' ').toLowerCase();
 
   function refColor(name) {
@@ -120,7 +145,7 @@
   const LINES = [
     { id: 'grid', label: 'Blocks', key: 'g' }, { id: 'tx', label: 'Transforms', key: 't' },
     { id: 'mv', label: 'Motion', key: 'v' }, { id: 'sb', label: 'Superblocks', key: 'p' },
-    { id: 'chroma', label: 'Chroma tree', key: 'h' },
+    { id: 'chroma', label: 'Chroma tree', key: 'h', chromaTree: true },
     { id: 'mismatch', label: 'Mismatch', key: 'd', diffOnly: true },
   ];
   const STAGES = {
@@ -474,7 +499,7 @@
       const h = bh(fr.bytes), x = xs(i) - bw / 2, y = top + laneH - h;
       const col = FRAME_COLORS[fr.frame_type] || '#888';
       const shown = fr.out_n !== null && fr.out_n !== undefined;
-      parts.push(`<rect class="bar" data-f="${fr.f}" x="${x}" y="${y}" width="${bw}" height="${h}" rx="1.5" fill="${shown ? col : 'transparent'}" stroke="${col}" stroke-width="${shown ? 0 : 1.5}"><title>decode ${fr.f}: ${fr.frame_type}, order hint ${fr.order_hint}, ${fr.bytes} bytes${shown ? ', output ' + fr.out_n : ', not output directly'}</title></rect>`);
+      parts.push(`<rect class="bar" data-f="${fr.f}" x="${x}" y="${y}" width="${bw}" height="${h}" rx="1.5" fill="${shown ? col : 'transparent'}" stroke="${col}" stroke-width="${shown ? 0 : 1.5}"><title>decode ${fr.f}: ${fr.frame_type}${ohPart(fr)}, ${fr.bytes} bytes${shown ? ', output ' + fr.out_n : ', not output directly'}</title></rect>`);
     });
     // output lane
     outputs.forEach((o) => {
@@ -755,7 +780,7 @@
 
   function frameSummary() {
     const fr = frameMeta(state.f);
-    return `Frame ${fr.f}: ${typeName(fr.frame_type)}, order hint ${fr.order_hint}, ${fmt(fr.bytes)} bytes, ${fmt(fr.symbol_bits, 0)} entropy bits, ${fmt(fr.blocks)} blocks, base ${qName()} ${fr.base_qindex}`;
+    return `Frame ${fr.f}: ${typeName(fr.frame_type)}${ohPart(fr)}, ${fmt(fr.bytes)} bytes, ${fmt(fr.symbol_bits, 0)} entropy bits, ${fmt(fr.blocks)} blocks, base ${qName()} ${fr.base_qindex}`;
   }
 
   // ------------------------------------------------------------ viewport
@@ -1247,9 +1272,9 @@
     if (o.compound_type) facts += kvRow('Compound', esc(o.compound_type));
     if (o.interp_filter) facts += kvRow('Interpolation', esc(o.interp_filter));
     facts += kvRow('Skip residual', o.skip_txfm ? 'yes' : 'no') + (o.skip_mode ? kvRow('Skip mode', 'yes') : '');
-    facts += kvRow('Transform', `${esc(o.tx_size)} ${esc(o.tx_type)}`) + kvRow(isVvc() ? 'QP' : 'Qindex', fmt(o.qindex));
+    facts += kvRow('Transform', `${esc(o.tx_size)} ${esc(o.tx_type)}`) + kvRow(usesQp() ? 'QP' : 'Qindex', fmt(o.qindex));
     if (o.segment_id) facts += kvRow('Segment', fmt(o.segment_id));
-    if (!isVvc()) facts += kvRow('CDEF index', fmt(o.cdef_idx));
+    if (hasCdef()) facts += kvRow('CDEF index', fmt(o.cdef_idx));
     if (extra.angle_delta) facts += kvRow('Angle delta', `${extra.angle_delta[0]} / ${extra.angle_delta[1]}`, 'luma / chroma');
     if (extra.cfl) facts += kvRow('CfL', esc(JSON.stringify(extra.cfl)));
     if (extra.palette_size) facts += kvRow('Palette size', `${extra.palette_size[0]} / ${extra.palette_size[1]}`);
@@ -1261,7 +1286,7 @@
         r ? `superblock ${r[0]}: ${fmt(r[3], 0)} cycles, ${ARCH_MODULES()[r[4]]} slowest` : '');
     }
     const codec = (state.manifest.stream.codec || '').toUpperCase();
-    const extRows = Object.entries(ext).filter(([k]) => k !== '_').map(([k, v]) => kvRow(k, esc(Array.isArray(v) ? v.join(', ') : v))).join('');
+    const extRows = Object.entries(ext).filter(([k]) => k !== '_').map(([k, v]) => kvRow(k, esc(extText(v)))).join('');
     const chroma = isChromaBlock(state.sel);
     const path = partitionPath(o.x, o.y, chroma ? 'chroma' : 'luma');
     const syms = symbolsOfBlock(state.sel);
@@ -1307,11 +1332,11 @@
     const fr = state.payload.frame;
     const m = frameMeta(state.f);
     let facts = kvRow('Decode index', fr.f) + kvRow('Output index', fmt(m.out_n)) + kvRow('Temporal unit', fr.tu)
-      + kvRow('Frame type', esc(fr.frame_type)) + kvRow('Order hint', fr.order_hint)
+      + kvRow('Frame type', esc(fr.frame_type)) + (fr.order_hint === null || fr.order_hint === undefined ? '' : kvRow('Order hint', fr.order_hint))
       + (fr.display_order_hint !== undefined ? kvRow('Display order hint', fr.display_order_hint) : '')
       + kvRow('Shown', fr.show ? 'immediately' : (fr.implicit_output ? 'later (implicit output)' : 'no'))
       + kvRow('Size', `${fr.width}×${fr.height}`) + kvRow('Superblock', `${fr.sb_size}×${fr.sb_size}`)
-      + kvRow(isVvc() ? 'Slice QP' : 'Base qindex', fr.base_qindex)
+      + kvRow(usesQp() ? 'Slice QP' : 'Base qindex', fr.base_qindex)
       + kvRow('Tiles', `${fr.tiles ? fr.tiles.cols : 1}×${fr.tiles ? fr.tiles.rows : 1}`)
       + kvRow('Bytes', fmt((fr.units || {}).bytes), 'all OBUs of this frame') + kvRow('Entropy bits', fmt((fr.stats || {}).symbol_bits, 1))
       + kvRow('Recon MD5', `<span class="mono">${esc((fr.recon || {}).md5)}</span>`);
@@ -1326,12 +1351,36 @@
     const obj = (o) => Object.entries(o || {}).map(([k, v]) => kvRow(k, esc(typeof v === 'object' ? JSON.stringify(v) : v))).join('');
     const refs = (fr.refs || []).map((r, i) => `<tr><td>${esc(r.name || 'REF' + i)}</td><td class="num">${fmt(r.slot)}</td><td class="num">${fmt(r.order_hint)}</td></tr>`).join('');
     const units = (fr.units_list || []).map((u) => `<tr><td class="num">${u.i}</td><td>${esc(u.type_name)}</td><td class="num">${fmt(u.offset)}</td><td class="num">${fmt(u.size)}</td></tr>`).join('');
+    // IR 0.2 header values: quantizer deltas and matrices, segmentation, the picture's PPS (VVC, HEVC)
+    const quant = {};
+    for (const k of ['q_delta', 'delta_q', 'qm']) if (fr[k]) quant[k] = fr[k];
+    const seg = fr.segmentation;
+    let segHtml = '';
+    if (seg && seg.segmentation_enabled) {
+      const head = {};
+      for (const [k, v] of Object.entries(seg)) if (!['features', 'qindex', 'lossless'].includes(k)) head[k] = v;
+      const rows = [];
+      for (let i = 0; i <= (seg.last_active_segid || 0); i++) {
+        const ft = Object.entries((seg.features || {})[String(i)] || {}).map(([k, v]) => `${k} ${v}`).join(', ');
+        rows.push(`<tr><td class="num">${i}</td><td class="num">${fmt((seg.qindex || [])[i])}</td><td>${(seg.lossless || [])[i] ? 'yes' : 'no'}</td><td>${esc(ft || 'none')}</td></tr>`);
+      }
+      segHtml = `<h3>Segmentation</h3><dl class="kv">${obj(head)}</dl>
+        <table class="grid"><thead><tr><th class="num">Seg</th><th class="num">qindex</th><th>Lossless</th><th>Features</th></tr></thead><tbody>${rows.join('')}</tbody></table>`;
+    } else if (seg) {
+      segHtml = '<h3>Segmentation</h3><p class="note">Off in this frame.</p>';
+    }
+    const ex = fr.ext || {};
+    const pps = (ex.vvc || ex.hevc || {}).pps;
+    const ppsHtml = pps ? `<details class="ps"><summary>Picture parameter set (${Object.keys(pps).length} fields)</summary><dl class="kv">${obj(pps)}</dl></details>` : '';
     return `<h2>Frame ${fr.f}</h2><p class="sub">${esc(frameSummary())}</p>
       <div class="actions"><button class="chip" data-act="order" aria-pressed="${state.order === 'output'}">Step through output order</button><button class="btn" data-act="copy-frame">Copy for AI</button><span class="toast" id="toast"></span></div>
       <dl class="kv">${facts}</dl>
-      <h3>References</h3><table class="grid"><thead><tr><th>Reference</th><th class="num">Slot</th><th class="num">Order hint</th></tr></thead><tbody>${refs}</tbody></table>
+      <h3>References</h3>${refs ? `<table class="grid"><thead><tr><th>Reference</th><th class="num">Slot</th><th class="num">Order hint</th></tr></thead><tbody>${refs}</tbody></table>` : '<p class="note">None: this frame reads no reference list.</p>'}
       <h3>Coding decisions</h3><dl class="kv">${obj(fr.coding)}</dl>
+      ${Object.keys(quant).length ? `<h3>Quantization</h3><dl class="kv">${obj(quant)}</dl>` : ''}
+      ${segHtml}
       <h3>Filters</h3><dl class="kv">${obj(fr.filters)}</dl>
+      ${ppsHtml}
       <h3>OBUs of this frame</h3><table class="grid"><thead><tr><th class="num">#</th><th>Type</th><th class="num">Offset</th><th class="num">Size</th></tr></thead><tbody>${units}</tbody></table>`;
   }
 
@@ -1506,7 +1555,7 @@
     const lines = [
       `## VC Analyzer block context`,
       `- Stream: ${s.name} (${(s.codec || '').toUpperCase()}, ${s.decoder || ''}, dumper ${s.tool || ''})`,
-      `- Frame: decode index ${fr.f}, output index ${m.out_n ?? 'none'}, ${fr.frame_type}, order hint ${fr.order_hint}, base ${qName()} ${fr.base_qindex}, ${fr.width}x${fr.height}`,
+      `- Frame: decode index ${fr.f}, output index ${m.out_n ?? 'none'}, ${fr.frame_type}${ohPart(fr)}, base ${qName()} ${fr.base_qindex}, ${fr.width}x${fr.height}`,
       `- Block: ${o.bsize} at (${o.x}, ${o.y}) size ${o.w}x${o.h}, ${o.tree} tree, partition ${o.partition}`,
       `- Prediction: ${o.pred}, mode ${o.mode}${o.uv_mode ? ', chroma ' + o.uv_mode : ''}${o.ref0 ? `, ref ${[o.ref0, o.ref1].filter(Boolean).join('+')}, mv (x,y 1/8 pel) (${o.mv0_col},${o.mv0_row})${o.mv1_row !== undefined ? ` (${o.mv1_col},${o.mv1_row})` : ''}` : ''}${o.motion_mode ? ', motion ' + o.motion_mode : ''}${o.interp_filter ? ', filter ' + o.interp_filter : ''}`,
       `- Transform: ${o.tx_size} ${o.tx_type}, skip_txfm ${o.skip_txfm}, ${qName()} ${o.qindex}${o.cdef_idx === null || o.cdef_idx === undefined ? '' : ', cdef index ' + o.cdef_idx}`,
@@ -1535,6 +1584,8 @@
       `- Shown: ${fr.show ? 'immediately' : (fr.implicit_output ? 'later' : 'no')}, tiles ${fr.tiles ? fr.tiles.cols + 'x' + fr.tiles.rows : '1x1'}`,
       `- References: ${(fr.refs || []).map((r, i) => `${r.name || 'REF' + i}=slot ${r.slot}${r.order_hint !== undefined ? ' oh ' + r.order_hint : ''}`).join(', ')}`,
       `- Coding: ${JSON.stringify(fr.coding)}`,
+      ...(fr.qm || fr.q_delta ? [`- Quantization: ${JSON.stringify({ q_delta: fr.q_delta, delta_q: fr.delta_q, qm: fr.qm })}`] : []),
+      ...(fr.segmentation ? [`- Segmentation: ${JSON.stringify(fr.segmentation)}`] : []),
       `- Filters: ${JSON.stringify(fr.filters)}`,
       `- Prediction share: ${hist('pred')}`,
       `- Modes: ${hist('mode')}`,
@@ -1618,10 +1669,11 @@
 
   // ------------------------------------------------------------ controls
   function renderChips() {
-    $('#fillGroup').innerHTML = FILLS.filter((f) => !f.arch || hasArch()).map((f) => `<button class="chip" data-fill="${f.id}" aria-pressed="${state.fill === f.id}" title="Fill blocks by ${f.label.toLowerCase()} (${f.key})">${f.label}<span class="hk">${f.key}</span></button>`).join('');
-    $('#lineGroup').innerHTML = LINES.filter((l) => !l.diffOnly || state.diff).map((l) => `<button class="chip" data-line="${l.id}" aria-pressed="${state.lines.has(l.id)}" title="${l.label} (${l.key})">${l.label}<span class="hk">${l.key}</span></button>`).join('');
+    $('#fillGroup').innerHTML = FILLS.filter((f) => !f.arch || hasArch()).map((f) => (f.id === 'qindex' && usesQp() ? { ...f, label: 'QP' } : f)).map((f) => `<button class="chip" data-fill="${f.id}" aria-pressed="${state.fill === f.id}" title="Fill blocks by ${f.label.toLowerCase()} (${f.key})">${f.label}<span class="hk">${f.key}</span></button>`).join('');
+    $('#lineGroup').innerHTML = LINES.filter(lineShown).map((l) => `<button class="chip" data-line="${l.id}" aria-pressed="${state.lines.has(l.id)}" title="${l.label} (${l.key})">${l.label}<span class="hk">${l.key}</span></button>`).join('');
   }
   function setFill(id) { state.fill = id; renderChips(); renderLegend(); requestRender(); writeHash(); }
+  function lineShown(l) { return (!l.diffOnly || state.diff) && (!l.chromaTree || hasChromaTree()); }
   function toggleLine(id) { state.lines.has(id) ? state.lines.delete(id) : state.lines.add(id); renderChips(); requestRender(); writeHash(); }
   function select(bi) {
     state.sel = bi;
@@ -1759,7 +1811,7 @@
       else if (k === 'x' && state.diff) flipAB();
       else {
         const f = FILLS.find((x) => x.key === k && (!x.arch || hasArch())); if (f) { setFill(f.id); return; }
-        const l = LINES.find((x) => x.key === k); if (l && (!l.diffOnly || state.diff)) toggleLine(l.id);
+        const l = LINES.find((x) => x.key === k); if (l && lineShown(l)) toggleLine(l.id);
       }
     });
   }
