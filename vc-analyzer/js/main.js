@@ -29,23 +29,25 @@
  *   open     "Open stream" dialog, upload, probe, drag and drop
  *   jobs     job tray: polling, progress, cancel, log, opening a ready analysis
  *   library  Library dialog: list, filter, open, delete
+ *   hw       HW tab: Arch Model L0 result, config editor, recalculation, comparison
  *   main     boot, ?perf=1 run, window.__vca probe
- * The last four need `vca serve` with jobs (caps.jobs; Library: caps.server)
+ * open, jobs, library and the HW editor need `vca serve` with jobs (caps.jobs; Library: caps.server)
  * and stay hidden and silent on the static site and in an opened folder.
  */
-import { C, FILLS, LINES, PERF, perf, state } from './state.js?v=bd3828335b';
-import { setEmpty, setStatus } from './util.js?v=bd3828335b';
-import { caps, discoverStreams } from './data.js?v=bd3828335b';
-import { openSource, renderPicker } from './source.js?v=bd3828335b';
-import { isChromaBlock, orderedFrames, selectFrame } from './frames.js?v=bd3828335b';
-import { canvas, isRenderPending } from './view.js?v=bd3828335b';
-import { renderTab } from './inspector.js?v=bd3828335b';
-import { parseHash } from './hash.js?v=bd3828335b';
-import { wire } from './controls.js?v=bd3828335b';
-import { loadHealth, loadSession } from './api.js?v=bd3828335b';
-import { initOpen, openSnap, showServerEmpty } from './open.js?v=bd3828335b';
-import { initJobs, jobsSnap } from './jobs.js?v=bd3828335b';
-import { initLibrary, librarySnap } from './library.js?v=bd3828335b';
+import { C, FILLS, LINES, PERF, perf, state } from './state.js?v=dfa6aefcca';
+import { setEmpty, setStatus } from './util.js?v=dfa6aefcca';
+import { caps, discoverStreams } from './data.js?v=dfa6aefcca';
+import { openSource, renderPicker } from './source.js?v=dfa6aefcca';
+import { isChromaBlock, orderedFrames, selectFrame } from './frames.js?v=dfa6aefcca';
+import { canvas, isRenderPending } from './view.js?v=dfa6aefcca';
+import { renderTab } from './inspector.js?v=dfa6aefcca';
+import { parseHash } from './hash.js?v=dfa6aefcca';
+import { wire } from './controls.js?v=dfa6aefcca';
+import { loadHealth, loadSession } from './api.js?v=dfa6aefcca';
+import { initOpen, openSnap, showServerEmpty } from './open.js?v=dfa6aefcca';
+import { initJobs, jobsSnap } from './jobs.js?v=dfa6aefcca';
+import { initLibrary, librarySnap } from './library.js?v=dfa6aefcca';
+import { hwSnap, initHw } from './hw.js?v=dfa6aefcca';
 
 // ---------------------------------------------------------------- boot
 async function boot() {
@@ -55,7 +57,7 @@ async function boot() {
   if (h.stage) state.stage = h.stage;
   if (h.tab) state.tab = h.tab;
   wire();
-  initOpen(); initLibrary();
+  initOpen(); initLibrary(); initHw();
   renderTab();
   state.streams = await discoverStreams();
   if (caps.server) await loadSession();   // caps.jobs: Open stream, jobs, drop target
@@ -121,6 +123,7 @@ window.__vca = {
       // A1 (read-only): open dialog, job tray, library dialog
       dialog: (document.querySelector('dialog[open]') || {}).id || null,
       open: openSnap(), jobs: jobsSnap(), library: librarySnap(),
+      hw: hwSnap(),   // A2 (read-only): HW tab
     };
   },
   // Client (CSS px) coordinates of the centre of luma pixel (x, y), for clicks.

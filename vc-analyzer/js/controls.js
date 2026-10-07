@@ -1,19 +1,19 @@
 // Toolbar chips, block selection and navigation, pointer and keyboard wiring.
-import { C, FILLS, hasArch, hasChromaTree, LINES, state, usesQp } from './state.js?v=bd3828335b';
-import { $, esc, fmt, setEmpty, setStatus } from './util.js?v=bd3828335b';
-import { caps } from './data.js?v=bd3828335b';
-import { buildPicture, pixelAt } from './planes.js?v=bd3828335b';
-import { openSource, openStreamAt, renderPicker } from './source.js?v=bd3828335b';
-import { renderBraidDebounced } from './braid.js?v=bd3828335b';
-import { flipAB, gotoFirstMismatch, showStage } from './diff.js?v=bd3828335b';
-import { blockAt, frameSummary, isChromaBlock, orderedFrames, selectFrame, stepFrame } from './frames.js?v=bd3828335b';
-import { canvas, fitCanvasHeight, fitView, requestRender, setZoom, toImage, zoomAt } from './view.js?v=bd3828335b';
-import { renderLegend } from './legend.js?v=bd3828335b';
-import { blockObject, renderTab } from './inspector.js?v=bd3828335b';
-import { aiFrameContext, copyBlockForAI, copyText } from './ai.js?v=bd3828335b';
-import { writeHash } from './hash.js?v=bd3828335b';
-import { openStreamDialog } from './open.js?v=bd3828335b';
-import { openLibrary } from './library.js?v=bd3828335b';
+import { C, FILLS, hasArch, hasChromaTree, LINES, state, usesQp } from './state.js?v=dfa6aefcca';
+import { $, esc, fmt, setEmpty, setStatus } from './util.js?v=dfa6aefcca';
+import { caps } from './data.js?v=dfa6aefcca';
+import { buildPicture, pixelAt } from './planes.js?v=dfa6aefcca';
+import { openSource, openStreamAt, renderPicker } from './source.js?v=dfa6aefcca';
+import { renderBraidDebounced } from './braid.js?v=dfa6aefcca';
+import { flipAB, gotoFirstMismatch, showStage } from './diff.js?v=dfa6aefcca';
+import { blockAt, frameSummary, isChromaBlock, orderedFrames, selectFrame, stepFrame } from './frames.js?v=dfa6aefcca';
+import { canvas, fitCanvasHeight, fitView, requestRender, setZoom, toImage, zoomAt } from './view.js?v=dfa6aefcca';
+import { renderLegend } from './legend.js?v=dfa6aefcca';
+import { blockObject, renderTab } from './inspector.js?v=dfa6aefcca';
+import { aiFrameContext, copyBlockForAI, copyText } from './ai.js?v=dfa6aefcca';
+import { writeHash } from './hash.js?v=dfa6aefcca';
+import { openStreamDialog } from './open.js?v=dfa6aefcca';
+import { openLibrary } from './library.js?v=dfa6aefcca';
 
 // ------------------------------------------------------------ controls
 export function renderChips() {

@@ -1,11 +1,11 @@
 // The Library dialog (SERVER_API.md §5): every analysis the server lists, a
 // filter, Open, and Delete with an inline confirmation for workspace entries.
-import { state } from './state.js?v=bd3828335b';
-import { $, esc, fmt } from './util.js?v=bd3828335b';
-import { caps } from './data.js?v=bd3828335b';
-import { api, fmtBytes, fmtDate, problemHTML, server, toast } from './api.js?v=bd3828335b';
-import { closeStream, openStreamAt, refreshStreams } from './source.js?v=bd3828335b';
-import { openStreamDialog, showServerEmpty } from './open.js?v=bd3828335b';
+import { state } from './state.js?v=dfa6aefcca';
+import { $, esc, fmt } from './util.js?v=dfa6aefcca';
+import { caps } from './data.js?v=dfa6aefcca';
+import { api, fmtBytes, fmtDate, problemHTML, server, toast } from './api.js?v=dfa6aefcca';
+import { closeStream, openStreamAt, refreshStreams } from './source.js?v=dfa6aefcca';
+import { openStreamDialog, showServerEmpty } from './open.js?v=dfa6aefcca';
 
 let confirmId = null, loadErr = null;
 const rowErr = new Map();

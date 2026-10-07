@@ -3,11 +3,12 @@
 // Jobs live on the server, so the tray comes back after a reload: it shows
 // the jobs that are queued or running, the ones this page saw running, and
 // the ones that ended in the minute before the page loaded.
-import { state } from './state.js?v=bd3828335b';
-import { $, esc } from './util.js?v=bd3828335b';
-import { caps } from './data.js?v=bd3828335b';
-import { api, apiText, fmtSeconds, parseTime, problemHTML, server, toast } from './api.js?v=bd3828335b';
-import { openStreamAt, refreshStreams } from './source.js?v=bd3828335b';
+import { state } from './state.js?v=dfa6aefcca';
+import { $, esc } from './util.js?v=dfa6aefcca';
+import { caps } from './data.js?v=dfa6aefcca';
+import { api, apiText, fmtSeconds, parseTime, problemHTML, server, toast } from './api.js?v=dfa6aefcca';
+import { openStreamAt, refreshStreams } from './source.js?v=dfa6aefcca';
+import { archJobEnded } from './hw.js?v=dfa6aefcca';
 
 const rows = new Map();   // job id -> row record (see record())
 const LOADED = Date.now();
@@ -15,6 +16,9 @@ const RECENT_MS = 60000;
 const LOG_TAIL = 16384;   // bytes of log shown when it is opened
 const ACTIVE = new Set(['queued', 'running']);
 const isActive = (j) => ACTIVE.has(j.state);
+// HW model jobs (SERVER_API.md §11): they rewrite an analysis that is already open, so
+// the HW tab reloads it in place instead of the "open when ready" of analyze jobs.
+const isArch = (j) => j.kind === 'arch';
 const COLLAPSE_MS = 6000;   // the tray folds to its header this long after the last active job ends
 const LONG_LINE = 140;      // outcome lines longer than this are clamped, the full text in the tooltip
 let timer = 0, busy = false, again = false, offline = null, expanded = true, firstList = true;
@@ -23,7 +27,7 @@ let dismissed = new Set();
 try { dismissed = new Set(JSON.parse(sessionStorage.getItem('vca.dismissed') || '[]')); } catch (e) { /* storage blocked */ }
 
 const record = (job) => ({ job, at: performance.now(), seen: isActive(job), fromPage: false, startSeq: 0, codec: null,
-  el: null, log: '', logNext: 0, logOpen: false, logBusy: false, actErr: null, opened: false });
+  el: null, log: '', logNext: 0, logOpen: false, logBusy: false, actErr: null, opened: false, archDone: false });
 
 // Read-only view for window.__vca.snap() (tests).
 export function jobsSnap() {
@@ -51,12 +55,24 @@ export function lastOutcome({ path = null, file_id = null } = {}) {
 // A job this page just started (open.js): shown at once, opened when ready.
 export function trackJob(job, { fromPage = true, codec = null } = {}) {
   const r = rows.get(job.id) || record(job);
-  r.job = job; r.at = performance.now(); r.seen = true; r.fromPage = fromPage; r.startSeq = state.openSeq; r.codec = codec;
+  // a poll that answered before the POST did may already hold the job's end: keep it
+  if (!(r.job !== job && !isActive(r.job))) r.job = job;
+  r.at = performance.now(); r.seen = true; r.fromPage = fromPage; r.startSeq = state.openSeq; r.codec = codec;
   rows.set(job.id, r);
   firstList = false;
   setExpanded(true);
   render();
+  if (isArch(r.job) && !isActive(r.job)) endArch(r);
   pollJobs(300);
+}
+
+// The HW tab learns once that an arch job it may wait for has ended, from the job's final
+// state, whichever way the end was seen: a poll, this page's Cancel, or an end already
+// there at the first poll after the start.  Jobs that ended before this page saw them run are left alone.
+async function endArch(r) {
+  if (r.archDone || !isArch(r.job) || isActive(r.job) || !r.seen) return;
+  r.archDone = true;
+  await archJobEnded(r.job);
 }
 
 export function initJobs() {
@@ -107,18 +123,20 @@ async function poll() {
 }
 
 async function merge(list) {
-  const ready = [], ended = [];
+  const ready = [], ended = [], archEnded = [];
   for (const j of list) {
     let r = rows.get(j.id);
     const prev = r ? r.job : null;
     if (!r) { r = record(j); rows.set(j.id, r); }
     r.job = j; r.at = performance.now();
     if (isActive(j)) r.seen = true;
-    if (j.ready && j.analysis && !(prev && prev.ready) && r.seen) ready.push(r);
+    if (j.ready && j.analysis && !(prev && prev.ready) && r.seen && !isArch(j)) ready.push(r);
     if (!isActive(j) && prev && isActive(prev)) ended.push(r);
+    if (isArch(j) && !isActive(j) && r.seen && !r.archDone) archEnded.push(r);
   }
-  if (ready.length || ended.length) { try { await refreshStreams(); } catch (e) { /* the list comes back next time */ } }
+  if (ready.length || ended.length || archEnded.length) { try { await refreshStreams(); } catch (e) { /* the list comes back next time */ } }
   for (const r of ready) await whenReady(r);
+  for (const r of archEnded) await endArch(r);
   // a job of this page that failed: its row says why (no toast on top of it)
   const failed = ended.filter((r) => r.job.state === 'failed' && r.fromPage);
   if (failed.length) {
@@ -153,6 +171,7 @@ async function cancel(r, b) {
   } catch (e) { r.actErr = e; }
   b.disabled = false;
   render();
+  if (isArch(r.job) && !isActive(r.job)) await endArch(r);
   pollJobs(0);
 }
 async function openJob(r) {
@@ -245,6 +264,7 @@ function shown(r) {
 }
 const phaseOf = (j, name) => ((j.phases || []).find((p) => p.name === name) || {}).state;
 
+const slotOf = (j) => ((j.options && j.options.slot) === 'b' ? 'comparison B' : 'A');
 const PHASE_WORDS = { probe: 'reading the file', extract: 'extracting the video track', decode: 'decoding', ingest: 'building the store', hw: 'running the HW model', verify: 'checking against the reference decoder' };
 function phaseText(j) {
   const pct = j.fraction === null || j.fraction === undefined ? '' : ` ${Math.round(j.fraction * 100)} %`;
@@ -255,6 +275,7 @@ function phaseText(j) {
   }
   if (j.state === 'cancelled') return 'Cancelled';
   if (j.state === 'succeeded') return 'Done';
+  if (isArch(j)) return `Calculating the HW model (draft), ${slotOf(j)}`;
   switch (j.phase) {
     case 'probe': return 'Reading the file';
     case 'extract': return 'Extracting the video track with FFmpeg';
@@ -292,6 +313,11 @@ function outcomeHTML(r) {
   if (r.actErr) out.push(`<span class="line problem">${problemHTML(r.actErr)}</span>`);
   if (j.state === 'failed' && j.error) out.push(`<span class="line problem">${problemHTML(j.error)}</span>`);
   for (const w of j.warnings || []) out.push(textLine(w, 'warn'));
+  if (isArch(j)) {
+    if (j.state === 'succeeded') out.push(textLine(slotOf(j) === 'A' ? 'HW model updated: the w and f fills and the HW tab show it.' : 'Comparison B is in the HW tab.', 'good'));
+    else if (j.state === 'cancelled') out.push(textLine('Cancelled. The earlier HW model result stays.'));
+    return out.join('');
+  }
   if (j.state === 'cancelled') out.push(textLine(j.ready ? 'Cancelled during the check. The analysis is kept.' : 'Cancelled. Nothing was kept.'));
   if (j.ready && j.analysis && !entryOf(j) && !isActive(j)) {   // state.streams is the server's list (read before initJobs)
     out.push(textLine('The analysis was deleted from the Library.'));
@@ -378,7 +404,10 @@ function updateRow(r) {
   const j = r.job, el = r.el;
   el.dataset.state = j.state;
   const name = el.querySelector('.job-name');
-  name.textContent = (j.source && j.source.name) || j.id;
+  // an arch job's source name is the stream file (often stream.ivf): the analysis title says which one
+  const what = isArch(j) ? (entryOf(j) || {}).title || (j.source && j.source.name) || j.analysis || j.id
+    : (j.source && j.source.name) || (entryOf(j) || {}).title || j.analysis || j.id;
+  name.textContent = isArch(j) ? `HW model ${slotOf(j)}: ${what}` : what;
   name.title = (j.source && (j.source.path || j.source.name)) || '';
   const e = entryOf(j);
   const codec = (e && e.codec) || r.codec;

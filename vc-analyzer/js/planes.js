@@ -1,7 +1,7 @@
 // Pixel planes: stacked Y/U/V PNG -> sample arrays -> pictures, and sample values under the pointer.
-import { frameMeta, perfMark, state } from './state.js?v=bd3828335b';
-import { clamp } from './util.js?v=bd3828335b';
-import { getBlob } from './data.js?v=bd3828335b';
+import { frameMeta, perfMark, state } from './state.js?v=dfa6aefcca';
+import { clamp } from './util.js?v=dfa6aefcca';
+import { getBlob } from './data.js?v=dfa6aefcca';
 
 // ------------------------------------------------------------- planes
 async function decodePng(blob) {

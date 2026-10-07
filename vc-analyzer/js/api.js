@@ -1,11 +1,11 @@
 // Talking to `vca serve` (20_analyzer/SERVER_API.md): JSON requests with the
 // page's token, server errors as {code, message, hint}, the session and the
 // tool health, sizes and dates for the dialogs, and the toast.
-import { caps, withToken, writeCaps } from './data.js?v=bd3828335b';
-import { $, esc } from './util.js?v=bd3828335b';
+import { caps, withToken, writeCaps } from './data.js?v=dfa6aefcca';
+import { $, esc } from './util.js?v=dfa6aefcca';
 
 export class ApiError extends Error {
-  constructor(status, code, message, hint) { super(message); this.status = status; this.code = code; this.hint = hint || ''; }
+  constructor(status, code, message, hint, field) { super(message); this.status = status; this.code = code; this.hint = hint || ''; this.field = field || null; }
 }
 const OFFLINE_HINT = 'Check that "python -m vca serve" is still running, then reload this page.';
 
@@ -22,7 +22,7 @@ export async function api(path, { method = 'GET', body } = {}) {
   try { data = text ? JSON.parse(text) : null; } catch (e) { data = null; }
   if (!r.ok) {
     const er = (data && data.error) || {};
-    throw new ApiError(r.status, er.code || `http_${r.status}`, er.message || `The server answered HTTP ${r.status}.`, er.hint || '');
+    throw new ApiError(r.status, er.code || `http_${r.status}`, er.message || `The server answered HTTP ${r.status}.`, er.hint || '', er.field);
   }
   return data;
 }

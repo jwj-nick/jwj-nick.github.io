@@ -1,11 +1,12 @@
 // Inspector tabs: Block, Diff, Frame, Syntax, Stats, Stream.
-import { BASE_STAGES, C, frameMeta, hasCdef, kindLabel, STAGES, state, usesQp } from './state.js?v=bd3828335b';
-import { $, esc, extText, fmt, refColor } from './util.js?v=bd3828335b';
-import { stageDiffers } from './planes.js?v=bd3828335b';
-import { focusStage } from './diff.js?v=bd3828335b';
-import { blockAt, chromaAt, frameSummary, isChromaBlock, partitionPath } from './frames.js?v=bd3828335b';
-import { ARCH_MODULES, archOf } from './arch.js?v=bd3828335b';
-import { hasSymbols, symbolsOfBlock, symbolsReady, symtype } from './symbols.js?v=bd3828335b';
+import { BASE_STAGES, C, frameMeta, hasCdef, kindLabel, STAGES, state, usesQp } from './state.js?v=dfa6aefcca';
+import { $, esc, extText, fmt, refColor } from './util.js?v=dfa6aefcca';
+import { stageDiffers } from './planes.js?v=dfa6aefcca';
+import { focusStage } from './diff.js?v=dfa6aefcca';
+import { blockAt, chromaAt, frameSummary, isChromaBlock, partitionPath } from './frames.js?v=dfa6aefcca';
+import { ARCH_MODULES, archOf } from './arch.js?v=dfa6aefcca';
+import { hasSymbols, symbolsOfBlock, symbolsReady, symtype } from './symbols.js?v=dfa6aefcca';
+import { hwTabShown, renderHwTab } from './hw.js?v=dfa6aefcca';
 
 // ------------------------------------------------------------ inspector
 export function blockObject(bi) {
@@ -232,8 +233,10 @@ function renderStreamTab() {
 export function renderTabs() {
   const tabs = [['block', 'Block'], ['frame', 'Frame'], ['syntax', 'Syntax'], ['stats', 'Stats'], ['stream', 'Stream']];
   if (state.diff) tabs.splice(1, 0, ['diff', 'Diff']);
-  else if (state.tab === 'diff') state.tab = 'block';
-  $('#tabs').innerHTML = tabs.map(([id, label]) => `<button role="tab" data-tab="${id}" aria-selected="${state.tab === id}">${label}</button>`).join('');
+  if (hwTabShown()) tabs.push(['hw', 'HW']);
+  if (!tabs.some(([id]) => id === state.tab)) state.tab = 'block';
+  const tips = { hw: 'HW model (draft): estimated cycles, bottleneck and bandwidth, and its config' };
+  $('#tabs').innerHTML = tabs.map(([id, label]) => `<button role="tab" data-tab="${id}" aria-selected="${state.tab === id}"${tips[id] ? ` title="${tips[id]}"` : ''}>${label}</button>`).join('');
 }
 
 function stageSummary(r) {
@@ -302,7 +305,8 @@ export function renderTab() {
   document.querySelectorAll('#tabs button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === state.tab)));
   if (!state.manifest || !state.payload) { body.innerHTML = '<p class="sub">Load a stream to begin.</p>'; return; }
   const scroll = body.scrollTop;
-  body.innerHTML = { block: renderBlockTab, diff: renderDiffTab, frame: renderFrameTab, syntax: renderSyntaxTab, stats: renderStatsTab, stream: renderStreamTab }[state.tab]();
+  body.innerHTML = { block: renderBlockTab, diff: renderDiffTab, frame: renderFrameTab, syntax: renderSyntaxTab, stats: renderStatsTab, stream: renderStreamTab, hw: renderHwTab }[state.tab]();
+  if (state.tab === 'hw') body.scrollTop = scroll;
   if (state.tab === 'syntax') {
     body.scrollTop = scroll;
     const inp = $('#symSearch');

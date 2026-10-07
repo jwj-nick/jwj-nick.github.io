@@ -1,15 +1,15 @@
 // Opening a bundle: manifest, header facts and the pixel stage list; the stream picker.
-import { BASE_STAGES, C, FILLS, hasArch, stageLabel, state } from './state.js?v=bd3828335b';
-import { $, esc, fmt, FRAME_COLORS, setEmpty, setStatus, typeName } from './util.js?v=bd3828335b';
-import { getJSON, listStreams } from './data.js?v=bd3828335b';
-import { renderBraid } from './braid.js?v=bd3828335b';
-import { renderDiffBar } from './diff.js?v=bd3828335b';
-import { selectFrame } from './frames.js?v=bd3828335b';
-import { renderTab, renderTabs } from './inspector.js?v=bd3828335b';
-import { requestRender } from './view.js?v=bd3828335b';
-import { parseHash } from './hash.js?v=bd3828335b';
-import { renderChips } from './controls.js?v=bd3828335b';
-import { renderJobs } from './jobs.js?v=bd3828335b';
+import { BASE_STAGES, C, FILLS, hasArch, stageLabel, state } from './state.js?v=dfa6aefcca';
+import { $, esc, fmt, FRAME_COLORS, setEmpty, setStatus, typeName } from './util.js?v=dfa6aefcca';
+import { getJSON, listStreams } from './data.js?v=dfa6aefcca';
+import { renderBraid } from './braid.js?v=dfa6aefcca';
+import { renderDiffBar } from './diff.js?v=dfa6aefcca';
+import { selectFrame } from './frames.js?v=dfa6aefcca';
+import { renderTab, renderTabs } from './inspector.js?v=dfa6aefcca';
+import { requestRender } from './view.js?v=dfa6aefcca';
+import { parseHash } from './hash.js?v=dfa6aefcca';
+import { renderChips } from './controls.js?v=dfa6aefcca';
+import { renderJobs } from './jobs.js?v=dfa6aefcca';
 
 // ------------------------------------------------------------ picker
 // The picker lists state.streams; an opened folder keeps its own extra option.
@@ -56,11 +56,13 @@ export function closeStream() {
 }
 
 // ------------------------------------------------------------ manifest
-export async function openSource(source, title) {
+// keepView: same picture position and zoom (the HW tab reloads the open analysis).
+export async function openSource(source, title, { keepView = false } = {}) {
   state.source = source;
   state.frameCache.clear(); state.planeCache.clear(); state.symCache.clear(); state.fdiffCache.clear();
   state.syms = null; state.symsFrame = -1; state.diff = null; state.fdiff = null;
-  state.sel = -1; state.payload = null; state.picture = null; state.view.fitted = false;
+  state.sel = -1; state.payload = null; state.picture = null;
+  if (!keepView) state.view.fitted = false;
   state.autoSelected = false;  // the first frame of every stream opens on its costliest block
   setEmpty('Loading stream…');
   try {

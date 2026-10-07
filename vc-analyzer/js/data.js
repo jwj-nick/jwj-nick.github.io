@@ -1,5 +1,5 @@
 // Reading the data contract from a URL or an opened folder, stream discovery and caps.
-import { fetchOpts, perfMark, state } from './state.js?v=bd3828335b';
+import { fetchOpts, perfMark, state } from './state.js?v=dfa6aefcca';
 
 // The per-run token `vca serve` writes into <meta name="vca-token"> (SERVER_API.md §3).
 // Empty on the static site and in an opened folder: then no header is sent.
@@ -12,13 +12,19 @@ export function withToken(url, opts) {
 }
 
 // --------------------------------------------------------- data access
+// `vca serve` lets the browser cache analysis data (max-age): after an HW model job
+// rewrote an analysis, its JSON is fetched with ?r=<revision> (the server ignores it).
+const revs = new Map();   // bundle base -> revision
+export function bustCache(base) { const r = Date.now(); revs.set(base, r); return r; }
+const revOf = (rel) => { const r = revs.get(state.source.base); return r && rel.endsWith('.json') ? `?r=${r}` : ''; };
 export async function getJSON(rel) {
   if (state.source.kind === 'files') {
     const file = state.source.map.get(rel);
     if (!file) throw new Error(`${rel} is missing from the opened folder`);
     return JSON.parse(await file.text());
   }
-  const r = await fetch(state.source.base + rel, withToken(state.source.base + rel, fetchOpts));
+  const url = state.source.base + rel + revOf(rel);
+  const r = await fetch(url, withToken(url, fetchOpts));
   if (!r.ok) throw new Error(`${rel}: HTTP ${r.status}`);
   const text = await r.text();
   perfMark('fetch');
