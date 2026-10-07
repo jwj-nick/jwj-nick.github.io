@@ -1,12 +1,12 @@
 // Legend under the picture for the current fill and picture.
-import { C, qMax, qName, stageLabel, STAGES, state } from './state.js?v=e0ab48eb46';
-import { $, esc, fmt, MISMATCH, modeColor, RAMP, refColor, rgb } from './util.js?v=e0ab48eb46';
-import { focusStage } from './diff.js?v=e0ab48eb46';
-import { bitsMax } from './view.js?v=e0ab48eb46';
+import { C, qMax, qName, stageLabel, STAGES, state } from './state.js?v=bd3828335b';
+import { $, esc, fmt, MISMATCH, modeColor, RAMP, refColor, rgb } from './util.js?v=bd3828335b';
+import { focusStage } from './diff.js?v=bd3828335b';
+import { bitsMax } from './view.js?v=bd3828335b';
 
 // Below 1 bit per pixel two decimals would round small maxima to 0.00.
 const bitsMaxText = (m) => (m >= 1 ? fmt(m, 2) : m > 0 ? m.toPrecision(2) : '0');
-import { archLegend } from './arch.js?v=e0ab48eb46';
+import { archLegend } from './arch.js?v=bd3828335b';
 
 export function renderLegend() {
   const el = $('#legend');
@@ -42,6 +42,7 @@ export function renderLegend() {
     const where = state.stage.startsWith('D:') ? `A − B ${STAGES[state.stage.slice(2)].toLowerCase()}` : stageLabel(state.stage);
     html += ` <span class="note">${esc(where)}: ${what}. Amber = positive, cyan = negative.</span>`;
   }
+  if (state.picture && state.picture.kind === 'none') html += ' <span class="note">No picture for this frame: the decoder produced no output.</span>';
   if (state.picture && state.picture.kind === 'b') html += ` <span class="note">${state.picture.same ? 'B equals A at this stage in this frame.' : "B's samples. Press x to flip to A."}</span>`;
   if (state.lines.has('mismatch') && state.fdiff && !state.fdiff.equal) {
     const st = focusStage();

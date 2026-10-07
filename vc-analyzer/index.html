@@ -3,12 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="vca-token" content="">
 <title>VC Analyzer</title>
 <meta name="description" content="Bitstream analyzer for AV2 and AV1: frame reorder timeline, block overlays, pixel stages and entropy-decoded syntax per block.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=e0ab48eb46">
+<link rel="stylesheet" href="app.css?v=bd3828335b">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%231d232b'/%3E%3Cpath d='M2 12h3V6H2zm4.5 0h3V3h-3zM11 12h3V8h-3z' fill='%23ffb347'/%3E%3C/svg%3E">
 </head>
 <body>
@@ -30,7 +31,9 @@
       <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
   </div>
   <div class="top-actions">
-    <label class="btn file-btn" title="Open a bundle folder written by `vca export`">
+    <button class="btn" id="openStreamBtn" data-needs="server jobs" title="Open a stream file and analyze it (o). You can also drop a file anywhere on this window.">Open stream</button>
+    <button class="btn" id="libraryBtn" data-needs="server" title="Analyses this server keeps: open or delete them (l)">Library</button>
+    <label class="btn file-btn" title="Open a bundle: a folder written by vca export (manifest.json, frames, planes). It is read in this browser; nothing is uploaded.">
       <input type="file" id="folderInput" webkitdirectory directory multiple aria-label="Open bundle folder">
       Open bundle
     </label>
@@ -109,6 +112,8 @@
       <tr><td><kbd>Shift</kbd>+<kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd></td><td>Select the neighbouring block. The x, y box selects the block at a pixel; <kbd>e</kbd> selects the costliest block.</td></tr>
       <tr><td><kbd>Esc</kbd></td><td>Clear the block selection</td></tr>
       <tr><td><kbd>c</kbd></td><td>Copy the selected block as context for an AI assistant</td></tr>
+      <tr><td><kbd>o</kbd></td><td>Open a stream file and analyze it (local GUI, <code>vca serve</code>)</td></tr>
+      <tr><td><kbd>l</kbd></td><td>Library: the analyses kept by the local GUI</td></tr>
       <tr><td><kbd>?</kbd></td><td>Open this help</td></tr>
       <tr><td><kbd>d</kbd> <kbd>x</kbd></td><td>Diff mode: toggle mismatch outlines; flip the picture between A and B</td></tr>
     </table>
@@ -117,16 +122,117 @@
     <pre>python -m vca serve ref.vca cmodel.vca --diff
 python -m vca export ref.vca -o bundle/ --diff cmodel.vca</pre>
     <h3>Your own streams</h3>
-    <p>Analyze locally with the command line, then either serve it or export a bundle and open the folder here. The page reads the folder in your browser; nothing is uploaded.</p>
+    <p>Start the local GUI with <code>python -m vca serve</code> (or give it a stream file: <code>python -m vca serve clip.mp4</code>). Then press <b>Open stream</b> (<kbd>o</kbd>), choose a file, drop one on the window, or paste its path. The page shows the codec, size and frame count first; <b>Analyze</b> runs the reference decoder's dumper, builds the store and the HW model draft, and opens the result. The job list at the bottom right shows each phase, and Cancel removes what a job wrote so far. Containers (MP4, MKV, WebM, TS) are unpacked with FFmpeg first.</p>
+    <p>After the picture opens, the output is checked against the reference decoder in the background; the job list and the Library show the result. Every analysis is kept in the workspace folder until you delete it in the <b>Library</b> (<kbd>l</kbd>).</p>
+    <p class="fine">The same from the command line, for scripts or a machine without a browser:</p>
     <pre>python -m vca analyze stream.ivf --pixels all
 python -m vca serve stream.vca
 python -m vca export stream.vca -o bundle/</pre>
+    <p class="fine">"Open bundle" reads an exported folder in your browser; nothing is uploaded. Opening and analyzing streams needs the local GUI; the public demo site shows only its examples.</p>
     <p class="fine">Pixel stages come from the reference decoder: recon is the output after in-loop filters, prefilter is the reconstruction before them, pred is the prediction. Coordinates are luma pixels; motion vectors are in 1/8 pel.</p>
     <div class="dialog-actions"><button class="btn" value="close">Close</button></div>
   </form>
 </dialog>
 
-<script type="module" src="js/main.js?v=e0ab48eb46"></script>
+<dialog id="openDialog" class="dialog dialog-wide" aria-labelledby="openTitle">
+  <div class="dialog-inner">
+    <div class="dialog-head">
+      <h2 id="openTitle">Open stream</h2>
+      <button class="icon-btn" type="button" data-act="close" title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <ul class="notes health" id="openHealth" hidden></ul>
+    <button type="button" class="dropzone" id="dropZone" autofocus title="Choose a stream file, or drop one here. It is copied to the workspace and analyzed there.">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4m0 0l-4 4m4-4l4 4M5 14v4a2 2 0 002 2h10a2 2 0 002-2v-4"/></svg>
+      <span class="dz-main">Drop a stream file here, or <u>choose one</u></span>
+      <span class="dz-sub">IVF, OBU, Annex B (.264, .265, .266), MP4, MKV, WebM or TS with AV2, AV1, VVC, HEVC, VP9 or AVC video</span>
+    </button>
+    <input type="file" id="streamFile" hidden aria-label="Stream file">
+    <form class="path-row" id="pathForm">
+      <label for="pathInput">or a file on this computer</label>
+      <div class="path-input">
+        <input type="text" id="pathInput" class="mono" placeholder="C:\videos\clip.mp4" spellcheck="false" autocomplete="off" title="Full path of a stream file on the computer that runs vca serve. Quotes around a pasted path are fine. The file is read where it is, not copied.">
+        <button class="btn" type="submit" id="pathCheck" title="Read the codec, size and frame count of this file (Enter)">Check</button>
+      </div>
+    </form>
+    <div class="open-status" aria-live="polite">
+      <div class="upload-row" id="uploadRow" hidden>
+        <div class="meter" role="progressbar" aria-label="Upload"><i id="uploadBar"></i></div>
+        <span id="uploadText"></span>
+        <button class="btn small" type="button" id="uploadCancel" title="Stop the upload; nothing is kept">Cancel upload</button>
+      </div>
+      <p class="status-line" id="openMsg" hidden></p>
+      <p class="problem" id="openError" hidden></p>
+    </div>
+    <div class="probe-card" id="probeCard" hidden></div>
+    <fieldset class="opts" id="openOptions">
+      <legend>Analysis options</legend>
+      <label class="opt"><span>Codec</span>
+        <select id="optCodec" title="Auto reads the codec from the file. Choose one only when the file does not say it: a codec other than the detected one is refused.">
+          <option value="auto">Auto</option><option value="av2">AV2</option><option value="av1">AV1</option><option value="vvc">VVC</option>
+          <option value="hevc">HEVC</option><option value="vp9">VP9</option><option value="avc">AVC</option></select></label>
+      <label class="opt"><span>Frames</span>
+        <span class="opt-pair"><select id="optFramesMode" title="Analyze the whole stream, or only its first frames in decode order (faster for long streams; the reference decoder check is then skipped)">
+          <option value="all">All frames</option><option value="first">First frames only</option></select>
+        <input type="number" id="optFrames" min="1" step="1" value="10" hidden aria-label="Number of frames" title="How many frames to analyze, counted in decode order"></span></label>
+      <label class="opt"><span>Pixel stages</span>
+        <select id="optPixels" title="All stages keeps prediction, before loop filters and output pictures; Output only uses less disk">
+          <option value="all">All stages</option><option value="recon">Output only</option></select></label>
+      <label class="check"><input type="checkbox" id="optVerify" checked title="After the picture opens, decode the stream with the reference decoder and compare the output MD5"> Check against the reference decoder</label>
+      <label class="check"><input type="checkbox" id="optCrossdec" title="Also compare with a second, independent decoder (AV1 dav1d, VVC VVdeC, FFmpeg for HEVC, VP9 and AVC)"> Also check with a second decoder</label>
+      <label class="check"><input type="checkbox" id="optHw" checked title="Estimate HW cycles and reference fetch with the example config (a draft model, see ARCH_MODEL.md)"> HW model (draft)</label>
+      <p class="opt-note" id="framesNote" hidden></p>
+    </fieldset>
+    <p class="status-line" id="forcedNote" hidden></p>
+    <div class="recent" id="recentBox" hidden>
+      <h3>Recent</h3>
+      <ul id="recentList"></ul>
+    </div>
+    <div class="dialog-actions">
+      <button class="btn" type="button" data-act="close" title="Close without analyzing (Esc)">Close</button>
+      <button class="btn primary" type="button" id="analyzeBtn" disabled title="Choose a file or check a path first">Analyze</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="libraryDialog" class="dialog dialog-wide" aria-labelledby="libTitle">
+  <div class="dialog-inner">
+    <div class="dialog-head">
+      <h2 id="libTitle">Library</h2>
+      <button class="icon-btn" type="button" data-act="close" title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <p class="sub">Analyses this server can show. The ones opened here are kept in the workspace until you delete them.</p>
+    <div class="lib-tools">
+      <input type="search" id="libFilter" class="search" autofocus placeholder="Filter by name or codec" aria-label="Filter the library" title="Show only analyses whose name or codec contains this text">
+      <span class="lib-count" id="libCount" aria-live="polite" hidden></span>
+      <button class="btn" type="button" data-act="open-stream" data-needs="jobs" title="Open a stream file and analyze it (o)">Open stream</button>
+    </div>
+    <div class="lib-wrap"><table class="grid lib-table" id="libTable" hidden></table></div>
+    <p class="lib-empty" id="libEmpty" hidden></p>
+    <p class="lib-foot" id="libFoot"></p>
+  </div>
+</dialog>
+
+<div class="drop-overlay" id="dropOverlay" hidden>
+  <div class="drop-card">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4m0 0l-4 4m4-4l4 4M5 14v4a2 2 0 002 2h10a2 2 0 002-2v-4"/></svg>
+    <b>Drop to analyze</b>
+    <span>One stream file: IVF, OBU, Annex B, MP4, MKV, WebM or TS</span>
+  </div>
+</div>
+
+<aside class="tray" id="jobTray" hidden aria-label="Analysis jobs">
+  <div class="tray-head">
+    <button class="tray-toggle" type="button" id="trayToggle" aria-expanded="true" aria-controls="trayList" title="Show or hide the analysis jobs. The list folds by itself a few seconds after the last job ends.">
+      <span class="tray-title">Jobs</span><span class="tray-sum" id="traySum"></span>
+      <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>
+    </button>
+    <button class="btn small tray-clear" type="button" id="trayClear" hidden title="Remove every finished job from this list. Their analyses stay in the Library.">Clear finished</button>
+  </div>
+  <ol class="tray-list" id="trayList"></ol>
+</aside>
+<div class="toast-pop" id="appToast" role="status" aria-live="polite" hidden></div>
+
+<script type="module" src="js/main.js?v=bd3828335b"></script>
 <script>
   // Browsers do not run module scripts from file://: say so instead of showing a blank page.
   if (location.protocol === 'file:') {

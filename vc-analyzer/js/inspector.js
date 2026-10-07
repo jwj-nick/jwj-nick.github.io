@@ -1,11 +1,11 @@
 // Inspector tabs: Block, Diff, Frame, Syntax, Stats, Stream.
-import { BASE_STAGES, C, frameMeta, hasCdef, kindLabel, STAGES, state, usesQp } from './state.js?v=e0ab48eb46';
-import { $, esc, extText, fmt, refColor } from './util.js?v=e0ab48eb46';
-import { stageDiffers } from './planes.js?v=e0ab48eb46';
-import { focusStage } from './diff.js?v=e0ab48eb46';
-import { blockAt, chromaAt, frameSummary, isChromaBlock, partitionPath } from './frames.js?v=e0ab48eb46';
-import { ARCH_MODULES, archOf } from './arch.js?v=e0ab48eb46';
-import { hasSymbols, symbolsOfBlock, symbolsReady, symtype } from './symbols.js?v=e0ab48eb46';
+import { BASE_STAGES, C, frameMeta, hasCdef, kindLabel, STAGES, state, usesQp } from './state.js?v=bd3828335b';
+import { $, esc, extText, fmt, refColor } from './util.js?v=bd3828335b';
+import { stageDiffers } from './planes.js?v=bd3828335b';
+import { focusStage } from './diff.js?v=bd3828335b';
+import { blockAt, chromaAt, frameSummary, isChromaBlock, partitionPath } from './frames.js?v=bd3828335b';
+import { ARCH_MODULES, archOf } from './arch.js?v=bd3828335b';
+import { hasSymbols, symbolsOfBlock, symbolsReady, symtype } from './symbols.js?v=bd3828335b';
 
 // ------------------------------------------------------------ inspector
 export function blockObject(bi) {
@@ -17,6 +17,8 @@ export function blockObject(bi) {
 }
 
 const kvRow = (k, v, unit) => `<dt>${esc(k)}</dt><dd>${v}${unit ? `<span class="unit">${esc(unit)}</span>` : ''}</dd>`;
+// A raw value as HTML: '–' when the analysis has none (null, missing or empty).
+const val = (v) => (v === null || v === undefined || v === '' ? '–' : esc(v));
 
 function renderBlockTab() {
   if (state.sel < 0) {
@@ -93,15 +95,16 @@ function frameMiniStats() {
 function renderFrameTab() {
   const fr = state.payload.frame;
   const m = frameMeta(state.f);
-  let facts = kvRow('Decode index', fr.f) + kvRow('Output index', fmt(m.out_n)) + kvRow('Temporal unit', fr.tu)
-    + kvRow('Frame type', esc(fr.frame_type)) + (fr.order_hint === null || fr.order_hint === undefined ? '' : kvRow('Order hint', fr.order_hint))
-    + (fr.display_order_hint !== undefined ? kvRow('Display order hint', fr.display_order_hint) : '')
+  // values a cut or damaged stream lacks show as '–' (val), never as null or an empty field
+  let facts = kvRow('Decode index', fr.f) + kvRow('Output index', fmt(m.out_n)) + kvRow('Temporal unit', val(fr.tu))
+    + kvRow('Frame type', val(fr.frame_type)) + (fr.order_hint === null || fr.order_hint === undefined ? '' : kvRow('Order hint', fr.order_hint))
+    + (fr.display_order_hint !== undefined && fr.display_order_hint !== null ? kvRow('Display order hint', fr.display_order_hint) : '')
     + kvRow('Shown', fr.show ? 'immediately' : (fr.implicit_output ? 'later (implicit output)' : 'no'))
-    + kvRow('Size', `${fr.width}×${fr.height}`) + kvRow('Superblock', `${fr.sb_size}×${fr.sb_size}`)
-    + kvRow(usesQp() ? 'Slice QP' : 'Base qindex', fr.base_qindex)
+    + kvRow('Size', `${fmt(fr.width)}×${fmt(fr.height)}`) + kvRow('Superblock', fr.sb_size ? `${fr.sb_size}×${fr.sb_size}` : '–')
+    + kvRow(usesQp() ? 'Slice QP' : 'Base qindex', val(fr.base_qindex))
     + kvRow('Tiles', `${fr.tiles ? fr.tiles.cols : 1}×${fr.tiles ? fr.tiles.rows : 1}`)
     + kvRow('Bytes', fmt((fr.units || {}).bytes), 'all OBUs of this frame') + kvRow('Entropy bits', fmt((fr.stats || {}).symbol_bits, 1))
-    + kvRow('Recon MD5', `<span class="mono">${esc((fr.recon || {}).md5)}</span>`);
+    + kvRow('Recon MD5', (fr.recon || {}).md5 ? `<span class="mono">${esc(fr.recon.md5)}</span>` : '–');
   const A = archOf(state.payload);
   if (A && A.frame && A.frame.modeled) {
     const af = A.frame;
@@ -110,7 +113,7 @@ function renderFrameTab() {
       + kvRow('Reference fetch', `${fmt(af.fetch_bytes / 1024, 1)} KB`, `${fmt(af.fetch_per_pixel, 2)} bytes per pixel; write ${fmt(af.write_bytes / 1024, 1)} KB`)
       + kvRow('Loop filter stages', esc((af.filters || ['?']).join(', ') || 'none'));
   }
-  const obj = (o) => Object.entries(o || {}).map(([k, v]) => kvRow(k, esc(typeof v === 'object' ? JSON.stringify(v) : v))).join('');
+  const obj = (o) => Object.entries(o || {}).map(([k, v]) => kvRow(k, v !== null && typeof v === 'object' ? esc(JSON.stringify(v)) : val(v))).join('');
   const refs = (fr.refs || []).map((r, i) => `<tr><td>${esc(r.name || 'REF' + i)}</td><td class="num">${fmt(r.slot)}</td><td class="num">${fmt(r.order_hint)}</td></tr>`).join('');
   const units = (fr.units_list || []).map((u) => `<tr><td class="num">${u.i}</td><td>${esc(u.type_name)}</td><td class="num">${fmt(u.offset)}</td><td class="num">${fmt(u.size)}</td></tr>`).join('');
   // IR 0.2 header values: quantizer deltas and matrices, segmentation, the picture's PPS (VVC, HEVC)
@@ -207,12 +210,12 @@ function renderStatsTab() {
 
 function renderStreamTab() {
   const s = state.manifest.stream, seq = s.sequence || {};
-  const facts = kvRow('File', esc(s.name)) + kvRow('Container', esc(s.container)) + kvRow('Size', fmt(s.size), 'bytes')
-    + kvRow('Decoder', esc(s.decoder)) + kvRow('Dumper', esc(s.tool)) + kvRow('Source kind', esc(s.source_kind))
+  const facts = kvRow('File', val(s.name)) + kvRow('Container', val(s.container)) + kvRow('Size', fmt(s.size), 'bytes')
+    + kvRow('Decoder', val(s.decoder)) + kvRow('Dumper', val(s.tool)) + kvRow('Source kind', val(s.source_kind))
     + kvRow('Profile', fmt(seq.profile)) + kvRow('Level', fmt(seq.level)) + kvRow('Bit depth', fmt(seq.bit_depth))
     + kvRow('Chroma', seq.monochrome ? 'monochrome' : `subsampling ${seq.subsampling_x}, ${seq.subsampling_y}`)
     + kvRow('Superblock', fmt(seq.sb_size)) + kvRow('Frame rate', s.fps ? fmt(s.fps, 2) : '–', 'fps')
-    + kvRow('Output MD5', `<span class="mono">${esc(s.output_md5)}</span>`);
+    + kvRow('Output MD5', s.output_md5 ? `<span class="mono">${esc(s.output_md5)}</span>` : '–');
   const pill = (t, on) => `<span class="pill ${on ? 'on' : 'off'}">${esc(t.replace(/^enable_/, ''))}</span>`;
   const units = state.manifest.units || [];
   const types = new Map();

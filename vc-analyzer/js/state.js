@@ -12,6 +12,8 @@ export const state = {
   view: { s: 1, ox: 0, oy: 0, fitted: false },
   cellIndex: null, symFilter: '', symLimit: 400,
   loading: -1, pickGen: 0, pickAt: null,  // frame being loaded; last user pick (selectFrame keeps it)
+  folderLabel: '',   // picker text of a folder opened with "Open bundle"
+  openSeq: 0,   // streams the user opened (picker, Library, Open); a job opens its analysis only if this did not change
 };
 // block column -> index.  One object, refilled in place by openSource: modules import
 // the binding, so it is never reassigned.

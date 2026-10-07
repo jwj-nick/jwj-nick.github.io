@@ -25,17 +25,27 @@
  *   inspector  tabs
  *   ai       "Copy for AI"
  *   controls chips, selection, navigation, pointer and keys
+ *   api      `vca serve` application API: requests with the token, session, health, toast
+ *   open     "Open stream" dialog, upload, probe, drag and drop
+ *   jobs     job tray: polling, progress, cancel, log, opening a ready analysis
+ *   library  Library dialog: list, filter, open, delete
  *   main     boot, ?perf=1 run, window.__vca probe
+ * The last four need `vca serve` with jobs (caps.jobs; Library: caps.server)
+ * and stay hidden and silent on the static site and in an opened folder.
  */
-import { C, FILLS, LINES, PERF, perf, state } from './state.js?v=e0ab48eb46';
-import { $, esc, setEmpty, setStatus } from './util.js?v=e0ab48eb46';
-import { caps, discoverStreams } from './data.js?v=e0ab48eb46';
-import { openSource } from './source.js?v=e0ab48eb46';
-import { isChromaBlock, orderedFrames, selectFrame } from './frames.js?v=e0ab48eb46';
-import { canvas, isRenderPending } from './view.js?v=e0ab48eb46';
-import { renderTab } from './inspector.js?v=e0ab48eb46';
-import { parseHash } from './hash.js?v=e0ab48eb46';
-import { wire } from './controls.js?v=e0ab48eb46';
+import { C, FILLS, LINES, PERF, perf, state } from './state.js?v=bd3828335b';
+import { setEmpty, setStatus } from './util.js?v=bd3828335b';
+import { caps, discoverStreams } from './data.js?v=bd3828335b';
+import { openSource, renderPicker } from './source.js?v=bd3828335b';
+import { isChromaBlock, orderedFrames, selectFrame } from './frames.js?v=bd3828335b';
+import { canvas, isRenderPending } from './view.js?v=bd3828335b';
+import { renderTab } from './inspector.js?v=bd3828335b';
+import { parseHash } from './hash.js?v=bd3828335b';
+import { wire } from './controls.js?v=bd3828335b';
+import { loadHealth, loadSession } from './api.js?v=bd3828335b';
+import { initOpen, openSnap, showServerEmpty } from './open.js?v=bd3828335b';
+import { initJobs, jobsSnap } from './jobs.js?v=bd3828335b';
+import { initLibrary, librarySnap } from './library.js?v=bd3828335b';
 
 // ---------------------------------------------------------------- boot
 async function boot() {
@@ -45,12 +55,16 @@ async function boot() {
   if (h.stage) state.stage = h.stage;
   if (h.tab) state.tab = h.tab;
   wire();
+  initOpen(); initLibrary();
   renderTab();
   state.streams = await discoverStreams();
-  const sel = $('#streamSelect');
+  if (caps.server) await loadSession();   // caps.jobs: Open stream, jobs, drop target
+  initJobs();
+  if (caps.jobs) loadHealth();            // the first call also warms WSL on the server
   if (!state.streams.length) {
-    sel.innerHTML = '<option>No stream</option>';
-    setEmpty('No stream to show. Open a bundle folder, or start the local GUI with "python -m vca serve <analysis>".');
+    renderPicker();
+    if (caps.jobs) showServerEmpty();
+    else setEmpty('No stream to show. Open a bundle folder, or start the local GUI with "python -m vca serve <analysis>".');
     return;
   }
   const want = new URLSearchParams(location.search).get('data');
@@ -58,7 +72,7 @@ async function boot() {
   let idx = state.streams.findIndex((s) => wantBase && s.base === wantBase);
   if (idx < 0) idx = 0;
   state.streamIdx = idx;
-  sel.innerHTML = state.streams.map((s, i) => `<option value="${i}" ${i === idx ? 'selected' : ''}>${esc(s.title)}</option>`).join('');
+  renderPicker();
   await openSource({ kind: 'url', base: state.streams[idx].base }, state.streams[idx].title);
   if (PERF) await perfRun();
 }
@@ -104,6 +118,9 @@ window.__vca = {
       view: { ...state.view }, diff: !!state.diff, codec: state.manifest ? state.manifest.stream.codec : null,
       streams: state.streams.length, streamIdx: state.streamIdx, source: state.source ? state.source.kind : null,
       caps: { ...caps },
+      // A1 (read-only): open dialog, job tray, library dialog
+      dialog: (document.querySelector('dialog[open]') || {}).id || null,
+      open: openSnap(), jobs: jobsSnap(), library: librarySnap(),
     };
   },
   // Client (CSS px) coordinates of the centre of luma pixel (x, y), for clicks.

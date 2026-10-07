@@ -1,16 +1,19 @@
 // Toolbar chips, block selection and navigation, pointer and keyboard wiring.
-import { C, FILLS, hasArch, hasChromaTree, LINES, state, usesQp } from './state.js?v=e0ab48eb46';
-import { $, esc, fmt, setEmpty, setStatus } from './util.js?v=e0ab48eb46';
-import { buildPicture, pixelAt } from './planes.js?v=e0ab48eb46';
-import { openSource } from './source.js?v=e0ab48eb46';
-import { renderBraidDebounced } from './braid.js?v=e0ab48eb46';
-import { flipAB, gotoFirstMismatch, showStage } from './diff.js?v=e0ab48eb46';
-import { blockAt, frameSummary, isChromaBlock, orderedFrames, selectFrame, stepFrame } from './frames.js?v=e0ab48eb46';
-import { canvas, fitCanvasHeight, fitView, requestRender, setZoom, toImage, zoomAt } from './view.js?v=e0ab48eb46';
-import { renderLegend } from './legend.js?v=e0ab48eb46';
-import { blockObject, renderTab } from './inspector.js?v=e0ab48eb46';
-import { aiFrameContext, copyBlockForAI, copyText } from './ai.js?v=e0ab48eb46';
-import { writeHash } from './hash.js?v=e0ab48eb46';
+import { C, FILLS, hasArch, hasChromaTree, LINES, state, usesQp } from './state.js?v=bd3828335b';
+import { $, esc, fmt, setEmpty, setStatus } from './util.js?v=bd3828335b';
+import { caps } from './data.js?v=bd3828335b';
+import { buildPicture, pixelAt } from './planes.js?v=bd3828335b';
+import { openSource, openStreamAt, renderPicker } from './source.js?v=bd3828335b';
+import { renderBraidDebounced } from './braid.js?v=bd3828335b';
+import { flipAB, gotoFirstMismatch, showStage } from './diff.js?v=bd3828335b';
+import { blockAt, frameSummary, isChromaBlock, orderedFrames, selectFrame, stepFrame } from './frames.js?v=bd3828335b';
+import { canvas, fitCanvasHeight, fitView, requestRender, setZoom, toImage, zoomAt } from './view.js?v=bd3828335b';
+import { renderLegend } from './legend.js?v=bd3828335b';
+import { blockObject, renderTab } from './inspector.js?v=bd3828335b';
+import { aiFrameContext, copyBlockForAI, copyText } from './ai.js?v=bd3828335b';
+import { writeHash } from './hash.js?v=bd3828335b';
+import { openStreamDialog } from './open.js?v=bd3828335b';
+import { openLibrary } from './library.js?v=bd3828335b';
 
 // ------------------------------------------------------------ controls
 export function renderChips() {
@@ -125,15 +128,7 @@ export function wire() {
   });
   $('#diffBar').addEventListener('click', (e) => { const b = e.target.closest('[data-act]'); if (b && b.dataset.act === 'goto-mismatch') gotoFirstMismatch(); });
   $('#braid').addEventListener('click', (e) => { const r = e.target.closest('[data-f]'); if (r && r.dataset.f !== '') selectFrame(+r.dataset.f); });
-  $('#streamSelect').addEventListener('change', (e) => {
-    const i = +e.target.value, s = state.streams[i];
-    if (!s) return;
-    state.streamIdx = i;
-    const url = new URL(location.href);
-    url.searchParams.set('data', s.base); url.hash = '';
-    history.replaceState(null, '', url);
-    openSource({ kind: 'url', base: s.base }, s.title);
-  });
+  $('#streamSelect').addEventListener('change', (e) => { const i = +e.target.value; if (state.streams[i]) openStreamAt(i); });
   $('#folderInput').addEventListener('change', (e) => {
     const files = [...e.target.files];
     const man = files.filter((f) => f.name === 'manifest.json').sort((a, b) => a.webkitRelativePath.split('/').length - b.webkitRelativePath.split('/').length)[0];
@@ -141,11 +136,11 @@ export function wire() {
     const root = man.webkitRelativePath.slice(0, -'manifest.json'.length);
     const map = new Map();
     files.forEach((f) => { if (f.webkitRelativePath.startsWith(root)) map.set(f.webkitRelativePath.slice(root.length), f); });
-    const opt = document.createElement('option');
-    opt.textContent = 'Local folder: ' + (root.replace(/\/$/, '') || man.webkitRelativePath);
-    opt.value = '-1'; opt.selected = true;
-    $('#streamSelect').appendChild(opt);
-    openSource({ kind: 'files', map }, root);
+    state.folderLabel = 'Local folder: ' + (root.replace(/\/$/, '') || man.webkitRelativePath);
+    state.streamIdx = -1; state.openSeq++;
+    const opened = openSource({ kind: 'files', map }, root);   // sets state.source before its first await
+    renderPicker();
+    return opened;
   });
 
   // pointer: pan, click, hover, pinch
@@ -195,7 +190,7 @@ export function wire() {
 
   document.addEventListener('keydown', (e) => {
     if ((e.target.closest && e.target.closest('input, select, textarea')) || e.metaKey || e.ctrlKey || e.altKey) return;
-    if ($('#helpDialog').open) return;
+    if (document.querySelector('dialog[open]')) return;   // Help, Open stream, Library: their own keys
     const k = e.key;
     if (e.shiftKey && k.startsWith('Arrow')) {
       stepBlock(k === 'ArrowLeft' ? -1 : k === 'ArrowRight' ? 1 : 0, k === 'ArrowUp' ? -1 : k === 'ArrowDown' ? 1 : 0); e.preventDefault();
@@ -210,6 +205,9 @@ export function wire() {
     else if (k === '+' || k === '=') setZoom(state.view.s * 1.5);
     else if (k === '-' || k === '_') setZoom(state.view.s / 1.5);
     else if (k === '?') $('#helpDialog').showModal();
+    // o, l: server only (the modules check caps); no default, so the key does not type into the dialog's text box
+    else if (k === 'o' && caps.jobs) { e.preventDefault(); openStreamDialog(); }
+    else if (k === 'l' && caps.server) { e.preventDefault(); openLibrary(); }
     else if (k === 'c' && state.sel >= 0) copyBlockForAI();
     else if (k === 'Escape') select(-1);
     else if (k === 'x' && state.diff) flipAB();

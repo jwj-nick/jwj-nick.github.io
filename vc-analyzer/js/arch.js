@@ -1,6 +1,6 @@
 // HW model view: lookups, superblock labels, legend and AI text for the HW cycles and Ref fetch fills.
-import { C, state } from './state.js?v=e0ab48eb46';
-import { esc, fmt, RAMP, rgb } from './util.js?v=e0ab48eb46';
+import { C, state } from './state.js?v=bd3828335b';
+import { esc, fmt, RAMP, rgb } from './util.js?v=bd3828335b';
 
 // Arch Model L0 (vca arch): per-superblock rows (manifest arch.sb_cols) and per-block [ENT cycles, fetch bytes]
 export function archOf(p) {

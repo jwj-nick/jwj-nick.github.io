@@ -1,15 +1,15 @@
 // Frame selection, prefetch, block cell index, stepping order and partition path.
-import { C, frameMeta, PERF, perf, perfMark, qName, state } from './state.js?v=e0ab48eb46';
-import { $, clamp, dims, fmt, ohPart, setStatus, typeName } from './util.js?v=e0ab48eb46';
-import { getJSON } from './data.js?v=e0ab48eb46';
-import { buildPicture, loadPlanes } from './planes.js?v=e0ab48eb46';
-import { updateBraidSelection } from './braid.js?v=e0ab48eb46';
-import { loadFrameDiff } from './diff.js?v=e0ab48eb46';
-import { fitView, requestRender } from './view.js?v=e0ab48eb46';
-import { renderLegend } from './legend.js?v=e0ab48eb46';
-import { ensureSymbols } from './symbols.js?v=e0ab48eb46';
-import { renderTab } from './inspector.js?v=e0ab48eb46';
-import { parseHash, writeHash } from './hash.js?v=e0ab48eb46';
+import { C, frameMeta, PERF, perf, perfMark, qName, state } from './state.js?v=bd3828335b';
+import { $, clamp, dims, fmt, ohPart, setStatus, typeName } from './util.js?v=bd3828335b';
+import { getJSON } from './data.js?v=bd3828335b';
+import { buildPicture, loadPlanes } from './planes.js?v=bd3828335b';
+import { updateBraidSelection } from './braid.js?v=bd3828335b';
+import { loadFrameDiff } from './diff.js?v=bd3828335b';
+import { fitView, requestRender } from './view.js?v=bd3828335b';
+import { renderLegend } from './legend.js?v=bd3828335b';
+import { ensureSymbols } from './symbols.js?v=bd3828335b';
+import { renderTab } from './inspector.js?v=bd3828335b';
+import { parseHash, writeHash } from './hash.js?v=bd3828335b';
 
 // ------------------------------------------------------------- frames
 export async function selectFrame(f) {
@@ -93,6 +93,7 @@ function schedulePrefetch() {
   clearTimeout(prefetchTimer);
   if (state.noPrefetch || state.source.kind !== 'url') return;
   prefetchTimer = setTimeout(async () => {
+    if (!state.manifest) return;   // the stream was closed (Library delete)
     const list = orderedFrames();
     const i = list.findIndex((x) => x.f === state.f);
     const next = list[i + 1];
@@ -164,9 +165,18 @@ function updateFramePos() {
   $('#framePos').innerHTML = `decode <b>${state.f}</b><span class="unit">/${n - 1}</span> &nbsp;out <b>${fr.out_n ?? '–'}</b>`;
 }
 
+// One sentence for the status bar and the Frame tab; values the frame does not
+// have (a cut or damaged stream) are left out, never printed as null.
 export function frameSummary() {
   const fr = frameMeta(state.f);
-  return `Frame ${fr.f}: ${typeName(fr.frame_type)}${ohPart(fr)}, ${fmt(fr.bytes)} bytes, ${fmt(fr.symbol_bits, 0)} entropy bits, ${fmt(fr.blocks)} blocks, base ${qName()} ${fr.base_qindex}`;
+  const has = (v) => v !== null && v !== undefined && v !== '';
+  const parts = [typeName(fr.frame_type), ohPart(fr).replace(/^, /, '')];   // "key", "order hint 0"
+  if (has(fr.bytes)) parts.push(`${fmt(fr.bytes)} bytes`);
+  if (has(fr.symbol_bits)) parts.push(`${fmt(fr.symbol_bits, 0)} entropy bits`);
+  if (has(fr.blocks)) parts.push(`${fmt(fr.blocks)} blocks`);
+  if (has(fr.base_qindex)) parts.push(`base ${qName()} ${fr.base_qindex}`);
+  const none = state.picture && state.picture.kind === 'none' && state.payload && state.payload.frame.f === fr.f;
+  return `Frame ${fr.f}: ${parts.filter(Boolean).join(', ')}${none ? '. No picture for this frame (the decoder produced no output).' : ''}`;
 }
 
 // ------------------------------------------------------ partition path

@@ -1,7 +1,7 @@
 // Pixel planes: stacked Y/U/V PNG -> sample arrays -> pictures, and sample values under the pointer.
-import { frameMeta, perfMark, state } from './state.js?v=e0ab48eb46';
-import { clamp, setStatus } from './util.js?v=e0ab48eb46';
-import { getBlob } from './data.js?v=e0ab48eb46';
+import { frameMeta, perfMark, state } from './state.js?v=bd3828335b';
+import { clamp } from './util.js?v=bd3828335b';
+import { getBlob } from './data.js?v=bd3828335b';
 
 // ------------------------------------------------------------- planes
 async function decodePng(blob) {
@@ -167,14 +167,20 @@ export async function buildPicture(f) {
       return { canvas: diffToCanvas(pa, pb, stage === 'lfdelta' ? 16 : 4), planes: pa, diff: true };
     }
     const use = stages.includes(stage) ? stage : (stages.includes('recon') ? 'recon' : null);
-    if (!use) return null;
+    if (!use) return noPicture(fr, stage);
     const p = await loadPlanes(f, use);
     perfMark('planes');
     return { canvas: planesToCanvas(p, state.lumaOnly), planes: p, stage: use };
   } catch (e) {
-    setStatus(`Pixels unavailable: ${e.message}`);
-    return null;
+    return noPicture(fr, stage);
   }
+}
+// A frame without pixels (a cut or damaged stream: the decoder wrote no output
+// for it) still draws: a neutral picture under the blocks; frameSummary says why.
+function noPicture(fr, stage) {
+  const canvas = neutralCanvas(fr);
+  delete canvas.stats;   // not a difference picture
+  return { canvas, planes: null, stage, kind: 'none' };
 }
 
 export function pixelAt(x, y) {

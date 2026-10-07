@@ -1,13 +1,59 @@
-// Opening a bundle: manifest, header facts and the pixel stage list.
-import { BASE_STAGES, C, FILLS, hasArch, stageLabel, state } from './state.js?v=e0ab48eb46';
-import { $, esc, fmt, FRAME_COLORS, setEmpty, typeName } from './util.js?v=e0ab48eb46';
-import { getJSON } from './data.js?v=e0ab48eb46';
-import { renderBraid } from './braid.js?v=e0ab48eb46';
-import { renderDiffBar } from './diff.js?v=e0ab48eb46';
-import { selectFrame } from './frames.js?v=e0ab48eb46';
-import { renderTabs } from './inspector.js?v=e0ab48eb46';
-import { parseHash } from './hash.js?v=e0ab48eb46';
-import { renderChips } from './controls.js?v=e0ab48eb46';
+// Opening a bundle: manifest, header facts and the pixel stage list; the stream picker.
+import { BASE_STAGES, C, FILLS, hasArch, stageLabel, state } from './state.js?v=bd3828335b';
+import { $, esc, fmt, FRAME_COLORS, setEmpty, setStatus, typeName } from './util.js?v=bd3828335b';
+import { getJSON, listStreams } from './data.js?v=bd3828335b';
+import { renderBraid } from './braid.js?v=bd3828335b';
+import { renderDiffBar } from './diff.js?v=bd3828335b';
+import { selectFrame } from './frames.js?v=bd3828335b';
+import { renderTab, renderTabs } from './inspector.js?v=bd3828335b';
+import { requestRender } from './view.js?v=bd3828335b';
+import { parseHash } from './hash.js?v=bd3828335b';
+import { renderChips } from './controls.js?v=bd3828335b';
+import { renderJobs } from './jobs.js?v=bd3828335b';
+
+// ------------------------------------------------------------ picker
+// The picker lists state.streams; an opened folder keeps its own extra option.
+export function renderPicker() {
+  const sel = $('#streamSelect');
+  const opts = state.streams.map((s, i) => `<option value="${i}" ${i === state.streamIdx ? 'selected' : ''}>${esc(s.title)}</option>`);
+  if (state.source && state.source.kind === 'files') opts.push(`<option value="-1" selected>${esc(state.folderLabel || 'Local folder')}</option>`);
+  sel.innerHTML = opts.length ? opts.join('') : '<option>No stream</option>';
+  renderJobs();
+}
+// Re-reads the server's library into the picker, keeping the open stream selected.
+export async function refreshStreams() {
+  const cur = state.streams[state.streamIdx];
+  state.streams = await listStreams();
+  state.streamIdx = cur ? state.streams.findIndex((s) => s.base === cur.base) : -1;
+  renderPicker();
+  return state.streams;
+}
+// Opens picker entry i (the picker, the Library, a job's Open, a finished job).
+export async function openStreamAt(i) {
+  const s = state.streams[i];
+  if (!s) return;
+  state.openSeq++;
+  state.streamIdx = i;
+  renderPicker();
+  const url = new URL(location.href);
+  url.searchParams.set('data', s.base); url.hash = '';
+  history.replaceState(null, '', url);
+  await openSource({ kind: 'url', base: s.base }, s.title);
+}
+
+// Shows nothing: the stream on screen was deleted and the library is empty.
+export function closeStream() {
+  Object.assign(state, { source: null, manifest: null, payload: null, picture: null, diff: null, fdiff: null, sel: -1, streamIdx: -1, syms: null, symsFrame: -1 });
+  state.frameCache.clear(); state.planeCache.clear(); state.symCache.clear(); state.fdiffCache.clear();
+  for (const id of ['#facts', '#typeLegend', '#braid', '#legend']) $(id).innerHTML = '';
+  $('#diffBar').hidden = true;
+  renderPicker(); renderTab(); requestRender();
+  setStatus('Load a stream to begin.');
+  const url = new URL(location.href);
+  url.searchParams.delete('data'); url.hash = '';
+  history.replaceState(null, '', url);
+  document.title = 'VC Analyzer';
+}
 
 // ------------------------------------------------------------ manifest
 export async function openSource(source, title) {
@@ -72,7 +118,7 @@ function renderFacts() {
   ];
   $('#facts').innerHTML = items.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('');
   const types = [...new Set(fr.map((x) => x.frame_type))];
-  $('#typeLegend').innerHTML = types.map((t) => `<span><i style="background:${FRAME_COLORS[t] || '#888'}"></i>${esc(typeName(t))}</span>`).join('');
+  $('#typeLegend').innerHTML = types.map((t) => `<span><i style="background:${FRAME_COLORS[t] || '#888'}"></i>${esc(typeName(t) || 'type not decoded')}</span>`).join('');
 }
 
 export function renderStageOptions() {

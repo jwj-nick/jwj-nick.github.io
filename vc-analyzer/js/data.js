@@ -1,5 +1,15 @@
 // Reading the data contract from a URL or an opened folder, stream discovery and caps.
-import { fetchOpts, perfMark, state } from './state.js?v=e0ab48eb46';
+import { fetchOpts, perfMark, state } from './state.js?v=bd3828335b';
+
+// The per-run token `vca serve` writes into <meta name="vca-token"> (SERVER_API.md §3).
+// Empty on the static site and in an opened folder: then no header is sent.
+export const TOKEN = (document.querySelector('meta[name="vca-token"]') || {}).content || '';
+// fetch options plus X-VCA-Token for requests to this page's own server
+export function withToken(url, opts) {
+  if (!TOKEN) return opts;
+  try { if (new URL(url, location.href).origin !== location.origin) return opts; } catch (e) { return opts; }
+  return { ...(opts || {}), headers: { ...((opts && opts.headers) || {}), 'X-VCA-Token': TOKEN } };
+}
 
 // --------------------------------------------------------- data access
 export async function getJSON(rel) {
@@ -8,7 +18,7 @@ export async function getJSON(rel) {
     if (!file) throw new Error(`${rel} is missing from the opened folder`);
     return JSON.parse(await file.text());
   }
-  const r = await fetch(state.source.base + rel, fetchOpts);
+  const r = await fetch(state.source.base + rel, withToken(state.source.base + rel, fetchOpts));
   if (!r.ok) throw new Error(`${rel}: HTTP ${r.status}`);
   const text = await r.text();
   perfMark('fetch');
@@ -20,19 +30,28 @@ export async function getBlob(rel) {
     if (!file) throw new Error(`${rel} is missing from the opened folder`);
     return file;
   }
-  const r = await fetch(state.source.base + rel, fetchOpts);
+  const r = await fetch(state.source.base + rel, withToken(state.source.base + rel, fetchOpts));
   if (!r.ok) throw new Error(`${rel}: HTTP ${r.status}`);
   return r.blob();
 }
 
-// What this page can do, decided once by discoverStreams (the only writer):
-//   server  `vca serve` answered api/list: features that need the server
-//           (opening streams, jobs) may show
+// What this page can do, decided once by discoverStreams and loadSession (api.js):
+//   server  `vca serve` answered api/list: features that need the server may show
+//   jobs    the server also opens streams and runs analysis jobs (api/session
+//           says jobs: true; false in `vca serve --diff` and in older servers)
 //   static  bundles found by URL: the demo index (GitHub Pages) or ?data=<bundle url>
 //   folder  "Open bundle" reads a local folder in the browser (every mode)
 // The true names also go to <html data-caps="...">: an element marked
-// data-needs="server" is hidden unless caps.server (app.css).
-export const caps = { server: false, static: false, folder: true };
+// data-needs="server" is hidden unless caps.server, data-needs="jobs" unless
+// caps.jobs (app.css).
+export const caps = { server: false, jobs: false, static: false, folder: true };
+export function writeCaps() {
+  document.documentElement.dataset.caps = Object.keys(caps).filter((k) => caps[k]).join(' ');
+}
+
+// One picker entry; `entry` keeps the library fields of /api/list (SERVER_API.md §5).
+const toStream = (it, listUrl) => ({ id: it.id, title: it.title || it.id, note: it.note, entry: it,
+  base: new URL(it.path || it.url, new URL(listUrl, location.href)).href.replace(/\/?$/, '/') });
 
 // Streams offered in the picker: `vca serve` (/api/list) or the static demo
 // index, plus an explicit ?data=<bundle url> when it is not one of them.
@@ -41,15 +60,15 @@ export async function discoverStreams() {
   const list = [];
   for (const url of ['api/list', 'demo/index.json']) {
     try {
-      const r = await fetch(url, { cache: 'no-cache' });
+      const r = await fetch(url, withToken(url, { cache: 'no-cache' }));
       if (!r.ok) continue;
       const items = await r.json();
       for (const it of items) {
-        const base = new URL(it.path || it.url, new URL(url, location.href)).href.replace(/\/?$/, '/');
-        if (!list.some((x) => x.base === base)) list.push({ id: it.id, title: it.title || it.id, base, note: it.note });
+        const s = toStream(it, url);
+        if (!list.some((x) => x.base === s.base)) list.push(s);
       }
       caps[url === 'api/list' ? 'server' : 'static'] = true;
-      if (list.length) break;
+      if (list.length || caps.server) break;   // an empty library is still the server's list
     } catch (e) { /* not this mode */ }
   }
   if (params.get('data')) {
@@ -57,6 +76,13 @@ export async function discoverStreams() {
     if (!list.some((x) => x.base === base)) list.unshift({ id: 'url', title: params.get('data'), base });
     caps.static = true;
   }
-  document.documentElement.dataset.caps = Object.keys(caps).filter((k) => caps[k]).join(' ');
+  writeCaps();
   return list;
+}
+
+// The server's library again (after a job became ready or an entry was deleted).
+export async function listStreams() {
+  const r = await fetch('api/list', withToken('api/list', { cache: 'no-store' }));
+  if (!r.ok) throw new Error(`api/list: HTTP ${r.status}`);
+  return (await r.json()).map((it) => toStream(it, 'api/list'));
 }

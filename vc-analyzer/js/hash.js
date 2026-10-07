@@ -1,5 +1,5 @@
 // URL hash: frame, fill, lines, stage, tab and selected block.
-import { C, state } from './state.js?v=e0ab48eb46';
+import { C, state } from './state.js?v=bd3828335b';
 
 // ------------------------------------------------------------ hash
 export function parseHash() {
