@@ -1,12 +1,12 @@
 // Legend under the picture for the current fill and picture.
-import { C, qMax, qName, stageLabel, STAGES, state } from './state.js?v=dfa6aefcca';
-import { $, esc, fmt, MISMATCH, modeColor, RAMP, refColor, rgb } from './util.js?v=dfa6aefcca';
-import { focusStage } from './diff.js?v=dfa6aefcca';
-import { bitsMax } from './view.js?v=dfa6aefcca';
+import { C, qMax, qName, stageLabel, STAGES, state } from './state.js?v=84f66b0ecd';
+import { $, esc, fmt, MISMATCH, modeColor, RAMP, refColor, rgb } from './util.js?v=84f66b0ecd';
+import { focusStage } from './diff.js?v=84f66b0ecd';
+import { bitsMax } from './view.js?v=84f66b0ecd';
 
 // Below 1 bit per pixel two decimals would round small maxima to 0.00.
 const bitsMaxText = (m) => (m >= 1 ? fmt(m, 2) : m > 0 ? m.toPrecision(2) : '0');
-import { archLegend } from './arch.js?v=dfa6aefcca';
+import { archLegend } from './arch.js?v=84f66b0ecd';
 
 export function renderLegend() {
   const el = $('#legend');

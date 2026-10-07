@@ -1,8 +1,8 @@
 // Talking to `vca serve` (20_analyzer/SERVER_API.md): JSON requests with the
 // page's token, server errors as {code, message, hint}, the session and the
 // tool health, sizes and dates for the dialogs, and the toast.
-import { caps, withToken, writeCaps } from './data.js?v=dfa6aefcca';
-import { $, esc } from './util.js?v=dfa6aefcca';
+import { caps, withToken, writeCaps } from './data.js?v=84f66b0ecd';
+import { $, esc } from './util.js?v=84f66b0ecd';
 
 export class ApiError extends Error {
   constructor(status, code, message, hint, field) { super(message); this.status = status; this.code = code; this.hint = hint || ''; this.field = field || null; }

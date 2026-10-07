@@ -1,12 +1,12 @@
 // Inspector tabs: Block, Diff, Frame, Syntax, Stats, Stream.
-import { BASE_STAGES, C, frameMeta, hasCdef, kindLabel, STAGES, state, usesQp } from './state.js?v=dfa6aefcca';
-import { $, esc, extText, fmt, refColor } from './util.js?v=dfa6aefcca';
-import { stageDiffers } from './planes.js?v=dfa6aefcca';
-import { focusStage } from './diff.js?v=dfa6aefcca';
-import { blockAt, chromaAt, frameSummary, isChromaBlock, partitionPath } from './frames.js?v=dfa6aefcca';
-import { ARCH_MODULES, archOf } from './arch.js?v=dfa6aefcca';
-import { hasSymbols, symbolsOfBlock, symbolsReady, symtype } from './symbols.js?v=dfa6aefcca';
-import { hwTabShown, renderHwTab } from './hw.js?v=dfa6aefcca';
+import { BASE_STAGES, C, frameMeta, hasCdef, kindLabel, STAGES, state, usesQp } from './state.js?v=84f66b0ecd';
+import { $, esc, extText, fmt, refColor } from './util.js?v=84f66b0ecd';
+import { stageDiffers } from './planes.js?v=84f66b0ecd';
+import { focusStage } from './diff.js?v=84f66b0ecd';
+import { blockAt, chromaAt, frameSummary, isChromaBlock, partitionPath } from './frames.js?v=84f66b0ecd';
+import { ARCH_MODULES, archOf } from './arch.js?v=84f66b0ecd';
+import { hasSymbols, symbolsOfBlock, symbolsReady, symtype } from './symbols.js?v=84f66b0ecd';
+import { hwTabShown, renderHwTab } from './hw.js?v=84f66b0ecd';
 
 // ------------------------------------------------------------ inspector
 export function blockObject(bi) {

@@ -1,5 +1,5 @@
 // Reading the data contract from a URL or an opened folder, stream discovery and caps.
-import { fetchOpts, perfMark, state } from './state.js?v=dfa6aefcca';
+import { fetchOpts, perfMark, state } from './state.js?v=84f66b0ecd';
 
 // The per-run token `vca serve` writes into <meta name="vca-token"> (SERVER_API.md §3).
 // Empty on the static site and in an opened folder: then no header is sent.

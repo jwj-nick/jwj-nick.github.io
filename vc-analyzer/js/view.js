@@ -1,9 +1,9 @@
 // Viewport and canvas rendering: fills, grids, motion, superblocks, chroma tree, mismatch outlines.
-import { C, PERF, perf, perfMark, qMax, state } from './state.js?v=dfa6aefcca';
-import { $, clamp, dims, dpr, MISMATCH, modeColor, ramp, refColor, rgb } from './util.js?v=dfa6aefcca';
-import { firstSample, focusStage } from './diff.js?v=dfa6aefcca';
-import { isChromaBlock, partitionPath } from './frames.js?v=dfa6aefcca';
-import { archOf, drawArchLabels } from './arch.js?v=dfa6aefcca';
+import { C, PERF, perf, perfMark, qMax, state } from './state.js?v=84f66b0ecd';
+import { $, clamp, dims, dpr, MISMATCH, modeColor, ramp, refColor, rgb } from './util.js?v=84f66b0ecd';
+import { firstSample, focusStage } from './diff.js?v=84f66b0ecd';
+import { isChromaBlock, partitionPath } from './frames.js?v=84f66b0ecd';
+import { archOf, drawArchLabels } from './arch.js?v=84f66b0ecd';
 
 // ------------------------------------------------------------ viewport
 export const canvas = $('#canvas');
@@ -15,6 +15,16 @@ export function requestRender() {
 }
 // true from requestRender until that frame is drawn (the probe's snap().ready)
 export const isRenderPending = () => renderPending;
+// The picture area also changes size without a window resize (the diff bar, a legend that
+// wraps once the web font has loaded): draw again so the bitmap matches the shown size, and
+// fit again while the view is still the one the last fit made (not zoomed or panned since).
+let lastFit = null;
+// (the next animation frame: no layout change inside the observer's callback)
+new ResizeObserver(() => requestAnimationFrame(() => {
+  const v = state.view;
+  if (lastFit && state.payload && v.s === lastFit.s && v.ox === lastFit.ox && v.oy === lastFit.oy) fitView();
+  else requestRender();
+})).observe(canvas);
 
 function sizeCanvas() {
   const r = canvas.getBoundingClientRect();
@@ -39,6 +49,7 @@ export function fitView() {
   const fr = state.payload.frame;
   const s = Math.min(r.width / fr.width, r.height / fr.height) * 0.96;
   state.view = { s, ox: (r.width - fr.width * s) / 2, oy: (r.height - fr.height * s) / 2, fitted: true };
+  lastFit = { s: state.view.s, ox: state.view.ox, oy: state.view.oy };
   requestRender();
 }
 export function zoomAt(factor, px, py) {
@@ -57,19 +68,26 @@ export const toImage = (px, py) => [(px - state.view.ox) / state.view.s, (py - s
 
 function render() {
   const r = sizeCanvas();
-  const ctx = canvas.getContext('2d');
-  const k = dpr();
+  drawScene(canvas.getContext('2d'), r.width, r.height, state.view, dpr(), { hover: true });
+  if (PERF && perf.cur && state.payload && state.payload.f === perf.cur.f) perfMark('render');
+}
+
+// Draws the picture with the current fill, lines and selection into ctx: a
+// cw x ch CSS px area at device scale k, viewed through `view` {s, ox, oy}.
+// The screen canvas and the PNG export (export.js) both draw through here.
+// selection: false leaves out the selected block's outline (the PNG export's option).
+export function drawScene(ctx, cw, ch, view, k, { hover = false, selection = true } = {}) {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-bg') || '#151a20';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   if (!state.payload) return;
-  const { s, ox, oy } = state.view;
+  const { s, ox, oy } = view;
   ctx.setTransform(s * k, 0, 0, s * k, ox * k, oy * k);
   ctx.imageSmoothingEnabled = false;
   const fr = state.payload.frame;
   if (state.picture) ctx.drawImage(state.picture.canvas, 0, 0);
   else { ctx.fillStyle = '#2a313b'; ctx.fillRect(0, 0, fr.width, fr.height); }
-  const vis = [(-ox) / s, (-oy) / s, (r.width - ox) / s, (r.height - oy) / s];
+  const vis = [(-ox) / s, (-oy) / s, (cw - ox) / s, (ch - oy) / s];
   const px = 1 / s;  // one CSS pixel in image units
   const blocks = state.lumaBlocks || state.payload.blocks;  // chroma-tree blocks: see drawChromaTree
   const visible = (b) => !(b[C.x] > vis[2] || b[C.y] > vis[3] || b[C.x] + b[C.w] < vis[0] || b[C.y] + b[C.h] < vis[1]);
@@ -119,7 +137,7 @@ function render() {
   if (state.lines.has('mv')) drawMotion(ctx, blocks, visible, px);
   if (state.lines.has('mismatch')) drawMismatch(ctx, px);
   // selection with its partition ancestors
-  if (state.sel >= 0) {
+  if (selection && state.sel >= 0) {
     const b = state.payload.blocks[state.sel];
     const chroma = isChromaBlock(state.sel);
     const path = partitionPath(b[C.x], b[C.y], chroma ? 'chroma' : 'luma');
@@ -135,13 +153,12 @@ function render() {
     ctx.strokeStyle = '#fff';
     ctx.strokeRect(b[C.x] + 2 * px, b[C.y] + 2 * px, b[C.w] - 4 * px, b[C.h] - 4 * px);
   }
-  if (state.hover >= 0 && state.hover !== state.sel) {
+  if (hover && state.hover >= 0 && state.hover !== state.sel) {
     const b = state.payload.blocks[state.hover];
     ctx.lineWidth = 2 * px;
     ctx.strokeStyle = 'rgba(255,255,255,0.9)';
     ctx.strokeRect(b[C.x], b[C.y], b[C.w], b[C.h]);
   }
-  if (PERF && perf.cur && state.payload.f === perf.cur.f) perfMark('render');
 }
 
 function fillStyler() {

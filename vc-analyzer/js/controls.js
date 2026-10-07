@@ -1,19 +1,20 @@
 // Toolbar chips, block selection and navigation, pointer and keyboard wiring.
-import { C, FILLS, hasArch, hasChromaTree, LINES, state, usesQp } from './state.js?v=dfa6aefcca';
-import { $, esc, fmt, setEmpty, setStatus } from './util.js?v=dfa6aefcca';
-import { caps } from './data.js?v=dfa6aefcca';
-import { buildPicture, pixelAt } from './planes.js?v=dfa6aefcca';
-import { openSource, openStreamAt, renderPicker } from './source.js?v=dfa6aefcca';
-import { renderBraidDebounced } from './braid.js?v=dfa6aefcca';
-import { flipAB, gotoFirstMismatch, showStage } from './diff.js?v=dfa6aefcca';
-import { blockAt, frameSummary, isChromaBlock, orderedFrames, selectFrame, stepFrame } from './frames.js?v=dfa6aefcca';
-import { canvas, fitCanvasHeight, fitView, requestRender, setZoom, toImage, zoomAt } from './view.js?v=dfa6aefcca';
-import { renderLegend } from './legend.js?v=dfa6aefcca';
-import { blockObject, renderTab } from './inspector.js?v=dfa6aefcca';
-import { aiFrameContext, copyBlockForAI, copyText } from './ai.js?v=dfa6aefcca';
-import { writeHash } from './hash.js?v=dfa6aefcca';
-import { openStreamDialog } from './open.js?v=dfa6aefcca';
-import { openLibrary } from './library.js?v=dfa6aefcca';
+import { C, FILLS, hasArch, hasChromaTree, LINES, state, usesQp } from './state.js?v=84f66b0ecd';
+import { $, esc, fmt, setEmpty, setStatus } from './util.js?v=84f66b0ecd';
+import { caps } from './data.js?v=84f66b0ecd';
+import { buildPicture, pixelAt } from './planes.js?v=84f66b0ecd';
+import { openSource, openStreamAt, renderPicker } from './source.js?v=84f66b0ecd';
+import { renderBraidDebounced } from './braid.js?v=84f66b0ecd';
+import { flipAB, gotoFirstMismatch, showStage } from './diff.js?v=84f66b0ecd';
+import { blockAt, frameSummary, isChromaBlock, orderedFrames, selectFrame, stepFrame } from './frames.js?v=84f66b0ecd';
+import { canvas, fitCanvasHeight, fitView, requestRender, setZoom, toImage, zoomAt } from './view.js?v=84f66b0ecd';
+import { renderLegend } from './legend.js?v=84f66b0ecd';
+import { blockObject, renderTab } from './inspector.js?v=84f66b0ecd';
+import { aiFrameContext, copyBlockForAI, copyText } from './ai.js?v=84f66b0ecd';
+import { writeHash } from './hash.js?v=84f66b0ecd';
+import { openStreamDialog } from './open.js?v=84f66b0ecd';
+import { openLibrary } from './library.js?v=84f66b0ecd';
+import { openExport } from './export.js?v=84f66b0ecd';
 
 // ------------------------------------------------------------ controls
 export function renderChips() {
@@ -209,6 +210,7 @@ export function wire() {
     else if (k === 'o' && caps.jobs) { e.preventDefault(); openStreamDialog(); }
     else if (k === 'l' && caps.server) { e.preventDefault(); openLibrary(); }
     else if (k === 'c' && state.sel >= 0) copyBlockForAI();
+    else if (k === 'k' && state.payload) { e.preventDefault(); openExport(); }
     else if (k === 'Escape') select(-1);
     else if (k === 'x' && state.diff) flipAB();
     else {

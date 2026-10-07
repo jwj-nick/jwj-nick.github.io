@@ -1,15 +1,15 @@
 // Opening a bundle: manifest, header facts and the pixel stage list; the stream picker.
-import { BASE_STAGES, C, FILLS, hasArch, stageLabel, state } from './state.js?v=dfa6aefcca';
-import { $, esc, fmt, FRAME_COLORS, setEmpty, setStatus, typeName } from './util.js?v=dfa6aefcca';
-import { getJSON, listStreams } from './data.js?v=dfa6aefcca';
-import { renderBraid } from './braid.js?v=dfa6aefcca';
-import { renderDiffBar } from './diff.js?v=dfa6aefcca';
-import { selectFrame } from './frames.js?v=dfa6aefcca';
-import { renderTab, renderTabs } from './inspector.js?v=dfa6aefcca';
-import { requestRender } from './view.js?v=dfa6aefcca';
-import { parseHash } from './hash.js?v=dfa6aefcca';
-import { renderChips } from './controls.js?v=dfa6aefcca';
-import { renderJobs } from './jobs.js?v=dfa6aefcca';
+import { BASE_STAGES, C, FILLS, hasArch, stageLabel, state } from './state.js?v=84f66b0ecd';
+import { $, esc, fmt, FRAME_COLORS, setEmpty, setStatus, typeName } from './util.js?v=84f66b0ecd';
+import { getJSON, listStreams } from './data.js?v=84f66b0ecd';
+import { renderBraid } from './braid.js?v=84f66b0ecd';
+import { renderDiffBar } from './diff.js?v=84f66b0ecd';
+import { selectFrame } from './frames.js?v=84f66b0ecd';
+import { renderTab, renderTabs } from './inspector.js?v=84f66b0ecd';
+import { requestRender } from './view.js?v=84f66b0ecd';
+import { parseHash } from './hash.js?v=84f66b0ecd';
+import { renderChips } from './controls.js?v=84f66b0ecd';
+import { renderJobs } from './jobs.js?v=84f66b0ecd';
 
 // ------------------------------------------------------------ picker
 // The picker lists state.streams; an opened folder keeps its own extra option.

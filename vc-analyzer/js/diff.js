@@ -1,13 +1,13 @@
 // Diff mode: per-frame A vs B detail, the diff bar, first mismatch and A/B flip.
-import { BASE_STAGES, kindLabel, STAGES, state } from './state.js?v=dfa6aefcca';
-import { $, esc, fmt, setStatus } from './util.js?v=dfa6aefcca';
-import { getJSON } from './data.js?v=dfa6aefcca';
-import { buildPicture, stageDiffers } from './planes.js?v=dfa6aefcca';
-import { renderStageOptions } from './source.js?v=dfa6aefcca';
-import { selectFrame } from './frames.js?v=dfa6aefcca';
-import { requestRender } from './view.js?v=dfa6aefcca';
-import { renderLegend } from './legend.js?v=dfa6aefcca';
-import { writeHash } from './hash.js?v=dfa6aefcca';
+import { BASE_STAGES, kindLabel, STAGES, state } from './state.js?v=84f66b0ecd';
+import { $, esc, fmt, setStatus } from './util.js?v=84f66b0ecd';
+import { getJSON } from './data.js?v=84f66b0ecd';
+import { buildPicture, stageDiffers } from './planes.js?v=84f66b0ecd';
+import { renderStageOptions } from './source.js?v=84f66b0ecd';
+import { selectFrame } from './frames.js?v=84f66b0ecd';
+import { requestRender } from './view.js?v=84f66b0ecd';
+import { renderLegend } from './legend.js?v=84f66b0ecd';
+import { writeHash } from './hash.js?v=84f66b0ecd';
 
 // ------------------------------------------------------------- diff
 // manifest.diff lists the frames that have frames/<f>.diff.json; any other
