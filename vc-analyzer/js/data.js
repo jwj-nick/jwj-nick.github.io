@@ -1,5 +1,5 @@
 // Reading the data contract from a URL or an opened folder, stream discovery and caps.
-import { fetchOpts, perfMark, state } from './state.js?v=d11a44027e';
+import { bLabel, fetchOpts, kindLabel, perfMark, state } from './state.js?v=f86793b620';
 
 // The per-run token `vca serve` writes into <meta name="vca-token"> (SERVER_API.md §3).
 // Empty on the static site and in an opened folder: then no header is sent.
@@ -99,4 +99,59 @@ export async function listStreams() {
   const r = await fetch('api/list', withToken('api/list', { cache: 'no-store' }));
   if (!r.ok) throw new Error(`api/list: HTTP ${r.status}`);
   return (await r.json()).map((it) => toStream(it, 'api/list'));
+}
+
+// ------------------------------------------------------- stream names
+// Workspace analyses are named after their source file, so different streams can all be
+// "stream.ivf" (R48 QA D2).  One rule names a library entry everywhere (picker, Library,
+// Compare, job list, Diff bar and tab, Stream tab, toasts): its name alone while no other
+// analysis of the library has that name; else the folder its file sits in ("stream.ivf in
+// av1-LLS-smoke-001"); when that folder is missing (an upload), generic or shared too, the end
+// of the analysis id as well ("stream.ivf #2fba").  A comparison is "<A> vs <B>" with the two
+// names.  Entries of the static demo index (no `kind`) keep their titles.
+const GENERIC_DIR = /^(streams?|bitstreams?|videos?|clips?|files?|data|inputs?|outputs?|out|tmp|temp|downloads?|desktop|documents|uploads?|analyses|work|[a-z]:)$/i;
+const baseName = (e) => String(e.title || e.name || e.id).replace(/ \([A-Z0-9]+( diff)?\)$/, '');
+// the folder that holds a file, unless its name says nothing ("streams", "tmp", a drive)
+export function folderOf(path) {
+  const parts = String(path || '').split(/[\\/]+/).filter(Boolean);
+  const dir = parts.length > 1 ? parts[parts.length - 2] : '';
+  return dir && !GENERIC_DIR.test(dir) ? dir : '';
+}
+// the stream file's own folder (opened by path, or a converted dump file), never the analysis folder
+const entryFolder = (e) => { const s = e.source || {}; return (s.kind === 'path' || s.kind === 'convert') && s.path ? folderOf(s.path) : ''; };
+// "stream-2fba" -> "2fba"; other ids stay whole
+export const shortId = (id) => { const m = /-([0-9a-f]{4,8})$/i.exec(String(id || '')); return m ? m[1] : String(id || ''); };
+const isLib = (e) => !!(e && e.kind);
+const libEntries = () => state.streams.map((s) => s.entry).filter((e) => isLib(e) && e.kind !== 'diff');
+export function streamLabel(e, list = libEntries()) {
+  if (!e) return '';
+  if (e.kind === 'diff') {
+    const a = list.find((x) => x.id === e.a), b = list.find((x) => x.id === e.b);
+    return a && b ? `${streamLabel(a, list)} vs ${streamLabel(b, list)}` : baseName(e);
+  }
+  const name = baseName(e), key = name.toLowerCase();
+  const same = list.filter((x) => x.id !== e.id && baseName(x).toLowerCase() === key);
+  if (!same.length) return name;
+  const dir = entryFolder(e);
+  const label = dir ? `${name} in ${dir}` : name;
+  return dir && !same.some((x) => entryFolder(x) === dir) ? label : `${label} #${shortId(e.id)}`;
+}
+// "<label> (<CODEC>)" of a picker entry, as the server's title is built; the demo index's own titles
+export const streamTitle = (s) => {
+  if (!s) return '';
+  const e = s.entry;
+  return isLib(e) ? `${streamLabel(e)} (${String(e.codec || '?').toUpperCase()}${e.kind === 'diff' ? ' diff' : ''})` : s.title;
+};
+// the library entry of an id, and the one on screen (null on the static site and in an opened folder)
+export const entryById = (id) => { const s = state.streams.find((x) => x.id === id); return s && isLib(s.entry) ? s.entry : null; };
+export const shownEntry = () => { const s = state.streams[state.streamIdx]; return state.source && state.source.kind === 'url' && s && isLib(s.entry) ? s.entry : null; };
+// B of the comparison on screen as "<name> (<kind>)": a Library comparison names B by its Library entry,
+// and a raw YUV file is "raw YUV" (the converted analysis records it as a C model); else manifest.diff.b.
+export function bTitle(b) {
+  const e = shownEntry(), be = e && e.kind === 'diff' && e.b ? entryById(e.b) : null;
+  if (!be) return bLabel(b);
+  const src = be.source || {};
+  const k = src.input === 'raw' ? 'raw YUV' : src.dump_kind ? kindLabel(src.dump_kind) : (b && b.kind ? kindLabel(b.kind) : '');
+  const t = streamLabel(be).replace(/ \((C model|RTL dump)\)/i, '');
+  return k ? `${t} (${k})` : t;
 }

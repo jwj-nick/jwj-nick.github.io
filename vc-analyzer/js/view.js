@@ -1,9 +1,9 @@
 // Viewport and canvas rendering: fills, grids, motion, superblocks, chroma tree, mismatch outlines.
-import { C, PERF, perf, perfMark, qMax, state } from './state.js?v=d11a44027e';
-import { $, clamp, dims, dpr, MISMATCH, modeColor, ramp, refColor, rgb } from './util.js?v=d11a44027e';
-import { firstSample, focusStage } from './diff.js?v=d11a44027e';
-import { isChromaBlock, partitionPath } from './frames.js?v=d11a44027e';
-import { archOf, drawArchLabels } from './arch.js?v=d11a44027e';
+import { C, PERF, perf, perfMark, qMax, state } from './state.js?v=f86793b620';
+import { $, clamp, dims, dpr, MISMATCH, modeColor, ramp, refColor, rgb } from './util.js?v=f86793b620';
+import { firstSample, focusStage } from './diff.js?v=f86793b620';
+import { isChromaBlock, partitionPath } from './frames.js?v=f86793b620';
+import { archOf, drawArchLabels } from './arch.js?v=f86793b620';
 
 // ------------------------------------------------------------ viewport
 export const canvas = $('#canvas');

@@ -3,14 +3,13 @@
 // or one raw YUV file), and the viewer opens the A-vs-B entry on the first mismatch.
 // Another analysis: POST api/compare, opened at once.  Dump and raw YUV: a convert
 // job in the tray (jobs.js opens its compare entry when it ends).
-import { state } from './state.js?v=d11a44027e';
-import { $, esc, fmt } from './util.js?v=d11a44027e';
-import { caps, TOKEN } from './data.js?v=d11a44027e';
-import { api, ApiError, fmtBytes, fmtDate, problemHTML, server, toast } from './api.js?v=d11a44027e';
-import { openStreamAt, refreshStreams } from './source.js?v=d11a44027e';
-import { trackJob } from './jobs.js?v=d11a44027e';
-import { cleanPath } from './open.js?v=d11a44027e';
-import { entryName, pairName } from './library.js?v=d11a44027e';
+import { state } from './state.js?v=f86793b620';
+import { $, esc, fmt } from './util.js?v=f86793b620';
+import { caps, streamLabel, TOKEN } from './data.js?v=f86793b620';
+import { api, ApiError, fmtBytes, fmtDate, problemHTML, server, toast } from './api.js?v=f86793b620';
+import { openStreamAt, refreshStreams } from './source.js?v=f86793b620';
+import { trackJob } from './jobs.js?v=f86793b620';
+import { cleanPath } from './open.js?v=f86793b620';
 
 // kind: analysis | dump | raw.  raw = {file_id | path, name} once uploaded or typed.
 // check = the last answer of api/convert/check for raw (with the format it was asked for).
@@ -19,7 +18,8 @@ const st = { kind: 'analysis', raw: null, xhr: null, upload: null, check: null, 
 const dlg = () => $('#compareDialog');
 const entries = () => state.streams.map((s) => s.entry).filter((e) => e && e.kind !== 'diff');
 const entryById = (id) => entries().find((e) => e.id === id) || null;
-const label = (e) => `${entryName(e)} (${(e.codec || '?').toUpperCase()})`;
+// the viewer's one name of an entry (data.js streamLabel), so two analyses of files named stream.ivf differ here too
+const label = (e) => `${streamLabel(e)} (${(e.codec || '?').toUpperCase()})`;
 
 // Read-only view for window.__vca.snap() (tests).
 export function compareSnap() {
@@ -214,7 +214,7 @@ async function openPair(aId, bId) {
   if (i < 0) throw new ApiError(0, 'not_listed', 'The comparison was made but the Library does not list it.', 'Open the Library and look for it there.');
   dlg().close();
   await openStreamAt(i);
-  toast(`Opened ${state.streams[i].entry ? pairName(state.streams[i].entry) : id}.`);
+  toast(`Opened ${state.streams[i].entry ? streamLabel(state.streams[i].entry) : id}.`);
 }
 async function reuse(bId) {
   const a = $('#cmpA').value;
@@ -280,7 +280,7 @@ function renderAll() {
   const ex = earlier();
   const re = $('#cmpReuse');
   re.hidden = !ex || st.busy;
-  re.innerHTML = ex ? `${esc(entryName(ex))} was converted from this ${st.kind === 'dump' ? 'mapping' : 'file'} and compared with A on ${esc(fmtDate(ex.created))}.
+  re.innerHTML = ex ? `${esc(streamLabel(ex))} was converted from this ${st.kind === 'dump' ? 'mapping' : 'file'} and compared with A on ${esc(fmtDate(ex.created))}.
     <button class="btn small" type="button" data-act="reuse" data-b="${esc(ex.id)}" title="Open that comparison instead of converting again">Open that comparison</button>` : '';
   const go = $('#cmpGo');
   go.disabled = !ok;

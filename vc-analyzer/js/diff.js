@@ -1,13 +1,13 @@
 // Diff mode: per-frame A vs B detail, the diff bar, first mismatch and A/B flip.
-import { BASE_STAGES, bLabel, kindLabel, STAGES, state } from './state.js?v=d11a44027e';
-import { $, esc, fmt, setStatus } from './util.js?v=d11a44027e';
-import { getJSON } from './data.js?v=d11a44027e';
-import { buildPicture, stageDiffers } from './planes.js?v=d11a44027e';
-import { renderStageOptions } from './source.js?v=d11a44027e';
-import { selectFrame } from './frames.js?v=d11a44027e';
-import { requestRender } from './view.js?v=d11a44027e';
-import { renderLegend } from './legend.js?v=d11a44027e';
-import { writeHash } from './hash.js?v=d11a44027e';
+import { BASE_STAGES, kindLabel, STAGES, state } from './state.js?v=f86793b620';
+import { $, esc, fmt, setStatus } from './util.js?v=f86793b620';
+import { bTitle, getJSON } from './data.js?v=f86793b620';
+import { buildPicture, stageDiffers } from './planes.js?v=f86793b620';
+import { renderStageOptions } from './source.js?v=f86793b620';
+import { selectFrame } from './frames.js?v=f86793b620';
+import { requestRender } from './view.js?v=f86793b620';
+import { renderLegend } from './legend.js?v=f86793b620';
+import { writeHash } from './hash.js?v=f86793b620';
 
 // ------------------------------------------------------------- diff
 // manifest.diff lists the frames that have frames/<f>.diff.json; any other
@@ -48,7 +48,7 @@ export function renderDiffBar() {
   bar.hidden = false;
   const b = d.b || {};
   const sa = state.manifest.stream;
-  const who = `<span class="who">A = ${esc(sa.source_kind ? kindLabel(sa.source_kind) : 'this analysis')}${sa.decoder ? ` (${esc(sa.decoder.replace('AOMedia Project ', ''))})` : ''}, B = ${esc(bLabel(b))}</span>`;
+  const who = `<span class="who">A = ${esc(sa.source_kind ? kindLabel(sa.source_kind) : 'this analysis')}${sa.decoder ? ` (${esc(sa.decoder.replace('AOMedia Project ', ''))})` : ''}, B = ${esc(bTitle(b))}</span>`;
   const notes = (d.notes || []).length ? `<span class="who">${esc(d.notes.join('; '))}</span>` : '';
   if (d.equal) {
     bar.classList.add('equal');

@@ -1,23 +1,23 @@
 // Toolbar chips, block selection and navigation, pointer and keyboard wiring.
-import { C, FILLS, hasArch, hasChromaTree, LINES, state, usesQp } from './state.js?v=d11a44027e';
-import { $, esc, fmt, setEmpty, setStatus } from './util.js?v=d11a44027e';
-import { caps } from './data.js?v=d11a44027e';
-import { buildPicture, pixelAt } from './planes.js?v=d11a44027e';
-import { openSource, openStreamAt, renderPicker } from './source.js?v=d11a44027e';
-import { renderBraidDebounced } from './braid.js?v=d11a44027e';
-import { flipAB, gotoFirstMismatch, showStage } from './diff.js?v=d11a44027e';
-import { blockAt, frameSummary, isChromaBlock, orderedFrames, selectFrame, stepFrame } from './frames.js?v=d11a44027e';
-import { canvas, fitCanvasHeight, fitView, requestRender, setZoom, toImage, zoomAt } from './view.js?v=d11a44027e';
-import { renderLegend } from './legend.js?v=d11a44027e';
-import { blockObject, renderTab } from './inspector.js?v=d11a44027e';
-import { aiFrameContext, copyBlockForAI, copyText } from './ai.js?v=d11a44027e';
-import { writeHash } from './hash.js?v=d11a44027e';
-import { openStreamDialog } from './open.js?v=d11a44027e';
-import { openLibrary } from './library.js?v=d11a44027e';
-import { openExport } from './export.js?v=d11a44027e';
-import { openCompare } from './compare.js?v=d11a44027e';
-import { bitstreamSelChanged, openBitstream } from './bitstream.js?v=d11a44027e';
-import { openGraphs } from './graphs.js?v=d11a44027e';
+import { C, FILLS, hasArch, hasChromaTree, LINES, state, usesQp } from './state.js?v=f86793b620';
+import { $, esc, fmt, setEmpty, setStatus } from './util.js?v=f86793b620';
+import { caps } from './data.js?v=f86793b620';
+import { buildPicture, pixelAt } from './planes.js?v=f86793b620';
+import { openSource, openStreamAt, renderPicker } from './source.js?v=f86793b620';
+import { renderBraidDebounced } from './braid.js?v=f86793b620';
+import { flipAB, gotoFirstMismatch, showStage } from './diff.js?v=f86793b620';
+import { blockAt, frameSummary, isChromaBlock, orderedFrames, selectFrame, stepFrame } from './frames.js?v=f86793b620';
+import { canvas, fitCanvasHeight, fitView, requestRender, setZoom, toImage, zoomAt } from './view.js?v=f86793b620';
+import { renderLegend } from './legend.js?v=f86793b620';
+import { blockObject, renderTab } from './inspector.js?v=f86793b620';
+import { aiFrameContext, copyBlockForAI, copyText } from './ai.js?v=f86793b620';
+import { writeHash } from './hash.js?v=f86793b620';
+import { openStreamDialog } from './open.js?v=f86793b620';
+import { openLibrary } from './library.js?v=f86793b620';
+import { openExport } from './export.js?v=f86793b620';
+import { openCompare } from './compare.js?v=f86793b620';
+import { bitstreamSelChanged, openBitstream } from './bitstream.js?v=f86793b620';
+import { openGraphs } from './graphs.js?v=f86793b620';
 
 // ------------------------------------------------------------ controls
 export function renderChips() {
@@ -149,6 +149,8 @@ export function wire() {
     files.forEach((f) => { if (f.webkitRelativePath.startsWith(root)) map.set(f.webkitRelativePath.slice(root.length), f); });
     state.folderLabel = 'Local folder: ' + (root.replace(/\/$/, '') || man.webkitRelativePath);
     state.streamIdx = -1; state.openSeq++;
+    // another stream: the hash (frame, stage, block) belonged to the one shown before, as in openStreamAt
+    if (state.manifest) history.replaceState(null, '', location.pathname + location.search);
     const opened = openSource({ kind: 'files', map }, root);   // sets state.source before its first await
     renderPicker();
     return opened;

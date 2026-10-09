@@ -1,10 +1,10 @@
 // "Copy for AI": block and frame context as Markdown, clipboard.
-import { frameMeta, qName, state } from './state.js?v=d11a44027e';
-import { $, fmt, ohPart } from './util.js?v=d11a44027e';
-import { frameSummary, isChromaBlock, partitionPath } from './frames.js?v=d11a44027e';
-import { archContext } from './arch.js?v=d11a44027e';
-import { ensureSymbols, symbolsOfBlock, symtype } from './symbols.js?v=d11a44027e';
-import { blockObject, histogram } from './inspector.js?v=d11a44027e';
+import { frameMeta, qName, state } from './state.js?v=f86793b620';
+import { $, fmt, ohPart } from './util.js?v=f86793b620';
+import { frameSummary, isChromaBlock, partitionPath } from './frames.js?v=f86793b620';
+import { archContext } from './arch.js?v=f86793b620';
+import { ensureSymbols, symbolsOfBlock, symtype } from './symbols.js?v=f86793b620';
+import { blockObject, histogram } from './inspector.js?v=f86793b620';
 
 // --------------------------------------------------------- AI context
 function aiBlockContext() {

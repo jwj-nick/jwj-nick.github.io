@@ -8,10 +8,10 @@
 // IR 0.3 (F-a part 3): for the frame on screen the hex dump marks where each tile's data starts
 // and shades the selected block's runs of symbols (frames/<f>.json `pos`); a click on a byte
 // of tile data selects the block whose symbols cover it.
-import { state } from './state.js?v=d11a44027e';
-import { $, esc, fmt } from './util.js?v=d11a44027e';
-import { getBlob, getJSON } from './data.js?v=d11a44027e';
-import { selectBlockIndex } from './controls.js?v=d11a44027e';
+import { state } from './state.js?v=f86793b620';
+import { $, esc, fmt } from './util.js?v=f86793b620';
+import { getBlob, getJSON } from './data.js?v=f86793b620';
+import { selectBlockIndex } from './controls.js?v=f86793b620';
 
 const dlg = () => $('#bitstreamDialog');
 const UNIT_H = 24, HEX_H = 20, OVERSCAN = 12, ALL_ROWS = 300, STRIP_BYTES = 32;
@@ -191,6 +191,9 @@ function reveal(box, top, h) {
 }
 
 // ------------------------------------------------------------ unit list
+// The type column drops the OBU_ prefix every AV1 / AV2 unit has, so names such as REGULAR_TILE_GROUP fit;
+// the full name is in the cell's and the row's tooltip, the unit heading and the type filter (R48 QA D12).
+const shortType = (t) => String(t || '').replace(/^OBU_/, '');
 function renderUnits() {
   const list = listed(), box = $('#bsUnits');
   fillBox(box, list.length, UNIT_H, (k) => {
@@ -198,7 +201,7 @@ function renderUnits() {
     const cls = (u.i === cur ? ' cur' : '') + (u.frame === state.f ? ' here' : '');
     return `<div class="bs-row${cls}" data-unit="${u.i}" title="${esc(`Unit ${u.i}: ${u.type_name}, ${fmt(u.size)} bytes at file offset ${fmt(u.offset)}${u.frame === state.f ? '; part of the frame on screen' : ''}`)}">`
       + `<span class="num">${u.i}</span><span class="num">${fmt(u.tu)}</span><span class="num">${fmt(u.offset)}</span><span class="num">${fmt(u.size)}</span>`
-      + `<span class="bs-ty">${esc(u.type_name)}</span><span class="num">${u.frame === null || u.frame === undefined ? '–' : fmt(u.frame)}</span></div>`;
+      + `<span class="bs-ty" title="${esc(u.type_name)}">${esc(shortType(u.type_name))}</span><span class="num">${u.frame === null || u.frame === undefined ? '–' : fmt(u.frame)}</span></div>`;
   });
   $('#bsCount').textContent = ftype ? `Showing ${fmt(list.length)} of ${fmt(units().length)}` : '';
 }

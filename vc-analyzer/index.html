@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=d11a44027e">
+<link rel="stylesheet" href="app.css?v=f86793b620">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%231d232b'/%3E%3Cpath d='M2 12h3V6H2zm4.5 0h3V3h-3zM11 12h3V8h-3z' fill='%23ffb347'/%3E%3C/svg%3E">
 </head>
 <body>
@@ -101,16 +101,19 @@
   </aside>
 </main>
 
-<dialog id="helpDialog" class="dialog">
+<dialog id="helpDialog" class="dialog" aria-labelledby="helpTitle">
   <form method="dialog" class="dialog-inner">
-    <h2>Using VC Analyzer</h2>
+    <div class="dialog-head">
+      <h2 id="helpTitle">Using VC Analyzer</h2>
+      <button class="icon-btn" value="close" title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
     <p>Pick a frame on the timeline, then click any block. The inspector shows its prediction, transform and motion data, the partition decisions above it, and every entropy-decoded symbol attributed to it with its cost in bits.</p>
     <h3>Keys</h3>
     <table class="keys">
       <tr><td><kbd>←</kbd> <kbd>→</kbd></td><td>Previous / next frame (in the order chosen on the Frame tab)</td></tr>
       <tr><td><kbd>Home</kbd> <kbd>End</kbd></td><td>First / last frame</td></tr>
       <tr><td><kbd>m</kbd> <kbd>r</kbd> <kbd>q</kbd> <kbd>b</kbd> <kbd>s</kbd> <kbd>n</kbd></td><td>Fill blocks by mode, reference, qindex, bits, skip, or no fill</td></tr>
-      <tr><td><kbd>w</kbd> <kbd>f</kbd></td><td>After <code>vca arch</code>: fill superblocks by estimated HW cycles, blocks by reference fetch per pixel. Provisional: placeholder parameters, see ARCH_MODEL.md</td></tr>
+      <tr><td><kbd>w</kbd> <kbd>f</kbd></td><td>With a HW model (the HW tab): fill superblocks by estimated HW cycles, blocks by reference fetch per pixel. Provisional: placeholder parameters (ARCH_MODEL.md in the VC Analyzer folder says how it counts)</td></tr>
       <tr><td><kbd>g</kbd> <kbd>t</kbd> <kbd>v</kbd> <kbd>p</kbd> <kbd>h</kbd></td><td>Toggle block grid, transform grid, motion vectors, superblocks and tiles, and (AV2, VVC) the chroma tree</td></tr>
       <tr><td><kbd>0</kbd> <kbd>1</kbd> <kbd>+</kbd> <kbd>−</kbd></td><td>Fit, 1:1, zoom in, zoom out. Drag to pan, wheel to zoom.</td></tr>
       <tr><td><kbd>Shift</kbd>+<kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd></td><td>Select the neighbouring block. The x, y box selects the block at a pixel; <kbd>e</kbd> selects the costliest block.</td></tr>
@@ -126,15 +129,15 @@
       <tr><td><kbd>d</kbd> <kbd>x</kbd></td><td>Diff mode: toggle mismatch outlines; flip the picture between A and B</td></tr>
     </table>
     <h3>HW model (draft)</h3>
-    <p>The <b>HW</b> tab of the inspector shows the provisional L0 HW model of the open analysis: for this frame and the whole stream the cycle budget, the estimated cycles and utilization, the slowest module, the clock it would need and the peak memory bandwidth. Its numbers come from placeholder parameters unless you load your own config (see ARCH_MODEL.md).</p>
+    <p>The <b>HW</b> tab of the inspector shows the provisional L0 HW model of the open analysis: for this frame and the whole stream the cycle budget, the estimated cycles and utilization, the slowest module, the clock it would need and the peak memory bandwidth. Its numbers come from placeholder parameters unless you load your own config. It counts the cycles of five modules (entropy decoding, inverse transform, prediction, loop filters, memory) per superblock from the blocks, modes, symbols and motion vectors of the analysis, and, with the default parallel pipeline, takes the slowest module of each superblock; caches and stalls are not modelled. ARCH_MODEL.md in the VC Analyzer folder describes every assumption.</p>
     <p>With the local GUI (<code>vca serve</code>) the tab also edits the config: change a value (each label's tooltip says what it means; values that differ from the example are marked "changed"), then <b>Recalculate</b>. The <kbd>w</kbd> and <kbd>f</kbd> fills and the tab update when the job ends, on the same frame and block. <b>Compare as B</b> runs the edited config next to the current one and lists the cycles of both frame by frame. Configs can be saved by name, loaded, imported from a YAML file and downloaded as YAML for <code>python -m vca arch --config</code>. The public demo site shows the config read-only.</p>
     <h3>Comparing two decoders</h3>
     <p>Serve a reference analysis (A) and one from a C model or RTL dump (B). The page opens on the first mismatch: the frame, the pixel stage where the two diverge first, and the block holding the first differing sample. The Diff tab lists every stage, block and symbol that differs.</p>
     <pre>python -m vca serve ref.vca cmodel.vca --diff
 python -m vca export ref.vca -o bundle/ --diff cmodel.vca</pre>
-    <p>In the local GUI, <b>Compare</b> (<kbd>a</kbd>, or "Compare with…" on a Library row) does the same without a command line. A is an analysis of the Library. B is another analysis of the same codec, a C model or RTL dump read through its mapping file (<code>10_ir/DUMP_MAPPING.md</code>; <code>python -m vca dump-example</code> writes an example), or one raw YUV file of output pictures with 8-bit or 16-bit little endian samples, whose size is checked against A first. A dump or a YUV file becomes an analysis in a job, and the comparison opens when the job ends. Comparisons are listed in the Library as "A vs B"; Remove takes the comparison away and keeps both analyses. When the dump gives each block a simulation time, the Diff tab shows it for the first mismatching block.</p>
+    <p>In the local GUI, <b>Compare</b> (<kbd>a</kbd>, or "Compare with…" on a Library row) does the same without a command line. A is an analysis of the Library. B is another analysis of the same codec, a C model or RTL dump read through its mapping file (a YAML file that says where each value is in the dump; <code>python -m vca dump-example</code> writes an example, <code>10_ir/DUMP_MAPPING.md</code> in the VC Analyzer folder describes it), or one raw YUV file of output pictures with 8-bit or 16-bit little endian samples, whose size is checked against A first. A dump or a YUV file becomes an analysis in a job, and the comparison opens when the job ends. Comparisons are listed in the Library as "A vs B"; Remove takes the comparison away and keeps both analyses. When the dump gives each block a simulation time, the Diff tab shows it for the first mismatching block.</p>
     <h3>Your own streams</h3>
-    <p>Start the local GUI with <code>python -m vca serve</code> (or give it a stream file: <code>python -m vca serve clip.mp4</code>). Then press <b>Open stream</b> (<kbd>o</kbd>), choose a file, drop one on the window, or paste its path. The page shows the codec, size and frame count first; <b>Analyze</b> runs the reference decoder's dumper, builds the store and the HW model draft, and opens the result. The job list at the bottom right shows each phase, and Cancel removes what a job wrote so far. Containers (MP4, MKV, WebM, TS) are unpacked with FFmpeg first.</p>
+    <p>Start the VC Analyzer app (<code>20_analyzer/launch/VC Analyzer.cmd</code> in its folder, <code>vc-analyzer.sh</code> on Linux), or the local GUI from a command line with <code>python -m vca serve</code> (or with a stream file: <code>python -m vca serve clip.mp4</code>). Then press <b>Open stream</b> (<kbd>o</kbd>), choose a file, drop one on the window, or paste its path. The page shows the codec, size and frame count first; <b>Analyze</b> runs the reference decoder's dumper, builds the store and the HW model draft, and opens the result. The job list at the bottom right shows each phase, and Cancel removes what a job wrote so far. Containers (MP4, MKV, WebM, TS) are unpacked with FFmpeg first.</p>
     <p>After the picture opens, the output is checked against the reference decoder in the background; the job list and the Library show the result. Every analysis is kept in the workspace folder until you delete it in the <b>Library</b> (<kbd>l</kbd>).</p>
     <p class="fine">The same from the command line, for scripts or a machine without a browser:</p>
     <pre>python -m vca analyze stream.ivf --pixels all
@@ -191,7 +194,7 @@ python -m vca export stream.vca -o bundle/</pre>
           <option value="all">All stages</option><option value="recon">Output only</option></select></label>
       <label class="check"><input type="checkbox" id="optVerify" checked title="After the picture opens, decode the stream with the reference decoder and compare the output MD5"> Check against the reference decoder</label>
       <label class="check"><input type="checkbox" id="optCrossdec" title="Also compare with a second, independent decoder (AV1 dav1d, VVC VVdeC, FFmpeg for HEVC, VP9 and AVC)"> Also check with a second decoder</label>
-      <label class="check"><input type="checkbox" id="optHw" checked title="Estimate HW cycles and reference fetch with the example config (a draft model, see ARCH_MODEL.md)"> HW model (draft)</label>
+      <label class="check"><input type="checkbox" id="optHw" checked title="Estimate HW cycles and reference fetch with the example config (a draft model; ARCH_MODEL.md in the VC Analyzer folder says how it counts)"> HW model (draft)</label>
       <p class="opt-note" id="framesNote" hidden></p>
     </fieldset>
     <p class="status-line" id="forcedNote" hidden></p>
@@ -339,7 +342,7 @@ python -m vca export stream.vca -o bundle/</pre>
     </div>
     <p class="sub">Analyses this server can show. The ones opened here are kept in the workspace until you delete them.</p>
     <div class="lib-tools">
-      <input type="search" id="libFilter" class="search" autofocus placeholder="Filter by name or codec" aria-label="Filter the library" title="Show only analyses whose name or codec contains this text">
+      <input type="search" id="libFilter" class="search" autofocus placeholder="Filter by name, codec or folder" aria-label="Filter the library" title="Show only analyses whose name, codec or file path (or upload name) contains this text">
       <span class="lib-count" id="libCount" aria-live="polite" hidden></span>
       <button class="btn" type="button" data-act="open-stream" data-needs="jobs" title="Open a stream file and analyze it (o)">Open stream</button>
     </div>
@@ -377,7 +380,7 @@ python -m vca export stream.vca -o bundle/</pre>
         <label for="cmpMapPath">Mapping file on this computer</label>
         <div class="path-input"><input type="text" id="cmpMapPath" class="mono" spellcheck="false" autocomplete="off" title="Full path of the mapping file (YAML or JSON) on the computer that runs vca serve. Dump files named in it are read relative to its folder. Quotes around a pasted path are fine."></div>
       </div>
-      <p class="fine">How to write a mapping: <code>10_ir/DUMP_MAPPING.md</code> in the analyzer's folder. <code>python -m vca dump-example &lt;analysis&gt; -o &lt;folder&gt;</code> writes an example dump with its <code>mapping.yaml</code>. A field <code>ext.cycle</code> in the mapping gives each block a simulation time, shown for the first mismatch.</p>
+      <p class="fine">The mapping file (YAML or JSON) says where each value is in your dump: <code>source.kind</code> (C model or RTL dump), the files of the output samples and of the other pixel stages, and optionally a text block dump with the column of each block field. Frame list, picture size and output order come from A. The fastest start is an example to edit: <code>python -m vca dump-example &lt;analysis&gt; -o &lt;folder&gt;</code> writes a dump of A in a made-up C model format with its <code>mapping.yaml</code>. Every key is described in <code>10_ir/DUMP_MAPPING.md</code> in the VC Analyzer folder. A field <code>ext.cycle</code> in the mapping gives each block a simulation time, shown for the first mismatch.</p>
     </div>
     <div class="cmp-pane" id="cmpPaneRaw" hidden>
       <button type="button" class="dropzone" id="cmpDrop" title="Choose a raw YUV file, or drop one here. It is copied to the workspace.">
@@ -439,13 +442,13 @@ python -m vca export stream.vca -o bundle/</pre>
 </aside>
 <div class="toast-pop" id="appToast" role="status" aria-live="polite" hidden></div>
 
-<script type="module" src="js/main.js?v=d11a44027e"></script>
+<script type="module" src="js/main.js?v=f86793b620"></script>
 <script>
   // Browsers do not run module scripts from file://: say so instead of showing a blank page.
   if (location.protocol === 'file:') {
     const e = document.getElementById('emptyState');
     e.hidden = false;
-    e.textContent = 'This page cannot run from a file on disk. Start it with "python -m vca serve <analysis>" and open the address it prints.';
+    e.textContent = 'This page cannot run from a file on disk. Start the VC Analyzer app instead (20_analyzer/launch/VC Analyzer.cmd in its folder, vc-analyzer.sh on Linux): it opens this page in a window.';
   }
 </script>
 </body>

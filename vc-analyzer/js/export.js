@@ -1,12 +1,12 @@
 // Export (SERVER_API.md §12): the picture as PNG (made here, every mode), tables as CSV
 // (server routes with `vca serve`, written here from the manifest and the frame payload
 // otherwise) and the stream report (server only).
-import { C, FILLS, frameMeta, hasArch, LINES, stageLabel, state, usesQp } from './state.js?v=d11a44027e';
-import { $, dpr, esc, RAMP, rgb, typeName } from './util.js?v=d11a44027e';
-import { caps } from './data.js?v=d11a44027e';
-import { isChromaBlock } from './frames.js?v=d11a44027e';
-import { canvas, drawScene } from './view.js?v=d11a44027e';
-import { ensureSymbols, symbolsReady } from './symbols.js?v=d11a44027e';
+import { C, FILLS, frameMeta, hasArch, LINES, stageLabel, state, usesQp } from './state.js?v=f86793b620';
+import { $, dpr, esc, RAMP, rgb, typeName } from './util.js?v=f86793b620';
+import { caps } from './data.js?v=f86793b620';
+import { isChromaBlock } from './frames.js?v=f86793b620';
+import { canvas, drawScene } from './view.js?v=f86793b620';
+import { ensureSymbols, symbolsReady } from './symbols.js?v=f86793b620';
 
 // ------------------------------------------------------------ CSV (§12.1)
 // Columns and cells as vca/tables.py writes them: frames = query.frames, blocks = query.BLOCK_SUMMARY_COLS.
@@ -123,6 +123,10 @@ function download(blob, name) {
   saveAs(url, name);
   setTimeout(() => URL.revokeObjectURL(url), 30000);
 }
+// Where a saved file goes (R48 QA D9).  The page cannot choose or read the folder: every mode (static
+// site, the app window, an opened folder) hands the file to the browser, which saves it in its download
+// folder, or asks where when it is set to ask.
+const WHERE = "Your browser saves it in its download folder (usually Downloads), or asks where when it is set to ask.";
 // The dialog's message line, scrolled into the dialog's view (on a phone the list is taller than the screen).
 function say(msg) {
   const e = $('#exportMsg');
@@ -156,7 +160,7 @@ async function serverTable(a, label) {
   const name = dispositionName(r.headers.get('Content-Disposition'));
   ac.abort();
   saveAs(href, name);
-  say(`Downloading ${name || label} from the local server.`);
+  say(`Downloading ${name || label} from the local server. ${WHERE}`);
 }
 // The report is one small page: fetched whole and saved under the server's file name.
 async function serverReport(a) {
@@ -167,7 +171,7 @@ async function serverReport(a) {
   if (!r.ok) { say(`Could not download the report. ${await serverSentence(r)}`); return; }
   const name = dispositionName(r.headers.get('Content-Disposition')) || a.getAttribute('download');
   download(await r.blob(), name);
-  say(`Saved ${name}.`);
+  say(`Saved ${name}. ${WHERE}`);
 }
 // Open: the tab is opened at the click (a popup blocker allows it then), the report loads in
 // it only when the server answers; on an error the tab closes and the sentence shows here.
@@ -340,7 +344,7 @@ async function exportPicture() {
   const blob = await new Promise((res) => out.toBlob(res, 'image/png'));
   if (!blob) { say('The browser could not make the PNG.'); return; }
   download(blob, name);
-  say(`Saved ${name} (${out.width} x ${out.height} px).`);
+  say(`Saved ${name} (${out.width} x ${out.height} px). ${WHERE}`);
 }
 
 // ------------------------------------------------------------ the dialog
@@ -400,8 +404,9 @@ function renderExport() {
       <span class="export-pair"><a class="btn small" id="exportReportOpen" href="${base}report.html" target="_blank" rel="noopener" title="Open the report in a new tab">Open</a>
       <a class="btn small" id="exportReportSave" href="${base}report.html" download="${esc(stem())}_report.html" title="Download the report as one HTML file">Download</a></span></li></ul>`;
   } else {
-    html += '<p class="fine" id="exportLocalNote">The stream report and the symbols, stats, units and all-frames tables are in the local GUI (<code>python -m vca serve</code>).</p>';
+    html += '<p class="fine" id="exportLocalNote">The stream report and the symbols, stats, units and all-frames tables are in the VC Analyzer app on your computer (or the local GUI, <code>python -m vca serve</code>).</p>';
   }
+  html += `<p class="fine" id="exportWhere">Files go to your browser's download folder (usually Downloads), or to the folder it asks for.</p>`;
   box.innerHTML = html;
 }
 // While the dialog is open and the frame still loads, look again until it has loaded,
@@ -445,7 +450,7 @@ export function initExport() {
     try {
       const text = await it.make();
       download(new Blob([text], { type: 'text/csv;charset=utf-8' }), it.file);
-      say(`Saved ${it.file}.`);
+      say(`Saved ${it.file}. ${WHERE}`);
     } catch (err) { say(`Could not write ${it.file}: ${err.message}`); }
   });
 }

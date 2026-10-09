@@ -7,12 +7,12 @@
 // the whole stream from `vca serve`'s stats table (= `vca stats --json`) or, without the server,
 // from every frames/<f>.json with the same rule (luma and shared blocks, area clipped to the
 // picture).  A click on a frame's column goes to that frame; the frame on screen is marked.
-import { C, qName, state, usesQp } from './state.js?v=d11a44027e';
-import { $, esc, fmt, FRAME_COLORS, typeName } from './util.js?v=d11a44027e';
-import { caps, getJSON, withToken } from './data.js?v=d11a44027e';
-import { selectFrame, stepFrame } from './frames.js?v=d11a44027e';
-import { histogram } from './inspector.js?v=d11a44027e';
-import { pickBlock } from './controls.js?v=d11a44027e';
+import { C, qName, state, usesQp } from './state.js?v=f86793b620';
+import { $, esc, fmt, FRAME_COLORS, typeName } from './util.js?v=f86793b620';
+import { caps, getJSON, withToken } from './data.js?v=f86793b620';
+import { selectFrame, stepFrame } from './frames.js?v=f86793b620';
+import { histogram } from './inspector.js?v=f86793b620';
+import { pickBlock } from './controls.js?v=f86793b620';
 
 const dlg = () => $('#graphsDialog');
 const VIEWS = ['frames', 'dist', 'mv', 'search'];

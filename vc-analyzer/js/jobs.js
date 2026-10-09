@@ -3,13 +3,12 @@
 // Jobs live on the server, so the tray comes back after a reload: it shows
 // the jobs that are queued or running, the ones this page saw running, and
 // the ones that ended in the minute before the page loaded.
-import { state } from './state.js?v=d11a44027e';
-import { $, esc } from './util.js?v=d11a44027e';
-import { caps } from './data.js?v=d11a44027e';
-import { api, apiText, fmtSeconds, parseTime, problemHTML, server, toast } from './api.js?v=d11a44027e';
-import { openStreamAt, refreshStreams } from './source.js?v=d11a44027e';
-import { archJobEnded } from './hw.js?v=d11a44027e';
-import { pairName } from './library.js?v=d11a44027e';
+import { state } from './state.js?v=f86793b620';
+import { $, esc } from './util.js?v=f86793b620';
+import { caps, folderOf, streamLabel, streamTitle } from './data.js?v=f86793b620';
+import { api, apiText, fmtSeconds, parseTime, problemHTML, server, toast } from './api.js?v=f86793b620';
+import { openStreamAt, refreshStreams } from './source.js?v=f86793b620';
+import { archJobEnded } from './hw.js?v=f86793b620';
 
 const rows = new Map();   // job id -> row record (see record())
 const LOADED = Date.now();
@@ -81,7 +80,19 @@ async function endArch(r) {
   await archJobEnded(r.job);
 }
 
+// The room the tray takes at the bottom of the window, as --tray-h on <html>: on a desktop the inspector
+// ends above it (its tab body scrolls there, so the tray never covers a control of a tab, R48 QA D5);
+// on a phone the page gets that much room under its end (app.css).
+function reserveTray() {
+  const tray = $('#jobTray');
+  const h = tray.hidden || !tray.getClientRects().length ? 0 : Math.ceil(innerHeight - tray.getBoundingClientRect().top + 8);
+  const v = `${Math.max(0, h)}px`;
+  if (document.documentElement.style.getPropertyValue('--tray-h') !== v) document.documentElement.style.setProperty('--tray-h', v);
+}
+
 export function initJobs() {
+  if (typeof ResizeObserver === 'function') new ResizeObserver(reserveTray).observe($('#jobTray'));
+  window.addEventListener('resize', reserveTray);
   $('#trayToggle').addEventListener('click', () => { cancelCollapse(); setExpanded(!expanded); });
   $('#trayClear').addEventListener('click', clearFinished);
   // a collapse that came due while the pointer or the focus was in the tray waits until they leave
@@ -145,13 +156,15 @@ async function merge(list) {
   for (const r of ready) await whenReady(r);
   for (const r of archEnded) await endArch(r);
   for (const r of convEnded) await endConvert(r);
-  // a job of this page that failed: its row says why (no toast on top of it)
+  // a job of this page that failed: its row says why, and a toast says that it failed (the tray folds by
+  // itself a few seconds later, R48 QA D5: a failed comparison must not go without a word)
   const failed = ended.filter((r) => r.job.state === 'failed' && r.fromPage);
   if (failed.length) {
     setExpanded(true);
     render();
     const el = failed[0].el;
     if (el) el.scrollIntoView({ block: 'nearest' });
+    toast(failText(failed[0]), 'bad');
   }
 }
 
@@ -166,7 +179,7 @@ async function whenReady(r) {
   r.opened = true;
   await openStreamAt(i);
   const checking = isActive(r.job) && phaseOf(r.job, 'verify') !== 'skipped';
-  toast(`Opened ${r.job.source.name}.${checking ? ' The reference decoder check runs in the background.' : ''}`);
+  toast(`Opened ${jobName(r.job)}.${checking ? ' The reference decoder check runs in the background.' : ''}`);
 }
 
 // A convert job of this page that ended: open its comparison on the first mismatch (or B
@@ -183,7 +196,7 @@ async function endConvert(r) {
   // the comparison is on screen: the tray folds at once (it would cover the Diff tab), then the toast
   if (![...rows.values()].some((x) => isActive(x.job))) { cancelCollapse(); setExpanded(false); }
   const e = state.streams[i] && state.streams[i].entry;
-  toast(`Opened ${e ? (e.kind === 'diff' ? pairName(e) : e.title) : id}${r.job.compare ? ' on the first mismatch' : ''}.`);
+  toast(`Opened ${e ? (e.kind === 'diff' ? streamLabel(e) : streamTitle(state.streams[i])) : id}${r.job.compare ? ' on the first mismatch' : ''}.`);
 }
 
 // ----------------------------------------------------------------- actions
@@ -249,6 +262,7 @@ function setExpanded(v) {
   t.setAttribute('aria-expanded', String(v));
   $('#trayList').hidden = !v;
   $('#jobTray').classList.toggle('collapsed', !v);
+  reserveTray();
 }
 
 // Folding by itself: a few seconds after the last active job ends, so the tray
@@ -325,6 +339,25 @@ function aheadOf(j) {
 }
 
 function entryOf(j) { const s = state.streams.find((x) => x.id === j.analysis); return s ? s.entry : null; }
+// A job's stream by the viewer's naming rule (data.js streamLabel): its analysis's name once the library
+// lists it; before that the file name, with its folder when another analysis or another job in the list has
+// that name too (R48 QA D2).
+function jobName(j) {
+  const e = entryOf(j);
+  if (e) return streamLabel(e);
+  const src = j.source || {}, name = src.name || j.analysis || j.id;
+  const key = String(name).toLowerCase();
+  const twin = state.streams.some((s) => s.entry && String(s.entry.name || '').toLowerCase() === key)
+    || [...rows.values()].some((r) => r.job.id !== j.id && shown(r) && String((r.job.source || {}).name || '').toLowerCase() === key);
+  const dir = twin && src.path ? folderOf(src.path) : '';
+  return dir ? `${name} in ${dir}` : name;
+}
+// The toast of a job of this page that failed: what it was and the server's sentence.
+function failText(r) {
+  const j = r.job;
+  const what = isConvert(j) ? 'The comparison' : isArch(j) ? 'The HW model calculation' : `The analysis of ${jobName(j)}`;
+  return `${what} failed${j.error && j.error.message ? `: ${j.error.message.replace(/\.$/, '')}` : ''}. The job list says more.`;
+}
 
 // A line of plain text: wraps inside the tray; a long one is clamped to a few lines with the whole text as its tooltip.
 const textLine = (t, cls = '') => {
@@ -404,6 +437,7 @@ function render() {
   const tray = $('#jobTray');
   tray.hidden = !list.length;
   document.documentElement.classList.toggle('tray-on', !tray.hidden);
+  reserveTray();
   const anyActive = list.some((r) => isActive(r.job));
   if (anyActive) cancelCollapse();
   else if (wasActive && expanded) scheduleCollapse(COLLAPSE_MS);
@@ -438,10 +472,11 @@ function updateRow(r) {
   el.dataset.state = j.state;
   const name = el.querySelector('.job-name');
   // an arch job's source name is the stream file (often stream.ivf): the analysis title says which one
-  const what = isArch(j) ? (entryOf(j) || {}).title || (j.source && j.source.name) || j.analysis || j.id
-    : (j.source && j.source.name) || (entryOf(j) || {}).title || j.analysis || j.id;
-  const ref = isConvert(j) && (state.streams.find((x) => x.id === ((j.source && j.source.ref) || (j.convert && j.convert.ref))) || {}).entry;
-  name.textContent = isArch(j) ? `HW model ${slotOf(j)}: ${what}` : isConvert(j) ? `Compare ${what}${ref ? ` with ${ref.title}` : ''}` : what;
+  const ent = entryOf(j);
+  const what = isArch(j) ? (ent ? streamTitle(state.streams.find((x) => x.id === j.analysis)) : (j.source && j.source.name) || j.analysis || j.id)
+    : isConvert(j) ? (j.source && j.source.name) || j.analysis || j.id : jobName(j);
+  const refS = isConvert(j) && state.streams.find((x) => x.id === ((j.source && j.source.ref) || (j.convert && j.convert.ref)));
+  name.textContent = isArch(j) ? `HW model ${slotOf(j)}: ${what}` : isConvert(j) ? `Compare ${what}${refS && refS.entry ? ` with ${streamTitle(refS)}` : ''}` : what;
   name.title = (j.source && (j.source.path || j.source.name)) || '';
   const e = entryOf(j);
   const codec = (e && e.codec) || r.codec;

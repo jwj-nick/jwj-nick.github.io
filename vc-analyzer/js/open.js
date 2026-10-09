@@ -1,12 +1,12 @@
 // "Open stream" (SERVER_API.md §4, §6): the dialog, choosing or dropping a file,
 // the upload with its progress, a path on this computer, the probe card, the
 // analysis options and recent sources.  Analyze starts a job (jobs.js).
-import { state } from './state.js?v=d11a44027e';
-import { $, esc, fmt } from './util.js?v=d11a44027e';
-import { caps, TOKEN } from './data.js?v=d11a44027e';
-import { api, ApiError, fmtBytes, fmtDate, healthNotes, loadHealth, problemHTML, server } from './api.js?v=d11a44027e';
-import { openStreamAt, refreshStreams } from './source.js?v=d11a44027e';
-import { lastOutcome, trackJob } from './jobs.js?v=d11a44027e';
+import { state } from './state.js?v=f86793b620';
+import { $, esc, fmt } from './util.js?v=f86793b620';
+import { caps, folderOf, TOKEN } from './data.js?v=f86793b620';
+import { api, ApiError, fmtBytes, fmtDate, healthNotes, loadHealth, problemHTML, server } from './api.js?v=f86793b620';
+import { openStreamAt, refreshStreams } from './source.js?v=f86793b620';
+import { lastOutcome, trackJob } from './jobs.js?v=f86793b620';
 
 const CODECS = ['av2', 'av1', 'vvc', 'hevc', 'vp9', 'avc'];
 const CONTAINERS = { ivf: 'IVF', annexb: 'Annex B', obu: 'OBU', mp4: 'MP4', mkv: 'Matroska', webm: 'WebM', ts: 'MPEG-TS', unknown: 'not recognised' };
@@ -354,11 +354,20 @@ function renderRecent() {
   const seen = new Set();
   const list = st.recent.map((r, i) => ({ r, i })).filter(({ r }) => { const k = r.path || `upload:${r.name}`; if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 6);
   box.hidden = !list.length;
+  // the same file name twice (two folders, or a path and an upload): the folder or "uploaded" tells them apart,
+  // as the Library does (data.js streamLabel)
+  const n = new Map();
+  list.forEach(({ r }) => { const k = String(r.name || '').toLowerCase(); n.set(k, (n.get(k) || 0) + 1); });
+  const nameOf = (r) => {
+    if (!r.name || n.get(String(r.name).toLowerCase()) < 2) return r.name;
+    const dir = r.path ? folderOf(r.path) : '';
+    return r.path ? (dir ? `${r.name} in ${dir}` : r.name) : `${r.name} (uploaded)`;
+  };
   $('#recentList').innerHTML = list.map(({ r, i }) => {
     const where = r.path || (r.file_id ? 'uploaded file' : '');
     const what = r.aid ? 'open the analysis' : (r.path ? 'check this path again' : 'check this upload again');
     return `<li><button type="button" class="recent-item" data-recent="${i}" title="${esc(where)}: ${what}">
-      <span class="ri-name">${esc(r.name || where)}</span>
+      <span class="ri-name">${esc(nameOf(r) || where)}</span>
       <span class="ri-meta">${r.codec ? esc(String(r.codec).toUpperCase()) + ', ' : ''}${esc(fmtDate(r.at))}${recentEnd(r)}</span></button></li>`;
   }).join('');
 }

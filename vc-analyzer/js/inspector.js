@@ -1,12 +1,13 @@
 // Inspector tabs: Block, Diff, Frame, Syntax, Stats, Stream.
-import { BASE_STAGES, bLabel, C, frameMeta, hasCdef, STAGES, state, usesQp } from './state.js?v=d11a44027e';
-import { $, esc, extText, fmt, refColor } from './util.js?v=d11a44027e';
-import { stageDiffers } from './planes.js?v=d11a44027e';
-import { focusStage } from './diff.js?v=d11a44027e';
-import { blockAt, chromaAt, frameSummary, isChromaBlock, partitionPath } from './frames.js?v=d11a44027e';
-import { ARCH_MODULES, archOf } from './arch.js?v=d11a44027e';
-import { hasSymbols, symbolsOfBlock, symbolsReady, symtype } from './symbols.js?v=d11a44027e';
-import { hwTabShown, renderHwTab } from './hw.js?v=d11a44027e';
+import { BASE_STAGES, C, frameMeta, hasCdef, kindLabel, STAGES, state, usesQp } from './state.js?v=f86793b620';
+import { $, esc, extText, fmt, refColor } from './util.js?v=f86793b620';
+import { stageDiffers } from './planes.js?v=f86793b620';
+import { focusStage } from './diff.js?v=f86793b620';
+import { blockAt, chromaAt, frameSummary, isChromaBlock, partitionPath } from './frames.js?v=f86793b620';
+import { ARCH_MODULES, archOf } from './arch.js?v=f86793b620';
+import { hasSymbols, symbolsOfBlock, symbolsReady, symtype } from './symbols.js?v=f86793b620';
+import { hwTabShown, renderHwTab } from './hw.js?v=f86793b620';
+import { bTitle, shownEntry, streamLabel } from './data.js?v=f86793b620';
 
 // ------------------------------------------------------------ inspector
 export function blockObject(bi) {
@@ -228,20 +229,59 @@ function renderStatsTab() {
   return `<h2>Frame ${state.f} statistics</h2><p class="sub">Share of picture area and of entropy-decoded bits per value (luma and shared blocks).</p>${html}${chromaHtml}`;
 }
 
+// Profile, level and chroma format in the codec's own names with the coded value, as the stream
+// report writes them (vca/report.py profile_text, level_text, chroma_format; R48 QA D12).
+const PROFILES = {
+  av1: ['seq_profile', { 0: 'Main', 1: 'High', 2: 'Professional' }],
+  av2: ['seq_profile', {}],
+  vp9: ['profile', { 0: '8-bit 4:2:0', 1: '8-bit 4:2:2, 4:4:0, 4:4:4', 2: '10 or 12-bit 4:2:0', 3: '10 or 12-bit 4:2:2, 4:4:0, 4:4:4' }],
+  hevc: ['general_profile_idc', { 1: 'Main', 2: 'Main 10', 3: 'Main Still Picture', 4: 'Format range extensions', 5: 'High throughput', 9: 'Screen content coding' }],
+  vvc: ['general_profile_idc', { 1: 'Main 10', 17: 'Multilayer Main 10', 33: 'Main 10 4:4:4', 49: 'Multilayer Main 10 4:4:4', 65: 'Main 10 Still Picture', 97: 'Main 10 4:4:4 Still Picture' }],
+  avc: ['profile_idc', { 44: 'CAVLC 4:4:4 Intra', 66: 'Baseline', 77: 'Main', 88: 'Extended', 100: 'High', 110: 'High 10', 122: 'High 4:2:2', 244: 'High 4:4:4 Predictive' }],
+};
+function profileText(codec, p) {
+  if (p === null || p === undefined) return '–';
+  const [elem, names] = PROFILES[codec] || ['profile', {}];
+  return names[p] ? `${names[p]} (${elem} ${p})` : `${elem} ${p}`;
+}
+const dotted = (major, minor) => (minor ? `${major}.${minor}` : `${major}`);
+function levelText(codec, lv) {
+  if (lv === null || lv === undefined) return codec === 'vp9' ? '– (VP9 streams carry no level)' : '–';
+  if (!Number.isInteger(lv)) return `level_idc ${lv}`;
+  if (codec === 'av1' || codec === 'av2') return lv === 31 ? 'no level constraint (seq_level_idx 31)' : `${2 + (lv >> 2)}.${lv & 3} (seq_level_idx ${lv})`;
+  if (codec === 'hevc' && lv % 3 === 0 && lv > 0) return `${dotted(Math.floor(lv / 30), (lv % 30) / 3)} (general_level_idc ${lv})`;
+  if (codec === 'vvc' && (lv % 16) % 3 === 0 && lv > 0) return `${dotted(Math.floor(lv / 16), (lv % 16) / 3)} (general_level_idc ${lv})`;
+  if (codec === 'avc' && lv > 0) return `${lv === 9 ? '1b' : dotted(Math.floor(lv / 10), lv % 10)} (level_idc ${lv})`;
+  return `level_idc ${lv}`;
+}
+function chromaText(seq) {
+  if (seq.monochrome) return '4:0:0 (monochrome)';
+  const f = { '1,1': '4:2:0', '1,0': '4:2:2', '0,0': '4:4:4' }[`${seq.subsampling_x},${seq.subsampling_y}`];
+  return f || (seq.subsampling_x === undefined ? '–' : `subsampling ${seq.subsampling_x}, ${seq.subsampling_y}`);
+}
+// The heading of the Stream tab: the stream's name in the Library (not the analysis id), else the bundle's title.
+const streamHeading = () => { const e = shownEntry(); return e ? streamLabel(e) : (state.manifest.title || state.manifest.stream.name); };
+
 function renderStreamTab() {
   const s = state.manifest.stream, seq = s.sequence || {};
-  const facts = kvRow('File', val(s.name)) + kvRow('Container', val(s.container)) + kvRow('Size', fmt(s.size), 'bytes')
-    + kvRow('Decoder', val(s.decoder)) + kvRow('Dumper', val(s.tool)) + kvRow('Source kind', val(s.source_kind))
-    + kvRow('Profile', fmt(seq.profile)) + kvRow('Level', fmt(seq.level)) + kvRow('Bit depth', fmt(seq.bit_depth))
-    + kvRow('Chroma', seq.monochrome ? 'monochrome' : `subsampling ${seq.subsampling_x}, ${seq.subsampling_y}`)
-    + kvRow('Superblock', fmt(seq.sb_size)) + kvRow('Frame rate', s.fps ? fmt(s.fps, 2) : '–', 'fps')
+  const codec = s.codec || '';
+  // a stream copied out of a container (manifest stream.extracted, SERVER_API.md section 17): Size is the
+  // elementary stream the decoder read (unit offsets and the bitrate count in it), the opened file is larger
+  const ex = s.extracted;
+  const size = ex ? `${fmt(s.size)}<span class="unit">bytes</span> <span class="note">(video stream copied out of the ${esc(String(s.container || 'container').toUpperCase())} file${ex.source_bytes ? ` of ${fmt(ex.source_bytes)} bytes` : ''})</span>` : null;
+  const facts = kvRow('File', val(s.name)) + kvRow('Container', val(s.container)) + (size ? kvRow('Size', size) : kvRow('Size', fmt(s.size), 'bytes'))
+    + kvRow('Decoder', val(s.decoder)) + kvRow('Dumper', val(s.tool)) + kvRow('Source kind', s.source_kind ? esc(kindLabel(s.source_kind)) : '–')
+    + kvRow('Profile', esc(profileText(codec, seq.profile))) + kvRow('Level', esc(levelText(codec, seq.level))) + kvRow('Bit depth', fmt(seq.bit_depth))
+    + kvRow('Chroma', esc(chromaText(seq)))
+    + kvRow('Superblock', fmt(seq.sb_size)) + (s.fps ? kvRow('Frame rate', fmt(s.fps, 2), s.fps_source === 'container' ? 'fps, from the container' : 'fps')
+      : kvRow('Frame rate', 'fps_source' in s ? 'unknown (the file gives none; Graphs lets you type one)' : '–'))
     + kvRow('Output MD5', s.output_md5 ? `<span class="mono">${esc(s.output_md5)}</span>` : '–');
   const pill = (t, on) => `<span class="pill ${on ? 'on' : 'off'}">${esc(t.replace(/^enable_/, ''))}</span>`;
   const units = state.manifest.units || [];
   const types = new Map();
   units.forEach((u) => types.set(u.type_name, (types.get(u.type_name) || 0) + 1));
   const note = (state.streams[state.streamIdx] || {}).note;
-  return `<h2>${esc(state.manifest.title || s.name)}</h2><p class="sub">${fmt(s.frames)} decoded frames, ${fmt(s.outputs)} output frames, ${fmt(units.length)} ${unitNoun()}s</p>
+  return `<h2>${esc(streamHeading())}</h2><p class="sub">${fmt(s.frames)} decoded frames, ${fmt(s.outputs)} output frames, ${fmt(units.length)} ${unitNoun()}s</p>
     ${note ? `<p class="note">${esc(note)}</p>` : ''}
     <div class="actions"><button class="btn" data-act="units" title="Every coded unit of the stream with its header elements and bytes in hex (u)">Units…</button><button class="btn" data-act="graphs" title="Frame size, bitrate and QP per frame, mode and block size distributions, motion vectors and block search (Shift+G)">Graphs…</button></div>
     <dl class="kv">${facts}</dl>
@@ -303,7 +343,7 @@ function renderDiffTab() {
   const d = state.diff, fd = state.fdiff;
   if (!d) return '<h2>Diff</h2><p class="sub">Open two analyses in diff mode to compare them.</p>';
   const b = d.b || {};
-  const head = `<h2>Frame ${state.f}: A vs B</h2><p class="sub">B = ${esc(bLabel(b))}${b.decoder ? `, ${esc(b.decoder)}` : ''}. Pixels are compared as exact samples.</p>`;
+  const head = `<h2>Frame ${state.f}: A vs B</h2><p class="sub">B = ${esc(bTitle(b))}${b.decoder ? `, ${esc(b.decoder)}` : ''}. Pixels are compared as exact samples.</p>`;
   if (!fd) return head + '<p class="note">Loading…</p>';
   if (fd.equal) return head + '<p>This frame of B matches A: every pixel stage, block field and symbol is equal.</p>'
     + (d.first_mismatch ? '<div class="actions"><button class="btn" data-act="goto-mismatch">Go to first mismatch</button></div>' : '');

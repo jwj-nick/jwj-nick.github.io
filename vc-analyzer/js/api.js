@@ -1,13 +1,22 @@
 // Talking to `vca serve` (20_analyzer/SERVER_API.md): JSON requests with the
 // page's token, server errors as {code, message, hint}, the session and the
 // tool health, sizes and dates for the dialogs, and the toast.
-import { caps, withToken, writeCaps } from './data.js?v=d11a44027e';
-import { $, esc } from './util.js?v=d11a44027e';
+import { caps, withToken, writeCaps } from './data.js?v=f86793b620';
+import { $, esc } from './util.js?v=f86793b620';
 
 export class ApiError extends Error {
   constructor(status, code, message, hint, field) { super(message); this.status = status; this.code = code; this.hint = hint || ''; this.field = field || null; }
 }
-const OFFLINE_HINT = 'Check that "python -m vca serve" is still running, then reload this page.';
+const OFFLINE_HINT = 'Check that the VC Analyzer app (or "python -m vca serve") is still running, then reload this page.';
+// Any failure of a request as a problem sentence ({message, hint}): a fetch that could not reach the server
+// says what api() says (not the browser's "Failed to fetch"), an HTTP status says which.
+export function asProblem(e) {
+  if (e instanceof ApiError) return e;
+  if (e instanceof TypeError) return new ApiError(0, 'offline', 'The local server did not answer.', OFFLINE_HINT);
+  const m = /HTTP (\d+)/.exec(String(e && e.message));
+  return m ? new ApiError(+m[1], `http_${m[1]}`, `The server answered HTTP ${m[1]}.`, OFFLINE_HINT)
+    : new ApiError(0, 'internal', String((e && e.message) || e), '');
+}
 
 // JSON request to the page's server; throws ApiError with the server's message and hint.
 export async function api(path, { method = 'GET', body } = {}) {
@@ -61,7 +70,7 @@ export function loadHealth(force = false) {
   return healthReq;
 }
 
-// Build scripts named when a dumper is missing (02_Nick/GUIDE.md, environment).
+// Build scripts named when a dumper is missing (GUIDE.md, environment).
 const BUILD = {
   av2: 'adapters/build_refs.sh, then adapters/build_dumpers.sh',
   av1: 'adapters/build_refs.sh, then adapters/build_dumpers.sh',
@@ -93,7 +102,7 @@ export function healthNotes(h, { codec = null, skip = [], opts = {} } = {}) {
     out.push({ message: `The ${C} reference decoder is not built: the check against it will be skipped.`, hint: `Build it with 20_analyzer/${BUILD[codec] || 'adapters/build_refs.sh'}.`, level: 'note' });
   }
   if (c && c.dumper && !c.crossdec && opts.crossdec) {
-    out.push({ message: `No second ${C} decoder is built: that check will be skipped.`, hint: 'The build commands are in 02_Nick/GUIDE.md, section 1 (environment).', level: 'note' });
+    out.push({ message: `No second ${C} decoder is built: that check will be skipped.`, hint: 'The build commands are in GUIDE.md in the VC Analyzer folder, section 1 (environment).', level: 'note' });
   }
   return out;
 }

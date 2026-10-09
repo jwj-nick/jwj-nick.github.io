@@ -1,12 +1,12 @@
 // The Library dialog (SERVER_API.md §5): every analysis the server lists, a
 // filter, Open, and Delete with an inline confirmation for workspace entries.
-import { state } from './state.js?v=d11a44027e';
-import { $, esc, fmt } from './util.js?v=d11a44027e';
-import { caps } from './data.js?v=d11a44027e';
-import { api, fmtBytes, fmtDate, problemHTML, server, toast } from './api.js?v=d11a44027e';
-import { closeStream, openStreamAt, refreshStreams } from './source.js?v=d11a44027e';
-import { openStreamDialog, showServerEmpty } from './open.js?v=d11a44027e';
-import { openCompare } from './compare.js?v=d11a44027e';
+import { state } from './state.js?v=f86793b620';
+import { $, esc, fmt } from './util.js?v=f86793b620';
+import { caps, streamLabel } from './data.js?v=f86793b620';
+import { api, asProblem, fmtBytes, fmtDate, problemHTML, server, toast } from './api.js?v=f86793b620';
+import { closeStream, openStreamAt, refreshStreams } from './source.js?v=f86793b620';
+import { openStreamDialog, showServerEmpty } from './open.js?v=f86793b620';
+import { openCompare } from './compare.js?v=f86793b620';
 
 let confirmId = null, loadErr = null;
 const rowErr = new Map();
@@ -24,7 +24,8 @@ export async function openLibrary() {
   confirmId = null; rowErr.clear();
   if (!dlg().open) { $('#libFilter').value = ''; dlg().showModal(); }   // each opening shows the whole library
   render();
-  try { await refreshStreams(); loadErr = null; } catch (e) { loadErr = e; }
+  // the server gone: the sentence of the Open dialog, not the browser's "Failed to fetch" (R48 QA D6)
+  try { await refreshStreams(); loadErr = null; } catch (e) { loadErr = asProblem(e); }
   render();
 }
 
@@ -36,6 +37,13 @@ const VERIFY = {
   running: ['checking', '', 'The reference decoder check is running'],
 };
 const KIND = { external: 'command line', diff: 'diff', workspace: '' };
+// A comparison's source line: where its two analyses came from, "<A's source> vs <B's source>" (its name
+// already says "<A> vs <B>"); the server's name while one of them is not listed.
+function pairSource(e) {
+  const a = state.streams.find((x) => x.id === e.a), b = state.streams.find((x) => x.id === e.b);
+  const of = (s) => entrySource(s.entry) || streamLabel(s.entry);
+  return a && a.entry && b && b.entry ? `${of(a)} vs ${of(b)}` : String(e.title || e.name || e.id).replace(/ \([A-Z0-9]+ diff\)$/, '');
+}
 // Where an entry came from, for telling entries of the same name apart: the full
 // path, "uploaded file <name>", or the analysis folder of a command-line entry.
 export function entrySource(e) {
@@ -44,23 +52,19 @@ export function entrySource(e) {
   if (src.kind === 'upload') return `uploaded file ${src.name || e.name || ''}`.trim();
   return src.name || '';
 }
-// The title without its " (CODEC)" ending: the source name for workspace entries,
-// the analysis folder for command-line ones (whose source is often just stream.ivf).
-export const entryName = (e) => String(e.title || e.name || e.id).replace(/ \([A-Z0-9]+( diff)?\)$/, '');
-// A comparison by the name the server gives it ("<A> vs <B>" with the Library names of its two analyses,
-// SERVER_API.md section 13.1): the same in the picker, the Library, the job list and the toasts.
-export const pairName = (e) => entryName(e);
-// A comparison's source line: "A vs B" with the names its two analyses have in their own Library rows.
-function pairSource(e) {
-  const of = (id) => { const s = state.streams.find((x) => x.id === id); return s && s.entry ? entryName(s.entry) : null; };
-  const a = e.a && of(e.a), b = e.b && of(e.b);
-  return a && b ? `${a} vs ${b}` : entryName(e);
-}
+// An entry by the one naming rule of the viewer (data.js streamLabel): its name, with the folder or the
+// short id when another analysis has the same name; a comparison "<A> vs <B>" with those names.  The same
+// in the picker, the Library, Compare, the job list and the toasts.
+export const entryName = (e) => streamLabel(e);
+export const pairName = (e) => streamLabel(e);
+// Every text of an entry the filter looks in: the name shown, the server's name and title, the codec
+// and where it came from (the file path, "uploaded file <name>", the analysis folder).
+const searchText = (e) => [streamLabel(e), e.name, e.title, e.codec, e.kind === 'diff' ? pairSource(e) : entrySource(e)].filter(Boolean).join(' ').toLowerCase();
 
 function render() {
   const all = state.streams.map((s) => s.entry).filter(Boolean);
   const q = $('#libFilter').value.trim().toLowerCase();
-  const list = q ? all.filter((e) => `${e.name || ''} ${e.title || ''} ${e.codec || ''}`.toLowerCase().includes(q)) : all;
+  const list = q ? all.filter((e) => searchText(e).includes(q)) : all;
   const cur = state.streams[state.streamIdx] && state.streams[state.streamIdx].id;
   const table = $('#libTable');
   table.hidden = !list.length;
@@ -144,7 +148,7 @@ async function remove(id) {
   try {
     const r = await api(`api/a/${encodeURIComponent(id)}`, { method: 'DELETE' });
     confirmId = null;
-    try { await refreshStreams(); } catch (e) { loadErr = e; }
+    try { await refreshStreams(); } catch (e) { loadErr = asProblem(e); }
     toast(`Deleted ${name}${r && r.freed_bytes ? `: ${fmtBytes(r.freed_bytes)} freed` : ''}.`);
     if (wasCurrent) await leave(cur);
   } catch (e) {
@@ -163,7 +167,7 @@ async function removeCompare(id) {
   rowErr.delete(id);
   try {
     await api(`api/compare/${encodeURIComponent(id)}`, { method: 'DELETE' });
-    try { await refreshStreams(); } catch (e) { loadErr = e; }
+    try { await refreshStreams(); } catch (e) { loadErr = asProblem(e); }
     toast(`Removed the comparison ${name}. Both analyses stay in the Library.`);
     if (wasCurrent) await leave(cur);
   } catch (e) { rowErr.set(id, e); }

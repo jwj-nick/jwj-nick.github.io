@@ -4,18 +4,19 @@
 // (slot b), saved configs, YAML import and download.
 // Edits live here (draft, one per analysis while the page lives) until Recalculate; values are
 // checked by the server (POST api/arch/validate) field by field, so every message is the server's sentence.
-import { hasArch, state } from './state.js?v=d11a44027e';
-import { $, esc, fmt, typeName } from './util.js?v=d11a44027e';
-import { bustCache, caps } from './data.js?v=d11a44027e';
-import { api, toast } from './api.js?v=d11a44027e';
-import { archOf } from './arch.js?v=d11a44027e';
-import { openSource } from './source.js?v=d11a44027e';
-import { renderTab } from './inspector.js?v=d11a44027e';
-import { selectFrame } from './frames.js?v=d11a44027e';
-import { trackJob } from './jobs.js?v=d11a44027e';
-import { writeHash } from './hash.js?v=d11a44027e';
+import { hasArch, state } from './state.js?v=f86793b620';
+import { $, esc, fmt, typeName } from './util.js?v=f86793b620';
+import { bustCache, caps, streamTitle } from './data.js?v=f86793b620';
+import { api, toast } from './api.js?v=f86793b620';
+import { archOf } from './arch.js?v=f86793b620';
+import { openSource } from './source.js?v=f86793b620';
+import { renderTab } from './inspector.js?v=f86793b620';
+import { selectFrame } from './frames.js?v=f86793b620';
+import { trackJob } from './jobs.js?v=f86793b620';
+import { writeHash } from './hash.js?v=f86793b620';
 
-const DRAFT_NOTE = 'Provisional L0 HW model (draft): placeholder parameters unless you load your own; how it counts is in 02_Nick/ARCH_MODEL.md of the repository.';
+// What the model is, for someone who installed the app (R48 QA D10: no repository paths)
+const DRAFT_NOTE = 'Provisional L0 HW model (draft): placeholder parameters unless you load your own. It counts cycles of five modules per superblock from the blocks, symbols and motion vectors of the analysis; caches and stalls are not modelled. ARCH_MODEL.md in the VC Analyzer folder describes every assumption.';
 // headings of the schema's groups (by lower-case name; other groups show their own name)
 const GROUP_TITLES = { general: 'General', ent: 'ENT: entropy decoder', iqt: 'IQT: inverse quantization and transform', prd: 'PRD: prediction',
   lpf: 'LPF: in-loop filters', mem: 'MEM: external memory', interp: 'Interpolation', interpolation: 'Interpolation' };
@@ -191,7 +192,7 @@ export function renderHwTab() {
   if (hw.schema) { syncDraft(); loadSum(); if (entry()) loadSaved(); }
   const M = state.manifest.arch;
   let html = `<h2>HW model</h2><p class="hw-draft">${esc(DRAFT_NOTE)}</p>${limitsHtml(M)}`;
-  html += M ? resultHtml(M) : `<p class="sub">This analysis has no HW model yet.${entry() ? ' Calculate it with the example config below, or change the config first.' : ' Run "python -m vca arch &lt;analysis&gt;" and open it again.'}</p>`;
+  html += M ? resultHtml(M) : `<p class="sub">This analysis has no HW model yet.${entry() ? ' Calculate it with the example config below, or change the config first.' : ' Open the stream in the VC Analyzer app to calculate one (or run "python -m vca arch &lt;analysis&gt;" and open it again).'}</p>`;
   if (entry() && hw.noSchema) html += '<p class="note">This server does not offer HW config editing (it answers no api/arch/schema). Update vca serve to edit and recalculate here.</p>';
   if (hwEditable()) html += compareHtml();   // above the editor: it is what Compare as B produces
   html += hwEditable() ? editorHtml() : (M ? readonlyHtml(M) : '');
@@ -252,7 +253,7 @@ function configLabel(slot) {
 function readonlyHtml(M) {
   const rows = flat(M.config).map(([k, v]) => `<tr><td class="mono">${esc(k)}</td><td>${esc(v)}</td></tr>`).join('');
   return `<h3>Config</h3><table class="grid hw-ro" id="hwConfigRO"><thead><tr><th>Key</th><th>Value</th></tr></thead><tbody>${rows}</tbody></table>
-    <p class="note">Editing the config and recalculating need the local GUI: python -m vca serve &lt;analysis&gt;.</p>`;
+    <p class="note">Editing the config and recalculating need the VC Analyzer app on your computer (or the local GUI, python -m vca serve &lt;analysis&gt;).</p>`;
 }
 
 function editorHtml() {
@@ -625,7 +626,7 @@ async function reloadStream() {
     hw.drafts.set(s.base, { raw: hw.raw, loaded: hw.loaded, origin: hw.origin, dirty: isDirty() });
     hw.base = '';
   }
-  await openSource({ kind: 'url', base: s.base, rev }, s.title, { keepView: true });
+  await openSource({ kind: 'url', base: s.base, rev }, streamTitle(s), { keepView: true });
   if (!keepSel && state.sel >= 0) { state.sel = -1; state.autoPick = false; renderTab(); }
   await loadSum(true);
 }

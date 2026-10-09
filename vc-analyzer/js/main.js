@@ -38,27 +38,33 @@
  * open, jobs, library, compare and the HW editor need `vca serve` with jobs (caps.jobs; Library: caps.server)
  * and stay hidden and silent on the static site and in an opened folder.
  */
-import { C, FILLS, LINES, PERF, perf, state } from './state.js?v=d11a44027e';
-import { setEmpty, setStatus } from './util.js?v=d11a44027e';
-import { caps, discoverStreams, goneData } from './data.js?v=d11a44027e';
-import { openSource, renderPicker } from './source.js?v=d11a44027e';
-import { isChromaBlock, orderedFrames, selectFrame } from './frames.js?v=d11a44027e';
-import { canvas, isRenderPending } from './view.js?v=d11a44027e';
-import { renderTab } from './inspector.js?v=d11a44027e';
-import { parseHash } from './hash.js?v=d11a44027e';
-import { wire } from './controls.js?v=d11a44027e';
-import { loadHealth, loadSession, toast } from './api.js?v=d11a44027e';
-import { initOpen, openSnap, showServerEmpty } from './open.js?v=d11a44027e';
-import { GONE_MSG } from './source.js?v=d11a44027e';
-import { initJobs, jobsSnap } from './jobs.js?v=d11a44027e';
-import { initLibrary, librarySnap } from './library.js?v=d11a44027e';
-import { hwSnap, initHw } from './hw.js?v=d11a44027e';
-import { exportSnap, initExport } from './export.js?v=d11a44027e';
-import { compareSnap, initCompare } from './compare.js?v=d11a44027e';
-import { bitstreamSnap, initBitstream } from './bitstream.js?v=d11a44027e';
-import { graphsSnap, initGraphs } from './graphs.js?v=d11a44027e';
+import { C, FILLS, LINES, PERF, perf, state } from './state.js?v=f86793b620';
+import { setEmpty, setStatus } from './util.js?v=f86793b620';
+import { caps, discoverStreams, goneData, streamTitle } from './data.js?v=f86793b620';
+import { defaultStreamIdx, openSource, rememberUsed, renderPicker } from './source.js?v=f86793b620';
+import { isChromaBlock, orderedFrames, selectFrame } from './frames.js?v=f86793b620';
+import { canvas, isRenderPending } from './view.js?v=f86793b620';
+import { renderTab } from './inspector.js?v=f86793b620';
+import { parseHash } from './hash.js?v=f86793b620';
+import { wire } from './controls.js?v=f86793b620';
+import { loadHealth, loadSession, toast } from './api.js?v=f86793b620';
+import { initOpen, openSnap, showServerEmpty } from './open.js?v=f86793b620';
+import { GONE_MSG } from './source.js?v=f86793b620';
+import { initJobs, jobsSnap } from './jobs.js?v=f86793b620';
+import { initLibrary, librarySnap } from './library.js?v=f86793b620';
+import { hwSnap, initHw } from './hw.js?v=f86793b620';
+import { exportSnap, initExport } from './export.js?v=f86793b620';
+import { compareSnap, initCompare } from './compare.js?v=f86793b620';
+import { bitstreamSnap, initBitstream } from './bitstream.js?v=f86793b620';
+import { graphsSnap, initGraphs } from './graphs.js?v=f86793b620';
 
 // ---------------------------------------------------------------- boot
+// A page without streams and without the local server (a site with no demos): what to do, named from the
+// folder the app is installed in, not with a command line (R48 QA D10).
+const NO_STREAM_MSG = 'No stream to show here. "Open bundle" reads an analysis folder written by "vca export" in this browser. '
+  + 'To open and analyze your own stream files, start the VC Analyzer app on your computer: 20_analyzer/launch/VC Analyzer.cmd '
+  + 'in its folder (vc-analyzer.sh on Linux).';
+
 async function boot() {
   const h = parseHash();
   if (h.fill && FILLS.some((f) => f.id === h.fill)) state.fill = h.fill;
@@ -82,16 +88,17 @@ async function boot() {
   if (!state.streams.length) {
     renderPicker();
     if (caps.jobs) showServerEmpty();
-    else setEmpty('No stream to show. Open a bundle folder, or start the local GUI with "python -m vca serve <analysis>".');
+    else setEmpty(NO_STREAM_MSG);
     return;
   }
   const want = new URLSearchParams(location.search).get('data');
   const wantBase = want ? new URL(want.replace(/\/?$/, '/'), location.href).href : null;
   let idx = state.streams.findIndex((s) => wantBase && s.base === wantBase);
-  if (idx < 0) idx = 0;
+  if (idx < 0) idx = defaultStreamIdx();
   state.streamIdx = idx;
   renderPicker();
-  await openSource({ kind: 'url', base: state.streams[idx].base }, state.streams[idx].title);
+  rememberUsed(state.streams[idx].id);
+  await openSource({ kind: 'url', base: state.streams[idx].base }, streamTitle(state.streams[idx]));
   if (PERF) await perfRun();
 }
 
