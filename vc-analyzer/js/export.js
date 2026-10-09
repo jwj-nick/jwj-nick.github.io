@@ -1,12 +1,12 @@
 // Export (SERVER_API.md §12): the picture as PNG (made here, every mode), tables as CSV
 // (server routes with `vca serve`, written here from the manifest and the frame payload
 // otherwise) and the stream report (server only).
-import { C, FILLS, frameMeta, hasArch, LINES, stageLabel, state, usesQp } from './state.js?v=84f66b0ecd';
-import { $, dpr, esc, RAMP, rgb, typeName } from './util.js?v=84f66b0ecd';
-import { caps } from './data.js?v=84f66b0ecd';
-import { isChromaBlock } from './frames.js?v=84f66b0ecd';
-import { canvas, drawScene } from './view.js?v=84f66b0ecd';
-import { ensureSymbols, symbolsReady } from './symbols.js?v=84f66b0ecd';
+import { C, FILLS, frameMeta, hasArch, LINES, stageLabel, state, usesQp } from './state.js?v=d11a44027e';
+import { $, dpr, esc, RAMP, rgb, typeName } from './util.js?v=d11a44027e';
+import { caps } from './data.js?v=d11a44027e';
+import { isChromaBlock } from './frames.js?v=d11a44027e';
+import { canvas, drawScene } from './view.js?v=d11a44027e';
+import { ensureSymbols, symbolsReady } from './symbols.js?v=d11a44027e';
 
 // ------------------------------------------------------------ CSV (§12.1)
 // Columns and cells as vca/tables.py writes them: frames = query.frames, blocks = query.BLOCK_SUMMARY_COLS.

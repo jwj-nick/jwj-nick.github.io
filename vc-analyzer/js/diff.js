@@ -1,13 +1,13 @@
 // Diff mode: per-frame A vs B detail, the diff bar, first mismatch and A/B flip.
-import { BASE_STAGES, kindLabel, STAGES, state } from './state.js?v=84f66b0ecd';
-import { $, esc, fmt, setStatus } from './util.js?v=84f66b0ecd';
-import { getJSON } from './data.js?v=84f66b0ecd';
-import { buildPicture, stageDiffers } from './planes.js?v=84f66b0ecd';
-import { renderStageOptions } from './source.js?v=84f66b0ecd';
-import { selectFrame } from './frames.js?v=84f66b0ecd';
-import { requestRender } from './view.js?v=84f66b0ecd';
-import { renderLegend } from './legend.js?v=84f66b0ecd';
-import { writeHash } from './hash.js?v=84f66b0ecd';
+import { BASE_STAGES, bLabel, kindLabel, STAGES, state } from './state.js?v=d11a44027e';
+import { $, esc, fmt, setStatus } from './util.js?v=d11a44027e';
+import { getJSON } from './data.js?v=d11a44027e';
+import { buildPicture, stageDiffers } from './planes.js?v=d11a44027e';
+import { renderStageOptions } from './source.js?v=d11a44027e';
+import { selectFrame } from './frames.js?v=d11a44027e';
+import { requestRender } from './view.js?v=d11a44027e';
+import { renderLegend } from './legend.js?v=d11a44027e';
+import { writeHash } from './hash.js?v=d11a44027e';
 
 // ------------------------------------------------------------- diff
 // manifest.diff lists the frames that have frames/<f>.diff.json; any other
@@ -48,7 +48,7 @@ export function renderDiffBar() {
   bar.hidden = false;
   const b = d.b || {};
   const sa = state.manifest.stream;
-  const who = `<span class="who">A = ${esc(sa.source_kind ? kindLabel(sa.source_kind) : 'this analysis')}${sa.decoder ? ` (${esc(sa.decoder.replace('AOMedia Project ', ''))})` : ''}, B = ${esc(b.title || 'B')}${b.kind ? ` (${esc(kindLabel(b.kind))})` : ''}</span>`;
+  const who = `<span class="who">A = ${esc(sa.source_kind ? kindLabel(sa.source_kind) : 'this analysis')}${sa.decoder ? ` (${esc(sa.decoder.replace('AOMedia Project ', ''))})` : ''}, B = ${esc(bLabel(b))}</span>`;
   const notes = (d.notes || []).length ? `<span class="who">${esc(d.notes.join('; '))}</span>` : '';
   if (d.equal) {
     bar.classList.add('equal');
@@ -60,7 +60,8 @@ export function renderDiffBar() {
   let first = '';
   if (fm) {
     const pt = fm.first_sample && fm.first_sample.luma_xy;
-    first = ` First mismatch: <b>frame ${fm.f}</b>${fm.stage ? `, ${esc(STAGES[fm.stage].toLowerCase())}` : ''}${pt ? ` at (${pt[0]}, ${pt[1]})` : ''}${fm.block ? ` in ${esc(fm.block.bsize)} at (${fm.block.x}, ${fm.block.y})` : ''}.`;
+    first = ` First mismatch: <b>frame ${fm.f}</b>${fm.stage ? `, ${esc(STAGES[fm.stage].toLowerCase())}` : ''}${pt ? ` at (${pt[0]}, ${pt[1]})` : ''}${fm.block ? ` in ${esc(fm.block.bsize)} at (${fm.block.x}, ${fm.block.y})` : ''}.`
+      + (fm.cycle !== null && fm.cycle !== undefined ? ` Simulation time there (from the dump): <b>${esc(String(fm.cycle))}</b>.` : '');
   }
   const n = (d.differing_frames || []).length;
   bar.innerHTML = `<span title="${esc(fm && fm.stage_meaning || '')}"><b>B departs from A</b> in ${fmt(n)} of ${fmt(d.frames_compared)} frames${d.output_md5_equal === false ? ' (output MD5 differs)' : ''}.${first}</span>${fm ? '<button class="btn" data-act="goto-mismatch">Go to first mismatch</button>' : ''}${who}${notes}`;

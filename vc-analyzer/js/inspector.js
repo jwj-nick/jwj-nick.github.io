@@ -1,12 +1,12 @@
 // Inspector tabs: Block, Diff, Frame, Syntax, Stats, Stream.
-import { BASE_STAGES, C, frameMeta, hasCdef, kindLabel, STAGES, state, usesQp } from './state.js?v=84f66b0ecd';
-import { $, esc, extText, fmt, refColor } from './util.js?v=84f66b0ecd';
-import { stageDiffers } from './planes.js?v=84f66b0ecd';
-import { focusStage } from './diff.js?v=84f66b0ecd';
-import { blockAt, chromaAt, frameSummary, isChromaBlock, partitionPath } from './frames.js?v=84f66b0ecd';
-import { ARCH_MODULES, archOf } from './arch.js?v=84f66b0ecd';
-import { hasSymbols, symbolsOfBlock, symbolsReady, symtype } from './symbols.js?v=84f66b0ecd';
-import { hwTabShown, renderHwTab } from './hw.js?v=84f66b0ecd';
+import { BASE_STAGES, bLabel, C, frameMeta, hasCdef, STAGES, state, usesQp } from './state.js?v=d11a44027e';
+import { $, esc, extText, fmt, refColor } from './util.js?v=d11a44027e';
+import { stageDiffers } from './planes.js?v=d11a44027e';
+import { focusStage } from './diff.js?v=d11a44027e';
+import { blockAt, chromaAt, frameSummary, isChromaBlock, partitionPath } from './frames.js?v=d11a44027e';
+import { ARCH_MODULES, archOf } from './arch.js?v=d11a44027e';
+import { hasSymbols, symbolsOfBlock, symbolsReady, symtype } from './symbols.js?v=d11a44027e';
+import { hwTabShown, renderHwTab } from './hw.js?v=d11a44027e';
 
 // ------------------------------------------------------------ inspector
 export function blockObject(bi) {
@@ -17,6 +17,14 @@ export function blockObject(bi) {
   return { o, ext };
 }
 
+// IR 0.3: where block bi's symbols sit in the file (the largest run), from frames/<f>.json `pos`.
+function filePosition(bi) {
+  const p = state.payload && state.payload.pos, rs = p && p.blk[bi];
+  if (!rs || !rs.length) return null;
+  const [k, a0, a1] = rs[0], g = p.segs[k];
+  if (!g) return null;
+  return { unit: g[0], b0: Math.floor(a0 / 8), b1: Math.max(Math.floor(a0 / 8) + 1, Math.ceil(a1 / 8)), runs: rs.length };
+}
 const kvRow = (k, v, unit) => `<dt>${esc(k)}</dt><dd>${v}${unit ? `<span class="unit">${esc(unit)}</span>` : ''}</dd>`;
 // A raw value as HTML: '–' when the analysis has none (null, missing or empty).
 const val = (v) => (v === null || v === undefined || v === '' ? '–' : esc(v));
@@ -44,6 +52,9 @@ function renderBlockTab() {
   if (extra.cfl) facts += kvRow('CfL', esc(JSON.stringify(extra.cfl)));
   if (extra.palette_size) facts += kvRow('Palette size', `${extra.palette_size[0]} / ${extra.palette_size[1]}`);
   facts += kvRow('Entropy bits', fmt(o.bits, 2), `${fmt(o.nsym)} symbols`);
+  const fp = filePosition(state.sel);
+  if (fp) facts += kvRow('In the file', `bytes ${fmt(fp.b0)}–${fmt(fp.b1 - 1)} <button class="btn small" data-act="block-bytes" data-unit="${fp.unit}" title="Open the Bitstream dialog (u) at this unit with the block's bytes shaded">Show bytes</button>`,
+    `unit ${fp.unit}${fp.runs > 1 ? `, ${fp.runs} runs of symbols` : ''}`);
   const A = archOf(state.payload);
   if (A) {
     const v = A.blk(state.payload.blocks[state.sel]) || [null, 0], r = A.sbAt(o.x, o.y);
@@ -93,6 +104,13 @@ function frameMiniStats() {
   return `<h3>This frame</h3><p class="sub">${esc(frameSummary())}</p>`;
 }
 
+// What the stream's coded units are called: OBU (AV1, AV2), NAL unit (HEVC, AVC, VVC), unit (VP9: a frame or a superframe index)
+function unitNoun(cap) {
+  const c = ((state.manifest || {}).stream || {}).codec;
+  const n = c === 'av1' || c === 'av2' ? 'OBU' : c === 'vp9' ? 'unit' : 'NAL unit';
+  return cap ? n.charAt(0).toUpperCase() + n.slice(1) : n;
+}
+
 function renderFrameTab() {
   const fr = state.payload.frame;
   const m = frameMeta(state.f);
@@ -104,7 +122,7 @@ function renderFrameTab() {
     + kvRow('Size', `${fmt(fr.width)}×${fmt(fr.height)}`) + kvRow('Superblock', fr.sb_size ? `${fr.sb_size}×${fr.sb_size}` : '–')
     + kvRow(usesQp() ? 'Slice QP' : 'Base qindex', val(fr.base_qindex))
     + kvRow('Tiles', `${fr.tiles ? fr.tiles.cols : 1}×${fr.tiles ? fr.tiles.rows : 1}`)
-    + kvRow('Bytes', fmt((fr.units || {}).bytes), 'all OBUs of this frame') + kvRow('Entropy bits', fmt((fr.stats || {}).symbol_bits, 1))
+    + kvRow('Bytes', fmt((fr.units || {}).bytes), `all ${unitNoun()}s of this frame`) + kvRow('Entropy bits', fmt((fr.stats || {}).symbol_bits, 1))
     + kvRow('Recon MD5', (fr.recon || {}).md5 ? `<span class="mono">${esc(fr.recon.md5)}</span>` : '–');
   const A = archOf(state.payload);
   if (A && A.frame && A.frame.modeled) {
@@ -115,8 +133,9 @@ function renderFrameTab() {
       + kvRow('Loop filter stages', esc((af.filters || ['?']).join(', ') || 'none'));
   }
   const obj = (o) => Object.entries(o || {}).map(([k, v]) => kvRow(k, v !== null && typeof v === 'object' ? esc(JSON.stringify(v)) : val(v))).join('');
-  const refs = (fr.refs || []).map((r, i) => `<tr><td>${esc(r.name || 'REF' + i)}</td><td class="num">${fmt(r.slot)}</td><td class="num">${fmt(r.order_hint)}</td></tr>`).join('');
-  const units = (fr.units_list || []).map((u) => `<tr><td class="num">${u.i}</td><td>${esc(u.type_name)}</td><td class="num">${fmt(u.offset)}</td><td class="num">${fmt(u.size)}</td></tr>`).join('');
+  // the decoded frame each reference holds (decode index), next to slot and order hint: VP9 has no order hint (R46 G5)
+  const refs = (fr.refs || []).map((r, i) => `<tr><td>${esc(r.name || 'REF' + i)}</td><td class="num">${fmt(r.slot)}</td><td class="num">${fmt(r.order_hint)}</td><td class="num">${r.f === null || r.f === undefined ? '–' : fmt(r.f)}</td></tr>`).join('');
+  const units = (fr.units_list || []).map((u) => `<tr class="clickable" data-unit="${u.i}" title="Show this unit's header elements and bytes (Bitstream)"><td class="num">${u.i}</td><td>${esc(u.type_name)}</td><td class="num">${fmt(u.offset)}</td><td class="num">${fmt(u.size)}</td></tr>`).join('');
   // IR 0.2 header values: quantizer deltas and matrices, segmentation, the picture's PPS (VVC, HEVC)
   const quant = {};
   for (const k of ['q_delta', 'delta_q', 'qm']) if (fr[k]) quant[k] = fr[k];
@@ -139,15 +158,15 @@ function renderFrameTab() {
   const pps = (ex.vvc || ex.hevc || {}).pps;
   const ppsHtml = pps ? `<details class="ps"><summary>Picture parameter set (${Object.keys(pps).length} fields)</summary><dl class="kv">${obj(pps)}</dl></details>` : '';
   return `<h2>Frame ${fr.f}</h2><p class="sub">${esc(frameSummary())}</p>
-    <div class="actions"><button class="chip" data-act="order" aria-pressed="${state.order === 'output'}">Step through output order</button><button class="btn" data-act="copy-frame">Copy for AI</button><span class="toast" id="toast"></span></div>
+    <div class="actions"><button class="chip" data-act="order" aria-pressed="${state.order === 'output'}">Step through output order</button><button class="btn" data-act="copy-frame">Copy for AI</button><button class="btn" data-act="units" title="Every coded unit of the stream with its header elements and bytes in hex (u)">Units…</button><span class="toast" id="toast"></span></div>
     <dl class="kv">${facts}</dl>
-    <h3>References</h3>${refs ? `<table class="grid"><thead><tr><th>Reference</th><th class="num">Slot</th><th class="num">Order hint</th></tr></thead><tbody>${refs}</tbody></table>` : '<p class="note">None: this frame reads no reference list.</p>'}
+    <h3>References</h3>${refs ? `<table class="grid"><thead><tr><th>Reference</th><th class="num">Slot</th><th class="num">Order hint</th><th class="num" title="Decode index of the frame this reference holds">Frame</th></tr></thead><tbody>${refs}</tbody></table>` : '<p class="note">None: this frame reads no reference list.</p>'}
     <h3>Coding decisions</h3><dl class="kv">${obj(fr.coding)}</dl>
     ${Object.keys(quant).length ? `<h3>Quantization</h3><dl class="kv">${obj(quant)}</dl>` : ''}
     ${segHtml}
     <h3>Filters</h3><dl class="kv">${obj(fr.filters)}</dl>
     ${ppsHtml}
-    <h3>OBUs of this frame</h3><table class="grid"><thead><tr><th class="num">#</th><th>Type</th><th class="num">Offset</th><th class="num">Size</th></tr></thead><tbody>${units}</tbody></table>`;
+    <h3>${unitNoun(true)}s of this frame</h3><table class="grid"><thead><tr><th class="num">#</th><th>Type</th><th class="num">Offset</th><th class="num">Size</th></tr></thead><tbody>${units}</tbody></table>`;
 }
 
 function renderSyntaxTab() {
@@ -222,12 +241,13 @@ function renderStreamTab() {
   const types = new Map();
   units.forEach((u) => types.set(u.type_name, (types.get(u.type_name) || 0) + 1));
   const note = (state.streams[state.streamIdx] || {}).note;
-  return `<h2>${esc(state.manifest.title || s.name)}</h2><p class="sub">${fmt(s.frames)} decoded frames, ${fmt(s.outputs)} output frames, ${fmt(units.length)} OBUs</p>
+  return `<h2>${esc(state.manifest.title || s.name)}</h2><p class="sub">${fmt(s.frames)} decoded frames, ${fmt(s.outputs)} output frames, ${fmt(units.length)} ${unitNoun()}s</p>
     ${note ? `<p class="note">${esc(note)}</p>` : ''}
+    <div class="actions"><button class="btn" data-act="units" title="Every coded unit of the stream with its header elements and bytes in hex (u)">Units…</button><button class="btn" data-act="graphs" title="Frame size, bitrate and QP per frame, mode and block size distributions, motion vectors and block search (Shift+G)">Graphs…</button></div>
     <dl class="kv">${facts}</dl>
     <h3>Sequence tools enabled</h3><div>${(s.tools_enabled || []).map((t) => pill(t, true)).join('') || '<span class="note">none reported</span>'}</div>
     <h3>Sequence tools disabled</h3><div>${(s.tools_disabled || []).map((t) => pill(t, false)).join('') || '<span class="note">none</span>'}</div>
-    <h3>OBU types</h3><table class="grid"><tbody>${[...types.entries()].map(([k, v]) => `<tr><td>${esc(k)}</td><td class="num">${v}</td></tr>`).join('')}</tbody></table>`;
+    <h3>${unitNoun(true)} types</h3><table class="grid"><tbody>${[...types.entries()].map(([k, v]) => `<tr class="clickable" data-unit-type="${esc(k)}" title="List the ${esc(k)} units (Bitstream)"><td>${esc(k)}</td><td class="num">${v}</td></tr>`).join('')}</tbody></table>`;
 }
 
 export function renderTabs() {
@@ -252,11 +272,38 @@ function blockLabel(i) {
   return b ? `${esc(b[C.bsize])} at (${b[C.x]}, ${b[C.y]}) ${esc(b[C.pred] || '')} ${esc(b[C.mode] || '')}` : `block ${i}`;
 }
 
+// ext values of a block as flat names: the IR's {<group>: {cycle: ...}} or a flat {cycle: ...}.
+function flatExt(ext) {
+  const out = {};
+  for (const [k, v] of Object.entries(ext || {})) {
+    if (v && typeof v === 'object' && !Array.isArray(v)) for (const [k2, v2] of Object.entries(v)) out[k2] = v2;
+    else out[k] = v;
+  }
+  return out;
+}
+const FM_FIELDS = ['bsize', 'x', 'y', 'w', 'h', 'tree', 'pred', 'mode', 'uv_mode', 'tx_size', 'tx_type', 'qindex', 'ref', 'mv'];
+// The first mismatch (manifest diff.first_mismatch, SERVER_API.md §13.3), on its frame: the simulation
+// time the dump gave B's block there (ext.cycle) and B's block values next to A's.
+function firstMismatchHtml() {
+  const fm = state.diff && state.diff.first_mismatch;
+  if (!fm || fm.f !== state.f) return '';
+  const has = (v) => v !== null && v !== undefined;
+  const sim = has(fm.cycle) ? `<p class="fm-sim">Simulation time of the first mismatching block (from the dump): <b>${esc(String(fm.cycle))}</b></p>` : '';
+  const a = fm.block || {}, b = fm.block_b;
+  if (!b) return sim;   // B gives no block there (a pixel-only dump such as a raw YUV file, or another partition)
+  const val = (v) => (has(v) ? esc(typeof v === 'object' ? JSON.stringify(v) : String(v)) : '–');
+  const rows = FM_FIELDS.filter((k) => has(a[k]) || has(b[k])).map((k) => {
+    const differs = has(a[k]) && has(b[k]) && JSON.stringify(a[k]) !== JSON.stringify(b[k]);   // a field the dump does not give is not a mismatch
+    return `<tr><td>${k}</td><td>${val(a[k])}</td><td${has(b[k]) ? '' : ' title="B does not give this field"'}>${differs ? `<span class="mis">${val(b[k])}</span>` : val(b[k])}</td></tr>`;
+  }).join('') + Object.entries(flatExt(b.ext)).map(([k, v]) => `<tr><td>ext.${esc(k)}</td><td title="A comes from the reference decoder and has no dump annotations">–</td><td>${val(v)}</td></tr>`).join('');
+  return sim + `<h3>First mismatching block: A and B</h3><table class="grid"><thead><tr><th>Field</th><th>A (expected)</th><th>B</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
 function renderDiffTab() {
   const d = state.diff, fd = state.fdiff;
   if (!d) return '<h2>Diff</h2><p class="sub">Open two analyses in diff mode to compare them.</p>';
   const b = d.b || {};
-  const head = `<h2>Frame ${state.f}: A vs B</h2><p class="sub">B = ${esc(b.title || '')}${b.kind ? ` (${esc(kindLabel(b.kind))})` : ''}${b.decoder ? `, ${esc(b.decoder)}` : ''}. Pixels are compared as exact samples.</p>`;
+  const head = `<h2>Frame ${state.f}: A vs B</h2><p class="sub">B = ${esc(bLabel(b))}${b.decoder ? `, ${esc(b.decoder)}` : ''}. Pixels are compared as exact samples.</p>`;
   if (!fd) return head + '<p class="note">Loading…</p>';
   if (fd.equal) return head + '<p>This frame of B matches A: every pixel stage, block field and symbol is equal.</p>'
     + (d.first_mismatch ? '<div class="actions"><button class="btn" data-act="goto-mismatch">Go to first mismatch</button></div>' : '');
@@ -276,6 +323,7 @@ function renderDiffTab() {
   return head
     + (fd.stage_meaning ? `<p>First stage that differs: <b>${esc(STAGES[fd.first_stage])}</b>. Look at the ${esc(fd.stage_meaning)}.</p>` : '<p>Pixels are equal; the syntax differs (see below).</p>')
     + `<div class="actions">${acts}</div>`
+    + firstMismatchHtml()
     + `<h3>Pixel stages (decode pipeline order)</h3><table class="grid"><thead><tr><th>Stage</th><th>Result</th><th>First sample, A → B</th><th class="num">Blocks</th></tr></thead><tbody>${rows}</tbody></table>`
     + (sb.length ? `<h3>Blocks holding differing samples at ${esc(STAGES[fst].toLowerCase())} (${fmt(sb.length)})</h3><table class="grid"><tbody>${list(sb)}</tbody></table>${sb.length > 60 ? `<p class="note">Showing 60 of ${fmt(sb.length)}.</p>` : ''}` : '')
     + (fields ? `<h3>Blocks whose fields differ (${fmt(fd.field_blocks.length)})</h3><table class="grid"><thead><tr><th>Block (A)</th><th>Field A → B</th></tr></thead><tbody>${fields}</tbody></table>` : '')

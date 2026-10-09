@@ -40,6 +40,11 @@ export const STAGES = {
 export const BASE_STAGES = ['recon', 'prefilter', 'pred'];
 const KIND_LABELS = { ref_decoder: 'reference decoder', c_model: 'C model', rtl_dump: 'RTL dump' };
 export const kindLabel = (k) => KIND_LABELS[k] || String(k || '').replace(/_/g, ' ');
+// B of a comparison as "<name> (<kind>)", once: a converted dump's Library name already ends in its kind ("mapping.yaml (C model)").
+export const bLabel = (b) => {
+  const t = b.title || 'B', k = b.kind ? kindLabel(b.kind) : '';
+  return k && !t.toLowerCase().endsWith(`(${k.toLowerCase()})`) ? `${t} (${k})` : t;
+};
 // Diff mode adds "B:<stage>" (B's samples) and "D:<stage>" (exact A − B).
 export const stageLabel = (st) => (st.startsWith('B:') ? `B: ${STAGES[st.slice(2)]}` : st.startsWith('D:') ? `A − B: ${STAGES[st.slice(2)]}` : STAGES[st]);
 

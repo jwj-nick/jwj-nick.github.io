@@ -1,8 +1,8 @@
 // Talking to `vca serve` (20_analyzer/SERVER_API.md): JSON requests with the
 // page's token, server errors as {code, message, hint}, the session and the
 // tool health, sizes and dates for the dialogs, and the toast.
-import { caps, withToken, writeCaps } from './data.js?v=84f66b0ecd';
-import { $, esc } from './util.js?v=84f66b0ecd';
+import { caps, withToken, writeCaps } from './data.js?v=d11a44027e';
+import { $, esc } from './util.js?v=d11a44027e';
 
 export class ApiError extends Error {
   constructor(status, code, message, hint, field) { super(message); this.status = status; this.code = code; this.hint = hint || ''; this.field = field || null; }
@@ -139,10 +139,14 @@ export function toast(msg, kind = '') {
   t.className = `toast-pop${kind ? ' ' + kind : ''}`;
   t.style.bottom = '';
   t.hidden = false;
-  const tray = $('#jobTray');
-  if (!tray.hidden) {
-    const a = t.getBoundingClientRect(), b = tray.getBoundingClientRect();
-    if (a.right > b.left && a.left < b.right && a.bottom > b.top) t.style.bottom = `${Math.round(innerHeight - b.top + 8)}px`;
+  // above the status line, the legend and the job tray when it would cover them (bottom up: a move can
+  // bring the toast onto the next one); only those in the lower half of the window
+  for (const id of ['#statusbar', '#legend', '#jobTray']) {
+    const el = $(id);
+    if (!el || el.hidden || !el.getClientRects().length) continue;
+    const a = t.getBoundingClientRect(), b = el.getBoundingClientRect();
+    if (!b.height || b.top < innerHeight / 2) continue;
+    if (a.right > b.left && a.left < b.right && a.bottom > b.top && a.top < b.bottom) t.style.bottom = `${Math.round(innerHeight - b.top + 8)}px`;
   }
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => { t.hidden = true; }, 4500);

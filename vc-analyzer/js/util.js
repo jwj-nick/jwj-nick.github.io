@@ -1,5 +1,5 @@
 // Utilities, colours and the status line.  No viewer state except the codec of the open stream.
-import { codecOf } from './state.js?v=84f66b0ecd';
+import { codecOf } from './state.js?v=d11a44027e';
 
 // ------------------------------------------------------------ utilities
 export const $ = (s, r = document) => r.querySelector(s);

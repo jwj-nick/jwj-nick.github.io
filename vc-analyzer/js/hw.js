@@ -4,16 +4,16 @@
 // (slot b), saved configs, YAML import and download.
 // Edits live here (draft, one per analysis while the page lives) until Recalculate; values are
 // checked by the server (POST api/arch/validate) field by field, so every message is the server's sentence.
-import { hasArch, state } from './state.js?v=84f66b0ecd';
-import { $, esc, fmt, typeName } from './util.js?v=84f66b0ecd';
-import { bustCache, caps } from './data.js?v=84f66b0ecd';
-import { api, toast } from './api.js?v=84f66b0ecd';
-import { archOf } from './arch.js?v=84f66b0ecd';
-import { openSource } from './source.js?v=84f66b0ecd';
-import { renderTab } from './inspector.js?v=84f66b0ecd';
-import { selectFrame } from './frames.js?v=84f66b0ecd';
-import { trackJob } from './jobs.js?v=84f66b0ecd';
-import { writeHash } from './hash.js?v=84f66b0ecd';
+import { hasArch, state } from './state.js?v=d11a44027e';
+import { $, esc, fmt, typeName } from './util.js?v=d11a44027e';
+import { bustCache, caps } from './data.js?v=d11a44027e';
+import { api, toast } from './api.js?v=d11a44027e';
+import { archOf } from './arch.js?v=d11a44027e';
+import { openSource } from './source.js?v=d11a44027e';
+import { renderTab } from './inspector.js?v=d11a44027e';
+import { selectFrame } from './frames.js?v=d11a44027e';
+import { trackJob } from './jobs.js?v=d11a44027e';
+import { writeHash } from './hash.js?v=d11a44027e';
 
 const DRAFT_NOTE = 'Provisional L0 HW model (draft): placeholder parameters unless you load your own; how it counts is in 02_Nick/ARCH_MODEL.md of the repository.';
 // headings of the schema's groups (by lower-case name; other groups show their own name)

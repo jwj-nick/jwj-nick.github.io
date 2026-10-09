@@ -1,5 +1,5 @@
 // Reading the data contract from a URL or an opened folder, stream discovery and caps.
-import { fetchOpts, perfMark, state } from './state.js?v=84f66b0ecd';
+import { fetchOpts, perfMark, state } from './state.js?v=d11a44027e';
 
 // The per-run token `vca serve` writes into <meta name="vca-token"> (SERVER_API.md §3).
 // Empty on the static site and in an opened folder: then no header is sent.
@@ -61,6 +61,10 @@ const toStream = (it, listUrl) => ({ id: it.id, title: it.title || it.id, note: 
 
 // Streams offered in the picker: `vca serve` (/api/list) or the static demo
 // index, plus an explicit ?data=<bundle url> when it is not one of them.
+// A ?data= analysis of this server (api/a/<id>/) that the library no longer lists is not
+// offered: goneData() is its URL, and the page says it was deleted (main.js).
+let gone = null;
+export const goneData = () => gone;
 export async function discoverStreams() {
   const params = new URLSearchParams(location.search);
   const list = [];
@@ -79,8 +83,12 @@ export async function discoverStreams() {
   }
   if (params.get('data')) {
     const base = new URL(params.get('data').replace(/\/?$/, '/'), location.href).href;
-    if (!list.some((x) => x.base === base)) list.unshift({ id: 'url', title: params.get('data'), base });
-    caps.static = true;
+    const mine = caps.server && base.startsWith(new URL('api/a/', location.href).href);
+    if (mine && !list.some((x) => x.base === base)) gone = base;
+    else {
+      if (!list.some((x) => x.base === base)) list.unshift({ id: 'url', title: params.get('data'), base });
+      caps.static = true;
+    }
   }
   writeCaps();
   return list;

@@ -31,25 +31,32 @@
  *   library  Library dialog: list, filter, open, delete
  *   hw       HW tab: Arch Model L0 result, config editor, recalculation, comparison
  *   export   Export dialog: picture PNG, tables CSV (server routes or written here), report link
+ *   compare  Compare dialog: A from the library, B = another analysis, a dump mapping or a raw YUV file
+ *   bitstream  Bitstream dialog: unit list, header elements with bit positions, hex dump
+ *   graphs   Graphs dialog: frame size and bitrate, QP per frame, distributions, motion vectors, block search
  *   main     boot, ?perf=1 run, window.__vca probe
- * open, jobs, library and the HW editor need `vca serve` with jobs (caps.jobs; Library: caps.server)
+ * open, jobs, library, compare and the HW editor need `vca serve` with jobs (caps.jobs; Library: caps.server)
  * and stay hidden and silent on the static site and in an opened folder.
  */
-import { C, FILLS, LINES, PERF, perf, state } from './state.js?v=84f66b0ecd';
-import { setEmpty, setStatus } from './util.js?v=84f66b0ecd';
-import { caps, discoverStreams } from './data.js?v=84f66b0ecd';
-import { openSource, renderPicker } from './source.js?v=84f66b0ecd';
-import { isChromaBlock, orderedFrames, selectFrame } from './frames.js?v=84f66b0ecd';
-import { canvas, isRenderPending } from './view.js?v=84f66b0ecd';
-import { renderTab } from './inspector.js?v=84f66b0ecd';
-import { parseHash } from './hash.js?v=84f66b0ecd';
-import { wire } from './controls.js?v=84f66b0ecd';
-import { loadHealth, loadSession } from './api.js?v=84f66b0ecd';
-import { initOpen, openSnap, showServerEmpty } from './open.js?v=84f66b0ecd';
-import { initJobs, jobsSnap } from './jobs.js?v=84f66b0ecd';
-import { initLibrary, librarySnap } from './library.js?v=84f66b0ecd';
-import { hwSnap, initHw } from './hw.js?v=84f66b0ecd';
-import { exportSnap, initExport } from './export.js?v=84f66b0ecd';
+import { C, FILLS, LINES, PERF, perf, state } from './state.js?v=d11a44027e';
+import { setEmpty, setStatus } from './util.js?v=d11a44027e';
+import { caps, discoverStreams, goneData } from './data.js?v=d11a44027e';
+import { openSource, renderPicker } from './source.js?v=d11a44027e';
+import { isChromaBlock, orderedFrames, selectFrame } from './frames.js?v=d11a44027e';
+import { canvas, isRenderPending } from './view.js?v=d11a44027e';
+import { renderTab } from './inspector.js?v=d11a44027e';
+import { parseHash } from './hash.js?v=d11a44027e';
+import { wire } from './controls.js?v=d11a44027e';
+import { loadHealth, loadSession, toast } from './api.js?v=d11a44027e';
+import { initOpen, openSnap, showServerEmpty } from './open.js?v=d11a44027e';
+import { GONE_MSG } from './source.js?v=d11a44027e';
+import { initJobs, jobsSnap } from './jobs.js?v=d11a44027e';
+import { initLibrary, librarySnap } from './library.js?v=d11a44027e';
+import { hwSnap, initHw } from './hw.js?v=d11a44027e';
+import { exportSnap, initExport } from './export.js?v=d11a44027e';
+import { compareSnap, initCompare } from './compare.js?v=d11a44027e';
+import { bitstreamSnap, initBitstream } from './bitstream.js?v=d11a44027e';
+import { graphsSnap, initGraphs } from './graphs.js?v=d11a44027e';
 
 // ---------------------------------------------------------------- boot
 async function boot() {
@@ -59,12 +66,19 @@ async function boot() {
   if (h.stage) state.stage = h.stage;
   if (h.tab) state.tab = h.tab;
   wire();
-  initOpen(); initLibrary(); initHw(); initExport();
+  initOpen(); initLibrary(); initHw(); initExport(); initCompare(); initBitstream(); initGraphs();
   renderTab();
   state.streams = await discoverStreams();
   if (caps.server) await loadSession();   // caps.jobs: Open stream, jobs, drop target
   initJobs();
   if (caps.jobs) loadHealth();            // the first call also warms WSL on the server
+  if (goneData()) {   // a reload of an analysis that was deleted since: say so instead of opening another
+    state.streamIdx = -1;
+    renderPicker();
+    if (!state.streams.length && caps.jobs) { showServerEmpty(); toast(GONE_MSG); return; }
+    setEmpty(`${GONE_MSG} ${state.streams.length ? 'Choose another one in the picker or the Library, or open the stream again.' : 'Open the stream again to analyze it.'}`);
+    return;
+  }
   if (!state.streams.length) {
     renderPicker();
     if (caps.jobs) showServerEmpty();
@@ -127,6 +141,9 @@ window.__vca = {
       open: openSnap(), jobs: jobsSnap(), library: librarySnap(),
       hw: hwSnap(),   // A2 (read-only): HW tab
       export: exportSnap(),   // A3 (read-only): Export dialog
+      compare: compareSnap(),   // A4 (read-only): Compare dialog
+      bitstream: bitstreamSnap(),   // F-a (read-only): Bitstream dialog
+      graphs: graphsSnap(),   // F-d (read-only): Graphs dialog
     };
   },
   // Client (CSS px) coordinates of the centre of luma pixel (x, y), for clicks.

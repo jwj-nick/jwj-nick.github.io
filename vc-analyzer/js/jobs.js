@@ -3,12 +3,13 @@
 // Jobs live on the server, so the tray comes back after a reload: it shows
 // the jobs that are queued or running, the ones this page saw running, and
 // the ones that ended in the minute before the page loaded.
-import { state } from './state.js?v=84f66b0ecd';
-import { $, esc } from './util.js?v=84f66b0ecd';
-import { caps } from './data.js?v=84f66b0ecd';
-import { api, apiText, fmtSeconds, parseTime, problemHTML, server, toast } from './api.js?v=84f66b0ecd';
-import { openStreamAt, refreshStreams } from './source.js?v=84f66b0ecd';
-import { archJobEnded } from './hw.js?v=84f66b0ecd';
+import { state } from './state.js?v=d11a44027e';
+import { $, esc } from './util.js?v=d11a44027e';
+import { caps } from './data.js?v=d11a44027e';
+import { api, apiText, fmtSeconds, parseTime, problemHTML, server, toast } from './api.js?v=d11a44027e';
+import { openStreamAt, refreshStreams } from './source.js?v=d11a44027e';
+import { archJobEnded } from './hw.js?v=d11a44027e';
+import { pairName } from './library.js?v=d11a44027e';
 
 const rows = new Map();   // job id -> row record (see record())
 const LOADED = Date.now();
@@ -19,6 +20,10 @@ const isActive = (j) => ACTIVE.has(j.state);
 // HW model jobs (SERVER_API.md §11): they rewrite an analysis that is already open, so
 // the HW tab reloads it in place instead of the "open when ready" of analyze jobs.
 const isArch = (j) => j.kind === 'arch';
+// Convert jobs (SERVER_API.md §13.2): a dump or a raw YUV file becomes analysis B; with job.compare the
+// page opens that A-vs-B entry when the job ends (not B alone when it becomes ready).
+const isConvert = (j) => j.kind === 'convert';
+const targetOf = (j) => (isConvert(j) && j.compare ? j.compare : j.analysis);
 const COLLAPSE_MS = 6000;   // the tray folds to its header this long after the last active job ends
 const LONG_LINE = 140;      // outcome lines longer than this are clamped, the full text in the tooltip
 let timer = 0, busy = false, again = false, offline = null, expanded = true, firstList = true;
@@ -27,7 +32,7 @@ let dismissed = new Set();
 try { dismissed = new Set(JSON.parse(sessionStorage.getItem('vca.dismissed') || '[]')); } catch (e) { /* storage blocked */ }
 
 const record = (job) => ({ job, at: performance.now(), seen: isActive(job), fromPage: false, startSeq: 0, codec: null,
-  el: null, log: '', logNext: 0, logOpen: false, logBusy: false, actErr: null, opened: false, archDone: false });
+  el: null, log: '', logNext: 0, logOpen: false, logBusy: false, actErr: null, opened: false, archDone: false, convDone: false });
 
 // Read-only view for window.__vca.snap() (tests).
 export function jobsSnap() {
@@ -63,6 +68,7 @@ export function trackJob(job, { fromPage = true, codec = null } = {}) {
   setExpanded(true);
   render();
   if (isArch(r.job) && !isActive(r.job)) endArch(r);
+  if (isConvert(r.job) && !isActive(r.job)) refreshStreams().catch(() => {}).then(() => endConvert(r));
   pollJobs(300);
 }
 
@@ -123,20 +129,22 @@ async function poll() {
 }
 
 async function merge(list) {
-  const ready = [], ended = [], archEnded = [];
+  const ready = [], ended = [], archEnded = [], convEnded = [];
   for (const j of list) {
     let r = rows.get(j.id);
     const prev = r ? r.job : null;
     if (!r) { r = record(j); rows.set(j.id, r); }
     r.job = j; r.at = performance.now();
     if (isActive(j)) r.seen = true;
-    if (j.ready && j.analysis && !(prev && prev.ready) && r.seen && !isArch(j)) ready.push(r);
+    if (j.ready && j.analysis && !(prev && prev.ready) && r.seen && !isArch(j) && !isConvert(j)) ready.push(r);
+    if (isConvert(j) && !isActive(j) && r.seen && !r.convDone) convEnded.push(r);
     if (!isActive(j) && prev && isActive(prev)) ended.push(r);
     if (isArch(j) && !isActive(j) && r.seen && !r.archDone) archEnded.push(r);
   }
-  if (ready.length || ended.length || archEnded.length) { try { await refreshStreams(); } catch (e) { /* the list comes back next time */ } }
+  if (ready.length || ended.length || archEnded.length || convEnded.length) { try { await refreshStreams(); } catch (e) { /* the list comes back next time */ } }
   for (const r of ready) await whenReady(r);
   for (const r of archEnded) await endArch(r);
+  for (const r of convEnded) await endConvert(r);
   // a job of this page that failed: its row says why (no toast on top of it)
   const failed = ended.filter((r) => r.job.state === 'failed' && r.fromPage);
   if (failed.length) {
@@ -161,6 +169,23 @@ async function whenReady(r) {
   toast(`Opened ${r.job.source.name}.${checking ? ' The reference decoder check runs in the background.' : ''}`);
 }
 
+// A convert job of this page that ended: open its comparison on the first mismatch (or B
+// when no comparison was asked), unless another stream was opened since.
+async function endConvert(r) {
+  if (r.convDone || !isConvert(r.job) || isActive(r.job) || !r.seen) return;
+  r.convDone = true;
+  if (r.job.state !== 'succeeded' || r.opened) return;
+  const id = targetOf(r.job);
+  const i = state.streams.findIndex((s) => s.id === id);
+  if (i < 0 || !(r.fromPage && state.openSeq === r.startSeq) && state.manifest) return;
+  r.opened = true;
+  await openStreamAt(i);
+  // the comparison is on screen: the tray folds at once (it would cover the Diff tab), then the toast
+  if (![...rows.values()].some((x) => isActive(x.job))) { cancelCollapse(); setExpanded(false); }
+  const e = state.streams[i] && state.streams[i].entry;
+  toast(`Opened ${e ? (e.kind === 'diff' ? pairName(e) : e.title) : id}${r.job.compare ? ' on the first mismatch' : ''}.`);
+}
+
 // ----------------------------------------------------------------- actions
 async function cancel(r, b) {
   b.disabled = true;
@@ -175,8 +200,9 @@ async function cancel(r, b) {
   pollJobs(0);
 }
 async function openJob(r) {
-  let i = state.streams.findIndex((s) => s.id === r.job.analysis);
-  if (i < 0) { try { await refreshStreams(); } catch (e) { /* offline */ } i = state.streams.findIndex((s) => s.id === r.job.analysis); }
+  const id = targetOf(r.job);
+  let i = state.streams.findIndex((s) => s.id === id);
+  if (i < 0) { try { await refreshStreams(); } catch (e) { /* offline */ } i = state.streams.findIndex((s) => s.id === id); }
   if (i < 0) { r.actErr = { message: 'This analysis is no longer in the library.', hint: 'It may have been deleted.' }; render(); return; }
   r.opened = true;
   await openStreamAt(i);
@@ -265,7 +291,8 @@ function shown(r) {
 const phaseOf = (j, name) => ((j.phases || []).find((p) => p.name === name) || {}).state;
 
 const slotOf = (j) => ((j.options && j.options.slot) === 'b' ? 'comparison B' : 'A');
-const PHASE_WORDS = { probe: 'reading the file', extract: 'extracting the video track', decode: 'decoding', ingest: 'building the store', hw: 'running the HW model', verify: 'checking against the reference decoder' };
+const PHASE_WORDS = { probe: 'reading the file', extract: 'extracting the video track', decode: 'decoding', ingest: 'building the store', hw: 'running the HW model', verify: 'checking against the reference decoder',
+  convert: 'converting B', compare: 'comparing with A' };
 function phaseText(j) {
   const pct = j.fraction === null || j.fraction === undefined ? '' : ` ${Math.round(j.fraction * 100)} %`;
   if (j.state === 'queued') { const n = aheadOf(j); return n ? `Queued, ${n} ahead` : 'Starting…'; }
@@ -276,6 +303,7 @@ function phaseText(j) {
   if (j.state === 'cancelled') return 'Cancelled';
   if (j.state === 'succeeded') return 'Done';
   if (isArch(j)) return `Calculating the HW model (draft), ${slotOf(j)}`;
+  if (isConvert(j)) return j.phase === 'compare' ? 'Comparing with A' : `Converting B into an analysis${pct}`;
   switch (j.phase) {
     case 'probe': return 'Reading the file';
     case 'extract': return 'Extracting the video track with FFmpeg';
@@ -313,6 +341,11 @@ function outcomeHTML(r) {
   if (r.actErr) out.push(`<span class="line problem">${problemHTML(r.actErr)}</span>`);
   if (j.state === 'failed' && j.error) out.push(`<span class="line problem">${problemHTML(j.error)}</span>`);
   for (const w of j.warnings || []) out.push(textLine(w, 'warn'));
+  if (isConvert(j)) {
+    if (j.state === 'succeeded') out.push(textLine(j.compare ? 'B was converted and compared with A.' : 'B was converted into an analysis.', 'good'));
+    else if (j.state === 'cancelled') out.push(textLine('Cancelled. Nothing was kept.'));
+    return out.join('');
+  }
   if (isArch(j)) {
     if (j.state === 'succeeded') out.push(textLine(slotOf(j) === 'A' ? 'HW model updated: the w and f fills and the HW tab show it.' : 'Comparison B is in the HW tab.', 'good'));
     else if (j.state === 'cancelled') out.push(textLine('Cancelled. The earlier HW model result stays.'));
@@ -407,7 +440,8 @@ function updateRow(r) {
   // an arch job's source name is the stream file (often stream.ivf): the analysis title says which one
   const what = isArch(j) ? (entryOf(j) || {}).title || (j.source && j.source.name) || j.analysis || j.id
     : (j.source && j.source.name) || (entryOf(j) || {}).title || j.analysis || j.id;
-  name.textContent = isArch(j) ? `HW model ${slotOf(j)}: ${what}` : what;
+  const ref = isConvert(j) && (state.streams.find((x) => x.id === ((j.source && j.source.ref) || (j.convert && j.convert.ref))) || {}).entry;
+  name.textContent = isArch(j) ? `HW model ${slotOf(j)}: ${what}` : isConvert(j) ? `Compare ${what}${ref ? ` with ${ref.title}` : ''}` : what;
   name.title = (j.source && (j.source.path || j.source.name)) || '';
   const e = entryOf(j);
   const codec = (e && e.codec) || r.codec;
@@ -427,14 +461,16 @@ function updateRow(r) {
   const html = outcomeHTML(r);
   if (msg.innerHTML !== html) msg.innerHTML = html;
   msg.hidden = !html;
-  const canOpen = !!(j.ready && j.analysis && state.streams.some((s) => s.id === j.analysis));
-  const isOpen = canOpen && state.streams[state.streamIdx] && state.streams[state.streamIdx].id === j.analysis;
+  const tid = targetOf(j);
+  const canOpen = !!((j.ready || (isConvert(j) && j.state === 'succeeded')) && tid && state.streams.some((s) => s.id === tid));
+  const isOpen = canOpen && state.streams[state.streamIdx] && state.streams[state.streamIdx].id === tid;
   el.querySelector('[data-act="cancel"]').hidden = !isActive(j);
   const open = el.querySelector('[data-act="open"]');
   open.hidden = !canOpen;
   open.textContent = isOpen ? 'Shown' : 'Open';
   open.disabled = !!isOpen;
-  open.title = isOpen ? 'This analysis is the one in the viewer' : 'Show this analysis in the viewer';
+  const noun = isConvert(j) && j.compare ? 'comparison' : 'analysis';
+  open.title = isOpen ? `This ${noun} is the one in the viewer` : `Show this ${noun} in the viewer`;
   el.querySelector('[data-act="dismiss"]').hidden = isActive(j);
   const lb = el.querySelector('[data-act="log"]');
   lb.textContent = r.logOpen ? 'Hide log' : 'Show log';

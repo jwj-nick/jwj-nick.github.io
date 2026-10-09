@@ -1,15 +1,15 @@
 // Opening a bundle: manifest, header facts and the pixel stage list; the stream picker.
-import { BASE_STAGES, C, FILLS, hasArch, stageLabel, state } from './state.js?v=84f66b0ecd';
-import { $, esc, fmt, FRAME_COLORS, setEmpty, setStatus, typeName } from './util.js?v=84f66b0ecd';
-import { getJSON, listStreams } from './data.js?v=84f66b0ecd';
-import { renderBraid } from './braid.js?v=84f66b0ecd';
-import { renderDiffBar } from './diff.js?v=84f66b0ecd';
-import { selectFrame } from './frames.js?v=84f66b0ecd';
-import { renderTab, renderTabs } from './inspector.js?v=84f66b0ecd';
-import { requestRender } from './view.js?v=84f66b0ecd';
-import { parseHash } from './hash.js?v=84f66b0ecd';
-import { renderChips } from './controls.js?v=84f66b0ecd';
-import { renderJobs } from './jobs.js?v=84f66b0ecd';
+import { BASE_STAGES, C, FILLS, hasArch, stageLabel, state } from './state.js?v=d11a44027e';
+import { $, esc, fmt, FRAME_COLORS, setEmpty, setStatus, typeName } from './util.js?v=d11a44027e';
+import { caps, getJSON, listStreams } from './data.js?v=d11a44027e';
+import { renderBraid } from './braid.js?v=d11a44027e';
+import { renderDiffBar } from './diff.js?v=d11a44027e';
+import { selectFrame } from './frames.js?v=d11a44027e';
+import { renderTab, renderTabs } from './inspector.js?v=d11a44027e';
+import { requestRender } from './view.js?v=d11a44027e';
+import { parseHash } from './hash.js?v=d11a44027e';
+import { renderChips } from './controls.js?v=d11a44027e';
+import { renderJobs } from './jobs.js?v=d11a44027e';
 
 // ------------------------------------------------------------ picker
 // The picker lists state.streams; an opened folder keeps its own extra option.
@@ -17,6 +17,8 @@ export function renderPicker() {
   const sel = $('#streamSelect');
   const opts = state.streams.map((s, i) => `<option value="${i}" ${i === state.streamIdx ? 'selected' : ''}>${esc(s.title)}</option>`);
   if (state.source && state.source.kind === 'files') opts.push(`<option value="-1" selected>${esc(state.folderLabel || 'Local folder')}</option>`);
+  // nothing of the list on screen (the shown entry is gone): the picker does not pretend the first one is
+  else if (state.streamIdx < 0 && opts.length) opts.unshift('<option value="" selected disabled>Choose an analysis</option>');
   sel.innerHTML = opts.length ? opts.join('') : '<option>No stream</option>';
   renderJobs();
 }
@@ -55,6 +57,8 @@ export function closeStream() {
   document.title = 'VC Analyzer';
 }
 
+export const GONE_MSG = 'This analysis is no longer in the library.';
+
 // ------------------------------------------------------------ manifest
 // keepView: same picture position and zoom (the HW tab reloads the open analysis).
 export async function openSource(source, title, { keepView = false } = {}) {
@@ -68,7 +72,10 @@ export async function openSource(source, title, { keepView = false } = {}) {
   try {
     state.manifest = await getJSON('manifest.json');
   } catch (e) {
-    setEmpty(`Could not open this stream: ${e.message}. A bundle needs manifest.json, frames/ and planes/ (write one with "python -m vca export").`);
+    // an analysis of this server deleted since the list was read (another tab, the command line)
+    const mine = caps.server && source.kind === 'url' && source.base.startsWith(new URL('api/a/', location.href).href);
+    if (mine && /HTTP 404/.test(e.message)) setEmpty(`${GONE_MSG} It may have been deleted: choose another one in the picker or the Library.`);
+    else setEmpty(`Could not open this stream: ${e.message}. A bundle needs manifest.json, frames/ and planes/ (write one with "python -m vca export").`);
     return;
   }
   if (state.manifest.format !== 'vca-bundle') {

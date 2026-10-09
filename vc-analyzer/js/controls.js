@@ -1,20 +1,23 @@
 // Toolbar chips, block selection and navigation, pointer and keyboard wiring.
-import { C, FILLS, hasArch, hasChromaTree, LINES, state, usesQp } from './state.js?v=84f66b0ecd';
-import { $, esc, fmt, setEmpty, setStatus } from './util.js?v=84f66b0ecd';
-import { caps } from './data.js?v=84f66b0ecd';
-import { buildPicture, pixelAt } from './planes.js?v=84f66b0ecd';
-import { openSource, openStreamAt, renderPicker } from './source.js?v=84f66b0ecd';
-import { renderBraidDebounced } from './braid.js?v=84f66b0ecd';
-import { flipAB, gotoFirstMismatch, showStage } from './diff.js?v=84f66b0ecd';
-import { blockAt, frameSummary, isChromaBlock, orderedFrames, selectFrame, stepFrame } from './frames.js?v=84f66b0ecd';
-import { canvas, fitCanvasHeight, fitView, requestRender, setZoom, toImage, zoomAt } from './view.js?v=84f66b0ecd';
-import { renderLegend } from './legend.js?v=84f66b0ecd';
-import { blockObject, renderTab } from './inspector.js?v=84f66b0ecd';
-import { aiFrameContext, copyBlockForAI, copyText } from './ai.js?v=84f66b0ecd';
-import { writeHash } from './hash.js?v=84f66b0ecd';
-import { openStreamDialog } from './open.js?v=84f66b0ecd';
-import { openLibrary } from './library.js?v=84f66b0ecd';
-import { openExport } from './export.js?v=84f66b0ecd';
+import { C, FILLS, hasArch, hasChromaTree, LINES, state, usesQp } from './state.js?v=d11a44027e';
+import { $, esc, fmt, setEmpty, setStatus } from './util.js?v=d11a44027e';
+import { caps } from './data.js?v=d11a44027e';
+import { buildPicture, pixelAt } from './planes.js?v=d11a44027e';
+import { openSource, openStreamAt, renderPicker } from './source.js?v=d11a44027e';
+import { renderBraidDebounced } from './braid.js?v=d11a44027e';
+import { flipAB, gotoFirstMismatch, showStage } from './diff.js?v=d11a44027e';
+import { blockAt, frameSummary, isChromaBlock, orderedFrames, selectFrame, stepFrame } from './frames.js?v=d11a44027e';
+import { canvas, fitCanvasHeight, fitView, requestRender, setZoom, toImage, zoomAt } from './view.js?v=d11a44027e';
+import { renderLegend } from './legend.js?v=d11a44027e';
+import { blockObject, renderTab } from './inspector.js?v=d11a44027e';
+import { aiFrameContext, copyBlockForAI, copyText } from './ai.js?v=d11a44027e';
+import { writeHash } from './hash.js?v=d11a44027e';
+import { openStreamDialog } from './open.js?v=d11a44027e';
+import { openLibrary } from './library.js?v=d11a44027e';
+import { openExport } from './export.js?v=d11a44027e';
+import { openCompare } from './compare.js?v=d11a44027e';
+import { bitstreamSelChanged, openBitstream } from './bitstream.js?v=d11a44027e';
+import { openGraphs } from './graphs.js?v=d11a44027e';
 
 // ------------------------------------------------------------ controls
 export function renderChips() {
@@ -32,7 +35,7 @@ function select(bi, at) {
   state.pickGen++; state.pickAt = at || (pb ? [pb[C.x], pb[C.y]] : null);
   state.autoPick = false;
   if (state.tab !== 'syntax') state.tab = 'block';
-  requestRender(); renderTab(); writeHash();
+  requestRender(); renderTab(); writeHash(); bitstreamSelChanged();
 }
 // Keep the selected block on screen after keyboard or coordinate navigation.
 function revealSel() {
@@ -44,6 +47,13 @@ function revealSel() {
   }
 }
 function selectAt(x, y) { const bi = blockAt(x, y); if (bi >= 0) { select(bi, [x, y]); revealSel(); } return bi; }
+// Goes to frame f and selects the luma block at (x, y) there, as a click on it does (Graphs block search).
+// Selects block bi of the frame on screen as a click on it does (the Bitstream dialog's byte click).
+export function selectBlockIndex(bi) { if (state.payload && state.payload.blocks[bi]) select(bi); }
+export async function pickBlock(f, x, y) {
+  if (state.f !== f || !state.payload || state.payload.frame.f !== f) await selectFrame(f);
+  if (state.f === f && state.payload && state.payload.frame.f === f) selectAt(x, y);
+}
 // Neighbour of the selected block: the block covering the first pixel just past its edge.
 function stepBlock(dx, dy) {
   if (!state.payload) return;
@@ -209,8 +219,11 @@ export function wire() {
     // o, l: server only (the modules check caps); no default, so the key does not type into the dialog's text box
     else if (k === 'o' && caps.jobs) { e.preventDefault(); openStreamDialog(); }
     else if (k === 'l' && caps.server) { e.preventDefault(); openLibrary(); }
+    else if (k === 'a' && caps.jobs) { e.preventDefault(); openCompare(); }
     else if (k === 'c' && state.sel >= 0) copyBlockForAI();
     else if (k === 'k' && state.payload) { e.preventDefault(); openExport(); }
+    else if (k === 'u' && state.manifest) { e.preventDefault(); openBitstream(); }
+    else if (k === 'G' && state.manifest) { e.preventDefault(); openGraphs(); }   // g is the block grid
     else if (k === 'Escape') select(-1);
     else if (k === 'x' && state.diff) flipAB();
     else {

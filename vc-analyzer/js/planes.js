@@ -1,7 +1,7 @@
 // Pixel planes: stacked Y/U/V PNG -> sample arrays -> pictures, and sample values under the pointer.
-import { frameMeta, perfMark, state } from './state.js?v=84f66b0ecd';
-import { clamp } from './util.js?v=84f66b0ecd';
-import { getBlob } from './data.js?v=84f66b0ecd';
+import { frameMeta, perfMark, state } from './state.js?v=d11a44027e';
+import { clamp } from './util.js?v=d11a44027e';
+import { getBlob } from './data.js?v=d11a44027e';
 
 // ------------------------------------------------------------- planes
 async function decodePng(blob) {
@@ -164,7 +164,8 @@ export async function buildPicture(f) {
       const [x, y] = stage === 'lfdelta' ? ['recon', 'prefilter'] : ['prefilter', 'pred'];
       if (!stages.includes(x) || !stages.includes(y)) throw new Error(`this frame has no ${x}/${y} pixels`);
       const [pa, pb] = await Promise.all([loadPlanes(f, x), loadPlanes(f, y)]);
-      return { canvas: diffToCanvas(pa, pb, stage === 'lfdelta' ? 16 : 4), planes: pa, diff: true };
+      return { canvas: diffToCanvas(pa, pb, stage === 'lfdelta' ? 16 : 4), planes: pa, diff: true,
+               delta: { a: pa, b: pb, label: stage === 'lfdelta' ? 'recon − prefilter' : 'prefilter − pred' } };
     }
     const use = stages.includes(stage) ? stage : (stages.includes('recon') ? 'recon' : null);
     if (!use) return noPicture(fr, stage);
@@ -192,6 +193,15 @@ export function pixelAt(x, y) {
     if (!p.U) return `A − B: Y ${sgn(dy)}`;
     const ci = (y >> p.ssy) * p.cw + (x >> p.ssx);
     return `A − B: Y ${sgn(dy)} U ${sgn(p.U[ci] - 128)} V ${sgn(p.V[ci] - 128)}`;
+  }
+  // change pictures (loop filter change, residual): the hover shows the change, not the output value (R46 G4);
+  // the planes are the 8-bit view, so above 8 bits the change is in view units
+  if (pic && pic.delta && p && x >= 0 && y >= 0 && x < p.w && y < p.h) {
+    const { a, b, label } = pic.delta, sgn = (v) => (v > 0 ? '+' + v : String(v));
+    const i = y * p.w + x, unit = state.payload && (state.payload.frame.bit_depth || 8) > 8 ? ' (8-bit view)' : '';
+    if (!a.U) return `${label}: Y ${sgn(a.Y[i] - b.Y[i])}${unit}`;
+    const ci = (y >> p.ssy) * p.cw + (x >> p.ssx);
+    return `${label}: Y ${sgn(a.Y[i] - b.Y[i])} U ${sgn(a.U[ci] - b.U[ci])} V ${sgn(a.V[ci] - b.V[ci])}${unit}`;
   }
   if (pic && pic.kind === 'b' && p && x >= 0 && y >= 0 && x < p.w && y < p.h) {
     const ci = (y >> p.ssy) * p.cw + (x >> p.ssx);

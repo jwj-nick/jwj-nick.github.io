@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=84f66b0ecd">
+<link rel="stylesheet" href="app.css?v=d11a44027e">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%231d232b'/%3E%3Cpath d='M2 12h3V6H2zm4.5 0h3V3h-3zM11 12h3V8h-3z' fill='%23ffb347'/%3E%3C/svg%3E">
 </head>
 <body>
@@ -33,6 +33,7 @@
   <div class="top-actions">
     <button class="btn" id="openStreamBtn" data-needs="server jobs" title="Open a stream file and analyze it (o). You can also drop a file anywhere on this window.">Open stream</button>
     <button class="btn" id="libraryBtn" data-needs="server" title="Analyses this server keeps: open or delete them (l)">Library</button>
+    <button class="btn" id="compareBtn" data-needs="server jobs" title="Compare an analysis (A) with another analysis, a C model or RTL dump, or a raw YUV file, and open the first mismatch (a)">Compare</button>
     <label class="btn file-btn" title="Open a bundle: a folder written by vca export (manifest.json, frames, planes). It is read in this browser; nothing is uploaded.">
       <input type="file" id="folderInput" webkitdirectory directory multiple aria-label="Open bundle folder">
       Open bundle
@@ -115,9 +116,12 @@
       <tr><td><kbd>Shift</kbd>+<kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd></td><td>Select the neighbouring block. The x, y box selects the block at a pixel; <kbd>e</kbd> selects the costliest block.</td></tr>
       <tr><td><kbd>Esc</kbd></td><td>Clear the block selection</td></tr>
       <tr><td><kbd>c</kbd></td><td>Copy the selected block as context for an AI assistant</td></tr>
+      <tr><td><kbd>u</kbd></td><td>Bitstream: every coded unit (OBU, NAL unit, VP9 frame) with its header elements, their bit positions and the bytes in hex. In the dialog <kbd>↑</kbd> <kbd>↓</kbd> step through the units; click an element to shade its bytes, or a byte to find its element. Also "Units…" on the Frame and Stream tabs.</td></tr>
+      <tr><td><kbd>Shift</kbd>+<kbd>G</kbd></td><td>Graphs: frame size and bitrate per frame (an Annex B stream has no frame rate: type the one to assume), the base qindex or slice QP per frame, mode and block size distributions of this frame or the whole stream by count, area or bits, the motion vectors of this frame, and a block search (mode, size, QP or qindex, bits, skip) whose results select the block. Click a column to go to its frame; <kbd>←</kbd> <kbd>→</kbd> step frames in the dialog. Also "Graphs…" on the Stream tab.</td></tr>
       <tr><td><kbd>k</kbd></td><td>Export: the picture as PNG (current view or whole frame), frames and blocks as CSV, and with the local GUI symbols, stats, units and the stream report</td></tr>
       <tr><td><kbd>o</kbd></td><td>Open a stream file and analyze it (local GUI, <code>vca serve</code>)</td></tr>
       <tr><td><kbd>l</kbd></td><td>Library: the analyses kept by the local GUI</td></tr>
+      <tr><td><kbd>a</kbd></td><td>Compare: the stream on screen (A) with another analysis, a C model or RTL dump, or a raw YUV file (local GUI)</td></tr>
       <tr><td><kbd>?</kbd></td><td>Open this help</td></tr>
       <tr><td><kbd>d</kbd> <kbd>x</kbd></td><td>Diff mode: toggle mismatch outlines; flip the picture between A and B</td></tr>
     </table>
@@ -128,6 +132,7 @@
     <p>Serve a reference analysis (A) and one from a C model or RTL dump (B). The page opens on the first mismatch: the frame, the pixel stage where the two diverge first, and the block holding the first differing sample. The Diff tab lists every stage, block and symbol that differs.</p>
     <pre>python -m vca serve ref.vca cmodel.vca --diff
 python -m vca export ref.vca -o bundle/ --diff cmodel.vca</pre>
+    <p>In the local GUI, <b>Compare</b> (<kbd>a</kbd>, or "Compare with…" on a Library row) does the same without a command line. A is an analysis of the Library. B is another analysis of the same codec, a C model or RTL dump read through its mapping file (<code>10_ir/DUMP_MAPPING.md</code>; <code>python -m vca dump-example</code> writes an example), or one raw YUV file of output pictures with 8-bit or 16-bit little endian samples, whose size is checked against A first. A dump or a YUV file becomes an analysis in a job, and the comparison opens when the job ends. Comparisons are listed in the Library as "A vs B"; Remove takes the comparison away and keeps both analyses. When the dump gives each block a simulation time, the Diff tab shows it for the first mismatching block.</p>
     <h3>Your own streams</h3>
     <p>Start the local GUI with <code>python -m vca serve</code> (or give it a stream file: <code>python -m vca serve clip.mp4</code>). Then press <b>Open stream</b> (<kbd>o</kbd>), choose a file, drop one on the window, or paste its path. The page shows the codec, size and frame count first; <b>Analyze</b> runs the reference decoder's dumper, builds the store and the HW model draft, and opens the result. The job list at the bottom right shows each phase, and Cancel removes what a job wrote so far. Containers (MP4, MKV, WebM, TS) are unpacked with FFmpeg first.</p>
     <p>After the picture opens, the output is checked against the reference decoder in the background; the job list and the Library show the result. Every analysis is kept in the workspace folder until you delete it in the <b>Library</b> (<kbd>l</kbd>).</p>
@@ -213,6 +218,119 @@ python -m vca export stream.vca -o bundle/</pre>
   </div>
 </dialog>
 
+<dialog id="bitstreamDialog" class="dialog bs-dialog" aria-labelledby="bsTitle">
+  <div class="dialog-inner">
+    <div class="dialog-head">
+      <h2 id="bsTitle">Bitstream</h2>
+      <button class="icon-btn" type="button" data-act="close" title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <p class="sub" id="bsSub"></p>
+    <div class="bs-panes">
+      <section class="bs-pane bs-list" aria-label="Units">
+        <div class="bs-tools">
+          <select id="bsType" aria-label="Unit type" title="Show only the units of one type"></select>
+          <span class="bs-count" id="bsCount" aria-live="polite"></span>
+        </div>
+        <div class="bs-row bs-headrow" aria-hidden="true"><span class="num">#</span><span class="num">TU</span><span class="num">Offset</span><span class="num">Size</span><span>Type</span><span class="num">Frame</span></div>
+        <div class="bs-box" id="bsUnits" tabindex="0" autofocus role="listbox" aria-label="Units of the stream" title="Click a unit, or use the up and down arrow keys. Marked: the units of the frame on screen."></div>
+      </section>
+      <section class="bs-pane bs-elpane" aria-label="Header elements">
+        <h3 class="bs-unit"><span id="bsUnitTitle"></span> <span class="bs-facts" id="bsUnitFacts"></span></h3>
+        <p class="fine bs-tool" id="bsTool" hidden></p>
+        <p class="note bs-note" id="bsElNote" hidden></p>
+        <div class="bs-box" id="bsEls"></div>
+      </section>
+      <section class="bs-pane bs-hexpane" aria-label="Bytes">
+        <p class="note bs-note" id="bsHexNote" hidden></p>
+        <p class="fine bs-tool bs-block" id="bsBlock" aria-live="polite" hidden></p>
+        <div class="bs-box bs-hex" id="bsHex" title="Bytes of the unit as in the file (offset column = file offset in hex). Click a byte to select the first element that covers it."></div>
+        <div class="bs-strip" id="bsStrip" aria-live="polite"></div>
+      </section>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="graphsDialog" class="dialog gr-dialog" aria-labelledby="grTitle">
+  <div class="dialog-inner">
+    <div class="dialog-head">
+      <h2 id="grTitle">Graphs</h2>
+      <button class="icon-btn" type="button" data-act="close" title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <p class="sub" id="grSub"></p>
+    <nav class="gr-views" role="tablist" id="grViews" aria-label="Graph">
+      <button role="tab" type="button" data-view="frames" title="Frame size and bitrate, and the base qindex or slice QP of every frame">Frames</button>
+      <button role="tab" type="button" data-view="dist" title="How the blocks of this frame or of the whole stream split by mode and by block size, counted by blocks, area or bits">Distributions</button>
+      <button role="tab" type="button" data-view="mv" title="Scatter of the motion vectors of the frame on screen">Motion vectors</button>
+      <button role="tab" type="button" data-view="search" title="Find blocks by mode, size, QP or qindex, bits and skip, in this frame or the whole stream">Block search</button>
+    </nav>
+    <section class="gr-pane" id="grPane-frames" aria-label="Frame graphs">
+      <div class="gr-tools">
+        <button class="chip" type="button" id="grOrder" aria-pressed="false" title="Order the columns by output index (display order) instead of decode order">Display order</button>
+        <label class="gr-fps" id="grFpsWrap" title="This stream file (Annex B) carries no frame rate. The bitrate uses the rate typed here; change it to the rate of your stream.">Frame rate
+          <input type="number" id="grFps" min="1" max="1000" step="any" value="30" aria-label="Assumed frame rate" title="Assumed frame rate in frames per second, used for the bitrate (1 to 1000)"> fps
+          <span class="gr-assumed">assumed: the stream file gives none</span></label>
+        <span class="gr-fact" id="grFpsKnown" hidden></span>
+        <span class="gr-fact" id="grAvg"></span>
+      </div>
+      <h3 class="gr-h">Frame size and bitrate</h3>
+      <div class="gr-scroll" id="grSizeBox"><svg id="grSize" role="img" aria-label="Frame size per frame and bitrate"></svg></div>
+      <h3 class="gr-h" id="grQTitle">QP per frame</h3>
+      <div class="gr-scroll" id="grQBox"><svg id="grQ" role="img" aria-label="Base qindex or slice QP per frame"></svg></div>
+      <div class="gr-legend" id="grLegend"></div>
+      <p class="fine gr-note" id="grNote"></p>
+    </section>
+    <section class="gr-pane" id="grPane-dist" aria-label="Distributions" hidden>
+      <div class="gr-tools">
+        <div class="gr-seg" id="grDistScope" role="group" aria-label="Blocks of">
+          <button class="chip" type="button" data-scope="frame" aria-pressed="true" title="The blocks of the frame on screen (the numbers of the Stats tab)">Frame</button>
+          <button class="chip" type="button" data-scope="stream" aria-pressed="false" title="The blocks of every frame (the numbers of vca stats)">Whole stream</button>
+        </div>
+        <div class="gr-seg" id="grDistWeight" role="group" aria-label="Weight">
+          <button class="chip" type="button" data-weight="n" aria-pressed="false" title="Count blocks">Count</button>
+          <button class="chip" type="button" data-weight="area" aria-pressed="true" title="Weight by luma area in pixels (clipped to the picture)">Area</button>
+          <button class="chip" type="button" data-weight="bits" aria-pressed="false" title="Weight by the entropy-decoded bits of the blocks">Bits</button>
+        </div>
+        <span class="gr-fact" id="grDistStatus" aria-live="polite"></span>
+      </div>
+      <div class="gr-two">
+        <div class="gr-box"><h3 class="gr-h">Mode</h3><svg id="grDistMode" role="img" aria-label="Mode distribution"></svg><p class="note" id="grDistModeMore"></p></div>
+        <div class="gr-box"><h3 class="gr-h">Block size</h3><svg id="grDistSize" role="img" aria-label="Block size distribution"></svg><p class="note" id="grDistSizeMore"></p></div>
+      </div>
+      <p class="fine gr-note" id="grDistNote"></p>
+    </section>
+    <section class="gr-pane" id="grPane-mv" aria-label="Motion vectors" hidden>
+      <p class="gr-fact" id="grMvSub"></p>
+      <div class="gr-mv"><div class="gr-mvbox" id="grMvBox"><svg id="grMv" role="img" aria-label="Motion vector scatter"></svg></div><div class="gr-legend gr-mvlegend" id="grMvLegend"></div></div>
+      <p class="fine gr-note" id="grMvNote"></p>
+    </section>
+    <section class="gr-pane" id="grPane-search" aria-label="Block search" hidden>
+      <form class="grs-form" id="grsForm" autocomplete="off">
+        <div class="gr-seg grs-scope" id="grsScope" role="group" aria-label="Search in">
+          <button class="chip" type="button" data-scope="frame" aria-pressed="true" title="Search the blocks of the frame on screen">Frame</button>
+          <button class="chip" type="button" data-scope="stream" aria-pressed="false" title="Search the blocks of every frame (reads each frame once)">Whole stream</button>
+        </div>
+        <label title="Intra or inter prediction">Prediction <select id="grsPred" title="Only intra, inter or intra block copy blocks">
+          <option value="">Any</option><option value="intra">Intra</option><option value="inter">Inter</option><option value="intrabc">Intra block copy</option></select></label>
+        <label title="Part of the mode name, any case (for example NEWMV, MERGE or PLANAR)">Mode contains <input type="text" id="grsMode" list="grsModes" spellcheck="false" size="12" title="Part of the mode name, any case; the list suggests the modes of the frame on screen"></label>
+        <datalist id="grsModes"></datalist>
+        <label title="Block size as the analysis names it, for example 16X16">Size <input type="text" id="grsSize" list="grsSizes" spellcheck="false" size="7" title="Exact block size, for example 16X16 (16x16 works too)"></label>
+        <datalist id="grsSizes"></datalist>
+        <label title="Block quantizer between the two values (both included)"><span id="grsQLabel">Qindex</span> <input type="number" id="grsQmin" step="1" placeholder="min" title="Lowest QP or qindex (included); empty = no limit"> to <input type="number" id="grsQmax" step="1" placeholder="max" title="Highest QP or qindex (included); empty = no limit"></label>
+        <label title="Entropy-decoded bits of the block between the two values (both included)">Bits <input type="number" id="grsBmin" step="any" placeholder="min" title="At least this many bits; empty = no limit"> to <input type="number" id="grsBmax" step="any" placeholder="max" title="At most this many bits; empty = no limit"></label>
+        <label title="Blocks that code no residual (skip_txfm)">Skip <select id="grsSkip" title="Skip residual (skip_txfm): any, only skipped or only coded blocks">
+          <option value="">Any</option><option value="yes">Skipped</option><option value="no">Not skipped</option></select></label>
+        <label title="Order of the results">Order <select id="grsSort" title="Results in decode order (frame, then block), or the most bits first">
+          <option value="decode">Decode order</option><option value="bits">Most bits first</option></select></label>
+        <button class="btn primary" type="submit" id="grsGo" title="Search with these conditions (Enter)">Search</button>
+        <span class="gr-fact" id="grsStatus" aria-live="polite"></span>
+      </form>
+      <p class="gr-fact" id="grsSummary" aria-live="polite"></p>
+      <div class="grs-wrap"><table class="grid grs-table"><thead><tr><th class="num">Frame</th><th>Block</th><th>Mode</th><th class="num" title="Block QP or qindex">Q</th><th class="num">Bits</th></tr></thead><tbody id="grsResults"></tbody></table></div>
+      <p class="fine gr-note">Luma and shared blocks only (a separate chroma tree is not searched). Clicking a result closes this dialog, goes to the frame and selects the block as a click on the picture does; Shift+G opens the dialog again with the same results.</p>
+    </section>
+  </div>
+</dialog>
+
 <dialog id="libraryDialog" class="dialog dialog-wide" aria-labelledby="libTitle">
   <div class="dialog-inner">
     <div class="dialog-head">
@@ -228,6 +346,76 @@ python -m vca export stream.vca -o bundle/</pre>
     <div class="lib-wrap"><table class="grid lib-table" id="libTable" hidden></table></div>
     <p class="lib-empty" id="libEmpty" hidden></p>
     <p class="lib-foot" id="libFoot"></p>
+  </div>
+</dialog>
+
+<dialog id="compareDialog" class="dialog dialog-wide" aria-labelledby="cmpTitle">
+  <div class="dialog-inner">
+    <div class="dialog-head">
+      <h2 id="cmpTitle">Compare</h2>
+      <button class="icon-btn" type="button" data-act="close" title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <p class="sub">Choose the reference analysis A and what to compare with it (B). The viewer opens on the first block where B departs from A.</p>
+    <label class="cmp-a"><span>Reference (A)</span>
+      <select id="cmpA" autofocus title="The analysis B is compared with, usually the one of the reference decoder. It also gives the picture size, chroma format and frame list for a dump or a YUV file."></select></label>
+    <fieldset class="cmp-kinds" id="cmpKinds">
+      <legend>Compare with (B)</legend>
+      <label class="cmp-kind" title="Compare with an analysis in the Library of the same codec"><input type="radio" name="cmpKind" value="analysis" id="cmpKindAnalysis" title="B = another analysis of the same codec" checked>
+        <span><b>Another analysis</b><span class="dim">An analysis in the Library of the same codec, for example from a second decoder or a changed copy.</span></span></label>
+      <label class="cmp-kind" title="Compare with a C model or RTL dump, read through a mapping file on this computer"><input type="radio" name="cmpKind" value="dump" id="cmpKindDump" title="B = a C model or RTL dump, through its mapping file">
+        <span><b>C model / RTL dump</b><span class="dim">Your C model or RTL dump files, read through a mapping file that says where each value is.</span></span></label>
+      <label class="cmp-kind" title="Compare the output pictures of your decoder, given as one raw YUV file"><input type="radio" name="cmpKind" value="raw" id="cmpKindRaw" title="B = one raw YUV file of output pictures">
+        <span><b>Raw YUV file</b><span class="dim">The output pictures of your decoder as one planar YUV file; its size is checked against A first.</span></span></label>
+    </fieldset>
+    <div class="cmp-pane" id="cmpPaneAnalysis">
+      <label class="cmp-a"><span>Analysis B</span>
+        <select id="cmpB" title="An analysis of the same codec as A. Analyses of other codecs are listed but cannot be chosen."></select></label>
+      <p class="fine" id="cmpBNote"></p>
+    </div>
+    <div class="cmp-pane" id="cmpPaneDump" hidden>
+      <div class="path-row">
+        <label for="cmpMapPath">Mapping file on this computer</label>
+        <div class="path-input"><input type="text" id="cmpMapPath" class="mono" spellcheck="false" autocomplete="off" title="Full path of the mapping file (YAML or JSON) on the computer that runs vca serve. Dump files named in it are read relative to its folder. Quotes around a pasted path are fine."></div>
+      </div>
+      <p class="fine">How to write a mapping: <code>10_ir/DUMP_MAPPING.md</code> in the analyzer's folder. <code>python -m vca dump-example &lt;analysis&gt; -o &lt;folder&gt;</code> writes an example dump with its <code>mapping.yaml</code>. A field <code>ext.cycle</code> in the mapping gives each block a simulation time, shown for the first mismatch.</p>
+    </div>
+    <div class="cmp-pane" id="cmpPaneRaw" hidden>
+      <button type="button" class="dropzone" id="cmpDrop" title="Choose a raw YUV file, or drop one here. It is copied to the workspace.">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4m0 0l-4 4m4-4l4 4M5 14v4a2 2 0 002 2h10a2 2 0 002-2v-4"/></svg>
+        <span class="dz-main">Drop a YUV file here, or <u>choose one</u></span>
+        <span class="dz-sub">Planar Y, U, V with A's picture size and chroma format, one picture after another</span>
+      </button>
+      <input type="file" id="cmpRawFile" hidden aria-label="Raw YUV file">
+      <form class="path-row" id="cmpRawForm">
+        <label for="cmpRawPath">or a file on this computer</label>
+        <div class="path-input">
+          <input type="text" id="cmpRawPath" class="mono" spellcheck="false" autocomplete="off" title="Full path of a raw YUV file on the computer that runs vca serve. The file is read where it is, not copied.">
+          <button class="btn" type="submit" id="cmpRawCheck" title="Check the size of this file against A (Enter)">Check</button>
+        </div>
+      </form>
+      <div class="upload-row" id="cmpUploadRow" hidden>
+        <div class="meter" role="progressbar" aria-label="Upload"><i id="cmpUploadBar"></i></div>
+        <span id="cmpUploadText"></span>
+        <button class="btn small" type="button" id="cmpUploadCancel" title="Stop the upload; nothing is kept">Cancel upload</button>
+      </div>
+      <p class="fine" id="cmpRawSrc" hidden></p>
+      <div class="cmp-opts">
+        <label class="opt"><span>Sample format</span>
+          <select id="cmpSample" title="How each sample is stored: one byte (8-bit), or two bytes little endian (16-bit, for 10-bit and 12-bit output)">
+            <option value="u8">8-bit</option><option value="u16le">16-bit little endian</option></select></label>
+        <label class="opt"><span>Frame order</span>
+          <select id="cmpOrder" title="Output order: pictures as the decoder shows them. Decode order: every decoded picture, hidden ones included, in the order they were decoded.">
+            <option value="output">Output order</option><option value="decode">Decode order</option></select></label>
+      </div>
+      <p class="status-line" id="cmpCheckLine" aria-live="polite" hidden></p>
+    </div>
+    <p class="pc-existing" id="cmpReuse" hidden></p>
+    <p class="status-line" id="cmpMsg" aria-live="polite" hidden></p>
+    <p class="problem" id="cmpError" hidden></p>
+    <div class="dialog-actions">
+      <button class="btn" type="button" data-act="close" title="Close without comparing (Esc)">Close</button>
+      <button class="btn primary" type="button" id="cmpGo" disabled title="Choose an analysis B of the same codec">Compare</button>
+    </div>
   </div>
 </dialog>
 
@@ -251,7 +439,7 @@ python -m vca export stream.vca -o bundle/</pre>
 </aside>
 <div class="toast-pop" id="appToast" role="status" aria-live="polite" hidden></div>
 
-<script type="module" src="js/main.js?v=84f66b0ecd"></script>
+<script type="module" src="js/main.js?v=d11a44027e"></script>
 <script>
   // Browsers do not run module scripts from file://: say so instead of showing a blank page.
   if (location.protocol === 'file:') {

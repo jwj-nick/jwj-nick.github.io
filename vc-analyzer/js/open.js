@@ -1,12 +1,12 @@
 // "Open stream" (SERVER_API.md §4, §6): the dialog, choosing or dropping a file,
 // the upload with its progress, a path on this computer, the probe card, the
 // analysis options and recent sources.  Analyze starts a job (jobs.js).
-import { state } from './state.js?v=84f66b0ecd';
-import { $, esc, fmt } from './util.js?v=84f66b0ecd';
-import { caps, TOKEN } from './data.js?v=84f66b0ecd';
-import { api, ApiError, fmtBytes, fmtDate, healthNotes, loadHealth, problemHTML, server } from './api.js?v=84f66b0ecd';
-import { openStreamAt, refreshStreams } from './source.js?v=84f66b0ecd';
-import { lastOutcome, trackJob } from './jobs.js?v=84f66b0ecd';
+import { state } from './state.js?v=d11a44027e';
+import { $, esc, fmt } from './util.js?v=d11a44027e';
+import { caps, TOKEN } from './data.js?v=d11a44027e';
+import { api, ApiError, fmtBytes, fmtDate, healthNotes, loadHealth, problemHTML, server } from './api.js?v=d11a44027e';
+import { openStreamAt, refreshStreams } from './source.js?v=d11a44027e';
+import { lastOutcome, trackJob } from './jobs.js?v=d11a44027e';
 
 const CODECS = ['av2', 'av1', 'vvc', 'hevc', 'vp9', 'avc'];
 const CONTAINERS = { ivf: 'IVF', annexb: 'Annex B', obu: 'OBU', mp4: 'MP4', mkv: 'Matroska', webm: 'WebM', ts: 'MPEG-TS', unknown: 'not recognised' };
@@ -375,6 +375,8 @@ export function showServerEmpty() {
 
 // ---------------------------------------------------------------- wiring
 const hasFiles = (e) => !!(e.dataTransfer && [...(e.dataTransfer.types || [])].includes('Files'));
+// The Compare dialog takes a dropped file as B's YUV file (compare.js): no overlay, no Open stream then.
+const comparing = () => { const c = $('#compareDialog'); return !!(c && c.open); };
 
 export function initOpen() {
   const d = dlg();
@@ -401,13 +403,13 @@ export function initOpen() {
   let depth = 0;
   const zone = $('#dropZone');
   window.addEventListener('dragenter', (e) => {
-    if (!caps.jobs || !hasFiles(e)) return;
+    if (!caps.jobs || !hasFiles(e) || comparing()) return;
     e.preventDefault();
     depth++;
     if (d.open) zone.classList.add('over'); else overlay.hidden = false;
   });
   window.addEventListener('dragover', (e) => {
-    if (!caps.jobs || !hasFiles(e)) return;
+    if (!caps.jobs || !hasFiles(e) || comparing()) return;
     e.preventDefault();
     e.dataTransfer.dropEffect = 'copy';
   });
@@ -417,7 +419,7 @@ export function initOpen() {
     if (!depth) { overlay.hidden = true; zone.classList.remove('over'); }
   });
   window.addEventListener('drop', (e) => {
-    if (!caps.jobs || !hasFiles(e)) return;
+    if (!caps.jobs || !hasFiles(e) || comparing()) return;
     e.preventDefault();
     depth = 0; overlay.hidden = true; zone.classList.remove('over');
     const files = [...e.dataTransfer.files];
