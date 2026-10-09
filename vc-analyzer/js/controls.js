@@ -1,23 +1,25 @@
 // Toolbar chips, block selection and navigation, pointer and keyboard wiring.
-import { C, FILLS, hasArch, hasChromaTree, LINES, state, usesQp } from './state.js?v=f86793b620';
-import { $, esc, fmt, setEmpty, setStatus } from './util.js?v=f86793b620';
-import { caps } from './data.js?v=f86793b620';
-import { buildPicture, pixelAt } from './planes.js?v=f86793b620';
-import { openSource, openStreamAt, renderPicker } from './source.js?v=f86793b620';
-import { renderBraidDebounced } from './braid.js?v=f86793b620';
-import { flipAB, gotoFirstMismatch, showStage } from './diff.js?v=f86793b620';
-import { blockAt, frameSummary, isChromaBlock, orderedFrames, selectFrame, stepFrame } from './frames.js?v=f86793b620';
-import { canvas, fitCanvasHeight, fitView, requestRender, setZoom, toImage, zoomAt } from './view.js?v=f86793b620';
-import { renderLegend } from './legend.js?v=f86793b620';
-import { blockObject, renderTab } from './inspector.js?v=f86793b620';
-import { aiFrameContext, copyBlockForAI, copyText } from './ai.js?v=f86793b620';
-import { writeHash } from './hash.js?v=f86793b620';
-import { openStreamDialog } from './open.js?v=f86793b620';
-import { openLibrary } from './library.js?v=f86793b620';
-import { openExport } from './export.js?v=f86793b620';
-import { openCompare } from './compare.js?v=f86793b620';
-import { bitstreamSelChanged, openBitstream } from './bitstream.js?v=f86793b620';
-import { openGraphs } from './graphs.js?v=f86793b620';
+import { C, FILLS, hasArch, hasChromaTree, LINES, state, usesQp } from './state.js?v=4a164c6c45';
+import { $, esc, fmt, setEmpty, setStatus } from './util.js?v=4a164c6c45';
+import { caps } from './data.js?v=4a164c6c45';
+import { buildPicture, pixelAt, pixelPending } from './planes.js?v=4a164c6c45';
+import { cycleComp, cycleViewMode, syncPaneSelect, toggleGray, toggleGrid } from './pixels.js?v=4a164c6c45';
+import { cmpMode, nearDivider, paneLabels, paneRects, setSplitPos } from './split.js?v=4a164c6c45';
+import { openSource, openStreamAt, renderPicker } from './source.js?v=4a164c6c45';
+import { renderBraidDebounced } from './braid.js?v=4a164c6c45';
+import { flipAB, gotoFirstMismatch, showStage } from './diff.js?v=4a164c6c45';
+import { blockAt, frameSummary, isChromaBlock, orderedFrames, selectFrame, stepFrame } from './frames.js?v=4a164c6c45';
+import { canvas, fitCanvasHeight, fitView, pictureAt, requestRender, setZoom, toImage, zoomAt } from './view.js?v=4a164c6c45';
+import { renderLegend } from './legend.js?v=4a164c6c45';
+import { blockObject, renderTab } from './inspector.js?v=4a164c6c45';
+import { aiFrameContext, copyBlockForAI, copyText } from './ai.js?v=4a164c6c45';
+import { writeHash } from './hash.js?v=4a164c6c45';
+import { openStreamDialog } from './open.js?v=4a164c6c45';
+import { openLibrary } from './library.js?v=4a164c6c45';
+import { openExport } from './export.js?v=4a164c6c45';
+import { openCompare } from './compare.js?v=4a164c6c45';
+import { bitstreamSelChanged, openBitstream } from './bitstream.js?v=4a164c6c45';
+import { openGraphs } from './graphs.js?v=4a164c6c45';
 
 // ------------------------------------------------------------ controls
 export function renderChips() {
@@ -40,10 +42,11 @@ function select(bi, at) {
 // Keep the selected block on screen after keyboard or coordinate navigation.
 function revealSel() {
   if (state.sel < 0 || !state.payload) return;
-  const b = state.payload.blocks[state.sel], { s, ox, oy } = state.view, r = canvas.getBoundingClientRect();
+  const b = state.payload.blocks[state.sel], { s, ox, oy } = state.view, c = canvas.getBoundingClientRect();
+  const r = paneRects(c.width, c.height)[0];   // the first pane (side by side: half the canvas)
   const x0 = b[C.x] * s + ox, y0 = b[C.y] * s + oy, x1 = x0 + b[C.w] * s, y1 = y0 + b[C.h] * s;
-  if (x0 < 0 || y0 < 0 || x1 > r.width || y1 > r.height) {
-    state.view.ox = r.width / 2 - (b[C.x] + b[C.w] / 2) * s; state.view.oy = r.height / 2 - (b[C.y] + b[C.h] / 2) * s; requestRender();
+  if (x0 < 0 || y0 < 0 || x1 > r.w || y1 > r.h) {
+    state.view.ox = r.w / 2 - (b[C.x] + b[C.w] / 2) * s; state.view.oy = r.h / 2 - (b[C.y] + b[C.h] / 2) * s; requestRender();
   }
 }
 function selectAt(x, y) { const bi = blockAt(x, y); if (bi >= 0) { select(bi, [x, y]); revealSel(); } return bi; }
@@ -75,18 +78,28 @@ function gotoTyped() {
   $('#gotoXY').classList.toggle('bad', !ok);
 }
 
-function hoverAt(px, py) {
+let lastHover = null;   // the pointer position of the last hover (a late exact-value load writes the line only for it)
+// tap: a touch or pen tap (no hover outline, no tooltip; the status line only)
+function hoverAt(px, py, tap = false) {
+  const at = [px, py];
+  lastHover = at;
   const [ix, iy] = toImage(px, py);
   const x = Math.floor(ix), y = Math.floor(iy);
   const bi = blockAt(x, y);
   const tip = $('#tooltip');
-  if (bi !== state.hover) { state.hover = bi; requestRender(); }
+  if (!tap && bi !== state.hover) { state.hover = bi; requestRender(); }
   if (bi < 0) { tip.hidden = true; setStatus(state.payload ? frameSummary() : ''); return; }
   const b = state.payload.blocks[bi];
-  const pix = pixelAt(x, y);
+  // the values of the picture under the pointer (split / side by side: the second one there), exact at any
+  // bit depth; when they are still loading, the line is written again once they are there
+  const pic = pictureAt(px, py), mode = cmpMode();
+  let pix = pic ? pixelAt(x, y, pic) : '';
+  const wait = pixelPending();
+  if (wait) wait.then(() => { if (lastHover === at) hoverAt(px, py, tap); });
+  if (mode !== 'single' && pic) pix = `${paneLabels()[pic === state.picture ? 0 : 1]}: ${pix}`;
   tip.innerHTML = `<b>${esc(b[C.bsize])}</b> at (${b[C.x]}, ${b[C.y]})<br>${esc(b[C.pred])} ${esc(b[C.mode])}${b[C.ref0] ? ' ' + esc(b[C.ref0]) : ''}<br>${esc(b[C.tx_size])} q${b[C.qindex]} · ${fmt(b[C.bits] || 0, 1)} bits`;
   const wrap = $('#canvasWrap').getBoundingClientRect();
-  tip.hidden = false;
+  tip.hidden = tap;
   const tx = Math.min(px + 14, wrap.width - tip.offsetWidth - 6), ty = Math.min(py + 14, wrap.height - tip.offsetHeight - 6);
   tip.style.left = tx + 'px'; tip.style.top = ty + 'px';
   setStatus(`x ${x}  y ${y}   ${pix}   block ${b[C.bsize]} at (${b[C.x]}, ${b[C.y]})   ${b[C.pred]} ${b[C.mode]}   ${fmt(b[C.bits] || 0, 2)} bits`);
@@ -103,14 +116,11 @@ export function wire() {
   $('#stageSelect').addEventListener('change', async (e) => {
     state.stage = e.target.value;
     state.picture = await buildPicture(state.f);
+    syncPaneSelect();
     renderLegend(); requestRender(); writeHash();
   });
-  $('#grayBtn').addEventListener('click', async () => {
-    state.lumaOnly = !state.lumaOnly;
-    $('#grayBtn').setAttribute('aria-pressed', String(state.lumaOnly));
-    state.picture = await buildPicture(state.f);
-    requestRender();
-  });
+  // Gray picture = the Y plane, else colour (the component select and key y in pixels.js)
+  $('#grayBtn').addEventListener('click', toggleGray);
   $('#prevFrame').addEventListener('click', () => stepFrame(-1));
   $('#nextFrame').addEventListener('click', () => stepFrame(1));
   $('#zoomFit').addEventListener('click', fitView);
@@ -166,7 +176,8 @@ export function wire() {
       const [a, b] = [...pointers.values()];
       pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), s: state.view.s };
       drag = null;
-    } else drag = { x: e.offsetX, y: e.offsetY, ox: state.view.ox, oy: state.view.oy, moved: false };
+    } else if (nearDivider(e.offsetX)) drag = { divider: true, moved: true };   // split view: move the divider
+    else drag = { x: e.offsetX, y: e.offsetY, ox: state.view.ox, oy: state.view.oy, moved: false };
   });
   canvas.addEventListener('pointermove', (e) => {
     if (pointers.has(e.pointerId)) pointers.set(e.pointerId, { x: e.offsetX, y: e.offsetY });
@@ -176,6 +187,8 @@ export function wire() {
       zoomAt((pinch.s * d / pinch.d) / state.view.s, (a.x + b.x) / 2, (a.y + b.y) / 2);
       return;
     }
+    if (drag && drag.divider) { setSplitPos(e.offsetX); renderLegend(); return; }
+    canvas.classList.toggle('on-divider', !drag && nearDivider(e.offsetX));
     if (drag) {
       const dx = e.offsetX - drag.x, dy = e.offsetY - drag.y;
       if (!drag.moved && Math.hypot(dx, dy) > 4) { drag.moved = true; canvas.classList.add('panning'); $('#tooltip').hidden = true; }
@@ -191,13 +204,15 @@ export function wire() {
       const [ix, iy] = toImage(e.offsetX, e.offsetY);
       const at = [Math.floor(ix), Math.floor(iy)];
       select(blockAt(at[0], at[1]), at);
+      // a tap (touch, pen) has no hover: the status line gets the sample values of the tapped pixel
+      if (e.pointerType && e.pointerType !== 'mouse') hoverAt(e.offsetX, e.offsetY, true);
     }
     drag = null;
     canvas.classList.remove('panning');
   };
   canvas.addEventListener('pointerup', end);
   canvas.addEventListener('pointercancel', end);
-  canvas.addEventListener('pointerleave', () => { $('#tooltip').hidden = true; if (state.hover >= 0) { state.hover = -1; requestRender(); } });
+  canvas.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') lastHover = null; $('#tooltip').hidden = true; if (state.hover >= 0) { state.hover = -1; requestRender(); } });
   canvas.addEventListener('wheel', (e) => { e.preventDefault(); zoomAt(Math.exp(-e.deltaY * 0.0015), e.offsetX, e.offsetY); }, { passive: false });
   window.addEventListener('resize', () => { renderBraidDebounced(); fitCanvasHeight(); requestRender(); });
 
@@ -228,6 +243,10 @@ export function wire() {
     else if (k === 'G' && state.manifest) { e.preventDefault(); openGraphs(); }   // g is the block grid
     else if (k === 'Escape') select(-1);
     else if (k === 'x' && state.diff) flipAB();
+    // F-b track Y (pixels.js): component, sample grid, single / split / side-by-side view
+    else if (k === 'y' && state.manifest) cycleComp();
+    else if (k === 'i' && state.manifest) toggleGrid();
+    else if (k === 'j' && state.manifest) cycleViewMode();
     else {
       const f = FILLS.find((x) => x.key === k && (!x.arch || hasArch())); if (f) { setFill(f.id); return; }
       const l = LINES.find((x) => x.key === k); if (l && lineShown(l)) toggleLine(l.id);

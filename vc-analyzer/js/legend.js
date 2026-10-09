@@ -1,12 +1,14 @@
 // Legend under the picture for the current fill and picture.
-import { C, qMax, qName, stageLabel, STAGES, state } from './state.js?v=f86793b620';
-import { $, esc, fmt, MISMATCH, modeColor, RAMP, refColor, rgb } from './util.js?v=f86793b620';
-import { focusStage } from './diff.js?v=f86793b620';
-import { bitsMax } from './view.js?v=f86793b620';
+import { C, qMax, qName, stageLabel, STAGES, state } from './state.js?v=4a164c6c45';
+import { $, esc, fmt, MISMATCH, modeColor, RAMP, refColor, rgb } from './util.js?v=4a164c6c45';
+import { focusStage } from './diff.js?v=4a164c6c45';
+import { bitsMax } from './view.js?v=4a164c6c45';
 
 // Below 1 bit per pixel two decimals would round small maxima to 0.00.
 const bitsMaxText = (m) => (m >= 1 ? fmt(m, 2) : m > 0 ? m.toPrecision(2) : '0');
-import { archLegend } from './arch.js?v=f86793b620';
+import { archLegend } from './arch.js?v=4a164c6c45';
+import { pixelsLegend } from './pixels.js?v=4a164c6c45';
+import { psnrLegendHtml } from './quality.js?v=4a164c6c45';
 
 export function renderLegend() {
   const el = $('#legend');
@@ -33,12 +35,17 @@ export function renderLegend() {
     html = archLegend();
   } else if (state.fill === 'skip') {
     html = '<span><i style="background:rgb(16,18,22)"></i>skip_txfm (no residual)</span><span><i style="background:repeating-linear-gradient(45deg,#ffb347 0 2px,transparent 2px 4px)"></i>skip_mode</span>';
+  } else if (state.fill === 'psnr') {
+    html = psnrLegendHtml();
   }
   if (state.picture && state.picture.canvas.stats) {
     const st = state.picture.canvas.stats;
-    const what = st.exact
-      ? (st.changed || st.chroma ? `${fmt(st.changed)} luma${st.chroma ? ` and ${fmt(st.chroma)} chroma` : ''} samples differ, max |Δ| ${st.maxAbs} (exact samples)` : 'no sample differs')
-      : `${fmt(st.changed)} of ${fmt(st.total)} luma samples differ, max |Δ| ${st.maxAbs}`;
+    // st.plane: the U or V component chosen (planes.js), the picture shows that plane's difference only
+    const what = st.plane && st.exact
+      ? (st.chroma ? `${fmt(st.chroma)} ${st.plane} samples differ, max |Δ| ${st.maxAbs} (exact samples)` : `no ${st.plane} sample differs`)
+      : st.exact
+        ? (st.changed || st.chroma ? `${fmt(st.changed)} luma${st.chroma ? ` and ${fmt(st.chroma)} chroma` : ''} samples differ, max |Δ| ${st.maxAbs} (exact samples)` : 'no sample differs')
+        : `${fmt(st.changed)} of ${fmt(st.total)} ${st.plane || 'luma'} samples differ, max |Δ| ${st.maxAbs}`;
     const where = state.stage.startsWith('D:') ? `A − B ${STAGES[state.stage.slice(2)].toLowerCase()}` : stageLabel(state.stage);
     html += ` <span class="note">${esc(where)}: ${what}. Amber = positive, cyan = negative.</span>`;
   }
@@ -48,5 +55,7 @@ export function renderLegend() {
     const st = focusStage();
     html += ` <span><i style="background:transparent;border:2px solid ${MISMATCH}"></i>mismatch${st ? `: samples differ at ${esc(STAGES[st].toLowerCase())}` : ''}; dashed = block fields differ</span>`;
   }
+  // F-b track Y: component and colour, sample grid, split / side by side (pixels.js)
+  for (const n of pixelsLegend()) html += ` <span class="note">${esc(n)}</span>`;
   el.innerHTML = html;
 }

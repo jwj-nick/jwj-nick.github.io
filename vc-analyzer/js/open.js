@@ -1,12 +1,12 @@
 // "Open stream" (SERVER_API.md §4, §6): the dialog, choosing or dropping a file,
 // the upload with its progress, a path on this computer, the probe card, the
 // analysis options and recent sources.  Analyze starts a job (jobs.js).
-import { state } from './state.js?v=f86793b620';
-import { $, esc, fmt } from './util.js?v=f86793b620';
-import { caps, folderOf, TOKEN } from './data.js?v=f86793b620';
-import { api, ApiError, fmtBytes, fmtDate, healthNotes, loadHealth, problemHTML, server } from './api.js?v=f86793b620';
-import { openStreamAt, refreshStreams } from './source.js?v=f86793b620';
-import { lastOutcome, trackJob } from './jobs.js?v=f86793b620';
+import { state } from './state.js?v=4a164c6c45';
+import { $, esc, fmt } from './util.js?v=4a164c6c45';
+import { caps, folderOf, TOKEN } from './data.js?v=4a164c6c45';
+import { api, ApiError, fmtBytes, fmtDate, healthNotes, loadHealth, problemHTML, server } from './api.js?v=4a164c6c45';
+import { openStreamAt, refreshStreams } from './source.js?v=4a164c6c45';
+import { lastOutcome, trackJob } from './jobs.js?v=4a164c6c45';
 
 const CODECS = ['av2', 'av1', 'vvc', 'hevc', 'vp9', 'avc'];
 const CONTAINERS = { ivf: 'IVF', annexb: 'Annex B', obu: 'OBU', mp4: 'MP4', mkv: 'Matroska', webm: 'WebM', ts: 'MPEG-TS', unknown: 'not recognised' };

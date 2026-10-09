@@ -1,13 +1,14 @@
 // Inspector tabs: Block, Diff, Frame, Syntax, Stats, Stream.
-import { BASE_STAGES, C, frameMeta, hasCdef, kindLabel, STAGES, state, usesQp } from './state.js?v=f86793b620';
-import { $, esc, extText, fmt, refColor } from './util.js?v=f86793b620';
-import { stageDiffers } from './planes.js?v=f86793b620';
-import { focusStage } from './diff.js?v=f86793b620';
-import { blockAt, chromaAt, frameSummary, isChromaBlock, partitionPath } from './frames.js?v=f86793b620';
-import { ARCH_MODULES, archOf } from './arch.js?v=f86793b620';
-import { hasSymbols, symbolsOfBlock, symbolsReady, symtype } from './symbols.js?v=f86793b620';
-import { hwTabShown, renderHwTab } from './hw.js?v=f86793b620';
-import { bTitle, shownEntry, streamLabel } from './data.js?v=f86793b620';
+import { BASE_STAGES, C, frameMeta, hasCdef, kindLabel, STAGES, state, usesQp } from './state.js?v=4a164c6c45';
+import { $, esc, extText, fmt, refColor } from './util.js?v=4a164c6c45';
+import { stageDiffers } from './planes.js?v=4a164c6c45';
+import { focusStage } from './diff.js?v=4a164c6c45';
+import { blockAt, chromaAt, frameSummary, isChromaBlock, partitionPath } from './frames.js?v=4a164c6c45';
+import { ARCH_MODULES, archOf } from './arch.js?v=4a164c6c45';
+import { hasSymbols, symbolsOfBlock, symbolsReady, symtype } from './symbols.js?v=4a164c6c45';
+import { hwTabShown, renderHwTab } from './hw.js?v=4a164c6c45';
+import { bTitle, shownEntry, streamLabel } from './data.js?v=4a164c6c45';
+import { cuRows, psnrRampCss, psnrText, samplesText } from './quality.js?v=4a164c6c45';
 
 // ------------------------------------------------------------ inspector
 export function blockObject(bi) {
@@ -283,7 +284,7 @@ function renderStreamTab() {
   const note = (state.streams[state.streamIdx] || {}).note;
   return `<h2>${esc(streamHeading())}</h2><p class="sub">${fmt(s.frames)} decoded frames, ${fmt(s.outputs)} output frames, ${fmt(units.length)} ${unitNoun()}s</p>
     ${note ? `<p class="note">${esc(note)}</p>` : ''}
-    <div class="actions"><button class="btn" data-act="units" title="Every coded unit of the stream with its header elements and bytes in hex (u)">Units…</button><button class="btn" data-act="graphs" title="Frame size, bitrate and QP per frame, mode and block size distributions, motion vectors and block search (Shift+G)">Graphs…</button></div>
+    <div class="actions"><button class="btn" data-act="units" title="Every coded unit of the stream with its header elements and bytes in hex (u)">Units…</button><button class="btn" data-act="graphs" title="Frame size, bitrate and QP per frame, mode and block size distributions, motion vectors and block search (Shift+G)">Graphs…</button><button class="btn" data-act="quality" title="PSNR and SSIM per frame: between the pipeline stages of this analysis, or of B against A when comparing (Shift+Q)">Quality…</button></div>
     <dl class="kv">${facts}</dl>
     <h3>Sequence tools enabled</h3><div>${(s.tools_enabled || []).map((t) => pill(t, true)).join('') || '<span class="note">none reported</span>'}</div>
     <h3>Sequence tools disabled</h3><div>${(s.tools_disabled || []).map((t) => pill(t, false)).join('') || '<span class="note">none</span>'}</div>
@@ -359,17 +360,35 @@ function renderDiffTab() {
   const sym = fd.symbol;
   const symHtml = sym ? `<h3>First differing symbol</h3><dl class="kv">${kvRow('Index', fmt(sym.index))}${kvRow('A', sym.a ? `${esc(sym.a.name)} = ${esc(sym.a.value)}` : 'none (B read more symbols)')}${kvRow('B', sym.b ? `<span class="mis">${esc(sym.b.name)} = ${esc(sym.b.value)}</span>${sym.b.block_at ? `<span class="unit">in ${esc(sym.b.block_at.bsize)} at (${sym.b.block_at.x}, ${sym.b.block_at.y})</span>` : ''}` : 'none (A read more symbols)')}</dl>${sym.a && sym.a.block >= 0 ? `<div class="actions"><button class="btn" data-act="goto" data-block="${sym.a.block}">Select the block of A's symbol</button></div>` : ''}` : '';
   const acts = [fd.first_stage ? `<button class="btn" data-act="show-stage" data-stage="D:${fd.first_stage}">Show A − B at ${esc(STAGES[fd.first_stage].toLowerCase())}</button>` : '',
-    '<button class="btn" data-act="flip">Flip A / B (x)</button>'].join('');
+    '<button class="btn" data-act="flip">Flip A / B (x)</button>',
+    '<button class="btn" data-act="quality" title="PSNR of every frame of B against A, and SSIM with the local app (Shift+Q)">Quality (Shift+Q)</button>'].join('');
+  const cu = cuRows();
   return head
     + (fd.stage_meaning ? `<p>First stage that differs: <b>${esc(STAGES[fd.first_stage])}</b>. Look at the ${esc(fd.stage_meaning)}.</p>` : '<p>Pixels are equal; the syntax differs (see below).</p>')
     + `<div class="actions">${acts}</div>`
     + firstMismatchHtml()
     + `<h3>Pixel stages (decode pipeline order)</h3><table class="grid"><thead><tr><th>Stage</th><th>Result</th><th>First sample, A → B</th><th class="num">Blocks</th></tr></thead><tbody>${rows}</tbody></table>`
-    + (sb.length ? `<h3>Blocks holding differing samples at ${esc(STAGES[fst].toLowerCase())} (${fmt(sb.length)})</h3><table class="grid"><tbody>${list(sb)}</tbody></table>${sb.length > 60 ? `<p class="note">Showing 60 of ${fmt(sb.length)}.</p>` : ''}` : '')
+    + (cu ? cuTableHtml(cu)
+      : sb.length ? `<h3>Blocks holding differing samples at ${esc(STAGES[fst].toLowerCase())} (${fmt(sb.length)})</h3><table class="grid"><tbody>${list(sb)}</tbody></table>${sb.length > 60 ? `<p class="note">Showing 60 of ${fmt(sb.length)}.</p>` : ''}` : '')
     + (fields ? `<h3>Blocks whose fields differ (${fmt(fd.field_blocks.length)})</h3><table class="grid"><thead><tr><th>Block (A)</th><th>Field A → B</th></tr></thead><tbody>${fields}</tbody></table>` : '')
     + ((fd.only_a || []).length ? `<h3>Blocks only in A (${fmt(fd.only_a.length)})</h3><p class="note">B has no block with this position and tree: the partition differs.</p><table class="grid"><tbody>${list(fd.only_a)}</tbody></table>` : '')
     + ((fd.only_b || []).length ? `<h3>Blocks only in B (${fmt(fd.only_b.length)})</h3><p class="note">${esc(fd.only_b.slice(0, 20).map((k) => `(${k[0]}, ${k[1]}) ${k[2]}`).join(', '))}</p>` : '')
     + symHtml;
+}
+
+// Diff tab: frames/<f>.diff.json `cu` of the stage in focus (SERVER_API.md §16.9), one row per block holding a
+// differing sample, worst PSNR first (quality.js cuRows); a row selects its block, , and . step through the rows.
+const CU_SHOWN = 60;
+function cuTableHtml(cu) {
+  const rows = cu.rows, sel = rows.findIndex((r) => r.i === state.sel);
+  const from = sel >= CU_SHOWN ? sel - CU_SHOWN + 1 : 0, shown = rows.slice(from, from + CU_SHOWN);
+  const body = shown.map((r, k) => `<tr class="clickable${r.i === state.sel ? ' cur' : ''}" data-block="${r.i}" data-cu="${from + k}"><td><i class="qu-sw" style="background:${r.colour}" title="Colour of the PSNR fill (z)"></i>${blockLabel(r.i)}</td>`
+    + `<td class="num">${samplesText(r)}</td><td class="num">${r.nY ? r.maxY : '–'}</td><td class="num">${psnrText(r)}</td></tr>`).join('');
+  const unc = cu.uncovered ? `<p class="note">${fmt(cu.uncovered.cells)} differing 4×4 cells lie in no luma block of A (SSE ${fmt(cu.uncovered.sseY)} luma, ${fmt(cu.uncovered.sseC)} chroma).</p>` : '';
+  return `<h3>Blocks holding differing samples at ${esc(STAGES[cu.stage].toLowerCase())} (${fmt(rows.length)})</h3>`
+    + `<p class="note">Worst first. PSNR of the block's luma samples, 10 log10(peak² × area / SSE), peak ${fmt(cu.peak)}. <kbd>,</kbd> <kbd>.</kbd> step through the rows, <kbd>z</kbd> fills the blocks with these colours (${cu.hi} dB <span class="ramp qu-ramp" style="background:${psnrRampCss()}"></span> ${cu.lo} dB).</p>`
+    + `<table class="grid qu-cu"><thead><tr><th>Block (A)</th><th class="num" title="Luma samples that differ (+ chroma samples, U and V)">Differing samples</th><th class="num" title="Largest |A − B| of the block's luma samples">Max |Δ|</th><th class="num" title="Block PSNR (luma)">PSNR</th></tr></thead><tbody>${body}</tbody></table>`
+    + (rows.length > shown.length ? `<p class="note">Showing rows ${fmt(from + 1)} to ${fmt(from + shown.length)} of ${fmt(rows.length)}.</p>` : '') + unc;
 }
 
 // Block tab, diff mode: how the selected block of A compares with B.

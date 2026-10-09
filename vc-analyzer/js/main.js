@@ -38,25 +38,27 @@
  * open, jobs, library, compare and the HW editor need `vca serve` with jobs (caps.jobs; Library: caps.server)
  * and stay hidden and silent on the static site and in an opened folder.
  */
-import { C, FILLS, LINES, PERF, perf, state } from './state.js?v=f86793b620';
-import { setEmpty, setStatus } from './util.js?v=f86793b620';
-import { caps, discoverStreams, goneData, streamTitle } from './data.js?v=f86793b620';
-import { defaultStreamIdx, openSource, rememberUsed, renderPicker } from './source.js?v=f86793b620';
-import { isChromaBlock, orderedFrames, selectFrame } from './frames.js?v=f86793b620';
-import { canvas, isRenderPending } from './view.js?v=f86793b620';
-import { renderTab } from './inspector.js?v=f86793b620';
-import { parseHash } from './hash.js?v=f86793b620';
-import { wire } from './controls.js?v=f86793b620';
-import { loadHealth, loadSession, toast } from './api.js?v=f86793b620';
-import { initOpen, openSnap, showServerEmpty } from './open.js?v=f86793b620';
-import { GONE_MSG } from './source.js?v=f86793b620';
-import { initJobs, jobsSnap } from './jobs.js?v=f86793b620';
-import { initLibrary, librarySnap } from './library.js?v=f86793b620';
-import { hwSnap, initHw } from './hw.js?v=f86793b620';
-import { exportSnap, initExport } from './export.js?v=f86793b620';
-import { compareSnap, initCompare } from './compare.js?v=f86793b620';
-import { bitstreamSnap, initBitstream } from './bitstream.js?v=f86793b620';
-import { graphsSnap, initGraphs } from './graphs.js?v=f86793b620';
+import { C, FILLS, LINES, PERF, perf, state } from './state.js?v=4a164c6c45';
+import { setEmpty, setStatus } from './util.js?v=4a164c6c45';
+import { caps, discoverStreams, goneData, streamTitle } from './data.js?v=4a164c6c45';
+import { defaultStreamIdx, openSource, rememberUsed, renderPicker } from './source.js?v=4a164c6c45';
+import { isChromaBlock, orderedFrames, selectFrame } from './frames.js?v=4a164c6c45';
+import { canvas, isRenderPending } from './view.js?v=4a164c6c45';
+import { renderTab } from './inspector.js?v=4a164c6c45';
+import { parseHash } from './hash.js?v=4a164c6c45';
+import { wire } from './controls.js?v=4a164c6c45';
+import { loadHealth, loadSession, toast } from './api.js?v=4a164c6c45';
+import { initOpen, openSnap, showServerEmpty } from './open.js?v=4a164c6c45';
+import { GONE_MSG } from './source.js?v=4a164c6c45';
+import { initJobs, jobsSnap } from './jobs.js?v=4a164c6c45';
+import { initLibrary, librarySnap } from './library.js?v=4a164c6c45';
+import { hwSnap, initHw } from './hw.js?v=4a164c6c45';
+import { exportSnap, initExport } from './export.js?v=4a164c6c45';
+import { compareSnap, initCompare } from './compare.js?v=4a164c6c45';
+import { bitstreamSnap, initBitstream } from './bitstream.js?v=4a164c6c45';
+import { graphsSnap, initGraphs } from './graphs.js?v=4a164c6c45';
+import { initPixels, pixelsSnap } from './pixels.js?v=4a164c6c45';
+import { initQuality, qualitySnap } from './quality.js?v=4a164c6c45';
 
 // ---------------------------------------------------------------- boot
 // A page without streams and without the local server (a site with no demos): what to do, named from the
@@ -72,7 +74,7 @@ async function boot() {
   if (h.stage) state.stage = h.stage;
   if (h.tab) state.tab = h.tab;
   wire();
-  initOpen(); initLibrary(); initHw(); initExport(); initCompare(); initBitstream(); initGraphs();
+  initOpen(); initLibrary(); initHw(); initExport(); initCompare(); initBitstream(); initGraphs(); initPixels(); initQuality();
   renderTab();
   state.streams = await discoverStreams();
   if (caps.server) await loadSession();   // caps.jobs: Open stream, jobs, drop target
@@ -151,6 +153,8 @@ window.__vca = {
       compare: compareSnap(),   // A4 (read-only): Compare dialog
       bitstream: bitstreamSnap(),   // F-a (read-only): Bitstream dialog
       graphs: graphsSnap(),   // F-d (read-only): Graphs dialog
+      pixels: pixelsSnap(),   // F-b track Y (read-only)
+      quality: qualitySnap(), // F-b track X (read-only)
     };
   },
   // Client (CSS px) coordinates of the centre of luma pixel (x, y), for clicks.

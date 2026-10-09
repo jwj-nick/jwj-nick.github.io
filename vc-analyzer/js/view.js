@@ -1,9 +1,12 @@
 // Viewport and canvas rendering: fills, grids, motion, superblocks, chroma tree, mismatch outlines.
-import { C, PERF, perf, perfMark, qMax, state } from './state.js?v=f86793b620';
-import { $, clamp, dims, dpr, MISMATCH, modeColor, ramp, refColor, rgb } from './util.js?v=f86793b620';
-import { firstSample, focusStage } from './diff.js?v=f86793b620';
-import { isChromaBlock, partitionPath } from './frames.js?v=f86793b620';
-import { archOf, drawArchLabels } from './arch.js?v=f86793b620';
+import { C, PERF, perf, perfMark, qMax, state } from './state.js?v=4a164c6c45';
+import { $, clamp, dims, dpr, MISMATCH, modeColor, ramp, refColor, rgb } from './util.js?v=4a164c6c45';
+import { firstSample, focusStage } from './diff.js?v=4a164c6c45';
+import { isChromaBlock, partitionPath } from './frames.js?v=4a164c6c45';
+import { archOf, drawArchLabels } from './arch.js?v=4a164c6c45';
+import { psnrFill } from './quality.js?v=4a164c6c45';
+import { cmpMode, drawPaneLabel, drawSplitChrome, GAP, paneAt, paneRects, picture2, splitX, stacked } from './split.js?v=4a164c6c45';
+import { drawGrid, gridRecordStart } from './grid.js?v=4a164c6c45';
 
 // ------------------------------------------------------------ viewport
 export const canvas = $('#canvas');
@@ -34,25 +37,37 @@ function sizeCanvas() {
 }
 
 export function fitCanvasHeight() {
-  // Narrow screens: size the picture area to the frame's aspect ratio.
+  // Narrow screens: size the picture area to the frame's aspect ratio (side by side: two stacked panes).
   const wrap = $('#canvasWrap');
   if (!state.payload || window.innerWidth > 860) { wrap.style.height = ''; return; }
-  const fr = state.payload.frame;
-  const h = Math.round(clamp(wrap.clientWidth * fr.height / fr.width * 1.04, 220, window.innerHeight * 0.62));
+  const fr = state.payload.frame, two = cmpMode() === 'side' ? 2 : 1;
+  const h = Math.round(clamp(wrap.clientWidth * fr.height / fr.width * 1.04 * two + (two - 1) * GAP, 220, window.innerHeight * (two > 1 ? 0.9 : 0.62)));
   wrap.style.height = h + 'px';
 }
 
+// The view {s, ox, oy} places the frame in the first pane: the whole canvas, except side by side
+// (split.js), where each pane draws the frame at the same scale and offset from its own origin.
 export function fitView() {
   if (!state.payload) return;
   fitCanvasHeight();
   const r = sizeCanvas();
+  const P = paneRects(r.width, r.height)[0];
   const fr = state.payload.frame;
-  const s = Math.min(r.width / fr.width, r.height / fr.height) * 0.96;
-  state.view = { s, ox: (r.width - fr.width * s) / 2, oy: (r.height - fr.height * s) / 2, fitted: true };
+  const s = Math.min(P.w / fr.width, P.h / fr.height) * 0.96;
+  state.view = { s, ox: (P.w - fr.width * s) / 2, oy: (P.h - fr.height * s) / 2, fitted: true };
   lastFit = { s: state.view.s, ox: state.view.ox, oy: state.view.oy };
   requestRender();
 }
+// the pane under canvas point (px, py): its origin and index
+function paneOf(px, py) {
+  const r = canvas.getBoundingClientRect();
+  return paneAt(px, py, r.width, r.height);
+}
 export function zoomAt(factor, px, py) {
+  const p = paneOf(px, py);
+  zoomLocal(factor, px - p.x, py - p.y);
+}
+function zoomLocal(factor, px, py) {
   const v = state.view;
   const s2 = clamp(v.s * factor, 0.05, 64);
   v.ox = px - (px - v.ox) * (s2 / v.s);
@@ -62,32 +77,94 @@ export function zoomAt(factor, px, py) {
 }
 export function setZoom(s2) {
   const r = canvas.getBoundingClientRect();
-  zoomAt(s2 / state.view.s, r.width / 2, r.height / 2);
+  const P = paneRects(r.width, r.height)[0];
+  zoomLocal(s2 / state.view.s, P.w / 2, P.h / 2);
 }
-export const toImage = (px, py) => [(px - state.view.ox) / state.view.s, (py - state.view.oy) / state.view.s];
+export const toImage = (px, py) => {
+  const p = paneOf(px, py);
+  return [(px - p.x - state.view.ox) / state.view.s, (py - p.y - state.view.oy) / state.view.s];
+};
+// the picture drawn under canvas point (px, py): the second picture right of a split's divider or in the
+// second pane, else the first
+export function pictureAt(px, py) {
+  const mode = cmpMode();
+  if (mode === 'split') return px >= splitX() ? picture2() : state.picture;
+  if (mode === 'side') return paneOf(px, py).i ? picture2() : state.picture;
+  return state.picture;
+}
 
 function render() {
   const r = sizeCanvas();
-  drawScene(canvas.getContext('2d'), r.width, r.height, state.view, dpr(), { hover: true });
+  gridRecordStart();
+  drawView(canvas.getContext('2d'), r.width, r.height, state.view, dpr(), { hover: true, record: true });
   if (PERF && perf.cur && state.payload && state.payload.f === perf.cur.f) perfMark('render');
+}
+
+// Draws the view mode's panes (split.js) into a cw x ch CSS px area: single = drawScene alone; split = one
+// scene with the second picture right of the divider (x: opts.splitX, CSS px), the divider and labels;
+// side by side = one scene per pane, clipped to it.  opts.vertical: stack the panes (default: narrow screen).
+export function drawView(ctx, cw, ch, view, k, opts = {}) {
+  const mode = cmpMode();
+  if (mode === 'single') { drawScene(ctx, cw, ch, view, k, opts); return; }
+  const pic2 = picture2();
+  if (mode === 'split') {
+    const x = opts.splitX ?? splitX(cw);
+    drawScene(ctx, cw, ch, view, k, { ...opts, split: { x, picture: pic2 } });
+    if (state.payload) drawSplitChrome(ctx, cw, ch, k, x);
+    return;
+  }
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-bg') || '#151a20';
+  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  if (!state.payload) return;
+  paneRects(cw, ch, { vertical: opts.vertical ?? stacked() }).forEach((P, i) => {
+    if (i) {   // a faint line in the gap between the panes
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.fillStyle = 'rgba(255,255,255,0.14)';
+      if (P.x > 0) ctx.fillRect((P.x - GAP / 2 - 0.5) * k, P.y * k, k, P.h * k);
+      else ctx.fillRect(P.x * k, (P.y - GAP / 2 - 0.5) * k, P.w * k, k);
+    }
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.beginPath(); ctx.rect(P.x * k, P.y * k, P.w * k, P.h * k); ctx.clip();
+    drawScene(ctx, cw, ch, { s: view.s, ox: view.ox + P.x, oy: view.oy + P.y }, k, { ...opts, bg: false, picture: i ? pic2 : state.picture, area: P, pane: i });
+    ctx.restore();
+    drawPaneLabel(ctx, k, P, i);
+  });
 }
 
 // Draws the picture with the current fill, lines and selection into ctx: a
 // cw x ch CSS px area at device scale k, viewed through `view` {s, ox, oy}.
-// The screen canvas and the PNG export (export.js) both draw through here.
+// The screen canvas and the PNG export (export.js) both draw through here (drawView).
 // selection: false leaves out the selected block's outline (the PNG export's option).
-export function drawScene(ctx, cw, ch, view, k, { hover = false, selection = true } = {}) {
+// F-b track Y options: picture (default the toolbar's), area {x, y, w, h} (the pane, CSS px; default the
+// whole area), bg: false (the caller filled the background), split {x, picture} (the second picture right
+// of x), pane (index for the grid record), record (the screen render: gridSnap lists its cells).
+export function drawScene(ctx, cw, ch, view, k, { hover = false, selection = true, bg = true, area = null, split = null, pane = 0, record = false, ...rest } = {}) {
+  const picture = 'picture' in rest ? rest.picture : state.picture;
   ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-bg') || '#151a20';
-  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  if (bg) {
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--canvas-bg') || '#151a20';
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  }
   if (!state.payload) return;
   const { s, ox, oy } = view;
   ctx.setTransform(s * k, 0, 0, s * k, ox * k, oy * k);
   ctx.imageSmoothingEnabled = false;
   const fr = state.payload.frame;
-  if (state.picture) ctx.drawImage(state.picture.canvas, 0, 0);
+  if (picture) ctx.drawImage(picture.canvas, 0, 0);
   else { ctx.fillStyle = '#2a313b'; ctx.fillRect(0, 0, fr.width, fr.height); }
-  const vis = [(-ox) / s, (-oy) / s, (cw - ox) / s, (ch - oy) / s];
+  if (split) {
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.beginPath(); ctx.rect(split.x * k, 0, ctx.canvas.width - split.x * k, ctx.canvas.height); ctx.clip();
+    ctx.setTransform(s * k, 0, 0, s * k, ox * k, oy * k);
+    if (split.picture) ctx.drawImage(split.picture.canvas, 0, 0);
+    else { ctx.fillStyle = '#2a313b'; ctx.fillRect(0, 0, fr.width, fr.height); }
+    ctx.restore();
+  }
+  const A = area || { x: 0, y: 0, w: cw, h: ch };
+  const vis = [(A.x - ox) / s, (A.y - oy) / s, (A.x + A.w - ox) / s, (A.y + A.h - oy) / s];
   const px = 1 / s;  // one CSS pixel in image units
   const blocks = state.lumaBlocks || state.payload.blocks;  // chroma-tree blocks: see drawChromaTree
   const visible = (b) => !(b[C.x] > vis[2] || b[C.y] > vis[3] || b[C.x] + b[C.w] < vis[0] || b[C.y] + b[C.h] < vis[1]);
@@ -136,6 +213,13 @@ export function drawScene(ctx, cw, ch, view, k, { hover = false, selection = tru
   if (state.lines.has('sb')) drawSuperblocks(ctx, fr, px);
   if (state.lines.has('mv')) drawMotion(ctx, blocks, visible, px);
   if (state.lines.has('mismatch')) drawMismatch(ctx, px);
+  // F24 sample grid (CSS px clip rectangles: a split draws each side's values)
+  if (state.grid) {
+    if (split) {
+      drawGrid(ctx, view, k, picture, { x: A.x, y: A.y, w: Math.max(0, split.x - A.x), h: A.h }, 0, record);
+      drawGrid(ctx, view, k, split.picture, { x: split.x, y: A.y, w: Math.max(0, A.x + A.w - split.x), h: A.h }, 1, record);
+    } else drawGrid(ctx, view, k, picture, A, pane, record);
+  }
   // selection with its partition ancestors
   if (selection && state.sel >= 0) {
     const b = state.payload.blocks[state.sel];
@@ -168,6 +252,7 @@ function fillStyler() {
     case 'ref': return (b) => (b[C.pred] === 'inter' ? refColor(b[C.ref0]) : (b[C.pred] === 'intrabc' ? '#48c774' : null));
     case 'qindex': { const qm = qMax(); return (b) => rgb(ramp((b[C.qindex] ?? 0) / qm)); }
     case 'skip': return (b) => (b[C.skip_txfm] ? 'rgb(16,18,22)' : null);
+    case 'psnr': return psnrFill();   // diff mode: block PSNR from frames/<f>.diff.json cu (quality.js)
     case 'cycles': {
       const A = archOf(state.payload);
       if (!A) return () => null;

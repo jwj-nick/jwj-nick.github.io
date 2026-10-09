@@ -1,12 +1,14 @@
 // Export (SERVER_API.md §12): the picture as PNG (made here, every mode), tables as CSV
 // (server routes with `vca serve`, written here from the manifest and the frame payload
 // otherwise) and the stream report (server only).
-import { C, FILLS, frameMeta, hasArch, LINES, stageLabel, state, usesQp } from './state.js?v=f86793b620';
-import { $, dpr, esc, RAMP, rgb, typeName } from './util.js?v=f86793b620';
-import { caps } from './data.js?v=f86793b620';
-import { isChromaBlock } from './frames.js?v=f86793b620';
-import { canvas, drawScene } from './view.js?v=f86793b620';
-import { ensureSymbols, symbolsReady } from './symbols.js?v=f86793b620';
+import { C, FILLS, frameMeta, hasArch, LINES, stageLabel, state, usesQp } from './state.js?v=4a164c6c45';
+import { $, dpr, esc, RAMP, rgb, typeName } from './util.js?v=4a164c6c45';
+import { caps } from './data.js?v=4a164c6c45';
+import { isChromaBlock } from './frames.js?v=4a164c6c45';
+import { canvas, drawView } from './view.js?v=4a164c6c45';
+import { pixelsCaption } from './pixels.js?v=4a164c6c45';
+import { cmpMode, GAP, splitImageX } from './split.js?v=4a164c6c45';
+import { ensureSymbols, symbolsReady } from './symbols.js?v=4a164c6c45';
 
 // ------------------------------------------------------------ CSV (§12.1)
 // Columns and cells as vca/tables.py writes them: frames = query.frames, blocks = query.BLOCK_SUMMARY_COLS.
@@ -232,7 +234,7 @@ function captionLines() {
   const out = fr.out_n === null || fr.out_n === undefined ? 'not output' : `output ${fr.out_n}`;
   return [
     `${m.title}${m.stream && m.stream.codec ? ` (${m.stream.codec.toUpperCase()})` : ''}`,
-    `Frame ${f} in decode order (${out}), ${typeWords(fr.frame_type)}. Pixels: ${stageLabel(state.stage)}${state.lumaOnly ? ', gray' : ''}. Fill: ${fillLabel()}. Lines: ${lines.length ? lines.join(', ') : 'none'}.`,
+    `Frame ${f} in decode order (${out}), ${typeWords(fr.frame_type)}. Pixels: ${stageLabel(state.stage)}${pixelsCaption()}. Fill: ${fillLabel()}. Lines: ${lines.length ? lines.join(', ') : 'none'}.`,
   ];
 }
 // Words and pieces laid out in rows of width w (device px, k device px per CSS px);
@@ -313,11 +315,16 @@ function layoutStrip(ctx, w, k) {
 // 'frame' = the whole frame, each sample as scale x scale pixels (nearest neighbour).
 // The strip is drawn at the screen's device scale, like the page's own legend.  Draws off
 // screen; the page's view does not change.
+// Split and side-by-side views (split.js): the current view is drawn as on screen; the whole frame puts the
+// split's divider at the same picture column, and side by side draws the two frames next to each other.
 export function pictureCanvas(kind, { scale = 1, outline = true } = {}) {
   const fr = state.payload.frame, k = dpr();
-  let pw, ph, view, dk, cw, ch;
-  if (kind === 'frame') { pw = fr.width * scale; ph = fr.height * scale; view = { s: scale, ox: 0, oy: 0 }; dk = 1; cw = pw; ch = ph; }
-  else {
+  let pw, ph, view, dk, cw, ch, opts = {};
+  if (kind === 'frame') {
+    const two = cmpMode() === 'side';
+    pw = fr.width * scale * (two ? 2 : 1) + (two ? GAP : 0); ph = fr.height * scale; view = { s: scale, ox: 0, oy: 0 }; dk = 1; cw = pw; ch = ph;
+    opts = { vertical: false, splitX: cmpMode() === 'split' ? Math.max(0, Math.min(fr.width, splitImageX())) * scale : undefined };
+  } else {
     const r = canvas.getBoundingClientRect();
     pw = canvas.width; ph = canvas.height; view = state.view; dk = k; cw = r.width; ch = r.height;
   }
@@ -331,7 +338,7 @@ export function pictureCanvas(kind, { scale = 1, outline = true } = {}) {
   c.fillRect(0, 0, W, ph);
   const pic = document.createElement('canvas');
   pic.width = pw; pic.height = ph;
-  drawScene(pic.getContext('2d'), cw, ch, view, dk, { selection: outline });
+  drawView(pic.getContext('2d'), cw, ch, view, dk, { selection: outline, ...opts });
   c.drawImage(pic, 0, 0);
   strip.draw(c, ph);
   return out;

@@ -1,16 +1,18 @@
 // Opening a bundle: manifest, header facts and the pixel stage list; the stream picker.
-import { BASE_STAGES, C, FILLS, hasArch, stageLabel, state } from './state.js?v=f86793b620';
-import { $, esc, fmt, FRAME_COLORS, setEmpty, setStatus, typeName } from './util.js?v=f86793b620';
-import { caps, getJSON, listStreams, streamTitle } from './data.js?v=f86793b620';
-import { server } from './api.js?v=f86793b620';
-import { renderBraid } from './braid.js?v=f86793b620';
-import { renderDiffBar } from './diff.js?v=f86793b620';
-import { selectFrame } from './frames.js?v=f86793b620';
-import { renderTab, renderTabs } from './inspector.js?v=f86793b620';
-import { requestRender } from './view.js?v=f86793b620';
-import { parseHash } from './hash.js?v=f86793b620';
-import { renderChips } from './controls.js?v=f86793b620';
-import { renderJobs } from './jobs.js?v=f86793b620';
+import { BASE_STAGES, C, FILLS, hasArch, stageLabel, state } from './state.js?v=4a164c6c45';
+import { $, esc, fmt, FRAME_COLORS, setEmpty, setStatus, typeName } from './util.js?v=4a164c6c45';
+import { caps, getJSON, listStreams, streamTitle } from './data.js?v=4a164c6c45';
+import { server } from './api.js?v=4a164c6c45';
+import { renderBraid } from './braid.js?v=4a164c6c45';
+import { renderDiffBar } from './diff.js?v=4a164c6c45';
+import { selectFrame } from './frames.js?v=4a164c6c45';
+import { renderTab, renderTabs } from './inspector.js?v=4a164c6c45';
+import { requestRender } from './view.js?v=4a164c6c45';
+import { parseHash } from './hash.js?v=4a164c6c45';
+import { renderChips } from './controls.js?v=4a164c6c45';
+import { renderJobs } from './jobs.js?v=4a164c6c45';
+import { stage2 } from './split.js?v=4a164c6c45';
+import { pixelsOpened } from './pixels.js?v=4a164c6c45';
 
 // ------------------------------------------------------------ picker
 // The picker lists state.streams; an opened folder keeps its own extra option.
@@ -139,6 +141,7 @@ export async function openSource(source, title, { keepView = false } = {}) {
   renderChips();
   renderTabs();
   renderFacts();
+  pixelsOpened(keepView);
   renderStageOptions();
   renderBraid();
   renderDiffBar();
@@ -164,17 +167,30 @@ function renderFacts() {
   $('#typeLegend').innerHTML = types.map((t) => `<span><i style="background:${FRAME_COLORS[t] || '#888'}"></i>${esc(typeName(t) || 'type not decoded')}</span>`).join('');
 }
 
-export function renderStageOptions() {
+// The pixel stages this stream offers: A's (opts), and in diff mode the base stages B also has (cmp).
+function stageLists() {
   const avail = new Set();
   state.manifest.frames.forEach((f) => (f.stages || []).forEach((s) => avail.add(s)));
   const opts = ['recon', 'prefilter', 'pred'].filter((s) => avail.has(s));
   if (avail.has('recon') && avail.has('prefilter')) opts.push('lfdelta');
   if (avail.has('prefilter') && avail.has('pred')) opts.push('residual');
   const cmp = state.diff ? BASE_STAGES.filter((s) => avail.has(s)) : [];
-  const all = opts.concat(cmp.map((s) => 'B:' + s), cmp.map((s) => 'D:' + s));
+  return { opts, cmp, all: opts.concat(cmp.map((s) => 'B:' + s), cmp.map((s) => 'D:' + s)) };
+}
+// every entry of the pixel stage list (the second picture of a split or side-by-side view picks from it)
+export const stageOptions = () => stageLists().all;
+// short stage names for the second picture's select (the toolbar row keeps its width; the full name is its title)
+const SHORT = { recon: 'Output', prefilter: 'Before loop filters', pred: 'Prediction', lfdelta: 'Loop filter change', residual: 'Residual' };
+const shortStage = (s) => (s.startsWith('B:') ? `B: ${SHORT[s.slice(2)]}` : s.startsWith('D:') ? `A − B: ${SHORT[s.slice(2)]}` : SHORT[s] || s);
+export function renderStageOptions() {
+  const { opts, cmp, all } = stageLists();
   if (!all.includes(state.stage)) state.stage = opts[0] || 'recon';
-  const opt = (s) => `<option value="${s}" ${s === state.stage ? 'selected' : ''}>${stageLabel(s)}</option>`;
-  $('#stageSelect').innerHTML = (cmp.length ? `<optgroup label="A">${opts.map(opt).join('')}</optgroup>` : opts.map(opt).join(''))
-    + (cmp.length ? `<optgroup label="Compare with B">${cmp.map((s) => opt('B:' + s)).join('')}${cmp.map((s) => opt('D:' + s)).join('')}</optgroup>` : '');
+  const list = (cur, short = false) => {
+    const opt = (s) => `<option value="${s}" ${s === cur ? 'selected' : ''}${short ? ` title="${stageLabel(s)}"` : ''}>${short ? shortStage(s) : stageLabel(s)}</option>`;
+    return (cmp.length ? `<optgroup label="A">${opts.map(opt).join('')}</optgroup>` : opts.map(opt).join(''))
+      + (cmp.length ? `<optgroup label="Compare with B">${cmp.map((s) => opt('B:' + s)).join('')}${cmp.map((s) => opt('D:' + s)).join('')}</optgroup>` : '');
+  };
+  $('#stageSelect').innerHTML = list(state.stage);
+  $('#paneSelect').innerHTML = list(stage2(), true);   // F36: the second picture of split and side-by-side views
   $('#grayBtn').setAttribute('aria-pressed', String(state.lumaOnly));
 }

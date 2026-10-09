@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=f86793b620">
+<link rel="stylesheet" href="app.css?v=4a164c6c45">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%231d232b'/%3E%3Cpath d='M2 12h3V6H2zm4.5 0h3V3h-3zM11 12h3V8h-3z' fill='%23ffb347'/%3E%3C/svg%3E">
 </head>
 <body>
@@ -60,9 +60,18 @@
       <div class="tool-group">
         <label class="select-label" title="Which decoder picture is drawn under the overlay: prediction, reconstruction before loop filters, output after loop filters, and the differences between them">Pixels
           <select id="stageSelect" aria-label="Pixel stage"></select></label>
+        <select id="paneSelect" aria-label="Second picture" title="The second picture of the split or side-by-side view (j): any pixel stage, and in a comparison B or A − B" hidden></select>
         <button class="chip" id="grayBtn" aria-pressed="true" title="Show the picture in luma only so overlay colours stand out">Gray picture</button>
         <label class="select-label" title="How strongly the block fill colour covers the picture. 0 = picture only, 100 = fill colour only. Lines and outlines are not affected.">Opacity
           <input type="range" id="opacity" min="0" max="100" value="45" aria-label="Fill opacity"></label>
+      </div>
+      <div class="tool-group" id="pixelTools" aria-label="Picture">
+        <select id="compSelect" aria-label="Picture component" title="What the picture shows (y): the colour picture, or the Y, U or V plane alone as gray. A chroma sample covers the luma pixels it belongs to, so blocks and lines stay aligned."></select>
+        <select id="matrixSelect" aria-label="Colour matrix" title="Colour matrix of the colour picture"></select>
+        <select id="rangeSelect" aria-label="Sample range" title="Sample range: limited or full"></select>
+        <button class="chip" id="gridBtn" aria-pressed="false" title="Sample grid (i): zoomed in, each sample shows its exact value at the stream's bit depth (the plane chosen on the left; luma for the colour picture). A − B and change pictures show the signed difference.">Samples<span class="hk">i</span></button>
+        <button class="chip" id="gridBaseBtn" aria-pressed="false" hidden title="Show the sample values in hexadecimal instead of decimal">Hex</button>
+        <select id="viewModeSelect" aria-label="View mode" title="Single picture, split (a second picture right of a divider you drag) or side by side (two pictures with the same zoom and position) (j)"></select>
       </div>
       <div class="tool-group" aria-label="Block navigation">
         <input type="text" id="gotoXY" class="goto" placeholder="x, y" size="9" aria-label="Go to block at luma x, y" title="Type luma pixel coordinates (for example 64, 32) and press Enter to select the block covering that pixel. Shift+arrow keys move to the neighbouring block.">
@@ -115,6 +124,9 @@
       <tr><td><kbd>m</kbd> <kbd>r</kbd> <kbd>q</kbd> <kbd>b</kbd> <kbd>s</kbd> <kbd>n</kbd></td><td>Fill blocks by mode, reference, qindex, bits, skip, or no fill</td></tr>
       <tr><td><kbd>w</kbd> <kbd>f</kbd></td><td>With a HW model (the HW tab): fill superblocks by estimated HW cycles, blocks by reference fetch per pixel. Provisional: placeholder parameters (ARCH_MODEL.md in the VC Analyzer folder says how it counts)</td></tr>
       <tr><td><kbd>g</kbd> <kbd>t</kbd> <kbd>v</kbd> <kbd>p</kbd> <kbd>h</kbd></td><td>Toggle block grid, transform grid, motion vectors, superblocks and tiles, and (AV2, VVC) the chroma tree</td></tr>
+      <tr><td><kbd>y</kbd></td><td>Picture component: Y, U, V plane as gray, or colour, in turn ("Gray picture" switches between Y and colour). The colour matrix (BT.601, BT.709, BT.2020, identity for RGB streams) and the sample range (limited, full) are chosen next to it; Auto uses what the stream header signals, else BT.601 limited range.</td></tr>
+      <tr><td><kbd>i</kbd></td><td>Sample grid: zoom in and each sample shows its exact value at the stream's bit depth, in decimal or hex (Hex). The status line shows the exact values under the pointer.</td></tr>
+      <tr><td><kbd>j</kbd></td><td>View: single, split (a second picture right of a divider; drag it) or side by side (same zoom and position, stacked on a phone). The second picture is chosen next to the view mode.</td></tr>
       <tr><td><kbd>0</kbd> <kbd>1</kbd> <kbd>+</kbd> <kbd>−</kbd></td><td>Fit, 1:1, zoom in, zoom out. Drag to pan, wheel to zoom.</td></tr>
       <tr><td><kbd>Shift</kbd>+<kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd></td><td>Select the neighbouring block. The x, y box selects the block at a pixel; <kbd>e</kbd> selects the costliest block.</td></tr>
       <tr><td><kbd>Esc</kbd></td><td>Clear the block selection</td></tr>
@@ -127,6 +139,10 @@
       <tr><td><kbd>a</kbd></td><td>Compare: the stream on screen (A) with another analysis, a C model or RTL dump, or a raw YUV file (local GUI)</td></tr>
       <tr><td><kbd>?</kbd></td><td>Open this help</td></tr>
       <tr><td><kbd>d</kbd> <kbd>x</kbd></td><td>Diff mode: toggle mismatch outlines; flip the picture between A and B</td></tr>
+      <tr><td><kbd>[</kbd> <kbd>]</kbd></td><td>Diff mode: previous / next frame where B differs from A</td></tr>
+      <tr><td><kbd>,</kbd> <kbd>.</kbd></td><td>Diff mode: previous / next block holding differing samples in this frame, worst PSNR first (the order of the Diff tab's table)</td></tr>
+      <tr><td><kbd>z</kbd></td><td>Diff mode: fill the blocks that hold differing samples by their PSNR (brighter = worse); the hover and the Diff tab show the numbers</td></tr>
+      <tr><td><kbd>Shift</kbd>+<kbd>Q</kbd></td><td>Quality: PSNR of every frame (Y, U, V and all samples), A against B in diff mode or between the pixel stages of one analysis; identical frames sit on their own line. Click a frame to go there. With the local GUI also SSIM; the static site and an opened bundle show the PSNR the bundle carries. Also "Quality" on the diff bar and the Diff tab.</td></tr>
     </table>
     <h3>HW model (draft)</h3>
     <p>The <b>HW</b> tab of the inspector shows the provisional L0 HW model of the open analysis: for this frame and the whole stream the cycle budget, the estimated cycles and utilization, the slowest module, the clock it would need and the peak memory bandwidth. Its numbers come from placeholder parameters unless you load your own config. It counts the cycles of five modules (entropy decoding, inverse transform, prediction, loop filters, memory) per superblock from the blocks, modes, symbols and motion vectors of the analysis, and, with the default parallel pipeline, takes the slowest module of each superblock; caches and stalls are not modelled. ARCH_MODEL.md in the VC Analyzer folder describes every assumption.</p>
@@ -334,6 +350,29 @@ python -m vca export stream.vca -o bundle/</pre>
   </div>
 </dialog>
 
+<dialog id="qualityDialog" class="dialog gr-dialog qu-dialog" aria-labelledby="quTitle">
+  <div class="dialog-inner">
+    <div class="dialog-head">
+      <h2 id="quTitle">Quality</h2>
+      <button class="icon-btn" type="button" data-act="close" title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <p class="sub" id="quSub"></p>
+    <div class="gr-tools">
+      <div class="gr-seg" id="quPairs" role="group" aria-label="Pictures compared"></div>
+      <button class="chip" type="button" id="quSsim" aria-pressed="false" hidden title="Also compute SSIM per frame (FFmpeg's ssim filter, about 1 s per 1080p frame on the local app; kept in a cache next to A)">SSIM</button>
+      <span class="gr-fact" id="quStatus" aria-live="polite"></span>
+    </div>
+    <h3 class="gr-h">PSNR per frame</h3>
+    <div class="gr-scroll" id="quPsnrBox"><svg id="quPsnr" role="img" aria-label="PSNR per frame and plane"></svg></div>
+    <h3 class="gr-h" id="quSsimTitle" hidden>SSIM per frame</h3>
+    <div class="gr-scroll" id="quSsimBox" hidden><svg id="quSsimSvg" role="img" aria-label="SSIM per frame and plane"></svg></div>
+    <div class="gr-legend" id="quLegend"></div>
+    <p class="gr-fact" id="quFacts"></p>
+    <table class="grid qu-summary" id="quSummary"></table>
+    <p class="fine gr-note" id="quNote"></p>
+  </div>
+</dialog>
+
 <dialog id="libraryDialog" class="dialog dialog-wide" aria-labelledby="libTitle">
   <div class="dialog-inner">
     <div class="dialog-head">
@@ -442,7 +481,7 @@ python -m vca export stream.vca -o bundle/</pre>
 </aside>
 <div class="toast-pop" id="appToast" role="status" aria-live="polite" hidden></div>
 
-<script type="module" src="js/main.js?v=f86793b620"></script>
+<script type="module" src="js/main.js?v=4a164c6c45"></script>
 <script>
   // Browsers do not run module scripts from file://: say so instead of showing a blank page.
   if (location.protocol === 'file:') {

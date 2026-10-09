@@ -1,13 +1,14 @@
 // Diff mode: per-frame A vs B detail, the diff bar, first mismatch and A/B flip.
-import { BASE_STAGES, kindLabel, STAGES, state } from './state.js?v=f86793b620';
-import { $, esc, fmt, setStatus } from './util.js?v=f86793b620';
-import { bTitle, getJSON } from './data.js?v=f86793b620';
-import { buildPicture, stageDiffers } from './planes.js?v=f86793b620';
-import { renderStageOptions } from './source.js?v=f86793b620';
-import { selectFrame } from './frames.js?v=f86793b620';
-import { requestRender } from './view.js?v=f86793b620';
-import { renderLegend } from './legend.js?v=f86793b620';
-import { writeHash } from './hash.js?v=f86793b620';
+import { BASE_STAGES, kindLabel, STAGES, state } from './state.js?v=4a164c6c45';
+import { $, esc, fmt, setStatus } from './util.js?v=4a164c6c45';
+import { bTitle, getJSON } from './data.js?v=4a164c6c45';
+import { buildPicture, stageDiffers } from './planes.js?v=4a164c6c45';
+import { renderStageOptions } from './source.js?v=4a164c6c45';
+import { selectFrame } from './frames.js?v=4a164c6c45';
+import { requestRender } from './view.js?v=4a164c6c45';
+import { renderLegend } from './legend.js?v=4a164c6c45';
+import { writeHash } from './hash.js?v=4a164c6c45';
+import { syncDiffFills, zoomToFirstSample } from './quality.js?v=4a164c6c45';
 
 // ------------------------------------------------------------- diff
 // manifest.diff lists the frames that have frames/<f>.diff.json; any other
@@ -44,6 +45,7 @@ export function firstSample(stg) {
 export function renderDiffBar() {
   const bar = $('#diffBar');
   const d = state.diff;
+  syncDiffFills();   // the psnr fill chip exists in diff mode only
   if (!d) { bar.hidden = true; bar.innerHTML = ''; return; }
   bar.hidden = false;
   const b = d.b || {};
@@ -64,16 +66,21 @@ export function renderDiffBar() {
       + (fm.cycle !== null && fm.cycle !== undefined ? ` Simulation time there (from the dump): <b>${esc(String(fm.cycle))}</b>.` : '');
   }
   const n = (d.differing_frames || []).length;
-  bar.innerHTML = `<span title="${esc(fm && fm.stage_meaning || '')}"><b>B departs from A</b> in ${fmt(n)} of ${fmt(d.frames_compared)} frames${d.output_md5_equal === false ? ' (output MD5 differs)' : ''}.${first}</span>${fm ? '<button class="btn" data-act="goto-mismatch">Go to first mismatch</button>' : ''}${who}${notes}`;
+  bar.innerHTML = `<span title="${esc(fm && fm.stage_meaning || '')}"><b>B departs from A</b> in ${fmt(n)} of ${fmt(d.frames_compared)} frames${d.output_md5_equal === false ? ' (output MD5 differs)' : ''}.${first}</span>${fm ? '<button class="btn" data-act="goto-mismatch" title="Show the frame and stage of the first mismatch, zoomed to the samples around the first differing one">Go to first mismatch</button>' : ''}`
+    + '<button class="btn" data-act="quality" title="PSNR of every frame of B against A, and SSIM with the local app (Shift+Q)">Quality</button>'
+    + `${who}${notes}`;
 }
 
-export function gotoFirstMismatch() {
+// The first mismatch: its frame, the A − B picture of its stage and the block holding the first differing sample,
+// zoomed to the 9x9 samples around that sample (quality.js).
+export async function gotoFirstMismatch() {
   const fm = state.diff && state.diff.first_mismatch;
   if (!fm) return;
   state.diffGoto = fm;
   if (fm.stage) state.stage = 'D:' + fm.stage;
   renderStageOptions();
-  selectFrame(fm.f);
+  await selectFrame(fm.f);
+  if (state.f === fm.f && state.payload && state.payload.frame.f === fm.f) zoomToFirstSample();
 }
 
 // x: flip the picture between A and B at the same stage (A − B goes back to A).

@@ -4,16 +4,16 @@
 // (slot b), saved configs, YAML import and download.
 // Edits live here (draft, one per analysis while the page lives) until Recalculate; values are
 // checked by the server (POST api/arch/validate) field by field, so every message is the server's sentence.
-import { hasArch, state } from './state.js?v=f86793b620';
-import { $, esc, fmt, typeName } from './util.js?v=f86793b620';
-import { bustCache, caps, streamTitle } from './data.js?v=f86793b620';
-import { api, toast } from './api.js?v=f86793b620';
-import { archOf } from './arch.js?v=f86793b620';
-import { openSource } from './source.js?v=f86793b620';
-import { renderTab } from './inspector.js?v=f86793b620';
-import { selectFrame } from './frames.js?v=f86793b620';
-import { trackJob } from './jobs.js?v=f86793b620';
-import { writeHash } from './hash.js?v=f86793b620';
+import { hasArch, state } from './state.js?v=4a164c6c45';
+import { $, esc, fmt, typeName } from './util.js?v=4a164c6c45';
+import { bustCache, caps, streamTitle } from './data.js?v=4a164c6c45';
+import { api, toast } from './api.js?v=4a164c6c45';
+import { archOf } from './arch.js?v=4a164c6c45';
+import { openSource } from './source.js?v=4a164c6c45';
+import { renderTab } from './inspector.js?v=4a164c6c45';
+import { selectFrame } from './frames.js?v=4a164c6c45';
+import { trackJob } from './jobs.js?v=4a164c6c45';
+import { writeHash } from './hash.js?v=4a164c6c45';
 
 // What the model is, for someone who installed the app (R48 QA D10: no repository paths)
 const DRAFT_NOTE = 'Provisional L0 HW model (draft): placeholder parameters unless you load your own. It counts cycles of five modules per superblock from the blocks, symbols and motion vectors of the analysis; caches and stalls are not modelled. ARCH_MODEL.md in the VC Analyzer folder describes every assumption.';

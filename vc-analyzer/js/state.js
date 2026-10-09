@@ -14,6 +14,10 @@ export const state = {
   loading: -1, pickGen: 0, pickAt: null,  // frame being loaded; last user pick (selectFrame keeps it)
   folderLabel: '',   // picker text of a folder opened with "Open bundle"
   openSeq: 0,   // streams the user opened (picker, Library, Open); a job opens its analysis only if this did not change
+  // F-b pixel layer (R49, D-115). Track Y (pixels.js): picture component, colour matrix/range, sample grid,
+  // split / side-by-side.  Track X (quality.js): the Quality dialog and the psnr fill.
+  comp: 'y', matrix: 'auto', range: 'auto', grid: false, gridBase: 10,
+  cmp: { mode: 'single', stage2: null, pos: 0.5 },
 };
 // block column -> index.  One object, refilled in place by openSource: modules import
 // the binding, so it is never reassigned.
@@ -23,6 +27,7 @@ export const FILLS = [
   { id: 'mode', label: 'Mode', key: 'm' }, { id: 'ref', label: 'Reference', key: 'r' },
   { id: 'qindex', label: 'Qindex', key: 'q' }, { id: 'bits', label: 'Bits', key: 'b' },
   { id: 'skip', label: 'Skip', key: 's' },
+  { id: 'psnr', label: 'PSNR', key: 'z', diffOnly: true },   // diff mode only: block PSNR (quality.js syncDiffFills keeps it out otherwise)
   { id: 'cycles', label: 'HW cycles (draft)', key: 'w', arch: true }, { id: 'fetch', label: 'Ref fetch (draft)', key: 'f', arch: true },
   { id: 'none', label: 'No fill', key: 'n' },
 ];
