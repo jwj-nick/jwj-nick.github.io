@@ -1,5 +1,5 @@
 // Reading the data contract from a URL or an opened folder, stream discovery and caps.
-import { bLabel, fetchOpts, kindLabel, perfMark, state } from './state.js?v=4a164c6c45';
+import { bLabel, fetchOpts, kindLabel, perfMark, state } from './state.js?v=9ce97af84e';
 
 // The per-run token `vca serve` writes into <meta name="vca-token"> (SERVER_API.md §3).
 // Empty on the static site and in an opened folder: then no header is sent.
@@ -145,6 +145,17 @@ export const streamTitle = (s) => {
 // the library entry of an id, and the one on screen (null on the static site and in an opened folder)
 export const entryById = (id) => { const s = state.streams.find((x) => x.id === id); return s && isLib(s.entry) ? s.entry : null; };
 export const shownEntry = () => { const s = state.streams[state.streamIdx]; return state.source && state.source.kind === 'url' && s && isLib(s.entry) ? s.entry : null; };
+// A of the comparison on screen, or the analysis on screen, by the same rule (R49 QA D5): its Library name
+// ("stream.ivf in av1-LLS-smoke-001"); `vca serve A B --diff` names the pair "<A> vs <B>" and the manifest's title
+// is A's analysis name; a bundle: its title, or for a comparison bundle A's file and kind ("stream.ivf (reference decoder)").
+export function aTitle() {
+  const e = shownEntry(), man = state.manifest || {}, s = man.stream || {};
+  if (e && e.kind !== 'diff') return streamLabel(e);
+  if (e && e.a && entryById(e.a)) return streamLabel(entryById(e.a));
+  if (e) return man.title || s.name || 'A';
+  if (!man.diff) return man.title || s.name || 'this analysis';
+  return s.source_kind ? `${s.name || 'A'} (${kindLabel(s.source_kind)})` : (s.name || 'A');
+}
 // B of the comparison on screen as "<name> (<kind>)": a Library comparison names B by its Library entry,
 // and a raw YUV file is "raw YUV" (the converted analysis records it as a C model); else manifest.diff.b.
 export function bTitle(b) {

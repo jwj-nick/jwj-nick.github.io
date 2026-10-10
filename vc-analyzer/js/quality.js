@@ -5,17 +5,17 @@
 // Every number comes from the data contract (SERVER_API.md section 16): the frame values from `vca serve`'s
 // quality.jsonl (= `vca quality --json`, streamed as the frames are computed) or a bundle's quality.json (PSNR only),
 // the block values from frames/<f>.diff.json `cu` of the stage in focus.
-import { C, FILLS, state, STAGES } from './state.js?v=4a164c6c45';
-import { $, clamp, esc, fmt, ramp, rgb, setStatus } from './util.js?v=4a164c6c45';
-import { bTitle, caps, getJSON, withToken } from './data.js?v=4a164c6c45';
-import { asProblem } from './api.js?v=4a164c6c45';
-import { focusStage } from './diff.js?v=4a164c6c45';
-import { orderedFrames, selectFrame, stepFrame } from './frames.js?v=4a164c6c45';
-import { canvas, requestRender } from './view.js?v=4a164c6c45';
-import { renderTab } from './inspector.js?v=4a164c6c45';
-import { writeHash } from './hash.js?v=4a164c6c45';
-import * as pixels from './pixels.js?v=4a164c6c45';
-import { renderChips } from './controls.js?v=4a164c6c45';
+import { C, FILLS, state, STAGES } from './state.js?v=9ce97af84e';
+import { $, clamp, esc, fmt, ramp, rgb, setStatus } from './util.js?v=9ce97af84e';
+import { aTitle, bTitle, caps, getJSON, withToken } from './data.js?v=9ce97af84e';
+import { asProblem } from './api.js?v=9ce97af84e';
+import { focusStage } from './diff.js?v=9ce97af84e';
+import { orderedFrames, selectFrame, stepFrame } from './frames.js?v=9ce97af84e';
+import { canvas, requestRender } from './view.js?v=9ce97af84e';
+import { renderTab } from './inspector.js?v=9ce97af84e';
+import { writeHash } from './hash.js?v=9ce97af84e';
+import * as pixels from './pixels.js?v=9ce97af84e';
+import { renderChips } from './controls.js?v=9ce97af84e';
 
 const dlg = () => $('#qualityDialog');
 const PSNR_KEYS = ['Y', 'U', 'V', 'yuv'], SSIM_KEYS = ['Y', 'U', 'V', 'all'];
@@ -172,6 +172,14 @@ function serverBase() {
 }
 // stages both sides can have (the manifest's stages of A); B may still lack one: then the server lists no pair
 const stagesOfA = () => { const s = new Set(); state.manifest.frames.forEach((fr) => (fr.stages || []).forEach((x) => s.add(x))); return PIPELINE.filter((x) => s.has(x)); };
+// Quality has numbers to show: a comparison, or an analysis with two pixel stages (the Stream tab's button)
+export const qualityOffered = () => !!state.manifest && (!!state.diff || stagesOfA().length >= 2);
+// One analysis with the output pictures only, in the GUI's words (R49 QA D7: not the CLI's --pixels all)
+export function oneStageText() {
+  const how = caps.jobs ? 'Open the stream again (Open stream) with Pixel stages "All stages"'
+    : 'Analyze the stream in the VC Analyzer app with Pixel stages "All stages" (Open stream)';
+  return `This analysis keeps the output pictures only, so it has no two pixel stages to compare. ${how} to keep the prediction and the picture before the loop filters too${caps.jobs ? ', or compare it with another analysis (Compare)' : ''}.`;
+}
 // results on the server: one per stage asked for (A vs B) or 'stages' (one analysis), with or without SSIM
 const pairKey = () => (state.diff ? stageSel : 'stages');
 const keyOf = (ssim) => (serverBase() ? `${pairKey()}|${ssim ? 1 : 0}` : 'bundle');
@@ -255,8 +263,10 @@ async function loadBundle() {
     const q = await getJSON('quality.json');
     Object.assign(res, { head: q, ssim: !!q.ssim, pairs: q.pairs || [], done: true });
   } catch (e) {
-    res.error = { message: 'This bundle has no quality.json: it was exported before the Quality view existed, or the analysis has no pixel stages.',
-      hint: 'Export it again (python -m vca export), or compute the numbers with python -m vca quality <analysis> [<B>].' };
+    // vca export writes no quality.json for one analysis with one pixel stage: say that, not that the bundle is old
+    res.error = !state.diff && stagesOfA().length < 2 ? { message: oneStageText(), hint: '' }
+      : { message: 'This bundle has no quality.json: it was exported before the Quality view existed, or the analysis has no pixel stages.',
+        hint: 'Export it again (python -m vca export), or compute the numbers with python -m vca quality <analysis> [<B>].' };
   }
   if (dlg().open) render();
 }
@@ -276,11 +286,11 @@ export function openQuality() {
 function render() {
   if (!state.manifest) return;
   const srv = !!serverBase(), res = current(), pair = pairOf(res), err = errorOf();
-  const s = state.manifest.stream || {};
   const kind = state.diff ? 'a_vs_b' : 'stages';
+  // A and B named as the picker, the diff bar and the Stream tab name them (data.js aTitle, bTitle)
   $('#quSub').textContent = (kind === 'a_vs_b'
-    ? `A = ${s.name || 'this analysis'}, B = ${bTitle(state.diff.b || {})}: PSNR of each frame of B against A`
-    : `${s.name || 'This analysis'}: PSNR between its pixel stages (how much each decoder stage changes the picture)`)
+    ? `A = ${aTitle()}, B = ${bTitle(state.diff.b || {})}: PSNR of each frame of B against A`
+    : `${aTitle()}: PSNR between its pixel stages (how much each decoder stage changes the picture)`)
     + `. Frame ${state.f} is on screen (marked); click a frame to go there.`;
   // pair choice: A vs B on the server = the stage asked for; otherwise the pairs of the result
   let chips;
@@ -288,25 +298,28 @@ function render() {
   else chips = (res ? res.pairs : []).map((p) => ({ id: p.id, label: pairLabel(p), on: pair && p.id === pair.id }));
   $('#quPairs').innerHTML = chips.length > 1 || (srv && state.diff) ? chips.map((c) => `<button class="chip" type="button" data-pair="${esc(c.id)}" aria-pressed="${c.on}" title="${esc(pairTitle(c))}">${esc(c.label)}</button>`).join('') : '';
   const ssimBtn = $('#quSsim');
-  ssimBtn.hidden = !srv;
+  ssimBtn.hidden = !srv || !!(res && res.done && !res.pairs.length);   // nothing to compare: no SSIM either
   ssimBtn.setAttribute('aria-pressed', String(showSsim));
   const busy = res && !res.done && !res.error;
   const got = res && pair ? pair.frames.length + pair.missing.length : 0, total = state.manifest.frames.length;
   $('#quStatus').innerHTML = err ? `<span class="mis">${esc(err.message)}</span>${err.hint ? ` <span class="hint">${esc(err.hint)}</span>` : ''}`
     : busy ? `Computing${res.ssim ? ' PSNR and SSIM' : ' PSNR'}: ${fmt(got)} of ${fmt(total)} frames…`
-      : res && res.done && !res.pairs.length ? (state.diff ? `B has no ${STAGES[stageSel].toLowerCase()} samples to compare.` : 'This analysis has no two pixel stages to compare (analyze with --pixels all).')
+      : res && res.done && !res.pairs.length ? (state.diff ? `B has no ${STAGES[stageSel].toLowerCase()} samples to compare.` : esc(oneStageText()))
         : res && res.done ? `${fmt(got)} frames${res.source === 'server' && res.head && res.head.cached ? ' (from the cache next to A)' : ''}.` : '';
   drawPsnr(pair);
   const ss = showSsim && res && res.ssim;
   $('#quSsimTitle').hidden = !ss; $('#quSsimBox').hidden = !ss;
   if (ss) drawSsim(pair); else { $('#quSsimSvg').innerHTML = ''; $('#quSsimSvg')._geom = null; }
+  const planeEq = pair ? PSNR_KEYS.filter((k) => pair.frames.some((fr) => planeEqual(fr, k))) : [];
   $('#quLegend').innerHTML = PSNR_KEYS.map((k) => `<span><i class="qu-sw qu-l-${k}"></i>${k === 'yuv' ? 'YUV (all samples)' : k}</span>`).join('')
-    + '<span><i class="qu-sw qu-ident-sw"></i>identical frame</span><span><i class="qu-sw qu-miss-sw"></i>not compared</span>';
+    + '<span><i class="qu-sw qu-ident-sw"></i>identical frame</span>'
+    + (planeEq.length ? `<span class="qu-pident-key" title="A frame whose other planes differ, but whose ${planeEq.join(', ')} samples are all equal: that plane has no PSNR and is a ring in its colour on the identical line">${planeEq.map((k) => `<i class="qu-sw qu-pident-sw qu-l-${k}"></i>`).join('')}${planeEq.join(', ')} identical in a differing frame</span>` : '')
+    + '<span><i class="qu-sw qu-miss-sw"></i>not compared</span>';
   const sm = pair && pair.summary;
   $('#quFacts').textContent = sm ? `${fmt(sm.frames)} frames compared, ${fmt(sm.identical)} identical${pair.missing.length ? `, ${fmt(pair.missing.length)} not compared` : ''}. Average = from the mean MSE over the frames (an identical frame counts as MSE 0); lowest = the worst frame.` : '';
   $('#quSummary').innerHTML = summaryHtml(pair, ss);
   $('#quNote').innerHTML = 'PSNR per plane = 10 log10(peak² / MSE), peak = 2^bit depth − 1; YUV from the plane-size weighted MSE (FFmpeg\'s psnr filter). '
-    + 'A frame whose samples are all equal has no PSNR (it would be infinite): it sits on the identical line. '
+    + 'A frame whose samples are all equal has no PSNR (it would be infinite): it sits on the identical line; a plane whose samples are all equal in a frame that differs elsewhere is a ring in that plane\'s colour on the same line. '
     + (srv ? 'SSIM (FFmpeg\'s ssim filter) is computed on request and kept in a cache next to A. '
       : 'This page reads the bundle\'s quality.json, which holds PSNR only: SSIM needs the local app (<code>vca serve</code>) or <code>python -m vca quality --ssim</code>. ')
     + `The same numbers: <code>python -m vca quality &lt;A&gt;${state.diff ? ' &lt;B&gt;' : ''} --json</code>.`;
@@ -365,6 +378,11 @@ function drawGraph(svg, box, pair, keys, get, opt) {
     s += `<g class="gr-col" data-f="${f}"><title>${esc(opt.title(f, fr, miss.get(f)))}</title><rect class="gr-hit" x="${(L + i * slot).toFixed(1)}" y="${strip - 7}" width="${slot.toFixed(1)}" height="${(plotH + T - strip + 7).toFixed(1)}"/>`;
     if (fr && fr.identical) s += `<circle class="qu-ident" data-f="${f}" cx="${xs(i).toFixed(1)}" cy="${strip}" r="3.4"/>`;
     else if (miss.has(f)) s += `<path class="qu-miss" data-f="${f}" d="M${(xs(i) - 3).toFixed(1)},${strip - 3}l6,6m0,-6l-6,6"/>`;
+    else if (fr && opt.equal) {
+      // planes with all samples equal in a frame that differs elsewhere: rings in the plane's colour, side by side
+      const eqk = keys.filter((k) => opt.equal(fr, k)), d = Math.min(5, slot / Math.max(1, eqk.length + 1));
+      eqk.forEach((k, j) => { s += `<circle class="qu-pident qu-l-${k}" data-f="${f}" data-k="${k}" cx="${(xs(i) + (j - (eqk.length - 1) / 2) * d).toFixed(1)}" cy="${strip}" r="3"/>`; });
+    }
     s += '</g>';
   });
   // lines (pen up across frames without a value) and points
@@ -393,10 +411,13 @@ function psnrTitle(f, fr, reason) {
   const p = fr.psnr || {};
   return `Frame ${f}: ${PSNR_KEYS.filter((k) => k in p).map((k) => `${k} ${dB(p[k])}`).join(', ')}; ${fmt((fr.differing || {}).Y || 0)} luma samples differ, max |Δ| ${(fr.max_abs || {}).Y ?? 0}`;
 }
+// A plane of a differing frame whose samples are all equal: quality.json gives it PSNR null (R49 QA D6: the line
+// left it out without a word).
+export const planeEqual = (fr, k) => !!(fr && !fr.identical && fr.psnr && k in fr.psnr && fr.psnr[k] === null);
 function drawPsnr(pair) {
   drawGraph($('#quPsnr'), $('#quPsnrBox'), pair, PSNR_KEYS, (fr, k) => (fr.psnr ? fr.psnr[k] : null), {
-    height: 250, axis: 'PSNR (dB)', title: psnrTitle,
-    empty: pair && pair.frames.length ? 'Every compared frame is identical: no PSNR' : 'No numbers yet',
+    height: 250, axis: 'PSNR (dB)', title: psnrTitle, equal: planeEqual,
+    empty: pair && pair.frames.length ? 'Every compared frame is identical: no PSNR' : !pair && !qualityOffered() ? 'Nothing to compare' : 'No numbers yet',
     range: (lo, hi) => [Math.floor(lo - 0.5), Math.ceil(hi + 0.5)],
   });
 }
@@ -446,8 +467,10 @@ export function qualitySnap() {
     psnr: pts(PSNR_KEYS, (fr, k) => (fr.psnr ? fr.psnr[k] : null)),
     ssimPts: res && res.ssim ? pts(SSIM_KEYS, (fr, k) => (fr.ssim ? fr.ssim[k] : null)) : null,
     identical: pair ? pair.frames.filter((fr) => fr.identical).map((fr) => fr.f) : [],
+    planeIdentical: pair ? pair.frames.flatMap((fr) => PSNR_KEYS.filter((k) => planeEqual(fr, k)).map((k) => [fr.f, k])) : [],
     missing: pair ? pair.missing.map((m) => m.f) : [],
-    drawn: { psnr: drawn('#quPsnr'), ssim: drawn('#quSsimSvg'), identical: d.querySelectorAll('#quPsnr .qu-ident').length },
+    drawn: { psnr: drawn('#quPsnr'), ssim: drawn('#quSsimSvg'), identical: d.querySelectorAll('#quPsnr .qu-ident').length,
+      planeIdentical: [...d.querySelectorAll('#quPsnr circle.qu-pident')].map((c) => [+c.dataset.f, c.dataset.k]) },
     marked: [...d.querySelectorAll('.gr-mark')].map((m) => +m.dataset.f),
     status: $('#quStatus').textContent,
   };

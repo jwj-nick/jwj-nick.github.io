@@ -1,18 +1,22 @@
 // Legend under the picture for the current fill and picture.
-import { C, qMax, qName, stageLabel, STAGES, state } from './state.js?v=4a164c6c45';
-import { $, esc, fmt, MISMATCH, modeColor, RAMP, refColor, rgb } from './util.js?v=4a164c6c45';
-import { focusStage } from './diff.js?v=4a164c6c45';
-import { bitsMax } from './view.js?v=4a164c6c45';
+import { C, qMax, qName, stageLabel, STAGES, state } from './state.js?v=9ce97af84e';
+import { $, esc, fmt, MISMATCH, modeColor, RAMP, refColor, rgb } from './util.js?v=9ce97af84e';
+import { focusStage } from './diff.js?v=9ce97af84e';
+import { bitsMax } from './view.js?v=9ce97af84e';
 
 // Below 1 bit per pixel two decimals would round small maxima to 0.00.
 const bitsMaxText = (m) => (m >= 1 ? fmt(m, 2) : m > 0 ? m.toPrecision(2) : '0');
-import { archLegend } from './arch.js?v=4a164c6c45';
-import { pixelsLegend } from './pixels.js?v=4a164c6c45';
-import { psnrLegendHtml } from './quality.js?v=4a164c6c45';
+import { archLegend } from './arch.js?v=9ce97af84e';
+import { pixelsLegend } from './pixels.js?v=9ce97af84e';
+import { psnrLegendHtml } from './quality.js?v=9ce97af84e';
+import { syncDecisionChips } from './blockdec.js?v=9ce97af84e';
+import { frameColor, interLegendHtml, refFrames, txLegendHtml } from './modes.js?v=9ce97af84e';
+import { boundsLegendHtml, segmentLegendHtml } from './regions.js?v=9ce97af84e';
 
 export function renderLegend() {
   const el = $('#legend');
   if (!state.payload) { el.innerHTML = ''; return; }
+  syncDecisionChips();   // F-c track B: chips that exist for this codec only
   const blocks = state.lumaBlocks || state.payload.blocks;
   const count = (key) => { const m = new Map(); blocks.forEach((b) => m.set(b[C[key]], (m.get(b[C[key]]) || 0) + b[C.w] * b[C.h])); return m; };
   let html = '';
@@ -24,8 +28,19 @@ export function renderLegend() {
       return `<span><i style="background:${modeColor(mode, pred)}"></i>${esc(mode)}</span>`;
     }).join('');
   } else if (state.fill === 'ref') {
-    html = [...count('ref0').keys()].filter(Boolean).map((r) => `<span><i style="background:${refColor(r)}"></i>${esc(r)}</span>`).join('')
-      + '<span><i style="background:#48c774"></i>intra block copy</span><span class="note">intra blocks are unfilled</span>';
+    // by decoded frame when refsview.js knows the frames the references hold (modes.js refFill), else by name
+    const frames = refFrames();
+    // the IBC colour only when this frame has an intra block copy block (view.js fills them, R49 QA D2)
+    const ibc = state.payload.blocks.some((b) => b[C.pred] === 'intrabc');
+    html = (frames.length ? frames.map((f) => `<span><i style="background:${frameColor(frames, f)}"></i>frame ${f}</span>`).join('')
+      : [...count('ref0').keys()].filter(Boolean).map((r) => `<span><i style="background:${refColor(r)}"></i>${esc(r)}</span>`).join(''))
+      + (ibc ? '<span class="lg-ibc"><i style="background:#48c774"></i>intra block copy</span>' : '') + '<span class="note">intra blocks are unfilled</span>';
+  } else if (state.fill === 'txtype') {
+    html = txLegendHtml();
+  } else if (state.fill === 'intermode') {
+    html = interLegendHtml();
+  } else if (state.fill === 'segment') {
+    html = segmentLegendHtml();
   } else if (state.fill === 'qindex') {
     const q = blocks.map((b) => b[C.qindex]).filter((v) => v !== null);
     html = `${qName()} 0<span class="ramp" style="background:linear-gradient(90deg,${RAMP.map((c) => rgb(c)).join(',')})"></span>${qMax()} <span class="note">this frame: ${Math.min(...q)}–${Math.max(...q)}</span>`;
@@ -55,6 +70,9 @@ export function renderLegend() {
     const st = focusStage();
     html += ` <span><i style="background:transparent;border:2px solid ${MISMATCH}"></i>mismatch${st ? `: samples differ at ${esc(STAGES[st].toLowerCase())}` : ''}; dashed = block fields differ</span>`;
   }
+  // F-c track B: the intra direction and bounds lines
+  if (state.lines.has('angle')) html += ' <span class="bd-key"><i class="bd-arrow" aria-hidden="true"></i>intra direction: the way the neighbouring samples are copied into the block (a dot: DC, smooth, Paeth, planar, MIP, palette and other non-directional modes); zoom in to see small blocks</span>';
+  if (state.lines.has('bounds')) html += ' ' + boundsLegendHtml();
   // F-b track Y: component and colour, sample grid, split / side by side (pixels.js)
   for (const n of pixelsLegend()) html += ` <span class="note">${esc(n)}</span>`;
   el.innerHTML = html;

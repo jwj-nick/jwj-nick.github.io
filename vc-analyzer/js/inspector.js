@@ -1,14 +1,16 @@
 // Inspector tabs: Block, Diff, Frame, Syntax, Stats, Stream.
-import { BASE_STAGES, C, frameMeta, hasCdef, kindLabel, STAGES, state, usesQp } from './state.js?v=4a164c6c45';
-import { $, esc, extText, fmt, refColor } from './util.js?v=4a164c6c45';
-import { stageDiffers } from './planes.js?v=4a164c6c45';
-import { focusStage } from './diff.js?v=4a164c6c45';
-import { blockAt, chromaAt, frameSummary, isChromaBlock, partitionPath } from './frames.js?v=4a164c6c45';
-import { ARCH_MODULES, archOf } from './arch.js?v=4a164c6c45';
-import { hasSymbols, symbolsOfBlock, symbolsReady, symtype } from './symbols.js?v=4a164c6c45';
-import { hwTabShown, renderHwTab } from './hw.js?v=4a164c6c45';
-import { bTitle, shownEntry, streamLabel } from './data.js?v=4a164c6c45';
-import { cuRows, psnrRampCss, psnrText, samplesText } from './quality.js?v=4a164c6c45';
+import { BASE_STAGES, C, frameMeta, hasCdef, kindLabel, STAGES, state, usesQp } from './state.js?v=9ce97af84e';
+import { $, esc, extText, fmt, refColor } from './util.js?v=9ce97af84e';
+import { stageDiffers } from './planes.js?v=9ce97af84e';
+import { focusStage } from './diff.js?v=9ce97af84e';
+import { blockAt, chromaAt, frameSummary, isChromaBlock, partitionPath } from './frames.js?v=9ce97af84e';
+import { ARCH_MODULES, archOf } from './arch.js?v=9ce97af84e';
+import { hasSymbols, symbolsOfBlock, symbolsReady, symtype } from './symbols.js?v=9ce97af84e';
+import { hwTabShown, renderHwTab } from './hw.js?v=9ce97af84e';
+import { blockDecisionHtml, frameRegionsHtml } from './blockdec.js?v=9ce97af84e';
+import { blockRefHtml, frameRefsHtml } from './refsview.js?v=9ce97af84e';
+import { bTitle, shownEntry, streamLabel } from './data.js?v=9ce97af84e';
+import { cuRows, oneStageText, psnrRampCss, psnrText, qualityOffered, samplesText } from './quality.js?v=9ce97af84e';
 
 // ------------------------------------------------------------ inspector
 export function blockObject(bi) {
@@ -42,18 +44,22 @@ function renderBlockTab() {
   let facts = kvRow('Prediction', esc(o.pred)) + kvRow('Mode', esc(o.mode));
   if (o.uv_mode) facts += kvRow('Chroma mode', esc(o.uv_mode));
   if (refs.length) facts += kvRow('Reference', refs.map((r, i) => `<span style="color:${refColor(r)}">${esc(r)}</span>${ohs[i] !== undefined && ohs[i] !== null ? `<span class="unit">order hint ${ohs[i]}</span>` : ''}`).join(', '));
+  facts += blockRefHtml(state.sel);   // F-c track C
   if (o.mv0_row !== undefined) facts += kvRow('Motion vector', `(${o.mv0_col}, ${o.mv0_row})${o.mv1_row !== undefined ? ` · (${o.mv1_col}, ${o.mv1_row})` : ''}`, 'x, y in 1/8 pel');
   if (o.motion_mode) facts += kvRow('Motion mode', esc(o.motion_mode));
   if (o.compound_type) facts += kvRow('Compound', esc(o.compound_type));
   if (o.interp_filter) facts += kvRow('Interpolation', esc(o.interp_filter));
   facts += kvRow('Skip residual', o.skip_txfm ? 'yes' : 'no') + (o.skip_mode ? kvRow('Skip mode', 'yes') : '');
-  facts += kvRow('Transform', `${esc(o.tx_size)} ${esc(o.tx_type)}`) + kvRow(usesQp() ? 'QP' : 'Qindex', fmt(o.qindex));
+  // a skipped block has no transform (VVC SKIP_* blocks: no tx_size, no tx_type; R49 QA D8)
+  const tx = [o.tx_size, o.tx_type].filter((v) => v !== undefined && v !== null && v !== '').map(esc).join(' ');
+  facts += kvRow('Transform', tx || (o.skip_txfm ? 'none (skipped)' : '–')) + kvRow(usesQp() ? 'QP' : 'Qindex', fmt(o.qindex));
   if (o.segment_id) facts += kvRow('Segment', fmt(o.segment_id));
   if (hasCdef()) facts += kvRow('CDEF index', fmt(o.cdef_idx));
   if (extra.angle_delta) facts += kvRow('Angle delta', `${extra.angle_delta[0]} / ${extra.angle_delta[1]}`, 'luma / chroma');
   if (extra.cfl) facts += kvRow('CfL', esc(JSON.stringify(extra.cfl)));
   if (extra.palette_size) facts += kvRow('Palette size', `${extra.palette_size[0]} / ${extra.palette_size[1]}`);
   facts += kvRow('Entropy bits', fmt(o.bits, 2), `${fmt(o.nsym)} symbols`);
+  facts += blockDecisionHtml(state.sel);   // F-c track B
   const fp = filePosition(state.sel);
   if (fp) facts += kvRow('In the file', `bytes ${fmt(fp.b0)}–${fmt(fp.b1 - 1)} <button class="btn small" data-act="block-bytes" data-unit="${fp.unit}" title="Open the Bitstream dialog (u) at this unit with the block's bytes shaded">Show bytes</button>`,
     `unit ${fp.unit}${fp.runs > 1 ? `, ${fp.runs} runs of symbols` : ''}`);
@@ -162,7 +168,8 @@ function renderFrameTab() {
   return `<h2>Frame ${fr.f}</h2><p class="sub">${esc(frameSummary())}</p>
     <div class="actions"><button class="chip" data-act="order" aria-pressed="${state.order === 'output'}">Step through output order</button><button class="btn" data-act="copy-frame">Copy for AI</button><button class="btn" data-act="units" title="Every coded unit of the stream with its header elements and bytes in hex (u)">Units…</button><span class="toast" id="toast"></span></div>
     <dl class="kv">${facts}</dl>
-    <h3>References</h3>${refs ? `<table class="grid"><thead><tr><th>Reference</th><th class="num">Slot</th><th class="num">Order hint</th><th class="num" title="Decode index of the frame this reference holds">Frame</th></tr></thead><tbody>${refs}</tbody></table>` : '<p class="note">None: this frame reads no reference list.</p>'}
+    ${frameRegionsHtml()}
+    ${frameRefsHtml() || `<h3>References</h3>${refs ? `<table class="grid"><thead><tr><th>Reference</th><th class="num">Slot</th><th class="num">Order hint</th><th class="num" title="Decode index of the frame this reference holds">Frame</th></tr></thead><tbody>${refs}</tbody></table>` : '<p class="note">None: this frame reads no reference list.</p>'}`}
     <h3>Coding decisions</h3><dl class="kv">${obj(fr.coding)}</dl>
     ${Object.keys(quant).length ? `<h3>Quantization</h3><dl class="kv">${obj(quant)}</dl>` : ''}
     ${segHtml}
@@ -284,7 +291,8 @@ function renderStreamTab() {
   const note = (state.streams[state.streamIdx] || {}).note;
   return `<h2>${esc(streamHeading())}</h2><p class="sub">${fmt(s.frames)} decoded frames, ${fmt(s.outputs)} output frames, ${fmt(units.length)} ${unitNoun()}s</p>
     ${note ? `<p class="note">${esc(note)}</p>` : ''}
-    <div class="actions"><button class="btn" data-act="units" title="Every coded unit of the stream with its header elements and bytes in hex (u)">Units…</button><button class="btn" data-act="graphs" title="Frame size, bitrate and QP per frame, mode and block size distributions, motion vectors and block search (Shift+G)">Graphs…</button><button class="btn" data-act="quality" title="PSNR and SSIM per frame: between the pipeline stages of this analysis, or of B against A when comparing (Shift+Q)">Quality…</button></div>
+    <div class="actions"><button class="btn" data-act="units" title="Every coded unit of the stream with its header elements and bytes in hex (u)">Units…</button><button class="btn" data-act="graphs" title="Frame size, bitrate and QP per frame, mode and block size distributions, motion vectors and block search (Shift+G)">Graphs…</button>${qualityOffered() ? '<button class="btn" data-act="quality" title="PSNR and SSIM per frame: between the pipeline stages of this analysis, or of B against A when comparing (Shift+Q)">Quality…</button>'
+      : `<button class="btn" data-act="quality" disabled aria-disabled="true" title="${esc(`Quality (Shift+Q) needs two pixel stages or a comparison. ${oneStageText()}`)}">Quality…</button>`}</div>
     <dl class="kv">${facts}</dl>
     <h3>Sequence tools enabled</h3><div>${(s.tools_enabled || []).map((t) => pill(t, true)).join('') || '<span class="note">none reported</span>'}</div>
     <h3>Sequence tools disabled</h3><div>${(s.tools_disabled || []).map((t) => pill(t, false)).join('') || '<span class="note">none</span>'}</div>

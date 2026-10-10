@@ -1,12 +1,16 @@
 // Viewport and canvas rendering: fills, grids, motion, superblocks, chroma tree, mismatch outlines.
-import { C, PERF, perf, perfMark, qMax, state } from './state.js?v=4a164c6c45';
-import { $, clamp, dims, dpr, MISMATCH, modeColor, ramp, refColor, rgb } from './util.js?v=4a164c6c45';
-import { firstSample, focusStage } from './diff.js?v=4a164c6c45';
-import { isChromaBlock, partitionPath } from './frames.js?v=4a164c6c45';
-import { archOf, drawArchLabels } from './arch.js?v=4a164c6c45';
-import { psnrFill } from './quality.js?v=4a164c6c45';
-import { cmpMode, drawPaneLabel, drawSplitChrome, GAP, paneAt, paneRects, picture2, splitX, stacked } from './split.js?v=4a164c6c45';
-import { drawGrid, gridRecordStart } from './grid.js?v=4a164c6c45';
+import { C, PERF, perf, perfMark, qMax, state } from './state.js?v=9ce97af84e';
+import { $, clamp, dims, dpr, MISMATCH, modeColor, ramp, refColor, rgb } from './util.js?v=9ce97af84e';
+import { firstSample, focusStage } from './diff.js?v=9ce97af84e';
+import { isChromaBlock, partitionPath } from './frames.js?v=9ce97af84e';
+import { archOf, drawArchLabels } from './arch.js?v=9ce97af84e';
+import { psnrFill } from './quality.js?v=9ce97af84e';
+import { cmpMode, drawPaneLabel, drawSplitChrome, GAP, paneAt, paneRects, picture2, splitX, stacked } from './split.js?v=9ce97af84e';
+import { drawGrid, gridRecordStart } from './grid.js?v=9ce97af84e';
+import { drawAngles } from './blockdec.js?v=9ce97af84e';
+import { interFill, refFill, txFill } from './modes.js?v=9ce97af84e';
+import { drawBounds, segmentFill } from './regions.js?v=9ce97af84e';
+import { renderLegend } from './legend.js?v=9ce97af84e';
 
 // ------------------------------------------------------------ viewport
 export const canvas = $('#canvas');
@@ -93,7 +97,12 @@ export function pictureAt(px, py) {
   return state.picture;
 }
 
+// The legend has lines of its own (intra direction, bounds, mismatch): written again when the set of lines changes
+// (a line chip or key only redraws the canvas), and with the sample grid on when the zoom it names changes.
+let legendLines = '';
 function render() {
+  const lk = [...state.lines].sort().join() + (state.grid ? `|${state.view.s}` : '');
+  if (lk !== legendLines) { legendLines = lk; if (state.payload) renderLegend(); }
   const r = sizeCanvas();
   gridRecordStart();
   drawView(canvas.getContext('2d'), r.width, r.height, state.view, dpr(), { hover: true, record: true });
@@ -211,6 +220,8 @@ export function drawScene(ctx, cw, ch, view, k, { hover = false, selection = tru
   }
   if (state.lines.has('chroma')) drawChromaTree(ctx, px);
   if (state.lines.has('sb')) drawSuperblocks(ctx, fr, px);
+  if (state.lines.has('bounds')) drawBounds(ctx, px);   // F-c track B: slice, segment boundaries; intra directions
+  if (state.lines.has('angle')) drawAngles(ctx, blocks, visible, px, record);
   if (state.lines.has('mv')) drawMotion(ctx, blocks, visible, px);
   if (state.lines.has('mismatch')) drawMismatch(ctx, px);
   // F24 sample grid (CSS px clip rectangles: a split draws each side's values)
@@ -249,7 +260,11 @@ function fillStyler() {
   const blocks = state.lumaBlocks || state.payload.blocks;
   switch (state.fill) {
     case 'mode': return (b) => modeColor(b[C.mode], b[C.pred]);
-    case 'ref': return (b) => (b[C.pred] === 'inter' ? refColor(b[C.ref0]) : (b[C.pred] === 'intrabc' ? '#48c774' : null));
+    // by the frame the first reference holds when refsview.js knows it (refFrameOf), else by reference name
+    case 'ref': { const rf = refFill(); return (b) => (b[C.pred] === 'inter' ? rf(b) : (b[C.pred] === 'intrabc' ? '#48c774' : null)); }
+    case 'txtype': return txFill();          // F-c track B (modes.js, regions.js)
+    case 'intermode': return interFill();
+    case 'segment': return segmentFill();
     case 'qindex': { const qm = qMax(); return (b) => rgb(ramp((b[C.qindex] ?? 0) / qm)); }
     case 'skip': return (b) => (b[C.skip_txfm] ? 'rgb(16,18,22)' : null);
     case 'psnr': return psnrFill();   // diff mode: block PSNR from frames/<f>.diff.json cu (quality.js)

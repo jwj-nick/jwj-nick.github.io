@@ -1,18 +1,19 @@
 // Opening a bundle: manifest, header facts and the pixel stage list; the stream picker.
-import { BASE_STAGES, C, FILLS, hasArch, stageLabel, state } from './state.js?v=4a164c6c45';
-import { $, esc, fmt, FRAME_COLORS, setEmpty, setStatus, typeName } from './util.js?v=4a164c6c45';
-import { caps, getJSON, listStreams, streamTitle } from './data.js?v=4a164c6c45';
-import { server } from './api.js?v=4a164c6c45';
-import { renderBraid } from './braid.js?v=4a164c6c45';
-import { renderDiffBar } from './diff.js?v=4a164c6c45';
-import { selectFrame } from './frames.js?v=4a164c6c45';
-import { renderTab, renderTabs } from './inspector.js?v=4a164c6c45';
-import { requestRender } from './view.js?v=4a164c6c45';
-import { parseHash } from './hash.js?v=4a164c6c45';
-import { renderChips } from './controls.js?v=4a164c6c45';
-import { renderJobs } from './jobs.js?v=4a164c6c45';
-import { stage2 } from './split.js?v=4a164c6c45';
-import { pixelsOpened } from './pixels.js?v=4a164c6c45';
+import { BASE_STAGES, C, FILLS, hasArch, stageLabel, state } from './state.js?v=9ce97af84e';
+import { $, esc, fmt, FRAME_COLORS, setEmpty, setStatus, typeName } from './util.js?v=9ce97af84e';
+import { caps, getJSON, listStreams, streamTitle } from './data.js?v=9ce97af84e';
+import { server } from './api.js?v=9ce97af84e';
+import { renderBraid } from './braid.js?v=9ce97af84e';
+import { renderDiffBar } from './diff.js?v=9ce97af84e';
+import { selectFrame } from './frames.js?v=9ce97af84e';
+import { renderTab, renderTabs } from './inspector.js?v=9ce97af84e';
+import { requestRender } from './view.js?v=9ce97af84e';
+import { parseHash } from './hash.js?v=9ce97af84e';
+import { renderChips } from './controls.js?v=9ce97af84e';
+import { renderJobs } from './jobs.js?v=9ce97af84e';
+import { stage2 } from './split.js?v=9ce97af84e';
+import { pixelsOpened } from './pixels.js?v=9ce97af84e';
+import { loadRefgraph } from './refsview.js?v=9ce97af84e';
 
 // ------------------------------------------------------------ picker
 // The picker lists state.streams; an opened folder keeps its own extra option.
@@ -117,6 +118,7 @@ export async function openSource(source, title, { keepView = false } = {}) {
   for (const k of Object.keys(C)) delete C[k];
   state.manifest.block_cols.forEach((c, i) => { C[c] = i; });
   state.diff = state.manifest.diff || null;
+  loadRefgraph();   // F-c track C: refgraph.json in the background (a bundle without it keeps the old Frame tab table)
   const hash = parseHash();
   // Another stream starts at the output picture: a stage chosen for the last one (a loop filter
   // change, a residual, B or A − B) could open the new one dark (R48 QA).  A URL hash naming a stage

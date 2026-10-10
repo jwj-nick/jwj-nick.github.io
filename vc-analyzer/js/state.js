@@ -24,9 +24,12 @@ export const state = {
 export const C = {};
 
 export const FILLS = [
-  { id: 'mode', label: 'Mode', key: 'm' }, { id: 'ref', label: 'Reference', key: 'r' },
+  { id: 'mode', label: 'Mode', key: 'm' }, { id: 'intermode', label: 'Inter mode', key: 'M' }, { id: 'ref', label: 'Reference', key: 'r' },
   { id: 'qindex', label: 'Qindex', key: 'q' }, { id: 'bits', label: 'Bits', key: 'b' },
   { id: 'skip', label: 'Skip', key: 's' },
+  // F-c track B (modes.js, regions.js): transform type of the first transform block; segment (AV1, AV2, VP9 only:
+  // blockdec.js syncDecisionChips takes it out for the other codecs)
+  { id: 'txtype', label: 'Transform type', key: 'T' }, { id: 'segment', label: 'Segment', key: 'S' },
   { id: 'psnr', label: 'PSNR', key: 'z', diffOnly: true },   // diff mode only: block PSNR (quality.js syncDiffFills keeps it out otherwise)
   { id: 'cycles', label: 'HW cycles (draft)', key: 'w', arch: true }, { id: 'fetch', label: 'Ref fetch (draft)', key: 'f', arch: true },
   { id: 'none', label: 'No fill', key: 'n' },
@@ -36,6 +39,8 @@ export const LINES = [
   { id: 'grid', label: 'Blocks', key: 'g' }, { id: 'tx', label: 'Transforms', key: 't' },
   { id: 'mv', label: 'Motion', key: 'v' }, { id: 'sb', label: 'Superblocks', key: 'p' },
   { id: 'chroma', label: 'Chroma tree', key: 'h', chromaTree: true },
+  // F-c track B: intra prediction direction (angles.js); slice and segment boundaries (regions.js, label per codec)
+  { id: 'angle', label: 'Intra direction', key: 'A' }, { id: 'bounds', label: 'Slices', key: 'B' },
   { id: 'mismatch', label: 'Mismatch', key: 'd', diffOnly: true },
 ];
 export const STAGES = {

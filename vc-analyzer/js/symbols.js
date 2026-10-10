@@ -1,8 +1,8 @@
 // Entropy-decoded symbols of a frame: loading, typed columns, per-block lookup.
-import { perfMark, state } from './state.js?v=4a164c6c45';
-import { setStatus } from './util.js?v=4a164c6c45';
-import { getJSON } from './data.js?v=4a164c6c45';
-import { renderTab } from './inspector.js?v=4a164c6c45';
+import { perfMark, state } from './state.js?v=9ce97af84e';
+import { setStatus } from './util.js?v=9ce97af84e';
+import { getJSON } from './data.js?v=9ce97af84e';
+import { renderTab } from './inspector.js?v=9ce97af84e';
 
 // --------------------------------------------------------------- symbols
 // element name and reader source of symbol type id

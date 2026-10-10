@@ -4,10 +4,10 @@
 // planes.js: above 8 bits the view PNG and its .lo.png, loaded when the grid needs them).  A − B and the
 // change pictures (loop filter change, residual) show the signed difference.  The numbers are drawn on the
 // canvas, so the screen and the PNG export carry them; gridSnap() lists the cells drawn on screen (tests).
-import { state } from './state.js?v=4a164c6c45';
-import { exactOf, frameBitDepth, whenExact } from './planes.js?v=4a164c6c45';
-import { requestRender } from './view.js?v=4a164c6c45';
-import { renderLegend } from './legend.js?v=4a164c6c45';
+import { state } from './state.js?v=9ce97af84e';
+import { exactOf, frameBitDepth, whenExact } from './planes.js?v=9ce97af84e';
+import { requestRender } from './view.js?v=9ce97af84e';
+import { renderLegend } from './legend.js?v=9ce97af84e';
 
 const FONT_PX = 11;          // CSS px
 const CHAR_W = 6.6;          // width of one digit at FONT_PX in the mono font (CSS px), for the legend's zoom
@@ -104,11 +104,19 @@ export function gridLegend() {
   const pic = state.picture, P = gridPlane(pic), bd = frameBitDepth(pic.src.f);
   const signed = !!pic.src.b, p = pic.planes;
   const sub = P === 'Y' || !p ? 1 : 1 << p.ssx;
-  const z = Math.ceil(gridMinScale(bd, signed, sub));
+  const need = gridMinScale(bd, signed, sub), z = Math.ceil(need);
   const what = signed ? `${P} differences` : `${P} samples`;
   const ex = exactOf(pic, false);
   const vals = ex && !ex.exact ? '8-bit view values (this frame has no exact samples above 8 bits)' : `exact ${bd}-bit values`;
-  return `Sample grid: ${what} in ${state.gridBase === 16 ? 'hex' : 'decimal'}, ${vals}; the numbers show from zoom ${z}:1.`;
+  return `Sample grid: ${what} in ${state.gridBase === 16 ? 'hex' : 'decimal'}, ${vals}; the numbers show from zoom ${z}:1 (now ${zoomText()}${state.view.s >= need ? '' : ', press + to zoom in'}).`;
+}
+// The current zoom as the legend writes it, rounded down: "12:1", "2.5:1", "1:4" (CSS px per luma pixel,
+// state.view.s), so a zoom just short of the one the numbers need never reads as that one
+export function zoomText(s = state.view.s) {
+  if (!(s > 0)) return '–';
+  if (s >= 1) return `${s >= 10 ? Math.floor(s) : Math.floor(s * 10) / 10}:1`;
+  const r = 1 / s;
+  return `1:${r >= 10 ? Math.ceil(r) : Math.ceil(r * 10) / 10}`;
 }
 
 // read-only state for window.__vca.snap().pixels.grid

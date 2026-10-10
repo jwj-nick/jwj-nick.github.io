@@ -38,27 +38,29 @@
  * open, jobs, library, compare and the HW editor need `vca serve` with jobs (caps.jobs; Library: caps.server)
  * and stay hidden and silent on the static site and in an opened folder.
  */
-import { C, FILLS, LINES, PERF, perf, state } from './state.js?v=4a164c6c45';
-import { setEmpty, setStatus } from './util.js?v=4a164c6c45';
-import { caps, discoverStreams, goneData, streamTitle } from './data.js?v=4a164c6c45';
-import { defaultStreamIdx, openSource, rememberUsed, renderPicker } from './source.js?v=4a164c6c45';
-import { isChromaBlock, orderedFrames, selectFrame } from './frames.js?v=4a164c6c45';
-import { canvas, isRenderPending } from './view.js?v=4a164c6c45';
-import { renderTab } from './inspector.js?v=4a164c6c45';
-import { parseHash } from './hash.js?v=4a164c6c45';
-import { wire } from './controls.js?v=4a164c6c45';
-import { loadHealth, loadSession, toast } from './api.js?v=4a164c6c45';
-import { initOpen, openSnap, showServerEmpty } from './open.js?v=4a164c6c45';
-import { GONE_MSG } from './source.js?v=4a164c6c45';
-import { initJobs, jobsSnap } from './jobs.js?v=4a164c6c45';
-import { initLibrary, librarySnap } from './library.js?v=4a164c6c45';
-import { hwSnap, initHw } from './hw.js?v=4a164c6c45';
-import { exportSnap, initExport } from './export.js?v=4a164c6c45';
-import { compareSnap, initCompare } from './compare.js?v=4a164c6c45';
-import { bitstreamSnap, initBitstream } from './bitstream.js?v=4a164c6c45';
-import { graphsSnap, initGraphs } from './graphs.js?v=4a164c6c45';
-import { initPixels, pixelsSnap } from './pixels.js?v=4a164c6c45';
-import { initQuality, qualitySnap } from './quality.js?v=4a164c6c45';
+import { C, FILLS, LINES, PERF, perf, state } from './state.js?v=9ce97af84e';
+import { setEmpty, setStatus } from './util.js?v=9ce97af84e';
+import { caps, discoverStreams, goneData, streamTitle } from './data.js?v=9ce97af84e';
+import { defaultStreamIdx, openSource, rememberUsed, renderPicker } from './source.js?v=9ce97af84e';
+import { isChromaBlock, orderedFrames, selectFrame } from './frames.js?v=9ce97af84e';
+import { canvas, isRenderPending } from './view.js?v=9ce97af84e';
+import { renderTab } from './inspector.js?v=9ce97af84e';
+import { parseHash } from './hash.js?v=9ce97af84e';
+import { wire } from './controls.js?v=9ce97af84e';
+import { loadHealth, loadSession, toast } from './api.js?v=9ce97af84e';
+import { initOpen, openSnap, showServerEmpty } from './open.js?v=9ce97af84e';
+import { GONE_MSG } from './source.js?v=9ce97af84e';
+import { initJobs, jobsSnap } from './jobs.js?v=9ce97af84e';
+import { initLibrary, librarySnap } from './library.js?v=9ce97af84e';
+import { hwSnap, initHw } from './hw.js?v=9ce97af84e';
+import { exportSnap, initExport } from './export.js?v=9ce97af84e';
+import { compareSnap, initCompare } from './compare.js?v=9ce97af84e';
+import { bitstreamSnap, initBitstream } from './bitstream.js?v=9ce97af84e';
+import { graphsSnap, initGraphs } from './graphs.js?v=9ce97af84e';
+import { initPixels, pixelsSnap } from './pixels.js?v=9ce97af84e';
+import { initQuality, qualitySnap } from './quality.js?v=9ce97af84e';
+import { decisionsSnap, initDecisions } from './blockdec.js?v=9ce97af84e';
+import { decoderSnap, initDecoder } from './decoder.js?v=9ce97af84e';
 
 // ---------------------------------------------------------------- boot
 // A page without streams and without the local server (a site with no demos): what to do, named from the
@@ -74,7 +76,7 @@ async function boot() {
   if (h.stage) state.stage = h.stage;
   if (h.tab) state.tab = h.tab;
   wire();
-  initOpen(); initLibrary(); initHw(); initExport(); initCompare(); initBitstream(); initGraphs(); initPixels(); initQuality();
+  initOpen(); initLibrary(); initHw(); initExport(); initCompare(); initBitstream(); initGraphs(); initPixels(); initQuality(); initDecisions(); initDecoder();
   renderTab();
   state.streams = await discoverStreams();
   if (caps.server) await loadSession();   // caps.jobs: Open stream, jobs, drop target
@@ -155,6 +157,8 @@ window.__vca = {
       graphs: graphsSnap(),   // F-d (read-only): Graphs dialog
       pixels: pixelsSnap(),   // F-b track Y (read-only)
       quality: qualitySnap(), // F-b track X (read-only)
+      decisions: decisionsSnap(), // F-c track B (read-only)
+      decoder: decoderSnap(),     // F-c track C (read-only)
     };
   },
   // Client (CSS px) coordinates of the centre of luma pixel (x, y), for clicks.

@@ -3,12 +3,12 @@
 // Jobs live on the server, so the tray comes back after a reload: it shows
 // the jobs that are queued or running, the ones this page saw running, and
 // the ones that ended in the minute before the page loaded.
-import { state } from './state.js?v=4a164c6c45';
-import { $, esc } from './util.js?v=4a164c6c45';
-import { caps, folderOf, streamLabel, streamTitle } from './data.js?v=4a164c6c45';
-import { api, apiText, fmtSeconds, parseTime, problemHTML, server, toast } from './api.js?v=4a164c6c45';
-import { openStreamAt, refreshStreams } from './source.js?v=4a164c6c45';
-import { archJobEnded } from './hw.js?v=4a164c6c45';
+import { state } from './state.js?v=9ce97af84e';
+import { $, esc } from './util.js?v=9ce97af84e';
+import { caps, folderOf, streamLabel, streamTitle } from './data.js?v=9ce97af84e';
+import { api, apiText, fmtSeconds, parseTime, problemHTML, server, toast } from './api.js?v=9ce97af84e';
+import { openStreamAt, refreshStreams } from './source.js?v=9ce97af84e';
+import { archJobEnded } from './hw.js?v=9ce97af84e';
 
 const rows = new Map();   // job id -> row record (see record())
 const LOADED = Date.now();

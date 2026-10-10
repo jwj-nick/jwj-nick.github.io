@@ -1,13 +1,13 @@
 // F-b track Y (R49, D-115): the picture's component (colour, Y, U, V) with its colour matrix and range (F23),
 // the exact sample grid (F24, grid.js) and the split and side-by-side views (F36, split.js): the toolbar's
 // #pixelTools group, the keys y, i, j, the legend and caption words, and the probe's pixels part.
-import { state } from './state.js?v=4a164c6c45';
-import { $, esc } from './util.js?v=4a164c6c45';
-import { buildPicture, MATRICES, pictureLook } from './planes.js?v=4a164c6c45';
-import { fitView, requestRender } from './view.js?v=4a164c6c45';
-import { renderLegend } from './legend.js?v=4a164c6c45';
-import { gridLegend, gridSnap } from './grid.js?v=4a164c6c45';
-import { cmpMode, MODES, paneLabels, resetPanes, splitSnap, stage2 } from './split.js?v=4a164c6c45';
+import { state } from './state.js?v=9ce97af84e';
+import { $, esc } from './util.js?v=9ce97af84e';
+import { buildPicture, MATRICES, pictureLook } from './planes.js?v=9ce97af84e';
+import { fitView, requestRender } from './view.js?v=9ce97af84e';
+import { renderLegend } from './legend.js?v=9ce97af84e';
+import { gridLegend, gridSnap } from './grid.js?v=9ce97af84e';
+import { cmpMode, MODES, paneLabels, resetPanes, splitSnap, stage2 } from './split.js?v=9ce97af84e';
 
 const COMPS = [
   { id: 'colour', label: 'Colour' }, { id: 'y', label: 'Y plane' }, { id: 'u', label: 'U plane' }, { id: 'v', label: 'V plane' },

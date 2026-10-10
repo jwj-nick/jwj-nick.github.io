@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=4a164c6c45">
+<link rel="stylesheet" href="app.css?v=9ce97af84e">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%231d232b'/%3E%3Cpath d='M2 12h3V6H2zm4.5 0h3V3h-3zM11 12h3V8h-3z' fill='%23ffb347'/%3E%3C/svg%3E">
 </head>
 <body>
@@ -47,9 +47,17 @@
     <span class="lane-label">Decode order</span>
     <span class="timeline-legend" id="typeLegend"></span>
     <span class="lane-hint">Lines show where each decoded frame appears in output order. Outlined bars are not output directly.</span>
+    <span class="tl-tools">
+      <button class="chip" type="button" id="arcsBtn" aria-pressed="false" title="Arcs from the frame on screen to the frames it references, and each frame shaded by how many frames reference it (Shift+R)">References</button>
+      <button class="chip" type="button" id="filmBtn" aria-pressed="false" aria-controls="filmstrip" title="A strip of frame thumbnails in the stepping order; click one to go to that frame (Shift+F)">Filmstrip</button>
+    </span>
   </div>
   <div class="braid-wrap" id="braidWrap"><svg id="braid" role="img" aria-label="Decode to output order"></svg></div>
   <div class="timeline-foot"><span class="lane-label">Output order</span></div>
+  <div class="filmstrip" id="filmstrip" hidden>
+    <span class="lane-label" id="fsOrder">Decode order</span>
+    <div class="fs-list" id="fsList" role="list" aria-label="Frame thumbnails" title="Frame thumbnails (luma); the border is the frame type's colour. Click one to go to that frame."></div>
+  </div>
 </section>
 
 <main class="workspace">
@@ -124,15 +132,23 @@
       <tr><td><kbd>m</kbd> <kbd>r</kbd> <kbd>q</kbd> <kbd>b</kbd> <kbd>s</kbd> <kbd>n</kbd></td><td>Fill blocks by mode, reference, qindex, bits, skip, or no fill</td></tr>
       <tr><td><kbd>w</kbd> <kbd>f</kbd></td><td>With a HW model (the HW tab): fill superblocks by estimated HW cycles, blocks by reference fetch per pixel. Provisional: placeholder parameters (ARCH_MODEL.md in the VC Analyzer folder says how it counts)</td></tr>
       <tr><td><kbd>g</kbd> <kbd>t</kbd> <kbd>v</kbd> <kbd>p</kbd> <kbd>h</kbd></td><td>Toggle block grid, transform grid, motion vectors, superblocks and tiles, and (AV2, VVC) the chroma tree</td></tr>
+      <tr><td><kbd>Shift</kbd>+<kbd>M</kbd></td><td>Fill inter blocks by how their motion was formed, in names common to all codecs: skip, merge or direct, predicted vector (NEARESTMV, NEARMV, GLOBALMV, ZEROMV), explicit vector (NEWMV, AMVP), affine, warp, GEO or wedge, CIIP or inter-intra, OBMC, intra block copy. The Block tab adds the codec's details (candidate index, PU or partition vectors, merge index, affine model)</td></tr>
+      <tr><td><kbd>Shift</kbd>+<kbd>T</kbd></td><td>Fill blocks by the type of their first transform block: DCT, ADST-like (ADST, flipped ADST, DST-7, DCT-8), 1D, identity or transform skip, Walsh-Hadamard, bypass, no residual</td></tr>
+      <tr><td><kbd>Shift</kbd>+<kbd>S</kbd></td><td>AV1, AV2, VP9: fill blocks by segment_id; the Frame tab lists the segments by area</td></tr>
+      <tr><td><kbd>Shift</kbd>+<kbd>A</kbd></td><td>Intra direction: an arrow per directional intra block along the way the neighbouring samples are copied into it (angle deltas, AV2 MRL offset and wide-angle mapping, VVC wide angles for non-square blocks, sub-blocks of VP9, HEVC NxN and AVC Intra 4x4 and 8x8), a dot for DC, smooth, Paeth, planar, MIP, palette and other non-directional modes. Zoom in: arrows shorter than 12 pixels on screen are left out</td></tr>
+      <tr><td><kbd>Shift</kbd>+<kbd>B</kbd></td><td>Slice boundaries (HEVC, VVC, AVC; AV1 and AV2 tile groups) as solid lines, segment boundaries (AV1, AV2, VP9) dotted. Tiles are on <kbd>p</kbd>. The Block tab names the block's slice, tile and segment; the Frame tab lists them</td></tr>
       <tr><td><kbd>y</kbd></td><td>Picture component: Y, U, V plane as gray, or colour, in turn ("Gray picture" switches between Y and colour). The colour matrix (BT.601, BT.709, BT.2020, identity for RGB streams) and the sample range (limited, full) are chosen next to it; Auto uses what the stream header signals, else BT.601 limited range.</td></tr>
       <tr><td><kbd>i</kbd></td><td>Sample grid: zoom in and each sample shows its exact value at the stream's bit depth, in decimal or hex (Hex). The status line shows the exact values under the pointer.</td></tr>
       <tr><td><kbd>j</kbd></td><td>View: single, split (a second picture right of a divider; drag it) or side by side (same zoom and position, stacked on a phone). The second picture is chosen next to the view mode.</td></tr>
       <tr><td><kbd>0</kbd> <kbd>1</kbd> <kbd>+</kbd> <kbd>−</kbd></td><td>Fit, 1:1, zoom in, zoom out. Drag to pan, wheel to zoom.</td></tr>
       <tr><td><kbd>Shift</kbd>+<kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd></td><td>Select the neighbouring block. The x, y box selects the block at a pixel; <kbd>e</kbd> selects the costliest block.</td></tr>
-      <tr><td><kbd>Esc</kbd></td><td>Clear the block selection</td></tr>
+      <tr><td><kbd>Esc</kbd></td><td>Clear the block selection. On a list of the toolbar or the stream picker chosen with the keyboard (its arrow keys step its options), give the keys back to the picture; a choice made with the mouse does that by itself, and so does a click on the picture</td></tr>
       <tr><td><kbd>c</kbd></td><td>Copy the selected block as context for an AI assistant</td></tr>
       <tr><td><kbd>u</kbd></td><td>Bitstream: every coded unit (OBU, NAL unit, VP9 frame) with its header elements, their bit positions and the bytes in hex. In the dialog <kbd>↑</kbd> <kbd>↓</kbd> step through the units; click an element to shade its bytes, or a byte to find its element. Also "Units…" on the Frame and Stream tabs.</td></tr>
       <tr><td><kbd>Shift</kbd>+<kbd>G</kbd></td><td>Graphs: frame size and bitrate per frame (an Annex B stream has no frame rate: type the one to assume), the base qindex or slice QP per frame, mode and block size distributions of this frame or the whole stream by count, area or bits, the motion vectors of this frame, and a block search (mode, size, QP or qindex, bits, skip) whose results select the block. Click a column to go to its frame; <kbd>←</kbd> <kbd>→</kbd> step frames in the dialog. Also "Graphs…" on the Stream tab.</td></tr>
+      <tr><td><kbd>Shift</kbd>+<kbd>D</kbd></td><td>Decoder state: the decoded picture buffer while this frame is decoded (AV1, AV2, VP9: the reference slots; HEVC, VVC, AVC: the frames the decoder marks as short-term or long-term reference and the ones waiting for output; an analysis made before the dumpers wrote the marking shows the frames that must still be held, a lower bound of it) with a frame by slot grid, the reference structure by output position and hierarchy level, and (AV1, AV2, VP9) what each frame takes over from an earlier one: CDFs, loop filter deltas, segmentation. <kbd>←</kbd> <kbd>→</kbd> step frames in the dialog. Also "Decoder state…" on the Frame tab, whose References table gives every reference's decoded frame (click to go there) and how many blocks use it.</td></tr>
+      <tr><td><kbd>Shift</kbd>+<kbd>R</kbd></td><td>Timeline references: arcs from the frame on screen to the frames it references, and every frame shaded by how many frames reference it (also the References chip of the timeline)</td></tr>
+      <tr><td><kbd>Shift</kbd>+<kbd>F</kbd></td><td>Filmstrip: thumbnails of every frame under the timeline in the stepping order of the Frame tab, the border in the frame type's colour; click one to go to that frame (also the Filmstrip chip)</td></tr>
       <tr><td><kbd>k</kbd></td><td>Export: the picture as PNG (current view or whole frame), frames and blocks as CSV, and with the local GUI symbols, stats, units and the stream report</td></tr>
       <tr><td><kbd>o</kbd></td><td>Open a stream file and analyze it (local GUI, <code>vca serve</code>)</td></tr>
       <tr><td><kbd>l</kbd></td><td>Library: the analyses kept by the local GUI</td></tr>
@@ -142,7 +158,7 @@
       <tr><td><kbd>[</kbd> <kbd>]</kbd></td><td>Diff mode: previous / next frame where B differs from A</td></tr>
       <tr><td><kbd>,</kbd> <kbd>.</kbd></td><td>Diff mode: previous / next block holding differing samples in this frame, worst PSNR first (the order of the Diff tab's table)</td></tr>
       <tr><td><kbd>z</kbd></td><td>Diff mode: fill the blocks that hold differing samples by their PSNR (brighter = worse); the hover and the Diff tab show the numbers</td></tr>
-      <tr><td><kbd>Shift</kbd>+<kbd>Q</kbd></td><td>Quality: PSNR of every frame (Y, U, V and all samples), A against B in diff mode or between the pixel stages of one analysis; identical frames sit on their own line. Click a frame to go there. With the local GUI also SSIM; the static site and an opened bundle show the PSNR the bundle carries. Also "Quality" on the diff bar and the Diff tab.</td></tr>
+      <tr><td><kbd>Shift</kbd>+<kbd>Q</kbd></td><td>Quality: PSNR of every frame (Y, U, V and all samples), A against B in diff mode or between the pixel stages of one analysis; identical frames sit on their own line, and a plane whose samples are all equal in a frame that differs elsewhere is a ring in that plane's colour on it. Click a frame to go there. With the local GUI also SSIM; the static site and an opened bundle show the PSNR the bundle carries. Also "Quality" on the diff bar and the Diff tab.</td></tr>
     </table>
     <h3>HW model (draft)</h3>
     <p>The <b>HW</b> tab of the inspector shows the provisional L0 HW model of the open analysis: for this frame and the whole stream the cycle budget, the estimated cycles and utilization, the slowest module, the clock it would need and the peak memory bandwidth. Its numbers come from placeholder parameters unless you load your own config. It counts the cycles of five modules (entropy decoding, inverse transform, prediction, loop filters, memory) per superblock from the blocks, modes, symbols and motion vectors of the analysis, and, with the default parallel pipeline, takes the slowest module of each superblock; caches and stalls are not modelled. ARCH_MODEL.md in the VC Analyzer folder describes every assumption.</p>
@@ -373,6 +389,18 @@ python -m vca export stream.vca -o bundle/</pre>
   </div>
 </dialog>
 
+<dialog id="decoderDialog" class="dialog gr-dialog dc-dialog" aria-labelledby="dcTitle">
+  <div class="dialog-inner">
+    <div class="dialog-head">
+      <h2 id="dcTitle">Decoder state</h2>
+      <button class="icon-btn" type="button" data-act="close" title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <p class="sub" id="dcSub"></p>
+    <nav class="gr-views" role="tablist" id="dcViews" aria-label="Decoder state view"></nav>
+    <section class="dc-body" id="dcBody" aria-label="Decoder state of the frame on screen"></section>
+  </div>
+</dialog>
+
 <dialog id="libraryDialog" class="dialog dialog-wide" aria-labelledby="libTitle">
   <div class="dialog-inner">
     <div class="dialog-head">
@@ -481,7 +509,7 @@ python -m vca export stream.vca -o bundle/</pre>
 </aside>
 <div class="toast-pop" id="appToast" role="status" aria-live="polite" hidden></div>
 
-<script type="module" src="js/main.js?v=4a164c6c45"></script>
+<script type="module" src="js/main.js?v=9ce97af84e"></script>
 <script>
   // Browsers do not run module scripts from file://: say so instead of showing a blank page.
   if (location.protocol === 'file:') {

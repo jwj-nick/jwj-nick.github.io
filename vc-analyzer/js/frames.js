@@ -1,15 +1,15 @@
 // Frame selection, prefetch, block cell index, stepping order and partition path.
-import { C, frameMeta, PERF, perf, perfMark, qName, state } from './state.js?v=4a164c6c45';
-import { $, clamp, dims, fmt, ohPart, setStatus, typeName } from './util.js?v=4a164c6c45';
-import { getJSON } from './data.js?v=4a164c6c45';
-import { buildPicture, loadPlanes } from './planes.js?v=4a164c6c45';
-import { updateBraidSelection } from './braid.js?v=4a164c6c45';
-import { loadFrameDiff } from './diff.js?v=4a164c6c45';
-import { fitView, requestRender } from './view.js?v=4a164c6c45';
-import { renderLegend } from './legend.js?v=4a164c6c45';
-import { ensureSymbols } from './symbols.js?v=4a164c6c45';
-import { renderTab } from './inspector.js?v=4a164c6c45';
-import { parseHash, writeHash } from './hash.js?v=4a164c6c45';
+import { C, frameMeta, PERF, perf, perfMark, qName, state } from './state.js?v=9ce97af84e';
+import { $, clamp, dims, fmt, ohPart, setStatus, typeName } from './util.js?v=9ce97af84e';
+import { getJSON } from './data.js?v=9ce97af84e';
+import { buildPicture, loadPlanes } from './planes.js?v=9ce97af84e';
+import { updateBraidSelection } from './braid.js?v=9ce97af84e';
+import { loadFrameDiff } from './diff.js?v=9ce97af84e';
+import { fitView, requestRender } from './view.js?v=9ce97af84e';
+import { renderLegend } from './legend.js?v=9ce97af84e';
+import { ensureSymbols } from './symbols.js?v=9ce97af84e';
+import { renderTab } from './inspector.js?v=9ce97af84e';
+import { parseHash, writeHash } from './hash.js?v=9ce97af84e';
 
 // ------------------------------------------------------------- frames
 export async function selectFrame(f) {

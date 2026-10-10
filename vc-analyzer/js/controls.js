@@ -1,25 +1,27 @@
 // Toolbar chips, block selection and navigation, pointer and keyboard wiring.
-import { C, FILLS, hasArch, hasChromaTree, LINES, state, usesQp } from './state.js?v=4a164c6c45';
-import { $, esc, fmt, setEmpty, setStatus } from './util.js?v=4a164c6c45';
-import { caps } from './data.js?v=4a164c6c45';
-import { buildPicture, pixelAt, pixelPending } from './planes.js?v=4a164c6c45';
-import { cycleComp, cycleViewMode, syncPaneSelect, toggleGray, toggleGrid } from './pixels.js?v=4a164c6c45';
-import { cmpMode, nearDivider, paneLabels, paneRects, setSplitPos } from './split.js?v=4a164c6c45';
-import { openSource, openStreamAt, renderPicker } from './source.js?v=4a164c6c45';
-import { renderBraidDebounced } from './braid.js?v=4a164c6c45';
-import { flipAB, gotoFirstMismatch, showStage } from './diff.js?v=4a164c6c45';
-import { blockAt, frameSummary, isChromaBlock, orderedFrames, selectFrame, stepFrame } from './frames.js?v=4a164c6c45';
-import { canvas, fitCanvasHeight, fitView, pictureAt, requestRender, setZoom, toImage, zoomAt } from './view.js?v=4a164c6c45';
-import { renderLegend } from './legend.js?v=4a164c6c45';
-import { blockObject, renderTab } from './inspector.js?v=4a164c6c45';
-import { aiFrameContext, copyBlockForAI, copyText } from './ai.js?v=4a164c6c45';
-import { writeHash } from './hash.js?v=4a164c6c45';
-import { openStreamDialog } from './open.js?v=4a164c6c45';
-import { openLibrary } from './library.js?v=4a164c6c45';
-import { openExport } from './export.js?v=4a164c6c45';
-import { openCompare } from './compare.js?v=4a164c6c45';
-import { bitstreamSelChanged, openBitstream } from './bitstream.js?v=4a164c6c45';
-import { openGraphs } from './graphs.js?v=4a164c6c45';
+import { C, FILLS, hasArch, hasChromaTree, LINES, state, usesQp } from './state.js?v=9ce97af84e';
+import { $, esc, fmt, setEmpty, setStatus } from './util.js?v=9ce97af84e';
+import { caps } from './data.js?v=9ce97af84e';
+import { buildPicture, pixelAt, pixelPending } from './planes.js?v=9ce97af84e';
+import { cycleComp, cycleViewMode, syncPaneSelect, toggleGray, toggleGrid } from './pixels.js?v=9ce97af84e';
+import { cmpMode, nearDivider, paneLabels, paneRects, setSplitPos } from './split.js?v=9ce97af84e';
+import { openSource, openStreamAt, renderPicker } from './source.js?v=9ce97af84e';
+import { renderBraidDebounced, toggleArcs } from './braid.js?v=9ce97af84e';
+import { openDecoder } from './decoder.js?v=9ce97af84e';
+import { toggleFilmstrip } from './filmstrip.js?v=9ce97af84e';
+import { flipAB, gotoFirstMismatch, showStage } from './diff.js?v=9ce97af84e';
+import { blockAt, frameSummary, isChromaBlock, orderedFrames, selectFrame, stepFrame } from './frames.js?v=9ce97af84e';
+import { canvas, fitCanvasHeight, fitView, pictureAt, requestRender, setZoom, toImage, zoomAt } from './view.js?v=9ce97af84e';
+import { renderLegend } from './legend.js?v=9ce97af84e';
+import { blockObject, renderTab } from './inspector.js?v=9ce97af84e';
+import { aiFrameContext, copyBlockForAI, copyText } from './ai.js?v=9ce97af84e';
+import { writeHash } from './hash.js?v=9ce97af84e';
+import { openStreamDialog } from './open.js?v=9ce97af84e';
+import { openLibrary } from './library.js?v=9ce97af84e';
+import { openExport } from './export.js?v=9ce97af84e';
+import { openCompare } from './compare.js?v=9ce97af84e';
+import { bitstreamSelChanged, openBitstream } from './bitstream.js?v=9ce97af84e';
+import { openGraphs } from './graphs.js?v=9ce97af84e';
 
 // ------------------------------------------------------------ controls
 export function renderChips() {
@@ -150,6 +152,28 @@ export function wire() {
   $('#diffBar').addEventListener('click', (e) => { const b = e.target.closest('[data-act]'); if (b && b.dataset.act === 'goto-mismatch') gotoFirstMismatch(); });
   $('#braid').addEventListener('click', (e) => { const r = e.target.closest('[data-f]'); if (r && r.dataset.f !== '') selectFrame(+r.dataset.f); });
   $('#streamSelect').addEventListener('change', (e) => { const i = +e.target.value; if (state.streams[i]) openStreamAt(i); });
+  // The stream picker and the toolbar's lists (pixel stage, second picture, component, matrix, range, view mode)
+  // keep the keys while they have the focus, so the shortcuts stopped after one was used (R49 QA).  A choice made
+  // with the mouse gives the focus to the picture at once; one made with the keyboard keeps it on the list (its
+  // arrow keys keep stepping the options), and Escape there gives the keys back to the picture.
+  const LISTS = '#streamSelect, .toolbar select';
+  let pointerList = null;
+  const toPicture = () => canvas.focus({ preventScroll: true });
+  document.addEventListener('pointerdown', (e) => { pointerList = e.target.closest ? e.target.closest(LISTS) : null; }, true);
+  document.addEventListener('keydown', (e) => {
+    const s = e.target.closest && e.target.closest(LISTS);
+    if (!s) return;
+    pointerList = null;
+    if (e.key === 'Escape' && !e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey) {
+      e.preventDefault();
+      toPicture();
+      setStatus('The keys go to the picture again: arrow keys step frames, letters switch fills and lines.');
+    }
+  }, true);
+  document.addEventListener('change', (e) => {
+    const s = e.target.closest && e.target.closest(LISTS);
+    if (s && s === pointerList) { pointerList = null; toPicture(); }
+  });
   $('#folderInput').addEventListener('change', (e) => {
     const files = [...e.target.files];
     const man = files.filter((f) => f.name === 'manifest.json').sort((a, b) => a.webkitRelativePath.split('/').length - b.webkitRelativePath.split('/').length)[0];
@@ -247,6 +271,10 @@ export function wire() {
     else if (k === 'y' && state.manifest) cycleComp();
     else if (k === 'i' && state.manifest) toggleGrid();
     else if (k === 'j' && state.manifest) cycleViewMode();
+    // F-c track C: Decoder state dialog, timeline reference arcs, filmstrip (r and f stay the fills)
+    else if (k === 'D' && state.manifest) { e.preventDefault(); openDecoder(); }
+    else if (k === 'R' && state.manifest) toggleArcs();
+    else if (k === 'F' && state.manifest) toggleFilmstrip();
     else {
       const f = FILLS.find((x) => x.key === k && (!x.arch || hasArch())); if (f) { setFill(f.id); return; }
       const l = LINES.find((x) => x.key === k); if (l && lineShown(l)) toggleLine(l.id);

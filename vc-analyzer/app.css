@@ -51,6 +51,9 @@ body {
   font-variant-numeric: tabular-nums;
   display: grid;
   grid-template-rows: auto auto 1fr;
+  /* one column as wide as the window: a long filmstrip or timeline scrolls inside its lane instead of widening
+     the page (an auto column grows to its widest item's content, R49 QA D1) */
+  grid-template-columns: minmax(0, 1fr);
   min-height: 100vh;
 }
 button, select, input { font: inherit; color: inherit; }
@@ -100,7 +103,7 @@ code, .mono { font-family: var(--mono); font-size: 12.5px; }
 /* --------------------------------------------------------------- timeline */
 .timeline {
   background: var(--panel); border-bottom: 1px solid var(--line);
-  padding: 6px 14px 4px;
+  padding: 6px 14px 4px; min-width: 0;
 }
 .timeline-head, .timeline-foot { display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
 .lane-label { font-size: 12.5px; color: var(--dim); font-weight: 600; min-width: 92px; }
@@ -690,11 +693,17 @@ table.grid.grs-table th:last-child { width: 76px; }
 .qu-pt.qu-l-yuv, .qu-pt.qu-l-all { fill: var(--qu-all); }
 .qu-ident { fill: none; stroke: var(--ok); stroke-width: 1.6; pointer-events: none; }
 .qu-miss { fill: none; stroke: var(--faint); stroke-width: 1.6; pointer-events: none; }
+/* a plane whose samples are all equal in a frame that differs elsewhere (no PSNR for it): a ring in the plane's colour */
+.qu-pident { fill: none; stroke-width: 1.6; pointer-events: none; }
+.qu-pident.qu-l-Y { stroke: var(--qu-y); } .qu-pident.qu-l-U { stroke: var(--qu-u); } .qu-pident.qu-l-V { stroke: var(--qu-v); }
 .gr-legend i.qu-sw.qu-l-Y { background: var(--qu-y); } .gr-legend i.qu-sw.qu-l-U { background: var(--qu-u); }
 .gr-legend i.qu-sw.qu-l-V { background: var(--qu-v); }
 .gr-legend i.qu-sw.qu-l-yuv { height: 2px; width: 16px; vertical-align: 3px; border-radius: 0; background: repeating-linear-gradient(90deg, var(--qu-all) 0 4px, transparent 4px 7px); }
 .gr-legend i.qu-ident-sw { border: 1.6px solid var(--ok); border-radius: 50%; background: transparent; }
 .gr-legend i.qu-miss-sw { background: linear-gradient(45deg, transparent 42%, var(--faint) 42% 58%, transparent 58%), linear-gradient(-45deg, transparent 42%, var(--faint) 42% 58%, transparent 58%); }
+.gr-legend i.qu-sw.qu-pident-sw { border: 1.6px solid var(--dim); border-radius: 50%; background: transparent; margin-right: 2px; }
+.gr-legend i.qu-pident-sw.qu-l-Y { border-color: var(--qu-y); } .gr-legend i.qu-pident-sw.qu-l-U { border-color: var(--qu-u); }
+.gr-legend i.qu-pident-sw.qu-l-V { border-color: var(--qu-v); }
 .dialog p#quFacts { margin: 10px 0 2px; max-width: none; }
 table.grid.qu-summary { width: auto; min-width: min(100%, 420px); table-layout: auto; }
 table.grid.qu-summary th { position: static; white-space: nowrap; }
@@ -705,3 +714,94 @@ table.grid.qu-cu th:nth-child(4) { width: 22%; }
 .qu-sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
 .ramp.qu-ramp { display: inline-block; width: 60px; height: 9px; border-radius: 2px; vertical-align: -1px; margin: 0 4px; }
 .tooltip .qu-tip { color: var(--text); }
+
+/* ---------------------------------------------------------------- F-c track B (blockdec.js): arrows, regions, fills */
+/* swatch of a fill category in the Block and Frame tabs */
+.bd-sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+/* legend: a line sample (slice boundary solid, segment boundary dotted) and the intra direction arrow */
+.legend i.bd-line { width: 16px; height: 0; border-radius: 0; border-top: 2.5px solid; vertical-align: 3px; }
+.legend i.bd-line.dotted { border-top-style: dotted; }
+.legend i.bd-arrow { position: relative; width: 16px; height: 0; border-radius: 0; border-top: 2px solid var(--text); vertical-align: 3px; margin-right: 7px; }
+.legend i.bd-arrow::after { content: ""; position: absolute; right: -5px; top: -5px; border: 4px solid transparent; border-left: 6px solid var(--text); }
+.legend .bd-key { color: var(--dim); }
+table.grid.bd-regions { table-layout: auto; }
+table.grid.bd-regions th, table.grid.bd-regions td { white-space: nowrap; padding: 3px 5px; }
+table.grid.bd-regions th.num { width: auto; }
+
+/* ---------------------------------------------------------------- F-c track C (refsview.js, decoder.js): references, decoder state, filmstrip */
+/* Frame tab References (F18) */
+.actions.rf-acts { margin-top: 6px; }
+table.grid.rf-table { table-layout: auto; }
+table.grid.rf-table th, table.grid.rf-table td { white-space: nowrap; padding: 3px 4px; }
+table.grid.rf-table th.num { width: auto; }
+table.grid.rf-table td.rf-wp { white-space: normal; font-size: 12.5px; min-width: 90px; }
+.rf-link { background: none; border: 0; padding: 0; font: inherit; color: var(--text); text-decoration: underline; text-decoration-color: var(--faint); text-underline-offset: 2px; cursor: pointer; }
+.rf-link:hover { text-decoration-color: var(--text); }
+.rf-link:focus-visible { outline: 2px solid var(--amber); outline-offset: 1px; border-radius: 2px; }
+/* timeline: the References and Filmstrip chips, arcs (F06), the filmstrip (F05) */
+.tl-tools { display: flex; gap: 6px; margin-left: auto; }
+.tl-tools .chip { padding: 1px 9px; font-size: 12.5px; }
+#braid .refcount { fill: var(--text); pointer-events: none; }
+#braid .arc { fill: none; stroke: var(--text); stroke-width: 1.4; opacity: 0.85; }
+#braid .archead { fill: var(--text); }
+.filmstrip { display: flex; gap: 10px; align-items: center; padding: 4px 0 2px; }
+.filmstrip[hidden] { display: none; }
+.fs-list { display: flex; gap: 6px; overflow-x: auto; overflow-y: hidden; padding: 3px 2px 4px; min-width: 0; flex: 1; }
+.fs-item { flex: none; display: grid; gap: 2px; padding: 2px; background: var(--raised); border: 2px solid var(--fs-c, var(--line)); border-radius: 5px; cursor: pointer; color: var(--dim); }
+.fs-item:hover { filter: brightness(1.15); }
+.fs-item.cur { outline: 2px solid var(--amber); outline-offset: 1px; }
+.fs-item:focus-visible { outline: 2px solid var(--amber); outline-offset: 1px; }
+.fs-pic { display: block; background: var(--canvas-bg); border-radius: 2px; }
+.fs-item.none .fs-pic { background: repeating-linear-gradient(45deg, var(--canvas-bg) 0 6px, var(--panel) 6px 12px); }
+.fs-n { display: flex; justify-content: space-between; gap: 6px; font-size: 11.5px; line-height: 1.2; padding: 0 2px; }
+.fs-n b { color: var(--text); font-weight: 600; }
+/* Decoder state dialog (F19, F06, F22) */
+.dc-dialog { max-width: 1100px; }
+.dc-body { min-height: 120px; }
+.dc-sw { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; vertical-align: 0; }
+.dc-yes { color: var(--text); }
+.dialog p.dc-bound { max-width: none; margin: 6px 0 8px; padding: 6px 10px; font-size: 13.5px; border-left: 3px solid var(--dim); background: var(--raised); border-radius: 0 var(--r) var(--r) 0; }
+.dialog p.dc-missing { max-width: none; }
+table.grid.dc-dpb { width: auto; min-width: min(100%, 560px); table-layout: auto; }
+table.grid.dc-dpb th { position: static; white-space: nowrap; }
+.dc-scroll { overflow: auto; border: 1px solid var(--line); border-radius: var(--r); }
+.dc-gridbox, .dc-statebox { max-height: min(46vh, 440px); }
+table.grid.dc-grid { width: auto; table-layout: auto; font-size: 12.5px; }
+table.grid.dc-grid th { top: 0; padding: 2px 6px; }
+table.grid.dc-grid td { padding: 2px 6px; white-space: nowrap; }
+table.grid.dc-grid td.dc-cell { min-width: 26px; color: var(--dim); background: color-mix(in srgb, var(--dc-c, transparent) 16%, transparent); }
+table.grid.dc-grid td.dc-cell.rd { color: var(--text); font-weight: 700; background: color-mix(in srgb, var(--dc-c, transparent) 38%, transparent); }
+table.grid.dc-grid td.dc-cell[data-v=""] { background: none; }
+table.grid.dc-dpb td { white-space: nowrap; }
+table.grid.dc-held td.dc-cell, table.grid.dc-held td.dc-cell.rd { background: none; }
+table.grid.dc-held td.dc-cell i { display: block; width: 12px; height: 12px; margin: 0 auto; border-radius: 2px; }
+table.grid.dc-held td.dc-cell.rd i { background: var(--dc-c); }
+table.grid.dc-held td.dc-cell.kp i { background: color-mix(in srgb, var(--dc-c) 45%, transparent); }
+table.grid.dc-held td.dc-cell.wt i { border: 1.5px solid var(--dc-c); }
+/* the decoder's marking (T-0062): marked as reference but read by no later frame (dashed), long-term (a dot under it) */
+table.grid.dc-held td.dc-cell.mk i { border: 1.5px dashed var(--dc-c); }
+table.grid.dc-held td.dc-cell.lt i { box-shadow: 0 3px 0 -1px var(--text); }
+.gr-legend i.dc-lg.rd { background: var(--dim); }
+.gr-legend i.dc-lg.kp { background: color-mix(in srgb, var(--dim) 45%, transparent); }
+.gr-legend i.dc-lg.wt { border: 1.5px solid var(--dim); background: transparent; }
+.gr-legend i.dc-lg.mk { border: 1.5px dashed var(--dim); background: transparent; }
+.gr-legend i.dc-lg.lt { background: var(--dim); box-shadow: 0 3px 0 -1px var(--text); }
+.gr-legend i.line.dc-faint { background: var(--faint); }
+.dc-structbox { max-height: min(52vh, 480px); }
+.dc-struct { display: block; }
+.dc-node { fill: var(--dc-c); stroke: var(--panel); stroke-width: 1.5; cursor: pointer; }
+.dc-node.hidden-frame { fill: var(--panel); stroke: var(--dc-c); stroke-width: 2; }
+.dc-node.cur { stroke: var(--amber); stroke-width: 3; }
+.dc-nodeg { cursor: pointer; }
+.dc-nodeg:hover .dc-node { filter: brightness(1.25); }
+.dc-struct text.dc-nl { fill: var(--text); font-size: 10.5px; pointer-events: none; }
+.dc-edge { fill: none; stroke: var(--faint); stroke-width: 1; opacity: 0.5; }
+.dc-edge.cur { stroke: var(--text); stroke-width: 1.6; opacity: 0.95; }
+.dc-head { fill: var(--dim); }
+table.grid.dc-state { table-layout: auto; font-size: 13px; }
+table.grid.dc-state th { top: 0; }
+@media (max-width: 860px) {
+  .tl-tools { margin-left: 0; }
+  .dc-dialog { width: calc(100% - 16px); }
+  .fs-n { font-size: 12px; color: var(--dim); }
+}

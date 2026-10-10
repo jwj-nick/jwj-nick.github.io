@@ -1,6 +1,14 @@
 // Decode-to-output reorder timeline.
-import { state } from './state.js?v=4a164c6c45';
-import { $, FRAME_COLORS, ohPart } from './util.js?v=4a164c6c45';
+// F-c track C (R49, F06): Shift+R (or the References chip) adds a band above the decode lane with arcs from the
+// frame on screen to the frames it references and shades each decode slot by how many frames reference it.
+import { state } from './state.js?v=9ce97af84e';
+import { $, esc, FRAME_COLORS, ohPart, setStatus } from './util.js?v=9ce97af84e';
+import { referencedCounts, refgraph, refgraphMissingWhy, refgraphStatus, refgraphWhy, refTargets } from './refsview.js?v=9ce97af84e';
+import { toast } from './api.js?v=9ce97af84e';
+
+const ARC_H = 34;   // height of the arc band (only while the arcs are on)
+let arcsOn = false;
+export const arcsShown = () => arcsOn;
 
 // --------------------------------------------------------------- braid
 export function renderBraid() {
@@ -10,13 +18,23 @@ export function renderBraid() {
   const n = Math.max(frames.length, outputs.length, 1);
   const wrap = $('#braidWrap').clientWidth || 800;
   const step = Math.max(10, Math.min(46, (wrap - 8) / n));
-  const W = Math.max(wrap, step * n + 8), H = 116, laneH = 38, top = 4, bot = H - 4;
+  const band = arcsOn ? ARC_H : 0;
+  const W = Math.max(wrap, step * n + 8), H = 116 + band, laneH = 38, top = 4 + band, bot = H - 4;
   const maxBytes = Math.max(1, ...frames.map((f) => f.bytes || 0));
   const bh = (b) => 4 + (laneH - 4) * Math.sqrt((b || 0) / maxBytes);
   const byF = new Map(frames.map((f) => [f.f, f]));
   const xs = (i) => 4 + i * step + step / 2;
   const bw = Math.max(4, step * 0.66);
   let parts = [];
+  // referenced-count shading behind the decode lane (arcs on): darker = referenced by more frames
+  const counts = arcsOn ? referencedCounts() : null;
+  if (counts) {
+    const most = Math.max(1, ...counts.values());
+    frames.forEach((fr, i) => {
+      const c = counts.get(fr.f) || 0;
+      parts.push(`<rect class="refcount" data-f="${fr.f}" data-n="${c}" x="${xs(i) - step / 2 + 0.5}" y="${top - 2}" width="${Math.max(1, step - 1)}" height="${laneH + 4}" fill-opacity="${c ? (0.1 + 0.4 * c / most).toFixed(3) : 0}"><title>decode ${fr.f}: referenced by ${c} frame${c === 1 ? '' : 's'}</title></rect>`);
+    });
+  }
   // wires: decode slot i -> output slot n
   frames.forEach((fr, i) => {
     if (fr.out_n === null || fr.out_n === undefined) return;
@@ -51,11 +69,13 @@ export function renderBraid() {
       parts.push(`<path class="diffmark${fr.f === firstF ? ' first' : ''}" data-f="${fr.f}" d="M${cx},${cy - r} L${cx + r},${cy} L${cx},${cy + r} L${cx - r},${cy} Z"><title>frame ${fr.f} differs from B${fr.f === firstF ? ' (first mismatch)' : ''}</title></path>`);
     });
   }
+  if (arcsOn) parts.push('<defs><marker id="arcHead" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 Z" class="archead"/></marker></defs><g id="braidArcs"></g>');
   parts.push('<g id="braidSel"></g>');
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
   svg.style.width = W + 'px';
+  svg.style.height = band ? H + 'px' : '';
   svg.innerHTML = parts.join('');
-  svg._geom = { xs, bw, top, bot, laneH, bh };
+  svg._geom = { xs, bw, top, bot, laneH, bh, band };
   updateBraidSelection();
 }
 
@@ -74,6 +94,61 @@ export function updateBraidSelection() {
       s += `<rect class="selmark" x="${xs(fr.out_n) - bw / 2 - 3}" y="${bot - laneH - 2}" width="${bw + 6}" height="${laneH + 4}" rx="3"/>`;
   }
   $('#braidSel').innerHTML = s;
+  drawArcs();
+}
+
+// Arcs from the frame on screen (decode lane) up into the band and down to every frame it references.
+function drawArcs() {
+  const g = $('#braidArcs'), svg = $('#braid');
+  if (!g || !svg._geom) return;
+  const { xs, top, band } = svg._geom;
+  const frames = state.manifest.frames, idx = new Map(frames.map((x, k) => [x.f, k]));
+  const i = idx.get(state.f);
+  if (i === undefined || !refgraph()) { g.innerHTML = ''; return; }
+  const y0 = top - 3, x0 = xs(i);
+  g.innerHTML = refTargets(state.f).filter((t) => idx.has(t.f)).map((t) => {
+    const x1 = xs(idx.get(t.f)), lift = Math.min(band - 6, 8 + Math.abs(x1 - x0) * 0.35);
+    return `<path class="arc" data-f="${state.f}" data-to="${t.f}" d="M${x0},${y0} C${x0},${y0 - lift} ${x1},${y0 - lift} ${x1},${y0}" marker-end="url(#arcHead)"><title>frame ${state.f} references frame ${t.f} (${esc(t.keys.join(', '))})</title></path>`;
+  }).join('');
+}
+
+// Shift+R and the References chip of the timeline.  Without a reference graph the chip stays off and a toast and
+// the status line say why (R49 QA D4: it used to stay pressed with nothing drawn).
+export function toggleArcs() {
+  if (!arcsOn && state.manifest && refgraphStatus() === 'missing') { refuseArcs(); return; }
+  setArcs(!arcsOn);
+}
+function setArcs(on) {
+  arcsOn = on;
+  const b = $('#arcsBtn');
+  if (b) b.setAttribute('aria-pressed', String(arcsOn));
+  if (state.manifest) renderBraid();
+}
+function refuseArcs() {
+  const why = refgraphWhy('The reference arcs need');
+  setStatus(`No reference arcs. ${why}`);
+  toast(`No reference arcs: ${refgraphMissingWhy() === 'unreadable' ? 'refgraph.json could not be read' : refgraphMissingWhy() === 'codec' ? 'no reference graph for this codec' : 'this bundle has no refgraph.json'}.`);
+}
+// The reference graph arrived or turned out missing (decoder.js onRefgraph): arcs asked for while it loaded are
+// drawn now, or turned off with the reason.
+export function arcsGraphSettled() {
+  if (!arcsOn || !state.manifest) return;
+  if (refgraphStatus() === 'missing') { setArcs(false); refuseArcs(); } else renderBraid();
+}
+// probe (tests): the arcs drawn and the shading
+export function arcsSnap() {
+  const svg = $('#braid');
+  return {
+    on: arcsOn,
+    arcs: [...svg.querySelectorAll('#braidArcs .arc')].map((a) => [+a.dataset.f, +a.dataset.to]),
+    // client x of each arc's two ends (the path's first and last point)
+    ends: [...svg.querySelectorAll('#braidArcs .arc')].map((a) => {
+      const n = a.getTotalLength(), m = svg.getScreenCTM(), p0 = a.getPointAtLength(0), p1 = a.getPointAtLength(n);
+      return [+a.dataset.to, p0.x * m.a + m.e, p1.x * m.a + m.e];
+    }),
+    shade: [...svg.querySelectorAll('.refcount')].map((r) => [+r.dataset.f, +r.dataset.n]),
+    height: svg.getBoundingClientRect().height,
+  };
 }
 
 // window resize: redraw once the size settles
