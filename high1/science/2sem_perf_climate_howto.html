@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>이 앱은 어떻게 만들었을까</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--ink:#1c2333;--sub:#5b6478;--line:#e2e6ef;--warm:#e5484d;--cold:#2b6cb0;--acc:#0f766e;--hl:#fff3bf;--code:#0d1626;--codeink:#e8eef8}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;font-size:16px}
+.top{max-width:820px;margin:0 auto;padding:12px 16px 0;display:flex;gap:8px;flex-wrap:wrap;font-size:14px}
+.top a{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;text-decoration:none;color:var(--ink);font-weight:700}
+.top a.back{border:0;background:none;color:#2563eb;padding:8px 0;margin-right:auto;font-weight:400}
+header{padding:18px 16px 8px;max-width:820px;margin:0 auto}
+h1{font-size:22px;margin:0 0 6px;line-height:1.35}
+header p{margin:0;color:var(--sub);font-size:14px}
+nav{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+nav div{display:flex;gap:6px;overflow-x:auto;padding:8px 16px;max-width:820px;margin:0 auto}
+nav a{flex:none;border:1px solid var(--line);background:#fff;color:var(--sub);padding:7px 12px;border-radius:999px;font-size:13.5px;font-weight:600;text-decoration:none}
+main{max-width:820px;margin:0 auto;padding:14px 16px 60px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px;scroll-margin-top:60px}
+h2{font-size:18px;margin:0 0 10px}
+h3{font-size:15.5px;margin:18px 0 6px}
+p{margin:8px 0}
+.lead{font-size:15px;color:var(--sub)}
+.tip{background:var(--hl);border-radius:10px;padding:10px 12px;font-size:14.5px;margin-top:12px}
+.note{color:var(--sub);font-size:13.5px}
+code{font-family:Consolas,"D2Coding",monospace;background:#eef1f7;border-radius:5px;padding:1px 5px;font-size:.92em}
+pre{background:var(--code);color:var(--codeink);border-radius:10px;padding:12px 14px;overflow-x:auto;font-size:13.5px;line-height:1.55;margin:10px 0}
+pre code{background:none;padding:0;color:inherit}
+pre .c{color:#7f93b0}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-weight:700;font-size:14px;margin:10px 0}
+.flow span{background:#f1f3f9;border-radius:8px;padding:6px 10px}
+.flow i{font-style:normal;color:var(--sub)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:10px}
+.box{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fafbfe}
+.box b{display:block;font-size:15px;margin-bottom:4px}
+.box small{color:var(--sub);font-size:13.5px;display:block}
+table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+th,td{border:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}
+th{background:#f1f3f9}
+.lv{display:inline-block;font-size:12px;font-weight:800;padding:2px 9px;border-radius:999px;color:#fff;margin-right:6px;vertical-align:2px}
+.l1{background:#16a34a}.l2{background:#2563eb}.l3{background:#d97706}.l4{background:#dc2626}
+.lab{border:2px dashed #c7d0e0;border-radius:12px;padding:14px;margin-top:12px;background:#fcfdff}
+.lab h3{margin-top:0}
+input[type=text],textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit}
+input[type=range]{width:100%}
+button.btn{border:1px solid var(--ink);background:var(--ink);color:#fff;padding:8px 14px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit}
+button.btn.ghost{background:#fff;color:var(--ink)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.out{font-weight:800;color:var(--acc)}
+canvas{width:100%;height:auto;display:block;border-radius:10px;background:#0d1b33}
+.chk label{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-top:1px dashed var(--line);cursor:pointer}
+.chk label:first-child{border-top:0}
+.chk input{margin-top:5px;width:18px;height:18px;flex:none}
+.chk small{color:var(--sub);display:block;font-size:13px}
+.bar{height:10px;background:#e7ebf3;border-radius:99px;overflow:hidden;margin:6px 0 2px}
+.bar i{display:block;height:100%;width:0;background:var(--acc);transition:width .3s}
+details{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:8px;background:#fafbfe}
+summary{cursor:pointer;font-weight:700}
+</style>
+</head>
+<body>
+<div class="top">
+  <a class="back" href="index.html">← 통합과학 1·2</a>
+  <a href="2sem_perf_climate.html">📒 학습 노트</a>
+  <a href="2sem_perf_climate_video.html">🎬 정리 영상</a>
+  <a href="2sem_perf_climate_print.html">🖨️ 프린트 팩</a>
+</div>
+<header>
+  <h1>🛠️ 이 앱은 어떻게 만들었을까?<br>그리고 내가 직접 고치려면?</h1>
+  <p>학습 노트, 정리 영상, 배경음, 내레이션까지 전부 <b>코드</b>로 만들었습니다. 그림 도구도, 녹음실도, 작곡 프로그램도 쓰지 않았어요. 어떻게 했는지 하나씩 풀어 보고, 마지막엔 직접 고쳐 보는 도전 과제가 있습니다.</p>
+</header>
+<nav><div>
+  <a href="#map">전체 지도</a><a href="#web">① 웹 노트</a><a href="#video">② 영상</a><a href="#music">③ 배경음</a><a href="#voice">④ 내레이션</a><a href="#edit">고쳐 보기</a><a href="#quest">도전 과제</a><a href="#help">막혔을 때</a>
+</div></nav>
+<main>
+
+<section class="card" id="map">
+  <h2>🗺️ 전체 지도: 무엇으로 무엇을 만들었나</h2>
+  <div class="grid">
+    <div class="box"><b>📒 학습 노트 · 프린트 팩</b><small>HTML + CSS + JavaScript 파일 한 개. 브라우저만 있으면 열립니다.</small></div>
+    <div class="box"><b>🎬 정리 영상 (5분 9초)</b><small>JavaScript로 그림을 그리고, 로봇 브라우저가 한 장씩 찍어서 ffmpeg로 이어 붙임.</small></div>
+    <div class="box"><b>🎵 배경음</b><small>Python으로 소리의 파형(사인파)을 계산해서 화음과 리듬을 만듦.</small></div>
+    <div class="box"><b>🗣️ 내레이션</b><small>Microsoft 신경망 음성(edge-tts)으로 문장을 읽히고, 자막 시각에 맞춰 배치.</small></div>
+  </div>
+  <p class="tip">💡 핵심 아이디어는 하나입니다. <b>대본(문장 목록) 하나에서 자막, 장면 길이, 애니메이션 타이밍, 음성 위치가 모두 계산돼서 나옵니다.</b> 그래서 문장 하나를 고치면 나머지가 같이 따라 바뀌어요. 프로그래머들은 이걸 "단일 원본(single source of truth)"이라고 부릅니다.</p>
+</section>
+
+<section class="card" id="web">
+  <h2>① 웹 노트: HTML · CSS · JavaScript</h2>
+  <p>웹 페이지는 세 가지 언어가 역할을 나눠 맡습니다. 집에 비유하면 이렇습니다.</p>
+  <div class="flow"><span>HTML = 뼈대·벽</span><i>+</i><span>CSS = 페인트·인테리어</span><i>+</i><span>JavaScript = 전기·스위치</span></div>
+  <p>학습 노트의 <b>"키워드 가리고 외우기"</b> 버튼을 기억하나요? 비밀은 문장 속 <code>[[ ]]</code> 표시입니다. 문장을 이렇게 적어 두면,</p>
+<pre><code>e:'엘니뇨 시기에는 무역풍이 평소보다 [[약해진다]].'</code></pre>
+  <p>JavaScript 한 줄이 <code>[[ ]]</code> 안의 글자를 찾아서 "키워드"로 바꿔 줍니다. 찾는 규칙을 <b>정규 표현식</b>이라고 해요.</p>
+<pre><code><span class="c">// [[글자]] 를 찾아서 &lt;b class="k"&gt;글자&lt;/b&gt; 로 바꾸기</span>
+const mk = t =&gt; t.replace(/\[\[(.+?)\]\]/g, '&lt;b class="k"&gt;$1&lt;/b&gt;');</code></pre>
+  <p>그리고 CSS가 "가리기 모드일 때 <code>.k</code> 글자는 투명하게"라고 정해 둡니다. 버튼은 모드만 켜고 끕니다.</p>
+<pre><code>body.hide .k:not(.show){ color: transparent; background: #d9efec; }</code></pre>
+  <div class="lab">
+    <h3>🧪 실험실: 내 문장에 [[키워드]] 넣어 보기</h3>
+    <input type="text" id="mkIn" value="라니냐 시기에는 무역풍이 [[강해지고]] 동태평양의 [[용승]]이 강해진다.">
+    <div class="row"><button class="btn" id="mkHide">가리기 켜기/끄기</button><span class="note">가려진 단어를 누르면 하나씩 보입니다</span></div>
+    <p id="mkOut" style="font-size:16px;margin-top:10px"></p>
+  </div>
+  <p class="tip">👀 지금 바로 해 볼 것: 학습 노트를 열고 <b>Ctrl + U</b>(페이지 소스 보기)를 누르면 노트의 모든 코드가 보입니다. 숨긴 것이 없어요. 위 코드도 그 안에 그대로 있습니다.</p>
+</section>
+
+<section class="card" id="video">
+  <h2>② 영상: 1초에 그림 30장</h2>
+  <p>영상은 사실 <b>빠르게 넘기는 그림책</b>입니다. 이 영상은 1초에 30장, 308.9초 동안 모두 <b>9,267장</b>이에요. 사람이 9,267장을 그릴 수는 없으니까, "시각 t를 주면 그 순간의 그림을 그리는 함수"를 하나 만들었습니다.</p>
+<pre><code>function renderFrame(t){   <span class="c">// t = 영상 시작 후 몇 초인가</span>
+  <span class="c">// t에 따라 바닷물 색, 화살표 길이, 글자 위치를 계산해서 그린다</span>
+}</code></pre>
+  <p>예를 들어 "무역풍 화살표가 2초 동안 자라난다"는 이렇게 계산합니다. <code>p</code>는 0(시작)에서 1(끝)까지 변하는 진행률이에요.</p>
+<pre><code>const p = clamp((t - 시작시각) / 2);   <span class="c">// 0 ~ 1 사이로 자르기</span>
+화살표길이 = 최대길이 * p;</code></pre>
+  <div class="lab">
+    <h3>🧪 실험실: 시간 슬라이더를 움직여 보세요</h3>
+    <canvas id="cv" width="720" height="300"></canvas>
+    <input type="range" id="tSl" min="0" max="12" step="0.033" value="0">
+    <div class="row"><button class="btn" id="play">▶ 재생</button><span>t = <span class="out" id="tOut">0.00</span>초 · 프레임 <span class="out" id="fOut">0</span>번</span></div>
+    <p class="note">0~4초 평상시 → 4~8초 엘니뇨(무역풍 약화, 따뜻한 물이 동쪽으로) → 8~12초 라니냐(무역풍 강화). 이 그림도 같은 방식, 즉 t를 받아서 그리는 함수 하나로 그렸습니다.</p>
+  </div>
+  <h3>그림을 어떻게 mp4로 바꿨을까</h3>
+  <div class="flow"><span>renderFrame(t)</span><i>→</i><span>로봇 브라우저가 찰칵 (Playwright)</span><i>→</i><span>JPEG 9,267장</span><i>→</i><span>ffmpeg가 이어 붙여 mp4</span></div>
+  <p><b>Playwright</b>는 화면 없이 브라우저를 자동으로 조종하는 도구입니다. Python에서 "t=0초 그려 → 찍어 → t=0.033초 그려 → 찍어…"를 9,267번 반복시켰어요. 컴퓨터 두 코어로 나눠 돌려 약 25분 걸렸습니다.</p>
+  <h3>자막과 장면 길이는 대본에서 자동으로</h3>
+  <p>대본 파일 <code>script.js</code>에는 문장이 순서대로 적혀 있고, 프로그램은 <b>한글 음절 수</b>로 읽는 데 걸릴 시간을 어림합니다.</p>
+<pre><code>const RATE = 4.4, GAP = 0.55;   <span class="c">// 1초에 4.4음절, 문장 사이 0.55초 쉼</span>
+읽는시간 = 음절수 / RATE;</code></pre>
+  <div class="lab">
+    <h3>🧪 실험실: 내 문장은 몇 초짜리일까?</h3>
+    <textarea id="sylIn" rows="2">무역풍이 약해지면 엘니뇨, 강해지면 라니냐.</textarea>
+    <p>음절 수 ≈ <span class="out" id="sylN">0</span> → 읽는 시간 ≈ <span class="out" id="sylT">0</span>초 <span class="note">(숫자는 1.5음절, 쉼표·마침표는 0.6음절로 계산)</span></p>
+  </div>
+</section>
+
+<section class="card" id="music">
+  <h2>③ 배경음: 소리도 숫자다</h2>
+  <p>소리는 공기의 떨림이고, 떨림은 <b>사인파</b>라는 그래프로 쓸 수 있습니다. 1초에 440번 떨리면(440Hz) '라' 음이에요. 건반 하나 올라갈 때마다 진동수가 2의 12제곱근 배가 됩니다.</p>
+<pre><code>hz = 440 * 2 ** ((건반번호 - 69) / 12)   <span class="c"># 69번 건반 = 라(A4)</span></code></pre>
+  <p>Python의 <code>numpy</code>로 1초에 48,000개의 숫자를 계산해서 파형을 만들고, 음 여러 개를 더해 화음(Cmaj7, Am7, Fmaj7, G6…)을 만들었습니다. 템포는 84 BPM, 장면마다 악기 층의 음량을 다르게 해서 분위기를 바꿨어요. 외부 음원은 하나도 쓰지 않았습니다.</p>
+  <div class="lab">
+    <h3>🧪 실험실: 영상에 나온 화음 들어 보기</h3>
+    <div class="row" id="chords"></div>
+    <p class="note">소리가 납니다. 이어폰 음량을 확인하세요. 브라우저가 사인파를 직접 계산해서 내는 소리예요.</p>
+  </div>
+</section>
+
+<section class="card" id="voice">
+  <h2>④ 내레이션: AI 음성을 시간표에 맞춰 붙이기</h2>
+  <p>처음 영상에는 자막과 배경음만 있었습니다. 나중에 목소리를 입히면서 이런 순서로 작업했어요.</p>
+  <div class="flow"><span>문장 38개 + 시작 시각 (cues.json)</span><i>→</i><span>문장마다 AI 음성 mp3</span><i>→</i><span>길면 조금 빠르게 다시</span><i>→</i><span>시각에 맞춰 배치</span><i>→</i><span>배경음과 섞기</span></div>
+  <ul>
+    <li><b>음성:</b> Microsoft의 신경망 음성 <code>ko-KR-SunHiNeural</code>(여성). Python 도구 <code>edge-tts</code>로 만들었습니다.</li>
+    <li><b>안 넘치게:</b> 문장마다 쓸 수 있는 시간(다음 문장 전까지)이 정해져 있어요. 음성이 더 길면 그 문장만 말 속도를 올려 다시 만듭니다. 이번에는 첫 문장만 6% 빨라졌어요.</li>
+    <li><b>덕킹(ducking):</b> 말할 때만 배경음을 살짝 낮추는 기술입니다. 라디오 DJ가 말할 때 음악이 작아지는 것과 같아요.</li>
+    <li><b>음량 맞추기:</b> 유튜브 같은 곳이 쓰는 기준인 <b>LUFS</b>로 -16 정도에 맞췄습니다. 그래서 영상마다 소리 크기가 들쭉날쭉하지 않아요.</li>
+    <li><b>읽는 법 교정:</b> 화면에는 "30도"라고 쓰고, 음성만 "삼십 도"로 읽게 바꿨습니다.</li>
+  </ul>
+  <p class="tip">🤖 이 과정은 <b>AI 코딩 도우미(Claude)</b>에게 "1. 설치 확인 → 2. 음성 생성 → 3. 검증 → 4. 사이트 교체" 같은 <b>순서 있는 지시서</b>를 주고 같이 진행했습니다. AI를 잘 쓰는 요령도 결국 <b>무엇을, 어떤 순서로, 어떻게 확인할지</b> 분명하게 쓰는 거예요. 좋은 실험 보고서를 쓰는 능력과 똑같습니다.</p>
+</section>
+
+<section class="card" id="edit">
+  <h2>✏️ 직접 고쳐 보기: 난이도별 안내</h2>
+  <h3><span class="lv l1">레벨 1</span>노트의 글자 바꾸기 <span class="note">(준비물: 메모장)</span></h3>
+  <ol>
+    <li>학습 노트 페이지에서 <b>Ctrl + S</b>를 눌러 내 컴퓨터에 저장합니다.</li>
+    <li>저장한 <code>.html</code> 파일을 오른쪽 클릭해서 <b>연결 프로그램 → 메모장</b>(또는 VS Code)으로 엽니다.</li>
+    <li><b>Ctrl + F</b>로 바꾸고 싶은 문장을 찾아 고칩니다. 외우고 싶은 단어는 <code>[[ ]]</code>로 감싸 보세요.</li>
+    <li>저장할 때 인코딩은 <b>UTF-8</b>로 합니다. 그다음 파일을 더블클릭해 브라우저로 열면 바뀐 노트가 보입니다.</li>
+  </ol>
+  <h3><span class="lv l2">레벨 2</span>색깔 바꾸기 <span class="note">(CSS 변수)</span></h3>
+  <p>파일 맨 위 <code>&lt;style&gt;</code> 안의 첫 줄에서 색이 정해집니다. <code>--warm</code>(엘니뇨 빨강), <code>--cold</code>(라니냐 파랑), <code>--acc</code>(키워드 초록)의 값을 바꿔 보세요. 한 곳만 고쳐도 페이지 전체 색이 바뀝니다.</p>
+<pre><code>:root{ --warm:#e5484d; --cold:#2b6cb0; --acc:#0f766e; }
+<span class="c">/* 예: --acc:#7c3aed  → 키워드가 보라색으로 */</span></code></pre>
+  <h3><span class="lv l3">레벨 3</span>내레이션 목소리 바꾸기 <span class="note">(Python + ffmpeg)</span></h3>
+  <p>내레이션 키트 폴더에서 명령 한 줄로 목소리·속도·배경음을 바꿔 다시 만들 수 있습니다.</p>
+<pre><code>python narrate.py --voice ko-KR-InJoonNeural --force   <span class="c"># 남성 음성으로 전부 다시</span>
+python narrate.py --rate 5                             <span class="c"># 전체 5% 빠르게</span>
+python narrate.py --bgm -12                            <span class="c"># 배경음 더 작게</span></code></pre>
+  <h3><span class="lv l4">레벨 4</span>대본을 고쳐 영상 전체 다시 만들기</h3>
+  <p><code>src/script.js</code>의 문장을 고치고 <code>./build.sh</code>를 실행하면, 장면 길이와 자막과 애니메이션 시점이 새로 계산되어 영상이 처음부터 다시 렌더링됩니다. 필요한 것은 Node.js, Python(playwright, numpy, scipy, pillow), ffmpeg, 한글 글꼴입니다. 렌더링에 25분쯤 걸리니 대신 미리보기 도구로 한 장면만 찍어 볼 수도 있어요.</p>
+<pre><code>python3 tools/snap.py pacific:e4+6   <span class="c"># 태평양 장면 e4 문장 6초 뒤를 PNG로</span></code></pre>
+  <p class="note">※ 영상 제작 코드는 이 사이트에 올라가 있지 않습니다. 레벨 4에 도전하고 싶다면 선생님께 요청하세요.</p>
+  <table>
+    <tr><th>이걸 바꾸고 싶다면</th><th>여기를 고친다</th></tr>
+    <tr><td>노트 문장·키워드</td><td>학습 노트 HTML의 <code>ITEMS</code> 목록</td></tr>
+    <tr><td>노트 색</td><td><code>:root{ --warm … }</code></td></tr>
+    <tr><td>영상 챕터 버튼</td><td>영상 페이지 HTML의 <code>CH</code> 목록 (초, 제목)</td></tr>
+    <tr><td>목소리·말 속도·배경음 크기</td><td><code>narrate.py</code> 옵션</td></tr>
+    <tr><td>음성만 다르게 읽기</td><td><code>narrate.py</code>의 <code>READ</code> 목록, 예: <code>("CO₂","이산화 탄소")</code></td></tr>
+    <tr><td>대본·자막·장면 길이</td><td><code>src/script.js</code> → <code>build.sh</code></td></tr>
+  </table>
+</section>
+
+<section class="card" id="quest">
+  <h2>🏆 도전 과제</h2>
+  <p class="note">체크한 내용은 이 브라우저에만 저장됩니다.</p>
+  <div class="bar"><i id="qBar"></i></div><p class="note" id="qTxt"></p>
+  <div class="chk" id="qList"></div>
+</section>
+
+<section class="card" id="help">
+  <h2>🆘 막혔을 때</h2>
+  <details><summary>한글이 '???'나 이상한 글자로 깨져요</summary><p>파일을 UTF-8로 저장하지 않았을 때 생깁니다. 메모장 <b>다른 이름으로 저장</b> 창 아래의 인코딩을 <b>UTF-8</b>로 바꾸세요.</p></details>
+  <details><summary>'python'은(는) 내부 또는 외부 명령… 이 아닙니다</summary><p>Python이 설치되지 않았거나 경로(PATH)가 아직 반영되지 않았습니다. <code>winget install Python.Python.3.12</code>로 설치한 뒤 <b>명령 창을 새로 열면</b> 됩니다. ffmpeg도 마찬가지(<code>winget install Gyan.FFmpeg</code>).</p></details>
+  <details><summary>고쳤는데 브라우저에서 그대로예요</summary><p>저장을 했는지 확인하고 <b>Ctrl + F5</b>(강력 새로고침)를 누르세요. 브라우저가 예전 파일을 기억(캐시)하고 있을 수 있습니다.</p></details>
+  <details><summary>화면이 하얗게 나오거나 버튼이 안 눌려요</summary><p>JavaScript 어딘가에 따옴표나 괄호가 빠졌을 가능성이 큽니다. <b>F12</b>를 눌러 <b>Console</b> 탭을 보면 빨간 글씨로 몇 번째 줄이 잘못됐는지 알려 줍니다. 오류 메시지는 컴퓨터가 주는 힌트예요.</p></details>
+  <details><summary>망가뜨릴까 봐 무서워요</summary><p>고치기 전에 파일을 복사해 두세요(<code>노트_원본.html</code>). 내 컴퓨터에 저장한 파일은 아무리 고쳐도 이 사이트에는 영향이 없습니다. 마음껏 망가뜨려 보는 게 제일 빨리 배우는 방법입니다.</p></details>
+</section>
+
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+// ① [[키워드]] 실험실
+let hide=false;
+function mkRender(){$('#mkOut').innerHTML=esc($('#mkIn').value).replace(/\[\[(.+?)\]\]/g,'<b class="k" style="font-weight:800;color:#0f766e;border-bottom:2px solid #0f766e;cursor:pointer;padding:0 2px">$1</b>');applyHide()}
+function applyHide(){document.querySelectorAll('#mkOut .k').forEach(k=>{const h=hide&&!k.dataset.show;k.style.color=h?'transparent':'#0f766e';k.style.background=h?'#d9efec':'none'})}
+$('#mkIn').oninput=mkRender;
+$('#mkHide').onclick=()=>{hide=!hide;document.querySelectorAll('#mkOut .k').forEach(k=>delete k.dataset.show);applyHide()};
+$('#mkOut').onclick=e=>{if(e.target.classList.contains('k')){e.target.dataset.show=e.target.dataset.show?'':'1';applyHide()}};
+mkRender();
+
+// ② 시간 슬라이더 캔버스
+const cv=$('#cv'),c=cv.getContext('2d');
+const clamp=(x,a=0,b=1)=>x<a?a:x>b?b:x, lerp=(a,b,t)=>a+(b-a)*t;
+const mixC=(a,b,t)=>'rgb('+a.map((v,i)=>Math.round(lerp(v,b[i],t))).join(',')+')';
+function stateAt(t){ // 평상시 → 엘니뇨 → 라니냐 사이를 부드럽게 이동
+  const N={w:1,warm:.25,up:1},E={w:.35,warm:.75,up:.2},L={w:1.6,warm:.1,up:1.6};
+  const s=x=>x*x*(3-2*x), a=s(clamp((t-3.5)/1.2)), b=s(clamp((t-7.5)/1.2));
+  const k=(p)=>lerp(lerp(N[p],E[p],a),L[p],b);
+  return {w:k('w'),warm:k('warm'),up:k('up'),name:t<4?'평상시':t<8?'엘니뇨':'라니냐'};
+}
+function draw(t){
+  const S=stateAt(t),W=720,H=300;
+  c.clearRect(0,0,W,H);
+  c.fillStyle='#16294a';c.fillRect(0,0,W,120);
+  c.fillStyle='#1f4f8a';c.fillRect(0,120,W,180);
+  // 따뜻한 물 (서쪽에서 동쪽으로 퍼짐)
+  const ww=lerp(120,640,S.warm);
+  const g=c.createLinearGradient(0,0,ww,0);g.addColorStop(0,'#ff6a3d');g.addColorStop(1,'rgba(255,106,61,0)');
+  c.fillStyle=g;c.fillRect(0,120,ww,lerp(70,40,S.warm));
+  // 용승 (동쪽 바닥에서 올라오는 찬물)
+  c.strokeStyle='#9fd8ff';c.lineWidth=3;c.globalAlpha=clamp(S.up/1.6+.15);
+  for(let i=0;i<3;i++){const x=600+i*30,y0=290,y1=lerp(280,140,clamp(S.up/1.6));const ph=(t*1.5+i*.3)%1;
+    c.beginPath();c.moveTo(x,y0);c.lineTo(x,lerp(y0,y1,ph));c.stroke();}
+  c.globalAlpha=1;
+  // 무역풍 화살표 (동 → 서)
+  const len=60*S.w+20,th=2+3*S.w;c.strokeStyle='#fff';c.fillStyle='#fff';c.lineWidth=th;
+  for(let i=0;i<3;i++){const x=640-i*210,y=60,off=((t*80*S.w)%40);
+    c.beginPath();c.moveTo(x-off,y);c.lineTo(x-off-len,y);c.stroke();
+    c.beginPath();c.moveTo(x-off-len-12,y);c.lineTo(x-off-len+2,y-8);c.lineTo(x-off-len+2,y+8);c.fill();}
+  c.font='700 22px "Malgun Gothic",sans-serif';c.fillStyle='#fff';c.textAlign='left';c.fillText(S.name,16,32);
+  c.font='14px "Malgun Gothic",sans-serif';c.fillStyle='#cfe0f7';c.fillText('무역풍 (동 → 서)',16,100);
+  c.fillText('서태평양',16,285);c.textAlign='right';c.fillText('동태평양 · 용승',W-16,285);
+  $('#tOut').textContent=t.toFixed(2);$('#fOut').textContent=Math.round(t*30);
+}
+let playing=false,last=0;
+$('#tSl').oninput=e=>{playing=false;$('#play').textContent='▶ 재생';draw(+e.target.value)};
+$('#play').onclick=()=>{playing=!playing;$('#play').textContent=playing?'⏸ 멈춤':'▶ 재생';if(playing){if(+$('#tSl').value>=12)$('#tSl').value=0;last=performance.now();requestAnimationFrame(loop)}};
+function loop(now){if(!playing)return;let t=+$('#tSl').value+(now-last)/1000;last=now;if(t>=12){t=12;playing=false;$('#play').textContent='▶ 재생'}$('#tSl').value=t;draw(t);requestAnimationFrame(loop)}
+draw(0);
+
+// 음절 계산기 (영상 대본과 같은 규칙)
+function syl(s){let n=0;for(const ch of s){if(/[가-힣]/.test(ch))n++;else if(/[0-9]/.test(ch))n+=1.5;else if(/[,.?]/.test(ch))n+=0.6}return n}
+function sylRender(){const n=syl($('#sylIn').value);$('#sylN').textContent=n.toFixed(1);$('#sylT').textContent=Math.max(1.8,n/4.4).toFixed(1)}
+$('#sylIn').oninput=sylRender;sylRender();
+
+// ③ 화음 재생 (영상 배경음과 같은 음 번호)
+const CH={'Cmaj7':[48,55,59,64],'Am7':[45,55,60,64],'Fmaj7':[53,57,60,64],'G6':[55,59,62,64]};
+let ac;
+function playChord(notes){
+  ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+  const t0=ac.currentTime,out=ac.createGain();out.gain.value=.18;out.connect(ac.destination);
+  notes.forEach((m,i)=>{const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=440*2**((m-69)/12);
+    g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(.25,t0+.05+i*.06);g.gain.exponentialRampToValueAtTime(.001,t0+2.2);
+    o.connect(g);g.connect(out);o.start(t0);o.stop(t0+2.3)});
+}
+$('#chords').innerHTML=Object.keys(CH).map(k=>`<button class="btn ghost" data-k="${k}">🎹 ${k}</button>`).join('')+'<button class="btn" data-k="prog">▶ 4개 이어서</button>';
+$('#chords').onclick=e=>{const k=e.target.dataset.k;if(!k)return;if(k==='prog'){Object.values(CH).forEach((n,i)=>setTimeout(()=>playChord(n),i*1430))}else playChord(CH[k])};
+
+// 도전 과제
+const Q=[
+ ['학습 노트에서 Ctrl+U로 소스를 열고 <code>[[</code>를 검색해 보기','키워드가 몇 개인지 세어 보세요'],
+ ['위 실험실에서 내가 외울 문장을 [[키워드]]로 만들어 보기','엘니뇨·라니냐 비교 문장을 직접 써 보면 암기가 훨씬 잘 됩니다'],
+ ['노트를 내 컴퓨터에 저장해서 문장 하나 고치기 (레벨 1)','고친 뒤 브라우저로 열어 확인'],
+ ['키워드 색을 내가 좋아하는 색으로 바꾸기 (레벨 2)','색 코드는 검색창에 "color picker"'],
+ ['F12 콘솔을 열고 <code>2**10</code>을 입력해 보기','콘솔은 계산기이자 디버거입니다. 1024가 나오면 성공'],
+ ['콘솔에서 <code>440*2**(12/12)</code> 계산해 보기','한 옥타브 위의 "라"는 몇 Hz일까요?'],
+ ['내 문장의 낭독 시간이 정확히 5초가 되게 만들기','음절 계산기를 써 보세요'],
+ ['다른 목소리로 내레이션 다시 만들어 보기 (레벨 3)','Python과 ffmpeg 설치부터 도전'],
+];
+let done={};try{done=JSON.parse(localStorage.getItem('climate_howto_q')||'{}')}catch(e){}
+function qRender(){const n=Q.filter((_,i)=>done[i]).length;$('#qBar').style.width=(n/Q.length*100)+'%';
+  $('#qTxt').textContent=`${n} / ${Q.length} 완료`+(n===Q.length?' 🎉 이제 당신은 코드로 과학을 설명하는 사람입니다!':'')}
+$('#qList').innerHTML=Q.map((q,i)=>`<label><input type="checkbox" data-i="${i}" ${done[i]?'checked':''}><span>${q[0]}<small>${q[1]}</small></span></label>`).join('');
+$('#qList').onchange=e=>{const i=e.target.dataset.i;done[i]=e.target.checked;try{localStorage.setItem('climate_howto_q',JSON.stringify(done))}catch(e){}qRender()};
+qRender();
+</script>
+</body>
+</html>
