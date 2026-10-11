@@ -1,22 +1,24 @@
 // Legend under the picture for the current fill and picture.
-import { C, qMax, qName, stageLabel, STAGES, state } from './state.js?v=9ce97af84e';
-import { $, esc, fmt, MISMATCH, modeColor, RAMP, refColor, rgb } from './util.js?v=9ce97af84e';
-import { focusStage } from './diff.js?v=9ce97af84e';
-import { bitsMax } from './view.js?v=9ce97af84e';
+import { C, qMax, qName, stageLabel, STAGES, state } from './state.js?v=3e8d1a839f';
+import { $, esc, fmt, MISMATCH, modeColor, RAMP, refColor, rgb } from './util.js?v=3e8d1a839f';
+import { focusStage } from './diff.js?v=3e8d1a839f';
+import { bitsMax } from './view.js?v=3e8d1a839f';
 
 // Below 1 bit per pixel two decimals would round small maxima to 0.00.
 const bitsMaxText = (m) => (m >= 1 ? fmt(m, 2) : m > 0 ? m.toPrecision(2) : '0');
-import { archLegend } from './arch.js?v=9ce97af84e';
-import { pixelsLegend } from './pixels.js?v=9ce97af84e';
-import { psnrLegendHtml } from './quality.js?v=9ce97af84e';
-import { syncDecisionChips } from './blockdec.js?v=9ce97af84e';
-import { frameColor, interLegendHtml, refFrames, txLegendHtml } from './modes.js?v=9ce97af84e';
-import { boundsLegendHtml, segmentLegendHtml } from './regions.js?v=9ce97af84e';
+import { archLegend } from './arch.js?v=3e8d1a839f';
+import { pixelsLegend } from './pixels.js?v=3e8d1a839f';
+import { psnrLegendHtml } from './quality.js?v=3e8d1a839f';
+import { syncDecisionChips } from './blockdec.js?v=3e8d1a839f';
+import { frameColor, interLegendHtml, refFrames, txLegendHtml } from './modes.js?v=3e8d1a839f';
+import { boundsLegendHtml, segmentLegendHtml } from './regions.js?v=3e8d1a839f';
+import { internalsLegendHtml, syncInternals } from './internals.js?v=3e8d1a839f';
 
 export function renderLegend() {
   const el = $('#legend');
   if (!state.payload) { el.innerHTML = ''; return; }
   syncDecisionChips();   // F-c track B: chips that exist for this codec only
+  syncInternals();       // F-g G2: the internals the fill and lines need, their chips
   const blocks = state.lumaBlocks || state.payload.blocks;
   const count = (key) => { const m = new Map(); blocks.forEach((b) => m.set(b[C[key]], (m.get(b[C[key]]) || 0) + b[C.w] * b[C.h])); return m; };
   let html = '';
@@ -53,6 +55,7 @@ export function renderLegend() {
   } else if (state.fill === 'psnr') {
     html = psnrLegendHtml();
   }
+  html += internalsLegendHtml();   // F-g G2: the nzc fill, the Tx blocks and Edges lines
   if (state.picture && state.picture.canvas.stats) {
     const st = state.picture.canvas.stats;
     // st.plane: the U or V component chosen (planes.js), the picture shows that plane's difference only

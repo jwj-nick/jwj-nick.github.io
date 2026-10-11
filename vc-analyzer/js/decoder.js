@@ -9,12 +9,12 @@
 //              segmentation.
 // ← → step frames while the dialog is open, Escape closes it.  Also wires the timeline arcs (braid.js) and the
 // filmstrip (filmstrip.js), which main.js does not know.
-import { codecOf, frameMeta, state } from './state.js?v=9ce97af84e';
-import { $, esc, fmt, FRAME_COLORS, typeName } from './util.js?v=9ce97af84e';
-import { selectFrame, stepFrame } from './frames.js?v=9ce97af84e';
-import { arcsGraphSettled, arcsSnap, toggleArcs } from './braid.js?v=9ce97af84e';
-import { filmstripSnap, initFilmstrip } from './filmstrip.js?v=9ce97af84e';
-import { frameLink, onRefgraph, refgraph, refgraphError, refgraphMissingWhy, refgraphStatus, rgFrame, slotMode } from './refsview.js?v=9ce97af84e';
+import { codecOf, frameMeta, state } from './state.js?v=3e8d1a839f';
+import { $, esc, fmt, FRAME_COLORS, typeName } from './util.js?v=3e8d1a839f';
+import { selectFrame, stepFrame } from './frames.js?v=3e8d1a839f';
+import { arcsGraphSettled, arcsSnap, toggleArcs } from './braid.js?v=3e8d1a839f';
+import { filmstripSnap, initFilmstrip } from './filmstrip.js?v=3e8d1a839f';
+import { frameLink, onRefgraph, refgraph, refgraphError, refgraphMissingWhy, refgraphStatus, rgFrame, slotMode } from './refsview.js?v=3e8d1a839f';
 
 const dlg = () => $('#decoderDialog');
 const TABS = ['dpb', 'structure', 'state'];

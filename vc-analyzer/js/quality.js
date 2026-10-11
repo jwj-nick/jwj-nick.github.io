@@ -5,17 +5,17 @@
 // Every number comes from the data contract (SERVER_API.md section 16): the frame values from `vca serve`'s
 // quality.jsonl (= `vca quality --json`, streamed as the frames are computed) or a bundle's quality.json (PSNR only),
 // the block values from frames/<f>.diff.json `cu` of the stage in focus.
-import { C, FILLS, state, STAGES } from './state.js?v=9ce97af84e';
-import { $, clamp, esc, fmt, ramp, rgb, setStatus } from './util.js?v=9ce97af84e';
-import { aTitle, bTitle, caps, getJSON, withToken } from './data.js?v=9ce97af84e';
-import { asProblem } from './api.js?v=9ce97af84e';
-import { focusStage } from './diff.js?v=9ce97af84e';
-import { orderedFrames, selectFrame, stepFrame } from './frames.js?v=9ce97af84e';
-import { canvas, requestRender } from './view.js?v=9ce97af84e';
-import { renderTab } from './inspector.js?v=9ce97af84e';
-import { writeHash } from './hash.js?v=9ce97af84e';
-import * as pixels from './pixels.js?v=9ce97af84e';
-import { renderChips } from './controls.js?v=9ce97af84e';
+import { C, FILLS, state, STAGES } from './state.js?v=3e8d1a839f';
+import { $, clamp, esc, fmt, ramp, rgb, setStatus } from './util.js?v=3e8d1a839f';
+import { aTitle, bTitle, caps, getJSON, withToken } from './data.js?v=3e8d1a839f';
+import { asProblem } from './api.js?v=3e8d1a839f';
+import { focusStage } from './diff.js?v=3e8d1a839f';
+import { orderedFrames, selectFrame, stepFrame } from './frames.js?v=3e8d1a839f';
+import { canvas, requestRender } from './view.js?v=3e8d1a839f';
+import { renderTab } from './inspector.js?v=3e8d1a839f';
+import { writeHash } from './hash.js?v=3e8d1a839f';
+import * as pixels from './pixels.js?v=3e8d1a839f';
+import { renderChips } from './controls.js?v=3e8d1a839f';
 
 const dlg = () => $('#qualityDialog');
 const PSNR_KEYS = ['Y', 'U', 'V', 'yuv'], SSIM_KEYS = ['Y', 'U', 'V', 'all'];

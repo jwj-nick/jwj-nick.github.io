@@ -4,10 +4,10 @@
 // origin each; on a narrow screen they are stacked.  The second picture (state.cmp.stage2: any entry of the
 // pixel stage list, B: and A − B in diff mode too) is built here when the frame, its stage or the look
 // changes.  Single mode draws and maps exactly as before (one pane = the whole canvas).
-import { stageLabel, state } from './state.js?v=9ce97af84e';
-import { buildPicture, currentLookKey } from './planes.js?v=9ce97af84e';
-import { canvas, requestRender } from './view.js?v=9ce97af84e';
-import { stageOptions } from './source.js?v=9ce97af84e';
+import { stageLabel, state } from './state.js?v=3e8d1a839f';
+import { buildPicture, currentLookKey } from './planes.js?v=3e8d1a839f';
+import { canvas, requestRender } from './view.js?v=3e8d1a839f';
+import { stageOptions } from './source.js?v=3e8d1a839f';
 
 export const GAP = 6;   // CSS px between side-by-side panes
 export const MODES = [

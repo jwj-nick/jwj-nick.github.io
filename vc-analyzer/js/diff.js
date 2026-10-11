@@ -1,20 +1,23 @@
 // Diff mode: per-frame A vs B detail, the diff bar, first mismatch and A/B flip.
-import { BASE_STAGES, kindLabel, STAGES, state } from './state.js?v=9ce97af84e';
-import { $, esc, fmt, setStatus } from './util.js?v=9ce97af84e';
-import { bTitle, getJSON } from './data.js?v=9ce97af84e';
-import { buildPicture, stageDiffers } from './planes.js?v=9ce97af84e';
-import { renderStageOptions } from './source.js?v=9ce97af84e';
-import { selectFrame } from './frames.js?v=9ce97af84e';
-import { requestRender } from './view.js?v=9ce97af84e';
-import { renderLegend } from './legend.js?v=9ce97af84e';
-import { writeHash } from './hash.js?v=9ce97af84e';
-import { syncDiffFills, zoomToFirstSample } from './quality.js?v=9ce97af84e';
+import { BASE_STAGES, kindLabel, STAGES, state } from './state.js?v=3e8d1a839f';
+import { $, esc, fmt, setStatus } from './util.js?v=3e8d1a839f';
+import { bTitle, getJSON } from './data.js?v=3e8d1a839f';
+import { buildPicture, stageDiffers } from './planes.js?v=3e8d1a839f';
+import { renderStageOptions } from './source.js?v=3e8d1a839f';
+import { selectFrame } from './frames.js?v=3e8d1a839f';
+import { requestRender } from './view.js?v=3e8d1a839f';
+import { renderLegend } from './legend.js?v=3e8d1a839f';
+import { writeHash } from './hash.js?v=3e8d1a839f';
+import { syncDiffFills, zoomToFirstSample } from './quality.js?v=3e8d1a839f';
 
 // ------------------------------------------------------------- diff
 // manifest.diff lists the frames that have frames/<f>.diff.json; any other
-// frame of B equals A.
+// frame of B equals A, except a frame after the end of a short raw file
+// (manifest diff.frames_not_in_file, T-0061): it is not compared.
+export const notInFile = (f) => !!(state.diff && (state.diff.frames_not_in_file || []).includes(f));
 export async function loadFrameDiff(f) {
   if (!state.diff) return null;
+  if (notInFile(f) && !(state.diff.detail_frames || []).includes(f)) return { f, equal: true, not_in_file: true, stages: {} };
   if (!(state.diff.detail_frames || []).includes(f)) return { f, equal: true, stages: {} };
   if (state.fdiffCache.has(f)) return state.fdiffCache.get(f);
   const d = await getJSON(`frames/${f}.diff.json`);
@@ -54,7 +57,9 @@ export function renderDiffBar() {
   const notes = (d.notes || []).length ? `<span class="who">${esc(d.notes.join('; '))}</span>` : '';
   if (d.equal) {
     bar.classList.add('equal');
-    bar.innerHTML = `<span><b>B matches A</b> in all ${fmt(d.frames_compared)} frames${d.output_md5_equal ? ', output MD5 equal' : ''}.</span>${who}${notes}`;
+    // a short raw file (d.partial): the frames it holds, the notes say which are left out
+    const scope = d.partial ? `in the ${fmt(d.frames_compared)} frames the file holds` : `in all ${fmt(d.frames_compared)} frames`;
+    bar.innerHTML = `<span><b>B matches A</b> ${scope}${d.output_md5_equal ? ', output MD5 equal' : ''}.</span>${who}${notes}`;
     return;
   }
   bar.classList.remove('equal');
@@ -89,6 +94,7 @@ export async function flipAB() {
   const st = state.stage;
   const base = st.includes(':') ? st.slice(2) : st;
   if (!BASE_STAGES.includes(base)) return;
+  if (notInFile(state.f) && !st.includes(':')) { setStatus(`Frame ${state.f} is not in B's file, so there is no B picture to show.`); return; }
   state.stage = st.startsWith('B:') || st.startsWith('D:') ? base : 'B:' + base;
   renderStageOptions();
   state.picture = await buildPicture(state.f);

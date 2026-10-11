@@ -3,10 +3,10 @@
 // the frame a block's reference points at (for the r fill).
 // refgraph.json is read once per opened stream (source.js openSource -> loadRefgraph); bundles exported before it
 // existed keep the Frame tab's own table with one line that says why the extras are missing.
-import { C, codecOf, state } from './state.js?v=9ce97af84e';
-import { esc, fmt, refColor } from './util.js?v=9ce97af84e';
-import { getJSON } from './data.js?v=9ce97af84e';
-import { renderTab } from './inspector.js?v=9ce97af84e';
+import { C, codecOf, state } from './state.js?v=3e8d1a839f';
+import { esc, fmt, refColor } from './util.js?v=3e8d1a839f';
+import { getJSON } from './data.js?v=3e8d1a839f';
+import { renderTab } from './inspector.js?v=3e8d1a839f';
 
 // ------------------------------------------------------------ the reference graph of the open stream
 // status: none (no stream), loading, ok, missing (no reference graph; why = absent: the bundle has no file,

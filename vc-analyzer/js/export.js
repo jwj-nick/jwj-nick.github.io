@@ -1,14 +1,14 @@
 // Export (SERVER_API.md §12): the picture as PNG (made here, every mode), tables as CSV
 // (server routes with `vca serve`, written here from the manifest and the frame payload
 // otherwise) and the stream report (server only).
-import { C, FILLS, frameMeta, hasArch, LINES, stageLabel, state, usesQp } from './state.js?v=9ce97af84e';
-import { $, dpr, esc, RAMP, rgb, typeName } from './util.js?v=9ce97af84e';
-import { caps } from './data.js?v=9ce97af84e';
-import { isChromaBlock } from './frames.js?v=9ce97af84e';
-import { canvas, drawView } from './view.js?v=9ce97af84e';
-import { pixelsCaption } from './pixels.js?v=9ce97af84e';
-import { cmpMode, GAP, splitImageX } from './split.js?v=9ce97af84e';
-import { ensureSymbols, symbolsReady } from './symbols.js?v=9ce97af84e';
+import { C, FILLS, frameMeta, hasArch, LINES, stageLabel, state, usesQp } from './state.js?v=3e8d1a839f';
+import { $, dpr, esc, RAMP, rgb, typeName } from './util.js?v=3e8d1a839f';
+import { caps } from './data.js?v=3e8d1a839f';
+import { isChromaBlock } from './frames.js?v=3e8d1a839f';
+import { canvas, drawView } from './view.js?v=3e8d1a839f';
+import { pixelsCaption } from './pixels.js?v=3e8d1a839f';
+import { cmpMode, GAP, splitImageX } from './split.js?v=3e8d1a839f';
+import { ensureSymbols, symbolsReady } from './symbols.js?v=3e8d1a839f';
 
 // ------------------------------------------------------------ CSV (§12.1)
 // Columns and cells as vca/tables.py writes them: frames = query.frames, blocks = query.BLOCK_SUMMARY_COLS.

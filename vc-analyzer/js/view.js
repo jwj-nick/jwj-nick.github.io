@@ -1,16 +1,17 @@
 // Viewport and canvas rendering: fills, grids, motion, superblocks, chroma tree, mismatch outlines.
-import { C, PERF, perf, perfMark, qMax, state } from './state.js?v=9ce97af84e';
-import { $, clamp, dims, dpr, MISMATCH, modeColor, ramp, refColor, rgb } from './util.js?v=9ce97af84e';
-import { firstSample, focusStage } from './diff.js?v=9ce97af84e';
-import { isChromaBlock, partitionPath } from './frames.js?v=9ce97af84e';
-import { archOf, drawArchLabels } from './arch.js?v=9ce97af84e';
-import { psnrFill } from './quality.js?v=9ce97af84e';
-import { cmpMode, drawPaneLabel, drawSplitChrome, GAP, paneAt, paneRects, picture2, splitX, stacked } from './split.js?v=9ce97af84e';
-import { drawGrid, gridRecordStart } from './grid.js?v=9ce97af84e';
-import { drawAngles } from './blockdec.js?v=9ce97af84e';
-import { interFill, refFill, txFill } from './modes.js?v=9ce97af84e';
-import { drawBounds, segmentFill } from './regions.js?v=9ce97af84e';
-import { renderLegend } from './legend.js?v=9ce97af84e';
+import { C, PERF, perf, perfMark, qMax, state } from './state.js?v=3e8d1a839f';
+import { $, clamp, dims, dpr, MISMATCH, modeColor, ramp, refColor, rgb } from './util.js?v=3e8d1a839f';
+import { firstSample, focusStage } from './diff.js?v=3e8d1a839f';
+import { isChromaBlock, partitionPath } from './frames.js?v=3e8d1a839f';
+import { archOf, drawArchLabels } from './arch.js?v=3e8d1a839f';
+import { psnrFill } from './quality.js?v=3e8d1a839f';
+import { cmpMode, drawPaneLabel, drawSplitChrome, GAP, paneAt, paneRects, picture2, splitX, stacked } from './split.js?v=3e8d1a839f';
+import { drawGrid, gridRecordStart } from './grid.js?v=3e8d1a839f';
+import { drawAngles } from './blockdec.js?v=3e8d1a839f';
+import { interFill, refFill, txFill } from './modes.js?v=3e8d1a839f';
+import { drawBounds, segmentFill } from './regions.js?v=3e8d1a839f';
+import { drawInternals, nzcFill } from './internals.js?v=3e8d1a839f';
+import { renderLegend } from './legend.js?v=3e8d1a839f';
 
 // ------------------------------------------------------------ viewport
 export const canvas = $('#canvas');
@@ -223,6 +224,7 @@ export function drawScene(ctx, cw, ch, view, k, { hover = false, selection = tru
   if (state.lines.has('bounds')) drawBounds(ctx, px);   // F-c track B: slice, segment boundaries; intra directions
   if (state.lines.has('angle')) drawAngles(ctx, blocks, visible, px, record);
   if (state.lines.has('mv')) drawMotion(ctx, blocks, visible, px);
+  drawInternals(ctx, vis, px, record);   // F-g G2: Tx blocks and Edges lines (internals.js)
   if (state.lines.has('mismatch')) drawMismatch(ctx, px);
   // F24 sample grid (CSS px clip rectangles: a split draws each side's values)
   if (state.grid) {
@@ -268,6 +270,7 @@ function fillStyler() {
     case 'qindex': { const qm = qMax(); return (b) => rgb(ramp((b[C.qindex] ?? 0) / qm)); }
     case 'skip': return (b) => (b[C.skip_txfm] ? 'rgb(16,18,22)' : null);
     case 'psnr': return psnrFill();   // diff mode: block PSNR from frames/<f>.diff.json cu (quality.js)
+    case 'nzc': return nzcFill();     // F-g G2: nonzero coefficients per block from coef.json (internals.js)
     case 'cycles': {
       const A = archOf(state.payload);
       if (!A) return () => null;

@@ -1,8 +1,8 @@
 // Entropy-decoded symbols of a frame: loading, typed columns, per-block lookup.
-import { perfMark, state } from './state.js?v=9ce97af84e';
-import { setStatus } from './util.js?v=9ce97af84e';
-import { getJSON } from './data.js?v=9ce97af84e';
-import { renderTab } from './inspector.js?v=9ce97af84e';
+import { perfMark, state } from './state.js?v=3e8d1a839f';
+import { setStatus } from './util.js?v=3e8d1a839f';
+import { getJSON } from './data.js?v=3e8d1a839f';
+import { renderTab } from './inspector.js?v=3e8d1a839f';
 
 // --------------------------------------------------------------- symbols
 // element name and reader source of symbol type id
@@ -33,8 +33,8 @@ async function loadSymbols(f, payload) {
   let s = null;
   if (payload.symbols) s = symbolsFromRows(payload.symbols);
   else if (payload.sym) s = symbolsFromColumns(await getJSON(payload.sym.file));
-  state.symCache.set(f, s);
-  if (state.symCache.size > 24) state.symCache.delete(state.symCache.keys().next().value);
+  // byte budget (state.js): the typed columns are what stays in memory (the parsed text is dropped)
+  state.symCache.set(f, s, s ? ['type', 'value', 'mode', 'bits', 'block'].reduce((n, k) => n + s[k].byteLength, 0) : 0);
   return s;
 }
 // Makes state.syms the current frame's symbols; re-renders the tab when they arrive.

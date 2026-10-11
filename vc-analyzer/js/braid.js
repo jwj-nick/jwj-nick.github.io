@@ -1,10 +1,11 @@
 // Decode-to-output reorder timeline.
 // F-c track C (R49, F06): Shift+R (or the References chip) adds a band above the decode lane with arcs from the
 // frame on screen to the frames it references and shades each decode slot by how many frames reference it.
-import { state } from './state.js?v=9ce97af84e';
-import { $, esc, FRAME_COLORS, ohPart, setStatus } from './util.js?v=9ce97af84e';
-import { referencedCounts, refgraph, refgraphMissingWhy, refgraphStatus, refgraphWhy, refTargets } from './refsview.js?v=9ce97af84e';
-import { toast } from './api.js?v=9ce97af84e';
+import { state } from './state.js?v=3e8d1a839f';
+import { $, esc, FRAME_COLORS, ohPart, setStatus } from './util.js?v=3e8d1a839f';
+import { referencedCounts, refgraph, refgraphMissingWhy, refgraphStatus, refgraphWhy, refTargets } from './refsview.js?v=3e8d1a839f';
+import { toast } from './api.js?v=3e8d1a839f';
+import { issueTicks } from './issues.js?v=3e8d1a839f';
 
 const ARC_H = 34;   // height of the arc band (only while the arcs are on)
 let arcsOn = false;
@@ -67,6 +68,14 @@ export function renderBraid() {
       if (!differing.has(fr.f)) return;
       const r = fr.f === firstF ? 4.5 : 3.5, cx = xs(i), cy = Math.max(top + r, top + laneH - bh(fr.bytes) - r - 2);
       parts.push(`<path class="diffmark${fr.f === firstF ? ' first' : ''}" data-f="${fr.f}" d="M${cx},${cy - r} L${cx + r},${cy} L${cx},${cy + r} L${cx - r},${cy} Z"><title>frame ${fr.f} differs from B${fr.f === firstF ? ' (first mismatch)' : ''}</title></path>`);
+    });
+  }
+  // F-f S2: a red tick under the decode bar of every frame with an error in the issue list (issues.js, once read)
+  const ticks = issueTicks();
+  if (ticks.size) {
+    frames.forEach((fr, i) => {
+      const k = ticks.get(fr.f);
+      if (k) parts.push(`<rect class="istick" data-f="${fr.f}" x="${xs(i) - bw / 2}" y="${top + laneH + 1}" width="${bw}" height="3"><title>frame ${fr.f}: ${k} ${k === 1 ? 'error' : 'errors'} in the issue list (Shift+E)</title></rect>`);
     });
   }
   if (arcsOn) parts.push('<defs><marker id="arcHead" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 Z" class="archead"/></marker></defs><g id="braidArcs"></g>');

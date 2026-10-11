@@ -1,12 +1,12 @@
 // "Open stream" (SERVER_API.md §4, §6): the dialog, choosing or dropping a file,
 // the upload with its progress, a path on this computer, the probe card, the
 // analysis options and recent sources.  Analyze starts a job (jobs.js).
-import { state } from './state.js?v=9ce97af84e';
-import { $, esc, fmt } from './util.js?v=9ce97af84e';
-import { caps, folderOf, TOKEN } from './data.js?v=9ce97af84e';
-import { api, ApiError, fmtBytes, fmtDate, healthNotes, loadHealth, problemHTML, server } from './api.js?v=9ce97af84e';
-import { openStreamAt, refreshStreams } from './source.js?v=9ce97af84e';
-import { lastOutcome, trackJob } from './jobs.js?v=9ce97af84e';
+import { state } from './state.js?v=3e8d1a839f';
+import { $, esc, fmt } from './util.js?v=3e8d1a839f';
+import { caps, folderOf, TOKEN } from './data.js?v=3e8d1a839f';
+import { api, ApiError, fmtBytes, fmtDate, healthNotes, loadHealth, problemHTML, server } from './api.js?v=3e8d1a839f';
+import { openStreamAt, refreshStreams } from './source.js?v=3e8d1a839f';
+import { lastOutcome, trackJob } from './jobs.js?v=3e8d1a839f';
 
 const CODECS = ['av2', 'av1', 'vvc', 'hevc', 'vp9', 'avc'];
 const CONTAINERS = { ivf: 'IVF', annexb: 'Annex B', obu: 'OBU', mp4: 'MP4', mkv: 'Matroska', webm: 'WebM', ts: 'MPEG-TS', unknown: 'not recognised' };
@@ -22,8 +22,11 @@ export function openSnap() {
   return {
     stage: st.stage, name: st.name, upload: st.upload ? { ...st.upload } : null, probeCodec: st.codec,
     probe: p ? { codec: p.codec, container: p.container, frames: p.frames, width: p.width, height: p.height, supported: p.supported,
-      needs_extract: p.needs_extract, problems: (p.problems || []).map((x) => x.code), existing: (p.existing || []).length } : null,
+      needs_extract: p.needs_extract, problems: (p.problems || []).map((x) => x.code), existing: (p.existing || []).length,
+      index: p.index ? { tus: p.index.tus, raps: [...p.index.raps] } : null } : null,
     error: st.error ? st.error.code : null, analyze: !$('#analyzeBtn').disabled,
+    // the range choice (F-e 2): offered = the probe has an index; a, b as typed; rap = where decoding starts
+    range: (() => { const r = rangeState(); return { offered: !$('#optRangeOpt').disabled, on: r.on, a: r.a, b: r.b, rap: r.rap, problem: r.problem, note: r.on ? $('#framesNote').textContent : '' }; })(),
   };
 }
 
@@ -132,7 +135,11 @@ async function probe(body) {
     const p = await api('api/probe', { method: 'POST', body });
     if (stale()) return;
     st.probe = p;
-    if (!codec) st.autoProbe = p;
+    if (!codec) {
+      st.autoProbe = p;
+      // a new file: the range starts as the whole stream
+      if (p.index) { $('#optTuA').value = '0'; $('#optTuB').value = String(p.index.tus - 1); }
+    }
     st.stage = 'probed';
     if (p.source && p.source.name) st.name = p.source.name;
   } catch (e) {
@@ -168,6 +175,7 @@ function fail(e) {
 // ------------------------------------------------------------- options
 function options() {
   const n = Math.max(1, Math.floor(+$('#optFrames').value || 1));
+  const r = rangeState();
   return {
     codec: $('#optCodec').value,
     frames: $('#optFramesMode').value === 'first' ? n : 0,
@@ -175,7 +183,40 @@ function options() {
     verify: $('#optVerify').checked,
     crossdec: $('#optCrossdec').checked,
     hw: $('#optHw').checked,
+    ...(r.on && !r.problem ? { window: { tus: [r.a, r.b] } } : {}),
   };
+}
+
+// A range of temporal units (SERVER_API.md §6 index, §7 window): A and B as typed, the random
+// access point decoding starts at, and the sentence when the range is not possible (Analyze is off then;
+// the server refuses the same ranges with the same reasons).
+const ANNEXB = ['hevc', 'vvc', 'avc'];
+const whole = (v) => (/^\s*\d+\s*$/.test(String(v)) ? parseInt(v, 10) : null);
+function rangeState() {
+  const p = st.probe, idx = p && p.index;
+  const on = $('#optFramesMode').value === 'range';
+  const a = whole($('#optTuA').value), b = whole($('#optTuB').value);
+  if (!on) return { on, a, b, rap: null, problem: null };
+  const unit = idx ? idx.unit : 'temporal unit';
+  let problem = null;
+  if (!idx) problem = 'This file has no index of its temporal units, so a range cannot be analyzed. Choose All frames.';
+  else if (a === null || b === null) problem = `Type two whole numbers: A, the first ${unit} of the range, and B, the last.`;
+  else if (a > b) problem = `The range starts after it ends (A = ${a}, B = ${b}): A is the first ${unit} and B the last.`;
+  else if (b >= idx.tus) problem = `The range ends at ${unit} ${b}, but the stream has ${fmt(idx.tus)} (0 to ${fmt(idx.tus - 1)}).`;
+  const rap = idx && a !== null ? idx.raps.filter((r) => r <= a).reduce((m, r) => Math.max(m, r), 0) : null;
+  return { on, a, b, rap, problem, idx };
+}
+// The note under the options for a range: what one unit is for this codec, where decoding starts, and the check.
+function rangeNote(r, codec) {
+  const idx = r.idx, n = idx.tus, annexb = ANNEXB.includes(codec);
+  const what = annexb ? `An access unit is one coded picture; this stream has ${fmt(n)} (0 to ${fmt(n - 1)}).`
+    : `A temporal unit is the frames up to and including one shown frame (one IVF frame record); this stream has ${fmt(n)} (0 to ${fmt(n - 1)}).`;
+  const word = annexb ? 'access unit' : 'temporal unit', rapWord = annexb ? 'an IDR picture' : 'a key frame';
+  const start = r.problem || r.rap === null ? ''
+    : ` Decoding starts at the random access point at or before A (${rapWord}): ${word} ${fmt(r.rap)}${r.rap < r.a - 1 ? `, so ${word}s ${fmt(r.rap)} to ${fmt(r.a - 1)} are decoded too` : r.rap < r.a ? `, so ${word} ${fmt(r.rap)} is decoded too` : ''}.`;
+  const check = $('#optVerify').checked ? ' The reference decoder check stays on: it decodes the same cut and compares the output.'
+    : ' The reference decoder check is off; unlike the first frames, a range can be checked: turn on "Check against the reference decoder".';
+  return what + start + check;
 }
 // Analyze is possible after a probe that found a supported stream, or when the
 // only problem is an unknown codec of an elementary stream (IVF, Annex B, OBU:
@@ -184,6 +225,7 @@ const ELEMENTARY = ['ivf', 'annexb', 'obu'];
 function canAnalyze() {
   const p = st.probe;
   if (st.stage !== 'probed' || !p) return false;
+  if (rangeState().problem) return false;
   if (p.supported) return true;
   const probs = p.problems || [];
   return ELEMENTARY.includes(p.container) && probs.length > 0 && probs.every((x) => x.code === 'unknown_codec')
@@ -284,6 +326,13 @@ function renderProbe() {
     ['Bit depth', p.bit_depth ? `${p.bit_depth}-bit` : '–'],
     ['File size', fmtBytes(src.bytes)],
   ];
+  // the index of temporal units (access units for Annex B), counted without decoding: what a range is chosen from
+  const ix = p.index;
+  if (ix) {
+    const raps = ix.raps.length > 12 ? `${ix.raps.slice(0, 12).join(', ')} and ${fmt(ix.raps.length - 12)} more` : ix.raps.join(', ');
+    facts.push([ix.unit === 'access unit' ? 'Access units' : 'Temporal units', fmt(ix.tus),
+      `${fmt(ix.tus)} ${ix.unit}s, counted without decoding. Random access points (where decoding of a range can start): ${ix.unit} ${raps}.`]);
+  }
   const notes = [];
   if (p.needs_extract) notes.push(`The video track will be extracted with FFmpeg first. Bit positions then refer to the extracted ${p.codec === 'av1' || p.codec === 'vp9' ? 'IVF' : 'Annex B'} stream.`);
   const e = p.estimate;
@@ -298,7 +347,7 @@ function renderProbe() {
     <dl class="pc-facts">${facts.map(([k, v, tip]) => `<div${tip ? ` title="${esc(tip)}"` : ''}><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl>
     ${notes.map((n) => `<p class="pc-note">${esc(n)}</p>`).join('')}
     ${probs ? `<ul class="problems">${probs}</ul>` : ''}
-    ${ex ? `<p class="pc-existing">Already analyzed on ${esc(fmtDate(ex.created))}. <button class="btn small" type="button" data-act="open-existing" data-aid="${esc(ex.aid)}" title="Show that analysis instead of analyzing the file again">Open</button></p>` : ''}`;
+    ${ex ? `<p class="pc-existing">Already analyzed${ex.options && ex.options.window ? ` (${esc(ix ? ix.unit : 'temporal unit')}s ${ex.options.window.tus[0]}–${ex.options.window.tus[1]})` : ''} on ${esc(fmtDate(ex.created))}. <button class="btn small" type="button" data-act="open-existing" data-aid="${esc(ex.aid)}" title="Show that analysis instead of analyzing the file again">Open</button></p>` : ''}`;
 }
 const fmtSecondsShort = (s) => (s < 60 ? `${Math.max(1, Math.round(s))} s` : `${Math.round(s / 60)} min`);
 
@@ -311,6 +360,13 @@ function renderHealth() {
 }
 
 function renderButtons() {
+  // a range needs the probe's index of temporal units (an elementary stream): otherwise the choice is off
+  const p = st.probe, rOpt = $('#optRangeOpt');
+  const idx = p && p.index;
+  rOpt.disabled = !idx;
+  rOpt.title = idx ? `Analyze ${idx.unit}s A to B, decoded from the random access point at or before A; the reference decoder check stays on`
+    : (p && p.index_reason) || 'Choose a stream file first: the range needs its temporal units';
+  if (!idx && $('#optFramesMode').value === 'range' && p) $('#optFramesMode').value = 'all';
   const ok = canAnalyze();
   const b = $('#analyzeBtn');
   b.disabled = !ok;
@@ -329,16 +385,27 @@ function renderButtons() {
   const autoText = a && a.codec ? `Auto (detected ${a.codec.toUpperCase()})` : 'Auto';
   if (auto.textContent !== autoText) auto.textContent = autoText;
   const first = $('#optFramesMode').value === 'first';
+  const range = $('#optFramesMode').value === 'range';
   $('#optFrames').hidden = !first;
+  $('#optRange').hidden = !range;
+  if (idx) { $('#optTuA').max = String(idx.tus - 1); $('#optTuB').max = String(idx.tus - 1); }
+  const unit = idx ? idx.unit : 'temporal unit';
+  $('#optTuA').title = `A: the first ${unit} of the range, counted from 0`;
+  $('#optTuB').title = `B: the last ${unit} of the range (included)`;
   const fn = $('#framesNote');
-  fn.hidden = !first;
+  fn.hidden = !first && !(range && idx);
   const n = Math.max(1, Math.floor(+$('#optFrames').value || 1));
   // what the dumper's --limit counts (SERVER_API.md §7)
   const c = $('#optCodec').value !== 'auto' ? $('#optCodec').value : (a && a.codec);
   const tu = !c || ['av2', 'av1', 'vp9'].includes(c);
-  fn.textContent = !first ? '' : `Only the first ${n} decoded ${n === 1 ? 'frame' : 'frames'} in decode order (hidden frames count) ${n === 1 ? 'is' : 'are'} analyzed.`
+  const r = rangeState();
+  fn.textContent = range ? (idx ? rangeNote(r, (p && p.codec) || c) : '') : !first ? '' : `Only the first ${n} decoded ${n === 1 ? 'frame' : 'frames'} in decode order (hidden frames count) ${n === 1 ? 'is' : 'are'} analyzed.`
     + (!tu ? '' : ` ${c ? `The ${c.toUpperCase()} analysis ends` : 'AV2, AV1 and VP9 analyses end'} with the temporal unit holding frame ${n}, so a few more frames can appear.`)
     + ' The reference decoder check needs the whole stream, so it is skipped.';
+  const rp = $('#rangeProblem');
+  rp.hidden = !(range && r.problem);
+  rp.textContent = range && r.problem ? r.problem : '';
+  if (range && r.problem && st.stage === 'probed') b.title = r.problem;
 }
 
 // ", analyzed" when the source has an analysis, else how its last job ended (", failed", ", cancelled").

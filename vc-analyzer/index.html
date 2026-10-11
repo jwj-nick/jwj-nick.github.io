@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=9ce97af84e">
+<link rel="stylesheet" href="app.css?v=3e8d1a839f">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%231d232b'/%3E%3Cpath d='M2 12h3V6H2zm4.5 0h3V3h-3zM11 12h3V8h-3z' fill='%23ffb347'/%3E%3C/svg%3E">
 </head>
 <body>
@@ -94,6 +94,7 @@
       </div>
       <div class="tool-group">
         <button class="btn small" id="exportBtn" title="Export this frame as a PNG picture, tables as CSV, or the stream report (k)">Export</button>
+        <button class="btn small" id="issuesBtn" hidden title="What is wrong with this analysis, each finding at its frame and unit (Shift+E): decoder errors, references and the decoded picture buffer, picture hashes (HEVC, VVC, AV2), level limits (AV1, AV2, HEVC, VVC, AVC; rate limits are advisory), the HRD coded picture buffer (HEVC, AVC) and failing analyzer checks.">Issues</button>
       </div>
     </div>
     <div class="diffbar" id="diffBar" hidden aria-live="polite"></div>
@@ -145,10 +146,18 @@
       <tr><td><kbd>Esc</kbd></td><td>Clear the block selection. On a list of the toolbar or the stream picker chosen with the keyboard (its arrow keys step its options), give the keys back to the picture; a choice made with the mouse does that by itself, and so does a click on the picture</td></tr>
       <tr><td><kbd>c</kbd></td><td>Copy the selected block as context for an AI assistant</td></tr>
       <tr><td><kbd>u</kbd></td><td>Bitstream: every coded unit (OBU, NAL unit, VP9 frame) with its header elements, their bit positions and the bytes in hex. In the dialog <kbd>↑</kbd> <kbd>↓</kbd> step through the units; click an element to shade its bytes, or a byte to find its element. Also "Units…" on the Frame and Stream tabs.</td></tr>
-      <tr><td><kbd>Shift</kbd>+<kbd>G</kbd></td><td>Graphs: frame size and bitrate per frame (an Annex B stream has no frame rate: type the one to assume), the base qindex or slice QP per frame, mode and block size distributions of this frame or the whole stream by count, area or bits, the motion vectors of this frame, and a block search (mode, size, QP or qindex, bits, skip) whose results select the block. Click a column to go to its frame; <kbd>←</kbd> <kbd>→</kbd> step frames in the dialog. Also "Graphs…" on the Stream tab.</td></tr>
+      <tr><td><kbd>Shift</kbd>+<kbd>G</kbd></td><td>Graphs: frame size and bitrate per frame (an Annex B stream has no frame rate: type the one to assume), the base qindex or slice QP per frame, mode and block size distributions of this frame or the whole stream by count, area or bits, the motion vectors of this frame, and a block search (mode, size, QP or qindex, bits, skip) whose results select the block, and Buffer: the HEVC / AVC coded picture buffer of the hypothetical reference decoder over time against its CPB size, with overflow and underflow marked (streams with HRD parameters and buffering period SEI). Click a column to go to its frame; <kbd>←</kbd> <kbd>→</kbd> step frames in the dialog. Also "Graphs…" on the Stream tab.</td></tr>
+      <tr><td><kbd>Shift</kbd>+<kbd>E</kbd></td><td>Issues: what is wrong with this analysis, each finding at its frame, temporal unit and unit, as <code>python -m vca check</code> lists it: decoder errors, references that resolve to no decoded frame or a decoded picture buffer above its size, picture hashes (HEVC and VVC SEI, AV2 frame hash) that do not match the decoded picture, limits of the signalled level (AV1, AV2, HEVC, VVC, AVC; rate limits are advisory warnings at the assumed frame rate), the HRD coded picture buffer (HEVC, AVC: overflow, underflow, initial delay), and failing analyzer checks (the analysis' own consistency, not the stream's). A row names the spec clause it is judged by where there is one. Filter by severity, by check, or to the frame on screen; the checks that ran in part (what they leave out) and the checks that did not run are listed with the reason. Click a row (or move with <kbd>↑</kbd> <kbd>↓</kbd> and press <kbd>Enter</kbd>) to go to its place: its frame, and for an issue with a bit range (a picture hash, a level, an HRD delay) also the Bitstream dialog at that element; an issue that names only a unit opens the Bitstream dialog there, and so does a unit in the Where column; an issue about the whole analysis says so in its row. Once the list is read, frames with an error get a red tick under their bar on the timeline. Also the Issues button of the toolbar, which counts the errors and warnings; a bundle exported before the issue list has no button.</td></tr>
       <tr><td><kbd>Shift</kbd>+<kbd>D</kbd></td><td>Decoder state: the decoded picture buffer while this frame is decoded (AV1, AV2, VP9: the reference slots; HEVC, VVC, AVC: the frames the decoder marks as short-term or long-term reference and the ones waiting for output; an analysis made before the dumpers wrote the marking shows the frames that must still be held, a lower bound of it) with a frame by slot grid, the reference structure by output position and hierarchy level, and (AV1, AV2, VP9) what each frame takes over from an earlier one: CDFs, loop filter deltas, segmentation. <kbd>←</kbd> <kbd>→</kbd> step frames in the dialog. Also "Decoder state…" on the Frame tab, whose References table gives every reference's decoded frame (click to go there) and how many blocks use it.</td></tr>
       <tr><td><kbd>Shift</kbd>+<kbd>R</kbd></td><td>Timeline references: arcs from the frame on screen to the frames it references, and every frame shaded by how many frames reference it (also the References chip of the timeline)</td></tr>
       <tr><td><kbd>Shift</kbd>+<kbd>F</kbd></td><td>Filmstrip: thumbnails of every frame under the timeline in the stepping order of the Frame tab, the border in the frame type's colour; click one to go to that frame (also the Filmstrip chip)</td></tr>
+      <tr><td><kbd>Shift</kbd>+<kbd>C</kbd></td><td>Coefficients of the selected block's first transform block, from the decoder's internals: the levels at their positions (the scan index on hover), the dequantized coefficients and the residual as three grids (amber positive, cyan negative), and a strip that follows the pointer: level × dqv, dequantized, inverse transform, residual, + prediction, reconstruction. It says what the dumper could give (exact, derived from the dequantized values, or not available as for TCQ blocks). <kbd>←</kbd> <kbd>→</kbd> step through the block's transform blocks. Also a row of the Block tab's Transform blocks section, which lists every transform block of the block (plane, position, size, type, eob, nonzero count)</td></tr>
+      <tr><td><kbd>Shift</kbd>+<kbd>N</kbd></td><td>With decoder internals: fill blocks by their number of nonzero coefficients (all planes the block carries, log scale; dark = coefficients read but all zero)</td></tr>
+      <tr><td><kbd>Shift</kbd>+<kbd>X</kbd> <kbd>Shift</kbd>+<kbd>L</kbd></td><td>With decoder internals: the transform blocks the decoder read (Tx blocks), and the deblocking edges it filtered coloured by filter length (Edges), luma. A frame without internals marks these chips off and their tooltip says why</td></tr>
+      <tr><td><kbd>Alt</kbd>+click</td><td>On the picture: open the deblocking edge within 4 pixels of the pointer in the Edge dialog: the kernel's filter lengths and thresholds, what it changed, and the samples before and after it (<kbd>←</kbd> <kbd>→</kbd> step through the frame's edges), the decision flags in words (bS, dE, the unfiltered sides) and both sides' blocks with their prediction blocks and MVs where the analysis has them. VVC: the dumper writes no sample windows (the VTM trace has none), so the dialog shows the parameters and decisions only. The Block tab's Edges section lists the selected block's left, top and inner edges. A frame without internals: the local app computes them with Compute in the Block tab; a bundle gets them from <code>python -m vca export --internals-frames</code></td></tr>
+      <tr><td><kbd>Shift</kbd>+<kbd>O</kbd></td><td>Entropy decoder (AV2, AV1, VP9, AVC), from the decoder's internals: the range and the value register after every arithmetic decode operation of this frame (or of the selected block's symbols) as a plot over the operation index with an overview of the whole frame, and the chosen operation's state before and after in decimal, hex and bits, the CDF or probability it read, its symbol and block. <kbd>←</kbd> <kbd>→</kbd> step one operation, <kbd>Page Up</kbd> <kbd>Page Down</kbd> a window. Also "state" in a Syntax tab row, at that symbol's operations, and "Entropy…" on the Frame tab (the whole frame). A frame without them: the local app records them with Compute; a bundle gets them from <code>python -m vca export --internals-frames A-B --internals-kinds ec,cdf</code></td></tr>
+      <tr><td><kbd>Shift</kbd>+<kbd>P</kbd></td><td>Probabilities (AV2, AV1, VP9): the frame's entropy context, where it starts from (the default tables, a reference frame's final context, a 7:1 blend, a VP9 context slot), and every member (CDF or probability table) by name, each row as two bars of the symbols' probabilities, initial and final (of the frame or of one tile; VP9 also the loaded slot), with the stored values. "Changed only" keeps the members and rows that differ. Also "Probabilities…" on the Frame tab</td></tr>
+      <tr><td><kbd>Shift</kbd>+<kbd>V</kbd></td><td>Cands (AV2, AV1, VP9): arrows from the selected inter block's centre for every motion vector candidate of its lists, coloured by reference (dashed: the second MV of a pair), the entry its mode copies thick and white. The Block tab's Candidates section lists them per list: MV, weight, where the candidate came from, the copied entry and whether the block's MV equals it. AV2 and AV1 lists are the ones the decoder built (vca serve: Compute records them; bundles: <code>--internals-kinds cands</code>), VP9 lists are derived from the analysis by the libvpx rule. For an intra block the section is Intra neighbours: the samples above and left of the block before the loop filters (unfiltered: the decoder's edge filter is not applied), with which are available, on vca serve</td></tr>
       <tr><td><kbd>k</kbd></td><td>Export: the picture as PNG (current view or whole frame), frames and blocks as CSV, and with the local GUI symbols, stats, units and the stream report</td></tr>
       <tr><td><kbd>o</kbd></td><td>Open a stream file and analyze it (local GUI, <code>vca serve</code>)</td></tr>
       <tr><td><kbd>l</kbd></td><td>Library: the analyses kept by the local GUI</td></tr>
@@ -218,9 +227,11 @@ python -m vca export stream.vca -o bundle/</pre>
           <option value="auto">Auto</option><option value="av2">AV2</option><option value="av1">AV1</option><option value="vvc">VVC</option>
           <option value="hevc">HEVC</option><option value="vp9">VP9</option><option value="avc">AVC</option></select></label>
       <label class="opt"><span>Frames</span>
-        <span class="opt-pair"><select id="optFramesMode" title="Analyze the whole stream, or only its first frames in decode order (faster for long streams; the reference decoder check is then skipped)">
-          <option value="all">All frames</option><option value="first">First frames only</option></select>
-        <input type="number" id="optFrames" min="1" step="1" value="10" hidden aria-label="Number of frames" title="How many frames to analyze, counted in decode order"></span></label>
+        <span class="opt-pair"><select id="optFramesMode" title="Analyze the whole stream, only its first frames in decode order (the reference decoder check is then skipped), or a range of temporal units (decoded from a random access point, checked with the reference decoder)">
+          <option value="all">All frames</option><option value="first">First frames only</option><option value="range" id="optRangeOpt">Range of temporal units</option></select>
+        <input type="number" id="optFrames" min="1" step="1" value="10" hidden aria-label="Number of frames" title="How many frames to analyze, counted in decode order">
+        <span class="opt-range" id="optRange" hidden><input type="number" id="optTuA" min="0" step="1" value="0" aria-label="First temporal unit of the range (A)" title="A: the first temporal unit of the range, counted from 0">
+          <span class="opt-to">to</span><input type="number" id="optTuB" min="0" step="1" value="0" aria-label="Last temporal unit of the range (B)" title="B: the last temporal unit of the range (included)"></span></span></label>
       <label class="opt"><span>Pixel stages</span>
         <select id="optPixels" title="All stages keeps prediction, before loop filters and output pictures; Output only uses less disk">
           <option value="all">All stages</option><option value="recon">Output only</option></select></label>
@@ -228,6 +239,7 @@ python -m vca export stream.vca -o bundle/</pre>
       <label class="check"><input type="checkbox" id="optCrossdec" title="Also compare with a second, independent decoder (AV1 dav1d, VVC VVdeC, FFmpeg for HEVC, VP9 and AVC)"> Also check with a second decoder</label>
       <label class="check"><input type="checkbox" id="optHw" checked title="Estimate HW cycles and reference fetch with the example config (a draft model; ARCH_MODEL.md in the VC Analyzer folder says how it counts)"> HW model (draft)</label>
       <p class="opt-note" id="framesNote" hidden></p>
+      <p class="opt-note problem" id="rangeProblem" role="alert" hidden></p>
     </fieldset>
     <p class="status-line" id="forcedNote" hidden></p>
     <div class="recent" id="recentBox" hidden>
@@ -297,6 +309,7 @@ python -m vca export stream.vca -o bundle/</pre>
       <button role="tab" type="button" data-view="dist" title="How the blocks of this frame or of the whole stream split by mode and by block size, counted by blocks, area or bits">Distributions</button>
       <button role="tab" type="button" data-view="mv" title="Scatter of the motion vectors of the frame on screen">Motion vectors</button>
       <button role="tab" type="button" data-view="search" title="Find blocks by mode, size, QP or qindex, bits and skip, in this frame or the whole stream">Block search</button>
+      <button role="tab" type="button" data-view="buffer" title="Coded picture buffer of the HEVC / AVC hypothetical reference decoder: fullness over time against the CPB size, from the SPS HRD parameters and the buffering period and picture timing SEI">Buffer</button>
     </nav>
     <section class="gr-pane" id="grPane-frames" aria-label="Frame graphs">
       <div class="gr-tools">
@@ -363,6 +376,30 @@ python -m vca export stream.vca -o bundle/</pre>
       <div class="grs-wrap"><table class="grid grs-table"><thead><tr><th class="num">Frame</th><th>Block</th><th>Mode</th><th class="num" title="Block QP or qindex">Q</th><th class="num">Bits</th></tr></thead><tbody id="grsResults"></tbody></table></div>
       <p class="fine gr-note">Luma and shared blocks only (a separate chroma tree is not searched). Clicking a result closes this dialog, goes to the frame and selects the block as a click on the picture does; Shift+G opens the dialog again with the same results.</p>
     </section>
+    <section class="gr-pane" id="grPane-buffer" aria-label="Coded picture buffer" hidden>
+      <p class="gr-fact" id="grBufInfo" aria-live="polite"></p>
+      <div class="gr-scroll" id="grBufBox"><svg id="grBuf" role="img" aria-label="CPB fullness over time with the CPB size"></svg></div>
+      <p class="fine gr-scrollhint" id="grBufScroll" hidden></p>
+      <div class="gr-legend" id="grBufLegend"></div>
+      <p class="fine gr-note" id="grBufNote"></p>
+    </section>
+  </div>
+</dialog>
+
+<dialog id="issuesDialog" class="dialog gr-dialog is-dialog" aria-labelledby="isTitle">
+  <div class="dialog-inner">
+    <div class="dialog-head">
+      <h2 id="isTitle">Issues</h2>
+      <button class="icon-btn" type="button" data-act="close" title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <p class="sub" id="isSub"></p>
+    <div class="gr-tools is-filters" id="isFilters" hidden></div>
+    <p class="status-line is-state" id="isState" aria-live="polite" hidden></p>
+    <div class="is-list" id="isList" tabindex="0" role="listbox" aria-label="Issues of the analysis" title="Click an issue to go to its frame or unit, or select one with the up and down arrow keys and press Enter" hidden></div>
+    <p class="note" id="isMore" hidden></p>
+    <section class="is-notrun-box" id="isPart" aria-label="Checks that ran in part" hidden></section>
+    <section class="is-notrun-box" id="isNotRun" aria-label="Checks that did not run" hidden></section>
+    <p class="fine gr-note">Errors: the stream breaks a rule or the decoder stopped. Warnings: something to look at, such as a reference that names more than one frame, or an analyzer check (its name starts with "analyzer.") that found the analysis inconsistent with itself, which says nothing about the stream. The same list comes from <code>python -m vca check</code> and the MCP tool get_issues. Clicking a row closes this dialog and goes there; Shift+E opens it again with the same filters and row.</p>
   </div>
 </dialog>
 
@@ -398,6 +435,54 @@ python -m vca export stream.vca -o bundle/</pre>
     <p class="sub" id="dcSub"></p>
     <nav class="gr-views" role="tablist" id="dcViews" aria-label="Decoder state view"></nav>
     <section class="dc-body" id="dcBody" aria-label="Decoder state of the frame on screen"></section>
+  </div>
+</dialog>
+
+<dialog id="coefDialog" class="dialog gr-dialog cf-dialog" aria-labelledby="cfTitle">
+  <div class="dialog-inner">
+    <div class="dialog-head">
+      <h2 id="cfTitle">Coefficients</h2>
+      <button class="icon-btn" type="button" data-act="close" title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <p class="sub" id="cfSub"></p>
+    <section class="cf-body" id="cfBody" aria-label="Coefficients of the transform block"></section>
+    <p class="fine gr-note">Point at a cell (tap on a phone) to follow it through the decoder stages in the strip. The values come from the dumper run with <code>--internals</code> (python -m vca coeffs prints the same); the residual is the decoded picture after minus before the inverse transform, so it is clipped where the sum clips.</p>
+  </div>
+</dialog>
+
+<dialog id="edgeDialog" class="dialog gr-dialog eg-dialog" aria-labelledby="egTitle">
+  <div class="dialog-inner">
+    <div class="dialog-head">
+      <h2 id="egTitle">Deblocking edge</h2>
+      <button class="icon-btn" type="button" data-act="close" title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <p class="sub" id="egSub"></p>
+    <section class="eg-body" id="egBody" aria-label="The kernel segment"></section>
+    <p class="fine gr-note">One segment is the lines of one kernel call the dumper records together (4 lines; HEVC, VVC and AVC 2). The values come from the dumper run with <code>--internals</code> (python -m vca deblock prints the same).</p>
+  </div>
+</dialog>
+
+<dialog id="ecDialog" class="dialog gr-dialog ec-dialog" aria-labelledby="ecTitle">
+  <div class="dialog-inner">
+    <div class="dialog-head">
+      <h2 id="ecTitle">Entropy decoder</h2>
+      <button class="icon-btn" type="button" data-act="close" title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <p class="sub" id="ecSub"></p>
+    <section class="ec-body" id="ecBody" aria-label="The arithmetic decoder's state per operation"></section>
+    <p class="fine gr-note">The state after every arithmetic decode operation, from the dumper run with <code>--internals ec</code> (python -m vca ecstate prints the same; <code>--check</code> replays the frame from its bytes with the spec's engine).</p>
+  </div>
+</dialog>
+
+<dialog id="cdfDialog" class="dialog gr-dialog cd-dialog" aria-labelledby="cdTitle">
+  <div class="dialog-inner">
+    <div class="dialog-head">
+      <h2 id="cdTitle">Probabilities</h2>
+      <button class="icon-btn" type="button" data-act="close" title="Close (Esc)" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <p class="sub" id="cdSub"></p>
+    <section class="cd-body" id="cdBody" aria-label="The frame's CDF and probability tables"></section>
+    <p class="fine gr-note">The frame's entropy context as the decoder holds it, from the dumper run with <code>--internals cdf</code> (python -m vca cdf prints the same).</p>
   </div>
 </dialog>
 
@@ -509,7 +594,7 @@ python -m vca export stream.vca -o bundle/</pre>
 </aside>
 <div class="toast-pop" id="appToast" role="status" aria-live="polite" hidden></div>
 
-<script type="module" src="js/main.js?v=9ce97af84e"></script>
+<script type="module" src="js/main.js?v=3e8d1a839f"></script>
 <script>
   // Browsers do not run module scripts from file://: say so instead of showing a blank page.
   if (location.protocol === 'file:') {

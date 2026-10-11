@@ -2,10 +2,10 @@
 // Filmstrip chip).  Thumbnails are the luma rows of planes/<f>.recon.png, scaled down in the browser, loaded only
 // when they scroll into the strip and two at a time; the border is the frame type's colour, the frame on screen is
 // marked, a click goes to the frame, and the strip follows the decode / output order of the Frame tab.
-import { state } from './state.js?v=9ce97af84e';
-import { $, esc, FRAME_COLORS, typeName } from './util.js?v=9ce97af84e';
-import { getBlob } from './data.js?v=9ce97af84e';
-import { orderedFrames, selectFrame } from './frames.js?v=9ce97af84e';
+import { state } from './state.js?v=3e8d1a839f';
+import { $, esc, FRAME_COLORS, typeName } from './util.js?v=3e8d1a839f';
+import { getBlob } from './data.js?v=3e8d1a839f';
+import { orderedFrames, selectFrame } from './frames.js?v=3e8d1a839f';
 
 const TH = 54;          // thumbnail height in CSS px (the width follows the picture's aspect ratio, at most 2:1)
 const PARALLEL = 2;     // thumbnails decoded at the same time

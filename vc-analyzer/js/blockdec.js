@@ -1,13 +1,14 @@
 // F-c track B (R49, T-0049): decoder decisions drawn on the picture and listed in the Block / Frame tabs:
 // intra direction arrows (F14, angles.js), transform type fill (F17) and inter mode fill and rows (F15, modes.js),
 // slice / tile / segment boundaries (F12, regions.js).
-import { C, codecOf, FILLS, LINES, state } from './state.js?v=9ce97af84e';
-import { esc } from './util.js?v=9ce97af84e';
-import { intraMarks, vecDegrees } from './angles.js?v=9ce97af84e';
-import { blockIndex, interRowsHtml, modesSnap, txRowHtml } from './modes.js?v=9ce97af84e';
-import { hasSegments, regionRowHtml, regionsSectionHtml, regionsSnap } from './regions.js?v=9ce97af84e';
-import { isChromaBlock } from './frames.js?v=9ce97af84e';
-import { renderChips } from './controls.js?v=9ce97af84e';
+import { C, codecOf, FILLS, LINES, state } from './state.js?v=3e8d1a839f';
+import { esc } from './util.js?v=3e8d1a839f';
+import { intraMarks, vecDegrees } from './angles.js?v=3e8d1a839f';
+import { blockIndex, interRowsHtml, modesSnap, txRowHtml } from './modes.js?v=3e8d1a839f';
+import { hasSegments, regionRowHtml, regionsSectionHtml, regionsSnap } from './regions.js?v=3e8d1a839f';
+import { isChromaBlock } from './frames.js?v=3e8d1a839f';
+import { renderChips } from './controls.js?v=3e8d1a839f';
+import { internalsSectionsHtml } from './internals.js?v=3e8d1a839f';
 
 // ------------------------------------------------------------ intra marks (cached per frame payload)
 let marksCache = { p: null, m: null };
@@ -92,6 +93,8 @@ export function blockDecisionHtml(bi) {
     h += kv('Intra direction', esc(mk.map((m) => m.text).join(', ')), `${mk.length} prediction blocks, raster order`);
   }
   h += txRowHtml(b) + interRowsHtml(bi) + regionRowHtml(bi);
+  // F-g G2 (internals.js): the Transform blocks and Edges sections, full-width rows of the same list
+  h += internalsSectionsHtml(bi);
   return h;
 }
 // A section for the Frame tab (slices, tiles, segments of the frame).

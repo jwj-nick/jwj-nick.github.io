@@ -1,8 +1,8 @@
 // Pixel planes: stacked Y/U/V PNG -> sample arrays -> pictures, and sample values under the pointer.
 // F-b track Y (R49): the picture's component, colour matrix and range (F23), exact samples above 8 bits (F24).
-import { frameMeta, perfMark, state } from './state.js?v=9ce97af84e';
-import { clamp } from './util.js?v=9ce97af84e';
-import { getBlob } from './data.js?v=9ce97af84e';
+import { frameMeta, perfMark, state } from './state.js?v=3e8d1a839f';
+import { clamp } from './util.js?v=3e8d1a839f';
+import { getBlob } from './data.js?v=3e8d1a839f';
 
 // ------------------------------------------------------------- planes
 async function decodePng(blob) {
@@ -52,21 +52,24 @@ export async function loadPlanes(f, stage, variant = '') {
   const g = geometry(f);
   const img = await decodePng(await getBlob(planePath(f, stage, variant)));
   const planes = { w: g.w, h: g.h, cw: g.cw, ch: g.ch, ssx: g.ssx, ssy: g.ssy, ...unstack(img, g.w, g.h, g.cw, g.ch, g.mono) };
-  state.planeCache.set(key, planes);
-  if (state.planeCache.size > 48) state.planeCache.delete(state.planeCache.keys().next().value);
+  state.planeCache.set(key, planes, planeBytes(planes));   // byte budget, the frame on screen stays (state.js)
   return planes;
 }
+// bytes of the sample arrays a planes object holds
+const planeBytes = (p) => (p ? ['Y', 'U', 'V'].reduce((n, P) => n + (p[P] ? p[P].byteLength : 0), 0) : 0);
 
 // ------------------------------------------------------- exact samples (F24)
 // At 8 bits the view PNG holds the samples.  Above 8 bits the view PNG holds v >> (bd − 8) and
 // planes/<f>.<stage>.lo.png the bits it loses (SERVER_API.md §16): v = (view << (bd − 8)) | lo, kept as
 // Uint16Array.  A frame without a .lo.png (a sample >= 2^bd) keeps the 8-bit view values, marked exact: false.
-// Loaded only on request (the sample grid, a hover above 8 bits, A − B values).  One cache per opened manifest.
-const exactStore = new WeakMap();
-function exactMap() {
-  let m = exactStore.get(state.manifest);
-  if (!m) { m = new Map(); exactStore.set(state.manifest, m); }
-  return m;
+// Loaded only on request (the sample grid, a hover above 8 bits, A − B values).  Kept in state.planeCache as
+// "x:<f>:<stage>:<variant>" (F-e: one byte budget with the view planes; was 12 entries), each entry tagged with
+// its manifest so a stream opened since never sees them.
+const exactKey = (f, stage, variant) => `x:${f}:${stage}:${variant}`;
+function exactEntry(key) {
+  if (!state.planeCache.has(key)) return null;
+  const e = state.planeCache.get(key);
+  return e.man === state.manifest ? e : null;
 }
 // bit depth of frame f: its payload when loaded, else the sequence's
 export function frameBitDepth(f) {
@@ -74,9 +77,9 @@ export function frameBitDepth(f) {
   return (p && p.frame && p.frame.bit_depth) || ((state.manifest.stream.sequence || {}).bit_depth) || 8;
 }
 export function loadExact(f, stage, variant = '') {
-  const m = exactMap(), key = f + ':' + stage + ':' + variant;
-  if (m.has(key)) return m.get(key).promise;
-  const e = { planes: undefined, promise: null };
+  const key = exactKey(f, stage, variant), had = exactEntry(key);
+  if (had) return had.promise;
+  const e = { planes: undefined, promise: null, man: state.manifest };
   e.promise = (async () => {
     const bd = frameBitDepth(f);
     const view = await loadPlanes(f, stage, variant);
@@ -87,14 +90,15 @@ export function loadExact(f, stage, variant = '') {
     const lo = unstack(img, g.w, g.h, g.cw, g.ch, g.mono);
     const join = (v, l) => { if (!v || !l) return null; const o = new Uint16Array(v.length); for (let i = 0; i < v.length; i++) o[i] = (v[i] << shift) | l[i]; return o; };
     return { ...view, Y: join(view.Y, lo.Y), U: join(view.U, lo.U), V: join(view.V, lo.V), bd, exact: true };
-  })().then((v) => { e.planes = v; return v; }, () => { e.planes = null; return null; });
-  m.set(key, e);
-  if (m.size > 12) m.delete(m.keys().next().value);   // a 1080p 4:2:0 frame above 8 bits holds 6 MB here
+  })().then((v) => { e.planes = v; state.planeCache.resize(key, e, planeBytes(v)); return v; }, () => { e.planes = null; return null; });
+  // stored before its samples arrive (one load per key); its bytes when they do (a 1080p 4:2:0 frame above 8 bits:
+  // 6 MB; at 8 bits the view's arrays, counted again)
+  state.planeCache.set(key, e, 0);
   return e.promise;
 }
 // the exact planes when loaded, undefined while not asked for or loading, null when they could not be read
 function exactNow(f, stage, variant, start) {
-  const e = exactMap().get(f + ':' + stage + ':' + variant);
+  const e = exactEntry(exactKey(f, stage, variant));
   if (e) return e.planes;
   if (start) loadExact(f, stage, variant);
   return undefined;

@@ -1,12 +1,12 @@
 // The Library dialog (SERVER_API.md §5): every analysis the server lists, a
 // filter, Open, and Delete with an inline confirmation for workspace entries.
-import { state } from './state.js?v=9ce97af84e';
-import { $, esc, fmt } from './util.js?v=9ce97af84e';
-import { caps, streamLabel } from './data.js?v=9ce97af84e';
-import { api, asProblem, fmtBytes, fmtDate, problemHTML, server, toast } from './api.js?v=9ce97af84e';
-import { closeStream, openStreamAt, refreshStreams } from './source.js?v=9ce97af84e';
-import { openStreamDialog, showServerEmpty } from './open.js?v=9ce97af84e';
-import { openCompare } from './compare.js?v=9ce97af84e';
+import { state } from './state.js?v=3e8d1a839f';
+import { $, esc, fmt } from './util.js?v=3e8d1a839f';
+import { caps, streamLabel } from './data.js?v=3e8d1a839f';
+import { api, asProblem, fmtBytes, fmtDate, problemHTML, server, toast } from './api.js?v=3e8d1a839f';
+import { closeStream, openStreamAt, refreshStreams } from './source.js?v=3e8d1a839f';
+import { openStreamDialog, showServerEmpty } from './open.js?v=3e8d1a839f';
+import { openCompare } from './compare.js?v=3e8d1a839f';
 
 let confirmId = null, loadErr = null;
 const rowErr = new Map();
@@ -99,7 +99,8 @@ function row(e, cur) {
   // analyses given on the command line were not checked by this server: not "skipped" by choice
   const v = e.kind !== 'workspace' && e.verify && e.verify.status === 'skipped'
     ? ['not checked', '', 'Opened from the command line: this server did not run the reference decoder check (vca validate <dir> --refdec does)']
-    : (e.verify && VERIFY[e.verify.status]) || ['–', '', 'Not checked'];
+    : e.verify && e.verify.window && e.verify.window.status === 'fail' ? ['range failed', 'bad', e.verify.window.detail]
+      : (e.verify && VERIFY[e.verify.status]) || ['–', '', 'Not checked'];
   const second = e.verify && e.verify.second && e.verify.second.status === 'fail' ? e.verify.second : null;
   const where = e.kind === 'diff' ? pairSource(e) : entrySource(e);
   let act;

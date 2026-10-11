@@ -3,12 +3,12 @@
 // Jobs live on the server, so the tray comes back after a reload: it shows
 // the jobs that are queued or running, the ones this page saw running, and
 // the ones that ended in the minute before the page loaded.
-import { state } from './state.js?v=9ce97af84e';
-import { $, esc } from './util.js?v=9ce97af84e';
-import { caps, folderOf, streamLabel, streamTitle } from './data.js?v=9ce97af84e';
-import { api, apiText, fmtSeconds, parseTime, problemHTML, server, toast } from './api.js?v=9ce97af84e';
-import { openStreamAt, refreshStreams } from './source.js?v=9ce97af84e';
-import { archJobEnded } from './hw.js?v=9ce97af84e';
+import { state } from './state.js?v=3e8d1a839f';
+import { $, esc } from './util.js?v=3e8d1a839f';
+import { caps, folderOf, streamLabel, streamTitle } from './data.js?v=3e8d1a839f';
+import { api, apiText, fmtSeconds, parseTime, problemHTML, server, toast } from './api.js?v=3e8d1a839f';
+import { openStreamAt, refreshStreams } from './source.js?v=3e8d1a839f';
+import { archJobEnded } from './hw.js?v=3e8d1a839f';
 
 const rows = new Map();   // job id -> row record (see record())
 const LOADED = Date.now();
@@ -22,6 +22,28 @@ const isArch = (j) => j.kind === 'arch';
 // Convert jobs (SERVER_API.md §13.2): a dump or a raw YUV file becomes analysis B; with job.compare the
 // page opens that A-vs-B entry when the job ends (not B alone when it becomes ready).
 const isConvert = (j) => j.kind === 'convert';
+// Internals jobs (SERVER_API.md section 21): the dumper runs again on an open analysis; the Block tab sections and
+// the Coefficients, Entropy and Probabilities dialogs read the result (they never open a stream).
+const isInternals = (j) => j.kind === 'internals';
+const INTERNALS_WORDS = { coef: 'coefficients', resid: 'residual', dbk: 'deblocking', dbk_samples: 'deblocking samples', ec: 'entropy decoder state', cdf: 'probability tables', cands: 'motion vector candidates' };
+// where each kind is shown once recorded (the outcome line names only the places of the kinds the job made, each
+// place once: the places are deduplicated one by one, not as whole phrases)
+const INTERNALS_WHERE = { coef: ['the Block tab', 'the Coefficients dialog'], resid: ['the Coefficients dialog'], dbk: ['the Block tab', 'the Edge dialog'], dbk_samples: ['the Edge dialog'], ec: ['the Entropy dialog'], cdf: ['the Probabilities dialog'], cands: ['the Block tab\'s Candidates section', 'the Cands chip'] };
+// "the Block tab, the Coefficients dialog and the Edge dialog show them" (one place: "shows")
+function internalsWhere(j) {
+  const places = [...new Set(((j.options || {}).kinds || []).flatMap((k) => INTERNALS_WHERE[k] || []))];
+  if (!places.length) places.push('the Block tab');
+  const list = places.length > 1 ? `${places.slice(0, -1).join(', ')} and ${places[places.length - 1]}` : places[0];
+  return `${list} show${places.length > 1 ? '' : 's'} them`;
+}
+function internalsWhat(j) {
+  const o = j.options || {}, ks = o.kinds || [];
+  const four = ['coef', 'resid', 'dbk', 'dbk_samples'].every((k) => ks.includes(k));
+  const words = (four ? ['coefficients and deblocking'] : []).concat(ks.filter((k) => !four || !['coef', 'resid', 'dbk', 'dbk_samples'].includes(k)).map((k) => INTERNALS_WORDS[k] || k));
+  const fr = String(o.frames || '').split('-');
+  const list = words.length > 1 ? `${words.slice(0, -1).join(', ')} and ${words[words.length - 1]}` : words[0];
+  return `${list || 'decoder internals'} of frame${fr.length > 1 && fr[0] !== fr[1] ? `s ${fr[0]} to ${fr[1]}` : ` ${fr[0]}`}`;
+}
 const targetOf = (j) => (isConvert(j) && j.compare ? j.compare : j.analysis);
 const COLLAPSE_MS = 6000;   // the tray folds to its header this long after the last active job ends
 const LONG_LINE = 140;      // outcome lines longer than this are clamped, the full text in the tooltip
@@ -39,7 +61,7 @@ export function jobsSnap() {
     tray: { shown: !$('#jobTray').hidden, expanded },
     list: [...rows.values()].map((r) => ({ id: r.job.id, state: r.job.state, phase: r.job.phase, fraction: r.job.fraction,
       ready: !!r.job.ready, analysis: r.job.analysis || null, shown: shown(r), fromPage: r.fromPage,
-      error: r.job.error ? r.job.error.code : null })),
+      error: r.job.error ? r.job.error.code : null, kind: r.job.kind || 'analyze', words: phaseText(r.job) })),
   };
 }
 
@@ -147,7 +169,7 @@ async function merge(list) {
     if (!r) { r = record(j); rows.set(j.id, r); }
     r.job = j; r.at = performance.now();
     if (isActive(j)) r.seen = true;
-    if (j.ready && j.analysis && !(prev && prev.ready) && r.seen && !isArch(j) && !isConvert(j)) ready.push(r);
+    if (j.ready && j.analysis && !(prev && prev.ready) && r.seen && !isArch(j) && !isConvert(j) && !isInternals(j)) ready.push(r);
     if (isConvert(j) && !isActive(j) && r.seen && !r.convDone) convEnded.push(r);
     if (!isActive(j) && prev && isActive(prev)) ended.push(r);
     if (isArch(j) && !isActive(j) && r.seen && !r.archDone) archEnded.push(r);
@@ -305,11 +327,11 @@ function shown(r) {
 const phaseOf = (j, name) => ((j.phases || []).find((p) => p.name === name) || {}).state;
 
 const slotOf = (j) => ((j.options && j.options.slot) === 'b' ? 'comparison B' : 'A');
-const PHASE_WORDS = { probe: 'reading the file', extract: 'extracting the video track', decode: 'decoding', ingest: 'building the store', hw: 'running the HW model', verify: 'checking against the reference decoder',
-  convert: 'converting B', compare: 'comparing with A' };
+const PHASE_WORDS = { probe: 'reading the file', extract: 'extracting the video track', cut: 'cutting the range', decode: 'decoding', ingest: 'building the store', hw: 'running the HW model', verify: 'checking against the reference decoder',
+  convert: 'converting B', compare: 'comparing with A', internals: 'recording the decoder internals' };
 function phaseText(j) {
   const pct = j.fraction === null || j.fraction === undefined ? '' : ` ${Math.round(j.fraction * 100)} %`;
-  if (j.state === 'queued') { const n = aheadOf(j); return n ? `Queued, ${n} ahead` : 'Starting…'; }
+  if (j.state === 'queued') { const n = aheadOf(j); return n ? `Queued, ${n} ahead` : isInternals(j) ? 'Recording decoder internals: starting…' : 'Starting…'; }
   if (j.state === 'failed') {
     const p = (j.phases || []).find((x) => x.state === 'failed');
     return `Failed${p && PHASE_WORDS[p.name] ? ' while ' + PHASE_WORDS[p.name] : ''}`;
@@ -318,9 +340,11 @@ function phaseText(j) {
   if (j.state === 'succeeded') return 'Done';
   if (isArch(j)) return `Calculating the HW model (draft), ${slotOf(j)}`;
   if (isConvert(j)) return j.phase === 'compare' ? 'Comparing with A' : `Converting B into an analysis${pct}`;
+  if (isInternals(j)) return `Recording decoder internals…${pct}`;
   switch (j.phase) {
     case 'probe': return 'Reading the file';
     case 'extract': return 'Extracting the video track with FFmpeg';
+    case 'cut': return 'Cutting the range at its random access point';
     case 'decode': return 'Decoding' + pct;
     case 'ingest': return 'Building the store' + pct;
     case 'hw': return 'HW model';
@@ -355,7 +379,8 @@ function jobName(j) {
 // The toast of a job of this page that failed: what it was and the server's sentence.
 function failText(r) {
   const j = r.job;
-  const what = isConvert(j) ? 'The comparison' : isArch(j) ? 'The HW model calculation' : `The analysis of ${jobName(j)}`;
+  const what = isConvert(j) ? 'The comparison' : isArch(j) ? 'The HW model calculation'
+    : isInternals(j) ? `Recording the ${internalsWhat(j)} of ${jobName(j)}` : `The analysis of ${jobName(j)}`;
   return `${what} failed${j.error && j.error.message ? `: ${j.error.message.replace(/\.$/, '')}` : ''}. The job list says more.`;
 }
 
@@ -384,6 +409,12 @@ function outcomeHTML(r) {
     else if (j.state === 'cancelled') out.push(textLine('Cancelled. The earlier HW model result stays.'));
     return out.join('');
   }
+  if (isInternals(j)) {
+    const what = internalsWhat(j);
+    if (j.state === 'succeeded') out.push(textLine((j.internals || {}).status === 'present' ? `The ${what} were there already.` : `Recorded the ${what}: ${internalsWhere(j)}.`, 'good'));
+    else if (j.state === 'cancelled') out.push(textLine('Cancelled. The internals made before stay.'));
+    return out.join('');
+  }
   if (j.state === 'cancelled') out.push(textLine(j.ready ? 'Cancelled during the check. The analysis is kept.' : 'Cancelled. Nothing was kept.'));
   if (j.ready && j.analysis && !entryOf(j) && !isActive(j)) {   // state.streams is the server's list (read before initJobs)
     out.push(textLine('The analysis was deleted from the Library.'));
@@ -392,11 +423,15 @@ function outcomeHTML(r) {
     const e = entryOf(j);
     const v = (e && e.verify) || {};
     const vs = phaseOf(j, 'verify');
-    const detail = v.detail ? textLine(v.detail, 'hint') : '';
-    if (v.status === 'ok') out.push('<span class="line good">Reference decoder: match</span>');
-    else if (v.status === 'fail') out.push('<span class="line bad">Reference decoder: mismatch</span>' + detail);
-    else if (v.status === 'skipped' || (vs === 'skipped' && !v.status)) out.push('<span class="line">Reference decoder: not checked</span>' + detail);
+    // a range (SERVER_API.md §7): the decoder check and the range check each have their own line
+    const w = v.window, ref = w ? (v.reference || {}) : v;
+    const detail = ref.detail ? textLine(ref.detail, 'hint') : '';
+    if (ref.status === 'ok') out.push('<span class="line good">Reference decoder: match</span>');
+    else if (ref.status === 'fail') out.push('<span class="line bad">Reference decoder: mismatch</span>' + detail);
+    else if (ref.status === 'skipped' || (vs === 'skipped' && !ref.status)) out.push('<span class="line">Reference decoder: not checked</span>' + detail);
     else if (j.state === 'succeeded' && vs === 'done') out.push('<span class="line">Reference decoder: checked</span>');
+    if (w && w.status === 'ok') out.push('<span class="line good">Range: decoded from its random access point</span>');
+    else if (w) out.push('<span class="line bad">Range: not decoded from its start</span>' + textLine(w.detail, 'hint'));
     // the second decoder is reported on its own (SERVER_API.md section 10.4): its known defects, such as
     // FFmpeg 6.1.1 on lossless CUs with SAO, must not read as a wrong analysis
     const s2 = v.second;
@@ -476,7 +511,8 @@ function updateRow(r) {
   const what = isArch(j) ? (ent ? streamTitle(state.streams.find((x) => x.id === j.analysis)) : (j.source && j.source.name) || j.analysis || j.id)
     : isConvert(j) ? (j.source && j.source.name) || j.analysis || j.id : jobName(j);
   const refS = isConvert(j) && state.streams.find((x) => x.id === ((j.source && j.source.ref) || (j.convert && j.convert.ref)));
-  name.textContent = isArch(j) ? `HW model ${slotOf(j)}: ${what}` : isConvert(j) ? `Compare ${what}${refS && refS.entry ? ` with ${streamTitle(refS)}` : ''}` : what;
+  name.textContent = isArch(j) ? `HW model ${slotOf(j)}: ${what}` : isConvert(j) ? `Compare ${what}${refS && refS.entry ? ` with ${streamTitle(refS)}` : ''}`
+    : isInternals(j) ? `Decoder internals: ${what}` : what;
   name.title = (j.source && (j.source.path || j.source.name)) || '';
   const e = entryOf(j);
   const codec = (e && e.codec) || r.codec;

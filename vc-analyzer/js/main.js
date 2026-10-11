@@ -34,33 +34,50 @@
  *   compare  Compare dialog: A from the library, B = another analysis, a dump mapping or a raw YUV file
  *   bitstream  Bitstream dialog: unit list, header elements with bit positions, hex dump
  *   graphs   Graphs dialog: frame size and bitrate, QP per frame, distributions, motion vectors, block search
+ *   issues   Issues dialog: located issues (issues.json), filters, a row goes to its frame, unit or block
+ *   internals  decoder internals of a frame (coef.json, resid.bin, dbk.json): nzc fill, Tx blocks and Edges
+ *            lines, Alt+click edge pick, the Block tab's Transform blocks and Edges sections, Compute
+ *   coefs    Coefficients dialog: levels, dequantized, residual grids and the stage strip
+ *   edges    Edge dialog: a deblocking segment's parameters, decisions and sample windows
+ *   entropy  Entropy dialog: the arithmetic decoder's range and value per operation (ec.json); reading and
+ *            Compute of the entropy internals for cdfs
+ *   cdfs     Probabilities dialog: the frame's CDF / probability tables initial and final (cdf.json)
+ *   cands    the Block tab's Candidates (motion vector candidate lists, cands.json) and Intra neighbours
+ *            (neighbours.json) sections, Compute, the Cands arrows of the selected block (Shift+V)
  *   main     boot, ?perf=1 run, window.__vca probe
  * open, jobs, library, compare and the HW editor need `vca serve` with jobs (caps.jobs; Library: caps.server)
  * and stay hidden and silent on the static site and in an opened folder.
  */
-import { C, FILLS, LINES, PERF, perf, state } from './state.js?v=9ce97af84e';
-import { setEmpty, setStatus } from './util.js?v=9ce97af84e';
-import { caps, discoverStreams, goneData, streamTitle } from './data.js?v=9ce97af84e';
-import { defaultStreamIdx, openSource, rememberUsed, renderPicker } from './source.js?v=9ce97af84e';
-import { isChromaBlock, orderedFrames, selectFrame } from './frames.js?v=9ce97af84e';
-import { canvas, isRenderPending } from './view.js?v=9ce97af84e';
-import { renderTab } from './inspector.js?v=9ce97af84e';
-import { parseHash } from './hash.js?v=9ce97af84e';
-import { wire } from './controls.js?v=9ce97af84e';
-import { loadHealth, loadSession, toast } from './api.js?v=9ce97af84e';
-import { initOpen, openSnap, showServerEmpty } from './open.js?v=9ce97af84e';
-import { GONE_MSG } from './source.js?v=9ce97af84e';
-import { initJobs, jobsSnap } from './jobs.js?v=9ce97af84e';
-import { initLibrary, librarySnap } from './library.js?v=9ce97af84e';
-import { hwSnap, initHw } from './hw.js?v=9ce97af84e';
-import { exportSnap, initExport } from './export.js?v=9ce97af84e';
-import { compareSnap, initCompare } from './compare.js?v=9ce97af84e';
-import { bitstreamSnap, initBitstream } from './bitstream.js?v=9ce97af84e';
-import { graphsSnap, initGraphs } from './graphs.js?v=9ce97af84e';
-import { initPixels, pixelsSnap } from './pixels.js?v=9ce97af84e';
-import { initQuality, qualitySnap } from './quality.js?v=9ce97af84e';
-import { decisionsSnap, initDecisions } from './blockdec.js?v=9ce97af84e';
-import { decoderSnap, initDecoder } from './decoder.js?v=9ce97af84e';
+import { C, FILLS, LINES, PERF, cacheSnap, perf, state } from './state.js?v=3e8d1a839f';
+import { setEmpty, setStatus } from './util.js?v=3e8d1a839f';
+import { caps, discoverStreams, goneData, streamTitle } from './data.js?v=3e8d1a839f';
+import { defaultStreamIdx, openSource, rememberUsed, renderPicker } from './source.js?v=3e8d1a839f';
+import { isChromaBlock, orderedFrames, selectFrame } from './frames.js?v=3e8d1a839f';
+import { canvas, isRenderPending } from './view.js?v=3e8d1a839f';
+import { renderTab } from './inspector.js?v=3e8d1a839f';
+import { parseHash } from './hash.js?v=3e8d1a839f';
+import { wire } from './controls.js?v=3e8d1a839f';
+import { loadHealth, loadSession, toast } from './api.js?v=3e8d1a839f';
+import { initOpen, openSnap, showServerEmpty } from './open.js?v=3e8d1a839f';
+import { GONE_MSG } from './source.js?v=3e8d1a839f';
+import { initJobs, jobsSnap } from './jobs.js?v=3e8d1a839f';
+import { initLibrary, librarySnap } from './library.js?v=3e8d1a839f';
+import { hwSnap, initHw } from './hw.js?v=3e8d1a839f';
+import { exportSnap, initExport } from './export.js?v=3e8d1a839f';
+import { compareSnap, initCompare } from './compare.js?v=3e8d1a839f';
+import { bitstreamSnap, initBitstream } from './bitstream.js?v=3e8d1a839f';
+import { graphsSnap, initGraphs } from './graphs.js?v=3e8d1a839f';
+import { initPixels, pixelsSnap } from './pixels.js?v=3e8d1a839f';
+import { initQuality, qualitySnap } from './quality.js?v=3e8d1a839f';
+import { decisionsSnap, initDecisions } from './blockdec.js?v=3e8d1a839f';
+import { decoderSnap, initDecoder } from './decoder.js?v=3e8d1a839f';
+import { initIssues, issuesSnap } from './issues.js?v=3e8d1a839f';
+import { initInternals, internalsSnap } from './internals.js?v=3e8d1a839f';
+import { coefsSnap, initCoefs } from './coefs.js?v=3e8d1a839f';
+import { edgesSnap, initEdges } from './edges.js?v=3e8d1a839f';
+import { entropySnap, initEntropy } from './entropy.js?v=3e8d1a839f';
+import { cdfsSnap, initCdfs } from './cdfs.js?v=3e8d1a839f';
+import { candsSnap } from './cands.js?v=3e8d1a839f';
 
 // ---------------------------------------------------------------- boot
 // A page without streams and without the local server (a site with no demos): what to do, named from the
@@ -76,7 +93,7 @@ async function boot() {
   if (h.stage) state.stage = h.stage;
   if (h.tab) state.tab = h.tab;
   wire();
-  initOpen(); initLibrary(); initHw(); initExport(); initCompare(); initBitstream(); initGraphs(); initPixels(); initQuality(); initDecisions(); initDecoder();
+  initOpen(); initLibrary(); initHw(); initExport(); initCompare(); initBitstream(); initGraphs(); initPixels(); initQuality(); initDecisions(); initDecoder(); initIssues(); initInternals(); initCoefs(); initEdges(); initEntropy(); initCdfs();
   renderTab();
   state.streams = await discoverStreams();
   if (caps.server) await loadSession();   // caps.jobs: Open stream, jobs, drop target
@@ -159,6 +176,14 @@ window.__vca = {
       quality: qualitySnap(), // F-b track X (read-only)
       decisions: decisionsSnap(), // F-c track B (read-only)
       decoder: decoderSnap(),     // F-c track C (read-only)
+      cache: cacheSnap(),         // F-e B2 (read-only): viewer cache bytes and budgets
+      issues: issuesSnap(),       // F-f S2 (read-only): Issues dialog, toolbar button, timeline ticks
+      internals: internalsSnap(), // F-g G2 (read-only): frame internals, Block tab sections, lines, Alt+click pick
+      coefs: coefsSnap(),         // F-g G2 (read-only): Coefficients dialog
+      edges: edgesSnap(),         // F-g G2 (read-only): Edge dialog
+      entropy: entropySnap(),     // F-g W56 (read-only): Entropy dialog
+      cdfs: cdfsSnap(),           // F-g W56 (read-only): Probabilities dialog
+      cands: candsSnap(),         // F-g W7 (read-only): Candidates / Intra neighbours sections, Cands arrows, chip
     };
   },
   // Client (CSS px) coordinates of the centre of luma pixel (x, y), for clicks.

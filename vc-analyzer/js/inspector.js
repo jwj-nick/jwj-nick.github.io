@@ -1,16 +1,17 @@
 // Inspector tabs: Block, Diff, Frame, Syntax, Stats, Stream.
-import { BASE_STAGES, C, frameMeta, hasCdef, kindLabel, STAGES, state, usesQp } from './state.js?v=9ce97af84e';
-import { $, esc, extText, fmt, refColor } from './util.js?v=9ce97af84e';
-import { stageDiffers } from './planes.js?v=9ce97af84e';
-import { focusStage } from './diff.js?v=9ce97af84e';
-import { blockAt, chromaAt, frameSummary, isChromaBlock, partitionPath } from './frames.js?v=9ce97af84e';
-import { ARCH_MODULES, archOf } from './arch.js?v=9ce97af84e';
-import { hasSymbols, symbolsOfBlock, symbolsReady, symtype } from './symbols.js?v=9ce97af84e';
-import { hwTabShown, renderHwTab } from './hw.js?v=9ce97af84e';
-import { blockDecisionHtml, frameRegionsHtml } from './blockdec.js?v=9ce97af84e';
-import { blockRefHtml, frameRefsHtml } from './refsview.js?v=9ce97af84e';
-import { bTitle, shownEntry, streamLabel } from './data.js?v=9ce97af84e';
-import { cuRows, oneStageText, psnrRampCss, psnrText, qualityOffered, samplesText } from './quality.js?v=9ce97af84e';
+import { BASE_STAGES, C, cdefText, frameMeta, hasCdef, kindLabel, STAGES, state, usesQp } from './state.js?v=3e8d1a839f';
+import { $, esc, extText, fmt, refColor } from './util.js?v=3e8d1a839f';
+import { stageDiffers } from './planes.js?v=3e8d1a839f';
+import { focusStage } from './diff.js?v=3e8d1a839f';
+import { blockAt, chromaAt, frameSummary, isChromaBlock, partitionPath } from './frames.js?v=3e8d1a839f';
+import { ARCH_MODULES, archOf } from './arch.js?v=3e8d1a839f';
+import { hasSymbols, symbolsOfBlock, symbolsReady, symtype } from './symbols.js?v=3e8d1a839f';
+import { hwTabShown, renderHwTab } from './hw.js?v=3e8d1a839f';
+import { blockDecisionHtml, frameRegionsHtml } from './blockdec.js?v=3e8d1a839f';
+import { blockRefHtml, frameRefsHtml } from './refsview.js?v=3e8d1a839f';
+import { bTitle, shownEntry, streamLabel } from './data.js?v=3e8d1a839f';
+import { cuRows, oneStageText, psnrRampCss, psnrText, qualityOffered, samplesText } from './quality.js?v=3e8d1a839f';
+import { hasCdf, hasEc } from './entropy.js?v=3e8d1a839f';
 
 // ------------------------------------------------------------ inspector
 export function blockObject(bi) {
@@ -54,12 +55,16 @@ function renderBlockTab() {
   const tx = [o.tx_size, o.tx_type].filter((v) => v !== undefined && v !== null && v !== '').map(esc).join(' ');
   facts += kvRow('Transform', tx || (o.skip_txfm ? 'none (skipped)' : '–')) + kvRow(usesQp() ? 'QP' : 'Qindex', fmt(o.qindex));
   if (o.segment_id) facts += kvRow('Segment', fmt(o.segment_id));
-  if (hasCdef()) facts += kvRow('CDEF index', fmt(o.cdef_idx));
+  if (hasCdef()) facts += kvRow('CDEF index', o.cdef_idx === -1 ? esc(cdefText(-1)) : fmt(o.cdef_idx));
   if (extra.angle_delta) facts += kvRow('Angle delta', `${extra.angle_delta[0]} / ${extra.angle_delta[1]}`, 'luma / chroma');
   if (extra.cfl) facts += kvRow('CfL', esc(JSON.stringify(extra.cfl)));
   if (extra.palette_size) facts += kvRow('Palette size', `${extra.palette_size[0]} / ${extra.palette_size[1]}`);
   facts += kvRow('Entropy bits', fmt(o.bits, 2), `${fmt(o.nsym)} symbols`);
-  facts += blockDecisionHtml(state.sel);   // F-c track B
+  // F-c track B; F-g: the decoder internals sections (Transform blocks, Edges: full-width kv-sec rows that
+  // blockdec.js appends) go to a list of their own after the facts
+  const dec = blockDecisionHtml(state.sel), cut = dec.indexOf('<dt class="kv-sec">');
+  facts += cut < 0 ? dec : dec.slice(0, cut);
+  const sections = cut < 0 ? '' : `<dl class="kv ix-sections">${dec.slice(cut)}</dl>`;
   const fp = filePosition(state.sel);
   if (fp) facts += kvRow('In the file', `bytes ${fmt(fp.b0)}–${fmt(fp.b1 - 1)} <button class="btn small" data-act="block-bytes" data-unit="${fp.unit}" title="Open the Bitstream dialog (u) at this unit with the block's bytes shaded">Show bytes</button>`,
     `unit ${fp.unit}${fp.runs > 1 ? `, ${fp.runs} runs of symbols` : ''}`);
@@ -95,6 +100,7 @@ function renderBlockTab() {
     <p class="sub">${o.w}×${o.h} luma pixels, ${esc(o.tree || '').toLowerCase()} tree, ${esc(o.partition || '')}</p>${auto}
     ${blockDiffHtml()}
     <dl class="kv">${facts}</dl>
+    ${sections}
     <div class="actions"><button class="btn" data-act="copy-ai">Copy for AI</button><button class="btn" data-act="copy-json">Copy JSON</button><span class="toast" id="toast"></span></div>
     ${companion}
     ${path.length ? `<h3>Partition path${chroma ? ' (chroma tree)' : ''}</h3><ol class="path">${path.map((n, i) => `<li style="--d:${i}" class="${i === path.length - 1 ? 'leaf' : ''}">${esc(n.bsize)} at (${n.x}, ${n.y}): ${esc(n.partition)}</li>`).join('')}</ol>` : ''}
@@ -166,7 +172,7 @@ function renderFrameTab() {
   const pps = (ex.vvc || ex.hevc || {}).pps;
   const ppsHtml = pps ? `<details class="ps"><summary>Picture parameter set (${Object.keys(pps).length} fields)</summary><dl class="kv">${obj(pps)}</dl></details>` : '';
   return `<h2>Frame ${fr.f}</h2><p class="sub">${esc(frameSummary())}</p>
-    <div class="actions"><button class="chip" data-act="order" aria-pressed="${state.order === 'output'}">Step through output order</button><button class="btn" data-act="copy-frame">Copy for AI</button><button class="btn" data-act="units" title="Every coded unit of the stream with its header elements and bytes in hex (u)">Units…</button><span class="toast" id="toast"></span></div>
+    <div class="actions"><button class="chip" data-act="order" aria-pressed="${state.order === 'output'}">Step through output order</button><button class="btn" data-act="copy-frame">Copy for AI</button><button class="btn" data-act="units" title="Every coded unit of the stream with its header elements and bytes in hex (u)">Units…</button>${hasEc() ? '<button class="btn" data-act="entropy" title="The entropy decoder of this frame: the range and value after every arithmetic decode operation, plotted, with the chosen operation\'s state before and after (Shift+O)">Entropy…</button>' : ''}${hasCdf() ? '<button class="btn" data-act="cdfs" title="The entropy context of this frame: where it starts from, and every CDF or probability table initial and final, per tile (Shift+P)">Probabilities…</button>' : ''}<span class="toast" id="toast"></span></div>
     <dl class="kv">${facts}</dl>
     ${frameRegionsHtml()}
     ${frameRefsHtml() || `<h3>References</h3>${refs ? `<table class="grid"><thead><tr><th>Reference</th><th class="num">Slot</th><th class="num">Order hint</th><th class="num" title="Decode index of the frame this reference holds">Frame</th></tr></thead><tbody>${refs}</tbody></table>` : '<p class="note">None: this frame reads no reference list.</p>'}`}
@@ -191,10 +197,13 @@ function renderSyntaxTab() {
     if (rows.length >= state.symLimit) break;
   }
   const total = q ? '' : ` of ${fmt(S.count)}`;
-  return `<h2>Symbol trace</h2><p class="sub">Every entropy-decoded symbol of frame ${state.f} in decode order. Click a row to select its block.</p>
+  // F-g W56 (entropy.js): "state" opens the Entropy dialog at the symbol's arithmetic decoder operations
+  const ec = hasEc();
+  const stateCell = (i) => (ec ? `<td class="ec-link"><button class="linkish" type="button" data-act="ec-sym" data-sym="${i}" title="Open the Entropy dialog at the arithmetic decoder operations of symbol ${i}: range and value before and after each (Shift+O)">state</button></td>` : '');
+  return `<h2>Symbol trace</h2><p class="sub">Every entropy-decoded symbol of frame ${state.f} in decode order. Click a row to select its block${ec ? '; "state" shows the arithmetic decoder while it read the symbol' : ''}.</p>
     <input class="search" id="symSearch" placeholder="Filter by element name, e.g. partition or eob" value="${esc(state.symFilter)}">
-    <table class="grid"><thead><tr><th class="num">n</th><th>Element</th><th class="num">Value</th><th class="num">Bits</th><th class="num">Block</th></tr></thead><tbody>
-    ${rows.map(([i, t]) => { const bi = S.block[i]; return `<tr class="clickable ${bi === state.sel && bi >= 0 ? 'cur' : ''}" data-block="${bi}"><td class="num">${i}</td><td title="${esc((t.file || '') + ':' + (t.line || ''))}">${esc(t.name)}</td><td class="num">${S.value[i] === -1 ? '–' : S.value[i]}</td><td class="num">${fmt(S.bits[i], 3)}</td><td class="num">${bi >= 0 ? bi : '–'}</td></tr>`; }).join('')}
+    <table class="grid"><thead><tr><th class="num">n</th><th>Element</th><th class="num">Value</th><th class="num">Bits</th><th class="num">Block</th>${ec ? '<th class="ec-link" title="The arithmetic decoder\'s state at this symbol (Entropy dialog)"><span class="visually-hidden">Decoder state</span></th>' : ''}</tr></thead><tbody>
+    ${rows.map(([i, t]) => { const bi = S.block[i]; return `<tr class="clickable ${bi === state.sel && bi >= 0 ? 'cur' : ''}" data-block="${bi}"><td class="num">${i}</td><td title="${esc((t.file || '') + ':' + (t.line || ''))}">${esc(t.name)}</td><td class="num">${S.value[i] === -1 ? '–' : S.value[i]}</td><td class="num">${fmt(S.bits[i], 3)}</td><td class="num">${bi >= 0 ? bi : '–'}</td>${stateCell(i)}</tr>`; }).join('')}
     </tbody></table>
     <p class="note">Showing ${fmt(rows.length)}${total}.${rows.length >= state.symLimit ? ' <button class="btn small" data-act="more">Show more</button>' : ''}</p>`;
 }
@@ -270,6 +279,20 @@ function chromaText(seq) {
 // The heading of the Stream tab: the stream's name in the Library (not the analysis id), else the bundle's title.
 const streamHeading = () => { const e = shownEntry(); return e ? streamLabel(e) : (state.manifest.title || state.manifest.stream.name); };
 
+// An analysis of a range of a longer stream (F-e 2, SERVER_API.md §7: the library entry's window):
+// which units of which file, where decoding started, and how its frame numbers map to the source's.
+function rangeText(codec) {
+  // a static bundle or an opened folder: the manifest carries the same summary (export.manifest stream.window)
+  const e = shownEntry(), w = (e && e.window) || state.manifest.stream.window;
+  if (!w || !w.tus) return '';
+  const word = ['hevc', 'vvc', 'avc'].includes(codec) ? 'access unit' : 'temporal unit';
+  const [a, b] = w.tus;
+  const start = w.rap === a ? `decoding started there, at a random access point` : `decoding started at the random access point at ${word} ${fmt(w.rap)}`;
+  const map = w.f0 === null || w.f0 === undefined ? ' The source frame numbers are not known without decoding the source.'
+    : w.f0 === 0 ? ' Frame numbers here are the source\'s.' : ` Frame f here = frame f + ${fmt(w.f0)} of the source (decode order).`;
+  return `Range: ${word}s ${fmt(a)}–${fmt(b)} of ${w.source || 'the source'} (${start}).${map}`;
+}
+
 function renderStreamTab() {
   const s = state.manifest.stream, seq = s.sequence || {};
   const codec = s.codec || '';
@@ -289,9 +312,11 @@ function renderStreamTab() {
   const types = new Map();
   units.forEach((u) => types.set(u.type_name, (types.get(u.type_name) || 0) + 1));
   const note = (state.streams[state.streamIdx] || {}).note;
+  const range = rangeText(codec);
   return `<h2>${esc(streamHeading())}</h2><p class="sub">${fmt(s.frames)} decoded frames, ${fmt(s.outputs)} output frames, ${fmt(units.length)} ${unitNoun()}s</p>
+    ${range ? `<p class="note range-line" id="rangeLine">${esc(range)}</p>` : ''}
     ${note ? `<p class="note">${esc(note)}</p>` : ''}
-    <div class="actions"><button class="btn" data-act="units" title="Every coded unit of the stream with its header elements and bytes in hex (u)">Units…</button><button class="btn" data-act="graphs" title="Frame size, bitrate and QP per frame, mode and block size distributions, motion vectors and block search (Shift+G)">Graphs…</button>${qualityOffered() ? '<button class="btn" data-act="quality" title="PSNR and SSIM per frame: between the pipeline stages of this analysis, or of B against A when comparing (Shift+Q)">Quality…</button>'
+    <div class="actions"><button class="btn" data-act="units" title="Every coded unit of the stream with its header elements and bytes in hex (u)">Units…</button><button class="btn" data-act="graphs" title="Frame size, bitrate and QP per frame, mode and block size distributions, motion vectors, block search and the HEVC / AVC coded picture buffer (Buffer) (Shift+G)">Graphs…</button>${qualityOffered() ? '<button class="btn" data-act="quality" title="PSNR and SSIM per frame: between the pipeline stages of this analysis, or of B against A when comparing (Shift+Q)">Quality…</button>'
       : `<button class="btn" data-act="quality" disabled aria-disabled="true" title="${esc(`Quality (Shift+Q) needs two pixel stages or a comparison. ${oneStageText()}`)}">Quality…</button>`}</div>
     <dl class="kv">${facts}</dl>
     <h3>Sequence tools enabled</h3><div>${(s.tools_enabled || []).map((t) => pill(t, true)).join('') || '<span class="note">none reported</span>'}</div>
@@ -354,6 +379,9 @@ function renderDiffTab() {
   const b = d.b || {};
   const head = `<h2>Frame ${state.f}: A vs B</h2><p class="sub">B = ${esc(bTitle(b))}${b.decoder ? `, ${esc(b.decoder)}` : ''}. Pixels are compared as exact samples.</p>`;
   if (!fd) return head + '<p class="note">Loading…</p>';
+  // a frame after the end of a short raw file (T-0061): not compared, not a mismatch
+  if (fd.not_in_file) return head + `<p id="diffNotInFile">Frame ${state.f} is not in B's file, so it is not compared.${d.partial ? ` ${esc(d.partial)}` : ''}</p>`
+    + (d.first_mismatch ? '<div class="actions"><button class="btn" data-act="goto-mismatch" title="Show the frame and stage of the first mismatch">Go to first mismatch</button></div>' : '');
   if (fd.equal) return head + '<p>This frame of B matches A: every pixel stage, block field and symbol is equal.</p>'
     + (d.first_mismatch ? '<div class="actions"><button class="btn" data-act="goto-mismatch">Go to first mismatch</button></div>' : '');
   const rows = ['pred', 'prefilter', 'recon'].filter((st) => fd.stages[st]).map((st) => {

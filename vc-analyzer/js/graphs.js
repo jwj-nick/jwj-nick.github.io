@@ -1,21 +1,23 @@
-// The Graphs dialog (FEATURES F29, F30, F31, F34, F07): frame size and bitrate per frame,
+// The Graphs dialog (FEATURES F29, F30, F31, F34, F07, F33): frame size and bitrate per frame,
 // the frame's base qindex or slice QP, mode and block size distributions, the motion vectors
-// of the frame on screen, and a block search.  Hand-written SVG, no library.
+// of the frame on screen, a block search, and the coded picture buffer of the HEVC / AVC
+// hypothetical reference decoder.  Hand-written SVG, no library.
 //
 // Every plotted number comes from the data contract: frame values from manifest.frames
 // (= `vca frames --json`), distributions of this frame from the Stats tab's histogram and of
 // the whole stream from `vca serve`'s stats table (= `vca stats --json`) or, without the server,
 // from every frames/<f>.json with the same rule (luma and shared blocks, area clipped to the
-// picture).  A click on a frame's column goes to that frame; the frame on screen is marked.
-import { C, qName, state, usesQp } from './state.js?v=9ce97af84e';
-import { $, esc, fmt, FRAME_COLORS, typeName } from './util.js?v=9ce97af84e';
-import { caps, getJSON, withToken } from './data.js?v=9ce97af84e';
-import { selectFrame, stepFrame } from './frames.js?v=9ce97af84e';
-import { histogram } from './inspector.js?v=9ce97af84e';
-import { pickBlock } from './controls.js?v=9ce97af84e';
+// picture), the buffer from hrd.json (vca/hrd.py, SERVER_API.md section 20; manifest.hrd names
+// it).  A click on a frame's column goes to that frame; the frame on screen is marked.
+import { C, qName, state, usesQp } from './state.js?v=3e8d1a839f';
+import { $, esc, fmt, FRAME_COLORS, typeName } from './util.js?v=3e8d1a839f';
+import { caps, getJSON, withToken } from './data.js?v=3e8d1a839f';
+import { selectFrame, stepFrame } from './frames.js?v=3e8d1a839f';
+import { histogram } from './inspector.js?v=3e8d1a839f';
+import { pickBlock } from './controls.js?v=3e8d1a839f';
 
 const dlg = () => $('#graphsDialog');
-const VIEWS = ['frames', 'dist', 'mv', 'search'];
+const VIEWS = ['frames', 'dist', 'mv', 'search', 'buffer'];
 const MV_CAP = 20000, DIST_ROWS = 20, HITS_KEPT = 5000, HITS_SHOWN = 500;
 const SERIES_COLORS = ['#4b8dff', '#e76f6f'];
 
@@ -28,6 +30,8 @@ let mv = null;                  // what the scatter shows (snap)
 let search = null;              // last search: {scope, hits, total, frames, done, note}
 let searchScope = 'frame', searchSeq = 0, searchProgress = '';
 let shownF = -1;                // frame whose current-frame views are drawn
+let buf = null;                 // the buffer view's data: {status: loading | ready | error, obj, error}
+let bufSeq = 0;
 
 const has = (v) => v !== null && v !== undefined && v !== '';
 const knownFps = () => { const s = (state.manifest && state.manifest.stream) || {}; return s.fps > 0 ? s.fps : null; };
@@ -62,6 +66,21 @@ export function graphsSnap() {
     search: search && { scope: search.scope, done: search.done, total: search.total, frames: search.frames, note: search.note,
       hits: search.hits.slice(0, HITS_SHOWN).map((h) => [h.f, h.x, h.y]), rows: d.querySelectorAll('#grsResults tr[data-hit]').length },
     searching: searchProgress,
+    buffer: bufferSnap(d),
+  };
+}
+function bufferSnap(d) {
+  const o = buf && buf.obj;
+  return {
+    key: state.manifest.hrd === undefined ? undefined : state.manifest.hrd, state: buf ? buf.status : null,
+    status: o ? o.status : null, reason: o ? o.reason : null, rows: o ? o.rows.length : 0,
+    cpb: o && o.parameters ? o.parameters.cpb_size : null, bitRate: o && o.parameters ? o.parameters.bit_rate : null,
+    drawn: d.querySelectorAll('#grBuf .gr-col').length, curve: d.querySelectorAll('#grBuf path.gr-buf').length,
+    marked: [...d.querySelectorAll('#grBuf .gr-col.here')].map((g) => +g.dataset.f),
+    violations: [...d.querySelectorAll('#grBuf .gr-viol')].map((g) => [g.dataset.kind, +g.dataset.f, +g.dataset.au]),
+    guides: [...d.querySelectorAll('#grBuf .gr-vguide')].map((g) => +g.dataset.au),
+    scrollHint: $('#grBufScroll') && !$('#grBufScroll').hidden ? $('#grBufScroll').textContent : '',
+    message: $('#grBufInfo') ? $('#grBufInfo').textContent : '',
   };
 }
 
@@ -72,7 +91,7 @@ export function openGraphs(v) {
   if (man !== state.manifest) {
     man = state.manifest; distStream.clear(); distStatus = ''; mv = null; search = null; searchProgress = ''; searchScope = 'frame';
     order = state.order === 'output' ? 'output' : 'decode';
-    distSeq++; searchSeq++;
+    distSeq++; searchSeq++; buf = null; bufSeq++;
   }
   if (VIEWS.includes(v)) view = v;
   if (!dlg().open) dlg().showModal();
@@ -85,10 +104,12 @@ function render() {
   dlg().querySelectorAll('#grViews [data-view]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.view === view)));
   for (const v of VIEWS) $(`#grPane-${v}`).hidden = v !== view;
   const s = state.manifest.stream || {};
-  $('#grSub').textContent = `${s.name || 'Stream'}: ${fmt(state.manifest.frames.length)} decoded frames, ${fmt(s.outputs)} output frames. Frame ${state.f} is on screen${view === 'frames' ? ' (marked); click a column to go to its frame, or use the left and right arrow keys' : ''}.`;
+  const clicks = view === 'frames' || (view === 'buffer' && buf && buf.obj && buf.obj.status === 'ran');
+  $('#grSub').textContent = `${s.name || 'Stream'}: ${fmt(state.manifest.frames.length)} decoded frames, ${fmt(s.outputs)} output frames. Frame ${state.f} is on screen${clicks ? ` (marked); click ${view === 'buffer' ? 'an access unit\'s column' : 'a column'} to go to its frame, or use the left and right arrow keys` : ''}.`;
   if (view === 'frames') renderFrames();
   else if (view === 'dist') renderDist();
   else if (view === 'mv') renderMv();
+  else if (view === 'buffer') renderBuffer();
   else renderSearch();
   shownF = state.f;
 }
@@ -259,6 +280,7 @@ function markFrame() {
     const w = Math.max(3, Math.min(g.slot - 2, g.bw + 10));
     svg.querySelector('.gr-marks').innerHTML = i < 0 ? '' : `<rect class="gr-mark" x="${(g.L + i * g.slot + g.slot / 2 - w / 2).toFixed(1)}" y="${g.T - 4}" width="${w.toFixed(1)}" height="${g.plotH + 8}" rx="3"/>`;
   }
+  markBuffer();
 }
 
 // ------------------------------------------------------------ distributions (F31)
@@ -521,6 +543,161 @@ function drawResults() {
     + `<td class="num">${h.f}</td><td>${esc(h.bsize)} at (${h.x}, ${h.y})</td><td>${esc(h.pred || '')} ${esc(h.mode || '')}</td><td class="num">${fmt(h.q)}</td><td class="num">${fmt(Math.round(h.bits * 100) / 100, 2)}</td></tr>`).join('');
 }
 
+// ------------------------------------------------------------ coded picture buffer (F33)
+// hrd.json (vca/hrd.py): rows [f, au, arrival_first, arrival_last, removal, bits, fullness_before,
+// fullness_after] per access unit in decoding order, times in seconds from the first bit of access
+// unit 0, fullness in bits; violations [{kind, f, au, sentence, ...}].
+const NO_HRD = {
+  av1: 'The AV1 decoder model (Annex E) is not drawn yet.',
+  av2: 'The AV2 decoder model (Annex E) is not drawn yet.',
+  vvc: 'The VVC HRD is not modelled yet.',
+  vp9: 'VP9 bitstreams carry no buffer model.',
+};
+const VIOL_WORD = { hrd_overflow: 'overflow', hrd_underflow: 'underflow', hrd_initial_delay: 'initial delay' };
+function noHrdText() {
+  const m = state.manifest, codec = (m.stream || {}).codec;
+  if (m.hrd === undefined) return 'This bundle was made before the buffer model existed (its manifest has no hrd key): export it again with vca export to see the buffer.';
+  if (NO_HRD[codec]) return `${NO_HRD[codec]} This view draws the coded picture buffer of the HEVC and AVC hypothetical reference decoder.`;
+  return 'This stream has no buffer model to draw: its SPS has no hrd_parameters, or it carries no buffering period SEI (or no SEI at all), so the hypothetical reference decoder cannot start (Issues, Shift+E, gives the reason under the checks that did not run). A stream with VUI hrd_parameters, a buffering period SEI and picture timing SEI shows its coded picture buffer here.';
+}
+async function loadBuffer() {
+  const my = ++bufSeq;
+  buf = { status: 'loading', obj: null, error: null };
+  drawBuffer();
+  try {
+    const o = await getJSON(state.manifest.hrd);
+    if (my !== bufSeq) return;
+    buf = { status: 'ready', obj: o, error: null };
+  } catch (e) {
+    if (my !== bufSeq) return;
+    buf = { status: 'error', obj: null, error: e.message };
+  }
+  if (dlg().open && view === 'buffer') render();
+}
+function renderBuffer() {
+  if (state.manifest.hrd && !buf) { loadBuffer(); return; }
+  drawBuffer();
+}
+const secText = (t) => String(+(+t).toFixed(6));
+// What the CPB holds at a moment, for a tooltip: a negative fullness is bits missing (an underflow), not a count.
+const holds = (bits) => { const v = Math.round(bits); return v < 0 ? `is ${fmt(-v)} bits short (underflow)` : `holds ${fmt(v)} bits`; };
+// The fullness curve: at every arrival start or end and every removal, the bits in the CPB just before
+// (and, at a removal, just after) that time, from the rows alone (arrivals are back to back in decoding
+// order at BitRate; a removal takes the access unit's bits out at its removal time).
+function bufferCurve(rows, R) {
+  const n = rows.length, cum = [0];
+  rows.forEach((r) => cum.push(cum[cum.length - 1] + r[5]));
+  const tafs = rows.map((r) => r[3]);
+  const byRm = rows.map((r) => [r[4], r[5]]).sort((a, b) => a[0] - b[0]), rmT = byRm.map((x) => x[0]), rmCum = [0];
+  byRm.forEach((x) => rmCum.push(rmCum[rmCum.length - 1] + x[1]));
+  const upper = (arr, t, strict) => { let lo = 0, hi = arr.length; while (lo < hi) { const m = (lo + hi) >> 1; if (strict ? arr[m] < t : arr[m] <= t) lo = m + 1; else hi = m; } return lo; };
+  const arrived = (t) => { const j = upper(tafs, t, false); return cum[j] + (j < n && rows[j][2] < t ? Math.min(rows[j][5], (t - rows[j][2]) * R) : 0); };
+  const ts = [...new Set([0, ...rows.flatMap((r) => [r[2], r[3], r[4]])])].sort((a, b) => a - b);
+  const pts = [];
+  for (const t of ts) {
+    const a = arrived(t), before = a - rmCum[upper(rmT, t, true)], after = a - rmCum[upper(rmT, t, false)];
+    pts.push([t, before]);
+    if (after !== before) pts.push([t, after]);
+  }
+  return pts;
+}
+function drawBuffer() {
+  const svg = $('#grBuf'), info = $('#grBufInfo'), note = $('#grBufNote'), legend = $('#grBufLegend');
+  const clear = (msg) => {
+    svg.innerHTML = ''; svg.setAttribute('width', 0); svg.setAttribute('height', 0); svg._geom = null;
+    legend.innerHTML = ''; note.textContent = ''; info.textContent = msg; scrollHint();
+  };
+  if (!state.manifest.hrd) { clear(noHrdText()); return; }
+  if (!buf || buf.status === 'loading') { clear('Reading the buffer model (hrd.json)…'); return; }
+  if (buf.status === 'error') { clear(`The buffer model could not be read: ${buf.error}.`); return; }
+  const o = buf.obj;
+  if (o.status !== 'ran' || !o.rows.length) { clear(`No buffer to draw: ${o.reason || 'the model did not run'}`); return; }
+  const p = o.parameters, rows = o.rows, R = p.bit_rate, S = p.cpb_size;
+  const pts = bufferCurve(rows, R);
+  const rm = rows.map((r) => r[4]).sort((a, b) => a - b);
+  const gaps = rm.slice(1).map((t, i) => t - rm[i]).filter((d) => d > 0).sort((a, b) => a - b);
+  const gap = gaps.length ? gaps[gaps.length >> 1] : (rm[0] || 1);
+  const tEnd = Math.max(rm[rm.length - 1], ...rows.map((r) => r[3])) + gap / 2;
+  const box = $('#grBufBox'), avail = Math.max(300, (box.clientWidth || 900) - 2);
+  const L = 66, Rm = 18, T = 18, B = 36, H = 290, plotH = H - T - B;
+  const pxs = Math.max((avail - L - Rm) / tEnd, 9 / gap), plotW = tEnd * pxs, W = L + plotW + Rm;
+  const X = (t) => L + t * pxs;
+  const vals = pts.map((q) => q[1]);
+  const ymin = Math.min(0, ...vals), ymax = Math.max(S, ...vals) * 1.08;
+  const yt = ticks(ymin / 1000, ymax / 1000, 5), y0 = Math.min(yt[0], ymin / 1000), y1 = yt[yt.length - 1];
+  const Y = (bits) => T + plotH - ((bits / 1000 - y0) / ((y1 - y0) || 1)) * plotH;
+  let s = yt.map((v) => `<line class="gr-grid${v === 0 ? ' zero' : ''}" x1="${L}" x2="${L + plotW}" y1="${Y(v * 1000).toFixed(1)}" y2="${Y(v * 1000).toFixed(1)}"/><text class="gr-yt" x="${L - 6}" y="${(Y(v * 1000) + 4).toFixed(1)}" text-anchor="end">${tickText(v)}</text>`).join('');
+  s += `<text class="gr-axis" transform="translate(13 ${T + plotH / 2}) rotate(-90)" text-anchor="middle">CPB fullness (kbit)</text>`;
+  const xt = ticks(0, tEnd, Math.max(2, Math.round(plotW / 90)));
+  s += xt.filter((v) => v <= tEnd).map((v) => `<text class="gr-xt" x="${X(v).toFixed(1)}" y="${H - B + 15}" text-anchor="middle">${tickText(v)}</text>`).join('');
+  s += `<text class="gr-axis" x="${L + plotW / 2}" y="${H - 3}" text-anchor="middle">Time (s) from the first bit of access unit ${fmt(p.first_au)}</text>`;
+  // columns: one per access unit, around its removal time; a click goes to its frame
+  const order = rows.map((r, k) => k).sort((a, b) => rows[a][4] - rows[b][4]);
+  const viol = new Map();
+  for (const v of o.violations || []) { const l = viol.get(v.au) || []; l.push(v); viol.set(v.au, l); }
+  const cols = new Map();
+  order.forEach((k, i) => {
+    const r = rows[k], x = X(r[4]);
+    const xl = i ? (X(rows[order[i - 1]][4]) + x) / 2 : x - (gap * pxs) / 2;
+    const xr = i + 1 < order.length ? (X(rows[order[i + 1]][4]) + x) / 2 : x + (gap * pxs) / 2;
+    const x0 = Math.min(xl, x - 2), w = Math.max(4, Math.max(xr, x + 2) - x0);
+    const vs = viol.get(r[1]) || [];
+    const tip = `Access unit ${r[1]}${has(r[0]) ? `, frame ${r[0]}` : ''}: ${fmt(r[5])} bits arrive from ${secText(r[2])} to ${secText(r[3])} s and are removed at ${secText(r[4])} s; the CPB ${holds(r[6])} just before and ${holds(r[7])} just after.`
+      + vs.map((v) => ` ${v.sentence}`).join('');
+    if (has(r[0])) cols.set(r[0], [x0, w]);
+    s += `<g class="gr-col"${has(r[0]) ? ` data-f="${r[0]}"` : ''} data-au="${r[1]}"><title>${esc(tip)}</title><rect class="gr-hit" x="${x0.toFixed(1)}" y="${T}" width="${w.toFixed(1)}" height="${plotH}"/></g>`;
+  });
+  s += `<line class="gr-base" x1="${L}" x2="${L + plotW}" y1="${Y(0).toFixed(1)}" y2="${Y(0).toFixed(1)}"/>`;
+  s += `<line class="gr-cpb" x1="${L}" x2="${L + plotW}" y1="${Y(S).toFixed(1)}" y2="${Y(S).toFixed(1)}"/><text class="gr-cpbt" x="${L + 6}" y="${(Y(S) - 5).toFixed(1)}">CpbSize ${fmt(S)} bits</text>`;
+  s += `<path class="gr-buf" d="${pts.map((q, i) => `${i ? 'L' : 'M'}${X(q[0]).toFixed(1)},${Y(q[1]).toFixed(1)}`).join('')}"/>`;
+  // violations: a red triangle at the removal (overflow above the curve, underflow and initial delay on the zero
+  // line, larger, with a dashed vertical guide through the plot at that access unit: one such mark is easy to miss
+  // in a long sawtooth; an overflow run marks every access unit, so it gets no guide)
+  for (const v of o.violations || []) {
+    const r = rows.find((q) => q[1] === v.au);
+    if (!r) continue;
+    const over = v.kind === 'hrd_overflow', x = X(r[4]), y = over ? Y(r[6]) - 4 : Y(0) + 4, k = over ? 1 : 1.5;
+    const d = over ? `M${(x - 5).toFixed(1)},${(y - 8).toFixed(1)}h10l-5,8z` : `M${(x - 5 * k).toFixed(1)},${(y + 8 * k).toFixed(1)}h${10 * k}l${-5 * k},${-8 * k}z`;
+    if (!over) s += `<line class="gr-vguide" data-au="${v.au}" x1="${x.toFixed(1)}" x2="${x.toFixed(1)}" y1="${T}" y2="${T + plotH}"/>`;
+    s += `<g class="gr-viol" data-kind="${v.kind}" data-f="${has(v.f) ? v.f : ''}" data-au="${v.au}"><path d="${d}"/></g>`;
+  }
+  s += '<g class="gr-marks"></g>';
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('width', W); svg.setAttribute('height', H);
+  svg.innerHTML = s;
+  svg._geom = { cols, T, plotH };
+  const nv = (o.violations || []).length, byKind = {};
+  for (const v of o.violations || []) byKind[v.kind] = (byKind[v.kind] || 0) + 1;
+  info.textContent = `${o.model}: BitRate ${fmt(R)} bit/s, CpbSize ${fmt(S)} bits (${fmt(S / R, 3)} s at the bit rate), ${p.cbr_flag ? 'CBR' : 'VBR'}${p.low_delay_hrd_flag ? ', low delay' : ''}, ${fmt(rows.length)} of ${fmt(o.of)} access units. `
+    + (nv ? `Violations: ${Object.entries(byKind).map(([k, n]) => `${fmt(n)} ${VIOL_WORD[k] || k}`).join(', ')} (Issues, Shift+E, lists them).` : 'No overflow, underflow or initial delay violation.');
+  const under = Object.keys(byKind).filter((k) => k !== 'hrd_overflow');
+  legend.innerHTML = '<span><i class="line gr-lbuf"></i>CPB fullness</span><span><i class="line gr-lcpb"></i>CpbSize</span>'
+    + (byKind.hrd_overflow ? '<span><i class="gr-lviol"></i>overflow (above the curve at that removal)</span>' : '')
+    + (under.length ? `<span><i class="gr-lviol up"></i>${esc(under.map((k) => VIOL_WORD[k] || k).join(', '))} (on the zero line at that removal, with a dashed line through the graph)</span>` : '');
+  note.textContent = `The line rises while access units arrive at BitRate and drops by an access unit's bits at its removal time (${o.spec ? `${o.spec.doc} ${o.spec.clause}` : 'Annex C'}; ${p.conformance_point}; clock tick ${fmt(p.num_units_in_tick)} / ${fmt(p.time_scale)} s). ${o.reason || ''}`;
+  markBuffer();
+  const g = cols.get(state.f);
+  if (g && (g[0] < box.scrollLeft + L || g[0] > box.scrollLeft + box.clientWidth - 40)) box.scrollLeft = Math.max(0, g[0] - box.clientWidth / 2);
+  scrollHint();
+}
+// "Scroll sideways" under a graph wider than its box (a phone), naming the end that is hidden.
+function scrollHint() {
+  const box = $('#grBufBox'), h = $('#grBufScroll'), svg = $('#grBuf');
+  const W = +(svg.getAttribute('width') || 0), over = W > box.clientWidth + 1;
+  h.hidden = !over;
+  if (!over) { h.textContent = ''; return; }
+  const left = box.scrollLeft > 1, right = box.scrollLeft + box.clientWidth < W - 1;
+  h.textContent = `The graph is wider than this box: scroll it sideways for ${left && right ? 'the earlier and later' : left ? 'the earlier' : 'the later'} access units.`;
+}
+// Marks the column of the frame on screen in the buffer graph.
+function markBuffer() {
+  const svg = $('#grBuf'), g = svg && svg._geom;
+  if (!g) return;
+  svg.querySelectorAll('.gr-col.here').forEach((e) => e.classList.remove('here'));
+  const c = g.cols.get(state.f), col = svg.querySelector(`.gr-col[data-f="${state.f}"]`);
+  if (col) col.classList.add('here');
+  svg.querySelector('.gr-marks').innerHTML = c ? `<rect class="gr-mark" x="${c[0].toFixed(1)}" y="${g.T - 4}" width="${c[1].toFixed(1)}" height="${g.plotH + 8}" rx="3"/>` : '';
+}
+
 // ------------------------------------------------------------ wiring
 export function initGraphs() {
   const d = dlg();
@@ -559,6 +736,7 @@ export function initGraphs() {
   const a = $('#grSizeBox'), b = $('#grQBox');
   a.addEventListener('scroll', () => { if (b.scrollLeft !== a.scrollLeft) b.scrollLeft = a.scrollLeft; });
   b.addEventListener('scroll', () => { if (a.scrollLeft !== b.scrollLeft) a.scrollLeft = b.scrollLeft; });
+  $('#grBufBox').addEventListener('scroll', scrollHint, { passive: true });
   // left and right arrow keys step frames while the dialog is open (not inside a box or a list)
   document.addEventListener('keydown', (e) => {
     if (!d.open || e.metaKey || e.ctrlKey || e.altKey || e.shiftKey || (e.target.closest && e.target.closest('input, select, textarea'))) return;

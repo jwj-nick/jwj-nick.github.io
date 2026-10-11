@@ -1,15 +1,15 @@
 // Frame selection, prefetch, block cell index, stepping order and partition path.
-import { C, frameMeta, PERF, perf, perfMark, qName, state } from './state.js?v=9ce97af84e';
-import { $, clamp, dims, fmt, ohPart, setStatus, typeName } from './util.js?v=9ce97af84e';
-import { getJSON } from './data.js?v=9ce97af84e';
-import { buildPicture, loadPlanes } from './planes.js?v=9ce97af84e';
-import { updateBraidSelection } from './braid.js?v=9ce97af84e';
-import { loadFrameDiff } from './diff.js?v=9ce97af84e';
-import { fitView, requestRender } from './view.js?v=9ce97af84e';
-import { renderLegend } from './legend.js?v=9ce97af84e';
-import { ensureSymbols } from './symbols.js?v=9ce97af84e';
-import { renderTab } from './inspector.js?v=9ce97af84e';
-import { parseHash, writeHash } from './hash.js?v=9ce97af84e';
+import { C, frameMeta, PERF, perf, perfMark, qName, state } from './state.js?v=3e8d1a839f';
+import { $, clamp, dims, fmt, ohPart, setStatus, typeName } from './util.js?v=3e8d1a839f';
+import { getJSON, jsonBytes } from './data.js?v=3e8d1a839f';
+import { buildPicture, loadPlanes } from './planes.js?v=3e8d1a839f';
+import { updateBraidSelection } from './braid.js?v=3e8d1a839f';
+import { loadFrameDiff } from './diff.js?v=3e8d1a839f';
+import { fitView, requestRender } from './view.js?v=3e8d1a839f';
+import { renderLegend } from './legend.js?v=3e8d1a839f';
+import { ensureSymbols } from './symbols.js?v=3e8d1a839f';
+import { renderTab } from './inspector.js?v=3e8d1a839f';
+import { parseHash, writeHash } from './hash.js?v=3e8d1a839f';
 
 // ------------------------------------------------------------- frames
 export async function selectFrame(f) {
@@ -35,8 +35,7 @@ export async function selectFrame(f) {
       if (state.f === f) state.loading = -1;
       return;
     }
-    state.frameCache.set(f, payload);
-    if (state.frameCache.size > 64) state.frameCache.delete(state.frameCache.keys().next().value);
+    state.frameCache.set(f, payload, jsonBytes(payload));   // byte budget, the frame on screen stays (state.js)
   }
   perfMark('payload');
   if (state.f !== f) return;
@@ -100,7 +99,7 @@ function schedulePrefetch() {
     if (!next || state.frameCache.has(next.f)) return;
     try {
       const payload = await getJSON(`frames/${next.f}.json`);
-      state.frameCache.set(next.f, payload);
+      state.frameCache.set(next.f, payload, jsonBytes(payload));
       const stages = next.stages || [];
       const need = { lfdelta: ['recon', 'prefilter'], residual: ['prefilter', 'pred'] }[state.stage] || [stages.includes(state.stage) ? state.stage : 'recon'];
       for (const st of need) if (stages.includes(st)) await loadPlanes(next.f, st);

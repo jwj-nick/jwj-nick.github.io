@@ -1,19 +1,19 @@
 // Opening a bundle: manifest, header facts and the pixel stage list; the stream picker.
-import { BASE_STAGES, C, FILLS, hasArch, stageLabel, state } from './state.js?v=9ce97af84e';
-import { $, esc, fmt, FRAME_COLORS, setEmpty, setStatus, typeName } from './util.js?v=9ce97af84e';
-import { caps, getJSON, listStreams, streamTitle } from './data.js?v=9ce97af84e';
-import { server } from './api.js?v=9ce97af84e';
-import { renderBraid } from './braid.js?v=9ce97af84e';
-import { renderDiffBar } from './diff.js?v=9ce97af84e';
-import { selectFrame } from './frames.js?v=9ce97af84e';
-import { renderTab, renderTabs } from './inspector.js?v=9ce97af84e';
-import { requestRender } from './view.js?v=9ce97af84e';
-import { parseHash } from './hash.js?v=9ce97af84e';
-import { renderChips } from './controls.js?v=9ce97af84e';
-import { renderJobs } from './jobs.js?v=9ce97af84e';
-import { stage2 } from './split.js?v=9ce97af84e';
-import { pixelsOpened } from './pixels.js?v=9ce97af84e';
-import { loadRefgraph } from './refsview.js?v=9ce97af84e';
+import { BASE_STAGES, C, FILLS, hasArch, stageLabel, state } from './state.js?v=3e8d1a839f';
+import { $, esc, fmt, FRAME_COLORS, setEmpty, setStatus, typeName } from './util.js?v=3e8d1a839f';
+import { caps, getJSON, listStreams, streamTitle } from './data.js?v=3e8d1a839f';
+import { server } from './api.js?v=3e8d1a839f';
+import { renderBraid } from './braid.js?v=3e8d1a839f';
+import { renderDiffBar } from './diff.js?v=3e8d1a839f';
+import { selectFrame } from './frames.js?v=3e8d1a839f';
+import { renderTab, renderTabs } from './inspector.js?v=3e8d1a839f';
+import { requestRender } from './view.js?v=3e8d1a839f';
+import { parseHash } from './hash.js?v=3e8d1a839f';
+import { renderChips } from './controls.js?v=3e8d1a839f';
+import { renderJobs } from './jobs.js?v=3e8d1a839f';
+import { stage2 } from './split.js?v=3e8d1a839f';
+import { pixelsOpened } from './pixels.js?v=3e8d1a839f';
+import { loadRefgraph } from './refsview.js?v=3e8d1a839f';
 
 // ------------------------------------------------------------ picker
 // The picker lists state.streams; an opened folder keeps its own extra option.

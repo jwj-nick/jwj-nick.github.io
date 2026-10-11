@@ -3,13 +3,13 @@
 // or one raw YUV file), and the viewer opens the A-vs-B entry on the first mismatch.
 // Another analysis: POST api/compare, opened at once.  Dump and raw YUV: a convert
 // job in the tray (jobs.js opens its compare entry when it ends).
-import { state } from './state.js?v=9ce97af84e';
-import { $, esc, fmt } from './util.js?v=9ce97af84e';
-import { caps, streamLabel, TOKEN } from './data.js?v=9ce97af84e';
-import { api, ApiError, fmtBytes, fmtDate, problemHTML, server, toast } from './api.js?v=9ce97af84e';
-import { openStreamAt, refreshStreams } from './source.js?v=9ce97af84e';
-import { trackJob } from './jobs.js?v=9ce97af84e';
-import { cleanPath } from './open.js?v=9ce97af84e';
+import { state } from './state.js?v=3e8d1a839f';
+import { $, esc, fmt } from './util.js?v=3e8d1a839f';
+import { caps, streamLabel, TOKEN } from './data.js?v=3e8d1a839f';
+import { api, ApiError, fmtBytes, fmtDate, problemHTML, server, toast } from './api.js?v=3e8d1a839f';
+import { openStreamAt, refreshStreams } from './source.js?v=3e8d1a839f';
+import { trackJob } from './jobs.js?v=3e8d1a839f';
+import { cleanPath } from './open.js?v=3e8d1a839f';
 
 // kind: analysis | dump | raw.  raw = {file_id | path, name} once uploaded or typed.
 // check = the last answer of api/convert/check for raw (with the format it was asked for).
@@ -26,7 +26,7 @@ export function compareSnap() {
   return { open: dlg().open, kind: st.kind, a: $('#cmpA').value || null, b: $('#cmpB').value || null,
     raw: st.raw ? { name: st.raw.name, file_id: st.raw.file_id || null, path: st.raw.path || null } : null,
     upload: st.upload ? { ...st.upload } : null, checking: st.checking,
-    check: st.check ? { ok: st.check.ok, text: $('#cmpCheckLine').innerText } : null,
+    check: st.check ? { ok: st.check.ok, partial: !!st.check.partial, text: $('#cmpCheckLine').innerText } : null,
     error: st.error ? st.error.code : null, compare: !$('#cmpGo').disabled };
 }
 
@@ -164,14 +164,22 @@ async function checkRaw() {
   st.checking = false;
   renderAll();
 }
-// The answer (dumpmap.raw_check) as {ok, html}: the server's problem sentence and hint when the
-// file cannot stand for A's frames, else what it holds (SERVER_API.md §13.2).
+// The answer (dumpmap.raw_check) as {ok, partial, html}: the server's problem sentence and hint when the
+// file cannot stand for A's frames, else what it holds (SERVER_API.md §13.2).  A file that ends after a
+// whole picture (a short run, §13.1 item 6) is compared as far as it goes: the server's sentence says
+// which frames are left out.
 function readCheck(r) {
-  if (!r.ok) return { ok: false, html: problemHTML({ message: r.problem || 'The file does not fit A.', hint: r.hint || '' }) };
+  if (!r.ok) return { ok: false, partial: false, html: problemHTML({ message: r.problem || 'The file does not fit A.', hint: r.hint || '' }) };
   const n = r.frames;
   const per = r.frame_bytes ? `${fmt(r.frame_bytes)} bytes each` : 'frames of varying size';
+  const order = r.frame_index === 'decode' ? 'decode' : 'output';
+  if (r.partial) {
+    const k = r.frames_in_file;
+    const held = r.frame_index === 'decode' ? `${k === 1 ? 'frame' : 'frames'} A decodes` : `${k === 1 ? 'picture' : 'pictures'} A outputs`;
+    return { ok: true, partial: true, html: `<b>${esc(r.note || `The file holds ${k} of ${n} frames.`)}</b> ${esc(`${fmt(r.file_bytes)} bytes hold the first ${fmt(k)} ${held} (${r.format || ''}, ${per}) in ${order} order; Compare checks those and lists the rest as not in the file.`)}` };
+  }
   const what = r.frame_index === 'decode' ? `${n === 1 ? 'frame' : 'frames'} A decodes` : `${n === 1 ? 'picture' : 'pictures'} A outputs`;
-  return { ok: true, html: esc(`The size fits A: ${fmt(r.file_bytes)} bytes hold the ${fmt(n)} ${what} (${r.format || ''}, ${per}) in ${r.frame_index === 'decode' ? 'decode' : 'output'} order.`) };
+  return { ok: true, partial: false, html: esc(`The size fits A: ${fmt(r.file_bytes)} bytes hold the ${fmt(n)} ${what} (${r.format || ''}, ${per}) in ${order} order.`) };
 }
 
 function fail(e) {

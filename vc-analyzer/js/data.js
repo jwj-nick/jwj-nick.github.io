@@ -1,5 +1,5 @@
 // Reading the data contract from a URL or an opened folder, stream discovery and caps.
-import { bLabel, fetchOpts, kindLabel, perfMark, state } from './state.js?v=9ce97af84e';
+import { bLabel, fetchOpts, kindLabel, perfMark, state } from './state.js?v=3e8d1a839f';
 
 // The per-run token `vca serve` writes into <meta name="vca-token"> (SERVER_API.md §3).
 // Empty on the static site and in an opened folder: then no header is sent.
@@ -17,18 +17,22 @@ export function withToken(url, opts) {
 const revs = new Map();   // bundle base -> revision
 export function bustCache(base) { const r = Date.now(); revs.set(base, r); return r; }
 const revOf = (rel) => { const r = revs.get(state.source.base); return r && rel.endsWith('.json') ? `?r=${r}` : ''; };
+// the length of the text a getJSON result was parsed from: what a frame payload costs in its cache (state.js)
+const textLen = new WeakMap();
+export const jsonBytes = (obj) => (obj && typeof obj === 'object' ? textLen.get(obj) || 0 : 0);
+const parse = (text) => { const v = JSON.parse(text); if (v && typeof v === 'object') textLen.set(v, text.length); return v; };
 export async function getJSON(rel) {
   if (state.source.kind === 'files') {
     const file = state.source.map.get(rel);
     if (!file) throw new Error(`${rel} is missing from the opened folder`);
-    return JSON.parse(await file.text());
+    return parse(await file.text());
   }
   const url = state.source.base + rel + revOf(rel);
   const r = await fetch(url, withToken(url, fetchOpts));
   if (!r.ok) throw new Error(`${rel}: HTTP ${r.status}`);
   const text = await r.text();
   perfMark('fetch');
-  return JSON.parse(text);
+  return parse(text);
 }
 export async function getBlob(rel) {
   if (state.source.kind === 'files') {

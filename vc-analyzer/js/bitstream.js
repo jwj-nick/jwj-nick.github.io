@@ -8,10 +8,10 @@
 // IR 0.3 (F-a part 3): for the frame on screen the hex dump marks where each tile's data starts
 // and shades the selected block's runs of symbols (frames/<f>.json `pos`); a click on a byte
 // of tile data selects the block whose symbols cover it.
-import { state } from './state.js?v=9ce97af84e';
-import { $, esc, fmt } from './util.js?v=9ce97af84e';
-import { getBlob, getJSON } from './data.js?v=9ce97af84e';
-import { selectBlockIndex } from './controls.js?v=9ce97af84e';
+import { state } from './state.js?v=3e8d1a839f';
+import { $, esc, fmt } from './util.js?v=3e8d1a839f';
+import { getBlob, getJSON } from './data.js?v=3e8d1a839f';
+import { selectBlockIndex } from './controls.js?v=3e8d1a839f';
 
 const dlg = () => $('#bitstreamDialog');
 const UNIT_H = 24, HEX_H = 20, OVERSCAN = 12, ALL_ROWS = 300, STRIP_BYTES = 32;
@@ -118,8 +118,9 @@ function blockAtByte(k) {
 }
 
 // u: unit to show (default: the last one shown, else the first unit of the frame on screen);
-// type: preset the type filter (Stream tab rows).
-export function openBitstream(u, type) {
+// type: preset the type filter (Stream tab rows); bit: an absolute file bit inside unit u (an issue's bit range,
+// issues.js): once the unit is read, the header element covering it is selected, else the byte holding it.
+export function openBitstream(u, type, bit) {
   if (!state.manifest) return;
   if (man !== state.manifest) { man = state.manifest; hdrCache.clear(); binCache.clear(); summary = undefined; cur = -1; ftype = ''; }
   const all = units();
@@ -131,7 +132,7 @@ export function openBitstream(u, type) {
   if (!dlg().open) dlg().showModal();
   renderTypes();
   loadSummary();
-  select(i, true);
+  select(i, true, u !== undefined && u !== null && i === +u && Number.isFinite(bit) ? +bit : null);
 }
 
 function loadSummary() {
@@ -215,7 +216,8 @@ function revealUnit() {
 }
 
 // ------------------------------------------------------------ one unit
-async function select(i, fresh) {
+// at: a file bit to select in the unit once it is read (pickBit), or null.
+async function select(i, fresh, at = null) {
   cur = i; elSel = -1; byteSel = -1;
   hdr = null; bin = null; hdrErr = ''; binErr = '';
   renderHead(); renderUnits(); revealUnit();
@@ -239,7 +241,8 @@ async function select(i, fresh) {
   if (my !== seq) return;
   loading = false;
   renderEls(); renderHex(fresh !== false); renderStrip(); renderBlockLine();
-  if (fresh !== false && blockRuns()) revealBlock();
+  if (at !== null) pickBit(at);
+  else if (fresh !== false && blockRuns()) revealBlock();
 }
 
 function step(d) {
@@ -384,6 +387,18 @@ function renderStrip() {
 function pickEl(k) {
   elSel = k; byteSel = -1;
   markEls(); drawHex(); revealShade(); renderStrip();
+}
+// File bit a of the selected unit: the header element covering it, else the byte holding it (no block is
+// picked: the issue named a bit, not a block).
+function pickBit(a) {
+  const u = units()[cur];
+  if (!u) return;
+  const k = hdr && hdr.traced ? hdr.els.findIndex((e) => e[1] <= a && e[2] > a) : -1;
+  if (k >= 0) { pickEl(k); return; }
+  const b = Math.floor(a / 8) - u.offset;
+  if (!bin || b < 0 || b >= bin.length) return;
+  elSel = -1; byteSel = b;
+  markEls(); drawHex(); revealShade(); renderStrip(); renderBlockLine();
 }
 function pickByte(k) {
   const u = units()[cur];

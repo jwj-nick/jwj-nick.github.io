@@ -1,35 +1,47 @@
 // Toolbar chips, block selection and navigation, pointer and keyboard wiring.
-import { C, FILLS, hasArch, hasChromaTree, LINES, state, usesQp } from './state.js?v=9ce97af84e';
-import { $, esc, fmt, setEmpty, setStatus } from './util.js?v=9ce97af84e';
-import { caps } from './data.js?v=9ce97af84e';
-import { buildPicture, pixelAt, pixelPending } from './planes.js?v=9ce97af84e';
-import { cycleComp, cycleViewMode, syncPaneSelect, toggleGray, toggleGrid } from './pixels.js?v=9ce97af84e';
-import { cmpMode, nearDivider, paneLabels, paneRects, setSplitPos } from './split.js?v=9ce97af84e';
-import { openSource, openStreamAt, renderPicker } from './source.js?v=9ce97af84e';
-import { renderBraidDebounced, toggleArcs } from './braid.js?v=9ce97af84e';
-import { openDecoder } from './decoder.js?v=9ce97af84e';
-import { toggleFilmstrip } from './filmstrip.js?v=9ce97af84e';
-import { flipAB, gotoFirstMismatch, showStage } from './diff.js?v=9ce97af84e';
-import { blockAt, frameSummary, isChromaBlock, orderedFrames, selectFrame, stepFrame } from './frames.js?v=9ce97af84e';
-import { canvas, fitCanvasHeight, fitView, pictureAt, requestRender, setZoom, toImage, zoomAt } from './view.js?v=9ce97af84e';
-import { renderLegend } from './legend.js?v=9ce97af84e';
-import { blockObject, renderTab } from './inspector.js?v=9ce97af84e';
-import { aiFrameContext, copyBlockForAI, copyText } from './ai.js?v=9ce97af84e';
-import { writeHash } from './hash.js?v=9ce97af84e';
-import { openStreamDialog } from './open.js?v=9ce97af84e';
-import { openLibrary } from './library.js?v=9ce97af84e';
-import { openExport } from './export.js?v=9ce97af84e';
-import { openCompare } from './compare.js?v=9ce97af84e';
-import { bitstreamSelChanged, openBitstream } from './bitstream.js?v=9ce97af84e';
-import { openGraphs } from './graphs.js?v=9ce97af84e';
+import { C, FILLS, hasArch, hasChromaTree, LINES, state, usesQp } from './state.js?v=3e8d1a839f';
+import { $, esc, fmt, setEmpty, setStatus } from './util.js?v=3e8d1a839f';
+import { caps } from './data.js?v=3e8d1a839f';
+import { buildPicture, pixelAt, pixelPending } from './planes.js?v=3e8d1a839f';
+import { cycleComp, cycleViewMode, syncPaneSelect, toggleGray, toggleGrid } from './pixels.js?v=3e8d1a839f';
+import { cmpMode, nearDivider, paneLabels, paneRects, setSplitPos } from './split.js?v=3e8d1a839f';
+import { openSource, openStreamAt, renderPicker } from './source.js?v=3e8d1a839f';
+import { renderBraidDebounced, toggleArcs } from './braid.js?v=3e8d1a839f';
+import { openDecoder } from './decoder.js?v=3e8d1a839f';
+import { toggleFilmstrip } from './filmstrip.js?v=3e8d1a839f';
+import { flipAB, gotoFirstMismatch, showStage } from './diff.js?v=3e8d1a839f';
+import { blockAt, frameSummary, isChromaBlock, orderedFrames, selectFrame, stepFrame } from './frames.js?v=3e8d1a839f';
+import { canvas, fitCanvasHeight, fitView, pictureAt, requestRender, setZoom, toImage, zoomAt } from './view.js?v=3e8d1a839f';
+import { renderLegend } from './legend.js?v=3e8d1a839f';
+import { blockObject, renderTab } from './inspector.js?v=3e8d1a839f';
+import { aiFrameContext, copyBlockForAI, copyText } from './ai.js?v=3e8d1a839f';
+import { writeHash } from './hash.js?v=3e8d1a839f';
+import { openStreamDialog } from './open.js?v=3e8d1a839f';
+import { openLibrary } from './library.js?v=3e8d1a839f';
+import { openExport } from './export.js?v=3e8d1a839f';
+import { openCompare } from './compare.js?v=3e8d1a839f';
+import { bitstreamSelChanged, openBitstream } from './bitstream.js?v=3e8d1a839f';
+import { openGraphs } from './graphs.js?v=3e8d1a839f';
+import { openIssues } from './issues.js?v=3e8d1a839f';
+import { chipWhy, internalsChipTitle, internalsShown, openCoefsKey, pickEdgeAt } from './internals.js?v=3e8d1a839f';
+import { openEntropyKey } from './entropy.js?v=3e8d1a839f';
+import { openCdfs } from './cdfs.js?v=3e8d1a839f';
+import { candsKeySay, candsShown } from './cands.js?v=3e8d1a839f';
 
 // ------------------------------------------------------------ controls
 export function renderChips() {
-  $('#fillGroup').innerHTML = FILLS.filter((f) => !f.arch || hasArch()).map((f) => (f.id === 'qindex' && usesQp() ? { ...f, label: 'QP' } : f)).map((f) => `<button class="chip" data-fill="${f.id}" aria-pressed="${state.fill === f.id}" title="${f.arch ? 'Provisional L0 HW estimate from placeholder parameters, not a validated model. ' : ''}Fill blocks by ${f.label.toLowerCase()} (${f.key})">${f.label}<span class="hk">${f.key}</span></button>`).join('');
-  $('#lineGroup').innerHTML = LINES.filter(lineShown).map((l) => `<button class="chip" data-line="${l.id}" aria-pressed="${state.lines.has(l.id)}" title="${l.label} (${l.key})">${l.label}<span class="hk">${l.key}</span></button>`).join('');
+  // F-g G2 (internals.js): the internals chips show while the stream has decoder internals; a frame without them
+  // marks them off and its title says why
+  // (F-g W7, cands.js: the Cands chip shows for AV2, AV1, VP9 on vca serve or a bundle with candidates; it is off
+  // while the selected block has none)
+  const why = (c) => (c.internals || c.cands ? chipWhy(c.id) : '');
+  const tip = (c, text) => esc(c.internals || c.cands ? `${internalsChipTitle(c.id)}${why(c) ? `. Off ${c.cands ? 'now' : 'in this frame'}: ${why(c)}` : ''}` : text);
+  $('#fillGroup').innerHTML = FILLS.filter(fillShown).map((f) => (f.id === 'qindex' && usesQp() ? { ...f, label: 'QP' } : f)).map((f) => `<button class="chip${why(f) ? ' off' : ''}" data-fill="${f.id}" aria-pressed="${state.fill === f.id}" title="${tip(f, `${f.arch ? 'Provisional L0 HW estimate from placeholder parameters, not a validated model. ' : ''}Fill blocks by ${f.label.toLowerCase()} (${f.key})`)}">${f.label}<span class="hk">${f.key}</span></button>`).join('');
+  $('#lineGroup').innerHTML = LINES.filter(lineShown).map((l) => `<button class="chip${why(l) ? ' off' : ''}" data-line="${l.id}" aria-pressed="${state.lines.has(l.id)}" title="${tip(l, `${l.label} (${l.key})`)}">${l.label}<span class="hk">${l.key}</span></button>`).join('');
 }
 function setFill(id) { state.fill = id; renderChips(); renderLegend(); requestRender(); writeHash(); }
-function lineShown(l) { return (!l.diffOnly || state.diff) && (!l.chromaTree || hasChromaTree()); }
+function fillShown(f) { return (!f.arch || hasArch()) && (!f.internals || internalsShown()); }
+function lineShown(l) { return (!l.diffOnly || state.diff) && (!l.chromaTree || hasChromaTree()) && (!l.internals || internalsShown()) && (!l.cands || candsShown()); }
 function toggleLine(id) { state.lines.has(id) ? state.lines.delete(id) : state.lines.add(id); renderChips(); requestRender(); writeHash(); }
 // `at` = the picked luma pixel (default: the block's origin).
 function select(bi, at) {
@@ -224,7 +236,9 @@ export function wire() {
   const end = (e) => {
     pointers.delete(e.pointerId);
     if (pointers.size < 2) pinch = null;
-    if (drag && !drag.moved && e.type === 'pointerup') {
+    // F-g G2: Alt+click opens the deblocking edge nearest the pointer (internals.js), the selection stays
+    if (drag && !drag.moved && e.type === 'pointerup' && e.altKey) pickEdgeAt(e.offsetX, e.offsetY);
+    else if (drag && !drag.moved && e.type === 'pointerup') {
       const [ix, iy] = toImage(e.offsetX, e.offsetY);
       const at = [Math.floor(ix), Math.floor(iy)];
       select(blockAt(at[0], at[1]), at);
@@ -265,6 +279,10 @@ export function wire() {
     else if (k === 'k' && state.payload) { e.preventDefault(); openExport(); }
     else if (k === 'u' && state.manifest) { e.preventDefault(); openBitstream(); }
     else if (k === 'G' && state.manifest) { e.preventDefault(); openGraphs(); }   // g is the block grid
+    else if (k === 'E' && state.manifest) { e.preventDefault(); openIssues(); }   // F-f: e is the costliest block
+    else if (k === 'C' && state.payload) { e.preventDefault(); openCoefsKey(); }   // F-g G2: c copies for AI
+    else if (k === 'O' && state.payload) { e.preventDefault(); openEntropyKey(); }   // F-g W56: entropy decoder
+    else if (k === 'P' && state.payload) { e.preventDefault(); openCdfs(); }       // (p is the superblock lines)
     else if (k === 'Escape') select(-1);
     else if (k === 'x' && state.diff) flipAB();
     // F-b track Y (pixels.js): component, sample grid, single / split / side-by-side view
@@ -276,8 +294,10 @@ export function wire() {
     else if (k === 'R' && state.manifest) toggleArcs();
     else if (k === 'F' && state.manifest) toggleFilmstrip();
     else {
-      const f = FILLS.find((x) => x.key === k && (!x.arch || hasArch())); if (f) { setFill(f.id); return; }
+      const f = FILLS.find((x) => x.key === k && fillShown(x)); if (f) { setFill(f.id); return; }
       const l = LINES.find((x) => x.key === k); if (l && lineShown(l)) toggleLine(l.id);
+      // F-g W7: Shift+V says why it draws nothing (no chip on this stream, or nothing for this block), as Shift+C does
+      if (l && l.cands && state.manifest) candsKeySay();
     }
   });
 }

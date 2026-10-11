@@ -1,10 +1,10 @@
 // "Copy for AI": block and frame context as Markdown, clipboard.
-import { frameMeta, qName, state } from './state.js?v=9ce97af84e';
-import { $, fmt, ohPart } from './util.js?v=9ce97af84e';
-import { frameSummary, isChromaBlock, partitionPath } from './frames.js?v=9ce97af84e';
-import { archContext } from './arch.js?v=9ce97af84e';
-import { ensureSymbols, symbolsOfBlock, symtype } from './symbols.js?v=9ce97af84e';
-import { blockObject, histogram } from './inspector.js?v=9ce97af84e';
+import { CDEF_OFF, frameMeta, qName, state } from './state.js?v=3e8d1a839f';
+import { $, fmt, ohPart } from './util.js?v=3e8d1a839f';
+import { frameSummary, isChromaBlock, partitionPath } from './frames.js?v=3e8d1a839f';
+import { archContext } from './arch.js?v=3e8d1a839f';
+import { ensureSymbols, symbolsOfBlock, symtype } from './symbols.js?v=3e8d1a839f';
+import { blockObject, histogram } from './inspector.js?v=3e8d1a839f';
 
 // --------------------------------------------------------- AI context
 function aiBlockContext() {
@@ -19,7 +19,7 @@ function aiBlockContext() {
     `- Frame: decode index ${fr.f}, output index ${m.out_n ?? 'none'}, ${fr.frame_type}${ohPart(fr)}, base ${qName()} ${fr.base_qindex}, ${fr.width}x${fr.height}`,
     `- Block: ${o.bsize} at (${o.x}, ${o.y}) size ${o.w}x${o.h}, ${o.tree} tree, partition ${o.partition}`,
     `- Prediction: ${o.pred}, mode ${o.mode}${o.uv_mode ? ', chroma ' + o.uv_mode : ''}${o.ref0 ? `, ref ${[o.ref0, o.ref1].filter(Boolean).join('+')}, mv (x,y 1/8 pel) (${o.mv0_col},${o.mv0_row})${o.mv1_row !== undefined ? ` (${o.mv1_col},${o.mv1_row})` : ''}` : ''}${o.motion_mode ? ', motion ' + o.motion_mode : ''}${o.interp_filter ? ', filter ' + o.interp_filter : ''}`,
-    `- Transform: ${o.tx_size} ${o.tx_type}, skip_txfm ${o.skip_txfm}, ${qName()} ${o.qindex}${o.cdef_idx === null || o.cdef_idx === undefined ? '' : ', cdef index ' + o.cdef_idx}`,
+    `- Transform: ${o.tx_size} ${o.tx_type}, skip_txfm ${o.skip_txfm}, ${qName()} ${o.qindex}${o.cdef_idx === null || o.cdef_idx === undefined ? '' : o.cdef_idx === -1 ? `, CDEF ${CDEF_OFF} (cdef_idx -1)` : ', cdef index ' + o.cdef_idx}`,
     `- Entropy bits: ${fmt(o.bits, 3)} over ${o.nsym} symbols`,
     archContext(o),
     `- Decoder fields: ${JSON.stringify(ext)}`,
