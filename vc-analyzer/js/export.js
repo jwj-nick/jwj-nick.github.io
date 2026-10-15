@@ -1,14 +1,14 @@
 // Export (SERVER_API.md §12): the picture as PNG (made here, every mode), tables as CSV
 // (server routes with `vca serve`, written here from the manifest and the frame payload
 // otherwise) and the stream report (server only).
-import { C, FILLS, frameMeta, hasArch, LINES, stageLabel, state, usesQp } from './state.js?v=3e8d1a839f';
-import { $, dpr, esc, RAMP, rgb, typeName } from './util.js?v=3e8d1a839f';
-import { caps } from './data.js?v=3e8d1a839f';
-import { isChromaBlock } from './frames.js?v=3e8d1a839f';
-import { canvas, drawView } from './view.js?v=3e8d1a839f';
-import { pixelsCaption } from './pixels.js?v=3e8d1a839f';
-import { cmpMode, GAP, splitImageX } from './split.js?v=3e8d1a839f';
-import { ensureSymbols, symbolsReady } from './symbols.js?v=3e8d1a839f';
+import { C, FILLS, frameMeta, hasArch, LINES, stageLabel, state, usesQp } from './state.js?v=25b3a2d3d6';
+import { $, dpr, esc, RAMP, rgb, typeName } from './util.js?v=25b3a2d3d6';
+import { caps } from './data.js?v=25b3a2d3d6';
+import { isChromaBlock } from './frames.js?v=25b3a2d3d6';
+import { canvas, drawView } from './view.js?v=25b3a2d3d6';
+import { pixelsCaption } from './pixels.js?v=25b3a2d3d6';
+import { cmpMode, GAP, splitImageX } from './split.js?v=25b3a2d3d6';
+import { ensureSymbols, symbolsReady } from './symbols.js?v=25b3a2d3d6';
 
 // ------------------------------------------------------------ CSV (§12.1)
 // Columns and cells as vca/tables.py writes them: frames = query.frames, blocks = query.BLOCK_SUMMARY_COLS.
@@ -142,7 +142,7 @@ async function serverSentence(r) {
   try { e = (await r.json()).error; } catch (x) { /* not JSON */ }
   return e && e.message ? `${e.message}${e.hint ? ` ${e.hint}` : ''}` : `The local server answered HTTP ${r.status}.`;
 }
-const unreachable = (err) => `The local server did not answer (${err.message}). Is python -m vca serve still running?`;
+const unreachable = (err) => `The local server did not answer (${err.message}). Is the analyzer still running? Start VC Analyzer again if it stopped.`;
 // filename="..." of a Content-Disposition header (the server's file names)
 function dispositionName(h) {
   const m = /filename="([^"]*)"/.exec(h || '');

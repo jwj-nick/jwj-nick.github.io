@@ -48,43 +48,44 @@
  * open, jobs, library, compare and the HW editor need `vca serve` with jobs (caps.jobs; Library: caps.server)
  * and stay hidden and silent on the static site and in an opened folder.
  */
-import { C, FILLS, LINES, PERF, cacheSnap, perf, state } from './state.js?v=3e8d1a839f';
-import { setEmpty, setStatus } from './util.js?v=3e8d1a839f';
-import { caps, discoverStreams, goneData, streamTitle } from './data.js?v=3e8d1a839f';
-import { defaultStreamIdx, openSource, rememberUsed, renderPicker } from './source.js?v=3e8d1a839f';
-import { isChromaBlock, orderedFrames, selectFrame } from './frames.js?v=3e8d1a839f';
-import { canvas, isRenderPending } from './view.js?v=3e8d1a839f';
-import { renderTab } from './inspector.js?v=3e8d1a839f';
-import { parseHash } from './hash.js?v=3e8d1a839f';
-import { wire } from './controls.js?v=3e8d1a839f';
-import { loadHealth, loadSession, toast } from './api.js?v=3e8d1a839f';
-import { initOpen, openSnap, showServerEmpty } from './open.js?v=3e8d1a839f';
-import { GONE_MSG } from './source.js?v=3e8d1a839f';
-import { initJobs, jobsSnap } from './jobs.js?v=3e8d1a839f';
-import { initLibrary, librarySnap } from './library.js?v=3e8d1a839f';
-import { hwSnap, initHw } from './hw.js?v=3e8d1a839f';
-import { exportSnap, initExport } from './export.js?v=3e8d1a839f';
-import { compareSnap, initCompare } from './compare.js?v=3e8d1a839f';
-import { bitstreamSnap, initBitstream } from './bitstream.js?v=3e8d1a839f';
-import { graphsSnap, initGraphs } from './graphs.js?v=3e8d1a839f';
-import { initPixels, pixelsSnap } from './pixels.js?v=3e8d1a839f';
-import { initQuality, qualitySnap } from './quality.js?v=3e8d1a839f';
-import { decisionsSnap, initDecisions } from './blockdec.js?v=3e8d1a839f';
-import { decoderSnap, initDecoder } from './decoder.js?v=3e8d1a839f';
-import { initIssues, issuesSnap } from './issues.js?v=3e8d1a839f';
-import { initInternals, internalsSnap } from './internals.js?v=3e8d1a839f';
-import { coefsSnap, initCoefs } from './coefs.js?v=3e8d1a839f';
-import { edgesSnap, initEdges } from './edges.js?v=3e8d1a839f';
-import { entropySnap, initEntropy } from './entropy.js?v=3e8d1a839f';
-import { cdfsSnap, initCdfs } from './cdfs.js?v=3e8d1a839f';
-import { candsSnap } from './cands.js?v=3e8d1a839f';
+import { C, FILLS, LINES, PERF, cacheSnap, perf, state } from './state.js?v=25b3a2d3d6';
+import { setEmpty, setStatus } from './util.js?v=25b3a2d3d6';
+import { caps, discoverStreams, goneData, streamTitle } from './data.js?v=25b3a2d3d6';
+import { defaultStreamIdx, openSource, rememberUsed, renderPicker } from './source.js?v=25b3a2d3d6';
+import { isChromaBlock, orderedFrames, selectFrame } from './frames.js?v=25b3a2d3d6';
+import { canvas, isRenderPending } from './view.js?v=25b3a2d3d6';
+import { renderTab } from './inspector.js?v=25b3a2d3d6';
+import { parseHash } from './hash.js?v=25b3a2d3d6';
+import { wire } from './controls.js?v=25b3a2d3d6';
+import { loadHealth, loadSession, toast } from './api.js?v=25b3a2d3d6';
+import { initOpen, openSnap, showServerEmpty } from './open.js?v=25b3a2d3d6';
+import { GONE_MSG } from './source.js?v=25b3a2d3d6';
+import { initJobs, jobsSnap } from './jobs.js?v=25b3a2d3d6';
+import { initLibrary, librarySnap } from './library.js?v=25b3a2d3d6';
+import { hwSnap, initHw } from './hw.js?v=25b3a2d3d6';
+import { exportSnap, initExport } from './export.js?v=25b3a2d3d6';
+import { compareSnap, initCompare } from './compare.js?v=25b3a2d3d6';
+import { bitstreamSnap, initBitstream } from './bitstream.js?v=25b3a2d3d6';
+import { graphsSnap, initGraphs } from './graphs.js?v=25b3a2d3d6';
+import { initPixels, pixelsSnap } from './pixels.js?v=25b3a2d3d6';
+import { initQuality, qualitySnap } from './quality.js?v=25b3a2d3d6';
+import { decisionsSnap, initDecisions } from './blockdec.js?v=25b3a2d3d6';
+import { decoderSnap, initDecoder } from './decoder.js?v=25b3a2d3d6';
+import { initIssues, issuesSnap } from './issues.js?v=25b3a2d3d6';
+import { initInternals, internalsSnap } from './internals.js?v=25b3a2d3d6';
+import { coefsSnap, initCoefs } from './coefs.js?v=25b3a2d3d6';
+import { edgesSnap, initEdges } from './edges.js?v=25b3a2d3d6';
+import { entropySnap, initEntropy } from './entropy.js?v=25b3a2d3d6';
+import { cdfsSnap, initCdfs } from './cdfs.js?v=25b3a2d3d6';
+import { candsSnap } from './cands.js?v=25b3a2d3d6';
 
 // ---------------------------------------------------------------- boot
 // A page without streams and without the local server (a site with no demos): what to do, named from the
-// folder the app is installed in, not with a command line (R48 QA D10).
+// folder the app is installed in, not with a command line (R48 QA D10); both the distribution folder and the source
+// folder, which name the launcher differently (T-0069 D8).
 const NO_STREAM_MSG = 'No stream to show here. "Open bundle" reads an analysis folder written by "vca export" in this browser. '
-  + 'To open and analyze your own stream files, start the VC Analyzer app on your computer: 20_analyzer/launch/VC Analyzer.cmd '
-  + 'in its folder (vc-analyzer.sh on Linux).';
+  + 'To open and analyze your own stream files, start the VC Analyzer app on your computer: "VC Analyzer.cmd" in the VC Analyzer '
+  + 'folder on Windows ("vc-analyzer" on Linux), or in a copy of the source code 20_analyzer/launch/VC Analyzer.cmd (vc-analyzer.sh).';
 
 async function boot() {
   const h = parseHash();

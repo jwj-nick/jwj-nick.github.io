@@ -1,14 +1,14 @@
 // F-c track B (R49, T-0049): decoder decisions drawn on the picture and listed in the Block / Frame tabs:
 // intra direction arrows (F14, angles.js), transform type fill (F17) and inter mode fill and rows (F15, modes.js),
 // slice / tile / segment boundaries (F12, regions.js).
-import { C, codecOf, FILLS, LINES, state } from './state.js?v=3e8d1a839f';
-import { esc } from './util.js?v=3e8d1a839f';
-import { intraMarks, vecDegrees } from './angles.js?v=3e8d1a839f';
-import { blockIndex, interRowsHtml, modesSnap, txRowHtml } from './modes.js?v=3e8d1a839f';
-import { hasSegments, regionRowHtml, regionsSectionHtml, regionsSnap } from './regions.js?v=3e8d1a839f';
-import { isChromaBlock } from './frames.js?v=3e8d1a839f';
-import { renderChips } from './controls.js?v=3e8d1a839f';
-import { internalsSectionsHtml } from './internals.js?v=3e8d1a839f';
+import { C, codecOf, FILLS, LINES, state } from './state.js?v=25b3a2d3d6';
+import { esc } from './util.js?v=25b3a2d3d6';
+import { intraMarks, vecDegrees } from './angles.js?v=25b3a2d3d6';
+import { blockIndex, interRowsHtml, modesSnap, txRowHtml } from './modes.js?v=25b3a2d3d6';
+import { hasSegments, regionRowHtml, regionsSectionHtml, regionsSnap } from './regions.js?v=25b3a2d3d6';
+import { isChromaBlock } from './frames.js?v=25b3a2d3d6';
+import { renderChips } from './controls.js?v=25b3a2d3d6';
+import { internalsSectionsHtml } from './internals.js?v=25b3a2d3d6';
 
 // ------------------------------------------------------------ intra marks (cached per frame payload)
 let marksCache = { p: null, m: null };

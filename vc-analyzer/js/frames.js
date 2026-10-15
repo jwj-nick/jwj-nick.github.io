@@ -1,15 +1,15 @@
 // Frame selection, prefetch, block cell index, stepping order and partition path.
-import { C, frameMeta, PERF, perf, perfMark, qName, state } from './state.js?v=3e8d1a839f';
-import { $, clamp, dims, fmt, ohPart, setStatus, typeName } from './util.js?v=3e8d1a839f';
-import { getJSON, jsonBytes } from './data.js?v=3e8d1a839f';
-import { buildPicture, loadPlanes } from './planes.js?v=3e8d1a839f';
-import { updateBraidSelection } from './braid.js?v=3e8d1a839f';
-import { loadFrameDiff } from './diff.js?v=3e8d1a839f';
-import { fitView, requestRender } from './view.js?v=3e8d1a839f';
-import { renderLegend } from './legend.js?v=3e8d1a839f';
-import { ensureSymbols } from './symbols.js?v=3e8d1a839f';
-import { renderTab } from './inspector.js?v=3e8d1a839f';
-import { parseHash, writeHash } from './hash.js?v=3e8d1a839f';
+import { C, frameMeta, PERF, perf, perfMark, qName, state } from './state.js?v=25b3a2d3d6';
+import { $, clamp, dims, fmt, ohPart, setStatus, typeName } from './util.js?v=25b3a2d3d6';
+import { getJSON, jsonBytes, serverStopped } from './data.js?v=25b3a2d3d6';
+import { buildPicture, loadPlanes } from './planes.js?v=25b3a2d3d6';
+import { updateBraidSelection } from './braid.js?v=25b3a2d3d6';
+import { loadFrameDiff } from './diff.js?v=25b3a2d3d6';
+import { fitView, requestRender } from './view.js?v=25b3a2d3d6';
+import { renderLegend } from './legend.js?v=25b3a2d3d6';
+import { ensureSymbols } from './symbols.js?v=25b3a2d3d6';
+import { renderTab } from './inspector.js?v=25b3a2d3d6';
+import { parseHash, writeHash } from './hash.js?v=25b3a2d3d6';
 
 // ------------------------------------------------------------- frames
 export async function selectFrame(f) {
@@ -17,6 +17,9 @@ export async function selectFrame(f) {
   // Keep the selection on the same picture position across frames.
   let keepAt = null;
   if (state.sel >= 0 && state.payload) { const b = state.payload.blocks[state.sel]; keepAt = [b[C.x], b[C.y]]; }
+  // the frame on screen, to go back to when this one cannot be read (the header and the timeline must not run ahead
+  // of the picture; T-0069 D4: the server stopped under the page)
+  const shownF = state.payload && state.picture ? state.payload.frame.f : null, shownSel = state.sel;
   const pickGen = state.pickGen;
   state.f = f;
   state.loading = f;
@@ -31,8 +34,16 @@ export async function selectFrame(f) {
     try {
       payload = await getJSON(`frames/${f}.json`);
     } catch (e) {
-      setStatus(`Could not load frame ${f}: ${e.message}`);
-      if (state.f === f) state.loading = -1;
+      if (state.f !== f) return;   // another frame was asked for meanwhile: its own outcome counts
+      state.loading = -1;
+      if (shownF !== null && shownF !== f && frameMeta(shownF)) {
+        state.f = shownF; state.sel = shownSel;
+        updateBraidSelection();
+        updateFramePos();
+        requestRender();
+        writeHash();
+      }
+      setStatus(`Could not load frame ${f}: ${e.message}.${shownF !== null && shownF !== f ? ` Frame ${shownF} stays on screen.` : ''}`);
       return;
     }
     state.frameCache.set(f, payload, jsonBytes(payload));   // byte budget, the frame on screen stays (state.js)
@@ -175,7 +186,9 @@ export function frameSummary() {
   if (has(fr.blocks)) parts.push(`${fmt(fr.blocks)} blocks`);
   if (has(fr.base_qindex)) parts.push(`base ${qName()} ${fr.base_qindex}`);
   const none = state.picture && state.picture.kind === 'none' && state.payload && state.payload.frame.f === fr.f;
-  return `Frame ${fr.f}: ${parts.filter(Boolean).join(', ')}${none ? '. No picture for this frame (the decoder produced no output).' : ''}`;
+  // the server stopped while the frame's pictures were read: not a frame without output (T-0069 D4)
+  const why = serverStopped() ? '. Its picture could not be read: the analyzer has stopped.' : '. No picture for this frame (the decoder produced no output).';
+  return `Frame ${fr.f}: ${parts.filter(Boolean).join(', ')}${none ? why : ''}`;
 }
 
 // ------------------------------------------------------ partition path

@@ -3,13 +3,13 @@
 // or one raw YUV file), and the viewer opens the A-vs-B entry on the first mismatch.
 // Another analysis: POST api/compare, opened at once.  Dump and raw YUV: a convert
 // job in the tray (jobs.js opens its compare entry when it ends).
-import { state } from './state.js?v=3e8d1a839f';
-import { $, esc, fmt } from './util.js?v=3e8d1a839f';
-import { caps, streamLabel, TOKEN } from './data.js?v=3e8d1a839f';
-import { api, ApiError, fmtBytes, fmtDate, problemHTML, server, toast } from './api.js?v=3e8d1a839f';
-import { openStreamAt, refreshStreams } from './source.js?v=3e8d1a839f';
-import { trackJob } from './jobs.js?v=3e8d1a839f';
-import { cleanPath } from './open.js?v=3e8d1a839f';
+import { state } from './state.js?v=25b3a2d3d6';
+import { $, esc, fmt } from './util.js?v=25b3a2d3d6';
+import { caps, streamLabel, TOKEN } from './data.js?v=25b3a2d3d6';
+import { api, ApiError, fmtBytes, fmtDate, problemHTML, server, toast } from './api.js?v=25b3a2d3d6';
+import { openStreamAt, refreshStreams } from './source.js?v=25b3a2d3d6';
+import { trackJob } from './jobs.js?v=25b3a2d3d6';
+import { cleanPath } from './open.js?v=25b3a2d3d6';
 
 // kind: analysis | dump | raw.  raw = {file_id | path, name} once uploaded or typed.
 // check = the last answer of api/convert/check for raw (with the format it was asked for).
@@ -122,7 +122,7 @@ function chooseFile(f) {
   x.onerror = () => {
     if (st.xhr !== x) return;
     st.xhr = null; st.upload = null;
-    fail(new ApiError(0, 'upload_failed', `Could not send ${f.name} to the local server.`, 'Choose one YUV file and check that "python -m vca serve" is still running.'));
+    fail(new ApiError(0, 'upload_failed', `Could not send ${f.name} to the local server.`, 'Choose one YUV file and check that the analyzer is still running (start VC Analyzer again if it stopped).'));
   };
   x.send(f);
 }

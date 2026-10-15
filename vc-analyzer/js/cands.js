@@ -7,15 +7,15 @@
 // thick.  vca serve answers one block a request (cands.json?block=); a bundle or an opened folder holds every
 // block of a frame in one file (manifest.internals names cands, internals.json the frames).  internals.js calls the
 // section, drawing, legend and chip functions here.
-import { C, LINES, state } from './state.js?v=3e8d1a839f';
-import { esc, fmt, refColor, setStatus } from './util.js?v=3e8d1a839f';
-import { caps, getJSON, withToken } from './data.js?v=3e8d1a839f';
-import { api } from './api.js?v=3e8d1a839f';
-import { trackJob } from './jobs.js?v=3e8d1a839f';
-import { requestRender } from './view.js?v=3e8d1a839f';
-import { renderLegend } from './legend.js?v=3e8d1a839f';
-import { renderTab } from './inspector.js?v=3e8d1a839f';
-import { renderChips } from './controls.js?v=3e8d1a839f';
+import { C, LINES, state } from './state.js?v=25b3a2d3d6';
+import { esc, fmt, refColor, setStatus } from './util.js?v=25b3a2d3d6';
+import { caps, getJSON, withToken } from './data.js?v=25b3a2d3d6';
+import { api } from './api.js?v=25b3a2d3d6';
+import { trackJob } from './jobs.js?v=25b3a2d3d6';
+import { requestRender } from './view.js?v=25b3a2d3d6';
+import { renderLegend } from './legend.js?v=25b3a2d3d6';
+import { renderTab } from './inspector.js?v=25b3a2d3d6';
+import { renderChips } from './controls.js?v=25b3a2d3d6';
 
 // ------------------------------------------------------------ the chip (added to the shared list in place, as
 // internals.js does; controls.js shows it while candsShown())

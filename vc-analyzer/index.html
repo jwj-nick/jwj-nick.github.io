@@ -6,10 +6,11 @@
 <meta name="vca-token" content="">
 <title>VC Analyzer</title>
 <meta name="description" content="Bitstream analyzer for AV2 and AV1: frame reorder timeline, block overlays, pixel stages and entropy-decoded syntax per block.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=3e8d1a839f">
+<!-- the fonts ship with the viewer (fonts/, app.css @font-face): no font server is asked (T-0069 D7) -->
+<link rel="preload" href="fonts/barlow-semi-condensed-400-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/barlow-semi-condensed-600-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/barlow-semi-condensed-700-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="app.css?v=25b3a2d3d6">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%231d232b'/%3E%3Cpath d='M2 12h3V6H2zm4.5 0h3V3h-3zM11 12h3V8h-3z' fill='%23ffb347'/%3E%3C/svg%3E">
 </head>
 <body>
@@ -178,7 +179,7 @@
 python -m vca export ref.vca -o bundle/ --diff cmodel.vca</pre>
     <p>In the local GUI, <b>Compare</b> (<kbd>a</kbd>, or "Compare with…" on a Library row) does the same without a command line. A is an analysis of the Library. B is another analysis of the same codec, a C model or RTL dump read through its mapping file (a YAML file that says where each value is in the dump; <code>python -m vca dump-example</code> writes an example, <code>10_ir/DUMP_MAPPING.md</code> in the VC Analyzer folder describes it), or one raw YUV file of output pictures with 8-bit or 16-bit little endian samples, whose size is checked against A first. A dump or a YUV file becomes an analysis in a job, and the comparison opens when the job ends. Comparisons are listed in the Library as "A vs B"; Remove takes the comparison away and keeps both analyses. When the dump gives each block a simulation time, the Diff tab shows it for the first mismatching block.</p>
     <h3>Your own streams</h3>
-    <p>Start the VC Analyzer app (<code>20_analyzer/launch/VC Analyzer.cmd</code> in its folder, <code>vc-analyzer.sh</code> on Linux), or the local GUI from a command line with <code>python -m vca serve</code> (or with a stream file: <code>python -m vca serve clip.mp4</code>). Then press <b>Open stream</b> (<kbd>o</kbd>), choose a file, drop one on the window, or paste its path. The page shows the codec, size and frame count first; <b>Analyze</b> runs the reference decoder's dumper, builds the store and the HW model draft, and opens the result. The job list at the bottom right shows each phase, and Cancel removes what a job wrote so far. Containers (MP4, MKV, WebM, TS) are unpacked with FFmpeg first.</p>
+    <p>Start the VC Analyzer app (in a distribution folder <code>VC Analyzer.cmd</code> on Windows, <code>./vc-analyzer</code> on Linux; in the repository <code>20_analyzer/launch/VC Analyzer.cmd</code> or <code>vc-analyzer.sh</code>), or the local GUI from a command line with <code>python -m vca serve</code> (or with a stream file: <code>python -m vca serve clip.mp4</code>). Then press <b>Open stream</b> (<kbd>o</kbd>), choose a file, drop one on the window, or paste its path. The page shows the codec, size and frame count first; <b>Analyze</b> runs the reference decoder's dumper, builds the store and the HW model draft, and opens the result. The job list at the bottom right shows each phase, and Cancel removes what a job wrote so far. Containers (MP4, MKV, WebM, TS) are unpacked with FFmpeg first.</p>
     <p>After the picture opens, the output is checked against the reference decoder in the background; the job list and the Library show the result. Every analysis is kept in the workspace folder until you delete it in the <b>Library</b> (<kbd>l</kbd>).</p>
     <p class="fine">The same from the command line, for scripts or a machine without a browser:</p>
     <pre>python -m vca analyze stream.ivf --pixels all
@@ -236,7 +237,7 @@ python -m vca export stream.vca -o bundle/</pre>
         <select id="optPixels" title="All stages keeps prediction, before loop filters and output pictures; Output only uses less disk">
           <option value="all">All stages</option><option value="recon">Output only</option></select></label>
       <label class="check"><input type="checkbox" id="optVerify" checked title="After the picture opens, decode the stream with the reference decoder and compare the output MD5"> Check against the reference decoder</label>
-      <label class="check"><input type="checkbox" id="optCrossdec" title="Also compare with a second, independent decoder (AV1 dav1d, VVC VVdeC, FFmpeg for HEVC, VP9 and AVC)"> Also check with a second decoder</label>
+      <label class="check"><input type="checkbox" id="optCrossdec" title="Also compare with a second, independent decoder (AV1 dav1d, VVC VVdeC, FFmpeg for HEVC, VP9 and AVC)"> <span>Also check with a second decoder <span class="opt-why" id="optCrossdecWhy" hidden></span></span></label>
       <label class="check"><input type="checkbox" id="optHw" checked title="Estimate HW cycles and reference fetch with the example config (a draft model; ARCH_MODEL.md in the VC Analyzer folder says how it counts)"> HW model (draft)</label>
       <p class="opt-note" id="framesNote" hidden></p>
       <p class="opt-note problem" id="rangeProblem" role="alert" hidden></p>
@@ -593,14 +594,18 @@ python -m vca export stream.vca -o bundle/</pre>
   <ol class="tray-list" id="trayList"></ol>
 </aside>
 <div class="toast-pop" id="appToast" role="status" aria-live="polite" hidden></div>
+<div class="gone-banner" id="goneBanner" role="alert" hidden>
+  <b>The analyzer has stopped. Start VC Analyzer again.</b>
+  <span class="hint">What is on screen stays, but nothing new can load until it runs again; then reload this page.</span>
+</div>
 
-<script type="module" src="js/main.js?v=3e8d1a839f"></script>
+<script type="module" src="js/main.js?v=25b3a2d3d6"></script>
 <script>
   // Browsers do not run module scripts from file://: say so instead of showing a blank page.
   if (location.protocol === 'file:') {
     const e = document.getElementById('emptyState');
     e.hidden = false;
-    e.textContent = 'This page cannot run from a file on disk. Start the VC Analyzer app instead (20_analyzer/launch/VC Analyzer.cmd in its folder, vc-analyzer.sh on Linux): it opens this page in a window.';
+    e.textContent = 'This page cannot run from a file on disk. Start the VC Analyzer app instead ("VC Analyzer.cmd" in the VC Analyzer folder on Windows, "vc-analyzer" on Linux; in a copy of the source code 20_analyzer/launch/VC Analyzer.cmd or vc-analyzer.sh): it opens this page in a window.';
   }
 </script>
 </body>

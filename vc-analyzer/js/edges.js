@@ -5,10 +5,10 @@
 // sample windows before and after the kernel as two small grids laid out as on the picture (a vertical edge: the
 // lines are rows; a horizontal edge: columns), with the changed samples marked and their difference.  Opened from
 // a row of the Block tab's Edges section or by Alt+click near an edge on the picture (internals.js).
-import { C, state } from './state.js?v=3e8d1a839f';
-import { $, esc, fmt, rgb } from './util.js?v=3e8d1a839f';
-import { selectBlockIndex } from './controls.js?v=3e8d1a839f';
-import { colsOf, entryOf, lenColour, load, samplesOf, thresholdsText, whyNot } from './internals.js?v=3e8d1a839f';
+import { C, state } from './state.js?v=25b3a2d3d6';
+import { $, esc, fmt, rgb } from './util.js?v=25b3a2d3d6';
+import { selectBlockIndex } from './controls.js?v=25b3a2d3d6';
+import { colsOf, entryOf, lenColour, load, samplesOf, thresholdsText, whyNot } from './internals.js?v=25b3a2d3d6';
 
 const dlg = () => $('#edgeDialog');
 const PLANE = ['Y', 'U', 'V'];

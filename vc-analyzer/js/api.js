@@ -1,13 +1,14 @@
 // Talking to `vca serve` (20_analyzer/SERVER_API.md): JSON requests with the
 // page's token, server errors as {code, message, hint}, the session and the
 // tool health, sizes and dates for the dialogs, and the toast.
-import { caps, withToken, writeCaps } from './data.js?v=3e8d1a839f';
-import { $, esc } from './util.js?v=3e8d1a839f';
+import { caps, serverAnswered, serverLost, withToken, writeCaps } from './data.js?v=25b3a2d3d6';
+import { $, esc } from './util.js?v=25b3a2d3d6';
 
 export class ApiError extends Error {
   constructor(status, code, message, hint, field) { super(message); this.status = status; this.code = code; this.hint = hint || ''; this.field = field || null; }
 }
-const OFFLINE_HINT = 'Check that the VC Analyzer app (or "python -m vca serve") is still running, then reload this page.';
+// the same words however the analyzer was started (the app's window, a launcher, a command line; T-0069 D4)
+export const OFFLINE_HINT = 'Check that the analyzer is still running (start VC Analyzer again if it stopped), then reload this page.';
 // Any failure of a request as a problem sentence ({message, hint}): a fetch that could not reach the server
 // says what api() says (not the browser's "Failed to fetch"), an HTTP status says which.
 export function asProblem(e) {
@@ -24,8 +25,10 @@ export async function api(path, { method = 'GET', body } = {}) {
   if (body !== undefined) { opts.body = JSON.stringify(body); opts.headers = { 'Content-Type': 'application/json' }; }
   let r;
   try { r = await fetch(path, withToken(path, opts)); } catch (e) {
+    serverLost();   // the banner over the page (data.js)
     throw new ApiError(0, 'offline', 'The local server did not answer.', OFFLINE_HINT);
   }
+  if (r.ok) serverAnswered();
   const text = await r.text();
   let data = null;
   try { data = text ? JSON.parse(text) : null; } catch (e) { data = null; }
@@ -40,8 +43,10 @@ export async function api(path, { method = 'GET', body } = {}) {
 export async function apiText(path, header) {
   let r;
   try { r = await fetch(path, withToken(path, { cache: 'no-store' })); } catch (e) {
+    serverLost();
     throw new ApiError(0, 'offline', 'The local server did not answer.', OFFLINE_HINT);
   }
+  if (r.ok) serverAnswered();
   if (!r.ok) throw new ApiError(r.status, `http_${r.status}`, `The server answered HTTP ${r.status}.`, '');
   return { text: await r.text(), header: header ? r.headers.get(header) : null };
 }
@@ -96,10 +101,10 @@ export function healthNotes(h, { codec = null, skip = [], opts = {} } = {}) {
   const c = codec && h.codecs && h.codecs[codec];
   const C = (codec || '').toUpperCase();
   if (c && !c.dumper && !skip.includes('dumper_missing')) {
-    out.push({ message: `The ${C} dumper is not built, so ${C} streams cannot be analyzed yet.`, hint: `Build it with 20_analyzer/${BUILD[codec] || 'adapters/build_dumpers.sh'}.` });
+    out.push({ message: `The ${C} dumper is not built, so ${C} streams cannot be analyzed yet.`, hint: `Build it with 20_analyzer/${BUILD[codec] || 'adapters/build_dumpers.sh'} (scripts of the source code: GUIDE.md in the VC Analyzer folder, section 1).` });
   }
   if (c && c.dumper && !c.refdec && opts.verify) {
-    out.push({ message: `The ${C} reference decoder is not built: the check against it will be skipped.`, hint: `Build it with 20_analyzer/${BUILD[codec] || 'adapters/build_refs.sh'}.`, level: 'note' });
+    out.push({ message: `The ${C} reference decoder is not built: the check against it will be skipped.`, hint: `Build it with 20_analyzer/${BUILD[codec] || 'adapters/build_refs.sh'} (scripts of the source code: GUIDE.md in the VC Analyzer folder, section 1).`, level: 'note' });
   }
   if (c && c.dumper && !c.crossdec && opts.crossdec) {
     out.push({ message: `No second ${C} decoder is built: that check will be skipped.`, hint: 'The build commands are in GUIDE.md in the VC Analyzer folder, section 1 (environment).', level: 'note' });

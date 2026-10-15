@@ -8,10 +8,10 @@
 // IR 0.3 (F-a part 3): for the frame on screen the hex dump marks where each tile's data starts
 // and shades the selected block's runs of symbols (frames/<f>.json `pos`); a click on a byte
 // of tile data selects the block whose symbols cover it.
-import { state } from './state.js?v=3e8d1a839f';
-import { $, esc, fmt } from './util.js?v=3e8d1a839f';
-import { getBlob, getJSON } from './data.js?v=3e8d1a839f';
-import { selectBlockIndex } from './controls.js?v=3e8d1a839f';
+import { state } from './state.js?v=25b3a2d3d6';
+import { $, esc, fmt } from './util.js?v=25b3a2d3d6';
+import { getBlob, getJSON } from './data.js?v=25b3a2d3d6';
+import { selectBlockIndex } from './controls.js?v=25b3a2d3d6';
 
 const dlg = () => $('#bitstreamDialog');
 const UNIT_H = 24, HEX_H = 20, OVERSCAN = 12, ALL_ROWS = 300, STRIP_BYTES = 32;

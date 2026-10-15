@@ -6,18 +6,18 @@
 // the edge nearest an Alt+click, and writes the Block tab's Transform blocks and Edges sections with "Compute".
 // The dialogs are coefs.js and edges.js.  What a codec's dumper can give comes from the payload (stages, caps,
 // names, thresholds): no table per codec here.
-import { C, FILLS, LINES, frameMeta, state } from './state.js?v=3e8d1a839f';
-import { $, esc, fmt, ramp, rgb, setStatus } from './util.js?v=3e8d1a839f';
-import { caps, getBlob, getJSON, withToken } from './data.js?v=3e8d1a839f';
-import { api } from './api.js?v=3e8d1a839f';
-import { requestRender, toImage } from './view.js?v=3e8d1a839f';
-import { renderLegend } from './legend.js?v=3e8d1a839f';
-import { renderTab } from './inspector.js?v=3e8d1a839f';
-import { renderChips } from './controls.js?v=3e8d1a839f';
-import { openCoefs, coefsChanged } from './coefs.js?v=3e8d1a839f';
-import { edgesChanged, openEdge } from './edges.js?v=3e8d1a839f';
+import { C, FILLS, LINES, frameMeta, state } from './state.js?v=25b3a2d3d6';
+import { $, esc, fmt, ramp, rgb, setStatus } from './util.js?v=25b3a2d3d6';
+import { caps, getBlob, getJSON, serverLost, shownEntry, withToken } from './data.js?v=25b3a2d3d6';
+import { api } from './api.js?v=25b3a2d3d6';
+import { requestRender, toImage } from './view.js?v=25b3a2d3d6';
+import { renderLegend } from './legend.js?v=25b3a2d3d6';
+import { renderTab } from './inspector.js?v=25b3a2d3d6';
+import { renderChips } from './controls.js?v=25b3a2d3d6';
+import { openCoefs, coefsChanged } from './coefs.js?v=25b3a2d3d6';
+import { edgesChanged, openEdge } from './edges.js?v=25b3a2d3d6';
 // F-g W7 (cands.js): the Candidates and Intra neighbours sections, the Cands arrows, their legend and chip
-import { CANDS_TITLE, candsChipWhy, candsClick, candsLegendHtml, candsSectionsHtml, drawCands, syncCands } from './cands.js?v=3e8d1a839f';
+import { CANDS_TITLE, candsChipWhy, candsClick, candsLegendHtml, candsSectionsHtml, drawCands, syncCands } from './cands.js?v=25b3a2d3d6';
 
 // ------------------------------------------------------------ chips (added to the shared lists in place, as
 // blockdec.js and quality.js do; controls.js shows the internals ones only while the stream has internals)
@@ -77,7 +77,7 @@ async function read(rel, bytes = false) {
   // no ?r= revision (the server refuses parameters on these paths) and no cache: a job changes them
   const url = state.source.base + rel;
   let r;
-  try { r = await fetch(url, withToken(url, { cache: 'no-cache' })); } catch (e) { throw new Error('the local server did not answer'); }
+  try { r = await fetch(url, withToken(url, { cache: 'no-cache' })); } catch (e) { serverLost(); throw new Error('the local server did not answer'); }
   if (!r.ok) {
     let er = null;
     try { er = (await r.json()).error; } catch (e) { er = null; }
@@ -97,6 +97,16 @@ export function load(f) {
   if (!served() && (!listed.has(f) || !coefKinds())) {
     e = { f, status: 'none', p: null, kindless: listed.has(f) };
     frames.set(f, e);
+    return Promise.resolve(e);
+  }
+  // vca serve: its manifest lists the frames that have internals (and is read again after an internals job ends,
+  // SERVER_API.md section 21 item 7), so a frame it does not list is missing without asking for coef.json and
+  // dbk.json: no 404 for every frame stepped to before Compute (T-0069 D10).  The sentence and the job are the
+  // server's 404 answer (vca serve: the message of internals.Missing, job_hint of the internals route).
+  if (served() && (!listed.has(f) || !coefKinds())) {
+    e = { f, status: 'missing', p: null, coef: null, dbk: null, resid: null, err: '', job: null, samples: null, segSamples: new Map(), miss: missingOf(f) };
+    frames.set(f, e);
+    trim(f);
     return Promise.resolve(e);
   }
   const m = man;
@@ -131,6 +141,14 @@ export function load(f) {
     return e;
   })();
   return e.p;
+}
+// What vca serve's 404 internals_missing says for coef.json of frame f: the sentence, and the job that makes the
+// frame's internals (none on a comparison or a --diff server, as the server answers)
+function missingOf(f) {
+  const m = /\/api\/a\/([^/]+)\/$/.exec(state.source.base), ent = shownEntry();
+  const job = caps.jobs && m && !state.diff && !(ent && ent.kind === 'diff')
+    ? { kind: 'internals', analysis: decodeURIComponent(m[1]), frames: String(f), kinds: ['all'] } : null;
+  return { kind: 'coef', f, code: 'internals_missing', message: `Frame ${f} has no coefficient internals.`, job_hint: job };
 }
 function trim(keep) {
   if (frames.size <= CACHE_FRAMES) return;

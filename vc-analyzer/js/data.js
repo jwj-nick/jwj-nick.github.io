@@ -1,5 +1,5 @@
 // Reading the data contract from a URL or an opened folder, stream discovery and caps.
-import { bLabel, fetchOpts, kindLabel, perfMark, state } from './state.js?v=3e8d1a839f';
+import { bLabel, fetchOpts, kindLabel, perfMark, state } from './state.js?v=25b3a2d3d6';
 
 // The per-run token `vca serve` writes into <meta name="vca-token"> (SERVER_API.md §3).
 // Empty on the static site and in an opened folder: then no header is sent.
@@ -9,6 +9,37 @@ export function withToken(url, opts) {
   if (!TOKEN) return opts;
   try { if (new URL(url, location.href).origin !== location.origin) return opts; } catch (e) { return opts; }
   return { ...(opts || {}), headers: { ...((opts && opts.headers) || {}), 'X-VCA-Token': TOKEN } };
+}
+
+// ------------------------------------------------------- server stopped
+// The page's own server stopped answering (a request that failed, not an HTTP error; T-0069 D4): a banner over the
+// page says so, since every later frame, picture and job request fails the same way.  The next answer of the server
+// takes it away.  Only for `vca serve` (caps.server): a static site's network trouble is not "the analyzer".
+let stopped = false;
+export const serverStopped = () => stopped;
+export function serverLost() {
+  if (!caps.server || stopped) return;
+  stopped = true;
+  const b = document.getElementById('goneBanner');
+  if (b) b.hidden = false;
+}
+export function serverAnswered() {
+  if (!stopped) return;
+  stopped = false;
+  const b = document.getElementById('goneBanner');
+  if (b) b.hidden = true;
+}
+// fetch of this page's server: a failure to reach it shows the banner and reads as a sentence, not "Failed to fetch"
+const ownUrl = (url) => { try { return caps.server && new URL(url, location.href).origin === location.origin; } catch (e) { return false; } };
+async function fetchOwn(url, opts) {
+  let r;
+  try { r = await fetch(url, opts); } catch (e) {
+    if (!ownUrl(url)) throw e;
+    serverLost();
+    throw new Error('the analyzer has stopped');
+  }
+  if (r.ok && ownUrl(url)) serverAnswered();
+  return r;
 }
 
 // --------------------------------------------------------- data access
@@ -28,7 +59,7 @@ export async function getJSON(rel) {
     return parse(await file.text());
   }
   const url = state.source.base + rel + revOf(rel);
-  const r = await fetch(url, withToken(url, fetchOpts));
+  const r = await fetchOwn(url, withToken(url, fetchOpts));
   if (!r.ok) throw new Error(`${rel}: HTTP ${r.status}`);
   const text = await r.text();
   perfMark('fetch');
@@ -40,7 +71,7 @@ export async function getBlob(rel) {
     if (!file) throw new Error(`${rel} is missing from the opened folder`);
     return file;
   }
-  const r = await fetch(state.source.base + rel, withToken(state.source.base + rel, fetchOpts));
+  const r = await fetchOwn(state.source.base + rel, withToken(state.source.base + rel, fetchOpts));
   if (!r.ok) throw new Error(`${rel}: HTTP ${r.status}`);
   return r.blob();
 }
@@ -110,9 +141,12 @@ export async function listStreams() {
 // "stream.ivf" (R48 QA D2).  One rule names a library entry everywhere (picker, Library,
 // Compare, job list, Diff bar and tab, Stream tab, toasts): its name alone while no other
 // analysis of the library has that name; else the folder its file sits in ("stream.ivf in
-// av1-LLS-smoke-001"); when that folder is missing (an upload), generic or shared too, the end
-// of the analysis id as well ("stream.ivf #2fba").  A comparison is "<A> vs <B>" with the two
-// names.  Entries of the static demo index (no `kind`) keep their titles.
+// av1-LLS-smoke-001"); when that folder is missing (an upload), generic or shared too, what a
+// person tells them apart by (T-0069 D9): the codec, the range, the frame count, then when it was
+// analyzed ("stream.ivf in av1-LLS-smoke-001, 10 frames", "clip.ivf, analyzed 3 Oct 2026 10:00");
+// the end of the analysis id ("stream.ivf #2fba") only when all of these are the same.  A
+// comparison is "<A> vs <B>" with the two names.  Entries of the static demo index (no `kind`)
+// keep their titles.
 const GENERIC_DIR = /^(streams?|bitstreams?|videos?|clips?|files?|data|inputs?|outputs?|out|tmp|temp|downloads?|desktop|documents|uploads?|analyses|work|[a-z]:)$/i;
 const baseName = (e) => String(e.title || e.name || e.id).replace(/ \([A-Z0-9]+( diff)?\)$/, '');
 // the folder that holds a file, unless its name says nothing ("streams", "tmp", a drive)
@@ -134,12 +168,33 @@ export function streamLabel(e, list = libEntries()) {
     return a && b ? `${streamLabel(a, list)} vs ${streamLabel(b, list)}` : baseName(e);
   }
   const name = baseName(e), key = name.toLowerCase();
-  const same = list.filter((x) => x.id !== e.id && baseName(x).toLowerCase() === key);
-  if (!same.length) return name;
-  const dir = entryFolder(e);
-  const label = dir ? `${name} in ${dir}` : name;
-  return dir && !same.some((x) => entryFolder(x) === dir) ? label : `${label} #${shortId(e.id)}`;
+  let rest = list.filter((x) => x.id !== e.id && baseName(x).toLowerCase() === key);
+  let label = name;
+  // each fact that some of the remaining namesakes do not share is added, and those namesakes drop out
+  for (const [get, show] of FACETS) {
+    if (!rest.length) break;
+    const v = get(e);
+    if (!v || !rest.some((x) => get(x) !== v)) continue;
+    label += show(v);
+    rest = rest.filter((x) => get(x) === v);
+  }
+  return rest.length ? `${label} #${shortId(e.id)}` : label;
 }
+// The facts of streamLabel in their order: [value of an entry ('' = not known), its words in the label]
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+function whenOf(t) {
+  const d = t === null || t === undefined || t === '' ? null : new Date(typeof t === 'number' && t < 1e12 ? t * 1000 : t);
+  if (!d || isNaN(d)) return '';
+  const two = (x) => String(x).padStart(2, '0');
+  return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()} ${two(d.getHours())}:${two(d.getMinutes())}`;
+}
+const FACETS = [
+  [(e) => entryFolder(e), (v) => ` in ${v}`],
+  [(e) => String(e.codec || '').toUpperCase(), (v) => `, ${v}`],
+  [(e) => (e.window && e.window.tus ? e.window.tus.join('–') : ''), (v) => `, units ${v}`],
+  [(e) => (e.frames ? String(e.frames) : ''), (v) => `, ${v} ${v === '1' ? 'frame' : 'frames'}`],
+  [(e) => whenOf(e.created), (v) => `, analyzed ${v}`],
+];
 // "<label> (<CODEC>)" of a picker entry, as the server's title is built; the demo index's own titles
 export const streamTitle = (s) => {
   if (!s) return '';

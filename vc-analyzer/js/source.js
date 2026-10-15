@@ -1,19 +1,19 @@
 // Opening a bundle: manifest, header facts and the pixel stage list; the stream picker.
-import { BASE_STAGES, C, FILLS, hasArch, stageLabel, state } from './state.js?v=3e8d1a839f';
-import { $, esc, fmt, FRAME_COLORS, setEmpty, setStatus, typeName } from './util.js?v=3e8d1a839f';
-import { caps, getJSON, listStreams, streamTitle } from './data.js?v=3e8d1a839f';
-import { server } from './api.js?v=3e8d1a839f';
-import { renderBraid } from './braid.js?v=3e8d1a839f';
-import { renderDiffBar } from './diff.js?v=3e8d1a839f';
-import { selectFrame } from './frames.js?v=3e8d1a839f';
-import { renderTab, renderTabs } from './inspector.js?v=3e8d1a839f';
-import { requestRender } from './view.js?v=3e8d1a839f';
-import { parseHash } from './hash.js?v=3e8d1a839f';
-import { renderChips } from './controls.js?v=3e8d1a839f';
-import { renderJobs } from './jobs.js?v=3e8d1a839f';
-import { stage2 } from './split.js?v=3e8d1a839f';
-import { pixelsOpened } from './pixels.js?v=3e8d1a839f';
-import { loadRefgraph } from './refsview.js?v=3e8d1a839f';
+import { BASE_STAGES, C, FILLS, hasArch, stageLabel, state } from './state.js?v=25b3a2d3d6';
+import { $, esc, fmt, FRAME_COLORS, setEmpty, setStatus, typeName } from './util.js?v=25b3a2d3d6';
+import { caps, getJSON, listStreams, streamTitle } from './data.js?v=25b3a2d3d6';
+import { server } from './api.js?v=25b3a2d3d6';
+import { renderBraid } from './braid.js?v=25b3a2d3d6';
+import { renderDiffBar } from './diff.js?v=25b3a2d3d6';
+import { selectFrame } from './frames.js?v=25b3a2d3d6';
+import { renderTab, renderTabs } from './inspector.js?v=25b3a2d3d6';
+import { requestRender } from './view.js?v=25b3a2d3d6';
+import { parseHash } from './hash.js?v=25b3a2d3d6';
+import { renderChips } from './controls.js?v=25b3a2d3d6';
+import { renderJobs } from './jobs.js?v=25b3a2d3d6';
+import { stage2 } from './split.js?v=25b3a2d3d6';
+import { pixelsOpened } from './pixels.js?v=25b3a2d3d6';
+import { loadRefgraph } from './refsview.js?v=25b3a2d3d6';
 
 // ------------------------------------------------------------ picker
 // The picker lists state.streams; an opened folder keeps its own extra option.
@@ -37,8 +37,9 @@ export async function refreshStreams() {
   renderPicker();
   return state.streams;
 }
-// Opens picker entry i (the picker, the Library, a job's Open, a finished job).
-export async function openStreamAt(i) {
+// Opens picker entry i (the picker, the Library, a job's Open, a finished job).  reveal: on a phone the page then
+// scrolls to the picture (the picker itself, at the top, passes false).
+export async function openStreamAt(i, { reveal = true } = {}) {
   const s = state.streams[i];
   if (!s) return;
   state.openSeq++;
@@ -49,6 +50,17 @@ export async function openStreamAt(i) {
   history.replaceState(null, '', url);
   rememberUsed(s.id);
   await openSource({ kind: 'url', base: s.base }, streamTitle(s));
+  if (reveal && state.streams[state.streamIdx] === s) revealPicture();
+}
+
+// One column (a phone): the picture sits under the top bar, the timeline and the toolbar, below a 900 px high window.
+// An analysis opened by a job, the Library or a dialog brings it into sight (T-0069 D6); on a desktop it is in sight.
+export function revealPicture() {
+  if (!matchMedia('(max-width: 860px)').matches) return;
+  const w = $('#canvasWrap'), r = w.getBoundingClientRect();
+  const tray = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tray-h')) || 0;
+  if (r.top >= 0 && r.bottom <= innerHeight - tray) return;
+  w.scrollIntoView({ block: 'start' });   // the body scrolls on a phone (overflow-x: hidden), not the window
 }
 
 // The library entry used last, per workspace (local storage): a fresh load of the app opens it
@@ -156,15 +168,19 @@ function renderFacts() {
   const s = state.manifest.stream, seq = s.sequence || {};
   const fr = state.manifest.frames;
   const w = fr.length ? fr[0].width : seq.max_frame_width, h = fr.length ? fr[0].height : seq.max_frame_height;
+  const dec = (s.decoder || '').replace('AOMedia Project ', '');
   const items = [
     ['Codec', `<span class="codec-badge">${esc((s.codec || '?').toUpperCase())}</span>`],
     ['Size', `${fmt(w)}×${fmt(h)}`],
     ['Bit depth', seq.bit_depth ? `${seq.bit_depth}-bit` : '–'],
     ['Decoded', fmt(s.frames)], ['Output', fmt(s.outputs)],
     ['Bitrate', s.bitrate_kbps ? `${fmt(s.bitrate_kbps, 0)} kbps` : '–'],
-    ['Decoder', esc((s.decoder || '').replace('AOMedia Project ', ''))],
+    ['Decoder', esc(dec), dec],
   ];
-  $('#facts').innerHTML = items.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('');
+  // a long decoder string (a Windows build: "HM-18.0 9c1f298 + hm_vca_hooks.patch (mingw-w64 13-posix, static)") is
+  // cut with an ellipsis so the buttons stay on the top row; the whole text is the tooltip of the label and the value
+  // (B2 QA item 5, T-0069 D11)
+  $('#facts').innerHTML = items.map(([k, v, tip]) => `<div${tip !== undefined ? ` class="f-long"${tip ? ` title="${esc(`${k}: ${tip}`)}"` : ''}` : ''}><dt>${k}</dt><dd${tip ? ` title="${esc(tip)}"` : ''}>${v}</dd></div>`).join('');
   const types = [...new Set(fr.map((x) => x.frame_type))];
   $('#typeLegend').innerHTML = types.map((t) => `<span><i style="background:${FRAME_COLORS[t] || '#888'}"></i>${esc(typeName(t) || 'type not decoded')}</span>`).join('');
 }

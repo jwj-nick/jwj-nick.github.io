@@ -5,17 +5,17 @@
 // Every number comes from the data contract (SERVER_API.md section 16): the frame values from `vca serve`'s
 // quality.jsonl (= `vca quality --json`, streamed as the frames are computed) or a bundle's quality.json (PSNR only),
 // the block values from frames/<f>.diff.json `cu` of the stage in focus.
-import { C, FILLS, state, STAGES } from './state.js?v=3e8d1a839f';
-import { $, clamp, esc, fmt, ramp, rgb, setStatus } from './util.js?v=3e8d1a839f';
-import { aTitle, bTitle, caps, getJSON, withToken } from './data.js?v=3e8d1a839f';
-import { asProblem } from './api.js?v=3e8d1a839f';
-import { focusStage } from './diff.js?v=3e8d1a839f';
-import { orderedFrames, selectFrame, stepFrame } from './frames.js?v=3e8d1a839f';
-import { canvas, requestRender } from './view.js?v=3e8d1a839f';
-import { renderTab } from './inspector.js?v=3e8d1a839f';
-import { writeHash } from './hash.js?v=3e8d1a839f';
-import * as pixels from './pixels.js?v=3e8d1a839f';
-import { renderChips } from './controls.js?v=3e8d1a839f';
+import { C, FILLS, state, STAGES } from './state.js?v=25b3a2d3d6';
+import { $, clamp, esc, fmt, ramp, rgb, setStatus } from './util.js?v=25b3a2d3d6';
+import { aTitle, bTitle, caps, getJSON, withToken } from './data.js?v=25b3a2d3d6';
+import { asProblem } from './api.js?v=25b3a2d3d6';
+import { focusStage } from './diff.js?v=25b3a2d3d6';
+import { orderedFrames, selectFrame, stepFrame } from './frames.js?v=25b3a2d3d6';
+import { canvas, requestRender } from './view.js?v=25b3a2d3d6';
+import { renderTab } from './inspector.js?v=25b3a2d3d6';
+import { writeHash } from './hash.js?v=25b3a2d3d6';
+import * as pixels from './pixels.js?v=25b3a2d3d6';
+import { renderChips } from './controls.js?v=25b3a2d3d6';
 
 const dlg = () => $('#qualityDialog');
 const PSNR_KEYS = ['Y', 'U', 'V', 'yuv'], SSIM_KEYS = ['Y', 'U', 'V', 'all'];
@@ -174,8 +174,16 @@ function serverBase() {
 const stagesOfA = () => { const s = new Set(); state.manifest.frames.forEach((fr) => (fr.stages || []).forEach((x) => s.add(x))); return PIPELINE.filter((x) => s.has(x)); };
 // Quality has numbers to show: a comparison, or an analysis with two pixel stages (the Stream tab's button)
 export const qualityOffered = () => !!state.manifest && (!!state.diff || stagesOfA().length >= 2);
-// One analysis with the output pictures only, in the GUI's words (R49 QA D7: not the CLI's --pixels all)
+// Dumpers that write the output pictures only, whatever Pixel stages says: libaom's inspection API gives no
+// prediction and no picture before the loop filters (the Intra neighbours section says the same, cands.js)
+const OUTPUT_ONLY = { av1: 'the AV1 dumper (libaom inspection)' };
+// One analysis with the output pictures only, in the GUI's words (R49 QA D7: not the CLI's --pixels all); a codec
+// whose dumper has one stage only says so instead of the advice to analyze again (T-0069 D3)
 export function oneStageText() {
+  const who = OUTPUT_ONLY[(state.manifest && state.manifest.stream && state.manifest.stream.codec) || ''];
+  if (who) {
+    return `This analysis keeps the output pictures only: ${who} writes no prediction and no picture before the loop filters, so Pixel stages "All stages" (Open stream${caps.jobs ? '' : ' in the VC Analyzer app'}) would not add them either.${caps.jobs ? ' To see PSNR, compare it with another analysis (Compare).' : ''}`;
+  }
   const how = caps.jobs ? 'Open the stream again (Open stream) with Pixel stages "All stages"'
     : 'Analyze the stream in the VC Analyzer app with Pixel stages "All stages" (Open stream)';
   return `This analysis keeps the output pictures only, so it has no two pixel stages to compare. ${how} to keep the prediction and the picture before the loop filters too${caps.jobs ? ', or compare it with another analysis (Compare)' : ''}.`;

@@ -1,12 +1,12 @@
 // The Library dialog (SERVER_API.md §5): every analysis the server lists, a
 // filter, Open, and Delete with an inline confirmation for workspace entries.
-import { state } from './state.js?v=3e8d1a839f';
-import { $, esc, fmt } from './util.js?v=3e8d1a839f';
-import { caps, streamLabel } from './data.js?v=3e8d1a839f';
-import { api, asProblem, fmtBytes, fmtDate, problemHTML, server, toast } from './api.js?v=3e8d1a839f';
-import { closeStream, openStreamAt, refreshStreams } from './source.js?v=3e8d1a839f';
-import { openStreamDialog, showServerEmpty } from './open.js?v=3e8d1a839f';
-import { openCompare } from './compare.js?v=3e8d1a839f';
+import { state } from './state.js?v=25b3a2d3d6';
+import { $, esc, fmt } from './util.js?v=25b3a2d3d6';
+import { caps, streamLabel } from './data.js?v=25b3a2d3d6';
+import { api, asProblem, fmtBytes, fmtDate, problemHTML, server, toast } from './api.js?v=25b3a2d3d6';
+import { closeStream, openStreamAt, refreshStreams } from './source.js?v=25b3a2d3d6';
+import { openStreamDialog, showServerEmpty } from './open.js?v=25b3a2d3d6';
+import { openCompare } from './compare.js?v=25b3a2d3d6';
 
 let confirmId = null, loadErr = null;
 const rowErr = new Map();
@@ -133,8 +133,8 @@ function row(e, cur) {
 // when it was a comparison and A is still listed, else the first entry, else the empty state.
 async function leave(cur) {
   const a = cur && cur.kind === 'diff' ? state.streams.findIndex((x) => x.id === cur.a) : -1;
-  if (a >= 0) await openStreamAt(a);
-  else if (state.streams.length) await openStreamAt(0);
+  if (a >= 0) await openStreamAt(a, { reveal: false });   // the Library stays open: the page does not scroll
+  else if (state.streams.length) await openStreamAt(0, { reveal: false });
   else { closeStream(); if (caps.jobs) showServerEmpty(); }
 }
 const shownEntry = () => { const s = state.streams[state.streamIdx]; return s && s.entry ? s.entry : null; };

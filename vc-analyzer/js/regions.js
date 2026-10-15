@@ -2,8 +2,8 @@
 // unit its symbols were read from (frames/<f>.json pos: blk -> segs -> unit; HEVC and AVC also ext.slice), its tile
 // comes from the frame's tile grid, its segment from segment_id.  The `bounds` line draws slice boundaries solid and
 // segment boundaries dotted; tiles stay on `p`.
-import { C, codecOf, state } from './state.js?v=3e8d1a839f';
-import { esc, fmt } from './util.js?v=3e8d1a839f';
+import { C, codecOf, state } from './state.js?v=25b3a2d3d6';
+import { esc, fmt } from './util.js?v=25b3a2d3d6';
 
 export const SLICE_COLOR = '#9be15d', SEG_LINE = '#c77dff';
 export const SEG_COLORS = ['#8a94a3', '#4b8dff', '#3fb8af', '#b07cf7', '#e76f6f', '#9be15d', '#7fd3e8', '#ff66c4'];

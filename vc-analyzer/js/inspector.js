@@ -1,17 +1,17 @@
 // Inspector tabs: Block, Diff, Frame, Syntax, Stats, Stream.
-import { BASE_STAGES, C, cdefText, frameMeta, hasCdef, kindLabel, STAGES, state, usesQp } from './state.js?v=3e8d1a839f';
-import { $, esc, extText, fmt, refColor } from './util.js?v=3e8d1a839f';
-import { stageDiffers } from './planes.js?v=3e8d1a839f';
-import { focusStage } from './diff.js?v=3e8d1a839f';
-import { blockAt, chromaAt, frameSummary, isChromaBlock, partitionPath } from './frames.js?v=3e8d1a839f';
-import { ARCH_MODULES, archOf } from './arch.js?v=3e8d1a839f';
-import { hasSymbols, symbolsOfBlock, symbolsReady, symtype } from './symbols.js?v=3e8d1a839f';
-import { hwTabShown, renderHwTab } from './hw.js?v=3e8d1a839f';
-import { blockDecisionHtml, frameRegionsHtml } from './blockdec.js?v=3e8d1a839f';
-import { blockRefHtml, frameRefsHtml } from './refsview.js?v=3e8d1a839f';
-import { bTitle, shownEntry, streamLabel } from './data.js?v=3e8d1a839f';
-import { cuRows, oneStageText, psnrRampCss, psnrText, qualityOffered, samplesText } from './quality.js?v=3e8d1a839f';
-import { hasCdf, hasEc } from './entropy.js?v=3e8d1a839f';
+import { BASE_STAGES, C, cdefText, frameMeta, hasCdef, kindLabel, STAGES, state, usesQp } from './state.js?v=25b3a2d3d6';
+import { $, esc, extText, fmt, refColor } from './util.js?v=25b3a2d3d6';
+import { stageDiffers } from './planes.js?v=25b3a2d3d6';
+import { focusStage } from './diff.js?v=25b3a2d3d6';
+import { blockAt, chromaAt, frameSummary, isChromaBlock, partitionPath } from './frames.js?v=25b3a2d3d6';
+import { ARCH_MODULES, archOf } from './arch.js?v=25b3a2d3d6';
+import { hasSymbols, symbolsOfBlock, symbolsReady, symtype } from './symbols.js?v=25b3a2d3d6';
+import { hwTabShown, renderHwTab } from './hw.js?v=25b3a2d3d6';
+import { blockDecisionHtml, frameRegionsHtml } from './blockdec.js?v=25b3a2d3d6';
+import { blockRefHtml, frameRefsHtml } from './refsview.js?v=25b3a2d3d6';
+import { bTitle, shownEntry, streamLabel } from './data.js?v=25b3a2d3d6';
+import { cuRows, oneStageText, psnrRampCss, psnrText, qualityOffered, samplesText } from './quality.js?v=25b3a2d3d6';
+import { hasCdf, hasEc } from './entropy.js?v=25b3a2d3d6';
 
 // ------------------------------------------------------------ inspector
 export function blockObject(bi) {

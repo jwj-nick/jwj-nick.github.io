@@ -1,32 +1,32 @@
 // Toolbar chips, block selection and navigation, pointer and keyboard wiring.
-import { C, FILLS, hasArch, hasChromaTree, LINES, state, usesQp } from './state.js?v=3e8d1a839f';
-import { $, esc, fmt, setEmpty, setStatus } from './util.js?v=3e8d1a839f';
-import { caps } from './data.js?v=3e8d1a839f';
-import { buildPicture, pixelAt, pixelPending } from './planes.js?v=3e8d1a839f';
-import { cycleComp, cycleViewMode, syncPaneSelect, toggleGray, toggleGrid } from './pixels.js?v=3e8d1a839f';
-import { cmpMode, nearDivider, paneLabels, paneRects, setSplitPos } from './split.js?v=3e8d1a839f';
-import { openSource, openStreamAt, renderPicker } from './source.js?v=3e8d1a839f';
-import { renderBraidDebounced, toggleArcs } from './braid.js?v=3e8d1a839f';
-import { openDecoder } from './decoder.js?v=3e8d1a839f';
-import { toggleFilmstrip } from './filmstrip.js?v=3e8d1a839f';
-import { flipAB, gotoFirstMismatch, showStage } from './diff.js?v=3e8d1a839f';
-import { blockAt, frameSummary, isChromaBlock, orderedFrames, selectFrame, stepFrame } from './frames.js?v=3e8d1a839f';
-import { canvas, fitCanvasHeight, fitView, pictureAt, requestRender, setZoom, toImage, zoomAt } from './view.js?v=3e8d1a839f';
-import { renderLegend } from './legend.js?v=3e8d1a839f';
-import { blockObject, renderTab } from './inspector.js?v=3e8d1a839f';
-import { aiFrameContext, copyBlockForAI, copyText } from './ai.js?v=3e8d1a839f';
-import { writeHash } from './hash.js?v=3e8d1a839f';
-import { openStreamDialog } from './open.js?v=3e8d1a839f';
-import { openLibrary } from './library.js?v=3e8d1a839f';
-import { openExport } from './export.js?v=3e8d1a839f';
-import { openCompare } from './compare.js?v=3e8d1a839f';
-import { bitstreamSelChanged, openBitstream } from './bitstream.js?v=3e8d1a839f';
-import { openGraphs } from './graphs.js?v=3e8d1a839f';
-import { openIssues } from './issues.js?v=3e8d1a839f';
-import { chipWhy, internalsChipTitle, internalsShown, openCoefsKey, pickEdgeAt } from './internals.js?v=3e8d1a839f';
-import { openEntropyKey } from './entropy.js?v=3e8d1a839f';
-import { openCdfs } from './cdfs.js?v=3e8d1a839f';
-import { candsKeySay, candsShown } from './cands.js?v=3e8d1a839f';
+import { C, FILLS, hasArch, hasChromaTree, LINES, state, usesQp } from './state.js?v=25b3a2d3d6';
+import { $, esc, fmt, setEmpty, setStatus } from './util.js?v=25b3a2d3d6';
+import { caps } from './data.js?v=25b3a2d3d6';
+import { buildPicture, pixelAt, pixelPending } from './planes.js?v=25b3a2d3d6';
+import { cycleComp, cycleViewMode, syncPaneSelect, toggleGray, toggleGrid } from './pixels.js?v=25b3a2d3d6';
+import { cmpMode, nearDivider, paneLabels, paneRects, setSplitPos } from './split.js?v=25b3a2d3d6';
+import { openSource, openStreamAt, renderPicker } from './source.js?v=25b3a2d3d6';
+import { renderBraidDebounced, toggleArcs } from './braid.js?v=25b3a2d3d6';
+import { openDecoder } from './decoder.js?v=25b3a2d3d6';
+import { toggleFilmstrip } from './filmstrip.js?v=25b3a2d3d6';
+import { flipAB, gotoFirstMismatch, showStage } from './diff.js?v=25b3a2d3d6';
+import { blockAt, frameSummary, isChromaBlock, orderedFrames, selectFrame, stepFrame } from './frames.js?v=25b3a2d3d6';
+import { canvas, fitCanvasHeight, fitView, pictureAt, requestRender, setZoom, toImage, zoomAt } from './view.js?v=25b3a2d3d6';
+import { renderLegend } from './legend.js?v=25b3a2d3d6';
+import { blockObject, renderTab } from './inspector.js?v=25b3a2d3d6';
+import { aiFrameContext, copyBlockForAI, copyText } from './ai.js?v=25b3a2d3d6';
+import { writeHash } from './hash.js?v=25b3a2d3d6';
+import { openStreamDialog } from './open.js?v=25b3a2d3d6';
+import { openLibrary } from './library.js?v=25b3a2d3d6';
+import { openExport } from './export.js?v=25b3a2d3d6';
+import { openCompare } from './compare.js?v=25b3a2d3d6';
+import { bitstreamSelChanged, openBitstream } from './bitstream.js?v=25b3a2d3d6';
+import { openGraphs } from './graphs.js?v=25b3a2d3d6';
+import { openIssues } from './issues.js?v=25b3a2d3d6';
+import { chipWhy, internalsChipTitle, internalsShown, openCoefsKey, pickEdgeAt } from './internals.js?v=25b3a2d3d6';
+import { openEntropyKey } from './entropy.js?v=25b3a2d3d6';
+import { openCdfs } from './cdfs.js?v=25b3a2d3d6';
+import { candsKeySay, candsShown } from './cands.js?v=25b3a2d3d6';
 
 // ------------------------------------------------------------ controls
 export function renderChips() {
@@ -163,7 +163,7 @@ export function wire() {
   });
   $('#diffBar').addEventListener('click', (e) => { const b = e.target.closest('[data-act]'); if (b && b.dataset.act === 'goto-mismatch') gotoFirstMismatch(); });
   $('#braid').addEventListener('click', (e) => { const r = e.target.closest('[data-f]'); if (r && r.dataset.f !== '') selectFrame(+r.dataset.f); });
-  $('#streamSelect').addEventListener('change', (e) => { const i = +e.target.value; if (state.streams[i]) openStreamAt(i); });
+  $('#streamSelect').addEventListener('change', (e) => { const i = +e.target.value; if (state.streams[i]) openStreamAt(i, { reveal: false }); });
   // The stream picker and the toolbar's lists (pixel stage, second picture, component, matrix, range, view mode)
   // keep the keys while they have the focus, so the shortcuts stopped after one was used (R49 QA).  A choice made
   // with the mouse gives the focus to the picture at once; one made with the keyboard keeps it on the list (its

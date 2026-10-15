@@ -4,10 +4,10 @@
 // planes.js: above 8 bits the view PNG and its .lo.png, loaded when the grid needs them).  A − B and the
 // change pictures (loop filter change, residual) show the signed difference.  The numbers are drawn on the
 // canvas, so the screen and the PNG export carry them; gridSnap() lists the cells drawn on screen (tests).
-import { state } from './state.js?v=3e8d1a839f';
-import { exactOf, frameBitDepth, whenExact } from './planes.js?v=3e8d1a839f';
-import { requestRender } from './view.js?v=3e8d1a839f';
-import { renderLegend } from './legend.js?v=3e8d1a839f';
+import { state } from './state.js?v=25b3a2d3d6';
+import { exactOf, frameBitDepth, whenExact } from './planes.js?v=25b3a2d3d6';
+import { requestRender } from './view.js?v=25b3a2d3d6';
+import { renderLegend } from './legend.js?v=25b3a2d3d6';
 
 const FONT_PX = 11;          // CSS px
 const CHAR_W = 6.6;          // width of one digit at FONT_PX in the mono font (CSS px), for the legend's zoom

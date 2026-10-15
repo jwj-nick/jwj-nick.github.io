@@ -1,12 +1,12 @@
 // "Open stream" (SERVER_API.md §4, §6): the dialog, choosing or dropping a file,
 // the upload with its progress, a path on this computer, the probe card, the
 // analysis options and recent sources.  Analyze starts a job (jobs.js).
-import { state } from './state.js?v=3e8d1a839f';
-import { $, esc, fmt } from './util.js?v=3e8d1a839f';
-import { caps, folderOf, TOKEN } from './data.js?v=3e8d1a839f';
-import { api, ApiError, fmtBytes, fmtDate, healthNotes, loadHealth, problemHTML, server } from './api.js?v=3e8d1a839f';
-import { openStreamAt, refreshStreams } from './source.js?v=3e8d1a839f';
-import { lastOutcome, trackJob } from './jobs.js?v=3e8d1a839f';
+import { state } from './state.js?v=25b3a2d3d6';
+import { $, esc, fmt } from './util.js?v=25b3a2d3d6';
+import { caps, folderOf, TOKEN } from './data.js?v=25b3a2d3d6';
+import { api, ApiError, fmtBytes, fmtDate, healthNotes, loadHealth, problemHTML, server } from './api.js?v=25b3a2d3d6';
+import { openStreamAt, refreshStreams } from './source.js?v=25b3a2d3d6';
+import { lastOutcome, trackJob } from './jobs.js?v=25b3a2d3d6';
 
 const CODECS = ['av2', 'av1', 'vvc', 'hevc', 'vp9', 'avc'];
 const CONTAINERS = { ivf: 'IVF', annexb: 'Annex B', obu: 'OBU', mp4: 'MP4', mkv: 'Matroska', webm: 'WebM', ts: 'MPEG-TS', unknown: 'not recognised' };
@@ -23,6 +23,7 @@ export function openSnap() {
     stage: st.stage, name: st.name, upload: st.upload ? { ...st.upload } : null, probeCodec: st.codec,
     probe: p ? { codec: p.codec, container: p.container, frames: p.frames, width: p.width, height: p.height, supported: p.supported,
       needs_extract: p.needs_extract, problems: (p.problems || []).map((x) => x.code), existing: (p.existing || []).length,
+      same: sameExisting() ? sameExisting().aid : null,
       index: p.index ? { tus: p.index.tus, raps: [...p.index.raps] } : null } : null,
     error: st.error ? st.error.code : null, analyze: !$('#analyzeBtn').disabled,
     // the range choice (F-e 2): offered = the probe has an index; a, b as typed; rap = where decoding starts
@@ -89,7 +90,8 @@ function chooseFile(f, note = '') {
   x.onerror = () => {
     if (st.xhr !== x) return;
     st.xhr = null;
-    fail(new ApiError(0, 'upload_failed', `Could not send ${f.name} to the local server.`, 'Choose one stream file (not a folder) and check that "python -m vca serve" is still running.'));
+    // the same words however the analyzer was started (T-0069 D4, api.js OFFLINE_HINT)
+    fail(new ApiError(0, 'upload_failed', `Could not send ${f.name} to the local server.`, 'Choose one stream file (not a folder) and check that the analyzer is still running (start VC Analyzer again if it stopped).'));
   };
   x.onabort = () => { /* abortUpload or a new file: the caller sets the stage */ };
   x.send(f);
@@ -181,7 +183,7 @@ function options() {
     frames: $('#optFramesMode').value === 'first' ? n : 0,
     pixels: $('#optPixels').value,
     verify: $('#optVerify').checked,
-    crossdec: $('#optCrossdec').checked,
+    crossdec: $('#optCrossdec').checked && !$('#optCrossdec').disabled,
     hw: $('#optHw').checked,
     ...(r.on && !r.problem ? { window: { tus: [r.a, r.b] } } : {}),
   };
@@ -232,10 +234,13 @@ function canAnalyze() {
     && $('#optCodec').value !== 'auto';
 }
 
-async function analyze() {
+// replace = the id of the earlier analysis of this file with the same options ("Analyze again"): the server
+// removes it when the new one is ready, so no copy stays (SERVER_API.md section 22).
+async function analyze(replace = null) {
   if (!canAnalyze()) return;
   const body = { kind: 'analyze', options: options() };
   if (st.fileId) body.file_id = st.fileId; else body.path = st.path;
+  if (replace) body.replace = replace;
   const probed = st.probe;
   st.stage = 'starting';
   renderAll();
@@ -248,6 +253,34 @@ async function analyze() {
     st.error = e;
     renderAll();
   }
+}
+
+// The probe's earlier analyses of this file (newest first) against the options chosen now (T-0069 D9): the same
+// options (codec, frames or range, pixel stages, the checks, HW model) make the same analysis, so Open is the
+// default then and "Analyze again" replaces it; other options make another analysis and keep the earlier one.
+const codecOf = (c) => (c && c !== 'auto' ? c : (st.autoProbe && st.autoProbe.codec) || (st.probe && st.probe.codec) || null);
+const tusOf = (o) => (o && o.window && o.window.tus ? o.window.tus.join('-') : '');
+function sameOptions(a, b) {
+  if (!a || !b) return false;
+  return codecOf(a.codec) === codecOf(b.codec) && (a.frames || 0) === (b.frames || 0) && (a.pixels || 'all') === (b.pixels || 'all')
+    && tusOf(a) === tusOf(b) && !!a.verify === !!b.verify && !!a.crossdec === !!b.crossdec && !!a.hw === !!b.hw;
+}
+function sameExisting() {
+  const p = st.probe;
+  if (!p || st.stage !== 'probed') return null;
+  const now = options();
+  return (p.existing || []).find((x) => sameOptions(x.options, now)) || null;
+}
+// "first 10 frames, output only, no reference decoder check" for an earlier analysis made with other options
+function optsSummary(o) {
+  if (!o) return '';
+  const unit = st.probe && st.probe.index ? st.probe.index.unit : 'temporal unit';
+  const parts = [o.window && o.window.tus ? `${unit}s ${o.window.tus[0]}–${o.window.tus[1]}` : o.frames ? `first ${o.frames} ${o.frames === 1 ? 'frame' : 'frames'}` : 'all frames'];
+  if (o.pixels === 'recon') parts.push('output only');
+  if (!o.verify) parts.push('no reference decoder check');
+  if (o.crossdec) parts.push('second decoder check');
+  if (!o.hw) parts.push('no HW model');
+  return parts.join(', ');
 }
 
 // Opens an analysis that is already in the library (existing or recent).
@@ -323,7 +356,9 @@ function renderProbe() {
     ['Picture size', size],
     ['Output frames', p.frames === null || p.frames === undefined ? '–' : fmt(p.frames),
       'Frames the container declares as shown (IVF header, MP4 sample count). The analysis counts decoded frames, which can be more (hidden frames). Annex B and OBU files declare none.'],
-    ['Bit depth', p.bit_depth ? `${p.bit_depth}-bit` : '–'],
+    // the file's header does not say it for AV2 (and for AV1, VP9 without FFmpeg): the sequence header tells the analysis (T-0069 D3)
+    ['Bit depth', p.bit_depth ? `${p.bit_depth}-bit` : p.codec ? 'after analysis' : '–',
+      p.bit_depth ? '' : p.codec ? 'Read from the sequence header when the stream is analyzed; the probe does not decode it.' : ''],
     ['File size', fmtBytes(src.bytes)],
   ];
   // the index of temporal units (access units for Annex B), counted without decoding: what a range is chosen from
@@ -340,20 +375,35 @@ function renderProbe() {
     notes.push(`The analysis needs about ${fmtBytes(e.disk_bytes)} on disk and takes about ${e.seconds ? fmtSecondsShort(e.seconds) : 'a short while'}${e.approximate === false ? '' : ' (approximate)'}.`);
   }
   const probs = (p.problems || []).map((x) => `<li class="problem">${problemHTML(x)}</li>`).join('');
-  const ex = (p.existing || [])[0];
   card.innerHTML = `
     <div class="pc-head"><span class="pc-name" title="${esc(src.path || src.name || st.name)}">${esc(src.name || st.name)}</span>
       ${src.path ? `<span class="pc-path mono" title="${esc(src.path)}">${esc(src.path)}</span>` : ''}</div>
     <dl class="pc-facts">${facts.map(([k, v, tip]) => `<div${tip ? ` title="${esc(tip)}"` : ''}><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl>
     ${notes.map((n) => `<p class="pc-note">${esc(n)}</p>`).join('')}
     ${probs ? `<ul class="problems">${probs}</ul>` : ''}
-    ${ex ? `<p class="pc-existing">Already analyzed${ex.options && ex.options.window ? ` (${esc(ix ? ix.unit : 'temporal unit')}s ${ex.options.window.tus[0]}–${ex.options.window.tus[1]})` : ''} on ${esc(fmtDate(ex.created))}. <button class="btn small" type="button" data-act="open-existing" data-aid="${esc(ex.aid)}" title="Show that analysis instead of analyzing the file again">Open</button></p>` : ''}`;
+    <p class="pc-existing" id="pcExisting" hidden></p>`;
+}
+// The line about an earlier analysis of this file; it follows the options (renderButtons), since the same
+// options decide whether Analyze opens that analysis (T-0069 D9).
+function renderExisting() {
+  const box = $('#pcExisting');
+  if (!box) return;
+  const p = st.probe, same = sameExisting();
+  const ex = same || (p && st.stage === 'probed' ? (p.existing || [])[0] : null);
+  box.hidden = !ex;
+  if (!ex) { box.innerHTML = ''; box.dataset.key = ''; return; }
+  const html = same
+    ? `Already analyzed with these options on ${esc(fmtDate(ex.created))}. Open shows it. <button class="btn small" type="button" data-act="analyze-again" data-aid="${esc(ex.aid)}" title="Analyze the file again with these options; the new analysis replaces the earlier one (no copy is kept)">Analyze again</button>`
+    : `Analyzed before with other options (${esc(optsSummary(ex.options))}) on ${esc(fmtDate(ex.created))}; Analyze makes another analysis and keeps that one. <button class="btn small" type="button" data-act="open-existing" data-aid="${esc(ex.aid)}" title="Show that analysis instead of analyzing the file again">Open</button>`;
+  const key = `${same ? 'same' : 'other'}:${ex.aid}:${html.length}`;
+  if (box.dataset.key !== key) { box.innerHTML = html; box.dataset.key = key; }   // keep the focus on its button
 }
 const fmtSecondsShort = (s) => (s < 60 ? `${Math.max(1, Math.round(s))} s` : `${Math.round(s / 60)} min`);
 
 function renderHealth() {
   const box = $('#openHealth');
   const p = st.probe;
+  renderCrossdec();         // the health says which second decoders are built (options() reads the result)
   const notes = healthNotes(server.health, { codec: p && p.codec, skip: p ? (p.problems || []).map((x) => x.code) : [], opts: options() });
   box.hidden = !notes.length;
   box.innerHTML = notes.map((n) => `<li${n.level === 'note' ? ' class="note"' : ''}>${problemHTML(n)}</li>`).join('');
@@ -368,10 +418,14 @@ function renderButtons() {
     : (p && p.index_reason) || 'Choose a stream file first: the range needs its temporal units';
   if (!idx && $('#optFramesMode').value === 'range' && p) $('#optFramesMode').value = 'all';
   const ok = canAnalyze();
+  const same = ok ? sameExisting() : null;
   const b = $('#analyzeBtn');
   b.disabled = !ok;
-  b.textContent = st.probe && (st.probe.existing || []).length ? 'Analyze again' : 'Analyze';
-  b.title = ok ? 'Analyze this stream with the options above; the job list shows its progress'
+  // the same file with the same options: the default is to open that analysis; "Analyze again" is in its line
+  b.textContent = same ? 'Open' : 'Analyze';
+  b.dataset.aid = same ? same.aid : '';
+  b.title = same ? `Open the analysis of this file made with these options on ${fmtDate(same.created)}; to make it again, use Analyze again`
+    : ok ? 'Analyze this stream with the options above; the job list shows its progress'
     : st.stage === 'uploading' ? 'Wait until the upload has finished'
       : st.stage === 'probed' ? 'This file cannot be analyzed: see the problems above'
         : 'Choose a file or check a path first';
@@ -406,6 +460,32 @@ function renderButtons() {
   rp.hidden = !(range && r.problem);
   rp.textContent = range && r.problem ? r.problem : '';
   if (range && r.problem && st.stage === 'probed') b.title = r.problem;
+  renderExisting();
+  renderCrossdec();
+}
+
+// "Also check with a second decoder": off, with the reason beside it, for a codec that has none (AV2: AVM is its
+// only decoder) or none built here (/api/health codecs[c].crossdec, SERVER_API.md section 10.4; B2 QA item 7).
+// The tick itself is kept, so it comes back with a codec that has one.
+const CROSSDEC_TITLE = 'Also compare with a second, independent decoder (AV1 dav1d, VVC VVdeC, FFmpeg for HEVC, VP9 and AVC)';
+function crossdecWhy(codec) {
+  if (!codec) return '';
+  if (codec === 'av2') return 'AV2 has no second decoder: AVM is the only one.';
+  const h = server.health, c = h && h.codecs && h.codecs[codec];
+  return c && c.dumper && c.crossdec === false ? `No second ${codec.toUpperCase()} decoder is built on this computer.` : '';
+}
+// the codec the job would decode: the one chosen, else the probe's
+const codecNow = () => ($('#optCodec').value !== 'auto' ? $('#optCodec').value : (st.probe && st.probe.codec) || null);
+function renderCrossdec() {
+  const codec = codecNow();
+  const box = $('#optCrossdec'), why = crossdecWhy(codec), note = $('#optCrossdecWhy');
+  box.disabled = !!why;
+  box.title = why ? `${why} ${CROSSDEC_TITLE}.` : CROSSDEC_TITLE;
+  box.parentElement.title = box.title;
+  box.parentElement.classList.toggle('off', !!why);
+  note.hidden = !why;
+  note.textContent = why ? `(${codec === 'av2' ? 'none for AV2' : 'not built'})` : '';
+  note.title = why;
 }
 
 // ", analyzed" when the source has an analysis, else how its last job ended (", failed", ", cancelled").
@@ -462,11 +542,13 @@ export function initOpen() {
   $('#streamFile').addEventListener('change', (e) => { const f = e.target.files[0]; if (f) chooseFile(f); e.target.value = ''; });
   $('#uploadCancel').addEventListener('click', cancelUpload);
   $('#pathForm').addEventListener('submit', (e) => { e.preventDefault(); checkPath(); });
-  $('#analyzeBtn').addEventListener('click', analyze);
+  // Analyze, or Open when this file has an analysis with the same options (renderButtons sets data-aid)
+  $('#analyzeBtn').addEventListener('click', (e) => { const aid = e.currentTarget.dataset.aid; if (aid) openAnalysis(aid); else analyze(); });
   d.addEventListener('click', (e) => {
     const a = e.target.closest('[data-act]');
     if (a && a.dataset.act === 'close') d.close();
     else if (a && a.dataset.act === 'open-existing') openAnalysis(a.dataset.aid);
+    else if (a && a.dataset.act === 'analyze-again') analyze(a.dataset.aid);
     const r = e.target.closest('[data-recent]');
     if (r) openRecent(+r.dataset.recent);
   });

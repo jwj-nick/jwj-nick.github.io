@@ -1,18 +1,18 @@
 // Legend under the picture for the current fill and picture.
-import { C, qMax, qName, stageLabel, STAGES, state } from './state.js?v=3e8d1a839f';
-import { $, esc, fmt, MISMATCH, modeColor, RAMP, refColor, rgb } from './util.js?v=3e8d1a839f';
-import { focusStage } from './diff.js?v=3e8d1a839f';
-import { bitsMax } from './view.js?v=3e8d1a839f';
+import { C, qMax, qName, stageLabel, STAGES, state } from './state.js?v=25b3a2d3d6';
+import { $, esc, fmt, MISMATCH, modeColor, RAMP, refColor, rgb } from './util.js?v=25b3a2d3d6';
+import { focusStage } from './diff.js?v=25b3a2d3d6';
+import { bitsMax } from './view.js?v=25b3a2d3d6';
 
 // Below 1 bit per pixel two decimals would round small maxima to 0.00.
 const bitsMaxText = (m) => (m >= 1 ? fmt(m, 2) : m > 0 ? m.toPrecision(2) : '0');
-import { archLegend } from './arch.js?v=3e8d1a839f';
-import { pixelsLegend } from './pixels.js?v=3e8d1a839f';
-import { psnrLegendHtml } from './quality.js?v=3e8d1a839f';
-import { syncDecisionChips } from './blockdec.js?v=3e8d1a839f';
-import { frameColor, interLegendHtml, refFrames, txLegendHtml } from './modes.js?v=3e8d1a839f';
-import { boundsLegendHtml, segmentLegendHtml } from './regions.js?v=3e8d1a839f';
-import { internalsLegendHtml, syncInternals } from './internals.js?v=3e8d1a839f';
+import { archLegend } from './arch.js?v=25b3a2d3d6';
+import { pixelsLegend } from './pixels.js?v=25b3a2d3d6';
+import { psnrLegendHtml } from './quality.js?v=25b3a2d3d6';
+import { syncDecisionChips } from './blockdec.js?v=25b3a2d3d6';
+import { frameColor, interLegendHtml, refFrames, txLegendHtml } from './modes.js?v=25b3a2d3d6';
+import { boundsLegendHtml, segmentLegendHtml } from './regions.js?v=25b3a2d3d6';
+import { internalsLegendHtml, syncInternals } from './internals.js?v=25b3a2d3d6';
 
 export function renderLegend() {
   const el = $('#legend');

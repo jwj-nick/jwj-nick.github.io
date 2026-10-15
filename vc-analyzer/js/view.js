@@ -1,17 +1,17 @@
 // Viewport and canvas rendering: fills, grids, motion, superblocks, chroma tree, mismatch outlines.
-import { C, PERF, perf, perfMark, qMax, state } from './state.js?v=3e8d1a839f';
-import { $, clamp, dims, dpr, MISMATCH, modeColor, ramp, refColor, rgb } from './util.js?v=3e8d1a839f';
-import { firstSample, focusStage } from './diff.js?v=3e8d1a839f';
-import { isChromaBlock, partitionPath } from './frames.js?v=3e8d1a839f';
-import { archOf, drawArchLabels } from './arch.js?v=3e8d1a839f';
-import { psnrFill } from './quality.js?v=3e8d1a839f';
-import { cmpMode, drawPaneLabel, drawSplitChrome, GAP, paneAt, paneRects, picture2, splitX, stacked } from './split.js?v=3e8d1a839f';
-import { drawGrid, gridRecordStart } from './grid.js?v=3e8d1a839f';
-import { drawAngles } from './blockdec.js?v=3e8d1a839f';
-import { interFill, refFill, txFill } from './modes.js?v=3e8d1a839f';
-import { drawBounds, segmentFill } from './regions.js?v=3e8d1a839f';
-import { drawInternals, nzcFill } from './internals.js?v=3e8d1a839f';
-import { renderLegend } from './legend.js?v=3e8d1a839f';
+import { C, PERF, perf, perfMark, qMax, state } from './state.js?v=25b3a2d3d6';
+import { $, clamp, dims, dpr, MISMATCH, modeColor, ramp, refColor, rgb } from './util.js?v=25b3a2d3d6';
+import { firstSample, focusStage } from './diff.js?v=25b3a2d3d6';
+import { isChromaBlock, partitionPath } from './frames.js?v=25b3a2d3d6';
+import { archOf, drawArchLabels } from './arch.js?v=25b3a2d3d6';
+import { psnrFill } from './quality.js?v=25b3a2d3d6';
+import { cmpMode, drawPaneLabel, drawSplitChrome, GAP, paneAt, paneRects, picture2, splitX, stacked } from './split.js?v=25b3a2d3d6';
+import { drawGrid, gridRecordStart } from './grid.js?v=25b3a2d3d6';
+import { drawAngles } from './blockdec.js?v=25b3a2d3d6';
+import { interFill, refFill, txFill } from './modes.js?v=25b3a2d3d6';
+import { drawBounds, segmentFill } from './regions.js?v=25b3a2d3d6';
+import { drawInternals, nzcFill } from './internals.js?v=25b3a2d3d6';
+import { renderLegend } from './legend.js?v=25b3a2d3d6';
 
 // ------------------------------------------------------------ viewport
 export const canvas = $('#canvas');

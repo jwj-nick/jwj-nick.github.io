@@ -7,13 +7,13 @@
 // The data comes from the bundle (manifest.internals names ec, internals.json the frames) or from `vca serve`,
 // which pages the operations (ec.json?from=&count=) and answers 404 internals_missing with the job that makes them
 // (job_hint, Compute); the Probabilities dialog (cdfs.js) reads cdf.json the same way (readKind, computeKinds).
-import { state } from './state.js?v=3e8d1a839f';
-import { $, esc, fmt, setStatus } from './util.js?v=3e8d1a839f';
-import { caps, getJSON, withToken } from './data.js?v=3e8d1a839f';
-import { api } from './api.js?v=3e8d1a839f';
-import { trackJob } from './jobs.js?v=3e8d1a839f';
-import { ensureSymbols, symbolsReady, symtype } from './symbols.js?v=3e8d1a839f';
-import { selectBlockIndex } from './controls.js?v=3e8d1a839f';
+import { state } from './state.js?v=25b3a2d3d6';
+import { $, esc, fmt, setStatus } from './util.js?v=25b3a2d3d6';
+import { caps, getJSON, withToken } from './data.js?v=25b3a2d3d6';
+import { api } from './api.js?v=25b3a2d3d6';
+import { trackJob } from './jobs.js?v=25b3a2d3d6';
+import { ensureSymbols, symbolsReady, symtype } from './symbols.js?v=25b3a2d3d6';
+import { selectBlockIndex } from './controls.js?v=25b3a2d3d6';
 
 const dlg = () => $('#ecDialog');
 // which codecs' dumpers write the kind (vca/internals.py CODECS kinds): the links and buttons show only for them

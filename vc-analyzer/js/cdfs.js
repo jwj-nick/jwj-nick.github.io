@@ -6,9 +6,9 @@
 // also the loaded slot), the symbols' probabilities side by side with the changed rows marked; "Changed only" keeps
 // the members (and rows) that differ.  Opened with "Probabilities…" on the Frame tab or Shift+P.  Reading and
 // Compute are entropy.js's (readKind, computeKinds).
-import { state } from './state.js?v=3e8d1a839f';
-import { $, esc, fmt, setStatus } from './util.js?v=3e8d1a839f';
-import { computeHtml, computeKinds, entryOfKind, hasCdf, onKindChange, proseHtml, readKind, whyNotKind } from './entropy.js?v=3e8d1a839f';
+import { state } from './state.js?v=25b3a2d3d6';
+import { $, esc, fmt, setStatus } from './util.js?v=25b3a2d3d6';
+import { computeHtml, computeKinds, entryOfKind, hasCdf, onKindChange, proseHtml, readKind, whyNotKind } from './entropy.js?v=25b3a2d3d6';
 
 const dlg = () => $('#cdfDialog');
 let cur = null;        // {f, member: name, against: context key, changedOnly, filter, all: rows shown in full}

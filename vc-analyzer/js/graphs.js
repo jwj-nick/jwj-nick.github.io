@@ -9,12 +9,12 @@
 // from every frames/<f>.json with the same rule (luma and shared blocks, area clipped to the
 // picture), the buffer from hrd.json (vca/hrd.py, SERVER_API.md section 20; manifest.hrd names
 // it).  A click on a frame's column goes to that frame; the frame on screen is marked.
-import { C, qName, state, usesQp } from './state.js?v=3e8d1a839f';
-import { $, esc, fmt, FRAME_COLORS, typeName } from './util.js?v=3e8d1a839f';
-import { caps, getJSON, withToken } from './data.js?v=3e8d1a839f';
-import { selectFrame, stepFrame } from './frames.js?v=3e8d1a839f';
-import { histogram } from './inspector.js?v=3e8d1a839f';
-import { pickBlock } from './controls.js?v=3e8d1a839f';
+import { C, qName, state, usesQp } from './state.js?v=25b3a2d3d6';
+import { $, esc, fmt, FRAME_COLORS, typeName } from './util.js?v=25b3a2d3d6';
+import { caps, getJSON, withToken } from './data.js?v=25b3a2d3d6';
+import { selectFrame, stepFrame } from './frames.js?v=25b3a2d3d6';
+import { histogram } from './inspector.js?v=25b3a2d3d6';
+import { pickBlock } from './controls.js?v=25b3a2d3d6';
 
 const dlg = () => $('#graphsDialog');
 const VIEWS = ['frames', 'dist', 'mv', 'search', 'buffer'];

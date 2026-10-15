@@ -3,12 +3,13 @@
 // Jobs live on the server, so the tray comes back after a reload: it shows
 // the jobs that are queued or running, the ones this page saw running, and
 // the ones that ended in the minute before the page loaded.
-import { state } from './state.js?v=3e8d1a839f';
-import { $, esc } from './util.js?v=3e8d1a839f';
-import { caps, folderOf, streamLabel, streamTitle } from './data.js?v=3e8d1a839f';
-import { api, apiText, fmtSeconds, parseTime, problemHTML, server, toast } from './api.js?v=3e8d1a839f';
-import { openStreamAt, refreshStreams } from './source.js?v=3e8d1a839f';
-import { archJobEnded } from './hw.js?v=3e8d1a839f';
+import { state } from './state.js?v=25b3a2d3d6';
+import { $, esc } from './util.js?v=25b3a2d3d6';
+import { caps, folderOf, streamLabel, streamTitle } from './data.js?v=25b3a2d3d6';
+import { api, apiText, fmtSeconds, parseTime, problemHTML, server, toast } from './api.js?v=25b3a2d3d6';
+import { openStreamAt, refreshStreams } from './source.js?v=25b3a2d3d6';
+import { archJobEnded } from './hw.js?v=25b3a2d3d6';
+import { refreshIssues } from './issues.js?v=25b3a2d3d6';
 
 const rows = new Map();   // job id -> row record (see record())
 const LOADED = Date.now();
@@ -178,6 +179,8 @@ async function merge(list) {
   for (const r of ready) await whenReady(r);
   for (const r of archEnded) await endArch(r);
   for (const r of convEnded) await endConvert(r);
+  // an analyze job's verify phase recorded the decoder checks: the Issues list of that analysis is read again
+  for (const r of ended) if (r.job.ready && r.job.analysis && !isArch(r.job) && !isConvert(r.job) && !isInternals(r.job)) refreshIssues(r.job.analysis);
   // a job of this page that failed: its row says why, and a toast says that it failed (the tray folds by
   // itself a few seconds later, R48 QA D5: a failed comparison must not go without a word)
   const failed = ended.filter((r) => r.job.state === 'failed' && r.fromPage);
@@ -327,7 +330,7 @@ function shown(r) {
 const phaseOf = (j, name) => ((j.phases || []).find((p) => p.name === name) || {}).state;
 
 const slotOf = (j) => ((j.options && j.options.slot) === 'b' ? 'comparison B' : 'A');
-const PHASE_WORDS = { probe: 'reading the file', extract: 'extracting the video track', cut: 'cutting the range', decode: 'decoding', ingest: 'building the store', hw: 'running the HW model', verify: 'checking against the reference decoder',
+const PHASE_WORDS = { probe: 'reading the file', extract: 'extracting the video track', cut: 'cutting the range', decode: 'decoding', ingest: 'indexing the analysis', hw: 'running the HW model', verify: 'checking against the reference decoder',
   convert: 'converting B', compare: 'comparing with A', internals: 'recording the decoder internals' };
 function phaseText(j) {
   const pct = j.fraction === null || j.fraction === undefined ? '' : ` ${Math.round(j.fraction * 100)} %`;
@@ -346,7 +349,7 @@ function phaseText(j) {
     case 'extract': return 'Extracting the video track with FFmpeg';
     case 'cut': return 'Cutting the range at its random access point';
     case 'decode': return 'Decoding' + pct;
-    case 'ingest': return 'Building the store' + pct;
+    case 'ingest': return 'Indexing the analysis' + pct;
     case 'hw': return 'HW model';
     case 'verify': return j.options && j.options.crossdec ? 'Checking against the reference and second decoders' : 'Checking against the reference decoder';
     default: return 'Starting…';
@@ -417,7 +420,9 @@ function outcomeHTML(r) {
   }
   if (j.state === 'cancelled') out.push(textLine(j.ready ? 'Cancelled during the check. The analysis is kept.' : 'Cancelled. Nothing was kept.'));
   if (j.ready && j.analysis && !entryOf(j) && !isActive(j)) {   // state.streams is the server's list (read before initJobs)
-    out.push(textLine('The analysis was deleted from the Library.'));
+    // "Analyze again" took its place (the newer job's `replaced`, SERVER_API.md section 22): not a deletion
+    const by = [...rows.values()].some((x) => x.job.id !== j.id && x.job.replaced === j.analysis);
+    out.push(textLine(by ? 'Replaced by a newer analysis of this file (Analyze again).' : 'The analysis was deleted from the Library.'));
   } else if (j.ready && !isActive(j)) {
     // the result appears when the job has ended (a line saying "match" under "Checking…" contradicts itself)
     const e = entryOf(j);

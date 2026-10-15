@@ -1,8 +1,8 @@
 // Pixel planes: stacked Y/U/V PNG -> sample arrays -> pictures, and sample values under the pointer.
 // F-b track Y (R49): the picture's component, colour matrix and range (F23), exact samples above 8 bits (F24).
-import { frameMeta, perfMark, state } from './state.js?v=3e8d1a839f';
-import { clamp } from './util.js?v=3e8d1a839f';
-import { getBlob } from './data.js?v=3e8d1a839f';
+import { frameMeta, perfMark, state } from './state.js?v=25b3a2d3d6';
+import { clamp } from './util.js?v=25b3a2d3d6';
+import { getBlob } from './data.js?v=25b3a2d3d6';
 
 // ------------------------------------------------------------- planes
 async function decodePng(blob) {

@@ -6,13 +6,13 @@
 // the bit range (the Bitstream dialog at the unit, the element or byte covering the first bit), the frame,
 // else the unit.  manifest.issues decides whether the toolbar button shows: a bundle exported before the
 // issue list has none, and Shift+E then only says so in the status line.
-import { state } from './state.js?v=3e8d1a839f';
-import { $, esc, fmt, setStatus } from './util.js?v=3e8d1a839f';
-import { caps, getJSON } from './data.js?v=3e8d1a839f';
-import { selectFrame } from './frames.js?v=3e8d1a839f';
-import { pickBlock } from './controls.js?v=3e8d1a839f';
-import { openBitstream } from './bitstream.js?v=3e8d1a839f';
-import { renderBraid } from './braid.js?v=3e8d1a839f';
+import { state } from './state.js?v=25b3a2d3d6';
+import { $, esc, fmt, setStatus } from './util.js?v=25b3a2d3d6';
+import { caps, getJSON } from './data.js?v=25b3a2d3d6';
+import { selectFrame } from './frames.js?v=25b3a2d3d6';
+import { pickBlock } from './controls.js?v=25b3a2d3d6';
+import { openBitstream } from './bitstream.js?v=25b3a2d3d6';
+import { renderBraid } from './braid.js?v=25b3a2d3d6';
 
 const dlg = () => $('#issuesDialog');
 const SEVERITIES = ['error', 'warning', 'info'];
@@ -27,6 +27,7 @@ const OF_WHAT = { decode_error: 'temporal units', refs: 'frames', sei_hash: 'pic
 let man = null;                   // the manifest the state below belongs to
 let list;                         // issues.json once read (undefined = not read)
 let loadErr = '', loading = null; // the read in flight (a promise) and why the last one failed
+let readTok = null;               // the read whose answer counts (refreshIssues starts another)
 const sevOff = new Set(), checkOff = new Set();
 let frameOnly = false, selId = null;
 let hintId = null;                // the row clicked that names no place: it says so (rowHtml)
@@ -42,7 +43,7 @@ const prose = (s) => esc(s).replace(/(^|[\s(])(--[A-Za-z][\w-]*)/g, '$1<span cla
 // A new manifest (another stream, a reload): the list, the filters and the selected row start again.
 function bind() {
   if (man === state.manifest) return;
-  man = state.manifest; list = undefined; loadErr = ''; loading = null;
+  man = state.manifest; list = undefined; loadErr = ''; loading = null; readTok = null;
   sevOff.clear(); checkOff.clear(); frameOnly = false; selId = null; hintId = null;
 }
 
@@ -57,23 +58,35 @@ function load() {
   const inf = info();
   if (!inf || list) return Promise.resolve();
   if (loading) return loading;
-  const m = man;
+  const m = man, t = readTok = {};
+  const stale = () => m !== man || t !== readTok;
   loadErr = '';
   loading = getJSON(inf.file || 'issues.json')
     .then((o) => {
-      if (m !== man) return;
+      if (stale()) return;
       if (!o || o.format !== 'vca-issues' || !Array.isArray(o.issues)) throw new Error('the file is not an issue list');
       list = o;
     })
-    .catch((e) => { if (m === man) loadErr = reason(e); })
+    .catch((e) => { if (!stale()) loadErr = reason(e); })
     .then(() => {
-      if (m !== man) return;
+      if (stale()) return;
       loading = null;
       syncIssuesButton();
       if (errorFrames().size) renderBraid();
       if (dlg().open) { render(); focusList(); }
     });
   return loading;
+}
+// A job on the analysis on screen ended: its verify phase may have recorded the decoder checks
+// (decoder_checks.json, SERVER_API.md section 19 item 2), so the list read before (or its counts in the manifest)
+// can be out of date. It is read again; the server answers the new one (ETag).
+export function refreshIssues(aid) {
+  const cur = state.streams[state.streamIdx];
+  if (!state.manifest || !cur || cur.id !== aid) return;
+  bind();
+  if (!info()) return;
+  list = undefined; loading = null; loadErr = ''; readTok = null;
+  load();
 }
 const countsNow = () => (list ? list.counts : (info() || {}).counts) || null;
 const ranList = () => (list ? list.checks.filter((c) => c.status === 'ran') : []);
