@@ -95,7 +95,15 @@
       '<p class="aim">' + sim.why + '</p>' +
       (links ? '<div class="btns">' + links + '</div>' : '') + '</div>';
   }
+  function labCard(sim) {
+    var disc = (sim.disc || []).map(function (d) { return '<li>' + esc(d) + '</li>'; }).join('');
+    return '<div class="phet ours"><div class="ph-top"><h3>🌏 전용 실험실</h3><span class="fit">' + esc(sim.fit || '실험실') + '</span></div>' +
+      '<p class="aim">' + esc(sim.aim || '') + '</p>' + (disc ? '<ul class="disc">' + disc + '</ul>' : '') +
+      '<div class="btns"><a class="ph-btn primary" href="' + sim.url + '">실험실 열기 →</a>' +
+      '<a class="ph-btn" href="' + sim.url + '#game">🎮 바로 게임</a></div></div>';
+  }
   function simCard(sim) {
+    if (sim.type === 'lab') return labCard(sim);
     if (sim.type === 'phet') return phetCard(sim);
     if (sim.type === 'none') return noneCard(sim);
     return '';
