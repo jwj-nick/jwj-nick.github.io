@@ -12,7 +12,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 import { CHARS, PORTRAIT } from './sq-story.js';
 import { EP1, PHASES } from './sq-ep1.js';
-import { EP2, EP3, EP4, EP5 } from './sq-eps.js';
+import { EP2, EP3, EP4, EP5 } from './sq-eps.js?v=20261108h';
 import * as UI from './sq-ui.js';
 import { GroundView } from './sq-ground.js';
 
@@ -143,8 +143,13 @@ const ecP = new THREE.Mesh(new THREE.CylinderGeometry(1 + 9 * SUN_ANG, 1, 9, 48,
 [ecU, ecP].forEach(c => { c.rotation.z = Math.PI / 2; c.position.set(-4.5, 0, 0); c.visible = false; scene.add(c); });
 const redRing = (() => { const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d'), g = x.createRadialGradient(128, 128, 96, 128, 128, 128); g.addColorStop(0, 'rgba(255,90,40,0)'); g.addColorStop(0.18, 'rgba(255,110,50,.95)'); g.addColorStop(0.45, 'rgba(255,80,40,.35)'); g.addColorStop(1, 'rgba(255,60,30,0)'); x.fillStyle = g; x.fillRect(0, 0, 256, 256);
   const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), blending: THREE.AdditiveBlending, depthTest: false, depthWrite: false, transparent: true })); s.scale.set(2.7, 2.7, 1); s.renderOrder = 9; s.visible = false; scene.add(s); return s; })();
+// 북극 위 자전 방향 화살표 (EP4) — 시계 반대
+const spinArrow = new THREE.Group(); { const mt = new THREE.MeshBasicMaterial({ color: 0xffd27a, transparent: true, opacity: 0.9 });
+  const arc = new THREE.Mesh(new THREE.TorusGeometry(0.62, 0.018, 8, 64, Math.PI * 1.5), mt); arc.rotation.x = -Math.PI / 2; spinArrow.add(arc);
+  const head = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.16, 12), mt); const a = Math.PI * 1.5; head.position.set(0.62 * Math.cos(a), 0, -0.62 * Math.sin(a)); head.rotation.set(0, 0, 0); head.lookAt(head.position.clone().add(new THREE.Vector3(Math.sin(a) * -1, 0, -Math.cos(a)))); head.rotateX(Math.PI / 2); spinArrow.add(head);
+  spinArrow.position.y = 1.12; spinArrow.visible = false; }
 const orbitLine = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(Array.from({ length: 160 }, (_, i) => new THREE.Vector3(6 * Math.cos(i / 160 * 6.2832), 0.3, -6 * Math.sin(i / 160 * 6.2832)))), new THREE.LineDashedMaterial({ color: 0x6fd6ff, dashSize: 0.2, gapSize: 0.15, transparent: true, opacity: 0.5 }));
-orbitLine.computeLineDistances(); orbitLine.visible = false; scene.add(orbitLine);
+orbitLine.computeLineDistances(); orbitLine.visible = false; scene.add(orbitLine); scene.add(spinArrow);
 function setMoonTheta(deg) { setMoon(deg, MOON.y); }
 function setMoon(deg, y) { // 달 공전각(0 = 삭, +는 동쪽으로 공전)
   const a = deg * D2R; MOON.set(6 * Math.cos(a), y, -6 * Math.sin(a)); const near = Math.abs(((deg % 360) + 540) % 360 - 180) > 155; coneU.visible = coneP.visible = near; moon.position.copy(MOON); earthU.moonPos.value.copy(MOON);
@@ -185,6 +190,9 @@ function noseToZ(o) { // 기체의 긴 축을 +Z로 (Object3D.lookAt은 +Z를 �
   const sz = new THREE.Box3().setFromObject(o).getSize(new THREE.Vector3()); if (sz.x > sz.z) o.rotation.y = Math.PI / 2; return o;
 }
 function glowSprite(c0, c1, s) { const g = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(c0, c1), blending: THREE.AdditiveBlending, depthWrite: false })); g.scale.set(s, s, 1); return g; }
+// 다이얼 미션: 위에서 본 궤도에 큰 달 표시 (드론 화면 전용 레이어 1)
+const moonMk = new THREE.Group(); { const g = glowSprite('rgba(255,250,220,1)', 'rgba(255,220,140,.55)', 2.2); moonMk.add(g); const lb = labelSprite('🌙 달', '#ffe9a8', 4.2); lb.position.set(0, 0, 1.9); moonMk.add(lb); moonMk.traverse(o => o.layers.set(1)); moonMk.visible = false; scene.add(moonMk); }
+droneCam.layers.enable(1);
 const NATURE = ['CommonTree_1', 'CommonTree_3', 'PineTree_2', 'BirchTree_2', 'Bush_1', 'Rock_Moss_2', 'Flowers', 'Grass_2'];
 const loader = new GLTFLoader(), loadState = { n: 0, of: 6 + NATURE.length };
 const loadG = (k, url) => loader.loadAsync(url).then(g => { A[k] = g; loadState.n++; paintLoad(); }).catch(e => { console.warn('asset', k, e); loadState.n++; paintLoad(); });
@@ -314,7 +322,7 @@ function shotBtn(on, label) { const b = $('#thr [data-k=shoot]'); b.classList.to
 
 function titleScreen() {
   EP = EP1; applySpace(EP1.space); dash.innerHTML = DASH_FLY; tutEl.classList.add('hide'); dialUI(false); shotBtn(false);
-  G.mode = 'title'; G.running = false; flightUI(false); sub.classList.add('hide'); qa.classList.add('hide'); clearObjects(); if (synth) synth.cancel();
+  G.mode = 'title'; G.running = false; swapped = false; document.body.classList.remove('nofly'); spinArrow.visible = false; moonMk.visible = false; flightUI(false); sub.classList.add('hide'); qa.classList.add('hide'); clearObjects(); if (synth) synth.cancel();
   const clr = (e) => store.get('clear-' + e.id, false) ? '✅' : '▶';
   screen.className = 'on';
   screen.innerHTML = `<div class="sc"><div class="eye">MID-SCI · 3D SPACE OBSERVATORY</div><h1>율이의<br><span>하늘 퀘스트</span></h1>
@@ -348,6 +356,7 @@ async function startEpisode() {
 async function startMission(i, first) {
   const m = EP.missions[i]; G.mi = i; G.running = false; G.lookBack = false; G.lookTgt = null; G.camMode = ''; G.idx = 0; G.hold = 0; G.penSeen = false; G.lastTick = 0; G.flags = {}; G.rk = 0; clearObjects(); setAim(false);
   $('#m-name').textContent = `EP${EP.no} M${i + 1}/${EP.missions.length} · ${m.name}`; $('#m-goal').innerHTML = '🎯 ' + m.brief.what;
+  if (swapped && m.type !== 'phaseSet') swapped = false; document.body.classList.remove('nofly'); moonMk.visible = false;
   G.totSeen = false; G.best = 99; G.bestT = 0; G.behindT = 0; G.hintCd = 6; applySpace(EP.space); dialUI(false); shotBtn(false);
   if (first) { flightUI(false); speak('lumi', m.brief.what); await UI.showBrief(screen, m, i, EP.missions.length, mapOpts(m)); if (synth) synth.cancel(); }
   if (m.type === 'ground') return groundMission(m);
@@ -359,12 +368,13 @@ async function startMission(i, first) {
   if (m.type === 'chooseLand') { m.beacons.forEach(b => makeBeacon(V(b.p).multiplyScalar(1.03), b.k, new THREE.Vector3())); G.spin = 0.25; }
   if (m.type === 'watch') G.spin = 0.2;
   if (m.type === 'photo') shotBtn(true, '📸<br>촬영');
-  if (m.type === 'phaseSet') { G.camMode = 'moon'; toast('🔭 망원 모드 — 달을 크게 보여 줄게요'); dialUI(true, '음력 날짜', 1, 29.5, 8, v => setMoon(dayToE(v), EP.space.moonY), '확인 ✔', () => phaseCheck(m)); setMoon(dayToE(8), EP.space.moonY); }
+  if (m.type === 'phaseSet') { G.camMode = 'moon'; swapped = true; document.body.classList.add('nofly'); moonMk.visible = true; { const por = innerHeight > innerWidth, cx = por ? 0 : -1.1, cz = por ? 1 : 2.85; droneCam.position.set(cx, por ? 34 : 26.5, cz + 0.01); droneCam.lookAt(cx, 0, cz); droneCam.fov = 50; } toast('🛰 큰 화면 = 위에서 본 달 궤도 · 작은 화면 = 망원경으로 본 달 모양'); dialUI(true, '음력 날짜', 1, 29.5, 8, v => { setMoon(dayToE(v), EP.space.moonY); moonMk.position.copy(MOON); }, '확인 ✔', () => phaseCheck(m)); setMoon(dayToE(8), EP.space.moonY); }
   showBanner(`MISSION ${i + 1} / ${EP.missions.length}`, m.name);
   if (first && m.pre) await say(m.pre);
   if (EP === EP1 && i === 0 && first && !store.get('tut', false)) await runTutorial();
   G.t = G.tMax = m.time || 999; G.running = true; G.mode = 'fly';
 }
+const PHOTO_D = 2.4;
 const dayToE = (d) => ((d - 1) / 29.53) * 360;
 function adiff(a, b) { const d = ((a - b) % 360 + 360) % 360; return d > 180 ? 360 - d : d; }
 function curTheta() { return ((Math.atan2(-MOON.z, MOON.x) / D2R) + 360) % 360; }
@@ -446,7 +456,8 @@ async function shoot() {
   if (G.mode === 'ground') return trailsSubmit();
   if (m.type !== 'photo') return;
   const toM = MOON.clone().sub(ship.pos).normalize(), ang = Math.acos(Math.max(-1, Math.min(1, toM.dot(fwd()))));
-  if (ang > 0.12) { sfx.bad(); return hint('달이 화면 가운데 오도록! 🎯를 눌러 봐.'); }
+  if (ship.pos.distanceTo(MOON) > PHOTO_D) { sfx.bad(); G.hintCd = 0; return hint('너무 멀어서 달이 작게 찍혀! 추진을 꾹 눌러 달에 더 가까이 가 봐.'); }
+  if (ang > 0.12) { sfx.bad(); G.hintCd = 0; return hint('달이 화면 가운데 오도록! 🎯를 눌러 봐.'); }
   G.flags.shot = true; G.running = false; shotBtn(false); sfx.ring();
   const e = curTheta(); qa.classList.remove('hide'); qa.innerHTML = `<div class="q">📸 찍은 사진</div><canvas id="photo" width="140" height="140" style="display:block;margin:0 auto;border-radius:12px"></canvas>`;
   const c = $('#photo').getContext('2d'); c.fillStyle = '#050914'; c.fillRect(0, 0, 140, 140); UI.drawPhase(c, 70, 70, 52, e);
@@ -465,7 +476,7 @@ function stepsDone(m, cov) {
     case 'descend': return [...r(m.rings.length), false];
     case 'watch': return [...r(m.rings.length), !!G.flags.watched, !!G.flags.q];
     case 'chooseLand': return [!!G.flags.near, false];
-    case 'photo': { const toM = MOON.clone().sub(ship.pos).normalize(); const ok = toM.dot(fwd()) > Math.cos(0.12); G.flags.aim = G.flags.aim || ok; return [!!G.flags.aim, !!G.flags.shot, false]; }
+    case 'photo': { const toM = MOON.clone().sub(ship.pos).normalize(); const ok = toM.dot(fwd()) > Math.cos(0.12); G.flags.close = G.flags.close || ship.pos.distanceTo(MOON) < PHOTO_D; G.flags.aim = G.flags.aim || (ok && G.flags.close); return [!!G.flags.close, !!G.flags.aim, !!G.flags.shot, false]; }
     case 'phaseSet': return m.rounds.map((_, k) => G.rk > k);
   }
   return [];
@@ -712,7 +723,8 @@ function currentTarget() {
   if (m.rings && G.idx < m.rings.length) return { p: V(m.rings[G.idx]), n: `링 ${G.idx + 1}` };
   if (m.type === 'descend') return { p: m.landAbs ? V(m.land) : V(m.land).multiplyScalar(1.03), n: m.landAbs ? '달 착륙점' : '착륙점' };
   if (m.type === 'umbra') return { p: V(m.target), n: m.shadow === 'earth' ? '지구 그림자' : '본그림자' };
-  if (m.type === 'photo') return { p: MOON.clone(), n: '달' };
+  if (m.type === 'photo') return { p: MOON.clone(), n: G.flags.close ? '달 (📸 촬영!)' : '달' };
+  if (m.type === 'chooseLand') { const f = fwd(); let best = null, bd = -9; for (const bk of m.beacons) { const bp = V(bk.p).multiplyScalar(1.03), d = bp.clone().sub(ship.pos).normalize().dot(f); if (d > bd) { bd = d; best = { p: bp, n: '빛기둥 ' + bk.k }; } } return best; }
   return null;
 }
 function frame(now) {
@@ -825,8 +837,9 @@ function missionUpdate(dt) {
   }
 }
 async function watchSeq(m) { // 북극 위에서 자전 관찰 → 질문
-  G.running = false; G.camMode = 'down'; G.spin = 1.4; toast('🌍 북극 위! 지구가 도는 방향을 잘 봐요'); await new Promise(r => setTimeout(r, 6500));
-  G.flags.watched = true; G.spin = 0.35; await quiz(m.qs); G.flags.q = true; G.camMode = ''; G.spin = 0; missionDone();
+  G.running = false; G.camMode = 'down'; G.spin = 1.1; document.body.classList.add('nofly'); spinArrow.visible = true;
+  toast('🌍 북극 바로 위! 지구가 어느 방향으로 도는지 잘 봐요 (6초)'); await new Promise(r => setTimeout(r, 6500));
+  G.flags.watched = true; G.spin = 0.35; await quiz(m.qs); G.flags.q = true; G.camMode = ''; G.spin = 0; spinArrow.visible = false; document.body.classList.remove('nofly'); missionDone();
 }
 titleScreen();
 requestAnimationFrame(frame);
