@@ -33,7 +33,10 @@ export class GroundView {
     // 별
     { const n = 1400, pos = new Float32Array(n * 3), r = rng(3); for (let i = 0; i < n; i++) { const u = r() * 0.98 + 0.02, a = r() * 6.283, s = Math.sqrt(1 - u * u); pos.set([170 * s * Math.cos(a), 170 * u, 170 * s * Math.sin(a)], i * 3); }
       const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-      this.stars = new THREE.Points(g, new THREE.PointsMaterial({ size: 1.6, sizeAttenuation: false, color: 0xdfe8ff, transparent: true, opacity: 0, depthWrite: false, fog: false })); S.add(this.stars); }
+      this.stars = new THREE.Points(g, new THREE.PointsMaterial({ size: 1.6, sizeAttenuation: false, color: 0xdfe8ff, transparent: true, opacity: 0, depthWrite: false, fog: false })); this.starRot = new THREE.Group(); this.starRot.add(this.stars); S.add(this.starRot); }
+    this.moonCv = document.createElement('canvas'); this.moonCv.width = this.moonCv.height = 256; this.moonTex = new THREE.CanvasTexture(this.moonCv);
+    this.moonSpr = new THREE.Sprite(new THREE.SpriteMaterial({ map: this.moonTex, transparent: true, depthWrite: false, fog: false })); this.moonSpr.visible = false; S.add(this.moonSpr);
+    this.extra = new THREE.Group(); S.add(this.extra);
     // 태양 · 코로나 · 달
     this.sun = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 16), new THREE.MeshBasicMaterial({ color: 0xfff4d8, fog: false })); S.add(this.sun);
     this.sunGlow = glow('rgba(255,245,220,1)', 'rgba(255,190,90,.35)', 70); S.add(this.sunGlow);
@@ -83,7 +86,12 @@ export class GroundView {
     this.sunGlow.position.copy(this.sun.position); this.sunGlow.material.opacity = (1 - Math.pow(cover, 3)) * (1 - night) * 0.95; this.sunGlow.visible = this.sun.visible;
     this.corona.position.copy(this.sun.position); this.corona.material.opacity = total; this.corona.visible = this.sun.visible;
     const md = sun.clone().add(moon.clone().sub(sun).multiplyScalar(k)).normalize(), MD = 110;
-    this.moon.position.copy(md).multiplyScalar(MD); this.moon.scale.setScalar(MD * Math.tan(mA * VIS)); this.moon.visible = md.y > -0.06 && night < 0.5 && moon.dot(sun) > 0.9;
+    this.moon.position.copy(md).multiplyScalar(MD); this.moon.scale.setScalar(MD * Math.tan(mA * VIS)); this.moon.visible = !st.moonDraw && md.y > -0.06 && night < 0.5 && moon.dot(sun) > 0.9;
+    if (st.moonDraw) { const c = this.moonCv.getContext('2d'); if (st.moonKey !== this._mk) { c.clearRect(0, 0, 256, 256); st.moonDraw(c, 128, 128, 100); this.moonTex.needsUpdate = true; this._mk = st.moonKey; }
+      this.moonSpr.position.copy(moon).multiplyScalar(105); this.moonSpr.scale.setScalar(2 * 105 * Math.tan(0.05) * 1.28); this.moonSpr.visible = moon.y > -0.04; this.moonSpr.material.rotation = st.moonRot || 0;
+    } else this.moonSpr.visible = false;
+    if (st.starAxis) this.starRot.quaternion.setFromAxisAngle(st.starAxis, st.starAngle || 0); else this.starRot.quaternion.identity();
+    this.yul.visible = !st.hideYul;
     this.stars.material.opacity = Math.min(1, night + total * 0.9 + Math.max(0, (cover - 0.9) * 4) * 0.3);
     this.hemi.intensity = 0.25 + 1.0 * bright; this.fill.intensity = 0.25 + 0.75 * Math.max(bright, 0.15); this.dir.intensity = 1.9 * bright * (sun.y > 0 ? 1 : 0); this.dir.position.copy(sun).multiplyScalar(50);
     const fogC = new THREE.Color(0.66, 0.83, 0.98).multiplyScalar(Math.max(0.05, bright)).lerp(new THREE.Color(0.04, 0.05, 0.12), night); if (total > 0) fogC.lerp(new THREE.Color(0.35, 0.18, 0.12), total * 0.6);
@@ -97,12 +105,14 @@ export class GroundView {
     if (face.lengthSq() > 1e-6) { const want = Math.atan2(face.x, face.z); let d = want - this.yul.rotation.y; d = Math.atan2(Math.sin(d), Math.cos(d)); this.yul.rotation.y += d * Math.min(1, dt * 8); }
     if (this.mixer) this.mixer.update(dt);
     // 카메라: 율이 뒤, 태양 방위를 바라봄
-    const hz = Math.hypot(sun.x, sun.z); if (hz > 0.05) this.heading = Math.atan2(sun.x, -sun.z);
+    const foc = st.focus || sun, hz = Math.hypot(foc.x, foc.z);
+    if (st.heading != null) { let d = st.heading - this.heading; d = Math.atan2(Math.sin(d), Math.cos(d)); this.heading += d * Math.min(1, dt * 5); }
+    else if (hz > 0.05) { const want = Math.atan2(foc.x, -foc.z); let d = want - this.heading; d = Math.atan2(Math.sin(d), Math.cos(d)); this.heading += d * Math.min(1, dt * 3 + (this._init ? 0 : 1)); this._init = true; }
     const f = new THREE.Vector3(Math.sin(this.heading), 0, -Math.cos(this.heading)), right = new THREE.Vector3(-f.z, 0, f.x);
     // 율이 어깨 너머로 하늘을 올려다보는 구도: 카메라를 낮게, 태양이 화면 위 30% 지점에 오도록 기울임
     this.camera.aspect = aspect; this.camera.fov = aspect < 1 ? 92 : 76; this.camera.updateProjectionMatrix();
-    const fovV = this.camera.fov * Math.PI / 180, alt = Math.asin(Math.max(-1, Math.min(1, sun.y)));
-    const pitch = night > 0.5 ? 0.1 : Math.max(0.06, Math.min(0.95, alt - 0.2 * fovV));
+    const fovV = this.camera.fov * Math.PI / 180, alt = Math.asin(Math.max(-1, Math.min(1, foc.y)));
+    const pitch = st.pitch != null ? st.pitch : (st.focus ? Math.max(0.06, Math.min(1.1, alt - 0.06 * fovV)) : night > 0.5 ? 0.1 : Math.max(0.06, Math.min(0.95, alt - 0.2 * fovV)));
     this.camera.position.copy(f).multiplyScalar(-3.1).add(right.clone().multiplyScalar(1.0)).setY(0.42);
     const tgt = f.clone().multiplyScalar(Math.cos(pitch)).setY(Math.sin(pitch)).multiplyScalar(30).add(this.camera.position);
     this.camera.lookAt(tgt);

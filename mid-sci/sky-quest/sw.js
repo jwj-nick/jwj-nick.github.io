@@ -1,6 +1,6 @@
 /* sw.js — 하늘 퀘스트 오프라인 캐시 (버전 바꾸면 갱신) */
-const V = "sq-v0.4.1";
-const ASSETS = ['./', 'index.html', 'sq.css', 'sq.js', 'sq-story.js', 'sq-ep1.js', 'sq-ui.js', 'sq-ground.js', 'models/nature/CommonTree_1.glb', 'models/nature/CommonTree_3.glb', 'models/nature/PineTree_2.glb', 'models/nature/BirchTree_2.glb', 'models/nature/Bush_1.glb', 'models/nature/Rock_Moss_2.glb', 'models/nature/Flowers.glb', 'models/nature/Grass_2.glb', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png',
+const V = 'sq-v0.5.0';
+const ASSETS = ['./', 'index.html', 'sq.css', 'sq.js', 'sq-story.js', 'sq-ep1.js', 'sq-eps.js', 'sq-ui.js', 'sq-ground.js', 'models/nature/CommonTree_1.glb', 'models/nature/CommonTree_3.glb', 'models/nature/PineTree_2.glb', 'models/nature/BirchTree_2.glb', 'models/nature/Bush_1.glb', 'models/nature/Rock_Moss_2.glb', 'models/nature/Flowers.glb', 'models/nature/Grass_2.glb', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png',
   'tex/earth-day.jpg', 'tex/earth-night.jpg', 'models/lumi-ship.glb', 'models/nox-ship.glb', 'models/minion.glb', 'models/yuli.glb', 'models/yuli-atlas.png', 'models/rock1.glb', 'models/rock2.glb', 'img/yul.png', 'img/nox.png', 'img/yul-back.png', 'lib/addons/loaders/GLTFLoader.js', 'lib/addons/utils/BufferGeometryUtils.js', 'lib/addons/utils/SkeletonUtils.js', 'lib/three.module.min.js',
   'lib/addons/postprocessing/EffectComposer.js', 'lib/addons/postprocessing/RenderPass.js', 'lib/addons/postprocessing/ShaderPass.js', 'lib/addons/postprocessing/MaskPass.js',
   'lib/addons/postprocessing/Pass.js', 'lib/addons/postprocessing/UnrealBloomPass.js', 'lib/addons/postprocessing/OutputPass.js',

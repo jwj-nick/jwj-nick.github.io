@@ -30,36 +30,33 @@ export function drawArrangement(c, w, h, e) {
 
 /* ── 미니맵 (위에서 본 우주: x→오른쪽, -z→위) ── */
 export function drawMiniMap(c, w, h, o = {}) {
-  const x0 = -1.8, x1 = 7.8, z0 = -3.2, z1 = 4.0, s = Math.min(w / (x1 - x0), h / (z1 - z0));
-  const X = x => (x - x0) * s + (w - (x1 - x0) * s) / 2, Y = z => (z - z0) * s + (h - (z1 - z0) * s) / 2;
+  const moon = o.moon || [6, 0], pts = [[-1.3, -1.3], [1.3, 1.3], [moon[0], moon[1]], ...(o.route || []), ...((o.rings || []).map(r => [r[0], r[2]])), ...(o.target ? [[o.target[0], o.target[2]]] : []), ...(o.ship ? [[o.ship[0], o.ship[2]]] : [])];
+  let x0 = Math.min(...pts.map(p => p[0])) - 0.8, x1 = Math.max(...pts.map(p => p[0])) + 0.8, z0 = Math.min(...pts.map(p => p[1])) - 0.8, z1 = Math.max(...pts.map(p => p[1])) + 0.8;
+  const s = Math.min(w / (x1 - x0), h / (z1 - z0)), ox = (w - (x1 - x0) * s) / 2, oy = (h - (z1 - z0) * s) / 2;
+  const X = x => (x - x0) * s + ox, Y = z => (z - z0) * s + oy;
   c.fillStyle = '#050914'; c.fillRect(0, 0, w, h);
   for (let i = 0; i < 70; i++) { c.fillStyle = 'rgba(220,230,255,.35)'; c.fillRect((i * 97) % w, (i * 53) % h, 1.2, 1.2); }
-  // 햇빛
   c.strokeStyle = 'rgba(255,210,90,.6)'; c.fillStyle = 'rgba(255,210,90,.6)'; c.lineWidth = 1.5;
   for (let k = 0; k < 5; k++) { const y = h * (0.15 + k * 0.17); c.beginPath(); c.moveTo(w - 4, y); c.lineTo(w - 24, y); c.stroke(); c.beginPath(); c.moveTo(w - 24, y); c.lineTo(w - 19, y - 3); c.lineTo(w - 19, y + 3); c.fill(); }
   c.fillStyle = '#ffd25a'; c.font = '800 11px -apple-system,"Apple SD Gothic Neo",sans-serif'; c.textAlign = 'right'; c.fillText('태양 쪽 →', w - 6, 12);
-  // 그림자 원뿔
-  const mz = o.moonZ || 0, mx = 6;
-  c.fillStyle = 'rgba(120,80,200,.18)'; c.beginPath(); c.moveTo(X(mx), Y(mz - 0.27)); c.lineTo(X(0.8), Y(mz * 0.13 - 0.37)); c.lineTo(X(0.8), Y(mz * 0.13 + 0.37)); c.lineTo(X(mx), Y(mz + 0.27)); c.fill();
-  c.fillStyle = 'rgba(0,0,0,.65)'; c.beginPath(); c.moveTo(X(mx), Y(mz - 0.27)); c.lineTo(X(0.8), Y(mz * 0.13 - 0.16)); c.lineTo(X(0.8), Y(mz * 0.13 + 0.16)); c.lineTo(X(mx), Y(mz + 0.27)); c.fill();
-  // 지구 · 달
+  const [mx, mz] = moon;
+  if (o.orbit) { c.strokeStyle = 'rgba(111,214,255,.35)'; c.setLineDash([3, 4]); c.beginPath(); c.arc(X(0), Y(0), 6 * s, 0, 7); c.stroke(); c.setLineDash([]); }
+  if (o.shadow === 'moon' && mx > 1) { c.fillStyle = 'rgba(120,80,200,.18)'; c.beginPath(); c.moveTo(X(mx), Y(mz - 0.27)); c.lineTo(X(0.8), Y(mz - 0.37)); c.lineTo(X(0.8), Y(mz + 0.37)); c.lineTo(X(mx), Y(mz + 0.27)); c.fill();
+    c.fillStyle = 'rgba(0,0,0,.65)'; c.beginPath(); c.moveTo(X(mx), Y(mz - 0.27)); c.lineTo(X(0.8), Y(mz - 0.16)); c.lineTo(X(0.8), Y(mz + 0.16)); c.lineTo(X(mx), Y(mz + 0.27)); c.fill(); }
+  if (o.shadow === 'earth') { const xe = Math.min(x0, -7); c.fillStyle = 'rgba(120,80,200,.15)'; c.beginPath(); c.moveTo(X(0), Y(-1)); c.lineTo(X(xe), Y(-1 - 0.02 * -xe)); c.lineTo(X(xe), Y(1 + 0.02 * -xe)); c.lineTo(X(0), Y(1)); c.fill();
+    c.fillStyle = 'rgba(0,0,0,.6)'; c.beginPath(); c.moveTo(X(0), Y(-1)); c.lineTo(X(xe), Y(-1 + 0.02 * -xe)); c.lineTo(X(xe), Y(1 - 0.02 * -xe)); c.lineTo(X(0), Y(1)); c.fill(); }
   const er = Math.max(9, s);
   c.fillStyle = '#3d8fd8'; c.beginPath(); c.arc(X(0), Y(0), er, 0, 7); c.fill(); c.fillStyle = '#13284a'; c.beginPath(); c.arc(X(0), Y(0), er, Math.PI / 2, Math.PI * 1.5); c.fill();
   c.fillStyle = '#9fd0ff'; c.textAlign = 'center'; c.fillText('지구', X(0), Y(0) + er + 12);
   const mr = Math.max(5, 0.27 * s); c.fillStyle = '#262b38'; c.beginPath(); c.arc(X(mx), Y(mz), mr, 0, 7); c.fill(); c.fillStyle = '#f3ead2'; c.beginPath(); c.arc(X(mx), Y(mz), mr, -Math.PI / 2, Math.PI / 2); c.fill();
   c.fillStyle = '#ddd'; c.fillText('달', X(mx), Y(mz) - mr - 5);
-  // 경로(에피소드 지도)
-  if (o.route) {
-    const pts = [[1.2, 3.4], [4.0, 1.2], [4.3, 0], [0.95, 0]];
-    c.strokeStyle = 'rgba(255,184,77,.85)'; c.setLineDash([5, 4]); c.lineWidth = 2; c.beginPath(); pts.forEach((p, i) => i ? c.lineTo(X(p[0]), Y(p[1])) : c.moveTo(X(p[0]), Y(p[1]))); c.stroke(); c.setLineDash([]);
-    const lab = [[1.2, 3.4], [4.0, 1.2], [2.6, 0], [0.4, 0.5]];
-    lab.forEach((p, i) => { const on = o.cur === i; c.fillStyle = on ? '#ffb84d' : 'rgba(255,184,77,.35)'; c.beginPath(); c.arc(X(p[0]), Y(p[1]), on ? 11 : 9, 0, 7); c.fill(); c.fillStyle = '#1b1205'; c.font = '900 11px sans-serif'; c.fillText(String(i + 1), X(p[0]), Y(p[1]) + 4); });
+  if (o.route && o.route.length) {
+    c.strokeStyle = 'rgba(255,184,77,.85)'; c.setLineDash([5, 4]); c.lineWidth = 2; c.beginPath(); o.route.forEach((p, i) => i ? c.lineTo(X(p[0]), Y(p[1])) : c.moveTo(X(p[0]), Y(p[1]))); c.stroke(); c.setLineDash([]);
+    o.route.forEach((p, i) => { const on = o.cur === i; c.fillStyle = on ? '#ffb84d' : 'rgba(255,184,77,.4)'; c.beginPath(); c.arc(X(p[0]), Y(p[1]), on ? 11 : 9, 0, 7); c.fill(); c.fillStyle = '#1b1205'; c.font = '900 11px sans-serif'; c.fillText(String(i + 1), X(p[0]), Y(p[1]) + 4); });
   }
-  // 링
   (o.rings || []).forEach((p, i) => { c.strokeStyle = i === o.ringIdx ? '#ffd27a' : '#6fd6ff'; c.lineWidth = 2; c.beginPath(); c.arc(X(p[0]), Y(p[2]), 5, 0, 7); c.stroke(); });
-  // 목표 ★
-  if (o.target) { const tx = X(o.target[0]), ty = Y(o.target[2]); c.fillStyle = '#ffb84d'; c.font = '900 16px sans-serif'; c.fillText('★', tx, ty + 5); }
-  // 루미호
+  (o.beacons || []).forEach(b => { c.fillStyle = '#ffb84d'; c.font = '900 13px sans-serif'; c.fillText(b.k, X(b.p[0]), Y(b.p[2]) + 4); });
+  if (o.target) { c.fillStyle = '#ffb84d'; c.font = '900 16px sans-serif'; c.fillText('★', X(o.target[0]), Y(o.target[2]) + 5); }
   if (o.ship) { const sx = X(o.ship[0]), sy = Y(o.ship[2]), a = o.heading || 0; c.save(); c.translate(sx, sy); c.rotate(a); c.fillStyle = '#ffb84d'; c.beginPath(); c.moveTo(0, -8); c.lineTo(5, 6); c.lineTo(-5, 6); c.closePath(); c.fill(); c.restore();
     c.font = '800 10px sans-serif'; c.fillStyle = '#ffb84d'; c.fillText('루미호', sx, sy + 17); }
 }
@@ -76,7 +73,7 @@ export function showEpisodeMap(screen, ep, cur = 0) {
       <canvas class="mm" width="560" height="360"></canvas>
       <div class="route">${ep.map.map((m, i) => `<div class="${i === cur ? 'on' : ''}"><i>${m[0]}</i><b>${m[1]}</b><span>${m[2]}</span></div>`).join('')}</div>
       <button class="btn pri" id="mm-go">▶ ${cur ? '계속' : '출발'}</button></div>`);
-    const cv = screen.querySelector('.mm'); drawMiniMap(cv.getContext('2d'), cv.width, cv.height, { route: true, cur });
+    const cv = screen.querySelector('.mm'); drawMiniMap(cv.getContext('2d'), cv.width, cv.height, Object.assign({ cur }, ep.mapOpts || {}));
     screen.querySelector('#mm-go').onclick = () => { close(screen); res(); };
   });
 }

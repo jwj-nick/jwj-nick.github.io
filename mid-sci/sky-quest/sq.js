@@ -12,6 +12,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 import { CHARS, PORTRAIT } from './sq-story.js';
 import { EP1, PHASES } from './sq-ep1.js';
+import { EP2, EP3, EP4, EP5 } from './sq-eps.js';
 import * as UI from './sq-ui.js';
 import { GroundView } from './sq-ground.js';
 
@@ -129,7 +130,7 @@ moon.position.copy(MOON); scene.add(moon);
 function labelSprite(text, color, w = 0.5) { const c = document.createElement('canvas'); c.width = 256; c.height = 64; const x = c.getContext('2d'); x.font = '900 36px -apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
   x.lineWidth = 7; x.strokeStyle = 'rgba(0,0,0,.85)'; x.strokeText(text, 128, 32); x.fillStyle = color; x.fillText(text, 128, 32);
   const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), depthTest: false, transparent: true })); sp.scale.set(w, w / 4, 1); sp.renderOrder = 5; return sp; }
-const lbMoon = labelSprite('달 (삭)', '#e8e8f0', 1.3); lbMoon.position.set(MOON.x, MOON.y + 0.6, 0); scene.add(lbMoon);
+const lbMoon = labelSprite('달', '#e8e8f0', 1.3); lbMoon.position.set(MOON.x, MOON.y + 0.6, 0); scene.add(lbMoon);
 const lbEarth = labelSprite('지구', '#9fd0ff', 1.2); lbEarth.position.set(0, 1.5, 0); scene.add(lbEarth);
 const lbSun = labelSprite('태양 쪽 →', '#ffd27a', 1.6); lbSun.position.set(8.2, 1.4, 0); scene.add(lbSun);
 // 그림자 원뿔 (달 → 지구)
@@ -137,8 +138,16 @@ const dEarth = MOON.x - Math.sqrt(1 - MOON.y * MOON.y);
 const cone = (rTop, op, col) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(rTop, RM, dEarth, 48, 1, true), new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: op, depthWrite: false, side: THREE.DoubleSide }));
   m.rotation.z = Math.PI / 2; m.position.set(MOON.x - dEarth / 2, MOON.y, 0); scene.add(m); return m; };
 const coneP = cone(RM + dEarth * SUN_ANG, 0.07, 0x5b3a9a), coneU = cone(RM - dEarth * SUN_ANG, 0.2, 0x000000);
-function setMoonTheta(deg) { // 달 공전각(0 = 삭, +는 동쪽으로 공전)
-  const a = deg * D2R; MOON.set(6 * Math.cos(a), 0.6, -6 * Math.sin(a)); moon.position.copy(MOON); earthU.moonPos.value.copy(MOON);
+const ecU = new THREE.Mesh(new THREE.CylinderGeometry(1 - 9 * SUN_ANG, 1, 9, 48, 1, true), new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.22, depthWrite: false, side: THREE.DoubleSide }));
+const ecP = new THREE.Mesh(new THREE.CylinderGeometry(1 + 9 * SUN_ANG, 1, 9, 48, 1, true), new THREE.MeshBasicMaterial({ color: 0x5b3a9a, transparent: true, opacity: 0.06, depthWrite: false, side: THREE.DoubleSide }));
+[ecU, ecP].forEach(c => { c.rotation.z = Math.PI / 2; c.position.set(-4.5, 0, 0); c.visible = false; scene.add(c); });
+const redRing = (() => { const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d'), g = x.createRadialGradient(128, 128, 96, 128, 128, 128); g.addColorStop(0, 'rgba(255,90,40,0)'); g.addColorStop(0.18, 'rgba(255,110,50,.95)'); g.addColorStop(0.45, 'rgba(255,80,40,.35)'); g.addColorStop(1, 'rgba(255,60,30,0)'); x.fillStyle = g; x.fillRect(0, 0, 256, 256);
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), blending: THREE.AdditiveBlending, depthTest: false, depthWrite: false, transparent: true })); s.scale.set(2.7, 2.7, 1); s.renderOrder = 9; s.visible = false; scene.add(s); return s; })();
+const orbitLine = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(Array.from({ length: 160 }, (_, i) => new THREE.Vector3(6 * Math.cos(i / 160 * 6.2832), 0.3, -6 * Math.sin(i / 160 * 6.2832)))), new THREE.LineDashedMaterial({ color: 0x6fd6ff, dashSize: 0.2, gapSize: 0.15, transparent: true, opacity: 0.5 }));
+orbitLine.computeLineDistances(); orbitLine.visible = false; scene.add(orbitLine);
+function setMoonTheta(deg) { setMoon(deg, MOON.y); }
+function setMoon(deg, y) { // 달 공전각(0 = 삭, +는 동쪽으로 공전)
+  const a = deg * D2R; MOON.set(6 * Math.cos(a), y, -6 * Math.sin(a)); const near = Math.abs(((deg % 360) + 540) % 360 - 180) > 155; coneU.visible = coneP.visible = near; moon.position.copy(MOON); earthU.moonPos.value.copy(MOON);
   [coneU, coneP].forEach(c => c.position.set(MOON.x - dEarth / 2, MOON.y, MOON.z)); lbMoon.position.set(MOON.x, MOON.y + 0.6, MOON.z); }
 // 링 · 기뢰 · 착륙점
 const ringMat = new THREE.MeshBasicMaterial({ color: 0x6fd6ff }), ringMatOn = new THREE.MeshBasicMaterial({ color: 0xffd27a });
@@ -262,9 +271,10 @@ const chk = $('#chk'), compass = $('#compass'), tutEl = $('#tut'), DASH_FLY = da
 const DASH_GROUND = `<div class="g"><span>현재 위치</span><b id="g-loc" style="font-size:13px">-</b><em id="g-ll"></em></div><div class="g wide"><span>태양 가림</span><div class="bar"><i id="d-cov"></i></div><b id="d-covt">0%</b><em id="d-zone">-</em></div><div class="g"><span>관측 도장</span><b id="g-st">0/4</b><em>개</em></div>`;
 function flightUI(on) { [hud, dash, pad, thr, chk].forEach(e => e.classList.toggle('hide', !on)); compass.classList.add('hide'); }
 async function overlay(fn) { G.overlay = true; input.fwd = input.back = 0; await fn(); G.overlay = false; }
+$('#thr [data-k=shoot]') && ($('#thr [data-k=shoot]').onclick = () => shoot());
 $('#b-dict').onclick = () => overlay(() => new Promise(r => UI.showDict(screen, PHASES, r)));
-$('#b-map').onclick = () => { const m = EP1.missions[G.mi]; if (m) overlay(() => UI.showBrief(screen, m, G.mi, EP1.missions.length, mapOpts(m))); };
-function mapOpts(m) { return { rings: m.rings, ringIdx: G.idx, target: m.target || m.land || null, ship: ship.pos.toArray(), heading: -ship.yaw, moonZ: MOON.z }; }
+$('#b-map').onclick = () => { const m = EP.missions[G.mi]; if (m) overlay(() => UI.showBrief(screen, m, G.mi, EP.missions.length, mapOpts(m))); };
+function mapOpts(m) { return Object.assign({}, EP.mapOpts || {}, { route: null, rings: m.rings, ringIdx: G.idx, target: m.target || m.land || null, beacons: m.beacons, ship: m.type === 'ground' ? null : ship.pos.toArray(), heading: -ship.yaw, moon: [MOON.x, MOON.z] }); }
 $('#b-snd').onclick = () => { muted = !muted; store.set('muted', muted); if (master) master.gain.value = muted ? 0 : 1; paintBtns(); if (muted && synth) synth.cancel(); };
 $('#b-voice').onclick = () => { voiceOn = !voiceOn; store.set('voice', voiceOn); paintBtns(); if (!voiceOn && synth) synth.cancel(); toast(voiceOn ? (koVoice ? '🗣 음성 켬' : '🗣 이 기기에 한국어 음성이 없어 자막만 나와요') : '🗣 음성 끔 (자막만)'); };
 $('#b-exit').onclick = () => titleScreen();
@@ -274,7 +284,7 @@ paintBtns();
 
 /* 대사: 자막 + 음성, 끝나면 자동 진행 (탭하면 건너뛰기) */
 async function say(lines) {
-  G.talking = true; sub.classList.remove('hide');
+  G.talking = true; sub.classList.remove('hide'); document.body.classList.add('talk');
   for (const [who, text] of lines) {
     const ch = CHARS[who]; sub.className = who; sub.querySelector('.por').innerHTML = PORTRAIT[who];
     sub.querySelector('.nm').innerHTML = `<span style="color:${ch.color}">${ch.name}</span> <span style="opacity:.5">${ch.en}</span>`;
@@ -282,25 +292,39 @@ async function say(lines) {
     await new Promise(res => { let done = false; const fin = () => { if (done) return; done = true; G.skip = null; sub.onclick = null; res(); };
       G.skip = () => { if (synth) synth.cancel(); fin(); }; sub.onclick = G.skip; speak(who, text).then(fin); });
   }
-  sub.classList.add('hide'); G.talking = false;
+  sub.classList.add('hide'); G.talking = false; document.body.classList.remove('talk');
 }
 
 /* ═════ 게임 상태 ═════ */
-const G = { overlay: false, tut: -1, totSeen: false, best: 99, bestT: 0, hintCd: 0, behindT: 0, stamps: {}, gPhase: '', gT: 0, zoneT: 0, zoneK: '', lookBack: false, mode: 'title', mi: -1, running: false, t: 0, tMax: 1, idx: 0, hold: 0, talking: false, skip: null, mines: [], penSeen: false, lastTick: 0, gq: 0, ganim: 0 };
-function clearObjects() { G.mines.forEach(o => { const mx = o.s.userData.mixer; if (mx) mixers.splice(mixers.indexOf(mx), 1); }); ringsG.clear(); minesG.clear(); G.mines = []; noxShip.visible = false; beacon.visible = false; }
+const G = { overlay: false, tut: -1, totSeen: false, best: 99, bestT: 0, hintCd: 0, behindT: 0, stamps: {}, gPhase: '', gT: 0, zoneT: 0, zoneK: '', lookBack: false, lookTgt: null, camMode: '', spin: 0,
+  mode: 'title', mi: -1, running: false, t: 0, tMax: 1, idx: 0, hold: 0, talking: false, skip: null, mines: [], penSeen: false, lastTick: 0, gq: 0, flags: {}, rk: 0, beacons: [] };
+const EPISODES = [EP1, EP2, EP3, EP4, EP5]; let EP = EP1;
+function clearObjects() { G.mines.forEach(o => { const mx = o.s.userData.mixer; if (mx) mixers.splice(mixers.indexOf(mx), 1); }); ringsG.clear(); minesG.clear(); G.mines = []; noxShip.visible = false; beacon.visible = false;
+  G.beacons.forEach(b => scene.remove(b)); G.beacons = []; if (GV) GV.extra.clear(); }
 function buildRings(list) { ringsG.clear(); list.forEach((p, i) => { const r = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.016, 12, 48), i === 0 ? ringMatOn : ringMat); r.position.copy(V(p)); const nx = list[i + 1] ? V(list[i + 1]) : MOON.clone(); r.lookAt(nx); ringsG.add(r); }); }
+function makeBeacon(p, label, center) { const b = beacon.clone(true); b.visible = true; b.position.copy(p); b.lookAt(p.clone().add(p.clone().sub(center))); b.rotateX(Math.PI / 2);
+  if (label) { const lb = labelSprite(label, '#ffd27a', 0.6); lb.position.set(0, 1.35, 0); b.add(lb); } scene.add(b); G.beacons.push(b); return b; }
+function applySpace(sp) {
+  setMoon(sp.moonTheta, sp.moonY); const d = sp.drone || EP1.space.drone;
+  droneCam.position.copy(V(d[0])); droneCam.lookAt(V(d[1])); droneCam.fov = d[2];
+  orbitLine.visible = !!sp.orbit; ecU.visible = ecP.visible = !!sp.earthCone; G.spin = 0; earth.rotation.y = -127 * D2R;
+  EP.mapOpts = { route: EP.route, moon: [MOON.x, MOON.z], shadow: Math.abs(sp.moonTheta) < 20 ? 'moon' : sp.earthCone ? 'earth' : '', orbit: !!sp.orbit };
+}
+function shotBtn(on, label) { const b = $('#thr [data-k=shoot]'); b.classList.toggle('hide', !on); if (label) b.innerHTML = label; }
 
 function titleScreen() {
-  setMoonTheta(0); dash.innerHTML = DASH_FLY; tutEl.classList.add('hide');
-  G.mode = 'title'; G.running = false; flightUI(false); sub.classList.add('hide'); qa.classList.add('hide'); $('#sky').classList.add('hide'); clearObjects(); if (synth) synth.cancel();
+  EP = EP1; applySpace(EP1.space); dash.innerHTML = DASH_FLY; tutEl.classList.add('hide'); dialUI(false); shotBtn(false);
+  G.mode = 'title'; G.running = false; flightUI(false); sub.classList.add('hide'); qa.classList.add('hide'); clearObjects(); if (synth) synth.cancel();
+  const clr = (e) => store.get('clear-' + e.id, false) ? '✅' : '▶';
   screen.className = 'on';
   screen.innerHTML = `<div class="sc"><div class="eye">MID-SCI · 3D SPACE OBSERVATORY</div><h1>율이의<br><span>하늘 퀘스트</span></h1>
-    <p>요크셔테리어 관측 대원 <b>율이</b>가 우주선 <b>루미호</b>를 몰고 출동! 조종석에서 직접 날아다니며, 빛을 훔치는 <b style="color:var(--nox)">녹스</b>를 막아요.</p>
-    <button class="btn pri" id="go">▶ EPISODE 1 · 그림자 속으로</button>
+    <p>요크셔테리어 관측 대원 <b>율이</b>가 우주선 <b>루미호</b>를 몰고 출동! 빛을 훔치는 <b style="color:var(--nox)">녹스</b>를 막고 하늘의 비밀을 되찾아요.</p>
+    <div class="eps">${EPISODES.map((e, i) => `<button class="ep" data-ep="${i}"><i>${clr(e)}</i><b>EP${e.no} · ${e.title}</b><span>${e.rubric}</span></button>`).join('')}</div>
     <button class="btn sec" id="who">등장인물 소개 (이름의 뜻)</button>
     <button class="btn sec" id="dict0">📖 달 위상 사전 (삭·상현·망·하현)</button>
-    <div class="howto">🎮 <b>조종</b> — 왼쪽 방향 패드: 기수 돌리기 · 🎯: 목표 자동 조준 · 오른쪽 <b>추진</b>을 누르고 있으면 전진<br>⌨️ 키보드 — 화살표 · W/S · Space(조준)<br>📡 오른쪽 위 모니터 = 멀리 멈춰 있는 드론이 찍는 바깥 모습 (⇄로 크게)<br>🗣 루미·녹스는 목소리로 말해요 (🗣 버튼으로 끄기)<br>📱 가로 화면 추천 · 공유 메뉴 → <b>홈 화면에 추가</b>하면 앱처럼 실행<br>🔒 EPISODE 2 붉은 달(월식) · 3 달 모양 탐사 — 준비 중</div><div class="credit">3D 모델: Quaternius (CC0) · 지구 텍스처: NASA Blue/Black Marble (퍼블릭 도메인) · three.js (MIT)</div></div>`;
-  $('#go').onclick = () => { unlockAudio(); store.get('seen', false) ? startEpisode() : charsScreen(true); };
+    <div class="howto">🎮 왼쪽 패드: 방향 · 🎯 자동 조준 · 오른쪽 <b>추진</b> 꾹 = 전진 · ⌨️ 화살표 · W/S · Space<br>📡 오른쪽 위 = 바깥 드론 화면(⇄ 크게) · 🗺 미션 다시 보기 · 📖 위상 사전<br>📱 가로 화면 추천 · 공유 → <b>홈 화면에 추가</b>하면 앱처럼 실행</div>
+    <div class="credit">3D 모델: Quaternius (CC0) · 지구 텍스처: NASA Blue/Black Marble (퍼블릭 도메인) · three.js (MIT)</div></div>`;
+  screen.querySelectorAll('[data-ep]').forEach(b => b.onclick = () => { unlockAudio(); EP = EPISODES[+b.dataset.ep]; store.get('seen', false) ? startEpisode() : charsScreen(true); });
   $('#who').onclick = () => charsScreen(false);
   $('#dict0').onclick = () => UI.showDict(screen, PHASES, titleScreen);
 }
@@ -314,27 +338,66 @@ function charsScreen(thenStart) {
   $('#ok').onclick = () => { unlockAudio(); thenStart ? startEpisode() : titleScreen(); };
 }
 async function startEpisode() {
-  screen.className = ''; screen.innerHTML = ''; G.mode = 'fly';
-  placeShip(EP1.missions[0].start); flightUI(true); hud.querySelector('#m-name').textContent = EP1.sub;
+  screen.className = ''; screen.innerHTML = ''; G.mode = 'fly'; applySpace(EP.space);
+  const m0 = EP.missions[0]; if (m0.start) placeShip(m0.start); hud.querySelector('#m-name').textContent = EP.sub;
   $('#m-goal').textContent = ''; flightUI(false);
-  await UI.showEpisodeMap(screen, EP1, 0); flightUI(true); showBanner(EP1.sub, EP1.title);
-  await say(EP1.prologue);
+  await UI.showEpisodeMap(screen, EP, 0); flightUI(!EP.groundOnly); showBanner(EP.sub, EP.title);
+  await say(EP.prologue);
   startMission(0, true);
 }
 async function startMission(i, first) {
-  const m = EP1.missions[i]; G.mi = i; G.running = false; G.lookBack = false; G.idx = 0; G.hold = 0; G.penSeen = false; G.lastTick = 0; clearObjects(); setAim(false);
-  $('#m-name').textContent = `M${i + 1}/${EP1.missions.length} · ${m.name}`; $('#m-goal').innerHTML = '🎯 ' + m.brief.what;
-  G.totSeen = false; G.best = 99; G.bestT = 0; G.behindT = 0; G.hintCd = 6; setMoonTheta(0);
-  if (first) { flightUI(false); speak('lumi', m.brief.what); await UI.showBrief(screen, m, i, EP1.missions.length, mapOpts(m)); if (synth) synth.cancel(); }
+  const m = EP.missions[i]; G.mi = i; G.running = false; G.lookBack = false; G.lookTgt = null; G.camMode = ''; G.idx = 0; G.hold = 0; G.penSeen = false; G.lastTick = 0; G.flags = {}; G.rk = 0; clearObjects(); setAim(false);
+  $('#m-name').textContent = `EP${EP.no} M${i + 1}/${EP.missions.length} · ${m.name}`; $('#m-goal').innerHTML = '🎯 ' + m.brief.what;
+  G.totSeen = false; G.best = 99; G.bestT = 0; G.behindT = 0; G.hintCd = 6; applySpace(EP.space); dialUI(false); shotBtn(false);
+  if (first) { flightUI(false); speak('lumi', m.brief.what); await UI.showBrief(screen, m, i, EP.missions.length, mapOpts(m)); if (synth) synth.cancel(); }
   if (m.type === 'ground') return groundMission(m);
-  dash.innerHTML = DASH_FLY;
-  $('#sky').classList.add('hide'); flightUI(true); placeShip(m.start);
+  dash.innerHTML = DASH_FLY; flightUI(true); placeShip(m.start);
   if (m.rings) buildRings(m.rings);
-  if (m.type === 'descend') { noxShip.visible = true; } if (m.type === 'descend') { beacon.position.copy(V(m.land)).multiplyScalar(1.03); beacon.lookAt(beacon.position.clone().multiplyScalar(2)); beacon.rotateX(Math.PI / 2); beacon.visible = true; spawnMines(); }
-  showBanner(`MISSION ${i + 1} / ${EP1.missions.length}`, m.name);
+  if (m.type === 'descend') {
+    const lp = V(m.land), ctr = m.landAbs ? MOON.clone() : new THREE.Vector3(); const bp = m.landAbs ? lp : lp.clone().multiplyScalar(1.03);
+    makeBeacon(bp, '', ctr); if (!m.landAbs) { noxShip.visible = true; } if (m.mines !== false) spawnMines(); }
+  if (m.type === 'chooseLand') { m.beacons.forEach(b => makeBeacon(V(b.p).multiplyScalar(1.03), b.k, new THREE.Vector3())); G.spin = 0.25; }
+  if (m.type === 'watch') G.spin = 0.2;
+  if (m.type === 'photo') shotBtn(true, '📸<br>촬영');
+  if (m.type === 'phaseSet') { G.camMode = 'moon'; toast('🔭 망원 모드 — 달을 크게 보여 줄게요'); dialUI(true, '음력 날짜', 1, 29.5, 8, v => setMoon(dayToE(v), EP.space.moonY), '확인 ✔', () => phaseCheck(m)); setMoon(dayToE(8), EP.space.moonY); }
+  showBanner(`MISSION ${i + 1} / ${EP.missions.length}`, m.name);
   if (first && m.pre) await say(m.pre);
-  if (i === 0 && first && !store.get('tut', false)) await runTutorial();
-  G.t = G.tMax = m.time; G.running = true; G.mode = 'fly';
+  if (EP === EP1 && i === 0 && first && !store.get('tut', false)) await runTutorial();
+  G.t = G.tMax = m.time || 999; G.running = true; G.mode = 'fly';
+}
+const dayToE = (d) => ((d - 1) / 29.53) * 360;
+function adiff(a, b) { const d = ((a - b) % 360 + 360) % 360; return d > 180 ? 360 - d : d; }
+function curTheta() { return ((Math.atan2(-MOON.z, MOON.x) / D2R) + 360) % 360; }
+function phaseName(e) { e = ((e % 360) + 360) % 360; return e < 15 || e > 345 ? '삭' : e < 70 ? '초승달' : e < 110 ? '상현달' : e < 165 ? '상현~보름 사이' : e < 195 ? '보름달' : e < 250 ? '보름~하현 사이' : e < 290 ? '하현달' : '그믐달'; }
+async function phaseCheck(m) {
+  const r = m.rounds[G.rk]; if (!r || G.talking) return; const e = curTheta();
+  if (adiff(e, r.e) <= 14) { G.rk++; sfx.ok(); toast(`✅ ${r.n} 완성!`); if (G.rk >= m.rounds.length) { dialUI(false); return missionDone(); } toast(`다음 주문: ${m.rounds[G.rk].n}`); }
+  else { sfx.bad(); hint(`지금은 ${phaseName(e)}에 가까워. ${r.n}은(는) 달이 어디에 있어야 할까? 📖 사전을 봐!`); G.hintCd = 0; }
+}
+/* 다이얼 UI */
+function dialUI(on, label, min, max, val, onInput, okLabel, onOk) {
+  const d = $('#dial'); d.classList.toggle('hide', !on); if (!on) return;
+  d.innerHTML = `<label>${label}</label><input type="range" min="${min}" max="${max}" step="0.25" value="${val}"><b>${val}</b>${okLabel ? `<button>${okLabel}</button>` : ''}`;
+  const inp = d.querySelector('input'), out = d.querySelector('b'); inp.oninput = () => { out.textContent = (+inp.value).toFixed(1) + (label.includes('음력') ? '일' : ''); onInput && onInput(+inp.value); }; inp.oninput();
+  if (okLabel) d.querySelector('button').onclick = onOk;
+}
+/* 퀴즈 (오답이면 같은 문제 다시) */
+function quiz(qs) {
+  return new Promise(async done => {
+    document.body.classList.add('quiz');
+    for (const q of qs) {
+      await new Promise(next => {
+        qa.classList.remove('hide');
+        qa.innerHTML = `<div class="q">🟣 ${q.q}</div><div class="o">${q.opts.map((o, k) => `<button data-k="${k}">${o}</button>`).join('')}</div><div class="h"></div>`;
+        qa.querySelectorAll('button').forEach(b => b.onclick = async () => {
+          if (G.talking) return; const k = +b.dataset.k;
+          if (k === q.a) { b.classList.add('ok'); sfx.ok(); await say([['lumi', '정답! ' + q.why]]); next(); }
+          else { b.classList.add('no'); sfx.bad(); qa.querySelector('.h').innerHTML = '💡 ' + q.hint; await say([['nox', '틀렸다! 하하!'], ['lumi', q.hint]]); qa.querySelectorAll('button').forEach(x => x.classList.remove('no')); }
+        });
+      });
+    }
+    qa.classList.add('hide'); document.body.classList.remove('quiz'); done();
+  });
 }
 function spawnMines() {
   const base = [[3.6, 0.66, 0.05], [2.6, 0.55, -0.06], [2.2, 0.68, 0.06], [1.5, 0.58, -0.04], [3.2, 0.52, 0.0]];
@@ -345,7 +408,7 @@ function spawnMines() {
     else { s = new THREE.Sprite(new THREE.SpriteMaterial({ map: mineTex, blending: THREE.NormalBlending, depthWrite: false })); s.scale.set(0.12, 0.12, 1); }
     minesG.add(s); return { s, b: V(b), ph: i * 1.7, amp: 0.11 + (i % 2) * 0.05 }; });
 }
-async function runTutorial() { // P4 첫 비행 연습 (시간 제한 없음)
+async function runTutorial() {
   G.mode = 'fly'; G.tut = 0; G.tutYaw = ship.yaw; setAim(false);
   const paint = () => { const T = EP1.tutorial; tutEl.innerHTML = `<b>조종 연습 ${Math.min(G.tut + 1, T.length)}/${T.length}</b> ${T[Math.min(G.tut, T.length - 1)].t}<div class="d">${T.map((t, k) => k < G.tut ? '✅' : k === G.tut ? '▶' : '☐').join(' ')}</div><button id="tut-skip">건너뛰기</button>`; $('#tut-skip').onclick = () => { G.tut = 99; }; };
   tutEl.classList.remove('hide'); paint(); speak('lumi', '조종 연습부터 해 보자!');
@@ -354,9 +417,9 @@ async function runTutorial() { // P4 첫 비행 연습 (시간 제한 없음)
   await say([['lumi', '좋아, 조종 완벽! 이제 진짜 출발이야.']]);
 }
 async function missionDone() {
-  G.running = false; sfx.ok(); const m = EP1.missions[G.mi];
+  G.running = false; sfx.ok(); const m = EP.missions[G.mi]; dialUI(false); shotBtn(false);
   if (m.done) await say(m.done);
-  if (G.mi + 1 < EP1.missions.length) startMission(G.mi + 1, true); else episodeClear();
+  if (G.mi + 1 < EP.missions.length) startMission(G.mi + 1, true); else episodeClear();
 }
 async function missionFail(reason) {
   if (!G.running) return; G.running = false; sfx.bad(); input.fwd = input.back = 0; ship.speed = 0;
@@ -365,27 +428,54 @@ async function missionFail(reason) {
   startMission(G.mi, false);
 }
 async function episodeClear() {
-  G.mode = 'clear'; flightUI(false); qa.classList.add('hide'); sfx.total();
-  await say(EP1.clear); store.set('clear-ep1', true);
+  G.mode = 'clear'; flightUI(false); qa.classList.add('hide'); dialUI(false); shotBtn(false); compass.classList.add('hide'); sfx.total(); applySpace(EP1.space);
+  await say(EP.clear); store.set('clear-' + EP.id, true);
+  const nx = EPISODES[EPISODES.indexOf(EP) + 1];
   screen.className = 'on';
-  screen.innerHTML = `<div class="sc"><div class="eye">EPISODE 1 CLEAR</div><h1 style="font-size:34px;margin-top:3vh">🏆 코로나를 지켰다!</h1>
-    <p>오늘 율이가 <b>직접 날아서 본</b> 일식을 시험지 4요소로 정리하면:</p>
-    <div class="sum">${EP1.summary.map(s => `<div><span>${s[0]}</span><p style="margin:0">${s[1]}</p></div>`).join('')}</div>
-    <p style="font-size:13px;color:var(--muted)">※ 조종석에서 태양이 100% 가려진 곳 = <b>본그림자</b>, 일부만 가려진 곳 = <b>반그림자</b>. 지구 위 그 그림자 안에 있는 사람이 개기일식·부분일식을 봐요.</p>
-    <button class="btn pri" id="again">↺ 다시 비행</button><a class="btn sec" href="../earth-moon/#u5">📘 일식·월식 단원 복습</a><button class="btn sec" id="ti">타이틀로</button></div>`;
+  screen.innerHTML = `<div class="sc"><div class="eye">${EP.sub} CLEAR</div><h1 style="font-size:34px;margin-top:3vh">🏆 ${EP.title} 완료!</h1>
+    <p>오늘 율이가 직접 보고 겪은 것을 시험지 요소로 정리하면:</p>
+    <div class="sum">${EP.summary.map(s => `<div><span>${s[0]}</span><p style="margin:0">${s[1]}</p></div>`).join('')}</div>
+    ${nx ? `<button class="btn pri" id="next">▶ 다음: EP${nx.no} · ${nx.title}</button>` : ''}
+    <button class="btn sec" id="again">↺ 다시 하기</button><a class="btn sec" href="../earth-moon/">📘 지구와 달 스터디 앱</a><button class="btn sec" id="ti">타이틀로</button></div>`;
+  if (nx) $('#next').onclick = () => { EP = nx; startEpisode(); };
   $('#again').onclick = startEpisode; $('#ti').onclick = titleScreen;
+}
+/* 사진 촬영 (EP3 M1) */
+async function shoot() {
+  const m = EP.missions[G.mi]; if (!G.running || G.talking) return;
+  if (G.mode === 'ground') return trailsSubmit();
+  if (m.type !== 'photo') return;
+  const toM = MOON.clone().sub(ship.pos).normalize(), ang = Math.acos(Math.max(-1, Math.min(1, toM.dot(fwd()))));
+  if (ang > 0.12) { sfx.bad(); return hint('달이 화면 가운데 오도록! 🎯를 눌러 봐.'); }
+  G.flags.shot = true; G.running = false; shotBtn(false); sfx.ring();
+  const e = curTheta(); qa.classList.remove('hide'); qa.innerHTML = `<div class="q">📸 찍은 사진</div><canvas id="photo" width="140" height="140" style="display:block;margin:0 auto;border-radius:12px"></canvas>`;
+  const c = $('#photo').getContext('2d'); c.fillStyle = '#050914'; c.fillRect(0, 0, 140, 140); UI.drawPhase(c, 70, 70, 52, e);
+  await new Promise(r => setTimeout(r, 1600)); await quiz([m.q]); missionDone();
 }
 
 /* ═════ 비행 HUD: 체크리스트 · 길 안내선 · 막힘 힌트 (P6-b·c·f) ═════ */
 const guideG = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3(1, 0, 0)]);
 const guide = new THREE.Line(guideG, new THREE.LineDashedMaterial({ color: 0xffd27a, dashSize: 0.05, gapSize: 0.04, transparent: true, opacity: 0.85 })); guide.frustumCulled = false; scene.add(guide);
 function hint(text) { if (G.hintCd > 0) return; G.hintCd = 12; toast('💡 ' + text); speak('lumi', text); }
+function stepsDone(m, cov) {
+  const r = n => Array.from({ length: n }, (_, k) => G.idx > k);
+  switch (m.type) {
+    case 'rings': return r(m.rings.length);
+    case 'umbra': return [G.penSeen || cov > 0.02, G.totSeen, G.hold >= m.hold];
+    case 'descend': return [...r(m.rings.length), false];
+    case 'watch': return [...r(m.rings.length), !!G.flags.watched, !!G.flags.q];
+    case 'chooseLand': return [!!G.flags.near, false];
+    case 'photo': { const toM = MOON.clone().sub(ship.pos).normalize(); const ok = toM.dot(fwd()) > Math.cos(0.12); G.flags.aim = G.flags.aim || ok; return [!!G.flags.aim, !!G.flags.shot, false]; }
+    case 'phaseSet': return m.rounds.map((_, k) => G.rk > k);
+  }
+  return [];
+}
 function flightHud(dt) {
-  const m = EP1.missions[G.mi]; G.hintCd -= dt;
-  if (!m || m.type === 'ground' || G.tut >= 0) { if (G.tut < 0) UI.renderChk(chk, null, []); guide.visible = false; return; }
+  const m = EP.missions[G.mi]; G.hintCd -= dt;
+  if (!m || m.type === 'ground' || G.tut >= 0) { if (G.tut < 0 && (!m || m.type !== 'ground')) UI.renderChk(chk, null, []); guide.visible = false; return; }
   const cov = sunCover(ship.pos); if (cov >= 0.999) G.totSeen = true;
-  const done = m.type === 'umbra' ? [G.penSeen || cov > 0.02, G.totSeen, G.hold >= m.hold] : m.type === 'descend' ? [G.idx >= 1, G.idx >= 2, false] : [G.idx >= 1, G.idx >= 2];
-  const extra = m.type === 'umbra' && G.hold > 0 ? `${G.hold.toFixed(1)}/${m.hold}초` : m.type === 'umbra' && !G.totSeen ? `가림 ${Math.round(cov * 100)}%` : '';
+  const done = stepsDone(m, cov);
+  const extra = m.type === 'umbra' && G.hold > 0 ? `${G.hold.toFixed(1)}/${m.hold}초` : m.type === 'umbra' && !G.totSeen ? `가림 ${Math.round(cov * 100)}%` : m.type === 'phaseSet' && m.rounds[G.rk] ? `주문: ${m.rounds[G.rk].n}` : '';
   UI.renderChk(chk, m, done, extra);
   const T = currentTarget();
   guide.visible = !!T && G.running && !swapped;
@@ -397,100 +487,211 @@ function flightHud(dt) {
       const d = T.p.distanceTo(ship.pos); if (d < G.best - 0.03) { G.best = d; G.bestT = 0; } else G.bestT += dt;
       const toT = T.p.clone().sub(ship.pos).normalize(); if (toT.dot(f) < -0.2) G.behindT += dt; else G.behindT = 0;
       if (G.behindT > 2.5) hint('목표가 뒤쪽에 있어! 🎯를 누르면 자동으로 돌아.');
-      else if (G.bestT > 9) { G.bestT = 0; hint(m.type === 'umbra' ? '달과 지구 사이, 진한 그림자 속으로! 🎯 누르고 추진.' : '🎯를 누르고 추진을 꾹 눌러 봐!'); }
+      else if (G.bestT > 9) { G.bestT = 0; hint(m.type === 'umbra' ? '진한 그림자 속으로! 🎯 누르고 추진.' : m.type === 'photo' ? '🎯를 누르면 달이 가운데로 와. 그다음 📸!' : '🎯를 누르고 추진을 꾹 눌러 봐!'); }
     }
   }
 }
 
-/* ═════ M4 지표 일식 탐사 (P8 · F10·F11) ═════ */
+/* ═════ 지표 장면 — 모드: eclipse(일식) · lunar(월식) · evening(저녁 달) · day(하루) · trails(별 궤적) ═════ */
 let GV = null;
 const groundCam = new THREE.PerspectiveCamera(40, 1, 0.01, 2000);
 const yulMk = new THREE.Group(); { yulMk.add(glowSprite('rgba(255,220,140,1)', 'rgba(255,170,60,.6)', 0.28)); const lb = labelSprite('🐾 율이', '#ffd27a', 0.9); lb.position.y = 0.16; yulMk.add(lb); } yulMk.visible = false; scene.add(yulMk);
 const tgtMk = glowSprite('rgba(120,255,200,1)', 'rgba(60,200,160,.5)', 0.3); tgtMk.visible = false; scene.add(tgtMk);
-const gP = new THREE.Vector3(); const gTargets = {};
+const gP = new THREE.Vector3(); const gTargets = {}; let gOrder = [];
 const ZONE_ORDER = ['total', 'partial', 'none', 'night'];
+const LAT = 37.5 * D2R, Yv = new THREE.Vector3(0, 1, 0);
 function basisAt(P) { const e = new THREE.Vector3(0, 1, 0).cross(P); if (e.lengthSq() < 1e-6) e.set(0, 0, -1); e.normalize(); return { e, n: P.clone().cross(e).normalize() }; }
 function toLocal(v, P, b) { return new THREE.Vector3(v.dot(b.e), v.dot(P), -v.dot(b.n)); }
 function zoneAt(P) { if (P.dot(L) < -0.03) return 'night'; const c = sunCover(P); return c >= 0.999 ? 'total' : c > 0.03 ? 'partial' : 'none'; }
 function umbraCenter() { const M = MOON, b = -2 * M.dot(L), c = M.lengthSq() - 1, disc = b * b - 4 * c; if (disc < 0) return null; const t = (-b - Math.sqrt(disc)) / 2; return M.clone().sub(L.clone().multiplyScalar(t)).normalize(); }
 function rotToward(P, dir, ang) { const t = dir.clone().sub(P.clone().multiplyScalar(dir.dot(P))).normalize(); return P.clone().multiplyScalar(Math.cos(ang)).add(t.multiplyScalar(Math.sin(ang))).normalize(); }
-const CITIES = [['서울', 37.6, 127], ['도쿄', 35.7, 139.7], ['베이징', 39.9, 116.4], ['상하이', 31.2, 121.5], ['블라디보스토크', 43.1, 131.9], ['타이베이', 25, 121.5], ['마닐라', 14.6, 121], ['방콕', 13.8, 100.5], ['뉴델리', 28.6, 77.2], ['울란바토르', 47.9, 106.9], ['캄차카', 53, 158.7], ['시드니', -33.9, 151.2], ['모스크바', 55.8, 37.6], ['런던', 51.5, -0.1], ['뉴욕', 40.7, -74], ['로스앤젤레스', 34, -118.2], ['하와이', 21.3, -157.8], ['알래스카', 61.2, -149.9], ['북극', 89, 0], ['아이슬란드', 64.1, -21.9], ['카이로', 30, 31.2], ['자카르타', -6.2, 106.8]];
+function seoulAt(T) { const a = (T - 12) * 15 * D2R; return new THREE.Vector3(Math.cos(LAT) * Math.cos(a), Math.sin(LAT), -Math.cos(LAT) * Math.sin(a)); }
+const POLE = new THREE.Vector3(0, Math.sin(LAT), -Math.cos(LAT));
+function skyDir(dec, H) { // 서울 지역 좌표의 천체 방향 (시간각 H: 서쪽 +)
+  const Q = new THREE.Vector3(0, Math.cos(LAT), Math.sin(LAT)), Wv = new THREE.Vector3(-1, 0, 0), d = dec * D2R, h = H * D2R;
+  return Q.multiplyScalar(Math.cos(d) * Math.cos(h)).addScaledVector(Wv, Math.cos(d) * Math.sin(h)).addScaledVector(POLE, Math.sin(d)).normalize(); }
+function azName(v) { const a = ((Math.atan2(v.x, -v.z) / D2R) + 360) % 360; return ['북', '북동', '동', '남동', '남', '남서', '서', '북서'][Math.round(a / 45) % 8]; }
+const CITIES = [['서울', 37.6, 127], ['도쿄', 35.7, 139.7], ['베이징', 39.9, 116.4], ['상하이', 31.2, 121.5], ['블라디보스토크', 43.1, 131.9], ['타이베이', 25, 121.5], ['마닐라', 14.6, 121], ['방콕', 13.8, 100.5], ['뉴델리', 28.6, 77.2], ['울란바토르', 47.9, 106.9], ['캄차카', 53, 158.7], ['시드니', -33.9, 151.2], ['모스크바', 55.8, 37.6], ['런던', 51.5, -0.1], ['뉴욕', 40.7, -74], ['로스앤젤레스', 34, -118.2], ['하와이', 21.3, -157.8], ['알래스카', 61.2, -149.9], ['북극', 89, 0], ['아이슬란드', 64.1, -21.9], ['카이로', 30, 31.2], ['자카르타', -6.2, 106.8], ['리우데자네이루', -22.9, -43.2], ['케이프타운', -33.9, 18.4]];
 function latLon(P) { const lat = Math.asin(Math.max(-1, Math.min(1, P.y))) / D2R; let lon = Math.atan2(-P.z, P.x) / D2R + 127; lon = ((lon + 540) % 360) - 180; return [lat, lon]; }
 function placeName(P) { const [la, lo] = latLon(P); let best = null, bd = 9; CITIES.forEach(c => { const a = la * D2R, b = c[1] * D2R, d = Math.acos(Math.max(-1, Math.min(1, Math.sin(a) * Math.sin(b) + Math.cos(a) * Math.cos(b) * Math.cos((lo - c[2]) * D2R)))); if (d < bd) { bd = d; best = c[0]; } });
   return { name: bd < 0.2 ? best + ' 근처' : (best ? best + ' 쪽 ' + Math.round(bd * 6371 / 100) * 100 + 'km' : '-'), ll: `${Math.abs(la).toFixed(0)}°${la >= 0 ? 'N' : 'S'} ${Math.abs(lo).toFixed(0)}°${lo >= 0 ? 'E' : 'W'}` }; }
-function nextZone() { return ZONE_ORDER.find(k => !G.stamps[k]); }
-function groundUI() {
-  hud.classList.remove('hide'); dash.classList.remove('hide'); pad.classList.remove('hide'); thr.classList.add('hide'); chk.classList.remove('hide'); compass.classList.remove('hide');
-  $('#m-timer').classList.add('hide'); $('#tgt').style.display = 'none'; $('#xhair').classList.add('hide'); dash.innerHTML = DASH_GROUND;
-  pipf.querySelector('span').textContent = '🛰 우주 모니터 · 지구 위 내 위치'; }
+function nextZone() { return gOrder.find(k => !G.stamps[k]); }
+const dashG = (a, b, c) => `<div class="g"><span>${a[0]}</span><b id="g1" style="font-size:13px">-</b><em id="g1e"></em></div><div class="g wide"><span>${b}</span><div class="bar"><i id="d-cov"></i></div><b id="d-covt">-</b><em id="d-zone">-</em></div><div class="g"><span>${c}</span><b id="g-st">0</b><em></em></div>`;
+function groundUI(m) {
+  hud.classList.remove('hide'); dash.classList.remove('hide'); pad.classList.remove('hide'); thr.classList.add('hide'); chk.classList.remove('hide');
+  $('#m-timer').classList.add('hide'); $('#tgt').style.display = 'none'; $('#xhair').classList.add('hide');
+  const g = m.gmode; dash.innerHTML = g === 'trails' ? dashG(['방향'], '노출 시간', '사진') : g === 'day' ? dashG(['시각'], '태양 고도', '도장') : g === 'evening' ? dashG(['음력 날짜'], '달 방향', '도장') : dashG(['현재 위치'], g === 'lunar' ? '달 가림 (지구 그림자)' : '태양 가림', '도장');
+  pipf.querySelector('span').textContent = g === 'evening' ? '🛰 우주 모니터 · 달 궤도 위치' : '🛰 우주 모니터 · 지구 위 내 위치'; }
+async function stampK(k, name, line) {
+  G.stamps[k] = true; sfx.ok(); toast(`🏅 ${name} 도장!`);
+  G.running = false; if (line) await say([['lumi', line]]); G.running = true;
+  if (gOrder.every(q => G.stamps[q])) await groundFinish();
+}
+async function groundFinish() {
+  const m = EP.missions[G.mi]; G.running = false; G.gPhase = 'quiz';
+  if (m.qs) { if (m.pre) await say(m.pre); await quiz(m.qs); }
+  G.flags.q = true; G.gPhase = 'done'; compass.classList.add('hide'); dialUI(false); shotBtn(false); missionDone();
+}
 async function groundMission(m) {
-  G.mode = 'ground'; G.running = false; guide.visible = false; clearObjects();
+  G.mode = 'ground'; G.running = false; guide.visible = false; clearObjects(); G.gm = m.gmode; G.stamps = {}; G.zoneT = 0; G.zoneK = ''; G.gT = 0; G.gPhase = 'explore';
   if (!GV) GV = new GroundView({ yul: A.yul && A.yul.scene, yulAnims: A.yul && A.yul.animations, yulAtlas: A.yulAtlas, nature: NATURE.map(n => A['nat_' + n] && Object.assign(A['nat_' + n], { name: n })).filter(Boolean), fixMats });
-  setMoonTheta(0); const Pu = umbraCenter() || new THREE.Vector3(0.8, 0.6, 0).normalize(); const Y = new THREE.Vector3(0, 1, 0);
-  gTargets.total = Pu.clone(); gTargets.partial = rotToward(Pu, Y.clone().negate(), 0.28); gTargets.none = rotToward(Pu, Y.clone().negate(), 0.62); gTargets.night = L.clone().negate().add(Y.clone().multiplyScalar(0.35)).normalize();
-  gP.copy(Pu); G.stamps = {}; G.zoneT = 0; G.zoneK = ''; G.gq = 0; G.gPhase = 'intro'; G.gT = 0; setMoonTheta(-9);
-  groundUI(); showBanner('MISSION 4 / 4', m.name);
-  await say([['lumi', '하늘을 봐! 달이 오른쪽에서 태양을 덮어 와.']]);
-  await new Promise(r => { G.gIntroDone = r; });
-  sfx.total(); await say([['yul', '깜깜해! 별도 보이고 하얀 왕관이…'], ['lumi', '코로나야. 이제 지구 위를 걸어 다니며 하늘이 어떻게 다른지 도장을 모아 보자!']]);
-  if (m.pre) await say(m.pre);
+  groundUI(m); showBanner(`MISSION ${G.mi + 1} / ${EP.missions.length}`, m.name);
+  const g = m.gmode;
+  if (g === 'eclipse') {
+    setMoon(0, 0.6); const Pu = umbraCenter() || new THREE.Vector3(0.8, 0.6, 0).normalize();
+    gTargets.total = Pu.clone(); gTargets.partial = rotToward(Pu, Yv.clone().negate(), 0.28); gTargets.none = rotToward(Pu, Yv.clone().negate(), 0.62); gTargets.night = L.clone().negate().add(Yv.clone().multiplyScalar(0.35)).normalize();
+    gOrder = ZONE_ORDER.slice(); gP.copy(Pu); G.gPhase = 'intro'; setMoon(-9, 0.6);
+    await say([['lumi', '하늘을 봐! 달이 오른쪽에서 태양을 덮어 와.']]);
+    await new Promise(r => { G.gIntroDone = r; });
+    sfx.total(); await say([['yul', '깜깜해! 별도 보이고 하얀 왕관이…'], ['lumi', '코로나야. 이제 지구 위를 걸어 다니며 하늘이 어떻게 다른지 도장을 모아 보자!']]);
+  } else if (g === 'lunar') {
+    setMoon(166, 0); gP.copy(L.clone().negate().add(Yv.clone().multiplyScalar(0.55)).normalize());
+    gTargets.here = gP.clone(); gTargets.far = new THREE.Vector3(-0.55, -0.25, 0.8).normalize(); gTargets.day = L.clone().add(Yv.clone().multiplyScalar(0.35)).normalize();
+    gOrder = ['here', 'far', 'day']; G.gPhase = 'intro';
+    await say([['lumi', '밤하늘의 보름달을 봐! 지구 그림자가 다가오고 있어.']]);
+    await new Promise(r => { G.gIntroDone = r; });
+    sfx.total(); await say([['yul', '달이 왼쪽부터 어두워지더니 빨개졌어!'], ['lumi', '개기월식이야! 이제 다른 곳에서도 보이는지 확인해 보자.']]);
+  } else if (g === 'evening') {
+    gOrder = m.targets.map(t => t.k); G.eDay = 3; setMoon(dayToE(3), 0.3);
+    dialUI(true, '음력 날짜', 1, 29.5, 3, v => { G.eDay = v; setMoon(dayToE(v), 0.3); });
+    await say([['lumi', '해가 막 진 저녁이야. 날짜 다이얼을 돌리면 같은 시각의 달이 보여!']]);
+  } else if (g === 'day') {
+    gOrder = m.targets.map(t => t.k); G.T = 4.6;
+    await say([['lumi', '◀ ▶로 시간을 돌려 봐. 🎯를 누르면 시간이 저절로 흘러!']]);
+  } else if (g === 'trails') {
+    G.T = 22; G.expH = 0; G.dirI = 0; G.shotI = 0; G.trBuilt = -1; buildTrailsBase();
+    shotBtn(false); if (!store.get('trtip', false)) { await say([['lumi', '◀ ▶는 방향, ▲를 꾹 누르면 셔터가 열려 별의 길이 그려져. 🎯로 사진 제출!']]); store.set('trtip', true); }
+  }
   G.gPhase = 'explore'; G.running = true;
 }
-async function stamp(k) {
-  const m = EP1.missions[3], z = m.zones[k]; G.stamps[k] = true; sfx.ok(); toast(`🏅 ${z.n} 도장! (${z.s})`);
-  G.running = false; await say([['lumi', z.line]]); G.running = true;
-  if (ZONE_ORDER.every(q => G.stamps[q])) { G.gPhase = 'quiz'; G.running = false; await say([['lumi', '네 가지 하늘을 다 봤어! 같은 순간인데 위치마다 이렇게 달라.'], ...(m.pre || [])]); G.gq = 0; askQ(m); }
+/* 별 궤적 */
+const DIRS = ['N', 'E', 'S', 'W'], DIRK = { N: '북쪽', E: '동쪽', S: '남쪽', W: '서쪽' };
+const STARS2 = (() => { const r = E_rng(31), o = []; for (let i = 0; i < 420; i++) o.push({ dec: Math.asin(-0.5 + r() * 1.5) / D2R, H0: r() * 360, b: 0.4 + r() * 0.6 }); o.push({ dec: 89.2, H0: 30, b: 1.4, pol: true }); return o; })();
+let trailMesh = null, trailDots = null, polLabel = null;
+function buildTrailsBase() {
+  GV.extra.clear(); trailMesh = new THREE.LineSegments(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.95, fog: false })); trailMesh.frustumCulled = false; GV.extra.add(trailMesh);
+  trailDots = new THREE.Points(new THREE.BufferGeometry(), new THREE.PointsMaterial({ size: 2.2, sizeAttenuation: false, color: 0xffffff, fog: false })); trailDots.frustumCulled = false; GV.extra.add(trailDots);
+  polLabel = labelSprite('★ 북극성', '#fff3b0', 12); polLabel.material.fog = false; GV.extra.add(polLabel);
 }
+function updateTrails() {
+  if (Math.abs(G.expH - G.trBuilt) < 0.04) return; G.trBuilt = G.expH;
+  const pos = [], col = [], dots = [], H0off = 15 * (G.T - 12), steps = Math.max(1, Math.ceil(G.expH * 6)), R = 150;
+  STARS2.forEach(s => { let prev = null;
+    for (let k = 0; k <= steps; k++) { const h = G.expH * k / steps, v = skyDir(s.dec, s.H0 + H0off + 15 * h).multiplyScalar(R);
+      if (prev && v.y > 0 && prev.y > 0 && G.expH > 0.02) { const f = 0.25 + 0.75 * k / steps, br = s.b * f; pos.push(prev.x, prev.y, prev.z, v.x, v.y, v.z); col.push(br * 0.75, br * 0.85, br, br * 0.75, br * 0.85, br); }
+      prev = v; }
+    if (prev.y > 0) dots.push(prev.x, prev.y, prev.z); if (s.pol) polLabel.position.copy(prev).add(new THREE.Vector3(10, 6, 0)); });
+  trailMesh.geometry.dispose(); trailMesh.geometry = new THREE.BufferGeometry(); trailMesh.geometry.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); trailMesh.geometry.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+  trailDots.geometry.dispose(); trailDots.geometry = new THREE.BufferGeometry(); trailDots.geometry.setAttribute('position', new THREE.Float32BufferAttribute(dots, 3));
+}
+async function trailsSubmit() {
+  const m = EP.missions[G.mi], s = m.shots[G.shotI]; if (!s || !G.running || G.talking) return; const d = DIRS[G.dirI], ang = Math.round(15 * G.expH);
+  if (d !== s.dir) { sfx.bad(); toast(`지금은 ${DIRK[d]} 하늘이야. 목표: ${DIRK[s.dir]} 하늘`, true); return; }
+  if (s.minH && G.expH < s.minH) { sfx.bad(); toast(`노출이 짧아요 (${G.expH.toFixed(1)}시간). ▲를 더 눌러 ${s.minH}시간 이상!`, true); return; }
+  if (s.h && Math.abs(G.expH - s.h) > s.tol) { sfx.bad(); toast(`지금 각도 ${ang}° (= 15° × ${G.expH.toFixed(1)}시간). 목표 45°!`, true); speak('lumi', '1시간에 15도야. 45도면 몇 시간일까?'); return; }
+  G.shotI++; sfx.ring(); toast(`📸 ${DIRK[d]} 하늘 사진 성공! (${ang}°)`); G.expH = 0;
+  const lines = { N: '북극성을 중심으로 시계 반대 방향 동심원! 북극성은 거의 그대로야.', E: '동쪽 별은 지평선에서 오른쪽 위로 비스듬히 떠올라.', W: '서쪽 별은 오른쪽 아래로 비스듬히 져.', S: '남쪽 별은 지평선과 나란히 왼쪽(동)에서 오른쪽(서)으로!' };
+  G.running = false; await say([['lumi', lines[d]]]); G.running = true;
+  if (G.shotI >= m.shots.length) await groundFinish();
+}
+function groundSteps(m) {
+  const g = m.gmode;
+  if (g === 'trails') { if (m.steps.length === 3 && m.shots.length === 1) return [DIRS[G.dirI] === m.shots[0].dir, G.expH >= (m.shots[0].minH || 0), G.shotI >= 1]; const a = m.shots.map((_, k) => G.shotI > k); if (m.qs) a.push(!!G.flags.q); return a; }
+  return [...gOrder.map(k => !!G.stamps[k]), ...(m.qs ? [!!G.flags.q] : [])];
+}
+const moonCraters = [[-.3, -.2, .18], [.25, .3, .14], [.1, -.45, .1], [-.15, .4, .1], [.4, -.1, .09], [-.45, .15, .08]];
+function drawFullMoon(c, x, y, r) { const g = c.createRadialGradient(x - r * 0.3, y - r * 0.3, r * 0.1, x, y, r); g.addColorStop(0, '#fffaf0'); g.addColorStop(1, '#dccfa9'); c.fillStyle = g; c.beginPath(); c.arc(x, y, r, 0, 7); c.fill();
+  c.fillStyle = 'rgba(120,110,90,.22)'; moonCraters.forEach(k => { c.beginPath(); c.arc(x + k[0] * r, y + k[1] * r, k[2] * r, 0, 7); c.fill(); }); }
 function groundFrame(dt) {
   if (!GV) return;
-  const m = EP1.missions[3];
-  if (G.gPhase === 'intro') { G.gT += dt; const th = -9 + 9 * Math.min(1, G.gT / 8); setMoonTheta(th); if (G.gT >= 9 && G.gIntroDone) { const d = G.gIntroDone; G.gIntroDone = null; d(); } }
-  // 이동
-  const b = basisAt(gP); let mv = new THREE.Vector3();
-  if (G.gPhase === 'explore' && G.running && !G.talking && !G.overlay) {
-    const f = G.gF || new THREE.Vector3(0, 0, -1), r = G.gR || new THREE.Vector3(1, 0, 0);
-    mv.addScaledVector(f, input.up - input.down).addScaledVector(r, input.right - input.left);
+  const m = EP.missions[G.mi], g = m.gmode, act = G.gPhase === 'explore' && G.running && !G.talking && !G.overlay;
+  let P = gP, sunL, moonL, moonAng = 0.05, cover = 0, mv = new THREE.Vector3(), st = {}, hud = ['-', '', 0, '-', '-'];
+  if (g === 'eclipse' || g === 'lunar') {
+    if (G.gPhase === 'intro') { G.gT += dt; if (g === 'eclipse') setMoon(-9 + 9 * Math.min(1, G.gT / 8), 0.6); else setMoon(166 + 14 * Math.min(1, G.gT / 9), 0); if (G.gT >= (g === 'eclipse' ? 9 : 10) && G.gIntroDone) { const d = G.gIntroDone; G.gIntroDone = null; d(); } }
+    const b = basisAt(gP);
+    if (act) {
+      const f = G.gF || new THREE.Vector3(0, 0, -1), r = G.gR || new THREE.Vector3(1, 0, 0);
+      mv.addScaledVector(f, input.up - input.down).addScaledVector(r, input.right - input.left);
+      const nz = nextZone(); if (aim && nz) { const tl = toLocal(gTargets[nz].clone().sub(gP), gP, b); tl.y = 0; if (tl.length() > 1e-4) mv.copy(tl.normalize()); }
+      if (mv.lengthSq() > 0) { mv.normalize(); const w = b.e.clone().multiplyScalar(mv.x).addScaledVector(b.n, -mv.z); gP.addScaledVector(w, 0.32 * dt).normalize(); mv.multiplyScalar(14); }
+    }
+    const b2 = basisAt(gP); sunL = toLocal(L, gP, b2).normalize(); const mvec = MOON.clone().sub(gP), md = mvec.length(); moonL = toLocal(mvec.clone().divideScalar(md), gP, b2).normalize(); moonAng = Math.asin(RM / md);
+    const pn = placeName(gP); hud[0] = pn.name; hud[1] = pn.ll;
+    if (g === 'eclipse') {
+      cover = gP.dot(L) < -0.03 ? 0 : sunCover(gP); const zk = zoneAt(gP);
+      hud[2] = cover; hud[3] = Math.round(cover * 100) + '%'; hud[4] = { total: '본그림자', partial: '반그림자', none: '그림자 밖', night: '밤 (태양 없음)' }[zk];
+      if (act) { if (zk === G.zoneK) G.zoneT += dt; else { G.zoneK = zk; G.zoneT = 0; } if (!G.stamps[zk] && G.zoneT > 1.2) { const z = m.zones[zk]; stampK(zk, `${z.n} (${z.s})`, z.line); } }
+    } else {
+      // 달에 드리운 지구 그림자 (실제 기하)
+      const A2 = L.clone().multiplyScalar(MOON.dot(L)), v = A2.clone().sub(MOON), dd = v.length() / RM, D = Math.abs(MOON.dot(L)), ru = (1 - D * SUN_ANG) / RM, rp = (1 + D * SUN_ANG) / RM;
+      const fr = Math.min(1, ov(1, ru, dd) / Math.PI), right = moonL.clone().cross(Yv).normalize(), upS = right.clone().cross(moonL).normalize(), vL = toLocal(v, gP, b2);
+      const sx = vL.dot(right), sy = vL.dot(upS), sl = Math.hypot(sx, sy) || 1, ox = sx / sl * dd, oy = -sy / sl * dd;
+      st.moonDraw = (c, x, y, r) => { drawFullMoon(c, x, y, r); c.save(); c.beginPath(); c.arc(x, y, r, 0, 7); c.clip();
+        c.fillStyle = 'rgba(0,0,0,.22)'; c.beginPath(); c.arc(x + ox * r, y + oy * r, rp * r, 0, 7); c.fill();
+        c.fillStyle = fr > 0.995 ? 'rgba(150,40,20,.78)' : 'rgba(60,18,10,.9)'; c.beginPath(); c.arc(x + ox * r, y + oy * r, ru * r, 0, 7); c.fill(); c.restore(); };
+      st.moonKey = dd.toFixed(2) + '_' + Math.round(Math.atan2(oy, ox) * 20); st.focus = moonL.y > 0 ? moonL : null;
+      const night = gP.dot(L) < -0.03, zk = !night ? 'day' : gP.distanceTo(gTargets.far) < 0.32 ? 'far' : 'here';
+      hud[2] = fr; hud[3] = Math.round(fr * 100) + '%'; hud[4] = night ? (fr > 0.995 ? '개기월식 (붉은 달)' : fr > 0.01 ? '부분월식' : '보름달') : '낮 — 달이 지평선 아래';
+      if (act) { if (zk === G.zoneK) G.zoneT += dt; else { G.zoneK = zk; G.zoneT = 0; } if (!G.stamps[zk] && G.zoneT > 1.2 && (zk !== 'here' || fr > 0.99)) { const z = m.zones[zk]; stampK(zk, z.n, z.line); } }
+    }
     const nz = nextZone();
-    if (aim && nz) { const tl = toLocal(gTargets[nz].clone().sub(gP), gP, b); tl.y = 0; if (tl.length() > 1e-4) mv.copy(tl.normalize()); }
-    if (mv.lengthSq() > 0) { mv.normalize(); const w = b.e.clone().multiplyScalar(mv.x).addScaledVector(b.n, -mv.z); gP.addScaledVector(w, 0.32 * dt).normalize(); mv.multiplyScalar(14); }
-    // 도장
-    const z = zoneAt(gP); if (z === G.zoneK) G.zoneT += dt; else { G.zoneK = z; G.zoneT = 0; }
-    if (!G.stamps[z] && G.zoneT > 1.2) stamp(z);
+    if (nz && G.gPhase === 'explore') { const tl = toLocal(gTargets[nz].clone().sub(gP), gP, b2), f = G.gF || new THREE.Vector3(0, 0, -1); const ang = Math.atan2(tl.x, -tl.z) - Math.atan2(f.x, -f.z), dist = Math.acos(Math.max(-1, Math.min(1, gP.dot(gTargets[nz])))) * 6371;
+      const zz = m.zones[nz]; compass.innerHTML = `<i style="transform:rotate(${ang}rad)">⬆</i><div><b>다음 도장: ${zz.n}</b><span>${zz.s} · ${dist < 150 ? '거의 다 왔어요!' : Math.round(dist / 100) * 100 + 'km'}</span></div>`; compass.classList.remove('hide');
+      tgtMk.position.copy(gTargets[nz]).multiplyScalar(1.03); tgtMk.visible = true; } else { compass.classList.add('hide'); tgtMk.visible = false; }
+  } else if (g === 'evening') {
+    const Hs = 94; sunL = skyDir(0, Hs); const e = dayToE(G.eDay); moonL = skyDir(0, Hs - e); P = seoulAt(18.25);
+    const right = moonL.clone().cross(Yv).normalize(), upS = right.clone().cross(moonL).normalize(), vs = sunL.clone().sub(moonL);
+    st.moonDraw = (c, x, y, r) => { c.fillStyle = 'rgba(0,0,0,0)'; UI.drawPhase(c, x, y, r, e); }; st.moonKey = 'p' + Math.round(e);
+    st.moonRot = Math.atan2(vs.dot(upS), vs.dot(right)) - (e > 180 ? Math.PI : 0); st.focus = moonL.y > -0.02 ? moonL : new THREE.Vector3(0, 0.3, 1).normalize();
+    hud[0] = G.eDay.toFixed(1) + '일'; hud[2] = Math.max(0, Math.asin(moonL.y) / (Math.PI / 2)); hud[3] = moonL.y > 0 ? azName(moonL) + '쪽' : '지평선 아래'; hud[4] = moonL.y > 0 ? '고도 ' + Math.round(Math.asin(moonL.y) / D2R) + '°' : '저녁엔 안 보임';
+    if (act) { const t = m.targets.find(t => adiff(e, t.e) < 12 && moonL.y > 0.02); const zk = t ? t.k : ''; if (zk === G.zoneK) G.zoneT += dt; else { G.zoneK = zk; G.zoneT = 0; }
+      if (t && !G.stamps[t.k] && G.zoneT > 1.0) stampK(t.k, `${t.n} (${t.s})`, `${t.n}! 저녁 ${t.s}에 보여. 음력 ${Math.round(G.eDay)}일쯤이야.`); }
+  } else if (g === 'day' || g === 'trails') {
+    if (g === 'day' && act) { G.T += ((input.right - input.left) * 3 + (aim ? 1.6 : 0)) * dt; G.T = Math.max(3.5, Math.min(26, G.T)); }
+    sunL = skyDir(0, 15 * (G.T - 12)); moonL = new THREE.Vector3(0, -1, 0); P = seoulAt(G.T);
+    st.starAxis = POLE; st.starAngle = -15 * (G.T - 12) * D2R;
+    if (g === 'day') {
+      const alt = Math.asin(sunL.y) / D2R, hh = ((G.T % 24) + 24) % 24; hud[0] = `${String(Math.floor(hh)).padStart(2, '0')}:${String(Math.floor((hh % 1) * 60)).padStart(2, '0')}`; hud[1] = '◀▶ 시간';
+      hud[2] = Math.max(0, alt / 60); hud[3] = Math.round(alt) + '°'; hud[4] = alt > -1 ? '태양: ' + azName(sunL) + '쪽' : '밤 — 별이 동→서';
+      st.focus = alt > -6 ? sunL : new THREE.Vector3(0.25, 0.55, 1).normalize();
+      if (act) { const t = m.targets.find(t => G.T >= t.t[0] && G.T <= t.t[1]); const zk = t ? t.k : ''; if (zk === G.zoneK) G.zoneT += dt; else { G.zoneK = zk; G.zoneT = 0; }
+        const L2 = { rise: '해가 동쪽 지평선에서 떠올라! 지구가 서→동으로 돌아서야.', noon: '정오, 태양이 남쪽 하늘 가장 높은 곳!', set: '해가 서쪽으로 져. 태양은 동→남→서로 움직여 보여.', night: '별들도 동쪽에서 서쪽으로 흘러가! 모두 지구 자전 때문이야.' };
+        if (t && !G.stamps[t.k] && G.zoneT > 0.5) stampK(t.k, t.n, L2[t.k]); }
+    } else {
+      if (act) {
+        if ((input.left || input.right) && !G.dirLock) { G.dirI = (G.dirI + (input.right ? 1 : 3)) % 4; G.dirLock = true; sfx.ring(); }
+        if (!input.left && !input.right) G.dirLock = false;
+        if (input.up) G.expH = Math.min(12, G.expH + 1.6 * dt); if (input.down) G.expH = 0;
+        if (aim) { setAim(false); trailsSubmit(); }
+      }
+      updateTrails(); polLabel.visible = DIRS[G.dirI] === 'N';
+      st.heading = [0, Math.PI / 2, Math.PI, -Math.PI / 2][G.dirI]; st.pitch = DIRS[G.dirI] === 'N' ? 0.52 : DIRS[G.dirI] === 'S' ? 0.42 : 0.3; st.starsOff = true; st.hideYul = false;
+      hud[0] = DIRK[DIRS[G.dirI]]; hud[1] = '◀▶ 돌리기'; hud[2] = G.expH / 6; hud[3] = G.expH.toFixed(1) + '시간'; hud[4] = '각도 ' + Math.round(15 * G.expH) + '°';
+    }
   }
-  // 하늘 상태 (실제 기하)
-  const sunL = toLocal(L, gP, b).normalize(), mvec = MOON.clone().sub(gP), md = mvec.length(), moonL = toLocal(mvec.clone().divideScalar(md), gP, b).normalize();
-  const night = Math.max(0, Math.min(1, (-sunL.y + 0.02) / 0.1)), cover = gP.dot(L) < -0.03 ? 0 : sunCover(gP);
-  const r = GV.update({ sun: sunL, moon: moonL, moonAng: Math.asin(RM / md), cover, night, move: mv, dt, wave: G.gPhase === 'quiz' }, W / H); G.gF = r.forward; G.gR = r.right;
+  if (g === 'eclipse' || g === 'lunar') {} else { tgtMk.visible = false; compass.classList.add('hide'); }
+  const night = Math.max(0, Math.min(1, (-sunL.y + 0.02) / 0.1));
+  const r = GV.update(Object.assign({ sun: sunL, moon: moonL, moonAng, cover, night, move: mv, dt, wave: G.gPhase === 'quiz' }, st), W / H); G.gF = r.forward; G.gR = r.right;
+  if (st.starsOff) GV.stars.material.opacity = 0;
   // HUD
-  const pn = placeName(gP), zk = gP.dot(L) < -0.03 ? 'night' : cover >= 0.999 ? 'total' : cover > 0.03 ? 'partial' : 'none';
-  const zl = { total: '본그림자', partial: '반그림자', none: '그림자 밖', night: '밤 (태양 없음)' }[zk];
   const el = (id) => document.getElementById(id);
-  if (el('g-loc')) { el('g-loc').textContent = pn.name; el('g-ll').textContent = pn.ll; el('d-cov').style.width = (cover * 100) + '%'; el('d-covt').textContent = Math.round(cover * 100) + '%'; el('d-zone').textContent = zl; el('g-st').textContent = ZONE_ORDER.filter(k => G.stamps[k]).length + '/4'; }
-  const done = [...ZONE_ORDER.map(k => !!G.stamps[k]), G.gPhase === 'done'];
-  UI.renderChk(chk, m, done, G.gPhase === 'quiz' ? `${G.gq + 1}/3` : (G.zoneT > 0.2 && !G.stamps[zk] ? '관측 중…' : ''));
-  const nz = nextZone();
-  if (nz && G.gPhase === 'explore') { const tl = toLocal(gTargets[nz].clone().sub(gP), gP, b), f = G.gF; const ang = Math.atan2(tl.x, -tl.z) - Math.atan2(f.x, -f.z), dist = Math.acos(Math.max(-1, Math.min(1, gP.dot(gTargets[nz])))) * 6371;
-    compass.innerHTML = `<i style="transform:rotate(${ang}rad)">⬆</i><div><b>다음 도장: ${m.zones[nz].n}</b><span>${m.zones[nz].s} · ${dist < 150 ? '거의 다 왔어요!' : Math.round(dist / 100) * 100 + 'km'}</span></div>`;
-    compass.classList.remove('hide'); }
-  else compass.classList.add('hide');
-  // 렌더: 지표 장면 + 우주 모니터
+  if (el('g1')) { el('g1').textContent = hud[0]; el('g1e').textContent = hud[1]; el('d-cov').style.width = (Math.max(0, Math.min(1, hud[2])) * 100) + '%'; el('d-covt').textContent = hud[3]; el('d-zone').textContent = hud[4];
+    el('g-st').textContent = g === 'trails' ? `${G.shotI}/${m.shots.length}` : `${gOrder.filter(k => G.stamps[k]).length}/${gOrder.length}`; }
+  const extra = G.gPhase === 'quiz' ? '질문 중' : g === 'trails' ? `${DIRK[DIRS[G.dirI]]} · ${G.expH.toFixed(1)}h` : (G.zoneT > 0.2 && G.zoneK && !G.stamps[G.zoneK] ? '관측 중…' : '');
+  UI.renderChk(chk, m, groundSteps(m), extra);
+  // 렌더: 지표 + 우주 모니터
   rpass.scene = GV.scene; rpass.camera = GV.camera; composer.render(); rpass.scene = scene;
-  const camP = gP.clone().add(L.clone().multiplyScalar(0.9)).add(new THREE.Vector3(0, 0.35, 0)).normalize().multiplyScalar(3.6);
-  groundCam.position.copy(camP); groundCam.lookAt(gP.clone().multiplyScalar(0.55).add(MOON.clone().multiplyScalar(0.12))); groundCam.aspect = pip.w / pip.h; groundCam.updateProjectionMatrix();
-  yulMk.position.copy(gP).multiplyScalar(1.03); yulMk.visible = true; tgtMk.visible = !!nz; if (nz) { tgtMk.position.copy(gTargets[nz]).multiplyScalar(1.03); tgtMk.scale.setScalar(0.2 + 0.08 * Math.sin(tAll * 6)); }
-  shipM.visible = trail.visible = dust.visible = hero.visible = false; lbMoon.visible = lbEarth.visible = lbSun.visible = true;
+  let pc = groundCam;
+  if (g === 'evening') pc = droneCam;
+  else if (g === 'day' || g === 'trails') { earth.rotation.y = -127 * D2R + (G.T - 12) * 15 * D2R; groundCam.position.copy(P.clone().add(L.clone().multiplyScalar(0.7)).add(new THREE.Vector3(0, 0.6, 0)).normalize().multiplyScalar(3.4)); groundCam.lookAt(0, 0, 0); }
+  else { groundCam.position.copy(gP.clone().add(L.clone().multiplyScalar(g === 'lunar' ? -0.9 : 0.9)).add(new THREE.Vector3(0, 0.35, 0)).normalize().multiplyScalar(3.6)); groundCam.lookAt(gP.clone().multiplyScalar(0.55).add(MOON.clone().multiplyScalar(0.12))); }
+  pc.aspect = pip.w / pip.h; pc.updateProjectionMatrix();
+  yulMk.position.copy(P).multiplyScalar(1.03); yulMk.visible = true;
+  shipM.visible = trail.visible = dust.visible = hero.visible = false; lbMoon.visible = lbEarth.visible = lbSun.visible = true; redRing.visible = false;
   renderer.setScissorTest(true); renderer.setScissor(pip.x, H - pip.y - pip.h, pip.w, pip.h); renderer.setViewport(pip.x, H - pip.y - pip.h, pip.w, pip.h);
-  renderer.render(scene, groundCam); renderer.setScissorTest(false); renderer.setViewport(0, 0, W, H);
+  renderer.render(scene, pc); renderer.setScissorTest(false); renderer.setViewport(0, 0, W, H);
+  if (pc === droneCam) { droneCam.aspect = W / H; droneCam.updateProjectionMatrix(); }
   yulMk.visible = tgtMk.visible = false; pipf.classList.remove('hide');
-}
-function askQ(m) {
-  const q = m.qs[G.gq]; qa.classList.remove('hide');
-  qa.innerHTML = `<div class="q">🟣 ${q.q}</div><div class="o">${q.opts.map((o, k) => `<button data-k="${k}">${o}</button>`).join('')}</div><div class="h"></div>`;
-  qa.querySelectorAll('button').forEach(b => b.onclick = async () => {
-    if (G.talking) return; const k = +b.dataset.k;
-    if (k === q.a) { b.classList.add('ok'); sfx.ok(); await say([['lumi', '정답! ' + q.why]]); G.gq++; if (G.gq < m.qs.length) askQ(m); else { G.gPhase = 'done'; qa.classList.add('hide'); compass.classList.add('hide'); $('#m-timer').classList.remove('hide'); $('#xhair').classList.remove('hide'); pipf.querySelector('span').textContent = '📡 외부 카메라 · 관측 드론 D-1 (정지)'; episodeClear(); } }
-    else { b.classList.add('no'); sfx.bad(); qa.querySelector('.h').innerHTML = '💡 ' + q.hint; await say([['nox', '틀렸다! 하하!'], ['lumi', q.hint]]); qa.querySelectorAll('button').forEach(x => x.classList.remove('no')); }
-  });
 }
 
 /* ═════ 루프 ═════ */
@@ -507,9 +708,11 @@ window.addEventListener('resize', resize); resize();
 const tmp = new THREE.Vector3(), tgtEl = $('#tgt');
 let last = performance.now(), tAll = 0;
 function currentTarget() {
-  const m = EP1.missions[G.mi]; if (!m || G.mode !== 'fly') return null;
-  if (m.type === 'rings' || m.type === 'descend') { if (m.rings && G.idx < m.rings.length) return { p: V(m.rings[G.idx]), n: `링 ${G.idx + 1}` }; if (m.land) return { p: V(m.land).multiplyScalar(1.03), n: '착륙점' }; }
-  if (m.type === 'umbra') return { p: V(m.target), n: '본그림자' };
+  const m = EP.missions[G.mi]; if (!m || G.mode !== 'fly') return null;
+  if (m.rings && G.idx < m.rings.length) return { p: V(m.rings[G.idx]), n: `링 ${G.idx + 1}` };
+  if (m.type === 'descend') return { p: m.landAbs ? V(m.land) : V(m.land).multiplyScalar(1.03), n: m.landAbs ? '달 착륙점' : '착륙점' };
+  if (m.type === 'umbra') return { p: V(m.target), n: m.shadow === 'earth' ? '지구 그림자' : '본그림자' };
+  if (m.type === 'photo') return { p: MOON.clone(), n: '달' };
   return null;
 }
 function frame(now) {
@@ -531,10 +734,14 @@ function frame(now) {
       const yr = (input.left - input.right) * 1.05, pr = (input.up - input.down) * 0.85;
       ship.yaw += yr * dt; ship.pitch = Math.max(-1.35, Math.min(1.35, ship.pitch + pr * dt));
       const T = currentTarget();
-      if (G.lookBack && !(input.left || input.right || input.up || input.down)) { const a = lookAtTarget(MOON); let dy = a.yaw - ship.yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); ship.yaw += dy * Math.min(1, 2.2 * dt); ship.pitch += (a.pitch - ship.pitch) * Math.min(1, 2.2 * dt); }
+      if (G.lookBack && !(input.left || input.right || input.up || input.down)) { const a = lookAtTarget(G.lookTgt || MOON); let dy = a.yaw - ship.yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); ship.yaw += dy * Math.min(1, 2.2 * dt); ship.pitch += (a.pitch - ship.pitch) * Math.min(1, 2.2 * dt); }
       else if (aim && T) { const a = lookAtTarget(T.p); let dy = a.yaw - ship.yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); ship.yaw += dy * Math.min(1, 3.2 * dt); ship.pitch += (a.pitch - ship.pitch) * Math.min(1, 3.2 * dt); }
       ship.speed += (input.fwd * 0.55 - input.back * 0.8) * dt; ship.speed -= ship.speed * 0.28 * dt; ship.speed = Math.max(-0.25, Math.min(1.0, ship.speed));
     } else ship.speed *= Math.pow(0.05, dt);
+    if (G.camMode === 'moon') { ship.speed = 0; const a = lookAtTarget(MOON); let dy = a.yaw - ship.yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); ship.yaw += dy * Math.min(1, 4 * dt); ship.pitch += (a.pitch - ship.pitch) * Math.min(1, 4 * dt); }
+    if (G.camMode === 'down') { ship.speed *= Math.pow(0.02, dt); ship.pitch += (-1.5 - ship.pitch) * Math.min(1, 2 * dt); }
+    if (G.spin) earth.rotation.y += G.spin * dt;
+    redRing.visible = EP.space.earthCone && ship.pos.dot(L) < 0 && sunCover(ship.pos) > 0.999 && Math.hypot(ship.pos.y, ship.pos.z) < 0.95;
     ship.pos.addScaledVector(fwd(), ship.speed * dt);
     if (G.running && !G.talking && !G.overlay) missionUpdate(dt);
     if (G.tut >= 0) { const done = [Math.abs(ship.yaw - G.tutYaw) > 0.35, ship.speed > 0.35, aim];
@@ -548,7 +755,7 @@ function frame(now) {
   // 카메라
   shipCam.position.copy(ship.pos); const f = fwd(); shipCam.up.set(0, 1, 0); shipCam.lookAt(tmp.copy(ship.pos).add(f));
   if (input.fwd && G.running) { shipCam.position.x += (Math.random() - 0.5) * 0.0012; shipCam.position.y += (Math.random() - 0.5) * 0.0012; }
-  shipCam.fov = 70 + Math.abs(ship.speed) * 14; shipCam.updateProjectionMatrix(); droneCam.updateProjectionMatrix();
+  shipCam.fov = G.camMode === 'moon' ? 9 : 70 + Math.abs(ship.speed) * 14; shipCam.updateProjectionMatrix(); droneCam.updateProjectionMatrix();
   // 먼지
   for (let i = 0; i < DUST; i++) { for (let k = 0; k < 3; k++) { const c = ship.pos.getComponent(k); let v = dustPos[i * 3 + k] - c; v = ((v + 1.5) % 3 + 3) % 3 - 1.5; dustPos[i * 3 + k] = c + v; } }
   dustG.attributes.position.needsUpdate = true;
@@ -596,26 +803,32 @@ function frame(now) {
   requestAnimationFrame(frame);
 }
 function missionUpdate(dt) {
-  const m = EP1.missions[G.mi];
-  G.t -= dt; if (G.t < 6 && Math.ceil(G.t) !== G.lastTick) { G.lastTick = Math.ceil(G.t); sfx.tick(); }
-  if (G.t <= 0) return missionFail('시간이 다 됐어.');
+  const m = EP.missions[G.mi];
+  if (m.time) { G.t -= dt; if (G.t < 6 && Math.ceil(G.t) !== G.lastTick) { G.lastTick = Math.ceil(G.t); sfx.tick(); } if (G.t <= 0) return missionFail('시간이 다 됐어.'); }
   const p = ship.pos;
-  if (p.length() < 1.02 && !(m.type === 'descend' && G.idx >= (m.rings || []).length)) return missionFail('지구에 너무 가까이 갔어!');
+  if (m.type === 'chooseLand') { let near = 9; for (const bk of m.beacons) { const bp = V(bk.p).multiplyScalar(1.03), d = p.distanceTo(bp); near = Math.min(near, d); if (d < 0.16) { if (bk.ok) return missionDone(); return missionFail(m.wrong); } } G.flags.near = near < 0.6; }
+  const landing = m.type === 'descend' && !m.landAbs && G.idx >= (m.rings || []).length;
+  if (p.length() < 1.02 && !landing) return missionFail('지구에 너무 가까이 갔어!');
   if (p.distanceTo(MOON) < RM + 0.03) return missionFail('달에 부딪혔어!');
   if (p.length() > 16) return missionFail('궤도를 너무 벗어났어.');
   const cov = sunCover(p);
   if (cov > 0.02 && cov < 0.999 && !G.penSeen && m.type === 'umbra') { G.penSeen = true; toast('🌗 반그림자 진입 — 태양이 일부만 가려졌어요'); }
-  if (m.rings && G.idx < m.rings.length) { if (p.distanceTo(V(m.rings[G.idx])) < 0.21) { G.idx++; sfx.ring(); toast(`✅ 링 ${G.idx} 통과!`); if (m.type === 'rings' && G.idx >= m.rings.length) return missionDone(); } }
+  if (m.rings && G.idx < m.rings.length) { if (p.distanceTo(V(m.rings[G.idx])) < 0.21) { G.idx++; sfx.ring(); toast(`✅ 링 ${G.idx} 통과!`); if (m.type === 'rings' && G.idx >= m.rings.length) return missionDone(); if (m.type === 'watch' && G.idx >= m.rings.length) watchSeq(m); } }
   if (m.type === 'umbra') {
-    if (cov >= 0.999) { if (G.hold === 0) { sfx.total(); toast('🌑 본그림자! 뒤를 돌아 태양 쪽을 봐요 — 3초 유지!'); G.lookBack = true; setAim(false); } G.hold += dt; $('#m-goal').innerHTML = `본그림자 유지 <b>${G.hold.toFixed(1)} / ${m.hold}초</b> — 속도를 줄여요(역추진)`; if (G.hold >= m.hold) return missionDone(); }
-    else if (G.hold > 0) { G.hold = 0; $('#m-goal').innerHTML = m.goal; toast('본그림자를 벗어났어요!', true); }
+    if (cov >= 0.999) { if (G.hold === 0) { sfx.total(); toast(m.shadow === 'earth' ? '🌑 지구 그림자 속! 태양 쪽을 돌아봐요 — 3초 유지!' : '🌑 본그림자! 뒤를 돌아 태양 쪽을 봐요 — 3초 유지!'); G.lookBack = true; G.lookTgt = m.shadow === 'earth' ? new THREE.Vector3() : null; setAim(false); }
+      G.hold += dt; $('#m-goal').innerHTML = `그림자 유지 <b>${G.hold.toFixed(1)} / ${m.hold}초</b> — 역추진으로 멈춰요`; if (G.hold >= m.hold) return missionDone(); }
+    else if (G.hold > 0) { G.hold = 0; $('#m-goal').innerHTML = '🎯 ' + m.brief.what; toast('그림자를 벗어났어요!', true); }
   }
   if (m.type === 'descend') {
-    for (const o of G.mines) if (o.s.position.distanceTo(p) < 0.085) return missionFail('녹스의 그림자 기뢰에 닿았어!');
-    if (G.idx >= m.rings.length && p.distanceTo(V(m.land).multiplyScalar(1.03)) < 0.15) return missionDone();
+    for (const o of G.mines) if (o.s.position.distanceTo(p) < 0.085) return missionFail('녹스의 그림자 정령에 닿았어!');
+    const lp = m.landAbs ? V(m.land) : V(m.land).multiplyScalar(1.03); if (G.idx >= m.rings.length && p.distanceTo(lp) < 0.15) return missionDone();
   }
+}
+async function watchSeq(m) { // 북극 위에서 자전 관찰 → 질문
+  G.running = false; G.camMode = 'down'; G.spin = 1.4; toast('🌍 북극 위! 지구가 도는 방향을 잘 봐요'); await new Promise(r => setTimeout(r, 6500));
+  G.flags.watched = true; G.spin = 0.35; await quiz(m.qs); G.flags.q = true; G.camMode = ''; G.spin = 0; missionDone();
 }
 titleScreen();
 requestAnimationFrame(frame);
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
-window.__SQ = { G, ship, input, sunCover, EP1, setAim, THREE, MOON, gP, gTargets, zoneAt, get GV() { return GV; }, get swapped() { return swapped; } };
+window.__SQ = { G, ship, input, sunCover, EP1, get EP() { return EP; }, setEP(i) { EP = EPISODES[i]; }, startEpisode, startMission, setAim, quiz, THREE, MOON, gP, gTargets, zoneAt, get GV() { return GV; }, get swapped() { return swapped; } };
