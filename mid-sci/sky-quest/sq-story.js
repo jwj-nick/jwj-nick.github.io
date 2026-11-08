@@ -17,21 +17,7 @@ export const CHARS = {
 };
 
 export const PORTRAIT = {
-  yul: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-    <defs><radialGradient id="hy" cx=".5" cy=".4" r=".6"><stop offset="0" stop-color="#e8b878"/><stop offset="1" stop-color="#b9813f"/></radialGradient></defs>
-    <circle cx="50" cy="54" r="40" fill="#1b2a44" stroke="#6fd6ff" stroke-width="3" opacity=".9"/>
-    <path d="M22 40 L30 12 L42 34 Z" fill="#4a5a72"/><path d="M78 40 L70 12 L58 34 Z" fill="#4a5a72"/>
-    <path d="M26 36 L31 20 L38 33 Z" fill="#d79a5a"/><path d="M74 36 L69 20 L62 33 Z" fill="#d79a5a"/>
-    <ellipse cx="50" cy="56" rx="27" ry="25" fill="url(#hy)"/>
-    <path d="M26 46 Q50 22 74 46 Q66 36 50 36 Q34 36 26 46Z" fill="#4a5a72"/>
-    <path d="M44 24 l-9 -7 l2 11 z M56 24 l9 -7 l-2 11 z" fill="#e23b4e"/><circle cx="50" cy="24" r="3.5" fill="#ff5a6e"/>
-    <circle cx="40" cy="54" r="5.2" fill="#14110d"/><circle cx="60" cy="54" r="5.2" fill="#14110d"/>
-    <circle cx="41.6" cy="52.2" r="1.7" fill="#fff"/><circle cx="61.6" cy="52.2" r="1.7" fill="#fff"/>
-    <ellipse cx="50" cy="65" rx="5" ry="3.6" fill="#14110d"/>
-    <path d="M44 70 Q50 75 56 70" stroke="#5a3a1c" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <path d="M36 66 Q30 76 38 82 M64 66 Q70 76 62 82" stroke="#a87038" stroke-width="3" fill="none" stroke-linecap="round"/>
-    <path d="M18 84 Q50 100 82 84" stroke="#cfe3ff" stroke-width="5" fill="none"/>
-  </svg>`,
+  yul: `<img src="img/yul.png" alt="율이">`,
   lumi: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
     <line x1="50" y1="8" x2="50" y2="22" stroke="#cfe3ff" stroke-width="3"/><circle cx="50" cy="8" r="5" fill="#6fd6ff"/>
     <circle cx="50" cy="8" r="9" fill="#6fd6ff" opacity=".25"/>
@@ -43,15 +29,7 @@ export const PORTRAIT = {
     <rect x="10" y="44" width="8" height="18" rx="4" fill="#cfe3ff"/><rect x="82" y="44" width="8" height="18" rx="4" fill="#cfe3ff"/>
     <rect x="34" y="82" width="32" height="8" rx="4" fill="#9fb6d8"/>
   </svg>`,
-  nox: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-    <defs><radialGradient id="nx" cx=".5" cy=".45" r=".6"><stop offset="0" stop-color="#2a1748"/><stop offset="1" stop-color="#07030f"/></radialGradient></defs>
-    <path d="M50 6 C22 10 14 40 16 62 C12 76 8 86 4 96 L96 96 C92 86 88 76 84 62 C86 40 78 10 50 6Z" fill="url(#nx)"/>
-    <path d="M4 96 Q14 84 22 92 Q30 80 38 92 Q46 82 54 92 Q62 80 70 92 Q78 84 96 96Z" fill="#07030f"/>
-    <ellipse cx="50" cy="48" rx="22" ry="20" fill="#000"/>
-    <path d="M34 46 L46 50 L34 53 Z" fill="#c9a2ff"/><path d="M66 46 L54 50 L66 53 Z" fill="#c9a2ff"/>
-    <circle cx="40" cy="49.5" r="9" fill="#b48cff" opacity=".25"/><circle cx="60" cy="49.5" r="9" fill="#b48cff" opacity=".25"/>
-    <path d="M40 62 Q50 58 60 62" stroke="#6d4bb0" stroke-width="2" fill="none"/>
-  </svg>`
+  nox: `<img src="img/nox.png" alt="녹스">`
 };
 
 /* 스테이지 5 — 그림자 추격전 */

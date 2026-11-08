@@ -1,7 +1,7 @@
 /* sw.js — 하늘 퀘스트 오프라인 캐시 (버전 바꾸면 갱신) */
-const V = 'sq-v0.2.0';
+const V = 'sq-v0.3.0';
 const ASSETS = ['./', 'index.html', 'sq.css', 'sq.js', 'sq-story.js', 'sq-ep1.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png',
-  'tex/earth-day.jpg', 'tex/earth-night.jpg', 'lib/three.module.min.js',
+  'tex/earth-day.jpg', 'tex/earth-night.jpg', 'models/lumi-ship.glb', 'models/nox-ship.glb', 'models/minion.glb', 'models/yuli.glb', 'models/yuli-atlas.png', 'models/rock1.glb', 'models/rock2.glb', 'img/yul.png', 'img/nox.png', 'img/yul-back.png', 'lib/addons/loaders/GLTFLoader.js', 'lib/addons/utils/BufferGeometryUtils.js', 'lib/addons/utils/SkeletonUtils.js', 'lib/three.module.min.js',
   'lib/addons/postprocessing/EffectComposer.js', 'lib/addons/postprocessing/RenderPass.js', 'lib/addons/postprocessing/ShaderPass.js', 'lib/addons/postprocessing/MaskPass.js',
   'lib/addons/postprocessing/Pass.js', 'lib/addons/postprocessing/UnrealBloomPass.js', 'lib/addons/postprocessing/OutputPass.js',
   'lib/addons/shaders/CopyShader.js', 'lib/addons/shaders/LuminosityHighPassShader.js', 'lib/addons/shaders/OutputShader.js'];

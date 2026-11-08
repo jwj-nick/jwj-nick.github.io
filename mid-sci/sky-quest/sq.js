@@ -8,6 +8,8 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 import { CHARS, PORTRAIT } from './sq-story.js';
 import { EP1 } from './sq-ep1.js';
 
@@ -141,6 +143,66 @@ beacon.visible = false; scene.add(beacon);
 const shipM = new THREE.Group(); { const c = new THREE.Mesh(new THREE.ConeGeometry(0.035, 0.12, 12), new THREE.MeshBasicMaterial({ color: 0xffb84d })); c.rotation.x = -Math.PI / 2; shipM.add(c);
   const g = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex('rgba(255,220,140,1)', 'rgba(255,170,60,.6)'), blending: THREE.AdditiveBlending, depthWrite: false })); g.scale.set(0.35, 0.35, 1); shipM.add(g); }
 scene.add(shipM);
+
+/* ═════ CC0 3D 에셋 (Quaternius) ═════ */
+const A = {}, mixers = [];
+const hero = new THREE.Group(); hero.visible = false; scene.add(hero); // 타이틀·클리어 시네마틱용 루미호 + 율이
+const HERO_P = new THREE.Vector3(2.3, 1.35, 2.9);
+const heroLight = new THREE.PointLight(0xffe6c8, 0.5, 0.9, 0); scene.add(heroLight);
+const heroRim = new THREE.PointLight(0x7fc8ff, 0.45, 0.8, 0); scene.add(heroRim);
+const noxShip = new THREE.Group(); noxShip.visible = false; scene.add(noxShip);
+const rocksG = new THREE.Group(); scene.add(rocksG);
+let yulHero = null, yulMixer = null, yulActs = {};
+function fixMats(o, tint, emi) {
+  o.traverse(m => { if (!m.isMesh) return; m.castShadow = false; const mats = Array.isArray(m.material) ? m.material : [m.material];
+    m.material = mats.map(mt => { mt = mt.clone(); if (mt.map) { mt.map.colorSpace = THREE.NoColorSpace; mt.map.needsUpdate = true; } if (mt.color) mt.color.convertLinearToSRGB();
+      if (tint) mt.color.multiply(new THREE.Color(tint)); if (emi) { mt.emissive = new THREE.Color(emi); mt.emissiveIntensity = 0.7; } return mt; });
+    if (m.material.length === 1) m.material = m.material[0]; });
+}
+function fitTo(o, size) { // 가장 긴 변을 size로, 중심을 원점으로
+  const b = new THREE.Box3().setFromObject(o), sz = b.getSize(new THREE.Vector3()), k = size / Math.max(sz.x, sz.y, sz.z), c = b.getCenter(new THREE.Vector3());
+  const w = new THREE.Group(); o.position.sub(c); w.add(o); w.scale.setScalar(k); return w;
+}
+function noseToZ(o) { // 기체의 긴 축을 +Z로 (Object3D.lookAt은 +Z를 목표로 향함)
+  const sz = new THREE.Box3().setFromObject(o).getSize(new THREE.Vector3()); if (sz.x > sz.z) o.rotation.y = Math.PI / 2; return o;
+}
+function glowSprite(c0, c1, s) { const g = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(c0, c1), blending: THREE.AdditiveBlending, depthWrite: false })); g.scale.set(s, s, 1); return g; }
+const loader = new GLTFLoader(), loadState = { n: 0, of: 6 };
+const loadG = (k, url) => loader.loadAsync(url).then(g => { A[k] = g; loadState.n++; paintLoad(); }).catch(e => { console.warn('asset', k, e); loadState.n++; paintLoad(); });
+function paintLoad() { const el = document.getElementById('load'); if (el) el.textContent = loadState.n < loadState.of ? `3D 에셋 불러오는 중… ${loadState.n}/${loadState.of}` : ''; }
+const assetsReady = Promise.all([loadG('ship', 'models/lumi-ship.glb'), loadG('nox', 'models/nox-ship.glb'), loadG('minion', 'models/minion.glb'), loadG('yul', 'models/yuli.glb'), loadG('rock1', 'models/rock1.glb'), loadG('rock2', 'models/rock2.glb')]).then(setupAssets);
+async function setupAssets() {
+  if (A.ship) { // 루미호: 드론 화면 마커 + 시네마틱
+    const m = noseToZ(A.ship.scene); fixMats(m); const s = fitTo(m, 0.16);
+    shipM.clear(); const flip = new THREE.Group(); flip.add(s); shipM.add(flip); shipM.userData.flip = flip;
+    const eg = glowSprite('rgba(140,220,255,1)', 'rgba(80,160,255,.5)', 0.07); eg.position.z = -0.085; shipM.add(eg);
+    const halo = glowSprite('rgba(255,220,140,.9)', 'rgba(255,170,60,.25)', 0.42); shipM.add(halo); shipM.userData.halo = halo;
+    const h = fitTo(SkeletonUtils.clone(m), 0.16); const hw = new THREE.Group(); hw.add(h); hero.add(hw); hero.userData.ship = hw;
+    const eg2 = glowSprite('rgba(140,220,255,1)', 'rgba(80,160,255,.5)', 0.05); eg2.position.z = -0.085; hw.add(eg2); hero.userData.exhaust = eg2;
+  }
+  if (A.nox) { const m = noseToZ(A.nox.scene); fixMats(m, 0x8a6ac0, 0x1a0630); noxShip.add(fitTo(m, 0.28)); noxShip.add(glowSprite('rgba(170,110,255,.9)', 'rgba(90,40,180,.35)', 0.55)); }
+  if (A.yul) {
+    const t = await new THREE.TextureLoader().loadAsync('models/yuli-atlas.png'); t.flipY = false; t.magFilter = THREE.NearestFilter;
+    const y = SkeletonUtils.clone(A.yul.scene); y.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.map = t; if (/pistol|gun/i.test(m.name)) m.visible = false; } }); fixMats(y);
+    const b0 = new THREE.Box3().setFromObject(y), hgt = b0.max.y - b0.min.y, k = 0.075 / hgt; y.scale.setScalar(k);
+    yulMixer = new THREE.AnimationMixer(y); mixers.push(yulMixer);
+    A.yul.animations.forEach(c => { yulActs[c.name] = yulMixer.clipAction(c); }); if (yulActs.Wave) yulActs.Wave.play();
+    // 리본
+    const bow = new THREE.Group(), bm = new THREE.MeshStandardMaterial({ color: 0xff4a5e, roughness: 0.45 });
+    const c1 = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.16, 10), bm); c1.rotation.z = Math.PI / 2; c1.position.x = -0.08; const c2 = c1.clone(); c2.rotation.z = -Math.PI / 2; c2.position.x = 0.08;
+    bow.add(c1, c2, new THREE.Mesh(new THREE.SphereGeometry(0.05, 10, 8), bm)); bow.scale.setScalar(0.5 * 0.075); bow.position.y = 0.075 * 0.97; bow.position.z = 0.002;
+    yulHero = new THREE.Group(); yulHero.add(y, bow); yulHero.position.set(0.11, 0.035, 0.05); hero.add(yulHero);
+    yulHero.add(glowSprite('rgba(255,240,210,.5)', 'rgba(120,180,255,.12)', 0.16));
+  }
+  if (A.minion) A.minionReady = true;
+  const rocks = [A.rock1, A.rock2].filter(Boolean);
+  if (rocks.length) { const r = E_rng(7);
+    for (let i = 0; i < 46; i++) { const src = rocks[i % rocks.length].scene.clone(); fixMats(src, 0x9a8f86); const s = fitTo(src, 0.05 + r() * 0.16);
+      let p; for (let k = 0; k < 20; k++) { p = new THREE.Vector3(0.8 + r() * 6.8, -1.6 + r() * 3.6, -2.6 + r() * 5.6); if (p.length() > 1.6 && p.distanceTo(MOON) > 0.8 && Math.hypot(p.y - 0.6, p.z) > 0.55 && distToRoute(p) > 0.45) break; }
+      s.position.copy(p); s.rotation.set(r() * 6, r() * 6, r() * 6); s.userData.spin = (r() - 0.5) * 0.4; rocksG.add(s); } }
+}
+function E_rng(seed) { let s = seed >>> 0 || 1; return () => { s ^= s << 13; s ^= s >>> 17; s ^= s << 5; return ((s >>> 0) % 100000) / 100000; }; }
+function distToRoute(p) { const pts = [[1.2, 1.9, 3.4], [2.6, 1.5, 2.4], [4.0, 1.05, 1.2], [4.3, 0.6, 0]].map(V); let d = 9; for (let i = 0; i < pts.length - 1; i++) { const a = pts[i], b = pts[i + 1], ab = b.clone().sub(a), t = Math.max(0, Math.min(1, p.clone().sub(a).dot(ab) / ab.lengthSq())); d = Math.min(d, a.clone().addScaledVector(ab, t).distanceTo(p)); } return d; }
 const TRAIL = 120, trailPos = new Float32Array(TRAIL * 3), trailG = new THREE.BufferGeometry(); trailG.setAttribute('position', new THREE.BufferAttribute(trailPos, 3));
 const trail = new THREE.Line(trailG, new THREE.LineBasicMaterial({ color: 0xffb84d, transparent: true, opacity: 0.55 })); trail.frustumCulled = false; scene.add(trail);
 // 우주 먼지(이동감)
@@ -208,7 +270,7 @@ async function say(lines) {
 
 /* ═════ 게임 상태 ═════ */
 const G = { lookBack: false, mode: 'title', mi: -1, running: false, t: 0, tMax: 1, idx: 0, hold: 0, talking: false, skip: null, mines: [], penSeen: false, lastTick: 0, gq: 0, ganim: 0 };
-function clearObjects() { ringsG.clear(); minesG.clear(); G.mines = []; beacon.visible = false; }
+function clearObjects() { G.mines.forEach(o => { const mx = o.s.userData.mixer; if (mx) mixers.splice(mixers.indexOf(mx), 1); }); ringsG.clear(); minesG.clear(); G.mines = []; noxShip.visible = false; beacon.visible = false; }
 function buildRings(list) { ringsG.clear(); list.forEach((p, i) => { const r = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.016, 12, 48), i === 0 ? ringMatOn : ringMat); r.position.copy(V(p)); const nx = list[i + 1] ? V(list[i + 1]) : MOON.clone(); r.lookAt(nx); ringsG.add(r); }); }
 
 function titleScreen() {
@@ -218,7 +280,7 @@ function titleScreen() {
     <p>요크셔테리어 관측 대원 <b>율이</b>가 우주선 <b>루미호</b>를 몰고 출동! 조종석에서 직접 날아다니며, 빛을 훔치는 <b style="color:var(--nox)">녹스</b>를 막아요.</p>
     <button class="btn pri" id="go">▶ EPISODE 1 · 그림자 속으로</button>
     <button class="btn sec" id="who">등장인물 소개 (이름의 뜻)</button>
-    <div class="howto">🎮 <b>조종</b> — 왼쪽 방향 패드: 기수 돌리기 · 🎯: 목표 자동 조준 · 오른쪽 <b>추진</b>을 누르고 있으면 전진<br>⌨️ 키보드 — 화살표 · W/S · Space(조준)<br>📡 오른쪽 위 모니터 = 멀리 멈춰 있는 드론이 찍는 바깥 모습 (⇄로 크게)<br>🗣 루미·녹스는 목소리로 말해요 (🗣 버튼으로 끄기)<br>📱 가로 화면 추천 · 공유 메뉴 → <b>홈 화면에 추가</b>하면 앱처럼 실행<br>🔒 EPISODE 2 붉은 달(월식) · 3 달 모양 탐사 — 준비 중</div></div>`;
+    <div class="howto">🎮 <b>조종</b> — 왼쪽 방향 패드: 기수 돌리기 · 🎯: 목표 자동 조준 · 오른쪽 <b>추진</b>을 누르고 있으면 전진<br>⌨️ 키보드 — 화살표 · W/S · Space(조준)<br>📡 오른쪽 위 모니터 = 멀리 멈춰 있는 드론이 찍는 바깥 모습 (⇄로 크게)<br>🗣 루미·녹스는 목소리로 말해요 (🗣 버튼으로 끄기)<br>📱 가로 화면 추천 · 공유 메뉴 → <b>홈 화면에 추가</b>하면 앱처럼 실행<br>🔒 EPISODE 2 붉은 달(월식) · 3 달 모양 탐사 — 준비 중</div><div class="credit">3D 모델: Quaternius (CC0) · 지구 텍스처: NASA Blue/Black Marble (퍼블릭 도메인) · three.js (MIT)</div></div>`;
   $('#go').onclick = () => { unlockAudio(); store.get('seen', false) ? startEpisode() : charsScreen(true); };
   $('#who').onclick = () => charsScreen(false);
 }
@@ -244,15 +306,19 @@ async function startMission(i, first) {
   if (m.type === 'ground') return groundMission(m);
   $('#sky').classList.add('hide'); flightUI(true); placeShip(m.start);
   if (m.rings) buildRings(m.rings);
-  if (m.type === 'descend') { beacon.position.copy(V(m.land)).multiplyScalar(1.03); beacon.lookAt(beacon.position.clone().multiplyScalar(2)); beacon.rotateX(Math.PI / 2); beacon.visible = true; spawnMines(); }
+  if (m.type === 'descend') { noxShip.visible = true; } if (m.type === 'descend') { beacon.position.copy(V(m.land)).multiplyScalar(1.03); beacon.lookAt(beacon.position.clone().multiplyScalar(2)); beacon.rotateX(Math.PI / 2); beacon.visible = true; spawnMines(); }
   showBanner(`MISSION ${i + 1} / ${EP1.missions.length}`, m.name);
   if (first && m.pre) await say(m.pre);
   G.t = G.tMax = m.time; G.running = true; G.mode = 'fly';
 }
 function spawnMines() {
   const base = [[3.6, 0.66, 0.05], [2.6, 0.55, -0.06], [2.2, 0.68, 0.06], [1.5, 0.58, -0.04], [3.2, 0.52, 0.0]];
-  G.mines = base.map((b, i) => { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: mineTex, blending: THREE.NormalBlending, depthWrite: false })); s.scale.set(0.12, 0.12, 1); minesG.add(s);
-    return { s, b: V(b), ph: i * 1.7, amp: 0.11 + (i % 2) * 0.05 }; });
+  G.mines = base.map((b, i) => {
+    let s;
+    if (A.minionReady) { const m = SkeletonUtils.clone(A.minion.scene); fixMats(m, 0x7a4ad0, 0x2a0a50); s = fitTo(m, 0.11); s.add(glowSprite('rgba(150,80,255,.55)', 'rgba(80,20,160,.2)', 0.22));
+      const mx = new THREE.AnimationMixer(m); const clip = A.minion.animations.find(a => a.name === 'Flying_Idle') || A.minion.animations[0]; if (clip) { const ac = mx.clipAction(clip); ac.time = i * 0.3; ac.play(); } mixers.push(mx); s.userData.mixer = mx; }
+    else { s = new THREE.Sprite(new THREE.SpriteMaterial({ map: mineTex, blending: THREE.NormalBlending, depthWrite: false })); s.scale.set(0.12, 0.12, 1); }
+    minesG.add(s); return { s, b: V(b), ph: i * 1.7, amp: 0.11 + (i % 2) * 0.05 }; });
 }
 async function missionDone() {
   G.running = false; sfx.ok(); const m = EP1.missions[G.mi];
@@ -281,6 +347,7 @@ async function episodeClear() {
 const sky = $('#sky'), sc = sky.getContext('2d'); let skyW = 0, skyH = 0;
 function sizeSky() { const r = sky.getBoundingClientRect(), d = Math.min(devicePixelRatio || 1, 2); skyW = r.width; skyH = r.height; sky.width = skyW * d; sky.height = skyH * d; sc.setTransform(d, 0, 0, d, 0, 0); }
 const gStars = Array.from({ length: 120 }, () => [Math.random(), Math.random() * 0.7, Math.random()]);
+const yulBack = new Image(); yulBack.src = 'img/yul-back.png';
 function drawSky(off) {
   if (!skyW) sizeSky(); const c = sc, w = skyW, h = skyH, r = Math.min(w, h) * 0.11, cx = w * 0.5, cy = h * 0.4;
   const f = off <= 0.001 ? 1 : Math.min(1, ov(1, 1.03, off) / Math.PI), b = 1 - 0.94 * Math.pow(f, 2.4);
@@ -296,6 +363,7 @@ function drawSky(off) {
     if (f > 0.93) { const dx = cx - r, dg = c.createRadialGradient(dx, cy, 0, dx, cy, r); dg.addColorStop(0, '#fff'); dg.addColorStop(0.15, 'rgba(255,255,240,.8)'); dg.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = dg; c.beginPath(); c.arc(dx, cy, r, 0, 7); c.fill(); } }
   c.fillStyle = `rgb(${8 + 18 * b | 0},${16 + 36 * b | 0},${14 + 22 * b | 0})`; c.beginPath(); c.moveTo(0, h); c.lineTo(0, h * 0.84); c.quadraticCurveTo(w * 0.25, h * 0.74, w * 0.5, h * 0.84); c.quadraticCurveTo(w * 0.75, h * 0.93, w, h * 0.8); c.lineTo(w, h); c.fill();
   c.font = '800 13px -apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif'; c.textBaseline = 'middle'; c.textAlign = 'center'; c.fillStyle = 'rgba(255,255,255,.8)';
+  if (yulBack.complete && yulBack.naturalWidth) { const ih = h * 0.3, iw = ih * yulBack.naturalWidth / yulBack.naturalHeight; c.drawImage(yulBack, 10, h - ih - h * 0.04, iw, ih); }
   c.fillText('← 동', w * 0.14, h - 14); c.fillText('서 →', w * 0.86, h - 14);
   c.fillStyle = f >= 0.999 ? '#ffe9a8' : '#fff'; c.fillText(f >= 0.999 ? '✨ 개기일식 — 코로나!' : (f > 0.002 ? `부분일식 · ${Math.round(f * 100)}% 가려짐` : '착륙선 캐노피 · 서울 하늘'), w * 0.5, h * 0.14);
 }
@@ -342,8 +410,17 @@ function currentTarget() {
 function frame(now) {
   const dt = Math.min(0.05, (now - last) / 1000); last = now; tAll += dt;
   if (G.mode === 'title' || G.mode === 'clear') { // 시네마틱 공전 카메라
-    const a = tAll * 0.06; ship.pos.set(3 + 8.5 * Math.sin(a), 2.2 + Math.sin(a * 0.7), 8.5 * Math.cos(a)); const lk = lookAtTarget(new THREE.Vector3(3, 0.4, 0)); ship.yaw = lk.yaw; ship.pitch = lk.pitch;
+    if (hero.userData.ship) {
+      hero.visible = true; hero.position.copy(HERO_P); hero.position.y += Math.sin(tAll * 0.9) * 0.01; hero.lookAt(MOON);
+      if (hero.userData.exhaust) hero.userData.exhaust.scale.setScalar(0.045 + Math.random() * 0.012);
+      const a = 0.6 + Math.sin(tAll * 0.1) * 0.9, r = 0.3; ship.pos.set(HERO_P.x + r * Math.sin(a) - 0.05, HERO_P.y + 0.07 + 0.03 * Math.sin(tAll * 0.3), HERO_P.z + r * Math.cos(a));
+      heroLight.position.copy(ship.pos).lerp(HERO_P, 0.35).add(new THREE.Vector3(0, 0.12, 0)); heroRim.position.copy(HERO_P).add(new THREE.Vector3(0.25, 0.15, -0.25)); heroLight.visible = heroRim.visible = true;
+      if (yulHero) { const wp = yulHero.getWorldPosition(new THREE.Vector3()); yulHero.parent.worldToLocal(tmp.copy(ship.pos)); yulHero.rotation.y = Math.atan2(tmp.x - yulHero.position.x, tmp.z - yulHero.position.z); }
+      const lk = lookAtTarget(HERO_P.clone().add(new THREE.Vector3(0.05, 0.045, 0))); ship.yaw = lk.yaw; ship.pitch = lk.pitch;
+      noxShip.visible = true; noxShip.position.set(4.9, 1.8, -1.6); noxShip.lookAt(HERO_P);
+    } else { const a = tAll * 0.06; ship.pos.set(3 + 8.5 * Math.sin(a), 2.2 + Math.sin(a * 0.7), 8.5 * Math.cos(a)); const lk = lookAtTarget(new THREE.Vector3(3, 0.4, 0)); ship.yaw = lk.yaw; ship.pitch = lk.pitch; }
   } else if (G.mode === 'fly') {
+    hero.visible = false; heroLight.visible = heroRim.visible = false;
     const ctrl = G.running && !G.talking;
     if (ctrl) {
       const yr = (input.left - input.right) * 1.05, pr = (input.up - input.down) * 0.85;
@@ -371,7 +448,10 @@ function frame(now) {
   if (G.mode === 'fly') { trailPos.copyWithin(3, 0, (TRAIL - 1) * 3); trailPos.set([ship.pos.x, ship.pos.y, ship.pos.z], 0); trailG.attributes.position.needsUpdate = true; }
   // 링 강조
   ringsG.children.forEach((r, i) => { r.material = i === G.idx ? ringMatOn : ringMat; r.visible = i >= G.idx; r.rotation.z += dt * 0.6; });
-  G.mines.forEach(o => { o.s.position.set(o.b.x, o.b.y + Math.sin(tAll * 1.4 + o.ph) * o.amp, o.b.z + Math.cos(tAll * 1.1 + o.ph) * o.amp); o.s.material.rotation += dt * 2; });
+  G.mines.forEach(o => { o.s.position.set(o.b.x, o.b.y + Math.sin(tAll * 1.4 + o.ph) * o.amp, o.b.z + Math.cos(tAll * 1.1 + o.ph) * o.amp); if (o.s.isSprite) o.s.material.rotation += dt * 2; else o.s.lookAt(ship.pos); });
+  mixers.forEach(m => m.update(dt));
+  rocksG.children.forEach(r => { r.rotation.x += r.userData.spin * dt; r.rotation.y += r.userData.spin * 0.7 * dt; });
+  if (noxShip.visible) { const a = tAll * 0.35; noxShip.position.set(2.7 + Math.sin(a) * 0.5, 1.05 + Math.sin(a * 1.3) * 0.12, -0.45 + Math.cos(a) * 0.25); noxShip.lookAt(ship.pos); }
   // 계기판 · 목표 표시
   const cov = sunCover(ship.pos);
   if (G.mode === 'fly') {
@@ -393,9 +473,9 @@ function frame(now) {
   const bigCam = swapped ? droneCam : shipCam, smallCam = swapped ? shipCam : droneCam;
   bigCam.aspect = W / H; bigCam.updateProjectionMatrix();
   const showPip = G.mode === 'fly';
-  pipf.classList.toggle('hide', !showPip); $('#frame').classList.toggle('hide', swapped && G.mode === 'fly');
+  pipf.classList.toggle('hide', !showPip); $('#frame').classList.toggle('hide', (swapped && G.mode === 'fly') || G.mode === 'title' || G.mode === 'clear');
   if (G.mode !== 'ground') {
-    shipM.visible = trail.visible = bigCam === droneCam; dust.visible = bigCam === shipCam;
+    shipM.visible = trail.visible = bigCam === droneCam && G.mode === 'fly'; dust.visible = bigCam === shipCam && G.mode === 'fly';
     lbMoon.visible = lbEarth.visible = lbSun.visible = bigCam === droneCam;
     rpass.camera = bigCam; composer.render();
     if (showPip) {
