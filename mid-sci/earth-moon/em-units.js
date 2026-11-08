@@ -390,7 +390,12 @@
       rubric: '음력 날짜에 따른 달의 모양과 명칭을 모두 정확하게 설명함.',
       core: ['1일 <b>삭</b>(안 보임) → 2~3일 <b>초승달</b>(오른쪽 가늘게) → 7~8일 <b>상현달</b>(오른쪽 반원)', '15일 <b>보름달·망</b> → 22~23일 <b>하현달</b>(왼쪽 반원) → 27~28일 <b>그믐달</b>(왼쪽 가늘게)', '주기 약 <b>29.5일</b>'],
       answer: '<p>음력 <b>2~3일경</b> 오른쪽이 가늘게 밝은 <b>초승달</b>, <b>7~8일경</b> 오른쪽 반원이 밝은 <b>상현달</b>, <b>15일경</b> 둥근 <b>보름달(망)</b>, <b>22~23일경</b> 왼쪽 반원이 밝은 <b>하현달</b>, <b>27~28일경</b> 왼쪽이 가늘게 밝은 <b>그믐달</b>이 보인다. 음력 <b>1일경</b>은 달이 보이지 않는 <b>삭</b>이다.</p>',
-      trap: ['상현 = <b>오른쪽</b>, 하현 = <b>왼쪽</b>', '차오르는 달은 D 모양, 줄어드는 달은 C 모양'] },
+      trap: ['상현 = <b>오른쪽</b>, 하현 = <b>왼쪽</b>', '차오르는 달은 D 모양, 줄어드는 달은 C 모양'],
+      names: '<ul><li><b>삭(朔)</b> = 초하루. 음력 1일, 달이 태양 쪽에 있어 안 보여요. 일식은 삭일 때만!</li>'+
+        '<li><b>상현(上弦)</b> = 위 + 활시위. 반달의 곧은 쪽이 활시위 같아서 "현". 한 달의 앞쪽(上) 반달(음력 7~8일, 오른쪽 반원).</li>'+
+        '<li><b>망(望)</b> = 바라보다. 태양과 달이 지구를 사이에 두고 서로 바라보는 자리 = 보름달(음력 15일). 월식은 망일 때만!</li>'+
+        '<li><b>하현(下弦)</b> = 아래 + 활시위. 한 달의 뒤쪽(下) 반달(음력 22~23일, 왼쪽 반원).</li>'+
+        '<li><b>초승</b> = 처음 생긴 달, <b>그믐</b> = 달의 끝무렵.</li></ul>' },
     { id: 'u4', n: 4, short: '위상 원리', title: '달의 운동과 위상변화 원리', sim: sim4,
       rubric: '달의 운동과 위상변화 원리를 정확하게 설명함.',
       core: ['달은 스스로 빛을 못 내고 <b>햇빛을 반사</b> → 늘 태양 쪽 반쪽만 밝음', '달이 지구 둘레를 <b>서→동 공전</b> → <b>태양·지구·달의 위치</b>가 바뀜', '보이는 모양 = 햇빛 받는 반쪽 ∩ 지구 쪽 반쪽', '삭: 태양-달-지구 / 망: 태양-지구-달 / 반달: 직각'],
@@ -411,6 +416,7 @@
       '<div class="sec" data-sim></div>' +
       '<div class="sec"><div class="card idea"><b>핵심만</b><ul>' + u.core.map(function (c) { return '<li>' + c + '</li>'; }).join('') + '</ul></div>' +
       '<details class="more"><summary>✍ 시험지에 이렇게 쓰기 (모범 답안)</summary>' + u.answer + '</details>' +
+      (u.names ? '<details class="more" open><summary>📖 삭·상현·망·하현 — 이름의 뜻</summary>' + u.names + '</details>' : '') +
       '<details class="more"><summary>⚠ 자주 틀리는 것</summary><ul>' + u.trap.map(function (t) { return '<li>' + t + '</li>'; }).join('') + '</ul></details>' +
       '<details class="more"><summary>📋 평가 기준</summary><p>' + u.rubric + '</p></details></div>' +
       '<div class="sec"><a class="btn pri" style="display:block;text-align:center;text-decoration:none;padding:14px" href="#run/' + u.id + '/0">📝 이 단원 퀴즈 ' + nq + '문제 한 번에 풀기 →</a></div>' +
