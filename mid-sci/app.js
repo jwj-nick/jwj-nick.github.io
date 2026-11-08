@@ -100,7 +100,7 @@
     return '<div class="phet ours"><div class="ph-top"><h3>🌏 전용 실험실</h3><span class="fit">' + esc(sim.fit || '실험실') + '</span></div>' +
       '<p class="aim">' + esc(sim.aim || '') + '</p>' + (disc ? '<ul class="disc">' + disc + '</ul>' : '') +
       '<div class="btns"><a class="ph-btn primary" href="' + sim.url + '">실험실 열기 →</a>' +
-      (sim.game ? '<a class="ph-btn" href="' + sim.game + '">🌙 게임: 달 조종사</a>' : '') + '<a class="ph-btn" href="' + sim.url + '#quiz">📝 퀴즈</a></div></div>';
+      (sim.game3d ? '<a class="ph-btn" href="' + sim.game3d + '">🐾 3D: 율이의 하늘 퀘스트</a>' : '') + (sim.game ? '<a class="ph-btn" href="' + sim.game + '">🌙 게임: 달 조종사</a>' : '') + '<a class="ph-btn" href="' + sim.url + '#quiz">📝 퀴즈</a></div></div>';
   }
   function simCard(sim) {
     if (sim.type === 'lab') return labCard(sim);
