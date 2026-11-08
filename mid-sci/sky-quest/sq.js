@@ -1,467 +1,438 @@
-/* sq.js — 율이의 하늘 퀘스트 · 엔진 + 스테이지 5(그림자 추격전)
- * 위: three.js 우주(태양·지구·달, 지구 셰이더가 달 그림자를 기하로 계산) / 아래: 같은 기하에서 계산한 "율이의 눈" 지표 하늘(2D).
- * 모형 스케일(실제 비율 아님): 지구 R=1, 달 r=0.27, 궤도 4, 햇빛은 +X 방향 평행광.
+/* sq.js — 율이의 하늘 퀘스트 v0.2 · 1인칭 조종석 엔진 + 에피소드 1
+ * 메인 = 루미호 조종석 카메라, 우상단 = 정지 관측 드론 D-1 카메라(탭 ⇄로 교체).
+ * 일식 기하는 하나의 식: 관측점에서 본 태양 원판(각반지름 0.02rad)과 달 원판의 겹침 비율.
+ *   → 조종석 '태양 가림 %', 지구 표면 그림자 셰이더, 그림자 원뿔 메시가 모두 같은 식.
  */
 import * as THREE from 'three';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
-import { CHARS, PORTRAIT, STAGE5 } from './sq-story.js';
+import { CHARS, PORTRAIT } from './sq-story.js';
+import { EP1 } from './sq-ep1.js';
 
-const D2R = Math.PI / 180, RO = 4, RM = 0.27, KU = 0.55, KP = 2.4, MOON_Y = 0.55;
-const L = new THREE.Vector3(1, 0, 0); // 햇빛이 오는 방향(지구→태양)
 const $ = (s) => document.querySelector(s);
-const cv3 = $('#cv3'), cv2 = $('#cv2'), g2 = cv2.getContext('2d');
+const V = (a) => new THREE.Vector3(a[0], a[1], a[2]);
+const D2R = Math.PI / 180, L = new THREE.Vector3(1, 0, 0), SUN_D = 80, SUN_R = 1.6, SUN_ANG = SUN_R / SUN_D, RM = 0.27;
+const MOON = new THREE.Vector3(6, 0.6, 0);
+const store = { get(k, d) { try { const v = localStorage.getItem('sq2-' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem('sq2-' + k, JSON.stringify(v)); } catch (e) {} } };
 
-/* ═════ 저장 · 소리 ═════ */
-const store = { get(k, d) { try { const v = localStorage.getItem('sq-' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem('sq-' + k, JSON.stringify(v)); } catch (e) {} } };
-let muted = store.get('muted', false), hq = store.get('hq', true), actx = null;
-function tone(f, d = 0.15, type = 'sine', v = 0.08, delay = 0) {
-  if (muted) return;
+/* ═════ 소리 · 음성 ═════ */
+let muted = store.get('muted', false), voiceOn = store.get('voice', true), actx = null, master = null, eng = null;
+function audioInit() {
+  if (actx) return;
   try {
-    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
-    const o = actx.createOscillator(), g = actx.createGain(), t = actx.currentTime + delay;
-    o.type = type; o.frequency.setValueAtTime(f, t); g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
-    o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + d + 0.02);
+    actx = new (window.AudioContext || window.webkitAudioContext)(); master = actx.createGain(); master.gain.value = muted ? 0 : 1; master.connect(actx.destination);
+    const o = actx.createOscillator(), o2 = actx.createOscillator(), f = actx.createBiquadFilter(), g = actx.createGain();
+    o.type = 'sawtooth'; o2.type = 'triangle'; o.frequency.value = 45; o2.frequency.value = 90; f.type = 'lowpass'; f.frequency.value = 260; g.gain.value = 0;
+    o.connect(f); o2.connect(f); f.connect(g); g.connect(master); o.start(); o2.start(); eng = { o, o2, f, g };
   } catch (e) {}
 }
+function tone(fq, d = 0.15, type = 'sine', v = 0.08, delay = 0) {
+  if (!actx || muted) return;
+  const o = actx.createOscillator(), g = actx.createGain(), t = actx.currentTime + delay;
+  o.type = type; o.frequency.setValueAtTime(fq, t); g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+  o.connect(g); g.connect(master); o.start(t); o.stop(t + d + 0.02);
+}
 const sfx = {
-  ok() { [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.22, 'triangle', 0.08, i * 0.08)); },
-  bad() { tone(220, 0.3, 'sawtooth', 0.06); tone(160, 0.4, 'sawtooth', 0.05, 0.12); },
-  tick() { tone(880, 0.05, 'square', 0.03); },
-  blip() { tone(660, 0.06, 'triangle', 0.05); },
-  gate() { tone(392, 0.15, 'triangle', 0.07); tone(587, 0.25, 'triangle', 0.07, 0.12); },
-  total() { [262, 330, 392, 523, 659].forEach((f, i) => tone(f, 1.2, 'sine', 0.05, i * 0.05)); }
+  ring() { tone(784, 0.12, 'triangle', 0.08); tone(1175, 0.2, 'triangle', 0.07, 0.07); },
+  ok() { [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.25, 'triangle', 0.08, i * 0.08)); },
+  bad() { tone(200, 0.35, 'sawtooth', 0.07); tone(140, 0.45, 'sawtooth', 0.06, 0.12); },
+  tick() { tone(900, 0.05, 'square', 0.03); },
+  total() { [262, 330, 392, 523, 659, 784].forEach((f, i) => tone(f, 1.6, 'sine', 0.045, i * 0.06)); },
+  warn() { tone(520, 0.08, 'square', 0.04); tone(520, 0.08, 'square', 0.04, 0.14); }
 };
+const synth = window.speechSynthesis;
+let koVoice = null;
+function pickVoice() { if (!synth) return; const vs = synth.getVoices(); koVoice = vs.find(v => /ko/i.test(v.lang) && /yuna|sora|female|여/i.test(v.name)) || vs.find(v => /ko/i.test(v.lang)) || null; }
+if (synth) { pickVoice(); synth.onvoiceschanged = pickVoice; }
+const VOICE = { lumi: { pitch: 1.35, rate: 1.08 }, nox: { pitch: 0.55, rate: 0.9 }, yul: { pitch: 1.7, rate: 1.12 } };
+function speak(who, html) {
+  const text = html.replace(/<[^>]+>/g, '');
+  return new Promise(res => {
+    const fallback = setTimeout(res, 900 + text.length * 75);
+    if (!voiceOn || muted || !synth || !koVoice) return;
+    clearTimeout(fallback);
+    try {
+      synth.cancel(); const u = new SpeechSynthesisUtterance(text); u.voice = koVoice; u.lang = koVoice.lang; Object.assign(u, VOICE[who] || {});
+      const safety = setTimeout(res, 2500 + text.length * 160); u.onend = u.onerror = () => { clearTimeout(safety); setTimeout(res, 250); }; synth.speak(u);
+    } catch (e) { setTimeout(res, 900 + text.length * 75); }
+  });
+}
 
 /* ═════ 렌더러 · 장면 ═════ */
-const renderer = new THREE.WebGLRenderer({ canvas: cv3, antialias: true, powerPreference: 'high-performance' });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+const cv = $('#cv');
+const renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.6));
 renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x01020a);
-const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 1000);
-const composer = new EffectComposer(renderer);
-composer.addPass(new RenderPass(scene, camera));
-const bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), 0.9, 0.6, 0.82);
-composer.addPass(bloom);
-composer.addPass(new OutputPass());
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x000207);
+const shipCam = new THREE.PerspectiveCamera(70, 1, 0.005, 2000);
+const droneCam = new THREE.PerspectiveCamera(44, 1, 0.01, 2000);
+droneCam.position.set(3.0, 3.4, 7.8); droneCam.lookAt(3.0, 0.4, 0);
+const composer = new EffectComposer(renderer), rpass = new RenderPass(scene, shipCam);
+const bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), 1.0, 0.65, 0.8);
+composer.addPass(rpass); composer.addPass(bloom); composer.addPass(new OutputPass());
 
+function glowTex(c0, c1) { const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d'), g = x.createRadialGradient(128, 128, 0, 128, 128, 128); g.addColorStop(0, c0); g.addColorStop(0.25, c1); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 0, 256, 256); return new THREE.CanvasTexture(c); }
 // 별
-{
-  const n = 2600, pos = new Float32Array(n * 3), col = new Float32Array(n * 3);
-  for (let i = 0; i < n; i++) {
-    const u = Math.random() * 2 - 1, a = Math.random() * Math.PI * 2, r = 180, s = Math.sqrt(1 - u * u);
-    pos.set([r * s * Math.cos(a), r * u, r * s * Math.sin(a)], i * 3);
-    const b = 0.5 + Math.random() * 0.5, t = Math.random();
-    col.set([b * (t < 0.2 ? 1 : 0.85), b * 0.9, b * (t > 0.8 ? 1 : 0.95)], i * 3);
-  }
+{ const n = 3500, pos = new Float32Array(n * 3), col = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) { const u = Math.random() * 2 - 1, a = Math.random() * 6.283, s = Math.sqrt(1 - u * u), r = 900; pos.set([r * s * Math.cos(a), r * u, r * s * Math.sin(a)], i * 3); const b = 0.35 + Math.random() * 0.65; col.set([b, b * 0.95, b * (0.9 + Math.random() * 0.2)], i * 3); }
   const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setAttribute('color', new THREE.BufferAttribute(col, 3));
-  scene.add(new THREE.Points(g, new THREE.PointsMaterial({ size: 1.5, sizeAttenuation: false, vertexColors: true })));
-}
+  scene.add(new THREE.Points(g, new THREE.PointsMaterial({ size: 1.6, sizeAttenuation: false, vertexColors: true }))); }
 // 태양
-function glowTex(c0, c1) {
-  const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d'), gr = x.createRadialGradient(128, 128, 0, 128, 128, 128);
-  gr.addColorStop(0, c0); gr.addColorStop(0.25, c1); gr.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = gr; x.fillRect(0, 0, 256, 256);
-  return new THREE.CanvasTexture(c);
-}
-const SUNP = new THREE.Vector3(10, 0, 0);
-const sun = new THREE.Mesh(new THREE.SphereGeometry(1.5, 48, 32), new THREE.MeshBasicMaterial({ color: 0xfff3c8 }));
-sun.position.copy(SUNP); scene.add(sun);
-const sunGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex('rgba(255,240,200,1)', 'rgba(255,170,60,.45)'), blending: THREE.AdditiveBlending, depthWrite: false }));
-sunGlow.scale.set(11, 11, 1); sunGlow.position.copy(SUNP); scene.add(sunGlow);
-const dl = new THREE.DirectionalLight(0xffffff, 2.4); dl.position.copy(SUNP); scene.add(dl);
-scene.add(new THREE.AmbientLight(0x223355, 0.12));
-
-// 지구 (주야 + 달 그림자 셰이더)
+const SUNP = L.clone().multiplyScalar(SUN_D);
+const sun = new THREE.Mesh(new THREE.SphereGeometry(SUN_R, 48, 32), new THREE.MeshBasicMaterial({ color: 0xfff6d8 })); sun.position.copy(SUNP); scene.add(sun);
+const corona = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex('rgba(255,250,235,1)', 'rgba(200,215,255,.35)'), blending: THREE.AdditiveBlending, depthWrite: false }));
+corona.scale.set(SUN_R * 9, SUN_R * 9, 1);
+// 개기일식용 외곽 코로나(달이 태양보다 크게 보이는 모형이라 넓게)
+const corona2 = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex('rgba(240,244,255,.95)', 'rgba(175,195,255,.32)'), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true }));
+corona2.scale.set(56, 56, 1); corona2.position.copy(L.clone().multiplyScalar(SUN_D)); scene.add(corona2); corona.position.copy(SUNP); scene.add(corona);
+const dl = new THREE.DirectionalLight(0xffffff, 2.5); dl.position.copy(SUNP); scene.add(dl); scene.add(new THREE.AmbientLight(0x203050, 0.08));
+// 지구
 const tl = new THREE.TextureLoader();
-const texDay = tl.load('tex/earth-day.jpg'), texNight = tl.load('tex/earth-night.jpg');
-[texDay, texNight].forEach(t => { t.anisotropy = 4; });
-const earthU = {
-  dayMap: { value: texDay }, nightMap: { value: texNight }, sunDir: { value: L.clone() },
-  moonPos: { value: new THREE.Vector3() }, moonR: { value: RM }, kU: { value: KU }, kP: { value: KP }
-};
-const earth = new THREE.Mesh(new THREE.SphereGeometry(1, 128, 96), new THREE.ShaderMaterial({
+const earthU = { dayMap: { value: tl.load('tex/earth-day.jpg') }, nightMap: { value: tl.load('tex/earth-night.jpg') }, sunDir: { value: L.clone() }, moonPos: { value: MOON.clone() }, moonR: { value: RM }, sunAng: { value: SUN_ANG } };
+const earth = new THREE.Mesh(new THREE.SphereGeometry(1, 160, 120), new THREE.ShaderMaterial({
   uniforms: earthU,
-  vertexShader: `varying vec2 vUv; varying vec3 vN; varying vec3 vW;
-    void main(){ vUv=uv; vN=normalize(mat3(modelMatrix)*normal); vec4 w=modelMatrix*vec4(position,1.); vW=w.xyz; gl_Position=projectionMatrix*viewMatrix*w; }`,
-  fragmentShader: `uniform sampler2D dayMap,nightMap; uniform vec3 sunDir,moonPos; uniform float moonR,kU,kP;
-    varying vec2 vUv; varying vec3 vN; varying vec3 vW;
-    void main(){
-      vec3 n=normalize(vN); float ndl=dot(n,sunDir);
-      vec3 day=texture2D(dayMap,vUv).rgb, night=texture2D(nightMap,vUv).rgb;
-      float dA=smoothstep(-0.12,0.2,ndl);
-      vec3 col=mix(night*vec3(1.4,1.25,1.0)+day*0.025, day*(0.22+1.0*max(ndl,0.)), dA);
-      vec3 mp=moonPos-vW; float al=dot(mp,sunDir);
-      if(al>0.){ float d=length(mp-al*sunDir); float um=1.-smoothstep(kU*moonR*0.82,kU*moonR,d); float pe=1.-smoothstep(kU*moonR,kP*moonR,d);
-        float sh=max(um*0.93,pe*0.6); col*=1.-sh*dA; col+=vec3(0.02,0.0,0.05)*um*dA; }
-      float rim=pow(1.-max(dot(n,normalize(cameraPosition-vW)),0.),3.);
-      col+=vec3(0.25,0.5,1.)*rim*0.45*(0.25+dA);
-      gl_FragColor=vec4(col,1.);
-    }`
+  vertexShader: `varying vec2 vUv; varying vec3 vN; varying vec3 vW; void main(){ vUv=uv; vN=normalize(mat3(modelMatrix)*normal); vec4 w=modelMatrix*vec4(position,1.); vW=w.xyz; gl_Position=projectionMatrix*viewMatrix*w; }`,
+  fragmentShader: `precision highp float; uniform sampler2D dayMap,nightMap; uniform vec3 sunDir,moonPos; uniform float moonR,sunAng; varying vec2 vUv; varying vec3 vN; varying vec3 vW;
+    float ov(float r1,float r2,float d){ if(d>=r1+r2) return 0.; if(d<=abs(r1-r2)) return 3.14159265*min(r1,r2)*min(r1,r2);
+      float a=r1*r1*acos(clamp((d*d+r1*r1-r2*r2)/(2.*d*r1),-1.,1.)); float b=r2*r2*acos(clamp((d*d+r2*r2-r1*r1)/(2.*d*r2),-1.,1.));
+      float c=.5*sqrt(max(0.,(-d+r1+r2)*(d+r1-r2)*(d-r1+r2)*(d+r1+r2))); return a+b-c; }
+    void main(){ vec3 n=normalize(vN); float ndl=dot(n,sunDir); vec3 day=texture2D(dayMap,vUv).rgb, night=texture2D(nightMap,vUv).rgb;
+      float dA=smoothstep(-0.1,0.18,ndl); vec3 col=mix(night*vec3(1.5,1.3,1.0)+day*0.02, day*(0.2+1.05*max(ndl,0.)), dA);
+      vec3 mv=moonPos-vW; float dm=length(mv); float cs=dot(mv/dm,sunDir);
+      if(cs>0.){ float ma=asin(min(1.,moonR/dm)); float sep=acos(clamp(cs,-1.,1.)); float cov=min(1.,ov(sunAng,ma,sep)/(3.14159265*sunAng*sunAng));
+        col*=1.-0.94*cov*dA; }
+      float rim=pow(1.-max(dot(n,normalize(cameraPosition-vW)),0.),3.); col+=vec3(.25,.5,1.)*rim*.5*(.2+dA);
+      gl_FragColor=vec4(col,1.); }`
 }));
-earth.rotation.y = -127 * D2R; // 서울(동경 127°)이 태양 쪽 정오
-scene.add(earth);
-const atmo = new THREE.Mesh(new THREE.SphereGeometry(1.045, 64, 48), new THREE.ShaderMaterial({
-  side: THREE.BackSide, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false,
+earth.rotation.y = -127 * D2R; scene.add(earth);
+scene.add(new THREE.Mesh(new THREE.SphereGeometry(1.05, 64, 48), new THREE.ShaderMaterial({ side: THREE.BackSide, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false,
   vertexShader: `varying vec3 vN; void main(){ vN=normalize(normalMatrix*normal); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
-  fragmentShader: `varying vec3 vN; void main(){ float i=pow(0.72-dot(vN,vec3(0,0,1.)),3.); gl_FragColor=vec4(0.35,0.6,1.,1.)*i*1.4; }`
-}));
-scene.add(atmo);
-
+  fragmentShader: `varying vec3 vN; void main(){ float i=pow(0.72-dot(vN,vec3(0,0,1.)),3.); gl_FragColor=vec4(.35,.6,1.,1.)*i*1.4; }` })));
 // 달
-function moonTex() {
-  const c = document.createElement('canvas'); c.width = 512; c.height = 256; const x = c.getContext('2d');
-  x.fillStyle = '#9a978f'; x.fillRect(0, 0, 512, 256);
-  for (let i = 0; i < 2200; i++) { const v = 120 + Math.random() * 70 | 0; x.fillStyle = `rgba(${v},${v},${v - 6},.25)`; x.fillRect(Math.random() * 512, Math.random() * 256, 3, 3); }
-  for (let i = 0; i < 26; i++) { const cx = Math.random() * 512, cy = 30 + Math.random() * 196, r = 6 + Math.random() * 34; x.fillStyle = 'rgba(70,70,72,.35)'; x.beginPath(); x.ellipse(cx, cy, r, r * 0.9, 0, 0, 7); x.fill(); }
-  for (let i = 0; i < 80; i++) { const cx = Math.random() * 512, cy = Math.random() * 256, r = 2 + Math.random() * 7; x.strokeStyle = 'rgba(210,210,205,.35)'; x.lineWidth = 1.2; x.beginPath(); x.arc(cx, cy, r, 0, 7); x.stroke(); }
-  const t = new THREE.CanvasTexture(c); return t;
-}
-const moon = new THREE.Mesh(new THREE.SphereGeometry(RM, 64, 48), new THREE.MeshStandardMaterial({ map: moonTex(), roughness: 1, metalness: 0 }));
-scene.add(moon);
-const orbit = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(Array.from({ length: 180 }, (_, i) => new THREE.Vector3(RO * Math.cos(i / 180 * 2 * Math.PI), MOON_Y, -RO * Math.sin(i / 180 * 2 * Math.PI)))),
-  new THREE.LineDashedMaterial({ color: 0x6fd6ff, dashSize: 0.18, gapSize: 0.14, transparent: true, opacity: 0.55 }));
-orbit.computeLineDistances(); scene.add(orbit);
-
-// 그림자 원뿔(시각화용)
-const coneMatU = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.42, depthWrite: false, side: THREE.DoubleSide });
-const coneMatP = new THREE.MeshBasicMaterial({ color: 0x1a0830, transparent: true, opacity: 0.16, depthWrite: false, side: THREE.DoubleSide });
-const coneU = new THREE.Mesh(new THREE.CylinderGeometry(KU * RM, RM, 1, 40, 1, true), coneMatU);
-const coneP = new THREE.Mesh(new THREE.CylinderGeometry(KP * RM, RM, 1, 40, 1, true), coneMatP);
-scene.add(coneU, coneP);
-
-// 마커: 율이, 서울, 녹스 구름
-function labelSprite(text, color) {
-  const c = document.createElement('canvas'); c.width = 256; c.height = 72; const x = c.getContext('2d');
-  x.font = '900 40px -apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
-  x.lineWidth = 8; x.strokeStyle = 'rgba(0,0,0,.85)'; x.strokeText(text, 128, 36); x.fillStyle = color; x.fillText(text, 128, 36);
-  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), depthTest: false, transparent: true })); s.scale.set(0.36, 0.1, 1); return s;
-}
-const yul = new THREE.Group();
-{
-  const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex('rgba(255,220,140,1)', 'rgba(255,170,60,.5)'), blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false }));
-  glow.scale.set(0.16, 0.16, 1); yul.add(glow);
-  const pin = new THREE.Mesh(new THREE.ConeGeometry(0.022, 0.07, 12), new THREE.MeshBasicMaterial({ color: 0xffb84d, depthTest: false }));
-  pin.rotation.x = Math.PI; pin.position.y = 0.06; yul.add(pin);
-  const lb = labelSprite('🐾 율이', '#ffb84d'); lb.position.y = 0.16; yul.add(lb);
-  yul.visible = false; scene.add(yul);
-}
-const seoulV = new THREE.Vector3(Math.cos(37.5 * D2R), Math.sin(37.5 * D2R), 0); // 회전된 지구에서 서울(월드)
-const seoulMk = labelSprite('● 서울', '#ffffff'); seoulMk.scale.set(0.3, 0.084, 1); seoulMk.position.copy(seoulV).multiplyScalar(1.07); scene.add(seoulMk);
-const noxTex = glowTex('rgba(20,0,40,1)', 'rgba(110,60,200,.55)');
-const clouds = [0, 1, 2].map(() => { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: noxTex, depthWrite: false, transparent: true })); s.scale.set(0.2, 0.2, 1); s.visible = false; scene.add(s); return s; });
+function moonTex() { const c = document.createElement('canvas'); c.width = 1024; c.height = 512; const x = c.getContext('2d'); x.fillStyle = '#8f8c86'; x.fillRect(0, 0, 1024, 512);
+  for (let i = 0; i < 6000; i++) { const v = 110 + Math.random() * 80 | 0; x.fillStyle = `rgba(${v},${v},${v - 5},.22)`; x.fillRect(Math.random() * 1024, Math.random() * 512, 3, 3); }
+  for (let i = 0; i < 40; i++) { const cx = Math.random() * 1024, cy = 40 + Math.random() * 430, r = 10 + Math.random() * 60; x.fillStyle = 'rgba(60,60,64,.33)'; x.beginPath(); x.ellipse(cx, cy, r, r * 0.9, 0, 0, 7); x.fill(); }
+  for (let i = 0; i < 160; i++) { const cx = Math.random() * 1024, cy = Math.random() * 512, r = 2 + Math.random() * 12; x.strokeStyle = 'rgba(215,215,210,.32)'; x.lineWidth = 1.4; x.beginPath(); x.arc(cx, cy, r, 0, 7); x.stroke(); }
+  return new THREE.CanvasTexture(c); }
+const moon = new THREE.Mesh(new THREE.SphereGeometry(RM, 96, 64), new THREE.MeshStandardMaterial({ map: moonTex(), roughness: 1, metalness: 0, emissive: 0x2a3550, emissiveIntensity: 0.55 }));
+moon.position.copy(MOON); scene.add(moon);
+function labelSprite(text, color, w = 0.5) { const c = document.createElement('canvas'); c.width = 256; c.height = 64; const x = c.getContext('2d'); x.font = '900 36px -apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.lineWidth = 7; x.strokeStyle = 'rgba(0,0,0,.85)'; x.strokeText(text, 128, 32); x.fillStyle = color; x.fillText(text, 128, 32);
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), depthTest: false, transparent: true })); sp.scale.set(w, w / 4, 1); sp.renderOrder = 5; return sp; }
+const lbMoon = labelSprite('달 (삭)', '#e8e8f0', 1.3); lbMoon.position.set(MOON.x, MOON.y + 0.6, 0); scene.add(lbMoon);
+const lbEarth = labelSprite('지구', '#9fd0ff', 1.2); lbEarth.position.set(0, 1.5, 0); scene.add(lbEarth);
+const lbSun = labelSprite('태양 쪽 →', '#ffd27a', 1.6); lbSun.position.set(8.2, 1.4, 0); scene.add(lbSun);
+// 그림자 원뿔 (달 → 지구)
+const dEarth = MOON.x - Math.sqrt(1 - MOON.y * MOON.y);
+const cone = (rTop, op, col) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(rTop, RM, dEarth, 48, 1, true), new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: op, depthWrite: false, side: THREE.DoubleSide }));
+  m.rotation.z = Math.PI / 2; m.position.set(MOON.x - dEarth / 2, MOON.y, 0); scene.add(m); return m; };
+const coneP = cone(RM + dEarth * SUN_ANG, 0.07, 0x5b3a9a), coneU = cone(RM - dEarth * SUN_ANG, 0.2, 0x000000);
+// 링 · 기뢰 · 착륙점
+const ringMat = new THREE.MeshBasicMaterial({ color: 0x6fd6ff }), ringMatOn = new THREE.MeshBasicMaterial({ color: 0xffd27a });
+const ringsG = new THREE.Group(); scene.add(ringsG);
+const mineTex = glowTex('rgba(40,0,70,1)', 'rgba(170,100,255,.6)');
+const minesG = new THREE.Group(); scene.add(minesG);
+const beacon = new THREE.Group(); { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex('rgba(255,230,160,1)', 'rgba(255,170,60,.6)'), blending: THREE.AdditiveBlending, depthWrite: false })); s.scale.set(0.22, 0.22, 1); beacon.add(s);
+  const b = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 1.2, 8), new THREE.MeshBasicMaterial({ color: 0xffb84d, transparent: true, opacity: 0.6 })); b.position.y = 0.6; beacon.add(b); }
+beacon.visible = false; scene.add(beacon);
+// 루미호 (외부 카메라에만 보임) + 궤적
+const shipM = new THREE.Group(); { const c = new THREE.Mesh(new THREE.ConeGeometry(0.035, 0.12, 12), new THREE.MeshBasicMaterial({ color: 0xffb84d })); c.rotation.x = -Math.PI / 2; shipM.add(c);
+  const g = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex('rgba(255,220,140,1)', 'rgba(255,170,60,.6)'), blending: THREE.AdditiveBlending, depthWrite: false })); g.scale.set(0.35, 0.35, 1); shipM.add(g); }
+scene.add(shipM);
+const TRAIL = 120, trailPos = new Float32Array(TRAIL * 3), trailG = new THREE.BufferGeometry(); trailG.setAttribute('position', new THREE.BufferAttribute(trailPos, 3));
+const trail = new THREE.Line(trailG, new THREE.LineBasicMaterial({ color: 0xffb84d, transparent: true, opacity: 0.55 })); trail.frustumCulled = false; scene.add(trail);
+// 우주 먼지(이동감)
+const DUST = 700, dustPos = new Float32Array(DUST * 3), dustG = new THREE.BufferGeometry(); for (let i = 0; i < DUST * 3; i++) dustPos[i] = (Math.random() - 0.5) * 3;
+dustG.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
+const dust = new THREE.Points(dustG, new THREE.PointsMaterial({ size: 0.006, color: 0xbcd4ff, transparent: true, opacity: 0.75 })); dust.frustumCulled = false; scene.add(dust);
 
 /* ═════ 기하 ═════ */
-let theta = -40; // 달 위치각(도), 0 = 태양 방향
-const moonPos = () => new THREE.Vector3(RO * Math.cos(theta * D2R), MOON_Y, -RO * Math.sin(theta * D2R));
-function basis(P) { const east = new THREE.Vector3(0, 1, 0).cross(P).normalize(); const north = P.clone().cross(east).normalize(); return { east, north }; }
-function overlap(r1, r2, d) {
-  if (d >= r1 + r2) return 0; if (d <= Math.abs(r1 - r2)) return Math.PI * Math.min(r1, r2) ** 2;
-  const a = r1 * r1 * Math.acos((d * d + r1 * r1 - r2 * r2) / (2 * d * r1)), b = r2 * r2 * Math.acos((d * d + r2 * r2 - r1 * r1) / (2 * d * r2));
-  return a + b - 0.5 * Math.sqrt((-d + r1 + r2) * (d + r1 - r2) * (d - r1 + r2) * (d + r1 + r2));
-}
-// 지표점 P(단위벡터, 월드)에서 본 일식 상태
-function skyAt(P) {
-  if (P.dot(L) < 0.03) return { night: true, zone: 'night', frac: 0 };
-  const v = moonPos().sub(P), al = v.dot(L);
-  if (al <= 0) return { zone: 'none', frac: 0, off: 99, dir: { x: 0, y: 0 } };
-  const perp = v.clone().sub(L.clone().multiplyScalar(al)), d = perp.length(), uR = KU * RM, pR = KP * RM;
-  const off = Math.max(0, d - uR) / (pR - uR) * 2.06;
-  const { east, north } = basis(P), ex = perp.dot(east), ny = perp.dot(north), m = Math.hypot(ex, ny) || 1;
-  const frac = d < uR ? 1 : Math.min(1, overlap(1, 1.03, off) / Math.PI);
-  return { zone: d < uR ? 'umbra' : (d < pR ? 'pen' : 'none'), frac, off, dir: { x: -ex / m, y: -ny / m } };
-}
-function umbraCenter() { // 본그림자 중심선이 지구에 닿는 점
-  const M = moonPos(), b = -2 * M.dot(L), c = M.lengthSq() - 1, disc = b * b - 4 * c; if (disc < 0) return null;
-  const t = (-b - Math.sqrt(disc)) / 2; return M.clone().sub(L.clone().multiplyScalar(t));
-}
-
-/* ═════ 지표 시점(2D) ═════ */
-let groundW = 0, groundH = 0;
-function sizeGround() { const r = cv2.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2); groundW = r.width; groundH = r.height; cv2.width = groundW * dpr; cv2.height = groundH * dpr; g2.setTransform(dpr, 0, 0, dpr, 0, 0); }
-const gStars = Array.from({ length: 90 }, () => [Math.random(), Math.random() * 0.7, Math.random()]);
-function drawGround(sky, extra) {
-  const c = g2, w = groundW, h = groundH; if (!w) return;
-  const night = sky.night, f = sky.frac || 0, b = night ? 0 : 1 - 0.93 * Math.pow(f, 2.4);
-  const gr = c.createLinearGradient(0, 0, 0, h);
-  if (night) { gr.addColorStop(0, '#03060f'); gr.addColorStop(1, '#0d1838'); }
-  else { gr.addColorStop(0, `rgb(${30 * b + 3 | 0},${105 * b + 5 | 0},${205 * b + 14 | 0})`); gr.addColorStop(1, `rgb(${150 * b + 12 | 0},${200 * b + 14 | 0},${245 * b + 30 | 0})`); }
-  c.fillStyle = gr; c.fillRect(0, 0, w, h);
-  const sa = night ? 1 : Math.max(0, (f - 0.9) / 0.1);
-  if (sa > 0) gStars.forEach(s => { c.fillStyle = `rgba(230,238,255,${(0.4 + 0.6 * s[2]) * sa})`; c.fillRect(s[0] * w, s[1] * h, 1.6, 1.6); });
-  const cx = w * 0.5, cy = h * 0.4, r = Math.min(w, h) * 0.13;
-  if (!night) {
-    if (f >= 0.999) { // 코로나
-      const cg = c.createRadialGradient(cx, cy, r * 0.95, cx, cy, r * 3.2); cg.addColorStop(0, 'rgba(255,255,255,.95)'); cg.addColorStop(0.25, 'rgba(220,230,255,.45)'); cg.addColorStop(1, 'rgba(200,220,255,0)');
-      c.fillStyle = cg; c.beginPath(); c.arc(cx, cy, r * 3.2, 0, 7); c.fill();
-      c.strokeStyle = 'rgba(255,255,255,.35)'; c.lineWidth = 1.2;
-      for (let i = 0; i < 26; i++) { const a = i / 26 * Math.PI * 2 + 0.3 * Math.sin(i * 7), l = r * (1.5 + (i % 5) * 0.35); c.beginPath(); c.moveTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r); c.lineTo(cx + Math.cos(a) * l, cy + Math.sin(a) * l); c.stroke(); }
-      c.fillStyle = '#04050a'; c.beginPath(); c.arc(cx, cy, r * 1.01, 0, 7); c.fill();
-      c.fillStyle = 'rgba(255,90,110,.8)'; c.beginPath(); c.arc(cx - r * 0.98, cy + r * 0.2, 2.2, 0, 7); c.fill(); // 홍염
-    } else {
-      const sg = c.createRadialGradient(cx, cy, r * 0.2, cx, cy, r * 2.6); sg.addColorStop(0, `rgba(255,236,170,${0.55 * b + 0.1})`); sg.addColorStop(1, 'rgba(255,200,90,0)');
-      c.fillStyle = sg; c.beginPath(); c.arc(cx, cy, r * 2.6, 0, 7); c.fill();
-      const s2 = c.createRadialGradient(cx - r * 0.3, cy - r * 0.3, r * 0.1, cx, cy, r); s2.addColorStop(0, '#fffbe6'); s2.addColorStop(1, '#ffd25a');
-      c.fillStyle = s2; c.beginPath(); c.arc(cx, cy, r, 0, 7); c.fill();
-      if (sky.off < 6) { c.fillStyle = '#0b0d14'; c.beginPath(); c.arc(cx + sky.dir.x * sky.off * r, cy + sky.dir.y * sky.off * r, r * 1.03, 0, 7); c.fill(); }
-      if (f > 0.94) { const dx = cx - sky.dir.x * r, dy = cy - sky.dir.y * r, dg = c.createRadialGradient(dx, dy, 0, dx, dy, r * 0.9); dg.addColorStop(0, 'rgba(255,255,255,1)'); dg.addColorStop(0.15, 'rgba(255,255,240,.8)'); dg.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = dg; c.beginPath(); c.arc(dx, dy, r * 0.9, 0, 7); c.fill(); }
-    }
-  }
-  // 언덕 + 율이 실루엣
-  c.fillStyle = night ? '#02040a' : `rgb(${10 + 20 * b | 0},${22 + 40 * b | 0},${18 + 26 * b | 0})`;
-  c.beginPath(); c.moveTo(0, h); c.lineTo(0, h * 0.86); c.quadraticCurveTo(w * 0.2, h * 0.76, w * 0.42, h * 0.87); c.quadraticCurveTo(w * 0.7, h * 0.95, w, h * 0.82); c.lineTo(w, h); c.fill();
-  const yx = w * 0.16, yy = h * 0.8, s = Math.min(w, h) * 0.035; c.fillStyle = '#05070c';
-  c.beginPath(); c.arc(yx, yy, s, 0, 7); c.fill(); c.beginPath(); c.moveTo(yx - s * 0.9, yy - s * 0.4); c.lineTo(yx - s * 0.5, yy - s * 1.6); c.lineTo(yx - s * 0.1, yy - s * 0.7); c.fill();
-  c.beginPath(); c.moveTo(yx + s * 0.9, yy - s * 0.4); c.lineTo(yx + s * 0.5, yy - s * 1.6); c.lineTo(yx + s * 0.1, yy - s * 0.7); c.fill();
-  c.fillStyle = '#e23b4e'; c.beginPath(); c.arc(yx, yy - s * 1.05, s * 0.28, 0, 7); c.fill();
-  c.fillStyle = '#05070c'; c.fillRect(yx - s * 0.8, yy + s * 0.6, s * 1.6, s * 1.3);
-  // 라벨
-  c.font = '800 12px -apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif'; c.textBaseline = 'middle';
-  c.fillStyle = 'rgba(0,0,0,.45)'; c.fillRect(8, 8, 160, 22); c.fillStyle = '#fff'; c.textAlign = 'left'; c.fillText('👁 율이의 눈 · 지표의 하늘', 14, 19);
-  c.textAlign = 'right'; c.fillStyle = f >= 0.999 ? '#ffe9a8' : '#fff';
-  const lab = night ? '🌙 밤 — 태양이 안 보여요' : (f >= 0.999 ? '✨ 개기일식!' : (f > 0.002 ? `부분일식 · ${Math.round(f * 100)}% 가려짐` : '해가 쨍쨍'));
-  c.fillText(lab, w - 10, 19);
-  c.textAlign = 'center'; c.fillStyle = 'rgba(255,255,255,.75)'; c.fillText('← 동', 28, h - 12); c.fillText('서 →', w - 28, h - 12);
-  if (extra) extra(c, w, h, cx, cy, r);
-}
-
-/* ═════ 카메라 트윈 ═════ */
-const camLook = new THREE.Vector3(), cam = { from: null, to: null, lf: null, lt: null, t: 1, dur: 1 };
-function camTo(pos, look, dur = 1.6) { cam.from = camera.position.clone(); cam.to = pos.clone(); cam.lf = camLook.clone(); cam.lt = look.clone(); cam.t = 0; cam.dur = dur; }
-function camSet(pos, look) { camera.position.copy(pos); camLook.copy(look); camera.lookAt(camLook); cam.t = 1; }
-const ease = (x) => x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
-
-/* ═════ UI ═════ */
-const hud = $('#hud'), dlg = $('#dlg'), screen = $('#screen'), toastEl = $('#toast'), banner = $('#banner'), gq = $('#gq'), joyEl = $('#joy');
-let toastT = 0;
-function toast(html, bad) { toastEl.innerHTML = html; toastEl.className = 'on' + (bad ? ' bad' : ''); clearTimeout(toastT); toastT = setTimeout(() => toastEl.className = '', 2200); }
-function showBanner(small, big) { banner.innerHTML = `<small>${small}</small>${big}`; banner.className = ''; void banner.offsetWidth; banner.className = 'on'; }
-function say(lines, done) {
-  let i = 0, typing = 0, full = '';
-  dlg.classList.remove('hide');
-  function show() {
-    const [who, text] = lines[i], ch = CHARS[who];
-    dlg.className = who; dlg.querySelector('.d-por').innerHTML = PORTRAIT[who];
-    dlg.querySelector('.d-name').innerHTML = `<span style="color:${ch.color}">${ch.name}</span> <span style="opacity:.5">${ch.en}</span>`;
-    full = text; const el = dlg.querySelector('.d-text'); el.innerHTML = ''; let k = 0; const plain = text.replace(/<[^>]+>/g, '');
-    clearInterval(typing); typing = setInterval(() => { k += 2; el.textContent = plain.slice(0, k); if (k % 6 === 0) tone(who === 'nox' ? 180 : who === 'lumi' ? 900 : 600, 0.03, 'square', 0.015); if (k >= plain.length) { clearInterval(typing); typing = 0; el.innerHTML = full; } }, 22);
-  }
-  dlg.onclick = () => {
-    if (typing) { clearInterval(typing); typing = 0; dlg.querySelector('.d-text').innerHTML = full; return; }
-    i++; if (i < lines.length) show(); else { dlg.classList.add('hide'); dlg.onclick = null; done && done(); }
-  };
-  show();
-}
-function gatesHud(cur) { $('#h-gates').innerHTML = STAGE5.gates.map((g, i) => `<i class="${i < cur ? 'ok' : i === cur ? 'on' : ''}">${i < cur ? '✓' : i + 1}<span>·${g.name}</span></i>`).join(''); }
-function setTimer(frac) { const t = $('#h-timer'); t.querySelector('i').style.transform = `scaleX(${Math.max(0, frac)})`; t.classList.toggle('warn', frac < 0.25); }
-$('#b-snd').onclick = () => { muted = !muted; store.set('muted', muted); $('#b-snd').textContent = muted ? '🔇' : '🔊'; };
-$('#b-hq').onclick = () => { hq = !hq; store.set('hq', hq); $('#b-hq').style.opacity = hq ? 1 : 0.4; toast(hq ? '✨ 고화질(빛 번짐) 켬' : '⚡ 가벼운 화질'); };
-$('#b-exit').onclick = () => titleScreen();
-$('#b-snd').textContent = muted ? '🔇' : '🔊'; $('#b-hq').style.opacity = hq ? 1 : 0.4;
-
-/* ═════ 게임 상태 ═════ */
-const G = { mode: 'title', gate: -1, tLeft: 0, tMax: 1, running: false, yulP: null, meter: 0, stun: 0, hold: 0, joy: null, keys: {}, qi: 0, anim: 0, totalOnce: false, lastTick: 0, cloudsV: [] };
-
-function titleScreen() {
-  G.mode = 'title'; G.running = false; hud.classList.add('hide'); dlg.classList.add('hide'); gq.classList.add('hide'); joyEl.classList.add('hide');
-  yul.visible = false; clouds.forEach(c => c.visible = false); theta = -40;
-  screen.className = 'on'; screen.innerHTML = `<div class="sc"><div class="eye">MID-SCI · 3D OBSERVATORY</div>
-    <h1>율이의<br><span>하늘 퀘스트</span></h1>
-    <p>우주와 지표, <b>두 시점</b>을 오가며 빛을 훔치는 <b style="color:var(--nox)">녹스</b>를 막아요. 관문을 하나라도 놓치면 스테이지 처음부터!</p>
-    <button class="btn pri" id="go">▶ STAGE 5 · 그림자 추격전</button>
-    <button class="btn sec" id="who">등장인물 소개 (이름의 뜻)</button>
-    <div class="stage-list">🔒 STAGE 1 해돋이 탈환 · 2 북극성 항법 · 3 달 배송 레이스 · 4 두 시점 퍼즐 · 6 붉은 달 — 준비 중<br>📘 개념 공부는 <a href="../earth-moon/" style="color:var(--cy)">지구와 달 실험실</a>에서</div></div>`;
-  $('#go').onclick = () => { tone(1, 0.01); store.get('seenChars', false) ? startStage(true) : charsScreen(true); };
-  $('#who').onclick = () => charsScreen(false);
-}
-function charsScreen(thenStart) {
-  screen.className = 'on';
-  screen.innerHTML = `<div class="sc"><div class="eye">CHARACTERS</div><h1 style="font-size:30px;margin-top:4vh">등장인물</h1>` +
-    ['yul', 'lumi', 'nox'].map(k => { const c = CHARS[k]; return `<div class="card"><div class="por">${PORTRAIT[k]}</div><div><h3 style="color:${c.color}">${c.name}<small>${c.en}</small></h3><div class="role">${c.role}</div><p>${c.about}</p>${c.word ? `<div class="word">📖 ${c.word}</div>` : ''}</div></div>`; }).join('') +
-    `<button class="btn pri" id="ok">${thenStart ? '▶ 출동!' : '← 돌아가기'}</button></div>`;
-  store.set('seenChars', true);
-  $('#ok').onclick = () => thenStart ? startStage(true) : titleScreen();
-}
-
-function startStage(withIntro) {
-  screen.className = ''; screen.innerHTML = ''; hud.classList.remove('hide');
-  $('#h-stage').textContent = `STAGE ${STAGE5.no} · ${STAGE5.title}`;
-  G.mode = 'stage'; theta = -40; yul.visible = false; G.yulP = null; G.meter = 0; G.totalOnce = false;
-  clouds.forEach(c => c.visible = false); $('#h-meter').classList.add('hide'); gq.classList.add('hide'); joyEl.classList.add('hide');
-  camTo(new THREE.Vector3(4.2, 19, 8.5), new THREE.Vector3(4.2, 0, 0), 2.2);
-  gatesHud(0); $('#h-goal').innerHTML = ''; setTimer(1);
-  const go = () => runGate(0);
-  withIntro ? say(STAGE5.intro, go) : say([STAGE5.fail], go);
-}
-
-function runGate(i) {
-  G.gate = i; const gd = STAGE5.gates[i]; gatesHud(i);
-  const begin = () => {
-    showBanner(`관문 ${i + 1} / 4`, gd.name); sfx.gate();
-    $('#h-goal').innerHTML = gd.goal; G.tMax = G.tLeft = gd.time; G.running = true; G.hold = 0; G.lastTick = 0;
-    if (gd.id === 'chase') { $('#h-meter').classList.remove('hide'); G.meter = 0; spawnClouds(); }
-    if (gd.id === 'quiz') { G.qi = 0; showQ(); }
-    toast('💡 ' + (gd.hint || ''), false);
-  };
-  // 게이트별 카메라·상태
-  if (gd.id === 'align') { theta = -40; camTo(new THREE.Vector3(4.2, 19, 8.5), new THREE.Vector3(4.2, 0, 0), 1.6); }
-  if (gd.id === 'land') { theta = -6; camTo(new THREE.Vector3(3.05, 0.95, 0.35), new THREE.Vector3(0, 0.45, 0), 2.4); }
-  if (gd.id === 'chase') { theta = -6; }
-  if (gd.id === 'quiz') { camTo(new THREE.Vector3(6.5, 2.2, 3.5), new THREE.Vector3(1.5, 0.3, 0), 2); }
-  gd.pre ? say(gd.pre, begin) : begin();
-}
-function gateDone() {
-  G.running = false; sfx.ok(); const gd = STAGE5.gates[G.gate]; joyEl.classList.add('hide');
-  const next = () => { if (G.gate + 1 < STAGE5.gates.length) runGate(G.gate + 1); else stageClear(); };
-  gd.done ? say(gd.done, next) : next();
-}
-function stageFail(reason) {
-  if (!G.running && G.mode !== 'stage') return;
-  G.running = false; sfx.bad(); joyEl.classList.add('hide'); gq.classList.add('hide'); clouds.forEach(c => c.visible = false);
-  screen.className = 'on fail';
-  screen.innerHTML = `<div class="sc fail" style="text-align:center"><div class="eye" style="color:var(--nox)">GATE ${G.gate + 1} FAILED</div><h1 style="font-size:30px">녹스가 코로나를 훔쳐갔다!</h1>
-    <div class="card" style="text-align:left"><div class="por">${PORTRAIT.lumi}</div><div><h3 style="color:var(--cy)">루미의 분석</h3><p>${reason}</p></div></div>
-    <button class="btn pri" id="re">↺ 스테이지 처음부터</button><button class="btn sec" id="ti">타이틀로</button></div>`;
-  $('#re').onclick = () => startStage(false); $('#ti').onclick = titleScreen;
-}
-function stageClear() {
-  G.running = false; hud.classList.add('hide'); sfx.total();
-  camTo(new THREE.Vector3(-3.5, 3.2, 7.5), new THREE.Vector3(1.8, 0.2, 0), 3);
-  say(STAGE5.clear, () => {
-    store.set('clear-s5', true);
-    screen.className = 'on';
-    screen.innerHTML = `<div class="sc"><div class="eye">STAGE 5 CLEAR</div><h1 style="font-size:34px;margin-top:4vh">🏆 코로나를 지켰다!</h1>
-      <p>오늘 율이가 본 <b>일식</b>을 시험지 4요소로 정리하면:</p>
-      <div class="sum">${STAGE5.summary.map(s => `<div><span>${s[0]}</span><p>${s[1]}</p></div>`).join('')}</div>
-      <p style="font-size:13px;color:var(--muted)">※ 월식은 반대로 태양-<b>지구</b>-달, 위상 <b>망</b>, 달의 <b>왼쪽(동쪽)</b>부터, <b>밤인 모든 지역</b>에서 관찰 — 녹스가 다음에 노리는 장면이에요.</p>
-      <button class="btn pri" id="again">↺ 다시 도전 (더 빠르게!)</button><a class="btn sec" href="../earth-moon/#u5">📘 일식·월식 단원 복습</a><button class="btn sec" id="ti">타이틀로</button></div>`;
-    $('#again').onclick = () => startStage(false); $('#ti').onclick = titleScreen;
+function ov(r1, r2, d) { if (d >= r1 + r2) return 0; if (d <= Math.abs(r1 - r2)) return Math.PI * Math.min(r1, r2) ** 2;
+  const a = r1 * r1 * Math.acos(Math.max(-1, Math.min(1, (d * d + r1 * r1 - r2 * r2) / (2 * d * r1)))), b = r2 * r2 * Math.acos(Math.max(-1, Math.min(1, (d * d + r2 * r2 - r1 * r1) / (2 * d * r2))));
+  return a + b - 0.5 * Math.sqrt(Math.max(0, (-d + r1 + r2) * (d + r1 - r2) * (d - r1 + r2) * (d + r1 + r2))); }
+function sunCover(P) { // P에서 본 태양이 달(또는 지구)에 가려진 비율
+  let best = 0;
+  [[MOON, RM], [new THREE.Vector3(), 1]].forEach(([C, R]) => {
+    const v = C.clone().sub(P), d = v.length(); if (d < R) return; const cs = v.dot(L) / d; if (cs <= 0) return;
+    best = Math.max(best, Math.min(1, ov(SUN_ANG, Math.asin(Math.min(1, R / d)), Math.acos(Math.min(1, cs))) / (Math.PI * SUN_ANG * SUN_ANG)));
   });
+  return best;
 }
 
-/* 관문 4: 녹스의 질문 */
-function showQ() {
-  const gd = STAGE5.gates[3], q = gd.qs[G.qi]; G.tLeft = G.tMax = gd.time;
-  gq.classList.remove('hide');
-  gq.innerHTML = `<div class="q">🟣 ${q.q}</div><div class="o">${q.opts.map((o, k) => `<button data-k="${k}">${o}</button>`).join('')}</div>`;
-  gq.querySelectorAll('button').forEach(b => b.onclick = () => {
-    if (!G.running) return; const k = +b.dataset.k;
-    if (k === q.a) { b.classList.add('ok'); sfx.blip(); toast('✅ ' + q.why); G.running = false; setTimeout(() => { G.qi++; if (G.qi < gd.qs.length) { G.running = true; showQ(); } else { gq.classList.add('hide'); G.running = true; gateDone(); } }, 1400); }
-    else { b.classList.add('no'); stageFail('오답이에요. ' + q.why); }
-  });
-}
-
-/* 녹스 구름 */
-function spawnClouds() {
-  G.cloudsV = clouds.map((c, i) => {
-    const lat = (24 + i * 9) * D2R, z = 0.35 - i * 0.35, P = new THREE.Vector3(Math.cos(lat), Math.sin(lat), z).normalize();
-    c.visible = true; return { P, v: new THREE.Vector3((Math.random() - 0.5) * 0.02, (Math.random() - 0.5) * 0.12, (Math.random() - 0.5) * 0.12) };
-  });
-}
+/* ═════ 루미호 ═════ */
+const ship = { pos: new THREE.Vector3(), yaw: 0, pitch: 0, speed: 0 };
+const fwd = () => new THREE.Vector3(-Math.sin(ship.yaw) * Math.cos(ship.pitch), Math.sin(ship.pitch), -Math.cos(ship.yaw) * Math.cos(ship.pitch));
+function lookAtTarget(t) { const d = t.clone().sub(ship.pos).normalize(); return { yaw: Math.atan2(-d.x, -d.z), pitch: Math.asin(Math.max(-1, Math.min(1, d.y))) }; }
+function placeShip(st) { ship.pos.copy(V(st.pos)); const a = lookAtTarget(V(st.look)); ship.yaw = a.yaw; ship.pitch = a.pitch; ship.speed = 0; for (let i = 0; i < TRAIL; i++) trailPos.set([ship.pos.x, ship.pos.y, ship.pos.z], i * 3); trailG.attributes.position.needsUpdate = true; }
 
 /* ═════ 입력 ═════ */
-const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
-function pick(ev) { const r = cv3.getBoundingClientRect(); ndc.set(((ev.clientX - r.left) / r.width) * 2 - 1, -((ev.clientY - r.top) / r.height) * 2 + 1); ray.setFromCamera(ndc, camera); }
-let dragging = false;
-cv3.addEventListener('pointerdown', (ev) => {
-  if (!G.running) return; dragging = true; try { cv3.setPointerCapture(ev.pointerId); } catch (e) {}
-  const gid = STAGE5.gates[G.gate].id;
-  if (gid === 'align') alignDrag(ev);
-  if (gid === 'land') landTap(ev);
-  if (gid === 'chase') { const r = cv3.getBoundingClientRect(); G.joy = { x0: ev.clientX, y0: ev.clientY, dx: 0, dy: 0 }; joyEl.style.left = (ev.clientX - r.left) + 'px'; joyEl.style.top = (ev.clientY - r.top) + 'px'; joyEl.classList.remove('hide'); joyEl.querySelector('i').style.transform = ''; }
+const input = { up: 0, down: 0, left: 0, right: 0, fwd: 0, back: 0 }; let aim = false;
+document.querySelectorAll('#pad button,#thr button').forEach(b => {
+  const k = b.dataset.k;
+  const on = (e) => { e.preventDefault(); audioInit(); if (k === 'aim') { aim = !aim; b.classList.toggle('on', aim); if (aim) toast('🎯 자동 조준 — 목표 쪽으로 기수를 돌려요'); return; } input[k] = 1; b.classList.add('on'); if (k !== 'fwd' && k !== 'back') setAim(false); };
+  const off = (e) => { if (k === 'aim') return; input[k] = 0; b.classList.remove('on'); };
+  b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('pointerleave', off);
 });
-cv3.addEventListener('pointermove', (ev) => {
-  if (!dragging || !G.running) return; const gid = STAGE5.gates[G.gate].id;
-  if (gid === 'align') alignDrag(ev);
-  if (gid === 'chase' && G.joy) { let dx = ev.clientX - G.joy.x0, dy = ev.clientY - G.joy.y0; const m = Math.hypot(dx, dy), k = m > 50 ? 50 / m : 1; G.joy.dx = dx * k; G.joy.dy = dy * k; joyEl.querySelector('i').style.transform = `translate(${G.joy.dx}px,${G.joy.dy}px)`; }
-});
-const endDrag = () => { dragging = false; G.joy = null; joyEl.classList.add('hide'); };
-cv3.addEventListener('pointerup', endDrag); cv3.addEventListener('pointercancel', endDrag);
-window.addEventListener('keydown', e => { G.keys[e.key] = true; }); window.addEventListener('keyup', e => { G.keys[e.key] = false; });
-const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -MOON_Y), hitP = new THREE.Vector3();
-function alignDrag(ev) { pick(ev); if (ray.ray.intersectPlane(plane, hitP)) { let a = Math.atan2(-hitP.z, hitP.x) / D2R; theta = Math.max(-80, Math.min(80, a)); } }
-function landTap(ev) {
-  pick(ev); const hit = ray.intersectObject(earth)[0]; if (!hit) return;
-  const P = hit.point.clone().normalize(), s = skyAt(P);
-  G.yulP = P; yul.visible = true;
-  if (s.zone === 'umbra') { toast('🎯 본그림자 착륙! 개기일식 구역'); setTimeout(gateDone, 900); G.running = false; return; }
-  sfx.bad(); G.tLeft -= 3;
-  toast(s.zone === 'night' ? '🌙 여긴 밤 — 태양이 안 보여요 (−3초)' : s.zone === 'pen' ? '🌗 반그림자 — 부분일식만 보여요 (−3초)' : '☀️ 그림자 밖 — 일식이 안 보여요 (−3초)', true);
+function setAim(v) { aim = v; $('#pad [data-k=aim]').classList.toggle('on', v); }
+const KEYMAP = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right', w: 'fwd', W: 'fwd', s: 'back', S: 'back' };
+window.addEventListener('keydown', e => { audioInit(); if (KEYMAP[e.key]) { input[KEYMAP[e.key]] = 1; if (!/fwd|back/.test(KEYMAP[e.key])) setAim(false); e.preventDefault(); } if (e.key === ' ') { setAim(!aim); e.preventDefault(); } if (e.key === 'Enter' && G.talking) G.skip && G.skip(); });
+window.addEventListener('keyup', e => { if (KEYMAP[e.key]) input[KEYMAP[e.key]] = 0; });
+let swapped = false; $('#swap').onclick = () => { swapped = !swapped; toast(swapped ? '📡 큰 화면: 관측 드론 (밖에서 본 모습)' : '🚀 큰 화면: 루미호 조종석'); };
+
+/* ═════ UI ═════ */
+const hud = $('#hud'), dash = $('#dash'), pad = $('#pad'), thr = $('#thr'), sub = $('#sub'), qa = $('#qa'), screen = $('#screen'), toastEl = $('#toast'), banner = $('#banner'), pipf = $('#pipf');
+let toastT = 0;
+function toast(h, bad) { toastEl.innerHTML = h; toastEl.className = 'on' + (bad ? ' bad' : ''); clearTimeout(toastT); toastT = setTimeout(() => toastEl.className = '', 2300); }
+function showBanner(s, b) { banner.innerHTML = `<small>${s}</small>${b}`; banner.className = ''; void banner.offsetWidth; banner.className = 'on'; }
+function flightUI(on) { [hud, dash, pad, thr].forEach(e => e.classList.toggle('hide', !on)); }
+$('#b-snd').onclick = () => { muted = !muted; store.set('muted', muted); if (master) master.gain.value = muted ? 0 : 1; paintBtns(); if (muted && synth) synth.cancel(); };
+$('#b-voice').onclick = () => { voiceOn = !voiceOn; store.set('voice', voiceOn); paintBtns(); if (!voiceOn && synth) synth.cancel(); toast(voiceOn ? (koVoice ? '🗣 음성 켬' : '🗣 이 기기에 한국어 음성이 없어 자막만 나와요') : '🗣 음성 끔 (자막만)'); };
+$('#b-exit').onclick = () => titleScreen();
+function paintBtns() { $('#b-snd').textContent = muted ? '🔇' : '🔊'; $('#b-voice').classList.toggle('off', !voiceOn); }
+paintBtns();
+
+/* 대사: 자막 + 음성, 끝나면 자동 진행 (탭하면 건너뛰기) */
+async function say(lines) {
+  G.talking = true; sub.classList.remove('hide');
+  for (const [who, text] of lines) {
+    const ch = CHARS[who]; sub.className = who; sub.querySelector('.por').innerHTML = PORTRAIT[who];
+    sub.querySelector('.nm').innerHTML = `<span style="color:${ch.color}">${ch.name}</span> <span style="opacity:.5">${ch.en}</span>`;
+    sub.querySelector('.tt').innerHTML = text;
+    await new Promise(res => { let done = false; const fin = () => { if (done) return; done = true; G.skip = null; sub.onclick = null; res(); };
+      G.skip = () => { if (synth) synth.cancel(); fin(); }; sub.onclick = G.skip; speak(who, text).then(fin); });
+  }
+  sub.classList.add('hide'); G.talking = false;
+}
+
+/* ═════ 게임 상태 ═════ */
+const G = { lookBack: false, mode: 'title', mi: -1, running: false, t: 0, tMax: 1, idx: 0, hold: 0, talking: false, skip: null, mines: [], penSeen: false, lastTick: 0, gq: 0, ganim: 0 };
+function clearObjects() { ringsG.clear(); minesG.clear(); G.mines = []; beacon.visible = false; }
+function buildRings(list) { ringsG.clear(); list.forEach((p, i) => { const r = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.016, 12, 48), i === 0 ? ringMatOn : ringMat); r.position.copy(V(p)); const nx = list[i + 1] ? V(list[i + 1]) : MOON.clone(); r.lookAt(nx); ringsG.add(r); }); }
+
+function titleScreen() {
+  G.mode = 'title'; G.running = false; flightUI(false); sub.classList.add('hide'); qa.classList.add('hide'); $('#sky').classList.add('hide'); clearObjects(); if (synth) synth.cancel();
+  screen.className = 'on';
+  screen.innerHTML = `<div class="sc"><div class="eye">MID-SCI · 3D SPACE OBSERVATORY</div><h1>율이의<br><span>하늘 퀘스트</span></h1>
+    <p>요크셔테리어 관측 대원 <b>율이</b>가 우주선 <b>루미호</b>를 몰고 출동! 조종석에서 직접 날아다니며, 빛을 훔치는 <b style="color:var(--nox)">녹스</b>를 막아요.</p>
+    <button class="btn pri" id="go">▶ EPISODE 1 · 그림자 속으로</button>
+    <button class="btn sec" id="who">등장인물 소개 (이름의 뜻)</button>
+    <div class="howto">🎮 <b>조종</b> — 왼쪽 방향 패드: 기수 돌리기 · 🎯: 목표 자동 조준 · 오른쪽 <b>추진</b>을 누르고 있으면 전진<br>⌨️ 키보드 — 화살표 · W/S · Space(조준)<br>📡 오른쪽 위 모니터 = 멀리 멈춰 있는 드론이 찍는 바깥 모습 (⇄로 크게)<br>🗣 루미·녹스는 목소리로 말해요 (🗣 버튼으로 끄기)<br>📱 가로 화면 추천 · 공유 메뉴 → <b>홈 화면에 추가</b>하면 앱처럼 실행<br>🔒 EPISODE 2 붉은 달(월식) · 3 달 모양 탐사 — 준비 중</div></div>`;
+  $('#go').onclick = () => { unlockAudio(); store.get('seen', false) ? startEpisode() : charsScreen(true); };
+  $('#who').onclick = () => charsScreen(false);
+}
+function unlockAudio() { audioInit(); if (actx && actx.state === 'suspended') actx.resume(); if (synth && voiceOn) { try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; synth.speak(u); } catch (e) {} } }
+function charsScreen(thenStart) {
+  screen.className = 'on';
+  screen.innerHTML = `<div class="sc"><div class="eye">CHARACTERS</div><h1 style="font-size:30px;margin-top:3vh">등장인물</h1>` +
+    ['yul', 'lumi', 'nox'].map(k => { const c = CHARS[k]; return `<div class="card"><div class="por">${PORTRAIT[k]}</div><div><h3 style="color:${c.color}">${c.name}<small>${c.en}</small></h3><div class="role">${k === 'lumi' ? '루미호의 인공지능 · 길잡이' : c.role}</div><p>${c.about}</p>${c.word ? `<div class="word">📖 ${c.word}</div>` : ''}</div></div>`; }).join('') +
+    `<button class="btn pri" id="ok">${thenStart ? '▶ 출동!' : '← 돌아가기'}</button></div>`;
+  store.set('seen', true);
+  $('#ok').onclick = () => { unlockAudio(); thenStart ? startEpisode() : titleScreen(); };
+}
+async function startEpisode() {
+  screen.className = ''; screen.innerHTML = ''; G.mode = 'fly';
+  placeShip(EP1.missions[0].start); flightUI(true); hud.querySelector('#m-name').textContent = EP1.sub;
+  $('#m-goal').textContent = ''; showBanner(EP1.sub, EP1.title);
+  await say(EP1.prologue);
+  startMission(0, true);
+}
+async function startMission(i, first) {
+  const m = EP1.missions[i]; G.mi = i; G.running = false; G.lookBack = false; G.idx = 0; G.hold = 0; G.penSeen = false; G.lastTick = 0; clearObjects(); setAim(false);
+  $('#m-name').textContent = `M${i + 1} · ${m.name}`; $('#m-goal').innerHTML = m.goal;
+  if (m.type === 'ground') return groundMission(m);
+  $('#sky').classList.add('hide'); flightUI(true); placeShip(m.start);
+  if (m.rings) buildRings(m.rings);
+  if (m.type === 'descend') { beacon.position.copy(V(m.land)).multiplyScalar(1.03); beacon.lookAt(beacon.position.clone().multiplyScalar(2)); beacon.rotateX(Math.PI / 2); beacon.visible = true; spawnMines(); }
+  showBanner(`MISSION ${i + 1} / ${EP1.missions.length}`, m.name);
+  if (first && m.pre) await say(m.pre);
+  G.t = G.tMax = m.time; G.running = true; G.mode = 'fly';
+}
+function spawnMines() {
+  const base = [[3.6, 0.66, 0.05], [2.6, 0.55, -0.06], [2.2, 0.68, 0.06], [1.5, 0.58, -0.04], [3.2, 0.52, 0.0]];
+  G.mines = base.map((b, i) => { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: mineTex, blending: THREE.NormalBlending, depthWrite: false })); s.scale.set(0.12, 0.12, 1); minesG.add(s);
+    return { s, b: V(b), ph: i * 1.7, amp: 0.11 + (i % 2) * 0.05 }; });
+}
+async function missionDone() {
+  G.running = false; sfx.ok(); const m = EP1.missions[G.mi];
+  if (m.done) await say(m.done);
+  if (G.mi + 1 < EP1.missions.length) startMission(G.mi + 1, true); else episodeClear();
+}
+async function missionFail(reason) {
+  if (!G.running) return; G.running = false; sfx.bad(); input.fwd = input.back = 0; ship.speed = 0;
+  toast('⚠ ' + reason, true);
+  await say([['nox', '하하! 거기까지다… 다시 해 봐!'], ['lumi', reason + ' 이 미션 처음부터 다시 하자.']]);
+  startMission(G.mi, false);
+}
+async function episodeClear() {
+  G.mode = 'clear'; flightUI(false); qa.classList.add('hide'); sfx.total();
+  await say(EP1.clear); store.set('clear-ep1', true);
+  screen.className = 'on';
+  screen.innerHTML = `<div class="sc"><div class="eye">EPISODE 1 CLEAR</div><h1 style="font-size:34px;margin-top:3vh">🏆 코로나를 지켰다!</h1>
+    <p>오늘 율이가 <b>직접 날아서 본</b> 일식을 시험지 4요소로 정리하면:</p>
+    <div class="sum">${EP1.summary.map(s => `<div><span>${s[0]}</span><p style="margin:0">${s[1]}</p></div>`).join('')}</div>
+    <p style="font-size:13px;color:var(--muted)">※ 조종석에서 태양이 100% 가려진 곳 = <b>본그림자</b>, 일부만 가려진 곳 = <b>반그림자</b>. 지구 위 그 그림자 안에 있는 사람이 개기일식·부분일식을 봐요.</p>
+    <button class="btn pri" id="again">↺ 다시 비행</button><a class="btn sec" href="../earth-moon/#u5">📘 일식·월식 단원 복습</a><button class="btn sec" id="ti">타이틀로</button></div>`;
+  $('#again').onclick = startEpisode; $('#ti').onclick = titleScreen;
+}
+
+/* ═════ M4 지표 관측 (착륙선 캐노피) ═════ */
+const sky = $('#sky'), sc = sky.getContext('2d'); let skyW = 0, skyH = 0;
+function sizeSky() { const r = sky.getBoundingClientRect(), d = Math.min(devicePixelRatio || 1, 2); skyW = r.width; skyH = r.height; sky.width = skyW * d; sky.height = skyH * d; sc.setTransform(d, 0, 0, d, 0, 0); }
+const gStars = Array.from({ length: 120 }, () => [Math.random(), Math.random() * 0.7, Math.random()]);
+function drawSky(off) {
+  if (!skyW) sizeSky(); const c = sc, w = skyW, h = skyH, r = Math.min(w, h) * 0.11, cx = w * 0.5, cy = h * 0.4;
+  const f = off <= 0.001 ? 1 : Math.min(1, ov(1, 1.03, off) / Math.PI), b = 1 - 0.94 * Math.pow(f, 2.4);
+  const g = c.createLinearGradient(0, 0, 0, h); g.addColorStop(0, `rgb(${30 * b + 3 | 0},${105 * b + 6 | 0},${205 * b + 16 | 0})`); g.addColorStop(1, `rgb(${150 * b + 14 | 0},${200 * b + 16 | 0},${245 * b + 30 | 0})`);
+  c.fillStyle = g; c.fillRect(0, 0, w, h);
+  const sa = Math.max(0, (f - 0.9) / 0.1); if (sa > 0) gStars.forEach(s => { c.fillStyle = `rgba(230,238,255,${(0.4 + 0.6 * s[2]) * sa})`; c.fillRect(s[0] * w, s[1] * h, 1.7, 1.7); });
+  if (f >= 0.999) { const cg = c.createRadialGradient(cx, cy, r * 0.95, cx, cy, r * 3.4); cg.addColorStop(0, 'rgba(255,255,255,.95)'); cg.addColorStop(0.25, 'rgba(220,230,255,.45)'); cg.addColorStop(1, 'rgba(200,220,255,0)'); c.fillStyle = cg; c.beginPath(); c.arc(cx, cy, r * 3.4, 0, 7); c.fill();
+    c.strokeStyle = 'rgba(255,255,255,.35)'; c.lineWidth = 1.2; for (let i = 0; i < 30; i++) { const a = i / 30 * 6.283 + 0.3 * Math.sin(i * 7), l = r * (1.5 + (i % 5) * 0.4); c.beginPath(); c.moveTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r); c.lineTo(cx + Math.cos(a) * l, cy + Math.sin(a) * l); c.stroke(); }
+    c.fillStyle = '#04050a'; c.beginPath(); c.arc(cx, cy, r * 1.01, 0, 7); c.fill(); }
+  else { const sg = c.createRadialGradient(cx, cy, r * 0.2, cx, cy, r * 2.8); sg.addColorStop(0, `rgba(255,236,170,${0.55 * b + 0.1})`); sg.addColorStop(1, 'rgba(255,200,90,0)'); c.fillStyle = sg; c.beginPath(); c.arc(cx, cy, r * 2.8, 0, 7); c.fill();
+    const s2 = c.createRadialGradient(cx - r * 0.3, cy - r * 0.3, r * 0.1, cx, cy, r); s2.addColorStop(0, '#fffbe6'); s2.addColorStop(1, '#ffd25a'); c.fillStyle = s2; c.beginPath(); c.arc(cx, cy, r, 0, 7); c.fill();
+    c.fillStyle = '#0b0d14'; c.beginPath(); c.arc(cx + off * r, cy, r * 1.03, 0, 7); c.fill();
+    if (f > 0.93) { const dx = cx - r, dg = c.createRadialGradient(dx, cy, 0, dx, cy, r); dg.addColorStop(0, '#fff'); dg.addColorStop(0.15, 'rgba(255,255,240,.8)'); dg.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = dg; c.beginPath(); c.arc(dx, cy, r, 0, 7); c.fill(); } }
+  c.fillStyle = `rgb(${8 + 18 * b | 0},${16 + 36 * b | 0},${14 + 22 * b | 0})`; c.beginPath(); c.moveTo(0, h); c.lineTo(0, h * 0.84); c.quadraticCurveTo(w * 0.25, h * 0.74, w * 0.5, h * 0.84); c.quadraticCurveTo(w * 0.75, h * 0.93, w, h * 0.8); c.lineTo(w, h); c.fill();
+  c.font = '800 13px -apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif'; c.textBaseline = 'middle'; c.textAlign = 'center'; c.fillStyle = 'rgba(255,255,255,.8)';
+  c.fillText('← 동', w * 0.14, h - 14); c.fillText('서 →', w * 0.86, h - 14);
+  c.fillStyle = f >= 0.999 ? '#ffe9a8' : '#fff'; c.fillText(f >= 0.999 ? '✨ 개기일식 — 코로나!' : (f > 0.002 ? `부분일식 · ${Math.round(f * 100)}% 가려짐` : '착륙선 캐노피 · 서울 하늘'), w * 0.5, h * 0.14);
+}
+async function groundMission(m) {
+  G.mode = 'ground'; flightUI(false); hud.classList.remove('hide'); $('#m-timer').classList.add('hide'); $('#tgt').style.display = 'none'; $('#xhair').classList.add('hide');
+  sky.classList.remove('hide'); sizeSky(); showBanner('MISSION 4 / 4', m.name);
+  G.ganim = 0; G.groundPhase = 'intro';
+  await say([['lumi', '하늘을 봐! 달이 오른쪽에서 다가와 태양을 덮기 시작해.']]);
+  G.groundPhase = 'total'; G.ganim = 0;
+  await new Promise(r => setTimeout(r, 6500)); sfx.total();
+  await say([['yul', '깜깜해졌다! 별도 보이고, 태양 둘레에 하얀 왕관이…'], ['lumi', '그게 코로나야. 본그림자 안에 있는 우리만 볼 수 있어!']]);
+  if (m.pre) await say(m.pre);
+  G.groundPhase = 'loop'; G.gq = 0; askQ(m);
+}
+function askQ(m) {
+  const q = m.qs[G.gq]; qa.classList.remove('hide');
+  qa.innerHTML = `<div class="q">🟣 ${q.q}</div><div class="o">${q.opts.map((o, k) => `<button data-k="${k}">${o}</button>`).join('')}</div><div class="h"></div>`;
+  qa.querySelectorAll('button').forEach(b => b.onclick = async () => {
+    if (G.talking) return; const k = +b.dataset.k;
+    if (k === q.a) { b.classList.add('ok'); sfx.ok(); await say([['lumi', '정답! ' + q.why]]); G.gq++; if (G.gq < m.qs.length) askQ(m); else { qa.classList.add('hide'); $('#m-timer').classList.remove('hide'); $('#xhair').classList.remove('hide'); episodeClear(); } }
+    else { b.classList.add('no'); sfx.bad(); qa.querySelector('.h').innerHTML = '💡 ' + q.hint; await say([['nox', '틀렸다! 하하!'], ['lumi', q.hint]]); qa.querySelectorAll('button').forEach(x => x.classList.remove('no')); }
+  });
 }
 
 /* ═════ 루프 ═════ */
+let W = 1, H = 1, pip = { x: 0, y: 0, w: 1, h: 1 };
 function resize() {
-  const r = cv3.getBoundingClientRect(); renderer.setSize(r.width, r.height, false); composer.setSize(r.width, r.height);
-  bloom.resolution.set(r.width, r.height); camera.aspect = r.width / Math.max(1, r.height); camera.updateProjectionMatrix(); sizeGround();
+  W = innerWidth; H = innerHeight; renderer.setSize(W, H, false); composer.setSize(W, H); bloom.resolution.set(W / 2, H / 2);
+  const land = W > H; pip.w = Math.round(land ? Math.min(W * 0.27, 300) : W * 0.46); pip.h = Math.round(land ? Math.min(H * 0.3, pip.w * 0.62) : pip.w * 0.7);
+  pip.x = W - pip.w - 10; pip.y = land ? 58 : 96;
+  Object.assign(pipf.style, { left: pip.x + 'px', top: pip.y + 'px', width: pip.w + 'px', height: pip.h + 'px' });
+  shipCam.aspect = W / H; droneCam.aspect = W / H; $('#rot').classList.toggle('hide', land || G.mode === 'title'); sizeSky();
 }
 window.addEventListener('resize', resize); resize();
-camSet(new THREE.Vector3(-2.5, 3, 8.5), new THREE.Vector3(1.5, 0.2, 0));
 
+const tmp = new THREE.Vector3(), tgtEl = $('#tgt');
 let last = performance.now(), tAll = 0;
+function currentTarget() {
+  const m = EP1.missions[G.mi]; if (!m || G.mode !== 'fly') return null;
+  if (m.type === 'rings' || m.type === 'descend') { if (m.rings && G.idx < m.rings.length) return { p: V(m.rings[G.idx]), n: `링 ${G.idx + 1}` }; if (m.land) return { p: V(m.land).multiplyScalar(1.03), n: '착륙점' }; }
+  if (m.type === 'umbra') return { p: V(m.target), n: '본그림자' };
+  return null;
+}
 function frame(now) {
   const dt = Math.min(0.05, (now - last) / 1000); last = now; tAll += dt;
+  if (G.mode === 'title' || G.mode === 'clear') { // 시네마틱 공전 카메라
+    const a = tAll * 0.06; ship.pos.set(3 + 8.5 * Math.sin(a), 2.2 + Math.sin(a * 0.7), 8.5 * Math.cos(a)); const lk = lookAtTarget(new THREE.Vector3(3, 0.4, 0)); ship.yaw = lk.yaw; ship.pitch = lk.pitch;
+  } else if (G.mode === 'fly') {
+    const ctrl = G.running && !G.talking;
+    if (ctrl) {
+      const yr = (input.left - input.right) * 1.05, pr = (input.up - input.down) * 0.85;
+      ship.yaw += yr * dt; ship.pitch = Math.max(-1.35, Math.min(1.35, ship.pitch + pr * dt));
+      const T = currentTarget();
+      if (G.lookBack && !(input.left || input.right || input.up || input.down)) { const a = lookAtTarget(MOON); let dy = a.yaw - ship.yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); ship.yaw += dy * Math.min(1, 2.2 * dt); ship.pitch += (a.pitch - ship.pitch) * Math.min(1, 2.2 * dt); }
+      else if (aim && T) { const a = lookAtTarget(T.p); let dy = a.yaw - ship.yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); ship.yaw += dy * Math.min(1, 3.2 * dt); ship.pitch += (a.pitch - ship.pitch) * Math.min(1, 3.2 * dt); }
+      ship.speed += (input.fwd * 0.55 - input.back * 0.8) * dt; ship.speed -= ship.speed * 0.28 * dt; ship.speed = Math.max(-0.25, Math.min(1.0, ship.speed));
+    } else ship.speed *= Math.pow(0.05, dt);
+    ship.pos.addScaledVector(fwd(), ship.speed * dt);
+    if (G.running && !G.talking) missionUpdate(dt);
+    // 엔진음
+    if (eng) { const s = Math.abs(ship.speed); eng.g.gain.value = muted ? 0 : 0.012 + s * 0.05 + (input.fwd ? 0.02 : 0); eng.o.frequency.value = 40 + s * 70; eng.o2.frequency.value = 80 + s * 140; eng.f.frequency.value = 220 + s * 900; }
+  }
+  if (G.mode !== 'fly' && eng) eng.g.gain.value = 0;
   // 카메라
-  if (cam.t < 1) { cam.t = Math.min(1, cam.t + dt / cam.dur); const e = ease(cam.t); camera.position.lerpVectors(cam.from, cam.to, e); camLook.lerpVectors(cam.lf, cam.lt, e); }
-  else if (G.mode === 'title') { const a = tAll * 0.08; camera.position.set(1.5 + 8.5 * Math.sin(a), 2.6, 8.5 * Math.cos(a)); camLook.set(1.5, 0.2, 0); earth.rotation.y += dt * 0.05; theta = (theta + dt * 6) % 360; }
-  camera.lookAt(camLook);
-  if (G.mode !== 'title') earth.rotation.y = -127 * D2R;
-
-  // 게이트 로직
-  let sky = skyAt(G.yulP || seoulV);
-  if (G.running) {
-    const gid = STAGE5.gates[G.gate].id;
-    G.tLeft -= dt; setTimer(G.tLeft / G.tMax);
-    if (G.tLeft < 5 && Math.ceil(G.tLeft) !== G.lastTick) { G.lastTick = Math.ceil(G.tLeft); sfx.tick(); }
-    if (G.tLeft <= 0) {
-      const why = { align: '시간 안에 정렬하지 못했어요. 일식은 달이 태양과 지구 <b>사이</b>, 즉 <b>태양-달-지구</b> 일직선일 때예요.', land: '본그림자에 착륙하지 못했어요. <b>개기일식</b>은 달의 <b>본그림자</b>(가장 진한 점) 안에서만 보여요.', chase: '본그림자를 놓쳤어요. 달이 서→동으로 공전하니 그림자도 <b>동쪽</b>으로 움직여요. 미리 동쪽으로 가 있어 봐요!', quiz: '시간 초과! 방금 본 장면을 떠올리면 답이 보여요.' }[gid];
-      stageFail(why);
-    } else if (gid === 'align') {
-      sky = skyAt(seoulV);
-      if (Math.abs(theta) < 2.5) { G.hold += dt; if (G.hold > 0.5) { G.running = false; theta = 0; toast('🎯 정렬 완료! 태양-달-지구'); setTimeout(gateDone, 700); } } else G.hold = 0;
-    } else if (gid === 'chase') {
-      theta = Math.min(8, theta + dt * (14 / 26));
-      // 율이 이동
-      let jx = 0, jy = 0; if (G.joy) { jx = G.joy.dx / 50; jy = -G.joy.dy / 50; }
-      if (G.keys.ArrowLeft) jx = -1; if (G.keys.ArrowRight) jx = 1; if (G.keys.ArrowUp) jy = 1; if (G.keys.ArrowDown) jy = -1;
-      if (G.stun > 0) { G.stun -= dt; jx = jy = 0; }
-      const { east, north } = basis(G.yulP), sp = 0.075 * dt;
-      G.yulP.addScaledVector(east, jx * sp).addScaledVector(north, jy * sp).normalize();
-      // 녹스 구름
-      G.cloudsV.forEach((o, i) => {
-        o.P.addScaledVector(o.v, dt * 0.35).normalize(); if (o.P.dot(L) < 0.3) o.v.negate();
-        const uc = umbraCenter(); if (uc && Math.random() < 0.02) o.v.lerp(uc.clone().sub(o.P), 0.2);
-        clouds[i].position.copy(o.P).multiplyScalar(1.02); clouds[i].material.rotation += dt;
-        if (G.stun <= 0 && o.P.distanceTo(G.yulP) < 0.075) { G.stun = 1.1; sfx.bad(); toast('🟣 녹스의 그림자 구름! 잠깐 멈춤', true); G.yulP.addScaledVector(o.P.clone().sub(G.yulP).negate().normalize(), 0.05).normalize(); }
-      });
-      sky = skyAt(G.yulP);
-      if (sky.zone === 'umbra') { G.meter += dt; if (!G.totalOnce) { G.totalOnce = true; sfx.total(); } }
-      $('#h-meter i').style.width = Math.min(100, G.meter / 6 * 100) + '%'; $('#h-meter em').textContent = G.meter.toFixed(1) + ' / 6초';
-      if (G.meter >= 6) { G.running = false; $('#h-meter').classList.add('hide'); clouds.forEach(c => c.visible = false); gateDone(); }
-      // 추적 카메라
-      const want = G.yulP.clone().add(L.clone().multiplyScalar(0.9)).normalize().multiplyScalar(2.45).add(new THREE.Vector3(0, 0.25, 0));
-      camera.position.lerp(want, 1 - Math.pow(0.02, dt)); camLook.lerp(G.yulP.clone().multiplyScalar(0.7), 1 - Math.pow(0.02, dt)); cam.t = 1;
-    } else if (gid === 'quiz') {
-      G.anim = (G.anim + dt * 0.22) % 1; theta = -11 + 9.5 * G.anim; sky = skyAt(seoulV);
+  shipCam.position.copy(ship.pos); const f = fwd(); shipCam.up.set(0, 1, 0); shipCam.lookAt(tmp.copy(ship.pos).add(f));
+  if (input.fwd && G.running) { shipCam.position.x += (Math.random() - 0.5) * 0.0012; shipCam.position.y += (Math.random() - 0.5) * 0.0012; }
+  shipCam.fov = 70 + Math.abs(ship.speed) * 14; shipCam.updateProjectionMatrix(); droneCam.updateProjectionMatrix();
+  // 먼지
+  for (let i = 0; i < DUST; i++) { for (let k = 0; k < 3; k++) { const c = ship.pos.getComponent(k); let v = dustPos[i * 3 + k] - c; v = ((v + 1.5) % 3 + 3) % 3 - 1.5; dustPos[i * 3 + k] = c + v; } }
+  dustG.attributes.position.needsUpdate = true;
+  // 루미호 마커 · 궤적
+  shipM.position.copy(ship.pos); shipM.lookAt(tmp.copy(ship.pos).add(f));
+  if (G.mode === 'fly') { trailPos.copyWithin(3, 0, (TRAIL - 1) * 3); trailPos.set([ship.pos.x, ship.pos.y, ship.pos.z], 0); trailG.attributes.position.needsUpdate = true; }
+  // 링 강조
+  ringsG.children.forEach((r, i) => { r.material = i === G.idx ? ringMatOn : ringMat; r.visible = i >= G.idx; r.rotation.z += dt * 0.6; });
+  G.mines.forEach(o => { o.s.position.set(o.b.x, o.b.y + Math.sin(tAll * 1.4 + o.ph) * o.amp, o.b.z + Math.cos(tAll * 1.1 + o.ph) * o.amp); o.s.material.rotation += dt * 2; });
+  // 계기판 · 목표 표시
+  const cov = sunCover(ship.pos);
+  if (G.mode === 'fly') {
+    $('#d-spd').textContent = Math.round(Math.abs(ship.speed) * 640); $('#d-cov').style.width = (cov * 100) + '%'; $('#d-covt').textContent = Math.round(cov * 100) + '%';
+    $('#d-zone').textContent = cov >= 0.999 ? '본그림자' : cov > 0.005 ? '반그림자' : '햇빛';
+    const T = currentTarget();
+    if (T) {
+      $('#d-dst').textContent = (T.p.distanceTo(ship.pos) * 6.371).toFixed(1);
+      tmp.copy(T.p).project(shipCam); const behind = tmp.z > 1; let sx = (tmp.x + 1) / 2 * W, sy = (1 - tmp.y) / 2 * H;
+      const inView = !behind && sx > 30 && sx < W - 30 && sy > 60 && sy < H - 60;
+      tgtEl.style.display = 'block';
+      if (inView) { tgtEl.className = ''; tgtEl.style.transform = ''; tgtEl.style.left = sx + 'px'; tgtEl.style.top = sy + 'px'; }
+      else { let dx = sx - W / 2, dy = sy - H / 2; if (behind) { dx = -dx; dy = -dy; } const a = Math.atan2(dy, dx), R = Math.min(W, H) * 0.36; tgtEl.className = 'edge'; tgtEl.style.left = (W / 2 + Math.cos(a) * R) + 'px'; tgtEl.style.top = (H / 2 + Math.sin(a) * R) + 'px'; tgtEl.style.transform = `rotate(${a + Math.PI / 2}rad)`; }
+      tgtEl.querySelector('b').textContent = T.n;
+    } else { tgtEl.style.display = 'none'; $('#d-dst').textContent = '-'; }
+    const tm = $('#m-timer'); tm.querySelector('i').style.transform = `scaleX(${Math.max(0, G.t / G.tMax)})`; tm.classList.toggle('warn', G.t < 10);
+  }
+  // 렌더: 큰 화면 + 외부 모니터
+  const bigCam = swapped ? droneCam : shipCam, smallCam = swapped ? shipCam : droneCam;
+  bigCam.aspect = W / H; bigCam.updateProjectionMatrix();
+  const showPip = G.mode === 'fly';
+  pipf.classList.toggle('hide', !showPip); $('#frame').classList.toggle('hide', swapped && G.mode === 'fly');
+  if (G.mode !== 'ground') {
+    shipM.visible = trail.visible = bigCam === droneCam; dust.visible = bigCam === shipCam;
+    lbMoon.visible = lbEarth.visible = lbSun.visible = bigCam === droneCam;
+    rpass.camera = bigCam; composer.render();
+    if (showPip) {
+      shipM.visible = trail.visible = smallCam === droneCam; dust.visible = false; lbMoon.visible = lbEarth.visible = lbSun.visible = smallCam === droneCam; smallCam.aspect = pip.w / pip.h; smallCam.updateProjectionMatrix();
+      renderer.setScissorTest(true); renderer.setScissor(pip.x, H - pip.y - pip.h, pip.w, pip.h); renderer.setViewport(pip.x, H - pip.y - pip.h, pip.w, pip.h);
+      renderer.render(scene, smallCam); renderer.setScissorTest(false); renderer.setViewport(0, 0, W, H);
     }
-  } else if (G.mode === 'stage' && G.gate === 3) { G.anim = (G.anim + dt * 0.22) % 1; theta = -11 + 9.5 * G.anim; sky = skyAt(seoulV); }
-
-  // 장면 갱신
-  const M = moonPos(); moon.position.copy(M); moon.rotation.y = -theta * D2R; earthU.moonPos.value.copy(M);
-  const al = Math.abs(((theta + 540) % 360) - 180) > 160 ? 0 : 1; // 태양 반대편이면 그림자 원뿔 숨김
-  const showCone = Math.abs(theta) < 22 && G.mode === 'stage' && !(G.running && STAGE5.gates[G.gate].id === 'chase');
-  const tipT = (() => { const c = M.x - Math.sqrt(Math.max(0, 1 - M.y * M.y - M.z * M.z)); return Math.max(0.3, c); })();
-  [coneU, coneP].forEach(c => { c.visible = showCone && al; c.scale.set(1, tipT, 1); c.position.set(M.x - tipT / 2, M.y, M.z); c.rotation.set(0, 0, Math.PI / 2); });
-  orbit.visible = G.mode === 'title' || (G.gate === 0);
-  seoulMk.visible = G.mode === 'stage';
-  if (G.yulP) yul.position.copy(G.yulP).multiplyScalar(1.01);
-  yul.visible = !!G.yulP && G.mode === 'stage';
-
-  if (hq) composer.render(); else renderer.render(scene, camera);
-  drawGround(G.mode === 'title' ? skyAt(seoulV) : sky);
+  } else {
+    if (G.groundPhase === 'intro') G.ganim = Math.min(1, G.ganim + dt * 0.12);
+    else if (G.groundPhase === 'total') G.ganim = Math.min(1, G.ganim + dt / 6);
+    else G.ganim = (G.ganim + dt * 0.18) % 1;
+    const off = G.groundPhase === 'loop' ? 2.3 - 1.4 * G.ganim : G.groundPhase === 'intro' ? 2.6 - 0.6 * G.ganim : Math.max(0, 2.0 * (1 - G.ganim));
+    drawSky(off);
+  }
   requestAnimationFrame(frame);
+}
+function missionUpdate(dt) {
+  const m = EP1.missions[G.mi];
+  G.t -= dt; if (G.t < 6 && Math.ceil(G.t) !== G.lastTick) { G.lastTick = Math.ceil(G.t); sfx.tick(); }
+  if (G.t <= 0) return missionFail('시간이 다 됐어.');
+  const p = ship.pos;
+  if (p.length() < 1.02 && !(m.type === 'descend' && G.idx >= (m.rings || []).length)) return missionFail('지구에 너무 가까이 갔어!');
+  if (p.distanceTo(MOON) < RM + 0.03) return missionFail('달에 부딪혔어!');
+  if (p.length() > 16) return missionFail('궤도를 너무 벗어났어.');
+  const cov = sunCover(p);
+  if (cov > 0.02 && cov < 0.999 && !G.penSeen && m.type === 'umbra') { G.penSeen = true; toast('🌗 반그림자 진입 — 태양이 일부만 가려졌어요'); }
+  if (m.rings && G.idx < m.rings.length) { if (p.distanceTo(V(m.rings[G.idx])) < 0.21) { G.idx++; sfx.ring(); toast(`✅ 링 ${G.idx} 통과!`); if (m.type === 'rings' && G.idx >= m.rings.length) return missionDone(); } }
+  if (m.type === 'umbra') {
+    if (cov >= 0.999) { if (G.hold === 0) { sfx.total(); toast('🌑 본그림자! 뒤를 돌아 태양 쪽을 봐요 — 3초 유지!'); G.lookBack = true; setAim(false); } G.hold += dt; $('#m-goal').innerHTML = `본그림자 유지 <b>${G.hold.toFixed(1)} / ${m.hold}초</b> — 속도를 줄여요(역추진)`; if (G.hold >= m.hold) return missionDone(); }
+    else if (G.hold > 0) { G.hold = 0; $('#m-goal').innerHTML = m.goal; toast('본그림자를 벗어났어요!', true); }
+  }
+  if (m.type === 'descend') {
+    for (const o of G.mines) if (o.s.position.distanceTo(p) < 0.085) return missionFail('녹스의 그림자 기뢰에 닿았어!');
+    if (G.idx >= m.rings.length && p.distanceTo(V(m.land).multiplyScalar(1.03)) < 0.15) return missionDone();
+  }
 }
 titleScreen();
 requestAnimationFrame(frame);
-window.__SQ = { G, get theta() { return theta; }, set theta(v) { theta = v; }, skyAt, umbraCenter, camera, earth, THREE };
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+window.__SQ = { G, ship, input, sunCover, EP1, setAim, THREE, MOON, get swapped() { return swapped; } };
