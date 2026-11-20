@@ -402,6 +402,7 @@
       answer: '<p>달은 스스로 빛을 내지 못하고 <b>햇빛을 반사</b>하여 밝게 보인다. 달이 지구 주위를 <b>서쪽에서 동쪽으로 공전</b>하면서 <b>태양, 지구, 달의 상대적인 위치가 달라지므로</b> 지구에서 보이는 달의 밝은 부분의 모양이 달라진다(위상 변화). 태양-달-지구 일직선이면 <b>삭</b>, 태양-지구-달이면 <b>망</b>, 직각이면 <b>상현달·하현달</b>. 위상은 약 <b>29.5일</b> 주기로 변한다.</p>',
       trap: ['“지구 그림자가 가려서” ✕ → 그건 <b>월식</b>', '“달은 스스로 빛나지 않음” 꼭 쓰기'] },
     { id: 'u5', n: 5, short: '일식·월식', title: '일식과 월식', sim: sim5,
+      link: ['../eclipse-side/', '🌗 왜 일식은 오른쪽, 월식은 왼쪽부터 가려질까? (애니메이션)'],
       rubric: '일식 또는 월식이 일어나는 원리를 천체의 상대적 위치, 달의 위상, 가려지는 부분, 개기식과 부분식이 관찰되는 지역을 모두 포함하여 정확하게 설명함.',
       core: ['<b>일식</b>: 태양-<b>달</b>-지구 · <b>삭</b> · 태양의 <b>오른쪽(서)</b>부터 · 본그림자→개기, 반그림자→부분', '<b>월식</b>: 태양-<b>지구</b>-달 · <b>망</b> · 달의 <b>왼쪽(동)</b>부터 · 전체 본그림자→개기(붉은 달), 일부→부분', '일식은 좁은 지역, 월식은 <b>밤인 모든 지역</b>'],
       answer: '<p><b>일식</b>은 <b>태양-달-지구</b> 순으로 일직선에 놓여 달이 태양을 가리는 현상으로, 달의 위상이 <b>삭</b>일 때 일어난다. 태양의 <b>오른쪽(서쪽)부터</b> 가려진다. 달의 <b>본그림자</b> 지역에서는 <b>개기일식</b>, <b>반그림자</b> 지역에서는 <b>부분일식</b>이 관찰된다.</p><p><b>월식</b>은 <b>태양-지구-달</b> 순으로 일직선에 놓여 달이 지구의 그림자 속으로 들어가는 현상으로, 위상이 <b>망</b>일 때 일어난다. 달의 <b>왼쪽(동쪽)부터</b> 가려진다. 달 전체가 본그림자에 들어가면 <b>개기월식</b>, 일부만 들어가면 <b>부분월식</b>이며, <b>밤이 되는 모든 지역</b>에서 관찰할 수 있다.</p>',
@@ -414,6 +415,7 @@
     mount.innerHTML =
       '<div class="sec"><div class="eyebrow"><span class="tag">' + u.n + ' / 5</span>평가요소 ' + '①②③④⑤'[i] + '</div><h2 class="title">' + u.title + '</h2></div>' +
       '<div class="sec" data-sim></div>' +
+      (u.link ? '<div class="sec"><a class="card idea" style="display:block;text-decoration:none;color:inherit" href="' + u.link[0] + '"><b>' + u.link[1] + ' →</b></a></div>' : '') +
       '<div class="sec"><div class="card idea"><b>핵심만</b><ul>' + u.core.map(function (c) { return '<li>' + c + '</li>'; }).join('') + '</ul></div>' +
       '<details class="more"><summary>✍ 시험지에 이렇게 쓰기 (모범 답안)</summary>' + u.answer + '</details>' +
       (u.names ? '<details class="more" open><summary>📖 삭·상현·망·하현 — 이름의 뜻</summary>' + u.names + '</details>' : '') +

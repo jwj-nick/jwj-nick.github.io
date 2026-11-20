@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>일식·월식 가려지는 방향</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Noto+Sans+KR:wght@400;700;900&display=swap">
+<style>
+/* Layout: 한 줄 결론 → 하늘 한 장(태양·달이 함께 움직임) → 재생 막대 → 숫자 메모 */
+:root{
+  --bg:#0a0f1f; --panel:#111a33; --line:#26315c; --fg:#e9edff; --muted:#9ba7d8;
+  --sun:#ffb23e; --west:#ff8fb3; --east:#6fd6ff;
+  --display:"Do Hyeon","Noto Sans KR",sans-serif;
+  --body:"Noto Sans KR",-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);line-height:1.6}
+.wrap{max-width:1100px;margin:0 auto;padding-block:20px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:14px}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(26px,4.6vw,40px);line-height:1.2;margin:0;text-wrap:balance}
+h1 .s{color:var(--sun)} h1 .m{color:#cfd6ee}
+.bar{display:flex;gap:8px;flex-wrap:wrap}
+.bar button{font:700 16px var(--body);color:var(--fg);background:var(--panel);border:1.5px solid var(--line);border-radius:999px;padding:9px 18px;cursor:pointer}
+.bar button[aria-pressed="true"]{background:var(--sun);border-color:var(--sun);color:#1a1205}
+button:focus-visible,input:focus-visible{outline:3px solid var(--east);outline-offset:2px}
+.stage{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.pair{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--line)}
+.pair figure{margin:0;min-width:0;display:flex;flex-direction:column}
+.pair figure+figure{border-left:1px solid var(--line)}
+.pair figcaption{padding:8px 14px;font-size:14px;font-weight:700;color:var(--muted);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.pair figcaption b{color:var(--fg)}
+#sky,#space{display:block;width:100%;max-width:100%;aspect-ratio:4/3}
+@media (max-width:820px){.pair{grid-template-columns:1fr}.pair figure+figure{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:600px){#sky{aspect-ratio:4/5}#space{aspect-ratio:1/1}}
+.ctrl{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;padding:12px 14px;border-top:1px solid var(--line)}
+.ctrl button{font:900 15px var(--body);background:var(--sun);color:#1a1205;border:0;border-radius:10px;padding:10px 16px;cursor:pointer;min-width:92px}
+.ctrl input{width:100%;accent-color:var(--sun);height:30px;min-width:0}
+.cap{grid-column:1/-1;margin:0;font-size:clamp(16px,2.5vw,19px);font-weight:700;min-height:2.6em}
+.cap .w{color:var(--west)} .cap .e{color:var(--east)} .cap .s{color:var(--sun)}
+.memo{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:700px){.memo{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 16px;min-width:0}
+.card h3{margin:0 0 4px;font-family:var(--display);font-weight:400;font-size:20px}
+.card p{margin:0}
+.card .n{color:var(--muted);font-size:14px;margin-top:6px}
+b.w{color:var(--west)} b.e{color:var(--east)}
+.back{display:flex;gap:14px;flex-wrap:wrap;font-size:14px}.back a{color:var(--muted);text-decoration:none;font-weight:700}.back a:hover{color:var(--fg)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav class="back"><a href="../">← 중학 과학</a><a href="../earth-moon/#u5">지구와 달 · 일식과 월식</a></nav>
+  <h1>빠른 <span class="s" id="who">태양</span>이 느린 <span class="m">달</span>을 뒤에서 따라잡는다</h1>
+
+  <div class="bar" role="group" aria-label="현상 고르기">
+    <button id="tab-solar" aria-pressed="true">☀️ 일식</button>
+    <button id="tab-lunar" aria-pressed="false">🌕 월식</button>
+  </div>
+
+  <div class="stage">
+    <div class="pair">
+      <figure>
+        <figcaption><b>① 우주에서 내려다본 모습</b><span>북극 위 · 태양 고정</span></figcaption>
+        <canvas id="space" aria-label="북극 위에서 본 지구 자전과 달 공전"></canvas>
+      </figure>
+      <figure>
+        <figcaption><b>② 서울에서 본 남쪽 하늘</b><span>왼쪽 동 · 오른쪽 서</span></figcaption>
+        <canvas id="sky" aria-label="남쪽 하늘에서 태양과 달이 함께 움직이는 모습"></canvas>
+      </figure>
+    </div>
+    <div class="ctrl">
+      <button id="play">▶ 재생</button>
+      <input id="t" type="range" min="0" max="1000" value="330" aria-label="시간">
+      <p class="cap" id="cap"></p>
+    </div>
+  </div>
+
+  <div class="memo">
+    <div class="card">
+      <h3>일식: 태양의 <b class="w">오른쪽(서)</b>부터</h3>
+      <p>둘 다 동→서(왼쪽→오른쪽)로 가는데 태양이 더 빨라요. 뒤(왼쪽)에서 따라온 태양의 <b>앞쪽 = 오른쪽</b>이 먼저 달에 닿아요.</p>
+    </div>
+    <div class="card">
+      <h3>월식: 달의 <b class="e">왼쪽(동)</b>부터</h3>
+      <p>지구 그림자는 태양 반대편에 붙어 태양과 같은 빠르기로 움직여요. 뒤(왼쪽)에서 따라온 그림자가 달의 <b>뒤쪽 = 왼쪽</b>부터 덮어요.</p>
+    </div>
+  </div>
+  <p class="card n" style="margin:0">실제 숫자: 지구 자전 때문에 태양은 1시간에 15°씩 서쪽으로 가요. 달은 그 반대 방향(서→동)으로 공전해서 1시간에 약 0.5°씩 덜 가요. 0.5°는 달 지름 하나 정도라서, 그림에서는 잘 보이도록 빠르기 차이와 크기를 과장했어요.</p>
+</div>
+
+<script>
+(() => {
+const S = { mode: 'solar', t: 0.33, playing: false };
+const cv = document.getElementById('sky'), slider = document.getElementById('t'), playBtn = document.getElementById('play'), capEl = document.getElementById('cap');
+const HOURS = 6;
+
+function overlap(d, r1, r2) {
+  if (d >= r1 + r2) return 0; if (d <= Math.abs(r1 - r2)) return Math.PI * Math.min(r1, r2) ** 2;
+  const a = r1 * r1 * Math.acos((d * d + r1 * r1 - r2 * r2) / (2 * d * r1)), b = r2 * r2 * Math.acos((d * d + r2 * r2 - r1 * r1) / (2 * d * r2));
+  return a + b - 0.5 * Math.sqrt((-d + r1 + r2) * (d + r1 - r2) * (d - r1 + r2) * (d + r1 + r2));
+}
+function arrow(c, x0, y, x1, col, w) { c.strokeStyle = col; c.fillStyle = col; c.lineWidth = w; const dir = Math.sign(x1 - x0); c.beginPath(); c.moveTo(x0, y); c.lineTo(x1 - dir * 12, y); c.stroke(); c.beginPath(); c.moveTo(x1, y); c.lineTo(x1 - dir * 15, y - 8); c.lineTo(x1 - dir * 15, y + 8); c.closePath(); c.fill(); }
+function tag(c, x, y, text, col) { c.font = '900 14px "Noto Sans KR",sans-serif'; const w = c.measureText(text).width + 16; c.fillStyle = 'rgba(8,12,28,.88)'; c.strokeStyle = col; c.lineWidth = 2; c.beginPath(); c.roundRect ? c.roundRect(x - w / 2, y - 13, w, 26, 8) : c.rect(x - w / 2, y - 13, w, 26); c.fill(); c.stroke(); c.fillStyle = col; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(text, x, y + 1); c.textBaseline = 'alphabetic'; }
+
+let phase = '';
+function draw() {
+  const dpr = Math.min(2, devicePixelRatio || 1), W = cv.clientWidth, H = cv.clientHeight; if (!W || !H) return;
+  if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+  const c = cv.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const solar = S.mode === 'solar', gy = H * .86, x0 = W * .06, x1 = W * .94, L = x1 - x0;
+  const R = Math.max(16, Math.min(W, H) * .06);                 // 달 반지름(과장)
+  const RB = solar ? R * .97 : R * 2.6;                           // 태양 / 지구 그림자 반지름
+  const D = (RB + R) * 1.7;                                       // 시작할 때 달이 앞서 있는 거리
+  const A = gy - H * .4;                                          // 호의 높이
+  const pos = s => ({ x: x0 + s, y: gy - A * Math.sin(Math.PI * Math.min(1, Math.max(0, s / L))) * .92 - H * .02 });
+  const sB = L * (.12 + .76 * S.t);                               // 태양(그림자): 빠름
+  const sM = sB + D * (1 - 2 * S.t);                              // 달: 조금 느림 → 처음엔 앞(오른쪽), 끝엔 뒤(왼쪽)
+  const pB = pos(sB), pM = pos(sM);
+  const d = Math.hypot(pM.x - pB.x, pM.y - pB.y);
+  const cov = solar ? overlap(d, RB, R) / (Math.PI * RB * RB) : overlap(d, RB, R) / (Math.PI * R * R);
+  const dark = solar ? Math.min(1, cov) ** 3 : 1;
+
+  // 하늘
+  const g = c.createLinearGradient(0, 0, 0, gy);
+  if (solar) { g.addColorStop(0, `rgb(${70 - 62 * dark | 0},${130 - 118 * dark | 0},${215 - 185 * dark | 0})`); g.addColorStop(1, `rgb(${160 - 125 * dark | 0},${200 - 165 * dark | 0},${240 - 190 * dark | 0})`); }
+  else { g.addColorStop(0, '#04081a'); g.addColorStop(1, '#16224e'); }
+  c.fillStyle = g; c.fillRect(0, 0, W, gy);
+  if (!solar || dark > .6) for (let i = 0; i < 90; i++) { c.fillStyle = `rgba(220,230,255,${solar ? dark * .7 : .55})`; c.fillRect((i * 97.3) % W, (i * 53.7) % (gy - 6), 1.6, 1.6); }
+
+  // 지나온 길 (1시간마다 잔상): 태양 간격이 달 간격보다 넓다
+  c.setLineDash([4, 6]); c.lineWidth = 2; c.strokeStyle = 'rgba(255,255,255,.25)'; c.beginPath();
+  for (let s = 0; s <= L; s += 6) { const p = pos(s); s ? c.lineTo(p.x, p.y) : c.moveTo(p.x, p.y); } c.stroke(); c.setLineDash([]);
+  for (let k = 0; k <= HOURS; k++) {
+    const tk = k / HOURS; if (tk > S.t + 1e-6) break;
+    const b = pos(L * (.12 + .76 * tk)), m = pos(L * (.12 + .76 * tk) + D * (1 - 2 * tk));
+    c.lineWidth = 2;
+    c.strokeStyle = solar ? 'rgba(255,200,90,.55)' : 'rgba(255,120,100,.45)'; c.beginPath(); c.arc(b.x, b.y, solar ? RB * .35 : R * .55, 0, 7); c.stroke();
+    c.strokeStyle = 'rgba(210,220,245,.6)'; c.setLineDash([3, 3]); c.beginPath(); c.arc(m.x, m.y, R * .35, 0, 7); c.stroke(); c.setLineDash([]);
+  }
+
+  // 본체
+  if (solar) {
+    if (cov > .985) { const cg = c.createRadialGradient(pB.x, pB.y, RB, pB.x, pB.y, RB * 2.8); cg.addColorStop(0, 'rgba(255,255,255,.85)'); cg.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = cg; c.beginPath(); c.arc(pB.x, pB.y, RB * 2.8, 0, 7); c.fill(); }
+    const sg = c.createRadialGradient(pB.x, pB.y, RB * .2, pB.x, pB.y, RB * 1.8); sg.addColorStop(0, 'rgba(255,245,210,1)'); sg.addColorStop(.55, 'rgba(255,200,90,.85)'); sg.addColorStop(1, 'rgba(255,170,60,0)'); c.fillStyle = sg; c.beginPath(); c.arc(pB.x, pB.y, RB * 1.8, 0, 7); c.fill();
+    c.fillStyle = '#fff3cf'; c.beginPath(); c.arc(pB.x, pB.y, RB, 0, 7); c.fill();
+    c.fillStyle = '#05060c'; c.beginPath(); c.arc(pM.x, pM.y, R, 0, 7); c.fill();
+    c.strokeStyle = 'rgba(200,210,240,.5)'; c.lineWidth = 1.5; c.beginPath(); c.arc(pM.x, pM.y, R, 0, 7); c.stroke();
+    // 처음 닿는 곳: 태양의 오른쪽(앞쪽)
+    c.strokeStyle = '#ff8fb3'; c.lineWidth = 5; c.setLineDash([7, 5]); c.beginPath(); c.arc(pB.x, pB.y, RB + 9, -.6, .6); c.stroke(); c.setLineDash([]);
+  } else {
+    c.fillStyle = 'rgba(120,25,15,.28)'; c.beginPath(); c.arc(pB.x, pB.y, RB, 0, 7); c.fill();
+    c.strokeStyle = 'rgba(255,140,120,.8)'; c.lineWidth = 2; c.setLineDash([7, 6]); c.beginPath(); c.arc(pB.x, pB.y, RB, 0, 7); c.stroke(); c.setLineDash([]);
+    const mg = c.createRadialGradient(pM.x - R * .3, pM.y - R * .3, R * .2, pM.x, pM.y, R); mg.addColorStop(0, '#f6f8ff'); mg.addColorStop(1, '#b9c0d8'); c.fillStyle = mg; c.beginPath(); c.arc(pM.x, pM.y, R, 0, 7); c.fill();
+    c.save(); c.beginPath(); c.arc(pM.x, pM.y, R, 0, 7); c.clip(); c.fillStyle = 'rgba(140,32,18,.94)'; c.beginPath(); c.arc(pB.x, pB.y, RB, 0, 7); c.fill(); c.restore();
+    // 처음 닿는 곳: 달의 왼쪽(뒤쪽)
+    c.strokeStyle = '#6fd6ff'; c.lineWidth = 5; c.setLineDash([7, 5]); c.beginPath(); c.arc(pM.x, pM.y, R + 9, Math.PI - .6, Math.PI + .6); c.stroke(); c.setLineDash([]);
+  }
+
+  // 빠르기 화살표 (본체 위)
+  const fast = Math.min(150, W * .16), slow = fast * .55;
+  const yB = Math.max(34, Math.min(pB.y, pM.y) - Math.max(RB, R) - 58);
+  c.font = '900 14px "Noto Sans KR",sans-serif'; c.textAlign = 'left';
+  arrow(c, pB.x - fast / 2, yB, pB.x + fast / 2, solar ? '#ffb23e' : '#ff8a70', 6);
+  c.fillStyle = solar ? '#ffd27a' : '#ffb0a0'; c.fillText(solar ? '태양: 빠름' : '지구 그림자: 빠름 (태양과 같이)', pB.x - fast / 2, yB - 12);
+  arrow(c, pM.x - slow / 2, yB + 30, pM.x + slow / 2, '#cfd6ee', 4);
+  c.fillStyle = '#e9edff'; c.fillText('달: 조금 느림', pM.x - slow / 2, yB + 30 - 10);
+
+  // 첫 접촉 표시 라벨
+  if (solar) tag(c, Math.min(W - 80, pB.x + RB + 70), pB.y + RB + 24, '처음 가려지는 곳', '#ff8fb3');
+  else tag(c, Math.max(80, pM.x - R - 66), pM.y + R + 26, '처음 가려지는 곳', '#6fd6ff');
+  c.font = '700 14px "Noto Sans KR",sans-serif'; c.textAlign = 'center'; c.fillStyle = '#fff';
+  if (solar) c.fillText('태양', pB.x, pB.y + RB + 50); else c.fillText('달', pM.x, pM.y - R - 8);
+
+  // 땅 + 방위
+  c.fillStyle = solar ? '#1b2e23' : '#0a130e'; c.fillRect(0, gy, W, H - gy);
+  c.font = '900 16px "Noto Sans KR",sans-serif'; c.textBaseline = 'middle';
+  c.textAlign = 'left'; c.fillStyle = '#6fd6ff'; c.fillText('동 (왼쪽)', 12, (gy + H) / 2);
+  c.textAlign = 'center'; c.fillStyle = '#e9edff'; c.fillText('남쪽 하늘', W / 2, (gy + H) / 2);
+  c.textAlign = 'right'; c.fillStyle = '#ff8fb3'; c.fillText('서 (오른쪽)', W - 12, (gy + H) / 2); c.textBaseline = 'alphabetic';
+
+  const before = S.t < .5;
+  phase = cov <= 0 ? (before ? 'pre' : 'post') : cov > (solar ? .985 : .995) ? 'total' : before ? 'in' : 'out';
+}
+
+const CAP = {
+  solar: {
+    pre: '태양과 달이 함께 서쪽으로 가요. 달이 조금 앞(오른쪽)에 있지만, 더 빠른 <span class="s">태양</span>이 뒤에서 따라와요.',
+    in: '태양의 앞쪽, 곧 <span class="w">오른쪽(서)</span>이 먼저 달에 닿아 가려지기 시작해요!',
+    total: '개기일식 — 태양이 달 뒤에 완전히 숨었어요. 둘은 여전히 함께 서쪽으로 가는 중이에요.',
+    out: '태양이 달을 앞질러 나가며, 태양의 오른쪽부터 다시 드러나요.',
+    post: '태양이 달을 완전히 앞질렀어요. 이제 달이 태양보다 뒤(왼쪽)에 있어요.'
+  },
+  lunar: {
+    pre: '달과 지구 그림자가 함께 서쪽으로 가요. 달이 조금 앞(오른쪽)에 있지만, 더 빠른 <span class="s">그림자</span>가 뒤에서 따라와요.',
+    in: '뒤에서 온 그림자가 달의 <span class="e">왼쪽(동)</span>부터 덮기 시작해요!',
+    total: '개기월식 — 달 전체가 그림자 속이라 붉게 보여요.',
+    out: '그림자가 달을 앞질러 나가며, 달의 왼쪽부터 다시 밝아져요.',
+    post: '그림자가 달을 완전히 앞질렀어요. 월식 끝.'
+  }
+};
+let lastCap = '';
+/* ① 우주: 북극 위에서 본 평면도 (태양 고정 · 지구 자전 15°/h · 달 공전 0.55°/h 실제 각도) */
+const sp = document.getElementById('space');
+const LAND = [[.3, .55, .5], [1.4, .7, .35], [2.3, .45, .6], [3.5, .6, .4], [4.6, .5, .55], [5.5, .65, .3]];
+function drawSpace() {
+  const dpr = Math.min(2, devicePixelRatio || 1), W = sp.clientWidth, H = sp.clientHeight; if (!W || !H) return;
+  if (sp.width !== Math.round(W * dpr) || sp.height !== Math.round(H * dpr)) { sp.width = Math.round(W * dpr); sp.height = Math.round(H * dpr); }
+  const c = sp.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const solar = S.mode === 'solar', hrs = (S.t - .5) * HOURS;
+  c.fillStyle = '#05081a'; c.fillRect(0, 0, W, H);
+  for (let i = 0; i < 70; i++) { c.fillStyle = 'rgba(200,210,255,.4)'; c.fillRect((i * 97.3) % W, (i * 53.7) % H, 1.4, 1.4); }
+  const u = Math.min(W, H), RE = u * .085, DM = Math.min(W * .36, u * .42);
+  const ex = solar ? W * .4 : W * .58, ey = H * .5;
+  // 태양 (고정) + 평행한 햇빛
+  const sg = c.createRadialGradient(W + u * .05, ey, 0, W + u * .05, ey, u * .22); sg.addColorStop(0, 'rgba(255,245,210,1)'); sg.addColorStop(.4, 'rgba(255,190,80,.85)'); sg.addColorStop(1, 'rgba(255,170,60,0)');
+  c.fillStyle = sg; c.beginPath(); c.arc(W + u * .05, ey, u * .22, 0, 7); c.fill();
+  c.strokeStyle = 'rgba(255,190,80,.22)'; c.lineWidth = 2; for (const k of [-2.2, -1.1, 1.1, 2.2]) { c.beginPath(); c.moveTo(W - u * .1, ey + k * RE); c.lineTo(0, ey + k * RE); c.stroke(); }
+  c.font = '900 14px "Noto Sans KR",sans-serif'; c.fillStyle = '#ffd27a'; c.textAlign = 'right'; c.fillText('태양 (고정) ←햇빛', W - 8, 20);
+  // 달 궤도 + 달 (실제 각도: 1시간 0.55°)
+  const th = ((solar ? 0 : 180) + .549 * hrs) * Math.PI / 180;
+  c.strokeStyle = 'rgba(150,165,220,.35)'; c.setLineDash([5, 6]); c.lineWidth = 1.5; c.beginPath(); c.arc(ex, ey, DM, 0, 7); c.stroke(); c.setLineDash([]);
+  for (let k = 0; k <= HOURS; k++) { const a = ((solar ? 0 : 180) + .549 * (k - HOURS / 2)) * Math.PI / 180; c.fillStyle = 'rgba(111,214,255,.8)'; c.beginPath(); c.arc(ex + DM * Math.cos(a), ey - DM * Math.sin(a), 2, 0, 7); c.fill(); }
+  const mx = ex + DM * Math.cos(th), my = ey - DM * Math.sin(th), RM = RE * .3;
+  // 그림자
+  if (solar) { c.fillStyle = 'rgba(106,76,200,.35)'; c.beginPath(); c.moveTo(mx, my - RM); c.lineTo(ex, my - RM * .15); c.lineTo(ex, my + RM * .15); c.lineTo(mx, my + RM); c.closePath(); c.fill(); }
+  else { c.fillStyle = 'rgba(106,76,200,.3)'; c.beginPath(); c.moveTo(ex, ey - RE); c.lineTo(ex - DM - RM * 3, ey - RE * .72); c.lineTo(ex - DM - RM * 3, ey + RE * .72); c.lineTo(ex, ey + RE); c.closePath(); c.fill(); c.fillStyle = '#c7b6ff'; c.font = '700 12px "Noto Sans KR",sans-serif'; c.textAlign = 'center'; c.fillText('지구 그림자', ex - DM * .5, ey + RE + 16); }
+  const red = solar ? 0 : Math.max(0, Math.min(1, 1 - (Math.abs(my - ey) - (RE * .72 - RM)) / (2 * RM)));
+  c.fillStyle = red > 0 ? `rgb(${200 - 40 * red | 0},${205 - 140 * red | 0},${225 - 170 * red | 0})` : '#cfd6ee'; c.beginPath(); c.arc(mx, my, RM, 0, 7); c.fill();
+  c.fillStyle = '#6fd6ff'; c.font = '900 13px "Noto Sans KR",sans-serif'; c.textAlign = 'center';
+  c.fillText('달 · 공전 1시간 0.5°', mx, my - RM - 22); c.font = '700 12px "Noto Sans KR",sans-serif'; c.fillText('(거의 그대로)', mx, my - RM - 7);
+  // 지구 (자전): 낮/밤 + 도는 무늬
+  const rot = ((solar ? 0 : 180) + 15 * hrs) * Math.PI / 180;
+  c.save(); c.beginPath(); c.arc(ex, ey, RE, 0, 7); c.clip();
+  c.fillStyle = '#2a64c8'; c.fillRect(ex - RE, ey - RE, RE * 2, RE * 2);
+  c.fillStyle = '#3f9a52'; for (const [a0, r0, s0] of LAND) { const a = a0 + rot; c.beginPath(); c.ellipse(ex + RE * r0 * Math.cos(a), ey - RE * r0 * Math.sin(a), RE * s0 * .5, RE * s0 * .32, -a, 0, 7); c.fill(); }
+  c.strokeStyle = 'rgba(255,255,255,.25)'; c.lineWidth = 1; for (let k = 0; k < 12; k++) { const a = rot + k * Math.PI / 6; c.beginPath(); c.moveTo(ex, ey); c.lineTo(ex + RE * Math.cos(a), ey - RE * Math.sin(a)); c.stroke(); }
+  c.fillStyle = 'rgba(0,0,20,.55)'; c.fillRect(ex - RE, ey - RE, RE, RE * 2);   // 밤 (태양 반대쪽)
+  c.restore();
+  c.fillStyle = '#fff'; c.beginPath(); c.arc(ex, ey, 3, 0, 7); c.fill();
+  c.font = '700 11px "Noto Sans KR",sans-serif'; c.textAlign = 'center'; c.fillText('북극', ex, ey + 14);
+  // 자전 화살표 (시계 반대)
+  c.strokeStyle = '#8ef0b0'; c.fillStyle = '#8ef0b0'; c.lineWidth = 3; const rr = RE * 1.32; c.beginPath(); c.arc(ex, ey, rr, -Math.PI * .15, -Math.PI * 1.35, true); c.stroke();
+  { const a = Math.PI * 1.35, hx = ex + rr * Math.cos(a), hy = ey - rr * Math.sin(a), tx = Math.sin(a), ty = Math.cos(a); c.beginPath(); c.moveTo(hx + tx * 10, hy + ty * 10); c.lineTo(hx - ty * 7, hy + tx * 7); c.lineTo(hx + ty * 7, hy - tx * 7); c.closePath(); c.fill(); }
+  c.font = '900 13px "Noto Sans KR",sans-serif'; c.fillText('지구 자전 1시간 15°', ex, ey - rr - 10);
+  // 나(서울): 지구와 함께 돎 + 시선
+  const ox = ex + RE * .8 * Math.cos(rot), oy = ey - RE * .8 * Math.sin(rot);
+  const tx = solar ? W - 4 : mx, ty = solar ? ey : my;
+  c.strokeStyle = 'rgba(255,210,122,.8)'; c.setLineDash([4, 4]); c.lineWidth = 1.5; c.beginPath(); c.moveTo(ox, oy); c.lineTo(solar ? mx : tx, solar ? my : ty); c.stroke(); c.setLineDash([]);
+  c.fillStyle = '#ffd27a'; c.strokeStyle = '#05081a'; c.lineWidth = 2; c.beginPath(); c.arc(ox, oy, 6, 0, 7); c.fill(); c.stroke();
+  c.font = '900 13px "Noto Sans KR",sans-serif'; c.fillStyle = '#ffd27a'; c.textAlign = 'center'; c.fillText('나(서울)', ox, oy + (Math.sin(rot) > 0 ? -12 : 22));
+  // 시간 표시
+  const base = solar ? 12 : 24, tt = base + hrs, hh = ((Math.floor(tt) % 24) + 24) % 24, mm = Math.round((tt - Math.floor(tt)) * 60) % 60;
+  const el = hrs + HOURS / 2;
+  c.textAlign = 'left'; c.font = '400 26px "Do Hyeon",sans-serif'; c.fillStyle = '#e9edff'; c.fillText(String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0'), 12, 32);
+  c.font = '900 13px "Noto Sans KR",sans-serif'; c.fillStyle = '#8ef0b0'; c.fillText('지구 자전 +' + (15 * el).toFixed(0) + '°', 12, H - 30);
+  c.fillStyle = '#6fd6ff'; c.fillText('달 공전 +' + (.549 * el).toFixed(1) + '°', 12, H - 12);
+}
+function render() { drawSpace(); draw(); const h = CAP[S.mode][phase] || ''; if (h !== lastCap) { capEl.innerHTML = h; lastCap = h; } }
+
+slider.addEventListener('input', () => { S.t = slider.value / 1000; S.playing = false; playBtn.textContent = '▶ 재생'; render(); });
+playBtn.addEventListener('click', () => { S.playing = !S.playing; if (S.playing && S.t >= .999) S.t = 0; playBtn.textContent = S.playing ? '⏸ 멈춤' : '▶ 재생'; });
+function setMode(m) { S.mode = m; document.getElementById('tab-solar').setAttribute('aria-pressed', m === 'solar'); document.getElementById('tab-lunar').setAttribute('aria-pressed', m === 'lunar'); document.getElementById('who').textContent = m === 'solar' ? '태양' : '지구 그림자'; S.t = .33; slider.value = 330; lastCap = ''; render(); }
+document.getElementById('tab-solar').addEventListener('click', () => setMode('solar'));
+document.getElementById('tab-lunar').addEventListener('click', () => setMode('lunar'));
+let last = performance.now();
+function loop(now) { const dt = Math.min(.05, (now - last) / 1000); last = now; if (S.playing) { S.t += dt / 10; if (S.t >= 1) { S.t = 1; S.playing = false; playBtn.textContent = '▶ 다시'; } slider.value = Math.round(S.t * 1000); render(); } requestAnimationFrame(loop); }
+addEventListener('resize', render);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(render);
+render(); requestAnimationFrame(loop);
+window.__E = { S, render, setMode };
+})();
+</script>
+
+</body>
+</html>
