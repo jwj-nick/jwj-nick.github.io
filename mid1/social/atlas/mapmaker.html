@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Map maker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans+KR:wght@400;600&family=Noto+Serif+KR:wght@600;800&display=swap">
+<link rel="stylesheet" href="css/atlas.css">
+<style>
+.mk { display: grid; grid-template-columns: 18rem minmax(0, 1fr); gap: 1.2rem; align-items: start; }
+@media (max-width: 900px) { .mk { grid-template-columns: minmax(0, 1fr); } }
+.ctl { display: grid; gap: .8rem; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: .9rem 1rem; }
+.ctl fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: .35rem; }
+.ctl legend { font-weight: 600; font-size: .85rem; margin-bottom: .2rem; }
+.ctl label { font-size: .86rem; display: flex; gap: .4rem; align-items: center; }
+.ctl select, .ctl input[type=number] { font: inherit; font-size: .85rem; padding: .25rem .4rem; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); max-width: 100%; }
+.ctl input[type=number] { width: 6.5rem; }
+.swatch { display: inline-flex; height: .8rem; border-radius: 2px; overflow: hidden; border: 1px solid var(--line); }
+.swatch i { width: .8rem; }
+.mapcard { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: .9rem 1rem; display: grid; gap: .4rem; min-width: 0; }
+.mapcard h2 { margin: 0; font-size: 1.1rem; }
+#map, #strip { width: 100%; height: auto; }
+.checks { display: grid; gap: .25rem; font-size: .86rem; }
+.task { border: 1px solid var(--line); border-radius: var(--radius); padding: .7rem .9rem; background: var(--paper); display: grid; gap: .4rem; }
+.task h3 { margin: 0; font-size: .95rem; }
+.task .go { justify-self: start; }
+textarea { width: 100%; font: inherit; padding: .5rem; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); }
+#breaksBox { display: grid; gap: .3rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1 data-en="Map maker" data-ko="지도 만들기"></h1>
+<p class="muted" data-en="A choropleth map colours each country by a number. The same numbers can make very different maps: it depends on what you count, how you cut the numbers into classes, and which colours you pick. Make the map, then decide which version is honest." data-ko="단계 구분도는 나라마다 수치에 따라 색을 칠한 지도입니다. 같은 수치로도 아주 다른 지도가 나옵니다. 무엇을 세는지, 수치를 어떻게 구간으로 나누는지, 어떤 색을 고르는지에 따라 달라집니다. 직접 만들어 보고, 어느 지도가 정직한지 판단해 보세요."></p>
+<div class="mk">
+  <form class="ctl" id="ctl" onsubmit="return false">
+    <fieldset><legend data-en="1. What to map" data-ko="1. 무엇을 칠할까"></legend><select id="ind"></select><span class="small muted" id="kind"></span></fieldset>
+    <fieldset><legend data-en="2. Where and when" data-ko="2. 어디, 언제"></legend><select id="reg"></select>
+      <label><input type="radio" name="yr" value="first"> 2000</label><label><input type="radio" name="yr" value="latest" checked> <span data-en="latest year" data-ko="최근 연도"></span></label></fieldset>
+    <fieldset><legend data-en="3. Cut into classes" data-ko="3. 구간 나누기"></legend>
+      <label><input type="radio" name="meth" value="equal" checked> <span data-en="equal interval (same width)" data-ko="같은 간격(구간 폭이 같음)"></span></label>
+      <label><input type="radio" name="meth" value="quantile"> <span data-en="quantile (same number of countries)" data-ko="같은 개수(구간마다 나라 수가 같음)"></span></label>
+      <label><input type="radio" name="meth" value="manual"> <span data-en="my own breaks" data-ko="내가 정한 경계"></span></label>
+      <label><span data-en="classes" data-ko="구간 수"></span> <input type="number" id="k" min="3" max="7" value="5"></label>
+      <div id="breaksBox" hidden></div></fieldset>
+    <fieldset><legend data-en="4. Colours" data-ko="4. 색"></legend><div id="pals"></div></fieldset>
+  </form>
+  <div style="display:grid;gap:.8rem;min-width:0">
+    <div class="mapcard">
+      <h2 id="mtitle"></h2>
+      <svg id="map" role="img"></svg>
+      <div id="legend"></div>
+      <svg id="strip" role="img" aria-label="Distribution of values with class breaks"></svg>
+      <p class="small muted" data-en="Each dot is one country (when values range from tiny to huge, each step to the right is 10 times more: a log scale). The lines are your class breaks." data-ko="점 하나가 나라 하나입니다(수치가 아주 작은 값부터 아주 큰 값까지 퍼져 있으면, 오른쪽으로 한 칸 갈 때마다 10배가 되는 로그 눈금). 세로선이 내가 정한 구간 경계입니다."></p>
+      <p class="src" id="src"></p>
+    </div>
+    <div class="task"><h3 data-en="Checklist: does my map have…" data-ko="점검: 내 지도에는 … 이 있는가"></h3><div class="checks" id="checks"></div></div>
+    <div class="task" id="tasks"></div>
+    <div class="task"><h3 data-en="My conclusion" data-ko="내 결론"></h3>
+      <p class="small" data-en="Which version of the map would you publish, and why? Which version could mislead a reader?" data-ko="어떤 지도를 발표하겠는가, 그 까닭은? 어떤 지도가 읽는 사람을 잘못 이끌 수 있는가?"></p>
+      <textarea id="concl" rows="4"></textarea></div>
+  </div>
+</div>
+<footer><p class="src" data-en="Statistics: Our World in Data (sources per layer). Map: Natural Earth 1:110m. Colour schemes after ColorBrewer (Cynthia Brewer)." data-ko="통계: Our World in Data(자료 층마다 출처). 지도: Natural Earth 1:110m. 색 조합은 ColorBrewer(Cynthia Brewer)를 따름."></p></footer>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+<script src="js/core.js"></script>
+<script src="js/catalog.js"></script>
+<script src="js/mapmaker.js"></script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Climate graph lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans+KR:wght@400;600&family=Noto+Serif+KR:wght@600;800&display=swap">
+<link rel="stylesheet" href="css/atlas.css">
+<style>
+.tabs { display: flex; flex-wrap: wrap; gap: .4rem; margin: .4rem 0 1.2rem; }
+.layout { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
+@media (max-width: 820px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+.steps { display: grid; gap: .35rem; margin: .4rem 0; padding: 0; list-style: none; counter-reset: s; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 1.6rem 1fr; gap: .4rem; font-size: .9rem; }
+.steps li::before { content: counter(s); font-family: var(--mono); color: var(--ocean); font-weight: 600; }
+.steps li.hit { font-weight: 600; }
+.code { font-family: var(--mono); font-weight: 600; font-size: 1.6rem; }
+.badge { display: inline-block; padding: .1rem .55rem; border-radius: 99px; color: #10181c; font-size: .8rem; font-weight: 600; }
+.drawmode { display: inline-flex; border: 1px solid var(--line); border-radius: 99px; overflow: hidden; }
+.drawmode button { border: 0; background: transparent; font: inherit; font-size: .85rem; padding: .35rem .8rem; cursor: pointer; color: var(--muted); }
+.drawmode button[aria-pressed="true"][data-v="t"] { background: var(--temp); color: #fff; }
+.drawmode button[aria-pressed="true"][data-v="p"] { background: var(--prec); color: #fff; }
+.hitcol { fill: transparent; cursor: crosshair; }
+.ghost-t { fill: none; stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.ghost-p { fill: none; stroke: var(--ink); stroke-width: 1; stroke-dasharray: 3 2; }
+.match-graphs { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: .7rem; }
+.match-graphs figure { margin: 0; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: .4rem; }
+.match-graphs figcaption { font-weight: 600; text-align: center; font-family: var(--mono); }
+.clue { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .6rem; align-items: center; padding: .6rem 0; border-bottom: 1px solid var(--line); }
+.clue p { margin: 0; font-size: .92rem; }
+.clue .sel { display: flex; gap: .4rem; flex-wrap: wrap; }
+@media (max-width: 560px) { .clue { grid-template-columns: minmax(0, 1fr); } }
+.mystery svg { width: 100%; height: auto; display: block; border-radius: var(--radius); }
+.mpoint { cursor: pointer; }
+.mpoint circle { stroke: var(--ink); stroke-width: 1.5; }
+.mpoint.sel circle { stroke: var(--focus); stroke-width: 3; }
+.opts { display: flex; flex-wrap: wrap; gap: .4rem; }
+.result { min-height: 1.5rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1 data-en="Climate graph lab" data-ko="기후 그래프 실험실"></h1>
+<p class="muted" data-en="Climate graphs (climographs) show each month's average temperature as a red line and total rain as blue bars. Students in Japan call them 雨温図, in Germany Klimadiagramm. Most values are 1991-2020 station normals; a few cities use another or unstated period, shown with each city." data-ko="기후 그래프는 달마다 평균 기온을 빨간 선으로, 강수량을 파란 막대로 보여 줍니다. 일본에서는 雨温図, 독일에서는 Klimadiagramm이라고 부릅니다. 값은 대부분 기상 관측소의 1991 ~ 2020년 평년값이며, 일부 도시는 다른 기간이거나 기간이 확인되지 않았습니다(도시마다 표시)."></p>
+<div class="tabs" role="tablist">
+  <button class="chip" role="tab" data-tab="read" data-en="1 Read a city" data-ko="1 도시 읽기"></button>
+  <button class="chip" role="tab" data-tab="draw" data-en="2 Draw it yourself" data-ko="2 직접 그리기"></button>
+  <button class="chip" role="tab" data-tab="match" data-en="3 Match three pieces" data-ko="3 세 조각 맞추기"></button>
+  <button class="chip" role="tab" data-tab="mystery" data-en="4 Mystery continent" data-ko="4 이름 없는 대륙"></button>
+</div>
+
+<!-- 1 read -->
+<section id="tab-read" class="layout">
+  <div class="stack">
+    <svg id="readMap" aria-label="Map of climate stations"></svg>
+    <div class="row small" id="legend"></div>
+  </div>
+  <div class="panel stack" id="readPanel"></div>
+</section>
+
+<!-- 2 draw -->
+<section id="tab-draw" hidden>
+  <div class="layout">
+    <div class="panel stack">
+      <div class="row">
+        <label for="drawCity" class="small" data-en="City" data-ko="도시"></label>
+        <select id="drawCity"></select>
+        <button class="btn ghost" id="drawRandom" data-en="Random, name hidden" data-ko="무작위 (이름 숨김)"></button>
+      </div>
+      <div class="scroll"><table class="data mono" id="drawTable"></table></div>
+      <div class="row">
+        <span class="small" data-en="Now drawing:" data-ko="지금 그리는 것:"></span>
+        <span class="drawmode" role="group"><button data-v="t" aria-pressed="true" data-en="Temperature" data-ko="기온"></button><button data-v="p" aria-pressed="false" data-en="Precipitation" data-ko="강수량"></button></span>
+      </div>
+      <p class="small muted" data-en="Click or drag inside each month's column to set the value. Temperature is the dot, precipitation is the bar." data-ko="달마다 세로 칸 안을 누르거나 끌어서 값을 정하세요. 기온은 점, 강수량은 막대입니다."></p>
+    </div>
+    <div class="panel stack">
+      <svg id="drawChart" aria-label="Your climate graph"></svg>
+      <div class="row"><button class="btn" id="drawCheck" data-en="Check my graph" data-ko="내 그래프 확인"></button><button class="btn ghost" id="drawClear" data-en="Clear" data-ko="지우기"></button></div>
+      <div class="result" id="drawResult" aria-live="polite"></div>
+      <div id="drawClassify" hidden>
+        <h3 data-en="Which climate is it?" data-ko="어떤 기후일까?"></h3>
+        <div class="opts" id="groupOpts"></div>
+        <div class="result" id="groupResult" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 match -->
+<section id="tab-match" hidden>
+  <p data-en="Each sentence describes one city. Pick its climate graph (A-D) and its place on the map (1-4). A row scores only when both are right, as in Tokyo's high-school entrance exam." data-ko="문장마다 한 도시를 설명합니다. 그 도시의 기후 그래프(A ~ D)와 지도 위 위치(1 ~ 4)를 고르세요. 일본 도쿄 고교 입시처럼 둘 다 맞아야 점수가 됩니다."></p>
+  <div class="layout">
+    <div class="match-graphs" id="matchGraphs"></div>
+    <div class="stack">
+      <svg id="matchMap" aria-label="Map with four numbered places"></svg>
+      <div id="matchClues"></div>
+      <div class="row"><button class="btn" id="matchCheck" data-en="Check" data-ko="채점"></button><button class="btn ghost" id="matchNew" data-en="New set" data-ko="새 문제"></button></div>
+      <div class="result" id="matchResult" aria-live="polite"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 mystery -->
+<section id="tab-mystery" hidden class="mystery">
+  <p data-en="This continent does not exist. You only know latitude, height above sea and the ocean around it. Choose a point, then choose its climate and see if your reasoning holds. Japan's teachers use tasks like this so that students apply rules instead of memorising place names." data-ko="이 대륙은 실제로 없습니다. 아는 것은 위도, 해발 고도, 둘러싼 바다뿐입니다. 지점을 고르고 기후를 골라, 내 추론이 맞는지 확인하세요. 일본 교사들은 지명을 외우는 대신 원리를 적용하게 하려고 이런 문제를 씁니다."></p>
+  <div class="layout">
+    <svg id="mysteryMap" viewBox="0 0 520 600" aria-label="Imaginary continent"></svg>
+    <div class="panel stack">
+      <div id="mysteryPrompt" class="small muted" data-en="Choose a lettered point on the map." data-ko="지도에서 글자가 붙은 지점을 고르세요."></div>
+      <div class="opts" id="mysteryOpts"></div>
+      <div class="result" id="mysteryResult" aria-live="polite"></div>
+      <div class="small muted" id="mysteryScore"></div>
+    </div>
+  </div>
+</section>
+
+<p class="small muted" style="margin-top:2rem" data-en="How the climate is named: the lab follows Köppen's rules with the coldest-month line at -3 °C, as Korean textbooks do. Many US and international sources use 0 °C, so a few cities (Seoul is one) can be called 'temperate' here and 'continental' elsewhere." data-ko="기후를 판정하는 방법: 쾨펜의 기준을 따르고, 한국 교과서처럼 최한월 평균 기온 -3 °C를 온대와 냉대의 경계로 씁니다. 미국 등 여러 나라 자료는 0 °C를 쓰기 때문에 서울처럼 여기서는 '온대', 다른 자료에서는 '냉대'로 나오는 도시가 있습니다."></p>
+<footer id="sources"></footer>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+<script src="js/core.js"></script>
+<script src="js/climate.js"></script>
+</body>
+</html>

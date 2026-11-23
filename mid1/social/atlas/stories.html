@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>My country and the world</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans+KR:wght@400;600&family=Noto+Serif+KR:wght@600;800&display=swap">
+<link rel="stylesheet" href="css/atlas.css">
+<style>
+section.block { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem 1.1rem; margin-block: 1.2rem; display: grid; gap: .7rem; min-width: 0; }
+section.block h2 { margin: 0; }
+select, input[type=text] { font: inherit; font-size: .9rem; padding: .3rem .45rem; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); max-width: 100%; }
+.strips { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: .6rem 1.2rem; }
+.strip { display: grid; gap: .1rem; min-width: 0; }
+.strip svg { width: 100%; height: auto; }
+.strip .t { font-size: .82rem; display: flex; justify-content: space-between; gap: .5rem; }
+.strip .t b { font-family: var(--mono); white-space: nowrap; }
+.chain { display: grid; grid-template-columns: minmax(0, 1fr) 19rem; gap: 1rem; align-items: start; }
+@media (max-width: 900px) { .chain { grid-template-columns: minmax(0, 1fr); } }
+#chainMap { width: 100%; height: auto; }
+.flow { fill: none; stroke: var(--temp); stroke-width: 1.6; stroke-dasharray: 5 4; opacity: .85; }
+.steps { display: grid; gap: .45rem; counter-reset: s; }
+.step { border: 1px solid var(--line); border-radius: 6px; padding: .45rem .6rem; font-size: .86rem; cursor: pointer; background: var(--bg); }
+.step[aria-current="true"] { border-color: var(--temp); }
+.step b::before { counter-increment: s; content: counter(s) ". "; }
+.news { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); gap: .8rem; }
+.paper { border: 1px solid var(--line); border-radius: 6px; padding: .7rem .8rem; background: var(--bg); display: grid; gap: .45rem; align-content: start; }
+.paper h3 { margin: 0; font-family: var(--display); font-size: 1rem; }
+.paper .opts { display: grid; gap: .3rem; }
+.paper button.o { text-align: left; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); color: var(--ink); font: inherit; font-size: .82rem; padding: .3rem .5rem; cursor: pointer; }
+.paper button.o.right { border-color: var(--ocean); background: var(--ocean-soft); }
+.paper button.o.wrong { border-color: var(--temp); }
+.made { display: grid; grid-template-columns: minmax(0, 1fr) 17rem; gap: 1rem; align-items: start; }
+@media (max-width: 900px) { .made { grid-template-columns: minmax(0, 1fr); } }
+#madeMap { width: 100%; height: auto; }
+.items { display: grid; gap: .25rem; font-size: .85rem; max-height: 16rem; overflow: auto; }
+.items div { display: flex; justify-content: space-between; gap: .5rem; border-bottom: 1px solid var(--line); padding-block: .15rem; }
+.items button { border: 0; background: none; color: var(--muted); cursor: pointer; font: inherit; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1 data-en="My country and the world" data-ko="내 나라와 세계"></h1>
+<p class="muted" data-en="Start from a country you know. See where it stands, follow how things are made across borders, read the news with geography eyes, and count where your own things come from." data-ko="잘 아는 나라에서 시작합니다. 그 나라가 세계에서 어디쯤 서 있는지 보고, 물건이 국경을 넘어 만들어지는 길을 따라가고, 지리의 눈으로 뉴스를 읽고, 내 물건이 어디서 왔는지 세어 봅니다."></p>
+
+<section class="block" id="mine">
+  <h2 data-en="1. Where does my country stand?" data-ko="1. 내 나라는 세계에서 어디쯤일까?"></h2>
+  <div class="row"><label><span data-en="My country" data-ko="내 나라"></span> <select id="country"></select></label><span class="small muted" id="mineNote"></span></div>
+  <div class="strips" id="strips"></div>
+  <p class="small muted" data-en="Each tick is one country (latest year). The red mark is your country, the grey line is the middle country of the world (median). Ranks count only countries with data." data-ko="눈금 하나가 나라 하나입니다(최근 연도). 빨간 표시가 내 나라, 회색 선은 세계의 한가운데 나라(중앙값)입니다. 순위는 자료가 있는 나라만 셉니다."></p>
+  <p class="small" id="mineLinks"></p>
+</section>
+
+<section class="block" id="chainBox">
+  <h2 id="chainTitle"></h2>
+  <p class="small" id="chainIntro"></p>
+  <span class="synth small" style="justify-self:start;margin:0" data-en="made-up company" data-ko="가상의 회사"></span>
+  <div class="chain">
+    <div><svg id="chainMap" role="group" aria-label="Map of the production chain"></svg><div id="chainTable"></div></div>
+    <div class="steps" id="steps"></div>
+  </div>
+  <div id="chainQ"></div>
+</section>
+
+<section class="block">
+  <h2 data-en="3. Read the news with geography eyes" data-ko="3. 지리의 눈으로 뉴스 읽기"></h2>
+  <p class="small muted" data-en="These news items are made up for practice. Which idea from the units explains each one?" data-ko="연습용으로 지어낸 뉴스입니다. 단원에서 배운 어떤 개념이 각 뉴스를 설명할까요?"></p>
+  <div class="news" id="news"></div>
+</section>
+
+<section class="block">
+  <h2 data-en="4. Count where your things are made" data-ko="4. 내 물건의 생산국 세기"></h2>
+  <p class="small" data-en="Look at labels at home (clothes, shoes, toys, electronics). Add each item and the country on its label. Your list stays only in this browser." data-ko="집에 있는 물건의 상표를 보세요(옷 · 신발 · 장난감 · 전자 제품). 물건과 상표에 적힌 나라를 하나씩 넣으세요. 목록은 이 브라우저에만 저장됩니다."></p>
+  <div class="row"><input type="text" id="itemName" maxlength="40" data-en-aria="Item" data-ko-aria="물건"><select id="itemCountry"></select><button type="button" class="btn" id="addItem" data-en="Add" data-ko="넣기"></button></div>
+  <div class="made"><div><svg id="madeMap" role="img" aria-label="Map of where my things were made"></svg><div id="madeLegend"></div></div><div><div class="items" id="items"></div><p class="small" id="madeSum"></p></div></div>
+  <p class="small"><strong data-en="Think:" data-ko="생각해 보기:"></strong> <span data-en="Which region made most of your things? Use section 2 to explain why. Which of your things were made in your own country?" data-ko="내 물건은 어느 지역에서 가장 많이 만들어졌나요? 2번의 운동화 이야기를 근거로 까닭을 설명해 보세요. 내 나라에서 만든 물건은 무엇인가요?"></span></p>
+</section>
+<footer><p class="src" data-en="Statistics: Our World in Data (sources per indicator). Map: Natural Earth 1:110m. Company, towns and news are invented and name no real company." data-ko="통계: Our World in Data(지표마다 출처). 지도: Natural Earth 1:110m. 회사 · 도시 · 뉴스는 지어낸 것이며 실제 기업 이름을 쓰지 않습니다."></p></footer>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+<script src="js/core.js"></script>
+<script src="js/catalog.js"></script>
+<script src="js/stories.js"></script>
+</body>
+</html>

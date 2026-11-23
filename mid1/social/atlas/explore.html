@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Explore map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans+KR:wght@400;600&family=Noto+Serif+KR:wght@600;800&display=swap">
+<link rel="stylesheet" href="css/atlas.css">
+<style>
+.ex { display: grid; grid-template-columns: minmax(0, 1fr) 20rem; gap: 1.2rem; align-items: start; }
+@media (max-width: 900px) { .ex { grid-template-columns: minmax(0, 1fr); } }
+.ctl { display: grid; gap: .7rem; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: .8rem 1rem; margin-bottom: .8rem; }
+.ctl .row { align-items: center; }
+.ctl label { font-size: .85rem; }
+.ctl select { font: inherit; font-size: .85rem; padding: .25rem .4rem; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); max-width: 100%; }
+.bigq { font-family: var(--display); font-size: 1.15rem; border-left: 4px solid var(--ocean); padding-left: .8rem; margin: .2rem 0 .6rem; min-height: 1.4em; }
+#map { width: 100%; height: auto; touch-action: manipulation; }
+.country.sel { stroke: var(--ink); stroke-width: 1.6px; }
+.side { display: grid; gap: .8rem; }
+.side .panel h3 { margin: 0 0 .3rem; }
+.side table.data td:nth-child(n+2) { text-align: right; font-family: var(--mono); white-space: nowrap; }
+.cardlinks { display: grid; gap: .3rem; }
+.cardlinks a { font-size: .88rem; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 99px; overflow: hidden; }
+.seg button { border: 0; background: transparent; color: var(--ink); font: inherit; font-size: .8rem; padding: .25rem .7rem; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ocean-soft); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1 data-en="Explore map" data-ko="지도 탐험"></h1>
+<div class="ctl">
+  <div class="row"><b class="small" data-en="By region" data-ko="지역으로"></b><div class="chips" id="regionChips"></div></div>
+  <div class="row"><b class="small" data-en="By theme" data-ko="주제로"></b><div class="chips" id="themeChips"></div></div>
+  <div class="row">
+    <label><span data-en="Layer" data-ko="자료 층"></span> <select id="layer"></select></label>
+    <span class="seg" id="yearSeg" role="group" aria-label="Year"><button type="button" data-y="first">2000</button><button type="button" data-y="latest" data-en="latest" data-ko="최근"></button></span>
+    <span class="seg" id="scaleSeg" role="group" aria-label="Class breaks from"><button type="button" data-s="world" data-en="classes: world" data-ko="구간: 세계 기준"></button><button type="button" data-s="region" data-en="classes: this region" data-ko="구간: 이 지역 기준"></button></span>
+    <label><input type="checkbox" id="pinsOn" checked> <span data-en="climate stations" data-ko="기후 관측 도시"></span></label>
+  </div>
+</div>
+<div class="ex">
+  <div>
+    <p class="bigq" id="bigq"></p>
+    <svg id="map" role="group" aria-label="World map: click a country"></svg>
+    <div id="legend"></div>
+    <p class="src" id="src"></p>
+    <p class="note small" id="hint"></p>
+  </div>
+  <aside class="side">
+    <div class="panel" id="info"></div>
+    <div class="panel" id="cardsBox"></div>
+  </aside>
+</div>
+<footer><p class="src" data-en="Map: Natural Earth 1:110m (public domain) via world-atlas. Borders as drawn by Natural Earth; they are not a statement about any dispute. Region groups follow the UN M49 standard, except that Greenland and Antarctica are grouped with Oceania and the polar regions, as in Korean textbooks." data-ko="지도: Natural Earth 1:110m(퍼블릭 도메인, world-atlas). 국경선은 Natural Earth가 그린 대로이며 분쟁에 대한 입장을 나타내지 않습니다. 지역 묶음은 UN M49를 따르되, 그린란드와 남극은 한국 교과서처럼 오세아니아와 극지방에 넣었습니다."></p></footer>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+<script src="js/core.js"></script>
+<script src="js/catalog.js"></script>
+<script src="js/explore.js"></script>
+</body>
+</html>
