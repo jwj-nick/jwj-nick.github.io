@@ -127,9 +127,29 @@
       sel.select('circle').style('fill', d => (o.color ? o.color(d) : 'var(--ocean)'));
       sel.select('text').text(d => (o.label ? o.label(d) : ''));
       if (o.onClick) sel.on('click', (ev, d) => o.onClick(d, ev)).on('keydown', (ev, d) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); o.onClick(d, ev); } });
+      out.pinClick = o.onClick || null;
+      // one listener per <svg>, even when the map is redrawn into it many times
+      const node = svg.node(); node.__pinMap = out;
+      if (!node.__pinHitOn) { node.__pinHitOn = true; node.addEventListener('click', ev => A.pinHit(node.__pinMap, ev), true); }
       return sel;
     };
     return out;
+  };
+
+  // A pin is drawn small (r 5) so it does not hide the map, but a tap anywhere within
+  // 22 CSS px of its centre (a 44 px target) picks it. Runs in the capture phase, so a
+  // near tap wins over the country underneath; a tap farther away falls through.
+  A.PIN_HIT = 22;
+  A.pinHit = function (m, ev) {
+    if (!m.pinClick || ev.target.closest && ev.target.closest('.pin')) return;
+    let best = null, bd = A.PIN_HIT;
+    m.pins.selectAll('.pin').each(function (d) {
+      if (this.style.display === 'none') return;
+      const r = this.getBoundingClientRect();
+      const dist = Math.hypot(ev.clientX - (r.left + r.width / 2), ev.clientY - (r.top + r.height / 2));
+      if (dist < bd) { bd = dist; best = d; }
+    });
+    if (best) { ev.stopPropagation(); ev.preventDefault(); m.pinClick(best, ev); }
   };
 
   /* ---------- climograph ---------- */
@@ -284,6 +304,7 @@
   A.periodText = function (p) {
     if (p === '미명시') return A.t({ en: 'period not stated', ko: '관측 기간 미표시' });
     if (p === '미확인') return A.t({ en: 'period unconfirmed', ko: '관측 기간 미확인' });
+    if (p && A.lang !== 'ko') return p.replace('기온', 'temperature').replace('강수', 'precipitation');
     return p || '';
   };
   A.gradeText = function (g) {
@@ -294,8 +315,8 @@
     return A.esc(text || '').replace(/(?:https?|ftp):\/\/[^\s;,)]+/g, u => '<a href="' + u + '" target="_blank" rel="noopener">' + u.replace(/^(?:https?|ftp):\/\//, '').slice(0, 48) + (u.length > 56 ? '…' : '') + '</a>');
   };
   A.LICENCE = {
-    en: 'Map: Natural Earth (public domain) via world-atlas. Climate: WMO 1991-2020 normals and national weather services, period and source shown per city. Statistics: Our World in Data, licence per layer (CC BY 4.0 or CC BY 3.0 IGO; the land area inside population density is FAO data under CC BY-NC-SA 3.0 IGO, non-commercial). Colours: ColorBrewer (Cynthia Brewer).',
-    ko: '지도: Natural Earth(퍼블릭 도메인, world-atlas). 기후: WMO 1991-2020 평년값과 각국 기상청, 도시마다 기간 · 출처 표시. 통계: Our World in Data, 자료 층마다 라이선스가 다름(CC BY 4.0 또는 CC BY 3.0 IGO, 인구 밀도에 들어간 FAO 토지 면적은 CC BY-NC-SA 3.0 IGO로 비상업 조건). 색: ColorBrewer(Cynthia Brewer).',
+    en: 'Map: Natural Earth (public domain): country outlines 1:110m via world-atlas, landforms, rivers, lakes and seas 1:50m, simplified. Climate: WMO 1991-2020 normals and national weather services, period and source shown per city. Statistics: Our World in Data, licence per layer (CC BY 4.0 or CC BY 3.0 IGO; the land area inside population density is FAO data under CC BY-NC-SA 3.0 IGO, non-commercial). Colours: ColorBrewer (Cynthia Brewer).',
+    ko: '지도: Natural Earth(퍼블릭 도메인). 나라 경계는 1:110m(world-atlas), 지형 · 강 · 호수 · 바다는 1:50m를 단순화. 기후: WMO 1991-2020 평년값과 각국 기상청, 도시마다 기간 · 출처 표시. 통계: Our World in Data, 자료 층마다 라이선스가 다름(CC BY 4.0 또는 CC BY 3.0 IGO, 인구 밀도에 들어간 FAO 토지 면적은 CC BY-NC-SA 3.0 IGO로 비상업 조건). 색: ColorBrewer(Cynthia Brewer).',
   };
   A.ncNote = ind => (ind === 'population_density' ? ' · ' + A.t({ en: 'non-commercial reuse only (FAO land area)', ko: '비상업 용도로만 다시 쓸 수 있음(FAO 토지 면적)' }) : '');
 

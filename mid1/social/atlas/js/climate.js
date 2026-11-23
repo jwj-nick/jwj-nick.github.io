@@ -15,11 +15,20 @@
   function showTab(t) {
     tabs.forEach(x => {
       document.getElementById('tab-' + x).hidden = x !== t;
-      document.querySelector('[data-tab="' + x + '"]').setAttribute('aria-pressed', String(x === t));
+      const tb = document.querySelector('[data-tab="' + x + '"]'); tb.setAttribute('aria-selected', String(x === t)); tb.tabIndex = x === t ? 0 : -1;
     });
     if (t === 'match' && !matchState) newMatch();
   }
-  document.querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', () => { history.replaceState(null, '', '#' + b.dataset.tab); showTab(b.dataset.tab); }));
+  document.querySelectorAll('[data-tab]').forEach(b => {
+    b.addEventListener('click', () => { history.replaceState(null, '', '#' + b.dataset.tab); showTab(b.dataset.tab); });
+    b.addEventListener('keydown', ev => {
+      const d = ev.key === 'ArrowRight' ? 1 : ev.key === 'ArrowLeft' ? -1 : 0;
+      if (!d) return;
+      ev.preventDefault();
+      const nx = tabs[(tabs.indexOf(b.dataset.tab) + d + tabs.length) % tabs.length];
+      const nb = document.querySelector('[data-tab="' + nx + '"]'); nb.click(); nb.focus();
+    });
+  });
 
   /* ---------- reasoning steps ---------- */
   function steps(c) {
@@ -141,6 +150,26 @@
       const i = Math.max(0, Math.min(11, Math.floor((mx - left) / s.x.step())));
       set(i, Math.max(0, Math.min(s.ih, my)));
     };
+    // Keyboard: each month column takes focus; Up/Down change the value, Left/Right move month.
+    hits.attr('tabindex', 0).attr('role', 'slider')
+      .attr('aria-label', i => L('Month ', '') + (i + 1) + L('', '월') + ' · ' + (drawVar === 't' ? L('temperature', '기온') : L('precipitation', '강수량')))
+      .attr('aria-valuenow', i => (drawVar === 't' ? drawT[i] : drawP[i]))
+      .on('keydown', (ev, i) => {
+        const k = ev.key;
+        if (k === 'ArrowLeft' || k === 'ArrowRight') {
+          ev.preventDefault();
+          const n = Math.max(0, Math.min(11, i + (k === 'ArrowRight' ? 1 : -1)));
+          const el = svgEl.querySelectorAll('.hitcol')[n]; if (el) el.focus();
+          return;
+        }
+        if (k !== 'ArrowUp' && k !== 'ArrowDown') return;
+        ev.preventDefault();
+        const up = k === 'ArrowUp' ? 1 : -1;
+        if (drawVar === 't') drawT[i] = Math.max(-30, Math.min(40, (drawT[i] == null ? 10 : drawT[i]) + up));
+        else drawP[i] = Math.max(0, (drawP[i] == null ? 50 : drawP[i]) + up * 10);
+        renderDraw(ghost);
+        const el = svgEl.querySelectorAll('.hitcol')[i]; if (el) el.focus();
+      });
     hits.on('pointerdown', ev => { ev.preventDefault(); svg.node().setPointerCapture && svg.node().setPointerCapture(ev.pointerId); pick(ev); svg.on('pointermove.draw', pick); });
     svg.on('pointerup.draw pointercancel.draw pointerleave.draw', () => svg.on('pointermove.draw', null));
   }
@@ -254,6 +283,10 @@
       .attr('transform', d => 'translate(' + d.x + ',' + yOf(d.lat) + ')');
     pts.append('circle').attr('r', 11).style('fill', d => (mDone[d.id] == null ? 'var(--paper)' : mDone[d.id] ? 'var(--good)' : 'var(--bad)'));
     pts.append('text').attr('text-anchor', 'middle').attr('y', 4).style('font-weight', 700).style('font-size', '12px').style('fill', d => (mDone[d.id] == null ? 'var(--ink)' : '#fff')).text(d => d.id);
+    // Right or wrong is also shown by a mark, not only by colour.
+    pts.filter(d => mDone[d.id] != null).append('text').attr('x', 13).attr('y', -9).style('font-weight', 700).style('font-size', '13px')
+      .style('fill', d => (mDone[d.id] ? 'var(--good)' : 'var(--bad)')).text(d => (mDone[d.id] ? '✓' : '✗'));
+    pts.attr('aria-label', d => d.id + (mDone[d.id] == null ? '' : mDone[d.id] ? L(' correct', ' 맞음') : L(' wrong', ' 틀림')));
     pts.on('click', (ev, d) => selectPoint(d)).on('keydown', (ev, d) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); selectPoint(d); } });
   }
   function selectPoint(d) {
