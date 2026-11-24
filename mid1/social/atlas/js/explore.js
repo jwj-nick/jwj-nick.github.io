@@ -267,7 +267,7 @@
       g.on('click', ev => { ev.stopPropagation(); pickPlace(f, ev); });
     });
   }
-  function shortName(f) { return A.t(f.name).replace(/\s*\([^)]*\)$/, '').replace(/\(.*\)$/, ''); }
+  function shortName(f) { if (f.kind === 'sea') return A.t(f.name); return A.t(f.name).replace(/\s*\([^)]*\)$/, '').replace(/\(.*\)$/, ''); }
   function pickPlace(f, ev) {
     if (quiz) return quizAnswer(ev);
     st.feat = st.feat === f.id ? null : f.id;

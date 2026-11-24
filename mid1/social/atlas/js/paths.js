@@ -7,7 +7,7 @@
       intro: L('For each unit: a data card, a climate graph, then the places on the map. About 20 minutes per unit. Other cards for each unit are on the data cards page.',
                '단원마다 자료 카드, 기후 그래프, 지도에서 지명 찾기 순서로 봅니다. 단원마다 20분 정도 걸립니다. 단원의 다른 카드는 자료 카드 화면에 있습니다.'),
       stages: [
-        [L('I · Living in a connected world', 'I · 세계화 시대, 지리의 힘'), [['cards.html#world-location-1', 'card'], ['cards.html#world-localization-1', 'card'], ['cards.html#world-glocal-1', 'card'], ['explore.html#t-globalization', L('Map: globalization', '지도: 세계화')]]],
+        [L('I · Living in a connected world', 'I · 세계화 시대, 지리의 힘'), [['cards.html#world-location-1', 'card'], ['cards.html#world-scale-1', 'card'], ['cards.html#world-localization-1', 'card'], ['cards.html#world-glocal-1', 'card'], ['explore.html#t-globalization', L('Map: globalization', '지도: 세계화')]]],
         [L('II · Asia', 'II · 아시아'), [['cards.html#as-monsoon-1', 'card'], ['cards.html#as-population-1', 'card'], ['climate.html#mumbai', 'city'], ['explore.html#r-asia', L('Asia on the map', '지도에서 아시아 보기')]]],
         [L('III · Europe', 'III · 유럽'), [['cards.html#eu-climate-1', 'card'], ['cards.html#eu-integration-1', 'card'], ['climate.html#london', 'city'], ['explore.html#r-europe', L('Europe on the map', '지도에서 유럽 보기')]]],
         [L('V · The Americas', 'V · 아메리카'), [['cards.html#am-highland-1', 'card'], ['cards.html#am-tnc-1', 'card'], ['climate.html#quito', 'city'], ['explore.html#r-americas', L('The Americas on the map', '지도에서 아메리카 보기')]]],
