@@ -9,8 +9,9 @@
     ['II', { en: 'II · Asia', ko: 'II · 아시아' }],
     ['III', { en: 'III · Europe', ko: 'III · 유럽' }],
     ['V', { en: 'V · The Americas', ko: 'V · 아메리카' }],
-    ['more', { en: 'More regions (beyond the Korean exam range)', ko: '더 보기(시험 범위 밖)' }],
+    ['more', { en: 'Beyond the Korean exam range', ko: '시험 범위 밖' }],
   ];
+  const UNIT_CHIPS = UNITS.filter(u => u[0] !== 'more');  // cards outside the exam units are found by region
   const LEVELS = {
     1: { en: 'Find it in the data', ko: '자료에서 찾기' },
     2: { en: 'Explain with the data', ko: '자료로 설명하기' },
@@ -20,7 +21,7 @@
   const load = k => { try { return localStorage.getItem(DK + k) || ''; } catch (e) { return ''; } };
   const save = (k, v) => { try { localStorage.setItem(DK + k, v); } catch (e) {} };
 
-  let cards = [], ctx = null, unit = 'all', cur = null;
+  let cards = [], ctx = null, unit = 'all', region = 'all', cur = null;
   const $list = document.getElementById('cardList'), $card = document.getElementById('card');
 
   function themeName(id) { const t = (window.CATALOG && CATALOG.themes || []).find(x => x.id === id); return t ? t.name : { en: id }; }
@@ -28,14 +29,18 @@
 
   function chips() {
     const box = document.getElementById('unitChips');
-    box.innerHTML = UNITS.map(([u, l]) => '<button type="button" class="chip" data-u="' + u + '" aria-pressed="' + (u === unit) + '">' + A.esc(A.t(l)) + '</button>').join('');
+    box.innerHTML = UNIT_CHIPS.map(([u, l]) => '<button type="button" class="chip" data-u="' + u + '" aria-pressed="' + (u === unit) + '">' + A.esc(A.t(l)) + '</button>').join('');
     box.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { unit = b.dataset.u; chips(); list(); }));
+    const rb = document.getElementById('regionChips');
+    const regs = [['all', { en: 'All', ko: '전체' }]].concat((window.CATALOG ? CATALOG.regions : []).map(r => [r.id, r.name]), [['world', { en: 'World', ko: '세계' }]]);
+    rb.innerHTML = regs.map(([r, l]) => { const n = cards.filter(c => r === 'all' || c.region === r).length; return '<button type="button" class="chip" data-r="' + r + '" aria-pressed="' + (r === region) + '">' + A.esc(A.t(l)) + ' <span class="muted">' + n + '</span></button>'; }).join('');
+    rb.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { region = b.dataset.r; chips(); list(); }));
   }
-  function visible() { return cards.filter(c => unit === 'all' || c.unit === unit); }
+  function visible() { return cards.filter(c => (unit === 'all' || c.unit === unit) && (region === 'all' || c.region === region)); }
   function list() {
     const vs = visible();
     $list.innerHTML = vs.map(c => '<button type="button" data-id="' + c.id + '" aria-current="' + (cur && c.id === cur.id) + '"><span>' + A.esc(A.t(c.title)) +
-      '</span><small>' + A.esc(c.unit) + ' · ' + A.esc(A.t(themeName(c.theme))) + '</small></button>').join('');
+      '</span><small>' + A.esc(c.unit === 'more' ? A.t({ en: 'extra', ko: '범위 밖' }) : c.unit) + ' · ' + A.esc(A.t(themeName(c.theme))) + '</small></button>').join('');
     $list.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { location.hash = b.dataset.id; }));
     if (!cur || !vs.includes(cur)) { if (vs[0]) show(vs[0].id, true); }
   }
@@ -52,6 +57,15 @@
     const sb = $card.querySelector('.sources');
     c.sources.forEach(s => { const box = A.el('div', { class: 'src-box' }); sb.appendChild(box); A.Sources.render(box, s, ctx); });
     c.ladder.forEach(r => $card.appendChild(rung(c, r)));
+    /* See together: other cards on the same theme, then the region on the map. */
+    const same = cards.filter(x => x.id !== c.id && x.theme === c.theme).slice(0, 3);
+    const see = A.el('div', { class: 'see-also' });
+    see.innerHTML = '<h3 class="small">' + A.esc(A.t({ en: 'See together', ko: '함께 보기' })) + '</h3><div class="chips">' +
+      same.map(x => '<button type="button" class="chip" data-id="' + x.id + '">' + A.esc(A.t({ en: 'Card: ', ko: '카드: ' }) + A.t(x.title)) + '</button>').join('') +
+      (c.region && c.region !== 'world' ? '<a class="chip" href="explore.html#r-' + c.region + '">' + A.esc(A.t({ en: 'This region on the map', ko: '지도에서 이 지역 보기' })) + '</a>' : '') +
+      '<a class="chip" href="explore.html#t-' + c.theme + '">' + A.esc(A.t({ en: 'This theme on the map', ko: '지도에서 이 주제 보기' })) + '</a></div>';
+    see.querySelectorAll('button[data-id]').forEach(b => b.addEventListener('click', () => { history.replaceState(null, '', '#' + b.dataset.id); show(b.dataset.id); }));
+    $card.appendChild(see);
     if (!quiet) $card.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 

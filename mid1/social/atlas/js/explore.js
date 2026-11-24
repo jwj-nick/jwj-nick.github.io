@@ -179,6 +179,15 @@
     box.innerHTML = '<h3>' + A.esc(A.t({ en: 'Data cards here', ko: '여기에 맞는 자료 카드' })) + '</h3>' +
       (hits.length ? '<div class="cardlinks">' + hits.map(c => '<a href="cards.html#' + c.id + '">' + A.esc(A.t(c.title)) + '</a>').join('') + '</div>'
         : '<p class="small muted">' + A.esc(A.t({ en: 'No card for this choice yet. Try another region or theme.', ko: '이 조합에 맞는 카드는 아직 없습니다. 다른 지역이나 주제를 골라 보세요.' })) + '</p>');
+    // Gathering view: with a region chosen, also list its climate graphs and how many landforms it has.
+    if (!st.region) return;
+    const cs = cities.filter(c => (window.__C[c.iso3] || {}).region === st.region)
+      .sort((a, b) => A.t(a).localeCompare(A.t(b)));
+    const np = phys ? phys.filter(f => f.region === st.region).length : 0;
+    box.insertAdjacentHTML('beforeend',
+      (cs.length ? '<h3>' + A.esc(A.t({ en: 'Climate graphs in this region', ko: '이 지역의 기후 그래프' })) + ' <span class="muted small">' + cs.length + '</span></h3><div class="cardlinks">' +
+        cs.map(c => '<a href="climate.html#' + c.id + '">' + A.esc(A.t(c)) + ' <span class="muted">' + c.koppen + '</span></a>').join('') + '</div>' : '') +
+      (np ? '<p class="small muted">' + A.esc(A.t({ en: np + ' landforms and places are on this map. Turn on "Landforms and places" to see them, or try the find-it practice.', ko: '이 지도에는 지형과 지명이 ' + np + '곳 있습니다. "지형과 지명"을 켜서 보거나 찾기 연습을 해 보세요.' })) + '</p>' : ''));
   }
 
   // Keyboard and screen-reader way to pick a country: a typed name instead of a click.

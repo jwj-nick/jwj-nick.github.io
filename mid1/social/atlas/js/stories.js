@@ -95,7 +95,7 @@
       const picked = news[n.id];
       return '<article class="paper"><span class="synth" style="justify-self:start">' + A.esc(A.t({ en: 'made-up news', ko: '가상의 뉴스' })) + '</span><h3>' + A.esc(A.t(n.headline)) + '</h3><p class="small" style="margin:0">' + A.esc(A.t(n.body)) +
         '</p><div class="opts">' + opts.map(o => '<button type="button" class="o' + (picked ? (o === n.answer ? ' right' : o === picked ? ' wrong' : '') : '') + '" data-n="' + n.id + '" data-o="' + o + '">' + A.esc(A.t(ST.concepts[o].name)) + '</button>').join('') + '</div>' +
-        (picked ? '<p class="small" style="margin:0">' + (picked === n.answer ? '✓ ' : '✗ ') + A.esc(A.t(ST.concepts[n.answer].why)) + ' <span class="muted">(' + A.esc(A.t({ en: 'Korean textbook unit ', ko: '한국 교과서 ' })) + ST.concepts[n.answer].unit + A.esc(A.t({ en: '', ko: '단원' })) + ')</span></p>' : '') + '</article>';
+        (picked ? '<p class="small" style="margin:0">' + (picked === n.answer ? '✓ ' : '✗ ') + A.esc(A.t(ST.concepts[n.answer].why)) + ' <span class="muted">(' + (ST.concepts[n.answer].unit ? A.esc(A.t({ en: 'Korean textbook unit ', ko: '한국 교과서 ' })) + ST.concepts[n.answer].unit + A.esc(A.t({ en: '', ko: '단원' })) : A.esc(A.t({ en: 'beyond the exam units', ko: '기말 범위 밖' }))) + ')</span></p>' : '') + '</article>';
     }).join('');
     $('news').querySelectorAll('button.o').forEach(b => b.addEventListener('click', () => { news[b.dataset.n] = b.dataset.o; newsCards(); }));
   }
