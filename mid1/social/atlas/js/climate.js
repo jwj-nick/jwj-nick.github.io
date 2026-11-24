@@ -99,9 +99,26 @@
       '<h3>' + L('Why this climate?', '왜 이 기후일까?') + '</h3><ol class="steps">' + st.list.map(s => '<li class="' + (s.hit ? 'hit' : '') + '">' + A.esc(T(s)) + '</li>').join('') + '</ol>' +
       (CLUES[c.id] ? '<p class="note small">' + A.esc(T(CLUES[c.id])) + '</p>' : '') +
       '<details class="small"><summary>' + L('Numbers', '숫자 보기') + '</summary>' + dataTable(c) + '</details>' +
-      '<p class="src">' + L('Source', '출처') + ' (' + A.esc(A.gradeText(c.grade)) + ', ' + A.esc(A.periodText(c.period)) + '): ' + A.linkify(c.src) + '</p>';
+      '<p class="src">' + L('Source', '출처') + ' (' + A.esc(A.gradeText(c.grade)) + ', ' + A.esc(A.periodText(c.period)) + '): ' + A.linkify(c.src) + '</p>' +
+      '<div class="see-also" id="readSee"></div>';
+    seeAlso(c);
     A.climograph(document.getElementById('readChart'), c.temp, c.prec);
     if (readMap) readMap.pins.selectAll('.pin circle').attr('r', d => (d.id === c.id ? 8 : 5));
+  }
+  /* See together: cards that draw this city's graph, landforms that point to it, and its region on the map. */
+  let LINKS = null;
+  function seeAlso(c) {
+    const box = document.getElementById('readSee');
+    if (!box || !LINKS) return;
+    const cards = LINKS.cards.filter(k => k.sources.some(s => s.type === 'climograph' && s.city === c.id));
+    const places = LINKS.places.filter(f => (f.links || []).includes('climate.html#' + c.id));
+    const reg = (LINKS.countries[c.iso3] || {}).region;
+    const chip = (h, t) => '<a class="chip" href="' + h + '">' + A.esc(t) + '</a>';
+    box.innerHTML = '<h3 class="small">' + L('See together', '함께 보기') + '</h3><div class="chips">' +
+      cards.map(k => chip('cards.html#' + k.id, T({ en: 'Card: ', ko: '카드: ' }) + T(k.title))).join('') +
+      places.map(f => chip('explore.html#f-' + f.id, T({ en: 'On the map: ', ko: '지도에서: ' }) + T(f.name))).join('') +
+      (reg ? chip('explore.html#r-' + reg + (reg === 'oceania_polar' && c.lat < -60 ? '/v-antarctic' : ''), T({ en: 'This region on the map', ko: '지도에서 이 지역 보기' })) : '') +
+      '</div>';
   }
   function dataTable(c, hideP, hideT) {
     const mh = A.MONTHS.ko.map(m => '<th>' + m + '</th>').join('');
@@ -309,6 +326,10 @@
   /* ---------- boot ---------- */
   Promise.all([A.world('110m'), A.json('data/cities.json'), A.json('data/city_notes.json')]).then(([world, cd, notes]) => {
     WORLD = world; CITIES = cd.cities; CLUES = notes.clues;
+    Promise.all([A.json('data/cards.json'), A.json('data/physical.json'), A.json('data/countries.json')]).then(([cj, pj, co]) => {
+      LINKS = { cards: cj.cards || cj, places: pj.features || pj, countries: co.countries || co };
+      const cur = byId(current); if (cur) seeAlso(cur);
+    }).catch(() => {});
     readMap = A.drawMap(document.getElementById('readMap'), world, { width: 720, height: 380 });
     const pinOpts = { r: 5, color: c => A.GROUP_COLORS[groupKey(c)], onClick: c => renderRead(c.id) };
     readMap.addPins(CITIES, pinOpts);

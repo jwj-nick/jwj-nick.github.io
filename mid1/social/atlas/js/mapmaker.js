@@ -94,6 +94,20 @@
       ' · ' + A.t({ en: 'range ', ko: '범위 ' }) + A.fmtNum(vs[0]) + '–' + A.fmtNum(vs[vs.length - 1]);
     strip(vs, br, col);
     checks(counts);
+    seeAlso();
+  }
+
+  /* See together: cards whose bar charts use the same data, and the chosen region on the explore map. */
+  let CARDS = [];
+  function seeAlso() {
+    let box = $('mmSee');
+    if (!box) { box = A.el('div', { class: 'see-also', id: 'mmSee' }); $('src').after(box); }
+    const uses = k => k.sources.some(s => s.type === 'bars' && (s.indicator || s.ind) === st.ind);
+    const hits = CARDS.filter(k => uses(k) && (st.reg === 'world' || k.region === st.reg || k.region === 'world'));
+    const chip = (h, t) => '<a class="chip" href="' + h + '">' + A.esc(t) + '</a>';
+    const links = hits.map(k => chip('cards.html#' + k.id, A.t({ en: 'Card: ', ko: '카드: ' }) + A.t(k.title))).join('') +
+      (st.reg !== 'world' ? chip('explore.html#r-' + st.reg, A.t({ en: 'This region on the explore map', ko: '지도 탐험에서 이 지역 보기' })) : '');
+    box.innerHTML = links ? '<h3 class="small">' + A.esc(A.t({ en: 'See together', ko: '함께 보기' })) + '</h3><div class="chips">' + links + '</div>' : '';
   }
   let byF = new Map();
 
@@ -155,5 +169,6 @@
   Promise.all([A.world('110m'), A.loadCountries()]).then(([w, cs]) => {
     world = w; S = cs.stats;
     all();
+    A.json('data/cards.json').then(cj => { CARDS = cj.cards || cj; seeAlso(); }).catch(() => {});
   }).catch(e => { $('mtitle').textContent = String(e); });
 })();
