@@ -33,6 +33,7 @@
       if (p.startsWith('t-')) st.theme = p.slice(2) || null;
       if (p.startsWith('v-')) st.view = p.slice(2) || 'oceania';
       if (p.startsWith('f-')) st.feat = p.slice(2) || null;
+      if (p === 'q') wantQuiz = true;
     });
     if (st.feat && phys.length) {
       const f = phys.find(x => x.id === st.feat);
@@ -301,9 +302,18 @@
 
   // Find-it practice: a name is shown, the labels are hidden, the learner taps the map.
   function startQuiz() {
-    const pool = d3.shuffle(placesHere().filter(f => !f.area));  // label-only seas and areas have no shape to tap
+    // Oceania and the poles: take questions from all three views and switch the view for each question.
+    const base = st.region === 'oceania_polar' ? phys.filter(f => f.region === st.region) : placesHere();
+    const pool = d3.shuffle(base.filter(f => !f.area));  // label-only seas and areas have no shape to tap
     quiz = { items: pool.slice(0, Math.min(10, pool.length)), i: 0, right: 0, answered: false };
-    st.feat = null; update();
+    st.places = true; st.feat = null; quizView(); update();
+  }
+  function quizView() {
+    const t = quiz && quiz.items[quiz.i];
+    if (!t || st.region !== 'oceania_polar') return false;
+    const v = viewOfFeature(t);
+    if (v === st.view) return false;
+    st.view = v; return true;
   }
   function hitIds(ev) {
     const ids = new Set();
@@ -336,7 +346,7 @@
         '<button type="button" class="btn" id="quizNext">' + A.esc(A.t({ en: 'Next', ko: '다음' })) + '</button>'
         : '<p class="small muted">' + A.esc(A.t({ en: 'Tap the map where you think it is.', ko: '있다고 생각하는 곳을 지도에서 누르세요.' })) + '</p>') +
       ' <button type="button" class="btn" id="quizStop">' + A.esc(A.t({ en: 'Stop', ko: '그만하기' })) + '</button></div>';
-    const nx = $('quizNext'); if (nx) nx.addEventListener('click', () => { q.i++; q.answered = false; st.feat = null; m.g.selectAll('.phys .ph').classed('sel', false); quizPanel(); });
+    const nx = $('quizNext'); if (nx) nx.addEventListener('click', () => { q.i++; q.answered = false; st.feat = null; if (quizView()) { update(); return; } m.g.selectAll('.phys .ph').classed('sel', false); quizPanel(); });
     $('quizStop').addEventListener('click', () => { quiz = null; st.feat = null; update(); });
   }
   // During practice a tap anywhere on the map (not only on a place) is an answer.
@@ -348,7 +358,10 @@
   $('pinsOn').addEventListener('change', e => { st.pins = e.target.checked; update(); });
   $('placesOn').addEventListener('change', e => { st.places = e.target.checked; if (!st.places) { st.feat = null; quiz = null; } update(); });
   $('viewSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { st.view = b.dataset.v; st.feat = null; quiz = null; update(); } });
-  window.addEventListener('hashchange', () => { parseHash(); update(true); });
+  // "#r-asia/q" opens the find-it practice directly (used by the home page paths).
+  let wantQuiz = false;
+  function maybeQuiz() { if (wantQuiz && st.region && phys.length) { wantQuiz = false; startQuiz(); } else wantQuiz = false; }
+  window.addEventListener('hashchange', () => { parseHash(); update(true); maybeQuiz(); });
   A.onLang(() => update());
 
   Promise.all([A.world('110m'), A.loadCountries(), A.json('data/cities.json'), A.json('data/cards.json').catch(() => ({ cards: [] })), A.json('data/physical.json').catch(() => ({ features: [] }))])
@@ -356,6 +369,7 @@
       world = w; window.__S = cs.stats; window.__C = cs.countries; cities = cd.cities; cards = cj.cards || cj; phys = ph.features || [];
       parseHash();
       update(true);
+      maybeQuiz();
     })
     .catch(e => { $('bigq').textContent = String(e); });
 })();
